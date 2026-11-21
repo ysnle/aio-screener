@@ -382,14 +382,14 @@
       "id": "co-nvda-quarter", "tasks": ["company"], "situations": ["earnings"], "screen": "#ticker?sym=NVDA",
       "question": "엔비디아 최근 분기 실적 어땠어? 매출 성장률은?",
       "expect": "answer",
-      "checks": { "figures": [{ "resolver": "screener.field:NVDA.revGrowth", "tolerance": { "abs": 1 } }], "mustMention": [["분기"]] },
-      "manual": "성장률의 기준 기간(최근 4개 분기, 마지막 분기 말일)을 밝히고, 실적이 주가 흐름과 어떻게 연결되는지 말하는가"
+      "checks": { "mustMention": [["분기"], ["전년", "YoY", "성장"]] },
+      "manual": "최근 분기의 매출과 전년 동기 대비 성장률을 회사 발표 기준(분기 말일, 발표일)으로 말하고, 화면의 최근 4개 분기 성장률과 기준이 다르면 그 차이를 밝히는가"
     },
     {
       "id": "co-earnings-week", "tasks": ["company"], "situations": ["earnings"], "screen": "#home",
       "question": "다음 주에 실적 발표하는 큰 회사 뭐 있어?",
       "expect": "answer",
-      "checks": { "mustMention": [["실적"], ["월", "일"]] },
+      "checks": { "mustMention": [["실적", "발표"], ["월", "일"]] },
       "manual": "발표 날짜와 장 전·장 후를 실적 일정 자료대로 말하고, 일정에 없는 회사를 지어내지 않는가"
     },
     {

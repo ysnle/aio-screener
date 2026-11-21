@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.41';
+const APP_VERSION = 'v60.42';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -2758,7 +2758,7 @@ window.AIO = window.AIO || {};
 // shipped to users; it loads on demand for automated browsers, ?qa=1 / detailed audit mode, the
 // operator self-diagnosis widget and AIO.loadTests().
 // v57.78: test/QA-only callables with no production caller (getApiUsage, getAutonomousLoopAudit, evaluateAIRetrievalQuality,
-// getWebSearchAudit, getChatHallucinationAudit, getInlineThresholdTableAudit, assertChatAnswerStructureAudit, getChatSourceRegistryAudit,
+// getWebSearchAudit, getChatHallucinationAudit, getInlineThresholdTableAudit, assertChatAnswerStructureAudit,
 // _aioBuildSparklineSvg, getCurrentMarketRegime, runEvidenceDeploymentGate) live in js/aio-qa-audits.js and exist only after loadQaAudits().
 window.AIO.loadQaAudits = function() {
   if (window.__aioQaAuditsLoaded) return Promise.resolve(true);
@@ -6834,98 +6834,6 @@ window.AIO_ANALYSIS_FRAMEWORK_REGISTRY = {
 // retired with the surface it audited.
 
 // ─────────────────────────────────────────────────────────────────
-// v49.73 P392 R140~R142: assertChatAnswerQualityAudit — 답변 품질 3축 자동 진단
-// 사용자 정직 요구 "현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현" 3 카테고리 검증
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertChatAnswerQualityAudit = function() {
-  var ctxs = window.CHAT_CONTEXTS || {};
-  // v49.74 P393 R143: kr-supply(P725/P1671)·kr-tech(P1758)·kr-macro/kr-themes(v57.54) 퇴역 — KR 섹션은 macro/themes가 답한다.
-  var ctxIds = ['home','technical','macro','sentiment','breadth','fundamental','portfolio'];
-  // A. 현재성 (Freshness) — 세션 시각 헤더 + 동적 마커 헬퍼 + 정적 stale 토큰 0건
-  var staleTokenRe = /tail_risk_snapshot_\d{4}|FOMC\s*의사록\(2026\.04\)|2025\.4 선례|2026\.3-4 랠리/;
-  var freshnessCheck = ctxIds.map(function(id) {
-    var ctx = ctxs[id];
-    if (!ctx || typeof ctx.system !== 'function') return { id: id, hasContext: false, staleTokens: 0, hasSessionHeader: false };
-    var src = ctx.system.toString();
-    var sysOut = '';
-    try { sysOut = ctx.system() || ''; } catch(_) {}
-    return {
-      id: id,
-      hasContext: true,
-      staleTokens: ((sysOut.match(new RegExp(staleTokenRe.source, 'g')) || []).length),
-      hasSessionHeader: (sysOut.indexOf('【세션 시각:') >= 0) || (src.indexOf('_getChatRules') >= 0),  // _getChatRules가 헤더 주입
-      sysOutLength: sysOut.length
-    };
-  });
-  var hasSessionFn = typeof window._aioSessionContextHeader === 'function';
-  var hasRelativeFn = typeof window._aioRelativeDate === 'function';
-  var staleCount = freshnessCheck.reduce(function(a, c){ return a + (c.staleTokens || 0); }, 0);
-  var sessionHdrCount = freshnessCheck.filter(function(c){ return c.hasSessionHeader; }).length;
-  // v49.74 P393 R143: 분모는 평가 컨텍스트 수(ctxIds.length)
-  var freshnessScore = Math.round(
-    (hasSessionFn ? 25 : 0) +
-    (hasRelativeFn ? 15 : 0) +
-    Math.min(35, (sessionHdrCount / ctxIds.length) * 35) +
-    (staleCount === 0 ? 25 : Math.max(0, 25 - staleCount * 5))
-  );
-  // B. 정확성 (Accuracy) — fetched/source 라벨 키워드 + _aioFetchLabel 헬퍼 + 출처 헤더
-  var chatSrc = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
-  var fetchedKwHits = (chatSrc.match(/fetched/g) || []).length;
-  var sourceKwHits = (chatSrc.match(/source\s+(data\.sec|en\.wikipedia|Finnhub|FMP|Yahoo|Stooq|Naver)/g) || []).length;
-  var hasFetchLabelFn = typeof window._aioFetchLabel === 'function';
-  var hasBlockHeader = chatSrc.indexOf('일괄 fetched') >= 0;
-  var accuracyScore = Math.round(
-    (hasFetchLabelFn ? 25 : 0) +
-    (hasBlockHeader ? 20 : 0) +
-    Math.min(30, (fetchedKwHits / 8) * 30) +
-    Math.min(25, (sourceKwHits / 5) * 25)
-  );
-  // C. 직관성 (Intuitiveness) — ABSOLUTE RULES 14~16조 + home 컨텍스트 + 표준 답변 구조
-  var rulesText = '';
-  try { rulesText = (typeof window._getChatRules === 'function') ? window._getChatRules() : ''; } catch(_) {}
-  var hasRule14 = rulesText.indexOf('14조') >= 0 && rulesText.indexOf('정성 표현') >= 0 && rulesText.indexOf('정량 근거') >= 0;
-  var hasRule15 = rulesText.indexOf('15조') >= 0 && rulesText.indexOf('표준 답변 구조') >= 0;
-  var hasRule16 = rulesText.indexOf('16조') >= 0 && rulesText.indexOf('출처') >= 0 && rulesText.indexOf('기준일') >= 0;
-  var hasHomeCtx = !!ctxs['home'] && typeof ctxs['home'].system === 'function';
-  var intuitivenessScore = Math.round(
-    (hasRule14 ? 20 : 0) +
-    (hasRule15 ? 20 : 0) +
-    (hasRule16 ? 20 : 0) +
-    (hasHomeCtx ? 40 : 0)
-  );
-  // 종합
-  var overall = Math.round((freshnessScore + accuracyScore + intuitivenessScore) / 3);
-  return {
-    status: overall >= 85 ? 'ok' : overall >= 60 ? 'warn' : 'fail',
-    overallScore: overall,
-    freshness: {
-      score: freshnessScore,
-      hasSessionFn: hasSessionFn,
-      hasRelativeFn: hasRelativeFn,
-      sessionHeaderCount: sessionHdrCount,
-      staleTokens: staleCount
-    },
-    accuracy: {
-      score: accuracyScore,
-      hasFetchLabelFn: hasFetchLabelFn,
-      hasBlockHeader: hasBlockHeader,
-      fetchedKeywordHits: fetchedKwHits,
-      sourceKeywordHits: sourceKwHits
-    },
-    intuitiveness: {
-      score: intuitivenessScore,
-      rule14_qualityToQuant: hasRule14,
-      rule15_standardStructure: hasRule15,
-      rule16_sourceCitation: hasRule16,
-      hasHomeContext: hasHomeCtx
-    },
-    perPageDetail: freshnessCheck,
-    note: 'v49.73 R140~R142: 답변 품질 3축 — 현재성/정확성/직관성. 사용자 정직 요구 "현재 시장/기업 상황 반영, 정확하고 최신 데이터, 직관적 표현" 자동 진단.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
 // v49.76 P408: AIO.diagnose() — 사용자 콘솔 1줄 통합 진단 (시세/채팅/audit 모두)
 // 사용자 좌절 발견 — 콘솔 명령 5개 입력해야 진단 가능. 1줄로 압축.
 // ─────────────────────────────────────────────────────────────────
@@ -6941,38 +6849,28 @@ window.AIO.diagnose = async function(ticker) {
     var quote = await window.dynamicTickerLookup(ticker);
     report.quote = { result: quote, durationMs: Date.now() - t0 };
     report.quoteDiag = window._aioTickerLookupDiag && window._aioTickerLookupDiag[ticker];
-    console.log('[1/6] 시세 fetch:', quote ? '✓ price=' + quote.price + ' source=' + quote.source : '✗ FAILED');
-  } catch(e) { report.quote = { error: String(e) }; console.error('[1/6] 시세 fetch 오류:', e); }
+    console.log('[1/4] 시세 fetch:', quote ? '✓ price=' + quote.price + ' source=' + quote.source : '✗ FAILED');
+  } catch(e) { report.quote = { error: String(e) }; console.error('[1/4] 시세 fetch 오류:', e); }
   // 2. _liveData 상태
   report.liveData = {
     keysCount: Object.keys(window._liveData || {}).length,
     sample: window._liveData && window._liveData[ticker],
     nvdaInLive: !!(window._liveData && window._liveData[ticker])
   };
-  console.log('[2/6] _liveData[' + ticker + ']:', report.liveData.sample || '✗ 없음 (전체 ' + report.liveData.keysCount + '개)');
+  console.log('[2/4] _liveData[' + ticker + ']:', report.liveData.sample || '✗ 없음 (전체 ' + report.liveData.keysCount + '개)');
   // 3. assertTickerFetchHealth
   try {
     report.tickerHealth = window.AIO.assertTickerFetchHealth && window.AIO.assertTickerFetchHealth();
-    console.log('[3/6] 시세 fetch 건강도:', report.tickerHealth ? report.tickerHealth.note : 'N/A');
+    console.log('[3/4] 시세 fetch 건강도:', report.tickerHealth ? report.tickerHealth.note : 'N/A');
   } catch(e) { report.tickerHealth = { error: String(e) }; }
   // 4. assertChatPanelDomAudit
   try {
     report.chatPanelDom = window.AIO.assertChatPanelDomAudit && window.AIO.assertChatPanelDomAudit();
     if (report.chatPanelDom) {
-      console.log('[4/6] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK, 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
+      console.log('[4/4] CHAT_CONTEXTS DOM 매트릭스: ' + report.chatPanelDom.fullOkCount + '/' + report.chatPanelDom.totalContexts + ' OK, 누락 ' + report.chatPanelDom.contextOnlyCount + '건');
       if (report.chatPanelDom.contextOnlyList.length > 0) console.log('     → 누락 ctxId:', report.chatPanelDom.contextOnlyList.join(', '));
     }
   } catch(e) { report.chatPanelDom = { error: String(e) }; }
-  // 5. assertChatFunctionCoverage
-  try {
-    report.chatFnCoverage = window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-    console.log('[5/6] 채팅 함수 통합: dead=' + (report.chatFnCoverage ? report.chatFnCoverage.deadCodeCount : '?') + ', 통합 ' + (report.chatFnCoverage ? report.chatFnCoverage.integrationPct + '%' : '?'));
-  } catch(e) { report.chatFnCoverage = { error: String(e) }; }
-  // 6. assertChatAnswerQualityAudit
-  try {
-    report.answerQuality = window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
-    console.log('[6/6] 답변 품질: 종합 ' + (report.answerQuality ? report.answerQuality.overallScore + '점' : '?'));
-  } catch(e) { report.answerQuality = { error: String(e) }; }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('[AIO diagnose] 완료. 상세 결과: report 변수 또는 콘솔 위 로그 확인');
   report.finishedAt = new Date().toISOString();
@@ -7013,7 +6911,7 @@ window.AIO.assertChatPanelDomAudit = function() {
   );
   var details = ctxIds.map(function(id) {
     var ctx = ctxs[id];
-    var hasContext = !!(ctx && typeof ctx.system === 'function');
+    var hasContext = !!ctx;
     var panelEl = document.getElementById('chat-' + id);
     var msgsEl  = document.getElementById('chat-' + id + '-msgs');
     var inpEl   = document.getElementById('chat-' + id + '-inp');
@@ -7092,103 +6990,14 @@ window.AIO.assertTickerFetchHealth = function() {
     byCategory[c].coveragePct = byCategory[c].total > 0 ? Math.round(byCategory[c].live / byCategory[c].total * 100) : 0;
   });
   var overallPct = totalAll > 0 ? Math.round(totalLive / totalAll * 100) : 0;
-  // _chatTickerCache hit rate
-  var ccStats = (window.AIO && window.AIO.getChatTickerCacheStats) ? window.AIO.getChatTickerCacheStats() : null;
   return {
     status: overallPct >= 30 ? 'ok' : overallPct >= 15 ? 'warn' : 'low',
     totalRegistry: totalAll,
     liveDataHit: totalLive,
     overallCoveragePct: overallPct,
     byCategory: byCategory,
-    chatTickerCache: ccStats,
     fallbackChain: 'Yahoo (3 proxies) → Naver (KR) → Finnhub (US/ADR)',
     note: 'overallCoveragePct는 REGISTRY ' + totalAll + '개 중 _liveData 캐시 hit 종목 비율. 30% 이상 정상 (메가캡+테마 우선 로드 보장). KR ticker는 Naver siseJson 폴백 필수 — coverage 낮으면 fetchWithTimeout 점검. 카테고리별 missing 5개 샘플은 사용자가 직접 fetch 시도해 폴백 체인 확인 가능.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
-// v49.66 P351 R121: assertChatFunctionCoverage — Dead code/Partial Integration/Silent Fail 자동 회귀 방지
-// AI 채팅 시스템에 정의된 fetch/compute 함수가 실제로 _fetchTickerDataForChat에 통합되었는지
-// + 14 CHAT_CONTEXTS가 _getV48IntegratedContext 호출했는지 + _chatTickerCache save 로직 존재 자동 검증
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertChatFunctionCoverage = function() {
-  // 1. window.AIO.fetch* / compute* 함수 목록 (채팅 통합 후보)
-  var chatRelevantFns = Object.keys(window.AIO || {}).filter(function(k) {
-    return /^(fetch|compute)[A-Z]/.test(k);
-  });
-  // 2. _fetchTickerDataForChat 소스에서 호출 검색
-  var chatSrc = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
-  // 알려진 deprecated/내부전용 — false positive 차단
-  var knownExempt = {
-    'fetchWithTimeout': true,         // 일반 fetch util
-    'fetchAllNews': true,             // briefing 페이지 전용
-    'fetchFearGreed': true,           // F&G 별도 fetch (CNN)
-    'fetchNaverNews': true,           // 뉴스 별도
-    'fetchTopAnalystEstimates': true, // 별도 표
-    'fetchFRED': true,                // macro 별도
-    'fetchFMPProfile': true,          // 내부 helper
-    'fetchFMPRatios': true,           // 내부 helper
-    'fetchFMPCashflow': true,         // 내부 helper
-    'fetchFMPBalance': true,          // 내부 helper
-    'fetchFMPIncome': true,           // 내부 helper
-    'fetchFMPGrowth': true,           // 내부 helper
-    'fetchFMPDCF': true,              // 내부 helper
-    'fetchFMPPriceTarget': true,      // 내부 helper
-    'fetchFMPInstitutional': true,    // 내부 helper
-    'fetchFMPInsiderTrades': true,    // 내부 helper
-    'fetchFMPRevGeo': true,           // 내부 helper
-    'fetchFMPEstimates': true,        // 내부 helper
-    'fetchFMPExecutives': true,       // 내부 helper
-    'fetchFMPMetrics': true,          // 내부 helper
-    'fetchNaverUSData': true,                // 이미 _fetchTickerDataForChat에 직접 호출
-    'fetchPolygonOptions': true,             // options 페이지 전용
-    'computeMarketState': true              // 전역 시장 두뇌: 채팅 시장 헤더가 캐시된 marketState를 소비
-  };
-  var deadCode = chatRelevantFns.filter(function(fn) {
-    if (knownExempt[fn]) return false;
-    // _fetchTickerDataForChat에 'AIO.fn(' 또는 'window.AIO.fn(' 패턴 검색
-    var pattern1 = new RegExp('AIO\\.' + fn + '\\(');
-    var pattern2 = new RegExp('window\\.AIO\\.' + fn + '\\(');
-    return !pattern1.test(chatSrc) && !pattern2.test(chatSrc);
-  });
-  // 3. CHAT_CONTEXTS 14개 _getV48IntegratedContext 호출 검증
-  var ctxIds = window.CHAT_CONTEXTS ? Object.keys(window.CHAT_CONTEXTS) : [];
-  var partialContexts = ctxIds.filter(function(id) {
-    var ctx = window.CHAT_CONTEXTS[id];
-    if (!ctx || typeof ctx.system !== 'function') return false;
-    var src = '';
-    try { src = ctx.system.toString(); } catch(_) {}
-    var rendered = '';
-    try { rendered = String(ctx.system() || ''); } catch(_) {}
-    var scan = src + '\n' + rendered;
-    return scan.indexOf('_getV48IntegratedContext') < 0 && !/Bridgewater|Druckenmiller|기관급 분석 프레임워크|All Weather|Bull.*Base.*Bear/i.test(scan);
-  });
-  // 4. silent fail 검증 — _chatTickerCache save 로직 존재 + LRU eviction
-  var hasCacheSave = chatSrc.indexOf('_chatTickerCache[t]') >= 0 || chatSrc.indexOf('_chatTickerCache[ t ]') >= 0;
-  var hasCacheLoad = chatSrc.indexOf('_chatTickerCache[_ct]') >= 0 || chatSrc.indexOf('cacheMissTickers') >= 0;
-  var hasLRU = chatSrc.indexOf('_CC_MAX') >= 0 || chatSrc.indexOf('evictions') >= 0;
-  var cacheImplemented = hasCacheSave && hasCacheLoad && hasLRU;
-  // 5. 정합 비율 계산
-  var integrated = chatRelevantFns.length - deadCode.length;
-  var integrationPct = chatRelevantFns.length > 0 ? Math.round(integrated / chatRelevantFns.length * 100) : 100;
-  var ctxIntegrated = ctxIds.length - partialContexts.length;
-  var ctxIntegrationPct = ctxIds.length > 0 ? Math.round(ctxIntegrated / ctxIds.length * 100) : 100;
-  return {
-    status: (deadCode.length === 0 && partialContexts.length === 0 && cacheImplemented) ? 'ok' : 'warn',
-    chatRelevantFnCount: chatRelevantFns.length,
-    integratedFnCount: integrated,
-    deadCode: deadCode,
-    deadCodeCount: deadCode.length,
-    integrationPct: integrationPct,
-    contextTotal: ctxIds.length,
-    contextIntegrated: ctxIntegrated,
-    partialContexts: partialContexts,
-    partialContextCount: partialContexts.length,
-    contextIntegrationPct: ctxIntegrationPct,
-    cacheImplemented: cacheImplemented,
-    cacheChecks: { save: hasCacheSave, load: hasCacheLoad, lru: hasLRU },
-    note: 'Dead code 0건 + Partial 0건 + Cache 구현 = ok. 알려진 내부/페이지 전용 함수는 knownExempt로 false positive 차단.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -8641,7 +8450,7 @@ window.AIO.getRuntimeContractAudit = function() {
 
   requireFn('_aioCreateVisualReport', 'AI visual report');
   requireFn('_aioDownloadVisualReport', 'AI visual report');
-  requireFn('_getImportedResearchContext', 'AI imported research');
+  requireAioFn('buildAIRetrievalContext', 'AI imported research');
   requireAioFn('applyUserResearchDigestPayload', 'research digest');
   requireAioFn('loadUserResearchDigest', 'research digest');
   requireAioFn('getUserResearchPipelineAudit', 'research digest');
@@ -8973,8 +8782,6 @@ function _aioLeafTextNodes(root) {
 
 // v59.70 P2: window.AIO.getCriticalKrPageFreshnessAudit moved to js/aio-qa-audits.js (QA-only callers).
 
-// v59.70 P2: window.AIO.getChatContextFreshnessAudit moved to js/aio-qa-audits.js (QA-only callers).
-
 // v59.42: the AI question keyword cues live in src/ai/intent/question-cues.js (window._aioQuestionCues, loaded with
 // the AI panel by src/app/chat-loader.js); English cues match whole words there ('now' no longer hits "know", 'rate' no longer hits "corporate").
 function _aioQuestionCue(name, text) {
@@ -9021,7 +8828,7 @@ window.AIO.PAGE_DEEP_AUDIT_SYSTEMS = {
   signal: ['getFullSurfaceAudit', 'getCrossPageIndicatorConsistencyAudit', 'getCellLevelDataAudit'],
   breadth: ['getFullSurfaceAudit', 'getCrossPageIndicatorConsistencyAudit', 'getLiveSymbolsCoverageAudit'],
   sentiment: ['getFullSurfaceAudit', 'getMarketCurrentnessAudit', 'getDataFreshnessAudit'],
-  briefing: ['getFullSurfaceAudit', 'getChatContextFreshnessAudit', 'getStaticContentLifecycleAudit'],
+  briefing: ['getFullSurfaceAudit', 'getStaticContentLifecycleAudit'],
   technical: ['getFullSurfaceAudit', 'getCellLevelDataAudit', 'getThresholdLabelAudit', 'getCriticalKrPageFreshnessAudit'],
   macro: ['getMacroReleaseStaleAudit', 'getSnapshotDateSourceAudit', 'getDataFreshnessAudit', 'getKrMacroReleaseAudit'],
   fxbond: ['getMacroReleaseStaleAudit', 'getSnapshotConsistencyAudit', 'getDataFreshnessAudit'],
@@ -10713,7 +10520,6 @@ window.evaluateMetric = evaluateMetric;
 // blow-off checklist, semi/AI-infra heat, exit plan) were removed with their exports.
 window.AIO_EVENT_RISK_CONTEXT = AIO_EVENT_RISK_CONTEXT;
 window.AIO_TACTICAL_TRADER_FRAMEWORK = AIO_TACTICAL_TRADER_FRAMEWORK;
-window.AIO.getTacticalTraderFramework = function() { return AIO_TACTICAL_TRADER_FRAMEWORK; };
 window.calcDataQuality = calcDataQuality;
 
 window.AIO.version = APP_VERSION;

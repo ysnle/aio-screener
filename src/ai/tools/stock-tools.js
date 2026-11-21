@@ -116,9 +116,23 @@ const companyStory = {
   }
 };
 
+// The next scheduled earnings release within 60 days ('' when the calendar has none or cannot be read).
+async function nextEarningsLine(root, sym, now) {
+  try {
+    const from = new Date(now).toISOString().slice(0, 10);
+    const to = new Date(now + 60 * 86400000).toISOString().slice(0, 10);
+    const next = (await root?.AIO?.readPublicEarnings?.(sym, from, to))?.[0];
+    if (!next?.date) return '';
+    const hour = { bmo: '장 시작 전', amc: '장 마감 후', dmh: '장중' }[next.hour] || '시간 미정';
+    const estimate = readNumber(next.epsEstimate);
+    const eps = estimate == null ? '' : `, 예상 EPS $${estimate.toFixed(2)}`;
+    return `${sym} 다음 실적 발표 예정: ${next.date} ${hour}${eps} (일정은 바뀔 수 있음)`;
+  } catch (_) { return ''; }
+}
+
 const consensus = {
   name: 'consensus',
-  description: '미국 상장 종목의 애널리스트 컨센서스(향후 4개 분기 예상 EPS, Forward PER, 최근 4주 추정치 변경)를 종목 화면과 같은 글로 돌려준다.',
+  description: '미국 상장 종목의 애널리스트 컨센서스(향후 4개 분기 예상 EPS, Forward PER, 최근 4주 추정치 변경)와 다음 실적 발표 예정일을 돌려준다.',
   parameters: objectSchema({ symbol: SYMBOL }),
   label: (args, root) => `${symbolLabel(root, resolveToolSymbol(root, args?.symbol) || args?.symbol)} 시장 예상치`,
   async run({ symbol }, { root, now }) {
@@ -127,8 +141,11 @@ const consensus = {
     if (isKrSymbol(sym)) return { error: `${sym}: 컨센서스 자료는 미국 상장 종목에만 있습니다.` };
     if (!root?.[CONSENSUS_KEY]) await requestConsensusEstimates(root);
     const point = buildConsensusPoint(screenRowFor(root, sym)?.row || null, consensusRowFor(root, sym), { now });
-    if (!point?.text || !day(point.asOf)) return { error: `${sym}의 현재 컨센서스 자료가 없습니다(수집되지 않았거나 오래됨).` };
-    return { text: `${sym} ${point.title}: ${point.text}`, asOf: `예상치 수집 ${day(point.asOf)}`, entities: [sym] };
+    const earnings = await nextEarningsLine(root, sym, now);
+    const hasPoint = !!(point?.text && day(point.asOf));
+    if (!hasPoint && !earnings) return { error: `${sym}의 현재 컨센서스 자료가 없습니다(수집되지 않았거나 오래됨).` };
+    const text = [hasPoint ? `${sym} ${point.title}: ${point.text}` : '', earnings].filter(Boolean).join('\n');
+    return { text, asOf: hasPoint ? `예상치 수집 ${day(point.asOf)}` : `${new Date(now).toISOString().slice(0, 10)} 조회한 실적 일정`, entities: [sym] };
   }
 };
 

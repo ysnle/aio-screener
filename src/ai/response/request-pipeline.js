@@ -403,14 +403,25 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var sessionEvidence = questionPlan && questionPlan.sessionEvidence;
     var publishedClaims = publishablePlan.plan ? publishablePlan.plan.claims.claims : [];
     var sessionReady = !!(sessionEvidence && sessionEvidence.verified === true && sessionEvidence.observedAt && /^(open|closed|pre|post)$/.test(sessionEvidence.status));
+    // What the publication filters did to the prose figures; null only when the publication module was unavailable.
+    var removedFigures = filterCounts && Number.isFinite(filterCounts.removedNumericSentences) ? filterCounts.removedNumericSentences : null;
+    // A current figure still in the published text passed the filters. With no searched figure among them, each is in
+    // this request's app data or tool results with its date, so the answer is not a general explanation. (Searched
+    // figures keep the line that says they are not AIO's.)
+    var keptFigures = currentSensitive && removedFigures !== null && !(filterCounts.searchedSentences > 0) && _aioHasCurrentNumericContent(visible);
     // v57.48 #7: completed closes do not depend on the live session, so an answer whose values all bind to close-basis rows needs no session notice.
-    // nor do the official macro releases (source 'macro-release': a month's CPI does not change with the session).
-    if (!isPartialStream && currentSensitive && !sessionReady && !(publishedClaims.length && publishedClaims.every(function(claim) { return claim.source === 'close-basis' || claim.source === 'macro-release'; }))) {
+    // nor do the official macro releases (source 'macro-release': a month's CPI does not change with the session),
+    // nor an answer whose prose figures all passed the filters with none removed.
+    var datedClaims = publishedClaims.every(function(claim) { return claim.source === 'close-basis' || claim.source === 'macro-release'; });
+    var figuresDated = datedClaims && (publishedClaims.length > 0 || (keptFigures && removedFigures === 0));
+    if (!isPartialStream && currentSensitive && !sessionReady && !figuresDated) {
       applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
     }
     if (!isPartialStream && publishablePlan.droppedClaims.length) applyLimitation('answer-plan-claim-degraded', '출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');
-    // The notice follows what the filters did: a current figure that was written and removed, or a plan that did not validate.
-    if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && (answerPlanAudit.status !== 'valid' || (filterCounts && filterCounts.removedNumericSentences > 0))) {
+    // The notice follows what the filters did: a current figure that was written and removed. A plan that did not validate
+    // because its prose figures carry no typed claim (every text-first answer) says nothing about those figures: the
+    // filters checked each one. Only without filter counts does an invalid plan stand for "unverified".
+    if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && (removedFigures !== null ? removedFigures > 0 : answerPlanAudit.status !== 'valid')) {
       applyLimitation('current-numeric-claim-unverified', '최신 수치의 근거를 확인하지 못했습니다. 숫자를 활용하기 전에 관측 시각과 원문을 확인하세요.');
     } else if (!isPartialStream && gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' && /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
       limitationNotes.push('이 답변의 수치는 자동 검증되지 않았습니다. 관측 시각과 원문을 직접 확인하세요.');

@@ -120,6 +120,7 @@ function snapshot(baseline) {
   return {
     loading: loading ? loading.innerText.trim() : null,
     streaming: !!document.getElementById('ai-panel-streaming'),
+    previewChars: (document.getElementById('ai-panel-streaming')?.innerText || '').trim().length,
     busy: !!btn?.disabled,
     msgs: msgs.map((m) => {
       const bubble = m.querySelector('.ai-bubble');
@@ -154,7 +155,7 @@ async function askTurn(page, question, timeoutMs, state) {
     if (snap.loading != null) { if (firstStatusMs == null) firstStatusMs = Date.now() - started; snap.loading.split('\n').forEach((line) => note(line.trim())); }
     snap.msgs.filter((m) => m.role === 'ai' && m.status).forEach((m) => note(m.text));
     const answers = snap.msgs.filter((m) => m.role === 'ai' && !m.id && !m.status && m.text);
-    if (answers.length && firstTextMs == null) firstTextMs = Date.now() - started;
+    if ((answers.length || snap.previewChars > 0) && firstTextMs == null) firstTextMs = Date.now() - started; // the streamed preview is the first text a reader sees
     if (answers.some((m) => /AI 사용 한도에 도달/.test(m.text))) state.rateLimited = true;
     if (answers.length && snap.loading == null && !snap.streaming && !snap.busy && Date.now() - started > 1000) break;
     if (state.rateLimited && !snap.busy) break;

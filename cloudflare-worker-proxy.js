@@ -1007,7 +1007,7 @@ export class AIOQuotaDurableObject {
         const cap = quotaInteger(body.cap, 300);
         const isAi = dayKey.startsWith('claude:');
         const monthKey = dayKey.slice(7, 14);
-        let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0, waiverKey = null;
+        let amount = body.reservationMicroUsd, budgetState = null, budgetSaverApplied = false, clientKey = null, clientCap = null, clientUsed = 0, waiverKey = null, dayWaived = false;
         const budgetTarget = isAi && aiBudgetIsTarget(this.env);
         if (isAi) {
           const day = dayKey.slice(7);
@@ -1025,6 +1025,13 @@ export class AIOQuotaDurableObject {
             const retryBase = /^client:(.+):retry[12]$/.exec(String(requestId))?.[1];
             const waived = this.counts.retryWaivers?.[dayKey]?.[clientKey] || 0;
             if (retryBase && this.counts.reservations[dayKey + ':client:' + retryBase]?.clientKey === clientKey && waived < quotaInteger(this.env?.AI_FREE_RETRIES_PER_DAY, AI_FREE_RETRIES_PER_DAY, 100)) { waiverKey = clientKey; clientKey = null; }
+            // A question that uses tools continues in more requests of the same id (js/aio-chat.js + src/ai/tools/loop.js
+            // keySuffix): <id>[:retry1|:retry2] then a tool round (:r1, :r2) or the one fallback without tools (:plain),
+            // then the one rewrite of an empty answer (:w1). When the same connection's counted original <id> exists
+            // today, these reserve money and the connection's spend as usual but count neither the connection's daily
+            // questions nor the day's question count. The suffix set is closed (21 keys per id), so it cannot multiply the cap.
+            const continuation = /^client:(.+?)(?::retry[12])?((?::r[12]|:plain)?(?::w1)?)$/.exec(String(requestId));
+            if (clientKey && continuation?.[2] && this.counts.reservations[dayKey + ':client:' + continuation[1]]?.clientKey === clientKey) { waiverKey = clientKey; clientKey = null; dayWaived = true; }
           }
           const monthlyReservedMicroUsd = this.counts.months[monthKey] || 0;
           const legacyUnknown = this.counts.legacyUnknownMonths[monthKey] === true;
@@ -1038,7 +1045,7 @@ export class AIOQuotaDurableObject {
             return;
           }
         }
-        if (count >= cap) {
+        if (!dayWaived && count >= cap) {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'daily-cap', budgetState };
           return;
         }
@@ -1069,17 +1076,17 @@ export class AIOQuotaDurableObject {
           result = { ok: false, reserved: false, duplicate: false, count, reason: 'client-daily-cap', budgetState, clientSpendLimited: true };
           return;
         }
-        this.counts.days[dayKey] = count + 1;
+        if (!dayWaived) this.counts.days[dayKey] = count + 1;
         if (isAi) {
           this.counts.months[monthKey] = (this.counts.months[monthKey] || 0) + amount;
-          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}), ...(spendKey ? { spendKey } : {}) };
+          this.counts.reservations[key] = { createdAt: Date.now(), dayKey, monthKey, reservationMicroUsd: amount, started: false, ...(clientKey ? { clientKey } : {}), ...(spendKey ? { spendKey } : {}), ...(dayWaived ? { dayWaived: true } : {}) };
           if (clientKey) (this.counts.clients[dayKey] ||= {})[clientKey] = clientUsed + 1;
           if (spendKey) ((this.counts.clientSpend ||= {})[dayKey] ||= {})[spendKey] = clientSpent + amount;
-          if (waiverKey) { const waivers = ((this.counts.retryWaivers ||= {})[dayKey] ||= {}); waivers[waiverKey] = (waivers[waiverKey] || 0) + 1; }
+          if (waiverKey && !dayWaived) { const waivers = ((this.counts.retryWaivers ||= {})[dayKey] ||= {}); waivers[waiverKey] = (waivers[waiverKey] || 0) + 1; }
           budgetState = aiBudgetState(this.counts.months[monthKey], body.monthlyCapMicroUsd, false);
         } else this.counts.reservations[key] = Date.now();
         await this.save();
-        result = { ok: true, reserved: true, duplicate: false, count: count + 1 };
+        result = { ok: true, reserved: true, duplicate: false, count: this.counts.days[dayKey] || 0 };
         if (isAi) {
           result.budgetState = budgetState;
           result.budgetSaverApplied = budgetSaverApplied;
@@ -1111,9 +1118,9 @@ export class AIOQuotaDurableObject {
           this.refundClientSpend(reservation, reservation.reservationMicroUsd);
         }
         delete this.counts.reservations[key];
-        this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
+        if (reservation?.dayWaived !== true) this.counts.days[dayKey] = Math.max(0, Number(this.counts.days[dayKey] || 0) - 1);
         await this.save();
-        result = { ok: true, released: true, idempotent: false, count: this.counts.days[dayKey] };
+        result = { ok: true, released: true, idempotent: false, count: this.counts.days[dayKey] || 0 };
         return;
       }
       if (operation === 'start') {

@@ -1,6 +1,6 @@
 // P1608: internal evidence first, one shared paid-search transport second. Search is offered, and the model decides per
-// question whether to use it (tool_choice 'auto'); it is forced only when the reader asked for it or a current question
-// is not covered by the injected data.
+// question whether to use it (tool_choice 'auto'); it is forced only when the reader asked for it, or when a turn
+// without the data tools asks a current question the injected data does not cover.
 import { evaluateResearchEvidenceFloor } from './evidence.js';
 
 /** The answer modes whose searched answer may read a medium search context (when research is REQUIRED). */
@@ -21,18 +21,19 @@ export function selectNativeSearch({ decision = {}, questionPlan, externalResult
 }
 
 /**
- * Whether the model must search before answering (tool_choice 'required'): the reader asked for a search in words, or
- * the question is current-sensitive (today's move, a recent event or release) and the injected data does not cover it.
- * Otherwise the model chooses.
+ * Whether the model must search before answering (tool_choice 'required'): the reader asked for a search in words; or,
+ * on a turn without the data tools, the question is current-sensitive (today's move, a recent event or release) and the
+ * injected data does not cover it. With the data tools the model reads the app's dated closes itself and chooses whether
+ * the web adds anything: a forced search after a tool had answered left responses with no text.
  */
-export function searchMustRun(decision = {}, { internalEvidenceReady = false } = {}) {
-  return decision.requestedByUser === true || (decision.currentSensitive === true && internalEvidenceReady !== true);
+export function searchMustRun(decision = {}, { internalEvidenceReady = false, tools = false } = {}) {
+  return decision.requestedByUser === true || (tools !== true && decision.currentSensitive === true && internalEvidenceReady !== true);
 }
 
 /** The search fields chatSendUnified passes to callSharedAi: forced or not, and the search context size. */
-export function nativeSearchOptions({ decision = {}, mode = null, internalEvidenceReady = false } = {}) {
+export function nativeSearchOptions({ decision = {}, mode = null, internalEvidenceReady = false, tools = false } = {}) {
   return {
-    mustSearch: searchMustRun(decision, { internalEvidenceReady }),
+    mustSearch: searchMustRun(decision, { internalEvidenceReady, tools }),
     searchContext: DEEP_SEARCH_MODES.includes(mode) && decision.requirement === 'REQUIRED' ? 'medium' : 'low'
   };
 }

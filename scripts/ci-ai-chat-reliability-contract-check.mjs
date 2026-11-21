@@ -52,7 +52,7 @@ check('Worker health is deduplicated and transient failures have a short cache',
 // v57.62: the dead per-page chatSend was retired, so these read the one remaining (unified) chat surface.
 check('v57.62 per-page chatSend retired (unified panel is the only chat surface)', !chat.includes('async function chatSend(') && chat.includes('async function chatSendUnified('));
 check('v57.62 research preparation is shared and cancellable in the chat surface', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));
-check('knowledge reference retrieval is shared through the existing orchestrator facade boundary', chat.includes('_uniKnowledgeOrchestrator.buildAIKnowledgeContext(q') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
+check('v60.42 knowledge reference retrieval is read by the reference tool through the orchestrator facade boundary', read('src/ai/tools/market-tools.js').includes('getAIOrchestrator?.()?.buildAIKnowledgeContext?.(ask') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
 check('research opt-out preserves non-current answer path', chat.includes("_uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;") && !/DISABLED_BY_USER'\)[^\n]{0,200}return;/.test(chat));
 check('required research always hands off to the shared Worker search (P1655)', chat.includes('nativeFallbackRequired: required && !decision.userOptOut'));
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
@@ -417,6 +417,13 @@ let sequence = null;
   const quiet = await scenario({ responses: [answer('앱 자료로 답합니다')], webSearch: true });
   assert.equal(quiet.requests.length, 1, 'v60.02 an answer without calls is one request'); assert.equal(quiet.done[0][1].searchCalls, 0, 'v60.02 an attached search the model did not run counts zero calls');
   assert.equal(searchStatusText({ attached: true, citationCount: 0, searchCalls: quiet.done[0][1].searchCalls }), '웹검색 없이 앱 자료와 일반 지식으로 답했습니다.', 'v60.02 an answer that neither searched nor called says not searched');
+  // v60.42 (live eval): one answer in ten ended with reasoning items only (incomplete, no text) and was published empty.
+  const cutEmpty = sse([{ type: 'response.incomplete', response: { status: 'incomplete', incomplete_details: { reason: 'max_messages' }, output: [{ type: 'reasoning' }], usage } }]);
+  const rewritten = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), cutEmpty, answer('다시 쓴 답입니다')] });
+  assert.equal(rewritten.requests.length, 3, 'v60.42 a response cut before any text is asked once more');
+  assert.deepEqual([rewritten.requests[2].reasoning.effort, rewritten.requests[2].tool_choice], ['low', 'none'], 'v60.42 the rewrite reasons briefly and calls no tool');
+  assert.equal(rewritten.done[0][0], '다시 쓴 답입니다', 'v60.42 the rewrite is the published answer');
+  assert.notEqual(rewritten.done[0][1].truncated, true, 'v60.42 a completed rewrite is not marked cut');
   const forced = await scenario({ responses: [asks([call('trend', { symbol: 'NVDA' }, 1)]), answer('강제 검색 뒤 답합니다')], webSearch: true, mustSearch: true });
   // v60.19 (external audit): a forced search satisfied by a data call alone kept the search owed; the follow-up was
   // 'auto' and the answer ended with no search. The follow-up now offers the search alone, still required.
@@ -603,8 +610,6 @@ assert(beginAt>=0 && clearAt>beginAt && executeAt>clearAt, 'v59.51 the send take
 assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) > quotaAwait && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwait) < unifiedChat.indexOf('state.messages.push(_uniUserMessage)', quotaAwait), 'v57.62 unified quota await rejects a cancelled epoch before the question joins the history');
 assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(unifiedChat));
 assert(/_withTimeout\(window\.AIO\.ensureFreshChatAnswerData\([\s\S]{0,260}\), 6500, 'chatFresh'/.test(unifiedChat) && /_withTimeout\(window\.AIO\.ensureFreshDataForUse\([\s\S]{0,260}\), 4500, 'freshness'/.test(unifiedChat), 'v57.62 unified freshness preflight is bounded (6.5s / 4.5s)');
-const tickerChat=section('async function _fetchTickerDataForChat(', 'function _detectDeepCompareIntent(');
-assert(tickerChat.includes('signal: opts.signal || null') && tickerChat.includes('_aioThrowIfChatAborted(opts.signal)'));
 assert(!source.includes('function _aioChatAbortPromise('));
 // v57.60: suggestion chips (KR theme buttons, follow-up chips) go through the unified AI panel; the retired per-page
 // #chat-<ctx>-inp lookup (P1653) only produced a missing-input toast.
@@ -612,7 +617,6 @@ assert(!source.includes('function _aioChatAbortPromise('));
   const chip = section('function chatFromChip(ctxId, q) {', 'function _aioWhenDomReady(fn)');
   assert(chip.includes("getElementById('ai-panel-inp')") && chip.includes('chatSendUnified()') && !chip.includes("'chat-' + ctxId + '-inp'") && !/\bchatSend\(ctxId/.test(chip), 'v57.60 chatFromChip routes to the unified AI panel');
 }
-assert(source.includes('function _aioCanonicalSuppliedMaterialsContext(') && source.includes('var canonicalRegistry = window.AIO && window.AIO.SUPPLIED_MATERIALS_REFERENCE;'));
 assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired; v59.70: the kr-market alias too
 // v59.70 (coverage audit S20): the AI panel's screen map follows the route registry. Every context, retrieval-map key and
 // move target is a registered route, every screen tab has a context (기술적 분석 and 대가 보유 종목 had none, so the
@@ -623,22 +627,17 @@ assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !sou
   const { ROUTE_HUBS } = await import(new URL('../src/ui/navigation/route-hubs.js', import.meta.url));
   const routes = new Set(ROUTE_IDS);
   const keysOf = (text) => [...text.matchAll(/(?:^|[{,\s])'?([a-z][a-z-]*)'?\s*:/g)].map((m) => m[1]);
-  const contexts = keysOf(section('const CHAT_CONTEXTS = {', '\n};'));
-  const retrieval = keysOf(section('    var map = {', '    };'));
-  const nav = section('function _autoNavigatePage(', 'function _aioRouteName(');
-  const targets = [...nav.matchAll(/page: (?:[^']*\? )?'([a-z-]+)'(?: : '([a-z-]+)')?/g)].flatMap((m) => m.slice(1).filter(Boolean));
-  const unknown = [...contexts, ...retrieval, ...targets].filter((key) => !routes.has(key));
-  assert(!unknown.length, `v59.70 AI panel names unregistered routes: ${[...new Set(unknown)].join(', ')}`);
+  // v60.42: each context is a title only ({ title: '...' }), so only the top-level keys are read.
+  const contexts = [...section('const CHAT_CONTEXTS = {', '\n};').matchAll(/^\s+'?([a-z][a-z-]*)'?\s*:\s*\{/gm)].map((m) => m[1]);
+  const unknown = contexts.filter((key) => !routes.has(key));
+  assert(contexts.length >= 8 && !unknown.length, `v59.70 AI panel names unregistered routes: ${[...new Set(unknown)].join(', ')}`);
   const tabs = ROUTE_HUBS.flatMap((hub) => hub.routes.filter((route) => route.tab !== false).map((route) => route.id));
   const missing = tabs.filter((id) => !contexts.includes(id));
   assert(!missing.length, `v59.70 screen tabs without an AI panel context: ${missing.join(', ')}`);
-  // Owner 2026-11-19: the 종목 › 차트 tab is retired — every 차트 question opens 기술적 분석, which holds the analysis slot.
-  assert(targets.includes('charts') && !targets.includes('technical'), 'v60.31 차트 questions reach 기술적 분석 (the retired 종목 › 차트 tab is no move target)');
-  assert(!/label:\s*'/.test(nav) && !/pushPage\('(?!관련 페이지: )/.test(source), 'v59.70 move labels and page hints come from the route registry (_aioRouteName)');
   for (const stale of ['거시와 금리', '매매 시그널', '퀀트 스크리너', '거시 경제']) assert(!new RegExp(`'[^'\\n]*${stale}[^'\\n]*'`).test(source), `v59.70 AI panel keeps a retired screen name in a string: ${stale}`);
 }
-assert(source.includes('function _aioWrapChatExternalContext(') && unifiedChat.includes('window._aioWrapChatExternalContext') && unifiedChat.includes("_wrapUnifiedExternal('TECHNICAL_ENRICHMENT'")); // v57.62: per-page caller retired
-assert(unifiedChat.includes('_wrapUnifiedExternal') && unifiedChat.includes("_wrapUnifiedExternal('DEEP_COMPARISON'"));
+assert(source.includes('function _aioWrapChatExternalContext(') && unifiedChat.includes('window._aioWrapChatExternalContext') && unifiedChat.includes("_wrapUnifiedExternal('SCREENER_RESULT'") && unifiedChat.includes("_wrapUnifiedExternal('DOMAIN_LIVE_DATA'"), 'v60.42 the blocks still injected are wrapped as untrusted data');
+assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_ENRICHMENT|NEWS_TELEGRAM)'/.test(unifiedChat), 'v60.42 the data the tools read is not pre-injected');
 // P1756: the first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each
 // searched attempt is billed and reserves search budget), says so in its status line, and every attempt resets the
 // citation collector so a failed searched attempt's sources are never bound to the retry's answer.

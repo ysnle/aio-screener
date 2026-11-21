@@ -77,7 +77,7 @@ try {
   // degrades to an empty string and the storage assertions below test nothing.
   const shell = readFileSync(new URL('../js/aio-workspace.js', import.meta.url), 'utf8');
   const historyStart = shell.indexOf('const CHAT_HISTORY_LS =');
-  const historyEnd = shell.indexOf('// ── System prompts per context', historyStart);
+  const historyEnd = shell.indexOf('function _saveChatHistory(', historyStart);
   assert(historyStart >= 0 && historyEnd > historyStart);
   await page.addScriptTag({ content: `
     const fixtureStorage = new Map();

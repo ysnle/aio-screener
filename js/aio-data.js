@@ -2700,13 +2700,6 @@ function _aioNormalizeChatTickers(tickers) {
   return out.slice(0, 5);
 }
 
-function _aioClearChatTickerCache(tickers) {
-  try {
-    if (!window._chatTickerCache) return;
-    _aioNormalizeChatTickers(tickers).forEach(function(t) { delete window._chatTickerCache[t]; });
-  } catch(_) {}
-}
-
 window.AIO.getChatAnswerFreshnessAudit = function(scope) {
   scope = scope || {};
   var tickers = _aioNormalizeChatTickers(scope.tickers);
@@ -2776,7 +2769,6 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
   if (scope.dryRun) {
     return { status: before && before.status || 'dry_run', strict: strict, before: before, refresh: null, quoteLookups: [], after: before, generatedAt: new Date().toISOString() };
   }
-  if (strict) _aioClearChatTickerCache(tickers);
   // A confirmed close cannot get newer, so the forced refresh, the per-ticker lookup and the cross-source wait
   // run only for the tickers whose price basis asks for them (needsLookup / needsCrossCheck).
   var basisRows = function(audit, flag) { return ((audit && audit.quoteRows) || []).filter(function(r) { return r[flag] === true; }).map(function(r) { return r.ticker; }); };

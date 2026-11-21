@@ -78,6 +78,8 @@ export function splitAnswerSentences(line) {
     var ends = '。！？'.indexOf(ch) >= 0 || ('.!?'.indexOf(ch) >= 0 && !/[A-Za-z0-9_%\/=&#~+\-０-９Ａ-Ｚａ-ｚ]/.test(text[i + 1] || ''));
     if (!ends) continue;
     while (i + 1 < text.length && '.!?。！？'.indexOf(text[i + 1]) >= 0) i++;
+    // An emphasis closer glued to the terminator ("…입니다.**") ends this sentence, not the next one.
+    while (i + 1 < text.length && text[i + 1] === '*') i++;
     pieces.push(text.slice(start, i + 1));
     start = i + 1;
   }
@@ -89,12 +91,19 @@ export function splitAnswerSentences(line) {
 // that is nothing but citations belongs to the sentence before it, so a removed sentence takes its sources with it.
 var INLINE_LINK = /\[([^\[\]\n]*)\]\((https?:\/\/[^)\s]+)\)/g;
 var CITATION_ONLY = /^\(?\s*(?:\[[^\[\]\n]*\]\(https?:\/\/[^)\s]+\)\s*[,;·]?\s*)+\)?[.!?。]*$/;
+// Bold that runs across sentences ("**A. B.**") is closed and reopened at each sentence end, so every sentence carries
+// whole marker pairs and a withheld one never leaves a lone "**" behind.
 function answerSentences(line) {
+  var open = false;
   return splitAnswerSentences(line).reduce(function(out, piece) {
     if (out.length && CITATION_ONLY.test(piece)) out[out.length - 1] += ' ' + piece;
     else out.push(piece);
     return out;
-  }, []);
+  }, []).map(function(piece) {
+    var text = open ? '**' + piece : piece;
+    open = (text.match(/\*\*/g) || []).length % 2 === 1;
+    return open ? text + '**' : text;
+  });
 }
 // The tail of a link whose opening bracket is gone ("…dia.com](https://…))") is never published as text: whole links stay
 // (the bubble renders them), the broken tail goes (its source is in the reference list under the answer).
@@ -301,7 +310,7 @@ function derivedSentenceKept(sentence, numbers, entities, block, urls) {
 // What a withheld figure sentence was about, for the notice line ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다").
 var WITHHELD_TOPICS = [['배당수익률', /배당\s*수익률|시가\s*배당률|dividend\s*yield/i], ['Forward PER', /forward\s*per|선행\s*PER/i], ['PER', /\bPER\b|\bP\/E\b|주가\s*수익\s*비율/i],
   ['EPS', /\bEPS\b|주당\s*순?이익/i], ['목표주가', /목표\s*주?가/], ['배당', /배당|dividend/i], ['매출', /매출|revenue/i], ['이익', /영업이익|순이익|이익률|마진/],
-  ['금리', /금리|국채|수익률\s*곡선/], ['주가', /주가|종가|현재가|시세/]];
+  ['금리', /금리|국채|수익률\s*곡선/], ['환율', /환율|원\s*\/\s*달러|달러\s*\/\s*원|USD\s*\/?\s*KRW/i], ['주가', /주가|종가|현재가|시세/]];
 export function withheldTopic(sentence) {
   var text = normaliseForDetection(String(sentence || '').replace(INLINE_LINK, ' $1 ').replace(CITED_URL, ' '));
   var hit = WITHHELD_TOPICS.filter(function(pair) { return pair[1].test(text); })[0];
@@ -398,7 +407,23 @@ function countSentences(value) {
 
 // Supported numbers: the numeric values of the publishable evidence rows the model was given, each with its unit.
 // Search results reach this module only as document rows without a numeric value, so they add nothing here.
-var ROW_UNITS = { USD: 'USD', KRW: 'KRW', PERCENT: 'percent', '%': 'percent', PCT: 'percent', PP: 'pp', '%P': 'pp', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
+// A price per unit is written in its quote currency ("1,346.13원", "71.4달러"); a quote row's unit "currency" is the
+// row's own currency field.
+var ROW_UNITS = { USD: 'USD', KRW: 'KRW', KRW_PER_USD: 'KRW', USD_PER_BARREL: 'USD', USD_PER_OUNCE: 'USD', PERCENT: 'percent', '%': 'percent', PCT: 'percent', PP: 'pp', '%P': 'pp', BP: 'bp', BPS: 'bp', X: 'multiple', MULTIPLE: 'multiple', '배': 'multiple', INDEX: 'point', POINT: 'point', POINTS: 'point', PT: 'point' };
+function rowUnit(row) {
+  var unit = String(row && row.unit || '').trim().toUpperCase();
+  var currency = String(row && row.currency || '').trim().toUpperCase();
+  return ROW_UNITS[unit] || (unit === 'CURRENCY' && /^(?:USD|KRW)$/.test(currency) ? currency : '');
+}
+// A quote row's reader label: a KRX listing by its Korean name, any other by its ticker, then the price basis.
+function quoteLabel(row, entities) {
+  if (!row || row.metric !== 'price' || !/^(?:close|intraday)$/.test(String(row.basis || ''))) return '';
+  var id = String(row.entity || row.ticker || row.symbol || '').trim().toUpperCase();
+  if (!id) return '';
+  var entity = (Array.isArray(entities) ? entities : []).filter(function(item) { return String(item && item.id || '').toUpperCase() === id; })[0];
+  var korean = /^\d{6}\./.test(id) && entity ? (entity.names || []).filter(function(name) { return /[가-힣]/.test(String(name || '')); })[0] : null;
+  return `${korean || id} ${row.basis === 'close' ? '종가' : '현재가'}`;
+}
 // With the question's entities, a row's figure belongs to the entity its ticker/entity field names when that is one of
 // them; a row about anything else (an index, a rate) supports every subject.
 export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entities } = {}) {
@@ -406,7 +431,7 @@ export function supportedNumbersFromEvidence(rows, nowMs = Date.now(), { entitie
   var numbers = (Array.isArray(rows) ? rows : []).filter(function(row) {
     return evidenceCanPublish(row, nowMs) && typeof row.value === 'number' && isFinite(row.value) && String(row.scale || 'raw') === 'raw';
   }).map(function(row) {
-    var number = { value: row.value, unit: ROW_UNITS[String(row.unit || '').trim().toUpperCase()] || '' };
+    var number = { value: row.value, unit: rowUnit(row) };
     // What the row says about its figure (see readWrittenFigures): its metric, basis, direction and day.
     var metricText = String(row.metric || row.metricId || '');
     var metric = figureMetric(metricText + ' ' + String(row.label || ''), number.unit);
@@ -897,7 +922,8 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
     header = null;
     var appBasisBefore = false;
     let boundAttribution = -1;
-    var kept = answerSentences(line).flatMap(function(sentence, index, sentences) {
+    var pieces = answerSentences(line);
+    var kept = pieces.flatMap(function(sentence, index, sentences) {
       if (index === boundAttribution) return [];
       if (appBasisBefore && BARE_CITATION_HOST.test(sentence)) return [];
       appBasisBefore = false;
@@ -923,6 +949,8 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
       if (current) { removed += 1; var topic = withheldTopic(sentence); topics[topic] = (topics[topic] || 0) + 1; }
       return current ? [] : [sentence];
     }).join(' ');
+    // A line that lost or changed nothing keeps its exact text.
+    if (kept === pieces.join(' ')) return line;
     return kept || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   return { text: text, removed: removed, searched: searched, toolDates: toolDates, derived: derived, topics: topics };
@@ -962,7 +990,8 @@ export function stripUnverifiedCurrentEventSentences(value, isBound, { today } =
   var nowMs = todayMs(today);
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim() || /^\s*\|.*\|\s*$/.test(line)) return line;
-    var kept = answerSentences(line).filter(function(sentence) {
+    var pieces = answerSentences(line);
+    var kept = pieces.filter(function(sentence) {
       var bare = sentence.replace(CITED_URL, ' ');
       var normalised = normaliseForDetection(bare);
       var event = CURRENT_EVENT.test(bare) && !GENERAL_OR_HISTORICAL.test(bare) && !isConditionalNumericSentence(bare) && !CONDITIONAL_MARKER.test(bare.replace(NON_CONDITIONAL_MYEON, ' '))
@@ -970,8 +999,9 @@ export function stripUnverifiedCurrentEventSentences(value, isBound, { today } =
         && !(typeof isBound === 'function' && isBound(bare, sentence, line));
       if (event) dropped += 1;
       return !event;
-    }).join(' ');
-    return kept || null;
+    });
+    if (kept.length === pieces.length) return line;
+    return kept.join(' ') || null;
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   return { text: text, dropped: dropped };
 }
@@ -1074,7 +1104,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
   var claims = plan.claims && Array.isArray(plan.claims.claims) ? plan.claims.claims : [];
   var droppedClaims = [];
   var unboundEvidenceIds = [];
-  var boundLabels = new Map();
+  var matchedRows = new Map();
   var referenceClaims = new Set();
   var claimNumbers = supportedNumbers(rows, referenceText, nowMs, entities);
   var safeClaims = claims.filter(function(claim) {
@@ -1133,16 +1163,19 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
       droppedClaims.push({ claimId: claim.claimId || null, reasons: Array.from(new Set(reasons)) });
       return false;
     }
-    if (matchedRow && matchedRow.label) boundLabels.set(claim, String(matchedRow.label));
+    if (matchedRow) matchedRows.set(claim, matchedRow);
     return true;
   }).map(function(claim) {
     if (referenceClaims.has(claim)) return claim;
     if (!/^(?:numeric|metric|percentage|probability)$/.test(String(claim.type || '')) && !(String(claim.type || '') !== 'text' && claim.metric && typeof claim.value === 'number')) return claim;
     // Render the verified tuple separately; model prose must not smuggle a
     // second, conflicting number alongside a valid structured value.
-    // v57.48 #7: a bound evidence row that carries its own display label (close-basis rows: "VIX 종가") names the value.
-    var label = boundLabels.get(claim) || [claim.entity, claim.metric].filter(Boolean).join(' · ');
-    return Object.assign({}, claim, { text: label || '검증된 수치' });
+    // v57.48 #7: a bound evidence row that carries its own display label (close-basis rows: "VIX 종가") names the value;
+    // a quote row is named by its subject and price basis ("NVDA 종가", "삼성전자 현재가") and lends its currency.
+    var row = matchedRows.get(claim);
+    var label = row && row.label ? String(row.label) : quoteLabel(row, entities) || [claim.entity, claim.metric].filter(Boolean).join(' · ');
+    var unit = row && /^currency$/i.test(String(claim.unit || '')) ? rowUnit(row) || claim.unit : claim.unit;
+    return Object.assign({}, claim, { text: label || '검증된 수치', unit: unit });
   });
   var eventsDropped = 0;
   var numericRemoved = 0;

@@ -1,7 +1,7 @@
 // The tool rounds of one chat request (js/aio-chat.js callSharedAi drives them): which function calls a completed
 // response asked for, the request fields of each round, the input items appended for the next request, and running a
 // round's calls in parallel within the per-request limits. Pure apart from running the tools.
-import { runTool, toolDefinitions, toolStatusLine, toolsPromptBlock, offerTools } from './registry.js';
+import { runTool, toolDefinitions, toolStatusLine, toolsPromptBlock } from './registry.js';
 
 /** At most two tool rounds and six calls per request; each call has eight seconds. */
 export const TOOL_LOOP_LIMITS = Object.freeze({ rounds: 2, calls: 6, callTimeoutMs: 8000, inputItems: 64 });
@@ -125,7 +125,7 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
   const hosted = hostedToolsOf(plainBody);
   const mustSearch = hosted.length > 0 && plainBody?.tool_choice === 'required';
   let body = { ...plainBody, ...toolRequestFields({ hosted, choice: mustSearch ? 'required' : 'auto' }) };
-  let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false, searched = false;
+  let rounds = 0, used = 0, fellBack = false, completed = null, streamed = [], hiding = false, searched = false, rewrites = 0;
   const toolBasis = [];
   const fallback = () => { if (fellBack) return false; fellBack = true; body = plainBody; toolBasis.length = 0; return true; };
   const hook = (name, value) => { try { if (typeof hooks?.[name] === 'function') hooks[name](value); } catch (_) { /* a closed panel */ } };
@@ -135,7 +135,16 @@ export function createToolSession(plainBody, hooks = {}, { root = globalThis, si
     get calls() { return used; },
     get searched() { return searched; },
     get basis() { return toolBasis.slice(); },
-    keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : ''),
+    get rewrites() { return rewrites; },
+    keySuffix: () => (fellBack ? ':plain' : rounds ? `:r${rounds}` : '') + (rewrites ? `:w${rewrites}` : ''),
+    // A response the provider cut before any answer text (reasoning items only: the item cap or the token limit) is
+    // asked once more with brief reasoning and no further tool calls, so the reader never gets an empty answer.
+    rewriteEmpty(stopReason, text) {
+      if (rewrites || !/^(?:incomplete|max_output_tokens)$/.test(String(stopReason)) || String(text || '').trim()) return false;
+      rewrites += 1;
+      body = { ...body, reasoning: { effort: 'low' }, tool_choice: 'none' };
+      return true;
+    },
     // Only a refusal that is about the tools is worth one request without them; any other 400 is the caller's error.
     refused: (status, detail = '') => status === 400 && /\b(?:tools?|functions?|web_search|search|schema)\b|(?<![가-힣])(?:웹검색|검색|도구)/i.test(String(detail)) && fallback(),
     beginRound() { completed = null; streamed = []; hiding = false; },
@@ -177,9 +186,14 @@ export function withToolReference(results, referenceText = '') {
 export function chatToolKit(root = globalThis) {
   return Object.freeze({
     limits: TOOL_LOOP_LIMITS,
-    offer: (turn) => offerTools(turn),
     promptBlock: (options) => toolsPromptBlock(options),
     reference: (results, referenceText) => withToolReference(results, referenceText),
+    // Which "사용한 근거" badges a round's successful calls earn (the answer's badge row reads these).
+    usedEvidence: (results) => {
+      const names = (Array.isArray(results) ? results : []).filter((result) => result?.ok).map((result) => String(result.name));
+      const any = (list) => names.some((name) => list.includes(name));
+      return { ticker: any(['fundamentals', 'company_story', 'consensus']), fundamentals: any(['fundamentals']), technical: any(['price_history', 'technicals', 'trend']), news: any(['news']) };
+    },
     session: (plainBody, hooks, options = {}) => createToolSession(plainBody, hooks, { ...options, root })
   });
 }

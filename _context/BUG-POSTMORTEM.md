@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-21
+last_verified: 2026-11-22
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,86 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2707 - v60.42 - 도구를 쓰는 AI 질문 하나가 하루 질문 한도를 두세 번 차감 (2026-11-22)
+
+- symptom/reproduction: 도구를 쓰는 질문은 모델 요청이 2~3번 나가는데 요청마다 연결당 하루 150개, 전체 하루 300개 한도에서 한 번씩 차감됐다. 실제로 쓸 수 있는 질문 수가 절반 이하였다.
+- root_cause: 공용 Worker의 한도 장부가 재시도 키(:retry1/2)만 면제하고 같은 질문의 도구 라운드(:r1, :r2), 도구 없는 대체 요청(:plain), 빈 답변 재작성(:w1) 키는 새 질문으로 셌다(v60.02에서 도구 루프를 붙일 때 장부를 맞추지 않음).
+- fix: 같은 연결에서 오늘 집계된 질문의 이어지는 요청은 연결별·전체 하루 질문 수에서 뺀다. 금액 예약과 월 한도는 요청마다 그대로다. 허용 접미사는 질문 하나당 정해진 21가지로 닫혀 있고 그 밖의 키는 질문으로 센다(cloudflare-worker-proxy.js).
+- violated_rule: R1
+- prevention: 한도 장부 모델 검사에 이어지는 요청 전이를 넣었고, Worker 계약 테스트가 도구 라운드는 한도를 쓰지 않고 지어낸 접미사는 쓴다는 것을 검사한다.
+- verification/residual: node scripts/ci-ai-ledger-model-check.mjs
+- files: cloudflare-worker-proxy.js, scripts/ci-ai-ledger-model-check.mjs, worker/openai-contract.test.mjs
+
+## P2706 - v60.42 - 도구가 있는 AI 채팅 턴에도 모든 자료를 미리 실어 지시문이 6만 자 (2026-11-21)
+
+- symptom/reproduction: 실서비스에서 두 종목 수익률 비교 질문의 지시문이 6만 자(입력 약 3만 4천 토큰)였고 질문마다 두 번 전송됐다. 참고 자료 묶음 약 1만 9천 자, 근거 목록 1만 2천 자, 겹치는 규칙 블록이 대부분이었고 답변 준비에만 약 10초가 걸렸다.
+- root_cause: v60.02에서 모델이 자료를 요청하는 도구를 붙였지만 그 전의 조립(질문을 보고 모든 자료를 미리 싣는 방식)을 그대로 두었다. 두 설계가 함께 돌아 같은 자료가 미리 실리고 도구로도 요청됐다.
+- fix: 도구를 주는 턴은 짧은 지시문을 쓴다(src/ai/prompt/lean-prompt.js): 역할 다섯 줄, 화면의 시장 판정과 확정 종가, 질문에 나온 종목의 스크리너 행. 통합 리서치·기술 지표·재무·뉴스·섹터 비교·근거 목록은 미리 싣지 않고 도구로 읽는다(통합 리서치는 새 reference 도구). 도구가 없는 빠른 답변 턴은 기존 조립을 쓴다. 로컬 실측: 같은 질문 14,675자, 시장 상태 질문 12,008자.
+- violated_rule: R1
+- prevention: scripts/ci-chat-screen-tool-check.mjs가 짧은 지시문의 내용과 크기(도구 안내+종목 행+원칙 9천 자 미만), 미리 싣던 블록이 도구 턴에서 빠지는지를 검사한다.
+- verification/residual: node scripts/ci-chat-screen-tool-check.mjs
+- files: src/ai/prompt/lean-prompt.js, src/ai/tools/market-tools.js, src/ai/tools/registry.js, src/ai/response/answer-principles.js, src/app/chat-globals.js, js/aio-chat.js, scripts/ci-chat-screen-tool-check.mjs
+
+## P2705 - v60.42 - 모든 AI 채팅 질문에 8천 자 학습 교재 블록이 실림 (2026-11-21)
+
+- symptom/reproduction: 두 종목의 3개월 수익률 비교 질문의 지시문이 6만 자였고, 그중 8천 자가 질문과 무관한 시장 학습 교재였다. 지시문이 전송 한도에 닿아 요청마다 잘렸고, 잘린 길이가 달라 두 번째 요청이 캐시를 쓰지 못했다.
+- root_cause: 교재 블록이 질문이 아니라 화면 목록으로 선택됐고 그 목록이 모든 화면을 덮었다(P1740이 AI 인프라 프레임에서 고친 것과 같은 종류).
+- fix: 교재 블록은 질문이 그 주제(손절, 물타기, 주도주, 복기 등)를 물을 때만 싣는다(js/aio-chat.js).
+- violated_rule: R1
+- prevention: 실서비스 평가가 지시문 길이와 걸린 시간을 잰다. 참고 자료는 질문으로 고른다.
+- verification/residual: node scripts/ci-ai-chat-reliability-contract-check.mjs
+- files: js/aio-chat.js
+
+## P2704 - v60.42 - AI 답변에서 앱에 있는 원달러 종가 문장이 빠지고 "**"가 남음 (2026-11-21)
+
+- symptom/reproduction: 원달러 환율 질문에 앱의 11/20 종가 1,346.13원 문장이 "근거 수치 없음"으로 빠졌고, 답이 짝 없는 "**"와 "실시간 환율은 확인된 값이 없습니다"로 시작했다. 안내는 환율 문장을 "주가 문장"이라고 불렀다.
+- root_cause: 종가 행의 단위 krw_per_usd가 단위 대조표에 없어 "원" 표기와 맞지 않았다. 문장 분리가 닫는 굵은 표시를 다음 문장에 붙여, 문장 하나를 빼면 표시가 홀수로 남았다.
+- fix: 단위당 가격은 호가 통화로 대조한다(원달러는 원, 유가·금은 달러, 시세 행은 행의 통화). 굵은 표시는 문장마다 짝을 맞추고, 환율 주제를 따로 이름 붙인다(src/ai/response/publication.js).
+- violated_rule: R1
+- prevention: 게이트가 환율 종가 문장의 결속과, 굵은 구간 안 문장 제거 뒤 표시 짝을 확인한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs
+- files: src/ai/response/publication.js
+
+## P2703 - v60.42 - AI 답변의 "확인된 수치"에 내부 표기와 제공자 이름이 보임 (2026-11-21)
+
+- symptom/reproduction: "NVDA · price: 125.53currency [live:yahoo-proxy · 2026-11-20T21:00:01.000Z]", "15.1배: 15.1배 [consensus tool · 2026-11-21]" 같은 줄이 답변에 보였다.
+- root_cause: 수치 줄이 원시 값·내부 단위 단어·출처 식별자를 그대로 이어 붙였고, 시세 행에는 표시 이름이 없어 "티커 · price"로 떨어졌다.
+- fix: 수치 줄은 독자 표기로 쓴다: "NVDA 종가: $125.53 [2026-11-20]", "삼성전자 종가: 183,100원". 제공자 이름은 쓰지 않고 날짜만 남긴다. 이름이 이미 값을 말하면 값을 두 번 쓰지 않는다. 숫자가 아닌 값은 확인된 수치로 올리지 않는다(src/ai/response/renderer.js, publication.js).
+- violated_rule: R1
+- prevention: 게이트가 시세·PER 줄의 표기와 문자열 값의 분류를 확인한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs
+- files: src/ai/response/renderer.js, src/ai/response/publication.js
+
+## P2702 - v60.42 - 앱 자료로 답한 AI 답변 위에 "최신 수치 확인 안 됨 — 일반 설명만"이 붙음 (2026-11-21)
+
+- symptom/reproduction: 조건 검색 표나 날짜가 붙은 종가로 답한 답변 8개와 날씨 답변이 "최신 수치 확인 안 됨 — 일반 설명만"으로 시작했다.
+- root_cause: 본문을 글로 받는 답변은 수치마다 형식화된 주장이 없어 항상 "계획 불일치"로 읽혔고, 한계 문구가 필터가 실제로 뺀 것이 아니라 그 판정을 따랐다. 세션 근거 안내도 게시된 주장이 있을 때만 생략됐다.
+- fix: 한계 문구는 필터가 실제로 뺀 수치 문장을 따른다. 모든 수치가 필터를 통과했고 웹검색 수치가 없으면 세션 안내를 붙이지 않는다(src/ai/response/request-pipeline.js).
+- violated_rule: R1
+- prevention: 게이트가 근거 있는 글 답변과 날씨 답변에 문구가 없고, 지어낸 수치에는 남는지 확인한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs
+- files: src/ai/response/request-pipeline.js
+
+## P2701 - v60.42 - AI 채팅의 종목 PER·배당·수익률이 종목 화면 값과 다르거나 웹에서 옴 (2026-11-21)
+
+- symptom/reproduction: 엔비디아 PER을 물으면 화면의 15.68이 아니라 컨센서스 조정 EPS 기준 15.1을 답했고, 마이크로소프트 배당과 삼성전자 50일선 위치는 웹검색 수치로 답했다. 평가의 종목 질문 통과율이 41%였다.
+- root_cause: 종목 화면·스크리너 표에 보이는 행 값(PER, PBR, ROE, 배당수익률, 매출 성장률, 기간 수익률, 이동평균 대비)을 한 종목에 대해 읽는 도구가 없었다. screen 도구는 조건 검색만 받았다.
+- fix: screen 도구에 symbols를 더해 지정 종목의 스크리너 행을 같은 엔진과 같은 조건 읽기로 돌려준다(미국·한국 모두, DB에 없는 종목은 이름을 밝힘). 도구 안내문은 화면 값을 먼저 말하고 다른 기준의 값은 기준을 밝혀 덧붙이게 한다.
+- violated_rule: R1
+- prevention: 게이트가 지정 종목 검색의 PER이 스크리너 행의 PER과 같은지 확인한다.
+- verification/residual: node scripts/ci-chat-screen-tool-check.mjs
+- files: src/ai/context/screener-query.js, src/ai/tools/market-tools.js, src/ai/tools/registry.js
+
+## P2700 - v60.42 - AI 채팅 답변 10건 중 1건이 본문 없이 "문장이 남지 않았습니다"로 끝남 (2026-11-21)
+
+- symptom/reproduction: 실서비스 60문항 평가에서 6개 답변이 "응답 길이 한도 — 일부만 표시 / 확인된 근거로 쓸 수 있는 문장이 남지 않았습니다"로 끝났다(시장 판정, 코스피, SMH, 삼성전자·SK하이닉스 비교, 애플 PER 후속 질문).
+- root_cause: 현재 시점 질문에 주입 자료가 없으면 웹검색을 강제하는 규칙이 자료 도구보다 먼저 만들어져 그대로 남아 있었다. 모델이 도구로 종가를 받은 뒤에도 다음 요청은 웹검색만 허용하고 호출을 강제했고, 모델은 글을 쓰지 못한 채 추론 항목만 100개 내다가 제공자의 항목 한도(max_messages)에서 끊겼다. 클라이언트는 본문이 없는 끊긴 응답을 그대로 답으로 게시했다.
+- fix: 자료 도구가 있는 답변에서는 독자가 검색을 요청했을 때만 검색을 강제한다(src/ai/research/native-search.js). 본문 없이 끊긴 응답은 낮은 추론 강도와 도구 호출 없음으로 한 번 다시 요청한다(src/ai/tools/loop.js rewriteEmpty).
+- violated_rule: R1
+- prevention: 실서비스 평가 실행기(scripts/ai-chat-eval.mjs)가 빈 답을 실패로 센다. 도구 루프 게이트가 본문 없이 끊긴 응답의 재요청을, 검색 게이트가 도구가 있을 때 강제 검색이 없음을 확인한다.
+- verification/residual: node scripts/ci-ai-chat-reliability-contract-check.mjs
+- files: src/ai/tools/loop.js, src/ai/research/native-search.js, js/aio-chat.js
 
 ## P2699 - v60.41 - 보유 종목 질문이 모델 호출 뒤에 'AI 안전 모드'로 바뀌고 채팅에서 동의할 방법이 없음 (2026-11-21)
 

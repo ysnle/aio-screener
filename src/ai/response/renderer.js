@@ -1,16 +1,33 @@
 
+import { stampDay } from '../../domain/shared/session-date.js';
+
 function line(value) { return String(value == null ? '' : value).trim(); }
 
 // v57.48 #7: a bound value reads as the user sees it on screen — "VIX 종가: 15.21 [종가 기준 · 2026-10-12 종가]",
-// not "15.21index [close-basis · 2026-10-12]". Unknown units and sources pass through unchanged.
-// official macro releases (source 'macro-release') read "공식 발표 · 2026-09 기준월" — a monthly release's asOf is its
-// reference month, not a close date.
-const UNIT_TEXT = Object.freeze({ index: '', usd: '달러', percent: '%', bp: 'bp', thousands: '천 명', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원' });
+// not "15.21index [close-basis · 2026-10-12]". Official macro releases read "공식 발표 · 2026-09 기준월" (a monthly
+// release's asOf is its reference month). Any other source is never named beside the value (it is in the folded
+// evidence panel): the trace is the day only, "NVDA 종가: $125.53 [2026-11-20]". A unit word the reader does not use
+// ("currency", "count, ratio") is not printed.
+const UNIT_TEXT = Object.freeze({ index: '', usd: '달러', percent: '%', bp: 'bp', thousands: '천 명', usd_per_barrel: '달러', usd_per_ounce: '달러', krw_per_usd: '원', '%': '%', '배': '배', x: '배', multiple: '배', bps: 'bp', pp: '%p' });
 const SOURCE_TEXT = Object.freeze({ 'close-basis': '종가 기준', 'macro-release': '공식 발표' });
+const dayText = (asOf) => { const text = String(asOf || '').trim(); return (text.length > 10 && stampDay(text)) || text; };
 // The monthly row's label already names its reference month ("CPI 전년 대비 (2026-09 기준월)"), so the trace does not repeat a date.
-const whenText = (claim) => claim.source === 'close-basis' ? ` · ${claim.asOf} 종가`
-  : claim.source === 'macro-release' && /기준월\)?$/.test(String(claim.text || '').trim()) ? '' : ` · ${claim.asOf}`;
-const unitText = (unit) => Object.prototype.hasOwnProperty.call(UNIT_TEXT, unit) ? UNIT_TEXT[unit] : (unit || '');
+const traceText = (claim) => {
+  if (!claim.asOf || !claim.source) return '';
+  if (claim.source === 'close-basis') return ` [${SOURCE_TEXT[claim.source]} · ${claim.asOf} 종가]`;
+  if (claim.source === 'macro-release') return /기준월\)?$/.test(String(claim.text || '').trim()) ? ` [${SOURCE_TEXT[claim.source]}]` : ` [${SOURCE_TEXT[claim.source]} · ${claim.asOf}]`;
+  return ` [${dayText(claim.asOf)}]`;
+};
+const grouped = (value) => value.toLocaleString('en-US', { maximumFractionDigits: 6 });
+const valueText = (value, unit) => {
+  const key = String(unit || '').trim();
+  if (key === 'USD') return `${value < 0 ? '-' : ''}$${grouped(Math.abs(value))}`;
+  if (key === 'KRW') return `${grouped(value)}원`;
+  const word = Object.prototype.hasOwnProperty.call(UNIT_TEXT, key) ? UNIT_TEXT[key] : /^[A-Za-z_,;\s]+$/.test(key) ? '' : key;
+  return `${value}${word}`;
+};
+// A label that already writes its value ("PER 약 15.1배") does not print it a second time.
+const writesValue = (text, value) => new RegExp(`(?<![\\d.])${String(Math.abs(value)).replace('.', '\\.')}(?!\\d)`).test(String(text || '').replace(/(\d),(?=\d{3}(?!\d))/g, '$1'));
 
 function safeUrl(value) {
   try {
@@ -28,14 +45,15 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   // analysis keeps a visible structure instead of a run of plain paragraphs.
   // v59.45 (pipeline review P11-AI-01): a text claim is a sourced sentence, not a checked value; it no longer sits under
   // "확인된 수치" as if its meaning had been verified like a number tuple.
+  // Only a finite number is a checked value; a claim whose value is a list or a phrase is listed as sourced text.
+  const checked = (claim) => typeof claim.value === 'number' && Number.isFinite(claim.value);
   const claimLine = (claim) => {
-    const value = claim.value == null ? '' : `: ${claim.value}${unitText(claim.unit)}`;
-    const trace = claim.asOf && claim.source ? ` [${SOURCE_TEXT[claim.source] || claim.source}${whenText(claim)}]` : '';
-    return `- ${line(claim.text)}${value}${trace}`;
+    const value = !checked(claim) || writesValue(claim.text, claim.value) ? '' : `: ${valueText(claim.value, claim.unit)}`;
+    return `- ${line(claim.text)}${value}${traceText(claim)}`;
   };
   const shown = claims.filter((claim) => claim.status !== 'blocked');
-  const claimLines = shown.filter((claim) => claim.value != null).map(claimLine);
-  const textLines = shown.filter((claim) => claim.value == null).map(claimLine);
+  const claimLines = shown.filter(checked).map(claimLine);
+  const textLines = shown.filter((claim) => !checked(claim)).map(claimLine);
   if (claimLines.length) parts.push(`**확인된 수치**\n${claimLines.join('\n')}`);
   if (textLines.length) parts.push(`**출처가 달린 해석**\n${textLines.join('\n')}`);
   (Array.isArray(plan.sections) ? plan.sections : []).forEach((section) => {

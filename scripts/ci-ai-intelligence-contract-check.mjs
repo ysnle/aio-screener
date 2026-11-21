@@ -139,7 +139,7 @@ check('answer-plan-untracked-current-number-fails', untrackedNumeric.status === 
 const harmlessOrdinal = parseAnswerPlanText(answerEnvelopeText({ summary:'확인할 3가지 조건을 정리합니다', claims:[], sections:[], citations:[], followUps:[] }), { currentSensitive:true });
 check('answer-plan-ordinal-is-not-a-market-number', harmlessOrdinal.status === 'valid');
 const renderedClaim = createAnswerPlan({ summary:'현재 관측', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-10T12:00:00Z', source:'verified snapshot', evidenceIds:['vix:1'], status:'verified' }] });
-check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2 [verified snapshot') && !renderAnswerPlan(renderedClaim).includes('15.2index'));
+check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2 [2026-08-10]') && !renderAnswerPlan(renderedClaim).includes('15.2index') && !renderAnswerPlan(renderedClaim).includes('verified snapshot'));
 
 const causal = buildCausalAttribution({
   target: { metricId: 'SPX', direction: 'BEARISH', observedAt: '2026-07-28T12:00:00Z' },
@@ -524,8 +524,8 @@ check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
 // so every `_uni*` assertion in this file now reads the chat module.
 // v57.62: the dead per-page chatSend was retired; the unified panel is the only chat surface.
-check('v57.62 chat-surface-consumes-market-principles-and-ai-era-knowledge', !/async function chatSend\(/.test(chat) && /_uniKnowledgeOrchestrator\.buildAIKnowledgeContext\(q/.test(chat) && /_uniKnowledgeAudit/.test(chat));
-check('knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /principles:_aioCreateEvidenceContext/.test(chat) && /atlas:_aioCreateEvidenceContext/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(chat));
+check('v60.42 chat-surface-consumes-market-principles-and-ai-era-knowledge through the reference tool', !/async function chatSend\(/.test(chat) && /buildAIKnowledgeContext\?\.\(ask/.test(read('src/ai/tools/market-tools.js')) && !/buildAIKnowledgeContext\(/.test(chat));
+check('v60.42 knowledge-pages-have-chat-contexts-and-unified-panel-mapping', /\n  principles: \{ title: '/.test(chat) && /\n  atlas: \{ title: '/.test(chat) && /'principles':'principles','atlas':'atlas'/.test(chat));
 const publishedKnowledgeIndex = JSON.parse(read('public-data/knowledge/ai-retrieval-index.json'));
 const knowledgeSourceLessons = new Map([
   ...JSON.parse(read('public-data/principles/lesson-library.json')).lessons.map((lesson) => [`principles:${lesson.id}`, lesson]),
@@ -561,7 +561,7 @@ check('knowledge-concept-links-match-explicit-source-not-word-overlap', publishe
 check('knowledge-concept-coverage-reports-unmapped-truthfully', publishedKnowledgeIndex.counts.withConcepts === publishedKnowledgeIndex.articles.filter((article) => article.conceptIds.length).length && publishedKnowledgeIndex.counts.unmappedConcepts === publishedKnowledgeIndex.articles.filter((article) => !article.conceptIds.length).length);
 check('knowledge-loader-never-fetches-article-monolith', /artifactUrl\('knowledge\/ai-retrieval-index\.json'\)/.test(bootstrap) && !/articles\.json/.test(read('src/ai/retrieval/knowledge.js'))); // v59.87: the app injects the index loader
 // v57.62: only the unified surface remains (per-page chatSend retired), so its knowledge block must be wrapped.
-check('knowledge-reference-is-wrapped-as-untrusted-data', /buildAIUntrustedBlock\('KNOWLEDGE_REFERENCE', _uniKnowledge\.context/.test(chat));
+check('v60.42 knowledge reference is read through the reference tool as dated reference, never pre-injected', !/KNOWLEDGE_REFERENCE/.test(chat) && /현재 수치의 근거가 아니다/.test(read('src/ai/tools/market-tools.js')));
 check('unified-chat-renders-native-claude-citations', /_uniCitationResult/.test(chat) && /engine:'claude'/.test(chat) && /_aioAIRequestCitations\(_uniRequestId\)/.test(chat));
 check('public-policy-allows-conditional-analysis-without-blanket-refusal', /가격 범위·무효화 수준·손절 기준·포트폴리오 비중은 시나리오와 계산 입력으로 분석할 수 있다/.test(chat) && /답변 전체를 안전 모드로 바꾸지 말고/.test(chat) && !/현재 답변에서는 구체적인 매수·매도·진입·청산 지시/.test(chat));
 check('research-optout-degrades-current-claims-without-ending-chat', /_uniResearchFailure\.code === 'DISABLED_BY_USER'\) _uniUseClaudeWebSearch = false;/.test(chat) && !/DISABLED_BY_USER'\)[^\n]{0,200}return;/.test(chat)); // v57.62: unified opt-out drops search only
@@ -668,7 +668,7 @@ check('no-confirmed-verdict', !/verdict\s*=\s*[^;]*CONFIRMED/.test(data + screen
 check('producer-observed-time', /producer observation time/.test(screenerQuery) && /관측시각 미확인/.test(screenerQuery));
 check('probability-policy-is-strict', /calibrated !== true/.test(core) && /보정\(calibration\).*확률/.test(chat));
 
-check('answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat) && /질문 복잡도에 맞춘다/.test(chat));
+check('v60.42 answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/Bear 3 시나리오/.test(chat + read('src/ai/prompt/lean-prompt.js')) && /answerModeGuide\(_uniMode\)/.test(chat));
 check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(chat));
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
@@ -725,19 +725,18 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
   vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
   vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
-  const registryStart = chatSource.indexOf('function _aioBuildAIClaimEvidenceRegistry(');
-  vm.runInContext(chatSource.slice(registryStart, chatSource.indexOf("if (typeof window !== 'undefined') {", registryStart)), ctx);
   ctx.window._aioScreenBasisEvidence = () => closeRows;
   const staleLiveVix = { id: 'vix-price', symbol: '^VIX', label: 'VIX', value: 15.3, source: 'live:yahoo', status: 'stale_live', evidenceId: 'ev-trading-input-vix-price-stale_live', asOf: '2026-10-12T20:15:00.000Z', closeBasisEvidenceId: 'ev-close-vix-2026-10-12' };
-  const registry = ctx._aioBuildAIClaimEvidenceRegistry(ctx._aioCollectAIClaimEvidence({ evidence: [], provenanceBundle: { rows: [staleLiveVix] } }));
-  const fromRegistry = (metric) => {
-    const match = registry.match(new RegExp(`evidenceId=(\\S+) metric=${metric.replace(/\./g, '\\.')} entity=(\\S*) value=(\\S+) unit=(\\S+) scale=(\\S+) asOf=(\\S+) source=(\\S+)`));
-    return match ? { type: 'metric', metric, entity: match[2], value: Number(match[3]), unit: match[4], scale: match[5], asOf: match[6], source: match[7], evidenceIds: [match[1]], status: 'verified', text: metric } : null;
+  // A claim that copies a collected evidence row exactly (metric, value, unit, scale, asOf, source, evidence id).
+  const claimFrom = (rows, metric, text = metric) => {
+    const row = rows.find((item) => item && item.evidenceId && (item.metric || item.ticker) === metric);
+    return row ? { type: 'metric', metric, entity: String(row.entity || row.ticker || row.symbol || ''), value: Number(row.value), unit: String(row.unit || 'unknown'), scale: String(row.scale || 'raw'), asOf: String(row.asOf), source: String(row.source), evidenceIds: [row.evidenceId], status: 'verified', text } : null;
   };
-  const vixClaim = fromRegistry('close.vix');
-  const tnxClaim = fromRegistry('close.us10y');
-  detail('#7 the registry exposes the close rows and points a stale live row at its close substitute',
-    !!vixClaim && !!tnxClaim && /closeSubstitute=ev-close-vix-2026-10-12/.test(registry) && /status=stale_live/.test(registry), registry);
+  const collected = ctx._aioCollectAIClaimEvidence({ evidence: [], provenanceBundle: { rows: [staleLiveVix] } });
+  const vixClaim = claimFrom(collected, 'close.vix');
+  const tnxClaim = claimFrom(collected, 'close.us10y');
+  detail('v60.42 #7 the collected evidence holds the close rows and points a stale live row at its close substitute',
+    !!vixClaim && !!tnxClaim && collected.some((row) => row.status === 'stale_live' && row.closeBasisEvidenceId === 'ev-close-vix-2026-10-12'), JSON.stringify(collected.slice(0, 4)));
   // The live question: "지금 VIX와 미국 10년물 금리 수준이 위험자산에 주는 의미를 기준일과 함께 짧게 설명해줘."
   const plan = (claims) => answerEnvelopeText({ summary: '변동성은 낮지만 장기금리가 높아 위험자산의 할인율 부담이 남아 있습니다.', claims, sections: [{ title: '의미', body: '금리 부담이 이어지는 동안 변동성이 낮다는 사실만으로 위험 선호를 단정하기 어렵습니다.' }], citations: [], followUps: [] });
   const request = { requestId: 'fixture-close-basis', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
@@ -787,13 +786,12 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
         && !buildMacroReleaseEvidence({ macro: { ...macroFixture, _asOf_t10y2y: '2026-10-08' }, now: Date.parse('2026-10-13T04:00:00Z') }).some((item) => item.metric === 'macro.curve_2s10s'), JSON.stringify(m('macro.curve_2s10s')));
     detail('v59.85 the release block names each value with its month/date and evidence id', /CPI 전년 대비 \(2026-09 기준월\) 3\.7% · evidenceId=ev-macro-cpi-yoy-2026-09-01/.test(renderMacroReleaseEvidenceContext(macroRows)), renderMacroReleaseEvidenceContext(macroRows));
     ctx.window._aioScreenBasisEvidence = () => [...closeRows, ...macroRows];
-    const macroRegistry = ctx._aioBuildAIClaimEvidenceRegistry(ctx._aioCollectAIClaimEvidence({ evidence: [] }));
-    const cpiMatch = macroRegistry.match(/evidenceId=(\S+) metric=macro\.cpi_yoy entity=(\S*) value=(\S+) unit=(\S+) scale=(\S+) asOf=(\S+) source=(\S+)/);
-    const cpiClaim = cpiMatch ? { type: 'metric', metric: 'macro.cpi_yoy', entity: cpiMatch[2], value: Number(cpiMatch[3]), unit: cpiMatch[4], scale: cpiMatch[5], asOf: cpiMatch[6], source: cpiMatch[7], evidenceIds: [cpiMatch[1]], status: 'verified', text: 'CPI' } : null;
+    const macroCollected = ctx._aioCollectAIClaimEvidence({ evidence: [] });
+    const cpiClaim = claimFrom(macroCollected, 'macro.cpi_yoy', 'CPI');
     const cpiBound = cpiClaim ? run([cpiClaim, vixClaim, tnxClaim]) : null;
-    detail('v59.85 a CPI claim copied from the registry binds and publishes as an official release beside the closes (no withheld line)',
+    detail('v60.42 a CPI claim copied from the collected evidence binds and publishes as an official release beside the closes (no withheld line)',
       !!cpiBound && cpiBound.answerPlanBindingAudit.droppedClaims.length === 0 && cpiBound.text.includes('CPI 전년 대비 (2026-09 기준월): 3.7% [공식 발표]') && !cpiBound.text.includes('※'),
-      JSON.stringify({ registry: macroRegistry.slice(0, 600), text: cpiBound?.text, audit: cpiBound?.answerPlanBindingAudit }));
+      JSON.stringify({ text: cpiBound?.text, audit: cpiBound?.answerPlanBindingAudit }));
     // The folded evidence panel: closes + an official release read as completed records (not 확인 필요 / 원천 확인 필요).
     const cpiDisclosure = cpiBound ? ctx._aioBuildAIResponseDisclosure({ closeBasisDates: cpiBound.closeBasisDates, releaseBasis: cpiBound.releaseBasis, otherPublishedClaims: cpiBound.otherPublishedClaims }) : null;
     const cpiOnly = cpiClaim ? run([cpiClaim]) : null;
@@ -898,9 +896,9 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // #4: the base-currency what-if module (src/ai/context/portfolio-simulation.js) lost its only consumer in v57.62 and was removed in v58.51;
   // the old chat simulator must stay retired.
   detail('#4 retired chat portfolio simulator stays retired', !/현재 총 가치: \$'/.test(chatSource) && !/_pfSim\b/.test(chatSource), 'chat source still carries the old simulator');
-  // #20: portfolio and research pages receive the close-basis block; live values carry an observation time.
-  detail('#20 portfolio/research contexts get the screen basis and live values carry their observation time',
-    /home\|briefing\|signal\|breadth\|sentiment\|macro\|fxbond\|themes\|market-news\|portfolio\|principles\|atlas\|masters/.test(chatSource) && /실시간 관측 ' \+ _aioPublicAIFormatAsOf/.test(chatSource), 'source');
+  // #20: every screen's prompt carries the screen's close-basis reading (the short prompt is the same on every screen).
+  detail('v60.42 #20 every screen gets the screen basis in the short prompt',
+    /screenBasis: typeof window\._aioScreenBasisContext === 'function' \? window\._aioScreenBasisContext\(\) : ''/.test(chatSource) && /【화면의 시장 판정과 확정 종가/.test(read('src/ai/prompt/lean-prompt.js')), 'source');
 }
 
 // P1740: question context, answer shape and number policy of the AI chat.
@@ -1056,18 +1054,20 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const principlesStock = buildAnswerPrinciples({ today: '2026-10-13', mode: 'decision', hasTickers: true, webSearch: true, liveStatus: 'ok', snapAgeHours: 80 });
   check('P1740 principles follow the question and state the real web-search decision',
     !/종목 질문 규칙/.test(principlesPlain) && /웹검색: 사용하지 않음/.test(principlesPlain) && /종목 질문 규칙/.test(principlesStock) && !/\n4\. /.test(principlesStock)
-    && /웹검색: 이번 답변에서 사용/.test(principlesStock) && /정적 데이터: 80시간/.test(principlesStock) && /buildAnswerPrinciples\(\{ today: _todayStr, mode: _uniMode/.test(chat));
+    && /웹검색: 이번 답변에서 사용/.test(principlesStock) && /정적 데이터: 80시간/.test(principlesStock) && /buildAnswerPrinciples\(\{ today: _todayStr, hasTickers: detectedTickers\.length > 0/.test(chat));
   // v57.92 (internal audit A07/A08): an unknown file age is not "999시간", each value is judged by its own date, and a
   // news/price mismatch compares the market before naming a cause.
   check('v57.92 A07/A08 principles: unknown age, per-value dates, cause left open until compared',
     /생성 시각 확인 안 됨/.test(principlesPlain) && !/999시간/.test(principlesPlain) && /각 수치에 붙은 기준일/.test(principlesPlain)
     && /원인 미확정/.test(principlesStock) && !/재료 소진·후속 악재 신호로 다룬다/.test(principlesStock));
   const unified = chat.slice(chat.indexOf('async function chatSendUnified('));
-  check('P1740 web search is decided before the status blocks are written', unified.indexOf('_uniWsDecided = true') > 0 && unified.indexOf('_uniWsDecided = true') < unified.indexOf('_buildChatIntentContext(ctxId, q'));
-  check('P1740 unified panel resolves company names and a knowledge timeout cannot skip data injection',
-    /_aioResolveChatTickers\(q, _uniQuestionPlan, state, \{ companiesOnly: true[,}]/.test(unified) && /지식 참고 검색 실패\/타임아웃/.test(unified));
-  check('P1740 reference frameworks are question-selected and static text precedes runtime values',
-    /_aioAIInfraCycleContext\(focus, activeQuery\)/.test(chat) && /framework \+ supplied \+ aiInfra \+ marketLearning \+ '\\n\\n【현재 관측】\\n' \+ liveLines/.test(chat));
+  check('v60.42 web search is decided before the principles state it', unified.indexOf('_uniWsDecided = true') > 0 && unified.indexOf('_uniDecideWebSearch();') > 0
+    && unified.indexOf('_uniDecideWebSearch();') < unified.indexOf('window.AIO.buildAnswerPrinciples('));
+  check('v60.42 unified panel resolves company names and carries no knowledge pre-fetch',
+    /_aioResolveChatTickers\(q, _uniQuestionPlan, state, \{ companiesOnly: true[,}]/.test(unified) && !/지식 참고 검색 실패\/타임아웃/.test(unified));
+  check('v60.42 reference frameworks are question-selected by the reference tool, not sent with every prompt',
+    /for \(const read of \['_aioAIInfraCycleContext', '_aioMarketLearningCurriculumContext'\]\)/.test(read('src/ai/tools/market-tools.js'))
+    && !/_aioAIInfraCycleContext\(|_aioMarketLearningCurriculumContext\(/.test(unified));
   check('P1740 an unsaved profile is not sent as the user profile', /미설정 — 위험 성향·투자 기간을 가정하지 말고/.test(chat));
   const { buildChatPolicyLines } = await import('../src/ai/context/policy-lines.js');
   const policyNow = Date.parse('2026-10-13T03:00:00Z');
@@ -1133,8 +1133,8 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     !/웹검색으로 보강해/.test(status({ attached: true, citationCount: 0 })) && /웹검색으로 보강해/.test(status({ attached: true, citationCount: 2 })) && /늦어/.test(status({ attached: false })));
   const news = promptKit.newsBlock('시장 흐름', 'home');
   const items = (news.raw.match(/^\d+\. \[/gm) || []).length;
-  check(`v59.99 the news block holds 8 long items within 6,000 characters (${items} items, ${news.raw.length} chars) and its wrapper does not cut it`,
-    items === 8 && news.raw.length <= 6000 && /kind=NEWS/.test(news.wrapped) && !/length-capped/.test(news.wrapped));
+  check(`v60.42 the news tool's text holds 8 long items within 6,000 characters (${items} items, ${news.raw.length} chars)`,
+    items === 8 && news.raw.length <= 6000);
   const longer = promptKit.newsBlock('시장 흐름', 'home', promptKit.longNewsItems(12));
   check(`v59.99 more fresh news than the cap still sends at most 8 items (${(longer.raw.match(/^\d+\. \[/gm) || []).length})`, (longer.raw.match(/^\d+\. \[/gm) || []).length === 8);
 }
@@ -1616,7 +1616,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check(`P1758 retired kr-tech chat context has no context, alias, tag or tier entry (${stale.join(', ') || 'none'})`, stale.length === 0);
   const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const panelMap = chatSource.slice(chatSource.indexOf('var _aiCtxMap = {'), chatSource.indexOf('};', chatSource.indexOf('var _aiCtxMap = {')));
-  check('P1758 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /technical:_aioCreateEvidenceContext\(/.test(chatSource));
+  check('v60.42 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /\n  technical: \{ title: '/.test(chatSource));
 }
 
 {
@@ -1632,7 +1632,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v57.54 retired kr-macro/kr-themes have no model tier, answer-quality audit slot or intent route', !/ctxId === 'kr-(?:macro|themes)'/.test(tiers)
     && !/var ctxIds = \[[^\]]*kr-(?:macro|themes)/.test(audit) && !/kr-(?:macro|themes)/.test(taxonomy));
   check('v57.54 the 거시/테마 screens keep their own AI contexts and chips (where the KR sections live)', /'macro':'macro'/.test(panelMap) && /'themes':'themes'/.test(panelMap)
-    && /macro:_aioCreateEvidenceContext\(/.test(contexts) && /themes:_aioCreateEvidenceContext\(/.test(contexts) && /'macro':\[/.test(chips) && /'themes':\[/.test(chips));
+    && /\n  macro: \{ title: '/.test(contexts) && /\n  themes: \{ title: '/.test(contexts) && /'macro':\[/.test(chips) && /'themes':\[/.test(chips));
   check('v57.54 a Korean policy question still selects the Korean macro domain block (P1740)', /contexts\.add\('kr-macro'\)/.test(read('src/ai/context/market-content.js')) && /ctxId === 'macro' \|\| ctxId === 'kr-macro'/.test(chatSource));
 }
 
@@ -1861,8 +1861,12 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     money_flow: await registry.runTool('money_flow', JSON.stringify({ market: 'US', level: 'theme', theme: '반도체' }), { root: fixtureRoot({ THEME_MAP: [{ id: 'semiconductor', nameKr: '반도체', subThemes: [{ name: 'GPU', tickers: ['NVDA', 'AMD'] }] }] }), now: nowMs }),
     macro: await run('macro', { topic: 'macro' }),
     scenario_record: await run('scenario_record', { id: 'semiconductor' }),
-    news: await run('news', { query: 'NVDA', days: 7 })
+    news: await run('news', { query: 'NVDA', days: 7 }),
+    // v60.42: the integrated research the short prompt no longer carries, asked for by topic.
+    reference: await registry.runTool('reference', JSON.stringify({ query: '신용 스프레드 확대가 주식에 전달되는 경로' }), { root: { AIO: { buildAIRetrievalContext: (ask) => `[통합 리서치] ${ask}: 하이일드 스프레드 프레임` } }, now: nowMs })
   };
+  check('v60.42 reference returns the integrated research for the asked topic and fails plainly when none matches', good.reference.text.includes('하이일드 스프레드 프레임')
+    && (await registry.runTool('reference', '{"query":"없는 주제"}', { root: {}, now: nowMs })).ok === false);
   check('v60.02 every registered tool has a fixture case', Object.keys(good).sort().join() === registry.CHAT_TOOLS.map((t) => t.name).sort().join());
   for (const [name, result] of Object.entries(good)) {
     const cap = Math.min(registry.TOOL_TEXT_HARD_CAP, registry.CHAT_TOOLS.find((t) => t.name === name).maxChars || registry.TOOL_TEXT_DEFAULT_CAP);
@@ -1909,8 +1913,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     registry.toolStatusLine([call('fundamentals', { symbol: 'NVDA' }, 1), call('scenario_record', { id: 'reheat' }, 2), call('fundamentals', { symbol: 'NVDA' }, 3)], root) === '자료를 더 찾는 중: 엔비디아 재무, 과거 비슷한 시장 기록');
   const block = registry.toolsPromptBlock();
   check('v60.02 the tools prompt block carries no figure an answer number could lean on', !/\d/.test(block) && block.length > 100);
-  check('v60.02 tools are offered in every mode except quick, beside hosted search too (plan 049)',
-    registry.offerTools({ mode: 'analysis' }) && registry.offerTools({ mode: 'explain' }) && !registry.offerTools({ mode: 'quick' }) && registry.offerTools({ mode: 'analysis', webSearch: true }));
+  check('v60.42 the tools travel with every turn: no per-mode offer gate remains', typeof registry.offerTools === 'undefined');
   const names = registry.CHAT_TOOLS.map((t) => t.name).join(' ');
   check('v60.02 no tool reads the portfolio, the reader notes or saved conversations', !/portfolio|note|session|conversation|holding/i.test(names));
   check('v60.02 the completed response output is the record of function calls; streamed items stand in only without it',
@@ -1931,7 +1934,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.02 the tools block adds no figure to the reference text the answer is checked against',
     JSON.stringify(answerPublication.supportedNumbersFromText(answerPublication.answerReferenceText(offered.prompt))) === JSON.stringify(answerPublication.supportedNumbersFromText(answerPublication.answerReferenceText(offered.prompt.slice(block.length)))));
   const quickAsk = promptKit.assemble('테슬라 PER 얼마야?', 'home', { health: noSearch });
-  check(`v60.02 a quick question gets no tools (${quickAsk.mode})`, quickAsk.mode === 'quick' && quickAsk.tools === false && !quickAsk.prompt.includes('【추가 자료 요청 (도구)】'));
+  check(`v60.42 a quick question also carries the tools block first (${quickAsk.mode}/${quickAsk.tools})`, quickAsk.mode === 'quick' && quickAsk.tools === true && quickAsk.prompt.startsWith(block) && quickAsk.prompt.split('【추가 자료 요청 (도구)】').length === 2);
   const searchedAsk = promptKit.assemble('엔비디아 오늘 왜 떨어졌어?', 'home');
   const log = await import('../src/ai/telemetry/answer-quality-log.js');
   const box = new Map();
@@ -1965,7 +1968,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const searchAsk = promptKit.assemble('엔비디아 실적을 검색해서 알려줘', 'home');
   check(`v60.02 "검색해서 알려줘" forces the search (${searchAsk.mode}/${searchAsk.toolChoice})`, searchAsk.webSearch === true && searchAsk.toolChoice === 'required');
   const quickSearched = promptKit.assemble('테슬라 PER 얼마야?', 'home');
-  check(`v60.02 a quick question gets neither search nor tools (${quickSearched.mode}/${quickSearched.webSearch}/${quickSearched.tools})`, quickSearched.mode === 'quick' && quickSearched.webSearch === false && quickSearched.tools === false && !/【웹검색】|【추가 자료 요청/.test(quickSearched.prompt));
+  check(`v60.42 a quick question gets the tools but no search (${quickSearched.mode}/${quickSearched.webSearch}/${quickSearched.tools})`, quickSearched.mode === 'quick' && quickSearched.webSearch === false && quickSearched.tools === true && !/【웹검색】/.test(quickSearched.prompt) && quickSearched.toolChoice === null);
   check(`v60.02 search disabled in health: no search, the tools still offered (${offered.webSearch}/${offered.tools}/${offered.toolChoice})`, offered.webSearch === false && offered.tools === true && offered.toolChoice === null);
   check('v60.02 a retry without search keeps the tools block and drops the search lines',
     registry.toolsPromptWithoutSearch(both + 'rest') === block + 'rest' && registry.toolsPromptWithoutSearch(registry.toolsPromptBlock({ functions: false, webSearch: true }) + 'rest') === 'rest');
@@ -2004,6 +2007,10 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     optional.beginRound(); optional.observe(functionOnly);
     await optional.advance('end_turn');
     check('v60.19 an optional search (auto) is never forced', optional.body.tool_choice === 'auto' && optional.body.tools.some((tool) => tool.type === 'function'));
+    const cut = loop.createToolSession({ ...attached, tool_choice: 'auto', reasoning: { effort: 'medium' } }, {}, { run: fakeRun });
+    check('v60.42 a response cut before any text is asked once more with brief reasoning and no tool calls',
+      cut.rewriteEmpty('end_turn', '') === false && cut.rewriteEmpty('incomplete', '본문') === false && cut.rewriteEmpty('incomplete', '') === true
+      && cut.body.reasoning.effort === 'low' && cut.body.tool_choice === 'none' && cut.keySuffix() === ':w1' && cut.rewriteEmpty('incomplete', '') === false);
     if (process.env.AIO_BUDGET_NUMBERS && mixedBudget) {
       const searchOnly = prepareOpenAiBudget(attached, { AI_WEB_SEARCH_ENABLED: 'true', AI_MAX_OUTPUT_TOKENS: '16384' });
       const { tools: _t, max_tool_calls: _m, ...plain } = first;
@@ -2319,6 +2326,51 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const kinds = (query, mode = 'analysis') => visual.chooseAnswerVisuals({ query, mode, tickers: ['KO'] }).map((pick) => pick.kind).join(',');
   check('v60.28 a dividend or PER question attaches no quarterly revenue chart (no figure beats an unrelated one)',
     kinds(question) === '' && kinds('KO 배당 이력 알려줘') === '' && kinds('KO 실적과 매출 흐름') === 'fundamentals' && kinds('KO 어때?') === 'price');
+}
+
+// v60.42 (live eval 2026-11-21, 60 questions on the real model): answers whose figures came from this request's data
+// opened "※ 최신 수치 확인 안 됨 — 일반 설명만"; the 확인된 수치 list printed "NVDA · price: 125.53currency
+// [live:yahoo-proxy · 2026-11-20T21:00:01.000Z]" and "PER 약 15.1배: 15.1배 [consensus tool · …]"; the USD/KRW close
+// was cut as an unverified "주가" sentence and left a lone "**".
+{
+  const nowMs = Date.parse('2026-11-21T03:00:00Z');
+  const ctx = pipelineContext(nowMs);
+  const request = { requestId: 'fixture-v6042', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const referenceText = 'SPY 종가 $689.81 (2026-11-20 종가), 200일선 $732.76 (2026-11-20 종가)';
+  const run = (raw, extra = {}) => ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, referenceText, entities: ['SPY'], ...extra });
+  const grounded = run('SPY는 **200일선 아래**입니다. 2026-11-20 종가 $689.81은 200일선 $732.76보다 낮았습니다.');
+  check(`v60.42 a text-first answer whose figures are all in this request's data opens with no 확인 안 됨 line (${JSON.stringify(grounded.text.slice(0, 60))})`,
+    !grounded.text.includes('※') && grounded.text.includes('$689.81') && !grounded.limitations.includes('current-numeric-claim-unverified') && !grounded.limitations.includes('market-session-evidence-unavailable'));
+  // The live panel always has the screen's close rows in hand (here the SPY reference line).
+  const weather = run('오늘(11월 21일) 서울은 **맑고 춥습니다**.', { entities: [] });
+  check(`v60.42 a figure-free answer on a current question gets no 일반 설명만 line (${JSON.stringify(weather.text)})`, !weather.text.includes('※'));
+  const forged = run('SPY는 2026-11-20 종가 $999.99였습니다. 200일선 아래에 있습니다.');
+  check(`v60.42 a figure that is not in the data still goes and the line says so (${JSON.stringify(forged.text.slice(0, 50))})`,
+    forged.text.startsWith('※') && !forged.text.includes('999.99') && forged.limitations.includes('current-numeric-claim-unverified'));
+
+  const pub = answerPublication;
+  const quote = (entity, value, currency) => ({ evidenceId: `ev-chat-quote-${entity.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, ticker: entity, entity, metric: 'price', value, unit: 'currency', currency, scale: 'raw',
+    asOf: '2026-11-20T21:00:01.000Z', source: 'live:yahoo-proxy', sourceKind: 'LIVE', status: 'verified', allowedUse: 'decision', basis: 'close', basisSessionDate: '2026-11-20' });
+  const rows = [quote('NVDA', 125.53, 'USD'), quote('005930.KS', 183100, 'KRW')];
+  const claimOf = (row) => ({ type: 'metric', metric: 'price', entity: row.entity, value: row.value, unit: 'currency', scale: 'raw', asOf: row.asOf, source: row.source, evidenceIds: [row.evidenceId], status: 'verified', text: `${row.entity} · price` });
+  const perClaim = { type: 'metric', metric: 'per', entity: 'NVDA', value: 15.1, unit: '배', asOf: '2026-11-20', source: 'consensus tool', evidenceIds: [], status: 'verified', text: '직전 4개 분기 조정 EPS 기준 PER 약 15.1배' };
+  const published = pub.buildPublishableAnswerPlan({ schemaVersion: 'answer-plan.v1', summary: '엔비디아와 삼성전자 종가입니다.', sections: [], claims: { claims: [...rows.map(claimOf), perClaim] }, citations: [] }, rows, true,
+    { nowMs, referenceText: 'NVDA 직전 4개 분기 PER 15.1배 (2026-11-20 종가)', entities: ['NVDA', '005930.KS'], nameEntries: { NVDA: { en: 'NVIDIA', kr: '엔비디아' }, '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자', alt: ['삼전'] } } });
+  const listed = renderAnswerPlan(published.plan);
+  check(`v60.42 확인된 수치 rows read as plain Korean with the day and no provider, unit word or doubled value (${JSON.stringify(listed)})`,
+    listed.includes('- NVDA 종가: $125.53 [2026-11-20]') && listed.includes('- 삼성전자 종가: 183,100원 [2026-11-20]') && listed.includes('- 직전 4개 분기 조정 EPS 기준 PER 약 15.1배 [2026-11-20]')
+      && !/yahoo|currency|consensus tool|T21:|15\.1배: 15\.1배|NVDA · price/.test(listed) && published.droppedClaims.length === 0);
+  check('v60.42 a claim whose value is not a number is never listed as a checked value', !renderAnswerPlan(createAnswerPlan({ summary: '요약', claims: [{ type: 'screen', metric: 'count', text: '통과 종목', value: '126; GOOGL 13.8', unit: 'count, ratio', asOf: '2026-11-20', source: 'app screener', evidenceIds: ['x'], status: 'verified' }] })).includes('확인된 수치'));
+
+  const fxClose = { evidenceId: 'ev-close-usdkrw-2026-11-20', metric: 'close.usdkrw', entity: 'USDKRW', label: '원/달러 종가', value: 1346.13, unit: 'krw_per_usd', scale: 'raw', asOf: '2026-11-20', source: 'close-basis', status: 'reference', allowedUse: 'reference' };
+  const fxPlan = (summary) => pub.buildPublishableAnswerPlan({ schemaVersion: 'answer-plan.v1', summary, sections: [], claims: { claims: [] }, citations: [] }, [fxClose], true, { nowMs, entities: [] });
+  const stated = fxPlan('**지금 실시간 환율은 확인된 값이 없습니다. 11월 20일 종가 기준 원/달러 환율은 1,346.13원입니다.** 주말이라 직전 거래일 기준입니다.');
+  check(`v60.42 the USD/KRW close in the injected close rows binds its sentence (${JSON.stringify(stated.plan.summary)})`,
+    stated.plan.summary.includes('1,346.13원') && stated.filterCounts.removedNumericSentences === 0);
+  const cut = fxPlan('**지금 실시간 환율은 확인된 값이 없습니다. 11월 20일 종가 기준 원/달러 환율은 1,399.99원입니다.** 주말이라 직전 거래일 기준입니다.');
+  check(`v60.42 a removed sentence inside a bold run leaves whole markdown and is named 환율 (${JSON.stringify(cut.plan.summary)} ${JSON.stringify(cut.filterCounts.withheldTopics)})`,
+    !cut.plan.summary.includes('1,399.99') && (cut.plan.summary.match(/\*\*/g) || []).length % 2 === 0 && cut.plan.summary.startsWith('**지금 실시간 환율은 확인된 값이 없습니다.**')
+      && cut.filterCounts.withheldTopics['환율'] === 1 && !cut.filterCounts.withheldTopics['주가']);
 }
 
 if (failures.length) {

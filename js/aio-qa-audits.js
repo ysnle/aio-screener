@@ -826,56 +826,6 @@ window.AIO.assertTickerRegistryCompleteness = function() {
   };
 };
 
-// ─────────────────────────────────────────────────────────────────
-// v49.59 P327/R112 신규: auditAllChatContexts — 14 CHAT_CONTEXTS 정합성 자동 검증
-// 새 페이지 추가 시 회귀 방지 + 사이드바 audit 위젯에 노출.
-// ─────────────────────────────────────────────────────────────────
-window.AIO.auditAllChatContexts = function() {
-  var ctx = window.CHAT_CONTEXTS;
-  if (!ctx) return { status: 'error', error: 'CHAT_CONTEXTS undefined', validCount: 0 };
-  var keys = Object.keys(ctx);
-  var results = {};
-  var validCount = 0;
-  var invalidContexts = [];
-  var contextsWithDynamic = [];
-  var totalLength = 0;
-  keys.forEach(function(k) {
-    var c = ctx[k];
-    if (!c || typeof c.system !== 'function') {
-      invalidContexts.push({ key: k, reason: 'system function missing' });
-      results[k] = { ok: false, reason: 'no system' };
-      return;
-    }
-    try {
-      var text = c.system();
-      var len = text ? text.length : 0;
-      var hasDynamic = /\【|live|실시간|동적|_currentTickerId|_currentThemeId|_liveData|DATA_SNAPSHOT|getActionRules|diagnoseBreadth/.test(text);
-      var hasRules = /_getChatRules|ABSOLUTE RULES|환각/.test(text);
-      var hasTitle = !!c.title;
-      results[k] = { ok: len > 200, length: len, hasDynamic: hasDynamic, hasRules: hasRules, hasTitle: hasTitle };
-      if (len > 200) validCount++;
-      else invalidContexts.push({ key: k, reason: 'too short (' + len + ' chars)' });
-      if (hasDynamic) contextsWithDynamic.push(k);
-      totalLength += len;
-    } catch(e) {
-      invalidContexts.push({ key: k, reason: 'system() throw: ' + (e && e.message || e) });
-      results[k] = { ok: false, reason: 'throw' };
-    }
-  });
-  return {
-    status: invalidContexts.length === 0 ? 'ok' : (invalidContexts.length < 3 ? 'warn' : 'error'),
-    totalContexts: keys.length,
-    validCount: validCount,
-    invalidContexts: invalidContexts,
-    contextsWithDynamic: contextsWithDynamic,
-    dynamicCoveragePct: keys.length > 0 ? Math.round(contextsWithDynamic.length / keys.length * 100) : 0,
-    avgLength: keys.length > 0 ? Math.round(totalLength / keys.length) : 0,
-    perContext: results,
-    note: '14 CHAT_CONTEXTS 정합성 자동 검증 (v49.59 P327). validCount === totalContexts 목표',
-    generatedAt: new Date().toISOString()
-  };
-};
-
 window.AIO_THEME_SEMANTIC_EXCLUSION_RULES = window.AIO_THEME_SEMANTIC_EXCLUSION_RULES || {
   kr_medtech: {
     '068760.KQ': 'Celltrion Pharm is pharmaceutical/biopharma exposure, not a direct medical-device or AI-diagnosis pure play.'
@@ -1295,106 +1245,6 @@ window.AIO.getPageSequentialAuditStatus = function() {
 
 
 // ─────────────────────────────────────────────────────────────────
-// v49.71 P380 R135~R137: assertMemoCoverageAudit — SCREENER_DB memo 커버리지 + 신선도 + REGISTRY 매핑 자동 진단
-// 사용자 정직 질의 4건 시정: (1) 커버리지 (2) MEMO 활용 (3) 없는 종목 fallback (4) 오래된 데이터
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertMemoCoverageAudit = function() {
-  var db = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-  var reg = window.AIO_TICKER_NAME_REGISTRY;
-  if (!db.length) return { status: 'error', issues: ['screener rows unavailable'] };
-  var dbArray = Array.isArray(db) ? db : Object.keys(db).map(function(k) { return db[k]; });
-  var totalRows = dbArray.length;
-  var withMemo = 0, withoutMemo = 0, totalLen = 0;
-  var freshnessBuckets = { fresh: 0, medium: 0, oldish: 0, stale: 0, unknown: 0 };
-  var freshnessSamples = { stale: [], unknown: [] };
-  dbArray.forEach(function(row) {
-    if (!row) return;
-    if (row.memo && typeof row.memo === 'string' && row.memo.length > 0) {
-      withMemo++;
-      totalLen += row.memo.length;
-      try {
-        var fresh = (typeof window._aioParseMemoFreshness === 'function') ? window._aioParseMemoFreshness(row.memo) : null;
-        if (fresh && fresh.confidence) {
-          if (fresh.confidence === 'high') freshnessBuckets.fresh++;
-          else if (fresh.confidence === 'medium') freshnessBuckets.medium++;
-          else if (fresh.confidence === 'low') freshnessBuckets.oldish++;
-          else if (fresh.confidence === 'stale') {
-            freshnessBuckets.stale++;
-            if (freshnessSamples.stale.length < 5) freshnessSamples.stale.push({ sym: row.sym, days: fresh.days });
-          } else {
-            freshnessBuckets.unknown++;
-            if (freshnessSamples.unknown.length < 5) freshnessSamples.unknown.push(row.sym);
-          }
-        }
-      } catch(_) {}
-    } else {
-      withoutMemo++;
-    }
-  });
-  var regEntries = (reg && reg.entries) || {};
-  var regKeys = Object.keys(regEntries).filter(function(k) {
-    var e = regEntries[k];
-    return e && e.en !== '_skip' && k.indexOf('_dup') < 0 && k.indexOf('_skip') < 0;
-  });
-  var dbSyms = {};
-  dbArray.forEach(function(r) { if (r && r.sym) dbSyms[r.sym] = true; });
-  var regInDb = regKeys.filter(function(k) { return dbSyms[k]; }).length;
-  var regNotInDb = regKeys.filter(function(k) { return !dbSyms[k]; });
-  var memoCoveragePct = totalRows > 0 ? Math.round(withMemo / totalRows * 100) : 0;
-  var avgLen = withMemo > 0 ? Math.round(totalLen / withMemo) : 0;
-  var stalePct = withMemo > 0 ? Math.round(freshnessBuckets.stale / withMemo * 100) : 0;
-  var chatFn = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
-  var chatIntegrated = chatFn.indexOf('_aioGetMemoForTicker') >= 0 && chatFn.indexOf('[SCREENER_DB Memo') >= 0;
-  var rulesText = chatFn.indexOf('R135') >= 0 && chatFn.indexOf('R136') >= 0;
-  return {
-    status: memoCoveragePct >= 90 && chatIntegrated && rulesText && stalePct <= 30 ? 'ok' : (memoCoveragePct >= 50 && chatIntegrated ? 'warn' : 'fail'),
-    totalRows: totalRows, withMemo: withMemo, withoutMemo: withoutMemo, memoCoveragePct: memoCoveragePct,
-    avgMemoLength: avgLen, freshnessBuckets: freshnessBuckets, freshnessSamples: freshnessSamples, stalePct: stalePct,
-    registryTotal: regKeys.length, registryInDb: regInDb,
-    registryNotInDb: regNotInDb.slice(0, 10), registryGapCount: regNotInDb.length,
-    chatIntegrated: chatIntegrated, rulesText: rulesText,
-    note: 'memoCoveragePct ' + memoCoveragePct + '% / stalePct ' + stalePct + '% / chatIntegrated ' + chatIntegrated + ' / R135-R136 rules ' + rulesText,
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
-// v49.75 P401 R149: assertFetchFailureSurfacingAudit — 17 fetch 실패 silent 검증
-// 사용자 정직 발견 — NVDA Yahoo fetch 실패 silent (R122 4단계 폴백 있어도 사용자 인지 어려움).
-// Pattern C 일반화: _fetchTickerDataForChat의 17 promise 각각 실패 시 라벨 명시 검증.
-// ─────────────────────────────────────────────────────────────────
-window.AIO.assertFetchFailureSurfacingAudit = function() {
-  var src = (typeof window._fetchTickerDataForChat === 'function') ? window._fetchTickerDataForChat.toString() : '';
-  var keyFetches = ['sec', 'wiki', 'sec8K', 'fhNews', 'insider', 'thirteenF', 'fcf', 'balance', 'evEbitda', 'short', 'riskFactors', 'supplyChain', 'partnership', 'platform', 'moat', 'tam'];
-  var perFetch = keyFetches.map(function(name) {
-    // 패턴: NAME + Promise 변수 + 실패/null 처리 검증
-    var promiseVar = name + 'Promise';
-    var hasPromise = src.indexOf(promiseVar) >= 0;
-    // 실패 처리: catch + null check + 사용자 surfacing
-    var hasNullCheck = new RegExp(promiseVar + '\\s*\\?\\s*await').test(src);
-    return {
-      name: name,
-      hasPromise: hasPromise,
-      hasNullCheck: hasNullCheck
-    };
-  });
-  var promiseTotal = perFetch.filter(function(p){ return p.hasPromise; }).length;
-  var hasFailureSurfaceFn = typeof window._aioRenderFetchFailures === 'function';
-  var hasUserVisibleFailLabel = src.indexOf('실패') >= 0;
-  return {
-    status: promiseTotal >= 13 && hasUserVisibleFailLabel ? 'ok' : promiseTotal >= 10 ? 'warn' : 'fail',
-    totalExpectedFetches: keyFetches.length,
-    promiseDefined: promiseTotal,
-    perFetch: perFetch,
-    hasFailureSurfaceFn: hasFailureSurfaceFn,
-    hasUserVisibleFailLabel: hasUserVisibleFailLabel,
-    coveragePct: Math.round((promiseTotal / keyFetches.length) * 100),
-    note: 'v49.75 R149: _fetchTickerDataForChat 17 fetch promise × 실패 surfacing 검증. Pattern C 일반화.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
 // v58.76: assertChatAdvancedFeaturesAudit retired with the profile/alert/export functions it probed.
 // ─────────────────────────────────────────────────────────────────
 // v49.69 P370 R129~R131: assertChatInteractivityAudit — 6 인터랙티브 기능 자동 진단
@@ -1404,7 +1254,6 @@ window.AIO.assertFetchFailureSurfacingAudit = function() {
 window.AIO.assertChatInteractivityAudit = function() {
   var checks = {
     suggestFollowUpQuestions: typeof window._suggestFollowUpQuestions === 'function',
-    autoNavigatePage: typeof window._autoNavigatePage === 'function',
     // v57.77: the test-only portfolio/macro simulators are retired, so they are no longer probed.
     resolveTickerFromFuzzy: typeof window._resolveTickerFromFuzzy === 'function',
     chatFromChip: typeof window.chatFromChip === 'function'
@@ -1431,95 +1280,6 @@ window.AIO.assertChatInteractivityAudit = function() {
     checks: checks,
     integrations: integrations,
     note: 'v49.69 신규 6 인터랙티브 기능 자동 진단 — 100% = 완전 통합, 80%+ = 보강 권장.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// ─────────────────────────────────────────────────────────────────
-// v49.68 P362 R128: getChatContextConsistencyAudit — 14 CHAT_CONTEXTS 간 데이터 일관성 + 기관급 프레임 통합 + 시각 단서 표준 자동 검증
-// 사용자 정직 지적: "AI 채팅 시스템 전체가 유기적으로 기관급 퀄리티로 작동해야"
-// ─────────────────────────────────────────────────────────────────
-window.AIO.getChatContextConsistencyAudit = function() {
-  var ctxIds = window.CHAT_CONTEXTS ? Object.keys(window.CHAT_CONTEXTS) : [];
-  if (ctxIds.length === 0) return { status: 'error', issues: ['CHAT_CONTEXTS undefined'] };
-  // 1. 라이브 데이터 인용 일관성 — 핵심 4 변수 (VIX/10Y/DXY/F&G) 주입 매트릭스
-  var liveDataKeys = ['s.vix', 's.tnx', 's.dxy', 's.fg', '_liveSnap()'];
-  var dataMatrix = {};
-  var instFwHits = {};
-  var scenarioHits = {};
-  var visualCueHits = {};
-  var srcStampHits = {};
-  ctxIds.forEach(function(id) {
-    var ctx = window.CHAT_CONTEXTS[id];
-    if (!ctx || typeof ctx.system !== 'function') return;
-    var src = '';
-    try { src = ctx.system.toString(); } catch(_) {}
-    var rendered = '';
-    try { rendered = String(ctx.system() || ''); } catch(_) {}
-    var scan = src + '\n' + rendered;
-    dataMatrix[id] = {
-      vix: scan.indexOf('s.vix') >= 0 || /VIX/i.test(scan),
-      tnx: scan.indexOf('s.tnx') >= 0 || /10Y|TNX|금리/i.test(scan),
-      dxy: scan.indexOf('s.dxy') >= 0 || /DXY|달러/i.test(scan),
-      fg:  scan.indexOf('s.fg') >= 0 || scan.indexOf('s.fg ') >= 0 || /Fear|Greed|F&G/i.test(scan),
-      liveSnap: scan.indexOf('_liveSnap') >= 0 || /현재 시장 환경|market environment/i.test(scan)
-    };
-    // 기관급 프레임 — _getV48IntegratedContext가 자동 통합하므로 호출 여부만
-    instFwHits[id] = scan.indexOf('_getV48IntegratedContext') >= 0 || /Bridgewater|Druckenmiller|기관급 분석 프레임워크|All Weather/i.test(scan);
-    // Bull/Base/Bear 시나리오 패턴 (system prompt 자체에 시나리오 가이드 명시 여부)
-    scenarioHits[id] = /Bull.*Base.*Bear|시나리오.*분기|시나리오.*확률/i.test(scan);
-    // 시각 단서 표준 (이모지 사용 여부)
-    visualCueHits[id] = /\[위험\]|\[주의\]|\[안정\]|red|yellow|green/i.test(scan);
-    // 출처 타임스탬프 (기준일/snapshot date)
-    srcStampHits[id] = /기준|snapshot|asOfDate|sourceTs|\[Source|Source:/i.test(scan);
-  });
-  // 2. 일관성 점수 계산
-  var totalCtx = ctxIds.length;
-  var vixCoverage = Object.values(dataMatrix).filter(function(d) { return d.vix; }).length;
-  var instFwCoverage = Object.values(instFwHits).filter(Boolean).length;
-  var scenarioCoverage = Object.values(scenarioHits).filter(Boolean).length;
-  var visualCueCoverage = Object.values(visualCueHits).filter(Boolean).length;
-  var srcStampCoverage = Object.values(srcStampHits).filter(Boolean).length;
-  // 3. _fetchTickerDataForChat에서 시장 헤더 + 시나리오 가이드 + 시각 단서 검증
-  var chatFn = typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '';
-  var chatHasMktHeader = chatFn.indexOf('현재 시장 환경') >= 0;
-  var chatHasScenarioGuide = /Bull.*Base.*Bear|Bull \(.*%\)/.test(chatFn);
-  var chatHasVisualCue = /\[위험\]|\[주의\]|\[안정\]/.test(chatFn); // P1500
-  var chatHasSrcStamp = chatFn.indexOf('기준일') >= 0;
-  var chatHasInstFw = chatFn.indexOf('기관급') >= 0 || chatFn.indexOf('Bridgewater') >= 0 || chatFn.indexOf('R126') >= 0;
-  // 4. 종합 점수 (사용자 체감 기관급 퀄리티 0~100)
-  var qualityScore = Math.round((
-    (vixCoverage / totalCtx) * 15 +              // 라이브 데이터 일관성
-    (instFwCoverage / totalCtx) * 25 +           // 기관급 프레임 통합 비중 최고
-    (scenarioCoverage / Math.max(totalCtx, 1)) * 10 +  // 시나리오 가이드
-    (visualCueCoverage / Math.max(totalCtx, 1)) * 5 +
-    (srcStampCoverage / Math.max(totalCtx, 1)) * 5 +
-    (chatHasMktHeader ? 10 : 0) +
-    (chatHasScenarioGuide ? 10 : 0) +
-    (chatHasVisualCue ? 8 : 0) +
-    (chatHasSrcStamp ? 7 : 0) +
-    (chatHasInstFw ? 5 : 0)
-  ));
-  return {
-    status: qualityScore >= 85 ? 'ok' : qualityScore >= 60 ? 'warn' : 'fail',
-    qualityScore: qualityScore,
-    contexts: {
-      total: totalCtx,
-      vixCoverage: vixCoverage,
-      instFwCoverage: instFwCoverage,
-      scenarioCoverage: scenarioCoverage,
-      visualCueCoverage: visualCueCoverage,
-      srcStampCoverage: srcStampCoverage,
-      dataMatrix: dataMatrix
-    },
-    fetchChat: {
-      mktHeader: chatHasMktHeader,
-      scenarioGuide: chatHasScenarioGuide,
-      visualCue: chatHasVisualCue,
-      srcStamp: chatHasSrcStamp,
-      instFw: chatHasInstFw
-    },
-    note: 'qualityScore 85+ = 기관급 / 60~85 = 보강 필요 / <60 = 표면 조사. v49.68 R126/R127/R128 3 신규 규칙 동시 검증.',
     generatedAt: new Date().toISOString()
   };
 };
@@ -1634,8 +1394,8 @@ window.AIO.assertTickerDataIntegrity = async function(ticker, opts) {
         result.sources.price.fresh = true; // 무관 — 캐시 존재 자체로 OK
       }
     }
-    // 2. 추세 함수 존재
-    result.sources.trend.available = typeof window._fetchTickerTrend === 'function';
+    // 2. 추세: the chat's trend tool, loaded with the data tools
+    result.sources.trend.available = !!(window.AIO && window.AIO.chatTools);
     // 3-4. v57.76: the personal-key Finnhub consensus/earnings fetchers are retired, so both channels stay unavailable
     // (the same value the removed typeof checks always produced once the fetchers were deleted).
     result.sources.consensus.available = false;
@@ -3193,46 +2953,6 @@ window._aioRenderAuditWidget = function() {
         }
       } catch(e) { wsEl.textContent = 'web_search audit error'; }
     }
-    // (3) Context freshness
-    var fEl = container.querySelector('[data-audit-key="freshness"]');
-    if (fEl) {
-      try {
-        var f = window.AIO && window.AIO.getChatContextFreshnessAudit && window.AIO.getChatContextFreshnessAudit();
-        if (f) {
-          var pct = f.freshnessPct != null ? f.freshnessPct : (f.totalContexts ? Math.round((f.totalContexts - (f.staleCount || 0)) / f.totalContexts * 100) : null);
-          if (pct != null) {
-            var icon3 = pct >= 95 ? '✓' : pct >= 80 ? '!' : '✗';
-            var color3 = pct >= 95 ? 'var(--color-text-success)' : pct >= 80 ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-            fEl.innerHTML = '<span style="color:' + color3 + ';">' + icon3 + '</span> 컨텍스트 신선도 <b>' + pct + '%</b>';
-          } else if (typeof f.totalHits === 'number') {
-            var activeHits = typeof f.currentHits === 'number' ? f.currentHits : f.totalHits;
-            var archiveHits = typeof f.archiveHits === 'number' ? f.archiveHits : 0;
-            var okFresh = activeHits === 0;
-            var icon3b = okFresh ? '✓' : '!';
-            var color3b = okFresh ? 'var(--color-text-success)' : 'var(--color-text-warning)';
-            fEl.innerHTML = '<span style="color:' + color3b + ';">' + icon3b + '</span> 컨텍스트 current stale <b>' + activeHits + '</b>건' + (archiveHits ? ' · archive ref ' + archiveHits + '건' : '');
-          } else {
-            fEl.innerHTML = '<span style="color:var(--color-text-secondary);">— freshness 측정 불가</span>';
-          }
-        } else {
-          fEl.innerHTML = '<span style="color:var(--color-text-secondary);">— freshness audit 미가용</span>';
-        }
-      } catch(e) { fEl.textContent = 'freshness audit error'; }
-    }
-    // (4) v49.59 P327 신규: CHAT_CONTEXTS 정합성 (auditAllChatContexts)
-    var ccEl = container.querySelector('[data-audit-key="chatContexts"]');
-    if (ccEl) {
-      try {
-        var cc = window.AIO && window.AIO.auditAllChatContexts && window.AIO.auditAllChatContexts();
-        if (cc) {
-          var icon4 = cc.status === 'ok' ? '✓' : cc.status === 'warn' ? '!' : '✗';
-          var color4 = cc.status === 'ok' ? 'var(--color-text-success)' : cc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-          ccEl.innerHTML = '<span style="color:' + color4 + ';">' + icon4 + '</span> 채팅 컨텍스트 <b>' + cc.validCount + '/' + cc.totalContexts + '</b> · 동적 ' + cc.dynamicCoveragePct + '%';
-        } else {
-          ccEl.innerHTML = '<span style="color:var(--color-text-secondary);">— CHAT_CONTEXTS audit 미가용</span>';
-        }
-      } catch(e) { ccEl.textContent = 'chatContexts audit error'; }
-    }
     // v49.65 P344 R116/R118: 5축 신규 — analysisFramework (17 관점 자동화 수준)
     var afEl = container.querySelector('[data-audit-key="analysisFramework"]');
     if (afEl) {
@@ -3310,23 +3030,7 @@ window._aioRenderAuditWidget = function() {
         }
       } catch(e) { ffEl.textContent = '? fourthFifth audit error'; }
     }
-    var cfcEl = container.querySelector('[data-audit-key="chatFunctionCoverage"]');
-    if (cfcEl) {
-      try {
-        var cfc = window.AIO && window.AIO.assertChatFunctionCoverage && window.AIO.assertChatFunctionCoverage();
-        if (cfc) {
-          var icon7 = cfc.status === 'ok' ? '✓' : cfc.status === 'warn' ? '!' : '✗';
-          var color7 = cfc.status === 'ok' ? 'var(--color-text-success)' : cfc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-          var fnPart = '함수 <b>' + cfc.integratedFnCount + '/' + cfc.chatRelevantFnCount + '</b> (' + cfc.integrationPct + '%)';
-          var ctxPart = '컨텍스트 ' + cfc.contextIntegrated + '/' + cfc.contextTotal + ' (' + cfc.contextIntegrationPct + '%)';
-          var cachePart = cfc.cacheImplemented ? '캐시 ✓' : '캐시 ✗';
-          cfcEl.innerHTML = '<span style="color:' + color7 + ';">' + icon7 + '</span> 채팅 통합 ' + fnPart + ' · ' + ctxPart + ' · ' + cachePart;
-        } else {
-          cfcEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatFunctionCoverage audit 미가용</span>';
-        }
-      } catch(e) { cfcEl.textContent = 'chatFunctionCoverage error'; }
-    }
-    // v49.67 P355 R122: 시세 fetch 건강도 — REGISTRY 카테고리별 _liveData hit 비율 + chatTickerCache 통계
+    // v49.67 P355 R122: 시세 fetch 건강도 — REGISTRY 카테고리별 _liveData hit 비율
     var tfhEl = container.querySelector('[data-audit-key="tickerFetchHealth"]');
     if (tfhEl) {
       try {
@@ -3336,26 +3040,11 @@ window._aioRenderAuditWidget = function() {
           var color8 = tfh.status === 'ok' ? 'var(--color-text-success)' : tfh.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
           var usPct = tfh.byCategory && tfh.byCategory.us ? tfh.byCategory.us.coveragePct : '—';
           var krPct = tfh.byCategory && tfh.byCategory.kr ? tfh.byCategory.kr.coveragePct : '—';
-          var ccHits = tfh.chatTickerCache ? tfh.chatTickerCache.hitRatePct : '—';
-          tfhEl.innerHTML = '<span style="color:' + color8 + ';">' + icon8 + '</span> 시세 fetch <b>' + tfh.liveDataHit + '/' + tfh.totalRegistry + '</b> (' + tfh.overallCoveragePct + '%) · US ' + usPct + '% · KR ' + krPct + '% · 캐시 hit ' + ccHits + '%';
+          tfhEl.innerHTML = '<span style="color:' + color8 + ';">' + icon8 + '</span> 시세 fetch <b>' + tfh.liveDataHit + '/' + tfh.totalRegistry + '</b> (' + tfh.overallCoveragePct + '%) · US ' + usPct + '% · KR ' + krPct + '%';
         } else {
           tfhEl.innerHTML = '<span style="color:var(--color-text-secondary);">— tickerFetchHealth audit 미가용</span>';
         }
       } catch(e) { tfhEl.textContent = 'tickerFetchHealth error'; }
-    }
-    // v49.68 P362 R128: 14 CHAT_CONTEXTS 기관급 퀄리티 자동 진단 (사용자 "기관급 퀄리티 + 유기적 작동" 요구)
-    var cccEl = container.querySelector('[data-audit-key="chatContextConsistency"]');
-    if (cccEl) {
-      try {
-        var ccc = window.AIO && window.AIO.getChatContextConsistencyAudit && window.AIO.getChatContextConsistencyAudit();
-        if (ccc) {
-          var icon9 = ccc.status === 'ok' ? '✓' : ccc.status === 'warn' ? '!' : '✗';
-          var color9 = ccc.status === 'ok' ? 'var(--color-text-success)' : ccc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-          cccEl.innerHTML = '<span style="color:' + color9 + ';">' + icon9 + '</span> 프롬프트 구성 점검 <b>' + ccc.qualityScore + '/100</b> (규칙 문구 포함 여부 · 답변 품질 측정 아님) · 프레임 ' + ccc.contexts.instFwCoverage + '/' + ccc.contexts.total + ' · 시나리오 ' + (ccc.fetchChat.scenarioGuide ? '✓' : '✗') + ' · 시각 단서 ' + (ccc.fetchChat.visualCue ? '✓' : '✗');
-        } else {
-          cccEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatContextConsistency audit 미가용</span>';
-        }
-      } catch(e) { cccEl.textContent = 'chatContextConsistency error'; }
     }
     // v49.69 P370 R129~R131: AI 채팅 인터랙티브 기능 자동 진단 (후속 질문/자동 이동/시뮬레이션/fuzzy)
     var ciaEl = container.querySelector('[data-audit-key="chatInteractivity"]');
@@ -3370,36 +3059,6 @@ window._aioRenderAuditWidget = function() {
           ciaEl.innerHTML = '<span style="color:var(--color-text-secondary);">— chatInteractivity audit 미가용</span>';
         }
       } catch(e) { ciaEl.textContent = 'chatInteractivity error'; }
-    }
-    // v49.71 P380 R135~R137: MEMO 커버리지 + 신선도 자동 진단 (사용자 정직 질의 4건 시정)
-    var mcEl = container.querySelector('[data-audit-key="memoCoverage"]');
-    if (mcEl) {
-      try {
-        var mc = window.AIO && window.AIO.assertMemoCoverageAudit && window.AIO.assertMemoCoverageAudit();
-        if (mc) {
-          var iconC = mc.status === 'ok' ? '✓' : mc.status === 'warn' ? '!' : '✗';
-          var colorC = mc.status === 'ok' ? 'var(--color-text-success)' : mc.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-          var staleStr = mc.stalePct > 30 ? ' · stale ' + mc.stalePct + '%' : mc.stalePct > 10 ? ' · stale ' + mc.stalePct + '%' : ' · 신선';
-          mcEl.innerHTML = '<span style="color:' + colorC + ';">' + iconC + '</span> MEMO <b>' + mc.withMemo + '/' + mc.totalRows + '</b> (' + mc.memoCoveragePct + '%)' + staleStr + ' · 통합 ' + (mc.chatIntegrated ? '✓' : '✗');
-        } else {
-          mcEl.innerHTML = '<span style="color:var(--color-text-secondary);">— memoCoverage audit 미가용</span>';
-        }
-      } catch(e) { mcEl.textContent = 'memoCoverage error'; }
-    }
-    // v59.51 (content audit): the financialCharts row writer left with assertFinancialChartsAudit and the 7-chart card.
-    // v49.73 P392 R140~R142: 답변 품질 3축 자동 진단 (현재성·정확성·직관성)
-    var aqEl = container.querySelector('[data-audit-key="answerQuality"]');
-    if (aqEl) {
-      try {
-        var aq = window.AIO && window.AIO.assertChatAnswerQualityAudit && window.AIO.assertChatAnswerQualityAudit();
-        if (aq) {
-          var iconE = aq.status === 'ok' ? '✓' : aq.status === 'warn' ? '!' : '✗';
-          var colorE = aq.status === 'ok' ? 'var(--color-text-success)' : aq.status === 'warn' ? 'var(--color-text-warning)' : 'var(--color-text-error)';
-          aqEl.innerHTML = '<span style="color:' + colorE + ';">' + iconE + '</span> 답변 규칙 점검 <b>' + aq.overallScore + '점</b> (구조 기준 · 실제 답변 평가 아님) · 현재 ' + aq.freshness.score + ' · 정확 ' + aq.accuracy.score + ' · 직관 ' + aq.intuitiveness.score;
-        } else {
-          aqEl.innerHTML = '<span style="color:var(--color-text-secondary);">— answerQuality audit 미가용</span>';
-        }
-      } catch(e) { aqEl.textContent = 'answerQuality error'; }
     }
     // v49.82 P440/R167: XSS escHtml 커버리지 (14축)
     var xssEl = container.querySelector('[data-audit-key="xssSurface"]');
@@ -4793,49 +4452,6 @@ window.AIO.assertChatAnswerStructureAudit = function(responseText) {
   };
 };
 
-// v50.37 트랙2: AIO.getChatSourceRegistryAudit — AIO_CHAT_SOURCE_REGISTRY ↔ 채팅 데이터 주입 코드 정합 감사.
-//   레지스트리에 wired(=배선 의도) 소스의 fn이 (1) 정의돼 있고 (2) ticker fetch/chatSendUnified/domain injector 소스에 실제 호출되는지 확인.
-//   planned/wired:false(KR DART 등 확장점)는 미배선 정상 → unused에서 제외. R121 toString-scan 패턴 재사용.
-window.AIO.getChatSourceRegistryAudit = function() {
-  var reg = window.AIO_CHAT_SOURCE_REGISTRY;
-  if (!Array.isArray(reg)) return { status: 'error', error: 'AIO_CHAT_SOURCE_REGISTRY 미정의', total: 0 };
-  var chatSrc = [
-    typeof window._fetchTickerDataForChat === 'function' ? window._fetchTickerDataForChat.toString() : '',
-    typeof window._fetchTechnicalDataForChat === 'function' ? window._fetchTechnicalDataForChat.toString() : '',
-    typeof window._fetchDomainContextForChat === 'function' ? window._fetchDomainContextForChat.toString() : '',
-    typeof window.chatSendUnified === 'function' ? window.chatSendUnified.toString() : '' // v57.62: per-page chatSend retired
-  ].join('\n');
-  var wired = reg.filter(function(s) { return s.wired !== false; });
-  var planned = reg.filter(function(s) { return s.wired === false || s.planned; });
-  var undefinedFn = [];   // 레지스트리에 있으나 함수 정의 없음
-  var notInCode = [];     // 정의는 됐으나 _fetchTickerDataForChat에 호출 안 됨 (드리프트)
-  wired.forEach(function(s) {
-    if (!s.fn) return;
-    // 채팅 데이터 주입 소스에 fn명 등장(호출) 여부 — 'AIO.fn(' / 'window.AIO.fn(' / 'fn(' 패턴
-    var inCode = new RegExp('(?:AIO\\.|window\\.AIO\\.|\\b)' + s.fn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(').test(chatSrc);
-    var onGlobal = (typeof window[s.fn] === 'function') || (window.AIO && typeof window.AIO[s.fn] === 'function');
-    // 코드에 호출되면(inCode) 모듈 스코프 인라인 함수라도 존재로 간주. 글로벌도 없고 코드에도 없으면 정의 누락.
-    if (!onGlobal && !inCode) { undefinedFn.push(s.key + '(' + s.fn + ')'); return; }
-    if (!inCode) notInCode.push(s.key + '(' + s.fn + ')');
-  });
-  var manifest = window._aioLastChatSources || null;
-  return {
-    status: (undefinedFn.length === 0 && notInCode.length === 0) ? 'ok' : 'warn',
-    total: reg.length,
-    wiredCount: wired.length,
-    plannedCount: planned.length,
-    planned: planned.map(function(s) { return s.key + (s.requiresKey ? ' (req:' + s.requiresKey + ')' : ''); }),
-    undefinedFn: undefinedFn,
-    notInCode: notInCode,
-    unused: notInCode.length,  // 레지스트리 정의 vs 코드 배선 드리프트 (0이어야 정상)
-    manifestPresent: !!manifest,
-    lastManifestAvailable: manifest ? manifest.availableCount : null,
-    tiers: reg.reduce(function(acc, s) { acc[s.tier] = (acc[s.tier] || 0) + 1; return acc; }, {}),
-    note: '레지스트리 wired 소스의 fn 정의+채팅 데이터 주입 배선 정합. planned(KR DART 등 확장점)은 미배선 정상. unused>0 = 레지스트리↔코드 드리프트.',
-    generatedAt: new Date().toISOString()
-  };
-};
-
 // ─────────────────────────────────────────────────────────────────
 // v49.83 P447/R176: _aioBuildSparklineSvg — 종목 30일 mini sparkline SVG (기관급 직관성)
 // Yahoo Chart fetch → 30 closes → SVG path. 양수 green / 음수 red.
@@ -5677,44 +5293,6 @@ window.AIO.getCriticalKrPageFreshnessAudit = function(opts) {
     issueCount: issues.length,
     pagesChecked: pages.length,
     pages: pages,
-    generatedAt: new Date().toISOString()
-  };
-};
-
-// P208: CHAT_CONTEXTS system 함수 소스에서 stale 날짜 토큰 감사 (v49.19)
-window.AIO.getChatContextFreshnessAudit = function() {
-  if (typeof window.CHAT_CONTEXTS === 'undefined') {
-    return { totalHits: -1, error: 'CHAT_CONTEXTS not loaded' };
-  }
-  // v49.64 P335/T176b: 2026.04.X / 2026.05.0X 정적 토큰 광범위 검출 (CHAT_CONTEXTS 일반화 의무)
-  var staleRe = /BLS Apr CPI was headline|Warsh 화요일|Warsh 5월 취임|5-6월 발표|이슬라마바드 협상|2026\.04(\.\d+)?|2026\.05\.(0[1-9]|1[0-5])|4\/(12|13|14|15|18)[^0-9]/;
-  var hits = [];
-  var currentHits = [];
-  var archiveHits = [];
-  var byContext = {};
-  Object.keys(window.CHAT_CONTEXTS).forEach(function(key) {
-    var ctx = window.CHAT_CONTEXTS[key];
-    if (!ctx || typeof ctx.system !== 'function') return;
-    var src = ctx.system.toString();
-    var matches = src.match(new RegExp(staleRe.source, 'g')) || [];
-    byContext[key] = matches.length;
-    matches.forEach(function(m) {
-      var idx = src.indexOf(m);
-      var around = idx >= 0 ? src.slice(Math.max(0, idx - 220), Math.min(src.length, idx + 220)) : '';
-      var isArchiveRef = /archive|ARCHIVE|참고|프레임워크|시나리오|리서치|분석|테시스|패러다임|전환|국면|상황|리스크|이벤트|드라이버|청문회|협상|호르무즈|이란|워시|CPI|PPI|전문가콜|프리뷰|업데이트|JPM|Goldman|Citi|BofA|GS|Evercore|Mizuho|FactSet|§|과거|reference/i.test(around);
-      var hit = { context: key, match: m, archiveReference: isArchiveRef };
-      hits.push(hit);
-      (isArchiveRef ? archiveHits : currentHits).push(hit);
-    });
-  });
-  return {
-    totalHits: hits.length,
-    currentHits: currentHits.length,
-    archiveHits: archiveHits.length,
-    status: currentHits.length === 0 ? 'ok' : 'warn',
-    byContext: byContext,
-    samples: currentHits.slice(0, 5),
-    archiveSamples: archiveHits.slice(0, 5),
     generatedAt: new Date().toISOString()
   };
 };

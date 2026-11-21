@@ -6,15 +6,13 @@
 // v59.49: the screener query engine joins them; it reads the page's rows and quotes itself (screenerInput), the factor
 // date through AIO.screenerFactorAsOf in compatibility-globals.js beside the screener state.
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
-import { buildScreenerAiContext, detectSectorQuery, runScreen, screenerInput } from '../ai/context/screener-query.js';
+import { buildScreenerAiContext, runScreen, screenerInput } from '../ai/context/screener-query.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
-import { CHAT_REFERENCE_BUDGET, capReferenceLines } from '../ai/context/reference-budget.js'; // 2026-11-02 chat context budget
+import { CHAT_REFERENCE_BUDGET } from '../ai/context/reference-budget.js'; // 2026-11-02 chat context budget
 import { buildChatMacroLines, kstStamp } from '../ai/context/chat-macro-lines.js';
 import * as macroReleaseEvidence from '../ai/context/macro-release-evidence.js';
 import { AI_WORKER_CONTRACT } from '../domain/ai/worker-contract.js'; // S5: model id, body limit, header names
-import { chatStockTrendLine } from '../ai/context/stock-trend-line.js'; // S5: [주가 추이] from the 종목 page's row
-import { chatTechnicalBlock } from '../ai/context/technical-lines.js'; // S4: the 차트 screen's reading of the same bars
 import { recordAnswerQuality, summariseAnswerQuality } from '../ai/telemetry/answer-quality-log.js';
 import { answerReferenceText } from '../ai/response/publication.js';
 import { earlierTurnsPromptBlock, relatedEarlierTurns, turnEntities } from '../ai/session/earlier-turns.js';
@@ -27,10 +25,11 @@ import { readWatchlistSymbols } from '../data/watchlist-store.js';
 import { showConsentChoices } from '../ui/components/chat-consent-choices.js';
 import { companyMatcher } from '../domain/briefing/news-picks.js';
 import { decideQuoteBasis, quoteBasisLine } from '../ai/time/quote-basis.js'; // close vs intraday price basis
+import { composeLeanPrompt } from '../ai/prompt/lean-prompt.js'; // the system prompt of a turn that offers the tools
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
-  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, capReferenceLines, buildChatMacroLines, macroReleaseEvidence, chatStockTrendLine, chatTechnicalBlock, aiWorkerContract: AI_WORKER_CONTRACT });
+  Object.assign(root.AIO, { buildMarketContentContext, buildQuestionDomainContext, chooseAnswerMode, answerModeGuide, buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch, chatReferenceBudget: CHAT_REFERENCE_BUDGET, buildChatMacroLines, macroReleaseEvidence, aiWorkerContract: AI_WORKER_CONTRACT });
   // The answer-quality log: the response pipeline records each finished answer; the operator reads the summary from the console.
   const storage = () => { try { return root.localStorage || null; } catch (_) { return null; } };
   root.AIO.recordAnswerQuality = (entry) => recordAnswerQuality(storage(), entry);
@@ -44,6 +43,7 @@ export function installChatGlobals(root = globalThis) {
   const watchlist = () => { try { return readWatchlistSymbols(root.localStorage); } catch (_) { return []; } };
   Object.assign(root.AIO, { personalGate, personalTurn: (turn) => personalTurn({ ...turn, watchlist: watchlist() }), personalConsentCard: PERSONAL_CONSENT_CARD,
     showHoldingsConsentChoices: () => showConsentChoices(root.document, PERSONAL_CONSENT_CARD, '_aioHoldingsConsentAnswer') });
+  root.AIO.composeLeanPrompt = (turn) => composeLeanPrompt({ ...turn, root });
   root.AIO.chatTools = chatToolKit(root); // the data tools the model may call (src/ai/tools/), run by callSharedAi
   root.AIO.promptWithoutWebSearch = (prompt) => toolsPromptWithoutSearch(promptWithoutWebSearch(prompt)); // a retry runs without search
   // The waiting line of a running answer; its question is kept in this tab's sessionStorage until the answer arrives, so
@@ -68,10 +68,9 @@ export function installChatGlobals(root = globalThis) {
   };
   root._aioCompanyMatcher = (symbol, name, aliases) => companyMatcher(symbol, name, { aliases }); // the chat's stock-news filter reads headlines by the news issuer rule
   root._aioKstStamp = kstStamp; // the chat's and the workspace prompt's assembly time, in KST on any device
-  // One screener engine (src/ai/context/screener-query.js) for the screen tool, the injected block of a turn
-  // without tools (options.tools false) and the T-tests (_aioRunScreen takes the tool's structured spec).
+  // One screener engine (src/ai/context/screener-query.js) for the screen tool, the broad comparison sample and the
+  // T-tests (_aioRunScreen takes the tool's structured spec).
   root._aioRunScreen = (spec) => runScreen(spec, screenerInput(root));
-  root._aioBuildScreenerAiContext = (query, messages, logger, options) => buildScreenerAiContext(query, messages, { ...screenerInput(root), logger, tools: options?.tools === true });
-  root._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerInput(root).rows });
+  root._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...screenerInput(root), logger });
   return root.AIO;
 }

@@ -51,7 +51,7 @@ const root = {
 };
 const screenTool = registry.CHAT_TOOLS.find((tool) => tool.name === 'screen');
 const runScreenTool = (args) => registry.runTool('screen', JSON.stringify(args), { root, now: asOfMs });
-const spec = (extra) => ({ market: 'US', sizes: [], sector: null, theme: null, index: null, conditions: [], sort: 'marketCap', order: 'desc', limit: 12, ...extra });
+const spec = (extra) => ({ symbols: [], market: 'US', sizes: [], sector: null, theme: null, index: null, conditions: [], sort: 'marketCap', order: 'desc', limit: 12, ...extra });
 const bySymbol = new Map(rows.map((row) => [row.sym, row]));
 const input = typeof screenerQuery.screenerInput === 'function' ? screenerQuery.screenerInput(root, { now: asOfMs }) : null;
 const read = input?.read;
@@ -120,17 +120,57 @@ await check('v60.41 a size-only screen returns rows (unknown size is not small, 
     assert.ok(out.ok && out.entities.length === Math.min(12, expected), `v60.41 ${size}: ${out.entities.length} of ${expected}`);
     assert.ok(out.entities.every((sym) => capBucketOf(bySymbol.get(sym)) === size), `v60.41 every row sits in ${size}`);
   }
-  const sentence = screenerQuery.buildScreenerAiContext('대형주', [], { ...input, tools: false });
-  assert.ok(sentence.result?.totalMatched > 0, `v60.41 sentence 대형주 matched ${sentence.result?.totalMatched}`);
+  const sentence = screenerQuery.runScreen(screenerQuery.readScreenSentence('대형주'), input);
+  assert.ok(sentence.totalMatched > 0, `v60.42 sentence 대형주 matched ${sentence.totalMatched}`);
+});
+
+await check('v60.42 named stocks read their screener rows from both markets, with the row values the 종목 screen shows', async () => {
+  const out = await runScreenTool(spec({ symbols: ['NVDA', '005930.KS', 'ZZZZNOPE'], market: 'US', sizes: ['SMALL'] }));
+  assert.ok(out.ok, 'v60.42 the named screen runs');
+  assert.deepEqual([...out.entities].sort(), ['005930.KS', 'NVDA'], 'v60.42 both markets are read and the size scope is not applied');
+  const nvda = bySymbol.get('NVDA');
+  assert.ok(out.text.includes(`PER ${Number(read(nvda, 'pe')).toFixed(1)}`), 'v60.42 the row PER is the screener PER');
+  assert.ok(out.text.includes('매출 성장률(최근 4개 분기) ') && /50일선 대비 [+-]/.test(out.text), 'v60.42 the detail fields are stated with their basis');
+  assert.ok(out.text.includes('종목 DB에 없는 종목: ZZZZNOPE'), 'v60.42 an unknown symbol is named, not dropped silently');
+  const plain = await runScreenTool(spec({ limit: 3 }));
+  assert.ok(!/50일선 대비/.test(plain.text), 'v60.42 a condition screen keeps its compact rows');
+});
+
+// v60.42: the prompt of every turn, which always carries the tools. On the live site (v60.41) a two-stock comparison was sent 60K
+// characters of instructions, most of it reference material the question did not need.
+await check('v60.42 a tool turn is sent the short prompt: the named stocks\' rows, no reference packets, under 9K characters', async () => {
+  const { composeLeanPrompt } = await import('../src/ai/prompt/lean-prompt.js');
+  const { buildAnswerPrinciples } = await import('../src/ai/response/answer-principles.js');
+  const lean = composeLeanPrompt({ root, screenTitle: '종목', tickers: ['NVDA', '005930.KS'], screenBasis: 'S&P 500 종가 6,700.12 (11월 20일)', profile: '' });
+  assert.equal(lean.stockRows, true, 'v60.42 the named stocks are in the prompt');
+  assert.ok(lean.prompt.includes(`PER ${Number(read(bySymbol.get('NVDA'), 'pe')).toFixed(1)}`) && lean.prompt.includes('005930.KS'), 'v60.42 the prompt rows are the screener rows of both stocks');
+  assert.ok(lean.prompt.includes('S&P 500 종가 6,700.12'), 'v60.42 the screen reading is carried');
+  assert.equal(composeLeanPrompt({ root, tickers: [] }).stockRows, false, 'v60.42 no named stock, no rows');
+  const principles = buildAnswerPrinciples({ today: '2026-11-21', hasTickers: true, liveStatus: '종가 기준', webSearch: true });
+  assert.ok(principles.includes('위에 없으면 도구로 읽는다') && !principles.includes('관련 뉴스 없음') && !principles.includes('미주입'), 'v60.42 a tool turn is not told that news or trend is absent');
+  const whole = registry.toolsPromptBlock({ functions: true, webSearch: true }) + lean.prompt + principles;
+  assert.ok(whole.length < 9000, `v60.42 the head, rows and principles are ${whole.length} characters`);
+  const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+  const sendStart = chat.indexOf('async function chatSendUnified(');
+  const send = chat.slice(sendStart, chat.indexOf('\nasync function ', sendStart + 10) > 0 ? chat.indexOf('\nasync function ', sendStart + 10) : chat.indexOf('\nfunction ', sendStart + 10));
+  assert.ok(sendStart >= 0 && send.length > 5000, 'v60.42 chatSendUnified is found');
+  assert.ok(send.includes('sysPrompt = _uniLeanBase.prompt;'), 'v60.42 every turn starts from the short prompt');
+  for (const call of ['_getImportedResearchContext', '_uniKnowledgeOrchestrator', '_fetchTickerDataForChat', '_fetchTechnicalDataForChat', '_buildNewsContext', '_buildChatIntentContext', '_buildChatAnswerCoverageContext', '_buildAioIntegratedAnswerContext', '_aioBuildAIClaimEvidenceRegistry', 'ctx.system(', '_fetchSectorCompareData', '_fetchDeepCompareData', '_uniLean ']) {
+    assert.ok(!send.includes(call), `v60.42 chatSendUnified pre-injects nothing the tools read: ${call}`);
+  }
+  assert.ok(chat.includes("    if (typeof _aioDomainContextForQuestion === 'function') {") && lean.prompt.includes('기회비용') && lean.prompt.includes('시나리오'), 'v60.42 the scenario and decision-frame reading stays on a tool turn');
+  const { chatToolKit } = await import('../src/ai/tools/loop.js');
+  assert.deepEqual(chatToolKit({}).usedEvidence([{ name: 'technicals', ok: true }, { name: 'news', ok: false }, { name: 'consensus', ok: true }]), { ticker: true, fundamentals: false, technical: true, news: false }, 'v60.42 the evidence badges follow the tool calls that succeeded');
+  assert.ok(send.includes('var _uniTools = window.AIO && window.AIO.chatTools ? window.AIO.chatTools : null;') && !/chatTools\.offer\b/.test(chat), 'v60.42 the tools travel with every turn, in every answer mode');
 });
 
 await check('v60.41 과매도 reads as the screener RSI condition, never a SELL-signal filter', () => {
-  const out = screenerQuery.buildScreenerAiContext('과매도 종목', [], { ...input, tools: false });
-  assert.ok(out.result?.matched, 'v60.41 the sentence runs');
-  assert.ok(!out.result.criteria.some((label) => /시그널|SELL/.test(label)), `v60.41 no signal criterion: ${out.result.criteria.join(' | ')}`);
-  assert.deepEqual(out.result.spec.conditions, [{ id: 'rsi-max', value: 30 }], 'v60.41 out.result.spec.conditions');
-  assert.ok(out.result.rows.every((row) => row.rsi != null && row.rsi <= 30), 'v60.41 out.result.rows.every row row.rsi null row.rsi 30');
-  assert.ok(!/시그널/.test(out.prompt), 'v60.41 시그널 .test out.prompt');
+  const result = screenerQuery.runScreen(screenerQuery.readScreenSentence('과매도 종목'), input);
+  assert.ok(result.matched, 'v60.42 the sentence runs');
+  assert.ok(!result.criteria.some((label) => /시그널|SELL/.test(label)), `v60.42 no signal criterion: ${result.criteria.join(' | ')}`);
+  assert.deepEqual(result.spec.conditions, [{ id: 'rsi-max', value: 30 }], 'v60.42 result.spec.conditions');
+  assert.ok(result.rows.every((row) => row.rsi != null && row.rsi <= 30), 'v60.42 result.rows.every row row.rsi null row.rsi 30');
+  assert.ok(!/시그널/.test(screenerQuery.formatScreenResult(result)), 'v60.42 시그널 .test formatScreenResult');
 });
 
 await check('v60.41 an impossible combination returns 0 and the coverage names the condition that removed everything', async () => {
@@ -144,9 +184,9 @@ await check('v60.41 an impossible combination returns 0 and the coverage names t
   assert.ok(noData.ok && /시가총액 자료가 없어/.test(noData.text), 'v60.41 KR size names the missing data');
 });
 
-await check('v60.41 a turn with tools injects no sentence screen; a broad ask keeps the comparison sample', () => {
-  assert.equal(screenerQuery.buildScreenerAiContext('RSI 30 이하 기술주', [], { ...input, tools: true }).prompt, '', 'v60.41 screenerQuery.buildScreenerAiContext RSI 30 이하 기술주 ...input tools true');
-  const broad = screenerQuery.buildScreenerAiContext('종목 추천해줘', [], { ...input, tools: true });
+await check('v60.42 the prompt injects no sentence screen; a broad ask keeps the comparison sample', () => {
+  assert.equal(screenerQuery.buildScreenerAiContext('RSI 30 이하 기술주', [], input).prompt, '', 'v60.42 a condition sentence is left to the screen tool');
+  const broad = screenerQuery.buildScreenerAiContext('종목 추천해줘', [], input);
   assert.ok(broad.result?.mode === 'diversified-recommendation', `v60.41 broad question mode ${broad.result?.mode}`);
   assert.match(broad.prompt, /종목 비교 표본/, 'v60.41 broad.prompt');
 });

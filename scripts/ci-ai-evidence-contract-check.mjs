@@ -29,17 +29,14 @@ assert.ok((await chatStockTrendLine('ZZZZ', { root })).includes('요청 시 산�
 let requested = 0;
 assert.equal(await chatStockTrendLine('000660.KS', { root: { ...root, _aioRequestOnDemandSymbol: () => { requested += 1; } } }), null, 'v59.87 a KR listing outside the universe has no line');
 assert.equal(requested, 0, 'v59.87 a KR listing is never sent to the US on-demand reader');
-// v59.87 no second computation path in the chat: _fetchTickerTrend returns the shared line and never downloads a chart.
-const vm = await import('node:vm');
-const chat = read('js/aio-chat.js');
-const trendFn = chat.slice(chat.indexOf('async function _fetchTickerTrend('), chat.indexOf('// _withTimeout moved to'));
-let downloads = 0;
-const sandbox = { fetchViaProxy: () => { downloads += 1; throw new Error('no chart download'); }, fetch: () => { downloads += 1; throw new Error('no fetch'); } };
-sandbox.window = { ...sandbox, AIO: { chatStockTrendLine: async (sym, opts) => (opts.root === sandbox.window ? `shared:${sym}` : null) } };
-vm.createContext(sandbox);
-vm.runInContext(`${trendFn}; this._trend = _fetchTickerTrend;`, sandbox);
-assert.equal(await sandbox._trend('NVDA'), 'shared:NVDA', 'v59.87 _fetchTickerTrend returns the shared screen-row line');
-assert.equal(downloads, 0, 'v59.87 _fetchTickerTrend downloads nothing');
+// v59.87 no second computation path in the chat: the trend tool returns the shared screen-row line and downloads nothing.
+const { runTool: runTrendTool } = await import('../src/ai/tools/registry.js');
+let trendDownloads = 0;
+const trendRoot = { ...root, fetch: () => { trendDownloads += 1; throw new Error('no fetch'); }, fetchViaProxy: () => { trendDownloads += 1; throw new Error('no chart download'); },
+  _aioNormalizeTickerInput: (text) => String(text).toUpperCase(), _aioIsKnownTicker: (sym) => sym === 'NVDA' };
+const trendOut = await runTrendTool('trend', JSON.stringify({ symbol: 'NVDA' }), { root: trendRoot, now: Date.parse('2026-11-07T00:00:00Z') });
+assert.equal(trendOut.text.split('\n')[0], `[주가 추이] NVDA: ${await chatStockTrendLine('NVDA', { root: trendRoot })}`, 'v60.42 the trend tool returns the shared screen-row line');
+assert.equal(trendDownloads, 0, 'v60.42 the trend tool downloads nothing');
 const { buildChatMacroLines } = await import('../src/ai/context/chat-macro-lines.js');
 const fx = buildChatMacroLines({ ctxId: 'fxbond', root: { _liveData: { 'DX-Y.NYB': { price: 120 } }, DATA_SNAPSHOT: { dxy: 99.5 } } });
 assert.ok(fx.some((l) => l.includes('99.50') && l.includes('스냅샷 참고')) && !fx.some((l) => l.includes('120')), `v59.87 DXY fallback is the labelled snapshot, not the raw live quote: ${fx.join()}`);
@@ -464,7 +461,7 @@ assert.match(quoteBasisLine(intraday.after.quoteRows[0]), /^NVDA: 장중 시세 
 // The chat hands the model the basis lines, not the old age/truth diagnostics.
 const chat = read('js/aio-chat.js');
 assert.match(chat, /\[종목 가격 기준\][\s\S]{0,400}거부하지 않는다/, 'v60.41 the preflight block tells the model to state the close with its date');
-assert.doesNotMatch(chat, /quote-ok' : 'quote-missing'/, 'v60.41 the age/truth diagnostic line is gone');
+assert.doesNotMatch(chat, /quote-ok\x27 : \x27quote-missing\x27/, 'v60.41 the age/truth diagnostic line is gone');
 console.log('PASS v60.41 quote basis: close on a closed market, intraday rule while open, conflicts block, KRX session for Korean listings, no lookups for a close');
 }],
 // ── section chat-analysis-integration (was ci-ai-chat-analysis-integration-check.mjs) ──
@@ -485,7 +482,7 @@ const chat = (read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipe
 const html = read('index.html');
 
 const helperStart = chat.indexOf('function _aioBuildChatAnalysisContext(');
-const helperEnd = chat.indexOf('\n\n// 2026-08-30 supplied-materials', helperStart);
+const helperEnd = chat.indexOf('\n\n// External/API/registry text is evidence', helperStart);
 assert.ok(helperStart >= 0 && helperEnd > helperStart, 'production helper slice is present');
 
 const boundaryKinds = [];
@@ -597,14 +594,14 @@ assert.equal(numericOnlyQuote.questionPlan.premise.status, 'UNVERIFIED', 'numeri
 assert.equal(numericOnlyQuote.audit.requestedPeriod, null, 'numeric quote cannot create a requested period');
 
 // v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) was retired; only the unified surface remains.
-assert.ok(!/async function chatSend\(/.test(chat) && !/_pageAnalysisSlice/.test(chat), 'v57.62 per-page chatSend retired');
+assert.ok(!/async function chatSend\x28/.test(chat) && !/_pageAnalysisSlice/.test(chat), 'v57.62 per-page chatSend retired');
 // P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js.
 // All three assertions below follow the code there — including the chip markup, which is emitted by
 // _aiDefaultChips (also block G) rather than authored in the shell. The gate caught that assumption
 // when it failed on the stale index.html read.
 assert.ok(/_uniClaimEvidence[\s\S]{0,900}_aioBuildChatAnalysisContext/.test(chat), 'unified chat calls the shared helper after evidence collection');
 assert.ok(/_uniAnalysisSlice\.questionPlan/.test(chat) && /sysPrompt \+= _uniAnalysisSlice\.context/.test(chat), 'unified chat adopts the updated plan and context');
-assert.ok(/premise-['"] \+ premiseStatus\.toLowerCase\(\)/.test(chat) && /CONTRADICTED/.test(chat), 'pipeline adds premise limitations without a blanket block');
+assert.ok(/premise-[\x27\x22] \+ premiseStatus\.toLowerCase\(\)/.test(chat) && /CONTRADICTED/.test(chat), 'pipeline adds premise limitations without a blanket block');
 assert.ok(/_aioAIClaimEvidenceTuple/.test(chat) && /status: 'conflict'/.test(chat), 'claim registry marks conflicting tuples explicitly');
 assert.ok((chat.match(/<button type="button" class="ai-chip"/g) || []).length >= 2 && !/<div class="ai-chip"/.test(chat), 'unified chat chips are keyboard-activatable buttons');
 // v59.51 (content audit): aiChipClick delegates to the one chip path, chatFromChip, which ends in the unified send.
@@ -624,20 +621,17 @@ const { createEntityProvider } = await import('../src/data/providers/entity.js')
 const { selectPublicEarnings } = await import('../src/data/providers/earnings.js');
 const { assessWorkerSetup } = await import('./check-worker-setup.mjs');
 
-// P1607: execute the actual keyless AI consumer, not a parallel implementation.
-const chat = (readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js',import.meta.url),'utf8'));
-const start = chat.indexOf('async function _fetchDeepCompareData(');
-const end = chat.indexOf('// 기업 내부 비교 데이터', start);
+// P1607: execute the actual keyless AI consumer (the chat's fundamentals tool), not a parallel implementation.
+const { runTool } = await import('../src/ai/tools/registry.js');
+const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
 const facts = { symbol:'NVDA', source:'SEC EDGAR companyfacts', periodType:'FY', observedAt:'2026-01-31', filedAt:'2026-03-01', coverage:['revenue','netIncome'], revenue:123, netIncome:0 };
 let requests = 0;
 const provider = createEntityProvider({ read:()=>({id:'NVDA'}), httpClient:{requestJson:async()=>{ requests++;return {ok:true,data:{data:{NVDA:facts}}};}} });
-const root = { AIO:{readPublicFundamentals:provider.readFundamentals,formatSecResearchEvidence} };
-const context = vm.createContext({window:root,_getApiKey:()=>'',_aioThrowIfChatAborted:signal=>{if(signal?.aborted) throw new DOMException('Aborted','AbortError');},_aioLog(){},Date,console});
-vm.runInContext(chat.slice(start,end),context);
-const [deep,screen] = await Promise.all([context._fetchDeepCompareData(['NVDA']),provider.readCurrent()]);
+const root = { AIO:{readPublicFundamentals:provider.readFundamentals,formatSecResearchEvidence}, _aioNormalizeTickerInput:(text)=>String(text).toUpperCase(), _aioIsKnownTicker:(sym)=>sym==='NVDA'||sym==='UNKNOWN' };
+const [deep,screen] = await Promise.all([runTool('fundamentals',JSON.stringify({symbol:'NVDA'}),{root,now:Date.parse('2026-06-01T00:00:00Z')}),provider.readCurrent()]);
 assert.equal(requests,1,'P1607 screen and keyless AI share one provider load');
-assert.equal(deep.NVDA.secFundamentals.revenue,screen.fundamentals.revenue,'P1607 AI does not discard shared facts without FMP');
-assert.equal(await context._fetchDeepCompareData(['UNKNOWN']),null,'P1607 unavailable symbols never fabricate a result');
+assert.ok(deep.ok && deep.text.includes(formatSecResearchEvidence(screen.fundamentals,Date.parse('2026-06-01T00:00:00Z')).trim()),'v60.42 the fundamentals tool returns the shared facts the screen reads');
+assert.equal((await runTool('fundamentals',JSON.stringify({symbol:'UNKNOWN'}),{root})).ok,false,'P1607 unavailable symbols never fabricate a result');
 assert.match(formatSecResearchEvidence(facts),/FY/,'P1607 annual source keeps its period');
 assert.match(formatSecResearchEvidence(facts),/순이익: 0/,'P1607 a reported zero remains distinct from missing');
 assert.equal(formatSecResearchEvidence({...facts,filedAt:'2099-01-01'}),'','P1607 future unavailable facts are held');

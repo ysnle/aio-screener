@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 
 const BOOT_SCRIPTS = ['js/aio-core.js', 'js/aio-data.js'];
 const STAYING = new Set([
-  'assertChatAnswerQualityAudit', 'assertChatEvidenceReferences', 'assertChatFunctionCoverage', 'assertChatPanelDomAudit',
+  'assertChatEvidenceReferences', 'assertChatPanelDomAudit',
   'assertChatResponseAccuracy', 'assertTickerFetchHealth', 'collectCritical10MarketContentInventory', 'getAIRetrievalAudit',
   'getAuditRegistryAudit', 'getCellLevelDataAudit', 'getChatAnswerFreshnessAudit', 'getCrossPageIndicatorConsistencyAudit',
   'getDataFreshnessAudit', 'getDataQualityIssueAudit', 'getDeploymentGateAudit', 'getEvidenceStoreAudit',

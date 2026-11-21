@@ -5461,10 +5461,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   win._aioHistory = history;
   const read = win._aioKrIndexCloseRead('kosdaq', history);
   if (!read || read.date !== '2026-10-13' || read.prevDate !== '2026-10-12' || Math.abs(read.pct + 1.432) > 0.01) fail(`P1729 the AI header KR close read must name both sessions: ${JSON.stringify(read)}`);
-  const chatSource = readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8');
   // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
+  // v60.42: the chat's market header is gone (the short prompt carries the screen basis), so only the technical block is read.
   const technicalSource = readFileSync(path.join(root, 'src/ai/context/technical-lines.js'), 'utf8');
-  if (!/_aioKrIndexCloseRead\('kospi'/.test(chatSource) || !/고른 상승·소수 종목 주도·동반 약세/.test(chatSource) || !/krDayChange\(symbol, analysis\.asOf, analysis\.last\.close\)/.test(technicalSource)) fail('P1728/P1729 the chat header and technical block must use the verified KR change and the three flows');
+  if (!/krDayChange\(symbol, analysis\.asOf, analysis\.last\.close\)/.test(technicalSource)) fail('v60.42 P1728 the technical block must use the verified KR change');
 }
 
 // P2116: the news exclusion lists match English keywords as whole words — 'nfl' inside "inflation" dropped every
@@ -6483,7 +6483,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const sectors = ['Technology', 'Energy', 'Utilities', 'Healthcare', 'Financials', 'Industrials'];
   const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `T${String.fromCharCode(65 + i)}X`, name: `Co ${i}`, sector: sectors[i % 6], rank: i + 1, score: 90 - i, mcap: 5e9 * (i + 1), rsi: 25 + i * 2, signal: i % 3 ? 'HOLD' : 'BUY' }));
   if (sq.readScreenSentence('오늘 기분 어때') !== null) fail('screener-query: a question with no screen condition reads no spec');
-  const rsi = sq.buildScreenerAiContext('rsi 30 이하', [], { rows }).result;
+  const rsi = sq.runScreen(sq.readScreenSentence('rsi 30 이하'), { rows });
+  if (sq.buildScreenerAiContext('rsi 30 이하', [], { rows }).prompt !== '') fail('v60.42 screener-query: a condition sentence injects nothing (the screen tool answers it)');
   if (!rsi?.matched || !rsi.rows.length || !rsi.rows.every((row) => row.rsi <= 30)) fail(`screener-query: RSI ceiling filters rows: ${JSON.stringify(rsi?.criteria)}`);
   const recent = sq.extractRecentRecommendationTickers([{ content: 'TAX와 TBX, NOPE를 봤어' }], { rows });
   if (recent.join(",") !== "TAX,TBX") fail(`screener-query: recent tickers are the known symbols in the conversation: ${recent}`);
@@ -7678,7 +7679,6 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     [c.asksSimpleCue('What is the operating margin?'), false], [c.asksSimpleCue('삼성전자 PER이 뭐야'), true],
     [c.looksFreshCue('I know corporate bonds'), false], [c.looksFreshCue('오늘 시장 상황'), true], [c.looksFreshCue('rates this week'), true],
     [c.asksDecisionCue('the 50-day threshold'), false], [c.asksDecisionCue('NVDA 지금 사도 돼?'), true], [c.asksDecisionCue('hold or trim MSFT'), true],
-    [c.deepAnalysisCue('fintech names'), false], [c.deepAnalysisCue('Analyze NVDA'), true], [c.deepCompareCue('NVDA vs AMD 비즈니스 모델'), true],
     [c.asksMissingCue('데이터가 없어요'), true], [c.asksEvidenceCue('이 숫자 출처'), true]
   ].map(([got, want], i) => (got === want ? null : i)).filter((i) => i != null);
   if (wrong.length) fail(`v59.42 question cues: cases ${wrong.join(',')} wrong`);

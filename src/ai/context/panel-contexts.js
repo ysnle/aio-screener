@@ -2,19 +2,18 @@
 // builder already reads 13F holdings for the masters focus. The classic panel's map lives in js/aio-chat.js, which may
 // not grow (decomposition ratchet), so the two screens are registered here through the same globals it reads.
 const EXTRA = Object.freeze([
-  { page: 'masters', ctx: 'masters', title: 'AI 운용사 보유 분석가', focus: 'masters', chips: ['이 운용사의 보유 구조', '분기 사이 바뀐 것', '13F로 알 수 없는 것', '내 관심 종목과 겹치는 곳'] },
-  { page: 'guide', ctx: 'guide', title: 'AI 화면 안내', focus: 'principles', chips: ['화면 보는 순서', '시나리오 구조', '테마 단계 기준', '내 종목 확인 순서'] }
+  { page: 'masters', ctx: 'masters', title: 'AI 운용사 보유 분석가', chips: ['이 운용사의 보유 구조', '분기 사이 바뀐 것', '13F로 알 수 없는 것', '내 관심 종목과 겹치는 곳'] },
+  { page: 'guide', ctx: 'guide', title: 'AI 화면 안내', chips: ['화면 보는 순서', '시나리오 구조', '테마 단계 기준', '내 종목 확인 순서'] }
 ]);
 
 export function installPanelContexts(root = globalThis) {
   const map = root._aiCtxMap;
   const contexts = root.CHAT_CONTEXTS;
-  const create = root._aioCreateEvidenceContext;
-  if (!map || !contexts || typeof create !== 'function') return 0;
+  if (!map || !contexts) return 0;
   let added = 0;
   for (const row of EXTRA) {
     if (!map[row.page]) map[row.page] = row.ctx;
-    if (!contexts[row.ctx]) { contexts[row.ctx] = create(row.title, row.focus); added += 1; }
+    if (!contexts[row.ctx]) { contexts[row.ctx] = { title: row.title }; added += 1; }
     if (root._aiDefaultChips && !root._aiDefaultChips[row.ctx]) root._aiDefaultChips[row.ctx] = row.chips;
   }
   return added;

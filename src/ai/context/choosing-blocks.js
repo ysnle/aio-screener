@@ -296,10 +296,9 @@ export function teachForTurn({ ctxId = '', query = '', tickers = [], mode = 'ana
 // listed in grey on every answer, which read as "checked and empty".
 const BADGES = [['ticker', 'on', '종목 데이터'], ['fundamentals', 'on', '재무'], ['technical', 'cyan', '차트 지표'], ['screener', 'amber', '스크리너'], ['domain', 'on', '화면 데이터'], ['news', 'on', '뉴스'], ['portfolio', 'on', '보유 내역'], ['web', 'purple', '웹검색'], ['aiWeb', 'purple', 'AI 웹검색'], ['deep', 'cyan', '심층']];
 export function sourceBadge(root, ctxId, flags = {}) {
-  const used = { ...flags, fundamentals: /PER:|FCF Yield|Balance Sheet|EV\/EBITDA|Segments|income statement|재무제표/i.test(flags.tickerText || '') };
   let close = null;
   try { close = root._aioChatCloseMarketBasis?.(); } catch (_) { close = null; }
-  const items = BADGES.filter(([key]) => used[key]).map(([, tone, label]) => `<span class="lch-src-${tone}">${label}</span>`);
+  const items = BADGES.filter(([key]) => flags[key]).map(([, tone, label]) => `<span class="lch-src-${tone}">${label}</span>`);
   const basis = `${root.__aioChatSessions?.screenLabel?.(ctxId) || '이'} 화면 기준${close?.asOf ? `, 종가 ${String(close.asOf).slice(5).replace('-', '/')}` : ''}`;
   return `<span class="lch-muted">${basis.replace(/[&<>"']/g, '')}${items.length ? ', 사용한 근거' : ''}</span>${items.join('')}`;
 }

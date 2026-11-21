@@ -22,6 +22,8 @@ const select = overrides => selectNativeSearch({ decision: plan.researchDecision
 assert.equal(select({ internalEvidenceReady: internal }), true, 'v60.02 a covered current question is still offered search (the model decides)');
 assert.equal(searchMustRun(plan.researchDecision, { internalEvidenceReady: internal }), false, 'v60.02 a current question the injected data covers is not forced to search');
 assert.equal(searchMustRun(plan.researchDecision, { internalEvidenceReady: false }), true, 'v60.02 a current question the injected data does not cover is forced to search');
+assert.equal(searchMustRun(plan.researchDecision, { internalEvidenceReady: false, tools: true }), false, 'v60.42 with the data tools an uncovered current question is not forced to search');
+assert.equal(searchMustRun({ ...plan.researchDecision, requestedByUser: true }, { internalEvidenceReady: true, tools: true }), true, 'v60.42 a search the reader asked for is forced with the data tools too');
 assert.equal(select({ decision: { requirement: 'NOT_NEEDED', currentSensitive: false }, mode: 'explain' }), true, 'v60.02 a concept question is offered search');
 assert.equal(select({ decision: { requirement: 'NOT_NEEDED', currentSensitive: false }, mode: 'quick' }), false, 'v60.02 a quick question is not offered search');
 assert.equal(select({ decision: { requirement: 'OPTIONAL', requestedByUser: true }, mode: 'quick' }), true, 'v60.02 a quick question still gets search when the reader asked for it');
@@ -103,7 +105,7 @@ context.webSearchResult = null; context._uniWebResult = null;
 context._uniResearchRequired = false; context._uniResearchFailure = null;
 context._researchRequiredForChat = false; context._researchDecisionForChat = plan.researchDecision;
 context._uniResearchDecision = plan.researchDecision;
-for (const name of ['tickerDataStr', 'singleDeepStr', 'deepCompareStr', 'sectorCompareStr', 'domainDataStr', 'newsContextStr', '_uniTickerData', '_uniDeepData', '_uniDomainData', '_uniNewsCtx']) context[name] = '';
+for (const name of ['_uniTickerData', '_uniDomainData', '_uniNewsCtx']) context[name] = '';
 const helperStart = chat.indexOf('function _shouldUseClaudeWebSearch(');
 vm.runInContext(chat.slice(helperStart, chat.indexOf('\nwindow._shouldUseClaudeWebSearch', helperStart)), context);
 // v57.62: the per-page chatSend caller was retired; the unified panel is the only production chat caller.
@@ -143,22 +145,18 @@ const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8')
 assert.equal(/aio_web_search_enabled/.test(chat) || /aio_web_search_enabled/.test(core), false, 'P1655 no web-search opt-out preference remains');
 console.log('PASS: P1655 web search is automatic (no opt-out preference).');
 
-// P1621: exercise the real single-company block with an already-loaded screen cache (v57.62: per-page copy retired).
-for (const [startMarker, endMarker, outputName] of [
-  ['var _isFundCtx =', '\n    // 5. 웹검색', 'sysPrompt']
-]) {
-  const startAt = outputName === 'sysPrompt' ? chat.indexOf(startMarker, chat.indexOf('// 4. 단일 기업')) : chat.indexOf(startMarker);
-  const endAt = chat.indexOf(endMarker, startAt);
-  assert.ok(startAt >= 0 && endAt > startAt, 'P1621 production financial block is extractable');
+// P1621: a loaded screen cache cannot suppress the chat's financial evidence. The financials reach the model through the
+// fundamentals tool, which reads the shared provider every time (the provider caches), whatever the screen has loaded.
+{
+  const { runTool } = await import('../src/ai/tools/registry.js');
   let reads = 0;
-  const financial = vm.createContext({ window: { _fundAnalysisData: { ticker: 'NVDA' } }, ctxId: 'home', q: 'NVDA 재무 요약', detectedTickers: ['NVDA'], deepCompareStr: '', sysPrompt: '',
-    _shouldSingleDeepAnalyzeChat: () => true, _fetchDeepCompareData: async () => { reads++; return { NVDA: { secFundamentals: { source: 'SEC' } } }; },
-    _formatSingleDeepPrompt: () => 'SEC 공시 실제 자료', _wrapUnifiedExternal: (_name, text) => text, _withTimeout: promise => promise,
-    _isCurrentChatRun: () => true, _isCurrentUnifiedRun: () => true, _chatSignal: null, _uniSignal: null, _aioLog: () => {}, _aioReleaseChatRequest: () => {} });
-  await vm.runInContext('(async function(){' + chat.slice(startAt, endAt) + ';return ' + outputName + ';})()', financial).then(result => {
-    assert.ok(result.includes('SEC 공시 실제 자료'), 'P1621 loaded screen financials cannot suppress prompt financial evidence');
-  });
-  assert.equal(reads, 1, 'P1621 shared financial provider/cache is reused by each caller');
+  const filing = { symbol: 'NVDA', source: 'SEC EDGAR companyfacts', periodType: 'FY', observedAt: '2026-01-31', filedAt: '2026-03-01', coverage: ['revenue'], revenue: 123 };
+  const toolRoot = { _fundAnalysisData: { ticker: 'NVDA' }, _aioNormalizeTickerInput: (text) => String(text).toUpperCase(), _aioIsKnownTicker: (sym) => sym === 'NVDA',
+    AIO: { readPublicFundamentals: async (symbols) => { reads++; return { [symbols[0]]: filing }; }, formatSecResearchEvidence: () => 'SEC 공시 실제 자료' } };
+  const result = await runTool('fundamentals', JSON.stringify({ symbol: 'NVDA' }), { root: toolRoot, now: Date.parse('2026-06-01T00:00:00Z') });
+  assert.ok(result.ok && result.text.includes('SEC 공시 실제 자료'), 'v60.42 P1621 loaded screen financials cannot suppress the fundamentals tool evidence');
+  assert.equal(reads, 1, 'v60.42 P1621 the fundamentals tool reads the shared financial provider');
+  assert.ok(!/_fetchDeepCompareData|SINGLE_ENTITY_ANALYSIS/.test(chat), 'v60.42 P1621 the chat keeps no second financial block beside the tool');
 }
 const domainStart = chat.indexOf('function _aioDomainContextForQuestion(');
 const domainEnd = chat.indexOf('\n}', domainStart) + 2;

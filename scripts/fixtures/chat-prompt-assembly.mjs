@@ -1,9 +1,11 @@
-// Offline assembly of the unified chat system prompt (chatSendUnified, js/aio-chat.js) for gate fixtures.
-// The instruction blocks are produced by the real builders: the classic-script functions run in a vm context from
-// their own source, the ESM builders are imported. Blocks that need live data (quotes, technicals, screener, domain
-// pages, knowledge/imported research, the analysis slice, answer visuals, the teach block, the same-screen memo) are not
-// built; the news block is built from a fixture news cache, and the reader-memory blocks from a fixture device store
-// (assemble's `memory` option).
+// Offline assembly of the unified chat system prompt (chatSendUnified, js/aio-chat.js) for gate fixtures, in the order
+// chatSendUnified writes it: the tools block first, then the short prompt (composeLeanPrompt), reader memory, the answer
+// principles, the mode guide, the evidence tail and the action policy. The blocks are produced by the real builders: the
+// classic-script functions run in a vm context from their own source, the ESM builders are imported. Blocks that need
+// live data (screener rows of named stocks, the screen basis, the broad comparison sample, the domain block, quote
+// basis, the analysis slice, answer visuals, the teach block, the same-screen memo) are not built; the reader-memory
+// blocks come from a fixture device store (assemble's `memory` option). The news tool's text builder
+// (_buildNewsContext) runs on a fixture news cache through `newsBlock`.
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -49,6 +51,7 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const principles = await load('src/ai/response/answer-principles.js');
   const { installAIRequestPipeline } = await load('src/ai/response/request-pipeline.js');
   const nativeSearch = await load('src/ai/research/native-search.js');
+  const { composeLeanPrompt } = await load('src/ai/prompt/lean-prompt.js');
   let budget = {};
   try { budget = (await load('src/ai/context/reference-budget.js')).CHAT_REFERENCE_BUDGET || {}; } catch (_) { budget = {}; }
 
@@ -64,25 +67,21 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const run = (code, label) => vm.runInContext(code, context, { filename: label });
   run(slice(core, 'function _aioQuestionCue(', 'function _aioLooksFreshIntent(', 'question cue'), 'aio-core.js#cue');
   run(slice(core, 'var _AIO_AI_SECURITY_VERSION', '// P1350: absent prices', 'untrusted block'), 'aio-core.js#untrusted');
-  run(slice(chat, 'var AIO_CHAT_PIPELINE_REGISTRY = [', '// v57.50 C05/C06/C08', 'pipeline registry'), 'aio-chat.js#registry');
   run(slice(chat, 'var _CTX_TOPIC_MAP = {', 'function _buildNewsContext(', 'topic map'), 'aio-chat.js#topics');
   run(slice(chat, 'function _buildNewsContext(', '\n}\n', 'news context') + '\n}\n', 'aio-chat.js#news');
-  run(slice(chat, 'function _aioChatTokens(', 'function _shouldSingleDeepAnalyzeChat(', 'intent builders'), 'aio-chat.js#intent');
-  run(slice(chat, 'function _autoNavigatePage(', '// v49.69 P365 R129', 'navigation'), 'aio-chat.js#nav');
-  run(slice(chat, 'function _aioBuildAIClaimEvidenceRegistry(', "if (typeof window !== 'undefined') {\n  if (typeof window._aioBuildAIClaimEvidenceRegistry", 'evidence registry'), 'aio-chat.js#registry-rule');
+  run(slice(chat, 'function _aioChatTokens(', 'function _buildChatMemoryContext(', 'answer policy'), 'aio-chat.js#policy');
   run(slice(ui, 'function _detectQueryComplexity(', '\nfunction ', 'complexity') , 'aio-ui.js#complexity');
+  const CHAT_CONTEXTS = vm.runInNewContext(`(${slice(chat, 'const CHAT_CONTEXTS = {', '\n};', 'chat contexts').replace('const CHAT_CONTEXTS = ', '')}\n})`);
   run('function _aioQueryNamesCompany() { return false; }', 'stub');
 
   const unified = slice(chat, 'async function chatSendUnified(', '\n}\n', 'chatSendUnified');
   // Statements of chatSendUnified that write prompt text or route the request, run as written.
   const statement = (start, end, label) => slice(unified, start, end, label);
-  const newsWrap = statement('var newsCtx = _buildNewsContext(ctxId, q);', '\n      if (newsCtx) {', 'news wrap');
   const modelRoute = statement("var selectedModelKey = 'luna';", 'var selectedModelCfg', 'model route');
   const maxTokensExpr = statement('var modelOpts = {', ';', 'model opts') + ';';
   const evidenceTail = statement("sysPrompt += '\\n\\n[AIO EXTERNAL EVIDENCE CONTRACT]\\n'", ';\n', 'evidence tail') + ';';
-  // The data tools and hosted search: whether this turn offers the tools and the one block that then leads the prompt
-  // (the chat-globals kit).
-  const toolsOffer = statement('var _uniTools = window.AIO', '\n  if (_uniTools) modelOpts.tools', 'tools offer');
+  // The data tools and hosted search: the one block that leads every prompt (the chat-globals kit).
+  const toolsOffer = statement('var _uniTools = window.AIO', '\n  if (_uniTools) modelOpts.tools', 'tools block');
   window.AIO.chatTools = (await load('src/ai/tools/loop.js')).chatToolKit(window);
   // Reader memory: the turn's entity ids and the earlier-conversation block, through the chat-globals the panel installs.
   const turnEntities = statement('state._turnEntities = window.AIO && typeof window.AIO.chatTurnEntities', ';\n', 'turn entities') + ';';
@@ -91,29 +90,28 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   run(`function __readerMemory(window, ctxId, detectedTickers) { var state = {}; var sysPrompt = ''; ${turnEntities} ${earlierTurns} var earlier = sysPrompt; ${readerNotes} return { entities: state._turnEntities, earlier: earlier, notes: sysPrompt.slice(earlier.length) }; }`, 'unified#memory');
   const { installChatGlobals } = await load('src/app/chat-globals.js');
   const { installChatSessions } = await load('src/ui/components/chat-sessions.js');
-  run(`function __newsBlock(ctxId, q) { ${newsWrap.replace('var newsCtx', 'var newsCtx')} return newsCtx || ''; }`, 'unified#news');
-  run(`function __route(q, ctxId, _uniMode, _uniDeepData) { ${modelRoute} ${maxTokensExpr} return { modelKey: selectedModelKey, maxTokens: modelOpts.maxTokens }; }`, 'unified#route');
+  run(`function __route(q, ctxId, _uniMode) { ${modelRoute} ${maxTokensExpr} return { modelKey: selectedModelKey, maxTokens: modelOpts.maxTokens }; }`, 'unified#route');
   run(`function getModelConfig(key) { return { label: key }; }`, 'stub');
   run(`function __evidenceTail() { var sysPrompt = ''; ${evidenceTail} return sysPrompt; }`, 'unified#tail');
-  run(`function __tools(window, _uniMode, _uniUseClaudeWebSearch) { var sysPrompt = ''; ${toolsOffer} return sysPrompt; }`, 'unified#tools');
+  run(`function __tools(window, _uniUseClaudeWebSearch) { var sysPrompt = ''; ${toolsOffer} return sysPrompt; }`, 'unified#tools');
   const LLM_MODELS = vm.runInNewContext(`(${slice(ui, 'const LLM_MODELS = {', '\n};', 'models').replace('const LLM_MODELS = ', '')}\n})`);
 
   function plan(query, ctxId = 'home') { return createQuestionPlan({ query, route: ctxId, now: FIXTURE_NOW }); }
 
-  function route(query, ctxId = 'home', { deepData = false } = {}) {
+  function route(query, ctxId = 'home') {
     const questionPlan = plan(query, ctxId);
     const tickers = companyEntitySymbols(questionPlan);
     const policy = context._aioChatAnswerPolicy(query, ctxId, tickers, null);
     const mode = modes.chooseAnswerMode(policy);
-    const routed = context.__route(query, ctxId, mode, deepData);
+    const routed = context.__route(query, ctxId, mode);
     return { questionPlan, tickers, policy, mode, ...routed, reasoningEffort: (LLM_MODELS[routed.modelKey] || {}).reasoningEffort || 'none' };
   }
 
+  // The text the news tool returns (src/ai/tools/market-tools.js reads root._buildNewsContext).
   function newsBlock(query, ctxId = 'home', items = longNewsItems()) {
     context.newsCache = items;
     vm.runInContext('newsCache = globalThis.newsCache;', context);
-    const raw = context._buildNewsContext(ctxId, query);
-    return { raw, wrapped: context.__newsBlock(ctxId, query) };
+    return { raw: context._buildNewsContext(ctxId, query) };
   }
 
   // memory: { storage, sessionId, now, themeId } — the reader's device store as the panel sees it: the real session
@@ -130,34 +128,30 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
     return context.__readerMemory(root, ctxId, tickers);
   }
 
-  function assemble(query, ctxId = 'home', { news = longNewsItems(), health = { ai: { paidWebSearchEnabled: true, webSearchAvailable: true } }, memory = null } = {}) {
+  function assemble(query, ctxId = 'home', { health = { ai: { paidWebSearchEnabled: true, webSearchAvailable: true } }, memory = null } = {}) {
     const r = route(query, ctxId);
     const { questionPlan, tickers, mode } = r;
     const webSearch = nativeSearch.selectNativeSearch({ decision: questionPlan.researchDecision || {}, questionPlan, health, mode });
     const blocks = [];
     const add = (name, text) => { if (text) blocks.push({ name, text: String(text) }); };
-    const nb = newsBlock(query, ctxId, news);
-    add('news', nb.wrapped);
-    const flags = { tickers, tickerData: tickers.length > 0, technicalData: false, screenerData: false, domainData: false, trendData: false, deepData: false, webSearch, news: !!nb.wrapped, freshness: tickers.length > 0, portfolioData: false };
-    add('intent', context._buildChatIntentContext(ctxId, query, flags));
-    add('coverage', context._buildChatAnswerCoverageContext(ctxId, query, flags));
-    add('integrated', context._buildAioIntegratedAnswerContext(ctxId, query, flags));
+    // No screener rows in the fixture, so the named stocks add no rows; the screen basis needs live data.
+    const lean = composeLeanPrompt({ root: window, screenTitle: (CHAT_CONTEXTS[ctxId] || {}).title || ctxId, tickers, screenBasis: '', profile: '', now: Date.parse(FIXTURE_NOW) });
+    add('lean', lean.prompt);
     const mem = memory ? readerMemory(memory, ctxId, tickers) : { entities: [], earlier: '', notes: '' };
     add('earlier-turns', mem.earlier);
     add('reader-notes', mem.notes);
-    add('registry', context._aioBuildAIClaimEvidenceRegistry([]));
-    add('principles', principles.buildAnswerPrinciples({ today: FIXTURE_NOW.slice(0, 10), mode, hasTickers: tickers.length > 0, hasTrend: false, liveStatus: 'fixture', newsInjected: !!nb.wrapped, webSearch, snapAgeHours: 2 }));
+    add('principles', principles.buildAnswerPrinciples({ today: FIXTURE_NOW.slice(0, 10), hasTickers: tickers.length > 0, liveStatus: 'fixture', webSearch, snapAgeHours: 2 }));
     add('mode', modes.answerModeGuide(mode));
+    const toolsBlock = context.__tools(window, webSearch);
+    if (toolsBlock) blocks.unshift({ name: 'tools', text: toolsBlock });
     add('evidence-tail', context.__evidenceTail());
     add('policy', window._aioPublicAIActionPolicyPrompt());
-    const toolsBlock = context.__tools(window, mode, webSearch);
-    if (toolsBlock) blocks.unshift({ name: 'tools', text: toolsBlock });
     let body ={ model: 'fixture', instructions: blocks.map((b) => b.text).join(''), reasoning: { effort: r.reasoningEffort } };
     // chatSendUnified's search options (no injected quote rows in the fixture, so a current question is not covered).
     const searchOptions = nativeSearch.nativeSearchOptions({ decision: questionPlan.researchDecision || {}, mode, internalEvidenceReady: false });
     body = nativeSearch.attachNativeSearch(body, { enabled: webSearch, health, mustSearch: searchOptions.mustSearch, context: searchOptions.searchContext });
     const functions = /^【추가 자료 요청 \(도구/.test(toolsBlock || '');
-    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, searchContext: body.tools ? body.tools[0].search_context_size : null, newsRaw: nb.raw, entities: mem.entities, tools: functions };
+    return { ...r, webSearch, blocks, prompt: blocks.map((b) => b.text).join(''), toolChoice: body.tool_choice || null, searchContext: body.tools ? body.tools[0].search_context_size : null, entities: mem.entities, tools: functions };
   }
 
   return { window, context, plan, route, assemble, newsBlock, longNewsItems, modes, principles, nativeSearch, budget };

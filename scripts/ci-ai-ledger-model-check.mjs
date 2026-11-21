@@ -4,8 +4,11 @@
 // sequence of up to DEPTH events and compares the persisted ledger after each event with an independent bookkeeping
 // of what each request owes. No separate spec of the code: the class under test is the one the Worker deploys.
 //
-// Model. Two requests (A: 12 USD-micro-millions, B: 10; month cap 20, so both cannot be reserved at once), each from
-// its own client connection. Request events: reserve (also a replay of the same request id), release, start,
+// Model. Three requests on a month cap of 20 USD (micro-USD amounts): A (0.6) and B (19.8) from two connections, so
+// A and B cannot be reserved at once, and A2 (0.4), a tool-round continuation of A on A's connection (key
+// client:a:r1). A2 is waived from the day's question count and the connection's daily questions exactly when A's
+// counted reservation is live today; it still reserves money and the connection's spend, and the spend share (1/20
+// of the month, 1.0 here, so A + A2 fit) refuses in hard mode as the code does. Request events: reserve (also a replay of the same request id), release, start,
 // settle with the full or a smaller verified charge. Environment events: the object is evicted and reloads from
 // storage, the next storage write fails, the clock moves 2 h (from 10/31 23:00Z across the UTC day and month), 4 days
 // (past the 3-day idempotency window) or 71 days (past month retention). Each mutateQuota call is one indivisible
@@ -20,8 +23,8 @@
 //   L3 cap        — in hard mode months[m] never exceeds the month cap.
 //   L4 admission  — reserve answers duplicate for a live same-day request id, otherwise admits exactly when the
 //                   month has room (always in target mode).
-//   L5 counters   — the day's request count and the connection's daily questions and spend match the live
-//                   reservations of that day.
+//   L5 counters   — the day's question count and the connection's daily questions match the live, not waived
+//                   reservations of that day, and the connection's spend matches all its live reservations.
 //   L6 no brick   — no reachable state makes a call throw, other than the documented refusals (start of a missing
 //                   reservation, settle of an unstarted one) and the injected storage failure; a failed write leaves
 //                   storage as before the call.
@@ -29,8 +32,8 @@
 // day back as 0 (harmless, dropped by the next prune).
 // L2 is part of L1's bookkeeping (a started release keeps its amount); it is listed so a reader sees the promise.
 //
-// Out of scope: the per-connection spend share (1/20 of the month) and retry waivers (each client here is one
-// request), the saver (no-search) variant, legacy-month migration, the daily request cap (300) and per-client cap,
+// Out of scope: the :retry1/:retry2 waiver and its per-connection-day bound, the other continuation suffixes (one
+// key stands for the closed set; the suffix parse is unit-tested in worker/openai-contract.test.mjs), the saver (no-search) variant, legacy-month migration, the daily request cap (300) and per-client cap,
 // the HTTP layer and the OpenAI call itself (dispatchOpenAi's order is reserve -> start -> settle or release; this
 // check allows every order of those calls, which is wider).
 //
@@ -51,10 +54,11 @@ const DEPTH = Number(process.env.AIO_LEDGER_DEPTH || 7);
 const VARIANT_DEPTH = 5;
 const HOUR = 3600 * 1000, DAY = 24 * HOUR;
 const T0 = Date.parse('2026-10-31T23:00:00.000Z');
-const CAP = 20000000;
+const CAP = 20000000, SHARE = CAP / 20; // the code's AI_PER_CLIENT_MONTH_SHARE
 const REQUESTS = [
-  { id: 'client:a', client: 'a'.repeat(32), amount: 12000000, smallCharge: 2000000 },
-  { id: 'client:b', client: 'b'.repeat(32), amount: 10000000, smallCharge: 2000000 },
+  { id: 'client:a', name: 'A', client: 'a'.repeat(32), amount: 600000, smallCharge: 100000 },
+  { id: 'client:b', name: 'B', client: 'b'.repeat(32), amount: 19800000, smallCharge: 2000000 },
+  { id: 'client:a:r1', name: 'A2', client: 'a'.repeat(32), amount: 400000, smallCharge: 100000, continues: 0 },
 ];
 const TICKS = [['2시간', 2 * HOUR], ['4일', 4 * DAY], ['71일', 71 * DAY]];
 const MAX_CLOCK = T0 + 80 * DAY;
@@ -75,6 +79,12 @@ const VARIANTS = [
   ] },
   { label: '정산 중복 검사 제거', expect: ['L6'], replacements: [
     ["if (reservation.settled === true) { result = { ok: true, settled: false, duplicate: true }; return; }", ''],
+  ] },
+  { label: '도구 단계 질문 수 면제 제거', expect: ['L5'], replacements: [
+    ['waiverKey = clientKey; clientKey = null; dayWaived = true; }', '}'],
+  ] },
+  { label: '면제 요청 해제 때 하루 질문 수 차감', expect: ['L5'], replacements: [
+    ['if (reservation?.dayWaived !== true) this.counts.days[dayKey]', 'this.counts.days[dayKey]'],
   ] },
 ];
 
@@ -100,12 +110,12 @@ const current = (g, i) => (g.current[i] === null ? null : g.records[g.current[i]
 // What the ledger must hold, from the bookkeeping.
 function expectedLedger(g) {
   const months = Object.fromEntries(g.months.map((m) => [m, monthSum(g, m)]));
-  const days = Object.fromEntries(g.days.map((d) => [d, g.records.filter((r) => r.dayKey === d && owes(r)).length]));
+  const days = Object.fromEntries(g.days.map((d) => [d, g.records.filter((r) => r.dayKey === d && owes(r) && !r.waived).length]));
   const today = dayKeyAt(g.prunedAt);
   const clients = {}, spend = {};
   for (const r of g.records) {
     if (r.dayKey !== today || !LIVE.has(r.phase)) continue;
-    clients[r.client] = (clients[r.client] || 0) + 1;
+    if (!r.waived) clients[r.client] = (clients[r.client] || 0) + 1;
     spend[r.client] = (spend[r.client] || 0) + r.owed;
   }
   return { months, days, today, clients, spend };
@@ -194,10 +204,14 @@ async function step(mod, state, env, event) {
       if (!result?.duplicate) issues.push(['L4:duplicate-not-recognised', { event: event.label, result }]);
     } else {
       const month = monthOf(dayKey);
-      const room = !hard || monthSum(g, month) + req.amount <= CAP;
+      const spent = g.records.filter((r) => r.dayKey === dayKey && r.client === req.client && LIVE.has(r.phase)).reduce((s, r) => s + r.owed, 0);
+      const room = !hard || (monthSum(g, month) + req.amount <= CAP && !(spent > 0 && spent + req.amount > SHARE));
+      // A continuation key is waived from the question counts while the same connection's counted original is live today.
+      const base = req.continues === undefined ? null : current(g, req.continues);
+      const waived = !!base && LIVE.has(base.phase) && base.dayKey === dayKey && base.client === req.client && !base.waived;
       if (!!result?.reserved !== room) issues.push(['L4:admission', { event: event.label, expected: room, result }]);
       if (room) {
-        g.records.push({ req: event.req, dayKey, month, client: req.client, owed: req.amount, phase: 'reserved', createdAt: state.clock });
+        g.records.push({ req: event.req, dayKey, month, client: req.client, owed: req.amount, phase: 'reserved', createdAt: state.clock, waived });
         g.current[event.req] = g.records.length - 1;
         if (!g.months.includes(month)) g.months.push(month);
         if (!g.days.includes(dayKey)) g.days.push(dayKey);
@@ -217,7 +231,7 @@ function eventsFor(state) {
   const out = [{ kind: 'evict', label: '재시작' }, { kind: 'fail', label: '다음 저장 실패' }];
   for (const [label, ms] of TICKS) if (state.clock + ms <= MAX_CLOCK) out.push({ kind: 'tick', ms, label: `시간 +${label}` });
   REQUESTS.forEach((req, i) => {
-    const name = i === 0 ? 'A' : 'B';
+    const { name } = req;
     out.push({ kind: 'reserve', req: i, label: `${name} 예약` });
     if (state.ghost.current[i] === null) return;
     out.push({ kind: 'release', req: i, label: `${name} 해제` });

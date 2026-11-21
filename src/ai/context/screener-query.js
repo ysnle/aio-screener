@@ -1,10 +1,10 @@
 // The chat's screener engine (moved out of js/aio-data.js 2026-10-17, rebuilt v60.41). One structured screen (runScreen) over
 // the canonical screener rows with the screener screen's own definitions: the custom conditions (custom-conditions.js),
 // the 시가총액 buckets (row-presentation.js CAP_BUCKETS), the condition reader (condition-read.js) and the listing market
-// (market-scope.js). The chat's screen tool fills the spec; a turn without tools reads it from the sentence through the
-// screener's own parser (parseConditionText) plus a scope reader (market, size, sector, theme) — one engine, no second
-// set of condition rules. The broad "종목 추천해줘" comparison sample is a separate feature (buildDiversifiedRecommendationRows):
-// a day-seeded coverage sample, not a rank. Pure apart from screenerInput(root), which reads the page's globals.
+// (market-scope.js). The chat's screen tool fills the spec. The sentence reader (the screener's own parser,
+// parseConditionText, plus a scope reader for market, size, sector and theme) only tells a screen question from a broad
+// "종목 추천해줘" ask, which gets a separate comparison sample (buildDiversifiedRecommendationRows): a day-seeded coverage
+// sample, not a rank. Pure apart from screenerInput(root), which reads the page's globals.
 
 import { listingCurrency } from '../../domain/portfolio/fx.js';
 import { formatScreenerPrice, screenerMarket, MARKET_LABELS } from '../../domain/screener/market-scope.js';
@@ -58,8 +58,6 @@ export const SECTOR_KEYWORDS = Object.freeze({
   '게임':['게임','게임/블록체인','엔터','미디어','드라마'],
 });
 
-const SECTOR_INTENT_PATTERNS = ['비교','추천','찾아','뽑아','골라','싼','저평가','고평가','성장','배당','수익률','밸류','가치','cheapest','best','top','compare','recommend','undervalued','overvalued','screen','pick','find'];
-
 const rowList = (rows) => (Array.isArray(rows) ? rows : []);
 const symbolOf = (row) => String(row?.sym || row?.symbol || '').toUpperCase();
 
@@ -73,18 +71,6 @@ function longestSectorMatch(text) {
     if (keywordHit(lower, kw) && (!matched || kw.length > matchedKey.length)) { matched = SECTOR_KEYWORDS[kw]; matchedKey = kw; }
   });
   return { matched, matchedKey };
-}
-
-// The sector comparison (live quotes of the sector's largest names), sorted by the size the screen's filter uses.
-export function detectSectorQuery(text, { rows = [] } = {}) {
-  const lower = String(text || '').toLowerCase();
-  if (!SECTOR_INTENT_PATTERNS.some((p) => lower.indexOf(p) >= 0)) return null;
-  const { matched, matchedKey } = longestSectorMatch(text);
-  if (!matched) return null;
-  const stocks = rowList(rows)
-    .filter((s) => matched.some((sec) => s.sector === sec))
-    .sort((a, b) => (capFilterValue(b) || 0) - (capFilterValue(a) || 0)).slice(0, 8);
-  return stocks.length > 0 ? { sectorLabel: matchedKey, stocks } : null;
 }
 
 export function isBroadRecommendationQuery(query) {
@@ -202,6 +188,10 @@ export const SCREEN_SORTS = Object.freeze({
 const SORT_READERS = Object.freeze({ marketCap: (row) => capFilterValue(row), rank: (row) => visibleRank(row) });
 // The numbers every result row carries (beside the values of the conditions used).
 const FACT_KEYS = Object.freeze(['pe', 'ret1m', 'ret3m', 'rsi', 'dividendYieldPct', 'pctFrom52wHigh']);
+// A screen of named stocks carries the rest of the row the 종목 screen shows.
+const DETAIL_KEYS = Object.freeze({ pb: 'PBR', roe: 'ROE(최근 회계연도)', margin: '순이익률', revGrowth: '매출 성장률(최근 4개 분기)', ret5d: '5거래일', ret6m: '6개월', pctSma50: '50일선 대비', pctSma200: '200일선 대비' });
+const DETAIL_PERCENT = new Set(['roe', 'margin', 'revGrowth']);
+export const SCREEN_SYMBOL_LIMIT = 6;
 const FIELD_ID_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
 const CONDITION_BY_ID = new Map(CUSTOM_CONDITIONS.map((item) => [item.id, item]));
 
@@ -239,6 +229,7 @@ export function normalizeScreenSpec(spec = {}) {
   const limit = Math.round(Number(spec.limit));
   return {
     market: SCREEN_MARKETS.includes(spec.market) ? spec.market : 'US',
+    symbols: [...new Set((Array.isArray(spec.symbols) ? spec.symbols : []).map((sym) => String(sym || '').trim().toUpperCase()).filter(Boolean))].slice(0, SCREEN_SYMBOL_LIMIT),
     sizes: [...new Set((Array.isArray(spec.sizes) ? spec.sizes : []).filter((size) => CAP_BUCKETS[size]))],
     sector: typeof spec.sector === 'string' && spec.sector.trim() ? spec.sector.trim().slice(0, 60) : null,
     theme: typeof spec.theme === 'string' && spec.theme.trim() ? spec.theme.trim().slice(0, 60) : null,
@@ -252,7 +243,7 @@ export function normalizeScreenSpec(spec = {}) {
 
 // What one result row carries: identity, size with its basis, the standard facts, every used condition's own fields, the
 // live quote in its own currency and the verified headline.
-function screenRowFacts(row, conditions, read, live) {
+function screenRowFacts(row, conditions, read, live, detail = false) {
   const quote = live[row.sym] || {};
   const facts = Object.fromEntries(FACT_KEYS.map((key) => [key, read(row, key)]));
   // A value the table shows but the readiness contract keeps out of calculation (STALE, LAST_GOOD, CONFLICT) is named as
@@ -266,6 +257,7 @@ function screenRowFacts(row, conditions, read, live) {
     sym: row.sym, name: row.name || row.sym, sector: row.sector || null, market: screenerMarket(row),
     cap: capReading(row), capBucket: capBucketOf(row), ...facts, rank: visibleRank(row), factorSessionDate: row.factorSessionDate || null,
     reference: reference.map(([key, value, status]) => ({ key, value, status })), conditionValues,
+    detail: detail ? Object.fromEntries(Object.keys(DETAIL_KEYS).map((key) => [key, read(row, key)]).filter(([, value]) => readNumber(value) != null)) : null,
     ...quoteFields(row.sym, quote), pct: readNumber(quote.pct),
     // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches the AI as
     // this stock's news; an unverified memo was another company's story about 1 time in 5.
@@ -282,21 +274,24 @@ function screenRowFacts(row, conditions, read, live) {
 export function runScreen(rawSpec = {}, { rows = [], live = {}, aliases = {}, read = conditionReader() } = {}) {
   const spec = normalizeScreenSpec(rawSpec);
   const quotes = live || {};
-  const marketList = rowList(rows).filter((row) => row && row.sym && screenerMarket(row) === spec.market);
-  const sector = resolveSector(spec.sector, marketList);
-  const theme = resolveTheme(spec.theme, aliases && typeof aliases === 'object' ? aliases : {});
-  const index = resolveIndex(spec.index, marketList);
+  // Named stocks are read from both markets and replace the market, size, sector, theme and index scope.
+  const named = spec.symbols.length > 0;
+  const marketList = rowList(rows).filter((row) => row && row.sym && (named ? spec.symbols.includes(symbolOf(row)) : screenerMarket(row) === spec.market));
+  const sector = named ? {} : resolveSector(spec.sector, marketList);
+  const theme = named ? {} : resolveTheme(spec.theme, aliases && typeof aliases === 'object' ? aliases : {});
+  const index = named ? {} : resolveIndex(spec.index, marketList);
   const error = [sector, theme, index].find((part) => part.error)?.error;
   if (error) return { matched: false, spec, error };
 
-  const criteria = [`시장 ${MARKET_LABELS[spec.market]}`];
-  const steps = [{ label: `${MARKET_LABELS[spec.market]} 종목`, count: marketList.length }];
+  const missing = named ? spec.symbols.filter((sym) => !marketList.some((row) => symbolOf(row) === sym)) : [];
+  const criteria = [named ? `지정 종목 ${spec.symbols.join(', ')}` : `시장 ${MARKET_LABELS[spec.market]}`];
+  const steps = [{ label: named ? '지정 종목' : `${MARKET_LABELS[spec.market]} 종목`, count: marketList.length }];
   let scope = marketList;
   const narrow = (label, keep) => { scope = scope.filter(keep); steps.push({ label, count: scope.length }); criteria.push(label); };
   // P13-SCREEN-02: a missing or zero size is unknown, not small — it meets no bucket and is counted apart.
   let sizeUnknown = 0;
-  const sizeUnavailable = spec.sizes.length > 0 && !marketList.some((row) => capFilterValue(row) != null);
-  if (spec.sizes.length) {
+  const sizeUnavailable = !named && spec.sizes.length > 0 && !marketList.some((row) => capFilterValue(row) != null);
+  if (spec.sizes.length && !named) {
     sizeUnknown = scope.filter((row) => capBucketOf(row) == null).length;
     narrow(`크기 ${sizeLabel(spec.sizes)}`, (row) => spec.sizes.includes(capBucketOf(row)));
   }
@@ -315,9 +310,9 @@ export function runScreen(rawSpec = {}, { rows = [], live = {}, aliases = {}, re
       return (spec.order === 'asc' ? a.key - b.key : b.key - a.key) || symbolOf(a.row).localeCompare(symbolOf(b.row), 'en');
     });
   return {
-    matched: true, mode: 'conditions', spec, criteria, steps, coverage, sizeUnknown, sizeUnavailable,
+    matched: true, mode: 'conditions', spec, criteria, steps, coverage, sizeUnknown, sizeUnavailable, missing,
     totalMatched: matched.length, scopeCount: scope.length,
-    rows: matched.slice(0, spec.limit).map(({ row }) => screenRowFacts(row, spec.conditions, read, quotes))
+    rows: matched.slice(0, spec.limit).map(({ row }) => screenRowFacts(row, spec.conditions, read, quotes, named))
   };
 }
 
@@ -346,6 +341,7 @@ export function formatScreenResult(result) {
   lines.push(`정렬: ${SCREEN_SORTS[result.spec.sort]} ${result.spec.order === 'asc' ? '낮은 순' : '높은 순'} · 일치 ${result.totalMatched}종목${result.totalMatched ? ` 중 ${result.rows.length}종목 표시` : ''} (범위 ${result.steps.map((step) => `${step.label} ${step.count}`).join(' → ')})`);
   if (result.coverage.length) lines.push(`조건별 통과(범위 ${result.scopeCount}종목 중 자료 있는 종목 기준): ${result.coverage.map((entry) => `${entry.label} ${entry.pass}/${entry.withData}`).join(' · ')}`);
   if (result.sizeUnknown) lines.push(`시가총액을 확인하지 못한 ${result.sizeUnknown}종목은 크기 조건에서 제외했습니다(작은 종목으로 보지 않음).`);
+  if (result.missing?.length) lines.push(`종목 DB에 없는 종목: ${result.missing.join(', ')}`);
   const zero = screenZeroReason(result);
   if (zero) lines.push(`결과 없음: ${zero}`);
   // `fact` is a screenRowFacts entry: its numbers were already read through the condition reader.
@@ -355,6 +351,7 @@ export function formatScreenResult(result) {
       `RSI ${fixed(fact.rsi, 0)}`, `배당수익률 ${fact.dividendYieldPct == null ? '미확인' : `${fixed(fact.dividendYieldPct, 2)}%`}`, `52주 고점 대비 ${signed(fact.pctFrom52wHigh)}`];
     if (fact.rank != null) parts.push(`백분위 ${fact.rank}`);
     if (live) parts.push(`가격 ${formatScreenerPrice(live.price, fact.currency || null)}${live.observedAt ? ` (관측 ${live.observedAt})` : ''}${fact.pct != null ? ` ${signed(fact.pct, 2)}` : ''}`);
+    if (fact.detail) for (const [key, value] of Object.entries(fact.detail)) parts.push(`${DETAIL_KEYS[key]} ${DETAIL_PERCENT.has(key) ? `${fixed(value)}%` : key === 'pb' ? fixed(value) : signed(value)}`);
     parts.push(`팩터 기준일 ${fact.factorSessionDate || '미확인'}`);
     lines.push(parts.join(' · '));
     if (fact.conditionValues.length) lines.push(`   조건 값: ${fact.conditionValues.map((used) => `${used.id} ${Object.entries(used.values).map(([key, value]) => `${key}=${Array.isArray(value) ? value.length : typeof value === 'number' ? Number(value.toFixed(2)) : value ?? '미확인'}`).join(', ')}`).join(' · ')}`);
@@ -444,23 +441,17 @@ export function formatComparisonSample(result, { rankAsOf = null } = {}) {
 }
 
 /**
- * E2/S-E (P1239): the chat's injected screener block. A broad ask with no screen cue gets the comparison sample in every
- * mode; a sentence with screen cues is run here only when the turn offers no tools (quick mode) — with tools the model
- * fills the screen tool's structured spec itself, so nothing is guessed from the sentence.
+ * E2/S-E (P1239): the chat's injected screener block. A broad ask with no screen cue gets the comparison sample; a
+ * sentence with screen cues gets nothing here, because the model fills the screen tool's structured spec itself.
  */
-export function buildScreenerAiContext(query, messages, { rows = [], live = {}, aliases = {}, read = conditionReader(), rankAsOf = null, tools = false, logger = null } = {}) {
+export function buildScreenerAiContext(query, messages, { rows = [], live = {}, aliases = {}, rankAsOf = null, logger = null } = {}) {
   let result = null;
   try {
-    const spec = readScreenSentence(query, { aliases });
-    if (!spec && isBroadRecommendationQuery(query)) {
-      const recentTickers = extractRecentRecommendationTickers(messages, { rows });
-      const sample = buildDiversifiedRecommendationRows(rows, live, { recentTickers });
-      result = { matched: true, mode: 'diversified-recommendation', purpose: 'comparison', criteria: ['분산 비교 표본'], ...sample };
-      return { result, prompt: formatComparisonSample(result, { rankAsOf }) };
-    }
-    if (!spec || tools) return { result: null, prompt: '' };
-    result = runScreen(spec, { rows, live, aliases, read });
-    return { result, prompt: result.matched ? `\n\n${formatScreenResult(result)}\n` : '' };
+    if (readScreenSentence(query, { aliases }) || !isBroadRecommendationQuery(query)) return { result: null, prompt: '' };
+    const recentTickers = extractRecentRecommendationTickers(messages, { rows });
+    const sample = buildDiversifiedRecommendationRows(rows, live, { recentTickers });
+    result = { matched: true, mode: 'diversified-recommendation', purpose: 'comparison', criteria: ['분산 비교 표본'], ...sample };
+    return { result, prompt: formatComparisonSample(result, { rankAsOf }) };
   } catch (e) {
     if (typeof logger === 'function') logger(e);
     return { result, prompt: '' };

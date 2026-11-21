@@ -13,7 +13,7 @@ import { BRANCH_ANALOGS, THEME_STATES, THEME_OUTCOME_BENCHMARK, frequencyText, t
 import { readNumber } from '../../domain/shared/number.js';
 import { stampDay as day } from '../../domain/shared/session-date.js';
 import { resolveToolSymbol, symbolLabel } from './symbol.js';
-import { SCREEN_LIMIT, SCREEN_MARKETS, SCREEN_SORTS, formatScreenResult, runScreen, screenerInput } from '../context/screener-query.js';
+import { SCREEN_LIMIT, SCREEN_MARKETS, SCREEN_SORTS, SCREEN_SYMBOL_LIMIT, formatScreenResult, runScreen, screenerInput } from '../context/screener-query.js';
 import { CUSTOM_CONDITIONS, conditionSource } from '../../domain/screener/custom-conditions.js';
 import { CAP_BUCKETS } from '../../domain/screener/row-presentation.js';
 import { requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -40,6 +40,7 @@ const screen = {
   name: 'screen',
   description: '스크리너 화면과 같은 조건 정의로 앱 종목 DB를 걸러 최대 12종목을 돌려준다(조건별 통과 수와 0종목일 때 막은 조건 포함). 질문의 조건을 아래 구조로 옮겨 호출한다. 예: "PER 20배 이하이고 3개월 주가가 오른 미국 대형주" → market US, sizes [MEGA, LARGE], conditions [{id: pe-max, value: 20, strict: false}, {id: ret3m-min, value: 0, strict: true}].',
   parameters: objectSchema({
+    symbols: { type: 'array', items: { type: 'string' }, description: `종목을 지정해 그 종목의 스크리너 행을 읽는다(최대 ${SCREEN_SYMBOL_LIMIT}개, 티커나 종목명). 종목 화면·스크리너 표와 같은 PER·PBR·ROE·순이익률·매출 성장률·배당수익률·기간 수익률·50일선 대비가 온다. 지정하면 시장·크기·섹터·테마·지수 범위는 쓰지 않는다. 조건 검색이면 빈 배열` },
     market: { type: 'string', enum: [...SCREEN_MARKETS], description: '상장 시장(US 미국, KR 한국). 말이 없으면 US' },
     sizes: { type: 'array', items: { type: 'string', enum: Object.keys(CAP_BUCKETS) }, description: `시가총액 구간(스크리너 필터와 같은 경계): ${Object.entries(CAP_BUCKETS).map(([id, label]) => `${id} ${label}`).join(', ')}. "대형주"는 보통 MEGA와 LARGE. 빈 배열은 제한 없음. 한국 종목은 시가총액 자료가 없다` },
     sector: nullable('string', '섹터: Technology, Communication Services, Consumer, Consumer Defensive, Healthcare, Financials, Energy, Industrials, Utilities, Materials, Real Estate, ETF 또는 한국어 섹터어(반도체, 금융, 바이오 등). 없으면 null'),
@@ -61,7 +62,8 @@ const screen = {
     if (conditions.some((item) => conditionSource(item.id) === 'consensus-estimates')) await requestConsensusEstimates(root);
     const input = screenerInput(root, { now });
     if (!input.rows.length) return { error: '종목 DB를 읽을 수 없습니다.' };
-    const result = runScreen({ ...args, conditions }, input);
+    const symbols = (Array.isArray(args?.symbols) ? args.symbols : []).map((word) => resolveToolSymbol(root, word) || String(word || '').trim().toUpperCase()).filter(Boolean);
+    const result = runScreen({ ...args, symbols, conditions }, input);
     if (!result.matched) return { error: result.error };
     const asOf = latest(result.rows.map((row) => row.factorSessionDate)) || latest(input.rows.map((row) => row?.factorSessionDate)) || day(input.rankAsOf);
     if (!asOf) return { error: '종목 DB의 기준일을 확인하지 못했습니다.' };
@@ -295,8 +297,37 @@ const news = {
     if (sym && typeof root?._aioTickerNewsFromCache === 'function') found = root._aioTickerNewsFromCache(sym, { windowHours: span * 24, max: 8 }) || '';
     else if (!sym && typeof root?._buildNewsContext === 'function') found = root._buildNewsContext(root._aiCurrentCtx || 'home', text) || '';
     if (!String(found).trim()) return { error: `${sym || text} 관련 뉴스가 캐시에 없습니다.` };
+    // Headlines are outside text: the shared wrapper quarantines an item that reads like an instruction.
+    if (typeof root?.AIO?.buildAIUntrustedBlock === 'function') found = root.AIO.buildAIUntrustedBlock(String(found).includes('텔레그램') ? 'NEWS_TELEGRAM' : 'NEWS', found, { maxChars: 3800 }) || found;
     return { text: String(found).trim(), asOf: `${kstStamp(now)} 조회, 항목별 경과 시간 표기`, entities: sym ? [sym] : [] };
   }
 };
 
-export const MARKET_TOOLS = [screen, moneyFlow, macro, scenarioRecord, news];
+// The research and frameworks integrated into the app (the reader's supplied materials, imported research, the knowledge
+// base), searched by the question. They are dated reference for mechanisms and frames, never current figures; a turn
+// with the tools asks for them here instead of carrying them in every prompt.
+const reference = {
+  name: 'reference',
+  description: '앱에 통합된 리서치·투자 프레임·학습 자료에서 질문과 관련된 부분을 찾아 돌려준다(작동 원리, 사이클·국면 프레임, 전략 개념, 과거 사례의 해석 틀). 개념·전략·프레임을 묻거나 해석의 틀이 필요할 때 쓴다. 날짜가 붙은 참고 자료이며 현재 수치의 근거가 아니다.',
+  parameters: objectSchema({ query: { type: 'string', description: '찾을 주제를 한 문장으로(예: "신용 스프레드 확대가 주식에 전달되는 경로", "주도주 이탈 뒤 대응 원칙")' } }),
+  maxChars: 6000,
+  label: () => '통합 리서치 자료',
+  async run({ query }, { root, now, signal }) {
+    const ask = String(query || '').trim().slice(0, 300);
+    if (!ask) return { error: '찾을 주제가 비어 있습니다.' };
+    const parts = [];
+    try { parts.push(String(root?.AIO?.buildAIRetrievalContext?.(ask, root?._aiCurrentCtx || 'home', { topK: 4, budgetTokens: 1200 }) || '').trim()); } catch (_) { /* this source is missing */ }
+    try {
+      const found = await root?.AIO_ARCH?.getAIOrchestrator?.()?.buildAIKnowledgeContext?.(ask, { topK: 3, maxChars: 3000, signal });
+      parts.push(String(found?.context || '').trim());
+    } catch (_) { /* this source is missing */ }
+    for (const read of ['_aioAIInfraCycleContext', '_aioMarketLearningCurriculumContext']) {
+      try { parts.push(String(root?.[read]?.(root?._aiCurrentCtx || 'home', ask) || '').trim()); } catch (_) { /* this source is missing */ }
+    }
+    const text = parts.filter(Boolean).join('\n\n');
+    if (!text) return { error: '이 주제에 맞는 통합 리서치 자료가 없습니다. 일반 지식으로 설명하되 현재 수치는 다른 자료에서만 쓴다.' };
+    return { text, asOf: `${new Date(now).toISOString().slice(0, 10)} 조회한 참고 자료 — 자료마다 작성일이 다르며 현재 수치가 아니다`, entities: [] };
+  }
+};
+
+export const MARKET_TOOLS = [screen, moneyFlow, macro, scenarioRecord, news, reference];

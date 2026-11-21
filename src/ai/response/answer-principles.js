@@ -1,7 +1,8 @@
 // P1740: one principles block chosen by the question. The old tail appended a training-cutoff claim for another
 // model ("2025년 초"), a stock-only 6-step memo and six trend rules to every question (a PER definition got them too),
 // and judged web search by grepping the prompt for "웹검색" while the real search decision came later.
-export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = false, hasTrend = false, liveStatus = '', newsInjected = false, webSearch = false, snapAgeHours = null, teachBlock = '' } = {}) {
+// Every turn carries the data tools, so what the prompt does not hold is read through them and never declared absent.
+export function buildAnswerPrinciples({ today, hasTickers = false, liveStatus = '', webSearch = false, snapAgeHours = null, teachBlock = '' } = {}) {
   const lines = [
     '\n\n【오늘 날짜와 지식의 경계】',
     `• 오늘: ${today} (한국 시간)`,
@@ -9,20 +10,16 @@ export function buildAnswerPrinciples({ today, mode = 'analysis', hasTickers = f
   ];
   if (hasTickers) {
     lines.push('', '【종목 질문 규칙】',
-      `1. 추세는 주입된 [주가 추이] 라벨과 완료 종가 기준 5거래일/20거래일/3개월 변화로만 판단한다${hasTrend ? '.' : ' — 이번에는 추이가 주입되지 않았으니 추세를 단정하지 마라.'}`,
+      '1. 추세는 종목 행의 기간 수익률·이동평균 대비 위치와 도구로 읽은 가격 기록(완료 종가)으로 판단한다.',
       // v57.92 (internal audit A08): the old rule told the model to read a post-news drop as 재료 소진/후속 악재 — a cause
       // chosen before checking whether the whole market fell. The cause is now compared before it is named.
-      '2. 뉴스와 가격 방향이 엇갈리면 원인을 정하기 전에 같은 기간 시장·업종 움직임, 금리·환율, 기대 대비 결과를 먼저 비교한다. 주입 자료로 가려지지 않으면 "이미 가격에 반영", "시장 전체 하락", "다른 악재"를 후보로 나란히 두고 원인 미확정으로 말한다.',
+      '2. 가격이 왜 움직였는지 답할 때는 그 종목이 얼마나 움직였는지(기간과 등락률)를 먼저 말한다. 뉴스와 가격 방향이 엇갈리면 원인을 정하기 전에 같은 기간 시장·업종 움직임, 금리·환율, 기대 대비 결과를 먼저 비교한다. 주입 자료로 가려지지 않으면 "이미 가격에 반영", "시장 전체 하락", "다른 악재"를 후보로 나란히 두고 원인 미확정으로 말한다.',
       '3. 애널리스트 목표가·컨센서스는 발표 시점과 함께 쓰고, 오래된 값은 참고로만 둔다.');
   }
   // v58.75 (persona review): the teach-and-check order (choosing-blocks.js teachAndCheckBlock), chosen by the caller.
   if (teachBlock) lines.push('', teachBlock);
-  lines.push('', '【데이터 상태】', `• 실시간 시세: ${liveStatus}`);
-  if (hasTickers) {
-    lines.push(`• 주가 추이(5거래일/20거래일/3개월, 완료 종가): ${hasTrend ? '주입됨' : '미주입 — 추세 단정 금지'}`,
-      '• 기업 재무: 주입된 공시·재무 블록에 있는 항목·기간만 쓴다. 시세 조회 성공은 재무 수집 성공이 아니다.');
-  }
-  lines.push(`• 뉴스: ${newsInjected ? '주입됨(시각 포함)' : '관련 뉴스 없음 — "최근 뉴스에 따르면"으로 시작하지 마라'}`,
+  lines.push('', '【데이터 상태】', `• 실시간 시세: ${liveStatus}`,
+    '• 가격 기록·기술 지표·기업 재무·컨센서스·뉴스·섹터와 테마 흐름·매크로 발표: 위에 없으면 도구로 읽는다. 도구가 돌려준 항목·기간만 쓰고, 읽지 않은 자료를 읽은 것처럼 말하지 않는다.',
     webSearch ? SEARCH_ON : '• 웹검색: 사용하지 않음 — 주입 데이터 밖의 최신 사실은 단정하지 마라');
   // v48.11: a static snapshot 72h+ old is never quoted as current.
   // v57.92 (internal audit A07): the file age says whether the pipeline is behind, not whether a value is current — an

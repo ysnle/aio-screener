@@ -2416,7 +2416,7 @@ check('app exposes public-data operational meta', /window\._serverDataMeta/.test
 check('P1421 core data pipeline audit exposes publicData and shared AI availability', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /if \(!serverPublicData\.marketAnalysisOk\)/.test(core) && /server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification/.test(core));
 check('v57.78: AIO.getOperationalHealth had no production caller and stays retired', !/getOperationalHealth/.test(core)); // text-pin-ok: retirement absence
 
-check('chat consumes news context and screener memo', /_buildNewsContext/.test(chat) && /newsCache/.test(chat) && /SCREENER_DB Memo/.test(chat) && /_aioGetMemoForTicker/.test(chat));
+check('v60.42 chat consumes news context (the news tool over newsCache) and screener memo (the comparison sample)', /function _buildNewsContext\(/.test(chat) && /newsCache/.test(chat) && /root\._buildNewsContext\(/.test(read('src/ai/tools/market-tools.js')) && /if \(r\.memo\) lines\.push\('   메모: '/.test(read('src/ai/context/screener-query.js')));
 check('news Korean translation and local insight fallback are wired', /_aioBuildNewsLocalKoreanInsight/.test(data) && /_aioGetNewsTranslation/.test(data) && /ko_explain/.test(data));
 // The Korean rewrite brief renderer was never called (its #news-korean-rewrite-brief slot stayed hidden);
 // the renderer trio and slot were retired. The per-item ko_rewrite/ko_section/ko_market fields stay.

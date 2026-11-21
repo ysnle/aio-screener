@@ -1,6 +1,6 @@
 // S5 (ADR-0003): the chat's [주가 추이] line reads the same screener row the 종목 page reads, through the same
 // domain reading (buildStockRead). It used to download Yahoo's 3-month chart and recompute 5/20/60-bar returns, a
-// 3-month "범위 위치" and its own 단기 흐름 label (js/aio-chat.js _fetchTickerTrend), so the AI's 5-day return could differ from
+// 3-month "범위 위치" and its own 단기 흐름 label, so the AI's 5-day return could differ from
 // the page's and its label (e.g. '단기·중기 하락 추세') could contradict the page's trend.
 //
 // Row order: the published screener row, then the on-demand row the 종목 page computes for a US listing outside the

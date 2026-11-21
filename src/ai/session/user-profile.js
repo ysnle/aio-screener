@@ -115,7 +115,7 @@ function learnedLines(p, learned) {
   return out;
 }
 
-/** The block every AI request carries (js/aio-workspace.js _getV48IntegratedContext). */
+/** The block every AI request carries (the short prompt's profile line, src/ai/prompt/lean-prompt.js). */
 export function buildProfileContext(profile, learned = null) {
   const p = normalizeProfile(profile);
   const extra = learnedLines(p, learned);

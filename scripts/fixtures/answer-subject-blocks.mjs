@@ -1,10 +1,10 @@
-// Two-ticker reference material in the shapes the unified chat injects, for the "a figure belongs to its subject" checks
+// Two-ticker reference material in multi-subject block shapes, for the "a figure belongs to its subject" checks
 // (src/ai/response/publication.js supportedNumbersFromText with `entities`).
-// - tickerEnrichment: the text _fetchTickerDataForChat (js/aio-chat.js) returns — market header, then per ticker a ━
+// - tickerEnrichment: a per-ticker data block — market header, then per ticker a ━
 //   separator, the 【X 데이터 블록 …】 header, the price bullet and the indented label lines, no blank line between tickers.
 // - technicalEnrichment: the text chatTechnicalBlock (src/ai/context/technical-lines.js) returns — one ━━ [X …] ━━ block
 //   per symbol, blank lines between them.
-// Both are wrapped by the caller through the real window.AIO.buildAIUntrustedBlock, as chatSendUnified does.
+// Both are wrapped by the caller through the real window.AIO.buildAIUntrustedBlock, as chatSendUnified wraps its blocks.
 export const SUBJECT_ENTITIES = Object.freeze([
   { id: 'NVDA', names: ['NVIDIA', '엔비디아', 'nvidia', 'nvda'] },
   { id: 'AMD', names: ['Advanced Micro Devices', 'AMD', 'amd'] }

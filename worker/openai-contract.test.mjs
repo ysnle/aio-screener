@@ -443,6 +443,18 @@ async function main() {
     const waiverStatuses = []; for (let n = 0; n < 4; n += 1) for (const suffix of ['', ':retry1', ':retry2']) waiverStatuses.push(await waiverSend(`waiver-${n}${suffix}`));
     check('v57.61 free retries are bounded per connection-day, so invented retry keys cannot multiply the per-client cap',
       waiverStatuses.every((status) => status === 200) && Object.values(waiverCap.saved().clients['claude:' + currentDay]).join(',') === '9' && Object.values(waiverCap.saved().retryWaivers['claude:' + currentDay]).join(',') === '3', waiverStatuses);
+    const toolCap = harness(undefined, { AI_PER_CLIENT_DAILY_CAP: '1', AI_DAILY_CAP: '2' }), toolSend = async (key, address = '203.0.113.40') => { const response = await worker.fetch(req(body, { headers: ip(address, { 'X-AIO-Idempotency-Key': key }) }), toolCap.env); await response.arrayBuffer(); return response.status; };
+    const toolKeys = ['tool-question', 'tool-question:r1', 'tool-question:r2', 'tool-question:r2:w1', 'tool-question:plain', 'tool-question:plain:w1', 'tool-question:w1', 'tool-question:retry1:r1', 'tool-question:retry2:r2:w1'];
+    const toolStatuses = []; for (const key of toolKeys) toolStatuses.push(await toolSend(key));
+    const toolLedger = toolCap.saved(), toolDay = 'claude:' + currentDay, toolRows = toolKeys.slice(1).map((key) => toolLedger.reservations[`${toolDay}:client:${key}`]);
+    check('v60.42 tool rounds, the fallback and the rewrite of one counted question count neither the connection nor the day question cap, but still reserve money and the connection spend',
+      toolStatuses.every((status) => status === 200) && Object.values(toolLedger.clients[toolDay]).join(',') === '1' && toolLedger.days[toolDay] === 1
+      && toolRows.every((row) => row?.dayWaived === true && !row.clientKey && /^[0-9a-f]{32}$/.test(row.spendKey || '') && row.reservationMicroUsd > 0), toolStatuses);
+    const inventedStatuses = []; for (const key of ['tool-question:r3', 'tool-question:w2', 'tool-question:w1:r1', 'tool-question:r1:r2', 'tool-question:tool']) inventedStatuses.push(await toolSend(key));
+    const toolOtherConnection = await toolSend('tool-question:r1:w1', '203.0.113.41');
+    check('v60.42 an invented continuation suffix or another connection reusing the id still counts as a question',
+      inventedStatuses.every((status) => status === 429) && toolOtherConnection === 200 && toolCap.saved().days[toolDay] === 2
+      && !toolCap.saved().reservations[`${toolDay}:client:tool-question:r1:w1`]?.dayWaived, { inventedStatuses, toolOtherConnection });
     const keyEnv = { OPENAI_API_KEY: 'fake-not-a-live-key' };
     const [keyToday, keyTomorrow, keySame64, keyOther64, keySalted] = await Promise.all([
       deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-14'), deriveClientKey(keyEnv, '2001:db8:1:2::1', '2026-10-15'),
