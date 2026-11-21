@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
 import { composeAmendmentChain, composedRowSource } from './lib/13f-compose.mjs';
+import { normalizeFilingValueUnit } from './lib/13f-value-unit.mjs';
 import { rawHoldingRow } from './lib/masters-raw-rows.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
@@ -181,7 +182,13 @@ async function fetchFilingBundle(filing) {
     secClient.text(filing.informationTableXml),
     secClient.text(primaryDocumentXml)
   ]);
-  return { filing: { ...filing, primaryDocumentXml }, rows: parseRows(tableXml), cover: parseCover(primaryXml) };
+  return normalizeFilingValueUnit({ filing: { ...filing, primaryDocumentXml }, rows: parseRows(tableXml), cover: parseCover(primaryXml) });
+}
+
+// The unit each composed sub-filing was reported in. Published values are always whole dollars.
+function valueUnitNormalizationOf(bundles) {
+  const filings = bundles.map((bundle) => ({ accession: bundle.filing?.accession || null, ...bundle.valueUnit }));
+  return { publishedUnit: 'USD', corrected: filings.some((entry) => entry.multiplier !== 1), filings };
 }
 
 // P1462: one description of how a period's rows were assembled, for the current and prior quarter.
@@ -206,7 +213,7 @@ async function composePeriodFilings(fallbackFiling, periodSubmissions = []) {
   if (!candidates.some((filing) => filing.accession === fallbackFiling?.accession) && fallbackFiling?.informationTableXml) candidates.push(fallbackFiling);
   const bundles = [];
   for (const filing of candidates.length ? candidates : [fallbackFiling]) bundles.push(await fetchFilingBundle(filing));
-  return composeAmendmentChain(bundles);
+  return { ...composeAmendmentChain(bundles), valueUnitNormalization: valueUnitNormalizationOf(bundles) };
 }
 
 const verified = filings.managers.filter((manager) => manager.latestFiling?.informationTableXml && manager.cik);
@@ -328,7 +335,9 @@ for (const manager of verified) {
       // history index can show how the comparison base was assembled (not only the current one).
       priorAmendmentSemantics: priorBundle ? amendmentSemanticsOf(priorBundle) : null,
       comparisonKeyPolicy: 'NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE',
-      valueUnit: 'USD as reported by Form 13F information table',
+      valueUnit: 'USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs',
+      valueUnitNormalization: currentBundle.valueUnitNormalization,
+      priorValueUnitNormalization: priorBundle?.valueUnitNormalization || null,
       displayPolicy: 'TOP_10_BY_REPORTED_VALUE'
     }
   });

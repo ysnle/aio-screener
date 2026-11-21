@@ -4,6 +4,7 @@
 
 import { pageLensReads } from '../../domain/narrative/lens-registry.js';
 import { screenerRowsForRoot } from '../../data/selectors/interpretation.js';
+import { AXIS_LABELS } from '../../domain/market/interpretation/concepts.js';
 
 const QUOTES ='지수·환율·원자재 시세: Yahoo Finance (지연 시세, 판정은 직전 미국장 종가)';
 const NEWS = '뉴스: Google News가 모은 매체별 기사 (제목과 매체명만 표시, 본문은 원문 링크)';
@@ -31,10 +32,10 @@ export const PAGE_SOURCES = Object.freeze({
     '공포·탐욕 구성 요소 순위: 위 공개 자료로 자체 계산'
   ],
   // the per-axis provider lines of the old opened rows (market-regime.js AXIS_SOURCES) are listed here only.
-  signal: ['추세: S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', '시장 폭: 스크리너 유니버스 구성 종목의 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe, Yahoo Finance 경유)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED), CNN Fear & Greed', '달러·원자재·환율: 달러 지수·WTI·금 선물, 원/달러·엔/달러·코스피 (Yahoo Finance)', '심리: 자체 종합 심리 지표 구성 요소 (S&P 500·VIX·TLT·스크리너 등락 종목·FRED OAS)', 'AI·반도체 집중: SOXX·동일가중 S&P 500 RSP 일봉 종가 (Yahoo Finance)'],
+  signal: ['추세: S&P 500·나스닥 100·나스닥 종합·러셀 2000 일봉 종가 (Yahoo Finance)', '시장 폭: 스크리너 유니버스 구성 종목의 수정 종가로 자체 계산', '변동성: VIX·VIX3M (Cboe, Yahoo Finance 경유)', '금리: 미 재무부 국채 수익률 (FRED DGS2·DGS10)', '신용: ICE BofA 하이일드 OAS (FRED), CNN Fear & Greed', `${AXIS_LABELS.commodities}·${AXIS_LABELS.korea}: 달러 지수·WTI·금 선물, 원/달러·엔/달러·코스피 (Yahoo Finance)`, '심리: 자체 종합 심리 지표 구성 요소 (S&P 500·VIX·TLT·스크리너 등락 종목·FRED OAS)', 'AI·반도체 집중: SOXX·동일가중 S&P 500 RSP 일봉 종가 (Yahoo Finance)'],
   // the per-factor data lines of the old opened factor rows (macro-board.js) are listed here only.
   macro: [FRED, '고용·소비: BLS 고용 보고서, Census 소매판매 (FRED)', '물가: BEA PCE, BLS CPI (FRED)', '정책금리·회의 일정: 연방준비제도 FOMC, 2년물·10년물 미 재무부 (FRED)', '하이일드 스프레드: ICE BofA OAS (FRED)', 'WTI·금·달러 지수: 선물·지수 종가 (Yahoo Finance)', CONSENSUS, '한국 기준금리·환율: 한국은행 경제통계시스템(ECOS)', '한국 물가·경기: 국가통계포털(KOSIS)'],
-  fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '1개월 전 곡선: FRED H.15 국채 고정만기 금리 (DGS2·DGS5·DGS10·DGS20·DGS30)', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '테일러 준칙 입력: FRED (PCEPILFE, UNRATE, NROU, FEDTARMDLR, DFEDTARL·DFEDTARU)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 지수: Yahoo Finance', '미·일·미·한 금리차: OECD 장기금리 월평균 (FRED IRLTLT01US·JP·KR)'],
+  fxbond: ['국채 수익률 곡선: 미 재무부 일별 par curve', '1개월 전 곡선: FRED H.15 국채 고정만기 금리 (DGS2·DGS5·DGS10·DGS20·DGS30)', '금리차·실질금리·기대인플레이션·기간 프리미엄: FRED (T10Y3M, DFII10, T10YIE, THREEFYTP10)', '테일러 준칙 입력: FRED (PCEPILFE, UNRATE, NROU, FEDTARMDLR, DFEDTARL·DFEDTARU)', '하이일드 스프레드: ICE BofA OAS (FRED)', '환율·달러 지수: Yahoo Finance', '미·일·미·한 금리차: OECD 장기금리 월평균 (FRED IRLTLT01US·JP·KR)', '국채 입찰 결과: 미 재무부 TreasuryDirect'],
   themes: [
     '섹터·테마 ETF와 종목 일봉: Yahoo Finance (상대강도는 자체 계산)',
     'S&P 500 지도 넓이: iShares IVV 일별 보유 비중(지수 비중 근사), 기간 수익률은 기간 시작 비중으로 역산',

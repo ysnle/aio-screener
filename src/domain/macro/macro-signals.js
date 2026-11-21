@@ -153,7 +153,7 @@ export function brentWtiFromSeries({ brent = [], wti = [], pointBack = indexBack
 /** P1726: a same-day Brent − WTI futures gap above $15 is outside the range where the two have been comparable. */
 export const BRENT_WTI_SPREAD_HOLD_USD = 15;
 
-/** The one divergence rule every oil read uses (거시 chain, rate hub, scenario conditions, 시장 달러·원자재).
+/** The one divergence rule every oil read uses (거시 chain, rate hub, scenario conditions, the commodities axis).
  *  held: WTI alone cannot stand for oil — its fall is not read as easing and its move is not counted as a condition.
  *  Accepts a brentWtiFromSeries()/brentWtiCheck() result (or any { basis, brent20, wti20, abnormal, diverges }). */
 export function oilDivergence(check = null, { wti20 = check?.wti20 ?? null } = {}) {

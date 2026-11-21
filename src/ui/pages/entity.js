@@ -209,7 +209,7 @@ function renderOverview(documentRef, root, state, store = null) {
   // v57.54: the screen's h1 (screen-reader heading; the hero shows the name visually).
   const title = documentRef.getElementById('ticker-page-title');
   // The year line under the price (ticker-year-line.js): drawn once per symbol, nothing without a listed symbol.
-  const yearLine = (symbol) => renderTickerYearLine(documentRef, documentRef.getElementById('ticker-hero-spark'), { root, symbol, money: formatMoney });
+  const yearLine = (symbol) => renderTickerYearLine(documentRef, documentRef.getElementById('ticker-hero-spark'), { root, symbol, money: formatMoney, live: state?.id === symbol ? finite(state?.quote?.value) : null });
   if (!id) {
     yearLine('');
     host.hidden = true; host.replaceChildren(); delete host.dataset.signature;

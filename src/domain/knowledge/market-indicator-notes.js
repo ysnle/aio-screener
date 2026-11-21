@@ -2,6 +2,7 @@
 // in the research library. The screens own today's value, state and rule; what an indicator measures, how it is read and
 // where it misleads lives here once, and each screen's 계산 방법 fold links to its note (src/domain/content/indicator-notes.js).
 // Static teaching text: it states no current value, so it cannot go stale. Pure data; no DOM.
+import { AXIS_LABELS } from '../market/interpretation/concepts.js';
 
 const note = (frame) => Object.freeze({ path: 'indicators', ...frame, figure: { kind: 'flow', steps: frame.steps } });
 
@@ -95,7 +96,7 @@ export const MARKET_INDICATOR_NOTES = Object.freeze([
     ],
     reverse: '변동성과 신용 중 한쪽만 나쁘면 아직 국지적인 흔들림일 가능성이 큽니다.',
     channels: ['신용'], variables: ['하이일드 스프레드', '5거래일 변화', '20거래일 변화'],
-    indicators: [{ label: '시장 상태의 신용과 위험선호', route: 'signal', routeLabel: '시장 상태' }, { label: '매크로의 신용 요인', route: 'macro', routeLabel: '매크로' }],
+    indicators: [{ label: `시장 상태의 ${AXIS_LABELS.credit}`, route: 'signal', routeLabel: '시장 상태' }, { label: `매크로의 ${AXIS_LABELS.credit} 요인`, route: 'macro', routeLabel: '매크로' }],
     concepts: [] }),
   note({ id: 'commodities-dollar-signals', title: '유가·금·달러와 구리·위안', issue: '유가·금·달러와 구리·위안 — 같은 상승도 이유에 따라 다른 신호',
     answer: '유가·금·달러는 경기와 위험 심리를 서로 다른 각도에서 보여줍니다. 유가는 수요와 물가 압력을, 금은 실질금리와 안전자산 수요를, 달러 지수는 세계 자금이 미국으로 몰리는 정도를 반영합니다. 구리는 건설·전력망·전기차에 두루 쓰여 경기 체온계로 불리고, 달러/위안 환율은 중국 경기와 정책 방향을 비추는 거울입니다.',

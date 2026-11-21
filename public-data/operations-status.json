@@ -23,8 +23,8 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-21T00:41:29.090Z",
-  "appRevision": "v60.35",
+  "generatedAt": "2026-11-21T01:56:26.674Z",
+  "appRevision": "v60.36",
   "dataRevision": "market-snapshot:2026-11-21T00:21:05.080Z:d4bdc816",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "CURRENT",
@@ -50,7 +50,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-20T22:26:00.701Z",
+      "asOf": "2026-10-16T05:37:55.208Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -75,7 +75,7 @@
     "screener-extended": {
       "availability": "DEGRADED",
       "asOf": "2026-11-18T03:28:27.794Z",
-      "missingReason": "extended-shard-69h-old",
+      "missingReason": "extended-shard-70h-old",
       "sources": [
         "durable"
       ]
@@ -189,9 +189,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-21T00:21:05.080Z",
-        "ageHours": 0.34,
+        "ageHours": 1.59,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-21T00:41:29.090Z",
+        "evaluatedAt": "2026-11-21T01:56:26.674Z",
         "reason": null
       },
       "readiness": {
@@ -218,7 +218,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T00:41:29.090Z"
+        "evidenceEvaluatedAt": "2026-11-21T01:56:26.674Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -237,7 +237,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v60.35",
+      "revision": "v60.36",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T00:41:29.090Z"
+        "evidenceEvaluatedAt": "2026-11-21T01:56:26.674Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
@@ -313,9 +313,9 @@
       "rights": "REVIEW_REQUIRED",
       "statusCode": "RIGHTS_REVIEW_REQUIRED",
       "use": "filing-evidence",
-      "coveragePct": 98.8,
-      "stored": 846,
-      "eligible": 856
+      "coveragePct": 89.5,
+      "stored": 754,
+      "eligible": 842
     }
   },
   "reconciliation": {

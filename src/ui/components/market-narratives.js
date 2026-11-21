@@ -1,11 +1,11 @@
-// v59.70 (owner 2026-11-07): 시장 상태's 시장이 말하는 이야기 — between 무슨 일이 있었나 (what moved) and the scenarios
-// (what the indicators say comes next). One visual (how much each story is relayed, the last 24 hours shaded) and the top
-// stories on the face with their grounds: the question, the attention, whether the indicators back the scenario each story
-// points to (src/domain/narrative/narrative-cards.js), and a link to that scenario. Counts only: no relayed post text is
+// v59.70 (owner 2026-11-07): 시장 상태's 시장이 말하는 이야기 — after the scenarios and today's guide (what the indicators
+// say comes next), before 무슨 일이 있었나 (what moved). One visual, how much each story is relayed (the last 24 hours
+// shaded), whose rows pick the story read below it: the question, the attention, whether the indicators back the scenario
+// it points to (src/domain/narrative/narrative-cards.js), and a link to that scenario. Counts only: no relayed post text is
 // shown (owner 2026-11-01).
-// (owner 2026-11-20, face never folded; one owner per piece) the per-story folds are gone. A scenario's frame,
-// choices, confirm and break signals are the 시나리오 section's (macro-crossroads.js) — the story names the scenario and
-// its status and links there; the reading frame is the analysis note in 리서치 라이브러리, linked by id.
+// (owner 2026-11-20, face never folded; one owner per piece) a scenario's frame, choices, confirm and break signals are
+// the 시나리오 section's (macro-crossroads.js) — the story names the scenario and its status and links there; the reading
+// frame is the analysis note in 리서치 라이브러리, linked by id.
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { buildNarrativeCards } from '../../domain/narrative/narrative-cards.js';
@@ -15,27 +15,23 @@ import { MARKET_DAY, SCENARIO_OUTCOMES } from '../../data/artifact-registry.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { openCrossroadsBranch } from './macro-crossroads.js';
+import { pickList } from './pick-list.js';
 
-const FACE_MAX = 3;
 const shortMd = (iso) => { const [, m, d] = String(iso || '').split('-'); return m && d ? `${Number(m)}/${Number(d)}` : ''; };
 
-function attentionBars(doc, cards) {
-  const max = Math.max(1, ...cards.map((card) => card.total));
-  const list = el(doc, 'ol', null, 'mk-narr__bars');
-  list.setAttribute('aria-label', `이야기별 리서치 채널 언급: ${cards.map((card) => `${card.label} ${card.total}건 중 24시간 ${card.recent}건`).join(', ')}`);
-  for (const card of cards) {
-    const row = el(doc, 'li', null, 'mk-narr__bar-row');
-    const track = el(doc, 'span', null, 'mk-narr__track');
-    track.setAttribute('aria-hidden', 'true');
-    const earlier = el(doc, 'span', null, 'mk-narr__fill is-earlier');
-    earlier.style.width = `${((card.total - card.recent) / max) * 100}%`;
-    const recent = el(doc, 'span', null, 'mk-narr__fill is-recent');
-    recent.style.width = `${(card.recent / max) * 100}%`;
-    track.append(recent, earlier);
-    row.append(el(doc, 'span', card.label, 'mk-narr__bar-label'), track, el(doc, 'span', `${card.total}건`, 'mk-narr__bar-value'));
-    list.append(row);
-  }
-  return list;
+// One story's row of the selector: its name, its mention bar (earlier and last-24-hour parts) and its count.
+function barRow(doc, card, max, button) {
+  button.dataset.focusKey = `story:${card.id}`;
+  button.dataset.support = card.support;
+  button.setAttribute('aria-label', `${card.label}, 언급 ${card.total}건 중 24시간 ${card.recent}건, ${card.supportWord}`);
+  const track = el(doc, 'span', null, 'mk-narr__track');
+  track.setAttribute('aria-hidden', 'true');
+  const earlier = el(doc, 'span', null, 'mk-narr__fill is-earlier');
+  earlier.style.width = `${((card.total - card.recent) / max) * 100}%`;
+  const recent = el(doc, 'span', null, 'mk-narr__fill is-recent');
+  recent.style.width = `${(card.recent / max) * 100}%`;
+  track.append(recent, earlier);
+  return [el(doc, 'span', card.label, 'mk-narr__bar-label'), track, el(doc, 'span', `${card.total}건`, 'mk-narr__bar-value')];
 }
 
 // focusKey names a control stably across repaints, so a late artifact that redraws the section keeps a keyboard reader's place.
@@ -61,7 +57,7 @@ function scenarioRow(doc, root, scenario, storyId) {
 }
 
 function storyItem(doc, root, card) {
-  const item = el(doc, 'li', null, 'mk-narr__story');
+  const item = el(doc, 'article', null, 'mk-narr__story');
   item.dataset.support = card.support;
   item.id = `market-story-${card.id}`;
   const head = el(doc, 'p', null, 'mk-narr__story-head');
@@ -79,25 +75,19 @@ function storyItem(doc, root, card) {
   return item;
 }
 
-// The stories past the top three: one line each (name, support, the one-line reading), no fold.
-function restItem(doc, card) {
-  const item = el(doc, 'li', null, 'mk-narr__rest-row');
-  item.dataset.support = card.support;
-  item.append(el(doc, 'b', card.label), el(doc, 'span', card.supportWord, `mk-narr__chip is-${card.support}`), el(doc, 'span', card.line, 'mk-narr__line'));
-  return item;
-}
-
 export function renderMarketNarratives({ documentRef: doc, root, interpretation }) {
+  // Placed after the 시나리오 card, before 무슨 일이 있었나 when that card is already there.
   const story = doc?.getElementById('regime-story');
-  const axes = doc?.querySelector?.('#page-signal .mk-axes');
-  if (!axes) return null;
+  const depth = doc?.querySelector?.('#page-signal > .mk-depth');
+  if (!depth) return null;
   let section = doc.getElementById('regime-narratives');
   if (!section) {
     section = el(doc, 'section', null, 'sx-card mk-narr');
     section.id = 'regime-narratives';
     section.setAttribute('aria-labelledby', 'regime-narratives-title');
     section.hidden = true;
-    (story && story.parentNode === axes.parentNode ? story : axes).insertAdjacentElement(story ? 'afterend' : 'beforebegin', section);
+    if (story && story.parentNode === depth.parentNode) story.insertAdjacentElement('beforebegin', section);
+    else depth.insertAdjacentElement('afterend', section);
   }
   // A repaint reads the interpretation again: the one handed in was built before the artifact that triggered it arrived.
   const again = () => renderMarketNarratives({ documentRef: doc, root, interpretation: marketInterpretation(root) });
@@ -121,15 +111,16 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
   const changeLine = change && (change.added?.length || change.dropped?.length)
     ? el(doc, 'p', `${shortMd(change.since)} 대비 ${[change.added?.length ? `새로 오른 이야기 ${names(change.added)}` : null, change.dropped?.length ? `빠진 이야기 ${names(change.dropped)}` : null].filter(Boolean).join(' · ')}`, 'mk-narr__change')
     : null;
-  const list = el(doc, 'ol', null, 'mk-narr__list');
-  cards.slice(0, FACE_MAX).forEach((card) => list.append(storyItem(doc, root, card)));
+  // The mention bars are the selector: the most relayed story reads first, a reader's pick is kept across repaints.
+  const max = Math.max(1, ...cards.map((card) => card.total));
+  const map = pickList(doc, {
+    items: cards, picked: section.querySelector?.('.mk-narr__map')?.dataset.picked || null, label: `이야기 ${cards.length}개, 리서치 채널 언급 순`, key: 'story',
+    classes: { wrap: 'mk-narr__map', list: 'mk-narr__bars', pick: 'mk-narr__bar-row', detail: 'mk-narr__detail' },
+    row: (card, button) => barRow(doc, card, max, button),
+    detail: (card) => storyItem(doc, root, card)
+  });
   const parts = [frameHead(doc, { title: '시장이 말하는 이야기', titleId: 'regime-narratives-title', asOf, asOfDetail: '공개 리서치 채널 4곳과 급등락 종목 헤드라인에서 이야기별 언급을 셉니다' }),
-    attentionBars(doc, cards), legend, ...(changeLine ? [changeLine] : []), list];
-  if (cards.length > FACE_MAX) {
-    const rest = el(doc, 'ul', null, 'mk-narr__rest');
-    cards.slice(FACE_MAX).forEach((card) => rest.append(restItem(doc, card)));
-    parts.push(rest);
-  }
+    legend, ...(changeLine ? [changeLine] : []), map];
   const active = doc.activeElement;
   const focusKey = active && section.contains(active) ? active.dataset?.focusKey : null;
   section.replaceChildren(...parts);

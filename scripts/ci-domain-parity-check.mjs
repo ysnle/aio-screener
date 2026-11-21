@@ -460,6 +460,26 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
   }
 }
 
+// 기술적 분석 대표 종목 listed GOOGL and GOOG among its ten: one company, one row (the heavier class), the next company fills in.
+// 고점 대비 is one definition (the 52-week intraday high): the screener field, the analysis slot and the year line agree.
+{
+  const { topIndexWeights, yearCloseRead } = await import('../src/domain/technical/market-charts.js');
+  const { fromYearHigh } = await import('../src/domain/technical/definitions.js');
+  const { _calcSetupScreenFields } = await import('../src/domain/screener/price-factors.js');
+  const weights = ['NVDA', 'AAPL', 'MSFT', 'AMZN', 'GOOGL', 'AVGO', 'META', 'GOOG', 'TSLA', 'BRK.B', 'JPM', 'FOXA', 'FOX']
+    .map((sym, i) => ({ sym, weight: 20 - i }));
+  const top = topIndexWeights(weights, 10);
+  if (top.length !== 10 || top.includes('GOOG') || !top.includes('GOOGL') || top.at(-1) !== 'JPM' || !top.includes('BRK-B')) fail(`v60.36 CHARTS_SHARE_CLASS_COLLAPSE:${top.join(',')}`);
+  const bars = Array.from({ length: 260 }, (_, i) => ({ time: `d${i}`, close: 100 + (i === 200 ? 20 : 0), high: 101 + (i === 200 ? 30 : 0), low: 99, open: 100 }));
+  const closes = bars.map((bar) => bar.close), highs = bars.map((bar) => bar.high), lows = bars.map((bar) => bar.low);
+  const one = fromYearHigh(closes.at(-1), highs, lows).pct;
+  const year = yearCloseRead(bars).fromHigh;
+  const screen = _calcSetupScreenFields(closes, closes, highs, lows, closes.map(() => 1000)).pctFrom52wHigh;
+  if (Math.abs(one - (100 / 131 - 1) * 100) > 1e-9 || Math.abs(year - one) > 1e-9 || screen !== Math.round(one * 10) / 10 || yearCloseRead(bars.slice(-100)).fromHigh !== null) {
+    fail(`v60.36 FROM_HIGH_ONE_DEFINITION:${JSON.stringify({ one, year, screen })}`);
+  }
+}
+
 // v60.26 (cross-screen, live 2026-11-18): a screen states the session its own rows were computed on.
 {
   // 기술적 분석 대표 종목: the header read "11/17 종가 · 일봉" over screener rows of 11/16 with no date on the table.

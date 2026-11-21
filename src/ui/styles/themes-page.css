@@ -54,9 +54,9 @@
 .page .thp-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 6px; }
 /* v59.51: the one reading under the header (one idea per line) and the expert fold that holds the analysis behind it. */
 .page .thp-reading { list-style: none; margin: 6px 0 10px; padding: 0; display: grid; gap: 4px; font-size: var(--fs-base); line-height: 1.6; color: var(--color-text-primary); }
-.page .thp-expert-fold { margin: 10px 0; }
-.page .thp-expert-fold > summary { cursor: pointer; font-size: var(--fs-base); font-weight: 600; color: var(--color-text-secondary); padding: 4px 0; }
-.page .thp-expert-fold > :not(summary) { margin-top: 8px; }
+.page .thp-expert { margin: 16px 0 10px; }
+.page .thp-expert-title { margin: 0; font-size: var(--fs-base); font-weight: 600; color: var(--color-text-secondary); padding: 4px 0; }
+.page .thp-expert > :not(.thp-expert-title) { margin-top: 8px; }
 
 /* Theme detail: section headings, bodies and empty states */
 .page .thp-detail-heading { font-size: var(--fs-base); font-weight: 600; color: var(--color-text-secondary); margin: 8px 0 4px; }
@@ -187,7 +187,7 @@
 .page .thp-col-title { margin: 0 0 6px; font-size: var(--fs-xs); font-weight: 600; color: var(--color-text-secondary); }
 .page .thp-col-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .page .thp-col-list > li { display: flex; justify-content: space-between; gap: 10px; font-size: var(--fs-base); line-height: 1.5; min-width: 0; }
-.page .thp-col-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-primary); }
+.page .thp-col-name { appearance: none; background: none; border: 0; padding: 0; font: inherit; text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: var(--color-border); text-underline-offset: 3px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-primary); }
 .page .thp-col-value { flex: none; font-variant-numeric: tabular-nums; color: var(--color-text-secondary); white-space: nowrap; }
 .page .thp-col-value.is-up { color: var(--color-data-up); }
 .page .thp-col-value.is-down { color: var(--color-data-down); }

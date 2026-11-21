@@ -144,6 +144,18 @@ export function rangeExtremesOf(highs, lows, sessions = T.rangeSessions) {
   return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n - firstValid >= Math.min(sessions, T.fullYearSessions) });
 }
 
+/**
+ * 고점 대비: a close against the highest intraday high of the 52-week window (rangeExtremesOf). The one definition the
+ * screener's pctFrom52wHigh, the analysis slot, 기술적 분석's cards and 종목's year line read. `fullYear` false: the window
+ * is shorter than a year (the caller names its length or shows nothing). Null without a positive close and high.
+ * @returns {null | { pct: number, high: number, sessions: number, fullYear: boolean }}
+ */
+export function fromYearHigh(close, highs, lows) {
+  const range = rangeExtremesOf(highs, lows);
+  if (!range || !(range.high > 0) || !(close > 0)) return null;
+  return Object.freeze({ pct: (close / range.high - 1) * 100, high: range.high, sessions: range.sessions, fullYear: range.fullYear });
+}
+
 /** Distance to the 50-day line in average daily ranges, one decimal; null when either input is missing or ADR ≤ 0. */
 export function extensionMultiple(pctSma50, adrPct) {
   // Coerces numeric strings (the summary reads artifact rows), unlike the strict `finite` above.

@@ -19,6 +19,7 @@ import { fedTargetRange } from './fed-target-range.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
 import { closeMoveGrade } from '../market/session/move-size.js';
+import { AXIS_LABELS } from '../market/interpretation/concepts.js';
 
 // v59.56: the shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
@@ -103,7 +104,7 @@ function inflation(macroHistory, events) {
   const service = shelter && supercore && shelter.value >= 0.3 && supercore.value >= 0.3 ? ' 주거비와 주거비 제외 서비스가 함께 올라 서비스 물가가 다시 붙었습니다.' : '';
   const next = nextOf(events, ['us-cpi', 'us-pce']);
   return {
-    id: 'inflation', title: '물가 — PCE · CPI', question: hiking ? '연준의 추가 인상과 동결 사이' : '연준의 금리 인하 여지',
+    id: 'inflation', title: `${AXIS_LABELS.inflation} — PCE · CPI`, question: hiking ? '연준의 추가 인상과 동결 사이' : '연준의 금리 인하 여지',
     viz: { caption: '근원 PCE 전월비 (%)', unit: '%', points: mom.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === mom.length - 1 })) },
     now: `${monthName(last.date)} 근원 PCE ${signed(last.value)} · 3개월 연율 ${three.toFixed(1)}% · 전년비 ${yoy.toFixed(1)}%`,
     mean: `${turn}. ${hot}.${service}`,
@@ -213,7 +214,7 @@ function rates(macroHistory, events, history = []) {
     ? `${shortDay(term.fromDate)}→${shortDay(term.date)} 10년 ${bp(tenTerm.bp)} = 기간 프리미엄 ${bp(term.bp)} + 금리 경로 기대 ${bp(tenTerm.bp - term.bp)}` : null;
   const points = [['10년', market ? market.bp : ten.bp], ['실질', real.bp], ['기대인플레', be.bp], term ? [termLabel, term.bp] : null, two ? ['2년', two.bp] : null].filter(Boolean);
   return {
-    id: 'rates', title: '연준 · 금리 — 움직인 이유', question: '금리 변화의 원인, 물가와 성장 걱정',
+    id: 'rates', title: `${AXIS_LABELS.rates} — 움직인 이유`, question: '금리 변화의 원인, 물가와 성장 걱정',
     viz: { caption: '20거래일 변화 (bp)', unit: 'bp', points: points.map(([x, value], index) => ({ x, value, hot: index === 1 })) },
     // v59.70 (screen review 6): the 10-year itself is the market close reading every screen shares (closeChange on history tnx); the
     // FRED legs, cut on their own common date, split the move and keep their own span beside them.
@@ -460,7 +461,7 @@ function credit(macroHistory) {
   const mean = creditReading(judgement, { cccTail: tail, ccc20: ccc?.bp ?? null, ig20: ig?.bp ?? null });
   const flip = creditFlip(judgement);
   return {
-    id: 'credit', title: '신용 · 유동성 — 위기 신호 점검', question: '주가 조정이 신용 위기로 번질 위험', state,
+    id: 'credit', title: `${AXIS_LABELS.credit} — 위기 신호 점검`, question: '주가 조정이 신용 위기로 번질 위험', state,
     viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, bb20 ? { x: 'BB', value: bb20.value } : null, b20 ? { x: 'B', value: b20.value } : null, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
     now: `하이일드 ${hy.from.toFixed(2)} → ${hy.to.toFixed(2)}% (${bp(hy.bp)})${ccc ? ` · CCC ${bp(ccc.bp)}` : ''}`,
     mean: `${mean}${fci ? ` 금융여건 지수는 ${fci.value.toFixed(2)}${'013678'.includes(fci.value.toFixed(2).slice(-1)) ? '으로' : '로'} ${fci.value < 0 ? '아직 완화 쪽' : '긴축 쪽'}입니다.` : ''}`,
@@ -495,7 +496,7 @@ function growthKorea(macroHistory, history, events) {
     : realRetail != null && retail.value >= 0 && realRetail < retail.value - 0.3 ? `소매판매는 명목 ${signed(retail.value, 1)}지만 같은 달 소비자물가(${signed(cpiSame.value, 2)})를 빼면 실질 약 ${signed(realRetail, 1)}로, ${realRetail >= REAL_RETAIL_FLAT_PCT ? '실질로도 늘었지만 증가분의 상당 부분은 물가 몫입니다' : realRetail > -REAL_RETAIL_FLAT_PCT ? '소비는 늘었다기보다 버티는 정도입니다' : '소비는 물가에 밀려 실질로 줄었습니다'}. `
       : retail.value >= 0 ? '소비 지출은 아직 꺾이지 않았습니다. ' : '소비 지출이 줄었습니다. ';
   return {
-    id: 'growth', title: '성장 · 소비 · 한국', question: '경기의 지속력과 한국 시장이 묶인 고리',
+    id: 'growth', title: `${AXIS_LABELS.growth} · 소비 · 한국`, question: '경기의 지속력과 한국 시장이 묶인 고리',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [kospi ? { x: '코스피', value: kospi.pct, hot: true } : null, semis ? { x: 'SOXX', value: semis.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
     // each monthly value carries its month — '소비심리 48.1' (September) sat undated beside today's KOSPI.
     now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}(${monthName(sentiment.date)})` : null, retail ? `소매판매 ${signed(retail.value, 1)}(${monthName(retail.date)})` : null, output ? `산업생산 ${signed(output.value, 1)}(${monthName(output.date)})` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),

@@ -126,12 +126,16 @@ try {
     // v60.31 (안 A): one 지표 추이 card shows the picked axis's dated chart; the rows are never folded.
     check(await page.locator('#regime-history .regime-axis-history svg').count() >= 1 && await page.locator('#regime-history-host .regime-history-axes > button').count() >= 4, `${viewport.name}: dated market charts absent (P1628)`);
     check(await page.locator('#regime-board details, #regime-board-watch details').count() === 0, `${viewport.name}: an indicator row is folded (v60.31)`);
-    check(await page.locator('.regime-scenario-card').count() === 3, `${viewport.name}: conditional market paths absent (P1628)`);
+    check(!await page.locator('#page-signal .regime-scenario-card').count(), `${viewport.name}: v60.36 the three market flows are 시장 폭's, not 시장 상태's`);
     check(!await page.locator('#regime-positioning').count(), `${viewport.name}: retired weekly positioning widget remains (P1628)`);
     // v58.56 · v60.31: the 한국 시장 card is the 한국 view's open section (summary line = latest KOSPI close).
     check(await page.locator('#regime-kr-summary').isVisible() && await page.locator('#regime-board-kr [data-market="KR"]').count() >= 2 && await page.locator('#regime-kr-participation').isVisible(), `${viewport.name}: Korean index and participation consumers absent (P1628)`);
-    check(await page.locator('.regime-scenario-card .regime-scenario-more[open]').count() === 0, `${viewport.name}: scenario conditions are not folded behind the reading (P1630)`);
     await snap(page, `${viewport.name}-market-regime.png`, { fullPage: true });
+    // The three conditional market flows sit on 시장 폭 after its verdict.
+    await page.evaluate(() => window.showPage('breadth', null));
+    await page.waitForSelector('#page-breadth #regime-structure .regime-scenario-card', { timeout: 15000 }).catch(() => {});
+    check(await page.locator('#page-breadth #regime-structure .regime-scenario-card').count() === 3, `${viewport.name}: conditional market paths absent (P1628)`);
+    check(await page.locator('#page-breadth .regime-scenario-card .regime-scenario-more[open]').count() === 0, `${viewport.name}: scenario conditions are not folded behind the reading (P1630)`);
     const overlayRoute = await page.evaluate(async () => { window.showPage('glossary', null); for (let i = 0; i < 100 && document.getElementById('glossary-modal')?.style.display === 'none'; i += 1) await new Promise(r => setTimeout(r, 50)); const state = { active: document.querySelector('.page.active')?.id || null, modal: document.getElementById('glossary-modal')?.style.display !== 'none' }; window._aioCloseGlossary?.(); return state; });
     check(overlayRoute.active === 'page-guide' && overlayRoute.modal, `${viewport.name}: #glossary overlay route left a blank screen (P1630)`, overlayRoute);
     await page.evaluate(() => window.showPage('home', null));

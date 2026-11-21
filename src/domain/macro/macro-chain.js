@@ -9,6 +9,7 @@ import { brentWtiCheck } from './liquidity-growth.js';
 import { oilDivergence } from './macro-signals.js';
 import { readNumber as finite } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
+import { STATE_LABELS } from '../market/interpretation/concepts.js';
 import { closeChanges, creditObservation, monthDay, policyPricing, ratesEvidence, signed } from './macro-read.js';
 
 const P = RULES.policy;
@@ -74,7 +75,7 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   const creditCalm = creditVerdict === 'favorable' ? '신용 시장은 안정적입니다'
     : creditVerdict === 'burden' ? burdenText
       : creditVerdict === 'neutral' ? neutralText()
-        : '신용 지표 판정 보류 — 스프레드 기록을 기다립니다';
+        : `신용 지표 ${STATE_LABELS.unknown} — 스프레드 기록을 기다립니다`;
   const dir = (value, up, down) => value == null ? 'unknown' : value >= up ? 'up' : value <= down ? 'down' : 'flat';
   const nodes = [
     { id: 'oil', label: '유가 (WTI)', held: oilHeld, value: wti20 == null ? '—' : `20거래일 ${signed(wti20, 1, '%')}${oilShort}${oilHeld ? (oil?.abnormal ? ', 브렌트 비교 보류' : `, 브렌트 ${signed(oil.brent20, 1, '%')}`) : ''}`, dir: fx.wtiHigh && wti20 != null && wti20 > RULES.oil.fall20dPct ? 'up' : dir(wti20, RULES.oil.rise20dPct, RULES.oil.fall20dPct) },

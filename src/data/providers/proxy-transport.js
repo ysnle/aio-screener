@@ -24,9 +24,24 @@ export function installProxyTransport(window = globalThis) {
   // 키로 대신 조회하므로 클라이언트는 키를 보내지 않는다 — URL에 비밀이 없으므로
   // 제3자 프록시로 새지 않고, 캐시 경로도 민감 분기와 무관하다.
   // Worker 미설정이면 ''를 반환해 호출자가 다음 폴백으로 넘어가게 한다.
+  // A relay provider the Worker cannot serve is not asked again: /health says per provider whether the operator key is
+  // configured (relay.configured), and a 503 "... not configured" answer says the same for this deployment. Either one
+  // holds for the page's lifetime, so the macro page, the 30-minute KR task and every later page entry stop sending a
+  // request that can only fail. A transient failure (timeout, quota unavailable, 429) is not remembered.
+  const _relayUnconfigured = new Set();
+  const _relayHealthSaysUnconfigured = (worker, provider) => {
+    const health = window._aioWorkerHealthCache?.[worker]?.health;
+    return health?.relay?.configured?.[provider] === false;
+  };
+  const _aioRelayAvailable = (provider) => {
+    const worker = _cfWorkerUrl();
+    if (!worker || !provider) return false;
+    return !_relayUnconfigured.has(provider) && !_relayHealthSaysUnconfigured(worker, provider);
+  };
+
   const _aioRelayUrl = (provider, params) => {
     const worker = _cfWorkerUrl();
-    if (!worker || !provider) return '';
+    if (!worker || !provider || !_aioRelayAvailable(provider)) return '';
     let url;
     try { url = new URL(worker + '/relay'); } catch (_) { return ''; }
     url.searchParams.set('provider', provider);
@@ -39,10 +54,17 @@ export function installProxyTransport(window = globalThis) {
 
   // The relay destination is the AIO Worker itself, never a third-party relay, so a
   // direct fetch with the shared app token is the correct transport.
-  function _aioRelayFetch(url, timeoutMs) {
+  async function _aioRelayFetch(url, timeoutMs) {
     const headers = {};
     try { if (typeof _aioAppToken === 'function') headers['X-AIO-App-Token'] = _aioAppToken(); } catch (_) {}
-    return fetchWithTimeout(url, { headers }, timeoutMs || 8000);
+    const response = await fetchWithTimeout(url, { headers }, timeoutMs || 8000);
+    if (response && response.status === 503) {
+      let provider = '';
+      try { provider = new URL(url).searchParams.get('provider') || ''; } catch (_) {}
+      const body = await response.clone().json().catch(() => null);
+      if (provider && /not configured/i.test(String(body?.error || ''))) _relayUnconfigured.add(provider);
+    }
+    return response;
   }
 
   // P1756: the shared Worker relays only these upstream hosts (ALLOWED_DOMAINS in cloudflare-worker-proxy.js; exact host

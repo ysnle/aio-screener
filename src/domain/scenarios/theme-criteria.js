@@ -11,6 +11,7 @@ import { withDirectionParticle } from '../content/korean-particle.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
+import { AXIS_LABELS, STATE_LABELS } from '../market/interpretation/concepts.js';
 
 // v59.46 boundary contract: member numbers are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
@@ -198,7 +199,7 @@ export function macroMoves(history = [], regime = null) {
     moves.push({ axis: key, label, change, text: `${label} ${text(change)}`, branch: change > 0 ? upBranch : downBranch, asOf: list[list.length - 1].date || null });
   }
   const credit = (regime?.axes || []).find((axis) => axis.id === 'credit');
-  if (credit?.state === 'burden') moves.push({ axis: 'credit', label: '신용과 위험선호', change: null, text: `신용과 위험선호 '${credit.stateLabel || '부담'}'`, branch: 'creditstress', asOf: null });
+  if (credit?.state === 'burden') moves.push({ axis: 'credit', label: AXIS_LABELS.credit, change: null, text: `${AXIS_LABELS.credit} '${credit.stateLabel || STATE_LABELS.burden}'`, branch: 'creditstress', asOf: null });
   return moves;
 }
 

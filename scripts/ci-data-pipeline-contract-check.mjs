@@ -2321,7 +2321,7 @@ const vcpParityOk = (() => {
       { label: 'no private swing pairing left (N=4 / 1-45%)', re: /\bN\s*=\s*4\s*[;,]|<=\s*45\)\s*ctrs\.push/, absent: true },
       { label: 'no private stage chain in the client', re: /vcpStage\s*=\s*!stage2/, clientAbsent: true },
       { label: 'the client imports the producer function', server: /_calcVCPServer/, client: /import \{ _calcVCPServer \} from '\.\.\/screener\/price-factors\.js'/, clientSource: snapshotSrc },
-      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /rangeExtremesOf\(highs, lows\)[\s\S]*range\?\.fullYear/, client: /_calcVCPServer\(/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
+      { label: '52-week full-year rule (v57.86: 240 sessions; one calendar year is 251 US / 245 KR)', server: /fromYearHigh\(price, highs, lows\)[\s\S]*fromHigh\?\.fullYear/, client: /_calcVCPServer\(/, constant: RULES_FOR_VCP.technical.fullYearSessions === 240 },
       { label: 'stage-2 52w-off-high floor (-30)', server: /pct52\s*>=\s*-RULES\.technical\.stage2Gate\.nearHighPct/, client: /_calcVCPServer\(/, constant: RULES_FOR_VCP.technical.stage2Gate.nearHighPct === 30 },
     ];
     const sides = (p) => p.re ? [p.re.test(serverSrc), p.re.test(clientSrc)] : [p.server.test(serverSrc), p.client.test(p.clientSource || clientSrc) && p.constant !== false];

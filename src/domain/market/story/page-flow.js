@@ -2,7 +2,7 @@
 // cards — every section says what it adds to the page's conclusion, and the page ends with where the
 // same reading continues. These sentences are computed from the same series and rules the cards use;
 // a section with missing inputs says what it cannot add instead of inventing a reading.
-import { isDefensiveSector, SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
+import { isDefensiveSector, SECTOR_ETF_LABELS, AXIS_LABELS, axisNames } from '../interpretation/concepts.js';
 
 // v58.74 (text audit): the RRG rows carry legacy labels ('소비재', '필수소비') beside chips that say 경기소비재/필수소비재.
 const sectorName = (item) => SECTOR_ETF_LABELS[String(item?.symbol || '').toUpperCase()] || item?.label || item?.symbol;
@@ -15,13 +15,15 @@ const signed = (value, digits = 1, unit = '') => signedText(Number(value), digit
 
 // 시장 상태: each burden or neutral axis points to the screen that explains it.
 const AXIS_ROUTES = Object.freeze({
-  trend: { route: 'charts', action: 'aioOpenMarketChart', arg: 'SPY', label: 'S&P 500 차트', why: (axis) => `추세 ${axis.stateLabel} — 일봉과 50·200일선 위치` },
-  breadth: { route: 'breadth', label: '시장 폭', why: (axis) => `시장 폭 ${axis.stateLabel} — 참여 종목의 6개월 추이와 빠지거나 들어온 종목` },
-  volatility: { route: 'sentiment', label: '투자 심리', why: (axis) => `변동성 ${axis.stateLabel} — 옵션 헤지 수요·심리와 같은 쪽인지` },
-  rates: { route: 'fxbond', label: '금리와 환율', why: (axis) => `금리 ${axis.stateLabel} — 실질금리와 수익률 곡선 중 어디에서 오는지` },
-  credit: { route: 'sentiment', label: '투자 심리', why: (axis) => `신용 ${axis.stateLabel} — 공포 심리와 함께 움직이는지` },
-  commodities: { route: 'macro', label: '매크로', why: (axis) => `유가·달러 ${axis.stateLabel} — 물가와 금리 경로에 주는 압력` }
+  trend: { route: 'charts', action: 'aioOpenMarketChart', arg: 'SPY', label: 'S&P 500 차트', why: (axis) => `${axisState(axis)} — 일봉과 50·200일선 위치` },
+  breadth: { route: 'breadth', label: '시장 폭', why: (axis) => `${axisState(axis)} — 참여 종목의 6개월 추이와 빠지거나 들어온 종목` },
+  volatility: { route: 'sentiment', label: '투자 심리', why: (axis) => `${axisState(axis)} — 옵션 헤지 수요·심리와 같은 쪽인지` },
+  rates: { route: 'fxbond', label: '금리와 환율', why: (axis) => `${axisState(axis)} — 실질금리와 수익률 곡선 중 어디에서 오는지` },
+  credit: { route: 'sentiment', label: '투자 심리', why: (axis) => `${axisState(axis)} — 공포 심리와 함께 움직이는지` },
+  commodities: { route: 'macro', label: '매크로', why: (axis) => `${axisState(axis)} — 물가와 금리 경로에 주는 압력` }
 });
+const axisState = (axis) => `${AXIS_LABELS[axis.id]} ${axis.stateLabel}`;
+const SIX_AXES = axisNames();
 
 // I02/I14: 시장 상태 always continues to 테마 · 섹터 with the same leader names the rotation read uses; in a narrow tape
 // (index near its high, participation burden) the item names the S&P 500 map that shows which members carry the index.
@@ -74,7 +76,7 @@ export function briefingFlow({ read = null } = {}) {
   const keyOf = (item) => `${item.route}#${item.ctx?.anchor || ''}`;
   // P1727: when the Korea sentence is in the four-sentence lead, its board comes first.
   if (lead.has('korea')) { next.push({ ...BRIEFING_ROUTES.korea }); seen.add(keyOf(BRIEFING_ROUTES.korea)); }
-  next.push({ route: 'signal', label: '시장 상태', why: '오늘 해석이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정과 같은 쪽인지' });
+  next.push({ route: 'signal', label: '시장 상태', why: `오늘 해석이 6개 지표(${SIX_AXES}) 판정과 같은 쪽인지` });
   seen.add('signal#');
   const axes = [...(read.statements || []).map((row) => row.axis), ...(read.drivers || []).filter((row) => row.values?.length).map((row) => row.id)];
   for (const axis of axes) {
@@ -158,7 +160,7 @@ export function rotationFlow({ groups: allGroups = {}, regime = null, revisions 
   const firstLabel = firstSector ? improving.find((item) => SECTOR_ETF_SCREENER_SECTOR[String(item.symbol || '').toUpperCase()] === firstSector) : null;
   if (improving.length) next.push({ route: 'screener', label: '스크리너', why: `개선 사분면(${names('Improving').join('·')})에서 상대강도가 먼저 오르는 종목${firstSector && improving.length > 1 ? ` — ${firstLabel.label || firstLabel.symbol} 섹터부터` : ''}`,
     ...(firstSector ? { ctx: { sector: firstSector } } : {}) });
-  if (breadth) next.push({ route: 'breadth', label: '시장 폭', why: `섹터 쏠림이 참여 종목 수(시장 폭 ${breadth.stateLabel})에도 나타나는지` });
+  if (breadth) next.push({ route: 'breadth', label: '시장 폭', why: `섹터 쏠림이 참여 종목 수(${AXIS_LABELS.breadth} ${breadth.stateLabel})에도 나타나는지` });
   next.push({ route: 'macro', label: '매크로', why: '금리·유가·달러가 어느 업종에 유리한 국면인지' });
   return { read, next };
 }
@@ -264,6 +266,6 @@ export function newsFlow({ countryFilter = 'all' } = {}) {
   const next = [{ route: 'briefing', label: '브리핑', why: '기사 속 사건이 최근 마감의 지수·금리·유가·달러 움직임과 같은 쪽이었는지' }];
   next.push(String(countryFilter || '').toLowerCase() === 'kr'
     ? { route: 'signal', label: '시장 상태, 한국 시장', why: '한국 기사와 코스피·코스닥·원화, AIO 추적 종목(한국)의 참여도가 같은 방향인지', ctx: { anchor: 'regime-board-kr' } }
-    : { route: 'signal', label: '시장 상태', why: '사건이 6개 지표(추세·시장 폭·변동성·금리·신용·달러/원자재) 판정을 바꿀 만큼 가격에 반영됐는지' });
+    : { route: 'signal', label: '시장 상태', why: `사건이 6개 지표(${SIX_AXES}) 판정을 바꿀 만큼 가격에 반영됐는지` });
   return { next };
 }

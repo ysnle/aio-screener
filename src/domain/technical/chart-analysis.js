@@ -9,7 +9,7 @@ import { RULES } from '../rules/thresholds.js';
 import { signalHistory, signalHistoryText } from './signal-history.js';
 // v57.84: moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
-import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
+import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, fromYearHigh, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 const TECH = RULES.technical;
 
@@ -94,7 +94,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const fullYear = range.fullYear;
   const rangeLabel = fullYear ? '52주' : `최근 ${range.sessions}거래일`;
   const high52 = range.high;
-  const fromHigh = (last.close / high52 - 1) * 100;
+  const fromHigh = fromYearHigh(last.close, bars.map((bar) => bar.high), bars.map((bar) => bar.low))?.pct ?? null;
   // Today's volume against the 50 sessions before it (the breakout rule's basis): an average that includes today
   // understates its own spike (a 3× day read 2.9×).
   const prior50 = priorVolumeAverage(volumes, n, 50);

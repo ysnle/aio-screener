@@ -13,7 +13,7 @@ import { trendOfBars } from './trend-state.js';
 import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './bands.js';
 import { rallyAttemptRead } from '../market/regime/rally-attempt.js';
 import { RULES } from '../rules/thresholds.js';
-import { rsiWilder } from './definitions.js';
+import { rsiWilder, fromYearHigh } from './definitions.js';
 import { stampDay } from '../shared/session-date.js';
 import { closeSessionMarket } from '../market/session/close-series.js';
 
@@ -93,12 +93,14 @@ export function indexVolumeRead(history, field) {
 
 /**
  * A year of completed daily closes: the last 252, their highest and lowest close, the 200-day line, and the last close
- * against the high and that line. The one close basis of 기술적 분석's cards (barsChartReading) and the 종목 screen's year
- * line (ticker-year-line.js); null below 60 bars.
+ * against that line. `fromHigh` is 고점 대비 as everywhere else (definitions.js fromYearHigh, the 52-week intraday high),
+ * null below a full year of bars with highs. 기술적 분석's cards (barsChartReading) and the 종목 screen's year line
+ * (ticker-year-line.js) read it; null below 60 bars.
  * @returns {null | { series, ma200Series, high, low, close, asOf, fromHigh, ma200, s200 }}
  */
 export function yearCloseRead(bars) {
-  const closes = (Array.isArray(bars) ? bars : []).filter((bar) => Number.isFinite(bar?.close) && bar.close > 0).map((bar) => ({ date: bar.time, value: bar.close }));
+  const valid = (Array.isArray(bars) ? bars : []).filter((bar) => Number.isFinite(bar?.close) && bar.close > 0);
+  const closes = valid.map((bar) => ({ date: bar.time, value: bar.close }));
   if (closes.length < 60) return null;
   const ma200Series = closes.length >= 200 ? movingAverage(closes, 200) : [];
   const ma200 = ma200Series.at(-1)?.value ?? null;
@@ -106,9 +108,10 @@ export function yearCloseRead(bars) {
   const high = series.reduce((best, row) => (row.value > best.value ? row : best));
   const low = series.reduce((best, row) => (row.value < best.value ? row : best));
   const close = series.at(-1).value;
+  const fromHigh = fromYearHigh(close, valid.map((bar) => bar.high), valid.map((bar) => bar.low));
   return {
     series, ma200Series: ma200Series.slice(-252), high, low, close, asOf: series.at(-1).date,
-    fromHigh: (close / high.value - 1) * 100, ma200, s200: Number.isFinite(ma200) && ma200 > 0 ? (close / ma200 - 1) * 100 : null
+    fromHigh: fromHigh?.fullYear ? fromHigh.pct : null, ma200, s200: Number.isFinite(ma200) && ma200 > 0 ? (close / ma200 - 1) * 100 : null
   };
 }
 
@@ -155,7 +158,7 @@ export function barsChartReading({ bars, field, label, symbol = null, positionOn
     const band = breadth.above50 >= broadAbovePct ? `${broadAbovePct}% 이상` : breadth.above50 < narrowBelowPct ? `${narrowBelowPct}% 미만` : `${narrowBelowPct}~${broadAbovePct}%`;
     breadthRow = ['구성 종목 중 50일선 위', `${breadth.above50.toFixed(0)}% (${band})`];
   }
-  const facts = [`고점 대비 ${signed(fromHigh)}`, s50 == null ? null : `50일선 ${signed(s50)}`, s200 == null ? null : `200일선 ${signed(s200)}`].filter(Boolean).join(' · ');
+  const facts = [fromHigh == null ? null : `고점 대비 ${signed(fromHigh)}`, s50 == null ? null : `50일선 ${signed(s50)}`, s200 == null ? null : `200일선 ${signed(s200)}`].filter(Boolean).join(' · ');
   const numbers = [['종가', money(close)], ['50일선', Number.isFinite(ma50) ? money(ma50) : '—'], ['200일선', Number.isFinite(ma200) ? money(ma200) : '—'],
     ['1년 최고 종가', `${money(high.value)} (${md(high.date)})`], ['RSI(14)', rsi === null ? '—' : rsi.toFixed(0)],
     ['50일선 20일 기울기', Number.isFinite(ma50Before) && ma50Before > 0 ? signed((ma50 / ma50Before - 1) * 100) : '—'],
@@ -203,17 +206,41 @@ export function indexChartReadings(history) {
   return CHART_INDEXES.map(([field, label]) => indexChartReading(history, field, label, { breadth: field === 'spx' ? breadth : null })).filter(Boolean);
 }
 
+// S&P 500 members listed in more than one share class, keyed to one company: a company is one row among the ten.
+export const SHARE_CLASS_COMPANY = Object.freeze({ GOOGL: 'Alphabet', GOOG: 'Alphabet', FOXA: 'Fox', FOX: 'Fox', NWSA: 'News Corp', NWS: 'News Corp' });
+
+/** The `count` heaviest S&P 500 weights, one share class per company (the heavier one; the next company fills its place). */
+export function topIndexWeights(indexWeights = [], count = 10) {
+  const seen = new Set();
+  const top = [];
+  for (const row of (Array.isArray(indexWeights) ? indexWeights : []).slice().sort((a, b) => (b.weight || 0) - (a.weight || 0))) {
+    const sym = String(row?.sym || '').replace('.', '-');
+    if (!sym) continue;
+    const company = SHARE_CLASS_COMPANY[sym] || sym;
+    if (seen.has(company)) continue;
+    seen.add(company);
+    top.push(sym);
+    if (top.length >= count) break;
+  }
+  return top;
+}
+
 /**
- * Core stocks: the ten largest S&P 500 weights, then the day's material stock moves (market-day.json, rank lead/major),
- * each read from the screener's own fields. A row the screener has no 50-day distance for is left out.
+ * Core stocks: the ten largest S&P 500 weights (one share class per company), then the day's material stock moves
+ * (market-day.json, rank lead/major), each read from the screener's own fields. A row the screener has no 50-day distance
+ * for is left out.
  */
 export function coreStockRows({ screener = null, indexWeights = [], day = null, universe = [] } = {}) {
   const names = new Map((Array.isArray(universe) ? universe : []).map((item) => [item.sym, item.name]));
-  const top = (Array.isArray(indexWeights) ? indexWeights : []).slice().sort((a, b) => (b.weight || 0) - (a.weight || 0)).slice(0, 10).map((row) => String(row.sym).replace('.', '-'));
+  const top = topIndexWeights(indexWeights, 10);
   // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
   const movers = usThenKorea((day?.facts || []).filter((fact) => fact.kind === 'stock-move' && ['lead', 'major'].includes(fact.rank)), (fact) => String(fact.subjects?.[0] || '')).map((fact) => fact.subjects[0]);
   const rows = [];
-  for (const sym of [...new Set([...top, ...movers])]) {
+  const companies = new Set();
+  for (const sym of [...top, ...movers]) {
+    const company = SHARE_CLASS_COMPANY[sym] || sym;
+    if (companies.has(company)) continue;
+    companies.add(company);
     const row = screener?.data?.[sym];
     const vs50 = readRowNumber(row, 'pctSma50'); const vs200 = readRowNumber(row, 'pctSma200');
     if (vs50 === null) continue;

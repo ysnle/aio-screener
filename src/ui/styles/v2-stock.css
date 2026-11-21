@@ -258,13 +258,7 @@
 #theme-detail-panel .flow-next { box-shadow: none !important; background: var(--sx-ink-a03) !important; }
 .page .thp-detail-heading { font-size: 12px; font-weight: 600; }
 
-/* Lessons and next steps on the stock and theme screens: soft cards and link rows (3d 'stockMore'). */
-:is(#page-ticker, #page-charts, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson {
-  border: 0; border-radius: var(--radius-container); background: var(--color-background-card); box-shadow:none; padding: 16px 18px; gap: 6px;
-}
-:is(#page-ticker, #page-charts, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-kind { border: 0 !important; border-radius: var(--radius-full); padding: 2px 9px; background: var(--sx-ink-a07); font-size: 12px; font-weight: 600; }
-:is(#page-ticker, #page-charts, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trap"] .mg-kind { background: var(--sx-warn-bg); }
-:is(#page-ticker, #page-charts, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .mg-lesson[data-kind="trust"] .mg-kind { background: var(--sx-good-bg); }
+/* Next steps on the stock and theme screens: link rows (3d 'stockMore'). */
 :is(#page-ticker, #page-charts, #page-fundamental, #page-themes, #page-theme-detail, #page-screener) .flow-next {
   border-top: 0; margin: 24px 0 8px; padding: 18px 0 6px; background: var(--color-background-card); border-radius: var(--radius-container); box-shadow:none; overflow: hidden;
 }

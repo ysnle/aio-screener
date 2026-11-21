@@ -20,6 +20,7 @@ import { breadthScopeOf } from '../../domain/market/breadth/screener-breadth.js'
 import { breadthCounter, measureFace } from '../../domain/market/breadth/breadth-face.js';
 import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { historyWaitText } from './data-state.js';
+import { renderMarketStructure } from './market-structure.js';
 
 const WINDOW = 126; // about six months of sessions
 
@@ -185,7 +186,8 @@ function methodBody(doc, root, cards) {
 export function renderBreadthBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-breadth');
   if (!page) return null;
-  const { inputs, regime } = marketInterpretation(root); // T05 / owner 2026-10-19: the shared regime, same as 시장 상태
+  const interpretation = marketInterpretation(root); // T05 / owner 2026-10-19: the shared regime, same as 시장 상태
+  const { inputs, regime } = interpretation;
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are
@@ -217,6 +219,8 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   const d = axis?.flipDistance;
   set('breadth-flip', d ? `판정이 바뀌는 조건: ${d.condition}${(d.also || []).map((also) => `, 함께 필요: ${also.condition}`).join('')} 시장 폭 → ${d.towardLabel} · ${d.label}`
     : axis?.flip ? `판정이 바뀌는 조건: ${String(axis.flip).match(/^.+?[.](?=\s|$)/)?.[0] || axis.flip}` : '');
+  // The three market flows read from breadth and leadership, after the verdict and its AI reading.
+  renderMarketStructure({ documentRef: doc, root, interpretation, anchor: doc.getElementById('breadth-screen-reading') || state?.closest?.('section') || null });
   const grid = doc.getElementById('breadth-chart-grid');
   if (grid) {
     const cards = buildBreadthCards(inputs.history);

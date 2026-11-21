@@ -1,6 +1,7 @@
 // P1624: one route-owned, identity-checked public chart response supplies quote and history.
 import { canonicalEpochMs } from '../technical/chart-contract.js';
 import { finiteNumber as finite } from '../shared/number.js';
+import { requestDailyChartPayload } from '../../data/daily-chart-bars.js';
 
 const positive = value => finite(value) > 0 ? value : null;
 const caches = new WeakMap();
@@ -110,9 +111,10 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
       controller = new AbortController();
       const signal = controller.signal;
       onStatus('loading', id);
-      // Reuse the established public transport/provider; its optional signal owns physical cancellation.
+      // The shared daily request (daily-chart-bars.js): the year line under the price reads the same two years, so the
+      // page asks once; the request is cancelled when its last caller aborts.
       Promise.resolve().then(() => typeof root._aioFetchYahooChartData === 'function'
-        ? root._aioFetchYahooChartData(id, '1y', '1d', { signal }) : null)
+        ? requestDailyChartPayload(root, id, { range: '2y', signal }) : null)
         .then(response => {
           if (disposed || signal.aborted || token !== revision) return;
           controller = null;

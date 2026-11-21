@@ -38,12 +38,22 @@ export function homeNarrativeLine(narratives, limit = 2) {
   return `많이 오가는 이야기 · ${stories.map((row, i) => `${row.label} ${i === 0 ? `${hours}시간 ` : ''}${row.telegramCount}건${NARR_TREND[row.trend] ? `(24시간 ${NARR_TREND[row.trend]})` : ''}`).join(', ')}`;
 }
 
-/** The top stories of 뉴스's own 중요 뉴스 (same model, grouping and pick), so the two screens name the same news. */
-function homeHeadlines(root, store, limit = 3) {
+// One article's identity across the raw feed and the grouped model: its link, else its original title.
+const articleKey = (item) => String(item?.link || item?.url || item?.title || '').trim();
+
+/**
+ * The top stories of 뉴스's own 중요 뉴스 (same model, grouping and pick), so the two screens name the same news.
+ * A story another block of 오늘 already lists (`shownElsewhere`, 내 종목 뉴스) is left out before the pick, so the
+ * pick still fills its slots with the next topics instead of repeating that article.
+ */
+export function homeHeadlines(root, store, limit = 3, shownElsewhere = []) {
   const items = store?.getState?.()?.news?.items;
   if (!Array.isArray(items) || !items.length || typeof root?.AIO?.buildNewsSurfaceModel !== 'function') return [];
   const model = root.AIO.buildNewsSurfaceModel('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
-  const picked = pickImportantNews(groupNewsStories(model?.eligibleItems || model?.items || []), limit);
+  const taken = new Set((Array.isArray(shownElsewhere) ? shownElsewhere : []).map(articleKey).filter(Boolean));
+  const stories = groupNewsStories(model?.eligibleItems || model?.items || [])
+    .filter((story) => !(story.storyArticles || [story]).some((article) => taken.has(articleKey(article))));
+  const picked = pickImportantNews(stories, limit);
   return picked.map((item) => {
     // v59.70 (owner D6): the producer's Korean title first (news translation runs in the producer, not the browser).
     const shown = /[가-힣].*[가-힣]/.test(item.titleKo || '') ? item.titleKo : typeof root.getDisplayTitle === 'function' ? root.getDisplayTitle(item) : '';
@@ -51,16 +61,16 @@ function homeHeadlines(root, store, limit = 3) {
   }).filter((row) => row.title);
 }
 
-export function renderHomeDay({ documentRef: doc, root, store = null }) {
+export function renderHomeDay({ documentRef: doc, root, store = null, shownElsewhere = [] }) {
   const section = doc?.getElementById('home-day');
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
-  if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderHomeDay({ documentRef: doc, root, store }); }).catch(() => {});
+  if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderHomeDay({ documentRef: doc, root, store, shownElsewhere }); }).catch(() => {});
   const account = buildDayAccount(oneSessionDay(day, root?._aioHistory)); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
   // The news loads after the ledger on a cold start, so the headlines are part of the key.
-  const headlines = homeHeadlines(root, store);
+  const headlines = homeHeadlines(root, store, 3, shownElsewhere);
   const narrLine = homeNarrativeLine(day.narratives);
   const key = [day.generatedAt, narrLine || '', ...headlines.map((row) => row.title)].join('|');
   if (section.dataset.renderKey === key) return;

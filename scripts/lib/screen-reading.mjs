@@ -221,7 +221,7 @@ export function unsupportedFigures(text, packet) {
 // ---- state words -----------------------------------------------------------------------------------------------------------
 // The market-reading check (axisStateClaimIssues) reads "id: state" lines; the packet's axis states are handed to it in
 // that form. It knows the market axes' own words (추세, 시장 폭, 변동성, 금리, 신용); every packet axis is also read by its
-// title: the title (or its head, "성장 (고용, 소비)" → 성장, "금리, 할인율" → 금리) followed directly by another state label.
+// title: the title (or its head, "환율 (원, 엔)" → 환율) followed directly by another state label.
 const STATE_WORD = '(양호|중립|부담|확인\\s?불가)';
 const CONDITIONAL = /(?:하면|이면|되면|라면|으면|면\s|경우|바뀌|전환|돌아서|넘어가)/;
 const escape = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

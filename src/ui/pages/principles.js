@@ -239,6 +239,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
       };
 
       const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, page: 'principles', state: { mode: state.view === 'map' ? 'graph' : state.view === 'lesson' ? null : state.view, node: state.view === 'map' ? state.selectedId : state.view === 'frames' ? state.frameId : state.view === 'concept' ? state.conceptId : null, chapter: state.view === 'story' ? state.chapterId : null, lesson: state.view === 'lesson' ? state.lessonId : null } });
+      // A link to one participation principle (시장 상태's 오늘의 가이드) opens 참여 원칙 at it, once.
+      if (initialView === 'rules' && sharedRoute.node) state.ruleId = sharedRoute.node;
       syncSharedState();
 
       const focusDetail = () => {
@@ -337,7 +339,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         else if (params.lesson) { state.view = 'lesson'; state.lessonId = params.lesson; state.openGroup = 'lesson'; ensureLibraryCapabilities(); }
         // E14: a column (story chapter) opened from the shelf or search on this same page.
         else if (params.mode === 'story') { state.view = 'story'; state.openGroup = 'story'; if (params.chapter) { state.chapterId = params.chapter; state.selectedNarrativeChapterId = params.chapter; } }
-        else if (params.mode === 'rules') { state.view = 'rules'; state.openGroup = 'rules'; }
+        else if (params.mode === 'rules') { state.view = 'rules'; state.openGroup = 'rules'; state.ruleId = params.node || null; }
         else if (params.mode === 'tree' || params.mode === 'graph') { state.view = 'map'; state.openGroup = 'map'; if (params.node && NODE_BY_ID.has(params.node)) state.selectedId = params.node; }
         else if (params.mode === 'frames' || !params.mode) { state.view = 'frames'; state.frameId = null; state.openGroup = 'frames'; }
         syncSharedState({ push });
@@ -378,6 +380,11 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (arrival) shell.querySelector('.rl-main')?.prepend(arrival);
         markLessonAuthoring(shell);
         content.replaceChildren(shell);
+        if (state.view === 'rules' && state.ruleId) {
+          const rule = shell.querySelector(`[id="rule-${String(state.ruleId).replace(/[^a-z0-9-]/gi, '')}"]`);
+          state.ruleId = null;
+          if (rule) setTimeout(() => rule.scrollIntoView?.({ block: 'start', behavior: 'auto' }), 0); // after the page's own scroll to the reading
+        }
         if (readingFocused) shell.querySelector('.rl-main')?.focus({ preventScroll: true });
         else if (focusAction) [...shell.querySelectorAll('[data-principles-action]')]
           .find((node) => node.dataset.principlesAction === focusAction && node.dataset.principlesValue === focusValue)?.focus({ preventScroll: true });

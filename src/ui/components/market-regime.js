@@ -16,7 +16,6 @@ import { buildRegimeAxisHistory, buildKoreaRegimeObservations } from '../../doma
 import { renderRegimeRadar } from './regime-radar.js';
 import { refreshScenarioArtifacts, renderMacroCrossroads } from './macro-crossroads.js';
 import { el } from './dom.js';
-import { markFrame } from './section-frame.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
@@ -54,80 +53,15 @@ function chartPanel(doc, charts, range) {
   return panel;
 }
 
-// I03: "관련 섹터·테마" names are buttons — a theme opens its detail page, a sector (or a theme without an id) opens
-// 테마 · 섹터. Without link data the plain sentence stays.
-function opportunityNode(doc, root, view, className) {
-  const node = el(doc, 'p', null, className);
-  const parts = Array.isArray(view?.opportunityLinks) ? view.opportunityLinks.filter((part) => part?.links?.length) : [];
-  if (!parts.length) { node.textContent = view?.opportunity || ''; return node; }
-  parts.forEach((part, index) => {
-    if (index) node.append(doc.createTextNode(', '));
-    node.append(doc.createTextNode(`${part.label}: `));
-    part.links.forEach((link, at) => {
-      if (at) node.append(doc.createTextNode(', ')); // v58.80: the names ran together ("소재에너지헬스케어")
-      const button = el(doc, 'button', link.label, 'regime-opportunity-chip');
-      button.type = 'button';
-      button.title = link.kind === 'theme' && link.themeId ? `${link.label} 테마 상세` : '테마와 섹터 화면에서 보기';
-      button.addEventListener('click', () => {
-        if (link.kind === 'theme' && link.themeId && typeof root?.showThemeDetail === 'function') root.showThemeDetail(link.themeId);
-        else root?.showPage?.('themes');
-      });
-      node.append(button);
-    });
-  });
-  return node;
-}
-
-function listBlock(doc, title, items) {
-  const box = el(doc, 'div', null, 'regime-scenario-list');
-  box.append(el(doc, 'h4', title));
-  const list = el(doc, 'ul'); for (const item of items || []) list.append(el(doc, 'li', item)); box.append(list);
-  return box;
-}
-
-// P1633: the three market flows (where today's market structure sits). (owner 2026-11-20) the flows open the
-// 시나리오 section of the 시나리오와 전망 view — the closest flow on the face in full (its reading, the related themes, what
-// to check and what to watch out for, what would prove it wrong), the other two one line each; every flow's conditions and
-// basis are one method fold. The macro branches below are the forward scenarios (macro-crossroads.js).
-function scenarioSection(doc, root, model, outlook) {
-  const section = el(doc, 'section', null, 'regime-scenarios');
-  section.dataset.aioRegimeScenarios = 'native';
-  section.id = 'regime-structure';
-  section.append(el(doc, 'h3', '지금 시장 구조', 'xr-h3'));
-  const leadView = (outlook?.items || []).find((item) => item.id === outlook?.leadId);
-  const lead = el(doc, 'p', !model.available ? '세 흐름 판단 보류' : leadView ? `'${leadView.title}'에 가장 가까움 · ${leadView.fit}` : `${model.asOf ? `${shortDate(model.asOf)} 종가` : ''}`, 'mk-structure__lead');
-  lead.title = '맞는 조건 수이며 확률이 아닙니다';
-  section.append(lead);
-  markFrame(section, 'signal.scenarios');
-  if (!model.available) { section.append(el(doc, 'p', model.reason, 'regime-scenario-hold')); return section; }
-  if (model.reason) section.append(el(doc, 'p', model.reason, 'regime-scenario-hold'));
-  if (outlook?.available) section.append(el(doc, 'p', outlook.headline, 'regime-scenario-lead'));
-  const byId = Object.fromEntries((outlook?.items || []).map((item) => [item.id, item]));
-  const leadId = outlook?.leadId || null;
-  const list = el(doc, 'ul', null, 'regime-scenario-grid');
-  for (const scenario of model.scenarios) {
-    const view = byId[scenario.id];
-    const card = el(doc, 'li', null, 'regime-scenario-card');
-    card.dataset.scenario = scenario.id; card.dataset.confirmed = String(scenario.confirmed);
-    if (view) card.dataset.likelihood = view.likelihood;
-    const head = el(doc, 'div', null, 'regime-scenario-head');
-    // v57.81: while the leadership break holds, the weakness card is titled as the transition and its count names 동반 약세.
-    head.append(el(doc, 'b', view?.transition ? view.title : scenario.title), el(doc, 'span', view ? `${view.transition ? '동반 약세 ' : ''}${view.fit}${view.shortfall ? ', 아직 성립 아님' : ''}` : scenario.status, 'regime-scenario-status'));
-    if (view?.shortfall) head.lastChild.title = view.shortfall; // v57.55 review (E2-06)
-    card.append(head);
-    // The closest flow is read in full; the other two are their name and count (their conditions are in the method fold).
-    if (scenario.id === leadId || !leadId) card.append(el(doc, 'p', view ? view.posture : scenario.interpretation, 'regime-scenario-reading'));
-    if (scenario.id === leadId && view) {
-      card.dataset.lead = 'true';
-      card.append(opportunityNode(doc, root, view, 'regime-scenario-opportunity'), listBlock(doc, '확인할 것', view.check), listBlock(doc, '조심할 것', view.caution),
-        el(doc, 'p', `이 해석이 틀렸다는 신호: ${scenario.counterEvidence}`, 'regime-scenario-reading'));
-    }
-    list.append(card);
-  }
-  section.append(list, kindFold(doc, 'method', '세 흐름의 조건과 근거', model.scenarios.flatMap((scenario) => [
-    el(doc, 'h4', scenario.title), ...(byId[scenario.id] ? [el(doc, 'p', `조건 근거: ${byId[scenario.id].basis}`, 'regime-scenario-basis')] : []),
-    listBlock(doc, '성립 조건', scenario.conditions)])));
-  return section;
+// The three market flows (고른 상승 / 소수 종목 주도 / 동반 약세) are 시장 폭's (market-structure.js); the scenario lead
+// carries one line to them.
+function structureLink(doc, root, outlook) {
+  const lead = (outlook?.items || []).find((item) => item.id === outlook?.leadId);
+  if (!lead) return null;
+  const button = el(doc, 'button', `시장 구조 '${lead.title}'에 가장 가까움 · ${lead.fit} → 시장 폭`, 'flow-next-link xr-structure-link');
+  button.type = 'button';
+  button.addEventListener('click', () => openRouteSection(doc, root, 'breadth', 'regime-structure'));
+  return button;
 }
 
 // v58.53 개편 v2 (3b): the axis table's row labels, the academic line under each opened row (authors · year only) and
@@ -361,7 +295,7 @@ function comboAndWatch(doc, root, regime, interpretation) {
 // legacy bridge, which deep-clones the row set on every call; fixtures that omit it keep the bridge read.
 // v58.53 개편 v2 (3b): ① hero (verdict · tally bar · previous verdict) → ② six-axis table whose rows open single-file
 // into ③ 원리 / 지금 읽기 / 한계 cards with the chart and evidence → ④ evidence line; then 이 조합이 뜻하는 것 ·
-// 다음에 확인할 것, and the radar, the three market flows and the Korea board as lower cards.
+// 다음에 확인할 것, and the radar and the Korea board as lower cards.
 // v59.68: the pair's 2×2 map — four named cells, the axis words on the edges, one dot for the latest closes.
 const SVG_NS = 'http://www.w3.org/2000/svg';
 function crossMap(doc, row) {
@@ -430,7 +364,6 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const { inputs, regime } = interpretation;
   requestRegimeMacroHistory(root, doc, 'page-signal', () => renderRegimePage({ documentRef: doc, root, store }));
   const history = buildRegimeAxisHistory(inputs, { regime, macroHistory: root._aioMacroHistory || null });
-  const scenarios = interpretation.scenarios || { available: false };
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 판정 지표 6개` : historyWaitText(root));
@@ -559,12 +492,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       }
     }
   }
-  const previousNode = page.querySelector('[data-aio-regime-scenarios]');
-  previousNode?.remove();
   root.__aioScenarioOutlook = interpretation.outlook;
-  // the three flows open the 시나리오 section of the 시나리오와 전망 view, above the macro branches.
-  const structureHost = doc.getElementById('regime-structure-host');
-  if (board && structureHost) structureHost.append(scenarioSection(doc, root, scenarios, root.__aioScenarioOutlook));
   // v59.51 (content audit): the forward scenarios and today's guide moved here from 오늘's last fold — the same two
   // renderers; an open section of the 시나리오와 전망 view (no fold), built when that view is shown.
   const depthAnchor = doc.getElementById('regime-depth-anchor');
@@ -572,7 +500,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
     const paintDepth = () => {
       let host = depthAnchor.parentElement.querySelector(':scope > #macro-crossroads');
       if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
-      renderMacroCrossroads({ documentRef: doc, root, regime, host });
+      renderMacroCrossroads({ documentRef: doc, root, regime, host, leadAside: () => structureLink(doc, root, root.__aioScenarioOutlook) });
       renderHomeGuide({ documentRef: doc, root, store, anchor: host });
     };
     const showsDepth = (view) => view === 'story' || view === 'all';

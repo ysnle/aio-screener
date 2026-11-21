@@ -140,7 +140,7 @@ function namePrice(doc, symbol, quote, screenerRow = null) {
 function renderMyNews(doc, host, root, store, names) {
   const symbols = new Set((names || []).map((row) => row.symbol));
   host.replaceChildren(el(doc, 'h2', '내 종목 뉴스', 'briefing-h2'));
-  if (!symbols.size) { host.hidden = true; return; }
+  if (!symbols.size) { host.hidden = true; return []; }
   host.hidden = false;
   const items = Array.isArray(store?.getState?.()?.news?.items) ? store.getState().news.items : [];
   const mine = [];
@@ -150,7 +150,7 @@ function renderMyNews(doc, host, root, store, names) {
     if (hit) mine.push({ item, symbol: hit });
     if (mine.length >= 5) break;
   }
-  if (!mine.length) { host.append(el(doc, 'p', `최근 뉴스에 ${withObjectParticle(`${[...symbols].slice(0, 4).join('·')}${symbols.size > 4 ? ' 등' : ''}`)} 다룬 기사가 없습니다.`, 'daily-empty')); return; }
+  if (!mine.length) { host.append(el(doc, 'p', `최근 뉴스에 ${withObjectParticle(`${[...symbols].slice(0, 4).join('·')}${symbols.size > 4 ? ' 등' : ''}`)} 다룬 기사가 없습니다.`, 'daily-empty')); return []; }
   const list = el(doc, 'ul', null, 'daily-news');
   for (const { item, symbol } of mine) {
     const li = el(doc, 'li', null, 'daily-news-item');
@@ -167,6 +167,7 @@ function renderMyNews(doc, host, root, store, names) {
     list.append(li);
   }
   host.append(list);
+  return mine.map(({ item }) => item);
 }
 
 // v57.78 perf: `regime` is the one home already computed this render (renderHomeRegime returns it); without it the
@@ -181,9 +182,10 @@ export function renderDailyLoop({ documentRef: doc, root, store, regime = null }
   const namesHost = doc.getElementById('home-my-names');
   const names = namesHost ? renderMyNames(doc, namesHost, root, store, current) : null;
   const newsHost = doc.getElementById('home-my-news');
-  if (newsHost) renderMyNews(doc, newsHost, root, store, names?.names || []);
+  const myNews = newsHost ? renderMyNews(doc, newsHost, root, store, names?.names || []) : [];
   // v59.67 (phase 5): 오늘의 핵심 — the day's top stories, movers and headlines (a lazy chunk; market-day.json loads on first use).
-  import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root, store })).catch(() => {});
+  // Its headline pick leaves out the stories 내 종목 뉴스 already lists, so one page never names the same article twice.
+  import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root, store, shownElsewhere: myNews })).catch(() => {});
   host.dataset.aioDailyLoopRenderer = 'native';
   return { names };
 }

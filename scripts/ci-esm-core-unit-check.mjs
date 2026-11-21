@@ -1865,6 +1865,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         const { homeNarrativeLine } = await load('src/ui/components/home-day.js');
         const homeLine = homeNarrativeLine({ windowHours: 72, stories: [{ label: '메모리 사이클', telegramCount: 12, trend: 'rising' }, { label: 'AI 투자 회수', telegramCount: 8, trend: 'steady' }, { label: '셋째', telegramCount: 3 }] });
         if (homeLine !== '많이 오가는 이야기 · 메모리 사이클 72시간 12건(24시간 늘어남), AI 투자 회수 8건(24시간 비슷함)' || homeNarrativeLine({ stories: [] }) !== null) fail(`v59.71: home narrative line broke ${homeLine}`);
+        // 오늘's 주요 뉴스 leaves out an article 내 종목 뉴스 already lists and fills the slot with the next topic.
+        const { homeHeadlines } = await load('src/ui/components/home-day.js');
+        const newsRow = (n, topic, score) => ({ title: `엔비디아 기사 ${n} 제목`, titleKo: `엔비디아 기사 ${n} 제목`, link: `https://fixture.invalid/${n}`, topic, score });
+        const newsItems = [newsRow(1, 'semis', 90), newsRow(2, 'rates', 80), newsRow(3, 'energy', 70), newsRow(4, 'credit', 60)];
+        const newsRoot = { AIO: { buildNewsSurfaceModel: (_route, items) => ({ items }) } };
+        const newsStore = { getState: () => ({ news: { items: newsItems } }) };
+        const allPicks = homeHeadlines(newsRoot, newsStore, 3).map((row) => row.title);
+        const leftOut = homeHeadlines(newsRoot, newsStore, 3, [{ ...newsItems[0] }]).map((row) => row.title);
+        if (allPicks.join('|') !== '엔비디아 기사 1 제목|엔비디아 기사 2 제목|엔비디아 기사 3 제목' || leftOut.join('|') !== '엔비디아 기사 2 제목|엔비디아 기사 3 제목|엔비디아 기사 4 제목') fail(`home headlines must skip what 내 종목 뉴스 shows ${JSON.stringify({ allPicks, leftOut })}`);
         // v59.85 (IA review 11/8): 오늘's 다음 일정 is the dated part of 시장 상태's week list, in its order — daily watch rows
         // stay there, an earnings line names its companies, at most three.
         const { homeAheadItems } = await load('src/ui/components/home-ahead.js');
@@ -5012,7 +5021,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     // P1399: F&G alone claims nothing about credit — the tally names only measured cards, and the counter line (v60.31)
     // reads the credit axis only when the regime measured it.
     const alone = buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] });
-    const fearRegime = { watchAxes: [{ id: 'sentiment', state: 'burden', evidence: [['판정 사유', '공포 쪽 쏠림 (4/4)']] }], axes: [{ id: 'credit', title: '신용과 위험선호', state: 'unknown', stateLabel: '확인 불가', evidence: [] }] };
+    const fearRegime = { watchAxes: [{ id: 'sentiment', state: 'burden', evidence: [['판정 사유', '공포 쪽 쏠림 (4/4)']] }], axes: [{ id: 'credit', title: '신용', state: 'unknown', stateLabel: '확인 불가', evidence: [] }] };
     if (alone.tally.some((item) => /신용|스프레드/.test(item)) || sentimentCounter({ model: alone, regime: fearRegime }) !== null) fail(`P1399 F&G alone must not claim credit stress: ${JSON.stringify(alone.tally)}`);
   }
   {

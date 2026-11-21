@@ -9,16 +9,18 @@ import { oasDelta20Bp } from '../../briefing/market-read.js';
 import { finiteNumber as finite } from '../../shared/number.js';
 import { isoDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
+import { AXIS_LABELS, US_AXIS_IDS } from '../interpretation/concepts.js';
 
 
-export const RADAR_AXES = Object.freeze([
-  { id: 'trend', label: '추세', note: 'S&P 500의 200일선 대비 거리' },
-  { id: 'breadth', label: '시장 폭', note: '50일선 위 종목 비율' },
-  { id: 'volatility', label: '변동성', note: 'VIX가 낮을수록 바깥(양호)' },
-  { id: 'rates', label: '금리', note: '미 10년물이 낮을수록 바깥' },
-  { id: 'credit', label: '신용과 위험선호', note: 'HY OAS가 좁을수록 바깥' },
-  { id: 'commodities', label: '달러와 원자재', note: '달러지수·WTI가 낮을수록 바깥' }
-]);
+const RADAR_NOTES = Object.freeze({
+  trend: 'S&P 500의 200일선 대비 거리',
+  breadth: '50일선 위 종목 비율',
+  volatility: 'VIX가 낮을수록 바깥(양호)',
+  rates: '미 10년물이 낮을수록 바깥',
+  credit: 'HY OAS가 좁을수록 바깥',
+  commodities: '달러지수·WTI가 낮을수록 바깥'
+});
+export const RADAR_AXES = Object.freeze(US_AXIS_IDS.map((id) => Object.freeze({ id, label: AXIS_LABELS[id], note: RADAR_NOTES[id] })));
 
 function macroSeries(macroHistory, key, factor = 1) {
   const byDate = new Map();

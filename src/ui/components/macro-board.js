@@ -671,7 +671,7 @@ function renderCommodities(doc, root) {
     box.append(createTrendChart(doc, { series: series.slice(-252), format: (value) => `${value.toFixed(0)}달러`, label: title }));
     return box;
   };
-  // The Brent–WTI comparison (oil.sentence) is a row of the 유가, 달러 factor's raw table.
+  // The Brent–WTI comparison (oil.sentence) is a row of the commodities factor's raw table.
   grid.replaceChildren(card('wti', 'WTI 원유', 2), card('gold', '금', 0));
 }
 
@@ -686,8 +686,7 @@ function renderCommodities(doc, root) {
 function macroThroughLine(read, crossroads) {
   const axes = read?.axes || [];
   if (!axes.length) return null;
-  // v58.75 (persona review): "부담은 3개(통화정책, 유가, 달러, 신용)" read as four — a comma inside one factor name is '·'.
-  const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title.replace(/ \(.*\)$/, '').replace(/,\s*/g, '·'));
+  const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title);
   const weigh = burden.length ? `매크로 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '매크로 6요인 중 부담 요인은 없고';
   const quadrant = read.regime?.available ? `국면은 '${read.regime.label}'` : '성장·물가 국면은 방향 보류';
   // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
@@ -1007,6 +1006,8 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     const d = t.dynamics;
     dynamicsHost.replaceChildren(...(d ? [el(doc, 'strong', `곡선 움직임: ${d.label}.`), doc.createTextNode(` ${[d.fact, d.uninversionText, d.uninversion3mText].filter(Boolean).join(' ')}`)] : []));
   }
+  // The driver the macro scenarios share, after the curve it reads (a lazy chunk: the 금리 view only).
+  import('./rate-hub.js').then(({ renderRateHub }) => renderRateHub({ documentRef: doc, root })).catch(() => {});
 
   // 2. Real yield, breakeven, credit. Each card's definition goes to #rates-method (defs).
   const levels = doc.getElementById('rates-levels');

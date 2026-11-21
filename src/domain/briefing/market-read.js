@@ -24,6 +24,7 @@ import { signedText } from '../shared/number.js';
 import { claim, say, NOTHING, digitsApart, figureDigits, printedValue } from '../shared/claim.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
+import { AXIS_LABELS, STATE_LABELS } from '../market/interpretation/concepts.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { closeMoveGrade } from '../market/session/move-size.js';
 import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
@@ -360,7 +361,7 @@ export function usdKrwWindow(series = []) {
   return { last, base, change, meanShift, agrees, direction: Math.abs(change) >= bar && agrees ? (change > 0 ? 'weaker' : 'stronger') : null };
 }
 
-// v57.81: the one dollar-rise rule (달러·원자재 axis, 거시 '달러 급등' branch). A 20-session rise counts once it is
+// v57.81: the one dollar-rise rule (commodities axis, 거시 '달러 급등' branch). A 20-session rise counts once it is
 // RULES.dollar.bufferPct past rise20dPct, or past rise20dPct while the index sits in the top of its own one-year range
 // (position, 0-1; null when unknown — then only the buffered line counts).
 export function dollarRiseBurden(dxy20, position = null) {
@@ -961,7 +962,6 @@ export function buildMarketRead(input = {}) {
 // the condition that would flip it. States are descriptive (양호/중립/부담), never instructions.
 // P1399: a state is decided only from inputs that are present and aligned; one present input never
 // stands in for a missing one, and the flip text quotes the same thresholds the rule uses.
-const STATE_LABELS = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담', unknown: '확인 불가' });
 export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label is shown
 
 // v57.81 (owner 2026-10-15): "소수 종목 주도" assumed the leaders were still holding. v59.70 (owner 11/4): the leadership
@@ -1248,13 +1248,13 @@ export function buildMarketRegime(input = {}) {
   // leg ending at the basis close (recent-direction.js) — so a rebound under the 50-day line never reads "약해지고 있다".
   const moveOf = (field, unit = 'pct') => recentDirection(buildCloseSeries(input.history, field, { through: basis }), { unit });
   const moves = { spx: moveOf('spx'), soxx: moveOf('soxx'), vix: moveOf('vix') };
-  const axis = (id, title, state, evidence, flip, basisOf, valueAsOf = null) => {
+  const axis = (id, state, evidence, flip, basisOf, valueAsOf = null) => {
     const shown = evidence.map(([label, value], index) => ({ label, value, iso: value == null ? null : valueAsOf?.[index]?.date || null }))
       .filter((row) => row.value != null && row.value !== '—');
     const days = [...new Set(shown.map((row) => row.iso).filter(Boolean))].sort();
     const mixed = days.length > 1;
     return {
-      id, title, state, stateLabel: STATE_LABELS[state], flip,
+      id, title: AXIS_LABELS[id], state, stateLabel: STATE_LABELS[state], flip,
       evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value}, ${shortDate(row.iso)}` : row.value]),
       basis: mixed ? `${shortDate(days[0])}~${shortDate(days[days.length - 1])}` : basisOf ? alignmentLabel(basisOf) : null,
       basisStatus: mixed ? 'mixed' : basisOf?.status || null,
@@ -1398,7 +1398,7 @@ export function buildMarketRegime(input = {}) {
       directionRow(state === 'unknown' ? null : moves.spx, { below: gap50 != null && gap50 < 0 }),
       reasonRow(trendReason, capped ? ['trend.capped'] : null)
     ];
-    axes.push(axis('trend', '추세', state, rows.map(([label, value]) => [label, value]), flip, alignments.spx, rows.map((row) => row[2])));
+    axes.push(axis('trend', state, rows.map(([label, value]) => [label, value]), flip, alignments.spx, rows.map((row) => row[2])));
     axes[axes.length - 1].testing = state === 'neutral' && testing;
     axes[axes.length - 1].capped = capped;
     axes[axes.length - 1].leadership = leadership;
@@ -1461,7 +1461,7 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? `50일선·200일선 위 종목 비율이 모두 ${B.holdExitAt}% 이상이면 중립(${B.weakBelow}% 아래로 내려간 뒤에는 ${B.holdExitAt}%까지 회복해야 함), 모두 ${RULES.breadth.broadAtLeast}% 이상이면 양호`
         : state === 'favorable' ? `50일선·200일선 위 비율 중 하나라도 ${RULES.breadth.broadAtLeast}% 아래면 중립, ${RULES.breadth.weakBelow}% 아래면 부담`
           : `50일선·200일선 위 종목 비율이 모두 ${RULES.breadth.broadAtLeast}% 이상이면 양호, 하나라도 ${RULES.breadth.weakBelow}% 아래면 부담`;
-    axes.push(axis('breadth', '시장 폭', state, [
+    axes.push(axis('breadth', state, [
       ['20일선 위 종목 (단기)', b20 == null ? null : `${fmt(b20, 0)}%`],
       ['50일선 위 종목 (중기)', b50 == null ? null : `${fmt(b50, 0)}%${recordText(rec50)}`],
       ['200일선 위 종목 (장기)', b200 == null ? null : `${fmt(b200, 0)}%${recordText(rec200)}`],
@@ -1558,7 +1558,7 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? `VIX ${V.spikeFloor} 미만, VIX/3개월 VIX ${V.invertedRatioAt} 미만, 5일 상승률 +${V.spike5dPct}% 미만이 모두 충족되면 중립으로 바뀜`
         : state === 'favorable' ? `VIX ${V.calmBelow - V.calmBufferPt} 이상에서 5일 상승, 5일 +${V.rise5dWatchPct}% 이상 상승, VIX ${V.calmBelow} 이상 또는 VIX/3개월 VIX ${V.calmRatioBelow} 이상이면 중립, VIX ${V.stressAt} 이상, 역전(${V.invertedRatioAt} 이상), 5일 +${V.spike5dPct}% 급등(VIX ${V.spikeFloor} 이상) 중 하나면 부담`
           : `VIX ${V.calmBelow - V.calmBufferPt} 미만(또는 ${V.calmBelow} 미만에서 5일 하락)이고 5일 상승이 +${V.rise5dWatchPct}% 미만, VIX/3개월 VIX ${V.calmRatioBelow} 미만이면 양호. VIX ${V.stressAt} 이상, VIX/3개월 VIX ${V.invertedRatioAt} 이상(역전), 5일 +${V.spike5dPct}% 급등(VIX ${V.spikeFloor} 이상) 중 하나면 부담`;
-    axes.push(axis('volatility', '변동성', state, [
+    axes.push(axis('volatility', state, [
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
       ['단기 불안 비율', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`],
       directionRow(state === 'unknown' ? null : vixMove, { digits: 0 }),
@@ -1653,7 +1653,7 @@ export function buildMarketRegime(input = {}) {
         shockOn ? `5거래일 상승이 +${R.shock5dExitBp}bp 아래로 줄고(현재 ${signed(tnx5, 0, 'bp')})` : ''].filter(Boolean).join(', ').replace(/고(\([^)]*\))?$/, '면$1')} 중립으로 바뀜`
         : state === 'favorable' ? `10년물 20일 변화가 -${R.move20dBp}bp 위로 올라오면 중립, +${R.move20dBp}bp 이상이거나 5거래일 +${fmt(shockAt, 0)}bp 이상이면 부담`
           : `10년물 20일 +${R.move20dBp}bp 이상, 1년 범위 ${R.rangeHighAt * 100}% 이상에서 5일 상승, 5거래일 +${fmt(shockAt, 0)}bp 이상(자체 기록 상위 ${100 - R.shock5dPct}%) 중 하나면 부담, 20일 -${R.move20dBp}bp 이하면 양호`;
-    axes.push(axis('rates', '금리', state, [
+    axes.push(axis('rates', state, [
       ['미 10년물', tnx ? `${fmt(tnx.value)}% (5거래일 ${signed(tnx5, 0, 'bp')}, 20일 ${signed(tnx20, 0, 'bp')})` : null],
       ['1년 범위 내 위치', tnx?.yearPosition == null ? null : `${fmt(tnx.yearPosition * 100, 0)}%`],
       ['5거래일 급등 기준', !tnx || !changes5.length ? null : `+${fmt(shockAt, 0)}bp 이상이면 부담${shockOn ? `, +${R.shock5dExitBp}bp 아래로 줄 때까지 유지` : ''}`],
@@ -1742,7 +1742,7 @@ export function buildMarketRegime(input = {}) {
         : cccHeld ? `CCC와 하이일드의 60관측 확대 차이가 ${RULES.credit.cccGap60dBp}bp 미만으로 줄면 양호, 하이일드 ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
         : state === 'favorable' ? `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 이상, 5일 확대, 20거래일 +${RULES.credit.widen20dBp}bp 이상 확대, CCC가 하이일드보다 60관측 ${RULES.credit.cccGap60dBp}bp 이상 더 확대 중 하나면 중립, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`
           : `하이일드 스프레드 ${RULES.credit.tightBelowBp}bp 미만에 5일 축소·보합, 20거래일 확대 +${RULES.credit.widen20dBp}bp 미만이면 양호, ${RULES.credit.stressAtBp}bp 이상, 5일 +${RULES.credit.widen5dBp}bp 확대, 20거래일 확대가 자체 기록 상위 ${100 - RULES.credit.stress20dPct}% 중 하나면 부담`;
-    axes.push(axis('credit', '신용과 위험선호', state, [
+    axes.push(axis('credit', state, [
       ['하이일드 스프레드', hyBp == null ? null : `${fmt(hyBp, 0)}bp${hy5 != null ? ` (5거래일 ${signed(hy5, 0, 'bp')}${month})` : ''}`],
       ['공포·탐욕 (참고)', c.fg == null ? null : fmt(c.fg, 0)],
       ['석 달 변화 (하이일드 / CCC / 투자등급)', dispersion ? dispersion.row : null],
@@ -1827,7 +1827,7 @@ export function buildMarketRegime(input = {}) {
       : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${D.rise20dPct + D.bufferPct}% 미만(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}% 미만)이 모두 충족되면 중립으로 바뀜`
         : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`
           : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 양호, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`;
-    axes.push(axis('commodities', '달러와 원자재', state, [
+    axes.push(axis('commodities', state, [
       ['WTI', wti ? `${fmt(wti.value)}달러 (20일 ${signed(wti20)}${oilTurn ? `, 최근 5일 ${signed(wti5)} ${oilTurn}` : ''})` : null],
       ['WTI 1년 범위 내 위치', wti?.yearPosition == null ? null : `${fmt(wti.yearPosition * 100, 0)}%`],
       ['달러 지수', s.dxy ? `${fmt(s.dxy.value)} (20일 ${signed(dxy20)}${dxyPos != null ? `, 1년 범위 ${fmt(dxyPos * 100, 0)}%` : ''})` : null],
@@ -1871,7 +1871,7 @@ export function buildMarketRegime(input = {}) {
         : endpointOnly ? ['korea.endpoint', `시작점 ${shortDate(krwWin.base.date)}`]
           : yenSurge ? ['korea.yen'] : state === 'burden' ? ['korea.krwWeak'] : state === 'favorable' ? ['korea.krwStrong']
             : state === 'unknown' ? absentReason(alignments.usdkrw) : ['korea.neutral'];
-    axes.push(axis('korea', '환율 (원, 엔)', state, [
+    axes.push(axis('korea', state, [
       ['원/달러', s.usdkrw ? `${fmt(s.usdkrw.value, 1)}원 (20거래일 ${signed(krw20)}${krwWin?.meanShift != null ? `, 20일 평균 ${signed(krwWin.meanShift)}` : ''})` : null],
       ['엔/달러', s.usdjpy ? `${fmt(s.usdjpy.value, 2)}엔 (20일 ${signed(jpy20)})` : '수집 시작 대기'],
       ['코스피', s.kospi ? `${fmt(s.kospi.value)} (20일 ${signed(kospi20)})` : null],
@@ -2028,7 +2028,7 @@ function sentimentAxis(input, basis, axis) {
     : state === 'burden' ? ['sentiment.fear', `${fear.length}/${ready.length}`]
       : now.overheated ? ['sentiment.greed', `${greed.length}/${ready.length}`]
         : ['sentiment.balanced', `공포 쪽 ${fear.length}, 과열 쪽 ${greed.length} / ${ready.length}`];
-  const row = axis('sentiment', '심리', state, [
+  const row = axis('sentiment', state, [
     ...composite.components.map((item) => [item.label, item.status === 'ok' ? `${Math.round(item.score)} (최근 ${item.sample}거래일 백분위)` : item.status === 'stale' ? '기준일과 달라 참고만' : '자료 부족']),
     ['판정에 쓴 구성 요소', `${ready.length}/${composite.componentsTotal}${left.length ? ` (제외: ${left.map((item) => item.label).join(', ')})` : ''}`],
     reasonRow(reason)
@@ -2073,7 +2073,7 @@ function leadershipAxis({ s, basis, leadership, axis, alignments, history, move 
   const flip = state === 'unknown' ? null
     : `${leadersWeak && releaseAt != null ? `${ticker}가 ${fmt(releaseAt, 1)}(50일선-${buffer}%) 위로 마감하고 5거래일 낙폭이 ${drop}% 안이면 주도주 판정이 풀림. ` : ''}${ticker} 주도주 약세·이탈, 또는 ${ticker}가 50일선 아래에서 5거래일 -${drop}% 이하면 부담. 둘 다 아니고 ${ticker}가 50일선 위, 동일가중보다 ${lagPp}%p 넘게 뒤처지지 않으면 양호. 종합 판정에서는 확인된 이탈을 부담 1개로 세고, 약세·이탈인 동안 '양호 우세·다소 양호'를 '혼조'로 낮춥니다.`;
   const semisAlign = alignments.soxx;
-  const row = axis('leadership', 'AI·반도체 집중', state, [
+  const row = axis('leadership', state, [
     [semisLabel, semis ? `${fmt(semis.value, 0)} (5거래일 ${signed(semis5)}${semis.ma50 ? `, 50일선 ${signed(pct(semis.value, semis.ma50))}` : ''}${semis.yearMax ? `, 1년 고점 대비 ${signed(pct(semis.value, semis.yearMax))}` : ''})` : null],
     ['SOXX − 동일가중 S&P 500 (5거래일)', gap5 == null ? null : `${signed(gap5)}p (SOXX ${signed(semis5)}, 동일가중 ${signed(rsp5)})`],
     ['주도주 판정 (SOXX 기준)', leaderText],

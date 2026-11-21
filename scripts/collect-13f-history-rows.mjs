@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { archiveBase, createSecClient, parse13fAmendmentMetadata } from './lib/sec-edgar.mjs';
 import { composeAmendmentChain, describeComposition } from './lib/13f-compose.mjs';
+import { normalizeFilingValueUnit } from './lib/13f-value-unit.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 
@@ -138,6 +139,30 @@ try {
   if (!historicalRows.length) historicalRows = Array.isArray(existing.rows) ? existing.rows : [];
   if (!Object.keys(periodComposition).length && existing.periodComposition && typeof existing.periodComposition === 'object') periodComposition = existing.periodComposition;
 } catch {}
+// Rows stored before the unit rule existed are normalized per accession exactly as a fresh fetch would be. The rule is
+// idempotent, so rows already in dollars come back unchanged and report USD.
+function normalizeStoredPeriodValueUnits(periodKey) {
+  const byAccession = new Map();
+  historicalRows.forEach((row, index) => {
+    if (`${row.managerId}|${row.reportPeriod}` !== periodKey) return;
+    const accession = row.accession || null;
+    if (!byAccession.has(accession)) byAccession.set(accession, []);
+    byAccession.get(accession).push(index);
+  });
+  const units = [];
+  for (const [accession, indexes] of byAccession) {
+    const normalized = normalizeFilingValueUnit({ rows: indexes.map((index) => historicalRows[index]) });
+    if (normalized.valueUnit.multiplier !== 1) indexes.forEach((index, position) => { historicalRows[index] = normalized.rows[position]; });
+    units.push({ accession, ...normalized.valueUnit });
+  }
+  return units;
+}
+
+function valueUnitNormalizationOf(units) {
+  return { publishedUnit: 'USD', corrected: units.some((entry) => entry.reportedUnit !== 'USD'),
+    filings: units.map(({ accession, reportedUnit, medianImpliedPrice, sampleRows }) => ({ accession, reportedUnit, medianImpliedPrice, sampleRows })) };
+}
+
 const indexAccessions = (manager, period) => buildSubmissions(manager, period).map((submission) => submission.accession).filter(Boolean);
 // P1449: periodsImported는 "이번에 새로 수집한 편수"가 아니라 결과 아티팩트에 남아 있는 관측
 // 분기 수(담당 매니저·분기 distinct)로 정의한다 — 게이트가 아티팩트 자체와 검산할 수 있게.
@@ -204,6 +229,23 @@ for (const manager of history.managers) {
           periodComposition[periodKey] = { submissions: accessions, coverEntryTotal: cover.tableEntryTotal ?? null, coverValueTotal: cover.tableValueTotal ?? null };
         } catch { /* cover unreadable this run: reconciliation stays unknown */ }
       }
+      const scaledNow = normalizeStoredPeriodValueUnits(periodKey);
+      // A unit decided on an earlier run stays on record: the rows it scaled now read as dollars.
+      const recordedUnits = new Map((periodComposition[periodKey]?.valueUnits || []).map((entry) => [entry.accession, entry.reportedUnit]));
+      const storedUnits = scaledNow.map((entry) => (entry.multiplier === 1 && recordedUnits.get(entry.accession) === 'USD_THOUSANDS'
+        ? { ...entry, reportedUnit: 'USD_THOUSANDS' }
+        : entry));
+      if (periodComposition[periodKey]) {
+        if (scaledNow.some((entry) => entry.multiplier !== 1)) {
+          // The cover total is summed over the sub-filings; it is scaled only when every sub-filing was in thousands.
+          const cover = periodComposition[periodKey].coverValueTotal;
+          periodComposition[periodKey].coverValueTotal = cover == null || scaledNow.some((entry) => entry.multiplier === 1)
+            ? null
+            : cover * scaledNow[0].multiplier;
+        }
+        periodComposition[periodKey].valueUnits = storedUnits.map(({ accession, reportedUnit }) => ({ accession, reportedUnit }));
+      }
+      period.valueUnitNormalization = valueUnitNormalizationOf(storedUnits);
       if (periodComposition[periodKey]) {
         period.coverEntryTotal = periodComposition[periodKey].coverEntryTotal ?? null;
         period.coverValueTotal = periodComposition[periodKey].coverValueTotal ?? null;
@@ -264,13 +306,14 @@ for (const manager of history.managers) {
           fetchText(`${archiveBase(manager.cik, submission.accession)}/${submission.primaryDocument}`)
         ]);
         const amendment = parse13fAmendmentMetadata(primaryXml);
-        bundles.push({
+        bundles.push(normalizeFilingValueUnit({
           filing: { accession: submission.accession, form: submission.form, isAmendment: amendment.isAmendment },
           rows: parseRows(tableXml),
           cover: { ...parseCover(primaryXml), isAmendment: amendment.isAmendment, amendmentType: amendment.amendmentType, amendmentNumber: amendment.amendmentNumber }
-        });
+        }));
       }
       const composed = composeAmendmentChain(bundles);
+      const fetchedUnits = bundles.map((bundle) => ({ accession: bundle.filing.accession, ...bundle.valueUnit }));
       const provenance = Array.isArray(composed.rowProvenance) && composed.rowProvenance.length === composed.rows.length
         ? composed.rowProvenance
         : null;
@@ -307,7 +350,9 @@ for (const manager of history.managers) {
       period.informationTableHtml = period.informationTableXml?.replace(/\.xml$/i, '.html') || null;
       period.coverEntryTotal = composed.cover.tableEntryTotal;
       period.coverValueTotal = composed.cover.tableValueTotal;
-      periodComposition[periodKey] = { submissions: accessions, coverEntryTotal: composed.cover.tableEntryTotal ?? null, coverValueTotal: composed.cover.tableValueTotal ?? null };
+      periodComposition[periodKey] = { submissions: accessions, coverEntryTotal: composed.cover.tableEntryTotal ?? null, coverValueTotal: composed.cover.tableValueTotal ?? null,
+        valueUnits: fetchedUnits.map(({ accession, reportedUnit }) => ({ accession, reportedUnit })) };
+      period.valueUnitNormalization = valueUnitNormalizationOf(fetchedUnits);
       period.countReconciled = composed.cover.tableEntryTotal == null ? null : composed.cover.tableEntryTotal === composed.rows.length;
       period.rowImportStatus = 'IMPORTED_HISTORICAL';
       period.shareHistoryStatus = 'CONNECTED_TO_HISTORY_ROWS';

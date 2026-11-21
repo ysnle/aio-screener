@@ -38,8 +38,8 @@ const FIXTURE = {
       axis('breadth', '시장 폭', 'neutral', '중립', [['50일선 위 종목 (중기)', '57%'], ['200일선 위 종목 (장기)', '58%'], ['52주 신고가 / 신저가', '3 / 6']], '50일선·200일선 위 종목 비율이 모두 60% 이상이면 양호, 하나라도 40% 아래면 부담'),
       axis('volatility', '변동성', 'burden', '부담', [['VIX', '24.56 (5일 +40%)'], ['단기 불안 비율', '1.01 (역전)']], 'VIX 20 미만이면 중립으로 바뀜'),
       axis('rates', '금리', 'neutral', '중립', [['미 10년물', '5.07% (5거래일 +7bp, 20일 -8bp), 11/18']], '10년물 20일 +25bp 이상이면 부담', '11/17~11/18'),
-      axis('credit', '신용과 위험선호', 'neutral', '중립', [['하이일드 스프레드', '343bp (5거래일 +13bp), 11/17'], ['공포·탐욕 (참고)', '25, 11/18']], '하이일드 스프레드 350bp 미만이면 양호', '11/17~11/18'),
-      axis('commodities', '달러와 원자재', 'neutral', '중립', [['WTI', '86.01달러 (20일 -15.5%)'], ['달러 지수', '103.49 (20일 +1.7%)']], 'WTI 20일 +10%면 부담'),
+      axis('credit', '신용', 'neutral', '중립', [['하이일드 스프레드', '343bp (5거래일 +13bp), 11/17'], ['공포·탐욕 (참고)', '25, 11/18']], '하이일드 스프레드 350bp 미만이면 양호', '11/17~11/18'),
+      axis('commodities', '유가와 달러', 'neutral', '중립', [['WTI', '86.01달러 (20일 -15.5%)'], ['달러 지수', '103.49 (20일 +1.7%)']], 'WTI 20일 +10%면 부담'),
       axis('korea', '환율 (원, 엔)', 'neutral', '중립', [['원/달러', '1,332.7원']], '원/달러 20일 +2% 이상이면 부담')
     ]
   },
@@ -47,9 +47,9 @@ const FIXTURE = {
     regime: { label: '국면 판정 보류', inputs: [['근원 PCE (9월)', '최근 3개월 연율 2.9%, 전년 대비 3.1%', '차이 0.5%p 이상이면 그 방향', '방향 없음']] },
     counts: { favorable: 1, neutral: 1, burden: 1, unknown: 0 },
     axes: [
-      { id: 'growth', title: '성장 (고용, 소비)', state: 'favorable', stateLabel: '양호', evidence: [['실업률', '4.1% (전월 -0.1%p)']], flip: 'Sahm 지표 0.5%p 이상이면 부담', asOf: '2026-10-01', read: '코드 문장' },
+      { id: 'growth', title: '성장', state: 'favorable', stateLabel: '양호', evidence: [['실업률', '4.1% (전월 -0.1%p)']], flip: 'Sahm 지표 0.5%p 이상이면 부담', asOf: '2026-10-01', read: '코드 문장' },
       { id: 'inflation', title: '물가', state: 'burden', stateLabel: '부담', evidence: [['근원 PCE (전년 대비)', '3.1%']], flip: '근원 PCE 2.5% 이하면 양호', asOf: '2026-09-01', read: '코드 문장' },
-      { id: 'rates', title: '금리, 할인율', state: 'neutral', stateLabel: '중립', evidence: [['미 10년물', '5.07%']], flip: '20일 +25bp 이상이면 부담', basis: '11/17~11/18', read: '코드 문장' }
+      { id: 'rates', title: '금리', state: 'neutral', stateLabel: '중립', evidence: [['미 10년물', '5.07%']], flip: '20일 +25bp 이상이면 부담', basis: '11/17~11/18', read: '코드 문장' }
     ]
   }
 };
@@ -102,8 +102,8 @@ await section('validator', async () => {
   const credit = validateScreenReading(GOOD.replace('신용과 금리는 중립에 머물러', '신용은 부담이 커졌고 금리는 중립에 머물러'), packet);
   check('v60.31 a state the packet contradicts is blocked (신용 부담 while the credit axis is 중립)', credit.issues.some((issue) => issue.startsWith('state-contradiction')), JSON.stringify(credit));
   check('v60.31 an axis title with another state label is blocked; a conditional is not',
-    validateScreenReading(GOOD.replace('반면 신용과 금리는', '달러와 원자재는 부담이고, 신용과 금리는'), packet).issues.some((issue) => issue.startsWith('state-contradiction'))
-      && validateScreenReading(GOOD.replace('반면 신용과 금리는', '달러와 원자재가 부담으로 바뀌면 달라지지만, 신용과 금리는'), packet).issues.length === 0);
+    validateScreenReading(GOOD.replace('반면 신용과 금리는', '유가와 달러는 부담이고, 신용과 금리는'), packet).issues.some((issue) => issue.startsWith('state-contradiction'))
+      && validateScreenReading(GOOD.replace('반면 신용과 금리는', '유가와 달러가 부담으로 바뀌면 달라지지만, 신용과 금리는'), packet).issues.length === 0);
   const thin = validateScreenReading(GOOD.replace('읽기가 달라집니다.', '반등 가능성이 더 높아 보입니다.'), packet);
   check('v60.31 ④ an interpretation without a named ground passes with a warning only (owner 2026-11-17)', thin.issues.length === 0 && thin.warnings.includes('likelihood-qualitative'), JSON.stringify(thin));
   check('v60.31 the face size, Korean, prompt labels and emoji are blocking',

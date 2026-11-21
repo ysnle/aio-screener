@@ -577,11 +577,15 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 .page .xr-pick { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 4px 12px; padding: 8px 12px; text-align: left; font-size: 14px; color: var(--color-text-primary); background: none; border: 0.5px solid rgba(var(--ink-rgb), 0.12); border-radius: var(--radius-container); cursor: pointer; }
 .page .xr-pick[aria-pressed="true"] { border-color: var(--color-text-primary); }
 .page .xr-pick-line { grid-column: 1 / -1; font-size: 12px; color: var(--color-text-secondary); }
-.page .xr-pick-detail { margin-top: 12px; }
-.page .mk-narr__rest { margin: 12px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
-.page .mk-narr__scenarios { list-style: none; margin: 8px 0 0; padding: 0; }
-.page .mk-narr__rest-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
-@media (max-width: 743px) {
+.page .xr-pick-detail, .page .mk-narr__detail { margin-top: 12px; }
+.page .xr-impact-links { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.page .xr-impact .xr-impact-wide, .page .xr-impact .xr-impact-links { grid-column: 1 / -1; }
+.page .xr-structure-link { display: block; margin: 0 0 8px; text-align: left; }
+/* 시장이 말하는 이야기: the mention bars are the story picker (pick-list.js), one pressed row at a time. */
+.page .mk-narr__bar-row { width: 100%; min-height: 36px; padding: 6px 10px; text-align: left; color: var(--color-text-primary); background: none; border: 0.5px solid transparent; border-radius: var(--radius-container); cursor: pointer; font: inherit; font-size: 12px; }
+.page .mk-narr__bar-row[aria-pressed="true"] { border-color: var(--color-text-primary); }
+.page .mk-narr__bar-row:focus-visible { outline: var(--focus-outline-width) solid var(--color-text-primary); outline-offset: 2px; }
+.page .mk-narr__scenarios { list-style: none; margin: 8px 0 0; padding: 0; }@media (max-width: 743px) {
   .page .mg-stance { grid-template-columns: minmax(0, 1fr); }
 }
 /* v59.55 (owner 11/1): 매크로 주제별로 보기 (macro-chapters.js) — six cards, two up; each a mini two-sided bar picture
@@ -686,6 +690,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-briefing .briefing-day-story__line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
 #page-briefing .briefing-day-evidence { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
 #page-briefing .briefing-day-evidence-fold summary, #page-briefing .briefing-day-fold summary { font-size: 12px; cursor: pointer; color: var(--color-text-secondary); }
+#page-briefing .briefing-day-more-title { margin: 14px 0 0; font-size: var(--fs-sm); font-weight: 600; color: var(--color-text-secondary); }
 #page-briefing .briefing-day-more { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.7; }
 #page-briefing .briefing-day-note, #page-briefing .briefing-day-coverage { margin: 8px 0 0; font-size: 12px; color: var(--color-text-secondary); }
 /* v59.66 시장 상태 지표를 같이 놓고 보면: two columns on wide screens, one on phones. */

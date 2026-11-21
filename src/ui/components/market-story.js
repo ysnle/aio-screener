@@ -1,4 +1,4 @@
-// v59.55 (owner 11/1): 시장 상태's first card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
+// v59.55 (owner 11/1): 시장 상태 › 시나리오와 전망's last card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
 // one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one raw-table fold with the
 // asset-by-asset confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
 // card below keeps the two price checks.
@@ -137,16 +137,17 @@ export function readMarketStory(root, interpretation, rerender) {
 }
 
 export function renderMarketStory({ documentRef: doc, root, interpretation }) {
-  // The card is built here (not in the shell) and placed before the six-axis table: the story first, the scoring after it.
+  // The card is built here (not in the shell) and closes the 시나리오와 전망 view: the scenarios, the guide and the stories
+  // come first, the recap of what moved after them.
   let section = doc?.getElementById('regime-story');
   if (!section) {
-    const axes = doc?.querySelector?.('#page-signal .mk-axes');
-    if (!axes) return null;
+    const depth = doc?.querySelector?.('#page-signal > .mk-depth');
+    if (!depth) return null;
     section = el(doc, 'section', null, 'sx-card mk-story');
     section.id = 'regime-story';
     section.setAttribute('aria-labelledby', 'regime-story-title');
     section.hidden = true;
-    axes.before(section);
+    depth.after(section);
   }
   const { key, build } = readMarketStory(root, interpretation, () => renderMarketStory({ documentRef: doc, root, interpretation }));
   if (section.dataset.signature === key && section.childElementCount) return section;

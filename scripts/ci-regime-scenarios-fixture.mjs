@@ -6,6 +6,8 @@ import { buildMarketScenarios, buildRegimeAxisHistory, renderMarketScenarioConte
 import { resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
 import { renderRegimePage } from '../src/ui/components/market-regime.js';
 import { showCrossroadsSection } from '../src/ui/components/macro-crossroads.js';
+import { renderMarketStructure } from '../src/ui/components/market-structure.js';
+import { marketInterpretation } from '../src/data/selectors/interpretation.js';
 
 const dates = [];
 for (let instant = Date.parse('2025-10-01T12:00:00Z'); instant <= Date.parse('2026-10-08T12:00:00Z'); instant += 86400000) {
@@ -81,7 +83,7 @@ class Element {
 function descendants(node) { return node.children.flatMap(child => [child, ...descendants(child)]); }
 const page = new Element('main'); page.className = 'page active';
 const ids = new Map([['page-signal', page]]);
-for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-counter', 'regime-conflicts', 'regime-board', 'regime-history', 'regime-history-host', 'regime-board-kr', 'regime-next', 'regime-structure-host']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
+for (const id of ['regime-basis', 'regime-overall', 'regime-counts', 'regime-counter', 'regime-conflicts', 'regime-board', 'regime-history', 'regime-history-host', 'regime-board-kr', 'regime-next']) { const element = new Element('div'); ids.set(id, element); page.append(element); }
 const doc = { createElement: tag => new Element(tag), createElementNS: (_, tag) => new Element(tag), createTextNode: text => { const node = new Element('#text'); node.textContent = text; return node; }, getElementById: id => ids.get(id) || null };
 const root = { _aioHistory: input.history, _aioMacroHistory: macroHistory, DATA_SNAPSHOT: { hySpread: 300, _hySpreadDelta5Bp: -10, pcr: .9, realYield10: 1.8,
   _fieldTs: { hySpread: asOf, pcr: asOf, macro_realYield10: asOf, macro_breakeven10: asOf } } };
@@ -107,13 +109,22 @@ assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selec
 // v60.31: every axis's evidence rows and flip rule are in the one raw-table fold (data-fold-kind), one group per axis.
 const rawFold = descendants(page).find(node => node.id === 'regime-raw');
 assert.ok(rawFold?.tagName === 'details' && rawFold.dataset.foldKind === 'raw-table' && ['trend', 'breadth', 'volatility', 'credit', 'rates', 'commodities'].every(id => descendants(rawFold).some(node => node.dataset.rawAxis === id)), 'v60.31 the raw-table fold holds one group per axis');
-assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 3, 'P1628 screen must show the three model-backed conditional paths');
+// The three model-backed flows are 시장 폭's (market-structure.js), after that page's verdict; 시장 상태 draws none.
+{
+  const breadthPage = new Element('main');
+  const anchor = new Element('section');
+  breadthPage.append(anchor);
+  const breadthDoc = { ...doc, getElementById: () => null };
+  const section = renderMarketStructure({ documentRef: breadthDoc, root, interpretation: marketInterpretation(root), anchor });
+  assert.ok(breadthPage.children[1] === section && section.id === 'regime-structure' && descendants(section).filter(node => node.dataset.scenario).length === 3, 'P1628 · the three model-backed conditional paths render on 시장 폭 after its verdict');
+  assert.ok(descendants(section).some(node => node.tagName === 'details' && node.dataset.foldKind === 'method'), 'v60.36 the flows keep their one method fold');
+  assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 0, 'v60.36 the flows are not drawn on 시장 상태 any more');
+}
 // v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
 // the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
 assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || String(node.className).includes('xr-compact')), 'v57.76 시장 상태 no longer repeats the 거시 branch block');
-// v60.35 (owner 2026-11-20): the three flows open the 시나리오 section (#regime-structure-host), beside the macro branches —
-// no separate link line to them. The other screens' link (테마's '시나리오의 근거') still opens the owning view in place.
-assert.ok(descendants(ids.get('regime-structure-host')).filter(node => node.dataset.scenario).length === 3 && !descendants(page).some(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체'), 'v60.35 the flows sit in the 시나리오 section, with no separate link line');
+// The other screens' link (테마's '시나리오의 근거') still opens the owning view in place.
+assert.ok(!descendants(page).some(node => node.tagName === 'button' && node.textContent === '다음 발표별 시나리오 전체'), 'v60.35 no separate link line to the scenarios');
 {
   const shown = [];
   root.showPage = (route) => shown.push(route);

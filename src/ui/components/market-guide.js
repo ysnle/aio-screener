@@ -1,33 +1,28 @@
-// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): 시장 상태's guide card — the shared market-guide model (the choices
-// counted across the live scenarios with the opportunity cost if the reading is wrong, what to lean toward and avoid) and
-// the principles today's data touches, each with today's reason and its lesson in the principles library. The full set of
-// participation principles lives in the library (one link). Reads the guide stage of the shared interpretation.
+// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): 시장 상태's guide card — which way to lean across the live scenarios
+// (the reading of the choice tally, the opportunity cost if it is wrong, what to lean toward and avoid; the tally itself is
+// a raw table) and the principles today's data touches, one line each that opens the principle in the library's 참여 원칙,
+// where the full set lives. The guide's headline is not drawn: it restated the 시나리오 lead above it (the closest scenario,
+// the next release) and the tally reading below.
+// Reads the guide stage of the shared interpretation.
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { el } from './dom.js';
+import { kindFold } from './indicator-face.js';
 import { refreshScenarioArtifacts } from './macro-crossroads.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 
-function conceptButton(doc, root, lesson) {
-  const button = el(doc, 'button', '개념 배우기 →', 'mg-concept-link');
-  button.type = 'button';
-  button.dataset.aioConceptLesson = lesson.concept;
-  button.setAttribute('aria-label', `${lesson.title} — 리서치 라이브러리에서 개념 배우기`);
-  button.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { lesson: lesson.concept } }));
-  return button;
-}
-
-// A principle today's data touches: its kind, title, the principle, today's reason, and its concept in the library.
-// (owner 2026-11-20) only principles with today's reason are shown here, each with that reason on the face; the
-// full set of participation principles is reference — 리서치 라이브러리 › 개념·분석 › 참여 원칙.
+// A principle today's data touches: its title, which opens it in 리서치 라이브러리 › 참여 원칙 (the principle and its
+// mechanism are written there); today's reason is the link's hover.
 function lessonItem(doc, root, lesson) {
-  const item = el(doc, 'li', null, 'mg-lesson');
+  const item = el(doc, 'li', null, 'mg-lesson-line');
   item.dataset.kind = lesson.kind;
   item.dataset.lessonId = lesson.id;
-  const head = el(doc, 'div', null, 'mg-lesson-head');
-  head.append(el(doc, 'span', LESSON_KINDS[lesson.kind], 'mg-kind'), el(doc, 'strong', lesson.title, 'mg-lesson-title'));
-  item.append(head, el(doc, 'p', lesson.principle, 'mg-lesson-principle'), el(doc, 'p', `근거: ${lesson.reason}`, 'mg-lesson-reason'), conceptButton(doc, root, lesson));
+  const button = el(doc, 'button', `${lesson.title} →`, 'flow-next-link');
+  button.type = 'button';
+  button.title = `${LESSON_KINDS[lesson.kind]}. 근거: ${lesson.reason}`;
+  button.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'rules', node: lesson.id } }));
+  item.append(button);
   return item;
 }
 
@@ -88,10 +83,14 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   const library = el(doc, 'button', `참여 원칙 전체 ${ALL_LESSONS.length}개 → 리서치 라이브러리`, 'flow-next-link mg-library-link');
   library.type = 'button';
   library.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'rules' } }));
+  const tallyOpen = !!box.querySelector('.mg-choices-fold')?.open;
+  const tally = kindFold(doc, 'raw-table', '선택지별 집계', [choiceTable(doc, d)]);
+  tally.className += ' mg-choices-fold';
+  tally.open = tallyOpen;
   box.replaceChildren(
-    title, el(doc, 'p', guide.headline, 'xr-lead'),
+    title,
     ...(guide.pastConflicts || []).map((text) => el(doc, 'p', `과거 표본과 어긋남: ${text}`, 'xr-reading mg-past-conflict')),
-    el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), choiceTable(doc, d), el(doc, 'p', d.text, 'xr-reading'),
+    el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), el(doc, 'p', d.text, 'xr-reading'), tally,
     ...(costs ? [el(doc, 'p', '이 판단이 빗나갈 때의 기회비용', 'mg-costs-label'), costs] : []),
     ...(lean ? [lean] : []),
     ...(lessons ? [el(doc, 'h3', '오늘 해당하는 원칙', 'xr-h4'), lessons] : []), library,

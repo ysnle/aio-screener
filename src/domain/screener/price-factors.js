@@ -4,7 +4,7 @@
 import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
 import { RULES } from '../rules/thresholds.js';
 // v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
-import { smaLast, emaLast, rsiWilder, adrPctOf, rangeExtremesOf, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
+import { smaLast, emaLast, rsiWilder, adrPctOf, rangeExtremesOf, fromYearHigh, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session/session-time.js';
 import { isoDay } from '../shared/session-date.js';
@@ -157,8 +157,8 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   const s50 = smaLast(closes, 50), s150 = smaLast(closes, 150), s200 = smaLast(closes, 200);
   // v57.84: the 52-week high is definitions.rangeExtremesOf — below RULES fullYearSessions (240) it is not a 52-week figure, so the gate's
   // "52주 고점 대비" check is unknown and the gate fails closed (it used to read 200 sessions of highs as a year).
-  const range = rangeExtremesOf(highs, lows);
-  const pct52 = range?.fullYear && range.high > 0 ? (price - range.high) / range.high * 100 : null;
+  const fromHigh = fromYearHigh(price, highs, lows);
+  const pct52 = fromHigh?.fullYear ? fromHigh.pct : null;
   const stage2 = !!(s50 && s150 && s200 && price > s150 && s150 > s200 && price > s50 && pct52 !== null && pct52 >= -RULES.technical.stage2Gate.nearHighPct);
   // v57.84 (owner decision): contractions and the pivot come from the chart's detector (technical/definitions.js
   // detectContractions) — the 65-bar, 4-bar-swing pairing gave a second pivot for the same stock (the latest swing high in 25
@@ -272,7 +272,7 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
   // 52 weeks, so pctFrom52wLow/High stay null instead of naming a shorter record "52주" (P1428).
   const range = rangeExtremesOf(highs.slice(0, n), lows.slice(0, n));
   const low52 = range?.fullYear ? range.low : null;
-  const high52 = range?.fullYear ? range.high : null;
+  const fromHigh = fromYearHigh(price, highs.slice(0, n), lows.slice(0, n));
   const adrPct = price > 0 ? adrPctOf(highs.slice(0, n), lows.slice(0, n), closes.slice(0, n)) : null;
   const avgVolume30d = avg(tail(volumes, Math.min(30, n)));
   const latestVolume = typeof volumes[n - 1] === 'number' && Number.isFinite(volumes[n - 1]) && volumes[n - 1] > 0
@@ -280,7 +280,7 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
   return {
     price: typeof price === 'number' && Number.isFinite(price) ? round(price, 4) : null,
     pctFrom52wLow: low52 > 0 ? round((price - low52) / low52 * 100, 1) : null,
-    pctFrom52wHigh: high52 > 0 ? round((price - high52) / high52 * 100, 1) : null,
+    pctFrom52wHigh: fromHigh?.fullYear ? round(fromHigh.pct, 1) : null,
     adrPct: adrPct == null ? null : round(adrPct, 2),
     avgVolume30d: avgVolume30d == null ? null : Math.round(avgVolume30d),
     // 2026-10-13 F21: traded value is the mean of each session's close x volume (the backtest liquidity

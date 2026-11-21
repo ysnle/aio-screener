@@ -218,7 +218,6 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-dot { width: 10px; height: 10px; border-radius: 50%; border: 0.5px solid var(--color-text-secondary); }
 .page .xr-dot.is-met { background: var(--color-text-primary); border-color: var(--color-text-primary); }
 .page .xr-dot.is-unknown { border-style: dashed; opacity: .6; }
-.page .xr-hub { margin: 18px 0; padding-top: 6px; border-top: 0.5px solid var(--color-border); }
 .page .xr-hub-now { font-family: var(--font-mono); font-size: 14px; color: var(--color-text-primary); margin: 4px 0; }
 .page .xr-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
 .page .xr-path { padding: 10px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); display: flex; flex-direction: column; gap: 4px; }
@@ -376,21 +375,8 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .page .mg-choices tr[data-robust="true"] th, .page .mg-choices tr[data-robust="true"] td { color: var(--color-text-primary); font-weight: 600; box-shadow:none; }
 .page .mg-costs-label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 10px 0 4px; }
 .page .mg-costs { margin: 0 0 12px; padding-left: 18px; font-size: 14px; line-height: 1.65; color: var(--color-text-secondary); max-width: 920px; }
-.page .mg-lessons { list-style: none; margin: 6px 0 12px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-.page .mg-lesson { padding: 10px 12px; border: 0.5px solid var(--color-border); border-radius: var(--radius-element); background: var(--color-background-card); display: flex; flex-direction: column; gap: 4px; }
-.page .mg-lesson-head { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; }
-.page .mg-kind { font-size: 12px; padding: 1px 6px; border-radius: var(--radius-inner); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); }
-.page .mg-lesson[data-kind="trap"] .mg-kind { color: var(--color-text-warning); border-color: var(--color-text-warning); }
-.page .mg-lesson[data-kind="trust"] .mg-kind { color: var(--color-text-success); border-color: var(--color-text-success); }
-.page .mg-lesson-title { font-size: 14px; color: var(--color-text-primary); }
-.page .mg-lesson-principle { margin: 0; font-size: 14px; line-height: 1.65; color: var(--color-text-secondary); }
-.page .mg-lesson-reason { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-text-primary); }
-.page .mg-lesson-why { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-.page .mg-concept-link { align-self: flex-start; margin-top: auto; min-height: 32px; padding: 4px 0; background: none; border: 0; color: var(--color-text-primary); font-size: 12px; cursor: pointer; }
-.page .mg-concept-link:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
-@media (max-width: 600px) {
-  .page .mg-lessons { grid-template-columns: minmax(0, 1fr); }
-}
+/* today's principles: one link line each, opening the principle in 리서치 라이브러리 › 참여 원칙 */
+.page .mg-lessons { list-style: none; margin: 6px 0 8px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 /* v58.37: portfolio stress panel (src/ui/panels/portfolio-stress.js) — classes, never below the 12px floor. */
 .pf-stress-head { font-size: var(--fs-min); font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; }
 .pf-stress-sub { font-weight: 400; color: var(--color-text-secondary); }
@@ -535,14 +521,13 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .page-lens__link { margin-top: 4px; font-size: 12px; }
 
 /* v59.70: 시장이 말하는 이야기 — attention bars (24h shaded), one line per story, a fold with scenario and responses. */
-.mk-narr__bars { list-style: none; margin: 8px 0 4px; padding: 0; display: grid; gap: 6px; }
+.mk-narr__bars { margin: 8px 0 0; display: grid; gap: 4px; }
 .mk-narr__bar-row { display: grid; grid-template-columns: minmax(96px, 30%) 1fr auto; align-items: center; gap: 8px; font-size: 12px; }
 .mk-narr__track { display: flex; height: 10px; background: var(--bg-subtle, rgba(127,127,127,.12)); border-radius: 5px; overflow: hidden; }
 .mk-narr__fill.is-recent { background: var(--color-text-primary); opacity: .75; }
 .mk-narr__fill.is-earlier { background: var(--color-text-secondary); opacity: .35; }
 .mk-narr__bar-value { font-variant-numeric: tabular-nums; color: var(--color-text-secondary); }
 .mk-narr__legend { margin: 2px 0 10px; font-size: 12px; color: var(--color-text-secondary); }
-.mk-narr__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .mk-narr__story { padding-top: 10px; border-top: 0.5px solid var(--color-border); }
 .mk-narr__story-head { margin: 0 0 2px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .mk-narr__chip { font-size: 12px; padding: 1px 8px; border-radius: var(--radius-full); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); }

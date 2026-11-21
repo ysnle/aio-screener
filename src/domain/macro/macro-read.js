@@ -18,12 +18,12 @@ import { peopleText, signedText, readNumber as finite } from '../shared/number.j
 // v59.59: the neutral real rate on the 정책 axis is the Taylor rule's own SEP-derived r* (an import cycle used only at call time).
 import { sepNeutral } from './taylor-rule.js';
 import { fedTargetRange } from './fed-target-range.js';
+import { AXIS_LABELS, STATE_LABELS, axisNames } from '../market/interpretation/concepts.js';
 
 const G = RULES.growth;
 const I = RULES.inflation;
 const P = RULES.policy;
 
-const STATE_LABELS = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담', unknown: '판정 보류' });
 
 // The 매크로-owned axes (growth, inflation, policy) carry no assembled sentence either: why an axis holds its state is one
 // 판정 사유 evidence row in this fixed vocabulary, the figures it stood on in parentheses — the same shape as the shared
@@ -199,8 +199,8 @@ export function gauge({ label, value, min, max, unit = '', digits = 1, bands = [
   return { label, value, min, max, unit, digits, bands, markers, clipped: value < min || value > max };
 }
 
-function axis(id, title, state, { evidence = [], read, flip, link, asOf, detail = null, gauge = null, headline = null }) {
-  return { id, title, state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip, link, asOf, detail, gauge, headline };
+function axis(id, state, { evidence = [], read, flip, link, asOf, detail = null, gauge = null, headline = null }) {
+  return { id, title: AXIS_LABELS[id], state, stateLabel: STATE_LABELS[state], evidence: evidence.filter(([, value]) => value != null && value !== '—'), read, flip, link, asOf, detail, gauge, headline };
 }
 
 function growthAxis({ macro, mh }) {
@@ -236,7 +236,7 @@ function growthAxis({ macro, mh }) {
   const growthGauge = sahm && !payrollTriggered ? gauge({ label: 'Sahm 지표 (실업률 3개월 평균 − 1년 저점)', value: sahm.value, unit: '%p', digits: 2, ...cuts(0, 1, [G.sahmWatchAt, G.sahmRecessionAt], ['favorable', 'neutral', 'burden'], [[G.sahmWatchAt, `${G.sahmWatchAt}`], [G.sahmRecessionAt, `침체 신호 ${G.sahmRecessionAt}`]]) })
     : payroll ? gauge({ label: '일자리 3개월 평균 (천 명)', value: payroll.avg3, unit: '천 명', digits: 0, ...cuts(-100, 300, [0, G.payrollSolidK], ['burden', 'neutral', 'favorable'], [[0, '0'], [G.payrollSolidK, `${G.payrollSolidK / 10}만`]]) })
       : nfp != null ? gauge({ label: '일자리 증감 (최근 1개월, 천 명)', value: nfp, unit: '천 명', digits: 0, ...cuts(-100, 300, [0, G.payrollSolidK], ['burden', 'neutral', 'favorable'], [[0, '0'], [G.payrollSolidK, `${G.payrollSolidK / 10}만`]]) }) : null;
-  return axis('growth', '성장 (고용, 소비)', state, {
+  return axis('growth', state, {
     gauge: growthGauge,
     headline: payrollTriggered && payroll ? `일자리 3개월 평균 ${peopleText(payroll.avg3, { sign: true })}` : sahm ? `실업률 1년 저점 대비 ${Number(sahm.value.toFixed(2)) > 0 ? '+' : ''}${sahm.value.toFixed(2)}%p` : unrate == null ? null : `실업률 ${unrate.toFixed(1)}%`,
     evidence: [
@@ -336,7 +336,7 @@ function inflationAxis({ macro, mh }) {
   const gaugeOf = state === 'burden' && firedBy === 'reaccel' && fired
     ? gauge({ label: `${fired.name} 3개월 속도 − 1년치 (재가속 폭)`, value: fired.margin, unit: '%p', digits: 1, ...cuts(-2, 3, [0, I.reaccelPp], ['favorable', 'neutral', 'burden'], [[0, '0'], [I.reaccelPp, `+${I.reaccelPp} 재가속`]]) })
     : gauge({ label: '근원 PCE 물가 (전년 대비)', value: yoy, unit: '%', digits: 1, ...cuts(0, 5, [I.nearTargetPct, levelAt], ['favorable', 'neutral', 'burden'], [[I.targetPct, `목표 ${I.targetPct}%`], [levelAt, `${levelAt.toFixed(1)}%`]]) });
-  return axis('inflation', '물가', state, {
+  return axis('inflation', state, {
     gauge: gaugeOf,
     headline: yoy == null ? null : `근원 PCE ${yoy.toFixed(1)}%${firedBy === 'reaccel' && fired ? `, ${fired.name} 재가속` : ''}`,
     evidence: [
@@ -401,7 +401,7 @@ function policyAxis({ macro, inflationState, growthState = null, neutralReal = P
             : reasonRow(['policy.nearMid', pricingSigned]);
   // The leg that decided a 부담: the 2-year gap first (the read's order), the real policy rate otherwise.
   const realBurden = state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null;
-  return axis('policy', '통화정책', state, {
+  return axis('policy', state, {
     gauge: realBurden ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[neutralReal, `중립 약 ${fmtNeutral(neutralReal)}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `-${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
     // Codex review 2026-10-05: the headline states the observed gap; the reading below says why it is not
     // a forecast of hikes (premia are not separated).
@@ -422,10 +422,11 @@ function policyAxis({ macro, inflationState, growthState = null, neutralReal = P
   });
 }
 
-function reuse(regime, id, title, link, extras = {}) {
+// The 시장 상태 row itself (same label, same state word); only the 매크로 link, gauge and headline are added.
+function reuse(regime, id, link, extras = {}) {
   const row = regime?.axes?.find((item) => item.id === id);
-  if (!row) return axis(id, title, 'unknown', { read: '종가 기록을 불러오는 중입니다.', link });
-  return { ...row, title, link, shared: true, gauge: extras.gauge || null, headline: extras.headline || null };
+  if (!row) return axis(id, 'unknown', { read: '종가 기록을 불러오는 중입니다.', link });
+  return { ...row, link, shared: true, gauge: extras.gauge || null, headline: extras.headline || null };
 }
 
 // Gauges for the 시장 상태 axes. P1427: each gauge shows the variable that actually decided the state —
@@ -656,25 +657,24 @@ export function closeChanges(history = []) {
 export function macroNextSteps(read) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
   const state = (id) => byId[id]?.state || 'unknown';
-  const label = (id) => byId[id]?.stateLabel || '판정 보류';
+  const label = (id) => byId[id]?.stateLabel || STATE_LABELS.unknown;
   const next = [];
-  if (state('rates') === 'burden' || state('rates') === 'neutral') next.push({ route: 'fxbond', label: '금리와 환율', why: `금리, 할인율 ${label('rates')} — 수익률 곡선·실질금리 중 어디에서 오는지` });
-  const SHORT = { inflation: '물가', rates: '금리', commodities: '유가·달러' };
-  const pressure = ['inflation', 'rates', 'commodities'].filter((id) => state(id) === 'burden').map((id) => SHORT[id]);
+  if (state('rates') === 'burden' || state('rates') === 'neutral') next.push({ route: 'fxbond', label: '금리와 환율', why: `${AXIS_LABELS.rates} ${label('rates')} — 수익률 곡선·실질금리 중 어디에서 오는지` });
+  const pressure = ['inflation', 'rates', 'commodities'].filter((id) => state(id) === 'burden').map((id) => AXIS_LABELS[id]);
   next.push({ route: 'themes', label: '테마와 섹터', why: pressure.length
     ? `${pressure.join(', ')} 부담 속에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)`
     : '지금의 매크로 국면에서 실제로 시장보다 강한 섹터가 어디인지(섹터 회전 관측)' });
-  next.push({ route: 'signal', label: '시장 상태', why: `금리·유가와 달러·신용은 시장 상태와 같은 판정 — 추세·시장 폭까지 합친 6개 지표 전체(신용 ${label('credit')})` });
+  next.push({ route: 'signal', label: '시장 상태', why: `${axisNames(['rates', 'commodities', 'credit'], ', ')}은 시장 상태와 같은 판정 — ${axisNames(['trend', 'breadth'])}까지 합친 6개 지표 전체(${AXIS_LABELS.credit} ${label('credit')})` });
   next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 고용·물가·연준 발표 일정과 오늘 종가 해석' });
   return next;
 }
 
 export function ratesNextSteps({ read = null, carry = null } = {}) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
-  const label = (id) => byId[id]?.stateLabel || '판정 보류';
-  const next = [{ route: 'macro', label: '매크로', why: `물가 ${label('inflation')}, 통화정책 ${label('policy')} — 금리 경로를 움직이는 쪽` }];
-  next.push({ route: 'signal', label: '시장 상태', why: `금리(${label('rates')})와 추세·시장 폭을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시, 엔/달러 20거래일 ${signed(-carry.yenStrength, 1, '%')})` : ''}` });
-  if (byId.rates?.state === 'burden' || byId.rates?.state === 'favorable') next.push({ route: 'themes', label: '테마와 섹터', why: `금리 ${label('rates')} 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지` });
+  const label = (id) => byId[id]?.stateLabel || STATE_LABELS.unknown;
+  const next = [{ route: 'macro', label: '매크로', why: `${AXIS_LABELS.inflation} ${label('inflation')}, ${AXIS_LABELS.policy} ${label('policy')} — 금리 경로를 움직이는 쪽` }];
+  next.push({ route: 'signal', label: '시장 상태', why: `${AXIS_LABELS.rates}(${label('rates')})와 ${axisNames(['trend', 'breadth'])}을 합친 판정${carry?.available ? ` (환율은 참고로 따로 표시, 엔/달러 20거래일 ${signed(-carry.yenStrength, 1, '%')})` : ''}` });
+  if (byId.rates?.state === 'burden' || byId.rates?.state === 'favorable') next.push({ route: 'themes', label: '테마와 섹터', why: `${AXIS_LABELS.rates} ${label('rates')} 국면에서 섹터 회전(선도·후행)이 어떻게 나타나는지` });
   next.push({ route: 'briefing', label: '브리핑', why: '다음 7일 국채·물가·연준 일정과 오늘 금리·달러 움직임 해석' });
   return next;
 }
@@ -694,9 +694,9 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const axes = [
     growth, inflation, policy,
     // a growth-scare hold names itself on the tile (ratesEvidence: '10년물 20거래일 -38bp' alone read as relief marked 중립).
-    reuse(regime, 'rates', '금리, 할인율', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
-    { ...reuse(regime, 'commodities', '유가, 달러', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oilDivergence(oil).held ? '두 유가(브렌트·WTI)의 같은 날 비교는 WTI 원유 차트 설명에 있습니다.' : null },
-    reuse(regime, 'credit', '신용', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
+    reuse(regime, 'rates', '10년물 금리는 주식 가치를 계산하는 할인율의 기준입니다. 빠르게 오르면 PER이 높은 성장주부터 부담을 받습니다.', gauges.rates),
+    { ...reuse(regime, 'commodities', '유가는 물가(에너지는 CPI의 약 7%)와 소비 여력에, 달러는 해외 매출 환산과 신흥국 자금 흐름에 영향을 줍니다.', gauges.commodities), caveat: oilDivergence(oil).held ? '두 유가(브렌트·WTI)의 같은 날 비교는 WTI 원유 차트 설명에 있습니다.' : null },
+    reuse(regime, 'credit', '하이일드 스프레드가 넓어지면 기업 자금 조달이 어려워지고, 주식 하락이 신용 위험으로 번지고 있다는 신호가 됩니다.', gauges.credit)
   ];
   const known = axes.filter((row) => row.state !== 'unknown');
   const count = (state) => known.filter((row) => row.state === state).length;

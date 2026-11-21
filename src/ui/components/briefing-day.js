@@ -1,6 +1,7 @@
 // v59.65 (owner 2026-11-03, phase 3): 브리핑's 지난 24시간 section. The face carries the opening line (both markets, with the
 // equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
-// the reports behind a story, the smaller stories and the big moves nothing explains open in folds.
+// the largest of the smaller stories follow on the face; the reports behind a story and the big moves nothing explains
+// open in folds.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market/day/one-session.js';
@@ -9,6 +10,8 @@ import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { asOfChip } from './section-frame.js';
 import { EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
+
+const MORE_ON_FACE = 3;
 
 function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fold') {
   const node = el(doc, 'details', null, className);
@@ -60,10 +63,11 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (opening) opening.textContent = account.opening;
   doc.getElementById('briefing-day-stories')?.replaceChildren(...account.stories.map((story) => storyItem(doc, story)));
   const folds = [];
+  // Analysis, so on the face: the largest few of the smaller stories (account.more is in materiality order).
   if (account.more.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const story of account.more) list.append(el(doc, 'li', `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`));
-    folds.push(fold(doc, `그 밖에 움직인 것 ${account.more.length}건`, [list]));
+    for (const story of account.more.slice(0, MORE_ON_FACE)) list.append(el(doc, 'li', `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`));
+    folds.push(el(doc, 'h3', '그 밖에 움직인 것', 'briefing-day-more-title'), list);
   }
   if (account.reported.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');

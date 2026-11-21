@@ -42,7 +42,7 @@ const root = { _aioFetchYahooChartData: (id, range, interval, { signal }) => new
 const hyd = createSummaryHydrator({ root, now: () => nowMs, onReady: item => applied.push(item.symbol) });
 hyd.ensure('AEHR'); hyd.ensure('AEHR'); await Promise.resolve();
 assert.equal(pending.length, 1, 'P1624 repeated renders deduplicate request');
-assert.equal(pending[0].range, '1y'); assert.equal(pending[0].interval, '1d');
+assert.equal(pending[0].range, '2y', 'v60.36 the header summary asks for the shared two-year daily request'); assert.equal(pending[0].interval, '1d', 'v60.36 the shared request is daily'); // the shared daily request the year line reads
 hyd.ensure('PLTR'); await Promise.resolve();
 assert.equal(pending[0].signal.aborted, true, 'P1624 selection change aborts prior transport');
 pending[0].resolve(response(payload())); pending[1].resolve(response(payload('PLTR')));
@@ -56,6 +56,9 @@ pending.at(-1).resolve(response(payload())); await new Promise(resolve => setTim
 assert.deepEqual(applied, ['PLTR'], 'P1624 disposed route cannot paint');
 const cached = createSummaryHydrator({ root, now: () => nowMs, onReady: item => applied.push(item.symbol) });
 cached.ensure('PLTR'); assert.equal(pending.length, 3, 'P1624 revisit reuses bounded quote/history cache'); cached.dispose();
+const { loadCompletedDailyBars } = await import('../src/data/daily-chart-bars.js');
+await loadCompletedDailyBars(root, 'PLTR');
+assert.equal(pending.length, 3, 'v60.36 종목 year line reads the header summary\'s daily request, not a second one');
 assert.equal(businessProfileFor('AEHR').description, null, 'P1624 example issuer never gets a special hardcoded profile');
 const company = { businessProfile: { symbol: 'XYZ', description: '공식 사업 설명', sourceUrl: 'https://example.com/company' } };
 assert.equal(businessProfileFor('XYZ', company).description, '공식 사업 설명', 'P1624 sourced descriptions use a universal identity contract');

@@ -2,6 +2,7 @@
 // the 시장 상태 axis (매크로 신용 장, 시장 이야기). Both load with their routes, so this stays out of the boot set.
 import { RULES } from '../rules/thresholds.js';
 import { readNumber, signedText } from '../shared/number.js';
+import { STATE_LABELS } from '../market/interpretation/concepts.js';
 import { hyObservation, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion, RECORD_FULL_YEAR } from './market-read.js';
 
 /**
@@ -37,7 +38,7 @@ export function cccTailLine(macroHistory, window, floor, through = null) {
  * the 450bp line is never "크게 벌어진 폭".
  */
 export function creditReading(j, { cccTail = false, ccc20 = null, ig20 = null } = {}) {
-  if (!j || j.state === 'unknown') return '신용 지표 판정 보류 — 스프레드 기록을 기다립니다.';
+  if (!j || j.state === 'unknown') return `신용 지표 ${STATE_LABELS.unknown} — 스프레드 기록을 기다립니다.`;
   const C = RULES.credit;
   const pct = (bpValue) => `${(bpValue / 100).toFixed(2)}%`;
   const move = (value) => signedText(value, 0, 'bp');

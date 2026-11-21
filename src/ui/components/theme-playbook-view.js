@@ -490,23 +490,26 @@ function renderThemeStrengthMap(doc, root, playbook, interpretation) {
     col.append(el(doc, 'h3', title, 'thp-col-title'));
     if (!rows.length) { col.append(el(doc, 'p', empty, 'thp-col-empty')); return col; }
     const list = el(doc, 'ul', null, 'thp-col-list');
-    for (const [label, value, tone, hover] of rows) {
+    for (const [label, value, tone, hover, theme] of rows) {
       const li = el(doc, 'li');
-      li.append(el(doc, 'span', label, 'thp-col-name'), el(doc, 'span', value, `thp-col-value${tone ? ` ${tone}` : ''}`));
+      const nameCell = el(doc, 'button', label, 'thp-col-name');
+      nameCell.type = 'button';
+      nameCell.addEventListener('click', () => openThemeDetail(root, theme.id, { market: theme.market }));
+      li.append(nameCell, el(doc, 'span', value, `thp-col-value${tone ? ` ${tone}` : ''}`));
       if (hover) li.title = hover;
       list.append(li);
     }
     col.append(list);
     return col;
   };
-  const retRow = (row) => [name(row), pct(row.ret1m), dirClass(row.ret1m), fact(row)];
+  const retRow = (row) => [name(row), pct(row.ret1m), dirClass(row.ret1m), fact(row), row];
   const cols = el(doc, 'div', null, 'thp-cols');
   cols.append(
     // v58.80 (first-users F11): "강한 쪽, 1개월: 헬스케어 +5.6%" sat above a sector table led by energy +10.8%; the column is
     // the themes in the leading stage (with their 1-month return), not the month's biggest movers, and now says so.
     column('주도 단계 테마 · 1개월', strong.map(retRow), '주도 단계 테마 없음'),
     column('약세 단계 테마 · 1개월', weak.map(retRow), '약세 지속 단계 테마 없음'),
-    column('바뀌는 중', changing.map(({ row, change }) => [name(row), `${stageName(change.from)} → ${stageName(change.to)}`, '', `${shortMd(change.date)}에 바뀜`]), '최근 3거래일 단계 변화 없음', true));
+    column('바뀌는 중', changing.map(({ row, change }) => [name(row), `${stageName(change.from)} → ${stageName(change.to)}`, '', `${shortMd(change.date)}에 바뀜`, row]), '최근 3거래일 단계 변화 없음', true));
   const parts = [cols];
   const regime = interpretation?.regime, crossroads = interpretation?.crossroads;
   // v59.51 (one lead source; content audit): scenarioLead names every tied branch. The line is short — the market-state

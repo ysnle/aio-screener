@@ -252,13 +252,12 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
   // Face: the reading (renderThemeDetailTeach fills it), the chart and the criteria headline.
   const reading = make('ul', 'thp-reading', 'theme-detail-reading');
   const criteriaSlot = make('div', 'theme-detail-native-section thp-criteria', 'theme-detail-native-criteria');
-  // Fold: the analysis behind the reading, for an expert.
-  const expert = make('details', 'thp-expert-fold');
+  // The analysis behind the reading sits on the face, after it: cause, sub-theme flow, scenarios, the six criteria.
+  const expert = make('section', 'thp-expert');
   expert.id = 'theme-detail-expert';
-  expert.open = !!root._aioThemeExpertOpen;
-  expert.addEventListener('toggle', () => { root._aioThemeExpertOpen = expert.open; });
-  const summary = documentRef.createElement('summary');
-  summary.textContent = '전문가용 분석 — 원인, 세부 테마 흐름, 시나리오, 기준 6개';
+  const summary = documentRef.createElement('h3');
+  summary.className = 'thp-expert-title';
+  summary.textContent = '원인과 세부 흐름';
   // P1588: the membership review date stays with the theme; it opens the expert fold rather than sitting on the face.
   const membership = detail.membershipPolicy || {};
   const provenance = documentRef.createElement('p');
@@ -864,13 +863,11 @@ export function renderThemeDetailInsights({ documentRef, root, store, themeId = 
     host.hidden = true;
     return;
   }
-  // v59.51 (content audit, two layers): the authored insight is expert reading, so it opens on request.
-  const heading = documentRef.createElement('summary');
-  heading.textContent = '테마 맞춤 인사이트 — 거시 조건, 역설, 연쇄 효과, 깨지는 신호';
-  const fold = documentRef.createElement('details');
-  fold.className = 'thp-expert-fold';
-  fold.open = !!root._aioThemeInsightOpen;
-  fold.addEventListener('toggle', () => { root._aioThemeInsightOpen = fold.open; });
+  const heading = documentRef.createElement('h3');
+  heading.className = 'thp-expert-title';
+  heading.textContent = '거시 조건, 역설, 연쇄 효과, 깨지는 신호';
+  const fold = documentRef.createElement('section');
+  fold.className = 'thp-expert';
   const body = documentRef.createElement('div');
   body.className = 'thp-detail-body thp-detail-body--grid';
   const insight = detail.insight || {};

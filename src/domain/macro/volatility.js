@@ -7,6 +7,7 @@ import { RULES } from '../rules/thresholds.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { dayLabel } from '../market/story/market-story.js';
 import { vixBandRow } from '../market/sentiment/narrative.js';
+import { AXIS_LABELS } from '../market/interpretation/concepts.js';
 
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
 const historySpan = (history, field) => { const change = closeChange(history, field, MARKET_WINDOWS.rule); return change ? { from: change.from.value, to: change.to.value, pct: change.pct } : null; };
@@ -85,7 +86,7 @@ export function volatilityChapter(history = [], events = []) {
   const fmtPct = (move) => (move ? signed(move.pct, 1) : '—');
   return {
     bond: mv ? { ...mv, change20: move20 ? move20.pct : null, read: bondRead } : null,
-    id: 'volatility', title: '변동성 — 주식 · 채권 · 변동성의 변동성', question: '흔들림의 크기와 출처, 주식인지 금리인지',
+    id: 'volatility', title: `${AXIS_LABELS.volatility} — 주식 · 채권 · 변동성의 변동성`, question: '흔들림의 크기와 출처, 주식인지 금리인지',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [vix20 ? { x: 'VIX', value: vix20.pct, hot: true } : null, vvix20 ? { x: 'VVIX', value: vvix20.pct } : null, move20 ? { x: 'MOVE', value: move20.pct } : null].filter(Boolean) },
     now: [`VIX ${vix.value.toFixed(1)}${vix20 ? ` (${fmtPct(vix20)})` : ''}`, ratio != null ? `3개월 대비 ${ratio.toFixed(2)}` : null, vv ? `VVIX ${vv.now.toFixed(1)}` : null, mv ? `MOVE ${mv.now.toFixed(1)}${move20 ? ` (${fmtPct(move20)})` : ''}` : null].filter(Boolean).join(' · '),
     mean: parts.join(' '),

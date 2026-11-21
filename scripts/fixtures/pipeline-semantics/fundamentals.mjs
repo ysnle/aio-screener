@@ -207,6 +207,26 @@ export const cases = [
       assert.deepEqual(composedRowSource(composed.rowProvenance, 0, added), { filedAt: '2026-08-01', sourceUrl: 'https://fixture.invalid/original', accession: 'original', role: 'ORIGINAL' });
       assert.equal(composedRowSource(composed.rowProvenance, 1, added).sourceUrl, 'https://fixture.invalid/added');
   } },
+  { id: 'MASTERS-13F-UNIT-01', name: '천 달러로 신고한 13F 정보표는 신고별 주당 내재가격 중앙값으로 판정해 달러로 환산하고, 달러 신고와 증거가 부족한 신고는 그대로 둔다', run: async ({ load }) => {
+      const { detectValueUnit, normalizeFilingValueUnit } = await load('scripts/lib/13f-value-unit.mjs');
+      const share = (cusip, price, shares = 1000) => ({ cusip, shareType: 'SH', putCall: null, shares, value: Math.round(price * shares) });
+      // T. Rowe Price 2026-06-30 shape: NVDA 370M shares at $74.0M reads $0.20 a share; the cover total follows the rows.
+      const thousands = { filing: { accession: 'k' }, cover: { tableValueTotal: 600 }, rows: [share('A', 0.2), share('B', 0.05), share('C', 0.35)] };
+      const scaled = normalizeFilingValueUnit(thousands);
+      assert.equal(scaled.valueUnit.reportedUnit, 'USD_THOUSANDS');
+      assert.deepEqual(scaled.rows.map((row) => row.value), [200000, 50000, 350000]);
+      assert.equal(scaled.cover.tableValueTotal, 600000, 'the cover total is scaled with its rows so value reconciliation stays exact');
+      assert.deepEqual(normalizeFilingValueUnit(scaled).rows.map((row) => row.value), [200000, 50000, 350000], 'the rule is idempotent');
+      const dollars = { filing: { accession: 'd' }, cover: { tableValueTotal: 1 }, rows: [share('A', 200), share('B', 0.4), share('C', 45)] };
+      const kept = normalizeFilingValueUnit(dollars);
+      assert.equal(kept.rows, dollars.rows, 'a dollar filing keeps its rows');
+      assert.equal(kept.cover.tableValueTotal, 1);
+      assert.equal(detectValueUnit(dollars.rows).reportedUnit, 'USD', 'one sub-dollar stock does not flip a dollar filing');
+      assert.equal(detectValueUnit([share('A', 0.2), share('B', 0.3)]).reportedUnit, 'USD', 'two share rows are not enough evidence');
+      const options = [0.2, 0.1, 0.3].map((price, index) => ({ ...share(`O${index}`, price), putCall: 'Put' }));
+      assert.equal(detectValueUnit([...options, share('A', 50)]).reportedUnit, 'USD', 'option and principal rows are not priced as shares');
+      assert.equal(detectValueUnit([share('A', 0.0001), share('B', 0.0002), share('C', 0.0003)]).reportedUnit, 'USD', 'below the floor the table is broken, not in thousands');
+  } },
   { id: 'R3-07', name: '실적 공시 본문 변환은 &amp;를 한 번만 풀고 BMP 밖 문자를 깨뜨리지 않는다', run: async ({ load }) => {
       const { htmlToText } = await load('scripts/lib/sec-results-filings.mjs');
       assert.equal(htmlToText('&amp;#36;5'), '&#36;5');

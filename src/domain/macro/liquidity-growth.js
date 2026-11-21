@@ -135,7 +135,7 @@ export function brentWtiCheck(macroHistory, history = []) {
       sentence: `브렌트 선물 종가 기록이 아직 없어 유럽 현물 브렌트(${sm}/${sd} ${fmt(lastSpot.value, 2)}달러${spot20 == null ? '' : `, 20거래일 ${signed(spot20, 1)}`})만 참고합니다 — 현물과 WTI 선물은 가격 기준이 달라 둘의 차이를 비교하거나 WTI 판단을 바꾸는 근거로 쓰지 않습니다.` };
   }
   // v57.81: the spread, both 20-session moves and the divergence verdict come from the one shared rule (macro-signals.js)
-  // that the 거시 chain, the rate hub, the scenario conditions and 시장 달러·원자재 all read.
+  // that the 거시 chain, the rate hub, the scenario conditions and the commodities axis all read.
   const check = brentWtiFromSeries({ brent: futures, wti, pointBack: sessionPointBack });
   if (!check) return null;
   const { spread, spreadMedian, brent20, wti20, diverges, abnormal } = check;

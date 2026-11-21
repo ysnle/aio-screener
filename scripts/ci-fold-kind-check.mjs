@@ -36,12 +36,13 @@ export const SCREENS = Object.freeze({
       // v60.35 (owner 2026-11-20): the 시나리오와 전망 view — what happened, the stories, the flows and macro scenarios with
       // their decision frames, and today's guide.
       'src/ui/components/market-story.js', 'src/ui/components/market-narratives.js', 'src/ui/components/macro-crossroads.js',
-      'src/ui/components/decision-frame.js', 'src/ui/components/market-guide.js'
+      'src/ui/components/decision-frame.js', 'src/ui/components/market-guide.js', 'src/ui/components/pick-list.js'
     ]
   },
+  // the three market flows (market-structure.js) moved here from 시장 상태's 시나리오와 전망 view.
   breadth: {
     page: 'page-breadth',
-    modules: ['src/ui/components/breadth-board.js', 'src/ui/components/indicator-face.js', 'src/ui/components/screen-reading.js', 'src/ui/components/page-sources.js']
+    modules: ['src/ui/components/breadth-board.js', 'src/ui/components/market-structure.js', 'src/ui/components/indicator-face.js', 'src/ui/components/screen-reading.js', 'src/ui/components/page-sources.js']
   },
   sentiment: {
     page: 'page-sentiment',
@@ -61,7 +62,7 @@ export const SCREENS = Object.freeze({
   },
   fxbond: {
     page: 'page-fxbond',
-    modules: ['src/ui/components/macro-board.js', 'src/ui/components/krw-read.js', 'src/ui/components/indicator-face.js', 'src/ui/components/page-sources.js']
+    modules: ['src/ui/components/macro-board.js', 'src/ui/components/rate-hub.js', 'src/ui/components/krw-read.js', 'src/ui/components/indicator-face.js', 'src/ui/components/page-sources.js']
   },
   // 기술적 분석 (owner 2026-11-19): the 시장 지수 cards, the 대표 종목 table and the one analysis slot with its coach,
   // strategy, layer, drawing and comparison parts.

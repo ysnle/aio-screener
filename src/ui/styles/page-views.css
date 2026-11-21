@@ -33,7 +33,7 @@
 #page-charts:not([data-view="stocks"], [data-view="all"]) > #charts-stocks,
 #page-charts:not([data-view="analysis"], [data-view="all"]) > #stock-chart-section,
 /* 금리와 환율: 금리 / 환율 / 자산군 */
-#page-fxbond:not([data-view="rates"], [data-view="all"]) > :is(.mk-curve-card, .rates-levels-section, #rates-strip-fold),
+#page-fxbond:not([data-view="rates"], [data-view="all"]) > :is(.mk-curve-card, #rates-hub, .rates-levels-section, #rates-strip-fold),
 #page-fxbond:not([data-view="fx"], [data-view="all"]) > :is(.rates-fx-section, .rates-other-fold),
 #page-fxbond:not([data-view="assets"], [data-view="all"]) > #rates-assets,
 /* 매크로: 요약 / 주제별 / 지표와 발표 */

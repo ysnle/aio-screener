@@ -5,6 +5,7 @@
 // providers the page's 데이터 출처 fold (page-sources.js). The cards are built in src/domain/market/sentiment/sentiment-model.js.
 import { principleLink } from './principle-link.js';
 import { AXIS_REASON_LABEL } from '../../domain/briefing/market-read.js';
+import { AXIS_LABELS } from '../../domain/market/interpretation/concepts.js';
 import { buildSentimentModel, sentimentCounter } from '../../domain/market/sentiment/sentiment-model.js';
 import { fearGreedBand as publishedFearGreedBand } from '../../domain/market/sentiment/metrics.js';
 import { createTrendChart } from './trend-chart.js';
@@ -66,7 +67,7 @@ function rawGroups(doc, model, axis, bottomWatch) {
 // The method: what each indicator measures and its rule, the link to its principle in the research library, the two
 // reference indicators' place against the six 시장 상태 indicators, and the price temperature's rules.
 function methodBody(doc, root, model) {
-  const nodes = [el(doc, 'p', '공포·탐욕 지수와 AAII는 시장 상태 6개 지표의 양호·중립·부담 합계에 넣지 않는 참고 지표입니다. 하이일드 스프레드는 시장 상태 \'신용과 위험선호\', VIX ÷ 3개월 VIX는 \'변동성\' 지표의 근거로 쓰입니다. 숫자는 모두 직전 미국장 종가 기준입니다.', 'ind-method__lead')];
+  const nodes = [el(doc, 'p', `공포·탐욕 지수와 AAII는 시장 상태 6개 지표의 양호·중립·부담 합계에 넣지 않는 참고 지표입니다. 하이일드 스프레드는 시장 상태 '${AXIS_LABELS.credit}', VIX ÷ 3개월 VIX는 '${AXIS_LABELS.volatility}' 지표의 근거로 쓰입니다. 숫자는 모두 직전 미국장 종가 기준입니다.`, 'ind-method__lead')];
   for (const card of model.cards) {
     const box = el(doc, 'section', null, 'ind-method');
     box.dataset.methodMetric = card.id;

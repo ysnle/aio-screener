@@ -185,4 +185,19 @@ observations.window=observations;
 check(!/function _aioVixPercentile\(|function vixRegime\(/.test(source), 'v59.42 the uncalled legacy VIX percentile and regime helpers are deleted (P1753: no fabricated VIX distribution can return through them)');
 check(!/function vixToPercentile\(/.test(source), 'P1753 the retired vixToPercentile compatibility wrapper stays gone');
 check(!source.includes('(82.5 -') && !/goldWeeklyPct\s*=/.test(section(source, 'function applyLiveQuotes(', 'function updateScreenerFromLiveData(')), 'quote application cannot invent HY spread or turn daily gold return into weekly return');
+// The /relay providers the Worker cannot serve (no operator key) are asked once at most: a 503 "not configured" or a
+// /health relay.configured false ends the provider's requests for the page; a transient 503 does not.
+{
+  const relayAnswer = { kosis: { error: 'Relay key is not configured for kosis', status: 503 }, bok: { error: 'Relay quota unavailable', status: 503 } };
+  const relay = harness();
+  relay.root.fetchWithTimeout = async (target) => { relay.calls.push([target]); const provider = new URL(target).searchParams.get('provider'); return new Response(JSON.stringify(relayAnswer[provider]), { status: 503 }); };
+  const kosisUrl = relay.root._aioRelayUrl('kosis', { orgId: '101' });
+  check(kosisUrl.startsWith('https://owned.example/relay?provider=kosis'), 'P2691 a relay provider is asked while nothing says it is unconfigured');
+  await relay.root._aioRelayFetch(kosisUrl);
+  check(relay.root._aioRelayUrl('kosis', { orgId: '101' }) === '', 'P2691 a 503 "not configured" relay answer stops that provider for the page');
+  await relay.root._aioRelayFetch(relay.root._aioRelayUrl('bok', { statCode: '722Y001' }));
+  check(relay.root._aioRelayUrl('bok', { statCode: '722Y001' }) !== '', 'P2691 a transient relay 503 is not remembered as unconfigured');
+  relay.root._aioWorkerHealthCache = { 'https://owned.example': { health: { relay: { configured: { bok: false } } } } };
+  check(relay.root._aioRelayUrl('bok', { statCode: '722Y001' }) === '', 'P2691 a /health relay.configured false stops the provider before any request');
+}
 console.log(`Proxy continuity: ${checks} PASS (offline VM; no live/provider or browser claim)`);

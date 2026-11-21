@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-20
+last_verified: 2026-11-21
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2691 - v60.36 - 설정되지 않은 relay를 화면에 들어갈 때마다 다시 호출 (2026-11-21)
+
+- symptom/reproduction: 매크로·기술적 분석·테마 화면에 들어갈 때마다 /relay?provider=bok, kosis가 503을 받았다.
+- root_cause: Worker에 한국은행·KOSIS 키가 없는데 클라이언트는 성공해야만 결과를 기억해서, 실패한 호출을 매 진입과 30분 주기로 되풀이했다.
+- fix: /health가 그 provider를 미설정으로 알리거나 그 페이지에서 'not configured' 503을 받았으면 relay 주소를 주지 않아 기존 '경로 없음' 폴백으로 간다. 일시적 503은 기억하지 않는다.
+- violated_rule: 가볍게 유지한다 (PRODUCT.md 원칙 6)
+- prevention: ci-proxy-continuity-check가 미설정 provider에 relay 주소가 나오지 않는지 확인한다.
+- verification/residual: node scripts/ci-proxy-continuity-check.mjs
+- files: src/data/providers/proxy-transport.js
+
+## P2690 - v60.36 - 13F 보유 금액이 일부 운용사에서 1000배 작게 수집됨 (2026-11-21)
+
+- symptom/reproduction: T. Rowe Price, Duquesne, Baupost의 보유 금액이 주당 1달러 미만으로 계산될 만큼 작았다(T. Rowe Price 합계 9.9억 달러, 실제 약 9,937억 달러).
+- root_cause: 수집기 두 곳이 정보표의 value를 모두 달러로 읽었다. 이 신고들은 천 달러 단위로 적혀 있고 표지 합계도 같은 단위라 기존 합계 대사로는 잡히지 않았다.
+- fix: 신고 한 건마다 주식 행의 value/shares 중앙값이 0.001~1달러이면 천 달러 신고로 보고 행 값과 표지 합계를 1000배 한다(scripts/lib/13f-value-unit.mjs). 운용사 이름은 보지 않는다.
+- violated_rule: 사실이 맞아야 한다 (PRODUCT.md 원칙 1)
+- prevention: pipeline-semantics MASTERS-13F-UNIT-01이 천 달러 신고와 달러 신고, 재적용 시 불변을 확인한다.
+- verification/residual: node scripts/ci-pipeline-semantics-check.mjs
+- files: scripts/lib/13f-value-unit.mjs, scripts/collect-13f-reference.mjs, scripts/collect-13f-history-rows.mjs
 
 ## P2689 - v60.35 - 기술적 분석 대표 종목 카드가 화면 밖이면 영영 '불러오는 중' (2026-11-20)
 

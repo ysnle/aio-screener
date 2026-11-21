@@ -115,10 +115,10 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const doc = createFakeDocument();
   const page = doc.createElement('div');
   const holder = doc.createElement('div');
-  const grid = doc.createElement('div'); grid.className = 'mk-axes';
+  const grid = doc.createElement('div'); grid.className = 'mk-depth';
   page.append(holder); holder.append(grid);
   const realQuery = doc.querySelector?.bind(doc);
-  doc.querySelector = (selector) => (selector === '#page-signal .mk-axes' ? grid : realQuery?.(selector));
+  doc.querySelector = (selector) => (selector === '#page-signal > .mk-depth' ? grid : realQuery?.(selector));
   grid.insertAdjacentElement = grid.insertAdjacentElement || ((where, node) => { holder.insertBefore(node, where === 'beforebegin' ? grid : null); return node; });
   void axes;
   const story = (id, count) => ({ id, label: id, telegramCount: count, recentCount: 1, trend: 'steady', newsCount: 0, rumorCount: 0, unconfirmedCount: 0, movers: [] });
@@ -133,6 +133,14 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   check('v60.35copy: the story cards name their scenarios with status and a link, and draw no decision frame or choice table',
     rows.length > 0 && rows.every((row) => /시나리오에서 보기/.test(row.textContent)) && !section.querySelector('.df-frame, .mk-narr__choices, details') && !/가능성:|대응별 득실/.test(text), text.slice(0, 200));
   check('v60.24copy: no story line reads 상대적으로 유리', !/상대적으로 유리/.test(text));
+  // The mention bars pick the story: one pressed row per story, the first read by default, another row's press reads it.
+  const picks = [...(section?.querySelectorAll('.mk-narr__bar-row') || [])];
+  const shownStory = () => section.querySelector('.mk-narr__detail .mk-narr__story')?.id || '';
+  const first = shownStory();
+  picks[1]?.dispatchEvent({ type: 'click' });
+  check('v60.36 stories: the mention bars are the picker, first story read by default, a press reads another, no rest list',
+    picks.length === 2 && first === `market-story-${picks[0].dataset.story}` && shownStory() === `market-story-${picks[1].dataset.story}` && picks[1].getAttribute('aria-pressed') === 'true'
+      && picks[0].getAttribute('aria-pressed') === 'false' && section.querySelectorAll('.mk-narr__story').length === 1 && !section.querySelector('.mk-narr__rest'), { first, now: shownStory() });
 }
 
 // ── v60.24 guide and theme lines (owner 2026-11-17): the ground kind is not glued onto face lines outside the frame ──
@@ -171,10 +179,10 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const { buildNarrativeCards } = await load('src/domain/narrative/narrative-cards.js');
   const doc = createFakeDocument();
   const holder = doc.createElement('div');
-  const grid = doc.createElement('div'); grid.className = 'mk-axes';
+  const grid = doc.createElement('div'); grid.className = 'mk-depth';
   holder.append(grid);
   const realQuery = doc.querySelector?.bind(doc);
-  doc.querySelector = (selector) => (selector === '#page-signal .mk-axes' ? grid : realQuery?.(selector));
+  doc.querySelector = (selector) => (selector === '#page-signal > .mk-depth' ? grid : realQuery?.(selector));
   grid.insertAdjacentElement = grid.insertAdjacentElement || ((where, node) => { holder.insertBefore(node, where === 'beforebegin' ? grid : null); return node; });
   const published = { schemaVersion: 'scenario-outcomes.v1', generatedAt: '2026-11-15T13:37:26.418Z', ...outcomes };
   let deliver = () => {};
@@ -184,7 +192,8 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   root[MARKET_DAY.key] = { narratives: { at: '2026-11-16T00:00:00Z', windowHours: 72, stories: [story('ai-funding-credit', 9), story('ai-profitability', 7)] } };
   const before = marketInterpretation(root);
   const section = renderMarketNarratives({ documentRef: doc, root, interpretation: before });
-  const ids = [...new Set(buildNarrativeCards({ narratives: root[MARKET_DAY.key].narratives, crossroads: before.crossroads }).cards.slice(0, 3).flatMap((card) => card.scenarios.map((row) => row.id)))];
+  // The story read below the picker is the first (most relayed) one until a reader picks another.
+  const ids = [...new Set(buildNarrativeCards({ narratives: root[MARKET_DAY.key].narratives, crossroads: before.crossroads }).cards.slice(0, 1).flatMap((card) => card.scenarios.map((row) => row.id)))];
   const statusOf = (model, id) => model.items.find((item) => item.id === id)?.status;
   const rowText = (node, id) => node.querySelector(`.mk-narr__scenario[data-branch="${id}"]`)?.textContent || '';
   check('v60.21load: before the long record the story rows carry the own-record status', ids.length > 0 && ids.every((id) => rowText(section, id).includes(statusOf(before.crossroads, id))), { ids, text: section.textContent.slice(0, 200) });

@@ -88,8 +88,9 @@ function cellsNode(doc, cells) {
 }
 
 // `open`: the whole brief on the face (재무 공시, where only 원자료 표 · 계산 방법 · 데이터 출처 fold); its source line is the
-// one fold, a 데이터 출처.
-export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells = false, open = false } = {}) {
+// one fold, a 데이터 출처. `sources`: an array the source line goes into, named for the brief, so a view of several briefs
+// keeps one 데이터 출처 fold for all of them.
+export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells = false, open = false, sources = null } = {}) {
   const box = el(doc, 'article', null, 'event-brief');
   box.dataset.kind = brief.kind;
   const head = el(doc, 'p', null, 'event-brief__head');
@@ -144,7 +145,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   else if (brief.kind !== 'fomc' || brief.status !== 'complete') more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 아직 정리 전입니다.`, 'event-brief__note'));
   section('다음 확인', (brief.watch || []).map(watchItem));
   const source = el(doc, 'p', null, 'event-brief__source');
-  source.append(doc.createTextNode('데이터 출처: '));
+  source.append(doc.createTextNode(sources ? `${brief.kind === 'fomc' ? 'FOMC 금리 결정' : `${brief.nameKo} 실적`}: ` : '데이터 출처: '));
   if (brief.source?.url) {
     const link = el(doc, 'a', brief.source.title || '원문', null);
     link.href = brief.source.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
@@ -180,7 +181,8 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   if (open) { box.append(more, kindFold(doc, 'sources', '실적 발표 원문과 보도', [source])); return box; }
   if (bodyOnly) { more.append(source); return more; }
   if (more.childElementCount > 1) box.append(more);
-  box.append(kindFold(doc, 'sources', brief.kind === 'fomc' ? '성명과 보도' : '실적 발표 원문과 보도', [source]));
+  if (sources) sources.push(source);
+  else box.append(kindFold(doc, 'sources', brief.kind === 'fomc' ? '성명과 보도' : '실적 발표 원문과 보도', [source]));
   return box;
 }
 
@@ -330,7 +332,8 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   head.classList.add('daily-card-head');
   head.title = '시장 전체를 움직이는 발표(물가·고용 지표, FOMC, 대형주 실적)는 크게, 그 밖의 실적은 한 줄로 보여 줍니다. 원문 공시 기준, 시각은 한국 시간';
   markFrame(host, frame);
-  const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief))];
+  const sources = [];
+  const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief, { sources }))];
   const flows = flowsNode(doc, root, tiers.core[0], [...tiers.core, ...tiers.notable, ...tiers.rest]);
   if (flows) parts.push(flows);
   // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
@@ -348,6 +351,7 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
     fillOnOpen(fold, () => [rowList(doc, root, tiers.rest), ...(tiers.restTotal > tiers.rest.length ? [el(doc, 'p', `최근 ${tiers.rest.length}건만 적었습니다. 다른 종목은 종목 화면에서 최근 실적 요약을 볼 수 있습니다.`, 'event-brief__note')] : [])]);
     parts.push(fold);
   }
+  if (sources.length) parts.push(kindFold(doc, 'sources', '발표 원문과 보도', sources));
   host.replaceChildren(...parts);
   host.hidden = false;
   return briefs;

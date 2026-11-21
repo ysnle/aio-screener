@@ -136,7 +136,8 @@
       "nativeSecondarySurface": [
         "#page-breadth #breadth-basis",
         "#page-breadth #breadth-chart-grid",
-        "#page-breadth #breadth-screen-reading"
+        "#page-breadth #breadth-screen-reading",
+        "#page-breadth #regime-structure"
       ],
       "p773Boundary": "market.js owns the three current 5/20/50SMA breadth cards, their bar/freshness readouts, and canonical advance ratio; stage/diagnostic/McClellan/RSP-SPY narrative plus historical chart canvases remain legacy secondary boundaries.",
       "p803Boundary": "market.js owns the bounded breadth signal label from the normalized advance ratio with an explicit fail-closed state; the legacy RSP/SPY signal writer is fenced from this element.",
@@ -247,7 +248,8 @@
       "nativeSecondarySurface": [
         "#page-fxbond #rates-basis",
         "#page-fxbond #rates-curve-fact",
-        "#page-fxbond #rates-method"
+        "#page-fxbond #rates-method",
+        "#page-fxbond #rates-hub"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -433,9 +435,13 @@
       "loadingStrategy": "route-dynamic-import",
       "nativePrimarySurface": [
         "#page-market-news #news-window-label",
+        "#page-market-news #market-news-count",
+        "#page-market-news #news-important"
+      ],
+      "nativeSecondarySurface": [
+        "#page-market-news #live-news-feed",
         "#page-market-news #news-24h-count",
         "#page-market-news #news-24h-sources",
-        "#page-market-news #market-news-count",
         "#page-market-news #last-fetch-time"
       ],
       "contestedIds": [],
