@@ -1,24 +1,24 @@
 {
-  "generatedAt": "2026-11-21T05:52:34.222Z",
-  "attemptedAt": "2026-11-21T05:52:34.222Z",
-  "lastSuccessfulAt": "2026-11-21T05:52:34.222Z",
+  "generatedAt": "2026-11-21T12:21:44.409Z",
+  "attemptedAt": "2026-11-21T12:21:44.409Z",
+  "lastSuccessfulAt": "2026-11-21T12:21:44.409Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-07T05:52:29.402Z",
-  "until": "2026-11-21T05:52:29.402Z",
+  "since": "2026-11-07T12:21:39.568Z",
+  "until": "2026-11-21T12:21:39.568Z",
   "current24hWindow": {
     "start": "2026-11-19T23:00:00.000Z",
     "end": "2026-11-20T23:00:00.000Z",
     "policy": "kst-0800-completed-24h"
   },
   "current24hCoverage": {
-    "observedCount": 78,
-    "eligibleTextCount": 78,
+    "observedCount": 136,
+    "eligibleTextCount": 133,
     "channelCounts": {
-      "HANAchina": 35,
-      "insidertracking": 34,
+      "HANAchina": 54,
+      "insidertracking": 73,
       "bornlupin": 9
     },
     "lastPostIds": [
@@ -33,15 +33,15 @@
       "insidertracking/69877",
       "insidertracking/69876",
       "insidertracking/69875",
+      "insidertracking/69874",
+      "insidertracking/69873",
+      "insidertracking/69872",
       "insidertracking/69871",
-      "insidertracking/69863",
-      "insidertracking/69861",
-      "insidertracking/69860",
-      "insidertracking/69859",
-      "insidertracking/69858",
-      "insidertracking/69856",
-      "insidertracking/69855",
-      "insidertracking/69852"
+      "insidertracking/69870",
+      "insidertracking/69869",
+      "insidertracking/69868",
+      "insidertracking/69867",
+      "insidertracking/69865"
     ]
   },
   "source": "telegram-public-mirror",
@@ -82,42 +82,42 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 139,
-      "freshCount": 18,
-      "eligibleTextCount": 139,
+      "count": 1187,
+      "freshCount": 38,
+      "eligibleTextCount": 1126,
       "selectedCount": 123,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69894
+      "lastPostId": 69913
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 117,
+      "count": 172,
       "freshCount": 20,
-      "eligibleTextCount": 117,
-      "selectedCount": 111,
+      "eligibleTextCount": 172,
+      "selectedCount": 112,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21221
+      "lastPostId": 21224
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 145,
-      "freshCount": 37,
-      "eligibleTextCount": 145,
+      "count": 708,
+      "freshCount": 19,
+      "eligibleTextCount": 708,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72511
+      "lastPostId": 72518
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,75 +137,82 @@
       "lastPostId": 26057
     }
   ],
-  "count": 401,
-  "retainedItemCount": 401,
+  "count": 2067,
+  "retainedItemCount": 409,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 401,
-    "eligibleTextCount": 401,
-    "mediaOnlyCount": 0,
-    "mediaAttachedCount": 21,
-    "photoPostCount": 17,
-    "documentPostCount": 0,
-    "imageOnlyCount": 0,
-    "highSignalCount": 150,
-    "broadSignalCount": 361,
-    "selectedRawCount": 359,
-    "selectedEligibleCount": 359,
-    "selectedRawCoveragePct": 89.5,
-    "selectedOfObservedPct": 89.5,
+    "observedCount": 2067,
+    "eligibleTextCount": 2006,
+    "mediaOnlyCount": 61,
+    "mediaAttachedCount": 831,
+    "photoPostCount": 697,
+    "documentPostCount": 5,
+    "imageOnlyCount": 6,
+    "highSignalCount": 334,
+    "broadSignalCount": 860,
+    "selectedRawCount": 360,
+    "selectedEligibleCount": 360,
+    "selectedRawCoveragePct": 17.9,
+    "selectedOfObservedPct": 17.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 55,
-    "market-note": 77,
-    "semi": 201,
-    "earnings": 62,
-    "ai-policy": 34,
-    "geo": 17,
-    "power": 27,
-    "japan": 5,
-    "equity": 29,
-    "flows": 10,
-    "kr-market": 8,
-    "healthcare": 6,
-    "credit": 8,
-    "optical": 1
+    "semi": 640,
+    "macro": 280,
+    "power": 227,
+    "equity": 145,
+    "geo": 271,
+    "media-only": 60,
+    "market-note": 727,
+    "credit": 69,
+    "healthcare": 47,
+    "ai-policy": 147,
+    "earnings": 259,
+    "japan": 50,
+    "flows": 48,
+    "kr-market": 84,
+    "optical": 20,
+    "insider": 2
   },
   "tickerCounts": {
-    "000660.KS": 13,
-    "NVDA": 166,
-    "CRWV": 5,
-    "AMD": 32,
+    "NVDA": 409,
+    "GOOG": 53,
+    "MU": 26,
+    "AMD": 53,
+    "000660.KS": 22,
+    "APLD": 2,
+    "ORCL": 4,
+    "2454.TW": 8,
+    "CRWV": 17,
     "CRWD": 2,
     "ZS": 1,
-    "TSM": 28,
-    "MSFT": 17,
-    "GOOG": 22,
-    "AVGO": 11,
-    "2454.TW": 3,
-    "TSLA": 5,
-    "MU": 11,
-    "AMZN": 13,
+    "TSM": 62,
+    "IBN": 2,
+    "MSFT": 55,
+    "AVGO": 19,
+    "TSLA": 29,
+    "AMZN": 52,
     "GOOGL": 3,
-    "005930.KS": 13,
-    "PLTR": 4,
+    "005930.KS": 25,
+    "PLTR": 7,
     "329180.KS": 1,
-    "META": 3,
-    "BABA": 2,
+    "META": 4,
+    "BABA": 6,
     "INTU": 2,
-    "017670.KS": 1,
+    "285A.T": 1,
+    "017670.KS": 3,
     "ASX": 1,
-    "WMT": 2,
+    "WMT": 3,
     "GSAT": 1,
-    "IBN": 1,
-    "COHR": 1,
-    "AAPL": 2,
-    "BE": 6,
-    "SMCI": 1,
+    "COHR": 2,
+    "AAPL": 5,
+    "NTES": 1,
+    "BE": 10,
+    "MS": 5,
+    "SMCI": 3,
     "QCOM": 1,
     "PANW": 1,
     "DIS": 1,
@@ -217,97 +224,109 @@
     "SNPS": 1,
     "CRM": 1,
     "NKE": 1,
+    "WDAY": 1,
     "GS": 2,
     "WFC": 1,
-    "MS": 2,
     "BCS": 1,
     "WWD": 1,
     "MRVL": 1,
-    "ORCL": 1,
     "BA": 1,
+    "BIDU": 4,
+    "JD": 2,
+    "SPGI": 1,
     "SNDK": 2,
-    "CAT": 1,
+    "CAT": 2,
     "ARM": 1,
-    "JD": 1,
-    "BIDU": 1,
-    "MOD": 1,
-    "AMAT": 1,
-    "LLY": 2,
+    "319660.KQ": 1,
+    "066570.KS": 1,
+    "MOD": 2,
+    "AMAT": 5,
+    "LLY": 3,
     "PFE": 1,
-    "NVO": 1,
+    "NVO": 2,
     "DDOG": 1,
     "SNOW": 1,
-    "NYT": 1
+    "LITE": 2,
+    "103590.KS": 1,
+    "RKLB": 2,
+    "IRDM": 2,
+    "ULTA": 1,
+    "ASTS": 1,
+    "TTWO": 1,
+    "OXY": 1,
+    "HIMS": 1,
+    "NYT": 1,
+    "006400.KS": 1
   },
   "themes": [
-    "Semiconductors/Memory (201 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
-    "Market Notes (77 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
-    "Earnings/Corporate (62 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "Macro/Rates (55 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "AI Policy/Export Controls (34 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
-    "Equity/Analyst (29 posts in 14-day research window): >>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을 조달했으며, 최대 규모 트랜치의 수익률은 8.259%에 달했음. 이번 장부외 금융은 투자등급 신용등급을 유지하기...",
-    "AI Power/Grid (27 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "Geopolitics (17 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
+    "Market Notes (727 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
+    "Semiconductors/Memory (640 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
+    "Macro/Rates (280 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Geopolitics (271 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
+    "Earnings/Corporate (259 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "AI Power/Grid (227 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Policy/Export Controls (147 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
+    "Equity/Analyst (145 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 166,
+      "count": 409,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
-    },
-    {
-      "key": "AMD",
-      "count": 32,
-      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
       "key": "TSM",
-      "count": 28,
+      "count": 62,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
-      "key": "GOOG",
-      "count": 22,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
-    },
-    {
       "key": "MSFT",
-      "count": 17,
+      "count": 55,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는..."
     },
     {
-      "key": "000660.KS",
-      "count": 13,
+      "key": "GOOG",
+      "count": 53,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
+      "key": "AMD",
+      "count": 53,
+      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
+    },
+    {
       "key": "AMZN",
-      "count": 13,
+      "count": 52,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
-      "key": "005930.KS",
-      "count": 13,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
-    },
-    {
-      "key": "AVGO",
-      "count": 11,
-      "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
-    },
-    {
-      "key": "MU",
-      "count": 11,
+      "key": "TSLA",
+      "count": 29,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
-      "key": "BE",
-      "count": 6,
-      "text": "레오폴드 아셴브레너 Situational Awareness 3분기(9월 30일 기준 13F 공시) 현물 주식을 대거 처분하며 포트폴리오 규모를 202억 달러에서 15.8억 달러로 92% 축소 핵심 포지션 변화..."
+      "key": "MU",
+      "count": 26,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
+    },
+    {
+      "key": "005930.KS",
+      "count": 25,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
+    },
+    {
+      "key": "000660.KS",
+      "count": 22,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC) 데이터베이스도 사이버 공격을 받은 것으로 전해졌다고 보도. FBI는 관련 사건을 조사 중이며, 실제 침해 범위와..."
+    },
+    {
+      "key": "AVGO",
+      "count": 19,
+      "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
     },
     {
       "key": "CRWV",
-      "count": 5,
+      "count": 17,
       "text": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     }
   ],
@@ -318,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 55,
+      "count": 280,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -327,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 17,
+      "count": 271,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
@@ -336,8 +355,8 @@
       "topics": [
         "credit"
       ],
-      "count": 8,
-      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
+      "count": 69,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC) 데이터베이스도 사이버 공격을 받은 것으로 전해졌다고 보도. FBI는 관련 사건을 조사 중이며, 실제 침해 범위와..."
     },
     {
       "id": "semi",
@@ -345,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 201,
+      "count": 640,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
@@ -354,8 +373,8 @@
       "topics": [
         "optical"
       ],
-      "count": 1,
-      "focus": "No retained full-text sample; 1 observed posts in the 14-day research window."
+      "count": 20,
+      "focus": "No retained full-text sample; 20 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -363,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 27,
+      "count": 227,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -372,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 34,
+      "count": 147,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
     },
     {
@@ -381,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 8,
+      "count": 84,
       "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
@@ -390,8 +409,8 @@
       "topics": [
         "equity"
       ],
-      "count": 29,
-      "focus": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을 조달했으며, 최대 규모 트랜치의 수익률은 8.259%에 달했음. 이번 장부외 금융은 투자등급 신용등급을 유지하기..."
+      "count": 145,
+      "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
       "id": "crypto",
@@ -408,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 62,
+      "count": 259,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -417,7 +436,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 6,
+      "count": 47,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -426,7 +445,7 @@
       "topics": [
         "japan"
       ],
-      "count": 5,
+      "count": 50,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -435,7 +454,7 @@
       "topics": [
         "flows"
       ],
-      "count": 10,
+      "count": 48,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -444,8 +463,8 @@
       "topics": [
         "insider"
       ],
-      "count": 0,
-      "focus": "No retained full-text sample; 0 observed posts in the 14-day research window."
+      "count": 2,
+      "focus": "No retained full-text sample; 2 observed posts in the 14-day research window."
     },
     {
       "id": "market-note",
@@ -453,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 77,
+      "count": 727,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     }
   ],
@@ -706,6 +725,25 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/69901",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69901",
+      "datetime": "2026-11-21T08:59:24.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
+    },
     {
       "id": "insidertracking/69860",
       "channel": "insidertracking",
@@ -1196,35 +1234,6 @@
       ]
     },
     {
-      "id": "insidertracking/69434",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69434",
-      "datetime": "2026-11-16T21:19:56.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 엔비디아 (NVDA) — 과학 연구용 AI 에이전트 모델 ‘Nemotron for Science’를 공개. 별도로 CUDA-Q...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "TSLA",
-        "CAT",
-        "GOOG",
-        "AMZN"
-      ]
-    },
-    {
       "id": "HANAchina/72151",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72151",
@@ -1467,18 +1476,16 @@
       "datetime": "2026-11-20T11:02:45.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "equity",
-        "credit",
-        "macro",
-        "semi"
+        "semi",
+        "equity"
       ],
-      "lead": 1,
       "score": 90,
       "hasText": true,
+      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을..."
+      ]
     },
     {
       "id": "HANAchina/72410",
@@ -1676,6 +1683,255 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/69913",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69913",
+      "datetime": "2026-11-21T12:02:51.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "GOOG"
+      ],
+      "summary": "미국 다우존스 지수, 11월 16~20일 주간 수익률 -8.02% 기록. 맥도날드가 주간 상승률 1위를 기록한 반면, 엔비디아, 세일즈포스, 유나이티드헬스그룹이 가장 큰 주간 하락폭 기록. 주간 상승률 상위..."
+    },
+    {
+      "id": "insidertracking/69912",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69912",
+      "datetime": "2026-11-21T12:02:49.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 60,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "MU"
+      ],
+      "summary": "미국 나스닥 100 지수, 11월 16~20일 주간 수익률 -10.43% 기록. 팔로알토네트웍스, PDD홀딩스, 크라우드스트라이크가 주간 상승률 상위를 기록한 반면, 소프트웨어·하드웨어·반도체 관련 종목들은..."
+    },
+    {
+      "id": "insidertracking/69911",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69911",
+      "datetime": "2026-11-21T12:02:46.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "MU"
+      ],
+      "summary": "미국 S&P 500 지수, 11월 16~20일 주간 수익률 -8.61% 기록. 타이슨푸즈, 호멜푸즈, 팔로알토네트웍스가 주간 상승률 상위를 기록한 반면, 하드웨어 및 반도체 관련 종목들은 주간 하락률 상위권에..."
+    },
+    {
+      "id": "insidertracking/69909",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69909",
+      "datetime": "2026-11-21T11:21:37.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "macro",
+        "power",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 81,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "AI 주식 급락에 미국 증시 흔들…엔비디아·앤트로픽 중심으로 투자심리 악화 미국 증시가 인공지능(AI) 관련 기업들의 주가 급락으로 큰 폭의 조정을 받고 있음. AI 산업의 장기 성장성에 대한 기대는 여전히..."
+    },
+    {
+      "id": "insidertracking/69908",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69908",
+      "datetime": "2026-11-21T11:15:12.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 레딧 관심도 현황 엔비디아→앤트로픽→비트코인→애플"
+    },
+    {
+      "id": "insidertracking/69901",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69901",
+      "datetime": "2026-11-21T08:59:24.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
+    },
+    {
+      "id": "HANAchina/72516",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72516",
+      "datetime": "2026-11-21T08:38:01.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "macro"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>대만 금감회, ‘기준가 이하 공매도 전면 금지’ 등 5개 조치 발표 (대만경제일보) •최근 대만 증시의 변동성이 크게 확대되면서 대만 금융감독관리위원회는 증권시장 질서와 안정성 유지를 위해 11월..."
+    },
+    {
+      "id": "insidertracking/69899",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69899",
+      "datetime": "2026-11-21T07:58:06.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "macro"
+      ],
+      "lead": 1,
+      "score": 73,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 젠슨 황, 100억 달러 자산 이전으로 수십억 달러 세금 회피 엔비디아 CEO 젠슨 황과 아내 로리 황이 약 100억 달러 이상의 엔비디아 주식을 가족 신탁으로 이전하면서 막대한 상속·증여세 부담을..."
+    },
+    {
+      "id": "bornlupin/21223",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21223",
+      "datetime": "2026-11-21T07:17:20.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "ai-policy",
+        "semi"
+      ],
+      "lead": 1,
+      "score": 70,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA",
+        "ORCL"
+      ],
+      "summary": "오라클 공식 계정 오라클은 OpenAI와의 계약을 이행하는 데 필요한 모든 자금을 확보했습니다. 이달 초 마무리한 마지막 자본 조달을 통해, 오라클은 이번 투자 사이클에 필요한 자금을 전액 확보한 최초의..."
+    },
+    {
+      "id": "bornlupin/21222",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21222",
+      "datetime": "2026-11-21T07:11:27.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "power",
+        "earnings",
+        "healthcare"
+      ],
+      "score": 68,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "2454.TW"
+      ],
+      "relatedTickers": [
+        "AVGO"
+      ],
+      "summary": "TPU 관련 업데이트 1. 전문가가 제시한 TPU 1,000만~1,400만 개 생산량 추정치는 전력 공급 제약을 고려하면 비현실적 이었습니다. 해당 물량을 가동하려면 미국 전체 데이터센터 전력의 거의 대부분이..."
+    },
+    {
+      "id": "insidertracking/69896",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69896",
+      "datetime": "2026-11-21T06:51:27.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "뉴욕포스트에 따르면 중국 스파이 스캔들과 두 번째 불륜 의혹으로 엔비디아 CEO 자리에서 물러난 젠슨 황이 직원들에게 폭언과 위협을 일삼았다는 추가 증언 공개. 젠슨 황은 한 직원에게 “네 엄마는 널..."
+    },
+    {
+      "id": "HANAchina/72513",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72513",
+      "datetime": "2026-11-21T06:38:01.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi",
+        "credit"
+      ],
+      "lead": 1,
+      "score": 74,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>AI 컴퓨팅 시장, 위험한 악순환: 돈을 빌리기 어려울수록 GPU 임대료는 오히려 상승 •대출기관이 네오클라우드 기업에 대한 자금 조달을 축소하면서 대출 담보인정비율(LTV)을 기존 80%에서..."
+    },
+    {
       "id": "HANAchina/72511",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72511",
@@ -1872,14 +2128,13 @@
       "datetime": "2026-11-20T23:07:30.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic 상장 2일째 급락, 장중 공모가보다 불과 5센트 높은 수준까지 하락…AI 거래 ‘매수자 파업’ •Anthropic 주가는 금요일 장중 한때 15% 급락한 83.05달러까지 하락해 공모가..."
+      "summary": ">>Anthropic 상장 2일째 급락, 장중 공모가보다 불과 5센트 높은 수준까지 하락…AI 거래 ‘매수자 파업’ •Anthropic 주가는 금요일 장중 한때 15% 급락한 83.05달러까지 하락해 공모가...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72494",
@@ -1888,14 +2143,13 @@
       "datetime": "2026-11-20T22:38:36.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 거래 붕괴로 투매 확산 - 금·은·구리 전반 급락, 금 선물 9% 넘게 하락·뉴욕 구리 10% 가까이 급락, 국제유가는 3주간 20% 급락 •미 연준의 금리 인상 전망이 강해지면서 AI 매도세가 자산..."
+      "summary": ">>AI 거래 붕괴로 투매 확산 - 금·은·구리 전반 급락, 금 선물 9% 넘게 하락·뉴욕 구리 10% 가까이 급락, 국제유가는 3주간 20% 급락 •미 연준의 금리 인상 전망이 강해지면서 AI 매도세가 자산...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69879",
@@ -2184,18 +2438,17 @@
       "datetime": "2026-11-20T16:32:42.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>궈밍치: Google, Broadcom 설계 TPU 8i 시리즈 2027년 출하량 약 100만 개 하향 •궈밍치는 최신 업계 조사 결과, Google이 Broadcom이 설계한 TPU 8i 시리즈의...",
+      "lead": 1,
       "tickers": [
         "GOOG",
         "AVGO",
         "2454.TW"
-      ],
-      "summary": ">>궈밍치: Google, Broadcom 설계 TPU 8i 시리즈 2027년 출하량 약 100만 개 하향 •궈밍치는 최신 업계 조사 결과, Google이 Broadcom이 설계한 TPU 8i 시리즈의..."
+      ]
     },
     {
       "id": "HANAchina/72488",
@@ -2204,7 +2457,7 @@
       "datetime": "2026-11-20T12:50:43.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
@@ -2214,8 +2467,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지..."
+      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72485",
@@ -2226,11 +2479,11 @@
       "tags": [
         "credit"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: AI 부채가 신용등급 논리를 왜곡, AA가 오히려 BBB보다 ‘안전’ •골드만삭스는 AI 인프라 자금 조달로 2027년 달러 투자등급 채권 발행 규모가 사상 최대인 2.4조 달러까지 증가할..."
+      "summary": ">>골드만삭스: AI 부채가 신용등급 논리를 왜곡, AA가 오히려 BBB보다 ‘안전’ •골드만삭스는 AI 인프라 자금 조달로 2027년 달러 투자등급 채권 발행 규모가 사상 최대인 2.4조 달러까지 증가할...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72484",
@@ -2241,7 +2494,6 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2250,8 +2502,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI가 사람보다 비싸졌다…OpenAI: 내부 Agent 비용이 연구원 급여의 2배에 달해 •OpenAI 연구원이 하루 평균 사용하는 Agent 비용을 API 가격 기준으로 환산하면 무려 2,400달러에..."
+      "summary": ">>AI가 사람보다 비싸졌다…OpenAI: 내부 Agent 비용이 연구원 급여의 2배에 달해 •OpenAI 연구원이 하루 평균 사용하는 Agent 비용을 API 가격 기준으로 환산하면 무려 2,400달러에...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69839",
@@ -2298,15 +2551,15 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>젠슨황 사임 후, Nvidia에 새로운 위협 부상: 최고 엔지니어 이탈 (중국언론) •Nvidia 수천 명의 직원이 젠슨 황의 복귀를 요구하는 서명에 동참했으며, 일부 직원은 이사회의 결정을 공개적으로...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": ">>젠슨황 사임 후, Nvidia에 새로운 위협 부상: 최고 엔지니어 이탈 (중국언론) •Nvidia 수천 명의 직원이 젠슨 황의 복귀를 요구하는 서명에 동참했으며, 일부 직원은 이사회의 결정을 공개적으로..."
+      ]
     },
     {
       "id": "HANAchina/72481",
@@ -2315,18 +2568,16 @@
       "datetime": "2026-11-20T11:02:45.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "equity",
-        "credit",
-        "macro",
-        "semi"
+        "semi",
+        "equity"
       ],
-      "lead": 1,
       "score": 90,
       "hasText": true,
+      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을..."
+      ]
     },
     {
       "id": "HANAchina/72479",
@@ -2335,17 +2586,16 @@
       "datetime": "2026-11-20T09:25:39.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "power",
-        "equity"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
+      "summary": ">>유럽 채권 발행 규모가 사상 처음 2조 유로를 돌파, AI 자금 조달 수요가 기록 경신 견인 •정부의 지속적인 차입에 더해 AI 열풍으로 막대한 자금 조달 수요가 발생하면서 유럽 채권 발행 규모가 사상...",
       "tickers": [
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": ">>유럽 채권 발행 규모가 사상 처음 2조 유로를 돌파, AI 자금 조달 수요가 기록 경신 견인 •정부의 지속적인 차입에 더해 AI 열풍으로 막대한 자금 조달 수요가 발생하면서 유럽 채권 발행 규모가 사상..."
+      ]
     },
     {
       "id": "HANAchina/72478",
@@ -2355,8 +2605,7 @@
       "localDateKst": "2026-11-20",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 77,
       "hasText": true,
@@ -2366,11 +2615,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.20, 금) 🇨🇳 중국 본토 증시는 미 연준의 매파적 추가 금리 인상 경계감과 글로벌 반도체·AI 리스크(AMD 공매도 리포트, TSMC·삼성 일부 중국향 납품 중단 보도)가...",
       "tickers": [
         "AMD",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.20, 금) 🇨🇳 중국 본토 증시는 미 연준의 매파적 추가 금리 인상 경계감과 글로벌 반도체·AI 리스크(AMD 공매도 리포트, TSMC·삼성 일부 중국향 납품 중단 보도)가..."
+      ]
     },
     {
       "id": "HANAchina/72477",
@@ -2381,13 +2630,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>SK하이닉스, 키옥시아 관련 채권을 주식으로 전환 •규제 문서에 따르면, SK하이닉스는 키옥시아와 관련된 전환사채를 주식으로 전환할 계획임. SK하이닉스는 이를 통해 키옥시아 지분 14.1%를 간접 보유...",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": ">>SK하이닉스, 키옥시아 관련 채권을 주식으로 전환 •규제 문서에 따르면, SK하이닉스는 키옥시아와 관련된 전환사채를 주식으로 전환할 계획임. SK하이닉스는 이를 통해 키옥시아 지분 14.1%를 간접 보유..."
+      ]
     },
     {
       "id": "insidertracking/69836",
@@ -2432,8 +2681,7 @@
       "datetime": "2026-11-20T06:52:51.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
@@ -2443,8 +2691,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "• 대만 가권지수 금주 18% 급락, 1991년 이후 최악의 주간 성적. 금융당국의 두 차례 공매도 규제 강화도 하락세를 막지 못함. • 글로벌 기술주 동반 투매 속에서 앤스로픽(Anthropic)의 대규모..."
+      "summary": "• 대만 가권지수 금주 18% 급락, 1991년 이후 최악의 주간 성적. 금융당국의 두 차례 공매도 규제 강화도 하락세를 막지 못함. • 글로벌 기술주 동반 투매 속에서 앤스로픽(Anthropic)의 대규모...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72472",
@@ -2456,11 +2704,11 @@
         "macro",
         "japan"
       ],
-      "lead": 2,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>일본 10월 근원 CPI 상승세 강화, 2.2%로 올라 금리인상에 추가 근거 •일본 10월 근원 CPI가 전년비 2.2% 상승하며 시장의 일본은행 금리인상 기대를 높였음. 데이터 발표 후 일본은행의 12월..."
+      "summary": ">>일본 10월 근원 CPI 상승세 강화, 2.2%로 올라 금리인상에 추가 근거 •일본 10월 근원 CPI가 전년비 2.2% 상승하며 시장의 일본은행 금리인상 기대를 높였음. 데이터 발표 후 일본은행의 12월...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69832",
@@ -3715,8 +3963,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "블룸버그) 앤트로픽, 그레이마켓에서 주가 20% 이상 상승 예고 앤트로픽(Anthropic PBC)의 주식이 그레이마켓(정식 상장 전 비공식 거래시장)에서 IPO 공모가 대비 22~26% 상승한 가격으로..."
+      "summary": "블룸버그) 앤트로픽, 그레이마켓에서 주가 20% 이상 상승 예고 앤트로픽(Anthropic PBC)의 주식이 그레이마켓(정식 상장 전 비공식 거래시장)에서 IPO 공모가 대비 22~26% 상승한 가격으로...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69734",
@@ -3781,15 +4029,12 @@
       "datetime": "2026-11-19T05:14:24.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "earnings"
+        "market-note"
       ],
       "score": 80,
       "hasText": true,
-      "tickers": [],
-      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후..."
+      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72396",
@@ -5944,40 +6189,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69557",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69557",
-      "datetime": "2026-11-17T21:09:54.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "엔비디아 실적 대기중....",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69556",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69556",
-      "datetime": "2026-11-17T21:09:15.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "머디워터스가 엔비디아에 대한 공매도 포지션 공개. 머디워터스에 따르면 센리 첸으로 확인된 여성은 일부 사진 태그에서 센리 푸리로도 표기됐으며, 2024년부터 2026년까지 아제이 K. 푸리와 함께 공개석상에서...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21173",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21173",
@@ -5992,154 +6203,6 @@
       "lead": 1,
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69555",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69555",
-      "datetime": "2026-11-17T21:05:25.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "kr-market",
-        "flows"
-      ],
-      "score": 59,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "머디워터스 공매도 기관, 엔비디아 공매도 리포트 보고. 머디워터스는 예전에 중국 루이싱커피 회계조작 잡아내서 주가 폭락+상장 폐지까지 이끌어낸 네임드 기업으로 유명합니다.",
-      "lead": 3,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69554",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69554",
-      "datetime": "2026-11-17T21:03:14.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 95,
-      "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) · 세일즈포스 (CRM) — ‘Copilotforce’를 발표해 세일즈포스의 고객 컨텍스트와 영업...",
-      "tickers": [],
-      "relatedTickers": [
-        "AVGO"
-      ],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "AAPL",
-        "MSFT",
-        "GOOG",
-        "META",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/69553",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69553",
-      "datetime": "2026-11-17T21:02:33.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
-      "lead": 2,
-      "tickers": [],
-      "relatedTickers": [
-        "AVGO"
-      ],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "CRM",
-        "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/69552",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69552",
-      "datetime": "2026-11-17T20:59:29.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "SEC, 젠슨 황 CEO의 사임과 관련하여 엔비디아에 대한 조사를 진행 중 – WSJ",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69551",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69551",
-      "datetime": "2026-11-17T20:56:54.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "healthcare"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 레딧 관심도 엔비디아, 그리고 SLS (바이오주...오늘 154% 올랐네요...) 갑자기 관심도에 나온거보니 급등주인 것 같습니다.",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69550",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69550",
-      "datetime": "2026-11-17T20:55:47.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "healthcare"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Guardian Pharmacy Services · Integer Holdings · Organon & Co. · Progyny · SELLAS Life...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "COST",
-        "PG",
-        "KO",
-        "DIS",
-        "TFX",
-        "IBN",
-        "DRI"
       ]
     },
     {
@@ -7011,37 +7074,6 @@
       "summary": "•중국 10Y•30Y 국채 선물가격 급락 •정부채 이자소득세 면세 폐지 논의에 따라 국채 선물 가격 급락, 금리 상승 •중국 증권사들은 면세를 폐지할 경우 신규 10년물 정부채 수익률은 10-20bp,...",
       "lead": 1,
       "tickers": []
-    },
-    {
-      "id": "HANAchina/72215",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72215",
-      "datetime": "2026-11-16T09:29:52.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>영국 2년물 국채 금리, 2023년 이후 처음으로 5% 도달 •영국 국채 전 구간이 일제히 하락했으며, 2년물 국채 금리는 2023년 이후 처음으로 5%에 도달했음. 투자자들은 에너지 가격과 영란은행의...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72213",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72213",
-      "datetime": "2026-11-16T08:52:22.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": ">>젠슨 황이 복귀할까? 쉽지 않음! (중국언론) •젠슨 황의 복귀를 가로막는 두 가지 장애물이 있음. 베선트 재무장관은 공개적으로 외부 CEO 영입을 요구하고 10일 이내에 규정 준수 문제에 대한 답변을...",
-      "tickers": [
-        "NVDA"
-      ]
     },
     {
       "id": "bornlupin/21159",
@@ -8243,25 +8275,6 @@
       "hasText": true,
       "summary": "위스트론·위윈, 역대 최강 10월 매출 기록고객사 수주 가시성 견조, AI 서버 비중 사상 최고치… 하반기 실적이 상반기 웃돌 것으로 전망 AI 인프라 수요 강세에 힘입어 위스트론(3231)과 자회사...",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/21046",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21046",
-      "datetime": "2026-11-07T11:53:21.000Z",
-      "localDateKst": "2026-11-07",
-      "tags": [
-        "semi"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": "TSMC가 엔비디아를 위해 3D DRAM을 생산한다고? 윈본드 자오유쥔 회장의 견해 1. TSMC의 DRAM 시장 진출 가능성 낮아 최근 TSMC가 엔비디아를 위해 3D DRAM을 생산하고 첨단 메모리 시장에...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "TSM",
-        "005930.KS"
-      ]
     }
   ],
   "current24hItems": [
@@ -8272,14 +8285,13 @@
       "datetime": "2026-11-20T22:38:36.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "macro",
-        "geo"
+        "macro"
       ],
-      "lead": 1,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI 거래 붕괴로 투매 확산 - 금·은·구리 전반 급락, 금 선물 9% 넘게 하락·뉴욕 구리 10% 가까이 급락, 국제유가는 3주간 20% 급락 •미 연준의 금리 인상 전망이 강해지면서 AI 매도세가 자산..."
+      "summary": ">>AI 거래 붕괴로 투매 확산 - 금·은·구리 전반 급락, 금 선물 9% 넘게 하락·뉴욕 구리 10% 가까이 급락, 국제유가는 3주간 20% 급락 •미 연준의 금리 인상 전망이 강해지면서 AI 매도세가 자산...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69879",
@@ -8568,18 +8580,17 @@
       "datetime": "2026-11-20T16:32:42.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "semi",
-        "power"
+        "semi"
       ],
-      "lead": 1,
       "score": 77,
       "hasText": true,
+      "summary": ">>궈밍치: Google, Broadcom 설계 TPU 8i 시리즈 2027년 출하량 약 100만 개 하향 •궈밍치는 최신 업계 조사 결과, Google이 Broadcom이 설계한 TPU 8i 시리즈의...",
+      "lead": 1,
       "tickers": [
         "GOOG",
         "AVGO",
         "2454.TW"
-      ],
-      "summary": ">>궈밍치: Google, Broadcom 설계 TPU 8i 시리즈 2027년 출하량 약 100만 개 하향 •궈밍치는 최신 업계 조사 결과, Google이 Broadcom이 설계한 TPU 8i 시리즈의..."
+      ]
     },
     {
       "id": "HANAchina/72488",
@@ -8588,7 +8599,7 @@
       "datetime": "2026-11-20T12:50:43.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
@@ -8598,8 +8609,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지..."
+      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72485",
@@ -8610,11 +8621,11 @@
       "tags": [
         "credit"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: AI 부채가 신용등급 논리를 왜곡, AA가 오히려 BBB보다 ‘안전’ •골드만삭스는 AI 인프라 자금 조달로 2027년 달러 투자등급 채권 발행 규모가 사상 최대인 2.4조 달러까지 증가할..."
+      "summary": ">>골드만삭스: AI 부채가 신용등급 논리를 왜곡, AA가 오히려 BBB보다 ‘안전’ •골드만삭스는 AI 인프라 자금 조달로 2027년 달러 투자등급 채권 발행 규모가 사상 최대인 2.4조 달러까지 증가할...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72484",
@@ -8625,7 +8636,6 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8634,8 +8644,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI가 사람보다 비싸졌다…OpenAI: 내부 Agent 비용이 연구원 급여의 2배에 달해 •OpenAI 연구원이 하루 평균 사용하는 Agent 비용을 API 가격 기준으로 환산하면 무려 2,400달러에..."
+      "summary": ">>AI가 사람보다 비싸졌다…OpenAI: 내부 Agent 비용이 연구원 급여의 2배에 달해 •OpenAI 연구원이 하루 평균 사용하는 Agent 비용을 API 가격 기준으로 환산하면 무려 2,400달러에...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/69839",
@@ -8682,15 +8693,15 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
+      "summary": ">>젠슨황 사임 후, Nvidia에 새로운 위협 부상: 최고 엔지니어 이탈 (중국언론) •Nvidia 수천 명의 직원이 젠슨 황의 복귀를 요구하는 서명에 동참했으며, 일부 직원은 이사회의 결정을 공개적으로...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": ">>젠슨황 사임 후, Nvidia에 새로운 위협 부상: 최고 엔지니어 이탈 (중국언론) •Nvidia 수천 명의 직원이 젠슨 황의 복귀를 요구하는 서명에 동참했으며, 일부 직원은 이사회의 결정을 공개적으로..."
+      ]
     },
     {
       "id": "HANAchina/72481",
@@ -8699,18 +8710,16 @@
       "datetime": "2026-11-20T11:02:45.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "equity",
-        "credit",
-        "macro",
-        "semi"
+        "semi",
+        "equity"
       ],
-      "lead": 1,
       "score": 90,
       "hasText": true,
+      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을..."
+      ]
     },
     {
       "id": "HANAchina/72479",
@@ -8719,17 +8728,16 @@
       "datetime": "2026-11-20T09:25:39.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "power",
-        "equity"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
+      "summary": ">>유럽 채권 발행 규모가 사상 처음 2조 유로를 돌파, AI 자금 조달 수요가 기록 경신 견인 •정부의 지속적인 차입에 더해 AI 열풍으로 막대한 자금 조달 수요가 발생하면서 유럽 채권 발행 규모가 사상...",
       "tickers": [
         "GOOG",
         "AMZN",
         "GOOGL"
-      ],
-      "summary": ">>유럽 채권 발행 규모가 사상 처음 2조 유로를 돌파, AI 자금 조달 수요가 기록 경신 견인 •정부의 지속적인 차입에 더해 AI 열풍으로 막대한 자금 조달 수요가 발생하면서 유럽 채권 발행 규모가 사상..."
+      ]
     },
     {
       "id": "HANAchina/72478",
@@ -8739,8 +8747,7 @@
       "localDateKst": "2026-11-20",
       "tags": [
         "macro",
-        "semi",
-        "earnings"
+        "semi"
       ],
       "score": 77,
       "hasText": true,
@@ -8750,11 +8757,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.20, 금) 🇨🇳 중국 본토 증시는 미 연준의 매파적 추가 금리 인상 경계감과 글로벌 반도체·AI 리스크(AMD 공매도 리포트, TSMC·삼성 일부 중국향 납품 중단 보도)가...",
       "tickers": [
         "AMD",
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.20, 금) 🇨🇳 중국 본토 증시는 미 연준의 매파적 추가 금리 인상 경계감과 글로벌 반도체·AI 리스크(AMD 공매도 리포트, TSMC·삼성 일부 중국향 납품 중단 보도)가..."
+      ]
     },
     {
       "id": "HANAchina/72477",
@@ -8765,13 +8772,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": ">>SK하이닉스, 키옥시아 관련 채권을 주식으로 전환 •규제 문서에 따르면, SK하이닉스는 키옥시아와 관련된 전환사채를 주식으로 전환할 계획임. SK하이닉스는 이를 통해 키옥시아 지분 14.1%를 간접 보유...",
+      "lead": 1,
       "tickers": [
         "000660.KS"
-      ],
-      "summary": ">>SK하이닉스, 키옥시아 관련 채권을 주식으로 전환 •규제 문서에 따르면, SK하이닉스는 키옥시아와 관련된 전환사채를 주식으로 전환할 계획임. SK하이닉스는 이를 통해 키옥시아 지분 14.1%를 간접 보유..."
+      ]
     },
     {
       "id": "insidertracking/69836",
@@ -8816,8 +8823,7 @@
       "datetime": "2026-11-20T06:52:51.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "ai-policy",
-        "equity"
+        "ai-policy"
       ],
       "score": 50,
       "hasText": true,
@@ -8827,8 +8833,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "• 대만 가권지수 금주 18% 급락, 1991년 이후 최악의 주간 성적. 금융당국의 두 차례 공매도 규제 강화도 하락세를 막지 못함. • 글로벌 기술주 동반 투매 속에서 앤스로픽(Anthropic)의 대규모..."
+      "summary": "• 대만 가권지수 금주 18% 급락, 1991년 이후 최악의 주간 성적. 금융당국의 두 차례 공매도 규제 강화도 하락세를 막지 못함. • 글로벌 기술주 동반 투매 속에서 앤스로픽(Anthropic)의 대규모...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72472",
@@ -8840,11 +8846,11 @@
         "macro",
         "japan"
       ],
-      "lead": 2,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>일본 10월 근원 CPI 상승세 강화, 2.2%로 올라 금리인상에 추가 근거 •일본 10월 근원 CPI가 전년비 2.2% 상승하며 시장의 일본은행 금리인상 기대를 높였음. 데이터 발표 후 일본은행의 12월..."
+      "summary": ">>일본 10월 근원 CPI 상승세 강화, 2.2%로 올라 금리인상에 추가 근거 •일본 10월 근원 CPI가 전년비 2.2% 상승하며 시장의 일본은행 금리인상 기대를 높였음. 데이터 발표 후 일본은행의 12월...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69832",
