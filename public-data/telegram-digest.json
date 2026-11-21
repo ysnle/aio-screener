@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-21T02:21:25.258Z",
-  "attemptedAt": "2026-11-21T02:21:25.258Z",
-  "lastSuccessfulAt": "2026-11-21T02:21:25.258Z",
+  "generatedAt": "2026-11-21T03:22:00.267Z",
+  "attemptedAt": "2026-11-21T03:22:00.267Z",
+  "lastSuccessfulAt": "2026-11-21T03:22:00.267Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-07T02:21:20.669Z",
-  "until": "2026-11-21T02:21:20.669Z",
+  "since": "2026-11-07T03:21:53.320Z",
+  "until": "2026-11-21T03:21:53.320Z",
   "current24hWindow": {
     "start": "2026-11-19T23:00:00.000Z",
     "end": "2026-11-20T23:00:00.000Z",
@@ -82,42 +82,42 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1182,
-      "freshCount": 18,
-      "eligibleTextCount": 1122,
+      "count": 1186,
+      "freshCount": 37,
+      "eligibleTextCount": 1126,
       "selectedCount": 123,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69887
+      "lastPostId": 69893
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 168,
+      "count": 170,
       "freshCount": 40,
-      "eligibleTextCount": 168,
-      "selectedCount": 109,
+      "eligibleTextCount": 170,
+      "selectedCount": 111,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21219
+      "lastPostId": 21221
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 728,
-      "freshCount": 37,
-      "eligibleTextCount": 728,
-      "selectedCount": 124,
+      "count": 726,
+      "freshCount": 38,
+      "eligibleTextCount": 726,
+      "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72506
+      "lastPostId": 72508
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,50 +137,51 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2078,
-  "retainedItemCount": 402,
+  "count": 2082,
+  "retainedItemCount": 417,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "complete",
     "legacyReportedCount": null,
     "lineageCompleteAfter": null,
-    "observedCount": 2078,
-    "eligibleTextCount": 2018,
+    "observedCount": 2082,
+    "eligibleTextCount": 2022,
     "mediaOnlyCount": 60,
-    "mediaAttachedCount": 833,
-    "photoPostCount": 696,
+    "mediaAttachedCount": 836,
+    "photoPostCount": 700,
     "documentPostCount": 5,
     "imageOnlyCount": 6,
-    "highSignalCount": 337,
-    "broadSignalCount": 863,
-    "selectedRawCount": 356,
-    "selectedEligibleCount": 356,
-    "selectedRawCoveragePct": 17.6,
-    "selectedOfObservedPct": 17.1,
+    "highSignalCount": 334,
+    "broadSignalCount": 864,
+    "selectedRawCount": 359,
+    "selectedEligibleCount": 359,
+    "selectedRawCoveragePct": 17.8,
+    "selectedOfObservedPct": 17.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 638,
-    "ai-policy": 148,
-    "macro": 275,
-    "market-note": 734,
-    "geo": 278,
-    "power": 231,
+    "semi": 641,
     "earnings": 260,
+    "market-note": 737,
+    "ai-policy": 148,
+    "macro": 274,
+    "geo": 277,
+    "power": 229,
     "japan": 50,
     "equity": 146,
     "media-only": 59,
     "flows": 51,
     "kr-market": 87,
     "healthcare": 46,
-    "credit": 71,
+    "credit": 69,
     "optical": 20,
     "insider": 2
   },
   "tickerCounts": {
+    "000660.KS": 21,
     "NVDA": 407,
     "CRWV": 17,
-    "AMD": 53,
+    "AMD": 52,
     "CRWD": 2,
     "ZS": 1,
     "TSM": 65,
@@ -189,7 +190,6 @@
     "GOOG": 54,
     "AVGO": 19,
     "2454.TW": 7,
-    "000660.KS": 18,
     "TSLA": 31,
     "MU": 26,
     "AMZN": 53,
@@ -261,12 +261,12 @@
     "STX": 1
   },
   "themes": [
-    "Market Notes (734 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
-    "Semiconductors/Memory (638 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
-    "Geopolitics (278 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
-    "Macro/Rates (275 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Market Notes (737 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:...",
+    "Semiconductors/Memory (641 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
+    "Geopolitics (277 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
+    "Macro/Rates (274 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37...",
     "Earnings/Corporate (260 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (231 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Power/Grid (229 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
     "AI Policy/Export Controls (148 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
     "Equity/Analyst (146 posts in 14-day research window): >>SpaceX, 320억 달러 규모 AI 칩 채권 발행 완료…최고 수익률 8% 상회 •SpaceX가 SPV를 통해 320억 달러 규모의 채권을 발행해 Nvidia의 최신 세대 Rubin 칩 구매 자금을 조달했으며, 최대 규모 트랜치의 수익률은 8.259%에 달했음. 이번 장부외 금융은 투자등급 신용등급을 유지하기..."
   ],
@@ -274,12 +274,12 @@
     {
       "key": "NVDA",
       "count": 407,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "key": "TSM",
       "count": 65,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "key": "MSFT",
@@ -292,14 +292,14 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
-      "key": "AMD",
-      "count": 53,
-      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
-    },
-    {
       "key": "AMZN",
       "count": 53,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
+    },
+    {
+      "key": "AMD",
+      "count": 52,
+      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
       "key": "TSLA",
@@ -317,14 +317,14 @@
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
+      "key": "000660.KS",
+      "count": 21,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
+    },
+    {
       "key": "AVGO",
       "count": 19,
       "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
-    },
-    {
-      "key": "000660.KS",
-      "count": 18,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
       "key": "CRWV",
@@ -339,8 +339,8 @@
       "topics": [
         "macro"
       ],
-      "count": 275,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
+      "count": 274,
+      "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥: 22,617.73 (-5.28%) 러셀 2000: 2,584.11 (-2.67%) VIX: 38.37..."
     },
     {
       "id": "geo",
@@ -348,7 +348,7 @@
       "topics": [
         "geo"
       ],
-      "count": 278,
+      "count": 277,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
@@ -357,7 +357,7 @@
       "topics": [
         "credit"
       ],
-      "count": 71,
+      "count": 69,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -366,7 +366,7 @@
       "topics": [
         "semi"
       ],
-      "count": 638,
+      "count": 641,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
@@ -384,7 +384,7 @@
       "topics": [
         "power"
       ],
-      "count": 231,
+      "count": 229,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -457,7 +457,7 @@
         "flows"
       ],
       "count": 51,
-      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
+      "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (34.92%) 2위: NVIDIA CORP (10.52%) 3위: ALPHABET INC CL A (8.59%)..."
     },
     {
       "id": "insider",
@@ -474,8 +474,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 734,
-      "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+      "count": 737,
+      "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 49,097.77 (-2.19%) S&P 500: 7,175.89 (-2.02%) 나스닥:..."
     }
   ],
   "pageMap": {
@@ -735,8 +735,11 @@
       "localDateKst": "2026-11-21",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -745,8 +748,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -769,7 +770,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69858",
@@ -778,7 +780,10 @@
       "datetime": "2026-11-20T21:17:32.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -788,11 +793,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
       "id": "insidertracking/69851",
@@ -1704,6 +1709,77 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21221",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21221",
+      "datetime": "2026-11-21T03:01:41.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "SK 하이닉스 시가총액 1조달러는 환산 주가 약 190만원, 20일 종가 1,113,000원 기준, 상승여력 약 +70.0%"
+    },
+    {
+      "id": "bornlupin/21220",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21220",
+      "datetime": "2026-11-21T02:54:23.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달..."
+    },
+    {
+      "id": "HANAchina/72508",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72508",
+      "datetime": "2026-11-21T02:47:55.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "•소프트뱅크 CEO 손정의는 최근 월가 금융기관들과 접촉해 SK하이닉스를 1조달러에 인수할 가능성에 대비한 자금 조달 방안을 논의했음. 다만 소프트뱅크 대변인은 손정의가 더 이상 해당 거래를 적극적으로..."
+    },
+    {
+      "id": "insidertracking/69893",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69893",
+      "datetime": "2026-11-21T02:43:08.000Z",
+      "localDateKst": "2026-11-21",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "000660.KS"
+      ],
+      "summary": "디 인포메이션에 따르면 소프트뱅크의 손정의 회장이 SK하이닉스를 1조 달러 규모에 인수하는 초대형 인수합병 구상을 검토한 것으로 보도. ?"
+    },
+    {
       "id": "bornlupin/21219",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21219",
@@ -1871,7 +1947,7 @@
       "datetime": "2026-11-20T21:34:24.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -1881,8 +1957,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 23일 월요일 23:45 – 서비스 구매관리자지수 (11월, 예비치) 23:45 – 제조업 구매관리자지수 (11월, 예비치) 2026년...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 23일 월요일 23:45 – 서비스 구매관리자지수 (11월, 예비치) 23:45 – 제조업 구매관리자지수 (11월, 예비치) 2026년..."
     },
     {
       "id": "insidertracking/69861",
@@ -1901,10 +1977,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도는 엔비디아, 앤트로픽 그리고 나스닥",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도는 엔비디아, 앤트로픽 그리고 나스닥"
     },
     {
       "id": "insidertracking/69860",
@@ -1914,8 +1990,11 @@
       "localDateKst": "2026-11-21",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -1924,8 +2003,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1948,7 +2025,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69859",
@@ -1957,7 +2035,10 @@
       "datetime": "2026-11-20T21:19:30.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "ai-policy"
+        "semi",
+        "ai-policy",
+        "equity",
+        "healthcare"
       ],
       "score": 87,
       "hasText": true,
@@ -1967,7 +2048,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — OpenAI 기술 접근이 제한될 가능성에 대비해 자체 AI 모델 개발을 확대하고 AI 스타트업과의...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1976,7 +2056,8 @@
         "AVGO",
         "TSM",
         "ORCL"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — OpenAI 기술 접근이 제한될 가능성에 대비해 자체 AI 모델 개발을 확대하고 AI 스타트업과의..."
     },
     {
       "id": "insidertracking/69858",
@@ -1985,7 +2066,10 @@
       "datetime": "2026-11-20T21:17:32.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -1995,11 +2079,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
       "id": "insidertracking/69856",
@@ -2018,8 +2102,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "필라델피아 반도체 지수 11% 하락",
-      "tickers": []
+      "tickers": [],
+      "summary": "필라델피아 반도체 지수 11% 하락"
     },
     {
       "id": "insidertracking/69855",
@@ -2038,10 +2122,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 시총 3위에서 4위로 진입",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 시총 3위에서 4위로 진입"
     },
     {
       "id": "insidertracking/69852",
@@ -5618,13 +5702,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아 임시 CEO 콜레트 크레스(Colette Kress), 네오클라우드(NeoClouds)에 대해 “ 네오클라우드는 글로벌 AI 인프라 생태계에서 점점 더 중요한 역할을 차지하고 있습니다. 엔비디아는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 임시 CEO 콜레트 크레스(Colette Kress), 네오클라우드(NeoClouds)에 대해 “ 네오클라우드는 글로벌 AI 인프라 생태계에서 점점 더 중요한 역할을 차지하고 있습니다. 엔비디아는..."
+      ]
     },
     {
       "id": "bornlupin/21180",
@@ -5635,7 +5719,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -5644,10 +5727,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 임시 CEO 콜레트 크레스(Colette Kress) 차세대 AI 칩 출시 일정이 기존 계획대로 진행되고 있음 “엔비디아는 내년(2027년) 베라 루빈 울트라(Vera Rubin Ultra),...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 임시 CEO 콜레트 크레스(Colette Kress) 차세대 AI 칩 출시 일정이 기존 계획대로 진행되고 있음 “엔비디아는 내년(2027년) 베라 루빈 울트라(Vera Rubin Ultra),..."
+      ]
     },
     {
       "id": "insidertracking/69572",
@@ -6093,23 +6176,6 @@
         "TFX",
         "IBN",
         "DRI"
-      ]
-    },
-    {
-      "id": "insidertracking/69547",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69547",
-      "datetime": "2026-11-17T20:52:27.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "8분뒤에 종료이긴하지만 엔비디아 실적 발표로 인해서 일단 미리 마감합니다!",
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -7042,30 +7108,6 @@
       "hasText": true,
       "summary": "하나증권 신흥국전략 김근아 (T. 02-3771-7698) [2027년 인도·아세안 주식시장 전망] 비관하기엔 늦고, 낙관하기엔 이르다 자료: > [인도] 대외 불확실성 완화로 하방 위험 축소, 점진적 비중...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/72210",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72210",
-      "datetime": "2026-11-16T08:11:16.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "market-note"
-      ],
-      "score": 89,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "중화권 마감 시황 (26.11.16, 월) 🇨🇳 중국 본토 증시는 10월 실물경제 지표 부진에 따른 내수 회복 지연 우려와 글로벌 AI 하드웨어 투매 여파로 일제히 조정 마감. 상하이종합지수는 0.87%...",
-      "tickers": [
-        "NVDA",
-        "TSM",
-        "2454.TW"
-      ]
     },
     {
       "id": "bornlupin/21159",
@@ -8351,7 +8393,7 @@
       "datetime": "2026-11-20T21:34:24.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -8361,8 +8403,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 23일 월요일 23:45 – 서비스 구매관리자지수 (11월, 예비치) 23:45 – 제조업 구매관리자지수 (11월, 예비치) 2026년...",
-      "tickers": []
+      "tickers": [],
+      "summary": "차주 한국시간 (KST) 기준 경제지표 및 주요 일정 2026년 11월 23일 월요일 23:45 – 서비스 구매관리자지수 (11월, 예비치) 23:45 – 제조업 구매관리자지수 (11월, 예비치) 2026년..."
     },
     {
       "id": "insidertracking/69861",
@@ -8381,10 +8423,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도는 엔비디아, 앤트로픽 그리고 나스닥",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도는 엔비디아, 앤트로픽 그리고 나스닥"
     },
     {
       "id": "insidertracking/69860",
@@ -8394,8 +8436,11 @@
       "localDateKst": "2026-11-21",
       "tags": [
         "flows",
-        "semi"
+        "semi",
+        "power",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 100,
       "hasText": true,
       "media": {
@@ -8404,8 +8449,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF...",
-      "lead": 1,
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8428,7 +8471,8 @@
         "QQQ",
         "SOXX",
         "XLV"
-      ]
+      ],
+      "summary": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
       "id": "insidertracking/69859",
@@ -8437,7 +8481,10 @@
       "datetime": "2026-11-20T21:19:30.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "ai-policy"
+        "semi",
+        "ai-policy",
+        "equity",
+        "healthcare"
       ],
       "score": 87,
       "hasText": true,
@@ -8447,7 +8494,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — OpenAI 기술 접근이 제한될 가능성에 대비해 자체 AI 모델 개발을 확대하고 AI 스타트업과의...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8456,7 +8502,8 @@
         "AVGO",
         "TSM",
         "ORCL"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 마이크로소프트 (MSFT) — OpenAI 기술 접근이 제한될 가능성에 대비해 자체 AI 모델 개발을 확대하고 AI 스타트업과의..."
     },
     {
       "id": "insidertracking/69858",
@@ -8465,7 +8512,10 @@
       "datetime": "2026-11-20T21:17:32.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -8475,11 +8525,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
       "id": "insidertracking/69856",
@@ -8498,8 +8548,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "필라델피아 반도체 지수 11% 하락",
-      "tickers": []
+      "tickers": [],
+      "summary": "필라델피아 반도체 지수 11% 하락"
     },
     {
       "id": "insidertracking/69855",
@@ -8518,10 +8568,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 시총 3위에서 4위로 진입",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 시총 3위에서 4위로 진입"
     },
     {
       "id": "insidertracking/69852",
