@@ -1,13 +1,13 @@
-// 종목 개요 (owner 2026-11-19): one question — "이 회사는 무엇으로 돈을 벌고 산업의 어디에 있는가". Four sections, top to
+// 종목 개요 (owner 2026-11-19): one question — "이 회사는 무엇으로 돈을 벌고 산업의 어디에 있는가". Three sections, top to
 // bottom, nothing folded but 원자료 표 / 계산 방법 / 데이터 출처 (indicator-face.js kindFold):
 //   사업 — what it sells, to whom, what drives revenue (the researched company story; without one, the listing facts);
 //   밸류체인 안의 자리 — the AI map layer, the customers and suppliers the stories name, the capital flows it is a party to,
 //     and one link into the map (a company outside the map gets one line);
-//   쟁점과 전망 — the issue the stock turns on and its two readings, the structures under the numbers, the company's and
-//     the market's outlook, the signals that the story holds or breaks, what each report is read on, the events ahead;
 //   재무 한눈에 — the figures that say whether it makes money, each a number with a fixed state word, the standing among
-//     named theme peers, the company's own account of the period, where its cash went and who runs it, and the way to
-//     재무 공시.
+//     named theme peers, and the way to 재무 공시.
+// 쟁점과 전망 (owner 2026-11-21) is the screen's next view, its own question — "무엇이 다투어지고 무엇이 보는 눈을 바꾸나":
+// the issue the stock turns on and its two readings, the structures under the numbers, the company's outlook and the
+// signals that the story holds or breaks. 개요 ends on one line to it.
 // 사업 also carries how it competes and what AI does to it; 밸류체인 안의 자리 its partners and the link to the library's
 // reading of its industry.
 // The facts come from src/domain/entity/company-overview.js and the story file; this module only lays them out. Sources
@@ -349,19 +349,35 @@ function sourcesFold(doc, { story, profile, place }) {
   return kindFold(doc, 'sources', what, body);
 }
 
+// The last line of 개요: the way to 쟁점과 전망, named by the issue the story turns on when it has one.
+function outlookLink(doc, story, openOutlook) {
+  const question = story?.debate?.question;
+  const go = el(doc, 'button', has(question) ? `쟁점과 전망: ${question} →` : '쟁점과 전망 →', 'flow-next-link co-link');
+  go.type = 'button';
+  go.dataset.companyNext = 'outlook';
+  go.addEventListener('click', openOutlook);
+  return go;
+}
+
 /**
- * Paints the overview into `host` (its children are replaced). ctx: { symbol, story, profile, place, money, moneyEmpty, peer,
- * industry, earnings, briefs, quarters, today, openTicker, openMap, openIndustry, openFundamental, actions }.
+ * Paints the overview into `host` and 쟁점과 전망 into `ctx.outlookHost` (children replaced). ctx: { symbol, story, profile,
+ * place, money, moneyEmpty, peer, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
+ * openIndustry, openFundamental, openOutlook, actions }.
  */
 export function renderCompanyOverview(doc, host, ctx) {
   if (!doc || !host) return null;
-  const { story = null, earnings = [], briefs = [], quarters = '' } = ctx;
+  const { story = null, earnings = [], briefs = [], quarters = '', outlookHost = null } = ctx;
   const freshness = story ? storyFreshness(story, earnings, undefined, { briefs, quarters }) : null;
+  const outlook = outlookSection(doc, { story });
+  if (outlookHost) {
+    outlookHost.replaceChildren(outlook || el(doc, 'p', '쟁점과 전망 자료 없음', 'co-empty'));
+    outlookHost.hidden = false;
+  }
   const nodes = [
     businessSection(doc, { story, profile: ctx.profile, freshness, inMap: !!ctx.place?.inMap }),
     placeSection(doc, { place: ctx.place, story, industry: ctx.industry, openTicker: ctx.openTicker, openMap: ctx.openMap, openIndustry: ctx.openIndustry }),
-    outlookSection(doc, { story }),
-    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, openFundamental: ctx.openFundamental })
+    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, openFundamental: ctx.openFundamental }),
+    outlook && typeof ctx.openOutlook === 'function' ? outlookLink(doc, story, ctx.openOutlook) : null
   ].filter(Boolean);
   if (ctx.actions?.length) { const row = el(doc, 'div', null, 'co-actions'); row.append(...ctx.actions); nodes.push(row); }
   const sources = sourcesFold(doc, { story, profile: ctx.profile, place: ctx.place });

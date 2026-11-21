@@ -93,7 +93,7 @@ try {
   // v59.70 (N6): direct entry with a late module graph. A deep link's first page hooks run while the deferred classic
   // scripts evaluate; holding bootstrap.js 1.5 s makes the relay transport arrive after the legacy 500 ms BOK/KOSIS
   // timer every time (the old code threw "_cfWorkerUrl is not defined" there and never fetched). Each entry must log no
-  // console error, 매크로 must run its BOK/KOSIS fetch, and the 시장 상태 한국 board must show its policy card.
+  // console error, 매크로 must render natively after the transport is ready, and the 시장 상태 한국 board must show its policy card.
   report.deepLinks = [];
   for (const route of ['macro', 'signal']) {
     const deep = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT });
@@ -110,7 +110,7 @@ try {
     await deep.waitForFunction(() => typeof window._cfWorkerUrl === 'function', null, { timeout: 30000 });
     let surface;
     if (route === 'macro') {
-      surface = await deep.waitForFunction(() => window._bokData && window._kosisData, null, { timeout: 15000 }).then(() => 'bok+kosis fetched', () => 'bok/kosis never fetched');
+      surface = await deep.waitForFunction(() => window._aioRelayReady && document.querySelector('#page-macro[data-aio-architecture-renderer="native"]'), null, { timeout: 15000 }).then(() => 'macro rendered after transport ready', () => 'macro never rendered');
     } else {
       await deep.waitForFunction(() => document.getElementById('regime-kr-fold'), null, { timeout: 15000 });
       await deep.evaluate(() => { document.getElementById('regime-kr-fold').open = true; });

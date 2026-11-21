@@ -1,5 +1,5 @@
 // v59.22 (roadmap 11, layer 3 providers): the relay transport moved out of js/aio-data.js unchanged — the Worker URL
-// and /relay helpers (_cfWorkerUrl, _aioRelayUrl, _aioRelayFetch), the shared-Worker host mirror, the proxy registry
+// (_cfWorkerUrl), the shared-Worker host mirror, the proxy registry
 // (_PROXY_REGISTRY), the proxy response checks and cache, and fetchViaProxy, which every provider fetch goes through.
 // The names stay window globals for the classic callers. src/app/compatibility-globals.js installs this before
 // DOMContentLoaded; the registry is built at install as it was when aio-data.js loaded.
@@ -17,55 +17,6 @@ export function installProxyTransport(window = globalThis) {
       return parsed.href.replace(/\/+$/, '');
     } catch (_) { return ''; }
   };
-
-  // ── v56: 서버측 키 릴레이 경로 ──────────────────────────────────────────
-  // FRED/BOK/KOSIS는 브라우저에서 CORS로 막히므로(FRED) 또는 애초에 CORS 헤더가
-  // 없어서(BOK/KOSIS) 개인 키만으로는 살아나지 않는다. Worker의 /relay 는 운영자
-  // 키로 대신 조회하므로 클라이언트는 키를 보내지 않는다 — URL에 비밀이 없으므로
-  // 제3자 프록시로 새지 않고, 캐시 경로도 민감 분기와 무관하다.
-  // Worker 미설정이면 ''를 반환해 호출자가 다음 폴백으로 넘어가게 한다.
-  // A relay provider the Worker cannot serve is not asked again: /health says per provider whether the operator key is
-  // configured (relay.configured), and a 503 "... not configured" answer says the same for this deployment. Either one
-  // holds for the page's lifetime, so the macro page, the 30-minute KR task and every later page entry stop sending a
-  // request that can only fail. A transient failure (timeout, quota unavailable, 429) is not remembered.
-  const _relayUnconfigured = new Set();
-  const _relayHealthSaysUnconfigured = (worker, provider) => {
-    const health = window._aioWorkerHealthCache?.[worker]?.health;
-    return health?.relay?.configured?.[provider] === false;
-  };
-  const _aioRelayAvailable = (provider) => {
-    const worker = _cfWorkerUrl();
-    if (!worker || !provider) return false;
-    return !_relayUnconfigured.has(provider) && !_relayHealthSaysUnconfigured(worker, provider);
-  };
-
-  const _aioRelayUrl = (provider, params) => {
-    const worker = _cfWorkerUrl();
-    if (!worker || !provider || !_aioRelayAvailable(provider)) return '';
-    let url;
-    try { url = new URL(worker + '/relay'); } catch (_) { return ''; }
-    url.searchParams.set('provider', provider);
-    Object.keys(params || {}).forEach(function(k) {
-      const v = params[k];
-      if (v !== null && v !== undefined && v !== '') url.searchParams.set(k, String(v));
-    });
-    return url.toString();
-  };
-
-  // The relay destination is the AIO Worker itself, never a third-party relay, so a
-  // direct fetch with the shared app token is the correct transport.
-  async function _aioRelayFetch(url, timeoutMs) {
-    const headers = {};
-    try { if (typeof _aioAppToken === 'function') headers['X-AIO-App-Token'] = _aioAppToken(); } catch (_) {}
-    const response = await fetchWithTimeout(url, { headers }, timeoutMs || 8000);
-    if (response && response.status === 503) {
-      let provider = '';
-      try { provider = new URL(url).searchParams.get('provider') || ''; } catch (_) {}
-      const body = await response.clone().json().catch(() => null);
-      if (provider && /not configured/i.test(String(body?.error || ''))) _relayUnconfigured.add(provider);
-    }
-    return response;
-  }
 
   // P1756: the shared Worker relays only these upstream hosts (ALLOWED_DOMAINS in cloudflare-worker-proxy.js; exact host
   // or a subdomain of one). It answered 403 to every other host, so a 4-minute idle on 오늘 spent dozens of requests
@@ -392,22 +343,20 @@ export function installProxyTransport(window = globalThis) {
     // and logs stop implying "the shared Worker is broken" when it is simply not
     // trusted with personal keys.
     if (failure.code === 'PRIVATE_ROUTE_REQUIRED') {
-      failure.hint = '이 요청은 개인 키를 URL에 포함하므로 사용자가 직접 소유한 Worker로만 중계할 수 있습니다. 공유 Worker는 개인 키를 받지 않습니다 — 운영자 키를 쓰는 소스(BOK/KOSIS)는 /relay 경로를 사용하세요.';
+      failure.hint = '이 요청은 개인 키를 URL에 포함하므로 사용자가 직접 소유한 Worker로만 중계할 수 있습니다. 공유 Worker는 개인 키를 받지 않습니다.';
     }
     failure.attempts = errors;
     throw failure;
   }
 
   window._cfWorkerUrl = _cfWorkerUrl;
-  window._aioRelayUrl = _aioRelayUrl;
-  window._aioRelayFetch = _aioRelayFetch;
   window._AIO_SHARED_WORKER_HOSTS = _AIO_SHARED_WORKER_HOSTS;
   window._aioSharedWorkerRelays = _aioSharedWorkerRelays;
   window._PROXY_REGISTRY = _PROXY_REGISTRY;
   window._aioProxyUrlExpectsJson = _aioProxyUrlExpectsJson;
   window._aioProxyResponseLooksHtml = _aioProxyResponseLooksHtml;
   // v59.70 (N6): a deep link's first page hooks run while the deferred classic scripts evaluate, before this module
-  // graph has loaded; js/aio-data.js waits for this event before its relay fetches instead of a fixed 500 ms timer.
+  // graph has loaded; js/aio-data.js waits for this event before its page-entry fetches instead of a fixed 500 ms timer.
   window._aioRelayReady = true;
   if (window.document && typeof window.CustomEvent === 'function') window.document.dispatchEvent(new window.CustomEvent('aio:relayReady'));
   window._aioProxyUnwrapJsonText = _aioProxyUnwrapJsonText;

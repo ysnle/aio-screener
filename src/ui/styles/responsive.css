@@ -529,7 +529,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 .page .temp-group-grid { flex: 1; align-items: stretch; }
 .masters-change-counts { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 #page-ticker > .aio-section > .mb-4 { padding-left: var(--sx-card-pad-x); }
-#page-ticker > :is(#ticker-company, [data-research-snapshots]) { padding-inline: var(--sx-card-pad-x); }
+#page-ticker > :is(#ticker-company, #ticker-outlook, [data-research-snapshots]) { padding-inline: var(--sx-card-pad-x); }
 /* A fold row inside a card keeps its 16px row inset for the hover tint, but the row reaches 16px into the card padding
    so its text starts on the card's text column (it sat 16px deeper: 브리핑 자세히·일정, 거시 금리 조건, 환율). */
 :is(.sx-card, .briefing-block) .sx-disclosure:not(.mk-axis, .mk-maxis, .sx-disclosure .sx-disclosure) { margin-inline: -16px; }

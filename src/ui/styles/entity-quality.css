@@ -1,6 +1,6 @@
 /* P1624: the summary currency line has its own layout contract. */
 .entity-summary-price-basis { color:var(--color-text-secondary); font-size:12px; font-weight:400; line-height:1.6; max-width:360px; overflow-wrap:anywhere; }
-#page-ticker.is-empty :is(#ticker-company,#ticker-hero-line,#ticker-summary-price-basis,[data-research-snapshots]) { display:none; }
+#page-ticker.is-empty :is(#ticker-company,#ticker-outlook,#ticker-hero-line,#ticker-summary-price-basis,[data-research-snapshots]) { display:none; }
 #page-ticker textarea, #page-ticker input { background:var(--surface-2); color:var(--color-text-primary); border:0.5px solid var(--color-border); border-radius:var(--radius-inner); padding:9px 10px; max-width:100%; box-sizing:border-box; }
 #page-ticker textarea { min-height:76px; resize:vertical; }
 #page-ticker [data-research-snapshots] button { background:var(--surface-2); color:var(--color-text-primary); border:0.5px solid var(--color-border); padding:8px 12px; }

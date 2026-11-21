@@ -106,7 +106,8 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
   });
 }
 
-// The 종목 tabs (개요 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12).
+// The 종목 tabs (개요 · 쟁점과 전망 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12);
+// 쟁점과 전망 is a view of the ticker page (?view=outlook).
 const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
 // Owner 2026-11-19: 기술적 분석 names the symbol in its analysis slot as ?sym= too, but it is the chart's subject, not the
 // 종목 screen's company; the retired 차트 tab's address (#technical/NVDA, #technical?sym=NVDA) opens that slot.
@@ -164,7 +165,10 @@ export function parseRouteDeepLink(hash, themeIds = null) {
 // The hash for `routeId` with `key` set to `value` (or removed when value is empty), keeping the other keys.
 export function routeDeepLinkHash(hash, routeId, key, value) {
   const match = String(hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
-  const params = new URLSearchParams(match?.[1].split('/')[0] === routeId ? match[2] || '' : '');
+  const [route, pathArg = ''] = (match?.[1] || '').split('/');
+  const params = new URLSearchParams(route === routeId ? match[2] || '' : '');
+  // A path-form subject (#ticker/NVDA?view=memo) stays the subject when another key is rewritten first.
+  if (route === routeId && pathArg && (ENTITY_ROUTES.has(routeId) || routeId === CHART_ROUTE) && !params.has('sym')) params.set('sym', pathArg);
   if (value == null || value === '') params.delete(key); else params.set(key, String(value));
   const query = params.toString();
   return `#${routeId}${query ? `?${query}` : ''}`;
@@ -222,7 +226,8 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     const resolved = link.entityId && typeof runtimeRoot._aioNormalizeTickerInput === 'function' ? normalizeEntityId(runtimeRoot._aioNormalizeTickerInput(link.entityId)) : null;
     if (resolved && resolved !== link.entityId) link = { ...link, entityId: resolved };
     if (link.entityId && (/^#[a-z]+\//.test(location.hash) || resolved)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
-    // The 종목 screens are not cut into views (2026-11-19: the 메모 view became a section of 개요); an old ?view= is dropped.
+    // 재무 공시 is not cut into views; an old ?view= there is dropped. The ticker page's views (개요 · 쟁점과 전망) apply above,
+    // and its retired ones (메모, 2026-11-19) fall back to 개요 there.
     if (link.view && ENTITY_ROUTES.has(link.routeId) && !viewsOf(link.routeId).length) writeHash(link.routeId, 'view', null);
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();

@@ -9,7 +9,7 @@ import { listingCurrency } from '../../domain/portfolio/fx.js';
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 import { canonicalEpochMs } from '../../domain/technical/chart-contract.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { setStockSubject } from '../navigation/route-hubs.js';
+import { setStockSubject, showStockView } from '../navigation/route-hubs.js';
 import { renderTickerStart } from '../components/ticker-start.js';
 import { renderFiscalRead, requestFiscalHistory, parseFiscalHistory, debtBasisFor, debtCurrentFor, issuerSic } from '../components/fiscal-read.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
@@ -200,11 +200,14 @@ export function renderTickerHero(documentRef, state, root) {
 }
 
 // 종목 개요 (owner 2026-11-19): under the name and price, one line of what the company is, then 사업 · 밸류체인 안의 자리 ·
-// 재무 한눈에 (src/ui/components/company-overview.js). Rebuilt only when its inputs change (quote ticks repaint often).
+// 재무 한눈에 (src/ui/components/company-overview.js); 쟁점과 전망 is the page's second view (#ticker-outlook, page-views.css)
+// and is painted with it. Rebuilt only when its inputs change (quote ticks repaint often).
 function renderOverview(documentRef, root, state, store = null) {
   const host = documentRef?.getElementById('ticker-company');
+  const outlookHost = documentRef?.getElementById('ticker-outlook');
   const line = documentRef?.getElementById('ticker-hero-line');
   if (!host) return;
+  const clearOutlook = () => { if (outlookHost) { outlookHost.hidden = true; outlookHost.replaceChildren(); } };
   const id = String(state?.id || root?._currentTickerId || '').trim().toUpperCase();
   // v57.54: the screen's h1 (screen-reader heading; the hero shows the name visually).
   const title = documentRef.getElementById('ticker-page-title');
@@ -213,6 +216,7 @@ function renderOverview(documentRef, root, state, store = null) {
   if (!id) {
     yearLine('');
     host.hidden = true; host.replaceChildren(); delete host.dataset.signature;
+    clearOutlook();
     if (line) { line.hidden = true; line.textContent = ''; }
     if (title) title.textContent = '종목';
     return;
@@ -236,6 +240,7 @@ function renderOverview(documentRef, root, state, store = null) {
     yearLine('');
     if (host.dataset.signature !== `${id}|not-listed`) {
       host.dataset.signature = `${id}|not-listed`;
+      clearOutlook();
       host.replaceChildren(emptyState(documentRef, { title: `${id}와 맞는 종목이 없습니다`, reason: '미국 상장 목록과 AIO 등록 종목 어디에도 없는 기호입니다. 상장 폐지됐거나 기호가 바뀐 종목일 수 있습니다.', next: '회사 이름으로 다시 검색해 보세요.', compact: true }));
     }
     host.hidden = false;
@@ -277,7 +282,8 @@ function renderOverview(documentRef, root, state, store = null) {
     earnings.filter((item) => String(item?.symbol || '').toUpperCase() === id).map((item) => `${item.date}:${item.epsActual ?? item.revenueActual ?? ''}`), briefs.map((brief) => brief.eventDate), String(quarterText || '').split(';').at(-1), watched]);
   if (host.dataset.signature !== signature) {
     // A repaint keeps the folds the reader opened (matched by their summary text).
-    const opened = new Set([...host.querySelectorAll('details[open] > summary')].map((node) => node.textContent));
+    const folds = (selector) => [host, outlookHost].flatMap((node) => [...(node?.querySelectorAll(selector) || [])]);
+    const opened = new Set(folds('details[open] > summary').map((node) => node.textContent));
     const actions = [];
     if (typeof root?._aioWLToggle === 'function') {
       // v58.80 (first-users run-3 B15): the button says whether the stock is in a 관심 종목 list and toggles the one store.
@@ -290,13 +296,14 @@ function renderOverview(documentRef, root, state, store = null) {
       actions.push(watch);
     }
     actions.push(companyAskButton(documentRef, root, id, { fund: etf }));
-    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, peer, earnings, briefs, quarters: String(quarterText || ''), actions,
+    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, peer, earnings, briefs, quarters: String(quarterText || ''), actions, outlookHost,
+      openOutlook: () => showStockView({ root, documentRef, view: 'outlook' }),
       openTicker: (symbol) => root?.showTicker?.(symbol),
       industry: story ? industryFor(story) : null,
       openIndustry: (domain) => navigateKnowledgeRoute({ root, page: 'atlas', params: { mode: 'taxonomy', domain, view: 'domain' } }),
       openMap: (where) => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams({ map: where.layer ? 'value-chain' : 'capital', layer: where.layer?.n ?? null, node: id }) }),
       openFundamental: () => root?.showPage?.('fundamental') });
-    for (const summary of host.querySelectorAll('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
+    for (const summary of folds('details > summary')) if (opened.has(summary.textContent)) summary.parentElement.open = true;
     host.dataset.signature = signature;
   }
   host.hidden = false;
@@ -658,7 +665,7 @@ function render({ root, documentRef, store, route }) {
     // 재무 공시's '이 조건으로 내 메모 시작' hands the thesis template over; it lands once the requested company is drawn.
     if (state?.id && state.id === String(root?._currentTickerId || '').trim().toUpperCase()) {
       const handoff = consumeResearchHandoff({ root, routeId: 'ticker', symbol: state.id });
-      if (handoff) focusResearchMemo(memo, handoff.context.memoTemplate);
+      if (handoff) { root?._aioShowViewOf?.(memo); focusResearchMemo(memo, handoff.context.memoTemplate); } // the memo is 개요's (page-views.css)
     }
   }
   if (route === 'fundamental') {

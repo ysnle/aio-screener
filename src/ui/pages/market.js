@@ -161,8 +161,7 @@ const SNAPSHOT_ALIASES = {
   unemploy: ['unemploy', 'unemployment'],
   housing: ['housingStarts'],
   'retail-sales': ['retailSales'],
-  'wage-growth': ['usWageGrowth'],
-  'kr-cpi': ['krCpi']
+  'wage-growth': ['usWageGrowth']
 };
 
 const FRED_SERIES = {
@@ -236,10 +235,6 @@ function readSnapshotMetric(root, key) {
     const target = finite(root?._fredData?.DFEDTARU?.value);
     if (target != null) return { value: `${(target - 0.25).toFixed(2)}–${target.toFixed(2)}%`, source: 'FRED:DFEDTARU', formatted: true };
   }
-  const bok = finite(root?._bokData?.bokRate?.value);
-  if (key === 'bok-rate' && bok != null) return { value: bok, source: 'BOK:ECOS' };
-  const kosis = finite(root?._kosisData?.krCpi?.value);
-  if (key === 'kr-cpi' && kosis != null) return { value: kosis, source: 'KOSIS' };
   return null;
 }
 
@@ -257,7 +252,6 @@ function formatSnapshotMetric(key, metric) {
   if (key === 'fed-rate') return `${value.toFixed(2)}% 월평균`;
   if (key === 'move') return value.toFixed(1);
   if (key === 'housing') return `${Math.round(value)}K`;
-  if (key === 'kr-cpi') return value.toFixed(1);
   if (/yoy/.test(key) || key === 'unemploy') return `${signedText(value, 1)}%`;
   return String(metric.value);
 }

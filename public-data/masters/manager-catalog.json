@@ -497,21 +497,14 @@
     },
     {
       "id": "vanguard-group",
-      "displayName": "Vanguard",
-      "filer": "Vanguard family · canonical filer: Vanguard Asset Management, Ltd",
+      "displayName": "Vanguard Asset Management (영국)",
+      "filer": "Vanguard Asset Management, Ltd",
       "style": "초저비용 인덱스·ETF·분산",
       "type": "LIVE_13F",
       "status": "VERIFIED_ROWS",
       "cik": "0001680208",
       "latestAvailablePeriod": "2026-09-30",
       "rowStatus": "VERIFIED_ROWS",
-      "familyCiks": [
-        "0000102909",
-        "0001680208",
-        "0001811242",
-        "0000947529",
-        "0002100119"
-      ],
       "latestFiling": {
         "form": "13F-HR",
         "baseForm": "13F-HR",
@@ -529,7 +522,7 @@
         "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000018/13F_0001680208_20260930.html"
       },
       "sourceEvidence": "https://www.sec.gov/Archives/edgar/data/1680208/000168020826000018/0001680208-26-000018-index.html",
-      "institutionalBoundary": "Vanguard는 여러 SEC 신고주체가 있는 family filer다. 계열 중복을 제거한 뒤 family-level로 읽어야 한다.",
+      "institutionalBoundary": "이 13F는 Vanguard 영국 법인 Vanguard Asset Management, Ltd(CIK 0001680208) 한 곳의 신고분이다. 미국 본사 The Vanguard Group, Inc.를 비롯한 다른 Vanguard 신고주체는 합치지 않는다.",
       "audienceTier": "BEGINNER_CORE",
       "managerCategory": "PASSIVE_INDEX",
       "scaleTier": "MEGA",
@@ -554,13 +547,13 @@
       "selectionReason": "인지도·운용 규모·대표 운용자·전략 교육가치·SEC 추적 가능성을 함께 충족하는 초보자 핵심군",
       "priority": 6,
       "scaleMetric": {
-        "label": "$12.5T global assets",
+        "label": "$12.5T global assets (Vanguard 전체)",
         "value": 12.5,
         "unit": "USD_TRILLION",
         "asOf": "2026-02-28",
         "sourceName": "Vanguard management team",
         "sourceUrl": "https://corporate.vanguard.com/content/corporatesite/us/en/corp/why-vanguard/who-we-are/our-management-team.html",
-        "basis": "글로벌 자산; family filer와 동일하지 않음"
+        "basis": "Vanguard 전체 글로벌 자산; 이 13F 신고 법인(영국)의 보고액과 다름"
       },
       "latestSubmission": {
         "form": "13F-HR",

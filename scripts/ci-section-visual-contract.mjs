@@ -57,7 +57,7 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   check('v60.31 ② 현금흐름과 발생액 carries the thesis conditions on the face', onFace(cash, 'thesis') && /맞으려면/.test(find(cash, (item) => item?.dataset?.analysis === 'thesis')?.textContent || ''));
 }
 
-// ── 종목 개요: 사업 · 밸류체인 안의 자리 · 재무 한눈에 (renderCompanyOverview on NVDA's own story and the map's records) ──
+// ── 종목 개요: 사업 · 밸류체인 안의 자리 · 재무 한눈에, and the 쟁점과 전망 view (renderCompanyOverview on NVDA's story) ──
 {
   const { renderCompanyOverview, renderCompanyReport } = await import(pathToFileURL(join(root, 'src/ui/components/company-overview.js')).href);
   const { companyPlace, moneyGlance } = await import(pathToFileURL(join(root, 'src/domain/entity/company-overview.js')).href);
@@ -68,10 +68,16 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const doc = createFakeDocument();
   const host = doc.getElementById('ticker-company');
   const peer = { theme: '반도체', count: 9, strength: '순이익률 55.6%로 이 회사 포함 9곳 중 1위', weakness: 'Forward PER 38.0배로 이 회사 포함 9곳 중 7위' };
-  renderCompanyOverview(doc, host, { symbol: 'NVDA', story, profile: { name: 'NVIDIA' }, place, money, peer, openTicker() {}, openMap() {}, openFundamental() {} });
+  const outlookHost = doc.createElement('section');
+  renderCompanyOverview(doc, host, { symbol: 'NVDA', story, profile: { name: 'NVIDIA' }, place, money, peer, outlookHost, openTicker() {}, openMap() {}, openFundamental() {}, openOutlook() {} });
   const sections = all(host, (item) => item?.dataset?.companySection);
-  check('v60.31 종목 개요 is four sections: business, place, outlook, money', sections.map((item) => item.dataset.companySection).join(',') === 'business,place,outlook,money', sections.map((item) => item.dataset.companySection).join(','));
-  const [business, where, outlook, figures] = sections;
+  check('v60.38 종목 개요 is three sections: business, place, money', sections.map((item) => item.dataset.companySection).join(',') === 'business,place,money', sections.map((item) => item.dataset.companySection).join(','));
+  const [business, where, figures] = sections;
+  // v60.38 (owner 2026-11-21): 쟁점과 전망 is the next view, painted with 개요; 개요 ends on one line to it naming the issue.
+  const outlook = find(outlookHost, (item) => item?.dataset?.companySection === 'outlook');
+  const next = find(host, (item) => item?.dataset?.companyNext === 'outlook');
+  check('v60.38 쟁점과 전망 is its own view and 개요 ends on a link to it named by the issue', !!outlook && !!next && next.textContent.includes(story.debate.question)
+    && [...host.children].filter((child) => child?.dataset?.companySection).at(-1) === figures, next?.textContent);
   // The company analysis the story carries sits on the face of its section (folds hold only tables, methods, sources).
   const unfolded = (item, node) => { let up = item.parentElement; while (up && up !== node) { if (tag(up) === 'details') return false; up = up.parentElement; } return true; };
   const faceText = (node) => all(node, (item) => ['h3', 'h4'].includes(tag(item)) && unfolded(item, node)).map((item) => item.textContent).join('|');
@@ -125,4 +131,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log('Section visual contract OK: 개요 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, 재무 추세 · 현금흐름 · 공시가 말하는 것 · 시장 환경.');
+console.log('Section visual contract OK: 개요 사업 · 밸류체인 안의 자리 · 재무 한눈에, 쟁점과 전망, 재무 추세 · 현금흐름 · 공시가 말하는 것 · 시장 환경.');

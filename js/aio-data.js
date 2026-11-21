@@ -2258,7 +2258,7 @@ function fetchWithTimeout(url, opts = {}, ms = 8000) {
 }
 
 // ── v30.11 Task 11: CORS 프록시 레지스트리 (단일 진실 원천) ──────────────────
-// v59.22: _cfWorkerUrl, _aioRelayUrl and _aioRelayFetch moved to src/data/providers/proxy-transport.js.
+// v59.22: _cfWorkerUrl moved to src/data/providers/proxy-transport.js.
 
 // P715: SCREENER_DB signal enum(BUY/HOLD/WATCH/SELL)은 내부 분류 키로만 유지하고,
 // 사용자 표면에는 관측형 라벨만 렌더한다(시스템 발화형 매매 지시 금지 — P714 연장).
@@ -2383,111 +2383,8 @@ const FRED_SERIES = {
   'PCEPILFE':     { name: 'Core PCE', el: null, unit: '%', yoy: true }      // 근원 PCE (연준 2% 목표 기준)
 };
 
-// v48.59: BOK ECOS API fetcher — 한국은행 기준금리/환율/수출 (무료, 회원가입)
-// 통계 코드: 722Y001=기준금리, 036Y002=CPI, 901Y014=GDP, 403Y001=수출, 403Y003=수입
-async function fetchBokEcos(statCode, cycle, startDate, endDate, itemCode1) {
-  function _extractBok(data) {
-    if (data && data.contents && typeof data.contents === 'string') { try { data = JSON.parse(data.contents); } catch(e) {} }
-    return (data && data.StatisticSearch && data.StatisticSearch.row) || null;
-  }
-  // 2차: Worker 릴레이 — ECOS는 CORS 헤더를 보내지 않아 브라우저 직접 호출이 불가능하다.
-  const relayUrl = _aioRelayUrl('bok', { statCode, cycle, start: startDate, end: endDate, item: itemCode1 });
-  if (relayUrl) {
-    try {
-      const r = await _aioRelayFetch(relayUrl, 8000);
-      if (r.ok) { const rows = _extractBok(await r.json()); if (rows) return rows; }
-      else if (r.status === 503 && typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'BOK ECOS 릴레이 미구성(운영자 키 없음)');
-    } catch(e) { /* fall through to the direct attempt */ }
-  }
-
-  // ECOS는 실패해도 화면이 조용히 비지 않도록 호출자가 알 수 있게 상태를 남긴다.
-  if (typeof _reportApiError === 'function') _reportApiError('bok', 'BOK ECOS 사용 가능한 경로 없음');
-  return null;
-}
-
-// v48.59: 한국 거시 지표 일괄 수집 → data-snap 바인딩
-async function fetchAllBokData() {
-  // v56: /relay(운영자 키)만으로 동작한다. v57.76: 개인 키 경로 제거.
-  if (!_cfWorkerUrl()) { console.log('[AIO] BOK ECOS relay not set'); return null; }
-  try {
-    // 최근 12개월 범위
-    const now = new Date();
-    const endMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0');
-    const startMonth = String(now.getFullYear() - 1) + String(now.getMonth() + 1).padStart(2, '0');
-    // 기준금리 (722Y001) — 월 단위
-    const rateData = await fetchBokEcos('722Y001', 'M', startMonth, endMonth, '0101000');
-    const results = { };
-    if (rateData && rateData.length > 0) {
-      const latest = rateData[rateData.length - 1];
-      const prev = rateData.length > 1 ? rateData[rateData.length - 2] : null;
-      results.bokRate = { value: parseFloat(latest.DATA_VALUE), date: latest.TIME, prev: prev ? parseFloat(prev.DATA_VALUE) : null };
-    }
-    // data-snap 업데이트
-    if (results.bokRate) {
-      document.querySelectorAll('[data-snap="bok-rate"]').forEach(function(el){
-        if (_aioIsNativeMacroElement(el)) return;
-        el.textContent = results.bokRate.value.toFixed(2) + '%';
-      });
-      const prev = results.bokRate.prev;
-      if (prev != null) {
-        const delta = results.bokRate.value - prev;
-        const status = Math.abs(delta) < 0.01 ? '동결' : (delta > 0 ? '인상' : '인하');
-        document.querySelectorAll('[data-snap="bok-status"]').forEach(function(el){
-          if (_aioIsNativeMacroElement(el)) return;
-          el.textContent = status;
-        });
-      }
-    }
-    window._bokData = results;
-    console.log('[AIO v48.59] BOK ECOS loaded:', Object.keys(results).length, 'series');
-    return results;
-  } catch(e) { _aioLog('warn', 'fetch', 'BOK ECOS batch error: ' + e.message); return null; }
-}
-
-// v48.59: KOSIS 통계청 API fetcher — CPI/수출입/실업률 (무료, 회원가입)
-async function fetchKosisStat(orgId, tblId, itmId, prdSe) {
-  const unwrap = (data) => {
-    if (data && data.contents && typeof data.contents === 'string') { try { return JSON.parse(data.contents); } catch(e) {} }
-    return data;
-  };
-  // 2차: Worker 릴레이 — KOSIS도 CORS 헤더를 보내지 않아 직접 호출이 불가능하다.
-  const relayUrl = _aioRelayUrl('kosis', { orgId, tblId, itmId, prdSe });
-  if (relayUrl) {
-    try {
-      const r = await _aioRelayFetch(relayUrl, 8000);
-      if (r.ok) return unwrap(await r.json());
-      else if (r.status === 503 && typeof _aioLog === 'function') _aioLog('warn', 'fetch', 'KOSIS 릴레이 미구성(운영자 키 없음)');
-    } catch(e) { /* fall through to the direct attempt */ }
-  }
-
-  if (typeof _reportApiError === 'function') _reportApiError('kosis', 'KOSIS 사용 가능한 경로 없음');
-  return null;
-}
-
-// v48.59: 한국 통계청 주요 지표 일괄 (CPI · 실업률 · 수출입)
-async function fetchAllKosisData() {
-  // v56: /relay(운영자 키)만으로 동작한다. v57.76: 개인 키 경로 제거.
-  if (!_cfWorkerUrl()) { console.log('[AIO] KOSIS relay not set'); return null; }
-  try {
-    // CPI — 통계청 인플레이션 (DT_1J17001, 소비자물가지수)
-    const cpiData = await fetchKosisStat('101', 'DT_1J17001', 'T10', 'M');
-    const results = {};
-    if (cpiData && Array.isArray(cpiData) && cpiData.length > 0) {
-      // 최신값 찾기 (PRD_DE 기준 정렬)
-      cpiData.sort(function(a, b){ return (a.PRD_DE || '') < (b.PRD_DE || '') ? 1 : -1; });
-      const latest = cpiData[0];
-      results.krCpi = { value: parseFloat(latest.DT), date: latest.PRD_DE };
-      document.querySelectorAll('[data-snap="kr-cpi"]').forEach(function(el){
-        if (_aioIsNativeMacroElement(el)) return;
-        el.textContent = results.krCpi.value.toFixed(1);
-      });
-    }
-    window._kosisData = results;
-    console.log('[AIO v48.59] KOSIS loaded:', Object.keys(results).length, 'series');
-    return results;
-  } catch(e) { _aioLog('warn', 'fetch', 'KOSIS batch error: ' + e.message); return null; }
-}
-
+// The browser BOK ECOS and KOSIS fetchers (Worker /relay) are retired (owner 2026-11-21): the 한국 기준금리 and CPI come
+// only from the producer's official references in DATA_SNAPSHOT.
 // v57.76: the personal-key FRED live query (fetchFredSeries: personal Worker, consented relay, direct call) was removed
 // with the retired personal keys. Macro series come from the server artifact (data.json) applied by the boot path.
 async function fetchAllFredData() {
@@ -4760,8 +4657,6 @@ window.LIVE_SYMBOLS = LIVE_SYMBOLS;
 // 최대 24개 Naver 요청만 남은 fetchKrInvestorTop10은 공유 KR 로더에서 제거한다.
 async function fetchKrDynamicData() {
   const results = await Promise.allSettled([
-    typeof fetchAllBokData === 'function' ? fetchAllBokData() : Promise.resolve(null),
-    typeof fetchAllKosisData === 'function' ? fetchAllKosisData() : Promise.resolve(null),
     typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null),
     typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null)
   ]);
@@ -6649,15 +6544,11 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
   }
-  // v48.59: FRED/BOK/KOSIS 지연 fetch (페이지 진입 시만). v59.70 (N6): a deep link runs this before the module graph
+  // v48.59: FRED 지연 fetch (페이지 진입 시만). v59.70 (N6): a deep link runs this before the module graph
   // installs the relay transport (proxy-transport.js), so the 500 ms delay starts after aio:relayReady.
   var afterRelay = function(fn) { if (window._aioRelayReady) setTimeout(fn, 500); else document.addEventListener('aio:relayReady', function() { setTimeout(fn, 500); }, { once: true }); };
   if (pageId === 'macro' || pageId === 'fxbond') afterRelay(function(){
     if (typeof fetchAllFredData === 'function' && !window._fredData) fetchAllFredData();
-  });
-  if (pageId === 'macro') afterRelay(function(){ // v53.7 (P725): KR 매크로 데이터는 macro 페이지 통합 섹션에서 사용
-    if (typeof fetchAllBokData === 'function' && !window._bokData) fetchAllBokData();
-    if (typeof fetchAllKosisData === 'function' && !window._kosisData) fetchAllKosisData();
   });
   // The screener route's ranking runs in its native orchestrator on page show (the legacy 200 ms re-rank is retired).
   // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)

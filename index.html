@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.37 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.38 — 올인원 투자 터미널</title>
   <meta name="description" content="미국 시장과 주요 뉴스를 살피고, 조건에 맞는 종목을 찾고, 투자 근거와 거래 기록을 돌아보세요.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -4348,10 +4348,9 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     </div><!-- pf-main -->
   </div>
     <!-- ═══════════════ PAGE: TICKER (종목 상세) ═══════════════ -->
-  <div class="page" id="page-ticker"><h1 class="sr-only" id="ticker-page-title">종목</h1><!-- v57.54: 화면 제목(보조기술용) — 보이는 종목 이름은 위 허브 줄이 맡는다 -->
-
-    <!-- v57.76: 검색이 먼저 — 종목을 고른 뒤 그 종목의 지금을 읽는다. -->
-    <!-- v50.96: Ticker 직접 검색창 (page 진입 시에도 검색 가능) -->
+  <div class="page" id="page-ticker" data-view="overview"><h1 class="sr-only" id="ticker-page-title">종목</h1><!-- v57.54: 화면 제목(보조기술용) — 보이는 종목 이름은 위 허브 줄이 맡는다 -->
+  <div class="sx-seg page-views" role="tablist" aria-label="종목 보기"><button type="button" role="tab" aria-selected="true" class="is-active" data-view="overview">개요</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="outlook">쟁점과 전망</button></div><!-- 2026-11-21: 허브 줄이 이 보기들을 탭으로 보인다(route-hubs.js viewTabs) -->
+    <!-- v57.76: 검색이 먼저 — 종목을 고른 뒤 그 종목의 지금을 읽는다. v50.96: 직접 검색창 (page 진입 시에도 검색 가능) -->
     <div class="aio-section">
     <div class="aio-section-hd"><h2 class="aio-section-label sh-flush">종목 검색</h2></div>
     <div class="v2-stock-search">
@@ -4394,8 +4393,8 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       <p id="ticker-hero-line" class="ticker-hero-line" hidden></p><div id="ticker-hero-context" class="ticker-context" hidden></div>
     </div>
     </div><!-- /aio-section 종목 머리 -->
-    <!-- 2026-11-19: 개요 — 사업 · 밸류체인 안의 자리 · 재무 한눈에 (company-overview.js); the price chart is 기술적 분석's -->
-    <section id="ticker-company" class="company-overview" aria-label="회사 개요" hidden></section>
+    <section id="ticker-company" class="company-overview" aria-label="회사 개요" hidden></section><!-- 2026-11-19: 개요 — 사업 · 밸류체인 안의 자리 · 재무 한눈에 (company-overview.js); the price chart is 기술적 분석's -->
+    <section id="ticker-outlook" class="company-overview" aria-label="쟁점과 전망" hidden></section><!-- 2026-11-21: 쟁점과 전망 보기 (page-views.css) -->
   </div><!-- fix: page-ticker outer close -->
     <!-- ═══════════════ PAGE: MARKET-NEWS (시장 소식) ═══════════════ -->
   <div class="page" id="page-market-news" data-view="main">
@@ -5135,12 +5134,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.37" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.37" defer></script>
-  <script src="./js/aio-pages.js?v=60.37" defer></script>
-  <script src="./js/aio-core.js?v=60.37" defer></script>
-  <script src="./js/aio-data.js?v=60.37" defer></script>
-  <script src="./js/aio-ui.js?v=60.37" defer></script>
+  <script src="./js/aio-workspace.js?v=60.38" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.38" defer></script>
+  <script src="./js/aio-pages.js?v=60.38" defer></script>
+  <script src="./js/aio-core.js?v=60.38" defer></script>
+  <script src="./js/aio-data.js?v=60.38" defer></script>
+  <script src="./js/aio-ui.js?v=60.38" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5198,7 +5197,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.37</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.38</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

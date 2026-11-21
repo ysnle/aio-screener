@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2693 - v60.38 - 대가 보유의 Vanguard 카드가 그룹 전체 이름으로 영국 자회사 한 곳의 13F를 보여 줌 (2026-11-21)
+
+- symptom/reproduction: 카드 이름은 Vanguard Group인데 보유 합계는 영국 법인(CIK 0001680208) 한 곳의 신고분이라 그룹 규모와 맞지 않는다.
+- root_cause: manager-catalog의 표시 이름과 신고 법인 이름이 cik가 실제로 신고하는 법인과 달랐고, familyCiks는 어떤 수집기도 읽지 않았다.
+- fix: 표시 이름과 신고 법인을 실제 신고 법인(Vanguard Asset Management, 영국)으로 바로잡고 쓰이지 않는 familyCiks를 지웠다. 본체 CIK로 바꾸는 것은 신고 여부를 확인한 뒤의 일로 남긴다.
+- violated_rule: R1
+- prevention: ci-masters-contract-check가 신고 법인 표기가 그 cik의 단일 법인을 가리키는지 본다.
+- verification/residual: node scripts/ci-masters-contract-check.mjs
+- files: public-data/masters/manager-catalog.json, public-data/masters/index.json, scripts/ci-masters-contract-check.mjs
+
 ## P2692 - v60.37 - 장중 뉴스와 종목 뉴스 메모가 정정 기사를 원 기사와 같은 사건으로 버릴 수 있음 (2026-11-21)
 
 - symptom/reproduction: 발행된 데이터에는 아직 사례가 없다. 코드상 장중 속보 칸과 종목 뉴스 메모는 이미 실린 기사와 제목이 비슷한 정정 기사를 같은 사건으로 보고 싣지 않는다.

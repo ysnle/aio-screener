@@ -10,9 +10,11 @@ export const ROUTE_HUBS = Object.freeze([
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
   // P1430: one 종목 screen — 개요 · 재무 공시 are views of the same selected company. Owner 2026-11-19 ("탭 없애고 연결"):
   // the 차트 tab left for 기술적 분석; the hub line links there with the company (renderSubject).
+  // Owner 2026-11-21: the ticker page is cut into views (개요 · 쟁점과 전망, its page-views row); viewTabs shows each as a
+  // tab of this line, so the screen reads 개요 · 쟁점과 전망 · 재무 공시.
   // v59.55 (flow review): 스크리너 before 종목 — find, then examine; the sidebar, phone tab bar and number keys share it.
   { id: 'screener', label: '스크리너', routes: [{ id: 'screener', label: '스크리너' }] },
-  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '개요' }, { id: 'fundamental', label: '재무 공시' }] },
+  { id: 'stock', label: '종목', routes: [{ id: 'ticker', label: '개요', viewTabs: true }, { id: 'fundamental', label: '재무 공시' }] },
   { id: 'portfolio', label: '포트폴리오', routes: [{ id: 'portfolio', label: '포트폴리오' }] },
   // 2026-10-05 owner decision: 리서치 라이브러리 — three research pages; the product guide is help (topbar), not research.
   { id: 'learn', label: '리서치 라이브러리', routes: [{ id: 'principles', label: '개념·분석' }, { id: 'atlas', label: '산업 지도' }, { id: 'masters', label: '대가 보유 종목' }, { id: 'guide', label: '도움말', tab: false }] }
@@ -133,26 +135,64 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   seg.dataset.activation = 'manual';
   nav.appendChild(seg);
   for (const tab of tabs) {
-    const button = documentRef.createElement('button');
-    button.type = 'button';
-    button.className = 'aio-hub-tab';
-    button.dataset.action = 'showPage';
-    button.dataset.arg = tab.id;
-    // 요약 is rebuilt by showTicker; opening it from 차트/재무 공시 keeps the same company.
-    if (hub.id === 'stock' && tab.id === 'ticker' && subject && routeId !== 'ticker') {
-      button.dataset.action = 'showTicker';
-      button.dataset.arg = subject.symbol;
-      button.dataset.hubRoute = 'ticker';
+    // A route with viewTabs gives one tab per view of its page row (page-views.js); that row stays hidden (page-views.css).
+    const views = tab.viewTabs ? viewTabsOf(documentRef, tab.id) : [];
+    for (const entry of views.length ? views : [{ view: null, label: tab.label }]) {
+      const button = documentRef.createElement('button');
+      button.type = 'button';
+      button.className = 'aio-hub-tab';
+      button.dataset.action = 'showPage';
+      button.dataset.arg = tab.id;
+      // 요약 is rebuilt by showTicker; opening it from 차트/재무 공시 keeps the same company.
+      if (hub.id === 'stock' && tab.id === 'ticker' && subject && routeId !== 'ticker') {
+        button.dataset.action = 'showTicker';
+        button.dataset.arg = subject.symbol;
+        button.dataset.hubRoute = 'ticker';
+      }
+      // On its own screen a view tab only switches the view; from another screen the view is set before the action opens it.
+      if (entry.view) {
+        button.dataset.hubView = entry.view;
+        button.dataset.hubViewOf = tab.id;
+        if (routeId === tab.id) delete button.dataset.action;
+        button.addEventListener('click', () => (routeId === tab.id ? showStockView({ root, documentRef, view: entry.view }) : root?._aioShowPageView?.(`page-${tab.id}`, entry.view)));
+      }
+      button.textContent = entry.label;
+      button.setAttribute('role', 'tab');
+      const selected = tab.id === routeId || (tab.also || []).includes(routeId);
+      button.setAttribute('aria-selected', String(selected));
+      if (selected) button.setAttribute('aria-current', 'page');
+      seg.appendChild(button);
     }
-    button.textContent = tab.label;
-    button.setAttribute('role', 'tab');
-    const selected = tab.id === routeId || (tab.also || []).includes(routeId);
-    button.setAttribute('aria-selected', String(selected));
-    if (selected) button.setAttribute('aria-current', 'page');
-    seg.appendChild(button);
   }
+  markViewTabs(documentRef, routeId);
   if (hub.id === 'stock') renderSubject(documentRef, nav, subject, root, routeId);
   return hub.id;
+}
+
+function viewTabsOf(documentRef, routeId) {
+  return [...(documentRef.getElementById?.(`page-${routeId}`)?.querySelectorAll?.(':scope > .page-views > [data-view]') || [])]
+    .map((node) => ({ view: node.dataset.view, label: node.textContent.trim() }));
+}
+
+// The view tabs of the open screen follow its view without a rebuild, so a focused tab keeps focus.
+function markViewTabs(documentRef, routeId) {
+  const page = documentRef?.getElementById?.(`page-${routeId}`);
+  const view = page?.dataset?.view || viewTabsOf(documentRef, routeId)[0]?.view;
+  for (const button of documentRef?.getElementById?.('aio-hub-tabs')?.querySelectorAll?.('[data-hub-view]') || []) {
+    if (button.dataset.hubViewOf !== routeId) continue; // views of a screen not open: not selected
+    const on = button.dataset.hubView === view;
+    button.setAttribute('aria-selected', String(on));
+    if (on) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
+  }
+}
+
+// A 종목 view the reader asked for from the hub line or a link on the page: a history step, and the view starts at its
+// top, as a hub tab that opens a screen does.
+export function showStockView({ root = globalThis, documentRef = root?.document, view } = {}) {
+  if (!root?._aioShowPageView?.('page-ticker', view, { byReader: true })) return false;
+  const scroller = documentRef?.querySelector?.('.content');
+  if (scroller) scroller.scrollTop = 0;
+  return true;
 }
 
 // First-users F15 (runs 1-3): a reload or Back on 차트 lost the company (subject "종목 고르기" over an SPY chart). The subject
@@ -171,11 +211,14 @@ export function installRouteHubTabs({ root = globalThis, documentRef = root.docu
   // A selection (showTicker, 기업 분석 search) names the company before its data arrives.
   const onEntity = (event) => { if (event?.detail?.id) setStockSubject({ root, documentRef, symbol: event.detail.id }); };
   target?.addEventListener?.('aio:entityChanged', onEntity);
+  const onView = () => markViewTabs(documentRef, activeRoute());
+  target?.addEventListener?.('aio:pageViewChanged', onView);
   render();
   return () => {
     target?.removeEventListener?.('aio:navigationCommitted', render);
     target?.removeEventListener?.('aio:subjectChanged', renderActive);
     target?.removeEventListener?.('aio:entityChanged', onEntity);
+    target?.removeEventListener?.('aio:pageViewChanged', onView);
   };
 }
 

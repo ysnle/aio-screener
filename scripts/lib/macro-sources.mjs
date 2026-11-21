@@ -13,8 +13,8 @@ import { readNumber } from '../../src/domain/shared/number.js';
 // consConf(Conf. Board)는 의도적으로 제외: FRED엔 Conference Board 소비자신뢰 시리즈가 없음(비영리
 // 민간기관 유료 라이선스, UMCSENT=미시간대와는 발행기관·척도가 다른 별개 지표 — P456/P593 참조).
 // 한국 CPI(FRED KORCPIALLMINMEI 등 OECD 릴레이)는 이번에 보류: 신선도 검증 불가(로컬 네트워크 제약)
-// + 이미 더 권위있는 직접 소스(KOSIS API 브릿지 aio-data.js fetchAllKosisData, /data-refresh 통계청
-// 수동 확인)가 있어 릴레이로 교체 시 오히려 신선도 퇴보 위험 — 확장 후보로 문서에만 남김.
+// + 이미 더 권위있는 직접 소스(통계청 보도자료 공식 참조, scripts/lib/web-reference-verify.mjs krCpi)가
+// 있어 릴레이로 교체 시 오히려 신선도 퇴보 위험 — 확장 후보로 문서에만 남김.
 export const FRED_SERIES = {
   // Market-standard headline/core CPI are the non-seasonally-adjusted
   // twelve-month CPI-U series.  Keep the SA series as explicitly named

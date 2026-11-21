@@ -29,12 +29,25 @@ async function heroState(p, symbol) {
 }
 
 export default {
-  title: '종목 (티커·한글명 검색 · 같은 종목 2탭 유지 · 기술적 분석 연결 · 잘못된 입력)',
+  title: '종목 (티커·한글명 검색 · 같은 종목 3탭 유지 · 기술적 분석 연결 · 잘못된 입력)',
   steps: [
     ['nav 종목', (p) => openFromNav(p, '종목', 'page-ticker')],
     // Owner 2026-11-19 ("탭 없애고 연결"): the 차트 tab is retired; the subject line links to 기술적 분석.
-    ['허브 탭 2개', (p) => expectTabs(p, ['개요', '재무 공시'])],
+    // Owner 2026-11-21: 개요 and 쟁점과 전망 are views of the ticker page, shown as hub tabs beside 재무 공시.
+    ['허브 탭 3개', (p) => expectTabs(p, ['개요', '쟁점과 전망', '재무 공시'])],
     ['티커 NVDA + Enter → 개요', async (p) => { await search(p, 'NVDA'); return heroState(p, 'NVDA'); }],
+    ['쟁점과 전망 (같은 종목, 머리 유지, 개요 섹션 숨김)', async (p) => {
+      const r = await tabTo(p, '쟁점과 전망', 'page-ticker');
+      await p.waitForFunction(() => { const shown = (node) => !!node && getComputedStyle(node).display !== 'none' && !node.hidden;
+        return shown(document.getElementById('ticker-outlook')) && !shown(document.getElementById('ticker-company')) && /view=outlook/.test(location.hash); }, null, { timeout: 8000 });
+      const issue = await visibleText(p, '#ticker-outlook');
+      if (!/핵심 쟁점/.test(issue)) throw new Error(`쟁점과 전망 has no 핵심 쟁점: "${issue.slice(0, 120)}"`);
+      return { ...r, ...(await heroState(p, 'NVDA')), issue: issue.slice(0, 80) };
+    }],
+    ['탭 개요 (쟁점과 전망 링크로 끝남)', async (p) => {
+      const r = await tabTo(p, '개요', 'page-ticker');
+      return { ...r, ...(await expectText(p, '#ticker-company [data-company-next="outlook"]', { pattern: /^쟁점과 전망/ })) };
+    }],
     ['재무 공시 (같은 종목)', async (p) => {
       const r = await tabTo(p, '재무 공시', 'page-fundamental');
       const subject = await visibleText(p, SUBJECT);

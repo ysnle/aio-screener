@@ -413,7 +413,8 @@
         "#page-ticker #ticker-breadcrumb-main",
         "#page-ticker #ticker-hero-valuation",
         "#page-ticker #ticker-hero-line",
-        "#page-ticker #ticker-company"
+        "#page-ticker #ticker-company",
+        "#page-ticker #ticker-outlook"
       ],
       "contestedIds": [],
       "legacyWriterEvidence": [
@@ -422,7 +423,7 @@
       ],
       "p777Boundary": "entity.js owns the ticker hero identity/name/price/change primary surface from the normalized entity state.",
       "p817Boundary": "entity.js owns the bounded candle/entry symbol labels from normalized entity id; P829 also owns the after-hours and portfolio P&L hero sinks with fail-closed output when quote or position evidence is missing.",
-      "p834Boundary": "LC-18/LC-27: legacy switchTab/loadTickerChart/Stooq ticker helpers are retired. 2026-11-19: the 종목 overview (entity.js renderOverview, src/ui/components/company-overview.js) draws the business, value-chain place and money figures; the price chart is 기술적 분석's.",
+      "p834Boundary": "LC-18/LC-27: legacy switchTab/loadTickerChart/Stooq ticker helpers are retired. 2026-11-19: the 종목 overview (entity.js renderOverview, src/ui/components/company-overview.js) draws the business, value-chain place and money figures; the price chart is 기술적 분석's. 2026-11-21: 쟁점과 전망 is the page's second view (#ticker-outlook, page-views.css), painted by the same renderer and shown as a 종목 hub tab.",
       "verifyAioRegistryBoundary": "2026-10-13 verify-aio registry probe: surfaces retired by later rebuilds (P1391 news strip, P1392 six-axis board, P1395 breadth board, P1420 technical regime, P1425 macro, P1430 stock tabs) replaced by the elements the native renderer writes today; scripts/ci-architecture-contract-check.mjs (surface-exists) keeps them present; verify-aio registry checks the live DOM."
     },
     "market-news": {

@@ -33,7 +33,10 @@ const SCREENS = [
   // 종목 (owner 2026-11-19, "이 회사는 무엇으로 돈을 벌고 산업의 어디에 있는가"), opened on one company the way a reader picks
   // it: what it is on the first screen; its business, its place in the value chain and its money with every fold closed.
   { route: 'ticker', name: '종목', symbol: 'NVDA', ready: /순이익률/, read: [/NVIDIA/, /GPU|데이터센터/],
-    reasons: [/사업/, /무엇을 파나/, /밸류체인 안의 자리/, /\d층 /, /사 주는 곳|공급하는 곳/, /재무 한눈에/, /매출 성장/, /순이익률/, /[+\-]?\d+(\.\d+)?%/] }
+    reasons: [/사업/, /무엇을 파나/, /밸류체인 안의 자리/, /\d층 /, /사 주는 곳|공급하는 곳/, /재무 한눈에/, /매출 성장/, /순이익률/, /[+\-]?\d+(\.\d+)?%/, /쟁점과 전망: /] },
+  // v60.38 (owner 2026-11-21): 쟁점과 전망 is 종목's second view, "무엇이 다투어지고 무엇이 보는 눈을 바꾸나"; the company head stays.
+  { route: 'ticker', view: 'outlook', name: '종목 쟁점과 전망', symbol: 'NVDA', ready: /핵심 쟁점/, read: [/NVIDIA/],
+    reasons: [/핵심 쟁점/, /이야기가 유지된다는 읽기/, /이야기가 깨진다는 읽기/, /회사가 밝힌 전망과 계획/, /맞아가고 있다는 신호/] }
 ].filter((screen) => !only || only.has(screen.route));
 
 const failures = [];
@@ -92,7 +95,8 @@ try {
       const where = `${screen.name} ${width}px`;
       errors.length = 0;
       // A company screen opens on its company (the reader's pick), any other on its route.
-      await page.evaluate(({ route, symbol }) => { if (symbol) window.showTicker(symbol); else window.showPage(route); window.scrollTo(0, 0); }, { route: screen.route, symbol: screen.symbol || null });
+      // A screen cut into views the hub line shows as tabs (종목) opens on the named one, the default when none is named.
+      await page.evaluate(({ route, symbol, view }) => { if (view) window._aioShowPageView?.(`page-${route}`, view); if (symbol) window.showTicker(symbol); else window.showPage(route); window.scrollTo(0, 0); }, { route: screen.route, symbol: screen.symbol || null, view: screen.view || (screen.route === 'ticker' ? 'overview' : null) });
       await page.waitForFunction((words) => new RegExp(words).test(document.querySelector('.page.active')?.innerText || ''), (screen.ready || screen.read[0]).source, { timeout: 20000 }).catch(() => {});
       await page.waitForTimeout(800);
       const view = await page.evaluate(seen);

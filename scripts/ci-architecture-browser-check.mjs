@@ -493,11 +493,12 @@ try {
   // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that split.
   const tickerLayout = await page.evaluate(() => ({
     innerTabs: document.querySelectorAll('#page-ticker [data-ticker-tab]').length,
-    hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => tab.dataset.arg),
+    // v60.38 (owner 2026-11-21): 개요 and 쟁점과 전망 are views of the ticker page, each a hub tab.
+    hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => [tab.dataset.arg, tab.dataset.hubView].filter(Boolean).join(':')),
     // Owner 2026-11-19: the 차트 tab is retired; the subject line links to 기술적 분석 instead.
     chartLink: document.querySelector('#aio-hub-tabs .aio-hub-subject-chart')?.dataset.action || ''
   }));
-  if (tickerLayout.innerTabs !== 0 || tickerLayout.hubTabs.join(',') !== 'ticker,fundamental' || tickerLayout.chartLink !== 'aioOpenMarketChart') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
+  if (tickerLayout.innerTabs !== 0 || tickerLayout.hubTabs.join(',') !== 'ticker:overview,ticker:outlook,fundamental' || tickerLayout.chartLink !== 'aioOpenMarketChart') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
   // v60.31: the 종목 reading and its theme line are retired; a theme opened from another screen (showThemeDetail, the
   // knowledge views' theme links) still hands the detail over to 테마 lazily. NVDA's own leader theme is the fixture.
   const relatedThemeId = await page.evaluate(() => (window.THEME_MAP || []).find((theme) => (theme.leaders || []).includes('NVDA'))?.id || null);

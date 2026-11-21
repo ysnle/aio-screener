@@ -48,9 +48,9 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 | `TWELVE_DATA_API_KEY` | `refresh-data.yml` | Yahoo 실패 시 2차 시세 폴백이 사라져 `CORE_QUOTE_COVERAGE_FAILED` 위험이 커진다. |
 | `FINNHUB_API_KEY` | `refresh-screener.yml` | 실적/IPO 캘린더가 이전 파일을 유지한 채 갱신되지 않는다. |
 | `DART_API_KEY` | `refresh-screener.yml` | 금융감독원 OpenDART 무료 인증키(opendart.fss.or.kr 회원가입 후 발급). 없으면 한국 종목 재무(kr-fundamentals.json)가 수집되지 않고 기업 요약은 '자료 없음'으로 남는다. 소유자 결정(2026-10-14): 등록하지 않는다 — 워크플로는 경고 대신 안내만 남긴다. |
-| `BOK_API_KEY` | `deploy-ai-proxy.yml` | **선택.** `/relay`의 `bok` 제공자만 503 fail-closed로 남고 배포는 계속된다(경고로 표시). 브라우저는 이 소스에 직접 도달할 수 없으므로 키가 없으면 한국은행 지표는 서버 스냅샷에만 의존한다. |
+| `BOK_API_KEY` | `deploy-ai-proxy.yml` | **사용처 없음(2026-11-21 소유자 결정: 키를 설정하지 않고 퇴역).** 브라우저는 더 이상 `/relay?provider=bok`를 부르지 않는다. 한국 기준금리는 생산자의 한국은행 공식 페이지 참조(`scripts/lib/web-reference-verify.mjs` `bokBaseRate`)에서만 온다. Worker의 `bok` 릴레이 제거 여부는 소유자 결정 대기. |
 | `OPENFIGI_API_KEY` | `refresh-data.yml` (13F 단계) | **선택(v58.56).** OpenFIGI 무료 키(openfigi.com 가입). 없으면 키 없는 한도로 회차당 더 적은 CUSIP만 조회해 대가 보유 종목의 티커 매핑이 천천히 늘어난다. 모호하거나 미국 보통주가 아닌 응답은 버린다. |
-| `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **선택.** 위와 동일하게 `kosis` 제공자만 fail-closed. |
+| `KOSIS_API_KEY` | `deploy-ai-proxy.yml` | **사용처 없음.** 위와 동일 — 브라우저는 `kosis` 릴레이를 부르지 않고, 한국 CPI는 통계청 보도자료 공식 참조(`krCpi`)에서만 온다. |
 | `AIO_OPERATOR_TOKEN` | `operations-weekly-review.yml` | **선택(v58.84).** §4의 `aio-proxy` Worker secret과 같은 값. 있으면 주간 점검이 `/_ops/ai-usage`로 이번 달 예약액이 예산의 80% 이상인지 상태만 이슈에 적는다(금액은 공개 이슈에 쓰지 않는다, R658). 없으면 그 항목은 '미설정'이다. |
 | `AIO_REFRESH_DISPATCH_TOKEN` | `deploy-data-plane.yml` | **권장(P1578).** 이 저장소만 대상으로 Actions 읽기·쓰기 권한을 준 fine-grained PAT. 데이터 평면 Worker에 `GITHUB_DISPATCH_TOKEN`으로 복사되어 5분 cron이 :20/:50에 `refresh-data`를 디스패치한다. 없으면 GitHub 예약 실행에만 의존한다(실측 슬롯의 약 10%). `/health`의 `schedulerDispatch.configured`와 워치독 경고로 확인한다. |
 | `CLOUDFLARE_API_TOKEN` | `deploy-ai-proxy.yml`, `deploy-data-plane.yml` | 두 Worker 배포가 `operator_required`로 즉시 실패한다. |
@@ -76,7 +76,7 @@ Settings → Secrets and variables → Actions → **Secrets**에 등록한다.
 
 - OpenAI 서버 키: `OPENAI_API_KEY` → `aio-proxy`의 `POST /openai` → OpenAI Responses API, 요청 모델은 `gpt-6-luna`만 허용한다. 채팅·번역·Actions 시장 서술은 모두 이 Worker를 경유하며 같은 월 예산 원장을 사용한다. 개인 AI 키나 다른 공급자 직접 호출 폴백은 사용하지 않는다.
 - 자동화 인증: Actions는 `X-AIO-Automation-Token`으로 인증한다. 운영자 제공 HTTPS `AI_PROXY_URL`만 호출하고 리다이렉트를 거부한다. 실패·429·미완료 응답에는 제공자 직접 호출 재시도가 없다.
-- 시장 데이터 릴레이: BOK/KOSIS는 운영자 Secret을 사용한다. FRED 공식 [API 키 지침](https://fred.stlouisfed.org/docs/api/api_key.html)은 애플리케이션 사용자별 키를 요구한다. 정기 수집 결과를 읽는 것과 개인 실시간 API 조회는 구분한다. 개인 FRED 조회는 본인 키로만 수행하며 공용 Worker 중계는 사용자 opt-in이 있어야 한다. 업스트림 host는 고정이고 키는 응답·로그·캐시에 남기지 않는다.
+- 시장 데이터 릴레이: Worker `/relay`(BOK/KOSIS 운영자 Secret)는 앱에서 호출하지 않는다(2026-11-21 퇴역). FRED 공식 [API 키 지침](https://fred.stlouisfed.org/docs/api/api_key.html)은 애플리케이션 사용자별 키를 요구한다. 정기 수집 결과를 읽는 것과 개인 실시간 API 조회는 구분한다. 개인 FRED 조회는 본인 키로만 수행하며 공용 Worker 중계는 사용자 opt-in이 있어야 한다. 업스트림 host는 고정이고 키는 응답·로그·캐시에 남기지 않는다.
 
 **사용자별 선택 설정** — Alpha Vantage, Finnhub, FMP, Twelve Data, NewsData, RSS2JSON, FRED, Google CSE(key+cx), CF Worker URL(선택적 자체 프록시)은 개인 설정이다. 필수 가입·입력은 아니며 키가 없으면 해당 기능의 무료·서버 수집·캐시 자료를 사용하거나 기능을 보류한다. 개인 키는 브라우저 localStorage(선택 시 Vault 암호화)에 저장된다. FRED의 명시적 opt-in 중계 외에는 제공자/본인 Worker로만 전송한다. FMP는 신규 무료 계정에 맞춰 `stable`을 사용하지만, 무료 키가 모든 데이터셋 접근권을 뜻하지 않는다. Twelve Data 묶음은 지표별 credit를 소비하고 브라우저 카운터는 계정 전체 소비를 보증하지 않는다. NewsData 무료 뉴스는 12시간 지연된다. Perplexity AI 경로는 비활성화하며 기존 저장키는 자동 삭제하지 않는다.
 

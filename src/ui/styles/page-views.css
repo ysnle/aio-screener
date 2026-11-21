@@ -39,8 +39,13 @@
 /* 매크로: 요약 / 주제별 / 지표와 발표 */
 #page-macro:not([data-view="summary"], [data-view="all"]) > :is(.mk-macro-top, #macro-screen-reading, .macro-chain-section, #index-earnings, #macro-crossroads),
 #page-macro:not([data-view="topics"], [data-view="all"]) > #macro-chapters,
-#page-macro:not([data-view="releases"], [data-view="all"]) > :is(#macro-recent-releases, .release-guide, .macro-board-section, .macro-commodities-section) { display: none; }
+#page-macro:not([data-view="releases"], [data-view="all"]) > :is(#macro-recent-releases, .release-guide, .macro-board-section, .macro-commodities-section),
+/* 종목: 개요 / 쟁점과 전망 (the search and the company head show in every view; 내 메모 is 개요's last section) */
+#page-ticker:not([data-view="overview"], [data-view="all"]) > :is(#ticker-company, [data-research-snapshots]),
+#page-ticker:not([data-view="outlook"], [data-view="all"]) > #ticker-outlook { display: none; }
 }
+/* The 종목 hub line shows the ticker page's views as its own tabs beside 재무 공시 (route-hubs.js viewTabs). */
+#page-ticker > .page-views { display: none; }
 
 /* A fold that is the whole content of its view: open, and its summary is a heading, not a control. */
 details[data-view-open] > summary { pointer-events: none; cursor: default; list-style: none; }

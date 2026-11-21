@@ -29,6 +29,9 @@ const tickerTab = stockHub.routes.find((route) => route.id === 'ticker');
 // The retired 메모 view's address (2026-11-19: the notes are a section of 개요) still opens the company, with the notes on
 // the face, and settles on the plain address.
 cases.push({ route: 'ticker', tab: tickerTab.label, sym: 'NVDA', form: 'path', memo: true, hash: '#ticker/NVDA?view=memo' });
+// v60.38 (owner 2026-11-21): 쟁점과 전망 is a view of the ticker page shown as a hub tab; its address opens it, keeps it,
+// and 개요's sections are off the face there.
+cases.push({ route: 'ticker', tab: '쟁점과 전망', sym: 'NVDA', form: 'query', view: 'outlook', hash: '#ticker?sym=NVDA&view=outlook' });
 
 const failures = [];
 const results = [];
@@ -50,13 +53,14 @@ try {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(`${base}/index.html${item.hash}`, { waitUntil: 'domcontentloaded' });
-    const seen = await page.waitForFunction(({ route, sym }) => {
+    const seen = await page.waitForFunction(({ route, sym, view }) => {
       const active = document.querySelector('.page.active')?.id;
       const tab = [...document.querySelectorAll('[role=tab][aria-selected="true"]')].find((node) => node.offsetParent);
       const subject = document.querySelector('.aio-hub-subject strong')?.textContent?.trim() || '';
       const summary = document.getElementById('ticker-title')?.textContent || document.querySelector('#page-ticker h1')?.textContent || '';
       const named = route === 'ticker' ? summary.toUpperCase().includes(sym) || window._aioLastOpenedSymbol === sym : subject === sym;
-      return active === `page-${route}` && tab && named && !location.hash.includes('view=') ? { active, tab: tab.textContent.trim(), subject, hash: location.hash } : null;
+      const address = view ? location.hash.includes(`view=${view}`) : !location.hash.includes('view=');
+      return active === `page-${route}` && tab && named && address ? { active, tab: tab.textContent.trim(), subject, hash: location.hash } : null;
     }, item, { timeout: 15000 }).then((handle) => handle.jsonValue()).catch(() => null);
     const state = seen || await page.evaluate(() => ({
       active: document.querySelector('.page.active')?.id || null,
@@ -69,7 +73,7 @@ try {
     if (state.active !== `page-${item.route}`) problems.push(`active ${state.active}`);
     if (state.tab !== item.tab) problems.push(`selected tab ${state.tab} (tabs ${JSON.stringify(state.tabs || [])})`);
     if (!seen) problems.push(`symbol ${item.sym} not shown (hub line ${state.subject})`);
-    const expected = new URLSearchParams({ sym: item.sym });
+    const expected = new URLSearchParams(item.view ? { sym: item.sym, view: item.view } : { sym: item.sym });
     const actual = new URLSearchParams(state.hash.split('?')[1]);
     if (!state.hash.startsWith(`#${item.route}?`) || actual.size !== expected.size || [...expected].some(([key, value]) => actual.get(key) !== value)) problems.push(`address ${state.hash}`);
     if (item.memo) {
@@ -81,6 +85,13 @@ try {
       await page.evaluate(() => document.dispatchEvent(new CustomEvent('aio:liveQuotes')));
       if (await note.inputValue() !== '아직 저장하지 않은 NVDA 초안') problems.push('a repaint dropped the unsaved draft');
       if (!blockedAfterBoot) problems.push('the after-boot request was not blocked');
+    }
+    if (item.view === 'outlook') {
+      const outlook = await page.waitForFunction(() => {
+        const shown = (id) => { const node = document.getElementById(id); return !!node && !node.hidden && getComputedStyle(node).display !== 'none'; };
+        return document.querySelector('#ticker-outlook [data-company-section="outlook"]') ? { outlook: shown('ticker-outlook'), overview: shown('ticker-company'), head: shown('ticker-hero-name') } : null;
+      }, null, { timeout: 20000 }).then((handle) => handle.jsonValue()).catch(() => null);
+      if (!outlook?.outlook || outlook.overview || !outlook.head) problems.push(`쟁점과 전망 view ${JSON.stringify(outlook)}`);
     }
     if (errors.length) problems.push(`page errors ${errors.slice(0, 2).join(' | ')}`);
     results.push({ ...item, state, problems });

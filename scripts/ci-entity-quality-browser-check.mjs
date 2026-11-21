@@ -133,7 +133,7 @@ try {
       check(summary.active==='page-ticker' && /^\$84\.64$/.test(summary.price),`${label}: first summary price/currency absent (P1624)`,summary);
       check(/Aehr Test Systems/.test(summary.name) && summary.business.length>0 && /^https:\/\//.test(summary.source || '')
         && !/Palantir/.test(`${summary.name} ${summary.business}`),`${label}: selected issuer profile/source identity lost (P1624)`,summary);
-      check(/^business,place,(outlook,)?money$/.test(summary.sections.join(',')) && !summary.chart,`${label}: 개요 is not 사업 · 밸류체인 안의 자리 · 쟁점과 전망 · 재무 한눈에, or it draws a chart other than the 1-year close line (2026-11-19, v60.35)`,summary);
+      check(summary.sections.join(',')==='business,place,money' && !summary.chart,`${label}: 개요 is not 사업 · 밸류체인 안의 자리 · 재무 한눈에 (쟁점과 전망 is its own view, v60.38), or it draws a chart other than the 1-year close line (2026-11-19, v60.35)`,summary);
       check(summary.basis.includes('2026-10-10 05:00 한국 시간') && !/UTC|실시간/.test(summary.basis),`${label}: observation basis lost/promoted or not in Korean time (P1624/S21)`,summary);
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);
