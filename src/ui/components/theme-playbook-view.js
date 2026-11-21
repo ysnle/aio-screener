@@ -4,9 +4,11 @@
 // P1743 (owner 2026-10-13): "테마 시나리오" on 테마 — every US and KR theme read by one rule (src/domain/scenarios/
 // theme-playbook.js), so a sector rally, a pullback inside a long uptrend or a bottleneck theme is never a hand-written
 // note. One visual (the momentum map: 6-month trend × 1-month move, coloured by the macro wind), a short reading (where
-// strength moved and which combinations stand out), then folded per-stage cards with each theme's choices, opportunity
-// cost, evidence lines, structural hypothesis and what would break it. Stock selection stays on 테마 상세 and 스크리너.
-import { fillOnOpen } from './lazy-fold.js';
+// strength moved and which combinations stand out), then one line per theme where the reader picks one and only that
+// theme's detail opens (its choices, opportunity cost, evidence lines, structural hypothesis and what would break it); the
+// full stage × theme table is a raw-table fold. Stock selection stays on 테마 상세 and 스크리너.
+import { kindFold, markFold } from './indicator-face.js';
+import { pickList } from './pick-list.js';
 import { sessionChipText } from './session-lag.js';
 import { THEME_STATES } from '../../domain/scenarios/analogs.js';
 import { relativeBand, rrgRecentReading } from '../../domain/themes/recent-check.js';
@@ -16,12 +18,23 @@ import { WIND_LABELS } from '../../domain/scenarios/exposures.js';
 import { CHOICES } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
-import { stageChoiceText, LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
+import { LEAD_CONFIRM_MET, ABOVE50_FLOOR } from '../../domain/scenarios/theme-playbook.js';
 import { GROUND_NOTES, themeDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { decisionFrameBlock, favouredLine } from './decision-frame.js';
 
 const CREDIT_CONDITION = '신용 안정';
-const CHOICE_TEXT_OF = (state) => stageChoiceText(state);
+/**
+ * Picks one theme in its market's theme list (the 테마 시나리오 list for US, the 한국 view's for KR) and keeps the pick
+ * for the next paint. A theme detail, a map marker or a raw-table row lands the list on that theme.
+ */
+export function pickTheme(doc, root, market, key, { reveal = false } = {}) {
+  if (root) (root._aioTpPicked ||= {})[market] = key;
+  const button = [...(doc?.querySelectorAll?.(`.tp-picker[data-market="${market}"] .tp-theme-pick`) || [])].find((node) => node.dataset.theme === key);
+  if (!button) return false;
+  if (button.getAttribute('aria-pressed') !== 'true') button.click();
+  if (reveal) { button.closest('.tp-picker')?.querySelector('.xr-pick-detail')?.scrollIntoView?.({ block: 'start' }); button.focus?.({ preventScroll: true }); }
+  return true;
+}
 // v59.70 (re-review #15): a theme named like a sector (헬스케어, 필수소비재 …) is a different basket from that sector's ETF,
 // so the same name read +9.9% in the sector line and +7.0% here. Where the names collide the theme says '테마'.
 const SECTOR_NAMES = new Set(Object.values(SECTOR_ETF_LABELS));
@@ -29,29 +42,11 @@ export const themeBasketLabel = (label) => (SECTOR_NAMES.has(String(label || '')
 /** The stage header's definition and favoured-choice tally; the tally's ground kind (a cost hypothesis) is its title. */
 export function stageNote(doc, stage, choiceLine = '') {
   const definition = THEME_STATES[stage]?.match(/\((.*)\)$/)?.[1];
-  const note = el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다(이유는 행을 눌러 확인).'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note');
+  const note = el(doc, 'span', `${definition ? `${definition}.` : '단계 판정의 조건이 맞지 않아 보류한 테마입니다.'}${choiceLine ? ` 조건별 득실로 ${CHOICE_WORDS.favored}: ${choiceLine}.` : ''}`, 'tp-stage-note');
   if (choiceLine) note.title = GROUND_NOTES['cost-hypothesis'];
   return note;
 }
 
-export function stageChoiceTable(doc, stage, list) {
-  const wrap = el(doc, 'div', null, 'tp-stage-choices');
-  const texts = Object.entries(CHOICE_TEXT_OF(stage));
-  if (!texts.length) return wrap;
-  wrap.append(el(doc, 'h4', '이 단계의 대응별 득실', 'xr-h4'));
-  const table = el(doc, 'div', null, 'xr-choices');
-  for (const [key, text] of texts) {
-    const line = el(doc, 'div', null, 'xr-choice');
-    const favored = list.filter((row) => row.favored.includes(key)).length;
-    if (favored) line.dataset.favored = 'true';
-    line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
-    // A stage-level tally of the rule table is a cost hypothesis by construction; the flag names it on hover.
-    if (favored) line.append(Object.assign(el(doc, 'span', favored === list.length ? CHOICE_WORDS.favored : `${CHOICE_WORDS.favored}, ${favored}개 테마`, 'xr-choice-flag'), { title: GROUND_NOTES['cost-hypothesis'] }));
-    table.append(line);
-  }
-  wrap.append(table);
-  return wrap;
-}
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { refreshScenarioArtifacts, showCrossroadsSection } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -134,7 +129,7 @@ function momentumMap(doc, themes, size = 'wide', onPick = null) {
     const mark = svg(doc, 'circle', { cx: x, cy: y, r: 6, class: `tp-dot is-${row.wind.lead}${clipped ? ' is-clipped' : ''}` });
     const title = svg(doc, 'title'); title.textContent = describe(row);
     mark.append(title); box.append(mark);
-    if (onPick) mark.addEventListener('click', () => onPick(describe(row)));
+    if (onPick) mark.addEventListener('click', () => onPick(describe(row), row));
     marks.push({ x0: x - 7, x1: x + 7, y0: y - 7, y1: y + 7 });
     // Pinned themes are labelled first (a large finite lead keeps the sort comparator a number).
     return { row, x, y, clipped, distance: (clipped ? 1e6 : 0) + Math.hypot(mapX(row) / sx, mapY(row) / sy) };
@@ -321,8 +316,8 @@ export function criteriaDots(doc, criteria) {
 
 // v58.78 (owner 2026-10-25, "10거래일 단계는 왜 저렇게"): seven stage colours in ten 9px cells could not be read. The cell
 // says the run in words and a small line draws the theme's 1-month return over the same sessions.
-export function stageFlowCell(doc, days, change) {
-  const cell = el(doc, 'td', null, 'tp-row-flow');
+export function stageFlowCell(doc, days, change, tag = 'td') {
+  const cell = el(doc, tag, null, 'tp-row-flow');
   const run = stageRun(days);
   if (!run) { cell.textContent = '기록 없음'; return cell; }
   const text = run.from ? `${run.sessions}거래일째, '${stageName(run.from.state)}'에서` : `${run.sessions}거래일 이상 유지`;
@@ -330,11 +325,11 @@ export function stageFlowCell(doc, days, change) {
   const note = recomputedNote(days);
   if (note) cell.title = note;
   // A word space in the DOM, not only the chip's margin: copy and screen readers got "'동행'에서최근 바뀜".
-  if (change) cell.append(doc.createTextNode(' '), el(doc, 'span', '최근 바뀜', 'tp-flow-chip'));
+  if (change) cell.append(doc.createTextNode(' '), Object.assign(el(doc, 'span', '최근 바뀜', 'tp-flow-chip'), { title: `${shortMd(change.date)}에 바뀜` }));
   return cell;
 }
-function returnSpark(doc, days) {
-  const cell = el(doc, 'td', null, 'tp-row-spark');
+function returnSpark(doc, days, tag = 'td') {
+  const cell = el(doc, tag, null, 'tp-row-spark');
   const points = days.map((day, index) => [index, day.ret1m]).filter(([, value]) => Number.isFinite(value));
   if (points.length < 2) { cell.textContent = '—'; return cell; }
   const W = 84, H = 24, values = points.map(([, value]) => value);
@@ -369,17 +364,27 @@ function rrgStageConflict(root, row) {
 }
 const rrgBasisText = (benchName = 'S&P 500 동일가중') => `기준이 달라 다를 수 있습니다: RRG는 대표 ETF의 SPY 대비 상대가격을 최근 ${RRG_RATIO_SESSIONS}거래일 평균·${RRG_MOMENTUM_LAG}거래일 전과 비교하고, 단계는 구성 종목 수익률 중앙값의 6개월·1개월(한국 3개월·1개월)을 같은 기간 ${benchName}(한국 코스피)와 비교합니다`;
 
-// v58.75 (persona review): the card body opens under its table row. What every theme in a stage shares (definition, the
-// four choices) is printed once in the stage header; the card keeps only what is this theme's own.
-function themeCard(doc, root, row, screenerSector = null, { change = null, teach = null } = {}) {
+// The picked theme's detail under the theme list: its stage and run, its numbers once (each with its name), the stage's
+// definition and favoured-choice tally, then what is this theme's own.
+function themeCard(doc, root, row, screenerSector = null, { days = [], change = null, teach = null, teachPending = false, stageLine = null } = {}) {
   const card = el(doc, 'div', null, 'tp-card');
   card.dataset.theme = `${row.market}:${row.id}`;
-  // v58.79 (layout over captions): the row above already shows the stage, 1주, 1개월 and the long trend; the card's first
-  // line keeps what the row lacks (3개월, the theme's character) and the full stage sentence is its hover.
-  const facts = el(doc, 'p', [row.ret3m != null ? `3개월 ${pct(row.ret3m)}` : null, row.tagLabels.length ? `성격: ${row.tagLabels.join(', ')}` : null].filter(Boolean).join(', ') || row.stateLabel, 'xr-basis');
-  facts.title = [row.stateLabel, row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null].filter(Boolean).join(', ');
-  card.append(facts);
-  if (change) card.append(el(doc, 'p', `최근 단계 변화: ${shortMd(change.date)} '${stageName(change.from)}' → 지금 '${stageName(change.to)}'.`, 'xr-reading'));
+  const head = el(doc, 'p', null, 'tp-pick-flow');
+  head.append(el(doc, 'b', row.state ? stageName(row.state) : '판정 보류'), doc.createTextNode(', '), stageFlowCell(doc, days, change, 'span'));
+  const drift = row.stateLabel && row.state ? row.stateLabel.split(' (')[0].split(', ').slice(1).join(', ') : '';
+  if (drift) head.append(doc.createTextNode(' '), el(doc, 'span', drift, 'tp-row-drift'));
+  head.title = row.stateLabel || '';
+  const stats = el(doc, 'p', null, 'tp-pick-stats');
+  const stat = (label, ...value) => { const item = el(doc, 'span', null, 'tp-stat'); item.append(el(doc, 'span', label, 'tp-stat-label'), ...value); stats.append(item); };
+  for (const [label, value] of [['1주', row.ret5d], ['1개월', row.ret1m], ['3개월', row.ret3m], ['6개월', row.ret6m]]) if (value != null) stat(label, el(doc, 'span', pct(value), dirClass(value) || null));
+  if (row.above50 != null) stat('50일선 위', el(doc, 'span', `${row.above50}%`));
+  if (teach?.criteria) {
+    stat('기준 충족', criteriaDots(doc, teach.criteria), el(doc, 'span', teachPending && teach.criteria.known < teach.criteria.total ? `${teach.criteria.met}/${teach.criteria.total}, 확인 중` : criteriaCellText(teach.criteria)));
+    stats.lastChild.title = teach.criteria.headline;
+  }
+  card.append(head, stats, returnSpark(doc, days.slice(-SPARK_DAYS), 'div'));
+  if (stageLine) card.append(stageLine);
+  if (row.tagLabels.length) card.append(el(doc, 'p', `성격: ${row.tagLabels.join(', ')}`, 'xr-basis'));
   const conflict = rrgStageConflict(root, row);
   // v58.79: one short fact; why the two measures can differ is the line's hover (and the table's RRG fold).
   if (conflict) { const line = el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}'`, 'xr-reading tp-rrg-fact'); line.title = rrgBasisText(row.relative?.name); card.append(line); }
@@ -404,21 +409,20 @@ function themeCard(doc, root, row, screenerSector = null, { change = null, teach
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
   }
-  // v58.74 (text audit): the four choice texts are the same for every card in a stage, so the stage fold states them once;
-  // the card keeps the side whose cost is smaller and why (and a 분할 line that differs from the stage text).
+  // One theme's detail shows at a time, so its four choices (the stage's texts with this theme's own where they differ)
+  // print in full here; the stage's tally is the stage line above.
   if (!row.state) { card.append(el(doc, 'p', '단계가 정해지면 대응별 득실을 표시합니다.', 'xr-reading')); return themeCardTail(doc, root, row, card, screenerSector); }
-  const stageChoices = CHOICE_TEXT_OF(row.state);
-  const ownChoices = Object.entries(row.choices).filter(([key, text]) => stageChoices[key] !== text);
-  if (ownChoices.length) card.append(el(doc, 'h4', '이 테마의 대응별 득실', 'xr-h4'));
+  const choices = Object.entries(row.choices);
+  if (choices.length) card.append(el(doc, 'h4', '대응별 득실', 'xr-h4'));
   const table = el(doc, 'div', null, 'xr-choices');
-  for (const [key, text] of ownChoices) {
+  for (const [key, text] of choices) {
     const line = el(doc, 'div', null, 'xr-choice');
     if (row.favored.includes(key)) line.dataset.favored = 'true';
     line.append(el(doc, 'span', CHOICES[key], 'xr-choice-name'), el(doc, 'span', text, 'xr-choice-text'));
     if (row.favored.includes(key)) line.append(el(doc, 'span', CHOICE_WORDS.favored, 'xr-choice-flag'));
     table.append(line);
   }
-  if (ownChoices.length) card.append(table);
+  if (choices.length) card.append(table);
   // The comparison rests on the scenario; where the stage's own record did not differ from an ordinary day, it says so.
   card.append(favouredLine(doc, frame) || el(doc, 'p', `${CHOICE_WORDS.favored}: 보류 — ${row.favoredWhy}`, 'xr-reading'));
   return themeCardTail(doc, root, row, card, screenerSector);
@@ -440,13 +444,6 @@ function themeCardTail(doc, root, row, card, screenerSector) {
     if (row.market !== 'KR') detail.dataset.themeId = row.id; // the 테마 page places the US detail panel right after this section (themes.js trigger rule)
     explore.append(detail);
   }
-  if (row.market === 'KR') explore.append(link('한국 테마 흐름', () => {
-    // The KR theme read sits inside a fold that starts closed: open it before scrolling to it.
-    const target = doc.getElementById('kr-themes-artifact-read');
-    const fold = doc.getElementById('kr-integrated-themes') || target?.closest?.('details');
-    if (fold) fold.open = true;
-    target?.scrollIntoView?.({ block: 'start' });
-  }));
   // The screener opens on the theme's dominant sector (the same typed handoff the sector rotation uses).
   // v58.75 (persona review, D-6): a US theme opens the screener searched by its name, which lists the theme's curated
   // members (screener mergeThemeAliases); a KR theme keeps the sector start (the alias list holds US themes only).
@@ -557,11 +554,17 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const { crossroads, playbook } = themePlaybookForRoot(root, store);
   root.__aioThemePlaybook = playbook;
   if (!playbook.available) { renderThemeStrengthMap(doc, root, playbook, null); host.replaceChildren(el(doc, 'p', '테마 수익률(스크리너)을 받으면 모든 테마를 같은 규칙으로 읽습니다.', 'xr-basis')); return playbook; }
-  const openStages = new Set([...host.querySelectorAll('.tp-stage-choices-fold[open]')].map((node) => node.dataset.stage));
   const scenario = scenarioLead(crossroads); // v59.51: one lead source; a tie names every tied branch
-  const [headline, ...restOfRotation] = playbook.rotation.text.split(/(?<=니다\.)\s+/);
-  const reading = [headline, ...(restOfRotation.length ? [restOfRotation.join(' ')] : [])];
+  // The rotation read, sentence by sentence: the month's ends (the lead line and the theme list restate them), Korea's
+  // ends (the 한국 view owns them), the sample and price-basis caveats (method, in the rules fold) and the rest (face).
+  const sentences = playbook.rotation.text.split(/(?<=니다\.)\s+/);
+  const isEnds = (text) => /(가장 오른 곳이|가장 덜 내린 곳이) .*(가장 내린 곳이|가장 덜 오른 곳이)/.test(text);
+  const isMethod = (text) => /표본이 .*판단하지 않습니다\.$|자금 유출입 자료는 아닙니다\.$/.test(text);
+  const isKorea = (text) => /^한국은 /.test(text);
+  const faceSentences = sentences.filter((text) => !isEnds(text) && !isMethod(text) && !isKorea(text));
+  const caveats = sentences.filter((text) => isMethod(text) && !isKorea(text));
   const h = playbook.highlights;
+  const reading = [];
   // v57.81 (audit): no action suggestion in the reading ("분할 접근의 부담이 비교적 작은 경우" was one), and leaders are
   // only those that pass the index-relative, confirmed stage — each named with its last five sessions.
   if (h.structuralPullbacks.length) reading.push(`긴 추세는 지수보다 앞서 있는데 최근 1개월 뒤처졌고 중심 시나리오에서 역풍이 아닌 테마: ${h.structuralPullbacks.slice(0, 6).map((row) => `${mkt(row)} ${row.label}(${pct(row.ret1m)})`).join(', ')} — 핵심 논리가 깨지는 신호가 없는지 함께 봅니다.`);
@@ -574,15 +577,16 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   // v59.70: a US basis behind the latest session reads as a dated reference (the chip says 반영 전). 2026-11-18: the short
   // session form fits the chip whole with the market prefix ("미국 11/16 종가, 11/17 반영 전").
   setAsOf(doc, host.parentElement?.querySelector(':scope > .aio-frame-head'), playbook.lagging?.US ? `미국 ${sessionChipText(playbook.asOfByMarket?.US)}` : closeChipText(playbook.asOfText || (playbook.asOf ? `${playbook.asOf} 확정 종가` : '')), basis.textContent);
-  const rulesFold = el(doc, 'details', null, 'tp-rules');
-  rulesFold.append(el(doc, 'summary', '기준과 판정 규칙'), basis, el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'),
+  const rulesFold = markFold(el(doc, 'details', null, 'tp-rules'), 'method');
+  rulesFold.append(el(doc, 'summary', '기준과 판정 규칙'), basis, ...caveats.map((text) => el(doc, 'p', text, 'xr-basis')), el(doc, 'p', `단계는 6개월(한국 3개월)·1개월 수익률을 같은 기간 지수(미국 S&P 500 동일가중 — 기록이 없으면 S&P 500, 한국 코스피)와 비교해 정하고(1개월 ±${relativeBand('ret1m')}%p, 6개월 ±${relativeBand('ret6m')}%p 안의 차이는 앞선 것으로 보지 않음), 최근 5거래일이 평소 1주 움직임의 2배를 넘게 반대로 움직이면 1개월 판정을 보류합니다. 수혜·부담은 테마 성격이 중심 시나리오에 유리한지 불리한지로 정합니다. 확률 숫자·가격·종목 지시는 쓰지 않습니다. 레버리지·포지션 쏠림을 직접 재는 자료는 없어 가격 단서(1개월 낙폭·50일선 위 비율)로만 봅니다.`, 'xr-basis'),
     el(doc, 'p', `조건 충족 수의 조건: 긴 추세 앞섬(긴 추세 중앙값이 같은 기간 지수보다 밴드 넘게 높음), 조정이 무너지지 않음(50일선 위 종목 ${ABOVE50_FLOOR}% 이상), 중심 시나리오에서 수혜 또는 중립, 신용 안정(신용 지표 양호, 시장 전체에 하나). 추세 속 조정은 조정 깊이(1개월 지수 대비 낙폭이 그 전까지 앞선 폭의 절반 이하)를 더 봅니다. 주도 지속은 50일선 위 비율이 ${ABOVE50_FLOOR}% 이상이거나 조건 ${LEAD_CONFIRM_MET}개 이상이어야 유지됩니다.`, 'xr-basis'));
   const screenerSector = screenerSectorFor(root, store);
   const mapWrap = el(doc, 'div', null, 'tp-map-wrap');
   const pick = el(doc, 'p', null, 'tp-pick');
   pick.setAttribute('aria-live', 'polite');
   pick.hidden = true;
-  const onPick = (text) => { pick.textContent = text; pick.hidden = false; };
+  // A tapped marker prints its line under the map and picks that theme in the list below.
+  const onPick = (text, row) => { pick.textContent = text; pick.hidden = false; pickTheme(doc, root, row.market, `${row.market}:${row.id}`); };
   // v59.70: the map opens on a market that has themes (미국 0 drew an empty map while 한국 had 28).
   const hasUs = playbook.themes.some((row) => row.market === 'US'), hasKr = playbook.themes.some((row) => row.market === 'KR');
   const mapMarket = hasKr && (root._aioTpMapMarket === 'KR' || !hasUs) ? 'KR' : 'US';
@@ -602,12 +606,9 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   // v59.55 (C5): one map, sized for the section it is drawn in (the map was drawn twice and CSS hid one by width).
   const mapSize = host.clientWidth ? (host.clientWidth < 600 ? 'narrow' : 'wide') : ((root.innerWidth || 1024) < 640 ? 'narrow' : 'wide');
   mapWrap.append(marketTabs, momentumMap(doc, mapThemes, mapSize, onPick), pick);
-  // v58.75 (persona review): 46 stage cards were ~78% of the screen's text — "판단 근거" 46 times, "비용 작은 쪽: 관망" on 40.
-  // One stage × theme table replaces them: each stage's definition and its four choices once, a row per theme (10-session
-  // stage strip, 1개월, long trend, 50-day share, wind), and the card opens under its row. Rows whose stage changed in the
-  // last three recorded sessions or whose cheaper choice differs from the rest of the stage open by default.
+  // One line per theme in stage order (stage, 1개월), and only the picked theme's detail under the list (pick-list.js, as
+  // the scenario map and the stories on 시장 상태); the full stage × theme table is the raw-table fold under it.
   const history = root?.[SCENARIO_STATE.key]?.themeHistory || [];
-  const toggled = root._aioTpToggled instanceof Map ? root._aioTpToggled : (root._aioTpToggled = new Map());
   // v58.75 (persona review, A-4): '기준 충족' — how many of the six expert criteria the theme meets (a count, not a
   // probability); the header button sorts each stage's rows by it.
   let interpretation = null;
@@ -618,9 +619,52 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   const teachPending = teachArtifactsPending(root);
   const criteriaSort = !teachPending && (root._aioTpCriteriaSort === 'asc' || root._aioTpCriteriaSort === 'desc') ? root._aioTpCriteriaSort : null;
   const krHost = doc.getElementById('kr-theme-stage-host');
-  for (const node of krHost ? krHost.querySelectorAll('.tp-stage-choices-fold[open]') : []) openStages.add(node.dataset.stage);
-  // v59.51 (content audit): one table per market — the US table folds under the map, the Korean one sits in the 한국 fold.
-  const stageTable = (market, themes) => {
+  // One list per market — the US list sits under the map, the Korean one in the 한국 view.
+  const stageList = (market, themes) => {
+  const groups = [...Object.keys(THEME_STATES).map((stage) => [stage, themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m)]),
+    // v57.88 (screen audit): a held theme (state null — e.g. 한국 원전·건설) keeps its own group with the hold reason.
+    ['held', themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity))]].filter(([, list]) => list.length);
+  const criteriaOf = (row) => teachOf.get(`${row.market}:${row.id}`)?.criteria || null;
+  if (criteriaSort) for (const [, list] of groups) list.sort((a, b) => compareCriteria(criteriaOf(a), criteriaOf(b), criteriaSort));
+  const favoredKey = (row) => row.favored.join('+');
+  // Per theme: its stage run, a recent change, and whether its cheaper choice differs from the stage's majority.
+  const items = groups.flatMap(([stage, list]) => {
+    const counts = new Map();
+    for (const row of list) counts.set(favoredKey(row), (counts.get(favoredKey(row)) || 0) + 1);
+    const sorted = [...counts].sort((a, b) => b[1] - a[1]);
+    const majority = sorted[0]?.[0] ?? '';
+    const choiceLine = stage === 'held' ? '' : sorted.map(([key, n]) => `${key ? key.split('+').map((k) => CHOICES[k].split(' (')[0]).join('·') : '보류'} ${n}개`).join(', ');
+    return list.map((row) => {
+      const days = stageHistoryOf(history, row, RUN_DAYS);
+      return { id: `${row.market}:${row.id}`, row, stage, size: list.length, choiceLine, days, change: recentStageChange(days), odd: list.length >= 3 && stage !== 'held' && favoredKey(row) !== majority };
+    });
+  });
+  const flags = (item) => [item.change ? '바뀜' : null, item.odd ? '다른 선택' : null].filter(Boolean);
+  // A held theme's head already says 판정 보류 and its card why; the stage line is for a real stage.
+  const stageLine = (item) => {
+    if (item.stage === 'held') return null;
+    const line = el(doc, 'p', `같은 단계 ${item.size}개 테마 — `, 'xr-basis tp-pick-stage');
+    line.append(stageNote(doc, item.stage, item.choiceLine));
+    return line;
+  };
+  const picked = root._aioTpPicked?.[market] || null;
+  // The column names, once above the rows.
+  const listHead = el(doc, 'div', null, 'tp-pick-head');
+  listHead.setAttribute('aria-hidden', 'true');
+  listHead.append(el(doc, 'span', '테마'), el(doc, 'span', '단계'), el(doc, 'span', '1개월'));
+  const list = pickList(doc, {
+    items, picked, label: `${mkt({ market })} 테마 ${items.length}개, 단계 순`, key: 'theme',
+    classes: { wrap: 'xr-map tp-picker', list: 'xr-picks', pick: 'xr-pick tp-theme-pick', detail: 'xr-pick-detail' },
+    row: (item, button) => {
+      button.addEventListener('click', () => { (root._aioTpPicked ||= {})[market] = item.id; });
+      const name = el(doc, 'span', item.row.label, 'tp-pick-name');
+      for (const flag of flags(item)) name.append(doc.createTextNode(' '), el(doc, 'span', flag, 'tp-row-flag'));
+      const { ret1m } = item.row;
+      return [name, el(doc, 'span', item.stage === 'held' ? '판정 보류' : stageName(item.stage), 'tp-pick-stage-name'), el(doc, 'span', pct(ret1m), `tp-pick-ret ${dirClass(ret1m)}`.trim())];
+    },
+    detail: (item) => themeCard(doc, root, item.row, screenerSector, { days: item.days, change: item.change, teach: teachOf.get(item.id), teachPending, stageLine: stageLine(item) })
+  });
+  list.dataset.market = market;
   const buildTable = () => { // v59.70 DOM1: built when the fold first opens
   const table = el(doc, 'table', null, 'tp-table');
   const cols =['테마', '단계 흐름', '1개월 수익률 추이', '1주', '1개월', '긴 추세', '50일선 위', '시나리오 영향', '기준 충족'];
@@ -644,54 +688,27 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   headRow.append(criteriaHead);
   head.append(headRow);
   table.append(head);
-  const groups = [...Object.keys(THEME_STATES).map((stage) => [stage, themes.filter((row) => row.state === stage).sort((a, b) => b.ret1m - a.ret1m)]),
-    // v57.88 (screen audit): a held theme (state null — e.g. 한국 원전·건설) keeps its own group with the hold reason.
-    ['held', themes.filter((row) => !THEME_STATES[row.state]).sort((a, b) => (b.ret1m ?? -Infinity) - (a.ret1m ?? -Infinity))]].filter(([, list]) => list.length);
-  const criteriaOf = (row) => teachOf.get(`${row.market}:${row.id}`)?.criteria || null;
-  if (criteriaSort) for (const [, list] of groups) list.sort((a, b) => compareCriteria(criteriaOf(a), criteriaOf(b), criteriaSort));
-  const favoredKey = (row) => row.favored.join('+');
-  let exceptions = 0;
-  for (const [stage, list] of groups) {
+  for (const [stage] of groups) {
     const body = el(doc, 'tbody', null, 'tp-stage');
     body.dataset.stage = stage;
     const stageRow = el(doc, 'tr', null, 'tp-stage-row'), stageCell = el(doc, 'th');
     stageCell.colSpan = cols.length;
     stageCell.scope = 'rowgroup';
-    const counts = new Map();
-    for (const row of list) counts.set(favoredKey(row), (counts.get(favoredKey(row)) || 0) + 1);
-    const majority = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-    const choiceLine = stage === 'held' ? '' : [...counts].sort((a, b) => b[1] - a[1]).map(([key, n]) => `${key ? key.split('+').map((k) => CHOICES[k].split(' (')[0]).join('·') : '보류'} ${n}개`).join(', ');
-    stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${list.length}개`, 'tp-stage-name'), stageNote(doc, stage, choiceLine));
-    if (stage !== 'held') {
-      const fold = el(doc, 'details', null, 'tp-stage-choices-fold');
-      fold.dataset.stage = `${market}:${stage}`;
-      fold.open = openStages.has(`${market}:${stage}`);
-      fold.append(el(doc, 'summary', '이 단계의 대응별 득실'), stageChoiceTable(doc, stage, list));
-      fold.querySelector('h4')?.remove(); // the summary names it
-      stageCell.append(fold);
-    }
+    const members = items.filter((item) => item.stage === stage);
+    stageCell.append(el(doc, 'span', `${stage === 'held' ? '판정 보류' : stageName(stage)}, ${members.length}개`, 'tp-stage-name'));
     stageRow.append(stageCell);
     body.append(stageRow);
-    for (const row of list) {
-      const key = `${row.market}:${row.id}`;
-      const days = stageHistoryOf(history, row, RUN_DAYS);
-      const change = recentStageChange(days);
-      const odd = list.length >= 3 && stage !== 'held' && favoredKey(row) !== majority;
-      const isException = !!change || odd;
-      // Open at first: a stage that changed on the latest session or a cheaper choice unlike the stage's majority (at most 4).
-      const openFirst = (change?.latest || odd) && exceptions < 4;
-      if (openFirst && !toggled.has(key)) exceptions += 1;
-      const open = toggled.has(key) ? toggled.get(key) : openFirst;
-      const tr = el(doc, 'tr', null, `tp-row${isException ? ' is-exception' : ''}`);
+    for (const item of members) {
+      const { row, days, change } = item;
+      const key = item.id;
+      const tr = el(doc, 'tr', null, 'tp-row');
       tr.dataset.theme = key;
       const nameCell = el(doc, 'td');
-      const toggle = el(doc, 'button', null, 'tp-row-toggle');
+      // The name picks the theme in the list above, where its detail opens.
+      const toggle = el(doc, 'button', row.label, 'tp-row-pick');
       toggle.type = 'button';
-      toggle.append(el(doc, 'span', mkt(row), 'tp-row-market'), doc.createTextNode(` ${row.label}`));
-      if (odd) toggle.append(el(doc, 'span', ' 다른 선택', 'tp-row-flag'));
-      toggle.setAttribute('aria-expanded', String(open));
-      const detailId = `tp-detail-${row.market}-${row.id}`.replace(/[^A-Za-z0-9_-]/g, '-');
-      toggle.setAttribute('aria-controls', detailId);
+      if (item.odd) toggle.append(doc.createTextNode(' '), el(doc, 'span', '다른 선택', 'tp-row-flag')); // the run cell says 바뀜
+      toggle.addEventListener('click', () => pickTheme(doc, root, market, key, { reveal: true }));
       nameCell.append(toggle);
       const stageCellRow = stageFlowCell(doc, days, change);
       const drift = row.stateLabel && row.state ? row.stateLabel.split(' (')[0].split(', ').slice(1).join(', ') : '';
@@ -711,21 +728,7 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
       if (teach?.criteria) { criteriaCell.append(criteriaDots(doc, teach.criteria), el(doc, 'span', teachPending && teach.criteria.known < teach.criteria.total ? `${teach.criteria.met}/${teach.criteria.total}, 확인 중` : criteriaCellText(teach.criteria))); } else criteriaCell.textContent = '—';
       if (teach?.criteria) criteriaCell.title = teach.criteria.headline;
       tr.append(criteriaCell);
-      [...tr.children].forEach((cell, index) => { cell.dataset.label = cols[index]; });
-      const detailRow = el(doc, 'tr', null, 'tp-detail-row');
-      detailRow.id = detailId;
-      detailRow.hidden = !open;
-      const detailCell = el(doc, 'td');
-      detailCell.colSpan = cols.length;
-      detailCell.append(themeCard(doc, root, row, screenerSector, { change, teach }));
-      detailRow.append(detailCell);
-      toggle.addEventListener('click', () => {
-        const next = detailRow.hidden;
-        detailRow.hidden = !next;
-        toggle.setAttribute('aria-expanded', String(next));
-        toggled.set(key, next);
-      });
-      body.append(tr, detailRow);
+      body.append(tr);
     }
     table.append(body);
   }
@@ -736,48 +739,43 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   tableScroll.append(table);
   return tableScroll;
   };
-  // v59.51 (content audit): the 46-row table (~14,000 px on a phone) is an expert fold, one per market; the how-to sentence
-  // is the summary's hover (the 테마 buttons and the column names carry it).
-  const fold = el(doc, 'details', null, 'tp-rules tp-table-fold');
-  fold.dataset.market = market;
+  // The full table is the raw-table fold under the list (closed unless the reader opened it; built when it first opens).
   const opened = root._aioTpTableOpen || (root._aioTpTableOpen = {});
-  fold.open = opened[market] !== false; // open unless the reader closed it
+  const what = `${mkt({ market })} 테마 ${items.length}개 전체 표`;
+  const fold = kindFold(doc, 'raw-table', what, opened[market] ? [buildTable()] : () => [buildTable()]);
+  fold.classList.add('tp-table-fold');
+  fold.dataset.market = market;
+  fold.open = !!opened[market];
   fold.addEventListener('toggle', () => { opened[market] = fold.open; });
-  const summary = el(doc, 'summary', `${mkt({ market })} 테마 ${themes.length}개 — 단계, 근거, 대응별 득실 표`);
-  summary.title = `단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계(최근 10거래일 기록 안), '바뀜'은 최근 3거래일 안에 단계가 달라진 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다. 마지막 거래일에 바뀐 테마와 '다른 선택'(같은 단계 다수와 ${CHOICE_WORDS.favored}이 다름)은 처음부터 펼쳐 둡니다(최대 4개).`;
-  fold.append(summary);
-  fillOnOpen(fold, () => [buildTable()]);
-  return fold;
+  fold.querySelector('summary').title = `단계 흐름은 지금 단계가 이어진 거래일 수와 그 전 단계, '바뀜'은 최근 3거래일 안에 단계가 달라진 테마, '다른 선택'은 같은 단계 다수와 ${CHOICE_WORDS.favored}이 다른 테마입니다. 추이 선은 같은 기간 1개월 수익률의 흐름입니다.`;
+  return [listHead, list, fold];
   };
-  // v59.51 (content audit, two layers): the map's side keeps the legend and at most two highlight lines (the themes whose
-  // stage and macro wind disagree). The rest of the rotation read (sample caveat, Korea's ends, the scenario count) and any
-  // further highlight open the US table fold, so no line of the analysis is lost. The RRG-vs-stage conflict list left: each
-  // theme's card already carries its own conflict fact (tp-rrg-fact).
-  const highlightLines = reading.slice(restOfRotation.length ? 2 : 1);
-  const sideLines = [...highlightLines, ...(restOfRotation.length ? [reading[1]] : [])];
+  // The map's side: the legend, the rotation read left after its ends and caveats, and the highlight lines (the themes
+  // whose stage and macro wind disagree). The RRG-vs-stage conflict is each theme's own fact (tp-rrg-fact).
   // Layout review 2026-10-18: the map (capped at 760px) and its reading share one row on a wide screen; a narrow screen
   // stacks them in the same order.
-  const mapRow = el(doc, 'div', null, 'tp-map-row');
-  const mapSide = el(doc, 'div', null, 'tp-map-side');
-  const shown = Math.min(2, highlightLines.length);
-  mapSide.append(legend(doc), ...sideLines.slice(0, shown).map((text) => el(doc, 'p', text, 'xr-reading')));
-  mapRow.append(mapWrap, mapSide);
-  const usThemes = playbook.themes.filter((row) => row.market !== 'KR'), krThemes = playbook.themes.filter((row) => row.market === 'KR');
-  const usFold = usThemes.length ? stageTable('US', usThemes) : null;
-  if (usFold && sideLines.length > shown) usFold.querySelector('summary').after(...sideLines.slice(shown).map((text) => el(doc, 'p', text, 'xr-reading')));
-  // v59.70 (screen review 15): the rotation sentence ran seven bold lines and named the month's top mover, which the
-  // board above lists under a different rule (주도 단계). The lead is one line on the 1-month return, saying whether
-  // that theme is also in the leading stage; the full sentence is the first reading line.
+  // v59.70 (screen review 15): the lead is one line on the 1-month return, saying whether the top theme is also in the
+  // leading stage; without both ends it is the rotation read's first sentence.
   const topMover = playbook.rotation.gainers?.[0], bottomMover = playbook.rotation.losers?.[0];
   const lead = topMover && bottomMover
     ? `1개월 수익률 1위 ${themeBasketLabel(topMover.label)} ${pct(topMover.ret1m)}${topMover.state === 'leading' ? '(주도 단계)' : '(주도 단계는 아님)'}, 최하위 ${themeBasketLabel(bottomMover.label)} ${pct(bottomMover.ret1m)}.`
-    : reading[0];
-  if (lead !== reading[0]) {
-    const full = el(doc, 'p', reading[0], 'xr-reading');
-    if (usFold) usFold.querySelector('summary').after(full); else mapSide.append(full);
+    : sentences[0];
+  const mapRow = el(doc, 'div', null, 'tp-map-row');
+  const mapSide = el(doc, 'div', null, 'tp-map-side');
+  const rotationRead = faceSentences.filter((text) => text !== lead).join(' ');
+  mapSide.append(legend(doc), ...[rotationRead, ...reading].filter(Boolean).map((text) => el(doc, 'p', text, 'xr-reading')));
+  mapRow.append(mapWrap, mapSide);
+  const usThemes = playbook.themes.filter((row) => row.market !== 'KR'), krThemes = playbook.themes.filter((row) => row.market === 'KR');
+  // Korea's themes are the 한국 view's; this view keeps one link there.
+  const krLink = krThemes.length ? el(doc, 'div', null, 'xr-explore') : null;
+  if (krLink) {
+    const button = el(doc, 'button', `한국 테마 ${krThemes.length}개 →`, 'flow-next-link');
+    button.type = 'button';
+    button.addEventListener('click', () => { root?._aioShowPageView?.('page-themes', 'korea', { byReader: true }); doc.getElementById('kr-integrated-themes')?.scrollIntoView?.({ block: 'start' }); });
+    krLink.append(button);
   }
-  host.replaceChildren(el(doc, 'p', lead, 'xr-lead'), rulesFold, mapRow, ...(usFold ? [usFold] : []));
-  if (krHost) krHost.replaceChildren(...(krThemes.length ? [stageTable('KR', krThemes)] : []));
+  host.replaceChildren(el(doc, 'p', lead, 'xr-lead'), rulesFold, mapRow, ...(usThemes.length ? stageList('US', usThemes) : []), ...(krLink ? [krLink] : []));
+  if (krHost) krHost.replaceChildren(...(krThemes.length ? stageList('KR', krThemes) : []));
   host.dataset.aioThemePlaybook = 'native';
   renderThemeStrengthMap(doc, root, playbook, interpretation);
   return playbook;
@@ -802,7 +800,13 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   const link = (label, onClick) => { const b = el(doc, 'button', `${label} →`, 'flow-next-link'); b.type = 'button'; b.addEventListener('click', onClick); return b; };
   const links = el(doc, 'div', null, 'xr-explore');
   // v59.51: the detail is a view of its own, so the comparison link closes it before scrolling to the section.
-  links.append(link('모든 테마 시나리오와 비교', () => { root?.closeThemeDetail?.(); doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }),
+  // The scenario list follows the opened theme, so the way back (or a deep link's) lands on it.
+  pickTheme(doc, root, 'US', `US:${row.id}`);
+  links.append(link('모든 테마 시나리오와 비교', () => {
+    root?.closeThemeDetail?.();
+    root?._aioShowPageView?.('page-themes', 'scenario', { byReader: true });
+    if (!pickTheme(doc, root, 'US', `US:${row.id}`, { reveal: true })) doc.getElementById('theme-playbook-title')?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+  }),
     link('시나리오의 근거', () => showCrossroadsSection(doc, root))); // v59.68 moved the scenarios to 시장 상태
   // v58.79 (owner 2026-10-25): how this theme's businesses earn — the research library's notes and 산업 지도 domain.
   const research = researchForTheme(row.id);

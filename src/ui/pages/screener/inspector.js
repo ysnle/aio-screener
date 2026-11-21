@@ -21,6 +21,18 @@ const FACTOR_EVIDENCE = Object.freeze({
   quality: '수익성이 높은 기업이 장기 초과수익을 내던 경향(Novy-Marx 2013, 매출총이익 기준) — 여기서는 ROE·순이익률'
 });
 
+// A secondary inspector action carries its full label and a short one; the phone sheet shows the short one so every
+// action fits one row (only the shown span is in the accessible name, since the other is display: none).
+function setActionLabel(documentRef, button, full, short) {
+  const fullNode = documentRef.createElement('span');
+  fullNode.className = 'scr-act-full';
+  fullNode.textContent = full;
+  const shortNode = documentRef.createElement('span');
+  shortNode.className = 'scr-act-short';
+  shortNode.textContent = short;
+  button.replaceChildren(fullNode, shortNode);
+}
+
 // 개편 v2 (3c): the row's 1·3·6-month returns beside SPY's on the same close — one diverging scale, the gap on the right.
 // v58.56 (4b): the 52-week position in the inspector/sheet — the phone row shows only order, name, 1개월 and 백분위.
 function renderWhyRange(documentRef, row) {
@@ -304,7 +316,7 @@ export function createInspectorController(ctx) {
            levelsButton.type = 'button';
            levelsButton.className = 'sx-btn';
            levelsButton.dataset.aioScreenerAction = 'open-chart-levels';
-           levelsButton.textContent = '차트·가격 레벨·내 계획 점검';
+           setActionLabel(documentRef, levelsButton, '차트·가격 레벨·내 계획 점검', '차트');
            ticker.insertAdjacentElement('afterend', levelsButton);
          }
          const levelsLink = documentRef.querySelector('[data-aio-screener-action="open-chart-levels"]');
@@ -402,7 +414,8 @@ export function createInspectorController(ctx) {
          const inCompare = !!symbol && compareSymbols.has(symbol);
          button.dataset.aioScreenerArg = symbol || '';
          button.setAttribute('aria-pressed', inCompare ? 'true' : 'false');
-         button.textContent = inCompare ? '비교에서 빼기' : `비교 추가${compareSymbols.size ? ` (${compareSymbols.size}/5)` : ''}`;
+         if (inCompare) setActionLabel(documentRef, button, '비교에서 빼기', '비교 빼기');
+         else setActionLabel(documentRef, button, `비교 추가${compareSymbols.size ? ` (${compareSymbols.size}/5)` : ''}`, '비교 추가');
        };
        ctx.syncWhyWatchlist = (symbol) => {
          const button = documentRef.querySelector('[data-aio-screener-action="why-watchlist"]');
@@ -410,7 +423,8 @@ export function createInspectorController(ctx) {
          const inList = !!symbol && watchlistReader().includes(symbol);
          button.dataset.aioScreenerArg = symbol || '';
          button.setAttribute('aria-pressed', inList ? 'true' : 'false');
-         button.textContent = inList ? '관심 종목에서 빼기' : '관심 종목 추가';
+         if (inList) setActionLabel(documentRef, button, '관심 종목에서 빼기', '관심 빼기');
+         else setActionLabel(documentRef, button, '관심 종목 추가', '관심 추가');
        };
        ctx.explainRow = (row) => {
          ctx.whyUserOpened = true;

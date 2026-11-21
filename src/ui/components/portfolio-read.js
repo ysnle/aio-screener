@@ -208,10 +208,9 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     list.append(li);
   }
   if (detail.childNodes.length || read.points.length) {
-    const fold = el(doc, 'details', null, 'pf-read-detail');
-    fold.dataset.userFold = '';
-    fold.append(el(doc, 'summary', '자세히, 추세 기준 · 섹터 회전 · 지수 대비 원인 · 시나리오 노출'), list, detail);
-    host.append(fold);
+    const more = el(doc, 'div', null, 'pf-read-detail');
+    more.append(list, detail);
+    host.append(more);
   }
   // v59.56: questions that start from the holdings, sent to the shared AI panel.
   const ask = askRow(doc, [

@@ -155,17 +155,17 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const ai = renderMarketGuideContext(guide);
   check('v60.24guide: the 피할 쪽 cost lines read plain on the screen, and the AI block still names their ground (비용 가설)', costLines.length > 0 && costLines.every((line) => /손해가 큰 선택입니다$/.test(line) && !/비용 가설/.test(line))
     && costLines.every((line) => ai.includes(`${line}(비용 가설)`)), { costLines, ai: ai.split('\n').find((line) => line.startsWith('- 지양')) });
-  // The 테마 stage header note and the stage choice-table flag, through the view's own builders.
-  const { stageNote, stageChoiceTable } = await load('src/ui/components/theme-playbook-view.js');
+  // The 테마 stage note (the picked theme's stage line; the stage choice table left with the per-stage folds — the picked
+  // theme prints its own four choices), through the view's own builder.
+  const { stageNote } = await load('src/ui/components/theme-playbook-view.js');
   const { GROUND_NOTES } = await load('src/domain/scenarios/decision-frame.js');
   const { THEME_STATES } = await load('src/domain/scenarios/analogs.js');
   const doc = createFakeDocument();
   const stage = Object.keys(THEME_STATES)[0];
   const note = stageNote(doc, stage, '보유 유지·관망 2개');
-  const flags = [...stageChoiceTable(doc, stage, [{ favored: ['hold', 'wait'] }, { favored: ['wait'] }]).querySelectorAll('.xr-choice-flag')];
-  check('v60.24theme: the 테마 stage note and choice flags read without the ground label, which is their title', /조건별 득실로 .*: 보유 유지·관망 2개\.$/.test(note.textContent) && !/비용 가설|과거 기록/.test(note.textContent)
-    && note.title === GROUND_NOTES['cost-hypothesis'] && flags.length > 0 && flags.every((flag) => !/비용 가설|과거 기록/.test(flag.textContent) && flag.title === GROUND_NOTES['cost-hypothesis']),
-  { note: note.textContent, flags: flags.map((flag) => [flag.textContent, flag.title]) });
+  check('v60.24theme: the 테마 stage note reads without the ground label, which is its title', /조건별 득실로 .*: 보유 유지·관망 2개\.$/.test(note.textContent) && !/비용 가설|과거 기록/.test(note.textContent)
+    && note.title === GROUND_NOTES['cost-hypothesis'],
+  { note: note.textContent });
 }
 
 // ── load order (live 2026-11-16) ──

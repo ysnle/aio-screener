@@ -74,7 +74,7 @@
 .regime-radar { margin: 0 0 22px; padding: 4px 0 6px; } /* v57.76: sits right under the 6개 지표 h2 — no rule between a heading and its visual */
 .regime-radar-lead { font-size: 14px; line-height: 1.6; color: var(--color-text-primary); margin: 4px 0 10px; }
 .regime-radar-body { display: grid; grid-template-columns: minmax(260px, 400px) minmax(0, 1fr); gap: 18px 36px; align-items: center; } /* layout review 2026-10-18: the axis table fills its side and sits level with the drawing */
-.regime-radar-svg { width: 100%; height: auto; overflow: visible; padding: 0 12px; box-sizing: border-box; } /* side labels (신용 · 위험선호) draw a few px outside the viewBox */
+.regime-radar-svg { width: 100%; height: auto; overflow: visible; padding: 0 12px; box-sizing: border-box; } /* side labels (시장 폭 · 변동성 · 신용 · 유가와 달러) draw a few px outside the viewBox */
 .regime-radar-ring { fill: none; stroke: var(--color-border-muted); stroke-width: 1; }
 .regime-radar-spoke { stroke: var(--color-border-muted); stroke-width: 1; }
 .regime-radar-label { font-size: 12px; font-weight: 600; fill: var(--color-text-primary); }

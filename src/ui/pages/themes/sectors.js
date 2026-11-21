@@ -86,7 +86,10 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
     bar.style.left = direction === 'down' ? `calc(50% - ${half})` : '50%'; // a 0.0% bar starts at the zero line
     const zero = el('span', null, 'thp-strength-zero');
     track.append(zero, bar);
-    item.append(track, el('span', `1개월 ${signedText(theme.ret1m, 1)}%, 3개월 ${theme.ret3m == null ? '—' : `${signedText(theme.ret3m, 1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value'));
+    // The bar is the 1-month return; 3개월 and 50일선 위 are the theme list's detail below (and this row's hover).
+    const value = el('span', `1개월 ${signedText(theme.ret1m, 1)}%, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value');
+    value.title = `3개월 ${theme.ret3m == null ? '—' : `${signedText(theme.ret3m, 1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}`;
+    item.append(track, value);
     // Screen audit 2026-10-20: the Korean theme rows were not clickable, so a Korean theme's detail had no entry here.
     const label = typeof root?.openKrThemeDetail === 'function' ? el('button', theme.label, 'stock-read-bar-label theme-strength-open') : el('span', theme.label, 'stock-read-bar-label');
     if (label.tagName === 'BUTTON') {

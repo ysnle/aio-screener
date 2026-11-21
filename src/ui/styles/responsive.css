@@ -565,8 +565,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 /* The tools fold is now an inset card, so a select with a long option no longer fits a phone row at its intrinsic width. */
 .sh-portfolio-calc-settings-row > div { min-width: 0; max-width: 100%; }
 .sh-portfolio-calc-settings-row select { max-width: 100%; }
-/* 오늘의 가이드 기울일 쪽 / 피할 쪽 (moved from 연결해서 보면), two columns; the 시나리오 section's compact list of
-   the scenarios past the top three, whose chosen row shows its card below the list. */
+/* 기울일 쪽 / 피할 쪽 (market-guide.js stance): two columns, one column on a phone. */
 .page .mg-stance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 28px; margin-top: 12px; }
 .page .mg-stance__title { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
 .page .mg-stance__col.is-pursue .mg-stance__title { color: var(--color-text-success, var(--color-text-primary)); }

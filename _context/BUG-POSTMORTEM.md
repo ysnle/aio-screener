@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2692 - v60.37 - 장중 뉴스와 종목 뉴스 메모가 정정 기사를 원 기사와 같은 사건으로 버릴 수 있음 (2026-11-21)
+
+- symptom/reproduction: 발행된 데이터에는 아직 사례가 없다. 코드상 장중 속보 칸과 종목 뉴스 메모는 이미 실린 기사와 제목이 비슷한 정정 기사를 같은 사건으로 보고 싣지 않는다.
+- root_cause: 본 뉴스 묶음의 같은 사건 판정은 정정 기사를 제외하지만, 같은 파일의 selectNewsIntraday와 selectTickerNewsMemo는 그 제외 없이 newsSameEvent를 불렀다.
+- fix: 두 경로 모두 정정 기사(isNewsRevisionRow)는 같은 사건 판정에서 뺀다. R702 문구를 이 동작에 맞췄다.
+- violated_rule: R702
+- prevention: R702가 발행 선택의 같은 사건 기준과 정정 기사 예외를 코드 이름과 함께 적는다.
+- verification/residual: node scripts/ci-news-ranking-check.mjs
+- files: scripts/lib/news-selection.mjs, _context/RULES.md
+
 ## P2691 - v60.36 - 설정되지 않은 relay를 화면에 들어갈 때마다 다시 호출 (2026-11-21)
 
 - symptom/reproduction: 매크로·기술적 분석·테마 화면에 들어갈 때마다 /relay?provider=bok, kosis가 503을 받았다.

@@ -83,6 +83,14 @@ export const SCREENS = Object.freeze({
     html: false,
     modules: ['src/ui/knowledge/ai-map-view.js', 'src/ui/components/node-graph.js', 'src/ui/components/indicator-face.js']
   },
+  // 테마와 섹터 › 테마 시나리오 and 한국 (v60.37): the theme list with the picked theme's detail, the rules (method) and the
+  // full stage table (raw-table). The rest of #page-themes has not moved, so its index.html section is not read; the KR
+  // close read (sectors.js renderKrThemeArtifact) draws no fold.
+  'themes-scenario': {
+    page: 'page-themes',
+    html: false,
+    modules: ['src/ui/components/theme-playbook-view.js', 'src/ui/components/pick-list.js', 'src/ui/components/decision-frame.js']
+  },
   // 종목 (owner 2026-11-19): the company overview (사업 · 밸류체인 안의 자리 · 재무 한눈에) and the reader's notes, opened
   // as a section there (research-snapshots.js open: true; its briefing panel stays a fold of 브리핑).
   ticker: {

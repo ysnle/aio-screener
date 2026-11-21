@@ -215,6 +215,7 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 #page-screener .scr-why-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 #page-screener .scr-why-actions .sx-btn { height: 46px; border-radius: var(--radius-container); }
 #page-screener .scr-why-actions .sx-link { grid-column: 1 / -1; justify-self: center; min-height: 32px; }
+#page-screener .scr-why-actions .scr-act-short { display: none; }
 #page-screener .scr-why-drawer.sx-sheet { width: auto; max-width: none; border-radius: var(--radius-container) var(--radius-container) 0 0; padding-top: 10px; }
 #page-screener .scr-why-drawer.sx-sheet .scr-why-actions { position: sticky; bottom: calc(-1 * max(20px, env(safe-area-inset-bottom, 0px))); margin: 16px -20px 0; padding: 12px 20px max(20px, env(safe-area-inset-bottom, 0px)); background: var(--color-background-card); box-shadow: 0 -1px 0 rgba(var(--ink-rgb), 0.06); }
 #page-screener .scr-sheet-scrim { position: fixed; inset: 0; z-index: 259; background: var(--black-a5); }
@@ -383,6 +384,9 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
 @media (max-width: 1279px) {
   #page-portfolio #pf-hero { grid-template-columns: minmax(0, 1fr); }
 }
+@media (max-width: 743px) {
+  #page-portfolio #pf-hero-stats > div:last-child:nth-child(3n + 2) { grid-column: auto; }
+}
 @media (max-width: 1023px) {
   #page-screener .scr-why-drawer.sx-sheet { max-height: 86vh; overflow-y: auto; }
   #page-portfolio #pf-reading, #page-portfolio #pf-reading:has(> .pf-reading-card:nth-of-type(4)) { grid-template-columns: minmax(0, 1fr); }
@@ -442,7 +446,14 @@ body:not(.aio-dev-mode) #page-screener .scr-dev-only { display: none; }
   #page-screener .scr-dropped-why { font-size: 12px; text-align: right; }
   #page-screener .scr-split-main { padding: 6px 4px; }
   #page-screener td[data-column-key="range52"] { flex: 1 1 120px; }
-  #page-screener .scr-why-actions .sx-btn { height: 50px; }
+  /* One row on a phone: 종목 분석 열기 takes the free width, the other actions shrink to their short labels. */
+  #page-screener .scr-why-actions { display: flex; gap: var(--space-2); }
+  #page-screener .scr-why-actions > :is(.sx-btn, .sx-link) { flex: 0 0 auto; height: var(--size-target-touch); min-height: var(--size-target-touch); padding: 0 var(--space-3); white-space: nowrap; }
+  #page-screener .scr-why-actions > .sx-btn--primary { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  #page-screener .scr-why-actions > .sx-link { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-container); background: var(--sx-ink-a06); color: var(--color-text-primary); font-weight: 600; }
+  #page-screener .scr-why-actions .scr-act-full { display: none; }
+  #page-screener .scr-why-actions .scr-act-short { display: inline; white-space: nowrap; }
+  #page-screener .scr-why-drawer.sx-sheet .scr-why-actions { padding-top: var(--space-2); }
   #page-screener .scr-vh-row { grid-template-columns: 84px minmax(0, 1fr) 60px; gap: 10px; }
   #page-screener .scr-vh-row .scr-vh-date { font-size: 12px; white-space: nowrap; }
   #page-screener .scr-vh-dates > .sx-card__head { flex-direction: column; align-items: flex-start; gap: 4px; }

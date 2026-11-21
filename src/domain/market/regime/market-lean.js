@@ -13,6 +13,7 @@ import { vixBandRecord, vixBandRiskLine } from '../signal/vix-band-record.js';
 import { currentStressOutcomes } from '../../scenarios/outcome-fingerprints.js';
 import { withTopicParticle } from '../../content/korean-particle.js';
 import { evidenceStrength, EVIDENCE_FLOOR } from '../../shared/evidence-strength.js';
+import { STATE_LABELS } from '../interpretation/concepts.js';
 
 export const MARKET_LEAN_VERSION = 'market-lean.v1';
 export const LEAN_RULES = Object.freeze({ horizon: 21, minVoteN: 30, minRateN: EVIDENCE_FLOOR, minEdgePp: 5, seMultiple: 1.5, conditionGap: 2 });
@@ -72,7 +73,7 @@ export function leanSpoken(key, validation) {
   return direction ? validation[direction] === true && !!validation.frequencies[key] : validation.buy === true && validation.defend === true;
 }
 
-const countState = (counts) => counts ? `양호 ${counts.favorable} · 중립 ${counts.neutral} · 부담 ${counts.burden}${counts.unknown ? ` · 미확인 ${counts.unknown}` : ''}` : '지표 개수 판정 보류';
+const countState = (counts) => counts ? `${STATE_LABELS.favorable} ${counts.favorable} · ${STATE_LABELS.neutral} ${counts.neutral} · ${STATE_LABELS.burden} ${counts.burden}${counts.unknown ? ` · ${STATE_LABELS.unknown} ${counts.unknown}` : ''}` : '지표 개수 판정 보류';
 
 // Why an unspoken key has no direction word, by case — no verdict; neither direction passed; one
 // direction passed and today's key is the other one, neutral or mixed (those need both); or the key's direction passed

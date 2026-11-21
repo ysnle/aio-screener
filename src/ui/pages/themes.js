@@ -4,7 +4,7 @@ import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
-import { renderThemePlaybook, renderThemeDetailPlaybook } from '../components/theme-playbook-view.js';
+import { renderThemePlaybook, renderThemeDetailPlaybook, pickTheme } from '../components/theme-playbook-view.js';
 import { renderSectorMap } from '../components/sector-map.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applyLegacyThemeDetailAddress } from '../navigation/theme-detail.js';
@@ -327,6 +327,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             if (liveFold) liveFold.hidden = false;
             const out = originalShowKr.call(this, themeId, ...rest);
             try { renderKrCloseDetail({ documentRef, root, store, themeId }); } catch (_) { /* the close table never blocks the live detail */ }
+            pickTheme(documentRef, root, 'KR', `KR:${themeId}`); // the 한국 theme list follows the opened theme
             return out;
           };
           wrappedShowKr.__aioCloseDetail = true;

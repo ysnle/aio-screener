@@ -861,7 +861,7 @@ export function selectNewsIntraday(candidates, { cycleEndMs, nowMs = Date.now(),
     const key = newsArticleKey(it);
     const signature = newsHeadlineSignature(it.title);
     const publisher = String(it.source || '').trim().toLowerCase();
-    if (seen.has(key) || signatures.some((other) => newsSameEvent(signature, other)) || (perSource.get(publisher) || 0) >= 2 || topicCap.full(title)) return;
+    if (seen.has(key) || (!isNewsRevisionRow(it) && signatures.some((other) => newsSameEvent(signature, other))) || (perSource.get(publisher) || 0) >= 2 || topicCap.full(title)) return;
     seen.add(key);
     signatures.push(signature);
     perSource.set(publisher, (perSource.get(publisher) || 0) + 1);
@@ -932,7 +932,7 @@ export function selectTickerNewsMemo(items, { sym, name, nowMs = Date.now(), max
     const issuerMatch = tickerNewsHeadlineNamesIssuer(it.title, sym, name);
     if (!issuerMatch) continue;
     const signature = newsHeadlineSignature(it.title);
-    if (signatures.some((other) => newsSameEvent(signature, other))) continue;
+    if (!isNewsRevisionRow(it) && signatures.some((other) => newsSameEvent(signature, other))) continue;
     signatures.push(signature);
     picked.push({ ...it, issuerMatch });
   }

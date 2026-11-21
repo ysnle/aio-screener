@@ -1568,7 +1568,7 @@ A fallback chain settles on the first *valid* result — a payload that passed v
 텔레그램 분류 정규식에는 그 주제를 단독으로 가리키는 말만 둔다(통화 단위·기업 행위 일반어 금지). 목표주가·실적·경제지표·순매수 목록처럼 구조화된 수치를 담은 글은 문체와 상관없이 읽기 목록에 남기고, 그 수치는 signals로 따로 게시한다. 게이트: `ci-data-pipeline-contract-check`.
 
 ## R702. 뉴스 원본 식별·변경 이력 보존 (v57.33, P1601)
-뉴스 중복 제거는 출처·원본 식별자·URL 쿼리·제목·내용·발행 시각·변경 관계가 같은 반복만 제거한다. 제목 유사도는 삭제 근거가 아니다. 사건 묶음은 동일 출처·issuer의 명시 사건 또는 정정 관계로 제한하며 원문 이력을 보존한다. 게이트: `ci-reference-adoption-contract-check`, `ci-reference-adoption-browser-check`.
+화면의 뉴스 중복 제거(`src/domain/news/stories.js`)는 출처·원본 식별자·URL 쿼리·제목·내용·발행 시각·변경 관계가 같은 반복만 제거하며, 제목 유사도는 삭제 근거가 아니다. 발행 선택(`scripts/lib/news-selection.mjs` `newsSameEvent`)은 한 사건에 한 칸만 쓴다(소유자 2026-10-12): 제목 2글자 묶음 Jaccard 0.6 이상이거나, 같은 구체 수치를 공유하고 0.25 이상이면 출처가 달라도 점수가 높은 쪽만 싣는다. 정정 기사(`isNewsRevisionRow`)는 원 기사와 같은 사건으로 버리지 않으며 원문 이력을 보존한다. 게이트: `ci-reference-adoption-contract-check`, `ci-reference-adoption-browser-check`.
 
 ## R684. 내용 분류의 근거는 본문 텍스트 (v57.28, P1511)
 뉴스·게시물의 주제·종목·어조는 제목·본문에서 직접 찾은 근거로만 붙인다. 수집 피드의 주제 이름, 출처명, URL·도메인 텍스트는 분류 근거가 아니며, 적합한 근거가 없으면 기사를 싣지 않거나 태그를 생략한다.

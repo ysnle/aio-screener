@@ -1,9 +1,9 @@
 // Codex browser audit H97 (2026-10-08): the same NVDA common stock (CUSIP 67066G104, 2026-06-30) read
 // $388.6B for 1.94B shares in BlackRock's filing and $74.0M for 370M shares in T. Rowe Price's — about $200
-// versus $0.20 a share. The T. Rowe cover page itself states a dollar total, so the filing (not our formatter)
-// carries values about 1,000× smaller than every other filer. Totals reconciling to the cover page cannot catch
-// this. The check here compares each filing's implied price per share with the other filers of the same CUSIP
-// and period. A filing whose comparable rows sit ~1,000× apart is put under review: its dollar amounts and
+// versus $0.20 a share. The T. Rowe filing reports in thousands of dollars, and its cover total is in the same
+// thousands unit as its rows, so totals reconciling to the cover page cannot catch this. The producer now normalises
+// the unit per filing (scripts/lib/13f-value-unit.mjs); this check stays as the reader-side guard. It compares each
+// filing's implied price per share with the other filers of the same CUSIP and period. A filing whose comparable rows sit ~1,000× apart is put under review: its dollar amounts and
 // weights are withheld rather than multiplied by a guessed factor. Pure; no DOM.
 import { readNumber as finite } from '../shared/number.js';
 
