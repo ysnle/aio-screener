@@ -177,9 +177,26 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: public-data/telegram-observed.json
-          key: telegram-observed-${{ github.run_id }}-${{ github.run_attempt }}
+          key: telegram-lineage-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            telegram-observed-
+            telegram-lineage-
+
+      # v60.40: the first run after the move started from an empty cache, so the digest's observed window fell from 2,074
+      # posts to the 401 one fetch reaches. A run without restored state starts from the last copy main carried (the
+      # producer merges this fetch into it; once that copy is older than the 14-day window it adds nothing).
+      - name: Seed Telegram lineage state when the cache has none
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          SEED_SHA: 410b478991b0ce7a636da37ebb2ec6781d169fae
+        run: |
+          set -euo pipefail
+          if [ -s public-data/telegram-observed.json ]; then echo "lineage state restored from the cache"; exit 0; fi
+          git fetch -q --no-tags --depth=1 origin "$SEED_SHA"
+          git show "$SEED_SHA:public-data/telegram-observed.json" > "$RUNNER_TEMP/telegram-observed.json"
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$RUNNER_TEMP/telegram-observed.json"
+          mv "$RUNNER_TEMP/telegram-observed.json" public-data/telegram-observed.json
+          echo "lineage state seeded from $SEED_SHA"
 
       - name: Fetch Telegram digest
         id: fetch-telegram
@@ -198,7 +215,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: public-data/telegram-observed.json
-          key: telegram-observed-${{ github.run_id }}-${{ github.run_attempt }}
+          key: telegram-lineage-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Restore daily-lane poll marker
         # The daily cron is best-effort and its pending run can be cancelled by a newer one in the same

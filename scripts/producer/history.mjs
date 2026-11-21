@@ -647,9 +647,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || readNumber(point?.score) == null) continue;
       let row = hist.find((item) => item?.date === date);
       if (!row) { row = { date, fieldMeta: {} }; hist.push(row); }
-      row.fg = Number(point.score);
-      row.fieldMeta = row.fieldMeta || {};
-      row.fieldMeta.fg = {
+      const meta = {
         observedAt: point.observedAt,
         fetchedAt,
         lastSuccessfulAt: fetchedAt,
@@ -657,6 +655,12 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
         sourceKind: 'secondary-index',
         allowedUse: 'reference-history'
       };
+      // v60.40: the graph returns the same year of points every cycle; a point already on record keeps its check time
+      // (this lane restamped 251 rows on every refresh, so each commit rewrote the whole file).
+      if (row.fg === Number(point.score) && sameObservation(row.fieldMeta?.fg, meta)) continue;
+      row.fg = Number(point.score);
+      row.fieldMeta = row.fieldMeta || {};
+      row.fieldMeta.fg = meta;
     }
     // `fieldMeta.fg` cites the CNN historical graph, so the row value must be
     // that series' point for the day. The headline `fearGreed.score` is rounded

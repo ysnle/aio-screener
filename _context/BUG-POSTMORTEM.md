@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2695 - v60.40 - v60.39 뒤에도 history.json이 매 주기 251행을 다시 씀: 재기록의 주된 경로는 공포·탐욕 지수 과거 그래프였음 (2026-11-21)
+
+- symptom/reproduction: v60.39 배포 뒤 첫 수집 커밋(fb1748854)에서 420행 중 251행이 바뀌었고, 바뀐 것은 fg 필드의 확인 시각뿐이었다.
+- root_cause: updateHistory가 CNN 과거 그래프의 1년치 점을 매 주기 새 수집 시각으로 덮어썼다. v60.39는 일봉 백필과 스크리너 폭 경로만 막았고, 수정 전 차이를 필드별로 나눠 보지 않아 이 경로를 놓쳤다.
+- fix: 이미 기록된 점(값과 관측이 같은 점)은 확인 시각을 그대로 둔다. 같은 커밋에 적용하면 바뀌는 행이 251개에서 2개가 된다.
+- violated_rule: R1
+- prevention: 시각만 바뀌는 재기록을 고칠 때는 수정 전 실제 커밋 차이를 필드별로 세고, 배포 뒤 첫 커밋에서 다시 센다.
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs
+- files: scripts/producer/history.mjs
+
 ## P2694 - v60.39 - history.json이 매 주기 값은 0~3개만 바뀌는데 과거 250여 행의 확인 시각을 다시 찍어 통째로 새로 커밋됨 (2026-11-21)
 
 - symptom/reproduction: 연속 커밋 다섯 건에서 값 셀은 0~3개, 확인 시각은 283~659개가 바뀌었다. 사흘간 147개 판이 묶음 기준 19.5MB로 저장소 증가의 가장 큰 몫이었다.
