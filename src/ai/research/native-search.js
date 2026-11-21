@@ -68,11 +68,13 @@ export function hasInternalCurrentEvidence({ freshness, tickers = [], questionPl
       !/(주가|시세|가격|price|quote)/i.test(questionPlan.query || '')) return false;
   if (!freshness || ['fail', 'blocked', 'warn'].includes(freshness.status) || freshness.strictFailed) return false;
   const rows = freshness.after?.quoteRows || [];
+  // A row is coverage when its price basis is usable (src/ai/time/quote-basis.js): a confirmed close with its
+  // date, or a fresh cross-checked intraday quote. A close-only single source no longer forces a search by itself.
   const usable = rows.filter(row => row?.decisionUse === true && row.hasLivePrice !== false &&
-    /^(verified|current)$/i.test(row.truthStatus || '') && row.source &&
+    row.basisStatus === 'usable' && row.source &&
     Number.isFinite(Date.parse(row.observedAt || row.asOf || row.quoteAsOf || row.sourceTs || '')) &&
     Date.parse(row.observedAt || row.asOf || row.quoteAsOf || row.sourceTs) <= now + 60000 &&
-    Date.parse(row.observedAt || row.asOf || row.quoteAsOf || row.sourceTs) >= now - 5 * 86400000 && !row.truthIssues?.length);
+    Date.parse(row.observedAt || row.asOf || row.quoteAsOf || row.sourceTs) >= now - 5 * 86400000);
   return usable.length > 0 && (tickers.length ? tickers.every(ticker => usable.some(row =>
     String(row.symbol || row.ticker || '').toUpperCase() === ticker.toUpperCase())) : usable.length >= 2);
 }

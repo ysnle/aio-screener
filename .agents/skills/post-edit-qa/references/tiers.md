@@ -70,3 +70,11 @@ For UI/UX-visible changes, run this tier before claiming the change works, not j
 - The evidence level is set by what was done and observed, not by which tool did it: any real browser (the app's built-in browser, Claude in Chrome, or the verify-aio Playwright driver) that navigates, interacts with the changed control the way a user would, takes before/after screenshots and reads the console meets this tier. Name the environment: a local server is local-browser evidence, the deployed site is deployment evidence; never report one as the other. An automated driver PASS asserts the scripted steps; it is not a visual review of every screen.
 - If no real browser was run: do not claim this tier passed. State explicitly in the report that live-browser verification was not run and why, and record it as a QA-CHECKLIST unverified item rather than letting it disappear into prose that the next session has to rediscover.
 - This tier is distinct from Tier 4 (chart/layout static checks) and `scripts/ci-viewport-matrix-check.mjs` (headless geometry matrix): both of those catch structural regressions without a real browser paint. Use this tier when the question is "does this actually look/work right," not "is the DOM well-formed."
+
+## Tier 14: AI Chat Answer Quality (v60.41)
+
+A change to the chat (prompt, tools, answer pipeline, evidence or action gates, Worker relay) is judged by the pass rate of `node scripts/ai-chat-eval.mjs` against `architecture/ai-chat-question-set.json` before push, not by source-pinning gates alone. Compare overall, per-task and per-situation pass rates with the previous `_artifacts/ai-chat-eval/report.md` and read the failed-check excerpts.
+
+- The runner asks the real model and spends the shared AI budget (up to three requests per question, paced under the Worker's 20/minute limit, stops on a 429). Run it on purpose, once per change, never in CI. Use `--ids`/`--task`/`--situation` for a scoped rerun.
+- `--base https://ysnle.github.io/aio-screener/` asks the deployed site; a local checkout works only when its exact origin is in the Worker's `AIO_DEV_ORIGINS` (the runner probes `/health` first and refuses otherwise). Name which one ran.
+- `--dry` resolves every figure and screen and validates the set with no model call; `scripts/ci-ai-chat-question-set-check.mjs` (core group) does the same against the committed data.

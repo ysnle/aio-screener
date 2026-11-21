@@ -145,17 +145,9 @@ export function installCompatibilityGlobals(root = globalThis) {
   window._aioApplyServerMacro = (data, snapshot, evidence, serverMeta) => applyServerMacro({ data, snapshot, evidence, serverMeta });
   window._aioVerifyServerMarketAnalysis = verifyServerMarketAnalysis;
   const screenerFactorAsOf = () => screenerState('metadata.asOf') || screenerState('revision') || null;
-  const screenerQueryInput = () => ({
-    rows: (typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() : null) || [],
-    live: window._liveData || {},
-    aliases: window.SCR_KEYWORD_ALIASES || {},
-    rankAsOf: screenerFactorAsOf()
-  });
-  // v59.49 (boot budget): the chat's screener query engine (src/ai/context/screener-query.js) binds _aioRunScreenerQuery,
-  // _formatScreenerResultPrompt, _aioBuildScreenerAiContext and _detectSectorQuery from src/app/chat-globals.js; only
-  // js/aio-chat.js calls them. The inputs stay here, beside the screener state they read.
+  // The chat's screener engine (src/ai/context/screener-query.js, bound from src/app/chat-globals.js) reads the rows and
+  // quotes itself; the factor date stays here, beside the screener state it reads.
   window.AIO = window.AIO || {};
-  window.AIO.screenerQueryInput = screenerQueryInput;
   window.AIO.screenerFactorAsOf = screenerFactorAsOf;
   window.AIO.describeSharedConnection = describeSharedConnection;
   window._aioOpenFeedback = () => import('../ui/components/feedback-form.js').then((m) => m.openFeedbackDialog({ documentRef: document, windowRef: window, version: typeof APP_VERSION === 'string' ? APP_VERSION : '' })).catch(() => null); // roadmap 12

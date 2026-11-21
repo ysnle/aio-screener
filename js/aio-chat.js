@@ -315,7 +315,7 @@ function _aioAIInfraCycleContext(ctxId, q) {
     lines.push('Event/earnings calendar frame: ' + f.eventCalendarFrame);
     lines.push('Telegram reference frame: ' + f.telegramFrame.channelRoles + ' Extraction=' + f.telegramFrame.extraction + ' Quality=' + f.telegramFrame.quality + ' Promotion gate=' + f.telegramFrame.promotionGate + ' Invalidation=' + f.telegramFrame.invalidation);
     lines.push('Cross-check when the question is about the current cycle: the 2026-08-22 supplied packet is dated reference — compare it with the typed current evidence (close-basis / macro-release rows), then state what changed, what did not change, and which evidence is still missing.');
-    // a coverage list, not a fixed five-part answer — the AnswerPlan contract forbids repeating a fixed template.
+    // a coverage list, not a fixed five-part answer — the output contract (【출력 계약】) forbids repeating a fixed template.
     lines.push('Coverage checklist (use only the parts the question needs, in the order that answers it; not a fixed section template): memory P/ASP/multiple, neocloud Q/spread/capital, capex/backlog/depreciation, breadth/rates/credit/oil, confirmation and invalidation conditions.');
     lines.push('Do not infer a bottom from one-day rebound, a low P/E, a backlog headline, or a chart pattern alone.');
 
@@ -1460,7 +1460,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
 }
 
 // ── 스크리너 질의 — src/ai/context/screener-query.js (legacy unification 2026-10-17). The chat calls the window names
-// (_detectSectorQuery, _aioBuildScreenerAiContext) that src/app/compatibility-globals.js binds after the ESM boot.
+// (_detectSectorQuery, _aioBuildScreenerAiContext) that src/app/chat-globals.js binds with the chat.
 
 // 섹터 비교 — 다중 종목 현재가(_liveData) + Naver 컨센서스·한국어명 (v57.76: personal FMP branch removed)
 async function _fetchSectorCompareData(stocks, opts) {
@@ -1932,8 +1932,11 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var data = null;
     // 1. _liveData 캐시 확인
     var ld = (window._liveData || {})[t];
-    if (!_forceQuoteLookup && ld && ld.price) {
-      data = { ticker: t, price: ld.price, pct: ld.pct != null ? ld.pct : null, source: 'cache' };
+    // A ticker the preflight found on a confirmed close is read from that quote, labelled with its session, and
+    // not looked up again (the close cannot get newer).
+    var _closeBasis = ((opts.preflight && opts.preflight.after && opts.preflight.after.quoteRows) || []).filter(function(r) { return r && r.ticker === t && r.basis === 'close' && r.status === 'ok' && ld && Number(r.price) === Number(ld.price); })[0] || null;
+    if ((!_forceQuoteLookup || _closeBasis) && ld && ld.price) {
+      data = { ticker: t, price: ld.price, pct: ld.pct != null ? ld.pct : null, source: 'cache', currency: _closeBasis ? _closeBasis.currency : (ld.currency || null), basisLabel: _closeBasis ? _closeBasis.basisLabel : '' };
     } else {
       // 2. 실시간 Yahoo 조회 (v49.67: 폴백 체인 4단계 후 fetchFailed:true 구조화 응답)
       try {
@@ -1979,9 +1982,11 @@ async function _fetchTickerDataForChat(tickers, opts) {
     var tamPromise         = _needsQualitative && window.AIO && window.AIO.computeTAMEstimate ? _withTimeout(window.AIO.computeTAMEstimate(t).catch(function(){return null;}), _T, null) : null;
 
     if (data) {
-      var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': $' + Number(data.price).toFixed(2) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
+      var _krw = String(data.currency || '').toUpperCase() === 'KRW';
+      var line = '• ' + data.ticker + (data.name ? ' (' + data.name + ')' : '') + ': ' + (_krw ? '₩' + Math.round(Number(data.price)).toLocaleString('en-US') : '$' + Number(data.price).toFixed(2)) + (data.pct != null ? (' (' + (data.pct >= 0 ? '+' : '') + Number(data.pct).toFixed(2) + '%)') : '');
+      if (data.basisLabel) line += ' [' + data.basisLabel + ', 정규장 마감 확정 종가]';
       if (data.exchange) line += ' [' + data.exchange + ']';
-      if (data.currency && data.currency !== 'USD') line += ' ' + data.currency;
+      if (data.currency && data.currency !== 'USD' && !_krw) line += ' ' + data.currency;
       results.push(line);
 
       // v48.11: 주가 추이 라인 자동 주입 — "긍정 뉴스 + 하락 추세" 같은 시간 불일치 감지 필수 근거
@@ -2575,7 +2580,7 @@ function _formatDeepComparePrompt(tickers, deepData) {
 // 공급원 → 소비자 흐름:
 //   newsCache(aio-data.js fetchNews 24h) → _buildNewsContext → LLM 시스템 프롬프트
 //   AIO_TELEGRAM_WEEKLY_DIGEST → _buildTelegramContext → 동일 파이프라인
-//   native screener state + identity/memo boundary → _formatScreenerResultPrompt
+//   native screener state + identity/memo boundary → _aioBuildScreenerAiContext (screen 도구와 같은 엔진)
 //
 // _CTX_TOPIC_MAP: 페이지ID → topic 배열. _buildNewsContext가 newsCache를 topic 필터로 선별.
 //   topic 값은 aio-data.js fetchNews의 item.topics 배열과 일치해야 함(계약 지점).
@@ -3640,6 +3645,16 @@ function _aioSyncQuestionCount() {
   out.classList.toggle('is-full', !!max && used >= max);
 }
 
+// The holdings consent card's buttons: "yes" stores the send consent, "no" answers without holdings; both re-send the question.
+var _aioHoldingsDeclinedFor = null;
+window._aioHoldingsConsentAnswer = function(choice) {
+  var box = document.getElementById('ai-panel-inp');
+  var waiting = box ? String(box.value || '').trim() : '';
+  if (choice === 'yes') { if (window.AIO && typeof window.AIO.setPortfolioAIConsent === 'function') window.AIO.setPortfolioAIConsent(true); }
+  else _aioHoldingsDeclinedFor = waiting;
+  if (waiting) chatSendUnified();
+};
+
 function _appendAIMsg(role, html, id) {
   var msgsEl = document.getElementById('ai-panel-msgs');
   if (!msgsEl) return null;
@@ -3814,6 +3829,18 @@ async function chatSendUnified(_aioDispatchOptions) {
     _unsentTurn(typeof _aioRouteNotice === 'function' ? _aioRouteNotice(_uniRoute.reason) : 'AI 공용 연결을 확인하지 못했습니다. 잠시 후 다시 시도하세요.');
     return;
   }
+  // A question about the reader's own holdings is settled before the quota and the model call. With holdings
+  // entered and no send consent, the chat asks once (src/ai/context/personal-turn.js); the question goes back to the box
+  // and either button re-sends it.
+  var _uniPersonalGate = window.AIO && typeof window.AIO.personalGate === 'function'
+    ? window.AIO.personalGate({ root: window, query: q, ctxId: ctxId, withoutHoldings: _aioHoldingsDeclinedFor === q }) : { ask: false };
+  if (_uniPersonalGate.ask) {
+    _releaseUnifiedRun();
+    _unsentTurn(escHtml(window.AIO.personalConsentCard.text));
+    window.AIO.showHoldingsConsentChoices();
+    return;
+  }
+  _aioHoldingsDeclinedFor = null;
   // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
   if (typeof consumeLLMQuery === 'function') {
     var _qOk;
@@ -3998,9 +4025,10 @@ async function chatSendUnified(_aioDispatchOptions) {
 
     // 1c. 자연어 퀀트 스크리너 — 특정 티커가 없을 때 후보군을 다양화해 추천 편향을 줄임
     // E2/S-E (P1239): 일반 채팅과 같은 helper를 소비한다(중복 구현 제거).
+    // 도구를 주는 턴에서는 조건 검색을 모델이 screen 도구로 직접 채우고, 여기서는 넓은 비교 표본만 넣는다.
     if (detectedTickers.length === 0 && typeof _aioBuildScreenerAiContext === 'function') {
       try {
-        var _uniScreenerContext = _aioBuildScreenerAiContext(q, state.messages, function(e) { _aioLog('warn', 'fetch', '통합 스크리너 질의 실패: ' + e.message); });
+        var _uniScreenerContext = _aioBuildScreenerAiContext(q, state.messages, function(e) { _aioLog('warn', 'fetch', '통합 스크리너 질의 실패: ' + e.message); }, { tools: !!(window.AIO && window.AIO.chatTools && window.AIO.chatTools.offer({ mode: _uniMode })) });
         _uniScreenerResult = _uniScreenerContext.result;
         _uniScreenerStr = _uniScreenerContext.prompt;
           if (_uniScreenerStr) {
@@ -4101,9 +4129,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       if (newsCtx && window.AIO && typeof window.AIO.buildAIUntrustedBlock === 'function') newsCtx = window.AIO.buildAIUntrustedBlock(newsCtx.indexOf('텔레그램') >= 0 ? 'NEWS_TELEGRAM' : 'NEWS', newsCtx, { maxChars: ((window.AIO || {}).chatReferenceBudget || {}).news || 6000 });
       if (newsCtx) { sysPrompt += newsCtx; _uniNewsCtx = true; }
     }
-    if (ctxId === 'portfolio' && _aioChoosing) { // v58.75: holdings only after consent (choosing-blocks.js portfolioTurn)
-      var _uniPf = _aioChoosing.portfolioTurn({ root: window, query: q, pending: window._aioTakePortfolioPrompt ? window._aioTakePortfolioPrompt() : null, wrap: _wrapUnifiedExternal });
-      _uniPortfolioData = _uniPf.data; sysPrompt += _uniPf.prompt; if (_uniPf.notice) _appendAIMsg('ai', '<span class="lch-muted" role="status">' + _uniPf.notice + '</span>'); }
+    if (_uniPersonalGate.personal && typeof window.AIO.personalTurn === 'function') { // Holdings and watchlist from any screen, only after consent (personal-turn.js)
+      var _uniPf = window.AIO.personalTurn({ root: window, query: q, ctxId: ctxId, pending: window._aioTakePortfolioPrompt ? window._aioTakePortfolioPrompt() : null, wrap: _wrapUnifiedExternal });
+      _uniPortfolioData = _uniPf.data; sysPrompt += _uniPf.prompt; }
     // P1740: decide hosted web search before the status blocks are written. It used to be decided after them, so a
     // searched answer still told the model "웹검색: 미실행 … MISS — 추측하지 말고 제한사항으로 밝혀라".
     _uniDecideWebSearch();
@@ -4159,20 +4187,21 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (window.AIO && typeof window.AIO.readerNotesBlock === 'function') sysPrompt += window.AIO.readerNotesBlock();
     if (_uniFreshPreflight && detectedTickers.length > 0) {
       var _uniFreshAfter = _uniFreshPreflight.after || {};
+      // Each ticker's price basis (confirmed close with its date / intraday with its time / unavailable and why).
       var _uniQuoteRows = (_uniFreshAfter.quoteRows || []).map(function(r) {
-        return r.ticker + ': ' + (r.hasLivePrice ? 'quote-ok' : 'quote-missing') + (r.quoteAgeSec != null ? ' age=' + r.quoteAgeSec + 's' : '') + (r.source ? ' source=' + r.source : '') + (r.truthStatus ? ' truth=' + r.truthStatus : '') + (r.crossSourceStatus ? ' cross=' + r.crossSourceStatus + '/' + (r.crossSourceCount || 0) : '') + (r.truthIssues && r.truthIssues.length ? ' issues=' + r.truthIssues.slice(0,3).join('|') : '');
-      }).join(' / ');
+        var basisLine = window.AIO && typeof window.AIO.quoteBasisLine === 'function' ? window.AIO.quoteBasisLine(r) : r.ticker + ': 가격 기준 확인 안 됨';
+        return '- ' + basisLine + (r.status === 'ok' ? ' · evidenceId=' + r.evidenceId + ' asOf=' + r.asOf + ' source=' + r.source : '');
+      }).join('\n');
       var _uniEvidence = null;
       try {
         _uniEvidence = window.AIO && typeof window.AIO.getChatEvidenceContext === 'function'
           ? window.AIO.getChatEvidenceContext({ tickers: detectedTickers })
           : null;
       } catch(_evCtxErr) {}
-      sysPrompt += '\n\n[AI Chat Freshness + Truth/Cross-Source Preflight v50.4]\n' +
-        'status=' + (_uniFreshPreflight.status || 'unknown') + ' strict=' + !!_uniFreshPreflight.strict + ' tickers=' + detectedTickers.join(',') + '\n' +
-        'quotes=' + (_uniQuoteRows || 'not available') + '\n' +
+      sysPrompt += '\n\n[종목 가격 기준]\n' +
+        (_uniQuoteRows || '- 시세 없음') + '\n' +
         'evidenceStore=' + (_uniEvidence && _uniEvidence.evidenceStoreStatus || 'unknown') + ' blockedTickers=' + (_uniEvidence && _uniEvidence.blockedTickers && _uniEvidence.blockedTickers.join(',') || 'none') + '\n' +
-        'rule: For these tickers, cite only the quote/company-analysis data blocks injected in this prompt or EvidenceStore verified/current items. If a ticker quote remains missing, stale, truth-blocked, cross-source mismatched, out-of-range, source-mismatched, or EvidenceStore-blocked after preflight, do not invent or use price, market cap, valuation, earnings, or target-price numbers for trading judgment. Say "현재 검증 데이터 없음" for blocked current claims.\n';
+        'rule: 종가 기준 사용 가능인 종목은 그 종가와 날짜("YYYY-MM-DD 종가")로 가격·전일 대비·52주 고점 대비를 말한다. 마감 뒤라 장중 시세가 없다는 이유로 거부하지 않는다. 장중 시세 사용 가능이면 관측 시각을 붙인다. 확인 안 됨·사용 불가인 종목은 실시간 시세 대신 technicals·trend 도구가 돌려주는 완료 일봉의 종가(날짜 포함)로 가격·전일 대비·52주 위치를 말한다. 출처 간 가격 불일치인 종목과 도구에도 종가가 없는 종목만 "확인된 가격 없음"이라고 한 번 쓴다. 수치는 이 프롬프트의 종목 데이터 블록과 도구 결과에서만 인용한다.\n';
     }
   } catch(e) {
     if (!_isCurrentUnifiedRun() || (e && e.name === 'AbortError') || (_uniSignal && _uniSignal.aborted)) {
@@ -4286,11 +4315,23 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
 
   // v46.10: onChunk/onDone/onError + 재시도/폴백
-  // The answer is one AnswerPlan block that is shown only after the evidence and action filters (onDone); while it
-  // streams, the waiting line shows its length and nothing of its text.
+  // The answer is text first (src/ai/response/answer-envelope.js), so it is shown while it streams. Each preview
+  // passes the same evidence and action filters as the finished answer (a partial run records nothing), at most every
+  // 350 ms; the sentence still being written is held back by the filters' whole-sentence rule. onDone replaces the
+  // preview with the finished, filtered answer.
+  var _uniPreviewAt = 0, _uniPreviewText = '';
   var _uniOnChunk = function(fullText) {
     if (!_isCurrentUnifiedRun()) return;
     if (_uniStatus) _uniStatus.chars(String(fullText || '').length);
+    var now = Date.now();
+    if (now - _uniPreviewAt < 350 || typeof _aioRunAIResponsePipeline !== 'function') return;
+    _uniPreviewAt = now;
+    var preview = _aioRunAIResponsePipeline(fullText, { referenceText: _uniReferenceText, entities: detectedTickers, searchCitations: modelOpts.webSearch === true && !(state._retryCount > 0) ? _aioAIRequestCitations(_uniRequestId) : [], request: _uniAIRequest, questionPlan: _uniQuestionPlan, entrypoint: 'unified-chat', ctxId: ctxId, query: q, tickers: detectedTickers, freshness: _uniFreshPreflight, evidence: _uniClaimEvidence, provenanceBundle: _uniProvenanceBundle, streamPhase: 'partial', record: false });
+    if (!preview || preview.blocked === true || !preview.text || preview.text === _uniPreviewText) return;
+    _uniPreviewText = preview.text;
+    var previewEl = document.getElementById('ai-panel-streaming') || _appendAIMsg('ai', '', 'ai-panel-streaming');
+    var previewBubble = previewEl && previewEl.querySelector('.ai-bubble');
+    if (previewBubble) previewBubble.innerHTML = _uniSafeRender(preview.text);
   };
 
   var _uniOnDone = function(fullText, completion) {
@@ -4406,6 +4447,9 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniOnError = function(errMsg) {
     if (!_isCurrentUnifiedRun()) return;
     if (_uniSignal && _uniSignal.aborted) { _releaseUnifiedRun(); return; }
+    var _stalePreview = document.getElementById('ai-panel-streaming'); // a failed attempt's preview is not the answer
+    if (_stalePreview && _stalePreview.parentNode) _stalePreview.parentNode.removeChild(_stalePreview);
+    _uniPreviewText = '';
     var _retryable = /시간 초과|timeout|네트워크|AbortError|500|502|503|529|overloaded/i.test(errMsg);
     var _retried = state._retryCount || 0;
     var _fallbackOrder = ['luna-medium','luna-low','luna'];

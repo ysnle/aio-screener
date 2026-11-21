@@ -18,6 +18,8 @@ export function registerInterpretationStore(root, store) {
 }
 
 const storeFor = (root, store) => store || (root && typeof root === 'object' ? stores.get(root) : null);
+/** The store bootstrap registered for `root`, or null (the chat tools read the screens' slices through it). */
+export const interpretationStore = (root) => storeFor(root, null);
 
 export function screenerRowsForRoot(root, store = null) {
   try {

@@ -33,15 +33,18 @@ const MAX_THEME_DAYS = 120;
 
 const readJson = (file) => { try { return JSON.parse(readFileSync(file, 'utf8')); } catch { return null; } };
 
+/** A plain literal a classic script assigns (`var NAME = [` … `\n];`), evaluated in isolation; null when absent. */
+export function classicLiteral(file, head, close, rootDir = ROOT) {
+  const source = readFileSync(path.join(rootDir, file), 'utf8');
+  const start = source.indexOf(head);
+  if (start < 0) return null;
+  const end = source.indexOf(close, start);
+  try { return vm.runInNewContext(`(${source.slice(start + head.length - 1, end + 2)})`, {}, { timeout: 1000 }); } catch { return null; }
+}
+
 /** THEME_MAP (js/aio-pages.js) and KR_THEME_MAP (js/aio-kr-data.js) are plain literals; evaluate them in isolation. */
 export function loadThemeMaps(rootDir = ROOT) {
-  const literal = (file, head, close) => {
-    const source = readFileSync(path.join(rootDir, file), 'utf8');
-    const start = source.indexOf(head);
-    if (start < 0) return null;
-    const end = source.indexOf(close, start);
-    try { return vm.runInNewContext(`(${source.slice(start + head.length - 1, end + 2)})`, {}, { timeout: 1000 }); } catch { return null; }
-  };
+  const literal = (file, head, close) => classicLiteral(file, head, close, rootDir);
   const usThemes = literal('js/aio-pages.js', 'var THEME_MAP = [', '\n];') || [];
   const krThemeMap = literal('js/aio-kr-data.js', 'var KR_THEME_MAP = {', '\n};') || {};
   return { usThemes, krThemeMap, labels: Object.fromEntries(usThemes.map((theme) => [theme.id, theme.nameKr])) };

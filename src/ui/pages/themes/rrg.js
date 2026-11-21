@@ -7,7 +7,8 @@ import { sessionChipText } from '../../components/session-lag.js';
 import { rrgRecentReading, RRG_NEUTRAL_BAND } from '../../../domain/themes/recent-check.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
 import { setAsOf } from '../../components/section-frame.js';
-import { isoDay, stampDay } from '../../../domain/shared/session-date.js';
+import { stampDay } from '../../../domain/shared/session-date.js';
+import { usCloseSession, viewItems } from '../../../data/selectors/theme-flow.js';
 import { NEAR_HIGH_TAB } from './sectors.js';
 
 // v57.76: plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
@@ -40,19 +41,11 @@ export function activeView(root) {
   return value === 'subsectors' || value === 'all' ? value : 'sectors';
 }
 
-export function viewItems(items, view) {
-  if (view === 'all') return items;
-  return items.filter((item) => String(item?.view || 'sectors') === view);
-}
+export { viewItems, usCloseSession };
 
 export function shortSession(date) {
   const [, month, day] = String(date || '').split('-').map(Number);
   return month && day ? `${month}/${day}` : '';
-}
-
-export function usCloseSession(root) {
-  const basis = String(root?._serverDataMeta?.rotationHistory?.latestCompletedSession || '');
-  return isoDay(basis) || '';
 }
 
 

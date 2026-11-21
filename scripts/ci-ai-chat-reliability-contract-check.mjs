@@ -88,7 +88,9 @@ check('P1421 boot fallback follows the generated shared policy without storing a
 check('P1421: AI target is exclusively the published Worker', chat.includes("publicWorker + '/openai'") && !chat.includes('api.anthropic.com') && !chat.includes("source: 'personal-key'") && !chat.includes("source: 'local-config'"));
 check('v57.62 the chat surface uses the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _uniClaimEvidence')); // v57.62: per-page copy retired
 check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));
-check('partial structured streams hide control JSON until completion', chat.includes("visible = 'AI 답변을 구성하고 근거를 검증하는 중…'") && chat.includes("var isPartialStream = meta.streamPhase === 'partial'"));
+// v60.41: a partial stream renders the filtered body written so far (the fixed waiting line is gone); only a finished
+// answer reaches the raw-text fallback, and the stream preview passes the same pipeline (streamPhase 'partial').
+check('v60.41 partial streams render the filtered body, never a fixed waiting line or the raw fallback', chat.includes("var isPartialStream = meta.streamPhase === 'partial'") && /_uniOnChunk = function\(fullText\)[\s\S]{0,1200}streamPhase: 'partial', record: false/.test(chat));
 check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));
 // Legacy unification (2026-10-17): the gate lives in src/data/server-market-analysis.js; run it with prose that passes
 // every check except the typed metric evidence.

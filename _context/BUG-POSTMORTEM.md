@@ -60,6 +60,46 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2699 - v60.41 - 보유 종목 질문이 모델 호출 뒤에 'AI 안전 모드'로 바뀌고 채팅에서 동의할 방법이 없음 (2026-11-21)
+
+- symptom/reproduction: '내 보유 종목 기준으로 지금 조심할 게 뭐야'를 물으면 29초 뒤 완성된 답이 'AI 안전 모드 … 동의 후에만'으로 바뀌었다. 채팅 안에는 동의 버튼이 없었고, 포트폴리오 화면 밖에서는 보유 종목이 답에 쓰이지 않았다.
+- root_cause: 보유 종목 전송 동의를 답이 나온 뒤의 행동 검사가 확인했다. 질문이 개인 질문인지, 동의가 있는지를 모델 호출 전에 정하는 곳이 없었다.
+- fix: 개인 질문 판정을 한 모듈(src/ai/context/personal-turn.js)로 모았다. 보유 종목이 있고 동의가 없으면 모델을 부르기 전에 채팅에서 한 번 묻고, '동의하고 답하기'와 '보유 종목 없이 답하기' 두 버튼이 같은 질문을 다시 보낸다. 동의한 사용자는 어느 화면에서든 보유·관심 종목이 질문과 함께 간다. 답이 나온 뒤 막던 검사는 지웠다.
+- violated_rule: R1
+- prevention: 동의가 필요한 자료는 호출 전에 정한다. 게이트가 동의 없는 보유 종목 질문이 모델 호출 없이 물음으로 끝나는지 확인한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs
+- files: src/ai/context/personal-turn.js, src/ai/context/choosing-blocks.js, src/app/chat-globals.js, js/aio-chat.js, js/aio-core.js, js/aio-qa-audits.js
+
+## P2698 - v60.41 - AI 답변이 JSON 한 덩어리여서 길이 제한에 잘리면 전부 버려지고 쓰는 동안 아무것도 보이지 않음 (2026-11-21)
+
+- symptom/reproduction: '요즘 돈이 어디로 가고 있어'를 물으면 31초 뒤 '답변 형식이 완성되지 않아'만 나왔다. 답을 받는 동안 화면에는 대기 문구만 있었다.
+- root_cause: 모델이 본문과 근거를 하나의 JSON 객체로 썼다. 끝이 잘리면 JSON이 닫히지 않아 본문까지 읽을 수 없었고, 닫히기 전에는 화면에 보여 줄 문장이 없었다.
+- fix: 모델이 본문을 먼저 일반 글로 쓰고, 근거·출처·이어 물을 질문은 맨 끝의 한 블록으로 쓴다(src/ai/response/answer-envelope.js). 끝 블록이 없거나 깨져도 본문은 남는다. 쓰는 동안 본문을 같은 검사를 거쳐 0.35초마다 보여 주고, 끝나지 않은 마지막 문장은 보이지 않게 둔다. JSON 조각을 정규식으로 되살리던 복구 코드는 지웠다.
+- violated_rule: R1
+- prevention: 읽는 사람에게 보일 글은 구조 블록보다 먼저 온다. 게이트가 잘린 답, 깨진 끝 블록, 쓰는 중인 답에서 본문이 남는지 확인한다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs && node scripts/ci-ai-chat-reliability-contract-check.mjs
+- files: src/ai/response/answer-envelope.js, src/ai/response/claim-ledger.js, src/ai/response/publication.js, src/ai/response/request-pipeline.js, js/aio-chat.js, scripts/lib/answer-envelope-fixture.mjs
+
+## P2697 - v60.41 - AI 채팅이 확정 종가를 2분 규칙으로 막아 앱에 있는 가격을 '확인된 가격 없음'으로 답함 (2026-11-21)
+
+- symptom/reproduction: 장이 닫힌 뒤 'NVDA 어떤 회사고 지금 가격은 어디야'를 물으면 39초 뒤 가격을 답하지 않았다. 앱에는 종가 125.53과 고점 대비 -48.4%가 있었다.
+- root_cause: 가격 사용 판정이 장중 시세용 규칙 하나였다. 관측이 2분 안이고 두 번째 출처가 확인해야만 쓸 수 있었고, 장 마감 뒤의 확정 종가도 같은 규칙으로 막혔다. 제품은 종가 기준인데 판정은 장중 기준이었다.
+- fix: 가격 기준 판정을 한 함수(src/ai/time/quote-basis.js)로 모았다. 정규장이 끝났고 관측이 그 종가 시각이면 날짜를 붙인 종가로 쓴다. 장중에만 2분·두 출처 규칙이 남는다. 출처가 서로 다르면 어느 쪽이든 막는다. 시세가 없거나 관측 시각이 없으면 도구의 완성봉 종가를 쓰도록 안내한다.
+- violated_rule: R1
+- prevention: 가격 기준은 시장 세션으로 정한다. 게이트가 마감 뒤 종가 허용, 장중 2분 규칙, 출처 충돌 차단을 각각 확인한다.
+- verification/residual: node scripts/ci-ai-evidence-contract-check.mjs
+- files: src/ai/time/quote-basis.js, js/aio-data.js, js/aio-core.js, js/aio-chat.js, src/ai/research/native-search.js, src/ai/context/stock-trend-line.js
+
+## P2696 - v60.41 - AI 채팅의 조건 검색이 스크리너와 다른 규칙을 써서 실제 72종목인 조건에 '결과 없음'을 답함 (2026-11-21)
+
+- symptom/reproduction: 실서비스에서 '미국 대형주 중 PER 20 이하, 3개월 수익률 플러스'를 물으면 11초 뒤 결과 없음이 나왔다. 같은 조건을 스크리너 화면에 넣으면 72종목이다. 과매도는 매도 신호 종목으로, 시가총액이 없는 행은 소형주로 읽혔다.
+- root_cause: 채팅의 screen 도구는 문장을 정규식으로 읽는 별도 엔진(src/ai/context/screener-query.js)이었고, 스크리너 화면의 조건 엔진(custom-conditions.js)과 시가총액 구간(row-presentation.js)을 쓰지 않았다. 같은 질문의 정의가 두 벌이었다.
+- fix: screen 도구가 구조화된 조건(시장·규모·섹터·테마·지수·조건 33종·정렬·개수)을 받아 스크리너와 같은 엔진으로 실행한다. 정규식 엔진은 지웠다. 0건이면 어느 조건이 모두 걸렀는지, 자료가 없는 조건인지를 함께 돌려준다. 조건 읽기와 테마 별칭은 화면 코드에서 도메인으로 옮겨 화면과 채팅이 같이 쓴다.
+- violated_rule: R1
+- prevention: 같은 질문에 답하는 정의는 한 곳에 둔다. 게이트가 채팅 도구 결과와 스크리너 엔진 결과를 같은 행에서 비교한다.
+- verification/residual: node scripts/ci-chat-screen-tool-check.mjs
+- files: src/ai/context/screener-query.js, src/ai/tools/market-tools.js, src/domain/screener/condition-read.js, src/domain/screener/theme-aliases.js, src/domain/screener/row-presentation.js, scripts/ci-chat-screen-tool-check.mjs
+
 ## P2695 - v60.40 - v60.39 뒤에도 history.json이 매 주기 251행을 다시 씀: 재기록의 주된 경로는 공포·탐욕 지수 과거 그래프였음 (2026-11-21)
 
 - symptom/reproduction: v60.39 배포 뒤 첫 수집 커밋(fb1748854)에서 420행 중 251행이 바뀌었고, 바뀐 것은 fg 필드의 확인 시각뿐이었다.

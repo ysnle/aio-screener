@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.40';
+const APP_VERSION = 'v60.41';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -360,7 +360,7 @@ function _aioAIQuoteSourceKind(source, explicitKind) {
 }
 
 // v54.85/WP-AI-QUOTE: one canonical current-quote evidence tuple for both
-// chat freshness consumers. A quote envelope is authoritative only when its
+// chat freshness consumers, with its price basis. A quote envelope is authoritative only when its
 // observedAt and price agree with the live row. Fetch/generation timestamps
 // remain metadata and can never become the observation time.
 window.AIO.buildAIQuoteEvidenceRow = function(ticker, quote, options) {
@@ -380,7 +380,6 @@ window.AIO.buildAIQuoteEvidenceRow = function(ticker, quote, options) {
   var unit = String((envelope && envelope.unit) || '').trim().toUpperCase();
   var truth = options.truth !== undefined ? options.truth : quote.truth;
   var truthStatus = String(truth && truth.status || 'unknown').trim().toLowerCase() || 'unknown';
-  var truthDecisionUse = !!(truth && truth.decisionUse === true);
   var blockers = [];
   if (!symbol) blockers.push('ticker-missing');
   if (!envelope || !observedAt) blockers.push('observation-missing');
@@ -392,8 +391,14 @@ window.AIO.buildAIQuoteEvidenceRow = function(ticker, quote, options) {
   if (!currency || currency === 'UNKNOWN') blockers.push('currency-missing');
   if (!unit || unit === 'UNKNOWN') blockers.push('unit-missing');
   if (!truth) blockers.push('truth-missing');
-  else if (!/^(verified|current)$/.test(truthStatus) || truthDecisionUse !== true) blockers.push('truth-not-decision-usable');
-  var usable = blockers.length === 0;
+  // Whether the quote may be stated now (confirmed close, or a fresh cross-checked intraday quote) is the one
+  // basis rule in src/ai/time/quote-basis.js (installed with the chat); this producer only checks the quote itself.
+  var basisRule = options.decideQuoteBasis || (window.AIO && window.AIO.decideQuoteBasis);
+  var basis = typeof basisRule === 'function'
+    ? basisRule({ symbol: symbol, price: value, observedAt: observedAt, integrityBlockers: blockers.slice(), truth: truth, now: options.now })
+    : null;
+  if (!basis) blockers.push('quote-basis-missing');
+  var usable = blockers.length === 0 && basis.status === 'usable';
   var slug = symbol.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   var evidenceId = 'ev-chat-quote-' + (slug || 'unknown');
   return {
@@ -417,9 +422,16 @@ window.AIO.buildAIQuoteEvidenceRow = function(ticker, quote, options) {
     sourceKind: sourceKind,
     truthStatus: truthStatus,
     truthIssues: truth ? (truth.issues || []).concat(truth.warnings || []) : ['truth-missing'],
-    decisionUse: usable && truthDecisionUse,
-    status: usable ? truthStatus : 'blocked',
+    decisionUse: usable,
+    status: usable ? 'verified' : (basis && basis.status === 'refresh_required' ? 'refresh_required' : 'blocked'),
     allowedUse: usable ? 'decision' : 'none',
+    basis: basis ? basis.basis : 'unavailable',
+    basisStatus: basis ? basis.status : 'blocked',
+    basisLabel: basis ? basis.label : '',
+    basisReason: basis ? basis.reason : 'quote-basis-missing',
+    basisSessionDate: basis ? basis.sessionDate : null,
+    basisNeedsLookup: basis ? basis.needsLookup : true,
+    basisNeedsCrossCheck: basis ? basis.needsCrossCheck : true,
     hasQuote: quotePrice != null,
     hasLivePrice: quotePrice != null,
     quotePriceMatches: priceMatches,
@@ -575,8 +587,8 @@ window.AIO.extractAIClaimEnvelope = function(rawText) {
   if (!candidate) return null;
   try {
     var parsed = JSON.parse(candidate);
-    // v58.51: without the [AI_CLAIMS_JSON] marker only a WP-AI2 envelope counts — an [AI_ANSWER_PLAN] object that
-    // failed plan validation also carries a claims array and would otherwise be audited as an envelope.
+    // v58.51: without the [AI_CLAIMS_JSON] marker only a WP-AI2 envelope counts — the chat answer's trailing
+    // [AI_ANSWER_META] object also carries a claims array and would otherwise be audited as an envelope.
     if (marker < 0 && parsed && parsed.schemaVersion !== _AIO_CLAIM_SCHEMA_VERSION) return null;
     if (parsed && Array.isArray(parsed.claims)) return parsed;
   } catch(_) {}
@@ -615,8 +627,8 @@ window.AIO.validateAIResponseClaims = function(rawText, opts) {
   return window.AIO.validateAIClaimEnvelope(envelope, opts);
 };
 
-// v58.51: AIO.getAIClaimSchemaPrompt is gone — no caller since the chat prompt switched to the single [AI_ANSWER_PLAN] block
-// (aio-chat.js). The [AI_CLAIMS_JSON] parser above stays: it is the fallback validator when no answer plan parses.
+// V58.51: AIO.getAIClaimSchemaPrompt is gone — the chat prompt asks for one answer contract (text, then [AI_ANSWER_META]).
+// The [AI_CLAIMS_JSON] parser above stays: it is the fallback validator when no answer plan parses.
 
 // v52.80/WP-AI6: automated content has a publish contract independent of the
 // chat UI. Structured claims are validated when present/required; blocked or
@@ -4660,9 +4672,8 @@ window.AIO.evaluateAIActionPermission = function(options) {
   });
   var stale = rows.some(function(row) { return /stale|missing|blocked|mismatch|invalid/i.test(String(row && (row.truthStatus || row.status || '')).toLowerCase()) || row && row.hasLivePrice === false; });
   var suitability = options.suitabilityProfile || null;
-  if (directAction && personalized && !window.AIO.hasPortfolioAIConsent()) {
-    return { version: _AIO_AI_CONDUCT_VERSION, status: 'blocked', permission: 'deny', blocked: true, reasons: ['portfolio-consent-required'], safeText: 'AI 안전 모드\n\n포트폴리오 데이터는 명시적 동의 후에만 분석 요청에 사용합니다.' };
-  }
+  // Holdings reach the model only with the send consent, which the chat asks for before the model call
+  // (src/ai/context/personal-turn.js). An answer written without them is a general answer and is not withheld here.
   var limitations = [];
   if (directAction && personalized && !suitability) limitations.push('suitability-context-missing');
   if (directAction && personalized && (!rows.length || explicitReference || stale || !hasLiveEvidence)) limitations.push('current-evidence-limited');

@@ -23,8 +23,8 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-21T06:27:05.962Z",
-  "appRevision": "v60.40",
+  "generatedAt": "2026-11-21T08:03:17.258Z",
+  "appRevision": "v60.41",
   "dataRevision": "market-snapshot:2026-11-21T05:51:22.352Z:60f3a2ae",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
   "overall": "CURRENT",
@@ -75,7 +75,7 @@
     "screener-extended": {
       "availability": "DEGRADED",
       "asOf": "2026-11-18T03:28:27.794Z",
-      "missingReason": "extended-shard-75h-old",
+      "missingReason": "extended-shard-77h-old",
       "sources": [
         "durable"
       ]
@@ -189,9 +189,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-21T05:51:22.352Z",
-        "ageHours": 0.6,
+        "ageHours": 2.2,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-21T06:27:05.962Z",
+        "evaluatedAt": "2026-11-21T08:03:17.258Z",
         "reason": null
       },
       "readiness": {
@@ -218,7 +218,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T06:27:05.962Z"
+        "evidenceEvaluatedAt": "2026-11-21T08:03:17.258Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -237,7 +237,7 @@
       "status": "UNKNOWN",
       "statusCode": "NOT_OBSERVED",
       "source": "static-pages+service-worker",
-      "revision": "v60.40",
+      "revision": "v60.41",
       "configured": true,
       "observed": "NOT_OBSERVED",
       "lastAttemptAt": null,
@@ -286,7 +286,7 @@
         "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-21T06:27:05.962Z"
+        "evidenceEvaluatedAt": "2026-11-21T08:03:17.258Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }

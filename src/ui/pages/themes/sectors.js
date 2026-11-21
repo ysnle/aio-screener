@@ -16,7 +16,8 @@ import { asOfChip } from '../../components/section-frame.js';
 import { legacyThemeDetailTarget } from '../../navigation/theme-detail.js';
 import { NEAR_HIGH_MIN_MEASURED, NEAR_HIGH_PCT, SECTOR_ETF_GICS, sectorNearHigh } from '../../../domain/themes/near-high.js';
 import { dirColor, screenerRowMap } from './shared.js';
-import { QUADRANTS, readingOf, zoneKey, activeView, viewItems, shortSession, usCloseSession, krCloseSession, writeSectorCardChip } from './rrg.js';
+import { QUADRANTS, readingOf, zoneKey, activeView, viewItems, shortSession, krCloseSession, writeSectorCardChip } from './rrg.js';
+import { SECTOR_PERIODS, rankSectorPeriod, sectorPeriodMode, sectorPeriodValue, themeDefinitionOf, themeItemLabel, usCloseSession } from '../../../data/selectors/theme-flow.js';
 import { memberRoleParts, memberTable } from './detail.js';
 
 // v59.51 (content audit): 시장 상태's 자금 흐름 named, for the last session, the sub-themes that split inside one theme, the
@@ -103,7 +104,6 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
   syncKrLiveBlocks(documentRef, root); // v58.75
 }
 
-export const SECTOR_PERIODS = Object.freeze([['1d', '1일', 'ret1d'], ['1w', '1주', 'ret5d'], ['1m', '1개월', 'ret1m'], ['3m', '3개월', 'ret3m'], ['6m', '6개월', 'ret6m'], ['12m', '12개월', 'ret12m']]);
 // v59.70 (X bookmarks #2): one metric tab after the periods — each sector's S&P 500 members within 5% of the 52-week
 // closing high (domain/themes/near-high.js). It reads the 11 sectors only, so it is disabled in the other scopes.
 export const NEAR_HIGH_TAB = Object.freeze(['near52', '고점 근처']);
@@ -205,11 +205,9 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
   // v58.75 (persona review): Koyfin/Finviz-style period tabs. 1일·1주 stay the rotation artifact's session returns
   // (dailyPct/weeklyPct); 1·3·6·12개월 are the published screener's ETF returns (ret1m…ret12m). Each bar carries its gap to
   // SPY over the same window; an ETF the screener does not carry reads '—'. No YTD field is published, so no YTD tab.
+  // The window, values and order are src/data/selectors/theme-flow.js (the chat's money_flow tool reads the same).
   const screenerRows = screenerRowMap(store);
   const allItems = selectThemesItems(store?.getState?.() || {});
-  const hasLong = allItems.some((item) => finite(screenerRows.get(String(item?.symbol || item?.id || '').toUpperCase())?.ret1m) != null);
-  // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
-  const hasWeek = allItems.some((item) => finite(item?.weeklyPct) != null);
   const nearHigh = view === 'sectors' ? nearHighOf(store) : null;
   const nearHighReady = !!nearHigh && Object.values(nearHigh.bySector).some((row) => row.share != null);
   if (root?._aioSectorPeriod === NEAR_HIGH_TAB[0] && nearHighReady) {
@@ -217,43 +215,18 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     renderNearHighBars(documentRef, root, host, viewItems(allItems, 'sectors'), nearHigh);
     return;
   }
-  const mode = SECTOR_PERIODS.some(([key]) => key === root?._aioSectorPeriod) ? root._aioSectorPeriod : hasWeek ? '1w' : hasLong ? '1m' : '1d';
-  const period = SECTOR_PERIODS.find(([key]) => key === mode);
+  // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
+  const mode = sectorPeriodMode(allItems, screenerRows, root?._aioSectorPeriod);
   ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady });
   if (host.dataset.metric) { delete host.dataset.metric; delete host.dataset.session; writeSectorCardChip(documentRef, root); }
-  const valueOf = (symbol, item) => {
-    if (mode === '1d') return finite(item?.pct);
-    if (mode === '1w') return finite(item?.weeklyPct);
-    return finite(screenerRows.get(symbol.toUpperCase())?.[period[2]]);
-  };
   // SPY over the same window: the screener's SPY row, only when it closed on the rotation's session.
-  const spyRow = screenerRows.get('SPY');
   const close = usCloseSession(root);
-  const spySame = spyRow && (!close || String(spyRow.factorSessionDate || '').slice(0, 10) === close);
-  const spy = spySame ? finite(spyRow[{ '1d': 'ret1d', '1w': 'ret5d' }[mode] || period[2]]) : null;
-  const rows = viewItems(allItems, view)
-    .map((item) => {
-      const symbol = String(item?.symbol || item?.id || '');
-      const pct = valueOf(symbol, item);
-      return {
-        symbol,
-        label: themeItemLabel(root, item),
-        pct,
-        vsSpy: pct != null && spy != null ? pct - spy : null,
-        // v57.84: the bar badge reads the same banded zone as the scatter — a point within ±band of 100 is 경계 here too.
-        quadrant: zoneKey(root, item) || 'neutral'
-      };
-    })
-    .filter((row) => row.symbol)
-    .sort((a, b) => {
-      if (a.pct == null && b.pct == null) return a.symbol.localeCompare(b.symbol);
-      if (a.pct == null) return 1;
-      if (b.pct == null) return -1;
-      return b.pct - a.pct;
-    });
+  const { period, spy, rows: ranked } = rankSectorPeriod(viewItems(allItems, view), screenerRows, mode, { close });
+  // v57.84: the bar badge reads the same banded zone as the scatter — a point within ±band of 100 is 경계 here too.
+  const rows = ranked.map((row) => ({ ...row, label: themeItemLabel(root, row.item), quadrant: zoneKey(root, row.item) || 'neutral' }));
   host.replaceChildren();
   // v59.70: the hero names the 11 sectors' ends over the same period the bars show (default 1주), on every period change.
-  const sectorRows = view === 'sectors' ? rows : viewItems(allItems, 'sectors').map((item) => { const symbol = String(item?.symbol || item?.id || ''); return { label: themeItemLabel(root, item), pct: valueOf(symbol, item) }; });
+  const sectorRows = view === 'sectors' ? rows : viewItems(allItems, 'sectors').map((item) => ({ label: themeItemLabel(root, item), pct: sectorPeriodValue(item, screenerRows, mode) }));
   writeSectorHero(documentRef, root, sectorRows, period[1]);
   // v59.51: the bars are the verdict card's second tab, so with no return yet the tab says so instead of hiding a section.
   if (!rows.length || !rows.some((row) => row.pct != null)) {
@@ -375,16 +348,6 @@ export function renderNearHighBars(documentRef, root, host, items, nearHigh) {
   writeSectorCardChip(documentRef, root);
 }
 
-export function themeDefinitionOf(root, item) {
-  const symbol = String(item?.symbol || item?.id || '').trim().toUpperCase();
-  const catalog = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
-  return catalog.find((entry) => (
-    String(entry?.id || '').trim() === String(item?.id || '').trim()
-    || String(entry?.etf || '').trim().toUpperCase() === symbol
-    || String(entry?.compositeBase || '').trim().toUpperCase() === symbol
-  )) || null;
-}
-
 export function resolveThemeDetailId(root, item) {
   const theme = themeDefinitionOf(root, item);
   return theme?.id ? String(theme.id) : null;
@@ -409,10 +372,6 @@ export function writeSectorHero(documentRef, root, rows, periodLabel) {
   if (detail) detail.hidden = !detail.textContent;
 }
 
-export function themeItemLabel(root, item) {
-  const theme = themeDefinitionOf(root, item);
-  return String(theme?.nameKr || theme?.name || item?.label || item?.symbol || item?.id || '').trim();
-}
 
 export function themeDetailDeepLink(hash, root) {
   // v59.70: one parser with the boot route (src/ui/navigation/theme-detail.js); a retired id opens the plain list.

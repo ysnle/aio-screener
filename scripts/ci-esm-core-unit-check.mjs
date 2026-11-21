@@ -6482,8 +6482,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const sq = await load('src/ai/context/screener-query.js');
   const sectors = ['Technology', 'Energy', 'Utilities', 'Healthcare', 'Financials', 'Industrials'];
   const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `T${String.fromCharCode(65 + i)}X`, name: `Co ${i}`, sector: sectors[i % 6], rank: i + 1, score: 90 - i, mcap: 5e9 * (i + 1), rsi: 25 + i * 2, signal: i % 3 ? 'HOLD' : 'BUY' }));
-  if (sq.runScreenerQuery('오늘 기분 어때', { rows }) !== null) fail('screener-query: a question with no screen condition returns null');
-  const rsi = sq.runScreenerQuery('rsi 30 이하', { rows });
+  if (sq.readScreenSentence('오늘 기분 어때') !== null) fail('screener-query: a question with no screen condition reads no spec');
+  const rsi = sq.buildScreenerAiContext('rsi 30 이하', [], { rows }).result;
   if (!rsi?.matched || !rsi.rows.length || !rsi.rows.every((row) => row.rsi <= 30)) fail(`screener-query: RSI ceiling filters rows: ${JSON.stringify(rsi?.criteria)}`);
   const recent = sq.extractRecentRecommendationTickers([{ content: 'TAX와 TBX, NOPE를 봤어' }], { rows });
   if (recent.join(",") !== "TAX,TBX") fail(`screener-query: recent tickers are the known symbols in the conversation: ${recent}`);
@@ -6908,7 +6908,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   // them. No module adds a hand-made sign prefix; the copies left in modules other work owns (counts below) only shrink.
   const SIGN_PREFIX = /(?:>=|>)\s?0\s?\?\s?['"`]\+['"`]\s?:\s?['"`]['"`]/g;
   const LEFT = {
-    'src/ai/context/chat-macro-lines.js': 1, 'src/ai/context/portfolio-rows.js': 1, 'src/ai/context/screener-query.js': 1, 'src/ai/context/stock-trend-line.js': 1,
+    'src/ai/context/chat-macro-lines.js': 1, 'src/ai/context/portfolio-rows.js': 1, 'src/ai/context/stock-trend-line.js': 1,
     'src/domain/briefing/event-aftermath.js': 1, 'src/domain/briefing/event-briefs.js': 1, 'src/domain/briefing/macro-releases.js': 1, 'src/domain/briefing/market-read.js': 1,
     'src/domain/fundamental/quarterly-cashflow.js': 2, 'src/domain/macro/liquidity-growth.js': 1, 'src/domain/macro/macro-read.js': 1, 'src/domain/macro/release-zones.js': 1,
     'src/domain/market/regime/move-attribution.js': 2, 'src/domain/market/regime/scenario-outlook.js': 1, 'src/domain/masters/holdings-format.js': 1,

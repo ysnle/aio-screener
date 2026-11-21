@@ -17,7 +17,9 @@ export function stockTrendLine({ symbol, row, source = 'screener' } = {}) {
   const read = buildStockRead({ symbol, row });
   if (!read.available) return null;
   const display = (key) => readRowNumber(row, key, 'display');
-  const returns = [['ret5d', '5거래일'], ['ret1m', '1개월'], ['ret3m', '3개월']]
+  // The last completed session's change (ret1d, the same close series; KRX rows carry the reconciled KRX change)
+  // leads, so a closed-market price answer has the day move beside the 52-week distance.
+  const returns = [['ret1d', '1거래일'], ['ret5d', '5거래일'], ['ret1m', '1개월'], ['ret3m', '3개월']]
     .map(([key, label]) => (display(key) != null ? `${label} ${signed(display(key))}` : null)).filter(Boolean);
   const session = shortDate(read.facts.basisDate);
   const basis = `${source === 'on-demand' ? '스크리너 범위 밖이라 같은 계산식으로 요청 시 산출' : '종목 화면과 같은 스크리너 행'}${session ? `, ${session} 종가` : ''}`;

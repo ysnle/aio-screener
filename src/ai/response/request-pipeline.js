@@ -281,10 +281,12 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var researchRequired = meta.researchRequired === true || !!(questionPlan && questionPlan.researchDecision && questionPlan.researchDecision.requirement === 'REQUIRED');
     var isPartialStream = meta.streamPhase === 'partial';
     var raw = String(rawText == null ? '' : rawText);
+    // A stream still running and an answer cut at the length limit end in an unfinished sentence, which is held back.
+    var unfinished = isPartialStream || !!(meta.completion && meta.completion.truncated === true);
     // v59.70 (integration QA): AIO_ARCH.parseAIAnswerPlan answers null until the lazy orchestrator has loaded (P4);
     // that is the unavailable case too, not a parse result to dereference.
     var answerPlanAudit = (typeof window !== 'undefined' && window.AIO_ARCH && typeof window.AIO_ARCH.parseAIAnswerPlan === 'function'
-      && window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive }))
+      && window.AIO_ARCH.parseAIAnswerPlan(raw, { questionPlan: questionPlan, currentSensitive: currentSensitive, unfinished: unfinished }))
       || { status: 'unavailable', plan: null, audit: { ok: false, errors: ['orchestrator-unavailable'] } };
     var bindingEvidence = _aioCollectAIClaimEvidence(meta);
     var bindingIds = new Set(bindingEvidence.filter(_aioEvidenceCanPublish).map(_aioAIClaimEvidenceId));
@@ -300,33 +302,31 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       unboundEvidenceIds: publishablePlan.unboundEvidenceIds,
       droppedClaims: publishablePlan.droppedClaims
     };
-    // Structured control JSON is never exposed while streaming. At completion,
-    // render every safe part and drop only invalid/unbound claims.
+    // The trailing control block is never exposed. A partial stream renders the body written so far through the same
+    // filters (empty until there is a body); at completion every safe part renders and only invalid/unbound claims drop.
     var visible = '';
     var filterCounts = null;
     if (publishablePlan.plan && window.AIO_ARCH && typeof window.AIO_ARCH.renderAIAnswerPlan === 'function') {
       visible = window.AIO_ARCH.renderAIAnswerPlan(publishablePlan.plan, { format: 'text' });
       filterCounts = publishablePlan.filterCounts || null;
-    } else if (isPartialStream) {
-      visible = 'AI 답변을 구성하고 근거를 검증하는 중…';
-    } else {
-      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations, toolBasis: toolBasis });
+    } else if (!isPartialStream) {
+      filterCounts = _aioExtractAIAnswerFallbackResult(raw, currentSensitive, { evidenceCount: bindingIds.size, evidenceRows: bindingEvidence.filter(_aioEvidenceCanPublish), referenceText: referenceText, entities: meta.entities, nameEntries: window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries, searchCitations: searchCitations, toolBasis: toolBasis, unfinished: unfinished });
       visible = filterCounts.text;
     }
-    if (!visible && !isPartialStream) visible = '답변 형식이 완성되지 않아 검증 가능한 문장을 복구하지 못했습니다. 같은 질문을 다시 보내면 간결한 형식으로 재시도합니다.';
+    if (!visible && !isPartialStream) visible = '확인된 근거로 쓸 수 있는 문장이 남지 않았습니다. 질문을 조금 좁혀 다시 보내 주세요.';
     if (meta.stripChips !== false && typeof stripChips === 'function') visible = stripChips(visible);
     var gate = (typeof _aioApplyAIActionGate === 'function')
       ? _aioApplyAIActionGate(visible, meta)
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', reasons: ['validator-unavailable'] };
     var directiveReplacements = Number.isInteger(gate.replacedSentences) ? gate.replacedSentences : 0;
-    var claimAudit = publishablePlan.plan
+    // A body that carries a typed-claims envelope of its own (not the trailing block) is audited as one; every other
+    // answer is audited by its published plan.
+    var typedAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
+      ? window.AIO.validateAIResponseClaims(raw, { evidence: bindingEvidence, currentSensitive: currentSensitive })
+      : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
+    var claimAudit = publishablePlan.plan && (typedAudit.status === 'not-structured' || typedAudit.status === 'unavailable')
       ? { status: publishablePlan.droppedClaims.length ? 'partial' : 'pass', blocked: false, claims: publishablePlan.plan.claims.claims, validCount: publishablePlan.plan.claims.claims.length, issues: publishablePlan.droppedClaims, source: 'answer-plan.v1' }
-      : (typeof window !== 'undefined' && window.AIO && typeof window.AIO.validateAIResponseClaims === 'function')
-      ? window.AIO.validateAIResponseClaims(raw, {
-        evidence: bindingEvidence,
-        currentSensitive: currentSensitive
-      })
-       : { status: 'unavailable', blocked: false, claims: [], validCount: 0, issues: [] };
+      : typedAudit;
     var conductAudit = (typeof window !== 'undefined' && window.AIO && typeof window.AIO.evaluateAIActionPermission === 'function')
       ? window.AIO.evaluateAIActionPermission({
         query: meta.query || (request && request.query) || '',
@@ -409,7 +409,8 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
     }
     if (!isPartialStream && publishablePlan.droppedClaims.length) applyLimitation('answer-plan-claim-degraded', '출처나 관측 시각을 확인할 수 없는 주장은 제외했습니다. 확인 가능한 설명을 아래에 제공합니다.');
-    if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && answerPlanAudit.status !== 'valid') {
+    // The notice follows what the filters did: a current figure that was written and removed, or a plan that did not validate.
+    if (!isPartialStream && currentSensitive && _aioHasCurrentNumericContent(raw) && (answerPlanAudit.status !== 'valid' || (filterCounts && filterCounts.removedNumericSentences > 0))) {
       applyLimitation('current-numeric-claim-unverified', '최신 수치의 근거를 확인하지 못했습니다. 숫자를 활용하기 전에 관측 시각과 원문을 확인하세요.');
     } else if (!isPartialStream && gate.blocked !== true && claimAudit && claimAudit.status === 'not-structured' && /(현재|지금|오늘|현시점|방금|as of)/i.test(visible) && /\d/.test(visible)) {
       limitationNotes.push('이 답변의 수치는 자동 검증되지 않았습니다. 관측 시각과 원문을 직접 확인하세요.');
@@ -513,22 +514,23 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       '보정(calibration) 모델 ID와 검증된 calibration 메타데이터가 주입되지 않은 경우 Bull/Base/Bear·상승/하락 확률을 숫자(%)로 만들거나 추정하지 마라. 확률 대신 조건·반대 가설·확인할 신호를 제시하라.\n';
   }
 
-  // One response contract for every public entry point. The previous producer
-  // requested AI_CLAIMS_JSON while the consumer required AI_ANSWER_PLAN.
+  // One response contract for every public entry point.
   var _aioBasePublicAIActionPolicyPrompt = _aioPublicAIActionPolicyPrompt;
   _aioPublicAIActionPolicyPrompt = function() {
     var base = _aioBasePublicAIActionPolicyPrompt();
     // P1740: the shape is chosen per question (【이번 답변의 형태】); this contract fixes only the envelope, voice and
     // number rules. The old fixed "summary ≤2 sentences, ≤4 sections × ≤3 sentences, 1,500 tokens" made every answer the
     // same short generic memo.
-    return base + '\n\n【AI AnswerPlan v1 — 출력 계약】\n' +
-      '답변 전체를 아래 블록 하나로 출력하라. 블록 밖에는 어떤 문장도 쓰지 마라.\n' +
-      '형태: 섹션 수와 길이는 질문이 정한다(【이번 답변의 형태】를 따른다). 고정 템플릿을 반복하지 말고, 섹션 제목은 "핵심 근거" 같은 범용어 대신 그 섹션의 주장을 담아 지어라(예: "금리 상승이 성장주 밸류에이션을 누르는 경로"). section body에는 markdown 목록·굵게·표(열 5개 이하)를 쓸 수 있다.\n' +
+    return base + '\n\n【출력 계약】\n' +
+      '답변을 일반 글(markdown)로 먼저 쓰고, 글이 끝난 뒤 맨 마지막에 [AI_ANSWER_META] 블록을 한 번만 붙여라. 사용자는 글이 쓰이는 대로 본다.\n' +
+      '글의 구조: 첫 문단은 질문에 대한 직접 답과 핵심 판단이다(제목 없이 시작). 더 풀 내용이 있으면 "### 제목" 줄로 섹션을 나눈다. 섹션 수와 길이는 질문이 정한다(【이번 답변의 형태】를 따른다). 고정 템플릿을 반복하지 말고, 섹션 제목은 "핵심 근거" 같은 범용어 대신 그 섹션의 주장을 담아 지어라(예: "금리 상승이 성장주 밸류에이션을 누르는 경로"). 본문에는 markdown 목록·굵게·표(열 5개 이하)를 쓸 수 있다. 짧게 끝나는 답은 섹션 없이 첫 문단만 써도 된다.\n' +
       '목소리: 시장 경험이 많은 리서치 애널리스트처럼 정확하고 중립적으로 쓴다. 결론을 먼저 말하고, 근거는 지표 이름·기간·기준일로 구체적으로 대며, 관측된 사실·해석·추정을 구분한다. 낙관과 비관을 공정하게 다루고, 상투적 문구("투자에는 위험이 따릅니다", "다양한 요인이 있습니다")와 같은 면책 문장의 반복을 피한다. 자연스러운 한국어로 쓴다.\n' +
-      '수치: 주입된 데이터와 검색 결과에 있는 수치는 그 수치가 필요한 문장에 기준일이나 기준(예: "11월 10일 종가 기준")과 함께 쓸 수 있다. 핵심 수치는 claims에도 넣고, 각 수치 claim은 type, text, metric, entity, value, unit, scale, asOf, source, evidenceIds, status를 채운다. metric/entity/scale은 주입된 evidence registry에서 그대로 복사하고 entity가 비어 있으면 빈 문자열로 둔다. 조건·임계값("VIX가 20을 넘으면")과 개념 설명용 예시 숫자는 본문에 써도 된다. 그 자료에 없는 현재 수치는 쓰지 말고 무엇이 확인되지 않았는지 밝혀라.\n' +
-      'followUps: 이 답변 다음에 실제로 이어질 만한 구체적 질문 2~3개(이번 답변과 사용 가능한 데이터에 연결된 것).\n' +
-      'remember(선택): 사용자가 이 대화에서 자기 자신에 대해 직접 밝힌 것(보유·관심 종목, 투자 기간·목표, 다르게 설명해 달라는 요청) 가운데 다음 답에 도움이 될 것만 "remember":["짧은 메모"]로 최대 2개, 각 60자 이내로 적는다. 추측하지 말고, 건강·경제적 어려움·신원 정보와 계좌번호·금액은 적지 않으며, 해당이 없으면 이 필드를 빼라.\n' +
-      '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"질문에 대한 직접 답과 핵심 판단","claims":[],"sections":[{"title":"이 섹션의 주장을 담은 제목","body":"근거·해석·조건"}],"citations":[],"followUps":[]}[\/AI_ANSWER_PLAN]\n';
+      '수치: 주입된 데이터, 도구 결과와 검색 결과에 있는 수치는 그 수치가 필요한 문장에 기준일이나 기준(예: "11월 10일 종가 기준")과 함께 쓴다. 질문이 물은 수치가 그 자료에 있으면 반드시 답하고, 자료의 수치로 계산할 수 있는 값(비율·차이·배수)은 계산해서 식과 함께 답한다. 조건·임계값("VIX가 20을 넘으면")과 개념 설명용 예시 숫자는 본문에 써도 된다. 그 자료에 없는 현재 수치는 쓰지 말고 무엇이 확인되지 않았는지 한 번만 밝혀라.\n' +
+      '[AI_ANSWER_META] 블록(JSON 한 개, 글에 쓴 문장을 되풀이하지 않는다):\n' +
+      '- claims: 글에 쓴 핵심 수치. 각 수치 claim은 type, text, metric, entity, value, unit, scale, asOf, source, evidenceIds, status를 채운다. metric/entity/scale은 주입된 evidence registry에서 그대로 복사하고 entity가 비어 있으면 빈 문자열로 둔다. 수치가 없으면 빈 배열.\n' +
+      '- followUps: 이 답변 다음에 실제로 이어질 만한 구체적 질문 2~3개(이번 답변과 사용 가능한 데이터에 연결된 것).\n' +
+      '- remember(선택): 사용자가 이 대화에서 자기 자신에 대해 직접 밝힌 것(보유·관심 종목, 투자 기간·목표, 다르게 설명해 달라는 요청) 가운데 다음 답에 도움이 될 것만 최대 2개, 각 60자 이내. 추측하지 말고, 건강·경제적 어려움·신원 정보와 계좌번호·금액은 적지 않으며, 해당이 없으면 이 필드를 빼라.\n' +
+      '형식 예:\n직접 답 문단\n\n### 섹션 제목\n근거·해석·조건\n\n[AI_ANSWER_META]{"claims":[],"citations":[],"followUps":[]}[/AI_ANSWER_META]\n';
   };
 
   function _aioPublicAIFormatAsOf(value) {

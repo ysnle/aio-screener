@@ -283,18 +283,6 @@ export function newsWindowContext(root = globalThis) {
 export const screenSubjectPrompt = (symbol) => `\n\n[화면 종목]\n질문에 종목 이름이 없어, 사용자가 지금 화면에서 보고 있는 ${symbol}를 대상으로 답한다. 다른 종목으로 바꾸지 말고, 이 종목 자료가 비어 있으면 비어 있다고 밝힌다.\n`;
 export const answerHead = (symbol, gate, text) => (symbol && !gate?.blocked ? `보고 있는 ${symbol} 기준\n\n${text}` : text);
 
-// Holdings reach the model only after the portfolio consent preview, as the redacted rows (ticker, sector, weight,
-// return). `pending` is the prompt _aioPortfolioAsk built from those rows; a typed question in a consented session gets
-// the rows attached. Otherwise the model is told none were sent, and a holdings question gets a one-line notice.
-export function portfolioTurn({ root = globalThis, query = '', pending = null, wrap = (kind, text) => text } = {}) {
-  if (pending && String(pending).trim() === query) return { data: true, prompt: '', notice: '' };
-  const line = root.AIO?.hasPortfolioAIConsent?.() && typeof root.AIO?.portfolioRowsLine === 'function' ? root.AIO.portfolioRowsLine(root) : '';
-  if (line) return { data: true, prompt: wrap('PORTFOLIO_ROWS', `사용자 보유 종목(비식별, 종목·섹터·비중·수익률만): ${line}`, { maxChars: 4000 }), notice: '' };
-  return { data: false,
-    prompt: '\n\n[포트폴리오]\n이번 질문에는 사용자의 보유 내역이 전송되지 않았다(전송 동의 전). 보유 종목·비중·수익률을 추정하지 말고 일반 점검 기준으로 답한다.\n',
-    notice: /포트폴리오|보유|내\s*종목|비중|리밸런싱|복기|수익률|손익/.test(query) ? '보유 내역을 보내려면 동의가 필요합니다. 이번 답은 보유 종목 없이 씁니다. 포트폴리오 화면의 \'종합 분석\' 버튼에서 보낼 항목을 보고 동의할 수 있습니다.' : '' };
-}
-
 // Theme, stock and portfolio questions get the teach-and-check order; the app's own criteria tables already in the prompt
 // (stock lens, setup checklist, theme criteria, level map) replace the generic criteria list.
 export function teachForTurn({ ctxId = '', query = '', tickers = [], mode = 'analysis', prompt = '' } = {}) {

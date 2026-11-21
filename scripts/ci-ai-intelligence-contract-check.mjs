@@ -21,6 +21,8 @@ import { createAIAnswerOrchestrator } from '../src/ai/orchestrator/answer-orches
 import { createAIKnowledgeIndex, retrieveAIKnowledge } from '../src/ai/retrieval/knowledge.js';
 import { evaluateEvidenceUse } from '../src/ai/policy/evidence-use.js';
 import { scenarioOutcomeFingerprints } from '../src/domain/scenarios/outcome-fingerprints.js';
+import { splitAnswerText } from '../src/ai/response/answer-envelope.js';
+import { answerEnvelopeText } from './lib/answer-envelope-fixture.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -103,12 +105,38 @@ const invalidProbabilityPlan = createAnswerPlan({
 });
 const probabilityAudit = validateAnswerPlan(invalidProbabilityPlan, { currentSensitive: true });
 check('uncalibrated-probability-blocked', probabilityAudit.ok === false && probabilityAudit.errors.some((error) => error.includes('uncalibrated_probability')));
-const validPlanText = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion:'answer-plan.v1', summary:'광테마는 수요와 공급 병목을 함께 확인해야 합니다.', claims:[], sections:[{ title:'확인 조건', body:'수주, 증설, 마진의 연결을 검증합니다.' }], citations:[], followUps:['수요와 실적의 연결을 설명해줘'] }) + '[/AI_ANSWER_PLAN]';
+const validPlanFields = { summary:'광테마는 수요와 공급 병목을 함께 확인해야 합니다.', claims:[], sections:[{ title:'확인 조건', body:'수주, 증설, 마진의 연결을 검증합니다.' }, { title:'공급 병목이 마진으로 이어지는 경로', body:'- 증설 일정\n- 수주 잔고' }], citations:[], followUps:['수요와 실적의 연결을 설명해줘', '증설 일정이 늦어지면 어떻게 돼?'] };
+const validPlanText = answerEnvelopeText(validPlanFields);
 const parsedPlan = parseAnswerPlanText(validPlanText, { currentSensitive:false });
-check('answer-plan-single-contract-parses-and-renders', parsedPlan.status === 'valid' && !renderAnswerPlan(parsedPlan.plan).includes('AI_ANSWER_PLAN'));
-const untrackedNumeric = parseAnswerPlanText('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 VIX는 15.2입니다","claims":[],"sections":[],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { currentSensitive:true });
+check('answer-plan-single-contract-parses-and-renders', parsedPlan.status === 'valid' && !/AI_ANSWER/.test(renderAnswerPlan(parsedPlan.plan)));
+// v60.41 (answer envelope): text first, one trailing [AI_ANSWER_META] block. The lead is the summary, each "### " heading
+// a section, and the block's followUps/remember come back as plan fields; the rendered answer carries none of the block.
+{
+  const plan = parsedPlan.plan;
+  const rendered = renderAnswerPlan(plan, { format: 'text' });
+  check('v60.41 the text-first envelope round-trips: lead -> summary, "### " headings -> sections, META -> followUps',
+    plan.summary === validPlanFields.summary && JSON.stringify(plan.sections) === JSON.stringify(validPlanFields.sections)
+      && JSON.stringify(plan.followUps) === JSON.stringify(validPlanFields.followUps) && plan.claims.claims.length === 0
+      && rendered.includes(validPlanFields.sections[1].title) && rendered.includes('수주 잔고') && !/AI_ANSWER|followUps|"claims"/.test(rendered));
+  const noMeta = parseAnswerPlanText(answerEnvelopeText(validPlanFields, { meta: false }));
+  check('v60.41 an answer with no META block is complete text with no claims (valid, no follow-ups)',
+    noMeta.status === 'valid' && noMeta.plan.sections.length === 2 && noMeta.plan.followUps.length === 0 && noMeta.plan.claims.claims.length === 0);
+  const cut = parseAnswerPlanText(validPlanText.slice(0, validPlanText.indexOf('"followUps"')));
+  const broken = parseAnswerPlanText(validPlanText.replace('"claims":[]', '"claims":[,]'));
+  check('v60.41 a META block cut off or malformed is reported, and the body is still returned (claims/followUps lost only)',
+    cut.status === 'invalid' && cut.audit.errors.includes('answer_meta_incomplete') && cut.plan?.summary === validPlanFields.summary && cut.plan.sections.length === 2 && cut.plan.followUps.length === 0
+      && broken.status === 'invalid' && broken.audit.errors.includes('answer_meta_invalid') && broken.plan?.sections.length === 2 && broken.plan.followUps.length === 0);
+  const empty = parseAnswerPlanText('[AI_ANSWER_META]{"claims":[]}[/AI_ANSWER_META]');
+  check('v60.41 an answer with no body is not-structured (answer_body_missing)', empty.status === 'not-structured' && empty.plan === null && empty.audit.errors.includes('answer_body_missing'));
+  // The block and its markers are never body text: complete, cut inside the block, or a marker half-typed at the end.
+  const bodies = [validPlanText, validPlanText.slice(0, validPlanText.indexOf('[AI_ANSWER_META]') + 20), `${validPlanFields.summary}\n\n[AI_ANSW`, `${validPlanFields.summary}\n\n[AI_ANSWER_META`, `${validPlanFields.summary}\n[`]
+    .map((text) => splitAnswerText(text).body);
+  check(`v60.41 the META block and its markers never appear in the answer body (${JSON.stringify(bodies.filter((body) => /\[|AI_ANSW|"claims"/.test(body)))})`,
+    bodies.every((body) => body.startsWith(validPlanFields.summary) && !/\[|AI_ANSW|"claims"/.test(body)));
+}
+const untrackedNumeric = parseAnswerPlanText(answerEnvelopeText({ summary:'현재 VIX는 15.2입니다', claims:[], sections:[], citations:[], followUps:[] }), { currentSensitive:true });
 check('answer-plan-untracked-current-number-fails', untrackedNumeric.status === 'invalid' && untrackedNumeric.audit.errors.includes('untracked_numeric_content'));
-const harmlessOrdinal = parseAnswerPlanText('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"확인할 3가지 조건을 정리합니다","claims":[],"sections":[],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { currentSensitive:true });
+const harmlessOrdinal = parseAnswerPlanText(answerEnvelopeText({ summary:'확인할 3가지 조건을 정리합니다', claims:[], sections:[], citations:[], followUps:[] }), { currentSensitive:true });
 check('answer-plan-ordinal-is-not-a-market-number', harmlessOrdinal.status === 'valid');
 const renderedClaim = createAnswerPlan({ summary:'현재 관측', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-10T12:00:00Z', source:'verified snapshot', evidenceIds:['vix:1'], status:'verified' }] });
 check('answer-plan-renderer-surfaces-verified-claims', renderAnswerPlan(renderedClaim).includes('VIX: 15.2 [verified snapshot') && !renderAnswerPlan(renderedClaim).includes('15.2index'));
@@ -540,17 +568,98 @@ check('research-optout-degrades-current-claims-without-ending-chat', /_uniResear
 check('chat-dispatches-through-orchestrator', /AIO_ARCH\.getAIOrchestrator/.test(chat) && /_aioOrchestrated/.test(chat));
 check('orchestrator-downgrades-action-permission-to-a-disclosure', /actionPermission\.allowed === false/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && /actionLimitations/.test(read('src/ai/orchestrator/answer-orchestrator.js')) && !/blocked-action-permission/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
 check('v57.62 chat-surface-has-pre-provider-action-boundary', /_uniPreProviderPermission/.test(chat) && !/_aioPreProviderPermission/.test(chat)); // v57.62: per-page copy retired
-// v60.02: the unified panel's stream callback, run as written: a streamed answer (here with research text and a figure)
-// reaches the waiting line only as its length; nothing of its text is written to the page before the filters run.
+// The request pipeline as the page runs it (the core claim schema plus the chat and pipeline helpers), in a vm context.
+function pipelineContext(nowMs) {
+  const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
+  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const coreSource = read('js/aio-core.js');
+  const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (value, options = {}) => orchestrator.parseAnswerPlanText(value, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
+  vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
+  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
+  return ctx;
+}
+// v60.41 (answer envelope; v60.02 hid the stream entirely): the unified panel's stream callback, run as written. A preview
+// is the body passed through the same filters as the finished answer: never the META block, a half-typed marker or a
+// figure the filters remove at completion; a blocked preview writes nothing; at most one preview per 350 ms.
 {
   const panelScript = read('js/aio-chat.js');
-  const at = panelScript.indexOf('var _uniOnChunk = function(fullText) {'), to = panelScript.indexOf('\n  };', at);
-  const seen = [], writes = [];
-  const sandbox = { _uniStatus: { chars: (n) => seen.push(n) }, _isCurrentUnifiedRun: () => true, document: new Proxy({}, { get: (_, key) => { writes.push(key); return () => null; } }), String };
-  let thrown = '';
-  try { vm.runInNewContext(`${panelScript.slice(at, to)}\n  };\n_uniOnChunk('[AI_ANSWER_PLAN]{"summary":"NVDA 999달러, 원인은 검색 결과"');`, sandbox); } catch (error) { thrown = error.message; }
-  check(`v60.02 chat-surface-hides-unverified-research-streams: a streamed answer reaches the page only as its length (${JSON.stringify(seen)}, writes ${writes.length}${thrown ? `, ${thrown}` : ''})`,
-    !thrown && seen.length === 1 && seen[0] === '[AI_ANSWER_PLAN]{"summary":"NVDA 999달러, 원인은 검색 결과"'.length && writes.length === 0);
+  const at = panelScript.indexOf('var _uniPreviewAt = 0'), to = panelScript.indexOf('\n  };', panelScript.indexOf('var _uniOnChunk = function(fullText) {'));
+  const pipe = pipelineContext(Date.parse('2026-11-21T03:00:00Z'));
+  const request = { requestId: 'fixture-stream-preview', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const panel = (pipeline) => {
+    const state = { clock: 0, mounted: null, writes: [], bubble: { innerHTML: '' } };
+    const element = { querySelector: (selector) => (selector === '.ai-bubble' ? state.bubble : null) };
+    const sandbox = {
+      String, Date: { now: () => state.clock }, _uniStatus: { chars: () => {} }, _isCurrentUnifiedRun: () => true,
+      document: { getElementById: (id) => (id === 'ai-panel-streaming' ? state.mounted : null) },
+      _appendAIMsg: (role, html, id) => { state.writes.push(`append:${id}`); state.mounted = element; return element; },
+      _uniSafeRender: (text) => { state.writes.push(text); return text; },
+      _aioRunAIResponsePipeline: pipeline,
+      _uniReferenceText: '', detectedTickers: [], modelOpts: { webSearch: false }, state: {}, _aioAIRequestCitations: () => [], _uniRequestId: request.requestId,
+      _uniAIRequest: request, _uniQuestionPlan: { currentSensitive: true }, ctxId: 'home', q: '반도체 왜 빠졌어?', _uniFreshPreflight: null, _uniClaimEvidence: [], _uniProvenanceBundle: null
+    };
+    vm.runInNewContext(`${panelScript.slice(at, to)}\n  };`, sandbox);
+    state.chunk = (text, clock) => { state.clock = clock; sandbox._uniOnChunk(text); return state.bubble.innerHTML; };
+    return state;
+  };
+  const real = (raw, meta) => pipe._aioRunAIResponsePipeline(raw, { ...meta, stripChips: false });
+  const lead = '반도체 업종은 수요와 공급 병목을 함께 확인해야 합니다.';
+  const figure = '엔비디아 주가는 999달러입니다.';
+  const section = '### 확인할 조건\n수주 잔고와 마진의 연결이 다음 판단의 기준입니다.';
+  const meta = '[AI_ANSWER_META]{"claims":[],"followUps":["수요 둔화가 길어지면 어떻게 돼?"]}[/AI_ANSWER_META]';
+  const view = panel(real);
+  const steps = [
+    view.chunk(`${lead} ${figure}`, 1000),
+    view.chunk(`${lead} ${figure}\n\n${section}`, 1100), // inside the 350 ms window: no new preview
+    view.chunk(`${lead} ${figure}\n\n${section}\n\n[AI_ANSW`, 1500),
+    view.chunk(`${lead} ${figure}\n\n${section}\n\n${meta.slice(0, 40)}`, 2000),
+    view.chunk(`${lead} ${figure}\n\n${section}\n\n${meta}`, 2500)
+  ];
+  const completed = real(`${lead} ${figure}\n\n${section}\n\n${meta}`, { request, questionPlan: { currentSensitive: true }, evidence: [], streamPhase: 'complete', record: false });
+  check(`v60.41 chat-surface-stream-preview-is-filtered-body-only: the preview shows the lead and sections, never the META block, a half-typed marker or the unverified figure (${JSON.stringify(steps)})`,
+    steps[0] === lead && steps[1] === lead && steps.slice(2).every((text) => text.includes(lead) && text.includes('수주 잔고와 마진의 연결'))
+      && steps.every((text) => !/AI_ANSW|\[|followUps|"claims"|999/.test(text)) && !completed.text.includes('999') && view.writes.filter((entry) => entry.startsWith('append:')).length === 1);
+  const blocked = panel(() => ({ blocked: true, text: 'AI 도우미 안전 모드' }));
+  blocked.chunk(`${lead} ${figure}`, 1000);
+  const empty = panel(real);
+  empty.chunk('[AI_ANSWER_META]{"claims":[', 1000);
+  check(`v60.41 chat-surface-stream-preview: a blocked preview or one with no body yet writes nothing (${JSON.stringify([blocked.writes, empty.writes])})`,
+    blocked.writes.length === 0 && blocked.mounted === null && empty.writes.length === 0 && empty.mounted === null);
+  // v60.41 (c): the sentence still being written is held back until it ends; (b) an answer cut at the length limit
+  // publishes its complete sentences, with the length-limit notice.
+  const writing = real(`${lead} 다음으로 데이터센터 수요가`, { request, questionPlan: { currentSensitive: true }, evidence: [], streamPhase: 'partial', record: false });
+  const writingFigure = real(`${lead} 엔비디아 주가는 99`, { request, questionPlan: { currentSensitive: true }, evidence: [], streamPhase: 'partial', record: false });
+  check(`v60.41 partial-stream preview hides the sentence still being written (${JSON.stringify([writing.text, writingFigure.text])})`,
+    writing.text === lead && writingFigure.text === lead);
+  const second = '수주 잔고와 마진의 연결이 다음 판단의 기준입니다.';
+  const truncated = real(`${lead} ${second}\n\n### 공급 병목이 풀리는 시점\n증설이 끝나는 분기부터 마진이 회복되는 경로를 봅`, { request, questionPlan: { currentSensitive: true }, evidence: [], streamPhase: 'complete', completion: { stopReason: 'max_tokens', truncated: true }, record: false });
+  check(`v60.41 a body cut at max tokens publishes its complete sentences with the length-limit notice (${JSON.stringify(truncated.text)})`,
+    truncated.blocked === false && truncated.text.includes(lead) && truncated.text.includes(second) && truncated.limitations.includes('model-output-truncated') && /응답 길이 한도/.test(truncated.text));
+  check(`v60.41 a body cut at max tokens does not publish the cut sentence (owner 2026-11-17: nothing is published cut) (${JSON.stringify(truncated.text)})`,
+    !truncated.text.includes('회복되는 경로를 봅'));
+}
+// v60.41 (d): the prompt contract asks for text first and names the trailing [AI_ANSWER_META] block.
+{
+  const { installAIRequestPipeline } = await import('../src/ai/response/request-pipeline.js');
+  const page = {};
+  installAIRequestPipeline(page, {});
+  const contract = page._aioPublicAIActionPolicyPrompt();
+  const tail = contract.slice(contract.indexOf('【출력 계약】'));
+  check('v60.41 the prompt contract tells the model to write text first and names [AI_ANSWER_META]',
+    contract.includes('【출력 계약】') && /일반 글\(markdown\)로 먼저 쓰고/.test(tail) && /맨 마지막에 \[AI_ANSWER_META\] 블록을 한 번만/.test(tail)
+      && /\[AI_ANSWER_META\]\{"claims":\[\][^\n]*\[\/AI_ANSWER_META\]/.test(tail) && /### /.test(tail) && !/AI_ANSWER_PLAN|schemaVersion/.test(contract));
+}
+// v60.41 (e): no production file still carries [AI_ANSWER_PLAN] as a live format; a mention survives only in a comment line.
+{
+  const walk = (dir) => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
+    const rel = `${dir}/${entry.name}`;
+    return entry.isDirectory() ? walk(rel) : /\.(?:m?js)$/.test(entry.name) ? [rel] : [];
+  });
+  const production = [...walk('src'), ...walk('js').filter((file) => !/\/aio-(?:tests|qa-audits)\.js$/.test(file)), ...walk('worker').filter((file) => !/\.test\.mjs$/.test(file)), 'cloudflare-worker-proxy.js', 'index.html', 'sw.js'];
+  const live = production.flatMap((file) => read(file).split('\n').map((line, index) => ({ file, line: index + 1, text: line.trim() })))
+    .filter(({ text }) => /AI_ANSWER_PLAN/.test(text) && !/^(?:\/\/|\/\*|\*)/.test(text));
+  check(`v60.41 no production file mentions [AI_ANSWER_PLAN] outside a comment (${JSON.stringify(live.map(({ file, line }) => `${file}:${line}`))})`, production.length > 20 && live.length === 0);
 }
 // 2026-10-17: the maker-checker verdict (its only RESEARCH_CANDIDATE producer) had no caller and is retired; the screener
 // prompt moved to src/ai/context/screener-query.js with the producer-time rule.
@@ -630,7 +739,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   detail('#7 the registry exposes the close rows and points a stale live row at its close substitute',
     !!vixClaim && !!tnxClaim && /closeSubstitute=ev-close-vix-2026-10-12/.test(registry) && /status=stale_live/.test(registry), registry);
   // The live question: "지금 VIX와 미국 10년물 금리 수준이 위험자산에 주는 의미를 기준일과 함께 짧게 설명해줘."
-  const plan = (claims) => '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '변동성은 낮지만 장기금리가 높아 위험자산의 할인율 부담이 남아 있습니다.', claims, sections: [{ title: '의미', body: '금리 부담이 이어지는 동안 변동성이 낮다는 사실만으로 위험 선호를 단정하기 어렵습니다.' }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+  const plan = (claims) => answerEnvelopeText({ summary: '변동성은 낮지만 장기금리가 높아 위험자산의 할인율 부담이 남아 있습니다.', claims, sections: [{ title: '의미', body: '금리 부담이 이어지는 동안 변동성이 낮다는 사실만으로 위험 선호를 단정하기 어렵습니다.' }], citations: [], followUps: [] });
   const request = { requestId: 'fixture-close-basis', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
   const run = (claims) => ctx._aioRunAIResponsePipeline(plan(claims), { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
   const bound = run([vixClaim, tnxClaim]);
@@ -709,12 +818,12 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // v59.99 (plan 043 B): the 【이전 대화에서】 block is prompt text, not evidence. On a current-sensitive question a sentence
   // that repeats a price from an earlier answer is removed like any other unbound current number.
   {
-    const repeated = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '지난번 대화 이후 반도체 수요 기대가 약해졌습니다.', claims: [], sections: [{ title: '지난번 이후', body: '엔비디아 주가는 180.5달러입니다. 수요 기대가 꺾인 것이 하락의 배경으로 거론됩니다.' }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+    const repeated = answerEnvelopeText({ summary: '지난번 대화 이후 반도체 수요 기대가 약해졌습니다.', claims: [], sections: [{ title: '지난번 이후', body: '엔비디아 주가는 180.5달러입니다. 수요 기대가 꺾인 것이 하락의 배경으로 거론됩니다.' }], citations: [], followUps: [] });
     const out = ctx._aioRunAIResponsePipeline(repeated, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
     detail('v59.99 earlier turns: a figure repeated from an earlier answer is not evidence and is removed on a current question',
       !out.text.includes('180.5') && out.text.includes('수요 기대가 꺾인 것이'), out.text);
     // v59.99 (plan 043 C): the plan's `remember` notes come back to the panel and are never part of the answer text.
-    const remembering = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '장기 보유 관점에서는 분기 실적보다 다년 매출 구조가 먼저입니다.', claims: [], sections: [{ title: '장기 관점의 순서', body: '산업 사이클과 밸류에이션 범위를 먼저 봅니다.' }], citations: [], followUps: [], remember: ['엔비디아를 장기 보유 중', '용어를 쉽게 풀어 달라고 함'] }) + '[/AI_ANSWER_PLAN]';
+    const remembering = answerEnvelopeText({ summary: '장기 보유 관점에서는 분기 실적보다 다년 매출 구조가 먼저입니다.', claims: [], sections: [{ title: '장기 관점의 순서', body: '산업 사이클과 밸류에이션 범위를 먼저 봅니다.' }], citations: [], followUps: [], remember: ['엔비디아를 장기 보유 중', '용어를 쉽게 풀어 달라고 함'] });
     const kept = ctx._aioRunAIResponsePipeline(remembering, { request, questionPlan: { currentSensitive: false }, currentSensitive: false, evidence: [], record: false, streamPhase: 'complete', stripChips: false });
     detail('v59.99 reader notes: a plan with remember renders its answer without the field and hands the notes back',
       kept.text.includes('다년 매출 구조') && !/장기 보유 중|쉽게 풀어|remember/.test(kept.text) && JSON.stringify(kept.remember) === JSON.stringify(['엔비디아를 장기 보유 중', '용어를 쉽게 풀어 달라고 함']), JSON.stringify({ text: kept.text, remember: kept.remember }));
@@ -895,12 +1004,22 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // v58.75 R620: the panel's per-turn pieces live in src/ (choosing-blocks.js, chat-tickers.js) — holdings only after
   // consent, the screen company named and heading the answer, used-evidence badges, index charts as screenProxy.
   const { screenSubjectTicker } = await import('../src/ai/entity/chat-tickers.js');
-  const pfNo = choosing.portfolioTurn({ root: { AIO: { hasPortfolioAIConsent: () => false } }, query: '내 포트폴리오 점검' });
-  const pfYes = choosing.portfolioTurn({ root: { AIO: { hasPortfolioAIConsent: () => true, portfolioRowsLine: () => 'NVDA(비중 40%)' } }, query: '보유 종목 어때', wrap: (kind, text) => `[${kind}] ${text}` });
+  const personal = await import('../src/ai/context/personal-turn.js');
+  const holder = (consented) => ({ getPortfolioData: () => [{ ticker: 'NVDA' }], localStorage: { getItem: () => null, setItem() {}, removeItem() {} }, AIO: { hasPortfolioAIConsent: () => consented, portfolioRowsLine: () => 'NVDA(비중 40%)' } });
+  const pfNo = personal.personalTurn({ root: holder(false), query: '내 포트폴리오 점검' });
+  const pfYes = personal.personalTurn({ root: holder(true), query: '보유 종목 어때', wrap: (kind, text) => `[${kind}] ${text}` });
+  // v60.41: the consent is asked before the model call, from any screen, and only when there are holdings to send.
+  check('v60.41 a holdings question asks for the send consent before the model call',
+    personal.personalGate({ root: holder(false), query: '내 보유 종목 기준으로 조심할 것', ctxId: 'home' }).ask === true
+    && personal.personalGate({ root: holder(false), query: '내 보유 종목 기준으로 조심할 것', ctxId: 'home', withoutHoldings: true }).ask === false
+    && personal.personalGate({ root: holder(true), query: '내 보유 종목 어때', ctxId: 'home' }).ask === false
+    && personal.personalGate({ root: { ...holder(false), getPortfolioData: () => [] }, query: '내 포트폴리오', ctxId: 'portfolio' }).ask === false
+    && personal.personalGate({ root: holder(false), query: '엔비디아 실적', ctxId: 'home' }).personal === false
+    && personal.personalTurn({ root: holder(false), query: '엔비디아 실적', ctxId: 'home' }).prompt === '');
   const badge = choosing.sourceBadge({ __aioChatSessions: { screenLabel: () => '차트' }, _aioChatCloseMarketBasis: () => ({ asOf: '2026-10-23' }) }, 'technical', { technical: true, news: false });
   check('v58.75 panel pieces in src: consent-gated holdings, screen company, used-only badges, index chart proxy',
-    pfNo.data === false && /전송되지 않았다/.test(pfNo.prompt) && /동의가 필요합니다/.test(pfNo.notice) && pfYes.data === true && /\[PORTFOLIO_ROWS\] .*NVDA/.test(pfYes.prompt)
-    && choosing.portfolioTurn({ root: {}, query: 'q', pending: 'q ' }).data === true
+    pfNo.data === false && /전송되지 않았다/.test(pfNo.prompt) && pfYes.data === true && /\[PORTFOLIO_ROWS\] .*NVDA/.test(pfYes.prompt)
+    && personal.personalTurn({ root: {}, query: 'q', pending: 'q ' }).data === true
     && choosing.answerHead('NVDA', null, 'x') === '보고 있는 NVDA 기준\n\nx' && choosing.answerHead('NVDA', { blocked: true }, 'x') === 'x'
     && /차트 화면 기준, 종가 10\/23, 사용한 근거/.test(badge) && /차트 지표/.test(badge) && !/뉴스/.test(badge)
     && screenSubjectTicker({ _aioChartSubject: 'amd' }, 'technical') === 'AMD' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'ticker') === 'NVDA' && screenSubjectTicker({ _currentTickerId: 'NVDA' }, 'home') === ''
@@ -1062,7 +1181,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   // device with the saving consent, deduped, capped, wiped with the consent, and sent as one dated block.
   const notes = await import('../src/ai/session/reader-notes.js');
   const { parseAnswerPlanText } = await import('../src/ai/response/claim-ledger.js');
-  const planWith = (remember) => parseAnswerPlanText('[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '요약', claims: [], sections: [], citations: [], followUps: [], ...(remember === undefined ? {} : { remember }) }) + '[/AI_ANSWER_PLAN]');
+  const planWith = (remember) => parseAnswerPlanText(answerEnvelopeText({ summary: '요약', claims: [], sections: [], citations: [], followUps: [], remember }));
   const parsed = planWith(['삼성전자를 3년째 보유', 'x'.repeat(61), '월 300만 원씩 적립', '예수금 500달러', 42, null, '계좌 123-456-7890', '반도체 위주로 관심', '세 번째 메모']);
   check(`v59.99 reader notes: the parser keeps at most two clean notes and drops over-cap, money, long-number and non-string entries (${JSON.stringify(parsed.plan?.remember)})`,
     parsed.status === 'valid' && JSON.stringify(parsed.plan.remember) === JSON.stringify(['삼성전자를 3년째 보유', '반도체 위주로 관심']));
@@ -1677,7 +1796,6 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
   const { normalizeTickerInput } = await import('../src/domain/instruments/ticker-symbol.js');
   const { resolveRegisteredName, isKnownSymbol } = await import('../src/domain/instruments/resolve-name.js');
-  const { runScreenerQuery, formatScreenerResultPrompt } = await import('../src/ai/context/screener-query.js');
   const { SCENARIO_OUTCOMES } = await import('../src/data/artifact-registry.js');
   const { formatSecResearchEvidence } = await import('../src/ai/context/sec-fundamentals.js');
   const DAY = 86400000;
@@ -1700,8 +1818,6 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       _aioNormalizeTickerInput: (raw) => { const n = normalizeTickerInput(raw, { krStockDb }); return n !== String(raw || '').trim().toUpperCase() ? n : resolveRegisteredName(raw, entries) || n; },
       _aioIsKnownTicker: (symbol) => isKnownSymbol(symbol, { entries, krStockDb, universe: rows }),
       _aioFetchYahooChartData: async (symbol) => (symbol === 'NVDA' || symbol === 'AMD' ? payload : null),
-      _aioRunScreenerQuery: (query) => runScreenerQuery(query, { rows }),
-      _formatScreenerResultPrompt: (result) => formatScreenerResultPrompt(result, { rankAsOf: iso(1) }),
       _aioScreenBasisEvidence: () => [{ metric: 'close.vix', value: 17.2, unit: 'index', asOf: iso(1), source: 'close-basis', evidenceId: 'ev-vix' }, { metric: 'macro.cpi_yoy', value: 3.0, unit: 'percent', asOf: iso(40), period: 'month', source: 'macro-release', evidenceId: 'ev-cpi' }],
       AIO: { readPublicFundamentals: async (symbols) => (symbols.includes('NVDA') ? { NVDA: secRecord } : {}), formatSecResearchEvidence },
       __aioCompanyStories: { rows: { NVDA: { researchedAt: iso(20) } }, context: { NVDA: '【NVDA 기업 분석】 데이터센터 매출 비중이 커진 구조다.' }, inFlight: {}, failed: {}, entries: {} },
@@ -1717,6 +1833,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     return root;
   };
   const definitions = registry.toolDefinitions();
+  const screenSpec = { market: 'US', sizes: [], sector: null, theme: null, index: null, conditions: [{ id: 'rsi-max', value: 30, strict: false }], sort: 'marketCap', order: 'desc', limit: 12 };
   const call = (name, args, id) => ({ type: 'function_call', id: `fc_${id}`, call_id: `call_${id}`, name, arguments: JSON.stringify(args), status: 'completed' });
   let budget = null, budgetError = '';
   try {
@@ -1739,7 +1856,9 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     fundamentals: await run('fundamentals', { symbol: 'NVDA' }),
     company_story: await run('company_story', { symbol: 'NVDA' }),
     consensus: await run('consensus', { symbol: 'NVDA' }),
-    screen: await run('screen', { query: 'RSI 30 이하 종목' }),
+    screen: await run('screen', screenSpec), // v60.41: the structured spec the screener engine runs
+    // v60.41: one theme's members (no stage on two rows); the committed-data cases are scripts/ci-chat-screen-tool-check.mjs.
+    money_flow: await registry.runTool('money_flow', JSON.stringify({ market: 'US', level: 'theme', theme: '반도체' }), { root: fixtureRoot({ THEME_MAP: [{ id: 'semiconductor', nameKr: '반도체', subThemes: [{ name: 'GPU', tickers: ['NVDA', 'AMD'] }] }] }), now: nowMs }),
     macro: await run('macro', { topic: 'macro' }),
     scenario_record: await run('scenario_record', { id: 'semiconductor' }),
     news: await run('news', { query: 'NVDA', days: 7 })
@@ -1774,10 +1893,10 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       restamped.ok === true && /다른 기준으로 계산돼 있어 쓰지 않습니다\(다음 주간 갱신 때 다시 계산\)/.test(restamped.text) && !/기록이 없는 id/.test(restamped.text)
         && correction.ok === true && /나스닥 조정 횟수 기록은 지금 정의와 다른 기준/.test(correction.text));
   }
-  const throwing = fixtureRoot({ _aioScreenBasisEvidence: () => { throw new Error('boom'); }, AIO: { readPublicFundamentals: async () => { throw new Error('offline'); }, formatSecResearchEvidence }, _aioRunScreenerQuery: () => { throw new Error('boom'); } });
+  const throwing = fixtureRoot({ _aioScreenBasisEvidence: () => { throw new Error('boom'); }, AIO: { readPublicFundamentals: async () => { throw new Error('offline'); }, formatSecResearchEvidence }, _aioGetCanonicalScreenerRows: () => { throw new Error('boom'); } });
   let threw = false;
   try {
-    const results = await Promise.all([registry.runTool('fundamentals', '{"symbol":"NVDA"}', { root: throwing, now: nowMs }), registry.runTool('screen', '{"query":"과매도"}', { root: throwing, now: nowMs }), registry.runTool('macro', '{"topic":"macro"}', { root: throwing, now: nowMs })]);
+    const results = await Promise.all([registry.runTool('fundamentals', '{"symbol":"NVDA"}', { root: throwing, now: nowMs }), registry.runTool('screen', JSON.stringify(screenSpec), { root: throwing, now: nowMs }), registry.runTool('macro', '{"topic":"macro"}', { root: throwing, now: nowMs })]);
     check('v60.02 a reader that throws gives ok:false, never a throw', results.every((r) => r.ok === false && typeof r.text === 'string' && r.text.length > 0));
   } catch (_) { threw = true; }
   check('v60.02 runTool never throws', threw === false);
@@ -2008,14 +2127,8 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       && banner({ searchedSentences: 0, removedNumericSentences: 2 }) === '※ 출처가 붙지 않은 최신 수치는 뺌 — 아래 참고 링크 원문 확인'
       && banner(null) === '※ 최신 수치 확인 안 됨 — 일반 설명만');
   // The browser path: the request pipeline hands this request's citations to the publication step and the line.
-  const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
-  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
-  const coreSource = read('js/aio-core.js');
-  const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (text, options = {}) => orchestrator.parseAnswerPlanText(text, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
-  vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
-  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
-  vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
-  const raw = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary, claims: [], sections: [], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+  const ctx = pipelineContext(nowMs);
+  const raw = answerEnvelopeText({ summary, claims: [], sections: [], citations: [], followUps: [] });
   const request = { requestId: 'fixture-searched-consensus', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
   const run = (citations) => ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, searchCitations: citations });
   const piped = run(searchCitations);
@@ -2178,14 +2291,8 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       && /계산값 1개/.test(line({ searchedSentences: 1, removedNumericSentences: 0, derivedSentences: 1 })));
   // The browser path hands the counts to the line (request-pipeline searchSummary).
   {
-    const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
-    const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
-    const coreSource = read('js/aio-core.js');
-    const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (value, options = {}) => orchestrator.parseAnswerPlanText(value, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
-    vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
-    vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioAIClaimEvidenceId('), chatSource.indexOf('function _aioPublicAIActionPolicyPrompt(')), ctx);
-    vm.runInContext(chatSource.slice(chatSource.indexOf('function _aioPublicAIFormatAsOf('), chatSource.indexOf('function _aioAppendAIPublicDisclosure(')), ctx);
-    const raw = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '코카콜라의 현재 배당수익률은 연환산 배당 $2.12를 화면 종가 $99.48로 나누면 약 2.1%입니다.', claims: [], sections: [{ title: '배당 이력', body: glued }], citations: [], followUps: [] }) + '[/AI_ANSWER_PLAN]';
+    const ctx = pipelineContext(nowMs);
+    const raw = answerEnvelopeText({ summary: '코카콜라의 현재 배당수익률은 연환산 배당 $2.12를 화면 종가 $99.48로 나누면 약 2.1%입니다.', claims: [], sections: [{ title: '배당 이력', body: glued }], citations: [], followUps: [] });
     const request = { requestId: 'fixture-ko-dividend', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
     const piped = ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, searchCitations, referenceText: opts.referenceText, entities: ['KO'] });
     check('v60.28 the panel answer opens with the line naming the withheld yield sentence and the cut one, and publishes no cut sentence',

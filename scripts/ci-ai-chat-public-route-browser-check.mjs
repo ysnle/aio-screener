@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
+import { answerEnvelopeText } from './lib/answer-envelope-fixture.mjs';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -57,16 +58,18 @@ try {
         const translated = JSON.stringify([...prompt.matchAll(/\[(\d+)\] Title: ([^\\]*)/g)].filter(([, , title]) => !title.startsWith('Omit item')).map(([, n, title]) => ({ idx: Number(n), title: title.includes('Luna transport fixture') ? '공용 번역 연결 확인' : '화면 기사 번역 ' + n, desc: '수집된 자료의 번역입니다.', summary: '번역 응답을 확인했습니다.', tickers: [] })));
         return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'completed', model: 'gpt-6-luna', output: [{ type: 'message', content: [{ type: 'output_text', text: translated }] }], usage: { input_tokens: 10, output_tokens: 20 } }) });
       }
-      const plan = '[AI_ANSWER_PLAN]' + JSON.stringify({
-        schemaVersion: 'answer-plan.v1',
+      const plan = answerEnvelopeText({
         summary: '공용 경로의 완결된 응답입니다.',
         claims: [],
         sections: [{ title: '검증', body: '신규 브라우저에서도 Worker를 거쳐 답변을 받습니다.' }],
         citations: [],
         followUps: ['근거 범위를 설명해줘']
-      }) + '[/AI_ANSWER_PLAN]';
+      });
+      // v60.41: the text-first envelope streams in pieces, the META block split across two deltas.
+      const cut = plan.indexOf('[AI_ANSWER_META]') + 8;
       const body = [
-        `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: plan })}\n\n`,
+        `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: plan.slice(0, cut) })}\n\n`,
+        `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: plan.slice(cut) })}\n\n`,
         `data: ${JSON.stringify({ type: 'response.completed', response: { status: 'completed', usage: { input_tokens: 12, output_tokens: 80 } } })}\n\n`
       ].join('');
       return route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'access-control-allow-origin': localBase, 'x-aio-max-tokens': '1500' }, body });
@@ -78,7 +81,20 @@ try {
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
 
-  const pendingResult = page.evaluate(async () => {
+  // v60.41: the answers below in the text-first envelope (lead, "### " sections, trailing [AI_ANSWER_META] block).
+  const unboundFields = { summary: '변동성과 위험 선호를 함께 확인해야 합니다.', claims: [{ type: 'metric', text: 'VIX', value: 15.2, unit: 'index', asOf: '2026-08-18T13:00:00Z', source: 'fixture', evidenceIds: ['missing-vix'], status: 'verified' }],
+    sections: [{ title: '조건', body: '확인된 근거가 부족하면 정성적 조건만 유지합니다.' }], citations: [], followUps: [] };
+  const cutAnswer = answerEnvelopeText({ summary: '공급과 수요를 함께 확인해야 합니다.', sections: [{ title: '확인 순서', body: '수주 잔고를 먼저 봅니다.' }], claims: [], followUps: ['다음 질문'] });
+  const fixtures = {
+    nullParse: answerEnvelopeText({ summary: '현재 주가 999 USD' }),
+    unbound: answerEnvelopeText(unboundFields),
+    invalid: answerEnvelopeText({ summary: '현재 VIX는 15.2입니다', claims: [], sections: [{ title: '조건', body: '변동성과 위험 선호를 함께 확인해야 합니다.' }], citations: [], followUps: [] }),
+    truncated: cutAnswer.slice(0, cutAnswer.indexOf('"followUps"')),
+    brokenMeta: cutAnswer.replace('"claims":[]', '"claims":[,]'),
+    partials: [cutAnswer.slice(0, cutAnswer.indexOf('[AI_ANSWER_META]')) + '[AI_ANSW', cutAnswer.slice(0, cutAnswer.indexOf('"followUps"')), cutAnswer, ''],
+    unavailable: answerEnvelopeText({ summary: '현재 주가 999 USD', claims: [], sections: [], citations: [] })
+  };
+  const pendingResult = page.evaluate(async (fx) => {
     localStorage.clear();
     await window.AIO.loadPublicConfig();
     const routeState = await window._aioEnsureClaudeRoute('');
@@ -87,7 +103,7 @@ try {
     // The orchestrator is still held here: a null parse is the unavailable case, never a thrown TypeError.
     const orchestratorBeforeAsk = !!window.AIO_ARCH.getAIOrchestrator?.();
     let nullParse;
-    try { nullParse = { text: window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 주가 999 USD"}[/AI_ANSWER_PLAN]', { entrypoint: 'orchestrator-loading-fixture', streamPhase: 'complete', record: false })?.text }; } catch (error) { nullParse = { threw: String(error) }; }
+    try { nullParse = { text: window._aioRunAIResponsePipeline(fx.nullParse, { entrypoint: 'orchestrator-loading-fixture', streamPhase: 'complete', record: false })?.text }; } catch (error) { nullParse = { threw: String(error) }; }
     window.__aioAskStarted = true;
     const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
       window.callSharedAi('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
@@ -95,30 +111,22 @@ try {
       }, rejectStream, { modelKey: 'luna' });
     });
     const questionPlan = { currentSensitive: true, sessionEvidence: { verified: true, observedAt: '2026-08-18T13:00:00Z', status: 'open' }, researchDecision: { requirement: 'OPTIONAL' } };
-    const unbound = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]' + JSON.stringify({
-      schemaVersion: 'answer-plan.v1', summary: '변동성과 위험 선호를 함께 확인해야 합니다.',
-      claims: [{ type: 'metric', text: 'VIX', value: 15.2, unit: 'index', asOf: '2026-08-18T13:00:00Z', source: 'fixture', evidenceIds: ['missing-vix'], status: 'verified' }],
-      sections: [{ title: '조건', body: '확인된 근거가 부족하면 정성적 조건만 유지합니다.' }], citations: [], followUps: []
-    }) + '[/AI_ANSWER_PLAN]', { entrypoint: 'unbound-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
-    const invalid = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]' + JSON.stringify({
-      schemaVersion: 'answer-plan.v1', summary: '현재 VIX는 15.2입니다', claims: [],
-      sections: [{ title: '조건', body: '변동성과 위험 선호를 함께 확인해야 합니다.' }], citations: [], followUps: []
-    }) + '[/AI_ANSWER_PLAN]', { entrypoint: 'invalid-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
-    const truncated = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"공급과 수요를 함께 확인해야 합니다","claims":[]', {
+    const unbound = window._aioRunAIResponsePipeline(fx.unbound, { entrypoint: 'unbound-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
+    const invalid = window._aioRunAIResponsePipeline(fx.invalid, { entrypoint: 'invalid-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
+    const truncated = window._aioRunAIResponsePipeline(fx.truncated, {
       entrypoint: 'truncated-fixture', streamPhase: 'complete', completion: { stopReason: 'max_tokens', truncated: true }, record: false
     });
-    const partial = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1"', { entrypoint: 'partial-fixture', streamPhase: 'partial', record: false });
+    const brokenMeta = window._aioRunAIResponsePipeline(fx.brokenMeta, { entrypoint: 'broken-meta-fixture', streamPhase: 'complete', record: false });
+    const partial = fx.partials.map((raw) => window._aioRunAIResponsePipeline(raw, { entrypoint: 'partial-fixture', streamPhase: 'partial', record: false }));
     // P1519: an unavailable publication module must not dereference a null plan or expose raw output.
     const architecture = Object.getOwnPropertyDescriptor(window, 'AIO_ARCH');
     let unavailable;
     try {
       Object.defineProperty(window, 'AIO_ARCH', { ...architecture, value: { ...architecture.value, getAIOrchestrator: () => ({ ...architecture.value.getAIOrchestrator(), answerPublication: null }) } });
-      unavailable = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]' + JSON.stringify({
-        schemaVersion: 'answer-plan.v1', summary: '현재 주가 999 USD', claims: [], sections: [], citations: []
-      }) + '[/AI_ANSWER_PLAN]', { entrypoint: 'publication-unavailable-fixture', questionPlan, streamPhase: 'complete', record: false });
+      unavailable = window._aioRunAIResponsePipeline(fx.unavailable, { entrypoint: 'publication-unavailable-fixture', questionPlan, streamPhase: 'complete', record: false });
     } finally { Object.defineProperty(window, 'AIO_ARCH', architecture); }
-    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, partial, unavailable, orchestratorBeforeAsk, nullParse };
-  });
+    return { config, routeState, routeDisabled, streamed, unbound, invalid, truncated, brokenMeta, partial, unavailable, orchestratorBeforeAsk, nullParse };
+  }, fixtures);
   // Release the held orchestrator module only once callSharedAi has been called (the stream itself answers at once).
   await page.waitForFunction(() => window.__aioAskStarted === true, null, { timeout: 30000 }).catch(() => {});
   releaseOrchestrator();
@@ -184,14 +192,16 @@ try {
     assert('P1421: browser has no personal AI entry', !await page.locator('#sidebar-api-key').count() && !await page.locator('#aio_perplexity_key_input').count());
     assert('public request uses Worker cap', publicRequest?.body?.max_output_tokens === 1500 && !publicRequest?.headers?.['x-api-key']);
     assert('complete stream publishes useful answer', result.streamed?.published?.blocked === false && /공용 경로의 완결된 응답/.test(result.streamed.published.text) && result.streamed?.completion?.stopReason === 'end_turn');
+    assert('v60.41 a streamed text-first answer publishes its sections and follow-ups, never the META block', /검증/.test(result.streamed.published.text) && !/AI_ANSWER|followUps/.test(result.streamed.published.text) && result.streamed.published.followUps?.length === 1);
   }
   assert('unbound claim is removed but explanation survives', result.unbound?.blocked === false && /변동성과 위험 선호/.test(result.unbound.text) && !/15\.2/.test(result.unbound.text) && result.unbound?.limitations?.includes('answer-plan-claim-degraded'));
   assert('invalid numeric prose is removed but qualitative section survives', result.invalid?.blocked === false && /변동성과 위험 선호/.test(result.invalid.text) && !/15\.2/.test(result.invalid.text));
-  assert('truncated JSON recovers prose and reports limitation', result.truncated?.blocked === false && /공급과 수요/.test(result.truncated.text) && result.truncated?.limitations?.includes('model-output-truncated'));
-  assert('partial JSON never exposes control payload', result.partial?.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && !/AI_ANSWER_PLAN/.test(result.partial.text));
-  assert('P1519 unavailable publication cannot expose raw numbers or control JSON', result.unavailable?.text && !/999|AI_ANSWER_PLAN/.test(result.unavailable.text));
+  assert('v60.41 an answer cut inside its META block keeps its body and reports the length limit', result.truncated?.blocked === false && /공급과 수요/.test(result.truncated.text) && /수주 잔고/.test(result.truncated.text) && !/AI_ANSWER|"claims"/.test(result.truncated.text) && result.truncated?.limitations?.includes('model-output-truncated'));
+  assert('v60.41 an answer whose META JSON is broken keeps its body and loses only claims/follow-ups', result.brokenMeta?.blocked === false && /수주 잔고/.test(result.brokenMeta.text) && !/AI_ANSWER/.test(result.brokenMeta.text) && (result.brokenMeta.followUps || []).length === 0 && result.brokenMeta.answerPlanAudit?.status === 'invalid');
+  assert('v60.41 a partial stream shows only the body (complete, cut mid-block, marker half-typed) and nothing before a body', Array.isArray(result.partial) && result.partial.slice(0, 3).every((item) => item.blocked === false && /공급과 수요/.test(item.text) && !/AI_ANSW|\[|"claims"|followUps/.test(item.text)) && result.partial[3]?.text === '');
+  assert('P1519 unavailable publication cannot expose raw numbers or control JSON', result.unavailable?.text && !/999|AI_ANSWER/.test(result.unavailable.text));
   assert('v59.70 the ask started while the orchestrator module was held (the load order is replayed)', heldOrchestrator >= 1 && result.orchestratorBeforeAsk === false);
-  assert('v59.70 a reply published before the orchestrator loads is the safe fallback, not a thrown null parse', !result.nullParse?.threw && typeof result.nullParse?.text === 'string' && !/999|AI_ANSWER_PLAN/.test(result.nullParse.text));
+  assert('v59.70 a reply published before the orchestrator loads is the safe fallback, not a thrown null parse', !result.nullParse?.threw && typeof result.nullParse?.text === 'string' && !/999|AI_ANSWER/.test(result.nullParse.text));
   assert('no browser runtime errors', errors.length === 0);
   if (failures.length) throw new Error(`${failures.join(' | ')}\n${JSON.stringify({ result, publicRequest, observedRequests, errors }, null, 2)}`);
   console.log(JSON.stringify({ ok: true, route: result.routeDisabled ? 'disabled' : result.routeState.target.source, worker: result.config.ai.workerUrl, maxTokens: publicRequest?.body?.max_output_tokens || null, workerRequestCount: observedRequests.length, partialClaimDegradation: true, truncatedRecovery: true, errors }));

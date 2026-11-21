@@ -10,6 +10,7 @@ import { EXTENSION_BANDS } from '../../../domain/screener/setup-profile.js';
 import { LATEST_SESSION_VOLUME_BASIS } from '../../../domain/screener/price-factors.js';
 import { consensusView, PE_MEANINGFUL_MAX } from '../../../domain/fundamental/consensus-read.js';
 import { parseConditionValue, conditionCoverage, availableConditionIds } from '../../../domain/screener/custom-conditions.js';
+import { FILING_KEYS } from '../../../domain/screener/condition-read.js';
 import { requestConsensusEstimates, consensusRowFor, CONSENSUS_KEY } from '../../../data/consensus-estimates.js';
 import { screenerRowsState } from '../../../data/shared-artifacts.js';
 import { DATA_STATE_CHIPS, dataStateText } from '../../../domain/content/data-state.js';
@@ -19,7 +20,7 @@ import { isoDay, stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { renderDataState } from '../../components/data-state.js';
 import { filterRows, passedOnlyApplied, renderFilterChips, renderFunnel, screenBoundsText, screenConditions, screenFieldLabel, screenFieldUnit, screenFieldWord, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
-import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, FILING_KEYS, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
+import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
 import { renderBacktest, renderConditionalEvidence, renderFactorTab, renderStaleNote, renderValidationState } from './validation-tab.js';
 function createRankNode(documentRef, row, hold = null) {
   const wrap = documentRef.createElement('div');

@@ -1,6 +1,7 @@
 // P1519: one evidence-publication policy shared by the legacy adapter and native ESM.
 import { isoDay, stampDay } from '../../domain/shared/session-date.js';
 import { printedValueAgrees, signAgrees, directionAgrees, dayAgrees } from '../../domain/shared/figure-agreement.js';
+import { splitAnswerText } from './answer-envelope.js';
 export function claimEvidenceId(row) {
   return String(row && (row.evidenceId || row.documentId || row.id) || '').trim();
 }
@@ -1012,20 +1013,9 @@ export function extractAnswerFallback(rawText, currentSensitive, options) {
   return extractAnswerFallbackResult(rawText, currentSensitive, options).text;
 }
 export function extractAnswerFallbackResult(rawText, currentSensitive, options) {
-  var raw = String(rawText || '');
-  var hasControlBlock = /\[\/?AI_ANSWER_PLAN\]/i.test(raw);
-  if (!hasControlBlock) return currentSensitive ? guardFallback(raw, true, options) : guardFallback(raw.trim(), false, options);
-  var values = [];
-  var fieldRe = /"\b(?:summary|body)\b"\s*:\s*("(?:\\.|[^"\\])*")/g;
-  var match;
-  while ((match = fieldRe.exec(raw)) && values.length < 8) {
-    try {
-      var decoded = JSON.parse(match[1]);
-      if (decoded && values.indexOf(decoded) < 0) values.push(decoded);
-    } catch (_) {}
-  }
-  var fallback = values.join('\n\n').trim();
-  return guardFallback(fallback, currentSensitive, options);
+  // The answer body is ordinary text ahead of the trailing [AI_ANSWER_META] block, so the fallback reads that
+  // body; the control block itself is never published.
+  return guardFallback(splitAnswerText(rawText, { unfinished: options && options.unfinished === true }).body, currentSensitive === true, options);
 }
 
 // v57.48 review #19: an answer opened with up to five "※" notices, three of them in English ("decision-grade",

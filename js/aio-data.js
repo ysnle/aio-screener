@@ -2700,13 +2700,6 @@ function _aioNormalizeChatTickers(tickers) {
   return out.slice(0, 5);
 }
 
-function _aioTickerQuoteAgeMs(ticker) {
-  ticker = String(ticker || '').toUpperCase();
-  var ts = window._quoteTimestamps && window._quoteTimestamps[ticker];
-  if (!ts) return Infinity;
-  return Date.now() - ts;
-}
-
 function _aioClearChatTickerCache(tickers) {
   try {
     if (!window._chatTickerCache) return;
@@ -2732,16 +2725,18 @@ window.AIO.getChatAnswerFreshnessAudit = function(scope) {
       : { ticker: t, hasQuote: false, hasLivePrice: false, truthStatus: 'unknown', decisionUse: false, status: 'blocked', blockers: ['quote-evidence-helper-missing'] };
     var observedMs = evidence.observedAt ? Date.parse(evidence.observedAt) : NaN;
     var ageMs = Number.isFinite(observedMs) ? Math.max(0, Date.now() - observedMs) : NaN;
-    var quoteOk = evidence.status !== 'blocked' && evidence.decisionUse === true && Number.isFinite(ageMs) && ageMs <= 2 * 60 * 1000;
+    // The row's status is its price basis (src/ai/time/quote-basis.js): a confirmed close is usable without the
+    // intraday two-minute age or a second source; a source conflict or a defective quote blocks.
     var row = Object.assign({}, evidence, {
       hasLivePrice: evidence.hasQuote === true,
+      pct: live && live.pct != null && isFinite(Number(live.pct)) ? Number(live.pct) : null,
       quoteAgeMs: Number.isFinite(ageMs) ? ageMs : null,
       quoteAgeSec: Number.isFinite(ageMs) ? Math.round(ageMs / 1000) : null,
       truthIssues: (evidence.truthIssues || []).concat(evidence.blockers || []),
       crossSourceStatus: cross && cross.status || 'unknown',
       crossSourceCount: cross && typeof cross.independentCount === 'number' ? cross.independentCount : 0,
       crossSourceMismatches: cross ? [].concat(cross.blockingMismatches || [], cross.warningMismatches || []) : [],
-      status: evidence.status === 'blocked' ? 'blocked' : (quoteOk ? 'ok' : 'refresh_required')
+      status: evidence.basisStatus === 'usable' && evidence.decisionUse === true ? 'ok' : (evidence.basisStatus === 'refresh_required' ? 'refresh_required' : 'blocked')
     });
     return row;
   });
@@ -2782,42 +2777,44 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
     return { status: before && before.status || 'dry_run', strict: strict, before: before, refresh: null, quoteLookups: [], after: before, generatedAt: new Date().toISOString() };
   }
   if (strict) _aioClearChatTickerCache(tickers);
+  // A confirmed close cannot get newer, so the forced refresh, the per-ticker lookup and the cross-source wait
+  // run only for the tickers whose price basis asks for them (needsLookup / needsCrossCheck).
+  var basisRows = function(audit, flag) { return ((audit && audit.quoteRows) || []).filter(function(r) { return r[flag] === true; }).map(function(r) { return r.ticker; }); };
+  var closeBasisOnly = strict && !!before && before.quoteRows.length > 0 && before.quoteRows.every(function(r) { return r.basis === 'close' && r.status === 'ok'; });
   var refresh = null;
   try {
-    refresh = await window.AIO.ensureFreshDataForUse(chatScope);
+    refresh = await window.AIO.ensureFreshDataForUse(closeBasisOnly ? Object.assign({}, chatScope, { forceFresh: false }) : chatScope);
   } catch(e) {
     refresh = { status: 'warn', error: e && e.message || String(e) };
   }
   var lookups = [];
   var crossCheck = null;
-  if (strict && typeof dynamicTickerLookup === 'function') {
-    for (var i = 0; i < tickers.length; i++) {
-      var t = tickers[i];
-      var live = window._liveData && window._liveData[t];
-      var ageMs = _aioTickerQuoteAgeMs(t);
-      if (!live || !live.price || !isFinite(ageMs) || ageMs > 90 * 1000 || scope.forceFresh) {
-        try {
-          var lookupCtrl = new AbortController();
-          var relayScopeAbort = function() { try { lookupCtrl.abort(); } catch(_) {} };
-          if (scope.signal && typeof scope.signal.addEventListener === 'function') {
-            if (scope.signal.aborted) relayScopeAbort();
-            else scope.signal.addEventListener('abort', relayScopeAbort, { once: true });
-          }
-          var lookupPromise = dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight', signal: lookupCtrl.signal });
-          var r = await (typeof _withTimeout === 'function'
-            ? _withTimeout(lookupPromise, 3500, null, function() { try { lookupCtrl.abort(); } catch(_) {} })
-            : lookupPromise);
-          if (scope.signal && typeof scope.signal.removeEventListener === 'function') scope.signal.removeEventListener('abort', relayScopeAbort);
-          lookups.push({ ticker: t, ok: !!(r && r.price), source: r && (r.source || r.exchange || '') || '' });
-        } catch(e2) {
-          lookups.push({ ticker: t, ok: false, error: e2 && e2.message || String(e2) });
+  var lookupTickers = strict ? basisRows(window.AIO.getChatAnswerFreshnessAudit(chatScope), 'basisNeedsLookup') : [];
+  if (lookupTickers.length && typeof dynamicTickerLookup === 'function') {
+    for (var i = 0; i < lookupTickers.length; i++) {
+      var t = lookupTickers[i];
+      try {
+        var lookupCtrl = new AbortController();
+        var relayScopeAbort = function() { try { lookupCtrl.abort(); } catch(_) {} };
+        if (scope.signal && typeof scope.signal.addEventListener === 'function') {
+          if (scope.signal.aborted) relayScopeAbort();
+          else scope.signal.addEventListener('abort', relayScopeAbort, { once: true });
         }
+        var lookupPromise = dynamicTickerLookup(t, { forceFresh: true, reason: 'chat-answer-preflight', signal: lookupCtrl.signal });
+        var r = await (typeof _withTimeout === 'function'
+          ? _withTimeout(lookupPromise, 3500, null, function() { try { lookupCtrl.abort(); } catch(_) {} })
+          : lookupPromise);
+        if (scope.signal && typeof scope.signal.removeEventListener === 'function') scope.signal.removeEventListener('abort', relayScopeAbort);
+        lookups.push({ ticker: t, ok: !!(r && r.price), source: r && (r.source || r.exchange || '') || '' });
+      } catch(e2) {
+        lookups.push({ ticker: t, ok: false, error: e2 && e2.message || String(e2) });
       }
     }
   }
-  if (strict && window.AIO && typeof window.AIO.validateQuoteCrossSources === 'function') {
+  var crossTickers = strict ? basisRows(window.AIO.getChatAnswerFreshnessAudit(chatScope), 'basisNeedsCrossCheck') : [];
+  if (crossTickers.length && window.AIO && typeof window.AIO.validateQuoteCrossSources === 'function') {
     try {
-      var crossPromise = window.AIO.validateQuoteCrossSources(tickers, { reason: 'chat-answer-cross-source', force: true, limit: Math.max(1, tickers.length) });
+      var crossPromise = window.AIO.validateQuoteCrossSources(crossTickers, { reason: 'chat-answer-cross-source', force: true, limit: crossTickers.length });
       crossCheck = typeof _withTimeout === 'function' ? await _withTimeout(crossPromise, 6500, null) : await crossPromise;
     } catch(e3) {
       crossCheck = { status: 'warn', error: e3 && e3.message || String(e3) };
@@ -2827,6 +2824,7 @@ window.AIO.ensureFreshChatAnswerData = async function(scope) {
   return {
     status: after && after.truthBlockedCount ? 'blocked' : (after && after.staleQuoteCount ? 'warn' : (refresh && refresh.status || 'ok')),
     strict: strict,
+    closeBasisOnly: closeBasisOnly,
     before: before,
     refresh: refresh,
     quoteLookups: lookups,

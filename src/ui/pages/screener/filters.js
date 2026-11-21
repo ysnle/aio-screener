@@ -1,7 +1,7 @@
 // Screener filters: the table filter, control availability, condition chips and the 맞춤 조건 panel.
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/screener.js';
-import { FACTOR_LABELS, capFilterValue, rankGrade, profileComputability, vcpStageLabel } from '../../../domain/screener/row-presentation.js';
+import { FACTOR_LABELS, capBucketOf, capFilterValue, rankGrade, profileComputability, vcpStageLabel } from '../../../domain/screener/row-presentation.js';
 import { withTopicParticle } from '../../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket } from '../../../domain/screener/market-scope.js';
 import { sectorsForEtf } from '../../../domain/entity/stock-read.js';
@@ -51,12 +51,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
     if (sector && row.sector !== sector) return false;
     // P1318/R664: a size bucket is a reference filter — use the decision-grade live value when it
     // exists, otherwise the plausibility-checked SEC reference value; unknown size stays excluded.
-    const capValue = capFilterValue(row);
-    if (cap && capValue == null) return false;
-    if (cap === 'MEGA' && !(capValue >= 1000)) return false;
-    if (cap === 'LARGE' && !(capValue >= 10 && capValue < 1000)) return false;
-    if (cap === 'MID' && !(capValue >= 2 && capValue < 10)) return false;
-    if (cap === 'SMALL' && !(capValue < 2)) return false;
+    if (cap && capBucketOf(row) !== cap) return false;
     if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
     const rsi = readRowNumber(row, 'rsi', 'calculation');
     const momentum = readRowNumber(row, 'ret3m', 'calculation');

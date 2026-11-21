@@ -87,42 +87,44 @@ export const cases = [
     assert.equal(recorded[0].toolRounds, 1); assert.equal(recorded[0].toolCalls, 2);
   } },
   { id: 'v59.52', name: 'chat sector and theme cues match words, not retail containing AI or a lowercase pronoun it', run: async ({ load }) => {
-    const { runScreenerQuery, detectSectorQuery } = await load('src/ai/context/screener-query.js');
+    const { readScreenSentence, buildScreenerAiContext, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const rows = [{ sym: 'NVDA', sector: 'Technology' }, { sym: 'WMT', sector: 'Consumer' }];
     assert.equal(detectSectorQuery('find retail companies', { rows }), null);
-    assert.equal(runScreenerQuery('find it', { rows }), null);
-    const retail = runScreenerQuery('best retail stocks', { rows, aliases: { ai: ['NVDA'] } });
-    assert.ok(!retail.criteria.some((label) => /^테마=|^섹터=/.test(label)));
-    assert.equal(runScreenerQuery('AI 종목', { rows, aliases: { ai: ['NVDA'] } }).rows[0].sym, 'NVDA');
+    assert.equal(readScreenSentence('find it'), null);
+    const retail = readScreenSentence('best retail stocks', { aliases: { ai: ['NVDA'] } });
+    assert.ok(!retail || (!retail.sector && !retail.theme));
+    assert.equal(buildScreenerAiContext('AI 종목', [], { rows, aliases: { ai: ['NVDA'] } }).result.rows[0].sym, 'NVDA');
     assert.equal(detectSectorQuery('find IT companies', { rows }).stocks[0].sym, 'NVDA');
     assert.equal(detectSectorQuery('find financials', { rows: [{ sym: 'JPM', sector: 'Financials' }] }).stocks[0].sym, 'JPM');
   } },
   { id: 'v59.54', name: 'the screener prompt prints the live quote by its own time, not by the stored close readiness', run: async ({ load }) => {
-    const { runScreenerQuery, formatScreenerResultPrompt } = await load('src/ai/context/screener-query.js');
+    const { buildScreenerAiContext } = await load('src/ai/context/screener-query.js');
     const row = (sym, close) => ({ sym, name: sym, sector: 'Technology', signal: 'WATCH', rsi: 30, mcap: 500, price: 90,
       fieldReadiness: { fields: { 'price.close': { status: close }, 'price.rsi14': { status: 'CURRENT' }, 'valuation.marketCap': { status: 'CURRENT' } } } });
     const live = { AAA: { price: 101, pct: 1, observedAt: '2026-10-31T20:00:00Z' }, BBB: { price: 102, pct: 1, observedAt: '2026-10-31T20:00:00Z' } };
-    const prompt = formatScreenerResultPrompt(runScreenerQuery('RSI 40 이하 종목', { rows: [row('AAA', 'MISSING'), row('BBB', 'STALE')], live }));
+    const prompt = buildScreenerAiContext('RSI 40 이하 종목', [], { rows: [row('AAA', 'MISSING'), row('BBB', 'STALE')], live }).prompt;
     assert.match(prompt, /AAA[^\n]*가격 \$101\.00 \(관측 2026-10-31T20:00:00Z\)/);
     assert.doesNotMatch(prompt, /price: STALE/);
   } },
   { id: 'v59.52', name: 'a broad stock ask creates a comparison sample without an invented recommendation score', run: async ({ load }) => {
-    const { runScreenerQuery, formatScreenerResultPrompt } = await load('src/ai/context/screener-query.js');
+    const { buildDiversifiedRecommendationRows: sample, buildScreenerAiContext } = await load('src/ai/context/screener-query.js');
     const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `X${i}`, sector: `Sector${i % 6}`, signal: 'WATCH', rsi: 50, mcap: 20 }));
-    const first = runScreenerQuery('종목 추천해줘', { rows, recentTickers: ['X0', 'X1'] });
-    const changed = runScreenerQuery('종목 추천해줘', { rows: rows.map((row, i) => ({ ...row, rsi: i % 2 ? 10 : 90, mcap: i + 1, signal: 'BUY' })),
-      live: Object.fromEntries(rows.map((row, i) => [row.sym, { pct: i % 2 ? 5 : -5 }])), recentTickers: ['X0', 'X1'] });
-    assert.equal(first.purpose, 'comparison');
+    const first = sample(rows, {}, { recentTickers: ['X0', 'X1'] });
+    const changed = sample(rows.map((row, i) => ({ ...row, rsi: i % 2 ? 10 : 90, mcap: i + 1, signal: 'BUY' })),
+      Object.fromEntries(rows.map((row, i) => [row.sym, { pct: i % 2 ? 5 : -5 }])), { recentTickers: ['X0', 'X1'] });
     assert.deepEqual(first.rows.map((row) => row.sym), changed.rows.map((row) => row.sym));
-    const reordered = runScreenerQuery('종목 추천해줘', { rows: [...rows].reverse().map((row, i) => ({ ...row, rank: i })), recentTickers: ['X0', 'X1'] });
+    const reordered = sample([...rows].reverse().map((row, i) => ({ ...row, rank: i })), {}, { recentTickers: ['X0', 'X1'] });
     assert.deepEqual(first.rows.map((row) => row.sym), reordered.rows.map((row) => row.sym));
     assert.ok(first.diversity.sectorCount >= 4);
     // v59.54: the order is day-seeded, so another day draws another sample, and no day hands every question the A-names.
-    const dayA = runScreenerQuery('종목 추천해줘', { rows, sampleDay: '2026-11-01' }), dayB = runScreenerQuery('종목 추천해줘', { rows, sampleDay: '2026-11-02' });
-    assert.deepEqual(dayA.rows.map((row) => row.sym), runScreenerQuery('종목 추천해줘', { rows: [...rows].reverse(), sampleDay: '2026-11-01' }).rows.map((row) => row.sym));
+    const dayA = sample(rows, {}, { sampleDay: '2026-11-01' }), dayB = sample(rows, {}, { sampleDay: '2026-11-02' });
+    assert.deepEqual(dayA.rows.map((row) => row.sym), sample([...rows].reverse(), {}, { sampleDay: '2026-11-01' }).rows.map((row) => row.sym));
     assert.notDeepEqual(dayA.rows.map((row) => row.sym), dayB.rows.map((row) => row.sym));
     assert.ok(first.rows.every((row) => !['X0', 'X1'].includes(row.sym) && !('diversityScore' in row)));
-    const prompt = formatScreenerResultPrompt(first);
+    const broad = buildScreenerAiContext('종목 추천해줘', [{ content: 'X0, X1' }], { rows, tools: true });
+    assert.equal(broad.result.purpose, 'comparison');
+    assert.ok(broad.result.rows.every((row) => !['X0', 'X1'].includes(row.sym)));
+    const prompt = broad.prompt;
     assert.doesNotMatch(prompt, /3~5개.*(?:골라|선택)|분산점수/);
     assert.match(prompt, /종목을 대신 고르지/);
   } },
@@ -170,23 +172,24 @@ export const cases = [
     assert.equal(digestCalls, 1);
   } },
   { id: 'v59.52', name: 'chat screener filters and comparison labels respect canonical readiness and keep reference dates', run: async ({ load }) => {
-    const { runScreenerQuery, formatScreenerResultPrompt, buildDiversifiedRecommendationRows, detectSectorQuery } = await load('src/ai/context/screener-query.js');
+    const { runScreen, formatScreenResult, buildDiversifiedRecommendationRows, detectSectorQuery } = await load('src/ai/context/screener-query.js');
     const row = (status) => ({ sym: 'AAPL', name: 'Apple', sector: 'Technology', signal: 'WATCH', rsi: 25, mcap: 2, ret3m: 15, factorSessionDate: '2026-10-28',
       fieldReadiness: { fields: Object.fromEntries(['price.rsi14', 'valuation.marketCap', 'price.ret3m'].map((key) => [key, { status }])) } });
+    const rsiUnder30 = { conditions: [{ id: 'rsi-max', value: 30, strict: true }] };
     for (const status of ['MISSING', 'UNSUPPORTED', 'BLOCKED_RIGHTS', 'STALE', 'LAST_GOOD', 'CONFLICT']) {
-      assert.equal(runScreenerQuery('rsi 30 미만', { rows: [row(status)] }).totalMatched, 0, status);
-      assert.equal(runScreenerQuery('소형주', { rows: [row(status)] }).totalMatched, 0, status);
+      assert.equal(runScreen(rsiUnder30, { rows: [row(status)] }).totalMatched, 0, status);
+      assert.equal(runScreen({ sizes: ['MID'] }, { rows: [row(status)] }).totalMatched, 0, status);
       const sampled = buildDiversifiedRecommendationRows([row(status)], {}).rows[0];
       assert.equal(sampled.capBucket, 'unknown', status);
     }
-    const allowed = runScreenerQuery('rsi 30 미만', { rows: [row('CURRENT')] });
+    const allowed = runScreen(rsiUnder30, { rows: [row('CURRENT')] });
     assert.equal(allowed.totalMatched, 1);
-    assert.match(formatScreenerResultPrompt(allowed), /RSI 25/);
-    const blocked = runScreenerQuery('기술주 찾아줘', { rows: [row('BLOCKED_RIGHTS')] });
-    assert.doesNotMatch(formatScreenerResultPrompt(blocked), /RSI 25|시총 \$2B|3M \+15/);
-    const stale = runScreenerQuery('기술주 찾아줘', { rows: [row('STALE')] });
-    assert.match(formatScreenerResultPrompt(stale), /2026-10-28/);
-    assert.match(formatScreenerResultPrompt(stale), /STALE/);
+    assert.match(formatScreenResult(allowed), /RSI 25/);
+    const blocked = runScreen({ sector: '기술주' }, { rows: [row('BLOCKED_RIGHTS')] });
+    assert.doesNotMatch(formatScreenResult(blocked), /RSI 25|시총 \$2\.0B|3개월 \+15/);
+    const stale = runScreen({ sector: '기술주' }, { rows: [row('STALE')] });
+    assert.match(formatScreenResult(stale), /2026-10-28/);
+    assert.match(formatScreenResult(stale), /STALE/);
     const sectors = detectSectorQuery('기술주 찾아줘', { rows: [{ ...row('STALE'), mcap: 999 }, { ...row('CURRENT'), sym: 'MSFT' }] });
     assert.equal(sectors.stocks[0].sym, 'MSFT');
   } },
@@ -316,36 +319,39 @@ export const cases = [
       assert.equal(ok.evidenceBinding.status, 'BOUND');
   } },
   { id: 'P13-SCREEN-01', name: '한국 종목 가격은 원화로, 통화를 모르면 달러로 쓰지 않는다', run: async ({ load }) => {
-      const { buildScreenerAiContext } = await load('src/ai/context/screener-query.js');
-      const kr = buildScreenerAiContext('반도체 후보', [], {
+      const { runScreen, formatScreenResult } = await load('src/ai/context/screener-query.js');
+      const krResult = runScreen({ market: 'KR', sector: '반도체' }, {
         rows: [{ sym: '005930.KS', name: '삼성전자', sector: '반도체', mcap: 300, rsi: 50, rank: 60 }],
-        live: { '005930.KS': { price: 70000, pct: 1, currency: 'KRW', observedAt: '2026-10-27T06:30:00Z' } }, rankAsOf: '2026-10-27' });
-      assert.doesNotMatch(kr.prompt, /\$70000/);
-      assert.match(kr.prompt, /₩70,000 \(관측 2026-10-27T06:30:00Z\)/);
-      assert.equal(kr.result.rows[0].currency, 'KRW');
-      const other = buildScreenerAiContext('반도체 후보', [], { rows: [{ sym: 'ASML.AS', name: 'ASML', sector: '반도체', mcap: 300 }], live: { 'ASML.AS': { price: 600 } } });
-      assert.match(other.prompt, /600\.00 \(통화 미확인\)/);
-      const us = buildScreenerAiContext('반도체 후보', [], { rows: [{ sym: 'NVDA', name: 'NVIDIA', sector: '반도체', mcap: 4000 }], live: { NVDA: { price: 180.5 } } });
-      assert.match(us.prompt, /\$180\.50/);
+        live: { '005930.KS': { price: 70000, pct: 1, currency: 'KRW', observedAt: '2026-10-27T06:30:00Z' } } });
+      const kr = formatScreenResult(krResult);
+      assert.doesNotMatch(kr, /\$70000/);
+      assert.match(kr, /₩70,000 \(관측 2026-10-27T06:30:00Z\)/);
+      assert.equal(krResult.rows[0].currency, 'KRW');
+      const other = formatScreenResult(runScreen({ sector: '반도체' }, { rows: [{ sym: 'ASML.AS', name: 'ASML', sector: '반도체', mcap: 300 }], live: { 'ASML.AS': { price: 600 } } }));
+      assert.match(other, /600\.00 \(통화 미확인\)/);
+      const us = formatScreenResult(runScreen({ sector: '반도체' }, { rows: [{ sym: 'NVDA', name: 'NVIDIA', sector: '반도체', mcap: 4000 }], live: { NVDA: { price: 180.5 } } }));
+      assert.match(us, /\$180\.50/);
   } },
   { id: 'P13-SCREEN-02', name: '시총이 없거나 0인 종목을 소형주로 고르지 않는다', run: async ({ load }) => {
-      const { runScreenerQuery } = await load('src/ai/context/screener-query.js');
-      const out = runScreenerQuery('소형주 후보', { rows: [{ sym: 'MISSING', mcap: null }, { sym: 'ZERO', mcap: 0 }, { sym: 'NAN', mcap: NaN },
-        { sym: 'NEG', mcap: -1 }, { sym: 'SMALL', mcap: 2 }, { sym: 'EDGE', mcap: 10 }, { sym: 'LARGE', mcap: 100 }] });
+      const { buildScreenerAiContext } = await load('src/ai/context/screener-query.js');
+      // v60.41: the screener filter's buckets (SMALL < $2B, MID $2~10B, lower bound inclusive).
+      const out = buildScreenerAiContext('소형주 후보', [], { rows: [{ sym: 'MISSING', mcap: null }, { sym: 'ZERO', mcap: 0 }, { sym: 'NAN', mcap: NaN },
+        { sym: 'NEG', mcap: -1 }, { sym: 'SMALL', mcap: 1 }, { sym: 'EDGE', mcap: 2 }, { sym: 'LARGE', mcap: 100 }] }).result;
       assert.deepEqual(out.rows.map((row) => row.sym), ['SMALL']);
-      assert.equal(out.mcapUnknown, 4);
+      assert.equal(out.sizeUnknown, 4);
   } },
   { id: 'P13-SCREEN-03', name: '미만·초과는 경계값을 빼고 이하·이상은 넣는다', run: async ({ load }) => {
-      const { runScreenerQuery } = await load('src/ai/context/screener-query.js');
+      const { runScreen, buildScreenerAiContext } = await load('src/ai/context/screener-query.js');
       const rows = [{ sym: 'R29', rsi: 29 }, { sym: 'R30', rsi: 30 }, { sym: 'R70', rsi: 70 }, { sym: 'R71', rsi: 71 }, { sym: 'NONE', rsi: null }];
-      const pick = (q) => new Set(runScreenerQuery(q, { rows }).rows.map((row) => row.sym));
-      assert.deepEqual(pick('rsi 30 미만'), new Set(['R29']));
-      assert.deepEqual(pick('rsi 30 이하'), new Set(['R29', 'R30']));
-      assert.deepEqual(pick('rsi 70 초과'), new Set(['R71']));
-      assert.deepEqual(pick('rsi 70 이상'), new Set(['R70', 'R71']));
-      assert.deepEqual(pick('below rsi 30'), new Set(['R29']));
-      assert.deepEqual(pick('rsi 30 이상 70 미만'), new Set(['R30']));
-      assert.deepEqual(runScreenerQuery('rsi 30 미만', { rows }).criteria, ['RSI<30']);
+      const pick = (id, value, strict) => new Set(runScreen({ conditions: [{ id, value, strict }] }, { rows }).rows.map((row) => row.sym));
+      assert.deepEqual(pick('rsi-max', 30, true), new Set(['R29']));
+      assert.deepEqual(pick('rsi-max', 30, false), new Set(['R29', 'R30']));
+      assert.deepEqual(pick('rsi-min', 70, true), new Set(['R71']));
+      assert.deepEqual(pick('rsi-min', 70, false), new Set(['R70', 'R71']));
+      // The sentence path reads 미만 through the screener's own parser.
+      const sentence = buildScreenerAiContext('rsi 30 미만', [], { rows }).result;
+      assert.deepEqual(sentence.rows.map((row) => row.sym), ['R29']);
+      assert.ok(sentence.criteria.includes('RSI(14일) 30 미만'));
   } },
   { id: 'R4-01', name: '영문 단어 속 IV·이란(국가)으로 옵션·용어 질문이 되지 않는다', run: async ({ load }) => {
       const { classifyQuestionIntent } = await load('src/ai/intent/taxonomy.js');

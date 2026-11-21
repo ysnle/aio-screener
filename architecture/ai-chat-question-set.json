@@ -1,0 +1,526 @@
+{
+  "schemaVersion": "aio-ai-chat-question-set.v1",
+  "release": "v60.41",
+  "purpose": "Questions a retail investor brings to the AI chat, with pass criteria. scripts/ai-chat-eval.mjs asks the real chat and scores the answers; scripts/ci-ai-chat-question-set-check.mjs validates this file against the committed data without calling the model. Figures are resolved at run time from the app's own data; no number is written here.",
+  "tasks": [
+    { "id": "market-state", "n": 1, "label": "지금 시장 상태 — 판정과 근거" },
+    { "id": "money-flow", "n": 2, "label": "돈이 어디로 가는가 — 섹터, 테마, 종목" },
+    { "id": "screen", "n": 3, "label": "조건에 맞는 종목" },
+    { "id": "company", "n": 4, "label": "이 회사는 무엇이고 가격은 어디인가" },
+    { "id": "holdings", "n": 5, "label": "내 보유 종목과 관심 종목" }
+  ],
+  "situations": [
+    { "id": "closed-market", "label": "장 마감·주말 (종가 기준이 말해져야 함)" },
+    { "id": "intraday", "label": "장중 (미국 정규장 중에만 채점)" },
+    { "id": "korea", "label": "한국 종목·한국 시장 (보조 시장)" },
+    { "id": "etf", "label": "ETF" },
+    { "id": "out-of-universe", "label": "앱 유니버스 밖 티커" },
+    { "id": "korean-name", "label": "한국어 회사명·별명" },
+    { "id": "compare", "label": "두 회사 비교" },
+    { "id": "follow-up", "label": "직전 대화에 기대는 후속 질문" },
+    { "id": "vague", "label": "막연한 질문" },
+    { "id": "definition", "label": "용어 정의" },
+    { "id": "on-screen-number", "label": "지금 화면의 숫자에 대한 질문" },
+    { "id": "macro-release", "label": "매크로 발표 (CPI, 금리, 환율)" },
+    { "id": "web-cause", "label": "웹 검색이 필요한 움직임의 원인" },
+    { "id": "earnings", "label": "실적 일정·최근 분기" },
+    { "id": "dividend", "label": "배당" },
+    { "id": "valuation", "label": "밸류에이션" },
+    { "id": "technical", "label": "기술적 상태 (RSI, 이동평균, 52주)" },
+    { "id": "scenario-history", "label": "시나리오·과거 사례" },
+    { "id": "buy-sell", "label": "매수·매도 요청 (조건부 안내가 답)" },
+    { "id": "portfolio-no-consent", "label": "동의 없는 포트폴리오 질문" },
+    { "id": "off-topic", "label": "주제 밖 질문" },
+    { "id": "false-premise", "label": "틀린 전제가 든 질문" },
+    { "id": "table", "label": "표 요청" },
+    { "id": "very-short", "label": "아주 짧은 질문" },
+    { "id": "very-long", "label": "아주 긴 질문" },
+    { "id": "typo-ticker", "label": "오타 티커·회사명" }
+  ],
+  "defaults": {
+    "mustNotContain": [
+      "답변 형식이 완성되지 않아",
+      "결과를 반환하지 않았습니다",
+      "AI 안전 모드",
+      "응답할 준비가 되지 않았습니다",
+      "답변을 받지 못해",
+      "AI 서버를 일시적으로 사용할 수 없습니다",
+      "AI 응답이 시간 초과되었습니다",
+      "시스템 오류",
+      { "regex": "^\\s*(확인\\s*필요|확인 불가)[.\\s]*$", "label": "확인 필요 as the whole answer" }
+    ],
+    "maxSeconds": { "firstText": 90, "full": 120 }
+  },
+  "questions": [
+    {
+      "id": "ms-verdict-closed", "tasks": ["market-state"], "situations": ["closed-market"], "when": "us-closed", "screen": "#signal",
+      "question": "지금 미국 시장 위험한 상태야? 판정이랑 근거를 알려줘.",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "history.close:spx", "tolerance": { "abs": 2 } }, { "resolver": "history.close:vix", "tolerance": { "abs": 0.2 } }],
+        "mustMention": [["종가", "마감"], ["VIX", "변동성"]]
+      },
+      "manual": "판정 한 줄이 먼저 오고, 근거가 지수·변동성·시장 폭으로 이어지며, 무엇이 바뀌면 판정이 바뀌는지 말하는가"
+    },
+    {
+      "id": "ms-today-home", "tasks": ["market-state"], "situations": ["closed-market"], "when": "us-closed", "screen": "#home",
+      "question": "오늘 시장에서 제일 중요한 일이 뭐였어?",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "history.dayChangePct:spx", "sign": "any", "tolerance": { "abs": 0.15 } }],
+        "mustMention": [["S&P", "에스앤피"]]
+      },
+      "manual": "중요한 일이 경중 순으로 오고, 지수 움직임과 원인이 연결되는가"
+    },
+    {
+      "id": "ms-intraday-nasdaq", "tasks": ["market-state"], "situations": ["intraday"], "when": "us-open", "screen": "#home",
+      "question": "지금 장중인데 나스닥 어떻게 움직이고 있어?",
+      "expect": "answer",
+      "checks": { "mustMention": [["장중", "실시간", "지연", "현재"], ["나스닥"]] },
+      "manual": "장중 값과 직전 종가를 구분하고, 장중 값의 시각을 밝히는가"
+    },
+    {
+      "id": "ms-intraday-verdict", "tasks": ["market-state"], "situations": ["intraday"], "when": "us-open", "screen": "#signal",
+      "question": "장 열려 있는 지금 시장 판정이 오늘 바뀔 수도 있어?",
+      "expect": "answer",
+      "checks": { "mustMention": [["종가", "마감"], ["장중"]] },
+      "manual": "판정은 종가 기준이라는 점과, 장중 움직임이 어떤 조건이면 판정을 바꾸는지 말하는가"
+    },
+    {
+      "id": "ms-vix-onscreen", "tasks": ["market-state"], "situations": ["on-screen-number", "closed-market"], "screen": "#sentiment",
+      "question": "이 화면에 나온 VIX 숫자는 높은 편이야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "history.close:vix", "tolerance": { "abs": 0.2 } }] },
+      "manual": "화면의 VIX 값을 그대로 인용하고, 과거 분포나 기준선과 비교해 높고 낮음을 판단하는가"
+    },
+    {
+      "id": "ms-fg-onscreen", "tasks": ["market-state"], "situations": ["on-screen-number"], "screen": "#sentiment",
+      "question": "공포탐욕지수 지금 숫자가 뭘 뜻해?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "data.path:fearGreed.score", "tolerance": { "abs": 1 } }], "mustMention": [["공포"]] },
+      "manual": "숫자와 구간 이름을 맞게 말하고, 극단 구간이 과거에 무엇을 뜻했는지 연결하는가"
+    },
+    {
+      "id": "ms-very-short", "tasks": ["market-state"], "situations": ["very-short"], "screen": "#signal",
+      "question": "시장?",
+      "expect": "answer",
+      "checks": { "mustMention": [["S&P", "지수", "나스닥"]], "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "짧은 질문을 현재 시장 상태 질문으로 읽고 판정과 핵심 근거만 짧게 답하는가"
+    },
+    {
+      "id": "ms-vix35-history", "tasks": ["market-state"], "situations": ["scenario-history"], "screen": "#signal",
+      "question": "과거에 VIX가 35 이상일 때 S&P 500은 그 뒤 몇 달 동안 어떻게 됐어?",
+      "expect": "answer",
+      "checks": { "mustMention": [["과거", "사례", "이후"], ["개월", "달"]] },
+      "manual": "과거 사례가 구체적 시기·수익률로 제시되고, 표본의 한계와 지금과의 차이를 말하는가"
+    },
+    {
+      "id": "ms-kospi", "tasks": ["market-state"], "situations": ["korea", "closed-market"], "screen": "#signal",
+      "question": "한국 시장은 오늘 어땠어? 코스피 기준으로 말해줘.",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "history.close:kospi", "tolerance": { "abs": 5 } }, { "resolver": "history.dayChangePct:kospi", "sign": "any", "tolerance": { "abs": 0.15 } }],
+        "mustMention": [["코스피", "KOSPI"]]
+      },
+      "manual": "코스피 종가와 등락률을 말하고, 미국 시장과의 연결을 보조로 다루는가"
+    },
+    {
+      "id": "ms-false-ath", "tasks": ["market-state"], "situations": ["false-premise"], "screen": "#signal",
+      "question": "S&P 500이 어제 사상 최고치를 찍었는데 이대로 계속 오를까?",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "history.dayChangePct:spx", "sign": "any", "tolerance": { "abs": 0.15 } }],
+        "mustMention": [["아니", "사실과", "최고치가 아", "하락", "다릅니다"]]
+      },
+      "manual": "전제가 데이터와 다르면 먼저 바로잡고(최근 종가·등락), 그 위에서 답하는가"
+    },
+    {
+      "id": "ms-very-long", "tasks": ["market-state", "holdings"], "situations": ["very-long", "macro-release"], "screen": "#signal",
+      "question": "저는 미국 주식 위주로 투자하는 직장인이고 지금 현금 비중이 30% 정도입니다. 최근 며칠 동안 지수가 크게 빠지고 VIX도 많이 올랐다는 이야기를 들었는데, 금리도 높은 수준이고 환율도 불안해서 지금 상황을 어떻게 봐야 할지 잘 모르겠습니다. 시장 폭이나 투자 심리 같은 지표가 지금 어떤 상태인지, 과거에 비슷한 상황이 있었다면 그 뒤에 시장이 어떻게 움직였는지, 그리고 제가 현금 비중을 유지할지 조금씩 늘려 갈지 판단하려면 앞으로 어떤 지표나 발표를 확인해야 하는지 순서대로 정리해 주세요. 너무 어려운 용어는 풀어서 설명해 주시고, 결론을 먼저 말해 주시면 좋겠습니다.",
+      "expect": "conditional-guidance",
+      "checks": {
+        "figures": [{ "resolver": "history.close:vix", "tolerance": { "abs": 0.2 } }],
+        "mustMention": [["현금"], ["확인", "지켜", "발표"]],
+        "maxSeconds": { "firstText": 120, "full": 150 }
+      },
+      "manual": "결론이 먼저 오고, 질문의 네 갈래(지표 상태, 과거 사례, 현금 판단 조건, 확인할 발표)를 모두 순서대로 답하는가"
+    },
+    {
+      "id": "mac-cpi", "tasks": ["market-state"], "situations": ["macro-release"], "screen": "#macro",
+      "question": "최근 CPI 발표 결과가 어땠고 시장에는 어떤 의미야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "data.path:macro.cpi", "tolerance": { "abs": 0.1 } }], "mustMention": [["CPI", "소비자물가"]] },
+      "manual": "발표 수치와 기준 월을 말하고, 물가 → 금리 → 주식으로 이어지는 경로를 설명하는가"
+    },
+    {
+      "id": "mac-rates", "tasks": ["market-state"], "situations": ["macro-release"], "screen": "#fxbond",
+      "question": "지금 기준금리랑 미국 10년물 금리는 몇 %야?",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "data.path:policyRates.fed.upper", "tolerance": { "abs": 0.01 } }, { "resolver": "history.close:tnx", "tolerance": { "abs": 0.03 } }],
+        "mustMention": [["10년"]]
+      },
+      "manual": "기준금리 범위와 10년물 금리를 각각의 기준 시각과 함께 말하는가"
+    },
+    {
+      "id": "mac-usdkrw", "tasks": ["market-state"], "situations": ["macro-release", "korea"], "screen": "#fxbond",
+      "question": "원달러 환율 지금 얼마고 왜 이렇게 움직여?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "history.close:usdkrw", "tolerance": { "abs": 3 } }], "mustMention": [["원", "환율"]] },
+      "manual": "환율 수준을 말하고, 달러 강세·금리차·위험회피 같은 원인을 근거와 함께 연결하는가"
+    },
+    {
+      "id": "mf-sector", "tasks": ["money-flow"], "situations": [], "screen": "#themes",
+      "question": "요즘 돈이 어느 섹터로 몰리고 있어?",
+      "expect": "answer",
+      "checks": { "mustMention": [["섹터"]] },
+      "manual": "강한 섹터와 약한 섹터를 수치(상대강도·수익률)로 구분하고, 그 안의 테마로 이어지는가"
+    },
+    {
+      "id": "mf-theme-to-stocks", "tasks": ["money-flow"], "situations": ["vague"], "screen": "#themes",
+      "question": "지금 제일 강한 테마 하나 골라서 그 안의 대표 종목까지 알려줘.",
+      "expect": "answer",
+      "checks": { "mustMention": [["테마"]] },
+      "manual": "섹터 → 테마 → 종목 순서로 이어지고, 종목이 그 테마의 실제 구성 종목인가"
+    },
+    {
+      "id": "mf-defense-near-high", "tasks": ["money-flow", "screen"], "situations": ["technical"], "screen": "#themes",
+      "question": "방산 테마 안에서 52주 고점 대비 10% 이내에 있는 종목은 뭐야?",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "theme": "defense", "conditions": [{ "id": "near-high", "value": 10 }], "sort": { "key": "pctFrom52wHigh", "dir": "desc" }, "limit": 10, "minNamed": 1 }
+      },
+      "manual": "테마 구성 종목만 말하고, 고점 대비 거리를 종목마다 함께 적는가"
+    },
+    {
+      "id": "mf-korea-theme", "tasks": ["money-flow"], "situations": ["korea"], "screen": "#themes",
+      "question": "한국 테마 중에 요즘 강한 건 뭐야?",
+      "expect": "answer",
+      "checks": { "mustMention": [["한국"], ["테마"]] },
+      "manual": "한국 테마를 미국 테마와 섞지 않고, 강한 근거(수익률·순위)를 함께 말하는가"
+    },
+    {
+      "id": "mf-smh-etf", "tasks": ["money-flow"], "situations": ["etf", "closed-market"], "screen": "#themes",
+      "question": "반도체 ETF SMH 흐름은 지금 어때?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "history.close:smh", "tolerance": { "abs": 0.6 } }], "mustMention": [["SMH"]] },
+      "manual": "ETF 가격과 추세를 말하고, 반도체 테마의 흐름과 연결하는가"
+    },
+    {
+      "id": "mf-vague-good", "tasks": ["money-flow"], "situations": ["vague"], "screen": "#home",
+      "question": "요즘 뭐가 좋아?",
+      "expect": "answer",
+      "checks": { "mustMention": [["섹터", "테마", "종목"]] },
+      "manual": "막연한 질문을 '강한 섹터·테마'로 해석했음을 밝히고, 근거 있는 후보만 말하는가"
+    },
+    {
+      "id": "sc-value-quality", "tasks": ["screen"], "situations": ["valuation"], "screen": "#screener",
+      "question": "PER 20배 이하이면서 ROE 15% 이상인 미국 대형주 알려줘.",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "size": ["MEGA", "LARGE"], "conditions": [{ "id": "pe-max", "value": 20 }, { "id": "roe-min", "value": 15 }], "sort": { "key": "roe", "dir": "desc" }, "limit": 10, "minNamed": 3 }
+      },
+      "manual": "조건을 본문에 다시 적고, 종목마다 PER·ROE를 함께 보여 주는가"
+    },
+    {
+      "id": "sc-trend-new-high", "tasks": ["screen"], "situations": ["technical"], "screen": "#screener",
+      "question": "단기 정배열이면서 52주 신고가인 종목 있어?",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "conditions": [{ "id": "ma-short" }, { "id": "new-high" }], "limit": 10, "minNamed": 1 }
+      },
+      "manual": "없으면 없다고 말하고, 있으면 조건을 만족하는 근거를 종목마다 적는가"
+    },
+    {
+      "id": "sc-rsi-oversold", "tasks": ["screen"], "situations": ["technical"], "screen": "#screener",
+      "question": "RSI 30 이하인 S&P 500 종목 5개만 보여줘.",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "index": "SP500", "conditions": [{ "id": "rsi-max", "value": 30 }], "sort": { "key": "rsi", "dir": "asc" }, "limit": 5, "minNamed": 3 }
+      },
+      "manual": "다섯 종목과 각 RSI를 말하고, 과매도가 매수 신호가 아니라는 점을 짧게 밝히는가"
+    },
+    {
+      "id": "sc-dividend", "tasks": ["screen"], "situations": ["dividend"], "screen": "#screener",
+      "question": "배당수익률 3% 이상인 종목 중에 괜찮은 거 몇 개 알려줘.",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "conditions": [{ "id": "dividend-yield-min", "value": 3 }], "sort": { "key": "dividendYieldPct", "dir": "desc" }, "limit": 10, "minNamed": 2 }
+      },
+      "manual": "'괜찮은'의 기준(배당 지속성, 이익, 부채)을 밝히고 그 기준으로 고른 이유를 종목마다 적는가"
+    },
+    {
+      "id": "sc-growth-table", "tasks": ["screen"], "situations": ["table"], "screen": "#screener",
+      "question": "매출 성장률 20% 이상이고 순이익률 15% 이상인 기술주를 표로 정리해줘.",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "sector": "Technology", "conditions": [{ "id": "growth-min", "value": 20 }, { "id": "margin-min", "value": 15 }], "sort": { "key": "revGrowth", "dir": "desc" }, "limit": 10, "minNamed": 3 },
+        "format": "table"
+      },
+      "manual": "표의 열이 조건(매출 성장률, 순이익률)과 기준 시점을 담고, 표 밖 설명이 짧은가"
+    },
+    {
+      "id": "sc-korea-momentum", "tasks": ["screen"], "situations": ["korea"], "screen": "#screener",
+      "question": "한국 종목 중에 3개월 수익률 20% 이상인 거 있어?",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "KR", "conditions": [{ "id": "ret3m-min", "value": 20 }], "sort": { "key": "ret3m", "dir": "desc" }, "limit": 10, "minNamed": 1 }
+      },
+      "manual": "한국 종목만 말하고, 수익률이 원화 종가 기준임을 밝히는가"
+    },
+    {
+      "id": "sc-vague-pick", "tasks": ["screen"], "situations": ["vague"], "screen": "#screener",
+      "question": "좋은 종목 좀 골라줘.",
+      "expect": "answer",
+      "checks": { "mustMention": [["조건", "기준"]] },
+      "manual": "어떤 기준으로 골랐는지 먼저 밝히고, 다른 기준을 고를 수 있게 안내하는가"
+    },
+    {
+      "id": "sc-long-request", "tasks": ["screen"], "situations": ["very-long", "valuation"], "screen": "#screener",
+      "question": "스크리너에서 종목을 좀 찾고 싶은데 조건이 여러 개라 정리해서 말씀드릴게요. 우선 미국 S&P 500에 들어 있는 종목이어야 하고, 최근 4개 분기 기준 PER이 25배 이하였으면 좋겠습니다. 매출 성장률은 최근 4개 분기 기준으로 10% 이상이고, 순이익률도 10% 이상이면 좋겠어요. 그리고 요즘 시장이 많이 빠졌으니까 RSI가 40 이하로 눌려 있는 종목이면 더 좋겠습니다. 이 조건을 모두 만족하는 종목이 있으면 각 종목의 PER, 매출 성장률, 순이익률, RSI를 같이 보여 주시고, 조건을 다 만족하는 종목이 없으면 어느 조건 때문에 빠졌는지도 알려 주세요.",
+      "expect": "answer",
+      "checks": {
+        "rowsFromScreen": { "market": "US", "index": "SP500", "conditions": [{ "id": "pe-max", "value": 25 }, { "id": "growth-min", "value": 10 }, { "id": "margin-min", "value": 10 }, { "id": "rsi-max", "value": 40 }], "sort": { "key": "rsi", "dir": "asc" }, "limit": 10, "minNamed": 2 },
+        "maxSeconds": { "firstText": 120, "full": 150 }
+      },
+      "manual": "네 조건을 모두 반영하고, 종목마다 네 값을 보여 주며, 없을 때 막힌 조건을 말하는가"
+    },
+    {
+      "id": "co-nvda-52w", "tasks": ["company"], "situations": ["technical", "korean-name", "closed-market"], "screen": "#ticker?sym=NVDA",
+      "question": "엔비디아 주가 지금 52주 고점 대비 어디쯤이야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.pctFrom52wHigh", "sign": "any", "tolerance": { "abs": 0.6 } }], "mustMention": [["종가", "기준"]] },
+      "manual": "고점 대비 거리와 기준 종가 날짜를 말하고, 그 위치가 추세에서 무엇을 뜻하는지 연결하는가"
+    },
+    {
+      "id": "co-nvda-pe", "tasks": ["company"], "situations": ["valuation"], "screen": "#ticker?sym=NVDA",
+      "question": "NVDA PER이 몇 배고 비싼 편이야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.pe", "tolerance": { "abs": 0.3 } }], "mustMention": [["PER"]] },
+      "manual": "PER 값과 이익 기준(최근 4개 분기)을 밝히고, 성장률·업종과 비교해 판단하는가"
+    },
+    {
+      "id": "co-aapl-follow-pe", "tasks": ["company"], "situations": ["follow-up", "korean-name", "valuation"], "screen": "#ticker?sym=AAPL",
+      "turns": ["애플 요즘 주가 흐름 어때?", "그럼 그 회사 PER은?"],
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:AAPL.pe", "tolerance": { "abs": 0.3 } }], "mustMention": [["애플", "AAPL"]] },
+      "manual": "두 번째 답이 '그 회사'를 애플로 이어받고, 첫 답의 흐름과 PER을 연결하는가"
+    },
+    {
+      "id": "co-msft-follow-dividend", "tasks": ["company"], "situations": ["follow-up", "dividend"], "screen": "#ticker?sym=MSFT",
+      "turns": ["마이크로소프트는 무엇으로 돈을 버는 회사야?", "배당은 얼마나 줘?"],
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:MSFT.dividendYieldPct", "tolerance": { "abs": 0.1 } }], "mustMention": [["배당"]] },
+      "manual": "후속 질문을 마이크로소프트의 배당으로 읽고, 배당수익률과 최근 12개월 배당 기준을 말하는가"
+    },
+    {
+      "id": "co-amd-vs-nvda", "tasks": ["company"], "situations": ["compare", "valuation", "korean-name"], "screen": "#ticker?sym=AMD",
+      "question": "AMD랑 엔비디아 중에 밸류에이션은 어디가 더 싸?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:AMD.pe", "tolerance": { "abs": 0.5 } }, { "resolver": "screener.field:NVDA.pe", "tolerance": { "abs": 0.3 } }] },
+      "manual": "두 회사의 같은 지표를 같은 기준으로 나란히 놓고, 성장률 차이까지 감안해 결론을 내는가"
+    },
+    {
+      "id": "co-samsung-vs-hynix", "tasks": ["company"], "situations": ["compare", "korea", "korean-name"], "screen": "#ticker?sym=005930.KS",
+      "question": "삼성전자랑 SK하이닉스 최근 3개월 수익률 비교해줘.",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "screener.field:005930.KS.ret3m", "sign": "any", "tolerance": { "abs": 0.6 } }, { "resolver": "screener.field:000660.KS.ret3m", "sign": "any", "tolerance": { "abs": 0.6 } }]
+      },
+      "manual": "두 수익률을 원화 종가 기준으로 말하고, 차이의 원인(메모리 업황 등)을 근거와 함께 연결하는가"
+    },
+    {
+      "id": "co-samjeon-nickname", "tasks": ["company"], "situations": ["korean-name", "korea", "web-cause"], "screen": "#home",
+      "question": "삼전 요즘 왜 이렇게 빠져?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:005930.KS.ret1m", "sign": "any", "tolerance": { "abs": 0.6 } }], "mustMention": [["삼성전자"]] },
+      "manual": "'삼전'을 삼성전자로 알아듣고, 하락 폭과 원인을 출처와 함께 말하는가"
+    },
+    {
+      "id": "co-nvda-nickname-rsi", "tasks": ["company"], "situations": ["korean-name", "technical"], "screen": "#home",
+      "question": "엔비 RSI 지금 얼마야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.rsi", "tolerance": { "abs": 0.6 } }], "mustMention": [["NVDA", "엔비디아"]] },
+      "manual": "'엔비'를 엔비디아로 알아듣고 RSI 값과 기준(14일, 종가)을 말하는가"
+    },
+    {
+      "id": "co-typo-appl", "tasks": ["company"], "situations": ["typo-ticker"], "screen": "#home",
+      "question": "APPL 주가 어때?",
+      "expect": "answer",
+      "checks": { "mustMention": [["AAPL", "애플"]] },
+      "manual": "APPL을 AAPL(애플)로 바로잡았다고 밝히고 답하는가, 엉뚱한 종목을 지어내지 않는가"
+    },
+    {
+      "id": "co-typo-nvidia-ko", "tasks": ["company"], "situations": ["typo-ticker", "valuation"], "screen": "#home",
+      "question": "엔비댜 PER 알려줘",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.pe", "tolerance": { "abs": 0.3 } }], "mustMention": [["NVDA", "엔비디아"]] },
+      "manual": "오타를 엔비디아로 읽었다고 밝히고 PER과 이익 기준을 말하는가"
+    },
+    {
+      "id": "co-nio-outside", "tasks": ["company"], "situations": ["out-of-universe"], "screen": "#home",
+      "question": "NIO 주식은 어떤 회사야? 지금 주가 흐름도 알려줘.",
+      "expect": "answer",
+      "checks": { "mustMention": [["NIO", "니오"], ["전기차", "EV"]] },
+      "manual": "앱 유니버스 밖 종목임을 숨기지 않고, 가져온 자료와 그 시각을 밝히며, 없는 수치를 지어내지 않는가"
+    },
+    {
+      "id": "co-schd-outside", "tasks": ["company"], "situations": ["out-of-universe", "etf", "dividend"], "screen": "#home",
+      "question": "SCHD ETF 배당 어때?",
+      "expect": "answer",
+      "checks": { "mustMention": [["SCHD"], ["배당"]] },
+      "manual": "ETF의 성격(배당 성장 지수)과 배당수익률의 기준 시점을 밝히고, 앱에 없는 수치를 지어내지 않는가"
+    },
+    {
+      "id": "co-spy-200d", "tasks": ["company"], "situations": ["etf", "technical"], "screen": "#ticker?sym=SPY",
+      "question": "SPY 지금 200일선 위야 아래야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:SPY.pctSma200", "sign": "any", "tolerance": { "abs": 0.5 } }], "mustMention": [["200일"]] },
+      "manual": "위·아래를 거리(%)와 함께 말하고, 그 위치가 추세 판정에 어떻게 쓰이는지 연결하는가"
+    },
+    {
+      "id": "co-nvda-quarter", "tasks": ["company"], "situations": ["earnings"], "screen": "#ticker?sym=NVDA",
+      "question": "엔비디아 최근 분기 실적 어땠어? 매출 성장률은?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.revGrowth", "tolerance": { "abs": 1 } }], "mustMention": [["분기"]] },
+      "manual": "성장률의 기준 기간(최근 4개 분기, 마지막 분기 말일)을 밝히고, 실적이 주가 흐름과 어떻게 연결되는지 말하는가"
+    },
+    {
+      "id": "co-earnings-week", "tasks": ["company"], "situations": ["earnings"], "screen": "#home",
+      "question": "다음 주에 실적 발표하는 큰 회사 뭐 있어?",
+      "expect": "answer",
+      "checks": { "mustMention": [["실적"], ["월", "일"]] },
+      "manual": "발표 날짜와 장 전·장 후를 실적 일정 자료대로 말하고, 일정에 없는 회사를 지어내지 않는가"
+    },
+    {
+      "id": "co-nvda-drop-cause", "tasks": ["company"], "situations": ["web-cause", "korean-name"], "screen": "#ticker?sym=NVDA",
+      "question": "엔비디아가 최근에 크게 빠진 이유가 뭐야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.ret5d", "sign": "any", "tolerance": { "abs": 0.6 } }], "mustMention": [["보도", "발표", "뉴스", "소식"]], "minLinks": 1 },
+      "manual": "하락 폭과 원인을 출처 링크와 함께 말하고, 확인된 사실과 해석을 구분하는가"
+    },
+    {
+      "id": "co-spx-drop-cause", "tasks": ["market-state"], "situations": ["web-cause", "closed-market"], "screen": "#signal",
+      "question": "최근 거래일에 S&P 500이 왜 이렇게 크게 빠졌어?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "history.dayChangePct:spx", "sign": "any", "tolerance": { "abs": 0.15 } }], "minLinks": 1 },
+      "manual": "그날 하락률과 원인(발표·뉴스)을 출처와 함께 연결하고, 원인이 불확실하면 그렇다고 말하는가"
+    },
+    {
+      "id": "def-per", "tasks": ["company"], "situations": ["definition", "very-short"], "screen": "#ticker?sym=NVDA",
+      "question": "PER이 뭐야?",
+      "expect": "answer",
+      "checks": { "mustMention": [["주가"], ["이익"]], "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "정의가 한두 문장으로 오고, 지금 보는 종목의 PER로 예를 드는가"
+    },
+    {
+      "id": "def-rsi", "tasks": ["company"], "situations": ["definition", "technical"], "screen": "#technical",
+      "question": "RSI가 뭐고 몇 이상이면 과열이라고 봐?",
+      "expect": "answer",
+      "checks": { "mustMention": [["70"], ["30"]], "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "정의와 70·30 기준을 말하고, 강한 추세에서는 과열이 오래 갈 수 있다는 한계를 밝히는가"
+    },
+    {
+      "id": "bs-tsla-buy", "tasks": ["company"], "situations": ["buy-sell"], "screen": "#ticker?sym=TSLA",
+      "question": "테슬라 지금 사도 돼?",
+      "expect": "conditional-guidance",
+      "checks": { "mustMention": [["테슬라", "TSLA"]] },
+      "manual": "사라·말라 대신 어떤 조건(가격 수준, 추세 회복, 실적)이면 어떤 시나리오인지 말하고, 무효화 기준을 주는가"
+    },
+    {
+      "id": "bs-nvda-sell", "tasks": ["company", "holdings"], "situations": ["buy-sell"], "screen": "#ticker?sym=NVDA",
+      "question": "엔비디아 지금 다 팔아야 할까?",
+      "expect": "conditional-guidance",
+      "checks": { "mustMention": [["엔비디아", "NVDA"]] },
+      "manual": "보유 이유·기간·손실 한도에 따라 나뉘는 조건부 안내를 하고, 확인할 가격 수준을 주는가"
+    },
+    {
+      "id": "co-samsung-50d", "tasks": ["company"], "situations": ["korea", "technical"], "screen": "#ticker?sym=005930.KS",
+      "question": "삼성전자 50일 이동평균선 대비 지금 위치는 어디야?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:005930.KS.pctSma50", "sign": "any", "tolerance": { "abs": 0.6 } }], "mustMention": [["50일"]] },
+      "manual": "50일선 대비 거리와 원화 종가 기준을 말하고, 200일선 등 다른 선과 함께 추세를 읽는가"
+    },
+    {
+      "id": "fp-nvda-pe-100", "tasks": ["company"], "situations": ["false-premise", "valuation"], "screen": "#ticker?sym=NVDA",
+      "question": "엔비디아 PER이 100배가 넘는데 너무 비싼 거 아냐?",
+      "expect": "answer",
+      "checks": { "figures": [{ "resolver": "screener.field:NVDA.pe", "tolerance": { "abs": 0.3 } }], "mustMention": [["아니", "실제", "현재", "다릅니다"]] },
+      "manual": "100배라는 전제를 실제 PER로 먼저 바로잡고, 그 값으로 비싼지 판단하는가"
+    },
+    {
+      "id": "vs-nvda-short", "tasks": ["company"], "situations": ["very-short"], "screen": "#home",
+      "question": "NVDA?",
+      "expect": "answer",
+      "checks": { "mustMention": [["NVDA", "엔비디아"]], "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "티커 하나만 받은 질문에 가격 위치·추세·핵심 쟁점을 짧게 답하는가"
+    },
+    {
+      "id": "tb-index-table", "tasks": ["market-state"], "situations": ["table", "closed-market", "korea"], "screen": "#home",
+      "question": "S&P 500, 나스닥, 코스피 최근 종가와 등락률을 표로 보여줘.",
+      "expect": "answer",
+      "checks": {
+        "figures": [{ "resolver": "history.close:spx", "tolerance": { "abs": 2 } }, { "resolver": "history.close:nasdaq", "tolerance": { "abs": 5 } }, { "resolver": "history.close:kospi", "tolerance": { "abs": 5 } }],
+        "format": "table"
+      },
+      "manual": "세 지수가 한 표에 같은 기준(종가 날짜)으로 들어가고, 한국 종가 날짜가 미국과 다르면 밝히는가"
+    },
+    {
+      "id": "pf-risk-no-consent", "tasks": ["holdings"], "situations": ["portfolio-no-consent"], "screen": "#portfolio",
+      "question": "내 포트폴리오 지금 위험해?",
+      "expect": "consent-prompt",
+      "allow": ["AI 안전 모드"],
+      "checks": {},
+      "manual": "동의 없이 보유 자료를 읽지 않았음을 밝히고, 동의하는 방법이나 직접 알려 달라는 안내를 하는가"
+    },
+    {
+      "id": "pf-worst-no-consent", "tasks": ["holdings"], "situations": ["portfolio-no-consent"], "screen": "#portfolio",
+      "question": "내가 가진 종목 중에 제일 많이 빠진 거 뭐야?",
+      "expect": "consent-prompt",
+      "allow": ["AI 안전 모드"],
+      "checks": {},
+      "manual": "보유 종목을 지어내지 않고, 동의 뒤에만 볼 수 있다고 안내하는가"
+    },
+    {
+      "id": "pf-watchlist-compare", "tasks": ["holdings"], "situations": ["compare"], "screen": "#portfolio",
+      "question": "관심 종목으로 NVDA, AAPL, KO를 보고 있는데 최근 1개월 수익률 기준으로 어떤 게 제일 잘 버텼어?",
+      "expect": "answer",
+      "checks": {
+        "figures": [
+          { "resolver": "screener.field:NVDA.ret1m", "sign": "any", "tolerance": { "abs": 0.6 } },
+          { "resolver": "screener.field:AAPL.ret1m", "sign": "any", "tolerance": { "abs": 0.6 } },
+          { "resolver": "screener.field:KO.ret1m", "sign": "any", "tolerance": { "abs": 0.6 } }
+        ]
+      },
+      "manual": "세 종목을 같은 기준으로 비교해 순위를 말하고, 버틴 이유(업종 성격)를 짧게 연결하는가"
+    },
+    {
+      "id": "pf-stop-loss", "tasks": ["holdings"], "situations": ["buy-sell"], "screen": "#portfolio",
+      "question": "NVDA를 평단 150달러에 100주 갖고 있는데 손절해야 해?",
+      "expect": "conditional-guidance",
+      "checks": { "mustMention": [["150"]] },
+      "manual": "평단 대비 현재 손익을 계산하고, 보유 이유와 가격 조건에 따른 시나리오를 주되 지시하지 않는가"
+    },
+    {
+      "id": "pf-2022-scenario", "tasks": ["holdings"], "situations": ["scenario-history"], "screen": "#portfolio",
+      "question": "기술주 70%, 채권 30%로 들고 있으면 2022년 같은 금리 인상기에 어떻게 될까?",
+      "expect": "answer",
+      "checks": { "mustMention": [["2022"], ["채권"]] },
+      "manual": "2022년 기술주·채권의 실제 낙폭을 근거로 들고, 같은 해 둘이 함께 빠졌다는 점과 지금과의 차이를 말하는가"
+    },
+    {
+      "id": "ot-weather", "tasks": ["market-state"], "situations": ["off-topic"], "screen": "#home",
+      "question": "오늘 서울 날씨 어때?",
+      "expect": "polite-decline",
+      "checks": { "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "짧게 범위 밖이라고 말하고 투자 질문으로 돌려 안내하는가, 날씨를 지어내지 않는가"
+    },
+    {
+      "id": "ot-recipe", "tasks": ["screen"], "situations": ["off-topic"], "screen": "#screener",
+      "question": "김치찌개 레시피 알려줘",
+      "expect": "polite-decline",
+      "checks": { "maxSeconds": { "firstText": 60, "full": 90 } },
+      "manual": "레시피를 길게 쓰지 않고, 이 화면에서 할 수 있는 일로 안내하는가"
+    }
+  ]
+}

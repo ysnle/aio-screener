@@ -1,5 +1,6 @@
 import { splitAnswerSentences, isConditionalNumericSentence } from './publication.js';
 import { rememberField } from '../session/reader-notes.js';
+import { splitAnswerText } from './answer-envelope.js';
 import { numericFieldsMissing } from '../../domain/shared/figure-agreement.js';
 
 export const AI_CLAIM_LEDGER_VERSION = 'claim-ledger.v1';
@@ -96,24 +97,29 @@ export function validateAnswerPlan(plan, options = {}) {
   return Object.freeze({ ok: errors.length === 0, errors: Object.freeze([...new Set(errors)]), claimAudit: ledger });
 }
 
-export function parseAnswerPlanText(text, { questionPlan = null, currentSensitive = false } = {}) {
-  const source = String(text == null ? '' : text);
-  const match = source.match(/\[AI_ANSWER_PLAN\]([\s\S]*?)\[\/AI_ANSWER_PLAN\]/i);
-  if (!match) return Object.freeze({ status: 'not-structured', plan: null, audit: Object.freeze({ ok: false, errors: Object.freeze(['answer_plan_missing']) }) });
-  try {
-    const payload = JSON.parse(match[1]);
-    const claims = Array.isArray(payload.claims)
-      ? payload.claims
-      : payload.claims?.schemaVersion === AI_CLAIM_LEDGER_VERSION
-        ? payload.claims.claims
-        : [];
-    const plan = createAnswerPlan({ ...payload, claims, questionPlan: { queryId: payload.queryId || questionPlan?.queryId || null, intent: { primary: payload.intent || questionPlan?.intent?.primary || null } } });
-    const audit = validateAnswerPlan(plan, { currentSensitive });
-    // Keep a syntactically valid plan available even when one claim or prose
-    // field fails validation. The publication boundary can then remove only
-    // the unsafe claim instead of erasing the whole otherwise useful answer.
-    return Object.freeze({ status: audit.ok ? 'valid' : 'invalid', plan, audit });
-  } catch (_) {
-    return Object.freeze({ status: 'invalid', plan: null, audit: Object.freeze({ ok: false, errors: Object.freeze(['answer_plan_json_invalid']) }) });
-  }
+export function parseAnswerPlanText(text, { questionPlan = null, currentSensitive = false, unfinished = false } = {}) {
+  const { body, meta, metaState } = splitAnswerText(text, { unfinished });
+  if (!body) return Object.freeze({ status: 'not-structured', plan: null, audit: Object.freeze({ ok: false, errors: Object.freeze(['answer_body_missing']) }) });
+  const claims = Array.isArray(meta.claims) ? meta.claims : [];
+  const plan = createAnswerPlan({ ...answerBodyParts(body), claims, citations: meta.citations, followUps: meta.followUps, remember: meta.remember,
+    questionPlan: { queryId: questionPlan?.queryId || null, intent: { primary: questionPlan?.intent?.primary || null } } });
+  const audit = validateAnswerPlan(plan, { currentSensitive });
+  // The plan is always available once there is a body: the publication boundary removes an unsafe claim or sentence
+  // instead of the whole answer, and a body whose trailing block was cut off or malformed still publishes.
+  // An answer with no trailing block is complete text with no claims to bind; a block that was opened and then cut off
+  // or malformed is reported.
+  const metaOk = metaState === 'ok' || metaState === 'missing';
+  const errors = metaOk ? audit.errors : Object.freeze([...audit.errors, `answer_meta_${metaState}`]);
+  return Object.freeze({ status: audit.ok && metaOk ? 'valid' : 'invalid', plan, audit: Object.freeze({ ...audit, ok: audit.ok && metaOk, errors }) });
+}
+
+// The lead (everything before the first "### " heading) is the direct answer; each heading opens a section.
+function answerBodyParts(body) {
+  const blocks = String(body).split(/^(?=###\s)/m);
+  const lead = /^###\s/.test(blocks[0]) ? '' : blocks.shift().trim();
+  const sections = blocks.map((block) => {
+    const [head, ...rest] = block.split('\n');
+    return { title: head.replace(/^###\s*/, '').trim(), body: rest.join('\n').trim() };
+  }).filter((section) => section.title && section.body);
+  return { summary: lead, sections };
 }

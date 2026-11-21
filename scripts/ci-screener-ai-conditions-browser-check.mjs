@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
+import { answerEnvelopeText } from './lib/answer-envelope-fixture.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = (Number(process.env.CI_SCREENER_AI_CONDITIONS_PORT) || await freePort());
@@ -20,7 +21,7 @@ const fail = (where, message) => failures.push(`[${where}] ${message}`);
 const cors = { 'access-control-allow-origin': localBase, 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS' };
 
 function answerStream(text) {
-  const plan = `[AI_ANSWER_PLAN]${JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: '조건 화면 제안입니다.', claims: [], sections: [{ title: '조건', body: text }], citations: [], followUps: [] })}[/AI_ANSWER_PLAN]`;
+  const plan = answerEnvelopeText({ summary: '조건 화면 제안입니다.', claims: [], sections: [{ title: '조건', body: text }], citations: [], followUps: [] });
   return [`data: ${JSON.stringify({ type: 'response.output_text.delta', delta: plan })}\n\n`, `data: ${JSON.stringify({ type: 'response.completed', response: { status: 'completed', usage: { input_tokens: 12, output_tokens: 80 } } })}\n\n`].join('');
 }
 

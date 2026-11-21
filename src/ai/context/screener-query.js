@@ -1,14 +1,23 @@
-// Legacy unification (2026-10-17): the chat's natural-language screener query engine, moved out of js/aio-data.js
-// (it came there from js/aio-chat.js in v51.17). The functions are pure: the caller passes the canonical screener rows
-// (already ranked by the native screener orchestrator), the live quote map and the keyword aliases. The legacy chat
-// keeps calling the same window names, which src/app/compatibility-globals.js binds to these functions.
-// The rows arrive ranked from the screen's own run; there is no second factor-ranking model here. A broad comparison
-// sample uses symbol order instead of rank, so membership does not imply investment priority.
+// The chat's screener engine (moved out of js/aio-data.js 2026-10-17, rebuilt v60.41). One structured screen (runScreen) over
+// the canonical screener rows with the screener screen's own definitions: the custom conditions (custom-conditions.js),
+// the 시가총액 buckets (row-presentation.js CAP_BUCKETS), the condition reader (condition-read.js) and the listing market
+// (market-scope.js). The chat's screen tool fills the spec; a turn without tools reads it from the sentence through the
+// screener's own parser (parseConditionText) plus a scope reader (market, size, sector, theme) — one engine, no second
+// set of condition rules. The broad "종목 추천해줘" comparison sample is a separate feature (buildDiversifiedRecommendationRows):
+// a day-seeded coverage sample, not a rank. Pure apart from screenerInput(root), which reads the page's globals.
 
 import { listingCurrency } from '../../domain/portfolio/fx.js';
-import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
-import { readLiveQuotePrice, readRowNumber } from '../../data/contracts/screener.js';
+import { formatScreenerPrice, screenerMarket, MARKET_LABELS } from '../../domain/screener/market-scope.js';
+import { readLiveQuotePrice, readRowNumber, fieldValueForPurpose, SCREENER_FIELD_REGISTRY } from '../../data/contracts/screener.js';
 import { keywordHit } from '../../domain/news/keyword-match.js';
+import { CUSTOM_CONDITIONS, conditionCoverage, conditionLabel, matchesConditions, normalizeConditions } from '../../domain/screener/custom-conditions.js';
+import { parseConditionText } from '../../domain/screener/condition-text-parser.js';
+import { CAP_BUCKETS, capBucketOf, capFilterValue, capReading, visibleRank } from '../../domain/screener/row-presentation.js';
+import { conditionReader } from '../../domain/screener/condition-read.js';
+import { mergeThemeAliases } from '../../domain/screener/theme-aliases.js';
+import { consensusView } from '../../domain/fundamental/consensus-read.js';
+import { consensusRowFor } from '../../data/consensus-estimates.js';
+import { readNumber, signedText } from '../../domain/shared/number.js';
 
 // v59.45 (pipeline review P13-SCREEN-01): a row copied quote.price and dropped its currency, and the prompt put "$" on every
 // price, so Samsung read "가격 $70000.00". A quote keeps its own currency (the listing's when the quote declares none; an
@@ -21,9 +30,6 @@ function quoteFields(sym, ld) {
     priceObservedAt: (ld && (ld.observedAt || ld.asOf)) || null
   };
 }
-
-// v59.45 (P13-SCREEN-02): a missing or zero market cap is unknown, not small. Only a finite positive value meets a size bound.
-const knownCap = (mcap) => typeof mcap === 'number' && Number.isFinite(mcap) && mcap > 0;
 
 export const SECTOR_KEYWORDS = Object.freeze({
   'technology':['Technology'], 'tech':['Technology'], '기술':['Technology'], '기술주':['Technology'], 'IT':['Technology'],
@@ -55,6 +61,7 @@ export const SECTOR_KEYWORDS = Object.freeze({
 const SECTOR_INTENT_PATTERNS = ['비교','추천','찾아','뽑아','골라','싼','저평가','고평가','성장','배당','수익률','밸류','가치','cheapest','best','top','compare','recommend','undervalued','overvalued','screen','pick','find'];
 
 const rowList = (rows) => (Array.isArray(rows) ? rows : []);
+const symbolOf = (row) => String(row?.sym || row?.symbol || '').toUpperCase();
 
 // Longest keyword wins, as before (a "소프트웨어" question is not read as the shorter "IT").
 function longestSectorMatch(text) {
@@ -68,6 +75,7 @@ function longestSectorMatch(text) {
   return { matched, matchedKey };
 }
 
+// The sector comparison (live quotes of the sector's largest names), sorted by the size the screen's filter uses.
 export function detectSectorQuery(text, { rows = [] } = {}) {
   const lower = String(text || '').toLowerCase();
   if (!SECTOR_INTENT_PATTERNS.some((p) => lower.indexOf(p) >= 0)) return null;
@@ -75,7 +83,7 @@ export function detectSectorQuery(text, { rows = [] } = {}) {
   if (!matched) return null;
   const stocks = rowList(rows)
     .filter((s) => matched.some((sec) => s.sector === sec))
-    .sort((a, b) => (readRowNumber(b, 'mcap', 'calculation') || 0) - (readRowNumber(a, 'mcap', 'calculation') || 0)).slice(0, 8);
+    .sort((a, b) => (capFilterValue(b) || 0) - (capFilterValue(a) || 0)).slice(0, 8);
   return stocks.length > 0 ? { sectorLabel: matchedKey, stocks } : null;
 }
 
@@ -93,15 +101,6 @@ export function inferTickerMarket(sym, index) {
   if (/\.HK$/.test(s)) return 'Hong Kong';
   if (/ADR/i.test(index || '')) return 'ADR';
   return 'US';
-}
-
-export function capBucket(mcap) {
-  const v = Number(mcap || 0);
-  if (v >= 500) return 'mega';
-  if (v >= 100) return 'large';
-  if (v >= 10) return 'mid';
-  if (v > 0) return 'small';
-  return 'unknown';
 }
 
 export function extractRecentRecommendationTickers(messages, { rows = [] } = {}) {
@@ -127,8 +126,8 @@ function sampleOrder(sym, day) {
   return hash >>> 0;
 }
 
-// The exported name and result mode are kept for the classic chat bridge. This is a coverage sample for comparison,
-// not a recommendation model: a day-seeded order, names not already discussed first; never invent a rating.
+// A coverage sample for comparison, not a recommendation model: a day-seeded order, names not already discussed first;
+// never invent a rating. The size bucket is the screener filter's (unknown size stays unknown).
 export function buildDiversifiedRecommendationRows(rows, live, opts) {
   opts = opts || {}; live = live || {};
   const recent = {};
@@ -143,7 +142,6 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
     return true;
   }).map((s) => {
     const ld = live[s.sym] || {};
-    const mcap = readRowNumber(s, 'mcap', 'calculation');
     const pct = (ld && ld.pct != null && Number.isFinite(Number(ld.pct))) ? Number(ld.pct) : null;
     return {
       sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
@@ -151,7 +149,7 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
       rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
       ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
       ...quoteFields(s.sym, ld), pct, memo: (s.memo || '').slice(0, 90),
-      market: inferTickerMarket(s.sym, s.index), capBucket: capBucket(mcap), repeated: !!recent[s.sym]
+      market: inferTickerMarket(s.sym, s.index), capBucket: capBucketOf(s) || 'unknown', repeated: !!recent[s.sym]
     };
   });
   const day = opts.sampleDay || new Date().toISOString().slice(0, 10);
@@ -191,175 +189,278 @@ export function buildDiversifiedRecommendationRows(rows, live, opts) {
   };
 }
 
-export function runScreenerQuery(query, { rows = [], live = {}, aliases = {}, recentTickers = [], sampleDay = null } = {}) {
-  try {
-    const db = rowList(rows);
-    if (!db.length) return null;
-    const q = String(query || '').toLowerCase();
-    const crit = {}, labels = [];
+// ── The structured screen ──────────────────────────────────────────────────────────────────────────────────────────────
 
-    if (/매수\s*(시그널|종목)?|buy\b|사야|살\s*만|저평가\s*매수/.test(q)) crit.signal = 'BUY';
-    else if (/관망|watch\b/.test(q)) crit.signal = 'WATCH';
-    else if (/매도|sell\b|팔\s*/.test(q)) crit.signal = 'SELL';
-    else if (/보유|hold\b/.test(q)) crit.signal = 'HOLD';
-    if (crit.signal) labels.push('시그널=' + crit.signal);
+export const SCREEN_MARKETS = Object.freeze(['US', 'KR']);
+export const SCREEN_LIMIT = 12;
+// Sort fields: published numbers a reader orders a list by. 시총 is the size the 시가총액 filter reads, 백분위 the rank the
+// table shows; the rest read through the condition reader (calculation readiness).
+export const SCREEN_SORTS = Object.freeze({
+  marketCap: '시가총액', rank: '백분위', pe: 'PER', pb: 'PBR', roe: 'ROE', margin: '순이익률', revGrowth: '매출 성장률',
+  dividendYieldPct: '배당수익률', ret1m: '1개월 수익률', ret3m: '3개월 수익률', ret6m: '6개월 수익률', rsi: 'RSI', pctFrom52wHigh: '52주 고점 대비'
+});
+const SORT_READERS = Object.freeze({ marketCap: (row) => capFilterValue(row), rank: (row) => visibleRank(row) });
+// The numbers every result row carries (beside the values of the conditions used).
+const FACT_KEYS = Object.freeze(['pe', 'ret1m', 'ret3m', 'rsi', 'dividendYieldPct', 'pctFrom52wHigh']);
+const FIELD_ID_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
+const CONDITION_BY_ID = new Map(CUSTOM_CONDITIONS.map((item) => [item.id, item]));
 
-    // v59.45 (pipeline review P13-SCREEN-03): "미만/below" and "이하" were one inclusive bound (and "초과/over" one with
-    // "이상"), so "rsi 30 미만" kept RSI 30. Each bound keeps whether its end is included; a range "30 이상 70 미만" reads both ends.
-    const bound = (value, op) => ({ value: +value, inclusive: /^(?:이하|이상|<=|>=)$/.test(op) });
-    const range = q.match(/rsi\s*(\d{1,3})\s*(이상|초과)\s*[~,-]?\s*(\d{1,3})\s*(이하|미만)/);
-    const underAfter = q.match(/rsi\s*(\d{1,3})\s*(이하|미만|under|below|아래|<=?)/), underBefore = q.match(/(이하|미만|under|below)\s*rsi\s*(\d{1,3})/);
-    const overAfter = q.match(/rsi\s*(\d{1,3})\s*(이상|초과|over|above|위|>=?)/), overBefore = q.match(/(이상|초과|over|above)\s*rsi\s*(\d{1,3})/);
-    const rsiUnder = range ? bound(range[3], range[4]) : underAfter ? bound(underAfter[1], underAfter[2]) : underBefore ? bound(underBefore[2], underBefore[1]) : null;
-    const rsiOver = range ? bound(range[1], range[2]) : overAfter ? bound(overAfter[1], overAfter[2]) : overBefore ? bound(overBefore[2], overBefore[1]) : null;
-    if (rsiUnder) { crit.rsiMax = rsiUnder.value; crit.rsiMaxInclusive = rsiUnder.inclusive; labels.push((rsiUnder.inclusive ? 'RSI≤' : 'RSI<') + crit.rsiMax); }
-    if (rsiOver)  { crit.rsiMin = rsiOver.value; crit.rsiMinInclusive = rsiOver.inclusive; labels.push((rsiOver.inclusive ? 'RSI≥' : 'RSI>') + crit.rsiMin); }
-    if (crit.rsiMax == null && crit.rsiMin == null) {
-      if (/과매도|oversold|침체\s*구간/.test(q)) { crit.rsiMax = 35; labels.push('과매도(RSI≤35)'); }
-      else if (/과매수|과열|overbought/.test(q)) { crit.rsiMin = 65; labels.push('과매수(RSI≥65)'); }
-    }
+const sizeLabel = (sizes) => sizes.map((size) => CAP_BUCKETS[size]).join('·');
 
-    if (/메가캡|mega\s*-?cap/.test(q)) { crit.mcapMin = 500; labels.push('메가캡(≥$500B)'); }
-    else if (/대형주|large\s*-?cap/.test(q)) { crit.mcapMin = 100; labels.push('대형주(≥$100B)'); }
-    else if (/중형주|mid\s*-?cap/.test(q)) { crit.mcapMin = 10; crit.mcapMax = 100; labels.push('중형주($10~100B)'); }
-    else if (/소형주|small\s*-?cap/.test(q)) { crit.mcapMax = 10; labels.push('소형주(<$10B)'); }
-
-    const { matched: matchedSector, matchedKey: secKey } = longestSectorMatch(query);
-
-    let themeTickers = null, themeKey = '';
-    const aliasMap = aliases && typeof aliases === 'object' ? aliases : {};
-    Object.keys(aliasMap).forEach((kw) => {
-      if (keywordHit(q, kw) && Array.isArray(aliasMap[kw]) && (!themeTickers || kw.length > themeKey.length)) { themeTickers = aliasMap[kw]; themeKey = kw; }
-    });
-    if (themeTickers && themeTickers.length && themeKey.length >= secKey.length) {
-      crit.themeSet = {}; themeTickers.forEach((t) => { crit.themeSet[t] = true; }); labels.push('테마=' + themeKey);
-    } else if (matchedSector) { crit.sectors = matchedSector; labels.push('섹터=' + secKey); }
-
-    if (/s&p|sp\s*500|에스앤피/.test(q)) { crit.index = 'SP500'; labels.push('S&P500'); }
-    else if (/다우|dow\b/.test(q)) { crit.index = 'DOW30'; labels.push('다우30'); }
-    else if (/나스닥|nasdaq/.test(q)) { crit.index = 'NASDAQ'; labels.push('나스닥'); }
-
-    if (/급등|상승\s*(종목|률)?|오른|gainer|올라/.test(q)) { crit.dir = 'up'; labels.push('상승 종목'); }
-    else if (/급락|하락\s*(종목|률)?|내린|loser|떨어/.test(q)) { crit.dir = 'down'; labels.push('하락 종목'); }
-
-    if (/퀀트|quant|팩터|factor|랭킹|순위|우량|상위\s*종목|best\b|top\s*\d*/.test(q)) { crit.byRank = true; labels.push('퀀트 랭킹순'); }
-
-    const isBroadRecommendation = isBroadRecommendationQuery(q);
-    const onlyGenericRank = crit.byRank && labels.length === 1 && !crit.signal && crit.rsiMax == null && crit.rsiMin == null &&
-      crit.mcapMin == null && crit.mcapMax == null && !crit.sectors && !crit.themeSet && !crit.index && !crit.dir;
-    if (isBroadRecommendation && (labels.length === 0 || onlyGenericRank)) {
-      const diversified = buildDiversifiedRecommendationRows(db, live || {}, { recentTickers, sampleDay });
-      return { matched: true, mode: 'diversified-recommendation', purpose: 'comparison',
-        criteria: onlyGenericRank ? ['분산 비교 표본', '퀀트 랭킹 참고'] : ['분산 비교 표본'],
-        rows: diversified.rows, totalMatched: diversified.totalMatched, diversity: diversified.diversity, recentSuppressed: diversified.recentSuppressed };
-    }
-
-    if (labels.length === 0) return null;
-
-    const quotes = live || {};
-    let mcapUnknown = 0;
-    const matchedRows = db.filter((s) => {
-      if (crit.signal && s.signal !== crit.signal) return false;
-      const rsi = readRowNumber(s, 'rsi', 'calculation');
-      if (crit.rsiMax != null && !(rsi != null && (crit.rsiMaxInclusive !== false ? rsi <= crit.rsiMax : rsi < crit.rsiMax))) return false;
-      if (crit.rsiMin != null && !(rsi != null && (crit.rsiMinInclusive !== false ? rsi >= crit.rsiMin : rsi > crit.rsiMin))) return false;
-      const mcap = readRowNumber(s, 'mcap', 'calculation');
-      if ((crit.mcapMin != null || crit.mcapMax != null) && !knownCap(mcap)) { mcapUnknown += 1; return false; }
-      if (crit.mcapMin != null && !(mcap >= crit.mcapMin)) return false;
-      if (crit.mcapMax != null && !(mcap < crit.mcapMax)) return false;
-      if (crit.sectors && !crit.sectors.some((sec) => s.sector === sec)) return false;
-      if (crit.index && s.index !== crit.index) return false;
-      if (crit.themeSet && !crit.themeSet[s.sym]) return false;
-      if (crit.dir) {
-        const ldp = quotes[s.sym]; const pct = (ldp && ldp.pct != null) ? ldp.pct : null;
-        if (pct == null) return false;
-        if (crit.dir === 'up' && !(pct > 0)) return false;
-        if (crit.dir === 'down' && !(pct < 0)) return false;
-      }
-      return true;
-    }).map((s) => {
-      const ld = quotes[s.sym] || {};
-      return { sym: s.sym, name: s.name, sector: s.sector, signal: s.signal, mcap: s.mcap, rsi: s.rsi,
-        fieldReadiness: s.fieldReadiness, factorSessionDate: s.factorSessionDate,
-        rank: (typeof s.rank === 'number' ? s.rank : null), quantSignal: s.quantSignal || null, factorScores: s.factorScores || null,
-        ret3m: (typeof s.ret3m === 'number' ? s.ret3m : null), vol: (typeof s.vol === 'number' ? s.vol : null),
-        ...quoteFields(s.sym, ld), pct: ld.pct != null ? ld.pct : null, memo: (s.memo || '').slice(0, 90),
-        // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches
-        // the AI as this stock's news; an unverified memo was another company's story about 1 time in 5.
-        newsMemo: s.newsMemoVerified === true ? (s.newsMemo || '').slice(0, 200) : '' };
-    });
-
-    matchedRows.sort((a, b) => {
-      if (crit.byRank) return (b.rank == null ? -1 : b.rank) - (a.rank == null ? -1 : a.rank);
-      if (crit.dir === 'up') return (b.pct == null ? -999 : b.pct) - (a.pct == null ? -999 : a.pct);
-      if (crit.dir === 'down') return (a.pct == null ? 999 : a.pct) - (b.pct == null ? 999 : b.pct);
-      if (crit.rsiMax != null) return (readRowNumber(a, 'rsi', 'calculation') ?? 999) - (readRowNumber(b, 'rsi', 'calculation') ?? 999);
-      if (crit.rsiMin != null) return (readRowNumber(b, 'rsi', 'calculation') ?? -999) - (readRowNumber(a, 'rsi', 'calculation') ?? -999);
-      if (a.rank != null && b.rank != null) return b.rank - a.rank;
-      return (readRowNumber(b, 'mcap', 'calculation') || 0) - (readRowNumber(a, 'mcap', 'calculation') || 0);
-    });
-
-    return { matched: true, criteria: labels, rows: matchedRows.slice(0, 12), totalMatched: matchedRows.length, mcapUnknown };
-  } catch (_) { return null; }
+function resolveSector(word, marketRowsList) {
+  const text = String(word || '').trim();
+  if (!text) return { sectors: null };
+  const present = [...new Set(marketRowsList.map((row) => row.sector).filter(Boolean))];
+  const keyword = Object.keys(SECTOR_KEYWORDS).find((key) => key.toLowerCase() === text.toLowerCase());
+  const wanted = keyword ? SECTOR_KEYWORDS[keyword] : present.filter((sector) => sector.toLowerCase() === text.toLowerCase());
+  const sectors = wanted.filter((sector) => present.includes(sector));
+  return sectors.length ? { sectors, label: sectors.length === 1 && sectors[0] === text ? text : `${text}(${sectors.join('·')})` } : { error: `섹터 "${text.slice(0, 40)}"를 찾지 못했습니다. 이 시장의 섹터: ${present.sort().join(', ')}` };
 }
 
-export function formatScreenerResultPrompt(result, { rankAsOf = null } = {}) {
-  if (!result || !result.matched || !result.rows || !result.rows.length) return '';
+function resolveTheme(word, aliases) {
+  const text = String(word || '').trim().toLowerCase();
+  if (!text) return { members: null };
+  const list = aliases[text] || aliases[text.replace(/\s+/g, '')];
+  if (Array.isArray(list) && list.length) return { members: new Set(list.map((symbol) => String(symbol || '').toUpperCase())), label: String(word).trim() };
+  return { error: `테마 "${String(word).slice(0, 40)}"를 찾지 못했습니다. 테마 이름 예: ${Object.keys(aliases).filter((key) => /[가-힣]/.test(key)).slice(0, 24).join(', ')}` };
+}
+
+const inIndex = (row, index) => row.index === index || (Array.isArray(row.membership) && row.membership.includes(index));
+function resolveIndex(word, marketRowsList) {
+  const index = String(word || '').trim().toUpperCase();
+  if (!index) return { index: null };
+  if (marketRowsList.some((row) => inIndex(row, index))) return { index };
+  const present = [...new Set(marketRowsList.flatMap((row) => [row.index, ...(Array.isArray(row.membership) ? row.membership : [])]).filter(Boolean))];
+  return { error: `지수 "${index.slice(0, 20)}"에 속한 종목이 이 시장에 없습니다. 가능한 값: ${present.sort().join(', ')}` };
+}
+
+/** The spec with every field checked: unknown ids dropped, the limit clamped, the defaults filled. */
+export function normalizeScreenSpec(spec = {}) {
+  const limit = Math.round(Number(spec.limit));
+  return {
+    market: SCREEN_MARKETS.includes(spec.market) ? spec.market : 'US',
+    sizes: [...new Set((Array.isArray(spec.sizes) ? spec.sizes : []).filter((size) => CAP_BUCKETS[size]))],
+    sector: typeof spec.sector === 'string' && spec.sector.trim() ? spec.sector.trim().slice(0, 60) : null,
+    theme: typeof spec.theme === 'string' && spec.theme.trim() ? spec.theme.trim().slice(0, 60) : null,
+    index: typeof spec.index === 'string' && spec.index.trim() ? spec.index.trim().slice(0, 20) : null,
+    conditions: normalizeConditions(Array.isArray(spec.conditions) ? spec.conditions : []),
+    sort: SCREEN_SORTS[spec.sort] ? spec.sort : 'marketCap',
+    order: spec.order === 'asc' ? 'asc' : 'desc',
+    limit: Number.isFinite(limit) ? Math.min(SCREEN_LIMIT, Math.max(1, limit)) : SCREEN_LIMIT
+  };
+}
+
+// What one result row carries: identity, size with its basis, the standard facts, every used condition's own fields, the
+// live quote in its own currency and the verified headline.
+function screenRowFacts(row, conditions, read, live) {
+  const quote = live[row.sym] || {};
+  const facts = Object.fromEntries(FACT_KEYS.map((key) => [key, read(row, key)]));
+  // A value the table shows but the readiness contract keeps out of calculation (STALE, LAST_GOOD, CONFLICT) is named as
+  // reference only, never used as the value.
+  const reference = FACT_KEYS.filter((key) => facts[key] == null && FIELD_ID_BY_ROW_KEY.has(key) && row.fieldReadiness)
+    .map((key) => [key, fieldValueForPurpose(row, FIELD_ID_BY_ROW_KEY.get(key), 'display'), row.fieldReadiness.fields?.[FIELD_ID_BY_ROW_KEY.get(key)]?.status])
+    .filter(([, value, status]) => value != null && ['STALE', 'LAST_GOOD', 'CONFLICT'].includes(status));
+  const conditionValues = conditions.map((condition) => ({ id: condition.id, values: Object.fromEntries((CONDITION_BY_ID.get(condition.id)?.fields || []).filter((key) => !FACT_KEYS.includes(key)).map((key) => [key, read(row, key)])) }))
+    .filter((entry) => Object.keys(entry.values).length);
+  return {
+    sym: row.sym, name: row.name || row.sym, sector: row.sector || null, market: screenerMarket(row),
+    cap: capReading(row), capBucket: capBucketOf(row), ...facts, rank: visibleRank(row), factorSessionDate: row.factorSessionDate || null,
+    reference: reference.map(([key, value, status]) => ({ key, value, status })), conditionValues,
+    ...quoteFields(row.sym, quote), pct: readNumber(quote.pct),
+    // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches the AI as
+    // this stock's news; an unverified memo was another company's story about 1 time in 5.
+    newsMemo: row.newsMemoVerified === true ? String(row.newsMemo || '').slice(0, 200) : ''
+  };
+}
+
+/**
+ * Runs one screen. Returns { matched: true, mode: 'conditions', spec, criteria, rows, totalMatched, steps, coverage,
+ * sizeUnknown, sizeUnavailable } or { matched: false, error } when a scope word names nothing in the market.
+ * coverage: per condition { id, label, pass, withData } over the scoped rows, so a 0 can say which condition removed
+ * everything or lacks data.
+ */
+export function runScreen(rawSpec = {}, { rows = [], live = {}, aliases = {}, read = conditionReader() } = {}) {
+  const spec = normalizeScreenSpec(rawSpec);
+  const quotes = live || {};
+  const marketList = rowList(rows).filter((row) => row && row.sym && screenerMarket(row) === spec.market);
+  const sector = resolveSector(spec.sector, marketList);
+  const theme = resolveTheme(spec.theme, aliases && typeof aliases === 'object' ? aliases : {});
+  const index = resolveIndex(spec.index, marketList);
+  const error = [sector, theme, index].find((part) => part.error)?.error;
+  if (error) return { matched: false, spec, error };
+
+  const criteria = [`시장 ${MARKET_LABELS[spec.market]}`];
+  const steps = [{ label: `${MARKET_LABELS[spec.market]} 종목`, count: marketList.length }];
+  let scope = marketList;
+  const narrow = (label, keep) => { scope = scope.filter(keep); steps.push({ label, count: scope.length }); criteria.push(label); };
+  // P13-SCREEN-02: a missing or zero size is unknown, not small — it meets no bucket and is counted apart.
+  let sizeUnknown = 0;
+  const sizeUnavailable = spec.sizes.length > 0 && !marketList.some((row) => capFilterValue(row) != null);
+  if (spec.sizes.length) {
+    sizeUnknown = scope.filter((row) => capBucketOf(row) == null).length;
+    narrow(`크기 ${sizeLabel(spec.sizes)}`, (row) => spec.sizes.includes(capBucketOf(row)));
+  }
+  if (sector.sectors) narrow(`섹터 ${sector.label}`, (row) => sector.sectors.includes(row.sector));
+  if (theme.members) narrow(`테마 ${theme.label}`, (row) => theme.members.has(symbolOf(row)));
+  if (index.index) narrow(`지수 ${index.index}`, (row) => inIndex(row, index.index));
+
+  const coverage = conditionCoverage(scope, spec.conditions, read).map((count, i) => ({ ...count, label: conditionLabel(spec.conditions[i]) }));
+  spec.conditions.forEach((condition) => criteria.push(conditionLabel(condition)));
+  const sortRead = SORT_READERS[spec.sort] || ((row) => read(row, spec.sort));
+  const matched = scope.filter((row) => matchesConditions(row, spec.conditions, read))
+    .map((row) => ({ row, key: sortRead(row) }))
+    .sort((a, b) => {
+      const absentA = readNumber(a.key) == null, absentB = readNumber(b.key) == null;
+      if (absentA || absentB) return absentA === absentB ? symbolOf(a.row).localeCompare(symbolOf(b.row), 'en') : absentA ? 1 : -1;
+      return (spec.order === 'asc' ? a.key - b.key : b.key - a.key) || symbolOf(a.row).localeCompare(symbolOf(b.row), 'en');
+    });
+  return {
+    matched: true, mode: 'conditions', spec, criteria, steps, coverage, sizeUnknown, sizeUnavailable,
+    totalMatched: matched.length, scopeCount: scope.length,
+    rows: matched.slice(0, spec.limit).map(({ row }) => screenRowFacts(row, spec.conditions, read, quotes))
+  };
+}
+
+/** Why a screen returned nothing, named from its steps and coverage (null when it returned rows). */
+export function screenZeroReason(result) {
+  if (!result?.matched || result.totalMatched > 0) return null;
+  if (result.sizeUnavailable) return `${MARKET_LABELS[result.spec.market]} 종목에는 시가총액 자료가 없어 크기 조건을 판정할 수 없습니다.`;
+  const emptyStep = result.steps.find((step) => step.count === 0);
+  if (emptyStep) return `${emptyStep.label}에서 남은 종목이 0개입니다.`;
+  const noData = result.coverage.filter((entry) => entry.withData === 0);
+  if (noData.length) return `자료 없음: ${noData.map((entry) => entry.label).join(', ')} — 이 범위 종목 중 값이 있는 종목이 없습니다.`;
+  const blocking = result.coverage.filter((entry) => entry.pass === 0);
+  if (blocking.length) return `통과 0: ${blocking.map((entry) => `${entry.label}(자료 있는 ${entry.withData}종목 중 0)`).join(', ')}.`;
+  return '조건마다 통과한 종목은 있지만 모든 조건을 함께 만족하는 종목은 없습니다.';
+}
+
+const fixed = (value, digits = 1) => (readNumber(value) != null ? readNumber(value).toFixed(digits) : '미확인');
+const signed = (value, digits = 1) => (readNumber(value) != null ? signedText(readNumber(value), digits, '%') : '미확인');
+const capText = (row) => (row.cap ? `$${fixed(row.cap.billions, 1)}B(${row.cap.basis === 'live' ? '시세 기준' : 'SEC 주식 수×종가 참고'})` : '미확인');
+
+/** The result as the text the model reads: criteria, counts, coverage, one compact line per row with its dated basis. */
+export function formatScreenResult(result) {
+  if (!result?.matched) return '';
+  const lines = ['【스크리너 조건 검색 — 스크리너 화면과 같은 조건 정의로 앱 종목 DB를 거른 결과】'];
+  lines.push(`조건: ${result.criteria.join(' · ')}`);
+  lines.push(`정렬: ${SCREEN_SORTS[result.spec.sort]} ${result.spec.order === 'asc' ? '낮은 순' : '높은 순'} · 일치 ${result.totalMatched}종목${result.totalMatched ? ` 중 ${result.rows.length}종목 표시` : ''} (범위 ${result.steps.map((step) => `${step.label} ${step.count}`).join(' → ')})`);
+  if (result.coverage.length) lines.push(`조건별 통과(범위 ${result.scopeCount}종목 중 자료 있는 종목 기준): ${result.coverage.map((entry) => `${entry.label} ${entry.pass}/${entry.withData}`).join(' · ')}`);
+  if (result.sizeUnknown) lines.push(`시가총액을 확인하지 못한 ${result.sizeUnknown}종목은 크기 조건에서 제외했습니다(작은 종목으로 보지 않음).`);
+  const zero = screenZeroReason(result);
+  if (zero) lines.push(`결과 없음: ${zero}`);
+  // `fact` is a screenRowFacts entry: its numbers were already read through the condition reader.
+  result.rows.forEach((fact, i) => {
+    const live = readLiveQuotePrice(fact);
+    const parts = [`${i + 1}. ${fact.sym} (${fact.name})`, fact.sector || '섹터 미확인', `시총 ${capText(fact)}`, `PER ${fixed(fact.pe)}`, `1개월 ${signed(fact.ret1m)}`, `3개월 ${signed(fact.ret3m)}`,
+      `RSI ${fixed(fact.rsi, 0)}`, `배당수익률 ${fact.dividendYieldPct == null ? '미확인' : `${fixed(fact.dividendYieldPct, 2)}%`}`, `52주 고점 대비 ${signed(fact.pctFrom52wHigh)}`];
+    if (fact.rank != null) parts.push(`백분위 ${fact.rank}`);
+    if (live) parts.push(`가격 ${formatScreenerPrice(live.price, fact.currency || null)}${live.observedAt ? ` (관측 ${live.observedAt})` : ''}${fact.pct != null ? ` ${signed(fact.pct, 2)}` : ''}`);
+    parts.push(`팩터 기준일 ${fact.factorSessionDate || '미확인'}`);
+    lines.push(parts.join(' · '));
+    if (fact.conditionValues.length) lines.push(`   조건 값: ${fact.conditionValues.map((used) => `${used.id} ${Object.entries(used.values).map(([key, value]) => `${key}=${Array.isArray(value) ? value.length : typeof value === 'number' ? Number(value.toFixed(2)) : value ?? '미확인'}`).join(', ')}`).join(' · ')}`);
+    if (fact.reference.length) lines.push(`   조건 계산에 쓰지 않는 참고 값: ${fact.reference.map((held) => `${held.key} ${fixed(held.value)}(${held.status})`).join(', ')}`);
+    if (fact.newsMemo) lines.push(`   최신뉴스(제목만, 발행 주체 확인됨): ${fact.newsMemo}`);
+  });
+  lines.push('답변 지침: 이 목록은 스크리너 조건을 그대로 적용한 결과다. 목록 밖 종목을 더하지 말고, 조건을 충족한 근거(위 값)와 미확인 항목을 함께 말하라. 백분위는 같은 모델 안의 상대 위치이며 매수 순위가 아니다. 가격은 위 값 그대로 기준시각과 함께 인용하라.');
+  return lines.join('\n');
+}
+
+// ── The sentence path (turns without tools) ────────────────────────────────────────────────────────────────────────────
+
+const KR_MARKET_WORDS = /한국|국내|코스피|코스닥|kospi|kosdaq/i;
+// Size words map onto the filter's buckets; "대형주" is read as large and up (a reader asking for 대형주 means Apple too).
+const SIZE_WORDS = Object.freeze([
+  [/초대형|메가\s*-?캡|mega\s*-?cap/i, ['MEGA']],
+  [/대형주?|large\s*-?cap/i, ['MEGA', 'LARGE']],
+  [/중형주?|mid\s*-?cap/i, ['MID']],
+  [/소형주?|small\s*-?cap/i, ['SMALL']]
+]);
+
+/** A sentence → a screen spec: the screener's own condition parser plus market, size, sector and theme words; null without any. */
+export function readScreenSentence(text, { aliases = {} } = {}) {
+  const sentence = String(text || '');
+  const parsed = parseConditionText(sentence);
+  // The screener applies nothing when a sentence asks for OR or an inverted bound; the chat does not guess either.
+  if (parsed.unsupported?.length) return null;
+  const sizes = SIZE_WORDS.find(([pattern]) => pattern.test(sentence))?.[1] || [];
+  const { matched: sectorMatch, matchedKey } = longestSectorMatch(sentence);
+  const lower = sentence.toLowerCase();
+  let themeKey = '';
+  Object.keys(aliases || {}).forEach((key) => { if (Array.isArray(aliases[key]) && keywordHit(lower, key) && key.length > themeKey.length) themeKey = key; });
+  const useTheme = themeKey && themeKey.length >= matchedKey.length;
+  const spec = {
+    market: KR_MARKET_WORDS.test(sentence) ? 'KR' : 'US',
+    sizes, sector: !useTheme && sectorMatch ? matchedKey : null, theme: useTheme ? themeKey : null, index: null,
+    conditions: parsed.conditions, sort: 'marketCap', order: 'desc', limit: SCREEN_LIMIT
+  };
+  return spec.conditions.length || spec.sizes.length || spec.sector || spec.theme ? spec : null;
+}
+
+/** The page's screener inputs: canonical rows, live quotes, keyword plus THEME_MAP aliases, the condition reader. */
+export function screenerInput(root = globalThis, { now = Date.now() } = {}) {
+  let rows = [];
+  try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
+  return {
+    rows,
+    live: root?._liveData || {},
+    aliases: mergeThemeAliases(root?.SCR_KEYWORD_ALIASES || {}, Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : []),
+    read: conditionReader({
+      forwardPe: (row) => consensusView(row, consensusRowFor(root, row?.sym || row?.symbol), { now })?.fwdPe ?? null,
+      cashMetrics: (symbol) => root?._aioScreenerCash?.map?.get(symbol),
+      channelSignals: () => root?.AIO_TELEGRAM_SIGNALS
+    }),
+    rankAsOf: typeof root?.AIO?.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null
+  };
+}
+
+// ── The broad comparison sample prompt ─────────────────────────────────────────────────────────────────────────────────
+
+export function formatComparisonSample(result, { rankAsOf = null } = {}) {
+  if (!result || result.mode !== 'diversified-recommendation' || !result.rows || !result.rows.length) return '';
   const fmt = (v, d) => (v != null && !isNaN(v) ? Number(v).toFixed(d || 1) : 'N/A');
-  const signedPct = (v) => (v != null && !isNaN(v) ? (v >= 0 ? '+' : '') + Number(v).toFixed(2) + '%' : 'N/A');
+  const signedPct = (v) => (v != null && !isNaN(v) ? signedText(Number(v), 2, '%') : 'N/A');
   // AIQ-P0-06: never replace producer observation time with browser generation time.
   const ts = result.observedAt || result.asOf || rankAsOf || '관측시각 미확인';
   const lines = [];
-  const isDiversified = result.mode === 'diversified-recommendation';
-  lines.push('═══════════════════════════════════════════════════');
-  lines.push(isDiversified ? '【종목 비교 표본 — AIO 종목 DB 분산 샘플링】' : '【스크리너 결과 — AIO 종목 DB 조건 필터링】');
-  lines.push('조건: ' + result.criteria.join(' · ') + ' | 매칭 ' + result.totalMatched + '종목 (상위 ' + result.rows.length + ' 표시)' + (result.mcapUnknown ? ' · 시총 확인 안 됨 ' + result.mcapUnknown + '종목은 크기 조건을 판정하지 못해 제외' : ''));
-  lines.push('출처: AIO SCREENER_DB(기관 메모·시그널) × 멀티팩터 퀀트 랭크 × 실시간 시세(_liveData) · 생산자 관측시각 ' + ts);
-  const fAsOf = rankAsOf ? String(rankAsOf).slice(0, 10) : null;
-  lines.push('퀀트 백분위(같은 조건 종목 중 위치, 100점 만점이 아님) = 섹터 상대 멀티팩터: 모멘텀(1/3/6M 수익률)·추세(SMA50/200 대비)·저변동(연율 변동성↓)·사이즈. ' + (fAsOf ? '팩터 기준일 ' + fAsOf : '팩터 데이터 대기 — 시그널/메모는 editorial(애널리스트 노트)') + '.');
-  if (isDiversified) {
-    const dv = result.diversity || {};
-    lines.push('비교 범위: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 버킷 ' + (dv.capBucketCount || '?') + '개. 최근 대화에서 다룬 ' + (result.recentSuppressed || 0) + '개 종목은 뒤로 미뤘다.');
-    lines.push('이 목록은 날짜별로 섞은 순서에서 섹터·시장별 표시 수를 제한한 비교 표본이며 매력도나 투자 우선순위가 아니다. 전체 시장을 대표하는 통계 표본도 아니다. 종목을 대신 고르지 말고 비교 기준, 충족한 조건과 미확인 항목을 설명하라.');
-  } else {
-    lines.push('이 목록은 앱 내부 종목 DB를 실제 필터링·랭킹한 결과다. 학습 데이터로 종목을 추가하거나 임의 변경하지 말고 아래 목록만 사용하라.');
-  }
-  lines.push('═══════════════════════════════════════════════════');
+  lines.push('【종목 비교 표본 — AIO 종목 DB 분산 샘플링】');
+  lines.push('조건: ' + result.criteria.join(' · ') + ' | 대상 ' + result.totalMatched + '종목 (표본 ' + result.rows.length + ')');
+  lines.push('출처: AIO 종목 DB × 멀티팩터 퀀트 랭크 × 실시간 시세 · 생산자 관측시각 ' + ts);
+  const dv = result.diversity || {};
+  lines.push('비교 범위: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 구간 ' + (dv.capBucketCount || '?') + '개. 최근 대화에서 다룬 ' + (result.recentSuppressed || 0) + '개 종목은 뒤로 미뤘다.');
+  lines.push('이 목록은 날짜별로 섞은 순서에서 섹터·시장별 표시 수를 제한한 비교 표본이며 매력도나 투자 우선순위가 아니다. 전체 시장을 대표하는 통계 표본도 아니다. 종목을 대신 고르지 말고 비교 기준, 충족한 조건과 미확인 항목을 설명하라.');
   // v59.46 boundary contract: the result rows' numbers are read through the screener readiness contract.
   const value = (row, key) => readRowNumber(row, key, 'display');
   result.rows.forEach((r, i) => {
-    const mcap = value(r, 'mcap'), live = readLiveQuotePrice(r);
+    const live = readLiveQuotePrice(r);
     const rankStr = (r.rank != null) ? ('퀀트 백분위 ' + r.rank + '(' + (r.quantSignal || '') + ')') : '퀀트 N/A';
-    const fsStr = r.factorScores ? (' [모멘텀' + r.factorScores.momentum + '·추세' + r.factorScores.trend + '·저변동' + r.factorScores.lowvol + ']') : '';
-    const divStr = isDiversified ? (' · ' + (r.market || 'US') + '/' + (r.capBucket || 'unknown')) : '';
-    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + divStr + ' · ' + rankStr + fsStr +
-      ' · 시그널(editorial) ' + r.signal + ' · 시총 ' + (mcap ? '$' + mcap + 'B' : 'N/A') + ' · RSI ' + fmt(value(r, 'rsi'), 0) +
-      ' · 3M ' + signedPct(value(r, 'ret3m')) + ' · 가격 ' + (live ? formatScreenerPrice(live.price, r.currency || null) + (live.observedAt ? ' (관측 ' + live.observedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
+    lines.push((i + 1) + '. ' + r.sym + ' (' + r.name + ') · ' + r.sector + ' · ' + (r.market || 'US') + '/' + (CAP_BUCKETS[r.capBucket] || '시총 미확인') + ' · ' + rankStr +
+      ' · RSI ' + fmt(value(r, 'rsi'), 0) + ' · 3M ' + signedPct(value(r, 'ret3m')) + ' · 가격 ' + (live ? formatScreenerPrice(live.price, r.currency || null) + (live.observedAt ? ' (관측 ' + live.observedAt + ')' : '') : 'N/A') + ' (' + signedPct(r.pct) + ')');
     if (r.factorSessionDate) lines.push('   팩터 기준일: ' + r.factorSessionDate);
-    const referenceFields = [['rsi', 'price.rsi14'], ['mcap', 'valuation.marketCap'], ['ret3m', 'price.ret3m']]
-      .filter(([key, id]) => value(r, key) != null && ['STALE', 'LAST_GOOD', 'CONFLICT'].includes(r.fieldReadiness?.fields?.[id]?.status))
-      .map(([key, id]) => `${key}: ${r.fieldReadiness.fields[id].status}`);
-    if (referenceFields.length) lines.push('   현재 조건 계산에 쓰지 않는 참고 값: ' + referenceFields.join(', '));
     if (r.memo) lines.push('   메모: ' + r.memo);
-    if (r.newsMemo) lines.push('   최신뉴스(제목만, 발행 주체 확인됨): ' + r.newsMemo);
   });
   lines.push('');
-  if (isDiversified) {
-    lines.push('답변 지침: 표본의 범위와 한계를 먼저 밝히고, 성장·현금흐름·가격 추세·위험·시장별 차이 등 비교할 기준을 설명하라. 제공된 수치로 확인되는 차이와 부족한 근거를 함께 보여라. 매수할 종목이나 최종 후보를 선정하지 말고, 사용자가 시장·섹터·시총·위험 조건을 정해 같은 기준으로 비교하도록 안내하라.');
-  } else {
-    lines.push('답변 지침: 사용자가 정한 조건을 충족한 목록과 지표별 차이, 미확인 근거를 해설하라. 퀀트 백분위는 같은 모델 안의 상대 위치이며 수익성 검증이나 매수 순위가 아니다. 시그널/메모는 편집 의견으로 구분하고, 종목을 대신 고르지 마라. 가격은 위 값 그대로 기준시각과 함께 인용하고 목록 밖 종목을 추가하지 마라.');
-  }
+  lines.push('답변 지침: 표본의 범위와 한계를 먼저 밝히고, 성장·현금흐름·가격 추세·위험·시장별 차이 등 비교할 기준을 설명하라. 제공된 수치로 확인되는 차이와 부족한 근거를 함께 보여라. 매수할 종목이나 최종 후보를 선정하지 말고, 사용자가 시장·섹터·시총·위험 조건을 정해 같은 기준으로 비교하도록 안내하라.');
   return '\n\n' + lines.join('\n') + '\n';
 }
 
-// E2/S-E (P1239): the general and unified chats share one sequence — recent-ticker extraction, query, prompt.
-export function buildScreenerAiContext(query, messages, { rows = [], live = {}, aliases = {}, rankAsOf = null, logger = null } = {}) {
+/**
+ * E2/S-E (P1239): the chat's injected screener block. A broad ask with no screen cue gets the comparison sample in every
+ * mode; a sentence with screen cues is run here only when the turn offers no tools (quick mode) — with tools the model
+ * fills the screen tool's structured spec itself, so nothing is guessed from the sentence.
+ */
+export function buildScreenerAiContext(query, messages, { rows = [], live = {}, aliases = {}, read = conditionReader(), rankAsOf = null, tools = false, logger = null } = {}) {
   let result = null;
   try {
-    const recentTickers = extractRecentRecommendationTickers(messages, { rows });
-    result = runScreenerQuery(query, { rows, live, aliases, recentTickers });
-    if (!(result && result.matched)) return { result: result || null, prompt: '' };
-    return { result, prompt: formatScreenerResultPrompt(result, { rankAsOf }) || '' };
+    const spec = readScreenSentence(query, { aliases });
+    if (!spec && isBroadRecommendationQuery(query)) {
+      const recentTickers = extractRecentRecommendationTickers(messages, { rows });
+      const sample = buildDiversifiedRecommendationRows(rows, live, { recentTickers });
+      result = { matched: true, mode: 'diversified-recommendation', purpose: 'comparison', criteria: ['분산 비교 표본'], ...sample };
+      return { result, prompt: formatComparisonSample(result, { rankAsOf }) };
+    }
+    if (!spec || tools) return { result: null, prompt: '' };
+    result = runScreen(spec, { rows, live, aliases, read });
+    return { result, prompt: result.matched ? `\n\n${formatScreenResult(result)}\n` : '' };
   } catch (e) {
     if (typeof logger === 'function') logger(e);
     return { result, prompt: '' };

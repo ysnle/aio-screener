@@ -3,10 +3,10 @@
 // shape (answer-modes.js) and the answer principles (answer-principles.js). No boot caller reads them, so they left
 // compatibility-globals.js: src/app/chat-loader.js imports this module beside the classic chat script and replays queued
 // panel calls (and resolves AIO.loadChat, which the T-tests wait on) only after it is installed.
-// v59.49: the screener query engine joins them; its inputs (AIO.screenerQueryInput/screenerFactorAsOf) stay in
-// compatibility-globals.js beside the screener state.
+// v59.49: the screener query engine joins them; it reads the page's rows and quotes itself (screenerInput), the factor
+// date through AIO.screenerFactorAsOf in compatibility-globals.js beside the screener state.
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
-import { buildScreenerAiContext, detectSectorQuery, formatScreenerResultPrompt, runScreenerQuery } from '../ai/context/screener-query.js';
+import { buildScreenerAiContext, detectSectorQuery, runScreen, screenerInput } from '../ai/context/screener-query.js';
 import { chooseAnswerMode, answerModeGuide } from '../ai/response/answer-modes.js';
 import { buildAnswerPrinciples, describeAnswerVisuals, promptWithoutWebSearch } from '../ai/response/answer-principles.js';
 import { CHAT_REFERENCE_BUDGET, capReferenceLines } from '../ai/context/reference-budget.js'; // 2026-11-02 chat context budget
@@ -22,7 +22,11 @@ import { addNotes, loadNotes, notesPromptBlock } from '../ai/session/reader-note
 import { chatToolKit } from '../ai/tools/loop.js';
 import { toolsPromptWithoutSearch } from '../ai/tools/registry.js';
 import { createChatRunKit } from '../ui/components/chat-run-status.js';
+import { personalGate, personalTurn, PERSONAL_CONSENT_CARD } from '../ai/context/personal-turn.js';
+import { readWatchlistSymbols } from '../data/watchlist-store.js';
+import { showConsentChoices } from '../ui/components/chat-consent-choices.js';
 import { companyMatcher } from '../domain/briefing/news-picks.js';
+import { decideQuoteBasis, quoteBasisLine } from '../ai/time/quote-basis.js'; // close vs intraday price basis
 
 export function installChatGlobals(root = globalThis) {
   root.AIO = root.AIO || {};
@@ -32,6 +36,14 @@ export function installChatGlobals(root = globalThis) {
   root.AIO.recordAnswerQuality = (entry) => recordAnswerQuality(storage(), entry);
   root.AIO.answerQualitySummary = (options) => summariseAnswerQuality(storage(), options);
   root.AIO.answerReferenceText = answerReferenceText; // the injected data an answer's figures are checked against
+  // The chat's quote evidence (js/aio-core.js buildAIQuoteEvidenceRow) reads its price basis here; without it a
+  // quote is never usable, so the evidence fails closed before the chat loads.
+  root.AIO.decideQuoteBasis = decideQuoteBasis;
+  root.AIO.quoteBasisLine = quoteBasisLine;
+  // Holdings and watchlist questions (personal-turn.js); the watchlist is read here, the consent buttons are drawn by the UI.
+  const watchlist = () => { try { return readWatchlistSymbols(root.localStorage); } catch (_) { return []; } };
+  Object.assign(root.AIO, { personalGate, personalTurn: (turn) => personalTurn({ ...turn, watchlist: watchlist() }), personalConsentCard: PERSONAL_CONSENT_CARD,
+    showHoldingsConsentChoices: () => showConsentChoices(root.document, PERSONAL_CONSENT_CARD, '_aioHoldingsConsentAnswer') });
   root.AIO.chatTools = chatToolKit(root); // the data tools the model may call (src/ai/tools/), run by callSharedAi
   root.AIO.promptWithoutWebSearch = (prompt) => toolsPromptWithoutSearch(promptWithoutWebSearch(prompt)); // a retry runs without search
   // The waiting line of a running answer; its question is kept in this tab's sessionStorage until the answer arrives, so
@@ -56,11 +68,10 @@ export function installChatGlobals(root = globalThis) {
   };
   root._aioCompanyMatcher = (symbol, name, aliases) => companyMatcher(symbol, name, { aliases }); // the chat's stock-news filter reads headlines by the news issuer rule
   root._aioKstStamp = kstStamp; // the chat's and the workspace prompt's assembly time, in KST on any device
-  const input = () => (typeof root.AIO.screenerQueryInput === 'function' ? root.AIO.screenerQueryInput() : null) || { rows: [] };
-  const rankAsOf = () => (typeof root.AIO.screenerFactorAsOf === 'function' ? root.AIO.screenerFactorAsOf() : null);
-  root._aioRunScreenerQuery = (query, opts) => runScreenerQuery(query, { ...input(), recentTickers: opts?.recentTickers || [] });
-  root._formatScreenerResultPrompt = (result) => formatScreenerResultPrompt(result, { rankAsOf: rankAsOf() });
-  root._aioBuildScreenerAiContext = (query, messages, logger) => buildScreenerAiContext(query, messages, { ...input(), logger });
-  root._detectSectorQuery = (text) => detectSectorQuery(text, { rows: input().rows });
+  // One screener engine (src/ai/context/screener-query.js) for the screen tool, the injected block of a turn
+  // without tools (options.tools false) and the T-tests (_aioRunScreen takes the tool's structured spec).
+  root._aioRunScreen = (spec) => runScreen(spec, screenerInput(root));
+  root._aioBuildScreenerAiContext = (query, messages, logger, options) => buildScreenerAiContext(query, messages, { ...screenerInput(root), logger, tools: options?.tools === true });
+  root._detectSectorQuery = (text) => detectSectorQuery(text, { rows: screenerInput(root).rows });
   return root.AIO;
 }

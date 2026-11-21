@@ -11,9 +11,11 @@ const health = { ai: { paidWebSearchEnabled: true, maxTokens: 4000 } };
 const plan = { queryId: 'test-query', query: 'NVDA 현재 주가', intent: { primary: 'ENTITY_FACT' },
   researchDecision: { requirement: 'OPTIONAL', currentSensitive: true, decidedAt: new Date(now).toISOString() },
   researchPlan: { eventWindow: { asOf: '2026-10-11', lookbackDays: 1 }, stopConditions: { minimumIndependentSources: 1, minimumPrimarySources: 1 } } };
-const row = { symbol: 'NVDA', source: 'fixture', observedAt: '2026-10-10T20:00:00Z', decisionUse: true, truthStatus: 'current', hasLivePrice: true };
+// v60.41: coverage is a usable price basis — here the Friday 2026-10-09 close read on Sunday (no second source needed).
+const row = { symbol: 'NVDA', source: 'fixture', observedAt: '2026-10-09T20:00:00Z', decisionUse: true, truthStatus: 'warn', truthIssues: ['single_source_no_crosscheck'], basis: 'close', basisStatus: 'usable', hasLivePrice: true };
 const internal = hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [row] } }, tickers: ['NVDA'], questionPlan: plan, now });
-assert.equal(internal, true, 'P1608 usable injected quote answers a price question');
+assert.equal(internal, true, 'P1608 v60.41 a usable close basis answers a price question without a second source');
+assert.equal(hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [{ ...row, basis: 'intraday', basisStatus: 'refresh_required' }] } }, tickers: ['NVDA'], questionPlan: plan, now }), false, 'v60.41 an intraday quote that needs a refresh is not coverage');
 const select = overrides => selectNativeSearch({ decision: plan.researchDecision, questionPlan: plan, health, ...overrides });
 // v60.02 (plan 049, owner 2026-11-13 "웹 검색도 적절히 효율적으로 알아서 사용할 수 있도록"): search is offered in every
 // mode except quick and the model decides; internal coverage now decides only whether the search is forced.

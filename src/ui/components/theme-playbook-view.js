@@ -51,6 +51,7 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { refreshScenarioArtifacts, showCrossroadsSection } from './macro-crossroads.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
+import { themeMembersFor } from '../../data/selectors/theme-flow.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
 import { SECTOR_ETF_LABELS } from '../../domain/market/interpretation/concepts.js';
@@ -196,24 +197,9 @@ function screenerSectorFor(root, store) {
   };
 }
 
-// v58.75 (persona review, teach-and-check A-4~6): the members of a theme with their published screener rows, and the
-// six criteria, member roles and conditional scenarios read from them (src/domain/scenarios/theme-criteria.js). The
-// consensus and earnings-calendar artifacts load on the themes route only, after its first paint.
-export function themeMembersFor(root, store, market, themeId) {
-  const rows = store?.getState?.()?.screener?.rows || [];
-  const bySymbol = root?.__aioRowsBySym?.rows === rows ? root.__aioRowsBySym.map : new Map(rows.filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
-  if (root) root.__aioRowsBySym = { rows, map: bySymbol };
-  if (market === 'KR') {
-    return (root?.KR_THEME_MAP?.[themeId] || []).map((member) => {
-      const code = String(member?.code || '');
-      const row = bySymbol.get(`${code}.KS`) || bySymbol.get(`${code}.KQ`) || null;
-      return { sym: row ? String(row.sym).toUpperCase() : `${code}.KS`, label: root?.KR_STOCK_DB?.[code]?.name || row?.name || code, row };
-    });
-  }
-  const theme = (root?.THEME_MAP || []).find((item) => item?.id === themeId);
-  const symbols = [...new Set([...(theme?.subThemes || []).flatMap((sub) => sub?.tickers || []), ...(theme?.leaders || [])].map((sym) => String(sym).toUpperCase()))];
-  return symbols.map((sym) => ({ sym, label: sym, row: bySymbol.get(sym) || null }));
-}
+// The six criteria, member roles and conditional scenarios of a theme, read from its members (themeMembersFor,
+// src/data/selectors/theme-flow.js) through src/domain/scenarios/theme-criteria.js. The consensus and earnings-calendar
+// artifacts load on the themes route only, after its first paint.
 export function themeTeachFor({ root, store, market = 'US', themeId, playbook = root?.__aioThemePlaybook, interpretation = null } = {}) {
   const row = playbook?.themes?.find((item) => item.market === market && item.id === themeId) || null;
   if (!row) return null;

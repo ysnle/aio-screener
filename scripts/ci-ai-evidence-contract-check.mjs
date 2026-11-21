@@ -20,6 +20,7 @@ assert.ok(line.includes('5거래일 -8.8%, 1개월 -19.0%, 3개월 -14.1%'), `v5
 assert.ok(line.includes(`52주 범위 ${Math.round(page.position * 100)}% 위치(고점 대비 -23.3%)`), `v59.87 52-week position is the page position: ${line}`);
 assert.ok(line.includes('RSI 31') && line.includes('11/6 종가'), `v59.87 RSI and session date: ${line}`);
 assert.equal(stockTrendLine({ symbol: 'X', row: null }), null, 'v59.87 no row, no line');
+assert.ok(stockTrendLine({ symbol: 'NVDA', row: { ...row, ret1d: -14.01 } }).includes('1거래일 -14.0%, 5거래일 -8.8%'), 'v60.41 the last session change leads the returns');
 // v59.87 row order: published screener row, then a ready on-demand row; a KR listing outside the universe has none.
 const root = { _aioGetCanonicalScreenerRows: () => [row], _aioOnDemandSymbol: (sym) => (sym === 'ZZZZ' ? { status: 'ready', row: { ...row, sym: 'ZZZZ' } } : null) };
 assert.equal(screenRowFor(root, 'nvda').source, 'screener', 'v59.87 published row first');
@@ -245,6 +246,12 @@ const sandbox = {
 };
 vm.runInNewContext(core.slice(helperStart, helperEnd), sandbox, { filename: 'js/aio-core.js#quote-evidence' });
 const AIO = sandbox.window.AIO;
+// v60.41: the producer reads its price basis from src/ai/time/quote-basis.js (installed with the chat). These fixtures
+// are intraday claims, so they run at a fixed open NYSE instant (Wed 2026-11-18 10:00 ET).
+const { decideQuoteBasis } = await import('../src/ai/time/quote-basis.js');
+const OPEN_NOW = Date.parse('2026-11-18T15:00:00Z');
+assert.equal(AIO.buildAIQuoteEvidenceRow('AAPL', {}, {}).blockers.includes('quote-basis-missing'), true, 'v60.41 without the basis rule a quote is never usable');
+AIO.decideQuoteBasis = (input) => decideQuoteBasis({ ...input, now: OPEN_NOW });
 assert.equal(typeof AIO.buildAIQuoteEvidenceRow, 'function', 'canonical quote evidence helper is exposed');
 assert.equal(typeof AIO.normalizeAIChatEvidenceRow, 'function', 'chat evidence normalizer remains exposed');
 
@@ -274,7 +281,7 @@ assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1200}observedAt:\s*q\._atomicOb
 assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}currency:\s*_quoteCurrency/, 'live quote envelope preserves upstream currency');
 assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}unit:\s*_quoteUnit/, 'live quote envelope preserves quote unit');
 
-const observedAt = new Date(Date.now() - 30 * 1000).toISOString();
+const observedAt = new Date(OPEN_NOW - 30 * 1000).toISOString();
 const truth = { status: 'verified', decisionUse: true, issues: [], warnings: [] };
 const quote = {
   ticker: 'AAPL',
@@ -300,8 +307,13 @@ assert.equal(contextRow.metric, 'price');
 assert.equal(contextRow.entity, 'AAPL');
 assert.equal(contextRow.asOf, observedAt);
 assert.equal(contextRow.sourceKind, 'LIVE');
-assert.equal(AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { status: 'unknown', decisionUse: true } }).status, 'blocked');
-assert.equal(AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { status: 'stale', decisionUse: true } }).status, 'blocked');
+// v60.41: an intraday quote no second source confirmed is not usable; it asks for a refresh instead of reading as a conflict.
+for (const status of ['unknown', 'stale', 'warn']) {
+  const unconfirmed = AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { status, decisionUse: true } });
+  assert.equal(unconfirmed.decisionUse, false, `v60.41 truth ${status} intraday quote is not usable`);
+  assert.equal(unconfirmed.status, 'refresh_required', `v60.41 truth ${status} intraday quote asks for a refresh`);
+  assert.equal(unconfirmed.basisNeedsCrossCheck, true, `v60.41 truth ${status} intraday quote asks for a second source`);
+}
 assert.equal(AIO.buildAIQuoteEvidenceRow('AAPL', { ...quote, observedAt: new Date(Date.now() - 600000).toISOString() }, { truth }).status, 'blocked');
 assert.equal(AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth, source: 'spoof', sourceKind: 'SNAPSHOT' }).source, contextRow.source);
 
@@ -348,8 +360,10 @@ assert.equal(mismatchedPrice.status, 'blocked');
 assert.ok(mismatchedPrice.blockers.includes('price-envelope-mismatch'));
 
 const truthMismatch = AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { status: 'verified', decisionUse: false } });
-assert.equal(truthMismatch.status, 'blocked');
+assert.ok(truthMismatch.status === 'refresh_required', `v60.41 truth mismatch status ${truthMismatch.status}`);
 assert.equal(truthMismatch.decisionUse, false);
+const conflicted = AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { ...truth, status: 'blocked', issues: ['cross_source_mismatch:fmp:30%'] } });
+assert.equal(conflicted.status, 'blocked', 'v60.41 a source conflict still blocks');
 
 const normalizedMissing = AIO.normalizeAIChatEvidenceRow({
   ticker: 'AAPL', price: 197.25, source: 'live:yahoo', asOf: observedAt, truthStatus: 'verified', status: 'ok'
@@ -378,6 +392,80 @@ assert.equal(duplicateConflict.length, 1, 'duplicate quote evidence IDs collapse
 assert.equal(duplicateConflict[0].status, 'conflict', 'conflicting duplicate quote tuples are rejected');
 
 console.log('PASS ai-quote-evidence: shared envelope tuple, observation/source/currency fail-closed rules, sibling consumer parity and duplicate conflict rejection');
+}],
+// ── section quote-basis (v60.41): the chat states a confirmed close with its date on a closed market ──
+// Live failure 2026-11-21 (Saturday): "엔비디아 … 지금 주가는 52주 고점 대비 어디야?" was refused ("교차검증 상태가 차단") after
+// 39 s although _liveData.NVDA held the 2026-11-20 close: every ticker needed a 2-minute-old, cross-checked quote.
+['quote-basis', async () => {
+const { default: assert } = await import('node:assert/strict');
+const { default: fs } = await import('node:fs');
+const { default: vm } = await import('node:vm');
+const { decideQuoteBasis, quoteBasisLine } = await import('../src/ai/time/quote-basis.js');
+const read = (file) => fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
+const SAT = Date.parse('2026-11-21T05:00:00Z'); // Saturday 14:00 KST, both markets closed
+const NVDA_CLOSE = '2026-11-20T21:00:01Z'; // Friday 16:00:01 ET
+const single = { status: 'warn', decisionUse: true, issues: [], warnings: ['single_source_no_crosscheck'], crossSource: { status: 'single_source', blockingMismatches: [] } };
+// 1. Closed market, quote at the latest completed close: the close basis, usable, nothing to look up or cross-check.
+const close = decideQuoteBasis({ symbol: 'NVDA', price: 125.53, observedAt: NVDA_CLOSE, truth: single, now: SAT });
+assert.deepEqual([close.basis, close.status, close.sessionDate, close.label, close.needsLookup, close.needsCrossCheck], ['close', 'usable', '2026-11-20', '2026-11-20 종가', false, false], `v60.41 closed market + last-close quote is the close basis: ${JSON.stringify(close)}`);
+// The truth gate's age issue (18 h after the close) is the session rule's question, not a defect.
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 125.53, observedAt: NVDA_CLOSE, truth: { ...single, status: 'blocked', issues: ['stale_quote:68400s'] }, now: SAT + 12 * 3600000 }).status, 'usable', 'v60.41 a weekend-old close stays usable');
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 120, observedAt: '2026-11-19T21:00:00Z', truth: single, now: SAT }).status, 'refresh_required', 'v60.41 a quote from an older session is not the latest close');
+// 2. Open session, 10-minute-old quote: intraday, refresh required (lookup); a fresh cross-checked quote is usable.
+const OPEN = Date.parse('2026-11-18T15:00:00Z');
+const old = decideQuoteBasis({ symbol: 'NVDA', price: 130, observedAt: new Date(OPEN - 600000).toISOString(), truth: { status: 'verified', decisionUse: true, issues: [] }, now: OPEN });
+assert.deepEqual([old.basis, old.status, old.needsLookup], ['intraday', 'refresh_required', true], `v60.41 open session + 10-minute-old quote needs a refresh: ${JSON.stringify(old)}`);
+const live = decideQuoteBasis({ symbol: 'NVDA', price: 130, observedAt: new Date(OPEN - 30000).toISOString(), truth: { status: 'verified', decisionUse: true, issues: [] }, now: OPEN });
+assert.deepEqual([live.basis, live.status, live.label], ['intraday', 'usable', '2026-11-18 09:59 뉴욕 시각 장중'], `v60.41 a fresh confirmed quote is the intraday basis: ${JSON.stringify(live)}`);
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 130, observedAt: new Date(OPEN - 30000).toISOString(), truth: single, now: OPEN }).needsCrossCheck, true, 'v60.41 an intraday single source asks for the second source');
+// 3. Conflicting sources block, on an open or a closed market; a defective quote blocks too.
+for (const now of [SAT, OPEN]) {
+  const conflict = decideQuoteBasis({ symbol: 'NVDA', price: 125.53, observedAt: NVDA_CLOSE, truth: { ...single, status: 'blocked', issues: ['cross_source_mismatch:fmp:30%'], crossSource: { status: 'mismatch', blockingMismatches: [{ family: 'fmp', diffPct: 30 }] } }, now });
+  assert.equal(conflict.status, 'blocked', `v60.41 conflicting sources block (${new Date(now).toISOString()})`);
+}
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 125.53, observedAt: NVDA_CLOSE, truth: { ...single, issues: ['price_out_of_sanity_range:125.53'] }, now: SAT }).status, 'blocked', 'v60.41 a truth defect blocks');
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 125.53, observedAt: NVDA_CLOSE, integrityBlockers: ['currency-missing'], truth: single, now: SAT }).status, 'blocked', 'v60.41 an envelope defect blocks');
+// 4. A Korean listing is judged on the KRX session, not the NYSE one.
+const krAfter = Date.parse('2026-11-20T10:00:00Z'); // Fri 19:00 KST (KRX closed and final); NYSE has not opened
+const kr = decideQuoteBasis({ symbol: '005930.KS', price: 183000, observedAt: '2026-11-20T06:30:00Z', truth: single, now: krAfter });
+assert.deepEqual([kr.market, kr.basis, kr.status, kr.label], ['KR', 'close', 'usable', '2026-11-20 종가'], `v60.41 KRX close is read on the KRX session: ${JSON.stringify(kr)}`);
+assert.equal(decideQuoteBasis({ symbol: 'NVDA', price: 125, observedAt: '2026-11-20T06:30:00Z', truth: single, now: krAfter }).status, 'refresh_required', 'v60.41 the same instant is not a US close');
+const krOpen = Date.parse('2026-11-20T02:00:00Z'); // Fri 11:00 KST, KRX trading while NYSE is closed
+assert.equal(decideQuoteBasis({ symbol: '005930.KS', price: 190000, observedAt: '2026-11-19T07:30:00Z', truth: single, now: krOpen }).basis, 'intraday', 'v60.41 a KRX listing during the KRX session is intraday');
+assert.equal(decideQuoteBasis({ symbol: '005930.KS', price: 190000, observedAt: '2026-11-19T07:30:00Z', truth: single, now: Date.parse('2026-11-19T07:45:00Z') }).basis, 'intraday', 'v60.41 before the KRX close is final (30 minutes) it is still intraday');
+assert.equal(decideQuoteBasis({ symbol: '005930.KS', price: 190000, observedAt: '2026-11-19T07:30:00Z', truth: single, now: Date.parse('2026-11-19T09:00:00Z') }).label, '2026-11-19 종가', 'v60.41 the 16:30 KRX close on the exam day is the close');
+// 5. The chat path: the legacy audit and preflight read the basis, request no lookup or cross-check for a close, and
+// tell the model the close with its date.
+const core = read('js/aio-core.js');
+const data = read('js/aio-data.js');
+const calls = { lookup: 0, cross: 0, refreshForce: [] };
+const nvda = { price: 125.53, pct: -14.01, quoteEnvelope: { source: 'live:yahoo-v7-batch', price: 125.53, currency: 'USD', unit: 'USD', observedAt: NVDA_CLOSE } };
+const sandbox = { window: { AIO: {}, _liveData: { NVDA: nvda } }, console, Date, Number, String, Object, Array, Math, isFinite, URL, AbortController,
+  dynamicTickerLookup: async () => { calls.lookup += 1; return null; } };
+vm.runInNewContext(core.slice(core.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), core.indexOf('function _aioClaimEvidenceList')), sandbox);
+vm.runInNewContext(data.slice(data.indexOf('function _aioNormalizeChatTickers'), data.indexOf('// v59.20: updateDataStatusError')), sandbox);
+const AIO = sandbox.window.AIO;
+AIO.decideQuoteBasis = (input) => decideQuoteBasis({ ...input, now: SAT });
+AIO.evaluateDataTruth = () => single;
+AIO.ensureFreshDataForUse = async (scope) => { calls.refreshForce.push(scope.forceFresh); return { status: 'recently_refreshed' }; };
+AIO.validateQuoteCrossSources = async () => { calls.cross += 1; return { status: 'warn' }; };
+const preflight = await AIO.ensureFreshChatAnswerData({ tickers: ['NVDA'], reason: 'chat-answer', forceFresh: true });
+const row = preflight.after.quoteRows[0];
+assert.deepEqual([preflight.status, row.status, row.basis, row.decisionUse, preflight.closeBasisOnly], ['recently_refreshed', 'ok', 'close', true, true], `v60.41 closed market + last-close quote: usable preflight ${JSON.stringify({ status: preflight.status, row })}`);
+assert.deepEqual([calls.lookup, calls.cross, calls.refreshForce], [0, 0, [false]], `v60.41 a close basis requests no lookup, no cross-check and no forced refresh: ${JSON.stringify(calls)}`);
+const line = quoteBasisLine(row);
+assert.equal(line, 'NVDA: 종가 기준 사용 가능 — 2026-11-20 종가 $125.53, 전일 대비 -14.01% (미국 정규장 마감 뒤 확정 종가, 장중 시세 아님)', `v60.41 the model reads the close with its date: ${line}`);
+// Open session + 10-minute-old quote: the same path asks for the lookup and the cross-check.
+AIO.decideQuoteBasis = (input) => decideQuoteBasis({ ...input, now: OPEN });
+sandbox.window._liveData.NVDA = { ...nvda, quoteEnvelope: { ...nvda.quoteEnvelope, observedAt: new Date(OPEN - 600000).toISOString() } };
+const intraday = await AIO.ensureFreshChatAnswerData({ tickers: ['NVDA'], reason: 'chat-answer', forceFresh: true });
+assert.deepEqual([intraday.status, intraday.after.quoteRows[0].status, calls.lookup, calls.cross, calls.refreshForce.at(-1)], ['warn', 'refresh_required', 1, 1, true], `v60.41 open session + 10-minute-old quote: refresh required ${JSON.stringify(calls)}`);
+assert.match(quoteBasisLine(intraday.after.quoteRows[0]), /^NVDA: 장중 시세 확인 안 됨 — 장중 관측이 2분보다 오래됨$/, 'v60.41 the model reads why the intraday price is unavailable');
+// The chat hands the model the basis lines, not the old age/truth diagnostics.
+const chat = read('js/aio-chat.js');
+assert.match(chat, /\[종목 가격 기준\][\s\S]{0,400}거부하지 않는다/, 'v60.41 the preflight block tells the model to state the close with its date');
+assert.doesNotMatch(chat, /quote-ok' : 'quote-missing'/, 'v60.41 the age/truth diagnostic line is gone');
+console.log('PASS v60.41 quote basis: close on a closed market, intraday rule while open, conflicts block, KRX session for Korean listings, no lookups for a close');
 }],
 // ── section chat-analysis-integration (was ci-ai-chat-analysis-integration-check.mjs) ──
 ['chat-analysis-integration', async () => {

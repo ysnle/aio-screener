@@ -23,12 +23,22 @@ export const FACTOR_LABELS = Object.freeze({
 // P1318/R664: size-bucket value in USD billions — decision-grade live cap first, else the
 // plausibility-checked SEC reference cap; null means "size unknown" (never a zero).
 export function capFilterValue(row = {}) {
+  return capReading(row)?.billions ?? null;
+}
+/** The size value with its basis: 'live' (decision-grade quote cap) or 'reference' (SEC shares × completed close). */
+export function capReading(row = {}) {
   // v59.46 boundary contract: the live cap is read through the readiness contract (calculation purpose).
   const mcap = readRowNumber(row, 'mcap', 'calculation');
-  const live = mcap != null && mcap > 0 ? mcap : null;
-  if (live != null) return live;
+  if (mcap != null && mcap > 0) return { billions: mcap, basis: 'live' };
   const reference = finite(row.referenceMarketCap?.billions);
-  return reference != null && reference > 0 ? reference : null;
+  return reference != null && reference > 0 ? { billions: reference, basis: 'reference' } : null;
+}
+// The 시가총액 filter's buckets (USD billions, lower bound inclusive), shared by the screener table and the chat's
+// screen tool. Unknown size belongs to no bucket.
+export const CAP_BUCKETS = Object.freeze({ MEGA: '초대형($1T 이상)', LARGE: '대형($10B~1T)', MID: '중형($2~10B)', SMALL: '소형($2B 미만)' });
+export function capBucketOf(row = {}) {
+  const value = capFilterValue(row);
+  return value == null ? null : value >= 1000 ? 'MEGA' : value >= 10 ? 'LARGE' : value >= 2 ? 'MID' : 'SMALL';
 }
 
 export function numberText(value, digits = 1, suffix = '') {

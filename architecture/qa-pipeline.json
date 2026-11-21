@@ -380,6 +380,27 @@
           ]
         },
         {
+          "id": "ai-chat-question-set",
+          "script": "scripts/ci-ai-chat-question-set-check.mjs",
+          "inputs": [
+            "architecture/ai-chat-question-set.json",
+            "architecture/route-owners.json",
+            "scripts/lib/ai-chat-eval.mjs",
+            "public-data/history.json",
+            "public-data/screener.json",
+            "public-data/screener-universe.json",
+            "public-data/data.json",
+            "js/aio-pages.js",
+            "js/aio-kr-data.js",
+            "src/domain/screener/custom-conditions.js",
+            "src/domain/screener/row-presentation.js",
+            "src/domain/market/session/close-series.js",
+            "src/data/screener-extended.js",
+            "src/data/providers/screener.js",
+            "scripts/ci-ai-chat-question-set-check.mjs"
+          ]
+        },
+        {
           "id": "metric-consistency",
           "script": "scripts/ci-metric-consistency-check.mjs",
           "inputs": [
@@ -1019,6 +1040,10 @@
         {
           "id": "screener-presentation",
           "script": "scripts/ci-screener-presentation-check.mjs"
+        },
+        {
+          "id": "chat-screen-tool",
+          "script": "scripts/ci-chat-screen-tool-check.mjs"
         },
         {
           "id": "chart-scenarios-fixture",
@@ -2830,6 +2855,11 @@
     }
   },
   "impactRules": [
+    {
+      "patterns": ["architecture/ai-chat-question-set.json", "architecture/route-owners.json", "scripts/lib/ai-chat-eval.mjs", "public-data/history.json", "public-data/screener.json", "public-data/screener-universe.json", "public-data/data.json", "js/aio-pages.js", "js/aio-kr-data.js", "src/domain/screener/custom-conditions.js", "src/domain/screener/row-presentation.js", "src/domain/market/session/close-series.js", "src/data/screener-extended.js", "src/data/providers/screener.js"],
+      "groups": [],
+      "gates": ["ai-chat-question-set"]
+    },
     {
       "patterns": ["scripts/publish-data-commit.mjs", "scripts/lib/data-publish-sets.mjs", "scripts/lib/json-same-except.mjs", "scripts/ci-publish-data-commit-check.mjs"],
       "groups": [],

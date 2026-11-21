@@ -76,6 +76,18 @@
     return true;
   }
 
+  // An AI answer in the envelope the model writes (src/ai/response/answer-envelope.js) — the lead, one "### "
+  // section per entry, then one trailing [AI_ANSWER_META] block (left off when meta is false).
+  function _answerEnvelopeText(plan, meta) {
+    plan = plan || {};
+    var body = [String(plan.summary || '').trim()].concat((plan.sections || []).map(function(section) { return '### ' + section.title + '\n' + section.body; }))
+      .filter(Boolean).join('\n\n');
+    if (meta === false) return body;
+    var fields = {};
+    ['claims', 'citations', 'followUps', 'remember'].forEach(function(key) { if (plan[key] !== undefined) fields[key] = plan[key]; });
+    return body + '\n\n[AI_ANSWER_META]' + JSON.stringify(fields) + '[/AI_ANSWER_META]';
+  }
+
   function _resetCounters() {
     _testResults = [];
     _passCount = 0;
@@ -5614,22 +5626,22 @@
     _assert('T806 v5036_analysis_verdict_first: 기술적 분석 검색·themes 사이클이 헤더 직후 + 죽은 설명서 소스 0', t806ok, t806detail);
 
     // ─── v50.37 AI 채팅 차별화: 자연어 스크리너 질의 + 소스 레지스트리 + 답변 유연성 ───
-    // T807: 자연어 스크리너 질의 — _aioRunScreenerQuery 정의 + 조건 파싱 + SCREENER_DB 필터 결과 구조
+    // T807: the chat screen — the screen tool's structured spec runs the screener's own conditions on the canonical
+    // rows (every row returned meets them), and a sentence reaches the same engine only on a turn without tools.
     var t807ok = false, t807detail = '';
     try {
-      var fnOk807 = typeof window._aioRunScreenerQuery === 'function' && typeof window._formatScreenerResultPrompt === 'function';
-      var r1 = fnOk807 ? window._aioRunScreenerQuery('rsi 30 이하 기술주 매수 종목') : null;
-      var r2 = fnOk807 ? window._aioRunScreenerQuery('에너지 섹터 BUY 종목 찾아줘') : null;
-      var rNull = fnOk807 ? window._aioRunScreenerQuery('오늘 기분 어때') : 'skip'; // 조건 0 → null
-      // r1: rsi 조건 + 섹터 + 시그널 라벨 존재 + rows 배열. 결과 행은 데이터 의존이라 ≥0 허용, 구조만 단언.
-      var struct807 = !!(r1 && r1.matched && Array.isArray(r1.criteria) && r1.criteria.length > 0 && Array.isArray(r1.rows));
-      var prompt807 = (r1 && r1.rows.length > 0) ? window._formatScreenerResultPrompt(r1) : '__empty_ok__';
-      var promptOk807 = prompt807 === '__empty_ok__' || (typeof prompt807 === 'string' && prompt807.indexOf('스크리너 결과') >= 0);
-      var nullOk807 = (rNull === null); // 조건 미감지 시 null (자기 게이팅)
-      t807ok = fnOk807 && struct807 && promptOk807 && nullOk807;
-      t807detail = 'fn=' + fnOk807 + ' r1crit=' + (r1 ? r1.criteria.join('|') : 'null') + ' r1rows=' + (r1 ? r1.rows.length : '-') + ' r2matched=' + (r2 ? r2.matched : 'null') + ' nullGate=' + nullOk807 + ' promptOk=' + promptOk807;
+      var fnOk807 = typeof window._aioRunScreen === 'function' && typeof window._aioBuildScreenerAiContext === 'function';
+      var r1 = fnOk807 ? window._aioRunScreen({ market: 'US', sizes: ['MEGA', 'LARGE'], conditions: [{ id: 'pe-max', value: 20 }, { id: 'ret3m-min', value: 0, strict: true }], sort: 'marketCap', order: 'desc', limit: 12 }) : null;
+      var rowsOk807 = !!(r1 && r1.matched && Array.isArray(r1.rows) && r1.rows.every(function(r) { return r.pe > 0 && r.pe <= 20 && r.ret3m > 0 && (r.capBucket === 'MEGA' || r.capBucket === 'LARGE'); }));
+      var coverageOk807 = !!(r1 && r1.coverage && r1.coverage.length === 2);
+      var sentence807 = fnOk807 ? window._aioBuildScreenerAiContext('RSI 30 이하 기술주', [], null, { tools: false }) : null;
+      var promptOk807 = !!(sentence807 && sentence807.result && sentence807.result.mode === 'conditions' && sentence807.prompt.indexOf('스크리너 조건 검색') >= 0);
+      var toolTurn807 = fnOk807 ? window._aioBuildScreenerAiContext('RSI 30 이하 기술주', [], null, { tools: true }) : null;
+      var nullOk807 = !!(toolTurn807 && toolTurn807.prompt === '' && window._aioBuildScreenerAiContext('오늘 기분 어때', []).prompt === '');
+      t807ok = fnOk807 && rowsOk807 && coverageOk807 && promptOk807 && nullOk807;
+      t807detail = 'fn=' + fnOk807 + ' rows=' + (r1 ? r1.rows.length + '/' + r1.totalMatched : '-') + ' rowsOk=' + rowsOk807 + ' coverage=' + coverageOk807 + ' sentence=' + promptOk807 + ' toolTurnEmpty=' + nullOk807;
     } catch(e) { t807detail = 'ERR:' + e.message; }
-    _assert('T807 v5037_nl_screener_query: _aioRunScreenerQuery 정의 + 조건 파싱/SCREENER_DB 필터 + null 게이팅', t807ok, t807detail);
+    _assert('T807 v60.41 chat_screen_engine: screen 도구의 구조화 조건이 스크리너 조건 정의로 필터 + 도구 없는 턴만 문장 경로', t807ok, t807detail);
 
     // T808: 채팅 데이터 소스 레지스트리 + 매니페스트 + 감사 (드리프트 0)
     var t808ok = false, t808detail = '';
@@ -6098,13 +6110,14 @@
       // actual top candidates first, then feed those same tickers back in as "recent" — this tests
       // the real invariant (does the mechanism suppress tickers you tell it to) regardless of which
       // specific symbols happen to rank highly today.
-      var seedQuery825 = (typeof window._aioRunScreenerQuery === 'function') ? window._aioRunScreenerQuery('종목 추천해줘') : null;
+      // The sample is read through the chat's one screener helper; the recent tickers come from the conversation.
+      var ctx825 = typeof window._aioBuildScreenerAiContext === 'function' ? window._aioBuildScreenerAiContext : null;
+      var seedQuery825 = ctx825 ? (ctx825('종목 추천해줘', []) || {}).result : null;
       var recentSeed825 = (seedQuery825 && Array.isArray(seedQuery825.rows)) ? seedQuery825.rows.slice(0, 2).map(function(r) { return r && r.sym; }).filter(Boolean) : ['CEG', 'AVGO'];
-      var broad825 = (typeof window._aioRunScreenerQuery === 'function')
-        ? window._aioRunScreenerQuery('종목 추천해줘', { recentTickers: recentSeed825 }) : null;
-      var specific825 = (typeof window._aioRunScreenerQuery === 'function')
-        ? window._aioRunScreenerQuery('전력 종목 추천해줘') : null;
-      var prompt825 = broad825 ? window._formatScreenerResultPrompt(broad825) : '';
+      var broadCtx825 = ctx825 ? ctx825('종목 추천해줘', [{ role: 'assistant', content: recentSeed825.join(', ') }], null, { tools: true }) : null;
+      var broad825 = broadCtx825 ? broadCtx825.result : null;
+      var specific825 = ctx825 ? (ctx825('전력 종목 추천해줘', [], null, { tools: false }) || {}).result : null;
+      var prompt825 = broadCtx825 ? broadCtx825.prompt : '';
       var sectors825 = {};
       var maxSector825 = 0;
       (broad825 && broad825.rows || []).forEach(function(r) {
@@ -6141,8 +6154,8 @@
     // T826: v50.58 AI 채팅 답변 정책 — 스크리너는 보조 엔진, 전역 강제 규칙은 의도별로 완화
     var t826ok = false, t826detail = '';
     try {
-      var broad826 = (typeof window._aioRunScreenerQuery === 'function')
-        ? window._aioRunScreenerQuery('종목 추천해줘', { recentTickers:['CEG','AVGO'] }) : null;
+      var broad826 = (typeof window._aioBuildScreenerAiContext === 'function')
+        ? (window._aioBuildScreenerAiContext('종목 추천해줘', [{ role: 'assistant', content: 'CEG, AVGO' }]) || {}).result : null;
       var pGeneral826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('PER이 뭐야?', 'home', [], null) : null;
       var pScreener826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('종목 추천해줘', 'home', [], broad826) : null;
       var pDecision826 = (typeof window._aioChatAnswerPolicy === 'function') ? window._aioChatAnswerPolicy('NVDA 지금 매수해도 돼?', 'home', ['NVDA'], null) : null;
@@ -7434,9 +7447,9 @@
       result937.validatorVersion === req937.validatorVersion && result937.blockPolicyVersion === req937.blockPolicyVersion &&
       req937.attempt === 2,
       JSON.stringify({ result: result937, attempt: req937 && req937.attempt }));
-    var planText937 = '[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"광테마는 수요와 공급 병목을 함께 확인해야 합니다.","claims":[],"sections":[{"title":"확인 조건","body":"수주와 마진의 연결을 검증합니다."}],"citations":[],"followUps":["수요와 실적의 연결을 설명해줘"]}[/AI_ANSWER_PLAN]';
+    var planText937 = _answerEnvelopeText({ summary:'광테마는 수요와 공급 병목을 함께 확인해야 합니다.', claims:[], sections:[{ title:'확인 조건', body:'수주와 마진의 연결을 검증합니다.' }], citations:[], followUps:['수요와 실적의 연결을 설명해줘'] });
     var planResult937 = run937 ? run937(planText937, { request:create937('answer-plan-test', { ctxId:'theme-detail', query:'광테마 전망' }), ctxId:'theme-detail', query:'광테마 전망', record:false }) : null;
-    _assert('T937a answer_plan_is_rendered_once: control JSON is hidden and follow-ups survive the shared pipeline', !!planResult937 && planResult937.blocked === false && planResult937.answerPlanAudit.status === 'valid' && planResult937.text.indexOf('AI_ANSWER_PLAN') < 0 && planResult937.followUps.length === 1, JSON.stringify(planResult937));
+    _assert('T937a answer_plan_is_rendered_once: the META block is hidden and follow-ups survive the shared pipeline (v60.41 envelope)', !!planResult937 && planResult937.blocked === false && planResult937.answerPlanAudit.status === 'valid' && !/AI_ANSWER|followUps/.test(planResult937.text) && planResult937.text.indexOf('확인 조건') >= 0 && planResult937.followUps.length === 1, JSON.stringify(planResult937));
 
     var audit937 = window.AIO && typeof window.AIO.getAIResponsePipelineAudit === 'function'
       ? window.AIO.getAIResponsePipelineAudit() : [];
@@ -7524,8 +7537,8 @@
     }] });
     _assert('T948 typed_claim_envelope_parser_and_validation (WP-AI2): nested JSON marker is parsed and accepted',
       !!envelope948 && valid948 && valid948.blocked === false && valid948.validCount === 1, JSON.stringify({ envelope: envelope948, valid: valid948 }));
-    var plan948b = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion: 'answer-plan.v1', summary: 'x', claims: [{ metric: 'vix', value: 16, evidenceIds: ['ev-x'] }], sections: [] }) + '[/AI_ANSWER_PLAN]';
-    _assert('T948b answer_plan_is_not_a_claim_envelope (v58.51): an unmarked answer-plan object is not audited as a WP-AI2 envelope',
+    var plan948b = _answerEnvelopeText({ summary: 'x', claims: [{ metric: 'vix', value: 16, evidenceIds: ['ev-x'] }], sections: [] });
+    _assert('T948b answer_plan_is_not_a_claim_envelope (v58.51; v60.41 META block): an answer\'s trailing claims object is not audited as a WP-AI2 envelope',
       window.AIO.extractAIClaimEnvelope(plan948b) === null && window.AIO.validateAIResponseClaims(plan948b).status === 'not-structured');
 
     var pipeline949 = window._aioRunAIResponsePipeline(JSON.stringify({
@@ -7948,19 +7961,22 @@
       degradedCurrent.blocked === false && degradedCurrent.text.indexOf('수요와 공급 조건') >= 0 && degradedCurrent.text.indexOf('100') < 0 &&
       degradedCurrent.limitations.indexOf('market-session-evidence-unavailable') >= 0 && degradedCurrent.limitations.indexOf('current-numeric-claim-unverified') >= 0,
       JSON.stringify(degradedCurrent));
-    var claimScopedPlan = '[AI_ANSWER_PLAN]' + JSON.stringify({ schemaVersion:'answer-plan.v1', summary:'변동성과 위험 선호를 함께 확인해야 합니다.', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-18T13:00:00Z', source:'fixture', evidenceIds:['missing-vix'], status:'verified' }], sections:[{ title:'조건', body:'확인된 설명은 유지합니다.' }], citations:[], followUps:[] }) + '[/AI_ANSWER_PLAN]';
+    var claimScopedPlan = _answerEnvelopeText({ summary:'변동성과 위험 선호를 함께 확인해야 합니다.', claims:[{ type:'metric', text:'VIX', value:15.2, unit:'index', asOf:'2026-08-18T13:00:00Z', source:'fixture', evidenceIds:['missing-vix'], status:'verified' }], sections:[{ title:'조건', body:'확인된 설명은 유지합니다.' }], citations:[], followUps:[] });
     var claimScoped = window._aioRunAIResponsePipeline(claimScopedPlan, { request:window._aioCreateAIRequestObject('claim-scoped-plan-test', { ctxId:'home' }), currentSensitive:true, evidence:[], record:false });
     _assert('T990e answer_plan_unbound_claim_is_removed_not_whole_answer: qualitative plan text survives an unbound numeric claim',
       claimScoped.blocked === false && claimScoped.text.indexOf('변동성과 위험 선호') >= 0 && claimScoped.text.indexOf('15.2') < 0 && claimScoped.limitations.indexOf('answer-plan-claim-degraded') >= 0,
       JSON.stringify(claimScoped));
-    var invalidPlan = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1","summary":"현재 VIX는 15.2입니다","claims":[],"sections":[{"title":"조건","body":"변동성과 위험 선호를 함께 확인해야 합니다."}],"citations":[],"followUps":[]}[/AI_ANSWER_PLAN]', { request:window._aioCreateAIRequestObject('invalid-plan-test', { ctxId:'home' }), currentSensitive:true, evidence:[], record:false });
+    var invalidPlan = window._aioRunAIResponsePipeline(_answerEnvelopeText({ summary:'현재 VIX는 15.2입니다', claims:[], sections:[{ title:'조건', body:'변동성과 위험 선호를 함께 확인해야 합니다.' }], citations:[], followUps:[] }), { request:window._aioCreateAIRequestObject('invalid-plan-test', { ctxId:'home' }), currentSensitive:true, evidence:[], record:false });
     _assert('T990f invalid_answer_plan_preserves_safe_sections: invalid numeric prose is removed while qualitative sections remain',
       invalidPlan.blocked === false && invalidPlan.text.indexOf('변동성과 위험 선호') >= 0 && invalidPlan.text.indexOf('15.2') < 0,
       JSON.stringify(invalidPlan));
-    var partialPlan = window._aioRunAIResponsePipeline('[AI_ANSWER_PLAN]{"schemaVersion":"answer-plan.v1"', { request:window._aioCreateAIRequestObject('partial-plan-test', { ctxId:'home' }), streamPhase:'partial', record:false });
-    _assert('T990g partial_answer_plan_hides_control_json: partial structured stream shows a stable progress state',
-      partialPlan.blocked === false && partialPlan.text === 'AI 답변을 구성하고 근거를 검증하는 중…' && partialPlan.text.indexOf('AI_ANSWER_PLAN') < 0,
-      JSON.stringify(partialPlan));
+    var partialBody = _answerEnvelopeText({ summary:'변동성과 위험 선호를 함께 확인해야 합니다.', sections:[{ title:'조건', body:'확인된 설명은 유지합니다.' }] }, false);
+    var partialRun = function(raw) { return window._aioRunAIResponsePipeline(raw, { request:window._aioCreateAIRequestObject('partial-plan-test', { ctxId:'home' }), streamPhase:'partial', record:false }); };
+    var partialPlans = [partialRun(partialBody + '\n\n[AI_ANSW'), partialRun(partialBody + '\n\n[AI_ANSWER_META]{"claims":[{"text":"VIX"'), partialRun('')];
+    _assert('T990g partial_answer_plan_hides_control_json (v60.41): a partial stream shows the filtered body only, never the META block or a half-typed marker, and nothing before a body',
+      partialPlans[0].blocked === false && partialPlans[0].text.indexOf('변동성과 위험 선호') >= 0 && partialPlans[1].text.indexOf('확인된 설명은 유지합니다') >= 0
+        && partialPlans.every(function(result) { return !/AI_ANSW|\[|"claims"/.test(result.text); }) && partialPlans[2].text === '',
+      JSON.stringify(partialPlans));
   }
 
   function _testV5284ModelRiskIsolation() {

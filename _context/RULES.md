@@ -1798,7 +1798,7 @@ Durable Object locationHint나 Worker placement는 best-effort/ingress 설정이
 `cloudflare-worker-proxy.js`의 로컬 테스트나 Pages 배포만으로 공유 AI를 완료로 판정하지 않는다. 게이트: `ci-worker-openai-contract-check`, `ci-operations-contract-check`.
 
 ## R456. AI 채팅은 단일 QuestionPlan→Evidence→AnswerPlan 계약으로 종단간 검증한다 (v54.2, P901)
-모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 `AI_ANSWER_PLAN` 계약을 생산한다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-headless-tests`.
+모든 AI 표면은 같은 `QuestionPlan`의 의도·엔티티·현재성·필수 근거로 소스 fan-out과 Research를 결정하고, 모델은 하나의 답변 계약(본문 글 + 끝의 `AI_ANSWER_META` 블록)을 생산한다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-headless-tests`.
 
 ## R453. AI Research는 하나의 실행 결과 계약과 관측된 capability 증거로만 공개한다 (v54.0, P898)
 외부 검색 adapter와 단일 상단 AI 패널이 서로 다른 evidence shape·준비 경로·판정 로직을 가져서는 안 된다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-headless-tests`.

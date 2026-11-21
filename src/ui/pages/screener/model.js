@@ -9,7 +9,7 @@ import { consensusView } from '../../../domain/fundamental/consensus-read.js';
 import { CONSENSUS_KEY, consensusRowFor, requestConsensusEstimates } from '../../../data/consensus-estimates.js';
 import { sharedArtifactState } from '../../../data/shared-artifacts.js';
 import { SOURCED_CONDITION_IDS, conditionSource } from '../../../domain/screener/custom-conditions.js';
-import { CHANNEL_SIGNAL_KEYS, channelSignalValue } from '../../../domain/screener/channel-signals.js';
+import { conditionReader } from '../../../domain/screener/condition-read.js';
 import { themeStagesFor, scenarioStateCurrent } from '../../../domain/scenarios/theme-stage.js';
 import { koreanThemeGroups } from '../../../domain/market/korea/korea-participation.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
@@ -319,28 +319,6 @@ export function quoteCloseDay(observedAt, market = 'US') {
 
 export function selectedValue(documentRef, id) { return documentRef.getElementById(id)?.value || ''; }
 
-// v57.50 I10: a theme word typed in the search (방산, 우주/위성, defense) finds that theme's curated constituents.
-// The manual keyword aliases stay; theme members are added to them (union), never substituted.
-export function mergeThemeAliases(aliases = {}, themes = []) {
-  const merged = {};
-  for (const [key, list] of Object.entries(aliases || {})) if (Array.isArray(list)) merged[key] = [...list];
-  const add = (word, symbols) => {
-    const keys = new Set([String(word || '').trim().toLowerCase()].flatMap((value) => [value, value.replace(/\s+/g, '')]).filter((value) => value.length >= 2));
-    for (const key of keys) merged[key] = [...new Set([...(merged[key] || []), ...symbols])];
-  };
-  for (const theme of Array.isArray(themes) ? themes : []) {
-    const subs = Array.isArray(theme?.subThemes) ? theme.subThemes : [];
-    const members = [...new Set([...(theme?.leaders || []), ...subs.flatMap((sub) => sub?.tickers || [])].map((symbol) => String(symbol || '').toUpperCase()).filter(Boolean))];
-    if (!members.length) continue;
-    const name = String(theme?.nameKr || '');
-    [theme?.id, name, ...name.split('/')].forEach((word) => add(word, members));
-    for (const sub of subs) {
-      const tickers = (sub?.tickers || []).map((symbol) => String(symbol || '').toUpperCase()).filter(Boolean);
-      if (tickers.length) [sub?.name, ...String(sub?.name || '').split('/')].forEach((word) => add(word, tickers));
-    }
-  }
-  return merged;
-}
 // P1507: 50-day distance ÷ average daily range (ADR stands in for ATR). Null when either input is missing.
 export function extensionMultiple(row) {
   const pct = readRowNumber(row, 'pctSma50', 'display');
@@ -492,11 +470,6 @@ export function range52Position(row) {
 }
 
 export function forwardPe(row) { return consensusView(row, consensusRowFor(screenerRuntime.consensusRoot, row?.sym || row?.symbol))?.fwdPe ?? null; }
-// 2026-10-14 custom conditions: a registered field is read through its readiness (as the factor columns are); the new
-// distance fields read straight from the row; Forward PER from the consensus view.
-export const FILING_KEYS = new Set(['pe', 'pb', 'roe', 'margin', 'revGrowth']);
-const FILING_STATUSES = new Set(['CURRENT', 'DELAYED', 'INFERRED', 'STALE', 'LAST_GOOD']);
-const FIELD_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.map((definition) => [definition.rowKey, definition.fieldId]));
 // FCF margin and capex ÷ revenue come from src/ui/components/screener-cash.js, a lazy chunk loaded when a cash condition
 // is chosen; it calls onReady when the metrics are built or the SEC fiscal history read ended without data.
 function requestCashMetrics(root, onReady) {
@@ -549,17 +522,13 @@ export function conditionSourceStates(root, custom) {
   }
   return states;
 }
-export function customRead(row, key) {
-  if (key === 'fwdPe') return forwardPe(row);
-  if (key === 'fcfMargin' || key === 'capexIntensity') return screenerRuntime.consensusRoot?._aioScreenerCash?.map.get(String(row?.sym || row?.symbol || '').toUpperCase())?.[key] ?? null;
-  if (CHANNEL_SIGNAL_KEYS.includes(key)) return channelSignalValue(screenerRuntime.consensusRoot?.AIO_TELEGRAM_SIGNALS, row, key); // v58.71 (js/aio-data.js sets it)
-  const fieldId = FIELD_BY_ROW_KEY.get(key);
-  // Annual filing figures (PER·PBR·ROE·이익률·성장률) share the rank's 456-day budget (2026-10-16); a filter labelled
-  // '최근 회계연도' still reads an older STALE figure as the table displays it, but never a CONFLICT value.
-  if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
-  if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
-  return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' || Array.isArray(row?.[key]) ? row[key] : finite(row?.[key]);
-}
+// The custom-condition reader (domain/screener/condition-read.js) over the sources this page loads: Forward PER from the
+// consensus view, the cash metrics the lazy chunk builds, the channel signals js/aio-data.js sets.
+export const customRead = conditionReader({
+  forwardPe,
+  cashMetrics: (symbol) => screenerRuntime.consensusRoot?._aioScreenerCash?.map.get(symbol),
+  channelSignals: () => screenerRuntime.consensusRoot?.AIO_TELEGRAM_SIGNALS
+});
 
 // The value a sort column reads from the display row (liveRow) — the registry gates registered fields for display.
 // Only price and 시총 take the live overlay, so only they build the whole display row; the other columns read the one

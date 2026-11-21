@@ -2,9 +2,9 @@
   "schemaVersion": "aio-assertion-trace-baseline.v1",
   "generatedBy": "scripts/ci-assertion-trace-check.mjs",
   "note": "Assertions that predate the ledger-trace convention, keyed by sha1(label)[0:12]. Only NEW or RENAMED labels must cite an R/P/QA/T evidence id. Shrink this file as labels are annotated; never grow it without an authorised bulk change.",
-  "checkedFiles": 218,
-  "totalLabels": 7179,
-  "unlabeledLabels": 1795,
+  "checkedFiles": 220,
+  "totalLabels": 7284,
+  "unlabeledLabels": 1787,
   "unlabeled": {
     "scripts/ci-13f-figi-ticker-fixture.mjs": [
       "53e8d03c0054",
@@ -34,10 +34,8 @@
       "64d4adf5ea4d",
       "654a4db698e0",
       "66f5ca177e61",
-      "68005105be80",
       "71f8e7976e4c",
       "7bd8e81718c6",
-      "818151e90ffe",
       "840a20d068e3",
       "84821afae812",
       "94cb34ee6793",
@@ -133,9 +131,6 @@
       "c8156a8da3ed",
       "d7f437a52f89",
       "d850c153d12f",
-      "df88b84d816d",
-      "df88b84d816d",
-      "df88b84d816d",
       "df88b84d816d",
       "df88b84d816d",
       "df88b84d816d",
@@ -317,7 +312,6 @@
       "e229f10b0d78",
       "eaa785abd0df",
       "ef6b547eca69",
-      "ef9e9619c18b",
       "f61b83be0cce"
     ],
     "scripts/ci-assertion-trace-check.mjs": [
@@ -710,10 +704,6 @@
       "c88a473fed7b",
       "e6d2db262ba5",
       "f67cb6fc70b1"
-    ],
-    "scripts/ci-entity-summary-fixture.mjs": [
-      "11a275708242",
-      "a99be166fb27"
     ],
     "scripts/ci-external-pipeline-check.mjs": [
       "036ffd9c957e",
@@ -1919,7 +1909,7 @@
   "messageless": {
     "scripts/ci-13f-figi-ticker-fixture.mjs": 9,
     "scripts/ci-13f-semantic-hash-check.mjs": 1,
-    "scripts/ci-ai-chat-public-route-browser-check.mjs": 17,
+    "scripts/ci-ai-chat-public-route-browser-check.mjs": 19,
     "scripts/ci-ai-chat-reliability-contract-check.mjs": 62,
     "scripts/ci-ai-evidence-contract-check.mjs": 32,
     "scripts/ci-artifact-cache-check.mjs": 11,
