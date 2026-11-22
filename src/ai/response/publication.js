@@ -856,6 +856,12 @@ function tickerCloseDates(toolBasis, entity) {
   const own = rows.filter((row) => row.entities.length === 1);
   return { dates: new Set((own.length ? own : rows).map((row) => row.asOf.slice(0, 10))), shared: !own.length };
 }
+// The close days ("YYYY-MM-DD 종가") of this request's successful tool reads, oldest first: they label an answer whose
+// figures are all prose checked against those reads.
+export function toolCloseDays(toolBasis) {
+  return Array.from(new Set((Array.isArray(toolBasis) ? toolBasis : []).filter((row) => typeof row?.asOf === 'string' && isoDay(row.asOf.slice(0, 10)) && row.asOf.slice(10) === ' 종가')
+    .map((row) => row.asOf.slice(0, 10)))).sort();
+}
 function bindAppTrendBasis(sentence, bare, toolBasis, matchers) {
   if (!Array.isArray(toolBasis) || !toolBasis.length || !matchers || !TREND_BASIS.test(bare)
       || !/기준일|종가\s*기준/.test(bare) || writtenFigures(bare).length) return null;
@@ -1052,8 +1058,11 @@ export function extractAnswerFallbackResult(rawText, currentSensitive, options) 
 
 // v57.48 review #19: an answer opened with up to five "※" notices, three of them in English ("decision-grade",
 // "Web Research", "Evidence"). The reader now gets one Korean line naming what was not confirmed; each detailed
-// notice moves to the folded answer-evidence panel. `publishedClaimCount` keeps the line truthful when some values
-// were confirmed (close-basis or live) and only the rest was withheld.
+// notice moves to the folded answer-evidence panel. `figuresShown` keeps the line truthful when the published answer
+// shows confirmed values and only the rest was withheld or unconfirmed. It is read from what was published — a typed
+// claim, or a prose figure the filters checked against this request's data and tool results — not from typed claims
+// alone: a text-first answer carries its figures in prose (2026-11-22 live: an app-grounded SPY close opened
+// "일반 설명만" because the count of typed claims was 0).
 const NUMERIC_DROP_REASONS = ['answer-plan-claim-degraded', 'current-numeric-claim-unverified', 'typed-claim-validation'];
 const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evidence-limited', 'research-evidence-unavailable', 'research-freshness-unverified'];
 // The line is the one owner of what happened to the figures; the search status line under the panel says only whether a
@@ -1082,14 +1091,14 @@ function searchedFiguresPhrase(list, search, numericDropped, currentGap) {
   if (extra) return extra.slice(3);
   return numericDropped || currentGap ? '최신 수치는 아래 참고 링크 원문 기준' : '';
 }
-export function summarizeAnswerLimitations(reasons = [], { publishedClaimCount = 0, search = null } = {}) {
+export function summarizeAnswerLimitations(reasons = [], { figuresShown = false, search = null } = {}) {
   var list = Array.from(new Set(Array.isArray(reasons) ? reasons.map(String) : []));
   var phrases = [];
   var numericDropped = list.some(function(reason) { return NUMERIC_DROP_REASONS.indexOf(reason) >= 0; });
   var currentGap = list.some(function(reason) { return CURRENT_GAP_REASONS.indexOf(reason) >= 0; });
   var searchedLine = search ? searchedFiguresPhrase(list, search, numericDropped, currentGap) : '';
   if (search) { if (searchedLine) phrases.push(searchedLine); }
-  else if (publishedClaimCount > 0 && (numericDropped || currentGap)) phrases.push(numericDropped ? '일부 최신 수치 확인 안 됨 — 확인된 값만 표시' : '표시한 값 외의 최신 수치는 확인 안 됨');
+  else if (figuresShown === true && (numericDropped || currentGap)) phrases.push(numericDropped ? '일부 최신 수치 확인 안 됨 — 확인된 값만 표시' : '표시한 값 외의 최신 수치는 확인 안 됨');
   else if (numericDropped || currentGap) phrases.push('최신 수치 확인 안 됨 — 일반 설명만');
   if (list.indexOf('suitability-context-missing') >= 0) phrases.push('투자 성향 정보 없음 — 조건부 분석');
   if (list.indexOf('model-output-truncated') >= 0) phrases.push('응답 길이 한도 — 일부만 표시');

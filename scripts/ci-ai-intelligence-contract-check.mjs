@@ -321,6 +321,16 @@ check('conduct-plan-is-carried-by-question-plan', createQuestionPlan({ query:'�
 check('legal-scope-notice-remains-useful', buildScopedConductFallback(responseDirectiveAudit).includes('전제와 확인 범위') && !buildScopedConductFallback(responseDirectiveAudit).includes('AI 안전 모드'));
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
 check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
+// v60.46 (live 2026-11-22): "외부 검색 없이 앱의 공개 홈 자료만 사용해서 …" set requestedByUser, which forces a search to be
+// attached. A negated search phrase is no request; a real request beside it still is.
+{
+  const asked = (query) => createQuestionPlan({ query, route: 'home', now: '2026-11-22T03:00:00Z' }).researchDecision.requestedByUser;
+  const declined = ['외부 검색 없이 앱의 공개 홈 자료만 사용해서 SPY의 최근 종가와 등락률, 기준일을 한 문장으로 알려줘', '검색하지 말고 PER 뜻만 알려줘', '검색 말고 앱 자료로 NVDA 요약해줘',
+    '웹검색 빼고 답해줘', '인터넷 검색은 하지 마 그냥 설명해줘', 'Explain PER without search', 'no web search, just the app data for SPY', "don't search, what is a moat?"];
+  const requested = ['SPY 최근 뉴스 검색해줘', '검색해서 NVDA 실적 찾아봐', 'search the latest NVDA earnings', '검색 없이 말고 꼭 검색해서 확인해줘', 'look up AAPL guidance'];
+  const wrong = declined.filter(asked).concat(requested.filter((query) => !asked(query)));
+  check(`v60.46 a negated search phrase is not a request to search; a real request still is (${JSON.stringify(wrong)})`, wrong.length === 0);
+}
 const knowledgeIndex = createAIKnowledgeIndex([
   { articleId:'principles:B2', lessonId:'B2', surface:'principles', title:'금리와 자산가격', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'금리는 미래 현금흐름의 할인율에 영향을 준다.', mechanism:'정책금리와 장기금리는 자본비용과 밸류에이션 경로로 전달된다.', example:'할인율 상승 시 같은 현금흐름의 현재가치가 낮아진다.', counterScenario:'성장 기대가 더 크게 오르면 가격 방향은 달라질 수 있다.' } },
   { articleId:'atlas-foundations:energy-and-power', lessonId:'energy-and-power', surface:'atlas-foundations', title:'Energy and power', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'에너지는 일을 할 수 있는 능력이고 전력은 시간당 전달 속도다.', mechanism:'AI 계산과 메모리 이동은 전력·열·냉각 병목으로 이어진다.', example:'전력당 성능은 시설 비용에 영향을 준다.', counterScenario:'전력 사용량만으로 기업 수익을 결론낼 수 없다.' } }
@@ -2156,7 +2166,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const cell = pub.buildPublishableAnswerPlan({ ...plan, summary: '', sections: [{ title: '예상치', body: `| 항목 | 값 |\n|---|---|\n| 매출 | 549억 달러 ${c1} |` }] }, [], true, { nowMs, searchCitations }).plan.sections[0]?.body || '';
   check('v60.21 a table cell never takes a searched figure (search never feeds tables)', /확인 필요/.test(cell) && !/549억/.test(cell));
   const reasons = ['current-numeric-claim-unverified', 'market-session-evidence-unavailable', 'research-freshness-unverified'];
-  const banner = (search) => pub.summarizeAnswerLimitations(reasons, { publishedClaimCount: 0, search });
+  const banner = (search) => pub.summarizeAnswerLimitations(reasons, { figuresShown: false, search });
   check('v60.21 the limitation line owns what happened to searched figures and never says 일반 설명만 beside a cited search',
     banner({ searchedSentences: 2, removedNumericSentences: 0 }) === '※ 웹검색 출처의 수치 — AIO가 확인한 값 아님, 링크 원문 기준'
       && banner({ searchedSentences: 1, removedNumericSentences: 1 }) === '※ 웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님'
@@ -2233,7 +2243,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const split = 'AAPL과 MSFT의 최근 5거래일 주가 추이 기준일은 2026년 11월 14일 종가입니다.';
   check('v60.24 tickers on different dates, or a shared row that disagrees, leave the sentence to the normal path',
     run(split, [row('trend', ['AAPL']), row('trend', ['MSFT'], '2026-11-12')]) === run(split, null) && run(split, [row('technicals', ['AAPL', 'MSFT'])]) === run(split, null));
-  const banner = (search) => pub.summarizeAnswerLimitations(['current-numeric-claim-unverified'], { publishedClaimCount: 0, search });
+  const banner = (search) => pub.summarizeAnswerLimitations(['current-numeric-claim-unverified'], { figuresShown: false, search });
   check('v60.24 searched figures beside an app date still say they are not AIO\'s',
     /AIO가 확인한 값 아님/.test(banner({ searchedSentences: 1, removedNumericSentences: 0, toolDates: 1 })) && !/AIO가 확인한 값 아님/.test(banner({ searchedSentences: 0, removedNumericSentences: 0, toolDates: 1 })));
   // Owner 2026-11-17 ("validation should not block"): a searched figure is kept when its block (paragraph, list item)
@@ -2320,7 +2330,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     !wrong.plan.summary.includes('3.4%') && !unsourced.plan.summary.includes('2.1%') && !publish(`두 집계처의 차이는 3억 달러입니다 ${cIr}.`).plan.summary.includes('3억'));
   // (3) the notice names what was withheld, through the same builder.
   const reasons = ['current-numeric-claim-unverified', 'research-freshness-unverified'];
-  const line = (search) => pub.summarizeAnswerLimitations(reasons, { publishedClaimCount: 0, search });
+  const line = (search) => pub.summarizeAnswerLimitations(reasons, { figuresShown: false, search });
   check('v60.28 the notice line names the withheld kind ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다") and keeps the old line without topics',
     line({ searchedSentences: 1, removedNumericSentences: 1, withheldTopics: live.filterCounts?.withheldTopics }) === '※ 웹검색 수치는 AIO가 확인한 값 아님 · 배당수익률 문장 1개는 근거 수치가 없어 뺐습니다'
       && line({ searchedSentences: 1, removedNumericSentences: 1 }) === '※ 웹검색 출처가 붙은 수치만 표시 — AIO가 확인한 값 아님'
@@ -2415,6 +2425,34 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check(`v60.42 a removed sentence inside a bold run leaves whole markdown and is named 환율 (${JSON.stringify(cut.plan.summary)} ${JSON.stringify(cut.filterCounts.withheldTopics)})`,
     !cut.plan.summary.includes('1,399.99') && (cut.plan.summary.match(/\*\*/g) || []).length % 2 === 0 && cut.plan.summary.startsWith('**지금 실시간 환율은 확인된 값이 없습니다.**')
       && cut.filterCounts.withheldTopics['환율'] === 1 && !cut.filterCounts.withheldTopics['주가']);
+}
+// v60.46 (live 2026-11-22, 오늘 screen): "외부 검색 없이 … SPY의 최근 종가와 등락률, 기준일" was answered from the app's
+// trend tool ($689.81, -3.64%, 11/20 close) yet opened "※ 최신 수치 확인 안 됨 — 일반 설명만" and was labelled "답변 근거,
+// 확인 필요". The question is research-REQUIRED, no search ran (research-evidence-unavailable), and the line and the
+// label counted typed claims only (0 for a text-first answer). Both now read what the published answer shows.
+{
+  const nowMs = Date.parse('2026-11-22T03:00:00Z');
+  const ctx = pipelineContext(nowMs);
+  const request = { requestId: 'fixture-v6046', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const referenceText = '[주가 추이] SPY: 추세 200일선 아래 · 전일 대비 -3.64% · 종가 $689.81\n(기준: 2026-11-20 종가)';
+  const completion = { toolBasis: [{ name: 'trend', asOf: '2026-11-20 종가', entities: ['SPY'] }] };
+  const run = (raw) => ctx._aioRunAIResponsePipeline(raw, { request, questionPlan: { currentSensitive: true, researchDecision: { requirement: 'REQUIRED' } }, currentSensitive: true, researchRequired: true, researchGate: { ready: false },
+    evidence: [], record: false, streamPhase: 'complete', stripChips: false, referenceText, entities: ['SPY'], completion });
+  // The panel's quote rows on a closed market are not decision rows (hasLivePrice false): alone they label "확인 필요".
+  const label = (out) => ctx._aioBuildAIResponseDisclosure({ actionGate: out.actionGate, closeBasisDates: out.closeBasisDates, releaseBasis: out.releaseBasis, otherPublishedClaims: out.otherPublishedClaims,
+    freshness: { after: { quoteRows: [{ truthStatus: 'verified', hasLivePrice: false, source: 'close', asOf: '2026-11-20T21:00:00Z' }] } } });
+  const live = run('SPY의 최근 종가는 $689.81, 전일 대비 3.64% 하락했으며, 기준일은 2026년 11월 20일 종가입니다.');
+  check(`v60.46 an app-grounded answer on a research-required question never says 일반 설명만 (${JSON.stringify(live.text.slice(0, 40))})`,
+    live.text.startsWith('※ 표시한 값 외의 최신 수치는 확인 안 됨\n\n') && !live.text.includes('일반 설명만') && live.text.includes('$689.81') && live.limitations.includes('research-evidence-unavailable'));
+  const liveLabel = label(live);
+  check(`v60.46 its evidence label names the app data and the tools' close day, not 확인 필요 (${liveLabel.status} · ${liveLabel.asOf})`,
+    liveLabel.status === '앱 자료 근거' && liveLabel.asOf === '2026-11-20 종가' && /원천: 앱 자료·도구 결과/.test(liveLabel.text));
+  const mixed = run('SPY의 최근 종가는 $689.81입니다. 같은 날 거래량은 9,999만 주였습니다.');
+  check(`v60.46 some figures withheld beside an app figure: the "확인된 값만 표시" wording (${JSON.stringify(mixed.text.slice(0, 40))})`,
+    mixed.text.startsWith('※ 일부 최신 수치 확인 안 됨 — 확인된 값만 표시') && mixed.text.includes('$689.81') && !mixed.text.includes('9,999') && label(mixed).status === '앱 자료 근거');
+  const none = run('SPY의 최근 종가는 $999.99입니다.');
+  check(`v60.46 with every figure withheld the line still says 일반 설명만 and the label stays 확인 필요 (${JSON.stringify(none.text.slice(0, 40))})`,
+    none.text.startsWith('※ 최신 수치 확인 안 됨 — 일반 설명만') && !none.text.includes('999.99') && label(none).status === '확인 필요' && !none.actionGate.appFigures);
 }
 
 if (failures.length) {
