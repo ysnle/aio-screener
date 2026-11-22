@@ -959,15 +959,18 @@ let blockedBy = [];
 
 for (const phase of phases) {
   const gates = selectedGates.filter((gate) => gate.phase === phase);
-  if (blockedBy.length) {
+  const browserPhase = gates.some((gate) => gate.kind === 'browser');
+  const externalPhase = gates.some((gate) => gate.kind === 'external');
+  // A local run finishes every static phase even after a failure, so one run lists all static failures (seconds to
+  // minutes). Only the slow browser and external phases wait for a clean static result. CI keeps fail-fast phases.
+  const staticPhaseRunsAnyway = !browserPhase && !externalPhase && process.env.CI !== 'true';
+  if (blockedBy.length && !staticPhaseRunsAnyway) {
     for (const gate of gates) results.push({ id: gate.id, group: gate.group, phase, kind: gate.kind, status: 'SKIP', durationMs: 0, blockedBy });
     continue;
   }
-  const browserPhase = gates.some((gate) => gate.kind === 'browser');
-  const externalPhase = gates.some((gate) => gate.kind === 'external');
   const phaseResults = await runPool(gates, browserPhase ? maxBrowserJobs : (externalPhase ? 2 : maxStaticJobs));
   results.push(...phaseResults);
-  if (!keepGoing) blockedBy = phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id);
+  if (!keepGoing) blockedBy = [...blockedBy, ...phaseResults.filter((result) => result.status === 'FAIL').map((result) => result.id)];
 }
 
 try { rmSync(outputStagingDir, { recursive: true, force: true }); }

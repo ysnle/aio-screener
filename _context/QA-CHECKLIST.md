@@ -10,6 +10,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 
 - [x] QA-v6048-relay-only: v60.48 P2748 배포 스크립트 어디에도 '직접 호출 뒤 릴레이' 줄이 없다. verify_by: node scripts/ci-proxy-continuity-check.mjs
 - [x] QA-v6048-panel-chunk: v60.48 AI 패널(src/ui/chat/panel.js)은 번들의 지연 청크이고, AI 컨트롤에 닿기 전에는 받지 않는다. verify_by: node scripts/ci-boot-interaction-check.mjs
+- [x] QA-v6048-runner-static-through: v60.48 로컬 QA 실행은 앞 단계가 실패해도 정적 단계를 끝까지 돌고 브라우저 단계만 건너뛴다 (CI는 단계별 중단 유지) verify_by: node scripts/ci-qa-runner-behavior-check.mjs
 
 ## v60.47 보유 종목 입력 거부 (2026-11-22)
 

@@ -43,19 +43,32 @@ try {
           { id: 'fixture-fail-b', script: fixtureScript, args: ['--mode', 'fail-b'] }
         ]
       },
-      expensive: {
+      later: {
         phase: 1,
+        kind: 'static',
+        inputs: [fixtureScript, fixtureInputBefore],
+        gates: [{ id: 'fixture-later-static', script: fixtureScript, args: ['--mode', 'pass'] }]
+      },
+      expensive: {
+        phase: 2,
         kind: 'browser',
         inputs: [fixtureScript, fixtureInputBefore],
         gates: [{ id: 'fixture-expensive', script: fixtureScript, args: ['--mode', 'marker', '--path', '{cacheDir}/expensive-marker.txt'] }]
       }
     },
-    profiles: { test: ['fixture', 'expensive'] }
+    profiles: { test: ['fixture', 'later', 'expensive'] }
   }, null, 2));
-  const aggregate = run('test', '--no-cache', '--jobs', '3');
+  // A local run: the later static phase still runs after the first phase failed (one run lists every static failure);
+  // only the browser phase is skipped. Under CI the later static phase is skipped too.
+  const aggregate = runWithEnv({ CI: '' }, 'test', '--no-cache', '--jobs', '3');
   if (aggregate.status !== 1) fail('runner fixture expected a failing exit', aggregate);
   const failedReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
-  if (failedReport.counts?.FAIL !== 2 || failedReport.counts?.PASS !== 1 || failedReport.counts?.SKIP !== 1) fail('runner did not aggregate sibling failures and skip the expensive phase', aggregate);
+  if (failedReport.counts?.FAIL !== 2 || failedReport.counts?.PASS !== 2 || failedReport.counts?.SKIP !== 1) fail('a local run did not finish the later static phase after a failure and skip only the browser phase', aggregate);
+  const ciAggregate = runWithEnv({ CI: 'true' }, 'test', '--no-cache', '--jobs', '3');
+  const ciReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
+  if (ciAggregate.status !== 1 || ciReport.counts?.SKIP !== 2) fail('a CI run did not stay fail-fast across phases', ciAggregate);
+  const localAgain = runWithEnv({ CI: '' }, 'test', '--no-cache', '--jobs', '3');
+  if (localAgain.status !== 1) fail('runner fixture expected a failing exit', localAgain);
   if (existsSync(marker)) fail('expensive phase executed after preflight failure', aggregate);
   const rerunList = run('rerun-failed', '--list');
   if (rerunList.status !== 0) fail('runner failed to list exact failed gates', rerunList);
