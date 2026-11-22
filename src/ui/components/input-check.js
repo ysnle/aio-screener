@@ -15,25 +15,40 @@ export function checkNumericField(input, spec = {}) {
 
 // Marks one field with the result: aria-invalid plus a polite note after it, or clears both.
 export function markField(input, result) {
-  if (!input) return result;
-  const doc = input.ownerDocument;
-  const id = `${input.id || 'num'}-error`;
+  return markFields([input], result, input?.closest?.('label') || input);
+}
+
+// A min~max pair is one answer: both fields carry aria-invalid and point to one note placed after the box holding them.
+export function markRange(minInput, maxInput, result) {
+  return markFields([minInput, maxInput], result, maxInput?.parentElement || maxInput);
+}
+
+function markFields(inputs, result, anchor) {
+  const fields = inputs.filter(Boolean);
+  if (!fields.length) return result;
+  const doc = fields[0].ownerDocument;
+  const id = `${fields[0].id || 'num'}-error`;
   let note = doc?.getElementById?.(id) || null;
   if (result.ok) {
-    input.removeAttribute('aria-invalid');
+    for (const input of fields) {
+      input.removeAttribute('aria-invalid');
+      if (input.getAttribute('aria-describedby') === id) input.removeAttribute('aria-describedby');
+    }
     if (note) note.remove();
     return result;
   }
-  input.setAttribute('aria-invalid', 'true');
   if (!note && doc) {
     note = doc.createElement('span');
     note.id = id;
     note.className = 'input-check-error';
     note.setAttribute('role', 'alert');
-    (input.closest('label') || input).insertAdjacentElement('afterend', note);
+    anchor.insertAdjacentElement('afterend', note);
+  }
+  for (const input of fields) {
+    input.setAttribute('aria-invalid', 'true');
     input.setAttribute('aria-describedby', id);
   }
-  if (note) note.textContent = result.reason;
+  if (note && note.textContent !== result.reason) note.textContent = result.reason;
   return result;
 }
 
@@ -83,8 +98,20 @@ export const HOLDING_FIELDS = Object.freeze(['pf-add-ticker', 'pf-add-qty', 'pf-
 export function snapshotHoldingInputs(doc) {
   return Object.fromEntries(HOLDING_FIELDS.map((id) => { const input = doc?.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));
 }
+// Every refusal of a form goes one way: the field is marked with its reason and takes focus; the typed text stays.
+export function refuseField(input, result) {
+  markField(input, result);
+  input?.focus?.();
+  return result;
+}
+// The 보유 종목 추가 refusals the legacy form raises after the numbers pass (window._aioRefuseField names them by key).
+export const HOLDING_REFUSALS = Object.freeze({
+  ticker: '종목 목록에 없는 심볼입니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름으로 입력하세요.',
+  currency: '3자리 통화 코드(예: USD, KRW)로 입력하거나 비워 두세요.',
+  target: '목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'
+});
 export function readHoldingInputs(doc, snapshot = snapshotHoldingInputs(doc)) {
-  const refuse = (input, result) => { markField(input, result); input?.focus?.(); return result; };
+  const refuse = refuseField;
   const ticker = doc?.getElementById('pf-add-ticker');
   if (!String(snapshot['pf-add-ticker']?.value || '').trim()) return refuse(ticker, { ok: false, reason: '종목(티커 또는 이름)을 입력하세요.' });
   markField(ticker, { ok: true });

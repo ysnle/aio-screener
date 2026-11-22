@@ -8599,3 +8599,181 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { recordRankPhrase } = await load('src/domain/briefing/market-read.js');
   if (recordRankPhrase(55) !== '중간쯤' || recordRankPhrase(65) !== '상위 35%에 드는 많은 편' || recordRankPhrase(35) !== '하위 35%에 드는 적은 편' || recordRankPhrase(null) !== '') fail(`v59.97 the record rank phrase uses the 60/40 bands: ${[55, 65, 35].map(recordRankPhrase).join(' | ')}`);
 }
+
+// v60.46 (UI behaviour audit): what the reader can do with ranges, the compare tray, Back, a composing Escape, a failed
+// chart load, the shelf's opened marks and a refused holding.
+{
+  const { createFakeDocument } = await import(pathToFileURL(path.join(root, 'scripts/lib/fake-dom.mjs')).href);
+  const focusable = (doc) => {
+    const make = doc.createElement.bind(doc);
+    doc.createElement = (tag) => Object.assign(make(tag), { focus() { doc.activeElement = this; }, getClientRects: () => [1] });
+    return doc;
+  };
+  // 1. One range rule: RSI 80~20 is invalid at the inputs, and the run preview reads the same min and max the table does.
+  const { rangeInverted, invertedConditionPairs } = await load('src/domain/screener/custom-conditions.js');
+  if (!rangeInverted(80, 20) || rangeInverted(20, 80) || rangeInverted(null, 20) || rangeInverted(30, 30) || !rangeInverted(30, 30, { strict: true })) fail('v60.46 one range rule: a lower bound above the upper bound is inverted');
+  const pairs = invertedConditionPairs([{ id: 'rsi-min', value: 80 }, { id: 'rsi-max', value: 20 }, { id: 'ret3m-min', value: 5 }, { id: 'ret3m-max', value: 10 }]);
+  if (pairs.length !== 1 || pairs[0][0].id !== 'rsi-min' || pairs[0][1].id !== 'rsi-max') fail(`v60.46 the 맞춤 조건 pairs use the same range rule: ${JSON.stringify(pairs)}`);
+  const { filterRows, readRsiRange, renderFilterChips } = await load('src/ui/pages/screener/filters.js');
+  const { builderConditions } = await load('src/ui/pages/screener/workbench.js');
+  const rangeDoc = createFakeDocument();
+  const box = rangeDoc.createElement('span');
+  const rsiMin = rangeDoc.getElementById('scr-rsi-min'), rsiMax = rangeDoc.getElementById('scr-rsi-max');
+  box.append(rsiMin, rsiMax);
+  rsiMax.value = '20';
+  const onlyMax = builderConditions(rangeDoc).find((item) => item.field === 'rsi');
+  if (!onlyMax || onlyMax.max !== 20 || onlyMax.min != null) fail(`v60.46 the run preview takes the RSI upper bound the table applies: ${JSON.stringify(onlyMax)}`);
+  rsiMin.value = '80';
+  const rows = [{ sym: 'AAA', rsi: 85, instrumentRef: { market: 'US', currency: 'USD' } }, { sym: 'BBB', rsi: 15, instrumentRef: { market: 'US', currency: 'USD' } }];
+  const both = builderConditions(rangeDoc).find((item) => item.field === 'rsi');
+  if (!readRsiRange(rangeDoc).inverted || filterRows(rows, rangeDoc).length || both?.min !== 80 || both?.max !== 20) fail('v60.46 an inverted RSI range keeps no row in the table and reaches the preview as typed (the contract refuses it)');
+  renderFilterChips(rangeDoc);
+  const rangeNote = rangeDoc.getElementById('scr-rsi-min-error');
+  if (rsiMin.getAttribute('aria-invalid') !== 'true' || rsiMax.getAttribute('aria-invalid') !== 'true' || rsiMax.getAttribute('aria-describedby') !== 'scr-rsi-min-error' || rangeNote?.textContent !== '최소값이 최대값보다 큽니다') fail('v60.46 an inverted RSI range is marked on both inputs with one short message');
+  rsiMin.value = '10';
+  renderFilterChips(rangeDoc);
+  if (rsiMin.hasAttribute('aria-invalid') || rsiMax.hasAttribute('aria-describedby')) fail('v60.46 a corrected range clears both marks');
+
+  // 2. Each compare item has its own 빼기, and focus lands on the next item, else back on the control that added it.
+  const { createInspectorController } = await load('src/ui/pages/screener/inspector.js');
+  const trayDoc = focusable(createFakeDocument());
+  const addButton = trayDoc.createElement('button');
+  addButton.dataset.aioScreenerAction = 'why-compare';
+  trayDoc.body.append(addButton);
+  const compareSymbols = new Set();
+  const trayCtx = { documentRef: trayDoc, root: {}, store: createStore({ initialState: { screener: { rows: [{ sym: 'AAA', name: 'A' }, { sym: 'BBB', name: 'B' }] } } }), bag: createResourceBag(), actions: [],
+    liveReader: () => null, watchlistReader: () => [], profileReader: () => null, selectedSymbols: new Set(), compareSymbols };
+  createInspectorController(trayCtx);
+  trayCtx.renderNow = () => {}; trayCtx.showCompareNotice = () => {};
+  const act = (action, argument) => trayCtx.actions.some((handle) => handle(action, argument, null));
+  trayDoc.activeElement = addButton; trayCtx.toggleCompare('AAA');
+  trayDoc.activeElement = addButton; trayCtx.toggleCompare('BBB');
+  const removers = () => trayDoc.getElementById('scr-compare-list').querySelectorAll('[data-aio-screener-action="remove-compare"]');
+  if (removers().map((node) => node.getAttribute('aria-label')).join() !== 'AAA 비교에서 빼기,BBB 비교에서 빼기') fail('v60.46 each compare item has a 빼기 button named with its ticker');
+  act('remove-compare', 'AAA');
+  if (compareSymbols.has('AAA') || trayDoc.activeElement !== removers()[0] || removers()[0].dataset.aioScreenerArg !== 'BBB') fail('v60.46 removing a compare item moves focus to the item now in its place');
+  act('clear-compare');
+  if (compareSymbols.size || trayDoc.activeElement !== addButton) fail('v60.46 비교 비우기 returns focus to the control that added the compare');
+
+  // 3/4. Back closes the layers that follow navigation (drawer, search) without returning focus to the old screen, and focus
+  // left on nothing lands on the new screen's heading. Escape while composing keeps a search field's text.
+  const { openLayer, openLayerCount } = await load('src/ui/behaviors/layers.js');
+  const viewListeners = new Map();
+  const navDoc = focusable(createFakeDocument());
+  navDoc.defaultView = { setTimeout: (fn) => fn(), addEventListener: (type, fn) => { viewListeners.set(type, [...(viewListeners.get(type) || []), fn]); } };
+  const keyListeners = [];
+  const addDocListener = navDoc.addEventListener?.bind(navDoc);
+  navDoc.addEventListener = (type, fn, options) => { if (type === 'keydown') keyListeners.push(fn); addDocListener?.(type, fn, options); };
+  const pageNode = navDoc.createElement('section'); pageNode.id = 'page-home'; pageNode.className = 'page active';
+  const heading = navDoc.createElement('h1'); heading.className = 'page-title';
+  pageNode.append(heading); navDoc.body.append(pageNode);
+  const calls = [];
+  const layerRoot = navDoc.createElement('div'); navDoc.body.append(layerRoot);
+  const closeDrawer = openLayer({ root: layerRoot, documentRef: navDoc, inert: false, focus: false, onDismiss: () => { calls.push('dismiss'); closeDrawer(); }, onNavigate: () => { calls.push('navigate'); closeDrawer(); } });
+  const keepTip = openLayer({ documentRef: navDoc, modal: false, onDismiss() {} });
+  navDoc.activeElement = navDoc.body;
+  (viewListeners.get('popstate') || []).forEach((fn) => fn({ type: 'popstate' }));
+  if (calls.join() !== 'navigate' || openLayerCount(navDoc) !== 1 || navDoc.activeElement !== heading) fail(`v60.46 Back closes the navigation layers through onNavigate and focuses the new screen's heading: ${calls.join()} ${openLayerCount(navDoc)}`);
+  (viewListeners.get('hashchange') || []).forEach((fn) => fn({ type: 'hashchange' }));
+  if (calls.join() !== 'navigate') fail('v60.46 the hashchange after a popstate closes nothing twice');
+  keepTip();
+  // The search modal and the drawer are wired to that rule: Back closes each, and the drawer leaves focus on the heading.
+  const backWindow = () => {
+    const listeners = new Map();
+    return { listeners, setTimeout: (fn) => fn(), addEventListener: (type, fn) => { listeners.set(type, [...(listeners.get(type) || []), fn]); }, removeEventListener() {},
+      back() { for (const type of ['popstate', 'hashchange']) (listeners.get(type) || []).forEach((fn) => fn({ type })); } };
+  };
+  const withHeading = (doc) => {
+    const screen = doc.getElementById('page-home'); screen.className = 'page active';
+    const title = doc.createElement('h1'); title.className = 'page-title'; screen.append(title);
+    return title;
+  };
+  {
+    const { createCommandSearch } = await load('src/ui/navigation/command-search.js');
+    const searchDoc = focusable(createFakeDocument());
+    const searchWindow = backWindow();
+    searchDoc.defaultView = searchWindow;
+    const searchHeading = withHeading(searchDoc);
+    const dialogNode = searchDoc.getElementById('aio-command-search');
+    Object.assign(dialogNode, { open: false, showModal() { this.open = true; }, close() { this.open = false; } });
+    const opener = searchDoc.createElement('button'); searchDoc.body.append(opener);
+    const search = createCommandSearch({ root: { setTimeout, clearTimeout, _aioFocusOrigin: () => opener }, documentRef: searchDoc });
+    search.open();
+    searchWindow.back();
+    if (search.isOpen() || openLayerCount(searchDoc) || searchDoc.activeElement !== searchHeading) fail(`v60.46 Back closes the command search and focuses the new screen's heading, not the old opener (open ${search.isOpen()}, layers ${openLayerCount(searchDoc)})`);
+  }
+  {
+    const { installResponsiveShell } = await load('src/ui/components/responsive-shell.js');
+    const shellDoc = focusable(createFakeDocument());
+    const shellWindow = Object.assign(backWindow(), {
+      matchMedia: () => ({ matches: true, addEventListener() {}, removeEventListener() {} }),
+      MutationObserver: class { observe() {} disconnect() {} },
+      requestAnimationFrame: () => 0, cancelAnimationFrame() {}, getComputedStyle: () => ({ visibility: 'visible' })
+    });
+    shellDoc.defaultView = shellWindow;
+    const shellHeading = withHeading(shellDoc);
+    const sidebar = shellDoc.getElementById('aio-navigation'); sidebar.className = 'sidebar';
+    // As in a browser, the inert property is the attribute (focus left inside the closed drawer is then inside [inert]).
+    Object.defineProperty(sidebar, 'inert', { get() { return this.hasAttribute('inert'); }, set(on) { if (on) this.setAttribute('inert', ''); else this.removeAttribute('inert'); } });
+    shellDoc.getElementById('main-content').className = 'main';
+    const toggle = shellDoc.getElementById('sidebar-toggle-btn');
+    const dispose = installResponsiveShell(shellWindow, shellDoc);
+    shellDoc.dispatchEvent({ type: 'click', target: toggle, preventDefault() {}, stopImmediatePropagation() {} });
+    if (!shellDoc.body.classList.contains('aio-navigation-open')) fail('v60.46 the drawer opens from its toggle in the test shell');
+    shellWindow.back();
+    if (shellDoc.body.classList.contains('aio-navigation-open') || shellDoc.activeElement !== shellHeading) fail('v60.46 Back closes the drawer and focus lands on the new screen\'s heading, not BODY');
+    dispose();
+  }
+  const composingClose = [];
+  const closeSearch = openLayer({ root: navDoc.createElement('div'), documentRef: navDoc, inert: false, focus: false, onDismiss: () => { composingClose.push('closed'); closeSearch(); } });
+  const composingEscape = { key: 'Escape', isComposing: true, keyCode: 229, target: { type: 'search' }, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; } };
+  keyListeners.forEach((fn) => fn(composingEscape));
+  if (!composingEscape.defaultPrevented || composingClose.length) fail('v60.46 Escape while composing keeps the search text (no native clear) and closes no layer');
+  closeSearch();
+
+  // 5. A failed timeframe load leaves no layer chips of the previous chart: the shared reset clears them.
+  const { renderStockChart } = await load('src/ui/components/stock-chart.js');
+  const chartDoc = createFakeDocument();
+  const chartSection = chartDoc.getElementById('stock-chart-section');
+  chartSection.append(chartDoc.getElementById('stock-chart-layers'));
+  const staleRead = chartDoc.createElement('div'); staleRead.className = 'stock-chart-layer-read'; staleRead.textContent = '상승 추세 12봉'; chartSection.append(staleRead);
+  const chartRoot = { _aioFetchYahooChartData: async () => null };
+  await renderStockChart({ documentRef: chartDoc, root: chartRoot, symbol: 'AAPL', interval: '1mo' });
+  if (chartSection.querySelectorAll('#stock-chart-layers, .stock-chart-layer-read').length) fail('v60.46 a timeframe that failed to load leaves no layer row or read line of the previous chart');
+
+  // 6. The shelf marks what was opened, not what was read.
+  const { OPENED_WORDS, SHELF_SORTS } = await load('src/ui/knowledge/research-shell.js');
+  const shelfWords = [...Object.values(OPENED_WORDS || {}), ...SHELF_SORTS.map(([, label]) => label)];
+  if (!OPENED_WORDS || shelfWords.some((word) => /읽/.test(word)) || OPENED_WORDS.count !== '편 열어 봄') fail(`v60.46 the research shelf says 열어 봄 for a document that was only opened: ${shelfWords.join(', ')}`);
+
+  // 8. Every refusal of the 보유 종목 추가 form marks the field and focuses it; the legacy form only calls the owner.
+  const { refuseField, HOLDING_REFUSALS } = await load('src/ui/components/input-check.js');
+  const formDoc = focusable(createFakeDocument());
+  const tickerField = formDoc.createElement('input'); tickerField.id = 'pf-add-ticker'; tickerField.value = 'ZZZZQ'; formDoc.body.append(tickerField);
+  refuseField(tickerField, { ok: false, reason: HOLDING_REFUSALS.ticker });
+  if (formDoc.activeElement !== tickerField || tickerField.getAttribute('aria-invalid') !== 'true' || tickerField.value !== 'ZZZZQ') fail('v60.46 a refused holding field is marked, focused and keeps its text');
+  // The legacy add runs as written (its one function, in a sandbox): each late refusal goes through window._aioRefuseField.
+  const legacyAdd = (() => {
+    const workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');
+    const start = workspace.indexOf('async function _pfAddOnce()');
+    return workspace.slice(start, workspace.indexOf('\n}\n', start) + 2);
+  })();
+  const addWith = async (values) => {
+    const refused = [];
+    const fields = Object.fromEntries(['pf-add-ticker', 'pf-add-target', 'pf-add-memo', 'pf-add-cost-currency'].map((id) => [id, { value: values[id] || '', validity: {}, focus() {} }]));
+    const sandbox = {
+      document: { getElementById: (id) => fields[id] || null, querySelector: () => null },
+      showToast() {}, _pfFormSnapshot: () => '', KNOWN_TICKERS: new Set(), _SNAP_FALLBACK: {},
+      window: { _liveData: {}, _aioReadHoldingInputs: async () => ({ ok: true, qty: 1, cost: 10 }), _aioCheckUsListing: async () => ({ listed: false }), _aioUsListingSymbol: (s) => s,
+        _aioToastWithNameHint: async () => {}, _aioRefuseField: (id, kind) => { refused.push(`${id}:${kind}`); }, _aioClearField() {} }
+    };
+    const vm = await import('node:vm');
+    vm.createContext(sandbox);
+    await vm.runInContext(`${legacyAdd}; _pfAddOnce()`, sandbox);
+    return refused.join();
+  };
+  const refusedTicker = await addWith({ 'pf-add-ticker': 'ZZZZQ' });
+  const refusedCurrency = await addWith({ 'pf-add-ticker': 'AAPL', 'pf-add-cost-currency': '12' });
+  const refusedTarget = await addWith({ 'pf-add-ticker': 'AAPL', 'pf-add-target': '-1' });
+  if (refusedTicker !== 'pf-add-ticker:ticker' || refusedCurrency !== 'pf-add-cost-currency:currency' || refusedTarget !== 'pf-add-target:target') fail(`v60.46 the legacy holding form refuses ticker, currency and target through the one refusal path: ${[refusedTicker, refusedCurrency, refusedTarget].join(' | ')}`);
+}

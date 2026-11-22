@@ -2,15 +2,29 @@
 import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { SCREENER_FIELD_REGISTRY, readRowNumber } from '../../../data/contracts/screener.js';
 import { FACTOR_LABELS, capBucketOf, capFilterValue, rankGrade, profileComputability, vcpStageLabel } from '../../../domain/screener/row-presentation.js';
-import { withTopicParticle } from '../../../domain/content/korean-particle.js';
+import { withAndParticle, withTopicParticle } from '../../../domain/content/korean-particle.js';
 import { MARKET_LABELS, screenerMarket } from '../../../domain/screener/market-scope.js';
 import { sectorsForEtf } from '../../../domain/entity/stock-read.js';
-import { parseConditionValue, matchesConditions, conditionCoverage, conditionLabel, CUSTOM_CONDITIONS, CUSTOM_RECIPES, conditionTemplate, normalizeConditions } from '../../../domain/screener/custom-conditions.js';
+import { parseConditionValue, matchesConditions, conditionCoverage, conditionLabel, CUSTOM_CONDITIONS, CUSTOM_RECIPES, conditionTemplate, normalizeConditions, invertedConditionPairs, rangeInverted } from '../../../domain/screener/custom-conditions.js';
 import { sectorLabel } from '../../../domain/screener/screener-read.js';
 import { readUniverseScope, rememberExtendedCount, writeUniverseScope } from '../../../data/screener-extended.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
 import { openLayer } from '../../behaviors/layers.js';
+import { markRange } from '../../components/input-check.js';
 import { FILTER_LABELS, INDEX_CODE_LABELS, INDEX_LABELS, customRead, scopedRows, screenerRuntime, selectedValue } from './model.js';
+// The RSI inputs as one range: the table filter and the run preview (workbench.js) read the same bounds.
+export function readRsiRange(documentRef) {
+  const read = (id) => { const value = Number.parseFloat(selectedValue(documentRef, id)); return Number.isFinite(value) ? value : null; };
+  const min = read('scr-rsi-min');
+  const max = read('scr-rsi-max');
+  return { min, max, inverted: rangeInverted(min, max) };
+}
+// An inverted range is marked on both inputs (input-check.js markRange: aria-invalid and one note they point to).
+function renderRangeValidity(documentRef) {
+  const minInput = documentRef.getElementById('scr-rsi-min');
+  const maxInput = documentRef.getElementById('scr-rsi-max');
+  if (minInput && maxInput) markRange(minInput, maxInput, readRsiRange(documentRef).inverted ? { ok: false, reason: '최소값이 최대값보다 큽니다' } : { ok: true });
+}
 // conditionsOnly: the conditions block's pass count — the applied conditions inside the listing market, before the table's
 // own scope (섹터, 표에서 찾기, 조건 통과만).
 export function filterRows(rows, documentRef, { readWatchlist, readAliases, conditionsOnly = false } = {}) {
@@ -24,8 +38,7 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
   // their names. A short Latin query is a ticker prefix (or the start of a word in the name), not a substring.
   const tickerQuery = /^[a-z][a-z.\-]{0,4}$/.test(query);
   const minRank = Number.parseInt(selectedValue(documentRef, 'scr-min-rank'), 10) || 0;
-  const rsiMin = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-min'));
-  const rsiMax = Number.parseFloat(selectedValue(documentRef, 'scr-rsi-max'));
+  const { min: rsiMin, max: rsiMax } = readRsiRange(documentRef);
   const minMomentum = Number.parseFloat(selectedValue(documentRef, 'scr-min-mom'));
   const setupFilter = selectedValue(documentRef, 'scr-setup');
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
@@ -55,8 +68,8 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
     if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
     const rsi = readRowNumber(row, 'rsi', 'calculation');
     const momentum = readRowNumber(row, 'ret3m', 'calculation');
-    if (Number.isFinite(rsiMin) && !(rsi != null && rsi >= rsiMin)) return false;
-    if (Number.isFinite(rsiMax) && !(rsi != null && rsi <= rsiMax)) return false;
+    if (rsiMin != null && !(rsi != null && rsi >= rsiMin)) return false;
+    if (rsiMax != null && !(rsi != null && rsi <= rsiMax)) return false;
     if (Number.isFinite(minMomentum) && !(momentum != null && momentum >= minMomentum)) return false;
     if (setupFilter === 'WINNER' && row.setupProfile?.winnerFilter !== 'candidate') return false;
     if (setupFilter === 'RSPULLBACK' && row.setupProfile?.relativeStrengthPullback !== 'candidate') return false;
@@ -212,6 +225,7 @@ function chipButton(documentRef, textValue, action, argument) {
 }
 /** definition: the screen the table shows (its own conditions lead the row, each removable by its position). */
 export function renderFilterChips(documentRef, { definition = null } = {}) {
+  renderRangeValidity(documentRef);
   const container = documentRef.getElementById('scr-active-filter-chips');
   if (!container) return;
   const chips = screenConditions(definition).filter((item) => item.own)
@@ -564,6 +578,7 @@ export function installCustomConditions(documentRef) {
         // keeps the table on the last run's passed set, and nothing said so.
         current.length && shown === 0 && passedOnlyApplied(documentRef) && counts.some((item) => item.pass > 0)
           ? "'조건 통과만'이 켜져 있어 조건 화면을 통과한 종목 안에서만 찾았습니다 — 끄면 전체 종목에서 찾습니다" : '',
+        ...invertedConditionPairs(current).map(([lower, upper]) => `${withAndParticle(conditionLabel(lower))} ${withTopicParticle(conditionLabel(upper))} 함께 만족할 수 없습니다`),
         current.length >= 3 ? `조건 ${current.length}개를 겹쳤습니다 — 조건마다 남는 종목이 줄고, 이 조합은 과거 성과로 검증한 규칙이 아닙니다` : '',
         missing ? '자료 없음 조건은 이 시장 종목에 해당 자료가 없거나(재무는 미국만) 다음 데이터 갱신부터 채워집니다' : '',
         failed.length ? `${failed.join(', ')} — 이 조건은 판정하지 못했습니다` : '', String(parseNote || '').replace(/\.\s*$/, '')].filter(Boolean).join('. ');

@@ -33,12 +33,13 @@ export function installResponsiveShell(root, doc) {
   toggle.setAttribute('aria-controls', sidebar.id);
   let opened = false;
   let focusReturn = null;
-  // The drawer and the narrow AI panel are layers with their own backdrop: Escape and Tab come from behaviors/layers.js.
+  // The drawer and the narrow AI panel are layers with their own backdrop: Escape, Tab and the close on Back come from
+  // behaviors/layers.js.
   let releaseDrawer = () => {}, releaseAi = () => {};
   const setOpen = (value, restoreFocus = true) => {
     const wasOpened = opened;
     opened = compact.matches && value;
-    if (opened !== wasOpened) { releaseDrawer(); releaseDrawer = opened ? openLayer({ root: sidebar, inert: false, focus: false, onDismiss: () => setOpen(false) }) : () => {}; }
+    if (opened !== wasOpened) { releaseDrawer(); releaseDrawer = opened ? openLayer({ root: sidebar, inert: false, focus: false, onDismiss: () => setOpen(false), onNavigate: () => setOpen(false, false) }) : () => {}; }
     doc.body.classList.toggle('aio-navigation-open', opened);
     toggle.setAttribute('aria-expanded', String(opened));
     moreTab?.setAttribute('aria-expanded', String(opened));
@@ -160,7 +161,6 @@ export function installResponsiveShell(root, doc) {
   const aiObserver = new root.MutationObserver(onAi);
   if (ai) aiObserver.observe(ai, { attributes: true, attributeFilter: ['class'] });
   const onMode = () => { setOpen(false); refreshViewport(); onAi(); };
-  const onHash = () => { if (opened) setOpen(false, false); };
   const markTab = (event) => {
     if (!tabbar) return;
     const route = event?.detail?.routeId || doc.querySelector('.page.active')?.id?.replace(/^page-/, '') || 'home';
@@ -176,7 +176,7 @@ export function installResponsiveShell(root, doc) {
     event.preventDefault(); ai.querySelector('.ai-ph-close')?.click();
   };
   doc.addEventListener('click', onClick, true); doc.addEventListener('keydown', onKey); root.addEventListener('keydown', onLateEscape); root.addEventListener('aio:workerHealth', routeLine);
-  compact.addEventListener('change', onMode); aiOverlay.addEventListener('change', onAi); root.addEventListener('hashchange', onHash);
+  compact.addEventListener('change', onMode); aiOverlay.addEventListener('change', onAi);
   doc.addEventListener('aio:navigationCommitted', markTab);
   root.addEventListener('resize', refreshViewport); root.visualViewport?.addEventListener('resize', refreshViewport);
   root.visualViewport?.addEventListener('scroll', refreshViewport);
@@ -191,7 +191,7 @@ export function installResponsiveShell(root, doc) {
     if (!previous.id) sidebar.removeAttribute('id');
     if (previous.controls) toggle.setAttribute('aria-controls', previous.controls); else toggle.removeAttribute('aria-controls');
     backdrop.remove(); close.remove(); doc.removeEventListener('click', onClick, true); doc.removeEventListener('keydown', onKey); root.removeEventListener('keydown', onLateEscape); root.removeEventListener('aio:workerHealth', routeLine);
-    compact.removeEventListener('change', onMode); aiOverlay.removeEventListener('change', onAi); root.removeEventListener('hashchange', onHash);
+    compact.removeEventListener('change', onMode); aiOverlay.removeEventListener('change', onAi);
     doc.removeEventListener('aio:navigationCommitted', markTab);
     releaseDrawer(); releaseAi();
     root.removeEventListener('resize', refreshViewport); root.visualViewport?.removeEventListener('resize', refreshViewport);

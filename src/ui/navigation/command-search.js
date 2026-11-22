@@ -381,7 +381,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
       if (typeof node.showModal === 'function') node.showModal(); else node.setAttribute('open', '');
       // Over the glossary or the narrow AI panel the dialog is the top layer: usable, and Escape closes it first.
       releaseLayer();
-      releaseLayer = openLayer({ root: node, focus: false, onDismiss: close });
+      releaseLayer = openLayer({ root: node, focus: false, onDismiss: close, onNavigate: () => { opener = null; close(); } });
     }
     setScope(wanted);
     field.value = String(query || '');

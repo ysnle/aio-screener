@@ -12,7 +12,7 @@ import { stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, text } from './model.js';
 import { createColumnContent } from './table.js';
-import { openLayer } from '../../behaviors/layers.js';
+import { focusOrigin, openLayer } from '../../behaviors/layers.js';
 // 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
 // (추세, 추세 속도, 밸류) shows its definition and weight only.
 const FACTOR_EVIDENCE = Object.freeze({
@@ -499,11 +499,21 @@ export function createInspectorController(ctx) {
          compareNoticeTimer = setTimeout(() => { compareNoticeTimer = null; notice.hidden = true; }, 6000);
        };
        bag.add(() => { if (compareNoticeTimer) clearTimeout(compareNoticeTimer); compareNoticeTimer = null; documentRef.getElementById('scr-compare-feedback')?.remove(); });
+       // The control that last added a stock: focus returns there when the tray empties (else to the inspector's 비교 추가).
+       let compareOrigin = null;
+       const visible = (node) => node?.isConnected && !node.disabled && node.getClientRects?.().length > 0;
+       // A removed item's place goes to the item now there (else the one before it); an emptied tray hands focus back.
+       const focusAfterCompareChange = (index) => {
+         const removers = [...documentRef.querySelectorAll('#scr-compare-list [data-aio-screener-action="remove-compare"]')];
+         const target = removers[Math.min(index, removers.length - 1)]
+           || [compareOrigin, documentRef.querySelector('[data-aio-screener-action="why-compare"]')].find(visible);
+         target?.focus?.({ preventScroll: true });
+       };
        ctx.toggleCompare = (symbol) => {
          if (!symbol) return;
          let message;
          if (compareSymbols.has(symbol)) { compareSymbols.delete(symbol); message = `${symbol} 비교에서 뺌, ${compareSymbols.size}개`; }
-         else if (compareSymbols.size < 5) { compareSymbols.add(symbol); message = `${symbol} 비교에 추가됨, ${compareSymbols.size}개`; }
+         else if (compareSymbols.size < 5) { compareSymbols.add(symbol); compareOrigin = focusOrigin(documentRef); message = `${symbol} 비교에 추가됨, ${compareSymbols.size}개`; }
          else message = '비교는 5개까지입니다, 하나를 빼고 다시 넣으세요';
          ctx.renderCompareTray();
          ctx.renderNow();
@@ -543,6 +553,11 @@ export function createInspectorController(ctx) {
                th.append(button);
                // P1599 (F08): the company name under the ticker — a six-digit KRX code alone is not a name.
                if (row.name) { const name = documentRef.createElement('div'); name.textContent = row.name; name.className = 'scr-compare-name'; th.append(name); }
+               const remove = documentRef.createElement('button');
+               remove.type = 'button'; remove.className = 'aio-btn-table scr-compare-remove'; remove.textContent = '빼기';
+               remove.dataset.aioScreenerAction = 'remove-compare'; remove.dataset.aioScreenerArg = row.sym;
+               remove.setAttribute('aria-label', `${row.sym} 비교에서 빼기`);
+               th.append(remove);
                heading.append(th);
              }
              const head = documentRef.createElement('thead'); head.append(heading); table.append(head);
@@ -572,7 +587,7 @@ export function createInspectorController(ctx) {
        ctx.addCompare = (symbol) => {
          const id = String(symbol || '').trim().toUpperCase();
          if (!id || compareSymbols.has(id) || compareSymbols.size >= 5) return compareSymbols.has(id);
-         compareSymbols.add(id); ctx.renderCompareTray(); ctx.renderNow(); return true;
+         compareSymbols.add(id); compareOrigin = focusOrigin(documentRef); ctx.renderCompareTray(); ctx.renderNow(); return true;
        };
        root._aioAddScreenerCompare = ctx.addCompare;
        bag.add(() => { if (root._aioAddScreenerCompare === ctx.addCompare) delete root._aioAddScreenerCompare; });
@@ -604,8 +619,14 @@ export function createInspectorController(ctx) {
            }
            const notice = documentRef.getElementById('scr-compare-feedback');
            if (notice) notice.hidden = true;
+    } else if (action === 'remove-compare') {
+           const index = [...compareSymbols].indexOf(argument);
+           if (index < 0) return true;
+           ctx.toggleCompare(argument);
+           focusAfterCompareChange(index);
     } else if (action === 'clear-compare') {
            compareSymbols.clear(); ctx.renderCompareTray(); ctx.renderNow();
+           focusAfterCompareChange(0);
     } else return false;
     return true;
   });

@@ -1,0 +1,30 @@
+{
+  "p": {
+    "title": "보유 종목 추가에서 모르는 티커나 잘못된 통화를 거부해도 포커스가 저장 버튼에 남았다",
+    "symptom": "티커 ZZZZQ나 원가 통화 \"12\"는 칸에 aria-invalid가 붙었지만 포커스가 추가 버튼에 남았다(실서비스 확인). 빈 티커, 수량 0, 목표가 -1은 칸으로 포커스가 갔다.",
+    "root_cause": "거부 경로가 둘이었다: input-check.js readHoldingInputs의 refuse(표시 + 포커스)와 js/aio-workspace.js가 부르는 window._aioMarkField(표시만). 목표가는 레거시 파일이 직접 포커스를 옮겼다.",
+    "fix": "input-check.js refuseField(표시 + 안내 + 포커스, 입력한 글 유지)와 HOLDING_REFUSALS가 이 폼의 모든 거부를 소유한다. compatibility-globals.js는 window._aioRefuseField / _aioClearField만 내고, js/aio-workspace.js는 티커·원가 통화·목표가 거부에서 그것만 부른다. _aioMarkField는 지웠다.",
+    "violated_rule": "같은 동작은 한 곳이 소유한다",
+    "prevention": "node scripts/ci-esm-core-unit-check.mjs: 'v60.46 a refused holding field is marked, focused and keeps its text', 'v60.46 the legacy holding form refuses ticker, currency and target through the one refusal path' (_pfAddOnce를 vm에서 그대로 실행). 고치기 전 js/aio-workspace.js로 실패함을 확인했다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs 통과. 브라우저 미확인: 실제 폼에서 ZZZZQ 거부 뒤 티커 칸에 포커스가 가는지.",
+    "files": [
+      "src/ui/components/input-check.js",
+      "src/app/compatibility-globals.js",
+      "js/aio-workspace.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-PF-REFUSAL-FOCUS-01",
+      "text": "보유 종목 추가의 모든 거부(빈 티커, 수량, 단가, 모르는 티커, 원가 통화, 목표가)가 그 칸에 표시하고 포커스를 옮긴다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "UI 동작 결함 8건 (Codex 점검)",
+  "changelog": [
+    "**보유 종목 추가의 거부 ({P}):** 모르는 티커나 잘못된 통화를 거부해도 그 칸으로 포커스가 간다."
+  ],
+  "note": "{VERSION} UI 동작 결함 8건: 범위 검증, 비교 빼기, 뒤로 가기, 한글 조합 Escape, 차트 칩, 서가 문구, 보유 종목 거부",
+  "status": null
+}

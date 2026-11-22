@@ -1,0 +1,29 @@
+{
+  "p": {
+    "title": "메뉴(서랍)가 열린 채 뒤로 가면 포커스가 BODY로 떨어졌다",
+    "symptom": "휴대폰·아이패드 세로에서 메뉴를 연 채 뒤로 가기를 하면 메뉴는 닫혔지만 포커스가 BODY에 남아 다음 Tab이 문서 맨 위에서 시작했다.",
+    "root_cause": "responsive-shell.js가 hashchange에서 setOpen(false, false)로 포커스를 돌려주지 않고 닫았다. showPage(js/aio-core.js)가 새 화면 제목에 주는 포커스는 메뉴가 열려 있는 동안 본문이 inert라 들어가지 못했다.",
+    "fix": "behaviors/layers.js에 화면 이동 규칙을 두었다: onNavigate로 연 층은 popstate·hashchange에서 닫히고, 포커스가 BODY나 숨은·inert 영역에 남으면 새 화면의 .page-title(showPage와 같은 대상)로 간다. 서랍은 이 규칙으로 닫히고 자기 hashchange 처리는 지웠다.",
+    "violated_rule": "WCAG 2.4.3 포커스 순서",
+    "prevention": "node scripts/ci-esm-core-unit-check.mjs: 'v60.46 Back closes the navigation layers through onNavigate and focuses the new screen\\'s heading', 'v60.46 Back closes the drawer and focus lands on the new screen\\'s heading, not BODY'. 고치기 전 layers.js와 responsive-shell.js로 각각 실패함을 확인했다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs 통과. 브라우저 미확인: 실제 뒤로 가기에서 새 화면 제목에 포커스가 가는지(popstate 처리 순서).",
+    "files": [
+      "src/ui/behaviors/layers.js",
+      "src/ui/components/responsive-shell.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-NAV-BACK-FOCUS-01",
+      "text": "메뉴를 연 채 뒤로 가면 메뉴가 닫히고 포커스가 새 화면 제목에 있다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "UI 동작 결함 8건 (Codex 점검)",
+  "changelog": [
+    "**뒤로 가기와 메뉴 ({P}):** 메뉴를 연 채 뒤로 가면 포커스가 새 화면 제목으로 간다."
+  ],
+  "note": "{VERSION} UI 동작 결함 8건: 범위 검증, 비교 빼기, 뒤로 가기, 한글 조합 Escape, 차트 칩, 서가 문구, 보유 종목 거부",
+  "status": null
+}

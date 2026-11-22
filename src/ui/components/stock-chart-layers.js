@@ -53,10 +53,17 @@ function canvasLayer(paint, zOrder = 'bottom') {
   return { attached: (param) => { request = param.requestUpdate; }, detached: () => { request = null; }, paneViews: () => [view], updateAllViews: () => {}, refresh: () => request?.() };
 }
 
+// The analysis slot's layer toggles and read line belong to the chart drawn now: the slot's reset (stock-chart.js) clears
+// them before every load, so a failed load does not leave the previous chart's read beside an empty plot. Only the slot's
+// own read row: the 시장 지수 cards on the same page carry the class too.
+export function clearChartLayers(doc) {
+  doc.getElementById('stock-chart-layers')?.remove();
+  doc.querySelector('#stock-chart-section .stock-chart-layer-read')?.remove();
+}
+
 // `compact` (the market strip): base layers only, no toggle row or legend, the read written into `readHost`.
 export function attachChartLayers({ doc, root, instance, layers, analysis = null, rs = null, price = (v) => String(v), compact = false, readHost = null, pricePx = PRICE_PX_DEFAULT }) {
-  // Only the slot's own read row: the 시장 지수 cards on the same page carry the class too.
-  if (!compact) { doc.getElementById('stock-chart-layers')?.remove(); doc.querySelector('#stock-chart-section .stock-chart-layer-read')?.remove(); }
+  if (!compact) clearChartLayers(doc);
   if (!instance?.chart || !instance.candles || !layers?.available) return null;
   const { chart, candles, volume, palette, host } = instance;
   // Price labels are drawn inside the plot (the tag layer in render), not on the axis: the library paints a series' last

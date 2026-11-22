@@ -483,7 +483,7 @@ async function _pfAddOnce() {
   var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // v58.80 F06/F25: input-check.js checks the values taken now; every field is read before the first await
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
   const pfTargetEl = document.getElementById('pf-add-target'), parsedTarget = parseFloat(pfTargetEl.value);
-  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { var pfTgtMsg = '목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'; showToast(pfTgtMsg); window._aioMarkField?.('pf-add-target', pfTgtMsg); pfTargetEl.focus(); return; } window._aioMarkField?.('pf-add-target'); // v58.82: 말없이 미설정 저장하지 않음
+  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { showToast('목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'); window._aioRefuseField?.('pf-add-target', 'target'); return; } window._aioClearField?.('pf-add-target'); // v58.82: 말없이 미설정 저장하지 않음
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
   // E3/P1187 (11 P11-02): 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를
@@ -492,9 +492,9 @@ async function _pfAddOnce() {
   const costCurrencyEl = document.getElementById('pf-add-cost-currency');
   const costCurrencyRaw = (costCurrencyEl ? costCurrencyEl.value : '').trim().toUpperCase();
   if (costCurrencyRaw && !/^[A-Z]{3}$/.test(costCurrencyRaw)) {
-    showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.'); window._aioMarkField?.('pf-add-cost-currency', 'currency');
+    showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.'); window._aioRefuseField?.('pf-add-cost-currency', 'currency');
     return;
-  } else window._aioMarkField?.('pf-add-cost-currency');
+  } else window._aioClearField?.('pf-add-cost-currency');
   // v58.80 F18: the default currency follows the resolved ticker, the same rule as the cost label.
   const costCurrency = costCurrencyRaw || (/^\d{6}$/.test(ticker) ? 'KRW' : null);
   var pfCheck = await pfCheckPending; if (!pfCheck || !pfCheck.ok) { showToast(pfCheck ? pfCheck.reason : '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; }
@@ -506,7 +506,7 @@ async function _pfAddOnce() {
   var pfListing = null, pfListingSym = typeof window._aioUsListingSymbol === 'function' ? window._aioUsListingSymbol(ticker) : ticker; if (!isKnown && typeof window._aioCheckUsListing === 'function') { try { pfListing = await window._aioCheckUsListing(pfListingSym); } catch (_) { pfListing = null; } if (!pfListing || pfListing.listed == null) { showToast('"' + (pfRawTicker || ticker) + '"는 AIO 종목 목록에 없어 미국 상장 목록과 대조해야 하는데, 지금 상장 목록을 불러오지 못해 저장하지 않았습니다. 잠시 후 다시 시도하세요.'); return; } if (pfListing.listed === true) { ticker = pfListingSym; isKnown = true; } }
   var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
-    window._aioMarkField?.('pf-add-ticker', 'ticker'); await window._aioToastWithNameHint(pfRawTicker || ticker, '"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
+    window._aioRefuseField?.('pf-add-ticker', 'ticker'); await window._aioToastWithNameHint(pfRawTicker || ticker, '"' + (pfRawTicker || ticker) + '" 검증되지 않은 티커라 저장하지 않았습니다. AIO 종목 목록에 정확히 같은 심볼이나 등록된 이름이 없습니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름(예: 엔비디아)으로 다시 입력하세요. 미국 상장 목록에도 같은 심볼이 없습니다.'); // v57.81
     return;
   }
 
