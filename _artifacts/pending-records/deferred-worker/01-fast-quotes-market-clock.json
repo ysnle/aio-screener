@@ -1,0 +1,12 @@
+{
+  "qa": [
+    {
+      "id": "QA-FAST-QUOTES-CLOCK-01",
+      "text": "데이터 플레인 Worker는 미국(04:00-20:00 ET) 또는 한국 장이 열려 있을 때만 5분마다 시세를 발행하고, 그 밖에는 30분에 한 번(BTC/ETH) 발행한다. 장 판단은 브라우저와 같은 src/app/refresh-session-policy.js를 읽고, 워크플로 4종 실행은 5분 슬롯을 그대로 쓴다 (v60.46).",
+      "verify_by": "node scripts/ci-data-plane-contract-check.mjs"
+    }
+  ],
+  "qa_section": "빠른 시세 발행 주기",
+  "changelog": ["데이터 플레인 Worker의 5분 시세 발행을 장 시간으로 한정했다 — 휴장에는 30분에 한 번, 장 판단은 브라우저와 같은 규칙 ({VERSION})"],
+  "note": "Worker 시세 발행 장 시간 한정 (배포 필요)"
+}

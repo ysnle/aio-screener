@@ -1,6 +1,7 @@
 // The one rule for how often a refresh task runs by the market clock. src/app/refresh-scheduler.js reads it for its
 // timers, for a tab returning to view, for page entry and for its stale report; the 새로고침 button and other explicit
-// requests do not ask it and run at any hour. A trading day in a year the calendar does not register counts as a trading day, so an
+// requests do not ask it and run at any hour. The data-plane Worker (worker/data-plane.js quotePublishDue) reads the same
+// 'quotes' interval for its /quotes publication, so browser polling and the fast plane share one clock. A trading day in a year the calendar does not register counts as a trading day, so an
 // unregistered year keeps refreshing instead of going quiet.
 import { dateInTimezone, nyParts, resolveMarketCalendarSession } from '../domain/market/session/market-calendar.js';
 

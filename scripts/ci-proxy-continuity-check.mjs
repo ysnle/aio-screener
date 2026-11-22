@@ -132,7 +132,10 @@ check(privateRequest.calls.length===0 && privateRequest.store.size===0,'credenti
 const worker = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
 const workerHosts = [...section(worker, 'const ALLOWED_DOMAINS = [', '];').matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
 const clientHosts = [...vm.runInContext('_AIO_SHARED_WORKER_HOSTS', h.context)].sort();
-check(workerHosts.length > 20 && JSON.stringify(workerHosts) === JSON.stringify(clientHosts), 'P1756 client shared-Worker host mirror equals the Worker ALLOWED_DOMAINS');
+check(workerHosts.length >= 10 && JSON.stringify(workerHosts) === JSON.stringify(clientHosts), 'P1756 client shared-Worker host mirror equals the Worker ALLOWED_DOMAINS');
+// v60.46: hosts the browser stopped calling (fear-greed, FX reference and translate APIs, bare rss2json.com) left both lists.
+const v6046RetiredHosts = ['api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me', 'open.er-api.com', 'api.exchangerate-api.com', 'translate.googleapis.com', 'translate.google.com', 'rss2json.com'];
+check(v6046RetiredHosts.every((host) => !workerHosts.includes(host) && !clientHosts.includes(host)) && !/dataviz|fear-and-greed|alternative\.me/.test(section(worker, 'function targetExpectsJson', '\n}')), 'v60.46 hosts without a browser caller are out of the Worker allowlist, its client mirror and its JSON-accept rule'); // text-pin-ok: retirement absence
 // v57.81: retired personal-key and dead-fallback providers have no browser path through the Worker, so neither list relays them.
 const retiredRelayHosts = ['www.alphavantage.co', 'api.twelvedata.com', 'finnhub.io', 'api.stlouisfed.org', 'financialmodelingprep.com', 'newsdata.io', 'stooq.com', 'www.stooq.com', 'nitter.net'];
 check(retiredRelayHosts.every((host) => !workerHosts.includes(host) && !h.root._aioSharedWorkerRelays('https://' + host + '/x')), 'v57.81 retired provider hosts are out of the Worker allowlist and its client mirror'); // text-pin-ok: retirement absence

@@ -8,8 +8,10 @@ enabled = true
 head_sampling_rate = 0.1
 
 [triggers]
-# The worker observes every five minutes; data-plane.js suppresses unchanged
-# current writes and throttles liveness heartbeats to 15 minutes.
+# The worker wakes every five minutes for the workflow dispatches; data-plane.js
+# publishes quotes on every slot only while a US or KRX session is open (every
+# 30 minutes otherwise), suppresses unchanged current writes and throttles
+# liveness heartbeats to 15 minutes.
 crons = ["*/5 * * * *"]
 
 [vars]
