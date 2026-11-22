@@ -8,7 +8,7 @@
 // present; the six-axis count failed its pre-registered backtest (model-validation-status.json marketLean), so none of
 // them is a kind. The patterns read the wording the model is given: the decision frame (decision-frame.js
 // decisionFrameText: "138번 중 80번 … 평소 55%", "근거 종류: 비용 가설"), the VIX-band risk line (vix-band-record.js
-// vixBandRiskLine: "VIX 25.6(높음 구간): … 빠진 경우 30% (평소 15%, 겹치지 않는 사례 140개)") and the scenario lines'
+// vixBandRiskLine: "VIX 25.6(높음 구간): … 빠진 경우 30% (겹치지 않는 사례 140개 중 42개, 평소 15%)") and the scenario lines'
 // "시장 가격" (macro-crossroads.js).
 // "6개 중 4개 조건 충족" is a met-condition count, not a sample.
 const SAMPLE = /\d+\s*(?:건|번|회|차례|개)\s*중\s*\d+(?!\d|\s*개?\s*(?:조건|충족))|(?:사례|표본)\s*\d+|\d+\s*(?:건|번|회|차례|개)의?\s*(?:사례|표본)/;

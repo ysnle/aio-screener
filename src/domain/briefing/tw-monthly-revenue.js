@@ -9,6 +9,10 @@ export const TW_MONTHLY_REVENUE_SCHEMA = 'tw-monthly-revenue.v1';
 // The month M figure is due by the 10th of M+1; past the 15th of M+2 the latest month is a month late.
 const LATE_AFTER_DAY = 15;
 
+// tableDate is the MOPS table's generation date (出表日期), one day for every company — not a company's filing
+// date, which TWSE t187ap05_L does not carry. An artifact or company record written before the rename names it publishedAt.
+export const tableDateOf = (record) => record?.tableDate ?? record?.publishedAt ?? null;
+
 const pct = (now, before) => (now == null || before == null || before <= 0 ? null : Math.round((now / before - 1) * 1000) / 10);
 export const signedPct = (value) => (value == null ? '-' : signedText(value, 1, '%'));
 const monthLabel = (month) => `${Number(String(month).slice(5, 7))}월`;
@@ -49,5 +53,5 @@ export function buildTwRevenueView(artifact, { nowMs = Date.now(), loadState = '
   const reading = `대만 AI 공급망 ${current.length}개사의 ${monthLabel(month)} 매출 합계는 1년 전보다 ${signedPct(totalYoy)}${upText ? `이고, ${upText}.` : '입니다.'}`
     + (strongest && strongest.yoyPct > 0 ? ` 가장 크게 늘어난 묶음은 ${strongest.name} ${signedPct(strongest.yoyPct)}입니다.` : '')
     + (late ? ` ${monthLabel(month)}이 최신이라 지연된 상태입니다.` : '');
-  return { state: 'ok', month, publishedAt: artifact.publishedAt || null, generatedAt: artifact.generatedAt || null, reported: current.length, listed, up, totalYoy, late, groups, reading, source: artifact.source || null };
+  return { state: 'ok', month, tableDate: tableDateOf(artifact), generatedAt: artifact.generatedAt || null, reported: current.length, listed, up, totalYoy, late, groups, reading, source: artifact.source || null };
 }

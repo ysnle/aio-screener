@@ -13,7 +13,7 @@ import { buildEventBriefs, fixtureSources } from './fetch-event-briefs.mjs';
 import { earningsContextLines, earningsContextSignature, cashflowContextLines } from './producer/earnings-context.mjs';
 import { buildBigtechCashflow } from './fetch-bigtech-cashflow.mjs';
 import { issuerCashflow, quartersSpanned, HYPERSCALERS } from '../src/domain/fundamental/quarterly-cashflow.js';
-import { recentBriefs, latestBriefFor, numberTokens, verifyQuotedItems, unverifiedNumbers, sourceNumberSet, EVENT_BRIEFS_SCHEMA } from '../src/domain/briefing/event-briefs.js';
+import { recentBriefs, latestBriefFor, numberTokens, verifyQuotedItems, unverifiedNumbers, sourceNumberSet, EVENT_BRIEFS_SCHEMA, preReportSeenAt, estimateSeenBeforeReport } from '../src/domain/briefing/event-briefs.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDir = resolve(root, 'scripts/fixtures/event-briefs');
@@ -264,6 +264,26 @@ check('v59.44 capex and free cash flow survive the cap of six figures (X bookmar
   eq(out.figures.length, 6);
   same(out.figures.slice(-2).map((figure) => figure.metric), ['capex', 'free_cash_flow']);
   ok(EARNINGS_SCHEMA.properties.figures.items.properties.metric.enum.includes('free_cash_flow'), 'the schema names the cash metrics');
+});
+check('v60.46 the quarter consensus is attached to whole-company quarter rows only (POWL 연간 EPS, RGTI 첫 9개월 매출, a segment revenue line)', () => {
+  const lines = ['Total revenues for the three months ended September 30, 2026 were $1.4 million', 'Total revenues for the nine months ended September 30, 2026 were $10.9 million',
+    'Net income of $82 million, or $2.23 per diluted share', 'Net income of $221 million, or $6.04 per diluted share, in Fiscal 2026', 'Professional services revenue was $1.1 million'];
+  const figures = [
+    { metric: 'revenue', label: '3분기 매출', value: '$1.4 million', text: '', quote: lines[0] },
+    { metric: 'revenue', label: '첫 9개월 매출', value: '$10.9 million', text: '', quote: lines[1] },
+    { metric: 'eps_diluted', label: '4분기 희석 EPS', value: '$2.23', text: '', quote: lines[2] },
+    { metric: 'eps_diluted', label: '연간 희석 EPS', value: '$6.04', text: '', quote: lines[3] },
+    { metric: 'revenue', label: '3분기 전문 서비스 매출', value: '$1.1 million', text: '', quote: lines[4] }];
+  const row = { revenueEstimate: 3589808, epsEstimate: 1.5893, estimateLastSeenAt: '2026-11-10T20:00:00Z' };
+  const out = assembleEarningsSections({ figures, segments: [], guidance: [], watch: [] }, lines.join('. '), row);
+  same(out.figures.map((figure) => figure.estimate ? 'compared' : 'reported'), ['compared', 'reported', 'compared', 'reported', 'reported']);
+});
+check('v60.46 a pre-report mark is a sighting at or before the release (RGTI 21:05Z release, estimate last seen 22:26Z)', () => {
+  const release = '2026-11-10T21:05:21.000Z';
+  eq(preReportSeenAt({ estimateFirstSeenAt: '2026-11-08T01:00:00Z', estimateLastSeenAt: '2026-11-10T22:26:53.775Z' }, release), '2026-11-08T01:00:00Z');
+  eq(preReportSeenAt({ estimateFirstSeenAt: '2026-11-10T22:00:00Z', estimateLastSeenAt: '2026-11-10T22:26:53.775Z' }, release), null);
+  eq(preReportSeenAt({ estimateFirstSeenAt: '2026-11-08T01:00:00Z', estimateLastSeenAt: '2026-11-10T20:00:00Z' }, release), '2026-11-10T20:00:00Z');
+  eq(estimateSeenBeforeReport({ seenBeforeReportAt: '2026-11-10T22:26:53.775Z' }, release), null);
 });
 check('v59.44 Samsung files its table in 조원 with decimals (P2136)', () => {
   const text = '1. 연결실적내용 단위 : 조원, % 구분 당기실적 전기실적 전기대비 전년동기실적 전년동기대비 (26.3Q) (26.2Q) 증감율(%) 흑자적자전환여부 (25.3Q) 증감율(%) 흑자적자전환여부 매출액 당해실적 195.25 171.50 13.85 - 86.06 126.88 - 누계실적 500.63 - - - 239.77 108.80 - 영업이익 당해실적 107.44 89.49 20.06 - 12.17 783.11 - 실적기간 당기실적 2026-07-01 ~ 2026-09-30';

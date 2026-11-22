@@ -7,7 +7,7 @@
 //     trade on them, beside the same share for all reports ('호재 무반응').
 // Both are context lines; neither feeds a verdict or a score.
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
-import { releaseSession } from './event-briefs.js';
+import { figureSurprise, releaseSession } from './event-briefs.js';
 
 export const AFTERMATH_RULE = Object.freeze({ sessions: 3, minSessions: 2, leadPp: 1 });
 const GROUPS = Object.freeze([
@@ -57,10 +57,12 @@ export function eventAftermath(history = [], release = {}, rule = AFTERMATH_RULE
 /** Pure: the share of EPS beats that closed lower on the first session after the report, beside the share for all reports. */
 export function beatButFell(briefs = [], { minBeats = 8 } = {}) {
   const rows = (briefs || []).filter((brief) => brief?.kind !== 'fomc' && brief?.kind !== 'macro').map((brief) => {
-    const figure = (brief.figures || []).find((item) => item?.metric === 'eps_diluted' && Number.isFinite(item?.estimate?.surprisePct));
+    // The comparison the briefing line prints (figureSurprise) — an annual or 9-month row is not a beat.
+    const figures = brief.figures || [];
+    const pct = figures.filter((item) => item?.metric === 'eps_diluted').map((item) => figureSurprise(item, figures, { provisional: brief.status === 'provisional' })?.pct).find(Number.isFinite);
     // The first full session that traded on the report — an after-hours print (basis 'latest-trade') is not a close.
     const reaction = brief?.reaction?.basis === 'latest-trade' ? null : brief?.reaction?.firstPct;
-    return figure && Number.isFinite(reaction) ? { beat: figure.estimate.surprisePct > 0, fell: reaction < 0 } : null;
+    return pct != null && Number.isFinite(reaction) ? { beat: pct > 0, fell: reaction < 0 } : null;
   }).filter(Boolean);
   const beats = rows.filter((row) => row.beat);
   if (beats.length < minBeats) return null;

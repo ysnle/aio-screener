@@ -6,6 +6,7 @@
 // quote and source check in src/domain/briefing/event-briefs.js); reasons stay news-report and are attributed as such.
 import { readFileSync } from 'node:fs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { figureSurprise } from '../../src/domain/briefing/event-briefs.js';
 import { BIGTECH_CASHFLOW_SCHEMA, groupCashflowSentence, issuerCashflowSentence } from '../../src/domain/fundamental/quarterly-cashflow.js';
 
 export const EARNINGS_CONTEXT_MAX = 5;
@@ -44,8 +45,9 @@ function figureText(brief) {
   for (const metric of FIGURE_ORDER) {
     const figure = figures.find((row) => row?.metric === metric);
     if (!figure || picked.length >= 3) continue;
-    const surprise = Number(figure.estimate?.surprisePct);
-    picked.push(`${figure.label} ${figure.value}${Number.isFinite(surprise) && figure.estimate?.basis === 'provider-consensus-reference' ? `(시장 추정 대비 ${signedPct(surprise)})` : ''}`);
+    // The briefing line's comparison (figureSurprise) — an annual or 9-month row carries none.
+    const surprise = figure.estimate?.basis === 'provider-consensus-reference' ? figureSurprise(figure, figures, { provisional: brief.status === 'provisional' })?.pct : null;
+    picked.push(`${figure.label} ${figure.value}${Number.isFinite(surprise) ? `(시장 추정 대비 ${signedPct(surprise)})` : ''}`);
   }
   const guidance = (Array.isArray(brief.guidance) ? brief.guidance : []).slice(0, 2).map((row) => `${row.label} 전망 ${row.value}`);
   return [...picked, ...guidance].join(' · ');

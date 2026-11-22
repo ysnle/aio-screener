@@ -13,7 +13,7 @@ import { el } from './dom.js';
 import { kindFold } from './indicator-face.js';
 import { directionOf } from '../../domain/shared/number.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, koreanReleaseText, watchItem, provisionalWaiting } from '../../domain/briefing/event-briefs.js';
+import { homeBriefTiers, latestBriefFor, reactionText, BRIEF_BASIS_WORDS, CALL_SEARCH_MAX_ATTEMPTS, figureSurprise, estimateSeenBeforeReport, koreanReleaseText, watchItem, provisionalWaiting } from '../../domain/briefing/event-briefs.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { eventAftermath, beatButFell } from '../../domain/briefing/event-aftermath.js';
 import { signedBar, signedScale } from './signed-bar.js';
@@ -62,12 +62,13 @@ function basisWord(points) {
 // opens this body in its own fold, so it no longer repeats them and nests a second fold.
 // v59.70 (refactor step 4, 종목): 예상 | 발표 | 다음 전망 | 주가 반응 — four short cells read from earningsCells. The reaction
 // cell replaces the reaction line; an empty cell says what is missing instead of leaving a gap.
-// v59.70 (lens plan step 1): when the compared estimate was last seen before the report; a row first seen after it says so.
-const seenText = (iso) => {
-  const ms = Date.parse(iso || '');
+// v59.70 (lens plan step 1): when the compared estimate was seen before the report; a row first seen after it says so.
+// A stored mark later than the release (the provider's actual came after it) is not a pre-report sighting.
+const seenText = (estimate, publishedAt) => {
+  const ms = Date.parse(estimateSeenBeforeReport(estimate, publishedAt) || '');
   if (!Number.isFinite(ms)) return ', 발표 전 값인지 확인 안 됨';
   const kst = new Date(ms + 9 * 3600000);
-  return `, ${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')} KST 발표 전 마지막 확인`;
+  return `, ${kst.getUTCMonth() + 1}/${kst.getUTCDate()} ${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')} KST 발표 전 확인`;
 };
 // the cell text (estimate and actual formats, the latest-trade reaction, the empty-cell words) is the domain's
 // earningsCellLines; this draws it.
@@ -128,7 +129,7 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   if (figures.length) {
     const ul = list(doc, figures.map((figure) => figureText(figure, brief.figures || [], brief.status === 'provisional')), 'event-brief__figures');
     // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
-    figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate.seenBeforeReportAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
+    figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate, brief.publishedAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
   if (reasons.length && !folded) more.append(el(doc, 'p', '움직인 이유(보도 기준)', 'event-brief__sub'), list(doc, reasons.slice(0, 3).map((point) => point.text), 'event-brief__reasons'));

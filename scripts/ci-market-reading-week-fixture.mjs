@@ -316,7 +316,7 @@ await section('v60.21 likelihood ground', async () => {
   const frame = decisionFrameText(buildDecisionFrame({ record: { n: 138, up: 80, baseUpPct: 55, horizon: 20 }, favored: ['hold'], why: '소비 재가속이 이익 기대를 받칩니다' }));
   const side = decisionFrameContext(buildDecisionFrame({ record: null, favored: ['hold'], why: '소비 재가속이 이익 기대를 받칩니다' }));
   const vix = vixBandRiskLine({ state: 'current', vix: 25.6, label: '높음', band: { label: '높음' }, from: '1990-01-02', horizon: 21, drawdownAtPct: -5,
-    risk: { drawdownShare: 30, cases: 140, strength: evidenceStrength(140) }, baseRisk: { drawdownShare: 15, cases: 900, strength: evidenceStrength(900) } });
+    risk: { drawdownShare: 30, drawdownCases: 42, cases: 140, strength: evidenceStrength(140) }, baseRisk: { drawdownShare: 15, drawdownCases: 135, cases: 900, strength: evidenceStrength(900) } });
   const grounded = {
     'past-frequency': [`${frame.face[0]}입니다. 반등 가능성이 더 높아 보입니다.`, '비슷한 때 138번 중 80번 20거래일 뒤 올라 평소 55%보다 잦아 반등 가능성이 높습니다.'],
     'vix-band-record': [`${vix?.text}. 추가 하락 가능성이 더 큽니다.`, 'VIX 높음 구간 기록에서 한 달 안 5% 이상 빠진 경우는 평소의 두 배여서 추가 하락 가능성이 큽니다.'],

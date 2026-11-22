@@ -33,7 +33,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, provisionalHeadline, PROVISIONAL_SUMMARY_WAIT_MS, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, watchItem
+  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, provisionalHeadline, PROVISIONAL_SUMMARY_WAIT_MS, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, consensusQuantityMatches, preReportSeenAt, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
 import { isIsoDay } from '../src/domain/shared/session-date.js';
@@ -235,7 +235,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null, 
   // v59.45 (pipeline review P21-PROVISIONAL-01): a numeric string from the provider is a number; '' and null stay missing.
   const num = readNumber;
   const revenueActual = num(row.revenueActual), epsActual = num(row.epsActual);
-  const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: row.estimateLastSeenAt || null } : null);
+  const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: preReportSeenAt(row, new Date(at).toISOString()) } : null);
   if (revenueActual != null) {
     const estimate = vs(revenueActual, row.revenueEstimate);
     // v59.84: a sub-billion revenue (OKLO $1.86 million) printed "$0.00 billion" and read as zero revenue on 오늘.
@@ -297,7 +297,8 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
   const guidance = verifyQuotedItems(json?.guidance, sourceText);
   const strip = ({ quote, ...rest }) => ({ ...rest, quote });
   const outFigures = figures.kept.map(strip).map((figure) => {
-    if (!estimate) return figure;
+    // An annual or cumulative (9개월) row is not compared with the quarter's consensus.
+    if (!estimate || !consensusQuantityMatches(figure)) return figure;
     if (figure.metric === 'revenue' && readNumber(estimate.revenueEstimate) != null) {
       const actual = parseUsdAmount(figure.value);
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
@@ -476,7 +477,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
           // v59.59 (CCJ): a foreign issuer's home-currency release is not compared with the USD consensus.
           const reportingCurrency = statedReportingCurrency(exhibit.text);
           const comparable = consensusComparable({ form: filing.form, currency: reportingCurrency });
-          const sections = assembleEarningsSections(result.json, sourceText, estimate && comparable ? { ...estimate, source: earningsSource } : null);
+          // The estimate's pre-report mark is a sighting at or before the filing's acceptance (preReportSeenAt).
+          const sections = assembleEarningsSections(result.json, sourceText, estimate && comparable ? { ...estimate, source: earningsSource, estimateLastSeenAt: preReportSeenAt(estimate, base.publishedAt) } : null);
           brief = { ...base, status: 'partial', basis: 'primary-source', headline: briefHeadline(result.json.headline, { nameKo: mover.nameKo, figures: sections.figures, sourceNumbers: sourceNumberSet(sourceText) }),
             figures: sections.figures, details: sections.segments, detailTitle: '사업부문', guidance: sections.guidance, watch: sections.watch, dropped: sections.dropped,
             checkText: sourceText, ...(reportingCurrency ? { reportingCurrency } : {}), ...(estimate && !comparable ? { consensusSkipped: 'currency-not-usd' } : {}) };
@@ -578,6 +580,8 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       // v59.59 (CCJ): briefs stored before the currency check — a foreign issuer's release without a stated USD basis
       // loses the provider comparison (the release text is not kept, so its currency cannot be re-read).
       if (!consensusComparable({ form: brief.source?.title, currency: brief.reportingCurrency || null })) return (({ estimate, ...rest }) => rest)(figure);
+      // A stored annual or cumulative row loses the quarter's consensus (POWL 연간 EPS, RGTI 첫 9개월 매출).
+      if (!consensusQuantityMatches(figure)) return (({ estimate, ...rest }) => rest)(figure);
       if (figure.metric === 'eps_diluted') {
         const comparison = epsComparisonBasis(figure, brief.figures || []);
         if (!comparison) return (({ estimate, ...rest }) => rest)(figure);

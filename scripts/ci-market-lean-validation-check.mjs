@@ -98,11 +98,17 @@ if (session && moduleArg <= 0) {
   const { vixBandRecord, vixBandRiskLine } = await import(pathToFileURL(path.join(ROOT, 'src/domain/market/signal/vix-band-record.js')).href);
   const { stressOutcomesFingerprint } = await import(pathToFileURL(path.join(ROOT, 'src/domain/scenarios/outcome-fingerprints.js')).href);
   const { STRESS_OUTCOMES } = await import(pathToFileURL(path.join(ROOT, 'src/data/artifact-registry.js')).href);
-  const record = { status: 'current', fingerprint: stressOutcomesFingerprint(), from: '1990-01-02', to: '2026-11-13', all: { 21: { hitRate: 64, n: 9000 } }, allRisk: { cases: 420, drawdownShare: 14.2 },
-    bands: [{ id: 'normal', label: '15~20', horizons: { 21: { hitRate: 63, nEff: 136, n: 2856 } }, risk: { cases: 118, drawdownShare: 8.6 } }, { id: 'stress', label: '30~40', horizons: { 21: { hitRate: 60, nEff: 30 } }, risk: { cases: 21, drawdownShare: 31 } }, { id: 'panic', label: '40 이상', horizons: { 21: { hitRate: 70, nEff: 9.9 } }, risk: { cases: 7, drawdownShare: 50 } }] };
+  const record = { status: 'current', fingerprint: stressOutcomesFingerprint(), from: '1990-01-02', to: '2026-11-13', all: { 21: { hitRate: 64, n: 9000 } }, allRisk: { cases: 420, drawdownCases: 60, drawdownShare: 14.3 },
+    bands: [{ id: 'normal', label: '15~20', horizons: { 21: { hitRate: 63, nEff: 136, n: 2856 } }, risk: { cases: 118, drawdownCases: 10, drawdownShare: 8.5 } }, { id: 'stress', label: '30~40', horizons: { 21: { hitRate: 60, nEff: 30 } }, risk: { cases: 21, drawdownCases: 6, drawdownShare: 28.6 } }, { id: 'panic', label: '40 이상', horizons: { 21: { hitRate: 70, nEff: 9.9 } }, risk: { cases: 7, drawdownCases: 3, drawdownShare: 42.9 } }] };
   const line = (vix, rec = record) => vixBandRiskLine(vixBandRecord(rec, vix));
-  check(line(19.3)?.text === 'VIX 19.3(15~20 구간): 1990년 이후 이런 날 뒤 21거래일 안에 -5% 이상 빠진 경우 9% (평소 14%, 겹치지 않는 사례 118개)', `v60.19 risk line beside the base rate and case count: ${line(19.3)?.text}`);
-  check(line(33)?.state === 'small' && /사례 21개 · 참고\)$/.test(line(33).text) && line(45)?.state === 'thin' && !/%/.test(line(45).text.replace(/VIX 45\.0/, '')),
+  check(line(19.3)?.text === 'VIX 19.3(15~20 구간): 1990년 이후 이런 날 뒤 21거래일 안에 -5% 이상 빠진 경우 9% (겹치지 않는 사례 118개 중 10개, 평소 14%)', `v60.19 risk line beside the base rate and case count: ${line(19.3)?.text}`);
+  // v60.46: the share is taken on the non-overlapping cases it is printed beside — not on every overlapping day.
+  const { stressRiskSummary } = await import(pathToFileURL(path.join(ROOT, 'src/domain/market/signal/stress-outcomes.js')).href);
+  const windows = Array.from({ length: 42 }, (_, i) => ({ index: i, drawdown: i < 5 ? -6 : -1, ret: i < 5 ? -6 : 2 }));
+  const summary = stressRiskSummary(windows);
+  check(summary.days === 42 && summary.cases === 2 && summary.drawdownCases === 1 && summary.drawdownShare === 50 && summary.upCases === 1 && summary.upShare === 50,
+    `v60.46 the drawdown share and its count are one sample (2 non-overlapping cases, 1 hit = 50%, not 5/42 days): ${JSON.stringify(summary)}`);
+  check(line(33)?.state === 'small' && /사례 21개 중 6개 · 참고, 평소 14%\)$/.test(line(33).text) && line(45)?.state === 'thin' && !/%/.test(line(45).text.replace(/VIX 45\.0/, '')),
     `v60.19 evidence-strength on the risk line: 10–29 cases 참고, under 10 counts only (${line(33)?.text} / ${line(45)?.text})`);
   const old = { ...record, bands: record.bands.map(({ risk, ...band }) => band), allRisk: undefined };
   check(line(19.3, old)?.state === 'missing' && /없음/.test(line(19.3, old).text) && line(19.3, { ...record, fingerprint: 'stress-outcomes:older' })?.state === 'missing' && line(null) === null,

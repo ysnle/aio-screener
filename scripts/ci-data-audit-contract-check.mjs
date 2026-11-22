@@ -387,7 +387,10 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 event aftermath: three sessions after the release read 기술로 복귀 against the S&P 500', flow?.sessions === 3 && flow.from === days[9] && flow.outcome === '기술로 복귀'
     && /^FOMC 뒤 3거래일, S&P 500 대비 기술 \+3\.0%p, 방어 업종 -1\.0%p, 동일가중·소형 0\.0%p — 기술로 복귀\.$/.test(flow.text), JSON.stringify(flow));
   check('v59.70 event aftermath: one session after the release is not read yet', eventAftermath(hist.slice(0, 11), { publishedAt: `${days[10]}T18:00:00Z` }) === null);
-  const brief = (surprisePct, close) => ({ kind: 'earnings', figures: [{ metric: 'eps_diluted', estimate: { surprisePct } }], reaction: { firstPct: close } });
+  // The beat is the briefing line's comparison (figureSurprise): a quarter EPS row against the consensus. An annual row
+  // ahead of it with a stored +280% carries none, so a miss quarter stays a miss.
+  const eps = (surprisePct, label = '희석 EPS') => ({ metric: 'eps_diluted', label, value: `$${(1 + surprisePct / 100).toFixed(2)}`, estimate: { value: 1, surprisePct, basis: 'provider-consensus-reference' } });
+  const brief = (surprisePct, close) => ({ kind: 'earnings', figures: [eps(280, '연간 희석 EPS'), eps(surprisePct)], reaction: { firstPct: close } });
   const briefs = [...Array.from({ length: 10 }, (_, i) => brief(5, i < 6 ? -2 : 1)), ...Array.from({ length: 4 }, () => brief(-5, -3))];
   const beats = beatButFell(briefs);
   check('v59.70 호재 무반응: 10 beats, 6 fell, beside all reports', beats?.beats === 10 && beats.fell === 6 && beats.share === 60 && beats.reports === 14 && beats.allFell === 10, JSON.stringify(beats));

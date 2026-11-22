@@ -1,0 +1,22 @@
+{
+  "p": {
+    "title": "사실에 없는 주어의 문장 주장이 '검사 통과'와 구별되지 않았다",
+    "symptom": "문장 주장 검사기(claimIssues)가 주어가 facts에 없으면 날짜·값 검사를 건너뛰고 빈 배열을 돌려줬다. 비교할 것이 없음과 비교해서 맞음이 같은 결과였고, 재생 검사는 '0 issues'로만 보고했다.",
+    "root_cause": "own(=facts[subject])이 없을 때 wantDay·fact가 null이 되어 조건문이 조용히 넘어갔다. 순위 묶음(rank.among)·비교 대상(compare.against)·그림의 basis가 facts에 없을 때도 같았다.",
+    "fix": "scripts/lib/claim-validate.mjs: 이슈에 level('error'|'warning')을 두고, 비교할 사실이 없는 주어·그림·날짜·순위 묶음·비교 대상은 'unlinked' 경고로 낸다. isClaimError로 막는 오류와 구별한다(해석은 막지 않는다, 사실 오류만 막는다). ci-sentence-claim-replay-check는 경고를 따로 세어 '0 fact errors, N not compared'로 보고하고 목록을 경고로 출력한다.",
+    "violated_rule": "없음 (검사하지 못한 것을 통과로 세지 않는다는 규칙이 이 검사기에 없었다)",
+    "prevention": "scripts/ci-sentence-claim-replay-check.mjs 자기 검사: 주어·비교 대상이 없는 주장과 basis에 사실이 없는 그림은 unlinked 경고를 내고 오류는 내지 않는다. 고치기 전 코드에서 실패.",
+    "verification": "node scripts/ci-sentence-claim-replay-check.mjs — 431 시장 읽기·421 하루 기록, 0 fact errors, 0 not compared.",
+    "files": ["scripts/lib/claim-validate.mjs", "scripts/ci-sentence-claim-replay-check.mjs"]
+  },
+  "qa": [
+    {
+      "id": "QA-CLAIM-UNLINKED-01",
+      "text": "문장 주장 검사는 비교할 사실이 없는 주장을 'unlinked' 경고로 따로 세고, 검증됨으로 보고하지 않는다. ({VERSION})",
+      "verify_by": "node scripts/ci-sentence-claim-replay-check.mjs"
+    }
+  ],
+  "qa_section": "문장 주장 미연결 결과",
+  "changelog": ["문장 주장 검사가 비교할 사실이 없는 주장을 통과가 아닌 '비교 안 됨'으로 센다 ({VERSION})"],
+  "note": "비교 못 한 주장은 통과로 세지 않음"
+}

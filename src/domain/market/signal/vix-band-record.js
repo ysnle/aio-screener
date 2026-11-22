@@ -16,7 +16,7 @@ const riskOf = (risk) => (risk && Number.isFinite(risk.cases) && risk.cases > 0 
  * @param {number|null} vix today's completed VIX close
  * @returns {{ state: 'current'|'missing'|'no-vix', band, vix, horizon, drawdownAtPct, month, base, risk, baseRisk }}
  *   state 'missing': no record under today's definition, or one without the drawdown fields (until the weekly lane
- *   rebuilds it); `risk`/`baseRisk` carry { drawdownShare, cases, median, p05, strength } when published.
+ *   rebuilds it); `risk`/`baseRisk` carry { drawdownShare, drawdownCases, upShare, upCases, cases, median, p05, strength } when published.
  */
 export function vixBandRecord(published, vix) {
   const band = stressBandOf(vix);
@@ -45,6 +45,7 @@ export function vixBandRiskLine(record) {
   const at = `${record.drawdownAtPct}%`;
   if (!risk.strength.figures) return { state: 'thin', text: `${head}: ${fromYear(record)}이 구간은 ${risk.strength.note}` };
   const tag = risk.strength.reference ? ' · 참고' : '';
+  // The share and the count are one sample — the non-overlapping cases (stressRiskSummary), base included.
   return { state: risk.strength.reference ? 'small' : 'enough',
-    text: `${head}: ${fromYear(record)}이런 날 뒤 ${record.horizon}거래일 안에 ${at} 이상 빠진 경우 ${pct(risk.drawdownShare)} (평소 ${pct(baseRisk.drawdownShare)}, 겹치지 않는 사례 ${risk.cases}개${tag})` };
+    text: `${head}: ${fromYear(record)}이런 날 뒤 ${record.horizon}거래일 안에 ${at} 이상 빠진 경우 ${pct(risk.drawdownShare)} (겹치지 않는 사례 ${risk.cases}개 중 ${risk.drawdownCases}개${tag}, 평소 ${pct(baseRisk.drawdownShare)})` };
 }

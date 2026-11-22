@@ -1904,6 +1904,28 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       restamped.ok === true && /다른 기준으로 계산돼 있어 쓰지 않습니다\(다음 주간 갱신 때 다시 계산\)/.test(restamped.text) && !/기록이 없는 id/.test(restamped.text)
         && correction.ok === true && /나스닥 조정 횟수 기록은 지금 정의와 다른 기준/.test(correction.text));
   }
+  // v60.46: the VIX record tool says the screen's numbers — up share, drawdown share and counts on the same non-overlapping
+  // cases (stressRiskSummary), not a share over overlapping days beside "사례 약 N개".
+  {
+    const { STRESS_OUTCOMES } = await import('../src/data/artifact-registry.js');
+    const { stressOutcomesFingerprint } = await import('../src/domain/scenarios/outcome-fingerprints.js');
+    const riskRow = (cases, upCases, drawdownCases) => ({ horizon: 21, drawdownAtPct: -5, days: cases * 9, cases, upCases, upShare: Math.round(upCases / cases * 1000) / 10,
+      drawdownCases, drawdownShare: Math.round(drawdownCases / cases * 1000) / 10, median: 1.5, p05: -7.2 });
+    const stress = { schemaVersion: 'stress-outcomes.v1', status: 'current', fingerprint: stressOutcomesFingerprint(), from: '1990-01-02', to: iso(6),
+      all: { 21: { hitRate: 64, n: 9000, nEff: 428 } }, allRisk: riskRow(440, 282, 66),
+      bands: [{ id: 'stress', label: '30~40', horizons: { 21: { hitRate: 81, n: 528, nEff: 25.1, median: 3.5, p10: -4 } }, risk: riskRow(64, 41, 18) },
+        { id: 'panic', label: '40 이상', horizons: { 21: { hitRate: 70, n: 208, nEff: 9.9 } }, risk: riskRow(7, 5, 3) }] };
+    const vixRoot = (vix) => {
+      const r = fixtureRoot({ [STRESS_OUTCOMES.key]: stress, _aioHistory: [{ date: iso(2), vix: vix - 1 }, { date: iso(1), vix }] });
+      r.__aioSharedArtifacts[STRESS_OUTCOMES.key] = { loadedAt: nowMs, failedAt: 0, inFlight: null };
+      return r;
+    };
+    const band = await registry.runTool('scenario_record', '{"id":"vix"}', { root: vixRoot(35.9), now: nowMs });
+    const thin = await registry.runTool('scenario_record', '{"id":"vix"}', { root: vixRoot(45), now: nowMs });
+    check(`v60.46 the VIX record tool reads one sample: 오른 경우 64%(64개 중 41개, 평소 64%) and 빠진 경우 28%(64개 중 18개) (${band.text} / ${thin.text})`,
+      band.ok === true && band.text.includes('오른 경우 64%(겹치지 않는 사례 64개 중 41개, 평소 64%)') && band.text.includes('빠진 경우 28% (겹치지 않는 사례 64개 중 18개, 평소 15%)')
+        && !/81%|사례 약/.test(band.text) && thin.ok === true && /사례 7개라 비율·평균으로 말하지 않습니다/.test(thin.text) && !/\d%\(/.test(thin.text));
+  }
   const throwing = fixtureRoot({ _aioScreenBasisEvidence: () => { throw new Error('boom'); }, AIO: { readPublicFundamentals: async () => { throw new Error('offline'); }, formatSecResearchEvidence }, _aioGetCanonicalScreenerRows: () => { throw new Error('boom'); } });
   let threw = false;
   try {

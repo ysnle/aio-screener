@@ -21,7 +21,7 @@ import { buildDayAccount } from '../src/domain/briefing/day-account.js';
 import { buildMarketDay, MACRO_SERIES } from '../src/domain/market/day/facts.js';
 import { oneSessionDay } from '../src/domain/market/day/one-session.js';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
-import { CLAIM_CHECKS, claimIssues, saidIssues } from './lib/claim-validate.mjs';
+import { CLAIM_CHECKS, claimIssues, isClaimError, saidIssues } from './lib/claim-validate.mjs';
 import { closeFacts, ledgerFacts } from './lib/claim-facts.mjs';
 import { replayFixtureRows, macroHistoryThrough, marketInputsAt } from './lib/replay-inputs.mjs';
 import { lexLiterals } from './ci-sentence-join-check.mjs';
@@ -59,9 +59,14 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
     'f-asof': claim({ subject: 'spx', measure: 'change1d', asOf: '2026-11-17', figures: [{ value: -1.2, unit: 'pct', basis: 'change1d', label: 'S&P 500' }] })
   };
   for (const [check, row] of Object.entries(wrong)) {
-    const found = claimIssues(row, facts).map((issue) => issue.check);
+    const found = claimIssues(row, facts).filter(isClaimError).map((issue) => issue.check);
     if (!found.includes(check)) failures.push(`self-test: a false ${check} claim was not flagged (${found.join(',') || 'no issue'})`);
   }
+  // v60.46: a claim whose subject, figure basis or comparison has no facts is 'unlinked' (a warning), never a silent pass.
+  const loose = claimIssues(claim({ subject: 'ndx', measure: 'change1d', word: 'broad-rise', asOf: D, compare: { against: 'rut', measure: 'change1d' }, figures: [{ value: -1.2, unit: 'pct', basis: 'change1d', label: '나스닥 100' }] }), facts);
+  const looseFigure = claimIssues(claim({ subject: 'spx', measure: 'change1d', asOf: D, figures: [{ value: 3.3, unit: 'pct', basis: 'change60d', label: 'S&P 500 60일' }] }), facts);
+  if (!loose.some((issue) => issue.check === 'unlinked' && !isClaimError(issue)) || loose.some(isClaimError) || !looseFigure.some((issue) => issue.check === 'unlinked'))
+    failures.push(`self-test: an unlinked claim must be its own warning outcome ${JSON.stringify({ loose, looseFigure })}`);
   // A figure smuggled into the text as a plain name has no claim.
   const smuggled = say('{name} 하락', { name: 'S&P 500 -1.2%' });
   if (!saidIssues(smuggled, facts).some((issue) => issue.check === 'e-label')) failures.push('self-test: a printed figure without a claim was not flagged');
@@ -70,11 +75,11 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
   if (claimIssues(right, facts).length) failures.push(`self-test: a true superlative was flagged ${JSON.stringify(claimIssues(right, facts))}`);
 }
 
-const issuesSeen = [];
+const issuesSeen = [], unlinkedSeen = [];
 const record = (where, text, issues) => {
   for (const issue of issues) {
     counts[issue.check] = (counts[issue.check] || 0) + 1;
-    issuesSeen.push(`${where} [${issue.check}] ${issue.message} — ${text}`);
+    (isClaimError(issue) ? issuesSeen : unlinkedSeen).push(`${where} [${issue.check}] ${issue.message} — ${text}`);
   }
 };
 
@@ -143,8 +148,10 @@ if (issuesSeen.length) failures.push(...issuesSeen.slice(0, 60), ...(issuesSeen.
 const ms = Date.now() - started;
 const tally = CLAIM_CHECKS.map((check) => `${check} ${counts[check]}`).join(', ');
 if (verbose) console.log(`free-text market-read statements still to convert: ${[...freeText].sort().join(', ')}`);
+// Unlinked claims were not compared: named as such (a warning), never counted as verified.
+if (unlinkedSeen.length) console.warn(`[sentence-claim-replay] ${unlinkedSeen.length} claim part(s) not compared (no facts):\n- ${unlinkedSeen.slice(0, verbose ? Infinity : 20).join('\n- ')}`);
 if (failures.length) {
   console.error(`[sentence-claim-replay] FAIL (${failures.length}) — v60.30 a converted sentence must hold against its facts\n- ${failures.join('\n- ')}\nissues by check: ${tally}`);
   process.exit(1);
 }
-console.log(`[sentence-claim-replay] OK: ${readSessions} market-read sessions (${readClaims} claims), ${accounts} day accounts (${accountClaims} claims), 0 issues (${tally}); ${CONVERTED_STATEMENTS.length} statement ids converted; ${ms} ms`);
+console.log(`[sentence-claim-replay] OK: ${readSessions} market-read sessions (${readClaims} claims), ${accounts} day accounts (${accountClaims} claims), 0 fact errors, ${unlinkedSeen.length} not compared (${tally}); ${CONVERTED_STATEMENTS.length} statement ids converted; ${ms} ms`);

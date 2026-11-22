@@ -1,0 +1,22 @@
+{
+  "p": {
+    "title": "부문 매출 줄이 회사 전체 매출 예상치와 비교됐다",
+    "symptom": "APPN '전문 서비스 매출'이 예상 대비 −78.8%, '클라우드 구독 매출' −38.4%, CEVA '로열티 매출'·'라이선싱 및 관련 매출' −12.9%, ESTC·APPN·NOW '구독 매출'이 회사 전체 매출 컨센서스와 비교돼 찍혔다.",
+    "root_cause": "예상치를 붙이고 읽는 판단(consensusPeriodMatches)이 기간만 보고 범위를 보지 않았다. 제공처 컨센서스는 분기의 회사 전체 매출인데, metric이 revenue이면 부문·항목 줄도 같은 양으로 취급됐다. 브리프에는 범위 필드가 없다.",
+    "fix": "같은 판단을 consensusQuantityMatches(기간 AND 범위) 하나로 바꿨다. figureScope는 라벨에서 기간·연도 말을 지운 뒤 전체 매출 이름(매출·총매출·순매출·매출 및 수익·Total revenue·Net sales)만 'total'로 보고, 다른 수식어가 붙은 매출 줄은 'part'로 비교하지 않는다(불분명하면 비교하지 않는 쪽). 생산자의 예상치 부착·저장분 제거와 화면·반응 읽기가 모두 이 함수를 따른다. 발행본 142개 예상치 줄 중 부문 7줄이 새로 빠지고, 해당 브리프마다 총매출 줄이 남아 판정은 유지된다.",
+    "violated_rule": "없음 (예상치와 같은 양인지 보는 판단이 기간만 봤다)",
+    "prevention": "scripts/ci-esm-core-unit-check.mjs: 전문 서비스·로열티·라이선싱·클라우드 구독·구독·데이터센터 매출·Subscription revenue는 예상 대비가 없고 3분기 순매출·총매출·매출 및 수익·Net sales·매출은 비교된다. scripts/ci-event-briefs-check.mjs: 생산자가 부문 매출 줄에 예상치를 붙이지 않는다. 고치기 전 코드에서 실패.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-event-briefs-check.mjs. 발행본 재분류: ESTC 구독, CEVA 라이선싱·로열티, APPN 클라우드 구독·구독·전문 서비스, NOW 구독 매출 7줄이 비교에서 빠짐.",
+    "files": ["src/domain/briefing/event-briefs.js", "scripts/fetch-event-briefs.mjs", "scripts/ci-esm-core-unit-check.mjs", "scripts/ci-event-briefs-check.mjs"]
+  },
+  "qa": [
+    {
+      "id": "QA-EARNINGS-SCOPE-01",
+      "text": "부문·항목 매출 줄(구독·로열티·서비스 등)은 회사 전체 매출 예상치와 비교하지 않고 발표 수치만 보인다. ({VERSION})",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-event-briefs-check.mjs"
+    }
+  ],
+  "qa_section": "실적 예상 대비 범위 일치",
+  "changelog": ["부문 매출 줄을 회사 전체 매출 예상치와 비교하지 않는다 ({VERSION})"],
+  "note": "부문 매출은 전체 예상치와 비교 안 함"
+}
