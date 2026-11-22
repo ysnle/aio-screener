@@ -57,7 +57,7 @@ export function buildChatMacroLines({ ctxId, root = globalThis, timeLabel = '' }
     // A release the producer could not refresh is not an evidence row; the line says so, with the value it still holds.
     const kept = heldMacroReleases(root._aioServerMacro).filter((r) => r.period === 'month' && !row(r.metric))
       .map((r) => `${r.label} ${r.value}${UNIT_TEXT[r.unit] ?? ''} (${r.asOf.slice(0, 7)} 기준월)`);
-    if (kept.length) lines.push(`• 최신 발표 미반영(이전 발표 값, 현재 수치로 쓰지 않음): ${kept.join(', ')}`);
+    if (kept.length) lines.push(`• 최신 발표 미반영(앱이 확인한 마지막 값 — 기준월을 밝혀 말하고 최신 발표 수치처럼 쓰지 않음):${kept.join(', ')}`);
     // The policy rate is the target range the screen shows (AIO.getFedPolicyRange); the next FOMC comes from the official calendar.
     try { (root.AIO?.buildChatPolicyLines?.({ root, includeKorea: ctxId === 'kr-macro' }) || []).forEach((line) => lines.push(line)); } catch {}
     const rates = rateLine(); if (rates) lines.push(rates);

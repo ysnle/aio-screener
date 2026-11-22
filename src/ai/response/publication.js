@@ -592,10 +592,10 @@ function referencePieces(text, matchers) {
 // with digits ("US10Y", "H100", "2s10s"), an indicator's parameters ("RSI(14)", "MACD(12,26,9)") and a month/day
 // ("11/12 종가").
 var NOT_A_FIGURE = /(?:https?:\/\/|www\.)\S+|(?<=\b[A-Za-z]{2,}\s?)\(\s*\d{1,3}(?:\s*,\s*\d{1,3})*\s*\)|(?<![\d/.,])(?:1[0-2]|0?[1-9])\/(?:3[01]|[12]\d|0?[1-9])(?![\d/.,])|(?<!\d)(?:19|20)\d{2}\s*(?:[-./]|년)\s*\d{1,2}(?:\s*(?:[-./]|월)\s*\d{1,2}\s*일?)?(?!\d)|(?<!\d)\d{1,2}\s*월\s*\d{1,2}\s*일|(?<!\d)(?:19|20)\d{2}\s*년(?:대)?|(?<!\d)\d{1,2}:\d{2}(?!\d)|(?:S&P|나스닥|러셀|코스피|코스닥|\b(?:Nasdaq|NASDAQ|Russell|KOSPI|KOSDAQ)\b)\s*(?:500|100|2000|200|150)(?![\d,.])|(?<![\d.,])\d+\s*(?:개월|개년|개\s*분기|년물|년간|년|분기|주(?![가식당요])|거래일|일선|일(?![부반정본간]))(?!\s*(?:연속|째|만에))|(?<![A-Za-z])(?!\b(?:USD|KRW|US)\d)[A-Za-z]+\d[\dA-Za-z]*|\d+s\d+s|\d+-\b(?:year|month|week|day)\b/g;
-var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%p(?![A-Za-z])|(?:%|퍼센트)\s*포인트|%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|(?<=\d)x(?![A-Za-z0-9]))?/gi;
+var WRITTEN_FIGURE = /(\$|₩|\b(?:USD|KRW|US\$)\s*)?([+\-−]?)(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(?<![A-Za-z])(%p(?![A-Za-z])|(?:%|퍼센트)\s*포인트|%|퍼센트|percent\b|bps?\b|배|달러|dollars?\b|USD\b|원|KRW\b|포인트|pt\b|조|억|만|개|곳|건|명|종목|회(?![계사복전수차의담])|(?<=\d)x(?![A-Za-z0-9]))?/gi;
 // "41.2x" (an x glued to the digits) is a multiple, as "41.2배" is. "0.5%p" is a difference in percentage points, not a
 // 0.5% level, so a percent row does not support it.
-var WRITTEN_UNITS = [[/^(?:%p|(?:%|퍼센트)\s*포인트)$/i, 'pp'], [/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^(?:배|x)$/i, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point']];
+var WRITTEN_UNITS = [[/^(?:%p|(?:%|퍼센트)\s*포인트)$/i, 'pp'], [/^(?:%|퍼센트|percent)$/i, 'percent'], [/^bps?$/i, 'bp'], [/^(?:배|x)$/i, 'multiple'], [/^(?:\$|달러|dollars?|USD|US\$)$/i, 'USD'], [/^(?:₩|원|KRW)$/i, 'KRW'], [/^(?:포인트|pt)$/i, 'point'], [/^회$/, 'times']];
 function writtenUnit(word) {
   if (!word) return '';
   var hit = WRITTEN_UNITS.filter(function(pair) { return pair[0].test(word); })[0];

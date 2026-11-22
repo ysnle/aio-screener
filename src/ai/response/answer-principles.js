@@ -13,7 +13,7 @@ export function buildAnswerPrinciples({ today, hasTickers = false, liveStatus = 
       '1. 추세는 종목 행의 기간 수익률·이동평균 대비 위치와 도구로 읽은 가격 기록(완료 종가)으로 판단한다.',
       // v57.92 (internal audit A08): the old rule told the model to read a post-news drop as 재료 소진/후속 악재 — a cause
       // chosen before checking whether the whole market fell. The cause is now compared before it is named.
-      '2. 가격이 왜 움직였는지 답할 때는 그 종목이 얼마나 움직였는지(기간과 등락률)를 먼저 말한다. 뉴스와 가격 방향이 엇갈리면 원인을 정하기 전에 같은 기간 시장·업종 움직임, 금리·환율, 기대 대비 결과를 먼저 비교한다. 주입 자료로 가려지지 않으면 "이미 가격에 반영", "시장 전체 하락", "다른 악재"를 후보로 나란히 두고 원인 미확정으로 말한다.',
+      '2. 가격이 왜 움직였는지 답할 때는 그 종목이 얼마나 움직였는지를 먼저 말한다: 종목 행의 5거래일과 1개월 등락률을 함께 적는다. 뉴스와 가격 방향이 엇갈리면 원인을 정하기 전에 같은 기간 시장·업종 움직임, 금리·환율, 기대 대비 결과를 먼저 비교한다. 주입 자료로 가려지지 않으면 "이미 가격에 반영", "시장 전체 하락", "다른 악재"를 후보로 나란히 두고 원인 미확정으로 말한다.',
       '3. 애널리스트 목표가·컨센서스는 발표 시점과 함께 쓰고, 오래된 값은 참고로만 둔다.');
   }
   // v58.75 (persona review): the teach-and-check order (choosing-blocks.js teachAndCheckBlock), chosen by the caller.

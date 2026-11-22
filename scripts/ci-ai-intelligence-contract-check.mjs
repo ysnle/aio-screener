@@ -2333,6 +2333,14 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   check('v60.43 a multiple the stock row writes bare supports the same figure written with 배, for that metric and that stock only',
     rowSupports('NVDA의 PER은 15.7배입니다.') && rowSupports('NVDA의 PER은 15.7배, MSFT는 25.2배입니다.') && rowSupports('NVDA PBR은 13.2배입니다.')
       && !rowSupports('NVDA의 PER은 25.2배입니다.') && !rowSupports('NVDA의 PER은 13.2배입니다.') && !rowSupports('NVDA의 RSI는 15배입니다.'));
+  // (7) a sentence that also states how many times something happened keeps its figures when the material writes the
+  // same count ("4회"); another count is not supported (live capture 2026-11-22, MSFT dividend follow-up).
+  const dividendLine = 'MSFT 배당(배당락일 기준 최근 12개월) 주당 $3.71, 4회, 배당수익률 0.77%(최근 완료 종가 기준), 최근 배당락일 2026-11-19';
+  const dividendNumbers = pub.supportedNumbersFromText(dividendLine, { entities: ['MSFT'] });
+  const dividendSupports = (text) => pub.figuresSupported(text, dividendNumbers, { entities: ['MSFT'] });
+  check('v60.44 a counted number of times in the material supports the same count in the answer, so the yield sentence beside it stays',
+    dividendSupports('2026년 11월 20일 종가 기준 배당수익률은 0.77%였고, 해당 기간 배당은 4회였습니다.') && !dividendSupports('배당수익률은 0.77%였고, 해당 기간 배당은 5회였습니다.')
+      && !dividendSupports('배당은 4개였습니다.'));
 }
 
 // v60.42 (live eval 2026-11-21, 60 questions on the real model): answers whose figures came from this request's data
