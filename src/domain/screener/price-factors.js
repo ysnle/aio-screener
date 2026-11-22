@@ -624,6 +624,10 @@ export const LATEST_SESSION_VOLUME_BASIS = Object.freeze({
 export const DIVIDEND_BASIS = 'yahoo-chart-events-ex-date';
 export const DIVIDEND_FACT_FIELDS = Object.freeze(['dividendTtm', 'dividendYieldPct', 'dividendLastExDate', 'dividendCount12m', 'dividendBasis']);
 const DIVIDEND_WINDOW_DAYS = 365;
+// A trailing yield above this is a collapsed price or a one-off distribution, not a yield to screen on. The row keeps its
+// price factors and publishes no dividend facts (absent reads as unknown); row-facts-contract.js checks the same limit.
+// Before v60.43 only the validator knew it, so one such row (ABR, 55-62%) rejected the whole extended shard for 3.5 days.
+export const DIVIDEND_YIELD_MAX_PCT = 40;
 export function dividendFacts({ dates = [], closes = [], dividends = [], dividendEventsRequested = false } = {}) {
   const last = Array.isArray(dates) && dates.length ? dates[dates.length - 1] : null;
   const close = Array.isArray(closes) && closes.length ? closes[closes.length - 1] : null;
@@ -637,9 +641,11 @@ export function dividendFacts({ dates = [], closes = [], dividends = [], dividen
   const covered = dividendEventsRequested === true && Date.parse(String(dates[0] || '')) <= fromMs;
   if (!inWindow.length && !covered) return {};
   const total = inWindow.reduce((sum, event) => sum + event.amount, 0);
+  const yieldPct = round(total / close * 100, 2);
+  if (yieldPct > DIVIDEND_YIELD_MAX_PCT) return {};
   return {
     dividendTtm: round(total, 4),
-    dividendYieldPct: round(total / close * 100, 2),
+    dividendYieldPct: yieldPct,
     ...(inWindow.length ? { dividendLastExDate: inWindow.map((event) => event.date).sort().at(-1) } : {}),
     dividendCount12m: inWindow.length,
     dividendBasis: DIVIDEND_BASIS

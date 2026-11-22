@@ -3696,6 +3696,14 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v60.28 the validator refuses a dividend yield above 40% or facts that disagree, and the fields are conditional row fields',
     rowFactContractErrors({ ...paid, dividendYieldPct: 41 }).length === 1 && rowFactContractErrors({ ...paid, dividendTtm: 0 }).length >= 1 && rowFactContractErrors({ ...none, dividendLastExDate: '2026-01-01' }).length === 1
       && pf.DIVIDEND_FACT_FIELDS.every((field) => pf.CONDITIONAL_FACTOR_FIELDS.includes(field)));
+  // v60.43: ABR's trailing yield (55-62%) passed the producer and failed the validator, so the whole extended shard
+  // (3,885 rows) went unpublished from 2026-11-18. The producer now withholds that row's dividend facts.
+  const collapsed = rowOf({ ...chart(true), indicators: { quote: [{ close: closes.map((_, i) => (i === n - 1 ? 5 : 100)), high: closes, low: closes, volume: closes.map(() => 1e6) }], adjclose: [{ adjclose: closes }] } }, true);
+  const atLimit = pf.dividendFacts({ dates: ['2025-11-01', '2026-11-16'], closes: [10, 10], dividends: [{ date: '2026-06-01', amount: 4 }], dividendEventsRequested: true });
+  check('v60.43 a trailing yield above the limit publishes no dividend facts and the row still passes the contract; a yield at the limit is published',
+    collapsed && typeof collapsed.ret1m === 'number' && pf.DIVIDEND_FACT_FIELDS.every((field) => collapsed[field] === undefined) && rowFactContractErrors(collapsed).length === 0
+      && atLimit.dividendYieldPct === pf.DIVIDEND_YIELD_MAX_PCT && pf.DIVIDEND_YIELD_MAX_PCT === 40,
+    JSON.stringify({ collapsed: collapsed && pf.DIVIDEND_FACT_FIELDS.map((field) => collapsed[field]), atLimit }));
   const screenerText = readFileSync(new URL('./producer/screener.mjs', import.meta.url), 'utf8');
   check('v60.28 the daily history marks its dividend request and the producer keeps that mark across the KR close rebuild',
     /dividendEvents: true/.test(readFileSync(new URL('./producer/quotes.mjs', import.meta.url), 'utf8'))

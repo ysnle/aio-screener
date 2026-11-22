@@ -1,5 +1,10 @@
 > v60.19 이하 릴리스는 헤딩과 한 줄 요약(주요 항목·인용 P/R id)만 남겼다. 전문은 git 히스토리: `git show d0bbbcae3:CHANGELOG.md`.
 
+## v60.43 (2026-11-22)
+- **AI 답변의 PER·PBR (P2708):** 화면의 배수 값을 '15.7배'처럼 답해도 지워지지 않는다.
+- **Extended screener publishes again (P2709):** a stock whose trailing dividend yield is above 40% (a collapsed price or a one-off distribution) now publishes without dividend figures instead of stopping all 3,885 extended rows; the limit lives with the code that writes the value.
+- R1 7곳 v60.43
+
 ## v60.42 (2026-11-21)
 - **AI 빈 답 (P2700):** 자료 도구가 답한 질문에 웹검색을 강제하지 않는다. 본문 없이 끊긴 응답은 한 번 다시 요청한다.
 - **AI 종목 수치 (P2701):** 채팅이 한 종목의 PER·ROE·배당수익률·기간 수익률을 종목 화면과 같은 스크리너 행에서 읽는다.

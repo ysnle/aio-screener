@@ -60,6 +60,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2709 - v60.43 - v60.43 one row's trailing dividend yield above 40% rejected the whole extended screener shard for 3.5 days (2026-11-22)
+
+- symptom/reproduction: public-data/screener-extended.json was last committed 2026-11-18T03:28Z. From then to 2026-11-21 43 of 44 'Refresh screener and SEC fundamentals' runs ended red; 29 of the failures were '[screener-extended-validator] row ABR: dividendYieldPct must be 0-40% (55.17 / 57.66 / 62.14)', each after about 20 minutes of fetching 3,885 symbols. The published shard therefore still carries no dividend fields and prices from the 2026-11-17 session.
+- root_cause: v60.28 added the dividend facts with their plausibility limit only in the validator (row-facts-contract.js DIVIDEND_YIELD_MAX_PCT). The producer (price-factors.js dividendFacts) wrote any ratio, and both validators stop at the first failing row and reject the artifact, so one row outside the limit blocked every other row. The core artifact had the same exposure; its highest yield on 2026-11-21 was 28.97%.
+- fix: src/domain/screener/price-factors.js owns DIVIDEND_YIELD_MAX_PCT and dividendFacts returns no dividend fields when the trailing yield exceeds it (the row keeps its price factors; absent dividend facts already read as unknown). row-facts-contract.js imports the same constant, so the producer and the validators share one limit and the validators stay strict.
+- violated_rule: A plausibility limit belongs where the value is written; a validator that knows a limit the producer does not turns one bad row into an outage of the whole artifact.
+- prevention: ci-data-pipeline-contract-check 'v60.43 a trailing yield above the limit publishes no dividend facts and the row still passes the contract; a yield at the limit is published': a synthetic chart whose last close collapses (60% yield) must produce a row with price factors, no dividend fields and no contract errors. It fails on the v60.42 producer (the row carried dividendYieldPct 60).
+- verification/residual: ci-data-pipeline-contract-check exits 0 with the fix and fails on the previous price-factors.js (checked by restoring the old file). Not verified: a real refresh-screener run publishing the extended shard; that needs the fix pushed and the next scheduled run.
+- files: src/domain/screener/price-factors.js, src/domain/screener/row-facts-contract.js, scripts/ci-data-pipeline-contract-check.mjs
+
+## P2708 - v60.43 - v60.43 AI 답변에서 PER·PBR 문장이 지워짐 (자료는 'PER 15.7', 답은 '15.7배') (2026-11-22)
+
+- symptom/reproduction: 실서비스 60문항 평가(2026-11-22, v60.42)에서 PER을 묻는 답 4건이 화면 값을 말하지 않고 '일부 최신 수치 확인 안 됨 — 확인된 값만 표시'로 열렸다(NVDA PER, AMD 대 NVDA 비교, 애플 이어 묻기, PER 100배 전제 질문). 밸류에이션 문항 통과율 43%.
+- root_cause: v60.42에서 종목 수치를 스크리너 행 한 줄로 주기 시작했는데 이 행은 배수를 단위 없이 쓴다('PER 15.7'). 답변 수치 필터(publication.js figureSupported)는 답이 단위를 쓰면 자료의 단위와 같아야 통과시키므로 '15.7배'는 단위 없는 자료 값과 맞지 않아 문장째 지워졌다. 예전 종목 블록은 '30.0배'로 써서 드러나지 않았다.
+- fix: figureSupported가 자료에 PER·PBR·PSR·PEG·EV/EBITDA로 이름 붙은 단위 없는 값을 답의 '배' 표기와 같은 수치로 본다. 지표와 종목이 같아야 한다는 조건은 그대로다(src/ai/response/publication.js MULTIPLE_METRICS).
+- violated_rule: 자료의 표기를 바꾸면 그 자료를 근거로 답을 거르는 필터가 같은 표기를 읽는지 함께 확인한다.
+- prevention: ci-ai-intelligence-contract-check 'v60.43 a multiple the stock row writes bare supports the same figure written with 배, for that metric and that stock only': 같은 종목·같은 지표는 통과, 다른 종목의 PER·같은 종목의 PBR 값·RSI는 통과하지 않는다. 수정 전 publication.js에서 실패함을 확인했다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (수정 전 파일로 되돌리면 실패). 실서비스 재평가는 배포 뒤 해당 문항만 다시 돌려 확인한다.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2707 - v60.42 - 도구를 쓰는 AI 질문 하나가 하루 질문 한도를 두세 번 차감 (2026-11-22)
 
 - symptom/reproduction: 도구를 쓰는 질문은 모델 요청이 2~3번 나가는데 요청마다 연결당 하루 150개, 전체 하루 300개 한도에서 한 번씩 차감됐다. 실제로 쓸 수 있는 질문 수가 절반 이하였다.

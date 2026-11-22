@@ -4,9 +4,8 @@
 import { readNumber } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { FUNDAMENTAL_BASIS, TRAILING_ROW_FIELDS } from '../fundamental/trailing-year.js';
-import { DIVIDEND_BASIS, DIVIDEND_FACT_FIELDS } from './price-factors.js';
+import { DIVIDEND_BASIS, DIVIDEND_FACT_FIELDS, DIVIDEND_YIELD_MAX_PCT } from './price-factors.js';
 
-export const DIVIDEND_YIELD_MAX_PCT = 40;
 const day = (value) => String(value || '').slice(0, 10);
 
 /** Problems with one row's basis and dividend fields (empty when the row keeps the contract). */

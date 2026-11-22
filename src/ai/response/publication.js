@@ -614,6 +614,7 @@ var METRIC_WORDS = [['ev_ebitda', /EV\s*\/\s*EBITDA/gi], ['peg', /\bPEG\b/gi], [
   ['target', /목표\s*주?가|\btarget\b/gi], ['price', /주가|종가|현재가|가격|시세|\bprice\b|\bclose\b/gi]];
 // A price word names a metric only for a money figure: "주가 추이 · 5거래일 -8.5%" is a change, not a price.
 var MONEY_METRICS = { target: true, price: true };
+var MULTIPLE_METRICS = { per: true, pbr: true, psr: true, peg: true, ev_ebitda: true };
 function lastWord(pairs, text) {
   var best = null, bestEnd = -1;
   pairs.forEach(function(pair) {
@@ -766,7 +767,8 @@ function figureSupported(match, numbers, want) {
   return numbers.some(function(number) {
     if (!contextAgrees(number, want)) return false;
     if (bareSmall && number.unit !== '') return false;
-    if (unit && number.unit !== unit) return false;
+    // A valuation multiple the material writes bare ("PER 15.7") is the same figure as the answer's "15.7배".
+    if (unit && number.unit !== unit && !(unit === 'multiple' && number.unit === '' && MULTIPLE_METRICS[number.metric])) return false;
     // A figure the material wrote without a sign ("1.2% 하락") carries its direction in words, so it supports either sign.
     if (!signAgrees(sign, number.value, number.signed)) return false;
     return printedValueAgrees(written, places, number.value);

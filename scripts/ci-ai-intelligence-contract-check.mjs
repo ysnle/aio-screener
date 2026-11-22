@@ -2326,6 +2326,13 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const kinds = (query, mode = 'analysis') => visual.chooseAnswerVisuals({ query, mode, tickers: ['KO'] }).map((pick) => pick.kind).join(',');
   check('v60.28 a dividend or PER question attaches no quarterly revenue chart (no figure beats an unrelated one)',
     kinds(question) === '' && kinds('KO 배당 이력 알려줘') === '' && kinds('KO 실적과 매출 흐름') === 'fundamentals' && kinds('KO 어때?') === 'price');
+  // (6) the stock row writes its multiples bare ("PER 15.7"); the answer writes "15.7배" (live eval 2026-11-22).
+  const stockRow = '1. NVDA (NVIDIA) · PER 15.7 · RSI 15 · PBR 13.2 · 팩터 기준일 2026-11-20\n2. MSFT (Microsoft) · PER 25.2 · RSI 35 · PBR 7.7 · 팩터 기준일 2026-11-20';
+  const rowNumbers = pub.supportedNumbersFromText(stockRow, { entities: ['NVDA', 'MSFT'] });
+  const rowSupports = (text) => pub.figuresSupported(text, rowNumbers, { entities: ['NVDA', 'MSFT'] });
+  check('v60.43 a multiple the stock row writes bare supports the same figure written with 배, for that metric and that stock only',
+    rowSupports('NVDA의 PER은 15.7배입니다.') && rowSupports('NVDA의 PER은 15.7배, MSFT는 25.2배입니다.') && rowSupports('NVDA PBR은 13.2배입니다.')
+      && !rowSupports('NVDA의 PER은 25.2배입니다.') && !rowSupports('NVDA의 PER은 13.2배입니다.') && !rowSupports('NVDA의 RSI는 15배입니다.'));
 }
 
 // v60.42 (live eval 2026-11-21, 60 questions on the real model): answers whose figures came from this request's data
