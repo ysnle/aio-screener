@@ -17,7 +17,9 @@ assert.equal(shiftMonth('2026-09', -12), '2025-09', 'v59.56 twelve months back')
 
 const tsmc = parseRevenueRow(row('2330', '台積電', 330000000, 300000000, 250000000));
 assert.equal(tsmc.month, '2026-09', 'v59.56 ROC data month parsed');
-assert.equal(tsmc.publishedAt, '2026-10-17', 'v59.56 ROC publish date parsed');
+// v60.46: 出表日期 is the MOPS table's generation date, not the company's filing date — stored as tableDate.
+assert.equal(tsmc.tableDate, '2026-10-17', 'v60.46 ROC table date (出表日期) parsed as tableDate');
+assert.equal('publishedAt' in tsmc, false, 'v60.46 the table date is not stored as a publication date');
 assert.equal(tsmc.yoyPct, 32, 'v59.56 YoY computed from the source amounts');
 assert.equal(tsmc.momPct, 10, 'v59.56 month-on-month from source amounts');
 assert.equal(tsmc.note, null, 'v59.56 "-" note is empty');
@@ -78,6 +80,12 @@ assert.equal(carriedView.reported, 1, 'v59.94 a carried company on an older mont
 assert.match(carriedView.reading, /합계는 1년 전보다 \+\d+\.\d%입니다\./, `v60.28 one company states only the total (${carriedView.reading})`);
 const recarried = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: carriedRun, generatedAt: '2026-11-02T00:00:00Z' });
 assert.ok(sameRevenueData(recarried, carriedRun), 'v59.94 re-carrying the same records compares unchanged');
+// v60.46: a record or artifact written before the rename (publishedAt) is carried and read as its table date.
+const legacy = { ...prevArtifact, publishedAt: '2026-09-17', tableDate: undefined, companies: prevArtifact.companies.map(({ tableDate, ...c }) => ({ ...c, publishedAt: '2026-09-17' })) };
+const fromLegacy = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: legacy, generatedAt: '2026-11-05T00:00:00Z' }).companies.find((c) => c.code === '2454');
+assert.equal(fromLegacy.tableDate, '2026-09-17', 'v60.46 a carried pre-rename record keeps its date as tableDate');
+assert.equal('publishedAt' in fromLegacy, false, 'v60.46 a carried pre-rename record drops the publishedAt name');
+assert.equal(buildTwRevenueView(legacy, { nowMs: Date.parse('2026-09-20T00:00:00Z') }).tableDate, '2026-09-17', 'v60.46 the view reads a pre-rename artifact date as its table date');
 const backAgain = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250), row('2454', '聯發科', 45, 40, 40)], previous: carriedRun, generatedAt: '2026-11-03T00:00:00Z' });
 assert.equal('carried' in backAgain.companies.find((c) => c.code === '2454'), false, 'v59.94 a returning company drops the carried flag');
 assert.equal(backAgain.companies.find((c) => c.code === '2454').history.length, 13, 'v59.94 a returning company keeps its accumulated history');

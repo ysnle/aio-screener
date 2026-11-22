@@ -323,12 +323,46 @@ export function epsComparisonBasis(figure, figures = []) {
 // same-basis actual is −37.9%. One reader now: an annual line is not compared with a quarterly estimate; the EPS line
 // is chosen by epsComparisonBasis; the provider's own actual (the calendar row market-day facts read, stamped by the
 // producer as estimate.providerActual) is the compared amount when present, else the brief's.
-const ANNUAL_RE = /연간|통년|full[-\s]?year|annual|fiscal\s+year/i;
+// The period test once covered annual revenue only — POWL's 연간 희석 EPS read +40.3% and RGTI's 첫 9개월 매출 −60.7%
+// beside the quarter's estimate. One classification for every metric: the label decides, else the quoted sentence when it
+// names one period only. A row that names no period is the release's headline period, the quarter.
+const CUMULATIVE_RE = /누적|반기|(?:첫|처음)\s*(?:6|9|여섯|아홉)\s*개월|(?:^|[^\d])[69]\s*개월|\bYTD\b|\byear[-\s]?(?<![A-Za-z])to(?![A-Za-z])[-\s]?date\b|(?:\bfirst\s+)?\b(?:six|nine|6|9)\s+months\b|\b(?:first|second)\s+half\b|\b[H][12]\b|\b9M\b/i;
+const QUARTER_RE = /분기|quarter|\bQ[1-4]\b|\b[1-4]Q\b|three\s+months|(?:^|[^\d])3\s*개월|13\s+weeks/i;
+const ANNUAL_RE = /연간|통년|회계연도|full[-\s]?year|annual|fiscal\s+year|twelve\s+months|(?:^|[^\d])12\s*개월|year\s+ended|\bFY\s?'?\d{0,4}\b/i;
+const periodIn = (text) => [CUMULATIVE_RE.test(text) && 'cumulative', QUARTER_RE.test(text) && 'quarter', ANNUAL_RE.test(text) && 'annual'].filter(Boolean);
+/** 'quarter', 'annual', 'cumulative' (9개월·누적·반기·YTD) or null when the row names no period. */
+export function figurePeriod(figure) {
+  const label = periodIn(String(figure?.label || ''));
+  // "2026 회계연도 4분기" is the quarter; "4분기 누적" is cumulative.
+  if (label.length) return label.includes('cumulative') ? 'cumulative' : label.includes('quarter') ? 'quarter' : 'annual';
+  const quoted = periodIn(String(figure?.quote || ''));
+  return quoted.length === 1 ? quoted[0] : null;
+}
+// The provider consensus (calendar/earnings) is the quarter's estimate.
+export const CONSENSUS_PERIOD = 'quarter';
+/** Whether a brief row is on the provider consensus's period (a row naming no period is the quarter). */
+export function consensusPeriodMatches(figure) {
+  const period = figurePeriod(figure);
+  return period == null || period === CONSENSUS_PERIOD;
+}
+// The calendar's estimateLastSeenAt is the last run before the provider posted an actual, which can be after the
+// company's release (RGTI released 21:05Z, the estimate was last seen 22:26Z). A pre-report mark is a sighting at or before
+// the release: the last one when it is, else the first sighting of the same estimate pair, else none.
+/** The latest known sighting of the estimate at or before `publishedAt`, or null. */
+export function preReportSeenAt({ estimateFirstSeenAt = null, estimateLastSeenAt = null } = {}, publishedAt) {
+  const release = Date.parse(publishedAt || '');
+  if (!Number.isFinite(release)) return null;
+  return [estimateLastSeenAt, estimateFirstSeenAt].find((iso) => Date.parse(iso || '') <= release) || null;
+}
+/** A stored estimate's pre-report mark, or null when it is missing or later than the release (an older stored mark). */
+export function estimateSeenBeforeReport(estimate, publishedAt) {
+  return preReportSeenAt({ estimateLastSeenAt: estimate?.seenBeforeReportAt }, publishedAt);
+}
 /** { pct, note, basis } for a brief figure against the provider consensus, or null when it is not compared. */
 export function figureSurprise(figure, figures = [], { provisional = false } = {}) {
   const estimate = figure?.estimate;
   if (estimate?.surprisePct == null) return null;
-  if (figure.metric === 'revenue' && ANNUAL_RE.test(figure.label || '')) return null;
+  if (!consensusPeriodMatches(figure)) return null;
   const provider = readNumber(estimate.providerActual);
   const consensus = !estimate.basis || estimate.basis === 'provider-consensus-reference';
   if (provisional || !consensus || (figure.metric !== 'eps_diluted' && figure.metric !== 'revenue')) return { pct: estimate.surprisePct, note: '', basis: 'stored' };

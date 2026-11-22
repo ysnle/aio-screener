@@ -10,8 +10,8 @@ import { CLAIM_WORDS, figureDigits, figureText, printedValue as printed, thresho
 import { moveGrade } from '../../src/domain/market/session/move-size.js';
 import { printedValueAgrees, signAgrees, directionAgrees, sizeWordAgrees, numericFieldsMissing } from '../../src/domain/shared/figure-agreement.js';
 
-/** The defect classes, in report order: a-rank … f-asof, then the plain figure checks. */
-export const CLAIM_CHECKS = Object.freeze(['a-rank', 'b-index', 'c-size', 'd-relation', 'e-label', 'f-asof', 'direction', 'same-way', 'value', 'shape']);
+/** The defect classes, in report order: a-rank … f-asof, then the plain figure checks; 'unlinked' (a warning) last. */
+export const CLAIM_CHECKS = Object.freeze(['a-rank', 'b-index', 'c-size', 'd-relation', 'e-label', 'f-asof', 'direction', 'same-way', 'value', 'shape', 'unlinked']);
 
 const valueOf = (facts, subject, measure) => {
   const value = facts?.[subject]?.values?.[measure];
@@ -23,20 +23,25 @@ const RELATIONS = Object.freeze({ above: (a, b) => a > b, below: (a, b) => a < b
  * @param {object} claim
  * @param {object} facts
  * @param {{text?: string}} [options] the composed text the claim is printed in (for the label check)
- * @returns {Array<{check:string, subject:string, message:string}>}
+ * @returns {Array<{check:string, level:'error'|'warning', subject:string, message:string}>} — level 'warning' is the
+ *   'unlinked' outcome: a date, figure or comparison the facts hold nothing for, so it was not compared (not verified).
  */
 export function claimIssues(claim, facts, { text = null } = {}) {
   const issues = [];
-  const flag = (check, message) => issues.push({ check, subject: claim?.subject, message });
+  const flag = (check, message) => issues.push({ check, level: 'error', subject: claim?.subject, message });
+  // Nothing to compare is its own outcome, not a pass: a warning callers count and show (interpretation never blocks).
+  const unlinked = (message) => issues.push({ check: 'unlinked', level: 'warning', subject: claim?.subject, message });
   const word = claim?.word ? CLAIM_WORDS[claim.word] : null;
   if (claim?.word && !word) flag('shape', `unknown word ${claim.word}`);
   const figures = Array.isArray(claim?.figures) ? claim.figures : [];
   const own = facts?.[claim?.subject] || null;
+  if (!own) unlinked(`${claim?.subject}/${claim?.measure} has no facts to compare its date and figures with`);
 
   // (f) the claim's date is the date of the data its figures came from.
   const wantDay = own?.asOfBy?.[claim.measure] ?? own?.asOf ?? null;
   if (!claim?.asOf) flag('f-asof', `${claim?.subject}/${claim?.measure} has no asOf`);
   else if (wantDay && claim.asOf !== wantDay) flag('f-asof', `${claim.subject}/${claim.measure} dated ${claim.asOf}, its data is ${wantDay}`);
+  else if (own && !wantDay) unlinked(`${claim.subject}/${claim.measure}: its facts carry no date to compare ${claim.asOf} with`);
 
   for (const figure of figures) {
     for (const missing of numericFieldsMissing({ value: figure.value, unit: figure.unit, asOf: claim.asOf })) if (missing !== 'as_of_missing') flag('shape', `${figure.label || '?'}: ${missing}`);
@@ -45,6 +50,7 @@ export function claimIssues(claim, facts, { text = null } = {}) {
     else if (text != null && !text.includes(figure.label)) flag('e-label', `${claim.subject}: label "${figure.label}" is not printed beside ${figureText(figure)}`);
     // The printed figure is its fact (the AI checker's rounding and sign rules).
     const fact = figure.basis === 'member' ? own?.members?.[figure.label] : valueOf(facts, claim.subject, figure.basis);
+    if (own && !Number.isFinite(fact) && Number.isFinite(figure.value)) unlinked(`${claim.subject}/${figure.basis}: no fact for ${figureText(figure)}`);
     if (Number.isFinite(fact) && Number.isFinite(figure.value)) {
       const written = Math.abs(printed(figure));
       const sign = figure.unit === 'pct' || figure.unit === 'bp' ? Math.sign(printed(figure)) : 0;
@@ -66,7 +72,8 @@ export function claimIssues(claim, facts, { text = null } = {}) {
   if (word.rank) {
     const among = facts?.[claim.rank?.among];
     if (!claim.rank?.among) flag('a-rank', `"${word.text}" without a group`);
-    else if (among) {
+    else if (!among) unlinked(`"${word.text}" ranks within ${claim.rank.among}, which has no facts`);
+    else {
       const key = (value) => (word.sign ? word.sign * value : Math.abs(value));
       const names = new Set(ranked.map((row) => row.id));
       const others = Object.entries(among.members || {}).filter(([id, value]) => !names.has(id) && Number.isFinite(value));
@@ -81,6 +88,7 @@ export function claimIssues(claim, facts, { text = null } = {}) {
   // (b) a participation word asserts the index's own direction.
   const against = claim.compare?.against;
   const againstValue = against ? valueOf(facts, against, claim.compare.measure || claim.measure) : null;
+  if (against && againstValue == null && (word.index || word.same || word.relation)) unlinked(`"${word.text}" compares with ${against}/${claim.compare.measure || claim.measure}, which has no fact`);
   if (word.index && againstValue != null && !directionAgrees(word.index, againstValue)) flag('b-index', `"${word.text}" while ${against}/${claim.compare.measure || claim.measure} is ${againstValue}`);
   if (word.same && againstValue != null && judged != null && judged !== 0 && againstValue !== 0 && Math.sign(judged) !== Math.sign(againstValue)) flag('same-way', `"${word.text}": ${claim.subject} ${judged} vs ${against} ${againstValue}`);
 
@@ -116,6 +124,9 @@ export function unclaimedFigures({ text, claims }) {
 /** Every issue of a composed text: each claim's, and each printed figure no claim carries. */
 export function saidIssues(said, facts) {
   const issues = said.claims.flatMap((claim) => claimIssues(claim, facts, { text: said.text }));
-  for (const figure of unclaimedFigures(said)) issues.push({ check: 'e-label', subject: null, message: `"${figure}" is printed without a claim` });
+  for (const figure of unclaimedFigures(said)) issues.push({ check: 'e-label', level: 'error', subject: null, message: `"${figure}" is printed without a claim` });
   return issues;
 }
+
+/** An issue that blocks (a fact error), as against an 'unlinked' warning (nothing to compare). */
+export const isClaimError = (issue) => issue?.level !== 'warning';

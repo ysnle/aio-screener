@@ -1963,6 +1963,23 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || verdict.revenuePct !== -1 || verdict.epsPct !== 1.1 || verdict.eps !== 'beat') {
         fail(`v59.70: one surprise per report broke ${JSON.stringify({ annual, aaplEps, noProvider, verdict })}`);
       }
+      // v60.46: one period rule on every metric — a stored annual EPS (POWL 연간 $6.04 read +40.3%) or cumulative row
+      // (RGTI 첫 9개월 매출 read −60.7%) carries no surprise; a row naming no period, or 2026 회계연도 4분기, is the quarter.
+      const { figurePeriod } = await load('src/domain/briefing/event-briefs.js');
+      const est = (value, providerActual) => ({ value, surprisePct: 1, basis: 'provider-consensus-reference', providerActual });
+      const periodRows = [
+        { metric: 'eps_diluted', label: '연간 희석 EPS', value: '$6.04', estimate: est(1.5893, 2.23) },
+        { metric: 'revenue', label: '첫 9개월 매출', value: '$10.9 million', estimate: est(3589808, 1411000) },
+        { metric: 'revenue', label: '매출', value: '$10.9 million', quote: 'Total revenues for the nine months ended September 30, 2026 were $10.9 million', estimate: est(3589808, 1411000) },
+        { metric: 'revenue', label: '2026 회계연도 매출', value: '$2 billion', estimate: est(5e8) },
+        { metric: 'revenue', label: '상반기 매출', value: '$2 billion', estimate: est(5e8) },
+        { metric: 'eps_diluted', label: '2026 회계연도 4분기 희석 EPS', value: '$2.23', estimate: est(1.5893, 2.23) },
+        { metric: 'revenue', label: '매출', value: '$1.4 million', estimate: est(3589808, 1411000) }];
+      const periods = periodRows.map(figurePeriod).join(',');
+      const reads = periodRows.map((row) => figureSurprise(row, [row])?.pct ?? null);
+      if (periods !== 'annual,cumulative,cumulative,annual,cumulative,quarter,' || JSON.stringify(reads) !== JSON.stringify([null, null, null, null, null, 40.3, -60.7])) {
+        fail(`v60.46: annual and cumulative rows must not be compared with the quarter's estimate ${JSON.stringify({ periods, reads })}`);
+      }
       // v59.70 step 4: 종목's four cells read the same comparison; "전망은 시장 기대보다 낮아" is 가이던스 하회, not 신중.
       const { earningsCells } = await load('src/domain/briefing/reaction-read.js');
       const aaplBrief = { kind: 'earnings', figures: aaplFigures, guidance: [], reasons: { points: [{ text: '분기 실적은 예상치를 웃돌았지만, 연말 분기 매출총이익률 전망은 시장 기대보다 낮아 실적 호재를 상쇄했습니다.' }] },

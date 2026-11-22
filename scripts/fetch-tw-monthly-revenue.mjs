@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { fetchJsonWithDeadline } from './lib/http-fetch.mjs';
+import { tableDateOf } from '../src/domain/briefing/tw-monthly-revenue.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const TW_REVENUE_OUT = path.join(root, 'public-data', 'tw-monthly-revenue.json');
@@ -61,6 +62,11 @@ export function shiftMonth(month, n) {
   return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`;
 }
 
+// 出表日期 is the date MOPS generated the table, the same day for every company (2026-11-17 for all sixteen
+// October rows), not when a company published its figure; t187ap05_L carries no per-company filing date. It is stored
+// as tableDate. Artifacts written before the rename call it publishedAt (tableDateOf reads both); a carried record is renamed.
+const withTableDate = ({ publishedAt, ...rest }) => ({ ...rest, tableDate: tableDateOf({ publishedAt, ...rest }) });
+
 /** One source row → the company record, or null when its month or current amount is unreadable. */
 export function parseRevenueRow(row) {
   const month = rocMonth(row?.['資料年月']);
@@ -72,7 +78,7 @@ export function parseRevenueRow(row) {
   const ytdPrior = amount(row['累計營業收入-去年累計營收']);
   const note = String(row['備註'] ?? '').trim();
   return { code: String(row['公司代號'] || '').trim(), sourceName: String(row['公司名稱'] || '').trim(), industry: String(row['產業別'] || '').trim() || null,
-    month, publishedAt: rocDate(row['出表日期']), revenue, prevMonth, yearAgo, momPct: pct(revenue, prevMonth), yoyPct: pct(revenue, yearAgo),
+    month, tableDate: rocDate(row['出表日期']), revenue, prevMonth, yearAgo, momPct: pct(revenue, prevMonth), yoyPct: pct(revenue, yearAgo),
     ytd, ytdPrior, ytdYoyPct: pct(ytd, ytdPrior), note: note && note !== '-' ? note : null };
 }
 
@@ -96,7 +102,7 @@ export function buildTwMonthlyRevenue({ rows = [], previous = null, generatedAt 
       if (!record) {
         // A company the source left out keeps its previous record (own month and history), marked carried.
         missing.push(code);
-        if (prevByCode.has(code)) companies.push({ ...prevByCode.get(code), carried: true });
+        if (prevByCode.has(code)) companies.push({ ...withTableDate(prevByCode.get(code)), carried: true });
         continue;
       }
       if (!record.sourceName.startsWith(expect)) renamed.push(`${code}:${record.sourceName}`);
@@ -104,12 +110,12 @@ export function buildTwMonthlyRevenue({ rows = [], previous = null, generatedAt 
       companies.push(company); parsed.push(company);
     }
   }
-  // latestMonth/publishedAt come from this run's parsed rows only, so a carried record never sets the current month.
+  // latestMonth/tableDate come from this run's parsed rows only, so a carried record never sets the current month.
   const months = parsed.map((c) => c.month).sort();
   return {
     schemaVersion: TW_REVENUE_SCHEMA, generatedAt, status: parsed.length ? 'ok' : 'no-companies', source: SOURCE, sourceUrl: TW_REVENUE_URL, sourceKind: 'T1_OFFICIAL',
     unit: '천 대만달러(仟元)', basis: '회사가 MOPS에 신고한 월 매출 금액. 증감률은 원천 금액으로 계산',
-    latestMonth: months.at(-1) || null, publishedAt: parsed.map((c) => c.publishedAt).filter(Boolean).sort().at(-1) || null,
+    latestMonth: months.at(-1) || null, tableDate: parsed.map((c) => c.tableDate).filter(Boolean).sort().at(-1) || null,
     groups: TW_AI_CHAIN.map((g) => ({ id: g.id, name: g.name, codes: g.members.map(([code]) => code) })),
     companies, missing, renamed
   };
@@ -118,7 +124,7 @@ export function buildTwMonthlyRevenue({ rows = [], previous = null, generatedAt 
 /** No numbers: the file exists before the first collection so the page asks for it without a 404. */
 export function pendingTwMonthlyRevenue(reason = 'awaiting-first-collection', generatedAt = new Date().toISOString()) {
   return { schemaVersion: TW_REVENUE_SCHEMA, generatedAt, status: 'not-collected', reason, source: SOURCE, sourceUrl: TW_REVENUE_URL, sourceKind: 'T1_OFFICIAL', unit: '천 대만달러(仟元)',
-    latestMonth: null, publishedAt: null, groups: TW_AI_CHAIN.map((g) => ({ id: g.id, name: g.name, codes: g.members.map(([code]) => code) })), companies: [], missing: [], renamed: [] };
+    latestMonth: null, tableDate: null, groups: TW_AI_CHAIN.map((g) => ({ id: g.id, name: g.name, codes: g.members.map(([code]) => code) })), companies: [], missing: [], renamed: [] };
 }
 
 /** True when the two artifacts carry the same companies and numbers (generatedAt aside). */
