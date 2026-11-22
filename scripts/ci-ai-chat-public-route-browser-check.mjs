@@ -77,6 +77,9 @@ try {
     return route.abort();
   };
   await page.route('**/*', routeFixture);
+  const pendingRequests = new Set();
+  page.on('request', (request) => pendingRequests.add(request.url().replace(localBase, '')));
+  for (const done of ['requestfinished', 'requestfailed']) page.on(done, (request) => pendingRequests.delete(request.url().replace(localBase, '')));
 
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
@@ -96,8 +99,11 @@ try {
   };
   const pendingResult = page.evaluate(async (fx) => {
     localStorage.clear();
+    window.__aioGateStage = 'public-config';
     await window.AIO.loadPublicConfig();
+    window.__aioGateStage = 'route-health';
     const routeState = await window._aioEnsureClaudeRoute('');
+    window.__aioGateStage = 'before-ask';
     const config = window.AIO.getPublicConfig();
     const routeDisabled = !config?.ai?.workerUrl;
     // The orchestrator is still held here: a null parse is the unavailable case, never a thrown TypeError.
@@ -105,11 +111,13 @@ try {
     let nullParse;
     try { nullParse = { text: window._aioRunAIResponsePipeline(fx.nullParse, { entrypoint: 'orchestrator-loading-fixture', streamPhase: 'complete', record: false })?.text }; } catch (error) { nullParse = { threw: String(error) }; }
     window.__aioAskStarted = true;
+    window.__aioGateStage = 'shared-ai-stream';
     const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
       window.callSharedAi('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
         resolveStream({ raw, completion, published: window._aioRunAIResponsePipeline(raw, { entrypoint: 'public-route-browser-fixture', streamPhase: 'complete', completion, record: false }) });
       }, rejectStream, { modelKey: 'luna' });
     });
+    window.__aioGateStage = 'pipeline-fixtures';
     const questionPlan = { currentSensitive: true, sessionEvidence: { verified: true, observedAt: '2026-08-18T13:00:00Z', status: 'open' }, researchDecision: { requirement: 'OPTIONAL' } };
     const unbound = window._aioRunAIResponsePipeline(fx.unbound, { entrypoint: 'unbound-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
     const invalid = window._aioRunAIResponsePipeline(fx.invalid, { entrypoint: 'invalid-fixture', questionPlan, evidence: [], streamPhase: 'complete', record: false });
@@ -130,7 +138,12 @@ try {
   // Release the held orchestrator module only once callSharedAi has been called (the stream itself answers at once).
   await page.waitForFunction(() => window.__aioAskStarted === true, null, { timeout: 30000 }).catch(() => {});
   releaseOrchestrator();
-  const result = await pendingResult;
+  // A hang here used to end as the runner's 120 s kill with no cause; the gate now names the step it stopped at.
+  let stalled;
+  const result = await Promise.race([pendingResult, new Promise((_, reject) => { stalled = setTimeout(async () => {
+    const stage = await page.evaluate(() => window.__aioGateStage).catch(() => 'page-unreachable');
+    reject(new Error(`public route fixture stalled at ${stage}; held orchestrator ${heldOrchestrator}; worker requests ${observedRequests.length}; pending ${[...pendingRequests].join(' ') || 'none'}`));
+  }, 60000); })]).finally(() => clearTimeout(stalled));
 
   // v59.70 (D6): the browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
   const browserTranslation = await page.evaluate(() => ['autoTranslateNews', 'freeTranslateNews', '_gtBatchTranslate'].filter((name) => typeof window[name] === 'function'));
