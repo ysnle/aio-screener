@@ -10,7 +10,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
 import { failureCauseLines } from './lib/qa-failure-cause.mjs';
-import { failureBlocks, qaOrigin } from './lib/qa-live-data.mjs';
+import { failureBlocks, qaOrigin, runsInDataRun } from './lib/qa-live-data.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = process.env.AIO_QA_MANIFEST_PATH ? resolve(process.env.AIO_QA_MANIFEST_PATH) : join(root, 'architecture', 'qa-pipeline.json');
@@ -113,6 +113,9 @@ const listOnly = has('--list');
 const keepGoing = has('--keep-going') && process.env.CI !== 'true';
 if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
+// v60.46: a data run (producer pre-push, reduced-scope CI of a data-only commit) skips gates declared inputClass "code"
+// (scripts/lib/qa-live-data.mjs). The data-commit profile is only ever a producer's pre-push run.
+const dataRun = has('--data-run') || profile === 'data-commit';
 // v59.70 (I8): a ci.yml contract shard reports live-content gate failures instead of failing on them.
 const origin = qaOrigin();
 const positiveInteger = (value, fallback) => {
@@ -465,6 +468,11 @@ if (requestedGateIds || changedGateIds.length) {
     process.exit(2);
   }
 }
+const dataRunSkipped = dataRun ? selectedGates.filter((gate) => !runsInDataRun(gate)).map((gate) => gate.id) : [];
+if (dataRun) {
+  selectedGates = selectedGates.filter(runsInDataRun);
+  console.error(`[qa] data run: ${dataRunSkipped.length} code gate(s) skipped (full push CI tests them on the code this data ships on), ${selectedGates.length} data/mixed gate(s) run`);
+}
 selectedGroups = [...new Set(selectedGates.map((gate) => gate.group))];
 if (requestedGateIds) {
   const previousById = new Map((previousReport?.results || []).map((result) => [result.id, result]));
@@ -485,7 +493,7 @@ if (duplicateIds.length) {
 }
 
 if (listOnly || explain) {
-  console.log(JSON.stringify({ profile, groups: selectedGroups, changeSource, changedFiles: changed, gates: selectedGates.map(({ id, group, phase, kind, script }) => ({ id, group, phase, kind, script })) }, null, 2));
+  console.log(JSON.stringify({ profile, groups: selectedGroups, changeSource, changedFiles: changed, dataRun, dataRunSkipped, gates: selectedGates.map(({ id, group, phase, kind, script, inputClass }) => ({ id, group, phase, kind, script, inputClass })) }, null, 2));
   process.exit(0);
 }
 

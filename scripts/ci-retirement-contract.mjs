@@ -8,7 +8,6 @@ const manifest = JSON.parse(read('architecture/retirement-manifest.json'));
 const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const bootstrap = read('src/app/bootstrap.js');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const status = JSON.parse(read('public-data/operations-status.json'));
 const fail = (message) => { throw new Error(`[retirement] ${message}`); };
 
 const routes = routeOwners.routes || {};
@@ -45,8 +44,8 @@ const measuredFullNativeOwner = routeIds.filter((route) => {
     && (owner.legacyWriterEvidence || []).length === 0;
 });
 
-// R352/F-01/F-07 ratchet: the manifest and the public operations-status artifact must both
-// reconcile to the same code-derived route-owners.json ledger. A hand-edited manifest that
+// R352/F-01/F-07 ratchet: the manifest must reconcile to the code-derived route-owners.json ledger (v60.46: the
+// public operations-status artifact no longer copies route ownership). A hand-edited manifest that
 // declares "17 native, 0 legacy" independent of measurement is exactly the failure this checks.
 if (!sameSet(manifest.nativeLifecycleRoutes, measuredNativeLifecycle)) fail('manifest nativeLifecycleRoutes does not match route-owners.json measurement');
 if (!sameSet(manifest.nativeRendererRoutes, measuredNativeRenderer)) fail('manifest nativeRendererRoutes does not match route-owners.json measurement');
@@ -56,9 +55,6 @@ if (!sameSet(manifest.fullNativeOwnerRoutes, measuredFullNativeOwner)) fail('man
 if (!sameSet(routeOwners.counts?.lazyLoadedRoutes, measuredNativeLazy)) fail('route-owners lazyLoadedRoutes does not match bootstrap dynamic imports');
 if (!sameSet(routeOwners.counts?.fullNativeOwner, measuredFullNativeOwner)) fail('route-owners fullNativeOwner does not match independently measured ownership/lazy boundaries');
 if ((manifest.legacyObserverOwners || []).length) fail('legacy observer ownership is declared but must be retired before certification');
-if (!sameSet(status.routes?.nativeLifecycleOwner, measuredNativeLifecycle)) fail('operations-status nativeLifecycleOwner does not match route-owners.json measurement');
-if (!sameSet(status.routes?.nativeRendererOwner, measuredNativeRenderer)) fail('operations-status nativeRendererOwner does not match route-owners.json measurement');
-if (status.routes?.legacyOwner !== measuredLegacyOwner.length) fail('operations-status legacyOwner count does not match route-owners.json measurement');
 if (bootstrap.includes('createLegacyObserverPage') || bootstrap.includes('legacy-observer.js')) fail('legacy observer registry is still bootstrapped');
 
 // Lifecycle cutover (PAGES[route].init === null) is re-verified directly against source for every

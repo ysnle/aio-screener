@@ -16,20 +16,16 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-// The paths a refresh producer writes. Keep in step with OVERLAY_GENERATED_PATHS in resolve-release-source.mjs and the
-// exclusion list of the attest guard; ci-qa-pipeline-contract-check.mjs asserts that they agree.
-export const OVERLAY_GENERATED_PATHS = Object.freeze([
-  'public-data',
-  'architecture/asset-manifest.json',
-  'architecture/release-manifest.json',
-  'architecture/public-readiness.json',
-  'public-config.json',
-  // v59.85: the live-data browser watchdog re-pins this file and pushes it with GITHUB_TOKEN, which starts no push CI
-  // (it dispatches a full-scope CI instead). As a code path, that commit became "the newest code" with no successful push
-  // CI, so every later refresh release would have ridden the overlay on the commit before it until a human pushed. It
-  // only names the data snapshot the browser gates read, so it is generated like the data itself.
-  'architecture/browser-data-fixture.json'
-]);
+// v60.46: the paths a producer writes are PRODUCER_WRITTEN_PATHS in scripts/lib/data-publish-sets.mjs (the same list
+// resolve-release-source.mjs uses to tell a data-only commit). This script imports nothing from the checkout, so it reads
+// that module from the refresh commit itself; the module has no imports, so it loads from a data: URL. Everything else,
+// generated knowledge files under public-data/ included, comes from the code commit, as its full push CI tested it.
+export async function producerWrittenPaths(root, dataSha) {
+  const source = git(root, ['show', `${dataSha}:scripts/lib/data-publish-sets.mjs`]).stdout;
+  const { PRODUCER_WRITTEN_PATHS } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+  if (!Array.isArray(PRODUCER_WRITTEN_PATHS) || !PRODUCER_WRITTEN_PATHS.length) throw new Error(`data commit ${dataSha.slice(0, 12)} declares no PRODUCER_WRITTEN_PATHS`);
+  return PRODUCER_WRITTEN_PATHS;
+}
 
 const VERSION = /^v\d+\.\d+$/;
 
@@ -59,7 +55,7 @@ function git(root, args, { allowFail = false } = {}) {
   return result;
 }
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);
   const value = (flag) => { const index = args.indexOf(flag); return index >= 0 ? args[index + 1] : undefined; };
   const known = new Set(['--code-sha', '--data-sha', '--root', '--report']);
@@ -76,11 +72,15 @@ function main() {
   if (git(root, ['cat-file', '-e', `${codeSha}^{commit}`], { allowFail: true }).status !== 0) {
     git(root, ['fetch', '--no-tags', '--depth=1', 'origin', codeSha]);
   }
+  const generatedPaths = await producerWrittenPaths(root, dataSha);
   // The code tree, exactly as its full push CI tested it.
   git(root, ['checkout', '--force', '--detach', codeSha]);
   // The generated data of the refresh commit. A file the producer deleted must not survive from the code tree.
-  rmSync(join(root, 'public-data'), { recursive: true, force: true });
-  git(root, ['checkout', dataSha, '--', ...OVERLAY_GENERATED_PATHS]);
+  for (const path of generatedPaths) rmSync(join(root, path), { recursive: true, force: true });
+  // An optional path the refresh commit does not hold stays absent (git checkout refuses a pathspec that matches nothing).
+  const files = git(root, ['ls-tree', '-r', '--name-only', dataSha, '--', ...generatedPaths]).stdout.split('\n').filter(Boolean);
+  const present = generatedPaths.filter((path) => files.some((file) => file === path || file.startsWith(`${path}/`)));
+  if (present.length) git(root, ['checkout', dataSha, '--', ...present]);
   const version = JSON.parse(readFileSync(join(root, 'version.json'), 'utf8')).version;
   const restamped = [];
   for (const file of RESTAMP_FILES) {
@@ -93,7 +93,7 @@ function main() {
       restamped.push(file);
     }
   }
-  const report = { schemaVersion: 'aio-data-overlay.v1', codeSha, dataSha, codeRevision: version, generatedPaths: OVERLAY_GENERATED_PATHS, restamped, builtAt: new Date().toISOString() };
+  const report = { schemaVersion: 'aio-data-overlay.v1', codeSha, dataSha, codeRevision: version, generatedPaths, restamped, builtAt: new Date().toISOString() };
   const reportPath = value('--report');
   if (reportPath) {
     mkdirSync(dirname(resolve(reportPath)), { recursive: true });
@@ -103,5 +103,5 @@ function main() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('build-data-overlay.mjs')) {
-  try { main(); } catch (error) { console.error(`[data-overlay] ${error.message}`); process.exit(1); }
+  main().catch((error) => { console.error(`[data-overlay] ${error.message}`); process.exit(1); });
 }

@@ -10,7 +10,7 @@ const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 const { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } = await import('../src/data/contracts/operations.js');
-const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, derivePublicAiConfig, deriveRouteOwnership, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
+const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, derivePublicAiConfig, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
 // v60.25: a later market refresh cannot renew the independent SEC observation.
 const secObserved = '2026-11-16T22:36:15.988Z';
 const secReceipt = { lastSuccessfulObservation: secObserved };
@@ -29,7 +29,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const status = JSON.parse(read('public-data/operations-status.json'));
 const data = JSON.parse(read('public-data/data.json'));
-const routeOwners = JSON.parse(read('architecture/route-owners.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
 // v57.54: every status literal the builder can publish is in the declared vocabulary. A retained AI analysis wrote
@@ -149,29 +148,11 @@ if (invalidEndpointConfig.ai.workerUrl !== null || invalidEndpointConfig.ai.rout
 if (status.planes.fast.status !== 'OPERATOR_REQUIRED' && status.planes.fast.status !== 'CURRENT') throw new Error('[operations-status] fast plane status is not explicit');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(status.planes.fast.endpoint || ''))) throw new Error('[operations-status] fast plane endpoint is missing or includes a path suffix');
 
-// RM-00/F-07 ratchet: route ownership published here must reconcile with the code-derived
-// route-owners.json ledger. A hardcoded "required native routes" list (the pre-remediation
-// design) can silently diverge from measurement; equality with the ledger cannot.
-const measured = deriveRouteOwnership(routeOwners);
-const sameSet = (a, b) => {
-  const left = [...(a || [])].sort();
-  const right = [...(b || [])].sort();
-  return left.length === right.length && left.every((value, index) => value === right[index]);
-};
-if (status.routes.supported !== measured.supported) throw new Error('[operations-status] supported route count does not match route-owners.json');
-if (!sameSet(status.routes.nativeLifecycleOwner, measured.nativeLifecycleOwner)) throw new Error('[operations-status] nativeLifecycleOwner does not match route-owners.json');
-if (!sameSet(status.routes.nativeRendererOwner, measured.nativeRendererOwner)) throw new Error('[operations-status] nativeRendererOwner does not match route-owners.json');
-if (!sameSet(status.routes.nativeLazyOwner, measured.nativeLazyOwner)) throw new Error('[operations-status] nativeLazyOwner does not match route-owners.json');
-if (!sameSet(status.routes.nativeOwner, measured.nativeOwner)) throw new Error('[operations-status] nativeOwner does not match route-owners.json');
-if (status.routes.legacyOwner !== measured.legacyOwner) throw new Error('[operations-status] legacyOwner does not match route-owners.json');
-
-const nativeRendererOwner = status.routes.nativeRendererOwner || [];
-const nativeOwner = status.routes.nativeOwner || [];
-if (status.routes.legacyOwner + nativeRendererOwner.length !== status.routes.supported) throw new Error('[operations-status] renderer ownership does not reconcile');
-if (status.routes.legacyOwner + nativeOwner.length > status.routes.supported) throw new Error('[operations-status] complete ownership exceeds supported routes');
-if (nativeOwner.some((route) => !nativeRendererOwner.includes(route))) throw new Error('[operations-status] complete native owner must also own the renderer');
-if (nativeRendererOwner.some((route) => typeof route !== 'string' || route.length === 0)) throw new Error('[operations-status] native renderer owner entry is invalid');
-if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
+// v60.46 (static-dynamic audit rec. 8): the published status carries no copy of code state. Its route-ownership block
+// mirrored architecture/route-owners.json, so data built on newer code and shipped on older code (a data overlay release)
+// failed this gate 43 times on 11/19-20 (nativeLazyOwner) while nothing read the block. Route ownership is checked
+// against the code by ci-retirement-contract.mjs.
+if (Object.hasOwn(createOperationsStatus({ routes: { supported: 1, nativeLazyOwner: ['home'] } }), 'routes')) throw new Error('[operations-status] v60.46 the published status must not copy route ownership (code state) from route-owners.json');if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
 // P1719: a retained previous analysis is not a successful call this run.
 const scheduledAnalysisOk = data.meta?.marketAnalysisOk === true && !data.meta?.marketAnalysisRetained;
 if ((status.ai?.scheduledAnalysis?.status === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis status does not match data.meta.marketAnalysisOk');

@@ -438,6 +438,35 @@ try {
   const dataGates = JSON.parse(dataEdit.stdout).gates.map((gate) => gate.id).sort();
   if (dataGates.join(',') !== 'data-other,data-plane,preflight') fail(`group impact must keep its own gates, got ${dataGates.join(',')}`, dataEdit);
 
+  // v60.46 (static-dynamic audit rec. 8): a data run — the data-commit profile a producer runs before its push, or
+  // --data-run in the reduced-scope CI of a data-only commit — skips gates declared inputClass "code"; data, mixed and
+  // undeclared gates run, and every other selection is unchanged. Before v60.46 a producer ran every code gate.
+  writeFileSync(manifestPath, JSON.stringify({
+    ...base,
+    originScopes: { 'refresh-data': ['data'] },
+    groups: {
+      preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [
+        { id: 'pre-code', inputClass: 'code', script: fixtureScript },
+        { id: 'pre-mixed', inputClass: 'mixed', script: fixtureScript }
+      ] },
+      data: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [
+        { id: 'data-data', inputClass: 'data', script: fixtureScript },
+        { id: 'data-code', inputClass: 'code', script: fixtureScript },
+        { id: 'data-undeclared', script: fixtureScript }
+      ] }
+    },
+    profiles: { test: ['preflight', 'data'] }
+  }, null, 2));
+  const selection = (...args) => {
+    const result = run(...args, '--list');
+    if (result.status !== 0) fail(`data-run selection failed for ${args.join(' ')}`, result);
+    return JSON.parse(result.stdout).gates.map((gate) => gate.id).sort().join(',');
+  };
+  if (selection('data-commit', '--origin', 'refresh-data') !== 'data-data,data-undeclared,pre-mixed') fail('v60.46 the data-commit profile must skip code gates only');
+  if (selection('--group', 'data', '--data-run') !== 'data-data,data-undeclared') fail('v60.46 --data-run must skip code gates only');
+  if (selection('--group', 'data') !== 'data-code,data-data,data-undeclared') fail('v60.46 a source run keeps every gate');
+  if (selection('test') !== 'data-code,data-data,data-undeclared,pre-code,pre-mixed') fail('v60.46 a profile run keeps every gate');
+
   // v57.54: a failure reports its cause rows first, even when warnings fill the 30-line tail.
   const { failureCauseLines } = await import('./lib/qa-failure-cause.mjs');
   const noisy = ['Data lineage audit: 38 artifacts | mode=strict PASS=33 WARN=4 FAIL=1', 'PASS a.json', 'FAIL market-temperature.json policy=x', '     FAIL: lineage timestamp is unexpectedly in the future',

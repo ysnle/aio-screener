@@ -6,7 +6,6 @@ import { describeDomainReceipt } from './lib/domain-receipt.mjs';
 import { aiProviderRefusal } from './lib/operational-health.mjs';
 
 export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.json', import.meta.url);
-const ROUTE_OWNERS_PATH = new URL('../architecture/route-owners.json', import.meta.url);
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const SEC_FUNDAMENTALS_SUMMARY_PATH = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
 const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
@@ -33,44 +32,6 @@ export function deriveOperationalState({ configured = false, healthy = false, st
 export function deriveOverall({ durableOk = false, blockers = [] } = {}) {
   if (!durableOk) return 'BLOCKED';
   return blockers.length ? 'OPERATOR_REQUIRED' : 'CURRENT';
-}
-
-export async function readRouteOwners() {
-  return JSON.parse(await readFile(ROUTE_OWNERS_PATH, 'utf8'));
-}
-
-export function deriveRouteOwnership(routeOwners) {
-  const routes = routeOwners?.routes || {};
-  const routeIds = Object.keys(routes);
-  const nativeLifecycleOwner = routeIds.filter((route) => routes[route].lifecycleOwner === 'native');
-  const nativeRendererOwner = routeIds.filter((route) => routes[route].rendererOwner === 'native');
-  const nativeDataOwner = routeIds.filter((route) => routes[route].dataOwner === 'native');
-  const nativeChartOwner = routeIds.filter((route) => routes[route].chartOwner === 'native');
-  const nativeNarrativeOwner = routeIds.filter((route) => routes[route].narrativeOwner === 'native');
-  const declaredNotApplicable = (owner, field) => owner[`${field}Owner`] === 'not-applicable'
-    && owner.notApplicableFields?.includes(`${field}Owner`);
-  const nativeLazyOwner = routeIds.filter((route) => routes[route].loadingStrategy === 'route-dynamic-import');
-  const nativeOwner = routeIds.filter((route) => {
-    const owner = routes[route];
-    return owner.lifecycleOwner === 'native'
-      && owner.rendererOwner === 'native'
-      && owner.dataOwner === 'native'
-      && ['chart', 'narrative'].every((field) => owner[`${field}Owner`] === 'native' || declaredNotApplicable(owner, field))
-      && nativeLazyOwner.includes(route)
-      && (owner.contestedIds || []).length === 0
-      && (owner.legacyWriterEvidence || []).length === 0;
-  });
-  return {
-    supported: routeIds.length,
-    nativeLifecycleOwner,
-    nativeRendererOwner,
-    nativeDataOwner,
-    nativeChartOwner,
-    nativeNarrativeOwner,
-    nativeLazyOwner,
-    nativeOwner,
-    legacyOwner: routeIds.length - nativeRendererOwner.length
-  };
 }
 
 export function deriveSecCoverage(secFundamentals, fallbackPct = 0) {
@@ -472,7 +433,6 @@ export async function observeWorkerHealth(workerEndpoints = {}, now = new Date()
 
 export async function writeOperationsStatus({ data, marketSnapshot, reconciliation, secFundamentals, now = new Date().toISOString() } = {}) {
   const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
-  const routeOwners = await readRouteOwners();
   let workerEndpoints = {};
   try { workerEndpoints = JSON.parse(await readFile(WORKER_ENDPOINTS_PATH, 'utf8')); } catch (_) {}
   let sec = secFundamentals;
@@ -487,7 +447,6 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const secCoverage = deriveSecCoverage(sec, data?.meta?.fundamentalCoveragePct);
   let extendedShard = null;
   try { extendedShard = JSON.parse(await readFile(SCREENER_EXTENDED_PATH, 'utf8')); } catch (_) { extendedShard = null; }
-  const ownership = deriveRouteOwnership(routeOwners);
   const fastConfig = workerEndpoints.fastQuotes || {};
   const shouldObserveWorkerHealth = process.env.AIO_OBSERVE_PROXY_HEALTH === '1';
   let previousStatus = {};
@@ -697,25 +656,12 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       overall: reconciliation?.overall || 'BLOCKED',
       counts: reconciliation?.counts || {},
       closure: reconciliation?.closure || null,
-      routeCount: ownership.supported,
       rawProducerClaimGate: 'not_applicable_for_quote_plane'
     },
-    routes: {
-      supported: ownership.supported,
-      nativeOwner: ownership.nativeOwner,
-      legacyOwner: ownership.legacyOwner,
-      nativeLifecycleOwner: ownership.nativeLifecycleOwner,
-      nativeRendererOwner: ownership.nativeRendererOwner,
-      nativeDataOwner: ownership.nativeDataOwner,
-      nativeChartOwner: ownership.nativeChartOwner,
-      nativeNarrativeOwner: ownership.nativeNarrativeOwner,
-      nativeLazyOwner: ownership.nativeLazyOwner,
-      // Verified 2026-07-19 (RM-00): bootstrap.js registers a dedicated module for all 17 ROUTE_IDS,
-      // so createLegacyObserverPage/defaultPage() is never reached. Re-derive if that ever changes.
-      observerOwner: 0,
-      cutoverStatus: 'MIGRATION_IN_PROGRESS',
-      routeOwnersManifest: 'architecture/route-owners.json'
-    },
+    // v60.46: no route-ownership block. It was a copy of architecture/route-owners.json (code state) inside a data
+    // artifact; nothing read it, and a data overlay release (data built on newer code, shipped on older code) failed CI
+    // on the copy 43 times on 11/19-20 (nativeLazyOwner). Route ownership is checked against the code by
+    // ci-retirement-contract.mjs and ci-operations-contract-check.mjs.
     blockers
   });
   const validation = validateOperationsStatus(status);
