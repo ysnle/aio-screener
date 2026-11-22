@@ -1,0 +1,22 @@
+{
+  "p": {
+    "title": "\"외부 검색 없이\"라고 쓴 AI 질문이 검색 요청으로 읽힘",
+    "symptom": "실서비스 v60.44(2026-11-22): \"외부 검색 없이 앱의 공개 홈 자료만 사용해서 SPY의 최근 종가와 등락률, 기준일을 한 문장으로 알려줘\"의 리서치 판정이 requestedByUser=true였다. requestedByUser는 웹검색을 붙이게 하고(native-search.js searchMustRun) 앱 자료 스냅샷 판정(snapshotEligible)을 막는다.",
+    "root_cause": "src/ai/research/decision.js의 EXPLICIT_SEARCH_RE가 '검색'·'search' 같은 단어만 보고 부정(없이·말고·빼고·하지 마·without·no·don't)을 보지 않았다.",
+    "fix": "부정된 검색 구절(NEGATED_SEARCH_RE)을 지운 뒤 검색 요청 단서를 읽는다. 부정은 검색 요청이 아니다. userOptOut(설정 스위치, 실패 시 닫힘)으로 바꾸지는 않았다: 그 경로는 답에 검색 미수신 안내를 붙이기 때문이다. 최근 종가 질문의 REQUIRED 판정은 바꾸지 않았다.",
+    "violated_rule": "없음",
+    "prevention": "scripts/ci-ai-intelligence-contract-check.mjs v60.46 블록: 부정 구절 8개(한국어·영어)는 requestedByUser가 false, 실제 검색 요청 5개는 true. 이전 decision.js에서 실패함을 확인했다.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs, node scripts/ci-native-search-check.mjs, node scripts/ci-regex-term-ratchet-check.mjs, node scripts/ci-pipeline-semantics-check.mjs 통과.",
+    "files": ["src/ai/research/decision.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "qa": [
+    {
+      "id": "QA-AI-NEGATED-SEARCH-01",
+      "text": "{VERSION} \"검색 없이\"·\"검색하지 말고\"·\"without search\" 같은 부정 구절은 AI 리서치 판정에서 검색 요청(requestedByUser)이 아니고, \"검색해줘\"·\"search\"는 여전히 요청이다.",
+      "verify_by": "node scripts/ci-ai-intelligence-contract-check.mjs"
+    }
+  ],
+  "qa_section": "AI 답변 안내 줄",
+  "changelog": ["AI 질문에 \"외부 검색 없이\"라고 쓰면 검색 요청으로 읽히던 문제를 고쳤다 ({VERSION})"],
+  "note": "부정된 검색 구절은 검색 요청이 아님"
+}

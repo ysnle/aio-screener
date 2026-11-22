@@ -321,6 +321,16 @@ check('conduct-plan-is-carried-by-question-plan', createQuestionPlan({ query:'�
 check('legal-scope-notice-remains-useful', buildScopedConductFallback(responseDirectiveAudit).includes('전제와 확인 범위') && !buildScopedConductFallback(responseDirectiveAudit).includes('AI 안전 모드'));
 const disabledDecision = createResearchDecision({ questionPlan: causalPlan, userOptOut: true, now: '2026-07-28T12:00:00Z' });
 check('research-optout-fails-closed', disabledDecision.requirement === 'REQUIRED' && disabledDecision.failureMode === 'REQUIRED_BUT_DISABLED' && validateResearchDecision(disabledDecision).ok);
+// v60.46 (live 2026-11-22): "외부 검색 없이 앱의 공개 홈 자료만 사용해서 …" set requestedByUser, which forces a search to be
+// attached. A negated search phrase is no request; a real request beside it still is.
+{
+  const asked = (query) => createQuestionPlan({ query, route: 'home', now: '2026-11-22T03:00:00Z' }).researchDecision.requestedByUser;
+  const declined = ['외부 검색 없이 앱의 공개 홈 자료만 사용해서 SPY의 최근 종가와 등락률, 기준일을 한 문장으로 알려줘', '검색하지 말고 PER 뜻만 알려줘', '검색 말고 앱 자료로 NVDA 요약해줘',
+    '웹검색 빼고 답해줘', '인터넷 검색은 하지 마 그냥 설명해줘', 'Explain PER without search', 'no web search, just the app data for SPY', "don't search, what is a moat?"];
+  const requested = ['SPY 최근 뉴스 검색해줘', '검색해서 NVDA 실적 찾아봐', 'search the latest NVDA earnings', '검색 없이 말고 꼭 검색해서 확인해줘', 'look up AAPL guidance'];
+  const wrong = declined.filter(asked).concat(requested.filter((query) => !asked(query)));
+  check(`v60.46 a negated search phrase is not a request to search; a real request still is (${JSON.stringify(wrong)})`, wrong.length === 0);
+}
 const knowledgeIndex = createAIKnowledgeIndex([
   { articleId:'principles:B2', lessonId:'B2', surface:'principles', title:'금리와 자산가격', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'금리는 미래 현금흐름의 할인율에 영향을 준다.', mechanism:'정책금리와 장기금리는 자본비용과 밸류에이션 경로로 전달된다.', example:'할인율 상승 시 같은 현금흐름의 현재가치가 낮아진다.', counterScenario:'성장 기대가 더 크게 오르면 가격 방향은 달라질 수 있다.' } },
   { articleId:'atlas-foundations:energy-and-power', lessonId:'energy-and-power', surface:'atlas-foundations', title:'Energy and power', authoringStatus:'STRUCTURED_REFERENCE_DRAFT', publication:'EDUCATIONAL_REFERENCE_ONLY', reviewedAt:'2026-08-18', summary:{ definition:'에너지는 일을 할 수 있는 능력이고 전력은 시간당 전달 속도다.', mechanism:'AI 계산과 메모리 이동은 전력·열·냉각 병목으로 이어진다.', example:'전력당 성능은 시설 비용에 영향을 준다.', counterScenario:'전력 사용량만으로 기업 수익을 결론낼 수 없다.' } }
