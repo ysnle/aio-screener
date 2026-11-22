@@ -9,6 +9,21 @@
 // same checks still fail there; the watchdog twins (same script in watchdog-local) keep watching the live content.
 // Source defects (control characters, YAML, code contracts) declare nothing and block everywhere.
 
+// v60.46 (static-dynamic audit 2026-11-22, rec. 8): every gate declares what its verdict depends on (`inputClass`):
+//   data  — the artifacts a producer writes this run (public-data/**, public-config.json, the release manifests);
+//   code  — code and pinned fixtures only: it reads nothing a producer writes;
+//   mixed — code or fixture checks that also read producer-written artifacts.
+// A data run — a producer's pre-push gate (the data-commit profile, or --data-run) and the reduced-scope CI of a data-only
+// commit — skips `code` gates. The code under a data-only commit already passed full push CI (resolve-release-source.mjs
+// rides the data on that code, direct or overlay), so a code gate there can only repeat that verdict, or fail the producer
+// on a red code push that the overlay release never ships. `data` and `mixed` gates run in full; an undeclared gate runs.
+export const GATE_INPUT_CLASSES = Object.freeze(['data', 'code', 'mixed']);
+
+/** true when this gate runs in a data run (a producer pre-push gate or the CI of a data-only commit). */
+export function runsInDataRun(gate) {
+  return gate?.inputClass !== 'code';
+}
+
 export const LIVE_DATA_KINDS = Object.freeze(['content']);
 export const CI_ORIGIN = 'ci';
 

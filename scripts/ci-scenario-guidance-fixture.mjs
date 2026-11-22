@@ -438,11 +438,17 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.deepEqual(themeRotationRead({ artifact: sameVersion }).pullbacks.map((row) => row.id), ['b'], 'v58.75: a same-version artifact stands in before the live read exists');
     assert.equal(themeRotationRead({ artifact: { ...sameVersion, playbookVersion: undefined } }).source, null, 'v58.75: an artifact without the current version is not printed');
     const published = JSON.parse(readFileSync(new URL('../public-data/scenario-state.json', import.meta.url), 'utf8'));
-    if (published.playbookVersion === THEME_PLAYBOOK_VERSION && published.basis?.themeAsOfByMarket?.US && published.basis.themeAsOfByMarket.US === state1.basis.themeAsOfByMarket?.US) {
+    // v60.46: the same inputs means the same close and the same screener.json. The screener lane rewrites screener.json
+    // between market refreshes; comparing a state built on the previous file failed 16 screener runs 11/20-22 (P2630 class).
+    assert.equal(state1.basis.screenerComputedAt, screener.factorComputedAt || null, 'v60.46 the state names the screener.json its theme rows were built from');
+    if (published.playbookVersion === THEME_PLAYBOOK_VERSION && published.basis?.themeAsOfByMarket?.US && published.basis.themeAsOfByMarket.US === state1.basis.themeAsOfByMarket?.US
+      && published.basis.screenerComputedAt && published.basis.screenerComputedAt === state1.basis.screenerComputedAt) {
       const recomputed = new Map(state1.themes.filter((row) => row.market === 'US').map((row) => [row.id, row.ret1m]));
-      const drift = published.themes.filter((row) => row.market === 'US' && recomputed.has(row.id) && row.ret1m != null && recomputed.get(row.id) != null && Math.abs(row.ret1m - recomputed.get(row.id)) > 0.2);
+      // A held row (build-scenario-state heldThemeRow: the benchmark is a session behind) keeps the previous state's value
+      // by design; the live read here has no previous state. The market lane failed on held rows each night at 22:50Z.
+      const drift = published.themes.filter((row) => row.market === 'US' && !row.held && recomputed.has(row.id) && row.ret1m != null && recomputed.get(row.id) != null && Math.abs(row.ret1m - recomputed.get(row.id)) > 0.2);
       assert.equal(drift.length, 0, `v58.75: scenario-state.json US theme 1-month values match the live pipeline on the same close (${drift.map((row) => row.id + ' ' + row.ret1m + ' vs ' + recomputed.get(row.id)?.toFixed(2)).join(', ')})`);
-    } else console.log(`scenario-state.json playbook ${published.playbookVersion || 'unstamped'} / US ${published.basis?.themeAsOfByMarket?.US || '?'}: same-close comparison waits for the next refresh`);
+    } else console.log(`scenario-state.json playbook ${published.playbookVersion || 'unstamped'} / US ${published.basis?.themeAsOfByMarket?.US || '?'} / screener ${published.basis?.screenerComputedAt || 'unstamped'}: same-input comparison waits for the next refresh`);
   }
   const state2 = buildScenarioState({ data, history: rows, macroHistory, calendar, screener, themeMaps: maps, previous: state1, nowMs: now + 3600000 });
   assert.equal(state2.transitions.length, state1.transitions.length, 'P1743: an unchanged market adds no transitions');

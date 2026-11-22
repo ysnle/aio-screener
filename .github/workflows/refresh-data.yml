@@ -457,7 +457,8 @@ jobs:
           # The whole CI data group (reconciliation, source registry, data gaps, static data, the full refresh
           # audit ci-data-refresh-audit.mjs, history-field time, release parity, ...) runs here, not a hand-picked
           # subset: CI rejected bot pushes on gates this list had omitted (ci-history-field-time-contract-check.mjs). ~10 s.
-          AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs --group data --no-cache
+          # v60.46: --data-run (and the data-commit profile below) skip the gates declared inputClass "code"; CI skips the same ones.
+          AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs --group data --data-run --no-cache
           # v60.14: and the other groups ci.yml runs on a refresh-data commit (preflight, core, knowledge), so a data commit CI would reject never reaches main. About 3 minutes.
           AIO_QA_CACHE_DIR="$RUNNER_TEMP/aio-qa" node scripts/qa-runner.mjs data-commit --origin refresh-data --except data --no-cache
           node scripts/ci-web-research-contract-check.mjs

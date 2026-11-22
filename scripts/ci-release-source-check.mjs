@@ -8,7 +8,9 @@ import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { OVERLAY_GENERATED_PATHS, RESTAMP_FILES, restampOverlayRevision } from './build-data-overlay.mjs';
+import { fileURLToPath } from 'node:url';
+import { RESTAMP_FILES, restampOverlayRevision } from './build-data-overlay.mjs';
+import { PRODUCER_WRITTEN_PATHS } from './lib/data-publish-sets.mjs';
 import { failureBlocks, WATCHDOG_PROFILE } from './lib/qa-live-data.mjs';
 
 const sha = (n) => String(n).padStart(40, '0');
@@ -52,9 +54,9 @@ assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is neve
   run('init', '-q'); run('config', 'user.email', 'qa@example.invalid'); run('config', 'user.name', 'qa');
   const commit = (file, body) => { mkdirSync(join(repo, file, '..'), { recursive: true }); writeFileSync(join(repo, file), body); run('add', '.'); run('commit', '-qm', file); return run('rev-parse', 'HEAD'); };
   const greenCode = commit('app.js', '1\n');
-  for (let index = 0; index < 5; index += 1) commit('public-data/x.json', `a${index}\n`);
+  for (let index = 0; index < 5; index += 1) commit('public-data/data.json', `a${index}\n`);
   const redCode = commit('app.js', '2\n');
-  for (let index = 0; index < 5; index += 1) commit('public-data/x.json', `b${index}\n`);
+  for (let index = 0; index < 5; index += 1) commit('public-data/data.json', `b${index}\n`);
   const head = run('rev-parse', 'HEAD');
   const cwd = process.cwd();
   process.chdir(repo);
@@ -74,14 +76,30 @@ assert.equal(ops.planes.browser.revision, 'v59.75', 'v59.78 operations-status br
 assert.throws(() => restampOverlayRevision('public-config.json', {}, 'latest'), 'v59.78 release-source contract');
 // v59.85: the watchdog's automatic re-pin commit (GITHUB_TOKEN push, no push CI) must not count as code, or every later
 // refresh release would ride the overlay until a human push; and every file a data publish set commits is a generated path.
-assert.ok(OVERLAY_GENERATED_PATHS.includes('architecture/browser-data-fixture.json'), 'v59.85 the browser data pin is a generated path');
+assert.ok(PRODUCER_WRITTEN_PATHS.includes('architecture/browser-data-fixture.json'), 'v59.85 the browser data pin is a generated path');
+for (const file of RESTAMP_FILES) assert.ok(PRODUCER_WRITTEN_PATHS.includes(file), `v59.78 ${file} is an overlay path`);
+
+// v60.46: the overlay takes from the refresh commit only what producers write. Before v60.46 it took all of public-data/,
+// so the red code's regenerated knowledge files rode on the green code and knowledge-generated-parity failed every data
+// commit of 11/19; a commit that changes a generated knowledge file is code, not data.
 {
-  const { DATA_PUBLISH_SETS, publishSetPaths } = await import('./lib/data-publish-sets.mjs');
-  for (const id of Object.keys(DATA_PUBLISH_SETS)) {
-    for (const path of publishSetPaths(id)) assert.ok(OVERLAY_GENERATED_PATHS.some((root) => path === root || path.startsWith(`${root}/`)), `v59.85 ${id} commits ${path}, which must be an overlay-generated path`);
-  }
+  const repo = mkdtempSync(join(tmpdir(), 'aio-data-overlay-'));
+  const run = (...args) => { const result = spawnSync('git', args, { cwd: repo, encoding: 'utf8' }); assert.equal(result.status, 0, `v60.46 overlay fixture git ${args[0]}: ${result.stderr}`); return result.stdout.trim(); };
+  run('init', '-q'); run('config', 'user.email', 'qa@example.invalid'); run('config', 'user.name', 'qa'); run('config', 'core.autocrlf', 'false');
+  const write = (file, body) => { mkdirSync(join(repo, file, '..'), { recursive: true }); writeFileSync(join(repo, file), body); };
+  const commit = (files) => { for (const [file, body] of Object.entries(files)) write(file, body); run('add', '-A'); run('commit', '-qm', Object.keys(files).join(',')); return run('rev-parse', 'HEAD'); };
+  const publishSets = readFileSync(new URL('./lib/data-publish-sets.mjs', import.meta.url), 'utf8');
+  const greenCode = commit({ 'version.json': '{"version":"v1.0"}\n', 'scripts/lib/data-publish-sets.mjs': publishSets, 'public-data/knowledge/a.json': '"green"\n', 'public-data/data.json': '"old"\n' });
+  const redCode = commit({ 'public-data/knowledge/a.json': '"red"\n' });
+  const dataCommit = commit({ 'public-data/data.json': '"new"\n' });
+  const cwd = process.cwd();
+  process.chdir(repo);
+  try { assert.equal(sourceCommitOf(dataCommit), redCode, 'v60.46 a commit that changes a generated knowledge file is a code commit'); } finally { process.chdir(cwd); }
+  const built = spawnSync(process.execPath, [fileURLToPath(new URL('./build-data-overlay.mjs', import.meta.url)), '--root', repo, '--code-sha', greenCode, '--data-sha', dataCommit], { encoding: 'utf8' });
+  assert.equal(built.status, 0, `v60.46 overlay build: ${built.stderr}`);
+  assert.equal(readFileSync(join(repo, 'public-data/data.json'), 'utf8'), '"new"\n', 'v60.46 the overlay ships the refresh commit\'s data');
+  assert.equal(readFileSync(join(repo, 'public-data/knowledge/a.json'), 'utf8'), '"green"\n', 'v60.46 the overlay keeps the code commit\'s generated knowledge files');
 }
-for (const file of RESTAMP_FILES) assert.ok(OVERLAY_GENERATED_PATHS.some((path) => file === path || file.startsWith(`${path}/`)), `v59.78 ${file} is an overlay path`);
 
 // The attest guard used to hold its own copy of the generated-path list; the workflows must call the shared resolver/builder.
 const ci = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
@@ -100,7 +118,7 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
   const waits = [...text.matchAll(/ensure-live-convergence\.mjs --await-sha [^\n]*--timeout-min (\d+)/g)].map((match) => Number(match[1]));
   assert.ok(waits.length > 0 && waits.every((minutes) => minutes >= 30), `v59.78 ${file} converge waits at least 30 min (${waits.join(',')})`);
 }
-assert.ok(!/':\(exclude\)public-data'/.test(ci), 'v59.78 the generated path list lives in build-data-overlay.mjs only');
+assert.ok(!/':\(exclude\)public-data'/.test(ci), 'v59.78 the generated path list lives in scripts/lib/data-publish-sets.mjs only');
 
 // v59.78: the data watchdog reports repository upkeep instead of going red on it; every other run still fails on it.
 const maintenance = { id: 'watchdog-knowledge-lint', watchdogRole: 'maintenance' };

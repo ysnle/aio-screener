@@ -14,7 +14,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
-import { OVERLAY_GENERATED_PATHS } from './build-data-overlay.mjs';
+import { PRODUCER_WRITTEN_PATHS } from './lib/data-publish-sets.mjs';
 
 const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'pending', 'requested']);
 
@@ -24,9 +24,9 @@ const git = (args) => {
   return result.stdout.trim();
 };
 
-/** Newest first-parent commit at or below `sha` that changes anything outside the refresh-generated paths. */
+/** Newest first-parent commit at or below `sha` that changes anything outside the producer-written paths. */
 export function sourceCommitOf(sha) {
-  return git(['log', '-1', '--first-parent', '--format=%H', sha, '--', '.', ...OVERLAY_GENERATED_PATHS.map((path) => `:(exclude)${path}`)]);
+  return git(['log', '-1', '--first-parent', '--format=%H', sha, '--', '.', ...PRODUCER_WRITTEN_PATHS.map((path) => `:(exclude)${path}`)]);
 }
 
 /**

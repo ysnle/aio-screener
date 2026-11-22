@@ -185,6 +185,20 @@ export const DATA_PUBLISH_SETS = Object.freeze({
   }),
 });
 
+/**
+ * v60.46: every path a producer bot writes to main — the publish sets above, plus the browser data pin that
+ * watchdog-browser.yml re-pins with GITHUB_TOKEN (it only names the data snapshot the browser gates read). This is the one
+ * definition of "generated data": a commit that touches nothing else is a data-only commit (resolve-release-source.mjs),
+ * and a data overlay release takes exactly these paths from the refresh commit (build-data-overlay.mjs). Before v60.46 the
+ * list was the whole public-data/ directory, so an overlay also shipped the newer code's generated knowledge files
+ * (public-data/knowledge, principles, atlas page copy) on the older code, and CI failed knowledge-generated-parity on every
+ * data commit of 11/19 (15 runs).
+ */
+export const PRODUCER_WRITTEN_PATHS = Object.freeze([...new Set([
+  ...Object.values(DATA_PUBLISH_SETS).flatMap((set) => [...set.required, ...set.optional]),
+  'architecture/browser-data-fixture.json',
+])].sort());
+
 /** Every path a set may stage (required + optional). */
 export const publishSetPaths = (id) => {
   const set = DATA_PUBLISH_SETS[id];

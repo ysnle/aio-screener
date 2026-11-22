@@ -225,6 +225,7 @@
       "gates": [
         {
           "id": "syntax",
+          "inputClass": "code",
           "script": "scripts/ci-syntax-check.mjs",
           "timeoutMs": 60000,
           "inputs": [
@@ -238,10 +239,12 @@
         },
         {
           "id": "workflow-yaml",
+          "inputClass": "mixed",
           "script": "scripts/ci-control-char-check.mjs"
         },
         {
           "id": "release-source",
+          "inputClass": "code",
           "script": "scripts/ci-release-source-check.mjs",
           "inputs": [
             "scripts/ci-release-source-check.mjs",
@@ -255,6 +258,7 @@
         },
         {
           "id": "version",
+          "inputClass": "mixed",
           "script": "scripts/ci-version-check.mjs",
           "remedy": "node scripts/bump-version.mjs <version>",
           "inputs": [
@@ -274,6 +278,7 @@
         },
         {
           "id": "product-charter",
+          "inputClass": "mixed",
           "script": "scripts/ci-product-charter-contract-check.mjs",
           "inputs": [
             "**",
@@ -289,6 +294,7 @@
         },
         {
           "id": "architecture",
+          "inputClass": "mixed",
           "script": "scripts/ci-architecture-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -312,6 +318,7 @@
         },
         {
           "id": "portfolio-native-chart",
+          "inputClass": "code",
           "script": "scripts/ci-portfolio-native-chart-check.mjs",
           "inputs": [
             "index.html",
@@ -325,6 +332,7 @@
         },
         {
           "id": "section-visual-contract",
+          "inputClass": "code",
           "script": "scripts/ci-section-visual-contract.mjs",
           "inputs": [
             "index.html",
@@ -342,6 +350,7 @@
         },
         {
           "id": "fold-kind",
+          "inputClass": "code",
           "script": "scripts/ci-fold-kind-check.mjs",
           "inputs": [
             "index.html",
@@ -368,6 +377,7 @@
         },
         {
           "id": "capital-flows-contract",
+          "inputClass": "mixed",
           "script": "scripts/ci-capital-flows-contract-check.mjs",
           "inputs": [
             "public-data/atlas/capital-flows.json",
@@ -381,6 +391,7 @@
         },
         {
           "id": "ai-chat-question-set",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-chat-question-set-check.mjs",
           "inputs": [
             "architecture/ai-chat-question-set.json",
@@ -402,6 +413,7 @@
         },
         {
           "id": "metric-consistency",
+          "inputClass": "mixed",
           "script": "scripts/ci-metric-consistency-check.mjs",
           "inputs": [
             "src/domain/**",
@@ -413,6 +425,7 @@
         },
         {
           "id": "headline-translation",
+          "inputClass": "mixed",
           "script": "scripts/ci-headline-translation-check.mjs",
           "inputs": [
             "scripts/build-market-day.mjs",
@@ -429,6 +442,7 @@
         },
         {
           "id": "native-decision",
+          "inputClass": "code",
           "script": "scripts/ci-native-decision-evidence-check.mjs",
           "inputs": [
             "src/**"
@@ -436,6 +450,7 @@
         },
         {
           "id": "capability-claims",
+          "inputClass": "code",
           "script": "scripts/ci-capability-claim-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -444,10 +459,12 @@
         },
         {
           "id": "operations-contract",
+          "inputClass": "mixed",
           "script": "scripts/ci-operations-contract-check.mjs"
         },
         {
           "id": "route-registry",
+          "inputClass": "code",
           "script": "scripts/generate-route-registry.mjs",
           "args": [
             "--check"
@@ -461,6 +478,7 @@
         },
         {
           "id": "generated-state",
+          "inputClass": "mixed",
           "script": "scripts/generate-workspace-state.mjs",
           "remedy": "node scripts/generate-workspace-state.mjs --write",
           "args": [
@@ -483,6 +501,7 @@
         },
         {
           "id": "workspace-contract",
+          "inputClass": "mixed",
           "script": "scripts/ci-workspace-contract-check.mjs",
           "inputs": [
             "scripts/**",
@@ -507,6 +526,7 @@
         },
         {
           "id": "qa-runner-behavior",
+          "inputClass": "code",
           "script": "scripts/ci-qa-runner-behavior-check.mjs",
           "inputs": [
             "scripts/qa-runner.mjs",
@@ -535,85 +555,102 @@
       "gates": [
         {
           "id": "market-session",
+          "inputClass": "code",
           "script": "scripts/ci-market-session-contract-check.mjs"
         },
         {
           "id": "phone-override-specificity",
+          "inputClass": "code",
           "script": "scripts/ci-phone-override-specificity-check.mjs",
           "remedy": "v59.70 (screen review #1): a phone layout rule lost the cascade; repeat the winning rule's selector (or out-rank it) inside the phone media query instead of a shorter selector"
         },
         {
           "id": "search-surface",
+          "inputClass": "code",
           "script": "scripts/ci-search-surface-contract.mjs",
           "remedy": "v59.70 (wave2-f S23, D4): one command search (#aio-command-input) plus the screener table filter; a new search box joins the command search as a scope, and a new shortcut needs its own row in SHELL_KEY_BINDINGS"
         },
         {
           "id": "event-briefs",
+          "inputClass": "mixed",
           "script": "scripts/ci-event-briefs-check.mjs",
           "remedy": "v59.42 event briefs: the producer runs on scripts/fixtures/event-briefs only; a dropped-figure or basis failure means a number now reaches a brief without being in its fetched source"
         },
         {
           "id": "news-ranking",
+          "inputClass": "mixed",
           "script": "scripts/ci-news-ranking-check.mjs",
           "remedy": "v60.18 news ranking: score by subject (strongest rule + one cross-subject bonus), session recency, the day's scheduled release; floors hold seats but do not go first; publish in rank order; carry the closed intraday slot"
         },
         {
           "id": "telegram-channels",
+          "inputClass": "mixed",
           "script": "scripts/ci-telegram-channels-check.mjs",
           "remedy": "v60.18 Telegram registry: an active channel failing for 72h is fixed or retired in CHANNEL_CATALOG (retired:{since,reason}); collection status counts active channels only"
         },
         {
           "id": "ai-spelled-terms",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-spelled-terms-check.mjs",
           "remedy": "v60.18 provider text enters through splitMarketSentence; a newly observed Hangul spelling of a Latin name joins normalizeSpelledLatinTerms"
         },
         {
           "id": "market-reading-week",
+          "inputClass": "mixed",
           "script": "scripts/ci-market-reading-week-fixture.mjs",
           "remedy": "v60.18 AI market reading on the stored 11/10-11/13 inputs: an outage keeps the last reading this run still verifies, moves come from MARKET_MOVE_METRICS by size against their own volatility, slot ids never reach the text, a signed number's direction word matches its sign, and the published (citation-stripped) text is well formed"
         },
         {
           "id": "screen-reading",
+          "inputClass": "mixed",
           "script": "scripts/ci-screen-reading-check.mjs",
           "remedy": "v60.31 per-screen AI reading: packets come from the shared interpretation (title, state label, evidence, flip, basis; never the axis read or a (참고) row) and register in SCREEN_READING_SCREENS; the validator blocks only unsupported figures/dates, contradicted state labels, orders, % probabilities, label leaks, non-Korean and over-length text; a same-key verified or validator-blocked reading is never asked again"
         },
         {
           "id": "boot-budget",
+          "inputClass": "code",
           "script": "scripts/ci-boot-bundle-budget-check.mjs",
           "remedy": "move the new static import behind import(); a budget raise in architecture/boot-budget.json needs a reason in the commit"
         },
         {
           "id": "csp-meta",
+          "inputClass": "code",
           "script": "scripts/ci-csp-meta-check.mjs",
           "remedy": "after editing an inline <script> in index.html: node scripts/ci-csp-meta-check.mjs --write; a new CDN script needs its exact package path in the script's SCRIPT_HOSTS"
         },
         {
           "id": "inline-style-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-inline-style-ratchet-check.mjs",
           "remedy": "style through a class in src/ui/styles (tokens: index.html :root, layout-primitives.css); after a shrink run --write"
         },
         {
           "id": "design-token-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-design-token-ratchet-check.mjs",
           "remedy": "v59.88 design tokens (_context/DESIGN-TOKENS.md): corners use var(--radius-inner|element|container|full), text 12·14·18·28px, and a rule is replaced rather than out-ranked with !important; after a shrink run --write"
         },
         {
           "id": "shared-primitive-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-shared-primitive-ratchet-check.mjs",
           "remedy": "import finiteNumber/readNumber/isFiniteNumber from src/domain/shared/number.js and isoDay/stampDay/latestSessionRows from src/domain/shared/session-date.js instead of a local copy; after a shrink run --write"
         },
         {
           "id": "regex-term-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-regex-term-ratchet-check.mjs",
           "remedy": "bound each keyword: \\b(?:CPI|PCE)\\b, (?<![A-Za-z])AI(?![A-Za-z]), (?<![가-힣])이란, 유가(?!증권); after a shrink run --write"
         },
         {
           "id": "instruction-text-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-instruction-text-ratchet-check.mjs",
           "remedy": "R724: say what the cost depends on ('분할 접근의 비용은 … 전에 큽니다'), not when to act ('… 뒤가 맞습니다'); show mapped levels and distances, never a price formatter around arithmetic; after a shrink run --write"
         },
         {
           "id": "research-reference-index",
+          "inputClass": "code",
           "script": "scripts/build-research-reference-index.mjs",
           "remedy": "node scripts/build-research-reference-index.mjs",
           "args": [
@@ -622,76 +659,91 @@
         },
         {
           "id": "decomposition",
+          "inputClass": "code",
           "script": "scripts/ci-decomp-hotspot-check.mjs",
           "remedy": "shrink: node scripts/ci-decomp-hotspot-check.mjs --write; growth needs --allow-growth + justification"
         },
         {
           "id": "esm-core",
+          "inputClass": "mixed",
           "script": "scripts/ci-esm-core-unit-check.mjs"
         },
         {
           "id": "render-boundary",
+          "inputClass": "code",
           "script": "scripts/ci-render-boundary-fixture.mjs",
           "remedy": "v59.70: a gauge value that rounds to zero prints no sign (src/ui/components/gauge-bar.js uses signedText); SVG labels that would overlap call dodgeSvgLabels (src/ui/components/svg-label-dodge.js) after drawing"
         },
         {
           "id": "quant-reference",
+          "inputClass": "code",
           "script": "scripts/ci-quant-reference-check.mjs",
           "remedy": "each failing case names its formula and reference source; fix the module, not the expected value",
           "inputs": ["src/domain/**", "scripts/ci-quant-reference-check.mjs"]
         },
         {
           "id": "expect-output",
+          "inputClass": "code",
           "script": "scripts/ci-expect-output-check.mjs",
           "remedy": "node scripts/ci-expect-output-check.mjs --update, then review the .expect.md diff",
           "inputs": ["src/domain/**", "scripts/fixtures/expect/**", "scripts/ci-expect-output-check.mjs"]
         },
         {
           "id": "pipeline-semantics",
+          "inputClass": "mixed",
           "script": "scripts/ci-pipeline-semantics-check.mjs",
           "remedy": "node scripts/ci-pipeline-semantics-check.mjs --only <area>; each case names the review finding it guards",
           "inputs": ["src/**", "js/**", "scripts/*.mjs", "scripts/lib/**", "scripts/producer/**", "scripts/fixtures/pipeline-semantics/**", ".github/workflows/**"]
         },
         {
           "id": "refresh-scheduler-model",
+          "inputClass": "code",
           "script": "scripts/ci-refresh-scheduler-model-check.mjs",
           "inputs": ["src/app/refresh-scheduler.js", "scripts/ci-refresh-scheduler-model-check.mjs", "scripts/lib/model-check-kit.mjs", "architecture/model-check-coverage.json"]
         },
         {
           "id": "state-machine-regression",
+          "inputClass": "code",
           "script": "scripts/ci-state-machine-regression-check.mjs",
           "remedy": "each case names the _context/STATE-MACHINES.md finding (SM-xx) it guards; fix the transition, not the expected state",
           "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "js/aio-chat.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "src/data/quote-demand.js", "scripts/ci-state-machine-regression-check.mjs"]
         },
         {
           "id": "data-boundary-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-data-boundary-fixture.mjs",
           "remedy": "a screen reads an artifact through src/data/artifact-registry.js and grades a session through market-calendar sessionLagGrade/latestCompletedSession; a pinned value that moved is a behavior change, not a fixture to refresh",
           "inputs": ["src/data/artifact-registry.js", "src/data/shared-artifacts.js", "src/data/contracts/artifact-freshness.js", "src/domain/market/session/market-calendar.js", "src/domain/shared/freshness-policy.js", "src/ui/components/session-lag.js", "src/domain/screener/row-presentation.js", "src/domain/market/sentiment/market-temperature.js", "src/domain/masters/filing-deadline.js", "scripts/ci-data-boundary-fixture.mjs"]
         },
         {
           "id": "artifact-cache-model",
+          "inputClass": "code",
           "script": "scripts/ci-artifact-cache-model-check.mjs",
           "inputs": ["src/data/artifact-cache.js", "scripts/ci-artifact-cache-model-check.mjs", "scripts/lib/model-check-kit.mjs", "architecture/model-check-coverage.json"]
         },
         {
           "id": "page-decision-reference",
+          "inputClass": "code",
           "script": "scripts/ci-page-decision-reference-check.mjs"
         },
         {
           "id": "rotation-history",
+          "inputClass": "mixed",
           "script": "scripts/ci-rotation-history-check.mjs"
         },
         {
           "id": "fundamental-watchlist-timeline",
+          "inputClass": "mixed",
           "script": "scripts/ci-fundamental-watchlist-timeline-check.mjs"
         },
         {
           "id": "artifact-cache",
+          "inputClass": "code",
           "script": "scripts/ci-artifact-cache-check.mjs"
         },
         {
           "id": "service-worker-cache-policy",
+          "inputClass": "mixed",
           "script": "scripts/ci-service-worker-cache-policy-check.mjs",
           "inputs": [
             "sw.js",
@@ -710,6 +762,7 @@
         },
         {
           "id": "ai-intelligence",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-intelligence-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -733,6 +786,7 @@
         },
         {
           "id": "ai-evidence",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-evidence-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -751,18 +805,22 @@
         },
         {
           "id": "domain-parity",
+          "inputClass": "code",
           "script": "scripts/ci-domain-parity-check.mjs"
         },
         {
           "id": "research-model",
+          "inputClass": "mixed",
           "script": "scripts/ci-research-model-contract-check.mjs"
         },
         {
           "id": "research-validation",
+          "inputClass": "mixed",
           "script": "scripts/ci-research-validation-check.mjs"
         },
         {
           "id": "research-flow",
+          "inputClass": "code",
           "script": "scripts/ci-research-flow-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -780,10 +838,12 @@
         },
         {
           "id": "proxy-continuity",
+          "inputClass": "code",
           "script": "scripts/ci-proxy-continuity-check.mjs"
         },
         {
           "id": "data-continuity",
+          "inputClass": "mixed",
           "script": "scripts/ci-data-continuity-check.mjs",
           "inputs": [
             "js/aio-data.js",
@@ -833,14 +893,17 @@
         },
         {
           "id": "desktop-continuity",
+          "inputClass": "code",
           "script": "scripts/ci-desktop-continuity-check.mjs"
         },
         {
           "id": "storage-migration",
+          "inputClass": "code",
           "script": "scripts/ci-storage-migration-check.mjs"
         },
         {
           "id": "deployment-convergence",
+          "inputClass": "code",
           "script": "scripts/ci-deployment-convergence-check.mjs",
           "inputs": [
             "architecture/deployment-convergence.json",
@@ -865,6 +928,7 @@
         },
         {
           "id": "retirement",
+          "inputClass": "code",
           "script": "scripts/ci-retirement-contract.mjs",
           "inputs": [
             "index.html",
@@ -882,28 +946,34 @@
         },
         {
           "id": "csp",
+          "inputClass": "code",
           "script": "scripts/ci-csp-ratchet-check.mjs"
         },
         {
           "id": "structural",
+          "inputClass": "code",
           "script": "scripts/ci-structural-check.mjs"
         },
         {
           "id": "qa-surface-boundary",
+          "inputClass": "code",
           "script": "scripts/ci-qa-surface-boundary-check.mjs",
           "remedy": "v59.70 P2: an audit only QA entry points call goes in js/aio-qa-audits.js (loaded by AIO.loadQaAudits()); the allowlist only shrinks"
         },
         {
           "id": "browser-translation-retired",
+          "inputClass": "code",
           "script": "scripts/ci-browser-translation-retired-check.mjs",
           "remedy": "v59.70 D6: headlines are translated by the producer (titleKo / titleKoFailed); do not bring a browser translation path back"
         },
         {
           "id": "default-ux",
+          "inputClass": "code",
           "script": "scripts/ci-ux-default-path-check.mjs"
         },
         {
           "id": "desktop-scope",
+          "inputClass": "code",
           "script": "scripts/ci-desktop-scope-check.mjs",
           "inputs": [
             "index.html",
@@ -922,6 +992,7 @@
         },
         {
           "id": "runtime",
+          "inputClass": "mixed",
           "script": "scripts/ci-runtime-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -948,6 +1019,7 @@
         },
         {
           "id": "ai-chat-reliability",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-chat-reliability-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -966,6 +1038,7 @@
         },
         {
           "id": "data-pipeline",
+          "inputClass": "mixed",
           "script": "scripts/ci-data-pipeline-contract-check.mjs",
           "inputs": [
             "index.html",
@@ -997,10 +1070,12 @@
         },
         {
           "id": "page-timeline",
+          "inputClass": "code",
           "script": "scripts/ci-page-data-timeline-contract-check.mjs"
         },
         {
           "id": "reference-adoption-contract",
+          "inputClass": "code",
           "script": "scripts/ci-reference-adoption-contract-check.mjs",
           "inputs": [
             "src/**",
@@ -1011,6 +1086,7 @@
         },
         {
           "id": "semantic-review",
+          "inputClass": "code",
           "script": "scripts/ci-semantic-review-check.mjs",
           "inputs": [
             "index.html",
@@ -1027,70 +1103,86 @@
         },
         {
           "id": "conditional-native-search",
+          "inputClass": "code",
           "script": "scripts/ci-native-search-check.mjs"
         },
         {
           "id": "entity-summary-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-entity-summary-fixture.mjs"
         },
         {
           "id": "screener-market-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-screener-market-fixture.mjs"
         },
         {
           "id": "screener-presentation",
+          "inputClass": "code",
           "script": "scripts/ci-screener-presentation-check.mjs"
         },
         {
           "id": "chat-screen-tool",
+          "inputClass": "mixed",
           "script": "scripts/ci-chat-screen-tool-check.mjs"
         },
         {
           "id": "chart-scenarios-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-chart-scenarios-fixture.mjs"
         },
         {
           "id": "chart-layers-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-chart-layers-fixture.mjs"
         },
         {
           "id": "scenario-guidance-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-scenario-guidance-fixture.mjs",
           "liveData": "content"
         },
         {
           "id": "decision-frame-check",
+          "inputClass": "mixed",
           "script": "scripts/ci-decision-frame-check.mjs",
           "remedy": "v60.19 판단 틀: every scenario-like card and the AI read one frame (src/domain/scenarios/decision-frame.js) — likelihood beside base and n, payoff beside an ordinary day, cash and index as opportunity cost, past drawdown when wrong, and the favoured side's ground (비용 가설 unless the record backs it)"
         },
         {
           "id": "interpretation-boundary-check",
+          "inputClass": "mixed",
           "script": "scripts/ci-interpretation-boundary-check.mjs"
         },
         {
           "id": "crash-replay-check",
+          "inputClass": "mixed",
           "script": "scripts/ci-crash-replay-check.mjs"
         },
         {
           "id": "market-lean-validation",
+          "inputClass": "mixed",
           "script": "scripts/ci-market-lean-validation-check.mjs",
           "remedy": "v60.19 시장 기울기: a direction word (매수/매도/방어/우위) appears only for a direction model-validation-status.json marketLean passed, with its past frequency beside it; the backtest harness (scripts/backtest-market-lean.mjs) replays through the live functions on the trailing 420 rows"
         },
         {
           "id": "move-size-word",
+          "inputClass": "code",
           "script": "scripts/ci-move-size-word-check.mjs",
           "remedy": "v60.19 one materiality vocabulary: a size word (급등/급락/큰 폭/소폭/보합권/크게 …) is the grade of src/domain/market/session/move-size.js (the move against its own volatility); a sentence that compares against a policy line names the line instead"
         },
         {
           "id": "lookahead-check",
+          "inputClass": "mixed",
           "script": "scripts/ci-lookahead-check.mjs"
         },
         {
           "id": "codex-structure-regression-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-codex-structure-regression-fixture.mjs"
         },
         {
           "id": "architecture-audit-regression-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-architecture-audit-regression-fixture.mjs",
           "inputs": [
             "js/**",
@@ -1101,36 +1193,44 @@
         },
         {
           "id": "fiscal-quality-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-fiscal-quality-fixture.mjs"
         },
         {
           "id": "korea-participation-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-korea-participation-fixture.mjs"
         },
         {
           "id": "tw-monthly-revenue-fixture",
+          "inputClass": "mixed",
           "script": "scripts/ci-tw-monthly-revenue-fixture.mjs"
         },
         {
           "id": "13f-figi-ticker-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-13f-figi-ticker-fixture.mjs"
         },
         {
           "id": "regime-scenarios-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-regime-scenarios-fixture.mjs"
         },
         {
           "id": "ui-vocabulary",
+          "inputClass": "code",
           "script": "scripts/ci-ui-vocabulary-check.mjs",
           "remedy": "v57.54: use the preferred term from architecture/ui-vocabulary.json; after fixes run node scripts/ci-ui-vocabulary-check.mjs --prune-baseline"
         },
         {
           "id": "glossary-vocabulary",
+          "inputClass": "code",
           "script": "scripts/ci-glossary-vocabulary-check.mjs",
           "remedy": "v60.28: a word a screen prints (or a screener column label) needs a glossary entry, a COLUMN_TERMS mapping or a PLAIN_COLUMN_LABELS declaration"
         },
         {
           "id": "sentence-join",
+          "inputClass": "code",
           "script": "scripts/ci-sentence-join-check.mjs",
           "remedy": "v60.28: a sentence that ends in a period is not joined with ', ' or '. ' — strip the period at the join or join whole sentences with a space"
         }
@@ -1152,11 +1252,13 @@
       "gates": [
         {
           "id": "sentence-claim-replay",
+          "inputClass": "data",
           "script": "scripts/ci-sentence-claim-replay-check.mjs",
           "remedy": "v60.30: a converted sentence's claim disagreed with the stored facts on some historical session — fix the producer's word or figure choice (src/domain/shared/claim.js vocabulary), never the validator"
         },
         {
           "id": "macro-calendar-review",
+          "inputClass": "code",
           "script": "scripts/ci-macro-calendar-review-contract-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1173,6 +1275,7 @@
         },
         {
           "id": "official-references",
+          "inputClass": "data",
           "script": "scripts/ci-official-references-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1184,6 +1287,7 @@
         },
         {
           "id": "data-audit-contract",
+          "inputClass": "data",
           "script": "scripts/ci-data-audit-contract-check.mjs",
           "inputs": [
             "scripts/fetch-data.mjs",
@@ -1221,10 +1325,12 @@
         },
         {
           "id": "screener-workbench",
+          "inputClass": "data",
           "script": "scripts/ci-screener-workbench-contract.mjs"
         },
         {
           "id": "screener-extended",
+          "inputClass": "data",
           "script": "scripts/ci-screener-extended-contract-check.mjs",
           "timeoutMs": 120000,
           "inputs": [
@@ -1240,10 +1346,12 @@
         },
         {
           "id": "conditional-evidence",
+          "inputClass": "code",
           "script": "scripts/ci-conditional-evidence-contract.mjs"
         },
         {
           "id": "market-snapshot",
+          "inputClass": "data",
           "script": "scripts/ci-market-snapshot-contract-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1263,10 +1371,12 @@
         },
         {
           "id": "history-time",
+          "inputClass": "data",
           "script": "scripts/ci-history-field-time-contract-check.mjs"
         },
         {
           "id": "history-access",
+          "inputClass": "data",
           "script": "scripts/ci-history-access-check.mjs",
           "inputs": [
             "src/domain/market/indices/history-rows.js",
@@ -1278,19 +1388,23 @@
         },
         {
           "id": "history-session-model",
+          "inputClass": "code",
           "script": "scripts/ci-history-session-model-check.mjs"
         },
         {
           "id": "narrative-lifecycle-model",
+          "inputClass": "mixed",
           "script": "scripts/ci-narrative-lifecycle-model-check.mjs",
           "timeoutMs": 420000
         },
         {
           "id": "market-session-model",
+          "inputClass": "code",
           "script": "scripts/ci-market-session-model-check.mjs"
         },
         {
           "id": "data-plane",
+          "inputClass": "code",
           "script": "scripts/ci-data-plane-contract-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1312,6 +1426,7 @@
         },
         {
           "id": "operations-status",
+          "inputClass": "data",
           "script": "scripts/ci-operations-status-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1328,6 +1443,7 @@
         },
         {
           "id": "operations-alert-policy",
+          "inputClass": "code",
           "script": "scripts/ci-operations-alert-policy-check.mjs",
           "inputs": [
             "architecture/operations-alert-policy.json",
@@ -1341,6 +1457,7 @@
         },
         {
           "id": "operations-weekly-review",
+          "inputClass": "code",
           "script": "scripts/ci-operations-weekly-review-check.mjs",
           "inputs": [
             "scripts/lib/operations-weekly-review.mjs",
@@ -1352,6 +1469,7 @@
         },
         {
           "id": "fast-plane-consumer",
+          "inputClass": "data",
           "script": "scripts/ci-fast-plane-consumer-gate.mjs",
           "inputs": [
             "public-config.json",
@@ -1365,18 +1483,22 @@
         },
         {
           "id": "operations-slo",
+          "inputClass": "data",
           "script": "scripts/ci-operations-slo-window-check.mjs"
         },
         {
           "id": "reconciliation",
+          "inputClass": "data",
           "script": "scripts/ci-reconciliation-contract-check.mjs"
         },
         {
           "id": "source-registry",
+          "inputClass": "data",
           "script": "scripts/ci-source-registry-contract-check.mjs"
         },
         {
           "id": "professional-gap",
+          "inputClass": "data",
           "script": "scripts/ci-professional-data-gap-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1393,6 +1515,7 @@
         },
         {
           "id": "data-lineage",
+          "inputClass": "data",
           "script": "scripts/ci-data-lineage-audit.mjs",
           "liveData": "content",
           "cache": false,
@@ -1412,10 +1535,12 @@
         },
         {
           "id": "sec-runtime-projection",
+          "inputClass": "data",
           "script": "scripts/ci-sec-runtime-projection-check.mjs"
         },
         {
           "id": "sec-ledger-store",
+          "inputClass": "data",
           "script": "scripts/ci-sec-ledger-store-check.mjs",
           "inputs": [
             "scripts/lib/sec-ledger-store.mjs",
@@ -1427,6 +1552,7 @@
         },
         {
           "id": "sec-store-previous",
+          "inputClass": "code",
           "script": "scripts/ci-sec-store-previous-check.mjs",
           "inputs": [
             "scripts/sec-fundamentals-store.mjs",
@@ -1437,10 +1563,12 @@
         },
         {
           "id": "candidate-archive",
+          "inputClass": "data",
           "script": "scripts/ci-candidate-archive-check.mjs"
         },
         {
           "id": "us-listings",
+          "inputClass": "data",
           "script": "scripts/ci-us-listings-check.mjs",
           "inputs": [
             "scripts/lib/us-listings.mjs",
@@ -1465,6 +1593,7 @@
         },
         {
           "id": "review-integrity",
+          "inputClass": "code",
           "script": "scripts/ci-review-integrity-unit-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1485,6 +1614,7 @@
         },
         {
           "id": "static-data",
+          "inputClass": "data",
           "script": "scripts/ci-static-data-contract-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1506,6 +1636,7 @@
         },
         {
           "id": "artifact-refresh-path",
+          "inputClass": "data",
           "script": "scripts/ci-artifact-refresh-path-check.mjs",
           "inputs": [
             "src/**",
@@ -1524,6 +1655,7 @@
         },
         {
           "id": "artifact-semantics",
+          "inputClass": "data",
           "script": "scripts/ci-artifact-semantics-check.mjs",
           "inputs": [
             "public-data/data.json",
@@ -1551,6 +1683,7 @@
         },
         {
           "id": "static-db-expiry",
+          "inputClass": "data",
           "script": "scripts/ci-static-db-expiry-check.mjs",
           "cache": false,
           "inputs": [
@@ -1565,6 +1698,7 @@
         },
         {
           "id": "manual-reference-expiry",
+          "inputClass": "data",
           "script": "scripts/ci-manual-reference-expiry-check.mjs",
           "cache": false,
           "inputs": [
@@ -1589,6 +1723,7 @@
         },
         {
           "id": "data-refresh",
+          "inputClass": "data",
           "script": "scripts/ci-data-refresh-audit.mjs",
           "liveData": "content",
           "cache": false,
@@ -1611,14 +1746,17 @@
         },
         {
           "id": "refresh-integrity",
+          "inputClass": "data",
           "script": "scripts/ci-refresh-artifact-integrity-check.mjs"
         },
         {
           "id": "producer-dry-run",
+          "inputClass": "data",
           "script": "scripts/ci-producer-dry-run.mjs"
         },
         {
           "id": "release-revision",
+          "inputClass": "data",
           "script": "scripts/ci-release-revision-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1639,6 +1777,7 @@
         },
         {
           "id": "13f-currentness",
+          "inputClass": "code",
           "script": "scripts/ci-13f-currentness-check.mjs",
           "inputs": [
             "public-data/**",
@@ -1657,6 +1796,7 @@
         },
         {
           "id": "13f-semantic-noop",
+          "inputClass": "code",
           "script": "scripts/ci-13f-semantic-hash-check.mjs",
           "inputs": [
             "public-data/masters/**",
@@ -1677,10 +1817,12 @@
         },
         {
           "id": "artifact-headroom",
+          "inputClass": "data",
           "script": "scripts/ci-artifact-size-headroom-check.mjs"
         },
         {
           "id": "company-profile-contract",
+          "inputClass": "code",
           "script": "scripts/ci-company-profile-contract-check.mjs",
           "inputs": [
             "public-data/company-profiles/**",
@@ -1723,11 +1865,13 @@
       "gates": [
         {
           "id": "knowledge-generated-parity",
+          "inputClass": "mixed",
           "script": "scripts/ci-knowledge-generated-parity-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "research-content-source",
+          "inputClass": "code",
           "script": "scripts/ci-research-content-source.mjs",
           "inputs": [
             "content/research/**",
@@ -1748,6 +1892,7 @@
         },
         {
           "id": "research-heading-wording",
+          "inputClass": "code",
           "script": "scripts/ci-research-heading-wording.mjs",
           "inputs": [
             "content/research/**",
@@ -1762,6 +1907,7 @@
         },
         {
           "id": "knowledge-corpus",
+          "inputClass": "mixed",
           "script": "scripts/ci-knowledge-corpus-check.mjs",
           "inputs": [
             "public-data/knowledge/**",
@@ -1785,10 +1931,12 @@
         },
         {
           "id": "six-doc-coverage",
+          "inputClass": "mixed",
           "script": "scripts/ci-six-doc-coverage-check.mjs"
         },
         {
           "id": "atlas-contract",
+          "inputClass": "mixed",
           "script": "scripts/ci-atlas-contract-check.mjs",
           "inputs": [
             "public-data/company-profiles/index.json",
@@ -1821,6 +1969,7 @@
         },
         {
           "id": "principles-contract",
+          "inputClass": "code",
           "script": "scripts/ci-principles-contract-check.mjs",
           "inputs": [
             "public-data/knowledge/**",
@@ -1849,6 +1998,7 @@
         },
         {
           "id": "masters-contract",
+          "inputClass": "data",
           "script": "scripts/ci-masters-contract-check.mjs",
           "inputs": [
             "src/domain/masters/**",
@@ -1902,10 +2052,12 @@
       "gates": [
         {
           "id": "knowledge-lint",
+          "inputClass": "mixed",
           "script": "scripts/ci-knowledge-lint-check.mjs"
         },
         {
           "id": "publish-data-commit",
+          "inputClass": "code",
           "script": "scripts/ci-publish-data-commit-check.mjs",
           "remedy": "each case drives scripts/publish-data-commit.mjs against a throwaway bare remote; fix the publisher or the set in scripts/lib/data-publish-sets.mjs",
           "inputs": [
@@ -1920,6 +2072,7 @@
         },
         {
           "id": "workflow-compaction",
+          "inputClass": "code",
           "script": "scripts/ci-workflow-compaction-check.mjs",
           "inputs": [
             "AGENTS.md",
@@ -1939,10 +2092,12 @@
         },
         {
           "id": "skill-contract",
+          "inputClass": "code",
           "script": "scripts/ci-skill-contract-check.mjs"
         },
         {
           "id": "agent-profiles",
+          "inputClass": "code",
           "script": "scripts/sync-agent-profiles.mjs",
           "args": [
             "--check"
@@ -1950,6 +2105,7 @@
         },
         {
           "id": "agent-skills",
+          "inputClass": "code",
           "script": "scripts/sync-agent-skills.mjs",
           "args": [
             "--check"
@@ -1957,6 +2113,7 @@
         },
         {
           "id": "operator-provisioning",
+          "inputClass": "code",
           "script": "scripts/ci-operator-secrets-contract-check.mjs",
           "inputs": [
             ".github/workflows/**",
@@ -1967,6 +2124,7 @@
         },
         {
           "id": "ledger-integrity",
+          "inputClass": "code",
           "script": "scripts/ci-ledger-integrity-check.mjs",
           "inputs": [
             "_context/**",
@@ -1976,10 +2134,12 @@
         },
         {
           "id": "record-fix",
+          "inputClass": "code",
           "script": "scripts/ci-record-fix-check.mjs"
         },
         {
           "id": "generated-conflict-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-generated-conflict-fixture.mjs",
           "inputs": [
             "scripts/ci-generated-conflict-fixture.mjs",
@@ -1989,6 +2149,7 @@
         },
         {
           "id": "assertion-trace",
+          "inputClass": "code",
           "script": "scripts/ci-assertion-trace-check.mjs",
           "inputs": [
             "scripts/**",
@@ -2001,6 +2162,7 @@
         },
         {
           "id": "text-pin-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-text-pin-ratchet-check.mjs",
           "inputs": [
             "scripts/ci-*.mjs",
@@ -2009,6 +2171,7 @@
         },
         {
           "id": "patch-comment-ratchet",
+          "inputClass": "code",
           "script": "scripts/ci-patch-comment-ratchet-check.mjs",
           "inputs": [
             "src/**",
@@ -2019,6 +2182,7 @@
         },
         {
           "id": "browser-data-fixture",
+          "inputClass": "code",
           "script": "scripts/ci-browser-data-fixture-check.mjs",
           "inputs": [
             "architecture/browser-data-fixture.json",
@@ -2037,6 +2201,7 @@
         },
         {
           "id": "browser-data-pin-drift",
+          "inputClass": "data",
           "script": "scripts/ci-browser-data-pin-drift-check.mjs",
           "liveData": "content",
           "inputs": [
@@ -2050,6 +2215,7 @@
         },
         {
           "id": "qa-pipeline-contract",
+          "inputClass": "code",
           "script": "scripts/ci-qa-pipeline-contract-check.mjs",
           "inputs": [
             "AGENTS.md",
@@ -2069,6 +2235,7 @@
         },
         {
           "id": "artifact-image",
+          "inputClass": "code",
           "script": "scripts/ci-artifact-image-check.mjs",
           "remedy": "Keep screenshots out of git: _artifacts images are ignored. A deliberate small reference image takes git add -f and --allow <path>; an untracked baseline entry takes --prune.",
           "inputs": [
@@ -2080,6 +2247,7 @@
         },
         {
           "id": "refresh-origin-live-data",
+          "inputClass": "data",
           "script": "scripts/ci-refresh-origin-live-data-check.mjs",
           "remedy": "A gate that asserts live public-data content declares liveData: \"content\" and gets a watchdog-local twin; a clock-bound code contract moves to a fixed clock.",
           "inputs": [
@@ -2135,14 +2303,17 @@
       "gates": [
         {
           "id": "ai-ledger-model",
+          "inputClass": "code",
           "script": "scripts/ci-ai-ledger-model-check.mjs"
         },
         {
           "id": "worker-openai-contract",
+          "inputClass": "code",
           "script": "scripts/ci-worker-openai-contract-check.mjs"
         },
         {
           "id": "extension-api-runtime",
+          "inputClass": "code",
           "script": "scripts/ci-extension-api-runtime-check.mjs",
           "inputs": [
             "js/aio-data.js",
@@ -2158,6 +2329,7 @@
         },
         {
           "id": "ai-budget-scope",
+          "inputClass": "mixed",
           "script": "scripts/ci-ai-budget-scope-check.mjs",
           "inputs": [
             "js/**",
@@ -2181,10 +2353,12 @@
         },
         {
           "id": "worker-proxy",
+          "inputClass": "code",
           "script": "scripts/ci-worker-proxy-check.mjs"
         },
         {
           "id": "operations-alert-source",
+          "inputClass": "code",
           "script": "scripts/ci-operations-alert-source-check.mjs",
           "inputs": [
             "scripts/operations-alert/collect-observations.mjs",
@@ -2196,6 +2370,7 @@
         },
         {
           "id": "cloudflare-deployment",
+          "inputClass": "code",
           "script": "scripts/ci-cloudflare-deployment-contract-check.mjs",
           "inputs": [
             "js/**",
@@ -2250,6 +2425,7 @@
       "gates": [
         {
           "id": "headless",
+          "inputClass": "code",
           "script": "scripts/ci-headless-tests.mjs",
           "args": [
             "--shard=1/1"
@@ -2280,70 +2456,83 @@
       "gates": [
         {
           "id": "browser-ai-public",
+          "inputClass": "code",
           "script": "scripts/ci-ai-chat-public-route-browser-check.mjs",
           "timeoutMs": 120000
         },
         {
           "id": "browser-contrast-focus",
+          "inputClass": "code",
           "script": "scripts/ci-contrast-focus-browser-check.mjs",
           "timeoutMs": 600000,
           "remedy": "v59.70 (screen review #2, #4, #25, #26): text under WCAG AA on its painted background, a link in the browser's default colour, a fold row with no open marker, or a keyboard focus with no ring; report in _artifacts/contrast-focus/report.json"
         },
         {
           "id": "browser-chat-ui-state",
+          "inputClass": "code",
           "script": "scripts/ci-chat-ui-state-browser-check.mjs",
           "timeoutMs": 120000,
           "usesLocalServer": false
         },
         {
           "id": "browser-chat-response-layout",
+          "inputClass": "code",
           "script": "scripts/ci-chat-response-layout-browser-check.mjs",
           "timeoutMs": 120000,
           "usesLocalServer": false
         },
         {
           "id": "browser-market-epoch",
+          "inputClass": "code",
           "script": "scripts/ci-page-market-epoch-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-screener-refresh",
+          "inputClass": "code",
           "script": "scripts/ci-screener-auto-refresh-browser-check.mjs",
           "timeoutMs": 120000
         },
         {
           "id": "browser-screener-extended",
+          "inputClass": "code",
           "script": "scripts/ci-screener-extended-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-screener-controls",
+          "inputClass": "code",
           "script": "scripts/ci-screener-controls-contract.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-theme-screener-review",
+          "inputClass": "code",
           "script": "scripts/ci-theme-screener-review-check.mjs",
           "timeoutMs": 240000
         },
         {
           "id": "browser-screener-ai-conditions",
+          "inputClass": "code",
           "script": "scripts/ci-screener-ai-conditions-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-boot",
+          "inputClass": "code",
           "script": "scripts/ci-boot-interaction-check.mjs",
           "timeoutMs": 120000,
           "exclusive": true
         },
         {
           "id": "browser-architecture",
+          "inputClass": "code",
           "script": "scripts/ci-architecture-browser-check.mjs",
           "timeoutMs": 300000
         },
         {
           "id": "browser-vertical",
+          "inputClass": "code",
           "script": "scripts/ci-vertical-slice-browser-check.mjs",
           "timeoutMs": 300000
         }
@@ -2371,32 +2560,38 @@
       "gates": [
         {
           "id": "artifact-budget",
+          "inputClass": "code",
           "script": "scripts/ci-three-page-artifact-budget-check.mjs",
           "timeoutMs": 180000,
           "exclusive": true
         },
         {
           "id": "browser-atlas",
+          "inputClass": "code",
           "script": "scripts/ci-atlas-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-principles",
+          "inputClass": "code",
           "script": "scripts/ci-principles-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-masters",
+          "inputClass": "code",
           "script": "scripts/ci-masters-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-user-journey",
+          "inputClass": "code",
           "script": "scripts/ci-user-journey-quality-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-reference-adoption",
+          "inputClass": "code",
           "script": "scripts/ci-reference-adoption-browser-check.mjs",
           "timeoutMs": 180000,
           "cache": false,
@@ -2415,6 +2610,7 @@
         },
         {
           "id": "browser-theme-research",
+          "inputClass": "code",
           "script": "scripts/ci-theme-research-browser-check.mjs",
           "timeoutMs": 180000,
           "cache": false,
@@ -2432,6 +2628,7 @@
         },
         {
           "id": "browser-learning-flow",
+          "inputClass": "code",
           "script": "scripts/ci-three-page-learning-flow-check.mjs",
           "timeoutMs": 180000
         }
@@ -2459,32 +2656,38 @@
       "gates": [
         {
           "id": "browser-route-soak",
+          "inputClass": "code",
           "script": "scripts/ci-route-soak-check.mjs",
           "timeoutMs": 300000
         },
         {
           "id": "browser-sa02",
+          "inputClass": "code",
           "script": "scripts/ci-sa-02-outage-browser-fixture.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-sa03",
+          "inputClass": "code",
           "script": "scripts/ci-sa-03-sw-controller-fixture.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-offline-shell",
+          "inputClass": "code",
           "script": "scripts/ci-service-worker-offline-browser-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-sa04",
+          "inputClass": "code",
           "script": "scripts/ci-sa-04-boot-network-budget.mjs",
           "timeoutMs": 180000,
           "exclusive": true
         },
         {
           "id": "browser-history-v2",
+          "inputClass": "code",
           "script": "scripts/ci-history-v2-browser-fixture.mjs",
           "timeoutMs": 180000
         }
@@ -2513,6 +2716,7 @@
       "gates": [
         {
           "id": "browser-viewport",
+          "inputClass": "code",
           "script": "scripts/ci-viewport-matrix-check.mjs",
           "env": {
             "AIO_VIEWPORT_FULL_INIT": "1"
@@ -2522,12 +2726,14 @@
         },
         {
           "id": "browser-responsive",
+          "inputClass": "code",
           "script": "scripts/ci-responsive-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 2
         },
         {
           "id": "browser-screen-rereview",
+          "inputClass": "code",
           "script": "scripts/ci-screen-rereview-browser-check.mjs",
           "inputs": [
             "src/ui/**",
@@ -2539,12 +2745,14 @@
         },
         {
           "id": "browser-entity-quality",
+          "inputClass": "code",
           "script": "scripts/ci-entity-quality-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 2
         },
         {
           "id": "browser-chart-scale",
+          "inputClass": "code",
           "script": "scripts/ci-chart-scale-browser-check.mjs",
           "inputs": [
             "src/ui/components/home-index-strip.js",
@@ -2562,6 +2770,7 @@
         },
         {
           "id": "browser-screen-tasks",
+          "inputClass": "code",
           "script": "scripts/ci-screen-tasks-browser-check.mjs",
           "inputs": [
             "index.html",
@@ -2577,18 +2786,21 @@
         },
         {
           "id": "browser-touch-ergonomics",
+          "inputClass": "code",
           "script": "scripts/ci-touch-ergonomics-browser-check.mjs",
           "timeoutMs": 180000,
           "remedy": "v57.81: touch rules live in src/ui/styles/responsive.css under @media (pointer: coarse); inputs 16px, primary navigation and page buttons 44px, targets 24px, text 11px"
         },
         {
           "id": "browser-out-of-universe-ticker",
+          "inputClass": "code",
           "script": "scripts/ci-out-of-universe-ticker-browser-check.mjs",
           "timeoutMs": 300000,
           "weight": 1
         },
         {
           "id": "browser-entity-deep-link",
+          "inputClass": "code",
           "script": "scripts/ci-entity-deep-link-browser-check.mjs",
           "timeoutMs": 240000,
           "weight": 1,
@@ -2618,39 +2830,46 @@
       "gates": [
         {
           "id": "browser-critical",
+          "inputClass": "code",
           "script": "scripts/ci-critical10-human-surface-check.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-vault",
+          "inputClass": "code",
           "script": "scripts/ci-portfolio-vault-e2e.mjs",
           "timeoutMs": 180000
         },
         {
           "id": "browser-legacy-writers",
+          "inputClass": "code",
           "script": "scripts/ci-legacy-writer-probe.mjs",
           "timeoutMs": 300000,
           "remedy": "v59.70 L0: a new js/aio-*.js writer on a route belongs in src/; after moving writers out, node scripts/ci-legacy-writer-probe.mjs --write tightens the allowlist"
         },
         {
           "id": "browser-a11y",
+          "inputClass": "code",
           "script": "scripts/ci-accessibility-matrix-check.mjs",
           "timeoutMs": 300000
         },
         {
           "id": "browser-ui-render-hygiene",
+          "inputClass": "code",
           "script": "scripts/ci-ui-render-hygiene-check.mjs",
           "timeoutMs": 300000,
           "remedy": "v57.54: give the target 24x24 CSS px (or a name to the empty heading/summary); after fixes run node scripts/ci-ui-render-hygiene-check.mjs --prune-baseline"
         },
         {
           "id": "browser-rendered-copy-lint",
+          "inputClass": "code",
           "script": "scripts/ci-rendered-copy-lint-check.mjs",
           "timeoutMs": 300000,
           "remedy": "v58.74: fix the template (shared signedText, korean-particle helpers, plain words for internal tokens); after fixes run node scripts/ci-rendered-copy-lint-check.mjs --prune-baseline"
         },
         {
           "id": "browser-secondary-text-budget",
+          "inputClass": "code",
           "script": "scripts/ci-secondary-text-budget-check.mjs",
           "timeoutMs": 300000,
           "remedy": "v58.79: move the new caption, basis or hint line into the section frame (as-of chip, its hover, or the frame's one fold; src/ui/components/section-frame.js) instead of adding text; after cuts run node scripts/ci-secondary-text-budget-check.mjs --tighten"
@@ -2670,11 +2889,13 @@
       "gates": [
         {
           "id": "watchdog-market-snapshot",
+          "inputClass": "data",
           "script": "scripts/ci-market-snapshot-contract-check.mjs",
           "cache": false
         },
         {
           "id": "watchdog-operations",
+          "inputClass": "data",
           "script": "scripts/ci-operations-status-check.mjs",
           "cache": false,
           "inputs": [
@@ -2688,16 +2909,19 @@
         },
         {
           "id": "watchdog-reconciliation",
+          "inputClass": "data",
           "script": "scripts/ci-reconciliation-contract-check.mjs",
           "cache": false
         },
         {
           "id": "watchdog-source-registry",
+          "inputClass": "data",
           "script": "scripts/ci-source-registry-contract-check.mjs",
           "cache": false
         },
         {
           "id": "watchdog-professional-gap",
+          "inputClass": "data",
           "script": "scripts/ci-professional-data-gap-check.mjs",
           "cache": false,
           "inputs": [
@@ -2713,6 +2937,7 @@
         },
         {
           "id": "watchdog-static-data",
+          "inputClass": "data",
           "script": "scripts/ci-static-data-contract-check.mjs",
           "cache": false,
           "inputs": [
@@ -2732,6 +2957,7 @@
         },
         {
           "id": "watchdog-manual-reference-expiry",
+          "inputClass": "data",
           "script": "scripts/ci-manual-reference-expiry-check.mjs",
           "cache": false,
           "inputs": [
@@ -2756,11 +2982,13 @@
         },
         {
           "id": "watchdog-web-research",
+          "inputClass": "data",
           "script": "scripts/ci-web-research-contract-check.mjs",
           "cache": false
         },
         {
           "id": "watchdog-data-refresh",
+          "inputClass": "data",
           "script": "scripts/ci-data-refresh-audit.mjs",
           "args": [
             "--reference-strict"
@@ -2783,16 +3011,19 @@
         },
         {
           "id": "watchdog-data-lineage",
+          "inputClass": "data",
           "script": "scripts/ci-data-lineage-audit.mjs",
           "cache": false
         },
         {
           "id": "watchdog-scenario-guidance",
+          "inputClass": "data",
           "script": "scripts/ci-scenario-guidance-fixture.mjs",
           "cache": false
         },
         {
           "id": "watchdog-knowledge-lint",
+          "inputClass": "data",
           "watchdogRole": "maintenance",
           "script": "scripts/ci-knowledge-lint-check.mjs",
           "cache": false,
@@ -2808,11 +3039,13 @@
         },
         {
           "id": "watchdog-artifact-headroom",
+          "inputClass": "data",
           "script": "scripts/ci-artifact-size-headroom-check.mjs",
           "cache": false
         },
         {
           "id": "watchdog-browser-data-pin-drift",
+          "inputClass": "data",
           "watchdogRole": "maintenance",
           "script": "scripts/ci-browser-data-pin-drift-check.mjs",
           "cache": false
@@ -2837,6 +3070,7 @@
       "gates": [
         {
           "id": "external-pipeline",
+          "inputClass": "data",
           "script": "scripts/ci-external-pipeline-check.mjs",
           "args": [
             "--mode",
@@ -2847,6 +3081,7 @@
         },
         {
           "id": "live-invariants",
+          "inputClass": "data",
           "script": "scripts/ci-live-invariant-check.mjs",
           "timeoutMs": 120000,
           "cache": false

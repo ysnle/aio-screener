@@ -70,7 +70,7 @@ export function createOperationsStatus(input = {}) {
     ai: input.ai && typeof input.ai === 'object' ? Object.freeze({ ...input.ai }) : Object.freeze({}),
     providers: input.providers && typeof input.providers === 'object' ? Object.freeze({ ...input.providers }) : Object.freeze({}),
     reconciliation: input.reconciliation && typeof input.reconciliation === 'object' ? Object.freeze({ ...input.reconciliation }) : Object.freeze({}),
-    routes: input.routes && typeof input.routes === 'object' ? Object.freeze({ ...input.routes }) : Object.freeze({}),
+    // No `routes` field: route ownership is code state (architecture/route-owners.json), not published data.
     blockers: Object.freeze(Array.isArray(input.blockers) ? input.blockers.map(String) : [])
   });
 }

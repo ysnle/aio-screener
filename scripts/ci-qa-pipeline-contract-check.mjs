@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { DATA_PUBLISH_SETS } from './lib/data-publish-sets.mjs';
+import { GATE_INPUT_CLASSES, runsInDataRun } from './lib/qa-live-data.mjs';
 import { basename } from 'node:path';
 import { load } from 'js-yaml';
 
@@ -321,7 +322,9 @@ function validateWorkflowContract(contract, source, candidateManifest = manifest
     const group = candidateManifest.groups?.[contract.group];
     if (!contract.group || !group) contractErrors.push(`group missing: ${contract.group || 'undefined'}`);
     const invokesGroup = runsQaGroup(source, contract.group);
-    const reachable = new Set(invokesGroup ? (group?.gates || []).map((gate) => gate.script) : []);
+    // v60.46: a `--data-run` invocation does not reach the group's code gates.
+    const dataRunInvocation = new RegExp(`qa-runner\\.mjs\\s+--group\\s+${String(contract.group || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+--data-run\\b`).test(source);
+    const reachable = new Set(invokesGroup ? (group?.gates || []).filter((gate) => !dataRunInvocation || runsInDataRun(gate)).map((gate) => gate.script) : []);
     for (const script of requiredScripts) {
       if (!reachable.has(script) && !source.includes(script) && !source.includes(basename(script))) contractErrors.push(`group gate unreachable: ${script}`);
     }
@@ -379,6 +382,10 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   for (const gate of group.gates || []) {
     ids.push(gate.id);
     check(`${groupName}/${gate.id} script exists`, existsSync(gate.script));
+    // v60.46 (static-dynamic audit rec. 8): every gate says whether its verdict depends on the data a producer writes,
+    // so a data run can skip the code gates (scripts/lib/qa-live-data.mjs runsInDataRun). A gate without a class runs in
+    // data runs, but registering one is refused here, so the choice is made when the gate is added.
+    check(`v60.46 ${groupName}/${gate.id} declares inputClass (${GATE_INPUT_CLASSES.join('|')})`, GATE_INPUT_CLASSES.includes(gate.inputClass));
     // Optional `remedy`: a one-line next action printed by qa-runner on FAIL (never part of the fingerprint).
     if ('remedy' in gate) check(`R690 ${groupName}/${gate.id} remedy is a non-empty one-line string`, typeof gate.remedy === 'string' && gate.remedy.trim().length > 0 && !/[\r\n]/.test(gate.remedy));
     // Optional `weight`: pool budget units for heavy browser gates (default 1).
@@ -528,7 +535,12 @@ check(`v57.60 browser gates wait for the local server ready line, never a 2s ass
 check('CI does not rerun for data workflow completion', !/workflow_run:/.test(ciSource));
 check('workflow syntax gate includes untracked newly-created workflows', /readdirSync\(join\(root, '\.github', 'workflows'\)\)/.test(workflowSyntaxSource) && !/git ls-files \.github\/workflows/.test(workflowSyntaxSource));
 check('CI does not deploy Pages', !/deploy-pages/.test(ciSource));
-check('CI has cheap preflight job', /preflight:[\s\S]*?qa-runner\.mjs --group preflight --no-cache/.test(ciSource));
+check('CI has cheap preflight job', /preflight:[\s\S]*?qa-runner\.mjs --group preflight \$DATA_RUN_FLAG --no-cache/.test(ciSource));
+// v60.46: CI skips code gates only on a reduced-scope (data-only) commit, whose code resolve-release-source.mjs proved green.
+check('v60.46 CI passes --data-run exactly when the scope is reduced',
+  (ciSource.match(/DATA_RUN_FLAG: \$\{\{ (?:steps\.scope|needs\.preflight)\.outputs\.reduced_scope == 'true' && '--data-run' \|\| '' \}\}/g) || []).length === 2
+  && (ciSource.match(/\$DATA_RUN_FLAG/g) || []).length === 2
+  && /qa-runner\.mjs --group \$\{\{ matrix\.group \}\} \$DATA_RUN_FLAG --no-cache/.test(ciSource));
 check('contract matrix waits for preflight', /contracts:[\s\S]*?needs:\s*preflight/.test(ciSource));
 // P1664: the browser matrix starts beside the contract matrix after the cheap preflight (public repo, free minutes;
 // the attest job still requires both), which removes the contracts wait from every push's wall time.

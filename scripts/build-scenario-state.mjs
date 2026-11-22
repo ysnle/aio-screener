@@ -200,7 +200,9 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const payload = {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
-    basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null },
+    // v60.46: screenerComputedAt names the screener.json the theme rows were built from. The screener lane rewrites that
+    // file between market refreshes, so a same-close comparison with the live pipeline holds only on the same file.
+    basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null, screenerComputedAt: screener?.factorComputedAt || null },
     // v58.75 (persona review): the rule the theme rows and rotation text were built with (screens skip a mismatched copy).
     playbookVersion: playbook.version || null,
     ...snapshot,

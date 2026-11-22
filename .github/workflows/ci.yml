@@ -102,7 +102,9 @@ jobs:
       - name: Run aggregate preflight
         env:
           AIO_QA_CACHE_DIR: ${{ runner.temp }}/aio-qa
-        run: node scripts/qa-runner.mjs --group preflight --no-cache
+          # v60.46: a data-only commit skips the inputClass "code" gates; its code already passed full push CI.
+          DATA_RUN_FLAG: ${{ steps.scope.outputs.reduced_scope == 'true' && '--data-run' || '' }}
+        run: node scripts/qa-runner.mjs --group preflight $DATA_RUN_FLAG --no-cache
       - name: Upload redacted QA failure output
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -160,7 +162,9 @@ jobs:
           # judgements (ADVISORY / warning) instead of failing on them; producers and the watchdog still fail on them.
           # On 11-04 the fix push 432ac3eb failed only on data age and a 46-day document date, and no release could attest.
           AIO_QA_ORIGIN: ci
-        run: node scripts/qa-runner.mjs --group ${{ matrix.group }} --no-cache
+          # v60.46: the same gates the producer ran before its push (code gates skipped on a data-only commit).
+          DATA_RUN_FLAG: ${{ needs.preflight.outputs.reduced_scope == 'true' && '--data-run' || '' }}
+        run: node scripts/qa-runner.mjs --group ${{ matrix.group }} $DATA_RUN_FLAG --no-cache
       - name: Upload redacted QA failure output
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
