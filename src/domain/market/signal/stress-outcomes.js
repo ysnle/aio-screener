@@ -112,7 +112,8 @@ export function buildStressOutcomes(spx = [], vix = [], { horizons = STRESS_HORI
 // The owner-approved VIX-band risk line: how deep the next month went, not only where it ended. For every day in a
 // band, the worst close within the next RISK_RULE.horizon sessions against that day's close (the drawdown). The cases are
 // those windows taken greedily so no two overlap (the sample a share may be judged on, evidence-strength.js); the record
-// is the share of cases whose drawdown reached RISK_RULE.drawdownAtPct and their median and 5th-percentile return.
+// is the share of cases whose drawdown reached RISK_RULE.drawdownAtPct, the share that ended higher, and their median and
+// 5th-percentile return.
 // The rule of scripts/backtest-market-lean-risk.mjs (pDD5, retMedian, ret5th, cases), which measured it.
 export const RISK_RULE = Object.freeze({ horizon: 21, drawdownAtPct: -5 });
 export function stressWindowRisk(sessions, index, horizon) {
@@ -125,13 +126,14 @@ export function stressWindowRisk(sessions, index, horizon) {
 // The share, its hit count and the return quantiles are taken on those non-overlapping cases, the count printed beside
 // them; a share over every overlapping day beside "겹치지 않는 사례 N개" reads as a share of those N.
 export function stressRiskSummary(windows,{ horizon = RISK_RULE.horizon, at = RISK_RULE.drawdownAtPct } = {}) {
-  if (!windows.length) return { horizon, drawdownAtPct: at, days: 0, cases: 0, drawdownCases: 0, drawdownShare: null, median: null, p05: null };
+  if (!windows.length) return { horizon, drawdownAtPct: at, days: 0, cases: 0, drawdownCases: 0, drawdownShare: null, upCases: 0, upShare: null, median: null, p05: null };
   const picked = [];
   let next = -Infinity;
   for (const row of [...windows].sort((a, b) => a.index - b.index)) if (row.index >= next) { picked.push(row); next = row.index + horizon; }
   const sorted = picked.map((row) => row.ret).sort((a, b) => a - b);
   const drawdownCases = picked.filter((row) => row.drawdown <= at).length;
+  const upCases = picked.filter((row) => row.ret > 0).length;
   return { horizon, drawdownAtPct: at, days: windows.length, cases: picked.length, drawdownCases,
-    drawdownShare: round((drawdownCases / picked.length) * 100, 1),
+    drawdownShare: round((drawdownCases / picked.length) * 100, 1), upCases, upShare: round((upCases / picked.length) * 100, 1),
     median: round(percentile(sorted, 0.5)), p05: round(percentile(sorted, 0.05)) };
 }

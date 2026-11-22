@@ -106,7 +106,7 @@ if (session && moduleArg <= 0) {
   const { stressRiskSummary } = await import(pathToFileURL(path.join(ROOT, 'src/domain/market/signal/stress-outcomes.js')).href);
   const windows = Array.from({ length: 42 }, (_, i) => ({ index: i, drawdown: i < 5 ? -6 : -1, ret: i < 5 ? -6 : 2 }));
   const summary = stressRiskSummary(windows);
-  check(summary.days === 42 && summary.cases === 2 && summary.drawdownCases === 1 && summary.drawdownShare === 50,
+  check(summary.days === 42 && summary.cases === 2 && summary.drawdownCases === 1 && summary.drawdownShare === 50 && summary.upCases === 1 && summary.upShare === 50,
     `v60.46 the drawdown share and its count are one sample (2 non-overlapping cases, 1 hit = 50%, not 5/42 days): ${JSON.stringify(summary)}`);
   check(line(33)?.state === 'small' && /사례 21개 중 6개 · 참고, 평소 14%\)$/.test(line(33).text) && line(45)?.state === 'thin' && !/%/.test(line(45).text.replace(/VIX 45\.0/, '')),
     `v60.19 evidence-strength on the risk line: 10–29 cases 참고, under 10 counts only (${line(33)?.text} / ${line(45)?.text})`);

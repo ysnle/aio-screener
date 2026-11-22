@@ -265,17 +265,18 @@ check('v59.44 capex and free cash flow survive the cap of six figures (X bookmar
   same(out.figures.slice(-2).map((figure) => figure.metric), ['capex', 'free_cash_flow']);
   ok(EARNINGS_SCHEMA.properties.figures.items.properties.metric.enum.includes('free_cash_flow'), 'the schema names the cash metrics');
 });
-check('v60.46 the quarter consensus is attached to quarter rows only, on every metric (POWL 연간 EPS, RGTI 첫 9개월 매출)', () => {
+check('v60.46 the quarter consensus is attached to whole-company quarter rows only (POWL 연간 EPS, RGTI 첫 9개월 매출, a segment revenue line)', () => {
   const lines = ['Total revenues for the three months ended September 30, 2026 were $1.4 million', 'Total revenues for the nine months ended September 30, 2026 were $10.9 million',
-    'Net income of $82 million, or $2.23 per diluted share', 'Net income of $221 million, or $6.04 per diluted share, in Fiscal 2026'];
+    'Net income of $82 million, or $2.23 per diluted share', 'Net income of $221 million, or $6.04 per diluted share, in Fiscal 2026', 'Professional services revenue was $1.1 million'];
   const figures = [
     { metric: 'revenue', label: '3분기 매출', value: '$1.4 million', text: '', quote: lines[0] },
     { metric: 'revenue', label: '첫 9개월 매출', value: '$10.9 million', text: '', quote: lines[1] },
     { metric: 'eps_diluted', label: '4분기 희석 EPS', value: '$2.23', text: '', quote: lines[2] },
-    { metric: 'eps_diluted', label: '연간 희석 EPS', value: '$6.04', text: '', quote: lines[3] }];
+    { metric: 'eps_diluted', label: '연간 희석 EPS', value: '$6.04', text: '', quote: lines[3] },
+    { metric: 'revenue', label: '3분기 전문 서비스 매출', value: '$1.1 million', text: '', quote: lines[4] }];
   const row = { revenueEstimate: 3589808, epsEstimate: 1.5893, estimateLastSeenAt: '2026-11-10T20:00:00Z' };
   const out = assembleEarningsSections({ figures, segments: [], guidance: [], watch: [] }, lines.join('. '), row);
-  same(out.figures.map((figure) => figure.estimate ? 'compared' : 'reported'), ['compared', 'reported', 'compared', 'reported']);
+  same(out.figures.map((figure) => figure.estimate ? 'compared' : 'reported'), ['compared', 'reported', 'compared', 'reported', 'reported']);
 });
 check('v60.46 a pre-report mark is a sighting at or before the release (RGTI 21:05Z release, estimate last seen 22:26Z)', () => {
   const release = '2026-11-10T21:05:21.000Z';

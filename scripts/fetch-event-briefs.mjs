@@ -33,7 +33,7 @@ export { EARNINGS_SCHEMA, FOMC_SCHEMA, POINTS_SCHEMA, TRANSCRIPT_SCHEMA, REASONS
 import {
   EVENT_BRIEFS_SCHEMA, withoutTradeMarks, MARKET_MOVERS, NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS, isNoReasonText, onReportDomain, normalizeSourceText, verifyQuotedItems, verifyFreeText, unverifiedNumbers, sourceNumberSet,
   parseDartPreliminaryResults, formatKrw, parseUsdAmount, parseUsdPerShare, surprisePct, epsComparisonBasis, estimateAiCostUsd, AI_RATE_CARD,
-  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, provisionalHeadline, PROVISIONAL_SUMMARY_WAIT_MS, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, consensusPeriodMatches, preReportSeenAt, watchItem
+  MOVER_BY_SYMBOL, briefHeadline, isKoreanHeadline, provisionalHeadline, PROVISIONAL_SUMMARY_WAIT_MS, releaseSession, earningsReaction, reactionPct, CALL_SEARCH_MAX_ATTEMPTS, statedReportingCurrency, consensusComparable, consensusQuantityMatches, preReportSeenAt, watchItem
 } from '../src/domain/briefing/event-briefs.js';
 import { readNumber, usdScaleWords } from '../src/domain/shared/number.js';
 import { isIsoDay } from '../src/domain/shared/session-date.js';
@@ -298,7 +298,7 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
   const strip = ({ quote, ...rest }) => ({ ...rest, quote });
   const outFigures = figures.kept.map(strip).map((figure) => {
     // An annual or cumulative (9개월) row is not compared with the quarter's consensus.
-    if (!estimate || !consensusPeriodMatches(figure)) return figure;
+    if (!estimate || !consensusQuantityMatches(figure)) return figure;
     if (figure.metric === 'revenue' && readNumber(estimate.revenueEstimate) != null) {
       const actual = parseUsdAmount(figure.value);
       const pct = surprisePct(actual, Number(estimate.revenueEstimate));
@@ -581,7 +581,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       // loses the provider comparison (the release text is not kept, so its currency cannot be re-read).
       if (!consensusComparable({ form: brief.source?.title, currency: brief.reportingCurrency || null })) return (({ estimate, ...rest }) => rest)(figure);
       // A stored annual or cumulative row loses the quarter's consensus (POWL 연간 EPS, RGTI 첫 9개월 매출).
-      if (!consensusPeriodMatches(figure)) return (({ estimate, ...rest }) => rest)(figure);
+      if (!consensusQuantityMatches(figure)) return (({ estimate, ...rest }) => rest)(figure);
       if (figure.metric === 'eps_diluted') {
         const comparison = epsComparisonBasis(figure, brief.figures || []);
         if (!comparison) return (({ estimate, ...rest }) => rest)(figure);

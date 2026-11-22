@@ -16,7 +16,7 @@ const riskOf = (risk) => (risk && Number.isFinite(risk.cases) && risk.cases > 0 
  * @param {number|null} vix today's completed VIX close
  * @returns {{ state: 'current'|'missing'|'no-vix', band, vix, horizon, drawdownAtPct, month, base, risk, baseRisk }}
  *   state 'missing': no record under today's definition, or one without the drawdown fields (until the weekly lane
- *   rebuilds it); `risk`/`baseRisk` carry { drawdownShare, drawdownCases, cases, median, p05, strength } when published.
+ *   rebuilds it); `risk`/`baseRisk` carry { drawdownShare, drawdownCases, upShare, upCases, cases, median, p05, strength } when published.
  */
 export function vixBandRecord(published, vix) {
   const band = stressBandOf(vix);

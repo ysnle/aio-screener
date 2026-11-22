@@ -5,5 +5,5 @@ export const OUTCOME_STAMPS = Object.freeze({
   themeStage: 'theme-stage-outcomes:a214c7326227e13e',
   branches: 'branch-analogs:cd24241fef1f3ba5',
   corrections: 'correction-base-rates:3fd7a46422ab2e18',
-  stress: 'stress-outcomes:b43e54226f3f47e4'
+  stress: 'stress-outcomes:3243fec99c5f6ed3'
 });

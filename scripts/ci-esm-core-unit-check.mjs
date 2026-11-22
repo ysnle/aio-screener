@@ -1980,6 +1980,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (periods !== 'annual,cumulative,cumulative,annual,cumulative,quarter,' || JSON.stringify(reads) !== JSON.stringify([null, null, null, null, null, 40.3, -60.7])) {
         fail(`v60.46: annual and cumulative rows must not be compared with the quarter's estimate ${JSON.stringify({ periods, reads })}`);
       }
+      // v60.46: the consensus is the whole company's revenue — a part of it (APPN 전문 서비스 매출 −78.8%, CEVA 로열티 매출,
+      // 구독 매출) carries no surprise; total-revenue names with period words (3분기 순매출, 총매출, 매출 및 수익, Net sales) do.
+      const scopeRows = ['3분기 전문 서비스 매출', '로열티 매출', '라이선싱 및 관련 매출', '클라우드 구독 매출', '구독 매출', '데이터센터 매출', 'Subscription revenue',
+        '3분기 순매출', '총매출', '매출 및 수익', '2026년 3분기 매출', 'Net sales', '매출']
+        .map((label) => figureSurprise({ metric: 'revenue', label, value: '$2 billion', estimate: est(1e9) }, [])?.pct ?? null);
+      if (JSON.stringify(scopeRows) !== JSON.stringify([null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1])) {
+        fail(`v60.46: a revenue line that is a part of revenue must not be compared with the total-revenue consensus ${JSON.stringify(scopeRows)}`);
+      }
       // v59.70 step 4: 종목's four cells read the same comparison; "전망은 시장 기대보다 낮아" is 가이던스 하회, not 신중.
       const { earningsCells } = await load('src/domain/briefing/reaction-read.js');
       const aaplBrief = { kind: 'earnings', figures: aaplFigures, guidance: [], reasons: { points: [{ text: '분기 실적은 예상치를 웃돌았지만, 연말 분기 매출총이익률 전망은 시장 기대보다 낮아 실적 호재를 상쇄했습니다.' }] },

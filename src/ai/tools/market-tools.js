@@ -233,13 +233,17 @@ function correctionLines(outcomes, root) {
 function vixBandLines(root) {
   const vix = buildCloseSeries(root?._aioHistory || [], 'vix', { through: closeBasis(root?._aioHistory || []) }).at(-1);
   const record = vixBandRecord(root?.[STRESS_OUTCOMES.key], vix?.value);
-  const h = record.month;
-  if (!h) return [];
-  const strength = h.strength;
-  const allHit = record.base?.hitRate;
   const risk = vixBandRiskLine(record);
-  return [`VIX ${vix.value.toFixed(1)}(${day(vix.date)}) — ${record.label} 구간: ${strength.figures ? `21거래일 뒤 오른 비율 ${h.hitRate}%${allHit != null ? `(평소 ${allHit}%)` : ''}, 중앙값 ${h.median}%, 나쁜 쪽 10% ${h.p10}% 이하` : '사례가 적어 비율로 말하지 않음'}, ${strength.tag}.`,
-    ...(risk ? [risk.text] : [])];
+  if (!risk) return [];
+  if (record.state !== 'current') return [risk.text];
+  // The same non-overlapping cases as the screen's risk line (stressRiskSummary): the up share, its count and the
+  // return quantiles, under the shared sample rule (under 10 cases no rate, 10–29 참고).
+  const { risk: band, baseRisk: base } = record;
+  const pct = (value) => `${Math.round(Number(value))}%`;
+  const up = band.strength.figures
+    ? `${record.horizon}거래일 뒤 오른 경우 ${pct(band.upShare)}(겹치지 않는 사례 ${band.cases}개 중 ${band.upCases}개${band.strength.reference ? ' · 참고' : ''}, 평소 ${pct(base.upShare)}), 중앙값 ${band.median}%, 나쁜 쪽 5% ${band.p05}% 이하`
+    : band.strength.note;
+  return [`VIX ${vix.value.toFixed(1)}(${day(vix.date)}) — ${record.label} 구간: ${up}`, risk.text];
 }
 
 const scenarioRecord = {
