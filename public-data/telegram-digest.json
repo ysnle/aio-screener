@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-22T00:52:14.242Z",
-  "attemptedAt": "2026-11-22T00:52:14.242Z",
-  "lastSuccessfulAt": "2026-11-22T00:52:14.242Z",
+  "generatedAt": "2026-11-22T01:51:50.234Z",
+  "attemptedAt": "2026-11-22T01:51:50.234Z",
+  "lastSuccessfulAt": "2026-11-22T01:51:50.234Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-08T00:52:07.971Z",
-  "until": "2026-11-22T00:52:07.971Z",
+  "since": "2026-11-08T01:51:44.096Z",
+  "until": "2026-11-22T01:51:44.096Z",
   "current24hWindow": {
     "start": "2026-11-20T23:00:00.000Z",
     "end": "2026-11-21T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1177,
+      "count": 1173,
       "freshCount": 33,
-      "eligibleTextCount": 1115,
+      "eligibleTextCount": 1112,
       "selectedCount": 123,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69937
+      "lastPostId": 69941
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 171,
-      "freshCount": 20,
-      "eligibleTextCount": 171,
+      "count": 170,
+      "freshCount": 40,
+      "eligibleTextCount": 170,
       "selectedCount": 111,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21224
+      "lastPostId": 21225
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 707,
-      "freshCount": 38,
-      "eligibleTextCount": 707,
+      "count": 710,
+      "freshCount": 39,
+      "eligibleTextCount": 710,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72526
+      "lastPostId": 72531
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2055,
-  "retainedItemCount": 414,
+  "count": 2053,
+  "retainedItemCount": 423,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2055,
-    "eligibleTextCount": 1993,
-    "mediaOnlyCount": 62,
-    "mediaAttachedCount": 835,
-    "photoPostCount": 701,
+    "observedCount": 2053,
+    "eligibleTextCount": 1992,
+    "mediaOnlyCount": 61,
+    "mediaAttachedCount": 831,
+    "photoPostCount": 697,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 333,
-    "broadSignalCount": 847,
+    "highSignalCount": 334,
+    "broadSignalCount": 848,
     "selectedRawCount": 359,
     "selectedEligibleCount": 359,
     "selectedRawCoveragePct": 18,
@@ -160,26 +160,28 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 729,
-    "geo": 268,
-    "semi": 632,
+    "macro": 278,
+    "earnings": 255,
+    "semi": 634,
+    "japan": 51,
+    "ai-policy": 147,
+    "equity": 145,
+    "market-note": 730,
+    "geo": 267,
     "kr-market": 84,
     "flows": 49,
-    "media-only": 61,
-    "macro": 277,
-    "power": 224,
-    "equity": 144,
+    "media-only": 60,
+    "power": 221,
     "credit": 69,
     "healthcare": 45,
-    "ai-policy": 146,
-    "earnings": 255,
-    "japan": 50,
     "optical": 20,
     "insider": 2
   },
   "tickerCounts": {
-    "NVDA": 403,
-    "AMZN": 51,
+    "TSLA": 29,
+    "NVDA": 404,
+    "IT": 1,
+    "AMZN": 50,
     "GOOG": 52,
     "MU": 24,
     "AMD": 53,
@@ -187,14 +189,13 @@
     "APLD": 2,
     "ORCL": 4,
     "2454.TW": 8,
-    "CRWV": 17,
+    "CRWV": 15,
     "CRWD": 2,
     "ZS": 1,
     "TSM": 62,
     "IBN": 2,
     "MSFT": 55,
     "AVGO": 19,
-    "TSLA": 28,
     "GOOGL": 3,
     "005930.KS": 25,
     "PLTR": 7,
@@ -259,19 +260,19 @@
     "006400.KS": 1
   },
   "themes": [
-    "Market Notes (729 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
-    "Semiconductors/Memory (632 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
-    "Macro/Rates (277 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "Geopolitics (268 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
+    "Market Notes (730 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:...",
+    "Semiconductors/Memory (634 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
+    "Macro/Rates (278 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Geopolitics (267 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
     "Earnings/Corporate (255 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (224 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
-    "AI Policy/Export Controls (146 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
-    "Equity/Analyst (144 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+    "AI Power/Grid (221 posts in 14-day research window): 미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로...",
+    "AI Policy/Export Controls (147 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한...",
+    "Equity/Analyst (145 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 403,
+      "count": 404,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
@@ -296,12 +297,12 @@
     },
     {
       "key": "AMZN",
-      "count": 51,
+      "count": 50,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
       "key": "TSLA",
-      "count": 28,
+      "count": 29,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
@@ -326,7 +327,7 @@
     },
     {
       "key": "CRWV",
-      "count": 17,
+      "count": 15,
       "text": "코어위브(CRWV) 2026년 3분기 실적 (시간외 +6%) 매출 컨센서스 상회, 수주잔고 1,325억 달러 기록, 연간 가이던스 상향 1. 3분기 실적 * 매출: 36.61억 달러 (예상 35.4억 달러..."
     }
   ],
@@ -337,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 277,
+      "count": 278,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -346,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 268,
+      "count": 267,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
@@ -364,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 632,
+      "count": 634,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
@@ -382,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 224,
+      "count": 221,
       "focus": "미국 중간선거 후폭풍, AI 데이터센터 규제, 하이퍼스케일러와 네오클라우드의 명암 - All-In Podcast 2026.11.8 1. 민주당 압승과 공화당 패배 원인 출연진은 민주당의 상·하원 장악을 전제로..."
     },
     {
@@ -391,7 +392,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 146,
+      "count": 147,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
     },
     {
@@ -409,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 144,
+      "count": 145,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -445,7 +446,7 @@
       "topics": [
         "japan"
       ],
-      "count": 50,
+      "count": 51,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -472,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 729,
+      "count": 730,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     }
   ],
@@ -1559,15 +1560,18 @@
       "datetime": "2026-11-18T23:45:25.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "geo",
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 88,
       "hasText": true,
-      "summary": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을..."
     },
     {
       "id": "bornlupin/21050",
@@ -1598,11 +1602,12 @@
       "localDateKst": "2026-11-18",
       "tags": [
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 87,
       "hasText": true,
-      "summary": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1613,7 +1618,8 @@
         "AMZN",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자..."
     },
     {
       "id": "bornlupin/21183",
@@ -1682,6 +1688,41 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72531",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72531",
+      "datetime": "2026-11-22T01:48:53.000Z",
+      "localDateKst": "2026-11-22",
+      "tags": [
+        "macro",
+        "earnings",
+        "semi",
+        "japan"
+      ],
+      "lead": 2,
+      "score": 69,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>주간 글로벌 이벤트 - 미 PCE·GDP·미 연준 베이지북·중국 빅테크 실적 집중…AI 투자 및 금리 경로 주목 (중국언론) •미국 물가·GDP : 11월 25일 미국 10월 PCE 물가지수와 3분기..."
+    },
+    {
+      "id": "insidertracking/69940",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69940",
+      "datetime": "2026-11-22T01:04:26.000Z",
+      "localDateKst": "2026-11-22",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "파이낸셜타임스(FT)에 따르면 메가스피드 전 임원 앨리스 황이 클라우드 협력업체, 게임업계 거물, 인신매매 연루 의혹을 받는 캄보디아 관계자, 수백 개의 페이퍼컴퍼니로 구성된 네트워크와 연결돼 있었으며, 이..."
+    },
     {
       "id": "HANAchina/72523",
       "channel": "HANAchina",
@@ -1869,16 +1910,14 @@
       "datetime": "2026-11-21T07:58:06.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "semi",
-        "macro"
+        "semi"
       ],
-      "lead": 1,
       "score": 73,
       "hasText": true,
+      "summary": "엔비디아 젠슨 황, 100억 달러 자산 이전으로 수십억 달러 세금 회피 엔비디아 CEO 젠슨 황과 아내 로리 황이 약 100억 달러 이상의 엔비디아 주식을 가족 신탁으로 이전하면서 막대한 상속·증여세 부담을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 젠슨 황, 100억 달러 자산 이전으로 수십억 달러 세금 회피 엔비디아 CEO 젠슨 황과 아내 로리 황이 약 100억 달러 이상의 엔비디아 주식을 가족 신탁으로 이전하면서 막대한 상속·증여세 부담을..."
+      ]
     },
     {
       "id": "bornlupin/21223",
@@ -2507,7 +2546,7 @@
       "datetime": "2026-11-20T12:50:43.000Z",
       "localDateKst": "2026-11-20",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
@@ -2517,8 +2556,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지..."
+      "summary": ">>추수감사절 이후 시장 반등? BofA: 단기 반등 가능성이 높지만, 대규모 상승장은 세 가지 조건 충족 필요 •BofA Hartnett는 글로벌 주식시장의 상승 종목 폭이 극단적으로 악화된 수준까지...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72485",
@@ -4013,8 +4052,8 @@
       ],
       "score": 50,
       "hasText": true,
-      "summary": "블룸버그) 앤트로픽, 그레이마켓에서 주가 20% 이상 상승 예고 앤트로픽(Anthropic PBC)의 주식이 그레이마켓(정식 상장 전 비공식 거래시장)에서 IPO 공모가 대비 22~26% 상승한 가격으로...",
-      "tickers": []
+      "tickers": [],
+      "summary": "블룸버그) 앤트로픽, 그레이마켓에서 주가 20% 이상 상승 예고 앤트로픽(Anthropic PBC)의 주식이 그레이마켓(정식 상장 전 비공식 거래시장)에서 IPO 공모가 대비 22~26% 상승한 가격으로..."
     },
     {
       "id": "insidertracking/69734",
@@ -4079,12 +4118,15 @@
       "datetime": "2026-11-19T05:14:24.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "optical",
+        "earnings"
       ],
       "score": 80,
       "hasText": true,
-      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후...",
-      "tickers": []
+      "tickers": [],
+      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후..."
     },
     {
       "id": "HANAchina/72396",
@@ -4126,13 +4168,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "머스크의 '테라팹', 반도체 장비 구매 위해 한국 기업들과 협상 중 일론 머스크의 테라팹은 한국 장비업체 GST와 스크러버(유해가스 정화장치) 및 칠러(온도조절장치) 공급을 협의 중이다 ....",
-      "lead": 1,
       "tickers": [
         "TSLA"
-      ]
+      ],
+      "summary": "머스크의 '테라팹', 반도체 장비 구매 위해 한국 기업들과 협상 중 일론 머스크의 테라팹은 한국 장비업체 GST와 스크러버(유해가스 정화장치) 및 칠러(온도조절장치) 공급을 협의 중이다 ...."
     },
     {
       "id": "bornlupin/21199",
@@ -4141,14 +4183,17 @@
       "datetime": "2026-11-19T03:44:18.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "power"
+        "geo",
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 79,
       "hasText": true,
-      "summary": "블룸에너지( $BE ) CEO KR 스리다르 인터뷰 - Semafor 1. 전력 수요와 AI 인프라 전망 • 전기는 현대사회의 필수재. 디지털화, 전기차, 산업 발전으로 전력 소비는 구조적으로 증가하고 있음....",
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "블룸에너지( $BE ) CEO KR 스리다르 인터뷰 - Semafor 1. 전력 수요와 AI 인프라 전망 • 전기는 현대사회의 필수재. 디지털화, 전기차, 산업 발전으로 전력 소비는 구조적으로 증가하고 있음...."
     },
     {
       "id": "bornlupin/21198",
@@ -4157,15 +4202,17 @@
       "datetime": "2026-11-19T03:35:49.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "power"
+        "geo",
+        "semi",
+        "power",
+        "healthcare"
       ],
       "score": 79,
       "hasText": true,
-      "summary": "블룸에너지 $BE 창업자 겸 CEO KR 스리다르, 세마포 인터뷰 (26.11.16) ① AI 둔화 우려와 전력 수요 Q. AI 역풍(금융·정치·인프라 차질) 얘기가 많다. 둔화인가? - 전력 수요는 AI와...",
-      "lead": 1,
       "tickers": [
         "BE"
-      ]
+      ],
+      "summary": "블룸에너지 $BE 창업자 겸 CEO KR 스리다르, 세마포 인터뷰 (26.11.16) ① AI 둔화 우려와 전력 수요 Q. AI 역풍(금융·정치·인프라 차질) 얘기가 많다. 둔화인가? - 전력 수요는 AI와..."
     },
     {
       "id": "insidertracking/69717",
@@ -4354,10 +4401,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "트럼프, 향후 미국이 중국에 블랙웰 칩을 판매할 수 있다고 시사 도널드 트럼프 미국 대통령은 엔비디아(Nvidia)의 수요가 높은 블랙웰(Blackwell) 칩이 더 이상 시장에서 가장 첨단 제품에 속하지...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프, 향후 미국이 중국에 블랙웰 칩을 판매할 수 있다고 시사 도널드 트럼프 미국 대통령은 엔비디아(Nvidia)의 수요가 높은 블랙웰(Blackwell) 칩이 더 이상 시장에서 가장 첨단 제품에 속하지..."
     },
     {
       "id": "insidertracking/69695",
@@ -4452,13 +4499,14 @@
       "datetime": "2026-11-19T00:08:05.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "ai-policy",
-        "equity"
+        "equity",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": "앤트로픽 IPO, 813억 달러 조달…스페이스X의 기록적인 증시 데뷔 규모 추월 최종 공모가격은 주당 83달러로 확정 앤트로픽(Anthropic PBC)과 공동창업자 7명이 기업공개(IPO) 규모를 확대하면서...",
-      "tickers": []
+      "tickers": [],
+      "summary": "앤트로픽 IPO, 813억 달러 조달…스페이스X의 기록적인 증시 데뷔 규모 추월 최종 공모가격은 주당 83달러로 확정 앤트로픽(Anthropic PBC)과 공동창업자 7명이 기업공개(IPO) 규모를 확대하면서..."
     },
     {
       "id": "insidertracking/69694",
@@ -4483,14 +4531,15 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "macro",
+        "semi",
         "power"
       ],
       "score": 81,
       "hasText": true,
-      "summary": "코어위브의 맥비, 부채 상환보다 데이터센터 지출 선호 코어위브(CoreWeave Inc.)의 공동 창업자 브래닌 맥비(Brannin McBee)는 최근 몇 주간 시장의 집중적인 관심을 받아온 고금리 부채...",
       "tickers": [
         "CRWV"
-      ]
+      ],
+      "summary": "코어위브의 맥비, 부채 상환보다 데이터센터 지출 선호 코어위브(CoreWeave Inc.)의 공동 창업자 브래닌 맥비(Brannin McBee)는 최근 몇 주간 시장의 집중적인 관심을 받아온 고금리 부채..."
     },
     {
       "id": "HANAchina/72380",
@@ -4514,15 +4563,18 @@
       "datetime": "2026-11-18T23:45:25.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "semi"
+        "geo",
+        "semi",
+        "power",
+        "ai-policy"
       ],
       "score": 88,
       "hasText": true,
-      "summary": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을...",
       "tickers": [
         "NVDA",
         "TSLA"
-      ]
+      ],
+      "summary": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을..."
     },
     {
       "id": "HANAchina/72375",
@@ -4684,18 +4736,19 @@
       "localDateKst": "2026-11-19",
       "tags": [
         "semi",
+        "power",
         "earnings",
         "flows"
       ],
+      "lead": 1,
       "score": 77,
       "hasText": true,
-      "summary": "마이크론 CEO·CTO - TomorrowX Summit 발언 26년 11월 18일(미국 현지시간) 1. 메모리 수급·실적 — 산제이 메흐로트라 CEO • 고객 수요는 여전히 강하고, 공급은 타이트하며, 가격...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": "마이크론 CEO·CTO - TomorrowX Summit 발언 26년 11월 18일(미국 현지시간) 1. 메모리 수급·실적 — 산제이 메흐로트라 CEO • 고객 수요는 여전히 강하고, 공급은 타이트하며, 가격..."
     },
     {
       "id": "insidertracking/69665",
@@ -5092,12 +5145,14 @@
       "datetime": "2026-11-18T11:27:29.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
+        "earnings",
         "semi",
-        "earnings"
+        "power",
+        "healthcare"
       ],
+      "lead": 2,
       "score": 85,
       "hasText": true,
-      "summary": "스마트폰 D램까지 AI 서버로… \"내년 HBM 평균가·첨단 패키징 매출 2배 이상 뛴다\" 트렌드포스 서울서 '로드쇼 코리아 2026' 개최 고가 HBM4 출하 비중 31%→51%… HBM 평균가 122% 상승...",
       "tickers": [
         "NVDA",
         "GOOG",
@@ -5107,7 +5162,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "스마트폰 D램까지 AI 서버로… \"내년 HBM 평균가·첨단 패키징 매출 2배 이상 뛴다\" 트렌드포스 서울서 '로드쇼 코리아 2026' 개최 고가 HBM4 출하 비중 31%→51%… HBM 평균가 122% 상승..."
     },
     {
       "id": "bornlupin/21188",
@@ -5116,12 +5172,13 @@
       "datetime": "2026-11-18T11:11:17.000Z",
       "localDateKst": "2026-11-18",
       "tags": [
-        "market-note"
+        "geo",
+        "ai-policy"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "트럼프 행정부, 미국 기업의 중국산 AI 사용 공개 의무화 검토 - 로이터 미국 트럼프 행정부가 미국 기업에 중국산 인공지능(AI) 모델 사용 사실을 자사 웹사이트에 공개하도록 의무화하는 방안 을 검토하고...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 행정부, 미국 기업의 중국산 AI 사용 공개 의무화 검토 - 로이터 미국 트럼프 행정부가 미국 기업에 중국산 인공지능(AI) 모델 사용 사실을 자사 웹사이트에 공개하도록 의무화하는 방안 을 검토하고..."
     },
     {
       "id": "bornlupin/21187",
@@ -5132,13 +5189,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 69,
       "hasText": true,
-      "summary": "삼성전자, 네오클라우드 기업 및 AI 거품에 대한 우려 일축 삼성전자는 부채 비중이 높은 '네오클라우드(Neocloud)' 업체들이 전반적인 AI 거품을 촉발할 수 있다는 시장의 우려를 일축 했습니다. 김용관...",
-      "lead": 1,
       "tickers": [
         "005930.KS"
-      ]
+      ],
+      "summary": "삼성전자, 네오클라우드 기업 및 AI 거품에 대한 우려 일축 삼성전자는 부채 비중이 높은 '네오클라우드(Neocloud)' 업체들이 전반적인 AI 거품을 촉발할 수 있다는 시장의 우려를 일축 했습니다. 김용관..."
     },
     {
       "id": "HANAchina/72357",
@@ -5600,11 +5657,12 @@
       "localDateKst": "2026-11-18",
       "tags": [
         "ai-policy",
-        "equity"
+        "equity",
+        "semi"
       ],
+      "lead": 2,
       "score": 87,
       "hasText": true,
-      "summary": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -5615,7 +5673,8 @@
         "AMZN",
         "MU",
         "TSM"
-      ]
+      ],
+      "summary": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자..."
     },
     {
       "id": "insidertracking/69591",
@@ -6181,29 +6240,6 @@
         "documents": []
       },
       "summary": "NVIDIA 2027회계연도 3분기 실적 요약 실적 • 매출 $1,158억, YoY +103% • GAAP 매출총이익률 74.8%, YoY +140bps • 비GAAP 매출총이익률 74.9%, YoY...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69564",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69564",
-      "datetime": "2026-11-17T21:21:20.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "NVIDIA 2027회계연도 3분기 실적 요약 실적 • 매출 $1,158.4억, 예상 $1,087.7억 상회 • 조정 GAAP EPS $2.68, 예상 $2.47 상회 애프터마켓 2.4% 상승",
       "tickers": [
         "NVDA"
       ]
@@ -7047,29 +7083,6 @@
         "documents": []
       },
       "summary": ">>SemiAnalysis, AI 컴퓨팅 수요 전망 대폭 하향…2028년 자본지출 전망 30% 가까이 하향 (중국언론) •SemiAnalysis는 2028년 글로벌 AI 가속기 자본지출 전망을 28%...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/72217",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72217",
-      "datetime": "2026-11-16T09:53:25.000Z",
-      "localDateKst": "2026-11-16",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>대만 기술업계, 젠슨 황 지지…오늘 저녁 6시 타이베이101 점등 예정 •Nvidia 전 CEO 젠슨 황은 글로벌 AI 발전에 크게 기여했으며 대만 공급망을 중시해온 것으로 알려져 있음. 지난주 젠슨 황이...",
-      "lead": 1,
       "tickers": [
         "NVDA"
       ]
@@ -8434,16 +8447,14 @@
       "datetime": "2026-11-21T07:58:06.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "semi",
-        "macro"
+        "semi"
       ],
-      "lead": 1,
       "score": 73,
       "hasText": true,
+      "summary": "엔비디아 젠슨 황, 100억 달러 자산 이전으로 수십억 달러 세금 회피 엔비디아 CEO 젠슨 황과 아내 로리 황이 약 100억 달러 이상의 엔비디아 주식을 가족 신탁으로 이전하면서 막대한 상속·증여세 부담을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 젠슨 황, 100억 달러 자산 이전으로 수십억 달러 세금 회피 엔비디아 CEO 젠슨 황과 아내 로리 황이 약 100억 달러 이상의 엔비디아 주식을 가족 신탁으로 이전하면서 막대한 상속·증여세 부담을..."
+      ]
     },
     {
       "id": "bornlupin/21223",
