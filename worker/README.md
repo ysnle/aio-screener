@@ -64,7 +64,10 @@ CDN cache and perform a KV read per request. `/admin/run` keeps its own `POST` +
 ## AIO fast quote plane
 
 `data-plane.js` is the AR-07 Batch 1 Cloudflare Worker. Its scheduled handler
-fetches the bounded Tier 0 allowlist every five minutes, validates the shared
+fetches the bounded Tier 0 allowlist every five minutes while a US (04:00-20:00 ET)
+or KRX session is open and every 30 minutes otherwise (the shared market clock in
+`src/app/refresh-session-policy.js`; the workflow dispatches keep every five-minute
+slot), validates the shared
 `src/data/contracts/market-snapshot.js` contract, and writes `quotes:current`
 only after QG-01 reaches 100% and the semantic revision changes. An unchanged
 snapshot is a successful observation but a KV no-op; the heartbeat is throttled

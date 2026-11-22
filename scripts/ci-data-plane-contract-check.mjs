@@ -424,4 +424,35 @@ try {
   if ((worker.match(/inputs: \{ trigger: (?:'scheduler'|REFRESH_DISPATCH_POLICY\.trigger) \}/g) || []).length < dispatched.length) fail('v60.19 every Worker dispatch body sends trigger=scheduler');
 }
 
+// v60.46 (static/dynamic audit 2026-11-22 rec 6): the 5-minute cron fetched Yahoo and published /quotes 288 times a day
+// whatever the session. Quote publication now reads the browser's market clock (src/app/refresh-session-policy.js): every
+// slot while a US or KRX session is open, one slot per 30 minutes otherwise (BTC/ETH). The workflow dispatches keep every slot.
+{
+  const { default: plane, quotePublishDue, FAST_PLANE_WRITE_POLICY: policy } = await import('../worker/data-plane.js');
+  const source = fs.readFileSync(path.resolve(root, 'worker/data-plane.js'), 'utf8');
+  if (!/from '\.\.\/src\/app\/refresh-session-policy\.js'/.test(source)) fail('v60.46 the Worker must read the shared market clock, not its own calendar');
+  const due = {
+    satOff: quotePublishDue(Date.parse('2026-11-21T12:05:00Z')), satSlot: quotePublishDue(Date.parse('2026-11-21T12:30:00Z')),
+    usPre: quotePublishDue(Date.parse('2026-11-23T09:05:00Z')), usRegular: quotePublishDue(Date.parse('2026-11-23T15:35:00Z')),
+    krOpen: quotePublishDue(Date.parse('2026-11-23T01:05:00Z')), holidayOff: quotePublishDue(Date.parse('2026-11-26T16:10:00Z'))
+  };
+  if (due.satOff || !due.satSlot || !due.usPre || !due.usRegular || !due.krOpen || due.holidayOff || policy.closedPublishIntervalMs !== 30 * 60000) fail(`v60.46 quote publication must follow the market clock: ${JSON.stringify(due)}`);
+  const originalFetch = globalThis.fetch;
+  const hosts = [];
+  globalThis.fetch = async (url, init = {}) => {
+    hosts.push(new URL(String(url)).host);
+    if (String(url).includes('api.github.com')) return init.method === 'POST' ? new Response(null, { status: 204 }) : Response.json({ workflow_runs: [] });
+    return Response.json({ chart: { result: [{ meta: { regularMarketPrice: 100, regularMarketTime: Math.floor(Date.parse('2026-11-20T21:00:00Z') / 1000), marketState: 'CLOSED', chartPreviousClose: 99 }, indicators: { quote: [{ close: [99, 100] }] } }] } });
+  };
+  const env = { GITHUB_DISPATCH_TOKEN: 'fixture', AIO_QUOTES_KV: { get: async () => null, put: async () => {} } };
+  const run = async (iso) => { hosts.length = 0; const jobs = []; await plane.scheduled({ scheduledTime: Date.parse(iso) }, env, { waitUntil: (p) => jobs.push(p) }); await Promise.all(jobs); return [...hosts]; };
+  try {
+    const offSlot = await run('2026-11-21T12:05:00Z'); // Saturday, an event-briefs dispatch slot
+    const closedSlot = await run('2026-11-21T12:30:00Z');
+    const openSlot = await run('2026-11-23T15:35:00Z');
+    const yahoo = (list) => list.filter((host) => host.endsWith('finance.yahoo.com')).length;
+    if (yahoo(offSlot) !== 0 || !offSlot.includes('api.github.com') || yahoo(closedSlot) < 16 || yahoo(openSlot) < 16) fail(`v60.46 scheduled() must skip off-hours quote fetches and keep the dispatches: ${JSON.stringify({ offSlot, closedSlot: yahoo(closedSlot), openSlot: yahoo(openSlot) })}`);
+  } finally { globalThis.fetch = originalFetch; }
+}
+
 console.log(JSON.stringify({ ok: true, worker: 'cron+kv', kvSmoke: 'health/fixture-pass', qg: ['QG-01', 'QG-06', 'QG-08'], deploy: 'exact-CI-attested-auto+rollback' }));

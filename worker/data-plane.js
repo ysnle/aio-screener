@@ -1,5 +1,6 @@
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
 import { createHttpClient } from '../src/platform/http.js';
+import { CLOSED_QUOTE_INTERVAL_MS, refreshIntervalMs } from '../src/app/refresh-session-policy.js';
 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 const DEFAULT_ORIGIN = 'https://ysnle.github.io';
@@ -21,7 +22,8 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
   kvFreeTierDailyLimit: KV_FREE_TIER_DAILY_LIMIT,
   warningDailyTarget: KV_WARNING_DAILY_TARGET,
   dispatchReceiptsPerDay: DISPATCH_RECEIPTS_PER_DAY,
-  // Normal upper bound: every run changes the current snapshot and the
+  closedPublishIntervalMs: CLOSED_QUOTE_INTERVAL_MS,
+  // Normal upper bound (a day with a session open throughout): every run changes the current snapshot and the
   // heartbeat is written only at its 15-minute liveness interval.
   maxSuccessfulKvWritesPerDay: SCHEDULED_RUNS_PER_DAY + HEARTBEAT_LIVENESS_WRITES_PER_DAY + DISPATCH_RECEIPTS_PER_DAY,
   // Worst case: every run changes the snapshot and also flips heartbeat
@@ -34,9 +36,9 @@ export const FAST_PLANE_WRITE_POLICY = Object.freeze({
 // 5-minute cron dispatches the workflow at :20 and :50. Without GITHUB_DISPATCH_TOKEN (a
 // fine-grained PAT with Actions: read/write on this repository only) it does nothing.
 export const REFRESH_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-data.yml', ref: 'main', slotMinutes: [20, 50], trigger: 'scheduler' });
-// The screener workflow's GitHub crons (06:53Z after the KR close, 21:53Z after the US close) are
-// best-effort too, so the same 5-minute cron backs them up 32 minutes later (07:25Z, 22:25Z): it
-// dispatches only when no run is active and none succeeded in the last 30 minutes, so an on-time
+// The screener workflow's GitHub crons (00:53/06:53/12:53/18:53Z, plus 21:53Z after the US close) are best-effort too,
+// so the same 5-minute cron backs up the two that follow a close (06:53Z after KR, 21:53Z after US) 32 minutes later
+// (07:25Z, 22:25Z): it dispatches only when no run is active and none succeeded in the last 150 minutes, so an on-time
 // cron run is not repeated. Its receipt lives under its own KV key so the two dispatchers never dedupe each other.
 export const SCREENER_DISPATCH_POLICY = Object.freeze({ workflow: 'refresh-screener.yml', ref: 'main', slotTimesUtc: Object.freeze(['07:25', '08:25', '09:25', '22:25', '23:25', '00:25']), kvKey: 'scheduler:dispatch:screener', recentSuccessMs: 150 * 60000 });
 // v60.14: a refused screener run (the validator fails closed) had no retry until the next cron, 6 h later; two gaps of 22-23 h
@@ -322,6 +324,17 @@ export async function publishQuotes({ env, now = Date.now(), fetchImpl = globalT
   return Object.freeze({ ok: true, published: true, snapshot, heartbeat, snapshotWritten: snapshotChanged, heartbeatWritten: heartbeatWrite.written, heartbeatWrittenAt: heartbeatWrite.writtenAt || null, heartbeatWriteReason: heartbeatWrite.reason });
 }
 
+// v60.46: quote publication follows the same market clock as the browser's quote polling (src/app/refresh-session-policy.js):
+// every 5-minute slot while a US session (04:00-20:00 ET; the futures, FX and VIX in the set trade pre/post) or a KRX
+// session is open, otherwise one slot per 30 minutes for BTC/ETH, the set's 24/7 rows (the other rows come back unchanged,
+// so the revision no-op skips their KV write). /quotes keeps serving the last snapshot, each quote with its own observedAt.
+// The workflow dispatches in scheduled() keep every 5-minute slot.
+export function quotePublishDue(scheduledTime) {
+  const at = Number(scheduledTime);
+  if (!Number.isFinite(at)) return true;
+  return at % refreshIntervalMs('quotes', SCHEDULE_INTERVAL_MS, at) < SCHEDULE_INTERVAL_MS;
+}
+
 // Fixed-length digest comparison (same style as the proxy Worker's token checks): timing does not depend on
 // where the supplied cron token first differs.
 async function constantTimeSecretEquals(expected, supplied) {
@@ -374,7 +387,7 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(publishQuotes({ env }));
+    if (quotePublishDue(controller?.scheduledTime ?? Date.now())) ctx.waitUntil(publishQuotes({ env }));
     ctx.waitUntil(dispatchRefreshData({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
     ctx.waitUntil(dispatchRefreshScreener({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));
     ctx.waitUntil(dispatchEventBriefs({ env, scheduledTime: controller?.scheduledTime ?? Date.now() }).catch(() => ({ dispatched: false, reason: 'dispatch-error' })));

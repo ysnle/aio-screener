@@ -64,10 +64,12 @@ const ALLOWED_DOMAINS = [
   'finance.yahoo.com',
   // 뉴스/RSS
   'api.rss2json.com',
-  'rss2json.com',
   // v57.81: Alpha Vantage, Twelve Data, Finnhub, FRED API, FMP, NewsData, Stooq and Nitter left the list.
   // Their personal-key and fallback clients were retired (v57.67-v57.79) and no browser path relays them;
-  // Actions producers call providers directly. js/aio-data.js _AIO_SHARED_WORKER_HOSTS mirrors this list.
+  // Actions producers call providers directly. src/data/providers/proxy-transport.js _AIO_SHARED_WORKER_HOSTS mirrors this list.
+  // v60.46: the fear-greed (CNN, fear-and-greed, alternative.me), FX reference (er-api, exchangerate-api) and translate hosts
+  // and the bare rss2json.com left too: the browser stopped calling them (translation moved to Actions in v57.55, the rest
+  // in v60.43-45 read the published artifacts) and the producers call CNN directly.
   // SEC
   'efts.sec.gov',
   'data.sec.gov',
@@ -80,18 +82,8 @@ const ALLOWED_DOMAINS = [
   'polling.finance.naver.com',
   'api.finance.naver.com',
   'fchart.stock.naver.com',
-  // Fear & Greed
-  'api.fear-and-greed.com',
-  'production.dataviz.cnn.io',
-  'api.alternative.me',
-  // 암호화폐
+  // 암호화폐 (simple/price: js/aio-data.js crypto quotes and cross-check)
   'api.coingecko.com',
-  // 환율
-  'open.er-api.com',
-  'api.exchangerate-api.com',
-  // 번역
-  'translate.googleapis.com',
-  'translate.google.com',
 ];
 
 // ── 봇/스캐너 User-Agent 차단 ────────────────────────────────────
@@ -171,7 +163,7 @@ function edgeCacheTtlByStatus(ttl) {
 
 function targetExpectsJson(parsedUrl) {
   const s = `${parsedUrl.hostname}${parsedUrl.pathname}`.toLowerCase();
-  return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me/.test(s);
+  return /\/api\/|finance\/chart|query1\.finance\.yahoo\.com|query2\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com/.test(s);
 }
 
 // Yahoo's chart endpoint at times answers 200 with every timestamp and most of the OHLC values null (measured 4 of 6

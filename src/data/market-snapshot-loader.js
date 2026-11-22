@@ -11,7 +11,8 @@ const USABLE_FAST_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
 // P1563: the quality labels are written when the Worker publishes and never recomputed. If the Worker stops (cron, quota or
 // provider outage) the last snapshot keeps its CURRENT labels for as long as it is served, and a three-day-old snapshot would
-// win over a fresh durable one. The Worker runs every five minutes, so its attemptedAt is a liveness signal; a fast-plane
+// win over a fresh durable one. The Worker publishes every five minutes while a US or KRX session is open and every 30 minutes
+// otherwise (v60.46), so its attemptedAt is a liveness signal; a fast-plane
 // snapshot older than this is no fresher than the durable one and the loader falls through to it.
 export const FAST_PLANE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 // Between two missed Worker crons and that limit the fast plane may already be behind the durable snapshot

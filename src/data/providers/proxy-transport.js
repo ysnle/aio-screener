@@ -23,14 +23,11 @@ export function installProxyTransport(window = globalThis) {
   // on feeds it would never relay. scripts/ci-proxy-continuity-check.mjs fails if this copy drifts from the Worker's.
   const _AIO_SHARED_WORKER_HOSTS = [
     'query1.finance.yahoo.com', 'query2.finance.yahoo.com', 'finance.yahoo.com',
-    'api.rss2json.com', 'rss2json.com',
+    'api.rss2json.com',
     'efts.sec.gov', 'data.sec.gov',
     'rsshub.app', 't.me',
     'm.stock.naver.com', 'api.stock.naver.com', 'polling.finance.naver.com', 'api.finance.naver.com', 'fchart.stock.naver.com',
-    'api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me',
-    'api.coingecko.com',
-    'open.er-api.com', 'api.exchangerate-api.com',
-    'translate.googleapis.com', 'translate.google.com'
+    'api.coingecko.com'
   ];
   function _aioSharedWorkerRelays(url) {
     var host;
@@ -153,7 +150,7 @@ export function installProxyTransport(window = globalThis) {
 
   function _aioProxyUrlExpectsJson(url) {
     url = String(url || '');
-    return /\/api\/|\/v\d+\/finance\/chart|finance\/chart|query[12]\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|production\.dataviz\.cnn\.io|api\.fear-and-greed\.com|api\.alternative\.me|api\.stlouisfed\.org|financialmodelingprep\.com|finnhub\.io|alphavantage\.co|twelvedata\.com/i.test(url);
+    return /\/api\/|\/v\d+\/finance\/chart|finance\/chart|query[12]\.finance\.yahoo\.com|m\.stock\.naver\.com|polling\.finance\.naver\.com|api\.stock\.naver\.com|api\.stlouisfed\.org|financialmodelingprep\.com|finnhub\.io|alphavantage\.co|twelvedata\.com/i.test(url);
   }
 
   function _aioProxyResponseLooksHtml(txt) {
