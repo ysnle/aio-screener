@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-22T12:51:45.383Z",
-  "attemptedAt": "2026-11-22T12:51:45.383Z",
-  "lastSuccessfulAt": "2026-11-22T12:51:45.383Z",
+  "generatedAt": "2026-11-22T13:51:43.729Z",
+  "attemptedAt": "2026-11-22T13:51:43.729Z",
+  "lastSuccessfulAt": "2026-11-22T13:51:43.729Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-08T12:51:39.440Z",
-  "until": "2026-11-22T12:51:39.440Z",
+  "since": "2026-11-08T13:51:39.842Z",
+  "until": "2026-11-22T13:51:39.842Z",
   "current24hWindow": {
     "start": "2026-11-20T23:00:00.000Z",
     "end": "2026-11-21T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1168,
-      "freshCount": 32,
-      "eligibleTextCount": 1107,
+      "count": 1166,
+      "freshCount": 19,
+      "eligibleTextCount": 1105,
       "selectedCount": 123,
       "error": null,
       "failingSince": null,
@@ -98,22 +98,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 175,
+      "count": 177,
       "freshCount": 40,
-      "eligibleTextCount": 175,
-      "selectedCount": 112,
+      "eligibleTextCount": 177,
+      "selectedCount": 114,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21234
+      "lastPostId": 21236
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 718,
-      "freshCount": 37,
-      "eligibleTextCount": 718,
+      "count": 717,
+      "freshCount": 17,
+      "eligibleTextCount": 717,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,50 +137,50 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2061,
-  "retainedItemCount": 427,
+  "count": 2060,
+  "retainedItemCount": 399,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2061,
-    "eligibleTextCount": 2000,
+    "observedCount": 2060,
+    "eligibleTextCount": 1999,
     "mediaOnlyCount": 61,
-    "mediaAttachedCount": 824,
-    "photoPostCount": 695,
+    "mediaAttachedCount": 822,
+    "photoPostCount": 693,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 336,
-    "broadSignalCount": 848,
-    "selectedRawCount": 360,
-    "selectedEligibleCount": 360,
-    "selectedRawCoveragePct": 18,
-    "selectedOfObservedPct": 17.5,
+    "highSignalCount": 335,
+    "broadSignalCount": 849,
+    "selectedRawCount": 362,
+    "selectedEligibleCount": 362,
+    "selectedRawCoveragePct": 18.1,
+    "selectedOfObservedPct": 17.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 638,
+    "semi": 639,
+    "healthcare": 47,
+    "macro": 283,
+    "japan": 52,
     "credit": 70,
     "equity": 146,
-    "market-note": 732,
+    "market-note": 730,
     "geo": 262,
-    "macro": 282,
     "earnings": 258,
-    "power": 213,
+    "power": 212,
     "kr-market": 88,
-    "japan": 51,
-    "healthcare": 46,
     "optical": 21,
     "flows": 52,
     "media-only": 60,
-    "ai-policy": 144,
+    "ai-policy": 143,
     "insider": 2
   },
   "tickerCounts": {
+    "NVDA": 409,
     "APO": 1,
     "TSLA": 29,
-    "NVDA": 408,
     "SMCI": 4,
     "CRWV": 14,
     "AMD": 55,
@@ -238,7 +238,7 @@
     "JD": 2,
     "SPGI": 1,
     "SNDK": 2,
-    "CAT": 2,
+    "CAT": 1,
     "ARM": 1,
     "319660.KQ": 1,
     "066570.KS": 1,
@@ -262,19 +262,19 @@
     "006400.KS": 1
   },
   "themes": [
-    "Market Notes (732 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
-    "Semiconductors/Memory (638 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
-    "Macro/Rates (282 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Market Notes (730 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
+    "Semiconductors/Memory (639 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
+    "Macro/Rates (283 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
     "Geopolitics (262 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한...",
     "Earnings/Corporate (258 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (213 posts in 14-day research window): >>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+    "AI Power/Grid (212 posts in 14-day research window): >>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
     "Equity/Analyst (146 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO...",
-    "AI Policy/Export Controls (144 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
+    "AI Policy/Export Controls (143 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 408,
+      "count": 409,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
@@ -340,7 +340,7 @@
       "topics": [
         "macro"
       ],
-      "count": 282,
+      "count": 283,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -367,7 +367,7 @@
       "topics": [
         "semi"
       ],
-      "count": 638,
+      "count": 639,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
     },
     {
@@ -385,7 +385,7 @@
       "topics": [
         "power"
       ],
-      "count": 213,
+      "count": 212,
       "focus": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력..."
     },
     {
@@ -394,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 144,
+      "count": 143,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 46,
+      "count": 47,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -448,7 +448,7 @@
       "topics": [
         "japan"
       ],
-      "count": 51,
+      "count": 52,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -475,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 732,
+      "count": 730,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
     }
   ],
@@ -1678,6 +1678,40 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21236",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21236",
+      "datetime": "2026-11-22T13:50:38.000Z",
+      "localDateKst": "2026-11-22",
+      "tags": [
+        "semi",
+        "healthcare"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "씨티: AI 수요 불확실성으로 2027년 상반기(1H27E) 메모리 현물 가격 약세 전망, 하반기(2H27E) 반등 예상 — AI 수요 불확실성 속에서 2027년 상반기(1H27E) DRAM 및 NAND 현물..."
+    },
+    {
+      "id": "bornlupin/21235",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21235",
+      "datetime": "2026-11-22T13:40:41.000Z",
+      "localDateKst": "2026-11-22",
+      "tags": [
+        "macro",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "민주당, 트럼프의 감세 및 관세 정책 되돌리기 추진 1. 민주당, 트럼프 경제정책 전면 재검토 추진 민주당은 2026년 중간선거에서 공화당이 큰 패배를 기록한 이후 의회 권력을 활용해 트럼프 행정부의..."
+    },
+    {
       "id": "HANAchina/72557",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72557",
@@ -2027,15 +2061,13 @@
       "localDateKst": "2026-11-22",
       "tags": [
         "macro",
-        "earnings",
-        "semi",
-        "japan"
+        "earnings"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>주간 글로벌 이벤트 - 미 PCE·GDP·미 연준 베이지북·중국 빅테크 실적 집중…AI 투자 및 금리 경로 주목 (중국언론) •미국 물가·GDP : 11월 25일 미국 10월 PCE 물가지수와 3분기..."
+      "summary": ">>주간 글로벌 이벤트 - 미 PCE·GDP·미 연준 베이지북·중국 빅테크 실적 집중…AI 투자 및 금리 경로 주목 (중국언론) •미국 물가·GDP : 11월 25일 미국 10월 PCE 물가지수와 3분기...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "insidertracking/69940",
@@ -2044,15 +2076,14 @@
       "datetime": "2026-11-22T01:04:26.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "semi"
+        "market-note"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "파이낸셜타임스(FT)에 따르면 메가스피드 전 임원 앨리스 황이 클라우드 협력업체, 게임업계 거물, 인신매매 연루 의혹을 받는 캄보디아 관계자, 수백 개의 페이퍼컴퍼니로 구성된 네트워크와 연결돼 있었으며, 이...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "파이낸셜타임스(FT)에 따르면 메가스피드 전 임원 앨리스 황이 클라우드 협력업체, 게임업계 거물, 인신매매 연루 의혹을 받는 캄보디아 관계자, 수백 개의 페이퍼컴퍼니로 구성된 네트워크와 연결돼 있었으며, 이..."
+      ]
     },
     {
       "id": "HANAchina/72523",
@@ -2065,10 +2096,10 @@
       ],
       "score": 61,
       "hasText": true,
+      "summary": ">>대만 증시 급락은 젠슨 황 때문? 대만 경제부 “AI 추세는 ‘개별 기업’의 영향 받지 않아” (대만공상시보) •대만 증시가 급락한 가운데 NVIDIA CEO 젠슨 황의 사임으로 인한 불확실성이 주요...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>대만 증시 급락은 젠슨 황 때문? 대만 경제부 “AI 추세는 ‘개별 기업’의 영향 받지 않아” (대만공상시보) •대만 증시가 급락한 가운데 NVIDIA CEO 젠슨 황의 사임으로 인한 불확실성이 주요..."
+      ]
     },
     {
       "id": "insidertracking/69918",
@@ -2219,12 +2250,12 @@
       "datetime": "2026-11-21T08:38:01.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>대만 금감회, ‘기준가 이하 공매도 전면 금지’ 등 5개 조치 발표 (대만경제일보) •최근 대만 증시의 변동성이 크게 확대되면서 대만 금융감독관리위원회는 증권시장 질서와 안정성 유지를 위해 11월..."
+      "summary": ">>대만 금감회, ‘기준가 이하 공매도 전면 금지’ 등 5개 조치 발표 (대만경제일보) •최근 대만 증시의 변동성이 크게 확대되면서 대만 금융감독관리위원회는 증권시장 질서와 안정성 유지를 위해 11월...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69899",
@@ -4719,10 +4750,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프, 향후 미국이 중국에 블랙웰 칩을 판매할 수 있다고 시사 도널드 트럼프 미국 대통령은 엔비디아(Nvidia)의 수요가 높은 블랙웰(Blackwell) 칩이 더 이상 시장에서 가장 첨단 제품에 속하지...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프, 향후 미국이 중국에 블랙웰 칩을 판매할 수 있다고 시사 도널드 트럼프 미국 대통령은 엔비디아(Nvidia)의 수요가 높은 블랙웰(Blackwell) 칩이 더 이상 시장에서 가장 첨단 제품에 속하지..."
+      ]
     },
     {
       "id": "insidertracking/69695",
@@ -4817,14 +4848,13 @@
       "datetime": "2026-11-19T00:08:05.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "equity",
-        "ai-policy"
+        "ai-policy",
+        "equity"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": "앤트로픽 IPO, 813억 달러 조달…스페이스X의 기록적인 증시 데뷔 규모 추월 최종 공모가격은 주당 83달러로 확정 앤트로픽(Anthropic PBC)과 공동창업자 7명이 기업공개(IPO) 규모를 확대하면서..."
+      "summary": "앤트로픽 IPO, 813억 달러 조달…스페이스X의 기록적인 증시 데뷔 규모 추월 최종 공모가격은 주당 83달러로 확정 앤트로픽(Anthropic PBC)과 공동창업자 7명이 기업공개(IPO) 규모를 확대하면서...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69694",
@@ -8410,12 +8440,12 @@
       "datetime": "2026-11-21T08:38:01.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>대만 금감회, ‘기준가 이하 공매도 전면 금지’ 등 5개 조치 발표 (대만경제일보) •최근 대만 증시의 변동성이 크게 확대되면서 대만 금융감독관리위원회는 증권시장 질서와 안정성 유지를 위해 11월..."
+      "summary": ">>대만 금감회, ‘기준가 이하 공매도 전면 금지’ 등 5개 조치 발표 (대만경제일보) •최근 대만 증시의 변동성이 크게 확대되면서 대만 금융감독관리위원회는 증권시장 질서와 안정성 유지를 위해 11월...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69899",
