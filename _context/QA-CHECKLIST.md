@@ -1,10 +1,14 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-20
+last_verified: 2026-11-22
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.45 차트 화면 AI 패널 (2026-11-22)
+
+- [x] QA-AI-CHARTS-PANEL-01: 기술적 분석 화면(#technical, #charts)에서 AI 패널을 열면 입력창과 전송 버튼이 켜져 있고, 모든 라우트에 패널 컨텍스트가 있다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
 
 ## v60.32 축소 배치와 배포 정지 복구 (2026-11-20)
 

@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2713 - v60.45 - 차트(기술적 분석) 화면에서 AI 입력창이 꺼져 있었다 (2026-11-22)
+
+- symptom/reproduction: #technical 또는 #charts 화면에서 AI 패널을 열면 "AI 분석은 주요 분석 페이지에서 사용할 수 있습니다."만 보이고 입력창과 전송 버튼이 비활성이었다. 실서비스 평가의 RSI 정의 문항(def-rsi)이 v60.42, v60.44 두 번 모두 입력창 대기 시간 초과로 끝났다. 다른 19개 화면은 정상.
+- root_cause: v59.64에서 기술적 분석 화면의 라우트가 charts가 되고 #technical이 그리로 열리게 됐는데, 채팅 패널의 화면→컨텍스트 표(_aiCtxMap, js/aio-chat.js)에는 technical 키만 있었다. window.PAGES에는 charts의 chatCtx: 'technical'이 적혀 있었지만 그 필드를 읽는 코드가 없어, 표가 둘인 채로 어긋남이 가려졌다. 평가 도구의 오류를 답 품질 문제로만 보고 화면을 열어 보지 않아 두 번 놓쳤다.
+- fix: _aiCtxMap에 charts → technical을 넣었다. 아무도 읽지 않는 window.PAGES의 chatCtx 필드는 지웠다(표를 하나로). 게이트가 vertical-slices의 모든 라우트에 패널 컨텍스트가 있는지 전수 검사한다.
+- violated_rule: 없음 (새 라우트를 더할 때 채팅 패널 표를 함께 보게 하는 검사가 없었다)
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs: VERTICAL_SLICE_CONTRACTS의 모든 라우트가 _aiCtxMap 또는 panel-contexts.js에 등록돼 있어야 한다. 고치기 전 코드에서 charts로 실패함을 확인했다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (고친 코드 통과, 이전 js/aio-chat.js로 실패). 로컬 화면에서 #technical의 AI 입력창이 켜지는지 확인.
+- files: js/aio-chat.js, js/aio-core.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2712 - v60.44 - v60.44 history.json was committed whole 293 times in a week when only check clocks moved (2026-11-22)
 
 - symptom/reproduction: 2026-11-15..21: public-data/history.json (4 MB) was rewritten in 293 data commits (1,166 MB raw, 32 MB packed of about 97 MB weekly repository growth). On a closed Saturday two consecutive commits differed only in rows.*.fieldMeta.*.checkedAt and rows.*.marketSnapshotRevision.
