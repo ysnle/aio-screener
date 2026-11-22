@@ -6200,7 +6200,6 @@ window.AIO.getStaticSeedFallbackAudit = function() {
     'core-cpi-sa-yoy': 'coreCpiSa',
     'tnx-2y': 'tnx2y',
     'krw-full': 'krw',
-    'vkospi-chg': 'vkospiPct',
     'skew-pct': 'skewChg',
     'kr-cpi-yoy': 'krCpi', 'kr-cpi-read': 'krCpi' // v58.74: the target-gap sentence reads the same CPI value
   };
@@ -7999,7 +7998,7 @@ window.AIO.classifyStaticDateKey = function(key, contextText) {
   var text = String(contextText || '').toLowerCase();
   if (/archive|jensen|interview|narrative|memo|research/.test(key) || /archive|past reference|static summary|knowledge base/.test(text)) return 'archive';
   if (/option|iv|gex|gamma|max-pain/.test(key)) return 'optionSnapshot';
-  if (/kr-|kospi|kosdaq|korea|bok|vkospi/.test(key)) return /issue|news|feed/.test(key + ' ' + text) ? 'newsPipeline' : 'krSnapshot';
+  if (/kr-|kospi|kosdaq|korea|bok/.test(key)) return /issue|news|feed/.test(key + ' ' + text) ? 'newsPipeline' : 'krSnapshot';
   if (/issue|news|feed|headline|calendar/.test(key)) return 'newsPipeline';
   if (/tnx|yield|macro|fx|bond|credit|deposit|advance|decline/.test(key)) return 'marketSnapshot';
   return 'staticSnapshot';
@@ -10698,7 +10697,7 @@ const DATA_SNAPSHOT = {
   dow:null, dowPct:null, rut:null, rutPct:null,
   kospi:null, kospiPct:null, kospiPrev:null, kosdaq:null, kosdaqPct:null, kosdaqPrev:null,
   vix:null, vixPct:null, vix9d:null, vix3m:null, vix6m:null, vvix:null, vvixChg:null,
-  move:null, moveChg:null, skew:null, skewChg:null, vkospi:null, vkospiPct:null,
+  move:null, moveChg:null, skew:null, skewChg:null,
   wti:null, wtiPct:null, brent:null, brentPct:null, gold:null, goldPct:null,
   goldWeeklyPct:null, silver:null, silverPct:null, ng:null,
   krw:null, krwPct:null, krwRound:null, dxy:null, dxyPct:null,
@@ -11429,12 +11428,6 @@ function applyDataSnapshot() {
       // v52.16 P5m/P618: HY 스프레드 HTML 하드코딩(289bp)이 DATA_SNAPSHOT.hySpread(275bp)와
       // applyDataSnapshot()에 배선이 없어 서로 다른 값으로 독립 표류하던 문제 — 매핑 추가.
       'hy-spread':     _snap.fixed(S.hySpread, 0) + ' bps',
-      // v49.58 P278: VKOSPI 라벨 자동 부착 (정상<20 / 경계 20~25 / 공포 25~35 / 극단공포 35+)
-      // FABLE-LIVE-AUDIT-2026-07-07 C4/Phase L1: 이 함수(applyDataSnapshot)는 refreshAllCriticalPages 등
-      // 주기적 새로고침마다 재실행되며, S.vkospi는 P605 이후에도 갱신 안 되는 고정 추정 시드(18756행)다.
-      // "정상/공포" 같은 단정 라벨을 시드값에 그대로 붙이면 실제 라이브 급변(fetchVkospiDynamic 성공) 이전에도
-      // 확정적으로 읽혀 위기 상황에서 오정보가 된다 — 폴백 경로임을 라벨에 명시.
-      'vkospi':        '—', // live VKOSPI only; static seed is reference-only
       // 금리 (폴백값용 — data-live-price 실시간이 우선)
       'tnx':           unit(S.tnx, 2, '%'),
       'tnx-2y':        '—', // individual 2Y requires DGS2/live observation; never infer from a spread
@@ -11550,8 +11543,6 @@ function applyDataSnapshot() {
       '^GDAXI': { price: S.dax, pct: S.daxPct },
       '^FTSE': { price: S.ftse, pct: S.ftsePct },
       '^FCHI': { price: S.cac, pct: S.cacPct },
-      // v34.6: 한국 채권·변동성 fallback
-      'VKOSPI': { price: S.vkospi, pct: null },
     };
     if (!Number.isFinite(snapTs)) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'snap', 'snapshot timestamp unavailable; fallback seed skipped');

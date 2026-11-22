@@ -5,10 +5,31 @@ import { round } from '../lib/producer-math.mjs';
 import { fetchJSON } from '../lib/producer-http.mjs';
 import { FRED_SERIES } from '../lib/macro-sources.mjs';
 import { deriveFredCycle } from '../lib/refresh-continuity.mjs';
+import { SERIES_RELEASE_CALENDAR, seriesFetchDue } from '../lib/series-fetch-due.mjs';
+
+// v60.46 (static-dynamic audit rec. 10): a monthly series with an official release calendar is fetched only when the
+// shared refetch rule says so (its interval passed, or its release watch is open: every run from the print time for
+// 12 hours, so a new print arrives on the first run after FRED posts it). Between releases the plane carries its own
+// previous reading with that reading's observation date. Only a reading this plane published (source
+// fred-official-primary, observed) is carried; a BLS/BEA-promoted or last-known-good value is refetched. Monthly series
+// without a calendar (FEDFUNDS, HOUST) and the daily series are fetched every run.
+export function carriedFredReading(field, spec, previous, { nowMs = Date.now(), schedules = null } = {}) {
+  if (spec.frequency !== 'monthly' || !SERIES_RELEASE_CALENDAR[spec.id] || !previous) return null;
+  if (previous[`_source_${field}`] !== 'fred-official-primary' || previous[`_freshness_${field}`] !== 'observed') return null;
+  const value = previous[field];
+  const asOf = String(previous[`_asOf_${field}`] || '');
+  if (typeof value !== 'number' || !Number.isFinite(value) || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return null;
+  const fetchedAt = previous._fetchedAt?.[field] || null;
+  if (seriesFetchDue(spec, Date.parse(fetchedAt || ''), { nowMs, schedules })) return null;
+  const reading = { [field]: value, [`_asOf_${field}`]: asOf };
+  for (const key of [`${field}Delta`, `${field}Delta5`]) if (key in previous) reading[key] = previous[key];
+  return { reading, fetchedAt };
+}
 
 // ── FRED ──
-export async function fetchFred(key) {
-  const attemptedAt = new Date().toISOString();
+// `previous` is the last published data.json macro; `schedules` the macro-calendar.json release dates.
+export async function fetchFred(key, { previous = null, schedules = null, nowMs = Date.now(), fetchFn = fetchJSON } = {}) {
+  const attemptedAt = new Date(nowMs).toISOString();
   if (!key) return {
     _source: 'fred:no-key',
     _attemptedAt: attemptedAt,
@@ -21,16 +42,26 @@ export async function fetchFred(key) {
   // series broke. enrichFundamentals (FMP) already detects and surfaces plan/auth errors
   // explicitly; this brings FRED to the same standard so a stale/broken series (the mechanism
   // behind Fed/BOJ/BOK/BOE rates going 15-62 days stale) is visible instead of silent.
-  const out = { _source: 'fred', _attemptedAt: attemptedAt, _failedSeries: [], _successfulSeries: [] };
+  // `_fetchedAt` holds the last fetch of each series (a carried series keeps its earlier one) for the refetch rule.
+  const out = { _source: 'fred', _attemptedAt: attemptedAt, _failedSeries: [], _successfulSeries: [], _fetchedAt: {} };
   const markFailed = (field) => {
     if (!out._failedSeries.includes(field)) out._failedSeries.push(field);
   };
+  const carriedFields = [];
   for (const [field, spec] of Object.entries(FRED_SERIES)) {
+    const carried = carriedFredReading(field, spec, previous, { nowMs, schedules });
+    if (carried) {
+      Object.assign(out, carried.reading);
+      out._fetchedAt[field] = carried.fetchedAt;
+      out._successfulSeries.push(field);
+      carriedFields.push(field);
+      continue;
+    }
     try {
       const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}` +
         `&api_key=${key}&file_type=json&sort_order=desc&limit=14`;
       // P1336: one transient runner→FRED abort failed CPI/UNRATE for a whole cycle; retry once after 3 s.
-      const j = await fetchJSON(url).catch(async () => { await new Promise((r) => setTimeout(r, 3000)); return fetchJSON(url); });
+      const j = await fetchFn(url).catch(async () => { await new Promise((r) => setTimeout(r, 3000)); return fetchFn(url); });
       // A provider can return an HTTP-success JSON envelope containing no
       // usable observations (rate-limit/error payload, '.', or NaN).  Such a
       // response is a failed series, never a current null/zero observation.
@@ -115,6 +146,7 @@ export async function fetchFred(key) {
       if (succeeded) {
         out._successfulSeries.push(field);
         out['_asOf_' + field] = obs[0].d;
+        out._fetchedAt[field] = attemptedAt;
       } else {
         markFailed(field);
       }
@@ -123,6 +155,7 @@ export async function fetchFred(key) {
       console.warn(`[fetch-data] FRED series 실패: ${field} (${spec.id}) — ${e.message}`);
     }
   }
+  if (carriedFields.length) console.log(`[fetch-data] FRED: ${carriedFields.length} monthly series between releases carried (${carriedFields.join(', ')})`);
   return out;
 }
 

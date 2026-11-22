@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-kr-data.js — P1134/R620: index.html 인라인 블록 C(3,473줄)에서 추출한 KR/SEC 데이터 플레인.
 // KR 테마 카드·심층분석(filterKrThemes/initKoreaThemes/showKrThemeDetail/_buildKrThemeDeepAnalysis),
-// VKOSPI 동적 수집(fetchVkospiDynamic; v58.76: 브라우저 이력과 개발자 전용 카드는 퇴역)
+// (v60.46: VKOSPI 브라우저 수집은 읽는 화면이 없어 퇴역 — 값은 어디에도 표시되지 않았다),
 // (P1671: KR 수급·투자자 TOP10 수집은 표시 소비처가 없어 퇴역), KR_STOCK_DB/KR_THEME_MAP/_KR_SECTOR_MAP,
 // (v59.51: SEC 공시·재무 helpers는 레거시 재무 검색과 함께 퇴역).
 //
@@ -103,7 +103,7 @@ function filterKrSector(btn, sector) {
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
 // v53.7 (P725): KR 전용 5페이지를 themes/macro/technical 통합 섹션으로 이관 —
 // 트리거를 통합 대상 페이지로 재배선. kr-home/kr-supply는 퇴역(전용 init 삭제),
-// 공유 데이터 fetch(수급/VKOSPI/동적)는 _aioEnsureKrDataLoaded()로 1회 보장.
+// 공유 데이터 fetch(KR 시세)는 _aioEnsureKrDataLoaded()로 1회 보장.
 function _aioEnsureKrDataLoaded() {
   if (window._krDynamicLoaded) return;
   window._krDynamicLoaded = true;
@@ -587,65 +587,6 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   }).join('');
   h += '</div>';
   return h;
-}
-
-// v29.4: Naver Finance 수급 데이터 가져오기 (CORS 프록시 경유)
-async function _aioReadKrJsonResponse(r, label) {
-  var txt = await r.text();
-  var probe = String(txt || '').trimStart();
-  if (/^<!doctype\s+html/i.test(probe) || /^<html[\s>]/i.test(probe)) throw new Error((label || 'KR API') + ' HTML block page');
-  var data = JSON.parse(txt);
-  if (data && typeof data.contents === 'string') {
-    var nested = data.contents.trim();
-    if (/^<!doctype\s+html/i.test(nested) || /^<html[\s>]/i.test(nested)) throw new Error((label || 'KR API') + ' proxy HTML block page');
-    try { data = JSON.parse(nested); } catch(_) {}
-  }
-  return data;
-}
-
-// ══════════════════════════════════════════════════════════════════
-// v35.7: 한국 시장 동적 데이터 fetch 모듈
-// VKOSPI · 거래대금 · 외국인 TOP · 주간 수급 · 공매도 (네이버 API + 프록시 체인)
-// ══════════════════════════════════════════════════════════════════
-
-// v58.76: the browser-side VKOSPI history (aio_vkospi_hist_v1) fed only the retired developer-only chart.
-var AIO_VKOSPI_FAIL_THRESHOLD = 3;
-var _vkospiFailCount = 0;
-var _vkospiLastOkTs = null;
-function _vkospiIsFailedState() { return _vkospiFailCount >= AIO_VKOSPI_FAIL_THRESHOLD; }
-function _showVkospiFailureState(reason) {
-  // P1142: 실패 상태 진입 시 라이브 플래그를 해제한다 — 성공 시 켜진 _vkospiLiveOk가
-  // 실패 후에도 true로 남아 배너/채팅이 정지된 스냅샷 값을 현재값처럼 인용하는 것을 방지(P713 계약 유지).
-  window._vkospiLiveOk = false;
-  var lastOkText = _vkospiLastOkTs ? ('마지막 성공 ' + new Date(_vkospiLastOkTs).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })) : '성공 이력 없음';
-  var fullReason = (reason || '프록시/데이터 실패') + ', ' + lastOkText;
-  window._vkospiFailureReason = fullReason; // v58.76: the developer-only VKOSPI cards that showed it are retired
-}
-
-// ── 1. VKOSPI 실시간 값 + 차트 데이터 ──
-async function fetchVkospiDynamic() {
-  try {
-    var url = 'https://m.stock.naver.com/api/index/VKOSPI/basic';
-    var r = await fetchViaProxy(url, 8000);
-    if (!r || !r.ok) { _vkospiFailCount++; if (_vkospiIsFailedState()) _showVkospiFailureState('프록시 응답 실패'); return; }
-    var d = await _aioReadKrJsonResponse(r, 'VKOSPI basic');
-    var val = parseFloat(d.closePrice || d.now || d.indexValue);
-    if (!val || isNaN(val)) { _vkospiFailCount++; if (_vkospiIsFailedState()) _showVkospiFailureState('응답 값 파싱 실패'); return; }
-    _vkospiFailCount = 0;
-    _vkospiLastOkTs = Date.now();
-    // M11 (v57.48): the 15/20/25/35 colour bands and 정상/경계/공포 labels had no published basis — value and date only.
-    var vDay = String(d.localTradedAt || d.tradedAt || '').slice(0, 10), vText = val.toFixed(2) + (/^\d{4}-\d{2}-\d{2}$/.test(vDay) ? ' (' + Number(vDay.slice(5, 7)) + '/' + Number(vDay.slice(8, 10)) + ')' : '');
-    window._vkospiLastText = vText;
-    // DATA_SNAPSHOT 동기화 — live 성공 플래그(P713): 배너/채팅 컨텍스트는 이 플래그가
-    // true일 때만 vkospi를 현재값으로 사용한다(시드 16.00이 라벨 없이 노출되는 것 방지).
-    if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.vkospi = val;
-    window._vkospiLiveOk = true;
-    console.log('[KR] VKOSPI 동적 업데이트:', val);
-  } catch(e) {
-    _vkospiFailCount++;
-    if (_vkospiIsFailedState()) _showVkospiFailureState('fetch 예외: ' + e.message);
-    _aioLog('warn', 'fetch', 'KR VKOSPI fetch 실패: ' + e.message);
-  }
 }
 
 // v59.42: _enrichMarketCap is retired. It walked KR_STOCK_DB by index, but KR_STOCK_DB is an object keyed by code, so it

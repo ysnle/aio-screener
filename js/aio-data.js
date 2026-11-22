@@ -4585,18 +4585,12 @@ window.LIVE_SYMBOLS = LIVE_SYMBOLS;
 
 // v59.28: fetchKrNaverQuotes and fetchKrDailyCandles moved to src/data/providers/naver-kr.js.
 
-// v51.08: krDynamic 스케줄러가 참조하는 통합 KR 동적 데이터 갱신 함수
-// v52.7 P605/R280: 이 선언이 index.html 인라인 스크립트의 동명 함수(VKOSPI 포함 6종 fetch)를
-// defer 로드 순서상 항상 덮어써 왔음 — VKOSPI 실시간 fetch가 영구 미실행이었던 근본원인.
-// fetchVkospiDynamic만 최소 복구(다른 5종은 정확성 미검증 상태로 범위 밖에 남김 — BUG-POSTMORTEM P605 참조).
-// v53.9 P728: KR 전용 페이지 퇴역 후 개별 종목 투자자 TOP10 sink도 사라졌다.
-// 최대 24개 Naver 요청만 남은 fetchKrInvestorTop10은 공유 KR 로더에서 제거한다.
+// v51.08: the krDynamic scheduler task (P605/R280: index.html once held a shadowed copy of this function).
+// v60.46: the VKOSPI fetch left with its last reader (no screen showed the value; KRX redistribution rights are
+// unresolved, reconciliation 'kr-macro-vkospi-supply'). The task is the Naver KR quotes alone, still as an allSettled
+// batch so a failed fetch is a scheduler 'failed' state rather than a thrown retry.
 async function fetchKrDynamicData() {
-  const results = await Promise.allSettled([
-    typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null),
-    typeof fetchVkospiDynamic === 'function' ? fetchVkospiDynamic() : Promise.resolve(null)
-  ]);
-  return results;
+  return Promise.allSettled([typeof fetchKrNaverQuotes === 'function' ? fetchKrNaverQuotes() : Promise.resolve(null)]);
 }
 
 function _aioPlanQuoteGroups(requestedSymbols, coreSymbols) {

@@ -14,14 +14,51 @@ const read = (file) => fs.readFileSync(new URL(`../${file}`, import.meta.url), '
 // R3: a series is refetched by its frequency or a due release, never on every cycle.
 const macro = await import('./producer/macro-history.mjs');
 {
-  const nowMs = Date.parse('2026-11-10T13:30:00Z'); // 08:30 ET on a CPI day, before the 09:00 ET due time
+  const nowMs = Date.parse('2026-11-10T13:00:00Z'); // 08:00 ET on a CPI day, before the 08:30 ET print (v60.46: was 09:00)
   const fresh = (at) => ({ observations: [['2026-09-01', 1], ['2026-10-01', 2]], fetchedAt: at, stale: false });
   const schedules = { 'us-cpi': ['2026-11-10'] };
-  check('v59.70 R3 a monthly series fetched an hour ago is not refetched', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:30:00Z'), { nowMs, schedules }) === false);
-  check('v59.70 R3 a scheduled CPI release makes the CPI series due from 09:00 ET', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:30:00Z'), { nowMs: Date.parse('2026-11-10T14:05:00Z'), schedules }) === true);
+  check('v59.70 R3 a monthly series fetched an hour ago is not refetched', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:00:00Z'), { nowMs, schedules }) === false);
+  check('v59.70 R3 a scheduled CPI release makes the CPI series due from the 08:30 ET print', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:00:00Z'), { nowMs: Date.parse('2026-11-10T13:35:00Z'), schedules }) === true);
+  // v60.46: the release watch keeps a calendar series due on every run for 12 hours from the print, so a print FRED posts
+  // after the first post-release fetch still arrives on the next run; a calendar the run could not read fails open.
+  const cpi = { id: 'CPIAUCSL', frequency: 'monthly' };
+  check('v60.46 a series fetched after the print stays due while the release watch is open', macro.macroSeriesDue(cpi, fresh('2026-11-10T14:10:00Z'), { nowMs: Date.parse('2026-11-10T14:40:00Z'), schedules }) === true);
+  check('v60.46 the release watch closes 12 hours after the print', macro.macroSeriesDue(cpi, fresh('2026-11-11T01:40:00Z'), { nowMs: Date.parse('2026-11-11T02:10:00Z'), schedules }) === false);
+  check('v60.46 a calendar series without a readable calendar is due (fail open)', macro.macroSeriesDue(cpi, fresh('2026-11-10T12:00:00Z'), { nowMs, schedules: null }) === true);
   check('v59.70 R3 a daily series is refetched after its interval', macro.macroSeriesDue({ id: 'DGS10', frequency: 'daily' }, fresh('2026-11-10T09:00:00Z'), { nowMs }) === true);
   check('v59.70 R3 a stale (failed) series is retried every run', macro.macroSeriesDue({ id: 'DGS10', frequency: 'daily' }, { ...fresh('2026-11-10T13:00:00Z'), stale: true }, { nowMs }) === true);
   check('v59.70 R3 writeMacroHistory consults macroSeriesDue before fetching', /macroSeriesDue\(spec, prior, \{ nowMs, schedules \}\)/.test(read('scripts/producer/macro-history.mjs')));
+}
+
+// v60.46 (static-dynamic audit rec. 10): the data.json FRED plane uses the same refetch rule. Between releases a monthly
+// calendar series is carried from the previous macro with its observation date; FEDFUNDS, HOUST and the daily series are
+// fetched every run, and a release watch refetches its series. The old plane fetched all 23 series on every run.
+{
+  const { fetchFred } = await import('./producer/fred.mjs');
+  const { FRED_SERIES } = await import('./lib/macro-sources.mjs');
+  const schedules = { 'us-cpi': ['2026-11-10', '2026-12-10'], 'us-pce': ['2026-11-25'], 'us-nfp': ['2026-11-06'], 'us-retail': ['2026-11-17'], 'us-fed-rate': ['2026-12-09'] };
+  const previousAt = (fetchedAt) => {
+    const previous = { _fetchedAt: {} };
+    for (const field of Object.keys(FRED_SERIES)) {
+      Object.assign(previous, { [field]: 2.5, [`_asOf_${field}`]: '2026-10-01', [`_source_${field}`]: 'fred-official-primary', [`_freshness_${field}`]: 'observed' });
+      previous._fetchedAt[field] = fetchedAt;
+    }
+    previous._source_retailSales = 'last-known-good'; // a carried last-known-good value is never carried again
+    return previous;
+  };
+  const run = async (nowIso, sched) => {
+    const previous = previousAt(new Date(Date.parse(nowIso) - 3600000).toISOString());
+    const asked = [];
+    const out = await fetchFred('key', { previous, schedules: sched, nowMs: Date.parse(nowIso), fetchFn: async (url) => { asked.push(/series_id=([^&]+)/.exec(url)[1]); return { observations: [] }; } });
+    return { asked, out };
+  };
+  const quiet = await run('2026-11-18T13:00:00Z', schedules);
+  const carried = ['cpi', 'coreCpi', 'cpiSa', 'coreCpiSa', 'pce', 'corePce', 'unemployment', 'nfp', 'usWageGrowth'];
+  check('v60.46 between releases the FRED plane skips the monthly calendar series', carried.every((field) => !quiet.asked.includes(FRED_SERIES[field].id)), quiet.asked.join(','));
+  check('v60.46 FEDFUNDS, HOUST, a last-known-good series and every daily series are still fetched each run', quiet.asked.length === Object.keys(FRED_SERIES).length - carried.length && ['FEDFUNDS', 'HOUST', 'RSAFS', 'DGS10', 'DFEDTARU'].every((id) => quiet.asked.includes(id)), quiet.asked.join(','));
+  check('v60.46 a carried reading keeps its value, observation date and earlier fetch time', quiet.out.cpi === 2.5 && quiet.out._asOf_cpi === '2026-10-01' && quiet.out._fetchedAt.cpi === '2026-11-18T12:00:00.000Z' && quiet.out._attemptedAt === '2026-11-18T13:00:00.000Z' && quiet.out._successfulSeries.includes('cpi'));
+  const cpiDay = await run('2026-12-10T13:40:00Z', schedules);
+  check('v60.46 on a CPI release day the CPI series are fetched from the print', ['CPIAUCNS', 'CPILFENS', 'CPIAUCSL', 'CPILFESL'].every((id) => cpiDay.asked.includes(id)) && !cpiDay.asked.includes('PCEPI'), cpiDay.asked.join(','));
 }
 
 // R4: producer-only files stay off Pages; the unread score backtest is rebuilt at most daily.

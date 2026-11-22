@@ -51,7 +51,8 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
   return [
     { id: 'quotes', label: 'quote', run: () => mapLimit(SYMBOLS, 6, fetchQuote),
       fallback: () => SYMBOLS.map((symbol) => ({ __error: true, item: symbol, msg: 'quote-plane-failed' })) },
-    { id: 'fred', label: 'FRED', run: () => fetchFred(env.FRED_API_KEY),
+    // v60.46: the previous macro and the release calendar let a monthly series skip the fetch between its releases.
+    { id: 'fred', label: 'FRED', run: () => fetchFred(env.FRED_API_KEY, { previous: prior.macro, schedules: blsReleaseSchedules }),
       fallback: () => ({ _source: 'fred:unavailable', _attemptedAt: attemptedAt, _successfulSeries: [], _failedSeries: Object.keys(FRED_SERIES), _failureReason: 'fred-plane-failed' }) },
     { id: 'fearGreed', label: 'Fear & Greed', run: () => fetchFearGreed(prior.fearGreed),
       fallback: () => ({

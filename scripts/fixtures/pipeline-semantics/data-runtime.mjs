@@ -17,7 +17,7 @@ async function scheduler(load) {
 export const cases = [
   { id: 'R2-01', name: 'an all-rejected allSettled refresh is a failure without a success time', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.krDynamic; // v60.43: krDynamic is the remaining allSettled task (Naver quotes + VKOSPI)
+      const cfg = win.REFRESH_SCHEDULE.krDynamic; // v60.43: krDynamic is the remaining allSettled task (v60.46: Naver quotes alone)
       cfg.fn = () => Promise.allSettled([Promise.reject(new Error('a')), Promise.reject(new Error('b'))]);
       const out = await win._runScheduledTask('krDynamic', cfg, false, {});
       assert.equal(out.ok, false);
