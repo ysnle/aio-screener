@@ -20,22 +20,23 @@ export const FRED_SERIES = {
   // twelve-month CPI-U series.  Keep the SA series as explicitly named
   // companions below so an analytical consumer cannot mistake one for the
   // BLS release headline.
-  cpi:        { id: 'CPIAUCNS', kind: 'yoy' },
-  coreCpi:    { id: 'CPILFENS', kind: 'yoy' },
-  cpiSa:      { id: 'CPIAUCSL', kind: 'yoy' },
-  coreCpiSa:  { id: 'CPILFESL', kind: 'yoy' },
-  pce:        { id: 'PCEPI',    kind: 'yoy' },
-  corePce:    { id: 'PCEPILFE', kind: 'yoy' },
-  fedRate:    { id: 'FEDFUNDS', kind: 'level' }, // effective rate, MONTHLY average — not the policy target
+  // v60.46: `frequency` lets the FRED plane skip a monthly series between its scheduled releases (scripts/producer/fred.mjs).
+  cpi:        { id: 'CPIAUCNS', kind: 'yoy', frequency: 'monthly' },
+  coreCpi:    { id: 'CPILFENS', kind: 'yoy', frequency: 'monthly' },
+  cpiSa:      { id: 'CPIAUCSL', kind: 'yoy', frequency: 'monthly' },
+  coreCpiSa:  { id: 'CPILFESL', kind: 'yoy', frequency: 'monthly' },
+  pce:        { id: 'PCEPI',    kind: 'yoy', frequency: 'monthly' },
+  corePce:    { id: 'PCEPILFE', kind: 'yoy', frequency: 'monthly' },
+  fedRate:    { id: 'FEDFUNDS', kind: 'level', frequency: 'monthly' }, // effective rate, MONTHLY average — not the policy target
   // 2026-10-01: the FOMC target range itself (official daily FRED series); the policy-rate surfaces
   // compared FEDFUNDS' monthly average (3.63) with BOK's policy rate and the 3.75-4.00 decision.
   fedTargetLower: { id: 'DFEDTARL', kind: 'level' },
   fedTargetUpper: { id: 'DFEDTARU', kind: 'level' },
-  unemployment:{ id: 'UNRATE',  kind: 'level' },
-  nfp:        { id: 'PAYEMS',   kind: 'mom_diff' }, // 천명 단위 (e.g. 172)
-  housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001 }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
-  retailSales:   { id: 'RSAFS',          kind: 'mom_pct' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
-  usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy' },                 // 시간당 평균임금 YoY%
+  unemployment:{ id: 'UNRATE',  kind: 'level', frequency: 'monthly' },
+  nfp:        { id: 'PAYEMS',   kind: 'mom_diff', frequency: 'monthly' }, // 천명 단위 (e.g. 172)
+  housingStarts: { id: 'HOUST',          kind: 'level', scale: 0.001, frequency: 'monthly' }, // 천 단위→백만 단위 (DATA_SNAPSHOT.housingStarts는 1.47M 형태)
+  retailSales:   { id: 'RSAFS',          kind: 'mom_pct', frequency: 'monthly' },             // 소매판매 MoM% (레벨 $ 시리즈에서 파생)
+  usWageGrowth:  { id: 'CES0500000003',  kind: 'yoy', frequency: 'monthly' },                 // 시간당 평균임금 YoY%
   hyOAS:         { id: 'BAMLH0A0HYM2',   kind: 'level', scale: 1, delta5: true }, // FRED percent; UI converts to bp at the renderer boundary
   dgs2:          { id: 'DGS2',            kind: 'level', delta5: true }, // 미 국채 2Y (%), 공식 FRED 일별 관측
   dgs5:          { id: 'DGS5',            kind: 'level' },               // 미 국채 5Y (%)

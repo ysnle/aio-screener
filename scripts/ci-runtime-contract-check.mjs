@@ -1050,9 +1050,10 @@ check('R345/P728: quote batches defer per-symbol lineage scans and keep one cano
 check('R345/P728: targeted lineage annotation covers data-live-field without a document-wide selector',
   /if \(target\) \{[\s\S]{0,700}?data-live-field\^=/.test(core) &&
   /getAttribute\('data-live-field'\)/.test(core));
-check('R345/P728: retired KR investor ranking fanout is not scheduled (P1671: the supply runtime audit left with it)',
-  !/async function fetchKrDynamicData\(\)[\s\S]{0,900}?fetchKrInvestorTop10/.test(data) &&
-  !/getKrSupplyRuntimeAudit/.test(krData) &&
+// v60.46: the krDynamic task fetches no VKOSPI either — no screen read the value and KRX redistribution rights are unresolved.
+check('R345/P728: retired KR investor ranking fanout is not scheduled (P1671: the supply runtime audit left with it; v60.46: nor the VKOSPI fetch)',
+  !/async function fetchKrDynamicData\(\)[\s\S]{0,900}?(?:fetchKrInvestorTop10|fetchVkospiDynamic)/.test(data) &&
+  !/getKrSupplyRuntimeAudit|fetchVkospiDynamic|api\/index\/VKOSPI/.test(krData) &&
   !/missing-kr-supply-target/.test(krData));
 check('P782: service-worker controller changes re-query the active version instead of preserving a stale mismatch',
   /serviceWorker\.addEventListener\('controllerchange'/.test(data) &&

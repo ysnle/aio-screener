@@ -2751,9 +2751,9 @@
     _assert('T866 breadth_regime_contract_v5460 (v59.38: the zero-delta half left with the retired delta display; v59.71: RULES.breadth bands): 32% breadth classifies narrow red',
       t866ok,
       t866detail);
-    _assert('T868 vkospi_failure_state_contract_v5234 → v58.76: repeated VKOSPI failures still clear the live flag',
-      typeof _showVkospiFailureState === 'function' && typeof _vkospiIsFailedState === 'function' && /_vkospiLiveOk = false/.test(_showVkospiFailureState.toString()),
-      'showFn=' + typeof _showVkospiFailureState);
+    _assert('T868 vkospi_failure_state_contract_v5234 → v60.46: the unread browser VKOSPI fetch and its failure state are retired',
+      typeof fetchVkospiDynamic === 'undefined' && typeof _showVkospiFailureState === 'undefined' && !('vkospi' in DATA_SNAPSHOT),
+      'fetchFn=' + typeof fetchVkospiDynamic);
     var compositionAudit = window.AIO && typeof window.AIO.getThemeCompositionLogicAudit === 'function' && window.AIO.getThemeCompositionLogicAudit();
     _assert('T643 theme_composition_logic_audit_defined_v4979: theme composition logic audit exists',
       compositionAudit && compositionAudit.counts && compositionAudit.counts.themes >= 100,
@@ -2925,13 +2925,11 @@
     _assert('T681 point_in_time_macro_test_replaced_by_artifact_or_unavailable_contract', window.AIO_STATIC_DATA_POLICY && window.AIO_STATIC_DATA_POLICY.volatileValues === 'runtime-only', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T682: 텍스트 안 데이터 동적 참조 — sentiment Tail Risk Board 하드코딩 SKEW 141.86 제거 확인
     _assert('T682 tail_risk_board_uses_current_observations_only', window.NARRATIVE_ENGINE ? true : typeof NARRATIVE_ENGINE !== 'undefined', 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
-    // T683: v49.92 sanity band — VKOSPI 정상범위 + VKOSPI≈VIX 상관 (74.02 오류 재발 방지)
+    // T683: v49.92 sanity band (v60.46: the VKOSPI half left with the retired browser VKOSPI fetch)
     var ds2 = (typeof DATA_SNAPSHOT !== 'undefined') ? DATA_SNAPSHOT : (window.DATA_SNAPSHOT || {});
-    var vkOk = ds2.vkospi >= 10 && ds2.vkospi <= 35;                       // 정상범위 (74 패닉 제외)
-    var corrOk = ds2.vix && ds2.vkospi && Math.abs(ds2.vkospi - ds2.vix) <= 15; // VKOSPI≈VIX±15 상관
     var daxOk = ds2.dax >= 24000;                                          // DAX 사상최고권 (23200 stale 제외)
     var bojOk = ds2.bojRate >= 0.75;                                       // BOJ 인상 반영
-    _assert('T683 offline_market_values_remain_unavailable', [DATA_SNAPSHOT.vkospi,DATA_SNAPSHOT.vix,DATA_SNAPSHOT.dax].every(function(v){ return v == null || Number.isFinite(Number(v)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
+    _assert('T683 offline_market_values_remain_unavailable', [DATA_SNAPSHOT.vix,DATA_SNAPSHOT.dax].every(function(v){ return v == null || Number.isFinite(Number(v)); }), 'policy=' + JSON.stringify(window.AIO_STATIC_DATA_POLICY || null));
     // T684 (v59.70, S7/I10): the Korean CPI seed is gone — the value is the verified official-reference item or null —
     // and the Korean PMI/PPI/GDP/credit fields with no producer are not in the snapshot at all.
     var krRef = window.AIO_PRODUCED_REFERENCES && window.AIO_PRODUCED_REFERENCES.krInflation;
