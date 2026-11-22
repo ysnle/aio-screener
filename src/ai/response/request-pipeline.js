@@ -414,6 +414,10 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // nor an answer whose prose figures all passed the filters with none removed.
     var datedClaims = publishedClaims.every(function(claim) { return claim.source === 'close-basis' || claim.source === 'macro-release'; });
     var figuresDated = datedClaims && (publishedClaims.length > 0 || (keptFigures && removedFigures === 0));
+    // What the published answer shows: a typed claim, or a prose figure the filters checked against this request's data.
+    // The limitation line and the evidence label both read this (2026-11-22 live: a text-first SPY close from the app's
+    // tools opened "일반 설명만" and was labelled "확인 필요" because only typed claims were counted).
+    var figuresShown = publishedClaims.length > 0 || keptFigures;
     if (!isPartialStream && currentSensitive && !sessionReady && !figuresDated) {
       applyLimitation('market-session-evidence-unavailable', '시장 세션 근거 미수신: 장중·장외 상태와 최신 수치는 확인 보류하며, 아래 내용은 확인된 기존 근거와 조건부 분석 범위입니다.');
     }
@@ -447,9 +451,15 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     if (limitationNotes.length && gate.blocked !== true) {
       var limitationSummary = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication?.summarizeAnswerLimitations;
       var searchSummary = searchCitations.length ? { searchedSentences: filterCounts && filterCounts.searchedSentences, removedNumericSentences: filterCounts && filterCounts.removedNumericSentences, toolDates: filterCounts && filterCounts.toolDates, derivedSentences: filterCounts && filterCounts.derivedSentences, brokenSentences: filterCounts && filterCounts.brokenSentences, withheldTopics: filterCounts && filterCounts.withheldTopics } : null;
-      var limitationLine = limitationSummary ? limitationSummary((gate.limitations || []).concat(gate.unverifiedNumericNotice ? ['current-numeric-claim-unverified'] : []), { publishedClaimCount: publishedClaims.length, search: searchSummary }) : '';
+      var limitationLine = limitationSummary ? limitationSummary((gate.limitations || []).concat(gate.unverifiedNumericNotice ? ['current-numeric-claim-unverified'] : []), { figuresShown: figuresShown, search: searchSummary }) : '';
       if (!limitationLine && !searchSummary) limitationLine = '※ 확인 안 된 부분이 있어 조건부로 설명합니다';
       gate = Object.assign({}, gate, { text: (limitationLine ? limitationLine + '\n\n' : '') + gate.text, limitationNotes: limitationNotes });
+    }
+    // The evidence label reads the gate (the panel hands it the gate): a text-first answer whose figures all passed the
+    // filters against app data is labelled by that, not by the live-quote rows it never cited.
+    if (!isPartialStream && gate.blocked !== true && !publishedClaims.length && keptFigures) {
+      var appPublication = window.AIO_ARCH && typeof window.AIO_ARCH.getAIOrchestrator === 'function' && window.AIO_ARCH.getAIOrchestrator()?.answerPublication;
+      gate = Object.assign({}, gate, { appFigures: { closeDays: appPublication && typeof appPublication.toolCloseDays === 'function' ? appPublication.toolCloseDays(toolBasis) : [] } });
     }
     var result = {
       request: request,
@@ -587,10 +597,17 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // reference month and the source 공식 발표, alongside the close date when both kinds were cited.
     var releaseBasis = Array.isArray(meta.releaseBasis) ? meta.releaseBasis : [];
     var recordOnly = (closeDates.length > 0 || releaseBasis.length > 0) && !(meta.otherPublishedClaims > 0);
+    // A text-first answer whose prose figures all passed the filters against this request's app data and tool results
+    // (actionGate.appFigures, set by the pipeline) is labelled by that data and the close day its tools read.
+    var appFigures = !recordOnly && meta.actionGate && meta.actionGate.appFigures;
+    var appCloseDays = appFigures && Array.isArray(appFigures.closeDays) ? appFigures.closeDays : [];
     var evidenceStatus = recordOnly ? (closeDates.length && releaseBasis.length ? '종가·공식 발표 근거' : closeDates.length ? '종가 기준 근거' : '공식 발표 근거')
+      : appFigures ? '앱 자료 근거'
       : rows.length ? (blocked ? '확인 필요' : '주입 근거 확인됨') : '확인 필요';
     if (recordOnly) asOf = (closeDates.length ? [closeDates[closeDates.length - 1] + ' 종가'] : []).concat(releaseBasis.slice(-2)).join(' · ');
+    else if (appCloseDays.length) asOf = appCloseDays[appCloseDays.length - 1] + ' 종가';
     var sourceLabel = recordOnly ? (closeDates.length ? ['완료된 종가 기록'] : []).concat(releaseBasis.length ? ['공식 발표'] : []).join(' / ')
+      : appFigures ? '앱 자료·도구 결과'
       : sources.length ? Array.from(new Set(sources)).slice(0, 2).join(' / ') : '원천 확인 필요';
     var notes = meta.actionGate && Array.isArray(meta.actionGate.limitationNotes) ? meta.actionGate.limitationNotes : [];
     return {
