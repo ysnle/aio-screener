@@ -131,6 +131,29 @@ export const CONDITION_BOUNDS = Object.freeze({
 });
 const BOUNDS = CONDITION_BOUNDS;
 
+// One range rule for every lower/upper pair the screener takes (the RSI inputs, the 맞춤 조건 pairs): a lower bound above
+// the upper bound — or equal to it when either side is strict — matches no row. The pair is applied as typed everywhere
+// (table and run preview both count 0) and shown as invalid where it was entered.
+export function rangeInverted(min, max, { strict = false } = {}) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return false;
+  return min > max || (strict && min === max);
+}
+
+/** Pairs of conditions on one field whose lower bound exceeds the upper bound ([lower, upper] per field). */
+export function invertedConditionPairs(conditions) {
+  const sides = new Map();
+  for (const condition of Array.isArray(conditions) ? conditions : []) {
+    const bound = BOUNDS[condition?.id];
+    if (!bound) continue;
+    const entry = sides.get(bound[0]) || {};
+    entry[bound[1]] = condition;
+    sides.set(bound[0], entry);
+  }
+  return [...sides.values()].filter(({ min, max }) => min && max
+    && rangeInverted(finite(min.value) ?? BY_ID.get(min.id).value, finite(max.value) ?? BY_ID.get(max.id).value, { strict: min.strict === true || max.strict === true }))
+    .map(({ min, max }) => [min, max]);
+}
+
 // One-click combinations for the examples readers ask for most.
 export const CUSTOM_RECIPES = Object.freeze([
   ['단기 정배열 + 신고가', [{ id: 'ma-short' }, { id: 'new-high' }]],

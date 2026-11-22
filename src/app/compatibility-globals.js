@@ -290,9 +290,10 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     const snapshot = Object.fromEntries(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost'].map((id) => { const input = document.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));
     return inputCheck().then(({ readHoldingInputs }) => readHoldingInputs(document, snapshot));
   };
-  // v58.80 run-5 (breaker #5): a refused ticker or currency is marked beside its field like a refused number, not only in a toast.
-  const fieldRefusals = { ticker: '종목 목록에 없는 심볼입니다 — 거래소 심볼(예: AAPL, 005930)이나 회사 이름으로 입력하세요.', currency: '3자리 통화 코드(예: USD, KRW)로 입력하거나 비워 두세요.' };
-  window._aioMarkField = (id, refusal = '') => inputCheck().then(({ markField }) => markField(document.getElementById(id), refusal ? { ok: false, reason: fieldRefusals[refusal] || refusal } : { ok: true })).catch(() => null);
+  // v58.80 run-5 (breaker #5): a refused ticker, currency or target is refused like a refused number (input-check.js
+  // refuseField: marked, focused, typed text kept), not only in a toast. _aioClearField takes a passed field's mark off.
+  window._aioRefuseField = (id, refusal) => inputCheck().then(({ refuseField, HOLDING_REFUSALS }) => refuseField(document.getElementById(id), { ok: false, reason: HOLDING_REFUSALS[refusal] || refusal })).catch(() => null);
+  window._aioClearField = (id) => inputCheck().then(({ markField }) => markField(document.getElementById(id), { ok: true })).catch(() => null);
   // The box is marked as the save's before any wait, so a render queued by the previous save cannot refill it while the
   // check loads; src/ui/panels/portfolio-cash-entry.js owns the marks and the check. The typed text is taken here too.
   window._aioSaveCashBalance = (el) => {

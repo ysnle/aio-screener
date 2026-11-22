@@ -12,7 +12,7 @@ import { askRow } from './ask-row.js';
 import { CHART_NOTES } from '../../domain/knowledge/theme-research-links.js';
 import { attachChartDrawings } from './stock-chart-drawings.js';
 import { attachChartCompare } from './stock-chart-compare.js';
-import { attachChartLayers, recentLogicalRange } from './stock-chart-layers.js';
+import { attachChartLayers, clearChartLayers, recentLogicalRange } from './stock-chart-layers.js';
 import { markFold } from './indicator-face.js';
 import { renderTrendStrip } from './stock-chart-mtf.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';
@@ -238,6 +238,7 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
   doc.getElementById('stock-chart-draw')?.remove();
   doc.querySelector('.stock-chart-draw-read')?.remove();
   doc.getElementById('stock-chart-compare')?.remove();
+  clearChartLayers(doc);
   // The slot lives on 기술적 분석 (owner 2026-11-19); a company's own screen is one step away, an index fund has none.
   const title = doc.getElementById('stock-chart-title');
   doc.getElementById('stock-chart-context')?.remove();

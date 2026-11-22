@@ -1,0 +1,29 @@
+{
+  "p": {
+    "title": "검색 칸에서 한글을 조합하는 중 Escape를 누르면 확정한 글자까지 지워졌다",
+    "symptom": "명령 검색에 \"매크로\"를 확정한 뒤 \"ㅁ\"을 조합하는 중 Escape를 누르면 칸 전체가 비고 결과 7건이 사라졌다(Codex 실서비스 재현). 조합 중인 글자만 취소돼야 한다.",
+    "root_cause": "칸이 <input type=\"search\">라 Escape의 기본 동작이 값을 지운다. behaviors/layers.js는 조합 중 Escape를 건너뛰기만 해 기본 동작을 막지 않았다. 스크리너 #scr-text-search도 type=search라 같다.",
+    "fix": "behaviors/layers.js의 문서 키 처리(부팅 때 설치)가 조합 중(isComposing 또는 keyCode 229) Escape를 받으면 대상이 search 칸일 때 기본 동작만 막는다. 층은 닫지 않고, 조합 취소는 IME가 한다. 조합 중 Enter가 결과를 열지 않는 command-search.js 동작은 그대로다.",
+    "violated_rule": "입력한 글은 사용자가 지우기 전에 사라지지 않는다",
+    "prevention": "node scripts/ci-esm-core-unit-check.mjs: 'v60.46 Escape while composing keeps the search text (no native clear) and closes no layer'. 고치기 전 layers.js로 실패함을 확인했다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs 통과(합성 키 이벤트로 기본 동작 차단만 확인). 브라우저 미확인: 이 작업 트리에 node_modules가 없어 Playwright CDP Input.imeSetComposition 재현을 돌리지 못했다. 실제 IME에서 확정 글자가 남는지 확인이 남았다.",
+    "files": [
+      "src/ui/behaviors/layers.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-SEARCH-IME-ESCAPE-01",
+      "text": "검색 칸에서 한글 조합 중 Escape는 조합 중인 글자만 취소하고 확정한 글자와 결과는 남는다(명령 검색, 스크리너 표에서 찾기).",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs",
+      "done": false
+    }
+  ],
+  "qa_section": "UI 동작 결함 8건 (Codex 점검)",
+  "changelog": [
+    "**검색 칸과 한글 조합 ({P}):** 조합 중 Escape가 확정한 글자까지 지우지 않는다."
+  ],
+  "note": "{VERSION} UI 동작 결함 8건: 범위 검증, 비교 빼기, 뒤로 가기, 한글 조합 Escape, 차트 칩, 서가 문구, 보유 종목 거부",
+  "status": null
+}

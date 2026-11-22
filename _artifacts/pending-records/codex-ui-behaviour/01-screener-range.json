@@ -1,0 +1,31 @@
+{
+  "p": {
+    "title": "스크리너 RSI 범위가 최소 > 최대를 받아, 실행 미리보기와 표가 서로 다른 수를 냈다",
+    "symptom": "RSI 80 ~ 20처럼 최소가 최대보다 큰 범위를 넣어도 아무 표시가 없었고, 실행 미리보기(workbench.js buildVisualDefinition)는 최소만 넣어 RSI 80 이상 종목을 세었는데 표(filters.js filterRows)는 두 경계를 모두 적용해 0종목이었다. 최대만 넣으면 미리보기는 조건이 없는 것처럼 셌다.",
+    "root_cause": "RSI 범위를 읽는 곳이 둘이었다: 표 필터는 두 입력을, 실행 정의 빌더는 scr-rsi-min 하나만 읽었다. 뒤집힌 범위를 판정하는 규칙이 없었고 맞춤 조건 쌍(RSI·1개월·3개월 수익률·변동폭 하한/상한)도 같은 빈틈이 있었다.",
+    "fix": "domain/screener/custom-conditions.js rangeInverted / invertedConditionPairs가 하나의 범위 규칙이다. filters.js readRsiRange를 표 필터와 실행 빌더가 함께 읽어 미리보기가 최소·최대를 모두 받는다(뒤집힌 범위는 계약이 거부해 미리보기 수가 나오지 않고 표는 0종목). 뒤집힌 RSI 범위는 input-check.js markRange로 두 칸에 aria-invalid와 \"최소값이 최대값보다 큽니다\" 한 줄을 단다. 맞춤 조건의 뒤집힌 쌍은 조건 안내 줄에 \"함께 만족할 수 없습니다\"로 적힌다.",
+    "violated_rule": "같은 정의는 한 곳에서 계산한다",
+    "prevention": "node scripts/ci-esm-core-unit-check.mjs: 'v60.46 the run preview takes the RSI upper bound the table applies', 'v60.46 an inverted RSI range is marked on both inputs with one short message'. 고치기 전 코드에서 실패함을 확인했다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs 통과(고치기 전 workbench.js로 실패). 브라우저 미확인: 실제 스크리너에서 80/20 입력 시 표시 위치와 모양.",
+    "files": [
+      "src/domain/screener/custom-conditions.js",
+      "src/ui/pages/screener/filters.js",
+      "src/ui/pages/screener/workbench.js",
+      "src/ui/components/input-check.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-SCR-RANGE-01",
+      "text": "RSI 최소가 최대보다 크면 두 칸이 잘못된 값으로 표시되고, 미리보기와 표는 같은 최소·최대를 쓴다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "UI 동작 결함 8건 (Codex 점검)",
+  "changelog": [
+    "**스크리너 범위 ({P}):** RSI 최소가 최대보다 크면 입력 칸에 바로 표시되고, 실행 미리보기와 표가 같은 범위로 센다."
+  ],
+  "note": "{VERSION} UI 동작 결함 8건: 범위 검증, 비교 빼기, 뒤로 가기, 한글 조합 Escape, 차트 칩, 서가 문구, 보유 종목 거부",
+  "status": null
+}

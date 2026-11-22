@@ -1,6 +1,8 @@
 // Open dialogs, sheets and popovers stack in order. Escape closes the top one only; a press outside closes the layers
 // it is outside of; Tab stays inside the nearest modal one; the page behind a modal is inert unless the layer keeps its
 // own backdrop (inert: false).
+// Back, Forward or a hash change is a new screen: every layer opened with onNavigate closes (top first) and focus left
+// on nothing goes to the new screen's heading, the target showPage gives every route change.
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]';
 
 const stacks = new WeakMap();
@@ -54,14 +56,45 @@ function pressedOutside(stack, target) {
   }
 }
 
+// The screen heading a route change focuses (js/aio-core.js showPage moves focus to the same node).
+const ROUTE_HEADING = '.page.active .page-title';
+
+function focusRouteHeading(documentRef) {
+  const heading = documentRef?.querySelector?.(ROUTE_HEADING);
+  if (!heading) return false;
+  if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+  heading.focus({ preventScroll: true });
+  return documentRef.activeElement === heading;
+}
+
+function navigated(stack, documentRef) {
+  const closing = [...liveStack(stack)].reverse().filter((layer) => layer.onNavigate);
+  if (!closing.length) return;
+  for (const layer of closing) layer.onNavigate();
+  // The route's own popstate listener may run after this one and focus the heading itself; only focus that fell to BODY,
+  // or stayed inside something now hidden or inert, is moved.
+  const settle = () => {
+    const active = documentRef.activeElement;
+    if (!active || active === documentRef.body || active.closest?.('[hidden],[inert]')) focusRouteHeading(documentRef);
+  };
+  const view = documentRef.defaultView;
+  if (view?.setTimeout) view.setTimeout(settle, 0); else settle();
+}
+
+// keyCode 229 is the key an IME took (some browsers report the composing Escape with isComposing false).
+const composing = (event) => event.isComposing || event.keyCode === 229;
+
 function stackFor(documentRef) {
   let stack = stacks.get(documentRef);
   if (stack) return stack;
   stack = [];
   stacks.set(documentRef, stack);
   documentRef.addEventListener('keydown', (event) => {
+    // Escape while a Korean (IME) syllable is composing cancels that syllable only: a search field's own Escape default
+    // would clear the whole confirmed text with it. The IME still drops the syllable; no layer closes.
+    if (event.key === 'Escape' && composing(event)) { if (event.target?.type === 'search') event.preventDefault(); return; }
     const layer = liveStack(stack)[stack.length - 1];
-    if (!layer || event.isComposing) return;
+    if (!layer || composing(event)) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       layer.onDismiss?.();
@@ -95,15 +128,18 @@ function stackFor(documentRef) {
     touchStarted = false;
     if (liveStack(stack).length) pressedOutside(stack, event.target);
   }, true);
+  const view = documentRef.defaultView;
+  if (view?.addEventListener) for (const type of ['popstate', 'hashchange']) view.addEventListener(type, () => navigated(stack, documentRef));
   return stack;
 }
 
 // Returns the function that takes the layer off the stack; onDismiss is the layer's own close and is expected to call it.
-// A popover passes modal: false; outside: true also closes it on a press outside root and trigger.
-export function openLayer({ root, onDismiss, modal = true, inert = modal, focus = modal, outside = false, trigger = null, documentRef = root?.ownerDocument } = {}) {
+// A popover passes modal: false; outside: true also closes it on a press outside root and trigger. onNavigate is the
+// close a screen change runs: it must not return focus to the old screen (the new screen's heading gets it).
+export function openLayer({ root, onDismiss, onNavigate = null, modal = true, inert = modal, focus = modal, outside = false, trigger = null, documentRef = root?.ownerDocument } = {}) {
   if (!documentRef) return () => {};
   const stack = stackFor(documentRef);
-  const layer = { root, onDismiss, modal: modal && Boolean(root), outside, trigger, restore: () => {} };
+  const layer = { root, onDismiss, onNavigate, modal: modal && Boolean(root), outside, trigger, restore: () => {} };
   stack.push(layer);
   if (inert && root) layer.restore = inertOutside(root, documentRef);
   if (focus && root) {

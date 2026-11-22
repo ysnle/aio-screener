@@ -1,0 +1,29 @@
+{
+  "p": {
+    "title": "주기 차트를 받지 못하면 이전 차트의 추세 칩이 빈 차트 옆에 남았다",
+    "symptom": "AAPL 월봉처럼 봉 데이터를 받지 못한 주기로 바꾸면 차트는 비었는데 이전 차트의 \"상승 추세 N봉\" 칩과 레이어 줄이 그대로 남았다.",
+    "root_cause": "레이어 줄(#stock-chart-layers)과 읽기 줄(.stock-chart-layer-read)은 attachChartLayers 안에서만 지워졌고, 실패 경로는 그 함수를 부르지 않았다. renderStockChart의 공용 초기화는 다른 줄만 지웠다.",
+    "fix": "stock-chart-layers.js clearChartLayers가 레이어 줄과 읽기 줄을 지우고, renderStockChart의 공용 초기화가 봉을 받기 전에 부른다. attachChartLayers도 같은 함수를 쓴다.",
+    "violated_rule": "화면의 숫자와 판정은 지금 그린 자료의 것이다",
+    "prevention": "node scripts/ci-esm-core-unit-check.mjs: 'v60.46 a timeframe that failed to load leaves no layer row or read line of the previous chart' (renderStockChart 실패 경로를 실제로 돌린다). 고치기 전 stock-chart.js로 실패함을 확인했다.",
+    "verification": "node scripts/ci-esm-core-unit-check.mjs 통과. 브라우저 미확인: 실패하는 주기를 실제로 열어 칩이 사라지는지.",
+    "files": [
+      "src/ui/components/stock-chart.js",
+      "src/ui/components/stock-chart-layers.js"
+    ]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-CHART-LAYER-RESET-01",
+      "text": "봉 데이터를 받지 못한 주기에서 이전 차트의 레이어 칩과 읽기 줄이 남지 않는다.",
+      "verify_by": "node scripts/ci-esm-core-unit-check.mjs"
+    }
+  ],
+  "qa_section": "UI 동작 결함 8건 (Codex 점검)",
+  "changelog": [
+    "**차트 주기 실패 ({P}):** 봉을 받지 못한 주기에서 이전 차트의 추세 칩이 남지 않는다."
+  ],
+  "note": "{VERSION} UI 동작 결함 8건: 범위 검증, 비교 빼기, 뒤로 가기, 한글 조합 Escape, 차트 칩, 서가 문구, 보유 종목 거부",
+  "status": null
+}

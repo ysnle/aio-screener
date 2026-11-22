@@ -474,11 +474,15 @@ function toneFor(entry, groupIndex = 0, { deep = false } = {}) {
 }
 const collectionTone = (surface) => { const [hue, sat] = COLLECTION_HUES[surface] || [28, 18]; return `hsl(${hue} ${sat}% 34%)`; };
 
-const SHELF_SORTS = Object.freeze([['topic', '주제'], ['title', '제목'], ['unread', '안 읽은 글']]);
+// The shelf can tell only that a document was opened here, so every mark says 열어 봄, never 읽음.
+export const OPENED_WORDS = Object.freeze({ count: '편 열어 봄', mark: '열어 봄', opened: '이 브라우저에서 열어 본 글', unopened: '아직 열지 않은 글', sort: '안 열어 본 글' });
+export const SHELF_SORTS = Object.freeze([['topic', '주제'], ['title', '제목'], ['unread', OPENED_WORDS.sort]]);
 const SHELF_ROWS = 3;
-const READ_KEY = 'research_read';
-const READ_LIMIT = 600;
-// Older pages record opened documents in the learning state under their own ids; count those as read too.
+// Documents opened here, not read: opening a document is all the shelf can see. The stored key (and the saved sort id
+// 'unread') keep their old names so a reader's history survives.
+const OPENED_KEY = 'research_read';
+const OPENED_LIMIT = 600;
+// Older pages record opened documents in the learning state under their own ids; count those as opened too.
 const LEGACY_VIEWED = Object.freeze({
   frame: (id) => `principles-frame:${id}`,
   'principles-lesson': (id) => `principles:${id}`,
@@ -487,17 +491,17 @@ const LEGACY_VIEWED = Object.freeze({
 });
 let shelfCollection = null; // a collection the reader picked this session; otherwise the open document's
 
-function readIds(prefs) {
+function openedIds(prefs) {
   try {
-    const list = JSON.parse(prefs.get(READ_KEY) || '[]');
+    const list = JSON.parse(prefs.get(OPENED_KEY) || '[]');
     return new Set(Array.isArray(list) ? list.filter((id) => typeof id === 'string') : []);
   } catch (_) {
     return new Set();
   }
 }
-function markRead(prefs, id) {
-  const ids = readIds(prefs);
-  if (!ids.has(id)) { ids.add(id); prefs.set(READ_KEY, JSON.stringify([...ids].slice(-READ_LIMIT))); }
+function markOpened(prefs, id) {
+  const ids = openedIds(prefs);
+  if (!ids.has(id)) { ids.add(id); prefs.set(OPENED_KEY, JSON.stringify([...ids].slice(-OPENED_LIMIT))); }
   return ids;
 }
 function legacyViewed(root) {
@@ -536,9 +540,9 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   if (!docs.length) { shelfTitle.textContent = '서가'; return; }
   const view = doc.defaultView || root;
   const open = openEntry(docs, currentPage, knowledgeRouteParams(root?.location).toString());
-  let read = open ? markRead(prefs, open.id) : readIds(prefs);
+  let opened = open ? markOpened(prefs, open.id) : openedIds(prefs);
   const legacy = legacyViewed(root);
-  const isRead = (entry) => read.has(entry.id)
+  const isOpened = (entry) => opened.has(entry.id)
     || Boolean(LEGACY_VIEWED[entry.surface] && legacy[LEGACY_VIEWED[entry.surface](String(entry.id).split(':').slice(1).join(':'))]?.viewed);
   const rank = (surface) => { const at = SURFACE_ORDER.indexOf(surface); return at < 0 ? SURFACE_ORDER.length : at; };
   const bySurface = new Map();
@@ -603,10 +607,10 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
 
   const stat = (value, unit) => { const span = el(doc, 'span'); span.append(el(doc, 'b', null, String(value)), doc.createTextNode(unit)); return span; };
   const updateTitle = () => {
-    const done = docs.filter(isRead).length;
+    const done = docs.filter(isOpened).length;
     const stats = el(doc, 'span', 'rl-shelf-stats');
     const parts = [stat(docs.length, '편'), stat(collections.length, '개 컬렉션'), stat(groupCount, '개 주제')];
-    if (done) parts.push(stat(done, '편 읽음'));
+    if (done) parts.push(stat(done, OPENED_WORDS.count));
     parts.forEach((part, index) => { if (index) stats.appendChild(doc.createTextNode(', ')); stats.appendChild(part); });
     const toggle = el(doc, 'span', 'rl-shelf-toggle', shelfBody.parentElement?.open === false ? '펼치기' : '접기');
     shelfTitle.replaceChildren(el(doc, 'span', 'rl-shelf-name', '서가'), stats, toggle);
@@ -636,13 +640,13 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const visible = () => {
     const list = [...(active === 'all' ? docs : bySurface.get(active)?.items || [])];
     if (sort === 'title') return list.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
-    if (sort === 'unread') return list.sort((a, b) => Number(isRead(a)) - Number(isRead(b)));
+    if (sort === 'unread') return list.sort((a, b) => Number(isOpened(a)) - Number(isOpened(b)));
     // Topic order keeps each collection's authored order inside a group (Array.sort is stable).
     return list.sort((a, b) => rank(a.surface) - rank(b.surface) || String(a.group || '').localeCompare(String(b.group || ''), 'ko'));
   };
   const spines = () => [...stage.querySelectorAll('.rl-spine')];
   const showTip = (spine, entry) => {
-    tip.replaceChildren(doc.createTextNode(entry.title), el(doc, 'small', null, [entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null, isRead(entry) ? '읽음' : null].filter(Boolean).join(', ')));
+    tip.replaceChildren(doc.createTextNode(entry.title), el(doc, 'small', null, [entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null, isOpened(entry) ? OPENED_WORDS.mark : null].filter(Boolean).join(', ')));
     tip.hidden = false;
     const s = spine.getBoundingClientRect();
     const box = stage.getBoundingClientRect();
@@ -675,7 +679,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
     const openButton = el(doc, 'button', 'rl-shelf-btn is-primary', '읽기');
     openButton.type = 'button';
     openButton.addEventListener('click', () => {
-      read = markRead(prefs, entry.id);
+      opened = markOpened(prefs, entry.id);
       openResearchRoute(root, entry.route, { currentPage, onLocal });
     });
     const askButton = el(doc, 'button', 'rl-shelf-btn', 'AI에게 이 글 묻기');
@@ -684,7 +688,7 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
       `「${entry.title}」(${entry.surfaceLabel || '리서치 라이브러리'})의 핵심 논리를 3~5줄로 정리하고, 이 관점이 틀릴 수 있는 조건과 함께 확인할 지표를 알려줘.`, currentPage));
     actions.append(openButton, askButton);
     body.append(tags, close, el(doc, 'h3', null, entry.title), el(doc, 'p', null, entry.text || ''),
-      el(doc, 'span', 'rl-book-status', isRead(entry) ? '이 브라우저에서 읽은 글' : '아직 열지 않은 글'), actions);
+      el(doc, 'span', 'rl-book-status', isOpened(entry) ? OPENED_WORDS.opened : OPENED_WORDS.unopened), actions);
     book.replaceChildren(cover, body);
     book.hidden = false;
     const rect = book.getBoundingClientRect();
@@ -703,8 +707,8 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
     const title = el(doc, 'span', 'rl-spine-title');
     title.appendChild(el(doc, 'span', null, shape.shown));
     spine.appendChild(title);
-    if (isRead(entry)) { spine.classList.add('is-read'); spine.appendChild(el(doc, 'span', 'rl-spine-ribbon')); }
-    spine.setAttribute('aria-label', `${entry.title} — ${[entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null].filter(Boolean).join(', ')}${isRead(entry) ? ', 읽음' : ''}`);
+    if (isOpened(entry)) { spine.classList.add('is-opened'); spine.appendChild(el(doc, 'span', 'rl-spine-ribbon')); }
+    spine.setAttribute('aria-label', `${entry.title} — ${[entry.surfaceLabel, entry.group ? `주제 ${entry.group}` : null].filter(Boolean).join(', ')}${isOpened(entry) ? `, ${OPENED_WORDS.mark}` : ''}`);
     spine.setAttribute('aria-current', selected?.id === entry.id ? 'true' : 'false');
     spine.tabIndex = -1;
     spine.addEventListener('click', () => openBook(entry));

@@ -5,7 +5,7 @@ import { selectScreenerState } from '../../../state/selectors/screener.js';
 import { createSavedScreen, exportSavedScreen, importSavedScreen } from '../../../domain/screener/saved-screens.js';
 import { createScreenDefinition } from '../../../data/contracts/screener.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
-import { screenConditions } from './filters.js';
+import { readRsiRange, screenConditions } from './filters.js';
 import { BUILDER_FIELDS, FILTER_LABELS, RUN_CONDITION_FIELDS, SCREENER_COLUMN_REGISTRY, scopedRows, selectedValue } from './model.js';
 // v58.75 (teach-and-check D5): one folded block at the top of the condition editor — why this screen's condition is used,
 // where it tends to work and not, its common failure, the columns that show it (their header hints carry the formulas),
@@ -44,10 +44,15 @@ function renderPresetLesson(documentRef, root, editor, screenId, screenName) {
   block.open = open;
 }
 
-// LC-64: the builder chips show only the conditions that enter the run definition (rank, RSI, 3-month return).
+// LC-64: the builder chips show only the conditions that enter the run definition (rank, RSI, 3-month return). RSI is
+// the table filter's own range (filters.js readRsiRange), so the preview counts what the table keeps.
 export function builderConditions(documentRef) {
   return BUILDER_FIELDS.flatMap(definition => {
     if (!RUN_CONDITION_FIELDS.includes(definition.value)) return [];
+    if (definition.value === 'rsi') {
+      const { min, max } = readRsiRange(documentRef);
+      return min == null && max == null ? [] : [{ field: 'rsi', label: definition.label, min, max, target: definition.target }];
+    }
     const value = String(documentRef?.getElementById(definition.target)?.value || '').trim();
     if (!value || (definition.value === 'rank' && value === '0')) return [];
     return [{ field: definition.value, label: definition.label, value, target: definition.target }];
@@ -231,7 +236,7 @@ export function createWorkbenchController(ctx) {
          const nodes = ctx.readBuilderConditions().flatMap((condition) => {
            const numeric = Number(condition.value);
            if (condition.field === 'rank' && Number.isFinite(numeric)) return [{ type: 'range', field: 'rank', min: numeric, nullPolicy: 'unknown' }];
-           if (condition.field === 'rsi' && Number.isFinite(numeric)) return [{ type: 'range', field: 'price.rsi14', min: numeric, nullPolicy: 'unknown' }];
+           if (condition.field === 'rsi') return [{ type: 'range', field: 'price.rsi14', ...(condition.min != null ? { min: condition.min } : {}), ...(condition.max != null ? { max: condition.max } : {}), nullPolicy: 'unknown' }];
            if (condition.field === 'momentum' && Number.isFinite(numeric)) return [{ type: 'range', field: 'price.ret3m', min: numeric, nullPolicy: 'unknown' }];
            return [];
          });
