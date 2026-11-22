@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2747 - v60.47 - 보유 종목 추가에서 접힌 '선택 입력' 안의 칸(통화·목표가)이 거부되면 포커스가 그 칸으로 가지 못함 (2026-11-22)
+
+- symptom/reproduction: 실서비스 v60.46에서 선택 입력 접힘이 닫힌 채 원가 통화가 거부되면 칸에는 오류 표시와 안내가 붙지만 포커스는 '추가 / 업데이트' 버튼에 남고, 안내 문구는 닫힌 접힘 안에 있어 보이지 않았다(토스트만 보임).
+- root_cause: refuseField가 표시 뒤 곧바로 input.focus()를 불렀다. 닫힌 details 안의 입력란은 포커스를 받을 수 없다.
+- fix: refuseField가 거부된 칸을 감싼 닫힌 접힘을 먼저 연 뒤 포커스를 준다.
+- violated_rule: 거부된 입력은 표시·안내·포커스가 함께 간다 (v60.46 보유 종목 거부 한 경로)
+- prevention: scripts/ci-esm-core-unit-check.mjs v60.47: 닫힌 details 안의 칸을 거부하면 접힘이 열리고 그 칸이 포커스를 받는다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs exit 0. 실서비스 화면에서의 재확인은 배포 뒤에 한다.
+- files: src/ui/components/input-check.js, scripts/ci-esm-core-unit-check.mjs
+
 ## P2746 - v60.46 - callSharedAi를 채팅 전역이 설치되기 전에 부르면 요청도 콜백도 없이 멈춤 (CI browser-ai-public 간헐 실패의 원인) (2026-11-22)
 
 - symptom/reproduction: v60.44 이후 CI의 browser-ai-public이 5번 중 4번 120초(이후 60초 멈춤 진단)로 실패했다: 'stalled at shared-ai-stream; held orchestrator 1; worker requests 0; pending none'. 로컬 단독 실행은 항상 통과했고, 같은 게이트를 6~7개 동시에 돌리면 2~4개가 같은 문구로 실패했다.

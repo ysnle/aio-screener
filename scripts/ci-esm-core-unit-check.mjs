@@ -8752,6 +8752,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const tickerField = formDoc.createElement('input'); tickerField.id = 'pf-add-ticker'; tickerField.value = 'ZZZZQ'; formDoc.body.append(tickerField);
   refuseField(tickerField, { ok: false, reason: HOLDING_REFUSALS.ticker });
   if (formDoc.activeElement !== tickerField || tickerField.getAttribute('aria-invalid') !== 'true' || tickerField.value !== 'ZZZZQ') fail('v60.46 a refused holding field is marked, focused and keeps its text');
+  const optionalFold = formDoc.createElement('details'); optionalFold.open = false;
+  const currencyField = formDoc.createElement('input'); currencyField.id = 'pf-add-cost-currency'; optionalFold.append(currencyField); formDoc.body.append(optionalFold);
+  refuseField(currencyField, { ok: false, reason: HOLDING_REFUSALS.currency });
+  if (optionalFold.open !== true || formDoc.activeElement !== currencyField) fail('v60.47 a refused field inside a closed fold opens the fold and takes focus');
   // The legacy add runs as written (its one function, in a sandbox): each late refusal goes through window._aioRefuseField.
   const legacyAdd = (() => {
     const workspace = readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8');

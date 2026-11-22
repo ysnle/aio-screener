@@ -6,6 +6,10 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.47 보유 종목 입력 거부 (2026-11-22)
+
+- [x] QA-HOLDING-REFUSAL-FOLD-FOCUS-01: 닫힌 접힘 안의 입력란이 거부되면 접힘이 열리고 그 칸이 포커스를 받는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v60.46 AI 답변 안내 줄 (2026-11-22)
 
 - [x] QA-AI-APP-FIGURES-NOTICE-01: v60.46 앱 자료·도구 결과로 확인된 수치를 보여 주는 AI 답변은 '일반 설명만' 안내를 달지 않고 근거 표시가 '앱 자료 근거'다. 일부 수치를 뺀 답은 '확인된 값만 표시', 모든 수치를 뺀 답만 '일반 설명만'. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs

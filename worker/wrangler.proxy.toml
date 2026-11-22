@@ -37,7 +37,7 @@ AI_LEGACY_MONTH_ACK = "2026-10:0"
 # v57.61: medium-effort analysis spends reasoning inside this cap; 16000 x $0.55/1M = $0.0088 reserved per call.
 AI_MAX_OUTPUT_TOKENS = "16000"
 # Must equal version.json — enforced by ci-version-check.mjs and synchronized by bump-version.mjs.
-AIO_APP_REVISION = "v60.46"
+AIO_APP_REVISION = "v60.47"
 AIO_SOURCE_SHA = "__AIO_SOURCE_SHA__"
 
 # 2026-10-14: Workers AI for headline translation (/workers-ai/translate, automation token only).

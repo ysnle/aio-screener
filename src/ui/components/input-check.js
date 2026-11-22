@@ -99,8 +99,10 @@ export function snapshotHoldingInputs(doc) {
   return Object.fromEntries(HOLDING_FIELDS.map((id) => { const input = doc?.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));
 }
 // Every refusal of a form goes one way: the field is marked with its reason and takes focus; the typed text stays.
+// A field inside a closed fold (the holding form's 선택 입력: 통화, 목표가) cannot take focus, so its folds open first.
 export function refuseField(input, result) {
   markField(input, result);
+  for (let node = input?.parentElement; node; node = node.parentElement) if (String(node.tagName).toUpperCase() === 'DETAILS' && !node.open) node.open = true;
   input?.focus?.();
   return result;
 }
