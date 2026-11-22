@@ -1617,6 +1617,13 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const panelMap = chatSource.slice(chatSource.indexOf('var _aiCtxMap = {'), chatSource.indexOf('};', chatSource.indexOf('var _aiCtxMap = {')));
   check('v60.42 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /\n  technical: \{ title: '/.test(chatSource));
+  // The chart route (#technical opens it) had no key in the panel map, so the AI input was disabled on that screen.
+  const { VERTICAL_SLICE_CONTRACTS } = await import('../src/app/vertical-slices.js');
+  const { installPanelContexts } = await import('../src/ai/context/panel-contexts.js');
+  const panelRoot = { _aiCtxMap: vm.runInNewContext(`(${panelMap.slice(panelMap.indexOf('{'))}})`), CHAT_CONTEXTS: {} };
+  installPanelContexts(panelRoot);
+  const noPanel = VERTICAL_SLICE_CONTRACTS.flatMap((slice) => slice.routes).filter((route) => !panelRoot._aiCtxMap[route]);
+  check(`v60.45 every routed screen has an AI panel context (${noPanel.join(', ') || 'none'})`, noPanel.length === 0);
 }
 
 {

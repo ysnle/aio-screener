@@ -1622,7 +1622,7 @@ var _aioChoosing = null; // v58.75: src/ai/context/choosing-blocks.js, loaded on
 // v48.14 (Agent P1-4): signal/theme-detail/briefing 복구 — 이들 페이지 내러티브 강화돼 AI 분석 가치 ↑
 // 제거 유지: breadth/sentiment — technical/themes 내용과 중복
 var _aiCtxMap = {
-  'home':'home','technical':'technical','macro':'macro','fxbond':'fxbond',
+  'home':'home','technical':'technical','charts':'technical','macro':'macro','fxbond':'fxbond',
   'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
   'signal':'signal','screener':'screener','ticker':'ticker','theme-detail':'theme-detail','briefing':'briefing',
   'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',

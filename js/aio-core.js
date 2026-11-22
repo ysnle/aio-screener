@@ -13943,29 +13943,29 @@ window._pageState = window._pageState || (function() {
 // v48.15 (P2-A): 모든 페이지의 init 로직을 PAGES 테이블로 통합 (단일 진실 원천)
 // showPage · popstate 핸들러의 복제된 if-분기 전체를 이 테이블이 대체
 window.PAGES = {
-  'home':           { label: '오늘, 요약',     init: null,                                          chatCtx: null },
-  'signal':         { label: '시장 상태',       init: null, chatCtx: 'signal' },
-  'breadth':        { label: '시장 폭',          init: null, chatCtx: null },
-  'sentiment':      { label: '투자 심리',        init: null, chatCtx: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
-  'briefing':       { label: '브리핑',    init: null, chatCtx: 'briefing' },
-  'technical':      { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // derived view of charts (owner 2026-11-19)
-  'macro':          { label: '매크로',        init: null, chatCtx: 'macro' },
-  'fxbond':         { label: '금리와 환율',      init: null, chatCtx: 'fxbond' },
-  'charts':         { label: '기술적 분석',      init: null, chatCtx: 'technical' }, // v59.64
-  'fundamental':    { label: '재무 공시',       init: null, chatCtx: 'fundamental', contextScope: 'entity' },
-  'themes':         { label: '테마/섹터',        init: null, chatCtx: 'themes' },
-  'theme-detail':   { label: '테마 상세',        init: null, chatCtx: 'theme-detail' },
-  'portfolio':      { label: '포트폴리오',       init: null, chatCtx: 'portfolio' },
-  'ticker':         { label: '개요',            init: null, chatCtx: null, contextScope: 'entity' },
-  'market-news':    { label: '시장 뉴스',        init: null, chatCtx: null },
+  'home':           { label: '오늘, 요약',     init: null },
+  'signal':         { label: '시장 상태',       init: null },
+  'breadth':        { label: '시장 폭',          init: null },
+  'sentiment':      { label: '투자 심리',        init: null },  // v53.15/ARX-01: ESM renderer가 native owner; data producer cutover는 ARX-02
+  'briefing':       { label: '브리핑',    init: null },
+  'technical':      { label: '기술적 분석',      init: null }, // derived view of charts (owner 2026-11-19)
+  'macro':          { label: '매크로',        init: null },
+  'fxbond':         { label: '금리와 환율',      init: null },
+  'charts':         { label: '기술적 분석',      init: null }, // v59.64
+  'fundamental':    { label: '재무 공시',       init: null, contextScope: 'entity' },
+  'themes':         { label: '테마/섹터',        init: null },
+  'theme-detail':   { label: '테마 상세',        init: null },
+  'portfolio':      { label: '포트폴리오',       init: null },
+  'ticker':         { label: '개요',            init: null, contextScope: 'entity' },
+  'market-news':    { label: '시장 뉴스',        init: null },
   // v53.7 (P725): kr-home/kr-supply/kr-themes/kr-macro/kr-technical 라우트 퇴역 —
   // 콘텐츠는 themes/macro/technical의 "한국 시장" 통합 섹션으로 이관(요소 id 보존),
   // 구 해시는 showPage의 _hashAlias가 리다이렉트. KR 매크로 배지는 macro init에서 호출.
-  'guide':          { label: '도움말',      init: null, chatCtx: null },
-  'principles':     { label: '시장 원리',        init: null, chatCtx: null },
-  'masters':        { label: '대가의 포트폴리오', init: null, chatCtx: null },
-  'atlas':          { label: '산업 지도', init: null, chatCtx: null },
-  'screener':       { label: '퀀트 스크리너',    init: null, chatCtx: 'screener' }
+  'guide':          { label: '도움말',      init: null },
+  'principles':     { label: '시장 원리',        init: null },
+  'masters':        { label: '대가의 포트폴리오', init: null },
+  'atlas':          { label: '산업 지도', init: null },
+  'screener':       { label: '퀀트 스크리너',    init: null }
 };
 
 // v52.59/H2-08: one route IA registry shared by contracts, PAGES, navigation,
