@@ -8,6 +8,7 @@ import { writeJsonIfSemanticallyChanged } from './lib/13f-semantic-hash.mjs';
 import { readManagerRows, writeManagerRows } from './lib/masters-manager-store.mjs';
 import { buildReferenceTickerMap, normalizeCusip, resolveExactTicker } from '../src/domain/instruments/ticker-exact.js';
 import { annotateCorporateActions, detectSplitSuspects } from '../src/domain/masters/corporate-actions.js';
+import { detectValueScaleSuspects } from '../src/domain/masters/value-scale.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const mastersDir = path.join(root, 'public-data', 'masters');
@@ -90,12 +91,22 @@ async function managerStoreOf(manager) {
   }
   return { descriptor, managerRows, managerComparisons };
 }
-// A split shows only across filers, so every manager's comparisons are read once before any projection is written.
-// The row stores stay as filed; the stamps go on the web projection and the top-holding rows.
+// A split and a filing reported in the wrong dollar unit show only across filers, so every manager's full rows are
+// read once before any projection is written. The row stores stay as filed; the split stamps go on the web projection
+// and the top-holding rows, the unit review on the manager's verification in holdings-summary.json.
 const corporateActionsByManager = new Map();
+let valueScaleReviews = new Map();
 {
   const comparisonsByManager = new Map();
-  for (const manager of holdings.managers || []) comparisonsByManager.set(manager.id, (await managerStoreOf(manager)).managerComparisons);
+  const holdingsByManager = new Map();
+  for (const manager of holdings.managers || []) {
+    const store = await managerStoreOf(manager);
+    comparisonsByManager.set(manager.id, store.managerComparisons);
+    holdingsByManager.set(manager.id, store.managerRows);
+  }
+  // v60.46: the page used to run this on its 365 top rows (or 1,278 embedded rows), and each sample missed one of the
+  // three thousand-dollar filers of 2026-09-30; every filer's full rows find all three.
+  valueScaleReviews = detectValueScaleSuspects([...holdingsByManager.values()].flat());
   const splitSuspects = detectSplitSuspects([...comparisonsByManager.values()].flat());
   for (const [managerId, rows] of comparisonsByManager) {
     corporateActionsByManager.set(managerId, new Map(annotateCorporateActions(rows, splitSuspects).filter((row) => row.corporateAction).map((row) => [row.key, corporateActionFields(row)])));
@@ -160,6 +171,10 @@ for (const manager of holdings.managers || []) {
   };
 }
 
+const valueScaleVerification = (manager) => {
+  const review = valueScaleReviews.get(`${manager.id}|${manager.verification?.reportPeriod || ''}`);
+  return review ? { ...manager.verification, valueScaleReview: { ratio: Number(review.ratio.toPrecision(6)), comparedRows: review.comparedRows } } : manager.verification;
+};
 const compactManager = (manager) => ({
   id: manager.id,
   cik: manager.cik,
@@ -167,7 +182,7 @@ const compactManager = (manager) => ({
   latestAvailablePeriod: manager.latestAvailablePeriod,
   collectedAt: manager.collectedAt,
   freshnessStatus: manager.freshnessStatus,
-  verification: manager.verification
+  verification: valueScaleVerification(manager)
 });
 const compactHolding = (row) => ({
   managerId: row.managerId,

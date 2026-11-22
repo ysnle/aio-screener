@@ -77,6 +77,16 @@ function buildManagerRegistry(catalog) {
   return merged;
 }
 
+// Which manager an address opens. The static registry holds only part of the catalog, so a requested id that is not
+// listed yet is kept, never swapped for another manager: 'loading' while the catalog is pending, 'not-found' once it has
+// settled. Only a known manager hidden by the list filter falls back to the first visible one.
+function resolveManagerSelection(registry = [], requestedId, { visible = registry, catalogSettled = false } = {}) {
+  const requested = registry.find((manager) => manager.id === requestedId) || null;
+  if (!requested) return { status: catalogSettled ? 'not-found' : 'loading', manager: null };
+  if (visible.some((manager) => manager.id === requested.id)) return { status: 'selected', manager: requested };
+  return visible[0] ? { status: 'selected', manager: visible[0] } : { status: 'empty', manager: null };
+}
+
 function deriveCoverageSummary(registry = [], catalog = null, holdings = null, previews = null, discovery = null, principlesArtifact = null, securityMaster = null) {
   const filerIds = new Set(registry.filter((manager) => manager.type !== 'METHOD_ONLY').map((manager) => manager.id));
   const methodOnly = registry.filter((manager) => manager.type === 'METHOD_ONLY').length;
@@ -203,6 +213,7 @@ export {
   MASTER_REGISTRY,
   displayActionOf,
   buildManagerRegistry,
+  resolveManagerSelection,
   deriveCoverageSummary,
   formatReportedValue,
   formatCompactUsd,

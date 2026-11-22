@@ -91,7 +91,9 @@ for (const row of session) for (const market of ['US', 'KR']) {
 
 const thirteenF = [];
 for (const period of ['2026-03-31', '2026-06-30', '2026-09-30', '2025-12-31']) for (let t = Date.parse('2026-05-01T00:00:00Z'); t < Date.parse('2027-03-01T00:00:00Z'); t += 86400000 * 3) thirteenF.push([period, t, filing.thirteenFStale(period, t)]);
-check('v59.87 thirteenFStale (moved to domain/masters/filing-deadline.js) is unchanged', hash(thirteenF) === '5481582e7d074b61f666a77278f38af41eabdda03bea7ce355990ea4150dd6bb', hash(thirteenF));
+// v60.46: re-pinned once the deadline rolls over market holidays; the only changed sample is 2026-09-30 on 2027-02-16
+// (Presidents' Day 2027 moves its deadline to Feb 16), pinned in ci-masters-contract-check.mjs.
+check('v59.87 thirteenFStale (moved to domain/masters/filing-deadline.js) is unchanged', hash(thirteenF) === 'ad8018f673fdbc160237e5349e9313d4a6d3eeb2b4ad90a1fb5f93215caed0e7', hash(thirteenF));
 const tempPayload = { generatedAt: '2026-11-20T00:00:00Z', retained: ['jp'] };
 const tempMarkets = [{ id: 'us', asOf: '2026-11-19' }, { id: 'kr', asOf: '2026-11-11' }, { id: 'jp', asOf: '2026-11-19' }, { id: 'tw', asOf: '2026-11-05' }];
 const temp = [];

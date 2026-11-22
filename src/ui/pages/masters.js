@@ -1,14 +1,14 @@
 import { STYLE_FRAMES, groupManagersByStyle } from '../../domain/masters/style-frames.js';
-import { thirteenFStale } from '../../domain/masters/filing-deadline.js';
+import { thirteenFCurrentness } from '../../domain/masters/filing-deadline.js';
 import { renderManagersPage } from '../knowledge/managers-view.js';
 import { createResourceBag } from '../../app/lifecycle.js';
 import { navigateKnowledgeTarget, parseKnowledgeRouteState, parseKnowledgeTargetContext, pushKnowledgeRouteState, replaceKnowledgeRouteState } from '../../app/knowledge-route-state.js';
 import { artifactUrl, loadArtifactUrl } from '../../data/artifact-registry.js';
-import { detectValueScaleSuspects, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview } from '../../domain/masters/value-scale.js';
+import { valueScaleReviewsOf, withholdSuspectValues, withholdManagerValues, managersUnderScaleReview, describeValueScaleReview } from '../../domain/masters/value-scale.js';
 import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
-import { MASTER_REGISTRY, buildManagerRegistry, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatQuarterLabel } from '../../domain/masters/holdings-format.js';
+import { MASTER_REGISTRY, buildManagerRegistry, resolveManagerSelection, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatQuarterLabel } from '../../domain/masters/holdings-format.js';
 export { displayActionOf, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js'; // v57.60: same page exports as before
 import { VIEW_LABELS, viewOf, element, button, createMetric, ensureMastersExtraStyle, createSecurityLookup, PLAIN_LOOKUP, tickerChip, createChangeSummary, createOwnershipEvents, fullManagersLabel, createTopHoldingTable, createChangeLedger, createFullHoldingsView, createRowPreviewView, createSectorView, createReferenceSectorView, createQuarterView, createIssuerAggregateView, createFilingArtifact, createPrinciplesView, createInvestorCompareView, createTopWeightBars } from './masters-views.js';
 export { createSecurityLookup, shareClassTag } from './masters-views.js'; // v59.70: moved with the view builders
@@ -305,13 +305,11 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   // v58.53 개편 v2 (5j): the quarter-end date sits under the name; once the next 13F deadline (45 days after the next
   // quarter end) has passed it turns amber (AGENTS freshness: 13F is stale only after the next filing is due).
   const quarterEnd = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
-  if (quarterEnd) {
-    const stale = thirteenFStale(quarterEnd);
-    // Feature audit 2026-11-02: a stale chip names why — a 13F-NT for the next quarter means another filer reports the
-    // holdings (Pershing), and no later 13F at all means the filer may have stopped filing (Scion).
-    const submission = ownershipDiscovery?.latestSubmission;
-    const noticeAfter = submission?.baseForm === '13F-NT' && submission.periodOfReport > quarterEnd;
-    const staleReason = noticeAfter ? `, 다음 분기는 13F-NT(보유는 다른 신고자 보고)` : ', 다음 신고 지남';
+  // The catalog, loaded with the page, carries the latest submission; the discovery artifact (원본 공시 tab) repeats it.
+  const currentness = thirteenFCurrentness({ quarterEnd, holdingsAccession: filingMeta?.latestFiling?.accession || null, latestSubmission: ownershipDiscovery?.latestSubmission || manager.latestSubmission || null });
+  if (currentness) {
+    const stale = currentness.stale;
+    const staleReason = currentness.reason === 'NOTICE_FILED' ? `, 다음 분기는 13F-NT(보유는 다른 신고자 보고)` : ', 다음 신고 지남';
     const chip = element(documentRef, 'span', `sx-chip sx-chip--sm masters-quarter-chip${stale ? ' sx-chip--date' : ''}`, `${quarterEnd} 분기 말 기준${stale ? staleReason : ''}`);
     chip.dataset.mastersQuarterEnd = quarterEnd;
     detail.querySelector('.masters-detail-filer')?.before(chip);
@@ -357,6 +355,7 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   const filingDates = [
     reportPeriod ? `보고분기 ${formatQuarterLabel(reportPeriod)}(${reportPeriod})` : null,
     filingMeta?.latestFiling?.filedAt ? `${filingMeta.latestFiling.form || '13F'} 제출 ${filingMeta.latestFiling.filedAt}` : null,
+    currentness?.laterSubmission ? `최근 제출 ${currentness.laterSubmission.form || '13F'} ${currentness.laterSubmission.filedAt}(${currentness.laterSubmission.periodOfReport} 분기)` : null,
     reviewedAt ? `자료 검토 ${reviewedAt}` : null
   ].filter(Boolean);
   if (filingDates.length) detail.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-filing-dates', filingDates.join(', ')));
@@ -569,8 +568,10 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         searchLabel.appendChild(input);
         toolbar.append(filters, searchLabel, button(documentRef, 'masters-filter-tab masters-ticker-jump', '종목으로 찾기', 'goto-ticker-lookup', 'tickerIndex'));
          const matchesList = registry.filter((manager) => (state.filter === 'ALL' || manager.type === state.filter) && matches(manager, state.query));
-         const selected = matchesList.find((manager) => manager.id === state.selectedId) || matchesList[0] || null;
+         const selection = resolveManagerSelection(registry, state.selectedId, { visible: matchesList, catalogSettled: state.catalog != null || state.catalogError });
+         const selected = selection.manager;
          if (selected) state.selectedId = selected.id;
+         page.dataset.aioMastersSelection = selection.status;
          const layout = element(documentRef, 'div', 'masters-layout');
          const list = element(documentRef, 'div', 'masters-manager-list');
          matchesList.forEach((manager) => {
@@ -619,7 +620,14 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             timeframe: holdingMeta?.verification?.reportPeriod || 'QUARTERLY_LAGGED',
             returnContext: { route: 'masters', manager: selected.id, mode: state.view, period: holdingMeta?.verification?.reportPeriod || null }
           } }), filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, state.securityMaster, state.referenceMaster, historyManager, quarterBundle ? { rows: quarterBundle.historyRows || [] } : null, quarterBundle?.issuerAggregates || null, state.principles, registry, state.holdings?.managers || [], rowsByManager));
-          else layout.append(list, element(documentRef, 'div', 'masters-empty-state', '현재 필터에 표시할 상세 프로필이 없습니다. 필터나 검색어를 변경하세요.'));
+          else {
+            const message = selection.status === 'loading' ? '투자자 정보를 불러오는 중입니다.'
+              : selection.status === 'not-found' ? (state.catalogError ? '투자자 목록을 불러오지 못해 이 주소의 투자자를 열 수 없습니다.' : '이 주소의 투자자는 목록에 없습니다.')
+                : '현재 필터에 표시할 상세 프로필이 없습니다. 필터나 검색어를 변경하세요.';
+            const notice = element(documentRef, 'div', 'masters-empty-state', message);
+            notice.setAttribute('role', 'status');
+            layout.append(list, notice);
+          }
         if (selected && state.valueScale?.size) {
           const scaleReview = state.valueScale.get(`${selected.id}|${holdingMeta?.verification?.reportPeriod || ''}`);
           const detailNode = layout.lastElementChild;
@@ -863,7 +871,7 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       };
       root?.addEventListener?.('popstate', onPop);
       bag.add(() => root?.removeEventListener?.('popstate', onPop));
-       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
+       bag.add(() => { delete page.dataset.aioArchitectureRoute; delete page.dataset.aioArchitectureRenderer; delete page.dataset.aioContentKind; delete page.dataset.aioReviewedAt; delete page.dataset.aioMastersData; delete page.dataset.aioMastersCoverageState; delete page.dataset.aioMastersCurrentFull; delete page.dataset.aioMastersStaleFull; delete page.dataset.aioMastersPreviewOnly; delete page.dataset.aioMastersMetadataOnly; delete page.dataset.aioMastersMethodOnly; delete page.dataset.aioMastersOfficialPrinciples; delete page.dataset.aioMastersVerifiedSecurityRecords; delete page.dataset.aioMastersLatestPeriodMissing; delete page.dataset.aioMastersHoldings; delete page.dataset.aioMastersCatalog; delete page.dataset.aioMastersPreviews; delete page.dataset.aioMastersDiscovery; delete page.dataset.aioMastersPrinciples; delete page.dataset.aioMastersSelectedShard; delete page.dataset.aioMastersSecurityMaster; delete page.dataset.aioMastersReferenceMaster; delete page.dataset.aioMastersHistory; delete page.dataset.aioMastersHistoryRows; delete page.dataset.aioMastersIssuerAggregates; delete page.dataset.aioMastersTickerIndex; delete page.dataset.aioMastersView; delete page.dataset.aioMastersSelection; delete page.dataset.aioMastersFullRows; delete page.dataset.aioMastersComparisonRows; delete page.dataset.aioMastersActionFilter; content.replaceChildren(); });
       render();
       if (state.tickerQuery) {
         loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
@@ -881,13 +889,11 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
              if (result.status === 'fulfilled') {
                state[key] = result.value;
                if (key === 'holdings' && Array.isArray(result.value?.holdings)) {
-                 // Codex browser audit H97: find filings whose amounts sit ~1,000× off the other filers of the same
-                 // security and period, and withhold their amounts before any table, total or weight is drawn.
-                 state.valueScale = detectValueScaleSuspects(result.value.holdings);
+                 // Codex browser audit H97: the producer compares every filer's full rows and publishes the filings whose
+                 // amounts sit ~1,000× off; their amounts are withheld before any table, total or weight is drawn.
+                 state.valueScale = valueScaleReviewsOf(result.value);
                  if (state.valueScale.size) {
-                   const managers = (result.value.managers || []).map((manager) => (state.valueScale.has(`${manager.id}|${manager.verification?.reportPeriod || ''}`)
-                     ? { ...manager, verification: { ...manager.verification, valueScaleReview: true } } : manager));
-                   state[key] = { ...result.value, managers, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale), ...(Array.isArray(result.value.allHoldings) ? { allHoldings: withholdSuspectValues(result.value.allHoldings, state.valueScale) } : {}) };
+                   state[key] = { ...result.value, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale), ...(Array.isArray(result.value.allHoldings) ? { allHoldings: withholdSuspectValues(result.value.allHoldings, state.valueScale) } : {}) };
                    // P1522: a manager shard that finished before detection kept the filed amounts; withhold it again now.
                    state.managerRows.forEach((artifact, managerId) => {
                      const shardPeriod = artifact.reportPeriod || state.holdings?.managerShards?.[managerId]?.reportPeriod || state.holdings?.managers?.find((item) => item.id === managerId)?.verification?.reportPeriod || null;

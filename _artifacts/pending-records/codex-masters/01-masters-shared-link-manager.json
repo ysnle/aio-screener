@@ -1,0 +1,22 @@
+{
+  "p": {
+    "title": "대가 보유 종목의 공유 주소가 다른 운용사(워런 버핏)를 열었다",
+    "symptom": "#masters?manager=<id> 주소로 들어오면 카탈로그에만 있는 운용사 31곳(38곳 중 정적 목록 7곳 밖) 모두 카탈로그가 도착하기 전까지 Warren Buffett(berkshire-hathaway) 화면이 보였고, 목록에 없는 id는 끝까지 버핏 화면에 머물렀다. 주소도 버핏으로 다시 쓰였다.",
+    "root_cause": "render()가 고른 운용사를 matchesList.find(...) || matchesList[0]로 정하고 그 결과를 state.selectedId에 다시 썼다. 카탈로그 전에는 registry가 정적 MASTER_REGISTRY 7곳뿐이라 요청 id가 없으면 첫 운용사로 바뀌었고, 바뀐 id가 주소 동기화로 저장돼 카탈로그가 와도 돌아오지 않았다. 요청한 운용사와 보여 줄 운용사를 가르는 판단이 화면 그리기 안에 섞여 있었다.",
+    "fix": "src/domain/masters/holdings-format.js의 resolveManagerSelection이 선택을 정한다: 목록에 있으면 그 운용사, 없으면 카탈로그 대기 중 'loading', 카탈로그가 끝났으면 'not-found'. 화면은 요청 id를 지키고, 불러오는 중·목록에 없음(카탈로그 실패 시 따로)을 상세 자리에 알린다. 다른 운용사로의 대체는 목록 필터가 알려진 운용사를 가릴 때만 남는다. page.dataset.aioMastersSelection이 상태를 드러낸다.",
+    "violated_rule": "없음 (주소가 가리키는 대상을 다른 대상으로 바꾸지 않는다는 검사가 없었다)",
+    "prevention": "scripts/ci-masters-contract-check.mjs 'v60.46 a requested manager waits for the catalog and is never replaced by another'(카탈로그 전·후, 없는 id). 이전 holdings-format.js에는 판정 함수가 없어 실패한다. 화면 연결은 소스 문자열 고정 대신(텍스트 핀 래칫) 브라우저 검사의 몫으로 남겼다.",
+    "verification": "node scripts/ci-masters-contract-check.mjs (고친 코드 통과, 이전 코드 실패). 새 브라우저 컨텍스트에서 공유 주소를 여는 확인은 하지 않았다.",
+    "files": ["src/domain/masters/holdings-format.js", "src/ui/pages/masters.js", "scripts/ci-masters-contract-check.mjs"]
+  },
+  "qa": [
+    {
+      "id": "QA-MASTERS-SHARED-LINK-01",
+      "text": "#masters?manager=<id>는 그 운용사를 연다. 카탈로그가 오기 전에는 '불러오는 중', 목록에 없는 id는 '목록에 없음'을 보이고, 다른 운용사로 바꾸거나 주소를 다시 쓰지 않는다({VERSION}).",
+      "verify_by": "node scripts/ci-masters-contract-check.mjs"
+    }
+  ],
+  "qa_section": "대가 보유 종목 공유 주소",
+  "changelog": ["대가 보유 종목의 공유 주소가 그 운용사를 연다 — 카탈로그에만 있는 31곳이 워런 버핏 화면으로 열리던 문제를 고쳤다 ({P})"],
+  "note": "대가 공유 주소가 요청한 운용사를 연다"
+}
