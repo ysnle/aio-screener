@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
 //  - localStorage keeps only a per-day usage count
 // ═══════════════════════════════════════════════════════════════════════
 // v30.13: LLM 예산 관리 시스템 (Budget Management)
-// v31.3: 적응형 모델 — 기본 Haiku 4.5, 복잡도별 Sonnet/Thinking 자동 승격
+// v31.3: 적응형 추론 — 같은 gpt-6-luna 모델에 기본 'luna'(추론 없음), 분석·판단 질문은 'luna-low'로 승격
+// (v31.3의 Haiku/Sonnet/Thinking 세 단계는 퇴역; 아래 'deep'·'analysis' 패턴 짝은 둘 다 'luna-low'를 돌려준다)
 // 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
 // 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
@@ -112,49 +113,49 @@ function _detectQueryComplexity(query, ctxId) {
   var qLen = query.length;
 
   // ─── 1단계: 컨텍스트별 특화 판단 ───────────────────────────
-  // 포트폴리오: 기본 Sonnet, 심층 Thinking
+  // 포트폴리오: 항상 'luna-low'
   if (ctxId === 'portfolio') return 'luna-low';
-  // 기업분석(fundamental): 기본 Sonnet, 심층 분석은 Thinking
+  // 기업분석(fundamental): 심층·일반 분석 모두 'luna-low'
   if (ctxId === 'fundamental') {
     var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model|종합.*기업.*분석|종합.*분석.*해줘|15개.*관점|심층.*분석/;
     if (fundThinking.test(q)) return 'luna-low';
-    // v34.5: fundamental 컨텍스트에서 티커가 감지되면 기본적으로 sonnet 사용 (15개 관점 분석 품질 보장)
+    // v34.5: fundamental 컨텍스트에서 티커가 감지되면 'luna-low' 사용 (15개 관점 분석 품질 보장)
     var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation|분석|어때|전망|투자|알려/;
     if (hasTicker || fundSonnet.test(q)) return 'luna-low';
     //  fall through to 범용 판단 (구조적 분석 포함)
   }
-  // 기술적분석(technical): 전략 수립은 Sonnet, 멀티타임프레임 심층은 Thinking
+  // 기술적분석(technical): 전략 수립·멀티타임프레임 심층 모두 'luna-low'
   else if (ctxId === 'technical') {
     var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
     if (techThinking.test(q)) return 'luna-low';
-    // v34.5: 티커 감지 시 기본 Sonnet (비교 분석 포함)
+    // v34.5: 티커 감지 시 'luna-low' (비교 분석 포함)
     var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target|비교|vs|VS|분석|어때|전망/;
     if (hasTicker || techSonnet.test(q)) return 'luna-low';
   }
-  // 매매시그널(signal): 스코어 해석은 Sonnet, 시나리오 분석은 Thinking
+  // 매매시그널(signal): 스코어 해석·시나리오 분석 모두 'luna-low'
   else if (ctxId === 'signal') {
     var sigThinking = /시나리오.*분석|스코어.*변동.*예측|컴포넌트.*종합.*진단|포지션.*사이징|position.*sizing|scenario|전략.*수립.*해줘/;
     if (sigThinking.test(q)) return 'luna-low';
     var sigSonnet = /스코어.*해석|왜.*이.*점수|매매.*판단|매수.*매도|지금.*사도|지금.*팔아|진입|청산|비중.*조절|포지션|대응.*전략|지금.*어때|매수.*해도|매도.*해야|사도.*될까|팔아도.*될까|들어가도|나가야/;
     if (sigSonnet.test(q)) return 'luna-low';
   }
-  // 매크로(macro): 금리/환율 영향 분석은 Sonnet, 멀티팩터 시나리오는 Thinking
+  // 매크로(macro): 금리/환율 영향·멀티팩터 시나리오 모두 'luna-low'
   else if (ctxId === 'macro') {
     var macThinking = /금리.*인상.*시나리오|연준.*경로|다중.*시나리오|인플레.*디플레.*비교|경기.*침체.*확률|스태그플레이션|yield.*curve.*inversion|멀티팩터|macro.*scenario|recession.*probability/;
     if (macThinking.test(q)) return 'luna-low';
     var macSonnet = /금리.*영향|환율.*전망|달러.*방향|유가.*영향|인플레|디플레|연준|FOMC|CPI|고용|GDP|경기.*사이클|섹터.*로테이션|rate|inflation|fed|dollar|oil.*impact/;
     if (macSonnet.test(q)) return 'luna-low';
   }
-  // 시장폭(breadth): 종합 진단은 Sonnet, 다이버전스 심층은 Thinking
+  // 시장폭(breadth): 종합 진단·다이버전스 심층 모두 'luna-low'
   else if (ctxId === 'breadth') {
     var brThinking = /다이버전스.*심층|시장폭.*vs.*지수.*괴리.*분석|McClellan.*종합|과거.*비교.*분석|히스토리컬|역사적.*비교|breadth.*divergence.*deep/;
     if (brThinking.test(q)) return 'luna-low';
     var brSonnet = /시장폭.*해석|건강.*상태|참여.*종목|다이버전스|괴리|A\/D|McClellan|종합.*판단|지금.*건강|breadth.*analysis/;
     if (brSonnet.test(q)) return 'luna-low';
   }
-  // 투자심리(sentiment): 종합 판단은 Sonnet, 역사적 비교 심층은 Thinking
+  // 투자심리(sentiment): 종합 판단·역사적 비교 심층 모두 'luna-low'
   else if (ctxId === 'sentiment') {
     var senThinking = /공포.*단계.*비교|역사적.*패닉.*비교|바닥.*확인.*체크리스트|capitulation.*분석|항복.*매도.*분석|스마트머니.*vs.*덤머니|sentiment.*extreme.*analysis/;
     if (senThinking.test(q)) return 'luna-low';
@@ -162,7 +163,7 @@ function _detectQueryComplexity(query, ctxId) {
     if (senSonnet.test(q)) return 'luna-low';
   }
   // P1758/v57.54: 한국 기술·테마·거시 컨텍스트 퇴역 — 한국 섹션은 technical/themes/macro 화면 안에 있고 그 컨텍스트가 답한다
-  // 테마(themes, theme-detail): 섹터/테마 분석은 Sonnet, 교차 분석은 Thinking
+  // 테마(themes, theme-detail): 섹터/테마·교차 분석 모두 'luna-low'
   else if (ctxId === 'themes' || ctxId === 'theme-detail') {
     var thThinking = /교차.*분석|테마.*간.*상관|밸류.*체인.*분석|업스트림.*다운스트림|수혜주.*종합|value.*chain|cross.*theme|supply.*chain.*analysis/;
     if (thThinking.test(q)) return 'luna-low';
@@ -171,31 +172,31 @@ function _detectQueryComplexity(query, ctxId) {
   }
 
   // ─── 2단계: 범용 심층 요청 패턴 (컨텍스트 무관) ─────────────
-  // Thinking급: 깊은 추론이 필요한 패턴
+  // 깊은 추론이 필요한 패턴 → 'luna-low'
   var thinkingKw = /심층.*분석|근본.*원인|시나리오.*확률|멀티팩터|DCF|밸류에이션.*모델|포지션.*사이징|감마.*익스포저|옵션.*전략.*설계|리스크.*관리.*전략|비교.*분석.*해줘|왜.*그런지.*자세히|깊이.*분석|종합.*진단|체계적.*분석|정밀.*분석|단계별.*분석/;
   var thinkingEn = /deep.?analysis|root.?cause|scenario.?model|multi.?factor|position.?sizing|risk.?management.?strategy|comprehensive.*diagnosis|systematic.*analysis|step.?by.?step.*analy/;
   if (thinkingKw.test(q) || thinkingEn.test(q)) return 'luna-low';
 
-  // Sonnet급: 분석/전략/판단이 필요한 패턴
+  // 분석/전략/판단이 필요한 패턴 → 'luna-low'
   // P1740: colloquial trade questions ("사도 돼?", "살까", "팔까") reason on the deeper model like 매수 타이밍.
   var sonnetKw = /사도\s*(?:돼|될까|되나|괜찮)|살까|팔까|담아도|들어가도|전략.*제안|매수.*타이밍|진입.*시점|손절|목표가.*설정|섹터.*로테이션|어떻게.*대응|포트폴리오|종합.*판단|비교.*해줘|분석.*해줘|전망.*해줘|평가.*해줘|진단.*해줘|추천.*해줘|왜.*그래|왜.*떨어|왜.*올라|원인.*뭐|이유.*뭐|어떻게.*해야|장단점|리스크.*뭐|영향.*분석/;
   var sonnetEn = /strategy|recommend|analyze|forecast|evaluate|diagnose|compare|pros.*cons|impact.*analysis|what.*should|why.*drop|why.*rise|how.*respond/;
   if (sonnetKw.test(q) || sonnetEn.test(q)) return 'luna-low';
 
   // ─── 3단계: 구조적 복잡도 분석 ─────────────────────────────
-  // 질문이 길거나 여러 조건을 포함하면 Sonnet 승격
+  // 질문이 길거나 여러 조건을 포함하면 'luna-low' 승격
   var questionMarks = (q.match(/\?/g) || []).length;
   var conjunctions = (q.match(/그리고|또한|더불어|아울러|동시에|함께|and|also|additionally/g) || []).length;
   var conditions = (q.match(/만약|경우|가정|~면|한다면|된다면|if|when|assuming|suppose/g) || []).length;
 
-  // 복합 질문 (여러 물음표 or 접속사+길이) → Sonnet
+  // 복합 질문 (여러 물음표 or 접속사+길이) → 'luna-low'
   if (questionMarks >= 2 || (conjunctions >= 2 && qLen > 80)) return 'luna-low';
-  // 조건문 포함 → 시나리오 사고 필요 → Sonnet
+  // 조건문 포함 → 시나리오 사고 필요 → 'luna-low'
   if (conditions >= 1 && qLen > 60) return 'luna-low';
-  // 긴 질문 (150자+) → 복잡한 의도 가능성 → Sonnet
+  // 긴 질문 (150자+) → 복잡한 의도 가능성 → 'luna-low'
   if (qLen > 150) return 'luna-low';
 
-  // ─── 기본: Haiku ───────────────────────────────────────────
+  // ─── 기본: 'luna' ───────────────────────────────────────────
   return 'luna';
 }
 

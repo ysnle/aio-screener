@@ -72,8 +72,8 @@ slot), validates the shared
 only after QG-01 reaches 100% and the semantic revision changes. An unchanged
 snapshot is a successful observation but a KV no-op; the heartbeat is throttled
 to one liveness write per 15 minutes (or an immediate status change). The
-normal upper bound is 432 successful KV writes/day (384 quote/heartbeat + 48 scheduler receipts) and the status-flapping
-worst case is 624/day, below the 1,000/day free-tier limit; normal writes stay below its 500/day
+normal upper bound is 438 successful KV writes/day (384 quote/heartbeat + 54 scheduler receipts) and the status-flapping
+worst case is 630/day, below the 1,000/day free-tier limit; normal writes stay below its 500/day
 warning target. Heartbeats distinguish `checkedAt` (the run observation),
 `publishedAt` (a changed `quotes:current` snapshot), and `writtenAt` (the last
 heartbeat KV write), so liveness cannot masquerade as a snapshot publication.

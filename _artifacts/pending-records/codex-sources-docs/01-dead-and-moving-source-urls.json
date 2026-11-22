@@ -1,0 +1,23 @@
+{
+  "p": {
+    "title": "지식 출처 링크 — 404 주소 13곳과 날짜 붙은 출처의 '최신판' 주소",
+    "symptom": "sources.json의 MP-SEC(투자 기초, 37편)·MP-FED-ED(연준 교육, 11편)·MP-TREASURY·AT-CM-01 등 13개 주소가 404였다. WEB-BLS-CPI-2026-06과 PS-10은 2026년 6월 CPI 수치를 인용하면서 cpi.htm?lv=true(늘 최신 달을 보여 주는 주소)를 가리켜, 7월 발표 뒤에는 다른 달 수치가 열렸다.",
+    "root_cause": "출처 주소는 손으로 적은 원천 파일(build-principles-lessons.mjs의 sources, research-source-seeds.json, atlas/source-packets.json·domain-source-packets.json·player-product-registry.json, content/research/principles/catalog.json, chapters.json, narrative-journey.json)에 있고, 주소가 살아 있는지나 날짜 붙은 출처가 움직이는 주소를 쓰는지 보는 검사가 없었다.",
+    "fix": "각 주소를 직접 열어 200과 의도한 문서임을 확인한 공식 주소로 바꾸고 생성물을 다시 만들었다: investor.gov/introduction-investing, federalreserveeducation.org, BLS archives/cpi_07142026.htm, investor.gov 10-K 안내 새 경로, 재무부 interest-rate-statistics, DOE 데이터센터 전력 보고서, NIST robotics, FAA space, AMD instinct.html, KIOXIA SSD, Vertiv AI, Synopsys EDA, SEC 재무제표 입문서. OECD(MP-OECD-IND)·GAO(AT-DD-03)·TSMC 3DFabric(AT-PA-01/PP-05)은 봇 차단으로 대체 주소를 확인하지 못해 그대로 두었다.",
+    "violated_rule": "출처는 그 주장을 확인할 수 있는 문서를 가리켜야 한다 — 날짜 붙은 수치는 그 발표본을 가리킨다.",
+    "prevention": "ci-knowledge-corpus-check core 구역에 오프라인 규칙: 날짜 붙은 출처(publishedAt 또는 id·제목의 연도)가 ?lv=true·BLS 현재 발표·/latest 모양 주소를 가리키면 실패. 네트워크 생존 확인은 게이트가 아닌 scripts/report-knowledge-source-liveness.mjs(404=dead, 403/429/5xx=판정 불가).",
+    "verification": "이전 sources.json에서 규칙이 PS-10·WEB-BLS-CPI-2026-06 두 건을 잡음(음성 대조). ci-knowledge-generated-parity-check·ci-knowledge-corpus-check PASS.",
+    "files": ["scripts/build-principles-lessons.mjs", "public-data/knowledge/research-source-seeds.json", "public-data/atlas/source-packets.json", "public-data/atlas/domain-source-packets.json", "public-data/atlas/player-product-registry.json", "content/research/principles/catalog.json", "scripts/ci-knowledge-corpus-check.mjs", "scripts/report-knowledge-source-liveness.mjs"]
+  },
+  "r": null,
+  "qa": [
+    {
+      "id": "QA-KNOW-SOURCE-URL-01",
+      "text": "날짜 붙은 지식 출처는 그 발표본 주소를 가리킨다(?lv=true·BLS 현재 발표·/latest 금지). 주소 생존은 report-knowledge-source-liveness로 출처 갱신 때 확인한다.",
+      "verify_by": "node scripts/ci-knowledge-corpus-check.mjs"
+    }
+  ],
+  "qa_section": "지식 출처 주소",
+  "changelog": ["**지식 출처 링크를 고쳤다 ({P}, {VERSION}):** 투자 기초·연준 교육 등 404였던 출처 주소 13곳을 직접 열어 확인한 공식 주소로 바꿨고, 2026년 6월 CPI를 인용하던 두 출처가 늘 최신 달을 여는 주소 대신 6월 발표본을 가리킨다. 날짜 붙은 출처가 움직이는 주소를 쓰면 지식 검사가 실패한다."],
+  "note": "지식 출처 주소 13곳 교체, 날짜 출처의 최신판 주소 금지"
+}

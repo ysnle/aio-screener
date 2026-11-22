@@ -105,6 +105,23 @@ assert(Boolean(primaryResearchSource?.scope), 'Evidence view model must preserve
 assert(!('byId' in evidence), 'Evidence registry must not expose its mutable Map index');
 assert(safeExternalHref('https://www.sec.gov/Archives/test')?.startsWith('https://www.sec.gov/'), 'HTTPS source URL must be allowed');
 for (const unsafeUrl of ['javascript:alert(1)', 'data:text/html,test', 'http://example.com', 'not a url', '']) assert(safeExternalHref(unsafeUrl) === null, `Unsafe URL must be rejected: ${unsafeUrl}`);
+// v60.46: a dated source (publishedAt, or a year in its id/title) must point at that release, not at a page that always
+// shows the latest one — WEB-BLS-CPI-2026-06 cited June 2026 CPI figures through cpi.htm?lv=true, which shows whatever
+// month is newest. Offline shape rule only; network liveness is scripts/report-knowledge-source-liveness.mjs (not a gate).
+const MOVING_URL_SHAPES = [
+  [/[?&]lv=true\b/i, '"?lv=true" latest-version page'],
+  [/bls\.gov\/news\.release\/(?!archives\/)[a-z0-9_]+\.htm\b/i, 'BLS current news release (dated copies live under /news.release/archives/)'],
+  [/\/latest(?:[/?#.]|$)/i, '"latest" path segment']
+];
+const isDatedSource = (source) => Boolean(source.publishedAt) || /\b(?:19|20)\d{2}\b/.test(`${source.id} ${source.title}`);
+const movingUrlShape = (source) => (isDatedSource(source) && MOVING_URL_SHAPES.find(([pattern]) => pattern.test(String(source.url || '')))?.[1]) || null;
+assert(movingUrlShape({ id: 'WEB-BLS-CPI-2026-06', title: 'Consumer Price Index — June 2026', publishedAt: '2026-07-14', url: 'https://www.bls.gov/news.release/cpi.htm?lv=true' }), 'v60.46 moving-URL rule must reject a dated source on a latest-release page');
+assert(!movingUrlShape({ id: 'WEB-BLS-CPI-2026-06', title: 'Consumer Price Index — June 2026', publishedAt: '2026-07-14', url: 'https://www.bls.gov/news.release/archives/cpi_07142026.htm' }), 'v60.46 moving-URL rule must accept the dated archive copy');
+assert(!movingUrlShape({ id: 'MP-BLS', title: 'Consumer Price Index', publishedAt: null, url: 'https://www.bls.gov/news.release/cpi.htm' }), 'v60.46 moving-URL rule must leave an undated topic reference alone');
+for (const source of knowledgeSources.sources) {
+  const shape = movingUrlShape(source);
+  assert(!shape, `v60.46 dated source ${source.id} points at a moving page (${shape}): ${source.url}`);
+}
 
 const samsungHbm = registry.products.find((product) => product.productId === 'samsung-hbm-family');
 const ibmQuantum = registry.products.find((product) => product.productId === 'ibm-quantum-platform');
