@@ -2795,14 +2795,14 @@ window.AIO.getDataLineageAudit = function() {
   try {
     var sched = window.REFRESH_SCHEDULE || {};
     function domCount(attr) { try { return document.querySelectorAll('[' + attr + ']').length; } catch(_) { return 0; } }
-    // 핵심 데이터 13종 lineage 정의 (코드 조사 v49.89 기반 — source URL은 실제 fetch 함수 확인)
+    // 핵심 데이터 lineage 정의 (source는 실제 읽는 경로)
     var LINEAGE = [ // v59.70 (D5): no [data-snap] sinks remain (the 한국 거시 fold held the last); native readers render these rows.
       { id:'quotes',     label:'시세 (지수/종목)',  source:'Yahoo v8 chart (query1.finance.yahoo.com)', schedKey:'quotes',     transform:'PriceStore.set 검증',        renderAttr:'data-live-price', tier:'auto' },
-      { id:'vix',        label:'VIX',              source:'Yahoo ^VIX 3mo',                            schedKey:'vixHistory', transform:'fetchSentimentHistory',       renderAttr:'data-live-price', tier:'auto' },
-      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'CNN dataviz → CORS_PROXY → snapshot (3단)', schedKey:'sentiment',  transform:'_applyFearGreedScore',       renderAttr:null,       tier:'auto' },
-      { id:'fred',       label:'FRED 매크로',       source:'api.stlouisfed.org (CORS 친화, 키 필요)',     schedKey:'fred',       transform:'fetchAllFredData',           renderAttr:null,              tier:'auto', needsKey:true },
-      { id:'technicals', label:'기술 지표 (SPY)',   source:'fetchTechnicalIndicators',                  schedKey:'technicals', transform:'none (v57.76: SPY indicator writers retired; producer reports skipped)', renderAttr:null, tier:'auto' },
-      { id:'hySpread',   label:'HY 스프레드',       source:'FRED BAMLH0A0HYM2 (키 필요)',                schedKey:'hySpread',   transform:'fetchHYSpread',              renderAttr:null,       tier:'auto', needsKey:true },
+      // v60.43: VIX history, F&G, FRED and HY OAS are read from the published artifacts only (no browser fetch task).
+      { id:'vix',        label:'VIX',              source:'public-data/history.json vix + live ^VIX quote', schedKey:null, transform:'history.json → _aioHistory', renderAttr:'data-live-price', tier:'server-auto' },
+      { id:'fearGreed',  label:'F&G (공포탐욕)',    source:'public-data/data.json fearGreed (GitHub Actions)', schedKey:null, transform:'_applyFearGreedScore', renderAttr:null, tier:'server-auto' },
+      { id:'fred',       label:'FRED 매크로',       source:'public-data/data.json macro (GitHub Actions)',    schedKey:null, transform:'_aioApplyServerMacro → DATA_SNAPSHOT', renderAttr:null, tier:'server-auto' },
+      { id:'hySpread',   label:'HY 스프레드',       source:'public-data/data.json macro hyOAS (FRED BAMLH0A0HYM2)', schedKey:null, transform:'projectHighYield → _hySpreadBp', renderAttr:null, tier:'server-auto' },
       { id:'news',       label:'뉴스',             source:'data.json news (server bundle)',           schedKey:'news',       transform:'scoreItem + classifyTopic',  renderAttr:null,              tier:'auto' },
       { id:'krDynamic',  label:'VKOSPI/KR 동적',    source:'Naver VKOSPI/basic (프록시)',                schedKey:'krDynamic',  transform:'fetchVkospiDynamic→DATA_SNAPSHOT.vkospi', renderAttr:null, tier:'auto' },
       { id:'breadth',    label:'Breadth %above MA', source:'GitHub Actions Yahoo 1y adjusted-close · AIO US universe', schedKey:'breadth', transform:'computeScreenerBreadth → _aioApplyScreenerBreadth', renderAttr:null, tier:'auto', note:'공식 거래소 breadth가 아닌 AIO 미국 스크리너 유니버스 비가중 집계. 관측시각·85% 커버리지·값 범위 게이트 통과 시에만 의사결정 입력 허용.' },
@@ -2870,7 +2870,7 @@ window.AIO.getDataLineageAudit = function() {
       rows: rows,
       cellLevel: cellLevel,
       elementLevel: elementLevel,
-      note: 'v52.58 H3-G: 데이터 카테고리 lineage(13종) + cell-level sink-to-source + visible numeric/chart/narrative element inventory. connected=완전자동 / gap=B계층 / manual=C계층 / orphan=끊긴 개별 sink.',
+      note: 'v52.58 H3-G: 데이터 카테고리 lineage + cell-level sink-to-source + visible numeric/chart/narrative element inventory. connected=완전자동 / gap=B계층 / manual=C계층 / orphan=끊긴 개별 sink.',
       generatedAt: new Date().toISOString()
     };
   } catch(e) {

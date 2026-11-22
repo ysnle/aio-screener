@@ -634,7 +634,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
       aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
       spyChg,
       tradingScoreTotal,
-      vixHistory: Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({ date: point?.date || null, value: finite(point?.value) })) : [],
       now: isoNow()
     });
   };

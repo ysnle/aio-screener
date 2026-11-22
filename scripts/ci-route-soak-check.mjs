@@ -110,7 +110,7 @@ try {
     await deep.waitForFunction(() => typeof window._cfWorkerUrl === 'function', null, { timeout: 30000 });
     let surface;
     if (route === 'macro') {
-      surface = await deep.waitForFunction(() => window._aioRelayReady && document.querySelector('#page-macro[data-aio-architecture-renderer="native"]'), null, { timeout: 15000 }).then(() => 'macro rendered after transport ready', () => 'macro never rendered');
+      surface = await deep.waitForFunction(() => document.querySelector('#page-macro[data-aio-architecture-renderer="native"]'), null, { timeout: 15000 }).then(() => 'macro rendered', () => 'macro never rendered');
     } else {
       await deep.waitForFunction(() => document.getElementById('regime-kr-fold'), null, { timeout: 15000 });
       await deep.evaluate(() => { document.getElementById('regime-kr-fold').open = true; });

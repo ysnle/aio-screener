@@ -248,7 +248,7 @@ check('P1753 5/10/20 + 50/100/200 MA stack reaches the AI chat (v59.88: the char
 check('P1753 volume profile (POC / Value Area) stays in the shared technical snapshot; the retired deep-analysis beginner guide stays gone', /export function volumeProfile\(/.test(technicalSnapshotSrc) && /\bpoc:/.test(technicalSnapshotSrc) && /valueArea:/.test(technicalSnapshotSrc) && !/beginnerNote/.test(ui));
 check('technical snapshot exposes full MA stack to AI chat', /sma5/.test(technicalSnapshotSrc) && /sma100/.test(technicalSnapshotSrc) && /shortMAState/.test(technicalSnapshotSrc) && /longMAState/.test(technicalSnapshotSrc) && !/maStackScore/.test(core + technicalSnapshotSrc) && /BASE_MA/.test(technicalLines));
 check('event risk context fails closed without an embedded point-in-time timeline', /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core) && !/headlineYoY:\s*\d/.test(core));
-check('H3-A current F&G consumers do not silently promote fallback through truthy OR', !/window\._lastFG\s*\|\|/.test(runtimeBundle + '\n' + html) && /sourceKind: 'snapshot'/.test(data) && /allowedUse/.test(core));
+check('H3-A current F&G consumers do not silently promote fallback through truthy OR', !/window\._lastFG\s*\|\|/.test(runtimeBundle + '\n' + html) && /_applyFearGreedScore\(\{ score: d\.fearGreed\.score, sourceKind: 'T3_PUBLIC_DELAYED'/.test(data) && /allowedUse/.test(core));
 check('chat history is explicit opt-in with redaction and disable-delete semantics', /enabled\s*=\s*localStorage\.getItem\('aio_chat_history_enabled'\)\s*===\s*'1'/.test(core) && /localStorage\.removeItem\('aio_chat_history'\)/.test(core) && /_aioRedactChatHistoryText/.test(core) && /T962 chat_history_opt_in_redaction_delete/.test(tests) && !/기존 기록은 보존됩니다/.test(core));
 check('P1755 P1364 market-score verdict/caveat stays on score pages and describes the close-basis model via a path-scoped state read', /_scoreScope = \['home', 'signal', 'sentiment', 'briefing'\]\.indexOf\(pageId\) >= 0/.test(core) && /if \(_scoreBlocked && map\[pageId\] && _scoreScope\)/.test(core) && /if \(_scoreCaveat && _scoreScope\)/.test(core) && /getState\('analysis\.signal\.presentation\.description'\)/.test(core) && /getState\('analysis\.tradingScore'\)/.test(core) && !/AIO_ARCH\.getState\(\)/.test(core) && /판단 보류, 일부 근거 부분 확보/.test(core));
 check('high-risk pages are capped below raw LIVE when data is mixed', /technical:\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /'market-news':\s*\{[\s\S]{0,120}maxSourceKind:\s*'DELAYED'/.test(core) && /ticker:\s*\{[\s\S]{0,160}emptyKind:\s*'UNAVAILABLE'/.test(core));
@@ -970,7 +970,8 @@ check('P1315 v59.70 Ctrl/⌘K opens the command search, "/" focuses the table fi
 check('P1315 KOSPI sell tax states securities-transaction tax plus rural special tax; Piotroski is dated 2000 with 8-9/0-2 original bins', /농어촌특별세 0\.15%가 더해져 합계 0\.20%/.test(glossary) && /Piotroski\(2000\)/.test(glossary) && !/Piotroski\(1998\)/.test(glossary) && /8~9점을 강한 그룹/.test(glossary));
 check('QA-GLOSSARY-SWEEP/P1261 unattributed aphorism and sourced superlative stay unasserted', !/— 아인슈타인\./.test(glossary) && !/역사상 가장 강력한 주가 부양 수단/.test(glossary) && /출처가 확정된 문헌이 없어/.test(glossary));
 check('LIVE3-09: quote producers preserve exchange observation time separately from file freshness', /regularMarketTime/.test(fetchData) && /marketState/.test(fetchData) && /exchangeTimezoneName/.test(fetchData) && /window\._liveData\[q\.symbol\]\.observedAt/.test(data));
-check('LIVE3-10: failed client F&G refresh preserves a newer server observation instead of overwriting it with static seed', /\^\(live\|proxy\|delayed\)\$/.test(data) && /외부 관측값이 전혀 없을 때만 정적 snapshot/.test(data));
+// v60.43: the client F&G fetch is retired, so no client refresh can overwrite the server observation.
+check('LIVE3-10: v60.43 the server F&G observation is the only writer; no client F&G refresh can overwrite it with a static seed', !/function fetchFearGreed/.test(data) && /_applyFearGreedScore\(\{ score: d\.fearGreed\.score/.test(data));
 
 check('LIVE3-11: every external dependency has an explicit free-only replacement/rights/cadence state and provider availability is not treated as implementation', /getExternalDependencyAudit/.test(core) && /external-dependency-audit\.v1/.test(core) && /provider availability is not implementation status/.test(core) && /free-plan-only/.test(core) && /free_equivalent_unavailable/.test(core) && /free_key_required/.test(core));
 check('LIVE3-12: a core quote outage preserves the last-known-good data artifact and screener refresh can run in isolation', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchScript) && fetchScript.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchScript.indexOf('await atomicWriteFile(OUT') && /SCREENER_ONLY/.test(fetchScript));
@@ -1114,11 +1115,11 @@ check('P783: a dead client quote proxy preserves snapshot fallback and bounds re
   /quoteProxyCircuitOpen && hasMarketSnapshotFallback/.test(data) &&
   /retryAfterMs: usingSnapshotFallback \? null : wait \* 1000/.test(data) && !/setTimeout\(fetchLiveQuotes/.test(data) &&
   /기준 스냅샷 사용, 중앙 갱신 주기 대기/.test(data));
-check('P783: boot waits for the same-origin snapshot and server macro/HY success suppresses duplicate browser fallbacks',
+// v60.43: the browser FRED and HY OAS fetchers are gone, so no server-ready flag is needed to suppress them.
+check('P783: boot waits for the same-origin snapshot and the browser fetches no FRED or HY OAS value data.json carries',
   !/실시간 시세 \(성공 시 기본값 교체\)[\s\S]{0,80}fetchLiveQuotes\(\)/.test(ui) &&
   /__AIO_ARCH_RUNTIME__/.test(data) &&
-  /_aioServerMacroReady/.test(data) &&
-  /!_aioServerHyReady/.test(data));
+  !/function fetchHYSpread|function fetchAllFredData|_aioServerHyReady|_aioServerMacroReady/.test(data));
 check('P783: blocked-external-network Chromium gate asserts the reference-only snapshot topbar',
   read('scripts/ci-architecture-browser-check.mjs').includes('/^서버 .+, 시세 16종$/') &&
   /snapshot quote topbar must stay reference-only/.test(read('scripts/ci-architecture-browser-check.mjs')));

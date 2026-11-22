@@ -27,7 +27,7 @@ const pass = (name) => { checks += 1; console.log(`PASS ${name}`); };
 const settle = async () => { for (let i = 0; i < 8; i += 1) await new Promise((resolve) => setImmediate(resolve)); };
 
 // ── Scheduler harness: real module, stub fetchers whose promises the case resolves. ──────────────────────────────
-const FETCHERS = ['fetchLiveQuotes', 'fetchAllNews', 'fetchSentimentHistory', 'fetchBreadthData', 'fetchAllFredData', 'fetchHYSpread', 'autoUpdateMA', 'fetchKrDynamicData', 'fetchFearGreed', 'fetchPutCall'];
+const FETCHERS = ['fetchLiveQuotes', 'fetchAllNews', 'fetchBreadthData', 'fetchKrDynamicData'];
 const warnings = [];
 const doc = { hidden: false, addEventListener() {}, removeEventListener() {}, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null };
 const globals = { document: doc, T: { COOLDOWN: 60000 }, updateDataStatus() {}, _aioRegisterTimer: () => 0, showDataError: (label, message) => warnings.push(`${label}: ${message}`) };
@@ -382,6 +382,25 @@ getChatState = function () { return this.__shared; }.bind(this);`, Object.assign
   const offenders = files.filter((file) => /(?:^|[^.\w])(?:window\.)?fetchLiveQuotes\s*=(?!=)/m.test(readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')));
   assert.deepEqual(offenders, [], 'v59.74 SM-04b: fetchLiveQuotes is assigned only by src/data/quote-demand.js');
   pass('SM-04b no legacy script replaces the quote demand seam');
+}
+
+// v60.43 SM-05: one interval per task for the hour. Before, no task read the market clock: quotes ran every 3 minutes
+// and the KR batch (261 codes) every 30 minutes through nights and weekends, and page entry re-ran both.
+{
+  const { refreshIntervalMs, openSessions } = await import('../src/app/refresh-session-policy.js');
+  const saturday = Date.parse('2026-11-21T03:00:00Z');      // Sat 12:00 KST, every market closed
+  const krOpen = Date.parse('2026-11-24T01:00:00Z');        // Tue 10:00 KST, KR session
+  const krJustClosed = Date.parse('2026-11-24T06:45:00Z');  // Tue 15:45 KST, the half hour after the KR close
+  const usOpen = Date.parse('2026-11-24T15:00:00Z');        // Tue 10:00 ET, US session, KR closed
+  const at = (nowMs) => ['quotes', 'krDynamic', 'marketSnapshot', 'news'].map((key) => refreshIntervalMs(key, { quotes: 180000, krDynamic: 1800000, marketSnapshot: 300000, news: 2700000 }[key], nowMs));
+  assert.deepEqual(at(saturday), [1800000, Infinity, Infinity, 2700000], 'v60.43 SM-05: closed markets stretch quotes to 30 minutes and hold the KR batch and the snapshot re-read');
+  assert.deepEqual(at(krOpen), [180000, 1800000, 300000, 2700000], 'v60.43 SM-05: the KR session keeps every interval');
+  assert.deepEqual(at(krJustClosed).slice(1, 2), [1800000], 'v60.43 SM-05: the KR batch still runs in the half hour after the close');
+  assert.deepEqual(at(usOpen), [180000, Infinity, 300000, 2700000], 'v60.43 SM-05: the US session keeps quotes and the snapshot, not the KR batch');
+  assert.deepEqual(openSessions(saturday), { us: false, kr: false, krAfterClose: false }, 'v60.43 SM-05: no session is open on a Saturday');
+  const scheduler = readFileSync(new URL('../src/app/refresh-scheduler.js', import.meta.url), 'utf8');
+  assert.ok(!/Math\.max\(\(?cfg\.interval/.test(scheduler), 'v60.43 SM-05: page entry and the stale report read the policy interval, not the raw one');
+  pass('SM-05 the market clock sets each session-bound task interval');
 }
 
 console.log(JSON.stringify({ ok: true, gate: 'state-machine-regression', checks }));

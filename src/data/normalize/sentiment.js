@@ -31,9 +31,6 @@ export function normalizeSentiment(raw = {}) {
     unit: skew.unit || 'index',
     value: finite(skew.value)
   });
-  result.vixHistory = Array.isArray(raw.vixHistory)
-    ? raw.vixHistory.map((point) => ({ date: point?.date || null, value: finite(point?.value) })).filter((point) => point.value != null)
-    : [];
   return Object.freeze(result);
 }
 

@@ -1,9 +1,7 @@
 // v59.34 (roadmap 11, layer 4 boot sequence): the server data loader moved out of js/aio-data.js unchanged — the
 // official Treasury curve projection (AIO_SERVER_TREASURY_FIELDS, _aioApplyServerTreasuryEvidence) and
 // _aioLoadServerData, which applies public-data/data.json to DATA_SNAPSHOT and the legacy caches after
-// src/data/server-data.js fetched it. It still sets the classic script-scope lets _aioServerMacroReady and
-// _aioServerHyReady, which stay declared in js/aio-data.js because initV20DataEngine reads them there; a module
-// resolves those names in the shared global scope. src/app/compatibility-globals.js installs this before DOMContentLoaded.
+// src/data/server-data.js fetched it. src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { mergeRotationDetail, rotationDetailPending } from '../domain/themes/rotation-detail.js';
 import { ROTATION_DETAIL } from './artifact-registry.js';
@@ -268,8 +266,6 @@ export function installServerDataLoader(window = globalThis) {
         if (d.meta.fredFetchOk && _serverFredApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
           window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.fredLastSuccessfulAt || d.meta.generatedAt || new Date().toISOString();
         }
-        _aioServerMacroReady = !!(d.meta.fredFetchOk && _serverFredApplied > 0);
-        _aioServerHyReady = !!(window._serverDataMeta && window._serverDataMeta.hyOAS);
         setTimeout(function() {
           try {
             if (typeof window._aioRefreshAllPageSurfaces === 'function') window._aioRefreshAllPageSurfaces();

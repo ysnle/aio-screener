@@ -38,10 +38,6 @@ function readLegacy(root) {
   const fgMeta = root?._lastFGMeta || {};
   const fg = finite(canonicalFg?.value) ?? finite(root?._lastFG) ?? finite(snapshot.fg);
   const quote = (symbol) => finite(live[symbol]?.price);
-  const vixHistory = Array.isArray(root?._vixHistory) ? root._vixHistory.slice(-30).map((point) => ({
-    date: point?.date || null,
-    value: finite(point?.value)
-  })) : [];
   return Object.freeze({
     fearGreed: fg,
     fearGreedSourceKind: canonicalFg?.sourceKind || fgMeta.sourceKind || (fg == null ? 'unavailable' : 'snapshot'),
@@ -62,7 +58,6 @@ function readLegacy(root) {
     aaiiBear: finite(snapshot.aaiiBear),
     aaiiBull: finite(snapshot.aaiiBull),
     aaiiObservedAt: snapshot._fieldTs?.aaii || root?._serverDataMeta?.marketSurveys?.aaii?.observedAt || null,
-    vixHistory,
     now: new Date().toISOString()
   });
 }

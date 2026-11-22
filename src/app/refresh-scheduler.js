@@ -4,32 +4,20 @@
 // in this one scope with every function that reads it. Top-level functions and vars stay window globals as they were
 // in the classic script; src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { installQuoteDemand } from '../data/quote-demand.js';
+import { refreshIntervalMs } from './refresh-session-policy.js';
 
 export function installRefreshScheduler(window = globalThis) {
   // ═══ 9. 데이터 갱신 스케줄러 (중앙 관리) ═══════════════════════
-  // v21: 5명 동시 접속 기준 rate limit 안전 간격
-  // ────────────────────────────────────────────────────
-  // API별 한도 분석 (5명 기준):
-  //   rss2json    : 10,000/일 → 소스50 × 갱신횟수 × 5명 → 45분 간격이면 ~5,300/일 (안전)
-  //   Finnhub     : 60/분     → 시세 1콜 × 5명 = 5/분 (여유)
-  //   NewsData.io : 200/일    → 갱신당 1콜 × 5명 → 45분이면 ~160/일 (안전)
-  //   Twelve Data : 8/분      → 1콜 × 5명 = 5/분 (여유, 단 동시 호출 피해야)
-  //   FRED        : 120/일    → 2시간 간격 × 5명 = ~60/일 (안전)
-  //   Claude(번역) : 유료      → 45분 간격이면 일 ~80콜 × 5명 = 비용 감소
-  //   Yahoo(프록시): 무제한    → 프록시 부하만 주의
-  //   CoinGecko   : 10~30/분  → 60초 간격 × 5명 = 5/분 (안전)
-  // ────────────────────────────────────────────────────
+  // Only tasks that touch the network are scheduled. Fear & Greed, FRED, HY OAS, the VIX history and the S&P 500
+  // averages come from data.json and history.json (src/data/server-data-loader.js, src/app/bootstrap.js), so
+  // no task fetches them. src/app/refresh-session-policy.js gives each session-bound task (quotes, krDynamic,
+  // marketSnapshot) its interval for the hour, which timers, page entry and the stale report all read.
   const REFRESH_SCHEDULE = {
-    quotes:     { fn: null, interval: 180000,     label: '시세 (3분)',          timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    news:       { fn: null, interval: 2700000,    label: '뉴스 (45분)',          timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    sentiment:  { fn: null, interval: 600000,     label: '센티먼트 (10분)',       timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    breadth:    { fn: null, interval: 600000,     label: '시장 폭 (10분)',        timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    fred:       { fn: null, interval: 7200000,    label: 'FRED (2시간)',         timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    technicals: { fn: null, interval: 900000,     label: '기술 지표 (15분)',      timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    vixHistory: { fn: null, interval: 1800000,    label: 'VIX 히스토리 (30분)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    hySpread:   { fn: null, interval: 21600000,   label: 'HY 스프레드 (6시간)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    maUpdate:   { fn: null, interval: 21600000,   label: 'MA 갱신 (6시간)',       timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
-    krDynamic:  { fn: null, interval: 1800000,    label: 'KR 동적 (30분)',        timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+    quotes:         { fn: null, interval: 180000,  label: '시세 (3분, 휴장 30분)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+    news:           { fn: null, interval: 2700000, label: '뉴스 (45분)',            timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+    breadth:        { fn: null, interval: 600000,  label: '시장 폭 (10분)',          timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+    krDynamic:      { fn: null, interval: 1800000, label: 'KR 동적 (30분, 한국장)',   timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
+    marketSnapshot: { fn: null, interval: 300000,  label: '시장 스냅샷 (5분, 장중)',  timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
   };
 
   // v30.11: Page Visibility API — 백그라운드 탭 타이머 절약
@@ -62,19 +50,7 @@ export function installRefreshScheduler(window = globalThis) {
   function _aioMarkSchedulerFetch(key, result) {
     if (result && result.updated === false) return;
     if (typeof window._markFetch !== 'function') return;
-    var map = {
-      quotes: 'quote',
-      news: 'news',
-      sentiment: 'sentiment',
-      breadth: 'breadth',
-      fred: 'fred',
-      technicals: 'technicals',
-      vixHistory: 'vixHistory',
-      hySpread: 'hySpread',
-      maUpdate: 'maUpdate',
-      krDynamic: 'krDynamic'
-    };
-    window._markFetch(map[key] || key);
+    window._markFetch(key === 'quotes' ? 'quote' : key);
   }
 
   window.AIO = window.AIO || {};
@@ -85,14 +61,14 @@ export function installRefreshScheduler(window = globalThis) {
   function _normalizeRefreshSchedule() {
     Object.entries(REFRESH_SCHEDULE || {}).forEach(([key, cfg]) => {
       cfg.key = cfg.key || key;
-      cfg.priority = cfg.priority || (key === 'quotes' ? 'high' : key === 'news' || key === 'sentiment' ? 'medium' : 'normal');
+      cfg.priority = cfg.priority || (key === 'quotes' ? 'high' : key === 'news' ? 'medium' : 'normal');
       cfg.timeoutMs = cfg.timeoutMs || Math.min(Math.max(Math.round((cfg.interval || 60000) * 0.35), 8000), 60000);
       cfg.retryCount = cfg.retryCount || 0;
       cfg.nextDue = cfg.nextDue || 0;
       cfg.lastRunStart = cfg.lastRunStart || 0;
       cfg.lastRunEnd = cfg.lastRunEnd || 0;
       cfg.lastDurationMs = cfg.lastDurationMs || 0;
-      cfg.policyKey = cfg.policyKey || (key === 'quotes' ? 'quote' : key === 'news' ? 'news' : key === 'fred' ? 'macro_daily' : key === 'technicals' ? 'technical' : 'sentiment');
+      cfg.policyKey = cfg.policyKey || (key === 'quotes' || key === 'marketSnapshot' ? 'quote' : key === 'news' ? 'news' : key === 'krDynamic' ? 'kr_supply' : 'breadth');
     });
   }
 
@@ -153,8 +129,8 @@ export function installRefreshScheduler(window = globalThis) {
           result: resolved
         };
       }
-      // v59.45 (R2-01): an explicit null means the task is unavailable or retired (the wrappers below and the retired
-      // fetchAllFredData return it), so it does not stamp a success time. A Promise.allSettled batch whose every job
+      // v59.45 (R2-01): an explicit null means the task is unavailable (the wrappers below return it when their fetcher
+      // is not installed), so it does not stamp a success time. A Promise.allSettled batch whose every job
       // rejected (or that ran no job) is a failure, not 'partial' at 100% coverage with a fresh success time.
       if (resolved === null) {
         cfg._lastErr = 'scheduler task unavailable';
@@ -262,70 +238,61 @@ export function installRefreshScheduler(window = globalThis) {
   function _assignRefreshScheduleFunctions() {
     REFRESH_SCHEDULE.quotes.fn     = (opts) => { return (typeof fetchLiveQuotes === 'function') ? fetchLiveQuotes(opts && opts.symbols) : null; };
     REFRESH_SCHEDULE.news.fn       = (opts) => { return (typeof fetchAllNews === 'function') ? fetchAllNews(!!(opts && opts.forceRefresh)) : null; };
-    REFRESH_SCHEDULE.sentiment.fn  = () => {
-      var jobs = [];
-      if (typeof fetchFearGreed === 'function') jobs.push(fetchFearGreed());
-      if (typeof fetchPutCall === 'function') jobs.push(fetchPutCall());
-      return Promise.allSettled(jobs);
-    };
     REFRESH_SCHEDULE.breadth.fn    = fetchBreadthData;
-    REFRESH_SCHEDULE.fred.fn       = fetchAllFredData;
-    // v57.76: Twelve Data indicators needed a personal key (retired v57.67); the producer stays registered and reports skipped.
-    REFRESH_SCHEDULE.technicals.fn = () => Promise.resolve({ ok: false, skipped: true, updated: false, reason: 'technical indicators unavailable' });
-    REFRESH_SCHEDULE.vixHistory.fn = fetchSentimentHistory;
-    REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
-    REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
     REFRESH_SCHEDULE.krDynamic.fn  = () => { return (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData() : null; };
+    // src/app/bootstrap.js owns the snapshot loader (fast quotes plane first, durable snapshot behind it).
+    REFRESH_SCHEDULE.marketSnapshot.fn = () => { return (typeof window._aioReloadMarketSnapshot === 'function') ? window._aioReloadMarketSnapshot() : null; };
     window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
     _normalizeRefreshSchedule();
   }
 
   _assignRefreshScheduleFunctions();
 
+  // v21: ±15% jitter so concurrent readers do not call a provider at the same instant.
+  function jitteredInterval(baseMs) {
+    const jitter = baseMs * 0.15;
+    return baseMs + Math.floor(Math.random() * jitter * 2 - jitter);
+  }
+
+  // The session policy's question for a timed run. The last run is the later of a scheduled start and a recorded success
+  // (the boot quote fetch and page/AI requests reach quotes._lastOk through the quote demand, not lastRunStart).
+  function _interval(key, cfg, fallbackMs) {
+    return refreshIntervalMs(key, cfg.interval || fallbackMs || 0, Date.now());
+  }
+  // While the session is open the timer chain itself keeps the interval; a stretched interval is checked against the last run.
+  function _timedRunDue(key, cfg) {
+    const due = _interval(key, cfg);
+    return due === cfg.interval || Date.now() - Math.max(cfg.lastRunStart || 0, cfg._lastOk || 0) >= due;
+  }
+
+  // One timer chain per task: a new epoch, a first delay, then a jittered interval after every fire. The session policy
+  // decides at each fire whether the task runs; the chain continues either way, so a task resumes when its session opens.
+  function _scheduleTask(key, cfg, firstDelay, showError) {
+    const scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
+    cfg._scheduleEpoch = scheduleEpoch;
+    if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
+    const current = () => !_schedulerPaused && cfg._scheduleEpoch === scheduleEpoch;
+    const arm = (delay) => {
+      if (!current() || cfg.timer) return;
+      cfg.nextDue = Date.now() + delay;
+      cfg.timer = setTimeout(async () => {
+        cfg.timer = null;
+        if (!current()) return;
+        if (_timedRunDue(key, cfg)) await _runScheduledTask(key, cfg, showError);
+        arm(jitteredInterval(cfg.interval));
+      }, delay);
+    };
+    arm(firstDelay);
+  }
+
   function startDataScheduler() {
     console.log('[AIO v21] ═══ Data Scheduler Starting (5명 동시접속 최적화) ═══');
-
-    // v21: 랜덤 지터 함수 — 각 유저가 약간 다른 시간에 호출하도록
-    // interval의 ±15% 범위 내에서 랜덤화
-    function jitteredInterval(baseMs) {
-      const jitter = baseMs * 0.15; // ±15%
-      return baseMs + Math.floor(Math.random() * jitter * 2 - jitter);
-    }
-
-    // Assign functions
     _assignRefreshScheduleFunctions();
-    // v30.11: 중앙 스케줄러 편입 (T3, T7 독립 타이머 → 여기로 통합)
-    REFRESH_SCHEDULE.hySpread.fn   = () => { return (typeof fetchHYSpread === 'function') ? fetchHYSpread() : null; };
-    REFRESH_SCHEDULE.maUpdate.fn   = () => { return (typeof autoUpdateMA === 'function') ? autoUpdateMA() : null; };
-    REFRESH_SCHEDULE.krDynamic.fn  = () => { return (typeof fetchKrDynamicData === 'function') ? fetchKrDynamicData() : null; };
-    window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
-    _normalizeRefreshSchedule();
-
-    // v21: 지터가 적용된 타이머 시작 (5명이 동시 호출하는 것 방지)
     Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
       if (cfg.fn && cfg.interval > 0) {
-        // 첫 실행도 랜덤 딜레이 후 시작 (0~30초)
+        // The boot phases already ran the first fetch; the first timed run waits a random 0-30 s plus one interval.
         const initialDelay = Math.floor(Math.random() * 30000);
-        const scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
-        cfg._scheduleEpoch = scheduleEpoch;
-        cfg.nextDue = Date.now() + initialDelay;
-        cfg.timer = setTimeout(() => {
-          cfg.timer = null;
-          if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
-          // setInterval 대신 재귀 setTimeout으로 매번 지터 적용
-          function scheduleNext() {
-            if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch || cfg.timer) return;
-            const nextInterval = jitteredInterval(cfg.interval);
-            cfg.nextDue = Date.now() + nextInterval;
-            cfg.timer = setTimeout(async () => {
-              cfg.timer = null;
-              if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
-              await _runScheduledTask(key, cfg, true);
-              if (!_schedulerPaused && cfg._scheduleEpoch === scheduleEpoch) scheduleNext();
-            }, nextInterval);
-          }
-          scheduleNext();
-        }, initialDelay);
+        _scheduleTask(key, cfg, initialDelay + jitteredInterval(cfg.interval), true);
         console.log(`  ✓ ${cfg.label} — ~${Math.round(cfg.interval / 1000)}s (±15% jitter, 시작 +${Math.round(initialDelay/1000)}s)`);
       }
     });
@@ -346,19 +313,19 @@ export function installRefreshScheduler(window = globalThis) {
   // 디바운스: 동일 태스크 동시 진입 폭주 방지 (cfg._inFlight + per-task 최소 간격).
   // ─────────────────────────────────────────────────────────────────
   var AIO_PAGE_REFRESH_MAP = {
-    home:        ['quotes', 'news', 'sentiment', 'breadth', 'technicals'],
-    signal:      ['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread'],
-    breadth:     ['quotes', 'breadth', 'technicals'],
-    sentiment:   ['quotes', 'sentiment', 'vixHistory', 'hySpread'],
-    briefing:    ['quotes', 'news', 'sentiment', 'breadth', 'fred', 'technicals'],
+    home:        ['quotes', 'news', 'breadth'],
+    signal:      ['quotes', 'breadth'],
+    breadth:     ['quotes', 'breadth'],
+    sentiment:   ['quotes'],
+    briefing:    ['quotes', 'news', 'breadth'],
     // 기술적 분석: the analysis slot moved here from the 차트 tab (owner 2026-11-19), so its refresh list followed it.
-    charts:      ['quotes', 'technicals', 'breadth', 'sentiment', 'vixHistory', 'krDynamic'],
-    macro:       ['quotes', 'fred', 'news', 'sentiment', 'krDynamic'],
-    fxbond:      ['quotes', 'fred', 'hySpread', 'news'],
-    fundamental: ['quotes', 'news', 'technicals'],
-    themes:      ['quotes', 'news', 'technicals', 'krDynamic'],
-    screener:    ['quotes', 'technicals'],
-    portfolio:   ['quotes', 'technicals'],
+    charts:      ['quotes', 'breadth', 'krDynamic'],
+    macro:       ['quotes', 'news', 'krDynamic'],
+    fxbond:      ['quotes', 'news'],
+    fundamental: ['quotes', 'news'],
+    themes:      ['quotes', 'news', 'krDynamic'],
+    screener:    ['quotes'],
+    portfolio:   ['quotes'],
     'market-news': ['quotes', 'news'],
     // v53.7 (P725): KR 라우트 퇴역 — themes/macro/charts가 KR 섹션 갱신을 겸함
     // P1321: options route retired — its VIX/PCR/SKEW live on sentiment
@@ -473,7 +440,7 @@ export function installRefreshScheduler(window = globalThis) {
         if (!cfg || typeof cfg.fn !== 'function' || cfg._inFlight) return;
         // stale 판정: 마지막 성공이 ½ interval 초과 (아직 fresh면 스킵 — 불필요 호출 방지)
         var lastOk = cfg._lastOk || 0;
-        var staleThreshold = Math.max((cfg.interval || 600000) * 0.5, 60000);
+        var staleThreshold = Math.max(_interval(key, cfg, 600000) * 0.5, 60000);
         // 연계점①: news 태스크이고 주간뉴스 만료 임박 — stale 기준 무시하고 강제 실행
         var forceRefresh = (key === 'news' && weeklyNewsExpiring);
         if (!forceRefresh && lastOk && (now - lastOk) < staleThreshold) return;
@@ -518,23 +485,7 @@ export function installRefreshScheduler(window = globalThis) {
   // v30.11: 스케줄러 재시작 함수 (Page Visibility 복귀용)
   function restartScheduler() {
     Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
-      if (cfg.fn && cfg.interval > 0 && !cfg.timer) {
-        var scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
-        cfg._scheduleEpoch = scheduleEpoch;
-        function jit(base) { var j = base * 0.15; return base + Math.floor(Math.random() * j * 2 - j); }
-        function scheduleNext() {
-          if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch || cfg.timer) return;
-          var delay = jit(cfg.interval);
-          cfg.nextDue = Date.now() + delay;
-          cfg.timer = setTimeout(async () => {
-            cfg.timer = null;
-            if (_schedulerPaused || cfg._scheduleEpoch !== scheduleEpoch) return;
-            await _runScheduledTask(key, cfg, false);
-            if (!_schedulerPaused && cfg._scheduleEpoch === scheduleEpoch) scheduleNext();
-          }, delay);
-        }
-        scheduleNext();
-      }
+      if (cfg.fn && cfg.interval > 0 && !cfg.timer) _scheduleTask(key, cfg, jitteredInterval(cfg.interval), false);
     });
   }
 
@@ -554,7 +505,7 @@ export function installRefreshScheduler(window = globalThis) {
       // stale 데이터만 즉시 갱신
       var resumeKeys = [];
       Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
-        if (cfg.fn && elapsed >= cfg.interval) {
+        if (cfg.fn && elapsed >= cfg.interval && _timedRunDue(key, cfg)) {
           resumeKeys.push(key);
         }
       });
@@ -583,7 +534,7 @@ export function installRefreshScheduler(window = globalThis) {
       var hasFn = typeof cfg.fn === 'function';
       if (!hasFn) tasksWithoutFn.push(key);
       if (cfg._inFlight) inFlight.push(key);
-      if (cfg._lastOk && now - cfg._lastOk <= Math.max(cfg.interval || 0, 60000) * 2) staleOk.push(key);
+      if (cfg._lastOk && now - cfg._lastOk <= Math.max(_interval(key, cfg), 60000) * 2) staleOk.push(key);
       tasks[key] = {
         label: cfg.label || key,
         intervalMs: cfg.interval || 0,
@@ -704,7 +655,7 @@ export function installRefreshScheduler(window = globalThis) {
       var missingTasks = tasks.filter(function(task) { return !REFRESH_SCHEDULE[task] || typeof REFRESH_SCHEDULE[task].fn !== 'function'; });
       var staleTasks = tasks.filter(function(task) {
         var cfg = REFRESH_SCHEDULE[task] || {};
-        return !cfg._lastOk || (now - cfg._lastOk) > Math.max(cfg.interval || 600000, 60000) * 2;
+        return !cfg._lastOk || (now - cfg._lastOk) > Math.max(_interval(task, cfg, 600000), 60000) * 2;
       });
       var liveMissing = symbols.filter(function(sym) { return !(window._liveData && window._liveData[String(sym).toUpperCase()]); });
       var sinks = pageEl ? pageEl.querySelectorAll('[data-live-price],[data-live-pct],[data-live-field],[data-snap],[data-snap-date]').length : 0;

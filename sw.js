@@ -5,8 +5,8 @@
 
 // R1: keep SW_VERSION in sync with APP_VERSION/version.json for reliable cache rotation.
 // v48.80/P150: operational hardening adds an explicit build marker and health message.
-const SW_VERSION = 'v60.43';
-const SW_BUILD = '2026-11-22T11:58:00+09:00';
+const SW_VERSION = 'v60.44';
+const SW_BUILD = '2026-11-22T13:44:00+09:00';
 // v57.54 review: code can ship without a version bump (post-deploy fixes), so the cache-first shell is also keyed
 // on the shipped code. pages-deploy.yml replaces 'local' with a hash of the staged index.html + js/ + src/; a data-only
 // deploy keeps the same hash (no cache churn), a code change renames SHELL_CACHE and the old one is deleted on activate.
@@ -109,17 +109,11 @@ async function recoverAppDocument(request, scopeUrl) {
 const DATA_URL_PATTERNS = [
   /\/public-data\/(?:market-snapshot|reconciliation-status)\.json(?:\?|$)/,
   /\/public-data\/sec-fundamentals-summary\.json(?:\?|$)/,
-  /query[12]\.finance\.yahoo\.com/,      // Yahoo Finance
-  /api\.coingecko\.com/,                  // CoinGecko
-  /fredgraph\.csv|fredapi/,               // FRED
-  /cdn\.cboe\.com/,                       // CBOE
-  // P1142: unusualwhales.com 패턴 제거 — 어디서도 fetch하지 않는 유일한 패턴이었다(P1112와 같은
-  // "캐시 구성이 실제 소비를 거짓 설명" 클래스).
-  /finnhub\.io/,                          // Finnhub
-  /alphavantage\.co/,                     // Alpha Vantage
-  /financialmodelingprep\.com/,           // FMP
+  /api\.coingecko\.com/,                  // CoinGecko (direct simple/price)
+  // P1142/P1112 class: a pattern no cacheable request matches describes a cache that never fills. v60.43 removed the
+  // Yahoo, FRED, CBOE, Finnhub, Alpha Vantage, FMP and CORS-proxy patterns: the browser calls those hosts only through
+  // a relay whose URL carries `url=`, which isSensitiveUrl never caches, or not at all.
   /data\.sec\.gov/,                       // SEC EDGAR
-  /corsproxy\.io|allorigins\.win|codetabs\.com/,  // CORS 프록시
   /rsshub\.app/,                          // RSSHub 텔레그램
 ];
 

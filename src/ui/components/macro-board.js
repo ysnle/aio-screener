@@ -35,7 +35,6 @@ import { taylorRule, TAYLOR_R_STAR_OPTIONS, TAYLOR_R_STAR_SEP } from '../../doma
 import { el } from './dom.js';
 import { frameHead } from './section-frame.js';
 import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
-import { usWeekendClosed } from '../../domain/market/session/market-calendar.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
 import { dodgeSvgLabels } from './svg-label-dodge.js';
@@ -1300,9 +1299,8 @@ function renderErpLine(doc, root) {
   line.hidden = false;
 }
 
-// Codex browser audit H18: "그 밖의 통화 · 실시간 시세 · 지연 가능" sat above once-a-day public reference rates with
-// no change. The note now names what the cells actually hold — a market quote time, or a daily reference rate and
-// its date — and an empty change cell for a reference rate is hidden instead of showing a fixed dash.
+// Codex browser audit H18: the note names what the cells actually hold — a market quote time, or a completed close and
+// its date — and the change cell beside a close is hidden instead of showing a fixed dash.
 const OTHER_FX = Object.freeze(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
 // v59.75 (macro audit 11/7): with no live quote the fold showed nothing; history.json now keeps completed closes for the four
 // (scripts/producer/history.mjs), and the fold falls back to the last close of each, named as a close with its date.
@@ -1328,19 +1326,14 @@ export function describeOtherFx(live = {}, history = [], nowMs = Date.now()) {
     const [, month, day] = label.split('-').map(Number);
     return { text: `${month}/${day} 종가`, reference: true, closes };
   }
-  const basisOf = (row) => row.quoteEnvelope?.valueBasis || row.valueBasis || null;
-  const sourceOf = (row) => String(row.quoteEnvelope?.source || row._source || row.source || '');
-  const reference = rows.every((row) => basisOf(row) === 'daily-reference-rate' || sourceOf(row).startsWith('reference:fx'));
+  // A live row is a market quote (the daily reference-rate APIs are gone); a close is the history fallback above.
   const stamps = rows.map((row) => row.observedAt || row.quoteEnvelope?.observedAt).map((at) => (typeof at === 'number' ? at * (at < 1e12 ? 1000 : 1) : Date.parse(at))).filter(Number.isFinite);
   const latest = stamps.length ? new Date(Math.max(...stamps)) : null;
   // v58.82: the label is KST like the rest of the board — the browser's own zone gave a US or European reader another day/hour.
   const kst = latest ? new Date(latest.getTime() + 9 * 3600000) : null;
   const md = kst ? `${kst.getUTCMonth() + 1}/${kst.getUTCDate()}` : null;
   const hm = kst ? `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}` : null;
-  return reference
-    // v58.74 (audit): the provider stamps its Saturday update '10/24 고시' over Friday's rates; on a weekend it says so.
-    ? { text: `참고 환율, ${md ? (usWeekendClosed(latest.getTime()) ? `${md} 고시(주말이라 금요일 시세)` : `${md} 고시`) : '고시일 미확인'}`, reference: true }
-    : { text: latest ? `시장 시세, ${md} ${hm} 관측` : '시장 시세, 관측 시각 미확인', reference: false };
+  return { text: latest ? `시장 시세, ${md} ${hm} 관측` : '시장 시세, 관측 시각 미확인', reference: false };
 }
 function syncOtherCurrencyNote(doc, root) {
   const note = doc.querySelector?.('#rates-other-title .rates-other-note');

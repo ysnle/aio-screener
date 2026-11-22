@@ -2385,12 +2385,8 @@ const FRED_SERIES = {
 
 // The browser BOK ECOS and KOSIS fetchers (Worker /relay) are retired (owner 2026-11-21): the 한국 기준금리 and CPI come
 // only from the producer's official references in DATA_SNAPSHOT.
-// v57.76: the personal-key FRED live query (fetchFredSeries: personal Worker, consented relay, direct call) was removed
-// with the retired personal keys. Macro series come from the server artifact (data.json) applied by the boot path.
-async function fetchAllFredData() {
-  if (typeof _reportApiError === 'function') _reportApiError('fred', 'FRED live query retired; server data active');
-  return null;
-}
+// v57.76: the personal-key FRED live query was removed with the retired personal keys; v60.43 deleted its null stub
+// (fetchAllFredData) and the scheduler task. Macro series come from the server artifact (data.json).
 
 function applyFredToUI(data) {
   // HY Spread
@@ -2571,53 +2567,6 @@ async function fetchBreadthData() {
   var screenerBreadth = typeof window._aioScreenerBreadth === 'function' ? window._aioScreenerBreadth() : null;
   if (screenerBreadth && screenerBreadth.state.status === 'verified_current') {
     return { updated:false, source:'screener-breadth-primary' };
-  }
-}
-
-// ═══ 8. 센티먼트 차트 실시간 업데이트 ═══════════════════════
-async function fetchSentimentHistory() {
-  // VIX History from Yahoo Finance
-  try {
-    const vixUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?interval=1d&range=3mo';
-    const r = await fetchViaProxy(vixUrl, 8000);
-    let raw;
-    try { raw = await r.text(); } catch(e) { raw = ''; }
-    // v30.11: HTML 에러페이지 탐지 (유령 차트 방지)
-    if (raw.trimStart().startsWith('<!DOCTYPE') || raw.trimStart().startsWith('<html')) {
-      _aioLog('warn', 'chart', 'VIX chart: Yahoo returned HTML error page');
-      showDataError('VIX차트', 'Yahoo Finance HTML 에러 — 프록시 전환 대기', 'warn');
-      return;
-    }
-    let data;
-    try { data = JSON.parse(raw); } catch(e) { data = {}; }
-    // Handle allorigins wrapper
-    if (data.contents) {
-      try { data = JSON.parse(data.contents); } catch(e) {}
-      // v30.11: 이중 래핑된 경우도 HTML 체크
-      if (typeof data === 'string' && data.trimStart().startsWith('<')) {
-        _aioLog('warn', 'chart', 'VIX chart: allorigins returned HTML inside JSON wrapper');
-        return;
-      }
-    }
-
-    // v30.11: 공통 파서 사용
-    var parsed = _parseYFChartResponse(data);
-    if (parsed && parsed.closes.length >= 3) {
-      // v30.11: UTC 기반 날짜 라벨 사용 (타임존 밀림 방지)
-      var vixHistory = parsed.timestamps.map(function(timestamp, i) {
-        return { date: new Date(timestamp * 1000).toISOString().slice(0, 10), value: parsed.closes[i] };
-      }).slice(-30); // last 30 days
-
-      window._vixHistory = vixHistory;
-      document.dispatchEvent(new CustomEvent('aio:historyLoaded', { detail: { metric: 'vix', source: 'legacy-projection' } }));
-      console.log('[AIO v20] VIX history loaded:', vixHistory.length, 'days');
-    } else {
-      _aioLog('warn', 'chart', 'VIX chart: insufficient data points');
-      showDataError('VIX차트', '데이터 포인트 부족 — 정적 차트 유지', 'warn');
-    }
-  } catch(e) {
-    _aioLog('warn', 'fetch', 'VIX history fetch failed: ' + e.message);
-    showDataError('VIX', 'VIX 히스토리 수신 실패 — 정적 차트 데이터 사용 중', 'warn');
   }
 }
 
@@ -2947,9 +2896,6 @@ try {
     _aioApplyNativeScreenerState(event && event.detail);
   });
 } catch (_) {}
-
-let _aioServerMacroReady = false;
-let _aioServerHyReady = false;
 
 // v59.34: the server data loader (the Treasury curve projection and _aioLoadServerData) moved to src/data/server-data-loader.js.
 
@@ -4719,143 +4665,8 @@ async function _aioFetchLiveQuotesOnce(requestedSymbols, attempt) {
     }
   } catch(e) { _aioLog('warn', 'fetch', 'CoinGecko 실패: ' + e.message); }
 
-  // v48.4: CoinGecko /global (정확한 BTC 도미넌스) + /coins/markets (상위 20 코인) — 무료 티어 확장
-  // /simple/price가 끝나고 비동기 병렬 호출. 실패해도 기본 4종 시세에 영향 없음.
-  try {
-    const cfW = _cfWorkerUrl();
-    const _cgDirect = async function(url, ms) {
-      try { const r = await fetchWithTimeout(url, {}, ms); if (r.ok) return await r.json(); } catch(e) {}
-      if (cfW) {
-        try {
-          const r2 = await fetchWithTimeout(cfW + '?url=' + encodeURIComponent(url), {}, ms + 2000);
-          if (r2.ok) { const t = await r2.text(); return JSON.parse(t.trim()); }
-        } catch(e2) {}
-      }
-      return null;
-    };
-    const [globalD, marketsD] = await Promise.allSettled([
-      _cgDirect('https://api.coingecko.com/api/v3/global', 6000),
-      _cgDirect('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false&price_change_percentage=24h,7d', 8000)
-    ]);
-    // /global — 정확한 BTC/ETH 도미넌스 + 전체 시총/거래량 + 24h 변동
-    if (globalD.status === 'fulfilled' && globalD.value && globalD.value.data) {
-      const g = globalD.value.data;
-      window._cgGlobal = {
-        totalMarketCapUSD: (g.total_market_cap && g.total_market_cap.usd) || null,
-        totalVolume24hUSD: (g.total_volume && g.total_volume.usd) || null,
-        btcDominance: (g.market_cap_percentage && g.market_cap_percentage.btc) || null,
-        ethDominance: (g.market_cap_percentage && g.market_cap_percentage.eth) || null,
-        activeCryptocurrencies: g.active_cryptocurrencies || null,
-        markets: g.markets || null,
-        mcapChange24hPct: g.market_cap_change_percentage_24h_usd != null ? g.market_cap_change_percentage_24h_usd : null,
-        _updated: Date.now()
-      };
-      console.log('[AIO] CoinGecko /global: BTC ' + (window._cgGlobal.btcDominance||0).toFixed(1) + '% 도미넌스, 시총 $' + ((window._cgGlobal.totalMarketCapUSD||0)/1e12).toFixed(2) + 'T');
-    }
-    // /coins/markets — 상위 20 코인 상세
-    if (marketsD.status === 'fulfilled' && Array.isArray(marketsD.value)) {
-      window._cgMarkets = marketsD.value.map(function(c) {
-        return {
-          id: c.id,
-          symbol: (c.symbol || '').toUpperCase(),
-          name: c.name,
-          price: c.current_price,
-          mcap: c.market_cap,
-          mcapRank: c.market_cap_rank,
-          volume24h: c.total_volume,
-          high24h: c.high_24h,
-          low24h: c.low_24h,
-          chg24hPct: c.price_change_percentage_24h,
-          chg7dPct: c.price_change_percentage_7d_in_currency != null ? c.price_change_percentage_7d_in_currency : null,
-          ath: c.ath,
-          athChgPct: c.ath_change_percentage,
-          circulatingSupply: c.circulating_supply,
-          image: c.image || null
-        };
-      });
-      window._cgMarkets._updated = Date.now();
-      console.log('[AIO] CoinGecko /coins/markets: 상위 ' + window._cgMarkets.length + '개 코인 수집');
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'CoinGecko /global·/coins/markets 실패: ' + e.message); }
-
-  // ─── 2. 환율: 다중 API 폴백 체인 (v30.11: 전일 대비 변동률 계산) ───
-  // v46.9: CAD/CHF → Yahoo 표준 심볼 수정 (CADUSD=X 비표준 → CAD=X)
-  const fxMap = {KRW:'KRW=X', JPY:'JPY=X', EUR:'EURUSD=X', GBP:'GBPUSD=X', CNY:'CNY=X', AUD:'AUDUSD=X', CAD:'CAD=X', CHF:'CHF=X'};
-  const FX_INVERTED = ['EURUSD=X','GBPUSD=X','AUDUSD=X']; // USD 기준 역수 통화 (CAD=X, CHF=X는 USD/CAD, USD/CHF로 역수 불필요)
-
-  // v30.11: 환율 API 결과를 처리하는 공통 함수
-  function _processFxRates(rates, codeMapFn, apiName, observedAt) {
-    const fxQuotes = [];
-    for (const [code, sym] of Object.entries(fxMap)) {
-      const rawRate = codeMapFn(code);
-      if (rawRate == null || rawRate <= 0) continue;
-      let price = rawRate;
-      if (FX_INVERTED.includes(sym)) price = 1 / price;
-      // NaN/극단값 방어
-      if (isNaN(price) || price <= 0 || price > 1e6) continue;
-      fxQuotes.push({
-        symbol: sym,
-        regularMarketPrice: price,
-        regularMarketChangePercent: null,
-        regularMarketChange: null,
-        observedAt: observedAt || null,
-        valueBasis: 'daily-reference-rate',
-        changeBasis: 'unavailable',
-        _source: 'reference:fx:' + apiName, sourceKind: 'T4_REFERENCE', allowedUse: 'reference-only', allowedUseCeiling: 'reference', rightsId: 'PUBLIC_REFERENCE', qualityStatus: 'CURRENT', quality: { status: 'CURRENT', stale: false, decisionUse: false, allowedUse: 'reference' }
-      });
-    }
-    // A previous browser visit is not the prior market close. This source has
-    // no comparable previous-session observation, so it supplies a level only.
-    return fxQuotes;
-  }
-
-  let fxLoaded = false;
-  // API 1: open.er-api.com
-  if (!fxLoaded) try {
-    const r = await fetchWithTimeout('https://open.er-api.com/v6/latest/USD', {}, 5000);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.result === 'success' && d.rates) {
-        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'open.er-api', d.time_last_update_unix);
-        if (fxQuotes.length > 0) {
-          allQuotes.push(...fxQuotes);
-          fxLoaded = true;
-          console.log('[AIO] 환율 갱신 (open.er-api)', fxQuotes.length + '개');
-        }
-      }
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'open.er-api 실패: ' + e.message); }
-  // API 2: exchangerate-api.com (폴백)
-  if (!fxLoaded) try {
-    const r = await fetchWithTimeout('https://api.exchangerate-api.com/v4/latest/USD', {}, 5000);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.rates) {
-        const fxQuotes = _processFxRates(d.rates, code => d.rates[code], 'exchangerate-api', d.time_last_updated || d.date);
-        if (fxQuotes.length > 0) {
-          allQuotes.push(...fxQuotes);
-          fxLoaded = true;
-          console.log('[AIO] 환율 갱신 (exchangerate-api 폴백)', fxQuotes.length + '개');
-        }
-      }
-    }
-  } catch(e) { _aioLog('warn', 'fetch', 'exchangerate-api 실패: ' + e.message); }
-  // API 3: fawazahmed0 currency-api (최종 폴백)
-  if (!fxLoaded) try {
-    const r = await fetchWithTimeout('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json', {}, 5000);
-    if (r.ok) {
-      const d = await r.json();
-      if (d.usd) {
-        const codeMap = {KRW:'krw', JPY:'jpy', EUR:'eur', GBP:'gbp', CNY:'cny', AUD:'aud', CAD:'cad', CHF:'chf'};
-        const fxQuotes = _processFxRates(d.usd, code => d.usd[codeMap[code]], 'fawazahmed0', d.date);
-        if (fxQuotes.length > 0) {
-          allQuotes.push(...fxQuotes);
-          fxLoaded = true;
-          console.log('[AIO] 환율 갱신 (fawazahmed0 최종 폴백)', fxQuotes.length + '개');
-        }
-      }
-    }
-  } catch(e) { _aioLog('warn', 'fetch', '모든 환율 API 실패: ' + e.message); }
+  // v60.43: FX pairs come from the Yahoo spark batch below like every other requested symbol; the daily reference-rate
+  // APIs (open.er-api, exchangerate-api, currency-api) are gone, and closed-market pairs come from history.json.
 
   // ─── 2.5. 한국 시장: 네이버 파이낸스 1차 소스 (v36) ─────────────────
   // Every row Naver returns is kept. A count threshold (">= 3") threw away a lone holding's quote whenever an index call
@@ -5204,7 +5015,6 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
   }
   function _isKr(sym) { return /\.KS$|\.KQ$|^\d{6}$|\^KS11$|\^KQ11$/.test(sym); }
   function _isCrypto(sym) { return /^(BTC|ETH|SOL|BNB)-USD$/.test(sym); }
-  function _isFx(sym) { return /=X$/.test(sym); }
   async function _fetchJson(url, ms) {
     var r = await fetchWithTimeout(url, {}, ms || 6500);
     if (!r || !r.ok) return null;
@@ -5245,27 +5055,7 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
     } catch(_cgErr) {}
     return false;
   }
-  async function _fxCross(sym) {
-    if (!_isFx(sym)) return false;
-    var codeBySym = {'KRW=X':'KRW','JPY=X':'JPY','EURUSD=X':'EUR','GBPUSD=X':'GBP','CNY=X':'CNY','AUDUSD=X':'AUD','CAD=X':'CAD','CHF=X':'CHF'};
-    var code = codeBySym[sym];
-    if (!code) return false;
-    var inverted = {'EURUSD=X':1,'GBPUSD=X':1,'AUDUSD=X':1};
-    var ok = false;
-    async function one(url, source) {
-      try {
-        var d = await _fetchJson(url, 6000);
-        var raw = d && d.rates && d.rates[code];
-        var price = raw > 0 ? (inverted[sym] ? 1 / raw : raw) : null;
-        if (price > 0) { _record(sym, source, price, null, {}); ok = true; }
-      } catch(_fxOne) {}
-    }
-    await Promise.allSettled([
-      one('https://open.er-api.com/v6/latest/USD', 'fx:open.er-api-cross'),
-      one('https://api.exchangerate-api.com/v4/latest/USD', 'fx:exchangerate-api-cross')
-    ]);
-    return ok;
-  }
+  // v60.43: the FX cross-check against the daily reference-rate APIs is gone with them; an FX pair reads single-source.
   async function _runOne(sym) {
     var bucket = cache[sym];
     if (!opts.force && bucket && bucket.lastFetchAt && now - bucket.lastFetchAt < 3 * 60 * 1000) {
@@ -5276,8 +5066,7 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
     await Promise.allSettled([
       _yahooCross(sym),
       // P1756: Stooq cross-check removed (every symbol answered 404, direct and via the Worker).
-      _coingeckoCross(sym),
-      _fxCross(sym)
+      _coingeckoCross(sym)
     ]);
     var truth = null;
     try { if (window.AIO && typeof window.AIO.evaluateDataTruth === 'function') truth = window.AIO.evaluateDataTruth(sym); } catch(_truthEval) {}
@@ -5926,7 +5715,7 @@ function applyLiveQuotes(quotes) {
   window._liveData = window._liveData || {};
   window._quoteTimestamps = window._quoteTimestamps || {};
   window._previousPrices = window._previousPrices || {};
-  // v30.11: 데이터 출처 추적 — 'live:yahoo' | 'live:coingecko' | 'fx:open.er-api' | 'snapshot'
+  // v30.11: 데이터 출처 추적 — 'live:yahoo' | 'live:coingecko' | 'snapshot'
   window._dataSource = window._dataSource || {};
   const now = Date.now();
   const atomicQuotes = _aioSelectAtomicQuotes(quotes, now);
@@ -6534,12 +6323,6 @@ _aioPageBus.register('data-page-activation', 'aio:pageShown', function(e) {
   if (pageId === 'home') {
     setTimeout(refreshHomeDashboard, 100);
   }
-  // v48.59: FRED 지연 fetch (페이지 진입 시만). v59.70 (N6): a deep link runs this before the module graph
-  // installs the relay transport (proxy-transport.js), so the 500 ms delay starts after aio:relayReady.
-  var afterRelay = function(fn) { if (window._aioRelayReady) setTimeout(fn, 500); else document.addEventListener('aio:relayReady', function() { setTimeout(fn, 500); }, { once: true }); };
-  if (pageId === 'macro' || pageId === 'fxbond') afterRelay(function(){
-    if (typeof fetchAllFredData === 'function' && !window._fredData) fetchAllFredData();
-  });
   // The screener route's ranking runs in its native orchestrator on page show (the legacy 200 ms re-rank is retired).
   // v51.08: market-news 페이지 진입 시 뉴스 캐시 재렌더 (백스톱 포함)
   if (pageId === 'market-news') {
@@ -6621,168 +6404,12 @@ function _applyFearGreedScore(opts) {
 }
 window._applyFearGreedScore = _applyFearGreedScore;
 
-async function fetchFearGreed() {
-  const url   = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
-  try {
-    const resp = await fetchWithTimeout(url, { headers: { 'Accept': 'application/json' } }, 6000);
-    if (!resp.ok) throw new Error('status ' + resp.status);
-    const data = await resp.json();
-    const fg   = data.fear_and_greed;
-    if (!fg) throw new Error('no data');
-    const score = Math.round(fg.score);
-    // v48.0: CNN F&G 7개 서브컴포넌트 저장 — "왜 공포인가?" 설명용 + AI 프롬프트 품질 향상
-    // CNN API가 제공: market_momentum_sp500, market_momentum_sp125, stock_price_strength,
-    //                  stock_price_breadth, put_call_options, market_volatility_vix,
-    //                  market_volatility_vix_50, junk_bond_demand, safe_haven_demand
-    try {
-      var _sub = {};
-      ['market_momentum_sp500','market_momentum_sp125','stock_price_strength','stock_price_breadth','put_call_options','market_volatility_vix','market_volatility_vix_50','junk_bond_demand','safe_haven_demand'].forEach(function(k){
-        if (data[k] && data[k].score != null) {
-          _sub[k] = { score: Math.round(data[k].score), rating: data[k].rating || '', timestamp: data[k].timestamp || null };
-        }
-      });
-      if (Object.keys(_sub).length > 0) {
-        window._fgComponents = _sub;
-        window._fgComponents._updated = Date.now();
-      }
-    } catch(subErr) { /* 서브컴포넌트는 옵셔널 — 실패해도 메인 score 갱신은 성공 */ }
-    // v49.64 P334: 단일 helper로 sink + lineage 메타 일괄 적용 (live 경로)
-    _applyFearGreedScore({ score: score, sourceKind: 'live', sourceLabel: 'cnn-fear-greed-api', sourceTs: fg.timestamp || data.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
-    return true;
-  } catch(e) {
-    // Try CORS proxy — P1142: 정의 없는 CORS_PROXY 참조(ReferenceError)로 이 폴백은 한 번도
-    // 실행된 적 없는 죽은 경로였다. 레지스트리 fetchViaProxy로 부활하고, 응답에서 fear_and_greed를
-    // 못 읽으면 가짜 성공(true) 대신 실패로 처리해 아래 snapshot 폴백이 규칙대로 작동하게 한다.
-    try {
-      const r2 = await fetchViaProxy(url, 9000);
-      if (!r2 || !r2.ok) throw new Error('proxy status ' + (r2 && r2.status));
-      const w2 = await r2.json();
-      var _fgRaw = (w2 && typeof w2.contents === 'string') ? (function(){ try { return JSON.parse(w2.contents); } catch(pe) { return {}; } })() : (w2 || {});
-      const data2 = _fgRaw;
-      const fg2   = data2.fear_and_greed;
-      if (!fg2 || fg2.score == null) throw new Error('no fear_and_greed in proxy response');
-      const score2 = Math.round(fg2.score);
-      // v49.64 P334: helper 통합 (proxy 경로)
-      _applyFearGreedScore({ score: score2, sourceKind: 'proxy', sourceLabel: 'cnn-fear-greed-proxy', sourceTs: fg2.timestamp || data2.timestamp || new Date().toISOString(), operationalUse: 'reference-only' });
-      return true;
-    } catch(e2) {
-      // 서버 스냅샷이 이미 적용된 뒤 브라우저 직결/proxy가 실패해도 더 오래된 정적 seed로
-      // 덮어쓰지 않는다. 실패는 새 값이 없다는 뜻이지 기존 외부 관측값을 무효화한다는 뜻이 아니다.
-      var _fgExistingMeta = window._lastFGMeta || {};
-      var _fgExistingKind = String(_fgExistingMeta.sourceKind || '').toLowerCase();
-      if (/^(live|proxy|delayed)$/.test(_fgExistingKind) && window._lastFG != null && isFinite(Number(window._lastFG))) {
-        return false;
-      }
-      // 외부 관측값이 전혀 없을 때만 정적 snapshot을 참고값으로 표시한다.
-      var _snapFg = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT.fg != null) ? DATA_SNAPSHOT.fg : ((typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._fallback) ? DATA_SNAPSHOT._fallback.fg : null);
-      _applyFearGreedScore({ score: _snapFg, sourceKind: 'snapshot', sourceLabel: 'DATA_SNAPSHOT:fear-greed', sourceTs: (typeof DATA_SNAPSHOT !== 'undefined' && (DATA_SNAPSHOT._updated || DATA_SNAPSHOT._snapshotDate)) || null, operationalUse: 'reference-only' });
-      return false;
-    }
-  }
-}
+// v60.43: the browser's CNN Fear & Greed fetch, the Yahoo ^GSPC 1-year chart for the 50/200-day averages and the FRED
+// HY OAS fetch are gone. data.json carries fearGreed (src/data/server-data-loader.js applies it through the helper
+// above) and the HY OAS (src/data/server-macro.js), and src/app/bootstrap.js derives the averages from history.json.
 
-// ═══ AUTO-UPDATE MOVING AVERAGES (50/200 SMA) ═══════════════════════
-async function autoUpdateMA() {
-  try {
-    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/^GSPC?range=1y&interval=1d';
-    const r = await fetchViaProxy(url, 8000);
-    const rawText = typeof r.text === 'function' ? await r.text() : String(r);
-    const trimmed = rawText.trim();
-    if (!/^[\[{]/.test(trimmed)) {
-      throw new Error('Yahoo chart returned non-JSON: ' + trimmed.slice(0, 80));
-    }
-    const json = JSON.parse(trimmed);
-    // P2262: completed bars only, the history.json writer's basis.
-    const result = json?.chart?.result?.[0] || {};
-    const rawCloses = result?.indicators?.quote?.[0]?.close || [];
-    const tz = result?.meta?.exchangeTimezoneName || 'America/New_York';
-    let bars = (Array.isArray(result.timestamp) ? result.timestamp : []).map(function(ts, i) {
-      return { time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }), close: rawCloses[i] };
-    }).filter(function(bar) { return typeof bar.close === 'number' && isFinite(bar.close) && bar.close > 0; });
-    if (typeof window._aioCompletedBars === 'function') bars = window._aioCompletedBars(bars, { meta: result.meta }).bars;
-    const closes = bars.map(function(bar) { return bar.close; });
-    if (closes.length >= 200) {
-      const ma200 = closes.slice(-200).reduce((a,b) => a+b, 0) / 200;
-      const ma50  = closes.slice(-50).reduce((a,b) => a+b, 0) / 50;
-      window._spxMA = {
-        200: Math.round(ma200 * 100) / 100,
-        50:  Math.round(ma50 * 100) / 100
-      };
-      const lastDay = bars.length ? bars[bars.length - 1].time : null;
-      window._spxMATs = lastDay ? Date.parse(lastDay + 'T00:00:00Z') : Date.now();
-      window._spxMASource = 'Yahoo ^GSPC completed daily closes' + (lastDay ? ' (' + lastDay + ')' : '');
-      console.log('[AIO] MA auto-updated: 50SMA=' + window._spxMA[50] + ', 200SMA=' + window._spxMA[200]);
-      if (typeof refreshHomeDashboard === 'function') refreshHomeDashboard();
-    }
-  } catch(e) {
-    if (window.AIO && window.AIO.recordDataQualityIssue) {
-      window.AIO.recordDataQualityIssue({ source: 'ma-auto-update', severity: 'warn', message: e.message || String(e) });
-    }
-    _aioLog('warn', 'render', 'MA auto-update failed: ' + (e.message || e));
-  }
-}
-// v30.11: T7 _maAutoInterval 삭제 — REFRESH_SCHEDULE.maUpdate(6h)로 통합. 초기 5s 실행은 유지.
-setTimeout(autoUpdateMA, 5000);
-
-// ── HY Credit Spread auto-fetch via FRED (free, no API key needed) ───
 // v59.70 (owner 11/4): the Cboe put/call reader (_aioUpdatePutCallDom, fetchPutCall) is deleted — Cboe's terms forbid
 // storing and redistributing its statistics.
-let hyLastFetch = 0;
-async function fetchHYSpread() {
-  const CACHE_MS = 6 * 60 * 60 * 1000; // 6-hour cache (FRED updates daily)
-  if (Date.now() - hyLastFetch < CACHE_MS) return;
-
-  const fredUrl = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2&vintage_date=' + new Date().toISOString().slice(0,10);
-  let csv = '';
-  try {
-    csv = await fetchViaProxy(fredUrl, { parseText:true, timeout:4000, totalTimeout:10000,
-      accept: function(body) { return /^\s*(DATE|observation_date),BAMLH0A0HYM2/m.test(body); } });
-  } catch (_) {}
-  if (!csv) { showDataError('HY', 'HY 스프레드 프록시 전부 실패 — 정적 데이터 사용 중', 'warn'); }
-
-  try {
-    if (!csv) throw new Error('all proxies failed');
-       // CSV format: "DATE,VALUE" (e.g. 2026-03-19,3.68)
-    const lines = csv.trim().split(/\r?\n/).filter(l => l && !l.startsWith('DATE'));
-    if (lines.length === 0) throw new Error('empty csv');
-
-    // Get latest value (last non-empty line)
-    const lastLine = lines[lines.length - 1];
-    const [date, val] = lastLine.split(',');
-    const spread = parseFloat(val);
-    if (isNaN(spread)) throw new Error('invalid value');
-
-    const spreadBp = Math.round(spread * 100); // FRED stores as %, convert to bps
-    hyLastFetch = Date.now();
-
-    // v51.88 P576/R266: 실측 OAS를 compatibility projection + DATA_SNAPSHOT에 저장.
-    //   native sentiment orchestrator가 이 projection을 evidence/store로 승격하고,
-    //   computeTradingScore도 실측값을 근사값보다 우선 사용한다.
-    window._hySpreadBp = spreadBp;
-    window._hySpreadDate = date;
-    try { if (typeof DATA_SNAPSHOT !== 'undefined') DATA_SNAPSHOT.hySpread = spreadBp; } catch(_) {}
-    try {
-      if (window.AIO_ARCH && typeof window.AIO_ARCH.ingestSentiment === 'function') {
-        window.AIO_ARCH.ingestSentiment({
-          hySpread: spreadBp,
-          hySpreadSourceKind: 'fred',
-          hySpreadSource: 'FRED BAMLH0A0HYM2',
-          hySpreadDate: date,
-          now: new Date().toISOString()
-        });
-      }
-    } catch (_) {}
-    // v52.49/WO-6: 다른 fetch 함수들과 동일하게 중앙 freshness 레지스트리에 기록 —
-    // 이전에는 모듈 로컬 hyLastFetch(6h 캐시 게이트 전용)만 있어 getTradingDecisionInputEvidence()가
-    // HY 스프레드의 신선도를 전혀 알 수 없었다.
-    if (typeof window._markFetch === 'function') window._markFetch('hySpread');
-    document.dispatchEvent(new CustomEvent('aio:sentimentUpdated', { detail: { metric: 'hySpread', sourceKind: 'fred', sourceLabel: 'FRED BAMLH0A0HYM2' } }));
-
-    console.log('[AIO] HY Spread FRED:', spreadBp + 'bp (' + date + ')');
-  } catch(e) {
-    _aioLog('warn', 'fetch', 'HY Spread fetch 실패: ' + e.message);
-  }
-}
 
 // P1425: the legacy carry-unwind composite (arbitrary points for USD/JPY level, VIX, a US 10Y minus
 // BOK-rate gap and HY OAS — the 58/100 score P1419 retired on the native side) was deleted with its

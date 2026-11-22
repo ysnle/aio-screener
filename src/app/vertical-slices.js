@@ -6,19 +6,19 @@
 const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'fieldTimeline', 'renderer', 'chart', 'narrative', 'requiredData', 'states', 'chartFallback', 'directEntry', 'routeReentry', 'outage', 'copyReview']);
 
 export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
-  Object.freeze({ id: 'vs01-home-signal', order: 1, routes: Object.freeze(['home', 'signal']), requiredData: Object.freeze(['quotes', 'sentiment', 'breadth', 'technicals', 'vixHistory', 'hySpread']), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs02-ticker', order: 2, routes: Object.freeze(['ticker']), requiredData: Object.freeze(['quotes', 'technicals', 'news']), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs03-macro-fxbond', order: 3, routes: Object.freeze(['macro', 'fxbond']), requiredData: Object.freeze(['quotes', 'fred', 'hySpread']), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs04-themes-detail', order: 4, routes: Object.freeze(['themes', 'theme-detail']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs01-home-signal', order: 1, routes: Object.freeze(['home', 'signal']), requiredData: Object.freeze(['quotes', 'sentiment', 'breadth', 'fred']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs02-ticker', order: 2, routes: Object.freeze(['ticker']), requiredData: Object.freeze(['quotes', 'news']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs03-macro-fxbond', order: 3, routes: Object.freeze(['macro', 'fxbond']), requiredData: Object.freeze(['quotes', 'fred']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs04-themes-detail', order: 4, routes: Object.freeze(['themes', 'theme-detail']), requiredData: Object.freeze(['quotes']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs05-fundamental-screener', order: 5, routes: Object.freeze(['fundamental', 'screener']), requiredData: Object.freeze(['quotes', 'screenerArtifact']), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs06-breadth-sentiment', order: 6, routes: Object.freeze(['breadth', 'sentiment']), requiredData: Object.freeze(['breadth', 'quotes', 'sentiment', 'vixHistory', 'hySpread']), acceptance: ACCEPTANCE }),
+  Object.freeze({ id: 'vs06-breadth-sentiment', order: 6, routes: Object.freeze(['breadth', 'sentiment']), requiredData: Object.freeze(['breadth', 'quotes', 'sentiment', 'fred']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs07-briefing-news', order: 7, routes: Object.freeze(['briefing', 'market-news']), requiredData: Object.freeze(['news', 'quotes', 'sentiment', 'breadth']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs08-portfolio', order: 8, routes: Object.freeze(['portfolio']), requiredData: Object.freeze(['quotes']), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs10-guide', order: 10, routes: Object.freeze(['guide']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs11-principles', order: 11, routes: Object.freeze(['principles']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs12-masters', order: 12, routes: Object.freeze(['masters']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs13-atlas', order: 13, routes: Object.freeze(['atlas']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts', 'technical']), requiredData: Object.freeze(['quotes', 'technicals']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석; v60.31: technical is its derived view (the retired 종목 차트 tab), as theme-detail is 테마's
+  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts', 'technical']), requiredData: Object.freeze(['quotes']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석; v60.31: technical is its derived view (the retired 종목 차트 tab), as theme-detail is 테마's
 ]);
 
 const ROUTE_TO_SLICE = new Map(VERTICAL_SLICE_CONTRACTS.flatMap((slice) => slice.routes.map((route) => [route, slice])));

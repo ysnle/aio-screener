@@ -2892,10 +2892,10 @@
     _assert('T675 data_lineage_audit_defined_v4989: AIO.getDataLineageAudit fn 정의',
       window.AIO && typeof window.AIO.getDataLineageAudit === 'function',
       typeof (window.AIO && window.AIO.getDataLineageAudit));
-    // T676: lineage 12종 + 끊김(broken) 0건 (gap/manual은 의도된 계층; v59.70 Cboe 풋/콜 행 퇴역)
+    // T676: lineage 11종 + 끊김(broken) 0건 (gap/manual은 의도된 계층; v59.70 Cboe 풋/콜 행 퇴역)
     var dl = window.AIO && window.AIO.getDataLineageAudit && window.AIO.getDataLineageAudit();
-    _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 12 + broken === 0 (gap/manual은 정상, v59.70 putCall 행 없음)',
-      dl && Array.isArray(dl.rows) && dl.rows.length >= 12 && !dl.rows.some(function(r){ return r.id === 'putCall'; }) && dl.broken === 0,
+    _assert('T676 data_lineage_no_broken_v4989: lineage rows >= 11 + broken === 0 (gap/manual은 정상, v59.70 putCall·v60.43 technicals 행 없음)',
+      dl && Array.isArray(dl.rows) && dl.rows.length >= 11 && !dl.rows.some(function(r){ return r.id === 'technicals'; }) && !dl.rows.some(function(r){ return r.id === 'putCall'; }) && dl.broken === 0,
       dl ? 'total=' + dl.total + ' connected=' + dl.connected + ' broken=' + dl.broken + ' gap=' + dl.gap + ' manual=' + dl.manual : 'no audit');
     // T677: breadth/staticMacro 모두 scheduled producer에 연결됨 (v54.63 공식 macro 자동화 반영)
     var breadthRow = dl && dl.rows && dl.rows.filter(function(r){ return r.id === 'breadth'; })[0];
@@ -4818,19 +4818,21 @@
     } catch(e) { t787detail = 'ERR:' + e.message; }
     _assert('T787 v57.60 retired_regime_sub_writer_absent: mkt-regime-sub ATH 라벨 writer 퇴역 (노드 부재)', t787ok, t787detail);
 
-    // T788 (WO-3/P499): CONTRACT_TASK_ALIAS — applyPageContractCompatibility 후 AIO_PAGE_REFRESH_MAP 전 값이 실존 REFRESH_SCHEDULE 키 (unknown task 0)
+    // T788 (WO-3/P499; v60.43 the alias table left with the virtual tasks): after applyPageContractCompatibility every
+    // AIO_PAGE_REFRESH_MAP and DATA_REQUIREMENT_PROFILES task is a REFRESH_SCHEDULE key (unknown task 0)
     var t788ok = false, t788detail = '';
     try {
       if (window.AIO && typeof window.AIO.applyPageContractCompatibility === 'function') window.AIO.applyPageContractCompatibility();
       var sched788 = window.REFRESH_SCHEDULE || {};
       var prMap788 = window.AIO_PAGE_REFRESH_MAP || {};
+      var profiles788 = (window.AIO && window.AIO.DATA_REQUIREMENT_PROFILES) || {};
       var unknown788 = [];
       Object.keys(prMap788).forEach(function(pg){ (prMap788[pg] || []).forEach(function(k){ if (!sched788[k]) unknown788.push(pg + '→' + k); }); });
-      var aliasInSrc788 = (window.AIO && window.AIO.applyPageContractCompatibility) ? /CONTRACT_TASK_ALIAS/.test(window.AIO.applyPageContractCompatibility.toString()) : false;
-      t788ok = aliasInSrc788 && unknown788.length === 0;
-      t788detail = 'aliasInSrc=' + aliasInSrc788 + ' unknownTasks=' + unknown788.length + (unknown788.length ? (' ' + unknown788.slice(0,4).join(',')) : '');
+      Object.keys(profiles788).forEach(function(pg){ ((profiles788[pg] && profiles788[pg].tasks) || []).forEach(function(k){ if (!sched788[k]) unknown788.push('profile:' + pg + '→' + k); }); });
+      t788ok = unknown788.length === 0;
+      t788detail = 'unknownTasks=' + unknown788.length + (unknown788.length ? (' ' + unknown788.slice(0,4).join(',')) : '');
     } catch(e) { t788detail = 'ERR:' + e.message; }
-    _assert('T788 v5024_contract_task_alias: 가상 계약 태스크 치환 후 refresh 매핑 unknown task 0 (7페이지 on-enter no-op 재발 방지)', t788ok, t788detail);
+    _assert('T788 v5024_contract_task_alias: refresh 매핑과 요구 프로필의 태스크가 모두 실존 스케줄 키 (7페이지 on-enter no-op 재발 방지)', t788ok, t788detail);
 
     // T789 (WO-4): 서버 데이터 신선도 표면화 — 배지 렌더/폴링 함수 + #server-data-age 요소 + 나이 버킷
     var t789ok = false, t789detail = '';
@@ -6535,16 +6537,10 @@
       _assert('T897 aaii_marked_reference_not_trading (WO-6): getTradingDecisionInputEvidence 미존재', false);
     }
 
-    // T898: fetchHYSpread가 다른 fetch 함수들과 동일하게 중앙 freshness 레지스트리(_markFetch)에
-    // 기록하는지 — 이전엔 모듈 로컬 hyLastFetch(6h 캐시 게이트 전용)뿐이라 HY 스프레드의 신선도를
-    // getTradingDecisionInputEvidence가 전혀 알 수 없었다
-    if (typeof fetchHYSpread === 'function') {
-      var fnSrc898 = fetchHYSpread.toString();
-      _assert("T898 hy_spread_marks_fetch (WO-6): fetchHYSpread가 _markFetch('hySpread')를 호출해 중앙 freshness 레지스트리에 기록",
-        /_markFetch\(['"]hySpread['"]\)/.test(fnSrc898));
-    } else {
-      _assert('T898 hy_spread_marks_fetch (WO-6): fetchHYSpread 미존재', false);
-    }
+    // T898 (v60.43): the browser HY OAS fetch is retired; the spread comes only from data.json (src/data/server-macro.js).
+    _assert('T898 v60.43 hy_spread_static_only: no browser HY OAS fetcher or scheduler task',
+      typeof window.fetchHYSpread !== 'function' && !(window.REFRESH_SCHEDULE && window.REFRESH_SCHEDULE.hySpread),
+      'fetchHYSpread=' + typeof window.fetchHYSpread);
 
     // T899: _aioDefaultDecision이 computeTradingScore()의 evidenceAudit/criticalMissing을
     // 실제로 읽어 화면 sourceKind 병합에 반영하는지(이전엔 .total만 읽고 나머지는 버렸다)
@@ -7545,10 +7541,11 @@
       typeof window.updateMcClellanUI !== 'function' && typeof window.calcMcClellan !== 'function',
       'updateMcClellanUI=' + typeof window.updateMcClellanUI);
 
-    var sentimentSrc = typeof fetchHYSpread === 'function' ? String(fetchHYSpread) : '';
+    // v60.43: the OAS reaches the browser only as data.json macro.hyOAS, so no browser formula can make one from HYG.
+    var hy1032 = window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._hySpreadSource;
     _assert('T1032 hy_oas_official_only: HYG price cannot be converted to OAS with a synthetic formula',
-      !!sentimentSrc && sentimentSrc.indexOf('(85 - p)') < 0 && sentimentSrc.indexOf('BAMLH0A0HYM2') >= 0,
-      'HYG-to-OAS formula=' + (sentimentSrc.indexOf('(85 - p)') >= 0));
+      typeof window.fetchHYSpread !== 'function' && (!hy1032 || /BAMLH0A0HYM2|FRED/i.test(String(hy1032))),
+      'hySpreadSource=' + hy1032);
 
     // v57.60: the legacy canvas fallback that could synthesise a series is gone.
     _assert('T1033 breadth_chart_no_random_series: a latest point cannot be expanded into fake history (v57.60 legacy canvas fallback retired)',
@@ -7651,10 +7648,12 @@
 
     var schedulerSource1050 = typeof startDataScheduler === 'function' ? String(startDataScheduler) : '';
     var restartSource1050 = typeof restartScheduler === 'function' ? String(restartScheduler) : '';
+    // v60.43: _scheduleTask is the one place that arms a task timer (owned cfg.timer, epoch-checked); start and restart
+    // both go through it. The pause/restart behaviour itself is replayed by ci-refresh-scheduler-model-check.
     _assert('T1050 scheduler_initial_timer_is_owned_and_epoch_cancelled: visibility pause cannot leave an untracked delayed loop',
-      /cfg\.timer\s*=\s*setTimeout/.test(schedulerSource1050) && /_scheduleEpoch/.test(schedulerSource1050) &&
-        /_schedulerPaused/.test(schedulerSource1050) && /_scheduleEpoch/.test(restartSource1050),
-      JSON.stringify({ startOwned:/cfg\.timer\s*=\s*setTimeout/.test(schedulerSource1050), startEpoch:/_scheduleEpoch/.test(schedulerSource1050), restartEpoch:/_scheduleEpoch/.test(restartSource1050) }));
+      /_scheduleTask\(/.test(schedulerSource1050) && /_scheduleTask\(/.test(restartSource1050) &&
+        !/setTimeout|setInterval\(/.test(schedulerSource1050) && !/setTimeout|setInterval\(/.test(restartSource1050),
+      JSON.stringify({ startOwned:/_scheduleTask\(/.test(schedulerSource1050), restartOwned:/_scheduleTask\(/.test(restartSource1050) }));
   }
 
   function _testV5399AIResearchRuntimeContract() {

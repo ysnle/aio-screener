@@ -32,12 +32,12 @@ try {
     serverFredReady: window._serverDataMeta?.fredFetchOk === true,
     serverHyReady: !!window._serverDataMeta?.hyOAS,
     serverHyFieldPresent: Object.prototype.hasOwnProperty.call(window._serverDataMeta || {}, 'hyOAS'),
-    refreshFred: window.REFRESH_SCHEDULE?.fred?._lastRun || null,
-    refreshHy: window.REFRESH_SCHEDULE?.hySpread?._lastRun || null,
+    // v60.43: the scheduler keeps no task for a value data.json or history.json already carries.
+    retiredTasks: ['fred', 'hySpread', 'sentiment', 'vixHistory', 'maUpdate', 'technicals'].filter((key) => window.REFRESH_SCHEDULE?.[key]),
     quoteRequestPolicy: 'snapshot-backed outage ceiling'
   }));
   const providerBoundaryObserved = typeof evidence.serverFredReady === 'boolean' && evidence.serverHyFieldPresent === true;
-  const ok = providerBoundaryObserved && fredHyRequests === 0 && quoteRequests <= QUOTE_REQUEST_CEILING;
+  const ok = providerBoundaryObserved && fredHyRequests === 0 && evidence.retiredTasks.length === 0 && quoteRequests <= QUOTE_REQUEST_CEILING;
   console.log(JSON.stringify({ ok, fixture: 'SA-04 boot-network-budget', quoteRequestCeiling: QUOTE_REQUEST_CEILING, totalExternalRequests: external.length, quoteRequests, fredHyRequests, evidence }, null, 2));
   if (!ok) process.exitCode = 1;
 } finally {

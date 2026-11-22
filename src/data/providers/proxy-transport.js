@@ -355,10 +355,6 @@ export function installProxyTransport(window = globalThis) {
   window._PROXY_REGISTRY = _PROXY_REGISTRY;
   window._aioProxyUrlExpectsJson = _aioProxyUrlExpectsJson;
   window._aioProxyResponseLooksHtml = _aioProxyResponseLooksHtml;
-  // v59.70 (N6): a deep link's first page hooks run while the deferred classic scripts evaluate, before this module
-  // graph has loaded; js/aio-data.js waits for this event before its page-entry fetches instead of a fixed 500 ms timer.
-  window._aioRelayReady = true;
-  if (window.document && typeof window.CustomEvent === 'function') window.document.dispatchEvent(new window.CustomEvent('aio:relayReady'));
   window._aioProxyUnwrapJsonText = _aioProxyUnwrapJsonText;
   window._aioValidateProxyResponse = _aioValidateProxyResponse;
   window._aioProxyCacheKey = _aioProxyCacheKey;

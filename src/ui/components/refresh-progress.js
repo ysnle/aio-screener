@@ -11,14 +11,9 @@
 export const REFRESH_TASK_LABELS = Object.freeze({
   quotes: '시세',
   news: '뉴스',
-  sentiment: '심리',
   breadth: '시장폭',
-  fred: 'FRED',
-  technicals: '기술지표',
-  vixHistory: 'VIX 히스토리',
-  hySpread: 'HY 스프레드',
-  maUpdate: 'MA 갱신',
-  krDynamic: 'KR 동적 데이터'
+  krDynamic: 'KR 동적 데이터',
+  marketSnapshot: '시장 스냅샷'
 });
 
 export function refreshTaskStatus(key, detail, byKey) {

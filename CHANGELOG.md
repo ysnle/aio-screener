@@ -1,5 +1,12 @@
 > v60.19 이하 릴리스는 헤딩과 한 줄 요약(주요 항목·인용 P/R id)만 남겼다. 전문은 git 히스토리: `git show d0bbbcae3:CHANGELOG.md`.
 
+## v60.44 (2026-11-22)
+- **AI 답변의 배당 문장 (P2710):** '배당 4회'처럼 횟수가 함께 적힌 문장이 지워지지 않아, 이어 묻는 질문에서도 배당수익률이 나온다.
+- **AI 답변 지시 두 줄 (v60.44):** 주가가 왜 움직였는지 답할 때 종목 행의 5거래일과 1개월 등락률을 함께 적는다. 최신 발표가 반영되지 않은 지표(예: 전년 대비 CPI)는 앱이 확인한 마지막 값으로 기준월을 밝혀 말하게 했다.
+- **시세 갱신이 장 시간을 따른다 (P2711):** 휴장에는 시세를 30분에 한 번만, 한국 묶음과 스냅샷 재조회는 멈춘다. 부팅 때 5분 시세 평면(/quotes)을 읽고, 산출물에 이미 있는 값(공포탐욕·FRED·HY 스프레드·환율 기준가·코인 전체)의 브라우저 호출을 지웠다.
+- **바뀐 값이 없는 history.json은 다시 커밋하지 않는다 (P2712):** 확인 시각만 움직인 실행은 발행된 파일을 그대로 두고 확인 시각은 신선도 원장에 남긴다. 스크리너 차선의 네 파일도 같다.
+- R1 7곳 v60.44
+
 ## v60.43 (2026-11-22)
 - **AI 답변의 PER·PBR (P2708):** 화면의 배수 값을 '15.7배'처럼 답해도 지워지지 않는다.
 - **Extended screener publishes again (P2709):** a stock whose trailing dividend yield is above 40% (a collapsed price or a one-off distribution) now publishes without dividend figures instead of stopping all 3,885 extended rows; the limit lives with the code that writes the value.

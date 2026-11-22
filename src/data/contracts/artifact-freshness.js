@@ -41,8 +41,10 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   // refresh-data.yml (30-minute cycle; the weekend news cycle is hourly)
   'data.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 12 * 60, { timestamp: ['meta.generatedAt'] }),
   // history.json is { schemaVersion, fieldDictionary, rows }. A row's date is the market cut (a Sunday row exists), so
-  // the basis is the session each index close belongs to.
-  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate', 'rows.-1.fieldMeta'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate', 'rows.-1.fieldMeta']] }),
+  // the basis is the session each index close belongs to. With every market closed a run re-checks the same
+  // closes and moves only each field's checkedAt and the row's snapshot revision (Saturday 2026-11-21: 34 of 117,874
+  // values); those runs keep the published 4 MB file instead of committing it again.
+  'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { skipUnchanged: true, volatileKeys: ['rows.*.fieldMeta.*.checkedAt', 'rows.*.marketSnapshotRevision'], timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate', 'rows.-1.fieldMeta'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate', 'rows.-1.fieldMeta']] }),
   'market-snapshot.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 24 * 60, { timestamp: ['lastSuccessfulAt', 'generatedAt'] }),
   'macro-history.json': auto('refresh-data.yml', 'scripts/producer/macro-history.mjs', 30, 4 * 24 * 60, { ...DERIVED, volatileKeys: ['generatedAt', 'long.generatedAt'] }),
   // v59.70 (R11, theme-sector): the rotationHistory series beside data.json; the browser joins it by session, not clock.
@@ -62,18 +64,20 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   // refresh-screener.yml (every 6 h at :53, plus 21:53 UTC after the US close)
   'screener.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 48 * 60, { timestamp: ['asOf'], basis: [['US', 'factorSessionDateByMarket.US'], ['KR', 'factorSessionDateByMarket.KR']] }),
   'sec-fundamentals-summary.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 48 * 60),
-  'sec-fiscal-history.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 48 * 60),
+  // These four moved only generatedAt on most screener runs (7 of 7 sampled pairs for the auctions, 5 of 7 for
+  // the others), so they follow the DERIVED rule; a new filing, auction, weight or flow still commits.
+  'sec-fiscal-history.json': auto('refresh-screener.yml', 'scripts/producer/screener.mjs', 6 * 60, 48 * 60, DERIVED),
   'earnings-calendar.json': auto('refresh-screener.yml', 'scripts/fetch-earnings-calendar.mjs', 6 * 60, 8 * 24 * 60),
   'consensus-estimates.json': auto('refresh-screener.yml', 'scripts/fetch-consensus-estimates.mjs', 6 * 60, 4 * 24 * 60),
   // Quarterly SEC filings: a rerun without a new filing moves only generatedAt and each issuer's fetchedAt.
   'bigtech-cashflow.json': auto('refresh-screener.yml', 'scripts/fetch-bigtech-cashflow.mjs', 6 * 60, 4 * 24 * 60, { skipUnchanged: true, volatileKeys: ['generatedAt', 'issuers.*.fetchedAt'] }),
-  'treasury-auctions.json': auto('refresh-screener.yml', 'scripts/fetch-treasury-auctions.mjs', 6 * 60, 4 * 24 * 60),
-  'sp500-weights.json': auto('refresh-screener.yml', 'scripts/fetch-sp500-weights.mjs', 24 * 60, 8 * 24 * 60),
+  'treasury-auctions.json': auto('refresh-screener.yml', 'scripts/fetch-treasury-auctions.mjs', 6 * 60, 4 * 24 * 60, DERIVED),
+  'sp500-weights.json': auto('refresh-screener.yml', 'scripts/fetch-sp500-weights.mjs', 24 * 60, 8 * 24 * 60, DERIVED),
   'us-listings.json': auto('refresh-screener.yml', 'scripts/build-us-listings.mjs', 24 * 60, 4 * 24 * 60),
   'tw-monthly-revenue.json': auto('refresh-screener.yml', 'scripts/fetch-tw-monthly-revenue.mjs', 6 * 60, 62 * 24 * 60),
   // blockedBy: the refresh path exists but waits on a secret the owner has not added (or decided against); the watchdog
   // names it as a warning instead of failing every run, and the screen shows it as not collected.
-  'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60),
+  'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60, DERIVED),
   'kr-fundamentals.json': auto('refresh-screener.yml', 'scripts/fetch-dart-fundamentals.mjs', 7 * 24 * 60, 14 * 24 * 60, { blockedBy: 'secret DART_API_KEY (owner decision 2026-10-14: not registered)' }),
   'breadth-contributors.json': auto('refresh-screener.yml', 'scripts/producer/screener-breadth.mjs', 6 * 60, 8 * 24 * 60),
   'theme-stage-history.json': auto('refresh-screener.yml', 'scripts/build-scenario-state.mjs', 6 * 60, 8 * 24 * 60),

@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.43';
+const APP_VERSION = 'v60.44';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -8597,22 +8597,22 @@ window.AIO.getShareReadinessAudit = function(opts) {
 // The app cannot force every third-party API to succeed, but it can know exactly
 // which data each page/chat answer needs and proactively refresh stale layers.
 window.AIO.DATA_REQUIREMENT_PROFILES = {
-  home:        { tasks: ['quotes','news','sentiment','breadth','technicals'], symbols: ['ES=F','NQ=F','^GSPC','^IXIC','^NDX','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
-  signal:      { tasks: ['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
+  home:        { tasks: ['quotes','news','breadth'], symbols: ['ES=F','NQ=F','^GSPC','^IXIC','^NDX','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD'] },
+  signal:      { tasks: ['quotes','breadth'], symbols: ['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD'] },
   signals:     { alias: 'signal' },
-  breadth:     { tasks: ['quotes','breadth','technicals'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
-  sentiment:   { tasks: ['quotes','sentiment','vixHistory','hySpread'], symbols: ['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
-  briefing:    { tasks: ['quotes','news','sentiment','breadth','fred','technicals'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
-  charts:      { tasks: ['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
+  breadth:     { tasks: ['quotes','breadth'], symbols: ['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC'] },
+  sentiment:   { tasks: ['quotes'], symbols: ['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT'] },
+  briefing:    { tasks: ['quotes','news','breadth'], symbols: ['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11'] },
+  charts:      { tasks: ['quotes','breadth','krDynamic'], symbols: ['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X'] },
   technical:   { alias: 'charts' }, // owner 2026-11-19: the 차트 tab's address opens 기술적 분석
-  macro:       { tasks: ['quotes','fred','news','sentiment','krDynamic'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11'] },
-  fxbond:      { tasks: ['quotes','fred','hySpread','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD'] },
-  fundamental: { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC'] },
+  macro:       { tasks: ['quotes','news','krDynamic'], symbols: ['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11'] },
+  fxbond:      { tasks: ['quotes','news'], symbols: ['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD'] },
+  fundamental: { tasks: ['quotes','news'], symbols: ['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC'] },
   // v53.7 (P725): themes/macro/technical에 KR 통합 섹션 이관 — KR 태스크/심볼을 대상 페이지 프로파일에 병합
-  themes:      { tasks: ['quotes','news','technicals','krDynamic'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X'] },
-  'theme-detail': { tasks: ['quotes','news','technicals'], symbols: ['SMH','SOXX','QQQ','SPY'] },
-  portfolio:   { tasks: ['quotes','technicals'], symbols: ['SPY','QQQ','IWM','^VIX'] },
-  ticker:      { tasks: ['quotes','news','technicals'], symbols: ['SPY','QQQ','^VIX'] },
+  themes:      { tasks: ['quotes','news','krDynamic'], symbols: ['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X'] },
+  'theme-detail': { tasks: ['quotes','news'], symbols: ['SMH','SOXX','QQQ','SPY'] },
+  portfolio:   { tasks: ['quotes'], symbols: ['SPY','QQQ','IWM','^VIX'] },
+  ticker:      { tasks: ['quotes','news'], symbols: ['SPY','QQQ','^VIX'] },
   korea:       { alias: 'macro' },
   glossary:    { tasks: [], symbols: [] },
   guide:       { tasks: [], symbols: [] }
@@ -8807,8 +8807,6 @@ window.AIO.getDataRequirementProfile = function(scope) {
   if (scope.reason === 'chat') {
     tasks.push('quotes');
     if (_aioLooksFreshIntent(scope.query)) tasks.push('news');
-    if (/technical|chart|차트|기술|rsi|macd|atr|exit|trim|매도|손절|익절/i.test(String(scope.query || '') + ' ' + pageId)) tasks.push('technicals');
-    if (/macro|fed|fomc|cpi|pce|rate|yield|dollar|oil|금리|물가|달러|유가|매크로/i.test(String(scope.query || '') + ' ' + pageId)) tasks.push('fred');
   }
   return {
     pageId: pageId,
@@ -8848,13 +8846,7 @@ function _aioTaskAgeMs(taskKey) {
   var keys = {
     quotes: ['quote','liveQuotes','quotes'],
     news: ['news'],
-    sentiment: ['fearGreed','sentiment'],
     breadth: ['breadth'],
-    fred: ['fred','macro'],
-    technicals: ['technical','technicals'],
-    vixHistory: ['vixHistory','sentimentHistory'],
-    hySpread: ['hySpread'],
-    maUpdate: ['maUpdate'],
     krDynamic: ['krDynamic']
   }[taskKey] || [taskKey];
   var latest = 0;
@@ -8865,14 +8857,9 @@ function _aioTaskAgeMs(taskKey) {
 function _aioTaskPolicyKey(taskKey) {
   var map = {
     quotes: 'quote',
+    marketSnapshot: 'quote',
     news: 'news',
-    sentiment: 'sentiment',
     breadth: 'breadth',
-    fred: 'macro_daily',
-    technicals: 'technical',
-    vixHistory: 'sentiment',
-    hySpread: 'macro_daily',
-    maUpdate: 'technical',
     krDynamic: 'kr_supply'
   };
   return map[taskKey] || 'unknown';
@@ -9126,13 +9113,9 @@ async function _retryAllFailedApis() {
     _renderApiDashboard();
     var retryTasks = [];
     var hasKey = function(k) { return failedKeys.indexOf(k) !== -1; };
-    if ((hasKey('yahoo-quote') || hasKey('yahoo-chart')) && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes());
-    if (hasKey('fear-greed') && typeof fetchFearGreed === 'function') retryTasks.push(fetchFearGreed());
-    if (hasKey('fred') && typeof fetchAllFredData === 'function') retryTasks.push(fetchAllFredData());
+    if (hasKey('yahoo-quote') && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes());
     if (hasKey('coingecko') && typeof fetchLiveQuotes === 'function') retryTasks.push(fetchLiveQuotes()); // coingecko는 시세에 포함
     if (hasKey('rss-news') && typeof fetchAllNews === 'function') retryTasks.push(fetchAllNews(true));
-    // exchange-rate는 globalRefresh 내에서 시세와 함께 처리됨
-    if (hasKey('exchange-rate') && typeof globalRefresh === 'function') { /* globalRefresh에서 처리 */ }
     await Promise.allSettled(retryTasks);
     _checkAllDeadBanner();
     // 재시도 후 여전히 실패한 API 카운트
@@ -9294,9 +9277,15 @@ if (!window.AIO_PUBLIC_CONFIG) {
     privacy: { clientKeysStayBrowserLocal: true, networkTransmission: 'provider-or-public-worker' }
   });
 }
-window.AIO.loadPublicConfig = async function() {
+// v60.43: the boot snapshot read (src/app/bootstrap.js) and the AI transport both ask; one request serves both.
+var _aioPublicConfigPending = null;
+window.AIO.loadPublicConfig = function() {
   var current = window.AIO_PUBLIC_CONFIG || {};
-  if (current._loaded) return current;
+  if (current._loaded) return Promise.resolve(current);
+  return _aioPublicConfigPending || (_aioPublicConfigPending = _aioFetchPublicConfig().finally(function() { _aioPublicConfigPending = null; }));
+};
+async function _aioFetchPublicConfig() {
+  var current = window.AIO_PUBLIC_CONFIG || {};
   try {
     var url = new URL('public-config.json', document.baseURI);
     url.searchParams.set('rev', window.APP_VERSION || Date.now().toString());
@@ -9317,7 +9306,7 @@ window.AIO.loadPublicConfig = async function() {
     _aioSetPublicConfig(current);
     return current;
   }
-};
+}
 window.AIO.getPublicConfig = function() { return window.AIO_PUBLIC_CONFIG || null; };
 
 function _aioRefreshProviderStatuses() {
@@ -11840,11 +11829,6 @@ window.AIO_CROSS_SOURCE_QUOTE_CACHE = window.AIO_CROSS_SOURCE_QUOTE_CACHE || {};
 window.AIO.normalizeQuoteSourceFamily = function(source) {
   var s = String(source || '').toLowerCase();
   if (!s) return 'unknown';
-  if (/open\.er-api/.test(s)) return 'fx-open-er-api';
-  if (/exchangerate-api/.test(s)) return 'fx-exchangerate-api';
-  if (/fawazahmed0|currency-api/.test(s)) return 'fx-fawazahmed0';
-  if (/currencylayer/.test(s)) return 'fx-currencylayer';
-  if (/frankfurter/.test(s)) return 'fx-frankfurter';
   if (/yahoo|query1\.finance/.test(s)) return 'yahoo';
   if (/naver|sise/.test(s)) return 'naver';
   if (/stooq/.test(s)) return 'stooq';
@@ -12497,20 +12481,20 @@ function _aioExternalReferenceMap(externalReferences) {
 
   function _contractProfile(id) {
     var p = {
-      home:{tasks:['quotes','news','sentiment','breadth','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD']},
-      signal:{tasks:['quotes','sentiment','breadth','technicals','vixHistory','hySpread'],symbols:['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD']},
-      breadth:{tasks:['quotes','breadth','technicals'],symbols:['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC']},
-      sentiment:{tasks:['quotes','sentiment','vixHistory','hySpread'],symbols:['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
-      briefing:{tasks:['quotes','news','sentiment','breadth','fred','technicals'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11']},
-      charts:{tasks:['quotes','technicals','breadth','sentiment','vixHistory','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']}, // the 차트 tab's profile, with its slot (owner 2026-11-19)
-      macro:{tasks:['quotes','fred','news','sentiment','krDynamic','krMacro'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11']},
-      fxbond:{tasks:['quotes','fred','hySpread','news'],symbols:['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD']},
-      fundamental:{tasks:['quotes','news','technicals','companyFundamentals'],symbols:['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC']},
-      themes:{tasks:['quotes','news','technicals','themeRanking','krDynamic'],symbols:['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X']},
-      'theme-detail':{tasks:['quotes','news','technicals','themeRanking'],symbols:['SMH','SOXX','QQQ','SPY']},
-      portfolio:{tasks:['quotes','technicals','portfolioRisk'],symbols:['SPY','QQQ','IWM','^VIX']},
-      ticker:{tasks:['quotes','news','technicals','companyFundamentals','filings'],symbols:['SPY','QQQ','^VIX']},
-      'market-news':{tasks:['news','quotes','sentiment'],symbols:['SPY','QQQ','^VIX','^TNX','DX-Y.NYB','CL=F','GC=F']},
+      home:{tasks:['quotes','news','breadth'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','^VIX','^TNX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^KS11','BTC-USD']},
+      signal:{tasks:['quotes','breadth'],symbols:['^GSPC','^IXIC','SPY','QQQ','IWM','DIA','RSP','SMH','SOXX','HYG','LQD','TLT','^VIX','^VVIX','^TNX','DX-Y.NYB','CL=F','GC=F','BTC-USD','NVDA','ARM','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC','GLD']},
+      breadth:{tasks:['quotes','breadth'],symbols:['^GSPC','^IXIC','^RUT','SPY','QQQ','IWM','RSP','XLK','XLY','XLF','XLI','XLV','XLE','XLP','XLU','XLRE','XLB','XLC']},
+      sentiment:{tasks:['quotes'],symbols:['^VIX','^SKEW','^VVIX','^VIX9D','^VIX3M','^VIX6M','VXX','UVXY','SPY','QQQ','HYG','LQD','TLT']},
+      briefing:{tasks:['quotes','news','breadth'],symbols:['^GSPC','^IXIC','^DJI','^RUT','SPY','QQQ','IWM','RSP','SMH','SOXX','^VIX','CL=F','BZ=F','GC=F','KRW=X','DX-Y.NYB','^TNX','HYG','LQD','^KS11']},
+      charts:{tasks:['quotes','breadth','krDynamic'],symbols:['^GSPC','SPY','QQQ','SMH','SOXX','IWM','RSP','DIA','NVDA','AVGO','AMD','PLTR','^VIX','^KS11','^KQ11','KRW=X']}, // the 차트 tab's profile, with its slot (owner 2026-11-19)
+      macro:{tasks:['quotes','news','krDynamic'],symbols:['DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','TLT','HYG','LQD','^VIX','CL=F','BZ=F','NG=F','GC=F','SI=F','KRW=X','JPY=X','EURUSD=X','^KS11','^KQ11']},
+      fxbond:{tasks:['quotes','news'],symbols:['KRW=X','JPY=X','EURUSD=X','GBPUSD=X','CNY=X','AUDUSD=X','DX-Y.NYB','^TNX','^TYX','^FVX','^IRX','ZB=F','TLT','IEF','SHY','HYG','LQD','EMB','CL=F','GC=F','BTC-USD']},
+      fundamental:{tasks:['quotes','news'],symbols:['SPY','QQQ','AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','AVGO','AMD','PLTR','TSM','INTC']},
+      themes:{tasks:['quotes','news','krDynamic'],symbols:['SMH','SOXX','QQQ','SPY','XLK','XLC','XLY','XLF','XLE','XLV','XLI','XLP','XLRE','XLB','XLU','GLD','^KS11','^KQ11','KRW=X']},
+      'theme-detail':{tasks:['quotes','news'],symbols:['SMH','SOXX','QQQ','SPY']},
+      portfolio:{tasks:['quotes'],symbols:['SPY','QQQ','IWM','^VIX']},
+      ticker:{tasks:['quotes','news'],symbols:['SPY','QQQ','^VIX']},
+      'market-news':{tasks:['news','quotes'],symbols:['SPY','QQQ','^VIX','^TNX','DX-Y.NYB','CL=F','GC=F']},
       guide:{tasks:[],symbols:[]},
       principles:{tasks:[],symbols:[]},
       masters:{tasks:[],symbols:[]},
@@ -12526,20 +12510,20 @@ function _aioExternalReferenceMap(externalReferences) {
   // age budgets, and failure semantics travel with AIO_PAGE_CONTRACTS.pages[id].
   function _pageCompletenessContract(id) {
     var p = {
-      home: { requiredProducers:['quotes','sentiment','breadth','technicals'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50, technicals:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, technicals:3600000, news:10800000 }, failureState:'partial', forbiddenClaims:['today-action-conclusion-when-core-stale'] },
-      signal: { requiredProducers:['quotes','sentiment','breadth','technicals','vixHistory','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50, technicals:50, vixHistory:50, hySpread:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, technicals:3600000, vixHistory:86400000, hySpread:172800000 }, failureState:'blocked', forbiddenClaims:['predictive-buy-sell-claim'] },
+      home: { requiredProducers:['quotes','sentiment','breadth'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, news:10800000 }, failureState:'partial', forbiddenClaims:['today-action-conclusion-when-core-stale'] },
+      signal: { requiredProducers:['quotes','sentiment','breadth','fred'], optionalProducers:['news'], minCoverage:{ quotes:80, sentiment:50, breadth:50, fred:50 }, maxAge:{ quotes:1200000, sentiment:14400000, breadth:345600000, fred:172800000 }, failureState:'blocked', forbiddenClaims:['predictive-buy-sell-claim'] },
       breadth: { requiredProducers:['breadth','quotes'], optionalProducers:['officialExchangeBreadth'], minCoverage:{ breadth:50, quotes:80 }, maxAge:{ breadth:345600000, quotes:1200000 }, failureState:'blocked', forbiddenClaims:['breadth-without-denominator'] },
-      sentiment: { requiredProducers:['sentiment','vixHistory','hySpread'], optionalProducers:['delayedCboe','surveys'], minCoverage:{ sentiment:50, vixHistory:50, hySpread:50 }, maxAge:{ sentiment:14400000, vixHistory:86400000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['snapshot-survey-as-current-composite'] },
+      sentiment: { requiredProducers:['sentiment','fred'], optionalProducers:['delayedCboe','surveys'], minCoverage:{ sentiment:50, fred:50 }, maxAge:{ sentiment:14400000, fred:172800000 }, failureState:'partial', forbiddenClaims:['snapshot-survey-as-current-composite'] },
       briefing: { requiredProducers:['quotes','fred','news','sentiment','breadth'], optionalProducers:['aiNarrative'], minCoverage:{ quotes:80, fred:50, news:50, sentiment:50, breadth:50 }, maxAge:{ quotes:1200000, fred:172800000, news:10800000, sentiment:14400000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['unverified-ai-narrative'] },
-      technical: { requiredProducers:['quotes','technicals'], optionalProducers:['breadth','sentiment','krDynamic'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, breadth:345600000, sentiment:14400000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
-      charts: { requiredProducers:['quotes','technicals'], optionalProducers:['screenerArtifact','breadth'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, screenerArtifact:345600000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['trend-word-as-forecast'] }, // v59.64 기술적 분석
+      technical: { requiredProducers:['quotes'], optionalProducers:['breadth','sentiment','krDynamic'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000, breadth:345600000, sentiment:14400000, krDynamic:86400000 }, failureState:'blocked', forbiddenClaims:['mixed-observation-quote-history'] },
+      charts: { requiredProducers:['quotes'], optionalProducers:['screenerArtifact','breadth'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000, screenerArtifact:345600000, breadth:345600000 }, failureState:'partial', forbiddenClaims:['trend-word-as-forecast'] }, // v59.64 기술적 분석
       macro: { requiredProducers:['fred','quotes'], optionalProducers:['bls','bea','treasury','news','krDynamic','krMacro'], minCoverage:{ fred:50, quotes:80 }, maxAge:{ fred:172800000, quotes:1200000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['release-date-from-fetch-time','macro-claim-without-period-unit-release'] },
-      fxbond: { requiredProducers:['quotes','fred','hySpread'], optionalProducers:['news'], minCoverage:{ quotes:80, fred:50, hySpread:50 }, maxAge:{ quotes:1200000, fred:172800000, hySpread:172800000 }, failureState:'partial', forbiddenClaims:['pair-inversion-or-percent-bp-mix'] },
-      fundamental: { requiredProducers:['quotes','news'], optionalProducers:['companyFundamentals','technicals'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['valuation-without-filing-coverage'] },
-      themes: { requiredProducers:['quotes','technicals'], optionalProducers:['news','valuation','krDynamic'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['stale-constituent-current-leader-claim','historical-memo-as-current-catalyst'] },
-      'theme-detail': { requiredProducers:['quotes','technicals'], optionalProducers:['news'], minCoverage:{ quotes:80, technicals:50 }, maxAge:{ quotes:1200000, technicals:3600000 }, failureState:'partial', forbiddenClaims:['orphan-theme-entity'] },
+      fxbond: { requiredProducers:['quotes','fred'], optionalProducers:['news'], minCoverage:{ quotes:80, fred:50 }, maxAge:{ quotes:1200000, fred:172800000 }, failureState:'partial', forbiddenClaims:['pair-inversion-or-percent-bp-mix'] },
+      fundamental: { requiredProducers:['quotes','news'], optionalProducers:['companyFundamentals'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['valuation-without-filing-coverage'] },
+      themes: { requiredProducers:['quotes'], optionalProducers:['news','valuation','krDynamic'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000, krDynamic:86400000 }, failureState:'partial', forbiddenClaims:['stale-constituent-current-leader-claim','historical-memo-as-current-catalyst'] },
+      'theme-detail': { requiredProducers:['quotes'], optionalProducers:['news'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000 }, failureState:'partial', forbiddenClaims:['orphan-theme-entity'] },
       portfolio: { requiredProducers:['quotes'], optionalProducers:['fundamentals','news'], minCoverage:{ quotes:80 }, maxAge:{ quotes:1200000 }, failureState:'partial', forbiddenClaims:['empty-portfolio-calculation'] },
-      ticker: { requiredProducers:['quotes','technicals','news'], optionalProducers:['fundamentals','filings'], minCoverage:{ quotes:80, technicals:50, news:50 }, maxAge:{ quotes:1200000, technicals:3600000, news:10800000 }, failureState:'partial', forbiddenClaims:['late-response-for-previous-symbol'] },
+      ticker: { requiredProducers:['quotes','news'], optionalProducers:['fundamentals','filings'], minCoverage:{ quotes:80, news:50 }, maxAge:{ quotes:1200000, news:10800000 }, failureState:'partial', forbiddenClaims:['late-response-for-previous-symbol'] },
       'market-news': { requiredProducers:['news'], optionalProducers:['quotes','sentiment'], minCoverage:{ news:50 }, maxAge:{ news:10800000 }, failureState:'partial', forbiddenClaims:['translation-failure-as-success'] },
       guide: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:[] },
       principles: { requiredProducers:[], optionalProducers:[], minCoverage:{}, maxAge:{}, failureState:'loaded', forbiddenClaims:['live-price-claim','target-price-claim','buy-sell-claim'] },
@@ -12697,29 +12681,15 @@ function _aioExternalReferenceMap(externalReferences) {
     var contracts = window.AIO_PAGE_CONTRACTS || _buildContracts();
     window.AIO_PAGE_CONTRACTS = contracts;
     window.AIO.DATA_REQUIREMENT_PROFILES = window.AIO.DATA_REQUIREMENT_PROFILES || {};
-    // v50.24/WO-3 (P499): 가상 계약 태스크(themeRanking/portfolioRisk/companyFundamentals/
-    // filings/optionsSnapshot/krMacro)는 페이지 자체 렌더 로직이 계산하는 "파생" 분석이지
-    // 스케줄러 fetch 태스크가 아니다. 스케줄러는 fetch 키만 알므로, 각 가상 태스크를 그 파생이
-    // 필요로 하는 실제 fetch 의존 키로 치환한다. 이렇게 해야 AIO_PAGE_REFRESH_MAP /
-    // DATA_REQUIREMENT_PROFILES가 유효한 REFRESH_SCHEDULE 키만 갖게 되어
-    // getAutoOpsReadiness "unknown task" 경고(7건)가 사라진다.
-    var CONTRACT_TASK_ALIAS = {
-      companyFundamentals: ['quotes', 'news', 'technicals'],
-      filings:             ['news'],
-      themeRanking:        ['quotes', 'technicals'],
-      portfolioRisk:       ['quotes', 'technicals'],
-      optionsSnapshot:     ['quotes', 'sentiment', 'vixHistory'],
-      krMacro:             ['fred', 'krDynamic']
-    };
+    // v50.24/WO-3 (P499): contract refresh tasks name scheduler keys only. v60.43: the virtual derived tasks
+    // (themeRanking, portfolioRisk, companyFundamentals, filings, optionsSnapshot, krMacro) and their alias table left
+    // with the retired fetch tasks they resolved to; the filter below still drops a key the scheduler does not have.
     var _schedKeys = (window.REFRESH_SCHEDULE && Object.keys(window.REFRESH_SCHEDULE)) || [];
     function _resolveContractTasks(tasks) {
       var out = [];
-      (tasks || []).forEach(function(t) {
-        var mapped = CONTRACT_TASK_ALIAS[t] ? CONTRACT_TASK_ALIAS[t] : [t];
-        mapped.forEach(function(k) {
-          // 실존 스케줄 키만 채택 (스케줄 로드 전이면 통과 — 정상 흐름은 로드 후 호출됨)
-          if ((!_schedKeys.length || _schedKeys.indexOf(k) !== -1) && out.indexOf(k) === -1) out.push(k);
-        });
+      (tasks || []).forEach(function(k) {
+        // 실존 스케줄 키만 채택 (스케줄 로드 전이면 통과 — 정상 흐름은 로드 후 호출됨)
+        if ((!_schedKeys.length || _schedKeys.indexOf(k) !== -1) && out.indexOf(k) === -1) out.push(k);
       });
       return out;
     }

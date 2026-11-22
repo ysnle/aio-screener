@@ -125,6 +125,21 @@ for (const workflow of new Set(Object.values(ARTIFACT_FRESHNESS).map((entry) => 
   check('v60.18 a bigtech-cashflow rerun that moved only its fetch clocks keeps the published bytes; a new filing is written',
     same.lastAttempt.status === 'unchanged' && same.producedAt === head.generatedAt && changed.lastAttempt.status === 'updated' && restored.join() === 'bigtech-cashflow.json',
     JSON.stringify({ same: same.lastAttempt, changed: changed.lastAttempt, restored }));
+  // v60.43: history.json was committed whole (4 MB) 293 times in a week; with every market closed a run moved only each
+  // field's checkedAt and the row's snapshot revision. Four screener-lane files moved only generatedAt on most runs.
+  const historyOf = (checkedAt, revision, spx = 6700) => ({ schemaVersion: 2, rows: [{ date: '2026-11-19', spx: 6650, marketSnapshotRevision: 'r0', fieldMeta: { spx: { observedAt: '2026-11-19T21:00:00Z', checkedAt: '2026-11-20T00:00:00Z' } } },
+    { date: '2026-11-20', spx, cycleEnd: '2026-11-20T23:00:00.000Z', marketSnapshotRevision: revision, fieldMeta: { spx: { observedAt: '2026-11-20T21:00:00Z', checkedAt } } }] });
+  const historyKeys = ARTIFACT_FRESHNESS['history.json'].volatileKeys;
+  check('v60.43 a history.json run that moved only field check clocks and the snapshot revision keeps the published file; a changed close or observation time is written',
+    ARTIFACT_FRESHNESS['history.json'].skipUnchanged === true
+      && sameExceptVolatile(historyOf('2026-11-21T14:00:00Z', 'r1'), historyOf('2026-11-21T15:00:00Z', 'r2'), historyKeys)
+      && !sameExceptVolatile(historyOf('2026-11-21T14:00:00Z', 'r1'), historyOf('2026-11-21T15:00:00Z', 'r2', 6701), historyKeys)
+      && !sameExceptVolatile(historyOf('2026-11-21T14:00:00Z', 'r1'), { ...historyOf('2026-11-21T15:00:00Z', 'r2'), rows: historyOf('x', 'r2').rows.map((row) => ({ ...row, fieldMeta: { spx: { ...row.fieldMeta.spx, observedAt: '2026-11-21T21:00:00Z' } } })) }, historyKeys),
+    JSON.stringify(historyKeys));
+  const clockOnly = ['sec-fiscal-history.json', 'treasury-auctions.json', 'sp500-weights.json', 'kr-investor-flows.json'];
+  check('v60.43 the screener-lane files that usually move only generatedAt keep their published bytes on such a run',
+    clockOnly.every((file) => ARTIFACT_FRESHNESS[file].skipUnchanged === true && ARTIFACT_FRESHNESS[file].volatileKeys.join() === 'generatedAt'),
+    clockOnly.filter((file) => ARTIFACT_FRESHNESS[file].skipUnchanged !== true).join());
   check('v60.18 a volatile key with a * part drops that key from every element and nothing else',
     sameExceptVolatile(head, rerun, ['generatedAt', 'issuers.*.fetchedAt']) && !sameExceptVolatile(head, filed, ['generatedAt', 'issuers.*.fetchedAt']) && !sameExceptVolatile(head, rerun, ['generatedAt']));
 }

@@ -4,11 +4,16 @@
 //
 // Events: 숨김 (visibilitychange, hidden), 복귀 (visible), 갱신 요청 (AIO.runScheduledRefresh({keys:['quotes']}) — the
 // portfolio/screener retry, the AI ensure-fresh and the manual button all call it, and the retries can fire while
-// the tab is hidden), 응답 (the oldest pending fetch resolves), 타이머 (the earliest virtual timer fires).
+// the tab is hidden), 응답 (the oldest pending fetch resolves), 타이머 (the earliest virtual timer fires; the virtual
+// clock, which Date.now reads, moves to its due time).
+// Clocks (v60.43, src/app/refresh-session-policy.js): every sequence is replayed from two starts — '휴장' (Saturday
+// 12:00 KST: no US or KR session for the whole bounded run) and '장중' (Tuesday 10:00 KST: the KR session is open).
 // Invariants (checked after every event, once its microtasks settle):
 //   R1 visible tab is not paused — while the tab is visible the scheduler's pause flag is off.
 //   R2 visible tab keeps its timers — while visible, every task with an interval has a timer or a run in flight.
 //   R3 hidden tab fetches nothing on its own — a timer firing while hidden starts no fetch.
+//   R4 a closed market starts no session-bound fetch on its own — under the '휴장' clock a timer starts no KR batch
+//      (fetchKrDynamicData) and no snapshot re-read, and two timer-started quote fetches are at least 30 minutes apart.
 //
 // KNOWN pins findings on the current code that are not fixed yet, by the scene of the trail; the gate fails on any other
 // violation and on a KNOWN entry that no longer occurs. Self-check: each VARIANT removes one guard and must produce a
@@ -23,7 +28,9 @@ const MODULE = 'src/app/refresh-scheduler.js';
 const DEPTH = Number(process.env.AIO_SCHEDULER_DEPTH || 6);
 const fail = (message) => { throw new Error(`[${GATE}] ${message}`); };
 const EVENTS = ['숨김', '복귀', '갱신 요청', '응답', '타이머'];
-const FETCHERS = ['fetchLiveQuotes', 'fetchAllNews', 'fetchSentimentHistory', 'fetchBreadthData', 'fetchAllFredData', 'fetchTechnicals', 'fetchVixHistory', 'fetchHYSpread', 'autoUpdateMA', 'fetchKrDynamicData'];
+const FETCHERS = ['fetchLiveQuotes', 'fetchAllNews', 'fetchBreadthData', 'fetchKrDynamicData'];
+const CLOCKS = { 휴장: Date.parse('2026-11-21T03:00:00Z'), 장중: Date.parse('2026-11-24T01:00:00Z') };
+const CLOSED_QUOTE_GAP_MS = 30 * 60 * 1000;
 
 // Fixed in v59.60 (first run 2026-11-02): runScheduledRefresh restored the pause flag it saw at its start, so a run begun
 // while hidden that ended after the tab returned left a visible tab paused (trail 숨김 → 갱신 요청 → 복귀 → 응답) and
@@ -35,7 +42,8 @@ const VARIANTS = [
   { label: '갱신 종료 시 시작 시점 일시정지 값 복원(v59.60 이전)', replacements: [["_schedulerPaused = !!(typeof document !== 'undefined' && document.hidden);", '_schedulerPaused = true;']] },
   { label: '복귀 시 타이머 재시작 제거', replacements: [['      restartScheduler();\n      _lastVisibleTime = Date.now();', '      _lastVisibleTime = Date.now();']] },
   { label: '숨김 시 타이머 해제 제거', replacements: [['        if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }\n      });\n      console.log(\'[AIO] Tab hidden', '      });\n      console.log(\'[AIO] Tab hidden']] },
-  { label: '복귀 시 일시정지 해제 제거', replacements: [['    } else {\n      _schedulerPaused = false;\n      const elapsed', '    } else {\n      const elapsed']] }
+  { label: '복귀 시 일시정지 해제 제거', replacements: [['    } else {\n      _schedulerPaused = false;\n      const elapsed', '    } else {\n      const elapsed']] },
+  { label: '타이머가 장 시간 정책을 묻지 않음(v60.43 이전)', replacements: [['        if (_timedRunDue(key, cfg)) await _runScheduledTask(key, cfg, showError);', '        await _runScheduledTask(key, cfg, showError);']] }
 ];
 
 // One mutable world the global stubs read, replaced for every replayed sequence.
@@ -47,14 +55,18 @@ const stubs = {
   setTimeout: (fn, ms) => { const id = ++world.seq; world.timers.set(id, { fn, at: world.now + (Number(ms) || 0), id }); return id; },
   clearTimeout: (id) => { world.timers.delete(id); }
 };
-for (const name of FETCHERS) stubs[name] = () => new Promise((resolve) => { world.pending.push(resolve); world.fetchesStarted += 1; });
+const fetchStub = (name) => () => new Promise((resolve) => { world.pending.push(resolve); world.fetchesStarted += 1; world.started.push({ name, at: world.now }); });
+for (const name of FETCHERS) stubs[name] = fetchStub(name);
 for (const [name, value] of Object.entries(stubs)) Object.defineProperty(globalThis, name, { value, configurable: true, writable: true });
 const realConsoleLog = console.log;
+const realDateNow = Date.now;
 
-async function replay(install, trail) {
-  world = { hidden: false, onVisibility: null, seq: 0, now: 1_800_000_000_000, timers: new Map(), pending: [], fetchesStarted: 0 };
-  const win = { AIO: {}, addEventListener() {}, removeEventListener() {}, dispatchEvent() {}, CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } } };
+async function replay(install, trail, clock) {
+  world = { hidden: false, onVisibility: null, seq: 0, now: CLOCKS[clock], timers: new Map(), pending: [], fetchesStarted: 0, started: [] };
+  const win = { AIO: {}, addEventListener() {}, removeEventListener() {}, dispatchEvent() {}, CustomEvent: class { constructor(type, init) { this.type = type; this.detail = init?.detail; } },
+    _aioReloadMarketSnapshot: fetchStub('_aioReloadMarketSnapshot') };
   console.log = () => {};
+  Date.now = () => world.now;
   try {
     install(win);
     win.startDataScheduler();
@@ -71,9 +83,17 @@ async function replay(install, trail) {
           world.timers.delete(next.id);
           world.now = next.at;
           const before = world.fetchesStarted;
+          const startedBefore = world.started.length;
           next.fn();
           await flush();
           if (world.hidden && world.fetchesStarted > before) violations.push('R3');
+          if (clock === '휴장') {
+            for (const row of world.started.slice(startedBefore)) {
+              const previousQuote = world.started.slice(0, world.started.indexOf(row)).filter((r) => r.name === 'fetchLiveQuotes').at(-1);
+              if (row.name === 'fetchKrDynamicData' || row.name === '_aioReloadMarketSnapshot'
+                || (row.name === 'fetchLiveQuotes' && previousQuote && row.at - previousQuote.at < CLOSED_QUOTE_GAP_MS)) violations.push('R4');
+            }
+          }
         }
       }
       await flush();
@@ -87,30 +107,33 @@ async function replay(install, trail) {
     return null;
   } finally {
     console.log = realConsoleLog;
+    Date.now = realDateNow;
   }
 }
 
 async function explore(install) {
   const found = new Map();
   let sequences = 0;
-  const walk = async (trail) => {
-    if (trail.length) {
-      sequences += 1;
-      const result = await replay(install, trail);
-      if (result) {
-        for (const invariant of result.invariants) {
-          const key = knownKey({ invariant, scene: result.scene });
-          if (!found.has(key) || found.get(key).trail.length > trail.length) found.set(key, { invariant, scene: result.scene, trail: trail.slice() });
+  for (const clock of Object.keys(CLOCKS)) {
+    const walk = async (trail) => {
+      if (trail.length) {
+        sequences += 1;
+        const result = await replay(install, trail, clock);
+        if (result) {
+          for (const invariant of result.invariants) {
+            const key = knownKey({ invariant, scene: result.scene });
+            if (!found.has(key) || found.get(key).trail.length > trail.length) found.set(key, { invariant, scene: result.scene, trail: [`[${clock}]`, ...trail] });
+          }
+          return; // the shortest trail per prefix is enough; longer ones only repeat it
         }
-        return; // the shortest trail per prefix is enough; longer ones only repeat it
       }
-    }
-    if (trail.length >= DEPTH) return;
-    // The browser fires visibilitychange only on a change, so a repeated 숨김 or 복귀 is not a reachable event.
-    const hidden = trail.filter((event) => event === '숨김' || event === '복귀').at(-1) === '숨김';
-    for (const event of EVENTS) if (!(event === '숨김' && hidden) && !(event === '복귀' && !hidden)) await walk([...trail, event]);
-  };
-  await walk([]);
+      if (trail.length >= DEPTH) return;
+      // The browser fires visibilitychange only on a change, so a repeated 숨김 or 복귀 is not a reachable event.
+      const hidden = trail.filter((event) => event === '숨김' || event === '복귀').at(-1) === '숨김';
+      for (const event of EVENTS) if (!(event === '숨김' && hidden) && !(event === '복귀' && !hidden)) await walk([...trail, event]);
+    };
+    await walk([]);
+  }
   return { sequences, found };
 }
 

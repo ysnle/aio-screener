@@ -60,6 +60,36 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2712 - v60.44 - v60.44 history.json was committed whole 293 times in a week when only check clocks moved (2026-11-22)
+
+- symptom/reproduction: 2026-11-15..21: public-data/history.json (4 MB) was rewritten in 293 data commits (1,166 MB raw, 32 MB packed of about 97 MB weekly repository growth). On a closed Saturday two consecutive commits differed only in rows.*.fieldMeta.*.checkedAt and rows.*.marketSnapshotRevision.
+- root_cause: history.json had no skipUnchanged entry in the freshness registry, so a run that learned nothing new still published new bytes. Four screener-lane files (sec-fiscal-history, treasury-auctions, sp500-weights, kr-investor-flows) likewise moved only generatedAt.
+- fix: src/data/contracts/artifact-freshness.js: history.json is skipUnchanged with the two clock paths as volatileKeys; the four screener-lane files use DERIVED. write-freshness-ledger restores the published bytes on such a run and the ledger records the confirmation time.
+- violated_rule: A file whose content did not change is not committed; the confirmation time lives in the freshness ledger.
+- prevention: ci-artifact-refresh-path-check 'v60.43 a history.json run that moved only field check clocks and the snapshot revision keeps the published file; a changed close or observation time is written' and 'v60.43 the screener-lane files that usually move only generatedAt keep their published bytes on such a run'.
+- verification/residual: On real commit pairs: Saturday pair equal except volatile keys, US-session and weekday-closed pairs different. Not verified: the drop in data commits and deployments, readable only from the Actions history after push.
+- files: src/data/contracts/artifact-freshness.js, scripts/ci-artifact-refresh-path-check.mjs
+
+## P2711 - v60.44 - v60.44 the browser never read the five-minute quote plane at boot and kept calling live sources with every market closed (2026-11-22)
+
+- symptom/reproduction: Live boot on a closed Saturday (2026-11-21, v60.42): 20 external calls in 44 s and no request to the data plane /quotes. Quotes kept a 3-minute timer, the KR batch a 30-minute timer, and entering 매크로 on a Sunday re-ran the KR batch, although no price could have moved.
+- root_cause: The first market-snapshot read ran before public-config resolved, so the fast-plane URL was unknown and the loader fell back to the durable snapshot for the whole visit. No refresh task read the market clock: timers, page entry and the stale report each used the raw interval. The scheduler also still held browser fetch tasks (CoinGecko global and markets, FX reference rates, Fear and Greed, sentiment history, FRED, HY OAS) for values data.json and history.json already carry.
+- fix: src/app/refresh-session-policy.js is the one owner of a task's interval for the hour (refreshIntervalMs); timers, page entry and the stale report in refresh-scheduler.js all read it: closed markets stretch quotes to 30 minutes and hold the KR batch and the snapshot re-read. bootstrap.js waits up to 3 s for public-config before the first snapshot read and a marketSnapshot task re-reads the plane every 5 minutes in session. The browser fetch tasks for artifact-carried values are deleted (js/aio-data.js is 20 KB smaller) with their service-worker host patterns and health rows.
+- violated_rule: A value the producer already publishes has no browser fetch, and a refresh cadence is decided in one place that knows whether a market is open.
+- prevention: ci-state-machine-regression-check 'v60.43 SM-05' pins the interval per task on a Saturday, in the KR session, just after the KR close and in the US session, and that the scheduler has no raw-interval read left. ci-refresh-scheduler-model-check replays every sequence from a closed and an open clock and carries the mutant 'timers do not ask the session policy'. ci-runtime-contract-check LIVE3-10 and aio-tests T898 fail if a browser F&G or HY OAS fetcher returns; ci-sa-04-boot-network-budget keeps the task list.
+- verification/residual: State-machine check 14 passed, scheduler model check 10,920 sequences R1-R4, affected QA green locally; /quotes answers 200 with 16 quotes from the production origin. Not verified: the live boot call count and the /quotes read on the deployed site (the Worker rejects a localhost origin), to be checked after push.
+- files: src/app/refresh-session-policy.js, src/app/refresh-scheduler.js, src/app/bootstrap.js, js/aio-data.js, js/aio-core.js, sw.js, scripts/ci-state-machine-regression-check.mjs, scripts/ci-refresh-scheduler-model-check.mjs
+
+## P2710 - v60.44 - v60.44 횟수가 함께 적힌 문장이 통째로 지워져 이어 묻기에서 배당수익률이 빠짐 (2026-11-22)
+
+- symptom/reproduction: MSFT 종목 화면에서 '배당은 얼마나 줘?'라고 이어 물으면 답에 배당수익률 문장이 없고 '일부 최신 수치 확인 안 됨'이 붙었다(실서비스 평가 2026-11-22, 같은 날 실서비스에서 모델 원문을 받아 재현). 모델 원문은 '2026년 11월 20일 종가 기준 배당수익률은 0.77%였고, 해당 기간 배당은 4회였습니다.'였다.
+- root_cause: 답변 수치 필터는 문장의 모든 숫자가 자료에 있어야 문장을 남긴다. 자료에는 '4회'가 있었지만 필터가 '회'를 단위로 읽지 않아 한 자리 숫자 4를 근거 없는 값으로 보고, 같은 문장의 배당수익률까지 지웠다.
+- fix: 'N회'를 횟수 단위로 읽는다. 자료에 같은 횟수가 같은 단위로 적혀 있을 때만 통과한다(src/ai/response/publication.js WRITTEN_FIGURE, WRITTEN_UNITS).
+- violated_rule: 문장 단위로 거르는 필터는 자료가 실제로 쓰는 표기를 모두 읽을 수 있어야 한다. 읽지 못하는 표기 하나가 옆의 확인된 수치까지 지운다.
+- prevention: ci-ai-intelligence-contract-check 'v60.44 a counted number of times in the material supports the same count in the answer, so the yield sentence beside it stays': 같은 횟수는 통과, 다른 횟수(5회)와 다른 단위(4개)는 통과하지 않는다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs. 실서비스 재확인은 배포 뒤 같은 질문으로 한다.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2709 - v60.43 - v60.43 one row's trailing dividend yield above 40% rejected the whole extended screener shard for 3.5 days (2026-11-22)
 
 - symptom/reproduction: public-data/screener-extended.json was last committed 2026-11-18T03:28Z. From then to 2026-11-21 43 of 44 'Refresh screener and SEC fundamentals' runs ended red; 29 of the failures were '[screener-extended-validator] row ABR: dividendYieldPct must be 0-40% (55.17 / 57.66 / 62.14)', each after about 20 minutes of fetching 3,885 symbols. The published shard therefore still carries no dividend fields and prices from the 2026-11-17 session.

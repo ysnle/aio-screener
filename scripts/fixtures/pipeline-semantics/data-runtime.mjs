@@ -7,7 +7,7 @@ async function scheduler(load) {
   // The classic task table binds these by bare global name at install time; the cases replace cfg.fn afterwards.
   // Stubs are removed right after install so other areas in the same process never see a fake DOM.
   const stubs = { document: { addEventListener() {}, removeEventListener() {}, querySelector: () => null, getElementById: () => null, hidden: false } };
-  for (const name of ['fetchBreadthData', 'fetchAllFredData', 'fetchSentimentHistory']) stubs[name] = async () => undefined;
+  for (const name of ['fetchBreadthData']) stubs[name] = async () => undefined;
   const added = Object.keys(stubs).filter((name) => !(name in globalThis));
   for (const name of added) globalThis[name] = stubs[name];
   try { installRefreshScheduler(win); } finally { for (const name of added) delete globalThis[name]; }
@@ -17,26 +17,26 @@ async function scheduler(load) {
 export const cases = [
   { id: 'R2-01', name: 'an all-rejected allSettled refresh is a failure without a success time', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.sentiment;
+      const cfg = win.REFRESH_SCHEDULE.krDynamic; // v60.43: krDynamic is the remaining allSettled task (Naver quotes + VKOSPI)
       cfg.fn = () => Promise.allSettled([Promise.reject(new Error('a')), Promise.reject(new Error('b'))]);
-      const out = await win._runScheduledTask('sentiment', cfg, false, {});
+      const out = await win._runScheduledTask('krDynamic', cfg, false, {});
       assert.equal(out.ok, false);
       assert.equal(cfg._status, 'failed');
       assert.ok(!cfg._lastSuccessfulAt, 'no success time is stamped');
   } },
   { id: 'R2-01', name: 'a half-rejected allSettled refresh reports 50% coverage', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.sentiment;
+      const cfg = win.REFRESH_SCHEDULE.krDynamic;
       cfg.fn = () => Promise.allSettled([Promise.resolve(1), Promise.reject(new Error('b'))]);
-      await win._runScheduledTask('sentiment', cfg, false, {});
+      await win._runScheduledTask('krDynamic', cfg, false, {});
       assert.equal(cfg._status, 'partial');
       assert.equal(cfg._coverage, 50);
   } },
   { id: 'R2-01', name: 'a task that returns null (unavailable or retired) stays missing', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.fred;
+      const cfg = win.REFRESH_SCHEDULE.marketSnapshot; // v60.43: null when bootstrap has not installed the snapshot reload
       cfg.fn = async () => null;
-      const out = await win._runScheduledTask('fred', cfg, false, {});
+      const out = await win._runScheduledTask('marketSnapshot', cfg, false, {});
       assert.equal(out.ok, false);
       assert.equal(cfg._status, 'missing');
       assert.ok(!cfg._lastSuccessfulAt);

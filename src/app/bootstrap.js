@@ -312,8 +312,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
   // The portfolio stress panel (src/ui/panels/portfolio-stress.js) is imported by its lazy route component
   // (src/ui/components/portfolio-exposure.js), so its model is outside the boot bundle; the unused _aioKrIndexStress hook went.
-  // P1339: when the live Yahoo 1y chart (autoUpdateMA) has not produced MAs, derive them from the
-  // committed daily history so the trend input follows the close basis instead of holding the score.
+  // P1339: the S&P 500 50/200-day averages come from the committed daily history, on the close basis; this is
+  // their only writer (the browser fetches no 1-year S&P 500 chart for them).
   const applyHistoryMa = () => {
     const basis = latestCompletedUsSession(clock.now());
     const ma = spxMovingAveragesFromHistory(root._aioHistory, { asOf: basis?.date });
@@ -1057,7 +1057,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         emitDataTimelineUpdated('market-snapshot');
       }
     }
-    const ready = loadSnapshot().catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
+    // The first read waits for public-config.json: the boot fallback config has no marketData.fastQuotes, and nothing
+    // else loads the published one before the AI panel opens. A config slower than 3 s does not hold the first snapshot
+    // back; the loader resolves its sources per read, so the next read has the fast plane.
+    const configLoaded = typeof root?.AIO?.loadPublicConfig === 'function' && !root.AIO_PUBLIC_CONFIG?._loaded ? new Promise((resolve) => {
+      const timer = setTimeout(resolve, 3000);
+      Promise.resolve(root.AIO.loadPublicConfig()).catch(() => null).then(() => { clearTimeout(timer); resolve(); });
+    }) : null;
+    const ready = (configLoaded ? configLoaded.then(loadSnapshot) : loadSnapshot()).catch((error) => ({ ok: false, error: error?.message || 'snapshot_loader_failed' }));
+    // The scheduler's marketSnapshot task (src/app/refresh-scheduler.js) calls this every 5 minutes while a US or KR
+    // session is open and the tab is visible; the fast plane is republished by the Worker on the same cadence.
+    root._aioReloadMarketSnapshot = () => loadSnapshot().then((result) => ({
+      ok: !!result?.ok, updated: !!result?.ok, status: result?.ok ? 'loaded' : 'failed', error: result?.ok ? '' : (result?.error || 'snapshot_load_failed')
+    }));
     const stop = () => {
       if (disposed) return;
       disposed = true;
@@ -1082,6 +1094,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       stopRowsFirstShown();
       criticalData.dispose();
       stopSnapshotRevision();
+      if (root) delete root._aioReloadMarketSnapshot;
       stopMacroCalendar();
       stopThemesRefresh();
       stopRotationDetail();

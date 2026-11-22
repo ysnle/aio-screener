@@ -1,7 +1,7 @@
 // v59.36 (roadmap 11, layer 4 boot sequence): the master boot sequence moved out of js/aio-data.js unchanged —
 // initV20DataEngine, which js/aio-ui.js calls on DOMContentLoaded: server data first, then the timed provider phases
-// and the recurring scheduler. The boot-phase object (_aioBootPhase), newsCache and the server-ready lets it reads
-// stay declared in the classic scripts; a module resolves those names in the shared global scope.
+// and the recurring scheduler. The boot-phase object (_aioBootPhase) and newsCache it reads stay declared in the classic
+// scripts; a module resolves those names in the shared global scope.
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { readHistoryRows } from '../domain/market/indices/history-rows.js';
 
@@ -43,7 +43,7 @@ export function installBootSequence(window = globalThis) {
       }
     }).catch(function() {});
 
-    // Phase 2: Fast APIs (2-5s) — CoinGecko, Exchange Rate, and live quote rescue.
+    // Phase 2: Fast APIs (2-5s) — CoinGecko and the live quotes (Yahoo spark, Naver).
     // P858: the previous 500ms timer contradicted this phase boundary and pushed
     // every provider into the boot request window. Keep snapshot/server data as
     // the first paint source, then start external quote work after the 2s boot
@@ -65,34 +65,11 @@ export function installBootSequence(window = globalThis) {
       catch(e) { showDataError('시세', '실시간 시세 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-quote','Phase2 실패'); }
     }, 2500);
 
-    // Phase 3: Sentiment APIs (3-8s)
+    // Fear & Greed, FRED, HY OAS and the VIX history come from data.json and history.json above, not from the browser.
+    // Phase 4 (5s): breadth reads the screener artifact.
     setTimeout(async () => {
-      try {
-        if (typeof fetchFearGreed === 'function') await fetchFearGreed();
-        if(typeof _reportApiOk==='function') _reportApiOk('fear-greed','Phase3 성공');
-        if(typeof window._markFetch==='function') { window._markFetch('sentiment'); window._markFetch('fearGreed'); }
-      } catch(e) { showDataError('심리지표', '공포탐욕 수신 실패 — 정적 데이터 사용 중', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fear-greed','Phase3 실패'); }
-    }, 3000);
-
-    // Phase 4: Heavy APIs (5-15s) — FRED, Breadth, News
-    setTimeout(async () => {
-      try {
-        var fredResult = _aioServerMacroReady ? { source: 'server-artifact' } : await fetchAllFredData();
-        if (_aioServerMacroReady || (fredResult && Object.keys(fredResult).length > 0)) {
-          if(typeof _reportApiOk==='function') _reportApiOk('fred','FRED 로딩 성공');
-          if(typeof window._markFetch==='function') window._markFetch('fred');
-        } else {
-          if(typeof _reportApiError==='function') _reportApiError('fred','FRED fallback/no key');
-        }
-      }
-      catch(e) { showDataError('FRED', 'FRED 거시 데이터 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('fred','FRED 실패'); }
-      try {
-        if (!_aioServerHyReady && typeof fetchHYSpread === 'function') await fetchHYSpread();
-      } catch(e) { showDataError('HY OAS', 'HY 스프레드 수신 실패', 'warn'); }
       try { await fetchBreadthData(); if(typeof window._markFetch==='function') window._markFetch('breadth'); }
       catch(e) { showDataError('시장폭', 'Breadth 데이터 수신 실패', 'warn'); }
-      try { await fetchSentimentHistory(); if(typeof _reportApiOk==='function') _reportApiOk('yahoo-chart','VIX 차트 성공'); if(typeof window._markFetch==='function') window._markFetch('vixHistory'); }
-      catch(e) { showDataError('VIX', 'VIX 히스토리 수신 실패', 'warn'); if(typeof _reportApiError==='function') _reportApiError('yahoo-chart','VIX 차트 실패'); }
     }, 5000);
 
     // Phase 5: News & Content (8-20s)

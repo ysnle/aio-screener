@@ -83,8 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(function() {
     try { if (typeof fetchAllNews === 'function') { var p = fetchAllNews(false); if (p && p.catch) p.catch(function(){}); } } catch(e){}
   }, 3000);
-  // sentiment/HY 초기 fetch도 initV20DataEngine의 서버 우선 phase가 단독 소유한다.
-  // v30.11: T3 _hySpreadInterval 삭제 — REFRESH_SCHEDULE.hySpread가 6h 지터 포함 단일 경로
 
   // v20: Initialize data engine with all real-time integrations
   initV20DataEngine();
@@ -629,8 +627,6 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
 // fallback branch for a shell without AIO.forceRefreshAllData / AIO.runScheduledRefresh is deleted — both always exist.
 // That branch was the last js/ caller of fetchPutCall; v59.70 deleted the Cboe reader itself (owner 11/4).
 
-// v30.11: T4 _sentimentAutoInterval 삭제 — REFRESH_SCHEDULE.sentiment(10min)이 FG+PC 담당, HY는 hySpread(6h)로 이관
-// (기존 5분 IIFE 제거 — 중앙 스케줄러 단일 경로화)
 
 
 // v30.11 (분리 v48.64): WCAG 2.1 AA 접근성 초기화
