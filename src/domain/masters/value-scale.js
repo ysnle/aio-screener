@@ -2,9 +2,12 @@
 // $388.6B for 1.94B shares in BlackRock's filing and $74.0M for 370M shares in T. Rowe Price's — about $200
 // versus $0.20 a share. The T. Rowe filing reports in thousands of dollars, and its cover total is in the same
 // thousands unit as its rows, so totals reconciling to the cover page cannot catch this. The producer now normalises
-// the unit per filing (scripts/lib/13f-value-unit.mjs); this check stays as the reader-side guard. It compares each
+// the unit per filing (scripts/lib/13f-value-unit.mjs); this check stays as the second guard. It compares each
 // filing's implied price per share with the other filers of the same CUSIP and period. A filing whose comparable rows sit ~1,000× apart is put under review: its dollar amounts and
 // weights are withheld rather than multiplied by a guessed factor. Pure; no DOM.
+// Detection runs in the producer (scripts/build-masters-runtime-artifacts.mjs) over every manager's full row store and
+// is published as managers[].verification.valueScaleReview in holdings-summary.json; the page reads that status
+// (valueScaleReviewsOf). A truncated sample of rows has too few same-security peers to flag every filer.
 import { readNumber as finite } from '../shared/number.js';
 
 const median = (values) => {
@@ -55,6 +58,17 @@ export function detectValueScaleSuspects(rows = [], { minRows = 2, minPeers = 2,
     if ((ratio < low || ratio > high) && off / list.length >= 0.6) suspects.set(managerKey, { ratio, comparedRows: list.length });
   }
   return suspects;
+}
+
+/** The published reviews of a runtime summary, in the same `${managerId}|${period}` map detectValueScaleSuspects returns. */
+export function valueScaleReviewsOf(summary) {
+  const reviews = new Map();
+  for (const manager of Array.isArray(summary?.managers) ? summary.managers : []) {
+    const review = manager?.verification?.valueScaleReview;
+    const period = manager?.verification?.reportPeriod;
+    if (manager?.id && period && finite(review?.ratio) > 0) reviews.set(`${manager.id}|${period}`, { ratio: review.ratio, comparedRows: finite(review.comparedRows) || 0 });
+  }
+  return reviews;
 }
 
 /** Withhold dollar amounts of rows that belong to a filing under scale review. Shares stay as filed. */

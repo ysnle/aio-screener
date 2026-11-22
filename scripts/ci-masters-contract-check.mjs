@@ -402,6 +402,51 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
     ['withheld sector rows are not summed as zero dollars', /scaleWithheld \? '금액 단위 확인 중'/]
   ];
   for (const [label, pattern] of wired) if (!pattern.test(page)) fail(`P1522 masters page wiring missing: ${label}`);
+  // v60.46: the page ran detection on its 365 top rows (t-rowe + baupost) and the 1,278 embedded rows found baupost +
+  // duquesne; only every filer's full rows find all three. The producer detects on those and publishes the review.
+  const runtimeBuilder = read('scripts/build-masters-runtime-artifacts.mjs');
+  if (!/valueScaleReviews = detectValueScaleSuspects\(\[\.\.\.holdingsByManager\.values\(\)\]\.flat\(\)\)/.test(runtimeBuilder) || !/verification: valueScaleVerification\(manager\)/.test(runtimeBuilder)) fail('v60.46 the runtime builder detects the unit review over every manager\'s full rows and publishes it on the manager verification');
+  const published = scale.valueScaleReviewsOf({ managers: [{ id: 'thousandths', verification: { reportPeriod: '2026-06-30', valueScaleReview: { ratio: 0.001, comparedRows: 3 } } }, { id: 'peer-a', verification: { reportPeriod: '2026-06-30' } }] });
+  if (published.size !== 1 || published.get('thousandths|2026-06-30')?.comparedRows !== 3) fail('v60.46 valueScaleReviewsOf returns the published reviews keyed by manager and period');
+  // Every filing the published projections (a subset of the full rows) already show as ~1,000x off must be published.
+  const summaryReviews = scale.valueScaleReviewsOf(runtimeHoldings);
+  const projectionRows = Object.values(runtimeHoldings.managerShards || {}).flatMap((shard) => (artifactExists(`public-data/objects/masters/${shard.sha256}.json`) ? JSON.parse(read(`public-data/objects/masters/${shard.sha256}.json`)).holdings || [] : []));
+  const unpublished = [...scale.detectValueScaleSuspects(projectionRows).keys()].filter((key) => !summaryReviews.has(key));
+  if (unpublished.length) fail(`v60.46 holdings-summary.json lacks the unit review of ${unpublished.join(', ')} (run node scripts/build-masters-runtime-artifacts.mjs)`);
+
+// v60.46: a shared link to one of the 31 catalog-only managers opened Warren Buffett until the catalog loaded, and an
+// unknown id stayed on him. The address keeps its manager: loading first, then the manager or an explicit not-found.
+{
+  const { MASTER_REGISTRY: staticRegistry, buildManagerRegistry: buildRegistry, resolveManagerSelection } = await import('../src/domain/masters/holdings-format.js');
+  const catalogOnly = managerCatalog.managers.find((manager) => !staticRegistry.some((item) => item.id === manager.id));
+  const before = resolveManagerSelection(buildRegistry(null), catalogOnly.id, { catalogSettled: false });
+  const after = resolveManagerSelection(buildRegistry(managerCatalog), catalogOnly.id, { catalogSettled: true });
+  const unknown = resolveManagerSelection(buildRegistry(managerCatalog), 'no-such-manager', { catalogSettled: true });
+  if (before.status !== 'loading' || before.manager || after.status !== 'selected' || after.manager?.id !== catalogOnly.id || unknown.status !== 'not-found' || unknown.manager) fail(`v60.46 a requested manager waits for the catalog and is never replaced by another: ${JSON.stringify([before.status, after.manager?.id, unknown.status])}`);
+}
+
+// v60.46: Pershing and Oaktree filed a 13F-NT for 2026-09-30 after their older holdings; the stale chip named it only after
+// the 원본 공시 tab loaded the discovery artifact. The verdict reads the catalog submission, which loads with the page.
+{
+  const { thirteenFCurrentness } = await import('../src/domain/masters/filing-deadline.js');
+  const pershing = managerCatalog.managers.find((manager) => manager.id === 'pershing-square');
+  const verdict = thirteenFCurrentness({ quarterEnd: '2026-03-31', holdingsAccession: pershing?.latestFiling?.accession, latestSubmission: { form: '13F-NT', baseForm: '13F-NT', accession: 'nt-1', filedAt: '2026-11-16', periodOfReport: '2026-09-30' }, now: Date.parse('2026-11-22T00:00:00Z') });
+  if (!verdict?.stale || verdict.reason !== 'NOTICE_FILED' || verdict.laterSubmission?.filedAt !== '2026-11-16') fail(`v60.46 a stale filer with a later 13F-NT reads 'notice filed' with that submission's date: ${JSON.stringify(verdict)}`);
+  const same = thirteenFCurrentness({ quarterEnd: '2025-09-30', holdingsAccession: 'hr-1', latestSubmission: { form: '13F-HR', baseForm: '13F-HR', accession: 'hr-1', filedAt: '2025-11-03', periodOfReport: '2025-09-30' }, now: Date.parse('2026-11-22T00:00:00Z') });
+  if (!same?.stale || same.reason !== 'NEXT_FILING_DUE' || same.laterSubmission) fail('v60.46 a stale filer with no later submission reads next filing due and names no later submission');
+  const catalogPershing = thirteenFCurrentness({ quarterEnd: pershing?.latestFiling?.periodOfReport, holdingsAccession: pershing?.latestFiling?.accession, latestSubmission: pershing?.latestSubmission, now: Date.parse('2026-11-22T00:00:00Z') });
+  if (pershing?.latestSubmission && pershing.latestSubmission.periodOfReport > pershing.latestFiling?.periodOfReport && !catalogPershing?.laterSubmission) fail('v60.46 the catalog latest submission is the later submission the masters detail dates');
+}
+
+// v60.46: a 13F deadline rolls over weekends and market holidays. Feb 14, 2026 (Q4 2025 + 45 days) is a Saturday and
+// Monday Feb 16 is Presidents' Day, so the 2025-09-30 holdings stay current through Tuesday Feb 17.
+{
+  const { thirteenFStale } = await import('../src/domain/masters/filing-deadline.js');
+  if (thirteenFStale('2025-09-30', Date.parse('2026-02-17T12:00:00Z')) || !thirteenFStale('2025-09-30', Date.parse('2026-02-18T00:00:00Z'))) fail('v60.46 the Q4 2025 13F deadline rolls past Presidents\' Day 2026 to Feb 17');
+  if (thirteenFStale('2026-09-30', Date.parse('2027-02-16T12:00:00Z')) || !thirteenFStale('2026-09-30', Date.parse('2027-02-17T00:00:00Z'))) fail('v60.46 the Q4 2026 13F deadline (Sunday Feb 14, 2027) rolls past Presidents\' Day to Feb 16');
+  if (thirteenFStale('2032-03-31', Date.parse('2032-08-16T12:00:00Z')) || !thirteenFStale('2032-03-31', Date.parse('2032-08-17T00:00:00Z'))) fail('v60.46 an unregistered calendar year rolls over weekends only');
+}
+
   if (/\*\s*1000\b|\/\s*1000\b/.test((page + read('src/domain/masters/holdings-format.js')).replace(/Intl|toLocaleString|1e3|1000\) \/ 1000/g, ''))) fail('P1522 the masters page must never rescale a filed amount by 1,000');
 }
 

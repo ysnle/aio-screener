@@ -1,0 +1,22 @@
+{
+  "p": {
+    "title": "13F 마감일 계산이 공휴일을 건너뛰지 않았다",
+    "symptom": "13F 마감(분기 말 + 45일)이 주말이면 월요일로만 넘겼다. 2026-02-14(토)는 월요일 2/16이 대통령의 날이라 실제 마감이 2/17인데 2/16로 계산해, 2025-09-30 보유가 2/17 하루 동안 '지연'으로 표시됐다. 2027-02-14(일)도 2/15가 대통령의 날이라 2/16이 마감이다.",
+    "root_cause": "src/domain/masters/filing-deadline.js가 요일만 보고 공휴일은 무시했다. 저장소에는 미국 시장 휴장일 표(market-calendar.js)가 이미 있었다.",
+    "fix": "마감일이 주말이나 등록된 NYSE 휴장일이면 다음 영업일로 넘긴다(resolveMarketCalendarSession). SEC는 연방 공휴일에 닫는데 NYSE 표와는 성금요일(NYSE만), 콜럼버스의 날·재향군인의 날(연방만)이 다르다. 셋 다 13F 마감(5/15, 8/14, 11/14, 2/14~15) 직후에 올 수 없어 결과는 같다고 주석에 적었다. 표가 없는 해는 주말만 넘긴다.",
+    "violated_rule": "없음",
+    "prevention": "scripts/ci-masters-contract-check.mjs 'v60.46 the Q4 2025 13F deadline rolls past Presidents' Day 2026 to Feb 17' 외 두 건. scripts/ci-data-boundary-fixture.mjs의 thirteenFStale 표 해시를 다시 고정했다(바뀐 표본은 2026-09-30의 2027-02-16 하나).",
+    "verification": "node scripts/ci-masters-contract-check.mjs, node scripts/ci-data-boundary-fixture.mjs (통과, 이전 코드는 첫 검사에서 실패). 2025-11~2028-02 매일 비교에서 바뀐 날은 2026-02-17, 2027-02-16 두 날뿐이다.",
+    "files": ["src/domain/masters/filing-deadline.js", "scripts/ci-masters-contract-check.mjs", "scripts/ci-data-boundary-fixture.mjs"]
+  },
+  "qa": [
+    {
+      "id": "QA-13F-DEADLINE-HOLIDAY-01",
+      "text": "13F 마감일은 주말과 등록된 미국 휴장일을 건너 다음 영업일이다(2026-02-14 → 2/17). 등록 표가 없는 해는 주말만 건넌다({VERSION}).",
+      "verify_by": "node scripts/ci-masters-contract-check.mjs"
+    }
+  ],
+  "qa_section": "13F 마감일 휴일",
+  "changelog": ["13F 보유의 '지연' 판정이 대통령의 날 같은 휴장일 뒤로 넘어간 마감일을 따른다 ({P})"],
+  "note": "13F 마감일이 휴장일을 건넌다"
+}
