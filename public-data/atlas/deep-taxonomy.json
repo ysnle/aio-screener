@@ -109,7 +109,7 @@
         {"id":"aidc-contract","title":"전력 계약과 요금","summary":"장기 전력구매계약(PPA), 전력회사 공급 계약, 계량기 안쪽 자체 발전, 수요 반응 계약이 가격·기간·공급 책임을 나눈다.","mechanism":"장기 계약은 가격과 공급 전망을 분명하게 하지만, 용량 요금·출력 제한·신용 보증·계통 비용 부담은 남는다.","observe":"계약 기간 · 용량(MW) · 요금 · 용량 요금 · 신용 보증 · 출력 제한","caution":"계약 체결과 실제 전력 인도·시설 가동 시점을 나눠 본다.","children":["전력구매계약(PPA)","전력회사 공급 계약","자체 발전","수요 반응"]},
         {"id":"aidc-constraints","title":"허가·물·배출·지역사회·금융","summary":"인허가, 물, 배출 규제, 가스관, 지역 주민, 장비 납기, 자금 조달이 실제 건설 속도를 제한한다.","mechanism":"물리적인 프로젝트는 부지·인허가·조달·건설·자금 조달을 동시에 통과해야 한다.","observe":"인허가 진행 · 용수 · 가스관 · 지역사회 · 설비투자 · 임대 · 자본비용","caution":"수요 전망만으로 완공·가동·ROIC를 결론 내리지 않는다.","children":["인허가","용수·배출","가스관","지역사회","자금 조달"]}
       ],
-      "sources": [{"label":"U.S. DOE Data Centers", "url":"https://www.energy.gov/articles/energy-department-releases-new-report-economics-data-centers"},{"label":"IEA Electricity", "url":"https://www.iea.org/reports/electricity-2025"}]
+      "sources": [{"label":"U.S. DOE Data Centers", "url":"https://www.energy.gov/articles/doe-releases-new-report-evaluating-increase-electricity-demand-data-centers"},{"label":"IEA Electricity", "url":"https://www.iea.org/reports/electricity-2025"}]
     },
     {
       "id": "deep-cloud-neocloud",
@@ -137,7 +137,7 @@
         {"id":"edge-ai","title":"온디바이스 AI","summary":"신경망 전용 칩(NPU)·메모리·배터리·발열 한도 안에서 낮은 지연, 개인정보 보호, 오프라인 동작을 제공한다.","mechanism":"정밀도 줄이기·불필요한 연결 쳐내기·컴파일러·메모리 배치로 모델을 기기 자원에 맞추고, 필요하면 클라우드와 나눠 처리한다.","observe":"지연 · 전력 · 메모리 · 정확도 · 업데이트 · 개인정보","caution":"TOPS 같은 숫자 하나로 실제 처리량과 제품 경험을 판단하지 않는다.","children":["NPU","정밀도 줄이기","메모리 대역폭","배터리·발열","클라우드와 분담"]},
         {"id":"physical-economics","title":"배포·안전·단위경제성","summary":"장비 한 대가 만드는 작업 가치와 하드웨어·서비스·멈춘 시간·현장 통합·책임 비용을 비교한다.","mechanism":"가동률과 작업 성공률이 시간당 가치를 만들고, 고장·사람 개입·정비·보험이 실제 회수 기간을 늘린다.","observe":"시간당 작업량 · 가동 시간 · 사람 개입 · 평균 고장 간격 · 서비스 비용 · 회수 기간","caution":"시제품 가격과 반복 생산·서비스의 마진을 구분한다.","children":["현장 배치","안전성 입증","정비","사람 검토","투자 회수"]}
       ],
-      "sources": [{"label":"NIST Robotics", "url":"https://www.nist.gov/topics/robotics"}]
+      "sources": [{"label":"NIST Robotics", "url":"https://www.nist.gov/robotics"}]
     },
     {
       "id": "deep-defense-space",

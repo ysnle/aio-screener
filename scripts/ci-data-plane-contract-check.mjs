@@ -50,7 +50,7 @@ if (!outdatedCiRunRejected || !newerLiveRejected || !staleCiRunRejected) fail('P
 for (const source of [worker, wrangler, workflow]) {
   if (/AIO_QUOTES_BUCKET|AIO_QUOTES_R2_BUCKET|r2_buckets/i.test(source)) fail('R2 must remain disabled for the KV-only fast plane');
 }
-for (const token of ['432 successful KV writes/day', '624/day', 'checkedAt', 'publishedAt', 'writtenAt']) {
+for (const token of ['checkedAt', 'publishedAt', 'writtenAt']) {
   if (!workerReadme.includes(token)) fail(`worker README omits write-budget/evidence semantics: ${token}`);
 }
 if (!/qa-runner\.mjs watchdog --no-cache/.test(watchdog) || !watchdogScripts.includes('scripts/ci-market-snapshot-contract-check.mjs')) fail('watchdog missing canonical market-snapshot gate');
@@ -112,6 +112,11 @@ if (FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit !== 1000
   || FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDay >= FAST_PLANE_WRITE_POLICY.warningDailyTarget
   || FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDayWorstCase >= FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit
   || FAST_PLANE_WRITE_POLICY.heartbeatIntervalMs < 15 * 60 * 1000) fail('fast-plane write policy does not leave normal/worst-case KV free-tier safety margins');
+// v60.46: the README write bound is read from the policy, not pinned as a literal — the pinned '432'/'624' outlived
+// the receipt count's move from 48 to 54 (v60.14) and kept the stale prose passing.
+for (const token of [`${FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDay} successful KV writes/day`, `${FAST_PLANE_WRITE_POLICY.dispatchReceiptsPerDay} scheduler receipts`, `${FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDayWorstCase}/day`]) {
+  if (!workerReadme.includes(token)) fail(`v60.46 worker README write bound does not match FAST_PLANE_WRITE_POLICY: missing "${token}"`);
+}
 if (!/revision-change-or-15m-liveness/.test(worker) || !/snapshotChanged/.test(worker) || !/kvWritePolicy/.test(worker)) fail('fast-plane worker lacks revision no-op and bounded heartbeat policy');
 
 const originalFetch = globalThis.fetch;

@@ -1,0 +1,15 @@
+{
+  "p": {
+    "title": "Sandisk NBM 계약 비중을 매출 비중으로 적음 — 원문은 비트 물량 비중",
+    "symptom": "fact:sandisk:2026-investor-day-model이 NBM 계약이 'FY2027 매출의 50%, FY2028 약 3분의 2'를 덮는다고 적어 fcf-and-funding 등 아틀라스 글의 근거에 그대로 실렸다.",
+    "root_cause": "투자자의 날 요약을 사실 원장에 옮기면서 분모(bits)를 revenue로 바꿔 적었다.",
+    "fix": "Sandisk 2026-08-13 보도자료 원문(investor.sandisk.com 'approximately 50 percent of bits in FY2027 and approximately two-thirds of bits in FY2028')을 직접 확인하고 research-facts.json 문장을 비트 비중으로 고쳤다. 가중평균 계약 기간 4년 이상은 보도자료에 없고 발표 자료(접근 불가)에 있다는 감사 기록만 있어 그대로 두었다.",
+    "violated_rule": "수치는 원문의 분모와 함께 옮긴다.",
+    "prevention": "사실 원장 문장을 고칠 때 원문 문구를 확인한다; 원장 한 곳만 고치고 생성물은 builder가 다시 만든다.",
+    "verification": "current-evidence-ledger·research-dossiers·articles에 새 문장, ci-knowledge-generated-parity-check PASS.",
+    "files": ["public-data/knowledge/research-facts.json"]
+  },
+  "r": null,
+  "changelog": ["**Sandisk 계약 비중의 분모 ({P}, {VERSION}):** NBM 장기계약이 덮는 'FY2027 50%, FY2028 약 3분의 2'는 매출이 아니라 비트 물량 비중이다. 회사 보도자료 원문으로 확인해 고쳤다."],
+  "note": "Sandisk NBM 비트 비중"
+}

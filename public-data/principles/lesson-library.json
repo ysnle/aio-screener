@@ -23,7 +23,7 @@
       "id": "MP-FED-ED",
       "publisher": "Federal Reserve",
       "title": "Education",
-      "url": "https://www.federalreserve.gov/education.htm",
+      "url": "https://www.federalreserveeducation.org/",
       "label": "연준 교육 자료",
       "checks": "돈·신용·은행·금리의 기본 개념"
     },
@@ -63,7 +63,7 @@
       "id": "MP-TREASURY",
       "publisher": "U.S. Treasury",
       "title": "Interest rates and financing",
-      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rates",
+      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics",
       "label": "미 재무부 금리 자료",
       "checks": "국채 금리와 정부 조달"
     },
@@ -79,7 +79,7 @@
       "id": "MP-SEC",
       "publisher": "SEC Investor.gov",
       "title": "Investing basics and disclosures",
-      "url": "https://www.investor.gov/introduction-investing/investing-basics",
+      "url": "https://www.investor.gov/introduction-investing",
       "label": "SEC 투자자 기초 자료",
       "checks": "주식·채권·공시의 기본 개념"
     },
@@ -2380,7 +2380,7 @@
       "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
       "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
       "verificationQuestion": "수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?",
-      "diagram": "주가 = 주당이익 × 배수(PER)는 늘 성립하는 항등식이다 — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다",
+      "diagram": "이익이 플러스인 기업에서 주가 = 주당이익 × 배수(PER)는 늘 성립하는 분해식이다(적자면 PER이 정의되지 않는다) — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다",
       "chapterId": "G",
       "sequence": 5,
       "level": "기초·시장 원리",
@@ -2401,7 +2401,7 @@
         "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
         "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
         "verificationQuestion": "수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?",
-        "diagram": "주가 = 주당이익 × 배수(PER)는 늘 성립하는 항등식이다 — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
+        "diagram": "이익이 플러스인 기업에서 주가 = 주당이익 × 배수(PER)는 늘 성립하는 분해식이다(적자면 PER이 정의되지 않는다) — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
       },
       "claimIds": [
         "principles-lesson-G5"

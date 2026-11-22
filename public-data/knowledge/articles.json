@@ -3215,7 +3215,7 @@
         "mechanism": "이익 기대가 바뀌거나 할인율이 변하거나 투자자 포지션이 조정되면 같은 기업도 다른 가격을 가질 수 있다.",
         "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
         "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
-        "visualization": "주가 = 주당이익 × 배수(PER)는 늘 성립하는 항등식이다 — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
+        "visualization": "이익이 플러스인 기업에서 주가 = 주당이익 × 배수(PER)는 늘 성립하는 분해식이다(적자면 PER이 정의되지 않는다) — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
       },
       "article": {
         "intuition": "주가는 기업의 이익·현금흐름, 자본비용(금리), 위험 선호·유동성이라는 세 엔진으로 움직이고, 뒤의 둘은 시장이 매기는 배수를 거쳐 주가에 닿는다.",
@@ -3271,7 +3271,7 @@
         "researchCoverage": "DIRECT_FACTS_ATTACHED_REVIEW_REQUIRED"
       },
       "quality": {
-        "coreTextCharacters": 408,
+        "coreTextCharacters": 441,
         "contentForm": "SOURCE_SUMMARY",
         "semanticReview": "REQUIRED",
         "sourceDirectnessReview": "REQUIRED",
@@ -3290,7 +3290,7 @@
           "example": "실적 전망이 유지돼도 장기금리 상승으로 PER이 낮아질 수 있고, 반대로 금리 변화가 없어도 이익 추정치가 오르면 주가가 오를 수 있다.",
           "counterScenario": "모든 주가 변화를 실적 한 줄이나 금리 한 줄로 설명하면 기대와 수급의 상호작용을 놓친다.",
           "verificationQuestion": "수익 추정·배수·할인율 중 이번 가격 변화의 기여도를 어떤 기간 비교로 분해할 것인가?",
-          "visualization": "주가 = 주당이익 × 배수(PER)는 늘 성립하는 항등식이다 — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
+          "visualization": "이익이 플러스인 기업에서 주가 = 주당이익 × 배수(PER)는 늘 성립하는 분해식이다(적자면 PER이 정의되지 않는다) — 금리·위험 선호·성장 기대, 그리고 단기 수급·포지션은 모두 이 배수를 움직이는 경로로 들어간다"
         },
         "requiredBeforePromotion": [
           "independent research dossier",
@@ -14616,7 +14616,7 @@
           {
             "factId": "fact:sandisk:2026-investor-day-model",
             "sourceId": "WEB-SANDISK-INVESTOR-DAY-2026",
-            "statement": "At its August 2026 Investor Day, Sandisk described NBM contracts with weighted-average duration above four years and stated coverage targets of 50 percent of revenue in FY2027 and about two-thirds in FY2028. It also presented FY2028–FY2030 non-GAAP targets of mid-to-high-teens average revenue growth, about 80 percent gross margin, about 75 percent operating margin and about 50 percent adjusted free-cash-flow margin.",
+            "statement": "At its August 2026 Investor Day, Sandisk described NBM contracts with weighted-average duration above four years and said NBMs with eight customers represent approximately 50 percent of bits in FY2027 and approximately two-thirds of bits in FY2028. It also presented FY2028–FY2030 non-GAAP targets of mid-to-high-teens average revenue growth, about 80 percent gross margin, about 75 percent operating margin and about 50 percent adjusted free-cash-flow margin.",
             "scope": "Dated company contract and financial targets",
             "invalidation": "These are forward-looking company claims using non-GAAP measures and assumptions. Contract modifications, customer concentration, pricing floors, mix, taxes, working capital, capital intensity and reconciliations must be verified against future filings and results.",
             "asOf": "2026-08-13"
