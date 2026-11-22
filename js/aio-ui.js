@@ -959,7 +959,7 @@ window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 })();
 
 // v59.51 (content audit): the legacy 기업분석 report renderers (_renderFundHeader … _renderFundVariance and
-// _renderFundamentalFinancialsCharts, moved here from aio-chat.js in v51.17) were deleted with their #fund-rpt-* sinks;
+// _renderFundamentalFinancialsCharts, moved here from the chat script in v51.17) were deleted with their #fund-rpt-* sinks;
 // the native entity slice (src/ui/pages/entity.js) is the one company report.
 window.AIO = window.AIO || {};
 

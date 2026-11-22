@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 
 // Offline Chromium DOM fixture: production lifecycle and rendering functions,
 // no provider requests, real credentials, or user storage.
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
 const section = (a, b) => {
   const start = source.indexOf(a), end = source.indexOf(b, start);
   assert(start >= 0 && end > start);
@@ -15,7 +15,7 @@ try {
   const page = await browser.newPage();
   await page.route('**/*', route => route.abort());
   await page.setContent('<div id="chat-home-msgs"></div><div><button id="chat-home-btn">전송</button></div>');
-  // v59.11: the cancellation helpers live in the shared transport module (moved from js/aio-chat.js).
+  // v59.11: the cancellation helpers live in the shared transport module (moved from src/ui/chat/panel.js).
   await page.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
   // v59.42: chatAppendMsg (per-page #chat-<ctx>-msgs) is deleted; the fixture appends its own bubbles and, like the
   // unified panel, passes appendCancelNotice.
@@ -117,7 +117,7 @@ try {
     window.tabStore = { getItem: (k) => (tab.has(k) ? tab.get(k) : null), setItem: (k, v) => tab.set(k, String(v)), removeItem: (k) => tab.delete(k) };
     window.kit = createChatRunKit(window, document, { now: () => window.clock.t, storage: () => tabStore });
     window.leaveAsks = () => { const event = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(event); return event.defaultPrevented; };
-    // The panel's loading bubble as js/aio-chat.js _appendAIMsg builds it.
+    // The panel's loading bubble as src/ui/chat/panel.js _appendAIMsg builds it.
     window.loadingBubble = () => {
       const msg = document.createElement('div'); msg.className = 'ai-msg ai'; msg.id = 'ai-panel-loading';
       msg.innerHTML = '<div class="ai-msg-content"><div class="ai-bubble"><span class="lch-muted">분석 중...</span></div></div>';
@@ -194,7 +194,7 @@ try {
     const cleared = { card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };
     keep();
     const sent = [];
-    window._aiCurrentCtx = 'home'; // the panel context js/aio-chat.js keeps (a page-level var); the card asks on 'home'
+    window._aiCurrentCtx = 'home'; // the panel context src/ui/chat/panel.js keeps (a page-level var); the card asks on 'home'
     window.chatSendUnified = () => sent.push(document.getElementById('ai-panel-inp').value);
     kit.showPendingCard().querySelectorAll('button')[0].click();
     const asked = { sent, card: !!document.getElementById('ai-pending-turn'), kept: tab.has('aio_chat_pending_v1') };

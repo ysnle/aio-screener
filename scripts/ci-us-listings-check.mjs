@@ -132,7 +132,7 @@ check('v57.96 refused watchlist and holding names show listing candidates throug
   assert.match(compat, /window\._aioToastWithNameHint = \(raw, message\) =>/);
   assert.match(read('js/aio-workspace.js'), /else window\._aioToastWithNameHint\(ticker, ticker \+ ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다/);
   assert.match(read('js/aio-workspace.js'), /window\._aioToastWithNameHint\(pfRawTicker \|\| ticker, '"' \+ \(pfRawTicker \|\| ticker\) \+ '" 검증되지 않은 티커라 저장하지 않았습니다/);
-  assert.doesNotMatch(read('js/aio-chat.js'), /function _aioAddAlert\b/);
+  assert.doesNotMatch(read('src/ui/chat/panel.js'), /function _aioAddAlert\b/);
 });
 
 const response = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, headers: { get: () => null }, json: async () => JSON.parse(body), text: async () => body });

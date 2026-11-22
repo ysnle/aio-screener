@@ -1,5 +1,5 @@
 // v40.4: the desktop sidebar toggle (#sidebar-toggle-btn, data-action="toggleSidebar") and the collapsed state restored
-// at load. Moved unchanged from js/aio-chat.js (roadmap item 11, layer 1 채팅); compatibility-globals.js installs
+// at load. Moved unchanged from src/ui/chat/panel.js (roadmap item 11, layer 1 채팅); compatibility-globals.js installs
 // window.toggleSidebar and runs restoreSidebar once at boot.
 import { readSidebarCollapsed, saveSidebarCollapsed } from '../../data/shell-prefs.js';
 

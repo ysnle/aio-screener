@@ -116,6 +116,21 @@ check(/v7\/finance\/spark\?symbols=/.test(quotes1758) && /i \+= 20\)/.test(quote
 check(quotes1758.indexOf('const _PRICE_RULES') < quotes1758.indexOf('await _yfBatchFetch('), 'P1758 the batch runs after the price rules it validates against are initialised');
 check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', '// 한국 종목: siseJson 폴백')) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
 
+// v60.48: a host that sends no cross-origin header can only be read through the relay. "Try the host directly, fall back
+// to the relay" made two failed requests (and two console errors) per symbol before the relay was asked. The pattern is
+// searched in every shipped script, so a new call site fails here with its file and line.
+{
+  const { readdirSync } = await import('node:fs');
+  const shipped = [];
+  const walk = (dir) => { for (const entry of readdirSync(new URL(dir, import.meta.url), { withFileTypes: true })) { if (entry.isDirectory()) walk(dir + entry.name + '/'); else if (entry.name.endsWith('.js')) shipped.push(dir + entry.name); } };
+  walk('../src/');
+  for (const name of ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-glossary']) shipped.push('../js/' + name + '.js');
+  const direct = [];
+  const directThenRelay = /\bfetch(?:WithTimeout)?\(.*\bcatch\b.*fetchViaProxy\(/;
+  for (const file of shipped) readFileSync(new URL(file, import.meta.url), 'utf8').split(String.fromCharCode(10)).forEach((line, index) => { if (directThenRelay.test(line)) direct.push(file.slice(3) + ':' + (index + 1)); });
+  check(direct.length === 0, 'v60.48 no shipped script tries a host directly before the relay' + (direct.length ? ' (' + direct.join(', ') + '): call fetchViaProxy only' : ''));
+}
+
 const controller=new AbortController();
 const cancel=harness({fetcher:async(_,options)=>new Promise((resolve,reject)=>{
   options.signal.addEventListener('abort',()=>reject(Object.assign(new Error('cancel'),{name:'AbortError'})),{once:true});

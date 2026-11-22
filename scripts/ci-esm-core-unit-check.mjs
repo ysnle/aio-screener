@@ -1096,7 +1096,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
 // classic script may define a technical calculation again (the copies drifted: ADR from the open, a VCP with no
 // extended stage, a filled high/low counted); the window names are the domain functions (legacy-screen-bridges.js).
 {
-  const classic = ['js/aio-core.js', 'js/aio-workspace.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-pages.js', 'js/aio-kr-data.js']
+  const classic = ['js/aio-core.js', 'js/aio-workspace.js', 'js/aio-data.js', 'js/aio-ui.js', 'src/ui/chat/panel.js', 'js/aio-pages.js', 'js/aio-kr-data.js']
     .map((file) => [file, readFileSync(path.join(root, file), 'utf8')]);
   const copies = classic.flatMap(([file, text]) => [...text.matchAll(/^function (_calc(?:SMA|EMA|EMAFull|ATR|RSILast|RSISeries|MACD|BB|RVOL|ClosePosition|ADRPercent|CandleMetrics|RecentLevel|VCP|RSIDivergence|Fib|VolProfile|WeeklyContext|PortfolioVaR)|calcTechnicalSnapshot|calcExtensionHeat|calcSellPressure|calcPositionTechnicalRisk|calcPortfolioTechnicalRisk|_statMean)\(/gm)].map((m) => `${file}:${m[1]}`));
   if (copies.length) fail(`v59.88 S6: a classic script defines a technical/portfolio calculation again: ${copies.join(', ')}`);
@@ -5159,7 +5159,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || chat('DE', 'Deere', ['디어', 'deere'], '미디어텍 10월 매출 최고치') || chat('NVMI', 'Nova', ['노바'], 'GE 버노바 수주잔고 증가') || chat('AI', 'C3.ai', [], '인공지능(AI) 칩 시장')
     || !chat('AI', 'C3.ai', [], 'C3.ai (AI) shares jump') || !chat('AMD', 'AMD', ['amd', 'advanced micro'], 'AMD는 애프터마켓 4% 상승') || !chat('GOOGL', 'Alphabet', ['알파벳', 'google'], 'Anthropic과 Google의 대조')
     || chat('GOOGL', 'Alphabet', ['google'], 'how to google a ticker') || !chat('000660.KS', 'SK hynix', ['SK하이닉스'], 'SK하이닉스에 대한 기관 보유 현황') || !chat('TSM', 'Taiwan Semiconductor', ['tsmc'], 'TSMC가 DRAM 시장에 진출')
-    || !/_aioCompanyMatcher\(sym, enName, names\)/.test(readFileSync(path.join(root, 'js/aio-chat.js'), 'utf8')) || /koreanAliasIn/.test(readFileSync(path.join(root, 'src/domain/news/article-tickers.js'), 'utf8')))
+    || !/_aioCompanyMatcher\(sym, enName, names\)/.test(readFileSync(path.join(root, 'src/ui/chat/panel.js'), 'utf8')) || /koreanAliasIn/.test(readFileSync(path.join(root, 'src/domain/news/article-tickers.js'), 'utf8')))
     fail(`v60.16 the article alias map and the chat stock-news filter must read names by the shared issuer rule: ${JSON.stringify(readings)}`);
 }
 // v58.75 ('고르는 법' E): the event chain names a live branch only from the headline's words; today's checks read the flip,

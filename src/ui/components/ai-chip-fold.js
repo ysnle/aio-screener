@@ -4,7 +4,7 @@
 //   - before the first question the chips sit on one sideways-scrolling row;
 //   - once a conversation has a question, they fold behind one "이어 물어볼 질문 n개" button;
 //   - while the reader types they are hidden.
-// Wide desktop pointers keep the open chips. The chip list itself stays owned by js/aio-chat.js; this module only
+// Wide desktop pointers keep the open chips. The chip list itself stays owned by src/ui/chat/panel.js; this module only
 // reads it and sets data-convo / data-chips-open on #ai-panel.
 export function installAIChipFold(root = globalThis, doc = root.document) {
   if (!doc || root.__aioAIChipFold) return root.__aioAIChipFold || null;

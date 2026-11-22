@@ -11,7 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // v53.7 (P725): the KR page chat chips left with their pages (no chat-kr-* chip container remains);
-// evidence-first contexts are defined in js/aio-chat.js.
+// evidence-first contexts are defined in src/ui/chat/panel.js.
 // v58.63 (architecture audit LEGACY02): the two filters only set inline display on the current cards, so a live-quote
 // re-render brought every card back while the buttons still showed a selection, and the second filter overwrote the
 // first. Both selections are state; one predicate (heat AND sector) runs after every card render.
@@ -1169,12 +1169,12 @@ async function dynamicTickerLookup(ticker, opts) {
     throwIfLookupAborted();
     var krCode = ticker.replace('.KS','').replace('.KQ','');
     var today = new Date();
-    var yd = new Date(today); yd.setDate(yd.getDate()-2);
+    var yd = new Date(today); yd.setDate(yd.getDate()-10); // the last two sessions stay inside the window across a weekend or a holiday week
     var df = function(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');};
     try {
       var sUrl = 'https://api.finance.naver.com/siseJson.naver?symbol=' + krCode + '&requestType=1&startTime=' + df(yd) + '&endTime=' + df(today) + '&timeframe=day';
-      var sR;
-       try { sR = await fetchWithTimeout(sUrl, { signal: lookupSignal }, 5000); } catch(e5) { sR = await fetchViaProxy(sUrl, { timeout: 6000, signal: lookupSignal }); }
+      // Naver's price hosts send no cross-origin header, so a browser can only read them through the proxy.
+      var sR = await fetchViaProxy(sUrl, { timeout: 6000, signal: lookupSignal });
       if (sR.ok) {
         var sTxt = await sR.text();
         var rows = [];
@@ -1183,7 +1183,7 @@ async function dynamicTickerLookup(ticker, opts) {
         while ((mm = rx.exec(sTxt)) !== null) rows.push({close:+mm[5], prev:rows.length > 0 ? rows[rows.length-1].close : 0});
         if (rows.length > 0) {
           var last = rows[rows.length-1];
-          var prev = rows.length >= 2 ? rows[rows.length-2].close : last.close;
+          var prev = rows.length >= 2 ? rows[rows.length-2].close : 0; // one row has no previous close: the change is unknown, not 0%
           var kPct = prev > 0 ? ((last.close - prev) / prev * 100) : null;
           if (typeof window._aioSetLiveData === 'function') {
             window._aioSetLiveData(ticker, { price: last.close, pct: kPct != null ? +kPct.toFixed(2) : null }, { source: 'fallback:naver-sise', policyKey: 'quote_afterhours', reason: 'KR ticker detail fallback' });

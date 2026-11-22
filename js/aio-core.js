@@ -1,5 +1,5 @@
 
-const APP_VERSION = 'v60.47';
+const APP_VERSION = 'v60.48';
 
 // ═══ v30.3: 전역 에러 경계 — 런타임 에러/Promise rejection 자동 캐치 ═══
 // v48.27 (QA-5): unhandledrejection만 유지 (window.onerror는 _aioLog 단일 핸들러로 통합 — 8862)
@@ -793,7 +793,7 @@ window.AIO.isCurrentAIResponse = function(state, options) {
   options = options || {};
   return !!state && (!options.requestId || String(state.activeRequestId || '') === String(options.requestId)) && (!options.turnId || Number(state.turnId) === Number(options.turnId)) && state.phase !== 'cancelled' && state.phase !== 'error';
 };
-// v58.20: AIO.trimAIConversationContext had no product caller — the chat keeps its last 8 history rows (aio-chat.js).
+// v58.20: AIO.trimAIConversationContext had no product caller — the chat keeps its last 8 history rows (src/ui/chat/panel.js).
 
 // v52.82/WP-AI12: calculations are approved deterministic functions producing
 // CalculationEvidence. AI may explain this object but may not become its source.
@@ -898,7 +898,7 @@ window.AIO.createAIReplayManifest = function(options) {
   };
 };
 window.AIO.recordAIReplayManifest = function(manifest) {
-  // v58.51: no separate store — the pipeline audit row keeps the manifest (aio-chat.js replayManifest).
+  // v58.51: no separate store — the pipeline audit row keeps the manifest (src/ui/chat/panel.js replayManifest).
   return window.AIO.createAIReplayManifest(manifest || {});
 };
 window.AIO.buildAIIsolationCacheKey = function(options) {

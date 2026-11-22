@@ -26,7 +26,7 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 
 const requiredFiles = [
   'version.json', 'index.html', 'sw.js', 'js/aio-core.js', 'js/aio-data.js',
-  'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js', 'cloudflare-worker-proxy.js',
+  'js/aio-ui.js', 'src/ui/chat/panel.js', 'js/aio-glossary.js', 'cloudflare-worker-proxy.js',
   'public-data/data.json', 'public-data/screener.json', 'public-artifact-manifest.json', 'public-config.json',
   '.github/workflows/pages-deploy.yml'
 ];
@@ -82,7 +82,7 @@ if (!errors.length) {
     && publicConfig.ai?.provider === 'openai'
     && publicConfig.ai?.model === 'gpt-6-luna'
     && !/(?:ANTHROPIC|OPENAI)_API_KEY/.test(text('public-config.json')));
-  const publicRuntimeScripts = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-glossary.js'];
+  const publicRuntimeScripts = ['js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-glossary.js']; // the AI panel ships inside src/**/*.js
   check('Pages allowlist includes only runtime/data artifacts', Array.isArray(allowlist.publicRootAllowlist)
     && allowlist.publicRootAllowlist.includes('index.html')
     && allowlist.publicRootAllowlist.includes('public-data/*.json')

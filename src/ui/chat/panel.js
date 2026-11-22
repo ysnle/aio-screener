@@ -1,10 +1,15 @@
-// ╔═══════════════════════════════════════════════════════════════════════════╗
-// ║  P3-1 PHASE 2 ▸ MODULE 4: CHAT START (실제 분할 적용 v48.26)              ║
-// ║  책임: CHAT_CONTEXTS (10 personas) + Briefing + Chip + Helpers            ║
-// ║  의존성: MODULE 1 + MODULE 2 + MODULE 3 (전체 맥락 접근, 가장 상위 레이어)  ║
-// ║  분할 효과: 외부 .js 파일 분리 1차 후보 (Phase 3에서 활용)                  ║
-// ║  안전: 의존만 받고 의존 없음, 톱-레벨 즉시 호출 없음                       ║
-// ╚═══════════════════════════════════════════════════════════════════════════╝
+// The AI panel: its contexts, the request path (callSharedAi), the question dispatch (chatSendUnified) and the panel
+// controls. It is a module of the app bundle, imported by src/app/chat-loader.js on the first use of the panel. What it
+// needs from src/ is imported here, so those helpers exist before any function of this file can be called. The names
+// the classic scripts and the T-tests still call are listed once at the end of the file.
+import { installChatGlobals } from '../../app/chat-globals.js';
+import * as questionCues from '../../ai/intent/question-cues.js';
+import { AI_WORKER_CONTRACT } from '../../domain/ai/worker-contract.js'; // model id, body limit, header names
+import { signedText } from '../../domain/shared/number.js';
+
+const window = globalThis;
+installChatGlobals(window);
+window._aioQuestionCues = questionCues;
 
 // v54.56 / integrate 2026-08-23: the supplied public article set contributes a
 // reusable learning loop, not live levels or a portfolio recommendation. Keep
@@ -398,9 +403,9 @@ if (typeof window !== 'undefined') {
   // elsewhere in this codebase. index.html inline blocks add page-specific contexts (home/
   // market-news/options exist ONLY there, plus enhanced technical/macro/themes/... overrides) via
   // `window.CHAT_CONTEXTS = window.CHAT_CONTEXTS || {}` + per-key assignment — that pattern is
-  // already order-independent. This was the one order-DEPENDENT half: today aio-chat.js loads
+  // already order-independent. This was the one order-DEPENDENT half: today this module loads
   // before those inline blocks so the accident-of-ordering worked, but it would silently discard
-  // everything index.html built if aio-chat.js ever loaded after them (e.g. under `defer`).
+  // everything index.html built if this module ever loaded after them (e.g. under `defer`).
   // Merging makes this correct regardless of load order — whatever's already in
   // window.CHAT_CONTEXTS (index.html's page-specific entries) wins over this file's generic base.
   window.CHAT_CONTEXTS = Object.assign({}, CHAT_CONTEXTS, window.CHAT_CONTEXTS || {});
@@ -753,7 +758,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     try { return new TextEncoder().encode(text).length; } catch (_) { return text.length * 3; }
   };
   // S5 (ADR-0003): the target and the Worker's limit are one contract (src/domain/ai/worker-contract.js).
-  var _aiContract = window.AIO.aiWorkerContract;
+  var _aiContract = AI_WORKER_CONTRACT;
   var _AI_BODY_BYTES = _aiContract.clientBodyTargetBytes;
   _trimmedMessages = _trimmedMessages.map(function(m, i) {
     var c = String(m.content || '');
@@ -946,7 +951,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         // v49.79 P427/R164: 누적 비용 추적 (AIO.getApiUsage() 조회 가능)
         try {
           if (typeof window._aioTrackApiUsage === 'function') {
-            window._aioTrackApiUsage({ model: window.AIO.aiWorkerContract.model, inputTokens: _totalInput, outputTokens: _out });
+            window._aioTrackApiUsage({ model: AI_WORKER_CONTRACT.model, inputTokens: _totalInput, outputTokens: _out });
           }
         } catch(_) {}
       }
@@ -1051,8 +1056,8 @@ function _fetchDomainContextForChat(ctxId) {
       var secNames = { XLK:'기술', XLF:'금융', XLE:'에너지', XLV:'헬스케어', XLI:'산업재', XLY:'임의소비', XLP:'필수소비', XLRE:'부동산', XLB:'소재', XLU:'유틸', XLC:'커뮤니케이션' };
       var rows = Object.keys(secNames).map(function(s) { return { s: s, pct: liveNum(s, 'pct') }; }).filter(function(x) { return x.pct != null; }).sort(function(a, b) { return b.pct - a.pct; });
       if (rows.length >= 3) {
-        lines.push('• 섹터 리더(당일): ' + rows.slice(0, 3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(', '));
-        lines.push('• 섹터 하위(당일): ' + rows.slice(-3).map(function(x) { return secNames[x.s] + '(' + (x.pct >= 0 ? '+' : '') + x.pct.toFixed(2) + '%)'; }).join(', '));
+        lines.push('• 섹터 리더(당일): ' + rows.slice(0, 3).map(function(x) { return secNames[x.s] + '(' + signedText(x.pct, 2, '%') + ')'; }).join(', '));
+        lines.push('• 섹터 하위(당일): ' + rows.slice(-3).map(function(x) { return secNames[x.s] + '(' + signedText(x.pct, 2, '%') + ')'; }).join(', '));
       }
       if (lines.length) { lines.unshift('【테마·섹터 도메인 혼합 데이터 (섹터 ETF 등락), ' + timeLabel + '】'); }
     }
@@ -2287,7 +2292,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   if (_uniTools) modelOpts.tools = { onResults: function(results) { _uniReferenceText = _uniTools.reference(results, _uniReferenceText); var used = _uniTools.usedEvidence(results); _uniTickerData = _uniTickerData || used.ticker; _uniFundamentalsData = _uniFundamentalsData || used.fundamentals; _uniTechnicalData = _uniTechnicalData || used.technical; _uniNewsCtx = _uniNewsCtx || used.news; }, onStatus: function(line) { if (_uniStatus && _isCurrentUnifiedRun()) _uniStatus.stage('tools', line); } };
   if (_uniStatus) modelOpts.onStage = _uniStatus.hook; // callSharedAi reports request sent, stream activity and stream end
   if (_uniUseClaudeWebSearch) {
-    _appendAIMsg('ai', '<div class="ai-websearch-status" role="status" style="font-size:12px;color:var(--color-text-primary);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;margin-bottom:4px;">필요하면 웹검색으로 확인한 뒤 답변</div>');
+    _appendAIMsg('ai', '<div class="ai-websearch-status lch-note" role="status">필요하면 웹검색으로 확인한 뒤 답변</div>');
     modelOpts.webSearch = true;
     // mustSearch / searchContext (src/ai/research/native-search.js): otherwise the model decides whether to search.
     if (window.AIO && window.AIO.nativeSearchOptions) Object.assign(modelOpts, window.AIO.nativeSearchOptions({ decision: _uniResearchDecision || {}, mode: _uniMode, internalEvidenceReady: _uniSearchInternalReady, tools: !!_uniTools }));
@@ -2392,9 +2397,8 @@ async function chatSendUnified(_aioDispatchOptions) {
     // v46.10: 모델 배지
     var _bubbleParent = (aiBubble ? aiBubble.parentNode : null) || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
     if (_bubbleParent) {
-      var modelColor = selectedModelKey === 'luna-low' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)';
       var badgeEl = document.createElement('div');
-      badgeEl.style.cssText = 'font-size:12px;color:' + modelColor + ';font-family:var(--font-mono);text-align:right;margin:2px 0 0;opacity:0.6;';
+      badgeEl.className = 'lch-model-badge' + (selectedModelKey === 'luna-low' ? ' is-primary' : '');
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
@@ -2411,7 +2415,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
       // v46.10: 데이터 신뢰도 배지
       var _srcBadge = document.createElement('div');
-      _srcBadge.style.cssText = 'font-size:12px;color:var(--color-text-secondary);display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;padding:3px 6px;background:var(--surface-1);border-radius:4px;';
+      _srcBadge.className = 'lch-src-badge';
       _srcBadge.innerHTML = _aioChoosing ? _aioChoosing.sourceBadge(window, ctxId, { ticker: _uniTickerData, fundamentals: _uniFundamentalsData, technical: _uniTechnicalData, screener: !!_uniScreenerStr, domain: _uniDomainData, news: _uniNewsCtx, portfolio: _uniPortfolioData, web: !!_uniWebResult, aiWeb: _uniUseClaudeWebSearch }) : ''; // v58.75: used evidence only
       if (_srcBadge.innerHTML) _bubbleParent.appendChild(_srcBadge);
 
@@ -2482,9 +2486,9 @@ async function chatSendUnified(_aioDispatchOptions) {
       var _retryNote = modelOpts.webSearch === true ? ', 웹 검색 없이' : ''; // P1756: retries run without web search — each searched attempt is billed and reserves search budget even on a timeout/5xx; the first attempt keeps search.
       if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
         nextModel = _fallbackOrder[_currentIdx + 1];
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--color-text-warning);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
+        _appendAIMsg('ai', '<div class="lch-note lch-note-warn">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
       } else {
-        _appendAIMsg('ai', '<div style="font-size:12px;color:var(--color-text-warning);padding:4px 8px;background:rgba(var(--ink-rgb),0.08);border-radius:4px;">다시 시도합니다' + _retryNote + ' (' + (_retried+1) + '/2)</div>');
+        _appendAIMsg('ai', '<div class="lch-note lch-note-warn">다시 시도합니다' + _retryNote + ' (' + (_retried+1) + '/2)</div>');
       }
       _uniRun.retryTimer = setTimeout(function() {
         if (_uniRun) _uniRun.retryTimer = null;
@@ -2535,4 +2539,25 @@ _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {
 });
 var questionBox = document.getElementById('ai-panel-inp');
 if (questionBox) { questionBox.addEventListener('input', _aioSyncQuestionCount); _aioSyncQuestionCount(); }
+});
+
+// The panel surface the classic scripts (js/aio-core.js, js/aio-workspace.js, js/aio-kr-data.js), the T-tests and the
+// src/ helpers that take `root` still call by name. window.CHAT_CONTEXTS is merged with the page entries above.
+Object.assign(window, {
+  AIO_MARKET_LEARNING_REFERENCE, _aioMarketLearningCurriculumContext, AIO_AI_INFRA_CYCLE_REFERENCE,
+  _aioAIInfraCycleContext, _aioBuildChatAnalysisContext, _aioWrapChatExternalContext, getChatState,
+  _aioBeginChatRequest, _aioIsCurrentChatRequest, _aioReleaseChatRequest, _aioCancelChatRequest, stripChips,
+  extractChips, renderMarkdownLight, _aioChatError, callSharedAi, _aioResolveChatTickers, _fetchDomainContextForChat,
+  _aioDomainContextForQuestion, _aioChatCloseMarketBasis, _CTX_TOPIC_MAP, _buildNewsContext, _aioTickerNewsFromCache,
+  _aioChatTokens, _classifyChatIntent, _aioChatAnswerPolicy, _buildChatMemoryContext, _shouldUseClaudeWebSearch,
+  _aioCanonicalResearchUrl, _searchCitationsHTML, _aioResearchFailureForUser, _aioPrepareAIResearch,
+  _buildUserProfileContext, _suggestFollowUpQuestions, chatFromChip, _aioWhenDomReady, _aiCtxMap, _aiDefaultChips,
+  toggleAIPanel, _aioAiPanelBasisText, _aioRenderAiPanelBasis, updateAIPanelContext, _aioSyncQuestionCount,
+  _appendAIMsg, chatSendUnified, aiChipClick,
+});
+// State the callers above read, and the T-tests set, while a conversation runs.
+Object.defineProperties(window, {
+  _aiCurrentCtx: { configurable: true, get() { return _aiCurrentCtx; }, set(value) { _aiCurrentCtx = value; } },
+  _aioChoosing: { configurable: true, get() { return _aioChoosing; }, set(value) { _aioChoosing = value; } },
+  _aioHoldingsDeclinedFor: { configurable: true, get() { return _aioHoldingsDeclinedFor; }, set(value) { _aioHoldingsDeclinedFor = value; } },
 });

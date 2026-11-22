@@ -6,6 +6,11 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.48 v60.48 (2026-11-22)
+
+- [x] QA-v6048-relay-only: v60.48 P2748 배포 스크립트 어디에도 '직접 호출 뒤 릴레이' 줄이 없다. verify_by: node scripts/ci-proxy-continuity-check.mjs
+- [x] QA-v6048-panel-chunk: v60.48 AI 패널(src/ui/chat/panel.js)은 번들의 지연 청크이고, AI 컨트롤에 닿기 전에는 받지 않는다. verify_by: node scripts/ci-boot-interaction-check.mjs
+
 ## v60.47 보유 종목 입력 거부 (2026-11-22)
 
 - [x] QA-HOLDING-REFUSAL-FOLD-FOCUS-01: 닫힌 접힘 안의 입력란이 거부되면 접힘이 열리고 그 칸이 포커스를 받는다. verify_by: node scripts/ci-esm-core-unit-check.mjs

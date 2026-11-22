@@ -1,4 +1,4 @@
-// The tool rounds of one chat request (js/aio-chat.js callSharedAi drives them): which function calls a completed
+// The tool rounds of one chat request (src/ui/chat/panel.js callSharedAi drives them): which function calls a completed
 // response asked for, the request fields of each round, the input items appended for the next request, and running a
 // round's calls in parallel within the per-request limits. Pure apart from running the tools.
 import { runTool, toolDefinitions, toolStatusLine, toolsPromptBlock } from './registry.js';
@@ -108,7 +108,7 @@ export async function runToolCalls(calls, { root = globalThis, now = Date.now(),
 }
 
 /**
- * The tool loop of one chat request, driven by callSharedAi (js/aio-chat.js). `body` is the next request's body: the
+ * The tool loop of one chat request, driven by callSharedAi (src/ui/chat/panel.js). `body` is the next request's body: the
  * plain body with the tools attached, each round's follow-up, or the plain body again after the one fallback.
  * `observe(evt)` reads each stream event of a round (`beginRound()` resets it); `hidingText()` is true once the round
  * announced a call, so its text is not shown. `advance(stopReason)` resolves true when another request is needed — the

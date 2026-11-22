@@ -20,11 +20,11 @@
   },
   "measuredBy": "scripts/ci-structural-check.mjs (exact order equality against index.html, plus membership of every measured runtime file)",
   "lazy": [
-    "js/aio-chat.js",
+    "src/ui/chat/panel.js",
     "js/aio-glossary.js"
   ],
   "lazyReasons": {
-    "js/aio-chat.js": "v59.16 (roadmap 11) — the AI panel. src/app/chat-loader.js inserts it after boot (first panel use or idle), so every static script above has already run; panel entry points are queued stubs until then. Was: Consumes the unified chat surface defined by ui/core.",
+    "src/ui/chat/panel.js": "The AI panel, a lazy module of the bundle. src/app/chat-loader.js imports it on first panel use, so every static script above has already run; panel entry points are queued stubs until then. It is listed here because the names it installs on window share the one-global-one-implementation scan.",
     "js/aio-glossary.js": "v59.70 P3 (legacy core wave 2) — the GLOSSARY literals. src/app/classic-loader.js inserts it once the page is idle after boot, on the first glossary open, or at once for automated browsers; term marks, the glossary modal and the research shell read GLOSSARY when they run, and aio:glossaryReady re-runs term marks and the screen-term merge. Was: Static glossary literals consumed by ui and chat rendering."
   }
 }

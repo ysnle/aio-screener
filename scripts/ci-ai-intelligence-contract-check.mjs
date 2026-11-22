@@ -413,7 +413,7 @@ check('P1244 E6/A05 a ready floor with a verified binding is distinguishable fro
 // made the gate defend the defect. These assertions pin the meaning instead: the collector stamps
 // the request id its stream was started with, no shared request-id slot survives, and two
 // interleaved streams cannot observe each other's citations (executed, not read as source text).
-const chatSource = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + fs.readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
+const chatSource = fs.readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + fs.readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 check('P1245 the chat citation collector stamps its own stream request id, not a shared global',
   /requestId: _streamRequestId, queryId: _streamRequestId/.test(chatSource)
   && !/window\._aioActiveAIRequestId/.test(chatSource)
@@ -470,7 +470,7 @@ check('research-capability-separates-chat', capability.status === 'READY' && cap
 const boundedRunnerFailure = await createAIAnswerOrchestrator({ now: () => new Date('2026-07-28T12:00:00Z') }).execute({ query:'시장 원리', legacyRunner: async () => { throw new Error('secret internal detail'); } });
 check('orchestrator-does-not-leak-runner-error', boundedRunnerFailure.error === 'legacy_runner_failed' && !JSON.stringify(boundedRunnerFailure).includes('secret internal detail'));
 
-const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+const chat = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
 const bindingContext = vm.createContext({ window: { AIO_ARCH: { getAIOrchestrator: () => ({ answerPublication }) } }, URL });
 vm.runInContext(chat.slice(chat.indexOf('function _aioAIClaimEvidenceId('), chat.indexOf('function _aioRunAIResponsePipeline(')), bindingContext);
 const bindingRow = { evidenceId: 'quote:NVDA', metric: 'price', ticker: 'NVDA', scale: 'raw', value: 120, unit: 'USD', asOf: '2026-09-01T12:00:00Z', source: 'exchange', sourceUrl: 'https://nasdaq.com/quote/NVDA', status: 'ok' };
@@ -531,7 +531,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const bootstrap = read('src/app/bootstrap.js');
 check('single-orchestrator-export', /getAIOrchestrator/.test(bootstrap) && /createAIAnswerOrchestrator/.test(bootstrap));
 check('knowledge-retrieval-is-lazy-and-exposed-by-existing-orchestrator-boundary', /createAIKnowledgeRetriever/.test(bootstrap) && /createAIAnswerOrchestrator\(\{[^}]*\bknowledgeRetriever\b/.test(bootstrap) && /buildAIKnowledgeContext/.test(read('src/ai/orchestrator/answer-orchestrator.js')));
-// P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
+// P1131/R619: the unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js,
 // so every `_uni*` assertion in this file now reads the chat module.
 // v57.62: the dead per-page chatSend was retired; the unified panel is the only chat surface.
 check('v60.42 chat-surface-consumes-market-principles-and-ai-era-knowledge through the reference tool', !/async function chatSend\(/.test(chat) && /buildAIKnowledgeContext\?\.\(ask/.test(read('src/ai/tools/market-tools.js')) && !/buildAIKnowledgeContext\(/.test(chat));
@@ -581,7 +581,7 @@ check('v57.62 chat-surface-has-pre-provider-action-boundary', /_uniPreProviderPe
 // The request pipeline as the page runs it (the core claim schema plus the chat and pipeline helpers), in a vm context.
 function pipelineContext(nowMs) {
   const orchestrator = createAIAnswerOrchestrator({ now: () => new Date(nowMs) });
-  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const chatSource = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const coreSource = read('js/aio-core.js');
   const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (value, options = {}) => orchestrator.parseAnswerPlanText(value, options), renderAIAnswerPlan: (value, options = {}) => orchestrator.renderAnswerPlan(value, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
   vm.runInContext(coreSource.slice(coreSource.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), coreSource.indexOf('function _aioClaimEvidenceList')), ctx);
@@ -593,7 +593,7 @@ function pipelineContext(nowMs) {
 // is the body passed through the same filters as the finished answer: never the META block, a half-typed marker or a
 // figure the filters remove at completion; a blocked preview writes nothing; at most one preview per 350 ms.
 {
-  const panelScript = read('js/aio-chat.js');
+  const panelScript = read('src/ui/chat/panel.js');
   const at = panelScript.indexOf('var _uniPreviewAt = 0'), to = panelScript.indexOf('\n  };', panelScript.indexOf('var _uniOnChunk = function(fullText) {'));
   const pipe = pipelineContext(Date.parse('2026-11-21T03:00:00Z'));
   const request = { requestId: 'fixture-stream-preview', entrypoint: 'unified-chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
@@ -682,7 +682,7 @@ check('v60.42 answer-format-is-question-adaptive', !/반드시 \*\*Bull\/Base\/B
 check('research-outage-degrades-instead-of-erasing-answer', /research-evidence-unavailable/.test(chat) && !/RESEARCH_REQUIRED_BUT_UNAVAILABLE/.test(chat) && /RESEARCH_EVIDENCE_UNAVAILABLE/.test(chat));
 check('research-decision-is-key-independent', /createResearchDecision/.test(read('src/ai/research/decision.js')) && /provider keys,[\s\S]*deliberately not read/i.test(read('src/ai/research/decision.js')));
 check('research-capability-is-separate', /getAIResearchCapability/.test(bootstrap) && /validateAIResearchCapability/.test(bootstrap) && /chatReadiness/.test(read('src/ai/research/capability.js')));
-// Both surfaces live in js/aio-chat.js now, so "shared" is asserted by occurrence count, not by file.
+// Both surfaces live in src/ui/chat/panel.js now, so "shared" is asserted by occurrence count, not by file.
 check('research-capability-drives-shared-preparation', (chat.match(/_aioPrepareAIResearch/g) || []).length >= 2 && /nativeFallbackRequired: required && !decision\.userOptOut/.test(chat));
 check('P1655 browser-side search providers are removed', !/_aiWebSearch|_googleSearch|_perplexitySearch|_aiResearchPlanSearch|googleapis\.com\/customsearch/.test(chat) && !/google-query/.test(bootstrap));
 check('P1421: Responses stream failures remain request-bound and cannot certify research', /evt\.type === 'error' \|\| evt\.type === 'response\.failed'/.test(chat) && /_streamState\.researchError = providerError\.message/.test(chat) && /throw new Error\(providerError\.message/.test(chat) && /_aioAIRequestResearchError/.test(chat) && !/window\._aioLastClaudeResearchError/.test(chat));
@@ -728,7 +728,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   const staleRows = buildCloseBasisEvidence({ history: history.filter((row) => row.date <= '2026-10-02'), credit: {}, rates: {}, now: Date.parse('2026-10-13T04:00:00Z') });
   detail('#7 an old close basis publishes no close-basis evidence (same hold as the regime board)', staleRows.length === 0, String(staleRows.length));
 
-  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const chatSource = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const coreSource = read('js/aio-core.js');
   const orchestrator = createAIAnswerOrchestrator({ now: () => new Date('2026-10-13T04:00:00Z') });
   const ctx = vm.createContext({ URL, console, window: { AIO: {}, AIO_ARCH: { getAIOrchestrator: () => orchestrator, parseAIAnswerPlan: (text, options = {}) => orchestrator.parseAnswerPlanText(text, options), renderAIAnswerPlan: (plan, options = {}) => orchestrator.renderAnswerPlan(plan, options) } }, _AIO_PUBLIC_AI_POLICY: { label: 'AI 도우미', status: 'research-assistant' } });
@@ -915,7 +915,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
 {
   const { classifyQuestionIntent } = await import('../src/ai/intent/taxonomy.js');
   const { companyEntitySymbols } = await import('../src/ai/orchestrator/question-planner.js');
-  const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const chat = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
   check('P1740 colloquial trade question is an action question', classifyQuestionIntent('NVDA 지금 사도 돼?').actionRequested === true && classifyQuestionIntent('삼성전자 살까?').actionRequested === true);
   check('P1740 a company named in Korean is an entity question', classifyQuestionIntent('엔비디아 어때?', { hasEntity: true }).intents.includes('ENTITY_ANALYSIS'));
   const namedPlan = createQuestionPlan({ query: '엔비디아랑 삼성전자 실적 비교해줘', route: 'home', root: {}, now: new Date('2026-10-13T03:00:00Z') });
@@ -964,7 +964,7 @@ check('tam-numbers-require-source-and-observation', /tamMeta\.tam && tamMeta\.so
   // evidence ids — no live ^TNX, no undated snapshot 2s10s, no intraday VIX beside a close F&G, no "역전·침체 선행" — and
   // a question that selects both blocks gets the shared rates line once.
   {
-    const chatSrc = read('js/aio-chat.js');
+    const chatSrc = read('src/ui/chat/panel.js');
     const fnSrc = chatSrc.slice(chatSrc.indexOf('function _fetchDomainContextForChat('), chatSrc.indexOf('window._fetchDomainContextForChat = _fetchDomainContextForChat;'));
     const evRows = [
       { metric: 'close.vix', value: 25.64, unit: 'index', asOf: '2026-11-06', source: 'close-basis', evidenceId: 'ev-close-vix-2026-11-06' },
@@ -1501,7 +1501,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   }
   {
     // v58.77: the "웹검색 중" status line turns into what happened; an older settled line is left alone.
-    const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+    const chat = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
     const from = chat.indexOf('function _aioSettleWebSearchStatus(text) {'); // v59.15: indented inside the pipeline module
     const lines = [{ textContent: '웹검색 중', dataset: { settled: '1' } }, { textContent: '웹검색 중', dataset: {} }];
     const fakeDocument = { querySelectorAll: () => lines.filter((line) => !line.dataset.settled) };
@@ -1610,7 +1610,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   }
   {
     // The legacy context builder delegates to the installed profile and falls back to the do-not-assume line.
-    const chat = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+    const chat = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
     const from = chat.indexOf('function _buildUserProfileContext() {');
     const fn = new Function('window', chat.slice(from, chat.indexOf('\n}\n', from) + 2) + '\nreturn _buildUserProfileContext();');
     check('v58.77 profile: _buildUserProfileContext uses window.AIO.aiProfileContext and keeps the unset fallback',
@@ -1621,10 +1621,10 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
 {
   // P1758: kr-tech had a CHAT_CONTEXTS entry, aliases and a model tier but no screen mapped to it after the 19→8
   // consolidation (KR technicals render in the technical screen's folded section, answered by `technical`).
-  const krTechFiles = ['js/aio-chat.js', 'js/aio-core.js', 'js/aio-ui.js', 'js/aio-qa-audits.js', 'src/ai/intent/taxonomy.js'];
+  const krTechFiles = ['src/ui/chat/panel.js', 'js/aio-core.js', 'js/aio-ui.js', 'js/aio-qa-audits.js', 'src/ai/intent/taxonomy.js'];
   const stale = krTechFiles.filter((file) => /['"|]kr-tech['"|)]/.test(read(file)));
   check(`P1758 retired kr-tech chat context has no context, alias, tag or tier entry (${stale.join(', ') || 'none'})`, stale.length === 0);
-  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const chatSource = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const panelMap = chatSource.slice(chatSource.indexOf('var _aiCtxMap = {'), chatSource.indexOf('};', chatSource.indexOf('var _aiCtxMap = {')));
   check('v60.42 the technical screen keeps its own AI context (where the KR technical section lives)', /'technical':'technical'/.test(panelMap) && /\n  technical: \{ title: '/.test(chatSource));
   // The chart route (#technical opens it) had no key in the panel map, so the AI input was disabled on that screen.
@@ -1640,7 +1640,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   // v57.54: kr-macro (CHAT_CONTEXTS) and kr-themes (panel key, chips, context) had no route after the 19→8 consolidation —
   // KR macro lives inside 거시 and KR themes inside 테마, answered by `macro` / `themes`. Retired like kr-tech (P1758).
   // `kr-macro` survives only as the question-selected Korean domain block (P1740, market-content.js) — not a context.
-  const chatSource = read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js');
+  const chatSource = read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js');
   const block = (start) => { const at = chatSource.indexOf(start); return at < 0 ? '' : chatSource.slice(at, chatSource.indexOf('};', at)); };
   const contexts = block('const CHAT_CONTEXTS = {'), panelMap = block('var _aiCtxMap = {'), chips = block('var _aiDefaultChips = {');
   const live = [['CHAT_CONTEXTS', contexts], ['_aiCtxMap', panelMap], ['_aiDefaultChips', chips]].filter(([, text]) => /['"]kr-(?:macro|themes)['"]\s*:/.test(text)).map(([name]) => name);

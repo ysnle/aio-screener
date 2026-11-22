@@ -55,7 +55,7 @@ export function installNewsSelection(window = globalThis) {
   window.TECH_KW = TECH_KW;
   window._aioNewsDedupeKey = (item) => newsDedupeKey(item, env); // the RSS fetch dedupes with the story key
   window._aioNormalizeNewsItem = (surfaceId, item, contract, nowMs, cycleWindow) => normalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow, env);
-  window.AIO.telegramQueryRelevance = telegramItemQueryRelevance; // js/aio-chat.js Telegram item ranking
+  window.AIO.telegramQueryRelevance = telegramItemQueryRelevance; // src/ui/chat/panel.js Telegram item ranking
   window.AIO.buildNewsSurfaceModel = (surfaceId, items, opts) => {
     const model = buildNewsSurfaceModel(surfaceId, items, opts, env);
     window._aioNewsSurfaceModels = window._aioNewsSurfaceModels || {};

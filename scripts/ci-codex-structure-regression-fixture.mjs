@@ -307,7 +307,7 @@ assert.equal(krAligned.s.kospi?.date, '2026-10-12', 'P1651: KOSPI uses its own c
 // P1652: fundamentals whose period ended over 15 months before the session are held.
 assert.equal(fundamentalPeriodTooOld('2019-12-31', '2026-10-09'), true);
 assert.equal(fundamentalPeriodTooOld('2025-12-31', '2026-10-09'), false);
-const chat = fs.readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const chat = fs.readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
 assert.ok(!/가격·비중·손절·목표 범위도 근거와 사용자 조건이 있으면 분석할 수 있/.test(chat), 'P1652: chat contract forbids trade instructions');
 assert.ok(!/v49\.75 구조:/.test(chat), 'P1652: no developer structure badge under answers');
 const core = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');

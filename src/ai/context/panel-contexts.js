@@ -1,5 +1,5 @@
 // Audit 2026-10-14: the AI panel was disabled on 투자 대가(masters) and 사용 안내(guide) although the panel's evidence
-// builder already reads 13F holdings for the masters focus. The classic panel's map lives in js/aio-chat.js, which may
+// builder already reads 13F holdings for the masters focus. The classic panel's map lives in src/ui/chat/panel.js, which may
 // not grow (decomposition ratchet), so the two screens are registered here through the same globals it reads.
 const EXTRA = Object.freeze([
   { page: 'masters', ctx: 'masters', title: 'AI 운용사 보유 분석가', chips: ['이 운용사의 보유 구조', '분기 사이 바뀐 것', '13F로 알 수 없는 것', '내 관심 종목과 겹치는 곳'] },

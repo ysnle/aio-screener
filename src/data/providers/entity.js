@@ -1,6 +1,6 @@
 // ARX-04/P977: fundamentals come from the bounded current-facts projection via the
 // platform httpClient gateway) instead of legacy's `_fundAnalysisData` global, which in practice
-// is only ever populated by the AI-chat ticker-analysis flow (js/aio-chat.js) and stays null for
+// is only ever populated by the AI-chat ticker-analysis flow (src/ui/chat/panel.js) and stays null for
 // ordinary page browsing — this fetch is a strict improvement, not a behavior change, for the
 // entity route's fundamentals field. id/quote/options still come from the injected `read`
 // callback (legacy projection) — those are out of scope for this slice (see session card).

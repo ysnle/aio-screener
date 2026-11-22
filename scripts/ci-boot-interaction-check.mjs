@@ -37,8 +37,8 @@ if (stageDir) {
 }
 // Shipped files that belong to the AI panel: they must not load before a user reaches an AI control (owner D1).
 // v60.19: the AI request/response pipeline is panel code too (only the chat send reads it); it had loaded right after boot.
-const AI_PANEL_INPUTS = ['src/domain/research/supplied-materials.js', 'src/app/chat-globals.js', 'src/ui/components/ai-profile.js', 'src/ai/intent/question-cues.js', 'src/ai/response/request-pipeline.js'];
-const aiPanelFiles = new Set(['js/aio-chat.js', ...Object.entries(chunkInputs).filter(([, inputs]) => inputs.some((input) => AI_PANEL_INPUTS.includes(input))).map(([file]) => file)]);
+const AI_PANEL_INPUTS = ['src/ui/chat/panel.js', 'src/domain/research/supplied-materials.js', 'src/app/chat-globals.js', 'src/ui/components/ai-profile.js', 'src/ai/intent/question-cues.js', 'src/ai/response/request-pipeline.js'];
+const aiPanelFiles = new Set([...Object.entries(chunkInputs).filter(([, inputs]) => inputs.some((input) => AI_PANEL_INPUTS.includes(input))).map(([file]) => file)]);
 const pathOf = (url) => { try { return new URL(url).pathname.replace(/^\//, ''); } catch { return ''; } };
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
 
@@ -275,7 +275,9 @@ try {
     if (result.aiPanelRequestsBeforeUse.length) failures.push(`AI panel files fetched before any AI control was reached: ${result.aiPanelRequestsBeforeUse.join(', ')}`);
     const corpusChunk = Object.entries(chunkInputs).find(([, inputs]) => inputs.includes('src/domain/research/supplied-materials.js'))?.[0];
     const pipelineChunk = Object.entries(chunkInputs).find(([, inputs]) => inputs.includes('src/ai/response/request-pipeline.js'))?.[0];
-    for (const needed of ['js/aio-chat.js', corpusChunk, pipelineChunk].filter(Boolean)) if (!result.aiPanelOnHover.includes(needed)) failures.push(`hovering the AI button did not start ${needed}`);
+    const panelChunk = Object.entries(chunkInputs).find(([, inputs]) => inputs.includes('src/ui/chat/panel.js'))?.[0];
+    if (!panelChunk) failures.push('the AI panel (src/ui/chat/panel.js) is not a lazy chunk of the bundle');
+    for (const needed of [panelChunk, corpusChunk, pipelineChunk].filter(Boolean)) if (!result.aiPanelOnHover.includes(needed)) failures.push(`hovering the AI button did not start ${needed}`);
     if (result.glossaryBeforeUse) failures.push('js/aio-glossary.js fetched before any glossary control or term mark was reached');
     if (!result.termMarksBeforeGlossary) failures.push('no term mark on the active route before the glossary loaded (marks must not wait for it)');
     else if (!result.glossaryOnTermHover) failures.push('pointing at a term mark did not load js/aio-glossary.js');

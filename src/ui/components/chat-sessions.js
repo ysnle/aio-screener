@@ -1,6 +1,6 @@
 // Owner 2026-10-14: conversations in the AI panel — one conversation follows the reader across screens, a list of past
 // conversations can be reopened and continued, and nothing is stored until the reader agrees on the first conversation.
-// The classic panel (js/aio-chat.js) keeps its send/stream path; this module only (1) gives it one shared conversation
+// The classic panel (src/ui/chat/panel.js) keeps its send/stream path; this module only (1) gives it one shared conversation
 // state instead of one per screen, (2) records each completed turn, (3) adds the header controls and the list.
 import { appendTurn, consentState, deleteSession, loadSessions, newSessionId, sessionMessages, sessionWhen, setConsent, ACTIVE_KEY } from '../../ai/session/chat-sessions.js';
 import { el } from './dom.js';
@@ -56,7 +56,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
     else if (api.sessionId || shared.messages.length) startFresh('new-session');
   };
 
-  // v58.75 (persona review): panel glue moved out of js/aio-chat.js. (a) Moving to another screen while an answer is
+  // v58.75 (persona review): panel glue moved out of src/ui/chat/panel.js. (a) Moving to another screen while an answer is
   // being written keeps it (one shared conversation in a shell panel that stays mounted, also over a screen without an
   // AI context): the classic panel asks before cancelling and repainting.
   root._aioKeepRunningAnswer = () => shared._activeRequest?.entrypoint === 'unified-chat';

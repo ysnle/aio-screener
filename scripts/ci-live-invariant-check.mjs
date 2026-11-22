@@ -45,14 +45,13 @@ async function fetchText(path) {
 }
 
 async function main() {
-  let html, core, data, ui, chat, glossary, pages, krData, workspace, versionJson, deployment, publicConfig, indexResponse;
+  let html, core, data, ui, glossary, pages, krData, workspace, versionJson, deployment, publicConfig, indexResponse;
   try {
-    [indexResponse, core, data, ui, chat, glossary, pages, krData, workspace] = await Promise.all([
+    [indexResponse, core, data, ui, glossary, pages, krData, workspace] = await Promise.all([
       fetchResponse('index.html'),
       fetchText('js/aio-core.js'),
       fetchText('js/aio-data.js'),
       fetchText('js/aio-ui.js'),
-      fetchText('js/aio-chat.js'),
       fetchText('js/aio-glossary.js'),
       fetchText('js/aio-pages.js'),
       fetchText('js/aio-kr-data.js'),
@@ -151,7 +150,6 @@ async function main() {
       'js/aio-core.js': core,
       'js/aio-data.js': data,
       'js/aio-ui.js': ui,
-      'js/aio-chat.js': chat,
       'js/aio-glossary.js': glossary,
       'js/aio-pages.js': pages,
       'js/aio-kr-data.js': krData,
@@ -176,7 +174,6 @@ async function main() {
     'js/aio-core.js': core,
     'js/aio-data.js': data,
     'js/aio-ui.js': ui,
-    'js/aio-chat.js': chat,
     'js/aio-glossary.js': glossary,
     'js/aio-pages.js': pages,
     'js/aio-kr-data.js': krData,

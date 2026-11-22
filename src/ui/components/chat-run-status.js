@@ -1,4 +1,4 @@
-// The AI panel's waiting line: the loading bubble the classic panel appends (js/aio-chat.js chatSendUnified) becomes one
+// The AI panel's waiting line: the loading bubble the classic panel appends (src/ui/chat/panel.js chatSendUnified) becomes one
 // status line that says what the answer is doing and for how long (src/ai/session/run-progress.js). It is updated in
 // place, text only; a one-second timer runs only while the run is in flight. The stage words are announced politely;
 // the counters (characters, seconds) sit in an aria-hidden part so a screen reader is not read a number every second.

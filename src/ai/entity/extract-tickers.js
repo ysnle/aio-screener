@@ -1,6 +1,6 @@
 // v30.15: typed tickers in a question — $AAPL, a capitalised 2–5 letter symbol that is not a common word, finance
 // acronym or (without a company question after it) a role/industry word, and a 6-digit Korean code (.KS); at most 5.
-// Moved unchanged from js/aio-chat.js (roadmap item 11, layer 1 채팅); window._extractTickers keeps the legacy name.
+// Moved unchanged from src/ui/chat/panel.js (roadmap item 11, layer 1 채팅); window._extractTickers keeps the legacy name.
 // This is the typed-symbol stage of src/ai/entity/chat-tickers.js, the one question resolver.
 import { ENGLISH_STOP_WORDS, NON_TICKER_ACRONYMS, ROLE_OR_INDUSTRY_WORDS, isNonTickerWord } from '../../domain/instruments/question-words.js';
 

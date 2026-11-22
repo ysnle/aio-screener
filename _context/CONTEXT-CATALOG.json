@@ -7,7 +7,7 @@
     "targeted": "Search or read only when the task touches the named domain.",
     "explicitOnly": "Point-in-time evidence; never load by default or treat as current state."
   },
-  "documentCount": 84,
+  "documentCount": 85,
   "documents": [
     {
       "path": "_context/AI-CHAT-INSTITUTIONAL-AUDIT-2026-07-12.md",
@@ -155,8 +155,8 @@
       "title": "결함 사후 분석 원장 (P 항목)",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 770803,
-      "lines": 3092,
+      "bytes": 772738,
+      "lines": 3102,
       "lastVerified": "2026-11-22",
       "autoRefresh": false
     },
@@ -185,7 +185,7 @@
       "title": "AIO v53.11 CODE-MAP",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 67029,
+      "bytes": 67095,
       "lines": 530,
       "lastVerified": "2026-11-04",
       "autoRefresh": true
@@ -520,8 +520,8 @@
       "title": "소유자 결정 등록부",
       "kind": "targeted-map",
       "readPolicy": "targeted",
-      "bytes": 32693,
-      "lines": 175,
+      "bytes": 34289,
+      "lines": 178,
       "lastVerified": "2026-11-20",
       "autoRefresh": false
     },
@@ -550,8 +550,8 @@
       "title": "QA-CHECKLIST.md",
       "kind": "ledger",
       "readPolicy": "targeted",
-      "bytes": 133541,
-      "lines": 1248,
+      "bytes": 133951,
+      "lines": 1253,
       "lastVerified": "2026-11-22",
       "autoRefresh": false
     },
@@ -652,6 +652,16 @@
       "readPolicy": "targeted",
       "bytes": 3915,
       "lines": 34,
+      "lastVerified": null,
+      "autoRefresh": false
+    },
+    {
+      "path": "_context/RETRO-LOG.md",
+      "title": "Retro log",
+      "kind": "historical-snapshot",
+      "readPolicy": "explicit-only",
+      "bytes": 1404,
+      "lines": 8,
       "lastVerified": null,
       "autoRefresh": false
     },
@@ -802,7 +812,7 @@
       "title": "inline-style-baseline.json",
       "kind": "machine-contract",
       "readPolicy": "targeted",
-      "bytes": 999,
+      "bytes": 1005,
       "lines": 47,
       "lastVerified": null,
       "autoRefresh": false
@@ -822,7 +832,7 @@
       "title": "patch-comment-baseline.json",
       "kind": "machine-contract",
       "readPolicy": "targeted",
-      "bytes": 22441,
+      "bytes": 22447,
       "lines": 498,
       "lastVerified": null,
       "autoRefresh": false

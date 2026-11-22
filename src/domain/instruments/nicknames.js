@@ -1,5 +1,5 @@
 // The curated nicknames a question may use for a company or a market. One table replaces the
-// entity resolver's fallback names (src/ai/entity/resolver.js) and the chat's fuzzy map (js/aio-chat.js
+// entity resolver's fallback names (src/ai/entity/resolver.js) and the chat's fuzzy map (src/ui/chat/panel.js
 // _resolveTickerFromFuzzy, v49.69 P369), which listed different companies: "암드" resolved in the chat only after
 // nothing else had, so "암드 vs 엔비디아" lost AMD, and "LG화학" never matched because the map was read in lower case.
 // A nickname is an exact word, never a substring ("금일" is not gold, "마크롱" not

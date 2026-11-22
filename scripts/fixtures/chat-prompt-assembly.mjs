@@ -1,4 +1,4 @@
-// Offline assembly of the unified chat system prompt (chatSendUnified, js/aio-chat.js) for gate fixtures, in the order
+// Offline assembly of the unified chat system prompt (chatSendUnified, src/ui/chat/panel.js) for gate fixtures, in the order
 // chatSendUnified writes it: the tools block first, then the short prompt (composeLeanPrompt), reader memory, the answer
 // principles, the mode guide, the evidence tail and the action policy. The blocks are produced by the real builders: the
 // classic-script functions run in a vm context from their own source, the ESM builders are imported. Blocks that need
@@ -42,7 +42,7 @@ function slice(src, start, end, label) {
 export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
   const load = (file) => import(pathToFileURL(path.join(root, file)).href);
-  const chat = read('js/aio-chat.js');
+  const chat = read('src/ui/chat/panel.js');
   const core = read('js/aio-core.js');
   const ui = read('js/aio-ui.js');
   const { createQuestionPlan, companyEntitySymbols } = await load('src/ai/orchestrator/question-planner.js');

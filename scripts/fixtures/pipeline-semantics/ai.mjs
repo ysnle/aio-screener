@@ -129,34 +129,37 @@ export const cases = [
     assert.doesNotMatch(prompt, /3~5개.*(?:골라|선택)|분산점수/);
     assert.match(prompt, /종목을 대신 고르지/);
   } },
-  { id: 'v59.52', name: 'a queued chat draft stays visible after a failed script load and retries once', run: async ({ load }) => {
+  { id: 'v59.52', name: 'a queued chat draft stays visible after a failed panel load and retries once', run: async ({ load }) => {
     const { installChatLoader } = await load('src/app/chat-loader.js');
-    const scripts = [], input = { value: '보내려던 질문' };
-    const doc = { readyState: 'complete', querySelector: () => null, getElementById: () => input,
-      createElement: () => ({}), head: { appendChild: (script) => scripts.push(script) } };
+    const imports = [], input = { value: '보내려던 질문' };
+    const doc = { readyState: 'complete', querySelector: () => null, getElementById: () => input };
     const root = { navigator: {}, requestIdleCallback: () => {}, AIO: {} };
-    installChatLoader(root, doc);
+    const importPanel = () => new Promise((resolve, reject) => { imports.push({ resolve, reject }); });
+    installChatLoader(root, doc, { importPanel });
     root.chatSendUnified(); root.chatSendUnified();
     assert.equal(input.value, '보내려던 질문');
-    scripts[0].onerror();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    imports[0].reject(new Error('offline'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     assert.equal(input.value, '보내려던 질문');
     root.chatSendUnified();
-    assert.equal(scripts.length, 2);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(imports.length, 2);
     const sent = [];
     root.chatSendUnified = () => { sent.push(input.value); input.value = ''; };
-    scripts[1].onload();
+    imports[1].resolve({});
     await root.AIO.loadChat();
     assert.deepEqual(sent, ['보내려던 질문']);
   } },
   { id: 'v59.97', name: 'the chat loader loads the user research digest once and replays a queued question only after it', run: async ({ load }) => {
     const { installChatLoader } = await load('src/app/chat-loader.js');
-    const scripts = [], input = { value: '리서치 질문' };
-    const doc = { readyState: 'complete', querySelector: () => null, getElementById: () => input,
-      createElement: () => ({}), head: { appendChild: (script) => scripts.push(script) } };
+    const input = { value: '리서치 질문' };
+    const doc = { readyState: 'complete', querySelector: () => null, getElementById: () => input };
+    let finishPanel = null;
+    const importPanel = () => new Promise((resolve) => { finishPanel = resolve; });
     let digestCalls = 0, finishDigest = null;
     const root = { navigator: {}, AIO: { loadUserResearchDigest: () => { digestCalls += 1; return new Promise((resolve) => { finishDigest = resolve; }); } } };
-    installChatLoader(root, doc);
+    installChatLoader(root, doc, { importPanel });
     assert.equal(digestCalls, 0, 'v59.97 the digest is not fetched before the panel loads');
     root.chatSendUnified();
     root.AIO.loadChat(); root.AIO.loadChat();
@@ -164,7 +167,7 @@ export const cases = [
     assert.equal(digestCalls, 1, 'v59.97 one panel load fetches the digest once');
     const sent = [];
     root.chatSendUnified = () => { sent.push(input.value); };
-    scripts[0].onload();
+    finishPanel({});
     await new Promise((resolve) => setTimeout(resolve, 20));
     assert.deepEqual(sent, [], 'v59.97 the queued question waits for the digest');
     finishDigest(true);

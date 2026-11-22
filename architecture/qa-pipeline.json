@@ -706,7 +706,7 @@
           "inputClass": "code",
           "script": "scripts/ci-state-machine-regression-check.mjs",
           "remedy": "each case names the _context/STATE-MACHINES.md finding (SM-xx) it guards; fix the transition, not the expected state",
-          "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "js/aio-chat.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "src/data/quote-demand.js", "scripts/ci-state-machine-regression-check.mjs"]
+          "inputs": ["src/app/refresh-scheduler.js", "js/aio-data.js", "js/aio-core.js", "src/ui/chat/panel.js", "src/data/on-demand-symbol.js", "src/data/server-data-loader.js", "src/data/quote-demand.js", "scripts/ci-state-machine-regression-check.mjs"]
         },
         {
           "id": "data-boundary-fixture",
@@ -756,7 +756,7 @@
             "architecture/golden-routes.json",
             "src/ui/knowledge/reference-curriculum.js",
             "src/ui/pages/principles.js",
-            "js/aio-chat.js",
+            "src/ui/chat/panel.js",
             "js/aio-glossary.js"
           ]
         },
@@ -1580,7 +1580,7 @@
             "src/app/compatibility-globals.js",
             "src/app/bootstrap.js",
             "js/aio-workspace.js",
-            "js/aio-chat.js",
+            "src/ui/chat/panel.js",
             "js/aio-core.js",
             "js/aio-data.js",
             "index.html",
@@ -1630,7 +1630,7 @@
             "js/aio-ui.js",
             "src/ui/pages/market.js",
             "index.html",
-            "js/aio-chat.js",
+            "src/ui/chat/panel.js",
             "js/aio-kr-data.js"
           ]
         },
@@ -2317,7 +2317,7 @@
           "script": "scripts/ci-extension-api-runtime-check.mjs",
           "inputs": [
             "js/aio-data.js",
-            "js/aio-chat.js",
+            "src/ui/chat/panel.js",
             "js/aio-ui.js",
             "js/aio-core.js",
             "index.html",
@@ -2951,7 +2951,7 @@
             "js/aio-ui.js",
             "src/ui/pages/market.js",
             "index.html",
-            "js/aio-chat.js",
+            "src/ui/chat/panel.js",
             "js/aio-kr-data.js"
           ]
         },
@@ -3190,6 +3190,7 @@
       "patterns": [
         "index.html",
         "js/**",
+        "src/ui/chat/**",
         "src/ai/**",
         "src/data/**",
         "src/app/bootstrap.js",
@@ -4008,11 +4009,12 @@
     },
     {
       "patterns": [
-        "js/aio-chat.js"
+        "src/ui/chat/panel.js"
       ],
       "groups": [],
       "gates": [
-        "static-data"
+        "static-data",
+        "watchdog-static-data"
       ]
     },
     {
@@ -4187,7 +4189,7 @@
         "src/app/compatibility-globals.js",
         "src/app/bootstrap.js",
         "js/aio-workspace.js",
-        "js/aio-chat.js",
+        "src/ui/chat/panel.js",
         "js/aio-core.js",
         "js/aio-data.js",
         "index.html",

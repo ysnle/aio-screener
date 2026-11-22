@@ -1,4 +1,4 @@
-// v59.42: the AI panel's keyword cues on top of the intent taxonomy (taxonomy.js), moved here from js/aio-chat.js
+// v59.42: the AI panel's keyword cues on top of the intent taxonomy (taxonomy.js), moved here from src/ui/chat/panel.js
 // (_aioChatAnswerPolicy) and js/aio-core.js (_aioLooksFreshIntent, _aioAIClassifyIntent). Those matched English words as
 // raw substrings, so 'per' hit "operating", 'current' hit "currency", 'now' hit "know", 'rate' hit "corporate" and 'hold'
 // hit "threshold".

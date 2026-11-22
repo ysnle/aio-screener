@@ -116,7 +116,7 @@ assertExactRoutes('chartNativeRoutes', nativeRoutesByDimension.chart);
 assertExactRoutes('narrativeNativeRoutes', nativeRoutesByDimension.narrative);
 assertExactRoutes('lazyLoadedRoutes', lazyLoadedRoutes);
 assertExactRoutes('fullNativeOwner', fullNativeOwner);
-const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'];
+const legacyFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'src/ui/chat/panel.js'];
 const aggregate = legacyFiles.map((file) => read(file)).join('\n');
 const count = (pattern) => (aggregate.match(pattern) || []).length;
 const current = {
@@ -144,7 +144,7 @@ const uiSource = read('js/aio-ui.js');
 const pagesSource = read('js/aio-pages.js');
 // P1135/R620 → legacy unification: js/aio-macro-tech.js (inline block B) is retired; the retirement pins that used to
 // scan it now scan every remaining legacy runtime file, so a retired writer cannot come back under another file.
-const legacyRuntimeSource = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js'].map(read).join(String.fromCharCode(10));
+const legacyRuntimeSource = ['js/aio-workspace.js', 'js/aio-kr-data.js', 'js/aio-pages.js', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'src/ui/chat/panel.js'].map(read).join(String.fromCharCode(10));
 if (fs.existsSync(path.join(root, 'js/aio-macro-tech.js'))) fail('legacy unification: retired js/aio-macro-tech.js returned');
 // P1136/R620: the user-state/workspace layer extracted from inline block A lives in js/aio-workspace.js.
 const workspaceSource = read('js/aio-workspace.js');
@@ -178,7 +178,7 @@ const themesPageSource = readThemesPageSource(); // v59.70: the page is split un
 if (!bootstrapSource.includes('const ingestSentiment') || !bootstrapSource.includes('ingestSentiment,')) fail('sentiment canonical ingest gateway missing');
 if (!dataSource.includes('AIO_ARCH.ingestSentiment')) fail('legacy sentiment producer gateway notification missing');
 if (!bootstrapSource.includes('createRuntimeReaders') || /create[A-Za-z]+Provider\(\{\s*read:\s*legacy\.read/.test(bootstrapSource)) fail('native route providers must use data-layer runtime readers rather than legacy.read projections');
-if (!read('src/ui/components/fundamental-search.js').includes("'aio:entityChanged'") /* v59.12: the 재무 공시 search moved from js/aio-chat.js */ || !bootstrapSource.includes("legacy.on('aio:entityChanged', syncEntity.sync)")) fail('fundamental ticker selection must invalidate the native entity projection before optional provider work');
+if (!read('src/ui/components/fundamental-search.js').includes("'aio:entityChanged'") /* v59.12: the 재무 공시 search moved from src/ui/chat/panel.js */ || !bootstrapSource.includes("legacy.on('aio:entityChanged', syncEntity.sync)")) fail('fundamental ticker selection must invalidate the native entity projection before optional provider work');
 if (burnDown.retiredDataShowPageMonkeyPatch && (/const originalShowPage\s*=\s*window\.showPage/.test(dataSource) || /window\.showPage\s*=\s*function\s*\(pageId/.test(dataSource))) {
   fail('retired aio-data showPage monkey patch returned');
 }
@@ -463,7 +463,7 @@ if (legacyRuntimeSource.includes('function loadTechCandleChart')) fail('retired 
   }
   // Ids created through a helper argument or a loop the literal patterns cannot see. `proof` must still match `file`.
   const indirectCreators = [
-    { ids: ['ai-panel-loading', 'ai-panel-streaming'], file: 'js/aio-chat.js', proof: /function _appendAIMsg\(role, html, id\)[\s\S]{0,300}?if \(id\) msg\.id = id;/, reason: '_appendAIMsg(role, html, id) assigns msg.id from its third argument' },
+    { ids: ['ai-panel-loading', 'ai-panel-streaming'], file: 'src/ui/chat/panel.js', proof: /function _appendAIMsg\(role, html, id\)[\s\S]{0,300}?if \(id\) msg\.id = id;/, reason: '_appendAIMsg(role, html, id) assigns msg.id from its third argument' },
     // v59.51 (content audit): the theme detail face/fold slots are built by a local make(tag, className, id) helper.
     { ids: ['theme-detail-reading', 'theme-detail-native-why', 'theme-detail-native-criteria', 'theme-detail-native-criteria-table'], file: 'src/ui/pages/themes/detail.js', proof: /const make = \(tag, className, id = null\) => \{[\s\S]{0,200}?node\.id = id;[\s\S]*?make\('ul', 'thp-reading', 'theme-detail-reading'\)/, reason: 'renderThemeDetailSummary make(tag, className, id) assigns node.id from its third argument' },
   ];

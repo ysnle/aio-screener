@@ -1,20 +1,14 @@
-// v59.16 (roadmap 11, layer 1 chat): js/aio-chat.js (the AI panel, about 360 KB) is no longer a boot script. It loads
-// on the first use of the panel or when a pointer or focus reaches an AI control (v59.70). The panel's entry points
-// are stubs until then: a call is queued and replayed in order once the classic script has defined the real function.
+// The AI panel (src/ui/chat/panel.js) is not part of the boot set. It is imported on the first use of the panel or when
+// a pointer or focus reaches an AI control. The panel's entry points are stubs until then: a call is queued and replayed
+// in order once the module has installed the real function. The module imports its own helpers (question cues, the
+// chat-only AIO helpers), so nothing it defines can run before them.
 import { dataState, DATA_STATE_TIMEOUT_MS } from '../ui/components/data-state.js';
 
 const ENTRY_POINTS = Object.freeze(['toggleAIPanel', 'chatSendUnified', 'aiChipClick', 'chatFromChip', 'updateAIPanelContext']);
 // Controls that open or ask the panel: the top-bar button, chips, screen question rows and the panel itself.
 const AI_TRIGGERS = '[data-action="toggleAIPanel"], [data-action="aiChipClick"], [data-action="chatFromChip"], [aria-controls="ai-panel"], .aio-ask-questions, .ai-chip, #ai-panel';
 
-// The chat script carries the same cachebuster as the static shell scripts (bump-version patches those).
-function scriptVersion(doc) {
-  const src = doc.querySelector?.('script[src*="aio-core.js"]')?.getAttribute('src') || '';
-  const match = /[?&]v=([\d.]+)/.exec(src);
-  return match ? match[1] : String(Date.now());
-}
-
-export function installChatLoader(root = globalThis, doc = root.document, { onLoaded = () => {}, alongside = () => null } = {}) {
+export function installChatLoader(root = globalThis, doc = root.document, { onLoaded = () => {}, alongside = () => null, importPanel = () => import('../ui/chat/panel.js') } = {}) {
   root.AIO = root.AIO || {};
   if (!doc || typeof root.AIO.loadChat === 'function') return root.AIO.loadChat || null;
   const queue = [];
@@ -39,11 +33,6 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     }
     if (input && filled && !input.value && !input.disabled && calls.length && calls[calls.length - 1][0] !== 'chatSendUnified') input.value = filled;
   };
-  // v59.42: the AI question keyword cues (src/ai/intent/question-cues.js, read by the panel's answer policy and the chat
-  // data profile through root._aioQuestionCues) load with the panel, outside the boot set; the replay waits for them.
-  const loadCues = () => import('../ai/intent/question-cues.js').then((cues) => { root._aioQuestionCues = cues; }).catch(() => {});
-  // v59.48: the chat-only AIO helpers (market facts, answer mode and principles) install from their own chunk too.
-  const loadChatGlobals = () => import('./chat-globals.js').then((module) => { module.installChatGlobals(root); }).catch(() => {});
   // v59.70 (2nd batch A, QUALITY-BAR 4): a click that waits for the panel script is visible. The AI buttons show the
   // shared busy spinner (button[aria-busy], ui-states.css) while it loads; a failed load, or one still pending after
   // DATA_STATE_TIMEOUT_MS, puts one line with 다시 시도 at the top of the content (the same look as the core-file notice).
@@ -66,13 +55,16 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
   // The user research digest (public-data/user-research-digest.json, read only by the AI question path) loads with the
   // panel, and the replay waits for it.
   const loadResearchDigest = () => Promise.resolve().then(() => root.AIO.loadUserResearchDigest?.()).catch(() => {});
-  const load = () => pending || (pending = new Promise((resolve, reject) => {
-    const cuesReady = Promise.all([loadCues(), loadChatGlobals(), Promise.resolve().then(alongside).catch(() => {}), loadResearchDigest()]);
-    const script = doc.createElement('script');
-    script.src = './js/aio-chat.js?v=' + scriptVersion(doc);
-    script.onload = () => { cuesReady.then(() => { clearNotice(); setBusy(false); replay(); resolve(true); }); };
-    script.onerror = () => { script.remove?.(); pending = null; if (slowTimer) root.clearTimeout?.(slowTimer); slowTimer = null; showNotice(); reject(new Error('aio-chat.js 로드 실패')); };
-    doc.head.appendChild(script);
+  const load = () => pending || (pending = Promise.all([
+    Promise.resolve().then(importPanel),
+    Promise.resolve().then(alongside).catch(() => {}),
+    loadResearchDigest(),
+  ]).then(() => { clearNotice(); setBusy(false); replay(); return true; }, (error) => {
+    pending = null;
+    if (slowTimer) root.clearTimeout?.(slowTimer);
+    slowTimer = null;
+    showNotice();
+    throw new Error('AI 패널 로드 실패: ' + (error?.message || error));
   }));
   // A user action that has to wait: busy now, the notice if it is still waiting after the shared timeout.
   const waitVisibly = () => {

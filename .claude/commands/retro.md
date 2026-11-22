@@ -23,8 +23,14 @@ that keep coming back. One session sees its own errors; only a look across sessi
    4. a doc/rule line, only for judgement calls nothing can check.
    A proposed gate must be shown failing on one recorded past occurrence. A rule whose mistake can no longer happen is a
    removal candidate.
-5. A class seen three times or more is a candidate for RULES promotion and a gate (the compounding loop in
-   CLAUDE.md). Present the list; apply only what the user approves, then record one change-only entry.
+5. A class seen three times or more is a candidate for RULES promotion and a gate. Structure, gate and test fixes
+   (ladder 1–3) are the orchestrator's call under the delegation: apply them and report. A change to an owner decision
+   or a product rule waits for the owner.
+6. Compare the instruction sources (CLAUDE.md, AGENTS.md, skills, commands, the memory index) for two lines that make
+   two sessions act differently. Fix the ones that are plain staleness; list the ones that need the owner's word at the
+   end of `_context/OWNER-DECISIONS.md`.
+7. Close the loop: add one row to `_context/RETRO-LOG.md` (date, window, classes found, what was applied, what waits).
+   The session-start hook reads the last row's date and announces the next retro when it is more than seven days old.
 
 ## Rules for the reviewer
 - Read-only; no git writes; never run fetch-/build-/sync-/refresh-/generate-/bump-version/record-fix or `--write`.

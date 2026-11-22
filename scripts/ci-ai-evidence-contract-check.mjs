@@ -223,7 +223,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js');
-const chat = (read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js'));
+const chat = (read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js'));
 
 const helperStart = core.indexOf('var _AIO_CLAIM_SCHEMA_VERSION');
 const helperEnd = core.indexOf('function _aioClaimEvidenceList', helperStart);
@@ -383,7 +383,7 @@ const evidenceEnd = chat.indexOf('function _aioHasCurrentNumericContent(', evide
 assert.ok(evidenceStart >= 0 && evidenceEnd > evidenceStart, 'claim evidence collector slice is present');
 sandbox.window.AIO_ARCH = { getAIOrchestrator: () => ({ answerPublication }) };
 sandbox.window.AIO.normalizeAIChatEvidenceRow = row => ({ ...row });
-vm.runInNewContext(chat.slice(evidenceStart, evidenceEnd), sandbox, { filename: 'js/aio-chat.js#quote-evidence-conflict' });
+vm.runInNewContext(chat.slice(evidenceStart, evidenceEnd), sandbox, { filename: 'src/ui/chat/panel.js#quote-evidence-conflict' });
 const duplicateConflict = sandbox._aioCollectAIClaimEvidence({ evidence: [contextRow, { ...contextRow, value: 198.25 }] });
 assert.equal(duplicateConflict.length, 1, 'duplicate quote evidence IDs collapse to one registry row');
 assert.equal(duplicateConflict[0].status, 'conflict', 'conflicting duplicate quote tuples are rejected');
@@ -459,7 +459,7 @@ const intraday = await AIO.ensureFreshChatAnswerData({ tickers: ['NVDA'], reason
 assert.deepEqual([intraday.status, intraday.after.quoteRows[0].status, calls.lookup, calls.cross, calls.refreshForce.at(-1)], ['warn', 'refresh_required', 1, 1, true], `v60.41 open session + 10-minute-old quote: refresh required ${JSON.stringify(calls)}`);
 assert.match(quoteBasisLine(intraday.after.quoteRows[0]), /^NVDA: 장중 시세 확인 안 됨 — 장중 관측이 2분보다 오래됨$/, 'v60.41 the model reads why the intraday price is unavailable');
 // The chat hands the model the basis lines, not the old age/truth diagnostics.
-const chat = read('js/aio-chat.js');
+const chat = read('src/ui/chat/panel.js');
 assert.match(chat, /\[종목 가격 기준\][\s\S]{0,400}거부하지 않는다/, 'v60.41 the preflight block tells the model to state the close with its date');
 assert.doesNotMatch(chat, /quote-ok\x27 : \x27quote-missing\x27/, 'v60.41 the age/truth diagnostic line is gone');
 console.log('PASS v60.41 quote basis: close on a closed market, intraday rule while open, conflicts block, KRX session for Korean listings, no lookups for a close');
@@ -478,7 +478,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 // Keep source-slice contracts independent of the checkout's CRLF/LF mode.
 // The assertion is about wiring and evidence semantics, not line endings.
 const read = file => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n');
-const chat = (read('js/aio-chat.js') + '\n' + read('src/ai/response/request-pipeline.js'));
+const chat = (read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/request-pipeline.js'));
 const html = read('index.html');
 
 const helperStart = chat.indexOf('function _aioBuildChatAnalysisContext(');
@@ -498,14 +498,14 @@ const sandbox = {
     }
   }
 };
-vm.runInNewContext(chat.slice(helperStart, helperEnd), sandbox, { filename: 'js/aio-chat.js#analysis-helper' });
+vm.runInNewContext(chat.slice(helperStart, helperEnd), sandbox, { filename: 'src/ui/chat/panel.js#analysis-helper' });
 assert.equal(typeof sandbox.window._aioBuildChatAnalysisContext, 'function', 'helper is exposed on window');
 
 const evidenceStart = chat.indexOf('function _aioAIClaimEvidenceId(');
 const evidenceEnd = chat.indexOf('function _aioHasCurrentNumericContent(', evidenceStart);
 assert.ok(evidenceStart >= 0 && evidenceEnd > evidenceStart, 'production evidence collector slice is present');
 sandbox.window.AIO_ARCH = { getAIOrchestrator: () => ({ answerPublication }) };
-vm.runInNewContext(chat.slice(evidenceStart, evidenceEnd), sandbox, { filename: 'js/aio-chat.js#claim-evidence' });
+vm.runInNewContext(chat.slice(evidenceStart, evidenceEnd), sandbox, { filename: 'src/ui/chat/panel.js#claim-evidence' });
 const duplicateEvidence = {
   evidenceId: 'fixture:duplicate', metric: 'price-change-pct', entity: 'NVDA', value: -2,
   unit: '%', scale: 'raw', asOf: '2026-09-08T20:00:00Z', source: 'fixture-exchange', status: 'verified'
@@ -595,7 +595,7 @@ assert.equal(numericOnlyQuote.audit.requestedPeriod, null, 'numeric quote cannot
 
 // v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) was retired; only the unified surface remains.
 assert.ok(!/async function chatSend\x28/.test(chat) && !/_pageAnalysisSlice/.test(chat), 'v57.62 per-page chatSend retired');
-// P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js.
+// P1131/R619: the unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js.
 // All three assertions below follow the code there — including the chip markup, which is emitted by
 // _aiDefaultChips (also block G) rather than authored in the shell. The gate caught that assumption
 // when it failed on the stale index.html read.
@@ -623,7 +623,7 @@ const { assessWorkerSetup } = await import('./check-worker-setup.mjs');
 
 // P1607: execute the actual keyless AI consumer (the chat's fundamentals tool), not a parallel implementation.
 const { runTool } = await import('../src/ai/tools/registry.js');
-const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+const chat = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
 const facts = { symbol:'NVDA', source:'SEC EDGAR companyfacts', periodType:'FY', observedAt:'2026-01-31', filedAt:'2026-03-01', coverage:['revenue','netIncome'], revenue:123, netIncome:0 };
 let requests = 0;
 const provider = createEntityProvider({ read:()=>({id:'NVDA'}), httpClient:{requestJson:async()=>{ requests++;return {ok:true,data:{data:{NVDA:facts}}};}} });

@@ -48,3 +48,8 @@ Read only what the current task needs; this is not an all-files reading checklis
 | QA8 | Were failures fixed as one phase batch and rechecked with `rerun-failed` instead of repeatedly restarting full QA? |
 | QA9 | Was impact derived from a task session or explicit task-owned files rather than the whole pre-existing dirty tree? |
 | QA10 | For a visible change, was every `references/design-review.md` item checked or named as not applicable? |
+
+## Environment and loop notes (any harness)
+- Windows shells: edit JS with the editor tool, not heredoc or sed (backslashes are eaten; then `node --check`); open repo files in Python with `newline=''` (text mode writes CRLF and breaks slice-based gates); call git from Node with `spawnSync('git', [...])`.
+- After pushing a producer change, read the next refresh-data run: local data hides shapes the live producer writes.
+- Weekly `/retro` (the session-start hook announces it): repeated mistake classes and instruction contradictions go to `_context/RETRO-LOG.md`; repo documents beat any private memory.

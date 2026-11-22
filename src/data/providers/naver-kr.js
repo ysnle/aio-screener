@@ -193,9 +193,8 @@ export function installNaverKrCollector(window = globalThis) {
         await Promise.allSettled(topMissing.map(async function(code) {
           var sUrl = ep.url + '?symbol=' + code + '&requestType=1&startTime=' + startD + '&endTime=' + endD + '&timeframe=day';
           try {
-            // 직접 fetch 시도 (CORS 허용 가능), 실패 시 프록시
-            var r;
-            try { r = await fetchWithTimeout(sUrl, {}, 5000); } catch(e) { r = await fetchViaProxy(sUrl, 6000); }
+            // Naver's price hosts send no cross-origin header, so a browser can only read them through the proxy.
+            var r = await fetchViaProxy(sUrl, 6000);
             if (!r.ok) return;
             var text = typeof r.text === 'function' ? await r.text() : '';
             if (typeof r.json === 'function' && !text) { var j = await r.json(); text = JSON.stringify(j); }
@@ -254,8 +253,7 @@ export function installNaverKrCollector(window = globalThis) {
     if (!/^[0-9]{6}$/.test(code)) return null;
     var url = 'https://fchart.stock.naver.com/siseJson.nhn?symbol=' + code + '&timeframe=day&count=' + count + '&requestType=0';
     try {
-      var r;
-      try { r = await fetchWithTimeout(url, {}, 6000); } catch (e) { r = await fetchViaProxy(url, 8000); }
+      var r = await fetchViaProxy(url, 8000); // no cross-origin header on this host: the proxy is the only browser path
       if (!r || !r.ok) return null;
       var text = typeof r.text === 'function' ? await r.text() : '';
       if (typeof r.json === 'function' && !text) { var j = await r.json(); text = JSON.stringify(j); }

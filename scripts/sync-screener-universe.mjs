@@ -18,7 +18,7 @@
 //
 // SSOT는 여전히 js/aio-data.js의 SCREENER_DB (/data-refresh 스킬이 편집하는 대상) — 이 JSON은
 // 그로부터 생성되는 미러다. 클라이언트 부팅 시 비동기 로드로 전환(Fable 원안의 "클라는 부팅 시
-// 로드")은 SCREENER_DB가 144개 참조 지점(js/aio-chat.js·aio-core.js·aio-data.js·aio-tests.js·
+// 로드")은 SCREENER_DB가 144개 참조 지점(src/ui/chat/panel.js·aio-core.js·aio-data.js·aio-tests.js·
 // aio-ui.js·index.html)에서 쓰이고 이를 안전하게 감싸는 기존 비동기 부팅 게이트가 없어 —
 // Fable이 Phase 3 [A2](defer 전환 + 참조 시점 전수 감사)로 이미 분리해둔 것과 동일한 작업량이라
 // 이번 Phase 2 세션에서는 하지 않는다(BUG-POSTMORTEM P590 참조).

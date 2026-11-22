@@ -387,7 +387,7 @@ const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */ + '\n' + read('src/data/pipeline-notices.js') /* v59.88: the pipeline status notices moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
-const chat = read('js/aio-chat.js');
+const chat = read('src/ui/chat/panel.js');
 const tests = read('js/aio-tests.js');
 const screenerPage = readScreenerPageSource();
 const screenerProvider = read('src/data/providers/screener.js');
@@ -1769,7 +1769,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const noPrior = reconcileSecEarningsBasis({ ...base, pit: { observations: { ...base.pit.observations, equity: base.pit.observations.equity.slice(0, 1), netIncomeQ: [] } } });
     const priced = secFundamentalRowFields(ttm, { price: 100, nowMs: Date.parse('2026-10-17T00:00:00Z') });
     const debt = anchorConceptRows([{ concept: 'LongTermDebt', value: 9, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 8, periodEnd: '2025-12-31' }, { concept: 'LongTermDebtNoncurrent', value: 7, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 6, periodEnd: '2024-12-31' }, { concept: 'LongTermDebt', value: 5, periodEnd: '2023-12-31' }], SEC_FIELD_CONCEPT_PREFERENCE.longTermDebt);
-    const chatSource = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+    const chatSource = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
     const bridgeSource = readFileSync(new URL('../src/app/compatibility-globals.js', import.meta.url), 'utf8');
     ok = ttm.peEarnings?.basis === 'ttm' && ttm.peEarnings.value === 500 && ttm.peEarnings.through === '2026-06-30' && ttm.peEarnings.derivedQuarter === true && ttm.peEarnings.concept === 'net-income'
       && withCommon.peEarnings?.concept === 'common' && withCommon.peEarnings.value === 460

@@ -1,5 +1,5 @@
 // Legacy unification (2026-10-26, roadmap item 11, layer 1 채팅): the shared AI transport moved here unchanged from
-// js/aio-chat.js, so the boot code that checks or calls the shared Worker route (the quota badge, translation, the
+// src/ui/chat/panel.js, so the boot code that checks or calls the shared Worker route (the quota badge, translation, the
 // feedback form, the connections panel) no longer needs the chat file. It covers the v54.69 chat cancellation helpers,
 // the route target, the app token, the Worker health check with its cache, the route notices and the single paid
 // fetch. The window names are the ones the classic scripts already call; installCompatibilityGlobals installs them.

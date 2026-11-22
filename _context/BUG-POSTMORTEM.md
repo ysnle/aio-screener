@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2748 - v60.48 - 한국 종목 일봉 폴백이 월요일·연휴 뒤 등락률을 0%로 적고, 네이버를 직접 불러 요청마다 실패 두 번을 냈다 (2026-11-22)
+
+- symptom/reproduction: 실서비스 20개 화면 점검에서 기술적 분석·매크로 화면이 api.finance.naver.com과 fchart.stock.naver.com을 브라우저에서 직접 불러 종목마다 net::ERR_FAILED 두 건과 콘솔 오류를 남겼다. 같은 폴백의 종목 상세 경로(js/aio-kr-data.js)는 조회 창이 이틀이어서 월요일이나 연휴 뒤에는 한 줄만 받고, 전일 종가를 그 줄의 종가로 채워 등락률 0.00%를 기록했다.
+- root_cause: 두 네이버 호스트는 교차 출처 허용 헤더를 보내지 않아 브라우저 직접 호출은 언제나 실패하는데, 세 호출 지점이 '직접 시도 후 릴레이'를 반복했다. P2337이 공급자 쪽(src/data/providers/naver-kr.js)의 주말 전일 종가만 고쳤고, 같은 응답을 읽는 종목 상세 쪽 복사본은 남았다.
+- fix: 세 지점 모두 릴레이만 부른다. 종목 상세 폴백의 조회 창을 10일로 넓히고, 한 줄뿐이면 등락률을 0이 아니라 '모름'으로 둔다.
+- violated_rule: 같은 응답을 읽는 코드가 두 곳에 있으면 한 곳의 수정이 다른 곳을 고치지 않는다 (R620 계열).
+- prevention: scripts/ci-proxy-continuity-check.mjs가 배포되는 모든 스크립트에서 '직접 호출 뒤 릴레이' 줄을 찾아 파일과 줄 번호로 실패한다. v60.47 코드에서 세 지점 모두로 실패함을 확인했다. 한 줄 응답의 등락률은 행동 테스트가 없다(큰 비동기 함수 안의 블록).
+- verification/residual: node scripts/ci-proxy-continuity-check.mjs (63 PASS, 이전 코드에서는 naver-kr.js:198, :258, aio-kr-data.js:1177로 실패)
+- files: js/aio-kr-data.js, src/data/providers/naver-kr.js, scripts/ci-proxy-continuity-check.mjs
+
 ## P2747 - v60.47 - 보유 종목 추가에서 접힌 '선택 입력' 안의 칸(통화·목표가)이 거부되면 포커스가 그 칸으로 가지 못함 (2026-11-22)
 
 - symptom/reproduction: 실서비스 v60.46에서 선택 입력 접힘이 닫힌 채 원가 통화가 거부되면 칸에는 오류 표시와 안내가 붙지만 포커스는 '추가 / 업데이트' 버튼에 남고, 안내 문구는 닫힌 접힘 안에 있어 보이지 않았다(토스트만 보임).

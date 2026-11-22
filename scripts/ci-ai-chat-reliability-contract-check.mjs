@@ -19,7 +19,7 @@ const errors = [];
 const check = (label, condition) => { if (!condition) errors.push(label); };
 
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const chat = read('js/aio-chat.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js') + String.fromCharCode(10) + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
+const chat = read('src/ui/chat/panel.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js') + String.fromCharCode(10) + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 const data = read('js/aio-data.js');
 const html = read('index.html');
 // P1136/R620: the sidebar credential-save handler (and other user-state writers) moved with
@@ -47,7 +47,7 @@ check('P1421: retired AI credentials cannot be read or saved', core.includes("ls
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
 check('route readiness follows the selected target and never bypasses Worker health because a personal key also exists', chat.indexOf('if (!target || !target.serverKey)') < chat.indexOf('var cacheTtl = cached && cached.ok') && uiRouteReadinessUsesTarget());
 check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && /var _AIO_HEALTH_TIMEOUT_MS = 12000;[\s\S]*ctrl\.abort\(\); \}, _AIO_HEALTH_TIMEOUT_MS\)[\s\S]*timeoutMs: _AIO_HEALTH_TIMEOUT_MS \+ 500/.test(chat));
-// P1131/R619: the unified chat surface moved from index.html's inline block G into js/aio-chat.js,
+// P1131/R619: the unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js,
 // so these three `_uni*` assertions now read the chat module.
 // v57.62: the dead per-page chatSend was retired, so these read the one remaining (unified) chat surface.
 check('v57.62 per-page chatSend retired (unified panel is the only chat surface)', !chat.includes('async function chatSend(') && chat.includes('async function chatSendUnified('));
@@ -130,7 +130,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { default: assert } = await import('node:assert/strict');
 
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
 const start = source.indexOf('async function callSharedAi(');
 const end = source.indexOf('// ── 스크리너 질의', start);
 assert(start >= 0 && end > start);
@@ -195,7 +195,7 @@ for (const serverKey of [true]) {
       },
     };
     context.window = context;
-    context.AIO = { aiWorkerContract: (await import('../src/domain/ai/worker-contract.js')).AI_WORKER_CONTRACT }; // v59.87: installed by chat-globals beside the chat
+    context.AI_WORKER_CONTRACT = (await import('../src/domain/ai/worker-contract.js')).AI_WORKER_CONTRACT; context.AIO = {}; // v59.87: installed by chat-globals beside the chat
     context._lastClaudeUsage = { input_tokens: 99999 };
     vm.createContext(context);
     vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
@@ -245,7 +245,7 @@ const loop = await import('../src/ai/tools/loop.js');
 const { createRunProgress, progressHook } = await import('../src/ai/session/run-progress.js');
 const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js');
 const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const start = source.indexOf('async function callSharedAi('), end = source.indexOf('// ── 스크리너 질의', start);
 const storeStart = source.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), storeEnd = source.indexOf('// P897: the ESM evidence module', storeStart);
 assert(start >= 0 && end > start && storeStart >= 0 && storeEnd > storeStart);
@@ -287,7 +287,7 @@ async function scenario({ responses, tools = true, kit = loop.chatToolKit(toolRo
     }
   };
   context.window = context;
-  context.AIO = { aiWorkerContract: AI_WORKER_CONTRACT, chatTools: kit };
+  context.AI_WORKER_CONTRACT = AI_WORKER_CONTRACT; context.AIO = { chatTools: kit };
   if (webSearch) context.AIO.attachNativeSearch = (body, { enabled, mustSearch: forced }) => (enabled ? { ...body, tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default' }], tool_choice: searchChoice || (forced === true ? 'required' : 'auto'), max_tool_calls: 2 } : body);
   out.context = context;
   vm.createContext(context);
@@ -468,7 +468,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowledge.js');
 const { evaluateResearchEvidenceFloor } = await import('../src/ai/research/evidence.js');
-const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
 const section = (a,b) => { const start=source.indexOf(a), end=source.indexOf(b,start); assert(start>=0 && end>start); return source.slice(start,end); };
 const states = {}, button = { disabled: true }, documentListeners = {};
 const root = { AbortController, setTimeout, clearTimeout, URL, console, document: {
@@ -479,7 +479,7 @@ const root = { AbortController, setTimeout, clearTimeout, URL, console, document
   localStorage: { getItem:()=>null }, _getApiKey:()=> 'fixture', escHtml:String };
 root.window=root;
 vm.createContext(root);
-// v59.11: the cancellation helpers come from the shared transport module (moved from js/aio-chat.js).
+// v59.11: the cancellation helpers come from the shared transport module (moved from src/ui/chat/panel.js).
 const { installSharedRoute } = await import('../src/data/providers/shared-ai-transport.js');
 const transport = installSharedRoute({});
 for (const name of ['_aioChatAbortError', '_aioThrowIfChatAborted', '_aioRunChatTask', '_aioLinkChatAbortSignal']) root[name] = transport[name];
@@ -574,9 +574,9 @@ root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
 assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null, 'v60.02 tool loop');
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
-// P1131/R619: the unified chat surface (inline block G) moved from index.html into js/aio-chat.js, so
+// P1131/R619: the unified chat surface (inline block G) moved from index.html into src/ui/chat/panel.js, so
 // the assertions that read it now read the chat module.
-const chatShell=readFileSync(new URL('../js/aio-chat.js',import.meta.url),'utf8');
+const chatShell=readFileSync(new URL('../src/ui/chat/panel.js',import.meta.url),'utf8');
 // P1136/R620: showConfirmModal/_confirmCancelCallback moved with inline block A into js/aio-workspace.js.
 const shellWorkspace=readFileSync(new URL('../js/aio-workspace.js',import.meta.url),'utf8');
 assert(chatShell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
@@ -653,9 +653,9 @@ assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_E
   // text — earlier answers shortened, reference blocks cut to a floor, then the oldest turns — and the follow-up keeps them.
   const trimAt = stream.indexOf('var _bodyBytes = function'), trimEnd = stream.indexOf("console.log('[AIO] callSharedAi", trimAt);
   assert(trimAt > 0 && trimEnd > trimAt, 'v59.44 callSharedAi trims the request by UTF-8 bytes');
-  const trimBody = new Function('system', '_trimmedMessages', 'window', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
+  const trimBody = new Function('system', '_trimmedMessages', 'window', 'AI_WORKER_CONTRACT', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
   const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: the trim target is the shared contract's
-  const trim = (system, messages) => trimBody(system, messages, { AIO: { aiWorkerContract: AI_WORKER_CONTRACT } });
+  const trim = (system, messages) => trimBody(system, messages, { AIO: {} }, AI_WORKER_CONTRACT);
   const ko = (n) => '가'.repeat(n);
   const turns = (...sizes) => sizes.map((n, i) => ({ role: i % 2 ? 'assistant' : 'user', content: ko(n) }));
   const followUp = trim(ko(60000), turns(100, 30000, 100));
@@ -663,8 +663,8 @@ assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_E
   const longChat = trim(ko(40000), turns(100, 30000, 100, 30000, 100, 30000, 100));
   assert(longChat.bytes <= 200 * 1024, `v59.44 a long Korean conversation fits the Worker limit (${longChat.bytes} bytes)`);
   // The evidence contract and the action policy that close the unified prompt survive trimming; only reference data is cut.
-  const trimFull = new Function('system', '_trimmedMessages', 'window', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length, system: system, messages: _trimmedMessages };`);
-  const trimAll = (system, messages) => trimFull(system, messages, { AIO: { aiWorkerContract: AI_WORKER_CONTRACT } });
+  const trimFull = new Function('system', '_trimmedMessages', 'window', 'AI_WORKER_CONTRACT', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length, system: system, messages: _trimmedMessages };`);
+  const trimAll = (system, messages) => trimFull(system, messages, { AIO: {} }, AI_WORKER_CONTRACT);
   const target = AI_WORKER_CONTRACT.clientBodyTargetBytes;
   const marker = '\n\n[AIO EXTERNAL EVIDENCE CONTRACT]';
   const policy = ('[AIO PUBLIC AI ACTION POLICY] 매수·매도 지시 금지. 답변 계획 출력 계약을 따른다. ').repeat(40).slice(0, 1499) + '끝';

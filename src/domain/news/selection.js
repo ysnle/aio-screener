@@ -879,7 +879,7 @@ export function newsSelectionAudit(items, env = {}) {
   return audit;
 }
 
-// v59.42 coverage pass: how well a Telegram post answers an AI-chat question (js/aio-chat.js ranks the digest's broad
+// v59.42 coverage pass: how well a Telegram post answers an AI-chat question (src/ui/chat/panel.js ranks the digest's broad
 // items with it). The tickers, tags and shared topic words compare under the one keyword rule; '엔' stands alone or as
 // 엔화/엔저/엔고, so '엔비디아' is not the yen.
 const TELEGRAM_QUERY_KW = ['반도체', '메모리', 'mlcc', '금리', '코스피', 'ai', 'etf', '목표주가', '달러', '엔', '엔화', '엔저', '엔고', '상향', '하향'];

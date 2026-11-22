@@ -134,6 +134,20 @@ function cloudSetupNote() {
   }
 }
 
+// The learning loop: /retro reads the last week's sessions for mistakes that came back and writes one dated row to
+// _context/RETRO-LOG.md. A session that starts more than seven days after the last row is told the retro is due, so the
+// loop does not depend on anyone remembering it.
+function retroNote(now = Date.now()) {
+  let last = null;
+  try {
+    const rows = readFileSync(join(root, '_context', 'RETRO-LOG.md'), 'utf8').match(/^\| (20\d{2}-\d{2}-\d{2}) \|/gm) || [];
+    last = rows.map((row) => row.slice(2, 12)).sort().pop() || null;
+  } catch { /* no log yet */ }
+  const ageDays = last ? Math.floor((now - Date.parse(`${last}T00:00:00Z`)) / 86400000) : null;
+  if (last && ageDays <= 7) return '';
+  return ` Retro due (${last ? `last ${last}, ${ageDays} days ago` : 'never run'}): run /retro and record its row in _context/RETRO-LOG.md before the next long batch.`;
+}
+
 if (mode === 'session-start') {
   let state = {};
   try {
@@ -143,7 +157,7 @@ if (mode === 'session-start') {
     state = {
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
-        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}.${cloudSetupNote()} Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.${(() => { const items = latestHandoffs(); return items.length ? ` Latest handoffs (read only when continuing prior work): ${items.join('; ')}.` : ''; })()}`
+        additionalContext: `AIO preflight: ${version}; working tree ${dirty.length ? `dirty (${dirty.length} paths)` : 'clean'}.${cloudSetupNote()} Read _context/CURRENT-STATE.md once; consult governance/index only when relevant and reuse unchanged context. Search large ledgers only for matching terms. Existing dirty changes belong to the user. Automatic commit/deploy is forbidden. Current-state bytes loaded=${Buffer.byteLength(text, 'utf8')}.${(() => { const items = latestHandoffs(); return items.length ? ` Latest handoffs (read only when continuing prior work): ${items.join('; ')}.` : ''; })()}${retroNote()}`
       }
     };
   } catch (error) {

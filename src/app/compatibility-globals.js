@@ -23,8 +23,8 @@ import { installPublicReadiness } from '../data/public-readiness.js'; // v59.35 
 import { installBootSequence } from './boot-sequence.js'; // v59.36 roadmap 11: moved from js/aio-data.js
 import { installTraderProfiles } from './trader-profiles.js'; // v59.40 roadmap 11: moved from js/aio-data.js
 import { installScoreEntryPoints } from './score-entry-points.js'; // v59.41 roadmap 11: moved from js/aio-core.js and js/aio-data.js
-import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from js/aio-chat.js
-import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from js/aio-chat.js
+import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from src/ui/chat/panel.js
+import { withTimeout } from '../platform/with-timeout.js'; // v59.14 roadmap 11: helpers moved from src/ui/chat/panel.js
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
 import { nicknameSymbol } from '../domain/instruments/nicknames.js';
@@ -67,7 +67,7 @@ import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
 import { routeLabel } from '../ui/navigation/route-hubs.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
-  root._aioRouteLabel = routeLabel; // v59.70: screen names for js/aio-chat.js, from ROUTE_HUBS
+  root._aioRouteLabel = routeLabel; // v59.70: screen names for src/ui/chat/panel.js, from ROUTE_HUBS
   const window = root;
   const document = root.document;
   installVaultCrypto(window);
@@ -92,7 +92,7 @@ export function installCompatibilityGlobals(root = globalThis) {
   installHomeStatusSurface(window, document);
   installPortfolioShellControls(window, document);
   installSharedRoute(window);
-  // The AI request/response pipeline (moved from js/aio-chat.js) is panel code: only the chat send reads it. It loads with
+  // The AI request/response pipeline (moved from src/ui/chat/panel.js) is panel code: only the chat send reads it. It loads with
   // the panel (src/app/bootstrap.js installChatLoader `alongside`) or on the first read of _aioAIPipelineReady.
   let aiPipeline = null;
   Object.defineProperty(window, '_aioAIPipelineReady', {
@@ -101,23 +101,22 @@ export function installCompatibilityGlobals(root = globalThis) {
   });
   // v59.70 (integration QA): a shared-AI reply is published through the answer orchestrator, which loads lazily beside the
   // panel (P4). A stream that finished before it loaded read a null parse ("reading 'plan'") and showed as a 502
-  // "AI 서버를 일시적으로 사용할 수 없습니다", so js/aio-chat.js callSharedAi waits for both. The load promise is cached.
-  // It also waits for the panel loader (AIO.loadChat: the chat globals, cues and profile). The panel's own entry points are
-  // replayed only after those, but callSharedAi is a global from the moment its script runs, and a direct call before
-  // chat-globals.js had installed AIO.aiWorkerContract threw inside the async function: no request, no callback.
+  // "AI 서버를 일시적으로 사용할 수 없습니다", so callSharedAi (src/ui/chat/panel.js) waits for both. The load promise is cached.
+  // It also waits for the panel loader (AIO.loadChat: the profile and the research digest that load beside the panel).
+  // The panel module imports its own helpers, so callSharedAi cannot exist before them.
   window._aioAIAnswerReady = () => {
     const arch = window.AIO_ARCH;
     const orchestrator = arch?.getAIOrchestrator?.() || typeof arch?.loadAIOrchestrator !== 'function' ? null : arch.loadAIOrchestrator().catch(() => null);
     const panel = typeof window.AIO?.loadChat === 'function' ? window.AIO.loadChat().catch(() => null) : null;
     return Promise.all([window._aioAIPipelineReady, orchestrator, panel]);
   };
-  // v59.14 (roadmap 11): boot-time helpers that only lived in js/aio-chat.js — the promise bound, the free-tier call
+  // v59.14 (roadmap 11): boot-time helpers that only lived in src/ui/chat/panel.js — the promise bound, the free-tier call
   // counters, the question ticker scan and the desktop sidebar toggle (its saved state is restored here).
   window._withTimeout = withTimeout;
   window._bumpApiCounter = (providerKey) => bumpApiCounter(providerKey, window);
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
   window._extractTickers = extractTickers;
-  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // the one nickname table (was js/aio-chat.js)
+  window._resolveTickerFromFuzzy = (word) => nicknameSymbol(word); // the one nickname table (was src/ui/chat/panel.js)
   // A news article's issuers (was js/aio-data.js extractTickers) over the shell's symbol list and name map.
   window.extractTickers = (item) => articleTickers(item, window._aioNewsSymbolLists || {});
   window._aioArticleSymbolAllowed = articleSymbolAllowed;
@@ -159,13 +158,13 @@ export function installCompatibilityGlobals(root = globalThis) {
   // v58.71: research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
   // v59.48 (boot budget): buildMarketContentContext, buildQuestionDomainContext and the answer mode/principle helpers
-  // install with the chat (src/app/chat-globals.js, loaded by src/app/chat-loader.js); only js/aio-chat.js reads them.
+  // install with the chat (src/app/chat-globals.js, loaded by src/app/chat-loader.js); only src/ui/chat/panel.js reads them.
   // P1741: data-drawn figures under an AI answer. v58.80 (bundle 4): the builders load with the first answer (both are async).
   const answerVisuals = () => import('../ui/components/ai-answer-visuals.js');
   window.AIO.renderAnswerVisuals = (options) => answerVisuals().then((module) => module.renderAnswerVisuals(options));
   window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
   window.AIO.attachAnswerVisuals = (options) => answerVisuals().then((module) => module.attachAnswerVisuals(options));
-// P1740: chat prompt pieces moved out of js/aio-chat.js (answer shape, principles, policy lines, ticker resolver).
+// P1740: chat prompt pieces moved out of src/ui/chat/panel.js (answer shape, principles, policy lines, ticker resolver).
 Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioRowsLine });
   window.AIO.selectNativeSearch = selectNativeSearch;
   window.AIO.attachNativeSearch = attachNativeSearch;
@@ -327,7 +326,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
   // Roadmap item 11: the globals of screen code moved out of js/ (macro v58.85, home VIX v58.91, news chips v58.92,
   // news progress v58.93, home action plan v58.94) are installed from one lazy module, outside the boot set.
-  // v59.12 종목 · 재무 공시: the search moved out of js/aio-chat.js and is installed with the bridges; a search asked
+  // v59.12 종목 · 재무 공시: the search moved out of src/ui/chat/panel.js and is installed with the bridges; a search asked
   // before they load (a deep link from another screen) runs on install. The report state starts empty, as before.
   window._fundAnalysisData = null;
   window._fundCache = window._fundCache || {};

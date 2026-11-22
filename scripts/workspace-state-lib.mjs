@@ -131,7 +131,7 @@ export function buildWorkspaceState(root) {
   const catalog = buildContextCatalog(root);
   const kinds = {};
   for (const doc of catalog.documents) kinds[doc.kind] = (kinds[doc.kind] || 0) + 1;
-  const codeMapFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-chat.js', 'js/aio-tests.js', 'js/aio-glossary.js'];
+  const codeMapFiles = ['index.html', 'js/aio-core.js', 'js/aio-data.js', 'js/aio-ui.js', 'src/ui/chat/panel.js', 'js/aio-tests.js', 'js/aio-glossary.js'];
   const codeFootprint = Object.fromEntries(codeMapFiles.map((path) => {
     const text = readUtf8(root, path);
     return [path, { lines: lineCount(text), bytes: canonicalTextBytes(text) }];

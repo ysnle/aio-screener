@@ -36,7 +36,7 @@ export function installAskPanel(root, documentRef) {
   };
   const observer = panel && typeof root.MutationObserver === 'function' ? new root.MutationObserver(() => paint()) : null;
   observer?.observe(panel, { attributes: true, attributeFilter: ['class'] });
-  // A route change while the panel is open restores the context defaults first (js/aio-chat.js); the screen's own follow.
+  // A route change while the panel is open restores the context defaults first (src/ui/chat/panel.js); the screen's own follow.
   const onRoute = () => setTimeout(paint, 700);
   root.addEventListener?.('hashchange', onRoute);
   return () => {

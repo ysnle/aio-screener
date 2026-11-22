@@ -1050,7 +1050,7 @@ window.AIO.getDataActionHandlerAudit = function() {
 //             const/let은 enclosing **block** scope에 머무름.
 // ─────────────────────────────────────────────────────────────────
 window.AIO.getVarHoistConflictAudit = async function() {
-  var jsFiles = ['./js/aio-core.js', './js/aio-data.js', './js/aio-ui.js', './js/aio-chat.js', './js/aio-glossary.js', './js/aio-tests.js'];
+  var jsFiles = ['./js/aio-core.js', './js/aio-data.js', './js/aio-ui.js', './js/aio-glossary.js', './js/aio-tests.js'];
   var conflicts = [];
 
   // 코멘트 + 문자열 sanitize (가짜 brace/keyword 차단)

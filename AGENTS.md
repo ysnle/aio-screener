@@ -62,7 +62,7 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Producers** — scripts that fetch external data or write `public-data/` artifacts (`fetch-*`, the data `build-*`/`refresh-*`, `sync-screener-universe`, `sync-data-release-manifests`) — run only in GitHub Actions; locally, read artifacts and run gates.
 - Workspace generators (`generate-workspace-state`, `sync-agent-*`, `bump-version`, `record-fix`) are not producers and run locally (v57.84).
 - **Markets:** US first; Korean themes and Korean-market content are real user features, labelled '한국' and secondary.
-- **Batches:** implement several items, one code-reviewer on the batch diff per `REVIEW.md`, then verify and record once.
+- **Batches:** implement several items, Fable reviews the batch diff with cstack per `REVIEW.md`, then verify and record once.
 - **Information architecture (8 screens 2026-11-20):** 오늘(home, briefing, market-news), 시장과 매크로(signal, breadth, sentiment, macro, fxbond), 기술적 분석, 테마와 섹터, 스크리너, 종목(ticker+fundamental), 포트폴리오, 리서치 라이브러리; 용어 사전 is a modal.
 - 오늘: home = indexes, key prices and stocks, top news; briefing = the last 24h linked and explained.
 - 시장 상태 = objective diagnosis, scenarios, what to check; the other four routes are tabs beside it.
@@ -99,7 +99,7 @@ Owner decisions applied without re-asking; changed only by the user.
 ## Non-negotiable boundaries
 
 - Automatic commit, push and deployment are forbidden; only on explicit user request. A passing gate implies no commit or deploy.
-- Standing authority (owner 2026-11-01): when the batch and all its threads finish, integrate safely and commit/push `main` once; never mid-batch.
+- Batch end (owner 2026-11-22): integrate and commit `main` once, then ask the owner once before pushing; never mid-batch.
 - Standing authority (owner 2026-11-15): right after that push, dispatch once each the refresh/outcome workflow lanes whose published artifacts the batch made stale (changed definition fingerprint, new artifact field) and report which; no other dispatch, deploy or settings change.
 - Versioned changes use `node scripts/bump-version.mjs <version>` (R1, all version surfaces; `ci-version-check.mjs`).
 - Bug fixes get a new P entry; features/cleanups a change-only `record-fix` entry (after `bump-version`; it regenerates workspace state).

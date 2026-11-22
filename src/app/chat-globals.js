@@ -1,8 +1,8 @@
-// v59.48 (boot budget): the chat-only window.AIO helpers that js/aio-chat.js reads — the question-selected market facts
+// v59.48 (boot budget): the chat-only window.AIO helpers that src/ui/chat/panel.js reads — the question-selected market facts
 // (market-content.js, with the chart-scenario, company-analysis and custom-condition readers it pulls in), the answer
 // shape (answer-modes.js) and the answer principles (answer-principles.js). No boot caller reads them, so they left
-// compatibility-globals.js: src/app/chat-loader.js imports this module beside the classic chat script and replays queued
-// panel calls (and resolves AIO.loadChat, which the T-tests wait on) only after it is installed.
+// compatibility-globals.js: the panel module imports this file and installs it before it defines anything, and
+// src/app/chat-loader.js replays queued panel calls (and resolves AIO.loadChat, which the T-tests wait on) after that.
 // v59.49: the screener query engine joins them; it reads the page's rows and quotes itself (screenerInput), the factor
 // date through AIO.screenerFactorAsOf in compatibility-globals.js beside the screener state.
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';

@@ -29,7 +29,7 @@ const technicalSnapshotSrc = read('src/domain/technical/snapshot.js');
 const data = read('js/aio-data.js') + String.fromCharCode(10) + read('src/data/providers/proxy-transport.js') /* v59.22: the relay transport moved to src */ + String.fromCharCode(10) + read('src/storage/news-cache.js') /* v59.31: the IndexedDB news cache moved to src */ + String.fromCharCode(10) + read('src/app/refresh-scheduler.js') /* v59.33: the refresh scheduler moved to src */ + String.fromCharCode(10) + read('src/data/server-data-loader.js') /* v59.34: the server data loader moved to src */ + String.fromCharCode(10) + read('src/data/public-readiness.js') /* v59.35: the public readiness model moved to src */ + String.fromCharCode(10) + read('src/ui/components/pipeline-status.js') + String.fromCharCode(10) + read('src/data/pipeline-notices.js') + String.fromCharCode(10) + read('src/app/legacy-screen-bridges.js') /* v59.88: the pipeline status bar and readiness panel moved to src */ + String.fromCharCode(10) + read('src/app/boot-sequence.js') /* v59.36: the boot sequence moved to src */ + String.fromCharCode(10) + read('src/domain/news/selection.js') + String.fromCharCode(10) + read('src/domain/news/selection-keywords.js') /* v59.42: news scoring, keywords and selection moved to src */;
 const ui = read('js/aio-ui.js');
 const technicalLines = read('src/ai/context/technical-lines.js'); // v59.88 S4: the chat's technical block (chart fact sheet)
-const chat = read('js/aio-chat.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
+const chat = read('src/ui/chat/panel.js') + '\n' + read('src/data/providers/shared-ai-transport.js') + '\n' + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
 // P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
 // P1134/R620: the KR/SEC data plane extracted from inline block C lives in js/aio-kr-data.js.
@@ -92,7 +92,7 @@ for (const name of callableRefs) {
     || chat.includes(`function ${name}`)
     || new RegExp(`(?:var|let|const)\\s+${name}\\b`).test(runtimeBundle)
     || typeof compatRoot[name] === 'function'; // ESM functions installCompatibilityGlobals binds for the classic scripts
-  check(`AI prompt/runtime callable exists: ${name}`, existsInRuntime, 'referenced from js/aio-chat.js');
+  check(`AI prompt/runtime callable exists: ${name}`, existsInRuntime, 'referenced from src/ui/chat/panel.js');
 }
 
 const digestPath = 'public-data/user-research-digest.json';
@@ -277,7 +277,7 @@ check(
     && !/id="pf-ai-ticker-select"/.test(html)
     && !/id="pf-journal-note"/.test(html)
     && !/data-action="_aioPortfolioAsk"/.test(html)
-    // P1131/R619: updateAIPanelContext is now DEFINED in js/aio-chat.js (inline block G) while its
+    // P1131/R619: updateAIPanelContext is now DEFINED in src/ui/chat/panel.js (inline block G) while its
     // portfolio call site stayed in index.html block A. Assert the definition and the call, each in
     // its real home, so the invariant "portfolio workflow routes into the unified panel" is kept.
     && /updateAIPanelContext\('portfolio'\)/.test(html + workspace)
@@ -313,7 +313,7 @@ check('P1449 screener labels use user vocabulary (no Outcome/Operations/hash/ide
   'screener user copy leaked developer terms again — route raw enums through a Korean copy map');
 check('core news and screener filters remain active on the main screen', !/#news-country-chips|#news-topic-chips|#news-type-tabs|#scr-market/.test(core));
 check('v57.77 news type tabs and setNewsTypeTab retired (기업 is a topic chip)', !/id="news-type-tabs"|setNewsTypeTab/.test(html + data + newsPage));
-// P1131/R619: the _aiCtxMap literals moved with inline block G into js/aio-chat.js.
+// P1131/R619: the _aiCtxMap literals moved with inline block G into src/ui/chat/panel.js.
 check('P1753/v57.54 unified AI panel covers home/screener/ticker/themes/macro and no retired KR page key', /'home'\s*:\s*'home'/.test(chat) && /'screener'\s*:\s*'screener'/.test(chat) && /'ticker'\s*:\s*'ticker'/.test(chat) && /'themes'\s*:\s*'themes'/.test(chat) && /'macro'\s*:\s*'macro'/.test(chat) && !/'kr-(?:themes|macro|technical)'\s*:\s*'kr-/.test(chat));
 // The KR landing/supply/technical pages left in v53.7 (P725); their chat contexts must not return.
 check('P1753/v57.54 CHAT_CONTEXTS keeps no retired KR page context (kr-home/kr-supply/kr-technical/kr-macro/kr-themes)', /\bmacro\s*:\s*\{\s*title:/.test(chat) && !/'(?:kr-home|kr-supply|kr-technical|kr-macro|kr-themes)'\s*:\s*\{\s*title:/.test(chat));
@@ -636,7 +636,7 @@ const refreshProgressProbe = await (async () => {
 check('v59.59 refresh progress keeps background runs on the topbar button and shows the panel only for a reader-started run', refreshProgressProbe);
 
 // [G2] v52.90 P705/R331: 최종 렌더의 loaded/empty/degraded/closed 사용자 상태 계약.
-// v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
+// v59.12: the 재무 공시 search moved from src/ui/chat/panel.js to src/ui/components/fundamental-search.js.
 const fundSearch = read('src/ui/components/fundamental-search.js');
 // v59.51 (content audit): the second search box and its legacy report left; what stays is the selection hand-off.
 check('v59.51 fundamental search is a selection hand-off with no provider calls of its own', !/fetch|dynamicTickerLookup|fetchSEC|Promise\.all/.test(fundSearch) && /aio:entityChanged/.test(fundSearch));
@@ -863,7 +863,7 @@ check('v57.62 WP-AI5: chat awaits the async quota confirmation and rejects a can
   /_uniRun\.quotaPending = true;[\s\S]{0,120}await consumeLLMQuery\(\)/.test(chat) && quotaAwaitIdx >= 0 && chat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwaitIdx) > quotaAwaitIdx && chat.indexOf('if (!_isCurrentUnifiedRun())', quotaAwaitIdx) - quotaAwaitIdx < 320);
 
 // v52.81 (WP-AI8/9/10): SLO/quota operations, golden A/B release gate, and feedback manifest.
-check('WP-AI8: actual AI usage can record bounded latency/token/failure SLO samples and quota acquisition has a lock/limit contract', /recordAISLOSample/.test(core) && /getAISLOReport/.test(core) && /tryAcquireAIQuota/.test(core) && /_aioTrackApiUsage/.test(core) && /tryAcquireAIQuota/.test(read('src/data/api-quota.js')) /* v59.14: the call counters moved from js/aio-chat.js */);
+check('WP-AI8: actual AI usage can record bounded latency/token/failure SLO samples and quota acquisition has a lock/limit contract', /recordAISLOSample/.test(core) && /getAISLOReport/.test(core) && /tryAcquireAIQuota/.test(core) && /_aioTrackApiUsage/.test(core) && /tryAcquireAIQuota/.test(read('src/data/api-quota.js')) /* v59.14: the call counters moved from src/ui/chat/panel.js */);
 
 // v52.83 (WP-AI14): financial conduct classification.
 check('R460/P905: conduct policy blocks prohibited execution only while read-only legal, tax, and investment analysis remains available',

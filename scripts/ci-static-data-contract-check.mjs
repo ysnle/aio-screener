@@ -11,7 +11,7 @@ const dataCode = read('js/aio-data.js');
 const ui = read('js/aio-ui.js');
 const marketPage = read('src/ui/pages/market.js');
 const index = read('index.html');
-const chat = read('js/aio-chat.js');
+const chat = read('src/ui/chat/panel.js');
 // P1134/R620: the KR/SEC data plane extracted from index.html's inline block C now lives in
 // js/aio-kr-data.js, so it joins the searched runtime union.
 const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}\n${read('js/aio-kr-data.js')}`;

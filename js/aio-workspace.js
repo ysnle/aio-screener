@@ -1472,7 +1472,7 @@ if (document.getElementById('page-portfolio') && document.getElementById('page-p
 });
 
 // v59.42: CHAT_DEFAULT_CHIPS is deleted. Its only reader, chatRenderChips, wrote into per-page #chat-<ctx>-chips
-// containers that no markup has; the AI panel's chips come from aio-chat.js _aiDefaultChips.
+// containers that no markup has; the AI panel's chips come from src/ui/chat/panel.js _aiDefaultChips.
 
 // ═══ v29.1: 대화 기록 localStorage 저장/열람 시스템 ═══════════════════
 // v48.27 (P8): 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)

@@ -49,7 +49,7 @@ const weekly = await y.root._aioFetchYahooChartData('NVDA', '2y', '1wk');
 check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inline Yahoo helper preserves timeframe contract');
 
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
-// v59.12: the 재무 공시 search moved from js/aio-chat.js to src/ui/components/fundamental-search.js.
+// v59.12: the 재무 공시 search moved from src/ui/chat/panel.js to src/ui/components/fundamental-search.js.
 const { createFundamentalSearch } = await import('../src/ui/components/fundamental-search.js');
 // v59.51: the 재무 search box left; a non-ticker request is never stored, selected or announced (P566/R257).
 let invalidDispatches = 0;

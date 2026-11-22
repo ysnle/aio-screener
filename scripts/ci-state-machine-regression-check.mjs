@@ -263,11 +263,11 @@ function loadProviderFetch(win, globalsForVm) {
   pass('SM-07 a page refresh that never ran or was cancelled does not block the next entry');
 }
 
-// SM-08 — the real request lifecycle and panel context switch cut out of js/aio-chat.js, with one shared conversation
+// SM-08 — the real request lifecycle and panel context switch cut out of src/ui/chat/panel.js, with one shared conversation
 // state (what src/ui/components/chat-sessions.js installs).
 {
-  const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
-  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v59.74 SM-08: ${from} is found in js/aio-chat.js`); return source.slice(a, b); };
+  const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
+  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v59.74 SM-08: ${from} is found in src/ui/chat/panel.js`); return source.slice(a, b); };
   const button = { disabled: false, textContent: '전송', setAttribute() {}, removeAttribute() {} };
   const input = { disabled: false, value: '' };
   const shared = { messages: [], streaming: false, _chatSendEntered: 0, _requestEpoch: 0, _activeRequest: null, _retryCount: 0 };
@@ -301,8 +301,8 @@ this._aioKeepRunningAnswer = function (from, to) { return !!(from && to && this.
 // shell panel that stays mounted, so moving to a screen without an AI context keeps the running answer and its messages.
 {
   const { installChatSessions } = await import('../src/ui/components/chat-sessions.js');
-  const source = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
-  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v60.02 SM-08b: ${from} is found in js/aio-chat.js`); return source.slice(a, b); };
+  const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
+  const cut = (from, to) => { const a = source.indexOf(from), b = source.indexOf(to, a); assert(a >= 0 && b > a, `v60.02 SM-08b: ${from} is found in src/ui/chat/panel.js`); return source.slice(a, b); };
   const inert = () => new Proxy(function () {}, { apply: () => undefined, get: (_, key) => (key === 'then' ? undefined : inert()) });
   const sessionsRoot = { getChatState: () => null };
   const sessions = installChatSessions(sessionsRoot, { getElementById: () => null, querySelector: () => null, createElement: () => inert() }, { storage: null });

@@ -147,7 +147,7 @@ try {
 
   // v59.70 (D6): the browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
   const browserTranslation = await page.evaluate(() => ['autoTranslateNews', 'freeTranslateNews', '_gtBatchTranslate'].filter((name) => typeof window[name] === 'function'));
-  // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads js/aio-chat.js only on first use.
+  // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads src/ui/chat/panel.js only on first use.
   // v60.19: there is no idle load (owner D1, v59.70: AI loads on hover or focus) — the old "idle armed" read counted any
   // requestIdleCallback on the page and was true only through the glossary's idle load. Hovering the AI button loads the
   // chat without opening the panel; asking before that loads the panel, replays the queued open and send, and reaches the Worker.
@@ -161,7 +161,7 @@ try {
   await lazyPage.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await lazyPage.waitForFunction(() => typeof window.AIO?.loadChat === 'function' && typeof window._aioAskInPanel === 'function', { timeout: 30000 });
   await lazyPage.waitForFunction(() => document.readyState === 'complete', { timeout: 30000 });
-  const lazyBefore = await lazyPage.evaluate(() => ({ chatScript: !!document.querySelector('script[src*="aio-chat.js"]'), getChatState: typeof window.getChatState }));
+  const lazyBefore = await lazyPage.evaluate(() => ({ getChatState: typeof window.getChatState }));
   await lazyPage.evaluate(() => window._aioAskInPanel('지연 로드 경로 확인'));
   await lazyPage.waitForFunction(() => typeof window.getChatState === 'function' && document.getElementById('ai-panel')?.classList.contains('open'), { timeout: 30000 });
   await lazyPage.waitForFunction(() => /지연 로드 경로 확인/.test(document.getElementById('ai-panel-msgs')?.textContent || ''), { timeout: 30000 });
@@ -182,7 +182,7 @@ try {
   await lazyContext.close();
   const failures = [];
   const assert = (label, condition) => { if (!condition) failures.push(label); };
-  if (!(lazyBefore.chatScript === false && lazyBefore.getChatState === 'undefined')) failures.push('v59.16 reader browser boots without the chat script');
+  if (!(lazyBefore.getChatState === 'undefined')) failures.push('v59.16 reader browser boots without the AI panel module');
   if (!(lazyHover.before === 'undefined' && lazyHover.getChatState === 'function' && lazyHover.open === false)) failures.push('v60.19 hovering the AI button loads the chat without opening the panel');
   if (!(lazyAfter.sessions === true && lazyAfter.expanded === 'true')) failures.push('v59.16 an ask before the chat loads opens the panel with saved-conversation glue');
   if (!(lazySent && lazyAnswered)) failures.push('P2105 the queued send keeps the filled question, reaches the Worker and publishes the answer');

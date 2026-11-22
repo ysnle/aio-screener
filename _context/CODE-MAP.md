@@ -24,7 +24,7 @@ current_checkpoint: P963 correlated public-AI browser request plus ticker empty-
 | `js/aio-core.js` | 27,513 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-data.js` | 16,526 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-ui.js` | 4,354 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
-| `js/aio-chat.js` | 7,067 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
+| `src/ui/chat/panel.js` | 7,067 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-tests.js` | 9,123 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `js/aio-qa-audits.js` | 4,308 | `ReadAllLines` + `ci-doc-currency-check.mjs` |
 | `src/ui/pages/guide.js` | 131 | native guide search/jump/capability lifecycle module |
@@ -219,7 +219,7 @@ Find all 20 with `grep -n 'id="page-' index.html`. Route order: `page-home`, `pa
 | native sentiment page (legacy `initBreadthPage` 삭제 v57.60) | `src/ui/pages/sentiment.js` — `grep -n 'export function createSentimentPage' src/ui/pages/sentiment.js` |
 | 투자 심리 안 A face (v60.31: rows `#sentiment-card-grid`, `#sentiment-raw`, `#sentiment-method`) | `src/ui/components/sentiment-board.js` — `grep -n 'export function renderSentimentBoard' src/ui/components/sentiment-board.js`; cards/tally/counter in `src/domain/market/sentiment/sentiment-model.js` — `grep -n 'export function buildSentimentModel\|export function sentimentCounter' src/domain/market/sentiment/sentiment-model.js` |
 | 시장 폭 안 A face (v60.31: `.bb-rows`, `#breadth-counter`, `#breadth-raw`, `#breadth-method`) | `src/ui/components/breadth-board.js` — `grep -n 'export function renderBreadthBoard' src/ui/components/breadth-board.js`; row bands/counter in `src/domain/market/breadth/breadth-face.js` — `grep -n 'export function measureFace\|export function breadthCounter' src/domain/market/breadth/breadth-face.js` |
-| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `js/aio-chat.js` — `grep -n 'const CHAT_CONTEXTS\|function chatSendUnified' js/aio-chat.js` |
+| `CHAT_CONTEXTS` / `chatSendUnified` (per-page `chatSend` 삭제 v57.62) | `src/ui/chat/panel.js` — `grep -n 'const CHAT_CONTEXTS\|function chatSendUnified' src/ui/chat/panel.js` |
 
 > 목적: 현재 모듈화된 AIO 코드를 전체 재읽기 없이 부분 탐색하기 위한 line 범위 맵.
 > 원칙: 작업 전 이 파일에서 담당 파일과 범위를 찾고, 실제 수정 전 `grep -n`/부분 Read로 한 번 더 확인한다.
@@ -245,7 +245,7 @@ Find all 20 with `grep -n 'id="page-' index.html`. Route order: `page-home`, `pa
 
 ## v57.62 structure pass (2026-10-14)
 
-Producer: `scripts/fetch-data.mjs` is the run order only (`main()` + the lane switch). Lanes live in `scripts/producer/` (2026-10-19 pipeline redesign): `source-planes.mjs` (the plane registry: collector, failure fallback, fresh statuses via `planeFresh`), `macro-merge.mjs`, `receipts.mjs`, `ai-usage.mjs` (meta.aiUsage: requests, failure codes and outcome per AI step), `run-meta.mjs`, `quotes.mjs`, `fred.mjs`, `kr-exchange.mjs`, `history.mjs`, `screener.mjs`, `screener-extended.mjs`, `screener-breadth.mjs`, `macro-history.mjs`, `market-narrative.mjs`, `screen-readings.mjs` (v60.31: per-screen AI readings → data.json `screenReadings`; packets, prompt and validator in `scripts/lib/screen-reading.mjs` `SCREEN_READING_SCREENS`; screen side `src/data/server-screen-readings.js` + `src/ui/components/screen-reading.js` into `#<screen>-screen-reading`), `after-hours.mjs` (v59.25: amc reporters' after-hours moves for the reading), `paths.mjs`. Pure blocks live in `scripts/lib/factors.mjs`, `macro-sources.mjs`, `news-selection.mjs`, `market-analysis-validate.mjs`, with shared `producer-http.mjs` / `producer-math.mjs`. fetch-data re-exports every name it exported before. `scripts/ci-producer-dry-run.mjs` runs all three lanes end to end on a stubbed network. Gates read producer text through `scripts/lib/producer-source.mjs` `readProducerSource()`. App: `src/app/compatibility-globals.js` `installCompatibilityGlobals(root)` holds the window.* block from bootstrap; `src/domain/screener/row-presentation.js` holds the screener row helpers (the page re-exports them). Chat: only the unified panel path (`chatSendUnified`) remains in `js/aio-chat.js`. AI ledger: searched answers settle from usage in `worker/openai-budget.mjs` `verifiedOpenAiCharge`.
+Producer: `scripts/fetch-data.mjs` is the run order only (`main()` + the lane switch). Lanes live in `scripts/producer/` (2026-10-19 pipeline redesign): `source-planes.mjs` (the plane registry: collector, failure fallback, fresh statuses via `planeFresh`), `macro-merge.mjs`, `receipts.mjs`, `ai-usage.mjs` (meta.aiUsage: requests, failure codes and outcome per AI step), `run-meta.mjs`, `quotes.mjs`, `fred.mjs`, `kr-exchange.mjs`, `history.mjs`, `screener.mjs`, `screener-extended.mjs`, `screener-breadth.mjs`, `macro-history.mjs`, `market-narrative.mjs`, `screen-readings.mjs` (v60.31: per-screen AI readings → data.json `screenReadings`; packets, prompt and validator in `scripts/lib/screen-reading.mjs` `SCREEN_READING_SCREENS`; screen side `src/data/server-screen-readings.js` + `src/ui/components/screen-reading.js` into `#<screen>-screen-reading`), `after-hours.mjs` (v59.25: amc reporters' after-hours moves for the reading), `paths.mjs`. Pure blocks live in `scripts/lib/factors.mjs`, `macro-sources.mjs`, `news-selection.mjs`, `market-analysis-validate.mjs`, with shared `producer-http.mjs` / `producer-math.mjs`. fetch-data re-exports every name it exported before. `scripts/ci-producer-dry-run.mjs` runs all three lanes end to end on a stubbed network. Gates read producer text through `scripts/lib/producer-source.mjs` `readProducerSource()`. App: `src/app/compatibility-globals.js` `installCompatibilityGlobals(root)` holds the window.* block from bootstrap; `src/domain/screener/row-presentation.js` holds the screener row helpers (the page re-exports them). Chat: only the unified panel path (`chatSendUnified`) remains in `src/ui/chat/panel.js`. AI ledger: searched answers settle from usage in `worker/openai-budget.mjs` `verifiedOpenAiCharge`.
 
 ## v57.60 structure pass (2026-10-14)
 
@@ -265,7 +265,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | `js/aio-core.js` | 버전, 상태/감사/계약/증거 레이어, DATA_SNAPSHOT, 페이지 라우터, 매매 알고리즘 핵심, OPEX 만기 정본 |
 | `js/aio-data.js` | API/서버 데이터, quote·previous-close 파이프라인, 뉴스, 스케줄러, identity-only 스크리너 |
 | `js/aio-ui.js` | 활성 차트/렌더러, breadth UI, LLM quota UI, 교육 레이어 (sentiment renderer는 `src/ui/pages/sentiment.js`) |
-| `js/aio-chat.js` | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
+| `src/ui/chat/panel.js` | evidence-first CHAT_CONTEXTS, data preflight, Claude/Perplexity, 응답 파이프라인 |
 | `js/aio-tests.js` | CI/로컬 브라우저 회귀 테스트 전용(110그룹). Pages·service worker 배포 대상에서 제외 |
 | `js/aio-qa-audits.js` | P1329/R673 자기 감사·QA 기계(aio-core에서 분리). `AIO.loadQaAudits()`로 자동화 브라우저·?qa=1·상세 감사 모드·운영자 자가 진단 위젯·`AIO.loadTests()`에서만 로드. Pages·service worker 배포 제외 |
 | `js/aio-glossary.js` | 용어사전 데이터 리터럴 |
@@ -286,7 +286,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | 13,017 ~ 13,108 | CDN 지연 폴백 초기화 + `window.Chart` 오프라인 stub + 5초 2차 CDN 타이머 |
 | 13,115 ~ 13,117 | `aio-core/data/ui` defer 로드 |
 | 13,120 ~ 15,730 | inline runtime 블록 A (2,611줄) |
-| 15,732 | `js/aio-chat.js` defer 로드 |
+| 15,732 | `src/ui/chat/panel.js` defer 로드 |
 | 15,734 ~ 16,909 | inline runtime 블록 B (1,176줄) |
 | 16,911 ~ 20,385 | inline runtime 블록 C (3,475줄) |
 | 20,386 ~ 24,135 | inline runtime 블록 D (3,750줄) |
@@ -334,7 +334,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | 매매점수 런타임 입력 | `js/aio-core.js:21919` (`computeTradingScore`) |
 | 22-route page contract | `js/aio-core.js:23653` (`AIO_PAGE_CONTRACTS`) |
 | 페이지 전환 | `js/aio-core.js:25874` (`showPage`) |
-| evidence-first 채팅 context factory/map | `js/aio-chat.js:385`, `js/aio-chat.js:418` |
+| evidence-first 채팅 context factory/map | `src/ui/chat/panel.js:385`, `src/ui/chat/panel.js:418` |
 | 22-category CI 계약 | `scripts/ci-static-data-contract-check.mjs` |
 
 ---
@@ -441,7 +441,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 > P763 correction: deterministic factor-weight math moved to `src/domain/screener/factor-weights.js`; `_aioFactorWeights` now resolves compatibility inputs and bridges the pure result only.
 | `computeFactorRanks` | `src/domain/screener/factor-ranks.js:105` | 순수 7팩터 랭킹: 섹터 z-score·winsorize·활성 factor·percentile rank. global/DOM/storage 접근 없음 |
 | `runScreen` / `formatScreenResult` / `readScreenSentence` / `screenerInput` / `buildDiversifiedRecommendationRows` / `buildScreenerAiContext` | `src/ai/context/screener-query.js` | v60.41 채팅 스크리너 엔진: 구조화 조건(CUSTOM_CONDITIONS id·CAP_BUCKETS·섹터/테마/지수)을 스크리너 화면과 같은 조건 판독기(`src/domain/screener/condition-read.js`)로 실행. screen 도구(`src/ai/tools/market-tools.js`)가 채우고, 도구 없는 턴만 문장 경로(parseConditionText + 범위어). 분산 비교 표본(R211)은 별도. `src/app/chat-globals.js`가 `_aioRunScreen`·`_aioBuildScreenerAiContext`로 바인딩. 검사 `scripts/ci-chat-screen-tool-check.mjs` |
-| `composeLeanPrompt` / `namedStockRows` | `src/ai/prompt/lean-prompt.js` | v60.42 모든 채팅 턴의 지시문: 역할 줄(범위·수치·판단 틀·행동·표현), 화면의 시장 판정·확정 종가, 질문에 나온 종목의 스크리너 행. `chatSendUnified`(js/aio-chat.js)가 여기에 화면 주제, 질문으로 고른 도메인 블록(시나리오·판단 틀), 개인 턴, 대화 기억, 원칙·모드·출력 계약을 붙인다. 시세·기술 지표·재무·뉴스·통합 리서치는 미리 싣지 않고 도구(`src/ai/tools/`, 모든 턴에 제공)로 읽는다. 검사 `scripts/ci-chat-screen-tool-check.mjs`, 조립 fixture `scripts/fixtures/chat-prompt-assembly.mjs` |
+| `composeLeanPrompt` / `namedStockRows` | `src/ai/prompt/lean-prompt.js` | v60.42 모든 채팅 턴의 지시문: 역할 줄(범위·수치·판단 틀·행동·표현), 화면의 시장 판정·확정 종가, 질문에 나온 종목의 스크리너 행. `chatSendUnified`(src/ui/chat/panel.js)가 여기에 화면 주제, 질문으로 고른 도메인 블록(시나리오·판단 틀), 개인 턴, 대화 기억, 원칙·모드·출력 계약을 붙인다. 시세·기술 지표·재무·뉴스·통합 리서치는 미리 싣지 않고 도구(`src/ai/tools/`, 모든 턴에 제공)로 읽는다. 검사 `scripts/ci-chat-screen-tool-check.mjs`, 조립 fixture `scripts/fixtures/chat-prompt-assembly.mjs` |
 | `rankSectorPeriod` / `sectorPeriodMode` / `themeMembersFor` / `themeItemLabel` / `usCloseSession` / `viewItems` | `src/data/selectors/theme-flow.js` | v60.41 테마 화면 섹터 막대(기간·순서·SPY 대비)와 테마 구성 종목의 한 주인. 테마 화면(`src/ui/pages/themes/sectors.js`·`rrg.js`·`theme-playbook-view.js`)과 채팅 money_flow 도구(`src/ai/tools/market-tools.js`, 섹터 순위 + 플레이북 단계 + 테마 구성 종목)가 같이 읽는다. 검사 `scripts/ci-chat-screen-tool-check.mjs` |
 
 > 2026-07-21 재확인(직접 grep, ARX 재진입 세션): `_aioFactorWeights`/`_aioComputeFactorRanks` 좌표를 15871/15947(export
@@ -470,7 +470,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 
 `src/ui/pages/sentiment.js`가 sentiment 카드·상태·차트와 resource bag lifecycle을 소유한다. `js/aio-ui.js`에는 sentiment legacy renderer/init/chart registry를 두지 않는다.
 
-### `js/aio-chat.js`
+### `src/ui/chat/panel.js`
 
 | 항목 | line | 비고 |
 |------|-----:|------|
@@ -504,7 +504,7 @@ Shared modules (import these instead of re-declaring): `src/ui/components/dom.js
 | 페이지 전환/init 가드 | `js/aio-core.js` `destroyPageCharts`·`showPage`, 각 page init 함수 |
 | sentiment 차트 | `src/ui/pages/sentiment.js` |
 | LLM 모델/쿼터 | `js/aio-ui.js` `LLM_MODELS`·`getModelConfig`·`getQuota`·`updateQuotaBadge`·`consumeLLMQuery` |
-| Claude 채팅/웹검색/preflight | `js/aio-chat.js` `chatSendUnified`·`_shouldUseClaudeWebSearch`·`_aioPrepareAIResearch` |
+| Claude 채팅/웹검색/preflight | `src/ui/chat/panel.js` `chatSendUnified`·`_shouldUseClaudeWebSearch`·`_aioPrepareAIResearch` |
 | 기업 분석 UI | `src/ui/pages/entity.js`, `src/ui/components/fundamental-search.js` |
 | 포트폴리오 DOM | `index.html` `id="page-portfolio"` |
 | browser unit tests (CI 헤드리스 상설화됨, Phase 2 B5 — `.github/workflows/ci.yml` `headless-tests` job, report-only) | `js/aio-tests.js`, 로더는 `js/aio-core.js` 내(`AIO.loadTests()`), CI 러너는 `scripts/ci-headless-tests.mjs` |

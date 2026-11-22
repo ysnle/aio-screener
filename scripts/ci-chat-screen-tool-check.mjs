@@ -150,7 +150,7 @@ await check('v60.42 a tool turn is sent the short prompt: the named stocks\' row
   assert.ok(principles.includes('위에 없으면 도구로 읽는다') && !principles.includes('관련 뉴스 없음') && !principles.includes('미주입'), 'v60.42 a tool turn is not told that news or trend is absent');
   const whole = registry.toolsPromptBlock({ functions: true, webSearch: true }) + lean.prompt + principles;
   assert.ok(whole.length < 9000, `v60.42 the head, rows and principles are ${whole.length} characters`);
-  const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8');
+  const chat = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
   const sendStart = chat.indexOf('async function chatSendUnified(');
   const send = chat.slice(sendStart, chat.indexOf('\nasync function ', sendStart + 10) > 0 ? chat.indexOf('\nasync function ', sendStart + 10) : chat.indexOf('\nfunction ', sendStart + 10));
   assert.ok(sendStart >= 0 && send.length > 5000, 'v60.42 chatSendUnified is found');

@@ -1,7 +1,7 @@
 // v59.26 (roadmap 11, layer 3 providers): the Naver US collector moved out of js/aio-data.js unchanged — the NYSE
 // listing set that picks the Reuters suffix (_NAVER_NYSE), the 10-minute cache (_naverUSCache), the Yahoo→Reuters
 // code map (_toNaverReuters) and fetchNaverUSData (basic, integration and optional annual finance through fetchViaProxy).
-// The names stay window globals for the classic callers (aio-core research checks, aio-chat ticker answers).
+// The names stay window globals for the classic callers (aio-core research checks, the AI panel ticker answers).
 // src/app/compatibility-globals.js installs this before DOMContentLoaded.
 export function installNaverUsCollector(window = globalThis) {
   var _NAVER_NYSE = 'JPM V XOM MA UNH JNJ HD PG ABBV MRK CVX BAC DIS WMT KO PEP MCD TMO LLY GS MS BMY RTX HON CAT DE UPS IBM GE NKE VZ T PM AXP C WFC PFE ABT DHR LOW SYK BDX ZTS CME ICE APD SHW ECL EMR ETN ITW NSC UNP LMT NOC GD BA F GM SO NEE DUK SPGI MCO BLK MMC AON CL WMB KMI MPC VLO PSX SLB HAL FCX NUE URI DD HCA SYY YUM WM PLD SPG PSA O AEP EXC SRE WEC DOW COP OXY EOG BKR COF BK MET PRU AIG AFL TRV CB RSG TFC PNC USB HUBB GPN OTIS STE VRSK EFX NRG PCAR KHC MCK MAR IQV STZ CNC CI MDLZ BSX TJX GEV VRT DELL HPE GLW CCJ PGR TDG RMD TRGP ROP CARR WELL TSM BABA NVO NVS AZN HSBC TM SHEL RIO BHP UBS UL BUD TTE BP TD RY SONY HUM A'.split(' ').reduce(function(s,t){s[t]=1;return s;},{});

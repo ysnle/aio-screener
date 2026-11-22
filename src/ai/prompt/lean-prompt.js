@@ -1,4 +1,4 @@
-// The system prompt of every chat turn (js/aio-chat.js chatSendUnified). It carries what the reader is looking at and the
+// The system prompt of every chat turn (src/ui/chat/panel.js chatSendUnified). It carries what the reader is looking at and the
 // rows of the stocks the question names; everything else (technicals, filings, news, sector and theme flow, macro
 // releases, reference frameworks) the model asks for through the data tools, which travel with every turn. Measured on
 // the live site before this module: a two-stock return comparison was sent 60K characters of instructions, most of it

@@ -97,7 +97,7 @@ import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './ro
 // remain pure and reusable in Node/worker contexts without browser globals.
 if (typeof window !== 'undefined') {
   installCompatibilityGlobals(window); // v57.62: the window.* bridge assignments live in compatibility-globals.js
-// v59.16 (roadmap 11): js/aio-chat.js loads after boot (src/app/chat-loader.js); the panel's context and session glue
+// v59.16 (roadmap 11): src/ui/chat/panel.js loads after boot (src/app/chat-loader.js); the panel's context and session glue
 // installs once it has, in the order it used to run at boot.
 installChatLoader(window, document, { onLoaded: () => {
   try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }

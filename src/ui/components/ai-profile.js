@@ -1,6 +1,6 @@
 // Owner 2026-10-25: "맞춤" in the AI panel header — the reader sets how answers should explain (experience, lens,
 // horizon, loss tolerance, markets, interests, length). The profile is stored on this device and every question
-// carries it through window.AIO.aiProfileContext (read by js/aio-chat.js _buildUserProfileContext). It adapts the
+// carries it through window.AIO.aiProfileContext (read by src/ui/chat/panel.js _buildUserProfileContext). It adapts the
 // explanation only; the boundary text lives in src/ai/session/user-profile.js.
 import { PROFILE_FIELDS, PROFILE_KEY, MAX_LENSES, MAX_INTERESTS_CHARS, buildProfileContext, clearProfile, isProfileSet, loadProfile, profileSummary, saveProfile } from '../../ai/session/user-profile.js';
 import { LEARN_KEY, LEARN_CONSENT_KEY, clearLearned, learningEnabled, loadLearned, recordUsage, setLearning, summarizeLearned } from '../../ai/session/usage-learning.js';

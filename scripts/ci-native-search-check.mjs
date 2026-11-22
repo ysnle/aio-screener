@@ -63,7 +63,7 @@ const externalResult = { citations: [cite], researchEvidence: { currentClaimsAll
 assert.equal(select({ externalResult }), false, 'P1608 sufficient optional external evidence avoids duplicate paid search');
 assert.equal(attachNativeSearch({ input: 'test' }, { enabled: true, health: { ai: {} } }).tools, undefined, 'P1608 old Worker gets no unsupported tool');
 
-const chat = readFileSync(new URL('../js/aio-chat.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
+const chat = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const optional = { requirement: 'OPTIONAL', currentSensitive: false };
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, mode: 'analysis' }), true, 'v60.02 a company question with injected financials is offered search; the model decides whether it needs it');
 assert.equal(searchMustRun(optional), false, 'v60.02 an optional non-current question is never forced to search');
@@ -75,7 +75,7 @@ const stream = { citations: [], researchError: null };
 const output = { id: 'resp_mock', status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: '참고 설명', annotations: [{ type: 'url_citation', url: cite.url, title: cite.title }] }] }] };
 const events = [{ type: 'response.output_text.delta', delta: '참고 설명' }, { type: 'response.completed', response: output }];
 const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: chat-globals installs it beside the chat
-const context = vm.createContext({ window: { AIO: { attachNativeSearch, aiWorkerContract: AI_WORKER_CONTRACT } }, console: { log() {} }, AbortController, TextDecoder, setTimeout, clearTimeout,
+const context = vm.createContext({ AI_WORKER_CONTRACT, window: { AIO: { attachNativeSearch } }, console: { log() {} }, AbortController, TextDecoder, setTimeout, clearTimeout,
   getApiKey: () => '', getModelConfig: () => ({ reasoningEffort: 'none', label: 'fixture' }),
   _aioAIRequestStream: () => stream, _aioThrowIfChatAborted: signal => { if (signal?.aborted) throw new DOMException('aborted', 'AbortError'); },
   _aioEnsureClaudeRoute: async () => ({ ok: true, target: { url: 'https://worker.test/openai' }, health }),

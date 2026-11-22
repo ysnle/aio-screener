@@ -2,11 +2,11 @@
 // boot-budget gate (scripts/ci-boot-bundle-budget-check.mjs), so the gate measures exactly what ships.
 import fs from 'node:fs';
 import path from 'node:path';
-export const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-chat', 'aio-glossary'].map((name) => `js/${name}.js`);
-// The classic scripts index.html runs at boot (its six `defer` tags). js/aio-chat.js loads with the AI panel
-// (src/app/chat-loader.js) and js/aio-glossary.js loads after boot (src/app/classic-loader.js), so both ship but are
-// not part of the boot budget.
-const ON_DEMAND_CLASSIC_SCRIPTS = new Set(['js/aio-chat.js', 'js/aio-glossary.js']);
+export const GLOBAL_SCRIPTS = ['aio-workspace', 'aio-kr-data', 'aio-pages', 'aio-core', 'aio-data', 'aio-ui', 'aio-glossary'].map((name) => `js/${name}.js`);
+// The classic scripts index.html runs at boot (its six `defer` tags). js/aio-glossary.js loads after boot
+// (src/app/classic-loader.js), so it ships but is not part of the boot budget. The AI panel is a lazy chunk of the
+// module bundle (src/ui/chat/panel.js).
+const ON_DEMAND_CLASSIC_SCRIPTS = new Set(['js/aio-glossary.js']);
 export const CLASSIC_BOOT_SCRIPTS = GLOBAL_SCRIPTS.filter((file) => !ON_DEMAND_CLASSIC_SCRIPTS.has(file));
 // The files .github/workflows/pages-deploy.yml copies into the Pages artifact (its "Stage explicit public artifact
 // allowlist" step) and the public-data paths it leaves out. ci-boot-bundle-budget-check.mjs fails when the workflow and

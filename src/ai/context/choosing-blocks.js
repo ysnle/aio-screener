@@ -249,7 +249,7 @@ export function newsWindow(query = '', now = Date.now()) {
   };
 }
 
-// P1729 (moved from js/aio-chat.js, v58.75): the 08:00 KST window boundary and the provisional post-08:00 slot. The
+// P1729 (moved from src/ui/chat/panel.js, v58.75): the 08:00 KST window boundary and the provisional post-08:00 slot. The
 // canonical bundle closes at 08:00, so a Korean session's events reach it only the next morning; the model is told which
 // window it reads and whether any post-08:00 headline exists, so an empty slot is not read as "nothing happened".
 export function newsWindowContext(root = globalThis) {
@@ -278,7 +278,7 @@ export function newsWindowContext(root = globalThis) {
   return out;
 }
 
-// v58.75 (persona review): per-turn pieces of the AI panel, moved out of js/aio-chat.js (R620).
+// v58.75 (persona review): per-turn pieces of the AI panel, moved out of src/ui/chat/panel.js (R620).
 // A screen-selected company (chat-tickers.js source 'screen') is named to the model and heads the answer.
 export const screenSubjectPrompt = (symbol) => `\n\n[화면 종목]\n질문에 종목 이름이 없어, 사용자가 지금 화면에서 보고 있는 ${symbol}를 대상으로 답한다. 다른 종목으로 바꾸지 말고, 이 종목 자료가 비어 있으면 비어 있다고 밝힌다.\n`;
 export const answerHead = (symbol, gate, text) => (symbol && !gate?.blocked ? `보고 있는 ${symbol} 기준\n\n${text}` : text);

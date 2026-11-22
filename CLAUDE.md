@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v60.47**
+- 현재 버전: **v60.48**
 - **버전 이력 → CHANGELOG.md** (v60.19 이하는 한 줄 요약 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(v60.19 이하는 절마다 한 줄).
 - 버전별 작업 요약은 CHANGELOG.md에만 쓴다.
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -45,7 +45,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **문서와 코드가 어긋나면 코드 관례를 따른다** — CODE-MAP·스킬·핸드오프·메모리·이 파일의 설명이 지금 코드와 다르면 코드의 관례를 따르고, 최종 답변에 찾은 어긋남을 모두 적는다. 단 `AGENTS.md` 제품 결정·`RULES.md` 정책과 다른 코드는 결함으로 보고한다.
 - **가능성 낮은 경계 사례에 복잡도를 더하지 않는다** — 드문 경합·보안 사례 대비 코드는 실패 양상·가능성·복잡도 비용을 먼저 설명하고 동의를 받은 뒤 넣는다
 - 변경 이유 추적은 `/why`(`node scripts/why-trace.mjs`), 선례 없는 화면 결정은 `/prototype`, 첫 사용자 관점 QA는 `/first-users`, 모듈 깊이·인터페이스 점검은 `/deepen`
-- **커밋·배포는 사용자가 요청할 때와 아래 배치 마감 상시 승인 때만 한다**
+- **커밋은 사용자가 요청할 때와 배치 마감 때, push·배포는 소유자가 답한 뒤에만 한다**
 - **구조 우선 (소유자 2026-11-09, 원문)** — "Always build code cleanly, modularly, and with proper architecture and separation of concerns. Never simply bolt on a feature because I asked for it. If you can’t find an easy way to build it naturally, and you'd recommend a refactor to make the whole thing cleanly, stop your work ahead of time and say so." 아래 부분 패치·최소 코드 원칙보다 우선한다(정본 AGENTS.md)
 - **위임 (소유자 2026-11-11, 원문)** — "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." 구현·구조·정리·게이트는 근거를 밝혀 정하고 보고한다. 제품 방향·push·배포·되돌릴 수 없는 삭제와 운영 변경만 묻는다(정본 AGENTS.md)
 - **구조가 원인이면 구조를 고친다 (소유자 2026-11-19)** — 기존 화면·모듈 구조를 그대로 받아들이지 않는다. 먼저 지금 구조가 맞는지 묻고, 더 나은 구조가 있으면 다시 짓는다: 옮긴 것은 원래 자리에서 지우고, 줄 수·부팅 크기가 늘면 이유를 보고한다. 부분 패치는 구조와 무관한 단일 결함에만 쓴다
@@ -57,7 +57,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 - **생성 파일은 손으로 고치지 않는다** — `.claude/agents/*`·`.codex/agents/*`는 `architecture/agent-profiles.json` → `node scripts/sync-agent-profiles.mjs`, `.agents/skills/`는 `.claude/skills/` → `node scripts/sync-agent-skills.mjs`, `CURRENT-STATE`·`CONTEXT-CATALOG`는 `generate-workspace-state --write`, `outcome-stamps.js`는 `build-outcome-stamps.mjs --write`, `*.expect.md`는 `node scripts/ci-expect-output-check.mjs --update`(바뀐 출력 diff를 읽고 확인)
 - **기록 순서**: `bump-version` → 항목별 `record-fix` → `generate-workspace-state --write` → 원장·버전·워크스페이스 게이트. 큰 배치는 구현을 모은 뒤 기록·검증을 한 번에
 - **게이트-문서 계약**: 원장 산문은 자유롭게 압축·정리해도 된다. 게이트는 구조만 검사한다 — `## R<n>.` 헤딩(번호 보존), QA 행 형식·`verify_by`, CHANGELOG `## v<버전>` 헤딩. 정책↔원장 추적은 `architecture/governance-markers.json`
-- **배치 마감 시 통합·push (소유자 2026-11-01 상시 승인)** — 모든 스레드가 끝나면 통합하고 커밋·push를 한 번 한다. 배치 중간 push는 하지 않는다
+- **배치 마감 (소유자 2026-11-22)** — 모든 스레드가 끝나면 통합·커밋을 한 번 하고, push는 한 번 묻는다. 배치 중간 push는 하지 않는다
 
 ## 환경 주의 (클라우드 세션)
 

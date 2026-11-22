@@ -12,7 +12,7 @@ const check = (label, condition) => {
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const ui = read('js/aio-ui.js');
 const data = read('js/aio-data.js');
-const chat = read('js/aio-chat.js');
+const chat = read('src/ui/chat/panel.js');
 const glossary = read('js/aio-glossary.js');
 // P1133/R620: js/aio-pages.js is a registered runtime file. Omitting it here would make the R280
 // duplicate-global scan blind to it — the exact gap P605 exploited.
@@ -90,7 +90,7 @@ const RUNTIME_SCRIPT_FILES = {
   'js/aio-core.js': core,
   'js/aio-data.js': data,
   'js/aio-ui.js': ui,
-  'js/aio-chat.js': chat,
+  'src/ui/chat/panel.js': chat,
   'js/aio-glossary.js': glossary,
   'js/aio-pages.js': pages,
   'js/aio-kr-data.js': krData,
@@ -162,7 +162,7 @@ const orderManifest = JSON.parse(read('architecture/runtime-script-order.json'))
 check('runtime script order must match architecture/runtime-script-order.json exactly (R622/P1135)'
   + (JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order) ? '' : `: html=[${scriptOrder.join(', ')}] manifest=[${orderManifest.order.join(', ')}]`),
   JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order));
-// v59.16 (roadmap 11): `lazy` lists runtime files that are inserted after boot (js/aio-chat.js via src/app/chat-loader.js)
+// v59.16 (roadmap 11): `lazy` lists runtime files that are inserted after boot (src/ui/chat/panel.js via src/app/chat-loader.js)
 // instead of loading as static shell scripts.
 const lazyScripts = orderManifest.lazy || [];
 check('runtime script order manifest must list every measured runtime file exactly once (R622/P1135)',
