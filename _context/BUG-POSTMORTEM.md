@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2745 - v60.46 - 주말에 Yahoo가 원/달러를 다른 값으로 다시 찍으면 시세 스냅샷과 이력의 일치 검사가 데이터 갱신을 막음 (2026-11-22)
+
+- symptom/reproduction: 11/22(일) 02시Z 이후 refresh-data가 매번 history-time에서 실패했다: 'latest row 2026-11-22 field usdkrw: 1346.13 != KRW=X completed value 1337.8 (MARKET_CLOSED)'. AAII 수집도 12시간 넘게 발행되지 못했다.
+- root_cause: 이력 프로듀서는 세션이 없는 날에 찍힌 읽기를 행에 넣지 않고 마지막 세션 값을 유지한다(dropSessionlessReads). 일치 검사는 같은 읽기를 스냅샷의 완료 종가로 보고 이력과 비교했다. 토요일에는 재표기 값이 금요일 종가와 같아 통과했고, 일요일에 값이 달라지자 막혔다.
+- fix: 검사가 프로듀서와 같은 세션 규칙(observationSessionDate)을 쓴다: 세션 없는 날에 찍힌 스냅샷 시세는 완료 종가가 아니므로 비교하지 않는다.
+- violated_rule: 교차 산출물 일치 검사는 한쪽 프로듀서가 버리는 입력을 다른 쪽의 기준값으로 쓰면 안 된다 (P2630 계열)
+- prevention: scripts/ci-history-field-time-contract-check.mjs v60.46: 스냅샷 시세의 관측일이 세션일일 때만 이력 최신 행과 비교한다.
+- verification/residual: node scripts/ci-history-field-time-contract-check.mjs exit 0. observationSessionDate('usdkrw','2026-11-22T03:30Z')는 null, 금요일 22:36Z는 2026-11-20. 실패한 실행의 후보 자료로 직접 재현하지는 않았다(로그의 '세션 없는 날 읽기 4건 제외' 줄과 같은 시세다). 화면의 원/달러 값이 주말 재표기 값을 보여 주는 문제는 고치지 않았다.
+- files: scripts/ci-history-field-time-contract-check.mjs
+
 ## P2744 - v60.46 - 시나리오 상태의 테마 수치 비교가 다른 레인이 바꾼 screener.json과 보류 행을 같은 입력으로 취급해 생산자 실행 20번을 막음 (2026-11-22)
 
 - symptom/reproduction: scenario-guidance-fixture의 v58.75 단언('scenario-state.json US theme 1-month values match the live pipeline on the same close')이 11/20~22 스크리너 실행 16번, 11/15~20 시장 갱신 22:50Z 실행 4번을 실패시켰다(예: semiconductor -19.86 vs -18.86). 11/22 07:31Z 스크리너 실행도 같은 이유로 실패했다.

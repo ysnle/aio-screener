@@ -5,6 +5,7 @@ import { deriveMarketSession } from './build-market-snapshot.mjs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { holdRepeatedSessions, continuousReopenPrint, mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 import { readHistoryRows, compactHistoryRows } from '../src/domain/market/indices/history-rows.js';
+import { observationSessionDate } from '../src/domain/market/session/history-session.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -109,6 +110,10 @@ const fieldSymbols = {
 for (const [field, symbol] of Object.entries(fieldSymbols)) {
   const quote = snapshotMap.get(symbol);
   if (!quote || !Number.isFinite(latest?.[field])) continue;
+  // A snapshot quote stamped on a day its market has no session (Yahoo's weekend restamp of the won: 1337.8 on Sunday
+  // 11/22 against Friday's 1346.13) is not a completed close. The history producer keeps such a read out of the row
+  // (dropSessionlessReads) and holds the last session, so the two artifacts differ by design and there is nothing to compare.
+  if (!observationSessionDate(field, quote.observedAt)) continue;
   // Both artifacts now carry the same completed close for a 24/7 asset: history publishes
   // regularMarketPreviousClose with the boundary timestamp that closed it, and the snapshot
   // exposes that same previous value. The old continuous special case compared two DIFFERENT
