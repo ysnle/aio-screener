@@ -31,7 +31,7 @@ last_verified: 2026-11-22
 - Context documents: 84; preflight reads current state once; governance and INDEX are targeted references.
 - Skills: 11; command wrappers: 21; agent profiles: 4.
 - Workflows: 20; CI scripts: 219.
-- Ledgers: latest rule R753; latest postmortem P2745; open QA 100 unique IDs (100 rows, 0 explicitly superseded).
+- Ledgers: latest rule R753; latest postmortem P2746; open QA 100 unique IDs (100 rows, 0 explicitly superseded).
 - Canonical skills: `.claude/skills`; Codex mirror: `.agents/skills`.
 
 ## Knowledge Boundary

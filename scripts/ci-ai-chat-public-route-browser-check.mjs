@@ -115,7 +115,7 @@ try {
     const streamed = routeDisabled ? null : await new Promise((resolveStream, rejectStream) => {
       window.callSharedAi('Answer briefly.', [{ role: 'user', content: '공용 경로 확인' }], () => {}, (raw, completion) => {
         resolveStream({ raw, completion, published: window._aioRunAIResponsePipeline(raw, { entrypoint: 'public-route-browser-fixture', streamPhase: 'complete', completion, record: false }) });
-      }, rejectStream, { modelKey: 'luna' });
+      }, rejectStream, { modelKey: 'luna' }).catch((error) => rejectStream(new Error('callSharedAi threw: ' + (error && error.stack || error))));
     });
     window.__aioGateStage = 'pipeline-fixtures';
     const questionPlan = { currentSensitive: true, sessionEvidence: { verified: true, observedAt: '2026-08-18T13:00:00Z', status: 'open' }, researchDecision: { requirement: 'OPTIONAL' } };

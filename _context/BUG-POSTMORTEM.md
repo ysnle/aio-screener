@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2746 - v60.46 - callSharedAi를 채팅 전역이 설치되기 전에 부르면 요청도 콜백도 없이 멈춤 (CI browser-ai-public 간헐 실패의 원인) (2026-11-22)
+
+- symptom/reproduction: v60.44 이후 CI의 browser-ai-public이 5번 중 4번 120초(이후 60초 멈춤 진단)로 실패했다: 'stalled at shared-ai-stream; held orchestrator 1; worker requests 0; pending none'. 로컬 단독 실행은 항상 통과했고, 같은 게이트를 6~7개 동시에 돌리면 2~4개가 같은 문구로 실패했다.
+- root_cause: callSharedAi는 요청 파이프라인과 답변 오케스트레이터만 기다렸다. 본문 크기 한도는 chat-globals.js가 설치하는 AIO.aiWorkerContract에서 읽는데, 패널 스크립트가 실행된 순간부터 callSharedAi는 전역이라 chat-globals보다 먼저 불릴 수 있다. 그때 async 함수 안에서 TypeError(reading 'clientBodyTargetBytes')가 나고, 호출자가 반환 약속을 보지 않아 onDone·onError 어느 쪽도 불리지 않는다. 패널 자체 진입점은 로더가 전역 설치 뒤에 재생하므로 영향이 없었다.
+- fix: 공용 AI 준비 대기(_aioAIAnswerReady)가 패널 로더(AIO.loadChat: 채팅 전역·질문 단서·프로필)까지 기다린다. 게이트는 callSharedAi가 던진 오류를 멈춤이 아니라 그 오류로 보고한다.
+- violated_rule: 지연 로드 모듈이 설치하는 전역을 읽는 함수는 그 설치를 스스로 기다려야 한다 (P2171 계열)
+- prevention: scripts/ci-ai-chat-public-route-browser-check.mjs v60.46: callSharedAi의 반환 약속 거부를 게이트 오류로 올린다. 수정 전 코드에서는 부하를 걸면 'callSharedAi threw: TypeError … clientBodyTargetBytes'로 실패한다.
+- verification/residual: 수정 전: 동시 7개 중 4개 실패(TypeError 확인). 수정 후: 동시 8개 모두 통과. CI에서의 통과는 push 뒤 확인한다.
+- files: src/app/compatibility-globals.js, scripts/ci-ai-chat-public-route-browser-check.mjs
+
 ## P2745 - v60.46 - 주말에 Yahoo가 원/달러를 다른 값으로 다시 찍으면 시세 스냅샷과 이력의 일치 검사가 데이터 갱신을 막음 (2026-11-22)
 
 - symptom/reproduction: 11/22(일) 02시Z 이후 refresh-data가 매번 history-time에서 실패했다: 'latest row 2026-11-22 field usdkrw: 1346.13 != KRW=X completed value 1337.8 (MARKET_CLOSED)'. AAII 수집도 12시간 넘게 발행되지 못했다.

@@ -42,6 +42,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-FAST-QUOTES-CLOCK-01: 데이터 플레인 Worker는 미국(04:00-20:00 ET) 또는 한국 장이 열려 있을 때만 5분마다 시세를 발행하고, 그 밖에는 30분에 한 번(BTC/ETH) 발행한다. 장 판단은 브라우저와 같은 src/app/refresh-session-policy.js를 읽고, 워크플로 4종 실행은 5분 슬롯을 그대로 쓴다 (v60.46). verify_by: node scripts/ci-data-plane-contract-check.mjs
 - [x] QA-PROXY-ALLOWLIST-01: AI 프록시 Worker 중계 허용 목록과 브라우저 사본(_AIO_SHARED_WORKER_HOSTS)에 호출처 없는 호스트(공포탐욕 3종, 환율 기준가 2종, 번역 2종, rss2json.com)가 없고, JSON 수용 규칙에도 없다 (v60.46). verify_by: node scripts/ci-proxy-continuity-check.mjs
 - [x] QA-HISTORY-TIME-SESSIONLESS-QUOTE-01: 세션 없는 날에 찍힌 스냅샷 시세는 이력 최신 행과 비교하지 않는다(이력은 마지막 세션 값을 유지한다). verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-SHARED-AI-READY-PANEL-GLOBALS-01: callSharedAi는 패널 로더가 채팅 전역을 설치한 뒤에 요청을 만든다. 던져진 오류는 게이트에서 멈춤이 아니라 오류로 보인다. verify_by: node scripts/ci-ai-chat-public-route-browser-check.mjs
 
 ## v60.45 차트 화면 AI 패널 (2026-11-22)
 

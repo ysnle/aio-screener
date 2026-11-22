@@ -102,10 +102,14 @@ export function installCompatibilityGlobals(root = globalThis) {
   // v59.70 (integration QA): a shared-AI reply is published through the answer orchestrator, which loads lazily beside the
   // panel (P4). A stream that finished before it loaded read a null parse ("reading 'plan'") and showed as a 502
   // "AI 서버를 일시적으로 사용할 수 없습니다", so js/aio-chat.js callSharedAi waits for both. The load promise is cached.
+  // It also waits for the panel loader (AIO.loadChat: the chat globals, cues and profile). The panel's own entry points are
+  // replayed only after those, but callSharedAi is a global from the moment its script runs, and a direct call before
+  // chat-globals.js had installed AIO.aiWorkerContract threw inside the async function: no request, no callback.
   window._aioAIAnswerReady = () => {
     const arch = window.AIO_ARCH;
     const orchestrator = arch?.getAIOrchestrator?.() || typeof arch?.loadAIOrchestrator !== 'function' ? null : arch.loadAIOrchestrator().catch(() => null);
-    return Promise.all([window._aioAIPipelineReady, orchestrator]);
+    const panel = typeof window.AIO?.loadChat === 'function' ? window.AIO.loadChat().catch(() => null) : null;
+    return Promise.all([window._aioAIPipelineReady, orchestrator, panel]);
   };
   // v59.14 (roadmap 11): boot-time helpers that only lived in js/aio-chat.js — the promise bound, the free-tier call
   // counters, the question ticker scan and the desktop sidebar toggle (its saved state is restored here).
