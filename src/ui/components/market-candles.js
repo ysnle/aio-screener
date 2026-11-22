@@ -67,10 +67,11 @@ function shell(doc, spec) {
  * for a key is kept). `lazy` loads nothing while the grid is not drawn (a hidden view, an inactive screen); once it is,
  * every card's bars load through the queue. Loading each card as it scrolled into view left the cards a
  * reader had not reached, or jumped past, at "불러오는 중" without a request.
- * `update(history, asOf)` re-reads every card from the history the page holds; `onReadings(readings)` hears the settled
- * readings in card order.
+ * `update(history, asOf)` re-reads every card from the history the page holds; `onReadings(readings, asOf)` hears the
+ * settled readings in card order and the close date the cards were marked against. `basisOf(readings)`, when given,
+ * dates the grid from its own settled readings and the `asOf` passed to update is ignored.
  */
-export function createChartCards({ documentRef: doc, root, host, specs = INDEX_CARD_SPECS, lazy = false, onOpen = () => {}, onReadings = () => {} }) {
+export function createChartCards({ documentRef: doc, root, host, specs = INDEX_CARD_SPECS, lazy = false, onOpen = () => {}, onReadings = () => {}, basisOf = null }) {
   if (!host) return { update: () => {}, setSpecs: () => {}, dispose: () => {} };
   let alive = true;
   let history = [];
@@ -131,7 +132,16 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
     parts.fold.style.visibility = reading ? '' : 'hidden';
   };
 
-  const report = () => onReadings(cards.filter((card) => !['loading', 'waiting'].includes(card.state)).map((card) => card.reading).filter(Boolean));
+  // With `basisOf`, the grid's close date is read from what it draws: each settled card (its bars arriving, a fallback to
+  // closes) re-reads it, and a changed date repaints the cards that now sit on another session.
+  const report = () => {
+    const settled = cards.filter((card) => !['loading', 'waiting'].includes(card.state)).map((card) => card.reading).filter(Boolean);
+    if (basisOf) {
+      const next = basisOf(settled) || null;
+      if (next !== asOf) { asOf = next; cards.forEach(paint); }
+    }
+    onReadings(settled, asOf);
+  };
 
   const drawBars = (card, LWC) => {
     const { chart, chips } = card.parts;
@@ -209,7 +219,7 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
   return {
     update(nextHistory, pageAsOf) {
       history = Array.isArray(nextHistory) ? nextHistory : [];
-      asOf = pageAsOf || null;
+      if (!basisOf) asOf = pageAsOf || null;
       cards.forEach(paint);
       report();
     },

@@ -8,7 +8,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { chartsConclusion, chartsPageBasis, coreStockRows, indexChartReadings, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
+import { chartsConclusion, chartsHeaderBasis, coreStockRows, indexChartReadings, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
 import { sessionChipText } from '../components/session-lag.js';
 import { signedText } from '../../domain/shared/number.js';
 import { installStockChart, showChartSubject } from '../components/stock-chart.js';
@@ -81,18 +81,23 @@ const STOCK_GROUPS = Object.freeze(['weight', 'mover']);
 // The view that holds the analysis slot (page-views.css); stock-chart.js opens it by the slot itself (showViewOf).
 const SLOT_VIEW = 'analysis';
 
-function render(documentRef, root, store, page, cards, stockCards) {
+function renderBasis(documentRef, root, asOf) {
+  const node = documentRef.getElementById('charts-basis');
+  if (node) node.textContent = asOf ? `${shortDate(asOf)} 종가 · 일봉` : historyWaitText(root);
+}
+
+function render(documentRef, root, store, page, cards, stockCards, basis) {
   const history = root?._aioHistory || [];
   const readings = indexChartReadings(history);
   const set = (id, text) => { const node = documentRef.getElementById(id); if (node) node.textContent = text; };
-  const asOf = chartsPageBasis(readings);
-  set('charts-basis', readings.length ? `${shortDate(asOf)} 종가 · 일봉` : historyWaitText(root));
   const grid = documentRef.getElementById('charts-index-grid');
   if (grid && !readings.length && root?.__aioHistoryLoadState === 'failed') {
     grid.dataset.state = 'failed';
     set('charts-conclusion', historyWaitText(root));
   } else if (grid) delete grid.dataset.state;
-  cards.update(history, asOf);
+  // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it.
+  cards.update(history);
+  const asOf = basis();
   const rows = coreStockRows({ ...screenerOf(root, store), day: root?.[MARKET_DAY.key] || null });
   for (const group of STOCK_GROUPS) {
     const list = rows.filter((row) => row.group === group);
@@ -126,13 +131,30 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       let alive = true;
       bag.add(() => { alive = false; });
       const open = (sym) => showChartSubject({ documentRef, root, symbol: sym, byReader: true, scroll: true });
-      const conclusion = (list) => { const node = documentRef.getElementById('charts-conclusion'); if (node) node.textContent = chartsConclusion(list); };
-      const cards = createChartCards({ documentRef, root, host: documentRef.getElementById('charts-index-grid'), onOpen: open, onReadings: conclusion });
+      // The header, the conclusion and the stock parts follow the index cards' own close date; a card's bars arriving on
+      // another session re-renders the stock parts once (the nested report inside a render only records the date).
+      // `ready`: the grid reports once while it is built, before the render below exists.
+      let basis = null, rendering = false, ready = false;
+      const onIndexReadings = (list, asOf) => {
+        const node = documentRef.getElementById('charts-conclusion');
+        if (node) node.textContent = chartsConclusion(list);
+        renderBasis(documentRef, root, asOf);
+        if (asOf === basis) return;
+        basis = asOf;
+        if (ready && !rendering) renderNow();
+      };
+      const cards = createChartCards({ documentRef, root, host: documentRef.getElementById('charts-index-grid'), onOpen: open, onReadings: onIndexReadings,
+        basisOf: (list) => chartsHeaderBasis(list, root?._aioHistory) });
       bag.add(() => cards.dispose());
       // 대표 종목: the same card part, one grid per group; its bars load once its view is shown (a hidden view's never do).
       const stockCards = Object.fromEntries(STOCK_GROUPS.map((group) => [group, createChartCards({ documentRef, root, host: documentRef.getElementById(`charts-${group}-grid`), specs: [], lazy: true, onOpen: open })]));
       bag.add(() => Object.values(stockCards).forEach((grid) => grid.dispose()));
-      const renderNow = () => { if (alive) render(documentRef, root, store, page, cards, stockCards); };
+      const renderNow = () => {
+        if (!alive || rendering) return;
+        rendering = true;
+        try { render(documentRef, root, store, page, cards, stockCards, () => basis); } finally { rendering = false; }
+      };
+      ready = true;
       renderNow();
       // The analysis slot (종목 분석 view): a request another screen handed over (openMarketChart, an old #technical link)
       // opens it at once and shows that view; otherwise it draws when its view is first shown — the symbol it showed last,

@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeFactorRanks, FACTOR_RANKS_ALLOWED_USE, FACTOR_RANKS_MODEL_VERSION } from '../src/domain/screener/factor-ranks.js';
 import { isCloseSessionDate } from '../src/domain/market/session/close-series.js';
+import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { summarizeTradingScoreBacktest, reconstructScore, runBacktest, buildTradingDaySeries } from './backtest-trading-score.mjs';
 import { nonOverlappingPhaseCorrelations, analyzeLongrunSeries, scoreLongrunCreditInput } from './backtest-trading-score-longrun.mjs';
 import { judgeRequirements } from './build-validation-gates.mjs';
@@ -14,16 +15,19 @@ const factor = await readFile(new URL('./backtest-factors-longrun.mjs', import.m
 const score = await readFile(new URL('./backtest-trading-score-longrun.mjs', import.meta.url), 'utf8');
 const scoreHarness = await readFile(new URL('./backtest-trading-score.mjs', import.meta.url), 'utf8');
 const status = JSON.parse(await readFile(new URL('../public-data/model-validation-status.json', import.meta.url), 'utf8'));
-const scoreSummary = summarizeTradingScoreBacktest({ n: 280, rho: -0.146 }, { n: 264, rho: -0.25 });
+const scoreSummary = summarizeTradingScoreBacktest({ n: 280, nEff: 56, rho: -0.146 }, { n: 264, nEff: 13, rho: -0.25 });
 check('factor backtest has temporal reference/holdout split', /walk-forward/.test(factor) && /holdoutPeriod/.test(factor));
 check('model artifact exposes IC/ICIR/hit-rate/decile/drawdown/CI metrics', ['IC', 'ICIR', 'hitRate', 'quantileSpread', 'drawdown', 'CI'].every(token => factor.includes(token) || score.includes(token)));
 const phaseFixture = Array.from({ length: 20 }, (_, index) => ({ score: index, fwd5d: index }));
 const phaseResult = nonOverlappingPhaseCorrelations(phaseFixture, 'score', 'fwd5d', 5);
 check('overlapping forward returns cannot use pooled IID significance for promotion', phaseResult.phaseCount === 5 && phaseResult.signStablePositive === true && /pooled daily 95% CI alone is ineligible/.test(score));
 // Daily rows with 21-session returns overlap, so 264 rows are 12 independent windows — not a sufficient sample.
-const longSummary = summarizeTradingScoreBacktest({ n: 700, rho: -0.1 }, { n: 700, rho: -0.2 });
-check('v60.16 score backtest judges the sample floor on non-overlapping windows, not on overlapping rows', scoreSummary.nEff5d === 56 && scoreSummary.nEff21d === 12 && scoreSummary.sampleSizeSufficient === false
-  && longSummary.nEff21d === 33 && longSummary.sampleSizeSufficient === true && longSummary.statisticallyMeaningful === false, JSON.stringify({ scoreSummary, longSummary }));
+const longSummary = summarizeTradingScoreBacktest({ n: 700, nEff: 140, rho: -0.1 }, { n: 700, nEff: 34, rho: -0.2 });
+check('v60.16 score backtest judges the sample floor on non-overlapping windows, not on overlapping rows', scoreSummary.nEff5d === 56 && scoreSummary.nEff21d === 13 && scoreSummary.sampleSizeSufficient === false
+  && longSummary.nEff21d === 34 && longSummary.sampleSizeSufficient === true && longSummary.statisticallyMeaningful === false, JSON.stringify({ scoreSummary, longSummary }));
+// v60.46: a horizon below the floor says so on its own, and a correlation without counted windows has none (fails closed).
+check('v60.46 each horizon carries its own sample verdict and an uncounted correlation is not sufficient', scoreSummary.sample5d === 'sufficient' && scoreSummary.sample21d === 'insufficient'
+  && summarizeTradingScoreBacktest({ n: 700, rho: 0.1 }, { n: 700, rho: 0.1 }).sampleSizeSufficient === false, JSON.stringify(scoreSummary));
 check('v60.16 agreeing start phases are one finding: support needs the median phase interval to exclude zero', phaseResult.independentFindings === 1 && phaseResult.supportsPositive === false && phaseResult.medianPhase?.n === 4
   && /count of agreeing phases is not a count of confirmations/.test(score), JSON.stringify({ median: phaseResult.medianPhase, supports: phaseResult.supportsPositive }));
 check('score backtest separates sample sufficiency from statistical significance', longSummary.sampleSizeSufficient === true && scoreSummary.significanceStatus === 'UNKNOWN' && scoreSummary.statisticallyMeaningful === false && /sampleSizeSufficient/.test(scoreHarness) && /statisticallyMeaningful:\s*false/.test(scoreHarness));
@@ -41,8 +45,17 @@ check('point-in-time/survivorship limitation remains explicit', /survivorshipBia
     check('v60.16 score-backtest-history rows fall on completed US sessions only (weekend and holiday rows are dropped on rebuild)', rebuilt.records.length > 100 && offSession.length === 0, offSession.slice(0, 8).join(' '));
     const weekendRow = { date: '2026-11-07', spx: 7000, fieldMeta: {} };
     check('v60.16 a weekend row without field metadata is not a session', buildTradingDaySeries([{ date: '2026-11-06', spx: 7000 }, weekendRow, { date: '2026-11-09', spx: 7010 }]).map((row) => row.date).join() === '2026-11-06,2026-11-09');
-    check('v60.16 the rebuilt summary carries the non-overlapping sample basis and the one-session-lag correlation', Number.isInteger(rebuilt.summary.nEff21d) && rebuilt.summary.nEff21d === Math.floor(rebuilt.summary.n21d / 21)
+    check('v60.16 the rebuilt summary carries the non-overlapping sample basis and the one-session-lag correlation', Number.isInteger(rebuilt.summary.nEff21d)
       && 'corr21dLag1' in rebuilt.summary && rebuilt.inputs.credit.startsWith('none'), JSON.stringify(rebuilt.summary));
+    // v60.46 (Codex residual): the windows are counted, not rows / horizon rounded down (284 rows of 5 sessions are 57
+    // windows, 268 rows of 21 are 13). Recounted here directly: a window starts at or after the close of the last one.
+    // The rows with a forward return are consecutive sessions, so the greedy count is rows / horizon rounded up.
+    const sessions = buildTradingDaySeries(readHistoryRows(JSON.parse(await readFile(new URL('../public-data/history.json', import.meta.url), 'utf8'))));
+    check('v60.46 the score backtest counts its non-overlapping windows from session positions', rebuilt.summary.n21d % 21 !== 0
+      && rebuilt.summary.nEff5d === Math.ceil(rebuilt.summary.n5d / 5) && rebuilt.summary.nEff21d === Math.ceil(rebuilt.summary.n21d / 21) && rebuilt.summary.sample21d === 'insufficient', JSON.stringify(rebuilt.summary));
+    // v60.46 (Codex residual): past rows are recomputed on every run (2026-07-15 read 68, then 69), and the file says so.
+    check('v60.46 the score backtest labels its past rows as recomputed, from the first session it recomputed', rebuilt.restatement?.pastRows === 'recomputed'
+      && rebuilt.restatement.recomputedFrom === sessions[0]?.date, JSON.stringify(rebuilt.restatement));
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
 

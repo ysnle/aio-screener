@@ -153,6 +153,21 @@ assert.equal(tiny.nodes.AMD.name, 'Advanced Micro Devices', 'v59.74 the short na
   assert.deepEqual(counterpartiesNamedIn('AMD (Instinct MI450·Helios, OpenAI 6GW 계약)', 'NVDA'), ['AMD'], 'v60.28 a rival’s customer contract does not make the customer a rival');
   assert.deepEqual(counterpartiesNamedIn('케이블 MVNO (Comcast, Charter', 'VZ'), ['CMCSA'], 'v60.28 an unclosed bracket still lists its members');
 }
+// v60.46 (Codex residual, 삼성전자 사 주는 곳): a money-flow link keeps what the money pays for, so a foundry order and an
+// ad-inventory payment under one heading read apart. A customer line's tail is a figure, not a kind: it carries none.
+{
+  assert.equal(near.suppliers[0].said.find((s) => s.field === 'moneyFlow')?.what, '웨이퍼 대금', 'v60.46 a money-flow link keeps the hop\'s own words for what is paid');
+  assert.ok(near.suppliers[0].said.filter((s) => s.field !== 'moneyFlow').every((s) => !('what' in s)), 'v60.46 a customer line carries no payment phrase');
+  const { companyPlace } = await import('../src/domain/entity/company-overview.js');
+  if (!staging) {
+    const published = JSON.parse(readFileSync(join(dir, 'graph.json'), 'utf8'));
+    const buyers = companyPlace({ symbol: '005930.KS', graph: published }).customers;
+    const what = Object.fromEntries(buyers.map((row) => [row.symbol, row.what]));
+    if (!/광고/.test(what.TTD || '') || !/칩/.test(what.TSLA || '') || !/웨이퍼/.test(what.QCOM || '')) fail(`v60.46 삼성전자 buyers say what each pays for: ${JSON.stringify(what)}`);
+  }
+  assert.equal(companyPlace({ symbol: 'NVDA', graph: { nodes: { NVDA: { name: 'NVIDIA' }, TSM: { name: 'TSMC' } }, edges: [{ kind: 'supply', from: 'NVDA', to: 'TSM', said: [{ by: 'NVDA', field: 'moneyFlow', text: 'NVIDIA → TSMC: 웨이퍼 대금' }] }] } }).suppliers[0].what, null,
+    'v60.46 a graph written before the payment phrase existed reads without one');
+}
 
 if (failures.length) {
   console.error(`company profile contract FAIL (${failures.length}):\n- ${failures.slice(0, 40).join('\n- ')}`);

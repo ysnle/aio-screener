@@ -201,6 +201,15 @@ export function chartsPageBasis(readings) {
   return dates(all.filter((reading) => closeSessionMarket(reading?.field) === 'US')) || dates(all);
 }
 
+/**
+ * The close date the 기술적 분석 header names: read from the readings the index cards draw — their own daily bars, which
+ * can end a session before or after history.json's closes (the header once read 11/18 over cards drawing 11/17) — and,
+ * until a card has settled, from the history closes the cards fall back to.
+ */
+export function chartsHeaderBasis(drawn, history) {
+  return chartsPageBasis(Array.isArray(drawn) && drawn.length ? drawn : indexChartReadings(history || []));
+}
+
 export function indexChartReadings(history) {
   const breadth = latestBreadth(history);
   return CHART_INDEXES.map(([field, label]) => indexChartReading(history, field, label, { breadth: field === 'spx' ? breadth : null })).filter(Boolean);
