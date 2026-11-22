@@ -520,8 +520,19 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
   // The charts header read "11/18 종가 · 일봉" over US cards drawing 11/17: 코스피's newer close dated the page.
   const { chartsPageBasis } = await import('../src/domain/technical/market-charts.js');
   const cards = [{ field: 'ndx', asOf: '2026-11-17' }, { field: 'spx', asOf: '2026-11-17' }, { field: 'kospi', asOf: '2026-11-18' }, { field: 'kosdaq', asOf: '2026-11-18' }];
-  if (typeof chartsPageBasis !== 'function' || chartsPageBasis(cards) !== '2026-11-17' || chartsPageBasis(cards.slice(2)) !== '2026-11-18' || chartsPageBasis([]) !== null
-    || !/const asOf = chartsPageBasis\(readings\)/.test(source('src/ui/pages/charts.js'))) fail(`v60.30 CHARTS_HEADER_BAR_DATE:${typeof chartsPageBasis === 'function' ? chartsPageBasis(cards) : 'missing'}`);
+  if (typeof chartsPageBasis !== 'function' || chartsPageBasis(cards) !== '2026-11-17' || chartsPageBasis(cards.slice(2)) !== '2026-11-18' || chartsPageBasis([]) !== null) fail(`v60.30 CHARTS_HEADER_BAR_DATE:${typeof chartsPageBasis === 'function' ? chartsPageBasis(cards) : 'missing'}`);
+  // v60.46 (Codex residual): the header read history.json's closes (11/18) while the US cards drew their own daily bars
+  // ending 11/17. It is read from the cards' drawn readings; history closes date it only until a card has settled.
+  const { chartsHeaderBasis } = await import('../src/domain/technical/market-charts.js');
+  const histRows = Array.from({ length: 260 }, (_, i) => { const d = new Date(Date.UTC(2025, 10, 3) + i * 86400000); return d; })
+    .filter((d) => d.getUTCDay() % 6 !== 0).map((d, i) => ({ date: d.toISOString().slice(0, 10), spx: 6000 + i, ndx: 20000 + i }));
+  const histLast = histRows.at(-1).date;
+  const drawnBehind = [{ field: 'spx', asOf: '2026-01-02' }, { field: 'ndx', asOf: '2026-01-02' }];
+  const chartsPage = source('src/ui/pages/charts.js');
+  if (typeof chartsHeaderBasis !== 'function' || chartsHeaderBasis(drawnBehind, histRows) !== '2026-01-02' || chartsHeaderBasis([], histRows) !== histLast
+    || !/basisOf: \(list\) => chartsHeaderBasis\(list, root\?\._aioHistory\)/.test(chartsPage) || /chartsPageBasis\(readings\)/.test(chartsPage)) {
+    fail(`v60.46 CHARTS_HEADER_FROM_DRAWN_BARS:${typeof chartsHeaderBasis === 'function' ? [chartsHeaderBasis(drawnBehind, histRows), chartsHeaderBasis([], histRows), histLast].join(',') : 'missing'}`);
+  }
   // A minimal DOM whose text is the concatenation of its nodes, as copy and screen readers read it.
   const node = (tag) => ({ tag, children: [], className: '', title: '', _text: '', attrs: {},
     set textContent(value) { this._text = String(value); this.children = []; },

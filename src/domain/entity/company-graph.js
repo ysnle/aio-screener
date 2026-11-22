@@ -73,13 +73,17 @@ export function buildCompanyGraph(stories) {
   for (const [id, names] of Object.entries(PRIVATE_NODES)) nodes[id] = { name: names[0], private: true };
   const known = (id) => covered.has(id) || id in PRIVATE_NODES;
   const edges = new Map();
-  const add = (kind, a, b, by, field, text) => {
+  // `what` is what the money pays for, as the story's money-flow hop words it ('웨이퍼·조립·테스트 대금', '낙찰된 광고 지면 대금
+  // 전달'): one supply heading holds a foundry order and an ad-inventory payment, and only this tells them apart. A
+  // customer or partner line carries no such phrase (its tail is a figure), so it has none.
+  const add = (kind, a, b, by, field, text, what = null) => {
     if (a === b || !known(a) || !known(b)) return;
     // A supply edge runs from the payer to the payee; a partner or rival pair is one edge whichever story names it.
     const [x, y] = kind === 'supply' ? [a, b] : [a, b].sort();
     const key = `${kind}|${x}|${y}`;
     const edge = edges.get(key) || { kind, from: x, to: y, said: [] };
-    if (!edge.said.some((s) => s.by === by && s.field === field)) edge.said.push({ by, field, text: clip(text) });
+    const paysFor = clip(String(what || '').replace(/\s*[(（][^)）]*[)）]?/g, ' '), 40);
+    if (!edge.said.some((s) => s.by === by && s.field === field)) edge.said.push({ by, field, text: clip(text), ...(paysFor ? { what: paysFor } : {}) });
     edges.set(key, edge);
   };
   for (const story of list) {
@@ -98,7 +102,7 @@ export function buildCompanyGraph(stories) {
       // A hop that names this company on one side and itself on neither still says who pays whom; very wide hops
       // ('하이퍼스케일러 (MSFT, GOOGL, AMZN, META)' → three suppliers) are kept up to twelve pairs.
       const pairs = payers.flatMap((p) => payees.map((q) => [p, q])).slice(0, 12);
-      for (const [p, q] of pairs) add('supply', p, q, self, 'moneyFlow', `${hop.from} → ${hop.to}: ${hop.what || ''}`);
+      for (const [p, q] of pairs) add('supply', p, q, self, 'moneyFlow', `${hop.from} → ${hop.to}: ${hop.what || ''}`, hop.what);
     }
   }
   // A partnership already stated as money in either direction adds nothing.

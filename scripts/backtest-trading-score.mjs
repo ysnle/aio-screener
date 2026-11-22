@@ -35,7 +35,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computeTradingScoreModel } from '../src/domain/market/signal/trading-score.js';
-import { spearman as spearmanWithMidranks } from './lib/rank-statistics.mjs';
+import { spearman as spearmanWithMidranks, nonOverlappingCount } from './lib/rank-statistics.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { isCloseSessionDate } from '../src/domain/market/session/close-series.js';
 
@@ -124,14 +124,17 @@ function forwardReturn(series, idx, daysAhead, lag = 0) {
 
 // A sample-size floor is not a significance test. Keep the legacy boolean fail-closed until
 // this producer emits an actual CI or p-value with an explicitly reviewed method.
-// Daily rows with an n-session forward return overlap: n consecutive rows share most of one window, so the count of
-// independent observations is about rows / n (R1247). The floor is judged on that count, not on the row count.
+// Daily rows with an n-session forward return overlap: n consecutive rows share most of one window (R1247). The floor is
+// judged on the count of windows that do not overlap, counted from the rows' own session positions (a window may start
+// at the session that closed the one before) — rows / n rounded down read 284 rows as 56 windows where 57 exist. A
+// correlation without its counted windows (`nEff`) has none: the floor fails closed.
 export const SCORE_BACKTEST_MIN_INDEPENDENT = 30;
 export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}, lagged = {}) {
   const n5d = Number.isInteger(corr5d.n) ? corr5d.n : 0;
   const n21d = Number.isInteger(corr21d.n) ? corr21d.n : 0;
-  const nEff5d = Math.floor(n5d / 5);
-  const nEff21d = Math.floor(n21d / 21);
+  const nEff5d = Number.isInteger(corr5d.nEff) ? corr5d.nEff : 0;
+  const nEff21d = Number.isInteger(corr21d.nEff) ? corr21d.nEff : 0;
+  const sample = (nEff) => (nEff >= SCORE_BACKTEST_MIN_INDEPENDENT ? 'sufficient' : 'insufficient');
   return {
     n5d,
     corr5d: corr5d.rho ?? null,
@@ -139,7 +142,11 @@ export function summarizeTradingScoreBacktest(corr5d = {}, corr21d = {}, lagged 
     corr21d: corr21d.rho ?? null,
     nEff5d,
     nEff21d,
-    sampleBasis: 'non-overlapping windows: rows / horizon sessions',
+    // Per horizon, so a 21-session correlation on 13 windows reads as insufficient beside a sufficient 5-session one.
+    sample5d: sample(nEff5d),
+    sample21d: sample(nEff21d),
+    minIndependent: SCORE_BACKTEST_MIN_INDEPENDENT,
+    sampleBasis: 'non-overlapping windows counted from session positions: a kept window starts at or after the previous kept window\'s closing session',
     // Entry one session after the score's close (a score known only at the close cannot be traded at that close).
     corr5dLag1: lagged.corr5d?.rho ?? null,
     corr21dLag1: lagged.corr21d?.rho ?? null,
@@ -183,17 +190,18 @@ export async function runBacktest(historyPath, outPath) {
   }
 
   // Spearman 순위상관 — 동점은 평균순위(midrank)로 처리한다.
-  function spearman(pairs) {
+  // Each pair carries its session position (the record's index in the session series) for the window count.
+  function spearman(pairs, horizon) {
     const clean = pairs.filter(p => Array.isArray(p) && p[0] != null && p[1] != null);
     const rho = spearmanWithMidranks(clean.map(p => p[0]), clean.map(p => p[1]));
-    return { n: clean.length, rho: rho == null ? null : Math.round(rho * 1000) / 1000 };
+    return { n: clean.length, nEff: nonOverlappingCount(clean.map(p => p[2]), horizon), rho: rho == null ? null : Math.round(rho * 1000) / 1000 };
   }
 
-  const corr5d = spearman(records.map(r => [r.reconstructedScore, r.fwd5dReturn]));
-  const corr21d = spearman(records.map(r => [r.reconstructedScore, r.fwd21dReturn]));
+  const corr5d = spearman(records.map((r, i) => [r.reconstructedScore, r.fwd5dReturn, i]), 5);
+  const corr21d = spearman(records.map((r, i) => [r.reconstructedScore, r.fwd21dReturn, i]), 21);
   const lagged = {
-    corr5d: spearman(records.map(r => [r.reconstructedScore, r.fwd5dReturnLag1])),
-    corr21d: spearman(records.map(r => [r.reconstructedScore, r.fwd21dReturnLag1]))
+    corr5d: spearman(records.map((r, i) => [r.reconstructedScore, r.fwd5dReturnLag1, i]), 5),
+    corr21d: spearman(records.map((r, i) => [r.reconstructedScore, r.fwd21dReturnLag1, i]), 21)
   };
 
   // 날짜별 upsert + 180일 캡 (updateBacktestHistory, fetch-data.mjs:886-909와 동일 패턴)
@@ -208,10 +216,15 @@ export async function runBacktest(historyPath, outPath) {
 
   const output = {
     generatedAt: new Date().toISOString(),
-    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
+    note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 과거 행은 발행 당시 값이 아니라 실행마다 history.json 창으로 다시 계산한 값이다(restatement). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
     summary: summarizeTradingScoreBacktest(corr5d, corr21d, lagged),
     // What the reconstructed score rests on: no credit input (R343) and no breadth, so it is a volatility + trend + macro read.
     inputs: { credit: 'none: no FRED HY OAS in history.json; the HYG-price proxy is not used', missingInputPolicy: 'missing stays missing (no neutral default)', rowBasis: 'completed US sessions only' },
+    // The rows are reconstructions, not the scores the screens published: every run recomputes each row inside history.json's
+    // rolling window, so a past row changes when sessions leave the window's start (its 200-session average stops
+    // forming: 2026-07-15 read 68, then 69). Rows older than the window keep the run that last computed them. Like the
+    // theme-stage backfill (`recomputed`) and the stamped weekly outcome tables, the series says it is recomputed.
+    restatement: { pastRows: 'recomputed', recomputedFrom, rule: 'every run recomputes rows from recomputedFrom on; earlier rows keep the run that last computed them' },
     records: merged,
   };
   await writeFile(outPath, JSON.stringify(output, null, 1) + '\n', 'utf8');

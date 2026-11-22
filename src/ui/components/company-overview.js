@@ -150,7 +150,9 @@ function nameChips(doc, rows, openTicker, limit = 6) {
   const box = el(doc, 'div', null, 'co-chips');
   for (const row of rows.slice(0, limit)) {
     const chip = el(doc, row.symbol && typeof openTicker === 'function' ? 'button' : 'span', row.symbol && row.name !== row.symbol ? `${row.name} ${row.symbol}` : row.name, 'sx-chip sx-chip--sm co-chip');
-    if (chip.tagName === 'BUTTON') { chip.type = 'button'; chip.setAttribute('aria-label', `${row.name} 종목 개요 열기`); chip.addEventListener('click', () => openTicker(row.symbol)); }
+    // What the money pays for sits beside the name: one 사 주는 곳 list holds a foundry order and an ad-inventory payment.
+    if (row.what) chip.append(el(doc, 'span', ` · ${row.what}`, 'co-chip__what'));
+    if (chip.tagName === 'BUTTON') { chip.type = 'button'; chip.setAttribute('aria-label', `${row.name}${row.what ? `(${row.what})` : ''} 종목 개요 열기`); chip.addEventListener('click', () => openTicker(row.symbol)); }
     box.append(chip);
   }
   if (rows.length > limit) box.append(el(doc, 'span', `외 ${rows.length - limit}곳`, 'co-more'));

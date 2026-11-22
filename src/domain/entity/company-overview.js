@@ -17,7 +17,10 @@ const ymd = (iso) => (hasLeadingIsoDay(iso) ? `${String(iso).slice(0, 4)}.${Numb
 
 // ── 밸류체인 안의 자리 ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const party = (row) => ({ symbol: row.private ? null : row.symbol, name: row.private ? row.name : row.name || row.symbol, said: row.said || [], both: !!row.both });
+// `what`: what the money pays for, as the first story that says it words it (company-graph.js); a graph written before
+// the field existed, or a link named only in a customer or partner line, has none.
+const party = (row) => ({ symbol: row.private ? null : row.symbol, name: row.private ? row.name : row.name || row.symbol, said: row.said || [], both: !!row.both,
+  what: (row.said || []).find((s) => s?.what)?.what || null });
 
 // A capital amount in the reader's units: billions of dollars as 억·조 달러, gigawatts as GW.
 function capitalAmount(edge) {
