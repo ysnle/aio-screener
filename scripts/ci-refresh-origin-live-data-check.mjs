@@ -104,7 +104,7 @@ for (const row of [...LEDGER, ...SOURCE_PUSH_LEDGER]) {
 }
 
 // 3. Wiring: every CI contract shard passes the origin; producers and the watchdog never do (they must still fail closed).
-check('v59.70 ci.yml contract shards run with AIO_QA_ORIGIN=ci (source pushes included)', /\n\s+AIO_QA_ORIGIN: ci\n\s+run: node scripts\/qa-runner\.mjs --group \$\{\{ matrix\.group \}\} --no-cache/.test(ci)
+check('v59.70 ci.yml contract shards run with AIO_QA_ORIGIN=ci (source pushes included)', /\n\s+AIO_QA_ORIGIN: ci\n(?:\s+(?:#.*|[A-Z_]+: .*)\n)*\s+run: node scripts\/qa-runner\.mjs --group \$\{\{ matrix\.group \}\} (?:\$DATA_RUN_FLAG )?--no-cache/.test(ci)
   && (ci.match(/AIO_QA_ORIGIN/g) || []).length === 1);
 for (const workflow of ['refresh-data.yml', 'refresh-screener.yml', 'event-briefs.yml', 'data-watchdog.yml', 'pages-deploy.yml']) {
   check(`v59.70 ${workflow} does not set AIO_QA_ORIGIN`, !read(`.github/workflows/${workflow}`).includes('AIO_QA_ORIGIN'));

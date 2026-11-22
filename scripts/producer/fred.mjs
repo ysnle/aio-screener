@@ -6,6 +6,7 @@ import { fetchJSON } from '../lib/producer-http.mjs';
 import { FRED_SERIES } from '../lib/macro-sources.mjs';
 import { deriveFredCycle } from '../lib/refresh-continuity.mjs';
 import { SERIES_RELEASE_CALENDAR, seriesFetchDue } from '../lib/series-fetch-due.mjs';
+import { isIsoDay } from '../../src/domain/shared/session-date.js';
 
 // v60.46 (static-dynamic audit rec. 10): a monthly series with an official release calendar is fetched only when the
 // shared refetch rule says so (its interval passed, or its release watch is open: every run from the print time for
@@ -18,7 +19,7 @@ export function carriedFredReading(field, spec, previous, { nowMs = Date.now(), 
   if (previous[`_source_${field}`] !== 'fred-official-primary' || previous[`_freshness_${field}`] !== 'observed') return null;
   const value = previous[field];
   const asOf = String(previous[`_asOf_${field}`] || '');
-  if (typeof value !== 'number' || !Number.isFinite(value) || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return null;
+  if (typeof value !== 'number' || !Number.isFinite(value) || !isIsoDay(asOf)) return null;
   const fetchedAt = previous._fetchedAt?.[field] || null;
   if (seriesFetchDue(spec, Date.parse(fetchedAt || ''), { nowMs, schedules })) return null;
   const reading = { [field]: value, [`_asOf_${field}`]: asOf };

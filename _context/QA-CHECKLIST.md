@@ -6,6 +6,42 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.46 AI 답변 안내 줄 (2026-11-22)
+
+- [x] QA-AI-APP-FIGURES-NOTICE-01: v60.46 앱 자료·도구 결과로 확인된 수치를 보여 주는 AI 답변은 '일반 설명만' 안내를 달지 않고 근거 표시가 '앱 자료 근거'다. 일부 수치를 뺀 답은 '확인된 값만 표시', 모든 수치를 뺀 답만 '일반 설명만'. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-AI-NEGATED-SEARCH-01: v60.46 "검색 없이"·"검색하지 말고"·"without search" 같은 부정 구절은 AI 리서치 판정에서 검색 요청(requestedByUser)이 아니고, "검색해줘"·"search"는 여전히 요청이다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-EARNINGS-PERIOD-01: 실적 줄의 예상 대비는 분기 줄에만 붙는다 — 연간·9개월·누적·반기·회계연도 줄은 발표 수치만 보이고, 예상치의 발표 전 확인 시각은 발표 시각보다 늦지 않다. (v60.46) verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-event-briefs-check.mjs
+- [x] QA-VIX-RISK-SAMPLE-01: VIX 구간 낙폭 줄의 비율과 사례 수는 같은 겹치지 않는 사례에서 나온다 — '겹치지 않는 사례 N개 중 M개'. (v60.46) verify_by: node scripts/ci-market-lean-validation-check.mjs
+- [x] QA-CLAIM-UNLINKED-01: 문장 주장 검사는 비교할 사실이 없는 주장을 'unlinked' 경고로 따로 세고, 검증됨으로 보고하지 않는다. (v60.46) verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-TW-TABLE-DATE-01: 대만 월매출의 出表日期는 tableDate(표 생성일)로 저장되고 공시일로 쓰이지 않는다. (v60.46) verify_by: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- [x] QA-EARNINGS-SCOPE-01: 부문·항목 매출 줄(구독·로열티·서비스 등)은 회사 전체 매출 예상치와 비교하지 않고 발표 수치만 보인다. (v60.46) verify_by: node scripts/ci-esm-core-unit-check.mjs && node scripts/ci-event-briefs-check.mjs
+- [x] QA-AI-VIX-SAMPLE-01: AI의 VIX 구간 기록은 화면과 같은 겹치지 않는 사례의 비율과 개수를 말한다. (v60.46) verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-MASTERS-SHARED-LINK-01: #masters?manager=<id>는 그 운용사를 연다. 카탈로그가 오기 전에는 '불러오는 중', 목록에 없는 id는 '목록에 없음'을 보이고, 다른 운용사로 바꾸거나 주소를 다시 쓰지 않는다(v60.46). verify_by: node scripts/ci-masters-contract-check.mjs
+- [x] QA-MASTERS-VALUE-SCALE-01: 13F 금액 단위 판정은 생산자가 모든 운용사의 전체 행으로 하고 holdings-summary.json의 managers[].verification.valueScaleReview로 게시한다. 화면은 그 상태만 읽고 직접 판정하지 않는다(v60.46). verify_by: node scripts/ci-masters-contract-check.mjs
+- [x] QA-13F-DEADLINE-HOLIDAY-01: 13F 마감일은 주말과 등록된 미국 휴장일을 건너 다음 영업일이다(2026-02-14 → 2/17). 등록 표가 없는 해는 주말만 건넌다(v60.46). verify_by: node scripts/ci-masters-contract-check.mjs
+- [x] QA-MASTERS-STALE-SUBMISSION-01: 13F 보유가 다음 마감을 넘긴 운용사는 어느 탭에서든 분기 말 칩에 사유(13F-NT면 다른 신고자 보고)가 있고, 보유 신고보다 뒤의 제출이 있으면 그 서식·제출일·분기가 제출일 줄에 있다(v60.46). verify_by: node scripts/ci-masters-contract-check.mjs
+- [x] QA-SCORE-BACKTEST-NEFF-01: 시장 점수 백테스트의 유효 표본은 세션 위치로 센 겹치지 않는 창 수이고, 보유기간마다 바닥 30 미만이면 insufficient로 표시된다. verify_by: node scripts/ci-research-model-contract-check.mjs
+- [x] QA-SCORE-BACKTEST-RESTATE-01: 시장 점수 백테스트 파일은 과거 행이 실행마다 재계산된다는 것과 재계산 시작 세션을 적는다. verify_by: node scripts/ci-research-model-contract-check.mjs
+- [x] QA-COMPANY-CHIP-PAYS-FOR-01: 종목 개요의 관계 칩은 money-flow 연결이면 이름 옆에 무엇에 대한 대금인지 이야기 원문 문구로 보여 주고, 그 문구가 없는 연결에는 아무것도 붙이지 않는다. verify_by: node scripts/ci-company-profile-contract-check.mjs
+- [x] QA-CHARTS-HEADER-DRAWN-01: 기술적 분석 머리글의 종가 날짜는 미국 지수 카드가 실제로 그린 마지막 봉의 날짜이고, 카드가 아직 없을 때만 history 종가 날짜다. verify_by: node scripts/ci-domain-parity-check.mjs
+- [x] QA-KNOW-SOURCE-URL-01: 날짜 붙은 지식 출처는 그 발표본 주소를 가리킨다(?lv=true·BLS 현재 발표·/latest 금지). 주소 생존은 report-knowledge-source-liveness로 출처 갱신 때 확인한다. verify_by: node scripts/ci-knowledge-corpus-check.mjs
+- [x] QA-SCR-RANGE-01: RSI 최소가 최대보다 크면 두 칸이 잘못된 값으로 표시되고, 미리보기와 표는 같은 최소·최대를 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SCR-COMPARE-REMOVE-01: 비교 트레이의 종목마다 빼기가 있고, 빼거나 비운 뒤 포커스가 다음 종목이나 비교를 추가한 컨트롤에 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NAV-BACK-FOCUS-01: 메뉴를 연 채 뒤로 가면 메뉴가 닫히고 포커스가 새 화면 제목에 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NAV-BACK-SEARCH-01: 검색 창을 연 채 뒤로 가면 창이 닫히고 포커스가 새 화면 제목에 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CHART-LAYER-RESET-01: 봉 데이터를 받지 못한 주기에서 이전 차트의 레이어 칩과 읽기 줄이 남지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SHELF-OPENED-01: 서가는 연 글을 "열어 봄"으로 세고 "읽음"이라고 쓰지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-SEARCH-IME-ESCAPE-01: 검색 칸에서 한글 조합 중 Escape는 조합 중인 글자만 취소하고 확정한 글자와 결과는 남는다(명령 검색, 스크리너 표에서 찾기). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-PF-REFUSAL-FOCUS-01: 보유 종목 추가의 모든 거부(빈 티커, 수량, 단가, 모르는 티커, 원가 통화, 목표가)가 그 칸에 표시하고 포커스를 옮긴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-DATA-RUN-CODE-GATES-01: architecture/qa-pipeline.json의 모든 게이트는 inputClass(data·code·mixed)를 선언한다. 데이터 실행(생산자의 push 전 검사 data-commit·--data-run, 데이터 전용 커밋의 축소 범위 CI)은 code 게이트를 건너뛰고 data·mixed 게이트를 모두 돌린다. 코드 push CI는 모든 게이트를 돌린다. 클래스 없이 등록된 게이트는 ci-qa-pipeline-contract-check가 거부한다. verify_by: node scripts/ci-qa-runner-behavior-check.mjs && node scripts/ci-qa-pipeline-contract-check.mjs
+- [x] QA-OPS-STATUS-NO-CODE-COPY-01: public-data/operations-status.json은 라우트 소유 목록(routes, reconciliation.routeCount)을 싣지 않는다. 발행 계약이 그 필드를 버린다. verify_by: node scripts/ci-operations-status-check.mjs
+- [x] QA-OVERLAY-PRODUCER-PATHS-01: data overlay 릴리스는 PRODUCER_WRITTEN_PATHS만 데이터 커밋에서 가져오고 나머지(생성된 지식 파일 포함)는 코드 커밋 그대로다. 그 밖의 경로를 바꾼 커밋은 코드 커밋이다. verify_by: node scripts/ci-release-source-check.mjs
+- [x] QA-SCENARIO-STATE-SCREENER-BASIS-01: scenario-state.json의 basis.screenerComputedAt이 만든 screener.json을 가리키고, 테마 1개월 수치의 발행본·다시 계산 비교는 같은 종가·같은 screener.json·보류 아닌 행에서만 한다. verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-FRED-RELEASE-THROTTLE-01: data.json의 FRED 월별 시리즈 중 공식 발표 일정이 있는 10개(CPI 4, PCE 2, 실업률, 고용, 시간당 임금, 소매판매에서 직전 값이 FRED 값인 것)는 발표 사이에 다시 받지 않고 이전 값을 관측일 그대로 잇는다. 발표일에는 08:30 ET부터 12시간 동안 매 실행 받으므로 새 값은 FRED가 올린 뒤 첫 실행에 들어온다. 일정이 없는 FEDFUNDS·HOUST와 일별 시리즈는 매 실행 받는다. macro-history도 같은 규칙(scripts/lib/series-fetch-due.mjs)을 쓴다. verify_by: node scripts/ci-data-audit-contract-check.mjs
+- [x] QA-VKOSPI-RETIRED-01: 브라우저는 VKOSPI를 받지 않는다(fetchVkospiDynamic, 실패 상태, DATA_SNAPSHOT.vkospi 시드, VKOSPI 기호 시드 삭제). krDynamic 작업은 네이버 한국 시세만 받는다. 프로듀서도 VKOSPI를 발행하지 않는다: 읽는 화면이 없고 KRX 재배포 권리가 미확정이다(reconciliation 'kr-macro-vkospi-supply'). verify_by: node scripts/ci-runtime-contract-check.mjs
+- [x] QA-FAST-QUOTES-CLOCK-01: 데이터 플레인 Worker는 미국(04:00-20:00 ET) 또는 한국 장이 열려 있을 때만 5분마다 시세를 발행하고, 그 밖에는 30분에 한 번(BTC/ETH) 발행한다. 장 판단은 브라우저와 같은 src/app/refresh-session-policy.js를 읽고, 워크플로 4종 실행은 5분 슬롯을 그대로 쓴다 (v60.46). verify_by: node scripts/ci-data-plane-contract-check.mjs
+- [x] QA-PROXY-ALLOWLIST-01: AI 프록시 Worker 중계 허용 목록과 브라우저 사본(_AIO_SHARED_WORKER_HOSTS)에 호출처 없는 호스트(공포탐욕 3종, 환율 기준가 2종, 번역 2종, rss2json.com)가 없고, JSON 수용 규칙에도 없다 (v60.46). verify_by: node scripts/ci-proxy-continuity-check.mjs
+
 ## v60.45 차트 화면 AI 패널 (2026-11-22)
 
 - [x] QA-AI-CHARTS-PANEL-01: 기술적 분석 화면(#technical, #charts)에서 AI 패널을 열면 입력창과 전송 버튼이 켜져 있고, 모든 라우트에 패널 컨텍스트가 있다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
