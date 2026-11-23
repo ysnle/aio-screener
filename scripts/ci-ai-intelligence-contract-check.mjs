@@ -1925,8 +1925,12 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
       all: { 21: { hitRate: 64, n: 9000, nEff: 428 } }, allRisk: riskRow(440, 282, 66),
       bands: [{ id: 'stress', label: '30~40', horizons: { 21: { hitRate: 81, n: 528, nEff: 25.1, median: 3.5, p10: -4 } }, risk: riskRow(64, 41, 18) },
         { id: 'panic', label: '40 이상', horizons: { 21: { hitRate: 70, n: 208, nEff: 9.9 } }, risk: riskRow(7, 5, 3) }] };
+    // The two rows sit on the last two US sessions: calendar days back from today land on a weekend every Monday (UTC)
+    // and the close series then has no VIX row at all (CI and the data refresh failed 2026-11-23 from 00:06Z).
+    const { previousHistorySession } = await import('../src/domain/market/session/history-session.js');
+    const lastSession = previousHistorySession(iso(0), 'vix');
     const vixRoot = (vix) => {
-      const r = fixtureRoot({ [STRESS_OUTCOMES.key]: stress, _aioHistory: [{ date: iso(2), vix: vix - 1 }, { date: iso(1), vix }] });
+      const r = fixtureRoot({ [STRESS_OUTCOMES.key]: stress, _aioHistory: [{ date: previousHistorySession(lastSession, 'vix'), vix: vix - 1 }, { date: lastSession, vix }] });
       r.__aioSharedArtifacts[STRESS_OUTCOMES.key] = { loadedAt: nowMs, failedAt: 0, inFlight: null };
       return r;
     };
