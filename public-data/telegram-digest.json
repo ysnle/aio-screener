@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-22T23:52:09.648Z",
-  "attemptedAt": "2026-11-22T23:52:09.648Z",
-  "lastSuccessfulAt": "2026-11-22T23:52:09.648Z",
+  "generatedAt": "2026-11-23T02:22:00.540Z",
+  "attemptedAt": "2026-11-23T02:22:00.540Z",
+  "lastSuccessfulAt": "2026-11-23T02:22:00.540Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-08T23:52:03.438Z",
-  "until": "2026-11-22T23:52:03.438Z",
+  "since": "2026-11-09T02:21:54.869Z",
+  "until": "2026-11-23T02:21:54.869Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -82,42 +82,42 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1162,
-      "freshCount": 20,
-      "eligibleTextCount": 1097,
-      "selectedCount": 123,
+      "count": 1160,
+      "freshCount": 38,
+      "eligibleTextCount": 1095,
+      "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 69995
+      "lastPostId": 70008
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 179,
+      "count": 178,
       "freshCount": 40,
-      "eligibleTextCount": 179,
-      "selectedCount": 116,
+      "eligibleTextCount": 178,
+      "selectedCount": 115,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21241
+      "lastPostId": 21242
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 716,
-      "freshCount": 35,
-      "eligibleTextCount": 716,
+      "count": 719,
+      "freshCount": 36,
+      "eligibleTextCount": 719,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72573
+      "lastPostId": 72590
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2057,
-  "retainedItemCount": 419,
+  "retainedItemCount": 439,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -147,63 +147,64 @@
     "observedCount": 2057,
     "eligibleTextCount": 1992,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 809,
-    "photoPostCount": 681,
+    "mediaAttachedCount": 811,
+    "photoPostCount": 686,
     "documentPostCount": 3,
     "imageOnlyCount": 5,
-    "highSignalCount": 337,
-    "broadSignalCount": 846,
-    "selectedRawCount": 364,
-    "selectedEligibleCount": 364,
+    "highSignalCount": 338,
+    "broadSignalCount": 844,
+    "selectedRawCount": 365,
+    "selectedEligibleCount": 365,
     "selectedRawCoveragePct": 18.3,
     "selectedOfObservedPct": 17.7,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 729,
+    "equity": 146,
+    "insider": 3,
+    "macro": 288,
     "semi": 635,
-    "power": 209,
-    "flows": 51,
+    "earnings": 263,
+    "power": 206,
+    "flows": 50,
     "ai-policy": 145,
     "healthcare": 47,
-    "earnings": 260,
-    "market-note": 725,
-    "equity": 146,
-    "macro": 290,
-    "geo": 263,
-    "credit": 71,
+    "geo": 261,
+    "credit": 69,
     "media-only": 64,
-    "japan": 52,
-    "kr-market": 87,
-    "optical": 21,
-    "insider": 2
+    "japan": 51,
+    "kr-market": 86,
+    "optical": 21
   },
   "tickerCounts": {
+    "TSLA": 30,
+    "MSFT": 52,
+    "META": 5,
+    "ORCL": 5,
+    "PLTR": 8,
+    "LITE": 3,
     "NVDA": 405,
+    "AVGO": 20,
+    "TSM": 61,
+    "GOOG": 50,
     "MU": 25,
-    "TSM": 62,
     "000660.KS": 23,
     "AMD": 56,
     "SMCI": 5,
     "APO": 1,
-    "TSLA": 29,
     "CRWV": 14,
     "INTC": 1,
     "IT": 1,
     "AMZN": 47,
-    "GOOG": 49,
     "APLD": 2,
-    "ORCL": 4,
     "2454.TW": 8,
     "CRWD": 2,
     "ZS": 1,
     "IBN": 2,
-    "MSFT": 52,
-    "AVGO": 19,
     "GOOGL": 2,
-    "005930.KS": 24,
-    "PLTR": 7,
+    "005930.KS": 23,
     "329180.KS": 1,
-    "META": 4,
     "BABA": 6,
     "INTU": 2,
     "285A.T": 1,
@@ -249,7 +250,6 @@
     "NVO": 2,
     "DDOG": 1,
     "SNOW": 1,
-    "LITE": 2,
     "103590.KS": 1,
     "RKLB": 2,
     "IRDM": 2,
@@ -262,12 +262,12 @@
     "006400.KS": 1
   },
   "themes": [
-    "Market Notes (725 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
-    "Semiconductors/Memory (635 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·...",
-    "Macro/Rates (290 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
-    "Geopolitics (263 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "Earnings/Corporate (260 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "AI Power/Grid (209 posts in 14-day research window): >>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
+    "Market Notes (729 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
+    "Semiconductors/Memory (635 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+    "Macro/Rates (288 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
+    "Earnings/Corporate (263 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
+    "Geopolitics (261 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "AI Power/Grid (206 posts in 14-day research window): >>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력...",
     "Equity/Analyst (146 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO...",
     "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고 있으며, 영업이익률이 30%를 상회할 역량을 바탕으로 2029~2030년(CY29/30)까지 상당한..."
   ],
@@ -279,7 +279,7 @@
     },
     {
       "key": "TSM",
-      "count": 62,
+      "count": 61,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
     },
     {
@@ -294,7 +294,7 @@
     },
     {
       "key": "GOOG",
-      "count": 49,
+      "count": 50,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
@@ -304,7 +304,7 @@
     },
     {
       "key": "TSLA",
-      "count": 29,
+      "count": 30,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
@@ -313,24 +313,24 @@
       "text": "SK하이닉스 제이피모건 메모리가 AI의 아키텍처가 된다 핵심 메시지: 에이전틱 AI는 HBM 너머 전 메모리 계층으로 수요를 번지게 한다 홍콩 글로벌 TIG 콘퍼런스에 하이닉스 NAND 제품기획 임원 초청 — '메모리 월에서 새 메모리 하이어라키로'. 에이전틱 AI는 컴퓨트 바운드가 아니라 데이터 바운드가 됐고,..."
     },
     {
-      "key": "005930.KS",
-      "count": 24,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
-    },
-    {
       "key": "000660.KS",
       "count": 23,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
     },
     {
+      "key": "005930.KS",
+      "count": 23,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
+    },
+    {
       "key": "AVGO",
-      "count": 19,
+      "count": 20,
       "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
     },
     {
       "key": "CRWV",
       "count": 14,
-      "text": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도 34거래일 동안 18.1% 하락해 기술적 약세장 진입을 앞두고 있음. •첫 번째 위험 요인으로는..."
+      "text": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     }
   ],
   "categories": [
@@ -340,7 +340,7 @@
       "topics": [
         "macro"
       ],
-      "count": 290,
+      "count": 288,
       "focus": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와..."
     },
     {
@@ -349,7 +349,7 @@
       "topics": [
         "geo"
       ],
-      "count": 263,
+      "count": 261,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -358,8 +358,8 @@
       "topics": [
         "credit"
       ],
-      "count": 71,
-      "focus": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도 34거래일 동안 18.1% 하락해 기술적 약세장 진입을 앞두고 있음. •첫 번째 위험 요인으로는..."
+      "count": 69,
+      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
       "id": "semi",
@@ -368,7 +368,7 @@
         "semi"
       ],
       "count": 635,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 21일 트럼프·중국 · 트럼프, 미국과 중국이 광범위한 합의를 논의하고 있다고 밝혀 · 트럼프, 중국과 수출·반도체 관련 협상 진행 중이라고 밝혀 ·..."
+      "focus": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     },
     {
       "id": "optical",
@@ -385,7 +385,7 @@
       "topics": [
         "power"
       ],
-      "count": 209,
+      "count": 206,
       "focus": ">>은행들이 AI 데이터센터 부채 매각 시작, ING와 소시에테제네랄 8억 달러 규모 대출 매물로 내놓아 •오라클이 추진하는 뉴멕시코, 위스콘신, 텍사스 3개 주 프로젝트가 대상. 뉴멕시코 프로젝트는 전력..."
     },
     {
@@ -403,7 +403,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 87,
+      "count": 86,
       "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
@@ -430,7 +430,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 260,
+      "count": 263,
       "focus": "엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,..."
     },
     {
@@ -448,7 +448,7 @@
       "topics": [
         "japan"
       ],
-      "count": 52,
+      "count": 51,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 17일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 트럼프 대통령은 필리핀 마닐라에서 일본·인도·호주 정상들과 쿼드(QUAD) 회담을 진행. 4개국이 공동..."
     },
     {
@@ -457,7 +457,7 @@
       "topics": [
         "flows"
       ],
-      "count": 51,
+      "count": 50,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -466,8 +466,8 @@
       "topics": [
         "insider"
       ],
-      "count": 2,
-      "focus": "No retained full-text sample; 2 observed posts in the 14-day research window."
+      "count": 3,
+      "focus": "앤트로픽 내부자 매도는 아직 없는 상황입니다."
     },
     {
       "id": "market-note",
@@ -475,7 +475,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 725,
+      "count": 729,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
     }
   ],
@@ -772,17 +772,15 @@
       "datetime": "2026-11-22T07:41:55.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+      "lead": 1,
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
+      ]
     },
     {
       "id": "insidertracking/69901",
@@ -1475,6 +1473,27 @@
       ]
     },
     {
+      "id": "bornlupin/21242",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21242",
+      "datetime": "2026-11-23T01:18:38.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "lead": 2,
+      "score": 91,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "TSM"
+      ],
+      "summary": "BofA \"美 반도체 바닥은 금리 고점에서… AI 설비투자 리셋은 필요한 고통\" BofA는 최근 반도체 약세의 핵심 변수로 금리를 지목했다. 클라우드 업체(CSP)의 현금 소진 규모는 컨센서스 기준 2026년..."
+    },
+    {
       "id": "bornlupin/21241",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21241",
@@ -1581,14 +1600,13 @@
       "datetime": "2026-11-22T05:09:29.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는..."
+      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21227",
@@ -1666,34 +1684,197 @@
         "NVDA",
         "TSLA"
       ]
-    },
-    {
-      "id": "bornlupin/21186",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21186",
-      "datetime": "2026-11-18T02:36:01.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 87,
-      "hasText": true,
-      "summary": "아마존과 구글, 앤트로픽(Anthropic) IPO 이후 지분 약 30% 공동 보유 전망 앤트로픽(Anthropic)이 기업공개(IPO)를 앞두고 주요 클라우드 제공업체인 아마존, 구글과 맺은 대규모 투자...",
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AVGO",
-        "AMZN",
-        "MU",
-        "TSM"
-      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/70003",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70003",
+      "datetime": "2026-11-23T01:47:19.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "equity"
+      ],
+      "score": 55,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSLA",
+        "MSFT",
+        "META",
+        "ORCL",
+        "PLTR"
+      ],
+      "summary": "2026년 3분기 해지펀드들이 많이 담은 종목 TOP 50 (1/5) 1위: 인텔 (INTC) 2위: 마이크로소프트 (MSFT) 3위: 메타 플랫폼스 (META) 4위: 웨스턴 미드스트림 파트너스 (WES)..."
+    },
+    {
+      "id": "HANAchina/72586",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72586",
+      "datetime": "2026-11-23T01:35:22.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>골드만삭스: 연준, 2027년 말 금리 인하 전망…통화정책 정상화 추진 •골드만삭스는 2027년 글로벌 실질 GDP 성장률을 2.8%로 전망, 이는 2026년 전망치인 2.7%보다 소폭 높은 수준임. 다만..."
+    },
+    {
+      "id": "bornlupin/21242",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21242",
+      "datetime": "2026-11-23T01:18:38.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "lead": 2,
+      "score": 91,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AVGO",
+        "TSM"
+      ],
+      "summary": "BofA \"美 반도체 바닥은 금리 고점에서… AI 설비투자 리셋은 필요한 고통\" BofA는 최근 반도체 약세의 핵심 변수로 금리를 지목했다. 클라우드 업체(CSP)의 현금 소진 규모는 컨센서스 기준 2026년..."
+    },
+    {
+      "id": "HANAchina/72583",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72583",
+      "datetime": "2026-11-23T01:13:34.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi"
+      ],
+      "score": 72,
+      "hasText": true,
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "TSLA",
+        "GOOG",
+        "AVGO",
+        "MU",
+        "000660.KS"
+      ],
+      "summary": "•미국 기술주 야간거래에서 전반적으로 상승세. SK하이닉스 +7%, 엔비디아·인텔·샌디스크·마벨 테크놀로지 +5%, 마이크론 테크놀로지·브로드컴·구글·테슬라 +3% 이상 상승"
+    },
+    {
+      "id": "insidertracking/69998",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69998",
+      "datetime": "2026-11-23T01:11:08.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "반도체 3배 ETF 'SOXL', 오버나잇 11% 상승"
+    },
+    {
+      "id": "insidertracking/69997",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69997",
+      "datetime": "2026-11-23T01:10:02.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "엔비디아 오버나잇 6% 상승"
+    },
+    {
+      "id": "HANAchina/72577",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72577",
+      "datetime": "2026-11-23T01:06:45.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "lead": 2,
+      "score": 74,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 3,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>BofA: 반도체주 “바닥”은 “금리 정점”이 필요, “주가가 악재에 더 이상 반응하지 않을 때” 저점 매수 •BofA는 금리 정점이 반도체주가 지속 가능한 바닥을 형성하기 위한 필요조건이라고 판단함...."
+    },
+    {
+      "id": "insidertracking/69996",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/69996",
+      "datetime": "2026-11-23T00:38:25.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "미국 정보당국 보고서에 정통한 관계자들에 따르면 앨리스 황은 2025년 봄부터 2026년 가을까지 중국 국가안전부 관계자와 연락을 유지했으며, 해당 기간은 엔비디아 CEO 젠슨 황과의 관계 기간과 겹치는..."
+    },
+    {
+      "id": "HANAchina/72574",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72574",
+      "datetime": "2026-11-23T00:28:09.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi"
+      ],
+      "score": 56,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>국면 변화? 베선트 “입장 선회” : 젠슨 황이 “상황을 몰랐을 가능성” •미국 베센트 재무장관 11월 22일 젠슨 황의 엔비디아 복귀 가능성을 배제하지 않고 있음을 시사함. 지난주 “대대적인 정비”를..."
+    },
     {
       "id": "bornlupin/21241",
       "channel": "bornlupin",
@@ -1910,10 +2091,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 현황 앤트로픽 관심은 줄어들고 다시 엔비디아 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 현황 앤트로픽 관심은 줄어들고 다시 엔비디아 집중"
     },
     {
       "id": "insidertracking/69973",
@@ -1922,7 +2103,8 @@
       "datetime": "2026-11-22T21:52:22.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "macro",
+        "earnings"
       ],
       "score": 52,
       "hasText": true,
@@ -1932,8 +2114,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 주간 주요 일정 > 2026년 11월 23일(월) ~ 11월 27일(금) 1. 주요 경제지표 및 일정 11월 23일(월) • 오후 11:45 — 미국 제조업 PMI (11월 예비치) •...",
-      "tickers": []
+      "tickers": [],
+      "summary": "🇺🇸 미국 증시 주간 주요 일정 > 2026년 11월 23일(월) ~ 11월 27일(금) 1. 주요 경제지표 및 일정 11월 23일(월) • 오후 11:45 — 미국 제조업 PMI (11월 예비치) •..."
     },
     {
       "id": "insidertracking/69971",
@@ -1942,7 +2124,8 @@
       "datetime": "2026-11-22T21:49:06.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
@@ -1952,8 +2135,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "모두가 기억하겠지만, 나는 11월 3일 중간선거와 관련해 두 가지를 예측했다. 첫째, 민주당이 승리하면 주식시장이 크게 하락할 것이라고 예측했고, 실제로 그렇게 됐다. 둘째, 오늘 기준으로 시위대 8만...",
-      "tickers": []
+      "tickers": [],
+      "summary": "모두가 기억하겠지만, 나는 11월 3일 중간선거와 관련해 두 가지를 예측했다. 첫째, 민주당이 승리하면 주식시장이 크게 하락할 것이라고 예측했고, 실제로 그렇게 됐다. 둘째, 오늘 기준으로 시위대 8만..."
     },
     {
       "id": "insidertracking/69968",
@@ -2103,14 +2286,14 @@
       "datetime": "2026-11-22T09:20:16.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>(영상) 위험은 아직 끝나지 않았다! 실리콘밸리 거물 경고 “나는 현재 전면적으로 위험 회피 중” •실리콘밸리 유명 투자자 Chamath Palihapitiya는 최신 ‘All-In’ 팟캐스트에서 현재...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>(영상) 위험은 아직 끝나지 않았다! 실리콘밸리 거물 경고 “나는 현재 전면적으로 위험 회피 중” •실리콘밸리 유명 투자자 Chamath Palihapitiya는 최신 ‘All-In’ 팟캐스트에서 현재..."
+      ]
     },
     {
       "id": "HANAchina/72549",
@@ -2119,17 +2302,14 @@
       "datetime": "2026-11-22T08:51:47.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "geo",
-        "semi",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 74,
       "hasText": true,
+      "summary": ">>젠슨 황 사건 이후 미국의 대중국 AI 연산력 규제는 어디로 향하나? (중국언론) •젠슨 황 퇴진의 의미 : 젠슨 황의 퇴진은 단순한 경영진 교체를 넘어 미국의 대중국 AI 연산력 정책에서 산업계의 핵심...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 사건 이후 미국의 대중국 AI 연산력 규제는 어디로 향하나? (중국언론) •젠슨 황 퇴진의 의미 : 젠슨 황의 퇴진은 단순한 경영진 교체를 넘어 미국의 대중국 AI 연산력 정책에서 산업계의 핵심..."
+      ]
     },
     {
       "id": "HANAchina/72548",
@@ -2142,8 +2322,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트레이더들, 미국산 구리를 중국으로 보내기 시작…무역 흐름 역전 •현재 LME와 CME 창고의 구리 재고 가운데 약 94%가 미국에 위치해 있음. 2년 전에는 이 비중이 20%에 불과. 관세 우려가..."
+      "summary": ">>트레이더들, 미국산 구리를 중국으로 보내기 시작…무역 흐름 역전 •현재 LME와 CME 창고의 구리 재고 가운데 약 94%가 미국에 위치해 있음. 2년 전에는 이 비중이 20%에 불과. 관세 우려가...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72544",
@@ -2152,17 +2332,15 @@
       "datetime": "2026-11-22T07:41:55.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+      "lead": 1,
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
+      ]
     },
     {
       "id": "insidertracking/69953",
@@ -2201,10 +2379,8 @@
       "localDateKst": "2026-11-22",
       "tags": [
         "semi",
-        "flows",
-        "kr-market"
+        "flows"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
       "media": {
@@ -2213,10 +2389,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 대만 증시는 AI 설비투자 지속 가능성에 대한 의구심과 미국 텍사스주 정책 선회, 젠슨 황 엔비디아 CEO 사임 등 돌발 악재가 겹치면서 AI 관련주의 수급이 흔들렸고, 이로 인해 신용융자 반대매매와...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "• 대만 증시는 AI 설비투자 지속 가능성에 대한 의구심과 미국 텍사스주 정책 선회, 젠슨 황 엔비디아 CEO 사임 등 돌발 악재가 겹치면서 AI 관련주의 수급이 흔들렸고, 이로 인해 신용융자 반대매매와..."
+      ]
     },
     {
       "id": "HANAchina/72539",
@@ -2225,14 +2402,13 @@
       "datetime": "2026-11-22T05:09:29.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는..."
+      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21228",
@@ -2295,8 +2471,7 @@
       "datetime": "2026-11-22T04:50:07.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -2306,8 +2481,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>JPMorgan, 기술주 투자자들에게 경고 “아직 매도하지 않은 투자자가 많다” •JPMorgan과 Goldman Sachs의 최신 데이터에 따르면 헤지펀드가 이미 보유 비중을 크게 줄였지만, 헤지펀드의..."
+      "summary": ">>JPMorgan, 기술주 투자자들에게 경고 “아직 매도하지 않은 투자자가 많다” •JPMorgan과 Goldman Sachs의 최신 데이터에 따르면 헤지펀드가 이미 보유 비중을 크게 줄였지만, 헤지펀드의...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69949",
@@ -4776,15 +4951,12 @@
       "datetime": "2026-11-19T05:14:24.000Z",
       "localDateKst": "2026-11-19",
       "tags": [
-        "macro",
-        "semi",
-        "optical",
-        "earnings"
+        "market-note"
       ],
       "score": 80,
       "hasText": true,
-      "tickers": [],
-      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후..."
+      "summary": "안녕하세요 Anakin 입니다. 상반기 테크 시장은 사실상 전닉이 주도하는 대형주 일변도의 장세였습니다. 빅테크들의 capex 상향과 ASP의 상승이 주도하는 전형적인 P 사이클이라고 생각됩니다. 7월 이후...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72396",
@@ -6141,50 +6313,6 @@
       ]
     },
     {
-      "id": "insidertracking/69609",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69609",
-      "datetime": "2026-11-18T05:16:19.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 18일 미국 증시 프리마켓 브리핑 미국 증시 선물은 한국시간 오후 2시 기준 소폭 상승 흐름. 다우 +0.01%, S&P500 +0.12%, 나스닥100 +0.29%, 러셀2000...",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "GOOGL",
-        "WWD"
-      ]
-    },
-    {
-      "id": "insidertracking/69608",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69608",
-      "datetime": "2026-11-18T05:11:56.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 18일 > 오전 6시~오후 2시 🇺🇸 아메리카 • 트럼프 대통령은 필리핀과의 무역협정이 완료됐다고 발표. 양국의 군사 협력이 전례 없는 수준으로 확대되고 있으며...",
-      "tickers": [
-        "NVDA",
-        "TSM",
-        "009150.KS"
-      ]
-    },
-    {
       "id": "HANAchina/72339",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72339",
@@ -6201,39 +6329,6 @@
         "NVDA",
         "MRVL",
         "CRWV"
-      ]
-    },
-    {
-      "id": "insidertracking/69602",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69602",
-      "datetime": "2026-11-18T04:08:49.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "디인포메이션에 따르면 엔비디아의 오랜 영업 총괄 출신 제이 푸리가 주요 고객사와의 관계를 관리했으며, 여기에는 앨리스 황도 포함. 앨리스 황의 사업 네트워크는 수출 제한 대상인 엔비디아 AI 칩 최소 75억...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69598",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69598",
-      "datetime": "2026-11-18T03:03:23.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "세마포에 따르면 엔비디아 이사회 일부 구성원들의 반대에도 불구하고, 일부 이사들이 젠슨 황의 복귀를 계속 추진 중.",
-      "tickers": [
-        "NVDA"
       ]
     },
     {
@@ -7156,76 +7251,6 @@
         "PLTR",
         "SNDK"
       ]
-    },
-    {
-      "id": "HANAchina/72257",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72257",
-      "datetime": "2026-11-17T02:00:24.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>모건스탠리 “리스크를 받아들여라” 강조 - AI 연산 투자 지출은 “늦어질 뿐, 줄어들지는 않을 것”, 글로벌 주식 최대 비중확대 요•모건스탠리는 글로벌 주식 비중을 최대 수준의 비중확대로 조정했으며,...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72255",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72255",
-      "datetime": "2026-11-17T01:40:38.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 52,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 2,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "•중국 파운더리, 반도체 장비는 강세 •SMIC +5%(좌), 북방화창 +4%(우) •반면, 유니트리 -5%, CXMT -3.8%",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72254",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72254",
-      "datetime": "2026-11-17T01:38:26.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "semi"
-      ],
-      "score": 67,
-      "hasText": true,
-      "summary": ">>역사상 처음! 도이체방크 “칩 달러”가 “석유 달러”를 대체, 글로벌 금융 시스템이 “위험한 폐쇄고리”에 빠져 •도이체방크는 글로벌 반도체 무역액이 사상 처음으로 석유·천연가스 무역액을 넘어섰으며,...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72249",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72249",
-      "datetime": "2026-11-17T00:37:18.000Z",
-      "localDateKst": "2026-11-17",
-      "tags": [
-        "market-note"
-      ],
-      "score": 60,
-      "hasText": true,
-      "summary": ">> 미국 상무부, 첨단 AI 칩에 대한 원격 접근을 겨냥한 규정 발표 • 중국·마카오(국가 그룹 D:5)에 본사나 모회사를 둔 기업에 총 처리 성능(TPP) 1,200만 초과 수준의 AI 연산 자원을...",
-      "tickers": []
     },
     {
       "id": "bornlupin/21166",
@@ -8298,44 +8323,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/21059",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21059",
-      "datetime": "2026-11-09T02:03:00.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "macro",
-        "geo"
-      ],
-      "score": 57,
-      "hasText": true,
-      "summary": "트럼프 \"이란 추가 공격 가능성 낮아\" 발언에 장 초반 국제유가 하락 도널드 트럼프 미국 대통령이 분쟁 종식을 위한 회담이 진전되는 한 이란에 대한 추가 공격을 명령할 가능성이 매우 낮다고 밝히면서, 월요일...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/21058",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21058",
-      "datetime": "2026-11-09T00:09:04.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 68,
-      "hasText": true,
-      "media": {
-        "kind": "video",
-        "photoCount": 0,
-        "videoCount": 1,
-        "documents": []
-      },
-      "summary": "트럼프 - 젠슨 황 관련 기자: 엔비디아(Nvidia)가 젠슨 황(Jensen Huang)과 중국 스파이 간의 관계를 조사 중입니다. 오늘 젠슨 황과 통화하셨나요? 트럼프: 그 문제에 대해 그와 이야기하지...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
     }
   ],
   "current24hItems": [
@@ -8462,10 +8449,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 현황 앤트로픽 관심은 줄어들고 다시 엔비디아 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 현황 앤트로픽 관심은 줄어들고 다시 엔비디아 집중"
     },
     {
       "id": "insidertracking/69973",
@@ -8474,7 +8461,8 @@
       "datetime": "2026-11-22T21:52:22.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "macro",
+        "earnings"
       ],
       "score": 52,
       "hasText": true,
@@ -8484,8 +8472,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 주간 주요 일정 > 2026년 11월 23일(월) ~ 11월 27일(금) 1. 주요 경제지표 및 일정 11월 23일(월) • 오후 11:45 — 미국 제조업 PMI (11월 예비치) •...",
-      "tickers": []
+      "tickers": [],
+      "summary": "🇺🇸 미국 증시 주간 주요 일정 > 2026년 11월 23일(월) ~ 11월 27일(금) 1. 주요 경제지표 및 일정 11월 23일(월) • 오후 11:45 — 미국 제조업 PMI (11월 예비치) •..."
     },
     {
       "id": "insidertracking/69971",
@@ -8494,7 +8482,8 @@
       "datetime": "2026-11-22T21:49:06.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "macro",
+        "geo"
       ],
       "score": 62,
       "hasText": true,
@@ -8504,8 +8493,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "모두가 기억하겠지만, 나는 11월 3일 중간선거와 관련해 두 가지를 예측했다. 첫째, 민주당이 승리하면 주식시장이 크게 하락할 것이라고 예측했고, 실제로 그렇게 됐다. 둘째, 오늘 기준으로 시위대 8만...",
-      "tickers": []
+      "tickers": [],
+      "summary": "모두가 기억하겠지만, 나는 11월 3일 중간선거와 관련해 두 가지를 예측했다. 첫째, 민주당이 승리하면 주식시장이 크게 하락할 것이라고 예측했고, 실제로 그렇게 됐다. 둘째, 오늘 기준으로 시위대 8만..."
     },
     {
       "id": "insidertracking/69968",
@@ -8655,14 +8644,14 @@
       "datetime": "2026-11-22T09:20:16.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>(영상) 위험은 아직 끝나지 않았다! 실리콘밸리 거물 경고 “나는 현재 전면적으로 위험 회피 중” •실리콘밸리 유명 투자자 Chamath Palihapitiya는 최신 ‘All-In’ 팟캐스트에서 현재...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>(영상) 위험은 아직 끝나지 않았다! 실리콘밸리 거물 경고 “나는 현재 전면적으로 위험 회피 중” •실리콘밸리 유명 투자자 Chamath Palihapitiya는 최신 ‘All-In’ 팟캐스트에서 현재..."
+      ]
     },
     {
       "id": "HANAchina/72549",
@@ -8671,17 +8660,14 @@
       "datetime": "2026-11-22T08:51:47.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "geo",
-        "semi",
-        "power",
-        "japan"
+        "market-note"
       ],
       "score": 74,
       "hasText": true,
+      "summary": ">>젠슨 황 사건 이후 미국의 대중국 AI 연산력 규제는 어디로 향하나? (중국언론) •젠슨 황 퇴진의 의미 : 젠슨 황의 퇴진은 단순한 경영진 교체를 넘어 미국의 대중국 AI 연산력 정책에서 산업계의 핵심...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황 사건 이후 미국의 대중국 AI 연산력 규제는 어디로 향하나? (중국언론) •젠슨 황 퇴진의 의미 : 젠슨 황의 퇴진은 단순한 경영진 교체를 넘어 미국의 대중국 AI 연산력 정책에서 산업계의 핵심..."
+      ]
     },
     {
       "id": "HANAchina/72548",
@@ -8694,8 +8680,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>트레이더들, 미국산 구리를 중국으로 보내기 시작…무역 흐름 역전 •현재 LME와 CME 창고의 구리 재고 가운데 약 94%가 미국에 위치해 있음. 2년 전에는 이 비중이 20%에 불과. 관세 우려가..."
+      "summary": ">>트레이더들, 미국산 구리를 중국으로 보내기 시작…무역 흐름 역전 •현재 LME와 CME 창고의 구리 재고 가운데 약 94%가 미국에 위치해 있음. 2년 전에는 이 비중이 20%에 불과. 관세 우려가...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72544",
@@ -8704,17 +8690,15 @@
       "datetime": "2026-11-22T07:41:55.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "credit",
-        "macro",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+      "lead": 1,
       "tickers": [
         "CRWV"
-      ],
-      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
+      ]
     },
     {
       "id": "insidertracking/69953",
@@ -8753,10 +8737,8 @@
       "localDateKst": "2026-11-22",
       "tags": [
         "semi",
-        "flows",
-        "kr-market"
+        "flows"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
       "media": {
@@ -8765,10 +8747,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "• 대만 증시는 AI 설비투자 지속 가능성에 대한 의구심과 미국 텍사스주 정책 선회, 젠슨 황 엔비디아 CEO 사임 등 돌발 악재가 겹치면서 AI 관련주의 수급이 흔들렸고, 이로 인해 신용융자 반대매매와...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "• 대만 증시는 AI 설비투자 지속 가능성에 대한 의구심과 미국 텍사스주 정책 선회, 젠슨 황 엔비디아 CEO 사임 등 돌발 악재가 겹치면서 AI 관련주의 수급이 흔들렸고, 이로 인해 신용융자 반대매매와..."
+      ]
     },
     {
       "id": "HANAchina/72539",
@@ -8777,14 +8760,13 @@
       "datetime": "2026-11-22T05:09:29.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "macro",
-        "credit"
+        "macro"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는..."
+      "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21228",
@@ -8847,8 +8829,7 @@
       "datetime": "2026-11-22T04:50:07.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "score": 53,
       "hasText": true,
@@ -8858,8 +8839,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>JPMorgan, 기술주 투자자들에게 경고 “아직 매도하지 않은 투자자가 많다” •JPMorgan과 Goldman Sachs의 최신 데이터에 따르면 헤지펀드가 이미 보유 비중을 크게 줄였지만, 헤지펀드의..."
+      "summary": ">>JPMorgan, 기술주 투자자들에게 경고 “아직 매도하지 않은 투자자가 많다” •JPMorgan과 Goldman Sachs의 최신 데이터에 따르면 헤지펀드가 이미 보유 비중을 크게 줄였지만, 헤지펀드의...",
+      "tickers": []
     },
     {
       "id": "insidertracking/69949",
