@@ -1,4 +1,5 @@
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
+import { ARTIFACT_FRESHNESS } from './contracts/artifact-freshness.js';
 
 const stateOf = (root) => (root.__aioSharedArtifacts ||= {});
 const serverGeneration = (root) => root?._serverDataMeta?.generatedAt || null;
@@ -25,7 +26,8 @@ export const screenerRowsState = (root) => root?.__aioScreenerLoadState || 'load
 
 /** Resolves to { payload, changed }. `changed` is true when a new copy replaced the old one. */
 export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 * 60 * 1000, maxBytes = 2 * 1024 * 1024, now = Date.now() } = {}) {
-  if (!root) return Promise.resolve({ payload: null, changed: false });
+  // An artifact absent by design (blockedBy) is not requested: the 404 would be the only outcome.
+  if (!root || ARTIFACT_FRESHNESS[url.split('/').pop()]?.blockedBy) return Promise.resolve({ payload: null, changed: false });
   const state = stateOf(root);
   const entry = (state[key] ||= { loadedAt: 0, failedAt: 0, inFlight: null });
   if (!sharedArtifactIsStale(root, key, { maxAgeMs, now })) return Promise.resolve({ payload: root[key], changed: false });

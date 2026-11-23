@@ -4,7 +4,6 @@ import { requestFiscalHistory, issuerSic, debtBasisFor } from './fiscal-read.js'
 import { parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { koreanThemeGroups } from '../../domain/market/korea/korea-participation.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { ARTIFACT_FRESHNESS } from '../../data/contracts/artifact-freshness.js';
 import { consensusView, peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
@@ -40,7 +39,7 @@ export function renderCompanyAnalysis({ documentRef: doc, root = globalThis, sta
   if (valuation && valuation.dataset.symbol !== id) { valuation.dataset.symbol = id; valuation.textContent = ''; valuation.hidden = true; }
   if (!id || root?._aioOnDemandSymbol?.(id)?.status === 'not-listed') { root.__aioCompanyAnalysis = null; return null; }
   refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed) again(); }).catch(() => {});
-  if (/\.K[SQ]$/.test(id) && !ARTIFACT_FRESHNESS['kr-fundamentals.json']?.blockedBy) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+  if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
   requestFiscalHistory(root, again, 'company');
   let rows = []; try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
   const onDemand = !/\.K[SQ]$/.test(id) && typeof root?._aioOnDemandSymbol === 'function' ? root._aioOnDemandSymbol(id) : null;

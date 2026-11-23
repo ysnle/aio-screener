@@ -676,7 +676,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const table = OPENING_INDEXES.filter((spec) => rows[spec.id]).map((spec) => {
     const row = rows[spec.id];
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
-    return { id: spec.id, part: spec.part, said: say('{lab}({d}): {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
+    return { id: spec.id, part: spec.part, said: say('{lab}, {d}: {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
   });
   return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, korea, table, standings, longrun: !!longrun };
 }

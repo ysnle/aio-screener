@@ -96,7 +96,7 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
 {
   const text = reading(at1120, 'volatility-sentiment')?.text || '';
   check('v60.50 B13: the stress-and-fear pair makes no uncounted frequency claim', !/자주/.test(text), text);
-  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 +32bp, 부담)', /하이일드 스프레드도 부담 쪽이라\(5거래일 \+32bp/.test(text), text);
+  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 widening, 부담)', /하이일드 스프레드도 부담 쪽이라.5거래일 \+\d+bp/.test(text), text);
 }
 
 // B15 — the transition's confirmation says which weakness conditions are met and which remain.

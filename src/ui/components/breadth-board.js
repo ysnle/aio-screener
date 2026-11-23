@@ -207,7 +207,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   let fallsHost = doc.getElementById('breadth-falls');
   if (!fallsHost && state) { fallsHost = el(doc, 'div', null, 'mk-sub-hero__falls'); fallsHost.id = 'breadth-falls'; state.closest('.mk-sub-hero__row')?.after(fallsHost); }
   if (fallsHost) {
-    fallsHost.replaceChildren(...(falls ? [fallBars(doc, falls.bars, `52주 종가 고점 대비 하락, ${shortDate(falls.asOf)} 종가 · 미국 종목 ${falls.measured}개`)] : []));
+    fallsHost.replaceChildren(...(falls ? [fallBars(doc, falls.bars, `52주 종가 고점 대비 · ${falls.measured}개 종목`)] : []));
     fallsHost.hidden = !falls;
   }
   // The condition that changes the verdict: the nearest threshold of the rule (flipDistance, the rule's own numbers) and its
