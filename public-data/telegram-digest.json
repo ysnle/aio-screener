@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-23T15:52:31.740Z",
-  "attemptedAt": "2026-11-23T15:52:31.740Z",
-  "lastSuccessfulAt": "2026-11-23T15:52:31.740Z",
+  "generatedAt": "2026-11-23T16:22:12.918Z",
+  "attemptedAt": "2026-11-23T16:22:12.918Z",
+  "lastSuccessfulAt": "2026-11-23T16:22:12.918Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-09T15:52:27.335Z",
-  "until": "2026-11-23T15:52:27.335Z",
+  "since": "2026-11-09T16:22:08.585Z",
+  "until": "2026-11-23T16:22:08.585Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 716,
-      "freshCount": 35,
+      "freshCount": 18,
       "eligibleTextCount": 715,
       "selectedCount": 125,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2059,
-  "retainedItemCount": 402,
+  "retainedItemCount": 390,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -1572,20 +1572,17 @@
       "datetime": "2026-11-23T05:09:07.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
+      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기...",
+      "lead": 1,
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기..."
+      ]
     },
     {
       "id": "bornlupin/21244",
@@ -2218,10 +2215,7 @@
       "datetime": "2026-11-23T08:17:20.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "semi",
-        "ai-policy",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "score": 79,
       "hasText": true,
@@ -2231,10 +2225,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.23, 월) 🇨🇳 중국 본토 증시는 장 초반 상하이종합지수가 3,476.65pt까지 밀렸으나, 전일 발표된 당국의 4,000억 위안 규모 증시 안정 패키지와 액티브 ETF의...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.23, 월) 🇨🇳 중국 본토 증시는 장 초반 상하이종합지수가 3,476.65pt까지 밀렸으나, 전일 발표된 당국의 4,000억 위안 규모 증시 안정 패키지와 액티브 ETF의..."
+      ]
     },
     {
       "id": "HANAchina/72611",
@@ -2253,8 +2247,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>미 정크본드, 올해 최악의 한 주…우량 채권도 압박 •지난주 미국 정크본드 스프레드는 한 주 동안 51bp 확대된 367bp를 기록하며 2026년 들어 최대 상승폭을 기록함. 투자등급 채권 스프레드도..."
+      "summary": ">>미 정크본드, 올해 최악의 한 주…우량 채권도 압박 •지난주 미국 정크본드 스프레드는 한 주 동안 51bp 확대된 367bp를 기록하며 2026년 들어 최대 상승폭을 기록함. 투자등급 채권 스프레드도...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70023",
@@ -2277,13 +2272,12 @@
       "datetime": "2026-11-23T06:53:44.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan: 아시아 증시 투자자 포지션이 역사적 저점으로 하락, 시장 큰 폭 반등 가능성 •JPMorgan은 11월 23일 아시아 시장 종합 투자자 포지션 지표가 4주 연속 역사적 최저 수준인 10%..."
+      "summary": ">>JPMorgan: 아시아 증시 투자자 포지션이 역사적 저점으로 하락, 시장 큰 폭 반등 가능성 •JPMorgan은 11월 23일 아시아 시장 종합 투자자 포지션 지표가 4주 연속 역사적 최저 수준인 10%...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72602",
@@ -2292,14 +2286,13 @@
       "datetime": "2026-11-23T05:11:01.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스가 보는 미 증시 ‘바닥 확인’ 3가지 조건: AI 수익화, 연준의 완화적 전환, 기관 포지션 축소 (1)AI 투자 수익화 확인 : AI 자본지출이 지속 가능한 이익 증가로 이어질 수 있다는..."
+      "summary": ">>골드만삭스가 보는 미 증시 ‘바닥 확인’ 3가지 조건: AI 수익화, 연준의 완화적 전환, 기관 포지션 축소 (1)AI 투자 수익화 확인 : AI 자본지출이 지속 가능한 이익 증가로 이어질 수 있다는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72601",
@@ -2308,20 +2301,17 @@
       "datetime": "2026-11-23T05:09:07.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "flows"
+        "macro"
       ],
-      "lead": 1,
       "score": 89,
       "hasText": true,
+      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기...",
+      "lead": 1,
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기..."
+      ]
     },
     {
       "id": "insidertracking/70018",
@@ -2378,8 +2368,7 @@
       "tags": [
         "semi",
         "kr-market",
-        "flows",
-        "healthcare"
+        "flows"
       ],
       "score": 60,
       "hasText": true,
@@ -2389,8 +2378,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 증시 부양 선언 이후 첫날 차분 •창업판 +1.2% vs 반도체 과창50-2.7% •로컬•외국인 자금 순유입은 지속 •중소형주, 전방 제조•소비 강세 •귀금속 (2.97%), 통신장비 (2.59%),..."
+      "summary": "•중국 증시 부양 선언 이후 첫날 차분 •창업판 +1.2% vs 반도체 과창50-2.7% •로컬•외국인 자금 순유입은 지속 •중소형주, 전방 제조•소비 강세 •귀금속 (2.97%), 통신장비 (2.59%),...",
+      "lead": 3,
+      "tickers": []
     },
     {
       "id": "insidertracking/70016",
