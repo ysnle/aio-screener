@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-23T05:52:05.036Z",
-  "attemptedAt": "2026-11-23T05:52:05.036Z",
-  "lastSuccessfulAt": "2026-11-23T05:52:05.036Z",
+  "generatedAt": "2026-11-23T06:21:38.608Z",
+  "attemptedAt": "2026-11-23T06:21:38.608Z",
+  "lastSuccessfulAt": "2026-11-23T06:21:38.608Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-09T05:52:00.503Z",
-  "until": "2026-11-23T05:52:00.503Z",
+  "since": "2026-11-09T06:21:32.906Z",
+  "until": "2026-11-23T06:21:32.906Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 716,
-      "freshCount": 17,
+      "freshCount": 33,
       "eligibleTextCount": 716,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72603
+      "lastPostId": 72605
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 2050,
-  "retainedItemCount": 396,
+  "retainedItemCount": 407,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -147,8 +147,8 @@
     "observedCount": 2050,
     "eligibleTextCount": 1985,
     "mediaOnlyCount": 65,
-    "mediaAttachedCount": 808,
-    "photoPostCount": 686,
+    "mediaAttachedCount": 809,
+    "photoPostCount": 687,
     "documentPostCount": 3,
     "imageOnlyCount": 5,
     "highSignalCount": 340,
@@ -160,20 +160,20 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 634,
+    "ai-policy": 144,
+    "market-note": 725,
+    "semi": 633,
     "macro": 291,
     "flows": 54,
     "kr-market": 91,
-    "market-note": 725,
     "geo": 261,
     "healthcare": 46,
     "credit": 69,
-    "equity": 146,
+    "equity": 145,
     "earnings": 263,
     "media-only": 64,
     "insider": 3,
     "power": 201,
-    "ai-policy": 143,
     "japan": 49,
     "optical": 21
   },
@@ -263,13 +263,13 @@
   },
   "themes": [
     "Market Notes (725 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
-    "Semiconductors/Memory (634 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+    "Semiconductors/Memory (633 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
     "Macro/Rates (291 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
     "Earnings/Corporate (263 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
     "Geopolitics (261 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (201 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
-    "Equity/Analyst (146 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO...",
-    "AI Policy/Export Controls (143 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
+    "Equity/Analyst (145 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO...",
+    "AI Policy/Export Controls (144 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
   ],
   "catalysts": [
     {
@@ -367,7 +367,7 @@
       "topics": [
         "semi"
       ],
-      "count": 634,
+      "count": 633,
       "focus": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     },
     {
@@ -394,7 +394,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 143,
+      "count": 144,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -412,7 +412,7 @@
       "topics": [
         "equity"
       ],
-      "count": 146,
+      "count": 145,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -1988,7 +1988,6 @@
       ],
       "score": 72,
       "hasText": true,
-      "summary": "•미국 기술주 야간거래에서 전반적으로 상승세. SK하이닉스 +7%, 엔비디아·인텔·샌디스크·마벨 테크놀로지 +5%, 마이크론 테크놀로지·브로드컴·구글·테슬라 +3% 이상 상승",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -1997,7 +1996,8 @@
         "AVGO",
         "MU",
         "000660.KS"
-      ]
+      ],
+      "summary": "•미국 기술주 야간거래에서 전반적으로 상승세. SK하이닉스 +7%, 엔비디아·인텔·샌디스크·마벨 테크놀로지 +5%, 마이크론 테크놀로지·브로드컴·구글·테슬라 +3% 이상 상승"
     },
     {
       "id": "insidertracking/69998",
@@ -2049,8 +2049,10 @@
       "localDateKst": "2026-11-23",
       "tags": [
         "macro",
-        "semi"
+        "semi",
+        "earnings"
       ],
+      "lead": 2,
       "score": 74,
       "hasText": true,
       "media": {
@@ -2059,9 +2061,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>BofA: 반도체주 “바닥”은 “금리 정점”이 필요, “주가가 악재에 더 이상 반응하지 않을 때” 저점 매수 •BofA는 금리 정점이 반도체주가 지속 가능한 바닥을 형성하기 위한 필요조건이라고 판단함....",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA: 반도체주 “바닥”은 “금리 정점”이 필요, “주가가 악재에 더 이상 반응하지 않을 때” 저점 매수 •BofA는 금리 정점이 반도체주가 지속 가능한 바닥을 형성하기 위한 필요조건이라고 판단함...."
     },
     {
       "id": "insidertracking/69996",
@@ -2096,11 +2097,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>국면 변화? 베선트 “입장 선회” : 젠슨 황이 “상황을 몰랐을 가능성” •미국 베센트 재무장관 11월 22일 젠슨 황의 엔비디아 복귀 가능성을 배제하지 않고 있음을 시사함. 지난주 “대대적인 정비”를...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>국면 변화? 베선트 “입장 선회” : 젠슨 황이 “상황을 몰랐을 가능성” •미국 베센트 재무장관 11월 22일 젠슨 황의 엔비디아 복귀 가능성을 배제하지 않고 있음을 시사함. 지난주 “대대적인 정비”를..."
     },
     {
       "id": "bornlupin/21241",
@@ -2146,12 +2146,13 @@
       "datetime": "2026-11-22T23:35:37.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "power",
+        "earnings"
       ],
       "score": 53,
       "hasText": true,
-      "summary": "• 스페이스X가 80억 달러를 투입해 미국 전역 인구를 커버하는 '황금 대역' 800MHz 주파수를 인수하는 계획이 미국 3대 통신사의 견제를 뚫고 연방통신위원회(FCC)의 정식 심사에 돌입 • 차세대...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 스페이스X가 80억 달러를 투입해 미국 전역 인구를 커버하는 '황금 대역' 800MHz 주파수를 인수하는 계획이 미국 3대 통신사의 견제를 뚫고 연방통신위원회(FCC)의 정식 심사에 돌입 • 차세대..."
     },
     {
       "id": "HANAchina/72570",
@@ -2163,13 +2164,13 @@
         "power",
         "semi"
       ],
+      "lead": 1,
       "score": 64,
       "hasText": true,
-      "summary": "• 대만전력, 대타이난 과학단지 전력 안정화에 1,096억 대만달러 투입. TSMC의 차세대 1나노 공정 핵심 기지인 '대(大)타이난 과학단지'의 안정적인 전력 공급을 뒷받침하고, 삼성·인텔과의 초미세 공정...",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• 대만전력, 대타이난 과학단지 전력 안정화에 1,096억 대만달러 투입. TSMC의 차세대 1나노 공정 핵심 기지인 '대(大)타이난 과학단지'의 안정적인 전력 공급을 뒷받침하고, 삼성·인텔과의 초미세 공정..."
     },
     {
       "id": "bornlupin/21239",
