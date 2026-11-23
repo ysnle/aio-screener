@@ -1,7 +1,3 @@
-// Legacy unification (2026-10-26, roadmap item 11, screen 포트폴리오): the 백테스트 랩 result (#pf-backtest-output) renderer
-// and its formatters moved here from js/aio-workspace.js. The rendered words are Korean, mapped here.
-// runPortfolioBacktestLab in js/aio-workspace.js still fetches the history, runs the engine and calls
-// window._aioRenderPortfolioBacktestLab; src/app/legacy-screen-bridges.js installs it and window.varCertLabel.
 import { escapeHtml as esc } from '../html.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 
@@ -13,8 +9,6 @@ function fmtNum(v, d) {
   if (v === null || v === undefined || !isFinite(v)) return '—';
   return Number(v).toFixed(d == null ? 2 : d);
 }
-// E4/P1190: the label follows the actual check, so a stable estimate reads 확정 and an unstable one says why in the
-// reader's words (what is short) and what makes it stable; the check's codes stay in the model (varCertification).
 const VAR_REASON_LABELS = {
   'sample-below-declared-minimum': '기간이 짧음',
   'tail-below-declared-minimum': '하위 5% 달이 적음',

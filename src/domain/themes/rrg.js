@@ -1,11 +1,3 @@
-// RM-03 item 2: extracted from index.html:calcLiveRS/classifyRRG. Pure function: no DOM, no
-// global reads — every value the legacy wrapper read from its own live-quote/price-history
-// globals is now an explicit parameter. The formula (RS-Ratio/RS-Momentum thresholds, quadrant
-// boundaries) is transcribed unchanged — this is code motion, not a new model (R352/F-03).
-// Audit 2026-10-17 (owner D3): rrg.v3 — RS-Momentum compares RS-Ratio with itself RRG_MOMENTUM_LAG sessions earlier,
-// both on the same RRG_RATIO_SESSIONS span; rrg.v2 divided a 100-session-window ratio by a ~51-session-window ratio
-// at the midpoint, so a steady relative trend (no change in speed) read 102.5 (선도) or 97.6 (후행) instead of 100; on
-// the 10/16 artifact 17 of the 31 ETFs sat in a different quadrant than the same-window reading.
 export const RRG_MODEL_VERSION = 'rrg.v3';
 export const RRG_RATIO_SESSIONS = 50;
 export const RRG_MOMENTUM_LAG = 10;
@@ -16,7 +8,6 @@ export const RRG_MOMENTUM_LAG = 10;
 // It is not the JdK smoothed/normalized RS-Ratio. The benchmark is cap-weighted SPY, so a few mega-caps leading the
 // index put many sectors below 100 at once without any of them weakening on its own.
 export const RRG_DEFINITION = Object.freeze({
-  // v57.76: plain-Korean axis names (the themes scatter is the only reader).
   ratio: `가로축 상대강도(시장 대비)는 지금의 상대가격(섹터 ÷ SPY)이 최근 ${RRG_RATIO_SESSIONS}거래일 평균의 몇 %인지입니다(100 = 자기 평균 수준)`,
   momentum: `세로축 상대강도 변화 속도는 그 값이 ${RRG_MOMENTUM_LAG}거래일 전 같은 방식으로 잰 값보다 높은지입니다(100 초과 = 나아지는 중, 100 = 같은 속도 유지)`,
   benchmarkBias: '기준인 SPY는 시가총액 가중이라, 소수 초대형주가 지수를 끄는 국면에서는 여러 섹터가 동시에 100 아래(후행·약화)로 보일 수 있습니다 — 각 섹터가 스스로 약해졌다는 뜻은 아닙니다.'
@@ -61,11 +52,7 @@ export function classifyRRG(rsRatio, rsMom) {
  * @param {boolean} input.hasQuote            whether a live tick exists for the symbol
  * @param {boolean} input.hasBenchmarkQuote   whether a live tick exists for the benchmark
  */
-// P1591 (T02): one minimum for the client fallback and the produced artifact (alignedSessionCount >= 30).
 export const RRG_MIN_SESSIONS = 30;
-// v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-3 안 A): the producer publishes this many daily points on the same model
-// (each on its own trailing window) so a reader can size the boundary band from the sector's own movement and apply
-// hysteresis without stored state (themes/recent-check.js rrgZone).
 export const RRG_TRAIL_SESSIONS = 20;
 export const RRG_WINDOW_SESSIONS = 100;
 
@@ -118,9 +105,6 @@ export function computeRelativeRotation({ history = null, benchmarkHistory = nul
   return Object.freeze({ rsRatio: null, rsMom: null, quadrant: 'unknown', reason: 'relative_history_lt_30', modelVersion: RRG_MODEL_VERSION });
 }
 
-// Expert review M09: the scatter used a fixed ±3.5 window around 100, so 8 of 11 sectors sat clipped on the edge
-// (XLI·XLY·XLRE·XLU on one corner point). The axes now span the plotted points, always include the 100 baseline
-// that splits the quadrants, and carry round tick values so a position can be read back.
 function niceStep(span, target = 5) {
   const raw = span / target;
   const power = 10 ** Math.floor(Math.log10(raw));

@@ -10,6 +10,8 @@
 #page-themes[data-theme-detail="open"] > :not(#theme-detail-panel) { display: none !important; }
 /* v59.51: the verdict card shows the scatter or the sector period bars (#themes-verdict-tabs). */
 #themes-verdict-tabs { display: flex; gap: 4px; margin-left: auto; }
+/* The leaders line is the card's headline; the sector rotation sentence under it reads one step smaller. */
+#themes-leader-falls:not([hidden]) ~ #rrg-rotation-read { font-size: 14px; }
 .v2-themes-rrg[data-view="rrg"] #sector-perf-panel,
 .v2-themes-rrg[data-view="bars"] #rrg-chart-block,
 .v2-themes-rrg[data-view="bars"] #rrg-quadrant-fold { display: none; }

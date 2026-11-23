@@ -1,9 +1,4 @@
-// v57.74: the 2026-10-15 owner note on the Korean crash day (seven drivers) and the owner's policy-floor hypothesis.
-// Each dated driver keeps a verification state; three reasoning frames become lessons and claims. Nothing here is a
-// live value, a ranking input or a call — same reference-only shape as packet-20261014.js.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
-// checks: { claim, state: VERIFIED | CONSISTENT | UNVERIFIED, basis } — compared on 2026-10-15 against public reports
-// and the BLS series AIO already stores. A misattributed or unpublished figure stays UNVERIFIED with the reason.
 export const PACKET_20261015_SOURCES = Object.freeze([
   Object.freeze({
     id: 'owner-chat-20261015-crash-drivers', author: 'owner chat', sourceUrl: '', publishedAt: '2026-10-15T03:30:00Z', publishedAtKst: '2026-10-15T12:30:00+09:00',

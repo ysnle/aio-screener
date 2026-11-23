@@ -1,9 +1,3 @@
-// P1406 (Codex review 2026-10-03): candidate extraction and identity confirmation are separate.
-// v1 matched names by substring ('애플리케이션' → AAPL, 'pineapple' → AAPL, '메타버스' → META),
-// split 'BRK.B' and missed lowercase 'nvda'. A name now matches only as a whole word (English) or as
-// the whole token / token + a Korean particle (Korean); a symbol is confirmed through the same
-// registry functions the ticker screen uses (normalizeTickerInput, resolveRegisteredName). An
-// all-caps symbol the registries do not know stays an entity but carries verified:false.
 import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
 import { resolveRegisteredName, typedNameMatches } from '../../domain/instruments/resolve-name.js';
 // The nickname table and the non-ticker words are shared with the chat ticker resolver.
@@ -43,7 +37,6 @@ function knownSymbol(symbol, root, entries) {
   const screener = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
   const row = screener.find((item) => variants.includes(String(item?.sym || '').toUpperCase()));
   if (row) return String(row.sym).toUpperCase();
-  // v57.81: a US listing the directory confirmed this session (ticker screen, watchlist, alerts) is a verified symbol too.
   return /^[A-Z]/.test(upper) && typeof root?._aioOnDemandSymbol === 'function' && root._aioOnDemandSymbol(upper)?.status === 'ready' ? upper : null;
 }
 

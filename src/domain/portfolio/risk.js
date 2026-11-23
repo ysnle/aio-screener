@@ -110,8 +110,6 @@ export function createCompositionSnapshot(input) {
   var equityValue = payload.members.reduce(function(sum, member) { return sum + member.marketValue; }, 0);
   var cashAmount = typeof payload.cash.amount === 'number' && isFinite(payload.cash.amount) && payload.cash.amount >= 0
     ? payload.cash.amount : 0;
-  // Cash joins a denominator only when its currency is declared against the
-  // base currency — an unverifiable number is not silently summed (P1175 class).
   var cashDeclared = cashAmount === 0
     || (payload.cash.currency != null && baseCurrency != null && payload.cash.currency === baseCurrency);
   snapshot.equityValue = equityValue;
@@ -152,8 +150,6 @@ function _pfCashDailyRate(cashReturn) {
     return { mode: 'explicit_assumption', annualRate: rate, dailyRate: Math.pow(1 + rate, 1 / 252) - 1 };
   }
   if (cashReturn.mode === 'observed_cash_series' && Array.isArray(cashReturn.series)) {
-    // Portfolio audit 2026-10-17: a non-finite entry made the whole-account path NaN while status read 'ready'; the
-    // length is checked against the member series by the caller.
     if (!cashReturn.series.every(function(value) { return typeof value === 'number' && isFinite(value); })) return null;
     return { mode: 'observed_cash_series', series: cashReturn.series.slice() };
   }
@@ -191,9 +187,6 @@ function _pfResolveStrategyWeights(targetWeights, memberSeries) {
     declared[ticker] = weight;
     sum += weight;
   }
-  // P1200: 목표비중 합이 1보다 작으면 그 차액은 **현금 목표비중**이다 — 선언이 계좌 범위를 말한
-  // 것이므로 계좌 전체 보기를 만들 수 있다(현금 수익률이 선언됐을 때). 합이 1을 넘으면 선언이
-  // 성립하지 않는다.
   if (sum > 1 + 1e-9) return null;
   return { weights: weights, targetWeights: declared, sum: sum, cashWeight: Math.max(0, 1 - sum) };
 }
@@ -266,9 +259,6 @@ export function deriveRiskEstimate(input) {
   }
   var strategyPath = exposureHistoryMode === 'fixed_target_weight_strategy';
   var rebalancePolicy = input.rebalancePolicy;
-  // P1197: 리밸런싱 정책은 전략 경로에서만 소비된다. 현재 구성 소급 경로에서는 결과를 바꾸지 않으므로
-  // (a) 없는 것을 요구해 막지 않고, (b) 정체성 해시에도 넣지 않는다 — 같은 입력이 정책 문자열 때문에
-  // 다른 estimateId를 받으면 재현·비교가 깨진다. 선언 여부와 적용 여부를 각각 발행한다.
   var declaredRebalancePolicy = typeof rebalancePolicy === 'string' && rebalancePolicy ? rebalancePolicy : null;
   if (!declaredRebalancePolicy) {
     if (strategyPath) return { status: 'blocked', code: 'rebalance-policy-required', estimateId: null, publishedScope: null };
@@ -296,8 +286,6 @@ export function deriveRiskEstimate(input) {
   if (lengthMismatch.length || n < 1) {
     return { status: 'blocked', code: lengthMismatch.length ? 'member-return-series-misaligned' : 'empty-sample', members: lengthMismatch, estimateId: null, publishedScope: null };
   }
-  // v59.45 (PASS22 P22-RISK-01): a price return is a finite number above -100%. [NaN, .1] was published as a ready
-  // estimate with NaN returns; such a series holds the estimate and names its members instead.
   var invalidSeries = memberSeries.filter(function(entry) {
     return entry.series.some(function(value) { return typeof value !== 'number' || !isFinite(value) || value <= -1; });
   }).map(function(entry) { return entry.ticker; });
@@ -322,9 +310,6 @@ export function deriveRiskEstimate(input) {
     if ((rebalancePolicy === 'monthly' || rebalancePolicy === 'quarterly') && !sampleDates) {
       return { status: 'blocked', code: 'strategy-rebalance-window-required', estimateId: null, publishedScope: null };
     }
-    // v57.92: the sleeve is the stocks alone, so its weights sum to 1 — passing the declared 0.8 printed 8% for a stock
-    // that rose 10%, and the first drift renormalisation silently changed that definition after one bar. The declared
-    // weights (with the cash remainder) still drive the whole-account path below.
     if (!(resolved.sum > 0)) {
       return { status: 'blocked', code: 'strategy-target-weights-invalid', estimateId: null, publishedScope: null };
     }
@@ -340,23 +325,17 @@ export function deriveRiskEstimate(input) {
   var cashAmount = snapshot.cash && typeof snapshot.cash.amount === 'number' && isFinite(snapshot.cash.amount) && snapshot.cash.amount >= 0
     ? snapshot.cash.amount : 0;
   var cashResolved = _pfCashDailyRate(input.cashReturn);
-  // Portfolio audit 2026-10-17: an observed cash series shorter than the member series read NaN past its end.
   if (cashResolved && cashResolved.mode === 'observed_cash_series' && cashResolved.series.length !== n) cashResolved = null;
   var wholeAccountReturns = null;
   var wholeAccountHold = null;
   var cashTreatment = null;
   if (strategyPath && strategyDeclaration.cashWeight > 0) {
-    // P1200: 목표비중이 현금을 포함해 선언됐다면 계좌 범위도 선언된 것이다 — 현금 수익률이
-    // 있어야만 그 몫을 채운다(없으면 계좌 보기를 보류하고 sleeve만 게시).
     if (!cashResolved) {
       cashTreatment = 'excluded_by_scope';
       wholeAccountHold = 'cash-return-unresolved';
     } else {
       cashTreatment = 'declared_strategy_cash_weight';
       var declaredCashWeight = strategyDeclaration.cashWeight;
-      // P1445 (review 2026-10-04): the account path used fixed daily weights whatever the declared policy
-      // (buy-and-hold / monthly / quarterly). Cash is now one more member of the same strategy path, so
-      // drift and rebalancing apply to the stock legs and the cash leg alike.
       var cashSeries = [];
       for (var ws = 0; ws < n; ws += 1) cashSeries[ws] = cashResolved.mode === 'explicit_assumption' ? cashResolved.dailyRate : cashResolved.series[ws];
       wholeAccountReturns = _pfStrategyPathReturns(memberSeries.concat([{ ticker: '__cash__', series: cashSeries }]), resolved.weights.concat([declaredCashWeight]), rebalancePolicy, sampleDates);
@@ -407,13 +386,9 @@ export function deriveRiskEstimate(input) {
   var identityPayload = {
     compositionSnapshotId: snapshot.compositionSnapshotId,
     exposureHistoryMode: exposureHistoryMode,
-    // P1197: 소비되지 않는 선언은 정체성에 넣지 않는다 — 결과를 바꾸지 않는 입력이 id를 바꾸면
-    // 재현·비교가 깨진다.
     rebalancePolicy: rebalancePolicyApplied ? rebalancePolicy : null,
     publishedScope: publishedScope,
     cashTreatment: cashTreatment,
-    // v57.92: the cash rate that actually entered the account path is part of the computation — 0% and 10% gave the
-    // same estimateId for different returns. A rate the result did not use stays out (P1197).
     cashReturn: wholeAccountReturns && cashResolved && cashTreatment !== 'zero-cash'
       ? (cashResolved.mode === 'explicit_assumption' ? { mode: cashResolved.mode, annualRate: cashResolved.annualRate } : { mode: cashResolved.mode, series: cashResolved.series })
       : null,
@@ -450,8 +425,6 @@ export function deriveRiskEstimate(input) {
     compositionAsOf: snapshot.compositionAsOf,
     valuationCut: snapshot.valuationCut,
     exposureHistoryMode: exposureHistoryMode,
-    // P1197: `rebalancePolicy`는 **적용된** 값이다(회고 경로는 null) — 무엇이 선언됐고 무엇이 쓰였는지를
-    // 따로 발행해야 소비자가 "선언했는데 결과가 그대로"인 상태를 구분할 수 있다.
     rebalancePolicy: rebalancePolicyApplied ? rebalancePolicy : null,
     rebalancePolicyDeclared: declaredRebalancePolicy,
     rebalancePolicyApplied: rebalancePolicyApplied,
@@ -559,9 +532,6 @@ export function assessAccountPerformance(input) {
   });
   if (unknownKinds.length) return blocked('account-ledger-kind-unrecognized', '원장에 인식되지 않는 거래 종류가 있습니다: ' + Array.from(new Set(unknownKinds)).join(', '));
 
-  // v59.45 (PASS22 P22-LEDGER-01): an external flow that cannot be dated or priced is a missing flow, not a skipped one —
-  // dropping a deposit of 'bad' printed 100→200 as an exact +100% TWR. Any such row holds the performance, and a null
-  // amount no longer passes the global isFinite(null) === true as a 0.
   var flowRows = transactions.filter(function(tx) { return tx && (tx.kind === 'deposit' || tx.kind === 'withdrawal'); });
   var invalidFlows = flowRows.filter(function(tx) {
     var amount = tx.amount == null || String(tx.amount).trim() === '' ? NaN : Number(tx.amount);
@@ -595,9 +565,6 @@ export function assessAccountPerformance(input) {
     periods.push({ start: previous.date, end: current.date, startValue: previous.amount, endValue: current.amount, netFlow: netFlow, periodReturn: periodReturn });
   }
   var twr = growth - 1;
-  // v57.92: a true TWR needs a valuation at each external flow. A flow dated strictly inside a valuation period is placed
-  // at the declared boundary instead, so the chain is a boundary-convention approximation — 100→160 with a +50 deposit
-  // reads 10% whether the deposit came in February or December, and 6.67% once the 6/30 valuation is known.
   var valuationDates = {};
   valuations.forEach(function(row) { valuationDates[row.date] = true; });
   var interiorFlows = flows.filter(function(tx) {
@@ -617,9 +584,6 @@ export function assessAccountPerformance(input) {
   var terminalYears = yearFraction(lastDate);
   var cashflows = [{ years: 0, amount: -valuations[0].amount }];
   var flowResolvable = true;
-  // Codex audit F04 (2026-10-15): the MWR cash-flow window is the TWR window — start-of-period counts a first-day flow
-  // (and leaves a last-day flow to the next period); end-of-period does the opposite. A different window made a
-  // first-day deposit read TWR 10% / MWR 120% on the same ledger.
   flows.forEach(function(tx) {
     var inside = flowTiming === 'start-of-period' ? (tx.date >= firstDate && tx.date < lastDate) : (tx.date > firstDate && tx.date <= lastDate);
     if (!inside) return;
@@ -636,8 +600,6 @@ export function assessAccountPerformance(input) {
   var mwrShown = mwr == null ? null : mwrAnnualized ? mwr : Math.pow(1 + mwr, terminalYears) - 1;
 
   var warnings = [];
-  // v59.45 (PASS22): _pfIrr holds for several reasons (one-sided flows, no sign change in its search range, an
-  // unbounded value) — the warning no longer names only one of them.
   if (mwr == null) warnings.push('MWR(금액가중수익률)은 이 원장에서 하나의 값으로 정해지지 않아 계산하지 않았습니다 — TWR만 게시합니다.');
   if (interiorFlows) warnings.push('입출금 ' + interiorFlows + '건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간 ' + (flowTiming === 'start-of-period' ? '시작' : '끝') + '에 둔 근사치입니다 — 입출금일 평가액을 원장에 넣으면 정확한 시간가중 수익률이 됩니다.');
 
@@ -653,8 +615,6 @@ export function assessAccountPerformance(input) {
     flowTiming: flowTiming,
     periods: periods,
     sample: { from: firstDate, to: lastDate, periods: periods.length, years: terminalYears },
-    // v57.48 expert review #6: the two numbers are on different units — TWR is the chained return over the
-    // whole sample (not annualized), MWR is the annualized IRR. A display must name both units.
     units: { twr: 'period-cumulative', mwr: 'annualized-irr', mwrShown: mwrAnnualized ? 'annualized-irr' : 'period-irr' },
     mwrShown: mwrShown,
     conventions: { returnBasis: interiorFlows ? 'time-weighted-boundary-approximation' : 'time-weighted-subperiod-chain', flowTiming: flowTiming, annualization: 'actual-365', irrMethod: 'bisection' },

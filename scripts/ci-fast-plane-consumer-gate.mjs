@@ -1,15 +1,13 @@
 #!/usr/bin/env node
 // P1152 / R627 — fast quote plane consumer gate.
 //
-// The browser may read the Cloudflare fast plane only when the evidence that justifies
-// the promotion exists. public-config.json is a generated artifact, but it is also the
-// single switch the client obeys, so this gate re-derives the decision from the published
-// evidence and fails if the two disagree — a hand edit that flips `enabled` without the
-// soak/rights/coverage record is exactly the failure mode this prevents. The remaining
-// assertions pin the client side of the same contract: the plane may be tried earlier,
-// but it can never replace the durable snapshot with something unvalidated.
+// v60.50: public-config.json marketData.fastQuotes.enabled is the operator's promotion decision, committed with code
+// (the producer no longer rewrites it). This gate holds that decision to the release-scoped record behind it —
+// architecture/worker-endpoints.json names the same endpoint and paths, and records the rights review and the soak rule —
+// and pins the client side: the plane is tried first but can never replace the durable snapshot with something
+// unvalidated, so a promoted plane that is down or stale costs one request, not the screen. Live health stays an
+// observation in public-data/operations-status.json.
 import { readFileSync } from 'node:fs';
-import { deriveFastQuotesConfig } from './build-operations-status.mjs';
 import { createMarketSnapshotLoader, resolveMarketSnapshotSources } from '../src/data/market-snapshot-loader.js';
 
 const failures = [];
@@ -17,7 +15,6 @@ const check = (label, ok, detail) => { if (!ok) failures.push(label + (detail ==
 const json = (path) => JSON.parse(readFileSync(path, 'utf8'));
 
 const config = json('public-config.json');
-const operations = json('public-data/operations-status.json');
 const endpoints = json('architecture/worker-endpoints.json');
 
 const fastQuotes = config?.marketData?.fastQuotes;
@@ -25,7 +22,7 @@ const fastQuotes = config?.marketData?.fastQuotes;
 // ── Shape ────────────────────────────────────────────────────────────────────
 check('P1152 public config declares marketData.fastQuotes', !!fastQuotes);
 if (!fastQuotes) {
-  console.error('Fast plane consumer gate failed:\n - public-config.json has no marketData.fastQuotes block; regenerate it with scripts/build-operations-status.mjs');
+  console.error('Fast plane consumer gate failed:\n - public-config.json has no marketData.fastQuotes block');
   process.exit(1);
 }
 check('P1152 fastQuotes exposes route metadata', typeof fastQuotes.healthPath === 'string' && typeof fastQuotes.quotesPath === 'string', fastQuotes);
@@ -33,37 +30,17 @@ check('P1152 fastQuotes enabled is an explicit boolean', typeof fastQuotes.enabl
 check('P1152 fastQuotes carries a certification record', !!fastQuotes.certification && typeof fastQuotes.certification === 'object', fastQuotes.certification);
 check('P1152 the client obeys a config-supplied quotes path', fastQuotes.quotesPath === (endpoints.fastQuotes?.quotesPath || '/quotes'), fastQuotes.quotesPath);
 
-// ── Derivation honesty ───────────────────────────────────────────────────────
-const plane = operations?.planes?.fast || {};
-const soakRequiredDays = Number(endpoints.fastQuotes?.soakRequiredDays ?? 7);
-const soakObservedDays = Number(plane.soak?.observedDays ?? 0);
-const coverage = String(plane.health?.coverage || '');
-const [observed, required] = coverage.split('/').map(Number);
-const reDerived = deriveFastQuotesConfig({
-  prior: fastQuotes,
-  endpoint: endpoints.fastQuotes?.baseUrl || null,
-  evidence: {
-    healthy: Number(plane.health?.statusCode) === 200 && plane.health?.status === 'CURRENT',
-    coverageComplete: Number.isFinite(observed) && observed === required && required === 16,
-    rightsReviewed: endpoints.fastQuotes?.rightsReviewed === true,
-    soakRequiredDays,
-    soakObservedDays
-  }
-});
-check('P1152 a published promotion matches a re-derivation from the published evidence', reDerived.enabled === fastQuotes.enabled, { published: fastQuotes.enabled, derived: reDerived.enabled });
-
+// ── Promotion record (release-scoped) ───────────────────────────────────────
+const fastEndpoint = endpoints.fastQuotes || {};
+const origin = (value) => { try { return new URL(String(value || '')).origin; } catch (_) { return null; } };
+check('v60.50 the promoted endpoint is the configured data-plane Worker', origin(fastQuotes.baseUrl) === origin(fastEndpoint.baseUrl) && /^https:\/\//.test(String(fastQuotes.baseUrl || '')), { config: fastQuotes.baseUrl, endpoints: fastEndpoint.baseUrl });
+check('v60.50 the promoted health path is the configured one', fastQuotes.healthPath === (fastEndpoint.healthPath || '/health'), fastQuotes.healthPath);
+check('v60.50 the certification states the soak rule the endpoint record sets', Number(fastQuotes.certification.soakRequiredDays) === Number(fastEndpoint.soakRequiredDays ?? 7), { config: fastQuotes.certification.soakRequiredDays, endpoints: fastEndpoint.soakRequiredDays });
 if (fastQuotes.enabled === true) {
-  // Every one of these is required before the browser is allowed to read the plane.
-  check('P1152 the soak window is satisfied before enabling the fast plane', soakObservedDays >= soakRequiredDays, { soakObservedDays, soakRequiredDays });
-  check('P1152 provider rights were reviewed before enabling the fast plane', endpoints.fastQuotes?.rightsReviewed === true, endpoints.fastQuotes?.rightsReviewed);
-  check('P1152 fast plane health was observed within the promotion window', Number(plane.health?.statusCode) === 200 && plane.health?.status === 'CURRENT', plane.health);
-  check('P1152 the fast plane reports complete Tier-0 coverage', Number.isFinite(observed) && observed === required && required === 16, coverage);
-  check('P1152 no fast-plane blocker remains at promotion', !(operations.blockers || []).includes('fast_plane_soak_and_rights_review_required'), operations.blockers);
-  check('P1152 no provider-rights blocker remains at promotion', !(operations.blockers || []).includes('provider_rights_review_required'), operations.blockers);
-  check('P1152 the certification records when the promotion happened', typeof fastQuotes.certification.certifiedAt === 'string' && fastQuotes.certification.certifiedAt.length > 0, fastQuotes.certification.certifiedAt);
+  check('P1152 provider rights were reviewed before enabling the fast plane', fastEndpoint.rightsReviewed === true && fastQuotes.certification.rightsReviewed === true, { endpoints: fastEndpoint.rightsReviewed, config: fastQuotes.certification.rightsReviewed });
+  check('P1152 the certification records when the promotion happened', typeof fastQuotes.certification.certifiedAt === 'string' && Number.isFinite(Date.parse(fastQuotes.certification.certifiedAt)), fastQuotes.certification.certifiedAt);
 } else {
   check('P1152 an unpromoted fast plane claims no certification date', fastQuotes.certification.certifiedAt === null, fastQuotes.certification.certifiedAt);
-  check('P1152 an unpromoted fast plane keeps the blocker list honest', (operations.blockers || []).includes('fast_plane_soak_and_rights_review_required'), operations.blockers);
 }
 
 // ── Client behaviour ─────────────────────────────────────────────────────────
@@ -157,4 +134,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error(' - ' + failure));
   process.exit(1);
 }
-console.log(`Fast plane consumer gate OK: enabled=${fastQuotes.enabled}, soak=${soakObservedDays}/${soakRequiredDays}, rightsReviewed=${endpoints.fastQuotes?.rightsReviewed === true}, coverage=${coverage || 'n/a'}.`);
+console.log(`Fast plane consumer gate OK: enabled=${fastQuotes.enabled}, soakRequiredDays=${fastQuotes.certification.soakRequiredDays}, rightsReviewed=${endpoints.fastQuotes?.rightsReviewed === true}, certifiedAt=${fastQuotes.certification.certifiedAt}.`);

@@ -1,8 +1,3 @@
-// The owner's X bookmarks added after the 2026-10-30 read (2026-11-01). Every bookmark in x.com/i/history above the first
-// id of the 10/30 read was read in full — posts, author threads, quoted posts followed three levels deep, other users'
-// replies on seven of the nine investment posts, and every attached image — then compared, claim by claim and frame by
-// frame, with what AIO collects, selects, generates and links. Same reference-only shape as packet-20261030-x-bookmarks.js:
-// nothing here is a live value, a ranking input or a call. The ledger is _artifacts/x-bookmarks-20261101/.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 // From _artifacts/x-bookmarks-20261101/ledger.json (grade scale there): A checked or reusable, B cited or confirming, C none.
 const SOURCE_TIMELINE = Object.freeze({
@@ -33,8 +28,6 @@ const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   timeline: SOURCE_TIMELINE[statusId], quality: SOURCE_QUALITY[statusId]
 });
 
-// What the 2026-11-01 read covered: 16 bookmarks new since the 10/30 read, 9 investment material, 7 agent/design practice
-// (listed for a separate thread, not acted on here).
 export const PACKET_20261101_AUDIT = Object.freeze({
   readOn: '2026-11-01', newSinceLedger: 16, inScope: 9, agentPractice: 7, unrelated: 0, framesAdded: 3,
   repoState: Object.freeze({ reflected: 2, partial: 6, missing: 1, conflict: 0, notApplicable: 7 }),
@@ -48,7 +41,6 @@ export const PACKET_20261101_AUDIT = Object.freeze({
   ]),
   declined: Object.freeze(['SPY·GLD·BTC 가격 구간과 200일선 도달 예측(sustain_abund)', '정당 승리 선반영 추정과 바닥 업종 매수 암시(ysh1yo2848)', '개별 종목 선호·비선호 목록과 매매 시점', '헤지펀드 그로스 노출 같은 포지션 데이터(댓글, 무료 공식 원천 없음)']),
   conflictsFixed: Object.freeze([]),
-  // What the read changed in the pipeline and on the screens (v59.56), beside the frames.
   structural: Object.freeze([
     '실적 요약 숫자 검증이 기간 표기(2026년·Q1 2027·3Q·최근 12개월)와 억·조 달러 표기 때문에 버리던 항목을 살림 — 저장분 기준 129건 중 119건',
     '시황 해석이 직전 미국 종가의 실적 반응·원문 수치·가이던스·보도된 이유(US_EARNINGS)를 입력으로 받음',

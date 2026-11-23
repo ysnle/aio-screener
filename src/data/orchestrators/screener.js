@@ -83,8 +83,6 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const ranking = typeof ranker === 'function' ? ranker({
       rows: calculationRows,
       weights: context.weights || null,
-      // W07-A/P1146: only a user-profile request is explicit. The model's own neutral
-      // default keeps model-default (renormalize) semantics.
       weightsPolicy: context.weightsPolicy === 'explicit' || context.weightsPolicy === 'model-default' ? context.weightsPolicy : null,
       regimeLabel: context.regimeLabel || null,
       fundamentalCoveragePct: Number.isFinite(Number(normalized.metadata.fundamentalCoveragePct)) ? Number(normalized.metadata.fundamentalCoveragePct) : 0,
@@ -92,8 +90,6 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       now: Number.isFinite(context.now) ? context.now : Date.now(),
       inputVersion: normalized.revision || 'unknown'
     }) : null;
-    // P1452: a failed or successful re-rank publishes/discards the hold the same way on both
-    // surfaces (the legacy wrapper and the native orchestrator share the semantics, not copies).
     if (typeof onRankingResult === 'function') {
       try { onRankingResult(ranking, context); } catch (_) {}
     }
@@ -104,7 +100,6 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
     const mergedRows = await mapInChunks(normalized.rows, (row) => {
       const result = bySymbol.get(row.sym || row.symbol);
       const merged = result ? { ...row, ...result, symbol: row.symbol, sym: row.sym } : { ...row, rank: null, score: null, factorScores: {}, quantSignal: null };
-      // v57.81: under the extended contract every row says so (the ticker page labels its rank from this).
       return { ...merged, ...(universeScope === 'extended' ? { rankingUniverse: 'extended' } : {}), setupProfile: deriveScreenerSetupProfile(calculationRow(merged)) };
     }, isLive);
     if (!mergedRows) return null;
@@ -145,10 +140,6 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
       return result ? { ...row, screenStatus: result.screenStatus, screenRank: result.screenRank, rankExplanation: result.rankExplanation } : row;
     });
     const readiness = summarizeScreenReadiness(rows, screenDefinition.requiredFields);
-    // P1168 (13 잔여·SCR-UX-07): 이 이력은 사용자 실행이 아니라 이 producer가 sync마다 도는
-    // **파이프라인 기준 run**이다. 그런데 같은 결과를 매번 덧붙여 화면 재진입마다 2→4→6으로
-    // 늘었고, 이름은 사용자 실행처럼 읽혔다. 같은 snapshot·같은 정의의 동일 resultHash는 다시
-    // 쌓지 않고 마지막 항목을 갱신하며, 기계 실행임을 provenance로 남긴다.
     const priorRuns = getState?.()?.screener?.runHistory || [];
     const pipelineEntry = { ...screenResult.run, origin: 'pipeline-sync' };
     const lastRun = priorRuns[priorRuns.length - 1];
@@ -186,7 +177,6 @@ export function createScreenerOrchestrator({ provider, commands, getState = () =
           rankingUse: 'none'
         },
         ranking: ranking ? {
-          // v57.81: the population this ranking was computed over (core universe, or core + extended shard).
           contract: RANKING_CONTRACTS[universeScope].id,
           contractLabel: RANKING_CONTRACTS[universeScope].label,
           universeScope,

@@ -9,6 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const load = (path) => import(pathToFileURL(join(root, path)).href);
@@ -17,7 +18,16 @@ const failures = [];
 const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${detail ? ` — ${detail}` : ''}`); };
 const korean = (text) => (String(text || '').match(/[가-힣]/g) || []).length >= 2;
 const shown = (row) => korean(row?.title) || korean(row?.titleKo) || row?.titleKoFailed === true;
+const report = () => {
+  const failed = failures.splice(0);
+  if (!failed.length) return;
+  console.error(`[headline-translation] ${failed.length} failure(s):\n- ${failed.join('\n- ')}`);
+  process.exit(1);
+};
 
+// v60.50: 1 and 2 test code on fixtures; 3 validates the published artifacts and also runs in a data run.
+await runSections('headline-translation', [
+['producer-lane', async () => {
 const { translateDayHeadlines } = await load('scripts/build-market-day.mjs');
 // v59.74 (site QA 11/7): feed tails (' : Finance : JKN', ' | Reuters') are not sent for translation; a lowercase clause after
 // a colon is part of the headline.
@@ -70,7 +80,11 @@ check('v59.70 2 the day account passes over the untranslated report', !cited.som
   check('v60.26 the day account carries the one dated label both screens print', dated.asOf === '11/16 마감' && usesLabel.length === 2, JSON.stringify({ asOf: dated.asOf, usesLabel }));
 }
 
+report();
+console.log('[headline-translation] OK — producer lane (reuse, free path, failure mark, no paid fallback), account passes over English');
+}, 'code'],
 // ── 3. The published artifacts.
+['published-artifacts', async () => {
 const data = json('public-data/data.json') || {};
 const bundle = [['뉴스', data.news], ['시간대별 시황 (진행 중)', data.newsIntraday], ['시간대별 시황 현재', data.marketTimeline?.current?.headlines],
   ['시간대별 시황 봉인', (data.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || [])]];
@@ -89,8 +103,7 @@ const briefs = json('public-data/event-briefs.json');
 const badBriefs = (briefs?.briefs || []).filter((brief) => brief.headline && !korean(brief.headline));
 check('v59.70 3 실적 요약: every brief headline is Korean', !badBriefs.length, badBriefs.slice(0, 3).map((brief) => `${brief.symbol}: ${brief.headline}`).join(' | '));
 
-if (failures.length) {
-  console.error(`[headline-translation] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
-  process.exit(1);
-}
-console.log(`[headline-translation] OK — producer lane (reuse, free path, failure mark, no paid fallback), account passes over English, artifacts clean; ${ledgerNote}`);
+report();
+console.log(`[headline-translation] OK — artifacts clean; ${ledgerNote}`);
+}, 'data'],
+]);

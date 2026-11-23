@@ -46,7 +46,8 @@ for (const id of ['workflow-yaml', 'syntax', 'generated-state', 'qa-pipeline-con
   const gate = gates.find((item) => item.id === id);
   check(`v59.70 source-defect gate ${id} stays blocking in CI`, gate && failureBlocks(gate, CI_ORIGIN) === true, gate ? '' : 'missing');
 }
-check('v59.70 knowledge-lint has a watchdog twin (its date ratchet blocks there)', watchdogScripts.has('scripts/ci-knowledge-lint-check.mjs'));
+// v60.50: the document-age rule warns everywhere, so knowledge-lint has no watchdog twin left to block on it.
+check('v60.50 knowledge-lint has no watchdog twin (its date rule warns everywhere)', !watchdogScripts.has('scripts/ci-knowledge-lint-check.mjs'));
 
 // 2. The failure ledger (gh run list/view). Every row resolved.
 const byId = new Map(gates.map((gate) => [gate.id, gate]));
@@ -84,8 +85,9 @@ for (const row of [...LEDGER, ...SOURCE_PUSH_LEDGER]) {
     check(`v59.70 ${row.gate}: the clock-bound fixture runs on a fixed clock`, read(row.proof[0]).includes(row.proof[1]), row.proof.join(' :: '));
     check(`v59.70 ${row.gate} stays a blocking code contract`, gate.liveData === undefined);
   } else if (row.resolution === 'clock-judgement') {
-    check(`v59.70 ${row.gate}: the gate stays blocking; only its date judgement warns in CI`, gate.liveData === undefined
-      && read('scripts/ci-knowledge-lint-check.mjs').includes('(clockJudgementBlocks() ? check : warn)(`P1125'));
+    const lintSource = read('scripts/ci-knowledge-lint-check.mjs');
+    check(`v60.50 ${row.gate}: the gate stays blocking; its date judgement is a warning everywhere`, gate.liveData === undefined
+      && lintSource.includes("warn('P1125") && !lintSource.includes('clockJudgementBlocks') && !lintSource.includes('doc-freshness-baseline'));
   } else if (row.resolution === 'source-defect') {
     check(`v59.70 ${row.gate}: a source defect still blocks CI`, failureBlocks(gate, CI_ORIGIN) === true);
   } else if (row.resolution === 'browser-scope') {
@@ -134,8 +136,8 @@ check('v59.70 replay: new config passes the CI shard and reports ADVISORY', newC
 check('v59.70 replay: new config still fails locally (producer pre-push, watchdog)', newLocal.status === 1 && /\[qa\] FAIL live-content-fixture/.test(newLocal.out), newLocal.out.slice(-400));
 check('v59.70 replay: a source-defect gate still fails the CI shard', defectCi.status === 1 && /\[qa\] FAIL source-defect-fixture/.test(defectCi.out), defectCi.out.slice(-400));
 
-// 5. The calendar deadlock through the real knowledge-lint: a clock 300 days on makes documents stale. Old behaviour (any
-// origin but CI) fails on P1125; in a CI contract shard the same tree passes with the ratchet as a warning.
+// 5. The calendar deadlock through the real knowledge-lint: a clock 300 days on makes documents stale. v60.50: P1125 is a
+// warning on every origin (CI shard, local, producer), so the date alone never fails a run.
 const lint = (origin) => {
   const env = { ...process.env, AIO_KNOWLEDGE_LINT_NOW: new Date(Date.now() + 300 * 86400000).toISOString() };
   delete env.AIO_QA_ORIGIN;
@@ -145,8 +147,10 @@ const lint = (origin) => {
 };
 const lintSource = lint(null);
 const lintCi = lint(CI_ORIGIN);
-check('v59.70 calendar replay: knowledge-lint fails on P1125 outside CI (watchdog twin, local)', lintSource.status === 1 && /Knowledge lint check failed:[\s\S]*P1125 stale document set does not grow/.test(lintSource.out), lintSource.out.slice(-400));
-check('v59.70 calendar replay: the same tree passes in a CI shard with P1125 as a warning', lintCi.status === 0 && /Knowledge lint warnings:[\s\S]*P1125 stale document set does not grow/.test(lintCi.out), lintCi.out.slice(-400));
+for (const [where, run] of [['outside CI', lintSource], ['in a CI shard', lintCi]]) {
+  check(`v60.50 calendar replay: a 300-day clock reports P1125 as a warning ${where} and never as a failure`,
+    /Knowledge lint warnings:[\s\S]*P1125 stale documents/.test(run.out) && !/Knowledge lint check failed:[\s\S]*P1125/.test(run.out), run.out.slice(-400));
+}
 
 // 6. v59.70 (integration review 89e8c881): the reconciliation 24h window is the same class. A clock 300 days after the
 // artifact fails it outside CI (watchdog-reconciliation, producers, local) and warns in a CI shard; an hour after passes.
@@ -174,4 +178,4 @@ if (errors.length) {
   process.exit(1);
 }
 const declared = gates.filter((gate) => gate.liveData).map((gate) => gate.id);
-console.log(`CI live-data OK: ${gates.length} gates x 2 origins; ${declared.length} live-content gates report in CI (${declared.join(', ')}) with watchdog twins; knowledge-lint date ratchet warns in CI and blocks in its twin; ${LEDGER.length + SOURCE_PUSH_LEDGER.length} ledger causes resolved; replays: live old=red new=green local=red, source defect=red, calendar source=red ci=green.`);
+console.log(`CI live-data OK: ${gates.length} gates x 2 origins; ${declared.length} live-content gates report in CI (${declared.join(', ')}) with watchdog twins; knowledge-lint document age warns everywhere; ${LEDGER.length + SOURCE_PUSH_LEDGER.length} ledger causes resolved; replays: live old=red new=green local=red, source defect=red, calendar source=warn ci=warn.`);

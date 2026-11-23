@@ -1,7 +1,3 @@
-// Per-screen data completeness (wp10.page-completeness.v1). Legacy unification (2026-10-17): moved from js/aio-core.js
-// (_aioProducerState / AIO.getPageDataCompleteness / AIO.auditPageDataCompleteness). The screener artifact's load state
-// now comes from the native screener slice instead of the _aioScreenerLoadState global the data.json loader and the
-// screener projection both wrote. The router writes the result onto each screen as data-aio-vertical-slice-* attributes.
 export const PAGE_COMPLETENESS_VERSION = 'wp10.page-completeness.v1';
 // P28-COMPLETENESS-01: 'empty' was listed as an empty state but never raised as an issue, so a required producer that
 // published nothing read as loaded. 'unknown' = loaded, but its time or coverage could not be confirmed.
@@ -50,7 +46,6 @@ export function producerState(producer, { meta = {}, refreshSchedule = null, scr
   const screenerCoverage = Number(screenerMeta.universe) > 0 && Number.isFinite(Number(screenerMeta.artifactRows))
     ? Math.min(100, (Number(screenerMeta.artifactRows) / Number(screenerMeta.universe)) * 100) : null;
   const direct = {
-    // P1116: derive the citation from the producer's publication flag; data.json.quotes is published empty (P715).
     quotes: meta.generatedAt && Number(meta.symbolsOk) > 0 ? { status: Number(meta.symbolsFail || 0) ? 'partial' : 'loaded', coverage: (Number(meta.symbolsOk) / Math.max(1, Number(meta.symbolsOk) + Number(meta.symbolsFail || 0))) * 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: [meta.quotesPublished === true ? 'data.json:quotes' : 'market-snapshot.json:quotes'], sourceKind: 'delayed-eod' } : null,
     news: meta.generatedAt && meta.newsOk ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['data.json:news'], sourceKind: 'server-cache' } : null,
     fred: meta.generatedAt && meta.fredFetchOk ? { status: 'loaded', coverage: 100, lastSuccessfulAt: meta.generatedAt, evidenceIds: ['data.json:macro:fred'], sourceKind: 'official-primary' } : null,
@@ -89,7 +84,6 @@ export function pageDataCompleteness(pageId, contract, readProducer, now = Date.
   const producers = {};
   const issues = [];
   producerIds.forEach((producer) => {
-    // P28-AUDIT-01: a copy, so one page's age verdict is not written into the reader's object for the next page.
     const state = { ...(readProducer(producer) || {}) };
     const maxAgeMs = contract.maxAge && contract.maxAge[producer] != null ? Number(contract.maxAge[producer]) : Infinity;
     const minCoverage = contract.minCoverage && contract.minCoverage[producer] != null ? Number(contract.minCoverage[producer]) : 0;
@@ -139,7 +133,6 @@ export function auditPageDataCompleteness(pages, ids) {
   const staleReferenceCount = count('stale-reference');
   return {
     version: PAGE_COMPLETENESS_VERSION,
-    // P28-AUDIT-01: an audit of no route checked nothing; it reads empty, not loaded.
     status: !pages.length ? 'empty' : blockedCount ? 'blocked' : staleReferenceCount ? 'stale-reference' : emptyCount ? 'empty' : partialCount ? 'partial' : 'loaded',
     routeCount: ids.length,
     loadedCount: count('loaded'),
@@ -152,7 +145,6 @@ export function auditPageDataCompleteness(pages, ids) {
   };
 }
 
-// Installs the AIO.* entry points the router, QA audits and tests call (getScreenerLoadState: the QA runtime audit).
 export function installPageCompleteness(root, { readScreener }) {
   const AIO = root.AIO = root.AIO || {};
   const readProducer = (producer) => producerState(producer, { meta: root._serverDataMeta || {}, refreshSchedule: root.REFRESH_SCHEDULE || null, screener: readScreener() });

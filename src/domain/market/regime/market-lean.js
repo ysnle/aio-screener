@@ -1,13 +1,3 @@
-// v58.81 (owner 2026-10-26): "매수 우위 / 매도 우위" for the market as a whole — never a buy or sell instruction, a price or
-// a target. The lean is built only from evidence the app already publishes, and every piece states what it is:
-//   - 지금 조건: the six US axes as a count (favorable vs burden). A count of conditions, not a likelihood (R697).
-//   - 과거 빈도: how often the index was higher 21 sessions later after days like today (VIX band, price temperature),
-//     shown beside the base rate of the same history with its sample size. A frequency moves the lean only when it
-//     differs from the base rate by more than the sampling noise (1.5 binomial standard errors and at least 5%p) on at
-//     least 30 independent cases; 10-29 cases show the rate with a small-sample note and do not vote; under 10 show the
-//     count only (AGENTS Product decisions, past-frequency rule).
-// The base rate is said out loud: since 1990 the S&P 500 was higher 21 sessions later on about two days in three, so
-// "no lean" still leaves the long-run upward drift, and a burden-heavy tape shifts that drift rather than reversing it.
 import { stressBandOf } from '../signal/stress-outcomes.js';
 import { vixBandRecord, vixBandRiskLine } from '../signal/vix-band-record.js';
 import { currentStressOutcomes } from '../../scenarios/outcome-fingerprints.js';
@@ -19,16 +9,6 @@ export const MARKET_LEAN_VERSION = 'market-lean.v1';
 export const LEAN_RULES = Object.freeze({ horizon: 21, minVoteN: 30, minRateN: EVIDENCE_FLOOR, minEdgePp: 5, seMultiple: 1.5, conditionGap: 2 });
 export const LEAN_LABELS = Object.freeze({ 2: '매수 우위', 1: '약한 매수 우위', 0: '뚜렷한 우위 없음', [-1]: '약한 매도 우위', [-2]: '매도 우위', mixed: '엇갈림' });
 
-// Owner 2026-11-15 ("no unvalidated score shown as a verdict"): the lean's direction word rests on a backtest of this
-// rule against what followed (scripts/backtest-market-lean.mjs), judged by scripts/build-validation-gates.mjs on the
-// criterion declared in architecture/validation-gate-criteria.json `marketLean` and published as
-// model-validation-status.json `marketLean`. Each direction is spoken only when that verdict passed it for this rule
-// version; the neutral and mixed labels need both. No verdict, another rule version or a failed direction shows the
-// six-axis count as a state with no direction word. This is the one place that decides; consumers print what it returns.
-// The risk read of the count (does a burden-heavy count precede more −5% drawdowns?) is judged the same
-// way — scripts/backtest-market-lean-risk.mjs, the criterion validation-gate-criteria.json `marketLeanRisk` registered
-// before its first run, published as model-validation-status.json `marketLean.risk` — and the fold states that verdict
-// (countRiskNote). Without a published verdict it says there is none yet; it never says a check failed that is not on file.
 const DIRECTION_OF =Object.freeze({ 2: 'buy', 1: 'buy', [-1]: 'defend', [-2]: 'defend' });
 
 function riskVerdict(block) {
@@ -227,10 +207,6 @@ export function buildMarketLean({ regime = null, stress: published = null, tempe
   const krName = krFirst?.id === 'temp-kosdaq' ? '코스닥' : '코스피';
   const krBase = temperature?.markets?.[krFirst?.id === 'temp-kosdaq' ? 'kosdaq' : 'kospi']?.outcomes?.all?.h21?.hitRate;
   const krTail = krItems.some((item) => item.vote) ? '가격 온도가 이 기본값을 의미 있게 바꿉니다.' : '지금 가격 온도의 과거 빈도는 이 기본값과 구분되지 않습니다.';
-  // The backtest covers the US rule only, so the Korea reference never carries a direction word: its items keep their
-  // rates beside the base rate and sample size.
-  // Owner-approved: beside the six-axis state, one past-frequency line from the published VIX-band record (the
-  // share of −5% drawdowns within 21 sessions vs the base rate, with the case count); the count itself stays a state.
   us.risk = vixBandRiskLine(vixBandRecord(published, vix));
   us.countNote = countRiskNote(validation);
   const kr = { available: krItems.length > 0, market: 'KR', key: 'counts', ruleKey: krCombined.key, score: krCombined.score, label: '가격 온도 과거 빈도', items: krItems,

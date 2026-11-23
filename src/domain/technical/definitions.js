@@ -1,14 +1,7 @@
-// v57.84 (technical definitions): the one owner of the indicator definitions the chart (chart-analysis.js), the
-// moving-average structure (stage.js), the screener producer (screener/price-factors.js), the setup profile and the stock
-// summary read. Before this file each computed its own: ATR was a 14-session simple mean on the chart and Wilder's in the
-// legacy snapshot; the chart's "50일선 대비 배수" divided by ATR while the screener and the summary divided by ADR, against
-// the same 2/4/7 bands; the producer called 60 sessions of highs a "52주" range that the chart refused below 252.
-// Periods and bands are RULES.technical constants (R713). Pure functions: no DOM, no globals.
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
 const T = RULES.technical;
-
 
 const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
 
@@ -137,8 +130,6 @@ export function rangeExtremesOf(highs, lows, sessions = T.rangeSessions) {
   const hi = highs.slice(from, n).filter((value) => value > 0);
   const lo = lows.slice(from, n).filter((value) => value > 0);
   if (!hi.length || !lo.length) return null;
-  // v57.92 (internal review M02): the full-year test counts the span of real bars, not the array length — 239 null pairs
-  // and one valid bar used to pass as a 52-week range. Producer and chart bars carry no null rows, so their result is unchanged.
   let firstValid = from;
   while (firstValid < n && !(highs[firstValid] > 0 && lows[firstValid] > 0)) firstValid += 1;
   return Object.freeze({ high: Math.max(...hi), low: Math.min(...lo), sessions: n - from, fullYear: n - firstValid >= Math.min(sessions, T.fullYearSessions) });
@@ -247,9 +238,6 @@ export function weinsteinStage(closes, rules = T.weinstein) {
   return Object.freeze({ stage, slope, above, pullback, text: pullback ? '상승 추세 중 눌림 — 30주선은 아직 오르는데 가격이 그 아래로 내려온 단계(선이 평평해지면 천장 형성)' : WEINSTEIN_READS[stage] });
 }
 
-// v57.84 (owner decision, TECHNICAL-DEFINITIONS 2절 1): moved from chart-analysis.js — the one VCP contraction detector for the
-// chart, the screener producer (price-factors _calcVCPServer) and the legacy snapshot (aio-core _calcVCP via AIO_ARCH).
-// Swing points: a bar whose high (low) is the extreme of `span` bars on each side.
 function swings(bars, span) {
   const highs = []; const lows = [];
   for (let i = span; i < bars.length - span; i++) {
@@ -273,8 +261,6 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
   const start = Math.max(0, bars.length - lookback);
   const recent = bars.slice(start);
   if (recent.length < 30) return { contractions: [], valid: false, pivot: null };
-  // v57.84 review: the base high is searched only up to the last confirmable swing (span bars before the end). Taking
-  // the newest bar made a new-high breakout erase its own base — no contractions, no pivot, state 'none'.
   let baseIndex = 0;
   const baseLimit = Math.max(1, recent.length - span - 1);
   recent.slice(0, baseLimit).forEach((bar, index) => { if (bar.high > recent[baseIndex].high) baseIndex = index; });
@@ -297,13 +283,11 @@ export function detectContractions(bars, { lookback = 130, span = 3 } = {}) {
     cursorHigh = highs.filter((index) => index >= firstHigh && (nextLow == null || index < nextLow))
       .reduce((best, index) => (recent[index].high > recent[best].high ? index : best), firstHigh);
   }
-  // Pullbacks under 2% are swing noise and drop out — except the latest one. Audit 2026-10-17 (owner D9): a tight last
-  // contraction (Minervini's best case) used to vanish, and the pivot fell back to the earlier, lower high.
   const all = contractions.filter((row, index) => row.depth >= 2 || (index === contractions.length - 1 && row.depth > 0));
   // The pattern is the latest run of successively shallower pullbacks (Minervini's 'T' count),
   // not the whole base: walk back from the last pullback while each earlier one was deeper.
   let startRun = all.length - 1;
-  while (startRun > 0 && all[startRun - 1].depth > all[startRun].depth) startRun--; // v57.84: strictly shallower, as the comment says
+  while (startRun > 0 && all[startRun - 1].depth > all[startRun].depth) startRun--;
   const meaningful = all.slice(Math.max(0, startRun));
   const valid = meaningful.length >= 2 && meaningful[meaningful.length - 1].depth <= 12 && meaningful[0].depth <= 40;
   const last = meaningful[meaningful.length - 1] || null;

@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { derivePublicAiConfig, reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { reuseWorkerHealthEvidence } from './build-operations-status.mjs';
+import { describeSharedConnection } from '../src/domain/ai/shared-connection.js';
 import { PRODUCER_SOURCE_FILES } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + its split lib modules
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -38,20 +39,15 @@ check('P1421 Actions receives automation authentication rather than a provider k
 const config = JSON.parse(read('public-config.json'));
 check('P1421 public AI configuration cannot fall back to a personal key', config.ai?.chatPolicy === 'shared-worker-only' && config.ai?.serverMode === 'shared-worker-only' && config.ai?.provider === 'openai' && config.ai?.model === 'gpt-6-luna');
 
-// P1421: real producer functions are imported without running a data refresh.
-const now = '2026-10-03T01:00:00.000Z';
-const endpoint = 'https://worker.example';
-const evidence = { proxyAiProvider: 'openai', proxyAiModel: 'gpt-6-luna', proxyHealthStatus: 200, proxyHealthObserved: now, proxyObservationStatus: 'SUCCESS' };
-const derive = options => derivePublicAiConfig({}, { workerEndpoint: endpoint, appRevision: 'fixture', now, proxyHealthy: true, proxyEvidence: evidence, ...options });
-assert.equal(derive({}).ai.routeStatus, 'PUBLISHED', 'P1421 matching OpenAI health can publish a route');
-for (const incompatible of [{}, { ...evidence, proxyAiProvider: 'anthropic' }, { ...evidence, proxyAiModel: 'another-model' }]) {
-  const held = derive({ proxyEvidence: incompatible });
-  assert.equal(held.ai.routeStatus, 'DISABLED', 'P1421 another provider cannot certify migration');
-  assert.equal(held.ai.chatPolicy, 'shared-worker-only', 'P1421 failure cannot enable an unmetered key');
+// P1421 / v60.50: the browser certifies the route from the Worker's own /health on every load (the release-scoped
+// config only names the Worker). A Worker that is not ready, or runs another provider or model, is not a route.
+const health = (ai) => ({ schemaVersion: 'aio-worker-health.v1', ai: { ready: true, provider: 'openai', model: 'gpt-6-luna', ...ai } });
+assert.equal(describeSharedConnection(health({})).ok, true, 'P1421 matching OpenAI health is a route');
+for (const incompatible of [{ provider: 'anthropic' }, { model: 'another-model' }, { ready: false }]) {
+  assert.equal(describeSharedConnection(health(incompatible)).ok, false, 'P1421 another provider, model or a not-ready Worker cannot certify the route');
 }
-const offline = derive({ proxyHealthy: false, proxyEvidence: { proxyObservationStatus: 'FAILED' } });
-assert.equal(offline.ai.routeReason, 'WORKER_HEALTH_UNAVAILABLE', 'P1421 failure evidence is retained');
-assert.equal(offline.marketData.workerUrl, endpoint, 'P1421 AI migration cannot disable independent data relay');
+assert.equal(describeSharedConnection(health({}), false).ok, false, 'P1421 a failed health request is not a route');
+const now = '2026-10-03T01:00:00.000Z';
 const carried = reuseWorkerHealthEvidence({ ai: { publicChat: { health: { provider: 'openai', model: 'gpt-6-luna', observedAt: now, statusCode: 200 } } } }, now);
 assert.equal(carried.proxyAiProvider, 'openai', 'P1421 cached health retains provider identity');
 assert.equal(carried.proxyAiModel, 'gpt-6-luna', 'P1421 cached health retains model identity');

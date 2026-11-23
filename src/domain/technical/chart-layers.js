@@ -1,9 +1,3 @@
-// v59.74 (owner 2026-11-07, chart redesign): the daily chart's layers in two tiers. The base tier is drawn for every
-// stock — price action, volume, the 21·50·200 moving averages, the volume profile (매물대) and the up/down trend drawn
-// as shaded areas, not lines. Every other study (RSI, MACD, divergence, Fibonacci, VCP, Bollinger squeeze/expansion,
-// event signals, the RS line, the price-level map) is opt-in, so the default chart stays readable.
-// Pure functions on completed daily bars (the same bars chart-analysis.js reads): no DOM, no globals, no network.
-// Nothing here is an entry, stop or target (R724): each layer is a published, named calculation shown as a fact.
 import { emaSeries, rsiSeriesWilder, smaSeries } from './definitions.js';
 import { swingPoints } from './price-levels.js';
 import { buildVolumeByPrice, profilePosition } from './chart-scenarios.js';

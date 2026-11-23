@@ -32,8 +32,12 @@ const contractGroups = manifest.profiles.contracts.filter((group) => !group.star
 const only = (() => { const at = process.argv.indexOf('--only'); return at > 0 ? process.argv[at + 1].split(',') : null; })();
 const candidates = only ? only.map((script) => ({ id: script, script, args: [] }))
   : contractGroups.flatMap((group) => manifest.groups[group].gates)
-    .filter((gate) => gate.inputClass !== 'data' && !gate.liveData && !NOT_SWEPT[gate.id] && !gate.id.endsWith('-model')
-      && existsSync(join(root, gate.script)) && /Date\.now\(\)|new Date\(\)/.test(readFileSync(join(root, gate.script), 'utf8')));
+    // v60.50: a data gate that holds code sections (scripts/lib/gate-sections.mjs) is swept too — its code sections are
+    // the code contracts the old `mixed` class carried here; its data sections judge the artifact at its own stamps.
+    .filter((gate) => existsSync(join(root, gate.script)))
+    .filter((gate) => (gate.inputClass !== 'data' || /runSections\(/.test(readFileSync(join(root, gate.script), 'utf8')))
+      && !gate.liveData && !NOT_SWEPT[gate.id] && !gate.id.endsWith('-model')
+      && /Date\.now\(\)|new Date\(\)/.test(readFileSync(join(root, gate.script), 'utf8')));
 
 // Targets: the next seven days at 01:00Z, the nearest NYSE holiday at 15:00Z and the nearest KRX holiday at 01:00Z.
 const addDays = (date, n) => new Date(Date.parse(`${date}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);

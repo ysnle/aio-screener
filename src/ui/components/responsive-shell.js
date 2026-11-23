@@ -1,10 +1,8 @@
-// P1618: UI-only responsive lifecycle; preferences stay in the app boundary.
 import { attachScrollCue } from './scroll-cue.js';
 import { openLayer } from '../behaviors/layers.js';
-const CARD_GRIDS = '#fund-rpt-fin-grid,#pf-hero-stats,#fund-valuation-cards'; // v59.51: #home-kpi-strip left with the home quote row merge
+const CARD_GRIDS = '#fund-rpt-fin-grid,#pf-hero-stats,#fund-valuation-cards';
 const LAYOUTS = '#fund-qual-grid,#fund-qual-charts,#rrg-quadrant-cards';
 const SCROLL_CUE_BOXES = '.page .aio-table-scroll,#screener-results-table .scr-registry-header';
-// v58.53 개편 v2 (4a/4b): the iPad-portrait/iPhone tab bar marks the screen a route belongs to; the rest is under 더보기.
 const TAB_FOR_ROUTE = Object.freeze({ home: 'today', briefing: 'today', 'market-news': 'today', signal: 'market', breadth: 'market', sentiment: 'market', screener: 'screener', ticker: 'stock', technical: 'stock', fundamental: 'stock' });
 const FOCUSABLE = 'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[role="button"][tabindex],[tabindex]:not([tabindex="-1"])';
 
@@ -13,8 +11,6 @@ export function installResponsiveShell(root, doc) {
   const main = doc.querySelector('.main');
   const toggle = doc.getElementById('sidebar-toggle-btn');
   if (!sidebar || !main || !toggle || !root.matchMedia || !root.MutationObserver || !root.requestAnimationFrame) return () => {};
-  // v58.54 (design 4a): the drawer is for iPad portrait and phones; iPad landscape keeps a fixed sidebar. The AI panel
-  // overlays the page (modal) up to 1279, where a split beside the sidebar left the page too narrow.
   const compact = root.matchMedia('(max-width: 1023px)');
   const aiOverlay = root.matchMedia('(max-width: 1279px)');
   const app = doc.querySelector('.app');
@@ -75,19 +71,13 @@ export function installResponsiveShell(root, doc) {
       event.preventDefault(); event.stopImmediatePropagation(); setOpen(!opened); return;
     }
     if (event.target === backdrop || event.target === close) { setOpen(false); return; }
-    // First-users run 4: tapping the current tab scrolls to the top (the floating ↑ is hidden on phones).
     if (event.target.closest?.('#aio-tabbar [data-tab][aria-current="page"]')) { event.preventDefault(); event.stopImmediatePropagation(); root._aioScrollContentTop?.(); return; }
-    if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar [data-action="openKbdHelp"],.sidebar a[href^="#"]')) { setOpen(false, false); if (!event.target.closest?.('[data-action="openKbdHelp"]')) toggle.focus(); } // v58.80 (first-users bundle 5): the menu stayed over the shortcut sheet and its 닫기 tap hit 용어 사전
+    if (opened && event.target.closest?.('.sidebar [data-action="showPage"],.sidebar [data-action="openGlossary"],.sidebar [data-action="openKbdHelp"],.sidebar a[href^="#"]')) { setOpen(false, false); if (!event.target.closest?.('[data-action="openKbdHelp"]')) toggle.focus(); }
   };
   const onKey = (event) => {
     if (event.key === 'Escape' && event.defaultPrevented) return; // a layer above took it (behaviors/layers.js)
-    // v58.80 (first-users F24): the shortcut sheet promises "Esc 모달/메뉴 닫기", but on a desktop width (panel beside the page)
-    // Escape from inside the open AI panel did nothing; only the narrow overlay closed.
     if (event.key === 'Escape' && !opened && ai?.classList.contains('open') && ai.contains(doc.activeElement)) { event.preventDefault(); ai.querySelector('.ai-ph-close')?.click(); return; }
   };
-  // P1653: iOS fires visualViewport resize/scroll on every keystroke while the keyboard is open. Writing the variables
-  // on <html> restyled the whole document per event, so typing in the AI panel lagged on iPhone/iPad. The values are
-  // written once per frame, only when they change, and only on the two overlays that read them.
   let viewportFrame = null, lastViewport = '';
   const writeViewport = () => {
     viewportFrame = null;
@@ -119,10 +109,8 @@ export function installResponsiveShell(root, doc) {
       region = doc.createElement('div'); region.className = 'aio-table-scroll';
       region.setAttribute('role', 'region'); region.setAttribute('aria-label', `${table.caption?.textContent?.trim() || '자료 표'} 가로 스크롤`); region.tabIndex = 0;
       table.before(region); region.append(table);
-      active?.focus({preventScroll:true}); // P1622 moving a focused table into its scroll region must preserve focus.
+      active?.focus({preventScroll:true});
     });
-    // v57.81: every sideways-scrolling table, and the phone screener sort bar, shows which side has more (scroll-cue.js;
-    // drawn in responsive.css).
     doc.querySelectorAll(SCROLL_CUE_BOXES).forEach((box) => attachScrollCue(box, { root }));
   };
   let scheduled = false, disposed = false, frame = null;
@@ -132,7 +120,6 @@ export function installResponsiveShell(root, doc) {
   });
   observer.observe(doc.getElementById('main-content') || main, { childList: true, subtree: true });
   let aiWasModal = false;
-  // First-users run 4: opening the panel checks the shared route (cached health) and names the state in the header.
   let aiWasOpen = false;
   const routeLine = () => {
     const node = doc.getElementById('ai-panel-route');
@@ -167,8 +154,6 @@ export function installResponsiveShell(root, doc) {
     const tab = TAB_FOR_ROUTE[route] || 'more';
     tabbar.querySelectorAll('[data-tab]').forEach((item) => { if (item.dataset.tab === tab) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current'); });
   };
-  // v58.80 (first-users F24, run-3): Escape with focus on the page (not in the panel) still left the side panel open. On the
-  // window, after every other Escape owner had its turn, an unclaimed Escape outside a text field closes it.
   const onLateEscape = (event) => {
     if (event.key !== 'Escape' || event.defaultPrevented || opened || !ai?.classList.contains('open')) return;
     const target = doc.activeElement;

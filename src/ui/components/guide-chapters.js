@@ -1,8 +1,3 @@
-// v59.07 (roadmap item 11, legacy decomposition 7/8): the chapter layout moved here from js/aio-core.js
-// (_aioPolishRemainingPages, v52.89 P704). The hero leads, the quick-start section follows, every other direct section
-// is folded into a closed details.aio-guide-chapter titled by its own label, and the public policy note goes last. It
-// runs once per page (data-guide-chapters) and is not undone on unmount, as before. src/ui/pages/guide.js calls it on
-// mount; window._aioOrganizeGuideChapters (src/app/legacy-screen-bridges.js) lets the T869 headless test lay it out.
 export function organizeGuideChapters(documentRef, page) {
   if (page.dataset.guideChapters === '1') return;
   page.dataset.guideChapters = '1';

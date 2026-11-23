@@ -1,7 +1,3 @@
-// P1505 (owner 2026-10-06): source names and URLs left the face of the screens. Each screen keeps one folded
-// "데이터 출처" note at its end so a reader who needs to check a number — an institutional user in particular —
-// can still find the provider and series. Dates stay on the numbers themselves; only the provider moves here.
-
 import { pageLensReads } from '../../domain/narrative/lens-registry.js';
 import { screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 import { AXIS_LABELS } from '../../domain/market/interpretation/concepts.js';
@@ -11,14 +7,12 @@ const NEWS = '뉴스: Google News가 모은 매체별 기사 (제목과 매체�
 const TELEGRAM = '텔레그램: 공개 채널 4곳의 요약 (각 글은 원문 링크)';
 const FRED = '미국 금리·물가·고용: FRED(세인트루이스 연준), BLS, BEA, 미 재무부 공식 고시';
 const SEC = '기업 재무: SEC EDGAR XBRL 공시 (연간 10-K, 분기 10-Q)';
-// v58.80 run-5 (skeptic #8): 재무 공시 also shows consensus EPS, Forward PER and the 4-week revisions; their provider was not listed.
 const CONSENSUS = '컨센서스 EPS·Forward PER·최근 4주 추정치 상향·하향: Nasdaq 공개 실적 전망(Zacks 컨센서스, 조정 EPS 기준, 점수에 쓰지 않는 참고값)';
 
 export const PAGE_SOURCES = Object.freeze({
   home: [QUOTES, '시장 판정·지난 마감 이후 변화: 종가 기록으로 자체 계산', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)', NEWS],
   briefing: [QUOTES, FRED, '하이일드 스프레드: ICE BofA OAS (FRED)', '일정: BLS·BEA·연준 공식 일정과 거래소 규칙(만기·휴장)'],
   'market-news': [NEWS, TELEGRAM],
-  // v57.77: the two screens that kept providers only in card hovers (unreachable on a phone).
   breadth: [
     '시장 폭 지표: 스크리너 유니버스(미국 개별 주식, ETF 제외)의 수정 종가로 자체 계산, 종목마다 같은 무게로 세며 거래소 전체 집계가 아닙니다',
     '정의 관례: 40일선 위 종목 비율은 Worden T2108 계열 지표와 같은 정의, 분배일은 윌리엄 오닐의 관례',
@@ -42,13 +36,10 @@ export const PAGE_SOURCES = Object.freeze({
     '지수 이익 전망: Nasdaq·Zacks 컨센서스(조정 EPS), iShares IVV 보유 비중, 실질금리 FRED DFII10',
     'AI 설비투자 배분: BNP Paribas 추정(2026-08), a16z State of Markets II(2026-09-30) 인용, 부품 납기: TrendForce(2026-09-14)'
   ],
-  // v58.74 (text audit): one fold serves 미국 and 한국 tickers, so each line names the market it applies to.
   ticker: ['가격: Yahoo Finance 시세와 일봉 종가', '사업: 회사별 조사 노트(회사 공시·실적 발표·IR 자료를 날짜와 함께 인용, 각 근거는 회사의 데이터 출처 접힘)',
     '밸류체인 안의 자리: AIO AI 밸류체인 지도와 회사 이야기에서 모은 고객·공급 연결, 자본순환은 계약·공시·보도 원문',
     '기업 재무: 미국 종목은 SEC EDGAR XBRL 공시(연간 10-K, 분기 10-Q), 한국 종목은 DART 사업보고서', CONSENSUS,
     '회사 이야기가 없는 종목: 종목 등록 정보의 분류·섹터·업종과 출처가 있는 회사 설명만 표시'],
-  // v57.81: the 한국 시장 fold is shown to everyone, so the chart screen names its sources too.
-  // Chart-scale 2026-11-19: the 시장 지수 일봉 cards draw without the library's on-chart logo, so the attribution is here.
   charts: ['시장 지수 일봉: Yahoo Finance 일봉', '차트 그리기: TradingView Lightweight Charts (Apache-2.0, https://www.tradingview.com/)'],
   technical: ['종목 차트: Yahoo Finance 일봉', '코스피·코스닥 종가: Yahoo Finance 일봉(마감된 한국 거래일), 50일선·200일선·1년 고저는 자체 계산'],
   fundamental: [SEC, CONSENSUS],
@@ -59,9 +50,6 @@ export const PAGE_SOURCES = Object.freeze({
   atlas: ['각 분야의 근거는 본문의 "근거와 가정 보기"에 있습니다']
 });
 
-// v59.70 (owner 2026-11-07): the fold also says what the screen reads through — each lens's question, the reading it
-// encodes, today's basis date and coverage, and what it cannot tell (src/domain/narrative/lens-registry.js). Refreshed on every
-// visit, since coverage moves with the loaded data; the provider list below it is unchanged.
 const ROUTE_NAMES = Object.freeze({ charts: '기술적 분석', breadth: '시장 폭', sentiment: '투자 심리', fxbond: '금리와 환율', briefing: '브리핑', macro: '매크로',
   themes: '테마와 섹터', screener: '스크리너', signal: '시장 상태' });
 

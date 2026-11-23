@@ -1,23 +1,10 @@
-// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): ONE model every surface reads to explain the market — the screens, the AI
-// chat, the server narrative and the scenario-state producer. It composes the existing engines; it adds no condition of
-// its own:
-//   situation — the six-axis verdict, the present structure (scenario-outlook), the macro driver (macro-crossroads) and
-//               the next official release, in plain words
-//   paths     — the live branches (core condition met) and the watch branches (some conditions, core not met), each
-//               with the three evidence lines the crossroads already carries (count · market pricing · past frequency)
-//   direction — across the live branches, how many favour each of the four shared choices and how many name it costly;
-//               the choice favoured somewhere and costly nowhere is the one that costs least if the reading is wrong.
-//               A count of branch texts, never a probability (R697), and never an instruction about the reader's own
-//               holdings (R698).
-//   stance    — what to lean toward and what to avoid, derived from the direction, the lead's exposures and the traps
-//   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { activeScheduledEvents } from '../briefing/scheduled-events.js';
 import { CHOICE_WORDS, GROUND_LABELS } from '../content/choice-words.js';
 import { selectLessons, LESSON_KINDS } from './lessons.js';
-import { hasFinalConsonant, withObjectParticle } from '../content/korean-particle.js';
+import { hasFinalConsonant, withDirectionParticle, withObjectParticle } from '../content/korean-particle.js';
 
 export const MARKET_GUIDE_VERSION = 'market-guide.v1';
 export const CHOICE_KEYS = Object.freeze(Object.keys(CHOICES));
@@ -36,14 +23,13 @@ const OVERALL_MEANING = Object.freeze({
   '판정 보류': '판정에 필요한 관측이 부족해 전체 판단을 보류합니다.'
 });
 
-const isLive = (item) => item?.gate?.met === true && item.known >= 2 && item.met > 0;
-const isWatch = (item) => !isLive(item) && item?.known >= 2 && item.met > 0;
+const isLive = (item) => item?.gate?.met === true && item.known >= 2 && item.met > 0 && item.met * 2 >= item.total;
+const isWatch = (item) => item?.known >= 2 && item.met > 0;
 const ratio = (item) => (item.total ? item.met / item.total : 0);
 
 function evidenceOf(item) {
   const pricing = item.pricingInConditions && item.pricing?.tone === 'same' ? null
     : { same: '시장 가격도 이쪽', against: '시장 가격은 반대쪽', neutral: '시장 가격은 중립' }[item.pricing?.tone] || null;
-  // Owner 2026-10-19: one reading of the past frequency (analogs.js pastEvidence) — a share only where it differs from the base.
   const e = pastEvidence(item.past);
   const past = e.informative ? `과거 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승, 전체 기준선 ${e.baseUpPct}%${e.small ? ' (표본이 작음)' : ''}`
     : e.informative === false ? `과거 비슷한 때 ${e.n}번 — 전체 기준선(${e.baseUpPct}%)과 구별되지 않음`
@@ -60,10 +46,6 @@ function pathOf(item) {
   };
 }
 
-// v58.64 (architecture audit I02): the tally counted branches, so writing one cause as two branches (the same axes)
-// moved the pick without any new market fact. Branches that share a 거시 axis are one cluster of evidence: a choice
-// scores by the clusters that favour it minus the clusters that call it costly. The tally is a count of written cost
-// comparisons — not an expected or worst-case cost — and the sentences say only that.
 export function axisClusters(paths) {
   const parent = new Map();
   const find = (key) => { while (parent.get(key) !== key) key = parent.get(key); return key; };
@@ -97,10 +79,10 @@ export function buildDirection(live, watch) {
   const n = live.length;
   // The nearest watch branch (most conditions, core not met yet) either agrees with the tally or names what changes.
   const nearest = watch[0] || null;
-  const nearText = !nearest || !robust ? '' : nearest.favored.includes(robust) ? ` 핵심 조건만 빠진 시나리오 중 가장 가까운 '${nearest.short}'(${nearest.fit})도 '${choiceName(robust)}'${hasFinalConsonant(choiceName(robust)) ? '을' : '를'} ${CHOICE_WORDS.favored}으로 적습니다.`
+  const nearText = !nearest || !robust ? '' : nearest.favored.includes(robust) ? ` 집계 밖 시나리오 중 가장 가까운 '${nearest.short}'(${nearest.fit})도 '${choiceName(robust)}'${hasFinalConsonant(choiceName(robust)) ? '을' : '를'} ${CHOICE_WORDS.favored}으로 적습니다.`
     : nearest.costly.includes(robust) ? ` 다만 가장 가까운 '${nearest.short}'(${nearest.fit})로 넘어가면 이 선택의 비용이 커집니다.` : '';
   const text = !robust ? '살아 있는 시나리오들이 비용이 작은 선택지를 서로 다르게 적어, 한쪽으로 세지 않습니다.'
-    : `핵심 조건을 갖춘 시나리오 ${n}개 중 ${row.favoredIn.length}개에서 ${subject(`'${row.name}'`)} 비용이 작다고 적혀 있고${row.favoredClusters < row.favoredIn.length ? `(같은 거시 축을 공유하는 것을 하나로 묶으면 ${row.favoredClusters}묶음)` : ''}, 비용이 크다고 적힌 곳은 ${row.costlyIn.length ? `${row.costlyIn.length}개('${row.costlyIn.join("'·'")}')` : '없습니다'}${split ? ` — '${top.filter((item) => item.key !== robust).map((item) => item.name).join("'·'")}'도 같은 수라 함께 봅니다` : ''}.${nearText}`;
+    : `집계한 시나리오 ${n}개 중 ${row.favoredIn.length}개에서 ${subject(`'${row.name}'`)} 비용이 작다고 적혀 있고${row.favoredClusters < row.favoredIn.length ? `(같은 거시 축을 공유하는 것을 하나로 묶으면 ${row.favoredClusters}묶음)` : ''}, 비용이 크다고 적힌 곳은 ${row.costlyIn.length ? `${row.costlyIn.length}개('${row.costlyIn.join("'·'")}')` : '없습니다'}${split ? ` — '${top.filter((item) => item.key !== robust).map((item) => item.name).join("'·'")}'도 같은 수라 함께 봅니다` : ''}.${nearText}`;
   return { live, watch: watch.slice(0, 3), tally, robust, split, costIfWrong, text };
 }
 
@@ -108,22 +90,22 @@ function stanceOf({ direction, leadPath, lessons }) {
   const pursue = [];
   const avoid = [];
   const robust = direction.robust;
-  // The lead's own sentence for the robust choice only when the lead favours it; otherwise the tally sentence speaks.
-  if (robust && leadPath?.favored?.includes(robust) && leadPath.choices?.[robust]) pursue.push(`${choiceName(robust)}: ${leadPath.choices[robust]}`);
-  else if (robust) pursue.push(`${choiceName(robust)}: 지금 핵심 조건이 맞는 시나리오 ${direction.live.length}개 가운데, 판단이 틀렸을 때 손해가 작은 쪽으로 가장 많이 꼽힙니다(맞을 확률을 뜻하지는 않습니다).`);
-  else if (!robust) pursue.push('한 방향에 걸지 않기 — 나눠서, 다음 확인 조건을 붙여서 판단합니다.');
+  const leadChoice = leadPath ? (leadPath.favored.includes(robust) ? robust : leadPath.favored[0]) || null : robust;
+  if (leadChoice) pursue.push(`${choiceName(leadChoice)}: ${leadPath?.choices?.[leadChoice] || '같은 수로 맞는 시나리오들에서 손해가 작은 쪽(확률 아님)'}`);
+  else pursue.push('한 방향에 걸지 않기 — 나눠서, 다음 확인 조건을 붙여서 판단합니다.');
+  if (leadPath && robust && !leadPath.favored.includes(robust)) pursue.push(`시나리오 ${direction.live.length}개 전체로는 '${choiceName(robust)}' 쪽 손해가 작음 — 선두와 다름`);
   if (leadPath?.firmer && !/없음/.test(leadPath.firmer)) pursue.push(`'${leadPath.short}'에서 강해지는 쪽(${leadPath.firmer})이 실제로 버티는지 테마·섹터에서 확인`);
   if (leadPath?.triggers?.[0]) pursue.push(`다음 확인 신호를 미리 적어 두기: ${leadPath.triggers[0].when} — ${leadPath.triggers[0].text}`);
-  const costly = direction.tally.filter((row) => row.costlyIn.length && row.key !== robust);
-  // A rule-table cost is the decision frame's cost hypothesis (src/domain/scenarios/decision-frame.js), never a
-  // past result. The screen line reads plain — `note` (the stance headings' title and the
-  // guide card's scope note) already says these are counted cost comparisons, not odds; the AI block names the ground
-  // kind on the first `costAvoid` lines.
-  for (const row of costly.slice(0, 2)) avoid.push(`${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${row.costlyIn.map((name) => `'${name}'`).join('·')} 시나리오로 가면 손해가 큰 선택입니다`);
+  const costly = direction.tally.filter((row) => row.costlyIn.length);
+  for (const row of costly.slice(0, 2)) {
+    const where = row.costlyIn.map((name) => `'${name}'`).join('·');
+    avoid.push(leadPath?.favored.includes(row.key) ? `'${row.name}' — 선두 '${leadPath.short}'에서는 비용이 작지만 ${withDirectionParticle(where)} 가면 손해가 큰 선택입니다`
+      : `${row.key === 'stage' ? '서두른 ' : ''}'${row.name}' — ${where} 시나리오로 가면 손해가 큰 선택입니다`);
+  }
   const costAvoid = avoid.length;
   if (leadPath?.weaker && leadPath.weaker !== '—') avoid.push(`'${leadPath.short}'에서 약해지는 쪽(${leadPath.weaker})에 한 번에 몰기`);
   for (const lesson of lessons.filter((row) => row.kind === 'trap' && row.reason).slice(0, 2)) avoid.push(`${lesson.title}에 속기`);
-  return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4), costAvoid };
+  return { pursue: pursue.slice(0, 3), avoid: avoid.slice(0, 4), costAvoid, leadChoice };
 }
 
 /**
@@ -138,19 +120,17 @@ function stanceOf({ direction, leadPath, lessons }) {
 export function buildMarketGuide({ regime = null, outlook = null, crossroads = null, curve = null, indexEarnings = null, nowMs = Date.now() } = {}) {
   if (!regime?.available) return { available: false, version: MARKET_GUIDE_VERSION, reason: '종가 기록을 불러오는 중이라 가이드를 만들지 않았습니다.' };
   const items = crossroads?.available ? crossroads.items || [] : [];
-  const live = items.filter(isLive).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
-  const watch = items.filter(isWatch).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
   // MERGED #2 (run-6): a tie names every tied branch and gives no single-lead stance or decider (scenarioLead).
   const reading = scenarioLead(crossroads);
+  const counted = (item) => isLive(item) || reading.ids.includes(item.id);
+  const live = items.filter(counted).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
+  const watch = items.filter((item) => !counted(item) && isWatch(item)).sort((a, b) => ratio(b) - ratio(a)).map(pathOf);
   const leadPath = reading.state === 'lead' ? live.find((path) => path.id === reading.ids[0]) || null : null;
   const tiedPaths = reading.state === 'tie' ? live.filter((path) => reading.ids.includes(path.id)) : [];
   const tiedNames = tiedPaths.map((path) => `'${path.short}'`).join('·');
   const direction = buildDirection(live, watch);
   const flow = outlook?.available ? outlook.items?.find((item) => item.id === outlook.leadId) || null : null;
   const nextEvent = crossroads?.nextEvent || null;
-  // v59.62 (owner 2026-11-03): the fork named the 11/6 jobs report while the 11/3 midterm, a bigger repricing, came first.
-  // A major dated event (scheduled-events.js) that lands before the next macro release is said first; no branch reads it,
-  // so it does not change which release decides a scenario.
   const firstEvent = activeScheduledEvents({ nowMs, days: 7 }).filter((event) => event.major && event.marketDate && (!nextEvent?.date || event.marketDate <= nextEvent.date))
     .sort((a, b) => a.marketDate.localeCompare(b.marketDate))[0] || null;
   const decides = nextEvent ? [...live, ...watch].filter((path) => path.triggers.some((t) => t.id === nextEvent.id)).map((path) => path.short) : [];
@@ -162,9 +142,6 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
       : tiedPaths.length ? `${tiedNames} 쪽 조건이 같은 수로 맞아(${tiedPaths[0].fit}) 어느 한쪽으로 정하지 않습니다.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
     { id: 'next', label: '다음 갈림길', text: `${firstEvent ? `${md(firstEvent.marketDate)} ${firstEvent.storyTitle || firstEvent.label} 결과 → ` : ''}${nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.'}` }
   ];
-  // v58.63 (architecture audit I01): a live scenario whose past sample ran against its own conclusion (pastConflict) lost
-  // that limit whenever other lessons filled the lesson slots. The conflict is not a lesson; it stays beside the
-  // headline on the screen and in the AI block, every time.
   const pastConflicts = live.filter((path) => path.pastConflict).map((path) => {
     const c = path.pastConflict;
     return `'${path.short}' 시나리오는 비슷했던 과거 ${c.n}번 중 ${c.horizon}거래일 뒤 오른 경우가 ${c.sharePct}%(전체 기간 ${c.basePct}%)로, 이 시나리오의 ${c.lean === 'defensive' ? '방어' : '위험 감수'} 쪽 결론과 반대였습니다 — 이 선택은 조건부 비용 비교이며 과거 표본은 반대 근거입니다.`;
@@ -172,11 +149,10 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const ctx = { regime, outlook, crossroads, direction, curve, indexEarnings, nowMs };
   const lessons = selectLessons(ctx);
   const stance = stanceOf({ direction, leadPath, lessons });
-  // v58.74 (text audit): the next release on the calendar is not always the one that tests the central scenario ('AI 투자
-  // 꺾임' turns on the jobs report, not the FOMC); when they differ, the central scenario's own decider is named.
   const leadTrigger = leadPath?.triggers?.[0] || null;
   const leadDecider = leadTrigger && leadTrigger.id !== nextEvent?.id ? ` 중심 시나리오 ${withObjectParticle(`'${leadPath.short}'`)} 가를 확인은 ${leadTrigger.when} — ${leadTrigger.text}입니다.` : '';
-  const tally = direction.robust ? `핵심 조건을 갖춘 시나리오들에 유리하다고 가장 많이 적힌 선택은 '${choiceName(direction.robust)}'입니다` : '시나리오마다 유리한 선택지가 갈립니다';
+  const apart = leadPath && direction.robust && !leadPath.favored.includes(direction.robust) ? `, 시나리오 전체로는 '${choiceName(direction.robust)}'` : '';
+  const tally = stance.leadChoice ? `${leadPath ? '선두에서 ' : ''}${CHOICE_WORDS.favored}은 '${choiceName(stance.leadChoice)}'${apart}입니다` : '시나리오마다 유리한 선택지가 갈립니다';
   const nextText = nextEvent ? ` — 다음 갈림길 ${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}` : '';
   const headline = leadPath
     ? `${regime.overall} 환경에서 '${leadPath.short}' 쪽 조건이 가장 많이 맞고, ${tally}${nextText}.${leadDecider}`
@@ -193,7 +169,7 @@ export function renderMarketGuideContext(guide) {
   for (const conflict of guide.pastConflicts || []) lines.push(`- 과거 표본과 어긋남: ${conflict}`);
   for (const row of guide.situation) lines.push(`- ${row.label}: ${row.text}`);
   const d = guide.direction;
-  lines.push(`- 선택지 집계(핵심 조건을 갖춘 시나리오별 '유리'·'비용 큼' 표시를 센 것, 확률 아님): ${d.tally.map((row) => `${row.name} 유리 ${row.favoredIn.length}·비용 큼 ${row.costlyIn.length}`).join(' / ')}. ${d.text}`);
+  lines.push(`- 선택지 집계(선두와 조건 절반 이상 충족 시나리오별 '유리'·'비용 큼' 표시를 센 것, 확률 아님): ${d.tally.map((row) => `${row.name} 유리 ${row.favoredIn.length}·비용 큼 ${row.costlyIn.length}`).join(' / ')}. ${d.text}`);
   for (const cost of d.costIfWrong) lines.push(`- 빗나갈 때의 기회비용: '${cost.short}'(${cost.fit}) 쪽으로 가면 — ${cost.text}${cost.trigger ? ` 확인: ${cost.trigger}` : ''}`);
   if (guide.stance.pursue.length) lines.push(`- 지향: ${guide.stance.pursue.join(' / ')}`);
   if (guide.stance.avoid.length) lines.push(`- 지양: ${guide.stance.avoid.map((text, i) => (i < (guide.stance.costAvoid || 0) ? `${text}(${GROUND_LABELS['cost-hypothesis']})` : text)).join(' / ')}`);

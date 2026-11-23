@@ -25,8 +25,14 @@ import { reportVerification } from '../src/domain/news/report-verification.js';
 import { buildDomainReceipts } from './producer/receipts.mjs';
 import { spawnSync } from 'node:child_process';
 import { NEWS_FEEDS } from './lib/news-selection.mjs';
+import { runSections } from './lib/gate-sections.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
+
+// v60.50: the counterexamples are code tests; whether the shipped market reading leaks an evidence-id bracket through the
+// stripper is a data section that also runs in a data run.
+await runSections('codex-structure-regression-fixture', [
+['counterexamples', async () => {
 
 // v60.13 pipeline review. Each case fails on the code before the fix.
 {
@@ -330,14 +336,6 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
     const input = `읽기입니다. [${open}market.index.spx:75cea69c${sep}regime-context${close}] 다음`;
     assert.equal(strip(input), '읽기입니다. 다음', `v59.84: evidence list ${JSON.stringify(input)} leaves no residue`);
   }
-  {
-    const data = JSON.parse(fs.readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
-    const texts = [];
-    const walk = (o) => { if (typeof o === 'string') texts.push(o); else if (o && typeof o === 'object') Object.values(o).forEach(walk); };
-    walk(data.marketAnalysis || {});
-    const leaks = texts.map(strip).filter((t) => /\[[\s;,]*[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+[^\]\n]*\]/.test(t));
-    assert.deepEqual(leaks.map((t) => t.slice(0, 80)), [], 'v59.84: no evidence-id bracket survives the stripper in the shipped market reading');
-  }
   assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
 }
 
@@ -548,3 +546,15 @@ console.log('codex-structure-regression-fixture: OK');
   assert.equal(converge('action_required').status, 1, 'P2052 an earlier data revision whose CI needs approval fails the awaiting cycle');
   assert.equal(converge('cancelled').status, 0, 'P2052 a cancelled earlier run stays green');
 }
+}, 'code'],
+['shipped-reading', async () => {
+  const { stripEvidenceIds: strip } = await import('../src/domain/briefing/evidence-text.js');
+  const data = JSON.parse(fs.readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
+  const texts = [];
+  const walk = (o) => { if (typeof o === 'string') texts.push(o); else if (o && typeof o === 'object') Object.values(o).forEach(walk); };
+  walk(data.marketAnalysis || {});
+  const leaks = texts.map(strip).filter((t) => /\[[\s;,]*[a-z][a-z0-9]*(?:[-_.][a-z0-9]+)+[^\]\n]*\]/.test(t));
+  assert.deepEqual(leaks.map((t) => t.slice(0, 80)), [], 'v59.84: no evidence-id bracket survives the stripper in the shipped market reading');
+  console.log('codex-structure-regression-fixture: shipped reading OK');
+}, 'data'],
+]);

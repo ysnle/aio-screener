@@ -1,25 +1,14 @@
-// Owner 2026-10-25: 오늘 opens with how the four US index ETFs moved through the last New York regular session, before
-// any reading — S&P 500 (SPY), Nasdaq 100 (QQQ), semiconductors (SOXX), Russell 2000 (IWM). Each card is the session's
-// 5-minute candles against the previous close, with the change from that close. The bars are fetched on the client
-// through the app's Yahoo chart path (window._fetchYahooChartData), so nothing here is a producer artifact; while the
-// session is open the strip re-reads every five minutes. A card opens that ETF on the 차트 screen.
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { signedText } from '../../domain/shared/number.js';
 import { buildCloseSeries, closeSessionMarket, sessionPointBack } from '../../domain/briefing/market-read.js';
 
-// v58.80 (first-users R2-27): a change that rounds to 0.00% is neither up nor down (it read red when slightly negative).
 const toneOf = (pct) => (pct == null || !Number.isFinite(Number(pct)) || Math.abs(Number(pct)) < 0.005 ? '' : Number(pct) > 0 ? 'is-up' : 'is-down');
 
-// v58.80 (first-users F04): `close` is the published daily close a card falls back to when the 5-minute bars cannot be
-// read — every first-time user met four empty grey boxes saying "분봉 수신 실패" at the top of 오늘.
 export const INDEX_STRIP = Object.freeze([
   // closeChart: what a fallback card opens — SOXX itself, or the ETF that tracks the index (the card says so; run-2 R2-2).
   Object.freeze({ sym: 'SPY', label: 'S&P 500', close: 'spx', closeSym: '지수', closeLabel: 'S&P 500 지수', closeChart: 'SPY' }),
   Object.freeze({ sym: 'QQQ', label: '나스닥 100', close: 'ndx', closeSym: '지수', closeLabel: '나스닥 100 지수', closeChart: 'QQQ' }),
-  // v58.80 run-5 (breaker #2, owner-delegated): the semiconductor card read SOXX live and SMH on the close fallback, under a
-  // reading that says 반도체(SMH) — one card, two funds by network luck. One fund: v59.70 (owner 11/4) made it SOXX, the
-  // leadership proxy the verdict reads, so the card and 시장 상태 name the same fund.
   Object.freeze({ sym: 'SOXX', label: '반도체', close: 'soxx', closeSym: 'SOXX', closeLabel: '반도체 ETF(SOXX)', closeChart: 'SOXX' }),
   Object.freeze({ sym: 'IWM', label: '러셀 2000', close: 'rut', closeSym: '지수', closeLabel: '러셀 2000 지수', closeChart: 'IWM' })
 ]);
@@ -45,8 +34,6 @@ const slotOf = (seconds) => { const p = nyParts(seconds); return Math.round((p.h
 export function sessionModel(payload, nowSeconds = Date.now() / 1000) {
   if (!payload || !Array.isArray(payload.timestamps) || !payload.timestamps.length) return null;
   const bars = [];
-  // Chart-scale 2026-11-19: Yahoo can send a closed session with most bars' OHLC null (SPY 11/18: 64 of 79). Each candle
-  // keeps its own time slot, so the missing stretch stays empty instead of the 16:00 bar being drawn beside 10:40.
   payload.timestamps.forEach((t, i) => {
     const o = payload.opens?.[i]; const h = payload.highs?.[i]; const l = payload.lows?.[i]; const c = payload.closes?.[i];
     if ([o, h, l, c].every(Number.isFinite)) bars.push({ t, o, h, l, c, slot: Math.max(0, slotOf(t)) });
@@ -104,12 +91,9 @@ export const NO_PREVIOUS_CLOSE = '전일 종가 없음';
 /** The last two published daily closes of a card's fallback series, or null. */
 export function closeFallback(history, spec) {
   const series = Array.isArray(history) && spec?.close ? buildCloseSeries(history, spec.close) : [];
-  // v59.45 (R1-01): the previous session itself (a missing close withholds the change instead of spanning two days).
   const last = series.at(-1), prev = sessionPointBack(series, 1, closeSessionMarket(spec.close) || 'US');
   if (!last) return null;
   const [, m, d] = String(last.date).split('-').map(Number);
-  // QA 2026-11-07: the week beside the day. On 11/7 the four cards read +0.3%~+3.5% (all up) for a week of S&P 500 -2.7%,
-  // SOXX -13.1%; the week lived only on 브리핑 and 시장 상태. Five sessions back, the window of the verdict table's 5일 변화.
   const week = sessionPointBack(series, WEEK_SESSIONS, closeSessionMarket(spec.close) || 'US');
   return { date: `${m}/${d}`, closeLabel: spec.closeLabel, value: last.value, changePct: prev?.value ? (last.value / prev.value - 1) * 100 : null,
     weekPct: week?.value ? (last.value / week.value - 1) * 100 : null };
@@ -129,24 +113,19 @@ function card(doc, root, spec, model, failed) {
   const node = el(doc, 'button', null, 'home-index-card');
   node.type = 'button';
   const close = model ? null : closeFallback(root?._aioHistory, spec);
-  // First-users run 4: the tag and click follow the value shown (intraday ETF, or the close's index/SOXX; none while empty).
   const shown = model ? spec.sym : close ? spec.closeChart || spec.sym : spec.sym;
   node.dataset.sym = shown;
   node.addEventListener('click', () => root.aioOpenMarketChart?.(shown));
   const head = el(doc, 'div', null, 'home-index-head');
   const name = el(doc, 'span', null, 'home-index-name');
   const sym = model ? spec.sym : close ? spec.closeSym || spec.sym : '';
-  // v59.77: the generic '지수' tag folds away on phones so the day's change stays on the name's line.
   name.append(el(doc, 'strong', spec.label), ' ', el(doc, 'span', sym, `home-index-sym${sym === '지수' ? ' is-generic' : ''}`));
   head.append(name);
   if (!model) {
     if (close) {
       const dir = toneOf(close.changePct);
-      // v59.70 (re-review 7): no one-session change (나스닥100 has no 11/2 close) says so, in the intraday card's words.
       head.append(' ', el(doc, 'span', close.changePct == null ? NO_PREVIOUS_CLOSE : signedText(close.changePct, 2, '%'), `home-index-change ${dir}`));
       const box = el(doc, 'div', null, 'home-index-plot is-empty home-index-fallback');
-      // v59.55 (owner 11/1, "쓸모없는 텍스트 다 없애"): the card shows the close and its date; the name repeated the card
-      // title, and the missing-intraday note (every weekend, four times) stays in the label for screen readers only.
       box.append(el(doc, 'strong', price(close.value), `home-index-last ${dir}`), ' ', el(doc, 'span', `${close.date} 종가`));
       const week = weekLine(doc, root, spec);
       if (week) box.append(week);
@@ -166,7 +145,6 @@ function card(doc, root, spec, model, failed) {
   const plot = el(doc, 'div', null, 'home-index-plot');
   const axis = el(doc, 'div', null, 'home-index-axis');
   axis.append(el(doc, 'span', price(model.max)), el(doc, 'span', price(model.last), `home-index-last ${direction}`), el(doc, 'span', price(model.min)));
-  // v58.79 (layout over captions): the dashed line names itself ("전일") at its left end instead of a caption line.
   const canvas = el(doc, 'div', null, 'home-index-canvas');
   canvas.append(chartSvg(doc, model));
   if (model.previousClose != null) {
@@ -214,11 +192,9 @@ export async function renderHomeIndexStrip({ documentRef: doc, root }) {
   const host = doc?.getElementById('home-index-strip');
   const fetchBars = root?._fetchYahooChartData;
   if (!host) return null;
-  // First-users run 4: paint at once (closes if loaded) and again when the history arrives, until 5-minute bars land.
   paintPlaceholder(doc, root, host);
   if (!host._aioHistoryHook && root?.addEventListener) {
     host._aioHistoryHook = true;
-    // v58.80: a history that lands after the 5-minute bars failed repaints the closes as failed, not as loading again.
     root.addEventListener('aio:historyLoaded', () => { if (host.isConnected && host.dataset.models !== 'live') { host.replaceChildren(); paintPlaceholder(doc, root, host, host.dataset.models === 'fallback'); } });
   }
   // The chart path is a legacy script that can finish loading after the first 오늘 render; wait for it, bounded.
@@ -229,8 +205,6 @@ export async function renderHomeIndexStrip({ documentRef: doc, root }) {
     return null;
   }
   if (host._aioIndexPending) return host._aioIndexPending;
-  // v58.79 section frame: the cards name themselves, so the head is a screen-reader title and one as-of chip; the
-  // method (5-minute bars, the dashed previous close, delayed quotes) is the chip's hover.
   const head = (asOf, detail = '') => frameHead(doc, { title: '지수 하루 흐름', hiddenTitle: true, asOf, asOfDetail: detail });
   // SPY first: when no relay answers, the other three are not tried, so one unreachable chart path does not count four
   // failures against the shared proxy health (three flip it to error).

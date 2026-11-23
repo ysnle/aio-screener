@@ -4,12 +4,12 @@
 // timestamp-only rewrite and checks what reached the remote, what the runner's worktree looks like afterwards and which
 // dispatches were asked for.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { publish } from './publish-data-commit.mjs';
-import { DATA_PUBLISH_SETS, publishSetPaths, publishSetsForWorkflow, workflowPublishes } from './lib/data-publish-sets.mjs';
+import { DATA_PUBLISH_SETS, outsideDataRoot, publishSetPaths, publishSetsForWorkflow, workflowPublishes } from './lib/data-publish-sets.mjs';
 import { ARTIFACT_FRESHNESS, freshnessLedgerPath } from '../src/data/contracts/artifact-freshness.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -44,14 +44,18 @@ Object.assign(process.env, { AIO_PUBLISH_GH: ghBin, AIO_PUBLISH_SLEEP_MS: '0', A
   GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.autocrlf', GIT_CONFIG_VALUE_0: 'false' });
 
 const SETS = {
-  data: { workflow: 'fixture.yml', message: 'data: fixture', candidateFile: null, required: ['out/a.json'], optional: ['out/b.json', 'out/missing.json'],
-    timestampOnly: { 'out/b.json': ['generatedAt'] }, afterStage: [], beforeCommit: [], verifyCommit: ['test ! -e out/poison'],
+  data: { workflow: 'fixture.yml', message: 'data: fixture', candidateFile: null, required: ['public-data/a.json'], optional: ['public-data/b.json', 'public-data/missing.json'],
+    timestampOnly: { 'public-data/b.json': ['generatedAt'] }, afterStage: [], beforeCommit: [], verifyCommit: ['test ! -e public-data/poison'],
     onRebaseFail: 'collision', collision: { workflow: 'fixture.yml', inputs: { trigger: 'scheduler' } }, ciOrigin: 'fixture' },
-  held: { workflow: 'fixture.yml', message: 'data: held', candidateFile: null, required: [], optional: ['out/b.json'], timestampOnly: {},
-    holdVolatile: { 'out/b.json': { minutes: 55, clock: 'generatedAt', strip: ({ generatedAt, live, ...rest }) => rest } },
+  held: { workflow: 'fixture.yml', message: 'data: held', candidateFile: null, required: [], optional: ['public-data/b.json'], timestampOnly: {},
+    holdVolatile: { 'public-data/b.json': { minutes: 55, clock: 'generatedAt', strip: ({ generatedAt, live, ...rest }) => rest } },
     afterStage: [], beforeCommit: [], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
-  strict: { workflow: 'fixture.yml', message: 'data: strict', candidateFile: null, required: [], optional: ['out/a.json'], timestampOnly: {},
+  strict: { workflow: 'fixture.yml', message: 'data: strict', candidateFile: null, required: [], optional: ['public-data/a.json'], timestampOnly: {},
     afterStage: [], beforeCommit: [], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
+  outside: { workflow: 'fixture.yml', message: 'data: outside', candidateFile: null, required: [], optional: ['public-data/a.json', 'notes.txt'], timestampOnly: {},
+    afterStage: [], beforeCommit: [], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
+  sneak: { workflow: 'fixture.yml', message: 'data: sneak', candidateFile: null, required: [], optional: ['public-data/a.json'], timestampOnly: {},
+    afterStage: [], beforeCommit: ['git add notes.txt'], verifyCommit: [], onRebaseFail: 'fail', collision: null, ciOrigin: null },
 };
 
 function fresh() {
@@ -62,9 +66,9 @@ function fresh() {
   git(tmp, 'init', '-q', '--bare', '-b', 'main', remote);
   const seed = join(tmp, 'runner');
   git(tmp, 'clone', '-q', remote, seed);
-  mkdirSync(join(seed, 'out'), { recursive: true });
-  writeFileSync(join(seed, 'out/a.json'), '{"v":1}\n');
-  writeFileSync(join(seed, 'out/b.json'), '{"generatedAt":"2026-11-08T00:00:00Z","v":1}\n');
+  mkdirSync(join(seed, 'public-data'), { recursive: true });
+  writeFileSync(join(seed, 'public-data/a.json'), '{"v":1}\n');
+  writeFileSync(join(seed, 'public-data/b.json'), '{"generatedAt":"2026-11-08T00:00:00Z","v":1}\n');
   writeFileSync(join(seed, 'notes.txt'), 'seed\n');
   git(seed, 'add', '-A');
   git(seed, 'commit', '-q', '-m', 'seed');
@@ -90,20 +94,20 @@ try {
   { // a run checked out on another branch must not push that branch's code into main with its data
     const { runner } = fresh();
     git(runner, 'checkout', '-q', '-b', 'feature');
-    writeFileSync(join(runner, 'out/a.json'), '{"v":7}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":7}\n');
     const code = inRepo(runner, { set: 'data' });
     check('v59.85 a run checked out on a feature branch is refused before staging', code === 1 && remoteLog().split('\n').length === 1 && ghCalls().length === 0);
   }
   { // timestamp-only rewrite goes back to HEAD in index and worktree
     const { runner } = fresh();
-    writeFileSync(join(runner, 'out/b.json'), '{"generatedAt":"2026-11-08T14:00:00Z","v":1}\n');
+    writeFileSync(join(runner, 'public-data/b.json'), '{"generatedAt":"2026-11-08T14:00:00Z","v":1}\n');
     const code = inRepo(runner, { set: 'data' });
     check('v59.85 a timestamp-only rewrite is put back (no commit, clean worktree)', code === 0 && outputs().changed === 'false' && clean(runner)
-      && readFileSync(join(runner, 'out/b.json'), 'utf8').includes('00:00:00Z'));
+      && readFileSync(join(runner, 'public-data/b.json'), 'utf8').includes('00:00:00Z'));
   }
   { // a held (live-moving) part publishes once per window; any other change publishes at once
     const { runner } = fresh();
-    const write = (stamp, v, live) => writeFileSync(join(runner, 'out/b.json'), `${JSON.stringify({ generatedAt: stamp, v, live })}\n`);
+    const write = (stamp, v, live) => writeFileSync(join(runner, 'public-data/b.json'), `${JSON.stringify({ generatedAt: stamp, v, live })}\n`);
     write('2026-11-08T14:30:00Z', 1, 1);
     const first = inRepo(runner, { set: 'held' });
     check('v60.39 a held-only change publishes when the published file is older than the window', first === 0 && outputs().changed === 'true');
@@ -111,24 +115,24 @@ try {
     write('2026-11-08T14:59:00Z', 1, 2);
     const second = inRepo(runner, { set: 'held' });
     check('v60.39 a held-only change inside the window is put back (no commit, clean worktree)', second === 0 && outputs().changed === 'false' && clean(runner)
-      && readFileSync(join(runner, 'out/b.json'), 'utf8').includes('"live":1'));
+      && readFileSync(join(runner, 'public-data/b.json'), 'utf8').includes('"live":1'));
     write('2026-11-08T14:59:00Z', 2, 2);
     const third = inRepo(runner, { set: 'held' });
     check('v60.39 a change outside the held part publishes inside the window', third === 0 && outputs().changed === 'true' && remoteLog().split('\n').length === 3);
   }
   { // a real change pushes and dispatches exact-SHA CI; a timestamp-only neighbour is not carried along
     const { runner } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":2}\n');
-    writeFileSync(join(runner, 'out/b.json'), '{"generatedAt":"2026-11-08T14:00:00Z","v":1}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":2}\n');
+    writeFileSync(join(runner, 'public-data/b.json'), '{"generatedAt":"2026-11-08T14:00:00Z","v":1}\n');
     const code = inRepo(runner, { set: 'data' });
     const sha = git(runner, 'rev-parse', 'HEAD');
     check('v59.85 a change is pushed with the minute in the message', code === 0 && remoteLog().split('\n')[0] === 'data: fixture 2026-11-08T15:00Z' && outputs().sha === sha);
     check('v59.85 the push dispatches CI for the exact SHA', ghCalls().join('|') === `workflow run ci.yml --ref main -f release_sha=${sha} -f origin=fixture`, ghCalls().join('|'));
-    check('v59.85 the timestamp-only neighbour stayed out of the commit', !git(runner, 'show', '--name-only', '--format=', 'HEAD').includes('out/b.json'));
+    check('v59.85 the timestamp-only neighbour stayed out of the commit', !git(runner, 'show', '--name-only', '--format=', 'HEAD').includes('public-data/b.json'));
   }
   { // a failed CI dispatch after the push is a warning and hands converge no sha to wait on
     const { runner } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":9}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":9}\n');
     const failing = join(tmp, 'gh-fail.mjs');
     writeFileSync(failing, 'process.exit(1);\n');
     process.env.AIO_PUBLISH_GH = failing;
@@ -138,7 +142,7 @@ try {
   }
   { // lost race: rebase onto the other push, with an unrelated dirty tracked file in the runner's worktree
     const { runner, other } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":3}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":3}\n');
     writeFileSync(join(runner, 'notes.txt'), 'runner scratch edit\n'); // tracked, modified, not in the set
     otherPush(other, 'other.txt', 'concurrent\n');
     const code = inRepo(runner, { set: 'data' });
@@ -148,41 +152,54 @@ try {
   }
   { // conflict: one collision re-run is dispatched, the run ends green, no half rebase is left
     const { runner, other } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":4}\n');
-    otherPush(other, 'out/a.json', '{"v":"human"}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":4}\n');
+    otherPush(other, 'public-data/a.json', '{"v":"human"}\n');
     const code = inRepo(runner, { set: 'data' });
     check('v59.85 a rebase conflict dispatches one collision re-run and ends green', code === 0 && outputs().collision === 'true' && outputs().changed === 'false'
       && ghCalls().join('|') === 'workflow run fixture.yml --ref main -f trigger=scheduler -f retry=collision' && !midRebase(runner), ghCalls().join('|'));
-    check('v59.85 the conflicting cycle published nothing', remoteLog().split('\n')[0] === 'other out/a.json');
+    check('v59.85 the conflicting cycle published nothing', remoteLog().split('\n')[0] === 'other public-data/a.json');
   }
   { // the collision re-run colliding again fails loudly
     const { runner, other } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":5}\n');
-    otherPush(other, 'out/a.json', '{"v":"human"}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":5}\n');
+    otherPush(other, 'public-data/a.json', '{"v":"human"}\n');
     const code = inRepo(runner, { set: 'data', retry: 'collision' });
     check('v59.85 a second collision exits 1 without dispatching again', code === 1 && ghCalls().length === 0 && !midRebase(runner));
   }
   { // a rebased tree that no longer verifies is not pushed
     const { runner, other } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":6}\n');
-    otherPush(other, 'out/poison', 'x\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":6}\n');
+    otherPush(other, 'public-data/poison', 'x\n');
     const code = inRepo(runner, { set: 'data' });
-    check('v59.85 a rebased tree that fails verifyCommit is not pushed (collision path)', code === 0 && outputs().collision === 'true' && remoteLog().split('\n')[0] === 'other out/poison');
+    check('v59.85 a rebased tree that fails verifyCommit is not pushed (collision path)', code === 0 && outputs().collision === 'true' && remoteLog().split('\n')[0] === 'other public-data/poison');
   }
   { // onRebaseFail: fail
     const { runner, other } = fresh();
-    writeFileSync(join(runner, 'out/a.json'), '{"v":7}\n');
-    otherPush(other, 'out/a.json', '{"v":"human"}\n');
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":7}\n');
+    otherPush(other, 'public-data/a.json', '{"v":"human"}\n');
     const code = inRepo(runner, { set: 'strict' });
     check("v59.85 onRebaseFail 'fail' exits 1 on a conflict", code === 1 && ghCalls().length === 0 && !midRebase(runner));
   }
   { // missing required output, unparsable JSON
     const { runner } = fresh();
-    rmSync(join(runner, 'out/a.json'));
+    rmSync(join(runner, 'public-data/a.json'));
     check('v59.85 a missing required output refuses the run', inRepo(runner, { set: 'data' }) === 1 && remoteLog().split('\n').length === 1);
     const second = fresh();
-    writeFileSync(join(second.runner, 'out/a.json'), '{"v":');
+    writeFileSync(join(second.runner, 'public-data/a.json'), '{"v":');
     check('v59.85 unparsable staged JSON refuses the run', inRepo(second.runner, { set: 'data' }) === 1 && remoteLog().split('\n').length === 1);
+  }
+  { // v60.50: a data commit is public-data/ only — a set naming another path, a path staged before the run, or one a hook stages
+    const { runner } = fresh();
+    writeFileSync(join(runner, 'public-data/a.json'), '{"v":10}\n');
+    writeFileSync(join(runner, 'notes.txt'), 'code edit\n');
+    check('v60.50 a set that names a path outside public-data/ is refused before staging', inRepo(runner, { set: 'outside' }) === 1
+      && remoteLog().split('\n').length === 1 && git(runner, 'diff', '--staged', '--name-only') === '');
+    git(runner, 'add', 'notes.txt');
+    check('v60.50 a path staged outside public-data/ before the run is refused', inRepo(runner, { set: 'data' }) === 1
+      && remoteLog().split('\n').length === 1 && ghCalls().length === 0);
+    git(runner, 'reset', '-q');
+    check('v60.50 a path a hook stages outside public-data/ is refused before the commit', inRepo(runner, { set: 'sneak' }) === 1
+      && remoteLog().split('\n').length === 1 && git(runner, 'log', '--format=%s', '-1') === 'seed');
   }
 } catch (error) {
   failures.push(`fixture crashed: ${error.stack || error.message}`);
@@ -209,11 +226,21 @@ for (const [id, set] of Object.entries(DATA_PUBLISH_SETS)) {
     if (/\n?\s+trigger:\n/.test(dispatchInputs)) check(`v60.18 set ${id} re-runs ${set.collision.workflow} as a scheduler run (trigger=scheduler), not the operator default`, set.collision.inputs?.trigger === 'scheduler', JSON.stringify(set.collision.inputs));
   }
   for (const path of set.required) check(`v59.85 set ${id} required path ${path} is not also optional`, !set.optional.includes(path));
+  check(`v60.50 set ${id} names public-data/ paths only`, outsideDataRoot(publishSetPaths(id)).length === 0, outsideDataRoot(publishSetPaths(id)).join(' '));
   for (const path of Object.keys(set.timestampOnly || {})) check(`v59.85 set ${id} timestamp-only rule names a staged path (${path})`, publishSetPaths(id).includes(path));
 }
 for (const workflow of new Set(Object.values(DATA_PUBLISH_SETS).map((set) => set.workflow))) {
   const text = read(`.github/workflows/${workflow}`);
   check(`v59.85 ${workflow} keeps no hand-written push loop`, !/until git push|git push origin HEAD:main|stage_if_exists/.test(text));
+}
+// v60.50: the publisher is the only way a workflow commits, so its public-data/ rule covers every data commit. The one
+// other commit is the browser test pin (architecture/browser-data-fixture.json), which watchdog-browser.yml re-pins.
+const OWN_COMMIT_WORKFLOWS = { 'watchdog-browser.yml': 'architecture/browser-data-fixture.json' };
+for (const file of readdirSync(join(root, '.github/workflows')).filter((name) => /\.ya?ml$/.test(name))) {
+  const text = read(`.github/workflows/${file}`);
+  if (!/\bgit (?:-c \S+ )*commit\b/.test(text)) continue;
+  check(`v60.50 ${file} commits only through scripts/publish-data-commit.mjs`, file in OWN_COMMIT_WORKFLOWS
+    && [...text.matchAll(/\bgit add ([^\n]+)/g)].every((match) => match[1].trim() === OWN_COMMIT_WORKFLOWS[file]));
 }
 for (const [file, spec] of Object.entries(ARTIFACT_FRESHNESS)) {
   check(`v59.85 ${file} is committed by a publish set of ${spec.workflow}`, workflowPublishes(spec.workflow, `public-data/${file}`), `sets: ${publishSetsForWorkflow(spec.workflow).join(', ') || 'none'}`);

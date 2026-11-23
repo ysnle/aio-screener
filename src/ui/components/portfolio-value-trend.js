@@ -1,6 +1,3 @@
-// v59.70 (S16): 포트폴리오 ① 지금 구성과 S&P 500 — the shared trend chart over the last year, drawn on entry from the
-// screener's published closes (src/domain/portfolio/benchmark-trend.js) and the close history's session dates. It
-// replaces js/aio-ui.js updateBenchmarkChart, which asked Yahoo for every holding and drew only after 새로고침.
 import { BENCHMARK_WINDOWS, buildBenchmarkTrend } from '../../domain/portfolio/benchmark-trend.js';
 import { fxReturnInto } from '../../domain/portfolio/attribution.js';
 import { holdingListingKey } from '../../domain/portfolio/fx.js';
@@ -25,9 +22,6 @@ export function portfolioValueTrend({ surface, rowOf, history = [] } = {}) {
   // A holding converted into the base currency carries the USD/KRW close move over the same window as its return.
   const convertedFrom = new Map(rows.filter((row) => row.convertedFrom).map((row) => [row.symbol, row.convertedFrom]));
   const sessionsOf = new Map(BENCHMARK_WINDOWS.map((span) => [span.key, span.sessions]));
-  // The currency leg spans the same two sessions as the price leg (the window's start session and the basis close).
-  // A USD/KRW close missing on either date leaves that span without a currency move: the converted figure is withheld
-  // and the holding is not covered, never a move from other dates (11/11→11/12 FX beside 11/12→11/13 prices read +21%).
   const fxMoves = new Map();
   const usdkrwPct = (key) => {
     if (!fxMoves.has(key)) {

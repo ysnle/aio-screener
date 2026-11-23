@@ -1,11 +1,3 @@
-// v59.42: the AI panel's keyword cues on top of the intent taxonomy (taxonomy.js), moved here from src/ui/chat/panel.js
-// (_aioChatAnswerPolicy) and js/aio-core.js (_aioLooksFreshIntent, _aioAIClassifyIntent). Those matched English words as
-// raw substrings, so 'per' hit "operating", 'current' hit "currency", 'now' hit "know", 'rate' hit "corporate" and 'hold'
-// hit "threshold".
-// - English (printable ASCII) cues follow the shared keyword rule (src/domain/news/keyword-match.js): whole words plus a
-//   plural -s/-es, case-insensitive.
-// - Korean cues stay plain substrings, exactly as before: Korean attaches endings to the stem ('살까', '없어'), and the
-//   shared rule's stand-alone single syllable would drop '없' from '없어요'.
 import { keywordHit } from '../../domain/news/keyword-match.js';
 
 const ASCII_RE = /^[\x20-\x7e]+$/;

@@ -1,10 +1,4 @@
 import { signedText } from '../shared/number.js';
-// Expertise review 2026-10-19: the chart marks power gaps, volatility squeezes and 8-day EMA reclaims/losses as if
-// their meaning were known. A desk asks first what followed the same signal before. This reads, on the stock's own
-// loaded history, each past occurrence's next SIGNAL_HORIZON sessions: the return and, when a benchmark is loaded, the
-// return against it (the RS line's change). Occurrences whose windows overlap an earlier counted one are skipped, so
-// a cluster of signals in one move counts once. Below SIGNAL_MIN_COUNT the figures are withheld. One stock's past is a
-// small sample, not a probability; the text says so.
 export const SIGNAL_HORIZON = 21;
 export const SIGNAL_MIN_COUNT = 5;
 export const SIGNAL_KINDS = Object.freeze({ 'power-gap': '거래량 동반 갭 상승', squeeze: '변동성 압축', 'ema8-reclaim': '8일 EMA 회복', 'ema8-lost': '8일 EMA 이탈' });
@@ -22,8 +16,6 @@ export function signalHistory({ events = [], closes = [], rsLine = [], horizon =
     const returns = []; const excess = [];
     let nextFree = -1;
     for (const i of indexes) {
-      // v59.45 P24-SIGNAL-01: a missing end close divided to 0 and counted as -100%. Both ends must be prices; an
-      // occurrence without a measurable end leaves the sample (and does not claim the window).
       if (i < nextFree || i + horizon >= closes.length || !(closes[i] > 0) || !(closes[i + horizon] > 0)) continue;
       nextFree = i + horizon;
       returns.push((closes[i + horizon] / closes[i] - 1) * 100);

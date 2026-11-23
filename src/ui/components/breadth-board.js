@@ -1,13 +1,5 @@
-// 시장 폭 shows each participation measure as a row and a trend, with the same breadth judgement as the 시장 상태 board.
-// Every card runs through the S&P 500 close basis and shares one date range, so the same horizontal position is the same
-// date; a measure whose record starts later says so. Three groups — participation (moving-average ratios), leadership
-// (52-week highs vs lows, 4% movers, with the stocks behind each count) and index confirmation (S&P 500 distribution
-// days). The face never folds: the verdict, its counter line, then each group's rows (value, the band of its reference
-// lines, the distance to the nearest line, the 5/20-day change) and its charts. The axis observations are the raw-table
-// fold #breadth-raw, the stocks behind a count a raw-table fold on its chart, the definitions and the principle the method
-// fold #breadth-method. Definitions live in src/domain/market/breadth/breadth-signals.js; this module only presents them.
 import { principleLink } from './principle-link.js';
-import { AXIS_REASON_LABEL, buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { createTrendChart, seriesChange } from './trend-chart.js';
 import { renderNextSteps } from './page-flow.js';
@@ -17,10 +9,16 @@ import { shortDate } from '../../domain/content/date-labels.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { breadthScopeOf } from '../../domain/market/breadth/screener-breadth.js';
-import { breadthCounter, measureFace } from '../../domain/market/breadth/breadth-face.js';
+import { BREADTH_SPEED_METHOD, breadthCounter, measureFace } from '../../domain/market/breadth/breadth-face.js';
 import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { historyWaitText } from './data-state.js';
 import { renderMarketStructure } from './market-structure.js';
+import { stockFalls, STOCK_FALLS_METHOD } from '../../domain/market/breadth/stock-falls.js';
+import { fallBars } from './fall-bars.js';
+
+// The screener rows in the store (the page re-renders on the screener slice, so rows arriving after mount repaint the
+// line); none before the screener loads.
+const screenerRows = (root) => root?.AIO_ARCH?.getScreenerState?.('rows') || [];
 
 const WINDOW = 126; // about six months of sessions
 
@@ -104,8 +102,6 @@ function nameOf(root, symbol) {
   return rows.find((row) => row?.sym === symbol)?.name || '';
 }
 
-// v58.74 (text audit 시장 상태 C3): which sectors a signal list is made of — a breadth gain carried by energy and defensives
-// reads differently from one carried by tech. Shown only when at least eight named stocks map to a sector.
 function sectorMix(root, list) {
   const rows = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : [];
   const bySym = new Map(rows.filter((row) => row?.sym).map((row) => [row.sym, row.sector]));
@@ -172,7 +168,8 @@ function renderDrill(doc, root, card, contributors, basis) {
 }
 
 function methodBody(doc, root, cards) {
-  const nodes = [el(doc, 'p', `숫자는 모두 직전 미국장 종가 기준입니다. 행의 구간은 각 차트에 그린 기준선이고, 50일선·200일선 위 비율의 ${RULES.breadth.weakBelow}%·${RULES.breadth.broadAtLeast}%는 시장 상태 '시장 폭' 판정의 기준과 같습니다.`, 'ind-method__lead')];
+  const nodes = [el(doc, 'p', `숫자는 모두 직전 미국장 종가 기준입니다. 행의 구간은 각 차트에 그린 기준선이고, 50일선·200일선 위 비율의 ${RULES.breadth.weakBelow}%·${RULES.breadth.broadAtLeast}%는 시장 상태 '시장 폭' 판정의 기준과 같습니다. ${BREADTH_SPEED_METHOD}`, 'ind-method__lead'),
+    el(doc, 'p', STOCK_FALLS_METHOD, 'ind-method__lead')];
   for (const card of cards.filter((row) => row.group && row.note)) {
     const box = el(doc, 'section', null, 'ind-method');
     box.dataset.methodMetric = card.id;
@@ -186,22 +183,15 @@ function methodBody(doc, root, cards) {
 export function renderBreadthBoard({ documentRef: doc, root }) {
   const page = doc?.getElementById('page-breadth');
   if (!page) return null;
-  const interpretation = marketInterpretation(root); // T05 / owner 2026-10-19: the shared regime, same as 시장 상태
+  const interpretation = marketInterpretation(root);
   const { inputs, regime } = interpretation;
   const axis = regime.axes?.find((row) => row.id === 'breadth');
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  // Codex browser audit H09: the denominator is named — how many symbols were judged, and that stocks and ETFs are
-  // mixed — so 33% is not read as a share of the whole exchange or of the S&P 500.
   const eligible = contributorSession(root?._aioBreadthContributors, regime.asOf)?.eligible || null;
-  // T12 (expert review 2026-10-13): the count came from screener.json (811) while the ratios come from the history row
-  // (804 judged); the denominator is now the one stored with the shown 50-day ratio.
   const judgedCount = buildCloseSeries(inputs.history, 'breadth50', { through: regime.asOf, includeProvenance: true }).at(-1)?.eligible ?? null;
-  // v58.79 (owner 2026-10-25): the history says which population it counts — S&P 500 members after the switch.
   const scope = breadthScopeOf(inputs.history);
   const denominator = judgedCount ? (scope.sp500 ? `, S&P 500 ${judgedCount}개 종목` : `, 판정 대상 ${judgedCount}개 종목`) : '';
-  // v57.51 V16: the same measure on S&P 500 members only, read from the screener artifact, so the watch list's theme
-  // tilt is visible next to the headline ratios. Shown only when the segment is on the shown close date.
-  const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null; // v57.77 perf: path read, no row clone
+  const sp500 = root?.AIO_ARCH?.getScreenerState?.('metadata.breadth.segments.sp500') || null;
   const sp500Same = !scope.sp500 && sp500 && Number(sp500.eligible) >= 300 && Number.isFinite(sp500.above50) && String(sp500.observedAt || '').slice(0, 10) === String(regime.asOf || '').slice(0, 10);
   const sp500Row = sp500Same ? [`S&P 500 구성 종목만 (${sp500.eligible}개)`, `50일선 위 ${sp500.above50.toFixed(0)}%${Number.isFinite(sp500.above200) ? `, 200일선 위 ${sp500.above200.toFixed(0)}%` : ''}`] : null;
   // The subtitle is the date and the judged count; who is counted and how sits in the 데이터 출처 fold, and the S&P 500
@@ -211,9 +201,15 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   set('breadth-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준${axis?.basisStatus && axis.basisStatus !== 'aligned' ? `, 시장 폭 ${axis.basis}` : ''}${denominator}` : historyWaitText(root));
   const state = doc.getElementById('breadth-state');
   const tone = { favorable: 'good', burden: 'warn' }[axis?.state] || 'neutral';
-  if (state) { state.textContent = axis?.stateLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }
-  // v60.31: the hero line is the axis's 판정 사유 row (fixed vocabulary); the axis carries no assembled sentence.
-  set('breadth-read', axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '');
+  if (state) { state.textContent = axis?.verdictLabel || '판정 대기'; state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${tone}`; }
+  const falls = regime.available ? stockFalls({ rows: screenerRows(root), history: inputs.history, session: regime.asOf }) : null;
+  set('breadth-read', falls?.said.text || '');
+  let fallsHost = doc.getElementById('breadth-falls');
+  if (!fallsHost && state) { fallsHost = el(doc, 'div', null, 'mk-sub-hero__falls'); fallsHost.id = 'breadth-falls'; state.closest('.mk-sub-hero__row')?.after(fallsHost); }
+  if (fallsHost) {
+    fallsHost.replaceChildren(...(falls ? [fallBars(doc, falls.bars, `52주 종가 고점 대비 하락, ${shortDate(falls.asOf)} 종가 · 미국 종목 ${falls.measured}개`)] : []));
+    fallsHost.hidden = !falls;
+  }
   // The condition that changes the verdict: the nearest threshold of the rule (flipDistance, the rule's own numbers) and its
   // distance; without a measured lever the rule's first sentence. The whole rule is in the raw table.
   const d = axis?.flipDistance;
@@ -226,8 +222,6 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     const cards = buildBreadthCards(inputs.history);
     const range = breadthRange(cards);
     const basis = closeBasis(inputs.history);
-    // One row per measure: the latest value, the band of its reference lines, the distance to the nearest line, and two
-    // short lines — the 5/20-day change and, for the counts, the day's two sides.
     const faceOf = (card) => {
       const points = card.series;
       const last = points[points.length - 1] || null;
@@ -244,8 +238,6 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       row.dataset.metric = card.id;
       return row;
     };
-    // (owner 2026-11-20) one card per indicator — its row (title, state, value, lines) heads its own trend chart;
-    // the chart's own title repeated the row's heading.
     const renderChart = (card) => {
       const box = el(doc, 'section', null, 'trend-card');
       box.dataset.metric = card.id;
@@ -281,7 +273,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     // state, the whole rule, the observation date and the S&P 500 member figures.
     let raw = doc.getElementById('breadth-raw');
     if (!raw) { raw = kindFold(doc, 'raw-table', '시장 폭 판정의 관측값 전체'); raw.id = 'breadth-raw'; grid.insertAdjacentElement('afterend', raw); }
-    const rawRows = (axis?.evidence || []).filter(([label]) => label !== AXIS_REASON_LABEL);
+    const rawRows = [...(axis?.evidence || [])];
     for (const item of axis?.flipDistances || []) rawRows.push([`${item.towardLabel}까지 ${item.text}`, `${item.condition}${(item.also || []).map((also) => `, 함께 필요: ${also.condition}`).join('')}`]);
     rawRows.push(['판정 규칙', axis?.flip || ''], ['관측일', axis?.basis || '']);
     if (sp500Row) rawRows.push(sp500Row);

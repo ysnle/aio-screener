@@ -1,16 +1,10 @@
-// v58.80 (first-users F01): the first screens draw their verdict from data.json and history.json. On a slow line
-// screener.json (~360 KB gzip) started beside them and shared the wire, so the verdict waited for a file it does not
-// read. Work that only later screens need runs once both critical artifacts have arrived (or after a fallback wait);
-// a screen that draws stock rows first still reads them at once.
-// v59.70: "arrived" means the read settled — loaded, or answered failed/empty. A failed history.json or data.json used
-// to hold the waiting work (the screener read) until the fallback fired (SA-02 fixture: request at 14.0 s, now 3.2 s).
 export const CORE_READ_SETTLED_STATES = Object.freeze(new Set(['ready', 'failed', 'empty']));
 export function coreReadsSettled(root) {
   const history = Boolean(root?._aioHistoryMeta || (root?._aioHistory || []).length) || CORE_READ_SETTLED_STATES.has(root?.__aioHistoryLoadState);
   const server = Boolean(root?._serverDataMeta) || CORE_READ_SETTLED_STATES.has(root?.__aioServerDataLoadState);
   return history && server;
 }
-export const ROWS_FIRST_ROUTES = Object.freeze(new Set(['screener', 'ticker', 'portfolio', 'themes']));
+export const ROWS_FIRST_ROUTES = Object.freeze(new Set(['screener', 'ticker', 'portfolio', 'themes', 'breadth']));
 
 export function createCriticalDataGate({ isReady, subscribe, schedule, fallbackMs = 20000 } = {}) {
   let open = false;

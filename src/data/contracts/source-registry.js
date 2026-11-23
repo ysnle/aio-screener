@@ -36,8 +36,6 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     origins: [{ id: 'cnn-fear-greed', authority: 'publisher', sourceKind: 'secondary-index', access: 'public-web', url: 'https://www.cnn.com/markets/fear-and-greed', fields: ['score', 'rating', 'daily-history'] }],
     structuralLimit: { kind: 'publisher-methodology-and-rights', reason: 'CNN is the index publisher but the web feed is not an exchange or regulator API.', remediation: 'Preserve CNN attribution and reference-only decision use unless a licensed contract is obtained.' }
   }),
-  // v59.70 (owner 11/4): retired like NAAIM (P1737) — Cboe's terms forbid copying, storing and redistributing its statistics
-  // without prior written consent, and no free automated source exists. The category stays BLOCKED (22-category contract).
   'put-call': entry({
     cadence: 'daily', refreshMode: 'retired-terms', producer: 'none (retired 2026-11-04)', artifacts: ['public-data/reconciliation-status.json'], consumers: ['sentiment'],
     origins: [{ id: 'cboe-daily-statistics', authority: 'official-exchange', sourceKind: 'licensed', access: 'written-consent-required', url: 'https://www.cboe.com/us/options/market_statistics/daily/', fields: ['totalPutCall'] }],
@@ -51,8 +49,6 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
     ],
     structuralLimit: { kind: 'publisher-terms-and-reference-cadence', reason: 'The official public page provides weekly values, but this is reference-only and not a licensed real-time trading input.', remediation: 'Keep the dated public observation and obtain licensed rights before promotion beyond reference use.' }
   }),
-  // P1737 (2026-10-13): retired from the screen — the official page shows only an undated three-month-delayed number
-  // that cannot be verified against the page; data.json no longer carries it and the category stays BLOCKED.
   naaim: entry({
     cadence: 'weekly', refreshMode: 'retired-unverifiable', producer: 'none (retired 2026-10-13)', artifacts: ['public-data/structural-data-research.json', 'public-data/reconciliation-status.json'], consumers: ['sentiment'],
     origins: [{ id: 'naaim-exposure-index', authority: 'publisher', sourceKind: 'publisher-public-web', access: 'public-web-terms-apply', url: 'https://naaim.org/programs/naaim-exposure-index/', fields: ['exposureIndex'] }],
@@ -70,8 +66,6 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
   }),
   'kr-breadth': entry({
     cadence: '6h', refreshMode: 'derived', producer: 'scripts/fetch-data.mjs:enrichScreener', artifacts: ['public-data/screener.json', 'public-data/history.json'], consumers: ['breadth', 'signal', 'briefing'],
-    // v57.51 F01/F02: Korean daily closes are reconciled against an exchange-close relay (the Yahoo KRX bar missed the
-    // closing auction and the 10/12 session). It stays a public, reference-only secondary source — never official KRX data.
     origins: [{ id: 'aio-kr-universe-breadth', authority: 'derived', sourceKind: 'derived-research', access: 'public-unofficial', url: 'https://query1.finance.yahoo.com/v8/finance/chart/', fields: ['above5', 'above20', 'above50', 'above200', 'advanceRatio'] }, { id: 'naver-sisejson-daily', authority: 'secondary', sourceKind: 'public-information-service', access: 'public-unofficial', url: 'https://api.finance.naver.com/siseJson.naver', fields: ['missing-session fill'] }, { id: 'krx-market-data', authority: 'official-exchange', sourceKind: 'T1_OFFICIAL', access: 'operator-rights-required', url: 'https://data.krx.co.kr/', fields: ['officialAdvancesDeclines'] }],
     structuralLimit: { kind: 'krx-rights', reason: 'Approved KRX/Koscom breadth redistribution is not configured.', remediation: 'Configure approved KRX/Koscom access and keep AIO-universe breadth separately labeled.' }
   }),
@@ -90,9 +84,6 @@ export const DATA_SOURCE_REGISTRY = Object.freeze({
       { id: 'fred-baml-hy-oas', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'api-key', url: 'https://fred.stlouisfed.org/series/BAMLH0A0HYM2', owner: 'ICE Data Indices', rights: 'owner-permission-required', fields: ['BAMLH0A0HYM2'] },
       { id: 'fred-baml-hy-oas-public-csv', authority: 'official-government-relay', sourceKind: 'T1_OFFICIAL', access: 'public-download', url: 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=BAMLH0A0HYM2', owner: 'ICE Data Indices', rights: 'owner-permission-required', fields: ['BAMLH0A0HYM2'] }
     ],
-    // v57.84: FRED relays this series but does not own it — the FRED page carries ICE's notice that reproduction in any form
-    // needs ICE's prior written permission, and since April 2026 FRED serves only 3 years of it. The relay tier describes
-    // accuracy, not rights; publishing the value in public artifacts stays an operator rights decision (provider-rights).
     structuralLimit: { kind: 'independent-reconciliation', reason: 'No independent spread-level cross-check is configured.', remediation: 'Add a redistribution-approved ICE/Bloomberg/LSEG or equivalent source.' }
   }),
   'cpi-pce': entry({

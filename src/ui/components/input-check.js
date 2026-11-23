@@ -1,5 +1,3 @@
-// v58.80 (first-users bundle 6): a refused number says so beside its field (aria-invalid + a polite message) and keeps
-// the typed text; a valid one clears the message. Pairs with domain/shared/numeric-input.js.
 import { readNumericInput, NUMERIC_LIMITS } from '../../domain/shared/numeric-input.js';
 import { withTopicParticle } from '../../domain/content/korean-particle.js';
 
@@ -52,9 +50,6 @@ function markFields(inputs, result, anchor) {
   return result;
 }
 
-// v59.70 (ui-states): a submit button says what its form is doing — 'busy' disables it and sets aria-busy, 'done' and
-// 'fail' write one line into the form's status node (role=status) and re-enable it, 'idle' clears both. The status node
-// is the button's data-status target, or one created right after the button.
 export function setSubmitState(button, state, message = '') {
   if (!button) return null;
   const doc = button.ownerDocument;
@@ -90,10 +85,6 @@ export function readBacktestInputs(doc) {
   return { ok: true, initial: initial.value || 10000, startYear: year.value || 2017, rebalance: String(doc?.getElementById('pf-bt-rebalance')?.value || 'annual'), benchmark };
 }
 
-// The 보유 종목 추가 form (legacy js/aio-workspace.js addPortfolioPosition reads it through window._aioReadHoldingInputs).
-// v58.80 (first-users F06/F25): the first refused field takes focus and keeps the typed text; nothing is saved.
-// `snapshot` holds the values read at the moment of submit (snapshotHoldingInputs), so a field edited while this module
-// loads is not read in place of what was submitted.
 export const HOLDING_FIELDS = Object.freeze(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost']);
 export function snapshotHoldingInputs(doc) {
   return Object.fromEntries(HOLDING_FIELDS.map((id) => { const input = doc?.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));

@@ -1,6 +1,3 @@
-// v59.70 (data audit R9, D4): the one median every theme reader uses — US sub-themes (group-strength), Korean themes
-// (kr-themes), the theme criteria, the playbook's pooled theme rows and the AI-chain groups each had their own copy
-// (finite-only in some, `!= null` in others, a minimum count in one, rounding in another).
 import { finiteNumber } from '../shared/number.js';
 
 /** Median of the finite values; null below `minCount` (default 1) values. */

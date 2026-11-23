@@ -1,5 +1,3 @@
-// v58.80 (first-users bundle 1): one owner for how far back a market figure looks and what it is called. Rules count 20
-// sessions; index comparisons 21/63/126. One label names one length, measured with sessionPointBack, never in rows.
 import { buildCloseSeries, closeSessionMarket, sessionPointBack } from './close-series.js';
 
 export const MARKET_WINDOWS = Object.freeze({ day: 1, week: 5, rule: 20, month: 21, quarter: 63, half: 126 });

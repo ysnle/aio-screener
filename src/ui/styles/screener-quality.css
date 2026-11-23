@@ -54,6 +54,7 @@
 .scr-tone-warn { color: var(--color-text-warning); }
 .scr-rank-hold { font-size: var(--fs-xs); color: var(--color-text-warning); font-weight: 600; white-space: nowrap; }
 .scr-rank-unranked { font-size: var(--fs-xs); color: var(--color-text-secondary); white-space: nowrap; }
+.scr-rank-contrary { font-size: var(--fs-xs); color: var(--color-text-warning); white-space: nowrap; }
 .scr-rank-value { font-family: var(--font-mono); font-weight: 600; font-size: var(--fs-sm); color: var(--color-text-primary); }
 .scr-rank-bar { height: 3px; background: var(--color-border-muted); border-radius: var(--radius-inner); margin-top: 3px; overflow: hidden; }
 .scr-rank-fill { height: 100%; background: var(--color-text-secondary); border-radius: var(--radius-inner); }

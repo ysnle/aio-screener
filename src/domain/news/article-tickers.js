@@ -5,12 +5,10 @@
 
 import { issuerNameMentioned } from './stories.js';
 
-// v39.2: symbols that are English words ('ARM', 'KEYS') count only as $TICKER or (TICKER).
 const WORD_SYMBOLS = new Set(['ARM', 'ON', 'IT', 'A', 'F', 'V', 'C', 'U', 'X', 'D', 'E', 'K', 'T', 'ALL', 'RUN', 'LOW', 'KEY', 'FAST', 'REAL',
   'PLAY', 'FLEX', 'CAN', 'GE', 'HD', 'DE', 'BE', 'HAS', 'KEYS', 'TEL', 'TER', 'APH', 'CLS', 'JBL', 'DELL', 'AI']);
 // Officer titles and agencies are listed symbols too ('Former FTX COO' opened CooperCompanies).
 const ROLE_ACRONYM = /^(?:C[A-Z]O|EVP|SVP|VP|GM|IPO|ETF|SEC|FDA|DOJ|FTC|NIH|EPA|ECB|IMF|GDP|CPI)$/;
-// v30.12 / v46.6 / v48.20: symbols that need a market word within 80 characters.
 const AMBIGUOUS = new Set(['AI', 'META', 'COST', 'SNOW', 'NET', 'PATH', 'APP', 'DASH', 'SHOP', 'SNAP', 'HOOD', 'SOFI', 'WOLF', 'COIN', 'RIOT',
   'HUT', 'GOLD', 'VALE', 'LINK', 'DOT', 'MATIC', 'UNI', 'MS', 'BA', 'MP', 'PL', 'NU', 'NOW', 'BEAM', 'OPEN', 'NEXT', 'SAIL', 'FIVE', 'PLUG',
   'RUN', 'GRAB', 'BILL', 'SPOT', 'FLEX', 'CELL', 'ARE', 'HOLD', 'RARE', 'REAL', 'TRUE', 'LIFE', 'BEST', 'SAFE']);
@@ -22,7 +20,6 @@ const MARKET_WORDS = ['stock', 'share price', 'share', 'earnings', 'rally', 'sur
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const marked = (symbol, text) => text.includes(`$${symbol}`) || text.includes(`(${symbol})`);
 
-// v39.2 / P182: one compiled word pattern per symbol, bounded (800+ symbols × 80 articles).
 const patterns = new Map();
 function wordPattern(word) {
   let re = patterns.get(word);

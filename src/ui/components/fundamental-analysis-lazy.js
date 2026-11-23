@@ -1,6 +1,3 @@
-// v58.55: the analysis cards (듀폰 · 역 DCF · R&D · 발생액) are drawn only on 종목 요약 and 재무 공시, so they load on first use
-// instead of with the boot bundle (architecture/boot-budget.json). The first call starts one shared import and returns null;
-// `onReady` repaints the caller once both modules are here. Later calls return the loaded modules synchronously.
 let loaded = null;
 let loading = null;
 

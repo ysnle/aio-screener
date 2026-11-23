@@ -1,14 +1,7 @@
-// v57.60: the strict "already a finite number" reader that ~30 modules declared locally as `finite`.
-// Strings, booleans, null and NaN/Infinity all return null — no Number() coercion. Modules whose
-// local `finite` coerces strings keep their own copy (different behaviour).
 export function finiteNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-// v59.46 (structure pilot): the one reader for values that may arrive as numeric strings (JSON, CSV, form fields).
-// A reading is a finite number or a non-blank numeric string; null, '', '  ', booleans, arrays and objects are missing,
-// not 0 or 1 — Number(null), Number(''), Number(' '), Number(false) and Number([]) are all 0, which is how a missing
-// value became a zero reading in ~35 local copies of this function.
 export function readNumber(value) {
   if (typeof value === 'number') return Number.isFinite(value) ? value : null;
   if (typeof value !== 'string' || !value.trim()) return null;
@@ -20,10 +13,6 @@ export function isFiniteNumber(value) {
   return typeof value === 'number' && Number.isFinite(value);
 }
 
-// v58.74 (text audit): one sign style for every displayed change. 34 local helpers printed "-0.8%", "−0.0%" (U+2212) and
-// "±0.00%p" side by side on one screen. The sign is chosen after rounding (a value that rounds to zero carries no
-// sign) and the minus is the ASCII hyphen-minus every other number on the site uses.
-// `plus: false` prints a minus but no plus (range ends, premiums); a value that rounds to zero is unsigned either way.
 export function signedText(value, digits = 1, unit = '', { plus = true } = {}) {
   const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
   if (!Number.isFinite(number)) return '—';
@@ -35,8 +24,6 @@ export function signedText(value, digits = 1, unit = '', { plus = true } = {}) {
 // Shared by the consensus read and the earnings cells.
 export const usdPerShareText = (value, digits = 2) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(digits)}`;
 
-// v58.80 (first-users R2-27): the colour follows the printed sign — a change that rounds to zero ("0.0%") is neither
-// rising red nor falling blue. Same rounding as signedText; null for a missing value.
 export function directionOf(value, digits = 1) {
   const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
   if (!Number.isFinite(number) || Number(Math.abs(number).toFixed(digits)) === 0) return null;
@@ -47,8 +34,6 @@ export function directionOf(value, digits = 1) {
 export const signMark = (value, digits = 1) => ({ up: '+', down: '-' })[directionOf(value, digits)] || '';
 export const directionColor = (value, digits = 1, neutral = 'var(--color-text-primary)') => ({ up: 'var(--color-data-up)', down: 'var(--color-data-down)' })[directionOf(value, digits)] || neutral;
 
-// v58.74 (text audit): job counts arrive in thousands and were printed as "100천 명", "25천 명" and "5.1만 명" in one card.
-// Under 10천 the count stays in 천; from there it reads in 만 with at most one decimal.
 export function peopleText(thousands, { sign = false } = {}) {
   if (typeof thousands !== 'number' || !Number.isFinite(thousands)) return '—';
   const abs = Math.abs(thousands);
@@ -57,7 +42,6 @@ export function peopleText(thousands, { sign = false } = {}) {
   return `${prefix}${body}`;
 }
 
-// First-users F33: one dollar format in 조·억·만 달러, sign first; `precise` keeps decimals for exact-value titles.
 export function usdKoreanText(value, { precise = false } = {}) {
   const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
   if (!Number.isFinite(number)) return '—';

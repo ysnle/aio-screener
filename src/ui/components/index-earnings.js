@@ -1,7 +1,3 @@
-// Expertise review 2026-10-19: the S&P 500's own earnings read — revision breadth (are next-year estimates being raised or
-// cut), the forward multiple and the equity risk premium against the 10-year real yield — with a per-sector revision line.
-// Data owner: src/domain/market/indices/index-earnings.js, built once as the interpretation pipeline's indexEarnings stage so the
-// lessons and the AI read the same revision breadth. Conclusion first, then the evidence, then what it means.
 import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/indices/index-earnings.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { GICS_KO } from '../../domain/market/indices/sector-map.js';
@@ -21,9 +17,6 @@ function headline(model) {
   return `최근 4주 애널리스트들은 S&P 500 기업의 앞으로 1년 이익 전망을 ${tilt}.`;
 }
 
-// v59.51 (content audit): the face is the plain headline and the revision-breadth gauge; the counts, multiples, risk
-// premium, reading, sector split and method sit in one closed fold.
-// The caption prints "label, value": the label names the measure and window so the bare % is never read as an earnings change.
 export const breadthGauge = (breadth) => ({ label: '4주 이익 전망 수정 건수 순상향', value: breadth * 100, min: -50, max: 50, digits: 0, unit: '%',
   clipped: Math.abs(breadth * 100) > 50,
   bands: [{ from: -50, to: -10, tone: 'burden' }, { from: -10, to: 10, tone: 'neutral' }, { from: 10, to: 50, tone: 'favorable' }],
@@ -42,7 +35,6 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     return model;
   }
   const basis = `컨센서스 ${model.oldestAsOf && model.oldestAsOf !== model.asOf ? `${shortDate(model.oldestAsOf)}~` : ''}${shortDate(model.asOf)}, 지수 비중 ${shortDate(model.weightsAsOf)}, ${model.members}개 기업(비중 ${model.coveragePct.toFixed(0)}%)`;
-  // v58.79 (layout over captions): the consensus date is the heading's chip; weights and coverage are its hover.
   head.append(doc.createTextNode(' '), asOfChip(doc, `컨센서스 ${shortDate(model.asOf)}`, basis));
   const lead = el(doc, 'p', headline(model), 'rates-curve-fact');
   const facts = el(doc, 'ul', null, 'briefing-read-reading');

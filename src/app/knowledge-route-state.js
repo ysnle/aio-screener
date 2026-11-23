@@ -11,10 +11,6 @@ function locationUrl(locationLike) {
   return new URL(`https://aio-screener.local${pathname}${search}${hash}`);
 }
 
-// 2026-11-18: a research page's open document lives in its own hash query (#atlas?mode=taxonomy&node=…), the convention of
-// #ticker?sym= and #themes?view=. It used to live in location.search, so leaving the page by a plain #route link kept
-// the atlas keys in every later address (?mode=taxonomy&node=…#guide). An old ?mode=…#atlas link is still read on
-// entry, once: the hash query wins when it carries any route key, and the next write moves the keys into the hash.
 function hashParts(url) {
   const match = String(url.hash || '').match(/^#([^?]*)(?:\?(.*))?$/);
   return { route: String(match?.[1] || '').split('/')[0], params: new URLSearchParams(match?.[2] || '') };
@@ -111,8 +107,6 @@ export function replaceKnowledgeRouteState({ root = globalThis, locationLike = r
   return nextUrl;
 }
 
-// first-users run-2 R2-17: opening a document on the same page only replaced the URL, so Back left the library. Opening
-// one adds a history entry (the same page state), and the page re-reads the URL when Back returns to it.
 export function pushKnowledgeRouteState({ root = globalThis, locationLike = root.location, historyLike = root.history, state = {}, page = null } = {}) {
   const nextUrl = serializeKnowledgeRouteState(locationLike, state, { page });
   const current = `${locationLike?.pathname || ''}${locationLike?.search || ''}${locationLike?.hash || ''}`;
@@ -142,10 +136,6 @@ export function navigateKnowledgeTarget({ root = globalThis, target = {} } = {})
   return true;
 }
 
-// v57.50 I17/I18: a link into a research page with a selection (#principles?mode=concept&node=…). Pushing the URL
-// and then calling showPage lost the selection — showPage writes a plain #route address before the page mounts — so
-// the page opened on its default view. The pending route URL is the one showPage pushes as is. 2026-11-18: the selection
-// is the target route's hash query, and the old search part is not carried.
 export function knowledgeRouteHref({ root = globalThis, page, params = {} } = {}) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params || {})) if (value != null && value !== '') query.set(key, String(value));

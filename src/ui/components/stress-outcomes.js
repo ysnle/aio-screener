@@ -1,6 +1,3 @@
-// P1661 (owner 2026-10-12, option 나): "what happened after days like today" replaces the retired composite score.
-// One visual (forward one-month result per VIX band, today's band marked), a short reading, and a fold that
-// teaches how to read the table and why the old score was dropped. Hidden until the producer has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CLUSTER_GAP_SESSIONS, stressBandOf } from '../../domain/market/signal/stress-outcomes.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
@@ -21,9 +18,6 @@ const windowStrength = (stats, horizon) => evidenceStrength(Number.isFinite(stat
 const pct = (value, digits = 1) => (Number.isFinite(value) ? signedText(value, digits, '%') : '—');
 const Z10 = 1.2816; // standard normal 10th percentile
 
-// v57.50 D08: the uncertainty of a band's mean. Overlapping h-session windows give about n/h independent windows, so
-// the standard error is sd / sqrt(n/h) and the shown range is ±2 standard errors. An artifact published before the
-// producer carried sd/se is read with sd ≈ (median − p10) / 1.2816 and marked approximate.
 export function meanRange(stats = {}, horizon = 21) {
   const n = Number(stats.n);
   const mean = Number(stats.mean);
@@ -46,9 +40,6 @@ export function spellText(band, stats, horizon = 21) {
   return Number.isFinite(stats?.n) ? `겹치지 않는 ${horizon === 63 ? '석 달' : '한 달'} 약 ${Math.max(1, Math.round(stats.n / horizon))}개` : '';
 }
 
-// v57.76: the table matches days on VIX only · a raw-table fold beside the indicators' table (host), not a
-// separate page section. A repaint of the board moves the existing fold into the new card,
-// so an open fold stays open.
 const STRESS_TITLE = '과거 빈도 — VIX가 비슷했던 날, 그 뒤 한 달';
 export function renderStressOutcomes({ documentRef: doc, root, host }) {
   if (!doc || !host) return;
@@ -86,11 +77,8 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
       const stats = month(band);
       const row = el(doc, 'div', null, `stress-bar-row${band.id === current?.id ? ' is-current' : ''}`);
       row.setAttribute('role', 'listitem');
-      // v59.69: a mean return can be negative — the shared two-sided bar keeps its side of the zero line.
       const ev = windowStrength(stats, 21);
       const track = signedBar(doc, ev.figures ? Number(stats.mean) || 0 : 0, scale);
-      // T14 (expert review 2026-10-13): the sample behind each bar is on screen, not only in the hover.
-      // v57.50 D07/D08: separate spells (re-entries within 21 sessions merged) and the ± range of the mean.
       const range = meanRange(stats, 21);
       row.append(el(doc, 'span', `${band.label}${band.id === current?.id ? ', 지금' : ''}`, 'stress-bar-label'), track,
         el(doc, 'span', ev.figures ? `${pct(stats.mean)}${range ? ` ±${range.half.toFixed(1)}%p` : ''}, 오른 비율 ${stats.hitRate ?? '—'}%, ${ev.tag}` : ev.note, 'stress-bar-value'));
@@ -127,12 +115,8 @@ export function renderStressOutcomes({ documentRef: doc, root, host }) {
     deep.append(el(doc, 'h4', '석 달 뒤 결과'), table);
     const link = principleLink(doc, root, 'volatility', 'VIX');
     if (link) deep.append(link);
-    // P1745: the retired-score history paragraph was a changelog, not analysis — removed from the screen.
 
-    // T14: the title names the one thing that was matched (VIX), and the bands are said to differ from the judgement bands.
-    // v57.76: the fold summary is the title; the first line bridges from this card's VIX level to the table.
     section.replaceChildren(foldSummary(doc, 'raw-table', STRESS_TITLE),
-      // v58.79: the band caveat is the chart caption's hover, not a second caption under the reading.
       Object.assign(el(doc, 'p', `변동성(VIX) 구간별 S&P 500 한 달 뒤 평균, ${from}~${String(payload.to || '').slice(0, 4)}`, 'regime-chart-caption'), { title: `이 표의 VIX 구간(${payload.bands.map((band) => band.label.replace(/^VIX /, '')).join(', ')})은 과거 결과를 나누는 구간이라, 시장 상태 변동성 축의 판정 기준(${RULES.volatility.calmBelow}, ${RULES.volatility.stressAt}, ${RULES.volatility.highAt})과 다릅니다` }), chart, el(doc, 'p', reading, 'regime-read'), deep);
     section.title = `출처: ${payload.source || 'Yahoo Finance'}`;
     section.hidden = false;

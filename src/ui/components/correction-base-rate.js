@@ -1,6 +1,3 @@
-// v59.70 (X bookmarks #1): the 추세 row's base rate — how many Nasdaq Composite 7% corrections since 1986 went on to a
-// bear market. One dot per past correction (filled = it reached -20%), the count as "N번 중 N번" and its definition.
-// It is context for the trend axis, not an input to it: the verdict and its score never read it.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { correctionReading } from '../../domain/scenarios/correction-base-rates.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';

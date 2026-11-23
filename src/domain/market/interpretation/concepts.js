@@ -1,6 +1,3 @@
-// Owner 2026-10-19 ("전체 구조 개편"): market concepts that more than one engine judges are defined once here, so the
-// structure outlook, the theme stages, the 테마 rotation reading and the guide cannot disagree on what a word means.
-
 /**
  * The one name of each judged axis, by id: 시장 상태's axes and watch rows, its radar, 매크로's factors (rates, credit and
  * commodities are the same rows), the 매크로 chapters on the same concept, the guide and every link that names an axis read

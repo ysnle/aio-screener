@@ -23,6 +23,7 @@ import { LESSON_BY_ID } from '../src/domain/guide/lessons.js';
 import { scenarioLead } from '../src/domain/market/regime/scenario-lead.js';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { verdictModelFingerprint } from './lib/verdict-model.mjs';
+import { buildMarketOpening } from '../src/domain/market/story/market-story.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PD = (name) => path.join(ROOT, 'public-data', name);
@@ -119,7 +120,7 @@ export function diffSnapshots(previous, current, at) {
   }
   // Owner 2026-10-19: the market guide's cross-scenario direction and the principles today's data touches are logged too.
   const pg = previous.guide || null, cg = current.guide || null;
-  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 비용이 작다고 가장 많이 적힌 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
+  if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 걸쳐 손해가 작은 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
   if (pg && cg) {
     // Only a newly relevant trap is logged (the others follow the same axes the log already records).
     const added = (cg.lessonIds || []).filter((id) => !(pg.lessonIds || []).includes(id) && LESSON_BY_ID[id]?.kind === 'trap' && cg.reasons?.[id]);
@@ -160,7 +161,7 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
   return { scored, lastScored: next };
 }
 
-export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, nowMs = Date.now() } = {}) {
+export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, longrun = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
   // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read).
   // v59.70 (R8): the shared input builder also carries the sector rotation (data.json) and the index-earnings input, so
@@ -210,8 +211,17 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)
   };
   // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
-  Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint()), enumerable: false });
+  // v60.50: the record carries the opening read's lines (market-story.js buildMarketOpening) for the static shell to paint.
+  const opening = buildMarketOpening({ history: interpretation.inputs?.history || history, macroHistory, longrun, through: interpretation.regime?.asOf || null });
+  Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint(), opening), enumerable: false });
   return payload;
+}
+
+/** The record's `story`: the opening's lines as { id, label, text } on its own close (null without one). */
+export function openingStory(opening, asOf) {
+  if (!opening?.available || opening.asOf !== asOf || !opening.lines?.length) return null;
+  return { asOf: opening.asOf, diagnosis: opening.diagnosis?.state && opening.diagnosis.state !== 'none' ? opening.diagnosis.word : null,
+    lines: opening.lines.map((line) => ({ id: line.id, label: line.label, text: line.said.text })) };
 }
 
 // First-users F01 (run-5 phone): on slow 3G the 오늘 verdict waited ~40 s for 1.9 MB of scripts and history. The static
@@ -219,10 +229,13 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
 export const TODAY_VERDICT_SCHEMA = 'today-verdict.v1';
 // v60.18 (weekly audit D7): `model` names the code that computed it (scripts/lib/verdict-model.mjs), so a record written by
 // older rules is visible beside the screen's recomputation instead of a silent 1/4/1 next to 1/3/2.
-export function todayVerdictFrom(regime, at, model = null) {
+// v60.50: `story` (openingStory) is added without a schema bump — the shell paints heroLine when a record has none, so a
+// record written before this release still renders (index.html), and this one renders on an older shell.
+export function todayVerdictFrom(regime, at, model = null, opening = null) {
   if (!regime?.available || !regime.overall || !regime.asOf) return null;
+  const story = openingStory(opening, regime.asOf);
   return { schemaVersion: TODAY_VERDICT_SCHEMA, generatedAt: at, asOf: regime.asOf, overall: regime.overall,
-    heroLine: regime.heroLine || '', holdReason: regime.holdReason || null, counts: regime.counts || null, model };
+    heroLine: regime.heroLine || '', holdReason: regime.holdReason || null, counts: regime.counts || null, model, ...(story ? { story } : {}) };
 }
 
 async function main() {
@@ -230,7 +243,7 @@ async function main() {
   const history = readHistoryRows(historyRaw);
   const payload = buildScenarioState({
     data: readJson(PD('data.json')), history, macroHistory: readJson(PD('macro-history.json')), calendar: readJson(PD('macro-calendar.json')),
-    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), consensus: readJson(PD('consensus-estimates.json')), themeBackfill: readJson(PD('theme-stage-history.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
+    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), consensus: readJson(PD('consensus-estimates.json')), themeBackfill: readJson(PD('theme-stage-history.json')), longrun: readJson(PD('index-longrun.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
   });
   if (!payload.crossroads.items.length) { console.warn('[scenario-state] no branches computed — artifact unchanged'); return; }
   await atomicWriteFile(PD('scenario-state.json'), JSON.stringify(payload));

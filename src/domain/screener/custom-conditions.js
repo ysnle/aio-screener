@@ -15,7 +15,6 @@ import { extensionMultiple } from '../technical/definitions.js';
 import { RULES } from '../rules/thresholds.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-
 // [id, group, label (with {n} for the threshold), default threshold or null, unit, fields read, test]
 export const CUSTOM_CONDITIONS = Object.freeze([
   { id: 'ma-short', group: '추세', label: '단기 정배열 (종가 > 5 > 10 > 20일선)', fields: ['pctSma5', 'pctSma10', 'pctSma20'],
@@ -26,8 +25,6 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ pctFromCloseHigh52w: a }) => a >= 0 },
   { id: 'near-high', group: '추세', label: '52주 고점 대비 {n}% 이내', value: 5, unit: '%', fields: ['pctFrom52wHigh'],
     test: ({ pctFrom52wHigh: a }, n) => a >= -n },
-  // v57.59 review: "near pivot" alone is not contraction — it counts only while the latest swing is smaller than the one
-  // before (vcpShrinking true; null when fewer than two swings). Rows from before these fields existed keep the old reading.
   { id: 'vcp', group: '패턴', label: 'VCP 수렴 중 (흔들림이 2번 이상 줄어듦, 피벗 근처는 마지막 흔들림이 직전보다 작을 때만)', fields: ['vcpStage'], optional: ['vcpShrinking', 'vcpContractions'],
     test: ({ vcpStage, vcpShrinking, vcpContractions }) => vcpStage === 'contracting'
       || (vcpStage === 'near_pivot' && (vcpShrinking === true || (vcpShrinking == null && vcpContractions == null))) },
@@ -37,15 +34,10 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ adrPct: a }, n) => a <= n },
   { id: 'rvol', group: '패턴', label: '거래량 20일 평균의 {n}배 이상', value: 1.5, unit: '배', fields: ['rvol20'],
     test: ({ rvol20: a }, n) => a >= n },
-  // v57.87 (owner X-bookmark read 2026-10-16): follow-through evidence from technical/follow-through.js and two readings
-  // of fields already published (ADR floor, 50-day extension in ADR units). Conditions, not entry or exit rules.
   { id: 'adr-min', group: '패턴', label: '하루 평균 변동폭 {n}% 이상 (충분히 움직이는 종목)', value: 3, unit: '%', fields: ['adrPct'],
     test: ({ adrPct: a }, n) => a >= n },
-  // v57.88 (review): a stock far below its 50-day line passed as "before extension"; the floor is the 부근 band.
   { id: 'not-extended', group: '패턴', label: '50일선 부근~위 변동폭의 {n}배 이내 (확장 전)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple >= -RULES.technical.nearLineAdr && multiple <= n; } },
-  // 2026-10-18 bookmarks (snapback-vs-bottom): a stock stretched far below its 50-day line in ADR units. An observation for
-  // a mean-reversion read, not a bottom or an entry — the frame keeps the reversal low as the invalidation point.
   { id: 'down-extended', group: '패턴', label: '50일선 아래로 변동폭의 {n}배 이상 (하방 과확장, 바닥 신호 아님)', value: 4, unit: '배', fields: ['pctSma50', 'adrPct'],
     test: ({ pctSma50, adrPct }, n) => { const multiple = extensionMultiple(pctSma50, adrPct); return multiple != null && multiple <= -n; } },
   { id: 'pocket-pivot', group: '후속·회복', label: '최근 10거래일 안 포켓 피벗 (10일선이나 50일선 위 상승일, 거래량이 직전 10일의 가장 큰 하락일 거래량보다 많음)', fields: ['pocketPivots10'],
@@ -65,7 +57,6 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ fwdPe }, n) => fwdPe > 0 && fwdPe <= n },
   { id: 'pb-max', group: '밸류에이션', label: 'PBR {n}배 이하 (미국)', value: 3, unit: '배', fields: ['pb'],
     test: ({ pb }, n) => pb > 0 && pb <= n },
-  // 2026-11-18 (owner: 배당수익률): cash dividends with ex-dates in the last 12 months ÷ the latest completed close.
   { id: 'dividend-yield-min', group: '밸류에이션', label: '배당수익률 {n}% 이상 (최근 12개월 배당 합 ÷ 종가)', value: 2, unit: '%', fields: ['dividendYieldPct'],
     test: ({ dividendYieldPct }, n) => dividendYieldPct >= n },
   { id: 'roe-min', group: '수익성·성장', label: 'ROE {n}% 이상 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['roe'],
@@ -74,16 +65,12 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ margin }, n) => margin >= n },
   { id: 'growth-min', group: '수익성·성장', label: '매출 성장률 {n}% 이상 (최근 4개 분기, 없으면 회계연도, 미국)', value: 10, unit: '%', fields: ['revGrowth'],
     test: ({ revGrowth }, n) => revGrowth >= n },
-  // v59.44 (X bookmarks 10/30, "the market is pricing cash"): the latest filed fiscal year's cash after capex, and capex
-  // against revenue (src/domain/fundamental/cash-metrics.js; financials are left out).
   { id: 'fcf-margin-min', group: '수익성·성장', label: '잉여현금흐름 마진 {n}% 이상 (영업현금흐름 − 설비투자, 최근 회계연도, 미국)', value: 10, unit: '%', fields: ['fcfMargin'], source: 'sec-fiscal-history',
     test: ({ fcfMargin }, n) => fcfMargin >= n },
   { id: 'capex-intensity-max', group: '수익성·성장', label: '설비투자 매출의 {n}% 이하 (최근 회계연도, 미국)', value: 15, unit: '%', fields: ['capexIntensity'], source: 'sec-fiscal-history',
     test: ({ capexIntensity }, n) => capexIntensity <= n },
   { id: 'liquidity-min', group: '거래', label: '하루 거래대금 ${n}백만 이상 (30일 평균)', value: 20, unit: '$M', fields: ['dollarVolume30d'],
     test: ({ dollarVolume30d: a }, n) => a >= n * 1e6 },
-  // v58.80 (first-users F34): "RSI 30 이하" and "3개월 수익률 20% 이상" were not understood. The same RSI(14) and
-  // completed-close returns the table columns show; a narrowing filter, not an oversold or momentum signal.
   { id: 'rsi-max', group: '가격 흐름', label: 'RSI(14일) {n} 이하', value: 30, unit: '', fields: ['rsi'],
     test: ({ rsi: a }, n) => a <= n },
   { id: 'rsi-min', group: '가격 흐름', label: 'RSI(14일) {n} 이상', value: 70, unit: '', fields: ['rsi'],
@@ -96,8 +83,6 @@ export const CUSTOM_CONDITIONS = Object.freeze([
     test: ({ ret3m: a }, n) => a >= n },
   { id: 'ret3m-max', group: '가격 흐름', label: '3개월 수익률 {n}% 이하', value: -10, unit: '%', fields: ['ret3m'],
     test: ({ ret3m: a }, n) => a <= n },
-  // v58.71 (owner 2026-10-23): what the research channels reported in the last 14 days (domain/screener/channel-signals.js).
-  // A stock the channels never mentioned has no data here, so these conditions only keep reported names.
   { id: 'tg-pt-raise', group: '리서치 채널', label: '최근 14일 목표주가 상향 {n}건 이상, 하향 없음 (채널 보도)', value: 1, unit: '건', fields: ['tgPtRaises', 'tgPtCuts'],
     test: ({ tgPtRaises: a, tgPtCuts: b }, n) => a >= n && b === 0 },
   { id: 'tg-upgrade', group: '리서치 채널', label: '최근 14일 투자의견 상향 (채널 보도)', fields: ['tgUpgrades'],
@@ -117,9 +102,6 @@ export function conditionSource(id) {
 /** Condition ids that declare `source`. */
 export const SOURCED_CONDITION_IDS = Object.freeze(CUSTOM_CONDITIONS.filter((item) => item.source).map((item) => item.id));
 
-// v58.63 (architecture audit SCR04): "PER 20 미만" became "PER 20 이하" and "ROE 15 초과" became "15 이상", so a row exactly
-// at the threshold passed a strict request. Each one-field threshold names the field it bounds and its direction; a
-// strict condition ({ strict: true }) excludes the boundary value, and its label says 미만/초과.
 export const CONDITION_BOUNDS = Object.freeze({
   tight: ['adrPct', 'max'], 'adr-min': ['adrPct', 'min'], rvol: ['rvol20', 'min'], 'few-heavy-down': ['heavyDownDays25', 'max'],
   'early-base': ['baseCount', 'max'], 'down-day-hold': ['downDayHoldPct', 'min'], 'pe-max': ['pe', 'max'], 'fwdpe-max': ['fwdPe', 'max'],

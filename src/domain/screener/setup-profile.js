@@ -1,6 +1,3 @@
-// v53.91: research-only setup labels and TradingView evidence derived from the published screener factors.
-// This is deliberately not a trading signal. It exposes the user's relative-strength
-// pullback and climax-top framework without inventing benchmark, volume, or intraday data.
 import { SUPPLIED_MATERIAL_CLAIM_IDS } from '../research/reference-index.js';
 import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL } from '../research/nathan-framework-ids.js';
 import { RULES } from '../rules/thresholds.js';
@@ -8,14 +5,10 @@ import { finiteNumber as finite } from '../shared/number.js';
 import { extensionMultiple as extensionMultipleOf, extensionStateFor } from '../technical/definitions.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
-// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 export const SCREENER_SETUP_MODEL_VERSION = 'screener-setup.v3';
 
-// 2026-10-13 review S09: one set of reference bands for "50-day distance in units of the average daily range".
-// The stock summary called 3.8x "near the line" while the screener called only <=2x near; both read these now.
-// v57.84: the bands are RULES.technical.extension and the multiple and its state live in technical/definitions.js.
 export const EXTENSION_BANDS = RULES.technical.extension;
 export { extensionStateFor };
 
@@ -56,14 +49,9 @@ export function deriveScreenerSetupProfile(row = {}) {
     && mediumTrendPositive && pctSma200 != null && pctSma200 >= -5
     && pctSma50 != null && pctSma50 <= 5;
   const stretch200 = pctSma200 != null && pctSma200 >= 70;
-  // v57.50 C16: the climax edge comes from the shared RSI table (80), the same table the summary's 70/30 reads.
   const rsiOverheat = rsi != null && rsi >= RULES.technical.rsi.climax;
-  // v57.87: two or more of the producer's climax signs after a long run (technical/follow-through.js) also count.
   const climaxSignCount = Array.isArray(row.climaxSigns) ? row.climaxSigns.length : 0;
   const climaxRisk = stretch200 || rsiOverheat || climaxSignCount >= 2;
-  // P1507 (owner materials 2026-10-07): how far price has run from the 50-day line, in units of its own average daily
-  // range. A late entry pays for the base-building time with no profit cushion; this says how late. ADR stands in for
-  // ATR (same idea, published already). Reference bands, not signals: under 2 near the line, 4+ extended, 7+ stretched.
   const extensionMultiple = extensionMultipleOf(pctSma50, adrPct);
   const extensionState = extensionStateFor(extensionMultiple);
   const relativeStrengthEvidenceAvailable = rank != null && benchmarkRelativeStrength != null && ret1m != null
@@ -72,10 +60,6 @@ export function deriveScreenerSetupProfile(row = {}) {
     : rvol20 >= 2.5 ? 'surge'
       : rvol20 >= 1.5 ? 'elevated' : 'normal';
 
-  // 2026-09-11 supplied-materials bridge. These fields are deliberately
-  // reference-only: the published screener artifact has no earnings-event
-  // timestamp, wedge geometry, or post-event acceptance series, so the model
-  // must expose the gap instead of inferring a Wedge Pop or post-earnings break.
   const baseBreakoutEvidence = row.vcpStage === 'breakout' && value(row, 'vcpScore') != null
     ? (rvol20 == null ? 'partial' : 'observed-technical-breakout') : 'unavailable';
   const structureEvidence = Object.freeze({

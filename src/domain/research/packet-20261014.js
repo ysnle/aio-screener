@@ -1,13 +1,9 @@
-// v57.54: the 2026-10-14 owner X packet (16 posts, author threads and every image) plus three chat images.
-// Commentary becomes reasoning frames and one product surface (the per-market price temperature); dated numbers stay
-// dated references with a verification state, never live input. Same shape as packet-20261011.js.
 const kst = (utc) => new Date(Date.parse(utc) + 9 * 3600000).toISOString().replace(/\.\d{3}Z$/, '+09:00');
 const source = (handle, statusId, author, publishedAt, disposition, summary, checks = []) => Object.freeze({
   id: `${handle}-${statusId}`, author, sourceUrl: `https://x.com/${handle}/status/${statusId}`, publishedAt, publishedAtKst: kst(publishedAt),
   sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition, summary, checks: Object.freeze(checks.map(Object.freeze))
 });
 const image = (id, summary, disposition) => Object.freeze({ id, author: 'owner attachment', sourceUrl: '', publishedAt: '2026-10-14T00:00:00Z', publishedAtKst: '2026-10-14T09:00:00+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition, summary, checks: Object.freeze([]) });
-// checks: { claim, state: VERIFIED | CONSISTENT | UNVERIFIED, basis } — basis names the public series or filing compared on 2026-10-14.
 
 export const PACKET_20261014_SOURCES = Object.freeze([
   source('ridajarid2', '2098337636020543700', 'Rida Jarid', '2026-09-11T09:07:32Z', 'PRINCIPLE_ONLY', '트레이딩 강좌 Article(홍보 포함): 발표치가 예상 범위의 어디에 떨어지는지로 미리 짠 시나리오 지도, 균형·불균형, 거래량 분포. 발표 전 시나리오를 적어 두는 원칙은 시장 상태 갈림길(P1743)과 같은 구조라 원칙만 참고.'),

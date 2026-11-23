@@ -1,15 +1,6 @@
-// P1425 (owner review 2026-10-03, 거시 screen rebuild): the economy is read from the official monthly
-// releases the producer already publishes (BLS/BEA/FRED/Treasury in public-data/data.json `macro`),
-// one card per indicator with its reference period, release date, next release and source. The page
-// states observations only — the old storyline's fixed thresholds (10Y >= 4.4% = '금리 부담',
-// SPY +/-0.6% = market tone) and the hand-written cycle timeline/thermometer are retired. The one
-// comparison drawn is against a published target (the FOMC's 2% PCE inflation objective).
-
 import { seriesOf, yoySeries } from './macro-read.js';
 import { peopleText, signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
-// MERGED #13 (run-6): '다음 FOMC 결정 12/9' (the ET calendar day) sat beside the timeline's 12/10(목) — every release date
-// is the one KST release clock with the zone named (eventWhenText).
 import { eventWhenText } from '../market/regime/macro-crossroads.js';
 
 export const FED_PCE_TARGET = 2; // FOMC Statement on Longer-Run Goals: 2% on the PCE price index
@@ -37,7 +28,6 @@ export const MACRO_GROUPS = Object.freeze([
       Object.freeze({ id: 'coreCpi', history: { field: 'coreCpiIndexNsa', derive: 'yoy' }, key: 'coreCpi', label: '근원 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '식품·에너지를 뺀 CPI입니다.' }),
       Object.freeze({ id: 'pce', history: { field: 'pceIndex', derive: 'yoy' }, key: 'pce', label: 'PCE 물가 (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '연준 물가 목표(2%)가 기준으로 삼는 지표입니다.' }),
       Object.freeze({ id: 'corePce', history: { field: 'corePceIndex', derive: 'yoy' }, key: 'corePce', label: '근원 PCE (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-pce', target: FED_PCE_TARGET, note: '식품·에너지를 뺀 PCE 물가입니다.' }),
-      // 2026-10-19 (expertise review): the two halves of sticky core CPI, read from their FRED indexes (history only).
       Object.freeze({ id: 'shelterCpi', history: { field: 'shelterCpiIndex', derive: 'yoy' }, historyOnly: true, label: '주거비 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '근원 CPI의 40% 남짓을 차지합니다. 새 임대 계약 시세를 1년가량 늦게 따라가 내려오는 속도가 느립니다.' }),
       Object.freeze({ id: 'supercoreCpi', history: { field: 'supercoreCpiIndex', derive: 'yoy' }, historyOnly: true, label: '주거비 제외 서비스 CPI (전년 대비)', unit: '%', digits: 1, deltaUnit: '%p', release: 'us-cpi', note: '이른바 슈퍼코어입니다. 임금과 함께 움직이는 서비스 가격이라 연준이 끈적한 물가로 지켜봅니다.' })
     ])
@@ -59,7 +49,6 @@ export const MACRO_GROUPS = Object.freeze([
   })
 ]);
 
-
 function isoDate(value) {
   const text = String(value ?? '').slice(0, 10);
   return isIsoDay(text) ? text : null;
@@ -75,7 +64,6 @@ function signed(value, digits) {
 }
 
 function sourceLabel(macro, key) {
-  // A kept value names its original source, never the merge marker ('9월분, 10/14 발표, last-known-good' on the face).
   const kept = macro[`_source_${key}`] === 'last-known-good';
   const raw = (kept ? null : macro[`_source_${key}`]) || macro[`_originSource_${key}`] || null;
   return raw ? SOURCE_LABELS[raw] || raw : null;
@@ -94,12 +82,9 @@ function releaseInfo({ releases, schedules, id, asOf, daily, releasedAt }) {
   const monthEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
   const dates = (Array.isArray(schedules?.[id]) ? schedules[id] : []).map(isoDate).filter(Boolean).sort();
   const last = dates.find((date) => date > monthEnd) || null;
-  // Codex audit F07: the value on screen already came from `last`, so the next release is a later date — the card read
-  // "9월분 · 10/15 발표 · 다음 10/15" while the calendar still held the same-day date.
   return { last, next: last && next && next <= last ? dates.find((date) => date > last) || null : next };
 }
 
-// P1426: the plotted 24-month series for one indicator, derived from the raw FRED observations.
 function derivedSeries(macroHistory, spec) {
   if (!spec) return [];
   const raw = seriesOf(macroHistory, spec.field);
@@ -111,8 +96,6 @@ function derivedSeries(macroHistory, spec) {
   return rows.slice(-24);
 }
 
-// 2026-10-19: an indicator published only as a FRED history (no producer snapshot key) reads its latest derived point;
-// the change is from the previous month of the same derived series.
 function buildHistoryItem(releases, schedules, item, macroHistory) {
   const series = derivedSeries(macroHistory, item.history);
   const last = series[series.length - 1] || null;
@@ -187,7 +170,6 @@ function buildItem(macro, releases, schedules, item, macroHistory = null) {
   const value = values[0] * scale;
   const valueText = item.range
     ? `${values[0].toFixed(item.digits)}–${values[1].toFixed(item.digits)}${item.unit}`
-    // v59.56 (text pass): job counts read '+2.9만 명' as everywhere else, not '+29천 명'.
     : item.people ? peopleText(value, { sign: item.signed }) : `${item.signed ? signed(value, item.digits) : value.toFixed(item.digits)}${item.unit}`;
   const rawDelta = finite(macro[`${keys[0]}Delta`]);
   const delta = rawDelta == null ? null : rawDelta * scale;
@@ -245,7 +227,6 @@ function trendOf(item, series) {
   const digits = item.digits ?? 1;
   const unit = item.unit === '%' ? '%' : item.unit;
   const fmt = (value) => item.people ? peopleText(value, { sign: item.signed }) : `${item.signed ? signed(value, digits) : value.toFixed(digits)}${unit}`;
-  // P1427: direction compares 3-month averages (latest vs six months earlier) so one noisy month does not flip it.
   const avg = (rows) => rows.reduce((sum, row) => sum + row.value, 0) / rows.length;
   const recent = avg(series.slice(-3));
   const earlier = avg(series.slice(-9, -6));

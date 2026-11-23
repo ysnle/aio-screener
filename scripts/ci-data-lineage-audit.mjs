@@ -118,6 +118,7 @@ const POLICIES = {
   'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.81: Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)
   'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
   'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1743: long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
+  'index-longrun.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // v60.50: long-run index drawdowns and tail moves (refresh-data daily lane, weekly)
   'market-temperature.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.54: per-market price temperature (refresh-data, 4-hour throttle)
   'scenario-state.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // P1743: recomputed every refresh from published artifacts (no network)
   'market-day.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v59.63: the last day's moves and events, linked (build-market-day, every refresh, no network)

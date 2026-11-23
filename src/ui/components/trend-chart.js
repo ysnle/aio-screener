@@ -1,10 +1,3 @@
-// P1395: one dependency-free time-series chart for the 시장 폭 / 투자 심리 boards. Owner review
-// 2026-10-03: the first version stretched text (preserveAspectRatio="none") and had no axes. This
-// one keeps a fixed aspect ratio, draws a labelled Y axis with gridlines, month ticks on the time
-// axis, dashed reference lines, and a hover readout (date · value) so a change can be followed.
-// P1399 (Codex review 2026-10-03): x is placed by calendar date, not array index. Charts shown side
-// by side pass one `range`, so the same horizontal position is the same date on every card and a
-// series whose record starts later begins later on the axis.
 import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
 import { signedText } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
@@ -12,7 +5,6 @@ const SVG = 'http://www.w3.org/2000/svg';
 const DEFAULT_W = 520;
 const DEFAULT_H = 210;
 const PAD = { top: 14, right: 16, bottom: 30, left: 48 };
-// P1529: the widest month label ("26년 1월" at 13px) is about 44 units; neighbours closer than this overlap.
 const MIN_MONTH_LABEL_SPACING = 42;
 const MONTH_MS = 30.4 * 86400000;
 
@@ -29,7 +21,6 @@ function niceStep(range, target = 4) {
   return (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 2.5 ? 2.5 : unit <= 5 ? 5 : 10) * power;
 }
 
-// v58.53 개편 v2 (README 차트 규칙): at most three Y ticks — the next nice step up until the rounded range fits in two steps.
 function threeTickStep(lo, hi) {
   let step = niceStep(hi - lo, 2);
   for (let guard = 0; guard < 8 && Math.ceil(hi / step - 1e-9) - Math.floor(lo / step + 1e-9) > 2; guard += 1) step = niceStep(step * 1.01, 1);
@@ -45,17 +36,10 @@ function datedShort(date) {
  * @param {Document} doc
  * @param {{ series: Array<{date:string,value:number}>, refLines?: number[], format?: (v:number)=>string, label?: string, domain?: [number, number], range?: [string, string], spans?: Array<{start:string,end:string,tone:string}> }} options
  */
-// v58.80 run-5 (skeptic #5): `guide` is a second, dashed series the reading is measured against (the 50-day line under
-// the S&P 500 close); it sets the scale with the line, names itself at its right end and joins the hover readout.
-// `marks` name points on the line ([{ date, value, label, side: 'above' | 'below' }], the 종목 screen's year high and low);
-// `height` makes a shorter chart for a strip (the 종목 머리's year line).
 export function createTrendChart(doc, options = {}) {
   const { series = [], refLines = [], format = (value) => value.toFixed(1), label = '', domain = null, range = null, spans = [], guide = null, longGuide = null, width = DEFAULT_W, refLabel = null, marks = [] } = options;
   const H = Math.max(120, Math.round(options.height) || DEFAULT_H);
-  // v59.70 (screen review #14): a level line that is not a round tick says what it is ("지지 27,192"), or it read as a
-  // stray tick between the round ones.
   const refText = (ref) => (typeof refLabel === 'function' ? refLabel(ref) : format(ref).replace(/(\d)\.0+(?!\d)/, '$1'));
-  // v59.55 (C1): a wide host (the stock price panel) passes its own width so labels keep their size instead of scaling up.
   const W = Math.max(320, Math.round(width) || DEFAULT_W);
   const wrap = doc.createElement('div');
   wrap.className = 'trend-chart-wrap';
@@ -84,13 +68,10 @@ export function createTrendChart(doc, options = {}) {
   const step = domain ? (domain[1] - domain[0]) / 2 : threeTickStep(lo, hi);
   lo = domain ? domain[0] : Math.floor(lo / step + 1e-9) * step;
   hi = domain ? domain[1] : Math.ceil(hi / step - 1e-9) * step;
-  // Y axis: gridlines + labels.
-  // 2026-10-18 UI review: when every tick reads N.0 (100.0%, 25.0, 165.0엔) the decimal carries nothing — drop it.
   const ticks = [];
   for (let tick = lo; tick <= hi + step / 1000; tick += step) ticks.push(tick);
   const tickLabels = ticks.map((tick) => format(tick));
   const trimmed = tickLabels.every((text) => /\d\.0+(?!\d)/.test(text)) ? tickLabels.map((text) => text.replace(/(\d)\.0+(?!\d)/, '$1')) : tickLabels;
-  // v59.55 (C1): a long value label (a won price, "₩185,000") widens the axis column instead of running off the left edge.
   const textUnits = (text) => [...String(text)].reduce((sum, ch) => sum + (/[가-힣]/.test(ch) ? 12.5 : 7.2), 0);
   const axisTexts = [...trimmed, ...refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi).map(refText)];
   const padLeft = Math.max(PAD.left, Math.ceil(Math.max(...axisTexts.map(textUnits)) + 8));
@@ -114,14 +95,9 @@ export function createTrendChart(doc, options = {}) {
   });
   // X axis: one tick on the first day of each month.
   svg.append(svgEl(doc, 'line', { x1: padLeft, x2: W - PAD.right, y1: PAD.top + plotH, y2: PAD.top + plotH, class: 'trend-chart-baseline' }));
-  // Ticks stay monthly; labels are thinned to every k-th month with k dividing 12 so January is always labelled and the
-  // widest label never collides with its neighbour. A growing range used to put "12월" and "26년 1월" on top of each other.
-  // v58.53 개편 v2: at most three labelled months (README: 축 눈금 ≤3); only labelled months keep a tick mark.
   const months = span / MONTH_MS;
   const labelEvery = [1, 2, 3, 4, 6, 12].find((k) => (plotW * MONTH_MS / span) * k >= MIN_MONTH_LABEL_SPACING && months / k <= 3) || 12;
   const first = new Date(t0);
-  // v59.55 (C1): a window under two months (the stock chart's 1개월) has at most one month start, often none inside the
-  // plot; it labels three observation days (M/D) at a quarter, half and three quarters instead.
   if (months < 2) {
     // Distinct observation days only: two points used to label the second day twice.
     for (const index of [...new Set([0.2, 0.5, 0.8].map((share) => Math.round((points.length - 1) * share)))]) {
@@ -144,16 +120,12 @@ export function createTrendChart(doc, options = {}) {
     text.textContent = m === 1 ? monthLabel(month) : `${m}월`;
     svg.append(text);
   }
-  // Reference lines (thresholds). v58.53 개편 v2: two or more thresholds read as one soft band between the outer two
-  // (radius 6, ink 5%) instead of dashed amber lines; a single threshold stays a quiet line.
   const shownRefs = refLines.filter((ref) => Number.isFinite(ref) && ref >= lo && ref <= hi);
   if (shownRefs.length >= 2) {
     const top = y(Math.max(...shownRefs)), bottom = y(Math.min(...shownRefs));
     svg.append(svgEl(doc, 'rect', { x: padLeft, y: top.toFixed(1), width: plotW, height: Math.max(2, bottom - top).toFixed(1), rx: 6, class: 'trend-chart-band' }));
   }
   for (const ref of shownRefs) svg.append(svgEl(doc, 'line', { x1: padLeft, x2: W - PAD.right, y1: y(ref), y2: y(ref), class: shownRefs.length >= 2 ? 'trend-chart-ref is-band-edge' : 'trend-chart-ref' }));
-  // v58.79 (layout over captions): a threshold names its own value (axis column since run-5; right edge when crowded; halo so the line
-  // stays readable under it), so a card label no longer spells "기준선 40%·60%" — unless it sits on a labelled gridline.
   for (const ref of shownRefs) {
     if (ticks.some((tick) => Math.abs(tick - ref) < step / 1000)) continue;
     // Two thresholds too close for the axis column: the upper one keeps the right-edge tag.
@@ -163,34 +135,25 @@ export function createTrendChart(doc, options = {}) {
     tag.textContent = refText(ref);
     svg.append(tag);
   }
-  // P1599 (M04/F46): a series that starts after the shared range marks the earlier span as 'no record yet',
-  // so the empty left side reads as missing history rather than a rendering failure.
   const firstX = x(0);
   if (firstX - padLeft > 24) {
     svg.append(svgEl(doc, 'rect', { x: padLeft, y: PAD.top, width: (firstX - padLeft).toFixed(1), height: plotH, class: 'trend-chart-nodata' }));
-    // v59.08: the centred 12px label (~52 units wide) is written only when it fits inside the shaded span; a narrower span
-    // pushed it into the y-axis labels (browser-viewport, breadth "기록 이전" over the "6" tick). The shading stays.
     if (firstX - padLeft >= 60) {
       const note = svgEl(doc, 'text', { x: ((padLeft + firstX) / 2).toFixed(1), y: PAD.top + plotH / 2, 'text-anchor': 'middle', class: 'trend-chart-empty' });
       note.textContent = '기록 이전';
       svg.append(note);
     }
   }
-  // v57.54: shaded date spans behind the line (market temperature extremes); tone picks the class.
   for (const span of spans) {
     if (!span?.start || !span?.end || span.end < start || span.start > end) continue;
     const x0 = xd(span.start < start ? start : span.start);
     const x1 = Math.max(x0 + 2, xd(span.end > end ? end : span.end));
     svg.append(svgEl(doc, 'rect', { x: x0.toFixed(1), y: PAD.top, width: (x1 - x0).toFixed(1), height: plotH, class: `trend-chart-span is-${span.tone}` }));
   }
-  // Line only (v58.53 개편 v2: no area fill; 1.6–2px round stroke in v2-market.css).
   if (longPoints.length > 1) svg.append(svgEl(doc, 'path', { d: longPoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide is-long' }));
   if (guidePoints.length > 1) {
     svg.append(svgEl(doc, 'path', { d: guidePoints.map((point, index) => `${index ? 'L' : 'M'}${xd(point.date).toFixed(1)},${y(point.value).toFixed(1)}`).join(' '), class: 'trend-chart-guide' }));
     const tail = guidePoints[guidePoints.length - 1];
-    // v59.70 (screen review #14): the tag sat at the guide's right end, above or below by the last price alone, so a price
-    // line that wandered there ran through it. It now takes the spot along the guide's right half where the price line
-    // crosses its box least, on the side away from the price, nearest the end on a tie.
     const tagW = textUnits(guide.label || '') + 4;
     const priceAt = new Map(points.map((point) => [point.date, point.value]));
     const box = (cx, baseline) => points.reduce((n, point, index) => {
@@ -261,9 +224,6 @@ export function createTrendChart(doc, options = {}) {
     tip.style.top = `${(y(point.value) / H) * box.height - 30}px`;
   };
   const hide = () => { cursor.setAttribute('visibility', 'hidden'); marker.setAttribute('visibility', 'hidden'); tip.hidden = true; };
-  // v57.81 (phone/iPad audit): mouse-only events left touch with no readout. Pointer events serve mouse, pen and
-  // finger; pan-y keeps a vertical swipe scrolling the page while a sideways drag scrubs. A lifted finger keeps the
-  // last reading; the browser taking the gesture for a scroll (pointercancel) clears it.
   overlay.style.touchAction = 'pan-y';
   svg.style.touchAction = 'pan-y';
   overlay.addEventListener('pointerdown', show);
@@ -271,9 +231,6 @@ export function createTrendChart(doc, options = {}) {
   overlay.addEventListener('pointerleave', (event) => { if (event.pointerType !== 'touch') hide(); });
   overlay.addEventListener('pointercancel', hide);
   svg.setAttribute('aria-label', `${label} ${datedShort(points[0].date)}~${datedShort(last.date)} 추이, 최근 ${format(last.value)}${guideAt.has(last.date) ? `, ${guide.label} ${format(guideAt.get(last.date))}` : ''}`);
-  // v59.69 (visual audit): most hosts build the chart before it is in the page, so it draws at the 520-unit default and
-  // a 380-519px card shrank its 12px axis text to ~9px (a wide one grew it). Once mounted, a chart whose card is more than
-  // 15% off that width redraws once at its real width — the same path the stock panel takes by passing `width`.
   if (!options.width) {
     const view = doc.defaultView;
     view?.requestAnimationFrame?.(() => {

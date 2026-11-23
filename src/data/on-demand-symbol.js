@@ -1,11 +1,3 @@
-// v57.81 (owner 2026-10-15: "단순 내부 데이터베이스에 등록만 한다고 끝이 아니야"): a US-listed symbol outside the published
-// screener universe is read on demand with the producer's own functions — the 1y daily chart through the same
-// completed-session rows and factor row (src/domain/screener/price-factors.js), the SEC annual record through the same
-// normalizer and row fields (src/domain/fundamental/sec-normalize.js, sec-row-fields.js), the same screener provider
-// normalization, and the same factor-rank model placed against the current published universe. Nothing here runs at
-// boot: consumers ask for one symbol, results are cached for the session, at most two symbols load at once, and a
-// symbol that is neither a registered name nor in the US listing directory is never fetched. A missing input stays
-// missing (no estimate); the placement is labelled as computed at its own time, outside the published ranking.
 import { isListedUsSymbol } from './us-listings.js';
 import { dailyRowsFromYahooChart, priceHistoryFromRows, priceFactorRow } from '../domain/screener/price-factors.js';
 import { normalizeSecCompanyFacts } from '../domain/fundamental/sec-normalize.js';
@@ -80,8 +72,6 @@ export function secSummaryRecord(record) {
 export async function canonicalOnDemandRow(symbol, raw, { name = null, classification = null, computedAt, readLiveData = () => ({}), now = () => Date.now() } = {}) {
   const id = onDemandEligibleSymbol(symbol);
   if (!id || !raw) return null;
-  // v57.83: the SEC SIC classification (when it maps) is the row's sector, through the same identity field the
-  // published universe uses, so the sector read and the in-sector placement work like a published row.
   const sector = classification?.sector || null;
   const httpClient = { async requestJson(url) {
     if (/screener-universe\.json/.test(url)) return { ok: true, data: { universe: [{ sym: id, name: name || id, ...(sector ? { sector } : {}) }] } };
@@ -108,8 +98,6 @@ export function placeAgainstUniverse(candidate, universeRows, { weights = null, 
     const present = spec.fields.filter((field) => typeof candidate[field] === 'number' && Number.isFinite(candidate[field]));
     const active = (population?.activeFactors || []).includes(key);
     const usable = own?.factorScores?.[key] != null;
-    // v59.45 (pipeline review P25-READ-02): the model's own reason a family is off (coverage floor vs. weight 0) and why
-    // no rank came out travel with the placement, so the reading does not name one cause for all of them.
     return Object.freeze({ key, label: spec.label, active, usable, present, missing: spec.fields.filter((field) => !present.includes(field)),
       blockedReasons: evidence[key]?.blockedReasons ? [...evidence[key].blockedReasons] : [],
       inactiveReason: active ? null : population?.inactiveFactorReasons?.[key] || result?.inactiveFactorReasons?.[key] || null });
@@ -168,13 +156,6 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
   const entries = new Map();
   const queueState = { active: 0, waiting: [] };
   const enqueue = queueFor(queueState);
-  // v58.63 (architecture audit D3): a ready / in-universe record was kept for the whole session, so after the next
-  // published close or universe refresh a symbol kept its old row, SEC summary and placement against the old peers.
-  // Records carry the universe they were read against and are read again once that changes.
-  // v59.45 (pipeline review P25-CACHE-01/P3-RUNTIME-02): the key was row count + latest session, so a same-size
-  // membership swap or a same-day correction kept the old in-universe answer and placement. It is now a fingerprint
-  // of every row's symbol, session and ranking inputs (plus the ranking weights for a placed record), taken from the
-  // rows the read itself used, so a universe that changes mid-read does not label the old result as current.
   const currentRows = () => { try { return universeRows() || []; } catch (_) { return []; } };
   const currentInputs = () => { try { return rankInputs() || {}; } catch (_) { return {}; } };
   const keyFor = (status, rows, inputs) => `${universeFingerprint(rows)}${status === 'ready' ? `|${inputsFingerprint(inputs)}` : ''}`;
@@ -182,8 +163,6 @@ export function createOnDemandSymbolReader({ fetchChart, fetchJson = null, isLis
   const remember = (id, record, universe = null) => {
     entries.delete(id);
     entries.set(id, { at: now(), record, promise: null, universe });
-    // v59.74 SM-13: eviction takes the oldest settled record; a read still pending keeps its slot so a second load
-    // joins it instead of starting a duplicate fetch.
     for (const [key, entry] of entries) { if (entries.size <= MAX_ENTRIES) break; if (!entry.promise) entries.delete(key); }
     try { onRecord(record); } catch (_) { /* a consumer's render error does not poison the cache */ }
     return record;

@@ -274,6 +274,15 @@ jobs:
         continue-on-error: true
         run: node scripts/build-scenario-outcomes.mjs
 
+      - name: Refresh long-run index drawdowns and moves (weekly producer, offered on the daily lane, v60.50)
+        # S&P 500, Nasdaq, SOX, KOSPI daily closes since the provider's first session → 10%+ drawdown episodes and
+        # 1/5/20-session tail moves (public-data/index-longrun.json). Exits early while under 7 days old on the same definition.
+        id: index-longrun
+        if: ${{ !cancelled() && steps.daily-lane.outputs.due == 'true' }}
+        continue-on-error: true
+        timeout-minutes: 5
+        run: node scripts/build-index-longrun.mjs
+
       - name: Refresh per-market price temperature (every refresh, self-throttled to 4 hours, v57.54)
         # S&P 500, Nasdaq, KOSPI, KOSDAQ, Nikkei daily closes → component ranks, extreme spells and past-spell outcomes.
         # A failure keeps the previous artifact; a market that fails keeps its previous body.

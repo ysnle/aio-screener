@@ -192,9 +192,8 @@ try {
     || observedRequests[0]
     || null;
   if (result.routeDisabled) {
-    assert('disabled route is explicit and personal-key-only', result.config?.ai?.routeStatus === 'DISABLED'
+    assert('disabled route is an explicit operator decision on the shared Worker policy', result.config?.ai?.routeStatus === 'DISABLED'
       && result.config?.ai?.routeReason
-      && result.config?.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
       && result.config?.ai?.serverMode === 'shared-worker-only'
       && result.config?.ai?.chatPolicy === 'shared-worker-only');
     assert('fresh browser reports no public Worker route', result.routeState?.ok === false && result.routeState?.reason === 'NO_ROUTE');

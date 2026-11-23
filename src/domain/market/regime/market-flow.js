@@ -1,9 +1,3 @@
-// v58.68 (owner 2026-10-23): "the screens show the surface". On 10/22 the S&P 500 fell 1.2% while 336 of 502 members
-// rose: the loss sat in the largest AI and technology names, and staples (+3.3%, every member up), utilities and health
-// care rose with Treasuries (10-year -17bp) as fear reached 20. The money-flow line names where the session's money went —
-// the sector ETFs that rose and fell most, the 10-year yield and fear on the same session — and which of four shapes it
-// had. Sector rows are the produced rotation artifact (current session only); SOXX (v59.70, the app's one semiconductor gauge) and the 10-year change are the
-// completed history closes of that same session (MERGED #3/#13). Growth here is XLK·XLC·SOXX, defensive is concepts.js DEFENSIVE_SECTORS.
 import { RULES } from '../../rules/thresholds.js';
 import { selectProducedRotation } from '../../themes/produced-rotation.js';
 import { DEFENSIVE_SECTORS, SECTOR_ETF_LABELS } from '../interpretation/concepts.js';
@@ -13,11 +7,8 @@ import { directionOf, signedText } from '../../shared/number.js';
 import { sessionMove } from './leadership-verdict.js';
 import { tenYearClose } from '../../macro/rates-fx.js';
 
-// The AI chain the 주도 영역 line reads (chips, power, network, cooling): the AI capex layers' themes and named groups
-// (themes/ai-capex-flow.js) without the broad industrials theme. Kept here so the boot set does not load that reference
-// module; ci-esm-core-unit-check holds the two equal.
-export const AI_CHAIN_THEMES = new Set(['semiconductor', 'utilities', 'photonics', 'ai_infra']);
-export const AI_CHAIN_GROUPS = new Set(['industrials:전력장비/그리드']);
+export const AI_CAPEX_CHAIN_THEMES = new Set(['semiconductor', 'utilities', 'photonics', 'ai_infra']);
+export const AI_CAPEX_CHAIN_GROUPS = new Set(['industrials:전력장비/그리드']);
 
 const signed = (value, digits = 1) => value == null || !Number.isFinite(value) ? null : signedText(value, digits, '%');
 const GROWTH_FLOW = Object.freeze(['XLK', 'XLC', 'SOXX']);
@@ -47,7 +38,6 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   const kind = down >= rule.broadSectorCount ? 'broadDown' : up >= rule.broadSectorCount ? 'broadUp'
     : gap != null && gap >= rule.rotationGapPp && defensive > 0 ? 'defensive'
       : gap != null && -gap >= rule.rotationGapPp && growth > 0 ? 'growth' : 'mixed';
-  // v58.74 (text audit): the lists rank the 11 sectors only; 반도체(SOXX) is named on its own after the count.
   const sorted = [...sectors].sort((a, b) => b.daily - a.daily);
   const item = (row) => `${row.label} ${signed(row.daily)}`;
   const rose = sorted.filter((row) => directionOf(row.daily, 1) === 'up').slice(0, 3), fell = sorted.filter((row) => directionOf(row.daily, 1) === 'down').reverse().slice(0, 3);
@@ -58,21 +48,17 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   const evidence = [
     rose.length ? `오른 업종 ${rose.map(item).join(', ')}` : null,
     fell.length ? `내린 업종 ${fell.map(item).join(', ')}` : null,
-    `${sectors.length}개 업종 중 ${up}개 상승`, // v59.45: the denominator is the sectors observed
+    `${sectors.length}개 업종 중 ${up}개 상승`,
     semisRow ? `반도체(SOXX) ${signed(semisRow.daily)}` : null,
     tenYearBp != null ? `미국 10년물 ${signedText(tenYearBp, 0, 'bp')}` : null,
     fear && !fear.blocked ? `공포·탐욕 ${Math.round(fear.score)}(${fear.label})` : null
   ].filter(Boolean);
   const bonds = tenYearBp != null && tenYearBp <= -5 ? '과 채권' : '';
-  // v59.45 (P17-FLOW-01): these are price moves of sector ETFs, Treasuries and fear — no fund-flow data — so the read says
-  // which side was stronger, not where money went.
   const read = kind === 'defensive' ? (growth < 0 ? `하락은 기술·AI 쪽에 몰렸고, 방어 업종${bonds}은 상대적으로 강했습니다.${up >= 6 ? ' 시장 전체가 무너졌다기보다 주도주가 약했던 날입니다.' : ''}` : `방어 업종${bonds}이 성장 업종보다 강했습니다.`)
     : kind === 'growth' ? '성장 업종이 강했고 방어 업종은 뒤처졌습니다.'
       : kind === 'broadDown' ? `대부분 업종이 함께 내렸습니다. 특정 업종이 아니라 시장 전반이 약했습니다.`
         : kind === 'broadUp' ? '대부분 업종이 함께 올랐습니다.'
           : '업종별 방향이 엇갈려 한쪽으로 쏠린 이동은 보이지 않습니다.';
-  // v58.74 (text audit 오늘 C4): when energy leads or trails the session and oil moved 2% or more the same way, the mechanism
-  // is named (on 10/23 energy +2.6% sat beside WTI +4.0% under "업종별로 엇갈림").
   const list = Array.isArray(history) ? history : [];
   const at = list.findIndex((row) => row?.date === session);
   const prevWti = at > 0 ? [...list.slice(0, at)].reverse().find((row) => Number.isFinite(row?.wti))?.wti : null;
@@ -85,13 +71,6 @@ export function buildMarketFlow({ rotationHistory = null, history = [], themes =
   return { available: true, session, kind, label: MARKET_FLOW_KINDS[kind], read: `${read}${oilNote}`, evidence, line: evidence.join(', '), defensive, growth, up, down, tenYearBp, fear: fear?.blocked ? null : fear?.score ?? null, themes: themeFlow };
 }
 
-// Owner 2026-10-23 (follow-up: "전력주/유틸리티, 금융주, 부동산/리츠 — 잘 버티는 테마와 떨어지는 테마"): a sector ETF averages
-// members that moved apart. On 10/22 regulated utilities rose 2.6% while nuclear and independent power fell 5.4%, retail
-// and health-care REITs rose 3.1% while data-center REITs fell 3.5%, and alternative managers rose 3.6% while investment
-// banks fell 1.5% — the AI-linked part of each sector fell with the leaders. The theme layer reads the AIO theme map
-// (THEME_MAP sub-themes, median one-session return of members measured on the flow's session): the strongest and weakest
-// sub-themes, and the sectors whose sub-themes split (one up at least splitSidePct, one down at least splitSidePct, gap at
-// least themeSplitPp). Duplicate member sets (the same five chips listed under two themes) count once.
 const median = (values) => { const list = values.filter(Number.isFinite).sort((a, b) => a - b); if (!list.length) return null; const mid = Math.floor(list.length / 2); return list.length % 2 ? list[mid] : (list[mid - 1] + list[mid]) / 2; };
 const SAME_GROUP_SHARE = 0.8; // of the smaller group's members
 export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) {
@@ -125,14 +104,12 @@ export function buildThemeFlow({ themes = [], rows = [], session = null } = {}) 
     return best.d1 >= rule.splitSidePct && worst.d1 <= -rule.splitSidePct && best.d1 - worst.d1 >= rule.themeSplitPp ? { theme: best.theme, up: best, down: worst, gap: best.d1 - worst.d1 } : null;
   }).filter(Boolean).sort((a, b) => b.gap - a.gap);
   const splitText = (split) => `${split.theme}: ${split.up.name} ${signed(split.up.d1)}, ${split.down.name} ${signed(split.down.d1)}`;
-  // v58.74: the sub-theme median hid MU +2.5% beside SNDK/WDC/STX -1.8~3.0% (10/23). Members split by the same rule are
-  // named, AI-chain sub-themes first, then by the weaker side (a two-sided split outranks one stock's earnings move).
   const memberSplits = groups.map((group) => {
     const list = group.rows.map((row) => ({ sym: String(row.sym).toUpperCase(), d1: Number(row.ret1d) }));
     const best = list.reduce((a, b) => (b.d1 > a.d1 ? b : a)), worst = list.reduce((a, b) => (b.d1 < a.d1 ? b : a));
     return best.d1 >= rule.splitSidePct && worst.d1 <= -rule.splitSidePct && best.d1 - worst.d1 >= rule.themeSplitPp
       ? { name: group.name, up: best, down: worst, upCount: list.filter((row) => directionOf(row.d1, 1) === 'up').length, downCount: list.filter((row) => directionOf(row.d1, 1) === 'down').length, /* v59.45: counts follow the printed one-decimal move */ strength: Math.min(best.d1, -worst.d1),
-        aiChain: AI_CHAIN_THEMES.has(group.themeId) || AI_CHAIN_GROUPS.has(`${group.themeId}:${group.name}`) } : null;
+        aiChain: AI_CAPEX_CHAIN_THEMES.has(group.themeId) || AI_CAPEX_CHAIN_GROUPS.has(`${group.themeId}:${group.name}`) } : null;
   }).filter(Boolean).sort((a, b) => Number(b.aiChain) - Number(a.aiChain) || b.strength - a.strength);
   const memberSplitText = (split) => `${split.name}: ${split.up.sym} ${signed(split.up.d1)}, ${split.down.sym} ${signed(split.down.d1)} (상승 ${split.upCount}, 하락 ${split.downCount})`;
   return {

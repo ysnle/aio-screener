@@ -1,9 +1,3 @@
-// P1419 (open-source comparison: xang1234 "Backtest" page validates published picks): how the
-// screener's ranking has done after the fact. Source: public-data/backtest-history.json — each daily
-// record re-runs the past rebalances of model-fingerprint.js BACKTEST_REBALANCE_OFFSETS (21-session hold) and reports the top
-// quintile minus bottom quintile forward return (net of the modelled cost) and how often the top
-// quintile won. The predictive-validity status (public-data/model-validation-status.json) is shown
-// with it: a present-day universe means survivorship bias, so this is accountability, not proof.
 import { createTrendChart } from './trend-chart.js';
 import { liveScreenerModelFingerprint } from '../../domain/screener/model-fingerprint.js';
 import { marketIcRows } from '../../domain/screener/validation-records.js';
@@ -16,13 +10,8 @@ import { isIsoDay } from '../../domain/shared/session-date.js';
 export const VALIDATION_MIN_REBALANCES = 12;
 export const VALIDATION_MIN_ABS_T = 2;
 
-// v59.45 P7-UI-01: Number(null) and Number('') are 0, so a missing spread drew a flat 0% point on the curve and a
-// missing rebalance entered the t statistic as a real 0. Missing stays missing: null/blank are dropped before Number().
 const finiteOrNull = (value) => (value == null || value === '' || !Number.isFinite(Number(value)) ? null : Number(value));
 
-// v58.63 (architecture audit A11): the colour and 판단 가능 of the top-minus-bottom spread come from the spread's own
-// per-rebalance series (one-sample t of its mean), never from the composite IC t — a rank correlation can be steady while
-// the return gap is carried by one date (IC t 61408 beside a spread t of 1.1).
 export function meanTStat(values) {
   const xs = (Array.isArray(values) ? values : []).map(finiteOrNull).filter((x) => x != null);
   const n = xs.length;
@@ -36,8 +25,6 @@ const pct = (value, digits = 2) => (value == null || !Number.isFinite(Number(val
 export function summarizeValidation(history = [], status = null, liveWeights = null) {
   const rows = (Array.isArray(history) ? history : []).filter((row) => isIsoDay(String(row?.date || '')));
   const last = rows[rows.length - 1] || null;
-  // X04 (2026-10-13): the curve joined rows of three model fingerprints (and rows with none) into one line. Only rows
-  // computed by the same model as the latest record belong on it.
   const lastFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
   const sameModel = rows.filter((row) => String(row.modelFingerprint ?? '') === (lastFingerprint ?? ''));
   // One date basis for every point: the session each record measured when all of them carry it, otherwise the run day
@@ -49,11 +36,7 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   const series = [...byDay].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([date, value]) => ({ date, value }));
   let pooledMarkets = false;
   try { pooledMarkets = /market-separated/.test(JSON.parse(lastFingerprint || '{}').populationPolicy || ''); } catch (_) { pooledMarkets = false; }
-  // v57.81: the one count basis for every "N회 중 M회 앞섬" (screener read, stock read, 과거 검증 tab): net of cost.
   const wins = last && finiteOrNull(last.netHitRate) != null && finiteOrNull(last.dates) != null ? Math.round(Number(last.netHitRate) / 100 * Number(last.dates)) : null;
-  // v57.50 D11: six rebalances with a composite IC t of about -0.26 were read as "뒤처졌습니다" in a burden colour.
-  // A sign is a finding only with |t| >= 2 on at least 12 rebalances; otherwise the record says it cannot tell yet.
-  // t is the record's own statistic when it carries one (ic.compositeT / icT); it is never estimated from the pooled n.
   const icT = finiteOrNull(last?.ic?.compositeT) ?? finiteOrNull(last?.icT);
   const spreadSeries = Array.isArray(last?.quantileSpreadNetByDate) ? last.quantileSpreadNetByDate.map(finiteOrNull).filter((x) => x != null) : [];
   const tStat = meanTStat(spreadSeries);
@@ -61,9 +44,6 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
   const distinguishable = spreadSeries.length >= VALIDATION_MIN_REBALANCES && tStat != null && Math.abs(tStat) >= VALIDATION_MIN_ABS_T;
   const tone = !last || finiteOrNull(last.quantileSpreadNet) == null ? 'unknown' : !distinguishable ? 'neutral' : Number(last.quantileSpreadNet) > 0 ? 'favorable' : 'burden';
   const undecided = `아직 우연과 구별 안 됨(표본 ${samples ?? '—'}회${tStat != null ? `, t=${tStat.toFixed(2)}` : ''})`;
-  // P1449: stored rows must carry the model fingerprint. A mismatch — or no fingerprint at all
-  // (rows produced before this identity existed) — means the record was NOT produced by the
-  // model on screen, so it cannot be presented as that ranking's validation.
   const modelFingerprint = last?.modelFingerprint != null ? String(last.modelFingerprint) : null;
   const liveFingerprint = liveScreenerModelFingerprint(liveWeights);
   const modelMatch = modelFingerprint == null || liveFingerprint == null ? false : modelFingerprint === liveFingerprint;
@@ -93,15 +73,11 @@ export function summarizeValidation(history = [], status = null, liveWeights = n
       : tone === 'favorable' ? `최근 ${last.dates}번의 과거 시점에서 기본 복합 순위 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} 앞섰습니다(비용 반영). 표본이 작고 생존 편향이 있어 예측 우위의 증명은 아닙니다.`
         : `지금까지 이 순위의 예측 우위는 확인되지 않았습니다. 최근 ${last.dates}번의 과거 시점에서 상위 20%가 하위 20%보다 평균 ${pct(last.quantileSpreadNet)} — 기본 복합 순위(모멘텀·추세·저변동·칼만)는 이 기간 동안 뒤처졌습니다(비용 반영).`,
     validation: status?.status === 'BLOCKED' || status?.predictiveValidation === 'not-established'
-      ? '예측력 검증 미완료 · 생존 편향 · 체결 용량 미반영' // P1419: the survivorship caveat stays on the face
+      ? '예측력 검증 미완료 · 생존 편향 · 체결 용량 미반영'
       : status?.status ? `검증 상태: ${status.status}` : null
   };
 }
 
-// v57.77: this block used to sit above the results table with its own verdict, spread, IC, sample and survivorship
-// notes — the same back-test the 과거 검증 tab reports in full (renderBacktest in src/ui/pages/screener.js: verdict,
-// per-factor IC, gross/net spread, sample, 10-year study, forward record). It now lives inside that tab and adds
-// only what the tab lacks: the same-model history curve and the |t| decision rule.
 export function renderScreenerValidation({ documentRef: doc, root }) {
   const host = doc?.getElementById('screener-validation');
   if (!host) return null;
@@ -121,10 +97,6 @@ export function renderScreenerValidation({ documentRef: doc, root }) {
   return summary;
 }
 
-// 개편 v2 (3c/5h): one reading of the validation state for the banner before the table and the 사후 검증 summary.
-// Sources: public-data/screener-validation-gate.json (gate status and blockers), the screener artifact's backtest
-// (net top-minus-bottom spread, net hit rate, per-rebalance IC) and the |t| decision rule above. A sign is never read
-// as a finding below 12 rebalances or |t| < 2 ('판단 불가'), and the tiles stay neutral until it is.
 const GATE_BLOCKER_WORDS = Object.freeze({
   pointInTimeUniverse: '과거 시점의 종목 구성',
   delistingAndCorporateAction: '상장폐지·기업 행위 처리',
@@ -158,8 +130,6 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   const netRate = finiteOrNull(backtest.netHitRate);
   const rate = netRate ?? finiteOrNull(backtest.hitRate);
   const wins = rate == null ? null : Math.round(rate / 100 * samples);
-  // Review fix: t comes only from the record that supplies the sample count (the screener artifact's backtest); without it
-  // the sample cannot decide.
   const icT = finiteOrNull(backtest.ic?.compositeT);
   const liveFingerprint = liveScreenerModelFingerprint(metadata?.ranking?.appliedFactorWeights);
   const modelMatch = backtest.modelFingerprint != null && liveFingerprint != null && backtest.modelFingerprint === liveFingerprint;
@@ -167,12 +137,9 @@ export function readValidationState({ metadata = null, root = null, listingMarke
   // carries it; an older record has only the series pooled over US and Korean rows, and says so.
   const marketIc = Array.isArray(backtest.icByMarket?.US?.icByDate?.composite) && Array.isArray(backtest.icByMarket.US.dates) ? backtest.icByMarket.US : null;
   const icByDate = marketIc ? marketIc.icByDate.composite : Array.isArray(backtest.icByDate?.composite) ? backtest.icByDate.composite : [];
-  // v58.56 (#6): the producer names the dates its composite IC values belong to (a date with too few rows is skipped);
-  // records before that keep the old positional reading only when the counts match.
   const icDates = marketIc ? marketIc.dates
     : Array.isArray(backtest.icCompositeDates) && backtest.icCompositeDates.length === icByDate.length ? backtest.icCompositeDates
       : icByDate.length === dates.length ? dates : [];
-  // v58.56 (#6): one top-minus-bottom reading per rebalance (percent, gross; net = after the modelled turnover cost).
   const byDate = (key) => (Array.isArray(backtest[key]) ? backtest[key] : []);
   const spreadPoints = (Array.isArray(backtest.spreadDates) ? backtest.spreadDates : []).map((date, index) => ({
     date,
@@ -227,8 +194,6 @@ export function renderValidationHero({ documentRef: doc, read }) {
     card.append(el(doc, 'span', read.chips.join(', '), 'sx-chip sx-chip--sm sx-chip--warn'), el(doc, 'p', read.sentence, 'sx-lede'));
     parts.push(card);
   }
-  // v58.56 (#6, design 5h): the per-date card is the top-minus-bottom spread — what the ranking's top fifth did against its
-  // bottom fifth at each past rebalance. The IC (a rank correlation) stays below it in a fold.
   if (read.samples != null || read.points?.length) {
     const card = el(doc, 'div', null, 'sx-card scr-vh-dates');
     const head = el(doc, 'div', null, 'sx-card__head');
@@ -241,7 +206,6 @@ export function renderValidationHero({ documentRef: doc, read }) {
         const up = point.gross >= 0;
         const line = el(doc, 'div', null, 'scr-vh-row scr-vh-spread-row');
         line.title = `상위 20% 평균 ${pct(point.top)} − 하위 20% 평균 ${pct(point.bottom)} = ${signedPp(point.gross)}${point.net != null ? `, 거래비용(회전율 기준 ${point.cost != null ? `${point.cost.toFixed(2)}%` : '—'}) 반영 ${signedPp(point.net)}` : ''}`;
-        // v59.55 (C3): the shared two-sided bar; a spread is a verdict on the model (양호 green, 부담 amber).
         const track = signedBar(doc, point.gross, max, { tone: 'verdict', digits: 2, trackClass: 'scr-vh-track' });
         const legs = el(doc, 'span', null, 'scr-vh-legs');
         legs.append(el(doc, 'span', `상위 ${pct(point.top)}`), el(doc, 'span', `하위 ${pct(point.bottom)}`));
@@ -276,8 +240,6 @@ export function renderValidationHero({ documentRef: doc, read }) {
     }
     parts.push(card);
   }
-  // (owner 2026-11-20) the gate state is the face; why the check comes first (IC, the t 3 proposal, this screen's
-  // rule) and its references are the method fold.
   if (read.gateChip) parts.push(el(doc, 'p', read.gate ? `검증 게이트 ${read.gateChip}${read.blockers.length ? ` — 아직 확인되지 않은 항목: ${read.blockers.join(', ')}` : ''}${read.gateEvidenceAt ? ` (근거 연구 ${read.gateEvidenceAt}, 현재 살아남은 대형주 표본${read.gateObservedAt ? `; 판정 ${read.gateObservedAt}` : ''})` : read.gateObservedAt ? ` (${read.gateObservedAt} 기준)` : ''}.` : '검증 게이트 파일을 받지 못했습니다 — 없음.', 'scr-vh-gate'));
   const rule = `이 화면은 ${VALIDATION_MIN_REBALANCES}회 이상·|t| ${VALIDATION_MIN_ABS_T} 이상에서 앞섬·뒤처짐을 판단합니다(학술 제안인 t 3보다 느슨한 기준).`;
   const undecided = read.samples != null && !read.distinguishable

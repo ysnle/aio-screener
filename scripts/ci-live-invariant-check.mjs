@@ -81,28 +81,18 @@ async function main() {
   );
 
   // Public AI is a consumer outcome: a fresh browser must discover the exact
-  // healthy Worker route from the deployed config. A healthy hidden Worker is
-  // not a usable public chat path. When the live observation is unavailable,
-  // the producer may intentionally publish an explicit personal-key-only
-  // state; that is safer than leaving a stale shared route discoverable.
+  // healthy Worker route from the deployed config. v60.50: the route is the
+  // operator's release-scoped decision (PUBLISHED, or DISABLED with a reason);
+  // the Worker health probe below is what tells whether a published route works.
   check('live public AI config matches the live app revision', publicConfig?.appRevision === version, `config=${publicConfig?.appRevision}, version=${version}`);
   const liveWorkerUrl = String(publicConfig?.ai?.workerUrl || '').trim().replace(/\/+$/, '');
-  const liveRoutePublished = /^https:\/\//i.test(liveWorkerUrl);
-  const liveRouteDisabled = !liveWorkerUrl
-    && publicConfig?.ai?.routeStatus === 'DISABLED'
-    && publicConfig?.ai?.serverMode === 'personal-key-only'
-    && publicConfig?.ai?.chatPolicy === 'personal-key-only'
+  const liveRoutePublished = /^https:\/\//i.test(liveWorkerUrl) && publicConfig?.ai?.routeStatus === 'PUBLISHED';
+  const liveRouteDisabled = publicConfig?.ai?.routeStatus === 'DISABLED'
     && typeof publicConfig?.ai?.routeReason === 'string'
-    && publicConfig.ai.routeReason.length > 0
-    && publicConfig?.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
-  check('live public AI config exposes an HTTPS shared fallback or an explicit disabled state', liveRoutePublished
-    ? publicConfig?.ai?.routeStatus === 'PUBLISHED'
-      && publicConfig?.ai?.routeEvidence?.status === 'CURRENT'
-      // P1448: P1421 made the shared Worker the only server route ('shared-worker-only'); the older
-      // personal-key fallback names remain accepted for configs published before that change.
-      && ['shared-worker-only', 'shared-worker-fallback'].includes(publicConfig?.ai?.serverMode)
-      && ['shared-worker-only', 'personal-key-or-public-worker'].includes(publicConfig?.ai?.chatPolicy)
-    : liveRouteDisabled, JSON.stringify(publicConfig?.ai || {}));
+    && publicConfig.ai.routeReason.length > 0;
+  check('v60.50 live public AI config exposes an HTTPS shared route or an explicit operator-disabled state', publicConfig?.ai?.serverMode === 'shared-worker-only'
+    && publicConfig?.ai?.chatPolicy === 'shared-worker-only'
+    && (liveRoutePublished || liveRouteDisabled), JSON.stringify(publicConfig?.ai || {}));
   if (liveRoutePublished) {
     try {
       const workerUrl = liveWorkerUrl;

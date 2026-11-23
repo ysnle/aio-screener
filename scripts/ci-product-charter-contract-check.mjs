@@ -85,7 +85,7 @@ const reachable = Object.values(qa.groups || {}).flatMap((group) => group.gates 
 if (!reachable) fail('product-charter gate is not reachable from QA manifest');
 
 console.log(`Product charter OK: ${charter.productIdentity.category}, ${planeIds.length} trust planes, ${auditedDomains.length} audited domains, execution=${charter.productIdentity.executionCapability}.`);
-}],
+}, 'code'],
 // ── section human-validation (was ci-human-validation-contract-check.mjs) ──
 ['human-validation', async () => {
 const { readFileSync } = await import('node:fs');
@@ -118,5 +118,5 @@ const qualified = completeCoverage && taskCompletionRate >= acceptance.taskCompl
 if ((artifact.status === 'USER_VALIDATED' || artifact.certification === 'PASS') && !qualified) fail('artifact promoted human validation without complete qualified evidence');
 if (!sessions.length && (artifact.status !== 'NOT_EXECUTED' || artifact.certification !== 'OPERATOR_REQUIRED')) fail('empty study must remain operator-required');
 console.log(JSON.stringify({ ok: true, contract: artifact.schemaVersion, sessions: sessions.length, participantsByPersona, qualified, certification: artifact.certification }));
-}],
+}, 'code'],
 ]);

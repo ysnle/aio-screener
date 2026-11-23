@@ -1,9 +1,5 @@
-// v57.81: the producer's per-symbol price-factor math, moved here from scripts/lib/factors.mjs so the browser can
-// compute an out-of-universe symbol's factors with the same functions (scripts/lib/factors.mjs imports and re-exports
-// them; scripts/fetch-data.mjs re-exports from there). Pure functions over arrays; no I/O.
 import { FACTOR_FRESHNESS_MS } from './factor-ranks.js';
 import { RULES } from '../rules/thresholds.js';
-// v57.84: the 52-week range, ADR, moving averages and EMAs are technical/definitions.js — the chart's own definitions.
 import { smaLast, emaLast, rsiWilder, adrPctOf, rangeExtremesOf, fromYearHigh, detectContractions, isBreakoutDay, priorVolumeAverage } from '../technical/definitions.js';
 import { followThroughFields } from '../technical/follow-through.js';
 import { listingMarketOfSymbol, sessionDateInMarket, timeZoneForMarket, timeZoneForSymbol } from '../market/session/session-time.js';
@@ -26,22 +22,9 @@ function _annVol(closes, n) {
   const v = rets.reduce((s, r) => s + (r - mu) * (r - mu), 0) / (rets.length - 1);
   return round(Math.sqrt(v) * Math.sqrt(252) * 100, 2);   // 연율화 %
 }
-// v51.91 P584/R265/C1: switched from Cutler's RSI (simple average over only the last 14 bars,
-// recomputed fresh each call) to Wilder's RSI (initial 14-bar average, then recursively smoothed
-// over the full input history) — matching js/aio-core.js:_calcRSILast exactly. The two methods
-// carried the same "RSI(14)" label but produced different numbers whenever there was a meaningful
-// gain/loss regime earlier in the series, so screener.json's rsi and the client's own RSI display
-// could diverge by several points. Wilder's method is what TradingView/TA-Lib/most brokers mean by
-// "RSI" by default — the named-methodology-parity requirement from R265. Verified by extraction:
-// scripts/ci-data-pipeline-contract-check.mjs runs both implementations against identical synthetic
-// closes and asserts the outputs match within tolerance.
-// v59.59 (logic refactor): the body is technical/definitions.js rsiWilder — one RSI for producer, chart and summary.
 function _rsi14(closes) {
   return round(rsiWilder(closes, 14), 1);
 }
-// v51.32: 칼만 추세 필터 — 숨겨진 가격 레벨과 추세 속도(velocity)를 재귀 추정.
-// 노이즈 측정에서 실제 추세 속도를 분리 (Rolling OLS보다 연속적이고 안정적).
-// state=[level, velocity], F=[[1,1],[0,1]], H=[1,0], Q=diag(Ql,Qv), R=obs noise.
 function _kalmanTrend(closes, vol) {
   if (!Array.isArray(closes) || closes.length < 10) return null;
   const series = closes
@@ -127,16 +110,11 @@ export function closesToFactors(closes) {
   const kalman = _kalmanTrend(closes.slice(-PRICE_FACTOR_WINDOWS.kalman), vol60);
   return {
     price: round(price, 2),
-    // 2026-10-13 (owner: S&P 500 map): one- and five-session returns on the same completed close series, so the
-    // sector map can colour a day or a week without republishing raw prices (P715 keeps prices out).
     ret1d: _retPct(closes, 1), ret5d: _retPct(closes, 5),
-    ret10d: _retPct(closes, 10), // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월
+    ret10d: _retPct(closes, 10),
     ret1m: _retPct(closes, 21), ret3m: _retPct(closes, 63), ret6m: _retPct(closes, 126),
-    // 2026-10-19 (expertise review D2): a full year (252 sessions back, so 253 closes) for 12-1 momentum; null below that.
     ret12m: _retPct(closes, PRICE_FACTOR_WINDOWS.ret12m),
     vol: vol60, rsi: _rsi14(closes),
-    // 2026-10-14 (owner: custom screener conditions): the averages and the 1-year closing high as distances, so
-    // "5/10/20 정배열" and "52주 신고가" are read without publishing a raw price (P715).
     ...priceLevelFactors(closes),
     kalmanVel:   kalman ? kalman.vel     : null,
     kalmanPt:     kalman ? kalman.pt      : null,
@@ -146,24 +124,16 @@ export function closesToFactors(closes) {
   };
 }
 
-// v57.81: sessions back in which a close at or below the pivot makes today's close above it a breakout.
 export const VCP_BREAKOUT_LOOKBACK = RULES.technical.breakout.crossSessions;
-// v51.68: VCP (Volatility Contraction Pattern) 서버 사이드 계산 — aio-core.js _calcVCP 대응
 export function _calcVCPServer(closes, highs, lows, volumes) {
   const n = closes.length;
   if (n < 60) return null;
   function avg(arr) { return arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0; }
   const price = closes[n - 1];
   const s50 = smaLast(closes, 50), s150 = smaLast(closes, 150), s200 = smaLast(closes, 200);
-  // v57.84: the 52-week high is definitions.rangeExtremesOf — below RULES fullYearSessions (240) it is not a 52-week figure, so the gate's
-  // "52주 고점 대비" check is unknown and the gate fails closed (it used to read 200 sessions of highs as a year).
   const fromHigh = fromYearHigh(price, highs, lows);
   const pct52 = fromHigh?.fullYear ? fromHigh.pct : null;
   const stage2 = !!(s50 && s150 && s200 && price > s150 && s150 > s200 && price > s50 && pct52 !== null && pct52 >= -RULES.technical.stage2Gate.nearHighPct);
-  // v57.84 (owner decision): contractions and the pivot come from the chart's detector (technical/definitions.js
-  // detectContractions) — the 65-bar, 4-bar-swing pairing gave a second pivot for the same stock (the latest swing high in 25
-  // bars, valid pattern or not). Bars with a missing high/low are left out, as on the chart. Only a valid contraction run
-  // (≥ 2 successively shallower pullbacks, the last ≤ 12%, the first ≤ 40%) sets a pivot.
   const bars = [];
   for (let i = 0; i < n; i++) if (highs[i] > 0 && lows[i] > 0 && highs[i] >= lows[i]) bars.push({ high: highs[i], low: lows[i], close: closes[i] });
   const detected = detectContractions(bars);
@@ -182,12 +152,6 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   }
   const pivot = detected.valid ? detected.pivot : null;
   const nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
-  // v57.81 (analysis audit 2026-10-15): 031980.KQ read "피벗 돌파" on a -12.5% day (rvol 1.65) because a close above the
-  // pivot on heavy volume was enough. A breakout is a close through the pivot: some close in the last
-  // VCP_BREAKOUT_LOOKBACK sessions was at or below it. Audit 2026-10-17 (owner D6): the day itself is the chart's
-  // breakout day (technical/definitions.js isBreakoutDay — prior 50-session volume, up from the prior close, at most
-  // +5% over the pivot). A close above the pivot on heavy volume that did not close up is 'pivot_down'; a close more than
-  // +5% over it is 'extended', as on the chart.
   const B = RULES.technical.breakout;
   const brk = !!pivot && isBreakoutDay({ closes, volumes, i: n - 1, pivot });
   const volumeBase = priorVolumeAverage(volumes, n - 1);
@@ -203,9 +167,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   if (brk)       score += 10;
   score = Math.min(100, Math.round(score));
   const vcpStage = !stage2 ? 'not_stage2' : brk ? 'breakout' : pivotDown ? 'pivot_down' : extended ? 'extended' : nearPivot ? 'near_pivot' : (cnt >= 2 && shrink) ? 'contracting' : cnt >= 1 ? 'basing' : 'stage2_only';
-  // 2026-10-14: the latest contraction against the one before it (isShrinking requires every step to shrink).
   const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
-  // v59.59: stage2 · depths · nearPivot · breakout too, so the legacy snapshot (aio-core _calcVCP) reads this one result.
   return { vcpScore: score, vcpStage, pivotLevel: pivot, stage2, contractionDepths: ctrs.map((row) => row.depth), nearPivot, breakout: brk,
            contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
@@ -227,13 +189,6 @@ export function breakoutAgoOf(closes, highs, lows, volumes, latest = undefined) 
   return BREAKOUT_SCAN_SESSIONS;
 }
 
-// Phase 1: 심볼 배열 → 2y 가격 이력 fetch + 팩터 계산. results 배열은 backtest에 재사용.
-// v53.91: materialize the observable pieces of the TradingView "best winners"
-// screen. These are evidence fields, not a buy score: missing source series
-// stays null and the setup layer fails closed.
-// Mean of daily close x volume over the last `window` sessions, the same rule as _historicalLiquidity
-// (positive close and volume only, at least min(10, window) usable sessions). `divisors` converts each
-// session at its own FX rate (native units per USD); a session without a rate is not counted.
 export function dailyNotionalAverage(closes, volumes, { window = 30, divisors = null, minObservations = BACKTEST_MIN_LIQUIDITY_OBSERVATIONS } = {}) {
   const n = Math.min(Array.isArray(closes) ? closes.length : 0, Array.isArray(volumes) ? volumes.length : 0);
   const lookback = Math.max(1, Number(window) || 30);
@@ -268,8 +223,6 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
   };
   const ema = emaLast;
   const price = closes[n - 1];
-  // v57.84: definitions.rangeExtremesOf / adrPctOf — the chart's own range and ADR. Below RULES fullYearSessions (240) the range is not
-  // 52 weeks, so pctFrom52wLow/High stay null instead of naming a shorter record "52주" (P1428).
   const range = rangeExtremesOf(highs.slice(0, n), lows.slice(0, n));
   const low52 = range?.fullYear ? range.low : null;
   const fromHigh = fromYearHigh(price, highs.slice(0, n), lows.slice(0, n));
@@ -283,12 +236,8 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
     pctFrom52wHigh: fromHigh?.fullYear ? round(fromHigh.pct, 1) : null,
     adrPct: adrPct == null ? null : round(adrPct, 2),
     avgVolume30d: avgVolume30d == null ? null : Math.round(avgVolume30d),
-    // 2026-10-13 F21: traded value is the mean of each session's close x volume (the backtest liquidity
-    // definition), not today's close times the average volume, which moved the 30-day figure with one print.
     dollarVolume30d: (() => { const notional = dailyNotionalAverage(closes.slice(0, n), volumes.slice(0, n), { window: 30 }); return notional ? Math.round(notional.value) : null; })(),
     lastVolume: latestVolume == null ? null : Math.round(latestVolume),
-    // v57.51 F11: 20-session relative volume — the last session's volume over the mean of the 20 sessions before it
-    // (the chart's _calcRVOL definition). The '돌파 관찰' preset read this field while no producer wrote it.
     rvol20: (() => {
       if (latestVolume == null || n < 16) return null;
       const base = volumes.slice(Math.max(0, n - 21), n - 1).filter((v) => typeof v === 'number' && Number.isFinite(v) && v > 0);
@@ -299,9 +248,6 @@ export function _calcSetupScreenFields(closes, adjCloses, highs, lows, volumes) 
     ema8: ema(closes, 8),
     ema21: ema(closes, 21),
     ema60: ema(closes, 60),
-    // P1255 (07:M04 계열 잔여 D3): setup 비교(예: price > ema60)는 같은 계열 안에서만 성립한다.
-    // EMA를 price와 같은 close 계열로 계산하고 기준을 선언한다 — 조정 EMA와 raw 가격을 직접
-    // 비교하던 혼합 basis를 제거한다(조정 계열 수익률은 별도 ret* 필드가 소유).
     emaBasis: 'same-close-series-as-price'
   };
 }
@@ -321,11 +267,6 @@ export function deriveFactorQuality({ observedAt, computedAt } = {}) {
   };
 }
 
-// P1399: a daily bar is a completed close only after its session ends. A run during the US
-// session (or before the KR close) sees a partial bar for today; breadth built from it was
-// stamped 'latest-completed-close' while the index inputs used the previous close.
-// 2026-10-13 F07: Tokyo (close 15:30) and Taiwan (close 13:30) listings are judged on their own clock with
-// the same 15-minute settlement margin; any other segment keeps the US rule.
 const SESSION_CLOSE_RULES = Object.freeze({
   us: { zone: 'America/New_York', closeMinutes: 16 * 60 + 15 },
   kr: { zone: 'Asia/Seoul', closeMinutes: 15 * 60 + 45 },
@@ -361,10 +302,6 @@ export function isSessionComplete(date, segment, nowMs = Date.now()) {
   return Number(parts.hour) * 60 + Number(parts.minute) >= closeMinutes;
 }
 
-// The provider's daily chart (one chart.result entry; the producer asks two years, the on-demand reader one) as dated rows, exactly as the producer's fetchHistory builds
-// them: raw OHLC/volume, adjusted close kept separate, a missing value stays null, an empty close is a gap date.
-// v59.75: `closeDigits` keeps a quote convention finer than cents (EUR/USD 1.1544). Without it a price under 10 keeps four
-// decimals and the rest two.
 export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOString(), closeDigits = null, dividendEvents = false } = {}) {
   const ts = res?.timestamp;
   const q0 = res?.indicators?.quote?.[0];
@@ -372,14 +309,8 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
   const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
   if (!Array.isArray(ts) || !Array.isArray(closes)) return Object.assign([], { nullCloseDates: [], meta: null });
   const out = [];
-  // P1683: a session the provider lists with an empty close (KRX 2026-10-12 on Yahoo) is a gap, not a
-  // non-session — remember its date so short-window returns across it are not labelled one session.
   out.nullCloseDates = [];
-  // 2026-10-13 F07: the listing's own currency and exchange zone travel with the series so a Tokyo or
-  // Taipei row is never published as USD on a New York session date.
   out.meta = { currency: res.meta?.currency || null, exchangeTimezoneName: res.meta?.exchangeTimezoneName || null, symbol: res.meta?.symbol || null };
-  // v59.70: the chart's split events (requested with events=split). The closes are already split-adjusted, but an SEC
-  // share count filed before the split is not, so the SEC row fields scale it by the splits after its cover date.
   out.splits = Object.values(res.events?.splits || {})
     .map((event) => ({ date: Number.isFinite(event?.date) ? new Date(event.date * 1000).toISOString().slice(0, 10) : null, ratio: event?.numerator > 0 && event?.denominator > 0 ? event.numerator / event.denominator : null }))
     .filter((event) => event.date && Number.isFinite(event.ratio) && event.ratio > 0 && event.ratio !== 1)
@@ -390,8 +321,6 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
     .map((event) => ({ date: Number.isFinite(event?.date) ? new Date(event.date * 1000).toISOString().slice(0, 10) : null, amount: typeof event?.amount === 'number' && Number.isFinite(event.amount) ? event.amount : null }))
     .filter((event) => event.date && event.amount > 0)
     .sort((a, b) => a.date.localeCompare(b.date));
-  // 2026-11-18: the response lists no `events` key when the range had no dividend, so "none" is evidence only when the caller
-  // asked for them (events=div); dividendFacts publishes a zero only then.
   out.dividendEventsRequested = dividendEvents === true;
   for (let i = 0; i < ts.length; i++) {
     const c = closes[i];
@@ -423,12 +352,6 @@ export function dailyRowsFromYahooChart(res, { fetchedAt = new Date().toISOStrin
   return out;
 }
 
-// The provider's adjusted close (seen on XOM, ex-dividend 2026-11-16, $1.07) is adj[i] = close[i] × Π(1 − div_k / close_{k−1}) over
-// the ex-dates after bar i, so across an ex-date bar j the ratio (adj[j−1]/close[j−1]) / (adj[j]/close[j]) equals
-// f = 1 − div / close[j−1]. A run shortly after the close met that ratio at 1 — the dividend listed, the earlier bars not
-// yet adjusted — and every return, RSI and volatility through the ex-date read the dividend as a price drop. When the
-// observed ratio sits nearer 1 than f, the bars before j are multiplied by f; when it sits nearer f the provider has
-// applied it and nothing changes. Returns a new array and the ex-dates it filled.
 export function completeDividendAdjustment(dates, closes, adjCloses, dividends) {
   const adjusted = Array.isArray(adjCloses) ? [...adjCloses] : [];
   const filled = [];
@@ -448,8 +371,6 @@ export function completeDividendAdjustment(dates, closes, adjCloses, dividends) 
   return { adjCloses: adjusted, filled };
 }
 
-// Only completed sessions enter any factor (P1442); the parallel arrays the factor row reads.
-// `dividends` defaults to the chart's own list; the KR close reconciliation rebuilds the rows, so the producer passes it.
 export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCloseDates: providerNullCloseDates = [], closeReconciliation = null, market = sessionSegmentOfSymbol(sym), nowMs = Date.now(), dividends = fetched?.dividends, dividendEventsRequested = fetched?.dividendEventsRequested === true } = {}) {
   const rows = (fetched || []).filter((row) => !row?.date || isSessionComplete(row.date, market, nowMs));
   const partialSessionDropped = (fetched || []).length - rows.length;
@@ -477,7 +398,6 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
     // With a dividend the provider listed but had not yet applied filled in (completeDividendAdjustment).
     adjCloses: dividendFill.adjCloses,
     ...(dividendFill.filled.length ? { dividendAdjustmentFilled: dividendFill.filled } : {}),
-    // 2026-11-18: the cash dividends through the last completed session, for the row's dividend facts (dividendFacts).
     dividends: (Array.isArray(dividends) ? dividends : []).filter((event) => rows.length && event?.date <= rows[rows.length - 1].date),
     dividendEventsRequested,
     highs:     (rows || []).map(r => (typeof r.high === 'number' && Number.isFinite(r.high) ? r.high : null)),
@@ -513,15 +433,12 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
   // the raw closes that the 52-week range, ADR and VCP already use.
   if (hasCompleteAdjusted) Object.assign(f, priceLevelFactors(r.closes));
   {
-    // P1683: a completed session with an empty provider close inside the 1- or 5-session window makes that
-    // return span an extra session — publish null (the map greys it) instead of a mislabelled move.
     const gaps = Array.isArray(r.nullCloseDates) ? r.nullCloseDates : [];
     const dates = Array.isArray(r.dates) ? r.dates : [];
     const gapInside = (n) => dates.length > n && gaps.some((date) => date > dates[dates.length - 1 - n] && date < dates[dates.length - 1]);
     if (gapInside(1)) f.ret1d = null;
     if (gapInside(5)) f.ret5d = null;
     if (gapInside(10)) f.ret10d = null;
-    // v51.68: VCP 패턴 인식 — OHLCV 60봉 이상일 때 계산 (raw close: 피벗·고점은 차트에 보이는 가격과 같아야 한다)
     if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
       const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
       if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; f.vcpContractions = vcp.contractionCount; f.vcpShrinking = vcp.latestShrinking; }
@@ -533,9 +450,6 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
       r.highs || [], r.lows || [], r.volumes || []
     );
     if (setupFields) Object.assign(f, setupFields);
-    // v57.87: follow-through evidence (pocket pivot, heavy down days, base number, climax signs, down-day resilience) on
-    // the factor price series with raw volume — technical/follow-through.js.
-    // v57.88: a KOSDAQ listing is compared with KOSDAQ only — no silent fallback to KOSPI when ^KQ11 is missing.
     const indexKey = /\.KQ$/i.test(String(r.sym || '')) ? 'kq' : sessionSegmentOfSymbol(r.sym);
     if (r.volumes && r.dates) Object.assign(f, followThroughFields({ dates: r.dates, closes: factorPriceSeries, volumes: r.volumes, gapDates: gaps },
       indexReturns instanceof Map ? indexReturns.get(indexKey) || null : null));
@@ -549,7 +463,7 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     // the quote currency with the derived price/liquidity fields so consumers
     // never have to infer that a numeric amount is USD.
     f.currency = quoteCurrencyOf(r);
-    Object.assign(f, dividendFacts(r)); // 2026-11-18: per-share cash and a ratio in the listing currency, never the close itself
+    Object.assign(f, dividendFacts(r));
     f.listingMarket = listingMarketOfSymbol(r.sym);
     f.dollarVolumeCurrency = f.currency;
     const nativeNotional = dailyNotionalAverage(r.closes, r.volumes, { window: 30 });
@@ -584,8 +498,6 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     f.allowedUseCeiling = 'reference';
     f.rightsId = 'PUBLIC_REFERENCE';
     f.factorObservedAt = r.observedAt;
-    // P1170 (15 D04): barStart와 그 세션 날짜를 분리해 남긴다. factorObservedAt은 호환 필드로
-    // 유지하되 'bar-start' basis를 함께 발행해 관측시각으로 읽히지 않게 한다.
     f.factorBarStart = r.observedAt;
     // F07: the session date is read in the listing's exchange zone (provider zone first, suffix map second).
     const sessionZone = timeZoneForMarket(r.providerMeta?.exchangeTimezoneName || timeZoneForSymbol(r.sym));
@@ -616,11 +528,6 @@ export const LATEST_SESSION_VOLUME_BASIS = Object.freeze({
   fields: Object.freeze(['lastVolume', 'rvol20', 'dollarVolume']),
 });
 
-// 2026-11-18 (owner: 배당수익률): the trailing-year cash dividend from the chart's ex-date events. dividendTtm sums the cash
-// dividends per share with ex-dates in the 365 days to the last completed session (listing currency, as the provider
-// lists them); dividendYieldPct divides it by that session's close. Per-share cash and a ratio, not a price level (P715):
-// the close itself is not written. No dividend in the window publishes zeros only when the request asked for dividend
-// events and the history reaches back the whole year; otherwise the fields are absent.
 export const DIVIDEND_BASIS = 'yahoo-chart-events-ex-date';
 export const DIVIDEND_FACT_FIELDS = Object.freeze(['dividendTtm', 'dividendYieldPct', 'dividendLastExDate', 'dividendCount12m', 'dividendBasis']);
 const DIVIDEND_WINDOW_DAYS = 365;

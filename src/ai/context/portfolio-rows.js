@@ -1,5 +1,3 @@
-// v58.75 (persona review): the redacted holdings line — ticker, sector, weight, return and the valuation basis — moved out
-// of js/aio-workspace.js. The portfolio workbench prompts use it, and the AI panel sends it only after the session consent.
 const signedPct = (value) => `${value >= 0 ? '+' : ''}${value}%`;
 
 export function portfolioRowsLine(root = globalThis) {

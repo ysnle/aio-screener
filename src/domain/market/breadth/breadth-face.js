@@ -4,6 +4,7 @@
 // rules (RULES.breadth, RULES.leadership.distributionDaysAt); nothing here changes the breadth axis or its state.
 import { RULES } from '../../rules/thresholds.js';
 import { signedText } from '../../shared/number.js';
+import { BREADTH_SPEED_WORDS } from '../../briefing/market-read.js';
 
 const B = RULES.breadth;
 const DD_AT = RULES.leadership.distributionDaysAt;
@@ -17,6 +18,8 @@ export const MEASURE_READS = Object.freeze({
   mv: Object.freeze({ kind: 'sign', up: '상승 많음', down: '하락 많음' }),
   dd: 'count'
 });
+
+export const BREADTH_SPEED_METHOD = `방향: 50일선 위 비율의 ${B.speedSessions}거래일 변화가 지난 1년 같은 변화 크기 중앙값의 ${B.speedMultiple}배를 넘으면 '${BREADTH_SPEED_WORDS.down}'·'${BREADTH_SPEED_WORDS.up}', 그 안이면 표시 없음. 판정과 개수는 바꾸지 않습니다.`;
 
 const pp = (value) => `${signedText(value, 0)}%p`;
 const nearest = (value, lines) => lines.map((line) => ({ line, gap: line - value })).sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap))[0] || null;

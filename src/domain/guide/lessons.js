@@ -1,9 +1,3 @@
-// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): the stable concept layer behind every interpretation — the attitude to
-// bring, the strategies worth knowing, what not to be fooled by and what to trust. Each lesson is a general principle
-// (never an instruction about the reader's own holdings, R698) with a link to the matching concept in the principles
-// library (public-data/principles/lesson-library.json ids). `live(ctx)` returns the sentence that ties the lesson to
-// today's measured state, or null when today's data does not touch it — so the lesson shown always matches the
-// situation, and the same registry serves the screens, the AI context and the scenario-state producer.
 import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
 import { shortDate } from '../content/date-labels.js';
@@ -22,7 +16,6 @@ const branch = (ctx, id) => ctx?.crossroads?.items?.find((item) => item.id === i
 // A tied or held crossroads has no centre scenario for a lesson to quote.
 const lead = (ctx) => { const read = scenarioLead(ctx?.crossroads); return read.state === 'lead' ? read.items[0] : null; };
 const short = (title) => String(title || '').split(' — ')[0];
-// v58.74 (text audit): a lesson quoting the six-axis read names the close it came from — '오늘' on a Saturday was Friday's.
 const closeLead = (ctx) => { const at = String(ctx?.regime?.asOf || ''); return hasLeadingIsoDay(at) ? `${Number(at.slice(5, 7))}/${Number(at.slice(8, 10))} 미국 종가 기준` : '오늘'; };
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
 const liveIds = (ctx) => new Set((ctx?.direction?.live || []).map((row) => row.id));
@@ -151,7 +144,6 @@ export const LESSONS = Object.freeze([
     }
   },
   {
-    // v58.32 expertise review: which end of the curve moved says why rates moved (curveDynamics, 20 sessions of 2y/10y).
     id: 'read-the-curve', kind: 'strategy', concept: 'E2', title: '금리는 어느 쪽 끝이 움직였는지로 읽기',
     principle: '"금리가 내렸다"만으로는 좋고 나쁨을 알 수 없습니다. 2년물(정책 기대)과 10년물(성장·물가·기간 프리미엄) 중 어느 쪽이 더 움직였는지가 이유를 알려 줍니다.',
     why: '단기금리가 더 내리면 인하 기대(경기 둔화 또는 물가 안정), 장기금리가 더 오르면 재정·물가·기간 프리미엄 부담입니다. 같은 금리 하락도 이유에 따라 주식에 반대로 작용합니다.',
@@ -162,7 +154,6 @@ export const LESSONS = Object.freeze([
     }
   },
   {
-    // v58.32 expertise review: S&P 500 consensus revision breadth (buildIndexEarnings) — the direction of estimates.
     id: 'earnings-revisions', kind: 'trust', concept: 'H2', title: '이익 전망이 고쳐지는 방향',
     principle: '주가는 기대보다 먼저 흔들리지만, 애널리스트가 이익 전망을 올리는 회사가 많은지 내리는 회사가 많은지는 기업 현장의 변화를 더 꾸준히 보여 줍니다.',
     why: '주가는 결국 이익을 따라갑니다. 전망을 내리는 회사가 늘어나는 동안의 반등은 오래가기 어렵고, 올리는 회사가 늘면 조정이 와도 바탕이 남습니다.',
@@ -224,9 +215,6 @@ export const LESSONS = Object.freeze([
   }
 ]);
 
-// Lessons a specific screen raises (chart, screener) — in the full library everywhere, shown live on their own screen.
-// Handed over by "전문성 공백 점검" (expertise-gap REPORT 2026-10-19): chart-reading pitfalls, the screener rank's lack of
-// predictive evidence, and comparing a level with expectations and its own history.
 const SCREEN_LESSONS = [
   {
     id: 'level-vs-expectation', kind: 'trust', concept: 'H2', title: '숫자는 기대·자기 역사와 비교해서',
@@ -262,8 +250,6 @@ const SCREEN_LESSONS = [
     id: 'rank-is-not-edge', kind: 'trap', scope: 'screener', concept: 'H3', title: "'순위가 높으면 오른다'",
     principle: '스크리너의 순위는 조건에 맞는 정도를 정렬한 것이지 앞으로의 수익을 예측한 점수가 아닙니다. 순위가 수익과 같은 방향이었는지는 순위를 먼저 적어 두고 나중에 결과를 채운 기록으로만 말할 수 있습니다.',
     why: '과거 데이터로 만든 순위는 살아남은 종목만 보는 편향과 우연에 쉽게 속습니다. 순위는 살펴볼 후보를 줄이는 도구입니다.',
-    // Expertise review 2 (2026-10-19): what the forward record says now (candidate-record independentEvidence), so the
-    // lesson never states a verdict the record has not reached. It describes the whole ranking, not one stock.
     screenWide: true,
     live: (ctx) => {
       const ind = ctx?.rankEvidence;
@@ -301,11 +287,6 @@ export function selectLessons(ctx, { perKind = 2, limit = 7, scope = 'market' } 
   return picked.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind)).map(({ live, ...row }) => row);
 }
 
-// Which principles each screen raises (the 오늘 card uses selectLessons over the whole market scope). Order is the
-// screen's own priority; a lesson today's data touches moves ahead of the rest.
-// First-users run-6 (owner 2026-10-31): each lesson closes exactly one screen — the one whose subject it is. The same
-// lesson on two routes read as filler on the second; this registry is the one place that decides where a lesson lives
-// (the per-route topic filter in screen-lessons.js that patched the overlap on the market screens is gone).
 export const SCREEN_LESSON_IDS = Object.freeze({
   signal: ['one-day-move', 'trust-credit', 'earnings-revisions'],
   breadth: ['watch-participation', 'index-high', 'trust-closes'],

@@ -1,7 +1,3 @@
-// v59.46 (structure pilot): the date-only session stamp and the "rows on one close" rule, once.
-// Rows of a cross-section (theme members, sector constituents, KR names) can sit on different closes; a figure built
-// from them must use only the rows on the latest close among them, or an older session is read as current. The format
-// check `/^\d{4}-\d{2}-\d{2}$/` was copied into 130+ places, some on the full stamp and some on its first 10 characters.
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** 'YYYY-MM-DD' when the value is exactly that, else null. */

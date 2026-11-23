@@ -47,6 +47,35 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-hero__main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .mk-hero__verdict-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 14px; }
 .page .mk-hero__verdict { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.03em !important; line-height: 1.05; color: var(--color-text-primary); }
+/* The opening read heads 오늘 and 시장 상태 — the lede (one plain sentence, large), the fall bars, the diagnosis line,
+   one small record line (market-story.js paintOpening); the verdict word follows, small. */
+.mk-opening { display: flex; flex-direction: column; gap: 10px; }
+.mk-opening[hidden] { display: none; }
+.opening-line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
+.opening-line[data-part="lede"] { font-size: 18px; font-weight: 600; line-height: 1.45; letter-spacing: -0.01em; }
+.opening-line[data-part="records"] { font-size: 12px; color: var(--color-text-secondary); }
+.mk-opening-kr { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
+.opening-line__label { font-weight: 700; color: var(--color-text-primary); }
+.fall-bars { --fall-name: 9.5em; --fall-room: 52px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.fall-bars__foot, .fall-bars__row { display: grid; grid-template-columns: var(--fall-name) minmax(0, 1fr); align-items: center; gap: 0 8px; }
+.fall-bars__caption { color: var(--color-text-secondary); }
+.fall-bars__axis { position: relative; height: 32px; margin-right: var(--fall-room); }
+.fall-bars__tick { position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; transform: translateX(-50%); font-size: var(--fs-min); line-height: 1.3; white-space: nowrap; color: var(--color-text-secondary); }
+.fall-bars__tick b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.fall-bars__list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.fall-bars__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; min-width: 0; line-height: 1.3; }
+.fall-bars__name b { font-weight: 600; color: var(--color-text-primary); }
+.fall-bars__stage { font-size: var(--fs-min); color: var(--color-text-secondary); }
+.fall-bars__track { position: relative; height: 10px; margin-right: var(--fall-room); border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.05); }
+.fall-bars__fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--radius-full); background: var(--color-data-down); }
+.fall-bars__row[data-part="broad"] .fall-bars__fill { opacity: 0.5; }
+.fall-bars__mark { position: absolute; top: -4px; bottom: -4px; border-left: 1px dashed rgba(var(--ink-rgb), 0.45); }
+.fall-bars__value { position: absolute; top: 50%; margin-left: 4px; padding: 0 2px; transform: translateY(-50%); border-radius: var(--radius-inner); background: var(--color-background-card); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
+@media (max-width: 600px) {
+  .fall-bars { --fall-name: 7.2em; }
+}
+.page .mk-hero.has-opening .mk-hero__verdict { font-size: 14px; }
+.mk-opening__table { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); }
 .mk-hero__shape { font-size: 14px; color: var(--color-text-secondary); }
 .mk-hero__shape:empty { display: none; }
 .mk-hero__side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }

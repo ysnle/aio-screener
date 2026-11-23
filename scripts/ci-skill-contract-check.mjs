@@ -175,7 +175,7 @@ if (errors.length) {
 }
 
 console.log(`Skill contract check OK: ${skills.length} skill(s), ${Object.keys(commandForSkill).length} command wrapper(s).`);
-}],
+}, 'code'],
 // ── section skill-evals (was ci-skill-eval-fixture-check.mjs) ──
 ['skill-evals', async () => {
 const { existsSync, readFileSync, readdirSync } = await import('node:fs');
@@ -214,5 +214,5 @@ if (errors.length) {
 }
 const caseCount = Object.values(data.skills).reduce((sum, cases) => sum + cases.length, 0);
 console.log(`Skill eval fixtures OK: ${Object.keys(data.skills).length} skills, ${caseCount} cases; behavioral execution remains a separate evidence level.`);
-}],
+}, 'code'],
 ]);

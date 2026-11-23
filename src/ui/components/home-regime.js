@@ -16,8 +16,6 @@ export function summaryLine(regime) {
   return `양호 ${favorable}, 중립 ${neutral}, 부담 ${burden}${unknown ? `, 확인 불가 ${unknown}` : ''}`;
 }
 
-// Home reads the same credit axis (20-session HY change from macro-history) as 시장 상태; without it home
-// showed '집중 유지 4/4' with credit '양호' while 시장 상태 showed 3/4 with credit '중립'.
 export function requestRegimeMacroHistory(root, doc, pageId, rerender) {
   if (!sharedArtifactIsStale(root, MACRO_HISTORY.key, MACRO_HISTORY)) return;
   refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => {
@@ -64,6 +62,7 @@ function paintKoreaLine(doc, root) {
 
 let sessionLean = null;
 let homeAhead = null;
+let homeOpening = null;
 
 // Home: one line plus the axis states, linking to the full board.
 // The market inputs are gathered once per render; the returned regime is handed to renderDailyLoop. The macro-history
@@ -95,9 +94,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   if (!held) set('home-hero-headline', regime.available ? (regime.holdReason || (regime.overall === '판정 보류' ? `미국 6개 지표 ${summaryLine(regime)}` : '') || regime.horizonLine?.text || '') : historyWaitText(root));
   const basisLine = held ? null : doc.getElementById('home-hero-headline');
   if (basisLine) basisLine.title = regime.available && !regime.holdReason && regime.horizonLine ? regime.horizonLine.detail : '';
-  // The hero sentence is the regime's one plain line (heroLine); the full conflict sentences with
-  // their numbers and rules move into the 6개 축 근거 fold under the axis chips.
-  if (!held) set('home-hero-desc', regime.heroLine || '');
+  if (!held) set('home-hero-counts', regime.available ? summaryLine(regime) : '');
+  if (!held) (homeOpening ||= import('./market-story.js')).then((mod) => mod.renderHomeOpening({ documentRef: doc, root, interpretation, regime })).catch(() => { homeOpening = null; });
   // 오늘 keeps the verdict word and its sentence with one link to 시장 상태; the axis chips, 판정 근거, the leaders line and
   // the month tilt live there (renderRegimePage).
   paintKoreaLine(doc, root);

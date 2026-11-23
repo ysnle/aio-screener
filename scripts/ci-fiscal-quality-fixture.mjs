@@ -2,8 +2,8 @@
 // Does not import or execute the data producer, fetch a provider, or write artifacts.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseFiscalHistory, renderFiscalRead, fiscalBarGeometry, formatFiscalAmount, formatFiscalCompact } from '../src/ui/components/fiscal-read.js';
-import { buildFiscalRead, reconcileFiscalHistory } from '../src/domain/fundamental/fiscal-read.js';
+import { renderFiscalRead, fiscalBarGeometry, formatFiscalAmount, formatFiscalCompact } from '../src/ui/components/fiscal-read.js';
+import { buildFiscalRead, reconcileFiscalHistory, parseFiscalHistory } from '../src/domain/fundamental/fiscal-read.js';
 import { fiscalMetrics, buildPeerRead } from '../src/domain/fundamental/peer-read.js';
 
 const fixture = { symbol: 'AEHR', cik: '0001040470', accession: '0001654954-26-006919', periodType: 'FY', observedAt: '2026-05-29', filedAt: '2026-07-27',

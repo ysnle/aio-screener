@@ -1,11 +1,3 @@
-// v59.70 (owner 2026-11-07): one story read from start to end — what the market is talking about (attention from the
-// research channels and the movers whose own headline names it), how to read it (the analysis note's steps), whether
-// the prices and indicators back it yet (the macro-crossroads branch it would feed: met conditions, market pricing,
-// past frequency), what would confirm or break it (the branch's next release and invalidation), and what each general
-// response costs if it is right (the branch's own choices). Nothing new is scored here: every judgement is the
-// crossroads engine's, so 시장 상태's story card, 연결해서 보면 and the scenario fold cannot disagree. A story that is
-// relayed a lot while its branch's conditions are mostly unmet says exactly that — attention is not confirmation
-// (NARRATIVE-UX-HANDOFF: 관측과 해석 분리, 반대 근거, 다음에 볼 것; no probability, no grade, no personal instruction).
 import { NARRATIVE_BY_ID } from './narratives.js';
 import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { withTopicParticle } from '../content/korean-particle.js';

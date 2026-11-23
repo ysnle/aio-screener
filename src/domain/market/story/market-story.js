@@ -1,14 +1,15 @@
-// v59.55 (owner 11/1, "결과만 보여주고 있어"): 시장 상태's opening read — what moved over the last week of US sessions, which
-// reports moved it, whether rates, credit, oil, gold and Korea confirm the same story, and what in the coming week would
-// change it. Every sentence is chosen by a rule over the closes (history.json), FRED (macro-history.json), the earnings
-// briefs (event-briefs.json) and the earnings calendar; nothing here names a date, a company or a level by hand except
-// SCHEDULED_EVENTS.
 import { MOVER_BY_SYMBOL } from '../../briefing/market-movers.js';
 import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { earningsFilterMs, releaseAtMs } from '../../briefing/schedule.js';
 import { policyCycle } from '../../macro/macro-signals.js';
-import { seriesOf } from '../../macro/macro-read.js';
+import { seriesOf, sahmGap, claimsTrend } from '../../macro/macro-read.js';
+import { claim, say, sayJoin, NOTHING } from '../../shared/claim.js';
+import { readIndexLongrun, LONGRUN_DEFINITION } from '../indices/long-run.js';
+import { fallFrame, stageOf } from './fall-frame.js';
+import { sessionPointBack } from '../session/close-series.js';
+import { sessionStep } from '../session/move-size.js';
+import { shortDate, shortDateAgainst } from '../../content/date-labels.js';
 import { SCHEDULED_EVENTS as REGISTRY } from '../../briefing/scheduled-events.js';
 import { indexLevels, levelValue, levelsRead } from '../indices/index-levels.js';
 import { historyFieldMeta } from '../indices/history-meta.js';
@@ -19,30 +20,21 @@ import { oasDelta20Bp } from '../../briefing/market-read.js';
 import { creditJudgement, creditReading, cccTailLine } from '../../briefing/credit-reading.js';
 import { vixBand } from '../sentiment/narrative.js';
 
-// v59.70 (owner 11/4): one week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
-// sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
 export const STORY_SESSIONS = MARKET_WINDOWS.week;
 export const STORY_RULE = Object.freeze({
   flatPct: 1, leaderMovePct: 2, leaderGapPct: 2, // concentration: |move| under flatPct is flat; NDX ±leaderMovePct with RSP leaderGapPct apart is narrow
-  oilPct: 5, goldPct: 3, koreaSemisPct: 3 // oil and gold moves, KOSPI tracking SOXX (the leadership proxy, v59.70)
+  oilPct: 5, goldPct: 3, koreaSemisPct: 3
 });
 // A quiet ten-year can hide two legs that cancel (real +12bp, breakeven -11bp): an offset when the legs point opposite
 // ways and either passed the rate line on its own. One rule for the week here and the 20 sessions of the 매크로 chapter.
 export const ratesLegsOffset = (real, be) => real.bp * be.bp < 0 && Math.max(Math.abs(real.bp), Math.abs(be.bp)) >= RULES.crossAsset.rate20dBp;
 
-// Dated events no collected calendar carries. v59.62: read from the one registry (briefing/scheduled-events.js); this
-// file kept its own copy of the midterm, so a moved or added date had to be written twice.
 export const SCHEDULED_EVENTS = Object.freeze(REGISTRY.filter((event) => event.marketDate && event.storyWhy)
   .map((event) => Object.freeze({ date: event.marketDate, title: event.storyTitle || event.label, why: event.storyWhy })));
 
 const NON_AI_LAYERS = new Set(['ai-adopter', 'ai-exposed', 'limited']);
 const REPORT_WEIGHT_MIN = 1; // % of the S&P 500 — a smaller report outside the mover list does not change the week's read
-// v59.74 (weekly outlook review 11/7): a week with no report at 1% left the list empty while CSCO 0.64% and AMAT 0.46%
-// reported; the two heaviest at this floor fill an empty week (Moderna 0.1% stays out, v59.70).
 const REPORT_WEIGHT_FALLBACK = 0.3;
-// v59.74: the biggest single session of the window is named when the S&P 500 moved at least this much (11/5 -4.4% was
-// missing from a lead that read only the five-session totals), and a session with this small a share of advancing
-// members is named as a broad sell-off even when the week's equal-weight total stayed small.
 const BIG_DAY_PCT = 2;
 const BROAD_SELL_ADVANCE = 0.25;
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -56,18 +48,11 @@ export function dayLabel(date) {
 const pctText = (value, digits = 1) => signedText(value, digits, '%');
 const bpText = (value) => signedText(value, 0, 'bp');
 
-// The US sessions: weekday rows with an S&P 500 close (weekend rows carry Friday forward). Feature audit 2026-11-02: a
-// weekday row written before that day's close carries the prior close (fieldMeta.spx.sessionDate is the earlier day),
-// so it is not a session — counting it made "10/12 → 11/2, 15거래일" out of the 14 sessions 10/12 → 10/30.
 function usSessions(history) {
   return (Array.isArray(history) ? history : []).filter((row) => row?.date && weekday(row.date) && readNumber(row.spx) !== null
     && (!historyFieldMeta(row, 'spx')?.sessionDate || historyFieldMeta(row, 'spx').sessionDate === row.date));
 }
 
-// A field's close on `from` (else the nearest earlier close) and its latest close on or before `to`.
-// v59.70: read from the session-keyed close series (buildCloseSeries), as the verdict table's 5일 변화 is. The row dates
-// carry a prior close forward (the 11/2 row held the 10/30 Nasdaq-100 and WTI), so a row-date read printed NDX -3.0% and
-// WTI +0.8% for the week the table measured at -4.4% and -6.6%.
 function span(history, field, from, to) {
   let start = null; let end = null;
   for (const point of buildCloseSeries(history, field, { market: closeSessionMarket(field) || 'US' })) {
@@ -108,12 +93,6 @@ function concentrationOf(m) {
   return { kind: spx < 0 ? 'broad-down' : 'broad-up' };
 }
 
-// The ten-year move split into the real yield and breakeven inflation (FRED DFII10 + T10YIE ≈ DGS10).
-// v59.70 (screen review 6): the 10-year line is the market close series every other screen reads (history tnx, the
-// 5거래일 column of the verdict table); the FRED legs only split it into real yield and inflation expectations.
-// The 10-year window is the rates axis's own: `sessions` closes back from the 10-year's last close on or before `to`,
-// read only while that close is within the axis's lag. A 10-year two sessions behind the S&P 500 therefore prints the
-// axis's 5-session change dated by its own close, and the FRED legs split that same span of sessions.
 function tenYearSpan(history, sessions, to) {
   const change = closeChange(history, 'tnx', sessions, { through: to });
   if (!change || !isUsable(alignInput(change.to.date, to))) return null;
@@ -143,8 +122,6 @@ function ratesOf(macroHistory, history, from, to, sessions) {
   return { ten, real, be, kind };
 }
 
-// v59.70 (screen review 5): the week's spread change is the five-session OAS reading of oasDelta20Bp — the same
-// observations, dates and session filter as the verdict table and 매크로 — not a calendar span cut at the stock dates.
 function oasWeek(macroHistory, id, from, to, sessions) {
   const read = sessions === 5 ? oasDelta20Bp(macroHistory, id, to) : null;
   if (!read || read.d5 == null) return macroSpan(macroHistory, id, from, to);
@@ -155,10 +132,6 @@ function creditOf(macroHistory, from, to, sessions) {
   const hy = oasWeek(macroHistory, 'hyOas', from, to, sessions);
   if (!hy) return null;
   const ccc = oasWeek(macroHistory, 'cccOas', from, to, sessions);
-  // v59.66: one widening line for every screen — +33bp read as '신용 불안은 아닙니다' here while 매크로 called it 경계 쪽.
-  // v59.70: the five-session lines of the credit axis (RULES.credit.widen5dBp / widenWatch5dBp), matching the week of the table.
-  // The kind is the credit axis's own judgement (creditJudgement) on the story's last date, so
-  // the story never calls 'stress' what 시장 상태 and 매크로 call 중립, and its sentence is creditReading's.
   const C = RULES.credit;
   const judgement = creditJudgement(macroHistory, hy.toDate || to || null);
   // The weak tail is CCC's own record (cccTailLine), floored at the axis's five-session widening line.
@@ -168,25 +141,9 @@ function creditOf(macroHistory, from, to, sessions) {
     : (judgement?.hy20 != null && judgement.hy20 >= C.widen20dBp) || hy.bp >= C.widenWatch5dBp ? 'widening' : cccTail || judgement?.lowerRated ? 'weak-tail' : 'calm';
   return { hy, ccc, kind, judgement, cccTail };
 }
-// The lead's credit clause names the window that set the kind: a level, the five-session move or the 20-session move.
-// The week's bp beside a 20-session judgement read '하이일드가 -10bp 벌어져 경계 쪽입니다' (2025-11-25).
-export function creditLead(credit, hySpan = '') {
-  const { kind, hy, judgement: j } = credit;
-  const C = RULES.credit;
-  const week = `${hySpan}${bpText(hy.bp)}`;
-  const month = j?.hy20 != null ? `20거래일 ${bpText(j.hy20)}` : week;
-  if (kind === 'stress') return j?.cause?.level ? `하이일드 스프레드가 ${(j.hyBp / 100).toFixed(2)}%로 부담 기준(${C.stressAtBp / 100}%) 위라 신용 쪽 경계가 필요합니다`
-    : `하이일드 스프레드가 ${j?.cause?.fast5 || hy.bp >= C.widenWatch5dBp ? week : month} 벌어져 신용 쪽 경계가 필요합니다`;
-  if (kind === 'widening') return `하이일드가 ${hy.bp >= C.widenWatch5dBp ? week : month} 벌어져 경계 쪽입니다`;
-  if (kind === 'weak-tail') return credit.cccTail ? `CCC 등급이 ${hySpan}먼저 벌어지는 중입니다` : `하이일드는 ${week}로 조용하지만 CCC 등급이 석 달째 더 벌어져 있습니다`;
-  return `하이일드 스프레드는 ${week}로 신용 불안은 아닙니다`;
-}
-
 const RATE_READ = Object.freeze({
   'growth-fear': '대부분 실질금리 하락이라 물가 안도보다 성장 걱정에 안전자산인 국채로 돈이 옮겨 간 쪽입니다',
   'inflation-relief': '대부분 기대인플레 하락이라 물가 안도 쪽입니다',
-  // QA 2026-11-07: the week read 기대인플레 하락 → 물가 안도 while 1년 중 위치 and 금리와 신용 on the same page called the same fall
-  // a flight to safety, because high yield widened with it. A fall in yields beside widening spreads is read the way those cards read it.
   flight: '기대인플레 하락이 컸지만 하이일드 스프레드가 함께 벌어져, 물가 안도보다 경기·신용 걱정 속 국채로 피한 쪽으로 읽습니다',
   'real-up': '대부분 실질금리 상승이라 긴축 부담 쪽입니다',
   'inflation-fear': '대부분 기대인플레 상승이라 물가 걱정 쪽입니다',
@@ -215,8 +172,6 @@ export function earningsMovers(briefs, { from, to } = {}) {
     .filter((row) => (seen.has(row.symbol) ? false : seen.add(row.symbol)));
 }
 
-// v59.74: the window's largest S&P 500 session, its Nasdaq-100 move, the share of advancing members and a fixed event
-// (SCHEDULED_EVENTS) dated in the window before it. Order in time only — the event is not named as the cause.
 export function biggestDay(history, { from, to, events = SCHEDULED_EVENTS } = {}) {
   const spx = buildCloseSeries(history, 'spx', { market: 'US' }).filter((p) => readNumber(p.value) !== null);
   const ndx = new Map(buildCloseSeries(history, 'ndx', { market: 'US' }).filter((p) => readNumber(p.value) !== null).map((p) => [p.date, Number(p.value)]));
@@ -251,28 +206,15 @@ function bigDayText(day) {
   return `가장 큰 하루는 ${lead}${dayLabel(day.date)} ${parts.join(', ')}${breadth || '였습니다'}.`;
 }
 
-function lead({ n, moves, concentration, drivers, rates, credit, asOf = null, bigDay = null }) {
+function lead({ drivers, rates, asOf = null, bigDay = null }) {
   const parts = [];
-  const f = (id) => pctText(moves[id].pct);
-  // v59.74: "시장 전체가 팔린 것은 아닙니다" stood beside a session where 15% of the members rose; that week the claim is
-  // limited to the five-session total.
-  const broadDay = bigDay && bigDay.pct < 0 && bigDay.advance !== null && bigDay.advance <= BROAD_SELL_ADVANCE;
-  if (concentration.kind === 'narrow-down') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. ${broadDay ? '주간 합계로는 하락이 대형 기술주에 몰렸습니다.' : '하락은 대형 기술주에 몰렸고 시장 전체가 팔린 것은 아닙니다.'}`);
-  else if (concentration.kind === 'narrow-up') parts.push(`최근 ${n}거래일 나스닥 100 ${f('ndx')}, 동일가중 S&P 500 ${f('rsp')}. 상승은 대형 기술주에 몰렸습니다.`);
-  else if (concentration.kind === 'broad-down') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 동일가중 ${f('rsp')}로 하락이 시장 전반에 퍼졌습니다.`);
-  else if (concentration.kind === 'broad-up') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 동일가중 ${f('rsp')}로 상승이 고르게 퍼졌습니다.`);
-  else if (concentration.kind === 'flat') parts.push(`최근 ${n}거래일 S&P 500 ${f('spx')}, 나스닥 100 ${f('ndx')}로 뚜렷한 방향이 없었습니다.`);
   if (bigDay) parts.push(bigDayText(bigDay));
   // Same direction as the index on the session after its report; the index contribution is not measured here, so the
   // sentence does not say the name led the move.
   if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}로 지수와 같은 방향이었습니다.`);
   const tail = [];
-  // v59.56 (screen review): the split comes from FRED, a session behind the closes; the span is named when it ends earlier.
   const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
   if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${rateRead(rates)}`);
-  // v59.70: the ICE spreads post a business day behind the closes too; the span is named the same way.
-  const hySpan = credit && asOf && credit.hy.toDate < asOf ? `(${dayLabel(credit.hy.toDate).split('(')[0]}까지) ` : '';
-  if (credit) tail.push(creditLead(credit, hySpan));
   if (tail.length) parts.push(`${tail.join('. ')}.`);
   return parts.join(' ');
 }
@@ -319,7 +261,6 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   }
   const vix = span(history, 'vix', start, asOf); const fg = span(history, 'fg', start, asOf);
   if (vix) rows.push({ id: 'mood', label: '심리', value: [`VIX ${vix.from.toFixed(1)} → ${vix.to.toFixed(1)}`, fg ? `공포·탐욕 ${Math.round(fg.from)} → ${Math.round(fg.to)}` : null].filter(Boolean).join(' · '),
-    // The band is narrative.vixBand (18/25/32, RULES.volatility); a 30/20 ladder here called 25.6 '경계' on its own edges.
     read: vix.to >= RULES.volatility.calmBelow ? `VIX ${vix.to.toFixed(1)}는 ${vixBand(vix.to).label}입니다.` : vix.to - vix.from >= 3 ? `VIX가 ${(vix.to - vix.from).toFixed(1)} 올랐지만 ${vixBand(vix.to).label}입니다.` : '조용한 편입니다.' });
   return rows;
 }
@@ -334,16 +275,10 @@ const releaseWhy = (event, story, hiking = false) => (event.id === 'us-nfp'
     : event.id === 'us-fed-rate' ? '금리 결정과 함께 앞으로의 경로 발언을 봅니다.'
       : event.id === 'us-retail' ? '소비가 버티는지, 성장 걱정이 소비로 번지는지 봅니다.' : '결과에 따라 지금 시나리오가 바뀔 수 있습니다.');
 
-// v59.74 (weekly outlook review 11/7): every collected release in the window is listed (crossroads.events), not only the
-// one that decides the tied branches — that rule skipped the 11/10 CPI for the 11/17 retail sales, which fell outside the
-// eight days, and the list had no release at all. `storySymbols` (symbol → story label, from the market-day narratives)
-// lets a report the stories are about onto the list whatever its index weight (CoreWeave, outside the S&P 500).
 function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], storySymbols = null, story, nowMs, macroHistory = null, days = 8 }) {
   const out = [];
   const hiking = policyCycle(seriesOf(macroHistory, 'fedTargetUpper')).hiking;
   const horizon = nowMs + days * 86400000;
-  // v59.70 (screen review 9): an item belongs to the week ahead from the reader's own day — the KST date. A US event dated
-  // 11/3 (the midterm vote) is over by 11/4 KST; the old 12-hour grace on a UTC day kept it at the top of '다음 주'.
   const kstToday = new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
   const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && String(date) >= kstToday && ms <= horizon; };
   // A US release or report carries an ET date; with a known clock it is 'next' until that moment, not until KST midnight
@@ -362,9 +297,6 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
       why: `${releaseWhy(event, story, hiking)}${decides ? ' 지금 맞서는 시나리오를 가르는 발표입니다.' : ''}` });
   }
   const aiStory = story.concentration.kind === 'narrow-down' || story.concentration.kind === 'narrow-up';
-  // v59.70 (step 3 screen audit): a quiet week listed Moderna 0.1% as "대형 기술주 쏠림이 이어질지 가르는 실적" — the line's
-  // sentence followed the market's story, not the company, and any weight qualified. A report is on the list when its
-  // index weight is at least REPORT_WEIGHT_MIN or it is on the market-mover list; the AI sentence needs a mover on the line.
   const pending = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
     .filter((row) => row?.symbol && row.date && readNumber(row.epsActual) === null && ahead(reportAt(row), row.date));
   const byWeight = (a, b) => (Number(b.indexWeight) || 0) - (Number(a.indexWeight) || 0);
@@ -389,15 +321,12 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
     : `이 기간 S&P 500 실적 가운데 ${byLoad.indexOf(rows) + 1}번째로 비중이 큰(${sessionWeight(rows).toFixed(1)}%) 발표입니다. 같은 업종의 가이던스를 함께 확인합니다.`);
   for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date) || slotOf(a[0]) - slotOf(b[0]))) {
     const { date, hour } = rows[0];
-    // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
-    // tickers for all ('애플 · PLTR' mixed the two; no Korean name is guessed for a company outside the mover list).
     const allKo = rows.every((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo);
     const nameOf = (row) => (allKo ? MOVER_BY_SYMBOL[row.symbol].nameKo : row.symbol);
     out.push({ kind: 'earnings', date, slot: slotOf(rows[0]), when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
       names: rows.map(nameOf).join(' · '),
       title: `${rows.map(nameOf).join(' · ')} 실적 (S&P 500 비중 ${rows.length === 1 ? `${Number(rows[0].indexWeight).toFixed(1)}%`
         : rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')})`,
-      // v59.56 (screen review): two report days printed the same sentence; the later one says it continues the question.
       why: !(aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]))
         ? (fallbackWeek ? fallbackWhy(rows)
           : rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
@@ -410,9 +339,7 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
       names: row.symbol, title: `${row.symbol} 실적`, story: storyOf(row),
       why: `지금 많이 오가는 '${storyOf(row)}' 이야기의 당사자입니다. 그 이야기가 숫자로 맞는지 이 실적에서 확인합니다.` });
   }
-  // v59.70 (screen review): one day's reports in session order — 장 전 before 장 마감 후 (QCOM after the close was listed first).
   out.sort((a, b) => a.date.localeCompare(b.date) || (a.slot ?? 1) - (b.slot ?? 1));
-  // v59.70 (owner 11/4): a daily item names its last observation — FRED's ICE spreads post a business day behind the closes.
   if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: `${story.credit.ccc ? 'CCC · ' : ''}하이일드 스프레드 (${dayLabel(story.credit.hy.toDate).split('(')[0]} 관측)`, asOf: story.credit.hy.toDate, why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
   if (story.moves.wti && story.moves.wti.pct >= STORY_RULE.oilPct) out.push({ kind: 'daily', date: '', when: '매일', title: `유가 (${dayLabel(story.moves.wti.toDate).split('(')[0]} 종가)`, asOf: story.moves.wti.toDate, why: '더 오르면 물가 경로와 금리 인하 기대가 함께 바뀝니다.' });
   return out.slice(0, 6);
@@ -446,15 +373,325 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   const story = { available: true, asOf, start, sessions, concentration, rates, credit, moves };
   story.bars = MOVE_ROWS.filter(([id]) => moves[id]).map(([id, label, group]) => ({ id, label, group, pct: moves[id].pct, asOf: moves[id].toDate }));
   story.bigDay = biggestDay(history, { from: start, to: asOf });
-  story.lead = lead({ n: sessions, moves, concentration, drivers, rates, credit, asOf, bigDay: story.bigDay });
+  story.lead = lead({ drivers, rates, asOf, bigDay: story.bigDay });
   story.checks = confirmations({ moves, rates, credit, macroHistory, history, asOf, start });
   // The table: every index-moving core name, then the four largest other moves of 8% or more.
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),
     ...reported.filter((row) => !row.core && Math.abs(row.pct) >= 8).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 4)];
   story.week = weekAhead({ calendar, nextEvent, decidingEvent, events, storySymbols, story, nowMs, macroHistory });
-  // v59.62: where the indexes sit on their charts (index-levels.js) — distance from the high, the 50/200-day lines, the
-  // support below and a double top at or through its neck. Not a cross-asset check, so it is its own block.
   const levels = indexLevels(history);
   story.levels = levels.length ? { rows: levels.map((level) => ({ id: level.field, label: level.label, value: levelValue(level).replace(`${level.label} `, '') })), read: levelsRead(levels) } : null;
   return story;
+}
+
+export const OPENING_INDEXES = Object.freeze([
+  Object.freeze({ id: 'sox', label: '반도체', full: '필라델피아 반도체 지수(SOX)', topic: '는', part: 'leaders', longrun: 'sox' }),
+  Object.freeze({ id: 'ndx', label: '나스닥 100', topic: '은', part: 'leaders', longrun: 'ndx' }),
+  Object.freeze({ id: 'spx', label: 'S&P 500', topic: '은', part: 'broad', longrun: 'spx' }),
+  Object.freeze({ id: 'dow', label: '다우', topic: '는', part: 'broad', longrun: null }),
+  Object.freeze({ id: 'rsp', label: '동일가중', topic: '은', part: 'broad', longrun: null }),
+  Object.freeze({ id: 'kospi', label: '코스피', topic: '는', part: 'korea', longrun: 'kospi' })
+]);
+export const DIAGNOSIS_WORDS = Object.freeze({ unwind: '쏠림 되돌림', recession: '침체형', stress: '금융 불안형', hold: '판단 보류' });
+const OPENING_MOVES = Object.freeze([1, 2, 5]);
+const yearOf = (date) => String(date || '').slice(0, 4);
+const yearMonth = (date) => `${yearOf(date)}년 ${Number(String(date).slice(5, 7))}월`;
+
+// The largest n-session fall of the record so far: every earlier window of the same field is smaller.
+function recordLargest(series, n, value) {
+  if (!(value < 0) || series.length <= n + 1) return false;
+  for (let i = n; i < series.length - 1; i += 1) if ((series[i].value / series[i - n].value - 1) * 100 <= value) return false;
+  return true;
+}
+
+function longrunRead(longrun, index, horizon, series, date) {
+  if (!longrun || !index) return null;
+  const read = readIndexLongrun(longrun, { index, horizon, recent: series.map((point) => [point.date, point.value]) });
+  // A table newer than the session read (a replay of an earlier day) is not that day's standing.
+  return read && read.liveThrough === date ? read : null;
+}
+
+/** One index's facts at `through`: 1/2/5-session moves, the fall from its closing high, and its standing. */
+function openingRow(history, spec, through, longrun) {
+  const market = closeSessionMarket(spec.id) || 'US';
+  const series = buildCloseSeries(history, spec.id, { through, market }).filter((point) => readNumber(point.value) !== null && Number(point.value) > 0)
+    .map((point) => ({ date: point.date, value: Number(point.value) }));
+  if (series.length < 6) return null;
+  const last = series.at(-1);
+  const moves = {};
+  for (const n of OPENING_MOVES) { const back = sessionPointBack(series, n, market); if (back) moves[n] = sessionStep('pct', back.value, last.value); }
+  const high = series.reduce((best, point) => (point.value >= best.value ? point : best), series[0]);
+  const day = longrunRead(longrun, spec.longrun, 1, series, last.date);
+  const week = longrunRead(longrun, spec.longrun, 5, series, last.date);
+  const deep = day?.drawdown || null;
+  // With the long-run table the high is the running closing high of decades; without it, the record's (history.json).
+  // `trough`: the deepest close since that high — a fall that reached a stage stays in it until a new high (no flicker
+  // across the line from one session to the next).
+  const low = series.filter((point) => point.date >= high.date).reduce((min, point) => Math.min(min, point.value), high.value);
+  const fall = deep ? { value: deep.depth, trough: deep.trough.depth, high: deep.high.date, basis: 'fromLongrunHigh' }
+    : { value: (last.value / high.value - 1) * 100, trough: (low / high.value - 1) * 100, high: high.date, basis: 'fromRecordHigh' };
+  const at = (n) => claim({ subject: spec.id, measure: `change${n}d`, asOf: last.date, figures: [{ value: moves[n], unit: 'pct', basis: `change${n}d`, label: spec.label }] });
+  const stage = stageOf(fall.value);
+  return {
+    ...spec, asOf: last.date, from: series[0].date, moves, fall, stage, day, week, deep,
+    record: { day: recordLargest(series, 1, moves[1]), week: recordLargest(series, 5, moves[5]) },
+    claims: {
+      ...Object.fromEntries(OPENING_MOVES.filter((n) => Number.isFinite(moves[n])).map((n) => [n, at(n)])),
+      fall: claim({ subject: spec.id, measure: fall.basis, word: stage?.word || null, asOf: last.date,
+        compare: stage ? { threshold: stage.threshold, relation: stage.relation, digits: 0 } : null,
+        figures: [{ value: fall.value, unit: 'pct', basis: fall.basis, label: spec.label }] })
+    }
+  };
+}
+
+const fallSaid = (row, asOf) => say('고점({hd}) 대비 {fall}', { hd: shortDateAgainst(row.fall.high, asOf), fall: row.claims.fall });
+
+/**
+ * The one standing sentence an index earns, if any — computed, never written by hand. With the long-run table: the fall
+ * from the high against past falls as deep (drawdown.since), a one-session fall among the ten largest since the table
+ * starts, or a five-session fall larger than any in over a year. Without it: the largest one- or five-session fall of the
+ * record (history.json, named with its first date).
+ */
+function standingSaid(row, { prefer = 'fall', skipDeep = false } = {}) {
+  if (!row) return NOTHING;
+  const lab = row.label;
+  const yearAgo = `${Number(yearOf(row.asOf)) - 1}${row.asOf.slice(4)}`;
+  const deepSince = !skipDeep && row.deep?.inRange && row.fall.value < 0
+    ? (row.deep.since
+      ? say('{lab} 고점 대비 하락은 {when} 저점({then}) 이후 가장 깊습니다.', { lab, when: yearMonth(row.deep.since.trough),
+        then: claim({ subject: row.id, measure: 'longrunEpisode', asOf: row.asOf, figures: [{ value: row.deep.since.depth, unit: 'pct', basis: 'episodeDepth', label: lab }] }) })
+      : say('{lab} 고점 대비 하락은 {from}년 이후 가장 깊습니다.', { lab, from: yearOf(row.day?.from) }))
+    : NOTHING;
+  const weekMove = row.week?.move;
+  const weekSince = weekMove?.inTail && weekMove.side === 'fall' && (!weekMove.since || weekMove.since.date < yearAgo)
+    ? say('{lab} 5거래일 {d5}는 {when} 이후 가장 큰 주간 하락입니다.', { lab, d5: row.claims[5], when: weekMove.since ? yearMonth(weekMove.since.date) : `${yearOf(row.week.from)}년` })
+    : NOTHING;
+  const dayMove = row.day?.move;
+  const dayRank = dayMove?.inTail && dayMove.side === 'fall' && dayMove.rank <= 10
+    ? say(dayMove.rank === 1 ? '{lab} 하루 {d1}는 {from}년 이후 가장 큰 하루 하락입니다.' : '{lab} 하루 {d1}는 {from}년 이후 {rank}번째로 큰 하루 하락입니다.',
+      { lab, d1: row.claims[1], from: yearOf(row.day.from), rank: String(dayMove.rank) })
+    : NOTHING;
+  const recordDay = !row.day && row.record.day ? say('{lab} 하루 {d1}는 기록({from} 이후) 중 가장 큰 하루 하락입니다.', { lab, d1: row.claims[1], from: row.from }) : NOTHING;
+  const recordWeek = !row.week && row.record.week ? say('{lab} 5거래일 {d5}는 기록({from} 이후) 중 가장 큰 주간 하락입니다.', { lab, d5: row.claims[5], from: row.from }) : NOTHING;
+  const order = prefer === 'week' ? [weekSince, deepSince, dayRank, recordWeek, recordDay] : [deepSince, dayRank, weekSince, recordDay, recordWeek];
+  return order.find((piece) => piece.text) || NOTHING;
+}
+
+function indexSentence(row, { date = true } = {}) {
+  const day = Number.isFinite(row.moves[1]) ? say(date ? '{d} 하루 {m}, ' : '하루 {m}, ', { d: shortDate(row.asOf), m: row.claims[1] }) : NOTHING;
+  const slots = { lab: row.label, topic: row.topic, day, fall: fallSaid(row, row.asOf), st: row.claims.fall };
+  return row.stage ? say('{lab}{topic} {day}{fall}로 {st.word}입니다.', slots) : say('{lab}{topic} {day}{fall}입니다.', slots);
+}
+
+/** The growth lines the 매크로 screen reads (RULES.growth): the Sahm gap and initial claims over their one-year low. */
+function growthAt(macroHistory, asOf) {
+  const upTo = (id) => seriesOf(macroHistory, id).filter((row) => row.date <= asOf);
+  const sahm = sahmGap(upTo('unemployment'));
+  const claimsRead = claimsTrend(upTo('initialClaims'));
+  const G = RULES.growth;
+  return { sahm, claims: claimsRead, weak: (sahm?.value ?? -Infinity) >= G.sahmRecessionAt || (claimsRead?.aboveLow ?? -Infinity) >= G.claimsRiseAbovePct };
+}
+
+/**
+ * The diagnosis — one rule, in this order: 금융 불안형 when the high-yield spread is at or over the credit axis's stress line;
+ * 침체형 when the growth lines turned (Sahm, claims) and the fall is broad (the Nasdaq-100 / equal-weight gap under
+ * unwindGapPp, or under broadBelowPct of members over their 50-day line); 쏠림 되돌림 when the Nasdaq-100 fell at least
+ * unwindGapPp more than the equal weight; 판단 보류 otherwise. Nothing is diagnosed ('none') until one of the two has closed
+ * correctionPct below its high since that high (the fall stays diagnosed until a new high). `fast`: the spread widened the credit axis's five-session line (the "아직은" caveat).
+ */
+export function diagnoseFall({ ndx, rsp, credit = null, growth = null, breadth50 = null }) {
+  const S = RULES.story, C = RULES.credit;
+  if (!ndx || !rsp) return null;
+  const gap = rsp.fall.value - ndx.fall.value;
+  const base = { gap, credit, growth, breadth50, fast: !!credit && Number.isFinite(credit.hy5) && credit.hy5 >= C.widen5dBp };
+  if (Math.min(ndx.fall.trough ?? ndx.fall.value, rsp.fall.trough ?? rsp.fall.value) > -S.correctionPct) return { ...base, state: 'none' };
+  const broad = gap < S.unwindGapPp || (Number.isFinite(breadth50) && breadth50 < S.broadBelowPct);
+  const state = credit && credit.hyBp >= C.stressAtBp ? 'stress' : growth?.weak && broad ? 'recession' : gap >= S.unwindGapPp ? 'unwind' : 'hold';
+  return { ...base, state, word: DIAGNOSIS_WORDS[state] };
+}
+
+// The spread level against the credit axis's stress line; `speed` adds its five-session change (printed only then).
+function hyClaim(j, { speed = false } = {}) {
+  const C = RULES.credit;
+  return claim({ subject: 'hy', measure: 'level', asOf: j.date, compare: { threshold: C.stressAtBp, relation: j.hyBp >= C.stressAtBp ? 'atLeast' : 'below' },
+    figures: [{ value: j.hyBp, unit: 'spread', basis: 'level', label: '신용 스프레드' }, ...(speed && Number.isFinite(j.hy5) ? [{ value: j.hy5, unit: 'bp', basis: 'change5d', label: '5거래일' }] : [])] });
+}
+
+// ---- the lede ------------------------------------------------------------------------------------------------------------
+const SEVERITY = Object.freeze({ 'pre-correction': 0, correction: 1, 'bear-edge': 2, bear: 3 });
+const severity = (row) => SEVERITY[row.stage?.word || 'pre-correction'];
+// The diagnosis in everyday words (the lede); the state word itself is the diagnosis line's.
+const DIAGNOSIS_PLAIN = Object.freeze({ unwind: '쏠림이 되돌려지는 하락입니다', recession: '경기 침체 우려가 반영되는 하락입니다',
+  stress: '신용 시장이 흔들리는 하락입니다', hold: '어떤 하락인지는 판단을 미룹니다' });
+
+/** The stage claim an index's fall earns, 조정 전 included, under the name the lede prints ('시장 전체' is the S&P 500). */
+function stageClaim(row, label = row.label) {
+  const stage = row.stage || { word: 'pre-correction', threshold: -RULES.story.correctionPct, relation: 'above' };
+  return claim({ subject: row.id, measure: row.fall.basis, word: stage.word, asOf: row.asOf, compare: { threshold: stage.threshold, relation: stage.relation, digits: 0 },
+    figures: [{ value: row.fall.value, unit: 'pct', basis: row.fall.basis, label }] });
+}
+
+// The lede's one number: the deepest staged leader's fall as a size ("고점에서 43% 내린"), or — when the long-run table
+// places that fall — the since instead ("2022년 10월 이후 가장 깊은 하락으로"). Never both.
+function carrierSaid(row) {
+  if (row.deep?.inRange && row.fall.value < 0) return say('{when} 이후 가장 깊은 하락으로 ', { when: row.deep.since ? yearMonth(row.deep.since.trough) : `${yearOf(row.day?.from)}년` });
+  const basis = `${row.fall.basis}Depth`;
+  return say('고점에서 {depth} 내린 ', { depth: claim({ subject: row.id, measure: basis, asOf: row.asOf, figures: [{ value: -row.fall.value, unit: 'share', basis, label: row.label }] }) });
+}
+
+/**
+ * "반도체는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장 문턱입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다."
+ * Leaders' stages, then the S&P 500's stage against theirs (그쳐: less; 도: the same; 가: deeper), then the diagnosis in
+ * everyday words; with no diagnosis the stages alone.
+ */
+function ledeSaid(leaders, spx, d) {
+  const staged = leaders.filter((row) => row.stage);
+  const carrier = staged.length ? staged.reduce((a, b) => (b.fall.value < a.fall.value ? b : a)) : null;
+  const stagePiece = (row) => say('{lead}{st.word}', { lead: row === carrier ? carrierSaid(row) : row.stage ? '' : '아직 ', st: stageClaim(row) });
+  const [a, b] = leaders;
+  const first = b
+    ? say('{a}{ta} {pa}이고 {b}{tb} {pb}입니다.', { a: a.label, ta: a.topic, pa: stagePiece(a), b: b.label, tb: severity(a) === severity(b) ? '도' : b.topic, pb: stagePiece(b) })
+    : say('{a}{ta} {pa}입니다.', { a: a.label, ta: a.topic, pa: stagePiece(a) });
+  if (!spx) return first;
+  const top = Math.max(...leaders.map(severity));
+  const slots = { st: stageClaim(spx, '시장 전체'), p: severity(spx) < top ? '는' : severity(spx) === top ? '도' : '가', yet: spx.stage ? '' : '아직 ' };
+  if (!d || d.state === 'none') return sayJoin([first, say('시장 전체{p} {yet}{st.word}입니다.', slots)], ' ');
+  const plain = DIAGNOSIS_PLAIN[d.state];
+  const second = severity(spx) < top
+    ? say(spx.stage ? '시장 전체는 {st.word}에 그쳐, {plain}.' : '시장 전체는 {st.word}에 머물러, {plain}.', { ...slots, plain })
+    : say('시장 전체{p} {st.word}이고, {plain}.', { ...slots, plain });
+  return sayJoin([first, second], ' ');
+}
+
+// ---- the diagnosis line --------------------------------------------------------------------------------------------------
+/**
+ * "나스닥 100이 동일가중보다 12.7%p 더 내렸고 신용 스프레드는 352bp(11/19), 5거래일 +32bp로 빠르게 확대 중. 450bp를 넘으면
+ * 금융 불안형." — the state word is the line's label; one reason, the spread (its speed only when it widened the credit
+ * axis's five-session line), and one flip condition.
+ */
+function diagnosisLineSaid(d, { ndx, asOf, breadth = null }) {
+  if (!d || d.state === 'none') return NOTHING;
+  const S = RULES.story;
+  const gap = claim({ subject: 'leader-gap', measure: 'gapPp', asOf, compare: { threshold: S.unwindGapPp, relation: d.gap >= S.unwindGapPp ? 'atLeast' : 'below', digits: 0 },
+    figures: [{ value: d.gap, unit: 'pp', basis: 'gapPp', label: ndx.label }] });
+  const hy = d.credit ? hyClaim(d.credit, { speed: d.fast }) : null;
+  const slots = { gap, hy, lab: ndx.label,
+    at: hy && d.credit.date !== asOf ? say('({d})', { d: shortDate(d.credit.date) }) : NOTHING,
+    fast: hy?.figures[1] ? say(', {hy.1.label} {hy.1}로 빠르게 확대 중', { hy }) : NOTHING };
+  const spread = hy ? say('{hy.label}는 {hy}{at}{fast}', slots) : NOTHING;
+  if (d.state === 'stress') return say('{hy.label}가 {hy}{at}로 금융 불안 기준({hy.threshold}) 위{fast}. {hy.threshold} 아래로 돌아오면 다시 판단.', slots);
+  if (d.state === 'unwind') {
+    const why = hy ? say('{lab}이 동일가중보다 {gap} 더 내렸고 {spread}.', { ...slots, spread }) : say('{lab}이 동일가중보다 {gap} 더 내렸습니다.', slots);
+    return sayJoin([why, hy ? say('{hy.threshold}를 넘으면 금융 불안형.', slots) : say('격차가 {gap.threshold} 아래로 줄면 다시 판단.', slots)], ' ');
+  }
+  if (d.state === 'recession') {
+    const sahm = d.growth?.sahm && d.growth.sahm.value >= RULES.growth.sahmRecessionAt ? d.growth.sahm : null;
+    const job = sahm ? say('실업률 3개월 평균이 1년 저점보다 {s} 높습니다.', { s: claim({ subject: 'unemployment', measure: 'sahm', asOf: sahm.date, figures: [{ value: sahm.value, unit: 'pp', basis: 'sahm', label: '실업률' }] }) })
+      : say('실업수당 청구가 1년 저점보다 {c} 많습니다.', { c: claim({ subject: 'initialClaims', measure: 'aboveLow', asOf: d.growth.claims.date, figures: [{ value: d.growth.claims.aboveLow, unit: 'pct', basis: 'aboveLow', label: '실업수당 청구' }] }) });
+    const wide = d.gap < S.unwindGapPp || !breadth ? say('동일가중도 {lab}만큼 내렸고(격차 {gap})', slots)
+      : say('50일선 위 종목이 {b}{b.word}이고', { b: claim({ subject: 'breadth50', measure: 'above50', asOf, word: 'only-below', compare: { threshold: S.broadBelowPct, relation: 'below' }, figures: [{ value: breadth, unit: 'share', basis: 'above50', label: '50일선 위 종목' }] }) });
+    return sayJoin([say('{wide} ', { wide }), job, hy ? say(' {spread}, {hy.threshold}를 넘으면 금융 불안형.', { ...slots, spread }) : NOTHING], '');
+  }
+  return sayJoin([say('{lab}과 동일가중의 격차가 {gap}로 작고 고용에 침체 신호가 없습니다.', slots),
+    hy && d.fast ? say(' {spread}.', { ...slots, spread }) : NOTHING, say(' 격차가 {gap.threshold}를 넘으면 쏠림 되돌림.', slots)], '');
+}
+
+/** The bars' model: each index's fall from its closing high on one scale, with the 조정 and 약세장 lines. */
+const BAR_INDEXES = Object.freeze(['sox', 'ndx', 'spx', 'dow', 'rsp']);
+function barsOf(rows) {
+  return fallFrame(BAR_INDEXES.filter((id) => rows[id]).map((id) => {
+    const row = rows[id];
+    return { id, label: row.label, part: row.part, value: row.fall.value, high: row.fall.high, valueText: say('{f}', { f: row.claims.fall }).text,
+      stage: row.stage ? say('{f.word}', { f: row.claims.fall }).text : null };
+  }));
+}
+
+const STANDING_INDEXES = Object.freeze(['ndx', 'spx', 'sox', 'kospi']);
+/**
+ * "나스닥 100의 이번 하락은 1985년 이후 고점에서 10% 이상 내린 35번 가운데 12번째로 깊습니다. 약세장 기준(-20%)까지 0.2%p
+ * 남았습니다." — one line per index whose fall from its running closing high is in the long-run tables' episode range,
+ * and its episodes: this one, then the past ones at least as deep (newest first, `limit`). Nothing without the tables.
+ */
+export function fallStandings(opening, { limit = 5 } = {}) {
+  if (!opening?.available || !opening.longrun) return [];
+  const S = RULES.story;
+  return STANDING_INDEXES.map((id) => opening.rows[id]).filter((row) => row?.deep?.inRange && row.day).map((row) => {
+    const deep = row.deep;
+    const rank = deep.comparable.length + 1, total = deep.past + 1;
+    const lab = row.full || row.label;
+    const min = claim({ subject: row.id, measure: 'episodeMin', asOf: row.asOf, figures: [{ value: LONGRUN_DEFINITION.drawdownMinPct, unit: 'share', basis: 'episodeMin', label: '고점에서' }] });
+    const place = rank === 1 ? say('가장 깊습니다.') : say('{rank}번째로 깊습니다.', { rank: String(rank) });
+    const lead = say('{lab}의 이번 하락은 {from}년 이후 {min.label} {min} 이상 내린 {total}번 가운데 {place}',{ lab, from: yearOf(row.day.from), min, total: String(total), place });
+    const edge = row.stage?.word === 'bear-edge'
+      ? say(' {line.label}({line})까지 {gap} 남았습니다.', {
+        line: claim({ subject: 'story-rule', measure: 'bearPct', asOf: row.asOf, figures: [{ value: -S.bearPct, unit: 'pct', digits: 0, basis: 'bearPct', label: '약세장 기준' }] }),
+        gap: claim({ subject: row.id, measure: 'toBearPp', asOf: row.asOf, figures: [{ value: row.fall.value + S.bearPct, unit: 'pp', basis: 'toBearPp', label: '약세장 기준' }] }) })
+      : NOTHING;
+    const episode = (e, current = false) => ({ peak: e.peak, trough: e.trough, depth: e.depth, sessions: e.sessions, regained: e.regained || null, current });
+    const episodes = [episode({ peak: deep.high.date, trough: deep.trough.date, depth: deep.depth, sessions: deep.sessions }, true), ...deep.comparable.slice(0, limit).map((e) => episode(e))];
+    // The strip: each episode's fall on the opening's bar frame, named by its high's month (this one: 이번), its sessions
+    // from the high to the low in the small slot.
+    const bars = fallFrame(episodes.map((e) => ({ id: e.current ? 'current' : e.peak, label: e.current ? '이번' : say('{m} 고점', { m: yearMonth(e.peak) }).text, part: e.current ? 'leaders' : 'broad', value: e.depth,
+      valueText: say('{d}', { d: claim({ subject: row.id, measure: e.current ? 'fromLongrunHigh' : 'episodeDepth', asOf: row.asOf, figures: [{ value: e.depth, unit: 'pct', basis: 'episodeDepth', label: lab }] }) }).text,
+      stage: Number.isFinite(e.sessions) ? say('{n}거래일', { n: String(e.sessions) }).text : null })));
+    return { id: row.id, label: lab, asOf: row.asOf, rank, total, said: sayJoin([lead, edge], ''), episodes, bars };
+  });
+}
+
+/**
+ * The opening read at the S&P 500's last session close (or `through`).
+ * @param {{history?: object[], macroHistory?: object|null, longrun?: object|null, through?: string|null}} input
+ * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:'lede'|'diagnosis'|'records', label:string, said:{text:string, claims:object[]}}>,
+ *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean}}
+ *   `lines`: the face's text — the lede, the diagnosis line (its label the state word), the one small record line.
+ */
+export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null } = {}) {
+  const asOf = through || usSessions(history).at(-1)?.date || null;
+  if (!asOf) return { available: false };
+  const rows = {};
+  for (const spec of OPENING_INDEXES) {
+    const row = openingRow(history, spec, spec.part === 'korea' ? null : asOf, longrun);
+    if (row && (spec.part === 'korea' || row.asOf === asOf)) rows[spec.id] = row;
+  }
+  if (!rows.ndx || !rows.spx) return { available: false };
+  const judged = macroHistory ? creditJudgement(macroHistory, asOf) : null;
+  const breadthPoint = buildCloseSeries(history, 'breadth50', { through: asOf }).at(-1);
+  const breadth = breadthPoint?.date === asOf ? readNumber(breadthPoint.value) : null;
+  const diagnosis = diagnoseFall({ ndx: rows.ndx, rsp: rows.rsp, credit: judged && Number.isFinite(judged.hyBp) ? judged : null,
+    growth: macroHistory ? growthAt(macroHistory, asOf) : null, breadth50: breadth });
+  const leaders = [rows.sox, rows.ndx].filter(Boolean);
+  const lede = ledeSaid(leaders, rows.spx, diagnosis);
+  const ledeSince = leaders.find((row) => row.deep?.inRange && lede.text.includes(' 이후 가장 깊은 하락으로'));
+  // The small record line: at most one standing per group, never the since the lede already carries.
+  const leaderRecord = leaders.map((row) => standingSaid(row, { skipDeep: row === ledeSince })).find((piece) => piece.text) || NOTHING;
+  const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' })].filter((piece) => piece.text), ' ');
+  const lines = [
+    { id: 'lede', label: '', said: lede },
+    { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
+    { id: 'records', label: '', said: records }
+  ].filter((line) => line.said.text);
+  const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi)], ' ') : NOTHING;
+  // Every standing an index earns (the face shows at most one per group; the AI facts carry all of them).
+  const standings = ['sox', 'ndx', 'spx', 'dow', 'rsp'].map((id) => standingSaid(rows[id], { prefer: id === 'spx' ? 'week' : 'fall' })).filter((piece) => piece.text);
+  const table = OPENING_INDEXES.filter((spec) => rows[spec.id]).map((spec) => {
+    const row = rows[spec.id];
+    const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
+    return { id: spec.id, part: spec.part, said: say('{lab}({d}): {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
+  });
+  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, korea, table, standings, longrun: !!longrun };
+}
+
+/** The opening as typed fact lines for an AI reading or the chat (the text the screens print, and the rule word). */
+export function openingFactLines(opening) {
+  if (!opening?.available) return [];
+  const d = opening.diagnosis;
+  const said = (id) => opening.lines.find((line) => line.id === id)?.said.text || '';
+  return [
+    said('lede') ? `요약: ${said('lede')}` : '',
+    said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
+    d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',
+    opening.korea?.text ? `한국: ${opening.korea.text}` : '',
+    ...opening.standings.map((piece) => `기록 비교: ${piece.text}`),
+    ...opening.table.map((row) => `지수 낙폭: ${row.said.text}`)
+  ].filter(Boolean);
 }

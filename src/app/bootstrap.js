@@ -249,7 +249,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     try {
       const regime = readMarketRegime(root);
       if (!regime?.available) return renderMacroReleaseEvidenceContext(readMacroReleaseEvidence()); // releases do not wait on the close basis
-      const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.stateLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
+      const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.verdictLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
       // Screen audit 2026-10-19: the 오늘/국면 판정 screens lead with the leadership break and the bottom-watch line, but
       // the chat on those pages received only the six axes, so "오늘 엇갈리는 신호" was answered without either.
       const lead = regime.leadership?.available ? `- 주도 영역(나스닥 100 · 반도체): ${({ break: '이탈 확인', weak: '약세 · 시장 전반 확산 미확인', holding: '유지', unknown: '판단 보류' })[regime.leadership.state] || '판단 보류'}${regime.leadership.summary ? ` — ${regime.leadership.summary}` : ''}` : null;

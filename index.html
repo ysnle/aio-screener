@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-v3Ltt8T74qKsusaW4qOU7+fc3Vh6lZpWxT4+/spZL2A=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-txhW7oFRSSpVLDiYapSqn2vDC8i3chaPNiyIHVnEMss=' 'sha256-iiczT/ykZdvftPVEUh/e3+mGJuQ0r9qVJemIINRWTXc=' 'sha256-A8po3dwfLSZ29mfjUFevzPTkjLayFYYunASP5NhstCw=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-dcetiMnmzykJ62fwJokJeX84/mE7AMa66V4AAWPO+2s=' 'sha256-hB453Fuv8kpqS6159CAc7T0dC9Cy2aoimOhilm8sMLs=' 'sha256-v3Ltt8T74qKsusaW4qOU7+fc3Vh6lZpWxT4+/spZL2A=' 'sha256-NpjyrosmstKyDNh02519yCyscsffdauXitWR/1mEhjA=' 'sha256-Pqx9Lj21xXCJShGE7g+r1MOzSdfynfaG3Cr8U8xa/GI=' 'sha256-5T+3J2ebCwrckSHsspknjhujjTwoiEl+7Um1Ypvmmo8=' 'sha256-BAN6VNMIeIwXLbZfKhFUh8B3X91eaHkeTOk402vumIM=' 'sha256-iiczT/ykZdvftPVEUh/e3+mGJuQ0r9qVJemIINRWTXc=' 'sha256-A8po3dwfLSZ29mfjUFevzPTkjLayFYYunASP5NhstCw=' https://cdn.jsdelivr.net/npm/dompurify@3.4.16/ https://unpkg.com/lightweight-charts@4.2.0/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; img-src 'self' data: blob: https:; font-src 'self' data: https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="preload" as="style" href="src/ui/styles/responsive.css">
   <script>/* v58.80 F01: the first screens' verdict reads data.json and history.json; both start here, before any stylesheet or script, and their loaders take them once (src/data/boot-prefetch.js). */(function(){try{var m=Math.floor(Date.now()/60000),p=window.__aioBootPrefetch={},go=function(k,u){p[k]={url:u,minute:m,at:Date.now(),res:fetch(u,{cache:'no-cache',priority:'high'})};p[k].res.catch(function(){});};go('data','./public-data/data.json?t='+m);go('history','./public-data/history.json');}catch(_){}})();</script>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.49 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.50 — 올인원 투자 터미널</title>
   <meta name="description" content="미국 시장과 주요 뉴스를 살피고, 조건에 맞는 종목을 찾고, 투자 근거와 거래 기록을 돌아보세요.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -3173,20 +3173,18 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       <span id="llm-quota" style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-mono);" title="오늘 남은 AI 호출 / 일일 한도 (5명 공유 키)">10/10</span>
     </div>
   </div>
-  <!-- v59.51 (owner 2026-10-31: "홈 결론 … 다시 위로 올려") the verdict opens the page. v59.68 (owner 2026-11-03: 홈 =
-       indexes, key prices, key stocks, key news; "simple purpose"): the verdict word, one sentence, the day's question and
-       the Korea line; its chips, conditions and reasons live on 시장 상태, one tap away. Then the indexes, the quote row,
-       오늘의 핵심 (stories, movers, headlines) and your names. -->
+  <!-- The read (market-story.js; #home-hero-first: the produced record's lines until the closes load), then the verdict tag. -->
   <section id="home-score-hero" class="sx-card sx-card--hero home-hero" aria-label="지금 시장">
     <div class="home-hero-main">
-      <span id="home-hero-total" class="sx-verdict home-hero-verdict">판정 대기</span>
       <div id="home-hero-desc" class="sx-lede home-hero-lede"></div>
+      <div id="home-hero-first" class="sx-lede home-hero-lede"></div>
       <!-- 오늘의 질문 (owner 2026-10-15; js/aio-data.js _aioRenderOperatorNote fills it) sits beside the answer it questions. -->
       <div id="home-operator-note" style="display:none;"></div>
       <div id="home-hero-headline" class="home-hero-basis">종가 기록을 불러오는 중입니다.</div>
       <!-- P1651 + v58.81 (owner): one Korea line; the market clock and the Korea-US link checks open under it. -->
       <details id="home-kr-line" class="home-kr-line" hidden><summary></summary><p id="home-kr-detail" class="home-kr-detail"></p></details>
-      <button type="button" class="flow-next-link home-hero-more" data-action="showPage" data-arg="signal">근거와 시나리오 → 시장 상태</button>
+      <div class="home-hero-foot"><span class="home-hero-tag" title="미국 판정 지표 6개의 합계"><span id="home-hero-total" class="sx-verdict home-hero-verdict">판정 대기</span><span id="home-hero-counts" class="home-hero-counts"></span></span>
+      <button type="button" class="flow-next-link home-hero-more" data-action="showPage" data-arg="signal">6개 지표와 시나리오 → 시장 상태</button></div>
     </div>
     <!-- The hero's second column: 다음 일정, 시장 상태's dated week items (home-ahead.js). -->
     <aside id="home-ahead" class="home-ahead" aria-label="다음 일정" hidden></aside>
@@ -3242,6 +3240,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <!-- Face unfolded; only raw table, method and sources fold (ci-fold-kind-check.mjs). -->
   <section class="sx-card sx-card--hero mk-hero regime-summary" aria-labelledby="regime-overall">
     <div class="mk-hero__main">
+      <div id="regime-opening" class="mk-opening" hidden></div>
       <div class="mk-hero__verdict-row"><h2 class="mk-hero__verdict" id="regime-overall">판정 대기</h2><span class="mk-hero__shape" id="regime-shape"></span></div>
       <p class="mk-hero__counter" id="regime-counter" hidden></p>
       <p class="mk-hero__prev" id="regime-previous" hidden></p>
@@ -3256,7 +3255,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <!-- F01: the produced verdict (build-scenario-state, same interpretation as the screen) paints both verdicts before the
        bundles run; each screen's own render (market-regime.js) replaces every field it sets. v59.51 (run-6 #19): it runs after
        this hero is parsed — inside the 오늘 hero it resolved before #regime-overall existed, so 시장 상태 read '판정 대기'. -->
-  <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');/* v60.14: a produced verdict more than five days behind today is not painted (a stalled producer left the old one up until the closes loaded). */if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기'||Date.now()-Date.parse(v.asOf+'T21:00:00Z')>432e6)return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-desc'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall');if(d&&!d.textContent)d.textContent=v.heroLine||'';if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
+  <script>(window._aioTodayVerdict||Promise.resolve(null)).then(function(v){var t=document.getElementById('home-hero-total'),m=/^\d{4}-(\d\d)-(\d\d)$/.exec(v&&v.asOf||'');/* a record over five days old is not painted */if(!v||!v.overall||!m||!t||t.textContent!=='판정 대기'||Date.now()-Date.parse(v.asOf+'T21:00:00Z')>432e6)return;t.textContent=v.overall;t.dataset.firstPaint=v.asOf;var d=document.getElementById('home-hero-first'),h=document.getElementById('home-hero-headline'),k=document.getElementById('home-date-label'),r=document.getElementById('regime-overall'),c=v.counts,hc=document.getElementById('home-hero-counts');var L=v.story&&v.story.asOf===v.asOf&&Array.isArray(v.story.lines)?v.story.lines:[];if(d){if(L.length)L.forEach(function(x){var p=document.createElement('p');p.className='opening-line';p.dataset.part=x.id;p.textContent=(x.label?x.label+' — ':'')+x.text;d.append(p)});else d.textContent=v.heroLine||''}if(c&&hc)hc.textContent='양호 '+c.favorable+', 중립 '+c.neutral+', 부담 '+c.burden+(c.unknown?', 확인 불가 '+c.unknown:'');if(h)h.textContent=v.holdReason||'';if(r&&r.textContent==='판정 대기')r.textContent=v.overall;if(k){var day='';try{day=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'long'}).format(new Date())+', '}catch(e){}k.textContent=day+(+m[1])+'/'+(+m[2])+' 미국 종가 기준'}});</script>
   <section class="sx-card mk-axes" aria-labelledby="regime-axes-title">
     <h2 class="sx-card__title" id="regime-axes-title">판정에 쓰는 6개 지표</h2>
     <div class="regime-board" id="regime-board"></div>
@@ -3524,7 +3523,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <h2 class="briefing-h2" id="charts-stocks-title">대표 종목</h2>
     <!-- The 시장 지수 card part with one card per stock (market-candles.js createChartCards); bars load once this view is shown. -->
     <div class="charts-stock-group" id="charts-stock-weight"><h3 class="charts-group-title">S&amp;P 500 비중 상위</h3><div class="charts-index-grid" id="charts-weight-grid"></div></div>
-    <div class="charts-stock-group" id="charts-stock-mover"><h3 class="charts-group-title">오늘 크게 움직인 종목</h3><div class="charts-index-grid" id="charts-mover-grid"></div></div>
+    <div class="charts-stock-group" id="charts-stock-mover"><h3 class="charts-group-title">최근 거래일 크게 움직인 종목</h3><div class="charts-index-grid" id="charts-mover-grid"></div></div>
     <details class="ind-fold ind-fold--raw-table" data-fold-kind="raw-table" id="charts-stock-raw"><summary class="ind-fold__summary"><span class="ind-fold__kind">원자료 표</span><span class="ind-fold__what">종목 지표 (스크리너 기준)</span></summary><div class="charts-table-wrap" id="charts-stock-table"></div></details>
   </section>
   <!-- 종목 분석 view, the analysis slot: a card, a row or the search above opens its symbol here (stock-chart.js showChartSubject); its heading names the symbol. -->
@@ -3990,7 +3989,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
             <th id="pf-th-price" class="sh-soft-colhead-bold">현재가</th>
             <th id="pf-th-pnl" class="sh-soft-colhead-bold">손익 (기준 통화)</th>
             <th id="pf-th-pct" class="sh-soft-colhead-bold">수익률</th>
-            <th id="pf-th-day" class="sh-soft-colhead-bold" title="실시간 시세 기준 오늘 등락 — 종가로 평가 중인 종목은 '종가 기준'">오늘</th>
+            <th id="pf-th-day" class="sh-soft-colhead-bold" title="실시간 시세면 오늘 등락, 종가로 평가 중인 종목은 그 종가의 하루 등락(날짜 표시)">하루 등락</th>
             <th id="pf-th-target" class="sh-soft-colhead-bold" title="직접 적어 둔 값만 표시합니다 — 앱이 정하거나 채우지 않습니다">목표가(내 메모)</th>
             <th id="pf-th-weight" class="sh-soft-colhead-bold">주식 중 비중</th>
             <th id="pf-th-manage" class="sh-soft-colhead-bold">관리</th>
@@ -5128,12 +5127,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.49" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.49" defer></script>
-  <script src="./js/aio-pages.js?v=60.49" defer></script>
-  <script src="./js/aio-core.js?v=60.49" defer></script>
-  <script src="./js/aio-data.js?v=60.49" defer></script>
-  <script src="./js/aio-ui.js?v=60.49" defer></script>
+  <script src="./js/aio-workspace.js?v=60.50" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.50" defer></script>
+  <script src="./js/aio-pages.js?v=60.50" defer></script>
+  <script src="./js/aio-core.js?v=60.50" defer></script>
+  <script src="./js/aio-data.js?v=60.50" defer></script>
+  <script src="./js/aio-ui.js?v=60.50" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5191,7 +5190,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.49</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.50</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

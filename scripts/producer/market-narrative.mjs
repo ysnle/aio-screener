@@ -23,6 +23,7 @@ import { branchDecisionFrame, decisionFrameContext } from '../../src/domain/scen
 import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js';
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/indices/index-levels.js';
+import { buildMarketOpening, openingFactLines } from '../../src/domain/market/story/market-story.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
 import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
@@ -119,7 +120,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     if (!regime?.available) return '';
     // v60.31: the axes carry no sentence — title, state label and their evidence rows (판정 사유 among them). The line keeps
     // its `id: state` head: packetAxisStates (market-analysis-validate.mjs) reads the axis states from it.
-    const axes = (regime.axes || []).map((axis) => `${axis.id}: ${axis.state} (${axis.title} ${axis.stateLabel})${axis.evidence?.length ? ` — ${axis.evidence.map(([label, value]) => `${label} ${value}`).join('; ')}` : ''}`).join('\n');
+    const axes = (regime.axes || []).map((axis) => `${axis.id}: ${axis.state} (${axis.title} ${axis.verdictLabel})${axis.evidence?.length ? ` — ${axis.evidence.map(([label, value]) => `${label} ${value}`).join('; ')}` : ''}`).join('\n');
     // v57.81 (owner 2026-10-15): the trend state with the SOXX (v59.70 proxy) / Russell 2000 evidence rows and the leadership-break
     // flag travel as their own lines, so the narrative cannot call the trend 양호 or say semis lead while the flag is on.
     const trend = (regime.axes || []).find((axis) => axis.id === 'trend');
@@ -137,7 +138,13 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     // v57.81: the validator rejects a Korea-vs-US sentence without both session dates when they differ; the packet says so.
     const krDate = buildCloseSeries(input.history, 'kospi').at(-1)?.date || null;
     const sessions = krDate && regime.asOf && krDate !== regime.asOf ? `세션 기준일: 미국 ${regime.asOf.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} · 한국 ${krDate.slice(5).replace('-', '/').replace(/^0/, '').replace('/0', '/')} — 두 시장을 한 문장에서 함께 말하면 두 날짜(M/D)를 모두 적을 것.` : '';
-    return [`종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
+    // v60.50 (owner 2026-11-23): the opening read the screens lead with (주도주 · 시장 전체 · 진단, market-story.js), as typed
+    // lines ahead of the tally, so the reading tells the same story in the same order.
+    let longrun = null;
+    try { longrun = JSON.parse(readFileSync(`${REPO_ROOT}/public-data/index-longrun.json`, 'utf8')); } catch (_) { longrun = null; }
+    const opening = buildMarketOpening({ history: input.history, macroHistory: input.macroHistory || null, longrun, through: regime.asOf });
+    const story = openingFactLines(opening).map((line) => `시장 이야기 ${line}`);
+    return [...story, `종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
       renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
   } catch (error) {
     return '';

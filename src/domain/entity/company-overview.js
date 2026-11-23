@@ -1,8 +1,3 @@
-// 종목 개요 (owner 2026-11-19: "이 회사는 무엇으로 돈을 벌고 산업의 어디에 있는가"): the facts the overview lays out —
-// where the company sits in the AI value chain (the layer of the map, the customers and suppliers the company stories
-// name, the capital flows it is a party to) and the few figures that say whether it makes money. Every value comes from a
-// record the repo already holds (company-profiles graph, atlas capital flows, SEC/DART filings, the company story's own
-// dated earnings); a missing value is reported missing, never estimated. Words are fixed state words, never a reading.
 import { readNumber, signedText, usdKoreanText } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
 import { atlasLayerOf } from '../knowledge/value-chain-layers.js';

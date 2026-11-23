@@ -1,12 +1,7 @@
-// 종목 머리 (2026-11-20): a year of daily closes under the name and price — the line with its 200-day line, the year's
-// highest and lowest close, and one state line (the last close, 고점 대비, 200일선 대비). The bars are the ones 기술적 분석
-// reads (daily-chart-bars.js: the same transport and completed-session rule) and the numbers come from market-charts.js
-// yearCloseRead. No bars, nothing drawn. Chart analysis lives on 기술적 분석 (owner 2026-11-19), so the line is a way there:
-// it opens the symbol in that screen's 종목 분석 view.
 import { loadCompletedDailyBars } from '../../data/daily-chart-bars.js';
 import { yearCloseRead } from '../../domain/technical/market-charts.js';
 import { signedText } from '../../domain/shared/number.js';
-import { shortDate } from '../../domain/content/date-labels.js';
+import { shortDate, shortDateAgainst } from '../../domain/content/date-labels.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
 
@@ -20,7 +15,7 @@ function paint(doc, host, view) {
   const { root, sym: symbol, read, money } = view;
   view.outside = outsideOf(read, view.live);
   const pct = (value) => signedText(value, 1, '%');
-  const mark = (row, word) => `${view.outside ? '종가 기준' : word} ${money(row.value)} (${shortDate(row.date)})`;
+  const mark = (row, word) => `${view.outside ? '종가 기준' : word} ${money(row.value)} (${shortDateAgainst(row.date, read.asOf)})`;
   const chart = createTrendChart(doc, {
     series: read.series, format: money, label: `${symbol} 1년 종가`, height: 140,
     longGuide: { series: read.ma200Series },

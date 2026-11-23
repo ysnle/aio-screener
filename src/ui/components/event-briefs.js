@@ -1,10 +1,3 @@
-// v59.42 (owner audit 2026-10-28): the event briefs (public-data/event-briefs.json, .github/workflows/event-briefs.yml) on
-// 오늘 — a short '주요 발표 요약' block of the last three days — and on the 종목 page under the company summary. The face shows
-// the headline and the reported figures (with the provider estimate where one exists); the fold holds segments,
-// guidance, the call or press-conference points with their basis, what to watch next, and the source.
-// v59.44 (owner 2026-10-29, news by weight): 오늘 leads with the releases that move the whole market — a monthly macro
-// release of the last two days, the FOMC, the core movers — as full cards; other notable reports are one line each
-// (name, the price after the report, headline) under '그 밖의 실적'; everything else of the last 30 days sits in a fold.
 import { fillOnOpen } from './lazy-fold.js';
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { releaseZoneBar } from './release-zone-bar.js';
@@ -29,7 +22,6 @@ function whenText(brief) {
 }
 
 const signed = (value) => `${value > 0 ? '+' : ''}${value}%`;
-// v59.70: the comparison is the domain's figureSurprise — the same reader the reaction read uses.
 const comparison = (figure, figures, provisional) => figureSurprise(figure, figures, { provisional });
 // A stored "$0.00 billion" (ZERO_AMOUNT) is a rounding of a sub-billion amount, not a zero; the label stands alone and
 // the estimate comparison carries the line.
@@ -58,12 +50,6 @@ function basisWord(points) {
   return BRIEF_BASIS_WORDS[points.basis] || BRIEF_BASIS_WORDS['news-report'];
 }
 
-// v59.55 (flow 7): `bodyOnly` returns just the folded part — a 뉴스 row already shows the headline, reaction and reason and
-// opens this body in its own fold, so it no longer repeats them and nests a second fold.
-// v59.70 (refactor step 4, 종목): 예상 | 발표 | 다음 전망 | 주가 반응 — four short cells read from earningsCells. The reaction
-// cell replaces the reaction line; an empty cell says what is missing instead of leaving a gap.
-// v59.70 (lens plan step 1): when the compared estimate was seen before the report; a row first seen after it says so.
-// A stored mark later than the release (the provider's actual came after it) is not a pre-report sighting.
 const seenText = (estimate, publishedAt) => {
   const ms = Date.parse(estimateSeenBeforeReport(estimate, publishedAt) || '');
   if (!Number.isFinite(ms)) return ', 발표 전 값인지 확인 안 됨';
@@ -105,14 +91,10 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   const reaction = reactionText(brief.reaction);
   if (reaction && !fourCells?.reaction) {
     const line = el(doc, 'p', reaction, 'event-brief__reaction');
-    line.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
+    line.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat';
     line.title = brief.reaction.basis === 'latest-trade' ? '발표 직전 정규장 종가 대비 가장 최근 체결가(시간외 또는 마감 전 정규장)' : `발표 직전 종가(${brief.reaction.baseDate}) 대비 종가`;
     box.append(line);
   }
-  // v59.51 (owner 2026-10-31, two layers): the face is what happened and how the price took it — the headline, the reaction
-  // and the reason. The face is never folded (owner 2026-11-20): on 뉴스 (`folded`) the reported reasons — two at
-  // most — are on the face; the figures with their estimate comparison, the segments, guidance, call points and next
-  // checks are the raw-table fold, and the source line is the sources fold.
   const folded = !bodyOnly && !open;
   const reasons = brief.reasons?.points || [];
   const read = brief.kind === 'earnings' ? readFor(doc, brief) : null;
@@ -123,12 +105,10 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   if (folded) more.dataset.foldKind = 'raw-table';
   if (folded) more.append(el(doc, 'summary', brief.kind === 'fomc' ? '발표 수치·바뀐 문구·기자회견 원문 정리' : '발표 수치·부문·가이던스·콜 원문 정리'));
   if (bodyOnly && read) more.append(reactionNode(doc, read)); // the row's 왜 line, with the checks behind it
-  // v59.44: three headline figures, then capex and cash flow when the release gave them (the market priced cash).
   const cashFigure = (figure) => ['capex', 'free_cash_flow', 'operating_cash_flow'].includes(figure?.metric);
   const figures = [...(brief.figures || []).filter((figure) => !cashFigure(figure)).slice(0, 3), ...(brief.figures || []).filter(cashFigure).slice(0, 2)];
   if (figures.length) {
     const ul = list(doc, figures.map((figure) => figureText(figure, brief.figures || [], brief.status === 'provisional')), 'event-brief__figures');
-    // Sources stay off the face (owner 2026-10-06): the estimate's provider is on the row's hover.
     figures.forEach((figure, i) => { if (figure.estimate) ul.children[i].title = `예상치: ${figure.estimate.source || '제공처'} 컨센서스(참고)${seenText(figure.estimate, brief.publishedAt)}`; else if (figure.derived) ul.children[i].title = `공시 원문 ${figure.derived}`; });
     more.append(el(doc, 'p', '발표 수치', 'event-brief__sub'), ul);
   }
@@ -141,7 +121,6 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   if (points?.points?.length) section(`${points.title} (${basisWord(points)}${points.speaker ? `, ${points.speaker}` : ''})`, points.points.map((point) => point.text));
   else if (brief.status === 'provisional') { /* the source line says the figures await the filing */ }
   else if (brief.scope === 'release') more.append(el(doc, 'p', '실적 보도자료 기준 요약입니다. 컨퍼런스콜은 따로 정리하지 않습니다.', 'event-brief__note'));
-  // v59.45 (pipeline review P21-LIFECYCLE-01): after the last search a missing summary is "not found", not "not yet".
   else if (!points?.done && (points?.attempts || 0) >= CALL_SEARCH_MAX_ATTEMPTS) more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 보도에서 찾지 못했습니다.`, 'event-brief__note'));
   else if (brief.kind !== 'fomc' || brief.status !== 'complete') more.append(el(doc, 'p', `${brief.kind === 'fomc' ? '기자회견' : '컨퍼런스콜'} 요약은 아직 정리 전입니다.`, 'event-brief__note'));
   section('다음 확인', (brief.watch || []).map(watchItem));
@@ -158,7 +137,6 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
     link.href = point.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
     source.append(doc.createTextNode(' · '), link);
   });
-  // v59.45 (pipeline review P21-EVIDENCE-01): a report-based call summary links its articles too, like the reasons.
   if (points?.basis === 'news-report' && points.points?.length) {
     [...new Set(points.points.map((point) => point.url).filter((url) => /^https:\/\//.test(url || '')))].forEach((url, i) => {
       const link = el(doc, 'a', `${brief.kind === 'fomc' ? '기자회견' : '콜'} 보도 기사 ${i + 1}`, null);
@@ -174,8 +152,6 @@ export function briefNode(doc, brief, { showName = true, bodyOnly = false, cells
   const dropped = (brief.dropped || []).length + (points?.dropped || []).length;
   // A DART brief's table is read from the filing without AI; only its call points (when present) are AI-written.
   const aiWritten = (brief.ai || []).length > 0 || !!points?.points?.length || reasons.length > 0;
-  // A provisional brief's figures are the provider's, never checked against a filing (reviewer, v59.44).
-  // After the wait (PROVISIONAL_SUMMARY_WAIT_MS) the headline no longer promises a summary, nor does this line.
   if (brief.status === 'provisional') source.append(doc.createTextNode(`. 수치는 제공처 집계로 공시 원문과 대조하지 않았고, ${provisionalWaiting(brief) ?'원문이 나오면 원문 요약으로 바뀝니다' : '원문 공시는 찾지 못했습니다'}. ${reasons.length ? '주가가 움직인 이유는 공용 AI가 보도에서 찾았고' : '이 내용은'} 매매 판단이 아닙니다.`));
   // P21-NUMBER-01: the check is that the same figure (with its unit and direction) stands in the quoted source sentence.
   else source.append(doc.createTextNode(`. 숫자는 원문 문장에 같은 숫자가 있는 것만 싣습니다${dropped ? `(확인되지 않은 항목 ${dropped}건 제외)` : ''}. ${aiWritten ? '요약은 공용 AI가 썼고' : '표는 공시 원문에서 그대로 읽었고'} 매매 판단이 아닙니다.`));
@@ -206,7 +182,6 @@ export function macroNode(doc, release) {
     return box;
   }
   box.append(head, list(doc, release.items.map((item) => [`${item.label.replace(/ \(.*\)$/, '')} ${item.valueText}`, item.deltaText, item.targetText].filter(Boolean).join(' · ')), 'event-brief__figures'));
-  // v59.69: where the number landed among the bands that are good, neutral, a burden or bad for stocks right now.
   const zone = releaseZones(release.id, (doc.defaultView || globalThis)._aioMacroHistory || null);
   if (zone?.latest && String(zone.latest.period).slice(0, 7) === String(release.period || '').slice(0, 7)) box.append(releaseZoneBar(doc, zone, { compact: true }));
   if (release.next) box.append(el(doc, 'p', `다음 발표 ${shortDay(release.next)}`, 'event-brief__when'));
@@ -214,7 +189,6 @@ export function macroNode(doc, release) {
 }
 
 /** One line: name (opens 종목), day, the price after the report, headline. */
-// v59.69: why the price moved — the checks a reader would run (reaction-read.js), the conclusion first.
 function readFor(doc, brief) {
   const root = doc.defaultView || globalThis;
   let row = null;
@@ -248,7 +222,7 @@ function briefRow(doc, root, brief) {
   const reaction = reactionText(brief.reaction);
   if (reaction) {
     const move = el(doc, 'span', reaction, 'event-brief-row__move');
-    move.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat'; // v59.45 (R1-05): 0.0% is flat
+    move.dataset.direction = directionOf(brief.reaction.extendedPct ?? brief.reaction.latestPct, 1) || 'flat';
     li.append(move);
   }
   if (brief.headline) li.append(el(doc, 'span', koreanReleaseText(brief.headline), 'event-brief-row__headline'));
@@ -282,9 +256,6 @@ export function paintNewsBriefs(doc, root, rerender, macro = []) {
   } });
 }
 
-// v59.70 (X bookmarks #6, #11): after the lead release, where money went over the next sessions (technology vs defensives
-// vs the broad market, against the S&P 500), and how often a beat closed lower the next day. Hidden until both readings
-// have their closes; context only.
 function flowsNode(doc, root, lead, briefs) {
   const history = root?._aioHistory || [];
   const label = lead?.kind === 'fomc' ? 'FOMC' : lead?.nameKo ? `${lead.nameKo} 실적` : '';
@@ -314,8 +285,6 @@ function flowsNode(doc, root, lead, briefs) {
 
 function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits = {}, place }) {
   const nowMs = Date.now();
-  // v59.69: the reaction reading compares each move with its index on the same day; a paint before the close history
-  // arrives repaints once it does, so a move the market explains is not read as unexplained.
   if (!(root?._aioHistory || []).length && typeof rerender === 'function' && !root.__aioBriefHistoryWait) {
     root.__aioBriefHistoryWait = true;
     root.addEventListener?.('aio:historyLoaded', () => { root.__aioBriefHistoryWait = false; rerender(); }, { once: true });
@@ -337,12 +306,11 @@ function paintBriefs(doc, root, { rerender, macro, id, frame, className, limits 
   const parts = [head, ...macro.map((release) => macroNode(doc, release)), ...tiers.core.map((brief) => briefNode(doc, brief, { sources }))];
   const flows = flowsNode(doc, root, tiers.core[0], [...tiers.core, ...tiers.notable, ...tiers.rest]);
   if (flows) parts.push(flows);
-  // v59.51 (content audit): the second tier is one closed line; its rows (move, headline, reason, full summary) open in place.
   if (tiers.notable.length) {
     const fold = el(doc, 'details', null, 'event-briefs__all');
     fold.dataset.foldKind = 'raw-table'; // the smaller reports as one line each, under the market-moving cards
     fold.append(el(doc, 'summary', `그 밖의 실적 ${tiers.notable.length}건`));
-    fillOnOpen(fold, () => [rowList(doc, root, tiers.notable)]); // v59.70 DOM1: rows built when it first opens
+    fillOnOpen(fold, () => [rowList(doc, root, tiers.notable)]);
     parts.push(fold);
   }
   if (tiers.restTotal) {

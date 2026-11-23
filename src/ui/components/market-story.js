@@ -1,8 +1,7 @@
-// v59.55 (owner 11/1): 시장 상태 › 시나리오와 전망's last card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
-// one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one raw-table fold with the
-// asset-by-asset confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
-// card below keeps the two price checks.
-import { buildMarketStory } from '../../domain/market/story/market-story.js';
+import { buildMarketStory, buildMarketOpening, fallStandings } from '../../domain/market/story/market-story.js';
+import { LONGRUN_DEFINITION } from '../../domain/market/indices/long-run.js';
+import { fallBars } from './fall-bars.js';
+import { RULES } from '../../domain/rules/thresholds.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { frameHead, frameReading, markFrame } from './section-frame.js';
@@ -12,7 +11,7 @@ import { el } from './dom.js';
 import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
-import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
+import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -67,7 +66,6 @@ function questionRow(doc, story) {
 }
 
 function detailFold(doc, story) {
-  // (owner 2026-11-20) the rows behind the reading — the levels' reading itself is on the face (renderMarketStory).
   const fold = markFold(el(doc, 'details', null, 'mk-story__more'), 'raw-table');
   fold.append(foldSummary(doc, 'raw-table', `${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
   if (story.levels) {
@@ -121,7 +119,6 @@ function detailFold(doc, story) {
 export function readMarketStory(root, interpretation, rerender) {
   const briefs = ensure(root, EVENT_BRIEFS, rerender);
   const calendar = ensure(root, EARNINGS_CALENDAR, rerender);
-  // v59.74: the market-day stories' movers — a report one of them is about joins the week list whatever its weight.
   const day = ensure(root, MARKET_DAY, rerender);
   const storySymbols = new Map();
   for (const item of Array.isArray(day?.narratives?.stories) ? day.narratives.stories : []) {
@@ -134,6 +131,105 @@ export function readMarketStory(root, interpretation, rerender) {
   // Built on demand: a render whose key has not changed keeps its card and skips the build.
   const build = () => buildMarketStory({ history, macroHistory, briefs, calendar, nextEvent: interpretation?.crossroads?.nextEvent || null, decidingEvent: interpretation?.crossroads?.decidingEvent || null, events, storySymbols });
   return { key, build };
+}
+
+let openingMemo = null;
+export function readMarketOpening(root, interpretation, rerender) {
+  const longrun = ensure(root, INDEX_LONGRUN, rerender);
+  const history = interpretation?.inputs?.history || root?._aioHistory || [];
+  const macroHistory = interpretation?.inputs?.macroHistory || root?._aioMacroHistory || null;
+  const key = [history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || ''].join('|');
+  if (openingMemo?.key !== key || openingMemo.history !== history) openingMemo = { key, history, opening: buildMarketOpening({ history, macroHistory, longrun }) };
+  return openingMemo.opening;
+}
+
+/** One face line: the lede, the diagnosis (its state word first) or the small record line. */
+function openingLine(doc, line) {
+  const p = el(doc, 'p', null, 'opening-line');
+  p.dataset.part = line.id;
+  if (line.label) p.append(el(doc, 'b', line.label, 'opening-line__label'), doc.createTextNode(' — '));
+  p.append(doc.createTextNode(line.said.text));
+  return p;
+}
+
+/** The face into `host`: the lede, the bars, the diagnosis line and the small record line. */
+export function paintOpening(doc, host, opening) {
+  if (!host || !opening?.available || !opening.lines?.length) return false;
+  const [lede, ...rest] = opening.lines;
+  host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`), ...rest.map((line) => openingLine(doc, line)));
+  host.dataset.asOf = opening.asOf;
+  host.hidden = false;
+  return true;
+}
+
+/** 오늘: the opening leads the hero. Until the closes load, the shell's #home-hero-first shows the produced record's lines;
+ * a painted #home-hero-desc hides it (v2-today.css). */
+export function renderHomeOpening({ documentRef: doc, root, interpretation, regime }) {
+  const host = doc?.getElementById('home-hero-desc');
+  if (!host || !regime?.available) return;
+  const opening = readMarketOpening(root, interpretation, () => renderHomeOpening({ documentRef: doc, root, interpretation, regime }));
+  if (!paintOpening(doc, host, opening)) host.textContent = regime.heroLine || '';
+}
+
+function openingFolds(doc, opening) {
+  const raw = markFold(el(doc, 'details', null, 'mk-opening__more'), 'raw-table');
+  raw.append(foldSummary(doc, 'raw-table', '지수별 하루·2거래일·5거래일 등락과 고점 대비'));
+  const list = el(doc, 'ul', null, 'mk-opening__table');
+  for (const row of opening.table) list.append(el(doc, 'li', row.said.text));
+  raw.append(list);
+  const S = RULES.story, C = RULES.credit, G = RULES.growth;
+  const method = markFold(el(doc, 'details', null, 'mk-opening__method'), 'method');
+  method.append(foldSummary(doc, 'method', '단계와 진단을 정하는 규칙'),
+    el(doc, 'p', `단계: 종가 고점 대비 -${S.correctionPct}% 이하 조정, -${S.bearPct}% 이하 약세장, -${S.bearPct}%까지 ${S.bearEdgePp}%p 안이면 약세장 문턱, -${S.correctionPct}%보다 얕으면 조정 전. 첫 문장의 '시장 전체'는 S&P 500의 단계입니다. 막대는 같은 눈금이고 점선이 -${S.correctionPct}%와 -${S.bearPct}%입니다. 반도체는 필라델피아 반도체 지수(SOX), 고점은 ${opening.longrun ? '장기 기록의 종가 고점' : '이 화면 기록(2025-09-30 이후)의 종가 고점'}입니다.`, 'mk-story__read'),
+    el(doc, 'p', `진단: 하이일드 스프레드 ${C.stressAtBp}bp 이상이면 금융 불안형. 실업률 3개월 평균이 1년 저점보다 ${G.sahmRecessionAt}%p 이상 높거나 실업수당 청구가 1년 저점보다 ${G.claimsRiseAbovePct}% 이상 많고, 나스닥 100과 동일가중의 고점 대비 낙폭 차이가 ${S.unwindGapPp}%p 미만이거나 50일선 위 종목이 ${S.broadBelowPct}% 미만이면 침체형. 나스닥 100이 동일가중보다 ${S.unwindGapPp}%p 이상 더 내렸으면 쏠림 되돌림, 그 밖에는 판단 보류. 신용 스프레드(하이일드)가 5거래일 +${C.widen5dBp}bp 이상 벌어지면 '빠르게 확대 중'을 덧붙입니다. 나스닥 100이나 동일가중이 고점 뒤 -${S.correctionPct}%에 닿은 적이 없으면 진단하지 않습니다.`, 'mk-story__read'),
+    el(doc, 'p', '이 기준들은 시장에서 흔히 쓰는 관행이며, 과거 자료로 검증한 예측 규칙이 아닙니다.', 'mk-story__read'));
+  return [raw, method];
+}
+
+/** 시장 상태: the opening under the page head (지금 view), its table and rules folded; 한국 gets the KOSPI line. */
+export function renderSignalOpening({ documentRef: doc, root, interpretation }) {
+  const host = doc?.getElementById('regime-opening');
+  if (!host) return;
+  const opening = readMarketOpening(root, interpretation, () => renderSignalOpening({ documentRef: doc, root, interpretation }));
+  const painted = paintOpening(doc, host, opening);
+  host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
+  if (painted) {
+    const wasOpen = [...host.parentElement.querySelectorAll(':scope > .mk-opening__more, :scope > .mk-opening__method')].map((fold) => fold.open);
+    host.parentElement.querySelectorAll(':scope > .mk-opening__more, :scope > .mk-opening__method').forEach((fold) => fold.remove());
+    const folds = openingFolds(doc, opening);
+    folds.forEach((fold, i) => { if (wasOpen[i]) fold.open = true; });
+    host.after(...folds);
+  }
+  const board = doc.getElementById('regime-board-kr');
+  if (board && opening?.korea?.text) {
+    let line = doc.getElementById('regime-opening-kr');
+    if (!line) { line = el(doc, 'p', null, 'opening-line mk-opening-kr'); line.id = 'regime-opening-kr'; board.before(line); }
+    line.replaceChildren(el(doc, 'b', '한국', 'opening-line__label'), doc.createTextNode(` ${opening.korea.text}`));
+  }
+}
+
+/**
+ * 기술적 분석 › 시장 지수: under the index cards, where this fall stands among each index's past falls of 10% or more
+ * (domain fallStandings over the long-run tables). The Nasdaq-100 (the centre index) leads with its line and its episode
+ * strip; the other indexes' lines follow, their strips in the raw-table fold. Hidden without the long-run tables.
+ */
+export function renderIndexStandings({ documentRef: doc, root, host }) {
+  if (!host) return;
+  const opening = readMarketOpening(root, null, () => renderIndexStandings({ documentRef: doc, root, host }));
+  const standings = fallStandings(opening);
+  host.hidden = !standings.length;
+  if (!standings.length) { host.replaceChildren(); return; }
+  const [lead, ...rest] = standings;
+  const strip = (row) => fallBars(doc, row.bars, `${row.label} 고점 대비 하락과 고점→저점 거래일, ${shortDate(row.asOf)} 종가 기준`);
+  const wasOpen = host.querySelector('.charts-standings__more')?.open;
+  const fold = markFold(el(doc, 'details', null, 'charts-standings__more'), 'raw-table');
+  fold.append(foldSummary(doc, 'raw-table', '지수별 과거 하락 구간'), ...rest.map(strip));
+  if (wasOpen) fold.open = true;
+  const method = markFold(el(doc, 'details', null, 'charts-standings__method'), 'method');
+  method.append(foldSummary(doc, 'method', '하락 구간을 세는 방법'),
+    el(doc, 'p', `하락 구간: 종가 기준 사상 최고치에서 다시 그 값을 회복하기 전까지의 가장 낮은 종가가 ${LONGRUN_DEFINITION.drawdownMinPct}% 이상 아래였던 구간입니다. 순위는 이번 고점 대비 하락(마지막 종가)을 과거 구간의 가장 깊은 하락과 비교합니다. 막대 옆 거래일은 고점에서 저점까지입니다. 지수 가격만 쓰고 배당은 넣지 않습니다.`, 'mk-story__read'));
+  const [first, ...lines] = standings.map((row) => { const p = el(doc, 'p', row.said.text, 'opening-line'); p.dataset.index = row.id; return p; });
+  host.replaceChildren(el(doc, 'h3', '지난 하락과 비교', 'charts-group-title'), first, strip(lead), ...lines, fold, method);
 }
 
 export function renderMarketStory({ documentRef: doc, root, interpretation }) {

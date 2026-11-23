@@ -1,24 +1,3 @@
-// v59.70 (owner 2026-11-04: "every card refreshes itself, or says it does not"): one registry for every public-data
-// artifact the screens read — which workflow and producer refresh it, how often, when it counts as stale, and where its
-// own clock and trading-session basis live. The producer ledger (scripts/write-freshness-ledger.mjs), the lineage audit,
-// the watchdog and the browser reader (src/data/freshness.js) all read this one table; ci-artifact-refresh-path-check.mjs
-// fails when a runtime-read artifact is missing from it, or when a workflow named here does not stage the file.
-//
-// Ledger schema (aio-freshness.v1, public-data/freshness/<workflow id>.json, one file per workflow so producers never race):
-//   { schemaVersion, workflow, writtenAt, artifacts: { '<file>': {
-//       producedAt,            // the artifact's own clock: when its content last changed
-//       checkedAt,             // the last successful run that rewrote or confirmed it (content may be the same)
-//       basisSession,          // { US?, KR?, ... } trading session the content reflects, when the artifact says
-//       expectedEveryMinutes, staleAfterMinutes, workflow, producer,
-//       lastAttempt: { at, status: 'updated' | 'unchanged' | 'not-written' | 'missing' | 'blocked' (absent while its blockedBy holds) },
-//       contractDrift?         // ['clock'] / ['basis:US', ...] when the present artifact no longer resolves a
-//     } } }                    // declared path (its producer changed shape); the watchdog names it
-//
-// Two clocks, graded together. checkedAt says the pipeline is alive (a run confirmed
-// the file); basisSession says what the content is about. A producer whose upstream keeps returning the last session
-// rewrites the file every cycle, so checkedAt alone graded a two-sessions-old screener 'current' while every screen built
-// on it said "today". freshnessState is now the worse of the liveness grade and the session-lag grade.
-
 import { stampDay } from '../../domain/shared/session-date.js';
 import { observationSessionState, sessionLagGrade } from '../../domain/market/session/market-calendar.js';
 import { FRESHNESS_POLICY } from '../../domain/shared/freshness-policy.js';
@@ -33,21 +12,14 @@ const auto = (workflow, producer, expectedEveryMinutes, staleAfterMinutes, extra
 // ledger: false — the workflow commits only when content changes (event-briefs) or from a second job (screener-extended),
 // so a per-run ledger would add a commit or a push race; readers fall back to the artifact's own clock.
 
-// skipUnchanged: the commit keeps the published bytes when only volatileKeys (and generatedAt) moved (data audit R3:
-// scenario-state 7 of 8 and today-verdict 8 of 8 recent commits differed only in generatedAt). checkedAt still moves.
 const DERIVED = { skipUnchanged: true, volatileKeys: ['generatedAt'] };
 
 export const ARTIFACT_FRESHNESS = Object.freeze({
   // refresh-data.yml (30-minute cycle; the weekend news cycle is hourly)
   'data.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 12 * 60, { timestamp: ['meta.generatedAt'] }),
-  // history.json is { schemaVersion, fieldDictionary, rows }. A row's date is the market cut (a Sunday row exists), so
-  // the basis is the session each index close belongs to. With every market closed a run re-checks the same
-  // closes and moves only each field's checkedAt and the row's snapshot revision (Saturday 2026-11-21: 34 of 117,874
-  // values); those runs keep the published 4 MB file instead of committing it again.
   'history.json': auto('refresh-data.yml', 'scripts/producer/history.mjs', 30, 3 * 24 * 60, { skipUnchanged: true, volatileKeys: ['rows.*.fieldMeta.*.checkedAt', 'rows.*.marketSnapshotRevision'], timestamp: ['rows.-1.cycleEnd', 'rows.-1.date'], basis: [['US', 'rows.-1.fieldMeta.spx.sessionDate', 'rows.-1.fieldMeta'], ['KR', 'rows.-1.fieldMeta.kospi.sessionDate', 'rows.-1.fieldMeta']] }),
   'market-snapshot.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 24 * 60, { timestamp: ['lastSuccessfulAt', 'generatedAt'] }),
   'macro-history.json': auto('refresh-data.yml', 'scripts/producer/macro-history.mjs', 30, 4 * 24 * 60, { ...DERIVED, volatileKeys: ['generatedAt', 'long.generatedAt'] }),
-  // v59.70 (R11, theme-sector): the rotationHistory series beside data.json; the browser joins it by session, not clock.
   'rotation-detail.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 4 * 24 * 60, DERIVED),
   'macro-calendar.json': auto('refresh-data.yml', 'scripts/fetch-data.mjs', 30, 4 * 24 * 60, DERIVED),
   'telegram-digest.json': auto('refresh-data.yml', 'scripts/fetch-telegram-digest.mjs', 30, 12 * 60, { timestamp: ['generatedAt', 'lastSuccessfulAt'] }),
@@ -58,6 +30,7 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'market-day.json': auto('refresh-data.yml', 'scripts/build-market-day.mjs', 30, 48 * 60, { ...DERIVED, basis: [['US', 'sessions.us'], ['KR', 'sessions.kr']] }),
   'stress-outcomes.json': auto('refresh-data.yml', 'scripts/build-stress-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
   'scenario-outcomes.json': auto('refresh-data.yml', 'scripts/build-scenario-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
+  'index-longrun.json': auto('refresh-data.yml', 'scripts/build-index-longrun.mjs', 24 * 60, 14 * 24 * 60, { ...DERIVED, blockedBy: 'first refresh-data daily-lane run after the producer ships (remove once published)' }),
   'reconciliation-status.json': auto('refresh-data.yml', 'scripts/build-reconciliation-status.mjs', 30, 24 * 60),
   'operations-status.json': auto('refresh-data.yml', 'scripts/build-operations-status.mjs', 30, 24 * 60),
 
@@ -75,8 +48,6 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'sp500-weights.json': auto('refresh-screener.yml', 'scripts/fetch-sp500-weights.mjs', 24 * 60, 8 * 24 * 60, DERIVED),
   'us-listings.json': auto('refresh-screener.yml', 'scripts/build-us-listings.mjs', 24 * 60, 4 * 24 * 60),
   'tw-monthly-revenue.json': auto('refresh-screener.yml', 'scripts/fetch-tw-monthly-revenue.mjs', 6 * 60, 62 * 24 * 60),
-  // blockedBy: the refresh path exists but waits on a secret the owner has not added (or decided against); the watchdog
-  // names it as a warning instead of failing every run, and the screen shows it as not collected.
   'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60, DERIVED),
   'kr-fundamentals.json': auto('refresh-screener.yml', 'scripts/fetch-dart-fundamentals.mjs', 7 * 24 * 60, 14 * 24 * 60, { blockedBy: 'secret DART_API_KEY (owner decision 2026-10-14: not registered)' }),
   'breadth-contributors.json': auto('refresh-screener.yml', 'scripts/producer/screener-breadth.mjs', 6 * 60, 8 * 24 * 60),
@@ -98,9 +69,7 @@ export const MANUAL_ARTIFACTS = Object.freeze({
   'model-validation-status.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (observedAt, 90 days)' },
   'user-research-digest.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (generatedAt, 90 days)' },
   'screener-universe.json': { refresh: 'manual', expiryGate: '.github/workflows/universe-review.yml (monthly review issue)' },
-  // Hand-promoted from the manual research-backtest.yml run (2026-07-10); the screener page reads it.
   'factor-backtest-longrun.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (generatedAt, 120 days)' },
-  // Operator-captured snapshot (checkedAt 2026-08-21); refresh-web-research.mjs leaves it untouched (P1734).
   'structural-data-research.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (checkedAt, 14 days)' },
 });
 

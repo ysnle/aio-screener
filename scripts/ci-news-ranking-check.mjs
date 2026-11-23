@@ -5,6 +5,7 @@
 // NEWS_SELECTION_MODULE=<file url> runs the same cases against another copy of scripts/lib/news-selection.mjs.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { runSections } from './lib/gate-sections.mjs';
 
 const moduleUrl = process.env.NEWS_SELECTION_MODULE || new URL('./lib/news-selection.mjs', import.meta.url).href;
 const ns = await import(moduleUrl);
@@ -12,6 +13,16 @@ const failures = [];
 const check = (name, fn) => { try { fn(); } catch (error) { failures.push(`${name}: ${error.message.split('\n')[0]}`); } };
 const at = (iso) => Date.parse(iso);
 const scored = (row) => { const item = { ...row, ts: at(row.at) }; Object.assign(item, ns.scoreServerNewsItem(item)); return item; };
+const report = () => {
+  const failed = failures.splice(0);
+  if (!failed.length) return;
+  console.error(`[news-ranking] FAIL ${failed.length}:\n - ${failed.join('\n - ')}`);
+  process.exit(1);
+};
+
+// v60.50: 1-6 are unit cases on headline fixtures (code); 7 checks the committed bundle and also runs in a data run.
+await runSections('news-ranking', [
+['ranking-rules', async () => {
 
 // 1. A tier-3 page that names one subject and broad market words is not news (11/14 a3c588ace, 거시 floor seat).
 check('v60.18 a retail FX-rate page does not pass as a two-subject tier-3 headline', () => {
@@ -82,7 +93,11 @@ check('v60.18 the closed intraday slot is carried into the next 08:00 bundle', (
   assert.match(planes, /newsIntraday: previous && Array\.isArray\(previous\.newsIntraday\)/, 'v60.18 and reads it from the previous data.json');
 });
 
+report();
+console.log('[news-ranking] ok: subject-based score, session recency, scheduled releases, reserved floors and the carried intraday slot');
+}, 'code'],
 // 7. The committed bundle, once cut under this rule: rank order, and no tier-3 row on one subject outside the Korean seats.
+['published-bundle', async () => {
 const data = JSON.parse(readFileSync(new URL('../public-data/data.json', import.meta.url), 'utf8'));
 if (data?.meta?.newsRankingRule && data.meta.newsRankingRule === ns.NEWS_RANKING_RULE) {
   check('v60.18 public-data news is in rank order and every tier-3 row names two subjects', () => {
@@ -98,8 +113,7 @@ if (data?.meta?.newsRankingRule && data.meta.newsRankingRule === ns.NEWS_RANKING
   console.log(`[news-ranking] public-data/data.json was cut under ${data?.meta?.newsRankingRule || 'the previous rule'}; the artifact check starts with the first refresh under ${ns.NEWS_RANKING_RULE || 'v60.18'}.`);
 }
 
-if (failures.length) {
-  console.error(`[news-ranking] FAIL ${failures.length}:\n - ${failures.join('\n - ')}`);
-  process.exit(1);
-}
-console.log('[news-ranking] ok: subject-based score, session recency, scheduled releases, reserved floors, rank order and the carried intraday slot');
+report();
+console.log('[news-ranking] ok: published bundle rank order');
+}, 'data'],
+]);

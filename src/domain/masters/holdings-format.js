@@ -1,5 +1,3 @@
-// v57.60: pure Masters (13F) registry, coverage and value formatters, moved out of src/ui/pages/masters.js
-// unchanged. No DOM here; the page imports these and keeps re-exporting the names it exported before.
 import { usdKoreanText } from '../shared/number.js';
 import { corporateActionOf } from './corporate-actions.js';
 
@@ -15,14 +13,6 @@ const MASTER_REGISTRY = Object.freeze([
   Object.freeze({ id: 'scion-asset-management', name: 'Michael Burry', filer: 'Scion Asset Management, LLC', style: '비대칭·헤지·이벤트', type: 'LIVE_13F', status: 'PENDING', sourceName: 'SEC EDGAR', sourceUrl: 'https://www.sec.gov/edgar/search-and-access' })
 ]);
 
-// v57.48 expert review #9: 13F share counts are not split-adjusted, so a 23.35× share count at ×0.99 value
-// read as '증가'. When the share count moves ≥1.5× (or ≤0.67×) while the value stays within 0.6~1.6×, AND the
-// implied per-share price moved by more than a quarter's plausible range (≤0.6× or ≥1.67×), the row is a split
-// suspect and its quantity change is held. The per-share condition keeps a real half-sale whose price rose
-// (shares ×0.48, value ×0.63 → per-share ×1.31) classified as 감소.
-// A split in a quarter where the price also rose leaves that value window (KLA 10:1, value ×2.1), and one row cannot
-// tell it from a purchase, so the runtime builder decides it across filers and stamps the row (corporate-actions.js).
-// The stamp wins; the single-row rule below covers securities with too few filers to compare.
 function displayActionOf(row) {
   const action = row?.action || 'UNAVAILABLE';
   const stamped = corporateActionOf(row);
@@ -139,15 +129,13 @@ function deriveCoverageSummary(registry = [], catalog = null, holdings = null, p
   };
 }
 
-// P1591 (L07): table amounts read in B/M like the summary tiles; sub-million values keep full digits.
 function formatReportedValue(value) {
   const number = Number(value);
   if (value == null || !Number.isFinite(number)) return '—';
-  if (Math.abs(number) >= 1e4) return usdKoreanText(number); // first-users F33: 조·억·만 달러 like every other amount
+  if (Math.abs(number) >= 1e4) return usdKoreanText(number);
   return `$${new Intl.NumberFormat('en-US').format(number)}`;
 }
 
-// P1499: a metric tile shows the reported total in billions; the full dollar figure stays in the quarter table.
 function formatCompactUsd(value) {
   const number = Number(value);
   if (value == null || !Number.isFinite(number)) return '—';
@@ -170,8 +158,6 @@ function summarizeLatestChange(counts = {}) {
   return `신규 ${counts.NEW || 0}, 증가 ${counts.INCREASED || 0}, 감소 ${counts.REDUCED || 0}, 전량 제외 ${counts.EXITED || 0}`;
 }
 
-// v57.54: a reported-value change reads in the same unit as the value beside it ("+$12.56B" next to "$28.16B"),
-// not as a raw dollar count ("+12,557,527,438").
 function formatValueDelta(value) {
   const number = Number(value);
   if (value == null || !Number.isFinite(number)) return '—';
@@ -196,10 +182,6 @@ function formatIssuerName(name) {
   return String(name).replace(/\s*\/[A-Z]{2,3}\/?\s*$/, '').trim();
 }
 
-// Codex review 2026-10-05 (Berkshire 2025Q1: 4 rows, $1.1B beside $250B+ quarters): a 13F-HR/A that
-// only adds holdings released from confidential treatment is not the quarter. A period represented by an
-// amendment without a composed original (or a restatement) holds its count and value instead of being
-// compared with full quarters. The producer composes these since P1449; this guards older artifacts.
 function isPartialAmendmentPeriod(period, imported = null) {
   if (imported) return false;
   if (!/\/A$/.test(String(period?.form || ''))) return false;

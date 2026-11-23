@@ -1,8 +1,3 @@
-// v59.18 (roadmap 11, layer 2 quality/evidence): the source-health state moved out of js/aio-core.js unchanged — the
-// per-API health registry (window._apiHealth), the external source state contract (AIO.normalizeExternalSourceState /
-// AIO.setExternalSourceState) and the two reporters every fetch calls (_reportApiOk / _reportApiError). The data-status
-// panel and the stale-source banner they repaint stay in js/aio-core.js (_renderApiDashboard, _checkAllDeadBanner) with
-// the other writers of those elements. src/app/compatibility-globals.js installs this before any fetch runs.
 export function installApiHealth(window = globalThis, document = globalThis.document) {
   window._apiHealth = {
     'yahoo-quote':     { label: 'Yahoo 시세',   status: 'unknown', lastOk: null, lastErr: null, errCount: 0, lastMsg: '' },
@@ -12,9 +7,6 @@ export function installApiHealth(window = globalThis, document = globalThis.docu
     'proxy-primary':   { label: 'CORS 프록시',   status: 'unknown', lastOk: null, lastErr: null, errCount: 0, lastMsg: '' }
   };
 
-
-  // v52.56 H3-E: 외부 소스 상태 계약 — 성공/부분/타임아웃/형식오류를
-  // 콘솔 로그와 분리해 UI·폴백·의사결정 계층이 동일하게 소비한다.
   window.AIO = window.AIO || {};
   window.AIO_EXTERNAL_STATES = window.AIO_EXTERNAL_STATES || {};
   window.AIO.normalizeExternalSourceState = function(input) {
@@ -69,7 +61,6 @@ export function installApiHealth(window = globalThis, document = globalThis.docu
     h.status = 'ok'; h.lastOk = Date.now(); h.errCount = 0; h.lastMsg = msg || '';
     if (window.AIO && typeof window.AIO.setExternalSourceState === 'function') window.AIO.setExternalSourceState('api:' + apiKey, { status: 'success', message: msg });
     _renderApiDashboard();
-    // v48.14 (W8): 상태 전이 시 이벤트 발사
     if (prevStatus !== 'ok') {
       try {
         document.dispatchEvent(new CustomEvent('aio:api-status-change', {
@@ -89,7 +80,6 @@ export function installApiHealth(window = globalThis, document = globalThis.docu
     if (window.AIO && typeof window.AIO.setExternalSourceState === 'function') window.AIO.setExternalSourceState('api:' + apiKey, { message: msg, status: /timeout|abort/i.test(String(msg || '')) ? 'timeout' : /parse|html|malformed|invalid/i.test(String(msg || '')) ? 'malformed' : 'unavailable' });
     _renderApiDashboard();
     _checkAllDeadBanner();
-    // v48.14 (W8): 상태 전이 시 이벤트 발사
     if (prevStatus !== h.status) {
       try {
         document.dispatchEvent(new CustomEvent('aio:api-status-change', {

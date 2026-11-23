@@ -8,12 +8,15 @@
 // (the same reason as market-narrative's blockedAttemptKey: unchanged facts, unchanged answer, two calls every run); a
 // provider failure is retried on later runs, at most SCREEN_READING_PROVIDER_ATTEMPTS times per key. Without a requester
 // (Worker not configured) nothing is called and the previous readings stay as they were.
+import { readFileSync } from 'node:fs';
 import { estimateAiCostUsd } from '../../src/domain/briefing/event-briefs.js'; // the Worker's rate card, one copy
 import { SHARED_AI_MODEL } from '../lib/ai-shared-analysis.mjs';
 import { softenReaderDuty } from '../lib/market-analysis-validate.mjs';
 import { SCREEN_READING_IDS, SCREEN_READING_SCHEMA, buildScreenPacket, buildScreenReadingPrompt, buildScreenReadingRetryPrompt, normalizeScreenReading, validateScreenReading } from '../lib/screen-reading.mjs';
 
 export const SCREEN_READING_PROVIDER_ATTEMPTS = 3;
+// The published long-run tables, read once per run; absent (before the first weekly run) the opening falls back to the record.
+const readPublishedLongrun = () => { try { return JSON.parse(readFileSync(new URL('../../public-data/index-longrun.json', import.meta.url), 'utf8')); } catch (_) { return null; } };
 const REASON = /^[a-z0-9:-]{1,64}$/;
 const reasonCode = (reason, fallback) => (REASON.test(String(reason || '')) ? reason : fallback);
 const monthOf = (iso) => String(iso || '').slice(0, 7);
@@ -37,7 +40,7 @@ function carryLedger(previous) {
  * @param {object} [options.interpretation] the shared interpretation (fixture seam; production builds it from the published artifacts)
  * @param {string[]} [options.screens]
  */
-export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS } = {}) {
+export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS, longrun = undefined } = {}) {
   const generatedAt = new Date(nowMs).toISOString();
   const held = previous?.schemaVersion === SCREEN_READING_SCHEMA && previous.readings && typeof previous.readings === 'object' ? previous.readings : {};
   const ledger = carryLedger(previous?.schemaVersion === SCREEN_READING_SCHEMA ? previous : null);
@@ -66,8 +69,10 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     row.estimatedUsd = Math.round((row.estimatedUsd + estimateAiCostUsd(usage)) * 1e5) / 1e5;
     return { text: answer?.text ? normalizeScreenReading(softenReaderDuty(answer.text)) : null, reason: answer?.reason || null, usage };
   };
+  // v60.50: the long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences.
+  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun() };
   for (const screen of screens) {
-    const packet = buildScreenPacket(screen, shared);
+    const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;
     if (!packet) { readings[screen] = { status: 'blocked', reason: 'packet-unavailable', text: null, basis: null, key: null, generatedAt }; outcomes[screen] = 'packet-unavailable'; continue; }
     if (prior?.status === 'verified' && prior.key === packet.key && prior.text) { readings[screen] = prior; outcomes[screen] = 'reused'; continue; }

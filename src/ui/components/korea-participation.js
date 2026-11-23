@@ -8,13 +8,10 @@ import { buildKrInvestorFlowView, formatEok } from '../../domain/market/korea/kr
 import { shortDate } from '../../domain/content/date-labels.js';
 import { dataState } from './data-state.js';
 import { KR_INVESTOR_FLOWS } from '../../data/artifact-registry.js';
-// v57.78 perf: an optional `store` supplies the native screener rows in place (same rule as scenario-outlook: a
-// non-empty native set wins, an empty one defers to the bridge, which owns the pre-publication fallback).
 function participationRows(root,store){
   let nativeRows=null;try{nativeRows=store?.getState?.()?.screener?.rows;}catch(_){nativeRows=null;}
   return (Array.isArray(nativeRows)&&nativeRows.length?nativeRows:root._aioGetCanonicalScreenerRows?.())||[];
 }
-// v58.55: once the investor-flow card has data, the sample's missing list names only the investor types still absent.
 function missingWithFlows(missing,flows){
   if(flows?.state!=='ok')return missing;
   return missing.flatMap(item=>item!=='외국인·기관 순매수'?[item]:flows.missing.length?[`${flows.missing.join('·')} 순매수`]:[]);
@@ -23,13 +20,10 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   const board=doc.getElementById('regime-board-kr');if(!board)return;
   let host=doc.getElementById('regime-kr-participation');
   if(!host){host=el(doc,'section');host.id='regime-kr-participation';host.className='regime-kr-participation';board.after(host);}
-  renderKrInvestorFlows({documentRef:doc,root,before:host}); // v58.55 개편 v2 (5n)
+  renderKrInvestorFlows({documentRef:doc,root,before:host});
   const rows=participationRows(root,store);
-  // P1723: the KOSPI 1-/5-session change (same KRX close record as 시장 상태) goes beside the sample's own medians.
   const kr=koreaMoveRecord(root._aioHistory||[],{now:Date.now()});
   const model=buildKoreaParticipation({rows,themes:root.KR_THEME_MAP||{},index:kr?{date:kr.date,d1:kr.d1,d5:kr.d5}:null});root.__aioKoreaParticipation=model;
-  // v57.81: the list is ranked by 3-month return, some of it negative and falling over the month — it is named by its window
-  // (3개월 수익률 상위), with the 1-month return beside each theme, never as 강한 테마.
   const title=el(doc,'h2','참여도와 3개월 수익률 상위 테마');host.replaceChildren(title);
   if(model.session?.text){const lead=el(doc,'p',model.session.text);lead.className='flow-lead';host.append(lead);}
   host.append(el(doc,'p',model.headline));
@@ -41,10 +35,8 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   if(model.groups.length){host.append(el(doc,'h3','3개월 수익률 상위 한국 테마, 표본 중앙값'));const turnedOf=group=>{const recent=directionOf(group.ret1m,1),longer=directionOf(group.ret3m,1);return recent!=null&&longer!=null&&recent!==longer;};const turnedCount=model.groups.filter(turnedOf).length;if(turnedCount)host.append(el(doc,'p',`${model.groups.length}개 중 ${turnedCount}개는 최근 1개월 방향이 3개월과 반대입니다.`,'regime-kr-heavy'));const list=el(doc,'ul');
     for(const group of model.groups){const item=el(doc,'li');const pc=v=>signedText(v,1,'%');const turned=turnedOf(group);
       item.append(el(doc,'strong',`${group.themeName} 3개월 ${pc(group.ret3m)}, 1개월 ${group.ret1m==null?'미확인':pc(group.ret1m)}, ${group.members}/${group.listed}개`));if(turned){const note=el(doc,'p',`1개월 ${group.ret1m<0?'하락':'상승'} 반전`);note.className='regime-kr-heavy';item.append(note);}
-      // P1651: beginners read company names, not 096770.KS codes; the exact registry name only (no guessing), code in the tooltip.
       const nameOf=member=>root.KR_STOCK_DB?.[String(member.sym||'').slice(0,6)]?.name||member.name||member.sym;
       const codes=el(doc,'div',group.constituents.map(nameOf).join(', '));codes.title=group.constituents.map(member=>`${nameOf(member)} ${member.sym}`).join('\n');codes.className='regime-kr-tickers';item.append(codes);
-      // P1723: the equal-weight median can hide the largest names; one line when they moved apart from it.
       const heavy=heavyweightLine(group,nameOf);if(heavy){const note=el(doc,'p',heavy);note.className='regime-kr-heavy';item.append(note);}
       list.append(item);}host.append(list);}
   // the 다음에 관찰할 연결 sentences left the screen (model.watch stays for the AI context); the sample basis is a method fold.
@@ -52,9 +44,6 @@ export function renderKoreaParticipation({documentRef:doc,root,store=null}) {
   return model;
 }
 
-// v58.55 개편 v2 (5n) 투자자별 순매수: the latest session's net purchase per investor type (diverging bars on one scale per
-// market, Korean colours: net buying red, net selling blue) and each published series' last 20 sessions with 5-/20-session
-// sums. Source: public-data/kr-investor-flows.json (v59.70 Naver Finance, KRX figures). Until the first collection the card says so.
 const KR_FLOW_SOURCE_NOTE = '한국거래소 정보데이터시스템의 투자자별 자료는 거래소의 사전 허락 없이 복제·재배포할 수 없어 쓰지 않습니다.';
 const tone = (value) => value > 0 ? 'kr-up' : value < 0 ? 'kr-down' : '';
 function flowMarket(doc, market) {
@@ -111,7 +100,6 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   }
   if (!root.__aioKrFlowsRequested) {
     root.__aioKrFlowsRequested = true;
-    // v58.55 review: a failed fetch is its own state (불러오지 못함), never read as 수집 전.
     const done = (payload, changed) => {
       root.__aioKrFlowsRequested = false;
       const before = root.__aioKrFlowsLoad;
@@ -122,24 +110,18 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   }
   const view = buildKrInvestorFlowView(root[KR_INVESTOR_FLOWS.key] || null, { nowMs, loadState: root.__aioKrFlowsLoad || 'loading' });
   root.__aioKrInvestorFlowView = view;
-  // v59.70 (ui-states): before the first collection the block is not drawn at all (no '수집 전' cell); the shared artifact
-  // is asked on every render, so the first published flows bring it back by themselves.
   host.hidden = view.state === 'pending';
   const key = view.state === 'ok' ? `ok|${view.generatedAt}|${view.markets.map((m) => m.date).join(',')}` : `${view.state}|${view.reason || ''}`;
   if (host.dataset.krFlowsKey === key) return view;
   host.dataset.krFlowsKey = key;
   const head = el(doc, 'div', null, 'kr-flows-head');
-  // v58.56 (re-audit #15): plain words for the reader instead of pipeline terms. v59.70: Naver carries all three investor
-  // types, so the title narrows to 외국인 only when a collection actually lacks 개인 and 기관.
   const foreignOnly = view.state === 'ok' && view.missing.includes('개인') && view.missing.includes('기관');
   const title = el(doc, 'h3', foreignOnly ? '외국인 순매수' : '투자자별 순매수');
   title.id = 'regime-kr-flows-title';
   head.append(title);
   if (view.state !== 'ok') {
     host.removeAttribute('data-observed-at');
-    // v58.75 (persona review): before the first collection the card was a heading over an empty slot; it is one line now.
     if (view.state === 'pending') { host.replaceChildren(); return view; }
-    // v59.70 (integration): the shared loading / error / empty look (data-state.js); the source is Naver now, not 한국은행.
     const state = view.state === 'loading' ? { state: 'loading', lines: 2 }
       : view.reason === 'fetch-failed' ? { state: 'error', text: '투자자별 순매수를 불러오지 못했습니다', onRetry: () => renderKrInvestorFlows({ documentRef: doc, root }) }
       : { state: 'empty', text: '이번 수집에는 투자자별 순매수가 없습니다' };
@@ -149,7 +131,6 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
   }
   host.removeAttribute('aria-busy');
   const latest = view.markets.map((m) => m.date).sort().at(-1);
-  // The chip keeps the date only; the source is its hover and the folded 기준 (owner: sources off screen).
   const chip = el(doc, 'span', `${shortDate(latest)}${view.sourceStale ? ', 지연' : ''}`, 'basis-chip');
   chip.title = view.sourceChip;
   head.append(chip);

@@ -1,17 +1,3 @@
-// A level state and a recent direction are two readings of two numbers. "지수를 받치던
-// 주도주가 함께 약해지고 있습니다" stood on SOXX's level (50-day line -10~15%, high -29~32%) through +7.49% and +6.01% days,
-// and "VIX 17.49 … 5일 +5% 올라" compared 11/11 with 11/4 (16.61) across the 11/5 spike to 28.18 — the same close series
-// and dates, but an endpoint difference that hid the leg ending today. The level stays with each axis rule; this module
-// names only the direction, from the completed closes, and always says which points it compared.
-//
-// The window is the last `sessions` + 1 closes. The current leg starts at the window's latest turn: when today is past
-// the window's high (low), the turn is the low (high) before it; otherwise it is the later of the window's high and low.
-// The earlier leg runs from the opposite extreme before that turn to the turn. A turn counts when the earlier leg is at
-// least one typical day and a quarter of the current leg (a dip of 0.07 under the base before a 12% rise is not a turn);
-// without one, the current leg is the net change from the window's first close. The current leg is the direction ("…
-// 중") when it is at least one typical day, over any number of sessions; a smaller leg after a counted turn is a pause
-// after the earlier leg, and a smaller net change is 횡보. "Typical day" = the median absolute session change over the
-// `typicalSessions` steps before today.
 import { median } from '../../themes/theme-medians.js';
 import { signedText } from '../../shared/number.js';
 import { shortDate } from '../../content/date-labels.js';

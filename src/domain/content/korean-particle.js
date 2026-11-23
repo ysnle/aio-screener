@@ -1,8 +1,3 @@
-// P1592 (F72): pick the Korean particle from the last spoken syllable of an interpolated word. A fixed
-// '을' after a template slot produced '스프레드을 본다', '전망 3.1%을 본다', '집중도을 본다'.
-// Digits, Latin letters and '%' are read the way a Korean reader says them (3 → 삼, % → 퍼센트, L → 엘,
-// a lowercase-ending word by its sound: Buffett → 버핏).
-
 const DIGIT_HAS_FINAL = { 0: true, 1: true, 2: false, 3: true, 4: false, 5: false, 6: true, 7: true, 8: true, 9: false };
 const LATIN_HAS_FINAL = new Set(['L', 'M', 'N', 'R']);
 
@@ -41,7 +36,6 @@ export function withDirectionParticle(word) {
   return `${String(word ?? '')}${hasFinalConsonant(word) && !finalL ? '으로' : '로'}`;
 }
 
-// '이/가' after a noun phrase (v58.74 text audit: "시장 폭 부담 이 아직 빠짐", "나스닥 100가").
 export function withSubjectParticle(word) {
   const text = String(word ?? '');
   return `${text}${hasFinalConsonant(text) ? '이' : '가'}`;

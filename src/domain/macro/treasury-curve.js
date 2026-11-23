@@ -57,8 +57,6 @@ export function buildTreasuryCurveSpread({ twoY = null, tenY = null, officialSpr
   const spreadCutId = officialSpreadMeta?.cutId || null;
   const legCutIds = [twoLeg.cutId, tenLeg.cutId].filter(Boolean);
   const sameLegCut = legCutIds.length === 2 && new Set(legCutIds).size === 1;
-  // v59.49 (review): a spread without its own cut id is checked by date, so a FRED 10/29 spread beside 10/30 legs that
-  // share one Treasury cut is no longer printed as the same-date spread (0.30 shown for legs that give 0.38).
   const day = (value) => (value ? String(value).slice(0, 10) : null);
   const spreadDateConflict = official != null && !spreadCutId && !!day(spreadObservedAt) && !!day(twoLeg.observedAt) && day(spreadObservedAt) !== day(twoLeg.observedAt);
   const explicitConflict = (legCutIds.length === 2 && !sameLegCut)
@@ -154,7 +152,7 @@ export function deriveTreasuryCurveEvidence({ live = {}, fred = {}, snapshot = {
     ['10Y', treasuryValues.dgs10],
     ['20Y', treasuryValues.dgs20],
     ['30Y', treasuryValues.dgs30]
-  ].filter(([, value]) => finiteOrNull(value) != null).map(([tenor, value]) => Object.freeze({ // v59.45: Number(null) is 0, not a 0% tenor
+  ].filter(([, value]) => finiteOrNull(value) != null).map(([tenor, value]) => Object.freeze({
     tenor,
     value: finiteOrNull(value),
     unit: 'percent',

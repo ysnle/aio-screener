@@ -7,6 +7,7 @@ import { companyProfileEntry, companyStoryFor, requestCompanyStory } from '../..
 import { consensusRowFor, requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { COMPANY_PROFILE_INDEX } from '../../data/artifact-registry.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
+import { buildPricedInRead } from '../../domain/fundamental/priced-in.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
 import { readNumber } from '../../domain/shared/number.js';
 import { isoDay, stampDay as day } from '../../domain/shared/session-date.js';
@@ -140,11 +141,13 @@ const consensus = {
     if (!sym) return { error: unknownSymbolText(symbol) };
     if (isKrSymbol(sym)) return { error: `${sym}: 컨센서스 자료는 미국 상장 종목에만 있습니다.` };
     if (!root?.[CONSENSUS_KEY]) await requestConsensusEstimates(root);
-    const point = buildConsensusPoint(screenRowFor(root, sym)?.row || null, consensusRowFor(root, sym), { now });
+    const row = screenRowFor(root, sym)?.row || null;
+    const point = buildConsensusPoint(row, consensusRowFor(root, sym), { now });
+    const priced = buildPricedInRead(row, consensusRowFor(root, sym), { now });
     const earnings = await nextEarningsLine(root, sym, now);
     const hasPoint = !!(point?.text && day(point.asOf));
     if (!hasPoint && !earnings) return { error: `${sym}의 현재 컨센서스 자료가 없습니다(수집되지 않았거나 오래됨).` };
-    const text = [hasPoint ? `${sym} ${point.title}: ${point.text}` : '', earnings].filter(Boolean).join('\n');
+    const text = [hasPoint ? `${sym} ${point.title}: ${point.text}` : '', hasPoint && priced ? `${sym} 이 주가가 반영하는 것: ${priced.text}` : '', earnings].filter(Boolean).join('\n');
     return { text, asOf: hasPoint ? `예상치 수집 ${day(point.asOf)}` : `${new Date(now).toISOString().slice(0, 10)} 조회한 실적 일정`, entities: [sym] };
   }
 };

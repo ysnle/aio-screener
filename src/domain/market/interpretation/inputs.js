@@ -1,12 +1,4 @@
-// v59.70 (data audit R8, P28-INTERPRETATION-01): the one input builder of the interpretation pipeline
-// (market-interpretation.js). The browser adapter (src/data/selectors/interpretation.js) and the producers' adapter
-// (scripts/lib/market-interpretation-inputs.mjs) used to assemble the input each in its own way, and the producers left
-// out the sector rotation, the S&P 500 breadth segment, the index-earnings input and the 2-year rate date, so the
-// narrative and scenario-state.json were built without the stages those feed while the screens had them. Each adapter
-// now only gathers its raw values (runtime globals or published artifacts) and passes them here; the shape, the
-// rounding and the defaults live in this file.
 import { readNumber } from '../../shared/number.js';
-
 
 /**
  * The regime input (`market`) from the published macro block and the sentiment records.
@@ -44,7 +36,6 @@ export function regimeMarketInput({ macro = null, fearGreed = null, history = []
       asOf: pick(rates.asOf, m._asOf_realYield10 || m._asOf_dgs10 || null),
       realAsOf: pick(rates.realAsOf, m._asOf_realYield10 || null),
       breakevenAsOf: pick(rates.breakevenAsOf, m._asOf_breakeven10 || null),
-      // v57.50 C10: the 2-year change carries its own date.
       dgs2AsOf: pick(rates.dgs2AsOf, m._asOf_dgs2 || null)
     }
   };

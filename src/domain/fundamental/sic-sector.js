@@ -1,12 +1,3 @@
-// v57.83 (owner 2026-10-16, "유니버스 밖 종목은 섹터·테마가 비어 있다"): a US listing outside the published universe has
-// no curated sector, but its SEC submissions record carries the issuer's official Standard Industrial Classification
-// (SIC) code. This is a fixed, documented translation of that code into the universe's eleven sector keys — not an
-// estimate from prices or names. Codes that do not map cleanly (public administration, non-classifiable 9xxx, blank
-// checks 6770) stay null, and every consumer names the SIC code and its SEC description beside the sector.
-// v2 (2026-10-17): three codes whose filers the published sectors place elsewhere almost without exception, measured on
-// the 1,908 extended-universe issuers that carry both a sector and a SIC code — 1531 operative builders (9/9 Consumer),
-// 3533 oil & gas field machinery (5/6 Energy), 3826 laboratory analytical instruments (7/8 Healthcare). Codes with a
-// split vote (7370, 7389, 4412) keep the division default.
 export const SIC_SECTOR_MODEL = 'sic-to-universe-sector.v2';
 /** sectorSource on a row whose sector was translated from its SEC SIC code (not the universe's curated sector). */
 export const SIC_SECTOR_SOURCE = 'sec-sic';

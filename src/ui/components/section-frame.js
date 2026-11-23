@@ -1,16 +1,6 @@
-// v58.79 (owner 2026-10-25, "let the layout do the explaining"): one frame for a screen section, so a section stops
-// growing its own caption, basis line, kicker and "읽는 법" sentence. A frame is
-//   head    the title, an as-of chip (a date or a session state, its method sentence in the chip's hover) and actions;
-//   body    one visual, one reading of at most READING_MAX characters, and at most one fold for method and detail.
-// A frame carries data-frame="<route>.<name>", so the secondary-text budget gate (scripts/ci-secondary-text-budget-check.mjs)
-// and an agent can find a section by name instead of by its CSS. The visual classes are the existing sx-card ones, so a
-// section moved onto the frame keeps its look.
 import { el } from './dom.js';
 
 export const READING_MAX = 240;
-// 2026-11-18: the chip's length contract. The chip never cuts its text — a cut "11/17 반영 전" read "11/17 반영", the
-// opposite — so a caller passes a short form that fits (session-lag.js sessionChipText, closeChipText) and the budget
-// gate (scripts/ci-secondary-text-budget-check.mjs) fails a rendered chip longer than this.
 export const ASOF_MAX = 24;
 // Class words that mark a line as secondary text (a caption, basis, kicker, hint, meta or note line). The budget gate
 // counts the visible characters under these classes per route; a frame's reading (.aio-frame-reading) is not counted.
@@ -100,11 +90,6 @@ export function markFrame(host, name) {
   return host;
 }
 
-// v59.70 (coverage audit S24): the owner's section shape — one visual, one short reading, at most one fold — as a contract
-// a frame opts into with `contract: 'story'`. The frame wraps its visual in .aio-frame-visual and carries
-// data-frame-contract="story"; scripts/ci-secondary-text-budget-check.mjs fails a story frame without exactly one drawn
-// visual (svg, canvas, img or role=img) and one reading, or with more than one fold. Frames without the contract keep
-// today's rules, so a screen moves onto it one section at a time.
 export const FRAME_CONTRACTS = Object.freeze({ story: Object.freeze({ visuals: 1, readings: 1, folds: 1 }) });
 
 /** A whole frame: head, then the visual, the reading and the fold, in that order. */

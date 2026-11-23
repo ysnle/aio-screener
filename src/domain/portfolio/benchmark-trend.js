@@ -1,12 +1,3 @@
-// v59.70 (S16, PLAN 2026-11-04): 포트폴리오 ① — the current holdings against the S&P 500 over the last year, from the
-// screener's published closes instead of the old per-holding Yahoo calls behind a 새로고침 button (js/aio-ui.js
-// updateBenchmarkChart, deleted). Each holding's return over 1·5·21·63·126·252 sessions (ret1d … ret12m, adjusted
-// closes) gives what today's book was worth that many sessions ago: B(h) = Σ V_i / (1 + r_i(h)) over Σ V_i, V_i the
-// holding's value now in the base currency and r_i its return in that currency (listing return × currency move). SPY's
-// row gives the index with dividends, in dollars; `indexFxReturnOf` compounds it into the book's currency, so a won book
-// is compared with the index in won and the gap is not the exchange-rate move. The
-// chart starts at the longest window that at least 80% of the book's value can read; holdings without it are left
-// out and their share is named. Pure: rows in, points out. Not an account return (the composition is held fixed).
 import { finiteNumber as finite } from '../shared/number.js';
 
 export const BENCHMARK_WINDOWS = Object.freeze([
@@ -18,7 +9,6 @@ export const BENCHMARK_WINDOWS = Object.freeze([
   Object.freeze({ key: 'ret1d', sessions: 1, label: '1일' })
 ]);
 export const BENCHMARK_MIN_COVERAGE = 0.8;
-
 
 /**
  * @param {object} input

@@ -1,12 +1,4 @@
-// v59.35 (roadmap 11, layer 4 boot sequence): the public share readiness model moved out of js/aio-data.js unchanged —
-// _aioBuildPublicShareReadiness with its text helpers, AIO.getPublicShareReadiness and AIO.getDataReconciliationStatus.
-// It reads state and returns a model; the developer-mode panel that draws it (_aioRenderPublicReadiness) is
-// src/ui/components/pipeline-status.js. The functions stay window globals for those classic callers; src/app/compatibility-globals.js
-// installs this before DOMContentLoaded.
 export function installPublicReadiness(window = globalThis) {
-  // P1126/R619: 이스케이프 구현은 escHtml 하나만 둔다. 여기 있던 5줄짜리 재구현은
-  // escHtml과 문자 집합이 동일해( & < > " ) 분기할 이유가 없었고, 둘이 갈라지면
-  // 한쪽만 고치는 조용한 보안 드리프트가 된다.
   function _aioPublicReadinessEsc(s) {
     return escHtml(s == null ? '' : s);
   }
@@ -95,7 +87,6 @@ export function installPublicReadiness(window = globalThis) {
     var blockers = [];
     var warnings = [];
     var ageMin = null;
-    // P28-AUDIT-01: an unreadable or future generation time is not "0분 전"; it is a time that could not be confirmed.
     var generatedMs = meta && meta.generatedAt ? Date.parse(meta.generatedAt) : NaN;
     if (meta && meta.generatedAt && (!Number.isFinite(generatedMs) || generatedMs - Date.now() > 5 * 60000)) {
       warnings.push('public-data 기준 시각 확인 안 됨');
@@ -113,8 +104,6 @@ export function installPublicReadiness(window = globalThis) {
     else if (pageAudit.status !== 'pass') warnings.push('페이지 현재성 주의: ' + (pageAudit.missingCaveat || []).slice(0, 3).join(', '));
     if (!pipelineAudit) warnings.push('데이터 파이프라인 감사 미수신');
     else if (pipelineAudit.status !== 'ok') warnings.push('데이터 파이프라인 주의: ' + (pipelineAudit.issues || []).slice(0, 2).join(' / '));
-    // v52.14 P6/P611/R206: shareAudit.blockers는 "full surface audit fail: N issue(s)" 같은 영문 내부
-    // 감사 로그 원문 — 일반 방문자에게 노출하면 무의미+불안만 유발(R206 dev-marker 금지 취지). 건수만 한국어로 요약.
     var reconciliation = meta && meta.reconciliation;
     if (!reconciliation || reconciliation.status === 'unavailable') warnings.push('22개 데이터 범주 상태 미수신');
     else if (reconciliation.status === 'stale') blockers.push('시장 스냅샷과 데이터 범주 상태 revision 불일치');
@@ -155,7 +144,6 @@ export function installPublicReadiness(window = globalThis) {
     var weakPages = pageEvidenceRows.filter(function(r) {
       return r.sourceKind === 'UNAVAILABLE' || r.sourceKind === 'REFERENCE' || (r.blockers && r.blockers.length);
     }).map(function(r) { return r.pageId + ':' + r.sourceKind; });
-    // v52.14 P6/P611/R206: 원문 "weak page evidence pageId:UNAVAILABLE, ..." 영문 enum 나열 대신 건수만 한국어 요약.
     if (weakPages.length) warnings.push('일부 페이지 데이터 근거 보강 필요 (' + weakPages.length + '건)');
 
     var status = blockers.length ? 'block' : (warnings.length ? 'warn' : 'ok');
@@ -166,7 +154,6 @@ export function installPublicReadiness(window = globalThis) {
       dataLabel: meta && meta.generatedAt ? _aioKstShortFromIso(meta.generatedAt) + (ageMin != null ? ', ' + ageMin + '분 전' : '') : 'public-data 미수신',
       dataStatus: meta && meta.newsOk === false ? '뉴스 백스톱 주의' : (meta && meta.symbolsOk ? '서버 스냅샷 시세 ' + meta.symbolsOk + '개 수신' : '수신 상태 확인 중'),
       pageStatus: pageAudit ? (pageAudit.status === 'pass' ? pageAudit.pageCount + '개 페이지 현재성 통과' : '현재성 주의 ' + ((pageAudit.missingCaveat || []).length + (pageAudit.liveOverstatement || []).length) + '건') : '페이지 감사 대기',
-      // P28-AUDIT-01: the runtime mode only saw data.json's generation time, not the pipeline audit; say that.
       pipelineStatus: pipelineAudit ? (pipelineAudit.status === 'ok' ? (detailed ? '파이프라인 OK' : '기준 시각 수신(전체 감사 아님)') : '파이프라인 WARN') : '파이프라인 감사 대기',
       pageEvidenceRows: pageEvidenceRows,
       weakPages: weakPages,

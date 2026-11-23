@@ -1,6 +1,6 @@
 ---
 verified_by: local source review + ledger structure gates (ci-ledger-integrity, ci-record-fix, ci-workflow-compaction); live facts in CURRENT-STATE.md
-last_verified: 2026-11-15
+last_verified: 2026-11-24
 confidence: medium
 target_version: v57.79
 # 규칙 원장 — 원칙 18개(C1~C18)와 그 아래 R 규칙 (2026-10-31 v59.48 재구성)
@@ -11,6 +11,12 @@ target_version: v57.79
 ## 수신함 — 새 규칙은 여기 들어온다
 
 `node scripts/record-fix.mjs`는 새 규칙을 `## R<max+1>.` 헤딩으로 이 파일의 맨 위 `## R` 헤딩 바로 위에 넣는다. 그래서 이 수신함이 파일에서 첫 `## R` 헤딩을 가진다(가장 최근 규칙 하나는 앵커로 남긴다). 새 결함은 먼저 아래 원칙 중 어느 불변식을 어겼는지 보고, 그 원칙의 게이트에 케이스를 더해 막을 수 있으면 새 규칙을 만들지 않는다. 다음 정리 때 수신함 규칙을 해당 원칙 아래로 옮긴다. 핵심 규칙 색인은 수신함 바로 아래다.
+
+## R754. 데이터 실행은 발행 데이터에 대한 단정만 실행한다 (v60.50, P2753)
+
+**Rule**: 게이트는 inputClass code 또는 data다(mixed 없음, 선언 없음 거부). 데이터 실행(producer의 push 전 검사, 데이터 전용 커밋의 축소 CI)은 data 게이트만 고르고, 그 안의 code 섹션(gate-sections [label, body, 'code'])을 건너뛴다. 코드 단정과 데이터 단정을 함께 가진 스크립트는 섹션으로 나눈다. 발행 파일을 현실적인 입력으로만 빌리는 코드 테스트는 code다. 달력이 지나는 것만으로 바뀌는 문서 판정은 경고다.
+
+**Validation**: node scripts/ci-qa-pipeline-contract-check.mjs && node scripts/ci-qa-runner-behavior-check.mjs
 
 ## R753. 합치는 수치는 같은 관측일 (v60.19, P2549)
 
@@ -80,7 +86,7 @@ target_version: v57.79
 
 ## R742. Calendar facts fail producers and the watchdog, not CI contract shards (v59.70, P2226)
 
-**Rule**: ci.yml contract shards set AIO_QA_ORIGIN=ci; there a liveData: content gate reports ADVISORY and a wall-clock document-date judgement warns. Each has a watchdog-local twin that still fails. No other workflow sets AIO_QA_ORIGIN. Gates that judge code never declare liveData.
+**Rule**: ci.yml contract shards set AIO_QA_ORIGIN=ci; there a liveData: content gate reports ADVISORY and a wall-clock document-date judgement warns. A liveData gate has a watchdog-local twin that still fails; the 45-day document date (P1125) warns everywhere since v60.50 and has no twin. No other workflow sets AIO_QA_ORIGIN. Gates that judge code never declare liveData.
 
 **Validation**: node scripts/ci-refresh-origin-live-data-check.mjs
 
@@ -1770,8 +1776,8 @@ Chat, translation, automated analysis and deployment smoke call only the shared 
 ## R566. AI 안전·검색·지식 결손은 답변 전체가 아니라 실제 위험·주장 범위에서만 강등한다 (v54.64, P1000)
 매수·매도·손절·비중 같은 어휘 자체를 개인화 행동으로 판정하지 않는다. 교육·조건부 시나리오·시장/규제 영향·법률/세무 분석은 전제·관할·기준일·근거 상태를 표시해 답하며, pre-provider 차단은 개인화 실행·실제 주문/계정 변경·불법 실행법으로 제한한다. 게이트: `ci-ai-intelligence-contract-check`, `ci-ai-chat-reliability-contract-check`, `ci-knowledge-generated-parity-check`.
 
-## R557. 공개 AI 경로와 bootstrap payload는 동일한 readiness·byte evidence에서 생성한다 (v54.63, P991)
-실패·stale·비 HTTPS Worker를 정적 설정만으로 공개하지 않는다. 공개 route는 관측된 health에서 생성하고 불확실하면 null/disabled로 단조 강등한다(개인 키 경로 없음).
+## R557. 공개 AI 경로는 릴리스 설정이 이름을 대고, 브라우저가 매번 health로 확인한다 (v54.63, P991; v60.50)
+`public-config.json`은 코드 커밋으로만 바뀐다. `ai.routeStatus`는 운영자 결정이다(`PUBLISHED`, 또는 `routeReason`과 함께 `DISABLED` — 운영자가 AI 경로를 닫을 때 커밋한다). 주소는 `architecture/worker-endpoints.json`과 같은 HTTPS Worker다. 준비 여부는 설정에 복사하지 않고 브라우저가 Worker `/health`(ready·provider·model)로 매번 확인하며, 실패·불일치는 연결 없음으로 강등한다(개인 키 경로 없음). producer의 관측은 `public-data/operations-status.json`에만 있다. 게이트: `ci-release-revision-check`, `ci-ai-budget-scope-check`.
 
 ## R547. AI 행동 권한은 모든 provider·quota·retrieval보다 앞선 단일 오케스트레이터 경계다 (v54.62, P981)
 QuestionPlan의 action permission이 denied이면 provider runner를 절대 호출하지 않는다. UI는 안전한 교육·비교 대안만 표시할 수 있으며, 상단 AI 패널의 추가 gate는 단일 경계를 보강할 뿐 대체하지 않는다. 게이트: `ci-ai-intelligence-contract-check`.

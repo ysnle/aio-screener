@@ -1,9 +1,3 @@
-// v59.42 (roadmap 11): the news scoring and selection entry points. The models moved out of js/aio-data.js into
-// src/domain/news/selection.js; this file binds them to what the classic shell provides (extractTickers,
-// getDisplayTickers/getDisplayTitle, the KST 08:00 window, the shared market cut, the news cache) and keeps the old
-// window names for their remaining callers. newsCache, lastFetchTime and the display helpers stay declared in the classic
-// scripts; a module resolves those names in the shared global scope at call time.
-// src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import {
   scoreItem, classifyTopic, newsTextSentiment, calcNewsImpactVector, buildNewsSurfaceModel, newsSelectionAudit,
   normalizeNewsItem, newsDedupeKey, NEWS_SURFACE_CONTRACTS, telegramItemQueryRelevance
@@ -29,7 +23,7 @@ function briefingWindowLegacyShape(now = Date.now()) {
 export function installNewsSelection(window = globalThis) {
   window.AIO = window.AIO || {};
   window._getBriefingWindowKST = () => briefingWindowLegacyShape(Date.now());
-  const cache = typeof window._aioLRU === 'function' ? window._aioLRU('scoreItem', 4000) : null; // v49.0 P182: no re-scoring of the same article
+  const cache = typeof window._aioLRU === 'function' ? window._aioLRU('scoreItem', 4000) : null;
   const env = {
     cache,
     extractTickers: (item) => window.extractTickers(item),
@@ -62,14 +56,10 @@ export function installNewsSelection(window = globalThis) {
     window._aioNewsSurfaceModels[surfaceId] = model;
     return model;
   };
-  // The classic audit counted surface eligibility through a global that never existed, so homeEligible,
-  // briefingEligible and marketNewsEligible were always 0 and js/aio-core.js held the 뉴스 page source kind at SNAPSHOT
-  // however many articles it showed. v59.42 (owner-approved): counted on the same surface models the pages build.
   const auditEnv = { ...env, buildSurface: (surfaceId, items, opts) => buildNewsSurfaceModel(surfaceId, items, opts, env) };
   window.AIO.getNewsSelectionAudit = (items) => newsSelectionAudit(Array.isArray(items) ? items : newsItems(), auditEnv);
   window.AIO.getNewsSurfaceAudit = (opts = {}) => {
     const rows = {};
-    // v50.41: primary 뉴스 surface(home/briefing/market-news)만 — 분석 페이지 topic-strip은 getConnectiveLayerAudit가 담당.
     const surfaces = Object.keys(NEWS_SURFACE_CONTRACTS).filter((id) => String((NEWS_SURFACE_CONTRACTS[id] || {}).role || '').indexOf('analysis-page') < 0);
     const issues = [];
     surfaces.forEach((id) => {

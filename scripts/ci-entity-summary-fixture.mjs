@@ -68,7 +68,7 @@ assert.equal(businessProfileFor('UNKNOWN').description, null, 'P1624 unknown bus
 const css = await readFile(new URL('../src/ui/styles/entity-quality.css', import.meta.url), 'utf8');
 assert.doesNotMatch(css, /\.stock-read-bar\s*\{/, 'P1624 fiscal peer shared bars remain unchanged');
 console.log('PASS P1624 entity summary: first-load history, quote currency/basis, identity and cancellation/cache');
-}],
+}, 'code'],
 // ── section company-analysis (was ci-company-analysis-fixture.mjs) ──
 ['company-analysis', async () => {
 // P1624: examples are regression cases; the analysis contract is identical for every issuer.
@@ -89,5 +89,5 @@ assert.equal(kr.identity.market,'KR','P1624 Korean issuer has its own market');
 assert.equal(kr.financial.status,'kr-disclosure-required','P1624 US SEC data does not fill missing Korean filings');
 assert.match(companyAnalysisContext(model),/내부 사업 설명 미수집.*웹검색/,'P1624 missing business evidence is explicitly passed to qualitative AI retrieval');
 console.log('PASS P1624 company analysis: universal issuer contract, same-market facts, ETF/KR/missing/foreign-receipt boundaries.');
-}],
+}, 'code'],
 ]);

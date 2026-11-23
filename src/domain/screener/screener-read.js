@@ -1,7 +1,3 @@
-// P1437 (스크리너 redesign): before the table, say what the ranking is made of and how far to trust it —
-// which sectors fill the top fifth (against their share of the universe), whether those sectors are the
-// ones leading the rotation, how healthy the top names' trends are, and how the same ranking has done
-// after the fact. Pure: the ranked rows, the rotation items, the regime and the validation summary.
 import { SECTOR_ETF, normalizeSectorKey } from '../entity/stock-read.js';
 import { THEME_STATES } from '../scenarios/analogs.js';
 import { RRG_QUADRANT_WORDS } from '../themes/rrg.js';
@@ -12,7 +8,6 @@ import { sectorLabel } from './sector-label.js';
 import { directionOf, readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
-// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 const QUADRANT_KO = RRG_QUADRANT_WORDS; // R714: one set of quadrant words (themes/rrg.js)
@@ -25,7 +20,6 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   if (ranked.length < 20) return { available: false, reason: '순위가 계산된 종목이 20개 미만이라 구성을 읽지 않습니다.' };
   const topCount = Math.max(10, Math.round(ranked.length * 0.2));
   const top = ranked.slice(0, topCount);
-  // X12 (2026-10-13): the floor of 10 makes a small list's "top" larger than 20% (10 of 25 = 40%); name it by count then.
   const exactQuintile = topCount === Math.round(ranked.length * 0.2);
   const topName = exactQuintile ? '상위 20%' : `상위 ${topCount}종목`;
   const topLabel = exactQuintile ? `상위 20%(${topCount}종목)` : `상위 ${topCount}종목(전체의 ${Math.round(topCount / ranked.length * 100)}%)`;
@@ -40,7 +34,6 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const settledOrNull = (row) => { const settled = rrgSettledQuadrant(row); return settled === 'Border' ? null : settled ?? row.quadrant ?? null; };
   const mix = [...topShare.entries()].map(([sector, count]) => ({
     sector, label: sectorLabel(sector), top: count / top.length * 100, all: (allShare.get(sector) || 0) / ranked.length * 100,
-    // v57.84: the settled quadrant (own-noise band + hysteresis); null when it is 경계 on 테마 · 섹터.
     quadrant: SECTOR_ETF[sector] && rotation[SECTOR_ETF[sector]] ? settledOrNull(rotation[SECTOR_ETF[sector]]) : null
   })).sort((a, b) => b.top - a.top);
   const over = mix.filter((row) => row.top - row.all >= 5).slice(0, 3);
@@ -51,27 +44,19 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     const withQuadrant = over.filter((row) => row.quadrant);
     if (withQuadrant.length) {
       const leading = withQuadrant.filter((row) => row.quadrant === 'Leading' || row.quadrant === 'Improving');
-      // v57.50 D12: the ranking (momentum·trend) and the rotation quadrant are both built from relative price strength,
-      // so agreement between them is the same information seen twice — not a second confirmation. Neutral tone.
       points.push({ id: 'rotation', tone: 'neutral', title: '섹터 회전',
         text: `${withQuadrant.map((row) => `${row.label} ${QUADRANT_KO[row.quadrant]}`).join(', ')} — ${leading.length === withQuadrant.length ? '쏠린 업종이 섹터 회전에서도 앞서는 쪽입니다' : leading.length ? '쏠린 업종 중 일부만 섹터 회전에서 앞섭니다' : '쏠린 업종이 섹터 회전에서는 뒤처지는 쪽이라, 순위가 지난 강세를 늦게 반영하고 있을 수 있습니다'}. 순위와 섹터 회전은 같은 가격 상대강도 정보에서 나온 결과라, 둘이 같은 방향이어도 서로를 확인하는 독립 근거는 아닙니다.` });
     }
   } else {
     points.push({ id: 'mix', tone: 'neutral', title: '상위권 구성', text: `${topLabel}의 업종 비중이 전체와 비슷합니다 — 특정 업종 쏠림 없이 종목별 차이로 순위가 갈렸습니다.` });
   }
-  // v57.81: the ranking carries a trend factor (about a quarter of the weight), so "the top names sit over their 50-day
-  // line" holds by construction — the point is neutral, says so, counts only rows clear of the line by one daily range
-  // (bands.js), and adds the share that broke down in the last five sessions.
   const measured = top.filter((row) => adrMultiple(value(row, 'pctSma50'), row.adrPct) != null);
-  // v59.45 P8-UI-02: each share is of the rows that carry the value, so a partial count names its basis (as the 52-week
-  // share already did); when fewer than half the top rows are measured, one row's 100% is not read as the top group's.
   const basisOf = (n) => (n < top.length ? `(자료 있는 ${n}종목 기준)` : '');
   if (measured.length && measured.length * 2 < top.length) {
     points.push({ id: 'health', tone: 'neutral', title: '상위권 추세',
       text: `${topName} ${top.length}종목 중 50일선 거리와 하루 평균 변동폭 자료가 있는 종목이 ${measured.length}개뿐이라 상위권 추세를 요약하지 않습니다.` });
   } else if (measured.length) {
     const above = measured.filter((row) => adrMultiple(value(row, 'pctSma50'), row.adrPct) >= NEAR_LINE_ADR).length / measured.length * 100;
-    // v57.86 (live review): the share is of rows with a 52-week value — every null row counted as "not near" read 0%.
     const highKnown = top.filter((row) => finite(row.pctFrom52wHigh) != null);
     const nearHigh = highKnown.length ? highKnown.filter((row) => row.pctFrom52wHigh > -5).length / highKnown.length * 100 : null;
     const dropMeasured = top.map(recentDrop).filter(Boolean);
@@ -85,14 +70,10 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     const spread = finite(validation.spreadNet);
     // The word follows the spread as printed (two decimals): a spread that prints as 0.00%p is neither ahead nor behind.
     const spreadDirection = directionOf(spread, 2);
-    // P1449: past performance is a claim about THIS model only when the stored record's model
-    // fingerprint matches the live model. On mismatch (or a pre-fingerprint record) the
-    // trust point says why it is not validation instead of quoting the old model's spread.
     if (validation.modelMatch === false) {
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
         text: '과거 기록이 지금 순위와 다른 모델(가중치·정의 지문 불일치)로 계산되어, 이 화면의 순위 검증으로 읽지 않습니다 — 기록이 다시 쌓이기 전까지 성과 문구는 표시하지 않습니다.' });
     } else if (validation.distinguishable === false) {
-      // v57.50 D11: the same "cannot tell yet" admission as the validation panel — no 앞섬/뒤처짐 from a small sample.
       points.push({ id: 'trust', tone: 'neutral', title: '순위의 과거 성과',
         text: `${validation.undecided || '아직 우연과 구별 안 됨'} — 같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 ${spread == null ? '상위 20%와 하위 20%의 평균 차이는 기록이 없고' : spreadDirection == null ? `상위 20%와 하위 20%의 평균 차이는 ${Math.abs(spread).toFixed(2)}%p였지만` : `상위 20%가 하위 20%보다 평균 ${Math.abs(spread).toFixed(2)}%p ${spreadDirection === 'up' ? '앞섰지만' : '뒤졌지만'}`}, 표본 ${validation.rebalances}회로는 우연과 구별되지 않습니다. 순위는 차트·재무로 확인할 후보 목록으로 읽습니다.` });
     } else if (spread != null && spreadDirection == null) {
@@ -105,9 +86,6 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
           : `같은 순위를 과거 ${validation.rebalances}번 시점에 매겼을 때 상위 20%가 하위보다 ${spread == null ? '평균 차이 기록 없이 앞서지 못했고' : `평균 ${Math.abs(spread).toFixed(2)}%p 뒤처졌고`} 비용 후 ${validation.wins ?? '—'}/${validation.rebalances}회만 앞섰습니다 — 순위는 매수 목록이 아니라 차트·재무로 확인할 후보 목록으로 읽는 편이 맞습니다.` });
     }
   }
-  // 2026-10-14 audit #5: how many of the top fifth sit in themes at each stage (same rows as 테마 시나리오). Counts only;
-  // a stock in two themes at different stages counts once per stage. Absent rows (state not 'ok') add nothing.
-  // v57.84: every stage in THEME_STATES order — the fixed list dropped 추세 약화 확인 중 and would drop 상대 방어·동행.
   const STAGE_ORDER = Object.keys(THEME_STATES);
   const stageCounts = new Map();
   for (const row of top) {
@@ -124,7 +102,6 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
     points.push({ id: 'theme-stage', tone: 'neutral', title: '상위권의 테마 단계',
       text: `${topName} 중 테마에 속한 ${themed}종목의 테마 단계: ${STAGE_ORDER.filter((key) => stageCounts.has(key)).map((key) => `${stageCounts.get(key).label} ${stageCounts.get(key).n}종목`).join(', ')}${[...stageCounts.values()].reduce((sum, item) => sum + item.n, 0) > themed ? ' (단계가 다른 여러 테마에 속한 종목은 단계마다 한 번씩 세어 합이 종목 수보다 큽니다)' : ''}. 단계는 종목이 아니라 테마 전체의 흐름입니다.` });
   }
-  // 2026-10-14 audit #3/#14: the verdicts lead (sector tilt, then what the past record says), then the one denominator.
   const spreadValue = finite(validation?.spreadNet);
   const trustVerdict = !validation?.available ? null
     : validation.modelMatch === false ? '순위의 과거 성과는 다른 모델 기록이라 판단 보류'
@@ -136,9 +113,7 @@ export function buildScreenerRead({ rows = [], rotation = {}, regime = null, val
   const headline = `${topName} 구성은 ${over.length ? `${over.map((row) => row.label).join('·')} 쏠림` : '업종 쏠림 없음'}${trustVerdict ? `, ${trustVerdict}` : ''} — 순위 계산 ${ranked.length}종목 중 ${topLabel}`;
   const next = [];
   if (over[0]) next.push({ route: 'themes', label: '테마와 섹터', why: over[0].quadrant ? `${withTopicParticle(over[0].label)} 섹터 회전에서 ${QUADRANT_KO[over[0].quadrant] || over[0].quadrant} — 상위권 쏠림이 지난 강세를 늦게 반영한 것인지 확인` : `${over[0].label} 쏠림이 섹터 회전에서 어떤 단계인지` });
-  // audit #22: the ranking always continues into the two crossroads.
   next.push({ route: 'themes', label: '테마 시나리오', why: '이 단계 테마의 구성 종목을 차트·재무로 직접 확인', ctx: { anchor: 'theme-playbook' } });
-  // v59.70 (lens audit): the scenarios moved to 시장 상태 (v59.68); the link opened 매크로, which no longer lists them.
   next.push({ route: 'signal', label: '시나리오', ctx: { anchor: 'regime-depth-fold' }, why: '금리·경기 시나리오가 상위권 업종에 수혜인지 부담인지' });
   next.push({ action: 'showTicker', arg: top[0].sym, route: 'ticker', label: `순위 맨 앞 ${top[0].sym}`, why: '상위 종목 하나를 개요·차트·재무로 확인' });
   next.push({ route: 'signal', label: '시장 상태', why: `순위가 놓인 환경 — ${regime?.available ? regime.overall : '판정 대기'}` });

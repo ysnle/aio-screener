@@ -1,7 +1,3 @@
-// Screener-universe breadth (public-data/screener.json `breadth`), checked once for every reader. Legacy unification
-// (2026-10-17): js/aio-data.js _aioApplyScreenerBreadth used to run these checks and copy the result into
-// _aioScreenerBreadthState / _breadthLiveData / _krBreadthLiveData; readers now ask this function with the native
-// screener metadata. It is an AIO screener-universe measurement, not official exchange breadth.
 import { FRESHNESS_POLICY } from '../../shared/freshness-policy.js';
 import { isSessionCurrent } from '../session/market-calendar.js';
 import { historyFieldMeta } from '../indices/history-meta.js';
@@ -17,9 +13,6 @@ function observedMsOf(segment) {
   return segment && segment.observedAt ? new Date(segment.observedAt).getTime() : 0;
 }
 
-// v59.45 (P17-BREADTH-01/02): one check for every population — a finite observation time inside the age window is
-// required (a missing or invalid time is not current), and a candidate is chosen only after it passes all checks.
-// v59.47: the age window is the session rule on the segment's exchange; 96 hours only where the calendar has no year.
 function segmentCheck(segment, now, minEligible, market = 'US') {
   const observedMs = observedMsOf(segment);
   const ageHours = Number.isFinite(observedMs) && observedMs > 0 ? (now - observedMs) / 3600000 : null;
@@ -32,8 +25,6 @@ function segmentCheck(segment, now, minEligible, market = 'US') {
   return { observedMs: ageHours == null ? 0 : observedMs, ageHours, checks, passed: Object.values(checks).every(Boolean) };
 }
 
-// v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members. The history rows say which population each value
-// counts (fieldMeta.universeScope); rows written before the switch keep the AIO US universe and say so.
 export const SP500_BREADTH_SCOPE = 'sp500-members-not-official-index-breadth';
 export function breadthScopeOf(history, field = 'breadth50') {
   const rows = Array.isArray(history) ? history : [];
@@ -48,8 +39,6 @@ export function breadthScopeOf(history, field = 'breadth50') {
 
 export function readScreenerBreadth(breadth, now = Date.now()) {
   const root = breadth && typeof breadth === 'object' ? breadth : null;
-  // v58.79: S&P 500 members lead when that segment passes the same checks (age included); the AIO US universe is the
-  // fallback. A stale S&P 500 segment no longer blocks a current US universe.
   const sp500 = root?.segments?.sp500 || null;
   const sp500Read = sp500 ? segmentCheck(sp500, now, 300) : null;
   const us = (sp500Read?.passed ? sp500 : null) || root?.segments?.us || (sp500 || null);

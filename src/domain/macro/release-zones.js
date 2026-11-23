@@ -1,12 +1,3 @@
-// v59.69 (owner 2026-11-03, "사용자가 어떻게 해석하고 판단해야 하는지 기준"): how to read each scheduled release —
-// the value bands that are good, neutral, a burden or bad for stocks, and the latest value placed in its band.
-// The cut points are the scenario triggers' own (macro-crossroads.js: softland core MoM <= 0.2, reheat >= 0.4,
-// payrolls 7.5만~20만 softland, 5만~7.5만 cooling, < 5만 + 실업률 +0.2%p slowdown, >= 20만 hot, retail >= +0.5% hot),
-// so the band a number lands in and the scenario it moves agree.
-//
-// "Bad news is good news" holds only while inflation is the constraint: with core PCE above 2.5% a hot jobs report
-// delays cuts (a burden); once inflation is near target the same report is growth, read as good. Too cold is bad in
-// both regimes — a cut that arrives because earnings are falling does not lift stocks.
 import { monthChangeAt, seriesOf, yoySeries } from './macro-read.js';
 import { releaseActuals } from '../market/regime/macro-crossroads.js';
 import { policyCycle } from './macro-signals.js';
@@ -14,9 +5,6 @@ import { RULES } from '../rules/thresholds.js';
 
 const INFLATION_FIRST_ABOVE = 2.5; // core PCE YoY, %
 
-// the reads follow the policy cycle (macro-signals policyCycle, the 물가 chapter and axis read the
-// same one). After the 9/17 hike the CPI and PCE bands still printed '끈적함 · 인하 기대가 줄어듭니다'; in a hiking cycle the
-// question a hot print answers is how high and how long, not how soon a cut comes. Bands and tones are unchanged.
 const PRICE_ZONES = (hiking = false) => [
   { below: 0.2, tone: 'good', label: '둔화', read: hiking ? '추가 인상 압력이 줄어듭니다' : '금리 인하 여지가 커집니다' },
   { below: 0.3, tone: 'neutral', label: '조금 높음', read: '목표보다 조금 높아 금리 경로는 그대로입니다' },

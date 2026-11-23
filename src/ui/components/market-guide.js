@@ -1,9 +1,3 @@
-// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): 시장 상태's guide card — which way to lean across the live scenarios
-// (the reading of the choice tally, the opportunity cost if it is wrong, what to lean toward and avoid; the tally itself is
-// a raw table) and the principles today's data touches, one line each that opens the principle in the library's 참여 원칙,
-// where the full set lives. The guide's headline is not drawn: it restated the 시나리오 lead above it (the closest scenario,
-// the next release) and the tally reading below.
-// Reads the guide stage of the shared interpretation.
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
@@ -44,7 +38,7 @@ function stance(doc, stanceModel, note) {
 
 function choiceTable(doc, direction) {
   const table = el(doc, 'table', null, 'mg-choices');
-  table.append(el(doc, 'caption', '선택지별 집계 — 핵심 조건을 갖춘 시나리오마다 적힌 비용 비교를 센 것(확률 아님)', 'mg-caption'));
+  table.append(el(doc, 'caption', '선택지별 집계 — 선두와 조건이 절반 이상 맞는 시나리오마다 적힌 비용 비교를 센 것(확률 아님)', 'mg-caption'));
   const head = el(doc, 'tr');
   for (const label of ['선택지', CHOICE_WORDS.favoredState, CHOICE_WORDS.costlyState]) { const th = el(doc, 'th', label); th.scope = 'col'; head.append(th); }
   const thead = el(doc, 'thead'); thead.append(head);

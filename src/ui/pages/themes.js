@@ -1,4 +1,3 @@
-// v59.70: the page is the lifecycle; the RRG view, the sector board and the theme detail live in src/ui/pages/themes/.
 import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderKnowledgeArrival } from '../components/knowledge-arrival.js';
@@ -29,7 +28,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
       bag.add(() => suppliedMaterialBridge.remove());
       page.dataset.aioArchitectureRoute = route;
       page.dataset.aioArchitectureSlice = 'themes';
-      // v57.50 I05: what a research document sent the reader here to check, and the way back.
       renderKnowledgeArrival({ documentRef, root, routeId: route });
       if (route === 'themes') {
         page.dataset.aioArchitectureRenderer = 'native';
@@ -58,14 +56,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         if (rrgCanvasHost) rrgCanvasHost.dataset.aioRrgChartRenderer = 'native';
          if (performanceBarsHost) performanceBarsHost.dataset.aioThemePerformanceBarsRenderer = 'native';
          if (detailPanel) detailPanel.dataset.aioThemeDetailPanelRenderer = 'native';
-        // v57.54 (CI flake, 1 in ~12 under 4x CPU): a refresh/store re-render right after the detail panel closes can
-        // replace the trigger the close handler just focused, dropping focus to <body>. Re-focus its replacement after render.
         let restoreDetailFocus = null;
         let stopCloseFollow = null; // one at a time; ends when focus moves on, on reopen, after 60s, or on unmount
         bag.add(() => stopCloseFollow?.());
-        // v59.51 (content audit): an open theme is a view of its own. The page carries data-theme-detail="open" while the
-        // panel shows a theme, and themes-page.css steps the list sections aside (the list stayed rendered around the panel:
-        // ~25,600 px on a phone).
         const syncStandalone = () => {
           const open = !!detailPanel && detailPanel.style.display === 'block' && !!detailPanel.dataset.currentTheme;
           if (open) page.dataset.themeDetail = 'open'; else delete page.dataset.themeDetail;
@@ -77,13 +70,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (!view) return;
           root._aioThemesVerdictView = view;
           syncVerdictView(documentRef, root);
-          // v59.70: the scatter was sized while hidden; redraw it at the visible frame width.
           if (view === 'rrg') { renderRRGStatus({ documentRef, root, store, route }); renderRRGCanvas({ documentRef, root, store, route }); }
         };
         verdictTabs?.addEventListener('click', onVerdictTab);
         bag.add(() => verdictTabs?.removeEventListener('click', onVerdictTab));
-        // v57.61 (perf): the nine detail renderers only fill hosts inside #theme-detail-panel. While the panel is
-        // closed the close handler has emptied them, so they are skipped; opening the panel renders them once.
         const renderDetail = () => {
           if (detailPanel && detailPanel.style.display !== 'block') return;
           renderThemeDetailSummary({ documentRef, root, store });
@@ -95,12 +85,9 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           renderThemeDetailSubthemeGap({ documentRef, root, store });
           renderThemeDetailBenchmark({ documentRef, root, store });
           renderThemeDetailInsights({ documentRef, root, store });
-          syncThemeDetailDayFold(documentRef, store); // v58.75
-          renderThemeDetailTeach({ documentRef, root, store }); // v58.75 (persona review, A-3·4·6)
+          syncThemeDetailDayFold(documentRef, store);
+          renderThemeDetailTeach({ documentRef, root, store });
         };
-        // v57.61 (perf): event-driven renders coalesce into one per animation frame (one aio:liveQuotes tick used to
-        // render here and again after bootstrap's syncThemes store update). Store-slice renders stay synchronous and
-        // cancel a pending frame, so the store path remains the single renderer for that tick.
         let pendingFrame = null;
         const cancelScheduledRender = () => {
           if (!pendingFrame) return;
@@ -117,13 +104,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderThemePerformanceBars({ documentRef, root, store, route });
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
-           renderThemeStrength({ documentRef, root, store }); // P1417
-          // v59.44 (owner 2026-10-30): the AI supply chain by group (a lazy chunk). v59.51: it paints into its static slot
-          // after #themes-verdict; creating the host here raced aio-core's 2.3 s verdict-after-header reorder.
-          if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain }) => paintThemesAiChain(documentRef, root)).catch(() => {});
-           try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
-           try { renderSectorMap({ documentRef, root, store }); renderThemeDaySplits({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map; v59.51 day splits
-           // v59.51 (content audit): S&P 500 이익 전망 (index-earnings.js) moved to 거시 — it says nothing about themes.
+           renderThemeStrength({ documentRef, root, store });
+          if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain, paintThemesLeaderFalls }) => { paintThemesAiChain(documentRef, root); paintThemesLeaderFalls(documentRef, root); }).catch(() => {});
+           try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ }
+           try { renderSectorMap({ documentRef, root, store }); renderThemeDaySplits({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ }
            syncVerdictView(documentRef, root);
            syncStandalone();
            restoreDetailFocus?.();
@@ -139,12 +123,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (pendingFrame.raf == null && pendingFrame.timer == null) { pendingFrame = null; renderNow(); }
         };
         bag.add(() => cancelScheduledRender());
-        // v58.75 (persona review): the AI chat reads one theme's criteria, reasons, roles and scenarios through this global
-        // ({ headline, items: [{ label, met, value, principle }], ... }). It stays after unmount — the store is the app's one.
         root._aioThemeCriteriaFor = (themeId) => { try { return themeCriteriaSummary(root, store, themeId); } catch (_) { return null; } };
         renderNow();
-        // v57.76: the scatter redraws when its frame changes width (rotation, sidebar, window resize). Height changes
-        // from the redraw itself are ignored, so the observer cannot loop.
         const rrgFrame = documentRef.getElementById('rrg-canvas-frame');
         const FrameObserver = documentRef.defaultView?.ResizeObserver;
         if (rrgFrame && typeof FrameObserver === 'function') {
@@ -158,7 +138,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           frameObserver.observe(rrgFrame);
           bag.add(() => frameObserver.disconnect());
         }
-        // v57.50 I22: a link that asked for a section (국내 테마 from the KR screener) opens and shows it once.
         const handoff = consumeResearchHandoff({ root, routeId: 'themes' });
         const anchorId = handoff?.context?.anchor ? String(handoff.context.anchor) : '';
         if (/^[a-z0-9-]+$/i.test(anchorId)) {
@@ -180,15 +159,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           root.addEventListener('aio:refresh:done', scheduleRender);
           bag.add(() => root.removeEventListener?.('aio:refresh:done', scheduleRender));
         }
-        // P1417: history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;
         if (windowTarget?.addEventListener) {
           windowTarget.addEventListener('aio:historyLoaded', scheduleRender);
           bag.add(() => windowTarget.removeEventListener?.('aio:historyLoaded', scheduleRender));
         }
         const onThemeDetailShown = (event) => {
-          // P800: the native detail surfaces consume the normalized store selection;
-          // the legacy event payload remains a compatibility notification only.
           if (deepLinkHint) deepLinkHint.hidden = true;
           stopCloseFollow?.(); // a reopened detail ends the close-focus follow
           if (detailPanel) {
@@ -196,7 +172,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             if (event?.detail?.themeId) detailPanel.dataset.currentTheme = String(event.detail.themeId);
           }
           syncStandalone();
-          renderDetail(); // v57.61: detail renderers skip while closed, so the opening render happens here
+          renderDetail();
           // Needs the theme id set above; each render has its own guard so a failure in one still draws the other.
           try { renderThemeDetailPlaybook({ documentRef, root }); } catch (error) { root?._aioLog?.('warn', 'themes', `테마 상세 플레이북 렌더 실패: ${error?.message || error}`); }
           try { renderThemeDetailTeach({ documentRef, root, store }); } catch (error) { root?._aioLog?.('warn', 'themes', `테마 상세 읽기 렌더 실패: ${error?.message || error}`); }
@@ -204,8 +180,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // compatibility event reaches the mounted page. The store subscription is
           // the sole detail renderer; this listener owns visibility only.
         };
-        // v57.76: a quadrant chip can sit in the 사분면별 섹터 fold, which closes itself once quadrants render; returning
-        // focus opens the fold first, since a node inside a closed <details> cannot take focus.
         const revealTrigger = (node) => { const fold = node?.closest?.('details'); if (fold && !fold.open) fold.open = true; };
         const onThemeDetailClosed = () => {
           delete page.dataset.themeDetail; // the list comes back first, so the trigger can take focus and be scrolled to
@@ -215,13 +189,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           trigger?.scrollIntoView?.({ block: 'center' });
           trigger?.focus?.({ preventScroll: true });
           const closedAt = Date.now();
-          // v57.59: CI still lost focus when the replacing render came from a host outside renderNow (or after 3s under
-          // CPU throttling), so a short-lived observer on the page also retries.
-          // 2026-10-19: it stopped after the first successful re-focus and after 10s, so a second replacing render (or
-          // one after 10s under 4x CPU) still dropped focus to <body> (main CI, #62, #73). It now follows the focused
-          // trigger: whenever that node is removed while focus sits on <body>, the current trigger for the same theme
-          // takes focus. It stops once the reader moves focus elsewhere (a blur onto <body> while the trigger is still
-          // mounted is the reader's own click), when a detail opens again, or after 60s.
           stopCloseFollow?.();
           let observer = null;
           let focused = documentRef.activeElement === trigger ? trigger : null;
@@ -250,7 +217,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
             revealTrigger(next);
             next.setAttribute?.('aria-expanded', 'false');
             next.focus?.({ preventScroll: true });
-            // v57.64: a replacement still hidden mid-render refuses focus; keep watching until focus actually lands.
             if (documentRef.activeElement === next) focused = next;
           };
           const Observer = documentRef.defaultView?.MutationObserver;
@@ -263,9 +229,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           clearDetailHosts();
           syncThemeDetailDayFold(documentRef, store);
         };
-        // P1599 (T04): the trigger the reader clicked (sector cards, sub-theme ranking, CAPEX flow, stage table) is kept so
-        // closing the detail returns to that row. v59.51: the detail is a view of its own, so the panel no longer moves
-        // under the clicked section.
         let detailTrigger = null;
         let detailTriggerKey = null;
         let detailTriggerId = '';
@@ -293,7 +256,6 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           back.type = 'button';
           back.className = 'flow-next-link theme-detail-return';
           back.textContent = '← 테마 목록으로';
-          // v59.51: the way back closes the detail; the close handler reopens the trigger's fold, scrolls to it and focuses it.
           back.addEventListener('click', () => {
             if (typeof root.closeThemeDetail === 'function') root.closeThemeDetail();
             else eventTarget?.dispatchEvent?.(new CustomEvent('aio:themeDetailClosed'));
@@ -311,15 +273,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         eventTarget?.addEventListener?.('aio:themeDetailClosed', onThemeDetailClosed);
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailShown', onThemeDetailShown));
         bag.add(() => eventTarget?.removeEventListener?.('aio:themeDetailClosed', onThemeDetailClosed));
-        const legacyAddress = applyLegacyThemeDetailAddress(root); // v59.70: an old #theme-detail/<id> keeps its id
+        const legacyAddress = applyLegacyThemeDetailAddress(root);
         const pendingThemeId = String(root?._aioOpenThemeDetailOnThemes || '').trim();
         if (pendingThemeId) {
           delete root._aioOpenThemeDetailOnThemes;
           queueMicrotask(() => requestThemeDetail(pendingThemeId));
         }
-        // v58.75 (persona review): every way into the Korean theme detail (artifact rows, legacy cards, other screens via
-        // openKrThemeDetail) goes through window.showKrThemeDetail; while 테마 is mounted it also fills the completed-close
-        // member table and keeps the (otherwise hidden) live fold visible around the open panel.
         const originalShowKr = typeof root?.showKrThemeDetail === 'function' && !root.showKrThemeDetail.__aioCloseDetail ? root.showKrThemeDetail : null;
         if (originalShowKr) {
           const wrappedShowKr = function showKrThemeDetailWithClose(themeId, ...rest) {

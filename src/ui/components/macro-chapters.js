@@ -1,6 +1,3 @@
-// v59.55 (owner 11/1; eight since v59.64): 매크로's chapters (domain/macro/macro-chapters.js), right under the quadrant and the six
-// factors. Each card is one question: a small two-sided bar picture, the latest numbers, the next release, the condition
-// that changes the read, and the numbers behind it.
 import { signedText } from '../../domain/shared/number.js';
 import { buildMacroChapters } from '../../domain/macro/macro-chapters.js';
 import { markFrame } from './section-frame.js';
@@ -30,8 +27,6 @@ function miniBars(doc, viz) {
   return box;
 }
 
-// v59.70 (X bookmarks #4): credit tiers in their own recorded range — the 10~90th percentile band, the median tick and
-// today's dot, each row on its own scale (CCC sits near 9%, investment grade under 1%).
 function rangeBands(doc, model) {
   const box = el(doc, 'figure', null, 'mx-ch__range');
   box.setAttribute('role', 'img');
@@ -63,10 +58,9 @@ function chapterCard(doc, chapter) {
   // 안 A: the latest numbers, not the sentence the chapter assembles on them (chapter.mean); the condition that changes the
   // read stays below as 바뀌는 조건.
   text.append(el(doc, 'p', chapter.now, 'mx-ch__now'));
-  // v59.64: today's move of this chapter's gauges and what moved with it (market-day ledger).
   if (chapter.today?.text) {
     const today = el(doc, 'p', null, `mx-ch__today is-${chapter.today.rank}`);
-    today.append(el(doc, 'strong', '오늘 '), doc.createTextNode(chapter.today.text));
+    today.append(el(doc, 'strong', `${chapter.today.label || '최근 거래일'} `), doc.createTextNode(chapter.today.text));
     text.append(today);
   }
   body.append(miniBars(doc, chapter.viz), text);

@@ -69,11 +69,9 @@ assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is neve
   } finally { process.chdir(cwd); }
 }
 
-const restamped = restampOverlayRevision('public-config.json', { appRevision: 'v59.78', workerRevision: 'sw:v59.78', ai: { routeStatus: 'PUBLISHED' } }, 'v59.75');
-assert.deepEqual(restamped, { appRevision: 'v59.75', workerRevision: 'sw:v59.75', ai: { routeStatus: 'PUBLISHED' } }, 'v59.78 release-source contract');
-const ops = restampOverlayRevision('public-data/operations-status.json', { appRevision: 'v59.78', planes: { browser: { revision: 'v59.78' } } }, 'v59.75');
-assert.equal(ops.planes.browser.revision, 'v59.75', 'v59.78 operations-status browser revision is restamped to the overlay code');
-assert.throws(() => restampOverlayRevision('public-config.json', {}, 'latest'), 'v59.78 release-source contract');
+const ops = restampOverlayRevision('public-data/operations-status.json', { appRevision: 'v59.78', planes: { browser: { revision: 'v59.78' } }, ai: { publicChat: { status: 'CURRENT' } } }, 'v59.75');
+assert.deepEqual(ops, { appRevision: 'v59.75', planes: { browser: { revision: 'v59.75' } }, ai: { publicChat: { status: 'CURRENT' } } }, 'v59.78 operations-status app and browser revisions are restamped to the overlay code');
+assert.throws(() => restampOverlayRevision('public-data/operations-status.json', {}, 'latest'), 'v59.78 release-source contract');
 // v59.85: the watchdog's automatic re-pin commit (GITHUB_TOKEN push, no push CI) must not count as code, or every later
 // refresh release would ride the overlay until a human push; and every file a data publish set commits is a generated path.
 assert.ok(PRODUCER_WRITTEN_PATHS.includes('architecture/browser-data-fixture.json'), 'v59.85 the browser data pin is a generated path');
@@ -121,13 +119,14 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
 assert.ok(!/':\(exclude\)public-data'/.test(ci), 'v59.78 the generated path list lives in scripts/lib/data-publish-sets.mjs only');
 
 // v59.78: the data watchdog reports repository upkeep instead of going red on it; every other run still fails on it.
-const maintenance = { id: 'watchdog-knowledge-lint', watchdogRole: 'maintenance' };
+const maintenance = { id: 'watchdog-browser-data-pin-drift', watchdogRole: 'maintenance' };
 assert.equal(failureBlocks(maintenance, 'source', WATCHDOG_PROFILE), false, 'v59.78 release-source contract');
 assert.equal(failureBlocks(maintenance, 'source', 'group'), true, 'v59.78 release-source contract');
 assert.equal(failureBlocks(maintenance, 'ci', 'group'), true, 'v59.78 release-source contract');
 assert.equal(failureBlocks({ id: 'external-pipeline' }, 'source', WATCHDOG_PROFILE), true, 'v59.78 live-data gates keep the watchdog red');
 const pipeline = JSON.parse(readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
 const roles = Object.values(pipeline.groups).flatMap((group) => group.gates || []).filter((gate) => gate.watchdogRole).map((gate) => `${gate.id}:${gate.watchdogRole}`).sort();
-assert.deepEqual(roles, ['watchdog-browser-data-pin-drift:maintenance', 'watchdog-knowledge-lint:maintenance'], 'v59.78 only repository-upkeep twins are maintenance; data and live gates stay blocking');
+// v60.50: the knowledge-lint twin is gone (its document-age ratchet now only warns, so it had nothing to watch).
+assert.deepEqual(roles, ['watchdog-browser-data-pin-drift:maintenance'], 'v59.78 only repository-upkeep twins are maintenance; data and live gates stay blocking');
 
 console.log('release source contract PASS: direct, treesame, wait, overlay, refuse decisions; overlay restamp; workflow wiring; preflight overlay; converge budget; watchdog maintenance roles');

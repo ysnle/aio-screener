@@ -1,4 +1,3 @@
-// P1605: directly read commentary becomes a reasoning protocol, never live numeric input.
 const source = (id, author, publishedAtKst, summary, relatedUrls = []) => Object.freeze({ id, author, sourceUrl: `https://x.com/${author === 'Nuradu' ? 'NURadu_' : author === 'Humble' ? 'laylaperfume' : 'Trader_Jesse_'}/status/${id.split('-').at(-1)}`, publishedAtKst, sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary, relatedUrls: Object.freeze(relatedUrls), accessBoundary: '원문과 공개된 작성자 후속 글 확인. 로그인 뒤 숨은 답글·이후 수정은 전수 확인하지 못함.', observedOn: '2026-10-11' });
 export const PACKET_20261011_SOURCES = Object.freeze([
   source('Nuradu-2108953697267208335', 'Nuradu', '2026-10-11T01:11+09:00', '신용 등급별 분산, 차환·현금의 시간차, 환매 요청과 지급, 투자·상거래 관계 중첩과 법인 책임 범위'),

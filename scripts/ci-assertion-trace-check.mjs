@@ -84,6 +84,9 @@ function collectMessageCalls(source) {
     if (match[1] === 'check' && args.length < 2) continue;
     const last = args[args.length - 1].match(STRING_ARG);
     const label = last ? (last[1] ?? last[2] ?? last[3] ?? '').trim() : '';
+    // v60.50: this scanner counts a regex `\{` as a bracket, so a call can run on to the end of a gate section and read
+    // its input tag (scripts/lib/gate-sections.mjs `}, 'code']`) as the message. A bare tag is never a message.
+    if (label === 'code' || label === 'data') continue;
     if (label && args.length > 1) labels.push(label); else if (match[1] !== 'check') messageless += 1;
   }
   return { labels, messageless };

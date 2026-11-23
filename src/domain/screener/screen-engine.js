@@ -13,14 +13,8 @@ import {
 } from '../../data/contracts/screener.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
-// P1180/R24-04: engine v6 introduces the calculation input identity; screen-engine.v5 records
-// keep legacy_identity_semantics in replayScreenRun.
 export const SCREEN_ENGINE_VERSION = 'screen-engine.v6';
 
-// P1180/R24-04 (07 W07-G): the factor input policy this engine declares. `live_capture` is
-// today's honest behavior — an evidence-eligible live market cap feeds the size factor — so a
-// mcap tick mints a new calculationInputId and result while the observation set stays fixed.
-// The 07 artifact-fixed default requires the producer's marketCapObservation contract first.
 export const FACTOR_INPUT_POLICY = 'live_capture';
 
 const USABLE_REQUIRED_FIELD_STATUSES = new Set(CALCULABLE_FIELD_STATUSES);
@@ -150,8 +144,6 @@ export function compileScreenDefinition(definition) {
   });
 }
 
-// P1180/R24-04: every row key a definition can read — filters, hard gates, ranking and
-// required fields, resolved through the registry exactly like valueAt does at evaluation time.
 function collectDefinitionRowKeys(definition) {
   const rowKeys = new Set();
   const addField = (field) => {
@@ -166,8 +158,6 @@ function collectDefinitionRowKeys(definition) {
     if (node.field) addField(node.field);
     if (Array.isArray(node.fields)) node.fields.forEach(addField);
     if (Array.isArray(node.children)) node.children.forEach(walk);
-    // v58.63 (architecture audit SCR01/C03): evaluateNode reads a NOT node's `child`; the walker must see the same
-    // edge, or a price read under NOT changed the result hash while the calculation input id stayed the same.
     if (node.child) walk(node.child);
   };
   walk(definition?.filtersAST);
@@ -177,10 +167,6 @@ function collectDefinitionRowKeys(definition) {
   return rowKeys;
 }
 
-// P1180/R24-04: the live overlay keys this calculation actually consumes. The market-cap family
-// is a rank input under the live_capture policy and always belongs to the identity; the price
-// family joins only when the definition reads row.price — an unconsumed UI overlay must never
-// mint a calculation identity (07 W07-G).
 function calculationLiveInputKeys(definition) {
   const referenced = collectDefinitionRowKeys(definition);
   const keys = [...LIVE_QUOTE_MCAP_INPUT_ROW_KEYS];
@@ -196,9 +182,6 @@ export function runScreen({ definition, rows = [], snapshotId = 'unknown', provi
     const hardFail = gateResults.some((result) => result.state === 'fail');
     const hardUnknown = gateResults.some((result) => result.state === 'unknown');
     const requiredAudit = auditRequiredFields(row, definition.requiredFields);
-    // W07-B/P1146 (M02): admission and ranking are separate states. A row may satisfy every
-    // filter yet have no usable ranking field; it stays visible as passed but must not receive
-    // an ordinal rank as if the missing score were the best one.
     const filterState = hardFail || filterResult.state === 'fail' ? 'rejected' : hardUnknown || filterResult.state === 'unknown' || !requiredAudit.eligible ? 'unknown' : 'passed';
     const ranking = contributionFor(row, definition.ranking);
     const rankingState = filterState !== 'passed' ? 'not-requested' : ranking.total == null ? 'unavailable' : 'ranked';
@@ -250,12 +233,6 @@ export function runScreen({ definition, rows = [], snapshotId = 'unknown', provi
   const rejected = entries.filter((entry) => entry.status === 'rejected').length;
   const unavailable = entries.filter((entry) => entry.status === 'unknown').length;
   const explanationsHash = stableHash(entries.map((entry) => [entry.row.sym || entry.row.symbol, entry.status, entry.explanation]));
-  // P1180/R24-04 (07 W07-G): three separated identities. `snapshotId` (observationSetId)
-  // identifies the observation set that arrived; `calculationInputId` identifies what THIS
-  // calculation consumed — definition, engine, factor input policy and the live overlay keys
-  // the policy/definition actually read; `resultHash` derives from the calculation input plus
-  // the ordered outputs. legacyResultIdentity recomputes the screen-engine.v5 formula exactly,
-  // so a stored v5 record verifies against its own semantics instead of a re-derived feed.
   const calculationInputId = legacyResultIdentity ? null : stableHash({
     observationSetId: snapshotId,
     definitionHash: compiled.hash,
@@ -293,9 +270,6 @@ export function captureScreenRun(input, result = runScreen(input)) {
 }
 
 export function replayScreenRun(record) {
-  // P1180/R24-04: a screen-engine.v5 record predates the calculation input identity. It is
-  // verified under legacy_identity_semantics — the stored inputs, hash and result are checked
-  // against the v5 formula that produced them, never re-derived from the current live feed.
   const legacyIdentity = record?.run?.calculationInputId == null;
   if (record?.schemaVersion !== 'screener-run-record.v1') throw new Error('SCREEN_REPLAY_VERSION_UNSUPPORTED');
   if (legacyIdentity ? record.engineVersion !== 'screen-engine.v5' : record.engineVersion !== SCREEN_ENGINE_VERSION) throw new Error('SCREEN_REPLAY_VERSION_UNSUPPORTED');
@@ -323,19 +297,10 @@ const preset = (screenId, name, objective, filtersAST, requiredFields, ranking =
 export function createDefaultScreenDefinitions() {
   return Object.freeze([
     preset('preset-balanced', '균형 상대 순위', 'balanced-research', { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }, ['price.ret3m', 'price.pctSma200', 'price.rsi14']),
-    // v57.84 review: the presets were the composite rank filtered four ways (모멘텀 지속 274/274 inside 균형). Each now sorts by
-    // its own signal, uses thresholds that select (분포 기준), and the pivot presets need an actual breakout/near-pivot stage.
     preset('preset-momentum', '모멘텀 지속', 'momentum-research', { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 60, nullPolicy: 'unknown' }] }, ['price.ret1m', 'price.ret3m', 'technical.kalmanVelocity'], { field: 'price.ret3m', direction: 'desc' }),
-    // v57.86 (live review): 추세 정렬 sorted by the composite rank (its top 12 were 균형's, in order) — it sorts by the long trend;
-    // 저변동 방어 listed seven bond ETFs (no rank) — a stock preset needs a ranked row.
     preset('preset-trend', '추세 정렬', 'trend-research', { type: 'and', children: [{ type: 'range', field: 'price.pctSma50', min: 0, nullPolicy: 'unknown' }, { type: 'range', field: 'price.pctSma200', min: 0, nullPolicy: 'unknown' }] }, ['price.pctSma50', 'price.pctSma200'], { field: 'price.pctSma200', direction: 'desc' }),
     preset('preset-lowvol', '저변동 방어', 'low-volatility-research', { type: 'and', children: [{ type: 'range', field: 'price.volatility', max: 25, nullPolicy: 'unknown' }, { type: 'range', field: 'rank', min: 0, nullPolicy: 'reject' }] }, ['price.volatility', 'price.rsi14'], { field: 'price.volatility', direction: 'asc' }),
     preset('preset-quality', '퀄리티 결합', 'quality-research', { type: 'and', children: [{ type: 'range', field: 'quality.roe', min: 15, nullPolicy: 'unknown' }, { type: 'range', field: 'quality.margin', min: 10, nullPolicy: 'unknown' }] }, ['quality.roe', 'quality.margin']),
-    // v58.75 (persona review): '돌파 관찰' required near_pivot AND rvol20 >= 1.4, so the quiet names just under the pivot (the
-    // watch list a breakout trader keeps) were dropped and 3 rows remained. Split: near the pivot, quietest volume first; and
-    // the breakout itself on heavy volume. A stored run keeps its own definition, so replay is unaffected.
-    // The near-pivot list is not filtered on volume (a ±3% band name with heavy volume is still worth seeing); its name says
-    // it is ordered by the quietest volume rather than claiming every row is drying up.
     preset('preset-pivot-quiet', '피벗 근접·거래 적은 순', 'pivot-quiet-observation', { type: 'enum', field: 'technical.vcpStage', values: ['near_pivot'], nullPolicy: 'unknown' }, ['technical.vcpScore', 'price.rvol20', 'technical.ema8', 'technical.ema21'], { field: 'price.rvol20', direction: 'asc' }),
     // A breakout is one session and its day already needs 1.4x volume (definitions.isBreakoutDay), so "stage is
     // breakout today plus rvol20 >= 1.4" matched nothing. The preset reads the sessions since the breakout day; a row

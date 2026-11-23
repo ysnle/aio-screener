@@ -5,23 +5,30 @@
 //
 // Rule: every ci.yml contract shard runs with AIO_QA_ORIGIN=ci, source pushes included. There a gate declared
 // `liveData: "content"` reports its failure (ADVISORY) and a gate that judges dates against the wall clock reports that
-// judgement as a warning (knowledge-lint P1125). Producer pre-push runs, local runs and the watchdog set no origin, so the
+// judgement as a warning (the reconciliation 24 h window; knowledge-lint P1125 warns everywhere since v60.50). Producer pre-push runs, local runs and the watchdog set no origin, so the
 // same checks still fail there; the watchdog twins (same script in watchdog-local) keep watching the live content.
 // Source defects (control characters, YAML, code contracts) declare nothing and block everywhere.
 
-// v60.46 (static-dynamic audit 2026-11-22, rec. 8): every gate declares what its verdict depends on (`inputClass`):
-//   data  — the artifacts a producer writes this run (public-data/**, public-config.json, the release manifests);
-//   code  — code and pinned fixtures only: it reads nothing a producer writes;
-//   mixed — code or fixture checks that also read producer-written artifacts.
+// v60.50 (data-path split): every gate declares what its verdict depends on (`inputClass`), one of two:
+//   data — the artifacts a producer writes (public-data/**; public-config.json and the architecture manifests are code);
+//   code — code and pinned fixtures; a code test that only borrows a published file as realistic input is code too.
 // A data run — a producer's pre-push gate (the data-commit profile, or --data-run) and the reduced-scope CI of a data-only
-// commit — skips `code` gates. The code under a data-only commit already passed full push CI (resolve-release-source.mjs
-// rides the data on that code, direct or overlay), so a code gate there can only repeat that verdict, or fail the producer
-// on a red code push that the overlay release never ships. `data` and `mixed` gates run in full; an undeclared gate runs.
-export const GATE_INPUT_CLASSES = Object.freeze(['data', 'code', 'mixed']);
+// commit — runs `data` gates only. The code under a data-only commit already passed full push CI (resolve-release-source.mjs
+// rides the data on that code, direct or overlay), so a code assertion there can only repeat that verdict, or stop the live
+// data for every reader on a calendar rule or a code fixture (P2749: a weekday fixture blocked every refresh for hours).
+// A script that holds both kinds splits them into sections (scripts/lib/gate-sections.mjs): the runner sets DATA_RUN_ENV
+// for a data run and runSections skips the `code` sections there. Such a gate is declared `data`.
+export const GATE_INPUT_CLASSES = Object.freeze(['data', 'code']);
+export const DATA_RUN_ENV = 'AIO_QA_DATA_RUN';
 
 /** true when this gate runs in a data run (a producer pre-push gate or the CI of a data-only commit). */
 export function runsInDataRun(gate) {
-  return gate?.inputClass !== 'code';
+  return gate?.inputClass === 'data';
+}
+
+/** true inside a gate process the runner started for a data run. */
+export function isDataRun(env = process.env) {
+  return env[DATA_RUN_ENV] === '1';
 }
 
 export const LIVE_DATA_KINDS = Object.freeze(['content']);

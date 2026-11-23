@@ -173,7 +173,7 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section principles-lesson-parity (was ci-principles-lesson-parity-contract-check.mjs) ──
 ['principles-lesson-parity', async () => {
 const { spawnSync } = await import('node:child_process');
@@ -262,7 +262,7 @@ if (failures.length) {
 }
 
 console.log(`Principles lesson parity contract OK: ${checks.length} checks, 112 lessons, D6 metadata preserved, deterministic output.`);
-}],
+}, 'code'],
 // ── section integrated-framework (was ci-integrated-framework-contract.mjs) ──
 ['integrated-framework', async () => {
 
@@ -303,7 +303,7 @@ assert.equal(artifact.integrationAudit?.find((row) => row.id === 'structural-fra
 assert.equal(artifact.integrationAudit?.find((row) => row.id === 'current-supplied-manuscript')?.checks?.rawDocumentReplay, false);
 assert(read('src/ai/retrieval/knowledge.js').includes("integrated-frameworks"), 'AI retrieval must allow the integrated framework surface');
 console.log(JSON.stringify({ status: 'PASS', frameworks: frameworks.length, principles: 12, atlas: 17, datedScene: artifact.datedScene.status, identityReplay: false, rankingMutation: false }, null, 2));
-}],
+}, 'code'],
 // ── section ontology (was ci-knowledge-ontology-contract.mjs) ──
 ['ontology', async () => {
 
@@ -378,7 +378,7 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section articles (was ci-knowledge-article-contract.mjs) ──
 ['articles', async () => {
 
@@ -434,7 +434,7 @@ for (const entry of learning.paths) for (const nodeId of entry.nodeIds || []) as
 const report = { status: failures.length ? 'FAIL' : 'PASS', articles: articles.length, learningNodes: learning.nodes.length, paths: learning.paths.length, failures };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section learning-state (was ci-knowledge-learning-state-contract.mjs) ──
 ['learning-state', async () => {
 
@@ -490,7 +490,7 @@ assert.equal(Object.getPrototypeOf(learning.snapshot().progress), Object.prototy
 const reloaded = createLearningState({ storage, now: () => '2026-08-11T00:00:00.000Z' }).snapshot();
 assert.equal(reloaded.progress['principles:A1'].viewed, true);
 console.log(JSON.stringify({ status: 'PASS', serialized, persisted: Boolean(reloaded.notes['principles:A1']) }, null, 2));
-}],
+}, 'code'],
 // ── section route-targets (was ci-knowledge-route-bridge-contract.mjs) ──
 ['route-targets', async () => {
 
@@ -519,7 +519,7 @@ assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('pr
 assert.equal(artifact.targets.filter((target) => target.articleId.startsWith('nathan-frameworks:')).length, 28, 'all Nathan framework articles must have route targets');
 for (const scenario of artifact.scenarios) assert(byArticle.has(scenario.articleId), `scenario target missing ${scenario.articleId}`);
 console.log(JSON.stringify({ status: 'PASS', targets: artifact.targets.length, articleTargets: artifact.counts.articleTargets, compatibilityTargets: artifact.counts.compatibilityTargets }, null, 2));
-}],
+}, 'code'],
 // ── section renderer (was ci-knowledge-renderer-contract.mjs) ──
 ['renderer', async () => {
 
@@ -530,7 +530,7 @@ const { default: assert } = await import('node:assert/strict');
   assert.ok(/edge\.from === node\.id \? '→' : '←'\} \$\{edge\.relation/.test(principles), 'the connected-concepts list must show the relation direction');
 }
 console.log(JSON.stringify({ status: 'PASS', renderers: 1 }, null, 2));
-}],
+}, 'code'],
 // ── section coverage (was ci-knowledge-full-corpus-coverage.mjs) ──
 ['coverage', async () => {
 
@@ -566,7 +566,7 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section web-dossier (was ci-knowledge-web-research-dossier.mjs) ──
 ['web-dossier', async () => {
 
@@ -614,7 +614,7 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section sector-depth (was ci-knowledge-sector-domain-depth.mjs) ──
 ['sector-depth', async () => {
 
@@ -654,7 +654,7 @@ assert(nodeIds.size === 95, `taxonomy coverage ${nodeIds.size} !== 95`);
 assert(branchIds.size === 50, `deep branch coverage ${branchIds.size} !== 50`);
 console.log(JSON.stringify({ status: failures.length ? 'FAIL' : 'PASS_WITH_BOUNDARY', domains: index.dossiers.length, taxonomyNodes: nodeIds.size, deepBranches: branchIds.size, completionReady: false, failures }, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section uniqueness (was ci-knowledge-article-uniqueness.mjs) ──
 ['uniqueness', async () => {
 
@@ -693,7 +693,7 @@ const report = {
 };
 console.log(JSON.stringify(report, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section transmission (was ci-knowledge-market-transmission.mjs) ──
 ['transmission', async () => {
 
@@ -729,7 +729,7 @@ for (const dossier of domains) {
 }
 console.log(JSON.stringify({ status: failures.length ? 'FAIL' : 'PASS_WITH_BOUNDARY', articles: articles.length, domains: domains.length, quantitativeLabs: 'EXCLUDED_BY_PRODUCT_SCOPE', completionReady: false, failures }, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section currentness (was ci-knowledge-currentness-separation.mjs) ──
 ['currentness', async () => {
 
@@ -755,7 +755,7 @@ for (const [kind, items] of bundles) for (const item of items) {
 }
 console.log(JSON.stringify({ status: failures.length ? 'FAIL' : 'PASS_WITH_BOUNDARY', bundles: bundles.map(([kind, items]) => ({ kind, count: items.length })), quantitativeLabs: 'EXCLUDED_BY_PRODUCT_SCOPE', completionReady: false, failures }, null, 2));
 if (failures.length) process.exit(1);
-}],
+}, 'code'],
 // ── section current-observations (was ci-knowledge-current-observations-check.mjs) ──
 ['current-observations', async () => {
 
@@ -781,7 +781,7 @@ for (const row of artifact.observations) {
   assert.ok(['reference-only', 'current-context'].includes(row.allowedUse), `${row.id} has invalid allowedUse`);
 }
 console.log(JSON.stringify({ status: 'PASS', observations: artifact.observations.length, pages: ['principles', 'atlas'] }, null, 2));
-}],
+}, 'code'],
 // ── section review (was ci-knowledge-review-check.mjs) ──
 ['review', async () => {
 // P1471–P1480 (knowledge review 2026-10-04, 1차·2차; reading standard 2026-10-05): executable negative controls for the learning
@@ -904,5 +904,5 @@ const allReading = JSON.stringify([PRINCIPLE_STORIES, FOUNDATION_STORIES, INDUST
 if (/출처|검토 질문|퀴즈|해보세요|생각해 볼까/.test(allReading)) fail('P1480 reading text must not carry source notes, review questions or quiz register');
 
 console.log(JSON.stringify({ ok: true, frames: LESSONS.length, concepts: CONCEPT_CORE.length, relations: DOMAIN_RELATIONS.length, searchEntries: index.entries.length }));
-}],
+}, 'code'],
 ]);

@@ -7,13 +7,21 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runSections } from './lib/gate-sections.mjs';
 import { splitMarketSentence } from './lib/market-analysis-validate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SPELLED = /에이아이|씨엔비씨|에스앤피/;
 const failures = [];
 const check = (label, fn) => { try { fn(); console.log(`  ok  ${label}`); } catch (error) { failures.push(label); console.log(`  FAIL ${label}\n       ${error.message.split('\n')[0]}`); } };
+const report = () => {
+  const failed = failures.splice(0);
+  if (failed.length) { console.error(`ai-spelled-terms: ${failed.length} failed`); process.exit(1); }
+};
 
+// v60.50: the rule runs on fixed text (code); the published reading is a data section that also runs in a data run.
+await runSections('ai-spelled-terms', [
+['rule', async () => {
 check('v60.18 the reading and the day sentence write AI, CNBC and S&P 500 in Latin', () => {
   const raw = '11/12 씨엔비씨 보도에 따르면 반도체·에이아이 공급망 기대가 눌렸습니다. 에스앤피500은 -0.40%, 에스앤피오백은 50일선 아래입니다.\n오늘의 한 문장: 꺾인 에이아이 주도와 순환이 맞서고 있습니다.';
   const { body, sentence } = splitMarketSentence(raw);
@@ -25,14 +33,16 @@ check('v60.18 the reading and the day sentence write AI, CNBC and S&P 500 in Lat
 // The published reading is reported, not failed: a reading written before this rule (or retained from one) keeps its
 // spelling until the next verified reading replaces it, and the artifact carries no marker of which rule wrote it.
 // AIO_SPELLED_TERMS_STRICT=1 turns the report into a failure (for a check after the first refresh under v60.18).
-{
+report();
+}, 'code'],
+['published-reading', async () => {
   const data = JSON.parse(readFileSync(resolve(root, process.env.AIO_DATA_JSON || 'public-data/data.json'), 'utf8'));
   const ma = data?.marketAnalysis || {};
   const texts = [ma.summary, ma.full, ma.sentence?.text, ...(Array.isArray(ma.sentences) ? ma.sentences.map((row) => row?.text) : [])].filter((text) => typeof text === 'string');
   const hits = texts.filter((text) => SPELLED.test(text)).map((text) => text.match(new RegExp(`.{0,20}(?:${SPELLED.source}).{0,10}`))?.[0]);
   if (process.env.AIO_SPELLED_TERMS_STRICT === '1') check('v60.18 the published market reading has no spelled-out Latin names', () => assert.deepEqual(hits, [], 'v60.18 no spelled-out Latin name in the published reading'));
   else if (hits.length) console.log(`  note the published reading (${ma.generatedAt || 'unknown time'}) still spells ${hits.length} name(s) in Hangul: ${hits.slice(0, 3).join(' / ')}`);
-}
-
-if (failures.length) { console.error(`ai-spelled-terms: ${failures.length} failed`); process.exit(1); }
+  report();
+}, 'data'],
+]);
 console.log('ai-spelled-terms: all checks passed');

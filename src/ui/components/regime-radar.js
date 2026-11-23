@@ -1,5 +1,3 @@
-// P1637: the regime radar on 시장 상태 — six axes, today against 5 and 20 sessions ago. Plain SVG so it
-// follows the theme tokens; numbers are one-year positions of each series, not a composite score.
 import { buildRegimeRadar } from '../../domain/market/regime/regime-radar.js';
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -33,7 +31,7 @@ export function radarSvg(doc, model, { size = 340 } = {}) {
     const value = node(doc, 'text', { x: lx, y: ly + 10, 'text-anchor': Math.abs(lx - center) < 8 ? 'middle' : lx > center ? 'start' : 'end', class: 'regime-radar-value' },
       axis.now == null ? '없음' : `${axis.now}${axis.change5 == null ? '' : ` (${signedText(axis.change5, 0)})`}`);
     const basis = `${axis.label}: ${axis.note}${RAW_TEXT[axis.id] && Number.isFinite(axis.raw) ? `, 지금 ${RAW_TEXT[axis.id](axis.raw)}` : ''}. ${axis.sample ? `이 값의 최근 ${axis.sample}거래일 중 위치(0~100, 가격 자체의 위치가 아님)` : '표본 부족'} ${axis.now ?? '없음'}, 5거래일 전 ${axis.values[1] ?? '—'}, 20거래일 전 ${axis.values[2] ?? '—'}`;
-    label.setAttribute('data-basis', basis); value.setAttribute('data-basis', basis); // v57.77 (a11y): the keyboard stop is the table's dd row; a focusable <text> inside role=img was a hidden second stop
+    label.setAttribute('data-basis', basis); value.setAttribute('data-basis', basis);
     if (axis.observed?.[0]) { label.setAttribute('data-observed-at', axis.observed[0]); value.setAttribute('data-observed-at', axis.observed[0]); }
     svg.append(label, value);
   });
@@ -52,33 +50,20 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   doc.getElementById('regime-radar')?.remove();
   const model = buildRegimeRadar(inputs, { macroHistory: root?._aioMacroHistory || null });
   if (!model.available) return null;
-  // v57.76: the radar is the visual of the six-indicator section — the shell's h2 "미국 시장 6개 지표 — 1년 중 지금
-  // 위치" heads it, so the radar carries no heading of its own (two stacked h2s read as two sections).
   const section = el(doc, 'div', null, 'regime-radar');
   section.id = 'regime-radar';
-  if (model.asOf) section.setAttribute('data-observed-at', model.asOf); // P1643
+  if (model.asOf) section.setAttribute('data-observed-at', model.asOf);
   const short = (date) => date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—';
-  // Codex M-screen: the radar is a position inside each axis's own past, not the 양호/부담 verdict above.
-  // v57.54 audit (6): the numbers are a position (0~100), not a grade — the caption says so and each row names its card verdict.
-  // v58.79: the scale in a few words; that it differs from the verdicts above is the line's hover.
-  // v59.55 (visual review): the radar is 국면 판정's face picture — one reading line, then the picture; the scale and the
-  // verdict-vs-position note sit under it (they were three lines above the drawing).
-  // v59.69 (owner 2026-11-04): the scale is the section's hover, not a caption line.
   section.title = '최근 1년(최대 252거래일) 중 지금 위치, 0~100, 클수록 양호 — 위 표의 판정과는 다른 잣대';
   const notes = [];
   section.append(el(doc, 'p', model.lead, 'regime-radar-lead'));
-  // X-review (2026-10-13, PM/credit view): "양호" above and 9 here read as a contradiction at first glance. When an
-  // axis's absolute verdict and its position in its own past point opposite ways, say so on the face of the chart.
   const stateOf = new Map((verdicts || []).map((row) => [row.id, row.state]));
   const gaps = model.axes.filter((axis) => axis.now != null && ((stateOf.get(axis.id) === 'favorable' && axis.now <= 25) || (stateOf.get(axis.id) === 'neutral' && axis.now <= 15) || (stateOf.get(axis.id) === 'burden' && axis.now >= 75)));
-  // v57.79 (UI review): one conclusion line instead of one paragraph per axis — the table beside the radar already shows
-  // each axis's verdict next to its position and 5/20-day change, and the cards below carry the evidence, so a per-axis
-  // paragraph was the same six-axis reading a third time. The comparison window per axis is each row's data-basis.
-  const gapIds = new Set(gaps.map((axis) => axis.id)); // v59.69: marked on their table rows, not repeated as a sentence
+  const gapIds = new Set(gaps.map((axis) => axis.id));
   const body = el(doc, 'div', null, 'regime-radar-body');
   body.append(radarSvg(doc, model));
   const legend = el(doc, 'ul', null, 'regime-radar-legend');
-  [['is-now', `오늘 (${short(model.dates[0])})`], ['is-d5', `5거래일 전 (${short(model.dates[1])})`], ['is-d20', `20거래일 전 (${short(model.dates[2])})`]].forEach(([cls, text]) => {
+  [['is-now', `최근 종가 (${short(model.dates[0])})`], ['is-d5', `5거래일 전 (${short(model.dates[1])})`], ['is-d20', `20거래일 전 (${short(model.dates[2])})`]].forEach(([cls, text]) => {
     const item = el(doc, 'li', null); item.append(el(doc, 'span', null, `regime-radar-swatch ${cls}`), el(doc, 'span', text)); legend.append(item);
   });
   const side = el(doc, 'div', null, 'regime-radar-side');
@@ -98,7 +83,6 @@ export function renderRegimeRadar({ documentRef: doc, root, inputs, anchor, verd
   side.append(table);
   body.append(side);
   section.append(body, ...notes);
-  // v58.53 개편 v2: on 시장 상태 the radar is a lower card's content (host element); other anchors keep the old placement.
   if (anchor.id === 'regime-radar-host') anchor.replaceChildren(section);
   else anchor.insertAdjacentElement('beforebegin', section);
   return model;

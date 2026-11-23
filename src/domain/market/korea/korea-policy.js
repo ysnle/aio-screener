@@ -1,6 +1,3 @@
-// v59.70 (D5, owner decision): the 한국 기준금리·물가·수출 facts the retired 매크로 fold (#kr-integrated-macro) showed now sit
-// as one card on the 시장 상태 한국 board. Pure: reads the DATA_SNAPSHOT fields the snapshot writer (js/aio-core.js)
-// already settles — a held or expired reference arrives there as null, so nothing here re-decides expiry.
 import { readNumber, signedText } from '../../shared/number.js';
 
 const md = (iso) => { const m = /^\d{4}-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };

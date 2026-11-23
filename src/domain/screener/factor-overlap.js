@@ -1,13 +1,5 @@
-// P1468 (review 2026-10-04, "팩터 중복"): momentum, trend and the Kalman slope are all computed from the
-// same price path. Instead of asserting that they overlap, measure it on today's ranked universe:
-// pairwise Spearman correlation of the sector-normalized factor z-scores, and the effective number of
-// independent signals of the active factors (participation ratio of the correlation matrix's
-// eigenvalues: (Σλ)² ÷ Σλ²; equals the factor count when uncorrelated, 1 when identical).
-// The weights are not changed here — a decorrelated model is a different model and must be validated
-// as one (the candidate record, P1465, is where that evidence accumulates).
 import { FACTOR_LABELS as PRESENTATION_LABELS } from './row-presentation.js';
 import { finiteNumber as finite } from '../shared/number.js';
-
 
 function ranks(values) {
   const order = values.map((value, index) => [value, index]).sort((a, b) => a[0] - b[0]);
@@ -71,9 +63,6 @@ export function measureFactorOverlap(rows = [], activeFactors = []) {
   const complete = (rows || []).filter((row) => factors.every((factor) => finite(row?.[`_z_${factor}`]) != null));
   if (complete.length < 30) return null;
   const column = (factor) => complete.map((row) => row[`_z_${factor}`]);
-  // v58.63 (architecture audit SCR02/C04): a factor with one value on every row carries no ranking information; its
-  // undefined correlation used to become 0, so two constant columns read as "two independent signals". Constant
-  // factors are named and left out; with fewer than two varying factors nothing is measured.
   const constant = factors.filter((factor) => { const values = column(factor); return values.every((value) => value === values[0]); });
   const varying = factors.filter((factor) => !constant.includes(factor));
   if (varying.length < 2) return { n: complete.length, factors: varying, constant, pairs: [], effective: null };

@@ -1,15 +1,6 @@
 import { isoDay } from '../../shared/session-date.js';
-// P1170 (15 D04): 관측 시각의 의미 계약.
-//
-// 공급자의 일봉 timestamp는 그 세션 **바의 시작**이며, 종가로 계산한 팩터의 관측시각이 아니다.
-// 이 구분이 없으면 "그날 개장 시점에 이미 종가 기반 결과를 알 수 있었다"는 의미가 만들어진다.
-// 세션 날짜는 거래소 현지 시간대로 계산하고(DST 포함), 해석할 시각이 없으면 null로 닫는다 —
-// 날짜만 주는 공급자를 가짜 정밀 timestamp로 승격하지 않는다.
 export const MARKET_TIME_ZONE = Object.freeze({ US: 'America/New_York', KR: 'Asia/Seoul' });
 
-// 2026-10-13 F07/V04: Tokyo and Taiwan listings (285A.T, 8035.T, 6702.T, 2454.TW) were read as US rows —
-// USD currency, New York session date one day behind, inside US breadth. The listing suffix names the
-// exchange; its local zone is declared here and the producer prefers the provider's exchange zone.
 export const INTL_LISTING_TIME_ZONE = Object.freeze({ T: 'Asia/Tokyo', TW: 'Asia/Taipei', TWO: 'Asia/Taipei' });
 
 function intlSuffixOf(symbol) {
@@ -29,8 +20,6 @@ export function listingMarketOfSymbol(symbol) {
   return intlSuffixOf(symbol) ? 'INTL' : 'US';
 }
 
-// v59.70 (screen review 33, re-review N7): every 'moved today' list of names — 오늘, 브리핑's unexplained moves, 기술적 분석's
-// movers — puts US listings first, Korean ones next (US first, AGENTS), and leaves a third market's line (285A.T) out.
 const LISTING_ORDER = Object.freeze({ US: 0, KR: 1 });
 export function usThenKorea(list, symOf, then = () => 0) {
   const rank = (item) => LISTING_ORDER[listingMarketOfSymbol(symOf(item))];
@@ -56,7 +45,6 @@ export function isValidMarketDate(value) {
   return Number.isFinite(ms) && new Date(ms).toISOString().slice(0, 10) === value;
 }
 
-// P1755: one formatter per time zone (construction dominated boot self-time, not formatting).
 const SESSION_DATE_FORMATTERS = new Map();
 function sessionDateFormatter(timeZone) {
   let formatter = SESSION_DATE_FORMATTERS.get(timeZone);
@@ -68,7 +56,6 @@ function sessionDateFormatter(timeZone) {
 }
 
 export function sessionDateInMarket(isoTimestamp, market) {
-  // P1349: Date.parse normalizes impossible dates instead of rejecting them.
   if (!isValidMarketDate(String(isoTimestamp || '').slice(0, 10))) return null;
   const ms = Date.parse(isoTimestamp || '');
   if (!Number.isFinite(ms)) return null;
@@ -97,9 +84,6 @@ export function factorScopesByMarket(rows) {
     if (!held.barStart || barStart > held.barStart) held.barStart = barStart;
     dates.set(key, held);
   }
-  // v57.70 (2026-10-15 audit): the newest row set the market's session date, so five US names that printed 10/14 made
-  // the screener read "미국 팩터 세션 10/14" while 897 of 903 rows (and the ranking) were still 10/13. The session is the
-  // latest date that a majority of the market's rows carry, else the date most rows carry; its bar start goes with it.
   for (const scope of Object.values(scopes)) {
     const entries = [...byDate.get(scope).entries()].filter(([date]) => date).sort((a, b) => b[0].localeCompare(a[0]));
     const pick = entries.find(([, held]) => held.rows * 2 > scope.rows) || [...entries].sort((a, b) => b[1].rows - a[1].rows)[0];

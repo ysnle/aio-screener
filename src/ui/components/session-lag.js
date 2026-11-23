@@ -1,8 +1,3 @@
-// v59.70 (data audit R1): one label for a basis one session behind the latest completed session, shared by the 테마
-// screen's sector card, 세부 테마 상위 and 테마 시나리오 — "11/2 종가, 11/3 반영 전". The basis stays the artifact's
-// own session (rotationHistory, playbook asOfByMarket): data.json's freshness ledger row carries no basis session.
-// 2026-11-18: the label is an as-of chip, so it fits ASOF_MAX with a market prefix ("미국 12/31 종가, 12/31 반영 전" is 23);
-// the chip no longer cuts text, and a cut "… 11/17 반영 전" had read "… 11/17 반영".
 import { shortDate } from '../../domain/content/date-labels.js';
 import { latestCompletedSession } from '../../domain/market/session/market-calendar.js';
 

@@ -1,7 +1,3 @@
-// v58.75 (owner decision 2026-10-24, teach-and-check D1-D6): the daily chart's teaching sections — '셋업 읽기' (setup
-// life cycle, pre-breakout checklist, weekly/daily agreement, past breakouts) and '가격 레벨과 내 계획' (level map, how
-// experts set stops and targets, the user's own plan check). Split from stock-chart.js and loaded with the first daily
-// chart: stock-chart.js is reachable from bootstrap (openMarketChart), so these stay out of the boot module set.
 import { buildPriceLevels, checkPricePlan } from '../../domain/technical/price-levels.js';
 import { SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText } from '../../domain/technical/setup-coach.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
@@ -20,9 +16,6 @@ import { EARNINGS_CALENDAR } from '../../data/artifact-registry.js';
 // The domain functions the sections use, passed as one object so stock-chart.js reads them through this lazy module.
 export const tools = Object.freeze({ buildPriceLevels, checkPricePlan, SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText, buildEarningsSchedule });
 
-// v58.75 (teach-and-check D1–D4, D6): '셋업 읽기' — the life-cycle band, the pre-breakout checklist (a count, with each
-// principle and current value), the weekly/daily agreement and this stock's own past breakouts, then the next steps.
-// The market line is the shared regime read and the lead scenario of the macro crossroads, never a new verdict.
 const MARK = Object.freeze({ true: ['✓', '충족', 'is-pass'], false: ['✕', '미충족', 'is-fail'], null: ['–', '확인 불가', 'is-unknown'] });
 function lifecycleBand(doc, life) {
   const band = el(doc, 'ol', null, 'chart-life-band');
@@ -135,10 +128,6 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   return section;
 }
 
-// v58.75 (owner decision 2026-10-24): '가격 레벨과 내 계획' — the level map (reading → ladder → table), the published ways
-// experts set stops and targets with this stock's own numbers, and a check of the user's own plan. The app never picks a
-// price: every number here is a mapped level or arithmetic on the numbers the user typed. v59.49 (P2151 rule): the methods
-// give distances (ATR, base depth) beside mapped levels; they no longer add them into a stop or target price.
 const kindsText = (level) => level.kinds.join('·');
 const sideWord = (level) => (level.side === 'above' ? '저항 후보' : '지지 후보');
 export function nearestLevels(levels) { return [...levels.above.slice(0, 2), ...levels.below.slice(0, 2)]; }
@@ -237,10 +226,6 @@ function expertMethods(doc, levels, price) {
 const PLAN_FIELDS = Object.freeze([
   ['entry', '진입가(가정)'], ['stop', '손절가'], ['target', '목표가(선택)'], ['amount', '투입 금액(선택)'], ['capital', '전체 자본(선택)']
 ]);
-// v59.56: entry, stop and target stay on this device through the storage gateway (same path as the drawn lines in
-// stock-chart-drawings.js), so a reload keeps the user's own prices. Amount and capital stay in memory for this page
-// only (v58.75: money figures never leave the tab). Only what the user typed or picked is written — the prefilled
-// close is never saved, or a later visit would open on a stale price.
 const PLAN_KEY = 'chart-plan-v1';
 const SAVED_FIELDS = Object.freeze(['entry', 'stop', 'target']);
 const MAX_SAVED_PLANS = 40;
@@ -330,7 +315,6 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   const box = el(doc, 'div', null, 'chart-plan-check');
   box.append(el(doc, 'h4', '내 계획 점검'), el(doc, 'p', '내가 정한 가격을 넣으면 레벨 지도와 비교한 사실만 보여 줍니다. 진입가·손절가·목표가는 이 기기에 남고, 금액과 자본은 이 탭에만 잠시 남습니다.', 'theme-strength-basis'));
   const stored = readPlan(root, sym);
-  // v58.79 (chart review): a holding opened from the portfolio starts from its average cost, not today's close.
   const held = holdingCost(root, sym);
   const grid = el(doc, 'div', null, 'chart-plan-fields');
   Object.assign(grid.style, { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', margin: '6px 0' });
@@ -342,7 +326,6 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
     input.type = 'number'; input.inputMode = 'decimal'; input.step = 'any'; input.min = '0';
     input.id = `chart-plan-${key}`;
     input.value = stored[key] != null ? String(stored[key]) : key === 'entry' ? String(Number((held ?? levels.close).toFixed((held ?? levels.close) >= 1000 ? 0 : 2))) : '';
-    // Touch browsers zoom into inputs under 16px (owner rule: touch-input 16px).
     Object.assign(input.style, { fontSize: '16px', padding: '6px 8px', border: '0.5px solid var(--color-border)', borderRadius: '6px', background: 'var(--color-background-card)', color: 'var(--color-text-primary)', minWidth: '0' });
     field.append(doc.createTextNode(key === 'entry' && held != null && stored.entry == null ? '진입가(보유 평균 단가)' : label), input);
     grid.append(field);
@@ -361,7 +344,6 @@ function planCheck(doc, root, sym, levels, price, checkPricePlan) {
   Object.entries(inputs).forEach(([key, input]) => input.addEventListener('input', () => update(key)));
   update();
   box.append(grid, out);
-  // v58.79: the lines the user drew on the chart, read against the map; each can fill the stop or target field.
   const mineBox = el(doc, 'ul', null, 'chart-plan-mine');
   Object.assign(mineBox.style, { margin: '6px 0 0', paddingLeft: '18px', fontSize: '13px', lineHeight: '1.6' });
   const fill = (key, value) => { inputs[key].value = String(value); update(key); };
@@ -423,4 +405,3 @@ export function priceLevelSection(doc, root, sym, levels, currency, instance, ch
   section.append(how, expertMethods(doc, levels, price), rrGuide(doc), planCheck(doc, root, sym, levels, price, checkPricePlan));
   return section;
 }
-

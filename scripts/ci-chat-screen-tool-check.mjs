@@ -25,6 +25,7 @@ import { readRowNumber } from '../src/data/contracts/screener.js';
 import { THEME_STATES } from '../src/domain/scenarios/analogs.js';
 import { signedText } from '../src/domain/shared/number.js';
 import { classicLiteral, loadThemeMaps } from './build-scenario-state.mjs';
+import { runSections } from './lib/gate-sections.mjs';
 
 const checks = [];
 const failures = [];
@@ -56,12 +57,32 @@ const bySymbol = new Map(rows.map((row) => [row.sym, row]));
 const input = typeof screenerQuery.screenerInput === 'function' ? screenerQuery.screenerInput(root, { now: asOfMs }) : null;
 const read = input?.read;
 const usRows = rows.filter((row) => !/\.K[SQ]$/.test(row.sym));
+const offered = screenTool?.parameters?.properties?.conditions?.items?.properties?.id?.enum || [];
+const report = () => {
+  const failed = failures.splice(0);
+  if (!failed.length) return;
+  console.error(`chat-screen-tool: ${failed.length} failed, ${checks.length} passed`);
+  failed.forEach((failure) => console.error(`  FAIL ${failure}`));
+  process.exit(1);
+};
 
+// v60.50: whether the committed screener carries the rows and the fields the offered conditions read is a data section
+// (it also runs in a data run); the tool's behaviour on those rows is a code test that borrows them as realistic input.
+await runSections('chat-screen-tool', [
+['committed-screener', async () => {
 await check('v60.41 the committed artifact builds browser rows with no live market cap (the size the old reader used)', () => {
   assert.ok(rows.length > 500, `v60.41 rows ${rows.length}`);
   assert.equal(rows.filter((row) => row.mcap != null).length, 0, 'v60.41 a row carries a live mcap; the size-only check below would not prove the reference-cap path');
 });
-
+await check('v60.41 every condition the tool offers evaluates on at least one row of the committed data', () => {
+  assert.equal(typeof read, 'function', 'v60.41 screenerInput(root).read');
+  const coverage = conditionCoverage(rows, offered.map((id) => ({ id })), read);
+  const empty = coverage.filter((entry) => entry.withData === 0).map((entry) => entry.id);
+  assert.deepEqual(empty, [], `v60.41 no row carries data for ${empty.join(', ')}`);
+});
+report();
+}, 'data'],
+['screen-tool', async () => {
 await check('v60.41 the screen tool schema is strict: every object closes its properties and requires all of them', () => {
   const walk = (node, path) => {
     if (!node || typeof node !== 'object') return;
@@ -76,19 +97,11 @@ await check('v60.41 the screen tool schema is strict: every object closes its pr
   assert.ok(screenTool.parameters.properties.conditions, 'v60.41 the tool takes structured conditions, not a sentence');
 });
 
-const offered = screenTool?.parameters?.properties?.conditions?.items?.properties?.id?.enum || [];
 await check('v60.41 the tool offers the screener condition ids, without the cash conditions it cannot load', () => {
   const ids = CUSTOM_CONDITIONS.map((item) => item.id);
   assert.ok(offered.length >= 28 && offered.every((id) => ids.includes(id)), `v60.41 offered ${offered.length}`);
   assert.deepEqual(ids.filter((id) => !offered.includes(id)).sort(), ['capex-intensity-max', 'fcf-margin-min'], 'v60.41 ids.filter id offered.includes id .sort');
   for (const id of offered) assert.ok(screenTool.parameters.properties.conditions.description.includes(`${id}: `), `v60.41 description names ${id}`);
-});
-
-await check('v60.41 every condition the tool offers evaluates on at least one row of the committed data', () => {
-  assert.equal(typeof read, 'function', 'v60.41 screenerInput(root).read');
-  const coverage = conditionCoverage(rows, offered.map((id) => ({ id })), read);
-  const empty = coverage.filter((entry) => entry.withData === 0).map((entry) => entry.id);
-  assert.deepEqual(empty, [], `v60.41 no row carries data for ${empty.join(', ')}`);
 });
 
 const PE_RET3M = [{ id: 'pe-max', value: 20, strict: false }, { id: 'ret3m-min', value: 0, strict: true }];
@@ -287,9 +300,7 @@ await check('v60.41 an unknown theme is an error that lists the valid names', as
   assert.ok(out.text.includes(`(${themeOf('US').id})`) && out.text.includes(`(${themeOf('KR').id})`), `v60.41 the error lists valid ids: ${out.text.slice(0, 200)}`);
 });
 
-if (failures.length) {
-  console.error(`chat-screen-tool: ${failures.length} failed, ${checks.length} passed`);
-  failures.forEach((failure) => console.error(`  FAIL ${failure}`));
-  process.exit(1);
-}
+report();
+}, 'code'],
+]);
 console.log(`chat-screen-tool: ${checks.length} checks passed (${rows.length} rows, ${offered.length} conditions offered)`);

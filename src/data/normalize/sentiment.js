@@ -34,10 +34,6 @@ export function normalizeSentiment(raw = {}) {
   return Object.freeze(result);
 }
 
-// v58.82: a daily value is stale once a newer session's value should exist, not after a flat 48h — Friday's close read
-// as stale from Sunday afternoon ET, and a Thursday-dated FRED spread (published a business day later) from early Saturday.
-// maxUsSessions counts COMPLETED NYSE sessions after the observation's ET date (0: the next close makes it stale; 1: one
-// publication lag). The 48h bound stays the floor, and an instant outside the registered calendar keeps it alone.
 export function sentimentMaxAgeMs(field, observedAt, nowMs = Date.now()) {
   const base = field?.maxAgeMs || 86_400_000;
   if (field?.maxUsSessions == null || observedAt == null) return base;

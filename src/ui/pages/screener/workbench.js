@@ -7,9 +7,6 @@ import { createScreenDefinition } from '../../../data/contracts/screener.js';
 import { finiteNumber as finite } from '../../../domain/shared/number.js';
 import { readRsiRange, screenConditions } from './filters.js';
 import { BUILDER_FIELDS, FILTER_LABELS, RUN_CONDITION_FIELDS, SCREENER_COLUMN_REGISTRY, scopedRows, selectedValue } from './model.js';
-// v58.75 (teach-and-check D5): one folded block at the top of the condition editor — why this screen's condition is used,
-// where it tends to work and not, its common failure, the columns that show it (their header hints carry the formulas),
-// and one line on today's shared market state. The open/closed state survives re-renders.
 function renderPresetLesson(documentRef, root, editor, screenId, screenName) {
   const lesson = PRESET_LESSONS[screenId];
   let block = documentRef.getElementById('scr-preset-lesson');
@@ -68,8 +65,6 @@ export function createWorkbenchController(ctx) {
       const conditionEditor = documentRef.getElementById('scr-condition-panel');
       const readinessPreview = documentRef.getElementById('scr-readiness-preview');
       const runHistory = documentRef.getElementById('scr-run-history');
-      // P2107: the list is static markup, so a read cut short by leaving the screen must not leave it marked as loading;
-      // the next visit's render only reads the archive when no read is marked.
       bag.add(() => { if (runHistory?.dataset.archiveLoaded === 'loading') delete runHistory.dataset.archiveLoaded; });
       const outcomeLab = documentRef.getElementById('scr-outcome-lab');
       const operationsState = documentRef.getElementById('scr-ops-state');
@@ -110,8 +105,6 @@ export function createWorkbenchController(ctx) {
                  ctx.activeDefinition = result.definition; ctx.activeScreenId = ctx.activeDefinition.screenId;
                  ctx.activeResult = result; ctx.activeRows = result.rows;
                  selectedSymbols.clear(); visibleLimit.value = 12;
-                 // Codex browser audit H113: the replay header names which run, when, and on what data; the previous
-                 // preview (another preset's definition and hash) is dropped so no label or accessible name keeps it.
                  ctx.activePreview = null; ctx.activePreviewKey = null;
                  { const passedOnly = documentRef.getElementById('scr-passed-only'); if (passedOnly) passedOnly.checked = true; }
                  const replayMeta = result.snapshotMetadata || {};
@@ -209,8 +202,6 @@ export function createWorkbenchController(ctx) {
          const collectedUniverse = Number.isFinite(state?.metadata?.universe) ? state.metadata.universe : (readiness?.rowCount ?? null);
          const collectedNote = collectedCount > 0 && collectedUniverse > 0 ? `수집 성공 ${collectedCount}/${collectedUniverse}, ` : '';
          if (readinessPreview) readinessPreview.textContent = readiness ? `${collectedNote}필수 자료 있는 종목 ${readiness.eligibleCount}/${readiness.rowCount}, ${readiness.coveragePct}%, 필수: ${(readiness.requiredFields || []).map((field) => field.split('.').pop()).join(', ') || '없음'}` : '필드 준비도 미리보기 대기';
-          // P1164/B04(12:U01): 실행 전 카운트는 '선택한 정의의 통과'가 아니다 — 빈 조건 파이프라인
-          // 미리보기 결과다. '조건 적용 전 계산 가능'으로 부르고 어떤 정의·해시인지 밝힌다.
           if (ctx.workbenchStatus && !ctx.activeResult) {
             const pipelineRun = state.lastRun;
             const pipelineId = pipelineRun?.screenId ? String(pipelineRun.screenId) : null;
@@ -247,8 +238,6 @@ export function createWorkbenchController(ctx) {
            { type: 'enum', field: 'identity.market', values: [selectedValue(documentRef, 'scr-listing-market') || 'US'], origin: 'market-scope', nullPolicy: 'unknown' }
          ] } });
        };
-        // P1165 (19 작업 카드): 실행 전 미리보기는 선택한 정의 + 현재 snapshot으로 계산한다.
-        // 조건(내장/사용자)이 바뀌면 definitionHash가 바뀌므로 같은 키에서만 캐시한다.
         ctx.ensurePreview = () => {
           if (ctx.activeResult) { ctx.activePreview = null; ctx.activePreviewKey = null; return null; }
           const definition = ctx.buildVisualDefinition() || ctx.activeDefinition;
@@ -268,8 +257,6 @@ export function createWorkbenchController(ctx) {
          ctx.activeScreenId = screen.definition.screenId;
          ctx.activeResult = null;
          ctx.activeRows = null;
-         // v58.56: '실행 통과만' is the table's scope, not a filter of the previous screen — switching screens used to clear it,
-         // so the first preset tap showed every rejected row (904 instead of 243) after the first view had shown passes only.
          Object.keys(FILTER_LABELS).filter((id) => id !== 'scr-passed-only').forEach(id => {
            const control = documentRef.getElementById(id);
            if (control?.type === 'checkbox') control.checked = false;
@@ -281,10 +268,7 @@ export function createWorkbenchController(ctx) {
          ctx.syncDefinitionEditor(); ctx.renderWorkbench(); ctx.renderNow();
        };
   ctx.syncPreviewStatus = (preview) => {
-         // P1165 (12 U01): 실행 전 상태 줄도 선택한 정의의 미리보기를 인용한다 — 파이프라인 기본
-         // 수치를 '선택한 정의의 통과'로 읽히게 두지 않는다. 실행하면 activeResult가 대신한다.
          if (!ctx.activeResult && preview && ctx.workbenchStatus) {
-           // P1431: plain status; the definition id/hash stay on the element for audit, not in the sentence.
            const screenLabel = documentRef.getElementById('scr-screen-select')?.selectedOptions?.[0]?.textContent || preview.definition?.screenId || '선택한 조건';
            ctx.workbenchStatus.textContent = `${screenLabel} 미리보기, 대상 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').length}종목 중 조건 통과 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'passed').length}, 조건 판단 자료 부족 ${scopedRows(preview.rows || [], selectedValue(documentRef, 'scr-listing-market') || 'US').filter(row => row.screenStatus === 'unavailable').length}`;
            ctx.workbenchStatus.title = `${preview.definition?.screenId || '—'}, ${String(preview.definition?.definitionHash || '').slice(0, 8)}, 조건 실행을 누르면 이 입력으로 고정합니다`;

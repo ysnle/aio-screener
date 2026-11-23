@@ -1,6 +1,5 @@
 import { normalizeEntity } from '../normalize/entity.js';
 
-// First-users run 4: a failed SEC table load (no record, no meta) left 요약 on '받지 못함'; it re-reads with growing gaps.
 const FUNDAMENTALS_RETRY_MS = Object.freeze([3000, 8000, 20000]);
 
 export function createEntityOrchestrator({ provider, commands, schedule = (fn, ms) => globalThis.setTimeout?.(fn, ms)?.unref?.() } = {}) {

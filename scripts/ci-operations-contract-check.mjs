@@ -6,9 +6,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { workflowPublishes } from './lib/data-publish-sets.mjs';
 import { VERTICAL_SLICE_CONTRACTS } from '../src/app/vertical-slices.js';
 import { FEATURE_AVAILABILITY, createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -21,15 +21,21 @@ const sameSet = (left, right) => Array.isArray(left) && Array.isArray(right)
   && left.length === right.length && [...left].sort().join('|') === [...right].sort().join('|');
 
 const version = json('version.json').version;
+const readiness = json('architecture/public-readiness.json');
+const finish = (section, extra = {}) => {
+  const failed = errors.splice(0);
+  console.log(JSON.stringify({ ok: failed.length === 0, section, version, ...extra, errors: failed }, null, 2));
+  if (failed.length) process.exit(1);
+};
+
+// v60.50: the repository contracts are one section; the published operations status (and its agreement with the durable
+// artifact, the market snapshot and the release-scoped config) is the other, which also runs in a data run.
+await runSections('operations-contract', [
+['repository', async () => {
 const routeOwners = json('architecture/route-owners.json');
 const visual = json('architecture/visual-state-matrix.json');
 const slo = json('architecture/operations-slo.json');
-const readiness = json('architecture/public-readiness.json');
 const humanValidation = json('architecture/human-validation.json');
-const operations = json('public-data/operations-status.json');
-const durableData = json('public-data/data.json');
-const publicConfig = json('public-config.json');
-const snapshot = json('public-data/market-snapshot.json');
 const allowlist = json('public-artifact-manifest.json');
 const ci = read('.github/workflows/ci.yml');
 const pagesDeploy = read('.github/workflows/pages-deploy.yml');
@@ -58,8 +64,6 @@ const requiredHeaders = [
 check('canonical version format', /^v\d{1,3}(?:\.\d{2})?$/.test(version), version);
 // appRevision/workerRevision equality across the manifests is R1, owned by ci-version-check (same preflight
 // phase); repeating it here turned one stale bump into several failures. Fix: node scripts/bump-version.mjs <version>.
-// v60.49: operations-status.json is the one owner of the data revision (the release manifests no longer copy it).
-check('v60.49 operations data revision names the published market snapshot', operations.dataRevision === snapshot.revision, `${operations.dataRevision} != ${snapshot.revision}`);
 
 check('vertical slice route coverage', sameSet(declaredSliceRoutes, routeIds), `${declaredSliceRoutes.length} != ${routeIds.length}`);
 check('visual matrix route coverage', sameSet(visual.routes, routeIds));
@@ -87,38 +91,9 @@ check('security header gate is explicit', slo.localBoundary?.securityHeaders?.st
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
 check('human validation remains evidence-bound', humanValidation.schemaVersion === 'human-validation.v1' && humanValidation.certification === 'OPERATOR_REQUIRED' && readiness.criteria?.find((criterion) => criterion.id === 'accessibility-manual')?.evidence.includes('architecture/human-validation.json'));
 check('public readiness route soak mirror', readiness.criteria?.find((criterion) => criterion.id === 'route-soak')?.status === (slo.localBoundary?.routeSoak?.status === 'pass' ? 'PASS' : 'PENDING_LOCAL_GATE'));
-const fredSuccess = durableData.meta?.fredHasKey === true && durableData.meta?.fredFetchOk === true && durableData.meta?.fredOk === true;
-check('public readiness FRED success branch mirrors durable artifact', readiness.criteria?.find((criterion) => criterion.id === 'fred-success-branch')?.status === (fredSuccess ? 'PASS' : 'OPERATOR_REQUIRED'));
-check('durable plane exposes freshness evidence', operations.planes?.durable?.freshness && Number(operations.planes.durable.freshness.maxAgeHours) === Number(durableData.meta?.marketCycleFreshnessSlaHours || 12));
-
-// ── P1173 (17 작업 단위 5): 집계의 범위와 기능별 사용 가능 범위 ────────────────────────────────
-// `overall`은 durable 평면 상태와 운영 차단 사유를 반영하며 browser 평면이 UNKNOWN이어도 바뀌지 않는다. 집계가 무엇을
-// 포함/제외하는지와 기능별 상태·관측시각·누락 이유가 함께 발행되지 않으면, 소비자는 "전역 정상"과
-// "브라우저 셸은 관측된 적 없음"을 구분할 수 없다.
-const basis = operations.overallBasis || {};
-const features = operations.featureAvailability || {};
-check('P1173 overall declares which planes it aggregates', Array.isArray(basis.planes) && basis.planes.length > 0
-  && basis.planes.every((plane) => ['durable', 'fast', 'browser'].includes(plane)), JSON.stringify(basis.planes));
-check('P1173 overall declares the plane statuses it does not directly aggregate', Array.isArray(basis.excludes) && basis.excludes.includes('browser') && basis.excludes.includes('fast'), JSON.stringify(basis.excludes));
 check('v60.25 overall preserves its separate blocker input and supports prior artifacts without that declaration',
   createOperationsStatus({ overallBasis: { includesBlockers: true } }).overallBasis.includesBlockers === true
   && !Object.hasOwn(createOperationsStatus({ overallBasis: {} }).overallBasis, 'includesBlockers'));
-check('P1173 a browser plane that was never observed cannot read as available',
-  operations.planes?.browser?.observed !== 'NOT_OBSERVED' || (features['browser-shell']?.availability === 'UNKNOWN'
-    && features['browser-shell']?.missingReason === 'browser-plane-not-observed'),
-  JSON.stringify({ observed: operations.planes?.browser?.observed, browserShell: features['browser-shell'] }));
-check('P1173 the feature axis is not a mirror of the global aggregate',
-  features['browser-shell']?.availability === 'UNKNOWN' && operations.overall !== 'UNKNOWN' && !basis.planes.includes('browser'),
-  JSON.stringify({ overall: operations.overall, browserShell: features['browser-shell']?.availability }));
-check('P1173 every feature declares availability, observation time, reason and source',
-  Object.keys(features).length >= 4 && Object.values(features).every((entry) => FEATURE_AVAILABILITY.includes(entry.availability)
-    && Object.hasOwn(entry, 'asOf') && Object.hasOwn(entry, 'missingReason') && Array.isArray(entry.sources) && entry.sources.length > 0),
-  JSON.stringify(features));
-check('P1173 an available feature cannot keep a missing reason', Object.values(features).every((entry) => entry.availability !== 'AVAILABLE' || entry.missingReason === null), JSON.stringify(features));
-const operationsAudit = validateOperationsStatus(operations);
-check('P1173 the published feature axis passes the contract that declares it',
-  operationsAudit.ok && validateOperationsStatus({ ...operations, featureAvailability: { ...features, quotes: { ...features.quotes, availability: 'FINE' } } }).errors.includes('undeclared_availability:operations.featureAvailability.quotes'),
-  JSON.stringify(operationsAudit.errors));
 const bootMeasurement = slo.latestMeasuredBoot || {};
 const bootMeasurementCurrent = bootMeasurement.status === 'TARGET_COMPLIANT'
   && bootMeasurement.observedAppRevision === version
@@ -158,29 +133,6 @@ check('AI proxy deploy owns canonical source and atomic quota binding', aiProxyW
 check('AI provider outbound is executed by the guaranteed US Durable Object authority', worker.includes("jurisdiction('us')") && worker.includes("getByName('anthropic-authority-v1')") && worker.includes("'X-AIO-Upstream-Authority': 'durable-object-us'") && worker.includes('fetchOpenAiThroughDurableObject') && !worker.includes("locationHint: 'enam'"));
 check('P1421 AI proxy deploy requires secrets and blocks on executed US readiness/upstream', ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID', 'OPENAI_API_KEY', 'AIO_AUTOMATION_TOKEN', 'aio-worker-health.v1', 'quotaConfigured', 'authorityReady', 'authorityJurisdiction', 'durable-object-us', 'ai_proxy_origin_gate_failed', 'ai_proxy_upstream_failed'].every((token) => aiProxyWorkflow.includes(token)));
 check('operations producer observes both Worker planes while provider smoke remains deployment-owned', ['AIO_OBSERVE_PROXY_HEALTH', 'observeWorkerHealth', 'fastHealthStatus', 'proxyAuthorityReady', 'proxyAuthorityJurisdiction', 'blocking-deployment-workflow-only'].every((token) => read('scripts/build-operations-status.mjs').includes(token)) && read('.github/workflows/refresh-data.yml').includes("AIO_OBSERVE_PROXY_HEALTH: '1'") && /ai_proxy_upstream_failed/.test(aiProxyWorkflow));
-check('public AI route state is generated from the same Worker observation and committed with operations status', ['derivePublicAiConfig', 'syncPublicAiConfig', 'routeStatus', 'WORKER_HEALTH_STALE'].every((token) => read('scripts/build-operations-status.mjs').includes(token))
-  && workflowPublishes('refresh-data.yml', 'public-config.json')
-  && workflowPublishes('refresh-screener.yml', 'public-config.json'));
-const normalizeWorkerUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
-const publicWorkerUrl = normalizeWorkerUrl(publicConfig.ai?.workerUrl);
-const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);
-const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl) && publicConfig.ai?.routeStatus === 'PUBLISHED';
-const publicRouteDisabled = publicConfig.ai?.routeStatus === 'DISABLED'
-  && publicConfig.ai?.serverMode === 'shared-worker-only'
-  && publicConfig.ai?.chatPolicy === 'shared-worker-only'
-  && typeof publicConfig.ai?.routeReason === 'string'
-  && publicConfig.ai.routeReason.length > 0
-  && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
-check('P1421 public AI route policy is revision-bound and any published route matches provider-specific operations evidence', publicConfig.appRevision === version
-  && publicConfig.ai?.provider === 'openai' && publicConfig.ai?.model === 'gpt-6-luna'
-  && ((publicRoutePublished
-    && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
-    && publicWorkerUrl === operationsWorkerUrl
-    && publicConfig.ai?.routeStatus === 'PUBLISHED'
-    && operations.ai?.publicChat?.health?.provider === 'openai'
-    && operations.ai?.publicChat?.health?.model === 'gpt-6-luna'
-    && publicConfig.ai?.routeEvidence?.status === 'CURRENT')
-    || publicRouteDisabled));
 check('lockfile exists', existsSync(join(root, 'package-lock.json')));
 
 const routeSoakReportPath = join(root, '_artifacts', 'route-soak-report.json');
@@ -194,15 +146,59 @@ if (slo.localBoundary?.routeSoak?.status === 'pass') {
   }
 }
 
-const result = {
-  ok: errors.length === 0,
-  version,
+finish('repository', {
   workflowCount: workflowFiles.length,
   actionCount: uses.length,
   routeCount: routeIds.length,
   stateCount: visual.states?.length || 0,
   routeSoak: slo.localBoundary?.routeSoak?.status,
-  errors
-};
-console.log(JSON.stringify(result, null, 2));
-if (errors.length) process.exit(1);
+});
+}, 'code'],
+['published-operations-status', async () => {
+const operations = json('public-data/operations-status.json');
+const durableData = json('public-data/data.json');
+const publicConfig = json('public-config.json');
+const snapshot = json('public-data/market-snapshot.json');
+// v60.49: operations-status.json is the one owner of the data revision (the release manifests no longer copy it).
+check('v60.49 operations data revision names the published market snapshot', operations.dataRevision === snapshot.revision, `${operations.dataRevision} != ${snapshot.revision}`);
+// v60.50: the FRED fetch result is data and is published once, in operations-status.json; the release-scoped readiness
+// manifest no longer carries a copy that every refresh rewrote.
+const fredSuccess = durableData.meta?.fredHasKey === true && durableData.meta?.fredFetchOk === true;
+check('v60.50 operations FRED status mirrors the durable artifact', (operations.providers?.fred?.status === 'CURRENT') === fredSuccess
+  && !readiness.criteria?.some((criterion) => criterion.id === 'fred-success-branch'));
+check('durable plane exposes freshness evidence', operations.planes?.durable?.freshness && Number(operations.planes.durable.freshness.maxAgeHours) === Number(durableData.meta?.marketCycleFreshnessSlaHours || 12));
+
+// ── P1173 (17 작업 단위 5): 집계의 범위와 기능별 사용 가능 범위 ────────────────────────────────
+// `overall`은 durable 평면 상태와 운영 차단 사유를 반영하며 browser 평면이 UNKNOWN이어도 바뀌지 않는다. 집계가 무엇을
+// 포함/제외하는지와 기능별 상태·관측시각·누락 이유가 함께 발행되지 않으면, 소비자는 "전역 정상"과
+// "브라우저 셸은 관측된 적 없음"을 구분할 수 없다.
+const basis = operations.overallBasis || {};
+const features = operations.featureAvailability || {};
+check('P1173 overall declares which planes it aggregates', Array.isArray(basis.planes) && basis.planes.length > 0
+  && basis.planes.every((plane) => ['durable', 'fast', 'browser'].includes(plane)), JSON.stringify(basis.planes));
+check('P1173 overall declares the plane statuses it does not directly aggregate', Array.isArray(basis.excludes) && basis.excludes.includes('browser') && basis.excludes.includes('fast'), JSON.stringify(basis.excludes));
+check('P1173 a browser plane that was never observed cannot read as available',
+  operations.planes?.browser?.observed !== 'NOT_OBSERVED' || (features['browser-shell']?.availability === 'UNKNOWN'
+    && features['browser-shell']?.missingReason === 'browser-plane-not-observed'),
+  JSON.stringify({ observed: operations.planes?.browser?.observed, browserShell: features['browser-shell'] }));
+check('P1173 the feature axis is not a mirror of the global aggregate',
+  features['browser-shell']?.availability === 'UNKNOWN' && operations.overall !== 'UNKNOWN' && !basis.planes.includes('browser'),
+  JSON.stringify({ overall: operations.overall, browserShell: features['browser-shell']?.availability }));
+check('P1173 every feature declares availability, observation time, reason and source',
+  Object.keys(features).length >= 4 && Object.values(features).every((entry) => FEATURE_AVAILABILITY.includes(entry.availability)
+    && Object.hasOwn(entry, 'asOf') && Object.hasOwn(entry, 'missingReason') && Array.isArray(entry.sources) && entry.sources.length > 0),
+  JSON.stringify(features));
+check('P1173 an available feature cannot keep a missing reason', Object.values(features).every((entry) => entry.availability !== 'AVAILABLE' || entry.missingReason === null), JSON.stringify(features));
+const operationsAudit = validateOperationsStatus(operations);
+check('P1173 the published feature axis passes the contract that declares it',
+  operationsAudit.ok && validateOperationsStatus({ ...operations, featureAvailability: { ...features, quotes: { ...features.quotes, availability: 'FINE' } } }).errors.includes('undeclared_availability:operations.featureAvailability.quotes'),
+  JSON.stringify(operationsAudit.errors));
+// v60.50: public-config.json is release-scoped. The AI route is the operator's decision (PUBLISHED, or DISABLED with a
+// reason); whether the Worker is ready is the browser's own /health probe, and the producer's observation stays in
+// operations-status.json. The config is checked as code in ci-release-revision-check.mjs; here only that both name the
+// same Worker.
+const normalizeWorkerUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+check('v60.50 the public AI route and the operations observation name the same Worker', normalizeWorkerUrl(publicConfig.ai?.workerUrl) === normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint));
+finish('published-operations-status');
+}, 'data'],
+]);

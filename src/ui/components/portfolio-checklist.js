@@ -1,9 +1,3 @@
-// v58.75 (persona review, teach-and-check spec F4·F5): two checks of the reader's own book, facts only.
-// F4 '포트폴리오 점검 기준' — five criteria an allocator checks, each with its one-line principle, the reader's current value
-// and whether it is met (against the reader's own rule where one is written, else the app's published internal band). The
-// header counts how many are met: a count, not a score or a grade.
-// F5 '보유 종목 논지 점검' — per holding: is a thesis memo written, and which break signals are on now (below the 50-day
-// line, theme stage weak, estimate revisions turned down over 4 weeks, earnings within two weeks). No instruction.
 import { el } from './dom.js';
 import { portfolioLens, leadScenarioExposures, loadedSp500Weights } from './portfolio-read.js';
 import { readJournal } from '../panels/portfolio-trade-journal.js';
@@ -41,7 +35,7 @@ export function portfolioCriteria({ surface, root, checks = null, rules = {}, se
   const top = rows.reduce((best, row) => (!best || row.value > best.value ? row : best), null);
   const topPct = top && total > 0 ? top.value / total * 100 : null;
   const single = checks?.checks?.find?.((check) => check.id === 'single-holding');
-  const exposure = leadScenarioExposures(root, surface); // v59.51: a tie carries one exposure per tied branch
+  const exposure = leadScenarioExposures(root, surface);
   const corr = lens.bonds?.correlation;
   // 실질 분산 is read on the book's own concentration: the effective number of holdings after S&P 500 trackers are
   // expanded into their members. An ETF that is not expanded still counts as one line, so a book that falls short only
@@ -89,10 +83,7 @@ export function renderPortfolioCriteria({ documentRef: doc, root, surface, check
   const host = el(doc, 'div', null, 'pf-criteria');
   host.id = 'pf-criteria';
   const lead = el(doc, 'p', null, 'pf-criteria-lead');
-  // v59.56 (screen review): '충족' next to '한 종목 쏠림' read as 'the risk is met'; the state says whether the value is inside the line.
   lead.append(el(doc, 'strong', `점검 기준 ${model.items.length}개 중 ${model.met}개 기준 이내`), doc.createTextNode(`${model.unknown ? `, ${model.unknown}개 판정 보류` : ''} — 기준 안에 든 개수이며 점수가 아닙니다.`));
-  // v59.51 (two layers): the face row is the verdict, the criterion and the reader's value; each threshold and its reason,
-  // the drawdown reference and the 내 원칙 note go to the top of 점검's expert fold.
   const list = el(doc, 'ul', null, 'pf-trade-mirror');
   const reasons = el(doc, 'div', null, 'pf-criteria-reasons');
   reasons.id = 'pf-criteria-reasons';
@@ -134,9 +125,6 @@ export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(),
   const themeMap = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
   const todayIso = new Date(nowMs).toISOString().slice(0, 10);
   const soonIso = new Date(nowMs + EARNINGS_SOON_DAYS * 86400000).toISOString().slice(0, 10);
-  // v59.45 (PASS10 P10-PF-02): each of the four checks is either looked at or unknown. With no price row, theme states,
-  // estimates or calendar, signals stayed [] and the row read '신호 없음' — the same words as four clean checks. `checked`
-  // counts the checks that had data and `unknown` names the rest, so the row can say what was not looked at.
   const calendarKnown = !!root?.[EARNINGS_CALENDAR.key];
   // The theme stage comes from the shared reader (theme-stage.js themeStagesFor), which refuses a pending or out-of-date
   // scenario state; reading the raw rows kept a stale 'weak' stage on as a live signal.
@@ -185,13 +173,11 @@ export function renderThesisCheck({ documentRef: doc, root, surface, holdings = 
   const list = el(doc, 'ul', null, 'pf-trade-mirror');
   for (const row of rows) {
     const li = el(doc, 'li', null, `pf-trade-mirror-row is-${row.signals.length ? 'burden' : 'unknown'}`);
-    // v59.45 (P10-PF-02): 'no signal' only for checks that had data; with none, the row says it could not be checked.
     const state = row.signals.length ? `신호 ${row.signals.length}` : row.checked === 0 ? '확인 불가' : row.unknown?.length ? `신호 없음(${row.checked}/${THESIS_CHECKS} 확인)` : '신호 없음';
     li.append(el(doc, 'span', state, 'pf-trade-mirror-state'), el(doc, 'strong', row.symbol),
       el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
     list.append(li);
   }
-  // v59.69 (owner 2026-11-04): what the four signals are is the list's hover, not a paragraph under it.
   list.title = '신호: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 우세, 2주 안의 실적 발표';
   host.replaceChildren(head, list);
   return rows;

@@ -71,7 +71,18 @@ export function stockBondCorrelation(history, sessions = DEPTH_RULES.correlation
   let sxy = 0, sxx = 0, syy = 0;
   for (let i = 0; i < xs.length; i += 1) { sxy += (xs[i] - mx) * (ys[i] - my); sxx += (xs[i] - mx) ** 2; syy += (ys[i] - my) ** 2; }
   if (!(sxx > 0 && syy > 0)) return null;
-  return { asOf: tail.at(-1).date, sessions, value: sxy / Math.sqrt(sxx * syy), flat: DEPTH_RULES.correlationSe / Math.sqrt(sessions) };
+  return { asOf: tail.at(-1).date, sessions, value: sxy / Math.sqrt(sxx * syy), flat: correlationFlatBand(sessions) };
+}
+
+/**
+ * The one word for a stock–bond correlation, read by both 금리와 환율 > 자산군 and 시장 상태 so the two cannot disagree on
+ * the word or the sample-error band.
+ */
+export const correlationFlatBand = (sessions = DEPTH_RULES.correlationSessions) => DEPTH_RULES.correlationSe / Math.sqrt(sessions);
+export function stockBondCorrelationWord(value, sessions = DEPTH_RULES.correlationSessions) {
+  const flat = correlationFlatBand(sessions);
+  return Math.abs(value) < flat ? `뚜렷한 관계 없음(±${flat.toFixed(2)} 안은 표본 오차)`
+    : value > 0 ? '같이 움직여 채권이 주가 하락을 덜어 주지 못하는 구간' : '반대로 움직여 채권이 완충 역할';
 }
 
 /** VIX² less the annualised realised variance of the S&P 500 over 21 sessions, in variance points and as the two vols. */
@@ -161,9 +172,9 @@ export function depthReadout({ history = [], macroHistory = null, breadthScope =
     dates.push(thrust.asOf);
     const now = thrust.value.toFixed(2);
     const T = DEPTH_RULES.thrust;
-    parts.push(thrust.fired ? `폭 급반전(Zweig) ${md(thrust.fired.date)} 발생 — 상승 종목 비율 10일 평균이 ${thrust.fired.from.toFixed(2)}(${md(thrust.fired.fromDate)})에서 ${thrust.fired.to.toFixed(2)}로, 지금 ${now}${breadthScope ? `(${breadthScope})` : ''}.`
-      : thrust.armed ? `폭 급반전(Zweig) 대기 — 상승 종목 비율 10일 평균이 ${md(thrust.armed.date)} ${thrust.armed.value.toFixed(2)}까지 내려갔고 지금 ${now}, 남은 ${thrust.armed.remaining}거래일 안에 ${T.high} 이상이면 발생.`
-        : `폭 급반전(Zweig) 없음 — 상승 종목 비율 10일 평균 ${now}.`);
+    parts.push(thrust.fired ? `폭 급반전(Zweig) ${md(thrust.fired.date)} 발생 — 상승 종목 비율 10일 지수이동평균이 ${thrust.fired.from.toFixed(2)}(${md(thrust.fired.fromDate)})에서 ${thrust.fired.to.toFixed(2)}로, 지금 ${now}${breadthScope ? `(${breadthScope})` : ''}.`
+      : thrust.armed ? `폭 급반전(Zweig) 대기 — 상승 종목 비율 10일 지수이동평균이 ${md(thrust.armed.date)} ${thrust.armed.value.toFixed(2)}까지 내려갔고 지금 ${now}, 남은 ${thrust.armed.remaining}거래일 안에 ${T.high} 이상이면 발생.`
+        : `폭 급반전(Zweig) 없음 — 상승 종목 비율 10일 지수이동평균 ${now}.`);
   }
   const credit = creditEquityDivergence(history, macroHistory);
   if (credit) {
@@ -174,8 +185,7 @@ export function depthReadout({ history = [], macroHistory = null, breadthScope =
   const corr = stockBondCorrelation(history);
   if (corr) {
     dates.push(corr.asOf);
-    const flat = Math.abs(corr.value) < corr.flat;
-    parts.push(`주식·장기채 ${corr.sessions}일 상관 ${signedText(corr.value, 2, '')} — ${flat ? `뚜렷한 관계 없음(±${corr.flat.toFixed(2)} 안은 표본 오차)` : corr.value > 0 ? '같이 움직여 채권이 주가 하락을 덜어 주지 못하는 구간' : '반대로 움직여 채권이 완충 역할'}.`);
+    parts.push(`주식·장기채 ${corr.sessions}일 상관 ${signedText(corr.value, 2, '')} — ${stockBondCorrelationWord(corr.value, corr.sessions)}.`);
   }
   const vrp = varianceRiskPremium(history);
   if (vrp) {

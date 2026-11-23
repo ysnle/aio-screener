@@ -1,8 +1,3 @@
-// v59.43 (owner 2026-10-28): the researched company story for the ~100 most traded listings — technology and moat →
-// design → who makes it → who buys it → how the money flows in → earnings → use of cash → AI value chain → competition
-// → roadmap → what to watch. Curated static JSON under public-data/company-profiles/ (schema in
-// _artifacts/company-profile-pilot-20261028/SCHEMA-v2.md); this module only reads it. Every number carries a dated
-// source in the file; nothing here estimates a missing value.
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { debateContextLines } from './company-debate.js';
@@ -45,7 +40,6 @@ export function moneyText(value, unit) {
   const bn = /bn/i.test(u) ? a : /mn/i.test(u) ? a / 1000 : null;
   if (bn == null || !word) return `${v.toLocaleString('ko-KR')} ${u}`.trim();
   const eok = bn * 10; // 1 bn = 10억 of the same currency
-  // v59.45 (pipeline review P25-STORY-03): under 1억 the 억 figure rounded to "0억 달러" (1 USD mn is 100만 달러).
   if (eok > 0 && eok < 1) return manText(sign, eok, word);
   return eok >= 10000 ? `${sign}${trimZero((eok / 10000).toFixed(2))}조 ${word}`
     : eok >= 100 ? `${sign}${Math.round(eok).toLocaleString('ko-KR')}억 ${word}` : `${sign}${trimZero(eok.toFixed(1))}억 ${word}`;
@@ -66,8 +60,6 @@ export const pctText = (value) => { const v = finite(value); return v == null ? 
 export function storyPeriodEnd(profile) {
   const e = profile?.earnings || {};
   if (isIsoDay(String(e.periodEnd || ''))) return e.periodEnd;
-  // The day after 'ended' or a range's '~' is the period's end; a later date in the text is a filing or report day
-  // ('FY2026 (ended 2026-06-30; 10-K filed 2026-08-31)').
   const text = String(e.period || '');
   return text.match(/(?:\bended\b|~)\s*(20\d\d-\d\d-\d\d)/i)?.[1] || text.match(/20\d\d-\d\d-\d\d/)?.[0] || null;
 }
@@ -98,15 +90,11 @@ export function storyFreshness(profile, earnings = [], today = new Date().toISOS
   if (!researchedAt || (!calendar.length && !filed.length && !(periodEnd && String(quarters || '').trim()))) return { state: 'unknown', researchedAt, newReport: null, newQuarterEnd: null };
   const dates = [
     ...calendar.filter((row) => String(row?.symbol || '').toUpperCase() === symbol && hasLeadingIsoDay(row?.date || ''))
-      // Already reported: the calendar carries the actual figures, or the report day is over. A row dated today with no
-      // actuals has not been released yet (AMZN 2026-10-29 after the close).
       .filter((row) => row.epsActual != null || row.revenueActual != null || String(row.date).slice(0, 10) < today)
       .map((row) => String(row.date).slice(0, 10)),
     ...filed.map((b) => String(b.eventDate).slice(0, 10))
   ];
   const newer = dates
-    // On or after the research day. The calendar gives the US report date and stories are researched in KST, so a
-    // report dated on the research day (MSFT/GOOGL 2026-10-28, after the close) is not in it.
     .filter((date) => researchedAt && date >= researchedAt && date <= today)
     .sort()
     .at(-1) || null;
@@ -135,7 +123,6 @@ export function companyStoryContext(story) {
     (story.guidance?.latest || []).length ? `회사 가이던스: ${story.guidance.latest.map((g) => `${g.period} ${g.metric} ${g.value}(${g.givenOn || '날짜 미상'})`).join(' / ')}` : null,
     (w.confirms || []).length ? `맞아가는 신호: ${w.confirms.join(' / ')}` : null,
     (w.breaks || []).length ? `어긋나는 신호: ${w.breaks.join(' / ')}` : null,
-    // v59.74: the issue the stock turns on, both readings, and the structures under the numbers.
     ...debateContextLines(story),
     '이 조사 이후 새 실적이 나왔으면 그 내용이 우선한다. 매매 지시 없이 조건으로 답할 것.'
   ];

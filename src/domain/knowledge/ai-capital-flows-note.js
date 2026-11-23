@@ -1,7 +1,3 @@
-// AI 자본순환 as an analysis note: who funds whom and what each side buys, read from the company disclosures recorded in
-// public-data/atlas/capital-flows.json (reviewed 2026-11-19). Every amount here is one of that file's entries; caps and
-// minimum commitments are named as such and never added together, and a report-only entry says so. Pure data; no DOM.
-
 const SEC = 'https://www.sec.gov/Archives/edgar/data';
 
 export const AI_CAPITAL_FLOWS_NOTE = Object.freeze({

@@ -1,13 +1,3 @@
-// Roadmap item 11 (legacy decomposition, shell): the unified refresh progress surface — the floating
-// #aio-refresh-progress-layer and the topbar 새로고침 button text — moved here from js/aio-ui.js
-// (bindAioRefreshProgressSurface). It listens to the scheduler events src/app/refresh-scheduler.js emits
-// (aio:refresh:start / progress / done). Each event carries the whole run state (keys, done, total, results), so a
-// render from any one event is complete and an event that fired before this module loaded is not needed.
-// v50.31: the floating panel shows only for a run the reader started (forceRefresh); background runs (boot, page entry)
-// are reported quietly by the topbar button text ("갱신 N/M"). The data-status chip is updateDataStatus's alone.
-// Layout and colours live in src/ui/styles/legacy-ui.css; `layer.style.display` stays a property (T802 reads it).
-// globalRefresh (the topbar 새로고침 button, js/aio-ui.js) moved here too, so #topbar-refresh-btn has one writer module.
-
 export const REFRESH_TASK_LABELS = Object.freeze({
   quotes: '시세',
   news: '뉴스',

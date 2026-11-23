@@ -1,10 +1,3 @@
-// v59.59 (logic refactor): the one percentile of a value within a sample, for every "N년 중 몇 %" reading on screen.
-// Before this file four modules ranked with two conventions: the fear-greed composite and the market temperature
-// counted the latest value in its own sample, (below + ½·equal) ÷ n, so a one-year high read 99.8 and a low 0.2,
-// while the regime radar and the record percentile ranked against the other observations and reached 0 and 100 —
-// the same extreme printed two numbers. The convention kept is the mid-rank over the others (scripts/lib/rank-
-// statistics.mjs percentileRank01 is the same): ties count half, the highest value is 100, the lowest 0.
-
 /**
  * Percentile (0..100, unrounded) of `current` within `sample` (finite numbers). When `current` is one of the sample's
  * values, one copy of it is the observation itself and is left out; a value outside the sample is ranked against all of

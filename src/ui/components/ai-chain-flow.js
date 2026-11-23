@@ -1,11 +1,10 @@
-// v59.44 (owner 2026-10-30): the AI supply chain on 오늘, before the release summaries — one bar per group for the
-// one-month median move with the last session beside it, a sentence of counts, and each group's members in a fold.
-// A lazy chunk like the release summaries; the rows and themes are the screener's and the 테마 screen's, already loaded.
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
 import { signedBar } from './signed-bar.js';
 import { frameHead, markFrame } from './section-frame.js';
-import { aiChainFlow, defensiveContrast } from '../../domain/briefing/ai-chain-flow.js';
+import { aiChainFlow, defensiveContrast, leaderFalls } from '../../domain/briefing/ai-chain-flow.js';
+import { fallBars } from './fall-bars.js';
+import { foldSummary, markFold } from './indicator-face.js';
 import { buildTwRevenueView, signedPct } from '../../domain/briefing/tw-monthly-revenue.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -25,7 +24,6 @@ function sessionLabel(root) {
   return m && d ? `${m}/${d} 종가 기준` : '종가 기준';
 }
 
-
 /** 테마: the same block opens the page, above 섹터 회전 (owner 2026-10-30, each screen carries the AI-chain read). */
 export function paintThemesAiChain(doc, root) {
   const page = doc?.getElementById('page-themes');
@@ -37,8 +35,29 @@ export function paintThemesAiChain(doc, root) {
   } });
 }
 
-// v59.56 (X-bookmark gap 2): Taiwan's monthly revenue under the US price medians — one sentence on the face, each
-// group's year-on-year change and its companies in the fold. Requested once per load; a new copy repaints the block.
+/**
+ * v60.50 (owner 2026-11-23): 테마와 섹터 opens with the leaders against the rest — the domain's line (ai-chain-flow.js
+ * leaderFalls) and its two bars at the top of the summary card, the member counts in a fold. Hidden until both sides
+ * are measured on the screener's US close.
+ */
+export function paintThemesLeaderFalls(doc, root) {
+  const read = doc?.getElementById('rrg-rotation-read');
+  if (!read) return null;
+  const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
+  const falls = leaderFalls({ themes: root?.THEME_MAP || [], rows: root?.AIO_ARCH?.getScreenerState?.('rows') || [], session });
+  let host = doc.getElementById('themes-leader-falls');
+  if (!host) { host = el(doc, 'div', null, 'themes-leader-falls'); host.id = 'themes-leader-falls'; read.before(host); }
+  host.hidden = !falls;
+  if (!falls) { host.replaceChildren(); return null; }
+  const wasOpen = host.querySelector('details')?.open;
+  const fold = markFold(el(doc, 'details', null, 'themes-leader-falls__more'), 'method');
+  fold.append(foldSummary(doc, 'method', '두 묶음에 든 종목'),
+    el(doc, 'p', `주도 테마는 반도체·AI 인프라·광통신 테마의 세부 묶음에 든 미국 종목(${falls.leaders.listed}개 중 고점 기록이 있는 ${falls.leaders.measured}개), 나머지 테마는 다른 테마에만 든 미국 종목(${falls.rest.listed}개 중 ${falls.rest.measured}개)입니다. 각 종목의 52주 종가 고점 대비 하락을 단순 평균했습니다. 포트폴리오 화면의 주도 영역과 같은 종목 묶음입니다.`, 'mk-story__read'));
+  if (wasOpen) fold.open = true;
+  host.replaceChildren(el(doc, 'p', falls.said.text, 'briefing-read-headline v2-stock-lede'), fallBars(doc, falls.bars, `52주 종가 고점 대비 평균 하락, ${sessionLabel(root)}`), fold);
+  return falls;
+}
+
 function twRevenue(doc, root, id, repaint) {
   (root.__aioTwRevenueRepaint ||= {})[id] = repaint; // home and 테마 each repaint their own block when a new copy lands
   if (!root.__aioTwRevenueRequested) {
@@ -62,8 +81,6 @@ function twRevenue(doc, root, id, repaint) {
   return { face, fold };
 }
 
-// v59.70 (X bookmarks 11/4 #7): each layer's median PER on last-four-quarter → next-four-quarter consensus EPS, one dot
-// pair per layer on a shared log axis. A layer under its coverage rule is left out and named in the hover.
 const PER_TICKS = Object.freeze([5, 10, 20, 50, 100, 200]);
 function layerPerFold(doc, root, repaint) {
   const consensus = root?.[CONSENSUS_KEY] || null;
@@ -120,7 +137,6 @@ function layerPerFold(doc, root, repaint) {
 
 function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false, mapLink = false }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
-  // v59.45 (P21-CHAIN-01): the medians use the same session the label prints.
   const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
   const flow = aiChainFlow({ themes: root?.THEME_MAP || [], rows, session });
   let host = doc.getElementById(id);
@@ -144,7 +160,6 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
       day.dataset.direction = direction(group.ret1d);
       const name = el(doc, 'span', group.name, 'ai-chain__name');
       name.title = group.name;
-      // v59.69: the shared two-sided bar — a falling group sits left of the zero line instead of right-anchored.
       li.append(name, signedBar(doc, Number(group.ret1m) || 0, scale), el(doc, 'span', signed(group.ret1m), 'ai-chain__month'), day);
       li.children[2].dataset.direction = direction(group.ret1m);
       chart.append(li);

@@ -7,9 +7,21 @@ import { hacLagFor, neweyWestMeanStats, extractFirstZipEntry, parseFrenchDailyFa
 import { backtestFactors } from './lib/factors.mjs';
 import { spearmanWithEffectiveCI, nonOverlappingCount } from './lib/rank-statistics.mjs';
 import { selectTopByMarketCap } from './backtest-factors-longrun.mjs';
+import { runSections } from './lib/gate-sections.mjs';
 
 const errors = [];
 const check = (label, ok, detail) => { if (!ok) errors.push(label + (detail ? ': ' + JSON.stringify(detail) : '')); };
+const report = () => {
+  const failed = errors.splice(0);
+  if (!failed.length) return;
+  console.error('research-validation check failed:\n- ' + failed.join('\n- '));
+  process.exit(1);
+};
+
+// v60.50: the statistics run on fixtures (code); whether the committed screener carries enough US rows for the long-run
+// job is a data section that also runs in a data run.
+await runSections('research-validation', [
+['statistics', async () => {
 
 // Lag rule: overlap of 63-day windows sampled every 21 days is 2; rule of thumb for n=114 is 4.
 check('v58.83 HAC lag covers window overlap and the Newey-West plug-in rule', hacLagFor(114, 63, 21) === 4 && hacLagFor(10, 63, 21) === 2 && hacLagFor(114, 21, 21) === 4 && hacLagFor(3, 63, 21) === 1, [hacLagFor(114, 63, 21), hacLagFor(10, 63, 21), hacLagFor(3, 63, 21)]);
@@ -79,8 +91,6 @@ const universeRows = [{ sym: 'AAA' }, { sym: 'BBB' }, { sym: '005930.KS' }, { sy
 const screenerData = { AAA: { valuationPrice: 10, valuationSharesOutstanding: 100 }, BBB: { valuationPrice: 50, valuationSharesOutstanding: 100 }, '005930.KS': { valuationPrice: 1e5, valuationSharesOutstanding: 1e9 }, CCC: { valuationPrice: 20 }, DDD: { valuationPrice: 30, valuationSharesOutstanding: 100 } };
 const top = selectTopByMarketCap(universeRows, screenerData, 2);
 check('v58.83 long-run universe ranks US rows by price × shares and skips KR or incomplete rows', top.map((r) => r.sym).join() === 'BBB,DDD' && top[0].mcap === 5000, top);
-const realTop = selectTopByMarketCap(JSON.parse(await readFile(new URL('../public-data/screener-universe.json', import.meta.url), 'utf8')).universe, JSON.parse(await readFile(new URL('../public-data/screener.json', import.meta.url), 'utf8')).data, 120);
-check('v58.83 committed artifacts yield enough tickers for the default top-120 run (script aborts below 20)', realTop.length >= 100, realTop.length);
 
 // IC per market. US momentum persists, KR momentum reverses every 60 sessions; the pooled IC hides both.
 {
@@ -151,8 +161,13 @@ check('v60.16 the long-run study writes the fields the gate and the reader need:
   /executionModel: baselineRef\.executionModel/.test(longrun) && /universeBasis: 'present-day-top-market-cap'/.test(longrun) && /staleAfterDays: LONGRUN_STALE_AFTER_DAYS/.test(longrun) && /icDecay/.test(longrun) && /quantileSpreadNetHac/.test(longrun));
 check('v58.83 long-run script reports HAC inference and the external benchmark', /neweyWestMeanStats/.test(longrun) && /externalBenchmark/.test(longrun) && /compareWithExternalFactor/.test(longrun));
 
-if (errors.length) {
-  console.error('research-validation check failed:\n- ' + errors.join('\n- '));
-  process.exit(1);
-}
+report();
 console.log('research-validation check passed (HAC inference, French momentum parser, pre-registered benchmark verdicts, opt-in factor spreads)');
+}, 'code'],
+['committed-universe', async () => {
+const realTop = selectTopByMarketCap(JSON.parse(await readFile(new URL('../public-data/screener-universe.json', import.meta.url), 'utf8')).universe, JSON.parse(await readFile(new URL('../public-data/screener.json', import.meta.url), 'utf8')).data, 120);
+check('v58.83 committed artifacts yield enough tickers for the default top-120 run (script aborts below 20)', realTop.length >= 100, realTop.length);
+report();
+console.log(`research-validation: committed screener yields ${realTop.length} US tickers for the top-120 run`);
+}, 'data'],
+]);

@@ -1,7 +1,3 @@
-// v57.54: number keys 1..8 open the eight screens in menu order. The help modal and the key handler
-// (both below since roadmap 11; they were in js/aio-ui.js) read this table, which is derived from ROUTE_HUBS — the same table that draws the
-// menu — so the listed names, their order and what each key does cannot drift apart again (the old
-// modal listed 시그널/매크로/뉴스/테마·트렌드 while the keys opened other routes).
 import { ROUTE_HUBS } from './route-hubs.js';
 
 export const SCREEN_SHORTCUTS = Object.freeze(ROUTE_HUBS.slice(0, 9).map((hub, index) => {
@@ -9,8 +5,6 @@ export const SCREEN_SHORTCUTS = Object.freeze(ROUTE_HUBS.slice(0, 9).map((hub, i
   return Object.freeze({ key: String(index + 1), route: first.id, label: hub.label });
 }));
 
-// v59.70 (wave2-f S23, owner D4 2026-11-04): every key the shell binds, one row per key and modifier. The help modal's
-// rows and the conflict gate (scripts/ci-search-surface-contract.mjs) read this table; two rows on one key fail the gate.
 export const SHELL_KEY_BINDINGS = Object.freeze([
   Object.freeze({ key: 'k', mod: 'ctrl', action: 'command-search', label: '명령 검색 (종목, 화면, 용어)', inInput: true }),
   Object.freeze({ key: 'k', mod: 'meta', action: 'command-search', label: '명령 검색 (Mac)', inInput: true }),
@@ -43,13 +37,6 @@ export function renderScreenShortcutRows(documentRef) {
   return true;
 }
 
-// Roadmap item 11 (legacy decomposition, shell): the ? help modal (openKbdHelp / closeKbdHelp) and the document keydown
-// handler moved here from js/aio-ui.js, beside the screen table they read. Behaviour is unchanged:
-//   Escape  — closes the help modal, then the glossary if it shows, else the AI panel (the command search closes itself)
-//   Ctrl/⌘K — opens the command search on every screen, inside inputs too (D4; it replaced 2026-10-25's "focus the box")
-//   /       — focuses the screener's 표에서 찾기 when it is on screen, else opens the command search
-//   ?       — toggles the help modal; 1..9 — the screens in menu order; R — refreshes live quotes (not Ctrl/⌘R)
-// The other keys are ignored while typing in an input, textarea, select or contenteditable.
 export function createKeyboardHelp({ root = globalThis, documentRef = root?.document } = {}) {
   const modal = () => documentRef.getElementById('kbd-shortcuts-modal');
   function close() {
@@ -113,7 +100,6 @@ export function handleShortcutKey(event, { root = globalThis, documentRef = root
     if (typeof root.showPage === 'function') root.showPage(route, null);
     return route;
   }
-  // v59.42: plain R only — Ctrl/Cmd+R is the browser's page reload and must not be swallowed.
   if ((event.key === 'r' || event.key === 'R') && !event.ctrlKey && !event.metaKey && !event.altKey) {
     event.preventDefault();
     if (typeof root.fetchLiveQuotes === 'function') root.fetchLiveQuotes();

@@ -35,7 +35,7 @@ const rows = [
     forbiddenClaims: ['Stage 2 = 매수', 'Stage 2 매수 타이밍']
   },
   {
-    id: 'market-health', label: '시장 상태 판정', status: 'reference', // P1428: the 0-100 market score is retired
+    id: 'market-health', label: '시장 상태 판정', status: 'reference',
     evidence: 'breadth, sentiment, volatility inputs with coverage',
     wording: '공개 기준의 상태 설명',
     forbiddenClaims: ['매수 승인', '매도 승인', '시장 점수로 수익 보장']

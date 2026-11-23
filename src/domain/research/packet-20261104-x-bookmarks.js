@@ -1,8 +1,3 @@
-// The owner's X bookmarks added after the 2026-11-02 read (2026-11-04). Every bookmark in x.com/i/history above the
-// 11/02 read was read through the owner's browser and the fxtwitter thread API — article bodies and every article image,
-// author threads, quoted posts two levels deep, other users' replies. One quoted post was subscriber-only and stayed
-// unread. Same reference-only shape as packet-20261102-x-bookmarks.js: nothing here is a live value, a ranking input or a
-// call. Ledger: _artifacts/x-bookmarks-20261104/.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 // Grades on the ledger's scale: A checked or reusable, B cited or confirming, C none.
 const SOURCE_TIMELINE = Object.freeze({
@@ -49,7 +44,6 @@ const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   timeline: SOURCE_TIMELINE[statusId], quality: SOURCE_QUALITY[statusId]
 });
 
-// What the 2026-11-04 read covered: 25 bookmarks above the 11/02 read (17 investment, 8 agent and coding practice).
 export const PACKET_20261104_AUDIT = Object.freeze({
   readOn: '2026-11-04', newSinceLedger: 25, inScope: 17, agentPractice: 8, unrelated: 0, framesAdded: 4,
   repoState: Object.freeze({ reflected: 2, partial: 11, missing: 2, conflict: 1, notApplicable: 9 }),

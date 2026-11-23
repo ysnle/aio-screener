@@ -1,9 +1,3 @@
-// v58.68 (owner 2026-10-23): the market verdict is the US market as a whole (six conventional axes), and the AI and
-// semiconductor leaders only reached it through one condition on the trend axis. On 10/22 SOXX fell 6.8% and the median
-// semiconductor 7% while the Dow and the Russell 2000 closed flat and 57% of US names rose — the whole-market label
-// '다소 부담' was right and still hid the day. The leadership area gets its own verdict line beside it: the same
-// leadership-break test (market-read leadershipBreakOf), the size of the latest session in the leaders, and how many US
-// names closed at a recent low. It describes the leaders; it does not change the six-axis count.
 import { buildCloseSeries } from '../session/close-series.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { shortDate } from '../../content/date-labels.js';
@@ -47,8 +41,6 @@ export function buildLeadershipVerdict({ history = [], leadership = null, soxx =
   const shock = (semis?.change != null && semis.change <= -rule.shockSemis1dPct) || (ndx?.change != null && ndx.change <= -rule.shockNdx1dPct);
   const state = leadership.state || 'unknown';
   const label = `${LEADERSHIP_STATE_LABELS[state] || LEADERSHIP_STATE_LABELS.unknown}${shock ? ', 급락일' : ''}`;
-  // A missing previous session (the 10/21 refresh outage; Yahoo's index bars also lack 10/21) leaves the day out — one note
-  // at the end says so instead of repeating it on every item.
   const withName = (name, move, rest) => {
     const dayText = move?.change != null ? `${shortDate(move.date)} ${signed(move.change)}` : '';
     const body = [dayText, rest].filter(Boolean).join(', ');
@@ -77,4 +69,3 @@ export function buildLeadershipVerdict({ history = [], leadership = null, soxx =
   return { available: true, state, shock, label, read, evidence, line: evidence.join(' / '), date: semis?.date || ndx?.date || leadership.date || null,
     semis1d: semis?.change ?? null, ndx1d: ndx?.change ?? null, low20: low20?.value ?? null, low20Eligible: low20?.eligible ?? null };
 }
-

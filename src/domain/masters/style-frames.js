@@ -1,7 +1,3 @@
-// P1479 (knowledge review 2026-10-04, 2차): the masters screen should teach what each way of managing
-// money is for, not only list famous holdings. Each style states the problem it solves, where its
-// return comes from, the risk it accepts and — because 13F shows only long US-listed equity positions
-// (and some options/convertibles) at quarter end — what 13F can and cannot reveal about it.
 const S = (frame) => Object.freeze(frame);
 
 export const STYLE_FRAMES = Object.freeze([
@@ -20,8 +16,6 @@ export const STYLE_FRAMES = Object.freeze([
   S({ id: 'macro', label: '매크로', match: /매크로|거시/,
     problem: '금리·환율·원자재·국가 간 흐름의 방향에서 수익을 낸다', source: '선물·외환·국채 포지션', risk: '레버리지, 정책 급변',
     sees: '일부 주식·ETF', blind: '핵심 포지션(선물·외환·국채)은 13F에 거의 나타나지 않음' }),
-  // Codex review 2026-10-05: Dimensional's own description is low-turnover systematic factor investing,
-  // not the high-turnover market-neutral book the quant group describes. It gets its own frame.
   S({ id: 'factor', label: '학술 팩터·체계적', match: /학술 팩터|저비용·체계적/,
     problem: '학술 연구로 확인된 수익 요인(규모·가치·수익성)을 낮은 비용으로 꾸준히 담는다', source: '팩터 프리미엄, 낮은 비용과 낮은 회전', risk: '팩터의 긴 부진 기간, 시장 전체 하락',
     sees: '수천 종목에 넓게 나눈 롱 포지션, 분기 변화가 작음', blind: '펀드별 규칙과 해외 주식·채권 운용' }),
@@ -34,9 +28,6 @@ export const STYLE_FRAMES = Object.freeze([
   S({ id: 'event', label: '역발상·이벤트', match: /비대칭|이벤트|역발상/,
     problem: '시장이 크게 잘못 가격을 매긴 소수의 상황을 찾아 비대칭 수익을 노린다', source: '역발상 판단, 특수 상황', risk: '타이밍 오류, 소수 포지션 손실, 긴 대기',
     sees: '소수 종목과 큰 분기 변화, 일부 옵션', blind: '숏·신용부도스와프 같은 하락 베팅 대부분' }),
-  // v57.84 review: Fisher Asset Management is a long-only listed-equity manager — 13F shows most of its US-listed book;
-  // the blind spot is ordinary shares listed abroad, not private markets. Appaloosa (Tepper) is equity and distressed
-  // credit, not a futures/FX macro book, so its style now reads 가치·전환·부실 신용 and lands on the credit frame.
   S({ id: 'global-long', label: '글로벌 롱온리', match: /글로벌·롱온리|글로벌·분산·대형주/,
     problem: '전 세계 대형 상장주식을 분산 보유해 장기 수익을 노린다', source: '국가·업종 배분과 종목 선택', risk: '세계 주식시장 동반 하락, 배분 판단 오류',
     sees: '미국 상장 주식과 ADR 대부분', blind: '해외 거래소에 상장된 원주 보유' }),

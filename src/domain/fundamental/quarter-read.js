@@ -1,12 +1,7 @@
-// Codex review 2026-10-05 (분기 추이): the 재무 공시 page read annual 10-K only, so a fiscal year that ended
-// a year ago stood in for "recent results". This reads the last eight fiscal quarters published in
-// public-data/sec-fiscal-history.json (`quarters`, USD millions) and compares each quarter with the same
-// quarter a year earlier — the comparison that removes seasonality. A derived fourth quarter (FY − Q1..Q3)
-// is labelled; no quarter is estimated beyond that.
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
-import { quarterLabel } from './period.js';
+import { quarterLabel, isQuarterGap } from './period.js';
 import { claim, say, sayJoin, NOTHING, periodId } from '../shared/claim.js';
 
 // A quarter's change is a claim on the filer's quarter against the quarter it changed from (src/domain/shared/claim.js).
@@ -20,7 +15,6 @@ export function parseQuarterHistory(text) {
       revenue: finite(revenue) == null ? null : finite(revenue) * 1e6,
       netIncome: finite(netIncome) == null ? null : finite(netIncome) * 1e6,
       derived: basis === 'd',
-      // v59.70 (X bookmarks #8): quarter-end balances; undefined = not yet collected, null = not reported.
       inventory: inventory === undefined ? undefined : finite(inventory) == null ? null : finite(inventory) * 1e6,
       receivables: receivables === undefined ? undefined : finite(receivables) == null ? null : finite(receivables) * 1e6
     }));
@@ -46,13 +40,9 @@ export function buildQuarterRead(quarters = [], { symbol = '' } = {}) {
   });
   const yoyClaim = (q, label) => quarterChange(symbol, 'revenue', label, q.revenueYoy, q, yoyBase.get(q));
   const latest = withYoy[withYoy.length - 1];
-  // v59.45 (pipeline review P19 quarter-read): the trend reads the latest three quarters themselves — consecutive (about
-  // a quarter apart) and each with a year-ago value. Dropping the gaps first read non-adjacent quarters as a run.
   const last3 = withYoy.slice(-3);
-  const consecutive = last3.length === 3 && last3.every((q, i) => i === 0 || ((Date.parse(q.periodEnd) - Date.parse(last3[i - 1].periodEnd)) / 86400000 >= 60 && (Date.parse(q.periodEnd) - Date.parse(last3[i - 1].periodEnd)) / 86400000 <= 120));
+  const consecutive = last3.length === 3 && last3.every((q, i) => i === 0 || isQuarterGap((Date.parse(q.periodEnd) - Date.parse(last3[i - 1].periodEnd)) / DAY));
   const yoys = consecutive && last3.every((q) => q.revenueYoy != null) ? last3.map((q) => q.revenueYoy) : [];
-  // v57.55 review (E1-03): comparing only the last and the third-last value called MRNA's +260% → +2.1% "빨라졌다".
-  // A direction is named only when both of the last two steps agree; otherwise the series is uneven.
   const [a, b, c] = yoys;
   const trend = yoys.length >= 3
     ? (b > a + 3 && c > b + 3 ? '전년 대비 성장률이 최근 분기로 갈수록 빨라졌습니다'
@@ -66,15 +56,12 @@ export function buildQuarterRead(quarters = [], { symbol = '' } = {}) {
   return { available: true, rows: withYoy, latest, headline: said.text, claims: said.claims, hasDerived: withYoy.some((q) => q.derived) };
 }
 
-// v59.70 (X bookmarks #8): the working-capital side of a cash-flow change — inventory and trade receivables at the latest
-// quarter end against the quarter before (about a quarter apart), beside revenue's change over the same step. A balance
-// growing faster than revenue is cash tied up (AMD 3Q26: free cash flow -64% q/q on inventory and receivables).
 export function buildWorkingCapitalRead(quarters = [], { symbol = '' } = {}) {
   const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => q?.periodEnd).sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
   const latest = rows.at(-1); const prior = rows.at(-2);
   if (!latest || !prior || latest.inventory === undefined) return { available: false, collected: latest?.inventory !== undefined, rows: [] };
   const gap = (Date.parse(latest.periodEnd) - Date.parse(prior.periodEnd)) / DAY;
-  if (!(gap >= 60 && gap <= 120)) return { available: false, collected: true, rows: [] };
+  if (!isQuarterGap(gap)) return { available: false, collected: true, rows: [] };
   // Each change carries the quarter it is measured from, so the printed figure is a claim on that pair of quarters.
   const changeFrom = (base) => (field) => (Number.isFinite(latest[field]) && Number.isFinite(base?.[field]) && base[field] > 0 ? { from: base[field], to: latest[field], pct: (latest[field] / base[field] - 1) * 100, base } : null);
   const change = changeFrom(prior);

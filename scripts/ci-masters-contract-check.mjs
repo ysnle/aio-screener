@@ -511,7 +511,7 @@ const result = {
   route: 'masters', profiles: managerCatalog.managers.length, verifiedMetadata: managerCatalog.coverage.secMetadataVerified, cikVerified: managerCatalog.coverage.secMetadataVerified, reconciledManagers: holdings.reconciledManagers, holdingRowsPublished: holdings.holdingRowsPublished, fullRowsAvailable: holdings.fullRowsAvailable, rowPreviewManagers: rowPreviews.coverage.previewManagerCount, previewRows: rowPreviews.coverage.previewRowCount, reconciledComparisons: holdings.reconciledComparisons, comparisonRowsPublished: holdings.comparisonRowsPublished, fullComparisonRowsAvailable: holdings.fullComparisonRowsAvailable, latestAvailablePeriod: holdings.latestAvailablePeriod, currentClassification, staleReferenceManagers: holdings.managers.filter((manager) => manager.freshnessStatus === 'STALE_REFERENCE').map((manager) => manager.id), historyPeriods: historyIndex.totalPeriods, historicalRows: historyRows.rowsImported, normalizationStatus: mastersIndex.normalizationStatus, securityMasterStatus: securityMaster.status, rawUniqueCusips: mastersIndex.rawUniqueCusips, rawUniqueIssuerNames: mastersIndex.rawUniqueIssuerNames, mappedRows: mastersIndex.mappedRows, latestFilingPending: managerCatalog.coverage.rowImportPending, discoveryLeads: managerCatalog.coverage.discoveryLeads, methodOnly: methodOnly.length, reviewedAt: mastersIndex.reviewedAt
 };
 console.log(JSON.stringify(result));
-}],
+}, 'data'],
 // ── section manager-store (was ci-masters-manager-store-check.mjs) ──
 ['manager-store', async () => {
 // v57.89: fixture check for the size-bounded 13F manager row store (scripts/lib/masters-manager-store.mjs).
@@ -581,5 +581,5 @@ if (verdict(fixtureFiles) !== 'match' || verdict([]) !== 'absent' || verdict(fix
   || verdict([...fixtureFiles, { name: 'c-manager.json', buffer: Buffer.from('{}') }]) !== 'mismatch'
   || verdict([fixtureFiles[0], { name: 'a-manager.json', buffer: Buffer.from('{"a":2}') }]) !== 'mismatch') fail('store manifest comparison accepted a missing, extra or changed file');
 console.log(`Masters manager row store OK: fixture split/reassemble/rewrite/shrink/tamper and store-manifest drift verified; ${names.length} local store file(s) within ${MANAGER_ROWS_FILE_MAX_BYTES} bytes.`);
-}],
+}, 'data'],
 ]);

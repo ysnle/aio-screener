@@ -31,6 +31,12 @@
 
 const CANDIDATE_COMMIT = 'node scripts/verify-refresh-candidate.mjs --expect-commit "$CANDIDATE"';
 
+// v60.50: a data commit touches public-data/ and nothing else. Code state (public-config.json, architecture/*) changes
+// only in code commits, so a data commit never needs merging with one. The publisher refuses a set path or a staged path
+// outside this root.
+export const DATA_ROOT = 'public-data/';
+export const outsideDataRoot = (paths) => paths.filter((path) => !String(path).startsWith(DATA_ROOT));
+
 export const DATA_PUBLISH_SETS = Object.freeze({
   'refresh-data': Object.freeze({
     workflow: 'refresh-data.yml',
@@ -39,7 +45,6 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     required: [
       'public-data/data.json',
       'public-data/history.json',
-      'architecture/public-readiness.json',
     ],
     optional: [
       'public-data/rotation-detail.json', // v59.70 (R11): rotationHistory split from data.json; same commit or live trails vanish
@@ -49,6 +54,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/today-verdict.json', // v58.80 F01
       'public-data/scenario-outcomes.json', // P1743
       'public-data/scenario-state.json', // P1743
+      'public-data/index-longrun.json', // v60.50: weekly long-run drawdowns and tail moves (daily lane)
       'public-data/market-day.json', // v59.63
       'public-data/market-temperature.json', // v57.54
       'public-data/official-references.json', // P1734
@@ -57,7 +63,6 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/operations-status.json',
       'public-data/operations-slo-window.json', // v59.27
       'public-data/freshness/refresh-data.json', // v59.70
-      'public-config.json',
       'public-data/reconciliation-status.json',
       'public-data/screener.json',
       'public-data/telegram-digest.json',
@@ -106,8 +111,6 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/reconciliation-status.json',
       'public-data/operations-status.json',
       'public-data/history.json',
-      'public-config.json',
-      'architecture/public-readiness.json',
     ],
     optional: [
       'public-data/earnings-calendar.json',

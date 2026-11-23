@@ -452,15 +452,15 @@ try {
   if (dataGates.join(',') !== 'data-other,data-plane,preflight') fail(`group impact must keep its own gates, got ${dataGates.join(',')}`, dataEdit);
 
   // v60.46 (static-dynamic audit rec. 8): a data run — the data-commit profile a producer runs before its push, or
-  // --data-run in the reduced-scope CI of a data-only commit — skips gates declared inputClass "code"; data, mixed and
-  // undeclared gates run, and every other selection is unchanged. Before v60.46 a producer ran every code gate.
+  // --data-run in the reduced-scope CI of a data-only commit — runs data gates only; every other selection is unchanged.
+  // v60.50: `mixed` is gone and an undeclared gate no longer rides into a data run (before, both ran there in full).
   writeFileSync(manifestPath, JSON.stringify({
     ...base,
     originScopes: { 'refresh-data': ['data'] },
     groups: {
       preflight: { phase: 0, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [
         { id: 'pre-code', inputClass: 'code', script: fixtureScript },
-        { id: 'pre-mixed', inputClass: 'mixed', script: fixtureScript }
+        { id: 'pre-data', inputClass: 'data', script: fixtureScript }
       ] },
       data: { phase: 1, kind: 'static', inputs: ['scripts/fixtures/**'], gates: [
         { id: 'data-data', inputClass: 'data', script: fixtureScript },
@@ -475,10 +475,10 @@ try {
     if (result.status !== 0) fail(`data-run selection failed for ${args.join(' ')}`, result);
     return JSON.parse(result.stdout).gates.map((gate) => gate.id).sort().join(',');
   };
-  if (selection('data-commit', '--origin', 'refresh-data') !== 'data-data,data-undeclared,pre-mixed') fail('v60.46 the data-commit profile must skip code gates only');
-  if (selection('--group', 'data', '--data-run') !== 'data-data,data-undeclared') fail('v60.46 --data-run must skip code gates only');
+  if (selection('data-commit', '--origin', 'refresh-data') !== 'data-data,pre-data') fail('v60.50 the data-commit profile runs data gates only');
+  if (selection('--group', 'data', '--data-run') !== 'data-data') fail('v60.50 --data-run runs data gates only');
   if (selection('--group', 'data') !== 'data-code,data-data,data-undeclared') fail('v60.46 a source run keeps every gate');
-  if (selection('test') !== 'data-code,data-data,data-undeclared,pre-code,pre-mixed') fail('v60.46 a profile run keeps every gate');
+  if (selection('test') !== 'data-code,data-data,data-undeclared,pre-code,pre-data') fail('v60.46 a profile run keeps every gate');
 
   // v57.54: a failure reports its cause rows first, even when warnings fill the 30-line tail.
   const { failureCauseLines } = await import('./lib/qa-failure-cause.mjs');

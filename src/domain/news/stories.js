@@ -1,11 +1,8 @@
-// P1601: source identifiers and exact text evidence, never title similarity, own news identity.
 const value = (raw) => String(raw ?? '').trim();
 const stamp = (row) => value(row?.publishedAt || row?.pubDate || row?.date);
 const source = (row) => value(row?.source || row?.feed).toLowerCase();
 const issuer = (row) => value(row?.issuerId || row?.issuerCik || row?.cik || row?.issuerSymbol).toUpperCase();
 export const isNewsRevision = (row) => !!(row?.correctionOf || row?.retractionOf || row?.supersedes || ['correction', 'retraction'].includes(row?.revisionType));
-// v59.45: a wire headline that says it is a correction ("Correction: …", "CORRECTED-…", "Retraction: …") counts too —
-// RSS rows carry no revision fields.
 const REVISION_TITLE = /^\s*(?:correction|corrected|retraction|retracted)\b|^\s*[[(（]?\s*(?:정정|철회)\s*[\]):：）]/i;
 export const isNewsRevisionRow = (row) => isNewsRevision(row) || REVISION_TITLE.test(value(row?.title || row?.headline));
 
@@ -16,12 +13,6 @@ export function newsArticleKey(row) {
     value(row?.correctionOf || row?.retractionOf || row?.supersedes), value(row?.revisionType)]);
 }
 
-// P1730: the provisional post-08:00 slot. The 08:00 bundle stays canonical; this slot holds only headlines published at
-// or after that bundle's end that the bundle does not already carry (same link or title), newest first, at most `max`.
-// A headline that a newer bundle absorbs leaves the slot because its time falls before that bundle's end.
-// Live audit 2026-10-21: six slots covered the whole day after the 08:00 cut (Korean session, US pre-market and session);
-// at 22:00 KST the rebound's US-Iran and SpaceX coverage competed with gold and French bonds for them. One limit for the
-// producer, the page and the AI context.
 export const NEWS_INTRADAY_MAX = 12;
 export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [], max = NEWS_INTRADAY_MAX, nowMs = Date.now() } = {}) {
   if (!Number.isFinite(cycleEndMs)) return [];
@@ -34,8 +25,6 @@ export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [
     const ms = Date.parse(stamp(row));
     const link = linkOf(row), title = titleOf(row);
     if (!title || !Number.isFinite(ms) || ms < cycleEndMs || ms > nowMs + 15 * 60000) continue;
-    // v59.45 (pipeline review P20-REVISION-01): a correction or retraction of a bundle article is a new version, not a
-    // duplicate — it keeps its slot even on the same URL; only the very same corrected title is a repeat.
     if (isNewsRevisionRow(row) ? titles.has(title) : ((link && links.has(link)) || titles.has(title))) continue;
     if (link) links.add(link);
     titles.add(title);
@@ -88,22 +77,12 @@ export function groupNewsStories(rows = []) {
 }
 
 const escaped = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-// 2026-10-13 news audit N06: one-word company names that are also ordinary English words ("US moves to block …",
-// "Fed officials snap back", "Progressive Democrats", "investors grab Treasuries", "a lucid explanation"). The
-// Telegram matcher (scripts/lib/telegram-tickers.mjs COMMON_WORD_NAMES) already requires a proper noun; news
-// issuers now require the proper noun AND a corporate cue near it (Inc/Corp/stock/shares/earnings or the symbol),
-// because Title Case headlines capitalise every word.
 export const COMMON_WORD_ISSUER_NAMES = new Set(['block', 'snap', 'progressive', 'grab', 'toast', 'lucid', 'vertex', 'elastic',
   'shell', 'visa', 'cadence', 'coherent', 'carnival', 'upstart', 'affirm', 'chewy', 'travelers', 'workday', 'confluent',
   'microchip', 'snowflake', 'paramount', 'iridium', 'occidental', 'abbott', 'vale', 'cactus', 'shoals', 'chevron', 'arm',
   'lowe\'s', 'lowes', 'target']);
 const CORPORATE_CUE = /\b(?:Inc|Corp|Corporation|Co|Company|Companies|Holdings|Group|Ltd|plc|Laboratories|Labs|stocks?|shares?|earnings|CEO|results|revenue|guidance|quarter(?:ly)?|profits?|sales|dividends?|buybacks?|outlook)\b/i;
 const apostrophes = (text) => String(text || '').replace(/[’‘`]/g, '\'');
-// P1755: boot ran these matchers per article x registry entry x name, compiling a fresh RegExp each time.
-// Compiled patterns are cached per name/symbol (the pattern depends only on that string) and a plain
-// substring test rejects texts that cannot match before any regex runs. The prefilter is only used when
-// it is exact: ASCII/Hangul names, whose case-insensitive Unicode matches are all found by toLowerCase
-// once U+017F (long s, which folds to "s") is mapped. Other names always run the regex.
 const MATCHER_CACHE_LIMIT = 4096;
 const cachedMatcher = (cache, key, build) => {
   let hit = cache.get(key);
@@ -157,7 +136,6 @@ export function issuerNameMentioned(rawText, rawName, symbol = '', { requireCue 
   const name = apostrophes(value(rawName));
   if (!name) return false;
   const text = apostrophes(rawText);
-  // P1601: "price target" is not Target the issuer, even when an AI cache suggested TGT.
   if (name.toLowerCase() === 'target') return /\bTarget\s+(?:Corporation|stores?)\b/i.test(text);
   const matcher = cachedMatcher(nameMatcherCache, name, buildNameMatcher);
   if (matcher.needle !== null && !foldOnce(text).includes(matcher.needle)) return false;
@@ -178,9 +156,6 @@ export function issuerNameMentioned(rawText, rawName, symbol = '', { requireCue 
 }
 function mentions(text, name, symbol) { return issuerNameMentioned(text, name, symbol); }
 
-// N07: a bank or broker named as the analyst ("Goldman Sachs raises oil target", "… – Bank of America",
-// "JP모건) TSMC: …") is the opinion's source, not the article's issuer — the same principle as the P1428
-// earnings-path correction in src/ui/pages/news.js (the reporting company, not the analyst's firm).
 const ANALYST_FIRM_ALIASES = { JPM: ['J.P. Morgan', 'JP Morgan', 'JPMorgan Chase'], BAC: ['BofA', 'BofA Securities', 'BofA Global Research'],
   GS: ['Goldman'], MS: [], C: ['Citi', 'Citigroup'], WFC: [], SCHW: ['Schwab'], BLK: [], UBS: ['UBS'], DB: ['Deutsche Bank'],
   JEF: ['Jefferies'], RJF: ['Raymond James'], EVR: ['Evercore', 'Evercore ISI'], PIPR: ['Piper Sandler'], SF: ['Stifel'],
@@ -217,7 +192,6 @@ const issuerNames = (entry) => [entry?.en, entry?.kr, ...koreanAlts(entry)].filt
 
 export function resolveNewsIssuers(row, candidates = [], entries = {}) {
   const text = `${value(row?.title || row?.headline)} ${value(row?.desc || row?.summary)}`;
-  // P1755: same pattern, compiled once per symbol; "$sym"/"(sym)" must appear (ASCII case-insensitive) first.
   const folded = foldedText(text);
   const explicit = (symbol) => {
     const matcher = cachedMatcher(explicitSymbolCache, symbol, (sym) => ({
@@ -257,11 +231,6 @@ export function newsEvidence(row) {
     revision: row?.retractionOf || row?.revisionType === 'retraction' ? '철회' : isNewsRevision(row) ? '정정·변경' : '' };
 }
 
-// v59.56 (screen review): the topic chip came from the feed the headline arrived on, so an OPEC+ quota story on a macro
-// feed read 거시 and a copper-miner result on an energy feed read 에너지. For the displayed label only (LC-31: the feed
-// topic stays the row's topic and never drives article-topic risk signals), the headline's own words correct it in two
-// clear cases: oil-supply words move a broad macro/general row to energy, and metal words with no oil word
-// move it to metals (원자재). Every other row keeps its feed topic.
 const OIL_WORDS = /\bOPEC\+?|\bcrude\b|\boil (?:price|output|supply|production)s?\b|\bBrent\b|\bWTI\b|(?<![가-힣])(?:원유|유가|산유국|감산|증산)/i;
 const METAL_WORDS = /\bcopper\b|\baluminium\b|\baluminum\b|\bnickel\b|\biron ore\b|\blithium\b|(?<![가-힣])(?:구리|알루미늄|니켈|철광석|리튬)/i;
 export function newsTopicOf(item, shownTitle = '') {

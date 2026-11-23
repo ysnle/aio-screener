@@ -1,10 +1,3 @@
-// P1654 (owner 2026-10-12: fill free official data gaps): three supporting groups for the 거시 screen built only from
-// public-data/macro-history.json (FRED raw observations). Each card states a dated value, one change over a named
-// period and one reading; a series that has not been produced yet is left out instead of shown as "—".
-// Expert review 2026-10-13 (M03-M06, M13, M14, M16, M22): the line draws the quantity the value states (PPI and GDP
-// as growth rates, not index levels), the range under it uses the value's own format, the date names the period the
-// observation covers (월 "8월분", 분기 "26년 2분기", 주 "10/7 주", 일 "10/6"), and a series past its cadence's normal
-// delay carries a stale chip.
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { sessionPointBack } from './rates-fx.js';
 import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
@@ -13,7 +6,7 @@ import { isIsoDay } from '../shared/session-date.js';
 import { fedTargetRange } from './fed-target-range.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
-  .map(([date, value]) => ({ date, value: value == null || value === '' ? NaN : Number(value) })) // v59.45: Number(null) is 0, not a reading
+  .map(([date, value]) => ({ date, value: value == null || value === '' ? NaN : Number(value) }))
   .filter((row) => isIsoDay(row.date) && Number.isFinite(row.value))
   .sort((a, b) => a.date.localeCompare(b.date));
 
@@ -43,9 +36,6 @@ function changeOver(series, days) {
   return then ? { then, last } : null;
 }
 
-// v59.59 (logic refactor): a monthly "N개월" change compares with the observation of the calendar month N months back —
-// 92 calendar days from a 1st-of-month date (May 1 → Jan 30) landed on the month before, so the card's "3개월" read
-// four months for some endings (and "1개월" two). No exact month, no change (never a neighbouring month).
 function changeOverMonths(series, months) {
   const last = series.at(-1);
   if (!last) return null;
@@ -91,7 +81,6 @@ export function netLiquiditySeries(macroHistory) {
   }).filter(Boolean);
 }
 
-// M05 (coordinator decision 2026-10-13): a 4-week net-liquidity change inside ±1,000억 달러 (USD 100bn) has no direction.
 export const NET_LIQUIDITY_FLAT_BN = 100;
 
 /** M03: year-over-year % for each month that has the same month one year earlier. */
@@ -134,17 +123,11 @@ export function brentWtiCheck(macroHistory, history = []) {
     return { date: lastSpot.date, brent: lastSpot.value, wti: null, spread: null, spreadMedian: null, brent20: spot20, wti20: null, diverges: false, abnormal: false, basis: 'spot',
       sentence: `브렌트 선물 종가 기록이 아직 없어 유럽 현물 브렌트(${sm}/${sd} ${fmt(lastSpot.value, 2)}달러${spot20 == null ? '' : `, 20거래일 ${signed(spot20, 1)}`})만 참고합니다 — 현물과 WTI 선물은 가격 기준이 달라 둘의 차이를 비교하거나 WTI 판단을 바꾸는 근거로 쓰지 않습니다.` };
   }
-  // v57.81: the spread, both 20-session moves and the divergence verdict come from the one shared rule (macro-signals.js)
-  // that the 거시 chain, the rate hub, the scenario conditions and the commodities axis all read.
   const check = brentWtiFromSeries({ brent: futures, wti, pointBack: sessionPointBack });
   if (!check) return null;
   const { spread, spreadMedian, brent20, wti20, diverges, abnormal } = check;
   const [, month, day] = check.date.split('-').map(Number);
   const md = `${month}/${day}`;
-  // P1726: even between the two futures, a same-day gap above $15 is outside the range where the series have been
-  // comparable (one-year median about $6) — a roll mismatch or a source error. The spread and the Brent-based reading
-  // are held instead of explained.
-  // Macro audit 2026-10-17: the divergence case is WTI rising less than half as much as Brent, not WTI falling.
   const heldTail = diverges ? ' — 국제 유가는 크게 오르는데 WTI는 그 절반도 오르지 않아, WTI로 유가 방향이나 물가 완화를 읽는 판단은 보류합니다.'
     : check.held ? ` — ${check.text.split(' — ').slice(1).join(' — ')}` : '.';
   const sentence = abnormal
@@ -180,7 +163,6 @@ function liquidityGroup(macroHistory, { macro, referenceMs }) {
   }
   const nfci = seriesOf(macroHistory, 'financialConditions');
   if (nfci.length >= 6) {
-    // v57.81: the same 4-week window as the 신용 경색 condition (macro-signals changeOverDays).
     const last = nfci.at(-1); const c = changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays);
     const move = c ? c.last.value - c.then.value : null;
     const level = last.value < 0 ? '0보다 낮아 평균보다 돈을 빌리기 쉬운 여건입니다.' : '0보다 높아 평균보다 금융 여건이 빡빡합니다. 신용 스프레드와 함께 확인합니다.';
@@ -222,7 +204,7 @@ function growthGroup(macroHistory, { referenceMs }) {
   const jolts = seriesOf(macroHistory, 'jobOpenings');
   if (jolts.length >= 6) {
     const c = changeOverMonths(jolts, 12);
-    const toMillions = (value) => `${Math.round(value / 10).toLocaleString('en-US')}만 건`; // v57.91: thousands -> 만 건 (7,080 -> 708만 건)
+    const toMillions = (value) => `${Math.round(value / 10).toLocaleString('en-US')}만 건`;
     items.push(card({ id: 'jobOpenings', label: '구인 건수 (JOLTS)', series: jolts, asOf: jolts.at(-1).date, frequency: 'monthly', referenceMs, format: toMillions,
       valueText: toMillions(jolts.at(-1).value), changeText: c ? `1년 ${signed(pct(c.last.value, c.then.value))}` : null,
       reading: '기업이 채우려는 일자리 수입니다. 꾸준히 줄면 고용 둔화가 실업률보다 먼저 나타납니다.' }));
@@ -260,13 +242,9 @@ function commodityFxGroup(macroHistory, { referenceMs }) {
     const span = daily ? (spot ? `현물, ${month}/${day}까지 20거래일` : '20거래일') : '1개월';
     const item = card({ id: field, label, series: s, asOf: s.at(-1).date, frequency, referenceMs, format, valueText: format(s.at(-1).value),
       changeText: back ? `${span} ${signed(pct(s.at(-1).value, back.value))}` : null, reading: extra ? `${reading} ${extra}` : reading });
-    // v57.81: the card face names its basis with its date ("10/6 현물 기준"), so a days-behind spot value is not read
-    // as contradicting the same-day futures close shown elsewhere (10/15: spot 125.44 @10/6 vs futures 106.06 @10/15).
     if (spot) { item.period = `${item.period} 현물 기준`; item.basis = 'spot'; }
     items.push(item);
   };
-  // P1726: this card is the FRED dated European spot series; its basis is named and it is not set against the WTI future.
-  // The Brent-WTI futures comparison sentence is shown once, under the WTI chart on the same screen (macro-board.js).
   add('brent', '브렌트유 (유럽 현물)', 2, '달러', '국제 유가 기준인 유럽 현물 가격입니다. 현물 값은 선물 종가보다 며칠 늦게 공표되고 가격 기준도 달라, 아래 WTI 차트의 브렌트 선물 종가와 숫자가 다를 수 있습니다(WTI와의 비교는 같은 선물 종가끼리만 합니다).', null, { spot: true });
   add('natGas', '천연가스 (헨리허브)', 2, '달러', '전기·난방·화학 원가입니다. 겨울철과 수출 수요에 크게 흔들립니다.');
   add('copper', '구리 (월평균)', 0, '달러/톤', '건설·전력망·전기차에 쓰여 경기 체력을 비추는 금속입니다. 데이터센터 전력 투자와도 연결됩니다.');

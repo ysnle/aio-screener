@@ -1,6 +1,3 @@
-// 2026-10-13 (owner: "finviz maps 같은 S&P 500 지도"): sectors as boxes, members as tiles sized by index weight
-// and shaded by return over one completed window (app-wide convention, M07, v58.80: rising red, falling blue). One lead sentence
-// reads the map; the sector table and the reading guide stay folded. A tile opens the stock page.
 import { buildSectorMap, layoutSectorMap, SECTOR_MAP_PERIODS, shadeOf } from '../../domain/market/indices/sector-map.js';
 import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
 import { el } from './dom.js';
@@ -10,7 +7,6 @@ import { signedText } from '../../domain/shared/number.js';
 
 const signed = (value, digits = 2) => (value == null ? '수익률 없음' : signedText(value, digits, '%'));
 const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '');
-// v57.81: rough bold label width in px (Hangul a full em, capitals ~0.78em, digits and signs ~0.62em) so a label is drawn only where it fits.
 const labelWidth = (text, size) => [...String(text)].reduce((sum, ch) => { const code = ch.charCodeAt(0); return sum + (code >= 0x3131 && code <= 0xd7a3 ? 1 : ch >= 'A' && ch <= 'Z' ? 0.78 : 0.62); }, 0) * size;
 
 // The S&P 500 member weights arrive inside the screener artifact (metadata.indexWeights, compact rows).
@@ -55,7 +51,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   host.dataset.aioSectorMapRenderer = 'native';
   host.dataset.aioSectorMapKey = renderKey;
   host._aioSectorMapModel = model;
-  // v58.79 section frame: title, the close as its chip (size, colour and basis in its hover), the period tabs as actions.
   const head = el(doc, 'div', null, 'sector-map-head aio-frame-head');
   markFrame(host, 'themes.sector-map');
   const title = el(doc, 'h2', 'S&P 500 지도', 'briefing-h2');
@@ -79,8 +74,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     ? model.current ? `${shortDate(model.basis)} 미국 종가 기준` : `${shortDate(model.basis)} 미국 종가 기준(최신 거래일 ${shortDate(model.expectedSession)} 반영 전 — 지금이 아닌 그날의 지도)`
     : '종가 기준일 확인 필요';
   const sizeText = model.sizeBasis === 'index-weight' ? `넓이 = 지수 비중(${model.members}종목${model.weightsAsOf ? `, ${shortDate(model.weightsAsOf)} 보유 비중` : ''})` : `넓이 = 시가총액 근사(공시 주식 수 × 종가, ${model.drawn}/${model.members}종목)`;
-  // v57.88 (screen audit): the same sector read +0.6% here and +1.46% on the XLC chip without a word on why.
-  // The as-of chip is the 테마 순위 and 시나리오 tabs' own label (session-lag.js): "11/16 종가, 11/17 반영 전".
   const chip = !model.basis ? '기준일 확인 필요' : sessionChipText(model.basis, model.current ? '' : model.expectedSession || '');
   tabs.before(asOfChip(doc, chip, `${sizeText}, 색 = ${model.periodLabel} 수익률, ${basisText}, 섹터 평균은 지도에 그린 종목의 비중 가중이라 섹터 ETF 수익률과 다를 수 있습니다`));
   host.append(el(doc, 'p', model.lead, 'sector-map-lead'));
@@ -89,8 +82,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', `S&P 500 섹터 지도, ${model.periodLabel} 수익률. ${model.lead} 섹터별 숫자와 종목 이동은 아래 '섹터별 숫자'에서 볼 수 있습니다.`);
   host.append(canvas);
-  // v57.79: the line under the map opened with how-to text. Until a tile is chosen it names the period's largest
-  // movers each way (current-basis returns only); a hovered or tapped tile replaces it.
   const movers = model.sectors.flatMap((sector) => sector.members.filter((item) => item.ret != null).map((item) => ({ ...item, sectorLabel: sector.label })));
   const top = movers.reduce((best, item) => (!best || item.ret > best.ret ? item : best), null);
   const bottom = movers.reduce((worst, item) => (!worst || item.ret < worst.ret ? item : worst), null);
@@ -111,8 +102,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     for (const sector of sectors) {
       const box = el(doc, 'div', null, 'sector-map-sector');
       Object.assign(box.style, { left: `${sector.x}px`, top: `${sector.y}px`, width: `${sector.w}px`, height: `${sector.h}px` });
-      // v59.70 (screen review 24): a narrow sector cut '산업재 +0…' with an ellipsis. The header shows the longest of
-      // name + change, name, change that fits (12px bold, 8px inset); the full text stays in the hover.
       if (sector.showHeader) {
         const full = `${sector.label} ${signed(sector.ret, 1)}`;
         const fits = [full, sector.label, signed(sector.ret, 1)].find((text) => labelWidth(text, 12.5) <= sector.w - 8);
@@ -127,8 +116,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
       const node = el(doc, 'div', null, `sector-map-tile is-${shade}`);
       Object.assign(node.style, { left: `${tile.x}px`, top: `${tile.y}px`, width: `${Math.max(0, tile.w - 1)}px`, height: `${Math.max(0, tile.h - 1)}px` });
       node.dataset.sym = tile.sym;
-      // v57.81 (phone/iPad parity audit): labels never go below 11px; a tile too small to hold its ticker at that size
-      // shows colour only (tap still names it in the detail line and opens the stock on a second tap).
       const size = Math.max(11, Math.min(20, Math.sqrt(tile.w * tile.h) / 5.2));
       if (tile.w - 4 >= labelWidth(tile.sym, size) && tile.h - 2 >= size * 1.2) {
         // A custom property, not an inline font-size: the legacy `.page [style*="font-size: 12px"]` floor rules bump an
@@ -139,7 +126,7 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
         if (tile.h >= size * 2.6 && tile.w - 4 >= labelWidth(sub, Math.max(11, size * 0.78))) node.append(el(doc, 'span', sub));
       }
       const describe = () => `${tile.sym}${tile.name ? `, ${tile.name}` : ''}, ${tile.sectorLabel}, ${model.sizeBasis === 'index-weight' ? `지수 비중 ${tile.value.toFixed(2)}%` : `시가총액 약 ${tile.value >= 1e12 ? `${(tile.value / 1e12).toFixed(2)}조` : `${Math.round(tile.value / 1e8).toLocaleString('ko-KR')}억`} 달러`}, ${model.periodLabel} ${tile.staleRet != null ? `${signed(tile.staleRet)} (${shortDate(tile.basis)} 종가, 기준일이 달라 색과 평균에서 제외)` : `${signed(tile.ret)}${tile.basis && tile.basis !== model.basis ? ` (${shortDate(tile.basis)} 종가)` : ''}`}`;
-      node.addEventListener('mouseenter', () => { detail.setAttribute('aria-live', 'off'); detail.textContent = describe(); }); // v57.77 (a11y): hover is silent; a click announces
+      node.addEventListener('mouseenter', () => { detail.setAttribute('aria-live', 'off'); detail.textContent = describe(); });
       node.addEventListener('click', () => {
         if (selected === tile.sym && typeof root.showTicker === 'function') { root.showTicker(tile.sym); return; }
         selected = tile.sym;
@@ -156,8 +143,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     root._aioSectorMapObserver?.disconnect?.();
     let lastWidth = canvas.clientWidth;
     if (typeof root.ResizeObserver === 'function') {
-      // P1681: paint sets the canvas height, which can toggle the page scrollbar and resize the canvas again inside the
-      // same observation ("ResizeObserver loop completed with undelivered notifications") — repaint on the next frame.
       let frame = 0;
       const schedule = typeof root.requestAnimationFrame === 'function' ? (fn) => root.requestAnimationFrame(fn) : (fn) => setTimeout(fn, 16);
       const observer = new root.ResizeObserver(() => {
@@ -177,8 +162,6 @@ export function renderSectorMap({ documentRef: doc, root, store }) {
     const movers = sector.members.filter((item) => item.ret != null);
     const best = [...movers].sort((a, b) => b.ret - a.ret)[0];
     const worst = [...movers].sort((a, b) => a.ret - b.ret)[0];
-    // P1681: the tiles are pointer-only, so the table is the keyboard path — its strongest/weakest names open the stock page.
-    // M21: the up count reads over the members that have a return; members without one are named apart.
     const withRet = sector.withRet ?? movers.length;
     const dd = el(doc, 'dd', `${signed(sector.ret)}, ${withRet}종목 중 ${sector.up}개 상승${sector.count > withRet ? `(수익률 없음 ${sector.count - withRet})` : ''}, `);
     const symbolButton = (item) => {

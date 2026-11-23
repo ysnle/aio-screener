@@ -3,13 +3,7 @@
  * client; domain and UI modules never call fetch directly.
  */
 
-// v58.80 (first-users run-3): the request timeout covered the whole body, so on slow 3G (50 KB/s) screener.json
-// (397 KB gzip) was aborted at exactly 8 s every time and restarted from zero. The timeout now bounds the wait for
-// the response headers; the body may take as long as bytes keep arriving, and is cut only after `stallMs` of silence.
-// Silence is measured across every streamed body: on a throttled link one large download can starve the others for
-// tens of seconds (screener-universe.json got no byte for 19 s beside screener.json), which is a busy link, not a dead one.
 let networkProgressAt = 0;
-// A timer that runs this much after its due time was held by a busy page (P2108).
 const LATE_TIMER_MS = 1000;
 export async function readBodyText(response, { stallMs = 20_000, onStall } = {}) {
   const reader = response?.body?.getReader?.();
@@ -21,7 +15,6 @@ export async function readBodyText(response, { stallMs = 20_000, onStall } = {})
   let due = 0;
   const arm = (ms) => { due = Date.now() + ms; timer = setTimeout(check, ms); };
   const check = () => {
-    // P2108: a check that runs late was held by a busy page, during which no chunk could be read; look again shortly.
     if (Date.now() - due > LATE_TIMER_MS) { arm(LATE_TIMER_MS); return; }
     const idle = Date.now() - Math.max(ownProgressAt, networkProgressAt);
     if (idle < stallMs) { arm(stallMs - idle); return; }
@@ -88,9 +81,6 @@ export function createHttpClient({
           signal: controller.signal,
           headers
         });
-        // P1408: the HTTP status survives a body that is not JSON (a 503 HTML error page used to
-        // become status 0 / HTTP_FAILED, indistinguishable from a dropped connection).
-        // A streamed body hands its deadline to the stall timer; a body without a stream keeps the request deadline.
         const streamed = typeof response?.body?.getReader === 'function';
         if (streamed) clearTimeout(timeoutId);
         let data = null;

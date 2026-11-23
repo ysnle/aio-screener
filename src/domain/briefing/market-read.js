@@ -21,6 +21,7 @@ import { finite, closeSessionMarket, isCloseSessionDate, buildCloseSeries, close
 import { buildLeadershipVerdict } from '../market/regime/leadership-verdict.js';
 import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 import { signedText } from '../shared/number.js';
+import { latchedState } from '../shared/latch.js';
 import { claim, say, NOTHING, digitsApart, figureDigits, printedValue } from '../shared/claim.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
@@ -148,15 +149,8 @@ export function hyObservation({ macroHistory = null, credit = null, through = nu
   if (level == null) return null;
   return { level, change5: finite(credit.hyDelta5Bp), change20: finite(credit.hyDelta20Bp), asOf: credit.hyAsOf || null, source: 'snapshot' };
 }
-// v57.81: hysteresis over dated points — on from the first point where enter() holds, off again only where exit() holds.
-export function latchedState(points = [], enter, exit) {
-  let on = false, since = null;
-  for (const point of points) {
-    if (enter(point)) { if (!on) since = point.date; on = true; }
-    else if (on && exit(point)) { on = false; since = null; }
-  }
-  return { on, since };
-}
+// Hysteresis over dated points (src/domain/shared/latch.js, shared with the 매크로 inflation speed).
+export { latchedState };
 
 // v58.55 (owner 2026-10-20): 판단이 바뀌는 조건까지의 거리. v58.53 dropped the design's "기준까지" because an axis rule has
 // several conditions and hysteresis; each axis now hands its own rule (stateAt) and the thresholds that rule tests on one
@@ -296,6 +290,21 @@ export function sessionChanges(series = [], n = 5, delta = (now, then) => now - 
   }
   return out;
 }
+// The speed of the 50-day breadth ratio beside its level verdict. The last
+// speedSessions change against speedMultiple x the median absolute change of the record (the RECORD_FULL_YEAR changes
+// ending at the basis); no word inside that, or while the record is shorter than speedRecordMin. One reading for every
+// surface that shows the breadth verdict (the axis carries it as `speed` and `verdictLabel`).
+export const BREADTH_SPEED_WORDS = Object.freeze({ down: '빠르게 악화', up: '빠르게 개선' });
+export function breadthSpeedOf(series = []) {
+  const B = RULES.breadth;
+  const changes = sessionChanges(series, B.speedSessions).slice(-RECORD_FULL_YEAR);
+  const last = changes.at(-1);
+  if (!last || changes.length < B.speedRecordMin || last.date !== series.at(-1)?.date) return null;
+  const typical = quantile(changes.map((point) => Math.abs(point.value)), 0.5);
+  const dir = typical > 0 && Math.abs(last.value) > typical * B.speedMultiple ? (last.value < 0 ? 'down' : 'up') : null;
+  return { change: last.value, typical, dir, word: BREADTH_SPEED_WORDS[dir] || null };
+}
+
 // The line a change must reach to count as rare: the pct-th percentile of the record it had then (the RECORD_FULL_YEAR
 // changes ending at `end`), kept between floor and cap; the cap alone while that record is shorter than recordMin.
 export function recordEnterLine(changes, end, pct, recordMin, floor, cap) {
@@ -1209,7 +1218,7 @@ export const AXIS_REASONS = Object.freeze({
   'breadth.leaderWeak': '주도 영역(SOXX)도 약세', 'breadth.weak': '참여 비율 부담 기준 아래', 'breadth.middle': '참여 비율 중간',
   'breadth.only50': '50일선 비율만으로 판정(200일선 비율 미수신)', 'breadth.only200': '200일선 비율만으로 판정(50일선 비율 미수신)',
   'volatility.calm': 'VIX 낮음, 기간 구조 정상', 'volatility.inverted': '기간 구조 역전', 'volatility.spike': '5거래일 급등, 급등 기준 수준 이상',
-  'volatility.level': 'VIX 경계 수준 이상', 'volatility.held': '부담 유지(해제 조건 미충족)', 'volatility.spikeLow': '5거래일 급등, 수준은 급등 기준 아래',
+  'volatility.level': 'VIX 경계 수준 이상', held: '부담 유지(해제 조건 미충족)', 'volatility.spikeLow': '5거래일 급등, 수준은 급등 기준 아래',
   'volatility.noTerm': '3개월 VIX 없음, 기간 구조 미확인', 'volatility.rising': '양호 수준이지만 5거래일 상승 폭 큼', 'volatility.nearEdge': '양호 경계 근처에서 상승',
   'volatility.normal': '통상 범위', 'volatility.flatTerm': '기간 구조 평탄',
   'rates.speed': '5거래일 급등', 'rates.speedHeld': '5거래일 급등 부담 유지', 'rates.held': '20거래일·1년 범위 부담 유지', 'rates.move20': '20거래일 상승 기준 이상',
@@ -1254,13 +1263,16 @@ export function buildMarketRegime(input = {}) {
     const days = [...new Set(shown.map((row) => row.iso).filter(Boolean))].sort();
     const mixed = days.length > 1;
     return {
-      id, title: AXIS_LABELS[id], state, stateLabel: STATE_LABELS[state], flip,
+      // verdictLabel is the label every surface shows — the state, then the axis's own qualifier when it has one
+      // (시장 폭 speed, 유가와 달러 '경계'; see `qualify`); stateLabel stays the bare state the counts and checks read.
+      id, title: AXIS_LABELS[id], state, stateLabel: STATE_LABELS[state], verdictLabel: STATE_LABELS[state], flip,
       evidence: shown.map((row) => [row.label, mixed && row.iso ? `${row.value}, ${shortDate(row.iso)}` : row.value]),
       basis: mixed ? `${shortDate(days[0])}~${shortDate(days[days.length - 1])}` : basisOf ? alignmentLabel(basisOf) : null,
       basisStatus: mixed ? 'mixed' : basisOf?.status || null,
       flipDistance: null, flipDistances: [] // v58.55: set by the axes whose rule has a lever (attachDistance)
     };
   };
+  const qualify = (row, word) => { if (word && row.state !== 'unknown') row.verdictLabel = `${row.stateLabel} · ${word}`; return row; };
   // the reason item of an unknown axis: an observation on another day than the basis (named), or none at all.
   const absentReason = (alignment) => (alignment?.status === 'stale' || alignment?.status === 'ahead' ? ['stale', `최근 관측 ${alignmentLabel(alignment)}`] : ['missing']);
   const axes = [];
@@ -1421,7 +1433,8 @@ export function buildMarketRegime(input = {}) {
     // weeks, then 41%·40% on 10/15~16 read 중립 on one point. 부담 holds until the lower of the two ratios is back at holdExitAt.
     const B = RULES.breadth;
     const b200ByDate = new Map(buildCloseSeries(input.history, 'breadth200', { through: basis }).map((point) => [point.date, point.value]));
-    const lowPoints = buildCloseSeries(input.history, 'breadth50', { through: basis }).slice(-B.latchSessions)
+    const b50Series = buildCloseSeries(input.history, 'breadth50', { through: basis });
+    const lowPoints = b50Series.slice(-B.latchSessions)
       .map((point) => ({ date: point.date, low: Math.min(point.value, b200ByDate.get(point.date) ?? Infinity) }));
     const breadthLatch = latchedState(lowPoints, (point) => point.low < B.weakBelow, (point) => point.low >= B.holdExitAt);
     const breadthHeld = state === 'neutral' && b50 != null && breadthLatch.on && lowPoints.at(-1)?.date === s.breadth50?.date;
@@ -1479,6 +1492,10 @@ export function buildMarketRegime(input = {}) {
     axes[axes.length - 1].narrow = narrow;
     axes[axes.length - 1].record = rec50;
     attachDistance(axes[axes.length - 1], breadthDistance);
+    // The level verdict above, its speed beside it — "중립 · 빠르게 악화".
+    const speed = b50 == null ? null : breadthSpeedOf(b50Series);
+    axes[axes.length - 1].speed = speed;
+    qualify(axes[axes.length - 1], speed?.word);
   }
   // 3. Volatility — level (canonical 18/25 bands), one-week change and term structure.
   {
@@ -1546,7 +1563,7 @@ export function buildMarketRegime(input = {}) {
     const vixBase = vix?.d5 != null && vix5 != null ? `5거래일 전 ${vix.d5Date ? `${shortDate(vix.d5Date)} ` : ''}${fmt(vix.d5)}` : null;
     const volatilityReason = state === 'favorable' ? ['volatility.calm']
       : state === 'burden' ? (ratio != null && ratio >= V.invertedRatioAt ? ['volatility.inverted']
-        : stressNow && spiked(vix.value, vix5) ? ['volatility.spike', vixBase] : stressNow ? ['volatility.level'] : ['volatility.held', sinceText(volLatch.since)])
+        : stressNow && spiked(vix.value, vix5) ? ['volatility.spike', vixBase] : stressNow ? ['volatility.level'] : ['held', sinceText(volLatch.since)])
         : state === 'unknown' ? absentReason(alignments.vix)
           : spiked(vix.value, vix5) ? ['volatility.spikeLow', vixBase]
             : ratio == null ? ['volatility.noTerm']
@@ -1768,31 +1785,43 @@ export function buildMarketRegime(input = {}) {
     const wti20 = wti ? pct(wti.value, wti.d20) : null;
     const wtiHigh = wti?.yearPosition != null && wti.yearPosition >= RULES.oil.rangeHighAt;
     const gold20 = s.gold ? pct(s.gold.value, s.gold.d20) : null;
-    let state = 'neutral';
     // v57.81 (audit 2026-10-15): DXY +2.23% against the 2.0% line read 부담 on 0.23pp. The dollar counts once it is
     // bufferPct past the line, or past the line while the index sits in the top of its own one-year range.
     const D = RULES.dollar;
     const dxyPos = s.dxy?.yearPosition ?? null;
-    const dollarBurden = dollarRiseBurden(dxy20, dxyPos) === true;
-    const dollarEdge = dxy20 != null && dxy20 >= D.rise20dPct && !dollarBurden;
+    const dollarEdge = dxy20 != null && dxy20 >= D.rise20dPct && dollarRiseBurden(dxy20, dxyPos) !== true;
     // v57.81: the shared Brent/WTI check — while it holds, a WTI fall is not 완화 and WTI alone fires no 부담.
     const oil = wti ? oilCheckOf(input.history, basis) : null;
     const oilHeld = !!oil?.held;
-    const oilBurden = !oilHeld && (wtiHigh || (wti20 != null && wti20 >= RULES.oil.rise20dPct));
-    if (wti20 == null && dxy20 == null && !wtiHigh) state = 'unknown';
-    else if (oilBurden || dollarBurden) state = 'burden';
-    else if (!oilHeld && wti20 != null && dxy20 != null && wti20 <= RULES.oil.fall20dPct && dxy20 <= 0) state = 'favorable';
+    // The rule on one set of legs (held: the Brent/WTI hold; w20/d20: 20-session changes; wPos/dPos: one-year positions) —
+    // today, each close of the hold band, and the hypothetical closes of 판단이 바뀌는 조건.
+    // The hold band the other axes use — 부담 entered on any of the last latchSessions
+    // closes holds until all three legs are back inside their exit lines (RULES.commodities).
+    const C = RULES.commodities;
+    const legsBurden = (p) => (!p.held && (p.wPos >= RULES.oil.rangeHighAt || p.w20 >= RULES.oil.rise20dPct)) || dollarRiseBurden(p.d20, p.dPos) === true;
+    const legsEased = (p) => !(p.w20 >= C.oilExit20dPct || p.wPos >= C.oilRangeExitAt || p.d20 >= C.dollarExit20dPct);
+    const ruleAt = (p, latched) => p.w20 == null && p.d20 == null && !(p.wPos >= RULES.oil.rangeHighAt) ? 'unknown'
+      : legsBurden(p) || (latched && !legsEased(p)) ? 'burden'
+        : !p.held && p.w20 != null && p.d20 != null && p.w20 <= RULES.oil.fall20dPct && p.d20 <= 0 ? 'favorable' : 'neutral';
+    const wtiSeries = buildCloseSeries(input.history, 'wti', { through: basis });
+    const dxySeries = buildCloseSeries(input.history, 'dxy', { through: basis });
+    const brentSeries = buildCloseSeries(input.history, 'brent', { through: basis });
+    const upTo = (series, date) => series.filter((point) => point.date <= date);
+    const legsAt = (date) => {
+      const w = stats(upTo(wtiSeries, date)), d = stats(upTo(dxySeries, date)), on = w?.date === date;
+      return { date, held: !!brentWtiFromSeries({ brent: upTo(brentSeries, date), wti: upTo(wtiSeries, date), pointBack: sessionPointBack })?.held,
+        w20: on ? pct(w.value, w.d20) : null, wPos: on ? w.yearPosition : null, d20: d && pct(d.value, d.d20), dPos: d?.yearPosition };
+    };
+    const commoditiesLatch = latchedState(wti ? wtiSeries.slice(-C.latchSessions).map((point) => legsAt(point.date)) : [], legsBurden, legsEased);
+    const latchOn = commoditiesLatch.on && wtiSeries.at(-1)?.date === wti.date;
+    const today = { held: oilHeld, w20: wti20, wPos: wti?.yearPosition, d20: dxy20, dPos: dxyPos };
+    const state = ruleAt(today, latchOn);
+    const commoditiesHeld = state === 'burden' && !legsBurden(today);
     // v58.55: the rule on hypothetical WTI and dollar-index closes (20-session bases and one-year ranges held), searched one
     // at a time and together (both must move for 중립 from a double 부담, or for 양호), for 판단이 바뀌는 조건.
     const rangeOf = (stat, value) => stat?.yearPosition == null || !(stat.yearMax > stat.yearMin) ? null : Math.min(1, Math.max(0, (value - stat.yearMin) / (stat.yearMax - stat.yearMin)));
-    const commoditiesAt = (wtiValue, dxyValue) => {
-      const w20 = wtiValue == null ? null : pct(wtiValue, wti?.d20), d20 = dxyValue == null ? null : pct(dxyValue, s.dxy?.d20);
-      const wPos = wtiValue == null ? null : rangeOf(wti, wtiValue);
-      const high = wPos != null && wPos >= RULES.oil.rangeHighAt;
-      if (w20 == null && d20 == null && !high) return 'unknown';
-      if ((!oilHeld && (high || (w20 != null && w20 >= RULES.oil.rise20dPct))) || dollarRiseBurden(d20, dxyValue == null ? null : rangeOf(s.dxy, dxyValue)) === true) return 'burden';
-      return !oilHeld && w20 != null && d20 != null && w20 <= RULES.oil.fall20dPct && d20 <= 0 ? 'favorable' : 'neutral';
-    };
+    const commoditiesAt = (wtiValue, dxyValue) => ruleAt({ held: oilHeld, w20: wtiValue == null ? null : pct(wtiValue, wti?.d20), wPos: wtiValue == null ? null : rangeOf(wti, wtiValue),
+      d20: dxyValue == null ? null : pct(dxyValue, s.dxy?.d20), dPos: dxyValue == null ? null : rangeOf(s.dxy, dxyValue) }, latchOn);
     // v58.80 (first-users bundle 2): "WTI 20일 변화가 +10%(101.65) 아래로" read as a price and a percent at once; the level
     // comes first and the 20-session change explains it ("WTI가 101.65(20거래일 전보다 +10%) 아래로 내려가면"). v58.80 run-5
     // (skeptic #1): the distance beside a price line is in price % from the close (it was the 20-day change in %p, so a
@@ -1800,12 +1829,13 @@ export function buildMarketRegime(input = {}) {
     const pricePoint = (stat, subject, name, line, digits) => ({ at: stat.d20 * (1 + line / 100), subject: withSubjectParticle(subject), mark: `${fmt(stat.d20 * (1 + line / 100), digits)}(20거래일 전${line ? `보다 ${line > 0 ? '+' : '-'}${Math.abs(line)}%` : '과 같은 수준'})`, short: `${name} 20일 ${line > 0 ? '+' : line < 0 ? '-' : ''}${Math.abs(line)}%, ${fmt(stat.d20 * (1 + line / 100), digits)}`, show: (to, current) => [pct(to, current), '%', 1] });
     const positionPoint = (stat, subject, name, share, digits) => stat.yearPosition == null ? null : { at: stat.yearMin + share * (stat.yearMax - stat.yearMin), subject, mark: `1년 범위 ${Math.round(share * 100)}%(${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)})`, short: `${name} 1년 범위 ${Math.round(share * 100)}%, ${fmt(stat.yearMin + share * (stat.yearMax - stat.yearMin), digits)}`, show: (to, current) => [pct(to, current), '%', 1] };
     const commodityLevers = [
-      wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'wti', { through: basis })), points: [
-        pricePoint(wti, 'WTI', 'WTI', RULES.oil.rise20dPct, 2), pricePoint(wti, 'WTI', 'WTI', RULES.oil.fall20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', RULES.oil.rangeHighAt, 2)
+      wti?.d20 ? { key: 'wti', current: wti.value, typical: typicalDailyMove(wtiSeries), points: [
+        pricePoint(wti, 'WTI', 'WTI', RULES.oil.rise20dPct, 2), pricePoint(wti, 'WTI', 'WTI', RULES.oil.fall20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', RULES.oil.rangeHighAt, 2),
+        pricePoint(wti, 'WTI', 'WTI', C.oilExit20dPct, 2), positionPoint(wti, 'WTI가', 'WTI', C.oilRangeExitAt, 2) // the hold band's exit lines
       ].filter(Boolean) } : null,
-      s.dxy?.d20 ? { key: 'dxy', current: s.dxy.value, typical: typicalDailyMove(buildCloseSeries(input.history, 'dxy', { through: basis })), points: [
+      s.dxy?.d20 ? { key: 'dxy', current: s.dxy.value, typical: typicalDailyMove(dxySeries), points: [
         pricePoint(s.dxy, '달러 지수', '달러', D.rise20dPct + D.bufferPct, 2), pricePoint(s.dxy, '달러 지수', '달러', D.rise20dPct, 2), pricePoint(s.dxy, '달러 지수', '달러', 0, 2),
-        positionPoint(s.dxy, '달러 지수가', '달러', D.rangeHighAt, 2)
+        positionPoint(s.dxy, '달러 지수가', '달러', D.rangeHighAt, 2), pricePoint(s.dxy, '달러 지수', '달러', C.dollarExit20dPct, 2)
       ].filter(Boolean) } : null
     ].filter(Boolean);
     const commoditiesDistance = state === 'unknown' ? null : flipDistanceSearch({
@@ -1815,7 +1845,8 @@ export function buildMarketRegime(input = {}) {
     // was hidden under "20일 -7.5%". The state still follows the 20-session rule.
     const wti5 = wti ? pct(wti.value, wti.d5) : null;
     const oilTurn = wti20 != null && wti5 != null && Math.abs(wti5) >= RULES.oil.turn5dPct && Math.sign(wti5) !== Math.sign(wti20) ? (wti5 > 0 ? '반등' : '반락') : null;
-    const commoditiesReason = state === 'burden' ? [!oilHeld && wti20 != null && wti20 >= RULES.oil.rise20dPct ? 'commodities.oilRise' : !oilHeld && wtiHigh ? 'commodities.oilHigh' : 'commodities.dollar']
+    const commoditiesReason = commoditiesHeld ? ['held', sinceText(commoditiesLatch.since)]
+      : state === 'burden' ? [!oilHeld && wti20 != null && wti20 >= RULES.oil.rise20dPct ? 'commodities.oilRise' : !oilHeld && wtiHigh ? 'commodities.oilHigh' : 'commodities.dollar']
       : state === 'favorable' ? ['commodities.easing']
         : state === 'unknown' ? absentReason(alignments.wti)
           // v57.81: a dollar rise just past the line (inside the buffer, below the top of its range) is named, not judged.
@@ -1824,7 +1855,8 @@ export function buildMarketRegime(input = {}) {
     // v57.81: the shared Brent/WTI check holds the WTI direction; Brent's own 20-session move (and the same-day gap) is a row.
     const oilHeldReason = oilHeld ? [oil.kind === 'abnormal' ? 'commodities.oilGap' : 'commodities.oilSplit'] : null;
     const flip = state === 'unknown' ? null
-      : state === 'burden' ? `WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 미만, WTI 20일 +${RULES.oil.rise20dPct}% 미만, 달러 20일 +${D.rise20dPct + D.bufferPct}% 미만(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}% 미만)이 모두 충족되면 중립으로 바뀜`
+      // 부담 holds until every leg is inside its exit line (the hold band), so that is the way out.
+      : state === 'burden' ? `WTI 1년 범위 ${RULES.commodities.oilRangeExitAt * 100}% 미만, WTI 20일 +${C.oilExit20dPct}% 미만, 달러 20일 +${C.dollarExit20dPct}% 미만이 모두 충족되면 중립으로 바뀜`
         : state === 'favorable' ? `WTI 20일 ${RULES.oil.fall20dPct}% 위 또는 달러 20일 상승이면 중립, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`
           : `WTI 20일 ${RULES.oil.fall20dPct}% 이하이면서 달러 20일 하락이면 양호, WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상, WTI 20일 +${RULES.oil.rise20dPct}%, 달러 20일 +${D.rise20dPct + D.bufferPct}%(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}%) 중 하나면 부담`;
     axes.push(axis('commodities', state, [
@@ -1838,8 +1870,10 @@ export function buildMarketRegime(input = {}) {
     // The leg that decided the state, in the read's precedence (a held Brent/WTI pair never fires the oil legs).
     const commodityLeg = state === 'burden' ? (!oilHeld && wti20 != null && wti20 >= RULES.oil.rise20dPct ? 'oil-change' : !oilHeld && wtiHigh ? 'oil-range' : 'dollar')
       : state === 'unknown' ? null : state === 'favorable' ? 'easing' : 'none';
-    axes[axes.length - 1].decidedBy = commodityLeg && { leg: commodityLeg, wti20, wti5, wtiPosition: wti?.yearPosition ?? null, dxy20, dxyPosition: dxyPos };
+    axes[axes.length - 1].decidedBy = commodityLeg && { leg: commodityLeg, wti20, wti5, wtiPosition: wti?.yearPosition ?? null, dxy20, dxyPosition: dxyPos, held: commoditiesHeld };
     attachDistance(axes[axes.length - 1], commoditiesDistance);
+    // A verdict less than edgeSessions typical daily moves from its nearest flip reads '경계' beside it.
+    qualify(axes[axes.length - 1], (commoditiesDistance?.primary?.sessions ?? Infinity) < C.edgeSessions ? '경계' : null);
   }
   // 7. FX — the won (foreign flows into Korea) and the yen (carry trade; a fast yen rally has
   // preceded global de-risking, e.g. August 2024). P1394 adds USD/JPY at the owner's request.

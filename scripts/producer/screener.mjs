@@ -8,7 +8,8 @@ import { factorScopesByMarket, listingMarketOfSymbol } from '../../src/domain/ma
 import { reconcileSecRecord } from '../../src/domain/fundamental/sec-report.js';
 import { secFundamentalRowFields } from '../../src/domain/fundamental/sec-row-fields.js';
 import { parseQuarterHistory } from '../../src/domain/fundamental/quarter-read.js';
-import { quarterlyHistory } from '../lib/sec-fiscal-history.mjs';
+import { quarterlyHistory, fiscalHistory } from '../lib/sec-fiscal-history.mjs';
+import { priorFiscalMarginNorm } from '../../src/domain/screener/peak-earnings.js';
 import { distributionDaySeries } from '../../src/domain/market/breadth/breadth-signals.js';
 import { rallyAttemptSeries } from '../../src/domain/market/regime/rally-attempt.js';
 import { updateCandidateArchive } from '../lib/candidate-archive.mjs';
@@ -222,6 +223,18 @@ export function secQuartersOf(record) {
   return parseQuarterHistory(typeof text === 'string' ? text : '');
 }
 
+// v60.50: the issuer's prior fiscal-year net margin median ({ median, years } or null) before `through`, from the annual
+// series sec-fiscal-history.json publishes (scripts/lib/sec-fiscal-history.mjs fiscalHistory over the ledger's PIT
+// observations). The compact extended ledger keeps no observations, so its rows carry no norm.
+export function secMarginPriorNormOf(record, through) {
+  const observations = record?.pit?.observations;
+  if (!observations || typeof observations !== 'object') return null;
+  const amount = (cell) => (cell == null || cell === '' ? null : Number(cell));
+  const years = String(fiscalHistory(observations) || '').split(';').map((part) => part.split(':'))
+    .map(([periodEnd, revenue, netIncome]) => ({ periodEnd, revenue: amount(revenue), netIncome: amount(netIncome) }));
+  return priorFiscalMarginNorm(years, through);
+}
+
 export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}, { ledgerPath = SEC_FUNDAMENTALS_OUT } = {}) {
   try {
     // v57.81: the extended universe reads its own compact ledger (public-data/sec-fundamentals-extended.json).
@@ -255,6 +268,9 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       // so margin and revenue growth share the P/E's four-quarter basis. The compact extended ledger keeps no observations.
       const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model, splits: splitsBySym.get(sym) || [], quarters: secQuartersOf(rows[sym]) });
       if (!rec) continue;
+      // v60.50: the prior fiscal-year margin norm, from the same annual series as sec-fiscal-history.json.
+      const norm = typeof rec.margin === 'number' ? secMarginPriorNormOf(rows[sym], rec.marginThrough || rec.fundamentalPeriodEnd) : null;
+      if (norm) { rec.marginPriorFyMedian = norm.median; rec.marginPriorFyYears = norm.years; }
       out[sym] = rec;
       available++;
     }
@@ -555,7 +571,8 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') {
         data[sym][key] = sec[key];
         // v60.28: a margin or revenue growth carries its basis ('ttm' | 'fy') and end date with it.
-        if (key === 'margin' || key === 'revGrowth') for (const suffix of ['Basis', 'Through']) if (sec[`${key}${suffix}`] != null) data[sym][`${key}${suffix}`] = sec[`${key}${suffix}`];
+        // v60.50: the margin also carries the company's own prior fiscal-year median it is compared with (peak-earnings.js).
+        if (key === 'margin' || key === 'revGrowth') for (const suffix of ['Basis', 'Through', ...(key === 'margin' ? ['PriorFyMedian', 'PriorFyYears'] : [])]) if (sec[`${key}${suffix}`] != null) data[sym][`${key}${suffix}`] = sec[`${key}${suffix}`];
       }
     });
     if (!data[sym].fundamentalSource) {

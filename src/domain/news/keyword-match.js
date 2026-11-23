@@ -1,14 +1,3 @@
-// v59.42: the one keyword rule for every news list (scoring, topics, exclusion, relevance, Telegram). Lists used to
-// pick their own rule — plain substring in most, word boundaries in some — so 'nfl' sat inside 'inflation' (P2116),
-// 'tax' inside 'taxi', 'rate' inside 'corporate', while '금리' missed '금리가' where a particle followed.
-// - Printable ASCII keywords match whole words, plus a plural -s/-es (or the `suffix` given); a boundary is checked only
-//   at an edge that is a letter or digit, so 'could reach $' still matches 'could reach $100'. Spaces match any run of
-//   whitespace.
-// - Other keywords (Korean, Japanese, mixed) match as substrings: Korean attaches particles to the word. A single
-//   syllable ('금', '은', '핵') would hit inside most sentences, so it must stand alone ('금리' does not hit '금').
-//   A substring keyword skips a hit that sits inside a longer word listed in SUBSTRING_EXCLUSIONS.
-// Text is lower-cased by the caller (the matcher functions below do it themselves).
-
 const DEFAULT_SUFFIX = 'e?s';
 const ASCII_RE = /^[\x20-\x7e]+$/;
 const EDGE_RE = /[a-z0-9]/;

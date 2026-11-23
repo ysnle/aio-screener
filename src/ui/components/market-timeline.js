@@ -1,6 +1,3 @@
-// 2026-10-19 cadence redesign: the briefing's 시간대별 시황. The 24h macro read above stays as it is; this section lists
-// the six-hour KST slots (06·12·18·24시) — the one in progress first, then each sealed slot, newest open and the rest
-// folded — so a slot the reader missed is still there after the next one lands. No data, no section.
 import { buildMarketTimelineView } from '../../domain/market/story/market-timeline.js';
 import { headlineForCompany, moveHeadlineRows } from '../../domain/briefing/news-picks.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
@@ -10,11 +7,6 @@ import { el } from './dom.js';
 import { asOfChip } from './section-frame.js';
 import { dropReaderDuty } from '../../domain/content/reader-duty.js';
 
-// v58.75 (persona review): "왜 움직였나" — beside the stocks and themes 오늘 names as the session's movers, the headline
-// that named the company the same day (src/domain/briefing/news-picks.js), with its time; the publisher sits in the hover.
-// Shared by 오늘 (matched rows only) and 브리핑 (every mover, '관련 보도 없음' when none). One owner for both lists.
-// v58.75 review: symbol → company name, rebuilt when SCREENER_DB arrives or changes — an empty map cached before the
-// universe loaded kept name matching off for the whole session.
 export function symbolNames(root) {
   const db = Array.isArray(root?.SCREENER_DB) ? root.SCREENER_DB : null;
   if (root?._aioSymNamesFor === db && root?._aioSymNames) return root._aioSymNames;
@@ -83,11 +75,6 @@ export function moveNewsList(doc, root, rows, { showMissing = false, missingText
   return list;
 }
 
-// v58.53 개편 v2: the slot styles moved from an injected <style> into src/ui/styles/v2-today.css (12px floor, soft cards).
-
-// v59.51 (content audit): 브리핑 says what the close means and 뉴스 what was said, so the six-hour slots live on 뉴스 as one
-// closed fold before 전체 뉴스. The in-progress slot's headlines were the same items as 뉴스's '08:00 이후 속보' list and are
-// not drawn twice; the sealed slots keep their summary, index moves and headlines.
 function ensureSection(doc) {
   let section = doc.getElementById('news-timeline');
   if (section) return section;
@@ -126,7 +113,6 @@ function headlineList(doc, rows) {
     const href = safeUrl(row.link);
     const title = el(doc, href ? 'a' : 'span', `${row.unconfirmed ? '[미확인] ' : ''}${row.title}`, 'market-slot-news-title');
     if (href) { title.href = href; title.target = '_blank'; title.rel = 'noopener noreferrer'; }
-    // Sources stay off the screen text (owner 2026-10-06): publisher and original title live in the hover.
     title.title = [row.source, row.originalTitle].filter(Boolean).join(', ');
     item.append(time, title);
     list.append(item);
@@ -170,7 +156,6 @@ export function renderMarketTimeline({ documentRef: doc, root, nowMs = Date.now(
   const host = doc.getElementById('news-timeline-rows');
   if (!section || !host) return null;
   section.hidden = false;
-  // v58.53: a re-render keeps the slots the reader opened or closed; only a first paint opens the newest one.
   const opened = new Set([...host.querySelectorAll('details.market-slot')].filter((node) => node.open).map((node) => node.dataset.slotId));
   const painted = host.querySelector('details.market-slot') != null;
   const nodes = [];

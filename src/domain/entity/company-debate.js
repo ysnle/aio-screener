@@ -1,15 +1,6 @@
-// v59.74 (owner 2026-11-07 '그 이면에 있는 그 기업과 시장이 어떻게 돌아가고 돈과 기술이 어떻게/어디서 흐르는지'): the two
-// story fields that go past what a company does — `debate` (the one issue the stock turns on, the reading that it holds
-// and the reading that it breaks, each on the story's own sources, and the dated facts that would decide it) and
-// `underTheHood` (structures a quick read misses: who finally pays, circular money, commitments, concentration, lags,
-// accounting basis). Drafted only from facts already in the story (no new numbers), so they carry the story's research
-// date. This module checks the shape; src/ui/components/company-story.js draws it.
-
 // A price, size or timing order (same rule as the story contract).
 const ORDER = /(매수하세요|매도하세요|사세요|파세요|진입가|손절가|손절\s*라인|목표\s*주가|목표가\s*[:：]?\s*\$?\d|비중을?\s*(늘리|줄이)세요|buy at|sell at|stop[- ]loss at|price target of)/i;
 const text = (value) => typeof value === 'string' && value.trim() !== '';
-// A question ending: '?', or a final 가/까 after a syllable closed by ㄴ/ㄹ (는가·인가·한가 — 가능한가 read as a statement
-// until the v59.74 integration — and 할까·될까·지켜질까). '-지' noun clauses and plain nouns (평가, 증가) pass.
 function endsAsQuestion(value) {
   const t = String(value).trim().replace(/[.\s]+$/, '');
   if (/[?？]$/.test(t)) return true;
@@ -33,7 +24,6 @@ export function debateIssues(story, sourceIds) {
   const d = story?.debate;
   if (d != null) {
     if (!text(d.question)) issues.push('debate.question missing');
-    // Owner rule (2026-11-07): questions live only inside prose; the issue line is a noun clause ('…이어지는지').
     else if (endsAsQuestion(d.question)) issues.push('debate.question ends as a question; write the issue as a noun clause (…는지)');
     for (const side of ['bull', 'bear']) {
       if (!text(d[side]?.text)) issues.push(`debate.${side}.text missing`);

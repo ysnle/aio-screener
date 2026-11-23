@@ -7,14 +7,13 @@ import { FACTOR_LABELS, dividendYieldText, filingBasisMismatch, filingBasisSumma
 import { overallRankedCount } from '../../../domain/screener/overall-rank.js';
 import { screenerMarket, marketRankingMetadata, formatScreenerPrice } from '../../../domain/screener/market-scope.js';
 import { modelContraryEvidence } from '../../../domain/technical/bands.js';
+import { peakEarningsNote } from '../../../domain/screener/peak-earnings.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { SCREENER_COLUMN_REGISTRY, cell, conditionMarginText, conditionMargins, currentOverlap, liveRow, range52Position, returnText, text } from './model.js';
 import { createColumnContent } from './table.js';
 import { focusOrigin, openLayer } from '../../behaviors/layers.js';
-// 개편 v2 (3c): author·year evidence for the factors the score weights. Only the listed studies; a factor without one
-// (추세, 추세 속도, 밸류) shows its definition and weight only.
 const FACTOR_EVIDENCE = Object.freeze({
   momentum: '중기(3~12개월) 승자가 이후에도 앞서던 경향(Jegadeesh·Titman 1993) — 여기서는 최근 1개월을 뺀 12개월 수익률을 씁니다',
   lowvol: '변동성이 낮은 종목의 위험 대비 수익이 더 높던 저변동 이상 현상(Ang 외 2006, Frazzini·Pedersen 2014)',
@@ -33,8 +32,6 @@ function setActionLabel(documentRef, button, full, short) {
   button.replaceChildren(fullNode, shortNode);
 }
 
-// 개편 v2 (3c): the row's 1·3·6-month returns beside SPY's on the same close — one diverging scale, the gap on the right.
-// v58.56 (4b): the 52-week position in the inspector/sheet — the phone row shows only order, name, 1개월 and 백분위.
 function renderWhyRange(documentRef, row) {
   const section = documentRef.getElementById('scr-why-range');
   const host = documentRef.getElementById('scr-why-range-body');
@@ -67,7 +64,6 @@ function renderExcessBars(documentRef, row, benchmark) {
   section.hidden = !windows.length;
   host.replaceChildren();
   if (!windows.length) return;
-  // Review fix: a gap is drawn only when the row and SPY close on the same session; otherwise both dates are named.
   const md = (value) => { const day = stampDay(value); return day ? shortDate(day) : null; };
   const rowDay = md(row?.factorSessionDate);
   const indexDay = md(benchmark?.factorSessionDate);
@@ -78,7 +74,6 @@ function renderExcessBars(documentRef, row, benchmark) {
     host.append(note);
     return;
   }
-  // v59.55 (C3): the shared two-sided bar, coloured as on 종목's 지수 대비 bars (the stock by direction, SPY in light ink).
   const max = signedScale(windows.flatMap((item) => [item.stock, item.index]), 1);
   const bar = (value, kind) => signedBar(documentRef, value, max, { tone: kind === 'stock' ? 'dir' : 'bench', trackClass: `scr-excess-track is-${kind}` });
   for (const item of windows) {
@@ -93,7 +88,6 @@ function renderExcessBars(documentRef, row, benchmark) {
     bars.className = 'scr-excess-bars';
     bars.append(bar(item.stock, 'stock'), bar(item.index, 'index'));
     const value = documentRef.createElement('span');
-    // v59.55 (visual review): a return gap is a direction (rising red, falling blue), as on 종목's 지수 대비 bars.
     value.className = `scr-excess-value ${gap > 0 ? 'is-up' : gap < 0 ? 'is-down' : ''}`;
     value.textContent = signedText(gap, 1, '%p');
     line.append(label, bars, value);
@@ -118,10 +112,6 @@ export function createInspectorController(ctx) {
          if (!drawer || !row) return;
          const explanation = row.rankExplanation || {};
          const readiness = row.fieldReadiness?.coverage || {};
-          // P1164/B04(12:W12-B): screenStatus=passed만으로 'WhyRanked'라 부르지 않는다.
-          // 도메인이 분리한 필터/순위/설명 상태를 renderer도 그대로 사용한다.
-          // LC-40: 엔진 어휘는 'ranked'/'unavailable'/'not-requested'다. 이전 비교('available')는
-          // 절대 참이 될 수 없어 순위가 계산돼도 제목이 항상 '순위 계산 보류'로 고정됐다.
           const filterState = row.screenFilterState || row.screenStatus;
           const rankingState = row.screenRankingState || (row.screenRank != null ? 'ranked' : 'unavailable');
           const ordinalRank = finite(row.screenRank);
@@ -134,12 +124,9 @@ export function createInspectorController(ctx) {
             ? (rankingState === 'ranked' && ordinalRank != null ? '조건 통과' : '조건 통과, 순위 계산 보류')
             : (filterState === 'rejected' ? '조건 미충족' : '데이터 부족 — 판정 보류');
          const missing = explanation.missingEvidence || row.setupProfile?.missingEvidence || [];
-         // v57.81: model-level contrary checks (five-session break, under the 20/50/200-day line, RSI regime) run on every
-         // row, independent of the user's filters — MRVL after -13.8% in five sessions read "걸린 반대 조건 없음".
          const filterContrary = explanation.contraryEvidence || [];
          const modelContrary = modelContraryEvidence(row);
          const contrary = [...modelContrary.hits.map((hit) => `모델 점검: ${hit}`), ...filterContrary.map((hit) => `등록 조건: ${hit}`)];
-         // 개편 v2 (3c): the inspector leads with the ticker, its order among ranked rows and the last close.
          setText('scr-why-title', row.sym || row.symbol || '종목');
          setText('scr-why-subtitle', row.name || '연구용 상대 순위 설명');
          const inspectState = selectScreenerState(store.getState()) || {};
@@ -147,7 +134,6 @@ export function createInspectorController(ctx) {
          // The overall rank and its denominator (rows of the market carrying one), the same pair as the 백분위 sort and
          // the page header — not the active screen's order, which the 순서 column shows. The table has no column of it.
          const rankedInMarket = overallRankedCount(inspectState.rows || [], rowMarket);
-         // Review fix: a held ranking shows no order, as the table's 백분위 cell shows none.
          const rankHoldNow = marketRankingMetadata(inspectState.metadata, rowMarket)?.available === false || !!root?._aioRankingHold;
          const ordinalForLine = rankHoldNow ? null : finite(row.overallRank);
          setText('scr-why-rankline', ordinalForLine == null ? '순위 계산 보류' : rankedInMarket ? `순위 매긴 ${rankedInMarket}종목 중 ${ordinalForLine}위` : `전체 ${ordinalForLine}위`);
@@ -168,20 +154,15 @@ export function createInspectorController(ctx) {
            // LC-40: 두 rank를 이름으로 분리한다 — 표시 순위는 통과 행의 서수, 팩터 원값은 순위
            // 입력(0~100)이다. 둘 다 'rank'라 부르면 서로 다른 숫자를 같은 값으로 오해한다.
            const rankText = `표시 순위 ${ordinalRank == null ? '—' : ordinalRank}, 팩터 원값 ${rawFactorRank == null ? '—' : rawFactorRank.toFixed(2)}`;
-          // P1592 (F10): one reader line — rank, percentile, data completeness. The ledger detail
-          // (filter/ranking states, raw factor input, factor confidence) stays on hover.
           const percentileValue = finite(row.rank);
           const statusEl = documentRef.getElementById('scr-why-status');
-          // v59.55 (alignment pass): the rank and percentile are the panel head's numbers; repeating them here under another
-          // population ("조건 통과 종목 중") read as a second rank. The line keeps the state and the data coverage.
           setText('scr-why-status', [
             title,
             readiness.coveragePct == null ? null : `자료 ${Math.round(readiness.coveragePct)}% 확보`
           ].filter(Boolean).join(' · '));
           if (statusEl) statusEl.title = `${filterLabel}, ${rankingLabel}, ${rankText}${percentileValue == null ? '' : `, 전체 백분위 ${percentileValue.toFixed(0)}`}, 팩터 근거 ${factorConfidence == null ? '—' : `${Math.round(factorConfidence * 100)}%`} (수익확률 아님)`;
          const uncheckedNote = modelContrary.unchecked.length ? ` 자료가 없어 점검하지 못한 항목: ${modelContrary.unchecked.join(', ')}.` : '';
-         setText('scr-why-contrary', `${contrary.length ? contrary.join(', ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 등록 조건 판단을 보류했고, 모델 점검(5거래일 낙폭, 20·50·200일선, RSI)에는 걸리지 않았습니다.' : '모델 점검(5거래일 낙폭, 20·50·200일선, RSI)과 등록된 반대 조건 모두에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.'}${uncheckedNote}`);
-          // v58.75 (teach-and-check D7): the chosen screen's conditions with this row's values and the near-threshold ones.
+         setText('scr-why-contrary', `${contrary.length ? contrary.join(', ') : row.screenStatus === 'unavailable' ? '필수 근거 미수신으로 등록 조건 판단을 보류했고, 모델 점검(5거래일 낙폭, 20·50·200일선, RSI, 이익 정점 PER)에는 걸리지 않았습니다.' : '모델 점검(5거래일 낙폭, 20·50·200일선, RSI, 이익 정점 PER)과 등록된 반대 조건 모두에 걸리지 않았습니다 — 위험이 없다는 뜻은 아닙니다.'}${uncheckedNote}`);
           {
             let conditionDefinition = ctx.activeResult?.definition || ctx.activeDefinition;
             try { conditionDefinition = ctx.activeResult?.definition || ctx.buildVisualDefinition() || ctx.activeDefinition; } catch (_) {}
@@ -202,8 +183,6 @@ export function createInspectorController(ctx) {
           const structureNote = structureEvidence.postEarningsBreakout === 'unavailable'
             ? '선택 근거 — 실적 후 돌파 확인 자료는 아직 받지 못했습니다'
             : `선택 근거 — 실적 후 돌파: ${structureEvidence.postEarningsBreakout}`;
-          // Codex review 2026-10-05: the table showed a dimmed past value while this list called the same
-          // field missing. A field with an older observation says so; only a field with no value is "없음".
           const describeMissing = (fieldId) => {
             if (fieldId === 'relative-rank' || fieldId === 'rank') return '상대 순위(이번 계산 보류)';
             const label = SCREENER_FIELD_REGISTRY.get(fieldId)?.label || fieldId;
@@ -212,16 +191,11 @@ export function createInspectorController(ctx) {
             return `${label}(값 없음)`;
           };
           setText('scr-why-missing', `순위 필수값 — ${missing.length ? missing.map(describeMissing).join(', ') : '모두 있습니다'}. ${structureNote}.`);
-         // v59.46 R3-05: a carried row names that this refresh did not read it.
-         // 2026-11-18: the dividend yield, and one line when the P/E's earnings and the margin disagree in sign on different
-         // periods; the filing figures' periods are on hover.
          const provenanceNode = setText('scr-why-provenance', [
            row.factorSessionDate ? `가격 기준 ${String(row.factorSessionDate).slice(0, 10)} 종가${row.retainedFrom ? ' — 이번 갱신에서 받지 못해 직전 자료를 이어 표시' : ''}` : '가격 기준일 확인 필요',
            dividendYieldText(row), filingBasisMismatch(row)
          ].filter(Boolean).join(' · '));
          if (provenanceNode) provenanceNode.title = filingBasisSummary(row);
-         // 개편 v2 (3c): one plain reading from the row's own closes — trend position, then the 3-month gap to the S&P 500
-         // (SPY on the same close), then the completeness line that used to stand alone.
          const above50 = readRowNumber(row, 'pctSma50', 'display');
          const above200 = readRowNumber(row, 'pctSma200', 'display');
          const trendWords = above50 == null || above200 == null ? null
@@ -239,12 +213,9 @@ export function createInspectorController(ctx) {
          if (factorList) {
            factorList.replaceChildren();
            const factors = Object.entries(row.factorScores || {}).filter(([, value]) => finite(value) != null);
-           // P1165 (12 W12-B): 막대는 '정규화 점수'다. 적용 가중치와 가중 기여를 같은 줄에서 분리해
-           // 보여주고, 랭킹 합성이 실제로 무엇을 평균했는지(원값)도 이 자리에서 밝힌다.
            const appliedWeights = marketRankingMetadata(selectScreenerState(store.getState())?.metadata, screenerMarket(row)).appliedFactorWeights || {};
            const weightSum = factors.reduce((sum, [key]) => sum + (finite(appliedWeights[key]) == null ? 0 : Number(appliedWeights[key])), 0);
            if (!factors.length) factorList.appendChild(text(documentRef, '팩터 점수 미수신'));
-           // 개편 v2 (3c): heaviest weight first; the author·year line appears only for a factor the score actually weights.
            const weightOf = (key) => finite(appliedWeights[key]) ?? 0;
            const evidenceLines = [];
            const definitionLines = [];
@@ -273,16 +244,14 @@ export function createInspectorController(ctx) {
              const contribution = share == null ? null : Number(value) * share;
              const note = documentRef.createElement('p');
              note.className = 'scr-why-factor-evidence';
-             // v59.55 (visual audit): the bar line keeps weight and contribution; the study behind the factor moves to the fold below.
              if (share > 0 && FACTOR_EVIDENCE[key]) evidenceLines.push(`${FACTOR_LABELS[key]?.label || key}: ${FACTOR_EVIDENCE[key]}`);
              note.textContent = share == null ? '비중 미수신 — 순위 합산에 쓰이지 않았습니다' : `비중 ${Math.round(share * 100)}%${contribution == null ? '' : `, 기여 ${contribution.toFixed(1)}`}`;
              item.title = `${description || key}, 정규화 점수 ${Number(value).toFixed(1)}, 적용 가중치 ${weight == null ? '미수신' : Number(weight).toFixed(3)}, 가중 기여 ${contribution == null ? '계산 불가' : contribution.toFixed(2)}`;
              item.append(head, track, note);
+             const peakNote = key === 'value' ? peakEarningsNote(row) : '';
+             if (peakNote) item.append(Object.assign(documentRef.createElement('p'), { className: 'scr-why-factor-evidence', textContent: peakNote }));
              factorList.appendChild(item);
            });
-           // P1443 (review 2026-10-04): name the chain instead of calling different numbers '합성' —
-           // the weighted sum of the bars is an intermediate value; the score shown is that sum's
-           // percentile among computable stocks, and the displayed rank is the order among passing rows.
            const weightedSum = factors.reduce((sum, [key, value]) => {
              const weight = finite(appliedWeights[key]);
              return weight == null || !(weightSum > 0) ? sum : sum + Number(value) * weight / weightSum;
@@ -293,7 +262,6 @@ export function createInspectorController(ctx) {
            rankLine.textContent = factors.length
              ? `계산 순서: ① 팩터마다 같은 섹터 안에서 정규화(막대, 0~100 환산) → ② 가중 합 ${weightedSum.toFixed(1)} → ③ 계산 가능한 종목들 사이에서 그 합의 백분위 ${percentile == null ? '—' : percentile.toFixed(0)}(100 = 맨 위, 만점이라는 뜻이 아님) → ④ 조건을 통과한 종목 중 ${ordinalRank == null ? '—' : `${ordinalRank}위`}. 가중 합과 백분위가 다른 것은 ③에서 다시 줄을 세우기 때문입니다.`
              : '팩터 점수 미수신 — 순위를 해석하지 않습니다.';
-           // 개편 v2 (3c): the calculation chain and the factor overlap fold under the bars so the inspector stays short.
            const calc = documentRef.createElement('details');
            calc.className = 'scr-why-calc';
            const calcSummary = documentRef.createElement('summary');
@@ -310,7 +278,6 @@ export function createInspectorController(ctx) {
          }
          const ticker = documentRef.querySelector('[data-aio-screener-action="open-ticker"]');
          if (ticker) ticker.dataset.aioScreenerArg = row.sym || row.symbol || '';
-         // v58.75 (teach-and-check D6): the next step of the top-down flow — this stock's chart, level map and plan check.
          if (ticker && !documentRef.querySelector('[data-aio-screener-action="open-chart-levels"]')) {
            const levelsButton = documentRef.createElement('button');
            levelsButton.type = 'button';
@@ -325,8 +292,6 @@ export function createInspectorController(ctx) {
          ctx.syncWhyWatchlist(row.sym || row.symbol || '');
          drawer.hidden = false;
        };
-       // 개편 v2 (3c/4b/4c): the Why drawer is the inspector beside the table (≥1024px: 400px, iPad landscape 360px) and a
-       // bottom sheet at 1023px and below (iPad portrait, phone). Focus moves into it on a tap and returns to the row on close.
        ctx.whyDrawerNode = documentRef.getElementById('scr-why-drawer');
        const NARROW_WHY = '(max-width: 1023px)';
        ctx.narrowWhy = () => Boolean(root?.matchMedia?.(NARROW_WHY)?.matches);
@@ -339,8 +304,6 @@ export function createInspectorController(ctx) {
        let sheetFrame = null;
        let sheetLayerOpen = false;
        let releaseSheet = () => {};
-       // Review fix: only a reader's tap opens the sheet — an inspector the wide layout opened by itself closes when the
-       // screen narrows (iPad rotation) instead of turning into a sheet with a scrim nobody asked for.
        ctx.whyUserOpened = false;
        ctx.syncWhyMode = () => {
          if (!ctx.whyDrawerNode) return;
@@ -407,7 +370,6 @@ export function createInspectorController(ctx) {
            sheetScrim?.remove(); sheetScrim = null;
          });
        }
-       // v58.56 (#12): 비교 lives only here (the row keeps ☆); the button names its state like the watchlist one.
        ctx.syncWhyCompare = (symbol) => {
          const button = documentRef.querySelector('[data-aio-screener-action="why-compare"]');
          if (!button) return;
@@ -435,8 +397,6 @@ export function createInspectorController(ctx) {
          ctx.renderNow();
          ctx.revealWhyDrawer(ctx.placeWhyDrawer());
        };
-       // 개편 v2 (3c): on a wide screen the inspector starts on the table's first row (no focus move, no scroll), as the
-       // design shows one row selected; a phone or iPad portrait opens the sheet only on a tap.
        ctx.autoInspected = false;
        ctx.autoInspect = () => {
          if (ctx.autoInspected || ctx.activeRow || !ctx.whyDrawerNode || ctx.narrowWhy() || page.dataset.scrView !== 'rank') return false;
@@ -453,17 +413,11 @@ export function createInspectorController(ctx) {
          ctx.renderWhyDrawer(row);
          return true;
        };
-       // v58.63 (architecture audit A12): the inspector shows the selected symbol's row from the CURRENT result. A preset,
-       // run or data refresh replaces the row objects, so the held row is re-read by symbol on every render (NVDA stayed at
-       // 308위 beside a table that said 249위 until the row was clicked again). A symbol that left the result releases the
-       // selection: wide screens fall back to the first row, an open phone/tablet sheet closes.
        ctx.refreshInspector = () => {
          if (!ctx.activeRow || !ctx.whyDrawerNode) return false;
          const symbol = ctx.activeRow.sym || ctx.activeRow.symbol;
          const pool = ctx.activeRows || ctx.activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
          const fresh = symbol ? pool.find((item) => (item.sym || item.symbol) === symbol) : null;
-         // v58.80 (first-users bundle 8): a filter that left the table empty kept the last stock's explanation beside it,
-         // as if it were one of zero results. With no row on the table the inspector is put away until rows return.
          const tableRows = documentRef.getElementById('screener-results-body')?.querySelector('tr[data-aio-screener-ticker]');
          if (!tableRows && fresh) { ctx.activeRow = null; ctx.autoInspected = false; selectedSymbols.clear(); ctx.whyDrawerNode.hidden = true; ctx.syncWhyMode(); return false; }
          if (fresh === ctx.activeRow) return false;
@@ -472,8 +426,6 @@ export function createInspectorController(ctx) {
          if (ctx.narrowWhy() && !ctx.whyDrawerNode.hidden) ctx.closeWhyDrawer();
          return true;
        };
-       // v57.81 (phone/iPad parity audit): the "+" gave no sign near the row and the tray sits far below on a phone.
-       // One status line pinned to the bottom of the screen says what changed and links to the tray.
        let compareNoticeTimer = null;
        ctx.showCompareNotice = (message) => {
          let notice = documentRef.getElementById('scr-compare-feedback');
@@ -527,10 +479,7 @@ export function createInspectorController(ctx) {
          if (list) {
            list.replaceChildren();
            if (compareSymbols.size) {
-             // P1599 (F08): the tray reads the same rows as the table (the preview carries price-derived fields).
              const rows = ctx.activeRows || ctx.activePreview?.rows || selectScreenerState(store.getState())?.rows || [];
-             // v57.81: a US listing outside the universe compares on its on-demand row (same formulas, computed at request
-             // time); its rank cell stays empty — it is not in the published ranking. Not yet read → requested once.
              const onDemandRow = (symbol) => {
                const record = root?._aioOnDemandSymbol?.(symbol);
                if (!record) { root?._aioRequestOnDemandSymbol?.(symbol)?.then?.(() => { if (compareSymbols.has(symbol)) ctx.renderCompareTray(); }); return null; }
@@ -551,7 +500,6 @@ export function createInspectorController(ctx) {
                button.setAttribute('aria-label', `${row.sym}${row.name ? ` ${row.name}` : ''} 종목 상세`);
                button.addEventListener('click', () => ctx.tickerHandler(row.sym));
                th.append(button);
-               // P1599 (F08): the company name under the ticker — a six-digit KRX code alone is not a name.
                if (row.name) { const name = documentRef.createElement('div'); name.textContent = row.name; name.className = 'scr-compare-name'; th.append(name); }
                const remove = documentRef.createElement('button');
                remove.type = 'button'; remove.className = 'aio-btn-table scr-compare-remove'; remove.textContent = '빼기';
@@ -562,7 +510,6 @@ export function createInspectorController(ctx) {
              }
              const head = documentRef.createElement('thead'); head.append(heading); table.append(head);
              const body = documentRef.createElement('tbody');
-             // P1599 (F08): a comparison row where no compared stock has a value is dropped and named once below.
              const emptyRows = [];
              for (const key of ['rank', 'price', 'ret1m', 'ret3m', 'rsi', 'vcpScore', 'value', 'quality']) {
                const contents = compared.map((row) => createColumnContent(documentRef, row, key, { readLiveData: liveReader }));
@@ -598,7 +545,6 @@ export function createInspectorController(ctx) {
     } else if (action === 'open-ticker') {
            ctx.tickerHandler(argument || ctx.activeRow?.sym || ctx.activeRow?.symbol);
     } else if (action === 'open-chart-levels') {
-           // v58.75 (D6): open the row's chart and land on the level map — the analysis slot on 기술적 분석 (owner 2026-11-19).
            const symbol = argument || ctx.activeRow?.sym || ctx.activeRow?.symbol;
            if (symbol) {
              root.__aioChartScrollTo = 'chart-levels';

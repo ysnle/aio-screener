@@ -1,6 +1,3 @@
-// The one HTML escape for native string-template renderers (ADR-0003). Same output as the legacy escHtml
-// (js/aio-data.js) plus ' → &#39;, so a value is safe in either attribute quote. No emoji or pictographs on screen
-// (owner 2026-10-06); the arrows ↔ ↗ ↙ ▶ ◀ stay.
 const PICTOGRAPH_RE = /(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])(?:️|⃣|‍\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])*[  ]?/gu;
 const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 

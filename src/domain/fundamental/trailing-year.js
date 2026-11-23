@@ -1,15 +1,7 @@
-// The trailing-year read of the SEC quarters (sec-fiscal-history `quarters`, parsed by quarter-read.js parseQuarterHistory).
-// One implementation for 재무 공시, the ticker page's peer comparison and the screener row (2026-11-18): the screener producer
-// and the page cannot compute two different "latest four quarters".
 import { finiteFact as finite, isQuarterGap } from './period.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { SEC_MARGIN_HOLD_ABOVE_PCT } from './sec-report.js';
 
-// 2026-10-14 audit #2: the four latest consecutive fiscal quarters (period.js isQuarterGap, no gap), newest last, or null.
-// A derived fourth quarter (FY − Q1..Q3) counts; nothing is estimated beyond the published quarters.
-// `field` is the value every quarter of the span must carry: net income by default (a margin or an income sum), revenue
-// for a revenue-only comparison (an issuer's oldest stored quarter is often a derived Q4 with revenue but no net income).
-// (Moved verbatim from fiscal-read.js in 2026-11-18, which re-exports it.)
 export function trailingQuarters(quarters = [], count = 4, { field = 'netIncome' } = {}) {
   const rows = (Array.isArray(quarters) ? quarters : []).filter((q) => isIsoDay(String(q?.periodEnd || '')))
     .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
@@ -22,11 +14,6 @@ export function trailingQuarters(quarters = [], count = 4, { field = 'netIncome'
   return span.every((q) => finite(q[field]) != null) ? span : null;
 }
 
-// ── 재무 공시 for fundamental investors and traders ─────────────────────────────────────────────
-// The latest four consecutive fiscal quarters summed (sec-fiscal-history `quarters`), beside the same four quarters a year
-// earlier. Null unless all four are consecutive and carry both revenue and net income; the prior span only when it is the
-// eight-quarter run directly before. A derived fourth quarter (FY − Q1..Q3) counts, as everywhere else on the page.
-// (Moved verbatim from analysis-read.js in 2026-11-18, which re-exports it.)
 export function buildTrailingYearRead(quarters = []) {
   const span = trailingQuarters(quarters, 4);
   if (!span || !span.every((q) => finite(q.revenue) != null)) return null;
@@ -48,8 +35,6 @@ export function buildTrailingYearRead(quarters = []) {
   };
 }
 
-// 2026-11-18: the time basis of a screener row's margin and revenue growth. 'ttm' = the latest four quarters (growth: against the
-// four before them); 'fy' = the latest fiscal year. A row without a basis field (artifacts before 2026-11-18) is FY.
 export const FUNDAMENTAL_BASIS = Object.freeze({ ttm: 'ttm', fy: 'fy' });
 export const TRAILING_ROW_FIELDS = Object.freeze(['margin', 'revGrowth']);
 const round1 = (value) => Math.round(value * 10) / 10;

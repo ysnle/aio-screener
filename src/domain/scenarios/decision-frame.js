@@ -1,19 +1,3 @@
-// The owner's differentiator (decision-frame audit 2026-11-15): the app does not recommend trades; wherever it gives a
-// judgement it shows how to weigh it in odds. One frame for every scenario-like card (매크로 branches on 시장 상태, theme
-// stages on 테마, the story cards) and for the AI context:
-//   likelihood  past frequency beside its base rate and sample size (pastEvidence: the shared BASE_RATE_SE test and the
-//               evidence-strength floors — under 10 cases counts only, 10–29 참고)
-//   payoff      how large the good quarter of outcomes was against the bad quarter, beside an ordinary day's — two
-//               magnitudes, never one ratio, never an expected value (the records carry no mean), never 손익비 (R724:
-//               that word stays where the reader's own plan supplies entry, stop and target)
-//   opportunity what cash earned over the same sessions (today's short rate, and the case months' policy rate when the
-//               record carries it) and what simply holding the index did on an ordinary day
-//   wrong       the invalidation conditions and what being wrong cost before: the share of cases that fell 5% or more
-//               inside the window, against an ordinary day
-//   favoured    the rule table's side with the kind of ground it stands on: 'cost-hypothesis' (always, for a rule-table
-//               favourite) unless the record itself is distinct from its base at 30+ cases on the same side ('past-record')
-// A missing input leaves its leg null; the text says 없음 for it. Nothing is estimated. Pure and browser-safe; loads with
-// the screens that draw scenario cards and with the AI context builder, never at boot.
 import { pastEvidence } from './analogs.js';
 import { DRAWDOWN_PCT } from './outcome-history.js';
 import { EVIDENCE_FULL } from '../shared/evidence-strength.js';

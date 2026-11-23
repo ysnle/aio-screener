@@ -309,7 +309,7 @@ const deployYml = fs.readFileSync('.github/workflows/pages-deploy.yml', 'utf8');
 if (!/code_hash=.*find index\.html offline\.html js src -type f/.test(deployYml) || !/s\/\^const SW_CODE_HASH = 'local';\$\//.test(deployYml)) fail('v57.54 pages-deploy no longer stamps the shipped-code hash into sw.js');
 
 console.log(`Service-worker cache policy OK: ${critical.length} critical assets; ${routedPaths.length} routed artifacts all have a client consumer; ${CORE_DATA_ARTIFACTS.length} consumed core artifacts are age-bounded with their own TTL; route modules are request-driven.`);
-}],
+}, 'code'],
 // ── section reference-curriculum (was ci-reference-curriculum-contract-check.mjs) ──
 ['reference-curriculum', async () => {
 const { readFileSync } = await import('node:fs');
@@ -373,5 +373,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(JSON.stringify({ ok: true, stages: artifact.stages.length, lessons: lessons.length, sources: sources.size, routes: new Set(lessons.map((lesson) => lesson.routeTarget.routeId)).size, publication: artifact.publication }));
-}],
+}, 'code'],
 ]);

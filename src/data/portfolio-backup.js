@@ -23,7 +23,6 @@ const TICKER_RE = /^[A-Z0-9.\-^=]{1,12}$/i;
 const MAX_JOURNAL = 80;
 const CURRENCY_RE = /^[A-Z]{3}$/i;
 
-// Same acceptance rule as the pre-P1316 import (v46.9 schema + XSS trimming).
 export function sanitizePositions(raw) {
   return (Array.isArray(raw) ? raw : [])
     .filter((p) => p && typeof p.ticker === 'string' && TICKER_RE.test(p.ticker.trim()))
@@ -32,25 +31,19 @@ export function sanitizePositions(raw) {
       if (out.memo) out.memo = String(out.memo).slice(0, 200);
       if (out.note) out.note = String(out.note).slice(0, 200);
       out.qty = Number.isFinite(Number(out.qty)) ? Number(out.qty) : 0;
-      // v59.45 (PASS27 P27-IMPORT-01): an unreadable or empty cost is unknown, not a ₩0 purchase — 'nonsense' became cost 0
-      // and the P&L read +100%. The field is left absent (the readers already treat an absent cost as missing); a number,
-      // 0 included, is kept as written.
       if (out.cost == null || String(out.cost).trim() === '' || !Number.isFinite(Number(out.cost))) delete out.cost;
       else out.cost = Number(out.cost);
-      // v58.82: a currency is a three-letter code or absent — the legacy table renders it as markup.
       for (const field of ['costCurrency', 'currency']) {
         if (field in out && !(typeof out[field] === 'string' && CURRENCY_RE.test(out[field].trim()))) delete out[field];
         else if (field in out) out[field] = out[field].trim().toUpperCase();
       }
       return out;
     })
-    // v58.82: the add form refuses qty <= 0 and a negative cost; an imported file is held to the same rule.
     .filter((p) => p.qty > 0 && !(p.cost < 0));
 }
 
 function sanitizeJournal(raw) {
   return (Array.isArray(raw) ? raw : [])
-    // v59.45 (PASS27): a finite ts outside the Date range (1e20) threw from toISOString and escaped the parser.
     .filter((e) => e && typeof e.note === 'string' && e.note.trim() && Number.isFinite(new Date(Number(e.ts)).getTime()))
     .slice(0, MAX_JOURNAL)
     .map((e) => ({
@@ -69,7 +62,6 @@ function sanitizeWatchlists(raw) {
       ...l,
       id: l.id.trim().slice(0, 64),
       name: l.name.trim().slice(0, 50),
-      // P1350: the live owner stores {sym,note,addedAt}; legacy strings become that shape.
       tickers: (Array.isArray(l.tickers) ? l.tickers : []).map((t) => {
         const raw = typeof t === 'string' ? { sym: t } : t;
         if (!raw || typeof raw.sym !== 'string' || !TICKER_RE.test(raw.sym.trim())) return null;
@@ -86,9 +78,6 @@ function sanitizeCash(raw) {
   return Number.isFinite(n) && n >= 0 ? String(n) : null;
 }
 
-// v57.81: cash is one balance per currency. A bundle written before v57.81 carries one `cash` value; it becomes one
-// balance in the currency that bundle declared (cash currency, else base, else USD — the same rule as the storage
-// migration). Neither present stays null, so a restore clears cash exactly as the old restore removed the key.
 function sanitizeCashBalances(raw) {
   if (Array.isArray(raw.cashBalances) || (raw.cashBalances && typeof raw.cashBalances === 'object')) return normalizeCashBalances(raw.cashBalances);
   const legacy = sanitizeCash(raw.cash);
@@ -123,8 +112,6 @@ export function countBackupContents(contents = {}) {
     cash: (contents.cashBalances || []).length || (contents.cash != null ? 1 : 0),
     assumptions: Object.keys(contents.assumptions || {}).length,
     journal: (contents.journal || []).length,
-    // v58.52 매매일지: trades plus one for a declared rule set (rules alone are worth keeping). A bundle without the section
-    // leaves the stored journal as it is (js/aio-workspace.js restore).
     trades: (contents.trades?.trades || []).length + (Object.values(contents.trades?.rules || {}).some((value) => value != null) ? 1 : 0),
     watchlists: (contents.watchlists || []).length
   };
@@ -146,7 +133,6 @@ export function describeBackupCounts(counts) {
   ].join(' · ');
 }
 
-// v58.84: remind once there is something to lose and no backup within 30 days; an unreadable time counts as never.
 export const BACKUP_REMINDER_DAYS = 30;
 export function backupReminder({ lastBackupAt, holdingCount, now = Date.now() } = {}) {
   if (!(holdingCount > 0)) return null;
@@ -189,12 +175,9 @@ export function buildPortfolioBackup(snapshot = {}, meta = {}) {
 export function parsePortfolioBackup(text, deps = {}) {
   let data;
   try { data = typeof text === 'string' ? JSON.parse(text) : text; } catch (_) { return { ok: false, reason: 'invalid-json' }; }
-  // v59.45 (PASS27): a well-formed file whose contents a normalizer cannot handle is a refused file, not an exception.
   try { return parseBackupData(data, deps); } catch (_) { return { ok: false, reason: 'invalid-contents' }; }
 }
 
-// v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in — rows dropped or a cost left unknown — so the
-// confirmation can name it instead of showing only the counts that survived.
 function positionAdjustments(raw, merged) {
   const list = Array.isArray(raw) ? raw : [];
   const kept = sanitizePositions(list);

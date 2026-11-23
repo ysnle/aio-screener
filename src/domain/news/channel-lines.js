@@ -1,10 +1,3 @@
-// v59.55 (owner 11/1, "텔레그램에서 가져오는 게시물과 자료들은 제발 그대로 복붙해서 가져오지 말고 … 가공 후 다른 정보/데이터들과 같이
-// 통합해서"): a channel post never reaches a screen as its own text. What a screen may show is the structured fact the
-// producer extracted from it (scripts/lib/telegram-signals.mjs: a target-price or rating action, a quarter against
-// estimates, a release against the forecast), written in the app's own sentence form; a post without such a fact feeds
-// the AI reading (narrative-context.mjs, the chat context) only. Shared by 뉴스's 시장 신호 card, the move headlines on
-// 브리핑 and 테마, and the session sentence.
-
 export const fmtNumber = (value) => (Number.isFinite(value) ? value.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—');
 export function fmtPrice(value, currency) {
   if (!Number.isFinite(value)) return '—';
@@ -48,7 +41,6 @@ export function channelLineFor(symbol, post, signals = []) {
   const sym = String(symbol || '').toUpperCase();
   if (!sym || !post) return null;
   const id = String(post.id || '');
-  // A deal names both sides (v59.62): the target's move is explained by the same line as the acquirer's.
   const names = (signal) => (Array.isArray(signal?.tickers) ? signal.tickers : [signal?.ticker]).map((t) => String(t || '').toUpperCase());
   const hit = (Array.isArray(signals) ? signals : []).find((signal) => String(signal?.post || '') === id && names(signal).includes(sym) && signal.kind !== 'retail');
   return hit ? signalLine(hit) : null;

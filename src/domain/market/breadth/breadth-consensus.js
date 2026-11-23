@@ -1,11 +1,3 @@
-// v59.41 (roadmap 11, layer 5 score): moved out of js/aio-core.js (AIO.diagnoseBreadthConsensus) unchanged,
-// except that the threshold registry is passed in rather than read from the global root; src/app/score-entry-points.js
-// passes AIO_THRESHOLD_REGISTRY on every call, as the legacy function read it.
-// ─────────────────────────────────────────────────────────────────
-// v49.25 L3 근본 수정: diagnoseBreadthConsensus
-// 다중 신호(5SMA/20SMA/50SMA/McClellan/Weinstein/Golden Cross)를 가중 평균하여
-// 합의된 단일 판정을 도출. 모순 시그널 자동 가중치 조정.
-// ─────────────────────────────────────────────────────────────────
 export function diagnoseBreadthConsensus(signals, reg) {
   signals = signals || {};
   if (!reg || !reg.BREADTH) return { verdict: '—', score: null, conflict: null };
@@ -17,8 +9,6 @@ export function diagnoseBreadthConsensus(signals, reg) {
   var bandScoreMap = { 'capitulation': 0.5, 'bearish': -1, 'mixed': 0, 'bullish': 1, 'overbought': -0.5 };
 
   ['sma5', 'sma20', 'sma50'].forEach(function(k) {
-    // v59.45 (P17-CONSENSUS-01): a missing reading stays missing — Number(null) is 0, which the registry reads as
-    // capitulation (+0.5) and turned three absent values into '강세 합의'.
     var raw = signals[k];
     if (raw == null || raw === '' || typeof raw === 'boolean') return;
     var v = Number(raw);
@@ -44,7 +34,7 @@ export function diagnoseBreadthConsensus(signals, reg) {
   var consensus = totalScore / totalWeight;
   var verdict;
   if (consensus > 0.4) verdict = '강세 합의';
-  else if (consensus > 0.1) verdict = '강세 우위';   // v50.20: 부호 버그 시정 — 양의 합의(0.1~0.4)는 강세 우위 (이전 '약세 우위'는 결론 반대)
+  else if (consensus > 0.1) verdict = '강세 우위';
   else if (consensus > -0.1) verdict = '혼조 (모순 신호 존재)';
   else if (consensus > -0.4) verdict = '약세 우위';
   else verdict = '약세 합의';

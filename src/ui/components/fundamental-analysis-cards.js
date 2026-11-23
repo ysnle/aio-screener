@@ -1,11 +1,8 @@
-// v58.55 (개편 v2 3d/5g): the analysis cards v58.53 left out — 듀폰 분해 and 역 DCF on 종목 요약, R&D 비율 on 재무 공시.
-// Readings come from src/domain/fundamental/analysis-read.js; this file only draws them. A card whose inputs are not yet
-// collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
 import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers, RETURNED_LABEL } from '../../domain/fundamental/analysis-read.js';
-import { formatUsdShort, reconcileFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
+import { formatUsdShort, reconcileFiscalHistory, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearShortLabel, quarterLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
-import { fiscalBarGeometry, parseFiscalHistory, debtBasisFor, debtCurrentFor } from './fiscal-read.js';
+import { fiscalBarGeometry, debtBasisFor, debtCurrentFor } from './fiscal-read.js';
 import { debtLabel } from '../../domain/fundamental/sec-earnings.js';
 import { peMultipleText } from '../../domain/fundamental/consensus-read.js';
 import { kindFold } from './indicator-face.js';
@@ -149,8 +146,6 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
   const resultValue = el(doc, 'b', '', 'v2-rdcf-result__value');
   const resultText = el(doc, 'p', '', 'v2-rdcf-result__text');
   const sensitivity = el(doc, 'p', '', 'v2-rdcf-result__sens');
-  // v58.74 (text audit 종목 C1): the implied rate needs an anchor — the company's own revenue pace over the filed years, and
-  // whether a thin free-cash-flow margin makes margin gains (not growth) the price's premise.
   const anchor = el(doc, 'p', '', 'v2-rdcf-result__anchor');
   const filed = (Array.isArray(history) ? history : []).filter((row) => Number(row?.revenue) > 0 && hasLeadingIsoDay(String(row?.periodEnd || ''))).sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
   const spanYears = filed.length >= 3 ? Math.round((Date.parse(filed.at(-1).periodEnd) - Date.parse(filed[0].periodEnd)) / (365.25 * 86400000)) : 0;
@@ -258,7 +253,6 @@ export function rdCard(doc, history) {
   card.append(el(doc, 'p', lede, 'v2-analysis-lede'), trend);
   card.append(disclosure(doc, 'R&D 비율의 원리와 한계', [
     ['원리', '연구개발비는 회계상 비용으로 바로 처리되지만 성격은 미래 매출을 위한 투자에 가깝습니다. 매출 대비 비율이 높고 꾸준한 기업은 장부 이익이 실제 경제적 이익보다 낮게 잡히는 경향이 있습니다.'],
-    // v58.74 (text audit 종목 C3): the reading says which side moved the ratio — R&D itself, or revenue.
     ['지금 읽기', rdNowText(read)],
     ['한계, 함께 볼 것', '업종마다 정상 수준이 크게 다릅니다(소프트웨어·제약은 높고 유통·금융은 거의 없음). 인수한 연구개발(IPR&D)이 섞인 해는 10-K 원문에서 확인합니다.']
   ]));
@@ -266,7 +260,6 @@ export function rdCard(doc, history) {
   return card;
 }
 
-// ── v58.75 (persona review): recent four quarters, earnings surprise, margin ladder · net cash · capital return, theme peers ──
 const usd2 = (value) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(2)}`;
 
 // One line under the annual headline: the last four filed quarters against the same four a year earlier (null = omit).
@@ -442,9 +435,6 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
   return card;
 }
 
-// v58.75: everything 재무 공시 adds for this pass, built here so fiscal-read.js stays small. hero = lines under the annual
-// headline; cards = the business lens, margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the
-// table; thesis, peerStanding and situation = the stock lens cards.
 export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, calendarState = null, rows, fundamentals, series = false, financial = false }) {
   const hero = [];
   const recent = trailingYearLine(buildTrailingYearRead(quarters));
@@ -459,8 +449,6 @@ export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, 
     seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null),
     quartersFor: (sym) => (quarterText?.[sym] ? parseQuarterHistory(quarterText[sym]) : null) }),
   { onOpen: typeof root?.showTicker === 'function' ? (sym) => root.showTicker(sym) : null }) : null;
-  // The stock lens readings (owner 2026-10-24): the business lens leads the analysis cards; the thesis conditions, the
-  // peer standing and the favourable/unfavourable situations go where fiscal-read.js places them.
   const lensCtx = series ? stockLensContext(root, symbol, { fundamentals, bars: root?._aioEntitySummaries?.[symbol]?.history || null }) : null;
   const lens = lensCtx ? lensCard(doc, lensCtx.lensRead) : null;
   if (lens) cards.unshift(lens);

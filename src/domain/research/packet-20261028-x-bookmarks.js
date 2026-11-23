@@ -1,16 +1,9 @@
-// The owner's X bookmarks added after the 2026-10-18 read (2026-10-28). Every bookmark in x.com/i/history that was not in
-// the 10/16 ledger or packet-20261018 was read in full — posts, author threads, quoted posts and every attached image
-// (videos were not viewable) — then compared with what AIO already teaches. Material an existing note carries was left to
-// it; the new recurring frameworks become analysis frames. Same reference-only shape as packet-20261018-x-bookmarks.js:
-// nothing here is a live value, a ranking input or a call.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   id: `${handle}-${statusId}`, author: handle, sourceUrl: `https://x.com/${handle}/status/${statusId}`, publishedAt: date, publishedAtKst: date,
   sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'FRAMEWORK_EXTRACTED', summary, checks: Object.freeze(checks)
 });
 
-// What the 2026-10-28 read covered. 123 bookmarks were new since packet-20261018; 73 were investment material in scope,
-// 45 were agent and tooling practice (kept for the workspace, not the knowledge map) and 5 were unrelated.
 export const PACKET_20261028_AUDIT = Object.freeze({
   readOn: '2026-10-28', newSinceLedger: 123, inScope: 73, agentPractice: 45, unrelated: 5, framesAdded: 9,
   // Compared with the repository, one row per new bookmark (agent practice included) (the ledger is _artifacts/x-bookmarks-20261028/).
@@ -27,7 +20,6 @@ export const PACKET_20261028_AUDIT = Object.freeze({
   ]),
   // Read but left out: non-investment, a dated calendar, a single trade idea, or a claim with no checkable basis.
   declined: Object.freeze(['정치 서사', '일정표·뉴스레터 형식 이미지', '개별 매매 아이디어와 가격 목표', '근거 없는 채널 비유와 순환 자산 예측']),
-  // The one bookmark that contradicted AIO: the put/call card called a high ratio hedging demand. Fixed in v59.43 (P2134).
   conflictsFixed: Object.freeze(['풋/콜 비율 1.1 이상을 ‘하락 대비 수요’로 부르던 표현 → 풋 거래 우세(산 풋인지 판 풋인지 구분 안 됨)'])
 });
 

@@ -24,16 +24,7 @@ import { finiteNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { RULES } from '../rules/thresholds.js';
 
-// v7 (2026-10-16): funds, SPACs and sub-$1M 확장 names leave the ranked population (rankingPopulationExclusion).
-// v8 (2026-10-17 audit, owner-approved): factor activation is judged on the core tier when 확장 rows are present, a
-// zero-weight factor is not active in the model-default run, and outliers no longer mark the run 'partial'.
-// v9: the default raw definitions are factor-weights.js MODEL_DEFAULT_DEFINITIONS (12-1 momentum, profitability quality).
-// v10 (2026-11-17 ranking review): the value term scores every positive P/E and P/B (no upper bound that dropped the term),
-// and a deal-pinned stock leaves the ranked population as 'pinned' (rankingPopulationExclusion).
 export const FACTOR_RANKS_MODEL_VERSION = 'factor-ranks.v10';
-// 2026-11-18 (same v10 model, not yet published when the basis changed): the quality inputs as the rows carry them — margin and
-// revenue growth on the latest four quarters when the issuer's quarters cover them (the row's marginBasis/revGrowthBasis),
-// else the fiscal year; ROE on the fiscal year. The value term's P/E is on the same four quarters (peEarningsBasis).
 export const QUALITY_INPUT_BASIS = Object.freeze({ margin: 'ttm-else-fy', revGrowth: 'ttm-else-fy', roe: 'fy' });
 export const FACTOR_RANKS_ALLOWED_USE = 'research-relative-ranking-only';
 
@@ -43,10 +34,7 @@ const DAY_MS = 86_400_000;
 // budgets let a row read CURRENT at fetch and stale at render, or vice versa.
 export const FACTOR_FRESHNESS_MS = FRESHNESS_POLICY.factorSessionMs;
 const MIN_RANKED_ROWS = 5;
-// v59.47: factor inputs go through the readiness contract (calculation), so a STALE or blocked value is not ranked.
 const value = (row, key) => readRowNumber(row, key, 'calculation');
-// 2026-10-13 review S01: value/quality use the provider's period rule (fiscal period end within 456 days of
-// the price session). The former 180-day filing-date budget left 79 of 810 US rows current.
 const FUNDAMENTAL_FRESHNESS_MS = FUNDAMENTAL_MAX_PERIOD_AGE_DAYS * DAY_MS;
 const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // A cross-sectionally active factor can still be absent for an individual security. Do not
@@ -54,9 +42,6 @@ const MIN_CROSS_SECTION_COVERAGE = 0.8;
 // but require at least 80% of the configured active weight before assigning a rank.
 const MIN_ROW_WEIGHT_COVERAGE = 0.8;
 const MIN_SECTOR_OBSERVATIONS = 6;
-// W07-A/P1146: an explicit weight request is a model selection. If too little of the
-// requested weight is computable, the run must withhold ranking instead of silently
-// renormalizing onto whatever factors happen to be available.
 const MIN_REQUESTED_WEIGHT_COVERAGE = 0.8;
 // Six observations is the minimum sector bucket size used by the shrinkage rule, so the robust
 // guard must also be able to protect a full-size sector bucket of six.
@@ -65,11 +50,6 @@ const ROBUST_Z_THRESHOLD = 6;
 const ROBUST_CLIP_Z = 5;
 const UNKNOWN_SECTOR = null;
 
-// P1449: the model default is the shared NEUTRAL vector from factor-weights.js (one weights
-// module). A local backup copy drifted from it (spot-check: momentum .32 vs .27 renormalized
-// over the 4 computable factors 39.0% vs 37.0%), and the backtest generator's P1443 promise
-// ("the live model runs the same weights") silently validated the wrong model — see
-// scripts/lib and ci-data-pipeline-contract-check for the fixture pinning the two together.
 const DEFAULT_WEIGHTS = MODEL_DEFAULT_WEIGHTS;
 
 function avg(values) {
@@ -101,9 +81,6 @@ function momSixMinusOneRaw(row) {
   return r6 != null && r1 != null && r1 > -100 ? ((1 + r6 / 100) / (1 + r1 / 100) - 1) * 100 : null;
 }
 
-// 2026-10-19 (expertise review D2): 12-1 — the year to one month ago (Jegadeesh-Titman), the academic momentum signal,
-// from the same close series as ret12m and ret1m: (1+r12)/(1+r1)-1 = close[t-21]/close[t-252]-1. Missing when the
-// listing has less than a year of closes; no shorter window stands in for it.
 function momTwelveMinusOneRaw(row) {
   const r12 = value(row, 'ret12m');
   const r1 = value(row, 'ret1m');
@@ -149,10 +126,6 @@ function valueRaw(row) {
   // A P/E whose trailing earnings hold a one-off gain is not an earnings yield; the term is left out, not scored.
   const oneOff = row.peOneOff === true || row._valuationPeOneOff === true;
   if (!oneOff) addInverse(value(row, 'pe'), 0.20);
-  // v59.71 (quant review): a loss-maker has no P/E (dropped upstream at net income ≤ 0), so its value read was P/B
-  // alone and a distressed low-P/B name ranked cheaper than a profitable peer. A loss scores the earnings term 0 — no
-  // earnings yield — instead of leaving it out. The loss is the P/E numerator's own sign when the row carries it
-  // (peLoss: the last four quarters), else a negative fiscal-year margin (rows without that marker, Korea).
   const margin = value(row, 'margin');
   const loss = row.peLoss === true || row._valuationPeLoss === true || (margin != null && margin < 0);
   if (value(row, 'pe') == null && loss) parts.push(0);
@@ -160,9 +133,6 @@ function valueRaw(row) {
   // Negative or zero book equity is not cheap: the book term scores 0 like a loss, instead of dropping out and leaving
   // the earnings yield alone (buyback-funded deficits read cheaper than peers scored on both terms).
   if (value(row, 'pb') == null && (row.pbDeficit === true || row._valuationPbDeficit === true)) parts.push(0);
-  // 2026-10-13 F11: EV/EBITDA is retired at the provider (no automated producer; 0 of 873 rows), so this term is
-  // inert on live rows. The line stays only because the legacy-derived factor-ranks golden fixture
-  // (architecture/fixtures/factor-ranks-golden.json) feeds evEbitda inputs; removing it needs a golden refresh.
   addInverse(row?.evEbitda, 0.20);
   return parts.length ? avg(parts) : null;
 }
@@ -179,8 +149,6 @@ function qualityRaw(row) {
   return parts.length ? avg(parts) : null;
 }
 
-// Expertise review 2026-10-19 (screener audit D7): growth is not quality. The candidate model ranks quality on
-// profitability alone (ROE, margin) so its forward record can test the definition the default keeps.
 function profitabilityRaw(row) {
   const parts = [];
   const roe = value(row, 'roe');
@@ -242,10 +210,6 @@ function winz(x, mu, sd) {
   return Number.isFinite(z) ? Math.max(-3, Math.min(3, z)) : null;
 }
 
-// W07-C/P1146: this maps a bounded z-score onto a 0~100 scale (`round(50 + 16.67z)`, z=1 -> 67).
-// It is a sector-normalized score, not an empirical percentile and not a normal CDF. The
-// composite `rank` below is the separate tie-aware midrank percentile over eligible rows; the
-// two concepts must never be presented under one name.
 function zToNormalizedScore(z) { return Math.max(0, Math.min(100, Math.round(50 + z * 16.67))); }
 
 function normalizeSector(value) {
@@ -265,8 +229,6 @@ function isFreshPast(value, now, budgetMs) {
 
 const PRICE_FACTOR_KEYS = new Set(['momentum', 'trend', 'lowvol', 'kalman']);
 const sessionCache = new Map();
-// v59.47: price and size factors are current by the session rule (FRESHNESS_POLICY.factorSession), replacing P1625's
-// "4 days or the latest close"; the 4-day age stands in where the calendar has no year (pre-2026 backtests).
 function factorSessionFresh(row, lineage, now) {
   const observed = isoMs(lineage.observedAt);
   if (!Number.isFinite(observed) || !Number.isFinite(now) || observed > now) return false;
@@ -289,11 +251,6 @@ function factorLineage(row, key) {
   const sourceKind = row?.[`${prefix}SourceKind`] || (priceFactor ? row?.factorSourceKind : null) || (priceFactor ? row?.sourceKind : null) || null;
   const allowedUse = row?.[`${prefix}AllowedUse`] || (priceFactor ? row?.factorAllowedUse : null) || (priceFactor ? row?.allowedUse : null) || null;
   const quality = row?.[`${prefix}Quality`] || (priceFactor ? row?.factorQuality : null) || (priceFactor ? row?.quality : null) || null;
-  // P1184/R24-03: price-factor timestamps are bar-starts (P1170). Carry the basis
-  // and the explicit bar/session fields with the lineage so a consumer of
-  // factorEvidence cannot read a bar-start as the moment the value was knowable.
-  // Rows predating the producer fields keep null — absence is recorded, never
-  // back-filled with an assumed basis.
   const timeBasis = priceFactor ? (row?.factorTimeBasis || null) : null;
   const barStart = priceFactor ? (row?.factorBarStart || null) : null;
   const sessionDate = priceFactor ? (row?.factorSessionDate || null) : null;
@@ -320,7 +277,6 @@ function factorEvidenceUsable(row, key, now) {
   if (normalizeAllowedUse(lineage.allowedUse, 'none') === 'none') reasons.push('allowedUse_blocked');
   if (!lineage.quality || typeof lineage.quality !== 'object') reasons.push('quality_missing');
   else if (lineage.quality.stale === true || lineage.quality.blocked === true || lineage.quality.status === 'STALE' || lineage.quality.status === 'MISSING') reasons.push('quality_stale_or_blocked');
-  // P1625 → v59.46: the session lag, not a calendar-day age, decides (a KRX close stays current through a holiday + weekend).
   if (fundamentalFactor ? !fundamentalFresh(row, lineage.observedAt, now) : !factorSessionFresh(row, lineage, now)) reasons.push('observedAt_stale_or_future');
   return { ok: reasons.length === 0, lineage, reasons };
 }
@@ -496,10 +452,6 @@ function computeFactorRanksForPopulation({
     if (!row || (typeof row.ret3m !== 'number' && typeof row.ret1m !== 'number')) return false;
     const symbol = String(row.sym || row.symbol || '').trim().toUpperCase();
     if (!symbol) { missingIdentityRows += 1; return false; }
-    // P1255 (07:M04 계열 잔여 D1): 조정 완결이 아닌 계열의 가격수익률은 조정 계열과 한 순위에서
-    // 비교하지 않는다 — return-contract의 `mixed-adjustment-scope-in-one-comparison` 위반을
-    // 막는다. 가격 기준 선언이 아예 없는 합성/구형 행은 기존 동작을 유지하고, 선언된
-    // raw/partial 행만 비교 집합에서 분리해 inputAudit에 남긴다.
     if (row.adjustedCloseStatus != null && row.adjustedCloseStatus !== 'complete') { rawBasisRows += 1; return false; }
     if (value(row, 'ret3m') == null && value(row, 'ret1m') == null) { invalidCoreRows += 1; return false; }
     if (symbol && seenSymbols.has(symbol)) { duplicateRows += 1; return false; }
@@ -531,8 +483,6 @@ function computeFactorRanksForPopulation({
     const evidence = Object.fromEntries(candidateFactors.map((factor) => [factor.key, factorEvidenceUsable(row, factor.key, now)]));
     return {
       ...row,
-      // v59.45 P6-RANK-01: a row handed back in with last run's rank/quantSignal kept them when this run could not rank
-      // it (null composite). The ranker's own outputs start empty so a re-run of its output gives the same answer.
       rank: null,
       quantSignal: null,
       sym: String(row.sym || row.symbol).trim().toUpperCase(),
@@ -549,10 +499,6 @@ function computeFactorRanksForPopulation({
     bySector.get(key).push(row);
   });
 
-  // 2026-10-17 audit (D5, owner-approved): whether a factor is part of the model is judged on the core tier when 확장
-  // rows are present. The extended rows' thinner filings (fundamental coverage 62.5% against 89% in the core) used to
-  // switch value and quality off for every row, so the 확장 toggle changed the core names' model. Extended rows
-  // without a fundamental now meet the row-level evidence floor like any other row.
   const coreRows = working.filter((row) => row.universeTier !== 'extended');
   const coverageRows = coreRows.length >= MIN_RANKED_ROWS && coreRows.length < working.length ? coreRows : working;
   const coverageBasis = coverageRows === working ? 'all-eligible-rows' : 'core-tier';
@@ -657,8 +603,6 @@ function computeFactorRanksForPopulation({
     requestedWeightCoveragePct = Math.round(resolution.coverage * 1000) / 10;
   } else {
     appliedFactorWeights = sanitizeWeights(activeWeights, FACTORS);
-    // D6 (2026-10-17 audit): a factor the default model weights at 0 (size, until it has an artifact-fixed market cap)
-    // is not part of the model even when its data is present — it neither scores rows nor changes the model identity.
     const weighted = FACTORS.filter((factor) => appliedFactorWeights[factor.key] > 0);
     if (weighted.length && weighted.length < FACTORS.length) {
       FACTORS.filter((factor) => !(appliedFactorWeights[factor.key] > 0)).forEach((factor) => {
@@ -669,9 +613,6 @@ function computeFactorRanksForPopulation({
     }
   }
 
-  // D8 (2026-10-17 audit, kept): every factor, price factors included, is compared inside its sector. This removes
-  // industry momentum from the momentum factor on purpose — the ranking should separate stocks within a sector rather
-  // than restate the sector rotation (테마 · 섹터 owns that), and it keeps the top fifth from filling with one sector.
   const outlierByFactor = {};
   FACTORS.forEach((factor) => {
     const finiteRows = working.filter((row) => finite(row._factorValues[factor.key]) != null);
@@ -763,9 +704,6 @@ function computeFactorRanksForPopulation({
   for (let start = 0; start < n;) {
     let end = start + 1;
     while (end < n && sorted[end]._compositeZ === sorted[start]._compositeZ) end += 1;
-    // P1553: a percentile needs peers. The input guard counts rows with a return, but a row also needs 80% of the weighted
-    // evidence to be ranked, so fewer than MIN_RANKED_ROWS can remain; one remaining row used to be published as rank 50
-    // ("중간 20%") although nothing was compared. Such rows keep a null rank.
     const rank = n >= MIN_RANKED_ROWS ? Math.round(((start + end - 1) / 2 / (n - 1)) * 100) : null;
     for (let index = start; rank != null && index < end; index += 1) {
       sorted[index].rank = rank;
@@ -789,7 +727,6 @@ function computeFactorRanksForPopulation({
       factorEvidence: Object.freeze(Object.fromEntries(Object.entries(row._factorEvidence).map(([key, evidence]) => [key, Object.freeze({
         eligible: !!evidence.ok,
         observedAt: evidence.lineage?.observedAt || null,
-        // P1184: publish *what kind of instant* observedAt is alongside it.
         timeBasis: evidence.lineage?.timeBasis || null,
         barStart: evidence.lineage?.barStart || null,
         sessionDate: evidence.lineage?.sessionDate || null,
@@ -814,10 +751,6 @@ function computeFactorRanksForPopulation({
   const compositeConfidence = Math.max(0, Math.min(1, 0.55 * (activeCoverage || 0) + 0.25 * crossSectionConfidence + 0.20 * sectorConfidence));
   const outlierTotal = Object.values(outlierByFactor).reduce((sum, entry) => sum + entry.count, 0);
   const rowCoverageBlocked = working.filter((row) => row.rankingEligibility !== 'eligible').length;
-  // D9 (2026-10-17 audit): extreme values are already winsorized and listed in outlierDiagnostics, and rows below the
-  // row-level evidence floor are listed on the page as '순위 밖'; neither is an input failure of the run. Requiring zero
-  // of both meant an 800-row universe (46 outliers, 41 thin rows) could never read 'ready'. A run is partial when more
-  // than a tenth of its rows could not be ranked.
   const qualityStatus = compositeConfidence >= 0.8 && invalidCoreRows === 0 && duplicateRows === 0 && rowCoverageBlocked <= items.length * 0.1 ? 'ready' : 'partial';
   const smallSectorGroups = sectorCounts.filter((entry) => entry.known && entry.count < MIN_SECTOR_OBSERVATIONS);
   const unknownRows = sectorCounts.find((entry) => !entry.known)?.count || 0;
@@ -871,7 +804,6 @@ function computeFactorRanksForPopulation({
     confidence: Math.round((totalCompositeConfidence / Math.max(1, n)) * 1000) / 1000,
     compositeConfidence: Math.round(compositeConfidence * 1000) / 1000,
     confidenceMeaning: '입력 커버리지·표본 안정성 진단값이며 미래 수익률 확률이 아님',
-    // W07-C/P1146: name the two scales so no consumer reads a z-scale as a percentile.
     factorScoreScale: 'sector-normalized-z-to-0-100',
     factorScoreMeaning: '섹터 기준 정규화 점수(z 스케일)이며 경험적 백분위나 성공확률이 아님',
     compositeRankMeaning: 'eligible 집합 동점 midrank 백분위(0~100)',
@@ -892,16 +824,6 @@ function computeFactorRanksForPopulation({
   });
 }
 
-// 2026-10-16 screener model review (owner-approved): funds, SPACs and — in the 확장 tier — names trading under $1M a day
-// are not ranked against operating companies. A bond ETF or a SPAC's trust cash has near-zero volatility and topped the
-// low-volatility factor (77 SPACs in the extended top fifth). The rows stay on the screen with a null rank and the reason.
-// Funds use the universe's declared index 'ETF'. SPACs: the filer's SEC SIC code 6770 (Blank Checks), which the
-// extended SEC ledger records per issuer (issuerSic) and the shard carries as identity.sic, OR the registered-name
-// rule. Neither alone is complete (2026-10-16 measurement over 3,913 extended rows): SIC 6770 caught 42 SPACs the name
-// misses (Churchill Capital Corp XII, Cantor Equity Partners, Talon Capital Corp), and 23 pre-merger SPACs named
-// "... Acquisition Corp" are filed under their target industry's code (7372, 2836, 8200), not 6770. The name rule
-// only ever removes a rank with its reason; it never assigns an identity (R628). Known miss: a de-SPAC whose SEC code
-// was never updated (Innventure, 6770 since its 2024 merger) leaves the ranking until SEC reclassifies it.
 export const EXTENDED_MIN_DOLLAR_VOLUME_30D = 1_000_000;
 export const SPAC_SIC = '6770';
 const PINNED = RULES.rankingPopulation.pinned;
@@ -918,16 +840,11 @@ export function rankingPopulationExclusion(row) {
   return null;
 }
 
-// P1625: both legacy compatibility and native orchestration call this boundary.
 export function computeFactorRanks(input = {}) {
-  // v57.51 F07/V04: Tokyo/Taiwan listings (listingMarket INTL) stay visible in the US list but are not ranked against
-  // the US cross-section — a different session calendar and currency are not one comparison population.
   const isIntl = (row) => listingMarket(row || {}) === 'INTL';
   const excludedRows = [];
   const populationExclusions = { fund: 0, spac: 0, illiquid: 0, pinned: 0, foreign: 0 };
   const rows = (Array.isArray(input.rows) ? input.rows : []).filter((row) => {
-    // 2026-10-17 audit: a Tokyo/Taiwan row left the ranking with no row and no reason, so the page counted it as
-    // '점수 계산 불가'. It now carries its exclusion like a fund or a SPAC.
     const reason = isIntl(row) ? 'foreign' : rankingPopulationExclusion(row);
     if (!reason) return true;
     populationExclusions[reason] += 1;

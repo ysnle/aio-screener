@@ -1,4 +1,3 @@
-// P1624: one issuer model for every registered symbol; no example-symbol branches.
 import { buildFiscalRead, financialKind } from '../fundamental/fiscal-read.js';
 import { deriveSecReport } from '../fundamental/sec-report.js';
 import { resolveInstrument, INSTRUMENT_REGISTRY } from '../instruments/instrument-registry.js';
@@ -41,8 +40,6 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   for (const theme of Array.isArray(themes) ? themes : []) {
     const subThemes = (theme.subThemes || []).filter(sub => (sub.tickers || []).some(ticker => sym(ticker) === id));
     const themeName = theme.nameKr || theme.name || theme.id;
-    // v57.54: a KR theme group's only sub-theme carries the group's own name ("반도체 / HBM · 반도체 / HBM") — a sub-theme
-    // equal to its theme is not repeated, and one theme id is listed once.
     if ((subThemes.length || (theme.leaders || []).some(ticker => sym(ticker) === id)) && !associations.some(item => item.id === theme.id)) associations.push({ id: theme.id, name: themeName, subThemes: [...new Set(subThemes.map(sub => sub.name))].filter(sub => sub && sub !== themeName) });
   }
   const lastSession = market === 'KR' || market === 'US' ? latestCompletedSession(market, nowMs) : null;
@@ -76,13 +73,8 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   if (fiscal.lastGrowth != null && fiscal.lastGrowth < 0) risks.push({ id:'revenue', text:`최근 회계연도 매출은 전년 대비 ${signed(fiscal.lastGrowth)}입니다.` });
   if (finite(latest?.equity) < 0) risks.push({ id:'equity', text:'공시 자기자본이 음수입니다. 일반적인 양(+)의 자기자본 ROE 해석을 적용하지 않습니다.' });
   if (finite(latest?.operatingCashFlow) < 0 && !financialKind(matchedRow?.symbol || resolved?.symbol, matchedRow?.sector, sic ?? matchedRow?.sic)) risks.push({ id:'cash', text:'최근 회계연도 영업현금흐름은 유출입니다. 원인과 다음 공시에서의 변화를 확인할 지점입니다.' });
-  // v58.74 (text audit): the 50-day distance is the summary reading right above this list (with its own near-line rule),
-  // so the list keeps only the observations that reading lacks.
-  // v57.81: an on-demand row (out-of-universe listing) is not a registered universe row.
   const identity = { registered: !!matchedRow && !matchedRow.onDemand, verification: resolved.verification, name, market, currency, assetType, sector: matchedRow?.sector || null, industry: matchedRow?.industry || matchedSummary?.industry || null, source: matchedRow?.identitySource || matchedSummary?.sourceUrl || null };
   const financialStatus = !isCompany ? 'not-applicable' : market === 'KR' ? 'kr-disclosure-required' : fiscal.available ? 'reference' : 'missing';
-  // 2026-10-13 review S11: '이 종목의 지금' above already shows the factor rank; a second rank over a different
-  // denominator (3-month return among same-session peers) read as a contradiction, so the headline keeps the return.
   const priceStatement = returns.ret3m != null ? `3개월 수익률 ${signed(returns.ret3m)}` : '확정 종가 기준의 수익률 자료가 없습니다';
   const headline = `${name} — ${priceStatement}${fiscal.headline ? ` / 연간 공시 ${fiscal.headline}` : ''}`;
   return { modelVersion: COMPANY_ANALYSIS_MODEL_VERSION, available: true, symbol:id, headline, identity, business, associations,

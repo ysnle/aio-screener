@@ -1,11 +1,10 @@
 // Deterministic coverage for the mechanical subset of the knowledge-lint skill.
 // Semantic truth, source directness and human review remain separate evidence levels.
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildContextCatalog, buildWorkspaceState, renderCurrentState, serializeJson } from './workspace-state-lib.mjs';
-import { clockJudgementBlocks } from './lib/qa-live-data.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -59,27 +58,10 @@ for (const doc of catalog.documents) {
   warn(`${doc.path} last_verified is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d`);
 }
 
-// P1125: the stale set may not grow silently. The baseline records today's debt; newly
-// stale documents must be refreshed or explicitly re-authorised with --write.
-const STALE_BASELINE_PATH = '_context/doc-freshness-baseline.json';
-if (process.argv.includes('--write')) {
-  writeFileSync(join(root, STALE_BASELINE_PATH), `${JSON.stringify({
-    schemaVersion: 'aio-doc-freshness-baseline.v1',
-    generatedBy: 'scripts/ci-knowledge-lint-check.mjs',
-    note: 'Documents with a last_verified date older than the 45d threshold. The count may not grow: refresh the document or re-run with --write after an authorised decision.',
-    thresholdDays: STALE_DAYS,
-    staleCount: staleDocs.length,
-    stale: staleDocs.sort(),
-  }, null, 2)}\n`, 'utf8');
-  console.log(`[knowledge-lint] wrote ${STALE_BASELINE_PATH}: ${staleDocs.length} stale document(s)`);
-} else if (!existsSync(join(root, STALE_BASELINE_PATH))) {
-  errors.push(`${STALE_BASELINE_PATH} missing — run with --write to record the current stale set`);
-} else {
-  const freshnessBaseline = JSON.parse(read(STALE_BASELINE_PATH));
-  // v59.70 (I8): a document crossing 45 days is a calendar fact, not a code change. In a CI contract shard it warns (the
-  // 11-04 fix push failed on CODE-MAP turning 46 days old); locally and in the watchdog twin it still fails.
-  (clockJudgementBlocks() ? check : warn)(`P1125 stale document set does not grow (baseline ${freshnessBaseline.staleCount}, now ${staleDocs.length})`, staleDocs.length <= Number(freshnessBaseline.staleCount ?? 0), staleDocs.slice(0, 6).join(', '));
-}
+// P1125 (v60.50): a document crossing 45 days is a calendar fact, not a code change, so the stale set is reported as a
+// warning everywhere and never fails a run (the 11-04 fix push failed on CODE-MAP turning 46 days old; the ratchet's
+// baseline file and its --write path are gone).
+warn('P1125 stale documents (refresh or mark as a historical snapshot)', staleDocs.length === 0, `${staleDocs.length}: ${staleDocs.slice(0, 6).join(', ')}`);
 
 const hotSurfaces = [
   'AGENTS.md', 'CLAUDE.md', '_context/CURRENT-STATE.md', '_context/INDEX.md', '_context/CLAUDE.md', '_context/WORKFLOW-GOVERNANCE.md',

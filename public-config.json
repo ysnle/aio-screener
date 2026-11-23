@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v60.49",
+  "appRevision": "v60.50",
   "ai": {
     "chatPolicy": "shared-worker-only",
     "provider": "openai",
@@ -10,10 +10,7 @@
     "healthPath": "/health",
     "maxTokens": "worker-advertised",
     "routeStatus": "PUBLISHED",
-    "routeReason": null,
-    "routeEvidence": {
-      "status": "CURRENT"
-    }
+    "routeReason": null
   },
   "marketData": {
     "workerUrl": "https://aio-proxy.zmfhd007.workers.dev",

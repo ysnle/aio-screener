@@ -1,6 +1,3 @@
-// v58.75 (persona review): the news a reader of 오늘·브리핑 asks for first — the night's main stories and, beside a stock or
-// theme that moved, the headline that named it before that session closed. Pure functions over the loaded news, intraday,
-// timeline and channel rows; the screens own the layout.
 import { finiteNumber as finite } from '../shared/number.js';
 import { channelLineFor } from '../news/channel-lines.js';
 import { issuerNameMentioned } from '../news/stories.js';
@@ -9,11 +6,6 @@ import { marketOfSymbol } from '../market/session/session-time.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { afterClose, agrees } from './day-account.js';
 
-// P1391 (owner review 2026-10-02): the important list — the highest-scored story per topic inside the window (moved here
-// from the news page so 오늘's 밤사이 핵심 reads the same picks as the news screen).
-// Feature audit 2026-11-02: stock-pick listicles ("5 Most Undervalued Dividend Growth Stocks…", "…Stock to Buy Hand Over
-// Fist") scored ≥50 on source and topic and became the 신용 pick; they are promotion, not news, and stay in the full feed.
-// v59.68: "…a $677 Billion Reason to Buy Its Stock" passed as 홈's headline; a reason-to-buy title is promotion too.
 const PROMO_TITLES = [/\bstocks? to buy\b/i, /\breasons? to buy\b/i, /\breasons? to sell\b/i, /\bto buy hand over fist\b/i, /\bundervalued\b[^.]*\bstocks\b/i, /(?<![가-힣])사라고/, /(?<![가-힣])매수 추천/];
 export const isPromotionalTitle = (title) => PROMO_TITLES.some((pattern) => pattern.test(String(title || '')));
 

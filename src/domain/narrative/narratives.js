@@ -1,14 +1,3 @@
-// v59.70 (owner 2026-11-07, "시장의 흐름·이야기·내러티브·심리 … 처음부터 끝까지 유기적으로"): the stories the market is
-// talking about, as data a screen can show. Moved out of scripts/lib/narrative-context.mjs (owner 2026-10-18), which
-// fed them only to the model prompt. Sources are AIO's own artifacts — the Telegram research digest (four public
-// channels) and the screener's issuer headline memos on large five-session moves — and stay secondary material:
-// attention, not evidence (_artifacts/x-bookmarks-20261105/NARRATIVE-UX-HANDOFF.md). A count says how much a story is
-// being relayed, never that it is true or that it moved a price. No post text is published (owner 2026-11-01, Telegram
-// processed only): a story carries counts, timing, the verification mix and the movers' symbols and moves.
-//
-// Each story names the user's question, the analysis note that says how to read it (learning-core LESSONS frames), and
-// the macro-crossroads branches it would feed if it is right (`branches`) — the bridge from a story to the scenario
-// engine's conditions, next release and response costs (src/domain/narrative/narrative-cards.js).
 import { reportVerification } from '../news/report-verification.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
@@ -24,15 +13,10 @@ const marketWeekHours = (from, to) => {
   for (let at = from; at < to; at += 3600000) hours += new Date(at + 2 * 3600000).getUTCDay() % 6 ? 1 : 0;
   return hours;
 };
-// v59.74 (site QA 11/7): the wire headlines are the third source. The midterm "블루웨이브" sell-off filled the news list
-// for two days while the stories read only relayed posts and mover memos, so it showed as a fading schedule item.
-// A headline weighs one post; at most this many count, so a syndicated burst cannot outweigh the research channels.
 export const NARRATIVE_NEWS_WEIGHT_CAP = 6;
 export const NARRATIVE_MOVER_MIN_ABS_RET5D = 10;
 export const NARRATIVES_VERSION = 'narratives.v1';
 
-// v59.45 (R3-01): short acronyms and English names need word boundaries ('sPIKe', 'aBUNDant', 'exciting' read as PIK, Bund,
-// Citi); '유가증권시장' is not 유가 and '시즌이란' (a particle) is not Iran.
 export const NARRATIVE_THEMES = Object.freeze([
   { id: 'ai-funding-credit', label: 'AI 인프라 조달·신용', promptLabel: 'AI 인프라 조달·신용 (코어위브·네오클라우드·데이터센터 채권)', question: 'AI 데이터센터 투자의 빚 조달과 그 빚의 안정성',
     frames: ['ai-infra-credit-ladder', 'forced-seller-chain'], branches: ['creditstress', 'aibust'],
@@ -53,8 +37,7 @@ export const NARRATIVE_THEMES = Object.freeze([
     frames: ['long-bond', 'growth-inflation-balance'], branches: ['fiscalsteep'],
     re: /유럽[^.。\n]{0,20}(?:부채|재정|국채|금융\s*리스크)|프랑스\s*(?:국채|재정|신용)|길트|\bgilts?\b|분트|\bBunds?\b|\bJGBs?\b|일본\s*(?:국채|장기\s*금리)|sovereign debt|재정\s*적자|fiscal deficit|기간\s*프리미엄|term premium|국채\s*발작/i },
   { id: 'us-politics', label: '미국 정치 (선거 결과·셧다운)', promptLabel: '미국 정치 (중간선거 결과·블루웨이브·셧다운)', question: '선거 결과·셧다운 같은 정치 변수가 정책 경로와 위험 선호에 주는 변화',
-    frames: ['headline-provenance'], branches: ['fiscalsteep', 'volshock'], // v59.74: an election result moved risk appetite (11/5 -4.4%) before rates; both paths are read
-    // v59.74: the result words too — 11/5 headlines said "블루웨이브 쇼크", "Democrats' midterm gains", "post-midterm sell-off".
+    frames: ['headline-provenance'], branches: ['fiscalsteep', 'volshock'],
     re: /중간\s*선거|midterms?|셧다운|government shutdown|부채\s*한도|debt ceiling|블루\s*웨이브|blue\s*wave|민주당\s*(?:압승|승리|약진|장악)|Democrat(?:s|ic)?(?:['’]s?)?\s+\b(?:sweep|victor(?:y|ies)|wins?|gains|takeover)\b/i },
   { id: 'oil-geopolitics', label: '유가·지정학', promptLabel: '유가·지정학 (호르무즈·이란)', question: '지정학 위험이 유가를 거쳐 물가와 성장으로 번지는 경로',
     frames: ['oil-shock-split', 'geopolitical-shock-paths'], branches: ['oilshock'],
@@ -156,9 +139,6 @@ export function publishedNarratives(themes, { nowMs = Date.now(), windowHours = 
   };
 }
 
-// v59.70 (lens plan, narrative step 2 '바뀐 점'): which stories entered or left the top list since the previous KST day.
-// market-day.json is rebuilt every refresh, so the previous artifact is minutes old; the stories keep a short day log
-// (one entry per KST date, the last run of that day wins) and the change is read against the latest earlier day.
 export const NARRATIVE_LOG_DAYS = 8;
 const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
 export function narrativeDayLog(previous, current, { nowMs = Date.now() } = {}) {

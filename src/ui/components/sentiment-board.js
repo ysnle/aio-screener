@@ -4,7 +4,10 @@
 // raw-table fold #sentiment-raw, every indicator's definition, edges and principle the method fold #sentiment-method, the
 // providers the page's 데이터 출처 fold (page-sources.js). The cards are built in src/domain/market/sentiment/sentiment-model.js.
 import { principleLink } from './principle-link.js';
-import { AXIS_REASON_LABEL } from '../../domain/briefing/market-read.js';
+import { buildCloseSeries } from '../../domain/briefing/market-read.js';
+import { vixBandRecord, vixBandLedeSaid, vixBandLedeMethod } from '../../domain/market/signal/vix-band-record.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { STRESS_OUTCOMES } from '../../data/artifact-registry.js';
 import { AXIS_LABELS } from '../../domain/market/interpretation/concepts.js';
 import { buildSentimentModel, sentimentCounter } from '../../domain/market/sentiment/sentiment-model.js';
 import { fearGreedBand as publishedFearGreedBand } from '../../domain/market/sentiment/metrics.js';
@@ -66,8 +69,16 @@ function rawGroups(doc, model, axis, bottomWatch) {
 
 // The method: what each indicator measures and its rule, the link to its principle in the research library, the two
 // reference indicators' place against the six 시장 상태 indicators, and the price temperature's rules.
-function methodBody(doc, root, model) {
+// The VIX-band record at the verdict's completed VIX close (the same close 시장 상태's risk line reads; R670).
+function fearRecord(root, inputs, regime) {
+  const vix = regime?.asOf ? buildCloseSeries(inputs?.history, 'vix', { through: regime.asOf }).at(-1) : null;
+  return vix?.date === regime.asOf ? vixBandRecord(root?.[STRESS_OUTCOMES.key] || null, vix.value) : null;
+}
+
+function methodBody(doc, root, model, record = null) {
   const nodes = [el(doc, 'p', `공포·탐욕 지수와 AAII는 시장 상태 6개 지표의 양호·중립·부담 합계에 넣지 않는 참고 지표입니다. 하이일드 스프레드는 시장 상태 '${AXIS_LABELS.credit}', VIX ÷ 3개월 VIX는 '${AXIS_LABELS.volatility}' 지표의 근거로 쓰입니다. 숫자는 모두 직전 미국장 종가 기준입니다.`, 'ind-method__lead')];
+  const lede = vixBandLedeMethod(record);
+  if (lede) nodes.push(el(doc, 'p', lede, 'ind-method__lead'));
   for (const card of model.cards) {
     const box = el(doc, 'section', null, 'ind-method');
     box.dataset.methodMetric = card.id;
@@ -111,7 +122,8 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
     state.textContent = axis?.stateLabel || '판정 대기';
     state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[axis?.state] || 'neutral'}`;
   }
-  set('sentiment-read', axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '');
+  if (!root?.[STRESS_OUTCOMES.key]) refreshSharedArtifact(root, STRESS_OUTCOMES).then(({ changed } = {}) => { if (changed) renderSentimentBoard({ documentRef: doc, root }); }).catch(() => {});
+  set('sentiment-read', vixBandLedeSaid(fearRecord(root, inputs, regime)).text);
   set('sentiment-synthesis', model.tally.length ? model.tally.join(' · ') : '기준일에 맞는 심리 지표 관측 없음');
   paintCounter(doc, sentimentCounter({ model, regime }));
   renderFearGreedGauge(doc, model.cards.find((card) => card.id === 'fg'));
@@ -131,7 +143,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   }
   let method = doc.getElementById('sentiment-method');
   if (!method) {
-    method = kindFold(doc, 'method', '지표별 정의와 판정 기준', () => methodBody(doc, root, buildSentimentModel(marketInterpretation(root).inputs)));
+    method = kindFold(doc, 'method', '지표별 정의와 판정 기준', () => { const now = marketInterpretation(root); return methodBody(doc, root, buildSentimentModel(now.inputs), fearRecord(root, now.inputs, now.regime)); });
     method.id = 'sentiment-method';
     const next = doc.getElementById('sentiment-next');
     if (next) next.insertAdjacentElement('beforebegin', method); else page.append(method);

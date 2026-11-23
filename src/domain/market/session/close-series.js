@@ -1,7 +1,3 @@
-// v58.64 (architecture audit DOMAIN #8): the completed-close series and its session helpers moved here from
-// briefing/market-read.js. Sixteen domain modules (market, macro, cash, stress, sentiment, themes) read one close
-// series; they no longer depend on the briefing module for it. briefing/market-read.js re-exports every name, so
-// existing imports keep working. The code is moved unchanged.
 import { countOpenSessionsBetween, resolveMarketCalendarSession } from './market-calendar.js';
 import { shortDate } from '../../content/date-labels.js';
 import { historyFieldSessionDate } from './history-session.js';
@@ -10,15 +6,8 @@ import { isoDay, stampDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
 import { historyFieldMeta } from '../indices/history-meta.js';
 
-// v59.46: `finite` is the shared reader (Number(null)/'' /booleans are missing, not 0); kept as a named export for the
-// modules that import it from here or from briefing/market-read.js.
 export { finite };
 
-// A date-only stamp (YYYY-MM-DD or midnight UTC) already names the trading date; converting
-// midnight UTC to New York would move it to the previous day.
-// P1432: toLocaleDateString builds a time-zone formatter on every call, and this runs for every
-// row × field of the close history on each render (≈0.5 s per regime build); one shared formatter
-// plus a small memo keeps the same result at a fraction of the cost.
 const NY_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
 const NY_DATE_MEMO = new Map();
 function nyDate(iso) {
@@ -32,10 +21,6 @@ function nyDate(iso) {
   return date;
 }
 
-// T01/M01 (expert review 2026-10-13): a field's dates are the sessions of the market that closes it. 24-hour assets
-// (won, yen, DXY, WTI, gold) also trade on Sunday evening and US holidays; that tick (about Friday's close) became its
-// own "close", so "20일" spanned 16-17 sessions and the basis chip read 10/11(일). Korean indices use the KRX calendar,
-// 24/7 crypto none, everything else the NYSE calendar. An unregistered year falls back to weekdays.
 const KR_CLOSE_FIELDS = new Set(['kospi', 'kosdaq']);
 const ALL_DAY_FIELDS = new Set(['btc']);
 export const closeSessionMarket = (field) => KR_CLOSE_FIELDS.has(field) ? 'KR' : ALL_DAY_FIELDS.has(field) ? null : 'US';
@@ -52,16 +37,11 @@ export function isCloseSessionDate(date, market) {
   return SESSION_MEMO.get(key);
 }
 
-// v57.50 C11: New York wall-clock minute at which each field's session settles. Two observations can share one NY
-// date — the 16:59:59 ET won settlement (1,340.02) and an evening tick at 23:30 ET (1,340.90) were both "10/9", and the
-// later row won. With a settle time known for both stamps, the observation at or just before the settle is kept; one
-// after it is used only when nothing earlier exists. Fields without an entry (breadth counts, F&G, Korean indices,
-// crypto) and date-only stamps keep the former rule: the later row wins.
 const SESSION_CLOSE_NY_MINUTE = Object.freeze({
   spx: 960, nasdaq: 960, ndx: 960, dow: 960, rut: 960, tlt: 960, // NYSE/Nasdaq close 16:00 ET
   vix: 975, vix3m: 975, vvix: 975, // Cboe volatility indices settle 16:15 ET
   tnx: 900, // the 10-year yield index stops at 15:00 ET
-  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, silver: 1020, usdkrw: 1020, usdjpy: 1020, eurusd: 1020, gbpusd: 1020, usdcny: 1020, audusd: 1020 // FX and futures trading day ends 17:00 ET (P1726: Brent futures too)
+  dxy: 1020, wti: 1020, brent: 1020, gold: 1020, silver: 1020, usdkrw: 1020, usdjpy: 1020, eurusd: 1020, gbpusd: 1020, usdcny: 1020, audusd: 1020
 });
 const NY_CLOCK = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
 const NY_MINUTE_MEMO = new Map();
@@ -82,14 +62,6 @@ function nyMinute(iso) {
 // Lower is closer to the settle: at/before it by distance, after it only behind every earlier stamp.
 const settleRank = (minute, close) => minute <= close ? close - minute : 10000 + minute - close;
 
-// One value per trading date. The producer stamps a close either near the bell or at its bar start,
-// and a later row can carry a late-settling bar (DXY/WTI); key by the observation's own NY date and
-// let the later row win unless C11's settle-time preference decides. Carried-forward weekend copies are not
-// observations, and neither is an observation dated on a day its market was closed (T01). `through` drops
-// observations after the basis date.
-// P1755: history arrays are replaced wholesale on reload (never mutated in place), and one render reads the same
-// (field, through) series many times, so results are memoised per array identity (+ length guard) and options.
-// Callers always receive fresh point objects, so a consumer that edits its copy cannot alter the memo.
 const CLOSE_SERIES_MEMO = new WeakMap();
 const copyPoints = (points) => points.map((point) => ({ ...point }));
 export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false, market = closeSessionMarket(field) } = {}) {
@@ -118,23 +90,15 @@ function computeCloseSeries(history, field, { through, includeProvenance, market
     if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
     const meta = historyFieldMeta(row, field);
     if (meta?.observationRelation === 'carried-forward') continue;
-    // v57.70: a previous close stamped at the next bar's 00:00 ET boundary carries its own session date.
-    // v57.81: rows written before v57.70 carry none — their previous close is dated from its bar stamp and fetch time
-    // (historyFieldSessionDate), so the 10/13 WTI close on the 10/14 row is no longer read as a second 10/14 value.
     const sessionDate = historyFieldSessionDate(meta, field);
     const sessionDated = !!sessionDate;
     const date = sessionDated ? sessionDate : meta?.observedAt ? nyDate(meta.observedAt) : row.date;
     if (!date || (through && date > through) || !isCloseSessionDate(date, market)) continue;
     const minute = close != null && meta?.observedAt ? nyMinute(meta.observedAt) : null;
-    // A session-dated previous close is that session's completed bar — as close to the settle as a stamp can be.
-    // v57.81: only a previous close; a session-dated backfill bar or closing print keeps C11's settle-time rank.
     const previousClose = meta?.observationRelation === 'previous-completed-close' || meta?.valueBasis === 'previous-completed-close';
     const rank = sessionDated && previousClose && close != null ? 0 : minute == null ? null : settleRank(minute, close);
     const held = rankOf.get(date);
     if (byDate.has(date) && rank != null && held != null && rank > held) continue; // C11: an earlier stamp sits closer to the settle
-    // v58.74 (audit: F&G 10/16 showed 18; the recorded close is 22.07): a field without a settle time (F&G) took the later row, so the Saturday live
-    // reading re-dated to Friday replaced CNN's own historical close for that day. A historical-graph value
-    // (allowedUse 'reference-history') is that day's record; a live reading never overwrites it.
     const recorded = meta?.allowedUse === 'reference-history';
     if (close == null && byDate.has(date) && historyOf.get(date) && !recorded) continue;
     historyOf.set(date, recorded || !!historyOf.get(date));
@@ -150,8 +114,6 @@ export function closeBasis(history = []) {
   return spx.length ? spx[spx.length - 1].date : null;
 }
 
-// P1533: US sessions after `from` up to `to` on the registered exchange calendar. Weekday-only counting read a market
-// holiday as a missed session (2026-07-01 -> 07-06 counted 3 and dropped a one-session-old input as stale).
 const sessionsBetween = (from, to) => countOpenSessionsBetween(from, to, 'US');
 
 /** How one input's observation date relates to the basis: aligned · lagged · stale · ahead · missing. */
@@ -176,14 +138,6 @@ export function alignmentLabel(alignment) {
   return `${day}, 오래됨(판정 제외)`;
 }
 
-// P1428 (Codex review): n observations are n sessions only when no day is missing. If the session span
-// to that point exceeds n plus holiday slack, the producer skipped days and the "5일/20일" change is
-// withheld rather than silently covering a longer period. T19: a Korean series counts KRX sessions.
-// T01: "n일" is n sessions, not n rows — the point is the first observation at least n sessions back (a missing
-// session falls back to the next earlier one inside the slack). A complete series gives the same point as before.
-// v57.50 C12: exported so every "n거래일 변화" (home KPI trend, rates/FX) counts sessions the same way.
-// v58.69 (live 2026-10-23): a one-session change needs the previous session itself. The two-session slack let "1일"
-// read 10/20→10/22 when the 10/21 close was missing (briefing S&P 500 -0.6% for -1.21%, Nasdaq -1.6% for -2.6%).
 export function sessionPointBack(series, n, market = 'US') {
   const last = Array.isArray(series) ? series[series.length - 1] : null;
   if (!last) return null;
@@ -214,18 +168,13 @@ export function closeMoveBetween(history, field, from, to, { exactTo = false } =
   return { from: start.value, to: end.value, fromDate: start.date, toDate: end.date, pct: (end.value / start.value - 1) * 100 };
 }
 
-// v57.50 D05/D20: where a value sits in AIO's own recorded history of that series (mid-rank percentile, the regime
-// radar's convention), with the record length. A fixed textbook line (분배일 5회, 시장 폭 40/60%) can be crossed on half
-// of all recorded days; the percentile says how unusual today is in this sample. Fewer than 252 records is provisional.
 export const RECORD_FULL_YEAR = 252;
 export function recordPercentile(series, value = null, { window = RECORD_FULL_YEAR } = {}) {
   const points = (Array.isArray(series) ? series : []).filter((point) => Number.isFinite(point?.value)).slice(-window);
   const current = finite(value) ?? points.at(-1)?.value ?? null;
   if (current == null || points.length < 20) return { n: points.length, pct: null, provisional: true };
   const below = points.filter((point) => point.value < current).length;
-  // v59.45 (PASS16 candidate): a value outside the sample is ranked against all of it — v59.59: shared/percentile.js.
   const pct = Math.round(percentileOf(points.map((point) => point.value), current));
-  // v57.81: 1 of 252 rounds to 0%, which read as 최저 for the second-lowest value; the extremes are rank facts.
   const above = points.filter((point) => point.value > current).length;
   return { n: points.length, pct, provisional: points.length < RECORD_FULL_YEAR, lowest: below === 0, highest: above === 0, lowRank: below + 1, highRank: above + 1 };
 }

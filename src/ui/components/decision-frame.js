@@ -32,8 +32,6 @@ export function decisionFrameBlock(doc, frame, { method = '', side = true } = {}
   const sideLine = side ? favouredLine(doc, frame) : null;
   if (sideLine) box.append(sideLine);
   if (text.conflict) box.append(el(doc, 'p', text.conflict, 'df-line is-conflict'));
-  // (owner 2026-11-20, face never folded) 기회비용, 틀렸을 때 and 맞바꾸는 것 are the reading — on the face; the
-  // sample, the ground kind and the method are the record behind it — one raw-table fold.
   const legs = el(doc, 'dl', null, 'df-legs');
   legs.append(el(doc, 'dt', '기회비용'), el(doc, 'dd', text.opportunity.join(' · ')), el(doc, 'dt', '틀렸을 때'), el(doc, 'dd', text.wrong.join(' · ')));
   if (text.tradeoff) legs.append(el(doc, 'dt', '맞바꾸는 것'), el(doc, 'dd', text.tradeoff));

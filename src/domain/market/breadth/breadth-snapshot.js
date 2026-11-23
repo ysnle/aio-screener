@@ -1,10 +1,6 @@
-// P1620: one completed session and one history producer; never combine snapshot counts with history ratios.
 import { buildCloseSeries, closeBasis } from '../session/close-series.js';
 import { historyFieldMeta } from '../indices/history-meta.js';
 
-// v57.54: breadth comes from the screener lane, which can land hours after the S&P 500 close. Rather than blank the
-// cards in that window (and fail the same-session gate in CI, holding deploys), the previous session is shown — still
-// one session, never mixed — labelled with its own date and the close it has not caught up to (laggingFrom).
 const MAX_LAG_DAYS = 4; // a weekend plus one holiday; anything older is not "the previous session"
 export function buildBreadthSnapshot(history = []) {
   const basis = closeBasis(history);

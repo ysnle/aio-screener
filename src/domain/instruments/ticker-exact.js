@@ -1,11 +1,3 @@
-// v58.56 (re-audit #4): 13F rows name a security by CUSIP and the filer's own issuer text ("BANK OF AMER CORP").
-// A ticker is attached only where a CUSIP maps to exactly one listed symbol — the curated reference crosswalk
-// (public-data/masters/security-master-reference.json) or an OpenFIGI CUSIP lookup collected in Actions
-// (scripts/collect-13f-figi-tickers.mjs). Nothing here guesses a ticker from a name. Rows without an exact match
-// keep their SEC name, only made readable (case and the standard 13F abbreviations).
-//
-// Pure: no DOM, no fetch. Used by the runtime builder (Node) and the Masters page (browser).
-
 export const EXACT_TICKER_RE = /^[A-Z]{1,5}(?:-[A-Z]{1,2})?$/;
 
 // Reference records that describe a fund family or a "filing key" rather than one listed security are not a

@@ -1,10 +1,3 @@
-// v59.44 (owner 2026-10-30, X bookmarks 10/30: Alphabet fell on negative quarterly free cash flow and Amazon on capex —
-// "the market is pricing cash, not growth"): the screener's two cash conditions, read from the latest filed fiscal year in
-// the SEC fiscal history (USD, the same rows 종목's 이익의 질 card reads). Observed filings only; no year is estimated.
-// Lenders, insurers and REITs (financial-kind.js, the fiscal read's own rule) are left out: their operating cash flow
-// less capex is not free cash flow.
-// v59.46 (structure pilot): the local reader read '' and false as 0, so a blank capex became "0% capex" and the whole
-// operating cash flow counted as free cash flow; values go through the shared reader.
 import { readNumber as finite } from '../shared/number.js';
 import { isoDay } from '../shared/session-date.js';
 import { FRESHNESS_POLICY } from '../shared/freshness-policy.js';

@@ -1,11 +1,4 @@
-// v59.17 (roadmap 11, layer 2 quality/evidence): the data validation stores moved out of js/aio-core.js unchanged —
-// PriceStore (quotes), MacroStore (FRED), NewsStore (dedup/feeds), DataHealth (their combined report) and SnapshotStore
-// (static snapshot seeds). The classic scripts keep reading them as window globals; src/app/compatibility-globals.js
-// installs them before any fetch runs. The `window` parameter keeps the moved bodies identical.
 export function installValidationStores(window = globalThis) {
-  // ═══════════════════════════════════════════════════════════════════
-  // v31.8: DATA VALIDATION STORES — 데이터 정확성/최신성/신뢰성 검증 레이어
-  // ═══════════════════════════════════════════════════════════════════
 
   // ── 1. PriceStore — 시세 데이터 검증 저장소 ──
   const PriceStore = {
@@ -18,7 +11,6 @@ export function installValidationStores(window = globalThis) {
     /** 시세 데이터 저장 (검증 후) */
     set(sym, price, pct, source, opts) {
       opts = opts || {};
-      // v46.4: symbol 유효성 검증
       if (!sym || typeof sym !== 'string' || sym.trim() === '') {
         this._reject(sym, price, source, 'invalid_symbol', '심볼 빈값/비문자열');
         return false;
@@ -241,7 +233,7 @@ export function installValidationStores(window = globalThis) {
       const result = [];
       for (const a of articles) {
         this._stats.total++;
-        const key = window._aioNewsStories ? window._aioNewsStories.key(a) : JSON.stringify([a.source, a.link || a.url || a.guid, a.title, a.desc, a.pubDate]); // P1601: query ids and changed versions remain distinct.
+        const key = window._aioNewsStories ? window._aioNewsStories.key(a) : JSON.stringify([a.source, a.link || a.url || a.guid, a.title, a.desc, a.pubDate]);
         if (key && this._seen.has(key)) { this._stats.duplicates++; continue; }
         const title = a.title || '';
         if (title.trim().length < 5) { this._stats.filtered++; continue; }

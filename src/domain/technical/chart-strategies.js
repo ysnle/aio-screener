@@ -1,9 +1,3 @@
-// v58.79 (owner 2026-10-25, chart review): three things the chart screen did not say plainly — which way the trend runs and
-// whether it is turning, how the same chart reads under different trading styles (so a reader picks the logic that fits
-// them), and what a reward-to-risk ratio means in win-rate terms. Every input is a completed daily bar or a field the chart
-// analysis and the price-level map already computed; met counts are counts, not probabilities, and no price here is a
-// proposed entry, stop or target (R724) — each style names its own published rule; this stock's prices stay in the level
-// map (v59.46 P24-PRODUCT-01).
 import { swingPoints } from './price-levels.js';
 import { priorVolumeAverage } from './definitions.js';
 import { RULES } from '../rules/thresholds.js';
@@ -76,8 +70,6 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
     const known = conditions.filter(([, ok]) => ok != null);
     return { ...style, conditions, met: known.filter(([, ok]) => ok).length, known: known.length, total: conditions.length, ...rules };
   };
-  // Feature audit 2026-11-02: a pivot exists for any swing high; chart-analysis gates every breakout state on a valid
-  // contraction run, so the lens counts the pivot only when the VCP is valid (else it is just the latest swing high).
   const pivot = analysis.vcp?.valid === true ? analysis.pivot : null;
   return [
     pack(STRATEGY_STYLES[0], [
@@ -86,9 +78,6 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       [`피벗까지 5% 이내 또는 막 돌파${pivot > 0 ? ` (피벗 ${fmt(pivot)})` : ''}`, pivot > 0 ? close >= pivot * 0.95 && close <= pivot * 1.05 : null],
       ['최근 10일 거래량이 50일 평균의 80% 미만(마름)', analysis.dryUp == null ? null : analysis.dryUp < 0.8],
       ['상대강도선이 1년 고점 근처(-5% 이내)', analysis.rsFromHigh == null ? null : analysis.rsFromHigh >= -5]
-    // v59.46 P24-PRODUCT-01 (R724): stop/target/invalidation are the style's published rule only. This stock's prices
-    // (pivot, EMA, 50/200-day, swing points, volume zones) sit in the level map; the lens no longer writes them into a
-    // stop or target slot, and no rule tells the reader to sell — it says what the style's practitioners do.
     ], {
       stop: '피벗 아래로 다시 들어오거나 마지막 수축 저점 아래 종가 — 이 방식은 보통 진입가의 5~8% 안에 둡니다',
       target: '베이스 깊이만큼의 측정 이동폭, 또는 감수한 위험 폭의 2~3배 구간에서 이익 일부를 확정하는 것이 이 방식의 규칙입니다',
@@ -124,7 +113,6 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
       target: '21일 EMA 또는 50일선까지의 되돌림 — 이 방식은 반등을 추세 전환으로 보지 않습니다',
       invalidation: '새 저점 종가, 또는 반등이 21일 EMA 앞에서 거래량 없이 꺾임'
     })
-  // v59.45 R4-02: a condition without data is unknown, not unmet — a lens with 0 of 4 checkable read "조건이 맞지 않음".
   ].map((lens) => ({ ...lens, note: lens.known === 0 ? '조건을 확인할 자료가 없음'
     : lens.met === lens.total ? '조건이 모두 맞는 방식'
       : lens.met === 0 ? (lens.known < lens.total ? `확인된 ${lens.known}개 조건 중 맞는 것 없음` : '지금은 이 방식의 조건이 맞지 않음') : null, rsiHot: hot }));

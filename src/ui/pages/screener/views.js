@@ -1,8 +1,6 @@
 // Screener views: 순위 / 사후 검증, and 보기 — one choice that sets the ranking weights and the table's columns together.
 import { PROFILE_DESCRIPTIONS } from './model.js';
 
-// v59.70 (S12): the five weight profiles and the column presets were two menus; 보기 is one. Each weight view shows the
-// columns that weight reads (모멘텀 → the chart-trader columns, 가치 → the filing figures, 저리스크 → range and liquidity).
 export const VIEW_PRESETS = Object.freeze({
   balanced: { label: '균형', columns: 'overview' },
   momentum: { label: '모멘텀', columns: 'discovery' },

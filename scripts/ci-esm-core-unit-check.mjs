@@ -2768,7 +2768,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const consensusRow = { asOf: '2026-10-13T22:00:00Z', fwd: { from: '2026-10', to: '2027-07', eps: 11.91, hi: 13.11, lo: 11, minEstimates: 11, up4w: 2, down4w: 0 }, trailing: { from: '2025-10', to: '2026-07', eps: 6.9 } };
   const consensusPoint = consensus.buildConsensusPoint({ valuationPrice: 226.32, factorSessionDate: '2026-10-12' }, consensusRow, { now: consensusNow });
   if (!consensusPoint || Math.abs(consensusPoint.fwdPe - 19.0) > 0.05 || Math.abs(consensusPoint.trailingPe - 32.8) > 0.05 || Math.round(consensusPoint.growth) !== 73
-    || !/^Forward PER 약 19\.0배, 직전 4개 분기 조정 기준 32\.8배, 예상 이익 \+73% — 종가 \$226\.32\(2026-10-12\)/.test(consensusPoint.text) || !/정점 근처/.test(consensusPoint.text) || !/점수에는 쓰지 않습니다/.test(consensusPoint.text) || consensusPoint.tone !== 'favorable') fail(`v57.54 forward PER reading drifted: ${JSON.stringify(consensusPoint)}`);
+    || !/^Forward PER 약 19\.0배, 직전 4개 분기 조정 기준 32\.8배, 예상 이익 \+73% — 종가 \$226\.32\(2026-10-12\)/.test(consensusPoint.text) || /정점 근처/.test(consensusPoint.text) /* v60.50: the caution moved to priced-in.js (ci-stock-reading-defects-check §9) */ || !/점수에는 쓰지 않습니다/.test(consensusPoint.text) || consensusPoint.tone !== 'favorable') fail(`v57.54 forward PER reading drifted: ${JSON.stringify(consensusPoint)}`);
   if (consensus.consensusView({ valuationPrice: 226.32 }, { ...consensusRow, asOf: '2026-09-01T00:00:00Z' }, { now: consensusNow }) !== null
     || consensus.consensusView({}, consensusRow, { now: consensusNow }) !== null || consensus.consensusView({ valuationPrice: 10 }, { unavailable: true }, { now: consensusNow }) !== null) fail('v57.54 stale, priceless or unavailable consensus must read as nothing');
   const lossView = consensus.consensusView({ valuationPrice: 10, factorSessionDate: '2026-10-12' }, { ...consensusRow, fwd: { ...consensusRow.fwd, eps: -0.4 } }, { now: consensusNow });
@@ -5309,11 +5309,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6%, 원전\/독립발전 -5\.7%/.test(split.splitLines[0]) || stale.available)
     fail(`v58.68 market flow wrong: ${JSON.stringify({ flow: [flow.kind, flow.line, flow.read], broad: [broad.kind, broad.tenYearBp], split: split.splitLines, stale: stale.available })}`);
   // v58.74: the boot-set copy of the AI chain equals the AI capex layers (minus the broad industrials theme).
-  const { AI_CHAIN_THEMES, AI_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/market-flow.js')).href);
+  const { AI_CAPEX_CHAIN_THEMES, AI_CAPEX_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/market-flow.js')).href);
   const { AI_CAPEX_FLOW } = await import(pathToFileURL(path.join(root, 'src/domain/themes/ai-capex-flow.js')).href);
   const capexThemes = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.themes || []).filter((id) => id !== 'industrials'))].sort();
   const capexGroups = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.groups || []))].sort();
-  if (JSON.stringify([...AI_CHAIN_THEMES].sort()) !== JSON.stringify(capexThemes) || JSON.stringify([...AI_CHAIN_GROUPS].sort()) !== JSON.stringify(capexGroups))
+  if (JSON.stringify([...AI_CAPEX_CHAIN_THEMES].sort()) !== JSON.stringify(capexThemes) || JSON.stringify([...AI_CAPEX_CHAIN_GROUPS].sort()) !== JSON.stringify(capexGroups))
     fail(`v58.74 AI chain copy drifted from AI_CAPEX_FLOW: ${JSON.stringify({ capexThemes, capexGroups })}`);
   // v58.74: a sub-theme whose members split (MU up, SNDK/WDC/STX down) is named, AI-chain sub-themes first.
   const memberThemes = [{ id: 'semiconductor', nameKr: '반도체', subThemes: [{ name: '메모리/스토리지', tickers: ['MU', 'SNDK', 'WDC', 'STX'] }] },
@@ -7771,11 +7771,11 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
   if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
   // v59.75 (macro audit 11/7): with no live quote the fold reads the last completed close of each currency, named as a close.
-  // Only the label day's closes show (USD/CNY's older 11/5 close stays out), and a close over ten days old is no fallback.
+  // v60.50: each currency shows its own last close with that close's date (USD/CNY's 11/5), and a close over ten days old is no fallback.
   const fxHistory = [{ date: '2026-11-05', eurusd: 1.1512, usdcny: 7.1234 }, { date: '2026-11-06', eurusd: 1.1544 }];
   const fxNow = Date.parse('2026-11-08T00:00:00Z');
   const fxFallback = describeOtherFx({}, fxHistory, fxNow);
-  if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['CNY=X'] || fxFallback.closes['GBPUSD=X']
+  if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['CNY=X']?.date !== '2026-11-05' || fxFallback.closes['GBPUSD=X']
     || describeOtherFx({}, [], fxNow).text !== '시세 대기' || describeOtherFx({}, fxHistory, Date.parse('2026-11-20T00:00:00Z')).text !== '시세 대기') fail(`v59.75 other-currency fold falls back to the label day's completed closes: ${JSON.stringify(fxFallback)}`);
   // v59.75 (review): the fold currencies keep four places from the provider bar and file a summer 23:00Z bar on its London day.
   const { dailyRowsFromYahooChart } = await load('src/domain/screener/price-factors.js');
@@ -8040,19 +8040,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v60.16 a composite rank carries its sample (a 125-day ratio on a 290-session record ranks over ~166, not a year): ${JSON.stringify({ momentum, volatility })}`);
   const { sentimentReadOf } = await load('src/domain/briefing/market-read.js');
   if (!sentimentReadOf(rows).composite.components.every((row) => row.status !== 'ok' || Number.isFinite(row.sample))) fail('v60.16 the sentiment read sees each rank sample');
-  // The story's credit clause prints the window that set its kind, and CCC running ahead of HY is not 'calm'.
-  const { creditLead } = await load('src/domain/market/story/market-story.js');
-  const hy = { bp: -10, toDate: '2025-11-25' };
-  const lines = {
-    month: creditLead({ kind: 'widening', hy, judgement: { hy20: 28, cause: {} } }),
-    week: creditLead({ kind: 'widening', hy: { ...hy, bp: 18 }, judgement: { hy20: 28, cause: {} } }),
-    level: creditLead({ kind: 'stress', hy, judgement: { hyBp: 470, hy20: 12, cause: { level: true } } }),
-    tail: creditLead({ kind: 'weak-tail', hy: { ...hy, bp: -28 }, cccTail: false, judgement: { lowerRated: true } }),
-    calm: creditLead({ kind: 'calm', hy, judgement: {} })
-  };
-  if (!/20거래일 \+28bp 벌어져 경계/.test(lines.month) || /-10bp/.test(lines.month) || !/^하이일드가 \+18bp 벌어져/.test(lines.week) || !/4\.70%로 부담 기준/.test(lines.level) || /-10bp 벌어져/.test(lines.level)
-    || !/CCC 등급이 석 달째/.test(lines.tail) || /신용 불안은 아닙니다/.test(lines.tail) || !/-10bp로 신용 불안은 아닙니다/.test(lines.calm))
-    fail(`v60.16 the story credit clause names the window that set it: ${JSON.stringify(lines)}`);
+  // v60.50: the week card's credit clause (creditLead, v60.16) moved to the opening read's diagnosis, which names the
+  // spread level against the credit axis's stress line and the five-session speed (scripts/ci-market-story-check.mjs).
+  const storyModule = await load('src/domain/market/story/market-story.js');
+  if ('creditLead' in storyModule || typeof storyModule.diagnoseFall !== 'function') fail('v60.50 the story credit clause lives in the opening diagnosis (diagnoseFall), not a second creditLead');
   // Depth read-outs (reference only): a Zweig thrust on the advancing share, credit against equity, the stock–bond
   // correlation sign and the variance premium, as one row under the paired readings.
   const depth = await load('src/domain/market/regime/depth-readouts.js');
@@ -8161,15 +8152,19 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!(ids.indexOf('screener') >= 0 && ids.indexOf('screener') < ids.indexOf('stock'))) fail(`v59.55 hub order must put screener before stock: ${ids}`);
   const { buildTickerStart, chipLabel } = await load('src/ui/components/ticker-start.js');
   if (chipLabel('LYFT', 'Lyft') !== 'LYFT Lyft' || chipLabel('MU', 'Micron Technology') !== 'MU Micron Technology' || chipLabel('XYZ', 'XYZ') !== 'XYZ') fail(`v60.18 a chip names the company unless the name is the symbol: ${chipLabel('LYFT', 'Lyft')}`);
+  // v60.50: the gate reads the 200-day distance and the five-session move in daily ranges; EEE (under its 200-day line)
+  // outranks both but is not offered.
+  const trend = { pctSma200: 8, ret5d: 1, adrPct: 2 };
   const rows = [
-    { sym: 'AAA', name: 'A Co', rank: 90, screenStatus: 'passed' },
-    { sym: 'BBB', rank: 99, screenStatus: 'excluded' },
-    { sym: '005930.KS', rank: 99, screenStatus: 'passed' },
-    { sym: 'CCC', rank: 95, screenStatus: 'passed' },
-    { sym: 'DDD', rank: null, screenStatus: 'passed' }
+    { sym: 'AAA', name: 'A Co', rank: 90, screenStatus: 'passed', ...trend },
+    { sym: 'BBB', rank: 99, screenStatus: 'excluded', ...trend },
+    { sym: '005930.KS', rank: 99, screenStatus: 'passed', ...trend },
+    { sym: 'CCC', rank: 95, screenStatus: 'passed', ...trend },
+    { sym: 'DDD', rank: null, screenStatus: 'passed', ...trend },
+    { sym: 'EEE', rank: 100, screenStatus: 'passed', ...trend, pctSma200: -4 }
   ];
   const model = buildTickerStart({ holdings: [{ symbol: 'aaa' }], watchlist: ['ccc', 'AAA'], rows, limit: 5 });
-  if (JSON.stringify(model.top.map((row) => row.symbol)) !== '["CCC","AAA"]') fail(`v59.55 ticker start top rows: ${JSON.stringify(model.top)}`);
+  if (JSON.stringify(model.top.map((row) => row.symbol)) !== '["CCC","AAA"]') fail(`v59.55 ticker start top rows (v60.50 EEE under its 200-day line held): ${JSON.stringify(model.top)}`);
   if (JSON.stringify(model.mine.map((row) => row.symbol)) !== '["AAA","CCC"]' || model.mine[0].name !== 'A Co') fail(`v59.55 ticker start 내 종목: ${JSON.stringify(model.mine)}`);
 }
 

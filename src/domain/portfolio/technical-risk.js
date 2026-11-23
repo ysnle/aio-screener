@@ -1,11 +1,3 @@
-// The holding-level technical risk read — moved from js/aio-core.js calcSellPressure,
-// calcPositionTechnicalRisk and calcPortfolioTechnicalRisk. The concentration tier is concentration.js's
-// concentrationPenaltyForWeight (P758), the technical input is technical/snapshot.js. The holding-level read is the
-// legacy one, pinned by architecture/fixtures/technical-snapshot-golden.json; the book-level read is value-weighted
-// over the scored positions (below). The 포트폴리오 panel (js/aio-ui.js
-// renderPortfolioTechnicalRisk) shows the action as a load level, not an instruction.
-// The legacy names calcSellPressure / calcPositionTechnicalRisk / calcPortfolioTechnicalRisk are installed from here by
-// src/app/legacy-screen-bridges.js.
 import { technicalSnapshot } from '../technical/snapshot.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
 import { readNumber } from '../shared/number.js';

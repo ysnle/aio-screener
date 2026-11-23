@@ -1,8 +1,3 @@
-// v58.71 (owner 2026-10-23: "텔레그램 데이터들은 AI 채팅 시스템이랑도 연결할 부분이 있나?"): the chat saw channel posts only
-// on the news/theme pages and only as 120-character summaries, so "META 목표주가 바뀌었어?" on a stock page got nothing.
-// The digest `signals` (scripts/lib/telegram-signals.mjs) are joined here: for the tickers in the question, every
-// reported target-price/rating action and quarter; for a market question, the latest releases against forecast and the
-// retail leverage share. Each line is a relayed report — the chat cites it as "리서치 채널 보도", not as AIO data.
 import { NARRATIVE_WINDOW_HOURS } from '../../domain/narrative/narratives.js';
 
 const DIRECTION = { raise: '상향', cut: '하향', hold: '유지', initiate: '신규', set: '제시' };

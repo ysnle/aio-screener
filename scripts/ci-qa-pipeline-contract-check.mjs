@@ -382,10 +382,10 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
   for (const gate of group.gates || []) {
     ids.push(gate.id);
     check(`${groupName}/${gate.id} script exists`, existsSync(gate.script));
-    // v60.46 (static-dynamic audit rec. 8): every gate says whether its verdict depends on the data a producer writes,
-    // so a data run can skip the code gates (scripts/lib/qa-live-data.mjs runsInDataRun). A gate without a class runs in
-    // data runs, but registering one is refused here, so the choice is made when the gate is added.
-    check(`v60.46 ${groupName}/${gate.id} declares inputClass (${GATE_INPUT_CLASSES.join('|')})`, GATE_INPUT_CLASSES.includes(gate.inputClass));
+    // v60.46 (static-dynamic audit rec. 8): every gate says whether its verdict depends on the data a producer writes.
+    // v60.50: the class is `code` or `data`; `mixed` and an undeclared gate are refused (a script holding both kinds
+    // splits them into sections, scripts/lib/gate-sections.mjs, and is declared `data`).
+    check(`v60.50 ${groupName}/${gate.id} declares inputClass code or data (${GATE_INPUT_CLASSES.join('|')}), never mixed`, GATE_INPUT_CLASSES.includes(gate.inputClass) && gate.inputClass !== 'mixed');
     // Optional `remedy`: a one-line next action printed by qa-runner on FAIL (never part of the fingerprint).
     if ('remedy' in gate) check(`R690 ${groupName}/${gate.id} remedy is a non-empty one-line string`, typeof gate.remedy === 'string' && gate.remedy.trim().length > 0 && !/[\r\n]/.test(gate.remedy));
     // Optional `weight`: pool budget units for heavy browser gates (default 1).
@@ -864,6 +864,82 @@ for (const group of Object.values(manifest.groups)) {
       check(`P1518/R690 ${gate.id} cache covers literal read ${file}`, inputMatches(file, gate.inputs || group.inputs || []));
     }
   }
+}
+
+// v60.50 (data-path split): in a data run only assertions over producer-written artifacts execute.
+// (a) Static, through the real runner's selection: the gates each producer lane runs before its push (and the reduced CI
+//     of its data commit runs) are all declared `data`, and every lane selects at least one.
+// (b) Dynamic, through the real runner: a sectioned fixture gate run as a data run executes its data section and not its
+//     code section, and says how many it skipped; the same gate outside a data run executes both.
+// (c) Negative control (P2749): the pre-fix ci-ai-intelligence-contract-check.mjs failed on every Monday (UTC) in the
+//     refresh lanes; its gate is `code` now, so no lane's data run selects it.
+{
+  const { spawnSync } = await import('node:child_process');
+  const { mkdtempSync, rmSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join, resolve } = await import('node:path');
+  const { SECTION_READS } = await import('./lib/gate-sections.mjs');
+  const runner = (args, env = {}) => spawnSync(process.execPath, ['scripts/qa-runner.mjs', ...args], { encoding: 'utf8', env: { ...process.env, GITHUB_ACTIONS: '', ...env } });
+  const allGates = new Map(Object.values(manifest.groups).flatMap((group) => group.gates || []).map((gate) => [gate.id, gate]));
+  const laneSelections = {};
+  for (const origin of Object.keys(manifest.originScopes || {})) {
+    const listed = runner(['data-commit', '--origin', origin, '--list']);
+    let selection = null;
+    try { selection = JSON.parse(listed.stdout); } catch (_) { /* reported below */ }
+    const notData = (selection?.gates || []).filter((gate) => gate.inputClass !== 'data').map((gate) => gate.id);
+    laneSelections[origin] = selection?.gates || [];
+    check(`v60.50 the ${origin} data run selects only data gates`, listed.status === 0 && selection?.dataRun === true && selection.gates.length > 0 && notData.length === 0,
+      `status=${listed.status} notData=${notData.join(',')} ${String(listed.stderr || '').slice(-200)}`);
+  }
+  // The producers' own data-group step (`--group data --data-run`) selects by the same rule.
+  const dataGroup = runner(['--group', 'data', '--data-run', '--list']);
+  let dataSelection = null;
+  try { dataSelection = JSON.parse(dataGroup.stdout); } catch (_) { /* reported below */ }
+  laneSelections['data-group'] = dataSelection?.gates || [];
+  check('v60.50 the producer data-group step selects only data gates', dataGroup.status === 0 && (dataSelection?.gates || []).length > 0 && dataSelection.gates.every((gate) => gate.inputClass === 'data'));
+  check('v60.50 every gate a data run selects resolves to a declared data gate in the manifest',
+    Object.values(laneSelections).flat().every((gate) => allGates.get(gate.id)?.inputClass === 'data'));
+
+  // (b) the sectioned fixture gate through the real runner, data run and full run.
+  check('v60.50 a section declares code or data', JSON.stringify(SECTION_READS) === JSON.stringify(['code', 'data']));
+  const dir = mkdtempSync(join(tmpdir(), 'aio-data-path-'));
+  try {
+    const marker = (name) => join(dir, `${name}.ran`);
+    const fixtureGate = join(dir, 'sectioned-gate.mjs');
+    writeFileSync(fixtureGate, [
+      `import { writeFileSync } from 'node:fs';`,
+      `import { runSections } from ${JSON.stringify(new URL('./lib/gate-sections.mjs', import.meta.url).href)};`,
+      `await runSections('sectioned-fixture', [`,
+      `  ['code-part', () => writeFileSync(${JSON.stringify(marker('code'))}, '1'), 'code'],`,
+      `  ['data-part', () => writeFileSync(${JSON.stringify(marker('data'))}, '1'), 'data'],`,
+      `]);`,
+    ].join('\n'));
+    const fixtureManifest = join(dir, 'manifest.json');
+    writeFileSync(fixtureManifest, JSON.stringify({ schemaVersion: manifest.schemaVersion, cacheVersion: manifest.cacheVersion, profiles: { full: ['data'] },
+      impactRules: [], groups: { data: { phase: 1, kind: 'static', cache: false, inputs: [], gates: [{ id: 'sectioned-fixture', inputClass: 'data', script: resolve(fixtureGate) }] } } }));
+    const fixtureRun = (extra) => {
+      rmSync(marker('code'), { force: true });
+      rmSync(marker('data'), { force: true });
+      const run = runner(['--group', 'data', '--no-cache', ...extra], { AIO_QA_MANIFEST_PATH: fixtureManifest, AIO_QA_CACHE_DIR: join(dir, 'cache') });
+      return { status: run.status, out: `${run.stdout}\n${run.stderr}`, code: existsSync(marker('code')), data: existsSync(marker('data')) };
+    };
+    const dataRun = fixtureRun(['--data-run']);
+    check('v60.50 a data run executes the data section and skips the code section', dataRun.status === 0 && dataRun.data && !dataRun.code);
+    const direct = spawnSync(process.execPath, [fixtureGate], { encoding: 'utf8', env: { ...process.env, AIO_QA_DATA_RUN: '1' } });
+    check('v60.50 a gate names the code sections a data run skipped', direct.status === 0 && /data run: 1 code section\(s\) skipped: code-part/.test(direct.stdout));
+    const fullRun = fixtureRun([]);
+    check('v60.50 outside a data run the same gate executes both sections', fullRun.status === 0 && fullRun.data && fullRun.code, fullRun.out.slice(-400));
+    const undeclared = spawnSync(process.execPath, ['--input-type=module', '-e',
+      `import { runSections } from ${JSON.stringify(new URL('./lib/gate-sections.mjs', import.meta.url).href)}; await runSections('undeclared', [['x', () => {}]]);`], { encoding: 'utf8' });
+    check('v60.50 a section that declares no input fails its gate', undeclared.status === 1 && /declare no input/.test(undeclared.stderr), undeclared.stderr.slice(-200));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+
+  // (c) P2749 negative control.
+  const aiIntelligence = allGates.get('ai-intelligence');
+  check('v60.50 P2749 negative control: ai-intelligence (the Monday VIX fixture) is a code gate, absent from every lane\'s data run',
+    aiIntelligence?.inputClass === 'code' && Object.values(laneSelections).every((gates) => !gates.some((gate) => gate.id === 'ai-intelligence')));
 }
 
 if (errors.length) {

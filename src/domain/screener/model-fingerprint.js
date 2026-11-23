@@ -1,11 +1,3 @@
-// P1449 (P1443 follow-up): a validation claim is about THIS model. The stored backtest artifact
-// must therefore carry the identity of the model that produced it — rank model version, weight
-// model version, applied (renormalized) weights vector, active factors, price basis, rebalance
-// offsets, hold horizon and the modelled cost — and the UI may only say "지금 순위의 과거 검증"
-// when that identity matches the live model. Before this, two hand-written weight sets drifted
-// (37.0/27.4/21.9/13.7 vs 39.0/28.0/22.0/11.0 renormalized) while both artefacts claimed
-// "one model" (P584/C1), and the prose-only modelParity fields could be (and were) mis-read.
-// Pure module usable in both the producer (node) and the browser runtime.
 import { FACTOR_RANKS_MODEL_VERSION } from './factor-ranks.js';
 import { FACTOR_WEIGHTS_MODEL_VERSION, MODEL_DEFAULT_WEIGHTS } from './factor-weights.js';
 import { PRICE_FACTOR_MIN_CLOSES } from './price-factors.js';
@@ -13,10 +5,6 @@ import { PRICE_FACTOR_MIN_CLOSES } from './price-factors.js';
 // The backtest validates this 4-factor subset of the live model (size/value/quality are
 // documented exclusions — no point-in-time data; see fetch-data.mjs EXCLUDED_FACTORS_REASON).
 export const BACKTEST_ACTIVE_FACTORS = Object.freeze(['momentum', 'trend', 'lowvol', 'kalman']);
-// Why each live factor outside that subset is left out, as a reason code (the producer lists these keys as its
-// excluded factors; the page words the codes). 2026-11-18: quality's live inputs moved to the latest four quarters
-// (factor-ranks.js QUALITY_INPUT_BASIS); the quarter history is no more point-in-time than the fiscal year was, so the
-// reason and this fingerprint (which covers only the price factors) are unchanged.
 export const BACKTEST_EXCLUDED_FACTOR_REASONS = Object.freeze({
   size: 'no-historical-shares-outstanding',
   value: 'no-point-in-time-fundamentals',
@@ -45,7 +33,7 @@ export const BACKTEST_REBALANCE_OFFSETS = deriveRebalanceOffsets();
 export const BACKTEST_MIN_SERIES_CLOSES = BACKTEST_REBALANCE_OFFSETS[0] + 1;
 export const BACKTEST_PRICE_BASIS = 'adjusted-close-required';
 export const BACKTEST_TRANSACTION_COST_BPS = 20;
-export const RANKING_POPULATION_POLICY = 'market-separated.v1'; // P1625: US/KR percentile cohorts are independent.
+export const RANKING_POPULATION_POLICY = 'market-separated.v1';
 
 export function renormalizedWeightsOver(weights = MODEL_DEFAULT_WEIGHTS, activeFactors = BACKTEST_ACTIVE_FACTORS) {
   const vector = {};
@@ -123,11 +111,6 @@ export function buildScreenerModelFingerprint({
   return JSON.stringify(canonicalize(components));
 }
 
-// P1465: identity of a ranking as it was actually applied (the candidate archive records it per
-// day). Built from the ranking result itself — applied weights over the factors that were active —
-// so the archive and the screen compare the model that ran, not a declared default.
-// The factor definitions the ranking ran with (momentum/value/quality formulas) are part of the model: two rankings
-// with the same weights over different momentum formulas are different models.
 export function buildRankingIdentity({ appliedFactorWeights = null, activeFactors = null, factorDefinitions = null } = {}) {
   const active = Array.isArray(activeFactors) ? [...activeFactors].map(String).sort() : [];
   if (!active.length || !appliedFactorWeights || typeof appliedFactorWeights !== 'object') return null;
@@ -136,10 +119,6 @@ export function buildRankingIdentity({ appliedFactorWeights = null, activeFactor
   return JSON.stringify(canonicalize({ factorRanksModelVersion: FACTOR_RANKS_MODEL_VERSION, factorWeightsModelVersion: FACTOR_WEIGHTS_MODEL_VERSION, populationPolicy: RANKING_POPULATION_POLICY, activeFactors: active, appliedWeights: applied, ...definitions }));
 }
 
-// 2026-10-17 audit: a ranking over more than one market is one model per market (P1625). The candidate record pools
-// the US and KR rows, so its identity names every market's applied model; a KR-only model change used to leave the
-// identity (built from the US result alone) unchanged and mix two models in one average. A single-market ranking keeps
-// the buildRankingIdentity string exactly.
 export function buildPopulationRankingIdentity(ranking = null) {
   const byMarket = ranking?.byMarket && typeof ranking.byMarket === 'object' ? ranking.byMarket : null;
   const markets = byMarket ? Object.keys(byMarket).filter((market) => byMarket[market]?.available !== false).sort() : [];
@@ -149,10 +128,6 @@ export function buildPopulationRankingIdentity(ranking = null) {
   return Object.keys(parts).length ? JSON.stringify(canonicalize({ byMarket: parts })) : null;
 }
 
-// Live runtime model identity. The UI compares this with the artifact's stored fingerprint;
-// a mismatch means the stored rows were produced by a different model and must read as
-// disclosure, not validation. P1463: the identity is built from the weights the screen is
-// actually ranking with (a selected profile is a different model), not from the default.
 export function liveScreenerModelFingerprint(weights = null) {
   const live = weights && typeof weights === 'object' && Object.keys(weights).length ? weights : null;
   return buildScreenerModelFingerprint({ weights: live });

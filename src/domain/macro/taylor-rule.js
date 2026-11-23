@@ -1,16 +1,6 @@
-// v58.55 (개편 v2 3e): the Taylor-rule reference beside the 거시 rate strip. Taylor (1993):
-//   rule rate = r* + π + 0.5·(π − 2) + 0.5·(output gap)
-// π is core PCE year over year (the FOMC's 2% measure) and the output gap comes from Okun's law, gap ≈ -2 × (u − u*), with
-// u* = CBO's natural rate of unemployment (FRED NROU, quarterly). r* (the neutral real rate) is an assumption, not an
-// observation, so the reader picks 0.5% or 1.0% and the model also returns the rule across both. The result is a reference
-// point the policy rate is compared with — it never says what the Fed should or will do.
 import { seriesOf, yoySeries } from './macro-read.js';
 import { policyPricing } from './macro-read.js';
 
-// v58.56 (re-audit #14): the default r* is no longer a fixed pick but the FOMC's own dated estimate — the Summary of Economic
-// Projections' longer-run federal funds rate median (FRED FEDTARMDLR, one observation per SEP release) minus the 2% inflation
-// target. 0.5% and 1.0% stay as the alternatives a reader can switch to in the formula fold. Without a collected SEP value
-// the rule falls back to 0.5% and says so.
 export const TAYLOR_R_STAR_OPTIONS = Object.freeze([0.5, 1.0]);
 export const TAYLOR_R_STAR_SEP = 'sep';
 // SEP is published four times a year (Mar/Jun/Sep/Dec); a median older than ~4 months means a release was missed.
@@ -18,11 +8,8 @@ export const TAYLOR_SEP_MAX_AGE_DAYS = 120;
 export const TAYLOR_INFLATION_TARGET = 2;
 export const OKUN_COEFFICIENT = 2;
 const NEAR_PP = 0.25; // within one usual 25bp step the policy rate reads as "near" the rule
-// Round-2 review (v58.55): inputs from different periods describe no single moment. PCE lags UNRATE by one month and NROU is
-// dated at its quarter's first month, so up to 3 months apart is the normal release pattern; more means a feed fell behind.
 export const TAYLOR_MAX_INPUT_SPREAD_MONTHS = 3;
 const monthIndex = (date) => { const [y, m] = String(date).split('-').map(Number); return y * 12 + (m - 1); };
-
 
 function ruleRate(rStar, inflation, gap) {
   return rStar + inflation + 0.5 * (inflation - TAYLOR_INFLATION_TARGET) + 0.5 * gap;

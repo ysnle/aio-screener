@@ -61,7 +61,7 @@ const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowled
 const loaderError = await createAIKnowledgeRetriever({}).load().then(() => null, (error) => error);
 assert.ok(/knowledge_loader_unavailable/.test(String(loaderError?.message)), 'v59.87 the knowledge retriever needs the injected loader');
 console.log(JSON.stringify({ ok: true, section: 'screen-facts' }));
-}],
+}, 'code'],
 // ── section premise (was ci-ai-premise-check.mjs) ──
 ['premise', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -137,7 +137,7 @@ assert.equal(createQuestionPlan({ ...inputs, query: 'NVDA가 하락하면 어떻
 assert.equal(createQuestionPlan({ ...inputs, query: '오늘 NVDA 상승 하락 이유' }).premise.status, 'UNVERIFIED');
 assert.equal(createQuestionPremise({ query: '오늘 시장은?', assertions: [assertion], evidence: [row], now }).status, 'VERIFIED');
 console.log('PASS ai-premise: observed direction, zero, conflict, tuple identity, malformed evidence, unknown timeframe, proxy and planner integration');
-}],
+}, 'code'],
 // ── section analysis-evidence (was ci-ai-analysis-evidence-check.mjs) ──
 ['analysis-evidence', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -209,7 +209,7 @@ assert.ok(enriched.premise);
 assert.equal(original.premise, undefined);
 assert.ok(Object.isFrozen(enriched));
 console.log('PASS AI analysis evidence adapter: typed mapping, conflicts, time/unit isolation, missing-input boundaries, premise API');
-}],
+}, 'code'],
 // ── section quote-evidence (was ci-ai-quote-evidence-check.mjs) ──
 ['quote-evidence', async () => {
 const answerPublication = await import('../src/ai/response/publication.js');
@@ -389,7 +389,7 @@ assert.equal(duplicateConflict.length, 1, 'duplicate quote evidence IDs collapse
 assert.equal(duplicateConflict[0].status, 'conflict', 'conflicting duplicate quote tuples are rejected');
 
 console.log('PASS ai-quote-evidence: shared envelope tuple, observation/source/currency fail-closed rules, sibling consumer parity and duplicate conflict rejection');
-}],
+}, 'code'],
 // ── section quote-basis (v60.41): the chat states a confirmed close with its date on a closed market ──
 // Live failure 2026-11-21 (Saturday): "엔비디아 … 지금 주가는 52주 고점 대비 어디야?" was refused ("교차검증 상태가 차단") after
 // 39 s although _liveData.NVDA held the 2026-11-20 close: every ticker needed a 2-minute-old, cross-checked quote.
@@ -463,7 +463,7 @@ const chat = read('src/ui/chat/panel.js');
 assert.match(chat, /\[종목 가격 기준\][\s\S]{0,400}거부하지 않는다/, 'v60.41 the preflight block tells the model to state the close with its date');
 assert.doesNotMatch(chat, /quote-ok\x27 : \x27quote-missing\x27/, 'v60.41 the age/truth diagnostic line is gone');
 console.log('PASS v60.41 quote basis: close on a closed market, intraday rule while open, conflicts block, KRX session for Korean listings, no lookups for a close');
-}],
+}, 'code'],
 // ── section chat-analysis-integration (was ci-ai-chat-analysis-integration-check.mjs) ──
 ['chat-analysis-integration', async () => {
 const answerPublication = await import('../src/ai/response/publication.js');
@@ -609,7 +609,7 @@ assert.ok(/function chatFromChip\(ctxId, q\)[\s\S]{0,1200}return chatSendUnified
 assert.ok(boundaryKinds.filter(kind => kind === 'DOMAIN_ANALYSIS').length >= 4, 'all analysis contexts use the untrusted boundary');
 
 console.log('PASS ai-chat-analysis-integration: production helper, orchestrator premise states, period safety, the unified chat surface and limitation pipeline');
-}],
+}, 'code'],
 // ── section connection-access (was ci-connection-access-check.mjs) ──
 ['connection-access', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -649,7 +649,7 @@ assert.equal(selectPublicEarnings(calendar,'A','2026-10-12','2026-10-16').length
 assert.equal(selectPublicEarnings(calendar,'A','2026-10-20','2026-11-01'),null,'P1607 unknown future window is not an empty certified calendar');
 assert.equal(assessWorkerSetup({ai:{ready:true}},{}).dispatchConfigured,false,'P1607 AI readiness does not certify scheduler token');
 console.log('PASS P1607 shared connections, keyless SEC AI, no browser search path and calendar boundaries');
-}],
+}, 'code'],
 // ── section inference (was ci-inference-contract-check.mjs) ──
 ['inference', async () => {
 const { createInferredClaim, evaluateInferredClaim, validateInferredClaim } = await import('../src/ai/inference.js');
@@ -667,5 +667,5 @@ const highOneSource = createInferredClaim({ ...claim, confidence: 'HIGH', source
 if (validateInferredClaim(highOneSource).ok) throw new Error('[inference-contract] high confidence accepted with one source');
 if (validateInferredClaim({ ...claim, value: 42 }).ok) throw new Error('[inference-contract] exact numeric search value accepted');
 console.log(JSON.stringify({ ok: true, schemaVersion: claim.schemaVersion, sourceCount: claim.sourceCount, highConfidenceRequires: 2 }));
-}],
+}, 'code'],
 ]);

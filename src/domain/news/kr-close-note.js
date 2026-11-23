@@ -1,5 +1,3 @@
-// v58.74: an intraday KOSPI/KOSDAQ crash or surge headline ("코스피 5,500선 붕괴", 10/23 09:19 KST) carries that session's
-// completed close when the close reversed it (+0.30%), so it reads as the intraday move it was.
 import { signedText } from '../shared/number.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { countOpenSessionsBetween, resolveMarketCalendarSession } from '../market/session/market-calendar.js';
@@ -22,7 +20,7 @@ export function krIndexCloseNote(item, history = []) {
   const published = Date.parse(item?.pubDate || item?.publishedAt || item?.ts || '');
   if (!Number.isFinite(published)) return null;
   const { date, minute } = kstParts(published);
-  const session = resolveMarketCalendarSession({ market: 'KR', date }); // v58.82: 수능일 10:00-16:30
+  const session = resolveMarketCalendarSession({ market: 'KR', date });
   if (session.status !== 'open' || minute < hhmm(session.open) || minute >= hhmm(session.close)) return null;
   const field = kospi ? 'kospi' : 'kosdaq';
   const series = buildCloseSeries(history, field);

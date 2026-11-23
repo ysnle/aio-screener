@@ -1,9 +1,3 @@
-// P1425 (owner review 2026-10-03, 거시 screen rebuild): the 금리 · 환율 tab reads the official
-// Treasury par-yield cut, FRED real yield / breakeven / HY spread, and the dollar, won and yen on
-// the same completed-close basis as 시장 상태. It replaces fixed level verdicts (DXY >= 107 or
-// 10Y >= 5% = '높은 수준', 10Y >= 4.7% = '주식 압박') and the four-axis bull/bear count with the
-// observed level, its change and its date. The only rule shown is the one 시장 상태 already uses:
-// a yen rally of 3% or more in 20 sessions marks the FX axis as a burden.
 import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/session/close-series.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { RULES } from '../rules/thresholds.js';
@@ -25,7 +19,7 @@ export function tenYearClose(history, { through = null } = {}) {
   return { value: last.value, date: last.date, source: TEN_YEAR_SOURCE, d1Bp: bp(1), d5Bp: bp(5), d20Bp: bp(20), series };
 }
 
-export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct; // % in 20 sessions — the 시장 상태 FX-axis rule (P1428 registry)
+export const YEN_RALLY_RULE = RULES.fx.yenRally20dPct;
 const CHART_SESSIONS = 126; // about six months of completed sessions
 
 export const TREASURY_TENORS = Object.freeze([
@@ -36,14 +30,6 @@ export const TREASURY_TENORS = Object.freeze([
   Object.freeze({ id: 'dgs30', label: '30년', years: 30 })
 ]);
 
-// v57.50 (W1 request): the completed-close series on this tab (FX cards, ^TNX) count sessions with the 시장 상태 helper
-// `closeSessionPointBack` (market-read.js), so a "5일/20일" here is the same point as there — verified identical on every
-// close field × 1/5/20/63 sessions × 60 cut-offs of public-data/history.json (1,920 cases, 0 differences). This local
-// helper stays for series that are not completed-close rows (FRED daily observations, weekend-row inputs: on a Sunday
-// row the market-read helper returns that row, this one the Friday — the M01 fixture).
-// Expert review M01 (2026-10-13): a close series can carry a weekend row, so "20일" counted as 20 rows covered fewer
-// sessions. A change span is counted in exchange sessions instead: the point is the last observation on or before
-// the day that lies `sessions` open sessions before the latest observation (registered calendar; weekdays when unknown).
 export function sessionPointBack(series, sessions, market = 'US') {
   const last = series?.[series.length - 1];
   if (!last || !(sessions > 0)) return null;
@@ -62,9 +48,6 @@ export function sessionPointBack(series, sessions, market = 'US') {
   return found;
 }
 
-// v58.56 (re-audit #9): the curve's short and middle tenors. Today's points come from the same official Treasury cut as
-// the five core tenors (macro._treasury.values, parsed from the same XML entry), or else from FRED's H.15 series of the
-// same name on exactly that date; a tenor with neither is left out of the line rather than borrowed from another day.
 export const TREASURY_EXTRA_TENORS = Object.freeze([
   Object.freeze({ id: 'dgs1mo', label: '1개월', years: 1 / 12 }),
   Object.freeze({ id: 'dgs3mo', label: '3개월', years: 0.25 }),
@@ -90,8 +73,6 @@ export function extraTenorPoints(macro, macroHistory, asOf) {
   }).filter(Boolean);
 }
 
-// Expert review M22: no 3-month bill yield is collected, but T10Y3M (10-year minus 3-month, same H.15 constant-maturity
-// basis) is. On a day the official curve and that spread share, 3-month = 10-year - spread; on any other day no point.
 export function derivedThreeMonth(macroHistory, tenYear) {
   if (!tenYear?.asOf || tenYear.value == null) return null;
   const row = (macroHistory?.series?.t10y3m?.observations || []).find(([date]) => date === tenYear.asOf);
@@ -99,11 +80,6 @@ export function derivedThreeMonth(macroHistory, tenYear) {
   return spread == null ? null : { id: 'dgs3mo', label: '3개월', years: 0.25, value: Math.round((tenYear.value - spread) * 100) / 100, day: null, week: null, asOf: tenYear.asOf, derived: true };
 }
 
-// v58.55 (개편 v2 5e): the curve about one month (21 US sessions) before the official cut, drawn dashed behind it. The
-// Treasury XML feed keeps only the current month, so the earlier curve is read from FRED's H.15 constant-maturity series
-// (the same Treasury par yields) — on one common date, and only for tenors that exist on both dates. The 3-month point is
-// derived the same way as today's (10-year − T10Y3M on that date). A tenor whose history is not collected yet is listed
-// in `pending` instead of being guessed.
 export const CURVE_COMPARE_SESSIONS = 21;
 export function curveMonthAgo(macroHistory, yields = [], asOf = null) {
   if (!asOf) return null;
@@ -112,7 +88,6 @@ export function curveMonthAgo(macroHistory, yields = [], asOf = null) {
   const spread3m = obs('t10y3m');
   const valueOn = (row, date) => {
     const map = obs(row.id);
-    // v58.56: DGS3MO is collected now; the T10Y3M derivation stays only for history written before it.
     if (row.id === 'dgs3mo' && !map.has(date)) return ten.has(date) && spread3m.has(date) ? Math.round((ten.get(date) - spread3m.get(date)) * 100) / 100 : null;
     return map.has(date) ? map.get(date) : null;
   };
@@ -125,12 +100,6 @@ export function curveMonthAgo(macroHistory, yields = [], asOf = null) {
   return points.length >= 2 ? { date: target.date, points, pending } : null;
 }
 
-// Expertise review 2026-10-19: the page said only whether 2s10s was inverted. A rates desk reads which leg moved the
-// spread (bull = yields falling, bear = rising) and whether an inversion has just ended — the curve has typically
-// re-steepened out of inversion, often bull-led as the Fed is expected to cut, shortly before past U.S. recessions.
-// Both legs come from the FRED daily history paired by date; the span counts paired observations (one per session).
-// An un-inversion counts only after a sustained inversion (20+ consecutive sessions below zero; a one-day dip is noise) that
-// ended within the last ~6 months of sessions.
 export const CURVE_DYNAMICS_RULE = Object.freeze({ sessions: 20, minSpreadMoveBp: 10, minInvertedRun: 20, uninvertWithin: 130 });
 
 // The most recent sustained inversion that has ended: { start, end } where end is the first session back at or above zero.
@@ -161,15 +130,11 @@ function pairedObservations(macroHistory, shortKey, longKey) {
     .filter((row) => isoDate(row.date) && row.long != null && row.short != null);
 }
 
-// v58.72: `latest` is the official curve's cut ({ date, short, long }). FRED trails the Treasury feed by a session, so
-// without it the 20-session move ended a day before the curve drawn beside it (10/21 +17bp next to a 10/22 curve).
 export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest = null) {
   const rows = pairedObservations(macroHistory, 'dgs2', 'dgs10');
   if (latest && isoDate(latest.date) && finite(latest.short) != null && finite(latest.long) != null && (!rows.length || latest.date > rows[rows.length - 1].date)) rows.push({ date: latest.date, long: finite(latest.long), short: finite(latest.short) });
   if (rows.length <= rule.sessions) return null;
   const last = rows[rows.length - 1];
-  // v59.56 (screen review): "20거래일" is 20 NYSE sessions like every other 20-session figure. Counting paired FRED rows
-  // skipped bond-market holidays (Columbus Day), so 10/1→10/30 read 10년 -30bp beside 매크로's 10/2→10/30 -35bp.
   const from = sessionPointBack(rows, rule.sessions) || rows[rows.length - 1 - rule.sessions];
   const shortBp = Math.round((last.short - from.short) * 100);
   const longBp = Math.round((last.long - from.long) * 100);
@@ -210,7 +175,6 @@ export function curveDynamics(macroHistory, rule = CURVE_DYNAMICS_RULE, latest =
     longBp,
     spreadBp,
     kind,
-    // v58.74 (text audit): 2년 -18bp, 10년 -19bp read only as "no direction"; the whole curve moving together is a reading of its own.
     label: kind ? LABEL[kind] : parallel ? `기울기는 거의 그대로이고 곡선 전체가 약 ${parallel}bp 함께 ${shortBp < 0 ? '내렸습니다(평행 하락)' : '올랐습니다(평행 상승)'}` : `기울기 변화가 ${rule.minSpreadMoveBp}bp 미만이라 방향을 붙이지 않습니다`,
     fact,
     reading: kind ? READING[kind] : parallel ? (shortBp < 0 ? '단기와 장기 금리가 같이 내려, 정책 기대와 장기 요인이 같은 쪽(완화)으로 움직였습니다.' : '단기와 장기 금리가 같이 올라, 할인율 부담이 곡선 전체에 실렸습니다.') : null,
@@ -242,7 +206,6 @@ export const FX_SERIES = Object.freeze([
   Object.freeze({ id: 'usdjpy', label: '엔/달러', digits: 2, unit: '엔' })
 ]);
 
-
 function isoDate(value) {
   const text = String(value ?? '').slice(0, 10);
   return isIsoDay(text) ? text : null;
@@ -256,9 +219,6 @@ function bp(value) {
   return value == null ? null : Math.round(value * 100);
 }
 
-// Codex review 2026-10-05: a Treasury level can be newer than the FRED change published beside it
-// (10/2 level with the 10/1-9/30 change). A change is used only when the producer stamped it with the
-// level's own date, or when level and change both come from FRED.
 export function alignedRateDelta(macro, key, suffix = 'Delta') {
   const value = finite(macro?.[`${key}${suffix}`]);
   if (value == null) return null;
@@ -275,8 +235,6 @@ function treasury(macro) {
     asOf: isoDate(macro[`_asOf_${tenor.id}`])
   }));
   const dates = [...new Set(yields.map((row) => row.asOf).filter(Boolean))];
-  // v59.45 (P18-CURVE-01): every tenor needs its own date to be one cut, and the published 2s10s is used only on the date
-  // of its two legs — an older spread no longer overrides (or inverts) a newer curve.
   const sameCut = dates.length === 1 && yields.every((row) => row.value != null && row.asOf);
   const by = Object.fromEntries(yields.map((row) => [row.id, row]));
   const legsDate = by.dgs2?.value != null && by.dgs10?.value != null && by.dgs2.asOf && by.dgs2.asOf === by.dgs10.asOf ? by.dgs2.asOf : null;
@@ -293,14 +251,8 @@ function treasury(macro) {
     : inverted
       ? `2년물이 10년물보다 ${Math.abs(spread2s10s).toFixed(2)}%p 높습니다 (역전).`
       : `10년물이 2년물보다 ${spread2s10s.toFixed(2)}%p 높습니다 (양의 기울기).`;
-  // The New York Fed's term-spread research: inversions preceded most U.S. recessions since the
-  // 1960s, with a variable lead. It is a hypothesis about the economy, not a market timing rule.
-  // Macro audit 2026-10-17: the New York Fed's recession model reads 10-year minus 3-month, not this 2-year spread, so the
-  // sentence names the spread its research uses instead of lending it to 2s10s.
   const reading = inverted ? '과거 미국 경기침체 대부분에 앞서 장단기 금리 역전이 나타났습니다. 뉴욕 연준의 침체 확률 모형은 10년-3개월 금리차를 쓰며, 2년–10년 역전도 대부분의 침체에 앞섰습니다. 다만 시차가 일정하지 않아 시점 판단에는 쓰지 않습니다.' : null;
   const asOf = dates.length === 1 ? dates[0] : dates.sort().pop() || null;
-  // v57.50 C10: the curve's levels and 1-day/1-week changes are the Treasury's official cut on its own date, which can be
-  // a session or more behind the ^TNX close the 시장 상태 10-year "5일" change reads. The label carries the source and date.
   const [, month, day] = String(asOf || '').split('-').map(Number);
   const basisLabel = asOf ? `공식 국채 곡선, ${month}/${day} 기준` : null; // provider name lives in the sources fold
   return { yields, asOf, sameCut, curve, fact, reading, basisLabel, source: '미 재무부 공식 수익률 곡선' };
@@ -340,10 +292,6 @@ function fxCard(history, basis, spec) {
   };
 }
 
-// v59.75 (macro audit 11/7): the rate differential behind USD/JPY and USD/KRW. FRED has Japan's and Korea's 10-year yields
-// only as OECD monthly means, so both legs are the OECD series (US IRLTLT01USM156N) for the same month. The read compares the
-// spread's six-month change with the currency's move between the same two month-ends; a spread that barely moved says
-// nothing about direction. Rates do not explain every move, and the line says when the currency went the other way.
 export const RATE_DIFF_RULE = Object.freeze({ months: 6, flatPp: 0.15 });
 const RATE_DIFF_LEGS = Object.freeze({ usdjpy: { foreign: 'jpLongRate', name: '미·일', currency: '엔' }, usdkrw: { foreign: 'krLongRate', name: '미·한', currency: '원' } });
 function monthlyRows(macroHistory, id) {
@@ -394,8 +342,6 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
   const curve = treasury(m);
   const officialLeg = (id) => curve.sameCut ? curve.yields.find((row) => row.id === id)?.value : null;
   curve.dynamics = curveDynamics(macroHistory, undefined, curve.sameCut ? { date: curve.asOf, short: officialLeg('dgs2'), long: officialLeg('dgs10') } : null);
-  // v58.56 (re-audit #9): 1개월·3개월·6개월·1년·3년·7년 join the curve on the official cut's date (sorted by maturity).
-  // The 3-month point is derived from T10Y3M only when neither the feed nor DGS3MO has it for that date.
   const extras = curve.sameCut ? extraTenorPoints(m, macroHistory, curve.asOf) : [];
   const threeMonth = extras.some((row) => row.id === 'dgs3mo') ? null : derivedThreeMonth(macroHistory, curve.yields.find((row) => row.id === 'dgs10'));
   curve.yields = [...extras, ...(threeMonth ? [threeMonth] : []), ...curve.yields].sort((a, b) => a.years - b.years);
@@ -413,21 +359,11 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
       available: true,
       yenStrength,
       burden: yenStrength >= YEN_RALLY_RULE,
-      // v57.70 (2026-10-15 audit): "20거래일 +1.5%" (USD/JPY) above "엔화 20일 -1.5%" read as a sign error; the second is the
-      // yen's own value, and that is now said.
-      // v58.80 (first-users run-3 N#32): "엔화 20일 +1.3%" beside the card's "-1.3%" still read as a contradiction; the
-      // window carries the same name as the card's and the sentence says the two are one move seen from each side.
-      // v59.45 (P18-FX-01): the rule is the USD/JPY fall itself; minus that fall is not the yen's own return (100→80 is −20%
-      // for USD/JPY but +25% for the yen), so the sentence names the rate it measures.
       text: `엔/달러 20거래일 ${signed(-yenStrength, 1, '%')}(${Math.round(yenStrength * 10) > 0 ? '엔 강세' : Math.round(yenStrength * 10) < 0 ? '엔 약세' : '변화 없음'}). 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
     };
-  // v57.50 C10: the 10-year "5일/20일" change on this tab is the ^TNX completed-close series — the same series and session
-  // count as the 시장 상태 rates axis — so the two screens print the same number for the same day (tenYearClose).
   const ten = tenYearClose(history, { through: basis });
   const tnx = (ten?.series || []).slice(-CHART_SESSIONS);
   const tnxChange = { date: ten?.date || null, d5Bp: ten?.d5Bp ?? null, d20Bp: ten?.d20Bp ?? null };
-  // Codex browser audit H17: TIPS read 10/5 while the breakeven and nominal yields read 10/6, and the cards sat
-  // side by side as if "명목 = 실질 + 기대물가" held on one date. A date mismatch is stated on both cards.
   const real = [
     fredLevel(m, 'realYield10', '10년 실질금리 (TIPS)', { note: '물가를 뺀 금리입니다. 높을수록 미래 이익의 현재 가치가 낮아집니다.' }),
     fredLevel(m, 'breakeven10', '10년 기대인플레이션', { note: '국채와 물가연동채 금리 차이로 본 시장의 물가 예상입니다.' })
@@ -435,7 +371,6 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
   const [realCard, beiCard] = real;
   if (realCard?.asOf && beiCard?.asOf && realCard.asOf !== beiCard.asOf) {
     const gap = ` 실질금리(${realCard.asOf})와 기대인플레이션(${beiCard.asOf})의 기준일이 달라, 두 값을 더해 같은 날의 명목금리로 맞춰 보지 않습니다.`;
-    // P1599 (A08): the full sentence once (on the second card); the first card carries a short pointer.
     realCard.note = `${realCard.note || ''} 기준일 ${realCard.asOf} — 옆 카드와 날짜가 다릅니다.`;
     beiCard.note = `${beiCard.note || ''}${gap}`;
   }
@@ -452,8 +387,6 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
   };
 }
 
-
-// v59.70 (re-review N3): the side a currency moved, read from the change as printed (1 decimal); 0.0% has no side.
 export function fxSideWord(id, change, digits = 1) {
   const shown = Math.round(Number(change) * 10 ** digits) / 10 ** digits;
   if (!Number.isFinite(shown) || shown === 0) return '';
@@ -462,9 +395,6 @@ export function fxSideWord(id, change, digits = 1) {
   return '';
 }
 
-// P2288: one reading of a 20-session USD/KRW move for every 매크로 chapter, on the 환율 axis edges.
-// 보합권 is the move-size grade (src/domain/market/session/move-size.js, the won's own volatility), passed by the
-// caller that holds the history; without a grade no 보합권 is claimed.
 export function wonMoveSentence(pct, { dxy20 = null, grade = null } = {}) {
   const value = finite(pct);
   if (value == null) return '';

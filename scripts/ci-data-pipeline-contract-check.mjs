@@ -17,6 +17,7 @@ import { marketAnalysisDiagnostic, aiProviderRefusal, summarizeOperationalChecks
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 import { parseHoldings } from './fetch-sp500-weights.mjs';
 import { softenReaderDuty } from './lib/market-analysis-validate.mjs';
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -26,6 +27,19 @@ const errors = [];
 const check = (label, condition, detail = '') => {
   if (!condition) errors.push(label + (detail ? ': ' + detail : ''));
 };
+const report = () => {
+  const failed = errors.splice(0);
+  if (!failed.length) return;
+  console.error('Data pipeline contract check failed:');
+  failed.forEach((error) => console.error(' - ' + error));
+  process.exit(1);
+};
+const barStartBasis = 'bar-start';
+
+// v60.50: the pipeline contracts are code (a few borrow a published file as realistic input); the published screener's
+// session contract is a data section that also runs in a data run.
+await runSections('data-pipeline', [
+['contracts', async () => {
 
 // v59.72: the IVV holdings file renamed 'Weight (%)' to 'Market Weight'; both headers parse (stale since 10/27).
 for (const weightHeader of ['Weight (%)', 'Market Weight']) {
@@ -503,7 +517,9 @@ check('P1421 refresh workflow fetches market data with official optional secrets
   const prompt = mp.buildMarketAnalysisPrompt(packet);
   check('v59.59 market-reading prompt sections: static rules, then REGIME_CONTEXT, then per-run evidence; optional blocks drop cleanly; sentence last',
     ids.indexOf('style') < ids.indexOf('regime') && ids.indexOf('regime') < ids.indexOf('metricEvidence') && ids.at(-1) === 'sentence'
-      && !ids.includes('koreaIntraday') && !ids.includes('narrative') && !ids.includes('moveSize') && full.length === 25 && full.at(-1) === 'sentence'
+      // v60.50: the static 'story' rule (the opening read's order, "싸다" only as a condition) sits after 'order' — 26 blocks.
+      && !ids.includes('koreaIntraday') && !ids.includes('narrative') && !ids.includes('moveSize') && full.length === 26 && full.at(-1) === 'sentence'
+      && ids.indexOf('story') === ids.indexOf('order') + 1
       // v60.19: the per-run MOVE_SIZE grades follow MARKET_DRIVERS, after the cached prefix.
       && full.indexOf('moveSize') === full.indexOf('drivers') + 1
       && !prompt.includes('\n\n\n\n') && prompt.startsWith('아래 근거로 시장 해석을') && prompt.includes('METRIC_EVIDENCE:\n- E')
@@ -531,11 +547,10 @@ check('P1751 core refresh validates evidence-derived reconciliation before commi
   && dataGroupGates.some((gate) => gate.script === 'scripts/ci-reconciliation-contract-check.mjs')
   && reconciliationGateAt < refresh.indexOf('Commit refreshed public data if changed'));
 check('screener refresh atomically rebuilds and commits reconciliation and operations status', /build-reconciliation-status\.mjs/.test(screenerRefresh) && /build-operations-status\.mjs/.test(screenerRefresh) && workflowPublishes('refresh-screener.yml', 'public-data/reconciliation-status.json') && workflowPublishes('refresh-screener.yml', 'public-data/operations-status.json'));
-check('both refresh workflows keep generated workspace state outside data promotion while committing readiness artifacts', [refresh, screenerRefresh].every((workflow) => !/generate-workspace-state\.mjs --write/.test(workflow)
+check('v60.50 both refresh workflows keep generated workspace state outside data promotion', [refresh, screenerRefresh].every((workflow) => !/generate-workspace-state\.mjs --write/.test(workflow)
   && !/git add[^\n]*_context\/(?:CURRENT-STATE|CONTEXT-CATALOG)/.test(workflow)
   && /Fail-closed promotion candidate gate before push/.test(workflow))
-  && ['refresh-data', 'refresh-screener'].every((id) => DATA_PUBLISH_SETS[id].required.includes('architecture/public-readiness.json')
-    && !publishSetPaths(id).some((path) => path.startsWith('_context/'))));
+  && ['refresh-data', 'refresh-screener'].every((id) => !publishSetPaths(id).some((path) => path.startsWith('_context/'))));
 check('refresh workflow module summary uses ESM fs import', /node --input-type=module - <<'NODE'[\s\S]*import fs from 'node:fs';/.test(refresh) && !/node --input-type=module - <<'NODE'[\s\S]*const fs = require\(/.test(refresh));
 checkNodeHeredocSyntax('refresh-data workflow', refresh);
 
@@ -2630,7 +2645,6 @@ check('earnings calendar keeps producer, consumer and lineage policy aligned',
 // A provider's daily bar timestamp is the START of that session's bar, not the instant a
 // close-derived factor was observable. Publishing the bar start under "observed" makes a
 // close-based result look knowable at the open, so basis and session date are separate fields.
-const barStartBasis = 'bar-start';
 check('P1170 D04 a US bar start maps to its exchange-local session date', sessionDateInMarket('2026-09-18T13:30:00.000Z', 'US') === '2026-09-18', String(sessionDateInMarket('2026-09-18T13:30:00.000Z', 'US')));
 check('P1170 D04 a KR bar start maps to its exchange-local session date', sessionDateInMarket('2026-09-18T00:00:00.000Z', 'KR') === '2026-09-18', String(sessionDateInMarket('2026-09-18T00:00:00.000Z', 'KR')));
 check('P1170 D04 the session date follows DST rather than a fixed offset', sessionDateInMarket('2026-01-15T14:30:00.000Z', 'US') === '2026-01-15', String(sessionDateInMarket('2026-01-15T14:30:00.000Z', 'US')));
@@ -2658,18 +2672,6 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionDateBy
 const screenerPageSource = readScreenerPageSource();
 check('P1170 D04 the screener reads the session date instead of presenting the bar start as an observation',
   screenerPageSource.includes('factorSessionDate') && /관측시각 아님|관측시각이 아닙니다/.test(screenerPageSource));
-
-const producedScreeners = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
-const producedRows = Object.values(producedScreeners.data || {}).filter((row) => row && row.factorBarStart);
-if (producedRows.length) {
-  check('P1170 D04 produced rows carry a session date and an explicit bar-start basis',
-    producedRows.every((row) => row.factorSessionDate && row.factorTimeBasis === barStartBasis && row.factorComputedAt),
-    `${producedRows.length} rows`);
-  check('P1170 D04 produced rows publish both the bar start and its session date',
-    producedRows.every((row) => row.factorBarStart && row.factorSessionDate));
-} else {
-  console.log('[data-pipeline] factor rows do not carry the session contract yet; the next fetch-data run writes it.');
-}
 
 // ── R24-03/P1184: 품질 라벨은 타임스탬프 존재가 아니라 신선도 판정이다 ─────────────────────
 // producer가 observedAt 존재만으로 CURRENT를 발행하면 provider가 오래된 마지막 봉을 돌려준
@@ -3711,12 +3713,24 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /const dividendEventsRequested = fetched\?\.dividendEventsRequested === true/.test(screenerText) && /priceHistoryFromRows\(sym, fetched, \{[^}]*dividendEventsRequested[^}]*\}\)/.test(screenerText));
 }
 
-if (errors.length) {
-  console.error('Data pipeline contract check failed:');
-  errors.forEach((error) => console.error(' - ' + error));
-  process.exit(1);
-}
-
+report();
 console.log('Data pipeline contract check OK: Actions -> public-data -> runtime audit -> chat/memo consumers are structurally wired.');
+}, 'code'],
+['published-screener', async () => {
+const producedScreeners = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
+const producedRows = Object.values(producedScreeners.data || {}).filter((row) => row && row.factorBarStart);
+if (producedRows.length) {
+  check('P1170 D04 produced rows carry a session date and an explicit bar-start basis',
+    producedRows.every((row) => row.factorSessionDate && row.factorTimeBasis === barStartBasis && row.factorComputedAt),
+    `${producedRows.length} rows`);
+  check('P1170 D04 produced rows publish both the bar start and its session date',
+    producedRows.every((row) => row.factorBarStart && row.factorSessionDate));
+} else {
+  console.log('[data-pipeline] factor rows do not carry the session contract yet; the next fetch-data run writes it.');
+}
+report();
+console.log(`Data pipeline published screener OK: ${producedRows.length} factor rows carry the session contract.`);
+}, 'data'],
+]);
 
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';

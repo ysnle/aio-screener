@@ -1,19 +1,15 @@
-// v58.75 (owner 2026-10-24): an expert's reading of this company — the business lens (which numbers matter for this kind
-// of business), standing against named theme peers with what to keep watching, the thesis conditions and the
-// favourable/unfavourable situations. 재무 공시 draws them on the face (lensCard, peerStandingCard, thesisCard,
-// situationCard); 종목 개요 reads one peer line (peerLine); the AI panel reads the same data (window._aioStockLensFor).
-// Readings come from src/domain/fundamental/stock-lens.js. Loaded with the entity route (never the boot set).
 import { shortDate } from '../../domain/content/date-labels.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
 import { kindFold } from './indicator-face.js';
 import { signedText } from '../../domain/shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
-import { parseFiscalHistory, debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
+import { debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
-import { reconcileFiscalHistory, financialKind } from '../../domain/fundamental/fiscal-read.js';
+import { reconcileFiscalHistory, financialKind, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
 import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
+import { consensusView, peakEarningsCaution } from '../../domain/fundamental/consensus-read.js';
 import { lensIdFor, buildLensRead, buildPeerStrengths, peerBasisText, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { themeProfile } from '../../domain/scenarios/exposures.js';
@@ -46,7 +42,6 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const consensus = consensusOf(root, sym);
   const quartersFor = (s) => (root?._aioSecQuarterHistory?.[s] ? parseQuarterHistory(root._aioSecQuarterHistory[s]) : null);
   const peers = buildThemePeers({ symbol: sym, themes, rows, seriesFor, consensusFor: (s) => consensusOf(root, s), quartersFor });
-  // The stock's themes, primary first, from the one owner the 가격 line and the theme link also read.
   const themeList = stockThemes(themes, sym).map(({ id, label }) => ({ id, label }));
   const themeIds = themeList.map((theme) => theme.id);
   const stages = themeStagesFor(root, { symbol: sym, themeIds });
@@ -59,11 +54,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const spx = buildCloseSeries(root?._aioHistory || [], 'spx');
   const barsIn = (Array.isArray(bars) && bars.length ? bars : root?._aioEntitySummaries?.[sym]?.history || []).map((bar) => ({ date: isoOf(bar), close: bar?.close }));
   const beta = market === 'US' ? dailyBeta(barsIn, spx) : null;
-  // v58.80 run-5 (skeptic #11): the stock's 3-month return is an adjusted close (dividends in), so its benchmark is SPY's
-  // adjusted return from the same factor session — the basis the 지수 대비 card above already uses (F10). Without that row
-  // the S&P 500 index window (MARKET_WINDOWS.quarter) stands in and is named as the index.
   const spyRow = market === 'US' && sym !== 'SPY' ? rows.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate && readRowNumber(item, 'ret3m', 'display') != null) : null;
-  // v59.56 (screen review): a Korean stock is read against its own index, as the 지수 대비 card above it is (코스피, or 코스닥 for .KQ).
   const krIndex = /\.KQ$/i.test(sym) ? ['kosdaq', '코스닥 지수'] : ['kospi', '코스피 지수'];
   const benchmark = market !== 'US' ? { pct: closeChange(root?._aioHistory || [], krIndex[0], MARKET_WINDOWS.quarter)?.pct ?? null, label: krIndex[1] }
     : spyRow ? { pct: readRowNumber(spyRow, 'ret3m', 'display'), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };
@@ -79,14 +70,16 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10), shares: Number(row?._valuationSharesOutstanding) > 0 ? Number(row._valuationSharesOutstanding) : null, sharesObservedAt: row?._valuationSharesObservedAt || null } : null;
   const inputs = history.length ? reverseDcfInputs({ history, fundamentals: own, close, financial }) : null;
   const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;
-  const strengths = peers ? buildPeerStrengths(peers.rows) : null;
+  const peakEarnings = peakEarningsCaution(consensus ? consensusView(row, consensus) : null);
+  const strengths = peers ? buildPeerStrengths(peers.rows, { peakEarnings }) : null;
   const pe = strengths?.facts?.find((fact) => fact.id === 'fwdPe');
   const situation = buildSituationRead({ themes: themeList, market, crossroads, beta });
   const tags = themeIds.flatMap((id) => themeProfile(market, id)?.tags || []);
   return {
     sym, market, row, history, peers, strengths, stage, themeList, situation, schedule, levels, consensus, trailing,
     lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, debtBasis, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus, { quarters }) }) : null,
-    thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation }) : null,
+    thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation,
+      peakEarnings }) : null,
     watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label, currency: market === 'US' ? 'USD' : 'KRW' }),
     link: buildMarketLink({ regime, crossroads, stage, themeLabel: themeList[0]?.label || null, tags })
   };
@@ -227,7 +220,7 @@ export function peerStandingCard(doc, ctx) {
   if (s?.facts?.length) {
     card.append(kindFold(doc, 'method', '동종 구성과 비교 기준', [
       methodText(doc, `${ctx.peers.themeName}의 같은 하위 테마 기업부터 테마 대표 기업까지 SEC 연간 공시가 있는 ${s.peers}곳: ${ctx.peers.rows.slice(1).map((row) => row.sym).join(', ')}.`),
-      methodText(doc, '각 지표에서 동종 안 순위와 동종 중앙값을 적었습니다. 강한 점·약한 점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'),
+      methodText(doc, '각 지표에서 동종 안 순위와 동종 중앙값을 적었습니다. 강한 점·약한 점은 중앙값보다 앞·뒤인 지표 중 차이가 큰 순서이며, ROE·순이익률 20%, 잉여현금 마진 15% 이상은 약한 점에 넣지 않습니다. 등급이나 매수 판단이 아닙니다. Forward PER은 낮을수록 이익 대비 가격 부담이 가벼운 쪽입니다.'),
       methodText(doc, peerBasisText(ctx.peers.basis)),
       methodText(doc, '회계연도 마감 시점이 회사마다 다르고, 테마는 AIO의 투자 분류라 사업 구성이 같지 않습니다.'),
       ...watch.map((item) => methodText(doc, `${item.label}: ${item.why}`))

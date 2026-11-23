@@ -1,7 +1,3 @@
-// v57.81: the reading of an out-of-universe symbol's on-demand placement (src/data/on-demand-symbol.js). Pure. It says
-// where the symbol would sit against the current published universe under the same ranking model, when that was
-// computed, and which inputs were and were not available. No grade, no estimate: a missing input is named as missing,
-// and a row under the model's evidence floor gets no position at all.
 import { withTopicParticle } from '../content/korean-particle.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
@@ -25,9 +21,6 @@ const SEC_STATUS_TEXT = Object.freeze({
   'not-applicable': 'ETF는 발행사 재무 지표가 없습니다'
 });
 
-// v59.45 (pipeline review P25-READ-02): an inactive family and a missing rank have different causes — the universe's
-// 80% coverage floor, a weight of 0 in the model in use, or the model not ranking at all. Each is named as such; a
-// placement without a recorded reason does not borrow the coverage explanation.
 function inactiveText(reason) {
   const text = String(reason || '');
   if (/가중 0/.test(text)) return '지금 쓰는 모델에서 가중치가 0이라 순위 계산에 넣지 않는 항목입니다';

@@ -1,8 +1,3 @@
-// P1637: where each regime axis sits inside its own one-year range, today against 5 and 20 sessions
-// ago (owner reference 2026-10-12, a "regime radar"). Each point is a descriptive percentile of one
-// observed series — 100 is the most supportive reading of the past year, 0 the least. There is no
-// composite score: the AGENTS rule against uncalibrated n/100 composites applies, so the radar shows
-// which axes moved, not a total.
 import { alignInput, buildCloseSeries, isUsable, sessionPointBack } from '../session/close-series.js';
 import { RULES } from '../../rules/thresholds.js';
 import { oasDelta20Bp } from '../../briefing/market-read.js';
@@ -10,7 +5,6 @@ import { finiteNumber as finite } from '../../shared/number.js';
 import { isoDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
 import { AXIS_LABELS, US_AXIS_IDS } from '../interpretation/concepts.js';
-
 
 const RADAR_NOTES = Object.freeze({
   trend: 'S&P 500의 200일선 대비 거리',
@@ -53,7 +47,7 @@ function positionAt(series, date, invert, window) {
   const slice = series.slice(end - window + 1, end + 1);
   if (end - window + 1 < 0 || slice.length < MIN_SAMPLE) return null;
   const current = slice.at(-1).value;
-  const rank = percentileOf(slice.map((point) => point.value), current); // v59.59: shared/percentile.js (same convention)
+  const rank = percentileOf(slice.map((point) => point.value), current);
   return { value: Math.round(invert ? 100 - rank : rank), date: series[end].date };
 }
 
@@ -84,8 +78,6 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
       observed[slot] = parts.map((part) => part.date).sort()[0];
       return Math.round(parts.reduce((sum, part) => sum + part.value, 0) / parts.length);
     });
-    // v58.80 (first-users bundle 1): "추세 1/100" beside a 52-week range position of 87% read as a contradiction — the axis
-    // ranks the 200-day distance, not the price. Today's measured value travels with the rank so the basis can say so.
     const single = sources[axis.id].length === 1 ? sources[axis.id][0].series : null;
     const at = single && dates[0] ? endIndex(single, dates[0]) : -1;
     const raw = values[0] != null && at >= 0 ? single[at].value : null;
@@ -99,18 +91,12 @@ export function buildRegimeRadar(input = {}, { macroHistory = null, offsets = [0
     : '5거래일 전과 비교해 10 이상 움직인 지표가 없습니다.';
   const wide = axes.filter((axis) => axis.change20 != null && Math.abs(axis.change20) >= 25).sort((a, b) => Math.abs(b.change20) - Math.abs(a.change20))[0];
   const month = wide ? ` 20거래일 전과 비교하면 ${wide.label} 위치가 ${Math.abs(wide.change20)}포인트 ${wide.change20 > 0 ? '올라 가장 크게 좋아졌습니다' : '내려 가장 크게 나빠졌습니다'}.` : '';
-  // v58.74 (text audit 시장 상태 C6): a volatility move names the VIX behind it and where it sits against the 부담 line.
   const vixSeries = buildCloseSeries(history, 'vix');
-  const vixNow = vixSeries.at(-1)?.value, vixThen = sessionPointBack(vixSeries, 20)?.value ?? null; // v59.45 (R1-01): sessions, not rows
+  const vixNow = vixSeries.at(-1)?.value, vixThen = sessionPointBack(vixSeries, 20)?.value ?? null;
   const volNote = wide?.id === 'volatility' && Number.isFinite(vixNow) && Number.isFinite(vixThen)
     ? ` VIX가 20거래일 전 ${vixThen.toFixed(1)}에서 ${vixNow.toFixed(1)}로 ${(vixNow > vixThen) === (vixNow >= RULES.volatility.stressAt) ? (vixNow > vixThen ? '올라' : '내려') : (vixNow > vixThen ? '올랐지만' : '내렸지만')} ${vixNow >= RULES.volatility.stressAt ? `부담 기준(${RULES.volatility.stressAt}) 위입니다` : `부담 기준(${RULES.volatility.stressAt})에는 못 미칩니다`}.` : '';
   const missing = axes.filter((axis) => axis.now == null).map((axis) => axis.label);
   const missingText = missing.length ? ` ${missing.join('·')} 지표는 최신 관측이 없어 비웠습니다.` : '';
-  // v59.43 (X bookmark 2114267194930663745): a lower 10-year yield is the supportive side only when credit is not
-  // widening with it. A 5-session yield drop while HY OAS widens by the watch amount is a flight to safety; the axis
-  // keeps its percentile and the reading names the pairing instead of calling it an improvement.
-  // v59.70 (re-review 5): the spread leg is the one 5-session OAS reading every screen quotes (US close sessions, back from
-  // the last observation), not the radar's own date pair, which read +25bp beside 시장 상태's and 매크로's +13bp.
   const defensive = defensiveYieldDrop(sources.rates[0].series, sources.credit[0].series, dates[0], dates[1], oasDelta20Bp(macroHistory, 'hyOas', dates[0])?.d5);
   const rates = axes.find((axis) => axis.id === 'rates');
   if (rates) rates.defensive = defensive;

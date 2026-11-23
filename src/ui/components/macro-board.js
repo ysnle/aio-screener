@@ -1,21 +1,8 @@
-// P1425 (owner review 2026-10-03): the 매크로 hub as two native boards.
-// P1426: 매크로 now leads with the growth × inflation regime, six equity-impact axes (growth, inflation
-// and policy rules here; rates, oil/dollar and credit shared with 시장 상태), the oil → inflation →
-// policy → rates → valuation chain, then the indicator cards with 24-month trends and oil/gold charts.
-//   매크로 (route macro)  — official monthly releases grouped as 정책금리 · 물가 · 고용 · 소비·주택,
-//                              each card with reference month, release date, next release and source.
-//   금리 · 환율 (route fxbond) — Treasury curve, real yield / breakeven / HY spread, and the dollar,
-//                              won, yen and 10Y on the completed-close basis with six-month charts.
-// Observations only: the fixed-threshold storyline, risk pill and four-axis bull/bear count are retired.
-// 안 A (owner 2026-11-19, "본문 풀이"): both screens fold only the raw table behind their rows, the method and the data
-// sources (indicator-face.js kinds, scripts/ci-fold-kind-check.mjs). Each factor is an unfolded row — title, state, headline,
-// the distance to the next band, its 판정 사유 and the condition that changes it, its gauge; every card's definition and
-// every principle block sit in one page method fold (#macro-method, #rates-method); the code no longer writes outlook or
-// conditional sentences on either screen.
 import { renderReleaseGuide } from './release-zone-bar.js';
 import { AXIS_REASON_LABEL, alignInput, alignmentLabel, buildCloseSeries, closeBasis, closeSessionMarket, sessionPointBack as closePointBack } from '../../domain/briefing/market-read.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { macroNextSteps, ratesNextSteps, seriesOf } from '../../domain/macro/macro-read.js';
+import { REGIME_CRITERIA } from '../../domain/macro/quadrant-method.js';
 import { buildMacroChain } from '../../domain/macro/macro-chain.js';
 import { renderNextSteps } from './page-flow.js';
 import { latestMarketInterpretation, marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
@@ -37,6 +24,7 @@ import { frameHead } from './section-frame.js';
 import { monthLabel, shortDate } from '../../domain/content/date-labels.js';
 import { peopleText, signedText } from '../../domain/shared/number.js';
 import { buildCrossAssetRelations } from '../../domain/macro/cross-asset-relations.js';
+import { correlationFlatBand, stockBondCorrelationWord } from '../../domain/market/regime/depth-readouts.js';
 import { dodgeSvgLabels } from './svg-label-dodge.js';
 import { MARKET_WINDOWS } from '../../domain/market/session/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
@@ -52,8 +40,6 @@ const SVG = 'http://www.w3.org/2000/svg';
 
 const signedNumber = (value, digits) => signedText(value, digits, '', { plus: false });
 
-// Codex browser audit H16: "내리는 중" beside a +0.1pp month read as a contradiction. The mark names its window —
-// the latest 3-month average against the 3-month average six months earlier (indicators.js trendOf).
 const DIRECTION_MARK = Object.freeze({ up: '▲ 6개월 추세 상승', down: '▼ 6개월 추세 하락', flat: '― 6개월 추세 횡보' });
 const DIRECTION_TITLE = '최근 3개월 평균을 6개월 전 3개월 평균과 비교한 방향입니다. 전월 대비 변화와 다를 수 있습니다.';
 
@@ -61,8 +47,6 @@ const DIRECTION_TITLE = '최근 3개월 평균을 6개월 전 3개월 평균과 
 // A minimum vertical span keeps a near-flat series flat instead of stretching rounding noise to full height.
 function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null } = {}) {
   const W = 220;
-  // v57.79 (UI review): the date labels moved out of the SVG (see statCard) — inside it they scaled with the card and
-  // printed larger than the value lines at 375px; the 10px label strip under the line went with them.
   const H = 44;
   const svg = doc.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -93,9 +77,6 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null 
   const last = monthLabel(series[series.length - 1].date);
   svg.dataset.first = first;
   svg.dataset.last = last;
-  // P1449: the cadence comes from the dates, not an assumption. A daily rates series of 260
-  // observations is one year, not "260개월" — the declared frequency of the series decides the
-  // unit, and it is preserved (R570) because the aria label is part of the observation record.
   const spanDays = Math.round((Date.parse(series[series.length - 1].date) - Date.parse(series[0].date)) / 86400000);
   const gap = series.length >= 2 ? spanDays / (series.length - 1) : 1;
   const cadence = gap > 20 ? '월별' : gap > 5 ? '주별' : '일별'; // weekly series (순유동성 · 금융여건) were labelled 일별
@@ -105,8 +86,6 @@ function sparkline(doc, series, { unitLabel = '', minSpan = null, format = null 
   return svg;
 }
 
-// P1505 (owner 2026-10-06): the face of a card carries the date only; the provider and series name move to the
-// card's hover title. "10/5 기준 · 다음 10/28 · FRED" shows "10/5 기준 · 다음 10/28" and hovers "출처: FRED".
 const SOURCE_TOKEN = /^(FRED|BLS|BEA|Cboe|CBOE|Yahoo|ISM|Census|SEC|CNN|ICE|KRX|ECOS|한국은행|미 재무부|연준|Fed)\b/;
 function splitMeta(meta) {
   const parts = String(meta || '').split(/ · |, /);
@@ -131,10 +110,7 @@ function statCard(doc, { label, valueText, lines = [], meta, status, series = nu
     dates.setAttribute('aria-hidden', 'true');
     dates.append(el(doc, 'span', spark.dataset.first), el(doc, 'span', spark.dataset.last));
     card.append(spark, dates);
-    // P1599 (A05): the period's high and low in words under the line, so the shape has a scale (inside the SVG
-    // the labels scaled with wide cards and collided with the date ticks).
     const values = series.map((row) => row.value).filter(Number.isFinite);
-    // Expert review M16: the range uses the value's own format, so "5.86조 달러" is not ranged as "5987 · 5596".
     const fmtRange = format || ((value) => `${signedNumber(value, Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2)}${unit || ''}`);
     const suffix = '';
     card.append(el(doc, 'p', `기간 고점 ${fmtRange(Math.max(...values))}${suffix}, 저점 ${fmtRange(Math.min(...values))}${suffix}`, 'macro-spark-range'));
@@ -144,9 +120,6 @@ function statCard(doc, { label, valueText, lines = [], meta, status, series = nu
   return card;
 }
 
-// v58.53 (owner 2026-10-20: "실제 화면과 사용자 입장에서"): the indicator board was 3,500px on a desktop and 9,100px on a
-// phone. Each group's title and its one-line fact are on the face; its cards (values, 24-month lines, ranges) are that
-// group's raw table, built when it first opens, one group open at a time (the reader's open group survives a repaint).
 function groupSection(doc, root, id, title, fact, count, body) {
   const section = el(doc, 'section', null, 'macro-group');
   section.dataset.group = id;
@@ -165,8 +138,6 @@ function groupSection(doc, root, id, title, fact, count, body) {
   });
   return section;
 }
-// v58.74 (audit): '1년 전보다' compared with the first of the last 260 observations — about 13 months back on a series
-// with gaps (HY +58bp vs +39bp over the actual year). The base is the last point on or before the same date a year earlier.
 function yearChange(points) {
   const last = points[points.length - 1];
   if (!last || points.length < 200) return null;
@@ -186,11 +157,7 @@ const MACRO_REFS = Object.freeze({
   commodities: ['Bruno·Shin 2015', 'WTI, 달러 지수 종가'],
   credit: ['Gilchrist·Zakrajšek 2012', 'ICE BofA 하이일드 OAS (FRED)']
 });
-// v59.51 (content audit): rates, oil·dollar and credit carry the same verdict on 시장 상태, where their one-year chart is
-// drawn; the factor row here opens that chart instead of a second copy (navigation/open-signal-axis.js).
 const SIGNAL_CHART_AXES = new Set(['rates', 'commodities', 'credit']);
-// v58.75 (persona review, spec F2): how each factor's numbers lead or lag the cycle, and why the gap to expectations and a
-// turn in direction move prices more than the level. One line per card, read before the numbers.
 const AXIS_TIMING = Object.freeze({
   growth: '선행·후행 섞임 — 실업수당 청구는 먼저 움직이고, 일자리·소매판매는 경기와 같이, 실업률은 꺾인 뒤 늦게 오릅니다. 발표 날 가격은 수준보다 예상과의 차이에 반응합니다.',
   inflation: '후행 — 물가는 경기보다 늦게 움직입니다. 예상된 숫자는 이미 가격에 들어가 있어, 예상과의 차이와 3개월 속도의 방향 전환이 금리를 움직입니다.',
@@ -230,14 +197,13 @@ function flipLine(row) {
 // its gauge, and where it continues (the 시장 상태 chart of a shared axis, the forward branches it tests).
 function axisRow(doc, row, root = null) {
   const d = row.flipDistance;
-  const card = indicatorRow(doc, { title: row.title, stateLabel: row.stateLabel, tone: CHIP[row.state] || 'neutral', value: row.headline || '',
+  const card = indicatorRow(doc, { title: row.title, stateLabel: row.verdictLabel, tone: CHIP[row.state] || 'neutral', value: row.headline || '',
     distance: d?.label || gaugeDistance(row.gauge, row.state), distanceTitle: d ? `종가 기준, ${d.short}` : '', lines: [['reason', reasonOf(row)], ['flip', row.state === 'unknown' ? '' : flipLine(row)]] });
   card.classList.add('macro-axis');
   card.id = `macro-axis-${row.id}`;
   card.dataset.axis = row.id;
   card.dataset.state = row.state;
   const body = card.querySelector('.ind-row__body');
-  // P1427: the threshold gauge on the deciding variable; its label is the hover (the value is the row's headline).
   const bar = row.gauge ? gaugeBar(doc, { ...row.gauge, caption: false }) : null;
   if (bar) {
     bar.title = row.gauge.label;
@@ -316,10 +282,6 @@ function methodDefs(doc, defs) {
   });
 }
 
-// v58.53 개편 v2 (3e): the rate strip — the Fisher split of the 10-year yield (DGS10 ≈ DFII10 + T10YIE on one shared FRED
-// date). v58.55: the design's Taylor-rule tile, now that CBO's natural rate (FRED NROU) is collected — see taylorTile below.
-// v59.51 (content audit): the strip moved from 매크로 to a closed fold on 금리와 환율 beside the real-yield and breakeven
-// cards it splits; its 10-year − 3-month tile left (the curve card there already states the same T10Y3M value).
 function basisValue(doc, text, explanation, asOf) {
   const node = el(doc, 'b', text, 'mk-rate-tile__value');
   node.title = explanation;
@@ -345,11 +307,6 @@ function renderRateStrip(doc, root) {
     const n = nominal.get(common), r = real.get(common), b = bei.get(common);
     const gap = n - (r + b);
     const tile = el(doc, 'div', null, 'mk-rate-tile');
-    // v58.53: the face values carry their basis (value-basis.js turns title + data-as-of into the tap/hover basis card).
-    // v58.80 (first-users bundle 1): readers saw 4.96% here beside 4.99% on the rate card and asked which was true. The
-    // split rests on the last day all three official values exist; the basis card now names the market close it differs from.
-    // v59.51 (area H, one 10-year reader): the page's 10-year is the market close (tenYearClose); this fold's nominal value is
-    // the official constant-maturity series on the split's own date, so its series and date are named beside it.
     const marketTen = tenYearClose(root?._aioHistory || []);
     const later = marketTen && marketTen.date > common ? ` 화면의 10년물(${TEN_YEAR_SOURCE.label})은 ${shortDate(marketTen.date)} ${pct(marketTen.value)}로, 날짜와 계열이 달라 값이 조금 다릅니다.` : '';
     const value = basisValue(doc, `${pct(n)} ≈ ${pct(r)} + ${pct(b)}`, `10년물 명목 금리를 같은 날의 10년 실질금리(TIPS)와 기대 인플레이션(BEI)으로 나눈 값입니다. 세 값이 모두 있는 가장 최근 관측일(${shortDate(common)}) 기준입니다.${later}`, common);
@@ -383,10 +340,6 @@ function renderRateStrip(doc, root) {
   host.replaceChildren(grid);
 }
 
-// v58.55 (개편 v2 3e): Taylor (1993) as a reference point for the policy rate; the face shows where the actual target-range
-// midpoint sits against the rule, never what the Fed should do.
-// v58.56 (re-audit #14): r* defaults to the FOMC's dated estimate (SEP longer-run median − 2%); 0.5%/1.0% moved into the
-// formula fold as alternatives, so the face no longer asks the reader to pick an assumption before seeing a number.
 const STANCE_WORD = Object.freeze({ near: '준칙 근처', tighter: '준칙보다 긴축적', looser: '준칙보다 완화적' });
 const sepMonth = (date) => `${String(date).slice(2, 4)}년 ${Number(String(date).slice(5, 7))}월`;
 function rStarText(t) {
@@ -404,7 +357,6 @@ function taylorRStarSeg(doc, root, t) {
     button.type = 'button';
     button.setAttribute('aria-pressed', String(option.key === current));
     button.dataset.rStar = option.key;
-    // Round-2 review (v58.55): the strip is rebuilt, so focus returns to the same option instead of dropping to <body>.
     button.addEventListener('click', () => {
       root.__aioTaylorRStar = option.key === TAYLOR_R_STAR_SEP ? TAYLOR_R_STAR_SEP : Number(option.key);
       renderRateStrip(doc, root);
@@ -420,7 +372,6 @@ function taylorTile(doc, root, t) {
   head.append(el(doc, 'span', '테일러 준칙 대비 정책금리', 'mk-rate-tile__label'));
   const pct = (value, digits = 2) => `${value.toFixed(digits)}%`;
   tile.append(head);
-  // Round-2 review (v58.55): every input names its year, so a value carried over from an older release cannot pass as current.
   const yy = (date) => String(date).slice(2, 4);
   const month = (date) => `${yy(date)}년 ${Number(String(date).slice(5, 7))}월`;
   const quarter = (date) => `${yy(date)}년 ${Math.floor((Number(String(date).slice(5, 7)) - 1) / 3) + 1}분기`;
@@ -447,8 +398,6 @@ function taylorTile(doc, root, t) {
   } else if (!t.sep) {
     basis.append(doc.createTextNode(', FOMC 장기 금리 전망(SEP)은 다음 자료 갱신부터 기준으로 씁니다'));
   }
-  // v58.79 (layout over captions): the target range, the r* band and the inputs with their months are the tile's hover;
-  // the tile keeps the gap, the rule and the tension sentence.
   tile.title = `${target}, r* 0.5~1.0% 가정 시 준칙 ${pct(t.range.lo)}~${pct(t.range.hi)}. ${inputs}, 실업률 갭 ${signed(t.unemploymentGap, 1)}%p`;
   tile.append(value, basis);
   // The rule filled with today's inputs, then the r* choice (FOMC SEP or an assumed 0.5% / 1.0%).
@@ -458,8 +407,6 @@ function taylorTile(doc, root, t) {
   return tile;
 }
 
-// Round-2 review (v58.55): an input kept from an earlier run, or inputs more than three months apart, get the amber date chip
-// and a plain sentence — the number stays, but it is not presented as today's reading.
 const TAYLOR_SERIES_NAME = Object.freeze({ corePceIndex: '근원 PCE', unemployment: '실업률', naturalUnemployment: 'CBO 자연실업률' });
 function taylorStaleLine(doc, t) {
   const line = el(doc, 'span', null, 'mk-rate-tile__note mk-taylor__stale');
@@ -481,10 +428,8 @@ function taylorMethod(t) {
 }
 
 function chainNode(doc, node) {
-  // P1599 (A03): an inferred node (no direct observation) is drawn dashed so it never reads as a measured move.
   const box = el(doc, 'div', null, `macro-chain-node is-${node.impact || node.dir}${node.inferred ? ' is-inferred' : ''}`);
   box.append(el(doc, 'span', node.label, 'macro-chain-label'), el(doc, 'span', node.value, 'macro-chain-value'));
-  // v57.81 (audit X4): a held node (WTI not confirmed by Brent) draws no arrow — the rate hub says 혼재 for the same pair.
   if (node.held) box.append(el(doc, 'span', '방향 보류', 'macro-chain-arrow is-held'));
   else if (node.dir === 'up' || node.dir === 'down') box.append(el(doc, 'span', node.dir === 'up' ? '▲' : '▼', 'macro-chain-arrow'));
   return box;
@@ -509,7 +454,6 @@ function renderChain(doc, chain) {
   chain.branches.forEach((branch) => {
     const box = el(doc, 'div', null, 'macro-chain-branch');
     box.append(chainNode(doc, branch));
-    // v57.50 I04: each branch ends where its own evidence is read, so the chain is not a dead end.
     const target = BRANCH_ROUTES[branch.id];
     if (target) {
       const link = el(doc, 'button', `${target.label} →`, 'flow-next-link');
@@ -529,8 +473,6 @@ const CHAIN_METHOD = Object.freeze([
   '달러 가지 — 달러가 강해지면 미국 다국적 기업의 해외 매출 환산이 줄고 신흥국·원화가 약해지는(외국인 순매도 압력) 쪽이고, 약해지면 반대입니다. 신용 가지 — 하이일드 스프레드가 넓어지면 기업 자금 조달 비용과 주식 위험 프리미엄이 오르고, 좁아지면 자금 조달 여건이 나아집니다.'
 ]);
 
-// P1427: growth × inflation as a 2 × 2 map — the current quadrant filled and marked, a known half shaded
-// when only one direction is established, nothing marked when neither is.
 const QUADRANTS = Object.freeze([
   { key: 'down/up', label: '스태그플레이션 위험', sub: '성장↓ 물가 속도↑', tone: 'burden', col: 0, row: 0 },
   { key: 'up/up', label: '과열, 리플레이션', sub: '성장↑ 물가 속도↑', tone: 'neutral', col: 1, row: 0 },
@@ -570,8 +512,6 @@ function quadrantChart(doc, regime) {
       add('text', { x: x + cw / 2 + 11, y: y + ch / 2 + 36, class: 'macro-quadrant-now' }, '지금');
     }
   }
-  // v59.55 (visual audit): a held reading still has a place — on the line between the two quadrants it could fall in
-  // (one axis settled), or at the centre (both held) — so the chart never shows no "지금".
   if (!current) {
     const col = { down: 0, up: 1 }[regime.growthDir];
     const row = { up: 0, down: 1 }[regime.inflationDir];
@@ -595,22 +535,16 @@ function renderRegime(doc, read) {
   left.append(quadrantChart(doc, r));
   const right = el(doc, 'div', null, 'macro-overview-side');
   const head = el(doc, 'div', null, 'macro-regime-head');
-  head.append(el(doc, 'span', r.label, `macro-regime-label is-${r.tone}`));
+  head.append(el(doc, 'span', r.verdict, `macro-regime-label is-${r.tone}`));
   if (r.near?.growth || r.near?.inflation) head.append(el(doc, 'span', '기준선 근처, 방향 보류', 'basis-chip is-off'));
   if (r.available && r.provisional) head.append(el(doc, 'span', '잠정 — 월별 추세 일부 미반영', 'basis-chip is-off'));
   const counts = read.counts;
-  // v59.51 (content audit, two layers): the six per-factor chips under the tally left — they repeated the six factor rows
-  // beside this card (same title and verdict); the tally keeps the count.
   const tally = el(doc, 'div', null, 'macro-tally');
   for (const [state, label] of [['favorable', '양호'], ['neutral', '중립'], ['burden', '부담'], ['unknown', '보류']]) {
     if (state === 'unknown' && !counts.unknown) continue;
     tally.append(el(doc, 'span', `${label} ${counts[state]}`, `macro-tally-chip is-${state}`));
   }
-  // 안 A: the quadrant's 판정 사유 (the direction each input settled, or why it is held) and, while held, the cut the next
-  // release has to cross; the 해석 paragraph (what such a regime tended to mean) is not drawn.
   const lines = el(doc, 'div', null, 'ind-row__body macro-regime-lines');
-  const reason = regimeReason(r);
-  if (reason) lines.append(el(doc, 'p', reason, 'ind-row__line is-reason'));
   if (!r.available && r.decider) lines.append(el(doc, 'p', r.decider, 'ind-row__line is-flip'));
   right.append(head, tally, lines);
   if (read.historyStatus !== 'ok') right.append(el(doc, 'p', '월별 기록 누적 중.', 'briefing-footnote'));
@@ -619,20 +553,12 @@ function renderRegime(doc, read) {
   host.replaceChildren(grid);
 }
 
-// The quadrant's reason in fixed words: each settled direction, or the held one with its cause (macro-read buildRegime held).
-function regimeReason(r) {
-  const heldWord = (word) => (String(word).startsWith('방향') ? word : `방향 ${word}`);
-  const growth = r.growthDir ? `성장 ${r.growthDir === 'up' ? '견조' : '둔화'}` : `성장 ${heldWord(r.held?.growth || '자료 부족')}`;
-  const inflation = r.inflationDir ? `근원 물가 속도 ${r.inflationDir === 'up' ? '상승' : '둔화'}` : `물가 ${heldWord(r.held?.inflation || '자료 부족')}${r.inflationSplit ? ` (${r.inflationSplit})` : ''}`;
-  return `판정 사유: ${growth} · ${inflation}`;
-}
 // The quadrant's raw table: each rule with the value it read, its line and its outcome, and the month each input describes.
 function regimeRaw(doc, r) {
   const group = el(doc, 'section', null, 'ind-raw-group');
   group.dataset.rawAxis = 'quadrant';
   group.append(el(doc, 'h3', `성장 × 물가 사분면 · ${r.label}`, 'ind-raw-group__title'));
   const rows = (Array.isArray(r.inputs) ? r.inputs : []).map(([label, value, line, verdict]) => [label, [value, line ? `기준: ${line}` : null, verdict ? `판정: ${verdict}` : null].filter(Boolean).join(' · ')]);
-  // Expert review M12 / v57.50 D16-D17: a direction inside its dead band is held, with the gap it fell short by.
   if (r.near?.growth) rows.push(['성장 방향 근소', r.near.growth]);
   if (r.near?.inflation) rows.push(['물가 방향 보류', r.near.inflation]);
   rows.push(['기준 시점', r.timing || '']);
@@ -674,25 +600,12 @@ function renderCommodities(doc, root) {
   grid.replaceChildren(card('wti', 'WTI 원유', 2), card('gold', '금', 0));
 }
 
-// v59.70 (S7/I10): the Korean manufacturing PMI and GDP rows (no producer) are removed from the card, so the
-// v58.75 hide-and-name step for them is gone with them.
-
-// Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
-// v59.70 (D5): renderKoreaWon left with the 한국 매크로 fold; the 시장 상태 한국 board draws 원/달러.
-
-// v58.74 (text audit C1): the page opens with its through-line — which factors weigh, whether the quadrant is set, which
-// branch fits best and the release that decides next — so the sections below read as steps of one argument.
 function macroThroughLine(read, crossroads) {
   const axes = read?.axes || [];
   if (!axes.length) return null;
   const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title);
   const weigh = burden.length ? `매크로 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '매크로 6요인 중 부담 요인은 없고';
-  const quadrant = read.regime?.available ? `국면은 '${read.regime.label}'` : '성장·물가 국면은 방향 보류';
-  // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
-  // the same lead (scenarioLead), so the header said it twice.
-  // v59.51: the header's single next-release answer (crossroads.nextEvent); the separate "다음 주요 발표" line left.
-  // v59.74 (weekly outlook review 11/7): the header read "다음 주요 발표는 11/17 소매판매" above a card saying "다음 발표
-  // 11/10 CPI". nextEvent is now the next release; the one that settles the branches in play follows when it differs.
+  const quadrant = `성장·물가는 '${read.regime.verdict}'`;
   const label = (event) => `${event.when || event.date} ${event.name}`;
   const first = crossroads?.nextEvent || null;
   const decider = crossroads?.decidingEvent || null;
@@ -707,14 +620,13 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const board = buildMacroBoard({ macro: root._aioServerMacro || null, releases: root.AIO_MACRO_CALENDAR?.releases || {}, schedules: root.AIO_MACRO_OFFICIAL_SCHEDULES || {}, macroHistory });
   readMarketRegime(root); // keeps the macro-history refresh request
   renderReleaseGuide(doc, root);
-  const interpretation = marketInterpretation(root); // owner 2026-10-19: the shared macro read (same as the branches)
+  const interpretation = marketInterpretation(root);
   const { regime, macroRead: read, crossroads } = interpretation;
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
     basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
     basis.title = '공식 발표와 미국 종가 기준';
   }
-  // v59.68: the forward branches (P1742) are on 시장 상태 (market-regime.js renders them into its scenario fold).
   renderRegime(doc, read);
   const axesHost = doc.getElementById('macro-axes');
   if (axesHost) {
@@ -730,20 +642,15 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   // The chain reads the inputs the interpretation's macro read was built from (buildMacroRead's), on this route only.
   const chain = buildMacroChain({ macro: root._aioServerMacro || null, macroHistory: interpretation.inputs?.macroHistory || null, regime: regime?.available ? regime : null, history: interpretation.inputs?.history || [] });
   renderChain(doc, chain);
-  // v59.51: the S&P 500 earnings read (revision breadth, forward PER, equity risk premium) sits on 매크로, where the
-  // real yield it is measured against is judged; the component owns its host (#index-earnings in the 매크로 shell).
   try { renderIndexEarnings({ documentRef: doc, root }); } catch (_) { /* the index earnings read never takes 매크로 down */ }
   const defs = [];
   host.replaceChildren(...board.groups.map((group) => {
-    // v60.18 (D3): the board's one reason for a previous release is the card's stale chip.
     const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
       node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, status: item.status, staleText: item.held?.chip || null, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
       return [node]; };
     defs.push([group.title, group.items.filter((item) => item.note).map((item) => [item.label, item.note])]);
     return groupSection(doc, root, group.id, group.title, group.fact, group.items.length, grid);
   }));
-  // P1654: liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced). Their face
-  // line is the group's values; the group's description and the cards' definitions are method text, its principle a library note.
   const groups = [];
   for (const group of buildLiquidityGrowthGroups(macroHistory, { macro: root._aioServerMacro || null, history: root._aioHistory || [] })) {
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
@@ -755,28 +662,22 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     defs.push([group.title, [['묶음', group.fact], ...group.items.filter((item) => LIQUIDITY_DEFINITIONS.has(item.id) && item.reading).map((item) => [item.label, item.reading])]]);
     groups.push([group.id, group.title]);
   }
-  // 2026-10-14 (live review 4f): where this month sits in decades of history — a level, not a direction.
   const longRows = longHistoryRows(macroHistory?.long || null);
   if (longRows.length) {
     const section = el(doc, 'section', null, 'macro-group');
     section.dataset.group = 'long-history';
-    // v57.79 (UI review): 실업률 · 근원 CPI · 10년물 · 2년물 also sit in the cards above (latest release or close) and on the
-    // 금리 card (live close), so the same name showed three values. This block is the raw table of last completed months'
-    // averages behind its basis chip, so the values do not read as a contradiction.
     const fold = kindFold(doc, 'raw-table', `수십 년 속 위치, ${longRows.length}개 지표`, () => { const grid = el(doc, 'div', null, 'macro-stat-grid');
       grid.append(...longRows.map((row) => statCard(doc, { label: row.label, valueText: row.valueText, lines: [row.monthText, row.positionText], series: row.series, unit: row.unit, format: (value) => `${value.toFixed(2)}${row.unit}`, status: row.stale ? 'stale' : 'observed', staleText: '이번 수집 실패, 직전 값', meta: 'FRED 월평균' })));
       return [grid]; });
     fold.classList.add('macro-long-fold');
-    // v58.79: the basis is a chip; why the numbers differ from the cards above is its hover.
     section.append(frameHead(doc, { title: '수십 년 속 지금 위치', level: 'h3', titleClass: 'macro-group-title', asOf: '지난달 월평균', asOfDetail: '위 카드(최신 발표값)나 금리 카드(최근 종가)와 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.' }), fold);
     host.append(section);
   }
   renderCommodities(doc, root);
   defs.push(['유가, 금', COMMODITY_DEFS.map((row) => [...row])]);
-  // v59.55 (owner 11/1): the six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.
   import('./macro-chapters.js').then(({ renderMacroChapters }) => renderMacroChapters({ documentRef: doc, root, events: latestMarketInterpretation(root)?.events || [] })).catch(() => {});
   paintMethod(doc.getElementById('macro-method'), () => macroMethodBody(doc, root, { read, chain, defs, groups }));
-  renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // v57.50 I04
+  renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read));
   host.dataset.aioMacroBoardRenderer = 'native';
   return { board, read };
 }
@@ -790,8 +691,7 @@ const LIQUIDITY_DEFINITIONS = new Set(['sofr', 'jobOpenings', 'consumerSentiment
 function macroMethodBody(doc, root, { read, chain, defs, groups }) {
   const levelLine = (RULES.inflation.missPct + MACRO_SIGNAL_RULES.inflationLevelBufferPp).toFixed(1);
   const nodes = [el(doc, 'p', '판정 기준은 관례와 연구에서 고른 검증 전 기준선입니다. 공식 발표는 발표월 기준, 시장 수치는 직전 미국장 종가 기준입니다.', 'ind-method__lead'),
-    // P1506 / v58.80 (first-users bundle 2): the quadrant reads direction, the factor rows read level.
-    methodSection(doc, '성장 × 물가 사분면', [`사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 요인별 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 근원 PCE가 ${levelLine}% 이상이면 물가 요인은 부담으로 남고, 목표(${RULES.inflation.targetPct}%)보다 높지만 그 선 아래면 중립입니다.`, read.regime?.criteria || null]),
+    methodSection(doc, '성장 × 물가 사분면', [`사분면은 성장·물가가 어느 쪽으로 움직이는지(물가는 3개월 속도), 요인별 판정은 지금 수준이 증시에 부담인지를 봅니다. 물가 속도가 둔화돼도 근원 PCE가 ${levelLine}% 이상이면 물가 요인은 부담으로 남고, 목표(${RULES.inflation.targetPct}%)보다 높지만 그 선 아래면 중립입니다.`, REGIME_CRITERIA]),
     ...read.axes.map((row) => axisMethod(doc, root, row)),
     methodSection(doc, '어떻게 연결되나', [...CHAIN_METHOD, chain?.legend || null]),
     methodSection(doc, 'S&P 500 이익 전망', INDEX_EARNINGS_METHOD),
@@ -802,24 +702,20 @@ function macroMethodBody(doc, root, { read, chain, defs, groups }) {
   return nodes.filter(Boolean);
 }
 
-// The Treasury par curve on a log-maturity axis (expert review M22: an evenly spaced axis drew 2→5 years as wide as
-// 20→30 years and bent the curve's shape).
 function curveSvg(doc, yields, previous = null) {
   const points = yields.filter((row) => row.value != null);
-  // Screen audit 2026-10-20: a phone scaled the 520×150 chart to about 100px tall with 8px labels; narrow screens get a taller frame.
   const narrow = Number(doc.defaultView?.innerWidth) > 0 && doc.defaultView.innerWidth < 600;
   const W = narrow ? 360 : 520;
   const H = narrow ? 200 : 150;
-  const pad = { top: 18, right: 24, bottom: 34, left: 54 }; // P1505: room between the lowest y label and the first tenor label
+  const pad = { top: 18, right: 24, bottom: 34, left: 54 };
   const svg = doc.createElementNS(SVG, 'svg');
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.setAttribute('class', 'rates-curve');
   svg.setAttribute('role', 'img');
-  svg.style.maxHeight = '220px'; // v57.91: a wide desktop column scaled the 150-unit chart (and its text) to about 2x
+  svg.style.maxHeight = '220px';
   if (points.length < 2) { svg.setAttribute('aria-label', '수익률 곡선 자료 부족'); return svg; }
   const prevLabel = previous?.points?.length ? `, 1개월 전(${shortDate(previous.date)}): ${previous.points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}` : '';
   svg.setAttribute('aria-label', `미 국채 수익률 곡선: ${points.map((row) => `${row.label} ${row.value.toFixed(2)}%`).join(', ')}${prevLabel}`);
-  // v58.55 (5e): the dashed "1개월 전" curve shares the scale, so its points are part of the range.
   const prevById = new Map((previous?.points || []).map((row) => [row.id, row.value]));
   const values = [...points.map((row) => row.value), ...prevById.values()];
   const lo = Math.floor((Math.min(...values) - 0.1) * 10) / 10;
@@ -843,11 +739,6 @@ function curveSvg(doc, yields, previous = null) {
   if (prevPath.length >= 2) add('polyline', { points: prevPath.join(' '), class: 'rates-curve-prev' });
   const path = yields.map((row, index) => (row.value == null ? null : `${x(index)},${y(row.value)}`)).filter(Boolean).join(' ');
   add('polyline', { points: path, class: 'trend-chart-line' });
-  // v58.55: on the narrow frame 20년 sits ~24 units from 30년 and its labels ran into 10년/30년 once the chart drew at its
-  // real height; a label too close to the one kept to its right is dropped (the dot stays, the value is in the row below).
-  // v58.56 (re-audit #9): with up to eleven tenors (1개월…30년) the short end is crowded on every width, so labels are
-  // placed by priority — 30년·10년·2년·3개월·5년 first, then the rest where they fit. Every dot stays; every value is in
-  // the row of tenors below the chart and in the chart's aria-label.
   const minGap = narrow ? 52 : 30; // narrow labels render ~45 units wide after the phone font floor
   const PRIORITY = ['dgs30', 'dgs10', 'dgs2', 'dgs3mo', 'dgs5', 'dgs1mo', 'dgs1', 'dgs20', 'dgs6mo', 'dgs7', 'dgs3'];
   const rank = (row) => { const at = PRIORITY.indexOf(row.id); return at < 0 ? PRIORITY.length : at; };
@@ -858,34 +749,23 @@ function curveSvg(doc, yields, previous = null) {
     if ([...labelled].every((other) => Math.abs(x(other) - x(index)) >= minGap)) labelled.add(index);
   });
   yields.forEach((row, index) => {
-    // v57.81: the last two tenors (20년·30년) sit 37 units apart; the narrow-screen label floor (responsive.css) turns them
-    // away from each other instead of letting them touch. The classes do not change the drawn chart on their own.
     const edge = index === yields.length - 1 ? ' is-last' : index === yields.length - 2 ? ' is-penult' : '';
-    // v57.91 (visual audit): the 20-year labels lean left of their point so they never meet the 30-year ones.
     const lean = index === yields.length - 2 ? { dx: -4, anchor: 'end' } : { dx: 0, anchor: 'middle' };
     if (labelled.has(index)) add('text', { x: x(index) + lean.dx, y: H - 6, 'text-anchor': lean.anchor, class: `trend-chart-axis rates-curve-tenor${edge}` }, row.label);
     if (row.value == null) return;
     add('circle', { cx: x(index), cy: y(row.value), r: 3.5, class: 'rates-curve-dot' });
-    // v59.56 (screen review): the value sat on the dashed 1개월 전 curve where that curve ran just above the point (2년·3년·
-    // 20년 on 10/30); there the label goes under the point instead.
     const prevY = prevById.has(row.id) ? y(prevById.get(row.id)) : null;
     const below = prevY != null && prevY < y(row.value) && y(row.value) - prevY <= (narrow ? 34 : 22);
-    // v59.70 (coverage audit S9): under the point the solid line comes in from the lower neighbour (10년 4.91 and 2년 4.59
-    // sat on it at 390px), so a label placed below leans to the side away from that neighbour.
     const lowerThan = (other) => other?.value != null && other.value < row.value;
     // 20년 has 30년's label to its right, so it sits level with its point on the left, above the rising line.
     const side = !below ? { ...lean, dy: -8 } : edge === ' is-penult' && lowerThan(yields[index - 1]) ? { dx: -8, anchor: 'end', dy: 4 }
       : edge ? { ...lean, dy: 16 } : lowerThan(yields[index - 1]) ? { dx: 6, anchor: 'start', dy: 16 } : lowerThan(yields[index + 1]) ? { dx: -6, anchor: 'end', dy: 16 } : { ...lean, dy: 16 };
     if (labelled.has(index)) add('text', { x: x(index) + side.dx, y: y(row.value) + side.dy, 'text-anchor': side.anchor, class: 'rates-curve-label' }, row.value.toFixed(2));
   });
-  // v59.70 (render hotfix): a value label that lands on an axis or tenor label moves vertically clear (svg-label-dodge.js);
-  // on 11/3 the 1개월 4.03 label sat on the 3.9% axis label at every desktop width.
   if (typeof svg.querySelectorAll === 'function') dodgeSvgLabels({ fixed: [...svg.querySelectorAll('.trend-chart-axis')], movable: [...svg.querySelectorAll('.rates-curve-label')], fontSize: narrow ? 15 : 12 });
   return svg;
 }
 
-// v58.55 (5e): legend for the two curves — the official cut's date and the dashed line one month (21 sessions) earlier.
-// Tenors without collected history are named as 수집 대기 rather than drawn from a guess.
 function curveLegend(doc, t) {
   const legend = el(doc, 'div', null, 'rates-curve-legend');
   if (t.asOf) legend.append(el(doc, 'span', shortDate(t.asOf), 'rates-curve-key is-now'));
@@ -898,7 +778,6 @@ function curveLegend(doc, t) {
   } else if (t.asOf) {
     legend.append(el(doc, 'span', '1개월 전 곡선 수집 대기', 'rates-curve-key is-pending'));
   }
-  // v58.56: a short/middle tenor with no value on the official cut's date is named, not drawn from another day.
   if (t.pendingTenors?.length) legend.append(el(doc, 'span', `${t.pendingTenors.join('·')} 수집 대기`, 'rates-curve-key is-pending'));
   return legend;
 }
@@ -925,14 +804,12 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
   const t = model.treasury;
   root.__aioRatesAxes = [];
-  // P1426: the equity-impact axes for this tab — policy from the 매크로 read, the rest shared with 시장 상태.
   const axesHost = doc.getElementById('rates-axes');
   readMarketRegime(root); // keeps the macro-history refresh request
-  const { regime, macroRead: read } = marketInterpretation(root); // owner 2026-10-19: the shared macro read
+  const { regime, macroRead: read } = marketInterpretation(root);
   if (axesHost) {
     const byId = Object.fromEntries(read.axes.map((row) => [row.id, row]));
     const fxAxis = regime.available ? regime.axes.find((row) => row.id === 'korea') : null;
-    // P1505: only the FX axis is unique to this tab; the other four are on the 매크로 six-axis board.
     void byId;
     const rows = [fxAxis && { ...fxAxis, shared: true, gauge: read.sharedGauges?.korea?.gauge || null, headline: read.sharedGauges?.korea?.headline || null, link: KOREA_AXIS_LINK }].filter(Boolean);
     axesHost.classList.add('regime-quality-board');
@@ -944,13 +821,10 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     raw.hidden = !rows.length;
     root.__aioRatesAxes = rows;
   }
-  // v59.55: the header says the close like every screen; the curve card's meta already names the Treasury fixing date.
   set('rates-basis', model.basis ? `${shortDate(model.basis)} 미국 종가 기준` : historyWaitText(root));
 
   // 1. Treasury curve
-  set('rates-curve-basis', t.basisLabel || ''); // v57.50 C10: source and date of the curve's levels and changes
-  // (owner 2026-11-20) the 금리 view opened on 33 numbers with no state — one lead line of values already computed
-  // here (the 10-year and its week, the 2s10s spread, the curve's move over 20 sessions), dated.
+  set('rates-curve-basis', t.basisLabel || '');
   const curveRow = doc.querySelector?.('#page-fxbond .rates-curve-row');
   let ratesLead = doc.getElementById('rates-lead');
   if (!ratesLead && curveRow) { ratesLead = el(doc, 'p', null, 'rates-curve-fact rates-lead'); ratesLead.id = 'rates-lead'; curveRow.before(ratesLead); }
@@ -991,14 +865,10 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     }));
   }
   set('rates-curve-fact', t.fact);
-  // P1426: the 10-year minus 3-month spread is the one the New York Fed's recession model uses.
   const t10y3m = seriesOf(root._aioMacroHistory, 't10y3m');
   const last3m = t10y3m[t10y3m.length - 1] || null;
   const spread3m = doc.getElementById('rates-spread-3m');
   if (spread3m) spread3m.textContent = last3m ? `10년–3개월 금리차 ${signed(last3m.value, 2, '%p')} (${shortDate(last3m.date)})` : '';
-  // 안 A: the curve's 해석 paragraphs (what an inversion tended to precede, what a move's kind tends to mean) are not drawn;
-  // the shapes are in #rates-method. The facts stay: the curve's shape, which leg moved, when an inversion ended.
-  // Expertise review 2026-10-19: which leg moved the curve over 20 sessions, and whether an inversion just ended.
   let dynamicsHost = doc.getElementById('rates-curve-dynamics');
   if (!dynamicsHost && spread3m) { dynamicsHost = el(doc, 'p', null, 'rates-curve-fact'); dynamicsHost.id = 'rates-curve-dynamics'; spread3m.after(dynamicsHost); }
   if (dynamicsHost) {
@@ -1012,10 +882,7 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
   const levels = doc.getElementById('rates-levels');
   const defs = [['실질금리, 기대인플레이션, 기간 프리미엄, 채권 변동성', model.real.filter((row) => row.note).map((row) => [row.label, row.note])]];
   if (levels) {
-    // P1427: each level card carries its one-year daily line from the FRED history (text + picture).
     const historyField = { realYield10: 'realYield10', breakeven10: 'breakeven10', hyOAS: 'hyOas' };
-    // v58.75 (persona review): the high-yield spread card was the fourth copy of the same series (시장 상태 credit axis with
-    // its chart, the 매크로 credit factor, 투자 심리's card); here it is one dated line pointing to the judgement on 시장 상태.
     levels.replaceChildren(...model.real.map((row) => {
       const full = seriesOf(root._aioMacroHistory, historyField[row.id]).map((point) => ({ date: point.date, value: row.id === 'hyOAS' ? point.value * 100 : point.value }));
       const daily = full.slice(-260);
@@ -1031,22 +898,18 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
         format: row.id === 'hyOAS' ? (value) => `${value.toFixed(0)}bp` : null // M16: the range keeps the bp unit
       });
     }));
-    // P1469: the share of the 10-year yield that is compensation for holding duration rather than the
-    // expected path of short rates — a model estimate, shown only once the FRED series has arrived.
     const premiumFull = seriesOf(root._aioMacroHistory, 'termPremium10');
     const premium = premiumFull.slice(-260);
     const lastPremium = premium[premium.length - 1] || null;
     if (lastPremium) {
       const tenYear = seriesOf(root._aioMacroHistory, 'dgs10').filter((point) => point.date <= lastPremium.date).pop() || null;
-      const back63 = sessionPointBack(premium, 63); // v59.45 (R1-01): 63 sessions, not 63 rows
+      const back63 = sessionPointBack(premium, 63);
       const year = yearChange(premiumFull);
       const ageDays = (Date.now() - Date.parse(`${lastPremium.date}T00:00:00Z`)) / 86400000;
       const premiumLag = alignInput(lastPremium.date, model.basis).lag;
       levels.append(statCard(doc, {
-        label: '10년 기간 프리미엄', // v59.55: the model is named in the meta (Kim-Wright), not the title
+        label: '10년 기간 프리미엄',
         valueText: `${signedNumber(lastPremium.value, 2)}%`,
-        // v58.80 (first-users F13) → v59.51 (area H, one 10-year reader): the split of the official constant-maturity 10-year
-        // on the model's own date is a line of the card, with its series and date.
         lines: [back63 ? `3개월 ${signed(lastPremium.value - back63.value, 2, '%p')}` : null, year == null ? null : `1년 전보다 ${signed(year, 2, '%p')}`,
           tenYear ? `${shortDate(tenYear.date)} 국채 10년(DGS10) ${tenYear.value.toFixed(2)}% 중 단기금리 예상분 약 ${(tenYear.value - lastPremium.value).toFixed(2)}%` : null],
         meta: [shortDate(lastPremium.date), premiumLag ? `${premiumLag}거래일 전` : null, 'FRED THREEFYTP10 (연준 이사회 Kim-Wright 모형)'].filter(Boolean).join(', '),
@@ -1058,9 +921,6 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     }
   }
 
-  // v59.74 (owner 11/7, bond market in full): the bond market's own volatility. MOVE was collected into history.json and shown
-  // nowhere after the P772 snapshot cell left; it sits beside the curve it measures, read inside its own one-year record and
-  // against VIX (the same reading as 매크로 › 변동성).
   if (levels) {
     const bond = volatilityChapter(root._aioHistory || [])?.bond || null;
     const moveSeries = buildCloseSeries(root._aioHistory || [], 'move', { through: model.basis });
@@ -1079,8 +939,6 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
     }
   }
 
-  // 3. Dollar, won and yen on the close basis. v59.51 (content audit): the 10-year's six-month close chart left — it is
-  // the 시장 상태 rates-axis series, and the official curve above carries today's level and 1-day/1-week moves.
   const grid = doc.getElementById('rates-fx-grid');
   if (grid) {
     grid.replaceChildren(...model.fx.map((card) => {
@@ -1091,11 +949,6 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
           valueText: card.available ? card.valueText : '—',
           chip: card.available ? `${alignmentLabel(align)} 종가` : null,
           chipOff: align.status !== 'aligned',
-          // P1725: the day change here is close-to-close on the FX trading day (New York evening); the live quote strip's
-          // 전일 대비 is measured from the 08:00 KST cut, so the two can differ and the line says which this is.
-          // v59.70 (re-review N3): one precision on the card, and a direction word only for a change that is not 0.0% as shown.
-          // v59.75 (macro audit 11/7): the yen and won cards carry their rate-differential driver (OECD monthly 10-year yields),
-          // as figures; the sentence that read the gap against the currency's move is not drawn.
           lines: card.available ? [[card.day == null ? null : `직전 거래일 종가 대비 ${signed(card.day, 1, '%')}`, card.change20 == null ? null : `20거래일 ${signed(card.change20, 1, '%')}${fxSideWord(card.id, card.change20)}`].filter(Boolean).join(', '), differentialLine(model.differentials?.[card.id], card.id)] : ['기록 수집 중'],
           series: card.series,
           format: (value) => `${value.toFixed(card.digits === 1 ? 0 : 1)}${card.unit || ''}`
@@ -1103,14 +956,13 @@ export function renderRatesFxBoard({ documentRef: doc, root }) {
       }));
     defs.push(['달러, 원화, 엔화', FX_DEFS]);
   }
-  // v59.56: the won split into the dollar's share and Korea's share heads the FX charts (a lazy chunk).
   import('./krw-read.js').then(({ renderKrwRead }) => renderKrwRead({ documentRef: doc, root })).catch(() => {});
   renderRateStrip(doc, root);
   renderErpLine(doc, root);
   renderAssetPerformance(doc, root, model.basis);
   syncOtherCurrencyNote(doc, root);
   paintMethod(doc.getElementById('rates-method'), () => ratesMethodBody(doc, root, { defs }));
-  renderNextSteps(doc, doc.getElementById('fxbond-next'), ratesNextSteps({ read, carry: model.carry })); // v57.50 I04
+  renderNextSteps(doc, doc.getElementById('fxbond-next'), ratesNextSteps({ read, carry: model.carry }));
   page.dataset.aioRatesBoardRenderer = 'native';
   return model;
 }
@@ -1136,7 +988,7 @@ const CURVE_METHOD = Object.freeze([
 const ASSET_METHOD = Object.freeze([
   '수익률 — 각 자산의 일별 종가로 계산한 가격 변화이며 배당·이자는 넣지 않았습니다. 1개월은 21거래일, 3개월은 63거래일 전 종가 대비이고, 코스피는 한국 거래일 기준입니다. 원/달러와 달러 지수는 환율이라 가장 강한·약한 자산 비교에서 뺐습니다.',
   `평소 관계 — 유가와 금리는 같이, 금리와 주식은 반대로, 주가가 내릴 때 장기채·금·달러는 오르는 경향입니다. 두 자산이 모두 기준 이상 움직이고 방향이 평소와 반대일 때만 적습니다. 경향이지 법칙이나 예측이 아닙니다.`,
-  '주식·채권 상관의 부호 — 60거래일 상관이 ±0.2 안이면 표본 오차(약 0.13) 안이라 부호를 말하지 않습니다.'
+  `주식·채권 상관의 부호 — 60거래일 상관이 ±${correlationFlatBand(60).toFixed(2)} 안이면 표본 오차(1/√60의 2배) 안이라 부호를 말하지 않습니다. 시장 상태와 같은 기준입니다.`
 ]);
 // #rates-method: the curve card's spread, the FX factor, the 10-year split and the Taylor rule, the equity risk premium,
 // every card's definition and the asset table's rules, each with the link to its principle in the research library.
@@ -1152,9 +1004,6 @@ function ratesMethodBody(doc, root, { defs }) {
     methodSection(doc, '자산군 성과', ASSET_METHOD, [principleLink(doc, root, 'assets', '달러·금·현금')])];
 }
 
-// v58.75 (persona review): an asset allocator reads rates and FX against what the asset classes did. One line (the
-// strongest and weakest of the investable rows over 3 months, and the stock-bond correlation), the S&P 500–TLT 60-session
-// correlation line over the record the TLT series has, and a 1M/3M/YTD table from the daily closes in history.json.
 const ASSET_ROWS = Object.freeze([
   ['spx', 'S&P 500', true], ['ndx', '나스닥 100', true], ['rut', '러셀 2000', true], ['rsp', 'S&P 500 동일가중 (RSP)', true],
   ['tlt', '미 장기채 (TLT)', true], ['gold', '금', true], ['dxy', '달러 지수', false], ['wti', 'WTI 원유', true],
@@ -1206,7 +1055,7 @@ function renderAssetPerformance(doc, root, basis) {
   const windows = [['1개월', 'm1'], ['3개월', 'm3'], ['올해', 'ytd']];
   if (!model.rows.some((row) => row.last)) { host.replaceChildren(title, el(doc, 'div', '자산별 종가 기록을 불러오는 중입니다.', 'briefing-empty')); return; }
   const nowCorr = model.corr.at(-1) || null;
-  const corrText = nowCorr ? ` S&P 500과 미 장기채의 최근 ${CORR_WINDOW}거래일 상관은 ${nowCorr.value.toFixed(2)}입니다.` : '';
+  const corrText = nowCorr ? ` S&P 500과 미 장기채의 최근 ${CORR_WINDOW}거래일 상관은 ${signed(nowCorr.value, 2, '')} — ${stockBondCorrelationWord(nowCorr.value, CORR_WINDOW)}.` : '';
   const lead = el(doc, 'p', null, 'rates-curve-fact');
   lead.setAttribute('aria-live', 'polite');
   const table = el(doc, 'table', null, 'macro-regime-inputs');
@@ -1260,28 +1109,21 @@ function renderAssetPerformance(doc, root, basis) {
   const parts = [title, lead, bars, fold];
   if (model.corr.length >= 5) {
     const corrTitle = el(doc, 'h3', `S&P 500 – 미 장기채(TLT) ${CORR_WINDOW}거래일 상관`, 'trend-card-title');
-    corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`; // v58.79: sample size as the title's hover
-    // v59.55 (alignment pass): drawn at the card's width — scaled from the 360px default, its axis text grew to 30px.
+    corrTitle.title = `표본: 두 종가가 모두 있는 ${model.jointSessions}거래일(${shortDate(model.corrFrom)}부터), 상관 ${model.corr.length}개 시점. 일간 수익률의 피어슨 상관이며 TLT 기록이 쌓인 만큼만 그립니다.`;
     const cardWidth = (doc.getElementById('rates-assets')?.clientWidth || 0) - 44;
     parts.push(corrTitle, createTrendChart(doc, { series: model.corr, refLines: [0], domain: [-1, 1], format: (value) => value.toFixed(2), label: `S&P 500과 TLT의 ${CORR_WINDOW}거래일 일간 수익률 상관`, width: cardWidth > 360 ? Math.min(cardWidth, 1100) : undefined }));
   } else parts.push(el(doc, 'p', `S&P 500과 TLT가 함께 기록된 날이 ${model.jointSessions}거래일이라 ${CORR_WINDOW}거래일 상관은 아직 그리지 않습니다.`, 'briefing-empty'));
-  // v58.80 (owner 2026-10-25): the fixed paragraph on the correlation sign (kept in the allocation fold below) gave way to
-  // what the same assets did against their usual relations over 20 sessions — the reading the chart above leads into.
   const relations = buildCrossAssetRelations(root._aioHistory || [], { through: model.basis || null });
   const reading = el(doc, 'p', null, 'briefing-read-reading');
   reading.title = `${relations.window}거래일 종가 변화 기준 — 평소 관계의 정의는 계산 방법에 있습니다.`;
   reading.append(el(doc, 'span', '평소 관계', 'briefing-hypothesis-tag'), doc.createTextNode(` ${relations.reading || '자산별 종가 기록이 쌓이면 평소 관계와 어긋난 곳을 적습니다.'}`));
   parts.push(reading);
-  // v58.75 (persona review, spec F3): the cash-like rate the allocation principles weigh waiting against (SOFR, the rate the
-  // scenarios quote) — a figure; the principles themselves are in #rates-method.
   let cash = null;
   try { cash = marketInterpretation(root).crossroads?.cash || null; } catch (_) { cash = null; }
   if (cash) parts.push(el(doc, 'p', `현금성 금리(SOFR) 연 ${cash.value.toFixed(2)}% (${shortDate(cash.date)})`, 'rates-curve-fact'));
   host.replaceChildren(...parts);
 }
 
-// v58.75 (persona review): the equity risk premium (S&P 500 forward earnings yield − 10-year real yield) sits beside the
-// real-yield card it depends on — the same indexEarnings stage 매크로 renders in full (src/domain/market/indices/index-earnings.js).
 function renderErpLine(doc, root) {
   const levels = doc.getElementById('rates-levels');
   if (!levels) return;
@@ -1299,11 +1141,7 @@ function renderErpLine(doc, root) {
   line.hidden = false;
 }
 
-// Codex browser audit H18: the note names what the cells actually hold — a market quote time, or a completed close and
-// its date — and the change cell beside a close is hidden instead of showing a fixed dash.
 const OTHER_FX = Object.freeze(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
-// v59.75 (macro audit 11/7): with no live quote the fold showed nothing; history.json now keeps completed closes for the four
-// (scripts/producer/history.mjs), and the fold falls back to the last close of each, named as a close with its date.
 const OTHER_FX_FIELDS = Object.freeze({ 'EURUSD=X': 'eurusd', 'GBPUSD=X': 'gbpusd', 'CNY=X': 'usdcny', 'AUDUSD=X': 'audusd' });
 export function otherFxCloses(history = []) {
   const closes = {};
@@ -1313,44 +1151,41 @@ export function otherFxCloses(history = []) {
   }
   return closes;
 }
-// Only closes of the label's own day are shown (an older cell under a newer date would misstate it), and a last close more
-// than ten days old is no fallback at all.
 const OTHER_FX_CLOSE_MAX_AGE_MS = 10 * 86400000;
 export function describeOtherFx(live = {}, history = [], nowMs = Date.now()) {
-  const rows = OTHER_FX.map((symbol) => live?.[symbol]).filter((row) => row && Number.isFinite(Number(row.price ?? row.quoteEnvelope?.price ?? row.regularMarketPrice)));
+  const quoted = (symbol) => { const row = live?.[symbol]; return row && Number.isFinite(Number(row.price ?? row.quoteEnvelope?.price ?? row.regularMarketPrice)) ? row : null; };
+  const rows = OTHER_FX.map(quoted).filter(Boolean);
+  const all = otherFxCloses(history);
+  const closes = Object.fromEntries(OTHER_FX.filter((symbol) => !quoted(symbol) && all[symbol] && nowMs - Date.parse(`${all[symbol].date}T21:00:00Z`) <= OTHER_FX_CLOSE_MAX_AGE_MS)
+    .map((symbol) => [symbol, all[symbol]]));
   if (!rows.length) {
-    const all = otherFxCloses(history);
-    const label = Object.values(all).map((point) => point.date).sort().at(-1);
-    if (!label || nowMs - Date.parse(`${label}T21:00:00Z`) > OTHER_FX_CLOSE_MAX_AGE_MS) return { text: '시세 대기', reference: false };
-    const closes = Object.fromEntries(Object.entries(all).filter(([, point]) => point.date === label));
-    const [, month, day] = label.split('-').map(Number);
-    return { text: `${month}/${day} 종가`, reference: true, closes };
+    const label = Object.values(closes).map((point) => point.date).sort().at(-1);
+    if (!label) return { text: '시세 대기', reference: false, closes: {} };
+    return { text: `${shortDate(label)} 종가`, reference: true, closes };
   }
   // A live row is a market quote (the daily reference-rate APIs are gone); a close is the history fallback above.
   const stamps = rows.map((row) => row.observedAt || row.quoteEnvelope?.observedAt).map((at) => (typeof at === 'number' ? at * (at < 1e12 ? 1000 : 1) : Date.parse(at))).filter(Number.isFinite);
   const latest = stamps.length ? new Date(Math.max(...stamps)) : null;
-  // v58.82: the label is KST like the rest of the board — the browser's own zone gave a US or European reader another day/hour.
   const kst = latest ? new Date(latest.getTime() + 9 * 3600000) : null;
   const md = kst ? `${kst.getUTCMonth() + 1}/${kst.getUTCDate()}` : null;
   const hm = kst ? `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}` : null;
-  return { text: latest ? `시장 시세, ${md} ${hm} 관측` : '시장 시세, 관측 시각 미확인', reference: false };
+  return { text: latest ? `시장 시세, ${md} ${hm} 관측` : '시장 시세, 관측 시각 미확인', reference: false, closes };
 }
 function syncOtherCurrencyNote(doc, root) {
   const note = doc.querySelector?.('#rates-other-title .rates-other-note');
   if (!note) return;
   const read = describeOtherFx(root?._liveData || {}, root?._aioHistory || []);
-  // v57.91 (wording audit): with no quote at all, one line replaces a grid of eight dashes.
   const empty = read.text === '시세 대기';
   const grid = doc.querySelector?.('.rates-other');
   if (grid) grid.style.display = empty ? 'none' : ''; // the class sets display:grid, which a hidden attribute would not override
-  // v59.55 (alignment pass): a fold with nothing in it is not shown at all.
   const fold = note.closest('.rates-other-fold');
   if (fold) fold.hidden = empty;
   note.textContent = empty ? '시세를 아직 받지 못했습니다' : read.text;
   for (const symbol of OTHER_FX) {
-    const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);
-    if (change) change.hidden = read.reference;
     const close = read.closes?.[symbol];
+    const change = doc.querySelector?.(`.rates-other [data-live-chg="${symbol}"]`);
+    // A close's cell says its own date where the live change would sit.
+    if (change) { change.hidden = read.reference && !close; if (close) { change.textContent = `${shortDate(close.date)} 종가`; change.dataset.quoteState = 'close'; } }
     const price = close ? doc.querySelector?.(`.rates-other [data-live-price="${symbol}"]`) : null;
     if (price) { price.textContent = close.value.toFixed(4); price.title = `${close.date} 종가`; price.dataset.quoteState = 'close'; }
   }

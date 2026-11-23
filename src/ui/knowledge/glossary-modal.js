@@ -7,8 +7,6 @@
 // pictographs.
 import { escapeHtml as esc } from '../html.js';
 
-// P1599 (F113): 28 raw categories mixed subject, industry and difficulty on four rows; seven reader groups replace them
-// (each item keeps its own category tag).
 export const GLOSSARY_GROUPS = [
   ['기초·회계', ['기초', '금융수학·통계', '회계·재무제표']],
   ['매크로·금리·외환', ['경제', '경제 기본', '거시·돈', '거시', '외환', '채권']],
@@ -19,8 +17,6 @@ export const GLOSSARY_GROUPS = [
   ['배경·심화', ['배경지식', '심화']]
 ];
 
-// v59.70 (screen review #36, owner: the screen and its labels are 매크로): the registry's own tags stay as data; the shown tag
-// uses the screen's name.
 const TAG_LABEL = { 거시: '매크로', '거시·돈': '매크로·돈' };
 export const glossaryTagLabel = (cat) => TAG_LABEL[cat] || cat;
 
@@ -48,11 +44,10 @@ function searchRank(entry, query) {
 export function createGlossaryModal({ root = globalThis, documentRef = root.document } = {}) {
   let category = 'all';
   let previousFocus = null;
-  let shownQuery = ''; // v59.70: the term the command search opened the modal on (the modal has no search box of its own)
+  let shownQuery = '';
   const entries = () => (Array.isArray(root.GLOSSARY) ? root.GLOSSARY : []);
 
   function renderCats() {
-    // P1248: the buttons come from the GLOSSARY registry, so a category that only the data has is never left out.
     const all = entries();
     const counts = {};
     all.forEach((entry) => { const group = glossaryGroupOf(entry.cat); counts[group] = (counts[group] || 0) + 1; });
@@ -67,8 +62,6 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
   }
 
   function entryHtml(entry, open) {
-    // v58.53 개편 v2 (3h): each entry is a disclosure row (term · 분류 · 첫 문장); opened, it reads definition →
-    // formula → 한계 → "이 개념이 쓰이는 화면" (parts from glossary-bridge.js, cut from the entry's own text).
     let parts = null;
     try { parts = typeof root._aioGlossaryEntryParts === 'function' ? root._aioGlossaryEntryParts(entry) : null; } catch (_e) { parts = null; }
     const lead = parts && parts.lead.length ? parts.lead.join(' ') : entry.def;
@@ -104,9 +97,8 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
       || g.def.toLowerCase().indexOf(q) !== -1;
     const all = entries();
     let filtered = all.filter((g) => (category === 'all' || glossaryGroupOf(g.cat) === category) && matches(g));
-    if (q) filtered.sort((a, b) => searchRank(a, q) - searchRank(b, q)); // v57.55 (2b)
+    if (q) filtered.sort((a, b) => searchRank(a, q) - searchRank(b, q));
     else filtered.sort(byName); // the default list is 가나다 order, Korean names first, then Latin ones (RRG, OAS, …)
-    // P1248: say that the search runs inside the chosen category, and widen to every category when it finds nothing there.
     let scopeNote = '';
     if (q && category !== 'all') {
       if (filtered.length === 0) {
@@ -124,7 +116,6 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
       }
     }
     let html = scopeNote ? `<div role="status" class="lu-gl-scope">${esc(scopeNote)}</div>` : '';
-    // v59.70: a list narrowed to one searched term has one way back to the whole list.
     if (q) html += `<div class="lu-gl-scope"><button type="button" class="lu-gl-route" data-action="_aioGlossaryShowAll">전체 용어 보기</button></div>`;
     if (filtered.length === 0) html += '<div class="lu-gl-empty">검색 결과가 없습니다</div>';
     else filtered.forEach((g, index) => { html += entryHtml(g, Boolean(q) && index === 0); });
@@ -153,8 +144,6 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
     if (focusTarget && documentRef.contains(focusTarget) && !focusTarget.disabled) { try { focusTarget.focus(); } catch (_) { /* detached */ } }
   }
 
-  // v59.70 (wave2-f S23): open(term) shows that term's entry open (a term mark, a research result or the command search);
-  // open() the whole list. Searching is the command search's '용어' scope (the 검색 button in the head).
   function open(term = '') {
     const modal = documentRef.getElementById('glossary-modal');
     if (!modal) return;
@@ -192,8 +181,6 @@ export function createGlossaryModal({ root = globalThis, documentRef = root.docu
 // they loaded (root._aioGlossaryPending, set by the stub in src/app/compatibility-globals.js) is shown now.
 export function installGlossaryModal(root, documentRef) {
   const modal = createGlossaryModal({ root, documentRef });
-  // v59.70 P3: an open before js/aio-glossary.js has arrived waits for it instead of showing an empty list.
-  // v59.70 (post-boot budget): and for the screen terms that join on real use (AIO.loadGlossaryFull).
   root.openGlossary = (...args) => {
     const load = root.AIO?.loadGlossaryFull || root.AIO?.loadGlossary;
     if (typeof load !== 'function' || root._aioGlossaryFullDone) return modal.open(...args);

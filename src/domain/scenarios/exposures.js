@@ -1,10 +1,3 @@
-// P1743 (owner 2026-10-13): one registry that connects every macro branch to every theme — not only the examples
-// the owner named. Each theme (US THEME_MAP ids and KR_THEME_MAP ids) carries exposure tags (what it is sensitive to)
-// and a structural thesis with the conditions that would break it. The tags decide, for any branch, which themes
-// face a tailwind or a headwind; the thesis lets a pullback in a structural theme be read differently from a
-// pullback in a cyclical one. Static, human-reviewed text (AGENTS: slow-changing content is versioned static data);
-// every statement here is a hypothesis, never a measured value, and contains no time-stamped numbers.
-
 export const EXPOSURE_TAGS = Object.freeze({
   growth: '장기 성장, 고PER (할인율 민감)',
   aicapex: 'AI 설비투자 사이클',

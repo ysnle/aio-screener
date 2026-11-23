@@ -1,12 +1,3 @@
-// v57.81 (analysis audit 2026-10-15): the 테마·섹터 verdicts come from slow windows — the theme stage from 6-month (KR
-// 3-month) and 1-month medians, the sector rotation from a ~50-session momentum — while semis and AI infra fell 12.6% and
-// 12.7% in five sessions and SMH's relative strength 8.8%. One owner for the two checks every slow verdict now passes:
-//   1. relative, banded: "ahead of the market" means ahead of the S&P 500 (KR: KOSPI) over the SAME window by more than
-//      a band, never "above 0". The band is a typical sector tracking error (about 5% a year, so 1.5%p a month) scaled by
-//      the square root of the window length — a property of how sectors move against an index, not of this week.
-//   2. recent contradiction: when the last five sessions move against the verdict by more than twice the series' own
-//      typical weekly move (median absolute 5-session move), the label says so and drops present-tense direction words.
-// The RRG neutral band (경계) also lives here so every reader of sector rotation (테마·섹터, the market screens) shares it.
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { classifyRRG, RRG_QUADRANT_WORDS } from './rrg.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
@@ -15,18 +6,10 @@ export const RECENT_SESSIONS = 5;
 export const NOISE_MULTIPLE = 2;
 /** RS-Ratio / RS-Momentum points around 100 that are too close to call a quadrant (both axes) when no trail exists. */
 export const RRG_NEUTRAL_BAND = 1;
-// v57.84 (owner decision, TECHNICAL-DEFINITIONS 3-3 안 A): with the produced trail the band is each sector's own typical
-// 5-session move on that axis (median |change|), held inside [RRG_BAND_MIN, RRG_BAND_MAX]; a fixed ±1 was narrower than a
-// normal week for most of the 31 ETFs (0.65–4.1 on RS-Ratio, 1.3–9.8 on RS-Momentum) and ICLN changed quadrant 9 times in
-// 20 sessions. Hysteresis: a side is entered beyond 100 ± band and left only past the other side's band × RRG_EXIT_SHARE.
 export const RRG_BAND_MIN = 0.5;
 export const RRG_BAND_MAX = 3;
 export const RRG_EXIT_SHARE = 0.5;
 const RRG_MIN_TRAIL = 10;
-// Audit 2026-10-17 (owner D4): the band is one standard deviation of a theme's return less its index's. It assumed a 5%/yr
-// tracking error (1-month ±1.5%p, 6-month ±3.7%p); the 31 sector/theme ETFs measured 13–44%/yr against SPY (median
-// 22.8%), so a noise-sized gap read 주도 or 약세. 15%/yr is the low end of that range — narrow enough that a real lead
-// still reads, and a theme median of 20+ names tracks closer than a single ETF.
 export const ANNUAL_TRACKING_ERROR_PCT = 15;
 /** %p per month: ANNUAL_TRACKING_ERROR_PCT ÷ √12 (≈ 4.3). */
 export const MONTHLY_RELATIVE_BAND = ANNUAL_TRACKING_ERROR_PCT / Math.sqrt(12);
@@ -158,7 +141,6 @@ function settledSide(values, band) {
 export function rrgZone(rsRatio, rsMomentum, { band = RRG_NEUTRAL_BAND, trail = null } = {}) {
   const ratio = finite(rsRatio), momentum = finite(rsMomentum);
   if (ratio == null || momentum == null) return null;
-  // v57.84: the raw quadrant boundaries are classifyRRG's (the producer's), not a second copy.
   const { quadrant: raw } = classifyRRG(ratio, momentum);
   if (raw === 'unknown') return null;
   const bands = rrgNoiseBands(trail);
@@ -190,10 +172,8 @@ export function rrgRecentReading(item, series = null) {
   const zone = rrgZone(item?.rsRatio, item?.rsMomentum, { trail: item?.trail || null });
   if (!zone) return null;
   const check = rsRecentCheck(series);
-  // v57.84: the direction is the settled quadrant's (Leading/Improving = strengthening), not the raw momentum sign.
   const strengthening = zone.border ? finite(item.rsMomentum) >= 100 : zone.quadrant === 'Leading' || zone.quadrant === 'Improving';
   const reversal = check ? (strengthening && check.fell ? 'fell' : !strengthening && check.rose ? 'rose' : null) : null;
-  // v57.84: tri-state for readers that colour a tone — null when the series or its typical move is missing (fails closed).
   const opposed = check == null || check.threshold == null ? null : reversal != null;
   const word = RRG_QUADRANT_WORDS[zone.quadrant];
   const head = zone.border ? `기준선 부근(${zone.between} 사이)` : `${word}(약 50일 기준)`;

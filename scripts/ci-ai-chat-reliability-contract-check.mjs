@@ -27,7 +27,6 @@ const html = read('index.html');
 const workspace = read('js/aio-workspace.js');
 const worker = read('cloudflare-worker-proxy.js');
 const config = json('public-config.json');
-const operations = json('public-data/operations-status.json');
 
 // v57.79: retired personal provider keys left the registry (no input, no reader); the sensitive set still lists
 // them so any leftover stored value stays encrypted until boot deletes it.
@@ -58,29 +57,9 @@ check('required research always hands off to the shared Worker search (P1655)', 
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
 check('P1655 research diagnostic audit exposes contract and last preparation', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes("transport: 'shared-worker'"));
-const normalizeWorkerUrl = value => String(value || '').trim().replace(/\/+$/, '');
-const configWorkerUrl = normalizeWorkerUrl(config.ai?.workerUrl);
-const operationsWorkerUrl = normalizeWorkerUrl(operations.ai?.publicChat?.workerEndpoint);
+// v60.50: the route decision itself is checked as release-scoped code in ci-release-revision-check.mjs.
+const configWorkerUrl = String(config.ai?.workerUrl || '').trim().replace(/\/+$/, '');
 const publicRoutePublished = /^https:\/\//i.test(configWorkerUrl) && config.ai?.routeStatus === 'PUBLISHED';
-const publicRouteDisabled = config.ai?.routeStatus === 'DISABLED'
-  && config.ai?.serverMode === 'shared-worker-only'
-  && config.ai?.chatPolicy === 'shared-worker-only'
-  && typeof config.ai?.routeReason === 'string'
-  && config.ai.routeReason.length > 0
-  && config.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
-check('P1421 public config publishes only matching provider evidence or explicitly holds AI', config.schemaVersion === 'ai-public-config.v1'
-  && config.ai?.provider === 'openai' && config.ai?.model === 'gpt-6-luna'
-  && config.appRevision === operations.appRevision
-  && ((publicRoutePublished
-    && config.ai?.routeStatus === 'PUBLISHED'
-    && config.ai?.routeEvidence?.status === 'CURRENT'
-    && configWorkerUrl === operationsWorkerUrl
-    && config.ai?.serverMode === 'shared-worker-only'
-    && config.ai?.chatPolicy === 'shared-worker-only'
-    && operations.ai?.publicChat?.statusCode === 'CONFIGURED_HEALTHY'
-    && operations.ai?.publicChat?.health?.provider === 'openai'
-    && operations.ai?.publicChat?.health?.model === 'gpt-6-luna')
-    || publicRouteDisabled));
 const bootRouteContract = publicRoutePublished
   ? core.includes(`workerUrl: '${configWorkerUrl}'`) && core.includes("serverMode: 'shared-worker-only'")
   : core.includes('workerUrl: workerUrl || null') && core.includes('loadPublicConfig');
@@ -108,8 +87,6 @@ check('Worker CORS allows every browser chat header', /'Access-Control-Allow-Hea
 // when the request is cancelled or fails to start, before any upstream dispatch.
 check('v60.39 Worker releases an AI reservation that never reached dispatch', /if \(signal\?\.aborted\) \{\s*await rpc\('release', payload\);/.test(worker) && /catch \(error\) \{ await rpc\('release', payload\); throw error; \}/.test(worker));
 check('Worker exposes effective token cap', /\[AI_HEADERS\.maxTokens\]: String\(maxTokens\)/.test(worker)); // v59.87: header name from the shared contract
-check('operations status separates scheduled analysis and public chat', operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true);
-check('operations status separates five readiness fields', ['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => read('public-data/operations-status.json').includes(`"${field}"`)));
 
 function uiRouteReadinessUsesTarget() {
   const ui = read('js/aio-ui.js');
@@ -122,7 +99,21 @@ if (errors.length) {
   process.exit(1);
 }
 console.log('AI chat reliability contract OK');
-}],
+}, 'code'],
+// ── section operations-ai (v60.50: the published operations status, split from `reliability` so it runs in a data run) ──
+['operations-ai', async () => {
+const { readFileSync } = await import('node:fs');
+const text = readFileSync(new URL('../public-data/operations-status.json', import.meta.url), 'utf8');
+const operations = JSON.parse(text);
+const errors = [];
+if (!(operations.ai?.scheduledAnalysis && operations.ai?.publicChat?.scheduledAnalysisDoesNotImplyChat === true)) errors.push('operations status separates scheduled analysis and public chat');
+if (!['secretConfigured', 'workflowWired', 'lastCallSucceeded', 'dataCurrent', 'licensedForUse'].every(field => text.includes(`"${field}"`))) errors.push('operations status separates five readiness fields');
+if (errors.length) {
+  errors.forEach(error => console.error(`- ${error}`));
+  process.exit(1);
+}
+console.log('AI operations status OK');
+}, 'data'],
 // ── section provider-stream (was ci-ai-provider-stream-check.mjs) ──
 ['provider-stream', async () => {
 // Isolated transport fixtures; no API key or external network is used.
@@ -235,7 +226,7 @@ for (const serverKey of [true]) {
   }
 }
 console.log('AI provider stream check OK: ' + assertions + ' isolated Responses Worker transport scenarios.');
-}],
+}, 'code'],
 // ── section tool-loop (v60.02, plan 045): the data-tool rounds of callSharedAi against a scripted Worker stream ──
 ['tool-loop', async () => {
 const { readFileSync } = await import('node:fs');
@@ -460,7 +451,7 @@ let sequence = null;
 }
 if (process.env.AIO_TOOL_LOOP_SEQUENCE) console.log(JSON.stringify(sequence, null, 1));
 console.log('Tool loop OK: no-call, parallel round, round cap, call cap, refused-tools fallback, cancel during tools, search beside functions, waiting-line stages.');
-}],
+}, 'code'],
 // ── section chat-resilience (was ci-chat-resilience-check.mjs) ──
 ['chat-resilience', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -693,5 +684,5 @@ assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_E
   assert(stuck.bytes > target && stuck.turns === 1 && stuck.system.endsWith(tail) && stuck.system.lastIndexOf(marker) <= 8000 + 40, 'v59.97 an over-budget body still carries the whole policy tail');
 }
 console.log('Chat resilience PASS: shared cancellation/epochs on the unified chat path (per-page retired v57.62), retry, route/quota fail-closed, modal liveness, empty+timeout search fallback, evidence objects, source spoofing, safe links, deduplication and shared knowledge retry/cancellation (offline).');
-}],
+}, 'code'],
 ]);

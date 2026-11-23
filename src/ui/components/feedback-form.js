@@ -1,6 +1,3 @@
-// v58.82 (owner 2026-10-26, roadmap 12): "이상해요" — a short note to the owner from any screen. Only the screen name
-// and the app version ride with the text. The AIO Worker keeps notes privately (the repository is public), a few per
-// connection a day; the owner reads them in the connection panel with the operator token, which is not stored.
 import { readFeedback, sendFeedback } from '../../data/feedback.js';
 import { markField, setSubmitState } from './input-check.js';
 
@@ -56,7 +53,6 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, version =
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const body = text.value.trim(), workerUrl = workerTarget(win);
-      // v59.70 (ui-states): an empty note is refused under the field; the send shows busy, then sent or failed.
       if (!markField(text, body ? { ok: true } : { ok: false, reason: '내용을 적어 주세요.' }).ok) { text.focus(); return; }
       if (!workerUrl) { setSubmitState(send, 'fail', RESULT_TEXT.failed); return; }
       setSubmitState(send, 'busy', '보내는 중');
@@ -74,7 +70,6 @@ export function openFeedbackDialog({ documentRef: doc, windowRef: win, version =
   return dialog;
 }
 
-// Owner side: notes newest first, rendered as text only.
 export function attachFeedbackReader(container, { documentRef: doc, windowRef: win }) {
   const box = el(doc, 'details', null, 'aio-feedback-reader');
   box.append(el(doc, 'summary', '가족 피드백 보기 (운영자)'));

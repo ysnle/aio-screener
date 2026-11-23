@@ -18,15 +18,13 @@ export const placeTermPopover = placePopover;
 
 // [text as written on screen, glossary term]. Longer forms first so 'Forward PER' is not read as 'PER'.
 export const TERM_MARKS = Object.freeze([
+  ['경기순환주의 PER 역설', '경기순환주의 PER 역설'],
   ['Forward PER', 'Forward PER'],
   ['하이일드 스프레드', '하이일드 스프레드'],
-  // First-users run-6 (#5): four targets named a glossary term that had been renamed ('·' for ','), so 근원 물가, PCE and
-  // 50·200일선 were never marked. markTerms skips a target with no entry, silently; these now match the entry names.
   ['근원 물가', '근원 물가 (근원 CPI · 근원 PCE)'],
   ['공포·탐욕', '공포·탐욕 지수 (F&G)'],
   ['달러 지수', 'DXY (달러 인덱스)'],
   ['Sahm', 'Sahm Rule'],
-  // v57.79 (UI review): the abbreviations 시장 상태 · 거시 print without a plain-Korean name.
   ['CCC', 'CCC − B 등급 격차'],
   ['RRG', 'RRG (상대회전그래프)'],
   ['OAS', 'OAS / HY 스프레드'],
@@ -48,10 +46,8 @@ export const TERM_MARKS = Object.freeze([
   ['단기채', '단기채'],
   ['50일선', '이동평균 (50일선 · 200일선)'],
   ['200일선', '이동평균 (50일선 · 200일선)'],
-  // 2026-10-19 market guide: the choice words 오늘 · 시나리오 가이드 use are glossary terms.
   ['기회비용', '기회비용'],
   ['분할 접근', '분할 접근'],
-  // v58.80 (first-users run-4, newcomer): abbreviations and words a beginner met unmarked on 오늘 · 시장 상태 · 종목.
   ['시장 폭', '시장 폭(Breadth)'],
   ['역배열', '정배열 / 역배열'],
   ['52주', '52주 신고가/신저가'],
@@ -64,7 +60,6 @@ export const TERM_MARKS = Object.freeze([
   ['CPI', 'CPI (소비자물가지수)'],
   ['FOMC', 'FOMC'],
   ['ATR', 'ATR'],
-  // First-users run-6 (#5): words 오늘 · 시장 상태 · 종목 · 포트폴리오 printed with no entry (src/domain/knowledge/deferred-screen-terms.js).
   ['희석 EPS', '희석 EPS'],
   ['혼조', '혼조'],
   ['GAAP', 'GAAP / 비GAAP'],
@@ -76,7 +71,6 @@ export const TERM_MARKS = Object.freeze([
   ['Markowitz', '평균-분산 분산투자 (Markowitz)'],
   ['EPS', 'EPS'],
   ['ETF', 'ETF'],
-  // v58.80 first-users run-5 (newcomer): words met unmarked on 오늘 · 시장 상태 · 종목 · 포트폴리오.
   ['주도 영역', '주도 영역 (AI·반도체)'],
   ['주도주', '주도주(Leader)'],
   ['매도 소진', '매도 소진'],
@@ -139,8 +133,6 @@ export function markTerms(page, glossary, documentRef = page?.ownerDocument) {
   const parentInfo = (parent) => {
     let info = parents.get(parent);
     if (!info) {
-      // v58.80: a flex or grid parent turns each text run into its own box, so a mark there is a small standalone target,
-      // not a word in a sentence (the 근거 line of 테마와 섹터 read 'ETF' as an 18 px button).
       const view = parent.ownerDocument?.defaultView;
       const display = typeof view?.getComputedStyle === 'function' ? view.getComputedStyle(parent).display : '';
       info = { prose: !parent.closest(SKIP) && !!parent.closest(PROSE) && !/flex|grid/.test(display), length: null, laidOut: null };
@@ -195,9 +187,7 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
   const activePage = () => documentRef.querySelector('.page.active');
   const run = () => { timer = null; try { markTerms(activePage(), root.GLOSSARY, documentRef); } catch (_) { /* reading text only */ } };
   const schedule = () => { if (!timer) timer = setTimeout(run, 700); };
-  documentRef.addEventListener('aio:glossaryReady', schedule); // v59.70 P3: GLOSSARY arrives after boot
-  // While a popover is open the back-to-top button (bottom-right, fixed) is hidden so it cannot sit on top of it.
-  // v57.61 WCAG 2.4.3: when focus was inside the popover, closing it (Escape, scroll) returns focus to the term.
+  documentRef.addEventListener('aio:glossaryReady', schedule);
   const close = ({ restore = true } = {}) => {
     if (!pop) return;
     const hadFocus = pop.contains(documentRef.activeElement);
@@ -238,14 +228,11 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     more.textContent = '용어 사전에서 보기';
     more.addEventListener('click', () => {
       close({ restore: false });
-      // v59.70 (wave2-f S23): the modal has no search box; it opens on the term itself.
       if (typeof root.openGlossary === 'function') root.openGlossary(entry.term);
     });
     pop.append(name, body, more);
     // Tabbing out of the popover closes it; a pointer press elsewhere is handled by the document click.
     pop.addEventListener('focusout', (event) => { if (pop && event.relatedTarget && !pop.contains(event.relatedTarget)) close({ restore: false }); });
-    // v57.71 (2026-10-15 audit, WCAG 2.4.3): the popover sits at the end of <body>, so Tab from its button landed on BODY.
-    // Tab (either direction) closes it and returns focus to the term, where reading order continues.
     pop.addEventListener('keydown', (event) => { if (event.key === 'Tab') { event.preventDefault(); close(); } });
     pop.setAttribute('aria-modal', 'false');
     opener = mark;
@@ -260,8 +247,6 @@ export function installTermMarks(documentRef, { root = globalThis } = {}) {
     pop.dataset.side = place.side;
     if (focus) more.focus({ preventScroll: true });
   };
-  // v58.80 (first-users bundle 7): "hover does nothing; I had to click". A mouse resting on a term opens its popover
-  // (without moving focus) and leaving both the term and the popover closes it; touch and keyboard keep tap/Enter.
   let hoverTimer = null;
   const onOver = (event) => {
     if (event.pointerType !== 'mouse' || hoverSuppressed(root)) return;

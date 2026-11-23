@@ -22,15 +22,6 @@ import { marketInterpretation, readMarketRegime } from '../../data/selectors/int
 import { signedText, signMark, directionColor, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
-// RM-01 (2026-07-19): this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
-// replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
-// (js/aio-ui.js liveEls + an inline index.html script at :12742/:12928-:12952) kept writing the
-// same ids/table with the real column set. That is the highest-severity contested container in
-// F-03/route-owners.json: whichever writer runs last wins the race, and native losing means the
-// table silently shrinks. P780 transfers only the independently owned pf-analysis-status
-// readiness text. P810 adds a bounded native hero projection for total value and total P/L;
-// P830 transfers the Vault-backed nine-column holdings table. Prices, risk, AI workbench,
-// and chart surfaces remain separately legacy-owned.
 export function renderPortfolioStatus(documentRef, state, surface, { pricesLoading = false } = {}) {
   const element = documentRef?.getElementById('pf-analysis-status');
   if (!element) return;
@@ -47,11 +38,9 @@ export function renderPortfolioStatus(documentRef, state, surface, { pricesLoadi
   } else if (valuation === 'empty') {
     element.textContent = '포트폴리오 등록 후 자동 계산됩니다.';
   } else if ((valuation === 'partial' || valuation === 'unavailable') && pricesLoading && (surface?.holdingCount ?? 0) > 0) {
-    // v58.80 (first-users bundle 3): on slow 3G the close list had not arrived and the row read "가격 없음" beside a known 10/23 close.
     element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 나머지 종목의 종가를 불러오는 중입니다. 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'partial') {
-    // v57.86 (live review): the hero shows no partial total, so the line says the totals wait (it said the holding was "left out").
-    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`; // v57.81: same words as the row state
+    element.textContent = `${surface?.valuedHoldingCount ?? 0}/${surface?.holdingCount ?? 0}종목 평가, 가격 없음 ${(surface?.holdingCount ?? 0) - (surface?.valuedHoldingCount ?? 0)}종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다${closeNote(surface)}`;
   } else if (valuation === 'mixed-currency') {
     // Each unit's own total, never one sum across units; the base currency setting adds them up.
     const parts = (surface.currencySubtotals || []).map((row) => (row.value != null ? `${CURRENCY_WORD[row.currency] || row.currency} ${formatMoney(row.value, row.currency)}`
@@ -59,15 +48,12 @@ export function renderPortfolioStatus(documentRef, state, surface, { pricesLoadi
     const appFxCovers = (surface.currencySubtotals || []).every((row) => row.currency === 'USD' || row.currency === 'KRW');
     element.textContent = `통화별 평가 ${parts.join(' · ')}, ${appFxCovers ? '기준 통화를 정하면 원/달러 종가로 합산합니다' : '기준 통화와 환율을 정하면 합산합니다'}${closeNote(surface)}`;
   } else if (valuation === 'unavailable' && readState === 'ready' && (surface?.holdingCount ?? 0) > 0) {
-    // v57.81: every holding is on 가격 없음 (no quote and no close yet), so no total is shown rather than a partial one.
     element.textContent = `${surface.holdingCount}종목 모두 가격 없음, 가격을 받으면 총자산과 손익을 계산합니다`;
   } else if (valuation === 'complete') {
     element.textContent = `${surface?.holdingCount ?? 0}종목 평가 완료${surface?.cash == null && !surface?.cashHeld ? ', 현금 미입력 — 총자산은 주식 평가액' : ''}${closeNote(surface)}`;
   } else {
     element.textContent = '포트폴리오 데이터 수신 대기';
   }
-  // v57.77: the line sits in the hero now (the 리스크 분석 shell that hid it with an empty portfolio is gone); with no
-  // holdings the table's empty state stays the one message, so the readiness line is hidden.
   element.hidden = readState === 'ready' && valuation === 'empty';
   element.setAttribute('data-source-kind', valuation === 'complete' || valuation === 'cash-only' ? 'portfolio-state' : 'unavailable');
   element.setAttribute('data-source-label', valuation === 'complete' || valuation === 'cash-only' ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
@@ -80,9 +66,6 @@ export function renderPortfolioStatus(documentRef, state, surface, { pricesLoadi
   else element.removeAttribute('data-observed-at');
 }
 
-
-// P1407: the totals are in the surface's base currency (the same rule as the holdings table: an
-// undeclared single basis is shown as USD, and the currency note says it was assumed).
 const CURRENCY_WORD = Object.freeze({ USD: '달러', KRW: '원화', JPY: '엔화', EUR: '유로' });
 // The units the holdings are in; declaredCurrencies alone was empty and printed "통화 혼합()".
 export const heldCurrencyList = (surface) => [...new Set([...(surface?.declaredCurrencies || []), ...(surface?.heldCurrencies || [])])].join('/');
@@ -97,7 +80,6 @@ function renderPortfolioHero(documentRef, surface) {
   const valueElement = documentRef?.getElementById('pf-total-value');
   const pnlElement = documentRef?.getElementById('pf-total-pnl');
   if (!valueElement && !pnlElement) return;
-  // v57.86 (live review): with no cash entered the total is the holdings' value (the status line says so) — P&L showed beside "—".
   const totalValue = surface.valuationState === 'cash-only' || surface.valuationState === 'complete' ? surface.totalAssets ?? (surface.valuationState === 'complete' && surface.cash == null && !surface.cashHeld ? surface.positionValue ?? null : null) : null;
   const totalPnl = surface.valuationState === 'complete' ? surface.totalPnl : null;
   if (valueElement) {
@@ -117,10 +99,6 @@ function renderPortfolioHero(documentRef, surface) {
   }
 }
 
-// P1449 (LC-45 residual): surface writers stopped hard-coding `$`. A KRW cash or KRW daily
-// change labeled with a dollar sign is a lie about its unit, not a formatting choice; the
-// surface's DECLARED currency is the unit those amounts are denominated in — even while a
-// mixed-currency conversion is held (the hold blocks the total, not the unit of each number).
 function formatSurfaceMoney(value, currency = 'USD') {
   if (value == null) return '—';
   const code = String(currency || 'USD').trim().toUpperCase();
@@ -147,16 +125,6 @@ function setSurfaceText(documentRef, id, text, value, surface, color = null) {
   markSurfaceElement(element, value, surface.sourceKind, surface.sourceLabel, surface.observedAt);
 }
 
-// v57.50 C24: the sector of a holding comes from the same screener row the 포트폴리오 해석 reads.
-// v57.54 review: the latest completed close per symbol (canonical screener row), so holdings without a live quote
-// are still valued — and the status line says which date that close is.
-// v57.55 review (B4-F5) + v59.54: a Korean holding is stored as its six digits while quotes, charts and screener rows key it
-// with the exchange suffix (105560 -> 105560.KS). The portfolio reader resolves that listing symbol once and the surface rows
-// carry it, so this page looks every row up by row.listingSymbol instead of resolving the code again.
-// v57.78 perf: one symbol map per render, shared by the close and sector lookups (each built its own from a fresh
-// bridge read). A non-empty native store set is read in place; an empty one defers to the bridge, which owns the
-// pre-publication fallback (screener-row-policy, same rule as scenario-outlook), then the bundled DB as before.
-// First-users run 4: every row source is read and a row with a close wins (an edit fell back to a close-less source).
 const closeField = (row) => finite(row?._valuationPrice ?? row?._valuationPePrice ?? row?._valuationPbPrice ?? row?.valuationPrice ?? row?.pePrice);
 function screenerRowsBySymbol(root, store) {
   const sources = [];
@@ -175,9 +143,6 @@ function screenerRowsBySymbol(root, store) {
   }
   return map;
 }
-// v57.81: a holding that is a US listing outside the screener universe is read on demand (session cache, the reader's
-// two-at-a-time cap, at most eight new requests per render) and joins the symbol map with its own row; missing inputs
-// stay missing (the listing carries no sector, so none is invented). The record's arrival re-renders ('aio:onDemandSymbol').
 const ON_DEMAND_HOLDING_REQUESTS = 8;
 function withOnDemandHoldings(root, bySymbol, holdings) {
   const records = new Map();
@@ -198,7 +163,6 @@ function withOnDemandHoldings(root, bySymbol, holdings) {
 function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
   return (symbol) => {
     const row = bySymbol.get(String(symbol || '').toUpperCase());
-    // v58.63 (SCR03): the canonical valuation close first, as every other close reader does.
     const price = closeField(row);
     const own = onDemand.get(String(symbol || '').toUpperCase())?.lastClose;
     if ((price == null || price <= 0) && own) return { price: own.price, date: own.date };
@@ -206,18 +170,11 @@ function screenerCloseOf(root, bySymbol, onDemand = new Map()) {
     return null;
   };
 }
-// v57.54 review: holdings outside the ~30 market symbols never asked for a quote, so P&L stayed "—" (the screener
-// already asks for its visible rows the same way). Throttled per symbol set; the close fallback covers the wait.
 let holdingQuoteSignature = '';
 let holdingQuoteRequestedAt = 0;
-// v57.86 (live review): the request fired while another quotes run was in flight — the scheduler skipped it ("already in
-// flight") or fetchLiveQuotes returned at once and reported ok — and the 55-second throttle kept it from retrying, so
-// Korean holdings stayed 가격 없음. A run that leaves a requested symbol without a quote retries.
 const unquoted = (root, symbols) => symbols.filter((symbol) => !(Number(root?._liveData?.[symbol]?.price) > 0));
 let portfolioMounted = false;
-let rerenderPortfolio = null; // v58.75: the empty state's preview buttons repaint the mounted page
-// v58.80 (first-users F35): a second tab kept showing the old holdings until its next action. Holdings may be held
-// decrypted in this tab's memory, so a change from another tab is announced with a reload button rather than merged.
+let rerenderPortfolio = null;
 let crossTabChanged = false;
 let crossTabListening = false;
 function paintCrossTabNotice(documentRef, root) {
@@ -257,7 +214,6 @@ function requestHoldingQuotes(root, rows, attempt = 0) { // attempt > 0: a retry
   holdingQuoteSignature = signature;
   holdingQuoteRequestedAt = nowMs;
   Promise.resolve(root.AIO.runScheduledRefresh({ keys: ['quotes'], symbols, pageId: 'portfolio', reason: 'portfolio-holding-quotes' }))
-    // v57.88 (review): a retry is dropped once the page has unmounted.
     .then(() => { if (attempt < 3 && unquoted(root, symbols).length) setTimeout(() => { if (portfolioMounted) requestHoldingQuotes(root, rows, attempt + 1); }, 4000); })
     .catch(() => {});
 }
@@ -266,7 +222,6 @@ const closeNote = (surface) => {
   const date = String(surface?.closeDate || '');
   const md = isIsoDay(date) ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} ` : '';
   const delayed = surface?.delayedValuedCount || 0;
-  // v59.45 (P23-FRESHNESS-01): the latest close date alone hid holdings valued on a close more than a week old.
   const stale = surface?.staleCloseCount || 0;
   const oldest = String(surface?.oldestCloseDate || '');
   const oldMd = isIsoDay(oldest) ? `${Number(oldest.slice(5, 7))}/${Number(oldest.slice(8, 10))} ` : '';
@@ -279,8 +234,6 @@ function screenerSectorOf(bySymbol) {
   return (symbol) => bySymbol.get(String(symbol || '').toUpperCase())?.sector || null;
 }
 
-// v57.81: cash is one balance per currency. Each box shows its own currency's amount; the hero shows the total in the
-// unit the surface converted to (with the rate basis below the boxes), or each balance when no rate exists.
 function renderCashBalances(documentRef, surface) {
   const balances = Array.isArray(surface?.cashBalances) ? surface.cashBalances : [];
   const amountOf = (code) => balances.find((row) => row.currency === code)?.amount;
@@ -289,14 +242,13 @@ function renderCashBalances(documentRef, surface) {
   const conversion = surface?.cashConversion || {};
   const each = balances.filter((row) => row.amount > 0).map((row) => formatSurfaceMoney(row.amount, row.currency || conversion.target || surface.declaredBaseCurrency));
   const unit = conversion.target || surface.declaredCashCurrency || surface.declaredBaseCurrency;
-  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(', ')}, 합계 보류` : '입력 안 함'; // first-users run 4: '—' twice read as missing data
+  const heroText = surface.cash != null ? formatSurfaceMoney(surface.cash, unit) : each.length ? `${each.join(', ')}, 합계 보류` : '입력 안 함';
   setSurfaceText(documentRef, 'pf-cash-hero', heroText, surface.cash, surface);
   const line = documentRef?.getElementById('pf-cash-total');
   if (!line) return;
   const rateText = conversion.basisLabel || '';
   let text = '';
   if (surface.cashInvalidCount > 0) {
-    // v59.45 (P23-CASH-01): an unreadable balance holds the total; it is not a missing exchange rate.
     text = `읽을 수 없는 현금 잔액 ${surface.cashInvalidCount}건이 있어 합계를 계산하지 않았습니다`;
   } else if (surface.cashHeld) {
     const names = (conversion.held || []).map((code) => ({ KRW: '원화', USD: '달러' }[code] || code)).join('·');
@@ -319,26 +271,19 @@ function renderPortfolioSurface(documentRef, page, surface) {
   page.dataset.aioPortfolioSurfaceModel = surface.modelVersion;
   page.dataset.aioPortfolioSurfaceUse = surface.allowedUse || 'reference-only';
   page.dataset.aioPortfolioPromotion = surface.promotionBlocked === false ? 'eligible' : 'blocked';
-  // v57.79 review: with no holdings and no cash the strip read as eight '—' placeholders; it collapses to one line.
   const heroEmpty = surface.readState === 'ready' && surface.valuationState === 'empty';
   documentRef?.getElementById('pf-hero')?.classList.toggle('is-empty', heroEmpty);
   const heroEmptyLine = documentRef?.getElementById('pf-hero-empty');
   if (heroEmptyLine) heroEmptyLine.hidden = !heroEmpty;
-  // v59.56 (screen review): an empty portfolio said '넣으면 계산합니다' above the table's own empty state and still offered
-  // 시세 갱신 and 전체 삭제; the page keeps the table's one empty state and only the add action.
   page.classList.toggle('pf-is-empty', heroEmpty);
   setSurfaceText(documentRef, 'pf-holding-count', surface.holdingCount ? `${surface.holdingCount}종목` : '—', surface.holdingCount || null, surface);
   setSurfaceText(documentRef, 'pf-total-pnl-pct', surface.totalPnlPct == null ? '—' : `${signedText(surface.totalPnlPct, 1)}%`, surface.totalPnlPct, surface, surface.totalPnl == null ? 'var(--color-text-secondary)' : surface.totalPnl >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
   setSurfaceText(documentRef, 'pf-daily-chg', formatSurfaceMoney(surface.dailyChange, surface.declaredBaseCurrency), surface.dailyChange, surface, surface.dailyChange == null ? 'var(--color-text-secondary)' : surface.dailyChange >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
   setSurfaceText(documentRef, 'pf-daily-pct', surface.dailyPct == null ? '—' : `${signedText(surface.dailyPct, 2)}%`, surface.dailyPct, surface, surface.dailyChange == null ? 'var(--color-text-secondary)' : surface.dailyChange >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)');
-  // First-users run 4: with no day move yet the line read '1 종목, 오늘 — (—)'; it hides until a move exists.
   const dailyLine = documentRef?.getElementById('pf-daily-line');
   if (dailyLine) dailyLine.hidden = surface.dailyChange == null;
   renderCashBalances(documentRef, surface);
   setSurfaceText(documentRef, 'pf-cash-pct-hero', surface.cashPct == null ? (surface.cash == null ? '' : '—') : `${surface.cashPct.toFixed(1)}%`, surface.cashPct, surface);
-  // E3/P1181 (11 P11-02): 통화 상태를 표시에 드러낸다 — 혼합 통화는 환산근거가 없어 합계를 만들지
-  // 않았고, 그 이유를 화면이 말해야 '값 소실'과 '의도된 보류'를 구분할 수 있다.
-  // v57.84 P1864: a USD/KRW conversion may use the app's own close instead of a declared leg; the note names which.
   const fxSources = new Set((surface.conversion?.legs || []).map((leg) => leg.source === 'app-close' ? 'app' : 'declared'));
   const fxBasisLabel = fxSources.has('app') ? (fxSources.has('declared') ? '선언 rate·앱 USD/KRW 종가' : '앱 USD/KRW 종가') : '선언 rate';
   const currencyNoteBase = surface.readState !== 'ready' || !surface.holdingCount
@@ -351,10 +296,6 @@ function renderPortfolioSurface(documentRef, page, surface) {
             : `통화 혼합(${heldCurrencyList(surface)}) — 환산 없어 합계 보류`
         : surface.currencyState === 'declared-single' ? `통화 ${surface.baseCurrency}`
           : '기준 통화를 따로 고르지 않아 종목의 시장 통화 그대로 계산';
-  // E3/P1196: 원가/시세 불일치는 이제 두 갈래다 — 선언된 leg로 환산됐으면 P&L이 성립하고, 근거가
-  // 없으면 예전처럼 보류한다. 화면이 둘을 구분해야 "값 소실"과 "의도된 보류"가 구분된다.
-  // v57.48 expert review #23: a converted cost uses today's declared rate, not the rate on the purchase date —
-  // the P&L then leaves out the currency move since purchase, and the note says so.
   const currencyHeld = (surface.costCurrencyState === 'cost-price-mismatch-held' ? ', 원가/시세 불일치 — P&L 보류'
     : surface.costCurrencyState === 'cost-price-mismatch-converted' ? `, 원가/시세 불일치 — ${fxBasisLabel}로 환산` : '')
     + (surface.conversion?.costApplied ? ', 원가는 현재 환율로 환산 — 매수 이후 환율 효과 제외' : '');
@@ -367,15 +308,11 @@ function tableCell(documentRef, headerId, value, className = 'pfp-cell') {
   cell.setAttribute('headers', headerId);
   cell.className = className;
   cell.textContent = value;
-  // v58.80 (first-users bundle 5): on a phone each row is a card and every value carries its column name (CSS ::before).
   const label = documentRef.getElementById?.(headerId)?.textContent?.trim();
   if (label) cell.dataset.label = label;
   return cell;
 }
 
-// v58.56 (re-audit #11): ten columns (오늘 joined). At ≥1280px the table is compact — 종목 · 손익 · 수익률 · 오늘 · 비중 —
-// and 수량·매수 단가·현재가·목표가·관리 open in a per-row disclosure (CSS hides those cells there; every cell stays in the
-// DOM with its `headers` id, so readers and the vault e2e still find them). Below 1280px the full table is unchanged.
 const PORTFOLIO_TABLE_COLUMNS = 10;
 const expandedHoldings = new Set();
 function holdingDetailRow(documentRef, { symbol, holding, items, detailId, expanded }) {
@@ -439,7 +376,6 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
   tbody.setAttribute('data-source-kind', rows.length ? 'portfolio-state' : 'unavailable');
   tbody.setAttribute('data-source-label', rows.length ? 'native-portfolio-slice' : 'portfolio-state-unavailable');
   tbody.setAttribute('data-operational-use', 'reference-only');
-  // P1591 (P03): nothing to delete, so the destructive control is not offered as active.
   const clearAll = documentRef.querySelector?.('[data-action="clearAllPositions"]');
   if (clearAll) { clearAll.disabled = !rows.length; clearAll.style.opacity = rows.length ? '' : '0.4'; }
   if (!rows.length) {
@@ -452,14 +388,11 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     heading.textContent = '포트폴리오가 비어 있습니다';
     heading.className = 'pfp-empty-title';
     const body = documentRef.createElement('div');
-    // v57.54: one line on what appears, no how-to prose.
     body.textContent = '종목을 추가하면 변동성·섹터 쏠림·시장 상태와의 연결이 여기에 나타납니다.';
     const addButton = documentRef.createElement('button');
     addButton.className = 'aio-btn-table primary pfp-add';
     addButton.setAttribute('data-action', '_aioTogglePortfolioEntry');
     addButton.textContent = '첫 종목 추가';
-    // v59.55 (owner 11/1): the storage/privacy note left the empty state — the page header's 보안 설정 says it.
-    // v58.75 (persona review): the empty state's three ways in — add, import a backup, or a memory-only sample preview.
     const importButton = documentRef.createElement('button');
     importButton.type = 'button';
     importButton.className = 'aio-btn-table pfp-add';
@@ -498,7 +431,6 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       memo.textContent = String(holding.memo);
       memo.className = 'pfp-memo';
       tickerCell.appendChild(memo);
-      // v58.56: the compact desktop table shows a quiet 메모 mark; the text is in the row's 상세.
       const memoChip = documentRef.createElement('span');
       memoChip.className = 'sx-chip sx-chip--sm sx-chip--neutral pfp-memo-chip';
       memoChip.textContent = '메모';
@@ -527,8 +459,6 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     // LC-45: the table printed `$` for every row while the domain already declares each row's price
     // and cost currency. Print the declared code instead, so a KRW/mixed row is not relabelled as USD.
     const baseCurrency = String(surface?.valuationCurrency || (surface?.currencyHeldReason === 'unknown-unit' ? '통화 미확인' : 'USD')).trim().toUpperCase();
-    // Codex browser audit H49: the P&L column is summed in the base currency; its header names it.
-    // An unconverted mix has no one P&L unit: each row prints in its own (valueUnit), and the header says so.
     const rowUnits = [...new Set(rows.map((entry) => entry.valueUnit).filter(Boolean))];
     const pnlHeader = documentRef.getElementById('pf-th-pnl');
     if (pnlHeader) pnlHeader.textContent = rowUnits.length > 1 ? '손익 (보유 통화)' : `손익 (${baseCurrency})`;
@@ -537,19 +467,17 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     const costCurrency = String(holding?.costCurrency || holding?.currency || rowData.listingCurrency || '').trim().toUpperCase() || null;
     const money = (amount, currency) => (amount == null
       ? '—'
-      : `${currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : currency ? `${currency} ` : '통화 미확인 '}${Math.abs(amount).toLocaleString('en-US', currency === 'KRW' ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`); // v57.55 B4-F14: won has no decimals
+      : `${currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : currency ? `${currency} ` : '통화 미확인 '}${Math.abs(amount).toLocaleString('en-US', currency === 'KRW' ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
     row.appendChild(tableCell(documentRef, 'pf-th-qty', shares == null ? '—' : String(shares)));
     const costCell = tableCell(documentRef, 'pf-th-cost', money(avgCost, costCurrency));
     costCell.title = costCurrency ? `원가 통화 ${costCurrency}${holding?.costCurrency ? '' : '(상장 시장 기준)'}` : '원가 통화 미확인';
     row.appendChild(costCell);
-    // v57.81: one failure state for a holding whose quote and close both came back empty (any listed symbol is requested).
     const priceCellNode = tableCell(documentRef, 'pf-th-price', price == null ? (root && screenerRowsState(root) === 'loading' ? '가격 불러오는 중' : '가격 없음') : money(price, priceCurrency));
     priceCellNode.style.color = price == null ? 'var(--color-text-secondary)' : 'var(--color-text-primary)';
     const closeDated = rowData.sourceKind === 'completed-close' && rowData.closeDate ? `, 실시간 시세 대신 ${rowData.closeDate} 종가` : '';
     priceCellNode.title = price == null ? '시세와 종가를 받지 못했습니다, 총자산과 손익 합계에서 뺐습니다' : `시세 통화 ${priceCurrency || '미확인'}${closeDated}`;
     if (price == null) priceCellNode.dataset.priceState = 'missing';
     row.appendChild(priceCellNode);
-    // v59.51 (first-users run-6 #9): a bare '—' read as a missing calculation; an empty cell names why it is empty.
     const heldText = avgCost == null ? '매수가 없음' : price == null ? '가격 없음' : '보류';
     const pnlCell = tableCell(documentRef, 'pf-th-pnl', pnl == null ? heldText : `${signMark(pnl, 2)}${money(Math.abs(pnl), pnlCurrency)}`, 'pfp-cell is-bold');
     if (pnl == null) pnlCell.title = '손익 보류, 원가/시세 통화 불일치 또는 시세 미수신';
@@ -558,8 +486,6 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     const pctCell = tableCell(documentRef, 'pf-th-pct', pnlPct == null ? heldText : `${signedText(pnlPct, 1)}%`, 'pfp-cell is-bold');
     pctCell.style.color = pnlPct == null ? 'var(--color-text-secondary)' : directionColor(pnlPct, 1);
     row.appendChild(pctCell);
-    // v58.56: today's move of the holding — only from a live quote with a stated basis (the hero's 오늘 uses the same rule).
-    // A holding valued on a close shows that close's own session change, dated, instead of a phrase.
     const dayPct = rowData.dailyPctEligible && Number.isFinite(rowData.dailyPct) ? rowData.dailyPct : null;
     const closeDay = dayPct == null && rowData.sourceKind === 'completed-close' && isIsoDay(String(rowData.closeDate || '')) ? rowData.closeDate : null;
     const closePct = closeDay && Number.isFinite(rowData.closeChangePct) ? rowData.closeChangePct : null;
@@ -568,13 +494,8 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     dayCell.style.color = shownPct == null ? 'var(--color-text-secondary)' : directionColor(shownPct, 2);
     if (dayPct == null) dayCell.title = closeDay ? `${closeDay} 종가의 전 거래일 대비 변화 — 오늘 변화는 실시간 시세를 받으면 표시합니다` : '실시간 시세를 받으면 표시합니다';
     row.appendChild(dayCell);
-    // P1176 (22 PFR01): `finite(0)`은 0이라 미설정 표시를 통과하지 못했다. legacy 테이블은 이미
-    // `target > 0`을 "설정됨"으로 정의하므로(js/aio-workspace.js), native도 같은 정의를 쓴다 —
-    // 저장된 0은 옛 "빈 칸" sentinel이고, $0.00 + -100% 잠재수익으로 그리지 않는다.
     const targetValue = finite(holding?.target);
     const targetSet = targetValue != null && targetValue > 0 ? targetValue : null;
-    // P1449: the target is entered in the position's own currency (cost currency when declared,
-    // price currency otherwise) — a KRW target must not print with `$`.
     const targetCurrency = costCurrency || priceCurrency;
     const targetCell = tableCell(documentRef, 'pf-th-target', targetSet == null ? '미설정' : money(targetSet, targetCurrency));
     if (targetSet != null && price != null && price > 0 && targetCurrency === priceCurrency) {
@@ -586,10 +507,8 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       targetCell.appendChild(upsideNode);
     }
     row.appendChild(targetCell);
-    // 개편 v2 (3g): the weight reads as a bar beside its number (same share of the stock part).
     const weightPct = totalValue > 0 && value != null ? value / totalValue * 100 : null;
     const weightCell = tableCell(documentRef, 'pf-th-weight', '', 'pfp-cell is-bold is-sans');
-    // v59.51: a priced holding's weight waits on the others' prices (the total); only an unpriced row is 가격 없음 itself.
     if (weightPct == null) weightCell.textContent = value == null ? '가격 없음' : '합계 대기';
     else {
       const wrap = documentRef.createElement('span');
@@ -631,8 +550,6 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
       ]
     }));
   });
-  // v58.80 run-5 (phone #9): after 추가 / 업데이트 the form folded and the page sat at the top with the new row two swipes
-  // down. The legacy add path names the holding (root._aioRevealHolding); its row is brought into view and marked briefly.
   const reveal = !preview && root?._aioRevealHolding;
   const added = reveal ? [...tbody.querySelectorAll('tr[data-holding]')].find((item) => item.dataset.holding === reveal) : null;
   if (added) {
@@ -654,14 +571,10 @@ function render({ root, documentRef, store }) {
   }
   const liveData = root?._liveData || {};
   const bySymbol = screenerRowsBySymbol(root, store);
-  // v57.81: cash balances in other currencies convert with the app's own published USD/KRW close (date in the label).
   const cashFx = appUsdKrwClose(root?._aioHistory || globalThis._aioHistory || []);
   const onDemand = withOnDemandHoldings(root, bySymbol, state?.holdings);
-  if (root) root._aioPortfolioOnDemandRows = [...onDemand.values()].map((record) => record.row); // v57.81: 포트폴리오 해석 rows
+  if (root) root._aioPortfolioOnDemandRows = [...onDemand.values()].map((record) => record.row);
   const surface = derivePortfolioSurface({ state, liveData, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol, onDemand), cashFx });
-  // v58.75 (persona review): an empty portfolio offers 종목 추가 · 가져오기 · 예시로 미리 보기 only. The preview is a memory-only
-  // state rendered through the same surface (never written to the store, storage or the root hand-offs the AI and legacy
-  // panels read), with no cost basis, so it shows weights and links but no invented P&L.
   const empty = surface.readState === 'ready' && surface.valuationState === 'empty';
   if (!empty && root) root.__aioPortfolioPreview = false;
   const preview = empty && root?.__aioPortfolioPreview === true;
@@ -682,8 +595,8 @@ function render({ root, documentRef, store }) {
     return;
   }
   requestHoldingQuotes(root, surface.rows);
-  if (root) root._aioPortfolioSurface = surface; // P1445: legacy exposure/stress panels share these base-currency values
-  if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel; // v57.50 review R1: one sector vocabulary for the legacy exposure panel
+  if (root) root._aioPortfolioSurface = surface;
+  if (root) root._aioPortfolioSectorLabel = portfolioSectorLabel;
   // #12: the legacy AI workbench sends these rows (ticker·sector·weight·return in the base currency, with the date).
   if (root) root._aioPortfolioAiRows = () => portfolioRowsForAI(root._aioPortfolioSurface, { sectorOf: (symbol) => (Array.isArray(root.SCREENER_DB) ? root.SCREENER_DB : []).find((row) => String(row?.sym || '').toUpperCase() === symbol)?.sector || null });
   renderPortfolioSurface(documentRef, page, surface);
@@ -691,13 +604,12 @@ function render({ root, documentRef, store }) {
   renderPortfolioStatus(documentRef, state, surface, { pricesLoading: screenerRowsState(root) === 'loading' });
   renderPortfolioTable(documentRef, page, state, surface, { root });
   const checks = renderPortfolioChecks(documentRef, root, surface);
-  renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
-  renderPortfolioRead({ documentRef, root, surface }); // P1438
+  renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
+  renderPortfolioRead({ documentRef, root, surface });
   renderFirstScreen(documentRef, root, surface, bySymbol);
-  // v58.75 (persona review, spec F4·F5): criteria met (a count, not a score) and the per-holding thesis check, facts only.
   renderPortfolioCriteria({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
   renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, rerender: () => rerenderPortfolio?.() });
-  renderTradeJournal({ documentRef, root, surface }); // v58.52
+  renderTradeJournal({ documentRef, root, surface });
   renderRiskFreeFill(documentRef, root);
   syncEmptyState(documentRef, root, page, { empty, preview: false });
 }
@@ -712,16 +624,11 @@ function renderRiskFreeFill(documentRef, root, { request = true } = {}) {
   if (!cash && request) refreshSharedArtifact(root, MACRO_HISTORY).then(() => renderRiskFreeFill(documentRef, root, { request: false })).catch(() => {});
 }
 
-// v58.75 (persona review): six large caps from different sectors of the screener universe (ETFs carry no published
-// valuation close there), valued at their published closes; shares only (no cost), so no return is shown. A preview of
-// the screen, not a suggested allocation.
 const PREVIEW_HOLDINGS = Object.freeze([['MSFT', 10], ['NVDA', 20], ['JPM', 12], ['XOM', 20], ['JNJ', 15], ['PG', 20]]);
 function previewPortfolioState() {
   return { status: 'ready', readState: 'ready', holdingsKnown: true, cashKnown: true, cashBalances: [], holdings: PREVIEW_HOLDINGS.map(([symbol, shares]) => ({ symbol, shares })) };
 }
 
-// v59.70 (S16): the first screen's ① chart and ③ exposure bar, both from the surface the table reads (the chart's returns
-// and dates from the screener rows and the close history; no client price calls).
 function renderFirstScreen(documentRef, root, surface, bySymbol) {
   renderPortfolioValueTrend({ documentRef, root, surface, rowOf: (symbol) => bySymbol.get(String(symbol || '').toUpperCase()) || null });
   renderPortfolioExposureBar({ documentRef, surface, sectorLabel: portfolioSectorLabel });
@@ -761,7 +668,6 @@ function syncEmptyState(documentRef, root, page, { empty, preview }) {
   note.replaceChildren(documentRef.createTextNode(`예시 미리 보기 — ${PREVIEW_HOLDINGS.map(([symbol]) => symbol).join(', ')}를 최근 종가로 평가한 화면입니다. 저장되지 않고, 추천 구성이 아니며, 매수가가 없어 손익은 비워 둡니다. `), stop);
 }
 
-// P1418: 점검 — only rules with a published default carry a verdict; the rest are shares.
 const CHECK_TONE = Object.freeze({ ok: ['양호', 'favorable'], attention: ['주의', 'burden'], info: ['참고', 'neutral'], unknown: ['측정 안 함', 'unknown'] });
 function renderPortfolioChecks(documentRef, root, surface) {
   const host = documentRef?.getElementById('pf-checks');
@@ -770,15 +676,12 @@ function renderPortfolioChecks(documentRef, root, surface) {
   const rowOf = (symbol) => universe.find((row) => String(row?.sym || '').toUpperCase() === symbol) || null;
   const result = derivePortfolioChecks({
     surface,
-    // Sector ETFs (XLE …) carry index 'ETF' with their real sector; broad ETFs carry sector 'ETF'.
-    // v57.81: an out-of-universe US listing takes its type from the listing directory / chart instrument type.
     assetTypeOf: (symbol) => { const row = rowOf(symbol); if (row) return row.index === 'ETF' || row.sector === 'ETF' ? 'ETF' : '개별 주식'; if (/\.(KS|KQ)$/.test(symbol)) return '개별 주식'; const record = root?._aioOnDemandSymbol?.(symbol); return record?.status === 'ready' ? (record.etf ? 'ETF' : '개별 주식') : null; },
     sectorOf: (symbol) => { const row = rowOf(symbol); return row ? (row.sector === 'ETF' ? '광범위 ETF' : row.sector) : null; }
   });
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
   host.replaceChildren(el('h2', '포트폴리오 점검', 'briefing-h2'));
   host.dataset.aioPortfolioChecksRenderer = 'native';
-  // Audit 2026-10-14: an empty portfolio shows one empty state (the holdings table); a currency hold is still explained.
   const currencyHold = { 'currency-unconverted': surface?.baseChoiceConverts ? '원화와 달러 종목이 섞여 있고 기준 통화를 고르지 않아 비중을 한 통화로 맞추지 않았습니다. 포트폴리오 설정에서 기준 통화를 고르면 원/달러 종가로 환산합니다.' : '통화가 다른 종목이 섞여 있고 환율이 선언되지 않아, 비중을 한 통화로 맞출 수 없습니다. 포트폴리오 설정에서 기준 통화와 환율을 선언하세요.',
     'currency-unknown': '시세 통화를 알 수 없는 종목이 있어 비중을 한 통화로 맞출 수 없습니다. 그 종목의 시세 통화를 입력하세요.' }[result.reason];
   host.hidden = result.status !== 'current' && !currencyHold;
@@ -786,11 +689,8 @@ function renderPortfolioChecks(documentRef, root, surface) {
     host.append(el('p', currencyHold || '평가액이 있는 포지션을 추가하면 점검이 표시됩니다.', 'briefing-empty'));
     return result;
   }
-  // v58.75 (persona review, spec F4): the criteria list (portfolio-checklist.js) leads; the share cards fold under it.
   const fold = el('details', null, 'pf-checks-fold');
   fold.dataset.userFold = '';
-  // v59.51 (two layers): one expert fold under the criteria — the criteria's thresholds and reasons (portfolio-checklist.js),
-  // the share cards below, then the effective-N / index / bond cards (portfolio-read.js renderPortfolioLens).
   fold.append(el('summary', '자세히, 점검 기준 · 비중 세부 · 지수와의 관계 · 채권 완충'));
   fold.append(el('p', `투자금 ${result.currency ? `${result.currency} ` : ''}기준 비중${result.excluded ? `, 평가액이 없는 ${result.excluded}종목 제외` : ''}, 한 종목은 앱 점검선(${HOLDING_BAND_BASIS}), 한 통화는 공개 기본값으로 판정하고 나머지는 참고 비중으로 표시. 점검선은 쏠림을 세는 선이며 권장 비중이 아닙니다`, 'theme-strength-basis'));
   const list = el('div', null, 'pf-checks-list');
@@ -824,20 +724,16 @@ export function createPortfolioPage({ root = globalThis, documentRef, store } = 
       paintCrossTabNotice(documentRef, root);
       bag.add(installTradeJournal({ documentRef, root, getSurface: () => root?._aioPortfolioSurface || null }));
       bag.add(installPlanCheck({ documentRef, root }));
-      // v57.50 I05: what a research document sent the reader here to check (each entry to this route mounts again).
       renderKnowledgeArrival({ documentRef, root, routeId: 'portfolio' });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'portfolio' }));
       bag.add(subscribeToSlices(store, ['portfolio'], renderNow));
       const eventTarget = documentRef || globalThis;
       eventTarget?.addEventListener?.('aio:liveQuotes', renderNow);
       bag.add(() => eventTarget?.removeEventListener?.('aio:liveQuotes', renderNow));
-      // v57.81: the cash total converts with the published USD/KRW close, which arrives with the history (window event).
       root?.addEventListener?.('aio:historyLoaded', renderNow);
       bag.add(() => root?.removeEventListener?.('aio:historyLoaded', renderNow));
-      // 개편 v2 (3g): β waits for the holdings' price records the legacy stress panel gathers.
       root?.addEventListener?.('aio:portfolioStressInput', renderNow);
       bag.add(() => root?.removeEventListener?.('aio:portfolioStressInput', renderNow));
-      // v57.81: an out-of-universe holding's on-demand row arrives after the first render.
       const onOnDemand = (event) => { const symbol = String(event?.detail?.symbol || '').toUpperCase(); if ((selectPortfolioState(store.getState())?.holdings || []).some((holding) => String(holding?.symbol || holding?.ticker || '').toUpperCase() === symbol)) renderNow(); };
       eventTarget?.addEventListener?.('aio:onDemandSymbol', onOnDemand);
       bag.add(() => eventTarget?.removeEventListener?.('aio:onDemandSymbol', onOnDemand));

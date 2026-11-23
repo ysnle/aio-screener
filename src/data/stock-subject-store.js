@@ -1,5 +1,3 @@
-// First-users F15 (runs 1-3): the 종목 screen's company for this tab's session, so a reload or Back on 차트 keeps it.
-// UI modules may not touch storage (architecture contract); src/ui/navigation/route-hubs.js reads and writes through here.
 const SUBJECT_KEY = 'aio_stock_subject';
 
 export function readSavedStockSubject(root = globalThis) {

@@ -51,8 +51,9 @@ check('point-in-time/survivorship limitation remains explicit', /survivorshipBia
     // windows, 268 rows of 21 are 13). Recounted here directly: a window starts at or after the close of the last one.
     // The rows with a forward return are consecutive sessions, so the greedy count is rows / horizon rounded up.
     const sessions = buildTradingDaySeries(readHistoryRows(JSON.parse(await readFile(new URL('../public-data/history.json', import.meta.url), 'utf8'))));
-    check('v60.46 the score backtest counts its non-overlapping windows from session positions', rebuilt.summary.n21d % 21 !== 0
-      && rebuilt.summary.nEff5d === Math.ceil(rebuilt.summary.n5d / 5) && rebuilt.summary.nEff21d === Math.ceil(rebuilt.summary.n21d / 21) && rebuilt.summary.sample21d === 'insufficient', JSON.stringify(rebuilt.summary));
+    // v60.50: the `n21d % 21 !== 0` precondition read the live row count and failed one day in 21 on a code push; the
+    // counting rule below holds for every count.
+    check('v60.46 the score backtest counts its non-overlapping windows from session positions', rebuilt.summary.nEff5d === Math.ceil(rebuilt.summary.n5d / 5) && rebuilt.summary.nEff21d === Math.ceil(rebuilt.summary.n21d / 21) && rebuilt.summary.sample21d === 'insufficient', JSON.stringify(rebuilt.summary));
     // v60.46 (Codex residual): past rows are recomputed on every run (2026-07-15 read 68, then 69), and the file says so.
     check('v60.46 the score backtest labels its past rows as recomputed, from the first session it recomputed', rebuilt.restatement?.pastRows === 'recomputed'
       && rebuilt.restatement.recomputedFrom === sessions[0]?.date, JSON.stringify(rebuilt.restatement));

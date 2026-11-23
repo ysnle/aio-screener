@@ -6,6 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const stripBom = (value) => value.replace(/^\uFEFF/, '');
@@ -33,6 +34,24 @@ if (!/^v\d{1,3}(?:\.\d{2})?$/.test(version)) {
 const versionNumber = version.replace(/^v/, '');
 const versionRe = escapeRe(version);
 
+function report() {
+  const failed = failures.splice(0);
+  if (!failed.length) return;
+  console.error(`Version sync failed. Canonical version: ${version}`);
+  failed.forEach((failure) => console.error(` - ${failure}`));
+  // P555/R246: this gate has repeatedly failed on commits that could not possibly have
+  // caused the drift themselves (e.g. an operator-note.json content edit inherited a break
+  // left by an earlier incomplete version bump). Print the direct remediation command so
+  // whoever sees this failure — including someone with no context on R1 — can fix it in
+  // one step instead of re-deriving which of the 7 locations to touch.
+  console.error(`\nFix: run "node scripts/bump-version.mjs ${version}" and commit all resulting changes together, then re-run this check.`);
+  process.exit(1);
+}
+
+// v60.50: the code locations are one section; the published operations status (a producer rewrites its revision from
+// version.json every run) is the other, so a data run checks only the data it publishes.
+await runSections('version', [
+['version-sync', async () => {
 const html = read('index.html');
 const core = read('js/aio-core.js');
 const sw = read('sw.js');
@@ -50,7 +69,6 @@ const architectureRevisionFiles = [
   'architecture/visual-state-matrix.json',
   'architecture/public-readiness.json',
 ].map((path) => ({ path, data: JSON.parse(read(path)) }));
-const operationsStatus = JSON.parse(read('public-data/operations-status.json'));
 const bumpScript = read('scripts/bump-version.mjs');
 
 check('index title', html.includes(`<title>AIO Screener ${version} `), `expected ${version}`);
@@ -78,8 +96,6 @@ architectureRevisionFiles.forEach(({ path, data }) => {
 // The Worker's /health reports this literal; a stale value makes a live probe unable to
 // name the revision it actually served (observed: toml v54.37 while the app ran v55.23).
 check('P1155 proxy worker revision', new RegExp(`AIO_APP_REVISION\\s*=\\s*"${versionRe}"`).test(read('worker/wrangler.proxy.toml')), `expected ${version}`);
-check('operations status appRevision', operationsStatus.appRevision === version, `expected ${version}`);
-check('operations status browser revision', operationsStatus.planes?.browser?.revision === version, `expected ${version}`);
 check('CHANGELOG latest release header', new RegExp(`^##\\s+${versionRe}\\b`, 'm').test(changelog), `expected ${version} at the current release boundary`);
 
 const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1]);
@@ -101,16 +117,14 @@ check(
   `found ${cachebusters.length}, mismatches: ${[...new Set(wrongCachebusters)].join(', ') || 'none'}, expected ${versionNumber}`,
 );
 
-if (failures.length) {
-  console.error(`Version sync failed. Canonical version: ${version}`);
-  failures.forEach((failure) => console.error(` - ${failure}`));
-  // P555/R246: this gate has repeatedly failed on commits that could not possibly have
-  // caused the drift themselves (e.g. an operator-note.json content edit inherited a break
-  // left by an earlier incomplete version bump). Print the direct remediation command so
-  // whoever sees this failure — including someone with no context on R1 — can fix it in
-  // one step instead of re-deriving which of the 7 locations to touch.
-  console.error(`\nFix: run "node scripts/bump-version.mjs ${version}" and commit all resulting changes together, then re-run this check.`);
-  process.exit(1);
-}
-
+report();
 console.log(`Version sync OK: ${version} (${cachebusters.length} cachebusters)`);
+}, 'code'],
+['operations-status-revision', async () => {
+const operationsStatus = JSON.parse(read('public-data/operations-status.json'));
+check('operations status appRevision', operationsStatus.appRevision === version, `expected ${version}`);
+check('operations status browser revision', operationsStatus.planes?.browser?.revision === version, `expected ${version}`);
+report();
+console.log(`Operations status revision OK: ${version}`);
+}, 'data'],
+]);

@@ -1,6 +1,3 @@
-// 2026-11-18: the published row contract for the fundamentals' time basis (trailing-year.js) and the dividend facts
-// (price-factors.js dividendFacts). Pure, so scripts/validate-screener-artifact.mjs and the gates read one rule.
-// An artifact written before 2026-11-18 carries neither and passes: an absent basis is FY, absent dividends are unknown.
 import { readNumber } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 import { FUNDAMENTAL_BASIS, TRAILING_ROW_FIELDS } from '../fundamental/trailing-year.js';

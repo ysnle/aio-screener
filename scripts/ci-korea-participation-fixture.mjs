@@ -96,7 +96,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   assert.ok(kosdaq?.value === 760.82 && kosdaq.asOf === '2026-10-15' && kosdaq.market === 'KR' && kosdaq1d?.value === -7.65, `v57.81 close.kosdaq is present with its 1-day change (${JSON.stringify([kosdaq, kosdaq1d])})`);
 }
 console.log('PASS P1628 Korean completed-session participation and honest unavailable source boundaries; P1723 index vs sample day and largest-traded names; v57.81 spread reading, 시장 상태 KR card record, KOSPI stress row, close.kosdaq.');
-}],
+}, 'code'],
 // ── section kr-investor-flows (was ci-kr-investor-flows-fixture.mjs) ──
 ['kr-investor-flows', async () => {
 // v58.55 개편 v2 (5n) 투자자별 순매수; v59.70 (R6(b)) the Naver investor trend: parser on recorded responses, closed days,
@@ -192,5 +192,5 @@ assert.deepEqual(buildKrInvestorFlowView(null, { loadState: 'failed' }), { state
 assert.equal(formatEok(-17716), '-1.8조', 'P1593 family (v58.74 ASCII minus): a net sell reads -1.8조');
 assert.equal(formatEok(5485), '+5,485억');
 console.log('PASS v59.70 KR investor flows: Naver parser on recorded responses, closed days, format guard, merge, stale ceiling, read model.');
-}],
+}, 'code'],
 ]);

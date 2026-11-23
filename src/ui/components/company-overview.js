@@ -1,17 +1,3 @@
-// 종목 개요 (owner 2026-11-19): one question — "이 회사는 무엇으로 돈을 벌고 산업의 어디에 있는가". Three sections, top to
-// bottom, nothing folded but 원자료 표 / 계산 방법 / 데이터 출처 (indicator-face.js kindFold):
-//   사업 — what it sells, to whom, what drives revenue (the researched company story; without one, the listing facts);
-//   밸류체인 안의 자리 — the AI map layer, the customers and suppliers the stories name, the capital flows it is a party to,
-//     and one link into the map (a company outside the map gets one line);
-//   재무 한눈에 — the figures that say whether it makes money, each a number with a fixed state word, the standing among
-//     named theme peers, and the way to 재무 공시.
-// 쟁점과 전망 (owner 2026-11-21) is the screen's next view, its own question — "무엇이 다투어지고 무엇이 보는 눈을 바꾸나":
-// the issue the stock turns on and its two readings, the structures under the numbers, the company's outlook and the
-// signals that the story holds or breaks. 개요 ends on one line to it.
-// 사업 also carries how it competes and what AI does to it; 밸류체인 안의 자리 its partners and the link to the library's
-// reading of its industry.
-// The facts come from src/domain/entity/company-overview.js and the story file; this module only lays them out. Sources
-// stay off the face (owner 2026-10-06); dates stay on the figures.
 import { el } from './dom.js';
 import { indicatorRow, kindFold, rawTable } from './indicator-face.js';
 import { amountScale, moneyText, storyFreshness, CASH_USE_LABEL, POSITION_LABEL } from '../../domain/entity/company-story.js';
@@ -292,13 +278,19 @@ function cashBars(doc, useOfCash) {
   return box;
 }
 
-function moneySection(doc, { money, emptyText, peer, openFundamental }) {
+function moneySection(doc, { money, emptyText, peer, priced, openFundamental }) {
   const box = section(doc, 'money', '재무 한눈에');
   if (!money?.rows?.length) box.append(el(doc, 'p', emptyText || '재무 자료 없음', 'co-empty'));
   else {
     const list = el(doc, 'div', null, 'co-rows');
     for (const row of money.rows) list.append(indicatorRow(doc, { title: row.title, stateLabel: row.state, tone: row.tone, value: row.value, lines: row.lines, level: 'h3' }));
     box.append(list);
+  }
+  if (priced?.lines?.length) {
+    const read = block(doc, `이 주가가 반영하는 것${priced.state === 'plain' ? '' : `: ${priced.label}`}`, ...priced.lines.map((line) => el(doc, 'p', line.text, 'co-text')),
+      kindFold(doc, 'method', '상태를 정하는 법', priced.method.map((text) => el(doc, 'p', text, 'ind-method__text'))));
+    read.dataset.companyPriced = '';
+    box.append(read);
   }
   // Standing among named theme peers: the strongest and the weakest metric (stock-lens-cards.js peerLine).
   if (peer) {
@@ -363,7 +355,7 @@ function outlookLink(doc, story, openOutlook) {
 
 /**
  * Paints the overview into `host` and 쟁점과 전망 into `ctx.outlookHost` (children replaced). ctx: { symbol, story, profile,
- * place, money, moneyEmpty, peer, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
+ * place, money, moneyEmpty, peer, priced, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
  * openIndustry, openFundamental, openOutlook, actions }.
  */
 export function renderCompanyOverview(doc, host, ctx) {
@@ -378,7 +370,7 @@ export function renderCompanyOverview(doc, host, ctx) {
   const nodes = [
     businessSection(doc, { story, profile: ctx.profile, freshness, inMap: !!ctx.place?.inMap }),
     placeSection(doc, { place: ctx.place, story, industry: ctx.industry, openTicker: ctx.openTicker, openMap: ctx.openMap, openIndustry: ctx.openIndustry }),
-    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, openFundamental: ctx.openFundamental }),
+    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, priced: ctx.priced, openFundamental: ctx.openFundamental }),
     outlook && typeof ctx.openOutlook === 'function' ? outlookLink(doc, story, ctx.openOutlook) : null
   ].filter(Boolean);
   if (ctx.actions?.length) { const row = el(doc, 'div', null, 'co-actions'); row.append(...ctx.actions); nodes.push(row); }

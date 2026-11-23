@@ -1,13 +1,3 @@
-// P1326/R671 (F-56): one vocabulary for "how current are the prices on screen".
-// The header used to say "실시간 11:05" with the *current clock* whenever any row came from
-// the live proxy — even when every observation was last night's US close. Currentness is a
-// property of the observations and the US session calendar, never of the fetch time.
-//
-//   live    실시간 HH:MM   US regular session open and the newest US observation ≤ 20 min old
-//   delayed 지연 N분        session open, newest observation 20–90 min old
-//   close   종가 M/D        session closed and the newest observation is the latest completed close
-//   stale   지난 시세 M/D   anything older than that basis
-//   none    시세 미수신      no timestamped US observation
 import { latestCompletedUsSession } from './market-calendar.js';
 
 export const US_CORE_SYMBOLS = Object.freeze(['^GSPC', '^IXIC', '^DJI', '^VIX', 'SPY', 'QQQ']);
@@ -40,10 +30,8 @@ export function describeQuoteCurrentness({ observations = [], nowMs = Date.now()
   const newestMs = Math.max(...us.map((row) => row.observedMs));
   const ageMs = nowMs - newestMs;
   const at = kstParts(newestMs);
-  // P1599 (G05): name what the count is — the number of quotes with a confirmed observation time.
   const durable = Number.isFinite(durableCount) && durableCount > 0 ? durableCount : null;
   const suffix = durable != null
-    // v57.55 review (E2-18): '시세 16종 (라이브 17종)' read as 17 of 16 — they are two different sets, named as such.
     ? `, 시세 ${durable}종` + (count ? `, 실시간 관측 ${count}종` : '')
     : (count ? `, 시세 ${count}종` : '');
   if (basis?.inSession) {

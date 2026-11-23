@@ -65,18 +65,22 @@ if (!errors.length) {
   check('HTML version badge exposes the same version', html.includes(`id="app-version-badge">${version.version}</span>`));
   check('data artifact has generatedAt', Boolean(data.meta?.generatedAt));
   check('screener artifact has asOf and research-only contract', Boolean(screener.asOf) && screener.rankingContract?.tradingSignal === false && screener.rankingContract?.allowedUse === 'research-relative-ranking-only');
-  const publicWorkerUrl = String(publicConfig.ai?.workerUrl || '').trim().replace(/\/+$/, '');
-  const publicRoutePublished = /^https:\/\//i.test(publicWorkerUrl) && publicConfig.ai?.routeStatus === 'PUBLISHED';
-  const publicRouteDisabled = publicConfig.ai?.routeStatus === 'DISABLED'
-    && typeof publicConfig.ai?.routeReason === 'string'
-    && publicConfig.ai.routeReason.length > 0
-    && publicConfig.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED';
-  check('P1421 public AI config is revision-bound, non-secret, and either fresh-browser usable or explicitly operator-disabled', publicConfig.schemaVersion === 'ai-public-config.v1'
+  // v60.50: public-config.json is release-scoped — only code commits (and bump-version for appRevision) change it. The
+  // AI route is the operator's decision: PUBLISHED with no reason, or DISABLED with one. Worker readiness is not copied
+  // in; the browser probes /health itself. Both Worker addresses are the ones architecture/worker-endpoints.json names.
+  const endpoints = json('architecture/worker-endpoints.json');
+  const normalizeUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
+  const proxyUrl = normalizeUrl(endpoints.proxy?.baseUrl);
+  const routeDecided = (publicConfig.ai?.routeStatus === 'PUBLISHED' && publicConfig.ai?.routeReason === null)
+    || (publicConfig.ai?.routeStatus === 'DISABLED' && typeof publicConfig.ai?.routeReason === 'string' && publicConfig.ai.routeReason.length > 0);
+  check('v60.50 public config names the Workers in architecture/worker-endpoints.json', /^https:\/\//.test(proxyUrl)
+    && normalizeUrl(publicConfig.ai?.workerUrl) === proxyUrl
+    && normalizeUrl(publicConfig.marketData?.workerUrl) === proxyUrl
+    && normalizeUrl(publicConfig.marketData?.fastQuotes?.baseUrl) === normalizeUrl(endpoints.fastQuotes?.baseUrl),
+  JSON.stringify({ ai: publicConfig.ai?.workerUrl, marketData: publicConfig.marketData?.workerUrl, fast: publicConfig.marketData?.fastQuotes?.baseUrl }));
+  check('P1421 public AI config is revision-bound, non-secret, and an explicit operator route decision', publicConfig.schemaVersion === 'ai-public-config.v1'
     && publicConfig.appRevision === version.version
-    && (publicRoutePublished
-      ? publicConfig.ai?.routeStatus === 'PUBLISHED'
-        && publicConfig.ai?.routeEvidence?.status === 'CURRENT'
-      : publicRouteDisabled)
+    && routeDecided
     && publicConfig.ai?.serverMode === 'shared-worker-only'
     && publicConfig.ai?.chatPolicy === 'shared-worker-only'
     && publicConfig.ai?.provider === 'openai'
@@ -127,7 +131,7 @@ if (errors.length) {
   process.exit(1);
 }
 console.log('Release revision contract OK');
-}],
+}, 'data'],
 // ── section release-manifests-code-only (v60.49; replaced generated-release-parity) ──
 // The asset/release manifests change only with a code release. Until v60.49 every data refresh rewrote their
 // dataRevision, dataGeneratedAt, dataCycleId, dataCycleManifestRevision and generatedAt (3,586 of 5,863 commits), which
@@ -141,7 +145,7 @@ for (const file of ['architecture/asset-manifest.json', 'architecture/release-ma
   if (carried.length) throw new Error(`[release-manifests-code-only] ${file} carries data-owned field(s) ${carried.join(', ')}; the data revision lives in public-data/operations-status.json`);
 }
 console.log('[release-manifests-code-only] OK: asset/release manifests carry no data revision fields');
-}],
+}, 'code'],
 // ── section release-rollback-invariants (kept from the retired ci-release-manifest-contract.mjs) ──
 // v58.89: version revision parity moved to ci-version-check; these two invariants did not.
 ['release-rollback-invariants', async () => {
@@ -150,5 +154,5 @@ const manifest = JSON.parse(readFileSync('architecture/asset-manifest.json', 'ut
 if (!manifest.rollback?.appDataIndependent || !manifest.rollback?.workerCacheIndependent) throw new Error('[release-rollback-invariants] rollback independence missing (asset-manifest rollback.appDataIndependent / workerCacheIndependent)');
 if (!Array.isArray(manifest.immutableRuntime) || !manifest.immutableRuntime.includes('src/**/*.js')) throw new Error('[release-rollback-invariants] native runtime allowlist missing (asset-manifest immutableRuntime must include src/**/*.js)');
 console.log(`[release-rollback-invariants] OK: rollback ${manifest.rollback.strategy}, immutableRuntime ${manifest.immutableRuntime.length} pattern(s)`);
-}],
+}, 'code'],
 ]);

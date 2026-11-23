@@ -1,14 +1,11 @@
-// v59.65 (owner 2026-11-03, phase 3): 브리핑 tells the last 24 hours as linked stories from the market-day ledger
-// (public-data/market-day.json, src/domain/market/day/facts.js). The ledger's own threads join everything a shared subject
-// or peer touches (one 11/3 thread held 36 facts), so a story here is one level down: a lead or major fact claims its direct
-// neighbours — the members of a group, the headlines about its subject, the groups the price drives, the same-family
-// prices — and a fact belongs to one story only, in materiality order. What moved hard with nothing linked to it is kept
-// apart as unexplained; what is still ahead is a dated list. Nothing is scored here: rank and materiality are the ledger's.
 import { usThenKorea, marketOfSymbol } from '../market/session/session-time.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
 import { UP_WORDS, DOWN_WORDS } from '../news/direction-words.js';
 import { CLAIM_WORDS, claim, say, sayJoin, NOTHING } from '../shared/claim.js';
 import { readNumber } from '../shared/number.js';
+import { RULES } from '../rules/thresholds.js';
+import { buildCloseSeries } from '../market/session/close-series.js';
+import { readIndexLongrun } from '../market/indices/long-run.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -22,7 +19,6 @@ const changeClaim = (fact, { word = null, label = fact.label, unit = unitOf(fact
   claim({ subject: subjectOf(fact), measure: 'change1d', word, asOf: fact.date, compare, figures: [{ value: fact.change, unit, basis, label }] });
 /** A one-figure claim on another measure of the fact (a surprise, a size multiple, a pull on the index). */
 const figureClaim = (fact, measure, value, unit, label) => claim({ subject: subjectOf(fact), measure, asOf: fact.date, figures: [{ value, unit, basis: measure, label }] });
-// v59.71 (owner 11/07 '거래량'): a stock move on at least twice its 20-session turnover says so beside the price.
 const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? say('(거래량 {v})', { v: figureClaim(fact, 'rvol20', fact.rvol, 'x', '거래량') }) : NOTHING);
 const named = (fact, word = null) => say('{name} {move}', { name: fact.label, move: changeClaim(fact, { word }) });
 /** The five-session leg and its size against the usual five-session move. */
@@ -94,13 +90,42 @@ export const agrees = (fact, change, seed = null) => {
   return !Number.isFinite(change) || up === down || (change >= 0 ? up : down);
 };
 const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null, date: fact.date || null });
-// v59.70 (owner D6): a story cites a report by its Korean title; an English one the producer could not translate
-// (titleKoFailed) is passed over, so the account never reads half in English.
 const HANGUL_PAIR = /[가-힣].*[가-힣]/;
 const shownKorean = (fact) => HANGUL_PAIR.test(fact?.titleKo || '') || HANGUL_PAIR.test(fact?.title || '');
 
-/** The opening line composed from its claims ({text, claims}). */
-export function indexSaid(facts) {
+const SINCE_INDEX = Object.freeze({ spx: 'spx', ndx: 'ndx' }); // the ledger's US indexes the long-run tables hold
+const yearMonth = (date) => `${String(date).slice(0, 4)}년 ${Number(String(date).slice(5, 7))}월`;
+/**
+ * v60.50 (owner 2026-11-23): the rank of the leading US index's one-session move, when it is true and notable — at most
+ * one per account. With the long-run tables (indices/long-run.js): the largest such move since the last one as large,
+ * when that is over a year back, or since the tables start. Without them: the largest move of the page's own record
+ * (history.json, a full year of sessions at least — RULES.technical.fullYearSessions), as a ranked claim
+ * (rank among `record:<asset>:change1d`, every earlier session's move) the replay holds against the closes.
+ */
+function rankSaid(fact, { history = null, longrun = null } = {}) {
+  if (!fact || !Array.isArray(history) || !Number.isFinite(fact.change) || fact.change === 0) return NOTHING;
+  const series = buildCloseSeries(history, fact.asset, { through: fact.date }).filter((point) => Number(point.value) > 0);
+  if (series.at(-1)?.date !== fact.date) return NOTHING;
+  const side = fact.change < 0 ? 'fall' : 'rise';
+  const move = changeClaim(fact, { unit: 'pct' });
+  const lab = fact.label;
+  const read = SINCE_INDEX[fact.asset] && longrun ? readIndexLongrun(longrun, { index: SINCE_INDEX[fact.asset], horizon: 1, recent: series.map((point) => [point.date, Number(point.value)]) }) : null;
+  if (read && read.liveThrough === fact.date) {
+    const m = read.move;
+    const yearAgo = `${Number(fact.date.slice(0, 4)) - 1}${fact.date.slice(4)}`;
+    if (!m?.inTail || m.side !== side || (m.since && m.since.date >= yearAgo)) return NOTHING;
+    return say(' {lab} 하루 {move}는 {when} 이후 가장 큰 하루 {dir}입니다.', { lab, move, dir: side === 'fall' ? '하락' : '상승', when: m.since ? yearMonth(m.since.date) : `${read.from.slice(0, 4)}년` });
+  }
+  if (read || series.length < RULES.technical.fullYearSessions + 1) return NOTHING;
+  const record = series.slice(1).map((point, i) => (Number(point.value) / Number(series[i].value) - 1) * 100);
+  const earlier = record.slice(0, -1);
+  if (earlier.some((value) => (side === 'fall' ? value <= fact.change : value >= fact.change))) return NOTHING;
+  const ranked = claim({ subject: subjectOf(fact), measure: 'change1d', word: side === 'fall' ? 'most-fell' : 'most-rose', asOf: fact.date, rank: { among: `record:${fact.asset}:change1d` } });
+  return say(' {lab} 기준 기록({from} 이후) 중 {r.word} 하루입니다.', { lab, from: series[0].date, r: ranked });
+}
+
+/** The opening line composed from its claims ({text, claims}); with `history` (and the long-run tables) one rank. */
+export function indexSaid(facts, context = {}) {
   const price = (asset) => facts.find((fact) => fact.kind === 'price' && fact.asset === asset);
   const us = ['spx', 'ndx', 'soxx'].map(price).filter(Boolean);
   const kr = ['kospi', 'kosdaq'].map(price).filter(Boolean);
@@ -118,7 +143,9 @@ export function indexSaid(facts) {
     const rest = changeClaim(rsp, { word, unit: 'pct', label: '동일가중 S&P 500', compare: { against: subjectOf(spx), relation: CLAIM_WORDS[word].relation } });
     breadth = say(' 동일가중 S&P 500은 {rest}로, {rest.word}.', { rest });
   }
-  return say('{parts}.{breadth}', { parts: sayJoin(parts, '. '), breadth });
+  // The index that leads the story: the most material of the US indexes on the ledger.
+  const leading = [...us].sort(byMateriality)[0];
+  return say('{parts}.{breadth}{rank}', { parts: sayJoin(parts, '. '), breadth, rank: rankSaid(leading, context) });
 }
 /** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
 export const indexLine = (facts) => indexSaid(facts).text;
@@ -146,7 +173,7 @@ export function reportFor(briefs, sym, date) {
     && (brief.reaction?.firstDate === date || (!brief.reaction?.firstDate && brief.eventDate === date))) || null;
 }
 
-export function buildDayAccount(day, { briefs = null } = {}) {
+export function buildDayAccount(day, { briefs = null, history = null, longrun = null } = {}) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   if (!facts.length) return { available: false, opening: '', claims: { opening: [], asOf: [] }, coverage: null, asOf: '', stories: [], more: [], unexplained: [], reported: [], ahead: [] };
   const byId = new Map(facts.map((fact) => [fact.id, fact]));
@@ -164,7 +191,6 @@ export function buildDayAccount(day, { briefs = null } = {}) {
 
   for (const seed of facts.filter((fact) => SEED_KINDS.has(fact.kind) && fact.kind !== 'price' || (fact.kind === 'price' && FAMILY_OF.get(fact.asset)?.id !== 'us' && FAMILY_OF.get(fact.asset)?.id !== 'kr')).sort(byMateriality)) {
     if (claimed.has(seed.id) || !['lead', 'major', 'minor'].includes(seed.rank)) continue;
-    // v59.68: direction is the lead fact's own sign (a spread widening is +), for the story's weight bar; not a tone.
     const story = { id: `story:${seed.id}`, rank: seed.rank, materiality: seed.materiality || 0, direction: Math.sign(Number(seed.change) || 0), kind: seed.kind, title: '', line: '', why: [], evidence: [], related: [], claims: [] };
     if (seed.kind === 'price') {
       const family = FAMILY_OF.get(seed.asset);
@@ -185,7 +211,6 @@ export function buildDayAccount(day, { briefs = null } = {}) {
       const byWeek = largest.sizedBy === 'week' && Number.isFinite(largest.zWeek) && Number.isFinite(largest.week);
       const times = byWeek ? say('5거래일 {week}로 평소 5거래일 변동의 {week.1}입니다.', { week: weekClaim(largest) })
         : Number.isFinite(largest.z) ? say('평소 하루 변동의 {z}입니다.', { z: figureClaim(largest, 'z1d', Math.abs(largest.z), 'x', '평소 하루 변동') }) : NOTHING;
-      // v59.70 (screen review 8): the close date leads, so this day move is not read against a live quote chip or a week figure.
       const tail = !times.text ? NOTHING : kin.length > 1 ? say(' {largest.word}: {name}, {times}', { largest: largestClaim(largest, family), name: largest.label, times }) : say(' {times}', { times });
       tell(story, 'line', say('{date}{kin}.{tail}', { date: seed.date ? say('{seed.date} 종가 ', { seed: changeClaim(seed) }) : NOTHING, kin: sayJoin(kin.map((fact) => named(fact)), ', '), tail }));
       if (groups.length) {
@@ -232,8 +257,6 @@ export function buildDayAccount(day, { briefs = null } = {}) {
       story.evidence = reports.map(evidenceOf);
       assign(story,[seed, stock, ...reports]);
     } else if (seed.kind === 'deal') {
-      // v59.70 (screen review #11): a deal fact carries acquirer/target/terms but no label, so the generic branch told it
-      // as an empty title and line under its reports.
       const name = (sym) => facts.find((fact) => fact.subjects?.[0] === sym && fact.kind !== 'headline' && fact.label)?.label || sym;
       const reports = headlinesAbout(seed.subjects || [], NaN).slice(0, 3);
       tell(story, 'title', say('{acquirer}, {target} 인수', { acquirer: name(seed.acquirer), target: name(seed.target) }));
@@ -269,10 +292,6 @@ export function buildDayAccount(day, { briefs = null } = {}) {
     stories.push(story);
   }
 
-  // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
-  // TEAM -16.1% sat under "이유가 확인되지 않은 큰 움직임" while 뉴스 carried its 8-K
-  // earnings brief (-16.2% on the first session). A move on the first session after the company's own report is that
-  // report's reaction: it leaves the unexplained list (before the cap of six) and is told with the brief's headline.
   const unclaimed = usThenKorea(facts.filter((fact) => fact.kind === 'stock-move' && !(fact.explainedBy || []).length && !claimed.has(fact.id) && ['lead', 'major', 'minor'].includes(fact.rank)),
     (fact) => String(fact.subjects?.[0] || ''), (a, b) => Math.abs(b.change) - Math.abs(a.change));
   const reported = [];
@@ -289,7 +308,7 @@ export function buildDayAccount(day, { briefs = null } = {}) {
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));
   const face = stories.filter((story) => story.rank !== 'minor').slice(0, 6);
   const counts = facts.reduce((acc, fact) => { acc[fact.rank] = (acc[fact.rank] || 0) + 1; return acc; }, {});
-  const opening = indexSaid(facts);
+  const opening = indexSaid(facts, { history, longrun });
   const asOf = sessionLabel(day, facts);
   return {
     available: true,
@@ -297,8 +316,6 @@ export function buildDayAccount(day, { briefs = null } = {}) {
     // what the opening line and the date label claim (each story carries its own claims)
     claims: { opening: opening.claims, asOf: asOf.claims },
     coverage: { facts: facts.length, lead: counts.lead || 0, major: counts.major || 0, noise: day.dropped?.noise || 0, generatedAt: day.generatedAt || null, session: day.sessions?.us || null },
-    // the one dated label of these stories — 오늘's 오늘의 핵심 and 브리핑's 지난 24시간 both
-    // print it, so the briefing no longer sits its 11/16 movers under the page's 11/17 close line with no date.
     asOf: asOf.text,
     stories: face,
     more: stories.filter((story) => !face.includes(story)).slice(0, 12),

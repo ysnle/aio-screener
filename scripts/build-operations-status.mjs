@@ -1,4 +1,4 @@
-import { readFile, rename, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { createOperationsStatus, validateOperationsStatus } from '../src/data/contracts/operations.js';
 
@@ -9,8 +9,6 @@ export const OPERATIONS_STATUS_OUT = new URL('../public-data/operations-status.j
 const SEC_FUNDAMENTALS_PATH = new URL('../public-data/sec-fundamentals.json', import.meta.url);
 const SEC_FUNDAMENTALS_SUMMARY_PATH = new URL('../public-data/sec-fundamentals-summary.json', import.meta.url);
 const WORKER_ENDPOINTS_PATH = new URL('../architecture/worker-endpoints.json', import.meta.url);
-const PUBLIC_READINESS_PATH = new URL('../architecture/public-readiness.json', import.meta.url);
-const PUBLIC_CONFIG_PATH = new URL('../public-config.json', import.meta.url);
 const SLO_WINDOW_PATH = new URL('../public-data/operations-slo-window.json', import.meta.url);
 const SCREENER_EXTENDED_PATH = new URL('../public-data/screener-extended.json', import.meta.url); // v57.81
 const WORKER_HEALTH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -64,50 +62,6 @@ async function fetchHealth(baseUrl, healthPath = '/health', headers = {}) {
   return { response, body };
 }
 
-// The browser may only read the fast quote plane once the evidence that justifies it
-// exists. `enabled` is derived here instead of being hand-edited into the published
-// config, so a promotion cannot silently outrun the soak/rights evidence behind it —
-// and so a config-only repair (no fresh observation) cannot revoke a valid promotion.
-export function deriveFastQuotesConfig({ prior = null, endpoint = null, evidence = null, now = new Date().toISOString() } = {}) {
-  const carried = prior && typeof prior === 'object' ? prior : {
-    baseUrl: null,
-    healthPath: '/health',
-    quotesPath: '/quotes',
-    enabled: false,
-    certification: { soakRequiredDays: 7, rightsReviewed: false, certifiedAt: null }
-  };
-  const usable = (() => {
-    try {
-      const parsed = new URL(String(endpoint || '').trim().replace(/\/+$/, ''));
-      return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash ? parsed.origin : null;
-    } catch (_) { return null; }
-  })();
-  // No observation was made: this is a configuration repair, not a health probe. Keep the
-  // promotion decision exactly as published and only refresh the address it points at.
-  if (!evidence) return { ...carried, baseUrl: usable ?? carried.baseUrl ?? null };
-  const soakRequiredDays = Number(evidence.soakRequiredDays ?? 7);
-  const soakObservedDays = Number(evidence.soakObservedDays ?? 0);
-  const rightsReviewed = evidence.rightsReviewed === true;
-  const enabled = Boolean(usable)
-    && evidence.healthy === true
-    && evidence.coverageComplete === true
-    && rightsReviewed
-    && soakObservedDays >= soakRequiredDays;
-  return {
-    baseUrl: usable,
-    healthPath: carried.healthPath || '/health',
-    quotesPath: carried.quotesPath || '/quotes',
-    enabled,
-    // v60.49: the measured soak days are published in operations-status.json planes.fast.soak.observedDays, which the
-    // consumer gate re-derives from; a copy here moved with the SLO window and rewrote public-config.json.
-    certification: {
-      soakRequiredDays,
-      rightsReviewed,
-      certifiedAt: enabled ? (carried.certification?.certifiedAt || now) : null
-    }
-  };
-}
-
 // P1271: health alone cannot make the user-facing quote feature AVAILABLE.
 // The public route is disabled until rights and the measured soak both close.
 export function deriveFastQuoteAvailability({ configured = false, healthy = false, rightsReviewed = false, soakObservedDays = 0, soakRequiredDays = 7 } = {}) {
@@ -118,98 +72,12 @@ export function deriveFastQuoteAvailability({ configured = false, healthy = fals
   return { availability: 'AVAILABLE', missingReason: null };
 }
 
-export function derivePublicAiConfig(previous = {}, {
-  appRevision = 'unknown',
-  workerEndpoint = null,
-  proxyHealthy = false,
-  proxyEvidence = {},
-  fastQuotesEndpoint = null,
-  fastQuotesEvidence = null,
-  now = new Date().toISOString()
-} = {}) {
-  const prior = previous && typeof previous === 'object' ? previous : {};
-  const priorAi = prior.ai && typeof prior.ai === 'object' ? prior.ai : {};
-  const endpoint = String(workerEndpoint || '').trim().replace(/\/+$/, '') || null;
-  const endpointUsable = (() => {
-    try {
-      const parsed = new URL(endpoint);
-      return parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash ? endpoint : null;
-    } catch (_) { return null; }
-  })();
-  // P1421: an old provider's healthy route cannot certify the OpenAI migration.
-  const providerMatches = proxyEvidence.proxyAiProvider === 'openai' && proxyEvidence.proxyAiModel === 'gpt-6-luna';
-  const published = Boolean(endpointUsable && proxyHealthy && providerMatches);
-  const failureReason = endpoint && !endpointUsable
-    ? 'WORKER_ENDPOINT_INVALID'
-    : proxyEvidence.proxyObservationStatus === 'FAILED'
-      ? 'WORKER_HEALTH_UNAVAILABLE'
-      : proxyEvidence.proxyObservationStatus === 'HTTP_ERROR'
-      ? 'WORKER_HEALTH_HTTP_ERROR'
-      : proxyEvidence.proxyEvidenceFresh === false && proxyEvidence.proxyHealthStatus != null
-        ? 'WORKER_HEALTH_STALE'
-      : proxyEvidence.proxyHealthStatus == null
-        ? 'WORKER_HEALTH_UNOBSERVED'
-        : !providerMatches ? 'WORKER_AI_PROVIDER_MISMATCH' : 'WORKER_NOT_READY';
-  return {
-    schemaVersion: 'ai-public-config.v1',
-    appRevision: String(appRevision),
-    ai: {
-      chatPolicy: 'shared-worker-only',
-      provider: 'openai',
-      model: 'gpt-6-luna',
-      workerUrl: endpointUsable,
-      serverMode: 'shared-worker-only',
-      healthPath: priorAi.healthPath || '/health',
-      maxTokens: priorAi.maxTokens || 'worker-advertised',
-      routeStatus: published ? 'PUBLISHED' : 'DISABLED',
-      routeReason: published ? null : failureReason,
-      // v60.49: the observation behind this decision (source, observedAt, observationStatus) is published once, in
-      // public-data/operations-status.json ai.publicChat.health. Its copy here changed on every refresh, so every data
-      // commit rewrote this code-state file.
-      routeEvidence: { status: published ? 'CURRENT' : 'OPERATOR_REQUIRED' }
-    },
-    // Market-data relay availability is a separate concern from the AI
-    // entitlement/health branch.  A transient AI health failure must not
-    // erase a configured public-reference route for quote requests, and a
-    // configured endpoint is not evidence that the route is healthy.
-    marketData: {
-      workerUrl: endpointUsable,
-      routeStatus: endpointUsable ? 'CONFIGURED' : 'UNAVAILABLE',
-      healthPath: '/health',
-      policy: 'public-reference',
-      availability: 'verify-per-request',
-      // Bounded Tier-0 quote plane. Independent of the AI branch: a temporary AI
-      // outage must not disable quote routing, and vice versa.
-      fastQuotes: deriveFastQuotesConfig({
-        prior: prior.marketData?.fastQuotes,
-        endpoint: fastQuotesEndpoint,
-        evidence: fastQuotesEvidence,
-        now
-      })
-    },
-    privacy: prior.privacy || {
-      clientKeysStayBrowserLocal: true,
-      networkTransmission: 'provider-or-explicit-worker'
-    }
-  };
-}
-
-async function syncPublicAiConfig({ appRevision, workerEndpoint, proxyHealthy, proxyEvidence, fastQuotesEndpoint, fastQuotesEvidence, now } = {}) {
-  let previous = {};
-  try { previous = JSON.parse(await readFile(PUBLIC_CONFIG_PATH, 'utf8')); } catch (_) {}
-  const config = derivePublicAiConfig(previous, { appRevision, workerEndpoint, proxyHealthy, proxyEvidence, fastQuotesEndpoint, fastQuotesEvidence, now });
-  const temp = new URL(`${PUBLIC_CONFIG_PATH.pathname}.tmp`, PUBLIC_CONFIG_PATH);
-  await writeFile(temp, `${JSON.stringify(config, null, 2)}\n`);
-  await rename(temp, PUBLIC_CONFIG_PATH);
-  return config;
-}
-
 /**
  * P1189: `providers.<name>.status` is validated against OPERATIONS_STATUS. This
  * field used to publish 'UNAVAILABLE' — a RIGHTS_STATUS/FEATURE_AVAILABILITY word
  * with no operations meaning (the P1091 two-axes confusion) — so
  * validateOperationsStatus rejected the artifact and fetch-data.mjs aborted
- * before writing operations-status/public-config. Every cycle where FRED was not
+ * before writing operations-status. Every cycle where FRED was not
  * fully fetched died, including the keyless LKG cycle that
  * ci-refresh-artifact-integrity-check explicitly allows. An operator must
  * configure a missing key; a configured provider that did not fetch is BLOCKED.
@@ -309,24 +177,6 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
               ? 'market-cycle-generatedAt-in-future'
               : 'market-cycle-freshness-sla-exceeded')
   });
-}
-
-export async function syncFredReadinessCriterion(data = {}) {
-  let readiness = null;
-  try { readiness = JSON.parse(await readFile(PUBLIC_READINESS_PATH, 'utf8')); } catch (_) { return null; }
-  const fredSuccess = data?.meta?.fredHasKey === true && data?.meta?.fredFetchOk === true && data?.meta?.fredOk === true;
-  const criteria = Array.isArray(readiness.criteria) ? readiness.criteria : [];
-  const next = criteria.map((criterion) => criterion?.id === 'fred-success-branch' ? {
-    ...criterion,
-    status: fredSuccess ? 'PASS' : 'OPERATOR_REQUIRED',
-    evidence: fredSuccess
-      ? 'public-data/data.json reports fredHasKey:true, fredFetchOk:true and fredOk:true; SA-04 remains release-required.'
-      : `public-data/data.json reports fredHasKey:${data?.meta?.fredHasKey === true}, fredFetchOk:${data?.meta?.fredFetchOk === true}, fredOk:${data?.meta?.fredOk === true}; current official-series success is not certified.`
-  } : criterion);
-  if (!next.some((criterion) => criterion?.id === 'fred-success-branch')) return null;
-  const updated = { ...readiness, criteria: next };
-  await atomicWriteFile(PUBLIC_READINESS_PATH, `${JSON.stringify(updated, null, 2)}\n`);
-  return updated;
 }
 
 export function reuseWorkerHealthEvidence(previous = {}, now = new Date().toISOString()) {
@@ -665,46 +515,17 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   });
   const validation = validateOperationsStatus(status);
   if (!validation.ok) throw new Error(`OPERATIONS_STATUS_INVALID:${validation.errors.join(',')}`);
+  // v60.50: this is the producer's only output. public-config.json (the AI route and the fast-plane promotion) is
+  // release-scoped and changes only in code commits; the browser checks both Workers itself on every load. The FRED
+  // fetch result lives here as providers.fred.status, not in architecture/public-readiness.json.
   await atomicWriteFile(OPERATIONS_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);
-  await syncPublicAiConfig({
-    appRevision: version.version,
-    workerEndpoint: workerEndpoints.proxy?.baseUrl || null,
-    proxyHealthy,
-    proxyEvidence: fastEvidence,
-    fastQuotesEndpoint: fastEndpoint === 'not-configured' ? null : fastEndpoint,
-    fastQuotesEvidence: {
-      healthy: fastHealthy,
-      coverageComplete: Number.isFinite(fastObserved) && fastObserved === fastRequired && fastRequired === 16,
-      // Declared by the operator in architecture/worker-endpoints.json after the
-      // provider-rights review — never inferred from a healthy probe.
-      rightsReviewed: workerEndpoints.fastQuotes?.rightsReviewed === true,
-      soakRequiredDays: Number(workerEndpoints.fastQuotes?.soakRequiredDays ?? 7),
-      soakObservedDays: fastEvidence.fastSoakObservedDays || 0
-    },
-    now
-  });
-  await syncFredReadinessCriterion(data);
   return status;
 }
 
 if (process.argv[1] && new URL(`file://${process.argv[1].replaceAll('\\', '/')}`).href === import.meta.url) {
-  if (process.argv.includes('--config-only')) {
-    const previous = JSON.parse(await readFile(PUBLIC_CONFIG_PATH, 'utf8'));
-    const endpoints = JSON.parse(await readFile(WORKER_ENDPOINTS_PATH, 'utf8'));
-    const version = JSON.parse(await readFile(new URL('../version.json', import.meta.url), 'utf8'));
-    const derived = derivePublicAiConfig(previous, {
-      workerEndpoint: endpoints.proxy?.baseUrl,
-      fastQuotesEndpoint: endpoints.fastQuotes?.baseUrl || null
-    });
-    // Configuration repair is not a health probe. Preserve existing AI evidence
-    // and every observation timestamp when no live observation was made.
-    await atomicWriteFile(PUBLIC_CONFIG_PATH, `${JSON.stringify({ ...previous, appRevision: version.version, marketData: derived.marketData }, null, 2)}\n`);
-    console.log('Public market-data configuration regenerated; health evidence unchanged.');
-  } else {
   const data = JSON.parse(await readFile(new URL('../public-data/data.json', import.meta.url), 'utf8'));
   const marketSnapshot = JSON.parse(await readFile(new URL('../public-data/market-snapshot.json', import.meta.url), 'utf8'));
   let reconciliation = null;
   try { reconciliation = JSON.parse(await readFile(new URL('../public-data/reconciliation-status.json', import.meta.url), 'utf8')); } catch (_) {}
   console.log(JSON.stringify(await writeOperationsStatus({ data, marketSnapshot, reconciliation })));
-  }
 }

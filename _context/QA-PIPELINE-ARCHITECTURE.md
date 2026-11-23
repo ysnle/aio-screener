@@ -72,9 +72,8 @@ Pages 배포와 Cloudflare 배포는 서로 다른 권한 경계다. Pages 성�
 |---|---|---|
 | `scripts/ci-ledger-integrity-check.mjs` | R 번호 결번 집합, `verify_by:` 없는 신규 OPEN | `_context/rule-gap-manifest.json`, `_context/open-item-baseline.json` |
 | `scripts/ci-assertion-trace-check.mjs` | ledger-id를 인용하지 않는 신규 `check()`/`_assert()` 라벨 | `_context/assertion-trace-baseline.json` |
-| `scripts/ci-knowledge-lint-check.mjs` | 45일 초과 비면제 문서 집합 | `_context/doc-freshness-baseline.json` |
 
-`--write`는 첫 도입과 **승인된 일괄 변경**에만 쓴다. 동결은 부채를 고정할 뿐 갚지 않으므로 감소는 별도 QA 항목으로 추적한다. 면제 규칙은 코드에 명시한다 — 문서 신선도의 면제는 `historical-snapshot && !autoRefresh`이며, `auto_refresh: true`가 파일명 기반 kind 추측과 충돌하면 면제하지 않고 드러낸다(P1125).
+`--write`는 첫 도입과 **승인된 일괄 변경**에만 쓴다. 동결은 부채를 고정할 뿐 갚지 않으므로 감소는 별도 QA 항목으로 추적한다. 문서 신선도(45일, P1125)는 v60.50부터 동결하지 않고 어디서나 경고만 한다 — 날짜가 지나는 것은 코드 변경이 아니다. 면제 규칙은 코드에 명시한다: `historical-snapshot && !autoRefresh`이며, `auto_refresh: true`가 파일명 기반 kind 추측과 충돌하면 면제하지 않고 드러낸다.
 
 ## Change Rules
 

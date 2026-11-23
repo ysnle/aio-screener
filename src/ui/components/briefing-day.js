@@ -1,7 +1,3 @@
-// v59.65 (owner 2026-11-03, phase 3): 브리핑's 지난 24시간 section. The face carries the opening line (both markets, with the
-// equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
-// the largest of the smaller stories follow on the face; the reports behind a story and the big moves nothing explains
-// open in folds.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market/day/one-session.js';
@@ -9,7 +5,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { asOfChip } from './section-frame.js';
-import { EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
+import { EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 
 const MORE_ON_FACE = 3;
 
@@ -42,13 +38,14 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  // The event briefs tell which big moves were a company's own report (TEAM 11/6); they arrive on their own.
   const briefs = root?.[EVENT_BRIEFS.key] || null;
   if (root && !briefs) refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs }); // v59.70 (re-review 7·8)
+  const longrun = root?.[INDEX_LONGRUN.key] || null;
+  if (root && !longrun) refreshSharedArtifact(root, INDEX_LONGRUN).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
+  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs, history: root?._aioHistory || null, longrun });
   section.hidden = !account.available;
   if (!account.available) return;
-  const key = `${day.generatedAt}|${briefs?.generatedAt || ''}`;
+  const key = `${day.generatedAt}|${briefs?.generatedAt || ''}|${longrun?.generatedAt || ''}|${root?._aioHistory?.at?.(-1)?.date || ''}`;
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
   // the section carries its own session — the same label 오늘's 오늘의 핵심 prints (buildDayAccount
@@ -76,7 +73,7 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   }
   if (account.unexplained.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const row of account.unexplained) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)); // v59.71: unexplained moves carry their turnover
+    for (const row of account.unexplained) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`));
     folds.push(fold(doc, `이유가 확인되지 않은 큰 움직임 ${account.unexplained.length}건`, [el(doc, 'p', '관련 보도나 같이 움직인 업종·가격이 없는 움직임입니다. 원인이 나오기 전까지는 추측하지 않습니다.', 'briefing-day-note'), list]));
   }
   const { facts, lead, major, noise } = account.coverage;

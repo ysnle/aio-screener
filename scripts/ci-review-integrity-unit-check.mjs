@@ -173,6 +173,18 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   // Clean case: a holding well above both lines stays 상승 추세.
   const clean = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: [{ sym: 'MSFT', sector: 'Technology', pctSma50: 5.95, pctSma200: 23.1, adrPct: 1.6 }], regime });
   if (clean.trendMix.find((row) => row.state === 'up').pct !== 100) fail('v57.81 clean: MSFT 5.95% above its 50-day line is still 상승 추세');
+  // v60.50 (owner 2026-11-23): the face leads with the share in the market's leaders (the AI supply chain's sub-themes,
+  // ai-chain-flow.js leaderMembers) and each part's value-weighted distance from its 52-week closing high; a Korean
+  // listing is outside the US theme map and is left out by name; no theme map, no line.
+  const chain = [{ id: 'semiconductor', subThemes: [{ name: 'AI 칩', tickers: ['NVDA'] }] }, { id: 'software', subThemes: [{ name: 'SW', tickers: ['MSFT'] }] }];
+  const leadRows = [{ sym: 'NVDA', pctFromCloseHigh52w: -47.5, factorSessionDate: '2026-11-20' }, { sym: 'MSFT', pctFromCloseHigh52w: -12, factorSessionDate: '2026-11-20' }, { sym: 'XOM', pctFromCloseHigh52w: -6, factorSessionDate: '2026-11-20' }, { sym: '005930.KS', pctFromCloseHigh52w: -40 }];
+  const leadBook = buildPortfolioRead({ surface: { rows: [{ symbol: 'NVDA', value: 60 }, { symbol: 'MSFT', value: 20 }, { symbol: 'XOM', value: 20 }] }, rows: leadRows, themeMap: chain });
+  if (!leadBook.headline.startsWith('보유 금액의 60%가 주도 영역(AI·반도체)이고, 이 묶음은 52주 종가 고점 대비 평균 -48%, 나머지는 -9%(11/20 종가)입니다.')) fail(`v60.50 the portfolio face leads with the leaders' share and distances: ${leadBook.headline}`);
+  const krMixed = buildPortfolioRead({ surface: { rows: [{ symbol: 'NVDA', value: 50 }, { symbol: '005930.KS', value: 50 }] }, rows: leadRows, themeMap: chain });
+  if (!krMixed.headline.startsWith('미국 보유 금액 전부가 주도 영역(AI·반도체)이고, 52주 종가 고점 대비 평균 -48%(11/20 종가)입니다.')) fail(`v60.50 a Korean listing is outside the leaders' classification and named as such: ${krMixed.headline}`);
+  const none = buildPortfolioRead({ surface: { rows: [{ symbol: 'XOM', value: 10 }] }, rows: leadRows, themeMap: chain });
+  if (!none.headline.startsWith('보유 금액 중 주도 영역(AI·반도체) 종목은 없고, 보유 종목은 52주 종가 고점 대비 평균 -6%(11/20 종가)입니다.')) fail(`v60.50 a book without leaders says so: ${none.headline}`);
+  if (buildPortfolioRead({ surface: { rows: [{ symbol: 'NVDA', value: 10 }] }, rows: leadRows }).leaders !== null) fail('v60.50 no theme map, no leaders line (no invented ticker list)');
   // Rotation: XLK in the neutral band (RS-Ratio 100.33) and falling 4.5% against the S&P 500 in 5 sessions is held, not 선도.
   const rs = Array.from({ length: 60 }, (_, i) => ({ sessionDate: `d${i}`, value: 100 + Math.sin(i / 3) * 0.6 }));
   rs.push(...[100.4, 99.2, 98.0, 96.9, 95.9].map((value, i) => ({ sessionDate: `e${i}`, value })));
@@ -272,4 +284,4 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (kept.length) fail(`P2-KNOW-02 whole-word evidence lost: ${kept.map(([id]) => id).join(', ')}`);
 }
 
-console.log(JSON.stringify({ ok: true, checks: ['v58.77-pass2-P2-DATA-06-07-KNOW-02', 'P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read', 'v57.92-E01-E08', 'v57.92-M02-K01-masters'] }));
+console.log(JSON.stringify({ ok: true, checks: ['v58.77-pass2-P2-DATA-06-07-KNOW-02', 'P1462', 'P1463', 'P1464', 'P1466', 'P1467', 'P1468', 'P1469', 'v57.48-review-1·2·3·6·8·9·10·12·15·16·17·18·22·25', 'v57.81-portfolio-read', 'v60.50-portfolio-leaders', 'v57.92-E01-E08', 'v57.92-M02-K01-masters'] }));

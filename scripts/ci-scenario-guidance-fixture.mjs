@@ -890,8 +890,9 @@ console.log('scenario guidance fixture (basis card): PASS');
   const inflMh = mhOf({ corePceIndex: monthly(2024, 5, 28, 3.33, 2.05), coreCpiIndex: monthly(2024, 6, 28, 2.3, 3.41) });
   const inflRead = buildMacroRead({ macro: { corePce: 3.0076 }, macroHistory: inflMh });
   const inflAxis = inflRead.axes.find((axis) => axis.id === 'inflation');
-  assert.ok(inflAxis.detail.direction.state === 'mixed' && inflRead.regime.held.inflation === '엇갈림' && !inflRead.regime.inflationDir, `v57.81 PCE slowing plus CPI re-accelerating gives 엇갈림 (${inflRead.regime.reading})`);
-  assert.ok(/근원 PCE 8월 둔화, 근원 CPI 9월 재가속/.test(inflRead.regime.reading) && !/정해진 쪽은 물가 속도 둔화/.test(inflRead.regime.reading), 'v57.81 the held quadrant names each series with its month, never a settled disinflation');
+  assert.ok(inflAxis.detail.direction.state === 'mixed' && inflRead.regime.held.inflation === '엇갈림' && !inflRead.regime.inflationDir, `v57.81 PCE slowing plus CPI re-accelerating gives 엇갈림 (${inflRead.regime.verdict})`);
+  // v60.50: the held paragraph (reading) left; the verdict line carries the split.
+  assert.ok(/속도 엇갈림\(근원 PCE 8월 둔화, 근원 CPI 9월 재가속\)/.test(inflRead.regime.verdict) && !/속도 둔화/.test(inflRead.regime.verdict), `v57.81 (v60.50 verdict line) the held quadrant names each series with its month, never a settled disinflation (${inflRead.regime.verdict})`);
   const inflModel = buildMacroCrossroads({ read: inflRead, macroHistory: inflMh });
   const condition = (id) => inflModel.items.find((item) => item.id === id).conditions[0][1];
   assert.ok(condition('reheat') === false && condition('softland') === false, 'v57.81 the reheat and softland branches read the same flag as the quadrant');
@@ -1222,7 +1223,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(board, /buildCrossAssetRelations\(root\._aioHistory \|\| \[\], \{ through: model\.basis \|\| null \}\)/, 'v58.80 the asset card reading uses the card basis');
   console.log('scenario guidance fixture (v58.80 cross-asset relations on the asset card): PASS');
 }
-}],
+}, 'data'],
 // ── section market-guide (was ci-market-guide-fixture.mjs) ──
 ['market-guide', async () => {
 // Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): the shared market guide — one synthesis for 오늘, the AI chat, the server
@@ -1339,7 +1340,7 @@ assert.equal(pastEvidence(null).n, 0, `${label}: no record, no evidence`);
 assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).method, ANALOG_METHOD, `${label}: evidence carries its method label`);
 
 console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);
-}],
+}, 'code'],
 // ── section market-analysis-salvage (v60.02, plan 046) ──
 // A reading blocked on its retry loses its bad line (at most two), not the whole text; the validator stays the judge.
 ['market-analysis-salvage', async () => {
@@ -1404,7 +1405,7 @@ assert.equal(prompts.length, 2, 'v60.02 salvage makes no third request');
 assert.ok(logs.some((line) => line === '[fetch-data] marketAnalysis salvaged: removed 1 line(s) for axis-state-contradiction:credit'), 'v60.02 the run logs one salvage line');
 assert.equal(marketAnalysisOutcome(run, { requests: 2 }), 'salvaged', 'v60.02 the run meta counts a salvaged reading');
 console.log('market analysis salvage OK');
-}],
+}, 'code'],
 // ── section theme-outcomes (v60.18, weekly audit 2026-11-15: one stage benchmark, definition stamps, evidence strength) ──
 ['theme-outcomes', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -1537,5 +1538,5 @@ const run = spawnSync(process.execPath, [new URL('./build-validation-gates.mjs',
 assert.ok(run.status === 0 && existsSync(path.join(out, 'screener-validation-gate.json')) && existsSync(path.join(out, 'model-validation-status.json')), `v60.18 build-validation-gates creates a missing --out-dir (${run.status}: ${run.stderr})`);
 rmSync(dir, { recursive: true, force: true });
 console.log('theme outcomes fixture (v60.18 one benchmark, definition stamps, evidence strength): PASS');
-}],
+}, 'data'],
 ]);

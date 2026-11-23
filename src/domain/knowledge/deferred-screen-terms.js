@@ -1,7 +1,3 @@
-// v58.80 first-users run-5 (newcomer): words 시장 상태 · 종목 · 포트폴리오 print that neither glossary defined. Loaded after
-// boot by src/ui/knowledge/glossary-bridge.js (the boot module budget stays put; the term marks pick them up on their next pass).
-// Plain definitions only, like screen-term-additions.js. Owner 2026-10-31 (two layers): after the plain first sentence an
-// entry may carry definitional formulas and naming conventions; never thresholds, probabilities or market figures.
 export const DEFERRED_SCREEN_TERMS = Object.freeze([
   { term: '주도 영역 (AI·반도체)', alias: '주도 영역 주도 영역 이탈 이탈 리더십 leadership', cat: '기초', def: '지수 상승을 앞에서 끌어 온 종목 묶음입니다. 이 앱에서는 AI·반도체(반도체 ETF SOXX)를 보며, 이 묶음이 기준선 아래로 밀리고 시장 전반의 확인 신호까지 붙으면 "이탈"이라고 부릅니다.' },
   { term: '매도 소진', alias: '매도 소진 투매 capitulation 셀링 클라이맥스 바닥 확인', cat: '기술적분석', def: '팔 사람이 대부분 팔고 난 흔적입니다. 극단적 공포, 높은 변동성, 줄어드는 신저가 종목 수, 짧은 기간 선 위로 돌아오는 종목 증가 같은 신호를 함께 봅니다. 바닥을 확정하는 신호는 아니며 회복 확인과 같이 읽습니다.' },
@@ -16,8 +12,6 @@ export const DEFERRED_SCREEN_TERMS = Object.freeze([
   { term: '컨센서스 (실적 전망치)', alias: '컨센서스 consensus 추정치 전망치 애널리스트 평균 상향 하향', cat: '재무', def: '그 회사를 분석하는 애널리스트들의 실적 전망을 모은 평균입니다. 최근 몇 주 동안 전망을 올린 수와 내린 수는 기대가 어느 쪽으로 움직이는지를 보여 줍니다. 전망이지 확정 실적이 아닙니다.' },
   { term: '허핀달 지수 (HHI)', alias: '허핀달 허핀달 지수 HHI Herfindahl 집중도', cat: '포트폴리오', def: '각 비중의 제곱을 모두 더한 집중도 지표입니다. 한 종목에 모두 몰리면 1이고, 여러 종목에 고르게 나눌수록 작아집니다. 그 역수가 "실질 종목 수"입니다.' },
   { term: '실질 종목 수', alias: '실질 종목 수 유효 종목 수 effective number', cat: '포트폴리오', def: '비중까지 따졌을 때 포트폴리오가 사실상 몇 종목에 고르게 나눈 것과 같은지를 나타낸 수입니다(허핀달 지수의 역수). 10종목을 들어도 한 종목 비중이 크면 실질 종목 수는 작아집니다.' },
-  // First-users run-6 (newcomer #5): words printed with no entry. The first sentence is the plain reading the term popover
-  // shows; the rest is the expert layer the glossary shows in full (formula, conventions, the common misreading).
   { term: '혼조', alias: '혼조 혼조세 엇갈림 mixed 섞임', cat: '기초', def: '오르는 쪽 신호와 내리는 쪽 신호가 섞여 한 방향으로 정리되지 않은 상태입니다. 시장 판정에서는 유리한 신호와 부담 신호가 맞서 어느 쪽으로도 결론을 내리지 않는다는 뜻이고, 이동평균에서는 짧은 선과 긴 선의 순서가 정배열도 역배열도 아닌 상태를 가리킵니다. 흔한 오해: 혼조는 약세 예고도 강세 예고도 아니며, 다음에 확인할 것은 어느 쪽 신호가 먼저 늘어나는지입니다.' },
   { term: 'GAAP / 비GAAP', alias: 'GAAP 비GAAP non-GAAP 조정 이익 조정 EPS 회계기준', cat: '재무', def: 'GAAP은 미국 회계기준대로 계산한 공식 실적이고, 비GAAP은 회사가 일부 비용을 빼고 따로 계산해 발표하는 조정 실적입니다. 비GAAP 이익 = GAAP 이익 + 회사가 제외한 항목의 세후 금액. 흔히 빼는 항목은 주식 보상 비용, 인수로 생긴 무형자산 상각, 구조조정·소송 같은 일회성 비용입니다. 미국 상장사는 비GAAP 수치를 낼 때 가장 가까운 GAAP 수치와 둘의 차이를 맞춘 조정표를 함께 공개해야 합니다. 흔한 오해: 비GAAP이 더 정확한 실적은 아니며, 빼는 항목이 회사마다 달라 회사끼리 비교할 때는 조정표에서 무엇을 뺐는지 먼저 봅니다.' },
   { term: '희석 EPS', alias: '희석 EPS 희석 주당순이익 diluted EPS 기본 EPS', cat: '재무', def: '주식으로 바뀔 수 있는 권리까지 모두 주식이 됐다고 치고 계산한 주당순이익입니다. 희석 EPS = (순이익 − 우선주 배당) ÷ (가중평균 보통주 수 + 스톡옵션·RSU·전환사채가 주식이 될 때 늘어나는 수). 주당 이익을 줄이는 권리만 넣으므로 기본 EPS보다 같거나 작고, 전환사채는 주식으로 바뀌면 이자가 사라지므로 그 이자(세후)를 순이익에 더해 계산합니다. 흔한 오해: 실적 발표와 전망치의 EPS는 대개 희석 기준이라, 기본 EPS와 섞어 비교하면 차이가 생깁니다.' },

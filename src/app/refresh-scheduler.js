@@ -1,8 +1,3 @@
-// v59.33 (roadmap 11, layer 4 boot sequence): the data refresh scheduler moved out of js/aio-data.js unchanged — the
-// task table (REFRESH_SCHEDULE) and its timers, the page on-enter refresh with its page map, the visibility pause and
-// resume, and AIO.runScheduledRefresh with its audits. The scheduler state (_schedulerPaused, _lastVisibleTime) stays
-// in this one scope with every function that reads it. Top-level functions and vars stay window globals as they were
-// in the classic script; src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { installQuoteDemand } from '../data/quote-demand.js';
 import { refreshIntervalMs } from './refresh-session-policy.js';
 
@@ -20,7 +15,6 @@ export function installRefreshScheduler(window = globalThis) {
     marketSnapshot: { fn: null, interval: 300000,  label: '시장 스냅샷 (5분, 장중)',  timer: null, _inFlight: false, _lastOk: 0, _lastErr: '' },
   };
 
-  // v30.11: Page Visibility API — 백그라운드 탭 타이머 절약
   window.REFRESH_SCHEDULE = REFRESH_SCHEDULE;
   _normalizeRefreshSchedule();
 
@@ -80,8 +74,6 @@ export function installRefreshScheduler(window = globalThis) {
     cfg._inFlight = true;
     cfg.lastRunStart = Date.now();
     cfg._attemptedAt = new Date(cfg.lastRunStart).toISOString();
-    // State-machine audit (_context/STATE-MACHINES.md SM-03): a run that ends without an outcome of its own — the fetch
-    // was already running for another caller (coalesced) or the caller cancelled — puts the task back where it was.
     var statusBeforeRun = { status: cfg._status, failureReason: cfg._failureReason, lastErr: cfg._lastErr };
     var restoreStatus = function() {
       cfg._status = statusBeforeRun.status;
@@ -129,9 +121,6 @@ export function installRefreshScheduler(window = globalThis) {
           result: resolved
         };
       }
-      // v59.45 (R2-01): an explicit null means the task is unavailable (the wrappers below return it when their fetcher
-      // is not installed), so it does not stamp a success time. A Promise.allSettled batch whose every job
-      // rejected (or that ran no job) is a failure, not 'partial' at 100% coverage with a fresh success time.
       if (resolved === null) {
         cfg._lastErr = 'scheduler task unavailable';
         cfg._status = 'missing';
@@ -299,26 +288,17 @@ export function installRefreshScheduler(window = globalThis) {
 
     // Update status display
     updateDataStatus();
-    // v48.91: 타이머 레지스트리 등록
     window._dataStatusInterval = _aioRegisterTimer('dataStatus', updateDataStatus, T.COOLDOWN);
 
     console.log('[AIO v20] ═══ All schedulers active ═══');
   }
 
-  // ─────────────────────────────────────────────────────────────────
-  // v49.98 P463/R187: 종합 5 페이지 on-enter 즉시 갱신 (매매 핵심 페이지 stale 차단)
-  // 갭: 스케줄러는 주기(10분 등)로만 돌아 페이지 진입 시점에 stale할 수 있음.
-  //     실제 매매에 쓰는 종합 5페이지(대시보드/시그널/시장폭/심리/브리핑)는
-  //     진입 즉시 의존 태스크가 stale(½ interval 초과)이면 강제 재fetch해 최신 반영.
-  // 디바운스: 동일 태스크 동시 진입 폭주 방지 (cfg._inFlight + per-task 최소 간격).
-  // ─────────────────────────────────────────────────────────────────
   var AIO_PAGE_REFRESH_MAP = {
     home:        ['quotes', 'news', 'breadth'],
     signal:      ['quotes', 'breadth'],
     breadth:     ['quotes', 'breadth'],
     sentiment:   ['quotes'],
     briefing:    ['quotes', 'news', 'breadth'],
-    // 기술적 분석: the analysis slot moved here from the 차트 tab (owner 2026-11-19), so its refresh list followed it.
     charts:      ['quotes', 'breadth', 'krDynamic'],
     macro:       ['quotes', 'news', 'krDynamic'],
     fxbond:      ['quotes', 'news'],
@@ -327,11 +307,8 @@ export function installRefreshScheduler(window = globalThis) {
     screener:    ['quotes'],
     portfolio:   ['quotes'],
     'market-news': ['quotes', 'news'],
-    // v53.7 (P725): KR 라우트 퇴역 — themes/macro/charts가 KR 섹션 갱신을 겸함
-    // P1321: options route retired — its VIX/PCR/SKEW live on sentiment
   };
   window.AIO_PAGE_REFRESH_MAP = AIO_PAGE_REFRESH_MAP;
-  // P1129/R619: AIO_CRITICAL_10_PAGE_IDS 하드코딩 제거 — aio-core가 CRITICAL_5+ANALYSIS_5로 파생한다.
   try {
     if (window.AIO && typeof window.AIO.applyPageContractCompatibility === 'function') {
       window.AIO.applyPageContractCompatibility();
@@ -375,10 +352,6 @@ export function installRefreshScheduler(window = globalThis) {
   var _aioPageRefreshControllers = globalThis._aioPageRefreshControllers || {};
   globalThis._aioPageRefreshControllers = _aioPageRefreshControllers;
 
-  // v49.99 연계점①: HOME_WEEKLY_NEWS 만료 감지 → news 태스크 강제 pre-warm
-  // 문제: news interval 45분, stale threshold 22.5분 — HOME_WEEKLY_NEWS 만료 시점에
-  //       마지막 news 실행이 22.5분 미만이면 on-enter refresh가 스킵 → "수집 중..." 공백.
-  // 해결: HOME_WEEKLY_NEWS가 만료됐거나 24h 이내 만료 예정이면 news 태스크를 stale 무관하게 강제 실행.
   function _aioIsWeeklyNewsExpiring() {
     var src = window.HOME_WEEKLY_NEWS || (typeof HOME_WEEKLY_NEWS !== 'undefined' ? HOME_WEEKLY_NEWS : null);
     if (!src || !src.length) return true; // 비어있으면 만료로 간주
@@ -396,8 +369,6 @@ export function installRefreshScheduler(window = globalThis) {
   }
   window._aioIsWeeklyNewsExpiring = _aioIsWeeklyNewsExpiring;
 
-  // v59.74 SM-07: the 30s on-enter stamp is written before the deferred run starts. A run that is dropped or
-  // cancelled before it finishes gives its stamps back, so coming back to the page within 30s still refreshes.
   function _aioReleasePageRefreshStamps(controller) {
     var stamped = controller && controller._aioStamped;
     if (!stamped) return;
@@ -431,7 +402,6 @@ export function installRefreshScheduler(window = globalThis) {
       var pageController = new AbortController();
       _aioPageRefreshControllers[pageId] = pageController;
       var now = Date.now();
-      // v49.99 연계점①: home/briefing 진입 시 주간뉴스 만료 여부 사전 체크
       var weeklyNewsExpiring = (pageId === 'home' || pageId === 'briefing') && _aioIsWeeklyNewsExpiring();
       var dueKeys = [];
       var options = {};
@@ -482,18 +452,16 @@ export function installRefreshScheduler(window = globalThis) {
     }
   } catch (e) {}
 
-  // v30.11: 스케줄러 재시작 함수 (Page Visibility 복귀용)
   function restartScheduler() {
     Object.entries(REFRESH_SCHEDULE).forEach(([key, cfg]) => {
       if (cfg.fn && cfg.interval > 0 && !cfg.timer) _scheduleTask(key, cfg, jitteredInterval(cfg.interval), false);
     });
   }
 
-  // v30.11: Page Visibility API — 백그라운드 탭에서 스케줄러 일시정지 (P1756: dataStatus·serverDataReload 등 named interval은 aio-core 타이머 레지스트리가 멈춤/재개)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       _schedulerPaused = true;
-      _lastVisibleTime = Date.now(); // v46.9: 숨김 시점 기록 → 복귀 시 정확한 elapsed 계산 (P92)
+      _lastVisibleTime = Date.now();
       Object.values(REFRESH_SCHEDULE).forEach(cfg => {
         cfg._scheduleEpoch = (cfg._scheduleEpoch || 0) + 1;
         if (cfg.timer) { clearTimeout(cfg.timer); cfg.timer = null; }
@@ -557,7 +525,6 @@ export function installRefreshScheduler(window = globalThis) {
         lastDurationMs: cfg.lastDurationMs || 0
       };
     });
-    // v49.98 R187: 종합 5페이지 on-enter refresh 매핑 무결성 — 매핑된 태스크가 실존 스케줄 키인지 검증
     var pageRefreshIssues = [];
     var prMap = window.AIO_PAGE_REFRESH_MAP || {};
     Object.keys(prMap).forEach(function(pg) {
@@ -574,15 +541,12 @@ export function installRefreshScheduler(window = globalThis) {
       inFlight: inFlight,
       recentlyOk: staleOk,
       tasks: tasks,
-      pageRefreshMap: prMap,                    // v49.98: 페이지→태스크 매핑 (R187)
+      pageRefreshMap: prMap,
       pageRefreshWired: pageRefreshWired,
       pageRefreshIssues: pageRefreshIssues,     // 매핑이 가리키는 unknown 태스크
       generatedAt: new Date(now).toISOString()
     };
   };
-
-
-  // v58.20: AIO.refreshAllComprehensivePages (v49.102) had no product caller — refreshes go through AIO.runScheduledRefresh.
 
   window.AIO.refreshAllCriticalPages = async function() {
     var pages = window.AIO_CRITICAL_10_PAGE_IDS || ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
@@ -859,9 +823,6 @@ export function installRefreshScheduler(window = globalThis) {
         });
       }
     } finally {
-      // v59.60 (refresh-scheduler model check): the pause flag follows the tab as it is now, not as it was when the run
-      // started. Restoring the start value left a run begun while hidden (portfolio/screener retry, AI ensure-fresh) that
-      // ended after the tab returned with a visible tab paused, and every timer then stopped without rescheduling.
       _schedulerPaused = !!(typeof document !== 'undefined' && document.hidden);
     }
     var result = {

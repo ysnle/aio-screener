@@ -1,11 +1,3 @@
-// v59.56 (X bookmarks 11/01 follow-up 1): quarterly operating cash flow and capital spending for the big-tech names.
-// The 10/30 authors led with numbers AIO never collected — Amazon's trailing-twelve-month free cash flow, the big-tech
-// capex total and capex ÷ operating cash flow. The screener's SEC ledger keeps annual 10-K cash facts only. Cash-flow
-// statements in a 10-Q are year-to-date (3, 6, 9 months from the fiscal-year start), so a discrete quarter is the
-// difference of two consecutive year-to-date values with the same start, and the fourth quarter is the 10-K fiscal
-// year minus the nine-month value. Every figure is the filer's own tag; nothing is estimated, a missing link leaves
-// the quarter (and any twelve-month sum that would need it) out. Pure: companyfacts JSON in, rows out.
-
 import { readNumber } from '../shared/number.js';
 
 export const BIGTECH_CASHFLOW_SCHEMA = 'bigtech-cashflow.v1';
@@ -34,7 +26,6 @@ export const CASHFLOW_CONCEPTS = Object.freeze({
 const DAY = 86400000;
 const PERIODIC = /^(10-Q|10-K)(\/A)?$/;
 const days = (start, end) => { const a = Date.parse(start), b = Date.parse(end); return Number.isFinite(a) && Number.isFinite(b) ? Math.round((b - a) / DAY) + 1 : null; };
-// 52/53-week years: a quarter is 13 or 14 weeks, a year 52 or 53.
 const SPAN = [null, [77, 105], [168, 196], [259, 287], [350, 378]];
 export function quartersSpanned(start, end) {
   const n = days(start, end);
@@ -149,8 +140,6 @@ export function groupCashflow(issuers, members = HYPERSCALERS) {
     missing: members.filter((symbol) => !rows.some((row) => row.symbol === symbol)),
     complete: rows.length === members.length,
     ends: Object.fromEntries(rows.map((row) => [row.symbol, row.ttm.end])),
-    // v59.71 (quant review): "complete" means every member has twelve months, not the same twelve — one issuer not yet
-    // reporting the new quarter mixes quarter ends. The spread is carried so the sentence names it.
     endSpreadDays: (() => { const ms = rows.map((row) => Date.parse(String(row.ttm.end || '').slice(0, 10))).filter(Number.isFinite); return ms.length ? Math.round((Math.max(...ms) - Math.min(...ms)) / 86400000) : null; })(),
     endRange: (() => { const list = rows.map((row) => String(row.ttm.end || '').slice(0, 10)).filter(Boolean).sort(); return list.length ? [list[0], list.at(-1)] : null; })(),
     ocf, capex, fcf: ocf - capex,

@@ -18,10 +18,6 @@ import { historyFieldMeta } from '../domain/market/indices/history-meta.js';
 // The legacy shell still owns the mutable runtime globals, but the native data
 // contract now has one explicit, read-only boundary for every route slice.
 
-// P1176 (22 PFR01): Number(null) === 0, so a numeric coercion here turns "no target was
-// entered" into "the target is 0" — which then renders as $0.00 and a -100% potential
-// return. A price target and a target weight are different types: an absent price target
-// is unset, while an explicit 0% weight is a real value.
 function optionalNumber(value) {
   if (value == null || value === '') return null;
   return finite(Number(value));
@@ -280,7 +276,7 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   Object.keys(root?._liveData || {}).forEach((symbol) => { catalog[`market.${symbol}`] = quoteObservation(root, symbol, now); });
   catalog['sentiment.fearGreed'] = fearGreedObservation(root, snapshot);
   catalog['sentiment.hySpread'] = hySpreadObservation(root, snapshot);
-  const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.('metadata.breadth') || null; // v57.77 perf: path read, no row clone
+  const breadth = state?.screener?.metadata?.breadth || root?.AIO_ARCH?.getScreenerState?.('metadata.breadth') || null;
   for (const market of ['us', 'kr']) {
     const segment = breadth?.segments?.[market] || null;
     catalog[`breadth.${market}`] = {
@@ -314,8 +310,6 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['screener.snapshot'] = {
     value: Array.isArray(screenerState.rows) ? screenerState.rows.length : 0,
     observedAt: screenerState.metadata?.factorObservedAt || null,
-    // R24-03/P1179: `factorObservedAt` is a bar-start timestamp. Publish the basis
-    // beside it so a consumer can never read it as a plain observation time.
     observedAtBasis: screenerState.metadata?.factorTimeBasis || null,
     fetchedAt: screenerState.metadata?.asOf || screenerState.updatedAt || null,
     source: screenerState.metadata?.source || 'public-data/screener.json',
@@ -372,8 +366,6 @@ export function buildRuntimeObservationCatalog({ root = globalThis, state = {}, 
   catalog['technical.history'] = { ...catalog['entity.history'], source: 'technical-ohlcv' };
   const fundamentals = entity.fundamentals || null;
   catalog['entity.fundamental'] = { value: fundamentals?.coverage?.length || (fundamentals ? 1 : 0), observedAt: fundamentals?.observedAt || fundamentals?.filedAt || null, fetchedAt: fundamentals?.fetchedAt || null, source: fundamentals?.source || 'SEC EDGAR', sourceKind: fundamentals ? 'official-regulator' : 'unavailable' };
-  // P1360: the unselected fundamental page shows a real SEC watchlist, not an
-  // absent selected issuer. Its own period observations must all be present.
   const fundamentalRows = Array.isArray(entity.fundamentalsWatchlist) ? entity.fundamentalsWatchlist : [];
   const fundamentalDates = fundamentalRows.map((row) => row?.observedAt).filter((date) => parseTime(date) != null);
   catalog['fundamental.watchlist'] = {
@@ -474,7 +466,7 @@ function decisionInputs(root, nowMs = Date.now()) {
     spxPrice: value('spx-price'),
     spx50ma: null,
     spx200ma: null,
-    breadth200: value('breadth200-participation'), // v57.50 C07: legacy key; the value is the 20-day-SMA share
+    breadth200: value('breadth200-participation'),
     hyBp: value('hy-spread-bp')
   };
   // MAs are derived evidence, not a free decision grant. Only a producer
@@ -508,8 +500,6 @@ function decisionInputs(root, nowMs = Date.now()) {
       : { value: null, source: 'unavailable', sourceKind: null, sourceTier: null, status: 'unavailable', allowedUse: 'none', allowedUseCeiling: null, observedAt: null, blockedReasons: ['evidence_missing'] };
   });
   Object.assign(decisionEvidence, maEvidence);
-  // P1345/R670: all score inputs describe the completed close, even when a live
-  // decision-grade row exists. Keep live prices for other consumers; select here only.
   const basis = resolveCloseBasis(nowMs);
   const history = Array.isArray(root?._aioHistory) ? root._aioHistory : [];
   const closeRow = history.findLast((row) => row?.date === basis?.date);
@@ -517,14 +507,9 @@ function decisionInputs(root, nowMs = Date.now()) {
   try { snapshotQuotes = root?.AIO_ARCH?.getMarketSnapshot?.()?.quotes || []; } catch (_) {}
   const fields = { vix: ['vix', '^VIX'], vvix: ['vvix', '^VVIX'], dxy: ['dxy', 'DX-Y.NYB'],
     tnx: ['tnx', '^TNX'], oilPrice: ['wti', 'CL=F'], spxPrice: ['spx', '^GSPC'],
-    // v57.50 C07: the score's participation input is the 20-day-SMA share (the live evidence row and the score bands
-    // both mean it); the close path read the history column `breadth200` (200-day share) under the same key.
     fg: ['fg'], breadth200: ['breadth20'], hyBp: ['hySpread'] };
   const snapshot = root?.DATA_SNAPSHOT || {};
   const daily = { fg: fearGreedObservation(root, snapshot), hyBp: hySpreadObservation(root, snapshot) };
-  // P1388: DXY and WTI trade almost around the clock, so the producer records the last COMPLETED
-  // daily bar (stamped with its midnight-ET bar start) on the next row; the 9/30 settlement sits on the
-  // 10/1 row. Without this lookup the macro axis and the oil correction were never scored.
   const nyDate = (iso) => { const ms = Date.parse(String(iso || '')); return Number.isFinite(ms) ? new Date(ms).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) : null; };
   const completedBar = (selectedBasis, key, field) => {
     if (!['dxy', 'oilPrice'].includes(key) || !selectedBasis?.date) return null;
@@ -547,9 +532,6 @@ function decisionInputs(root, nowMs = Date.now()) {
   };
   const choose = (selectedBasis) => Object.fromEntries(Object.keys(evidenceKeys).map((key) => [key, pick(selectedBasis, key, evidenceKeys[key])]));
   const chosenByKey = choose(basis);
-  // P1384: between a US close and the producer cycle that records it, the new basis has no
-  // completed-close evidence and every Korean morning showed "보류". The quote inputs then use
-  // the previous completed session, labelled as such; daily publications keep their own clock.
   let effectiveBasis = basis;
   let pendingBasis = null;
   if (basis && chosenByKey.spxPrice == null) {
@@ -559,7 +541,6 @@ function decisionInputs(root, nowMs = Date.now()) {
       effectiveBasis = previous;
       pendingBasis = basis;
       for (const key of CLOSE_BASIS_QUOTE_KEYS) chosenByKey[key] = previousChosen[key];
-      // P1388: daily publications (HY, put/call) lag a day; judge them on the basis actually used.
       for (const key of CLOSE_BASIS_DAILY_KEYS) chosenByKey[key] = chosenByKey[key] || previousChosen[key];
     }
   }
@@ -569,7 +550,6 @@ function decisionInputs(root, nowMs = Date.now()) {
     decisionEvidence[key] = chosen || { ...decisionEvidence[key], value: null, status: 'blocked',
       allowedUse: 'none', blockedReasons: ['completed_close_evidence_missing'] };
   }
-  // P1345: a current SPX quote cannot grant freshness to an old/undated MA.
   const closeMa = effectiveBasis && spxMovingAveragesFromHistory(history, { asOf: effectiveBasis.date });
   for (const [key, period] of [['spx50ma', 50], ['spx200ma', 200]]) {
     const value = input.spxPrice != null && closeMa?.asOf === effectiveBasis?.date ? closeMa[period] : null;
@@ -608,7 +588,7 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
     const spyChg = spyRaw == null || typeof spyRaw === 'boolean' || (typeof spyRaw === 'string' && !spyRaw.trim()) ? null : finite(Number(spyRaw));
     let tradingScoreTotal = null;
     try {
-      const raw = computeTradingScoreModel(decisionInputs(root, now())).total; // P1357: avoid a pre-analysis legacy TTL value.
+      const raw = computeTradingScoreModel(decisionInputs(root, now())).total;
       tradingScoreTotal = raw == null || typeof raw === 'boolean' || (typeof raw === 'string' && !raw.trim()) ? null : Number(raw);
       if (!Number.isFinite(tradingScoreTotal)) tradingScoreTotal = null;
     } catch (_) { tradingScoreTotal = null; }
@@ -668,10 +648,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
 
   const readPortfolio = () => {
     try {
-      // E0/P1280 (P-E): the `getPortfolioState`/`_portfolioState` branches are retired here —
-      // no writer anywhere in the repository ever defined or assigned them, so every read fell
-      // through to the owner function while the branches pretended a second portfolio state
-      // source existed. `getPortfolioData` (Vault-aware) is the single holdings source.
       const locked = typeof root?.isPortfolioLocked === 'function' ? root.isPortfolioLocked() : false;
       const hasPositionsFn = typeof root?.getPortfolioData === 'function';
       if (!hasPositionsFn) return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'loading', privacy: 'opt-in', status: 'unavailable', updatedAt: null };
@@ -687,31 +663,19 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
         const listingSymbol = resolveHoldingInput(symbol, holdingRegistry).listingSymbol;
         const quote = quoteObservation(root, listingSymbol || symbol, now());
         return { symbol, shares: Number.isFinite(shares) ? shares : null, avgCost: Number.isFinite(avgCost) ? avgCost : null, price: quote.value != null && quote.value > 0 ? quote.value : null, dailyPct: quote.pct, quoteObservedAt: quote.observedAt, fetchedAt: quote.fetchedAt, revisionId: quote.revisionId, changeBasis: quote.changeBasis, sourceKind: quote.sourceKind, sourceTier: quote.sourceTier, allowedUse: quote.allowedUse, allowedUseCeiling: quote.allowedUseCeiling, quality: quote.quality, rightsId: quote.rightsId, quoteEnvelopeComplete: quote.envelopeComplete, decisionEligible: quote.decisionEligible, blockedReasons: quote.decisionEligible ? [] : ['quote-envelope-not-decision-eligible'], sector: position?.sector || null, target: optionalPrice(position?.target), targetWeight: optionalNumber(position?.targetWeight), memo: position?.memo || '', addedAt: position?.addedAt || null, updatedAt: position?.updatedAt || null, source: quote.source || 'native-runtime-vault',
-          // E3/P1181 (11 P11-02): 통화는 합산의 단위다 — reader가 지우면 downstream의 mixed 판정이
-          // 영원히 발화하지 않는다. 시세 통화는 선언 우선·quote 차선으로 보존하고, 원가 통화는
-          // 선언만 읽되 없으면 null(USD로 추정하지 않는다).
           listingSymbol,
           currency: String(position?.currency || position?.priceCurrency || quote.currency || (listingSymbol && listingSymbol !== symbol ? listingCurrency(listingSymbol) : '') || '').trim().toUpperCase() || null,
           costCurrency: String(position?.costCurrency || '').trim().toUpperCase() || null };
       }).filter((item) => item.symbol) : [];
-      // v57.81: cash is one balance per currency (src/data/portfolio-cash.js). A legacy single value is read as one
-      // balance in its declared currency until the new model is saved; the reader never writes.
       const cashRead = readCashBalances(root?.localStorage);
       const cashBalances = cashRead.balances.map((row) => ({ ...row }));
       const cashKnown = cashRead.known;
       const cash = cashBalances.length === 1 ? cashBalances[0].amount : null;
-      // E3/P1188 (11 P11-02): 통화 선언은 입력이다 — 폼이 쓴 선언을 reader가 그대로 넘긴다.
-      // 없으면 null이고 시세·티커·locale로 추정하지 않는다.
-      // E0/P1280: 선언의 정본은 localStorage 키(readPortfolioAssumptions)다 — 죽은 state 폴백은 제거됐다.
       const assumptions = readPortfolioAssumptions(root?.localStorage);
       const baseCurrency = assumptions.baseCurrency || null;
       const cashCurrency = cashBalances.length === 1 ? cashBalances[0].currency : null;
-      // E4/P1191: 원장도 선언 입력이다 — 셸이 Vault 경로로 보관한 선언을 reader가 그대로 넘긴다.
       const ledger = typeof root?.getPortfolioLedger === 'function' ? clone(root.getPortfolioLedger()) : null;
-      // E3/P1194: 선언된 FX leg도 같은 경계를 지난다 — 환산 근거가 reader에서 사라지면 surface는 못 본다.
       const fxLegs = typeof root?.getPortfolioFxLegs === 'function' ? clone(root.getPortfolioFxLegs()) : [];
-      // totals stays null by ownership: totals are derived once in the portfolio surface,
-      // not computed independently by a reader (the retired facade copy is gone with P1280).
       return { baseCurrency, cashCurrency, cashBalances, ledger, fxLegs: Array.isArray(fxLegs) ? fxLegs : [], holdings, holdingsKnown: true, cash, cashKnown, readState: 'ready', totals: null, privacy: 'opt-in', status: holdings.length ? 'current' : 'empty', updatedAt: latestIso(holdings.map((row) => row.quoteObservedAt)) || null };
     } catch (_) { return { holdings: [], holdingsKnown: false, cash: null, cashKnown: false, readState: 'failed', privacy: 'opt-in', status: 'unavailable', updatedAt: null }; }
   };
@@ -728,13 +692,6 @@ export function createRuntimeReaders({ root = globalThis, now = () => Date.now()
   // fallbacks and the standalone catalog builder deliberately remain uncached.
   const observationCache = new WeakMap();
   const readObservationCatalog = (state = {}) => buildRuntimeObservationCatalog({ root, state, now: now(), observationCache: state?.screener?.rows ? observationCache : undefined });
-  // P1185/E2 S-B: the standalone legacy screener reader was removed here — no writer ever
-  // assigns the global it read, so it could only return empty rows while looking like a
-  // second screener source. Screener rows flow through the canonical boundary
-  // (`getScreenerRows()` via the compatibility facade) and `readObservationCatalog`.
-  // (The retired symbol names are deliberately not repeated in this comment: the gate
-  // asserts their absence in this file, and a self-referencing comment would defeat it.)
-  // P1328: the legacy computeTradingScore wrapper reads the same inputs as the native analysis slice.
   const readTradingScoreInputs = () => decisionInputs(root, now());
   return Object.freeze({ readSentiment, readMarket, readNews, readEntity, readPortfolio, readAnalysis, readObservationCatalog, readTradingScoreInputs });
 }

@@ -1,14 +1,3 @@
-// P1171 (15 D05): instrument registry adapter.
-//
-// The published universe carries sym/name/sector/index/memo and nothing else, so the required
-// instrument identity fields (MIC, assetType, share class, validity window) have no source in the
-// artifacts we collect. A name-substring heuristic is not a substitute — "Netflix" contains "etf"
-// and "Northern Trust" contains "trust", so a pattern match misclassifies common stock as a fund.
-//
-// This adapter therefore resolves identity only from declared entries that carry a source, keeps
-// the inference axes explicitly marked as inferred, and returns UNKNOWN rather than a guess. It
-// also decides per-type analysis eligibility so a fund is never fed into an issuer-ratio model.
-
 // Declared instrument metadata. This is the single source of truth: a second JSON copy would drift.
 //
 // MIC is intentionally unpopulated — the published universe, the screener artifact and the SEC facts

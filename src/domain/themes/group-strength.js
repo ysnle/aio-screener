@@ -6,35 +6,17 @@ import { signedText, readNumber as finite } from '../shared/number.js';
 import { latestSessionRows } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
-// v59.46 boundary contract: member values are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key);
-// P1417 (owner request 2026-10-03, open-source comparison): sub-theme relative strength. The
-// reference (xang1234/stock-screener group rankings) averages per-stock 1-99 RS ratings built from
-// fixed horizon weights (0.2/0.3/0.2/0.15/0.15). Those weights are a composite rating, which this
-// screener does not publish (owner decision: evidence and state, no ungrounded grade). Instead a
-// group is described by the MEDIAN return of its members over one chosen window, ranked against the
-// other groups, with the S&P 500 return beside it. Direction compares the group's 1-month rank with
-// its 3-month rank (the RRG idea of momentum against the longer trend) — no stored history needed.
-// Members come from the curated THEME_MAP; a symbol without published returns is not counted.
 
 export const GROUP_STRENGTH_MODEL_VERSION = 'theme-group-strength.v1';
 export const GROUP_WINDOWS = Object.freeze({ ret1d: '1일', ret5d: '1주', ret10d: '2주', ret1m: '1개월', ret3m: '3개월', ret6m: '6개월' });
-// v58.78 (owner 2026-10-25): the ranking's period tabs are the short windows; 6개월 stays a valid key for other readers.
-// v59.70 (theme-sector, owner: which theme led the day and the week): 1일 joins the tabs.
 export const STRENGTH_TABS = Object.freeze(['ret1d', 'ret5d', 'ret1m', 'ret3m']);
 export const MIN_GROUP_MEMBERS = 3;
-// v57.50 D15: a 3-stock median can swing on one name; such a group stays in the table as '표본 n종목 · 참고' but does
-// not take a rank, so it never heads the order (1위) or closes it (최하위) in the lead sentence.
 export const HEADLINE_MIN_MEMBERS = 4;
 
-
-export { median }; // v59.70 (R9): one theme median (theme-medians.js); kept exported for korea-participation.js
+export { median };
 const GROUP_FIELDS = Object.freeze(['ret1m', 'ret3m', 'ret6m', 'ret1d', 'ret5d', 'ret10d', 'vol']);
 
-// P1723 (2026-10-13): an equal-weight median hid the two largest Korean semiconductor names falling (-12%, -18% over a
-// month) under a +12.6% theme median. The three members with the largest 30-session average traded value (already in
-// each row; no market-cap source is assumed) carry their own 1-month returns. Ranked only when every member has a
-// traded value, so an unmeasured large name is never silently left out.
 export const HEAVYWEIGHT_COUNT = 3;
 export function heavyweightsOf(members) {
   const sized = members.filter((row) => value(row, 'dollarVolume30d') != null && value(row, 'ret1m') != null);
@@ -66,8 +48,6 @@ function rankBy(groups, key) {
 /**
  * @param {{ themes: Array, rows: Array<{sym:string,name?:string,ret1m?:number,ret3m?:number,ret6m?:number,pctSma50?:number}>, sortKey?: 'ret1m'|'ret3m'|'ret6m', benchmark?: {ret1m?:number,ret3m?:number,ret6m?:number} }} input
  */
-// v58.74 (audit): the 1-month vs 3-month rank label names the week when the week runs the other way — cybersecurity read
-// '최근 식음' on a +11.3% week and 원전/독립발전 '최근 강해짐' on a -7.7% week.
 export const DIRECTION_LABELS = Object.freeze({ improving: '최근 강해짐', steady: '큰 변화 없음', weakening: '최근 식음' });
 export function directionLabel(group, { short = false } = {}) {
   if (group?.direction === 'improving' && group.recent?.broken) return short ? '1주 급락' : '순위 올랐지만 1주 급락';
@@ -91,11 +71,8 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
       if (members.length < MIN_GROUP_MEMBERS) { excluded.push({ id, themeName: theme.nameKr, name: sub.name, members: members.length, listed: tickers.length, constituents: tickers }); continue; }
       const above = members.filter((row) => value(row, 'pctSma50') != null);
       const leader = [...members].sort((a, b) => finite(b[key]) - finite(a[key]))[0];
-      // P1623: period comparisons require one known completed-session basis.
       const dates = [...new Set(members.map((row) => row.factorSessionDate).filter(Boolean))];
       const comparisonAligned = dates.length === 1 && members.every((row) => row.factorSessionDate === dates[0]);
-      // X05 (2026-10-13): members held out of the median (stale or unmeasured) stay listed but are not ranked —
-      // an old 100% return must not become the group's internal No.1 while the median and leader exclude it.
       const memberSet = new Set(members.map((row) => String(row.sym).toUpperCase()));
       const rankedMembers = tickers.map((sym) => {
         const row = bySymbol.get(sym);
@@ -112,21 +89,15 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
         members: members.length, listed: tickers.length, smallSample: members.length < HEADLINE_MIN_MEMBERS,
         constituents: tickers.map((sym) => ({ sym, name: bySymbol.get(sym)?.name || '', included: members.some((row) => String(row.sym).toUpperCase() === sym) })),
         rankedMembers, comparisonAligned, basis: comparisonAligned ? dates[0] : null,
-        // v57.81: the windows plus the last five sessions and the members' typical volatility (recent-check.js), all on
-        // one aligned session; v59.70 (R9) one themeMedians call.
         ...(comparisonAligned ? themeMedians(members, GROUP_FIELDS, { read: value }) : Object.fromEntries(GROUP_FIELDS.map((field) => [field, null]))),
         above50Pct: above.length ? Math.round(above.filter((row) => value(row, 'pctSma50') > 0).length / above.length * 100) : null,
         leader: comparisonAligned && leader ? { sym: String(leader.sym).toUpperCase(), name: leader.name || '', value: finite(leader[key]) } : null,
         heavyweights: comparisonAligned ? heavyweightsOf(members) : null,
-        // v58.74 (audit): a theme row pools its members instead of taking the median of group medians — a 6-name
-        // nuclear group set the whole 39-name utilities theme to 3m -21.4% / 50일선 위 17% (members: -10.6% / 44%).
         memberStats: comparisonAligned ? members.map((row) => ({ sym: String(row.sym).toUpperCase(), ret1m: value(row, 'ret1m'), ret3m: value(row, 'ret3m'), ret6m: value(row, 'ret6m'), ret5d: value(row, 'ret5d'), vol: value(row, 'vol'), pctSma50: value(row, 'pctSma50') })) : null
       });
     }
   }
   const latestBasis = groups.map((group) => group.basis).filter(Boolean).sort().at(-1) || null;
-  // X03 (2026-10-13): "current" meant only "the newest basis among the groups". With a clock it also has to be the
-  // latest completed session of the market — a 10/9 ranking read on 10/13 is a dated reference, not today's leaders.
   const expectedSession = Number.isFinite(Number(now)) && now != null
     ? latestCompletedSession(market, Number(now))?.date || null
     : null;
@@ -141,19 +112,11 @@ export function buildGroupStrength({ themes = [], rows = [], sortKey = 'ret3m', 
     const r3 = rank3m.get(group.id) ?? null;
     // Direction: a 1-month rank clearly better (lower) than the 3-month rank is improving momentum.
     const shift = r1 != null && r3 != null ? r3 - r1 : null;
-    // v59.59 (logic refactor): 15% of the groups that were ranked — small-sample and dated groups carry no rank, and
-    // counting them widened the band so a real 1-month vs 3-month rank shift read as 'steady'.
     const band = Math.max(3, Math.round(Math.min(rank1m.size, rank3m.size) * 0.15));
     const direction = shift == null ? null : shift >= band ? 'improving' : shift <= -band ? 'weakening' : 'steady';
-    // v57.81: the week against the group's own typical weekly move (benchmark-relative when the S&P 500 5-session
-    // return is on the same close), so "1개월 순위 상승" is not read as "강해지는 중" during a sharp five-session drop.
     const recent = recentMove({ ret5d: group.ret5d, benchRet5d: group.basis && group.basis === benchmark.asOf ? finite(benchmark?.ret5d) : null, noise: weeklyNoiseFromVol(group.vol, { members: group.members }) });
     return { ...group, recent, rank: rankSort.get(group.id) ?? null, rank1m: r1, rank3m: r3, direction, vsBenchmark: group.basis && group.basis === benchmark.asOf && group[key] != null && bench != null ? group[key] - bench : null };
   }).sort((a, b) => (a.rank ?? 1e9) - (b.rank ?? 1e9) || (a.smallSample === b.smallSample ? (b[key] ?? -1e9) - (a[key] ?? -1e9) : a.smallSample ? 1 : -1));
-  // Theme level (all sub-theme members once), used where a layer links to a whole theme.
-  // Expert review M15: one member on another close (HUBB on 10/9 among 10/12 rows) used to blank the whole theme
-  // (energy, industrials). A member that is stale, or on an older session than the theme's newest, is held out —
-  // the same "one close" admission the S&P 500 map uses — and the count of held-out members travels with the value.
   const themeSummary = {};
   const staleRow = (row) => row?.factorQuality?.stale === true || String(row?.factorQuality?.status || '').toUpperCase() === 'STALE';
   for (const theme of Array.isArray(themes) ? themes : []) {

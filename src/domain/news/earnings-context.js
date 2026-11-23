@@ -1,12 +1,9 @@
 import { signedText, usdKoreanText, surprisePct } from '../shared/number.js';
-// P1382: a headline-only earnings story ("Micron beats …") carries no numbers, and article
-// bodies are not retained (rights). The Finnhub earnings calendar the producer already
-// publishes supplies the structured context: estimate and, after the report, the actual.
 const DAY = 86400000;
 
 function money(value) {
   const abs = Math.abs(value);
-  if (abs >= 1e6) return usdKoreanText(value); // first-users F33
+  if (abs >= 1e6) return usdKoreanText(value);
   return `$${value.toFixed(2)}`;
 }
 
@@ -29,13 +26,7 @@ const ANALYST_ACTION = /\b(?:raises?|lifts?|cuts?|lowers?|upgrades?|downgrades?|
 export function earningsContextForHeadline(title, { earnings = [], names = {}, nowMs = Date.now(), windowDays = 3 } = {}) {
   const text = String(title || '');
   if (!text) return null;
-  // v57.55 review (S2-F3): the first word of the name ('Bank' of Bank of America) matched "big bank earnings" and
-  // "Bank of America raises TSMC's target". The full name (legal suffix dropped) or the ticker must appear, the headline
-  // must be about results, and a firm acting as the analyst is not its own earnings story.
   if (!EARNINGS_WORDS.test(text) || ANALYST_ACTION.test(text)) return null;
-  // v59.62: a headline can name several reporters ("Apple and Palantir shares slide … following post-bell earnings").
-  // The first calendar row used to win (Apple, row 1; Palantir, row 141), so Palantir's beat never reached the screen.
-  // Every named reporter now gets its line, in the order the headline names them (at most three).
   const found = [];
   for (const row of Array.isArray(earnings) ? earnings : []) {
     const name = String(names[row?.symbol] || '');
@@ -43,7 +34,7 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
     const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const symbol = String(row?.symbol || '');
     const first = core.split(' ')[0];
-    const short = core.includes(' ') && first.length >= 4 && !GENERIC_FIRST.test(first) ? first : null; // "Micron beats …" (P1382)
+    const short = core.includes(' ') && first.length >= 4 && !GENERIC_FIRST.test(first) ? first : null;
     const positions = [core, short].filter((value) => value && value.length >= 3)
       .map((value) => text.search(new RegExp(`(^|[^A-Za-z])${escape(value)}([^A-Za-z]|$)`, 'i')))
       .concat(symbol ? [text.search(new RegExp(`(\\$${escape(symbol)}\\b|\\(${escape(symbol)}\\))`))] : [])
@@ -54,8 +45,6 @@ export function earningsContextForHeadline(title, { earnings = [], names = {}, n
     const parts = [vsLine('EPS', row.epsActual, row.epsEstimate, (v) => v.toFixed(2)), vsLine('매출', row.revenueActual, row.revenueEstimate, money)].filter(Boolean);
     if (!parts.length) continue;
     const when = `${Number(row.date.slice(5, 7))}/${Number(row.date.slice(8, 10))}${row.hour === 'amc' ? ' 장 마감 후' : row.hour === 'bmo' ? ' 장 시작 전' : ''}`;
-    // P1428 (Codex review): the line names its company — a Nike earnings story tagged with an analyst's
-    // firm ($MS) read as Morgan Stanley's results.
     if (found.some((hit) => hit.symbol === row.symbol)) continue;
     found.push({ at: Math.min(...positions), symbol: row.symbol, name, line: `${name} (${row.symbol}) 실적(${when}), ${parts.join(', ')}`, hasActual: typeof row.epsActual === 'number' || typeof row.revenueActual === 'number' });
   }

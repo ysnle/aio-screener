@@ -1,7 +1,3 @@
-// v58.75 (teach-and-check D5, owner 2026-10-24): "이 조건을 왜 보나" for each built-in screen — the principle, the market
-// environment it tends to work and not work in (the published reasoning, not a backtest of this app), the common failure,
-// and which table columns show it. `favours` names the six-axis side the condition has historically leaned on, so the
-// screen can say in one line whether today's market state is on that side. No probability, no instruction.
 export const PRESET_LESSONS = Object.freeze({
   'preset-balanced': {
     principle: '여러 팩터(모멘텀·추세·저변동·밸류·퀄리티)를 섞어 한 가지 성질에 쏠리지 않게 줄을 세웁니다.',

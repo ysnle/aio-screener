@@ -1,12 +1,7 @@
-// 2026-10-13 (owner: "finviz maps 같은 S&P 500 지도"): the S&P 500 members AIO collects, grouped by sector,
-// each tile sized by market value and coloured by its return over one completed period. Pure: rows in, layout
-// and reading out. Market value = valuation close × shares outstanding, both already published per row for P/E
-// (no raw current price is republished — P715). A member without shares or a return is counted, not drawn.
 import { sectorLabel } from '../../screener/screener-read.js';
 import { signedText, readNumber as finite } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 
-// v59.46 boundary contract: screener row numbers are read through the readiness contract, not row[key].
 const read = (row, key) => readRowNumber(row, key, 'calculation');
 
 export const SECTOR_MAP_VERSION = 'sector-map.v1';
@@ -124,16 +119,11 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     members = candidates.length;
     const missing = [];
     for (const row of candidates) {
-      // v57.51 F10: the provider's referenceMarketCap already carries the verified share count and a loss-making
-      // company's close; the raw pe-price pair is the fallback for rows built before it existed.
       const referenceBillions = finite(row.referenceMarketCap?.billions);
       const close = finite(row._valuationPePrice ?? row.pePrice);
       const shares = finite(row._valuationSharesOutstanding ?? row.valuationSharesOutstanding);
       let value = referenceBillions != null && referenceBillions > 0 ? referenceBillions * 1e9
         : close != null && shares != null && close > 0 && shares > 0 ? close * shares : null;
-      // A share count in the wrong unit or class (one stock at 20조 달러) shows up as a turnover no listed stock has.
-      // v59.45 (P17-MAP-01): an unrecorded turnover is unchecked, not 0 (null / value read as zero turnover and dropped
-      // a valid market cap).
       const volume = read(row, 'dollarVolume30d');
       const turnover = value && volume != null ? volume / value : null;
       if (value != null && turnover != null && (turnover < 0.0002 || turnover > 0.2)) value = null;
@@ -144,16 +134,12 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     }
     missingNames = missing.sort((a, b) => (finite(b.dollarVolume30d) || 0) - (finite(a.dollarVolume30d) || 0)).slice(0, 4).map((row) => String(row.sym || row.symbol).toUpperCase());
   }
-  // P1681: a tab is enabled by the S&P 500 members' own returns, not by any row (a Korean row's ret1d says nothing here).
   const memberRows = weightRows ? weightRows.map((item) => bySym.get(String(item.sym || '').toUpperCase())).filter(Boolean) : list.filter((row) => row && row.index === 'SP500');
   const available = Object.fromEntries(Object.keys(SECTOR_MAP_PERIODS).map((id) => [id, memberRows.some((row) => finite(row[id]) != null)]));
   if (priced.length < 20) {
-    // v58.80 first-users run-2: no rows yet is a load, not "0개".
     if (!list.length) return { available: false, version: SECTOR_MAP_VERSION, period: key, periods: available, reason: '구성 종목 자료를 불러오는 중입니다 — 도착하면 지도를 그립니다.' };
     return { available: false, version: SECTOR_MAP_VERSION, period: key, periods: available, reason: `시가총액을 계산할 수 있는 구성 종목이 ${priced.length}개라 지도를 그리지 않습니다.` };
   }
-  // P1681: one map, one close. A member still on an older session would paint yesterday's move beside today's —
-  // it keeps its area but is greyed and left out of every average, and the lead counts it.
   const dates = [...new Set(priced.map((item) => item.basis).filter(Boolean))].sort();
   const basis = dates.at(-1) || null;
   let staleCount = 0;
@@ -161,11 +147,6 @@ export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', ex
     if (basis && item.basis && item.basis !== basis && item.ret != null) { item.staleRet = item.ret; item.ret = null; staleCount += 1; }
   }
   const total = priced.reduce((sum, item) => sum + item.value, 0);
-  // Expert review M02: the areas are today's weights, but an index return weights each member by its size at the
-  // START of the period. Today's weight already contains the member's own move (a stock that doubled carries twice
-  // its starting weight), so averaging with it over-counts the winners — the 3개월 map read +5.91% while SPY made
-  // +3.75%. The start weight is backed out per member, w₀ ∝ w_now / (1 + r). Holdings dated before the close
-  // already are the 1일 window's start weights; for longer windows that one-session drift is left in.
   const holdingsAtStart = key === 'ret1d' && sizeBasis === 'index-weight' && !!weights?.asOf && !!basis && String(weights.asOf) < basis;
   for (const item of priced) item.startValue = !holdingsAtStart && item.ret != null && item.ret > -100 ? item.value / (1 + item.ret / 100) : item.value;
   const bySector = new Map();

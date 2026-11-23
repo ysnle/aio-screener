@@ -5,11 +5,15 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { buildTwMonthlyRevenue, mergeHistory, parseRevenueRow, pendingTwMonthlyRevenue, rocMonth, sameRevenueData, shiftMonth, TW_AI_CHAIN } from './fetch-tw-monthly-revenue.mjs';
 import { buildTwRevenueView } from '../src/domain/briefing/tw-monthly-revenue.js';
+import { runSections } from './lib/gate-sections.mjs';
 
 const row = (code, name, cur, prev, ago, month = '11509') => ({ '出表日期': '1151017', '資料年月': month, '公司代號': code, '公司名稱': name, '產業別': '半導體業',
   '營業收入-當月營收': String(cur), '營業收入-上月營收': String(prev), '營業收入-去年當月營收': String(ago), '營業收入-上月比較增減(%)': '0', '營業收入-去年同月增減(%)': '0',
   '累計營業收入-當月累計營收': String(cur * 9), '累計營業收入-去年累計營收': String(ago * 9), '累計營業收入-前期比較增減(%)': '0', '備註': '-' });
 
+// v60.50: the producer and read model run on fixtures (code); the committed artifact's schema also runs in a data run.
+await runSections('tw-monthly-revenue-fixture', [
+['producer', async () => {
 assert.equal(rocMonth('11509'), '2026-09', 'v59.56 ROC 115/09 is 2026-09');
 assert.equal(rocMonth('11513'), null, 'v59.56 month 13 is rejected');
 assert.equal(shiftMonth('2026-01', -1), '2025-12', 'v59.56 month shift crosses the year');
@@ -92,9 +96,13 @@ assert.equal(backAgain.companies.find((c) => c.code === '2454').history.length, 
 const allCarried = buildTwMonthlyRevenue({ rows: [row('9999', '他社', 1, 1, 1)], previous: carriedRun, generatedAt: '2026-11-04T00:00:00Z' });
 assert.equal(allCarried.status, 'no-companies', 'v59.94 a run with no parsed company leaves the artifact unchanged');
 
+}, 'code'],
 // The committed artifact always parses as the schema (the 수집 전 marker until the first Actions run).
+['committed-artifact', async () => {
 const committed = JSON.parse(await readFile(new URL('../public-data/tw-monthly-revenue.json', import.meta.url), 'utf8'));
 assert.equal(committed.schemaVersion, 'tw-monthly-revenue.v1', 'v59.56 committed artifact schema');
 assert.ok(['ok', 'not-collected'].includes(committed.status), `v59.56 committed status ${committed.status}`);
 if (committed.status === 'ok') assert.ok(committed.companies.every((c) => TW_AI_CHAIN.some((g) => g.id === c.group)), 'v59.56 committed companies belong to a chain group');
+}, 'data'],
+]);
 console.log('[tw-monthly-revenue-fixture] ok');

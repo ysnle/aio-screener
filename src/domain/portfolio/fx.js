@@ -29,15 +29,9 @@ function cleanObservedAt(value) {
   return Number.isFinite(ms) ? new Date(ms).toISOString() : null;
 }
 
-// P1407/P1418: the listing market fixes an undeclared quote currency and region (.KS/.KQ = won,
-// Korea); a symbol without an exchange suffix is US-listed. Shared by the risk input and the
-// portfolio checks so the two never disagree.
 const LISTING_MARKETS = Object.freeze([
   [/\.(KS|KQ)$/i, 'KRW', '한국'], [/\.T$/i, 'JPY', '일본'], [/\.HK$/i, 'HKD', '홍콩'], [/\.TW$/i, 'TWD', '대만']
 ]);
-// Expertise review 2026-10-19 (macro audit §6-2): any other exchange suffix (.L, .TO, .PA, .AX …) was read as a US dollar
-// listing, so a pence or euro quote converted at rate 1. An unknown suffix is now unknown (null): its value is held until
-// a currency is declared. A one-letter A–E suffix stays a US share class (BRK.B, BF.B).
 const FOREIGN_SUFFIX = /\.(?:[A-Z]{2,}|[F-Z])$/i;
 /**
  * The key a holding's data is published under. The runtime reader resolves the stored code once
@@ -60,7 +54,7 @@ export function withListingTickers(positions, surfaceRows) {
 }
 
 export function listingCurrency(ticker) {
-  if (/^\d+$/.test(String(ticker || ''))) return null; // v59.53: an unresolved numeric code is not a US listing
+  if (/^\d+$/.test(String(ticker || ''))) return null;
   const listed = LISTING_MARKETS.find(([pattern]) => pattern.test(String(ticker || '')));
   return listed ? listed[1] : FOREIGN_SUFFIX.test(String(ticker || '')) ? null : 'USD';
 }
@@ -113,9 +107,6 @@ export function resolveFxRate(legs, { from, to, asOfMs = Date.now(), maxAgeMs = 
   if (!source || !target) return { ok: false, reason: 'currency-undeclared' };
   if (source === target) return { ok: true, rate: 1, leg: null, inverted: false };
   const list = normalizeFxLegs(legs);
-  // v59.45 (PASS22 P22-FX-01): every declaration of the pair, either direction, is a candidate. A 2020 USD→KRW leg used to
-  // hide a KRW→USD leg observed yesterday (rate-stale), and of two legs in one direction the first row won. The latest leg
-  // observed at or before the cut is used (direct first on a tie); with none usable, the reason is the latest leg's.
   const candidates = list
     .filter((leg) => (leg.from === source && leg.to === target) || (leg.from === target && leg.to === source))
     .map((leg) => ({ leg, ms: Date.parse(leg.observedAt), inverted: leg.from !== source }))
@@ -142,9 +133,6 @@ export function resolveFxRate(legs, { from, to, asOfMs = Date.now(), maxAgeMs = 
  * only uses a declared pair or its inverse.
  */
 export function convertWithDeclaredRates({ value, from, to, legs, asOfMs, maxAgeMs } = {}) {
-  // P1176 class: Number(null) === 0, so an absent amount must be refused **before**
-  // coercion — otherwise "no value" converts into a real 0 amount and the total
-  // silently changes.
   if (value === null || value === undefined || value === '') return { ok: false, reason: 'value-missing' };
   const amount = Number(value);
   if (!Number.isFinite(amount)) return { ok: false, reason: 'value-missing' };

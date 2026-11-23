@@ -1,19 +1,13 @@
-// v59.64 (owner 2026-11-03): 기술적 분석 — a screen of its own, like 매크로. Owner 2026-11-19: "기술적 분석에서는 시장 지수와
-// 대표 종목/대장주들을 분석해서 하나하나 보여줘야" — the screen holds the one chart analysis slot (#stock-chart-section,
-// stock-chart.js) that the 종목 screen's 차트 tab used to hold. Three views: 시장 지수 (one card per index) and 대표 종목
-// (the largest S&P 500 weights and the day's material movers, with the screener's fields as the raw table under them),
-// both the same card part (market-candles.js, each card read from the bars it draws), and 종목 분석, the slot alone
-// (2026-11-20: under both card views it made each over 10,000px tall on a phone). The page's search, a card or a row
-// opens its symbol there.
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { chartsConclusion, chartsHeaderBasis, coreStockRows, indexChartReadings, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
+import { chartsConclusion, chartsHeaderBasis, coreStockRows, indexChartReadings, stockGroupLabels, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
 import { sessionChipText } from '../components/session-lag.js';
 import { signedText } from '../../domain/shared/number.js';
 import { installStockChart, showChartSubject } from '../components/stock-chart.js';
 import { createChartCards } from '../components/market-candles.js';
 import { el } from '../components/dom.js';
+import { renderIndexStandings } from '../components/market-story.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
@@ -34,10 +28,8 @@ function screenerOf(root, store) {
 
 // The screener's own fields for the same stocks, the raw table under the cards. The trend word is the card's (read from
 // the bars it draws), so the table carries numbers only.
-function stockTable(doc, rows, asOf, open, current) {
+function stockTable(doc, rows, asOf, open, current, GROUPS) {
   const table = el(doc, 'table', null, 'charts-table');
-  // rows from an earlier session than the header's index close say their own session, with the
-  // same words as 테마와 섹터 ("11/16 종가 기준, 11/17 반영 전").
   const behind = stockTableSessionBehind(rows, asOf);
   if (behind) table.append(el(doc, 'caption', sessionChipText(behind, String(asOf).slice(0, 10)), 'charts-table__session'));
   const head = el(doc, 'tr');
@@ -45,8 +37,6 @@ function stockTable(doc, rows, asOf, open, current) {
   table.append(el(doc, 'thead'), el(doc, 'tbody'));
   table.tHead.append(head);
   const pct = (value) => (Number.isFinite(value) ? `${signedText(value, 1)}%` : '—');
-  // v59.68: a group row names each part (S&P 500 비중 상위, 오늘 크게 움직인 종목) where the table note used to.
-  const GROUPS = { weight: 'S&P 500 비중 상위', mover: '오늘 크게 움직인 종목' };
   let group = null;
   for (const pick of rows) {
     if (pick.group !== group) {
@@ -97,21 +87,30 @@ function render(documentRef, root, store, page, cards, stockCards, basis) {
   } else if (grid) delete grid.dataset.state;
   // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it.
   cards.update(history);
+  if (grid) {
+    let standings = documentRef.getElementById('charts-fall-standings');
+    if (!standings) { standings = el(documentRef, 'div', null, 'charts-standings'); standings.id = 'charts-fall-standings'; standings.hidden = true; grid.after(standings); }
+    renderIndexStandings({ documentRef, root, host: standings });
+  }
   const asOf = basis();
-  const rows = coreStockRows({ ...screenerOf(root, store), day: root?.[MARKET_DAY.key] || null });
+  const day = root?.[MARKET_DAY.key] || null;
+  const rows = coreStockRows({ ...screenerOf(root, store), day });
+  const labels = stockGroupLabels(day);
   for (const group of STOCK_GROUPS) {
     const list = rows.filter((row) => row.group === group);
     stockCards[group].setSpecs(list.map((row) => ({ key: row.sym, label: row.name, symbol: row.sym })));
     stockCards[group].update(history, asOf);
     const box = documentRef.getElementById(`charts-stock-${group}`);
     if (box) box.hidden = !list.length && (group === 'mover' || rows.length > 0);
+    const title = box?.querySelector?.('.charts-group-title');
+    if (title) title.textContent = labels[group];
   }
   const host = documentRef.getElementById('charts-stock-table');
   const raw = documentRef.getElementById('charts-stock-raw');
   if (raw) raw.hidden = !rows.length;
   if (host && rows.length) {
     const open = (sym) => showChartSubject({ documentRef, root, symbol: sym, byReader: true, scroll: true });
-    host.replaceChildren(stockTable(documentRef, rows, asOf, open, root?._aioChartSubject || ''));
+    host.replaceChildren(stockTable(documentRef, rows, asOf, open, root?._aioChartSubject || '', labels));
   } else {
     const grid = documentRef.getElementById('charts-weight-grid');
     if (grid) renderDataState(grid, screenerRowsState(root) === 'failed' ? { state: 'error', text: '종목 지표를 받지 못했습니다' } : { state: 'loading', lines: 5 });

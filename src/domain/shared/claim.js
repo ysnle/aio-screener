@@ -7,7 +7,7 @@
 // session on disk instead of by a reader on the screen.
 //
 // Only this file ships: the vocabulary, the claim constructor and the composer. Nothing here judges a claim.
-import { signedText, usdKoreanText } from './number.js';
+import { signedText, usdKoreanText, usdPerShareText } from './number.js';
 import { shortDate } from '../content/date-labels.js';
 import { isIsoDay, hasLeadingIsoDay } from './session-date.js';
 
@@ -47,11 +47,17 @@ export const CLAIM_WORDS = Object.freeze({
   inverted: { text: '역전 상태', relation: 'above' },
   spike: { text: '급등', sign: 1, size: 'large', relation: 'atLeast' },
   'stress-zone': { text: '스트레스 구간', relation: 'atLeast' },
-  'widening-watch': { text: '확대', sign: 1, relation: 'atLeast' }
+  'widening-watch': { text: '확대', sign: 1, relation: 'atLeast' },
+  'over-line': { text: '초과', relation: 'above' },
+  'at-least': { text: '이상', relation: 'atLeast' },
+  correction: { text: '조정', relation: 'atMost' },
+  bear: { text: '약세장', relation: 'atMost' },
+  'bear-edge': { text: '약세장 문턱', relation: 'above' },
+  'pre-correction': { text: '조정 전', relation: 'above' }
 });
 
 // How a figure prints, by unit: a signed change (pct, bp), a size multiple (x), a share or a yield level (share, rate),
-// a plain level (level), a count (count), a dollar amount (usd), an unscaled ratio (ratio: a PEG), a change in percentage
+// a plain level (level), a count (count), a dollar amount (usd), dollars per share (perShare), an unscaled ratio (ratio: a PEG), a change in percentage
 // points (pp, its size: the word carries the direction), a duration (years, months).
 const grouped = (value, digits) => value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const UNITS = Object.freeze({
@@ -64,6 +70,7 @@ const UNITS = Object.freeze({
   level: { digits: 2, text: (value, digits) => grouped(value, digits) },
   count: { digits: 0, text: (value, digits) => `${grouped(value, digits)}개` },
   usd: { digits: 0, text: (value) => usdKoreanText(value) },
+  perShare: { digits: 2, text: (value, digits) => usdPerShareText(value, digits) },
   ratio: { digits: 2, text: (value, digits) => value.toFixed(digits) },
   pp: { digits: 1, text: (value, digits) => `${Math.abs(value).toFixed(digits)}%p` },
   years: { digits: 0, text: (value, digits) => `${value.toFixed(digits)}년` },
@@ -94,8 +101,8 @@ export const figureDigits = (figure) => (Number.isInteger(figure?.digits) ? figu
 export const figureText = (figure) => UNITS[figure.unit].text(figure.value, figureDigits(figure));
 /** The number a reader sees: the figure's value rounded as printed. */
 export const printedValue = (figure) => Number(Number(figure.value).toFixed(figureDigits(figure)));
-/** A claim's compare line printed in its first figure's unit (at the unit's own decimals). */
-export const thresholdText = (claimed) => figureText({ unit: claimed.figures[0].unit, value: claimed.compare.threshold });
+/** A claim's compare line printed in its first figure's unit (at compare.digits, else the unit's own decimals). */
+export const thresholdText = (claimed) => figureText({ unit: claimed.figures[0].unit, value: claimed.compare.threshold, digits: claimed.compare.digits });
 /**
  * The decimals that keep a value apart from the line a word places it against: 39.7 under a line of 40 prints "39.7",
  * not "40" (the word "뿐" beside "40%" and "40% 위로 회복되는지"). `digits` first, at most two more.

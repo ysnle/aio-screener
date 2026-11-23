@@ -58,7 +58,6 @@ function closeQuotesFor(symbols, rows) {
     const row = bySymbol.get(symbol);
     if (!row || row.factorSessionDate !== session) continue;
     const pct = finite(row.ret1d);
-    // v58.74 (audit): the leader cards read '가격 대기' on every weekend row; the completed close is the valuation close.
     const close = finite(row.valuationPrice ?? row._valuationPrice ?? row.pePrice);
     quotes[symbol] = { price: close != null && close > 0 ? close : null, pct, rawPct: pct, currency: close != null && row.currency ? String(row.currency).toUpperCase() : null, observedAt: session, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: true, closeBased: true, source: 'screener-completed-close' };
   }
@@ -108,15 +107,8 @@ export function createThemesProvider({
         return true;
       }).map((item) => {
         const symbol = String(item?.sym || item?.symbol || item?.id || '');
-        // v59.70 (data audit R1): the point comes only from the produced artifact (current, or the previous session
-        // flagged lagging). The browser recompute and the definition defaults are gone — session ticks put every 세부 업종
-        // ETF on one point, and a definition's own rsRatio/quadrant could contradict the artifact.
         const currentQuote = runtimeQuote(live, symbol);
         const produced = selectProducedRotation(producedArtifact, symbol, observationNow, { lagSessions: 1 });
-        // v57.50 C21/C22: the sector bars and summary are labelled "<date> 미국 종가 기준", so the 1-day and 1-week
-        // returns come only from the session-checked completed-close artifact. The live quote (intraday pct) and the
-        // legacy 5-day cache (today's open→close first) no longer stand in under a close label; the live move is kept
-        // separately as livePct for any reader that labels it as live.
         const closePct = finite(produced?.dailyPct);
         return {
           id: String(item?.id || symbol),
@@ -157,22 +149,14 @@ export function createThemesProvider({
           (sub?.tickers || []).forEach((symbol) => detailSymbols.add(String(symbol)));
         });
         const liveQuotes = Object.fromEntries([...detailSymbols].map((symbol) => [symbol, runtimeQuote(live, symbol)]));
-        // v57.70 (2026-10-15 audit): live quotes are polled for the core symbols only, so a theme's 48 constituents stayed
-        // "시세 대기" while the screener held their completed-close moves. One basis per detail: live when it covers at
-        // least 60% of the constituents, else the published completed-close move of the session most of them share.
         const closeRows = readScreenerRows();
         const closeBasis = closeQuotesFor([...detailSymbols], closeRows);
         const liveCovered = [...detailSymbols].filter((symbol) => liveQuotes[symbol].pct != null).length;
         const useClose = closeBasis.session && liveCovered < Math.ceil(detailSymbols.size * 0.6);
-        // v58.63 (architecture audit D2): in completed-close mode a constituent without that session's close is missing —
-        // it is no longer filled with a live quote, and the hero move and breadth come from the same close set as the
-        // rows (the hero move used to be computed live-first before the basis was chosen).
         const missingClose = { price: null, pct: null, rawPct: null, currency: null, observedAt: null, fetchedAt: null, revision: null, changeBasis: 'completed-close', directionCompatible: false, closeBased: true, missing: true };
         const quotes = useClose ? Object.fromEntries([...detailSymbols].map((symbol) => [symbol, closeBasis.quotes[symbol] || missingClose])) : liveQuotes;
         const quotePct = useClose
           ? (symbol) => { const close = closeQuotesFor([symbol], closeRows).quotes[symbol]; return close && close.observedAt === closeBasis.session ? close.pct : null; }
-          // v59.45 (R2-05): live mode reads live moves only. Filling a missing live ETF move with the produced rotation's
-          // completed-close dailyPct put a previous-session move into a hero labelled quoteBasis 'live'.
           : (symbol) => runtimeQuote(live, symbol).pct ?? null;
         const etfPct = selectedTheme.etf ? quotePct(selectedTheme.etf) : null;
         const basePct = selectedTheme.compositeBase ? quotePct(selectedTheme.compositeBase) : null;
@@ -194,7 +178,7 @@ export function createThemesProvider({
           : basePct != null ? selectedTheme.compositeBase
           : weightedPct != null ? 'weighted-leaders'
           : leaderPcts.length ? 'leader-average' : 'quote-missing';
-        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => quotes[symbol]).filter((quote) => quote && (quote.price != null || quote.closeBased) && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575: a leader without a move is not counted as down
+        const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => quotes[symbol]).filter((quote) => quote && (quote.price != null || quote.closeBased) && quote.directionCompatible && quote.pct != null && Number.isFinite(Number(quote.pct)));
         const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
           ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)
           : null;

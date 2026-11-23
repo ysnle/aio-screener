@@ -1,17 +1,7 @@
-// v57.81 (거시 analysis audit, group X): the shared rules every macro read uses for three questions that used to be answered
-// separately on each screen —
-//   1. did a series actually move? A change counts only beyond a dead zone of half a standard deviation of that series'
-//      own n-period changes over its last year (breakevens +2bp against a 7.9bp spread of 20-session changes is noise);
-//   2. which way is core inflation going? Core PCE and core CPI must agree, each read on its newest release;
-//      otherwise the direction is held as 엇갈림 and both are named with their months;
-//   3. can WTI speak for oil? Brent futures against WTI futures: an abnormal same-day gap, Brent surging while WTI does
-//      not, opposite 20-session directions, or a WTI move that Brent does not confirm (same sign, at least half the size)
-//      hold every WTI-based oil read.
-// Pure functions over [{ date, value }] series (ascending); imports nothing but the shared thresholds, so any domain module
-// (market-read included) can call them without an import cycle.
 import { RULES } from '../rules/thresholds.js';
 import { signedText, finiteNumber as finite, stdev } from '../shared/number.js';
 import { percentileOf } from '../shared/percentile.js';
+import { latchedState } from '../shared/latch.js';
 
 export const MACRO_SIGNAL_RULES = Object.freeze({
   deadZoneSd: 0.5,          // a move counts only past 0.5 sd of the series' own n-period changes
@@ -71,16 +61,22 @@ export function bandDirection(value, band = null) {
 const DIRECTION_WORD = { up: '재가속', down: '둔화', flat: '뚜렷한 방향 없음' };
 export const INFLATION_DIRECTION_LABELS = Object.freeze({ up: '상승', down: '둔화', mixed: '엇갈림', flat: '방향 보류', unknown: '자료 부족' });
 
-/** One core measure: its 3-month annualised pace against its year-over-year rate, with the 0.5pp re-acceleration step. */
+/** One core measure: its 3-month annualised pace against its year-over-year rate, with the 0.5pp re-acceleration step.
+ *  `input.margins` — the measure's earlier releases [{ date, margin }], oldest first — hold a direction (shared/latch.js)
+ *  until the margin is back within holdPp; `edge` marks a margin within edgePp of the line that would flip today's
+ *  direction. */
 function measureDirection(name, input) {
   const pace = finite(input?.pace);
   const yoy = finite(input?.yoy);
   if (pace == null || yoy == null) return null;
   const margin = pace - yoy;
-  const step = RULES.inflation.reaccelPp;
-  const dir = margin >= step ? 'up' : margin <= -step ? 'down' : 'flat';
+  const { reaccelPp: step, holdPp, edgePp, latchMonths } = RULES.inflation;
+  const points = [...(input.margins || []).filter((release) => release.date < input.date), { date: input.date, margin }].slice(-latchMonths);
+  const dir = latchedState(points, (release) => release.margin >= step, (release) => release.margin < holdPp).on ? 'up'
+    : latchedState(points, (release) => release.margin <= -step, (release) => release.margin > -holdPp).on ? 'down' : 'flat';
+  const edge = (dir === 'up' ? margin - holdPp : dir === 'down' ? -holdPp - margin : step - Math.abs(margin)) < edgePp;
   const month = monthOf(input.date);
-  return { name, pace, yoy, margin, dir, date: input.date || null, month,
+  return { name, pace, yoy, margin, dir, edge, date: input.date || null, month,
     text: `${name}${month ? `(${month})` : ''} ${DIRECTION_WORD[dir]}(3개월 연율 ${pace.toFixed(1)}%, ${input.yoyLabel || '전년 대비'} ${yoy.toFixed(1)}%${input.note || ''})` };
 }
 
@@ -97,7 +93,7 @@ export function inflationDirection({ pce = null, cpi = null } = {}) {
   else if (parts.length === 1) state = parts[0].dir;
   const dir = state === 'up' || state === 'down' ? state : null;
   const text = parts.map((row) => row.text).join(', ');
-  return { dir, state, label: INFLATION_DIRECTION_LABELS[state], single: parts.length === 1, anyUp, pce: p, cpi: c,
+  return { dir, state, label: INFLATION_DIRECTION_LABELS[state], single: parts.length === 1, anyUp, pce: p, cpi: c, edge: parts.some((row) => row.edge),
     reaccelerating: parts.filter((row) => row.dir === 'up'), text };
 }
 
@@ -122,8 +118,6 @@ export function sentimentRank(series) {
   const rows = (Array.isArray(series) ? series : []).filter((row) => finite(row?.value) != null).slice(-MACRO_SIGNAL_RULES.sentimentWindow);
   const last = rows.at(-1);
   if (!last || rows.length < MACRO_SIGNAL_RULES.sentimentMinRecords) return last ? { value: last.value, date: last.date, month: monthOf(last.date), percentile: null, records: rows.length } : null;
-  // v59.71 (quant review): the shared convention (shared/percentile.js) — (below + equal/2)/n counted the release itself,
-  // so a record low read 1.4 here and 0 on every other percentile.
   return { value: last.value, date: last.date, month: monthOf(last.date), percentile: percentileOf(rows.map((row) => row.value), last.value), records: rows.length };
 }
 
@@ -143,8 +137,6 @@ export function brentWtiFromSeries({ brent = [], wti = [], pointBack = indexBack
   const wti20 = w0 ? pct(last.wti, w0.value) : null;
   const back = pairs.length > 20 ? pairs[pairs.length - 21] : null;
   const check = { date: last.date, brent: last.brent, wti: last.wti, spread, spreadMedian, spread20Back: back ? back.brent - back.wti : null, brent20, wti20,
-    // Macro audit 2026-10-17: Brent +10.1% beside WTI +9.9% read "WTI만 덜 올라" — a cliff at the surge line. WTI now lags only
-    // when it covers less than oilConfirmShare of Brent's move, the share the 'unconfirmed' rule below already uses.
     diverges: brent20 != null && brent20 >= RULES.oil.rise20dPct && (wti20 == null || wti20 < brent20 * MACRO_SIGNAL_RULES.oilConfirmShare),
     abnormal: Math.abs(spread) > BRENT_WTI_SPREAD_HOLD_USD, basis: 'futures' };
   return { ...check, ...oilDivergence(check) };

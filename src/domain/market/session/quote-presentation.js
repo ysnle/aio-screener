@@ -3,7 +3,6 @@ import { readNumber as finite } from '../../shared/number.js';
 const CURRENT_QUALITY = new Set(['CURRENT', 'CLOSED_CURRENT', 'LIVE', 'FRESH', 'VERIFIED_CURRENT']);
 const DELAYED_QUALITY = new Set(['DELAYED']);
 
-
 function isoOrNull(value) {
   if (value == null || typeof value === 'boolean' || (typeof value === 'string' && !value.trim())) return null;
   const parsed = Date.parse(value);
@@ -19,7 +18,6 @@ function qualityKey(envelope) {
 function allowedUseOf(envelope) {
   const key = String(envelope?.allowedUse ?? '').trim().toLowerCase();
   if (key === 'decision' || key === 'trading') return 'decision';
-  // v59.45 (PASS16 candidate): a producer's explicit 'none' stays none; it is not widened to reference.
   return key && key !== 'none' ? 'reference' : 'none';
 }
 

@@ -1,11 +1,5 @@
-// Server macro projection (public-data/data.json `macro`, `marketSurveys`, `officialWebReferences`). Legacy unification
-// (2026-10-17): moved from js/aio-data.js _aioLoadServerData. It writes the macro fields onto the snapshot, the per-key
-// evidence and the server metadata it is handed; the legacy loader keeps the window globals, the sentiment ingest and
-// the Treasury projection.
 import { isFiniteNumber as finite } from '../domain/shared/number.js';
 
-// v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth come from server FRED. consConf (Conference Board) stays
-// out: FRED has no such series, and UMCSENT (Michigan) is a different indicator (P593).
 export const SERVER_MACRO_KEYS = Object.freeze(['cpi', 'coreCpi', 'cpiSa', 'coreCpiSa', 'pce', 'corePce', 'fedRate', 'fedTargetLower', 'fedTargetUpper', 'unemployment', 'nfp', 'housingStarts', 'retailSales', 'usWageGrowth', 'dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y', 'realYield10', 'breakeven10']);
 
 // BLS headline/core CPI fields are canonical only when the typed series explicitly says NSA. The SA companions stay
@@ -15,17 +9,14 @@ const BLS_CPI_PROMOTIONS = [
   { metricId: 'coreCpi', valueKey: 'blsCoreCpiYoY', snapshotKey: 'coreCpi', saMetricId: 'coreCpiSa', saValueKey: 'blsCoreCpiSaYoY', saSnapshotKey: 'coreCpiSa' }
 ];
 
-
 function projectKey(k, { macro, meta, snapshot, evidence }) {
   const blsCanonicalCpi = macro._bls?.series?.[k];
   const cpiDefinitionBlocked = (k === 'cpi' || k === 'coreCpi') && blsCanonicalCpi && String(blsCanonicalCpi.seasonalAdjustment || '').toUpperCase() !== 'NSA';
   let source = null;
   if (!cpiDefinitionBlocked && finite(macro[k])) {
     snapshot[k] = macro[k];
-    // Codex review 2026-10-05: no FRED change beside a newer Treasury level.
     const deltaAligned = macro[`_source_${k}`] !== 'us-treasury-official-primary' || (macro[`_deltaAsOf_${k}`] && macro[`_deltaAsOf_${k}`] === macro[`_asOf_${k}`]);
-    if (deltaAligned && finite(macro[`${k}Delta5`])) snapshot[`_${k}Delta5`] = macro[`${k}Delta5`]; else delete snapshot[`_${k}Delta5`]; // P1390: one-week change for the briefing read
-    // P1142: the declared snapshot field is `usUnemploy`; the server key is `unemployment`.
+    if (deltaAligned && finite(macro[`${k}Delta5`])) snapshot[`_${k}Delta5`] = macro[`${k}Delta5`]; else delete snapshot[`_${k}Delta5`];
     if (k === 'unemployment') snapshot.usUnemploy = macro[k];
     source = macro[`_source_${k}`]
       || ((k === 'pce' || k === 'corePce') && macro._bea?.status === 'ok' ? 'bea-official-primary' : null)
@@ -40,7 +31,6 @@ function projectKey(k, { macro, meta, snapshot, evidence }) {
     };
     if (snapshot._fieldTs && macro[`_asOf_${k}`]) snapshot._fieldTs[`macro_${k}`] = macro[`_asOf_${k}`];
   }
-  // v51.67: FRED month-over-month delta.
   if (finite(macro[`${k}Delta`])) snapshot[`_${k}Delta`] = macro[`${k}Delta`];
   return source;
 }
@@ -49,7 +39,7 @@ function projectKey(k, { macro, meta, snapshot, evidence }) {
 function projectHighYield({ macro, meta, snapshot, evidence, serverMeta }) {
   if (!finite(macro.hyOAS)) return null;
   const valueBp = Math.round(macro.hyOAS * 100);
-  if (finite(macro.hyOASDelta5)) snapshot._hySpreadDelta5Bp = Math.round(macro.hyOASDelta5 * 100); // P1390
+  if (finite(macro.hyOASDelta5)) snapshot._hySpreadDelta5Bp = Math.round(macro.hyOASDelta5 * 100);
   const source = macro._source_hyOAS || 'last-known-good';
   const official = source === 'fred-official-public-csv' || source === 'fred-official-primary';
   const hy = {
@@ -175,7 +165,6 @@ export function applyServerMacro({ data, snapshot, evidence, serverMeta = null }
     if (snapshot._fieldTs && aaii.observedAt) snapshot._fieldTs.aaii = aaii.observedAt;
     result.aaiiBearish = aaii.bearish;
   }
-  // P1737 (2026-10-13): NAAIM is retired (undated three-month-delayed number); DATA_SNAPSHOT.naaimExposure stays null.
   if (serverMeta) {
     serverMeta.marketSurveys = { status: surveys.policy || 'unavailable', checkedAt: surveys.checkedAt || null, aaii, investorsIntelligence: surveys.investorsIntelligence || null };
     serverMeta.officialWebReferences = webReferences;

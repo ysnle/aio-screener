@@ -49,10 +49,11 @@ export const KR_INVESTOR_FLOWS = shared('kr-investor-flows.json', '_aioKrInvesto
 export const MACRO_CALENDAR = shared('macro-calendar.json', '_aioMacroCalendar', 6 * HOUR, 256 * KB);
 export const CONSENSUS_ESTIMATES = shared('consensus-estimates.json', '_aioConsensusEstimates', 6 * HOUR, 1 * MB);
 export const COMPANY_PROFILE_INDEX = shared('company-profiles/index.json', '_aioCompanyProfileIndex', 12 * HOUR, 256 * KB, 'company-profiles-index.v1');
+export const INDEX_LONGRUN = shared('index-longrun.json', '_aioIndexLongrun', 6 * HOUR, 256 * KB); // weekly long-run index tables (the opening read)
 
 const SHARED = [STRESS_OUTCOMES, SCENARIO_OUTCOMES, SCENARIO_STATE, MARKET_TEMPERATURE, BIGTECH_CASHFLOW, TREASURY_AUCTIONS, MARKET_DAY,
   ROTATION_DETAIL, MACRO_HISTORY, BREADTH_CONTRIBUTORS, KR_INDEX_WEIGHTS, EVENT_BRIEFS, EARNINGS_CALENDAR, TW_MONTHLY_REVENUE,
-  KR_FUNDAMENTALS, KR_INVESTOR_FLOWS, MACRO_CALENDAR, CONSENSUS_ESTIMATES, COMPANY_PROFILE_INDEX];
+  KR_FUNDAMENTALS, KR_INVESTOR_FLOWS, MACRO_CALENDAR, CONSENSUS_ESTIMATES, COMPANY_PROFILE_INDEX, INDEX_LONGRUN];
 
 // Read directly (loadArtifact or a data-layer provider) with the readers' previous load budgets, unchanged. Any other
 // id loads with loadJsonArtifact's defaults. The ids are not listed here because this module is in the boot set

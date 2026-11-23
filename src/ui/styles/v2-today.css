@@ -12,9 +12,15 @@
   padding: 28px var(--sx-card-pad-x); margin: 0 0 16px; border: 0; /* responsive.css L43 hairline reset */
 }
 #page-home .home-hero-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-#page-home .home-hero-verdict { font-size: 28px; }
-#page-home .home-hero-lede { font-size: 14px; line-height: 1.65; max-width: 62ch; }
+/* The opening read leads (lede, fall bars, diagnosis — v2-market.css); the verdict word is a small tag. */
+#page-home .home-hero-lede { display: flex; flex-direction: column; gap: 10px; font-size: 14px; line-height: 1.6; max-width: 62ch; }
+#page-home .home-hero-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+#page-home .home-hero-tag { display: inline-flex; align-items: baseline; gap: 8px; padding: 4px 10px; border-radius: var(--radius-full); background: rgba(var(--ink-rgb), 0.06); font-size: 12px; }
+#page-home .home-hero-tag .home-hero-verdict { font-size: 12px; letter-spacing: 0; line-height: 1.4; }
+#page-home .home-hero-counts { color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+#page-home .home-hero-counts:empty { display: none; }
 #page-home .home-hero-lede:empty { display: none; }
+#page-home #home-hero-desc:not(:empty) + #home-hero-first { display: none; } /* the shell's first paint steps aside for the read */
 #page-home .home-hero-basis { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
 #page-home .home-hero-basis:empty { display: none; } /* v58.79: speaks only when the verdict is held */
 #page-home .home-kr-line { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
@@ -266,7 +272,6 @@
 @media (max-width: 743px) {
   /* iPhone: one column, 44px touch targets. */
   #page-home > #home-score-hero.home-hero { padding: 20px var(--sx-card-pad-x) !important; border-radius: var(--radius-container); }
-  #page-home .home-hero-verdict { font-size: 28px; }
   #page-home .home-hero-lede { font-size: 14px; }
   #page-home #home-daily-loop.daily-loop { grid-template-columns: minmax(0, 1fr); }
   #page-home #home-daily-loop .daily-name { grid-template-columns: auto minmax(0, 1fr) auto; }

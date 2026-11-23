@@ -19,11 +19,6 @@ import { screenerRuntime } from './model.js';
 import { SCENARIO_STATE } from '../../../data/artifact-registry.js';
 
 export function createScreenerPage({ documentRef, store, root = globalThis, workbench = {}, onProfileChange, onUniverseScopeChange, onTicker, onWatchlistToggle, readWatchlist, readAliases, readLiveData } = {}) {
-  // P1625: use the selected screen's declared order until the user selects another metric.
-  // v57.55 review (8n, 3-person consult): the first view is ordered by market cap. The preset's own rank lost its validation
-  // check (GME·AMC led the list), so it is applied when a reader picks a preset, not as the default reading.
-  // One object carries what outlives a visit (selection, active screen, the row a reader came back from) and what the
-  // controllers share during one; each controller adds its functions to it.
   const ctx = {
     documentRef, store, root, workbench, onProfileChange, onUniverseScopeChange, onWatchlistToggle,
     sortState: { column: 'mcap', ascending: false },
@@ -33,7 +28,6 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
     compareSymbols: new Set(),
     activeRows: null,
     activeResult: null,
-    // P1165: 실행 전 미리보기 결과(선택한 정의, 같은 snapshot). 실행하면 activeResult가 대신한다.
     activePreview: null,
     activePreviewKey: null,
     activeDefinition: null,
@@ -56,7 +50,6 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       bag.add(() => { screenerRuntime.customPanel?.dispose(); screenerRuntime.customPanel = null; });
       ctx.liveReader = readLiveData || (() => root?._liveData || {});
       ctx.watchlistReader = readWatchlist || (() => root?._aioWatchlistGet?.() || []);
-      // v57.50 I10: the hand-written keyword aliases plus every THEME_MAP theme's constituents (union, aliases kept).
       let themeAliasCache = { themes: null, aliases: null, merged: {} };
       ctx.aliasReader = readAliases || (() => {
         const aliases = root?.SCR_KEYWORD_ALIASES || {};
@@ -66,15 +59,9 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
       });
       ctx.profileReader = () => root?._aioGetActiveProfile?.() || 'balanced';
       createFiltersController(ctx);
-      // P1449 (검토판 9): a link that came here with its own 조사 맥락 (e.g. 같은 섹터에서 비교)
-      // fills the display search/scope from that context once, instead of surfacing whatever
-      // query/sector chips the previous visit left behind.
       const handoff = consumeResearchHandoff({ root, routeId: 'screener' });
-      // v57.50 I01: a KRX ticker's sector is a Korean-market sector — compare it inside the KR listing.
       if (/\.K[SQ]$/i.test(String(handoff?.context?.ticker || '')) && handoff?.context?.sector) root._aioScreenerListingMarket = 'KR';
       documentRef.getElementById('scr-listing-market').value = root._aioScreenerListingMarket === 'KR' ? 'KR' : 'US';
-      // v57.50 I01: the sector arrives as the artifact's own value (Technology) or a sector ETF code (XLK); it is
-      // applied to the 섹터 select once that select has been filled with this market's sectors (fillControls).
       ctx.pendingSector = handoff?.context?.sector ? String(handoff.context.sector) : null;
       if (handoff?.context) {
         const value = handoff.context.q;
@@ -83,16 +70,11 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         // A sector comparison starts from that sector alone, not from the previous visit's search word.
         const search = ctx.pendingSector && handoff.context.q == null ? documentRef.getElementById('scr-text-search') : null;
         if (search) search.value = '';
-        // v58.75 (persona review): '이 테마 종목을 스크리너에서 보기' asks for the theme's members — with 실행 통과만 on, 3 of 33
-        // semiconductor rows showed. A search handoff opens on every matching row; the status line says how many passed.
         const passedOnly = handoff.context.q ? documentRef.getElementById('scr-passed-only') : null;
         if (passedOnly) passedOnly.checked = false;
       }
-      // v57.50 I05: what a research document sent the reader here to check, and the way back.
       renderKnowledgeArrival({ documentRef, root, routeId: 'screener' });
       createValidationController(ctx);
-      // 2026-10-14 audit #5: theme stage rows for the reading's "상위권의 테마 단계" (nothing renders until status is ok).
-      // v58.75: the table's 테마 단계 column reads the same state, so the table redraws too.
       refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed && ctx.mountActive) { ctx.readSignature = ''; ctx.renderRead(); ctx.renderNow(); } }).catch(() => {});
       let suppliedMaterialBridge = page.querySelector('[data-aio-supplied-material-route="screener"]');
       if (!suppliedMaterialBridge) {
@@ -120,7 +102,6 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
         const renderArgs = { documentRef, root, store, readLiveData: ctx.liveReader, readWatchlist: ctx.watchlistReader, readAliases: ctx.aliasReader, sortState: ctx.sortState, visibleLimit: ctx.visibleLimit, onExplain: ctx.explainRow, onCompare: (row) => ctx.toggleCompare(row?.sym || row?.symbol), onVisibleSymbols: ctx.requestVisibleQuotes, quoteRequestState: ctx.quoteRequestState, selectedSymbols: ctx.selectedSymbols, compareSymbols: ctx.compareSymbols, columnPreset: ctx.columnState.preset, customColumns: ctx.columnState.custom, onWatchlistToggle: (symbol) => { (onWatchlistToggle || root?._aioWLToggle)?.(symbol); ctx.rerender(); ctx.syncWhyWatchlist(ctx.activeRow?.sym || ctx.activeRow?.symbol || ''); }, rowsOverride: ctx.activeRows || preview?.rows || null, workbenchResult: ctx.activeResult, previewResult: preview, onDataChange: () => ctx.renderNow(), onRetry: () => { Promise.resolve(onUniverseScopeChange?.(readUniverseScope(root))).catch(() => {}); } };
         render(renderArgs);
         const released = ctx.refreshInspector();
-        // 개편 v2 (3c): the first wide render selects the first row for the inspector, then marks it in the table once.
         if (ctx.autoInspect() || released) render(renderArgs);
         ctx.syncPreviewStatus(preview);
         ctx.renderCompareTray();
@@ -146,9 +127,7 @@ export function createScreenerPage({ documentRef, store, root = globalThis, work
             if (!option) { option = documentRef.createElement('option'); option.value = column; orderSelect.append(option); }
             option.textContent = `${SCREENER_COLUMN_REGISTRY.find(item => item.key === column)?.label || column} ${sortState.ascending ? '오름차순' : '내림차순'}`; orderSelect.value = column;
           }
-          // P1592 (F03): sorting reorders the same rows — keep what the reader already expanded.
           ctx.renderNow();
-          // v57.61 WCAG 2.4.3: the header row is rebuilt on render — return focus to the same column's sort button.
           [...page.querySelectorAll('[data-scr-sort]')].find((node) => node.dataset.scrSort === column)?.focus?.();
           return;
         }

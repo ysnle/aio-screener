@@ -12,11 +12,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SOURCE_REGISTRY_CATEGORY_IDS, DATA_SOURCE_REGISTRY } from '../src/data/contracts/source-registry.js';
-import { derivePublicAiConfig } from './build-operations-status.mjs';
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { atomicWriteFile, atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { parseFredHyOasCsv, parseTreasuryYieldCurveHtml } from './fetch-data.mjs';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { runSections } from './lib/gate-sections.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
@@ -105,25 +105,6 @@ function runFocusedRegression() {
     check(`regression:fred-missing-${String(missing)}`, !result.complete && result.lkgUsed && result.lastSuccessfulAt === '2026-08-29T00:00:00Z', 'missing never becomes zero or renews success');
   }
 
-  // Negative control for AI-health coupling: a configured market relay remains
-  // reference-configured while AI entitlement is disabled.
-  const config = derivePublicAiConfig({}, {
-    workerEndpoint: 'https://relay.example.test',
-    proxyHealthy: false,
-    proxyEvidence: { proxyObservationStatus: 'FAILED', proxyEvidenceFresh: false },
-    now: '2026-08-30T00:00:00.000Z'
-  });
-  check('P1421 regression:market-data-independent-of-ai-health', config.marketData?.workerUrl === 'https://relay.example.test'
-    && config.marketData?.routeStatus === 'CONFIGURED'
-    && config.marketData?.availability === 'verify-per-request'
-    && config.ai?.workerUrl === 'https://relay.example.test'
-    && config.ai?.provider === 'openai' && config.ai?.model === 'gpt-6-luna'
-    && config.ai?.chatPolicy === 'shared-worker-only' && config.ai?.serverMode === 'shared-worker-only'
-    && config.ai?.routeEvidence?.status === 'OPERATOR_REQUIRED'
-    && config.ai?.routeStatus === 'DISABLED', JSON.stringify({ marketData: config.marketData, ai: config.ai }));
-  const invalid = derivePublicAiConfig({}, { workerEndpoint: 'http://relay.example.test', proxyHealthy: true });
-  check('regression:invalid-relay-is-unavailable', invalid.marketData?.workerUrl === null && invalid.marketData?.routeStatus === 'UNAVAILABLE', JSON.stringify(invalid.marketData));
-
   // Missing provider fields must survive serialization as unknown, not a
   // fabricated zero used by liquidity and range calculations.
   const unknownVolume = JSON.parse(JSON.stringify({ volume: null }));
@@ -181,7 +162,6 @@ function runProducerChecks() {
   check('producer:market-snapshot-no-direct-output-write', !/\bwriteFile\s*\(/.test(snapshot), 'direct writeFile call remains in market snapshot builder');
   check('producer:status-builders-use-atomic-writes', operations.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && operations.includes('atomicWriteFile(OPERATIONS_STATUS_OUT')
-    && operations.includes('atomicWriteFile(PUBLIC_READINESS_PATH')
     && reconciliation.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && reconciliation.includes('atomicWriteFile(RECONCILIATION_STATUS_OUT'), 'status builders can tear published JSON on write failure (P1080)');
   check('producer:source-failure-isolated', fetchData.includes('Promise.allSettled') && fetchData.includes('settledValue'), 'source planes still share a fail-fast Promise.all');
@@ -195,9 +175,6 @@ function runProducerChecks() {
   const firstOutWrite = fetchData.indexOf('atomicWriteFile(OUT');
   check('producer:quote-gate-before-public-write', gatePosition >= 0 && firstOutWrite > gatePosition, `gate=${gatePosition}, firstOutWrite=${firstOutWrite}`);
   check('workflow:continuity-gate-wired', workflow.includes('node scripts/ci-data-continuity-check.mjs'), 'refresh workflow does not invoke continuity gate');
-  check('operations:market-data-contract-present', operations.includes('marketData:')
-    && operations.includes("routeStatus: endpointUsable ? 'CONFIGURED' : 'UNAVAILABLE'")
-    && operations.includes("availability: 'verify-per-request'"), 'public-config producer lacks independent marketData contract');
 }
 
 function runRegistryChecks() {
@@ -212,16 +189,19 @@ function runRegistryChecks() {
   }
 }
 
+function runConfigChecks() {
+  const config = readJson('public-config.json');
+  check('artifact:public-config-market-data', config?.marketData && Object.prototype.hasOwnProperty.call(config.marketData, 'workerUrl'), 'marketData producer output is absent; regenerate public-config.json');
+}
+
 function runArtifactChecks() {
   const data = readJson('public-data/data.json');
   const snapshot = readJson('public-data/market-snapshot.json');
-  const config = readJson('public-config.json');
   check('artifact:data-json-generated-at', validDate(data?.meta?.generatedAt), String(data?.meta?.generatedAt || 'missing'));
   check('artifact:fred-status-not-hidden', data?.meta?.fredFetchOk !== true || (data?.meta?.fredFailedSeries || []).length === 0,
     `fredFetchOk=${data?.meta?.fredFetchOk}, failed=${JSON.stringify(data?.meta?.fredFailedSeries || [])}`);
   check('artifact:failed-snapshot-not-published', snapshot?.status !== 'failed' || snapshot?.generatedAt == null,
     `status=${snapshot?.status}, generatedAt=${snapshot?.generatedAt}`);
-  check('artifact:public-config-market-data', config?.marketData && Object.prototype.hasOwnProperty.call(config.marketData, 'workerUrl'), 'marketData producer output is absent; regenerate public-config.json');
 
   // Emit a compact machine-readable 22-category inventory so a blocked live
   // source is resumable without guessing which artifact was checked.
@@ -250,6 +230,30 @@ function runArtifactChecks() {
   return inventory;
 }
 
+function finish(section, inventory = null) {
+  const failed = failures.splice(0);
+  const result = {
+    schemaVersion: 'data-continuity-check.v1',
+    section,
+    checkedAt: new Date().toISOString(),
+    ok: failed.length === 0,
+    checks: checks.splice(0),
+    warnings: warnings.splice(0),
+    ...(inventory ? { inventory } : {})
+  };
+  if (args.has('--json')) console.log(JSON.stringify(result, null, 2));
+  else {
+    console.log(`[data-continuity] ${section} ${result.ok ? 'PASS' : 'FAIL'} checks=${result.checks.length} failures=${failed.length} warnings=${result.warnings.length}`);
+    for (const failure of failed) console.error(`- ${failure}`);
+    if (inventory) console.log(`[data-continuity] ${inventory.length} category artifact paths present; category freshness requires the dedicated reconciliation gate.`);
+  }
+  if (!result.ok) process.exitCode = 1;
+}
+
+// v60.50: producer source, parser and registry contracts are code; the published artifacts are a data section that also
+// runs in a data run.
+await runSections('data-continuity', [
+['producers', async () => {
 // P1518/R690: secondary producers share the same collision-safe atomic boundary.
 for (const name of ['fetch-earnings-calendar', 'fetch-sec-fundamentals']) { // A09: CFTC producer retired
   const source = readText(`scripts/${name}.mjs`);
@@ -299,22 +303,10 @@ try {
 runFocusedRegression();
 runProducerChecks();
 runRegistryChecks();
-const inventory = runArtifactChecks();
-
-const result = {
-  schemaVersion: 'data-continuity-check.v1',
-  checkedAt: new Date().toISOString(),
-  ok: failures.length === 0,
-  checks,
-  warnings,
-  inventory
-};
-
-if (args.has('--json')) console.log(JSON.stringify(result, null, 2));
-else {
-  console.log(`[data-continuity] ${result.ok ? 'PASS' : 'FAIL'} checks=${checks.length} failures=${failures.length} warnings=${warnings.length}`);
-  if (failures.length) for (const failure of failures) console.error(`- ${failure}`);
-  console.log(`[data-continuity] ${inventory.length} category artifact paths present; category freshness requires the dedicated reconciliation gate.`);
-}
-
-if (!result.ok) process.exitCode = 1;
+runConfigChecks();
+finish('producers');
+}, 'code'],
+['artifacts', async () => {
+finish('artifacts', runArtifactChecks());
+}, 'data'],
+]);

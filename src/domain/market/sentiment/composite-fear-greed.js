@@ -1,15 +1,3 @@
-// P1586: self-computed market sentiment index from public official inputs, modelled on the seven
-// components CNN publishes for its Fear & Greed Index. CNN's endpoint answers only browser-impersonating
-// requests (honest client → HTTP 418), so this index is built to run beside it and replace it once the
-// comparison holds. It is NOT CNN's number: each component is ranked against its own trailing year
-// (percentile, greed = high). v57.50 D02: the ranks are shown side by side; no mean score or band is formed.
-//
-// Inputs are the published artifacts only: public-data/history.json rows (spx, vix, tlt, advanceRatio,
-// breadthNewHighs/Lows) and public-data/macro-history.json (hyOas, igOas).
-// v59.70 (owner 11/4): CNN's put/call component has no counterpart here — the Cboe statistics it needs may not be
-// stored or redistributed under Cboe's terms — so the index has six components. The ranks are never averaged (D02),
-// so no weight moves to the others; MIN_COMPONENTS stays 4 (now four of six).
-
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../session/close-series.js';
 import { readNumber as finite } from '../../shared/number.js';
 import { isIsoDay } from '../../shared/session-date.js';
@@ -22,19 +10,17 @@ const RANK_WINDOW = 252;
 const MIN_RANK_SAMPLE = 60;
 const MIN_COMPONENTS = 4;
 
-
 // M03: one value per US trading session (buildCloseSeries) — weekend carry-forward rows are not observations.
 function series(rows, field) {
   return buildCloseSeries(Array.isArray(rows) ? rows : [], field).map((row) => ({ date: row.date, value: finite(row.value) })).filter((row) => row.value != null);
 }
-
 
 // Percentile of the latest raw value within the trailing window (inclusive), 0..100.
 function percentileRank(raw) {
   if (raw.length < MIN_RANK_SAMPLE) return null;
   const sample = raw.slice(-RANK_WINDOW);
   const latest = sample[sample.length - 1];
-  return Math.round(percentileOf(sample, latest) * 10) / 10; // v59.59: shared/percentile.js (a 1-year high is 100, not 99.8)
+  return Math.round(percentileOf(sample, latest) * 10) / 10;
 }
 
 function component(id, label, rawSeries, { invert = false, basis }) {
@@ -73,12 +59,6 @@ function macroSeries(macroHistory, key) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-// v57.50 D02 (coordinator decision): no 0-100 average and no CNN-style band (극단적 공포~탐욕) on top of it. Averaging
-// one-year ranks of components that disagree (e.g. 5 and 89) and banding the mean at CNN's 25/45/55/75 edges produced
-// a grade with no validation behind it. The model now returns each component's rank side by side and the spread
-// between the lowest and highest one; components without an observation stay listed as '자료 부족'.
-// The shortest ranking sample among the ready components, or null when every one covers the full window: the card
-// names the sessions it really ranked over instead of calling a shorter record a year.
 export function shortRankSample(components = []) {
   const samples = components.filter((row) => row?.status === 'ok' && finite(row.sample) != null).map((row) => row.sample);
   const shortest = samples.length ? Math.min(...samples) : null;
@@ -97,10 +77,6 @@ export function computeCompositeFearGreed({ history = [], macroHistory = null } 
   const components = [];
   // 1. Market momentum: S&P 500 against its 125-day average.
   components.push(component('momentum', '시장 모멘텀', ratioToAverage(history, 'spx', 125), { basis: 'S&P 500 ÷ 125일 평균 − 1' }));
-  // 2. Stock price strength: new highs minus new lows (screener universe, not NYSE-wide).
-  // v59.59 (logic refactor): ranked as a share of the eligible names, within the latest universe. The raw count difference
-  // was ranked across a universe change (826 AIO names → ~497 S&P 500 members on 2025-11-04), so the old rows' counts
-  // stood ~1.7× higher and pulled the latest rank; a row without an eligible count cannot be put on the same scale.
   const rowByDate = new Map((Array.isArray(history) ? history : []).filter((row) => row?.date).map((row) => [row.date, row]));
   const highs = new Map(series(history, 'breadthNewHighs').map((row) => [row.date, row.value]));
   const metaOf = (date) => historyFieldMeta(rowByDate.get(date), 'breadthNewHighs');

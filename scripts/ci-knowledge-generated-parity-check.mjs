@@ -4,6 +4,7 @@ import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, re
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const args = process.argv.slice(2);
@@ -97,7 +98,10 @@ function writeCandidateArtifact({ changed, before, after, isolatedRoot, identity
   console.log(`Candidate status: ${manifest.status}; ${changedFiles.length} generated target(s); tested SHA ${identity.checkoutSha}.`);
 }
 
-const builders = [
+// v60.50: the knowledge builders turn code-owned sources into code-owned outputs (a code section). The 13F issuer
+// aggregates are derived from the holdings a producer publishes, so their parity is a data section that also runs in a
+// data run. Candidate mode (knowledge-build-candidate.yml) runs both lists as one build.
+const knowledgeBuilders = [
   // Each source producer must precede its generated-artifact consumers.
   ['scripts/build-principles-lessons.mjs'],
   ['scripts/build-nathan-framework-knowledge.mjs'],
@@ -116,10 +120,15 @@ const builders = [
   ['scripts/build-knowledge-research-dossiers.mjs'],
   ['scripts/build-knowledge-domain-dossiers.mjs'],
   ['scripts/build-knowledge-runtime-index.mjs'],
-  ['scripts/build-atlas-current-evidence-ledger.mjs'],
-  ['scripts/build-13f-issuer-aggregates.mjs']
+  ['scripts/build-atlas-current-evidence-ledger.mjs']
 ];
-const targets = [
+const mastersBuilders = [['scripts/build-13f-issuer-aggregates.mjs']];
+// The 13F builder reads two published holdings files and rewrites the aggregates and the masters index; its disposable
+// workspace copies only those and scripts/ (a whole-tree copy cost a data run about a minute). A new read fails loudly.
+const mastersCopyPaths = ['scripts', 'public-data/masters/holdings.json', 'public-data/masters/history-holdings.json',
+  'public-data/masters/index.json', 'public-data/masters/issuer-aggregates.json'];
+const builders = [...knowledgeBuilders, ...mastersBuilders];
+const knowledgeTargets = [
   'public-data/knowledge/integrated-market-ai-frameworks.json',
   'public-data/knowledge/concepts.json',
   'public-data/knowledge/nathan-frameworks.json',
@@ -146,22 +155,26 @@ const targets = [
   'public-data/knowledge/research-dossiers',
   'public-data/knowledge/status-summary.json',
   'public-data/atlas/current-evidence-ledger.json',
-  'public-data/atlas/index.json',
+  'public-data/atlas/index.json'
+];
+const mastersTargets = [
   'public-data/masters/issuer-aggregates.json',
   'public-data/masters/index.json'
 ];
 
-const atomicWriterSource = readFileSync(join(root, 'scripts/lib/atomic-write.mjs'), 'utf8');
-if (!/renameWithRetrySync/.test(atomicWriterSource) || !/RETRYABLE_RENAME_CODES/.test(atomicWriterSource) || !/EPERM/.test(atomicWriterSource)) {
-  console.error('Knowledge generated parity failed: the shared atomic writer must preserve bounded Windows rename-lock retry handling.');
-  process.exit(1);
-}
-
-for (const [script] of builders) {
-  const source = readFileSync(join(root, script), 'utf8');
-  if (/\bfs\.writeFileSync\s*\(|\bfs\.writeFile\s*\(/.test(source)) {
-    console.error(`Knowledge generated parity failed: ${script} writes a published target directly instead of using the atomic writer.`);
+function builderSourceChecks() {
+  const atomicWriterSource = readFileSync(join(root, 'scripts/lib/atomic-write.mjs'), 'utf8');
+  if (!/renameWithRetrySync/.test(atomicWriterSource) || !/RETRYABLE_RENAME_CODES/.test(atomicWriterSource) || !/EPERM/.test(atomicWriterSource)) {
+    console.error('Knowledge generated parity failed: the shared atomic writer must preserve bounded Windows rename-lock retry handling.');
     process.exit(1);
+  }
+
+  for (const [script] of builders) {
+    const source = readFileSync(join(root, script), 'utf8');
+    if (/\bfs\.writeFileSync\s*\(|\bfs\.writeFile\s*\(/.test(source)) {
+      console.error(`Knowledge generated parity failed: ${script} writes a published target directly instead of using the atomic writer.`);
+      process.exit(1);
+    }
   }
 }
 
@@ -238,7 +251,6 @@ function symlinkGuardFixturePasses() {
 const check = (label, ok) => {
   if (!ok) throw new Error(`Knowledge generated parity failed: ${label}`);
 };
-check('P1314/R660/QA-DATA-54 accepts an ordinary tree and rejects a linked generated-output directory', symlinkGuardFixturePasses());
 
 function filesUnder(baseRoot, path) {
   const absolute = join(baseRoot, path);
@@ -253,7 +265,7 @@ function filesUnder(baseRoot, path) {
 // the comparison normalizes line endings instead of depending on the caller's checkout convention.
 const normalizeNewlines = (buffer) => buffer.toString('utf8').replace(/\r\n/g, '\n');
 
-function snapshot(baseRoot) {
+function snapshot(baseRoot, targets) {
   const rows = new Map();
   for (const file of [...new Set(targets.flatMap((target) => filesUnder(baseRoot, target)))].sort()) {
     rows.set(relative(baseRoot, file).replaceAll('\\', '/'), createHash('sha256').update(normalizeNewlines(readFileSync(file))).digest('hex'));
@@ -265,40 +277,61 @@ function snapshot(baseRoot) {
 // atomic writer, so merely changing cwd cannot isolate them. Run every producer in a disposable
 // workspace copy instead. This keeps parallel QA invocations from racing on published artifacts
 // (and turns this check into a read-only operation against the caller's workspace).
-assertSymlinkFreeTree(root);
-const before = snapshot(root);
-const identity = candidateDirectory ? candidateIdentity() : null;
-const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-knowledge-parity-'));
-const copyFilter = (source) => {
-  const basename = source.slice(Math.max(source.lastIndexOf('\\'), source.lastIndexOf('/')) + 1);
-  return !isIgnoredCopyDirectory(basename);
-};
-try {
-  cpSync(root, isolatedRoot, { recursive: true, filter: copyFilter });
-  // cpSync preserves symlinks by default. Verify the disposable copy before any builder
-  // runs, so a PR-controlled generated target cannot redirect writes outside that copy.
-  assertSymlinkFreeTree(isolatedRoot);
-  for (const [script, ...args] of builders) {
-    const result = spawnSync(process.execPath, [join(isolatedRoot, script), ...args], { cwd: isolatedRoot, encoding: 'utf8', stdio: 'pipe' });
-    if (result.status !== 0) {
-      console.error(`Knowledge generated parity failed while running ${script}:`);
-      console.error(String(result.stderr || result.stdout || 'unknown builder failure').trim());
-      throw new Error(`knowledge producer failed: ${script}`);
+// `builders` shadows the full list: one run builds the list it is given.
+function runParity(builders, targetList, copyPaths = null) {
+  assertSymlinkFreeTree(root);
+  const before = snapshot(root, targetList);
+  const identity = candidateDirectory ? candidateIdentity() : null;
+  const isolatedRoot = mkdtempSync(join(tmpdir(), 'aio-knowledge-parity-'));
+  const copyFilter = (source) => {
+    const basename = source.slice(Math.max(source.lastIndexOf('\\'), source.lastIndexOf('/')) + 1);
+    return !isIgnoredCopyDirectory(basename);
+  };
+  try {
+    if (copyPaths) {
+      for (const path of copyPaths) cpSync(join(root, path), join(isolatedRoot, path), { recursive: true, filter: copyFilter });
+    } else {
+      cpSync(root, isolatedRoot, { recursive: true, filter: copyFilter });
     }
+    // cpSync preserves symlinks by default. Verify the disposable copy before any builder
+    // runs, so a PR-controlled generated target cannot redirect writes outside that copy.
+    assertSymlinkFreeTree(isolatedRoot);
+    for (const [script, ...args] of builders) {
+      const result = spawnSync(process.execPath, [join(isolatedRoot, script), ...args], { cwd: isolatedRoot, encoding: 'utf8', stdio: 'pipe' });
+      if (result.status !== 0) {
+        console.error(`Knowledge generated parity failed while running ${script}:`);
+        console.error(String(result.stderr || result.stdout || 'unknown builder failure').trim());
+        throw new Error(`knowledge producer failed: ${script}`);
+      }
+    }
+    const after = snapshot(isolatedRoot, targetList);
+    const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
+    const changed = paths.filter((path) => before.get(path) !== after.get(path));
+    if (candidateDirectory) {
+      writeCandidateArtifact({ changed, before, after, isolatedRoot, identity });
+    } else if (changed.length) {
+      console.error('Knowledge generated parity failed: builders changed generated outputs. Review the regenerated files, then rerun.');
+      changed.slice(0, 50).forEach((path) => console.error(` - ${path}`));
+      if (changed.length > 50) console.error(` - ... ${changed.length - 50} more`);
+      throw new Error('knowledge generated outputs drifted');
+    } else {
+      console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);
+    }
+  } finally {
+    rmSync(isolatedRoot, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   }
-  const after = snapshot(isolatedRoot);
-  const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
-  const changed = paths.filter((path) => before.get(path) !== after.get(path));
-  if (candidateDirectory) {
-    writeCandidateArtifact({ changed, before, after, isolatedRoot, identity });
-  } else if (changed.length) {
-    console.error('Knowledge generated parity failed: builders changed generated outputs. Review the regenerated files, then rerun.');
-    changed.slice(0, 50).forEach((path) => console.error(` - ${path}`));
-    if (changed.length > 50) console.error(` - ... ${changed.length - 50} more`);
-    throw new Error('knowledge generated outputs drifted');
-  } else {
-    console.log(`Knowledge generated parity OK: ${builders.length} builders, ${after.size} generated files unchanged.`);
-  }
-} finally {
-  rmSync(isolatedRoot, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+}
+
+if (candidateDirectory) {
+  builderSourceChecks();
+  runParity(builders, [...knowledgeTargets, ...mastersTargets]);
+} else {
+  await runSections('knowledge-generated-parity', [
+    ['knowledge-builders', () => {
+      builderSourceChecks();
+      check('P1314/R660/QA-DATA-54 accepts an ordinary tree and rejects a linked generated-output directory', symlinkGuardFixturePasses());
+      runParity(knowledgeBuilders, knowledgeTargets);
+    }, 'code'],
+    ['13f-issuer-aggregates', () => runParity(mastersBuilders, mastersTargets, mastersCopyPaths), 'data'],
+  ]);
 }

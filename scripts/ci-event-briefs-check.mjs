@@ -9,6 +9,7 @@ const { equal: eq, deepEqual: same, ok, match: like } = assert;
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { runSections } from './lib/gate-sections.mjs';
 import { buildEventBriefs, fixtureSources } from './fetch-event-briefs.mjs';
 import { earningsContextLines, earningsContextSignature, cashflowContextLines } from './producer/earnings-context.mjs';
 import { buildBigtechCashflow } from './fetch-bigtech-cashflow.mjs';
@@ -19,7 +20,17 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDir = resolve(root, 'scripts/fixtures/event-briefs');
 const failures = [];
 const check = (name, fn) => { try { fn(); } catch (error) { failures.push(`${name}: ${error.message}`); } };
+const report = () => {
+  const failed = failures.splice(0);
+  if (!failed.length) return;
+  console.error(`[event-briefs] ${failed.length} failure(s):\n- ${failed.join('\n- ')}`);
+  process.exit(1);
+};
 
+// v60.50: the producer and domain checks run on fixtures (code); the published artifact is checked in its own data section,
+// which also runs in a data run.
+await runSections('event-briefs', [
+['fixtures', async () => {
 const sources = await fixtureSources(fixtureDir);
 const base = { sources, fomcDecisions: sources.manifest.macroCalendar['us-fomc'], earningsRows: sources.manifest.earnings, earningsSource: 'Finnhub' };
 const nowMs = Date.parse(sources.manifest.now);
@@ -697,23 +708,6 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   check('v59.85 KR weights: a missed session is not caught up while the next one trades', () => eq(due('2026-11-10T01:00:00Z', '2026-11-06'), false));
 }
 
-// v60.18 artifact gate: the published file holds no calendar-only brief still saying "정리 중" past the wait, measured at its
-// own generatedAt. A file written before the bound existed (no provisionalWaitMs) is reported, not failed: the next
-// 20-minute event-briefs run rewrites it under the bound.
-{
-  const { overdueProvisional, PROVISIONAL_SUMMARY_WAIT_MS } = await import('../src/domain/briefing/event-briefs.js');
-  const published = JSON.parse(readFileSync(resolve(root, 'public-data/event-briefs.json'), 'utf8'));
-  const at = Date.parse(published.generatedAt);
-  const overdue = (published.briefs || []).filter((brief) => overdueProvisional(brief, at))
-    .map((brief) => `${brief.id} ${Math.round((at - Date.parse(brief.publishedAt)) / 3600000)}h`);
-  if (published.provisionalWaitMs == null) {
-    if (overdue.length) console.warn(`[event-briefs] artifact predates the v60.18 placeholder bound; ${overdue.length} overdue placeholder(s) close on the next run: ${overdue.join(', ')}`);
-  } else check('v60.18 the published artifact holds no placeholder older than the wait', () => {
-    eq(published.provisionalWaitMs, PROVISIONAL_SUMMARY_WAIT_MS);
-    same(overdue, []);
-  });
-}
-
 // v60.26 (cross-screen, live 2026-11-18): the four earnings cells are decided in the domain and agree with the brief.
 {
   const { earningsCells, earningsCellLines } = await import('../src/domain/briefing/reaction-read.js');
@@ -746,8 +740,26 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   });
 }
 
-if (failures.length) {
-  console.error(`[event-briefs] ${failures.length} failure(s):\n- ${failures.join('\n- ')}`);
-  process.exit(1);
-}
-console.log('[event-briefs] ok');
+report();
+console.log('[event-briefs] ok: fixtures');
+}, 'code'],
+// v60.18 artifact gate: the published file holds no calendar-only brief still saying "정리 중" past the wait, measured at its
+// own generatedAt. A file written before the bound existed (no provisionalWaitMs) is reported, not failed: the next
+// 20-minute event-briefs run rewrites it under the bound.
+['published-artifact', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { overdueProvisional, PROVISIONAL_SUMMARY_WAIT_MS } = await import('../src/domain/briefing/event-briefs.js');
+  const published = JSON.parse(readFileSync(resolve(root, 'public-data/event-briefs.json'), 'utf8'));
+  const at = Date.parse(published.generatedAt);
+  const overdue = (published.briefs || []).filter((brief) => overdueProvisional(brief, at))
+    .map((brief) => `${brief.id} ${Math.round((at - Date.parse(brief.publishedAt)) / 3600000)}h`);
+  if (published.provisionalWaitMs == null) {
+    if (overdue.length) console.warn(`[event-briefs] artifact predates the v60.18 placeholder bound; ${overdue.length} overdue placeholder(s) close on the next run: ${overdue.join(', ')}`);
+  } else check('v60.18 the published artifact holds no placeholder older than the wait', () => {
+    eq(published.provisionalWaitMs, PROVISIONAL_SUMMARY_WAIT_MS);
+    same(overdue, []);
+  });
+  report();
+  console.log('[event-briefs] ok: published artifact');
+}, 'data'],
+]);

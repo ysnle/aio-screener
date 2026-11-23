@@ -46,7 +46,6 @@ export function macd(closes, fast = 12, slow = 26, signal = 9) {
     macd: last, signal: sig, hist: last - sig, prevHist: prevMacd - prevSig,
     macdLine: cleanMacd,
     signalLine: signalClean.filter((v) => v !== null),
-    // v51.88 P579: the signal warm-up is null, and isFinite(null) is true — it is checked explicitly.
     histogram: cleanMacd.map((v, idx) => { const s = signalClean[idx - (cleanMacd.length - signalClean.length)]; return s !== null && Number.isFinite(s) ? v - s : null; }).filter((v) => v !== null)
   };
 }
@@ -117,7 +116,6 @@ export function vcpOf(bars) {
   return v ? { ok: true, ...v } : none;
 }
 
-// v51.69: regular and hidden RSI divergence on the last 50 bars (pivot span 4).
 export function priceRsiDivergence(bars) {
   if (!bars || bars.length < 60) return null;
   const closes = bars.map((b) => b.close);
@@ -168,7 +166,6 @@ export function priceRsiDivergence(bars) {
 const round2 = (v) => Math.round(v * 100) / 100;
 const pct1 = (v) => Math.round(v * 1000) / 10;
 
-// v51.69: Fibonacci retracement/extension from the swing high and low of the last 160 bars.
 export function fibonacciLevels(bars) {
   if (!bars || bars.length < 60) return null;
   const slice = bars.slice(Math.max(0, bars.length - 160));
@@ -189,7 +186,6 @@ export function fibonacciLevels(bars) {
   };
 }
 
-// v51.69: volume profile over the last 160 bars in 24 bins — point of control and the 70% value area.
 export function volumeProfile(bars) {
   if (!bars || bars.length < 30) return null;
   const BINS = 24, LOOK = 160;
@@ -227,8 +223,6 @@ export function volumeProfile(bars) {
   };
 }
 
-// v51.69 → v51.88 P577/R267: daily bars grouped in fives from the newest bar back, so the last week always holds the
-// latest session; a partial oldest chunk is dropped once four weeks exist.
 export function weeklyContext(bars) {
   if (!bars || bars.length < 10) return null;
   const WEEK = 5;

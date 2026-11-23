@@ -10,7 +10,7 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateBrowserEvidence, evidenceDigest } from './lib/browser-evidence.mjs';
 import { failureCauseLines } from './lib/qa-failure-cause.mjs';
-import { failureBlocks, qaOrigin, runsInDataRun } from './lib/qa-live-data.mjs';
+import { DATA_RUN_ENV, failureBlocks, qaOrigin, runsInDataRun } from './lib/qa-live-data.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = process.env.AIO_QA_MANIFEST_PATH ? resolve(process.env.AIO_QA_MANIFEST_PATH) : join(root, 'architecture', 'qa-pipeline.json');
@@ -113,8 +113,9 @@ const listOnly = has('--list');
 const keepGoing = has('--keep-going') && process.env.CI !== 'true';
 if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
-// v60.46: a data run (producer pre-push, reduced-scope CI of a data-only commit) skips gates declared inputClass "code"
-// (scripts/lib/qa-live-data.mjs). The data-commit profile is only ever a producer's pre-push run.
+// v60.50: a data run (producer pre-push, reduced-scope CI of a data-only commit) runs only gates declared inputClass "data",
+// and each of them skips its `code` sections (scripts/lib/qa-live-data.mjs, gate-sections.mjs). The data-commit profile is
+// only ever a producer's pre-push run.
 const dataRun = has('--data-run') || profile === 'data-commit';
 // v59.70 (I8): a ci.yml contract shard reports live-content gate failures instead of failing on them.
 const origin = qaOrigin();
@@ -471,7 +472,7 @@ if (requestedGateIds || changedGateIds.length) {
 const dataRunSkipped = dataRun ? selectedGates.filter((gate) => !runsInDataRun(gate)).map((gate) => gate.id) : [];
 if (dataRun) {
   selectedGates = selectedGates.filter(runsInDataRun);
-  console.error(`[qa] data run: ${dataRunSkipped.length} code gate(s) skipped (full push CI tests them on the code this data ships on), ${selectedGates.length} data/mixed gate(s) run`);
+  console.error(`[qa] data run: ${dataRunSkipped.length} code gate(s) skipped (full push CI tests them on the code this data ships on), ${selectedGates.length} data gate(s) run, code sections skipped inside them`);
 }
 selectedGroups = [...new Set(selectedGates.map((gate) => gate.group))];
 if (requestedGateIds) {
@@ -544,7 +545,8 @@ function importClosure(entry) {
 
 function gateFingerprint(gate) {
   const hash = createHash('sha256');
-  hash.update(JSON.stringify({ cacheVersion: manifest.cacheVersion, id: gate.id, script: gate.script, args: gate.args || [], env: gate.env || {}, platform: process.platform, node: process.versions.node.split('.')[0] }));
+  // A data-run PASS skipped the gate's code sections, so it is never reused as a full PASS (or the other way round).
+  hash.update(JSON.stringify({ cacheVersion: manifest.cacheVersion, id: gate.id, script: gate.script, args: gate.args || [], env: gate.env || {}, dataRun, platform: process.platform, node: process.versions.node.split('.')[0] }));
   hash.update(`\0${gate.script}\0`);
   try { hash.update(readFileSync(join(root, gate.script))); } catch { hash.update('MISSING'); }
   hash.update(inputFingerprint(gate.inputs));
@@ -756,7 +758,7 @@ function runGate(gate) {
     const evidencePath = join(runsDir, runId, gateFileStem(gate.id), 'evidence.json');
     // AIO_QA_NO_CACHE tells gates with their own internal caches (ci-syntax-check) to bypass them too.
     const childEnv = { ...process.env, ...(gate.env || {}), AIO_QA_RUN_ID: runId, ...(noCache ? { AIO_QA_NO_CACHE: '1' } : {}),
-      ...(gate.evidence ? { AIO_QA_EVIDENCE_PATH: evidencePath } : {}) };
+      ...(gate.evidence ? { AIO_QA_EVIDENCE_PATH: evidencePath } : {}), [DATA_RUN_ENV]: dataRun ? '1' : '' };
     const secrets = collectSecretValues(childEnv);
     const fileStem = gateFileStem(gate.id);
     const rawPaths = {

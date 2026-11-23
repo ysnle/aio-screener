@@ -43,7 +43,6 @@ function observationDateLabel(observation) {
   return `관측 ${observedAt}`;
 }
 
-
 function currentObservationMatches(observation, page, context = {}) {
   if (!observation || !Array.isArray(observation.pageTargets) || !observation.pageTargets.includes(page)) return false;
   const requestedIds = [
@@ -56,10 +55,6 @@ function currentObservationMatches(observation, page, context = {}) {
   return requestedIds.some((id) => observation.nodeIds.includes(id));
 }
 
-// P1636: the research pages showed the 2026-08 snapshot (S&P 500 7,785, June CPI) two months later
-// while the same site already held newer closes and releases. Rows whose value the site refreshes
-// automatically are replaced at render from the current history/macro; dated company-IR targets and
-// FOMC projections stay as dated references.
 const LIVE_ROWS = [
   [/^market-spx-/, 'spx', 'S&P 500 종가'],
   [/^market-vix-/, 'vix', 'VIX 종가']
@@ -82,8 +77,6 @@ export function liveCurrentObservations(artifact, root) {
     BLS: { source: '미 노동통계국(BLS) 소비자물가지수', sourceId: 'bls-cpi', sourceUrl: 'https://www.bls.gov/cpi/' }
   };
   const live = (row, value, observedAt, displayValue, sourceKind = 'MARKET_DATA', lineage = SOURCES.MARKET_DATA) => value == null || !observedAt ? row : { ...row, ...lineage, value, displayValue, observedAt, eventDate: null, sourceKind, allowedUse: 'current-context', live: true };
-  // v58.77 (pipeline audit KNOW-01): the server keeps a failed read's last-known-good value with allowedUse reference-only
-  // (src/data/server-macro.js); that value keeps its date and stays a reference here, never an auto-updated current value.
   const macroLive = (row, key, value, observedAt, displayValue, lineage) => {
     const out = live(row, value, observedAt, displayValue, 'OFFICIAL_STATISTICS', lineage);
     return out !== row && snapshot[`_${key}_src`] === 'last-known-good' ? { ...out, allowedUse: 'reference-only', live: false } : out;

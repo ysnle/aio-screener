@@ -1,6 +1,3 @@
-// 2026-10-19 cadence redesign: view model for the briefing's 시간대별 시황 (data.json `marketTimeline`, producer
-// scripts/lib/market-timeline.mjs). Slots end at 06:00 · 12:00 · 18:00 · 24:00 KST and are sealed once; the screen lists
-// the in-progress slot first, then the sealed ones newest first grouped by KST day, so a missed slot stays readable.
 const HOUR = 3600000;
 const SLOT_MS = 6 * HOUR;
 const KST_OFFSET_MS = 9 * HOUR;
@@ -13,7 +10,6 @@ const monthDay = (date) => `${+date.slice(5, 7)}/${+date.slice(8, 10)}`;
 export const latestSlotEnd = (ms) => Math.floor((ms - 3 * HOUR) / SLOT_MS) * SLOT_MS + 3 * HOUR;
 
 export function formatSlotMove(move) {
-  // v59.45 (PASS17 candidate): Number(null) is 0 — a missing change is no move, not a flat '0.00%'.
   const raw = move?.change;
   const change = raw == null || raw === '' || typeof raw === 'boolean' ? NaN : Number(raw);
   if (!Number.isFinite(change)) return null;

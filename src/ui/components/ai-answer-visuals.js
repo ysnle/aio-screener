@@ -5,7 +5,8 @@
 import { escapeHtml as esc } from '../html.js';
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
 import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
-import { requestFiscalHistory, parseFiscalHistory } from './fiscal-read.js';
+import { requestFiscalHistory } from './fiscal-read.js';
+import { parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { themePlaybookForRoot } from './theme-playbook.js';
 import { readMarketRegime } from '../../data/selectors/interpretation.js';

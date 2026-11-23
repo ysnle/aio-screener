@@ -10,7 +10,7 @@ const { default: fs } = await import('node:fs');
 const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 const { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } = await import('../src/data/contracts/operations.js');
-const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, derivePublicAiConfig, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
+const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
 // v60.25: a later market refresh cannot renew the independent SEC observation.
 const secObserved = '2026-11-16T22:36:15.988Z';
 const secReceipt = { lastSuccessfulObservation: secObserved };
@@ -38,13 +38,12 @@ const builderStatusLiterals = [...read('scripts/build-operations-status.mjs').ma
   .flatMap((match) => [...match[1].matchAll(/'([A-Z_]+)'/g)].map((literal) => literal[1]))
   .filter((literal) => !OPERATIONS_STATUS.includes(literal) && !['PASS', 'MATCH'].includes(literal));
 if (builderStatusLiterals.length) throw new Error(`[operations-status] v57.54 builder publishes undeclared status: ${[...new Set(builderStatusLiterals)].join(',')}`);
-// P1271: a healthy endpoint without rights/soak remains disabled in public-config
-// and must not become an AVAILABLE quote feature in operations-status.
+// P1271: a healthy endpoint without rights/soak must not become an AVAILABLE quote feature in operations-status.
+// v60.50: whether the browser reads the plane is the operator's promotion in public-config.json (ci-fast-plane-consumer-gate).
 const healthyUncertified = deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: false, soakObservedDays: 0 });
 if (healthyUncertified.availability !== 'UNAVAILABLE' || healthyUncertified.missingReason !== 'fast-quote-provider-rights-not-reviewed') throw new Error('[operations-status] uncertified fast quotes were promoted');
 if (deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: true, soakObservedDays: 6 }).availability !== 'UNAVAILABLE') throw new Error('[operations-status] incomplete fast quote soak was promoted');
 if (deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: true, soakObservedDays: 7 }).availability !== 'AVAILABLE') throw new Error('[operations-status] certified healthy fast quotes were blocked');
-if (status.featureAvailability?.quotes?.availability === 'AVAILABLE' && JSON.parse(read('public-config.json')).marketData?.fastQuotes?.enabled !== true) throw new Error('[operations-status] published quote availability contradicts disabled public route');
 const durableQuotes = Array.from({ length: 16 }, (_, index) => ({ instrumentId: `Q${index}`, quality: 'CURRENT', session: 'CURRENT_SESSION' }));
 const durableSnapshot = {
   status: 'published',
@@ -93,58 +92,6 @@ const freshLkg = reuseWorkerHealthEvidence(lkgFixture, '2026-08-25T12:00:00.000Z
 const staleLkg = reuseWorkerHealthEvidence(lkgFixture, '2026-08-27T00:00:00.000Z');
 if (freshLkg.observationAttempted !== false || freshLkg.evidenceSource !== 'last-observed-live-health' || !freshLkg.proxyEvidenceFresh || !freshLkg.fastEvidenceFresh) throw new Error('[operations-status] fresh last-observed health is not safely reusable');
 if (staleLkg.proxyEvidenceFresh || staleLkg.fastEvidenceFresh) throw new Error('[operations-status] stale last-observed health was promoted to current');
-const publishedConfig = derivePublicAiConfig({}, {
-  appRevision: 'v-test',
-  workerEndpoint: 'https://proxy.example.test/',
-  proxyHealthy: true,
-  proxyEvidence: {
-    proxyHealthStatus: 200,
-    proxyAiProvider: 'openai',
-    proxyAiModel: 'gpt-6-luna',
-    proxyHealthObserved: '2026-08-27T00:00:00.000Z',
-    proxyObservationStatus: 'SUCCESS',
-    proxyEvidenceSource: 'periodic-live-health'
-  },
-  now: '2026-08-27T00:01:00.000Z'
-});
-if (publishedConfig.appRevision !== 'v-test' || publishedConfig.ai.workerUrl !== 'https://proxy.example.test' || publishedConfig.ai.routeStatus !== 'PUBLISHED' || publishedConfig.ai.routeEvidence.status !== 'CURRENT') throw new Error('[operations-status] healthy Worker evidence did not publish a normalized public route');
-const disabledConfig = derivePublicAiConfig(publishedConfig, {
-  appRevision: 'v-test',
-  workerEndpoint: 'https://proxy.example.test/',
-  proxyHealthy: false,
-  proxyEvidence: {
-    proxyHealthObserved: '2026-08-27T00:02:00.000Z',
-    proxyObservationStatus: 'FAILED',
-    proxyEvidenceSource: 'periodic-live-health'
-  },
-  now: '2026-08-27T00:02:00.000Z'
-});
-if (disabledConfig.ai.workerUrl !== 'https://proxy.example.test' || disabledConfig.ai.serverMode !== 'shared-worker-only' || disabledConfig.ai.chatPolicy !== 'shared-worker-only' || disabledConfig.ai.routeStatus !== 'DISABLED' || disabledConfig.ai.routeReason !== 'WORKER_HEALTH_UNAVAILABLE' || disabledConfig.ai.routeEvidence.status !== 'OPERATOR_REQUIRED') throw new Error('[P1421 operations-status] failed Worker observation must hold AI while retaining its configured endpoint');
-// P1421: an old healthy Anthropic deployment must never publish the new Luna route.
-for (const evidence of [{ proxyAiProvider: 'anthropic', proxyAiModel: 'claude-haiku-4-5' }, { proxyAiProvider: 'openai', proxyAiModel: 'gpt-6-sol' }, {}]) {
-  const incompatible = derivePublicAiConfig({}, {
-    workerEndpoint: 'https://proxy.example.test/', proxyHealthy: true,
-    proxyEvidence: { proxyHealthStatus: 200, proxyEvidenceFresh: true, proxyObservationStatus: 'SUCCESS', ...evidence },
-    now: '2026-08-27T00:00:00.000Z',
-  });
-  if (incompatible.ai.workerUrl !== 'https://proxy.example.test' || incompatible.ai.routeStatus !== 'DISABLED' || incompatible.ai.chatPolicy !== 'shared-worker-only') throw new Error('[operations-status] P1421 incompatible provider escaped the shared Luna policy');
-}
-const staleConfig = derivePublicAiConfig({}, {
-  appRevision: 'v-test',
-  workerEndpoint: 'https://proxy.example.test/',
-  proxyHealthy: false,
-  proxyEvidence: { proxyHealthStatus: 200, proxyEvidenceFresh: false, proxyObservationStatus: 'NOT_ATTEMPTED', proxyHealthObserved: '2026-08-25T00:00:00.000Z' },
-  now: '2026-08-27T00:00:00.000Z'
-});
-if (staleConfig.ai.workerUrl !== 'https://proxy.example.test' || staleConfig.ai.routeStatus !== 'DISABLED' || staleConfig.ai.routeReason !== 'WORKER_HEALTH_STALE') throw new Error('[P1421 operations-status] stale Worker evidence did not hold AI at the configured endpoint');
-const invalidEndpointConfig = derivePublicAiConfig({}, {
-  appRevision: 'v-test',
-  workerEndpoint: 'http://proxy.example.test/',
-  proxyHealthy: true,
-  proxyEvidence: { proxyHealthStatus: 200, proxyEvidenceFresh: true, proxyObservationStatus: 'SUCCESS' },
-  now: '2026-08-27T00:00:00.000Z'
-});
-if (invalidEndpointConfig.ai.workerUrl !== null || invalidEndpointConfig.ai.routeReason !== 'WORKER_ENDPOINT_INVALID') throw new Error('[operations-status] non-HTTPS Worker endpoint was published');
 if (status.planes.fast.status !== 'OPERATOR_REQUIRED' && status.planes.fast.status !== 'CURRENT') throw new Error('[operations-status] fast plane status is not explicit');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(status.planes.fast.endpoint || ''))) throw new Error('[operations-status] fast plane endpoint is missing or includes a path suffix');
 
@@ -215,7 +162,7 @@ if (!receiptValidation.ok) throw new Error(`[operations-status] domain receipt s
 if (!withReceipts.domainReceipts['market-quotes'] || withReceipts.domainReceipts['market-quotes'].publicationStatus !== 'NO_REFRESH_RETAINED') throw new Error('[operations-status] the domain receipt surface must survive contract normalization');
 
 console.log(JSON.stringify({ ok: true, overall: status.overall, durable: status.planes.durable.status, fast: status.planes.fast.status, blockers: status.blockers, domainReceiptFixtures: 4 }));
-}],
+}, 'data'],
 // ── section operator-readiness (was ci-operator-readiness-check.mjs) ──
 ['operator-readiness', async () => {
 const { default: fs } = await import('node:fs');
@@ -255,5 +202,5 @@ for (const marker of ['X-Content-Type-Options', 'X-Frame-Options', 'Permissions-
 }
 if (readiness.publicBetaDecision !== 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE') fail('public beta must remain blocked until operator criteria close');
 console.log(JSON.stringify({ ok: true, durable: operations.planes.durable.status, fast: operations.planes.fast.status, unresolvedCategories: unresolved.length, publicBetaDecision: readiness.publicBetaDecision }));
-}],
+}, 'data'],
 ]);

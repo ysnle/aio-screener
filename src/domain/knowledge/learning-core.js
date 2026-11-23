@@ -1,12 +1,3 @@
-// P1473 (knowledge review 2026-10-04, 1차·2차): analysis frames written as research notes (owner
-// direction: professional register — no quiz, simulation or course-style wording). Each frame is
-// complete on its own — the issue, the key point with a labelled structure diagram, the mechanism with
-// a small worked calculation, the condition under which the same cause gives the opposite result, where it
-// lands in a company's numbers, and the indicator to check with the screen that shows it. Industries
-// are read with one template (what is made · who pays · cost and capital · what moves profit) so they
-// can be compared. Sources are attached only where they directly support the lesson's claim.
-// Pure data; the studio renderer lives in src/ui/knowledge/learning-studio.js.
-
 import { PACKET_20261011_LESSONS, PACKET_20261011_FRAMES } from '../research/packet-20261011.js';
 import { PACKET_20261014_LESSONS, PACKET_20261014_FRAMES } from '../research/packet-20261014.js';
 import { PACKET_20261015_LESSONS, PACKET_20261015_FRAMES } from '../research/packet-20261015.js';
@@ -22,8 +13,6 @@ import { MARKET_INDICATOR_NOTES } from './market-indicator-notes.js';
 import { AI_CAPITAL_FLOWS_NOTE } from './ai-capital-flows-note.js';
 const L = (lesson) => Object.freeze(lesson);
 
-// P1592 (F62): each column chapter links to the analysis notes that answer its own question — every
-// chapter used to show the same four notes. Keys are narrative-journey chapter ids.
 export const COLUMN_FRAME_LINKS = Object.freeze({
   'money-is-choice': ['real-relative', 'geo-mean', 'macro-reading'],
   'inflation-purchasing-power': ['macro-reading', 'real-relative', 'elasticity', 'agri'],
@@ -248,9 +237,6 @@ export const LESSONS = Object.freeze([
     reverse: "다만 새 돈이 대량으로 들어오면 그 돈은 현재 비중대로 나뉜다. 큰 종목이 더 커지는 흐름은 비중 변화가 아니라 자금 유입에서 생긴다. 쏠림이 늘 과열인 것도 아니다. 지수를 끄는 대형주의 선행 PER이 주가가 오르는 동안 내려와 시장 평균에 다가갔다면 이익이 주가보다 앞서 달린 쏠림이다.",
     channels: ['현금'], indicators: [{ label: '시장 폭(지수를 소수 종목이 끄는지)', route: 'breadth', routeLabel: '시장 폭' }],
     concepts: ['correlation'] }),
-  // P1502 (owner materials 2026-10-06): three notes built from the supplied columns — growth durability and
-  // the multiple, the collateral channel from bond volatility to equities, and who gains first from crisis
-  // response. Each column's claim is kept as a column note and tested against its counter-case.
   L({ id: 'multiple-durability', path: 'market', title: '성장률보다 성장의 지속', issue: '성장률보다 성장의 지속에 붙는 주가배수',
     answer: "내년 이익이 두 배로 뛴다는 회사보다 해마다 30%씩 자라는 회사의 주가배수가 더 높은 경우가 있다. 숫자만 보면 앞뒤가 맞지 않는다. 시장이 사는 것은 내년 한 해의 성장률이 아니라, 그 성장이 얼마나 오래, 얼마나 확실하게 이어지느냐다.",
     figure: { kind: 'flow', steps: ['이익 성장률', '성장이 이어질 기간에 대한 믿음', '불확실성의 감소', '주가배수(PER)'] },
@@ -264,8 +250,6 @@ export const LESSONS = Object.freeze([
     channels: ['매출', '현금'], indicators: [{ label: '분기 매출의 전년 같은 분기 대비 성장률과 그 추세', route: 'fundamental', routeLabel: '재무 공시' }, { label: '주가 추세와 지수 대비', route: 'ticker', routeLabel: '종목 개요' }],
     concepts: ['present-value', 'competition-moat', 'base-rate', 'expected-value'],
     columnNote: '칼럼의 “주가 = EPS 성장률 × 지속기간에 대한 믿음 × 불확실성의 감소”는 곱셈 공식이 아니라 배수가 정해지는 요소를 묶은 관점입니다. 지속 기간은 사후에야 확인되므로, 분기 성장률의 추세와 수주·계약 같은 선행 근거로 믿음의 근거를 따로 확인해야 합니다.' }),
-  // P1507 (owner materials 2026-10-07): valuation of a cyclical index, the hiking-cycle case, and what happens after a
-  // stock is picked (entry location, rotation, averaging down, cash). Column claims are kept as column notes.
   L({ id: 'valuation-cycle', path: 'market', title: '싼데 오르지 않는 시장', issue: '낮은 PER과 넓은 일드갭이 상승으로 이어지지 않는 이유 — 이익 정점 의심',
     answer: "지수의 선행 PER이 5년 평균의 절반 가까이 내려왔다. 예상 이익수익률은 국채 금리보다 10%p 넘게 높다. 숫자만 보면 역사적으로 싼 자리인데, 지수는 몇 달째 제자리다. 시장은 싸다는 걸 몰라서가 아니라, 그 이익이 내년에도 남아 있을지를 의심하고 있다.",
     figure: { kind: 'flow', steps: ['선행 이익 급증', '선행 PER 하락', '이익 정점 의심', '배수 추가 하락', '이익 유지 확인 시 재평가'] },
@@ -489,8 +473,6 @@ export const PATHS = Object.freeze([
 // Issues surfaced first (the frames most often needed to read the other screens).
 export const KEY_ISSUES = Object.freeze(['long-bond', 'capex-roic', 'memory-optics', 'fx-exporters', 'insurance', 'geo-mean']);
 
-// The column (the owner's essay) keeps its voice; these are the perspectives it contributes and the
-// expressions that are corrected before they become lessons.
 export const COLUMN_FRAME = Object.freeze({
   flow: '구매력 → 신용과 금리 → 국채와 달러 → AI의 물리적 병목 → 투자 판단',
   quotes: Object.freeze([
@@ -510,8 +492,6 @@ export const COLUMN_FRAME = Object.freeze({
 
 export const lessonById = (id) => LESSONS.find((lesson) => lesson.id === id) || null;
 
-// Codex review 2026-10-05: the connection column named the same five words (매출·단가·비용·투자·현금)
-// on every note. Each note now names the variables a reader actually checks for that question.
 export const FRAME_VARIABLES = Object.freeze({
   ...Object.fromEntries(PACKET_20261011_FRAMES.map((frame) => [frame.id, frame.variables])),
   ...Object.fromEntries(PACKET_20261014_FRAMES.map((frame) => [frame.id, frame.variables])),

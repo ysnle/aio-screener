@@ -1,21 +1,6 @@
 import { readNumber as finite } from '../../shared/number.js';
-// P1416 (owner request 2026-10-03, open-source comparison): participation signals beyond the
-// moving-average ratios. Definitions follow their public sources, checked against the
-// xang1234/stock-screener breadth formulas (revision 3, Apache-2.0) — reimplemented here, not copied:
-//   · 4% movers (StockBee): adjusted daily return ≥ +4% / ≤ -4% on volume above the prior session
-//     and at least 100,000 shares.
-//   · 52-week new high / low: the split/dividend-adjusted high (low) exceeds the highest high
-//     (lowest low) of the prior sessions. A one-year download holds about 251 sessions, so a session
-//     needs at least NEW_HIGH_LOW_MIN_PRIOR prior sessions; earlier sessions stay unknown.
-//   · % above the 40-day average (Worden's T2108 family).
-//   · Distribution day (O'Neil/IBD): the index closes down ≥ 0.2% on volume above the prior
-//     session; the count covers the latest 25 sessions.
-// Every count carries its own eligible denominator; a missing input is unknown, never a zero.
 
 export const BREADTH_SIGNAL_MODEL_VERSION = 'breadth-signals.v3';
-// v58.68 (owner 2026-10-23): a 52-week low missed the sell-off the owner saw — on 10/22 30 of ~900 names made a
-// 52-week closing low but 189 a 20-session one (semis 41 of 65). Recent closing lows (adjusted close below every
-// close of the prior 20 / 63 sessions, all finite) are counted beside the 52-week count.
 export const RECENT_LOW_WINDOWS = Object.freeze([20, 63]);
 export const MOVER_THRESHOLD = 0.04;
 export const MOVER_MIN_VOLUME = 100000;
@@ -23,9 +8,7 @@ export const NEW_HIGH_LOW_MIN_PRIOR = 240;
 export const NEW_HIGH_LOW_WINDOW = 251;
 export const DISTRIBUTION_DROP = -0.002;
 export const DISTRIBUTION_WINDOW = 25;
-// Audit 2026-10-17 (owner D8): IBD retires a distribution day once the index closes this share above that day's close.
 export const DISTRIBUTION_RALLY_EXPIRY = 0.05;
-
 
 /**
  * Per-session signals for one symbol.

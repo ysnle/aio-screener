@@ -4,11 +4,6 @@ import { resolveMarketCalendarSession } from '../market/session/market-calendar.
 
 const DAY_MS = 86400000;
 
-// A deadline on a weekend or holiday rolls to the next business day (Exchange Act Rule 0-3). SEC closes on
-// federal holidays; the registered NYSE calendar is used. The two differ by Good Friday (NYSE only), Columbus Day and
-// Veterans Day (federal only), none of which can fall on or just after a 13F deadline (May 15, Aug 14, Nov 14,
-// Feb 14/15), so the rolled date is the same. Presidents' Day (third Monday of February) is the holiday that moves
-// one: Feb 14, 2026 (Saturday) is due Tuesday Feb 17. A year the calendar does not register rolls over weekends only.
 function nextBusinessDay(ms) {
   let due = ms;
   for (let step = 0; step < 7; step += 1) {

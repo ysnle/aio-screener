@@ -885,7 +885,7 @@ const perfP95 = perfSamples[Math.floor(perfSamples.length * 0.95)];
 if (perfP95 > PERF_SCREENER_DISPATCH_P95_BUDGET_MS) fail(`RM-02 performance budget exceeded: ${perfRows.length}-row screener dispatch+notify p95=${perfP95.toFixed(3)}ms > ${PERF_SCREENER_DISPATCH_P95_BUDGET_MS}ms`);
 
 console.log(JSON.stringify({ ok: true, routes: golden.routes.length, firstVerticalSlice: golden.firstVerticalSlice, baseline, current, perfScreenerDispatchP95Ms: Number(perfP95.toFixed(3)) }));
-}],
+}, 'code'],
 // ── section baseline (was ci-baseline-contract-check.mjs) ──
 ['baseline', async () => {
 const { readFile } = await import('node:fs/promises');
@@ -900,7 +900,7 @@ if (!['local', 'release', 'live'].every(lane => graph.revisionLanes.includes(lan
 if (!Object.values(graph.dependencies || {}).every(dep => dep.kind === 'external-gate' || dep.source)) errors.push('dependency graph contains an undeclared dependency');
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log(`Baseline contract check OK: ${routes.length} supported routes, graph dependencies and local/release/live lanes are explicit.`);
-}],
+}, 'code'],
 // ── section vertical-slice (was ci-vertical-slice-contract-check.mjs) ──
 ['vertical-slice', async () => {
 const { readFileSync } = await import('node:fs');
@@ -941,7 +941,7 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const completeness = read('src/data/page-completeness.js');
 if (!core.includes('AIO_PAGE_CONTRACTS') || !completeness.includes('AIO.getPageDataCompleteness') || !completeness.includes('blocked') || !completeness.includes('stale-reference')) fail('page completeness contract is not wired to the slice gate');
 console.log(JSON.stringify({ ok: true, slices: VERTICAL_SLICE_CONTRACTS.map((slice) => ({ id: slice.id, routes: slice.routes, requiredData: slice.requiredData })), routes: ROUTE_IDS.length }));
-}],
+}, 'code'],
 // ── section import-resolution (v59.88, ADR-0003 S7) ──
 // Every relative import in src/ and worker/, static or a string-literal import(), names a file that exists. esbuild
 // leaves an unresolvable import() in the bundle as written, so the browser asks for a missing URL and the .catch()
@@ -969,5 +969,5 @@ for (const dir of ['src', 'worker']) {
 }
 if (missing.length) throw new Error(`[import-resolution] ${missing.length} relative import(s) name no file: ${missing.slice(0, 12).join('; ')}`);
 console.log(JSON.stringify({ ok: true, section: 'import-resolution', checked }));
-}],
+}, 'code'],
 ]);

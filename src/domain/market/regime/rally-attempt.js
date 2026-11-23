@@ -1,11 +1,3 @@
-// v59.57 (X bookmarks 11/02 — damipov "바닥 신호 FTD", shmath8218 "쉬는 것도 매매다", laylaperfume's two scenarios): the
-// index follow-through day. AIO counted O'Neil's distribution days (selling under volume) but not the other half of the
-// same method: after a correction, the lowest close is day 1 of a rally attempt; the count runs while no later close
-// undercuts it; from day 4 a session up 1.25% or more on volume above the prior session is the follow-through day
-// (the method reads it as institutions buying again; price and total volume cannot show who bought); a later close below the day-1 close fails it. The bookmarked read added the part that
-// decides whether it matters — leaders breaking out to new highs within days to three weeks after it — which the screen
-// pairs with the S&P 500 new-high count AIO already records. Thresholds: RULES.rallyAttempt. Pure.
-
 import { RULES } from '../../rules/thresholds.js';
 import { finiteNumber as finite, readNumber } from '../../shared/number.js';
 
@@ -85,8 +77,11 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const failedEarlier = lastFtd >= 0 && before.slice(lastFtd).every((row) => Number(row.rallyPhase) !== RALLY_PHASE.none);
   if (phase === RALLY_PHASE.attempt) {
     const toGo = Math.max(0, rules.minDay - day);
-    const state = `반등 시도 ${day}일째`;
-    const plain = toGo > 0
+    const firstDay = day === 1;
+    const state = firstDay ? `${md(lowDate)} 새 저점 — 여기서 1일째` : `반등 시도 ${day}일째`;
+    const plain = firstDay
+      ? `${lowText}을 새로 낸 날이라 여기서 1일째로 셉니다. 반등은 아직 없습니다. ${rules.minDay}일째부터 나스닥이 하루 ${rules.gainPct}% 이상 오르면서 거래량이 전날보다 많으면 바닥 확인일(FTD)입니다 — 빠르면 ${toGo}거래일 뒤.`
+      : toGo > 0
       ? `1일째는 ${lowText}입니다. ${rules.minDay}일째부터 나스닥이 하루 ${rules.gainPct}% 이상 오르면서 거래량이 전날보다 많으면 바닥 확인일(FTD)입니다 — 빠르면 ${toGo}거래일 뒤.`
       : `1일째는 ${lowText}입니다. 아직 하루 ${rules.gainPct}% 이상 오르면서 거래량이 늘어난 날(바닥 확인일)이 없습니다.`;
     const highsNow = readNumber(last.breadthNewHighs);

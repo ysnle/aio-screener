@@ -1,11 +1,6 @@
 import { readBodyText } from '../platform/http.js';
 
 const storesByFetch = new WeakMap();
-// v57.77 perf: callers passed `root.fetch.bind(root)`, a new function on every call, so an identity-keyed store was
-// always empty and `maxAgeMs` never applied. v57.77 shared one store per bound *name*; v58.64 (architecture audit M1):
-// a name cannot tell two transports or test roots apart (both read 'bound fetch'), and pages that passed the unbound
-// root.fetch kept a second store that a forced refresh never cleared. stableFetcher(root) hands out one bound fetch
-// per root, so the store is keyed by an identity that really is the owner.
 const fetchersByRoot = new WeakMap();
 export function stableFetcher(root = globalThis) {
   const owner = root && typeof root.fetch === 'function' ? root : globalThis;
@@ -18,7 +13,6 @@ export function stableFetcher(root = globalThis) {
   return bound;
 }
 
-// A timer that runs this much after its due time was held by a busy page (P2108).
 const LATE_TIMER_MS = 1000;
 
 function createAbortError() {
@@ -45,8 +39,6 @@ async function sha256Hex(value) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// v58.80 (first-users run-3): the body is read through readBodyText, so a slow but moving download is not cut by the
-// request timeout (the 1 MB SEC summary never finished on 3G); only `stallMs` of silence ends it.
 async function decodeResponse(response, { requestUrl, integrity, maxBytes, stallMs, onStall } = {}) {
   const streamed = typeof response?.body?.getReader === 'function';
   if (!integrity && !Number.isFinite(maxBytes)) return streamed ? JSON.parse(await readBodyText(response, { stallMs, onStall })) : response.json();
@@ -124,8 +116,6 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
   let fail = null;
   const timeoutPromise = new Promise((_, reject) => {
     fail = (reason) => { controller.abort(); reject(new Error(`${reason}: ${key}`)); };
-    // P2108: a deadline that fires late means the page was busy (a long task), not that the network was slow, and the
-    // response may be queued behind it; give it a short grace instead of aborting a request that already arrived.
     const arm = (ms) => {
       const due = Date.now() + ms;
       entry.timer = setTimeout(() => (Date.now() - due > LATE_TIMER_MS ? arm(LATE_TIMER_MS) : fail(`Artifact timeout after ${timeout}ms`)), ms);
@@ -166,7 +156,6 @@ export function loadJsonArtifact(fetchFn, url, { signal, maxAgeMs = 15 * 60 * 10
 export function clearArtifactCache(fetchFn, { abortInFlight = true } = {}) {
   if (typeof fetchFn === 'function') {
     const store = existingStoreFor(fetchFn);
-    // v57.79: a manual refresh drops held entries but lets requests already in flight finish for their callers.
     if (!abortInFlight) { store?.resolved?.clear?.(); return; }
     for (const entry of store?.inFlight?.values?.() || []) entry.controller.abort();
     storesByFetch.delete(fetchFn);

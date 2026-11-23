@@ -1,13 +1,3 @@
-// v59.57 (X bookmarks 11/02, MrMarket89 10/27 follow-up): US Treasury coupon auction results. The 10/27 schedule
-// brief read the 5-year auction (and the 2-year tail the day before) as the demand test for long rates; AIO had the
-// release calendar and a "bond auction" headline class but no auction result. TreasuryDirect's public auction query
-// (TA_WS securities/auctioned, keyless) publishes each result within minutes of the close: high yield, bid-to-cover,
-// and the competitive par awarded to indirect bidders (foreign and domestic investors bidding through dealers),
-// direct bidders and primary dealers. A tail (high yield minus the when-issued yield at the deadline) needs the
-// when-issued quote, which no free source carries — so the reading compares each auction with the same tenor's own
-// previous six instead, and says so. Nominal notes and bonds only (TIPS and FRN are other instruments).
-// Pure: TA_WS rows in, rows and sentences out.
-
 import { readNumber } from '../shared/number.js';
 import { stampDay } from '../shared/session-date.js';
 

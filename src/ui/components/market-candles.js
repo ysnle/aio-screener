@@ -1,9 +1,3 @@
-// 기술적 분석's chart cards (owner 2026-11-19: "시장 지수와 대표 종목/대장주들을 분석해서 하나하나 보여줘야"). One card part for
-// both views: 시장 지수 passes the six indexes, 대표 종목 the stocks of one group. A card with a symbol draws its daily candles
-// with the base layers the stock chart carries; an index card whose bars did not arrive (or a Korean index, which has no
-// fund) draws the published closes as a line; a stock card without bars says so in one line and draws nothing. Whatever the
-// card draws is what it reads: its verdict, facts and raw table come from market-charts.js barsChartReading over those same
-// bars, the function and classifier the analysis slot uses when the card is opened there.
 import { drawChart, ensureChartLibrary } from './stock-chart.js';
 import { attachChartLayers, recentLogicalRange } from './stock-chart-layers.js';
 import { buildChartLayers } from '../../domain/technical/chart-layers.js';

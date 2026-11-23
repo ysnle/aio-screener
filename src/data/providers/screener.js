@@ -13,23 +13,12 @@ import { SIC_SECTOR_SOURCE, sectorFromSic } from '../../domain/fundamental/sic-s
 import { EXTENDED_SHARD_URL, RANKING_CONTRACTS, expandScreenerArtifact, expandShardRows, isValidShard, normalizeUniverseScope, rowMembership, shardIdentityRows } from '../screener-extended.js';
 import { artifactUrl } from '../artifact-registry.js';
 
-// P1173 (17 작업 단위 4 / O07): this consumer declares which input set it can combine. The three
-// artifacts may be refreshed on their own cadence, so equal generation dates are not required; what is
-// declared is which schema/model versions this consumer knows how to read, and that the universe size
-// the screener artifact was enriched against must be the universe that arrived with it.
 const SCREENER_PUBLICATION_POLICY = createPublicationPolicy({
   members: ['screener', 'universe', 'model-validation'],
   supportedSchemas: { universe: ['v53.4'], 'model-validation': ['model-validation.v1'] },
   comparableFields: { universeSize: ['screener', 'universe'] }
 });
 
-// P1177 (QA-SCR-01): the snapshot identity is the **observation set that arrived** (artifact + universe),
-// not the live overlay. A quote tick must not mint a new ranked snapshot, or a stored user run is
-// replaced by background price churn (the P1074 invariant). The canonical live key list lives in the
-// contract layer so the screen engine's calculation identity derives from the same source.
-// P1180/R24-04: `fieldReadiness`/`fieldObservations` are excluded as well — they re-embed live
-// values (price.close, valuation.marketCap) and time-derived statuses, so hashing them moved the
-// observation identity whenever a live mcap ticked. Derived state is not an arrived observation.
 export function snapshotIdentityRows(rows = []) {
   return rows.map((row) => {
     const identity = { ...row };
@@ -40,26 +29,11 @@ export function snapshotIdentityRows(rows = []) {
   });
 }
 
-// ARX-10/ARX-16 + SCR-OS-01: the native screener reads the published artifact and generated identity
-// universe through the platform HTTP gateway. Legacy SCREENER_DB remains only as a
-// compatibility enrichment/fallback for non-route consumers that have not yet migrated.
-// P1652: an annual filing whose period ended more than 15 months before the price session is not the company's
-// current fundamentals (WFC FY2019, NEE FY2012 were ranked as current). Its valuation and quality fields are held.
-// 2026-10-13 S01: the rule lives in the domain so the factor ranker reads the same 456-day budget.
 export { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fundamentalPeriodTooOld };
 function fundamentalHeld(factor) {
   return fundamentalPeriodTooOld(factor?.fundamentalPeriodEnd, factor?.factorSessionDate || factor?.factorObservedAt);
 }
 
-// P1318/R664: the market-cap filter accepted only a decision-grade *live* market cap, which
-// the free quote tier never supplies, so every size bucket returned 0 rows. A size bucket is a
-// reference filter, not a trading input: SEC shares outstanding × the same artifact's adjusted
-// close gives a reproducible USD reference value. Share-basis errors (XBRL scale, ADR ratio,
-// share-class mix) show up as implausible daily turnover, so those rows stay unknown instead of
-// landing in the wrong bucket. Never used as a factor or a decision input.
-// 2026-10-13 F10: the close is the merge's valuationPrice (set whenever a verified share count exists), else the
-// P/E or P/B basis close — before, only rows with positive earnings (pePrice) had one, so 41% of US rows were blank.
-// Korean rows have no share-count source and stay unknown (currency gate below).
 export const REFERENCE_MCAP_TURNOVER_BOUNDS = SEC_REFERENCE_TURNOVER_BOUNDS;
 export function referenceMarketCapFrom(factor = {}, currency = null) {
   const price = finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice);
@@ -97,7 +71,6 @@ function asOfIsFresh(asOf, now, maxAgeDays) {
   return timestamp > 0 && now >= timestamp && (now - timestamp) / 86400000 <= maxAgeDays;
 }
 
-// v59.47: the factor set is current by the US session rule; the day budget only where the calendar has no year.
 function factorSetIsFresh(asOf, now, maxAgeDays) {
   const timestamp = asOf ? new Date(asOf).getTime() : 0;
   if (!(timestamp > 0 && now >= timestamp)) return false;
@@ -212,8 +185,6 @@ function liveEnrichment(symbol, liveData) {
     priceSource: source,
     priceSourceKind: sourceKind,
     priceAllowedUse: explicitDecisionUse,
-    // v58.63 (architecture audit D6): the row keeps the envelope's own grant (an allowed-use enum); priceAllowedUse above is
-    // the boolean eligibility. The row used to read live.allowedUse / live.allowedUseCeiling, which this object never had.
     priceAllowedUseGrant: allowedUse,
     priceAllowedUseCeiling: allowedUseCeiling,
     priceQualityDecisionUse: qualityDecisionUse,
@@ -244,9 +215,6 @@ export function createScreenerProvider({
   url = artifactUrl('screener.json'),
   universeUrl = artifactUrl('screener-universe.json'),
   modelValidationUrl = artifactUrl('model-validation-status.json'),
-  // v57.81: the extended shard (Russell 2000 + Nasdaq beyond the core) is read only for the 확장 scope. Before its
-  // first load it is fetched only while allowExtendedFetch() says so (the screener route), so a remembered 확장 choice
-  // does not download it on another screen.
   extendedUrl = EXTENDED_SHARD_URL,
   readUniverseScope = () => 'core',
   allowExtendedFetch = () => true,
@@ -263,8 +231,6 @@ export function createScreenerProvider({
   let fetchGeneration = 0;
   let pendingResponses = null;
   let pendingSignal = null;
-  // P1173: the previous read's member revisions, so a set assembled across publication transitions can
-  // be recognised instead of being served as one complete observation.
   let previousPublicationSet = null;
   let extendedCache = null;
   // A live-quote tick used to rebuild every row (1,143, or about 5,000 with the 확장 shard) although only the rows
@@ -278,8 +244,6 @@ export function createScreenerProvider({
     async readCurrent({ signal, refresh = true, quotesOnly = false } = {}) {
       const checkAborted = () => { if (signal?.aborted) throw new DOMException('Screener read cancelled', 'AbortError'); };
       checkAborted();
-      // P1668: boot fires several screener syncs at once (server data, deferred startup, refresh:done);
-      // a fetch already in flight is as fresh as a new one, so share it unless its caller aborted.
       let responses = null;
       if (pendingResponses && !pendingSignal?.aborted) {
         responses = await pendingResponses;
@@ -287,8 +251,6 @@ export function createScreenerProvider({
       } else if (!refresh) responses = cachedResponses;
       if (!responses) {
         const generation = ++fetchGeneration;
-        // P1755: 'no-cache' still revalidates every read with the server, but an unchanged artifact comes
-        // back as a 304 from the HTTP cache instead of a fresh 2.6 MB download ('no-store').
         const pending = Promise.all([
           httpClient.requestJson(url, { cache: 'no-cache', signal }),
           httpClient.requestJson(universeUrl, { cache: 'no-cache', signal }),
@@ -302,7 +264,6 @@ export function createScreenerProvider({
       }
       const [artifactResponse, universeResponse, modelValidationResponse] = responses;
       checkAborted();
-      // v57.81: the default (core) view never requests the shard. 확장 reads it once and reuses it until a refresh.
       const requestedScope = normalizeUniverseScope(readUniverseScope?.());
       let extendedArtifact = null;
       let extendedStatus = requestedScope === 'extended' ? 'unavailable' : 'not-requested';
@@ -320,7 +281,6 @@ export function createScreenerProvider({
       }
       const now = typeof clock.now === 'function' ? clock.now() : Date.now();
       const LIVE_QUOTE_MAX_AGE_MS = FRESHNESS_POLICY.liveQuoteMs;
-      // v57.95: the core rows arrive in the row-defaults encoding; one held response is expanded once.
       const receivedArtifact = artifactResponse.ok && artifactResponse.data && typeof artifactResponse.data === 'object'
         ? expandScreenerArtifact(artifactResponse.data)
         : null;
@@ -331,8 +291,6 @@ export function createScreenerProvider({
         && ['BLOCKED', 'PARTIAL', 'READY'].includes(String(modelValidationResponse.data.status || '').toUpperCase())
         ? modelValidationResponse.data
         : null;
-      // P1173: an unrecognized status used to become `null` silently, so "the file is missing" and
-      // "the file says something this consumer cannot read" produced the same output. Keep the reason.
       const modelValidationRejected = modelValidationResponse?.ok && modelValidationResponse.data && typeof modelValidationResponse.data === 'object'
         && !['BLOCKED', 'PARTIAL', 'READY'].includes(String(modelValidationResponse.data.status || '').toUpperCase())
         ? `model-validation-status-unrecognized:${String(modelValidationResponse.data.status || '(missing)')}`
@@ -340,9 +298,6 @@ export function createScreenerProvider({
       const universeMeta = universePayload?.meta && typeof universePayload.meta === 'object' ? universePayload.meta : {};
       const universeLastBulkUpdate = universeMeta.lastBulkUpdate || null;
       const universeStaleAfterDays = numberOrNull(universeMeta.staleAfterDays) ?? 30;
-      // Derived at read time from the review date and window the mirror carries.
-      // A review dated after this clock (a day boundary, a reader's clock that runs behind) is a recent review, not a
-      // lapsed one: only an age past the window reads STALE.
       const universeReviewedMs = universeLastBulkUpdate ? new Date(universeLastBulkUpdate).getTime() : NaN;
       const universeCurrentness = !Number.isFinite(universeReviewedMs) ? 'UNKNOWN' : (now - universeReviewedMs) / 86400000 <= universeStaleAfterDays ? 'CURRENT' : 'STALE';
       const universeFreshnessStatus = Array.isArray(universePayload?.universe) ? ({ CURRENT: 'current', STALE: 'stale' })[universeCurrentness] || 'unknown' : 'unknown';
@@ -376,7 +331,6 @@ export function createScreenerProvider({
         ...universe.map((row) => String(row?.sym || '').toUpperCase()).filter(Boolean),
         ...Object.keys(artifact.data).map((symbol) => String(symbol).toUpperCase())
       ])];
-      // v57.81: shard rows expand to the core row schema; a symbol the core already holds is never taken from it.
       const extendedData = extendedArtifact ? expandShardRows(extendedArtifact) : {};
       const extendedIdentity = new Map(extendedArtifact ? shardIdentityRows(extendedArtifact).map((row) => [String(row.sym).toUpperCase(), row]) : []);
       const coreMembership = extendedArtifact?.coreMembership && typeof extendedArtifact.coreMembership === 'object' ? extendedArtifact.coreMembership : {};
@@ -395,9 +349,6 @@ export function createScreenerProvider({
       // Capture primitive quote projections before yielding: the legacy map can
       // mutate during a provider turn, but one snapshot must keep one quote cut.
       const liveBySymbol = new Map(symbols.map(symbol => [symbol, liveEnrichment(symbol, liveData)]));
-      // 2026-10-13 review S04: the producer publishes no benchmark return, so relative strength was missing on
-      // every row. The same artifact carries SPY's 3-month return on the same session; a US row with that
-      // session compares against it. KR has no index row in the artifact and stays unavailable.
       const usBenchmark = artifact.data.SPY || null;
       const usBenchmarkRet3m = finite(usBenchmark?.ret3m);
       const usBenchmarkSession = usBenchmark?.factorSessionDate || null;
@@ -422,7 +373,6 @@ export function createScreenerProvider({
           continue;
         }
         const isExtended = extendedSymbolSet.has(symbol);
-        // The artifact this row was published in: its asOf/source/rights maps describe the row (P1173 lineage).
         const rowArtifact = isExtended ? extendedArtifact : artifact;
         const identity = (isExtended ? extendedIdentity.get(symbol) : universeBySymbol.get(symbol)) || {};
         const factor = (isExtended ? extendedData[symbol] : artifact.data[symbol]) || {};
@@ -432,9 +382,6 @@ export function createScreenerProvider({
           : String(factor.listingMarket || '').toUpperCase() === 'INTL' || /\.(T|TWO?)$/i.test(symbol) ? 'INTL' : 'US';
         const artifactCurrency = String(factor.currency || identity.currency || '').trim().toUpperCase() || null;
         const liveCurrency = String(live.currency || '').trim().toUpperCase() || null;
-        // P1174 (15 D06): 가격·통화·identity·시각은 하나의 quote다. 통화를 잃은 quote는 "충돌이 없으니
-        // 호환"이 아니라 **미완전**이며, artifact 통화를 물려받으려면 동일 instrument/listing 보증이 먼저
-        // 필요하다. 보증이 없으면 가격을 채택하지 않고 마지막 적격 가격을 참고값으로 남긴다.
         const resolvedIdentity = resolveInstrument({ symbol, market, publishedName: identity.name, registry: INSTRUMENT_REGISTRY });
         const identityProof = resolvedIdentity.verification === 'VERIFIED';
         const quoteContract = evaluateQuoteContract({
@@ -443,10 +390,6 @@ export function createScreenerProvider({
           identityProof
         });
         const currencyCompatible = quoteContract.admissible;
-        // P1113: `artifact.factorObservedAt` is a normalized day bucket for the
-        // whole artifact, not an observation. Chaining it here let a row without
-        // its own timestamp inherit the bucket as its price observation time —
-        // the same mixed-vintage shape P1095 closed for history.json. Fail closed.
         const artifactPriceObservedAt = factor.observedAt || null;
         const artifactPriceTime = Date.parse(artifactPriceObservedAt || '');
         const livePriceTime = Date.parse(live.priceObservedAt || '');
@@ -466,8 +409,6 @@ export function createScreenerProvider({
         const hasExplicitNewsObservation = Object.prototype.hasOwnProperty.call(factor, 'newsObservedAt');
         const newsObservedAt = hasExplicitNewsObservation ? isoTimestamp(factor.newsObservedAt) : isoTimestamp(factor.newsTs);
         const newsFetchedAt = isoTimestamp(factor.newsFetchedAt);
-        // 2026-10-17 (owner: 유니버스 밖 종목 섹터 빈칸): a Nasdaq-only extended row has no curated sector, but its shard
-        // identity carries the filer's SEC SIC code; the fixed SIC translation fills the sector and the row names it.
         const sicSector = !identity.sector && identity.sic ? sectorFromSic(identity.sic) : null;
         const instrumentRef = createInstrumentRef({
           instrumentId: `${market}:${symbol}`,
@@ -487,10 +428,8 @@ export function createScreenerProvider({
           sector: identity.sector || sicSector || null,
           ...(sicSector ? { sectorSource: SIC_SECTOR_SOURCE, industry: sicIndustry(identity.sic, extendedArtifact?.sicDescriptions) } : {}),
           index: identity.index || null,
-          // v57.51 V09: a secondary share class names its primary line so equal-weight counts take one issuer once.
           shareClassOf: identity.shareClassOf || null,
           memo: identity.memo || null,
-          // 2026-10-16: the filer's SEC SIC code (extended shard identity); rankingPopulationExclusion reads it first.
           ...(identity.sic ? { sic: String(identity.sic) } : {}),
           source: factor.source || 'screener-artifact',
           sourceKind: factor.sourceKind || null,
@@ -505,12 +444,6 @@ export function createScreenerProvider({
           priceQuality: useLivePrice ? live.priceQuality : factor.factorQuality || factor.quality || null,
           priceRightsId: useLivePrice ? live.priceRightsId : factor.rightsId || null,
           factorObservedAt: factor.factorObservedAt || factor.observedAt || null,
-          // R24-03/P1179: the producer publishes bar-start, session, timezone, basis and
-          // computed time separately (P1170). Dropping them here made every downstream
-          // consumer fall back to the bar timestamp, so the fields travel with the row.
-          // factorBarStart falls back to the artifact's own bar timestamp — the producer
-          // defines both from the same observation; an absent basis stays null (unknown)
-          // rather than being assumed.
           factorBarStart: factor.factorBarStart || factor.observedAt || null,
           factorSessionDate: factor.factorSessionDate || null,
           factorSessionTimezone: factor.factorSessionTimezone || null,
@@ -522,8 +455,6 @@ export function createScreenerProvider({
           factorQuality: factor.factorQuality || factor.quality || null,
           priceRevision: useLivePrice ? live.priceRevision : useArtifactPrice ? (rowArtifact.asOf || null) : null,
           livePriceRejectedReason: live.price == null ? null : useLivePrice ? null : !currencyCompatible ? (quoteContract.reason || 'currency-conflict') : !liveEvidenceEligible ? 'decision-evidence-ineligible' : 'not-newer-than-artifact',
-          // P1174 (15 D06): 미완전 quote는 버리지 않고 진단으로 남긴다 — 통화 없는 가격이 조용히
-          // 현재 가격이 되는 대신, 왜 채택되지 않았는지와 값이 여기에 남는다.
           liveQuoteDiagnostic: Object.freeze({
             admissible: quoteContract.admissible,
             reason: quoteContract.reason,
@@ -558,13 +489,13 @@ export function createScreenerProvider({
           _mcapQuality: live._mcapQuality,
           _mcapRevision: live._mcapRevision,
           rsi: finite(factor.rsi),
-          ret1d: finite(factor.ret1d), // 2026-10-13 sector map: one/five completed sessions (absent until the producer adds them)
+          ret1d: finite(factor.ret1d),
           ret5d: finite(factor.ret5d),
-          ret10d: finite(factor.ret10d), // v58.78: 2주 (absent until the producer publishes it)
+          ret10d: finite(factor.ret10d),
           ret1m: finite(factor.ret1m),
           ret3m: finite(factor.ret3m),
           ret6m: finite(factor.ret6m),
-          ret12m: finite(factor.ret12m), // 2026-10-19: 12-1 momentum input (shadow record), absent before the 2y factor history
+          ret12m: finite(factor.ret12m),
           vol: finite(factor.vol),
           rvol20: finite(factor.rvol20 ?? factor.rvol),
           benchmarkRet: finite(factor.benchmarkRet) ?? (market === 'US' && symbol !== 'SPY' && usBenchmarkRet3m != null && usBenchmarkSession && factor.factorSessionDate === usBenchmarkSession ? usBenchmarkRet3m : null),
@@ -572,7 +503,7 @@ export function createScreenerProvider({
           benchmarkRelativeStrength: finite(factor.benchmarkRelativeStrength),
           pctSma50: finite(factor.pctSma50),
           pctSma200: finite(factor.pctSma200),
-          pctSma5: finite(factor.pctSma5), pctSma10: finite(factor.pctSma10), pctSma20: finite(factor.pctSma20), // 2026-10-14 custom conditions
+          pctSma5: finite(factor.pctSma5), pctSma10: finite(factor.pctSma10), pctSma20: finite(factor.pctSma20),
           pctFromCloseHigh52w: finite(factor.pctFromCloseHigh52w),
           kalmanVel: finite(factor.kalmanVel),
           kalmanPt: finite(factor.kalmanPt),
@@ -582,31 +513,24 @@ export function createScreenerProvider({
           vcpScore: finite(factor.vcpScore),
           vcpStage: factor.vcpStage || null,
           vcpPivot: finite(factor.vcpPivot),
-          vcpContractions: finite(factor.vcpContractions), vcpShrinking: typeof factor.vcpShrinking === 'boolean' ? factor.vcpShrinking : null, // 2026-10-14 custom conditions
-          // v57.87 follow-through evidence (technical/follow-through.js)
+          vcpContractions: finite(factor.vcpContractions), vcpShrinking: typeof factor.vcpShrinking === 'boolean' ? factor.vcpShrinking : null,
           pocketPivotAgo: finite(factor.pocketPivotAgo), pocketPivots10: finite(factor.pocketPivots10), heavyDownDays25: finite(factor.heavyDownDays25),
           baseCount: finite(factor.baseCount), baseForming: typeof factor.baseForming === 'boolean' ? factor.baseForming : null, baseDepthPct: finite(factor.baseDepthPct),
           baseCountLowerBound: factor.baseCountLowerBound ?? null, breakoutAgo: finite(factor.breakoutAgo),
           climaxSigns: Array.isArray(factor.climaxSigns) ? factor.climaxSigns.filter((sign) => typeof sign === 'string') : null,
           downDayHoldPct: finite(factor.downDayHoldPct), downDayExcessPp: finite(factor.downDayExcessPp), downDayCount: finite(factor.downDayCount),
-          // P1652: P/E under 2 or P/B under 0.1 means earnings or equity near the whole market value — a share-class or
-          // unit mismatch (BRK-B 0.01/0, IBKR 0.85), not a bargain; held so it cannot top the value rank.
           pe: fundamentalHeld(factor) || !(finite(factor.pe) >= 2) ? null : finite(factor.pe),
           pb: fundamentalHeld(factor) || !(finite(factor.pb) >= 0.1) ? null : finite(factor.pb),
           roe: fundamentalHeld(factor) ? null : finite(factor.roe),
-          // 2026-10-13 F05: a margin above 100% is a revenue-subtotal artifact (ESS 7,491%), held until re-normalized.
           margin: fundamentalHeld(factor) || finite(factor.margin) > SEC_MARGIN_HOLD_ABOVE_PCT ? null : finite(factor.margin),
           revGrowth: fundamentalHeld(factor) ? null : finite(factor.revGrowth),
-          // 2026-11-18: 'ttm' (latest four quarters) | 'fy' and the end date of each; an artifact without them is FY.
           _marginBasis: factor.marginBasis || null, _marginThrough: factor.marginThrough || null,
+          _marginPriorFyMedian: fundamentalHeld(factor) ? null : finite(factor.marginPriorFyMedian), _marginPriorFyYears: finite(factor.marginPriorFyYears),
           _revGrowthBasis: factor.revGrowthBasis || null, _revGrowthThrough: factor.revGrowthThrough || null,
-          // 2026-11-18: cash dividends per share with ex-dates in the last 365 days (listing currency) and their yield on the
-          // latest completed close; absent when the history carried no dividend evidence.
           dividendTtm: finite(factor.dividendTtm), dividendYieldPct: finite(factor.dividendYieldPct),
           dividendLastExDate: factor.dividendLastExDate || null, dividendCount12m: finite(factor.dividendCount12m), dividendBasis: factor.dividendBasis || null,
           _fundamentalHeldReason: fundamentalHeld(factor) ? 'period-too-old' : null,
           newsMemo: factor.newsMemo || null,
-          // v57.51 N02/N21: only an issuer-verified memo reaches AI context; the status names why a cell is empty.
           newsMemoVerified: factor.newsMemoVerified === true,
           newsMemoSources: Array.isArray(factor.newsMemoSources) ? factor.newsMemoSources : [],
           newsStatus: factor.newsStatus || null,
@@ -626,15 +550,15 @@ export function createScreenerProvider({
           _fundamentalFetchedAt: factor.fundamentalFetchedAt || null,
           _fundamentalAccession: factor.fundamentalAccession || null,
           _valuationPePrice: finite(factor.pePrice),
-          _valuationPrice: finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice), // v57.54: Forward PER close (F10 order)
+          _valuationPrice: finite(factor.valuationPrice) ?? finite(factor.pePrice) ?? finite(factor.pbPrice),
           _valuationPePriceBasis: factor.pePriceBasis || null,
-          _valuationPeEarningsBasis: factor.peEarningsBasis || null, // 2026-10-17 D1: 'ttm' | 'fy'
+          _valuationPeEarningsBasis: factor.peEarningsBasis || null,
           _valuationPeEarningsThrough: factor.peEarningsThrough || null,
           _valuationPeOneOff: factor.peOneOff === true,
           _valuationPeLoss: factor.peLoss === true,
           _valuationPbDeficit: factor.pbDeficit === true,
           _valuationPeEarningsLaterQuarter: factor.peEarningsLaterQuarter || null,
-          _valuationPeEarningsConcept: factor.peEarningsConcept || null, // v58.20: 'common' when preferred dividends were deducted
+          _valuationPeEarningsConcept: factor.peEarningsConcept || null,
           _valuationPbPrice: finite(factor.pbPrice),
           _valuationPbPriceBasis: factor.pbPriceBasis || null,
           _valuationPbEquityThrough: factor.pbEquityThrough || null,
@@ -646,16 +570,10 @@ export function createScreenerProvider({
           identitySource: isExtended ? 'public-data/screener-extended.json' : 'public-data/screener-universe.json',
           observedAt: factor.observedAt || null,
           fetchedAt: factor.fetchedAt || rowArtifact.asOf || null,
-          // P1167 (15 D05): 정적 유니버스 producer는 MIC·assetType을 발행하지 않고 시장은 심볼
-          // suffix/index에서 추정한다. 그 사실을 조용한 null로 두면 '가격 조회 성공'이 '식별 metadata
-          // 확인'으로 읽힌다. 어떤 필수 식별 필드가 미확인인지와 시장 출처를 행에 남긴다 —
-          // 값을 발명해 873행을 한꺼번에 추정으로 채우지 않는다(15 D05 설계).
           identityValidation: {
             ok: identityValidation.ok,
             missing: identityValidation.errors,
             marketSource: 'symbol-suffix-inference',
-            // P1171 (15 D05): 축별 검증 수준과 유형별 분석 적격성을 분리한다. 미확인 유형을 발행자
-            // 비율 모델에 넣지 않는다(ETF는 발행자 재무제표가 없다).
             assetTypeVerification: resolvedIdentity.verificationDetail.assetType,
             micVerification: resolvedIdentity.verificationDetail.mic,
             currencyVerification: resolvedIdentity.verificationDetail.currency,
@@ -664,7 +582,6 @@ export function createScreenerProvider({
             note: identityValidation.ok ? null : '정적 유니버스와 registry가 발행하지 않은 식별 필드가 있습니다 — 가격 조회 성공은 식별 확인이 아닙니다.'
           },
           instrumentRef,
-          // v57.81: only when the shard is loaded — the default view's rows (and their snapshot identity) are unchanged.
           ...(extendedArtifact ? { universeTier: isExtended ? 'extended' : 'core', membership: rowMembership(identity, coreMembership[symbol]) } : {})
         };
         const rightsByField = Object.fromEntries(SCREENER_FIELD_REGISTRY.fields.map((definition) => [
@@ -692,10 +609,6 @@ export function createScreenerProvider({
       }
       rowReuse = nextRowReuse;
 
-      // P1173 (17 작업 단위 4 / O07): judge the input set, not just each file on its own. The three
-      // responses arrive from independent URLs with their own cadences, so "each file is fresh" never
-      // said whether they can be used together. An incompatible set is reported and downgrades the read
-      // instead of being combined silently.
       const publicationSetFull = evaluatePublicationSet({
         policy: SCREENER_PUBLICATION_POLICY,
         previous: previousPublicationSet,
@@ -739,14 +652,7 @@ export function createScreenerProvider({
       });
       if (!publicationSet.compatible) warnings.push('SCREENER_PUBLICATION_SET_INCOMPATIBLE');
 
-      // P1180/R24-04 (07 W07-G): observationSetId covers the publication set, not just the
-      // screener file. Universe membership/schema and the model-validation revision are inputs
-      // that arrived with this read, so a member revision change must move the observation
-      // identity even when no row value changes.
       const publicationRevisions = Object.fromEntries(publicationSet.members.map((entry) => [entry.member, entry.revision]));
-      // v57.81: the shard revision joins the identity only when it was read, so a core snapshot keeps its id.
-      // The identity rows drop the live-quote keys; from the held responses only the instrument currency can still move
-      // (an admitted quote's currency), so an unchanged key reuses the hash instead of re-walking every row.
       const snapshotKey = JSON.stringify([publicationRevisions, rows.map((row) => row.instrumentRef?.currency || '')]);
       const snapshotId = rowReuse.snapshot?.key === snapshotKey ? rowReuse.snapshot.id
         : `screener-snapshot-${await stableHashAsync({ revision: artifact.asOf, source: artifact.source, publicationRevisions, ...(extendedArtifact ? { extendedRevision: extendedArtifact.asOf || null } : {}), rows: snapshotIdentityRows(rows) }, { yieldImpl, signal })}`;
@@ -766,8 +672,6 @@ export function createScreenerProvider({
           calculationPolicy: 'per-field-readiness',
           asOf: artifact.asOf || null,
           factorObservedAt: artifact.factorObservedAt || null,
-          // R24-03/P1179: artifact-level time contract travels with the metadata —
-          // the UI must not reconstruct a session date from the bar timestamp.
           factorTimeBasis: artifact.factorTimeBasis || null,
           factorSessionDateByMarket: artifact.factorSessionDateByMarket && typeof artifact.factorSessionDateByMarket === 'object' ? { ...artifact.factorSessionDateByMarket } : null,
           factorBarStartByMarket: artifact.factorBarStartByMarket && typeof artifact.factorBarStartByMarket === 'object' ? { ...artifact.factorBarStartByMarket } : null,
@@ -775,12 +679,10 @@ export function createScreenerProvider({
           // Which markets' newest-session volume is the provider's provisional figure (price-factors.js
           // LATEST_SESSION_VOLUME_BASIS); older artifacts carry none.
           volumeBasis: artifact.volumeBasis && typeof artifact.volumeBasis === 'object' ? { ...artifact.volumeBasis, markets: Array.isArray(artifact.volumeBasis.markets) ? [...artifact.volumeBasis.markets] : [], fields: Array.isArray(artifact.volumeBasis.fields) ? [...artifact.volumeBasis.fields] : [] } : null,
-          // 2026-10-13 S&P 500 map weights (absent until the producer embeds them).
           indexWeights: artifact.indexWeights && Array.isArray(artifact.indexWeights.rows) ? artifact.indexWeights : null,
           universe: Number(artifact.universe) || coreSymbols.length,
           artifactRows: Object.keys(artifact.data).length,
           universeRows: universe.length,
-          // v57.81: which population the rows (and the ranking computed on them) cover.
           universeScope,
           requestedUniverseScope: requestedScope,
           rankingContractScope: RANKING_CONTRACTS[universeScope],

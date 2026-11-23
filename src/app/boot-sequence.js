@@ -1,27 +1,13 @@
-// v59.36 (roadmap 11, layer 4 boot sequence): the master boot sequence moved out of js/aio-data.js unchanged —
-// initV20DataEngine, which js/aio-ui.js calls on DOMContentLoaded: server data first, then the timed provider phases
-// and the recurring scheduler. The boot-phase object (_aioBootPhase) and newsCache it reads stay declared in the classic
-// scripts; a module resolves those names in the shared global scope.
-// src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { readHistoryRows } from '../domain/market/indices/history-rows.js';
 
 export function installBootSequence(window = globalThis) {
-  // v59.70 (R2): js/aio-data.js _aioLoadHistory expands history.json through the one reader.
   window.__aioReadHistoryRows = readHistoryRows;
   async function initV20DataEngine() {
-    // The boot coordinator is the sole owner of the first live-data fetch.
-    // Page-on-enter refreshes must not race it with a second provider fan-out.
     _aioBootPhase.quoteReady = false;
-    // P858: translation is deliberately outside the 0-2s interactive boot
-    // budget. Source-language/local fallback text remains visible until this
-    // enrichment phase is released.
     console.log('[AIO v20] ═══════════════════════════════════════');
     console.log('[AIO v20] Data Engine v20 초기화 시작');
-    // v50.23: 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
     try { await _aioLoadServerData(); } catch(_) {}
-    // v50.24/WO-4: 30분 주기 재로드 + 1분 나이 배지 갱신 시작 (boot-only 갭 해소)
     try { _aioStartServerDataPolling(); } catch(_) {}
-    // v50.27/WO-7: 일별 히스토리 로드(차트 소비자 데이터 레이어, 충분히 누적 시 시드 대체)
     try { _aioLoadHistory(); } catch(_) {}
     try { _aioLoadOperatorNote(); } catch(_) {}
     console.log('[AIO v20] ═══════════════════════════════════════');
@@ -43,13 +29,7 @@ export function installBootSequence(window = globalThis) {
       }
     }).catch(function() {});
 
-    // Phase 2: Fast APIs (2-5s) — CoinGecko and the live quotes (Yahoo spark, Naver).
-    // P858: the previous 500ms timer contradicted this phase boundary and pushed
-    // every provider into the boot request window. Keep snapshot/server data as
-    // the first paint source, then start external quote work after the 2s boot
-    // budget so request and long-task SLOs measure the actual interactive boot.
     _aioBootPhase.quoteReady = false;
-    // v59.70 (D6): the deferred browser news translation release left; titles arrive in Korean from the producer.
     setTimeout(async () => {
       try {
         _aioBootPhase.quoteReady = true;

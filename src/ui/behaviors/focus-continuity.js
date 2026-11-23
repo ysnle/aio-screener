@@ -1,9 +1,3 @@
-// Focus survives a re-render. A data refresh (aio:refresh:done, live quotes, a late artifact) rebuilds a section with
-// replaceChildren, so the control a reader had focused left the document and focus fell to BODY: the next Tab started
-// from the top of the page (Codex audit 2026-11-14: 자산군 1개월 → BODY after a normal refresh). When the focused control
-// is removed and nothing else took focus, its rebuilt twin — same section, same group, same label — gets focus back.
-// Nothing is bound per section, so every re-rendered control is covered; the chosen value itself is the renderer's state.
-
 // The section a control belongs to: the nearest ancestor with an id that is still in the document after the rebuild.
 function identity(node) {
   const group = node.closest('[role="group"],[role="tablist"],[role="radiogroup"],[role="toolbar"]');

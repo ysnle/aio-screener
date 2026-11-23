@@ -1,6 +1,3 @@
-// v57.60: return-statistics helpers extracted from backtest.js (pure; no DOM, no globals). backtest.js
-// re-exports the same names, so bootstrap's _stat* compatibility bindings and the module API are unchanged.
-
 import { mean, stdev } from '../shared/number.js';
 
 // The legacy return-statistics contract: an empty mean and a short-sample deviation are 0, not null.
@@ -48,14 +45,7 @@ function _btTailRisk(values, quantile) {
   };
 }
 
-// P1243: the `recent-half` sensitivity variant reads the sample's second half *in the order given*, so
-// it is only meaningful for a time-ordered sample. P1203 fixed the caller that passed a sorted sample,
-// but the function still assumed that contract instead of verifying it. A dated sample is now checked
-// for non-decreasing observation time; otherwise the caller must declare `order: 'chronological'`. An
-// unverified order withholds the variant and holds certification, so the assumption cannot silently
-// return.
 function _btVarOrderAudit(values, order, observedAt) {
-  // v59.45 (PASS22 P22-STATS-01): Number(null) === 0, so [null, null] read as two equal stamps and 'verified' the order.
   const stamps = Array.isArray(observedAt)
     ? observedAt.map((value) => (value == null || value === '' || typeof value === 'boolean' ? null : Number.isFinite(Number(value)) ? Number(value) : null))
     : null;
@@ -69,7 +59,7 @@ function _btVarOrderAudit(values, order, observedAt) {
 function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, thresholds = {}, order = 'unspecified', observedAt = null } = {}) {
   const clean = (Array.isArray(returns) ? returns : []).filter((value) => typeof value === 'number' && isFinite(value));
   const declared = {
-    minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 41, // v57.84: the 5% R7 tail holds ≥3 points only from n=41; 36 always held
+    minSampleN: Number.isFinite(thresholds.minSampleN) ? thresholds.minSampleN : 41,
     minTailN: Number.isFinite(thresholds.minTailN) ? thresholds.minTailN : 3,
     maxRelativeBand: Number.isFinite(thresholds.maxRelativeBand) ? thresholds.maxRelativeBand : 0.75,
     maxRelativeSensitivity: Number.isFinite(thresholds.maxRelativeSensitivity) ? thresholds.maxRelativeSensitivity : 0.5
@@ -93,8 +83,6 @@ function deriveVarStability({ returns = [], iterations = 400, quantile = 0.05, t
   const sortedVars = varSamples.slice().sort((a, b) => a - b);
   const band = { p05: _quantileR7(sortedVars, 0.05), median: _quantileR7(sortedVars, 0.5), p95: _quantileR7(sortedVars, 0.95) };
   const relativeBand = point.var > 0 ? (band.p95 - band.p05) / point.var : null;
-  // v57.92: the certificate was published as "VaR/CVaR", but only VaR was resampled — one -90% day in 100 moved CVaR
-  // 2%→4.6% and still read "certified". CVaR now gets the same two checks and its own certification (below).
   const sortedCvars = cvarSamples.slice().sort((a, b) => a - b);
   const cvarBand = { p05: _quantileR7(sortedCvars, 0.05), median: _quantileR7(sortedCvars, 0.5), p95: _quantileR7(sortedCvars, 0.95) };
   const cvarRelativeBand = point.cvar > 0 ? (cvarBand.p95 - cvarBand.p05) / point.cvar : null;
@@ -174,7 +162,7 @@ function _calcSharpe(returns, rfRate, periodsPerYear) {
   var excess = clean.map(function(r) { return r - rfDaily; });
   var mean = _statMean(excess);
   var std = _statStdDev(excess);
-  if (std < 1e-10) return null;  // v48.95 P1-9: near-zero std → null (division-by-zero 방지)
+  if (std < 1e-10) return null;
   return (mean / std) * Math.sqrt(periods);
 }
 
@@ -210,7 +198,7 @@ function _pearsonCorr(a, b) {
     var da = a[i] - mA, db = b[i] - mB;
     num += da * db; denA += da * da; denB += db * db;
   }
-  if (denA < 1e-12 || denB < 1e-12) return 0;  // v48.95 P1-3: near-zero denom EPS → NaN 방지
+  if (denA < 1e-12 || denB < 1e-12) return 0;
   return num / Math.sqrt(denA * denB);
 }
 
@@ -228,8 +216,6 @@ function _calcCorrelationMatrix(returnsMap) {
       var r1 = returnsMap[t1], r2 = returnsMap[t2];
       var minLen = Math.min(r1.length, r2.length);
       var a = r1.slice(r1.length - minLen), b = r2.slice(r2.length - minLen);
-      // v59.59 (logic refactor): a flat or too-short pair has no correlation — the cell is null ("—"), not the 0 that
-      // _pearsonCorr's legacy contract returns, which the heatmap read as "uncorrelated" (diversifying).
       if (minLen < 3 || _statStdDev(a) < 1e-10 || _statStdDev(b) < 1e-10) return null;
       return _pearsonCorr(a, b);
     });
@@ -237,8 +223,6 @@ function _calcCorrelationMatrix(returnsMap) {
   return { tickers: tickers, matrix: matrix };
 }
 
-// v58.80 (boot budget): the daily-return helper moved here with the other statistics, so the boot shell's globals no longer
-// pull the backtest engine (src/domain/portfolio/backtest.js, loaded on demand) into the boot bundle.
 function _returnTimestampMs(ts) {
   var numeric = typeof ts === 'number' || (typeof ts === 'string' && /^\d+(?:\.\d+)?$/.test(ts)) ? Number(ts) : NaN;
   var epochMs = Number.isFinite(numeric) ? (numeric < 100000000000 ? numeric * 1000 : numeric) : Date.parse(String(ts || ''));
@@ -252,7 +236,6 @@ function _calcDailyReturns(prices, timestamps) {
   let previousTs = null;
   for (let i = 0; i < prices.length; i += 1) {
     const current = prices[i];
-    // v59.45 (PASS22 P22-STATS-01): Infinity is not a price — it passed the NaN check and produced non-finite returns.
     const valid = current !== null && current !== undefined && Number.isFinite(Number(current)) && Number(current) > 0;
     const currentTs = timestamps && timestamps[i] != null ? _returnTimestampMs(timestamps[i]) : null;
     if (!valid) {
@@ -261,9 +244,6 @@ function _calcDailyReturns(prices, timestamps) {
       continue;
     }
     if (previous != null) {
-      // Portfolio audit 2026-10-17: a 3-day limit dropped every return across a holiday (Fri → Tue over Memorial Day, -10.9%
-      // gone), lowering volatility, VaR and drawdown. Consecutive closes up to 10 calendar days apart (KRX Chuseok closures
-      // run a week) are one return; a longer gap is a hole in the record and still breaks the chain.
       const adjacent = currentTs == null || previousTs == null
         ? true
         : currentTs > previousTs && currentTs - previousTs <= 10 * 24 * 60 * 60 * 1000;

@@ -1,6 +1,3 @@
-// Expertise review 2026-10-19 (redesign): the stress panel's HTML. Every figure comes from the book's own weekly
-// regression (src/domain/portfolio/stress-sensitivity.js) or, for the KOSPI rows, from the index's recorded worst moves
-// (kr-stress.js). The legacy shell (js/aio-workspace.js _aioRenderPortfolioStress) only places the string.
 import { escapeHtml as esc } from '../html.js';
 import { estimateBookSensitivities, scenarioImpact, krwTranslationPct, bookWeights, STRESS_MIN_WEEKS } from '../../domain/portfolio/stress-sensitivity.js';
 import { krIndexStressRows } from '../../domain/portfolio/kr-stress.js';
@@ -24,8 +21,6 @@ export function portfolioStressHtml({ base, historyMap = {}, commonDates = [], h
   const rows = Array.isArray(base?.rows) ? base.rows : [];
   const total = rows.reduce((sum, row) => sum + (row.value || 0), 0);
   if (!(total > 0)) return '';
-  // v59.45 (PASS23): lots of one ticker summed (the last lot used to overwrite the rest); the head says the history is
-  // today's holdings replayed over past weeks, not the account's own record.
   const weights = Object.fromEntries(bookWeights(rows).map((item) => [item.symbol, item.w]));
   const head = '<div class="pf-stress-head">스트레스 시나리오 <span class="pf-stress-sub">— 주식 부분, 지금 보유 비중을 과거 주간 가격에 적용해 추정</span></div>';
   const est = estimateBookSensitivities({ historyMap, commonDates, weights, history });

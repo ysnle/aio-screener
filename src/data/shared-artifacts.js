@@ -1,8 +1,3 @@
-// M02/A03 (Codex structure review 2026-10-12): artifacts several screens share (macro-history, breadth
-// contributors) were loaded once per tab and then kept forever — `if (!root._aioMacroHistory)` skipped every later
-// load, so a long-open tab mixed new closes with the first macro or breadth drilldown it ever saw. One owner decides
-// when to reload: no copy yet, the copy is older than its TTL, or the server data was regenerated after the copy
-// was loaded. Concurrent callers share one request; a failed load keeps the last good copy and may retry later.
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 
 const stateOf = (root) => (root.__aioSharedArtifacts ||= {});

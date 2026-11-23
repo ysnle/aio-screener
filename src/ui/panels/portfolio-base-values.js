@@ -1,7 +1,3 @@
-// P1445 (review 2026-10-04): the legacy exposure and stress panels summed native price × quantity, so
-// $1,000 and ₩1,000,000 at ₩1,000/$ read 0.1 : 99.9 instead of 50 : 50, and unpriced holdings silently
-// left the denominator. They now read the native surface's base-currency values (P1407), refuse an
-// unconverted currency mix, and report how many holdings were left out.
 export function baseValueRows(surface, positions = []) {
   const list = Array.isArray(positions) ? positions : [];
   if (surface && surface.currencyState === 'mixed-without-conversion') return { blocked: true, rows: [], excluded: list.length };

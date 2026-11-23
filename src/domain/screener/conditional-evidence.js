@@ -40,7 +40,6 @@ function clean(value) {
   return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
 }
 
-
 function timestampMs(value) {
   if (value == null || value === '') return null;
   if (Number.isFinite(Number(value))) return Number(value);
@@ -170,13 +169,6 @@ function aggregatePerYear(rows, successPredicate, options) {
   return Object.freeze(Object.fromEntries([...buckets.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([year, bucket]) => [year, rateSummary(bucket, successPredicate, options)])));
 }
 
-// v58.64 (architecture audit SCR05): READY counted lineage-passing rows as they came, so one past observation sent 30
-// times read READY 30/30. The sample unit is one instrument on one session: a repeated unit counts once, a row without
-// both ids cannot be a unit, and a later row of the same instrument that starts before the kept row's outcome window
-// ended overlaps it and is left out. Without an outcome end the overlap cannot be judged, so the sample is not READY.
-// v59.45 P6-STAT-01: an outcome window must be a closed past window, observedAt <= outcomeEndAt <= now. A window that
-// ends after the evaluation time (the result was not known yet) or before its own observation (reversed) read READY
-// 30/30. Like a missing end, such a window cannot back a verified sample: it is counted and the sample is not READY.
 function independentSample(rows, nowMs = null) {
   const seen = new Set();
   const lastEnd = new Map();

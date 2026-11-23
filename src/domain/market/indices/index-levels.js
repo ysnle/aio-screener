@@ -1,9 +1,3 @@
-// v59.62 (owner 2026-11-03: "QQQ 고점 대비 10% 이상 … SOXX 50일선 … 쌍봉 … 660을 지켜줘야"): where each index sits on
-// its own chart, from the published closes (history.json) only. Every number is a rule over closes: the 50- and 200-session
-// averages, the 252-session closing high, the lowest close of the last six months before the latest two weeks (the
-// support the reading names), and a double top — two closing highs within 6% of each other at least 20 sessions apart
-// with the close now at (within 3%) or below the lowest close between them (the neck). No level is written by hand and no ETF price is inferred from
-// an index.
 import { signedText } from '../../shared/number.js';
 import { withTopicParticle } from '../../content/korean-particle.js';
 import { buildCloseSeries } from '../session/close-series.js';
@@ -35,8 +29,6 @@ function doubleTop(closes) {
   const neck = between.reduce((low, row) => (row.value < low.value ? row : low));
   const last = recent.at(-1);
   const vsNeckPct = pct(last.value, neck.value);
-  // Broken: closed at least 1% under the neck. Testing: within 3% above it (or less than 1% under) after falling from the second top.
-  // v59.64: the second top must be recent (the last 60 sessions); an August pattern is not today's chart.
   if (b >= recent.length - 1 || b < recent.length - 60 || vsNeckPct > 3) return null;
   return { first: recent[a], second: recent[b], neck, vsNeckPct, state: vsNeckPct <= -1 ? 'broken' : 'testing' };
 }
@@ -82,8 +74,6 @@ export function levelsRead(levels) {
     : lead.fromHighPct <= -10 ? '고점 대비 10% 넘게 내려 조정 구간입니다.'
       : lead.vsMa50Pct != null && lead.vsMa50Pct < 0 ? '50일선 아래로 내려와 단기 추세가 꺾였습니다.' : '고점 가까이에서 추세를 유지하고 있습니다.';
   const support = lead.support ? ` 최근 6개월 가장 낮은 종가는 ${md(lead.support.date)} ${Math.round(lead.support.value).toLocaleString('en-US')}로 지금보다 ${Math.abs(lead.support.abovePct).toFixed(1)}% 아래입니다. 그 아래로 내려가면 저점이 낮아지는 흐름이 됩니다.` : '';
-  // The pattern line prefers a broken top, then the semiconductor index (the owner's question), then the others; a neck
-  // that is the lead's own support is said once.
   const order = (level) => (level.doubleTop?.state === 'broken' ? 0 : level.field === 'soxx' ? 1 : 2);
   const top = levels.filter((level) => level.doubleTop).sort((a, b) => order(a) - order(b))[0];
   const t = top?.doubleTop;

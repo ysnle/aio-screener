@@ -1,9 +1,3 @@
-// Legacy unification (2026-10-26, roadmap item 11, screen 오늘 · 뉴스): the 뉴스 page's country/topic/telegram chips,
-// the 최신순/중요도순 sort buttons and the state they set moved here from js/aio-data.js (filterNewsByCountry,
-// filterNewsByTopic, filterNewsByTelegramOnly, setNewsSortMode, window.AIO.getNewsSurfaceControls and the
-// currentCountryFilter/currentTopicFilter/_newsSortMode lets). Output is unchanged. The news cache and fetch stay in
-// aio-data.js and are reached through window._aioNewsCacheSize / window.fetchAllNews, so this module imports nothing.
-
 const state = { countryFilter: 'all', topicFilter: 'all', sortMode: 'time' };
 
 export function getNewsSurfaceControls() {
@@ -28,7 +22,6 @@ function markChip(documentRef, group, el) {
   documentRef?.querySelectorAll?.(`#${group} .chip`).forEach((c) => c.setAttribute?.('aria-pressed', String(c === el)));
 }
 
-// v48.19: the telegram chip is the country filter 'tg', so every filter path renders through the same feed.
 export function filterNewsByTelegramOnly(el, { documentRef = globalThis.document, root = globalThis } = {}) {
   state.countryFilter = 'tg';
   markChip(documentRef, 'news-country-chips', el);

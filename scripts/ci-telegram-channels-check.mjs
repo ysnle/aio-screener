@@ -7,12 +7,20 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runSections } from './lib/gate-sections.mjs';
 import { activeTelegramChannels, telegramSourceCatalog, telegramCollectionStatus, channelFailingSince, overdueTelegramChannelFailures, TELEGRAM_CHANNEL_FAILING_MAX_MS } from './lib/telegram-channels.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
 const check = (label, fn) => { try { fn(); console.log(`  ok  ${label}`); } catch (error) { failures.push(label); console.log(`  FAIL ${label}\n       ${error.message.split('\n')[0]}`); } };
+const report = () => {
+  const failed = failures.splice(0);
+  if (failed.length) { console.error(`telegram-channels: ${failed.length} failed`); process.exit(1); }
+};
 
+// v60.50: the status rule runs on fixtures (code); the bound on the published digest also runs in a data run.
+await runSections('telegram-channels', [
+['status-rule', async () => {
 const catalog = [
   { slug: 'a', role: 'r', region: 'g', evidence: 'e', retired: { since: '2026-10-26', reason: 'gone' } },
   { slug: 'b', role: 'r', region: 'g', evidence: 'e' },
@@ -32,6 +40,9 @@ check('v60.18 failingSince carries the start of a failure streak and clears on s
   assert.equal(channelFailingSince({ channel: 'b' }, previous, '2026-11-15T00:00:00.000Z'), null, 'v60.18 a success clears the start');
 });
 
+report();
+}, 'code'],
+['published-digest', async () => {
 // The registry's retired slugs, from the producer's own CHANNEL_CATALOG (the source of truth the next run publishes).
 const producer = readFileSync(resolve(root, 'scripts/fetch-telegram-digest.mjs'), 'utf8');
 const registryRetired = new Set([...producer.matchAll(/\{\s*slug:'([^']+)'[^}]*?retired:\{/g)].map((m) => m[1]));
@@ -42,5 +53,7 @@ check(`v60.18 no active channel in the published digest has failed for more than
   assert.deepEqual(overdue, [], `v60.18 fix the fetch or retire the channel in CHANNEL_CATALOG: ${JSON.stringify(overdue)}`);
 });
 
-if (failures.length) { console.error(`telegram-channels: ${failures.length} failed`); process.exit(1); }
+report();
+}, 'data'],
+]);
 console.log('telegram-channels: all checks passed');

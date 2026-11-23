@@ -1,7 +1,3 @@
-// v59.70 (data audit R11): rotationHistory was 37% of data.json (223 KB), most of it the per-ETF 100-session
-// relativeStrength line and the 20-point trail. The producer publishes the coordinates in data.json and those two
-// series in public-data/rotation-detail.json; the browser loader (src/data/server-data-loader.js) merges them back
-// into _serverDataMeta.rotationHistory, so every reader keeps one accessor and reads the same verdicts.
 export const ROTATION_DETAIL_SCHEMA = 'rotation-detail.v1';
 export const ROTATION_DETAIL_FILE = 'rotation-detail.json';
 export const ROTATION_DETAIL_FIELDS = Object.freeze(['trail', 'relativeStrength']);

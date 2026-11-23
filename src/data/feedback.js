@@ -1,5 +1,3 @@
-// v58.82 (roadmap 12): transport for the feedback note (src/ui/components/feedback-form.js) and the owner's read.
-// The AIO Worker is the only destination; the operator token travels as a header, never in a URL.
 export async function sendFeedback({ fetchImpl, workerUrl, appToken, text, route, version }) {
   try {
     const response = await fetchImpl(workerUrl + '/feedback', {
@@ -11,7 +9,6 @@ export async function sendFeedback({ fetchImpl, workerUrl, appToken, text, route
     return response.status === 429 ? 'limit' : 'failed';
   } catch { return 'failed'; }
 }
-
 
 export async function readFeedback({ fetchImpl, workerUrl, operatorToken }) {
   try {

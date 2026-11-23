@@ -1,6 +1,3 @@
-// v59.70 (S16): 포트폴리오 ③ 노출 — one stacked bar of the stock part by sector (the five largest, the rest as 기타) and
-// one line naming the largest holding and the largest sector. Weights are the surface's base-currency values, the
-// denominator the holdings themselves (cash is not a sector). The concentration verdicts stay in 점검.
 import { el } from './dom.js';
 
 const SEGMENTS = 5;

@@ -1,8 +1,4 @@
 import { deriveQuotePresentation } from '../market/session/quote-presentation.js';
-// P1432 (stage 5, owner direction 2026-10-04): 오늘 is the screen a trader opens every morning, so it
-// answers "what changed since the last session" and "what happened to my names" before anything else.
-// Pure functions over the completed-close history and the published screener rows — no live quote is
-// promoted to a close, and a measure missing on either session is left out rather than read as zero.
 import { buildMarketRegime } from './market-read.js';
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
@@ -22,15 +18,12 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
     const row = bySymbol.get(symbol) || null;
     const quote = live?.[symbol] || null;
     const dayPct = finite(quote?.pct ?? quote?.changePercent);
-    // P1579: a stale or basis-unknown change is shown but neither coloured nor used to rank attention.
     const presentation = quote ? deriveQuotePresentation(quote, { symbol }) : null;
     const daySignalled = dayPct != null && ['current', 'delayed'].includes(presentation?.displayState) && presentation?.changeCoherent === true;
-    // v59.46 boundary contract: line and RSI states are judged on calculable screener values; the 1-month move is shown.
     const sma50 = readRowNumber(row, 'pctSma50', 'calculation');
     const high = finite(row?.pctFrom52wHigh);
     const rsi = readRowNumber(row, 'rsi', 'calculation');
     const notes = [];
-    // v59.45 (pipeline review P26-NAMES-01): a name exactly on the line is neither above nor below it.
     const ma50 = sma50 == null ? 'unknown' : sma50 < 0 ? 'below' : sma50 > 0 ? 'above' : 'on';
     if (sma50 != null) notes.push(ma50 === 'below' ? `50일선 아래(${signed(sma50, 1, '%')})` : ma50 === 'above' ? `50일선 위(${signed(sma50, 1, '%')})` : '50일선 위치(0.0%)');
     if (high != null && high > -RULES.technical.nearHighPct) notes.push(`52주 고점 근처(${signed(high, 1, '%')})`);
@@ -57,19 +50,12 @@ export function buildMyNames({ symbols = [], rows = [], live = {}, holdings = []
   return { names, summary };
 }
 
-// v58.53 개편 v2 (3b "직전 판정", 시장 상태 hero): the six-axis rule run on the close five sessions earlier, with the inputs
-// that can be rebuilt for that date — the close history cut at that close, the HY spread and its 5-session change from
-// FRED's own series (macro-history), the 10-year TIPS / breakeven 5-session changes from the same series. Not a new score,
-// but the inputs are partial: the put/call ratio has no daily record, and it can only demote a 양호 credit reading, so a
-// rebuilt credit 양호 is marked `partial` (shown as —, left out of the flip summary). Without macro-history the credit axis
-// cannot be re-read and no previous verdict is shown (declared interpretation-boundary exception, like the daily flips).
 const previousCache = new WeakMap();
 export function previousRegime(inputs, regime, sessions = 5) {
   const history = inputs?.history;
   const macroHistory = inputs?.macroHistory;
   if (!regime?.available || !Array.isArray(history) || !history.length || !macroHistory?.series?.hyOas) return null;
   const cached = previousCache.get(history);
-  // v59.45 (pipeline review P26 기타): the look-back is part of the key; a 1-session read is not reused for 5.
   if (cached && cached.macroHistory === macroHistory && cached.asOf === regime.asOf && cached.sessions === sessions) return cached.value;
   const target = buildCloseSeries(history, 'spx', { through: regime.asOf }).at(-1 - sessions)?.date;
   let value = null;

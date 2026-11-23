@@ -1,5 +1,3 @@
-// v58.75 (persona review): the S&P 500 distribution-day strip on 시장 상태 — the 25-session count over its last 25
-// sessions. A lazy chunk loaded by market-regime.js after the first paint (boot budget).
 import { buildCloseSeries } from '../../domain/briefing/market-read.js';
 import { RULES } from '../../domain/rules/thresholds.js';
 import { el } from './dom.js';
@@ -7,8 +5,6 @@ import { markFold } from './indicator-face.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { rallyAttemptRead } from '../../domain/market/regime/rally-attempt.js';
 
-// v58.75 (persona review): the 25-session distribution-day count over its last 25 sessions, always on the face of 시장 상태
-// (it was only an evidence row) — bars at or above the leadership confirmation line (RULES.leadership) take the burden tone.
 export function distributionStrip(doc, history, through) {
   const series = buildCloseSeries(history || [], 'distributionDays', { through: through || null }).slice(-25);
   if (series.length < 5) return null;
@@ -19,9 +15,6 @@ export function distributionStrip(doc, history, through) {
   const recent = series.slice(-(RULES.leadership.confirmWindowSessions || 5));
   const peak = recent.reduce((best, point) => (point.value >= best.value ? point : best), recent[0]);
   const part = el(doc, 'div', null, 'leaders-line__part leaders-line__dist');
-  // v58.80 run-5 (owner: "사용자가 잘 활용할 수 있을까?"): the face led with an expert term and 25 bars a newcomer could not
-  // read. It now answers one question in plain words — are heavy-selling days piling up, and how close is that to the
-  // line the leadership verdict counts — with one gauge; the 25-session bars stay one fold down for whoever wants them.
   const five = series.length > 5 ? series[series.length - 6] : null;
   const turn = five == null ? '' : last.value > five.value ? `, 5거래일 전 ${five.value}일에서 늘어남` : last.value < five.value ? `, 5거래일 전 ${five.value}일에서 줄어듦` : ', 5거래일 전과 같음';
   const plain = last.value >= at
@@ -44,7 +37,6 @@ export function distributionStrip(doc, history, through) {
   gauge.setAttribute('height', '12');
   gauge.setAttribute('role', 'img');
   gauge.setAttribute('aria-label', `분배일 ${last.value}일, 경고 기준 ${at}일`);
-  // v59.69 (visual audit): square ends — preserveAspectRatio none stretched rx 4 into ovals.
   const rect = (x, w, cls) => { const node = doc.createElementNS(NSG, 'rect'); for (const [key, value] of [['x', x], ['y', 2], ['width', w], ['height', 8], ['fill', 'currentColor'], ['class', cls]]) node.setAttribute(key, String(value)); return node; };
   const mark = doc.createElementNS(NSG, 'line');
   for (const [key, value] of [['x1', at * 20], ['x2', at * 20], ['y1', 0], ['y2', 12], ['stroke', 'currentColor'], ['stroke-width', '2'], ['vector-effect', 'non-scaling-stroke'], ['class', 'sh-muted-note']]) mark.setAttribute(key, String(value));
@@ -55,8 +47,6 @@ export function distributionStrip(doc, history, through) {
   // SVG presentation attributes (no inline style; src/ holds zero): fill follows the text colour of an existing class —
   // 'sh-red-note' (data red, a judgement colour — not the falling-price blue) at or above the line, 'sh-muted-note' below it.
   const NS = 'http://www.w3.org/2000/svg';
-  // v58.80 run-5 (breaker #4, skeptic #13): at 28px counts 4–7 differed by 3–4px and read as one height; the bars start
-  // at zero (a count), so the strip is taller instead of cutting the axis.
   const H = 48, W = series.length * 6;
   const bars = doc.createElementNS(NS, 'svg');
   bars.setAttribute('class', 'leaders-line__dist-bars');
@@ -92,9 +82,6 @@ export function distributionStrip(doc, history, through) {
   return part;
 }
 
-// v59.57 (X bookmarks 11/02, damipov): the other half of the distribution-day method — after a correction, is the Nasdaq
-// counting a rally attempt, has a follow-through day come, and are new highs following it. Same chunk and placement as
-// the distribution strip (trend axis detail); absent outside an episode.
 export function rallyAttemptStrip(doc, history, through) {
   const read = rallyAttemptRead(history || [], { through: through || null });
   if (!read) return null;

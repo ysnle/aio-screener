@@ -1,5 +1,3 @@
-// Masters (대가 보유 종목) view builders — the tables, change ledger, sector/quarter/compare/principles views and the
-// top-weight bars the page assembles. Split out of src/ui/pages/masters.js (v59.70, page-module ceiling); behaviour unchanged.
 import { ensureFrameStyle } from '../knowledge/analysis-frames.js';
 import { readNumber } from '../../domain/shared/number.js';
 import { describeValueScaleCarryover } from '../../domain/masters/value-scale.js';
@@ -28,9 +26,6 @@ export function actionLabelOf(row, action) {
   return `${instrument} ${action === 'NEW' ? '신규' : label}`;
 }
 
-// (owner 2026-11-20) three tabs by content — 변화 (this quarter's changes and the quarter trend), 보유 (top
-// holdings, sector mix, search, and the manager's stated principles) and 원본 공시 (the filings and the 5% large-holding
-// reports). The comparison of 2~4 managers sits under the manager's header once two are picked.
 export const VIEW_LABELS = Object.freeze({
   changes: '변화',
   holdings: '보유',
@@ -62,8 +57,6 @@ export function createMetric(documentRef, label, value) {
   return card;
 }
 
-// 2026-10-14 audit: the lookup field had no rule of its own (a white default box in dark mode, too narrow in
-// the 연결 column); it takes the same look as .masters-search-input and the full column width.
 const MASTERS_EXTRA_STYLE = `
 .masters-ticker-lookup{margin:0}
 .masters-ticker-lookup .masters-search{display:block;margin:6px 0 0;min-width:0}
@@ -81,19 +74,11 @@ export function ensureMastersExtraStyle(documentRef) {
   documentRef.head.appendChild(style);
 }
 
-// v57.54: the CUSIP (security code) is a lookup key, not a reading — it moves from its own column to the issuer
-// cell's hover and accessible name.
-// v57.92: "CAP STK CL A" → "A주". Two classes of one issuer (Alphabet A and C) otherwise read as the same name.
 export function shareClassTag(title) {
   const letter = String(title || '').match(/\bCL(?:ASS)?\s*([A-Z])\b/i)?.[1];
   return letter ? `${letter.toUpperCase()}주` : null;
 }
 
-// v58.56 (re-audit #4): rows named the security only by the filer's text ("BANK OF AMER CORP"), with no way to the
-// stock itself. A row gets a ticker chip that opens 종목 요약 only when its CUSIP maps to exactly one listed symbol —
-// `row.tickerExact` written by the runtime builder (reference crosswalk + OpenFIGI, scripts/collect-13f-figi-tickers.mjs),
-// or, until that build has run once, the exact entries of the reference crosswalk. Other rows keep the SEC name,
-// only made readable; nothing is matched by name.
 export function createSecurityLookup(holdings = null, referenceMaster = null) {
   const reference = buildReferenceTickerMap(referenceMaster);
   const builderMapped = Boolean(holdings?.tickerExactPolicy);
@@ -156,7 +141,6 @@ export function createChangeSummary(documentRef, verification, comparisonRows = 
   return summary;
 }
 
-
 export function createOwnershipEvents(documentRef, manager, discovery) {
   if (manager.type === 'METHOD_ONLY') return null;
   const section = element(documentRef, 'section', 'masters-ownership-events masters-availability-note');
@@ -173,9 +157,6 @@ export function createOwnershipEvents(documentRef, manager, discovery) {
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', '최근 제출 목록에서 이 운용사의 대량 보유 신고를 찾지 못했다. 보유가 없다는 뜻은 아니다.'));
     return section;
   }
-  // P1591 (L11): a holding without an identified issuer gives no investment context, so identified
-  // filings are listed and the rest collapse into one line pointing to the originals. The date shown is
-  // the filing date; the check date above is when the list was last read.
   const identified = events.filter((event) => event.subjectCompany);
   const unidentified = events.filter((event) => !event.subjectCompany);
   if (unidentified.length) {
@@ -263,13 +244,10 @@ function createPagination(documentRef, page, pageCount, total, action = 'detail-
 }
 
 export function createChangeLedger(documentRef, comparisonRows, state) {
-  // v59.51 (content audit): the row ledger is the expert layer of the change counts above (the same quarter's share deltas);
-  // it starts closed and keeps its open state across the filter and page re-renders.
   const section = element(documentRef, 'details', 'masters-holdings-section masters-change-ledger');
   section.open = state.changeLedgerOpen === true;
   section.addEventListener('toggle', () => { state.changeLedgerOpen = section.open; });
   section.appendChild(element(documentRef, 'summary', 'masters-holdings-title', `분기별 변화 표, 행 ${comparisonRows.length}개 (증권·주식 유형·옵션별 집계)`));
-  // v58.79: the classification method is one fold down, not an open paragraph above the ledger.
   const method = element(documentRef, 'details', 'aio-note-fold masters-method-fold');
   method.append(element(documentRef, 'summary', '', '분류 방법'), element(documentRef, 'p', 'aio-note-fold__text', '두 보고분기의 신고 주식 수 차이로 나눈 분류입니다. 주식 분할·병합은 보정하지 않아, 여러 운용사의 주식 수가 함께 크게 바뀌고 주당 가치가 반대로 움직인 종목은 분할 의심으로 따로 둡니다. 같은 발행사의 증권 코드(CUSIP)만 바뀐 행은 전량 제외와 신규 편입 대신 CUSIP 변경으로 묶습니다. 변화가 있는 행을 먼저 신고 가치 순으로 놓았고(왼쪽 번호는 표시 순서), 현재 가격·실제 매매·매매 신호·목표가를 뜻하지 않습니다.'));
   section.appendChild(method);
@@ -281,8 +259,6 @@ export function createChangeLedger(documentRef, comparisonRows, state) {
     filterButton.setAttribute('aria-pressed', state.actionFilter === action ? 'true' : 'false');
     filters.appendChild(filterButton);
   });
-  // P1593 (F99/F110): a 'changes' view shows rows that changed before unchanged ones (each group keeps the
-  // reported-value order); the preview itself is the top rows by current reported value, and says so above.
   const changedFirst = [...comparisonRows].sort((a, b) => Number(a.action === 'UNCHANGED') - Number(b.action === 'UNCHANGED'));
   const filtered = state.actionFilter === 'ALL' ? changedFirst : comparisonRows.filter((row) => displayActionOf(row) === state.actionFilter);
   const pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
@@ -330,7 +306,6 @@ export function createFullHoldingsView(documentRef, fullRows, state, descriptor 
   section.append(heading, controls, table, createPagination(documentRef, state.page, pageCount, filtered.length));
   return section;
 }
-
 
 export function createRowPreviewView(documentRef, manager, previewMeta, previewRows) {
   const section = element(documentRef, 'section', 'masters-holdings-section masters-row-preview');
@@ -386,7 +361,6 @@ export function createReferenceSectorView(documentRef, fullRows = [], referenceM
   const referenceByCusip = new Map((referenceMaster?.records || []).map((record) => [record.cusipNormalized, record]));
   const mappedRows = fullRows.map((row) => ({ ...row, ...(referenceByCusip.get(row.cusipNormalized || row.cusip) || {}) })).filter((row) => row.tickerReference && row.sectorReference);
   if (!mappedRows.length) return null;
-  // P1522: withheld rows carry value null; summing them as 0 would draw "$0" and a sort by nothing.
   const scaleWithheld = mappedRows.some((row) => row.valueScaleStatus === 'SCALE_REVIEW');
   const totalValue = scaleWithheld ? null : mappedRows.reduce((sum, row) => sum + (Number(row.value) || 0), 0);
   const sectorTotals = new Map();
@@ -435,8 +409,6 @@ export function createQuarterView(documentRef, holdingMeta, historyManager, hist
     const partial = isPartialAmendmentPeriod(period, imported);
     return { period: period.periodOfReport, partial, count: partial ? null : imported?.count ?? period.rowCount ?? historical?.count ?? null, partialCount: partial ? period.rowCount ?? historical?.count ?? null : null, value: partial || scaleReviewed ? null : imported?.value ?? period.reportedValueTotal ?? historical?.value ?? null, reconciliation: imported?.reconciliation ?? period.countReconciled ?? false, filedAt: period.filedAt, accession: period.accession, rowImportStatus: period.rowImportStatus, indexUrl: period.indexUrl, composition: period.composition || null };
   });
-  // Feature audit 2026-11-02: only managers in history-index.json carry a multi-quarter history; the rest have the
-  // current and prior quarter, so the sentence states the quarters actually shown instead of a 12-quarter default.
   section.appendChild(element(documentRef, 'p', 'masters-holdings-meta', `최근 ${rows.length}개 분기에 SEC에 신고한 보유 행 수와 신고 가치입니다.${historyManager ? '' : ' 이 운용사는 이번·직전 분기만 연결돼 있습니다.'} 정정 공시는 원본과 합쳐 분기 전체가 확인될 때만 추이에 넣습니다.`));
   section.appendChild(createQuarterTrend(documentRef, rows));
   const table = createTable(documentRef, ['보고 분기', '보유 행', '신고 가치 합계', '상태', '원문'], rows, (row) => {
@@ -463,9 +435,6 @@ export function createQuarterView(documentRef, holdingMeta, historyManager, hist
   return section;
 }
 
-// P1599 (F110): the quarter trend as two small column charts — reported value and row count are different
-// measures (value moves with prices; neither is AUM or performance), so each gets its own scale. A quarter
-// without a complete filing is a gap, never a zero.
 function createQuarterTrend(documentRef, rows) {
   const ordered = [...rows].filter((row) => row.period).sort((a, b) => String(a.period).localeCompare(String(b.period)));
   const wrap = element(documentRef, 'div', 'masters-quarter-trend');
@@ -501,17 +470,12 @@ export function createIssuerAggregateView(documentRef, aggregateArtifact, manage
   // F110: counted the same way as the all-filer total and the table's '확인할 점' column (filing flags only);
   // corporate actions are still unreviewed for every bundle, which the section note already says once.
   const reviewQueue = records.filter((record) => record.reviewFlags?.length);
-  // W04-A/P1149 (C01): the per-manager summary must be computed from the selected manager's
-  // records with the SAME function as the table below. The whole-artifact coverage belongs in its
-  // own labelled block — a manager-scoped card must never show another scope's denominator.
-  // CUSIP count, unique report periods, and manager·CUSIP·share-type·put/call records are
-  // different counts and are never assumed equal.
   const managerCusips = new Set(records.map((record) => record.cusipNormalized).filter(Boolean));
   const managerPeriodRows = records.reduce((sum, record) => sum + (record.periods?.length || 0), 0);
   const scope = { managerId: managerId || null, reportPeriods: [...periods].sort(), aggregationKey: 'manager·CUSIP·shareType·putCall' };
   section.append(
     element(documentRef, 'h3', 'masters-holdings-title', '보유 증권별 여러 분기 공시 모음'),
-    element(documentRef, 'p', 'masters-holdings-meta', '공시 원문을 증권별로 모은 자료입니다. 회사 연결(티커·업종)과 분할·합병 같은 기업 행동은 아직 확인 전이라, 확인된 항목만 종목 분석에 씁니다.') // P1591 (L10)
+    element(documentRef, 'p', 'masters-holdings-meta', '공시 원문을 증권별로 모은 자료입니다. 회사 연결(티커·업종)과 분할·합병 같은 기업 행동은 아직 확인 전이라, 확인된 항목만 종목 분석에 씁니다.')
   );
   if (scaleReviewed) section.appendChild(element(documentRef, 'p', 'masters-holdings-meta masters-scale-review', describeValueScaleCarryover()));
   const metrics = element(documentRef, 'div', 'masters-normalization-metrics');
@@ -549,7 +513,6 @@ export function createIssuerAggregateView(documentRef, aggregateArtifact, manage
   return section;
 }
 
-// P1591 (L10): review codes in reader words.
 const REVIEW_FLAG_WORDS = Object.freeze({ ISSUER_NAME_VARIATION: '신고마다 회사명 표기가 다름', TITLE_OF_CLASS_VARIATION: '증권 종류 표기가 다름', SHARE_TYPE_VARIATION: '수량 단위가 다름', PUT_CALL_REVIEW: '옵션 포함', CUSIP_FORMAT_REVIEW: '증권 코드 형식 확인 필요' });
 
 export function createFilingArtifact(documentRef, filingMeta, holdingMeta) {
@@ -580,8 +543,6 @@ export function createPrinciplesView(documentRef, manager, principlesArtifact) {
   const profile = principlesArtifact?.profiles?.find((item) => item.managerId === manager.id);
   section.append(
     element(documentRef, 'h3', 'masters-holdings-title', '공식 원칙과 관찰 패턴'),
-    // Codex browser audit H102: "not connected" showed while the principles file was still loading, so a profile
-    // that has official principles looked empty on first visit. Loading, absent and present are three states.
     element(documentRef, 'p', 'masters-holdings-meta', profile
       ? '공식 자료에서 확인되는 원칙과 공개 13F에서 관찰되는 패턴을 분리해 표시합니다.'
       : !principlesArtifact
@@ -627,7 +588,6 @@ export function createInvestorCompareView(documentRef, selectedIds, registry, ho
   );
   const ids = selectedIds.slice(0, 4);
   if (ids.length < 2) {
-    // P1592 (F36): name who is already picked — the comparison list is separate from the manager being read.
     const picked = ids.map((id) => registry.find((item) => item.id === id)?.name || id);
     section.appendChild(element(documentRef, 'div', 'masters-empty-state', picked.length
       ? `지금 ${picked.join(', ')} 1명을 골랐습니다. 다른 운용사 상세에서 “비교에 추가”를 눌러 1명 이상 더 고르면 비교합니다(최대 4명).`
@@ -689,9 +649,6 @@ export function createInvestorCompareView(documentRef, selectedIds, registry, ho
   return section;
 }
 
-// 2026-10-14 audit: the card had numbers only. One visual — the top holdings' share of the quarter's reported
-// value, from the rows already loaded for the card (value / parsed total; the sum equals the published top-10
-// concentration). Withheld with the totals when the cover and rows disagree or the value scale is under review.
 export function createTopWeightBars(documentRef, manager, holdingMeta, rows, withheld, lookup = PLAIN_LOOKUP) {
   const verification = holdingMeta?.verification || {};
   const total = Number(verification.parsedValueTotal);
@@ -703,15 +660,9 @@ export function createTopWeightBars(documentRef, manager, holdingMeta, rows, wit
   if (withheld || !(total > 0) || top.length < 2) return null;
   ensureFrameStyle(documentRef);
   ensureMastersExtraStyle(documentRef);
-  // v58.56 (#4): the exact ticker leads the label (the part an ellipsis keeps), then the readable name.
   const baseLabel = (row) => { const ticker = lookup.tickerOf(row); const name = row.issuer ? lookup.nameOf(row) : row.cusipNormalized || '—'; const tag = shareClassTag(row.titleOfClass); return `${ticker ? `${ticker}, ` : ''}${name}${tag && !/\bclass\b/i.test(name) ? `, ${tag}` : ''}${row.putCall ? ` ${row.putCall}` : ''}`; };
   const repeated = new Set(top.map(baseLabel).filter((label, index, all) => all.indexOf(label) !== index));
-  // Two share classes of one issuer (e.g. class A and C) are separate rows; name the class so they read apart.
-  // v57.92: the full class title ("CAP STK CL A") was cut by the label ellipsis on a tablet, so both Alphabet rows read
-  // "ALPHABET INC · CAP STK…"; the class letter is kept short ("A주") so the part that tells them apart stays visible.
   const classTag = (title) => shareClassTag(title) || title;
-  // Screen review #28 (2026-11-04): on a phone the name after the ticker was cut ('AXP, American Expres…'); the bar
-  // shows the ticker alone (class letter and put/call kept) and the full name moves to the hover title and aria-label.
   const tickerLabel = (row) => { const ticker = lookup.tickerOf(row); if (!ticker) return null; const tag = repeated.has(baseLabel(row)) && row.titleOfClass ? ` ${classTag(row.titleOfClass)}` : ''; return `${ticker}${tag}${row.putCall ? ` ${row.putCall}` : ''}`; };
   const weights = top.map((row) => ({ label: tickerLabel(row) || (repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${classTag(row.titleOfClass)}` : baseLabel(row)), fullLabel: repeated.has(baseLabel(row)) && row.titleOfClass ? `${baseLabel(row)}, ${row.titleOfClass}` : baseLabel(row), pct: Number(row.value) / total * 100 }));
   const max = Math.max(...weights.map((item) => item.pct));
@@ -739,4 +690,3 @@ export function createTopWeightBars(documentRef, manager, holdingMeta, rows, wit
   section.appendChild(bars);
   return section;
 }
-

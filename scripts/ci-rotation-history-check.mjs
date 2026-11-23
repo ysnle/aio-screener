@@ -4,8 +4,14 @@ import { readFile } from 'node:fs/promises';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
 import { buildRotationHistory, collectRotationHistory, ROTATION_SYMBOLS } from './lib/rotation-history.mjs';
 import { latestCompletedUsSession, resolveMarketCalendarSession } from '../src/ai/time/market-session.js';
+import { runSections } from './lib/gate-sections.mjs';
 
 globalThis.fetch = () => { throw new Error('P1358 fixture attempted real network'); };
+
+// v60.50: the producer regression runs on mock bars (code); the published rotation pair (data.json + rotation-detail.json)
+// is a data section that also runs in a data run.
+await runSections('rotation-history', [
+['producer', async () => {
 const now = Date.parse('2026-10-01T00:34:01Z');
 const target = latestCompletedUsSession(now);
 function bars(count = 75, end = target.date, asset = false) {
@@ -133,7 +139,9 @@ assert.deepEqual([...ROTATION_SYMBOLS].sort(),actualSymbols.sort(),'P1358 produc
 // v59.70 (data audit R11): data.json keeps the coordinates and rotation-detail.json the series. Through every reader
 // (produced row, current rotation items, settled zone, recent reading) the split-then-merged artifact reads exactly as
 // the full one did; the summary alone is marked pending, and a detail copy from another session never joins.
-{
+console.log('[rotation-history] P1358 PASS: alignment, completed sessions, input contracts, raw-price ceiling, retention, cache and mock collection (' + ROTATION_SYMBOLS.length + ' ETFs; no network/write)');
+}, 'code'],
+['published-rotation', async () => {
   const { splitRotationHistory, mergeRotationDetail, rotationDetailPending } = await import('../src/domain/themes/rotation-detail.js');
   const { selectProducedRotation, currentRotationItems } = await import('../src/domain/themes/produced-rotation.js');
   const { rrgSettledQuadrant, rrgRecentReading } = await import('../src/domain/themes/recent-check.js');
@@ -158,5 +166,6 @@ assert.deepEqual([...ROTATION_SYMBOLS].sort(),actualSymbols.sort(),'P1358 produc
   const otherSession = { ...detail, items: Object.fromEntries(Object.entries(detail.items).map(([symbol, row]) => [symbol, { ...row, sessionDate: '1999-01-04' }])) };
   const mismatched = mergeRotationDetail(summary, otherSession);
   assert.ok(rotationDetailPending(mismatched) && Object.values(mismatched.items).every((row) => !('trail' in row)), 'v59.70 a detail copy from another session never joins and the artifact stays pending');
-}
-console.log('[rotation-history] P1358 PASS: alignment, completed sessions, input contracts, raw-price ceiling, retention, cache and mock collection (' + ROTATION_SYMBOLS.length + ' ETFs; no network/write)');
+  console.log('[rotation-history] published rotation pair reads the same split or merged');
+}, 'data'],
+]);

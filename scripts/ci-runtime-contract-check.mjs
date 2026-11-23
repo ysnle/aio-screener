@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { runSections } from './lib/gate-sections.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (path) => readFileSync(join(root, path), 'utf8');
@@ -75,6 +76,22 @@ const extractTelegramPageTags = () => {
 };
 const telegramPageTags = extractTelegramPageTags();
 const telegramConsumedTags = new Set(Object.values(telegramPageTags).flat());
+const report = () => {
+  const failed = errors.splice(0);
+  if (!failed.length) return;
+  console.error('Runtime contract check failed:');
+  failed.forEach((e) => console.error(' - ' + e));
+  if (warnings.length) {
+    console.error('Warnings:');
+    warnings.forEach((w) => console.error(' - ' + w));
+  }
+  process.exit(1);
+};
+
+// v60.50: the runtime contracts are code; the published Telegram digest and screener are checked against them in a data
+// section that also runs in a data run.
+await runSections('runtime', [
+['runtime', async () => {
 
 const staticBusters = [...html.matchAll(/<script\s+src="\.\/js\/aio-[^"]+\?v=([\d.]+)"/g)].map((m) => m[1]);
 check('all static aio script cachebusters match version.json', staticBusters.length >= 5 && staticBusters.every((v) => v === versionNum), `found ${staticBusters.join(',')}, expected ${versionNum}`);
@@ -144,25 +161,6 @@ check('P768: native screener is the sole runtime artifact fetch and legacy recei
   check('v60.18 browser Telegram sources with a public mirror equal the producer active catalog, and no retired slug is requested or special-cased',
     catalogRows.length >= 2 && active.length > 0 && JSON.stringify(mirrored) === JSON.stringify(active) && retiredLeft.length === 0,
     `active=${active.join(',')} browser-mirrored=${mirrored.join(',')} retired-left=${retiredLeft.join(',')}`);
-}
-if (exists('public-data/telegram-digest.json')) {
-  try {
-    const digest = JSON.parse(read('public-data/telegram-digest.json'));
-    const produced = Object.entries(digest.topicCounts || {}).filter(([, count]) => Number(count) > 0).map(([topic]) => topic);
-    const missing = produced.filter((topic) => topic !== 'media-only' && !telegramConsumedTags.has(topic));
-    check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
-    // P1683: the lineage rows live in telegram-observed.json once the producer has split them out.
-    const lineage = Array.isArray(digest.observedItems) ? digest.observedItems : (exists('public-data/telegram-observed.json') ? JSON.parse(read('public-data/telegram-observed.json')).observedItems : null);
-    // v60.39: the lineage file is producer state carried in the Actions cache, not on main; it is checked where it exists
-    // (the producer's own pre-push gates), and a checkout without it checks the name only.
-    if (!Array.isArray(digest.observedItems)) check('v60.39 P1683 a digest without lineage rows names its lineage artifact', digest.observedLineageArtifact === 'public-data/telegram-observed.json' && (lineage === null || Array.isArray(lineage)));
-    if (Array.isArray(lineage)) {
-      check('public Telegram digest count matches observed whole-window lineage', digest.count === lineage.length, `count=${digest.count}, observed=${lineage.length}`);
-      check('public Telegram digest reports capped-payload coverage funnel', digest.coverage && digest.coverage.observedCount === digest.count && Number.isFinite(digest.coverage.selectedRawCoveragePct));
-    }
-  } catch (error) {
-    check('public Telegram digest topic inventory parses for routing coverage', false, error.message);
-  }
 }
 // The uncalled getTopicBadge map (which held the credit badge class) was retired as dead code.
 check('P1753 runtime promotes credit to a first-class news topic (retired getTopicBadge stays gone)', /credit:\s*\[[^\]]*credit spread/.test(data) && !/function getTopicBadge\b/.test(data) && /key:\s*'credit'[\s\S]{0,80}크레딧/.test(data));
@@ -386,24 +384,6 @@ check(
   'scripts/fetch-data.mjs must keep nullable ADR/52-week/liquidity/EMA evidence wired into screener.json'
 );
 
-try {
-  const screenerPayload = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
-  const rows = Object.values(screenerPayload.data || {});
-  const vcpRows = rows.filter((row) => row && typeof row.vcpScore === 'number');
-  const stages = new Set(rows.map((row) => row && row.vcpStage).filter(Boolean));
-  check(
-    'public screener artifact includes VCP scores',
-    rows.length > 0 && vcpRows.length >= Math.min(50, rows.length),
-    `found ${vcpRows.length}/${rows.length} row(s) with numeric vcpScore`
-  );
-  check(
-    'public screener artifact includes VCP stage labels',
-    stages.size > 0,
-    'expected at least one vcpStage label in public-data/screener.json'
-  );
-} catch (error) {
-  check('public screener artifact includes VCP scores', false, error.message);
-}
 
 // [C] P1443 (supersedes the P538 COMP_W key check): the backtest composite is the live ranking model —
 // computeFactorRanks on the rebalance-date factor values — not a separately weighted re-implementation.
@@ -1398,15 +1378,49 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   check('P2068 an index card whose intraday bars failed falls back to the last published close with its date',
     fb?.date === '10/23' && fb.value === 6767 && Math.abs(fb.changePct - 1) < 1e-9, JSON.stringify(fb));
 }
-if (errors.length) {
-  console.error('Runtime contract check failed:');
-  errors.forEach((e) => console.error(' - ' + e));
-  if (warnings.length) {
-    console.error('Warnings:');
-    warnings.forEach((w) => console.error(' - ' + w));
-  }
-  process.exit(1);
-}
-
+report();
 console.log(`Runtime contract check OK: ${version}, ${callableRefs.length} AI callable reference(s), digest contract ${exists(digestPath) ? 'wired' : 'skipped'}.`);
+}, 'code'],
+['published-artifacts', async () => {
+if (exists('public-data/telegram-digest.json')) {
+  try {
+    const digest = JSON.parse(read('public-data/telegram-digest.json'));
+    const produced = Object.entries(digest.topicCounts || {}).filter(([, count]) => Number(count) > 0).map(([topic]) => topic);
+    const missing = produced.filter((topic) => topic !== 'media-only' && !telegramConsumedTags.has(topic));
+    check('produced Telegram digest topics are consumed by at least one page', missing.length === 0, missing.join(', '));
+    // P1683: the lineage rows live in telegram-observed.json once the producer has split them out.
+    const lineage = Array.isArray(digest.observedItems) ? digest.observedItems : (exists('public-data/telegram-observed.json') ? JSON.parse(read('public-data/telegram-observed.json')).observedItems : null);
+    // v60.39: the lineage file is producer state carried in the Actions cache, not on main; it is checked where it exists
+    // (the producer's own pre-push gates), and a checkout without it checks the name only.
+    if (!Array.isArray(digest.observedItems)) check('v60.39 P1683 a digest without lineage rows names its lineage artifact', digest.observedLineageArtifact === 'public-data/telegram-observed.json' && (lineage === null || Array.isArray(lineage)));
+    if (Array.isArray(lineage)) {
+      check('public Telegram digest count matches observed whole-window lineage', digest.count === lineage.length, `count=${digest.count}, observed=${lineage.length}`);
+      check('public Telegram digest reports capped-payload coverage funnel', digest.coverage && digest.coverage.observedCount === digest.count && Number.isFinite(digest.coverage.selectedRawCoveragePct));
+    }
+  } catch (error) {
+    check('public Telegram digest topic inventory parses for routing coverage', false, error.message);
+  }
+}
+try {
+  const screenerPayload = expandScreenerArtifact(JSON.parse(read('public-data/screener.json')));
+  const rows = Object.values(screenerPayload.data || {});
+  const vcpRows = rows.filter((row) => row && typeof row.vcpScore === 'number');
+  const stages = new Set(rows.map((row) => row && row.vcpStage).filter(Boolean));
+  check(
+    'public screener artifact includes VCP scores',
+    rows.length > 0 && vcpRows.length >= Math.min(50, rows.length),
+    `found ${vcpRows.length}/${rows.length} row(s) with numeric vcpScore`
+  );
+  check(
+    'public screener artifact includes VCP stage labels',
+    stages.size > 0,
+    'expected at least one vcpStage label in public-data/screener.json'
+  );
+} catch (error) {
+  check('public screener artifact includes VCP scores', false, error.message);
+}
+report();
+console.log('Runtime published artifacts OK: Telegram digest topics routed, screener VCP fields present.');
+}, 'data'],
+]);
 if (warnings.length) warnings.forEach((w) => console.warn('WARN: ' + w));

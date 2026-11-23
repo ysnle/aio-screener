@@ -26,12 +26,10 @@ export function appUsdKrwClose(history, { now = Date.now() } = {}) {
   if (!last || !(Number.isFinite(rate) && rate > 0) || !isIsoDay(String(last.date || ''))) return null;
   const ageDays = (Number(now) - Date.parse(`${last.date}T00:00:00Z`)) / 86400000;
   if (!(ageDays >= -1 && ageDays <= APP_FX_MAX_AGE_DAYS + 1)) return null;
-  // v59.59: the session before it too, so a converted holding's daily change can carry the won's own move.
   const prev = Number(series[series.length - 2]?.value);
   return Object.freeze({ pair: 'USD/KRW', rate, date: last.date, prevRate: Number.isFinite(prev) && prev > 0 ? prev : null, basis: 'completed-close', label: `USD/KRW ${md(last.date)} 종가 기준` });
 }
 
-// v59.45 (PASS23 P23-FX-01): exported so the risk input converts holdings with the same app close the surface uses.
 export function viaAppClose(amount, from, to, appFx) {
   if (!appFx || !(appFx.rate > 0)) return null;
   if (from === 'USD' && to === 'KRW') return amount * appFx.rate;
@@ -45,8 +43,6 @@ export function viaAppClose(amount, from, to, appFx) {
  * Returns the total (or null) and how each balance got there.
  */
 export function convertCashBalances({ balances = [], target = null, legs = [], appFx = null, asOfMs = Date.now() } = {}) {
-  // v59.45 (PASS22 P22-CASH-01): a balance whose amount is missing, unreadable or negative is not a zero and not absent —
-  // dropping it printed USD 100 + KRW 'bad' as a complete USD 100. It holds the total and is counted in `invalid`.
   const all = (Array.isArray(balances) ? balances : []).filter(Boolean);
   const validAmount = (row) => row.amount !== null && row.amount !== undefined && String(row.amount).trim() !== '' && Number.isFinite(Number(row.amount)) && Number(row.amount) >= 0;
   const rows = all.filter(validAmount);

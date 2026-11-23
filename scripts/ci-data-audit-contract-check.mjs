@@ -461,7 +461,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   const { financialKind, isLendingFinancial, buildFiscalRead } = await import('../src/domain/fundamental/fiscal-read.js');
   const { reverseDcfInputs } = await import('../src/domain/fundamental/analysis-read.js');
   const { layerValuation } = await import('../src/domain/themes/layer-valuation.js');
-  const { AI_CHAIN_THEMES } = await import('../src/domain/briefing/ai-chain-flow.js');
+  const { LEADER_THEMES } = await import('../src/domain/briefing/ai-chain-flow.js');
   const fact = (start, end, val, form = '10-K', fp = 'FY', fy = 2025, filed = '2026-02-20') => ({ start, end, val, form, fp, fy, filed, accn: `0000-${end}-${form}` });
   const usd = (rows) => ({ units: { USD: rows } });
   const spans = [['2025-01-01', '2025-03-31', 2025, '2025-05-01'], ['2025-04-01', '2025-06-30', 2025, '2025-08-01'], ['2025-07-01', '2025-09-30', 2025, '2025-11-01'],
@@ -521,7 +521,7 @@ const calendars = await import('./lib/official-calendars.mjs');
     && deriveSecReport({ symbol: 'FIX', observedAt: '2025-12-31', pe: 16.7, coverage: ['pe'], peEarnings: { basis: 'ttm' }, earningsOneOff: ['2026-06-30'] }).metrics.find((metric) => metric.key === 'pe')?.label === 'P/E(최근 4개 분기 순이익) · 일회성 이익 포함', point('earnings').slice(0, 160));
   const now = Date.parse('2026-11-14T12:00:00Z');
   const estimate = (trailing, forward) => ({ asOf: '2026-11-13T20:00:00Z', trailing: { eps: trailing }, fwd: { eps: forward } });
-  const lv = layerValuation({ now, themes: [{ id: AI_CHAIN_THEMES[0], subThemes: [{ name: 'L', tickers: ['AA', 'BB', 'CC', 'LOSS'] }] }],
+  const lv = layerValuation({ now, themes: [{ id: LEADER_THEMES[0], subThemes: [{ name: 'L', tickers: ['AA', 'BB', 'CC', 'LOSS'] }] }],
     rows: ['AA', 'BB', 'CC', 'LOSS'].map((sym) => ({ sym, factorSessionDate: '2026-11-13', _valuationPrice: 100 })),
     consensus: { rows: { AA: estimate(5, 6), BB: estimate(4, 5), CC: estimate(2, 4), LOSS: estimate(-1, 0.5) } } });
   check('v60.16 a layer median names the loss-making members it leaves out', lv.layers[0]?.measured === 3 && lv.layers[0].lossMakers.join() === 'LOSS' && lv.layers[0].trailingPe === 25, JSON.stringify(lv.layers[0] || lv.hidden[0] || null));

@@ -1,11 +1,5 @@
-// v59.55 (flow review, owner 2026-11-01 "동의함"): with no company chosen, 종목 showed a search box and the principles fold.
-// The start block offers places to begin from data the app already holds — your holdings and watchlist, and the
-// screener's top passed rows — so the first tap is a name, not a guess. No new source; every group hides when empty, and
-// the static example chips stay as the fallback. (The last company opened is not a group: route-hubs.js reopens it, so
-// the screen is empty only when there is none.)
 import { screenerRowsForRoot } from '../../data/selectors/interpretation.js';
-import { screenerMarket } from '../../domain/screener/market-scope.js';
-import { readNumber } from '../../domain/shared/number.js';
+import { topRankedPicks } from '../../domain/screener/top-pick-gate.js';
 import { el } from './dom.js';
 
 const symbolOf = (row) => String(row?.sym || row?.symbol || '').trim().toUpperCase();
@@ -32,13 +26,7 @@ function group(doc, title, chips) {
 export function buildTickerStart({ holdings = [], watchlist = [], rows = [], limit = 5 } = {}) {
   const names = new Map(rows.map((row) => [symbolOf(row), String(row?.name || row?.nameKr || '')]));
   const mine = [...new Set([...holdings.map(symbolOf), ...watchlist.map((symbol) => String(symbol || '').toUpperCase())].filter(Boolean))];
-  const top = rows
-    // Ranks are percentiles within each market; the list is the US one (US leads, AGENTS).
-    .filter((row) => row?.screenStatus === 'passed' && readNumber(row.rank) != null && screenerMarket(row) === 'US')
-    .sort((a, b) => readNumber(b.rank) - readNumber(a.rank))
-    .slice(0, limit)
-    .map(symbolOf)
-    .filter(Boolean);
+  const top = topRankedPicks(rows, { market: 'US', limit });
   return {
     mine: mine.slice(0, 8).map((symbol) => ({ symbol, name: names.get(symbol) || '' })),
     top: top.map((symbol) => ({ symbol, name: names.get(symbol) || '' }))
@@ -59,7 +47,6 @@ export function renderTickerStart({ documentRef: doc, root, portfolioState = nul
   const groups = [];
   if (model.mine.length) groups.push(group(doc, '내 종목', model.mine.map((row) => chip(doc, row.symbol, row.name))));
   if (model.top.length) {
-    // v59.70 (screen review 17): the screener opens on 시총 큰 순, so '순위 상위' read as its first rows; the group names its own column.
     const box = group(doc, '스크리너 백분위 상위, 미국', model.top.map((row) => chip(doc, row.symbol, row.name)));
     const more = el(doc, 'button', '스크리너에서 전체 순위 →', 'flow-next-link');
     more.type = 'button';

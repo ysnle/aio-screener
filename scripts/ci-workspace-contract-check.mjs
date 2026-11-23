@@ -322,7 +322,7 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(`Workspace contract OK: ${state.application.version}, ${state.workspace.contextDocuments} context docs, ${state.workspace.skills} skills, ${state.workspace.agentProfiles} agent profiles, ${state.workspace.workflows} workflows.`);
-}],
+}, 'code'],
 // ── section live-header-policy (was ci-live-header-policy-contract-check.mjs) ──
 ['live-header-policy', async () => {
 const { evaluateLiveHeader, resolveLiveHeaderPolicy } = await import('./live-header-policy.mjs');
@@ -344,5 +344,5 @@ if (errors.length) {
 }
 
 console.log('Live header policy contract OK: github.io=operator-required/WARN, custom=enforce/FAIL, matching=PASS.');
-}],
+}, 'code'],
 ]);

@@ -1,10 +1,3 @@
-// v57.81 (phone/iPad audit): returning from 종목 (#ticker/#technical) put the previous screen back at the top —
-// themes 1820 -> 0 with its detail closed, news 900 -> 0, portfolio 1904 -> 0. The screener kept its own return
-// position (screener.js returnView); this generalises it. Each route's #main-content scroll position is remembered
-// while it is shown, and a RETURN — browser back/forward, the 종목 tab bar's "← origin" link or the 요약 back
-// button — restores it after the page has rendered. A theme detail that was open is reopened first, so the
-// #themes?theme= address comes back with it. Ordinary menu navigation still starts a screen at the top.
-
 const RETURN_CONTROLS = '.aio-hub-subject-from, #ticker-back-btn-main, [data-aio-scroll-return]';
 const INTENT_WINDOW_MS = 1500;
 const RESTORE_LIMIT_MS = 4000;

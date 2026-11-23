@@ -1,8 +1,3 @@
-// The owner's X bookmarks read after the 11/04 packet (2026-11-07 and 11-08): posts not yet in any packet, read through
-// the owner's browser — article bodies, every image the ledger lists as opened, shown replies and the quote tab where it
-// loaded. Same reference-only shape as packet-20261104-x-bookmarks.js: nothing here is a live value, a ranking input or a
-// call. Ledger and per-item dispositions: _artifacts/x-bookmarks-20261105/CLAUDE-RESPONSE-20261108.md. Posting times are
-// decoded from the status IDs; the save date is not shown by X and is not claimed.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 // Grades on the ledger's scale: A checked or reusable, B cited or confirming, C none.
 const SOURCE_TIMELINE = Object.freeze({

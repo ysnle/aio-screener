@@ -5,8 +5,8 @@
 //   node scripts/publish-data-commit.mjs --list
 //
 // The set (paths, timestamp-only rules, hooks, collision policy) comes from scripts/lib/data-publish-sets.mjs. Order:
-//   stage → put timestamp-only files back to HEAD → refuse unparsable JSON → afterStage hooks → 50 MB check →
-//   nothing staged? done → beforeCommit hooks → commit → verifyCommit → push; on rejection fetch, `rebase --autostash`,
+//   stage → refuse a path outside public-data/ → put timestamp-only files back to HEAD → refuse unparsable JSON →
+//   afterStage hooks → 50 MB check → nothing staged? done → beforeCommit hooks → refuse outside public-data/ again → commit → verifyCommit → push; on rejection fetch, `rebase --autostash`,
 //   verifyCommit again, retry (5 attempts, jittered) → dispatch exact-SHA CI.
 // A rebase conflict or a rebased tree that no longer verifies follows the set's onRebaseFail: 'collision' dispatches one
 // re-run from the new main (retry=collision) and ends green with collision=true; a second collision, or 'fail', exits 1.
@@ -18,7 +18,7 @@
 //   AIO_PUBLISH_NOW      ISO time used for the commit-message minute
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync, statSync } from 'node:fs';
-import { DATA_PUBLISH_SETS } from './lib/data-publish-sets.mjs';
+import { DATA_PUBLISH_SETS, DATA_ROOT, outsideDataRoot } from './lib/data-publish-sets.mjs';
 import { sameExcept } from './lib/json-same-except.mjs';
 
 export const MAX_PUBLISH_BYTES = 50 * 1024 * 1024;
@@ -72,6 +72,14 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
   if (set.candidateFile && !candidate) { console.error(`::error::set ${id} verifies a candidate; pass --candidate`); return 2; }
   const env = { ...process.env, CANDIDATE: candidate || '' };
   const fail = (message) => { console.error(`::error::${message}`); return 1; };
+  // v60.50: a data commit is public-data/ only — the set as declared, and everything in the index when it is committed
+  // (a hook or an earlier step may have staged more than the set names).
+  const outsideSet = outsideDataRoot([...set.required, ...set.optional]);
+  if (outsideSet.length) return fail(`${id}: set names path(s) outside ${DATA_ROOT}: ${outsideSet.join(' ')}`);
+  const stagedOutside = () => {
+    const outside = outsideDataRoot(stagedNames());
+    return outside.length ? fail(`${id}: staged path(s) outside ${DATA_ROOT}: ${outside.join(' ')}; a data commit changes public-data/ only`) : 0;
+  };
 
   // The push below names refs/heads/<branch> explicitly, so a run checked out on any other branch (a workflow_dispatch from
   // a feature branch) would fast-forward that branch's code into <branch> together with its data. Refuse it up front.
@@ -87,6 +95,7 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
     if (!gitOk(['add', '--', path])) return fail(`${id}: git add ${path} failed`);
   }
   for (const path of set.optional) if (existsSync(path) && !gitOk(['add', '--', path])) return fail(`${id}: git add ${path} failed`);
+  if (stagedOutside()) return 1;
 
   // 2. Timestamp-only rewrites go back to HEAD in the index AND the worktree; a modified-but-unstaged file left behind
   // is what made the next rebase refuse to run (run 42480198913).
@@ -139,6 +148,7 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
   }
 
   for (const command of set.beforeCommit) if (!shell(command, env)) return fail(`${id}: beforeCommit step failed: ${command}`);
+  if (stagedOutside()) return 1;
 
   const minute = new Date(process.env.AIO_PUBLISH_NOW || Date.now()).toISOString().slice(0, 16);
   if (!gitOk(['commit', '-q', '-m', `${set.message} ${minute}Z`])) return fail(`${id}: git commit failed`);

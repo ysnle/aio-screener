@@ -1,14 +1,7 @@
-// P1438 (포트폴리오 redesign): the holdings read against the market they sit in — how much of the money
-// is in names still in an uptrend, in sectors the rotation favours, how the book did against the S&P 500,
-// and whether the market regime makes the weakest positions the first to watch. Value-weighted on the
-// surface's base-currency values; a holding without a value or a screener row is left out and counted.
 import { SECTOR_ETF } from '../entity/stock-read.js';
 import { sectorLabel } from '../screener/screener-read.js';
 
-// v57.50 I11: one sector vocabulary on the portfolio screen — the screener's labels (기술·헬스케어·부동산 …), plus the
-// two portfolio-only buckets. 'Financial Services' is the import alias of the screener's Financials.
 const PORTFOLIO_ONLY_SECTORS = Object.freeze({ CASH: '현금', Unclassified: '미분류' });
-// P2115: recent-check.js leads its clause with ', ' since v58.73 (' · ' before); strip either so no stray ' ,' is printed.
 const CLAUSE_LEAD = /^(?:, | · )/;
 export function portfolioSectorLabel(name) {
   return PORTFOLIO_ONLY_SECTORS[name] || sectorLabel(name === 'Financial Services' ? 'Financials' : name);
@@ -21,30 +14,21 @@ import { directionOf, signedText, readNumber as finite } from '../shared/number.
 import { withAndParticle } from '../content/korean-particle.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
 import { bufferedTrend } from '../technical/bands.js';
+import { leaderMembers } from '../briefing/ai-chain-flow.js';
 
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
 const QUADRANT = Object.freeze({ Leading: { label: '선도', tone: 'favorable' }, Improving: { label: '개선', tone: 'neutral' }, Weakening: { label: '약화', tone: 'neutral' }, Lagging: { label: '후행', tone: 'burden' } });
 
-// v57.81 (analysis audit 2026-10-15): a quadrant is a ~50-session reading. XLK sat at RS-Ratio 100.33 — inside the RRG
-// neutral band — and trailed the S&P 500 by 4.5%p in five sessions, yet 59% of the book read '선도'. A point in the band
-// is 판정 보류(기준선 부근); a last-five-session move against the quadrant beyond the line's own noise is 약화 중/반등 중. Neither
-// counts toward the favourable/burden tone. Band and reversal come from the themes owner (recent-check.js).
 function rotationQuadrant(item) {
   if (!QUADRANT[item?.quadrant]) return null;
   const reading = rrgRecentReading(item, item?.relativeStrength || null);
-  // v57.84 (owner decision 3-3): the settled quadrant (own-noise band + hysteresis), as on 테마 · 섹터.
   const base = QUADRANT[reading?.quadrant || item.quadrant];
   if (reading?.border) return { label: '판정 보류(기준선 부근)', tone: 'neutral', held: true, base: base.label, why: `상대강도가 100 부근(${reading.between} 사이)${reading.clause ? `이고 ${reading.clause.replace(CLAUSE_LEAD, '')}` : ''}` };
   if (reading?.reversal) return { label: `${base.label}, ${reading.reversal === 'fell' ? '약화 중' : '반등 중'}`, tone: 'neutral', held: true, base: base.label, why: reading.clause.replace(CLAUSE_LEAD, '') };
   return { ...base, held: false, base: base.label, why: '' };
 }
 
-// v59.70 (lens plan step 5): one trend definition. The portfolio used its own band (±max(1%, ADR) around either line);
-// it now reads the same bufferedTrend as 종목·기술적 분석 (technical/bands.js), mapped to the portfolio's five states. A
-// short-term break inside an up-trend counts as 판정 보류. Above both lines with the five-session return missing stays 상승
-// only when the 50-day band was tested (ADR known), as the portfolio read did before; without the ADR it is 판정 보류.
 const TREND_STATE_OF = Object.freeze({ up: 'up', 'up-shaken': 'near', near50: 'near', pullback: 'pullback', rebound: 'rebound', down: 'down' });
-// v57.81: the Korean part of a book is read beside the US verdict once it is at least this share of the holdings.
 export const KR_BOOK_SHARE_PCT = 30;
 function trendState(row) {
   const trend = bufferedTrend(row);
@@ -55,11 +39,35 @@ export const TREND_LABEL = Object.freeze({ up: '상승 추세', near: '선 근�
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 
 const shortDate = (iso) => `${Number(String(iso).slice(5, 7))}/${Number(String(iso).slice(8, 10))}`;
-export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null, krRecord = null } = {}) {
-  // P1449: like the checks panel, this read refuses sums it cannot honestly stand behind.
-  // A mixed surface without declared FX legs holds only local-unit values — summing them is
-  // the same fabrication the surface already refuses (P1175), while an undeclared-single
-  // basis is a disclosed assumption, not a mix.
+
+export function leaderStanding(holdings = [], themeMap = []) {
+  const members = leaderMembers(themeMap);
+  const us = holdings.filter((row) => !isKr(row.symbol) && row.value > 0);
+  const usTotal = us.reduce((sum, row) => sum + row.value, 0);
+  if (!members.size || !(usTotal > 0)) return null;
+  const part = (rows) => {
+    const value = rows.reduce((sum, row) => sum + row.value, 0);
+    const measured = rows.filter((row) => finite(row.data?.pctFromCloseHigh52w) != null);
+    const measuredValue = measured.reduce((sum, row) => sum + row.value, 0);
+    return { value, pct: value / usTotal * 100, symbols: rows.map((row) => row.symbol), coveredPct: value > 0 ? measuredValue / value * 100 : 0,
+      fromHigh: measuredValue > 0 ? measured.reduce((sum, row) => sum + row.value * finite(row.data.pctFromCloseHigh52w), 0) / measuredValue : null,
+      session: measured.map((row) => String(row.data?.factorSessionDate || '').slice(0, 10)).filter(hasLeadingIsoDay).sort().at(-1) || null };
+  };
+  const lead = part(us.filter((row) => members.has(row.symbol))), rest = part(us.filter((row) => !members.has(row.symbol)));
+  const session = [lead.session, rest.session].filter(Boolean).sort().at(-1) || null;
+  const whose = us.length < holdings.filter((row) => row.value > 0).length ? '미국 보유 금액' : '보유 금액';
+  const off = (group) => (group.fromHigh == null ? null : signed(group.fromHigh, 0));
+  const tail = `${session ? `(${shortDate(session)} 종가` : '('}${[lead, rest].some((group) => group.value > 0 && group.coveredPct < 99.5) ? `${session ? ', ' : ''}고점 기록이 있는 보유분 기준` : ''})`;
+  const close = tail === '()' ? '' : tail;
+  const text = !lead.value
+    ? `${whose} 중 주도 영역(AI·반도체) 종목은 없고${off(rest) ? `, 보유 종목은 52주 종가 고점 대비 평균 ${off(rest)}${close}` : ''}입니다.`
+    : !rest.value
+      ? `${whose} 전부가 주도 영역(AI·반도체)${off(lead) ? `이고, 52주 종가 고점 대비 평균 ${off(lead)}${close}` : ''}입니다.`
+      : `${whose}의 ${lead.pct < 1 ? '1% 미만' : `${lead.pct.toFixed(0)}%`}가 주도 영역(AI·반도체)${off(lead) && off(rest) ? `이고, 이 묶음은 52주 종가 고점 대비 평균 ${off(lead)}, 나머지는 ${off(rest)}${close}` : ''}입니다.`;
+  return { lead, rest, session, text };
+}
+
+export function buildPortfolioRead({ surface = null, rows = [], benchmark = null, benchmarkFor = null, marketReturnFor = null, usdkrwReturnPct = null, usdkrwAsOf, rotation = {}, regime = null, krRecord = null, themeMap = [] } = {}) {
   if (surface && surface.currencyState === 'mixed-without-conversion') {
     return { available: false, reason: surface.currencyHeldReason === 'unknown-unit'
       ? `시세 통화를 알 수 없는 보유가 ${surface.unknownCurrencyCount || 1}종목 있어 비중·회전·지수 대비를 한 통화로 만들 수 없습니다. 그 종목의 시세 통화를 입력하면 다시 표시됩니다.`
@@ -68,7 +76,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
   const holdings = (Array.isArray(surface?.rows) ? surface.rows : [])
-    // v59.54: the listing symbol (005930.KS) is the key screener rows and the KR test use; the stored code is not.
     .map((row) => ({ symbol: holdingListingKey(row), value: finite(row?.value), convertedFrom: row?.convertedFrom || null, sector: row?.sector || null }))
     .filter((row) => row.symbol && row.value != null && row.value > 0)
     .map((row) => ({ ...row, data: bySymbol.get(row.symbol) || null }));
@@ -82,9 +89,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   let trendTotal = 0;
   for (const row of known) { const state = trendState(row.data); if (state) { trends[state] += row.value; trendTotal += row.value; } }
   const trendMix = trendTotal > 0 ? Object.entries(trends).map(([state, value]) => ({ state, label: TREND_LABEL[state], pct: value / trendTotal * 100 })) : [];
-  // P1449: the share must say what population it was measured on. A "% of 평가액" headline
-  // computed over only the SMA-reported subset (50·200일선 둘 다 있는 종목) is an undisclosed
-  // denominator — publish the contained fraction beside every trend share.
   const trendContainedPct = total > 0 ? trendTotal / total * 100 : 0;
   const trendBasisNote = trendContainedPct >= 100 ? '' : `(추세 판정 가능 보유액 ${trendContainedPct.toFixed(0)}% 기준, 미판정 종목은 추세 분모에서 제외)`;
   const weakest = known.filter((row) => trendState(row.data) === 'down').sort((a, b) => b.value - a.value);
@@ -100,21 +104,16 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     const up = trendMix.find((row) => row.state === 'up').pct;
     const near = trendMix.find((row) => row.state === 'near').pct;
     const down = trendMix.find((row) => row.state === 'down').pct;
-    // v57.81: the breadth axis is the US sample's, so its clause speaks only to the US holdings (on the same denominator).
     const usTrend = known.filter((row) => !isKr(row.symbol) && trendState(row.data));
-    // Codex audit F08: "미국 보유 중" is a share of the US holdings with a trend read, not of every market's.
     const usTrendValue = usTrend.reduce((sum, row) => sum + row.value, 0);
     const usDown = usTrendValue > 0 ? usTrend.filter((row) => trendState(row.data) === 'down').reduce((sum, row) => sum + row.value, 0) / usTrendValue * 100 : 0;
     const breadthClause = breadth?.state !== 'burden' || !usTrend.length ? ''
       : usDown > 0 ? ` 미국 시장 폭이 좁은 지금은 미국 보유 중 하락 추세 종목(${usDown.toFixed(0)}%)이 지수보다 먼저 흔들리기 쉬운 환경입니다.`
         : ' 미국 시장 폭이 좁은 가운데 미국 보유 종목은 하락 추세에 있지 않습니다.';
     points.push({ id: 'trend', tone: up >= 60 ? 'favorable' : down >= 30 ? 'burden' : 'neutral', title: '보유 종목 추세',
-      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선과의 차이가 하루 평균 변동폭 안이거나 상승 추세 속 단기 급락이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => weakestShare(row)).join(', ')}` : ''}.${breadthClause}` });
+      text: `${trendBasisNote ? trendBasisNote + ': ' : ''}그중 ${up.toFixed(0)}%가 상승 추세(50·200일선 위), ${down.toFixed(0)}%가 하락 추세에 있습니다${near > 0 ? `. ${near.toFixed(0)}%는 50일선과의 차이가 하루 평균 변동폭 안이거나 상승 추세 속 최근 한 주 급락이라 방향 판정을 보류합니다` : ''}${weakest.length ? ` — 하락 추세 중 가장 큰 비중은 ${weakest.slice(0, 2).map((row) => weakestShare(row)).join(', ')}` : ''}.${breadthClause}` });
   }
 
-  // v57.50 C24: one denominator and one classification with the 비중 · 섹터 배분 bars (surface.sectorBreakdown) — total
-  // assets including cash, sectors from the surface rows (the screener row via derivePortfolioSurface's sectorOf). When
-  // no total exists (cash undeclared) the shares are of the stock part, and every sentence says "주식 부분 중".
   const totalAssets = finite(surface?.totalAssets);
   const assetBasis = totalAssets != null && totalAssets > 0;
   const denom = assetBasis ? totalAssets : total;
@@ -130,9 +129,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const cashValue = finite(surface?.cash);
   if (assetBasis && cashValue != null && cashValue > 0) sectors.set('CASH', { sector: 'CASH', label: portfolioSectorLabel('CASH'), value: cashValue, krValue: 0 });
   const sectorMix = [...sectors.values()].map((entry) => {
-    // P1449: the rotation quadrants are defined on US sector ETFs. A sector bucket that
-    // contains a KRX holding (005930.KS 등) must not silently inherit an XLK-style reading —
-    // display says 비중만, and the KR share inside the bucket is disclosed.
     const krShare = entry.value > 0 ? entry.krValue / entry.value : 0;
     const etf = krShare >= 0.999 ? null : SECTOR_ETF[entry.sector];
     const quadrant = etf && rotation[etf] ? rotationQuadrant(rotation[etf]) : null;
@@ -153,9 +149,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       text: `${basisWord} 중 ${favourable.toFixed(0)}%가 시장보다 강해지는 '선도' 섹터, ${lagging.toFixed(0)}%가 '후행' 섹터에 있습니다(약 50거래일 상대강도 기준) (${sectorMix.slice(0, 3).map((row) => `${row.label} ${row.pct.toFixed(0)}%${row.quadrant ? (row.krShare > 0 ? `(미국 보유분 ${usPct(row).toFixed(0)}% ${row.quadrant.label})` : ` ${row.quadrant.label}`) : ''}`).join(', ')}).${heldNote}${krNote}` });
   }
 
-  // P1466: one decomposition answers both "how did the book do against its index" and "why".
-  // Book and benchmark share one population (holdings with a 3-month return, a market return and,
-  // when converted, an FX return — P1449), and the gap is split into sector, stock, FX and cash.
   const attribution = buildAttribution({
     holdings: known,
     cash: surface?.cash ?? null,
@@ -178,10 +171,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
     points.push({ id: 'relative', tone: direction == null ? 'neutral' : direction === 'up' ? 'favorable' : 'burden', title: '지수 대비',
       text: `지금 구성의 3개월 수익률 ${signed(book3)}(환율 포함, 현금은 수익률 0%로 계산) vs ${attribution.blendedLabel} ${signed(bench3)}${relativeBasisNote} — ${direction == null ? '지수와 비슷합니다' : `${Math.abs(gap).toFixed(1)}%p ${direction === 'up' ? '앞섭니다' : '뒤처집니다'}`}. 차이의 구성: ${parts || '모두 0.1%p 미만'}${lead && Math.abs(lead.stockPct) >= 0.1 ? `(종목 선택에서 가장 큰 기여는 ${lead.symbol} ${signed(lead.stockPct, 1, '%p')})` : ''}. 실제 매매 시점과 다를 수 있는 현재 구성 기준 값입니다.` });
   }
-  // v57.81 (analysis audit 2026-10-15): the tally is the six US axes, so it is named as the US state, and its sentence
-  // follows the overall label (부담 우세 at burden 3 · favourable 1 read "극단적이지 않아"). A book whose Korean part is at
-  // least KR_BOOK_SHARE_PCT gets its own line from the KOSPI record (koreaMoveRecord): a record-low KOSPI week beside a
-  // 70%-Korean book is not a calm environment for that book.
   const krHeldPct = holdings.filter((row) => isKr(row.symbol)).reduce((sum, row) => sum + row.value, 0) / total * 100;
   const krLine = krHeldPct >= KR_BOOK_SHARE_PCT ? koreanBookLine(krRecord, krHeldPct) : null;
   if (regime?.available) {
@@ -198,7 +187,6 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   }
   const excluded = holdings.length - known.length;
   const excludedValue = total - knownValue;
-  // v57.55 review (8g, beginner panel): the first line is a plain sentence that names its own denominator, not a row of chips.
   const unpriced = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => (row?.symbol || row?.ticker) && !(finite(row?.value) > 0)).length;
   const unpricedNote = unpriced ? `(가격을 아직 못 받은 ${unpriced}종목 제외)` : '';
   const plainBasis = trendContainedPct >= 99.5
@@ -207,12 +195,7 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
   const upPct = trendMix.find((row) => row.state === 'up')?.pct;
   const downPct = trendMix.find((row) => row.state === 'down')?.pct;
   const nearPct = trendMix.find((row) => row.state === 'near')?.pct;
-  // v57.84 review: the mix names the remainder (조정·반등) so the shares add up, and the 3-month line says it is the
-  // current holdings looked back on, not the account's own track record.
   const otherPct = trendMix.filter((row) => row.state === 'pullback' || row.state === 'rebound').reduce((sum, row) => sum + row.pct, 0);
-  // v59.51 (first-users run-6 #9, two layers): the face line is for a beginner. "0%는 내리는 흐름" read as not calculated,
-  // so a zero share is said as "없습니다"; the 3-month line carries its own assumption (it once sat two paragraphs away
-  // and "내 수익률" read as the account's). The 50·200일선 definitions and buffers stay in the folded points.
   const share = (pct) => pct > 0 && pct < 1 ? '1% 미만' : `${(pct || 0).toFixed(0)}%`;
   // With neither an up nor a down share the line leads with what the holdings are doing ("100%는 아직 방향이 뚜렷하지 않고")
   // instead of two empty clauses ("오르는 흐름에 있는 종목은 없고, 내리는 흐름인 종목은 없습니다. 100%는 …").
@@ -224,18 +207,17 @@ export function buildPortfolioRead({ surface = null, rows = [], benchmark = null
       : `${lead} ${upPct > 0 ? `${share(upPct)}는 오르는 흐름에 있고` : '오르는 흐름에 있는 종목은 없고'}, ${downPct > 0 ? `${share(downPct)}는 내리는 흐름입니다` : '내리는 흐름인 종목은 없습니다'}.${restLine}`;
   const headlineDirection = book3 != null && bench3 != null ? directionOf(book3 - bench3, 1) : null;
   const headlineIndex = attribution.available ? attribution.blendedLabel.replace(/\([^)]*\)/g, '') : '';
-  const headline = [trendLine,
+  const leaders = leaderStanding(holdings, themeMap);
+  const headline = [leaders?.text || null, trendLine,
     book3 != null && bench3 != null ? `지금 구성을 3개월 전부터 들고 있었다면 ${headlineDirection == null ? `${withAndParticle(headlineIndex.trim())} 비슷했습니다` : `${headlineIndex}보다 ${Math.abs(book3 - bench3).toFixed(1)}%p ${headlineDirection === 'up' ? '앞섰습니다' : '뒤처졌습니다'}`}${relativeBasisNote}.` : null,
     regime?.available ? `미국 시장은 '${regime.overall}'입니다.` : null, krLine?.headline || null].filter(Boolean).join(' ');
   const next = [];
   if (weakest[0]) next.push({ action: 'showTicker', arg: weakest[0].symbol, route: 'ticker', label: weakest[0].symbol, why: '하락 추세 중 비중이 가장 큰 종목의 개요·차트' });
   next.push({ route: 'themes', label: '테마와 섹터', why: '보유 섹터가 회전의 어느 단계에 있는지' });
   next.push({ route: 'signal', label: '시장 상태', why: '부담 지표가 무엇이고 무엇이 바뀌면 완화되는지' });
-  return { available: true, total, headline, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
+  return { available: true, total, headline, leaders, points, trendMix, sectorMix, attribution, excluded, excludedValue, containedPct: trendContainedPct, next };
 }
 
-// v57.81: the Korean part of the book against the KOSPI's own record (koreaMoveRecord). The record position is named
-// only in the tail (KR_SHOCK_TAIL_PCT, the briefing's cut); otherwise the moves alone.
 function koreanBookLine(record, krPct) {
   const share = `한국 보유(평가액의 ${krPct.toFixed(0)}%)는 미국 6개 지표 판정에 들어가지 않습니다`;
   if (!record || record.d1 == null || !record.date) return { tone: 'neutral', text: `${share}. 코스피 종가 기록을 확인하지 못해 한국 쪽은 따로 판정하지 않습니다.`, headline: null };
@@ -249,9 +231,6 @@ function koreanBookLine(record, krPct) {
     headline: `한국 보유가 평가액의 ${krPct.toFixed(0)}%이고, ${moves}로 ${rare}입니다.` };
 }
 
-// v57.48 expert review #12: what the portfolio AI request may carry — ticker, sector, weight and return
-// only (no quantity, cost, amount or memo), measured on the surface's base-currency values so a won and a
-// dollar holding are weighed in one unit. The base currency and the valuation date travel with the rows.
 export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
   if (!surface || surface.currencyState === 'mixed-without-conversion') return { available: false, reason: 'currency-unconverted', rows: [] };
   const total = finite(surface.totalAssets);
@@ -268,7 +247,6 @@ export function portfolioRowsForAI(surface, { sectorOf = () => null } = {}) {
     };
   });
   const asOf = hasLeadingIsoDay(String(surface.observedAt || '')) ? String(surface.observedAt).slice(0, 10) : null;
-  // v57.81: which currencies the cash is held in and the rate basis of its total — currencies only, never amounts.
   const cashCurrencies = (Array.isArray(surface.cashBalances) ? surface.cashBalances : []).filter((row) => row?.currency && finite(row.amount) > 0).map((row) => row.currency);
   return { available: true, baseCurrency: surface.baseCurrency || null, valuationCurrency: surface.valuationCurrency || null, currencyState: surface.currencyState || null, asOf, cashPct: finite(surface.cashPct) == null ? null : round1(surface.cashPct), cashCurrencies, cashBasis: surface.cashConversion?.converted ? surface.cashConversion.basisLabel || null : null, rows };
 }

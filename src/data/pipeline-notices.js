@@ -1,8 +1,3 @@
-// What the 데이터 파이프라인 상태 bar says — moved from js/aio-data.js _aioRenderPipelineStatus
-// (v51.65, the producer notices) and _aioCheckManualFieldStaleness (v51.66, the hand-kept _fieldTs dates). Pure: it
-// reads the server data meta the loader stored and returns notices; src/ui/components/pipeline-status.js draws them.
-// Texts are the legacy ones.
-
 // A notice carries a tone (risk / warn / muted), not a colour. The legacy bar wrote an inline border-left-color that never
 // showed (.lda-pipe has no left border), so the tone is a data attribute a stylesheet may use.
 const TONE_OF_COLOR = { '#e5484d': 'risk', '#e2a336': 'warn', '#f59e0b': 'warn', '#b9a88d': 'muted' };
@@ -51,8 +46,6 @@ export function pipelineNotices(meta, { universeStale = false } = {}) {
   return msgs;
 }
 
-// v51.66: the DATA_SNAPSHOT._fieldTs dates an operator keeps by hand. A policy rate can stay unchanged between meetings,
-// so each field has its own observation cycle instead of one 7-day rule.
 export const MANUAL_FIELD_LABELS = Object.freeze({
   fed_rate: 'Fed 연방기금금리 월평균',
   boj_rate: 'BOJ 정책금리',

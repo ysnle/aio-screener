@@ -1,7 +1,3 @@
-// P1653 (owner 2026-10-12): one AI conversation. The home and theme-detail pages had their own inline chat boxes with a
-// second send pipeline; their prompts now open the top AI panel and send there, so every question shares one history,
-// one route check and one budget.
-// v59.68: the screens' questions (askRow templates) become the panel's chips while it is open on that screen.
 import { pageQuestions } from '../components/ask-row.js';
 
 export function installAskPanel(root, documentRef) {

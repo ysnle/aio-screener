@@ -16,6 +16,7 @@ import { printedValueAgrees, signAgrees } from '../../src/domain/shared/figure-a
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
 import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { buildSentimentModel } from '../../src/domain/market/sentiment/sentiment-model.js';
+import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src/domain/market/story/market-story.js';
 
 export const SCREEN_READING_SCHEMA = 'screen-readings.v1';
 export const SCREEN_READING_MAX_CHARS = 400; // the face's paragraph (3–5 sentences, about 130–230 characters asked)
@@ -34,7 +35,7 @@ function axisLine(axis, asOf) {
   if (!axis?.title || !axis.stateLabel) return null;
   const basis = axis.basis && axis.basis !== md(asOf) ? ` (기준 ${axis.basis})` : axis.asOf && /^\d{4}-\d{2}/.test(axis.asOf) && axis.asOf.slice(0, 10) !== asOf ? ` (기준 ${axis.asOf.slice(0, 7)})` : '';
   const evidence = evidenceText(axis.evidence);
-  return `${axis.title}: ${axis.stateLabel}${basis}${evidence ? ` · 근거: ${evidence}` : ''}${axis.flip ? ` · 판정이 바뀌는 조건: ${axis.flip}` : ''}`;
+  return `${axis.title}: ${axis.verdictLabel || axis.stateLabel}${basis}${evidence ? ` · 근거: ${evidence}` : ''}${axis.flip ? ` · 판정이 바뀌는 조건: ${axis.flip}` : ''}`;
 }
 const countsLine = (counts, total) => {
   if (!counts) return '';
@@ -51,13 +52,21 @@ const titledStates = (axes) => axes.filter((axis) => axis?.title && axis.stateLa
 export const SCREEN_READING_SCREENS = Object.freeze({
   signal: Object.freeze({
     name: '시장 상태',
-    facts(interpretation) {
+    // v60.50 (owner 2026-11-23): the screen opens with the story (주도주 · 시장 전체 · 진단, market-story.js); the reading
+    // continues it and says what the price reflects. `guide` is this screen's own instruction, after the shared rules.
+    guide: [
+      '- 첫 문장은 종합 판정 낱말("시장 상태는 … 부담 우세입니다")로 열지 말고 시장 이야기로 엽니다: 주도주가 얼마나 내렸고, 시장 전체는 얼마나 덜 내렸고, 그 차이가 말하는 진단.',
+      '- 진단 상태어(쏠림 되돌림·침체형·금융 불안형·판단 보류)는 묶음에 적힌 것만 쓰고, 바뀌는 조건도 묶음의 것을 씁니다.',
+      '- 지금 가격이 무엇을 반영하는지 묶음의 수치로 한 문장 씁니다. "싸다·매력적"은 조건으로만 씁니다("이익 추정치가 유지되면 …", "꺾이면 …"). 단정하지 않습니다.'
+    ].join('\n'),
+    facts(interpretation, { longrun = null } = {}) {
       const regime = interpretation?.regime;
       if (!regime?.available || !regime.asOf) return null;
       const axes = usAxes(regime);
+      const opening = buildMarketOpening({ history: interpretation?.inputs?.history || [], macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through: regime.asOf });
       return {
-        basis: regime.asOf, axes,
-        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `종합 판정: ${regime.overall} (${countsLine(regime.counts, axes.length)})`,
+        basis: regime.asOf, axes, diagnosis: opening.available && opening.diagnosis?.state !== 'none' ? opening.diagnosis?.word || null : null,
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, ...openingFactLines(opening).map((line) => `시장 이야기 ${line}`), `종합 판정: ${regime.overall} (${countsLine(regime.counts, axes.length)})`,
           LEADERSHIP_STATE[regime.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '', ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
     }
@@ -86,7 +95,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
         .map(([label, value, , verdict]) => `${label} ${value}${verdict ? ` (판정: ${verdict})` : ''}`);
       return {
         basis: regime.asOf, axes,
-        lines: [`기준일: ${md(regime.asOf)} 미국 종가와 그때까지의 공식 발표`, quadrant.label ? `성장 × 물가 국면: ${quadrant.label}` : '',
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가와 그때까지의 공식 발표`, quadrant.label ? `성장 × 물가 국면: ${quadrant.available ? `${quadrant.label} — ` : ''}${quadrant.verdict || quadrant.label}` : '',
           inputs.length ? `국면 입력: ${inputs.join('; ')}` : '', read.counts ? `증시 영향 요인 판정: ${countsLine(read.counts, axes.length)}` : '',
           ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
@@ -114,15 +123,15 @@ export const SCREEN_READING_SCREENS = Object.freeze({
 export const SCREEN_READING_IDS = Object.freeze(Object.keys(SCREEN_READING_SCREENS));
 
 /** { screen, basis, lines, key, axisStates, axes } — `key` is the first 16 hex of the lines' sha1 (same lines, same key). */
-export function buildScreenPacket(screen, interpretation) {
+export function buildScreenPacket(screen, interpretation, context = {}) {
   const spec = SCREEN_READING_SCREENS[screen];
   if (!spec) return null;
   let facts = null;
-  try { facts = spec.facts(interpretation); } catch (_) { facts = null; }
+  try { facts = spec.facts(interpretation, context); } catch (_) { facts = null; }
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
   const lines = facts.lines.map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
-  return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []) };
+  return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null };
 }
 
 // ---- prompt ----------------------------------------------------------------------------------------------------------------
@@ -144,7 +153,8 @@ export const SCREEN_READING_RULES = [
 
 export function buildScreenReadingPrompt(packet) {
   const name = SCREEN_READING_SCREENS[packet?.screen]?.name || '';
-  return `${SCREEN_READING_RULES}\n\n${SCREEN_READING_SECTIONS.facts}\n화면: ${name}\n${(packet?.lines || []).map((line) => `- ${line}`).join('\n')}`;
+  const guide = SCREEN_READING_SCREENS[packet?.screen]?.guide || '';
+  return `${SCREEN_READING_RULES}${guide ? `\n${guide}` : ''}\n\n${SCREEN_READING_SECTIONS.facts}\n화면: ${name}\n${(packet?.lines || []).map((line) => `- ${line}`).join('\n')}`;
 }
 
 const ISSUE_TEXT = Object.freeze({
@@ -278,6 +288,14 @@ export function validateScreenReading(text, packet) {
   if (sentences < 3 || sentences > 5) warnings.push(`sentence-count:${sentences}`);
   if (SOURCE_NAMES.test(body)) warnings.push('source-name');
   if (/거시\s?경제/.test(body)) warnings.push('macro-screen-name');
+  // v60.50 (owner 2026-11-23): interpretation warns. A diagnosis word other than the packet's outside a conditional clause,
+  // "싸다/매력적" said without a condition, and an opening on the tally word are recorded, never blocking.
+  if (packet?.diagnosis) {
+    const other = Object.values(DIAGNOSIS_WORDS).filter((word) => word !== packet.diagnosis);
+    if (body.split(/(?<=[.?!。])\s+/).some((sentence) => !CONDITIONAL.test(sentence) && other.some((word) => sentence.includes(word)))) warnings.push('diagnosis-word');
+  }
+  if (body.split(/(?<=[.?!。])\s+/).some((sentence) => /(?:싸|저렴|매력적)/.test(sentence) && !CONDITIONAL.test(sentence))) warnings.push('cheap-asserted');
+  if (/^[^.。]*(?:판정|시장 상태)[^.。]*(?:부담 우세|양호 우세|혼조|판정 보류)/.test(body)) warnings.push('tally-opening');
   return { issues: [...new Set(issues)], warnings: [...new Set(warnings)] };
 }
 

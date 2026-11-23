@@ -9,9 +9,9 @@ import { applySafeExternalLink } from '../knowledge/safe-external-link.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { MASTER_REGISTRY, buildManagerRegistry, resolveManagerSelection, deriveCoverageSummary, formatReportedValue, formatCompactUsd, formatScale, formatPercent, summarizeLatestChange, formatQuarterLabel } from '../../domain/masters/holdings-format.js';
-export { displayActionOf, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js'; // v57.60: same page exports as before
+export { displayActionOf, isPartialAmendmentPeriod } from '../../domain/masters/holdings-format.js';
 import { VIEW_LABELS, viewOf, element, button, createMetric, ensureMastersExtraStyle, createSecurityLookup, PLAIN_LOOKUP, tickerChip, createChangeSummary, createOwnershipEvents, fullManagersLabel, createTopHoldingTable, createChangeLedger, createFullHoldingsView, createRowPreviewView, createSectorView, createReferenceSectorView, createQuarterView, createIssuerAggregateView, createFilingArtifact, createPrinciplesView, createInvestorCompareView, createTopWeightBars } from './masters-views.js';
-export { createSecurityLookup, shareClassTag } from './masters-views.js'; // v59.70: moved with the view builders
+export { createSecurityLookup, shareClassTag } from './masters-views.js';
 
 const REVIEWED_AT = '2026-08-16';
 const FILINGS_URL = artifactUrl('masters/filings.json');
@@ -81,7 +81,6 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
   const section = element(documentRef, 'section', 'masters-ticker-lookup');
   section.dataset.mastersTickerLookup = 'reference-only';
   section.dataset.mastersTickerLoadState = tickerIndex ? 'ready' : loadState;
-  // v59.55 (alignment pass): the how-to sentence left; the field's placeholder and label say what it does.
   const label = element(documentRef, 'label', 'masters-search');
   label.appendChild(element(documentRef, 'span', 'masters-sr-only', '종목으로 찾기 (티커 또는 CUSIP)'));
   const input = element(documentRef, 'input', 'masters-ticker-lookup-input');
@@ -97,16 +96,11 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
   const body = element(documentRef, 'div', 'masters-ticker-lookup-results');
   const normalized = String(query || '').trim().toUpperCase();
   if (!tickerIndex) {
-    // P1325: this branch used to be the only non-ready state, so a failed/timed-out ledger fetch left
-    // '불러오는 중' on screen forever. Every non-ready state is now explicit and a failure is retryable.
     if (loadState === 'error') {
       const failure = element(documentRef, 'p', 'masters-empty-state', '종목 목록을 불러오지 못했습니다. 잠시 뒤 다시 시도하세요. 종목 찾기 없이도 위 대가 카드와 공시 원문은 그대로 사용할 수 있습니다.');
       failure.setAttribute('role', 'alert');
       body.append(failure, button(documentRef, 'aio-btn-table masters-ticker-lookup-retry', '종목 목록 다시 불러오기', 'retry-ticker-index', 'tickerIndex'));
     } else if (loadState === 'idle') {
-      // P1330: the ledger is not part of the initial Masters payload (artifact budget); it loads on
-      // first focus/typing or the "종목으로 역조회" button, so this idle state is never a spinner.
-      // 2026-10-14 audit: the idle box only repeated the placeholder example, so idle shows nothing.
     } else {
       const pending = element(documentRef, 'p', 'masters-empty-state', '종목 목록을 불러오는 중입니다.');
       pending.setAttribute('role', 'status');
@@ -129,7 +123,6 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           element(documentRef, 'span', 'masters-ticker-lookup-issuer', (record.issuerReferences || []).join(', ') || '발행인명 확인 필요'),
           element(documentRef, 'span', 'masters-ticker-lookup-meta', `CUSIP ${record.cusips?.join(', ') || '확인 필요'}`)
         );
-        // v57.50 I12: from a holder back to the stock itself (the reference ticker the ledger already names).
         if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(String(record.tickerReference || ''))) {
           const open = element(documentRef, 'button', 'aio-btn-table masters-ticker-lookup-open', `${record.tickerReference} 종목 개요`);
           open.type = 'button';
@@ -137,15 +130,7 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           open.dataset.arg = record.tickerReference;
           card.appendChild(open);
         }
-        // Codex review 2026-10-05: the same manager appeared on several raw rows (separate filing lines,
-        // classes, puts/calls) while the question is "who holds it". One line per manager: the latest
-        // period's shares and value summed over direct holdings, with option positions named separately
-        // (their share counts are underlying exposure, never added to holdings). Raw rows open on demand.
-        // Codex browser audit H98: NVDA found Fisher, Tepper and Burry only, while BlackRock's and DFA's top
-        // holdings on this same page held NVDA. The reference index covers a subset of filers; the published
-        // top holdings of every filer (same CUSIP, same quarter) are merged in so one lookup covers both sources.
         const recordCusips = new Set((record.cusips || []).map((cusip) => String(cusip).toUpperCase()));
-        // P1522: index rows are filed amounts too; a manager under scale review is withheld here as well, in any period.
         const indexedRows = withholdManagerValues(Array.isArray(record.rows) ? record.rows : [], managersUnderScaleReview(valueScale));
         const indexedKeys = new Set(indexedRows.map((row) => `${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
         const extraRows = (summaryRows || []).filter((row) => recordCusips.has(String(row.cusipNormalized || row.cusip || '').toUpperCase()) && !indexedKeys.has(`${row.managerId}|${row.reportPeriod}|${row.putCall || ''}`));
@@ -164,9 +149,6 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           return { managerId, period, latest, shares: direct.reduce((sum, row) => sum + (Number(row.shares) || 0), 0), value: direct.reduce((sum, row) => sum + (Number(row.value) || 0), 0), direct: direct.length, options };
         }).sort((a, b) => (b.value || 0) - (a.value || 0) || b.shares - a.shares);
         const rows = element(documentRef, 'ul', 'masters-ticker-lookup-rows');
-        // v58.63 (architecture audit UI-05): each filer's latest quarter differs (Pershing 2026-03-31 beside others' 06-30), and
-        // one median across quarters flagged a normal price change as "다른 신고보다 12.6% 낮음". The value-per-share check
-        // compares filers of the same reportPeriod only, and needs three of them.
         const impliedOf = (summary) => (summary.shares > 0 && summary.value > 0 && !summary.latest.some((row) => row.valueScaleStatus === 'SCALE_REVIEW') ? summary.value / summary.shares : null);
         const medianByPeriod = new Map();
         for (const period of new Set(summaries.map((summary) => summary.period))) {
@@ -195,7 +177,6 @@ function createTickerLookup(documentRef, tickerIndex, registry, query, loadState
           if (summary.latest.length > 1) raw.appendChild(element(documentRef, 'li', 'masters-holdings-meta', `원문 ${summary.latest.length}행은 같은 종목을 운용 주체·재량 구분별로 나눠 신고한 것이며, 위 합계는 이 행들을 더한 값입니다.`));
           summary.latest.forEach((row) => {
             const line = element(documentRef, 'li', '');
-            // P1592 (F39): a row without a filing URL says so instead of a link-looking label that goes nowhere.
             const source = row.sourceUrl ? element(documentRef, 'a', 'masters-source-link', 'SEC 원문') : element(documentRef, 'span', 'masters-holdings-meta', '원문 링크 없음');
             if (row.sourceUrl) applySafeExternalLink(source, row.sourceUrl);
             line.append(element(documentRef, 'span', '', `${row.titleOfClass || '보통주'}${row.putCall ? `, ${row.putCall === 'Put' ? '풋옵션' : '콜옵션'}` : ''}, ${Number(row.shares || 0).toLocaleString('en-US')}주, ${formatReportedValue(row.value)} `), source);
@@ -277,21 +258,16 @@ function createCatalogCoverage(documentRef, catalog, registry, holdings, preview
   return section;
 }
 
-
 function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscovery, holdingMeta, compactRows, fullRows, comparisonRows, previewMeta, previewRows, state, securityMaster, referenceMaster, historyManager, historyRowsArtifact, issuerAggregates, principlesArtifact, registry, holdingManagers, rowsByManager) {
   const detail = element(documentRef, 'article', 'masters-detail-card');
   const dataStatus = holdingMeta?.status || (previewRows.length ? 'SEC_ROW_PREVIEW' : filingMeta?.status || manager.status);
   const freshnessStatus = holdingMeta?.freshnessStatus || filingMeta?.freshnessStatus || null;
   detail.append(
     element(documentRef, 'div', 'masters-eyebrow', manager.type === 'METHOD_ONLY' ? '방법론 전용 프로필' : '공개 13F 신고 보유'),
-    // 2026-10-14 audit: the detail title sits directly under the page h1, so it is an h2 (same class and look).
     element(documentRef, 'h2', 'masters-detail-title', manager.name),
     element(documentRef, 'p', 'masters-detail-filer', [manager.filer && manager.filer !== manager.name ? `신고 법인 ${manager.filer}` : manager.filer, manager.style].filter(Boolean).join(', '))
   );
-  // Codex review 2026-10-05: a person's philosophy and the filer's holdings are different things. The
-  // filing is the entity's — several funds and portfolio managers — not one person's every decision.
   if (manager.type !== 'METHOD_ONLY' && manager.filer && manager.filer !== manager.name && !/^(BlackRock|Vanguard|Citi|Goldman|JPMorgan|State Street|Capital Group|Fidelity|T\. Rowe|Wellington|Dimensional|Millennium|Renaissance|Two Sigma|Tudor|Starboard|Trian|ValueAct|Harvard)/.test(manager.name)) {
-    // v58.79: short label; the full caveat is its hover.
     detail.appendChild(Object.assign(element(documentRef, 'p', 'masters-holdings-meta masters-entity-note', '법인 전체 신고분'), { title: '보유는 위 법인 전체의 신고분이며, 모든 종목을 한 사람이 직접 골랐다는 뜻은 아닙니다.' }));
   }
   // A method-only profile has no 13F: no empty metric grid, compare toggle or filing tabs — only what exists.
@@ -299,11 +275,8 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     detail.appendChild(createPrinciplesView(documentRef, manager, principlesArtifact));
     return detail;
   }
-  // 2026-10-05 리서치 라이브러리: verification badges and the how-to panel are internal; the reader sees the manager.
   void freshnessStatus;
   detail.querySelector('.masters-detail-title')?.setAttribute('tabindex', '-1');
-  // v58.53 개편 v2 (5j): the quarter-end date sits under the name; once the next 13F deadline (45 days after the next
-  // quarter end) has passed it turns amber (AGENTS freshness: 13F is stale only after the next filing is due).
   const quarterEnd = filingMeta?.latestFiling?.periodOfReport || holdingMeta?.verification?.reportPeriod || null;
   // The catalog, loaded with the page, carries the latest submission; the discovery artifact (원본 공시 tab) repeats it.
   const currentness = thirteenFCurrentness({ quarterEnd, holdingsAccession: filingMeta?.latestFiling?.accession || null, latestSubmission: ownershipDiscovery?.latestSubmission || manager.latestSubmission || null });
@@ -314,8 +287,6 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     chip.dataset.mastersQuarterEnd = quarterEnd;
     detail.querySelector('.masters-detail-filer')?.before(chip);
   }
-  // v58.56 (#4, design 5j): the manager's largest reported holdings as ticker chips that open 종목 요약 — exact
-  // CUSIP matches only, in reported-value order, options excluded. No chip row when none of the top rows has one.
   const topTickers = [];
   const topPeriod = holdingMeta?.verification?.reportPeriod || null;
   [...compactRows].filter((row) => !row.putCall && (!topPeriod || row.reportPeriod === topPeriod))
@@ -330,9 +301,6 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   }
 
   const metrics = element(documentRef, 'div', 'masters-metric-grid');
-  // Fail closed: when the SEC cover total and the parsed rows disagree, every reading built on reported-value
-  // totals (concentration, weight change, total) is withheld rather than shown from an unreconciled base.
-  // Codex browser audit H97: a filing whose amounts are ~1,000× off the other filers is withheld the same way.
   const scaleReview = state?.valueScale?.has?.(`${manager.id}|${holdingMeta?.verification?.reportPeriod || ''}`) || false;
   const valueMismatch = holdingMeta?.verification?.valueReconciliationStatus === 'MISMATCH' || scaleReview;
   const withheld = (text) => (valueMismatch ? '보류' : text);
@@ -340,8 +308,6 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     createMetric(documentRef, '보유 종목 수', holdingMeta?.verification?.reportedPositionCount != null ? `${holdingMeta.verification.reportedPositionCount}개` : '—'),
     createMetric(documentRef, '상위 5, 10 비중', withheld(`${formatPercent(holdingMeta?.verification?.top5ConcentrationPct)}, ${formatPercent(holdingMeta?.verification?.top10ConcentrationPct)}`)),
     createMetric(documentRef, '직전 분기 대비', holdingMeta?.verification?.comparisonActionCounts ? summarizeLatestChange(holdingMeta.verification.comparisonActionCounts) : '—'),
-    // P1444: the distance between reported-value weights — price moves alone change it — not trading turnover (the
-    // v59.55 label drops the defensive parenthetical; the metric's hover keeps the definition).
     Object.assign(createMetric(documentRef, '보유 비중 변화', withheld(formatPercent(holdingMeta?.verification?.turnoverProxyPct))), { title: '신고 가치 기준 비중이 직전 분기와 얼마나 달라졌는지입니다. 주가 변동만으로도 바뀌어 매매 회전율이 아닙니다.' }),
     createMetric(documentRef, '신고 가치 합계', withheld(formatCompactUsd(holdingMeta?.verification?.parsedValueTotal))),
     createMetric(documentRef, '운용 규모', formatScale(manager)),
@@ -401,17 +367,9 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     if (summary) detail.appendChild(summary);
     if (comparisonRows.length) {
       const expected = Number(holdingMeta?.verification?.comparisonRowCount) || null;
-      // P1444 (review 2026-10-04): the ledger first shows the embedded preview (the full manager shard is
-      // loaded only on request — artifact budget). Say how much of the comparison is on screen and offer
-      // the full ledger instead of letting the scope change silently after another view loads it.
       if (expected && comparisonRows.length < expected) {
-        // X06 (2026-10-13): the manager shard is itself a bounded web projection (top rows by reported value).
-        // Once it is loaded, a "전체 N개 보기" button promised rows the site never ships — say the real scope
-        // and point to the SEC filing for the rest instead.
         const shardLoaded = state.managerRows?.has?.(manager.id);
         const filingUrl = filingMeta?.latestFiling?.informationTableXml || filingMeta?.latestFiling?.indexUrl || holdingMeta?.latestFiling?.indexUrl || manager.sourceUrl || 'https://www.sec.gov/edgar/search-and-access';
-        // first-users run-3 B28: "보유 종목 수 29개" beside "신고 30건" read as two counts of one list. The comparison also
-        // carries the positions sold out since the prior quarter, so the sentence names both parts.
         const exited = Number(holdingMeta?.verification?.comparisonActionCounts?.EXITED) || 0;
         const parts = exited ? `이번 분기 보유 ${(expected - exited).toLocaleString('en-US')}개, 전량 매도 ${exited.toLocaleString('en-US')}개` : '';
         const scope = element(documentRef, 'p', 'masters-holdings-meta masters-ledger-scope', shardLoaded
@@ -430,7 +388,6 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
     }
     // The quarter trend loads on request (its history shards are outside the page's initial artifact budget).
     if (state.quarterBundles.has(manager.id) || state.loadingQuarterManagers.has(manager.id)) {
-      // P1522: earlier quarters and issuer aggregates of a manager under scale review are withheld too (same filer, same unit).
       const managerScaleReviewed = managersUnderScaleReview(state?.valueScale).has(manager.id);
       detail.appendChild(createQuarterView(documentRef, holdingMeta, historyManager, historyRowsArtifact, managerScaleReviewed));
       detail.appendChild(createIssuerAggregateView(documentRef, issuerAggregates, manager.id, managerScaleReviewed));
@@ -456,7 +413,6 @@ function createDetail(documentRef, manager, onRoute, filingMeta, ownershipDiscov
   return detail;
 }
 
-// P1479: how each way of managing money works and what 13F can and cannot show about it.
 function createStyleComparison(documentRef, catalog) {
   const box = documentRef.createElement('details');
   box.className = 'masters-style-compare';
@@ -515,7 +471,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
        const initialView = viewOf(sharedRoute.mode);
        const state = { query: '', tickerQuery: '', filter: 'ALL', arrivalContext: arrivalContext?.routeId === 'masters' ? arrivalContext : null, selectedId: sharedRoute.manager || MASTER_REGISTRY[0].id, view: initialView, actionFilter: 'ALL', holdingsQuery: '', page: 1, pageSize: 25, compareIds: [], managerRows: new Map(), managerRowErrors: new Set(), loadingManagers: new Set(), loadingCapabilities: new Set(), quarterBundles: new Map(), loadingQuarterManagers: new Set(), filings: null, holdings: null, catalog: null, previews: null, discovery: null, principles: null, securityMaster: null, referenceMaster: null, history: null, tickerIndex: null, filingsError: false, holdingsError: false, catalogError: false, previewsError: false, discoveryError: false, principlesError: false, securityMasterError: false, referenceMasterError: false, historyError: false, historyRowsError: false, issuerAggregatesError: false, tickerIndexError: false };
        const isAlive = () => !scope?.disposed && (typeof scope?.isCurrent !== 'function' || scope.isCurrent());
-       // v57.50 I12: 종목 요약's '대가 보유 종목' link arrives with its ticker — the reverse lookup opens on it.
        const handoffTicker = String(consumeResearchHandoff({ root, routeId: 'masters' })?.context?.ticker || '').trim().toUpperCase();
        if (/^[A-Z][A-Z0-9.-]{0,9}$/.test(handoffTicker)) state.tickerQuery = handoffTicker;
       page.dataset.aioArchitectureRoute = 'masters';
@@ -540,7 +495,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
          if (!isAlive()) return;
          const registry = buildManagerRegistry(state.catalog);
          state.securityLookup = createSecurityLookup(state.holdings, state.referenceMaster);
-         // P1325: a late artifact load re-renders the page; keep the field the user is typing in.
          const activeField = documentRef.activeElement;
          const focusSelector = activeField && activeField.tagName === 'INPUT' && page.contains(activeField)
            ? (activeField.dataset?.mastersAction ? `input[data-masters-action="${activeField.dataset.mastersAction}"]` : (activeField.classList.contains('masters-search-input') ? 'input.masters-search-input' : null))
@@ -605,9 +559,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           const rowsByManager = new Map(state.managerRows);
           registry.forEach((item) => {
             if (rowsByManager.has(item.id)) return;
-            // Codex browser audit H99: the fallback read `allHoldings`, which the page bootstrap does not carry, so
-            // every manager without a loaded shard had no rows and the compare said "no common holdings". The
-            // published top holdings are the fallback, and the basis is recorded so the result names its scope.
             const rows = (state.holdings?.allHoldings || state.holdings?.holdings || []).filter((row) => row.managerId === item.id);
             const comparisons = (state.holdings?.comparisons || []).filter((row) => row.managerId === item.id);
             if (rows.length || comparisons.length) rowsByManager.set(item.id, { holdings: rows, comparisons, basis: state.holdings?.allHoldings ? 'full' : 'top' });
@@ -637,8 +588,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
             detailNode.prepend(notice);
           }
         }
-        // v57.48 expert review #14: `layout` itself is not mounted (only its detail node is), so load-failure notices
-        // appended to it never reached the screen — they are collected and put at the top of the document column.
         const loadNotices = [];
         if (state.filingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 공시 메타데이터를 불러오지 못했습니다. 기관 소개는 계속 볼 수 있습니다.'));
         if (state.holdingsError) loadNotices.push(element(documentRef, 'div', 'masters-empty-state', 'SEC 보유 행을 불러오지 못했습니다. 공시 메타데이터는 계속 볼 수 있습니다.'));
@@ -673,11 +622,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           const tickerLoadState = state.tickerIndex ? 'ready' : (state.tickerIndexError && !state.loadingCapabilities.has('tickerIndex') ? 'error' : (state.loadingCapabilities.has('tickerIndex') ? 'loading' : 'idle'));
           const tickerLookup = createTickerLookup(documentRef, state.tickerIndex, registry, state.tickerQuery, tickerLoadState, state.holdings?.holdings || [], state.valueScale);
           page.dataset.aioMastersTickerIndex = tickerLoadState === 'ready' ? 'connected' : (tickerLoadState === 'error' ? 'fallback' : 'loading');
-          // P1325: manager cards (the investors) come first; the reverse lookup and the coverage
-          // explanation are secondary and follow. The toolbar carries a jump link to the lookup.
-          // 2026-10-05 리서치 라이브러리 redesign: the manager list moves into the contents column (grouped by
-          // style); the detail card is the document; style, peers and the ticker lookup form the 연결 column.
-          // The catalog coverage panel and filter tabs are no longer shown on screen.
           void toolbar; void coverage;
           const detailNode = layout.children[1] || null;
           const shell = renderManagersPage(documentRef, {
@@ -736,7 +680,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           if (artifact?.managerId !== managerId || artifact?.artifactRole !== 'BOUNDED_WEB_PROJECTION' || artifact?.holdings?.length !== descriptor.projectionRows || artifact?.comparisons?.length !== descriptor.comparisonProjectionRows || artifact?.fullRowsAvailable !== descriptor.fullRows || artifact?.fullComparisonsAvailable !== descriptor.comparisonRows || artifact?.latestFiling?.accession !== descriptor.accession) {
             throw new Error(`manager shard integrity mismatch: ${managerId}`);
           }
-          // Codex browser audit H97: a filing under scale review keeps its shares but not its dollar amounts.
           const shardPeriod = artifact.reportPeriod || descriptor.reportPeriod || state.holdings?.managers?.find((item) => item.id === managerId)?.verification?.reportPeriod || null;
           state.managerRows.set(managerId, state.valueScale?.size ? { ...artifact, holdings: withholdSuspectValues(artifact.holdings, state.valueScale, { managerId, period: shardPeriod }), comparisons: withholdSuspectValues(artifact.comparisons, state.valueScale, { managerId, period: shardPeriod }) } : artifact);
           state.managerRowErrors.delete(managerId);
@@ -796,13 +739,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         if (action === 'retry-ticker-index') { state.tickerIndexError = false; loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); }
         if (action === 'goto-ticker-lookup') loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS);
         if (action === 'filter') { state.filter = value; }
-        // P1449 review note: the 2~4명 비교 accumulates DELIBERATELY across managers
-        // (ci-masters-browser-check pins the accumulation), so a manager switch must NOT
-        // reset the selection — the review's "Fisher 비교에 다른 인물 내용" reading was about
-        // a specific surfacing, not this accumulation design.
         if (action === 'style-overview') state.styleOverview = true;
         if (action === 'select-manager') { state.styleOverview = false; state.selectedId = value; state.view = 'changes'; state.actionFilter = 'ALL'; state.holdingsQuery = ''; state.page = 1; }
-        if (action === 'view') { state.view = value; state.page = 1; if (value === 'changes') state.changeLedgerOpen = true; } // v59.51: choosing the 변화 tab asks for the table, so it opens
+        if (action === 'view') { state.view = value; state.page = 1; if (value === 'changes') state.changeLedgerOpen = true; }
         if (action === 'toggle-compare') {
           state.compareIds = state.compareIds.includes(value) ? state.compareIds.filter((id) => id !== value) : [...state.compareIds, value].slice(0, 4);
         }
@@ -817,7 +756,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
           if (action === 'load-manager' || action === 'toggle-compare') loadManagerRows(value);
           if (action === 'load-quarters') loadQuarterArtifacts(value);
           if (action === 'view' || action === 'select-manager') loadView(state.view, state.selectedId);
-          // P1488: a method-only profile opens straight on its principles, so selecting it loads them.
           if (action === 'select-manager' && state.catalog?.managers?.find?.((m) => m.id === value)?.type === 'METHOD_ONLY') loadOptionalArtifact('principles', MANAGER_PRINCIPLES_URL);
           if (action === 'goto-ticker-lookup') queueMicrotask(() => { const field = page.querySelector('.masters-ticker-lookup-input'); field?.scrollIntoView({ block: 'center', behavior: 'auto' }); field?.focus({ preventScroll: true }); });
           if (action === 'select-manager' || action === 'view' || (action === 'change-filter' && previousSelection !== state.selectedId)) queueMicrotask(focusDetail);
@@ -842,7 +780,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
       };
       page.addEventListener('click', onClick);
       page.addEventListener('input', onInput);
-      // P1330: load the ticker ledger on first focus of the lookup field (not at mount — budget).
       const onFocusIn = (event) => { if (event.target?.dataset?.mastersAction === 'ticker-search' && !state.tickerIndex && !state.tickerIndexError) loadOptionalArtifact('tickerIndex', TICKER_INDEX_REFERENCE_URL, TICKER_INDEX_LOAD_OPTIONS); };
       page.addEventListener('focusin', onFocusIn);
       bag.add(() => page.removeEventListener('focusin', onFocusIn));
@@ -878,8 +815,6 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
         queueMicrotask(() => page.querySelector('.masters-ticker-lookup')?.scrollIntoView?.({ block: 'start', behavior: 'auto' }));
       }
        if (typeof fetchFn === 'function') {
-          // v58.56 (#4): the reference crosswalk (29 KB) loads with the page so holdings rows show exact ticker chips
-          // from the first render; before this it loaded only for the sector view.
           loadOptionalArtifact('referenceMaster', SECURITY_MASTER_REFERENCE_URL);
           const entries = [['holdings', HOLDINGS_URL], ['catalog', MANAGER_CATALOG_URL]];
          Promise.allSettled(entries.map(([, url]) => loadJson(url))).then((results) => {
@@ -889,12 +824,9 @@ export function createMastersPage({ root = globalThis, documentRef = root.docume
              if (result.status === 'fulfilled') {
                state[key] = result.value;
                if (key === 'holdings' && Array.isArray(result.value?.holdings)) {
-                 // Codex browser audit H97: the producer compares every filer's full rows and publishes the filings whose
-                 // amounts sit ~1,000× off; their amounts are withheld before any table, total or weight is drawn.
                  state.valueScale = valueScaleReviewsOf(result.value);
                  if (state.valueScale.size) {
                    state[key] = { ...result.value, holdings: withholdSuspectValues(result.value.holdings, state.valueScale), comparisons: withholdSuspectValues(result.value.comparisons || [], state.valueScale), ...(Array.isArray(result.value.allHoldings) ? { allHoldings: withholdSuspectValues(result.value.allHoldings, state.valueScale) } : {}) };
-                   // P1522: a manager shard that finished before detection kept the filed amounts; withhold it again now.
                    state.managerRows.forEach((artifact, managerId) => {
                      const shardPeriod = artifact.reportPeriod || state.holdings?.managerShards?.[managerId]?.reportPeriod || state.holdings?.managers?.find((item) => item.id === managerId)?.verification?.reportPeriod || null;
                      state.managerRows.set(managerId, { ...artifact, holdings: withholdSuspectValues(artifact.holdings, state.valueScale, { managerId, period: shardPeriod }), comparisons: withholdSuspectValues(artifact.comparisons, state.valueScale, { managerId, period: shardPeriod }) });

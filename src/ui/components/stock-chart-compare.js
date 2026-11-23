@@ -1,6 +1,3 @@
-// v58.79 (owner 2026-10-25, chart review): compare the stock with up to three other symbols on the same daily chart —
-// same-theme chips (smallest sub-theme first) or any ticker typed in — rebased to the stock's close at the start of the
-// last six months, plus a period-return table. The picks stay in memory for this page; nothing is stored.
 import { chartPeers, rebasedLine, periodReturns, alignedPeriodReturns, COMPARE_PERIODS, COMPARE_MAX, COMPARE_WINDOW } from '../../domain/technical/chart-compare.js';
 import { normalizeTickerInput } from '../../domain/instruments/ticker-symbol.js';
 import { barsFromYahoo, completedBars } from '../../data/chart-bars.js';
@@ -11,8 +8,6 @@ const COLORS = ['#3a7bd5', '#b5487a', '#5a9e6f'];
 const PICKS = new Map();
 const BARS = new Map();
 
-// v59.49: a cached series older than the stock's last completed day is fetched again (the cache never expired, so a
-// redraw for a new close kept the pick's old end).
 async function barsFor(root, sym, latest = null) {
   const cached = BARS.get(sym);
   if (cached && (!latest || cached.at(-1)?.time >= latest)) return cached;

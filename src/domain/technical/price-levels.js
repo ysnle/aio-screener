@@ -1,11 +1,6 @@
-// v58.75 (owner decision 2026-10-24): the price-level map and the plan check. The app never proposes an entry, stop or
-// target; it lists the levels the published methods use (swing points, moving averages, volume zones, the 52-week range,
-// the pivot and contraction low, unfilled gaps) and checks a plan the user typed against them. Pure functions on
-// completed daily bars — no DOM, no network.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, detectContractions } from './definitions.js';
 import { buildVolumeByPrice } from './chart-scenarios.js';
 import { finiteNumber as finite } from '../shared/number.js';
-
 
 export const PRICE_LEVEL_RULES = Object.freeze({
   swingSpan: 5, // a swing high (low) is the highest high (lowest low) of 5 bars on each side

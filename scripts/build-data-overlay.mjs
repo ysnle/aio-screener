@@ -34,16 +34,15 @@ export function restampOverlayRevision(file, document, version) {
   if (!VERSION.test(version)) throw new Error(`invalid overlay code version ${version}`);
   const next = structuredClone(document);
   if (typeof next.appRevision === 'string' && VERSION.test(next.appRevision)) next.appRevision = version;
-  if (typeof next.workerRevision === 'string' && /^sw:v\d+\.\d+$/.test(next.workerRevision)) next.workerRevision = `sw:${version}`;
   if (file === 'public-data/operations-status.json' && next.planes?.browser && VERSION.test(next.planes.browser.revision || '')) {
     next.planes.browser.revision = version;
   }
   return next;
 }
 
+// v60.50: producers write public-data/ only, so operations-status.json is the one overlay file that carries a code
+// revision stamp; public-config.json and the architecture manifests come from the code commit with their own version.
 export const RESTAMP_FILES = Object.freeze([
-  'public-config.json',
-  'architecture/public-readiness.json',
   'public-data/operations-status.json'
 ]);
 

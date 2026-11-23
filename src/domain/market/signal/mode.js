@@ -34,11 +34,6 @@ export function describeSignalScoreMode(mode) {
     // No mode-specific decision cutoff exists; keep the field so a consumer cannot
     // invent one from a label.
     decisionThreshold: null,
-    // QA-SIG-27 (P1263) 제품 결정(2026-09-26): 진입 체크리스트 5조건은 시장건강 기반이며
-    // 모드 독립이다 — 모드는 변동성 구성만 바꾸므로 모드별 판정 임계값은 도입하지 않는다.
-    // 추후 제품이 모드별 임계값을 도입하기로 바꾸면 이 revision의 decisionThreshold를 채우고,
-    // 체크리스트 집계 결과가 그 revision을 실어 나르게 결속한다(아래 summarizeEntryChecklist).
-    // 지금의 null은 "임계값 없음"의 선언이지 미구현이 아니다.
     checklistPolicy: Object.freeze({
       basis: 'market-health',
       modeIndependent: true,
@@ -50,10 +45,6 @@ export function describeSignalScoreMode(mode) {
   });
 }
 
-// QA-SIG-27 (P1263): 체크리스트 3상 집계의 단일 소유자. 각 조건의 ok가 true/false/null이면
-// 각각 통과/미충족/대기다 — 보고되지 않은(ok 없는) 조건도 대기로 센다(미보고를 통과나
-// 미충족으로 만들지 않는다). 집계 결과는 언제나 자기 모드 revision과 decisionThreshold를
-// 함께 발행한다 — 소비자가 라벨에서 임계값을 지어내지 못하게 하는 결속이다.
 export function summarizeEntryChecklist(states, descriptor) {
   const rows = Array.isArray(states) ? states : [];
   let passed = 0;
