@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-23T19:33:30.820Z",
-  "attemptedAt": "2026-11-23T19:33:30.820Z",
-  "lastSuccessfulAt": "2026-11-23T19:33:30.820Z",
+  "generatedAt": "2026-11-23T20:22:08.769Z",
+  "attemptedAt": "2026-11-23T20:22:08.769Z",
+  "lastSuccessfulAt": "2026-11-23T20:22:08.769Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-09T19:33:27.250Z",
-  "until": "2026-11-23T19:33:27.250Z",
+  "since": "2026-11-09T20:22:04.282Z",
+  "until": "2026-11-23T20:22:04.282Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 716,
-      "freshCount": 18,
-      "eligibleTextCount": 715,
+      "count": 717,
+      "freshCount": 36,
+      "eligibleTextCount": 716,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72638
+      "lastPostId": 72639
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,15 +137,15 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2059,
-  "retainedItemCount": 390,
+  "count": 2060,
+  "retainedItemCount": 402,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2059,
-    "eligibleTextCount": 1993,
+    "observedCount": 2060,
+    "eligibleTextCount": 1994,
     "mediaOnlyCount": 66,
     "mediaAttachedCount": 824,
     "photoPostCount": 703,
@@ -160,10 +160,10 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 734,
     "media-only": 65,
     "semi": 636,
     "equity": 144,
-    "market-note": 733,
     "macro": 291,
     "credit": 73,
     "optical": 22,
@@ -260,7 +260,7 @@
     "HIMS": 1
   },
   "themes": [
-    "Market Notes (733 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
+    "Market Notes (734 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
     "Semiconductors/Memory (636 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
     "Macro/Rates (291 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
     "Earnings/Corporate (261 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 733,
+      "count": 734,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
     }
   ],
@@ -1572,17 +1572,20 @@
       "datetime": "2026-11-23T05:09:07.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
       ],
+      "lead": 1,
       "score": 89,
       "hasText": true,
-      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기...",
-      "lead": 1,
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기..."
     },
     {
       "id": "bornlupin/21244",
@@ -2215,7 +2218,10 @@
       "datetime": "2026-11-23T08:17:20.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "semi",
+        "ai-policy",
+        "kr-market",
+        "flows"
       ],
       "score": 79,
       "hasText": true,
@@ -2225,10 +2231,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "중화권 마감 시황 (26.11.23, 월) 🇨🇳 중국 본토 증시는 장 초반 상하이종합지수가 3,476.65pt까지 밀렸으나, 전일 발표된 당국의 4,000억 위안 규모 증시 안정 패키지와 액티브 ETF의...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "중화권 마감 시황 (26.11.23, 월) 🇨🇳 중국 본토 증시는 장 초반 상하이종합지수가 3,476.65pt까지 밀렸으나, 전일 발표된 당국의 4,000억 위안 규모 증시 안정 패키지와 액티브 ETF의..."
     },
     {
       "id": "HANAchina/72611",
@@ -2247,9 +2253,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>미 정크본드, 올해 최악의 한 주…우량 채권도 압박 •지난주 미국 정크본드 스프레드는 한 주 동안 51bp 확대된 367bp를 기록하며 2026년 들어 최대 상승폭을 기록함. 투자등급 채권 스프레드도...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미 정크본드, 올해 최악의 한 주…우량 채권도 압박 •지난주 미국 정크본드 스프레드는 한 주 동안 51bp 확대된 367bp를 기록하며 2026년 들어 최대 상승폭을 기록함. 투자등급 채권 스프레드도..."
     },
     {
       "id": "insidertracking/70023",
@@ -2272,12 +2277,13 @@
       "datetime": "2026-11-23T06:53:44.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "market-note"
+        "earnings",
+        "flows"
       ],
       "score": 55,
       "hasText": true,
-      "summary": ">>JPMorgan: 아시아 증시 투자자 포지션이 역사적 저점으로 하락, 시장 큰 폭 반등 가능성 •JPMorgan은 11월 23일 아시아 시장 종합 투자자 포지션 지표가 4주 연속 역사적 최저 수준인 10%...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>JPMorgan: 아시아 증시 투자자 포지션이 역사적 저점으로 하락, 시장 큰 폭 반등 가능성 •JPMorgan은 11월 23일 아시아 시장 종합 투자자 포지션 지표가 4주 연속 역사적 최저 수준인 10%..."
     },
     {
       "id": "HANAchina/72602",
@@ -2286,13 +2292,14 @@
       "datetime": "2026-11-23T05:11:01.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro"
+        "macro",
+        "flows"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": ">>골드만삭스가 보는 미 증시 ‘바닥 확인’ 3가지 조건: AI 수익화, 연준의 완화적 전환, 기관 포지션 축소 (1)AI 투자 수익화 확인 : AI 자본지출이 지속 가능한 이익 증가로 이어질 수 있다는...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>골드만삭스가 보는 미 증시 ‘바닥 확인’ 3가지 조건: AI 수익화, 연준의 완화적 전환, 기관 포지션 축소 (1)AI 투자 수익화 확인 : AI 자본지출이 지속 가능한 이익 증가로 이어질 수 있다는..."
     },
     {
       "id": "HANAchina/72601",
@@ -2301,17 +2308,20 @@
       "datetime": "2026-11-23T05:09:07.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "macro"
+        "macro",
+        "semi",
+        "kr-market",
+        "flows"
       ],
+      "lead": 1,
       "score": 89,
       "hasText": true,
-      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기...",
-      "lead": 1,
       "tickers": [
         "TSM",
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": "> 대만 경제 호황 속 대만달러 약세 원인과 원화와의 차이 (대만언론) 1. 거시경제 및 통화정책의 차이 • 미국 연준(Fed)의 금리 인상 재개로 달러 인덱스가 100 이상을 유지하는 가운데, 한국은 하반기..."
     },
     {
       "id": "insidertracking/70018",
@@ -2368,7 +2378,8 @@
       "tags": [
         "semi",
         "kr-market",
-        "flows"
+        "flows",
+        "healthcare"
       ],
       "score": 60,
       "hasText": true,
@@ -2378,9 +2389,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•중국 증시 부양 선언 이후 첫날 차분 •창업판 +1.2% vs 반도체 과창50-2.7% •로컬•외국인 자금 순유입은 지속 •중소형주, 전방 제조•소비 강세 •귀금속 (2.97%), 통신장비 (2.59%),...",
-      "lead": 3,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국 증시 부양 선언 이후 첫날 차분 •창업판 +1.2% vs 반도체 과창50-2.7% •로컬•외국인 자금 순유입은 지속 •중소형주, 전방 제조•소비 강세 •귀금속 (2.97%), 통신장비 (2.59%),..."
     },
     {
       "id": "insidertracking/70016",
