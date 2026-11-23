@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generatedAt": "2026-11-23T21:51:00.892Z",
+  "generatedAt": "2026-11-23T22:21:02.338Z",
   "source": "github-actions",
   "symbolsOk": 82,
   "symbolsFail": 0,
@@ -9,11 +9,11 @@
    "market-quotes": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "market-quotes",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -35,7 +35,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "SUCCESS",
      "reason": "every attempted target was updated",
@@ -48,38 +48,38 @@
    "news": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "news",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
      "eligible": 19,
      "attempted": 19,
-     "updated": 14,
+     "updated": 13,
      "retained": 3,
-     "pendingEligible": 2
+     "pendingEligible": 3
     },
     "thisBatch": {
-     "updated": 14,
+     "updated": 13,
      "terminalUnsupported": 0,
-     "transientFailed": 5,
-     "recorded": 5
+     "transientFailed": 6,
+     "recorded": 6
     },
     "ledger": {
-     "total": 5,
+     "total": 6,
      "terminalUnsupported": 0,
-     "transientFailed": 5,
+     "transientFailed": 6,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "PARTIAL",
      "reason": "some attempted targets were not updated",
      "allowsPartial": true,
-     "basis": "counts are search feeds; the bundle holds 40 article(s), 7 collected this run",
+     "basis": "counts are search feeds; the bundle holds 40 article(s), 6 collected this run",
      "terminalExcludedFromBatchFailures": true,
      "generatedAtIsNotFreshness": true
     }
@@ -87,11 +87,11 @@
    "macro-fred": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "macro-fred",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -113,7 +113,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "PARTIAL",
      "reason": "some attempted targets were not updated",
@@ -126,11 +126,11 @@
    "macro-bls": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "macro-bls",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -152,7 +152,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "SUCCESS",
      "reason": "every attempted target was updated",
@@ -165,11 +165,11 @@
    "macro-bea": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "macro-bea",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -191,7 +191,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "SUCCESS",
      "reason": "every attempted target was updated",
@@ -204,11 +204,11 @@
    "treasury-curve": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "treasury-curve",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -230,7 +230,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "SUCCESS",
      "reason": "every attempted target was updated",
@@ -243,11 +243,11 @@
    "surveys-aaii": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "surveys-aaii",
-    "runId": "fetch-data:2026-11-23T21:51:00.892Z",
-    "attemptedAt": "2026-11-23T21:51:00.892Z",
+    "runId": "fetch-data:2026-11-23T22:21:02.338Z",
+    "attemptedAt": "2026-11-23T22:21:02.338Z",
     "sourceRevision": null,
     "inputWatermarks": {
-     "generatedAt": "2026-11-23T21:51:00.892Z"
+     "generatedAt": "2026-11-23T22:21:02.338Z"
     },
     "batchLimit": null,
     "counts": {
@@ -269,7 +269,7 @@
      "transientFailed": 0,
      "legacyUnknown": 0
     },
-    "lastSuccessfulObservation": "2026-11-23T21:51:00.892Z",
+    "lastSuccessfulObservation": "2026-11-23T22:21:02.338Z",
     "publication": {
      "status": "SUCCESS",
      "reason": "every attempted target was updated",
@@ -297,8 +297,8 @@
   "fredLkgSource": null,
   "macroKeyCount": 61,
   "fredFetchedKeyCount": 19,
-  "fredAttemptedAt": "2026-11-23T21:51:00.944Z",
-  "fredLastSuccessfulAt": "2026-11-23T21:51:00.944Z",
+  "fredAttemptedAt": "2026-11-23T22:21:02.379Z",
+  "fredLastSuccessfulAt": "2026-11-23T22:21:02.379Z",
   "fredStatus": "complete",
   "fredExpectedSeriesCount": 23,
   "fredSuccessfulSeries": [
@@ -326,24 +326,24 @@
   "blsStatus": "cached-fresh",
   "blsSeriesCount": 4,
   "blsFailedSeries": [],
-  "blsAttemptedAt": "2026-11-23T21:51:00.947Z",
+  "blsAttemptedAt": "2026-11-23T22:21:02.381Z",
   "blsLastSuccessfulAt": "2026-11-23T14:51:30.694Z",
   "beaStatus": "ok",
-  "beaAttemptedAt": "2026-11-23T21:51:00.947Z",
-  "beaLastSuccessfulAt": "2026-11-23T21:51:00.947Z",
+  "beaAttemptedAt": "2026-11-23T22:21:02.382Z",
+  "beaLastSuccessfulAt": "2026-11-23T22:21:02.382Z",
   "beaReleaseAt": "2026-10-29T12:30:00.000Z",
   "beaNextReleaseAt": "2026-11-25T12:30:00.000Z",
-  "treasuryStatus": "cached-fresh",
-  "treasuryAttemptedAt": "2026-11-23T21:51:00.948Z",
-  "treasuryLastSuccessfulAt": "2026-11-23T21:21:32.827Z",
+  "treasuryStatus": "ok",
+  "treasuryAttemptedAt": "2026-11-23T22:21:02.382Z",
+  "treasuryLastSuccessfulAt": "2026-11-23T22:21:02.382Z",
   "treasuryObservedAt": "2026-11-23",
   "aaiiStatus": "current-reference",
-  "aaiiAttemptedAt": "2026-11-23T21:51:00.948Z",
+  "aaiiAttemptedAt": "2026-11-23T22:21:02.383Z",
   "aaiiFetchedAt": "2026-11-23T21:21:32.828Z",
   "aaiiObservedAt": "2026-11-18",
   "aaiiRelayUsed": true,
   "fredHyOasStatus": "cached-fresh",
-  "fredHyOasAttemptedAt": "2026-11-23T21:51:00.948Z",
+  "fredHyOasAttemptedAt": "2026-11-23T22:21:02.383Z",
   "fredHyOasLastSuccessfulAt": "2026-11-23T14:51:30.697Z",
   "fredHyOasObservedAt": "2026-11-19",
   "newsOk": true,
@@ -359,11 +359,11 @@
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
-    "missStreak": 11,
+    "missStreak": 12,
     "lastHealthyAt": "2026-11-23T16:21:09.911Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
+    "runs": 1203,
     "keptTotal": 15674,
     "selectedTotal": 1359
    },
@@ -377,55 +377,56 @@
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 19013,
-    "selectedTotal": 3130
+    "runs": 1203,
+    "keptTotal": 19018,
+    "selectedTotal": 3131
    },
    {
     "source": "Google News - US markets",
     "status": "ok",
-    "parsed": 29,
-    "inWindow": 6,
-    "kept": 4,
+    "parsed": 40,
+    "inWindow": 14,
+    "kept": 9,
     "selected": 1,
     "dropped": {
-     "low-quality-source": 2
+     "low-quality-source": 5
     },
     "lowQualitySources": {
      "The Motley Fool": 1,
-     "Pluang": 1
+     "TradingKey": 3,
+     "Markets.com": 1
     },
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 11812,
-    "selectedTotal": 646
+    "runs": 1203,
+    "keptTotal": 11821,
+    "selectedTotal": 647
    },
    {
     "source": "Google News - AI/Semis",
     "status": "ok",
-    "parsed": 40,
-    "inWindow": 20,
-    "kept": 3,
+    "parsed": 26,
+    "inWindow": 13,
+    "kept": 2,
     "selected": 0,
     "dropped": {
-     "no-market-topic": 1,
-     "low-quality-source": 16
+     "low-quality-source": 11
     },
     "lowQualitySources": {
-     "TradingKey": 16
+     "TradingKey": 10,
+     "Pluang": 1
     },
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 8749,
+    "runs": 1203,
+    "keptTotal": 8751,
     "selectedTotal": 1265
    },
    {
@@ -438,20 +439,20 @@
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 20398,
+    "runs": 1203,
+    "keptTotal": 20400,
     "selectedTotal": 676
    },
    {
     "source": "Google News - FX/Bonds",
     "status": "ok",
     "parsed": 40,
-    "inWindow": 8,
-    "kept": 5,
-    "selected": 0,
+    "inWindow": 10,
+    "kept": 7,
+    "selected": 1,
     "dropped": {
      "low-quality-source": 3
     },
@@ -460,12 +461,12 @@
      "Markets.com": 1
     },
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 12096,
-    "selectedTotal": 2293
+    "runs": 1203,
+    "keptTotal": 12103,
+    "selectedTotal": 2294
    },
    {
     "source": "Google News - Credit/Funding",
@@ -476,51 +477,53 @@
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
-    "missStreak": 78,
+    "missStreak": 79,
     "lastHealthyAt": "2026-11-21T04:51:21.306Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
+    "runs": 1203,
     "keptTotal": 2091,
     "selectedTotal": 314
    },
    {
     "source": "Google News - Analyst/Earnings",
     "status": "ok",
-    "parsed": 27,
-    "inWindow": 5,
-    "kept": 1,
+    "parsed": 40,
+    "inWindow": 11,
+    "kept": 0,
     "selected": 0,
     "dropped": {
-     "not-article-filter": 3,
-     "low-quality-source": 1
+     "low-quality-source": 9,
+     "not-article-filter": 2
     },
     "lowQualitySources": {
-     "TradingKey": 1
+     "TradingKey": 7,
+     "scanx.trade": 1,
+     "Univest": 1
     },
-    "missStreak": 0,
+    "missStreak": 1,
     "lastHealthyAt": "2026-11-23T21:51:00.892Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
+    "runs": 1203,
     "keptTotal": 5736,
     "selectedTotal": 783
    },
    {
     "source": "Google News - Korea markets",
     "status": "ok",
-    "parsed": 27,
+    "parsed": 40,
     "inWindow": 3,
     "kept": 3,
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 16602,
+    "runs": 1203,
+    "keptTotal": 16605,
     "selectedTotal": 1841
    },
    {
@@ -532,35 +535,16 @@
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
-    "missStreak": 39,
+    "missStreak": 40,
     "lastHealthyAt": "2026-11-22T23:51:13.108Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
+    "runs": 1203,
     "keptTotal": 4978,
     "selectedTotal": 818
    },
    {
     "source": "Google News - AI narrative/Memory",
-    "status": "ok",
-    "parsed": 40,
-    "inWindow": 1,
-    "kept": 0,
-    "selected": 0,
-    "dropped": {
-     "no-market-topic": 1
-    },
-    "lowQualitySources": {},
-    "missStreak": 1,
-    "lastHealthyAt": "2026-11-23T21:21:32.792Z",
-    "firstSeenAt": "2026-10-19T12:50:31.698Z",
-    "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 15920,
-    "selectedTotal": 2071
-   },
-   {
-    "source": "Google News - Positioning/Sovereign/Politics",
     "status": "ok",
     "parsed": 40,
     "inWindow": 3,
@@ -571,51 +555,73 @@
     },
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-19T12:50:31.698Z",
     "countedSince": "2026-10-19T15:51:18.979Z",
-    "runs": 1202,
-    "keptTotal": 6171,
+    "runs": 1203,
+    "keptTotal": 15922,
+    "selectedTotal": 2071
+   },
+   {
+    "source": "Google News - Positioning/Sovereign/Politics",
+    "status": "ok",
+    "parsed": 40,
+    "inWindow": 4,
+    "kept": 2,
+    "selected": 0,
+    "dropped": {
+     "no-market-topic": 1,
+     "low-quality-source": 1
+    },
+    "lowQualitySources": {
+     "The Motley Fool": 1
+    },
+    "missStreak": 0,
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
+    "firstSeenAt": "2026-10-19T12:50:31.698Z",
+    "countedSince": "2026-10-19T15:51:18.979Z",
+    "runs": 1203,
+    "keptTotal": 6173,
     "selectedTotal": 1832
    },
    {
     "source": "Google News - Energy/Commodities",
     "status": "ok",
     "parsed": 40,
-    "inWindow": 3,
-    "kept": 3,
-    "selected": 1,
+    "inWindow": 2,
+    "kept": 2,
+    "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-29T14:21:30.514Z",
     "countedSince": "2026-10-29T14:21:30.514Z",
-    "runs": 914,
-    "keptTotal": 13942,
+    "runs": 915,
+    "keptTotal": 13944,
     "selectedTotal": 1418
    },
    {
     "source": "Google News - Crypto",
     "status": "ok",
     "parsed": 40,
-    "inWindow": 3,
-    "kept": 3,
-    "selected": 1,
+    "inWindow": 2,
+    "kept": 2,
+    "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-29T14:21:30.514Z",
     "countedSince": "2026-10-29T14:21:30.514Z",
-    "runs": 914,
-    "keptTotal": 10906,
+    "runs": 915,
+    "keptTotal": 10908,
     "selectedTotal": 738
    },
    {
     "source": "Google News - Healthcare/Biotech",
     "status": "ok",
-    "parsed": 26,
+    "parsed": 23,
     "inWindow": 3,
     "kept": 2,
     "selected": 1,
@@ -626,44 +632,44 @@
      "The Motley Fool": 1
     },
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-29T14:21:30.514Z",
     "countedSince": "2026-10-29T14:21:30.514Z",
-    "runs": 914,
-    "keptTotal": 6664,
-    "selectedTotal": 729
+    "runs": 915,
+    "keptTotal": 6666,
+    "selectedTotal": 730
    },
    {
     "source": "Google News - Japan/China/Europe",
     "status": "ok",
     "parsed": 40,
-    "inWindow": 2,
-    "kept": 2,
+    "inWindow": 3,
+    "kept": 3,
     "selected": 1,
     "dropped": {},
     "lowQualitySources": {},
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-10-29T14:21:30.514Z",
     "countedSince": "2026-10-29T14:21:30.514Z",
-    "runs": 914,
-    "keptTotal": 7034,
-    "selectedTotal": 1276
+    "runs": 915,
+    "keptTotal": 7037,
+    "selectedTotal": 1277
    },
    {
     "source": "Google News - Deals/M&A",
-    "status": "ok",
+    "status": "no-current",
     "parsed": 40,
-    "inWindow": 1,
-    "kept": 1,
+    "inWindow": 0,
+    "kept": 0,
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
-    "missStreak": 0,
+    "missStreak": 1,
     "lastHealthyAt": "2026-11-23T21:51:00.892Z",
     "firstSeenAt": "2026-11-03T12:55:11.996Z",
     "countedSince": "2026-11-03T12:55:11.996Z",
-    "runs": 753,
+    "runs": 754,
     "keptTotal": 11478,
     "selectedTotal": 805
    },
@@ -683,12 +689,12 @@
      "Pluang": 1
     },
     "missStreak": 0,
-    "lastHealthyAt": "2026-11-23T21:51:00.892Z",
+    "lastHealthyAt": "2026-11-23T22:21:02.338Z",
     "firstSeenAt": "2026-11-03T12:55:11.996Z",
     "countedSince": "2026-11-03T12:55:11.996Z",
-    "runs": 753,
-    "keptTotal": 5262,
-    "selectedTotal": 444
+    "runs": 754,
+    "keptTotal": 5267,
+    "selectedTotal": 445
    },
    {
     "source": "Federal Reserve",
@@ -699,11 +705,11 @@
     "selected": 0,
     "dropped": {},
     "lowQualitySources": {},
-    "missStreak": 59,
+    "missStreak": 60,
     "lastHealthyAt": "2026-11-21T22:21:21.240Z",
     "firstSeenAt": "2026-10-29T14:21:30.514Z",
     "countedSince": "2026-10-29T14:21:30.514Z",
-    "runs": 914,
+    "runs": 915,
     "keptTotal": 159,
     "selectedTotal": 142
    }
@@ -723,21 +729,21 @@
   "newsScoreMin": 53,
   "newsScoreMax": 71,
   "marketSurveysStatus": "web-research-captured-reference",
-  "marketSurveysCheckedAt": "2026-11-23T21:51:00.948Z",
+  "marketSurveysCheckedAt": "2026-11-23T22:21:02.383Z",
   "marketSurveysWebResearchCheckedAt": "2026-08-21T15:00:00Z",
   "officialReferencesCheckedAt": "2026-11-23T15:22:20.841Z",
-  "elapsedMs": 11158,
-  "attemptedAt": "2026-11-23T21:51:00.892Z",
-  "artifactGeneratedAt": "2026-11-23T21:51:00.892Z",
+  "elapsedMs": 16834,
+  "attemptedAt": "2026-11-23T22:21:02.338Z",
+  "artifactGeneratedAt": "2026-11-23T22:21:02.338Z",
   "schema": 1,
   "headlineTranslation": {
-   "reused": 43,
+   "reused": 41,
    "translated": 3,
-   "pending": 3,
+   "pending": 4,
    "provider": "shared-openai",
    "reason": null,
    "freeReason": "workers-ai-low-yield",
-   "failed": 2
+   "failed": 3
   },
   "marketSentenceReject": null,
   "marketAnalysisOk": true,
@@ -748,21 +754,21 @@
   "marketAnalysisReason": null,
   "marketAnalysisBlockCause": null,
   "marketTimelineSealed": [],
-  "marketTimelineSummary": "validator-blocked",
+  "marketTimelineSummary": null,
   "aiUsage": {
    "schemaVersion": "aio-pipeline-ai-usage.v1",
    "configured": true,
-   "sharedRequests": 6,
+   "sharedRequests": 5,
    "workersAiRequests": 1,
-   "inputTokens": 30589,
-   "outputTokens": 2529,
+   "inputTokens": 52616,
+   "outputTokens": 3985,
    "purposes": {
     "headline-translation": {
      "requests": 1,
      "ok": 1,
      "failures": {},
-     "inputTokens": 404,
-     "outputTokens": 59,
+     "inputTokens": 429,
+     "outputTokens": 304,
      "outcome": "translated"
     },
     "headline-translation:workers-ai": {
@@ -771,36 +777,34 @@
      "failures": {}
     },
     "market-analysis": {
-     "requests": 1,
-     "ok": 1,
+     "requests": 2,
+     "ok": 2,
      "failures": {},
-     "inputTokens": 23885,
-     "outputTokens": 1089,
-     "outcome": "verified"
+     "inputTokens": 47920,
+     "outputTokens": 2093,
+     "outcome": "verified-after-retry"
     },
     "screen-reading": {
-     "requests": 3,
-     "ok": 3,
+     "requests": 2,
+     "ok": 2,
      "failures": {},
-     "inputTokens": 5537,
-     "outputTokens": 1008,
+     "inputTokens": 4267,
+     "outputTokens": 1588,
      "outcome": "verified"
     },
     "slot-summary": {
-     "requests": 1,
-     "ok": 1,
+     "requests": 0,
+     "ok": 0,
      "failures": {},
-     "inputTokens": 763,
-     "outputTokens": 373,
-     "outcome": "validator-blocked"
+     "outcome": "not-due"
     }
    }
   },
   "marketSnapshotPublished": true,
-  "marketSnapshotAttemptedAt": "2026-11-23T21:51:00.892Z",
-  "marketSnapshotPublishedAt": "2026-11-23T21:51:00.892Z",
-  "marketSnapshotAttemptRevision": "market-snapshot:2026-11-23T21:51:00.892Z:513f0d63",
-  "marketSnapshotLastSuccessfulAt": "2026-11-23T21:51:00.892Z",
+  "marketSnapshotAttemptedAt": "2026-11-23T22:21:02.338Z",
+  "marketSnapshotPublishedAt": "2026-11-23T22:21:02.338Z",
+  "marketSnapshotAttemptRevision": "market-snapshot:2026-11-23T22:21:02.338Z:97ceaad2",
+  "marketSnapshotLastSuccessfulAt": "2026-11-23T22:21:02.338Z",
   "marketSnapshotCoverage": {
    "required": 16,
    "observed": 16,
@@ -808,24 +812,24 @@
    "tier0Required": 16,
    "tier0Observed": 16
   },
-  "marketSnapshotRevision": "market-snapshot:2026-11-23T21:51:00.892Z:513f0d63",
+  "marketSnapshotRevision": "market-snapshot:2026-11-23T22:21:02.338Z:97ceaad2",
   "cycleId": "kst-0800-2026-11-22T23:00:00.000Z",
   "cycleStatus": "PUBLISHED",
   "marketCycleFreshnessSlaHours": 12,
   "cycleComponents": {
-   "marketSnapshotRevision": "market-snapshot:2026-11-23T21:51:00.892Z:513f0d63",
+   "marketSnapshotRevision": "market-snapshot:2026-11-23T22:21:02.338Z:97ceaad2",
    "marketSnapshotPublished": true,
    "quoteCount": 82,
    "requiredQuoteCount": 82,
-   "newsGeneratedAt": "2026-11-23T21:51:00.892Z",
+   "newsGeneratedAt": "2026-11-23T22:21:02.338Z",
    "newsCount": 40,
    "minimumNewsCount": 10,
    "historyCycleEnd": "2026-11-22T23:00:00.000Z",
    "historyUpdated": true,
    "telegramDigestExpected": true
   },
-  "cycleManifestRevision": "kst-0800-2026-11-22T23:00:00.000Z:market-snapshot:2026-11-23T21:51:00.892Z:513f0d63",
-  "cycleManifestAttemptRevision": "market-snapshot:2026-11-23T21:51:00.892Z:513f0d63",
+  "cycleManifestRevision": "kst-0800-2026-11-22T23:00:00.000Z:market-snapshot:2026-11-23T22:21:02.338Z:97ceaad2",
+  "cycleManifestAttemptRevision": "market-snapshot:2026-11-23T22:21:02.338Z:97ceaad2",
   "cycleBlockers": [],
   "fmpHasKey": false,
   "secFundamentalsOk": true,
@@ -882,7 +886,7 @@
    "sourceUrl": "https://api.bls.gov/publicAPI/v1/timeseries/data/",
    "fetchedAt": "2026-11-23T14:51:30.694Z",
    "lastSuccessfulAt": "2026-11-23T14:51:30.694Z",
-   "attemptedAt": "2026-11-23T21:51:00.947Z",
+   "attemptedAt": "2026-11-23T22:21:02.381Z",
    "releaseAt": null,
    "status": "cached-fresh",
    "series": {
@@ -1144,15 +1148,15 @@
    "observedAt": "2026-09-01",
    "releasedAt": "2026-10-29T12:30:00.000Z",
    "nextReleaseAt": "2026-11-25T12:30:00.000Z",
-   "fetchedAt": "2026-11-23T21:51:00.947Z",
-   "lastSuccessfulAt": "2026-11-23T21:51:00.947Z",
+   "fetchedAt": "2026-11-23T22:21:02.382Z",
+   "lastSuccessfulAt": "2026-11-23T22:21:02.382Z",
    "values": {
     "pce": 3.6,
     "corePce": 3.1,
     "pceMoM": 0.5,
     "corePceMoM": 0.3
    },
-   "attemptedAt": "2026-11-23T21:51:00.947Z"
+   "attemptedAt": "2026-11-23T22:21:02.382Z"
   },
   "_source_pce": "bea-official-primary",
   "_source_corePce": "bea-official-primary",
@@ -1167,12 +1171,12 @@
   "_source_hyOAS": "fred-official-primary",
   "_treasury": {
    "schemaVersion": "us-treasury-curve.v1",
-   "status": "cached-fresh",
+   "status": "ok",
    "source": "U.S. Treasury Daily Par Yield Curve Rates XML Feed",
    "sourceKind": "T1_OFFICIAL",
    "sourceUrl": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value_month=202611",
    "observedAt": "2026-11-23",
-   "fetchedAt": "2026-11-23T21:21:32.827Z",
+   "fetchedAt": "2026-11-23T22:21:02.382Z",
    "values": {
     "dgs2": 4.63,
     "dgs5": 4.74,
@@ -1319,8 +1323,8 @@
    ],
    "allowedUse": "official-observation-and-derived-same-date-spread",
    "decisionUse": false,
-   "attemptedAt": "2026-11-23T21:51:00.948Z",
-   "cacheHit": true
+   "attemptedAt": "2026-11-23T22:21:02.382Z",
+   "cacheHit": false
   },
   "dgs2": 4.63,
   "_asOf_dgs2": "2026-11-23",
@@ -1355,10 +1359,10 @@
    "unit": "percent",
    "allowedUse": "official-relay-observation-with-publication-lag",
    "decisionUse": false,
-   "attemptedAt": "2026-11-23T21:51:00.948Z",
+   "attemptedAt": "2026-11-23T22:21:02.383Z",
    "cacheHit": true
   },
-  "t10y2yDelta": 0.01,
+  "t10y2yDelta": 0,
   "_freshness_cpi": "stale-reference",
   "_freshness_coreCpi": "stale-reference",
   "_freshness_pce": "observed",
@@ -1392,7 +1396,7 @@
   "_asOf_coreCpiSa": "2026-09-01",
   "_source_cpiSa": "last-known-good",
   "_source_coreCpiSa": "last-known-good",
-  "_attemptedAt": "2026-11-23T21:51:00.944Z",
+  "_attemptedAt": "2026-11-23T22:21:02.379Z",
   "_successfulSeries": [
    "pce",
    "corePce",
@@ -1431,10 +1435,10 @@
   "realYield10Delta": -0.11,
   "realYield10Delta5": -0.14,
   "_asOf_realYield10": "2026-11-20",
-  "breakeven10": 2.15,
-  "breakeven10Delta": -0.01,
-  "breakeven10Delta5": -0.09,
-  "_asOf_breakeven10": "2026-11-20",
+  "breakeven10": 2.13,
+  "breakeven10Delta": -0.02,
+  "breakeven10Delta5": -0.07,
+  "_asOf_breakeven10": "2026-11-23",
   "_freshness_fedTargetLower": "observed",
   "_freshness_fedTargetUpper": "observed",
   "_freshness_realYield10": "observed",
@@ -1469,25 +1473,25 @@
   "_originSource_cpi": "fred-official-primary",
   "_originSource_coreCpi": "fred-official-primary",
   "_fetchedAt": {
-   "pce": "2026-11-23T21:51:00.944Z",
-   "corePce": "2026-11-23T21:51:00.944Z",
-   "fedRate": "2026-11-23T21:51:00.944Z",
-   "fedTargetLower": "2026-11-23T21:51:00.944Z",
-   "fedTargetUpper": "2026-11-23T21:51:00.944Z",
+   "pce": "2026-11-23T22:21:02.379Z",
+   "corePce": "2026-11-23T22:21:02.379Z",
+   "fedRate": "2026-11-23T22:21:02.379Z",
+   "fedTargetLower": "2026-11-23T22:21:02.379Z",
+   "fedTargetUpper": "2026-11-23T22:21:02.379Z",
    "unemployment": "2026-11-23T14:51:30.691Z",
    "nfp": "2026-11-23T14:51:30.691Z",
-   "housingStarts": "2026-11-23T21:51:00.944Z",
+   "housingStarts": "2026-11-23T22:21:02.379Z",
    "retailSales": "2026-11-23T14:51:30.691Z",
    "usWageGrowth": "2026-11-23T14:51:30.691Z",
-   "hyOAS": "2026-11-23T21:51:00.944Z",
-   "dgs2": "2026-11-23T21:51:00.944Z",
-   "dgs5": "2026-11-23T21:51:00.944Z",
-   "dgs10": "2026-11-23T21:51:00.944Z",
-   "dgs20": "2026-11-23T21:51:00.944Z",
-   "dgs30": "2026-11-23T21:51:00.944Z",
-   "t10y2y": "2026-11-23T21:51:00.944Z",
-   "realYield10": "2026-11-23T21:51:00.944Z",
-   "breakeven10": "2026-11-23T21:51:00.944Z"
+   "hyOAS": "2026-11-23T22:21:02.379Z",
+   "dgs2": "2026-11-23T22:21:02.379Z",
+   "dgs5": "2026-11-23T22:21:02.379Z",
+   "dgs10": "2026-11-23T22:21:02.379Z",
+   "dgs20": "2026-11-23T22:21:02.379Z",
+   "dgs30": "2026-11-23T22:21:02.379Z",
+   "t10y2y": "2026-11-23T22:21:02.379Z",
+   "realYield10": "2026-11-23T22:21:02.379Z",
+   "breakeven10": "2026-11-23T22:21:02.379Z"
   }
  },
  "policyRates": {
@@ -1509,7 +1513,7 @@
   "rating": "extreme fear",
   "_source": "cnn",
   "sourceUrl": "https://www.cnn.com/markets/fear-and-greed",
-  "asOf": "2026-11-23T21:31:07+00:00",
+  "asOf": "2026-11-23T22:01:03+00:00",
   "previousScore": 10,
   "previousWeek": 31,
   "history": [
@@ -2764,28 +2768,28 @@
     "rating": "extreme fear"
    }
   ],
-  "attemptedAt": "2026-11-23T21:51:00.945Z",
-  "fetchedAt": "2026-11-23T21:51:00.945Z",
+  "attemptedAt": "2026-11-23T22:21:02.380Z",
+  "fetchedAt": "2026-11-23T22:21:02.380Z",
   "status": "current-reference"
  },
  "providerCrossChecks": {
   "crypto": {
    "status": "ok",
-   "attemptedAt": "2026-11-23T21:51:00.948Z",
-   "fetchedAt": "2026-11-23T21:51:01.059Z",
+   "attemptedAt": "2026-11-23T22:21:02.383Z",
+   "fetchedAt": "2026-11-23T22:21:02.841Z",
    "source": "CoinGecko Simple Price API",
    "sourceKind": "independent-secondary",
    "sourceUrl": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_last_updated_at=true",
    "quotes": [
     {
      "symbol": "BTC-USD",
-     "price": 61081,
-     "observedAt": "2026-11-23T21:49:48.000Z"
+     "price": 61176,
+     "observedAt": "2026-11-23T22:19:50.000Z"
     },
     {
      "symbol": "ETH-USD",
-     "price": 1714.64,
-     "observedAt": "2026-11-23T21:49:48.000Z"
+     "price": 1717.71,
+     "observedAt": "2026-11-23T22:20:03.000Z"
     }
    ]
   },
@@ -2813,11 +2817,11 @@
     "unit": "KRW per USD",
     "allowedUse": "official-relay-observation-with-publication-lag",
     "decisionUse": false,
-    "attemptedAt": "2026-11-23T21:51:00.948Z",
+    "attemptedAt": "2026-11-23T22:21:02.384Z",
     "cacheHit": true
    },
    "tolerancePct": 5,
-   "attemptedAt": "2026-11-23T21:51:12.255Z",
+   "attemptedAt": "2026-11-23T22:21:19.940Z",
    "fetchedAt": "2026-11-23T14:51:30.698Z",
    "allowedUse": "reference-only-not-a-value-source",
    "decisionUse": false,
@@ -2830,7 +2834,7 @@
  },
  "marketSurveys": {
   "schemaVersion": "web-research-surveys.v2",
-  "checkedAt": "2026-11-23T21:51:00.948Z",
+  "checkedAt": "2026-11-23T22:21:02.383Z",
   "policy": "official-publisher-public-web; reference-only; no synthesis",
   "aaii": {
    "status": "current-reference",
@@ -2849,7 +2853,7 @@
    "allowedUse": "reference-only",
    "decisionUse": false,
    "note": "Official public percentages collected through a bounded text relay after the publisher blocked direct automation; reference-only and excluded from trading gates.",
-   "attemptedAt": "2026-11-23T21:51:00.948Z",
+   "attemptedAt": "2026-11-23T22:21:02.383Z",
    "cacheHit": true
   },
   "investorsIntelligence": {
@@ -2860,7 +2864,7 @@
    "allowedUse": "not-used",
    "note": "Official subscription page documents the survey but does not expose a current numeric reading without subscriber access."
   },
-  "automatedCheckedAt": "2026-11-23T21:51:00.948Z",
+  "automatedCheckedAt": "2026-11-23T22:21:02.383Z",
   "webResearchCheckedAt": "2026-08-21T15:00:00Z"
  },
  "officialWebReferences": null,
@@ -2896,7 +2900,7 @@
    "source": "Reuters",
    "guid": "CBMipAFBVV95cUxQcm1fbVJENmFGZU81bGR4WXVfeDMwdWdaY0xNbmVBN3hmaXVVeVBLelJxT3dubnROYnVkM2NCRXRfcFFvMGNtZ0FlM3c5LWt1WUVGclQzY1ZJTVBCR2d2dXozSXRqN0VIM1NsV0d2YVJLRjJpRnlIcVRNSlZqeURwLWhKa1V4dUNvWDdlZmNoMnQxQ1d6WlVGalNpdjVSZm9PMXRzUA",
    "sourceArticleId": "CBMipAFBVV95cUxQcm1fbVJENmFGZU81bGR4WXVfeDMwdWdaY0xNbmVBN3hmaXVVeVBLelJxT3dubnROYnVkM2NCRXRfcFFvMGNtZ0FlM3c5LWt1WUVGclQzY1ZJTVBCR2d2dXozSXRqN0VIM1NsV0d2YVJLRjJpRnlIcVRNSlZqeURwLWhKa1V4dUNvWDdlZmNoMnQxQ1d6WlVGalNpdjVSZm9PMXRzUA",
-   "fetchedAt": "2026-11-23T21:51:02.385Z",
+   "fetchedAt": "2026-11-23T22:21:04.028Z",
    "pubDate": "Sun, 22 Nov 2026 17:53:07 GMT",
    "topic": "macro",
    "country": "us",
@@ -3170,7 +3174,7 @@
    "source": "The Hill",
    "guid": "CBMiiAFBVV95cUxQNVdNTGpobjVUb2hiNXV4LW5pVTZMSzNuRXpvSTFBc1pMWGg5OU8tdlB2Q2ZlcnR5WElWYTd6cU9TRWwwUWhyNkRqYjl1ZlNWakE1d21zNnVNY3pzS2ZkSWgzVFV1YnJlWjRyYk5OOEJNZ0pYcVRpSFRFNWpBcWo5b1VzNi1ZcHZF0gGIAUFVX3lxTFA1V01MamhuNVRvaGI1dXgtbmlVNkxLM25Fem9JMUFzWkxYaDk5Ty12UHZDZmVydHlYSVZhN3pxT1NFbDBRaHI2RGpiOXVmU1ZqQTV3bXM2dU1jenNLZmRJaDNUVXVicmVaNHJiTk44Qk1nSlhxVGlIVEU1akFxajlvVXM2LVlwdkU",
    "sourceArticleId": "CBMiiAFBVV95cUxQNVdNTGpobjVUb2hiNXV4LW5pVTZMSzNuRXpvSTFBc1pMWGg5OU8tdlB2Q2ZlcnR5WElWYTd6cU9TRWwwUWhyNkRqYjl1ZlNWakE1d21zNnVNY3pzS2ZkSWgzVFV1YnJlWjRyYk5OOEJNZ0pYcVRpSFRFNWpBcWo5b1VzNi1ZcHZF0gGIAUFVX3lxTFA1V01MamhuNVRvaGI1dXgtbmlVNkxLM25Fem9JMUFzWkxYaDk5Ty12UHZDZmVydHlYSVZhN3pxT1NFbDBRaHI2RGpiOXVmU1ZqQTV3bXM2dU1jenNLZmRJaDNUVXVicmVaNHJiTk44Qk1nSlhxVGlIVEU1akFxajlvVXM2LVlwdkU",
-   "fetchedAt": "2026-11-23T21:51:11.725Z",
+   "fetchedAt": "2026-11-23T22:21:13.550Z",
    "pubDate": "Sun, 22 Nov 2026 19:46:02 GMT",
    "topic": "equity",
    "country": "us",
@@ -3394,7 +3398,7 @@
    "source": "머니투데이",
    "guid": "CBMibEFVX3lxTE1hZWZsWGpwZWFsUlN2dV9zNVoxNVhaNC0xa2ZLRTY2QVpucUowVFlUcll3aEw3U3ktMXpuaXRVV0tOVkROeUpYWGJUWnlIRE1IeUV3RmdXblJOaS0xSHNhOGJ4anZPWnVhVmY0cA",
    "sourceArticleId": "CBMibEFVX3lxTE1hZWZsWGpwZWFsUlN2dV9zNVoxNVhaNC0xa2ZLRTY2QVpucUowVFlUcll3aEw3U3ktMXpuaXRVV0tOVkROeUpYWGJUWnlIRE1IeUV3RmdXblJOaS0xSHNhOGJ4anZPWnVhVmY0cA",
-   "fetchedAt": "2026-11-23T21:51:02.702Z",
+   "fetchedAt": "2026-11-23T22:21:04.466Z",
    "pubDate": "Sun, 22 Nov 2026 08:41:49 GMT",
    "topic": "macro",
    "country": "us",
@@ -3444,7 +3448,7 @@
    "source": "Financial Times",
    "guid": "CBMihAFBVV95cUxNMTV6U21rNzJQbkhqV0hiVmJwLXVvVE5oSk1STUF5Q3hGdHVmZkF3b2FFOEFDYzhhbmttd2Z1ZmtHS29IUGxfSHpzckJEb3JGRFlneG9zTFVOcEdxWWNlaEs3T0J3SzRXUlRHeHZjaERFcFJESUgzVjlmWjhKQTFIc1ZSc3c",
    "sourceArticleId": "CBMihAFBVV95cUxNMTV6U21rNzJQbkhqV0hiVmJwLXVvVE5oSk1STUF5Q3hGdHVmZkF3b2FFOEFDYzhhbmttd2Z1ZmtHS29IUGxfSHpzckJEb3JGRFlneG9zTFVOcEdxWWNlaEs3T0J3SzRXUlRHeHZjaERFcFJESUgzVjlmWjhKQTFIc1ZSc3c",
-   "fetchedAt": "2026-11-23T21:51:10.140Z",
+   "fetchedAt": "2026-11-23T22:21:11.823Z",
    "pubDate": "Sun, 22 Nov 2026 05:00:48 GMT",
    "topic": "healthcare",
    "country": "us",
@@ -3643,7 +3647,7 @@
    "source": "نورنیوز",
    "guid": "CBMihwFBVV95cUxQSkNrR2FWNklIdE5vSDhDT1RHRF9sRElZQ1lralpsRUZ5Vk91UzVSS3FEWTlSSTFQQmYxTUxtQldxVUJTeklKOXpUeGo2OHgzeDVxTDBnMDluS2FaVW12bTFRR2pXUUhmandYNUNDNEtuRXVyN0Q1d3lRWFF6YS1VQ3pINlllX0U",
    "sourceArticleId": "CBMihwFBVV95cUxQSkNrR2FWNklIdE5vSDhDT1RHRF9sRElZQ1lralpsRUZ5Vk91UzVSS3FEWTlSSTFQQmYxTUxtQldxVUJTeklKOXpUeGo2OHgzeDVxTDBnMDluS2FaVW12bTFRR2pXUUhmandYNUNDNEtuRXVyN0Q1d3lRWFF6YS1VQ3pINlllX0U",
-   "fetchedAt": "2026-11-23T18:21:18.882Z",
+   "fetchedAt": "2026-11-23T22:21:05.574Z",
    "pubDate": "Sun, 22 Nov 2026 15:41:00 GMT",
    "topic": "fxbond",
    "country": "global",
@@ -3842,7 +3846,7 @@
    "source": "Nikkei Asia",
    "guid": "CBMivgFBVV95cUxNQ0FwN2lXWDNqODN1MF9JcHdUc3NPY2E0LTRvSDlVeGdSQ2ZmQkJKRzdMSERHV2dVMkpxSUE2YjlEV3VSR24wV0Jyb2JITktKeTFtTUZQRUVWMGg2dk5kVGk4Ymw4NEZpOGhEUjJiZEZJcXdwWDdFMk82b2REM3Vvb3FwalQwQ3pLQVdmSERUbVRBX1h3V0hBRGZ6eXMtTzNYUFNmTHEwaDJDM016c1JDeEFyMXk2VU1VRUd4NkFR",
    "sourceArticleId": "CBMivgFBVV95cUxNQ0FwN2lXWDNqODN1MF9JcHdUc3NPY2E0LTRvSDlVeGdSQ2ZmQkJKRzdMSERHV2dVMkpxSUE2YjlEV3VSR24wV0Jyb2JITktKeTFtTUZQRUVWMGg2dk5kVGk4Ymw4NEZpOGhEUjJiZEZJcXdwWDdFMk82b2REM3Vvb3FwalQwQ3pLQVdmSERUbVRBX1h3V0hBRGZ6eXMtTzNYUFNmTHEwaDJDM016c1JDeEFyMXk2VU1VRUd4NkFR",
-   "fetchedAt": "2026-11-23T21:51:10.599Z",
+   "fetchedAt": "2026-11-23T22:21:12.272Z",
    "pubDate": "Sun, 22 Nov 2026 21:00:00 GMT",
    "topic": "macro",
    "country": "global",
@@ -3879,19 +3883,34 @@
    "titleKo": "젠슨 황이 엔비디아 CEO로 복귀한 뒤 미 증시 급등…지난주 폭락분의 절반 만회"
   },
   {
-   "title": "Fed has 'work to do' to lower inflation, Williams says",
-   "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNa3lvbHFTMGFKUm9paUJYVzFoQzd1QnQtSzAtTlZmSlFyRW5Sc1hic3p2MVV0VWVrYjFkNDdQZlFTUWMzZGFueG5yMTVMcGhLWUxwQi16Ujk5b2ppMVRWTGowaHlMZDQ4Z19xbWpCQTRFVzFHSHhxeW9kbG80OTVtSEZsb3REX29FRFFPR0xzTnFjYXh6?oc=5",
-   "source": "Reuters",
-   "publishedAt": "2026-11-23T21:06:23.000Z",
+   "title": "Gold Rebounds as Traders Pare Bets on Near-Term Fed Rate Hikes",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQVy1Pa3puQ1RUS0xLT3pTdTBrdUc0Q0J4TkFqMW81cXpOdUpQSU9LV2wtNlJIS19wOG9uMEVEUlZkZUNIQXJBcXdNeWdaV0JiXzF4WGluNWtSaVU4T09reFVtYkc0dXJOZkFLXzFMUGNzOVl1SHRVaG5PR3dvVnpwR3VTbGJibEloRHVzcjQxYWc5UWxZdWR5OWdmdGE5UTh0c1NSRF9vc09YUk1aVHNFNmFVZw?oc=5",
+   "source": "Bloomberg.com",
+   "publishedAt": "2026-11-23T21:16:22.000Z",
    "topic": "macro",
    "market": "us",
    "tier": 1,
    "sourceTierLabel": "official-or-wire",
-   "score": 68,
-   "selectionReason": "base+20 | source-tier1+16 | recency+18 | macro-rates+14",
+   "score": 72,
+   "selectionReason": "base+20 | source-tier1+16 | recency+18 | macro-rates+14 | cross-subject+4 | fx-bonds-commodities+0",
    "contentDepth": "headline-only",
    "provisional": true,
-   "titleKo": "윌리엄스 \"인플레이션 낮추려면 연준이 '해야 할 일' 남아 있다\"고 말해"
+   "titleKo": "트레이더들이 단기 연준 금리 인상 베팅 줄이자 금값 반등"
+  },
+  {
+   "title": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+   "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOZ01XVnNSdmRPYmYxOWNxejJQZ3Zsa3Ywa21rWWNDSi0ydnk5N0RjZ1BNQS1BRnNuSlZDcXpkUkZ4QkQ0V25rLUQ1MjRMa2hsRWlOQy1HOVRadlBZcG5TT3NIZ0duRDJvb0JGVHc4ZFE4dlVQSDBQcDhuMTFsdkRuRGQ4djl3bDE4c3lpMjEzU0dZWHo1dlNRTWo5LThIMHZtVk9iVjhoWGR1azJKUEE?oc=5",
+   "source": "WSJ",
+   "publishedAt": "2026-11-23T21:15:00.000Z",
+   "topic": "macro",
+   "market": "us",
+   "tier": 1,
+   "sourceTierLabel": "official-or-wire",
+   "score": 81,
+   "selectionReason": "base+20 | source-tier1+16 | recency+18 | ai-semis+13 | cross-subject+4 | sovereign-fiscal+0 | mega-cap+0 | market-general+0 | market-scope+10",
+   "contentDepth": "headline-only",
+   "provisional": true,
+   "titleKo": "황의 Nvidia CEO 복귀 후 미 국채 금리 상승…유럽 채권 금리는 하락"
   },
   {
    "title": "Oil Prices Fall as Traders Weigh Supply Surplus, Gulf Attacks",
@@ -3909,21 +3928,6 @@
    "titleKo": "트레이더들 공급 과잉과 걸프 지역 공격 저울질하며 유가 하락"
   },
   {
-   "title": "Anthropic options post solid debut, trailing SpaceX record",
-   "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQZzZBTkVsVXo2NVo5WmF4NXlRZnpidUVLNE1ZX25XbHFLUm1RamtHODdMRWJYTWJDSVlFRmlfSDI5dGVGVEQ1ZHItNVhoLWFhX0M2eGxVTHdtUExfMUxEc1p2S3ZTVkJuTVd0TUYxXy04UEJnOXFldDE2ZHMzMDEyeXcyMkNpdlpHamVDRmtpVQ?oc=5",
-   "source": "Reuters",
-   "publishedAt": "2026-11-23T20:38:10.000Z",
-   "topic": "semi",
-   "market": "us",
-   "tier": 1,
-   "sourceTierLabel": "official-or-wire",
-   "score": 64,
-   "selectionReason": "base+20 | source-tier1+16 | recency+15 | ai-narrative-funding+13",
-   "contentDepth": "headline-only",
-   "provisional": true,
-   "titleKo": "Anthropic 옵션, 성공적인 데뷔…SpaceX 기록에는 못 미쳐"
-  },
-  {
    "title": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap",
    "link": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNMFVRM2J2cTZ6eU02Qzk1TF83UmhsSEN3SlpHYjJuc2lDeXBVM0h6WkN2bEJCUlk5RnZNOFMta05FOXFqeTZQQWZnbFl2RG1WTWVNSXYwVWhZRFZxRkx6SDlhTWtUWk92UVBJa2FGWVk3ak9rOUVJYjZ6RDBqcUZCOEpiWmFVWGxvVmM1Y2prdDk2N19EZG0xWjU3aFV5QkJ6MjF4eExGSkd3TWxaWGRBVzhB?oc=5",
    "source": "Bloomberg.com",
@@ -3939,34 +3943,19 @@
    "titleKo": "황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등: 시장 마감"
   },
   {
-   "title": "Anthropic Shares Sink, Defying AI Trade Rally on Huang’s Return",
-   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNM3FZMk45aHRWV3NIaWg3cWoxX1A3WDYwbnJlelBOZTR5emJTOU1NOFJNbWJFTC1STmNXT1ExMlRnc3BHQWRLRzNIMnJ1eWpSRG1LSWNfanpDY0xDekl4a3NINm9jTzRyVjRzUFpEMDFwc0toMllDYlNaZkwxYXB6djBKT0FyWi1pZmROZzRjaEJGeEhMaWNJWUllWGZBVndiU1FVNnV2RmlkN2ZrTFJ3cHc4WVU?oc=5",
-   "source": "Bloomberg.com",
-   "publishedAt": "2026-11-23T20:12:13.000Z",
-   "topic": "semi",
-   "market": "us",
-   "tier": 1,
-   "sourceTierLabel": "official-or-wire",
-   "score": 64,
-   "selectionReason": "base+20 | source-tier1+16 | recency+15 | ai-narrative-funding+13",
-   "contentDepth": "headline-only",
-   "provisional": true,
-   "titleKo": "황 CEO 복귀에 따른 AI주 랠리에도 Anthropic 주가 하락"
-  },
-  {
-   "title": "Treasury Yields Rise as Huang Returns as CEO, European Bond Yields Slip",
-   "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOZ01XVnNSdmRPYmYxOWNxejJQZ3Zsa3Ywa21rWWNDSi0ydnk5N0RjZ1BNQS1BRnNuSlZDcXpkUkZ4QkQ0V25rLUQ1MjRMa2hsRWlOQy1HOVRadlBZcG5TT3NIZ0duRDJvb0JGVHc4ZFE4dlVQSDBQcDhuMTFsdkRuRGQ4djl3bDE4c3lpMjEzU0dZWHo1dlNRTWo5LThIMHZtVk9iVjhoWGR1azJKUEE?oc=5",
-   "source": "WSJ",
-   "publishedAt": "2026-11-23T16:42:00.000Z",
+   "title": "2-year Treasury yield jumps as stocks rebound, investors await New York Fed President Williams speech",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9QemJ4Zi1KUVFXdk1NTDJLQWtnQmpPSnBiZTY3ZFV3SmRwZmFFay1kLTZoNk1MclNIZW5SVzh4MzlfRHBZTWR5N003aU9udHVCczNUd3R5SWxmMnIzb3QyS0R6akhuUzFJMlkyT2ZUd9IBdEFVX3lxTE1EVlVKZHJ6WUhjRGtoM2RrSjMtT0ZaanpZeThYZXNkdHRyY2FtNFc3SGJiREt5Rm5fc29DWWtMZ0FKVzNES09RMHBOVjVMY0Y4R0xHdW5ybW9fVW9CenRxWGtwYnRnVUZJQlNJR1RpUk9lbzNU?oc=5",
+   "source": "CNBC",
+   "publishedAt": "2026-11-23T10:15:19.000Z",
    "topic": "macro",
    "market": "us",
    "tier": 1,
    "sourceTierLabel": "official-or-wire",
-   "score": 71,
-   "selectionReason": "base+20 | source-tier1+16 | recency+15 | sovereign-fiscal+10 | market-general+0 | market-scope+10",
+   "score": 70,
+   "selectionReason": "base+20 | source-tier1+16 | recency+10 | macro-rates+14 | market-general+0 | market-scope+10",
    "contentDepth": "headline-only",
    "provisional": true,
-   "titleKo": "Huang의 CEO 복귀에 미 국채 금리 상승, 유럽 채권 금리 하락"
+   "titleKoFailed": true
   },
   {
    "title": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
@@ -3984,21 +3973,6 @@
    "titleKo": "엔비디아 이사회, 젠슨 황의 CEO 복귀 승인 후 기술주 랠리"
   },
   {
-   "title": "Tech stocks see monster rally after Jensen Huang returns as Nvidia CEO",
-   "link": "https://news.google.com/rss/articles/CBMibEFVX3lxTFBJVmhYR3dCSjgwTWZWTGJGUGE1S0NKbkxQUDhzODNkU2lSRFU3dk5LeENVUjI0RS0zYnJ6LWFCMFZZaEpUWmdzSUFwQzRzOFM4VWNpSU9JTHo2c3o5U3NXcUpkNEdoSFdtbkdoatIBckFVX3lxTE9TTG1paDhMMG81cTlpOHdVOVRUMmVhTnRMOXR2MFd3ZHBvY3BTX1d6NVBZOVV4cDdVQ1dfRUs5YW95cmpieTdNZzlkWmFqUVNUR05EOGQ0SEk5a1RMZDdBaU1VdGlkdXN1cXFCM2RwN1d4QQ?oc=5",
-   "source": "CNBC",
-   "publishedAt": "2026-11-23T09:17:42.000Z",
-   "topic": "macro",
-   "market": "us",
-   "tier": 1,
-   "sourceTierLabel": "official-or-wire",
-   "score": 73,
-   "selectionReason": "base+20 | source-tier1+16 | recency+10 | ai-semis+13 | cross-subject+4 | mega-cap+0 | market-general+0 | market-scope+10",
-   "contentDepth": "headline-only",
-   "provisional": true,
-   "titleKo": "젠슨 황의 엔비디아 CEO 복귀 후 기술주 급등"
-  },
-  {
    "title": "증시 급락에 국고채 금리 일제히↓…3년물 연 3.623%(종합)",
    "link": "https://www.yna.co.kr/view/AKR20261123144651008",
    "source": "연합뉴스",
@@ -4009,6 +3983,20 @@
    "sourceTierLabel": "reputable-secondary",
    "score": 75,
    "selectionReason": "base+20 | source-tier2+9 | recency+18 | ko-macro-rates+14 | cross-subject+4 | ko-market+0 | market-scope+10",
+   "contentDepth": "headline-only",
+   "provisional": true
+  },
+  {
+   "title": "환율, 장중 1350원 돌파…\"증시·삼전 배당 역송금 변수\"",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQalZwZTcwUmpmUThiN0wxMFVjZUZobldsa1NuSGFNZE5jVXJPTnl3MVFsb2U0OXR4T1VRbWIzTEw5amc0NGFuZVZlXzRhS21nN1RIX1lORDVGSmUzWjN4LWctTGxsTUxNQzlrTXZfa0V0ZXJ2bnJzNkRwSWI1QlpyeQ?oc=5",
+   "source": "이데일리",
+   "publishedAt": "2026-11-23T07:52:10.000Z",
+   "topic": "kr",
+   "market": "kr",
+   "tier": 2,
+   "sourceTierLabel": "reputable-secondary",
+   "score": 61,
+   "selectionReason": "base+20 | source-tier2+9 | recency+18 | ko-fx+10 | cross-subject+4 | ko-market+0",
    "contentDepth": "headline-only",
    "provisional": true
   },
@@ -4039,6 +4027,21 @@
    "selectionReason": "base+20 | source-tier2+9 | recency+15 | ko-index-move+14 | cross-subject+4 | ko-fx+0 | ko-market+0 | market-scope+10",
    "contentDepth": "headline-only",
    "provisional": true
+  },
+  {
+   "title": "Dollar jumps on hawkish Fed bets, AI rally",
+   "link": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNMVA0aUFSMnFob3ZJdVFvbmlpN0JDRWFRNUJwZ1BIY19KU3RXZjJTRGdLaU00NGJ6dDRvX3VBUDdtcG9XQWRiRFhuUzhMZTNsN2lDSWVKMmI2Vi1EQ3dFUE5mM3dwZGNQWC1zZXhnZTJfVEVuYzVETlV1enJTN0dPZlQ3SlozeklDTzkwck16LW42eWt5aDJEY0w4M0Ytd0ZlRnBSZmZpN0Z5bkxTLXNXcWdtSW0?oc=5",
+   "source": "Reuters",
+   "publishedAt": "2026-11-22T23:43:00.000Z",
+   "topic": "macro",
+   "market": "us",
+   "tier": 1,
+   "sourceTierLabel": "official-or-wire",
+   "score": 64,
+   "selectionReason": "base+20 | source-tier1+16 | recency+10 | macro-rates+14 | cross-subject+4 | fx-bonds-commodities+0",
+   "contentDepth": "headline-only",
+   "provisional": true,
+   "titleKo": "연준의 매파적 기조 베팅과 AI 랠리에 달러 급등"
   }
  ],
  "marketTimeline": {
@@ -4052,7 +4055,7 @@
   ],
   "macroBasis": "kst-0800-completed-24h",
   "retainSlots": 8,
-  "updatedAt": "2026-11-23T21:51:12.280Z",
+  "updatedAt": "2026-11-23T22:21:19.961Z",
   "slots": [
    {
     "id": "kst-slot-2026-11-23T21:00:00.000Z",
@@ -5831,7 +5834,7 @@
    "end": "2026-11-24T03:00:00.000Z",
    "label": "11/24 06:00~12:00",
    "endLabel": "12:00",
-   "updatedAt": "2026-11-23T21:51:12.280Z",
+   "updatedAt": "2026-11-23T22:21:19.961Z",
    "marks": {
     "market.index.kospi": {
      "label": "코스피",
@@ -5861,17 +5864,17 @@
      "label": "나스닥",
      "value": 24089.559,
      "unit": "index",
-     "observedAt": "2026-11-23T21:50:59.000Z",
+     "observedAt": "2026-11-23T22:15:59.000Z",
      "session": "MARKET_CLOSED",
      "changePct": 6.50741034023536
     },
     "market.fx.usdkrw": {
      "label": "원/달러",
-     "value": 1340.81,
+     "value": 1340.87,
      "unit": "KRW/USD",
-     "observedAt": "2026-11-23T21:50:58.000Z",
-     "session": "CURRENT_SESSION",
-     "changePct": -0.39520736210583823
+     "observedAt": "2026-11-23T22:03:21.000Z",
+     "session": "DELAYED_IN_SESSION",
+     "changePct": -0.39075014030836636
     },
     "market.rates.us10y": {
      "label": "미 10년물",
@@ -5883,34 +5886,34 @@
     },
     "market.fx.dxy": {
      "label": "달러지수",
-     "value": 104.344,
+     "value": 104.348,
      "unit": "index",
-     "observedAt": "2026-11-23T21:40:56.000Z",
+     "observedAt": "2026-11-23T22:10:57.000Z",
      "session": "DELAYED_IN_SESSION"
     },
     "market.commodity.wti": {
      "label": "WTI",
-     "value": 80.32,
+     "value": 80.25,
      "unit": "USD/barrel",
-     "observedAt": "2026-11-23T21:40:43.000Z",
+     "observedAt": "2026-11-23T21:59:59.000Z",
      "session": "DELAYED_IN_SESSION",
-     "changePct": -3.704596003408493
+     "changePct": -3.7885187907561124
     },
     "market.commodity.gold": {
      "label": "금",
-     "value": 3633.4,
+     "value": 3634.4,
      "unit": "USD/oz",
-     "observedAt": "2026-11-23T21:40:52.000Z",
+     "observedAt": "2026-11-23T21:59:59.000Z",
      "session": "DELAYED_IN_SESSION",
-     "changePct": 3.3566621418399176
+     "changePct": 3.385108407635547
     },
     "market.crypto.btc": {
      "label": "비트코인",
-     "value": 61162.73,
+     "value": 61226.28,
      "unit": "USD",
-     "observedAt": "2026-11-23T21:50:59.000Z",
+     "observedAt": "2026-11-23T22:20:58.000Z",
      "session": "CURRENT_SESSION",
-     "changePct": 0.001340448242883113
+     "changePct": 0.1052449859488586
     },
     "market.volatility.vix": {
      "label": "VIX",
@@ -5944,15 +5947,15 @@
      "titleKo": "젠슨 황이 엔비디아 CEO로 복귀한 뒤 미 증시 급등…지난주 폭락분의 절반 만회"
     },
     {
-     "title": "Fed has 'work to do' to lower inflation, Williams says",
-     "link": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNa3lvbHFTMGFKUm9paUJYVzFoQzd1QnQtSzAtTlZmSlFyRW5Sc1hic3p2MVV0VWVrYjFkNDdQZlFTUWMzZGFueG5yMTVMcGhLWUxwQi16Ujk5b2ppMVRWTGowaHlMZDQ4Z19xbWpCQTRFVzFHSHhxeW9kbG80OTVtSEZsb3REX29FRFFPR0xzTnFjYXh6?oc=5",
-     "source": "Reuters",
-     "publishedAt": "2026-11-23T21:06:23.000Z",
+     "title": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "link": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOZ01XVnNSdmRPYmYxOWNxejJQZ3Zsa3Ywa21rWWNDSi0ydnk5N0RjZ1BNQS1BRnNuSlZDcXpkUkZ4QkQ0V25rLUQ1MjRMa2hsRWlOQy1HOVRadlBZcG5TT3NIZ0duRDJvb0JGVHc4ZFE4dlVQSDBQcDhuMTFsdkRuRGQ4djl3bDE4c3lpMjEzU0dZWHo1dlNRTWo5LThIMHZtVk9iVjhoWGR1azJKUEE?oc=5",
+     "source": "WSJ",
+     "publishedAt": "2026-11-23T21:15:00.000Z",
      "topic": "macro",
      "market": "us",
      "tier": 1,
      "sourceTierLabel": "official-or-wire",
-     "titleKo": "윌리엄스 \"인플레이션 낮추려면 연준이 '해야 할 일' 남아 있다\"고 말해"
+     "titleKo": "황의 Nvidia CEO 복귀 후 미 국채 금리 상승…유럽 채권 금리는 하락"
     },
     {
      "title": "[코스피·코스닥 전 거래일(23일) 주요공시]",
@@ -5970,7 +5973,7 @@
  "afterHours": {
   "schemaVersion": "after-hours.v1",
   "sessionDate": "2026-11-23",
-  "fetchedAt": "2026-11-23T21:51:16.649Z",
+  "fetchedAt": "2026-11-23T22:21:27.330Z",
   "source": "Yahoo chart (5m, includePrePost)",
   "sourceKind": "T3_PUBLIC_DELAYED",
   "allowedUse": "reference-only",
@@ -5980,9 +5983,9 @@
    {
     "symbol": "HPE",
     "regularClose": 48.02,
-    "last": 45.68,
-    "changePct": -4.87,
-    "observedAt": "2026-11-23T21:51:09.000Z",
+    "last": 45.19,
+    "changePct": -5.89,
+    "observedAt": "2026-11-23T22:21:10.000Z",
     "indexWeight": 0.09,
     "epsActual": null,
     "epsEstimate": 1.2998,
@@ -5992,9 +5995,9 @@
    {
     "symbol": "A",
     "regularClose": 176.04,
-    "last": 188.54,
-    "changePct": 7.1,
-    "observedAt": "2026-11-23T21:51:05.000Z",
+    "last": 188.59,
+    "changePct": 7.13,
+    "observedAt": "2026-11-23T22:15:18.000Z",
     "indexWeight": 0.08,
     "epsActual": null,
     "epsEstimate": 1.7605,
@@ -6004,9 +6007,9 @@
    {
     "symbol": "J",
     "regularClose": 157.53,
-    "last": 157.53,
-    "changePct": 0,
-    "observedAt": "2026-11-23T21:05:00.000Z",
+    "last": 157.9,
+    "changePct": 0.23,
+    "observedAt": "2026-11-23T21:42:11.000Z",
     "indexWeight": 0.03,
     "epsActual": null,
     "epsEstimate": 2.1671,
@@ -6016,9 +6019,9 @@
    {
     "symbol": "AMTM",
     "regularClose": 20.65,
-    "last": 22.1,
-    "changePct": 7.02,
-    "observedAt": "2026-11-23T21:43:11.000Z",
+    "last": 22.2,
+    "changePct": 7.51,
+    "observedAt": "2026-11-23T22:18:42.000Z",
     "indexWeight": null,
     "epsActual": null,
     "epsEstimate": 0.6732,
@@ -6028,9 +6031,9 @@
    {
     "symbol": "ZM",
     "regularClose": 86.03,
-    "last": 85.66,
-    "changePct": -0.43,
-    "observedAt": "2026-11-23T21:47:03.000Z",
+    "last": 85.96,
+    "changePct": -0.09,
+    "observedAt": "2026-11-23T22:16:55.000Z",
     "indexWeight": null,
     "epsActual": null,
     "epsEstimate": 1.5301,
@@ -6040,9 +6043,9 @@
    {
     "symbol": "FLNC",
     "regularClose": 3.8,
-    "last": 4.21,
-    "changePct": 10.79,
-    "observedAt": "2026-11-23T21:51:05.000Z",
+    "last": 4.38,
+    "changePct": 15.27,
+    "observedAt": "2026-11-23T22:21:10.000Z",
     "indexWeight": null,
     "epsActual": null,
     "epsEstimate": -0.2633,
@@ -6052,9 +6055,9 @@
    {
     "symbol": "SYM",
     "regularClose": 34.97,
-    "last": 34.44,
-    "changePct": -1.51,
-    "observedAt": "2026-11-23T21:48:47.000Z",
+    "last": 34.2,
+    "changePct": -2.2,
+    "observedAt": "2026-11-23T22:17:35.000Z",
     "indexWeight": null,
     "epsActual": null,
     "epsEstimate": 0.155,
@@ -6064,9 +6067,9 @@
    {
     "symbol": "CENT",
     "regularClose": 44.43,
-    "last": 42.16,
-    "changePct": -5.12,
-    "observedAt": "2026-11-23T21:48:44.000Z",
+    "last": 42.06,
+    "changePct": -5.33,
+    "observedAt": "2026-11-23T21:55:02.000Z",
     "indexWeight": null,
     "epsActual": null,
     "epsEstimate": -0.0592,
@@ -6079,9 +6082,9 @@
   "schemaVersion": "market-analysis.v2",
   "status": "verified",
   "reason": null,
-  "summary": "S&P 500은 11/23 종가 4.73% 상승했고, 반도체(SOXX)는 13.63% 상승했으며 코스피는 3.31% 하락했습니다.\n11/24 에이피 보도에 따르면 젠슨 황의 복귀가 인공지능 투자 기대를 자극해 대형 기술주와 반도체 반등의 배경으로 거론됐고, 11/22 파이낸셜포스트 보도는 국내 증시 급락에 따른 당국의 긴급 대응을 전했습니다.\n금 장중 06:40 KST 기준 3.36% 상승, 서부텍사스산원유 장중 06:40 KST 기준 3.70% 하락이며, 11/24 월스트리트저널 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 하락 배경으로 들었습니다.\n미국은 추세·변동성·신용이 부담이고 시장 폭과 금리는 중립이며, 반도체의 큰 반등에도 주도 영역 이탈과 회복 확인 미충족이 남아 있습니다.\n현재 흐름은 「소수 주도에서 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 시장 폭 부담이 아직 빠져 전환 확정으로 보기는 이릅니다.\n매크로는 「AI 투자 꺾임」과 「변동성 충격」 조건이 각각 2/4로 동률이고, 시장 가격은 전자 쪽과 같은 방향입니다. 11/25 PCE 발표가 물가 해석을 바꾸고 12/4 고용보고서가 두 흐름을 가르는 가운데, 투자·고용 둔화가 이익과 신용을 거쳐 주가에 닿는 경로가 관건입니다.\n이 두 시나리오에서는 비용 가설상 보유 유지와 분할 접근이 함께 검토될 수 있고, 성급한 분할 접근은 투자 꺾임이 이어질 때의 손실을 감수하는 대신 반등을 놓칠 위험을 줄입니다. 반대로 성장 재가속이면 관망의 기회비용이 커지며, 방어 흐름에서는 헬스케어·필수소비재·유틸리티가 상대적으로 수혜이고 반도체·광통신은 부담인 가운데 K-콘텐츠는 하락장 속 상대적 강세를 보였습니다.\n11/25 PCE와 12/4 고용보고서, 하이일드 스프레드, 시장 폭, 반도체의 50일선 회복을 확인해야 하며, 신용 확대가 멈추고 참여가 넓어지거나 반도체가 회복하면 동반 약세 해석은 약해집니다.",
-  "full": "S&P 500은 11/23 종가 4.73% 상승했고, 반도체(SOXX)는 13.63% 상승했으며 코스피는 3.31% 하락했습니다.\n11/24 에이피 보도에 따르면 젠슨 황의 복귀가 인공지능 투자 기대를 자극해 대형 기술주와 반도체 반등의 배경으로 거론됐고, 11/22 파이낸셜포스트 보도는 국내 증시 급락에 따른 당국의 긴급 대응을 전했습니다.\n금 장중 06:40 KST 기준 3.36% 상승, 서부텍사스산원유 장중 06:40 KST 기준 3.70% 하락이며, 11/24 월스트리트저널 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 하락 배경으로 들었습니다.\n미국은 추세·변동성·신용이 부담이고 시장 폭과 금리는 중립이며, 반도체의 큰 반등에도 주도 영역 이탈과 회복 확인 미충족이 남아 있습니다.\n현재 흐름은 「소수 주도에서 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 시장 폭 부담이 아직 빠져 전환 확정으로 보기는 이릅니다.\n매크로는 「AI 투자 꺾임」과 「변동성 충격」 조건이 각각 2/4로 동률이고, 시장 가격은 전자 쪽과 같은 방향입니다. 11/25 PCE 발표가 물가 해석을 바꾸고 12/4 고용보고서가 두 흐름을 가르는 가운데, 투자·고용 둔화가 이익과 신용을 거쳐 주가에 닿는 경로가 관건입니다.\n이 두 시나리오에서는 비용 가설상 보유 유지와 분할 접근이 함께 검토될 수 있고, 성급한 분할 접근은 투자 꺾임이 이어질 때의 손실을 감수하는 대신 반등을 놓칠 위험을 줄입니다. 반대로 성장 재가속이면 관망의 기회비용이 커지며, 방어 흐름에서는 헬스케어·필수소비재·유틸리티가 상대적으로 수혜이고 반도체·광통신은 부담인 가운데 K-콘텐츠는 하락장 속 상대적 강세를 보였습니다.\n11/25 PCE와 12/4 고용보고서, 하이일드 스프레드, 시장 폭, 반도체의 50일선 회복을 확인해야 하며, 신용 확대가 멈추고 참여가 넓어지거나 반도체가 회복하면 동반 약세 해석은 약해집니다.",
-  "oneLine": "S&P 500은 11/23 종가 4.73% 상승했고, 반도체(SOXX)는 13.63% 상승했으며 코스피는 3.31% 하락했습니다.",
+  "summary": "S&P 500은 11/23 종가 큰 폭 +4.73%로 반등했고, 5거래일은 -2.42%입니다.\n11/23 블룸버그 보도에 따르면 아시아 시장은 미국 매도세 뒤 추가 변동성에 대비했고, 11/23 로이터 보도에 따르면 엔비디아의 중국 수출 문제가 거론돼 기술주와 위험 선호에 부담을 줄 수 있습니다.\n반도체는 11/23 종가 큰 폭 +13.63% 반등했지만 5거래일은 -0.71%이고, 코스피는 11/23 종가 -3.31% 하락해 5거래일 -7.68%입니다.\n11/22 파이낸셜포스트 보도에 따르면 코스피·코스닥 급락 뒤 정부가 긴급 회의를 소집했고, 반도체의 하루 반등만으로 주도 영역 회복을 확인하기는 어렵습니다.\nWTI는 장중 06:59 KST 기준 -3.79%이며, 11/24 월스트리트저널의 잠정 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 변동 배경으로 거론합니다.\n이 흐름은 추세·변동성·신용 부담과 주도 영역 이탈에 맞물리며, 현재는 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이고 시장 폭 부담 조건은 아직 미충족입니다.\n다음 갈림길은 11/25 22:30 KST PCE와 12/4 22:30 KST 고용보고서이며, 동률인 「AI 투자 꺾임」·「변동성 충격」은 각각 조건 충족 2/4입니다; AI 투자 꺾임 쪽은 시장 가격도 같은 방향이고, 금리 하락은 경기 둔화에 따른 이익 약화와 함께라면 주가에 호재로만 작용하지 않습니다.\n두 시나리오 기준으로 관망은 반등을 놓칠 수 있지만 AI 이익 하향을 기다리는 비용이 작다는 비용 가설이 있고, 분할 접근은 공포성 매도 뒤 반등 참여 기회를 얻되 신용 악화 때 추가 하락을 감수하며, 보유 유지는 집계상 상대적으로 비용이 작고 방어 전환은 급반등을 놓칠 수 있습니다; 반대 시나리오인 성장 재가속으로 가면 관망의 기회비용이 커집니다.\n변동성 충격·AI 투자 꺾임 시 방어 테마가 상대 수혜이고 장기 성장·고평가·경기민감 테마는 부담이며, 한국 K-콘텐츠의 강세는 거시 부담 속 조정 여부를 살필 대상입니다; 반증은 신용 확대와 변동성 역전의 완화, 반도체의 추세 회복 및 시장 참여 확산입니다.",
+  "full": "S&P 500은 11/23 종가 큰 폭 +4.73%로 반등했고, 5거래일은 -2.42%입니다.\n11/23 블룸버그 보도에 따르면 아시아 시장은 미국 매도세 뒤 추가 변동성에 대비했고, 11/23 로이터 보도에 따르면 엔비디아의 중국 수출 문제가 거론돼 기술주와 위험 선호에 부담을 줄 수 있습니다.\n반도체는 11/23 종가 큰 폭 +13.63% 반등했지만 5거래일은 -0.71%이고, 코스피는 11/23 종가 -3.31% 하락해 5거래일 -7.68%입니다.\n11/22 파이낸셜포스트 보도에 따르면 코스피·코스닥 급락 뒤 정부가 긴급 회의를 소집했고, 반도체의 하루 반등만으로 주도 영역 회복을 확인하기는 어렵습니다.\nWTI는 장중 06:59 KST 기준 -3.79%이며, 11/24 월스트리트저널의 잠정 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 변동 배경으로 거론합니다.\n이 흐름은 추세·변동성·신용 부담과 주도 영역 이탈에 맞물리며, 현재는 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이고 시장 폭 부담 조건은 아직 미충족입니다.\n다음 갈림길은 11/25 22:30 KST PCE와 12/4 22:30 KST 고용보고서이며, 동률인 「AI 투자 꺾임」·「변동성 충격」은 각각 조건 충족 2/4입니다; AI 투자 꺾임 쪽은 시장 가격도 같은 방향이고, 금리 하락은 경기 둔화에 따른 이익 약화와 함께라면 주가에 호재로만 작용하지 않습니다.\n두 시나리오 기준으로 관망은 반등을 놓칠 수 있지만 AI 이익 하향을 기다리는 비용이 작다는 비용 가설이 있고, 분할 접근은 공포성 매도 뒤 반등 참여 기회를 얻되 신용 악화 때 추가 하락을 감수하며, 보유 유지는 집계상 상대적으로 비용이 작고 방어 전환은 급반등을 놓칠 수 있습니다; 반대 시나리오인 성장 재가속으로 가면 관망의 기회비용이 커집니다.\n변동성 충격·AI 투자 꺾임 시 방어 테마가 상대 수혜이고 장기 성장·고평가·경기민감 테마는 부담이며, 한국 K-콘텐츠의 강세는 거시 부담 속 조정 여부를 살필 대상입니다; 반증은 신용 확대와 변동성 역전의 완화, 반도체의 추세 회복 및 시장 참여 확산입니다.",
+  "oneLine": "S&P 500은 11/23 종가 큰 폭 +4.73%로 반등했고, 5거래일은 -2.42%입니다.",
   "regime": {
    "label": "MODEL_SUMMARY",
    "status": "verified",
@@ -6089,19 +6092,19 @@
     "market.index.spx:0238fdcb",
     "market.volatility.vix:76a7d6d3",
     "market.rates.us10y:892f0696",
-    "market.fx.dxy:3cc4c09b",
-    "market.commodity.wti:4afb388a",
-    "market.commodity.gold:29dd9ae0",
+    "market.fx.dxy:8073a6ea",
+    "market.commodity.wti:c93d3f27",
+    "market.commodity.gold:c4b74156",
     "market.index.kospi:0fbcc226",
     "market.sector.semis:8ce5604a",
-    "market.futures.sp500:fb7f045a",
-    "market.futures.nasdaq100:42986f5d",
+    "market.futures.sp500:065d32a9",
+    "market.futures.nasdaq100:4a19784b",
     "market.index.hangseng:2fbfd1ee",
     "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
     "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
     "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
     "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-    "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+    "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
    ]
   },
   "drivers": [
@@ -6111,19 +6114,19 @@
      "market.index.spx:0238fdcb",
      "market.volatility.vix:76a7d6d3",
      "market.rates.us10y:892f0696",
-     "market.fx.dxy:3cc4c09b",
-     "market.commodity.wti:4afb388a",
-     "market.commodity.gold:29dd9ae0",
+     "market.fx.dxy:8073a6ea",
+     "market.commodity.wti:c93d3f27",
+     "market.commodity.gold:c4b74156",
      "market.index.kospi:0fbcc226",
      "market.sector.semis:8ce5604a",
-     "market.futures.sp500:fb7f045a",
-     "market.futures.nasdaq100:42986f5d",
+     "market.futures.sp500:065d32a9",
+     "market.futures.nasdaq100:4a19784b",
      "market.index.hangseng:2fbfd1ee",
      "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
      "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
      "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+     "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
     ]
    }
   ],
@@ -6134,19 +6137,19 @@
      "market.index.spx:0238fdcb",
      "market.volatility.vix:76a7d6d3",
      "market.rates.us10y:892f0696",
-     "market.fx.dxy:3cc4c09b",
-     "market.commodity.wti:4afb388a",
-     "market.commodity.gold:29dd9ae0",
+     "market.fx.dxy:8073a6ea",
+     "market.commodity.wti:c93d3f27",
+     "market.commodity.gold:c4b74156",
      "market.index.kospi:0fbcc226",
      "market.sector.semis:8ce5604a",
-     "market.futures.sp500:fb7f045a",
-     "market.futures.nasdaq100:42986f5d",
+     "market.futures.sp500:065d32a9",
+     "market.futures.nasdaq100:4a19784b",
      "market.index.hangseng:2fbfd1ee",
      "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
      "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
      "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+     "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
     ]
    }
   ],
@@ -6157,44 +6160,44 @@
      "market.index.spx:0238fdcb",
      "market.volatility.vix:76a7d6d3",
      "market.rates.us10y:892f0696",
-     "market.fx.dxy:3cc4c09b",
-     "market.commodity.wti:4afb388a",
-     "market.commodity.gold:29dd9ae0",
+     "market.fx.dxy:8073a6ea",
+     "market.commodity.wti:c93d3f27",
+     "market.commodity.gold:c4b74156",
      "market.index.kospi:0fbcc226",
      "market.sector.semis:8ce5604a",
-     "market.futures.sp500:fb7f045a",
-     "market.futures.nasdaq100:42986f5d",
+     "market.futures.sp500:065d32a9",
+     "market.futures.nasdaq100:4a19784b",
      "market.index.hangseng:2fbfd1ee",
      "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
      "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
      "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+     "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
     ]
    }
   ],
   "claims": [
    {
     "id": "market-summary-1",
-    "text": "S&P 500은 11/23 종가 4.73% 상승했고, 반도체(SOXX)는 13.63% 상승했으며 코스피는 3.31% 하락했습니다.\n11/24 에이피 보도에 따르면 젠슨 황의 복귀가 인공지능 투자 기대를 자극해 대형 기술주와 반도체 반등의 배경으로 거론됐고, 11/22 파이낸셜포스트 보도는 국내 증시 급락에 따른 당국의 긴급 대응을 전했습니다.\n금 장중 06:40 KST 기준 3.36% 상승, 서부텍사스산원유 장중 06:40 KST 기준 3.70% 하락이며, 11/24 월스트리트저널 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 하락 배경으로 들었습니다.\n미국은 추세·변동성·신용이 부담이고 시장 폭과 금리는 중립이며, 반도체의 큰 반등에도 주도 영역 이탈과 회복 확인 미충족이 남아 있습니다.\n현재 흐름은 「소수 주도에서 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 시장 폭 부담이 아직 빠져 전환 확정으로 보기는 이릅니다.\n매크로는 「AI 투자 꺾임」과 「변동성 충격」 조건이 각각 2/4로 동률이고, 시장 가격은 전자 쪽과 같은 방향입니다. 11/25 PCE 발표가 물가 해석을 바꾸고 12/4 고용보고서가 두 흐름을 가르는 가운데, 투자·고용 둔화가 이익과 신용을 거쳐 주가에 닿는 경로가 관건입니다.\n이 두 시나리오에서는 비용 가설상 보유 유지와 분할 접근이 함께 검토될 수 있고, 성급한 분할 접근은 투자 꺾임이 이어질 때의 손실을 감수하는 대신 반등을 놓칠 위험을 줄입니다. 반대로 성장 재가속이면 관망의 기회비용이 커지며, 방어 흐름에서는 헬스케어·필수소비재·유틸리티가 상대적으로 수혜이고 반도체·광통신은 부담인 가운데 K-콘텐츠는 하락장 속 상대적 강세를 보였습니다.\n11/25 PCE와 12/4 고용보고서, 하이일드 스프레드, 시장 폭, 반도체의 50일선 회복을 확인해야 하며, 신용 확대가 멈추고 참여가 넓어지거나 반도체가 회복하면 동반 약세 해석은 약해집니다.",
+    "text": "S&P 500은 11/23 종가 큰 폭 +4.73%로 반등했고, 5거래일은 -2.42%입니다.\n11/23 블룸버그 보도에 따르면 아시아 시장은 미국 매도세 뒤 추가 변동성에 대비했고, 11/23 로이터 보도에 따르면 엔비디아의 중국 수출 문제가 거론돼 기술주와 위험 선호에 부담을 줄 수 있습니다.\n반도체는 11/23 종가 큰 폭 +13.63% 반등했지만 5거래일은 -0.71%이고, 코스피는 11/23 종가 -3.31% 하락해 5거래일 -7.68%입니다.\n11/22 파이낸셜포스트 보도에 따르면 코스피·코스닥 급락 뒤 정부가 긴급 회의를 소집했고, 반도체의 하루 반등만으로 주도 영역 회복을 확인하기는 어렵습니다.\nWTI는 장중 06:59 KST 기준 -3.79%이며, 11/24 월스트리트저널의 잠정 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 변동 배경으로 거론합니다.\n이 흐름은 추세·변동성·신용 부담과 주도 영역 이탈에 맞물리며, 현재는 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이고 시장 폭 부담 조건은 아직 미충족입니다.\n다음 갈림길은 11/25 22:30 KST PCE와 12/4 22:30 KST 고용보고서이며, 동률인 「AI 투자 꺾임」·「변동성 충격」은 각각 조건 충족 2/4입니다; AI 투자 꺾임 쪽은 시장 가격도 같은 방향이고, 금리 하락은 경기 둔화에 따른 이익 약화와 함께라면 주가에 호재로만 작용하지 않습니다.\n두 시나리오 기준으로 관망은 반등을 놓칠 수 있지만 AI 이익 하향을 기다리는 비용이 작다는 비용 가설이 있고, 분할 접근은 공포성 매도 뒤 반등 참여 기회를 얻되 신용 악화 때 추가 하락을 감수하며, 보유 유지는 집계상 상대적으로 비용이 작고 방어 전환은 급반등을 놓칠 수 있습니다; 반대 시나리오인 성장 재가속으로 가면 관망의 기회비용이 커집니다.\n변동성 충격·AI 투자 꺾임 시 방어 테마가 상대 수혜이고 장기 성장·고평가·경기민감 테마는 부담이며, 한국 K-콘텐츠의 강세는 거시 부담 속 조정 여부를 살필 대상입니다; 반증은 신용 확대와 변동성 역전의 완화, 반도체의 추세 회복 및 시장 참여 확산입니다.",
     "claimType": "summary",
     "evidenceIds": [
      "market.index.spx:0238fdcb",
      "market.volatility.vix:76a7d6d3",
      "market.rates.us10y:892f0696",
-     "market.fx.dxy:3cc4c09b",
-     "market.commodity.wti:4afb388a",
-     "market.commodity.gold:29dd9ae0",
+     "market.fx.dxy:8073a6ea",
+     "market.commodity.wti:c93d3f27",
+     "market.commodity.gold:c4b74156",
      "market.index.kospi:0fbcc226",
      "market.sector.semis:8ce5604a",
-     "market.futures.sp500:fb7f045a",
-     "market.futures.nasdaq100:42986f5d",
+     "market.futures.sp500:065d32a9",
+     "market.futures.nasdaq100:4a19784b",
      "market.index.hangseng:2fbfd1ee",
      "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
      "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
      "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
      "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-     "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+     "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
     ],
     "status": "validated"
    }
@@ -6203,81 +6206,74 @@
    "market.index.spx:0238fdcb",
    "market.volatility.vix:76a7d6d3",
    "market.rates.us10y:892f0696",
-   "market.fx.dxy:3cc4c09b",
-   "market.commodity.wti:4afb388a",
-   "market.commodity.gold:29dd9ae0",
+   "market.fx.dxy:8073a6ea",
+   "market.commodity.wti:c93d3f27",
+   "market.commodity.gold:c4b74156",
    "market.index.kospi:0fbcc226",
    "market.sector.semis:8ce5604a",
-   "market.futures.sp500:fb7f045a",
-   "market.futures.nasdaq100:42986f5d",
+   "market.futures.sp500:065d32a9",
+   "market.futures.nasdaq100:4a19784b",
    "market.index.hangseng:2fbfd1ee",
    "market-analysis:macro.cpi:2026-09-01T00:00:00.000Z",
    "market-analysis:macro.fed-rate:2026-10-01T00:00:00.000Z",
    "market-analysis:macro.fed-target-upper:2026-11-23T00:00:00.000Z",
    "market-analysis:macro.nfp-mom:2026-10-01T00:00:00.000Z",
-   "market-analysis:fear-greed:2026-11-23T21:31:07.000Z"
+   "market-analysis:fear-greed:2026-11-23T22:01:03.000Z"
   ],
   "sentences": [
    {
-    "text": "S&P 500은 11/23 종가 4.73% 상승했고, 반도체(SOXX)는 13.63% 상승했으며 코스피는 3.31% 하락했습니다.",
+    "text": "S&P 500은 11/23 종가 큰 폭 +4.73%로 반등했고, 5거래일은 -2.42%입니다.",
     "evidenceIds": [
      "market.index.spx:0238fdcb",
+     "regime-context"
+    ]
+   },
+   {
+    "text": "11/23 블룸버그 보도에 따르면 아시아 시장은 미국 매도세 뒤 추가 변동성에 대비했고, 11/23 로이터 보도에 따르면 엔비디아의 중국 수출 문제가 거론돼 기술주와 위험 선호에 부담을 줄 수 있습니다.",
+    "evidenceIds": []
+   },
+   {
+    "text": "반도체는 11/23 종가 큰 폭 +13.63% 반등했지만 5거래일은 -0.71%이고, 코스피는 11/23 종가 -3.31% 하락해 5거래일 -7.68%입니다.",
+    "evidenceIds": [
      "market.sector.semis:8ce5604a",
-     "market.index.kospi:0fbcc226"
-    ]
-   },
-   {
-    "text": "11/24 에이피 보도에 따르면 젠슨 황의 복귀가 인공지능 투자 기대를 자극해 대형 기술주와 반도체 반등의 배경으로 거론됐고, 11/22 파이낸셜포스트 보도는 국내 증시 급락에 따른 당국의 긴급 대응을 전했습니다.",
-    "evidenceIds": [
+     "market.index.kospi:0fbcc226",
      "regime-context"
     ]
    },
    {
-    "text": "금 장중 06:40 KST 기준 3.36% 상승, 서부텍사스산원유 장중 06:40 KST 기준 3.70% 하락이며, 11/24 월스트리트저널 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 하락 배경으로 들었습니다.",
-    "evidenceIds": [
-     "regime-context"
-    ]
-   },
-   {
-    "text": "미국은 추세·변동성·신용이 부담이고 시장 폭과 금리는 중립이며, 반도체의 큰 반등에도 주도 영역 이탈과 회복 확인 미충족이 남아 있습니다.",
-    "evidenceIds": [
-     "regime-context"
-    ]
-   },
-   {
-    "text": "현재 흐름은 「소수 주도에서 동반 약세 전환 확인 중」 — 조건 충족 2/3이며, 시장 폭 부담이 아직 빠져 전환 확정으로 보기는 이릅니다.",
-    "evidenceIds": [
-     "regime-context"
-    ]
-   },
-   {
-    "text": "매크로는 「AI 투자 꺾임」과 「변동성 충격」 조건이 각각 2/4로 동률이고, 시장 가격은 전자 쪽과 같은 방향입니다.",
+    "text": "11/22 파이낸셜포스트 보도에 따르면 코스피·코스닥 급락 뒤 정부가 긴급 회의를 소집했고, 반도체의 하루 반등만으로 주도 영역 회복을 확인하기는 어렵습니다.",
     "evidenceIds": []
    },
    {
-    "text": "11/25 PCE 발표가 물가 해석을 바꾸고 12/4 고용보고서가 두 흐름을 가르는 가운데, 투자·고용 둔화가 이익과 신용을 거쳐 주가에 닿는 경로가 관건입니다.",
+    "text": "WTI는 장중 06:59 KST 기준 -3.79%이며, 11/24 월스트리트저널의 잠정 보도는 공급 과잉 우려와 걸프 지역 공격을 유가 변동 배경으로 거론합니다.",
+    "evidenceIds": [
+     "market.commodity.wti:c93d3f27"
+    ]
+   },
+   {
+    "text": "이 흐름은 추세·변동성·신용 부담과 주도 영역 이탈에 맞물리며, 현재는 「소수 주도 → 동반 약세 전환 확인 중」 — 조건 충족 2/3이고 시장 폭 부담 조건은 아직 미충족입니다.",
     "evidenceIds": [
      "regime-context"
     ]
    },
    {
-    "text": "이 두 시나리오에서는 비용 가설상 보유 유지와 분할 접근이 함께 검토될 수 있고, 성급한 분할 접근은 투자 꺾임이 이어질 때의 손실을 감수하는 대신 반등을 놓칠 위험을 줄입니다.",
+    "text": "다음 갈림길은 11/25 22:30 KST PCE와 12/4 22:30 KST 고용보고서이며, 동률인 「AI 투자 꺾임」·「변동성 충격」은 각각 조건 충족 2/4입니다; AI 투자 꺾임 쪽은 시장 가격도 같은 방향이고, 금리 하락은 경기 둔화에 따른 이익 약화와 함께라면 주가에 호재로만 작용하지 않습니다.",
+    "evidenceIds": [
+     "regime-context"
+    ]
+   },
+   {
+    "text": "두 시나리오 기준으로 관망은 반등을 놓칠 수 있지만 AI 이익 하향을 기다리는 비용이 작다는 비용 가설이 있고, 분할 접근은 공포성 매도 뒤 반등 참여 기회를 얻되 신용 악화 때 추가 하락을 감수하며, 보유 유지는 집계상 상대적으로 비용이 작고 방어 전환은 급반등을 놓칠 수 있습니다; 반대 시나리오인 성장 재가속으로 가면 관망의 기회비용이 커집니다.",
     "evidenceIds": []
    },
    {
-    "text": "반대로 성장 재가속이면 관망의 기회비용이 커지며, 방어 흐름에서는 헬스케어·필수소비재·유틸리티가 상대적으로 수혜이고 반도체·광통신은 부담인 가운데 K-콘텐츠는 하락장 속 상대적 강세를 보였습니다.",
-    "evidenceIds": [
-     "regime-context"
-    ]
-   },
-   {
-    "text": "11/25 PCE와 12/4 고용보고서, 하이일드 스프레드, 시장 폭, 반도체의 50일선 회복을 확인해야 하며, 신용 확대가 멈추고 참여가 넓어지거나 반도체가 회복하면 동반 약세 해석은 약해집니다.",
+    "text": "변동성 충격·AI 투자 꺾임 시 방어 테마가 상대 수혜이고 장기 성장·고평가·경기민감 테마는 부담이며, 한국 K-콘텐츠의 강세는 거시 부담 속 조정 여부를 살필 대상입니다; 반증은 신용 확대와 변동성 역전의 완화, 반도체의 추세 회복 및 시장 참여 확산입니다.",
     "evidenceIds": [
      "regime-context"
     ]
    }
   ],
-  "generatedAt": "2026-11-23T21:51:27.814Z",
+  "generatedAt": "2026-11-23T22:21:47.594Z",
   "model": "gpt-6-luna",
   "validatorVersion": "market-analysis-validator.v3",
   "semanticStatus": "verified",
@@ -6291,7 +6287,7 @@
     "value": 7237.17,
     "unit": "index",
     "observedAt": "2026-11-23T21:42:33.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T21:42:33.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6308,7 +6304,7 @@
     "value": 26.62,
     "unit": "index",
     "observedAt": "2026-11-23T21:15:01.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T21:15:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6325,7 +6321,7 @@
     "value": 4.918,
     "unit": "percent",
     "observedAt": "2026-11-23T19:59:52.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T19:59:52.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6335,15 +6331,15 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.fx.dxy:3cc4c09b",
+    "evidenceId": "market.fx.dxy:8073a6ea",
     "metricId": "market.dxy",
     "canonicalMetricId": "market.fx.dxy",
     "label": "DXY",
-    "value": 104.344,
+    "value": 104.348,
     "unit": "index",
-    "observedAt": "2026-11-23T21:40:56.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:40:56.000Z",
+    "observedAt": "2026-11-23T22:10:57.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T22:10:57.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
     "sourceKind": "T3_PUBLIC_DELAYED",
@@ -6352,15 +6348,15 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.commodity.wti:4afb388a",
+    "evidenceId": "market.commodity.wti:c93d3f27",
     "metricId": "market.wti",
     "canonicalMetricId": "market.commodity.wti",
     "label": "WTI",
-    "value": 80.32,
+    "value": 80.25,
     "unit": "USD/barrel",
-    "observedAt": "2026-11-23T21:40:43.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:40:43.000Z",
+    "observedAt": "2026-11-23T21:59:59.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T21:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
     "sourceKind": "T3_PUBLIC_DELAYED",
@@ -6369,15 +6365,15 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.commodity.gold:29dd9ae0",
+    "evidenceId": "market.commodity.gold:c4b74156",
     "metricId": "market.gold",
     "canonicalMetricId": "market.commodity.gold",
     "label": "Gold",
-    "value": 3633.4,
+    "value": 3634.4,
     "unit": "USD/oz",
-    "observedAt": "2026-11-23T21:40:52.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:40:52.000Z",
+    "observedAt": "2026-11-23T21:59:59.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T21:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
     "sourceKind": "T3_PUBLIC_DELAYED",
@@ -6393,7 +6389,7 @@
     "value": 4708.54,
     "unit": "index",
     "observedAt": "2026-11-23T11:05:40.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T11:05:40.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6410,7 +6406,7 @@
     "value": 140.22,
     "unit": "USD",
     "observedAt": "2026-11-23T21:00:01.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T21:00:01.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6420,15 +6416,15 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.futures.sp500:fb7f045a",
+    "evidenceId": "market.futures.sp500:065d32a9",
     "metricId": "market.sp500-futures",
     "canonicalMetricId": "market.futures.sp500",
     "label": "ES",
-    "value": 7263,
+    "value": 7270.5,
     "unit": "index",
-    "observedAt": "2026-11-23T21:40:59.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:40:59.000Z",
+    "observedAt": "2026-11-23T21:59:59.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T21:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
     "sourceKind": "T3_PUBLIC_DELAYED",
@@ -6437,15 +6433,15 @@
     "status": "observed"
    },
    {
-    "evidenceId": "market.futures.nasdaq100:42986f5d",
+    "evidenceId": "market.futures.nasdaq100:4a19784b",
     "metricId": "market.nasdaq100-futures",
     "canonicalMetricId": "market.futures.nasdaq100",
     "label": "NQ",
-    "value": 26802.5,
+    "value": 26845,
     "unit": "index",
-    "observedAt": "2026-11-23T21:40:59.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:40:59.000Z",
+    "observedAt": "2026-11-23T21:59:59.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T21:59:59.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
     "sourceKind": "T3_PUBLIC_DELAYED",
@@ -6461,7 +6457,7 @@
     "value": 22383.74,
     "unit": "index",
     "observedAt": "2026-11-23T08:08:44.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T08:08:44.000Z",
     "source": "Yahoo chart",
     "sourceTier": "T3_PUBLIC_DELAYED",
@@ -6478,7 +6474,7 @@
     "unit": "percent",
     "basis": "전년 대비, 계절조정 전(NSA)",
     "observedAt": "2026-09-01T00:00:00.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-09-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "T1_OFFICIAL",
@@ -6495,7 +6491,7 @@
     "unit": "percent",
     "basis": "실효 연방기금금리 월평균",
     "observedAt": "2026-10-01T00:00:00.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-10-01T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "T1_OFFICIAL",
@@ -6512,7 +6508,7 @@
     "unit": "percent",
     "basis": "연준 정책금리 목표 범위 상단(일간 공시, 범위 폭 0.25%p)",
     "observedAt": "2026-11-23T00:00:00.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-11-23T00:00:00.000Z",
     "source": "FRED",
     "sourceTier": "T1_OFFICIAL",
@@ -6529,7 +6525,7 @@
     "unit": "thousands",
     "basis": "전월 대비 증감, 천 명(1만 명 = 10천 명)",
     "observedAt": "2026-10-01T00:00:00.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
     "asOf": "2026-10-01T00:00:00.000Z",
     "source": "BLS Public Data API v1",
     "sourceTier": "T1_OFFICIAL",
@@ -6539,14 +6535,14 @@
     "freshness": "observed"
    },
    {
-    "evidenceId": "market-analysis:fear-greed:2026-11-23T21:31:07.000Z",
+    "evidenceId": "market-analysis:fear-greed:2026-11-23T22:01:03.000Z",
     "metricId": "sentiment.fear-greed",
     "label": "Fear&Greed",
     "value": 17,
     "unit": "score",
-    "observedAt": "2026-11-23T21:31:07.000Z",
-    "collectedAt": "2026-11-23T21:51:00.892Z",
-    "asOf": "2026-11-23T21:31:07.000Z",
+    "observedAt": "2026-11-23T22:01:03.000Z",
+    "collectedAt": "2026-11-23T22:21:02.338Z",
+    "asOf": "2026-11-23T22:01:03.000Z",
     "source": "cnn",
     "sourceTier": "public-api",
     "sourceKind": "public-api",
@@ -6699,7 +6695,7 @@
    "rationale": "RSS feeds grant headline/link reuse only; article bodies are never redistributed. Directional and causal commentary is published from retained headlines and typed metrics with explicit attribution, never as an unsourced assertion."
   },
   "disclosure": "헤드라인 제목과 검증된 지표만 사용했습니다. 기사 본문은 출처 권리상 사용하지 않으므로 인과·방향 서술은 헤드라인 귀속 기반의 참고 해석이며, 최종 판단과 책임은 사용자에게 있습니다.",
-  "narrativeSignature": "ai-profitability|memory-cycle|oil-geopolitics|ah:2026-11-23:HPE-5,A7,AMTM7,FLNC11,CENT-5|er:2026-11-23:INTU-11,KLIC-8,ESTC7",
+  "narrativeSignature": "ai-profitability|memory-cycle|oil-geopolitics|ah:2026-11-23:HPE-6,A7,AMTM8,FLNC15,CENT-5|er:2026-11-23:INTU-11,KLIC-8,ESTC7",
   "narrativeThemes": [
    {
     "id": "memory-cycle",
@@ -6712,7 +6708,7 @@
     "id": "ai-profitability",
     "label": "AI 수익성·밸류에이션 의구심 (앤스로픽·오픈AI·버블론)",
     "telegramCount": 12,
-    "recentCount": 5,
+    "recentCount": 4,
     "tickerCount": 1
    },
    {
@@ -6747,21 +6743,21 @@
  },
  "screenReadings": {
   "schemaVersion": "screen-readings.v1",
-  "generatedAt": "2026-11-23T21:51:27.818Z",
+  "generatedAt": "2026-11-23T22:21:47.598Z",
   "readings": {
    "signal": {
     "status": "verified",
-    "text": "시장 상태는 11/23 미국 종가 기준 부담 우세로, 주도 영역인 반도체·AI 이탈과 하락하는 50일선, 변동성·신용 부담이 시장을 누릅니다. 시장 폭과 금리, 유가와 달러는 중립으로 버티지만, 나스닥 100과 반도체의 약세는 부담을 키웁니다. S&P 500이 200일선-1%인 7,277 위에 있고 50일선 7,618 위로 마감하면 추세 판정은 중립으로 바뀔 수 있습니다. VIX와 신용 스프레드의 부담이 완화되지 않으면 반등만으로 읽기가 달라지기는 어렵습니다.",
+    "text": "11/23 미국 종가 기준 시장 상태는 부담 우세로, 반도체·AI 주도 영역 이탈과 200일선 아래의 추세 부담이 이어집니다. VIX 기간 구조 역전과 하이일드 스프레드 확대도 부담인 반면, 시장 폭과 금리·유가와 달러는 중립이고 급락 뒤 하루 반등은 버팀 요인입니다. 다만 중립 지표가 하락 압력을 덜어냈다고 보기는 어렵습니다. S&P 500이 200일선-1%와 50일선을 모두 웃돌아 마감하면 추세는 중립으로 바뀝니다.",
     "basis": "2026-11-23",
-    "key": "5efaa3d49e582bc5",
-    "generatedAt": "2026-11-23T21:51:27.818Z",
+    "key": "1b86a619982472eb",
+    "generatedAt": "2026-11-23T22:21:47.598Z",
     "model": "gpt-6-luna",
     "warnings": [],
     "usage": {
      "inputTokens": 2073,
-     "outputTokens": 350
+     "outputTokens": 828
     },
-    "estimatedUsd": 0.00048
+    "estimatedUsd": 0.00074
    },
    "breadth": {
     "status": "verified",
@@ -6779,17 +6775,17 @@
    },
    "macro": {
     "status": "verified",
-    "text": "11/23 기준 매크로는 국면 판정 보류로, 물가와 통화정책, 신용이 부담인 가운데 성장 양호와 금리·유가와 달러 중립이 버티고 있습니다. 일자리 증가 3개월 평균은 13.7만 명으로 견조하지만 근원 CPI의 3개월 속도는 3.7%이고, 하이일드 스프레드는 5거래일 +53bp로 빠르게 확대됐습니다. 스프레드 확대가 둔화하고 물가가 함께 진정되면 부담은 줄어들 수 있지만, 현재는 성장만으로 신용과 물가 부담을 상쇄하기 어렵습니다.",
+    "text": "11/23 매크로는 일자리 증가와 낮은 Sahm 지표로 성장은 양호하지만, 물가와 통화정책·신용은 부담이라 국면 판정은 보류입니다. 신용 스프레드의 빠른 확대와 근원 CPI 재가속이 압박하는 반면, 금리와 유가·달러는 중립이고 고용은 버팀목입니다. 신용의 5거래일 확대가 +15bp 아래, 20거래일 확대가 +25bp 아래로 줄면 부담이 누그러지고, 고용이 둔화하면 읽기는 더 약해집니다.",
     "basis": "2026-11-23",
-    "key": "4095be66acc60b73",
-    "generatedAt": "2026-11-23T21:51:27.818Z",
+    "key": "6f544c41375b67b5",
+    "generatedAt": "2026-11-23T22:21:47.598Z",
     "model": "gpt-6-luna",
     "warnings": [],
     "usage": {
      "inputTokens": 2194,
-     "outputTokens": 389
+     "outputTokens": 760
     },
-    "estimatedUsd": 0.00052
+    "estimatedUsd": 0.00072
    },
    "sentiment": {
     "status": "verified",
@@ -6808,10 +6804,10 @@
   },
   "ledger": {
    "2026-11": {
-    "requests": 74,
-    "inputTokens": 116599,
-    "outputTokens": 27576,
-    "estimatedUsd": 0.03123
+    "requests": 76,
+    "inputTokens": 120866,
+    "outputTokens": 29164,
+    "estimatedUsd": 0.03269
    }
   }
  },
@@ -6828,8 +6824,8 @@
   "rightsStatus": "REVIEW_REQUIRED",
   "decisionUse": false,
   "completionGraceMinutes": 5,
-  "attemptedAt": "2026-11-23T21:51:00.892Z",
-  "generatedAt": "2026-11-23T21:51:02.069Z",
+  "attemptedAt": "2026-11-23T22:21:02.338Z",
+  "generatedAt": "2026-11-23T22:21:03.707Z",
   "latestCompletedSession": "2026-11-23",
   "status": "CURRENT",
   "counts": {
@@ -6846,8 +6842,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.073Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.537Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -6877,8 +6873,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.078Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.537Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -6908,8 +6904,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.151Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.576Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -6939,8 +6935,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.141Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.610Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -6970,8 +6966,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.178Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.678Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7001,8 +6997,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.228Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.649Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7032,8 +7028,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.239Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.710Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7063,8 +7059,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.241Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.746Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7094,8 +7090,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.295Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.748Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7125,8 +7121,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.309Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.812Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7156,8 +7152,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.328Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.843Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7187,8 +7183,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.401Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.831Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7218,8 +7214,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.370Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.877Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7249,8 +7245,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.387Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.907Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7280,8 +7276,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.430Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.909Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7311,8 +7307,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.463Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:02.949Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7342,8 +7338,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.546Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.004Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7373,8 +7369,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.484Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.071Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7404,8 +7400,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.560Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.015Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7435,8 +7431,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.545Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.069Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7466,8 +7462,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.683Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.094Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7497,8 +7493,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.601Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.129Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7528,8 +7524,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.632Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.150Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7559,8 +7555,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.659Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.162Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7590,8 +7586,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.699Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.203Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7621,8 +7617,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.715Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.216Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7652,8 +7648,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.752Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.271Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7683,8 +7679,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.769Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.280Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7714,8 +7710,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.772Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.282Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7745,8 +7741,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.814Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.362Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7776,8 +7772,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.825Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.365Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7807,8 +7803,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.835Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.394Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7838,8 +7834,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.871Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.449Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7869,8 +7865,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.880Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.435Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7900,8 +7896,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.884Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.453Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7931,8 +7927,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.937Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.495Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7962,8 +7958,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.952Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.555Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -7993,8 +7989,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.951Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.549Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -8024,8 +8020,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:01.996Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.596Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -8055,8 +8051,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:02.019Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.652Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -8086,8 +8082,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:02.022Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.668Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
@@ -8117,8 +8113,8 @@
     "sessionDate": "2026-11-23",
     "observedAt": "2026-11-23T21:00:00.000Z",
     "observedAtBasis": "derived-registered-regular-session-close",
-    "fetchedAt": "2026-11-23T21:51:02.068Z",
-    "computedAt": "2026-11-23T21:51:02.069Z",
+    "fetchedAt": "2026-11-23T22:21:03.707Z",
+    "computedAt": "2026-11-23T22:21:03.707Z",
     "timeframe": "1d",
     "priceBasis": "adjusted-close",
     "source": "Yahoo chart completed daily history",
