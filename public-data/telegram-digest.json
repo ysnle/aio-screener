@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-23T21:22:41.397Z",
-  "attemptedAt": "2026-11-23T21:22:41.397Z",
-  "lastSuccessfulAt": "2026-11-23T21:22:41.397Z",
+  "generatedAt": "2026-11-23T21:51:50.479Z",
+  "attemptedAt": "2026-11-23T21:51:50.479Z",
+  "lastSuccessfulAt": "2026-11-23T21:51:50.479Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-09T21:22:37.810Z",
-  "until": "2026-11-23T21:22:37.810Z",
+  "since": "2026-11-09T21:51:46.697Z",
+  "until": "2026-11-23T21:51:46.697Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -85,23 +85,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1179,
+      "count": 1168,
       "freshCount": 39,
-      "eligibleTextCount": 1112,
+      "eligibleTextCount": 1101,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70082
+      "lastPostId": 70085
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 173,
+      "count": 172,
       "freshCount": 20,
-      "eligibleTextCount": 173,
-      "selectedCount": 116,
+      "eligibleTextCount": 172,
+      "selectedCount": 115,
       "error": null,
       "failingSince": null,
       "lastPostId": 21252
@@ -111,9 +111,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 717,
+      "count": 715,
       "freshCount": 18,
-      "eligibleTextCount": 716,
+      "eligibleTextCount": 714,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,59 +137,59 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2069,
-  "retainedItemCount": 410,
+  "count": 2055,
+  "retainedItemCount": 400,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2069,
-    "eligibleTextCount": 2001,
+    "observedCount": 2055,
+    "eligibleTextCount": 1987,
     "mediaOnlyCount": 68,
-    "mediaAttachedCount": 831,
-    "photoPostCount": 709,
+    "mediaAttachedCount": 822,
+    "photoPostCount": 701,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 338,
-    "broadSignalCount": 846,
-    "selectedRawCount": 366,
-    "selectedEligibleCount": 366,
-    "selectedRawCoveragePct": 18.3,
-    "selectedOfObservedPct": 17.7,
+    "highSignalCount": 335,
+    "broadSignalCount": 839,
+    "selectedRawCount": 365,
+    "selectedEligibleCount": 365,
+    "selectedRawCoveragePct": 18.4,
+    "selectedOfObservedPct": 17.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "power": 198,
+    "market-note": 735,
+    "power": 197,
     "media-only": 67,
-    "semi": 640,
-    "earnings": 261,
-    "market-note": 736,
+    "semi": 637,
+    "earnings": 259,
     "flows": 60,
     "healthcare": 49,
     "ai-policy": 151,
-    "macro": 288,
-    "geo": 248,
+    "macro": 285,
+    "geo": 240,
     "kr-market": 93,
-    "equity": 143,
-    "credit": 74,
+    "equity": 142,
+    "credit": 73,
     "optical": 22,
     "insider": 4,
     "japan": 47
   },
   "tickerCounts": {
-    "NVDA": 411,
+    "NVDA": 409,
     "HPE": 1,
     "FLNC": 1,
     "DGX": 1,
-    "TSLA": 28,
+    "TSLA": 27,
     "GOOG": 45,
     "AMZN": 50,
     "APLD": 3,
-    "TSM": 63,
+    "TSM": 62,
     "AAPL": 5,
-    "AMD": 53,
-    "005930.KS": 28,
+    "AMD": 52,
+    "005930.KS": 27,
     "000660.KS": 27,
     "285A.T": 2,
     "MSFT": 52,
@@ -256,33 +256,32 @@
     "103590.KS": 1,
     "RKLB": 1,
     "IRDM": 1,
-    "ULTA": 1,
-    "ASTS": 1
+    "ULTA": 1
   },
   "themes": [
-    "Market Notes (736 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
-    "Semiconductors/Memory (640 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
-    "Macro/Rates (288 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58...",
-    "Earnings/Corporate (261 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (248 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (198 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
+    "Market Notes (735 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
+    "Semiconductors/Memory (637 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+    "Macro/Rates (285 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58...",
+    "Earnings/Corporate (259 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Geopolitics (240 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "AI Power/Grid (197 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
     "AI Policy/Export Controls (151 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (143 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+    "Equity/Analyst (142 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 411,
+      "count": 409,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58..."
     },
     {
       "key": "TSM",
-      "count": 63,
+      "count": 62,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
     },
     {
       "key": "AMD",
-      "count": 53,
+      "count": 52,
       "text": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와..."
     },
     {
@@ -302,12 +301,12 @@
     },
     {
       "key": "TSLA",
-      "count": 28,
+      "count": 27,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
       "key": "005930.KS",
-      "count": 28,
+      "count": 27,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -338,7 +337,7 @@
       "topics": [
         "macro"
       ],
-      "count": 288,
+      "count": 285,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58..."
     },
     {
@@ -347,7 +346,7 @@
       "topics": [
         "geo"
       ],
-      "count": 248,
+      "count": 240,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -356,7 +355,7 @@
       "topics": [
         "credit"
       ],
-      "count": 74,
+      "count": 73,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을 유지하며, 엔비디아는 국가안보 및 수출통제위원회를 신설하고 외국 정보기관의 개입 의혹과 수출통제 준수..."
     },
     {
@@ -365,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 640,
+      "count": 637,
       "focus": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     },
     {
@@ -383,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 198,
+      "count": 197,
       "focus": "트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한..."
     },
     {
@@ -410,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 143,
+      "count": 142,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -428,7 +427,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 261,
+      "count": 259,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -473,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 736,
+      "count": 735,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
     }
   ],
@@ -8341,27 +8340,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/21075",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21075",
-      "datetime": "2026-11-09T21:49:21.000Z",
-      "localDateKst": "2026-11-10",
-      "tags": [
-        "geo"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "도널드 J. 트럼프 저는 카타르 총리인 셰이크 무함마드 빈 압둘라흐만 빈 자심 알 타니와 훌륭한 대화를 나누었으며, 이 자리에서 이란 이슬람 공화국과 관련해 많은 논의가 이루어졌습니다. 무엇보다도 카타르,...",
-      "lead": 1,
-      "tickers": []
     }
   ],
   "current24hItems": [
