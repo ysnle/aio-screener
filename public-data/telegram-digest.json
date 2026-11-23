@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-23T12:21:52.283Z",
-  "attemptedAt": "2026-11-23T12:21:52.283Z",
-  "lastSuccessfulAt": "2026-11-23T12:21:52.283Z",
+  "generatedAt": "2026-11-23T12:51:55.612Z",
+  "attemptedAt": "2026-11-23T12:51:55.612Z",
+  "lastSuccessfulAt": "2026-11-23T12:51:55.612Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-09T12:21:47.116Z",
-  "until": "2026-11-23T12:21:47.116Z",
+  "since": "2026-11-09T12:51:50.609Z",
+  "until": "2026-11-23T12:51:50.609Z",
   "current24hWindow": {
     "start": "2026-11-21T23:00:00.000Z",
     "end": "2026-11-22T23:00:00.000Z",
@@ -82,26 +82,26 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1144,
-      "freshCount": 20,
-      "eligibleTextCount": 1081,
-      "selectedCount": 124,
+      "count": 1148,
+      "freshCount": 39,
+      "eligibleTextCount": 1085,
+      "selectedCount": 123,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70028
+      "lastPostId": 70032
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 172,
+      "count": 170,
       "freshCount": 20,
-      "eligibleTextCount": 172,
-      "selectedCount": 114,
+      "eligibleTextCount": 170,
+      "selectedCount": 112,
       "error": null,
       "failingSince": null,
       "lastPostId": 21245
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 709,
-      "freshCount": 35,
-      "eligibleTextCount": 709,
+      "count": 708,
+      "freshCount": 33,
+      "eligibleTextCount": 708,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72624
+      "lastPostId": 72627
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,62 +137,62 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2025,
-  "retainedItemCount": 407,
+  "count": 2026,
+  "retainedItemCount": 416,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2025,
-    "eligibleTextCount": 1962,
+    "observedCount": 2026,
+    "eligibleTextCount": 1963,
     "mediaOnlyCount": 63,
-    "mediaAttachedCount": 804,
-    "photoPostCount": 684,
+    "mediaAttachedCount": 805,
+    "photoPostCount": 685,
     "documentPostCount": 3,
     "imageOnlyCount": 5,
-    "highSignalCount": 334,
+    "highSignalCount": 335,
     "broadSignalCount": 827,
-    "selectedRawCount": 363,
-    "selectedEligibleCount": 363,
-    "selectedRawCoveragePct": 18.5,
-    "selectedOfObservedPct": 17.9,
+    "selectedRawCount": 360,
+    "selectedEligibleCount": 360,
+    "selectedRawCoveragePct": 18.3,
+    "selectedOfObservedPct": 17.8,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "macro": 287,
-    "healthcare": 48,
-    "geo": 251,
+    "macro": 289,
+    "semi": 621,
     "earnings": 256,
-    "semi": 620,
-    "ai-policy": 145,
+    "healthcare": 49,
+    "market-note": 723,
+    "credit": 70,
+    "geo": 252,
+    "ai-policy": 144,
     "flows": 59,
-    "market-note": 722,
     "kr-market": 91,
-    "credit": 69,
-    "power": 198,
-    "equity": 144,
+    "power": 197,
+    "equity": 143,
     "media-only": 62,
     "insider": 3,
     "japan": 47,
     "optical": 21
   },
   "tickerCounts": {
+    "NVDA": 393,
+    "TSLA": 27,
+    "TSM": 63,
     "AAPL": 5,
     "AMD": 53,
-    "NVDA": 392,
-    "TSM": 62,
     "005930.KS": 28,
     "000660.KS": 27,
     "285A.T": 2,
-    "TSLA": 26,
     "MSFT": 52,
-    "META": 5,
+    "META": 4,
     "ORCL": 5,
     "PLTR": 7,
     "LITE": 3,
     "AVGO": 18,
-    "GOOG": 47,
+    "GOOG": 45,
     "MU": 24,
     "SMCI": 5,
     "APO": 1,
@@ -260,25 +260,25 @@
     "HIMS": 1
   },
   "themes": [
-    "Market Notes (722 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
-    "Semiconductors/Memory (620 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
-    "Macro/Rates (287 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
+    "Market Notes (723 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
+    "Semiconductors/Memory (621 posts in 14-day research window): >>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
+    "Macro/Rates (289 posts in 14-day research window): 베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와...",
     "Earnings/Corporate (256 posts in 14-day research window): 엔비디아(NVDA) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 실적. 3분기 매출 1,160억달러, 데이터센터 매출 1,080억달러 기록. GAAP·비GAAP 매출총이익률은 각각 74.8%,...",
-    "Geopolitics (251 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (198 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
-    "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (144 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+    "Geopolitics (252 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "AI Power/Grid (197 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
+    "AI Policy/Export Controls (144 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (143 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 392,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 행정부는 EU, 호주, 한국을 대상으로 디지털 무역 관련 조사를 준비하고 있다고 폴리티코가 보도. 디지털 서비스 규제와 무역장벽을 둘러싼 통상 갈등이 확대될 가능성을 시사. • 트럼프 대통령은 민주당의..."
+      "count": 393,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고 폭스뉴스가 보도. 최근 수개월 사이 두 번째 사이버 공격 사건으로 전해졌으며, 구체적인 정보 유출 규모는..."
     },
     {
       "key": "TSM",
-      "count": 62,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 20일 (금요일) 1. 미국 증시 마감 현황 다우 30: 48,147.33 (-1.93%) S&P 500: 6,910.39 (-3.70%) 나스닥:..."
+      "count": 63,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고 폭스뉴스가 보도. 최근 수개월 사이 두 번째 사이버 공격 사건으로 전해졌으며, 구체적인 정보 유출 규모는..."
     },
     {
       "key": "AMD",
@@ -291,14 +291,14 @@
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는..."
     },
     {
-      "key": "GOOG",
-      "count": 47,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
-    },
-    {
       "key": "AMZN",
       "count": 46,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 19일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 대통령과 시진핑 중국 국가주석은 APEC 정상회의에서 양자회담을 개최. 양국은 전략적으로 안정적인..."
+    },
+    {
+      "key": "GOOG",
+      "count": 45,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
       "key": "005930.KS",
@@ -306,14 +306,14 @@
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
+      "key": "TSLA",
+      "count": 27,
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
+    },
+    {
       "key": "000660.KS",
       "count": 27,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
-    },
-    {
-      "key": "TSLA",
-      "count": 26,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
       "key": "MU",
@@ -338,7 +338,7 @@
       "topics": [
         "macro"
       ],
-      "count": 287,
+      "count": 289,
       "focus": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와..."
     },
     {
@@ -347,7 +347,7 @@
       "topics": [
         "geo"
       ],
-      "count": 251,
+      "count": 252,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -356,8 +356,8 @@
       "topics": [
         "credit"
       ],
-      "count": 69,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 행정부는 EU, 호주, 한국을 대상으로 디지털 무역 관련 조사를 준비하고 있다고 폴리티코가 보도. 디지털 서비스 규제와 무역장벽을 둘러싼 통상 갈등이 확대될 가능성을 시사. • 트럼프 대통령은 민주당의..."
+      "count": 70,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고 폭스뉴스가 보도. 최근 수개월 사이 두 번째 사이버 공격 사건으로 전해졌으며, 구체적인 정보 유출 규모는..."
     },
     {
       "id": "semi",
@@ -365,7 +365,7 @@
       "topics": [
         "semi"
       ],
-      "count": 620,
+      "count": 621,
       "focus": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     },
     {
@@ -383,7 +383,7 @@
       "topics": [
         "power"
       ],
-      "count": 198,
+      "count": 197,
       "focus": "트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한..."
     },
     {
@@ -392,7 +392,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 145,
+      "count": 144,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -410,7 +410,7 @@
       "topics": [
         "equity"
       ],
-      "count": 144,
+      "count": 143,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -437,7 +437,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 48,
+      "count": 49,
       "focus": "제프리스, 일라이 릴리(Eli Lilly, $LLY ), 목표주가를 1,610달러에서 1,700달러로 상향, 월가 최고 수준 제프리스는 미국 외 지역의 부유층 인구가 훨씬 더 많다는 점을 고려할 때, 자체..."
     },
     {
@@ -465,7 +465,7 @@
         "insider"
       ],
       "count": 3,
-      "focus": "No retained full-text sample; 3 observed posts in the 14-day research window."
+      "focus": "앤트로픽 내부자 매도는 아직 없는 상황입니다."
     },
     {
       "id": "market-note",
@@ -473,7 +473,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 722,
+      "count": 723,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
     }
   ],
@@ -726,6 +726,26 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/70030",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70030",
+      "datetime": "2026-11-23T12:44:40.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
+    },
     {
       "id": "insidertracking/70016",
       "channel": "insidertracking",
@@ -1209,40 +1229,6 @@
       ]
     },
     {
-      "id": "insidertracking/69553",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69553",
-      "datetime": "2026-11-17T21:02:33.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "macro",
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "2026년 11월 18일 미국 증시 브리핑 미국 증시는 소비 지표 호조와 연준의 매파적 발언, AI 투자 둔화 우려와 엔비디아 리스크가 동시에 부각되며 하락 마감. S&P 500 -1.35%, 다우...",
-      "lead": 2,
-      "tickers": [],
-      "relatedTickers": [
-        "AVGO"
-      ],
-      "listTickers": [
-        "NVDA",
-        "AMD",
-        "MSFT",
-        "GOOG",
-        "AMZN",
-        "CRM",
-        "CRWV"
-      ]
-    },
-    {
       "id": "HANAchina/72303",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72303",
@@ -1691,6 +1677,45 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/70032",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70032",
+      "datetime": "2026-11-23T12:47:19.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "semi",
+        "earnings",
+        "healthcare"
+      ],
+      "score": 85,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA"
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 사이버보안 • 크라우드스트라이크 (CRWD) — 지스케일러 (ZS)를 약 439억 달러 규모의 전액 주식 거래로 인수하기로 합의. 지스케일러..."
+    },
+    {
+      "id": "insidertracking/70030",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70030",
+      "datetime": "2026-11-23T12:44:40.000Z",
+      "localDateKst": "2026-11-23",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
+    },
+    {
       "id": "HANAchina/72621",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72621",
@@ -2115,14 +2140,14 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 3분기 해지펀드들이 많이 담은 종목 TOP 50 (1/5) 1위: 인텔 (INTC) 2위: 마이크로소프트 (MSFT) 3위: 메타 플랫폼스 (META) 4위: 웨스턴 미드스트림 파트너스 (WES)...",
       "tickers": [
         "TSLA",
         "MSFT",
         "META",
         "ORCL",
         "PLTR"
-      ]
+      ],
+      "summary": "2026년 3분기 해지펀드들이 많이 담은 종목 TOP 50 (1/5) 1위: 인텔 (INTC) 2위: 마이크로소프트 (MSFT) 3위: 메타 플랫폼스 (META) 4위: 웨스턴 미드스트림 파트너스 (WES)..."
     },
     {
       "id": "HANAchina/72586",
@@ -2133,11 +2158,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스: 연준, 2027년 말 금리 인하 전망…통화정책 정상화 추진 •골드만삭스는 2027년 글로벌 실질 GDP 성장률을 2.8%로 전망, 이는 2026년 전망치인 2.7%보다 소폭 높은 수준임. 다만..."
+      "summary": ">>골드만삭스: 연준, 2027년 말 금리 인하 전망…통화정책 정상화 추진 •골드만삭스는 2027년 글로벌 실질 GDP 성장률을 2.8%로 전망, 이는 2026년 전망치인 2.7%보다 소폭 높은 수준임. 다만...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21242",
@@ -2199,8 +2224,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "반도체 3배 ETF 'SOXL', 오버나잇 11% 상승",
-      "tickers": []
+      "tickers": [],
+      "summary": "반도체 3배 ETF 'SOXL', 오버나잇 11% 상승"
     },
     {
       "id": "insidertracking/69997",
@@ -2219,10 +2244,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 오버나잇 6% 상승",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 오버나잇 6% 상승"
     },
     {
       "id": "HANAchina/72577",
@@ -2255,12 +2280,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "미국 정보당국 보고서에 정통한 관계자들에 따르면 앨리스 황은 2025년 봄부터 2026년 가을까지 중국 국가안전부 관계자와 연락을 유지했으며, 해당 기간은 엔비디아 CEO 젠슨 황과의 관계 기간과 겹치는...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 정보당국 보고서에 정통한 관계자들에 따르면 앨리스 황은 2025년 봄부터 2026년 가을까지 중국 국가안전부 관계자와 연락을 유지했으며, 해당 기간은 엔비디아 CEO 젠슨 황과의 관계 기간과 겹치는..."
     },
     {
       "id": "HANAchina/72574",
@@ -2426,14 +2452,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "씨티는 AI 인프라 금융에 대한 우려가 확대되고 있지만 최근 메모리 반도체주 매도세는 과도하다고 평가. 지난주 마이크론은 23.6%, 샌디스크는 28.4% 급락했으며, 같은 기간 반도체 지수는 17.1%...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MU"
-      ]
+      ],
+      "summary": "씨티는 AI 인프라 금융에 대한 우려가 확대되고 있지만 최근 메모리 반도체주 매도세는 과도하다고 평가. 지난주 마이크론은 23.6%, 샌디스크는 28.4% 급락했으며, 같은 기간 반도체 지수는 17.1%..."
     },
     {
       "id": "insidertracking/69991",
@@ -6416,42 +6442,6 @@
       ]
     },
     {
-      "id": "insidertracking/69631",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69631",
-      "datetime": "2026-11-18T09:03:54.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "프리마켓 엔비디아 +3%",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69629",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69629",
-      "datetime": "2026-11-18T09:00:40.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "Fed Rates Outlook 2026 3 hikes: 69.0% probability Upcoming Fed Decisions December : 25 bps hike (93.5%) January : 25...",
-      "tickers": []
-    },
-    {
       "id": "HANAchina/72354",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72354",
@@ -8261,42 +8251,6 @@
       "tickers": [
         "LLY"
       ]
-    },
-    {
-      "id": "bornlupin/21070",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21070",
-      "datetime": "2026-11-09T12:48:40.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "equity"
-      ],
-      "score": 59,
-      "hasText": true,
-      "summary": "메타 플랫폼스( $META ), JP모건 '애널리스트 포커스 리스트(핵심 추천 종목)'에 편입 JP모건의 더그 안무스(Doug Anmuth) 애널리스트는 메타 플랫폼스에 대해 '비중확대(Overweight)'...",
-      "tickers": [
-        "META"
-      ]
-    },
-    {
-      "id": "bornlupin/21069",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21069",
-      "datetime": "2026-11-09T12:35:55.000Z",
-      "localDateKst": "2026-11-09",
-      "tags": [
-        "semi"
-      ],
-      "score": 74,
-      "hasText": true,
-      "summary": "구글, 특수 목적용 AI 칩 버전 출시로 엔비디아와의 경쟁 격화 알파벳 산하 구글이 수천억 달러 규모의 인공지능(AI) 칩 시장에서 엔비디아의 대항마로 급부상한 여세를 몰아, 더욱 폭넓은 AI 칩 라인업 을...",
-      "tickers": [
-        "NVDA",
-        "GOOG"
-      ],
-      "relatedTickers": [
-        "AVGO"
-      ]
     }
   ],
   "current24hItems": [
@@ -8349,14 +8303,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "씨티는 AI 인프라 금융에 대한 우려가 확대되고 있지만 최근 메모리 반도체주 매도세는 과도하다고 평가. 지난주 마이크론은 23.6%, 샌디스크는 28.4% 급락했으며, 같은 기간 반도체 지수는 17.1%...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MU"
-      ]
+      ],
+      "summary": "씨티는 AI 인프라 금융에 대한 우려가 확대되고 있지만 최근 메모리 반도체주 매도세는 과도하다고 평가. 지난주 마이크론은 23.6%, 샌디스크는 28.4% 급락했으며, 같은 기간 반도체 지수는 17.1%..."
     },
     {
       "id": "insidertracking/69991",
@@ -8915,11 +8869,25 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 15,
+    "pt": 16,
     "earnings": 12,
     "macro": 3
   },
   "signals": [
+    {
+      "kind": "pt",
+      "key": "pt|PDD|Bernstein|2026-11-23",
+      "ticker": "PDD",
+      "broker": "Bernstein",
+      "ptFrom": null,
+      "ptTo": 110,
+      "currency": "USD",
+      "direction": "set",
+      "rating": "buy",
+      "ratingAction": "upgrade",
+      "date": "2026-11-23",
+      "post": "insidertracking/70032"
+    },
     {
       "kind": "pt",
       "key": "pt|TSLA|HSBC|2026-11-20",
