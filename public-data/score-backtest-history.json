@@ -1,19 +1,19 @@
 {
- "generatedAt": "2026-11-22T11:51:58.237Z",
+ "generatedAt": "2026-11-23T08:32:59.631Z",
  "note": "Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 과거 행은 발행 당시 값이 아니라 실행마다 history.json 창으로 다시 계산한 값이다(restatement). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.",
  "summary": {
-  "n5d": 285,
-  "corr5d": -0.224,
-  "n21d": 269,
-  "corr21d": -0.374,
+  "n5d": 284,
+  "corr5d": -0.228,
+  "n21d": 268,
+  "corr21d": -0.377,
   "nEff5d": 57,
   "nEff21d": 13,
   "sample5d": "sufficient",
   "sample21d": "insufficient",
   "minIndependent": 30,
   "sampleBasis": "non-overlapping windows counted from session positions: a kept window starts at or after the previous kept window's closing session",
-  "corr5dLag1": -0.21,
-  "corr21dLag1": -0.357,
+  "corr5dLag1": -0.212,
+  "corr21dLag1": -0.359,
   "sampleSizeSufficient": false,
   "significanceStatus": "UNKNOWN",
   "statisticallyMeaningful": false
@@ -25,7 +25,7 @@
  },
  "restatement": {
   "pastRows": "recomputed",
-  "recomputedFrom": "2025-09-29",
+  "recomputedFrom": "2025-09-30",
   "rule": "every run recomputes rows from recomputedFrom on; earlier rows keep the run that last computed them"
  },
  "records": [
@@ -2434,11 +2434,11 @@
   },
   {
    "date": "2026-07-16",
-   "reconstructedScore": 65,
+   "reconstructedScore": 69,
    "subScores": {
     "vol": 78,
     "mom": null,
-    "trend": 59,
+    "trend": null,
     "breadth": null,
     "macro": 45
    },
@@ -2453,10 +2453,10 @@
     "wti": true,
     "vvix": true,
     "hyOas": false,
-    "trend200maAvailable": true,
+    "trend200maAvailable": false,
     "breadthPcrFellBackToUnavailable": true,
     "newsSentimentOmitted": true,
-    "componentCoveragePct": 55
+    "componentCoveragePct": 35
    }
   },
   {
