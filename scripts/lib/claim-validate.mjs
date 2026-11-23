@@ -6,17 +6,48 @@
 //
 // facts: { [subject]: { asOf, asOfBy?: { [measure]: day }, values: { [measure]: number }, members?: { [id]: number },
 //          sd?: { [measure]: { sd, sessions } } } }
-import { CLAIM_WORDS, figureDigits, figureText, printedValue as printed, thresholdText } from '../../src/domain/shared/claim.js';
+import { CLAIM_WORDS, figureDigits, figureText, periodOf, printedValue as printed, thresholdText } from '../../src/domain/shared/claim.js';
 import { moveGrade } from '../../src/domain/market/session/move-size.js';
 import { printedValueAgrees, signAgrees, directionAgrees, sizeWordAgrees, numericFieldsMissing } from '../../src/domain/shared/figure-agreement.js';
 
 /** The defect classes, in report order: a-rank … f-asof, then the plain figure checks; 'unlinked' (a warning) last. */
-export const CLAIM_CHECKS = Object.freeze(['a-rank', 'b-index', 'c-size', 'd-relation', 'e-label', 'f-asof', 'direction', 'same-way', 'value', 'shape', 'unlinked']);
+export const CLAIM_CHECKS = Object.freeze(['a-rank', 'b-index', 'c-size', 'd-relation', 'e-label', 'f-asof', 'g-period', 'h-across', 'direction', 'same-way', 'value', 'shape', 'unlinked']);
 
 const valueOf = (facts, subject, measure) => {
   const value = facts?.[subject]?.values?.[measure];
   return Number.isFinite(value) ? value : null;
 };
+
+// v60.49 a filer's figure (subject `filer:<symbol>`) is read over a period. Durations (years, months) and counts are not.
+const FILER = /^filer:/;
+const PERIODLESS_UNITS = new Set(['years', 'months', 'count']);
+const DAY_MS = 86400000;
+const daysApart = (later, earlier) => (Date.parse(later.end) - Date.parse(earlier.end)) / DAY_MS;
+// A change figure's base: the same kind of period, one step earlier — a fiscal year or four quarters about a year before,
+// a quarter a year before (the same quarter) or one quarter before. A longer step is a comparison the claim declares
+// (compare.across names the base).
+const BASE_GAP = Object.freeze({ FY: [[300, 400]], TTM: [[300, 400]], Q: [[345, 385], [75, 125]] });
+function baseIssue(figure, declared) {
+  const now = periodOf(figure.period), base = periodOf(figure.against);
+  if (!now || !base) return null;
+  if (now.kind !== base.kind) return `${figure.label}: a ${now.kind} figure changed against a ${base.kind} base (${figure.period} vs ${figure.against})`;
+  const gap = daysApart(now, base);
+  if (!(gap > 0)) return `${figure.label}: ${figure.period} changed against a base that is not earlier (${figure.against})`;
+  const gaps = declared.includes(figure.against) ? null : BASE_GAP[now.kind];
+  return gaps && !gaps.some(([low, high]) => gap >= low && gap <= high) ? `${figure.label}: ${figure.period} against ${figure.against} is ${Math.round(gap)} days, not one ${now.kind} step` : null;
+}
+/** The fact a figure prints: its period's value, or its change against its base (pct a ratio, pp a difference). */
+function periodFact(own, figure) {
+  const read = (period) => { const value = own?.periods?.[period]?.[figure.basis]; return Number.isFinite(value) ? value : null; };
+  const now = read(figure.period);
+  if (!figure.against || now == null) return now;
+  // A change the filing reports itself (on amounts the stored strings round) is the fact for that pair of periods.
+  const given = own.periods[figure.period]?.changes?.[figure.basis];
+  if (given?.against === figure.against && figure.unit === 'pct' && Number.isFinite(given.value)) return given.value;
+  const base = read(figure.against);
+  if (base == null) return null;
+  return figure.unit === 'pp' ? now - base : base > 0 ? (now / base - 1) * 100 : null;
+}
 const RELATIONS = Object.freeze({ above: (a, b) => a > b, below: (a, b) => a < b, atLeast: (a, b) => a >= b, atMost: (a, b) => a <= b });
 
 /**
@@ -38,10 +69,28 @@ export function claimIssues(claim, facts, { text = null } = {}) {
   if (!own) unlinked(`${claim?.subject}/${claim?.measure} has no facts to compare its date and figures with`);
 
   // (f) the claim's date is the date of the data its figures came from.
-  const wantDay = own?.asOfBy?.[claim.measure] ?? own?.asOf ?? null;
+  // A filer's claim is dated by the newest period it prints; its facts are per period.
+  const filer = FILER.test(String(claim?.subject || ''));
+  const periods = filer ? [...new Set(figures.map((figure) => figure.period).filter(Boolean))] : [];
+  const newest = periods.map(periodOf).filter(Boolean).map((period) => period.end).sort().at(-1) || null;
+  const wantDay = filer ? newest : own?.asOfBy?.[claim.measure] ?? own?.asOf ?? null;
   if (!claim?.asOf) flag('f-asof', `${claim?.subject}/${claim?.measure} has no asOf`);
   else if (wantDay && claim.asOf !== wantDay) flag('f-asof', `${claim.subject}/${claim.measure} dated ${claim.asOf}, its data is ${wantDay}`);
   else if (own && !wantDay) unlinked(`${claim.subject}/${claim.measure}: its facts carry no date to compare ${claim.asOf} with`);
+
+  // (g) a filer's money or ratio figure names its period; (h) figures of two periods in one claim are a declared comparison
+  // of one kind of period, and a change figure's base is the same kind of period, earlier.
+  if (filer) {
+    for (const figure of figures) {
+      if (!PERIODLESS_UNITS.has(figure.unit) && !figure.period) flag('g-period', `${claim.subject}: ${figure.label || '?'} ${figure.unit} figure has no period`);
+      if (figure.against) { const issue = baseIssue(figure, Array.isArray(claim.compare?.across) ? claim.compare.across : []); if (issue) flag('h-across', `${claim.subject}: ${issue}`); }
+    }
+    if (periods.length > 1) {
+      const across = Array.isArray(claim.compare?.across) ? claim.compare.across : [];
+      if (periods.some((period) => !across.includes(period))) flag('h-across', `${claim.subject}/${claim.measure} prints ${periods.join(', ')} without declaring that comparison`);
+      else if (new Set(periods.map((period) => periodOf(period)?.kind)).size > 1) flag('h-across', `${claim.subject}/${claim.measure} compares ${periods.join(' with ')}, periods of different kinds`);
+    }
+  }
 
   for (const figure of figures) {
     for (const missing of numericFieldsMissing({ value: figure.value, unit: figure.unit, asOf: claim.asOf })) if (missing !== 'as_of_missing') flag('shape', `${figure.label || '?'}: ${missing}`);
@@ -49,8 +98,13 @@ export function claimIssues(claim, facts, { text = null } = {}) {
     if (!String(figure.label || '').trim()) flag('e-label', `${claim.subject}/${claim.measure} figure ${figure.value} has no label`);
     else if (text != null && !text.includes(figure.label)) flag('e-label', `${claim.subject}: label "${figure.label}" is not printed beside ${figureText(figure)}`);
     // The printed figure is its fact (the AI checker's rounding and sign rules).
-    const fact = figure.basis === 'member' ? own?.members?.[figure.label] : valueOf(facts, claim.subject, figure.basis);
-    if (own && !Number.isFinite(fact) && Number.isFinite(figure.value)) unlinked(`${claim.subject}/${figure.basis}: no fact for ${figureText(figure)}`);
+    const fact = figure.basis === 'member' ? own?.members?.[figure.label] : figure.period && own?.periods ? periodFact(own, figure) : valueOf(facts, claim.subject, figure.basis);
+    // A filer figure printed for a period its data does not hold, while the data holds that measure for another: the
+    // mixed-period defect (a four-quarter PER labelled with the fiscal year, a quarter read as a year).
+    const elsewhere = filer && figure.period && !figure.against && !Number.isFinite(fact) && own?.periods
+      ? Object.keys(own.periods).filter((period) => Number.isFinite(own.periods[period]?.[figure.basis]) && periodOf(period)?.kind !== periodOf(figure.period)?.kind) : [];
+    if (elsewhere.length) flag('g-period', `${claim.subject}: ${figure.basis} printed for ${figure.period}, its data is for ${elsewhere.join(', ')}`);
+    else if (own && !Number.isFinite(fact) && Number.isFinite(figure.value)) unlinked(`${claim.subject}/${figure.period ? `${figure.period}/` : ''}${figure.basis}: no fact for ${figureText(figure)}`);
     if (Number.isFinite(fact) && Number.isFinite(figure.value)) {
       const written = Math.abs(printed(figure));
       const sign = figure.unit === 'pct' || figure.unit === 'bp' ? Math.sign(printed(figure)) : 0;
@@ -118,7 +172,8 @@ export function unclaimedFigures({ text, claims }) {
   let rest = String(text || '');
   const shown = claims.flatMap((claim) => [...claim.figures.map(figureText), ...(Number.isFinite(claim.compare?.threshold) && claim.figures[0] ? [thresholdText(claim)] : [])]);
   for (const piece of shown.sort((a, b) => b.length - a.length)) rest = rest.split(piece).join(' ');
-  return rest.match(PRINTED_FIGURE) || [];
+  // A day or a year-month (a filer's period label: "2026-07 분기까지") is a date, not a signed figure.
+  return rest.replace(/\b\d{4}-\d{2}(?:-\d{2})?\b/g, ' ').match(PRINTED_FIGURE) || [];
 }
 
 /** Every issue of a composed text: each claim's, and each printed figure no claim carries. */

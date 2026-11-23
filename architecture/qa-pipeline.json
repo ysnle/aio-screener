@@ -2246,6 +2246,20 @@
           ]
         },
         {
+          "id": "clock-shift",
+          "inputClass": "code",
+          "script": "scripts/ci-clock-shift-check.mjs",
+          "timeoutMs": 420000,
+          "remedy": "A fixture dated from the real clock reached a session calendar or freshness window: date its rows on sessions (previousHistorySession) or pass the check a fixed clock; never change product code to pass.",
+          "inputs": [
+            "scripts/**",
+            "src/**",
+            "js/**",
+            "public-data/**",
+            "architecture/qa-pipeline.json"
+          ]
+        },
+        {
           "id": "refresh-origin-live-data",
           "inputClass": "data",
           "script": "scripts/ci-refresh-origin-live-data-check.mjs",

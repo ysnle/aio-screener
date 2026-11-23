@@ -3,12 +3,12 @@
 // resolve-data-manifest-merge.mjs (RULES R626: generated-manifest conflicts merge by field ownership).
 //
 // Builds a throwaway git repository in os.tmpdir() with a synthetic data-bot vs version-branch conflict
-// on the three generated manifests and resolves it in all three polarities (version branch <- main,
+// on public-data/operations-status.json and resolves it in all three polarities (version branch <- main,
 // local main <- version branch, rebase), each also with origin/main advanced by a fetch while the merge
-// waits, and checks the exit status contract (manual conflict, appRevision mismatch, parity gate). Asserts the code side keeps appRevision / workerRevision /
-// operations planes.browser.revision while the data side keeps dataRevision / generatedAt / status, plus
-// direct unit cases: a generic "revision" outside planes.browser stays data-owned, and an unclassified
-// manifest field stops the merge. Never touches this repository's tree.
+// waits, and checks the exit status contract (manual conflict, appRevision mismatch, parity gate). Asserts the code side keeps appRevision /
+// planes.browser.revision while the data side keeps dataRevision / generatedAt / status, plus
+// direct unit cases: a generic "revision" outside planes.browser stays data-owned, and a conflict in a file
+// without an ownership policy stops the merge. Never touches this repository's tree.
 import { spawnSync } from 'node:child_process';
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -22,7 +22,6 @@ const errors = [];
 let checks = 0;
 const check = (label, condition, detail = '') => { checks += 1; if (!condition) errors.push(label + (detail ? `: ${detail}` : '')); };
 
-const manifest = ({ app, data, at }) => ({ schemaVersion: 'fixture.v1', appRevision: app, dataRevision: data, workerRevision: `sw:${app}`, generatedAt: at, evidenceRevision: 'evidence:v1' });
 const operations = ({ app, data, at, overall, browserStatus, durable, observedAt }) => ({
   generatedAt: at, appRevision: app, dataRevision: data, overall,
   planes: {
@@ -36,12 +35,9 @@ const code = { ...base, app: 'v1.02' };
 const data = { ...base, data: 'd2', at: 't2', overall: 'BLOCKED', browserStatus: 'CURRENT', durable: 'd2', observedAt: 't2' };
 
 function writeTree(dir, state) {
-  mkdirSync(join(dir, 'architecture'), { recursive: true });
   mkdirSync(join(dir, 'public-data'), { recursive: true });
   const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
   writeFileSync(join(dir, 'version.json'), json({ version: state.app }));
-  writeFileSync(join(dir, 'architecture/asset-manifest.json'), json(manifest(state)));
-  writeFileSync(join(dir, 'architecture/release-manifest.json'), json(manifest(state)));
   writeFileSync(join(dir, 'public-data/operations-status.json'), json(operations(state)));
 }
 
@@ -94,22 +90,15 @@ function scenario(name, steps, opts = {}) {
       check(`R626 ${name}: resolver exits non-zero`, run.status !== 0 && run.status !== null, `status ${run.status}`);
       check(`R626 ${name}: failure names its cause`, opts.fails.pattern.test(run.stderr), run.stderr);
       if (opts.fails.nothingWritten) {
-        const markers = ['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'public-data/operations-status.json']
-          .filter((file) => /^<{7} /m.test(readFileSync(join(dir, file), 'utf8')));
-        check(`R626 ${name}: nothing written (all three manifests still carry conflict markers)`, markers.length === 3, markers.join(', '));
+        const stillConflicted = /^<{7} /m.test(readFileSync(join(dir, 'public-data/operations-status.json'), 'utf8'));
+        check(`R626 ${name}: nothing written (operations-status.json still carries conflict markers)`, stillConflicted);
       }
       return;
     }
     check(`R626 ${name}: resolver exits 0`, run.status === 0, `${run.stderr}${run.stdout}`);
     if (run.status !== 0) return;
-    check(`R626 ${name}: all three generated manifests actually conflicted`, ['asset-manifest.json', 'release-manifest.json', 'operations-status.json']
-      .every((file) => new RegExp(`resolved [^\\n]*${file.replace('.', '\\.')}: [1-9]`).test(run.stdout)), run.stdout);
+    check(`R626 ${name}: operations-status.json actually conflicted`, /resolved [^\n]*operations-status\.json: [1-9]/.test(run.stdout), run.stdout);
     const readTemp = (file) => JSON.parse(readFileSync(join(dir, file), 'utf8'));
-    for (const file of ['architecture/asset-manifest.json', 'architecture/release-manifest.json']) {
-      const value = readTemp(file);
-      check(`R626 ${name}: ${file} keeps code appRevision/workerRevision`, value.appRevision === 'v1.02' && value.workerRevision === 'sw:v1.02', JSON.stringify(value));
-      check(`R626 ${name}: ${file} keeps data dataRevision/generatedAt`, value.dataRevision === 'd2' && value.generatedAt === 't2', JSON.stringify(value));
-    }
     const ops = readTemp('public-data/operations-status.json');
     check(`R626 ${name}: operations appRevision + planes.browser.revision come from the code side`, ops.appRevision === 'v1.02' && ops.planes.browser.revision === 'v1.02', JSON.stringify(ops.planes.browser));
     check(`R626 ${name}: operations data fields come from the data side`, ops.dataRevision === 'd2' && ops.generatedAt === 't2' && ops.overall === 'BLOCKED'
@@ -170,9 +159,9 @@ let unclassified = null;
 try {
   resolveConflictText('{\n<<<<<<< ours\n  "mystery": 1\n=======\n  "mystery": 2\n>>>>>>> theirs\n}\n', { file: 'architecture/asset-manifest.json', dataSide: 'ours' });
 } catch (error) { unclassified = error; }
-check('R626 an unclassified manifest field stops the merge (R626(4))', unclassified instanceof UnclassifiedFieldError, unclassified?.message || 'no error');
+check('R626 a conflict in a file without an ownership policy stops the merge (R626(4); v60.49 the manifests are code-only)', unclassified instanceof UnclassifiedFieldError, unclassified?.message || 'no error');
 const diff3 = '{\n<<<<<<< ours\n  "appRevision": "v1.02",\n  "dataRevision": "d1"\n||||||| base\n  "appRevision": "v1.01",\n  "dataRevision": "d1"\n=======\n  "appRevision": "v1.01",\n  "dataRevision": "d2"\n>>>>>>> theirs\n}\n';
-const diff3Value = JSON.parse(resolveConflictText(diff3, { file: 'architecture/release-manifest.json', dataSide: 'theirs' }).text);
+const diff3Value = JSON.parse(resolveConflictText(diff3, { file: 'public-data/operations-status.json', dataSide: 'theirs' }).text);
 check('R626 diff3-style conflict markers resolve field-level', diff3Value.appRevision === 'v1.02' && diff3Value.dataRevision === 'd2', JSON.stringify(diff3Value));
 
 if (errors.length) {
@@ -180,4 +169,4 @@ if (errors.length) {
   for (const error of errors) console.error(` - ${error}`);
   process.exit(1);
 }
-console.log(`Generated-conflict fixture OK: ${checks} checks (merge both directions + rebase, origin advanced mid-merge, exit status, path-owned planes.browser.revision, unclassified stop, diff3).`);
+console.log(`Generated-conflict fixture OK: ${checks} checks (merge both directions + rebase, origin advanced mid-merge, exit status, path-owned planes.browser.revision, unpoliced-file stop, diff3).`);

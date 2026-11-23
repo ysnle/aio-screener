@@ -74,7 +74,7 @@ export function deriveFastQuotesConfig({ prior = null, endpoint = null, evidence
     healthPath: '/health',
     quotesPath: '/quotes',
     enabled: false,
-    certification: { soakRequiredDays: 7, soakObservedDays: 0, rightsReviewed: false, certifiedAt: null }
+    certification: { soakRequiredDays: 7, rightsReviewed: false, certifiedAt: null }
   };
   const usable = (() => {
     try {
@@ -98,9 +98,10 @@ export function deriveFastQuotesConfig({ prior = null, endpoint = null, evidence
     healthPath: carried.healthPath || '/health',
     quotesPath: carried.quotesPath || '/quotes',
     enabled,
+    // v60.49: the measured soak days are published in operations-status.json planes.fast.soak.observedDays, which the
+    // consumer gate re-derives from; a copy here moved with the SLO window and rewrote public-config.json.
     certification: {
       soakRequiredDays,
-      soakObservedDays,
       rightsReviewed,
       certifiedAt: enabled ? (carried.certification?.certifiedAt || now) : null
     }
@@ -162,12 +163,10 @@ export function derivePublicAiConfig(previous = {}, {
       maxTokens: priorAi.maxTokens || 'worker-advertised',
       routeStatus: published ? 'PUBLISHED' : 'DISABLED',
       routeReason: published ? null : failureReason,
-      routeEvidence: {
-        status: published ? 'CURRENT' : 'OPERATOR_REQUIRED',
-        source: proxyEvidence.proxyEvidenceSource || proxyEvidence.evidenceSource || 'periodic-live-health',
-        observedAt: proxyEvidence.proxyHealthObserved || now,
-        observationStatus: proxyEvidence.proxyObservationStatus || 'UNKNOWN'
-      }
+      // v60.49: the observation behind this decision (source, observedAt, observationStatus) is published once, in
+      // public-data/operations-status.json ai.publicChat.health. Its copy here changed on every refresh, so every data
+      // commit rewrote this code-state file.
+      routeEvidence: { status: published ? 'CURRENT' : 'OPERATOR_REQUIRED' }
     },
     // Market-data relay availability is a separate concern from the AI
     // entitlement/health branch.  A transient AI health failure must not

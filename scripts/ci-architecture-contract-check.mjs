@@ -28,7 +28,9 @@ if (!publicManifest.publicRootAllowlist.includes('src/**/*.js')) fail('Pages all
 const srcFiles = fs.readdirSync(path.join(root, 'src'), { recursive: true }).filter((file) => String(file).endsWith('.js'));
 // v59.48: sw.js runtime caching (RUNTIME_SHELL_PATH_RE/isRuntimeShell) and the atomic cache.addAll install are owned by
 // scripts/ci-service-worker-cache-policy-check.mjs, which asserts both on the install block itself.
-for (const field of ['appRevision', 'dataRevision', 'evidenceRevision']) {
+// v60.49: the data revision is not a release field; it lives in public-data/operations-status.json
+// (ci-release-revision-check section release-manifests-code-only refuses it here).
+for (const field of ['appRevision', 'evidenceRevision']) {
   if (!release[field] || release[field] === 'unknown') fail(`release revision missing: ${field}`);
 }
 // release.appRevision === version.json is R1, owned by ci-version-check (node scripts/bump-version.mjs <version>).

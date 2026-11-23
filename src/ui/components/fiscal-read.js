@@ -191,7 +191,7 @@ const tableFold = (doc, what, ...nodes) => kindFold(doc, 'raw-table', what, node
 function quarterSection(doc, root, symbol) {
   const text = root?._aioSecQuarterHistory?.[symbol];
   if (!text) return null;
-  const read = buildQuarterRead(parseQuarterHistory(text));
+  const read = buildQuarterRead(parseQuarterHistory(text), { symbol });
   if (!read.available) return null;
   // v59.51 (content audit): the quarters are the second view of the 매출과 순이익 card (연간 | 분기), not a card of their own.
   const box = el(doc, 'div', null, 'fiscal-quarters');
@@ -340,8 +340,8 @@ export function dartLink(doc, company) {
 // v59.70 (X bookmarks #8): quarter-end inventory and trade receivables beside the cash-flow card — the working capital
 // that can take a free-cash-flow quarter down while revenue grows. One bar pair per quarter (the step's change).
 const fiscalQuarterLabel = (periodEnd) => `${String(periodEnd).slice(2, 4)}.${String(periodEnd).slice(5, 7)}`;
-function workingCapitalCard(doc, quarters) {
-  const read = buildWorkingCapitalRead(quarters);
+function workingCapitalCard(doc, quarters, symbol) {
+  const read = buildWorkingCapitalRead(quarters, { symbol });
   if (!read.available) return null;
   const card = el(doc, 'div', null, 'sx-card v2-fiscal-wc');
   card.dataset.sectionVisual = 'working-capital';
@@ -561,7 +561,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     const cash = fiscalSection(doc, 'cash', '현금흐름과 발생액');
     const quality = earningsQualityCard(doc, read, analysis);
     if (quality) quality.dataset.sectionVisual = 'accruals';
-    const working = quarterText ? workingCapitalCard(doc, parseQuarterHistory(quarterText)) : null;
+    const working = quarterText ? workingCapitalCard(doc, parseQuarterHistory(quarterText), symbol) : null;
     const cashPair = el(doc, 'div', null, 'v2-fiscal-pair');
     const cashCards = [quality, working].filter(Boolean);
     cashPair.append(...cashCards);

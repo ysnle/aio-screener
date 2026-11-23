@@ -128,36 +128,22 @@ if (errors.length) {
 }
 console.log('Release revision contract OK');
 }],
-// ── section generated-release-parity (was ci-generated-release-parity-check.mjs) ──
-['generated-release-parity', async () => {
-const { spawnSync } = await import('node:child_process');
-const { createHash } = await import('node:crypto');
-const { readFileSync, writeFileSync } = await import('node:fs');
-
-const targets = ['architecture/asset-manifest.json', 'architecture/release-manifest.json'];
-const digest = () => Object.fromEntries(targets.map((file) => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));
-const before = digest();
-// v58.63 (architecture audit C6): a check must not leave the tree changed — on a mismatch or a generator failure the
-// manifests were left regenerated (or half written). The original bytes are restored before the gate reports.
-const originals = Object.fromEntries(targets.map((file) => [file, readFileSync(file)]));
-const restore = () => { for (const file of targets) writeFileSync(file, originals[file]); };
-const result = spawnSync(process.execPath, ['scripts/sync-data-release-manifests.mjs'], { encoding: 'utf8', stdio: 'pipe' });
-if (result.status !== 0) {
-  restore();
-  console.error(String(result.stderr || result.stdout || 'release manifest generation failed').trim());
-  process.exit(1);
+// ── section release-manifests-code-only (v60.49; replaced generated-release-parity) ──
+// The asset/release manifests change only with a code release. Until v60.49 every data refresh rewrote their
+// dataRevision, dataGeneratedAt, dataCycleId, dataCycleManifestRevision and generatedAt (3,586 of 5,863 commits), which
+// made every long branch conflict with main. The data identity is public-data/operations-status.json dataRevision (built
+// from market-snapshot.revision by build-operations-status.mjs); the cycle ids stay in public-data/data.json meta.
+['release-manifests-code-only', async () => {
+const { readFileSync } = await import('node:fs');
+const DATA_FIELDS = ['dataRevision', 'dataGeneratedAt', 'dataCycleId', 'dataCycleManifestRevision', 'generatedAt'];
+for (const file of ['architecture/asset-manifest.json', 'architecture/release-manifest.json']) {
+  const carried = DATA_FIELDS.filter((field) => Object.prototype.hasOwnProperty.call(JSON.parse(readFileSync(file, 'utf8')), field));
+  if (carried.length) throw new Error(`[release-manifests-code-only] ${file} carries data-owned field(s) ${carried.join(', ')}; the data revision lives in public-data/operations-status.json`);
 }
-const after = digest();
-const changed = targets.filter((file) => before[file] !== after[file]);
-if (changed.length) {
-  restore();
-  console.error(`Release generated parity failed; regenerating would change: ${changed.join(', ')} (restored; run node scripts/sync-data-release-manifests.mjs to update)`);
-  process.exit(1);
-}
-console.log('Release generated parity OK: asset/release manifests unchanged.');
+console.log('[release-manifests-code-only] OK: asset/release manifests carry no data revision fields');
 }],
 // ── section release-rollback-invariants (kept from the retired ci-release-manifest-contract.mjs) ──
-// v58.89: version/data revision parity moved to ci-version-check and the parity section above; these two invariants did not.
+// v58.89: version revision parity moved to ci-version-check; these two invariants did not.
 ['release-rollback-invariants', async () => {
 const { readFileSync } = await import('node:fs');
 const manifest = JSON.parse(readFileSync('architecture/asset-manifest.json', 'utf8'));

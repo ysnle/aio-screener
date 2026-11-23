@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ai-public-config.v1",
-  "appRevision": "v60.48",
+  "appRevision": "v60.49",
   "ai": {
     "chatPolicy": "shared-worker-only",
     "provider": "openai",
@@ -12,10 +12,7 @@
     "routeStatus": "PUBLISHED",
     "routeReason": null,
     "routeEvidence": {
-      "status": "CURRENT",
-      "source": "periodic-live-health",
-      "observedAt": "2026-11-22T23:52:00.039Z",
-      "observationStatus": "SUCCESS"
+      "status": "CURRENT"
     }
   },
   "marketData": {
@@ -31,7 +28,6 @@
       "enabled": true,
       "certification": {
         "soakRequiredDays": 0,
-        "soakObservedDays": 8,
         "rightsReviewed": true,
         "certifiedAt": "2026-10-27T11:39:26.940Z"
       }

@@ -59,7 +59,7 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Freshness (2026-10-12; cadence-relative 2026-10-15):** data, readings and AI text follow the latest artifacts; a value is stale once a newer publication should exist (intraday: minutes in session; daily closes: next session; macro: next scheduled release; 13F: the next 45-day filing deadline, quarter-end date always shown).
 - A stale value shows its date, never as current. New features state producer and cadence.
 - **No ticker guessing:** names resolve only by exact registry match; a ticker-shaped input is never rewritten to another issuer (P1339).
-- **Producers** — scripts that fetch external data or write `public-data/` artifacts (`fetch-*`, the data `build-*`/`refresh-*`, `sync-screener-universe`, `sync-data-release-manifests`) — run only in GitHub Actions; locally, read artifacts and run gates.
+- **Producers** — scripts that fetch external data or write `public-data/` artifacts (`fetch-*`, the data `build-*`/`refresh-*`, `sync-screener-universe`) — run only in GitHub Actions; locally, read artifacts and run gates.
 - Workspace generators (`generate-workspace-state`, `sync-agent-*`, `bump-version`, `record-fix`) are not producers and run locally (v57.84).
 - **Markets:** US first; Korean themes and Korean-market content are real user features, labelled '한국' and secondary.
 - **Batches:** implement several items, Fable reviews the batch diff with cstack per `REVIEW.md`, then verify and record once.

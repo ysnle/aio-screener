@@ -2,7 +2,7 @@ import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.
 import { DATA_PUBLISH_SETS, publishSetPaths, workflowPublishes } from './lib/data-publish-sets.mjs';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
@@ -2487,13 +2487,15 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
 // Drift check: public-data/screener-universe.json must be exactly what
 // scripts/sync-screener-universe.mjs would regenerate from js/aio-data.js's current SCREENER_DB
 // right now — catches "edited SCREENER_DB, forgot to re-run the sync script" before it ships.
+// The clock-shift runs below move a child's wall clock through the shared preload (also ci-clock-shift-check's).
+const shiftedClockEnv = (days) => days ? { ...process.env, AIO_CLOCK_OFFSET_MS: String(days * 864e5),
+  NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --import=${pathToFileURL(join(root, 'scripts/lib/clock-offset.mjs')).href}`.trim() } : process.env;
 {
   const sync = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
   check('public-data/screener-universe.json is in sync with js/aio-data.js SCREENER_DB', sync.status === 0, (sync.stdout + sync.stderr).trim().slice(0, 400));
   // The same rebuild a year from now must give the same file: a clock-derived field in the mirror made this check fail
   // on day 31 after the last universe review (2026-11-12) with no change to the source, and every deploy stopped.
-  const later = `data:text/javascript,const at=Date.now()+366*864e5;const Real=Date;globalThis.Date=class extends Real{constructor(...a){super(...(a.length?a:[at]));}static now(){return at;}};`;
-  const future = spawnSync(process.execPath, ['--import', later, join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
+  const future = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8', env: shiftedClockEnv(366) });
   check('v59.99 the screener-universe mirror does not change with the calendar', future.status === 0, (future.stdout + future.stderr).trim().slice(0, 400));
 }
 // v60.18 (failure class: a gate that expires): the v59.99 check above covered one generator. Every generator a gate runs
@@ -2507,9 +2509,8 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
   const NOT_GENERATORS = new Set(['agent-hook.mjs', 'cloud-session-setup.mjs']);
   const generators = readdirSync(join(root, 'scripts')).filter((name) => name.endsWith('.mjs') && !name.startsWith('ci-') && !NOT_GENERATORS.has(name)
     && /(^|[\s'"`])--check\b/.test(readFileSync(join(root, 'scripts', name), 'utf8')));
-  const shift = (days) => `data:text/javascript,const at=Date.now()+${days}*864e5;const Real=Date;globalThis.Date=class extends Real{constructor(...a){super(...(a.length?a:[at]));}static now(){return at;}};`;
   const runCheck = (name, days) => new Promise((resolveRun) => {
-    const child = spawn(process.execPath, [...(days ? ['--import', shift(days)] : []), join(root, 'scripts', name), '--check'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [join(root, 'scripts', name), '--check'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: shiftedClockEnv(days) });
     let out = '';
     child.stdout.on('data', (chunk) => { out += chunk; }); child.stderr.on('data', (chunk) => { out += chunk; });
     child.on('close', (status) => resolveRun({ status, out: out.trim().slice(-300) }));
@@ -2533,7 +2534,7 @@ check('getScreenerSymbols reads screener-universe.json, not source-text regex', 
     writeTmp(join(researchDir, 'data.json'), JSON.stringify(dataCopy));
     const researchArgs = ['--data', join(researchDir, 'data.json'), '--evidence', join(root, 'public-data/structural-data-research.json')];
     const research = await Promise.all([0, 45, 366].map((days) => new Promise((resolveRun) => {
-      const child = spawn(process.execPath, [...(days ? ['--import', shift(days)] : []), join(root, 'scripts/ci-web-research-contract-check.mjs'), ...researchArgs], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn(process.execPath, [join(root, 'scripts/ci-web-research-contract-check.mjs'), ...researchArgs], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: shiftedClockEnv(days) });
       let out = '';
       child.stdout.on('data', (chunk) => { out += chunk; }); child.stderr.on('data', (chunk) => { out += chunk; });
       child.on('close', (status) => resolveRun({ status, out: out.trim().slice(-300) }));

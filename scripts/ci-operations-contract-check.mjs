@@ -58,7 +58,8 @@ const requiredHeaders = [
 check('canonical version format', /^v\d{1,3}(?:\.\d{2})?$/.test(version), version);
 // appRevision/workerRevision equality across the manifests is R1, owned by ci-version-check (same preflight
 // phase); repeating it here turned one stale bump into several failures. Fix: node scripts/bump-version.mjs <version>.
-check('release/asset/operations data revision coherence', [json('architecture/asset-manifest.json').dataRevision, json('architecture/release-manifest.json').dataRevision, operations.dataRevision].every((value) => value === snapshot.revision), `${snapshot.revision}`);
+// v60.49: operations-status.json is the one owner of the data revision (the release manifests no longer copy it).
+check('v60.49 operations data revision names the published market snapshot', operations.dataRevision === snapshot.revision, `${operations.dataRevision} != ${snapshot.revision}`);
 
 check('vertical slice route coverage', sameSet(declaredSliceRoutes, routeIds), `${declaredSliceRoutes.length} != ${routeIds.length}`);
 check('visual matrix route coverage', sameSet(visual.routes, routeIds));

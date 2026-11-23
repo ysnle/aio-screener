@@ -70,7 +70,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const sicCode = issuerSic(root, sym);
   const lens = lensIdFor({ sic: sicCode, themeIds, sector: row?.sector || null });
   const trailing = buildTrailingYearRead(quarters);
-  const quarterRead = quarters.length >= 2 ? buildQuarterRead(quarters) : null;
+  const quarterRead = quarters.length >= 2 ? buildQuarterRead(quarters, { symbol: sym }) : null;
   const debtBasis = debtBasisFor(root, sym);
   const marginCash = history.length ? buildMarginCashRead(history, { debtBasis, debtCurrent: debtCurrentFor(root, sym) }) : null;
   const schedule = market === 'US' ? buildEarningsSchedule({ symbol: sym, calendar: root?.[CALENDAR_KEY], consensus, calendarState: sharedArtifactState(root, CALENDAR_KEY) }) : null;

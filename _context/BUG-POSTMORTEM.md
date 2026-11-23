@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-22
+last_verified: 2026-11-23
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2750 - v60.49 - 데이터 갱신 커밋마다 코드 상태 파일 3개(asset·release manifest, public-config)를 다시 써서 긴 브랜치가 매번 충돌했다 (2026-11-23)
+
+- symptom/reproduction: git 이력 5,863커밋 중 3,586개가 architecture/asset-manifest.json·release-manifest.json을 바꿨고, public-config.json은 최근 53일 데이터 커밋 1,603개 중 1,603개에서 바뀌었다. 바뀐 것은 dataRevision·dataGeneratedAt·dataCycleId·dataCycleManifestRevision·generatedAt과 ai.routeEvidence의 source·observedAt·observationStatus뿐이라, 코드 브랜치를 main에 합칠 때마다 생성물 충돌과 고정값 실패가 났다.
+- root_cause: 데이터 revision과 Worker 관측 시각이 코드 릴리스 파일에 복사돼 있었다. sync-data-release-manifests.mjs가 매 갱신마다 market-snapshot.revision과 data.json 주기 id를 두 manifest에 옮겨 적었고, build-operations-status.mjs가 operations-status.json ai.publicChat.health에 이미 있는 관측(source·observedAt·observationStatus)과 planes.fast.soak.observedDays를 public-config.json에 다시 적었다. 두 복사본 모두 앱이 읽지 않았다.
+- fix: 데이터 revision의 정본은 public-data/operations-status.json dataRevision 하나다(주기 id는 data.json meta에 그대로). 두 manifest에서 데이터 필드 다섯 개를 지우고 sync-data-release-manifests.mjs와 refresh-data의 'Promote one data release revision' 단계를 삭제했다. public-config.json routeEvidence는 status만 남기고, fastQuotes.certification에서 soakObservedDays를 지웠다(소비자 게이트는 operations-status의 soak을 읽는다). 충돌 해소기는 manifest 표를 지우고 operations-status 경로 정책만 남겼고, --align-generated는 operations-status만 맞춘다. 데이터 오버레이는 manifest를 코드 커밋에서 가져온다.
+- violated_rule: R421·R428 (데이터 revision은 한 곳에서만 발행)
+- prevention: scripts/ci-release-revision-check.mjs 섹션 release-manifests-code-only: 두 manifest가 dataRevision·dataGeneratedAt·dataCycleId·dataCycleManifestRevision·generatedAt 중 하나라도 가지면 실패(고치기 전 manifest로 실패 확인). scripts/ci-operations-contract-check.mjs: operations-status dataRevision이 market-snapshot.revision과 같다. scripts/ci-generated-conflict-fixture.mjs: 정책 없는 파일의 충돌은 해소하지 않는다.
+- verification/residual: node scripts/ci-release-revision-check.mjs; node scripts/ci-operations-contract-check.mjs; node scripts/ci-architecture-contract-check.mjs; node scripts/ci-generated-conflict-fixture.mjs; node scripts/ci-release-source-check.mjs; node scripts/ci-operations-status-check.mjs; node scripts/ci-fast-plane-consumer-gate.mjs. push 뒤 확인: 다음 refresh-data·refresh-screener 커밋의 --stat에 architecture/*-manifest.json이 없다.
+- files: architecture/asset-manifest.json, architecture/release-manifest.json, public-config.json, scripts/build-operations-status.mjs, scripts/sync-data-release-manifests.mjs, .github/workflows/refresh-data.yml, scripts/lib/data-publish-sets.mjs, scripts/build-data-overlay.mjs, scripts/lib/align-generated-version.mjs, scripts/resolve-data-manifest-merge.mjs, scripts/resolve-generated-conflicts.mjs, scripts/ci-release-revision-check.mjs, scripts/ci-operations-contract-check.mjs, scripts/ci-architecture-contract-check.mjs, scripts/ci-generated-conflict-fixture.mjs, scripts/ci-release-source-check.mjs, scripts/ci-scenario-guidance-fixture.mjs, scripts/ci-official-references-check.mjs, scripts/ci-qa-pipeline-contract-check.mjs, _context/RULES.md
+
+## P2749 - v60.49 - AI 계약 검사의 VIX 기록 픽스처가 월요일(UTC)마다 실패해 CI와 데이터 갱신을 막았다 (2026-11-23)
+
+- symptom/reproduction: 2026-11-23 00:06Z부터 ci-ai-intelligence-contract-check의 'v60.46 the VIX record tool reads one sample' 블록이 실패했다. CI가 빨갛게 되면서 Refresh market data 실행이 모두 막혀 실서비스 데이터 갱신이 멈췄다.
+- root_cause: 픽스처가 _aioHistory 두 줄을 Date.now()에서 달력일 1일·2일 전(iso(1), iso(2))으로 날짜 매겼다. buildCloseSeries는 시장 세션 날짜만 남기므로 UTC 월요일에는 두 줄이 일요일·토요일이 되어 VIX 줄이 하나도 남지 않았다. 검사 결과가 돌리는 요일에 따라 달라지는 결함 부류(P2223과 같은 계열, R739 위반)인데, v59.99/v60.18의 시계 이동 검사는 --check 생성기만 45일·366일 옮겨 돌렸고 계약 검사는 한 번도 다른 요일에 돌지 않았다.
+- fix: e5045b8fc에서 두 줄을 previousHistorySession으로 직전 두 미국 세션에 놓았다(제품 코드는 바꾸지 않음). 같은 부류를 닫는 게이트 scripts/ci-clock-shift-check.mjs를 workspace 그룹(inputClass code, CI 전체 범위에서만 실행)에 등록했다: 벽시계를 읽는 비브라우저 code/mixed 계약 검사를 오늘, 다음 7일(01:00Z), 가장 가까운 NYSE 휴장일(15:00Z)과 KRX 휴장일(01:00Z)에 돌려 판정이 오늘과 다르면 실패한다. 시계는 scripts/lib/clock-offset.mjs(NODE_OPTIONS --import, 자식 프로세스와 vm 컨텍스트까지 이동)가 옮긴다. 부하로 생긴 타이머 경합은 단독 재실행으로 걸러 낸다.
+- violated_rule: R739 (현재성 픽스처는 명시적 now를 넘긴다)
+- prevention: scripts/ci-clock-shift-check.mjs: 'v60.49 <검사> gives today's verdict on <요일·휴장일>' 및 음성 대조 'v60.49 the negative control (VIX rows on calendar days 1 and 2 back) fails on some target day and passes on another'. 고치기 전 VIX 블록(git show e5045b8fc^:scripts/ci-ai-intelligence-contract-check.mjs)을 --only로 돌리면 8개 대상 요일에서 실패한다.
+- verification/residual: node scripts/ci-clock-shift-check.mjs (23개 검사 x 9개 대상 통과, 약 61초, 12코어 로컬); node scripts/ci-clock-shift-check.mjs --only <고치기 전 사본> 실패 8건; node scripts/ci-qa-pipeline-contract-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs.
+- files: scripts/ci-ai-intelligence-contract-check.mjs, scripts/ci-clock-shift-check.mjs, scripts/lib/clock-offset.mjs, architecture/qa-pipeline.json
 
 ## P2748 - v60.48 - 한국 종목 일봉 폴백이 월요일·연휴 뒤 등락률을 0%로 적고, 네이버를 직접 불러 요청마다 실패 두 번을 냈다 (2026-11-22)
 

@@ -1486,11 +1486,11 @@ Adding a tracked `public-data/*.json` artifact requires adding its explicit poli
 ## R457. 변동 원본 artifact와 파생 인덱스는 producer가 원자적으로 발행하고 실제 Git index에서 검증한다 (v54.2, P902, v56.33 P1204)
 자동 갱신 producer가 retained count·revision·collection status를 바꾸면 그 값을 참조하는 요약·인덱스 artifact를 같은 실행에서 재생성하고 같은 커밋에 stage해야 한다. 게이트: `ci-data-continuity-check`, `ci-masters-contract-check`, `ci-data-pipeline-contract-check`.
 
-## R428. Data refresh and release manifests must publish one atomic revision tuple (v53.68, P873)
-Any refresh that changes `public-data/market-snapshot.json.revision` must promote that revision, cycle ID, and data timestamp into both… 게이트: `ci-refresh-artifact-integrity-check`, `ci-operations-contract-check`.
+## R428. A data refresh publishes one atomic revision tuple inside public-data (v53.68, P873; v60.49)
+Any refresh that changes `public-data/market-snapshot.json.revision` publishes that revision in `public-data/operations-status.json` `dataRevision` in the same commit; the cycle ID stays in `public-data/data.json` meta. The release manifests carry no data revision. 게이트: `ci-refresh-artifact-integrity-check`, `ci-operations-contract-check`, `ci-release-revision-check` (release-manifests-code-only).
 
-## R421. 데이터 refresh 이후 릴리스 SSOT를 같은 revision tuple로 승격한다 (v53.64, P866)
-A public-data refresh that changes `market-snapshot.revision` must also update the asset/release manifest `dataRevision` before the next deploy. 게이트: `ci-operations-contract-check`.
+## R421. 데이터 revision의 정본은 operations-status 하나다 (v53.64, P866; v60.49)
+The asset/release manifests change only with a code release; the data revision lives once, in `public-data/operations-status.json` `dataRevision`, and must equal `market-snapshot.revision`. 게이트: `ci-operations-contract-check`.
 
 ## R407. Quote price/change/previous-close fields must share one producer revision (v53.59, P853)
 A quote is an atomic envelope. Do not apply a price, percentage, delta, previous close, observation time, or source field independently from a cumulative multi-producer…

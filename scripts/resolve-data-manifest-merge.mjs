@@ -1,26 +1,15 @@
 // Resolves the recurring merge/rebase conflicts between this repository's code commits and the
 // scheduled data-refresh bot. Reproducible recipe: node scripts/resolve-data-manifest-merge.mjs
 //
-// WHY THIS IS NOT A ONE-OFF: the bot commits on its own schedule (every 1-2 hours) and always
-// touches the same three files, so a long-running branch is overtaken repeatedly. Each earlier
-// session rediscovered the resolution by hand, and the previous attempt in this session spent
-// ~40 minutes doing it commit by commit. The conflict is not semantic — the two sides own
-// DIFFERENT FIELDS of the same generated documents:
-//
-//   code side (this branch)  : appRevision, workerRevision (+ manifest-only static fields)
-//   data side (bot, upstream): dataRevision, generatedAt, data-cycle ids, everything else
-//
-// So the correct merge is a field-level union, not a pick-a-side. That rule is encoded here once.
-// Ownership is per-file: the two architecture manifests carry code-only static fields (evidenceRevision,
-// schemaVersion, status, rollback.*, ...) that no automated writer touches — they are pinned by
-// ci-architecture-contract-check.mjs and change only through code commits. The same key names can be
-// bot-owned in other files (e.g. "status" in public-data/market-snapshot.json), so those extensions
-// must never leak into the generic table.
+// The conflict is not semantic: the two sides own DIFFERENT FIELDS of the same generated document, so the
+// correct merge is a field-level union, not a pick-a-side. That rule is encoded here once.
 //
 // public-data/operations-status.json is produced entirely by the data bot except for the two fields a
 // version bump rewrites (bump-version.mjs): top-level appRevision and planes.browser.revision. Its policy
 // is therefore path-based — those two paths are code-owned, every other field is data-owned. The generic
 // key "revision" stays data-owned elsewhere (ai.publicChat.health.revision is a live observation).
+// v60.49: the asset/release manifests left this resolver. A data refresh no longer writes them (their data
+// revision fields moved to operations-status.json), so a conflict there is an ordinary code conflict.
 //
 // Polarity: during `git rebase`, `--ours` is the UPSTREAM (the bot) and `--theirs` is the commit being
 // replayed (this branch); during `git merge origin/main` on a version branch it is the other way round.
@@ -32,7 +21,7 @@
 //   git rebase origin/main            # or: git merge origin/main
 //   node scripts/resolve-data-manifest-merge.mjs [--data-side ours|theirs] <path> [<path> ...]
 //   git add <paths> && git rebase --continue
-// (node scripts/resolve-generated-conflicts.mjs runs this for every conflicted generated manifest.)
+// (node scripts/resolve-generated-conflicts.mjs runs this for every conflicted generated document.)
 //
 // Exits non-zero and writes nothing if a conflict block contains a field that is not covered by
 // the ownership rule — a new field must be classified deliberately, not guessed — or if a resolved
@@ -43,14 +32,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const CODE_KEYS = new Set(['appRevision', 'workerRevision']);
-const DATA_KEYS = ['dataRevision', 'generatedAt', 'dataGeneratedAt', 'dataCycleId', 'dataCycleManifestRevision', 'revision'];
-// Fields only ever changed by code commits in the two architecture manifests. Classified deliberately
-// (R626(4)) after verifying writers: sync-data-release-manifests.mjs writes only DATA_KEYS, and
-// bump-version.mjs touches only appRevision/workerRevision here.
-const MANIFEST_CODE_KEYS = new Set(['evidenceRevision', 'schemaVersion', 'publicSource', 'assetManifest', 'serviceWorker', 'immutableRuntime', 'status', 'rollback', 'strategy', 'appDataIndependent', 'workerCacheIndependent', 'lastKnownGood']);
-const MANIFEST_PATHS = new Set(['asset-manifest.json', 'release-manifest.json']);
-// Path-based policies (R626(4), classified by writer): listed JSON paths are code-owned, the rest data-owned.
+// Path-based policies (R626(4), classified by writer): listed JSON paths are code-owned, the rest data-owned. A file
+// without a policy has no classified field, so any conflict in it stops the merge.
 const PATH_POLICIES = {
   'operations-status.json': { codePaths: new Set(['appRevision', 'planes.browser.revision']) }
 };
@@ -63,13 +46,8 @@ const KEY = /^\s*"([^"\\]+)"\s*:/;
 export class UnclassifiedFieldError extends Error {}
 
 function ownerFor(file) {
-  const name = String(file).replace(/\\/g, '/').split('/').pop();
-  if (PATH_POLICIES[name]) {
-    const { codePaths } = PATH_POLICIES[name];
-    return (key, path) => (codePaths.has(path) ? 'code' : 'data');
-  }
-  const codeKeys = MANIFEST_PATHS.has(name) ? new Set([...CODE_KEYS, ...MANIFEST_CODE_KEYS]) : CODE_KEYS;
-  return (key) => (codeKeys.has(key) ? 'code' : DATA_KEYS.includes(key) ? 'data' : null);
+  const policy = PATH_POLICIES[String(file).replace(/\\/g, '/').split('/').pop()];
+  return (key, path) => (!policy ? null : policy.codePaths.has(path) ? 'code' : 'data');
 }
 
 // Tracks the JSON path through pretty-printed (one member per line) documents; the root is unnamed.

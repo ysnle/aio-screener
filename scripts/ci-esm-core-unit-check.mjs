@@ -3227,7 +3227,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const flaky = createLazyPage({ route: 'breadth', loader: async () => { flakyLoads += 1; if (flakyLoads < 3) throw new Error('429'); return { page: { mount: () => () => {} } }; }, factory: (module) => module.page, retryDelaysMs: [1, 1] });
     const flakyNode = { dataset: {}, querySelector: () => null, prepend() {} };
     flaky.mount({ documentRef: { getElementById: (id) => (id === 'page-breadth' ? flakyNode : null), createElement: () => ({ dataset: {}, setAttribute() {} }) } });
-    await new Promise((resolve) => setTimeout(resolve, 30));
+    // Waits for the state, not a fixed 30 ms: two 1 ms retries ran late on a loaded machine and the check failed.
+    for (let waited = 0; waited < 2000 && flakyNode.dataset.aioRouteModuleState !== 'ready'; waited += 10) await new Promise((resolve) => setTimeout(resolve, 10));
     if (flakyLoads !== 3 || flakyNode.dataset.aioRouteModuleState !== 'ready') fail(`lazy-router: a transient import failure must be retried before failing, got ${flakyLoads}/${flakyNode.dataset.aioRouteModuleState}`);
   }
   const target = new EventTarget();

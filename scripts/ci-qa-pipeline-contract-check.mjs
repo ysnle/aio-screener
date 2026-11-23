@@ -722,7 +722,7 @@ check('P1309/R654/QA-DATA-51 the split SEC lane remains before candidate hashing
 check('refresh-screener owns only screener/SEC validation', !/ci-web-research-contract-check\.mjs/.test(refreshScreenerSource)
   && !/ci-data-refresh-audit\.mjs/.test(refreshScreenerSource)
   && /ci-screener-workbench-contract\.mjs/.test(refreshScreenerSource));
-const refreshDataOrder = ['Fetch market data', 'Fetch Telegram digest', 'Promote one data release revision', 'Reject silent artifact degradation', 'Validate source-to-consumer data continuity'];
+const refreshDataOrder = ['Fetch market data', 'Fetch Telegram digest', 'Write the freshness ledger', 'Reject silent artifact degradation', 'Validate source-to-consumer data continuity'];
 check('refresh-data runs all producers before rebuild/integrity gates', refreshDataOrder.every((step, index, steps) => {
   const position = refreshDataSource.indexOf(`name: ${step}`);
   return position >= 0 && (index === 0 || position > refreshDataSource.indexOf(`name: ${steps[index - 1]}`));
@@ -745,7 +745,7 @@ for (const [name, source] of refreshSources) {
   const publisherOrder = ['set.afterStage', "'commit', '-q', '-m'", 'if (!verified())', "'push', 'origin'", "'rebase', '-q', '--autostash'", "if (!verified()) return onRebaseFail"]
     .map((token) => publisherSource.indexOf(token));
   const publisherOrdered = publisherOrder.every((at, index) => at > 0 && (index === 0 || at > publisherOrder[index - 1]));
-  const lastProducerAt = source.indexOf(name === 'refresh-data.yml' ? 'name: Promote one data release revision' : 'name: Refresh screener independently');
+  const lastProducerAt = source.indexOf(name === 'refresh-data.yml' ? 'name: Write the freshness ledger' : 'name: Refresh screener independently');
   // P1270/P1289: strict producer checks run before recording the exact candidate; the extra
   // data-audit invocation only captures bounded diagnostics and cannot replace that producer gate.
   // Promotion re-hashes the candidate after all assembly writes. Repeating heavy checks there only masks drift/cost.

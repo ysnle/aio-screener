@@ -411,13 +411,9 @@ jobs:
 
       - name: Write the freshness ledger (v59.70)
         # One record per artifact this workflow owns: producedAt, checkedAt, basis session, cadence. A timestamp-only rewrite
-        # of a derived artifact is put back to the published bytes here, before the gates and the release-manifest sync.
+        # of a derived artifact is put back to the published bytes here, before the gates.
         if: ${{ !cancelled() }}
         run: node scripts/write-freshness-ledger.mjs --workflow refresh-data.yml --run-started "$AIO_RUN_STARTED_AT"
-
-      - name: Promote one data release revision
-        if: ${{ !cancelled() }}
-        run: node scripts/sync-data-release-manifests.mjs
 
       - name: Install gate dependencies
         # The data QA group includes gates that parse workflow YAML (js-yaml). No browsers are downloaded.

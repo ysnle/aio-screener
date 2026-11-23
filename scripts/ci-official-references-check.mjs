@@ -314,8 +314,8 @@ async function single(id, candidate, options = {}) {
   const workflow = read('.github/workflows/refresh-data.yml');
   const laneAt = workflow.indexOf('name: Verify official web references (P1734)');
   const step = laneAt >= 0 ? workflow.slice(laneAt, workflow.indexOf('\n      - name: ', laneAt + 1)) : '';
-  check('P1734 refresh-data runs the lane after the market fetch and before release promotion', laneAt > workflow.indexOf('name: Fetch market data')
-    && laneAt < workflow.indexOf('name: Promote one data release revision') && laneAt < workflow.indexOf('verify-refresh-candidate.mjs --record'));
+  check('P1734 refresh-data runs the lane after the market fetch and before the last producer step', laneAt > workflow.indexOf('name: Fetch market data')
+    && laneAt < workflow.indexOf('name: Write the freshness ledger') && laneAt < workflow.indexOf('verify-refresh-candidate.mjs --record'));
   let parsed = null;
   try { parsed = loadYaml(workflow); } catch (error) { parsed = { error: error.message }; }
   const steps = parsed?.jobs?.refresh?.steps || [];

@@ -1,10 +1,17 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-22
+last_verified: 2026-11-23
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.49 재무 숫자의 기간 계약 (2026-11-23)
+
+- [x] QA-CLAIM-FUNDAMENTAL-01: 재무 공시의 재무 흐름 문장(fiscal-read buildFiscalRead)과 분기 문장(quarter-read buildQuarterRead·buildWorkingCapitalRead)은 숫자를 claim의 figure로만 찍고, 각 figure는 기간(FY·TTM·Q·SPAN·M6)과 변화의 기준 기간을 가진다. 디스크의 모든 SEC 공시 기업에 대해 문장마다 기간·값·기준 기간이 사실과 맞는다. (v60.49) verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLAIM-FUNDAMENTAL-02: 검사기는 기간 없는 금액·비율 figure, 다른 종류 기간을 기준으로 한 변화(FY 대 분기), 한 단계가 아닌 기준(3년 전을 전년으로), 선언 없이 두 기간을 섞은 claim, 데이터가 다른 종류 기간에만 가진 값(4개 분기 PER을 회계연도로)을 각각 오류로 잡는다. (v60.49) verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CLOCK-SHIFT-01: 벽시계를 읽는 비브라우저 계약 검사는 다음 7일 모든 요일과 가장 가까운 NYSE·KRX 휴장일에도 오늘과 같은 판정을 낸다. (v60.49) verify_by: node scripts/ci-clock-shift-check.mjs
+- [x] QA-DATA-COMMIT-SCOPE-01: asset·release manifest에는 데이터 revision 필드가 없고, 데이터 revision은 operations-status.json 한 곳에만 있다. (v60.49) verify_by: node scripts/ci-release-revision-check.mjs && node scripts/ci-operations-contract-check.mjs
 
 ## v60.48 v60.48 (2026-11-22)
 

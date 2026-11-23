@@ -69,8 +69,8 @@ assert.equal(decision.mode, 'refuse', 'v59.78 a commit that changes code is neve
   } finally { process.chdir(cwd); }
 }
 
-const restamped = restampOverlayRevision('architecture/asset-manifest.json', { appRevision: 'v59.78', workerRevision: 'sw:v59.78', dataRevision: 'market-snapshot:x' }, 'v59.75');
-assert.deepEqual(restamped, { appRevision: 'v59.75', workerRevision: 'sw:v59.75', dataRevision: 'market-snapshot:x' }, 'v59.78 release-source contract');
+const restamped = restampOverlayRevision('public-config.json', { appRevision: 'v59.78', workerRevision: 'sw:v59.78', ai: { routeStatus: 'PUBLISHED' } }, 'v59.75');
+assert.deepEqual(restamped, { appRevision: 'v59.75', workerRevision: 'sw:v59.75', ai: { routeStatus: 'PUBLISHED' } }, 'v59.78 release-source contract');
 const ops = restampOverlayRevision('public-data/operations-status.json', { appRevision: 'v59.78', planes: { browser: { revision: 'v59.78' } } }, 'v59.75');
 assert.equal(ops.planes.browser.revision, 'v59.75', 'v59.78 operations-status browser revision is restamped to the overlay code');
 assert.throws(() => restampOverlayRevision('public-config.json', {}, 'latest'), 'v59.78 release-source contract');

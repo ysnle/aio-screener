@@ -9,6 +9,7 @@
 // Only this file ships: the vocabulary, the claim constructor and the composer. Nothing here judges a claim.
 import { signedText, usdKoreanText } from './number.js';
 import { shortDate } from '../content/date-labels.js';
+import { isIsoDay, hasLeadingIsoDay } from './session-date.js';
 
 /**
  * The judgement words. `sign`: the sign the claim's first figure must carry (a superlative: every ranked figure);
@@ -50,20 +51,42 @@ export const CLAIM_WORDS = Object.freeze({
 });
 
 // How a figure prints, by unit: a signed change (pct, bp), a size multiple (x), a share or a yield level (share, rate),
-// a plain level (level), a count (count), a dollar amount (usd).
+// a plain level (level), a count (count), a dollar amount (usd), an unscaled ratio (ratio: a PEG), a change in percentage
+// points (pp, its size: the word carries the direction), a duration (years, months).
 const grouped = (value, digits) => value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const UNITS = Object.freeze({
   pct: { digits: 1, text: (value, digits) => signedText(value, digits, '%') },
   bp: { digits: 0, text: (value, digits) => signedText(value, digits, 'bp') },
   x: { digits: 1, text: (value, digits) => `${Math.abs(value).toFixed(digits)}배` },
-  share: { digits: 0, text: (value, digits) => `${grouped(value, digits)}%` },
+  share: { digits: 0, text: (value, digits) => `${value.toFixed(digits)}%` },
   rate: { digits: 2, text: (value, digits) => `${grouped(value, digits)}%` },
   spread: { digits: 0, text: (value, digits) => `${grouped(value, digits)}bp` },
   level: { digits: 2, text: (value, digits) => grouped(value, digits) },
   count: { digits: 0, text: (value, digits) => `${grouped(value, digits)}개` },
-  usd: { digits: 0, text: (value) => usdKoreanText(value) }
+  usd: { digits: 0, text: (value) => usdKoreanText(value) },
+  ratio: { digits: 2, text: (value, digits) => value.toFixed(digits) },
+  pp: { digits: 1, text: (value, digits) => `${Math.abs(value).toFixed(digits)}%p` },
+  years: { digits: 0, text: (value, digits) => `${value.toFixed(digits)}년` },
+  months: { digits: 0, text: (value, digits) => `${value.toFixed(digits)}개월` }
 });
 export const CLAIM_UNITS = Object.freeze(Object.keys(UNITS));
+
+/**
+ * The period a filer's figure (subject `filer:<symbol>`) is read over, as `KIND:<end>` or `SPAN:<start>~<end>`: FY a
+ * fiscal year, TTM the four quarters through `end`, Q one quarter, SPAN fiscal years `start` to `end`, M6 the six
+ * months of prices to the session `end`, AT a level on the day `end`. A change figure names its base period (`against`).
+ */
+export const CLAIM_PERIODS = Object.freeze(['FY', 'TTM', 'Q', 'SPAN', 'M6', 'AT']);
+/** { kind, start, end } of a period id, or null for an id outside CLAIM_PERIODS. */
+export function periodOf(id) {
+  const [kind, days, extra] = String(id || '').split(':');
+  const [start, end, more] = String(days || '').split('~');
+  const span = kind === 'SPAN';
+  if (extra != null || more != null || !CLAIM_PERIODS.includes(kind) || !isIsoDay(span ? end : start) || (span ? !isIsoDay(start) : end != null)) return null;
+  return span ? { kind, start, end } : { kind, start: null, end: start };
+}
+/** A period id from its kind and end day (and a SPAN's start day); null without a day. */
+export const periodId = (kind, end, start = null) => (hasLeadingIsoDay(end) ? `${kind}:${start ? `${String(start).slice(0, 10)}~` : ''}${String(end).slice(0, 10)}` : null);
 
 /** The decimals a figure is printed with (its own, else its unit's). */
 export const figureDigits = (figure) => (Number.isInteger(figure?.digits) ? figure.digits : UNITS[figure?.unit]?.digits ?? 0);
@@ -86,11 +109,16 @@ export function digitsApart(value, line, digits) {
 /**
  * A claim. Throws only on a programming error (an unknown word id or unit); missing data is the checker's to report,
  * so a screen never fails on a gap in the inputs.
- * @param {{subject:string, measure:string, word?:string|null, figures?:Array<{value:number, unit:string, basis?:string, label:string, digits?:number}>, asOf?:string|null, compare?:{against?:string, threshold?:number, relation?:string}, rank?:{among:string, position?:number}}} fields
+ * A filer's figure carries `period` (and a change figure `against`); a claim printing figures of two periods declares
+ * them in `compare.across`, else the checker reports it.
+ * @param {{subject:string, measure:string, word?:string|null, figures?:Array<{value:number, unit:string, basis?:string, label:string, digits?:number, period?:string, against?:string}>, asOf?:string|null, compare?:{against?:string, threshold?:number, relation?:string, across?:string[]}, rank?:{among:string, position?:number}}} fields
  */
 export function claim({ subject, measure, word = null, figures = [], asOf = null, compare = null, rank = null }) {
   if (word != null && !CLAIM_WORDS[word]) throw new Error(`claim: unknown word id ${word}`);
-  for (const figure of figures) if (!UNITS[figure?.unit]) throw new Error(`claim: unknown unit ${figure?.unit}`);
+  for (const figure of figures) {
+    if (!UNITS[figure?.unit]) throw new Error(`claim: unknown unit ${figure?.unit}`);
+    for (const id of [figure.period, figure.against]) if (id != null && !periodOf(id)) throw new Error(`claim: unknown period ${id}`);
+  }
   return Object.freeze({
     subject: String(subject), measure: String(measure), word, asOf: asOf || null,
     figures: Object.freeze(figures.map((figure) => Object.freeze({ ...figure }))),

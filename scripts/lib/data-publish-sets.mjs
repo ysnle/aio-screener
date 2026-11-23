@@ -39,8 +39,6 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     required: [
       'public-data/data.json',
       'public-data/history.json',
-      'architecture/asset-manifest.json',
-      'architecture/release-manifest.json',
       'architecture/public-readiness.json',
     ],
     optional: [

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Resolve the merge conflicts that every `git merge origin/main` into a version branch produces in the
-// generated release manifests: the data-refresh bot rewrites dataRevision/generatedAt on main while the
-// branch carries the new appRevision. Resolution is the R626 field-level union implemented once in
-// resolve-data-manifest-merge.mjs (data fields from main's side, code fields — appRevision,
-// workerRevision, operations planes.browser.revision — from the branch's side); picking main's whole
-// block would silently drop the branch's code-owned fields. Any other conflicted file is left alone
-// and reported — it needs a human. After resolving, the release parity gates run.
+// Resolve the merge conflicts that a `git merge origin/main` into a version branch produces in
+// public-data/operations-status.json: the data-refresh bot rewrites it on main while the branch carries the
+// new appRevision. Resolution is the R626 field-level union implemented once in
+// resolve-data-manifest-merge.mjs (data fields from main's side, code fields — appRevision and
+// planes.browser.revision — from the branch's side); picking main's whole block would silently drop the
+// branch's code-owned fields. Any other conflicted file is left alone and reported — it needs a human.
+// After resolving, the release parity gates run. (v60.49: the asset/release manifests are code-only now.)
 //
 // Usage: node scripts/resolve-generated-conflicts.mjs [--skip-gates]   (inside a merge with conflicts)
 //   --skip-gates  do not run the release parity gates afterwards (fixture runs outside this repo)
@@ -15,7 +15,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { detectDataSide, resolveConflictText } from './resolve-data-manifest-merge.mjs';
 
-const GENERATED = new Set(['architecture/asset-manifest.json', 'architecture/release-manifest.json', 'public-data/operations-status.json']);
+const GENERATED = new Set(['public-data/operations-status.json']);
 // v58.86: the release-revision gate also runs the generated-manifest parity section; release-manifest retired into it.
 const GATES = ['scripts/ci-release-revision-check.mjs'];
 const scriptsDir = dirname(fileURLToPath(import.meta.url));

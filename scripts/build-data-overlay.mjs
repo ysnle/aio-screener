@@ -43,8 +43,6 @@ export function restampOverlayRevision(file, document, version) {
 
 export const RESTAMP_FILES = Object.freeze([
   'public-config.json',
-  'architecture/asset-manifest.json',
-  'architecture/release-manifest.json',
   'architecture/public-readiness.json',
   'public-data/operations-status.json'
 ]);

@@ -493,7 +493,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(workflow, /node scripts\/build-scenario-outcomes\.mjs/, 'P1743: long history refreshes weekly');
   assert.ok(workflowPublishes('refresh-data.yml', 'public-data/scenario-state.json'), 'P1743: refresh-data commits scenario-state.json');
   assert.ok(workflowPublishes('refresh-data.yml', 'public-data/scenario-outcomes.json'), 'P1743: refresh-data commits scenario-outcomes.json');
-  assert.ok(workflow.indexOf('build-scenario-state.mjs') < workflow.indexOf('sync-data-release-manifests.mjs'), 'P1743: state is built before the release is promoted');
+  assert.ok(workflow.indexOf('build-scenario-state.mjs') < workflow.indexOf('publish-data-commit.mjs --set refresh-data'), 'P1743: state is built before the refresh is published');
   const { chooseAnswerVisuals } = await import('../src/ui/components/ai-answer-visuals.js');
   assert.deepEqual(chooseAnswerVisuals({ query: '앞으로 시장 어떻게 대응해야 돼?', mode: 'outlook' }).map((p) => p.kind), ['crossroads'], 'P1743: a market outlook answer carries the branch table');
   assert.deepEqual(chooseAnswerVisuals({ query: '반도체 조정인데 분할로 들어갈까?', mode: 'outlook' }).map((p) => p.kind), ['crossroads', 'themes'], 'P1743: a theme outlook answer also carries the theme stages');
