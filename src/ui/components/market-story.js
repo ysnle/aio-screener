@@ -210,7 +210,9 @@ export function renderSignalOpening({ documentRef: doc, root, interpretation, on
   if (!host) return;
   const opening = readMarketOpening(root, interpretation, () => renderSignalOpening({ documentRef: doc, root, interpretation, onWatch }));
   onWatch?.(opening?.available ? opening.rebound || null : null);
-  const tail = doc.getElementById('regime-opening-more');
+  let tail = doc.getElementById('regime-opening-more');
+  const verdictEnd = doc.getElementById('regime-previous');
+  if (!tail && verdictEnd) { tail = el(doc, 'div', null, 'mk-opening'); tail.id = 'regime-opening-more'; tail.hidden = true; verdictEnd.after(tail); }
   const painted = paintOpening(doc, host, opening, tail);
   if (!painted && tail) tail.hidden = true;
   host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
