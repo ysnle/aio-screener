@@ -252,7 +252,7 @@ function comboAndWatch(doc, root, regime, interpretation) {
 }
 
 // 다음에 확인할 가격 조건: one ordered list from its owner (market-read.js priceChecks) — a rebound's rows first once the
-// opening loads (`rebound`, market-story.js renderSignalOpening) — then the next release, then the rebound's stance line.
+// opening loads (`rebound`, market-story.js renderSignalOpening) — then the next release. The stance is on the face.
 let openingRebound = null;
 function watchList(doc, root, interpretation, rebound = null) {
   const watch = doc.getElementById('regime-watch');
@@ -278,12 +278,6 @@ function watchList(doc, root, interpretation, rebound = null) {
   }
   watch.replaceChildren(...rows);
   watch.closest?.('section')?.toggleAttribute?.('hidden', !rows.length);
-  // The rebound's stance under its conditions: its state word, then what each stance costs.
-  let stance = doc.getElementById('regime-watch-stance');
-  if (rebound?.stance?.text) {
-    if (!stance) { stance = el(doc, 'p', null, 'opening-line mk-watch__stance'); stance.id = 'regime-watch-stance'; watch.after(stance); }
-    stance.replaceChildren(el(doc, 'b', rebound.word, 'opening-line__label'), doc.createTextNode(` — ${rebound.stance.text}`));
-  } else stance?.remove();
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';

@@ -423,12 +423,14 @@ await runSections('market-story', [
     assert.deepEqual(rebound.lines.map((line) => line.id), ['lede', 'diagnosis', 'watch', 'records'], 'v60.51 the diagnosis line stays; the conditions line follows it');
     for (const id of ['lede', 'watch']) cleanSaid(said(rebound, id));
   });
-  check('v60.51 the conditions line: the low that withdraws the read and each 200-day line with its distance from the close', () => {
+  check('v60.51 the rebound paragraph, right after the diagnosis line on both screens: the low, the 200-day levels, then the stance', () => {
     const line = rebound.lines.find((item) => item.id === 'watch');
     assert.equal(line.label, '반등 시도', 'v60.51 rebound');
-    assert.match(line.said.text, /^나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\. 200일선은 S&P 500 [\d,]+\(종가 대비 \+[\d.]+%\), 나스닥 100 [\d,]+\(\+[\d.]+%\)입니다\.$/, 'v60.51 rebound');
+    assert.match(line.said.text, /^나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\. 200일선은 S&P 500 [\d,]+, 나스닥 100 [\d,]+입니다\. 200일선 회복을 기다리면 /, 'v60.51 rebound');
+    assert.ok(line.said.text.endsWith(rebound.rebound.stance.text), 'v60.51 the stance closes the paragraph');
     const ndx = rebound.rows.ndx.episode;
-    assert.ok(line.said.text.includes(`나스닥 100 ${Math.round(ndx.ma200).toLocaleString('en-US')}(+${((ndx.ma200 / ndx.close - 1) * 100).toFixed(1)}%)`), `v60.51 ${line.said.text}`);
+    assert.ok(line.said.text.includes(`나스닥 100 ${Math.round(ndx.ma200).toLocaleString('en-US')}입니다.`), `v60.51 ${line.said.text}`);
+    assert.doesNotMatch(line.said.text, /종가 대비/, 'v60.51 the distances are 시장 상태\'s row, not the face');
   });
   check('v60.51 시장 상태\'s 다음에 확인할 가격 조건: its owner puts the low and the 200-day row ahead of the axes\' three, five rows at most', () => {
     const [low, lines, ...rest] = rebound.rebound.checks.texts;
@@ -486,8 +488,8 @@ await runSections('market-story', [
     assert.equal(failed.rebound?.state, 'failed', 'v60.51 rebound');
     assert.equal(said(failed, 'lede').text, '반도체는 고점에서 46% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.51 rebound');
     assert.equal(failed.lines.find((line) => line.id === 'watch').label, '반등 실패', 'v60.51 rebound');
-    assert.equal(said(failed, 'watch').text, '나스닥 100이 반등이 시작된 11/20 종가(20,000) 아래로 마감했습니다.', 'v60.51 rebound');
-    assert.equal(failed.rebound.stance.text, '11/20 종가 아래로 마감해 반등 판단은 거둡니다. 지금은 하락 구간의 단계와 진단이 기준입니다.', 'v60.51 rebound');
+    assert.equal(said(failed, 'watch').text, '11/20 종가 아래로 마감해 반등 판단은 거둡니다. 지금은 하락 구간의 단계와 진단이 기준입니다.', 'v60.51 the stance alone: it names the broken low');
+    assert.equal(failed.rebound.stance.text, said(failed, 'watch').text, 'v60.51 rebound');
     cleanSaid(said(failed, 'watch'), broke);
     assert.equal(build(after(broke, '2026-11-27', { ndx: 0.99, spx: 0.99, sox: 0.99 })).rebound, null, 'v60.51 rebound');
   });
@@ -506,7 +508,7 @@ await runSections('market-story', [
     assert.equal(said(recovered, 'lede').text, '나스닥 100은 저점(11/6)에서 13% 올라 고점 대비 1% 아래까지 왔고, S&P 500과 나스닥 100은 50일선과 200일선을 모두 되찾았습니다.', 'v60.51 rebound');
     assert.equal(recovered.rebound.stance.text, REBOUND_STANCE.recovered, 'v60.51 rebound');
     assert.equal(recovered.lines.find((line) => line.id === 'watch').label, '추세 회복', 'v60.51 rebound');
-    assert.match(said(recovered, 'watch').text, /^200일선은 S&P 500 [\d,]+\(종가 대비 -[\d.]+%\), 나스닥 100 [\d,]+\(-[\d.]+%\)이고, 그 아래로 다시 마감하면 다시 판단합니다\.$/, 'v60.51 rebound');
+    assert.equal(said(recovered, 'watch').text.replace(/\d{1,3}(?:,\d{3})+/g, 'N'), `200일선은 S&P 500 N, 나스닥 100 N입니다. ${REBOUND_STANCE.recovered}`, 'v60.51 rebound');
   });
   check('v60.51 추세 회복 holds through a dip under the 50-day line while both stay over the 200-day line, and ends under it', () => {
     const { ma50, ma200 } = build(recoveredHistory).rows.ndx.episode;
