@@ -6,6 +6,10 @@ import { el } from './dom.js';
 import { kindFold, rawTable } from './indicator-face.js';
 import { decisionFrameText } from '../../domain/scenarios/decision-frame.js';
 
+// A frame none of whose legs has a source is not drawn; the card says why in its own line and keeps its favoured side.
+const SOURCED_LEGS = Object.freeze(['likelihood', 'payoff', 'opportunity', 'wrong']);
+export const frameHasNoLegs = (frame) => SOURCED_LEGS.every((leg) => frame?.missing?.includes(leg));
+
 /** The favoured side and its reason (ground kind on hover), for cards that print it after their own choice table. */
 export function favouredLine(doc, frame) {
   const text = decisionFrameText(frame);
@@ -25,7 +29,7 @@ export function favouredLine(doc, frame) {
  */
 export function decisionFrameBlock(doc, frame, { method = '', side = true } = {}) {
   const text = decisionFrameText(frame);
-  if (!text) return null;
+  if (!text || frameHasNoLegs(frame)) return null;
   const box = el(doc, 'div', null, 'df-frame');
   box.dataset.ground = frame.favoured.ground;
   for (const line of text.face) box.append(el(doc, 'p', line, 'df-line'));

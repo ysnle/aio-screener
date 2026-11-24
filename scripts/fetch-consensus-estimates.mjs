@@ -13,6 +13,7 @@ import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { fetchJsonWithDeadline, sleep } from './lib/http-fetch.mjs';
 import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
 import { readNumber } from '../src/domain/shared/number.js';
+import { alignConsensusSplit, consensusBasisMismatch } from '../src/domain/fundamental/consensus-basis.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const ROOT = `${__dir}/..`;
@@ -127,6 +128,22 @@ export function consensusPriority(screener) {
   return priority;
 }
 
+// Puts every row on its listing's close basis and flags a row whose EPS still reaches the close. Mutates `rows`.
+export function applyShareBasis(rows, listings = {}) {
+  const adjusted = [];
+  const mismatched = [];
+  for (const [sym, row] of Object.entries(rows || {})) {
+    const listing = listings?.[sym];
+    if (!listing) continue;
+    const aligned = alignConsensusSplit(row, listing);
+    if (aligned.basis === 'adjusted') { rows[sym] = aligned.row; adjusted.push(sym); }
+    const mismatch = consensusBasisMismatch(rows[sym], listing);
+    if (mismatch) { rows[sym] = { ...rows[sym], basisCheck: 'eps-reaches-price' }; mismatched.push({ sym, ...mismatch }); }
+    else if (rows[sym]?.basisCheck) { const { basisCheck, ...rest } = rows[sym]; rows[sym] = rest; }
+  }
+  return { adjusted, mismatched };
+}
+
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
@@ -137,7 +154,12 @@ async function main() {
   for (const [sym, row] of Object.entries(previous?.rows || {})) if (keep.has(sym)) rows[sym] = row;
   const now = Date.now();
   let priority = null;
-  try { priority = consensusPriority(JSON.parse(await readFile(`${ROOT}/public-data/screener.json`, 'utf8'))); } catch { /* order by age only */ }
+  let listings = {};
+  try {
+    const screener = JSON.parse(await readFile(`${ROOT}/public-data/screener.json`, 'utf8'));
+    priority = consensusPriority(screener);
+    listings = expandScreenerArtifact(screener)?.data || {};
+  } catch { /* order by age only; no split basis check */ }
   const batch = pickBatch(symbols, rows, now, BATCH_LIMIT, priority);
   let refreshed = 0; let unavailable = 0; let kept = 0; let failed = 0; let consecutive = 0; let blocked = false;
   for (const sym of batch) {
@@ -158,6 +180,9 @@ async function main() {
     }
     await sleep(PAUSE_MS);
   }
+  const basis = applyShareBasis(rows, listings);
+  for (const sym of basis.adjusted) console.log(`[consensus] ${sym}: EPS put on the split-adjusted close basis (${listings[sym]?.valuationSplitRatio}:1 from ${listings[sym]?.valuationSplitDate})`);
+  for (const { sym, price, eps } of basis.mismatched) console.warn(`::warning::consensus estimates: ${sym} EPS sum ${eps} reaches the close ${price} — price and EPS are not on one share basis (the reader withholds the multiple)`);
   const covered = Object.values(rows).filter((row) => row && !row.unavailable).length;
   if (!previous && covered === 0) { console.warn('::warning::consensus estimates: no row collected and no previous file; nothing written'); return; }
   const payload = {

@@ -8,6 +8,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFi
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCompanyGraph } from '../src/domain/entity/company-graph.js';
+import { storyResearchWarnings } from '../src/domain/fundamental/research-text.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const dir = join(root, 'public-data', 'company-profiles');
@@ -24,6 +25,8 @@ const profiles = readdirSync(dir).filter((name) => name.endsWith('.json') && !NO
   const story = JSON.parse(readFileSync(join(dir, file), 'utf8'));
   stories.push(story);
   if (`${story.symbol}.json` !== file) throw new Error(`${file}: symbol ${story.symbol} does not match the file name`);
+  // Warn-only: researched text that speaks as "now" beside a figure (the screen dates it).
+  for (const finding of storyResearchWarnings(story)) console.warn(`::warning::${file} ${finding.path}: ${finding.kind} "${finding.excerpt}"`);
   return { symbol: story.symbol, name: story.name, file, researchedAt: story.researchedAt || null, period: story.earnings?.period || null, layer: story.aiChain?.layer || null };
 });
 // Content-addressed (P1370): the revision hashes the rows only, so an unchanged set rewrites byte-identical JSON.

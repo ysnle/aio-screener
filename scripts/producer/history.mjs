@@ -407,6 +407,42 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
   return { held, revised };
 }
 
+// A held copy repeats its session, so it carries that session's recorded close and observation; the replaced read stays
+// in `heldRead`. Runs after holdRepeatedSessions. The latest row is left as read (the history-time check holds it to the
+// market snapshot's previous value) and is aligned once a newer row exists.
+export function alignHeldCopies(hist, { fields = HIST_MARKET_FIELDS } = {}) {
+  const rows = Array.isArray(hist) ? hist : [];
+  const byDate = new Map(rows.filter((row) => row && typeof row === 'object').map((row) => [row.date, row]));
+  const latest = [...byDate.keys()].filter((date) => isoDay(date)).sort().at(-1);
+  const aligned = [];
+  for (const row of rows) {
+    if (!row?.fieldMeta || row.date === latest) continue;
+    for (const field of fields) {
+      const meta = row.fieldMeta[field];
+      if (meta?.observationRelation !== 'carried-forward' || !meta.carriedFrom || typeof row[field] !== 'number') continue;
+      const owner = byDate.get(meta.carriedFrom);
+      const ownerMeta = owner?.fieldMeta?.[field];
+      if (!owner || owner === row || typeof owner[field] !== 'number' || !Number.isFinite(owner[field]) || !ownerMeta || ownerMeta.observationRelation === 'carried-forward') continue;
+      if (meta.sessionDate && ownerMeta.sessionDate && meta.sessionDate !== ownerMeta.sessionDate) continue;
+      if (row[field] === owner[field] && meta.observedAt === ownerMeta.observedAt) continue;
+      const { revisions, keptFromRow, replacedCarriedFrom, ...observation } = ownerMeta;
+      row.fieldMeta[field] = {
+        ...observation,
+        allowedUse: 'reference-only',
+        observationRelation: 'carried-forward',
+        heldRelation: meta.heldRelation ?? null,
+        heldReason: meta.heldReason || 'session-already-recorded',
+        carriedFrom: owner.date,
+        sessionDate: ownerMeta.sessionDate || meta.sessionDate || null,
+        heldRead: meta.heldRead || { value: row[field], observedAt: meta.observedAt || null, valueBasis: meta.valueBasis || null },
+      };
+      if (row[field] !== owner[field]) aligned.push({ date: row.date, field, session: row.fieldMeta[field].sessionDate, from: row[field], to: owner[field] });
+      row[field] = owner[field];
+    }
+  }
+  return aligned;
+}
+
 // v58.71 (pipeline audit): today's row holds the previous session's close until this session's close arrives, and the
 // same-row upsert then overwrote it. The session survived only if some run had written it into its own row in a narrow
 // window (FX one hour), so the 10/21-22 outage left no row owning usdkrw 10/21. Before the upsert, a field whose current
@@ -698,6 +734,8 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     // v57.81: a session already recorded on an earlier row is held on this one, never a second observation.
     const held = holdRepeatedSessions(hist, { at: fetchedAt });
     if (held.held.length || held.revised.length) console.log(`[fetch-data] history: 같은 세션 반복 ${held.held.length}건 보류 표시, 재조회 갱신 ${held.revised.length}건`);
+    const copies = alignHeldCopies(hist);
+    if (copies.length) console.log(`[fetch-data] history: held copies set to their session's recorded close ${copies.length} (${copies.slice(0, 6).map((row) => `${row.field} ${row.date}`).join(', ')})`);
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
     await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(hist)))); // v59.70 R2: history.v2

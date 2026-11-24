@@ -322,7 +322,7 @@ function themeCard(doc, root, row, screenerSector = null, { days = [], change = 
   for (const [label, value] of [['1주', row.ret5d], ['1개월', row.ret1m], ['3개월', row.ret3m], ['6개월', row.ret6m]]) if (value != null) stat(label, el(doc, 'span', pct(value), dirClass(value) || null));
   if (row.above50 != null) stat('50일선 위', el(doc, 'span', `${row.above50}%`));
   if (teach?.criteria) {
-    stat('기준 충족', criteriaDots(doc, teach.criteria), el(doc, 'span', teachPending && teach.criteria.known < teach.criteria.total ? `${teach.criteria.met}/${teach.criteria.total}, 확인 중` : criteriaCellText(teach.criteria)));
+    stat('전문가 기준 충족', criteriaDots(doc, teach.criteria), el(doc, 'span', teachPending && teach.criteria.known < teach.criteria.total ? `${teach.criteria.met}/${teach.criteria.total}, 확인 중` : criteriaCellText(teach.criteria)));
     stats.lastChild.title = teach.criteria.headline;
   }
   card.append(head, stats, returnSpark(doc, days.slice(-SPARK_DAYS), 'div'));
@@ -335,13 +335,12 @@ function themeCard(doc, root, row, screenerSector = null, { days = [], change = 
   const split = scenarioSplitText(teach?.split);
   if (split) card.append(el(doc, 'p', split, 'xr-reading'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
-  const own = row.basisText.filter((text) => !text.startsWith(CREDIT_CONDITION)).map((text) => text.replace(/ \([^)]*\)/, ''));
   // The stage's past record is the frame's 가능성 line, beside its payoff, cost and ground.
   const frame = themeDecisionFrame(row, { cash: marketInterpretation(root)?.crossroads?.cash || null });
-  evidence.append(el(doc, 'li', !row.state ? '조건: 단계가 보류돼 조건을 세지 않습니다.' : `조건: ${row.fit}${own.length ? ` — ${own.join(', ')}` : ''}`));
-  if (!frame) evidence.append(pastLine(doc, row));
-  card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   const frameBlock = frame ? decisionFrameBlock(doc, frame, { method: row.past, side: false }) : null;
+  evidence.append(el(doc, 'li', stageConditionText(row)));
+  if (!frameBlock) evidence.append(pastLine(doc, row));
+  card.append(el(doc, 'h4', '판단 근거', 'xr-h4'), evidence);
   if (frameBlock) card.append(frameBlock);
   if (row.thesis) {
     card.append(el(doc, 'h4', '핵심 논리와 점검 신호', 'xr-h4'), el(doc, 'p', `${row.thesis}. 논리가 깨지는 신호: ${row.breaks.join(', ')}.`, 'xr-reading'));
@@ -363,6 +362,15 @@ function themeCard(doc, root, row, screenerSector = null, { days = [], change = 
   // The comparison rests on the scenario; where the stage's own record did not differ from an ordinary day, it says so.
   card.append(favouredLine(doc, frame) || el(doc, 'p', `${CHOICE_WORDS.favored}: 보류 — ${row.favoredWhy}`, 'xr-reading'));
   return themeCardTail(doc, root, row, card, screenerSector);
+}
+
+// The stage's own condition count, named apart from the six expert criteria ('전문가 기준 충족 5/6') on the same card.
+const stageFitText = (row) => (row.known < 2 ? '판단 보류' : `${row.met}/${row.total} 충족`);
+/** The card's condition line: the count and every condition it counts, the market-wide credit condition named as such. */
+export function stageConditionText(row) {
+  if (!row?.state) return '단계 조건: 단계가 보류돼 조건을 세지 않습니다.';
+  const listed = (row.basisText || []).map((text) => text.replace(/ \([^)]*\)/, text.startsWith(CREDIT_CONDITION) ? '(시장 전체)' : ''));
+  return `단계 조건: ${stageFitText(row)}${listed.length ? ` — ${listed.join(', ')}` : ''}`;
 }
 
 // A record that did not differ from an ordinary day is one short line; the counts behind it are its hover.
@@ -720,10 +728,10 @@ export function renderThemeDetailPlaybook({ documentRef: doc, root } = {}) {
   stripLine.title = recomputedNote(days);
   const conflict = rrgStageConflict(root, row);
   host.replaceChildren(el(doc, 'h4', '이 테마의 시나리오', 'xr-h4'), stripLine,
-    Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.fit].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
+    Object.assign(el(doc, 'p', [row.ret5d != null ? `5거래일 ${pct(row.ret5d)}` : null, `1개월 ${pct(row.ret1m)}`, row.ret6m != null ? `6개월 ${pct(row.ret6m)}` : null, row.state ? `단계 조건 ${stageFitText(row)}` : null].filter(Boolean).join(', '), 'xr-basis'), { title: row.stateLabel }),
     ...(conflict ? [el(doc, 'p', `RRG ${conflict.etf} '${conflict.word}', 단계 '${conflict.stage}' — ${rrgBasisText(row.relative?.name)}.`, 'xr-reading tp-rrg-fact')] : []),
     el(doc, 'p', `매크로 영향: ${row.windText}.`, 'xr-reading'),
-    ...[detailFrame ? decisionFrameBlock(doc, detailFrame, { method: row.past }) : el(doc, 'p', `${CHOICE_WORDS.favored}: 판단 보류 — ${row.favoredWhy}`, 'xr-reading')].filter(Boolean),
+    (detailFrame && decisionFrameBlock(doc, detailFrame, { method: row.past })) || favouredLine(doc, detailFrame) || el(doc, 'p', `${CHOICE_WORDS.favored}: 판단 보류 — ${row.favoredWhy}`, 'xr-reading'),
     ...(row.thesis ? [el(doc, 'p', `핵심 논리: ${row.thesis}. 점검 신호: ${row.breaks.join(', ')}.`, 'xr-reading')] : []),
     ...(row.above50 != null ? [el(doc, 'p', row.above50 === 0
       ? '구성 종목 중 50일선 위 종목이 없습니다 — 추세가 되살아나는지는 이 비율이 다시 오르는지로 갈립니다.'
