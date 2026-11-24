@@ -32,7 +32,15 @@ const through = (date) => history.filter((row) => String(row.date) <= date);
 const has = (date) => history.some((row) => row.date === date);
 if (!has('2026-11-20') || !has('2026-11-23')) failures.push('v60.50 fixture: public-data/history.json no longer holds the 11/20 and 11/23 rows these checks read');
 const at1120 = through('2026-11-20');
-const at1123 = through('2026-11-23');
+// The Korea-only day: 11/23 as it stood after Seoul closed and before New York opened — KOSPI and KOSDAQ are that
+// day's closes, every other field is the 11/20 close carried forward. Built here so later sessions do not change it.
+const koreaOnlyDay = (() => {
+  const prior = history.find((row) => row.date === '2026-11-20') || {};
+  const real = history.find((row) => row.date === '2026-11-23') || {};
+  const carried = Object.fromEntries(Object.entries(prior.fieldMeta || real.fieldMeta || {}).map(([field, meta]) => [field, { ...meta, observationRelation: 'carried-forward', valueBasis: 'previous-completed-close', sessionDate: '2026-11-20', observedAt: '2026-11-20T23:00:00.000Z' }]));
+  return { ...prior, date: '2026-11-23', kospi: real.kospi, kosdaq: real.kosdaq, fieldMeta: { ...carried, kospi: real.fieldMeta?.kospi, kosdaq: real.fieldMeta?.kosdaq } };
+})();
+const at1123 = [...at1120, koreaOnlyDay];
 const reading = (rows, id) => crossReadings({ history: rows, macroHistory }).find((item) => item.id === id) || null;
 
 // Synthetic weekday rows (2026 NYSE sessions) for the branches the record does not reach.
