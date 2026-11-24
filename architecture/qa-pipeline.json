@@ -607,6 +607,12 @@
           "remedy": "v60.31 per-screen AI reading: packets come from the shared interpretation (title, state label, evidence, flip, basis; never the axis read or a (참고) row) and register in SCREEN_READING_SCREENS; the validator blocks only unsupported figures/dates, contradicted state labels, orders, % probabilities, label leaks, non-Korean and over-length text; a same-key verified or validator-blocked reading is never asked again"
         },
         {
+          "id": "market-investigation",
+          "inputClass": "code",
+          "script": "scripts/ci-market-investigation-check.mjs",
+          "remedy": "v60.53 market investigation: leads come from the market-day ledger at its own lead tier and from rule words that changed since the previous session (RULES.investigation caps), never from a named day; tool rounds stay inside the Worker's admission contract; body figures and dates must be in the leads or tool results and news/official causes must cite a document the search returned; interpretation only warns; same-key reuse, held blocked keys and the monthly budget stop calls"
+        },
+        {
           "id": "boot-budget",
           "inputClass": "code",
           "script": "scripts/ci-boot-bundle-budget-check.mjs",

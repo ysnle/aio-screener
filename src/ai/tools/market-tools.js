@@ -29,16 +29,30 @@ const objectSchema = (properties) => ({ type: 'object', properties, required: Ob
 const latest = (values) => values.map(day).filter(Boolean).sort().at(-1) || null;
 const MACRO_TOPICS = Object.freeze({ macro: '미국 매크로', 'kr-macro': '한국 매크로', fxbond: '환율·채권' });
 
-// The screen tool runs the screener screen's own conditions (custom-conditions.js) through the chat's screener engine. The
-// cash conditions (FCF margin, capex ÷ revenue) are left out: their metrics are built by the screener page's lazy UI chunk
-// from the SEC fiscal history, which this tool cannot load. Forward PER loads the consensus file when asked for; the
-// research-channel conditions read the digest signals the page already holds, as the screener does.
-const SCREEN_CONDITIONS = CUSTOM_CONDITIONS.filter((item) => item.source !== 'sec-fiscal-history');
-const SCREEN_CONDITION_IDS = SCREEN_CONDITIONS.map((item) => item.id);
+// The screen tool runs the screener screen's own conditions (custom-conditions.js) through the chat's screener engine, all
+// joined by AND as the screen joins them. The cash conditions (FCF margin, capex ÷ revenue) read metrics the screener
+// page's lazy UI chunk builds from the SEC fiscal history (root._aioScreenerCash); this tool cannot build them, so they
+// apply only when the page has already built them and are otherwise reported as not applied. Forward PER loads the
+// consensus file when asked for; the research-channel conditions read the digest signals the page already holds.
+// The tool does not claim "same as the screen" while dropping the cash conditions silently: its result
+// names the conditions applied by id and every requested one it could not evaluate, with the reason.
+const SCREEN_CONDITION_IDS = CUSTOM_CONDITIONS.map((item) => item.id);
+const CASH_CONDITION_IDS = CUSTOM_CONDITIONS.filter((item) => item.source === 'sec-fiscal-history').map((item) => item.id);
+const CASH_UNAVAILABLE = '현금흐름 지표는 스크리너 화면에서 이 조건을 켜야 계산되고, 아직 계산되지 않아 이 도구가 판정할 수 없음';
+function screenConditionPlan(requested, root) {
+  const applied = [], skipped = [];
+  for (const item of Array.isArray(requested) ? requested : []) {
+    const id = String(item?.id || '');
+    if (!SCREEN_CONDITION_IDS.includes(id)) skipped.push({ id: id || '(빈 id)', reason: '스크리너 조건 목록에 없는 id' });
+    else if (CASH_CONDITION_IDS.includes(id) && !root?._aioScreenerCash?.map) skipped.push({ id, reason: CASH_UNAVAILABLE });
+    else applied.push(item);
+  }
+  return { applied, skipped };
+}
 const nullable = (type, description) => ({ type: [type, 'null'], description });
 const screen = {
   name: 'screen',
-  description: '스크리너 화면과 같은 조건 정의로 앱 종목 DB를 걸러 최대 12종목을 돌려준다(조건별 통과 수와 0종목일 때 막은 조건 포함). 질문의 조건을 아래 구조로 옮겨 호출한다. 예: "PER 20배 이하이고 3개월 주가가 오른 미국 대형주" → market US, sizes [MEGA, LARGE], conditions [{id: pe-max, value: 20, strict: false}, {id: ret3m-min, value: 0, strict: true}].',
+  description: `스크리너 화면의 조건 정의로 앱 종목 DB를 걸러 최대 12종목을 돌려준다(조건별 통과 수와 0종목일 때 막은 조건 포함). 조건은 화면처럼 모두 만족(AND)만 된다. ${CASH_CONDITION_IDS.join('·')}는 스크리너 화면이 현금흐름 지표를 계산해 둔 뒤에만 적용되고, 결과는 적용한 조건 id와 적용하지 못한 조건·이유를 밝힌다. 질문의 조건을 아래 구조로 옮겨 호출한다. 예: "PER 20배 이하이고 3개월 주가가 오른 미국 대형주" → market US, sizes [MEGA, LARGE], conditions [{id: pe-max, value: 20, strict: false}, {id: ret3m-min, value: 0, strict: true}].`,
   parameters: objectSchema({
     symbols: { type: 'array', items: { type: 'string' }, description: `종목을 지정해 그 종목의 스크리너 행을 읽는다(최대 ${SCREEN_SYMBOL_LIMIT}개, 티커나 종목명). 종목 화면·스크리너 표와 같은 PER·PBR·ROE·순이익률·매출 성장률·배당수익률·기간 수익률·50일선 대비가 온다. 지정하면 시장·크기·섹터·테마·지수 범위는 쓰지 않는다. 조건 검색이면 빈 배열` },
     market: { type: 'string', enum: [...SCREEN_MARKETS], description: '상장 시장(US 미국, KR 한국). 말이 없으면 US' },
@@ -50,7 +64,7 @@ const screen = {
       id: { type: 'string', enum: SCREEN_CONDITION_IDS },
       value: nullable('number', '조건의 n 값. null이면 기본값'),
       strict: { type: 'boolean', description: 'true면 경계값을 뺀다(이하→미만, 이상→초과). "오른"은 ret3m-min 0 strict true' }
-    }), description: `모두 만족(AND)해야 하는 조건. ${SCREEN_CONDITIONS.map((item) => `${item.id}: ${item.label.replace('{n}', 'n')}${item.value != null ? ` [n 기본 ${item.value}]` : ''}`).join('; ')}` },
+    }), description: `모두 만족(AND)해야 하는 조건. ${CUSTOM_CONDITIONS.map((item) => `${item.id}: ${item.label.replace('{n}', 'n')}${item.value != null ? ` [n 기본 ${item.value}]` : ''}`).join('; ')}` },
     sort: { type: 'string', enum: Object.keys(SCREEN_SORTS), description: `정렬 기준: ${Object.entries(SCREEN_SORTS).map(([id, label]) => `${id} ${label}`).join(', ')}. 말이 없으면 marketCap` },
     order: { type: 'string', enum: ['desc', 'asc'], description: 'desc 큰 값부터, asc 작은 값부터(PER 낮은 순은 asc)' },
     limit: { type: 'integer', description: `돌려받을 종목 수(1~${SCREEN_LIMIT})` }
@@ -58,7 +72,7 @@ const screen = {
   maxChars: 6000,
   label: () => '조건 검색',
   async run(args, { root, now }) {
-    const conditions = (Array.isArray(args?.conditions) ? args.conditions : []).filter((item) => SCREEN_CONDITION_IDS.includes(item?.id));
+    const { applied: conditions, skipped } = screenConditionPlan(args?.conditions, root);
     if (conditions.some((item) => conditionSource(item.id) === 'consensus-estimates')) await requestConsensusEstimates(root);
     const input = screenerInput(root, { now });
     if (!input.rows.length) return { error: '종목 DB를 읽을 수 없습니다.' };
@@ -67,7 +81,10 @@ const screen = {
     if (!result.matched) return { error: result.error };
     const asOf = latest(result.rows.map((row) => row.factorSessionDate)) || latest(input.rows.map((row) => row?.factorSessionDate)) || day(input.rankAsOf);
     if (!asOf) return { error: '종목 DB의 기준일을 확인하지 못했습니다.' };
-    return { text: formatScreenResult(result), asOf: `팩터 ${asOf} 종가`, entities: result.rows.map((row) => row.sym) };
+    const [head, ...body] = formatScreenResult(result).split('\n');
+    const plan = [`적용한 조건 id: ${conditions.length ? conditions.map((item) => item.id).join(', ') : '없음'}`,
+      ...(skipped.length ? [`적용하지 못한 조건(결과는 이 조건 없이 거른 것): ${skipped.map((item) => `${item.id} — ${item.reason}`).join('; ')}`] : [])];
+    return { text: [head, ...plan, ...body].join('\n'), asOf: `팩터 ${asOf} 종가`, entities: result.rows.map((row) => row.sym) };
   }
 };
 

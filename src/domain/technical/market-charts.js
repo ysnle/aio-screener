@@ -12,6 +12,7 @@ import { sessionCloses, indexLevel } from '../market/indices/index-levels.js';
 import { trendOfBars } from './trend-state.js';
 import { TREND_PHASE_LABELS, bufferedTrend, classifyTrend, trendKey } from './bands.js';
 import { rallyAttemptRead } from '../market/regime/rally-attempt.js';
+import { FOLLOW_THROUGH_WORDS } from '../content/rebound-words.js';
 import { RULES } from '../rules/thresholds.js';
 import { rsiWilder, fromYearHigh } from './definitions.js';
 import { stampDay } from '../shared/session-date.js';
@@ -87,7 +88,7 @@ export function indexVolumeRead(history, field) {
   }
   if (field === 'ndx') {
     const rally = rallyAttemptRead(history);
-    return rally ? { phase: rally.phase, text: `거래량: 나스닥 종합 ${rally.state}${rally.phase === 'attempt' ? ' — 거래량 늘며 크게 오른 바닥 확인일은 아직' : ''}` } : null;
+    return rally ? { phase: rally.phase, text: `거래량: ${FOLLOW_THROUGH_WORDS.label} ${rally.state}` } : null;
   }
   return null;
 }

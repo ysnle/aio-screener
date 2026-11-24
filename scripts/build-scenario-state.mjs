@@ -109,14 +109,21 @@ export function diffSnapshots(previous, current, at) {
   for (const item of c.items || []) {
     const old = before.get(item.id);
     if (!old) continue;
-    if (old.met !== item.met && item.known >= 2) {
-      const gained = item.conditions.filter(([label, ok]) => ok === true && old.conditions.find(([l]) => l === label)?.[1] !== true).map(([label]) => label.split(' (')[0]);
-      const lost = item.conditions.filter(([label, ok]) => ok !== true && old.conditions.find(([l]) => l === label)?.[1] === true).map(([label]) => label.split(' (')[0]);
-      push('fit', `'${short(item.title)}' 조건 충족 ${old.met}/${old.total} → ${item.met}/${item.total}${gained.length ? ` (새로 충족: ${gained.join(', ')})` : ''}${lost.length ? ` (더 이상 아님: ${lost.join(', ')})` : ''}.`);
+    // Conditions carry no id in the snapshot; they are matched by their full label (a label whose figure changed reads
+    // as one lost and one gained). A swap at the same count is a change of reasons and is logged too.
+    if (item.known >= 2) {
+      const was = (label) => (old.conditions || []).find(([l]) => l === label)?.[1];
+      const gained = (item.conditions || []).filter(([label, ok]) => ok === true && was(label) !== true).map(([label]) => label.split(' (')[0]);
+      const lost = (item.conditions || []).filter(([label, ok]) => ok !== true && was(label) === true).map(([label]) => label.split(' (')[0]);
+      const why = [gained.length ? `새로 충족: ${gained.join(', ')}` : '', lost.length ? `더 이상 아님: ${lost.join(', ')}` : ''].filter(Boolean);
+      if (old.met !== item.met) push('fit', `'${short(item.title)}' 조건 충족 ${old.met}/${old.total} → ${item.met}/${item.total}${why.map((part) => ` (${part})`).join('')}.`);
+      else if (gained.length && lost.length) push('fit', `'${short(item.title)}' 조건 충족 ${item.met}/${item.total} 그대로, 근거가 바뀜 (${why.join('; ')}).`);
     }
+    const toneLabel = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립' };
     if (old.pricingTone !== item.pricingTone && old.pricingTone !== 'unknown' && item.pricingTone !== 'unknown') {
-      const label = { same: '이 시나리오 쪽', against: '반대쪽', neutral: '중립' };
-      push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${withDirectionParticle(label[item.pricingTone] || item.pricingTone)} 바뀌었습니다.`);
+      push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${toneLabel[old.pricingTone] || old.pricingTone}에서 ${withDirectionParticle(toneLabel[item.pricingTone] || item.pricingTone)} 바뀌었습니다.`);
+    } else if (item.pricingTone === 'unknown' && old.pricingTone && old.pricingTone !== 'unknown') {
+      push('pricing', `'${short(item.title)}': 시장 가격 자료가 빠져 방향을 읽지 못함(직전: ${toneLabel[old.pricingTone] || old.pricingTone}).`);
     }
   }
   // The market guide's cross-scenario direction and the principles today's data touches are logged too.

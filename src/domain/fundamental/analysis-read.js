@@ -174,21 +174,29 @@ export function dcfValue(fcf, g, r, terminal, years = 10) {
 
 export const REVERSE_DCF_DEFAULTS = Object.freeze({ discountRate: 0.09, terminalGrowth: 0.025, years: 10 });
 export const REVERSE_DCF_SEARCH = Object.freeze({ low: -0.5, high: 1 });
+// The one place the reverse DCF assumptions are chosen: the reader's slider values (saved on root by the 역 DCF card) when
+// set, else the defaults. The card and the 투자 논지 summary both read this, so the two never solve under different rates.
+export function reverseDcfAssumptions(saved) {
+  const pick = (key) => (Number.isFinite(saved?.[key]) ? saved[key] : REVERSE_DCF_DEFAULTS[key]);
+  return { discountRate: pick('discountRate'), terminalGrowth: pick('terminalGrowth') };
+}
 
 // The yearly FCF growth over the explicit period that makes the DCF value equal to the market value (price × shares).
 // The value rises with g, so a bisection finds it; outside the search range the result says so instead of a number.
+// Every solved result carries the assumptions it was solved under, so a sentence quoting the rate can state them.
 export function impliedGrowth({ fcf, marketValue, discountRate, terminalGrowth, years = 10 }) {
   if (!(fcf > 0) || !(marketValue > 0)) return { state: 'invalid' };
   if (!(discountRate > terminalGrowth)) return { state: 'rate-below-terminal' };
   const f = (g) => dcfValue(fcf, g, discountRate, terminalGrowth, years) - marketValue;
+  const under = { discountRate, terminalGrowth, years };
   let { low, high } = REVERSE_DCF_SEARCH;
-  if (f(high) < 0) return { state: 'above-range', bound: high };
-  if (f(low) > 0) return { state: 'below-range', bound: low };
+  if (f(high) < 0) return { state: 'above-range', bound: high, ...under };
+  if (f(low) > 0) return { state: 'below-range', bound: low, ...under };
   for (let i = 0; i < 100; i += 1) {
     const mid = (low + high) / 2;
     if (f(mid) > 0) high = mid; else low = mid;
   }
-  return { state: 'ready', growth: (low + high) / 2 };
+  return { state: 'ready', growth: (low + high) / 2, ...under };
 }
 
 // Inputs from real records only: the latest fiscal year's FCF (operating cash flow − capital spending), the SEC share

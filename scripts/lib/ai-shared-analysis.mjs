@@ -44,7 +44,11 @@ export const SHARED_AI_PROFILES = Object.freeze({
   // A JSON-schema answer over a fetched primary source (earnings release, FOMC statement, press-conference transcript).
   structured: Object.freeze({ maxOutputTokens: 2500, effort: 'low' }),
   // One bounded hosted search on an official/report domain list (Worker admission: worker/openai-budget.mjs).
-  search: Object.freeze({ maxOutputTokens: 1200, effort: 'low', maxToolCalls: 1 })
+  search: Object.freeze({ maxOutputTokens: 1200, effort: 'low', maxToolCalls: 1 }),
+  // One round of a bounded tool loop: hosted search beside data functions, a JSON-schema answer when the model stops
+  // calling. Each round is its own reserved request (worker/openai-budget.mjs admits one web_search tool, at most 12
+  // functions and function_call/function_call_output input items); the round, call and request caps are the caller's.
+  investigation: Object.freeze({ maxOutputTokens: 4000, effort: 'low', maxToolCalls: 2 })
 });
 
 // Every purpose prefix a producer logs (the X-AIO-Idempotency-Key label and meta.aiUsage / brief.ai rows), with its
@@ -57,6 +61,7 @@ export const SHARED_AI_PURPOSES = Object.freeze({
   // (about 230 more output tokens than reasoning off, ai-effort-experiment) over a ~300-token answer, and lowers the
   // Worker's per-request reservation (max_output_tokens x output price) to match.
   'screen-reading': { profile: 'analysis', owner: 'scripts/producer/screen-readings.mjs', maxOutputTokens: 1500 },
+  'market-investigation': { profile: 'investigation', owner: 'scripts/producer/market-investigation.mjs' },
   'event-brief-earnings': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
   'event-brief-fomc-statement': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
   'event-brief-fomc-transcript': { profile: 'structured', owner: 'scripts/fetch-event-briefs.mjs' },
@@ -102,6 +107,25 @@ export function buildSharedWebSearchBody(prompt, { allowedDomains, schemaName, s
     tools: [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default', filters: { allowed_domains: [...allowedDomains] } }],
     tool_choice: 'required', max_tool_calls: maxToolCalls, max_output_tokens: maxOutputTokens,
     reasoning: { effort: SHARED_AI_PROFILES.search.effort }, store: false, stream: false, text };
+}
+
+/**
+ * One round of the investigation loop: the conversation so far (`input`: messages, function calls and their outputs), the
+ * data functions, one web_search tool on the report/official domain list and a JSON-schema answer. `final` turns the
+ * tools off (tool_choice 'none') so the model must answer; search stays offered on every other round.
+ */
+export function buildSharedInvestigationBody({ instructions, input, functions = [], allowedDomains, schemaName, schema, final = false, search = true } = {}) {
+  if (typeof instructions !== 'string' || !instructions.trim()) throw new Error('instructions required');
+  if (!Array.isArray(input) || !input.length || input.length > 64) throw new Error('bounded input required');
+  if (!Array.isArray(functions) || functions.length > 12) throw new Error('at most 12 functions with hosted search');
+  if (search && (!Array.isArray(allowedDomains) || !allowedDomains.length || allowedDomains.length > 20
+    || allowedDomains.some((domain) => typeof domain !== 'string' || !SEARCH_DOMAIN.test(domain)))) throw new Error('report allowed_domains required');
+  const profile = SHARED_AI_PROFILES.investigation;
+  const tools = [...(search ? [{ type: 'web_search', search_context_size: 'low', return_token_budget: 'default', filters: { allowed_domains: [...allowedDomains] } }] : []),
+    ...functions.map((tool) => ({ type: 'function', name: tool.name, description: tool.description, parameters: tool.parameters, strict: true }))];
+  return { model: SHARED_AI_MODEL, instructions, input, ...(tools.length ? { tools, tool_choice: final ? 'none' : 'auto', parallel_tool_calls: true } : {}),
+    ...(search && tools.length ? { max_tool_calls: profile.maxToolCalls } : {}), max_output_tokens: profile.maxOutputTokens,
+    reasoning: { effort: profile.effort }, store: false, stream: false, text: jsonSchemaFormat(schemaName, schema) };
 }
 
 /** Token and search counts of one Responses payload (counts only; never model text). */

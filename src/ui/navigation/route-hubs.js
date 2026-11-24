@@ -1,4 +1,4 @@
-// 2026-10-01 information architecture (AGENTS.md): the routes are presented as screens (nine since v59.64). A screen's sub-routes are switched by the in-page tab bar below the topbar;
+// 2026-10-01 information architecture (AGENTS.md): the routes are presented as screens (eight hubs over the 20 routes of architecture/route-owners.json). A screen's sub-routes are switched by the in-page tab bar below the topbar;
 // route ids, deep links and page owners stay unchanged until each screen is merged.
 import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([

@@ -243,9 +243,22 @@ check('v59.44 tiers: FOMC and the core movers in full, others one line, the rest
   same([ranked.core.map((b) => b.id), ranked.notable.length, ranked.notable.slice(0, 2).map((b) => b.id), ranked.restTotal], [['fo', 'x2', 'am'], 8, ['x3', 'x1'], 6]);
 });
 check('v59.44 the session a report trades in', () => {
-  same(releaseSession('2026-10-28T20:04:44Z'), { releaseDate: '2026-10-28', afterClose: true });
-  same(releaseSession('2026-10-29T11:00:00Z'), { releaseDate: '2026-10-29', afterClose: false });
-  same(releaseSession('2026-10-28T00:00:00+09:00', { market: 'KR', dateOnly: true }), { releaseDate: '2026-10-28', afterClose: false });
+  same(releaseSession('2026-10-28T20:04:44Z'), { releaseDate: '2026-10-28', afterClose: true, market: 'US' });
+  same(releaseSession('2026-10-29T11:00:00Z'), { releaseDate: '2026-10-29', afterClose: false, market: 'US' });
+  same(releaseSession('2026-10-28T00:00:00+09:00', { market: 'KR', dateOnly: true }), { releaseDate: '2026-10-28', afterClose: false, market: 'KR' });
+});
+check('v60.52 the first session after a report is the exchange calendar\'s, not the next bar on file', () => {
+  // 11/25 after the close; 11/26 is a US holiday and 11/27 an early close whose bar is missing.
+  const gapped = earningsReaction([{ date: '2026-11-25', close: 100 }, { date: '2026-11-30', close: 110 }], releaseSession('2026-11-25T21:30:00Z'));
+  same([gapped.firstPct, gapped.firstDate, gapped.firstMissing, gapped.latestDate, gapped.latestPct], [undefined, undefined, '2026-11-27', '2026-11-30', 10]);
+  eq(reactionText(gapped), '발표 후 첫 거래일(11/27) 종가 없음, 11/30까지 +10.0%');
+  const whole = earningsReaction([{ date: '2026-11-25', close: 100 }, { date: '2026-11-27', close: 105 }, { date: '2026-11-30', close: 110 }], releaseSession('2026-11-25T21:30:00Z'));
+  same([whole.firstDate, whole.firstPct, whole.firstMissing], ['2026-11-27', 5, undefined]);
+  // A KRX listing reads the KRX calendar: 10/09 (한글날) is closed there and open in New York.
+  const krBars = [{ date: '2026-10-07', close: 100 }, { date: '2026-10-08', close: 101 }, { date: '2026-10-12', close: 120 }];
+  const kr = earningsReaction(krBars, releaseSession('2026-10-08T07:00:00Z', { market: 'KR' }));
+  same([kr.firstDate, kr.firstMissing], ['2026-10-12', undefined]);
+  eq(earningsReaction(krBars, { releaseDate: '2026-10-08', afterClose: true, market: 'US' }).firstMissing, '2026-10-09', 'the same bars read on the NYSE calendar miss 10/09');
 });
 check('v59.44 closes after the report, and the latest trade until a session has closed on it', () => {
   const bars = [{ date: '2026-10-27', close: 100 }, { date: '2026-10-28', close: 110 }, { date: '2026-10-29', close: 99 }, { date: '2026-10-30', close: 104.5 }];

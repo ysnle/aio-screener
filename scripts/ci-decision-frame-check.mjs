@@ -56,33 +56,51 @@ const cash = { value: 3.88, date: '2026-11-13', label: 'SOFR' };
 {
   const plain = buildDecisionFrame({ record: record(), favored: ['hold', 'stage'], why: '성장 기대형 금리 상승', invalidation: ['물가 재가속'], cash });
   const text = decisionFrameText(plain);
-  check('v60.19frame: 56% against a 64% base over 73 cases is not distinct and says so beside the base', plain.likelihood.distinct === false && /56%\(73번 중 41번\), 평소 64% — 평소와 구별 안 됨/.test(text.face[0]), text.face[0]);
+  check('v60.52 frame: 56% against a 64% base over 73 cases leads with the verdict, the counts and share after it', plain.likelihood.distinct === false && text.likelihood === '과거 빈도: 평소와 구별 안 됨 — 20거래일 뒤 73번 중 41번 오름(56%), 평소 64%', text.likelihood);
   check('v60.24frame: a rule-table favourite whose record is not distinct stands on 비용 가설 — named in the ground note, not in the side tag', plain.favoured.ground === 'cost-hypothesis' && text.groundLabel === '비용 가설' && text.tag === '보유 유지, 분할 접근' && /^비용 가설 — .*과거 성과로 확인한 우위가 아닙니다/.test(text.ground), text);
-  check('v60.19frame: payoff is two magnitudes beside an ordinary day, never one ratio or an expected value', /좋았던 25%는 \+2\.7% 이상, 나빴던 25%는 -1\.2% 이하 \(평소 \+3\.1% \/ -1\.0%\)/.test(text.face[1]) && !/손익비|기대값|배 유리/.test(JSON.stringify(text)), text.face[1]);
+  check('v60.19frame: payoff is two magnitudes beside an ordinary day, never one ratio or an expected value', /좋았던 25%는 \+2\.7% 이상, 나빴던 25%는 -1\.2% 이하 \(평소 \+3\.1% \/ -1\.0%\)/.test(text.payoff) && !/손익비|기대값|배 유리/.test(JSON.stringify(text)), text.payoff);
   check('v60.19frame: cash over the same sessions from today\'s rate and the case months\' median', plain.opportunity.cashReturn === 0.31 && /현금 약 \+0\.31%/.test(text.opportunity[0]) && /\+0\.25%/.test(text.opportunity[1]), text.opportunity);
-  check('v60.19frame: the cost of being wrong is the drawdown share beside the base', plain.wrong.cost.drawdownShare === 12 && /-5% 넘게 빠진 경우 12%\(73번 중 9번\), 평소 14%/.test(text.wrong[1]), text.wrong);
-  check('v60.19frame: the face is at most two lines', text.face.length === 2);
+  check('v60.19frame: the cost of being wrong is the drawdown share beside the base', plain.wrong.cost.drawdownShare === 12 && /-5% 넘게 빠진 경우 12%\(73번 중 9번\), 평소 14%/.test(text.wrong.cost), text.wrong);
+  check('v60.52 frame: the drawdown median names its basis — the case day\'s close, not a peak inside the window', /사례일 종가 대비 가장 깊은 하락 중앙값 -1\.8%/.test(text.wrong.cost), text.wrong.cost);
+  check('v60.52 frame: the conditions reach the renderer as a list; the AI line keeps them joined', Array.isArray(text.wrong.conditions) && text.wrong.conditions.join() === '물가 재가속' && text.wrong.conditionsLine === '빗나가는 조건: 물가 재가속', text.wrong);
+  // Item 1: a base-less record of 10+ cases.
+  const baseless = decisionFrameText(buildDecisionFrame({ record: { n: 12, up: 7, horizon: 20, p25: -2, p75: 5 }, favored: ['hold'], why: 'x' }));
+  check('v60.52 frame: without a base rate the counts alone — never null, never a share without its base', baseless.likelihood === '가능성: 20거래일 뒤 12번 중 7번 오름, 평소 비율 없음 · 참고' && !/null|%\(/.test(baseless.likelihood), baseless.likelihood);
+  // Item 2: today's cash over the branch's own window needs no past case.
+  const sofr = { value: 4.5, date: '2026-11-21' };
+  const cashOf = (past) => branchDecisionFrame({ id: 'x', past, favored: ['hold'], favoredWhy: 'x', invalidation: ['y'] }, { cash: sofr }).opportunity.cashReturn;
+  check('v60.52 frame: a branch without a record still has today\'s cash over its window (SOFR 4.50%, 20 sessions)', cashOf({ n: 0 }) === 0.36 && cashOf(undefined) === 0.36 && cashOf({ n: 1, up: 1, horizon: 20 }) === 0.36, [cashOf({ n: 0 }), cashOf(undefined), cashOf({ n: 1, up: 1, horizon: 20 })]);
+  const { themeDecisionFrame } = await load('src/domain/scenarios/decision-frame.js');
+  const { THEME_OUTCOME_HORIZON } = await load('src/domain/scenarios/analogs.js');
+  const themeCash = themeDecisionFrame({ state: 'pullback', pastRecord: null, favored: ['wait'], favoredWhy: 'x', breaks: [] }, { cash: sofr });
+  check('v60.52 frame: a theme stage without a record takes the producer\'s stage horizon for its cash leg', themeCash.horizon === THEME_OUTCOME_HORIZON && themeCash.opportunity.cashReturn === Math.round(4.5 * THEME_OUTCOME_HORIZON / 252 * 100) / 100, themeCash.opportunity);
+  const noCashText = decisionFrameText(buildDecisionFrame({ record: record(), favored: ['hold'], why: 'x' }));
+  check('v60.52 frame: a missing cash rate says the comparison data is missing', noCashText.opportunity[0] === '현금 비교 자료 없음', noCashText.opportunity);
+  // Item 4: the drawdown share is tested against its base like the likelihood.
+  check('v60.52 frame: 12% against a 14% base over 73 is not a distinct drawdown; 32% against 16% is', plain.wrong.cost.distinct === false && buildDecisionFrame({ record: record({ dd5: 23, baseDd5Pct: 16 }) }).wrong.cost.distinct === true);
   const distinct = buildDecisionFrame({ record: record({ n: 120, up: 96, baseUpPct: 64 }), favored: ['stage'], why: 'x', cash });
   check('v60.19frame: a distinct record at 30+ cases on the favourite\'s side is 과거 기록', distinct.likelihood.distinct === true && distinct.favoured.ground === 'past-record' && decisionFrameText(distinct).groundLabel === '과거 기록');
   const against = buildDecisionFrame({ record: record({ n: 120, up: 96 }), favored: ['wait', 'defend'], why: 'x' });
   check('v60.19frame: a distinct record against a defensive favourite is a conflict, ground stays 비용 가설', against.favoured.conflict?.lean === 'defensive' && against.favoured.ground === 'cost-hypothesis' && /과거 표본과 어긋남/.test(decisionFrameText(against).conflict));
   const small = buildDecisionFrame({ record: record({ n: 20, up: 16, dd5: 3 }), favored: ['stage'], why: 'x' });
-  check('v60.19frame: 10–29 cases give figures marked 참고 and never 과거 기록', small.likelihood.strength.reference && /· 참고/.test(decisionFrameText(small).face[0]) && small.favoured.ground === 'cost-hypothesis');
+  check('v60.19frame: 10–29 cases give figures marked 참고 and never 과거 기록', small.likelihood.strength.reference && /· 참고/.test(decisionFrameText(small).likelihood) && small.favoured.ground === 'cost-hypothesis');
   const thin = buildDecisionFrame({ record: record({ n: 7, up: 5, dd5: 2 }), favored: ['wait'], why: 'x' });
   const thinText = decisionFrameText(thin);
-  check('v60.24frame: under 10 cases counts only on a one-line face — no share, no payoff, no drawdown share, no sample note', !/%\(/.test(thinText.face[0]) && /7번 중 5번/.test(thinText.face[0]) && thin.payoff === null && thin.wrong.cost === null && thinText.face.length === 1 && !/사례가 적어|말하지 않/.test(thinText.face.join(' ')), thinText);
+  check('v60.24frame: under 10 cases counts only on a one-line face — no share, no payoff, no drawdown share, no sample note', !/%\(/.test(thinText.likelihood) && /7번 중 5번/.test(thinText.likelihood) && thin.payoff === null && thin.wrong.cost === null && thinText.payoff === null && !/사례가 적어|말하지 않/.test(thinText.likelihood), thinText);
   check('v60.24frame: a thin record\'s sample note is the evidenceStrength note for the fold, and the AI line still carries it', thinText.sample === '사례 7개라 비율·평균으로 말하지 않습니다.' && decisionFrameContext(thin).includes(thinText.sample), thinText.sample);
   const bare = buildDecisionFrame({ record: { n: 40, up: 30, horizon: 20, baseUpPct: 64, median: 2 }, favored: ['hold'], why: 'x' });
   const bareText = decisionFrameText(bare);
-  check('v60.19frame: missing quartiles, drawdown and cash give 없음 legs, nothing estimated', bare.payoff === null && bare.wrong.cost === null && /이익·손실 폭: 없음/.test(bareText.face[1]) && bareText.opportunity.join() === '기회비용: 없음' && bare.missing.includes('payoff') && bare.missing.includes('wrong'), bareText);
+  check('v60.52 frame: missing quartiles, drawdown and cash read as missing comparison data, nothing estimated', bare.payoff === null && bare.wrong.cost === null && bareText.payoff === '이익·손실 폭: 비교 자료 없음' && bareText.opportunity.join() === '현금 비교 자료 없음' && bareText.wrong.cost === '과거 하락 폭: 비교 자료 없음' && bare.missing.includes('payoff') && bare.missing.includes('wrong'), bareText);
+  const bareAi = decisionFrameContext(buildDecisionFrame({ record: { n: 40, up: 30, horizon: 20, baseUpPct: 64, median: 2 }, favored: ['hold'], why: 'x' }));
+  check('v60.52 frame: each leg\'s title appears once in the AI line and no empty leg reads 없음', (bareAi.match(/기회비용:/g) || []).length === 1 && (bareAi.match(/빗나가는 조건:/g) || []).length === 1 && /기회비용: 현금 비교 자료 없음/.test(bareAi) && !/: 없음/.test(bareAi), bareAi);
   const none = buildDecisionFrame({ record: null, favored: [], why: '' });
-  check('v60.19frame: no record and no favourite', none.likelihood === null && none.favoured.ground === 'none' && /과거 기록 없음/.test(decisionFrameText(none).face[0]));
+  check('v60.19frame: no record and no favourite', none.likelihood === null && none.favoured.ground === 'none' && /과거 기록 없음/.test(decisionFrameText(none).likelihood));
   const traded = buildDecisionFrame({ record: record({ n: 69, up: 60, median: 3.5, dd5: 27 }), favored: ['stage', 'wait'], why: 'x' });
   check('v60.19frame: better odds with deeper dips is named with both halves', traded.tradeoff === 'better-odds-deeper-dips' && /크게 빠진 경우도 평소보다 많았습니다/.test(decisionFrameText(traded).tradeoff));
   const ai = decisionFrameContext(plain);
-  check('v60.19frame: the AI line carries every leg and names the ground', /가능성:/.test(ai) && /이익·손실 폭:/.test(ai) && /기회비용:/.test(ai) && /틀렸을 때/.test(ai) && /근거 종류: 비용 가설, 과거 성과로 확인한 우위 아님/.test(ai), ai);
+  check('v60.19frame: the AI line carries every leg and names the ground', /과거 빈도:/.test(ai) && /이익·손실 폭:/.test(ai) && /기회비용:/.test(ai) && /틀렸을 때/.test(ai) && /근거 종류: 비용 가설, 과거 성과로 확인한 우위 아님/.test(ai), ai);
   const excess = buildDecisionFrame({ record: record({ outcome: 'excess', horizon: 63 }), favored: ['hold'], why: 'x' });
-  check('v60.19frame: an index-relative record reads 지수보다 and %p, with the index itself as the zero', /지수보다 더 오른/.test(decisionFrameText(excess).face[0]) && /%p/.test(decisionFrameText(excess).face[1]) && excess.opportunity.indexBaseMedian === 0);
+  check('v60.19frame: an index-relative record reads 지수를 앞섬 and %p, with the index itself as the zero', /지수를 앞섬/.test(decisionFrameText(excess).likelihood) && /%p/.test(decisionFrameText(excess).payoff) && excess.opportunity.indexBaseMedian === 0);
   const reached = depthReached({ rule: { bearPct: 20 }, events: [['a', -8, 1, 0], ['b', -12, 1, 0], ['c', -25, 0, 1], ['d', -30, 1, 1], ['e', -13, 0, 0]] }, -11.9, { fast: true });
   check('v60.19corrections: counted among those that reached today\'s depth, and among the same speed', reached.n === 4 && reached.bear === 2 && reached.fastN === 2 && reached.fastBear === 1 && /-11\.9% 이상 내려갔던 과거 조정은 4번 중 2번/.test(reached.text), reached);
 }
@@ -100,10 +118,18 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
   const frame = branchDecisionFrame(item, { cash: crossroads.cash || cash });
   const block = decisionFrameBlock(doc, frame, { method: item.past.text });
   const words = block.textContent;
-  check('v60.19copy: the branch card frame shows 가능성 and 이익·손실 폭 first, the fold holds 기회비용 and 틀렸을 때', block.children[0].textContent.startsWith('가능성:') && block.children[1].textContent.startsWith('이익·손실 폭:') && /기회비용/.test(words) && /틀렸을 때/.test(words) && /빗나가는 조건/.test(words), words);
   const side = favouredLine(doc, frame);
   const fold = block.querySelector('details')?.textContent || '';
   const face = [...block.children].filter((node) => node.tagName !== 'DETAILS').map((node) => node.textContent).join(' ');
+  check('v60.52 copy: a record not distinct from its base leads with the verdict; its payoff spread moves to the fold', block.children[0].textContent.startsWith('과거 빈도: 평소와 구별 안 됨')
+    && !/이익·손실 폭/.test(face) && /이익·손실 폭좋았던 25%/.test(fold) && /기회비용/.test(face) && /틀렸을 때/.test(face) && /빗나가는 조건/.test(face) && /그 사이 -5% 넘게 빠진 경우/.test(face), { face, fold });
+  const items = [...block.querySelectorAll('.df-conds li')].map((node) => node.textContent);
+  const costLine = [...block.querySelectorAll('.df-cost')].map((node) => node.textContent);
+  check('v60.52 copy: 빗나가는 조건 is one line per condition and the past cost is its own line', items.length === item.invalidation.length && items.length > 1 && items.every((text, i) => text === item.invalidation[i]) && !items.some((text) => text.includes('; '))
+    && costLine.length === 1 && costLine[0].startsWith('그 사이 -5% 넘게 빠진 경우'), { items, costLine });
+  const sharp = branchDecisionFrame({ ...item, past: { ...item.past, dd5: 23, baseDd5Pct: 16 } }, { cash });
+  const sharpBlock = decisionFrameBlock(doc, sharp, { method: '' });
+  check('v60.52 copy: where the drawdown share differs from its base the payoff spread stays on the face', sharpBlock.children[1].textContent.startsWith('이익·손실 폭:') && /32%\(73번 중 23번\), 평소 16%/.test(sharpBlock.textContent), sharpBlock.textContent);
   check('v60.24copy: the favoured side reads the choice and reason; its ground kind is in the frame\'s fold and the line\'s title, not on the face', /^분할 접근, 관망 — /.test(side.textContent) && !/비용 가설|과거 기록/.test(side.textContent) && /^비용 가설 — /.test(side.title)
     && /근거 종류비용 가설 — /.test(fold) && !/비용 가설|근거 종류|사례가 적어/.test(face), { side: side.textContent, face });
   check('v60.19copy: no emoji, no 거시, no 손익비, no question in the frame text', !/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(words) && !/거시|손익비|\?/.test(words), words);

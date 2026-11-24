@@ -303,6 +303,7 @@ export function installServerDataLoader(window = globalThis) {
         window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
         // The per-screen AI readings, kept raw; each screen admits its own (src/data/server-screen-readings.js).
         window._aioScreenReadings = d.screenReadings && typeof d.screenReadings === 'object' ? d.screenReadings : null;
+        window._aioMarketInvestigation = d.marketInvestigation && typeof d.marketInvestigation === 'object' ? d.marketInvestigation : null; // src/data/server-investigation.js
         try { if (typeof _aioRenderOperatorNote === 'function') _aioRenderOperatorNote(); } catch(_) {}
         // Typed-evidence + semantic + publish gate: src/data/server-market-analysis.js (bound by the compat bridge).
         var _serverMarketGate = window._aioVerifyServerMarketAnalysis(d.marketAnalysis, {

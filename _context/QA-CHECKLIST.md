@@ -1,10 +1,37 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-24
+last_verified: 2026-11-25
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.53 시장 조사 (2026-11-25)
+
+- [x] QA-INVESTIGATION-01: 시장 조사의 단서는 market-day 장부의 lead 등급 움직임(자산 자신의 변동 대비 크기)과 직전 세션 대비 바뀐 판정 낱말·시나리오 조건 수에서만 나온다; 금리 주도 하락·조용한 날·한 종목 충격에서 단서가 달라지고, 조용한 날은 요청하지 않고 그렇다고 말한다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-INVESTIGATION-02: 시장 조사 본문의 수치·날짜는 단서·도구 결과에만 있어야 하고, 보도·공식 원인은 이번 검색이 돌려준 문서의 url·매체·발행일을 가져야 게시된다; 해석(근거 없는 가능성, 추론만 있는 원인)은 경고만 한다. 같은 단서 묶음은 다시 묻지 않고, 검증에 막힌 묶음은 보류되며, 월 예산을 넘으면 요청하지 않는다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-INVESTIGATION-03: 오늘은 그 종가의 시장 조사를 판정 문장 먼저, 짧은 문단, 단서·출처 접힘 순으로 보이고, 시장 상태는 판정 한 줄과 오늘 링크만 둔다; 블록이 없으면 두 자리 모두 비어 숨는다. 채팅은 같은 조사를 근거 종류와 함께 읽는다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-REBOUND-QUALITY-01: 반등 시도·추세 회복이 있으면 저점일과 최근 종가를 같은 거래일끼리 비교해 신용(하이일드 스프레드 하락)·달러(DXY 하락)·변동성(VIX 하락이면서 3개월 VIX 아래)·참여 폭(50일선 위 종목 비율 상승과 동일가중 상승)을 확인/미확인/자료 없음으로 판정하고, 확인 수/아는 수와 RULES.reboundQuality로 정한 상태어(다른 시장도 확인·엇갈림·지수만 반등·판단 보류)를 반등 줄 아래 한 줄과 네 항목으로 보인다; 자료 없는 항목은 분모에서 빠지고 이름이 나오며 이웃 거래일 값을 빌리지 않는다; 원인은 단정하지 않는다. (v60.53) verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-REBOUND-QUALITY-02: AI 시장 이야기 사실 줄이 화면과 같은 반등의 다른 시장 확인 판정과 네 항목을 받는다. (v60.53) verify_by: node scripts/ci-market-story-check.mjs
+
+## v60.52 AI 답변과 화면의 같은 사실 (2026-11-24)
+
+- [x] QA-AI-STORY-FRESH-01: v60.52 company_story는 종목 화면과 같은 storyFreshness로 조사일 뒤 새 실적·분기 공시를 알리고 asOf에 조사일과 새 날짜를 함께 싣는다 (P2762) verify_by: node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 company_story 라벨)
+- [x] QA-AI-SCREEN-PLAN-01: v60.52 조건 검색 도구 결과는 적용한 조건 id와 적용하지 못한 조건·이유(현금흐름 지표 미계산, 목록에 없는 id)를 밝히고, 설명은 화면과 같다고 하지 않으며 AND만 된다고 말한다. verify_by: node scripts/ci-chat-screen-tool-check.mjs (v60.52 라벨)
+- [x] QA-AI-FORECAST-01: v60.52 조건문 결과절의 확률·가능성·기대 수익률 수치는 자료에 있을 때만 남고(없으면 문장이 빠지고 '확률'로 셈), 조건절 임계값·자료에 있는 빈도·수치 없는 조건 해석은 남는다 (P2763) verify_by: node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 forecast 라벨)
+- [ ] QA-AI-FORECAST-LIVE-01: v60.52 push 뒤 배포판 AI 패널에서 '연준이 다음 달 금리를 내리면 S&P 500이 오를 확률은?'의 답이 근거 없는 확률 수치를 싣지 않고 조건 설명은 남긴다 (P2763) verify_by: 배포판 AI 패널에서 같은 질문을 묻고 답 본문에 자료 없는 N% 확률이 없는지 본다
+- [x] QA-DECISION-FRAME-52A: 판단 틀: 기저율 없는 기록은 횟수만(null·비율 없음), AI 줄의 다리 제목은 한 번씩, 빈 다리는 '비교 자료 없음'; 기록 없는 시나리오도 제 기간(매크로 20거래일, 테마 THEME_OUTCOME_HORIZON)으로 오늘 현금 비교를 적는다. (v60.52) verify_by: node scripts/ci-decision-frame-check.mjs
+- [x] QA-DECISION-FRAME-52B: 판단 틀 강조: 평소와 구별되지 않는 기록은 판정이 먼저('과거 빈도: 평소와 구별 안 됨 — …'), 이익·손실 폭은 빈도나 하락 비율이 평소와 구별될 때만 본문, 아니면 접힘; 하락 중앙값은 '사례일 종가 대비'; 빗나가는 조건은 한 줄에 하나, 과거 하락은 따로 한 줄. (v60.52) verify_by: node scripts/ci-decision-frame-check.mjs && node scripts/ci-stock-producer-leftovers-check.mjs
+- [x] QA-SCENARIO-STATE-52: 시나리오 변화 기록: 충족 수가 같아도 충족 조건이 바뀌면 '조건 충족 2/3 그대로, 근거가 바뀜 (새로 충족: …; 더 이상 아님: …)', 시장 가격 방향이 사라지면 '시장 가격 자료가 빠져 방향을 읽지 못함(직전: …)'을 남기고, 날짜만 바뀐 스냅숏은 아무것도 남기지 않는다. (v60.52) verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-REBOUND-TERMS-01: 반등 확인 신호(FTD)는 나스닥 종합 기준으로 이름·저점일·규칙을 한 줄에 보이고 '반등 시도'를 쓰지 않는다; 시장 해석의 반등(나스닥 100)이 함께 있으면 두 지수와 엇갈릴 수 있음을 한 줄로 말하고, 거래량 비교가 조기 폐장일이면 그렇다고 말한다. (v60.52) verify_by: node scripts/ci-market-reading-defects-check.mjs
+- [x] QA-REBOUND-TERMS-02: AI에 넘기는 시장 이야기 반등 줄은 나스닥 100과 규칙(저점 대비 +5%)을 이름에 담고, 확인 신호 문장은 나스닥 종합과 반등 확인 신호(FTD)를 이름한다. (v60.52) verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-RALLY-COUNT-01: 반등 확인 신호(FTD)의 일수는 저점 다음 거래일이 1일째다(저점은 0일째, 소유자 2026-11-24): 11/20 저점·11/26 휴장이면 11/27이 4일째로 가장 이른 확인일이고 11/25(3일째)는 확인이 아니다; 다른 정의(rally-attempt.v2가 아닌 fieldMeta.rallyPhase.model)로 센 행은 읽지 않는다. (v60.52) verify_by: node scripts/ci-market-reading-defects-check.mjs
+- [x] QA-SCR-WORDING-01: v60.52 순위 밖 '가격 정체' 행의 설명은 규칙 임계값(60일 연 변동성·하루 평균 폭)만 말하고 원인을 짓지 않는다 (P2765). verify_by: node scripts/ci-screener-presentation-check.mjs
+- [x] QA-SCR-WORDING-02: v60.52 조건 화면의 '왜' 문장은 엔진의 조건별 판정(explainAdmission: exists·range·enum·and/or/not·값 없음 정책·필수 값)을 그대로 읽어, 통과·미달·판정 보류 상태와 어긋나지 않는다. verify_by: node scripts/ci-screener-workbench-contract.mjs
+- [x] QA-STOCK-RDCF-01: v60.52 투자 논지의 역 DCF 문장은 계산에 쓴 할인율·영구 성장률을 함께 말하고, 요약과 역 DCF 카드는 같은 함수(reverseDcfAssumptions)로 기본값과 읽는 사람의 값을 고른다. verify_by: node scripts/ci-fiscal-quality-fixture.mjs && node scripts/ci-stock-reading-defects-check.mjs
+- [x] QA-SESSION-ALIGN-01: SOXX가 S&P 500보다 한 세션 늦으면 SOXX − S&P 500 20거래일은 비고, 'AI 투자 꺾임' 가격 문장은 두 날짜와 보류를 적는다; 10년물 − 기대인플레이션도 10년물 마지막 날에 짝지어 읽는다. (P2766, v60.52) verify_by: node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-SESSION-ALIGN-02: 차트 상대강도는 지수와 같은 날 종가인 마지막 봉에서 끝나고 그 날짜를 적는다; 실적 반응의 지수 움직임은 기준일·첫 거래일 모두 그 세션 종가이며; AI 기술 블록 RSI는 차트 마지막 봉 기준이다. (P2766, v60.52) verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SESSION-ALIGN-03: 실적 발표 후 첫 거래일은 그 거래소 달력의 첫 세션이며, 그 봉이 없으면 '첫 거래일 종가 없음'과 최근 봉까지의 누적을 날짜와 함께 적는다(한국 상장은 KRX 달력). (P2766, v60.52) verify_by: node scripts/ci-event-briefs-check.mjs
 
 ## v60.51 검사 결정성 (2026-11-24)
 

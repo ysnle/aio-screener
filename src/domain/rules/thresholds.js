@@ -40,6 +40,9 @@ export const RULES = Object.freeze({
   // reboundPct: a Nasdaq-100 close this far over its lowest close since the high is a rebound (rebound.js), half the
   // correction line; 76 of its 79 one-day gains of 5%+ since 1985 came inside a fall of 10%+.
   story: Object.freeze({ correctionPct: 10, bearPct: 20, bearEdgePp: 1, unwindGapPp: 5, broadBelowPct: 30, halfOffPct: 50, reboundPct: 5 }),
+  // The rebound's cross-market checks (rebound-quality.js): the share of known checks met that reads 다른 시장도 확인
+  // (3 of 4) or 엇갈림 (2 of 4), below it 지수만 반등; under minKnown known checks no word is given.
+  reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,
@@ -59,6 +62,13 @@ export const RULES = Object.freeze({
     tiers: Object.freeze({ lead: 60, major: 35, minor: 15 }),
     coreGauges: Object.freeze(['spx', 'ndx', 'soxx', 'kospi', 'tnx', 'dxy', 'wti', 'gold', 'hyOas', 'vix']) }),
   marketReading: Object.freeze({ inSessionZ: 0.75, inSessionWtiPct: 2, retainHours: 12, retainDriftOtherPct: 3 }),
+  // The market investigation (scripts/producer/market-investigation.mjs). A lead is a ledger move at the ledger's own lead
+  // tier (moveMateriality.tiers.lead, sized against its own volatility) or a rule word that changed since the previous
+  // session; at most maxLeads per kind group and in all. One investigation per lead set: at most maxRounds tool rounds,
+  // maxFunctionCalls data calls and maxRequests requests (repair included). monthlyBudgetUsd is a hard stop for this
+  // lane; runReserveUsd is what one run may spend at worst, so a run that could pass the budget does not start.
+  investigation: Object.freeze({ maxLeads: 5, maxPriceLeads: 3, maxStockLeads: 2, maxGroupLeads: 1, maxRounds: 4, maxFunctionCalls: 10,
+    maxRequests: 6, monthlyBudgetUsd: 6, runReserveUsd: 0.3, providerAttempts: 3 }),
   portfolio: Object.freeze({ holdingPct: Object.freeze([10, 15, 25]),
     sectorNear: 25, sectorOver: 40, top3Over: 60, corrOver: 0.7, currencyMax: 0.5 }),
   fearGreed: Object.freeze({ extremeFearBelow: 25, fearBelow: 45, greedAbove: 55, extremeGreedAbove: 75 }),

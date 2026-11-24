@@ -1,0 +1,27 @@
+{
+  "version": "v60.53",
+  "qa": [
+    {
+      "id": "QA-INVESTIGATION-01",
+      "text": "시장 조사의 단서는 market-day 장부의 lead 등급 움직임(자산 자신의 변동 대비 크기)과 직전 세션 대비 바뀐 판정 낱말·시나리오 조건 수에서만 나온다; 금리 주도 하락·조용한 날·한 종목 충격에서 단서가 달라지고, 조용한 날은 요청하지 않고 그렇다고 말한다. ({VERSION})",
+      "verify_by": "node scripts/ci-market-investigation-check.mjs"
+    },
+    {
+      "id": "QA-INVESTIGATION-02",
+      "text": "시장 조사 본문의 수치·날짜는 단서·도구 결과에만 있어야 하고, 보도·공식 원인은 이번 검색이 돌려준 문서의 url·매체·발행일을 가져야 게시된다; 해석(근거 없는 가능성, 추론만 있는 원인)은 경고만 한다. 같은 단서 묶음은 다시 묻지 않고, 검증에 막힌 묶음은 보류되며, 월 예산을 넘으면 요청하지 않는다. ({VERSION})",
+      "verify_by": "node scripts/ci-market-investigation-check.mjs"
+    },
+    {
+      "id": "QA-INVESTIGATION-03",
+      "text": "오늘은 그 종가의 시장 조사를 판정 문장 먼저, 짧은 문단, 단서·출처 접힘 순으로 보이고, 시장 상태는 판정 한 줄과 오늘 링크만 둔다; 블록이 없으면 두 자리 모두 비어 숨는다. 채팅은 같은 조사를 근거 종류와 함께 읽는다. ({VERSION})",
+      "verify_by": "node scripts/ci-market-investigation-check.mjs"
+    }
+  ],
+  "qa_section": "시장 조사",
+  "changelog": [
+    "시장 조사(data.json marketInvestigation)를 더한다: 최근 완료 세션에서 평소 변동을 벗어난 움직임과 바뀐 판정을 단서로, 모델이 앱 자료 함수(session_moves, ledger, screen_facts)와 보도·공식 도메인 웹검색으로 무슨 일이 있었고 왜 그런지, 맞지 않는 것, 다음에 확인할 것, 확인하지 못한 것을 자기 말로 쓴다 ({VERSION})",
+    "도구 순환은 채팅과 같은 src/ai/tools/loop.js를 쓰고 Worker 승인 계약을 바꾸지 않는다(한 요청에 web_search 하나·함수 3개·max_tool_calls 2); 조사당 최대 4회 순환·함수 10회·요청 6회, 이 레인 월 예산 $6에서 멈춘다(RULES.investigation) ({VERSION})",
+    "오늘 머리 아래에 'AI 조사'(판정, 문단, 단서와 출처 접힘), 시장 상태에 판정 한 줄과 오늘 링크; 채팅 프롬프트가 같은 조사를 읽는다 ({VERSION})"
+  ],
+  "note": "시장 조사 레인 추가(트리거는 장부 크기·판정 변화, 도구 순환, 출처 검증, 예산 원장); 시장 해석(marketAnalysis) 본문 흡수는 다음 배치 권고"
+}

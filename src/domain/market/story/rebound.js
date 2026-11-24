@@ -8,8 +8,9 @@
 import { RULES } from '../../rules/thresholds.js';
 import { say } from '../../shared/claim.js';
 import { shortDate } from '../../content/date-labels.js';
+import { REBOUND_WORDS } from '../../content/rebound-words.js'; // shared with the follow-through count's words
 
-export const REBOUND_WORDS = Object.freeze({ attempt: '반등 시도', recovered: '추세 회복', failed: '반등 실패' });
+export { REBOUND_WORDS };
 
 // What each stance costs in each state, conditionally (no order, no share of a portfolio). {d}: the low's date.
 export const REBOUND_STANCE = Object.freeze({

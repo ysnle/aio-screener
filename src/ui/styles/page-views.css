@@ -11,7 +11,7 @@
 
 @media screen {
 /* 시장 상태: 지금 / 시나리오와 전망 / 한국 (v60.31: 지금 and 지표 are one flow; the method and source folds show in every view) */
-#page-signal:not([data-view="now"], [data-view="all"]) > :is(.mk-hero, #signal-screen-reading, .mk-axes, #regime-history, .mk-radar, #regime-cross, .mk-pair),
+#page-signal:not([data-view="now"], [data-view="all"]) > :is(.mk-hero, #signal-screen-reading, #signal-investigation, .mk-axes, #regime-history, .mk-radar, #regime-cross, .mk-pair),
 #page-signal:not([data-view="story"], [data-view="all"]) > :is(#regime-story, #regime-narratives, .mk-depth),
 #page-signal:not([data-view="korea"], [data-view="all"]) > .mk-korea,
 /* 테마와 섹터: 요약 / 지도 / 테마 순위 / 시나리오 / AI 공급망 / 한국 */

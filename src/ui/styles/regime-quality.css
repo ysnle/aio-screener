@@ -206,13 +206,16 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .xr-tag.is-against { color: var(--color-text-error); border-color: var(--color-text-error); }
 .page .xr-tag.is-past-conflict { color: var(--color-text-warning); border-color: var(--color-text-warning); }
 .page .xr-tag.is-choice { color: var(--color-text-success); border-color: var(--color-text-success); }
-/* Decision frame (src/ui/components/decision-frame.js): two face lines, one fold (ground kind and sample note live there). */
+/* Decision frame (src/ui/components/decision-frame.js): one or two face lines, one fold (ground kind and sample note live there). */
 .page .df-frame { margin: 8px 0; max-width: 920px; }
 .page .df-line { font-size: 14px; line-height: 1.6; margin: 4px 0; color: var(--color-text-primary); overflow-wrap: anywhere; }
 .page .df-line.is-conflict { color: var(--color-text-warning); }
 .page .df-legs { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 6px 0; font-size: 12px; line-height: 1.6; }
 .page .df-legs dt { color: var(--color-text-secondary); }
 .page .df-legs dd { margin: 0; overflow-wrap: anywhere; }
+.page .df-sub { color: var(--color-text-secondary); }
+.page .df-conds { margin: 0 0 2px; padding-left: 1.2em; }
+.page .df-cost { margin: 0; }
 @media (max-width: 600px) { .page .df-legs { grid-template-columns: 1fr; } .page .df-legs dd { margin-bottom: 6px; } }
 .page .xr-meter { display: inline-flex; gap: 4px; align-items: center; }
 .page .xr-dot { width: 10px; height: 10px; border-radius: 50%; border: 0.5px solid var(--color-text-secondary); }
