@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T14:52:08.847Z",
-  "attemptedAt": "2026-11-24T14:52:08.847Z",
-  "lastSuccessfulAt": "2026-11-24T14:52:08.847Z",
+  "generatedAt": "2026-11-24T15:22:09.170Z",
+  "attemptedAt": "2026-11-24T15:22:09.170Z",
+  "lastSuccessfulAt": "2026-11-24T15:22:09.170Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T14:52:04.898Z",
-  "until": "2026-11-24T14:52:04.898Z",
+  "since": "2026-11-10T15:22:06.435Z",
+  "until": "2026-11-24T15:22:06.435Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -9714,8 +9714,8 @@
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
   "signalCounts": {
-    "pt": 21,
-    "earnings": 14,
+    "pt": 20,
+    "earnings": 10,
     "macro": 3
   },
   "signals": [
@@ -10000,20 +10000,6 @@
       "post": "HANAchina/71992"
     },
     {
-      "kind": "pt",
-      "key": "pt|NVDA|BofA|2026-11-10",
-      "ticker": "NVDA",
-      "broker": "BofA",
-      "ptFrom": null,
-      "ptTo": 350,
-      "currency": "USD",
-      "direction": "hold",
-      "rating": null,
-      "ratingAction": null,
-      "date": "2026-11-10",
-      "post": "bornlupin/21096"
-    },
-    {
       "kind": "earnings",
       "key": "earnings|Zoom Communications 2027 회계연도|2026-11-24",
       "ticker": null,
@@ -10132,54 +10118,6 @@
       "guidance": "raise",
       "date": "2026-11-11",
       "post": "bornlupin/21098"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|RKLB|2026-11-10",
-      "ticker": "RKLB",
-      "name": "Rocket Lab",
-      "quarter": "2026Q3",
-      "revenue": "beat",
-      "eps": "miss",
-      "guidance": null,
-      "date": "2026-11-10",
-      "post": "insidertracking/68797"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|HIMS|2026-11-10",
-      "ticker": "HIMS",
-      "name": "Hims & Hers Health",
-      "quarter": "2026Q3",
-      "revenue": "miss",
-      "eps": "miss",
-      "guidance": null,
-      "date": "2026-11-10",
-      "post": "insidertracking/68800"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|OXY|2026-11-10",
-      "ticker": "OXY",
-      "name": "Occidental Petroleum",
-      "quarter": "2026Q3",
-      "revenue": null,
-      "eps": "beat",
-      "guidance": null,
-      "date": "2026-11-10",
-      "post": "insidertracking/68801"
-    },
-    {
-      "kind": "earnings",
-      "key": "earnings|ASTS|2026-11-10",
-      "ticker": "ASTS",
-      "name": "AST SpaceMobile",
-      "quarter": "2026Q3",
-      "revenue": "miss",
-      "eps": null,
-      "guidance": null,
-      "date": "2026-11-10",
-      "post": "insidertracking/68818"
     },
     {
       "kind": "macro",
