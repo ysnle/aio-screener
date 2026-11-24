@@ -71,6 +71,13 @@ export function renderCompanyAnalysis({ documentRef: doc, root = globalThis, sta
     keys = keyMetricsLine(row, consensusRowFor(root, id), []);
   }
   if (valuation) { if (valuation.textContent !== (keys || '')) valuation.textContent = keys || ''; valuation.hidden = !keys; }
+  // The AI analysis of the company (subject-reading.js): the model above, the valuation line and the stock lens the AI
+  // panel reads. Each late repaint re-mounts it; the reading is asked once the facts have settled.
+  if (doc?.getElementById('ticker-ai-reading') && model?.available) {
+    let lens = null;
+    try { lens = typeof root._aioStockLensFor === 'function' ? root._aioStockLensFor(id) : null; } catch (_) { lens = null; }
+    import('./subject-reading.js').then(({ mountSubjectReading }) => mountSubjectReading({ documentRef: doc, root, hostId: 'ticker-ai-reading', kind: 'stock', input: { company: model, valuation: keys, lens } })).catch(() => {});
+  }
   return model;
 }
 

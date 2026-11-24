@@ -18,6 +18,7 @@ import { renderIndexStandings } from '../components/market-story.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { renderScreenReading } from '../components/screen-reading.js';
 
 // The screener carries the S&P 500 weights column-encoded ({columns, rows}); the published file carries objects.
 function weightRows(meta) {
@@ -148,6 +149,7 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       const onIndexReadings = (list, asOf) => {
         const node = documentRef.getElementById('charts-conclusion');
         if (node) node.textContent = chartsConclusion(list);
+        renderScreenReading({ documentRef, root, screen: 'charts', shownBasis: asOf || null }); // the AI reading on the cards' close
         renderBasis(documentRef, root, asOf);
         if (asOf === basis) return;
         basis = asOf;

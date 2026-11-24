@@ -212,6 +212,10 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     more.append(list, detail);
     host.append(more);
   }
+  // The AI analysis of the holdings: written only from its button, with ticker · sector · weight · return leaving the browser.
+  let aiRows = null;
+  try { aiRows = typeof root?._aioPortfolioAiRows === 'function' ? root._aioPortfolioAiRows() : null; } catch (_) { aiRows = null; }
+  if (aiRows?.available) import('./subject-reading.js').then(({ mountSubjectReading }) => mountSubjectReading({ documentRef: doc, root, hostId: 'pf-ai-reading', kind: 'portfolio', input: { rows: aiRows, read } })).catch(() => {});
   // Questions that start from the holdings, sent to the shared AI panel.
   const ask = askRow(doc, [
     ['쏠림 점검', '내 포트폴리오의 섹터·종목 집중과 지수 대비 위험을 점검해줘'],

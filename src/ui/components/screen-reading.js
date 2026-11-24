@@ -1,4 +1,4 @@
-// The screen's AI reading (owner 2026-11-18, text architecture) — one open paragraph right under its first verdict, with a small
+// The screen's AI reading (owner 2026-11-18, text architecture) — one or two open paragraphs right under its first verdict, with a small
 // "AI 읽기" tag and the close it was written on. Shown only when the producer verified it and its basis is the close the
 // screen shows now; otherwise the host is emptied and hidden (an empty place, no stand-in text). Text goes in as text.
 import { serverScreenReading } from '../../data/server-screen-readings.js';
@@ -28,10 +28,13 @@ export function renderScreenReading({ documentRef: doc, root, screen, shownBasis
   when.className = 'screen-reading__basis';
   when.textContent = `${md(reading.basis)} 종가 기준`;
   head.append(tag, when);
-  const body = doc.createElement('p');
-  body.className = 'screen-reading__text';
-  body.textContent = reading.text;
-  host.replaceChildren(head, body);
+  const blocks = (reading.blocks || [reading.text]).map((text) => {
+    const body = doc.createElement('p');
+    body.className = 'screen-reading__text';
+    body.textContent = text;
+    return body;
+  });
+  host.replaceChildren(head, ...blocks);
   host.hidden = false;
   return true;
 }

@@ -8,15 +8,15 @@
   ],
   "totals": {
     "localFinite": 2,
-    "dateRegex": 41,
-    "rawRowRead": 81,
-    "nullAsZero": 68,
+    "dateRegex": 40,
+    "rawRowRead": 80,
+    "nullAsZero": 66,
     "localEscape": 0,
     "localIndicator": 2,
     "publicDataPath": 0,
     "dataPathLiteral": 0,
     "sessionBranch": 0,
-    "verdictLiteral": 186
+    "verdictLiteral": 182
   },
   "counts": {
     "scripts/build-macro-calendar-review.mjs": {
@@ -104,18 +104,6 @@
       "verdictLiteral": 0
     },
     "scripts/lib/13f-semantic-hash.mjs": {
-      "localFinite": 0,
-      "dateRegex": 1,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 0
-    },
-    "scripts/lib/ai-shared-analysis.mjs": {
       "localFinite": 0,
       "dateRegex": 1,
       "rawRowRead": 0,
@@ -1052,6 +1040,15 @@
       "verdictLiteral": 0
     },
     "src/ui/chat/panel.js": {
+      "localFinite": 0,
+      "dateRegex": 0,
+      "rawRowRead": 0,
+      "nullAsZero": 0,
+      "localEscape": 0,
+      "localIndicator": 0,
+      "publicDataPath": 0,
+      "dataPathLiteral": 0,
+      "sessionBranch": 0,
       "verdictLiteral": 15
     },
     "src/ui/components/ai-answer-visuals.js": {
@@ -1130,13 +1127,13 @@
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
-      "nullAsZero": 2,
+      "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 14
+      "verdictLiteral": 5
     },
     "src/ui/components/fundamental-analysis-cards.js": {
       "localFinite": 0,
@@ -1209,18 +1206,6 @@
       "dataPathLiteral": 0,
       "sessionBranch": 0,
       "verdictLiteral": 9
-    },
-    "src/ui/components/macro-crossroads.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 1
     },
     "src/ui/components/market-regime.js": {
       "localFinite": 0,
@@ -1370,13 +1355,13 @@
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
-      "nullAsZero": 2,
+      "nullAsZero": 1,
       "localEscape": 0,
       "localIndicator": 0,
       "publicDataPath": 0,
       "dataPathLiteral": 0,
       "sessionBranch": 0,
-      "verdictLiteral": 3
+      "verdictLiteral": 1
     },
     "src/ui/components/scroll-cue.js": {
       "localFinite": 0,
@@ -1391,18 +1376,6 @@
       "verdictLiteral": 2
     },
     "src/ui/components/sector-map.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 1
-    },
-    "src/ui/components/sector-moves.js": {
       "localFinite": 0,
       "dateRegex": 0,
       "rawRowRead": 0,
@@ -1477,7 +1450,7 @@
     "src/ui/components/theme-playbook-view.js": {
       "localFinite": 0,
       "dateRegex": 0,
-      "rawRowRead": 22,
+      "rawRowRead": 21,
       "nullAsZero": 0,
       "localEscape": 0,
       "localIndicator": 0,
@@ -1593,18 +1566,6 @@
       "dataPathLiteral": 0,
       "sessionBranch": 0,
       "verdictLiteral": 1
-    },
-    "src/ui/pages/screener/filters.js": {
-      "localFinite": 0,
-      "dateRegex": 0,
-      "rawRowRead": 0,
-      "nullAsZero": 0,
-      "localEscape": 0,
-      "localIndicator": 0,
-      "publicDataPath": 0,
-      "dataPathLiteral": 0,
-      "sessionBranch": 0,
-      "verdictLiteral": 6
     },
     "src/ui/pages/screener/inspector.js": {
       "localFinite": 0,

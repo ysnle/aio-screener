@@ -367,6 +367,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .screen-reading__tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a07); font-weight: 600; }
 .screen-reading__text { margin: 0; max-width: 46em; font-size: 14px; line-height: 1.7; color: var(--color-text-primary); text-wrap: pretty; overflow-wrap: anywhere; }
 @media (max-width: 743px) { .screen-reading { padding: 14px var(--sx-card-pad-x); } }
+.screen-reading__text + .screen-reading__text { margin-top: 8px; }
+.screen-reading__note { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); }
+.screen-reading__ask { margin-top: 6px; }
 .investigation__verdict { font-weight: 600; }
 .screen-reading .investigation__paragraph { margin-top: 8px; }
 .investigation__list { margin: 6px 0 0; padding-left: 18px; }

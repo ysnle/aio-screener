@@ -69,8 +69,9 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     row.estimatedUsd = Math.round((row.estimatedUsd + estimateAiCostUsd(usage)) * 1e5) / 1e5;
     return { text: answer?.text ? normalizeScreenReading(softenReaderDuty(answer.text)) : null, reason: answer?.reason || null, usage };
   };
-  // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences.
-  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun() };
+  // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences, and this run's
+  // data.json for the boards that read it directly (금리와 환율: macro).
+  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;
