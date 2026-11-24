@@ -318,7 +318,7 @@ await section('v60.21 likelihood ground', async () => {
   const vix = vixBandRiskLine({ state: 'current', vix: 25.6, label: '높음', band: { label: '높음' }, from: '1990-01-02', horizon: 21, drawdownAtPct: -5,
     risk: { drawdownShare: 30, drawdownCases: 42, cases: 140, strength: evidenceStrength(140) }, baseRisk: { drawdownShare: 15, drawdownCases: 135, cases: 900, strength: evidenceStrength(900) } });
   const grounded = {
-    'past-frequency': [`${frame.face[0]}입니다. 반등 가능성이 더 높아 보입니다.`, '비슷한 때 138번 중 80번 20거래일 뒤 올라 평소 55%보다 잦아 반등 가능성이 높습니다.'],
+    'past-frequency': [`${frame.likelihood}입니다. 반등 가능성이 더 높아 보입니다.`, '비슷한 때 138번 중 80번 20거래일 뒤 올라 평소 55%보다 잦아 반등 가능성이 높습니다.'],
     'vix-band-record': [`${vix?.text}. 추가 하락 가능성이 더 큽니다.`, 'VIX 높음 구간 기록에서 한 달 안 5% 이상 빠진 경우는 평소의 두 배여서 추가 하락 가능성이 큽니다.'],
     'market-implied': ['시장 가격도 이 시나리오 쪽으로 움직여 금리 하락 가능성이 더 높아 보입니다.', '금리 선물 가격에 반영된 기대가 인하 쪽이라 금리 하락 가능성이 큽니다.'],
     'cost-hypothesis': [`${side}. 그래서 보유 유지 쪽 가능성이 더 높아 보입니다.`, '보유 유지의 기회비용이 작다는 비용 가설로 보면 상승 쪽 가능성이 더 높아 보입니다.'],

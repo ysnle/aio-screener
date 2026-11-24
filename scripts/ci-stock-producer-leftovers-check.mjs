@@ -108,7 +108,7 @@ const { createFakeDocument } = await load('scripts/lib/fake-dom.mjs');
   check(typeof frameHasNoLegs === 'function' && frameHasNoLegs(empty) && decisionFrameBlock(doc, empty, { method: '' }) === null, 'v60.51 B25 a frame whose four legs are all 없음 is not drawn', empty?.missing);
   const record = { n: 73, up: 41, median: 1.0, p25: -1.2, p75: 2.7, horizon: 20, baseN: 9187, baseUpPct: 64, baseP25: -1.0, baseMedian: 1.3, baseP75: 3.1, dd5: 9, mddMedian: -1.8, baseDd5Pct: 14, baseMddMedian: -1.5, cashMedian: 0.25 };
   const drawn = decisionFrameBlock(doc, buildDecisionFrame({ record, favored: ['wait'], why: 'x', invalidation: ['y'] }), { method: '' });
-  check(!!drawn && /^가능성:/.test(drawn.children[0].textContent), 'v60.51 B25 a frame with a sourced leg is still drawn');
+  check(!!drawn && /^(?:가능성|과거 빈도):/.test(drawn.children[0].textContent), 'v60.51 B25 a frame with a sourced leg is still drawn');
   const line = stageConditionText(row);
   check(line === '단계 조건: 2/4 충족 — 긴 추세 앞섬 충족, 조정이 무너지지 않음 미충족, 중심 시나리오에서 수혜 또는 중립 충족, 신용 안정(시장 전체) 미충족', 'v60.51 B25 the stage count lists all four conditions it counts, credit named as the market\'s', line);
   check(!/기준 충족/.test(line), 'v60.51 B25 the stage count is named apart from the 전문가 기준 count');
