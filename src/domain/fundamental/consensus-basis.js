@@ -6,6 +6,7 @@
 // whose EPS sum still reaches the price before it is published. The reader keeps its own guard (consensus-read.js).
 import { readNumber as finite } from '../shared/number.js';
 import { PE_PLAUSIBLE_MIN } from './consensus-read.js';
+import { isoDay } from '../shared/session-date.js';
 
 export const SPLIT_SIZED = 1.5;
 const round = (value) => Math.round(value * 1000) / 1000;
@@ -33,7 +34,7 @@ export function alignConsensusSplit(row, listing) {
   const price = closeOf(listing);
   const trailing = finite(row.trailing.eps);
   // A stock dividend (SCCO 1.01) moves EPS less than the provider's own rounding: only a split-sized factor is a basis.
-  if (!(ratio >= SPLIT_SIZED || (ratio > 0 && ratio <= 1 / SPLIT_SIZED)) || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !(price > 0) || !(trailing > 0)) return { row, basis: 'no-split' };
+  if (!(ratio >= SPLIT_SIZED || (ratio > 0 && ratio <= 1 / SPLIT_SIZED)) || !isoDay(date) || !(price > 0) || !(trailing > 0)) return { row, basis: 'no-split' };
   if (row.trailing.to && date.slice(0, 7) <= row.trailing.to) return { row, basis: 'no-split' };
   const rawPe = price / trailing;
   const adjustedPe = price * ratio / trailing;

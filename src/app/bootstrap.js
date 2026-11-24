@@ -309,6 +309,8 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
+  // A US index quote's change is checked against the history close (us-quote-basis.js), loaded with the history.
+  root.addEventListener?.('aio:historyLoaded', () => import('../domain/market/session/us-quote-basis.js').then((m) => { root._aioVerifyUsQuoteChange = m.verifyUsQuoteChange; root._aioReverifyQuotes?.(); }), { once: true });
   root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
   // The portfolio stress panel (src/ui/panels/portfolio-stress.js) is imported by its lazy route component
   // (src/ui/components/portfolio-exposure.js), so its model is outside the boot bundle; the unused _aioKrIndexStress hook went.

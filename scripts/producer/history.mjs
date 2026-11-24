@@ -418,7 +418,7 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
 export function alignHeldCopies(hist, { fields = HIST_MARKET_FIELDS } = {}) {
   const rows = Array.isArray(hist) ? hist : [];
   const byDate = new Map(rows.filter((row) => row && typeof row === 'object').map((row) => [row.date, row]));
-  const latest = [...byDate.keys()].filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))).sort().at(-1);
+  const latest = [...byDate.keys()].filter((date) => isoDay(date)).sort().at(-1);
   const aligned = [];
   for (const row of rows) {
     if (!row?.fieldMeta || row.date === latest) continue;

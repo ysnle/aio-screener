@@ -9,7 +9,6 @@
 //   A1  a US index quote's change is taken against the history close before its own session
 import fs from 'node:fs';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -119,19 +118,14 @@ const { createFakeDocument } = await load('scripts/lib/fake-dom.mjs');
 
 // ── A1: ^VIX on Monday 11/23 13:2xZ (pre-open) with the provider's previous close one session behind ──
 {
-  const source = fs.readFileSync(path.join(ROOT, 'js/aio-data.js'), 'utf8');
-  const block = source.slice(source.indexOf('var _AIO_KR_INDEX_FIELD'), source.indexOf('function applyLiveQuotes(quotes) {'));
+  const { verifyUsQuoteChange } = await load('src/domain/market/session/us-quote-basis.js');
   const history = [
     { date: '2026-11-19', vix: 28.44, fieldMeta: { vix: { observedAt: '2026-11-19T23:00:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', sessionDate: '2026-11-19' } } },
     { date: '2026-11-20', vix: 35.89, fieldMeta: { vix: { observedAt: '2026-11-20T21:15:00.000Z', valueBasis: 'latest-completed-close', observationRelation: 'latest-completed-close', sessionDate: '2026-11-20' } } },
     { date: '2026-11-21', vix: 35.89, fieldMeta: { vix: { observedAt: '2026-11-20T21:15:00.000Z', observationRelation: 'carried-forward', sessionDate: '2026-11-20' } } },
     { date: '2026-11-22', vix: 35.89, fieldMeta: { vix: { observedAt: '2026-11-20T21:15:00.000Z', observationRelation: 'carried-forward', sessionDate: '2026-11-20' } } }
   ];
-  const win = { _aioHistory: history, addEventListener() {} };
-  const ctx = { window: win, document: { addEventListener() {} }, Intl, Date, Number, Math, isFinite, applyLiveQuotes() {} };
-  vm.createContext(ctx);
-  vm.runInContext(block, ctx);
-  const verify = win._aioVerifyUsQuoteChange || (() => undefined);
+  const verify = (q, price, pct) => verifyUsQuoteChange(q, price, pct, { history, loadedAt: Date.parse('2026-11-23T12:00:00Z'), now: Date.parse('2026-11-23T13:30:00Z') });
   const monday = verify({ symbol: '^VIX', _atomicObservedAt: '2026-11-23T13:25:00.000Z', regularMarketPreviousClose: 28.44 }, 30.88, 8.58);
   check(monday?.status === 'corrected' && monday.prevClose === 35.89 && monday.basisDate === '2026-11-20' && Math.abs(monday.pct + 13.96) < 0.01, 'v60.51 A1 30.88 before the 11/23 open reads -13.96% against the 11/20 close, not +8.58% against 11/19', monday);
   const friday = verify({ symbol: '^VIX', _atomicObservedAt: '2026-11-20T21:15:00.000Z', regularMarketPreviousClose: 28.44 }, 35.89, 26.2);
@@ -139,8 +133,8 @@ const { createFakeDocument } = await load('scripts/lib/fake-dom.mjs');
   const thin = verify({ symbol: '^VIX', _atomicObservedAt: '2026-11-25T14:00:00.000Z', regularMarketPreviousClose: 30 }, 31, 3.3);
   check(thin === null, 'v60.51 A1 a history that has not reached the previous trading day is no basis (the provider pair stays)', thin);
   check(verify({ symbol: 'AAPL', _atomicObservedAt: '2026-11-23T15:00:00.000Z', regularMarketPreviousClose: 200 }, 201, 0.5) === null, 'v60.51 A1 a symbol without a history field is not checked');
-  const applied = source.slice(source.indexOf('function applyLiveQuotes(quotes) {'));
-  check(/_aioVerifyUsQuoteChange\(q, price, pct\)/.test(applied) && /regularMarketPreviousClose: _usCheck\.prevClose/.test(applied), 'v60.51 A1 applyLiveQuotes republishes the corrected change with its previous close');
+  check(monday?.quote?.regularMarketPreviousClose === 35.89 && monday.quote.changeBasis === 'history-previous-close' && friday?.quote?.regularMarketPreviousClose === 28.44, 'v60.51 A1 the corrected quote carries the history close as its previous close; an agreeing quote is unchanged', monday?.quote);
+  check(verifyUsQuoteChange({ symbol: '^VIX', _atomicObservedAt: '2026-11-23T13:25:00.000Z', regularMarketPreviousClose: 28.44 }, 30.88, 8.58, { history, loadedAt: 0, now: Date.parse('2026-11-23T13:30:00Z') }) === null, 'v60.51 A1 a history loaded more than six hours ago is no basis');
 }
 
 if (failures.length) { console.error(`[stock-producer-leftovers] ${failures.length} failure(s):\n  ${failures.join('\n  ')}`); process.exit(1); }

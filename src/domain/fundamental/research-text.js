@@ -4,17 +4,18 @@
 // research day: "현재/지금" beside a number never renders, and a figure that moves between reports (estimate revision
 // counts) names the day it was counted. The producer side (scripts/sync-company-profiles.mjs) warns on the same words.
 
-const ISO_DAY = /^\d{4}-\d{2}-\d{2}/;
+import { stampDay } from '../shared/session-date.js';
+
 // "현재" or "지금(은/는/의)" with a quantity (a figure and its unit, not a year) within ten characters of the same clause.
 const NOW_BESIDE_NUMBER = /(현재|지금)(은|는|의)?\s+(?=[^,.;·\n]{0,10}?\d[\d,.]*\s*(?:%|건|배|달러|억|조|원|명|개|bp))/g;
 // Analyst estimate revision counts: the figure the weekly consensus table owns.
 const REVISION_COUNT = /(?:최근\s*4주\s*)?(?:상향|하향)\s*\d+\s*건/;
 // A clause already dated ("2026-10-27 기준", "10/28", "조사 당시") keeps its own date.
-const DATED = /\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}|조사 당시/;
+const DATED = /20\d\d-\d\d-\d\d|\d{1,2}\/\d{1,2}|조사 당시/;
 
 export const researchDayLabel = (researchedAt) => {
-  const m = String(researchedAt || '').match(/^\d{4}-(\d{2})-(\d{2})/);
-  return m ? `${Number(m[1])}/${Number(m[2])} 조사 당시` : '조사 당시';
+  const day = stampDay(researchedAt);
+  return day ? `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))} 조사 당시` : '조사 당시';
 };
 
 /** Every "현재/지금" beside a number and every undated revision count in one researched text (warn-only findings). */
@@ -58,7 +59,7 @@ export function storyResearchWarnings(story) {
 /** The story with every prose string dated by its research day (a copy; the stored story is not changed). */
 export function datedStory(story) {
   if (!story || typeof story !== 'object') return story;
-  const day = ISO_DAY.test(String(story.researchedAt || '')) ? story.researchedAt : null;
+  const day = stampDay(story.researchedAt);
   const walk = (value, key) => {
     if (NOT_PROSE.has(key)) return value;
     if (typeof value === 'string') return datedResearchText(value, day);
