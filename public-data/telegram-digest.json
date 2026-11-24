@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T01:21:45.588Z",
-  "attemptedAt": "2026-11-24T01:21:45.588Z",
-  "lastSuccessfulAt": "2026-11-24T01:21:45.588Z",
+  "generatedAt": "2026-11-24T01:52:13.261Z",
+  "attemptedAt": "2026-11-24T01:52:13.261Z",
+  "lastSuccessfulAt": "2026-11-24T01:52:13.261Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T01:21:40.437Z",
-  "until": "2026-11-24T01:21:40.437Z",
+  "since": "2026-11-10T01:52:06.953Z",
+  "until": "2026-11-24T01:52:06.953Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1158,
+      "count": 1160,
       "freshCount": 40,
-      "eligibleTextCount": 1091,
+      "eligibleTextCount": 1094,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70103
+      "lastPostId": 70107
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 173,
-      "freshCount": 20,
+      "freshCount": 40,
       "eligibleTextCount": 173,
-      "selectedCount": 119,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21258
+      "lastPostId": 21259
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 721,
+      "count": 723,
       "freshCount": 38,
-      "eligibleTextCount": 720,
+      "eligibleTextCount": 722,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72660
+      "lastPostId": 72664
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,54 +137,55 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2052,
-  "retainedItemCount": 416,
+  "count": 2056,
+  "retainedItemCount": 427,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2052,
-    "eligibleTextCount": 1984,
-    "mediaOnlyCount": 68,
-    "mediaAttachedCount": 822,
-    "photoPostCount": 701,
+    "observedCount": 2056,
+    "eligibleTextCount": 1989,
+    "mediaOnlyCount": 67,
+    "mediaAttachedCount": 823,
+    "photoPostCount": 702,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 334,
-    "broadSignalCount": 846,
-    "selectedRawCount": 369,
-    "selectedEligibleCount": 369,
+    "highSignalCount": 335,
+    "broadSignalCount": 850,
+    "selectedRawCount": 370,
+    "selectedEligibleCount": 370,
     "selectedRawCoveragePct": 18.6,
     "selectedOfObservedPct": 18,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 728,
+    "semi": 651,
+    "kr-market": 96,
+    "japan": 48,
     "flows": 63,
-    "market-note": 726,
-    "semi": 647,
-    "kr-market": 95,
     "healthcare": 49,
     "geo": 243,
-    "ai-policy": 155,
-    "japan": 47,
-    "media-only": 67,
+    "ai-policy": 154,
+    "media-only": 66,
     "macro": 284,
     "earnings": 251,
     "power": 192,
-    "equity": 138,
+    "equity": 137,
     "insider": 5,
     "credit": 72,
     "optical": 22
   },
   "tickerCounts": {
-    "NVDA": 419,
-    "TSM": 65,
+    "NVDA": 422,
+    "TSM": 66,
+    "005930.KS": 29,
+    "000660.KS": 28,
     "AMD": 53,
     "AVGO": 19,
     "MU": 25,
     "SNDK": 3,
-    "005930.KS": 28,
     "HPE": 1,
     "FLNC": 1,
     "DGX": 1,
@@ -193,7 +194,6 @@
     "AMZN": 48,
     "APLD": 3,
     "AAPL": 5,
-    "000660.KS": 27,
     "285A.T": 2,
     "MSFT": 52,
     "META": 4,
@@ -259,30 +259,30 @@
     "ULTA": 1
   },
   "themes": [
-    "Market Notes (726 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
-    "Semiconductors/Memory (647 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
+    "Market Notes (728 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
+    "Semiconductors/Memory (651 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
     "Macro/Rates (284 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58...",
     "Earnings/Corporate (251 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (243 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (192 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
-    "AI Policy/Export Controls (155 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (138 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+    "AI Policy/Export Controls (154 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (137 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 419,
+      "count": 422,
       "text": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
       "key": "TSM",
-      "count": 65,
+      "count": 66,
       "text": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
       "key": "AMD",
       "count": 53,
-      "text": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을..."
+      "text": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을 창출하고 있으며, 전 세계적으로 AI 칩 수요는 사실상 무제한에 가깝다고 평가. - 엔비디아의 순환금융 구조와..."
     },
     {
       "key": "MSFT",
@@ -301,12 +301,12 @@
     },
     {
       "key": "005930.KS",
-      "count": 28,
+      "count": 29,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
       "key": "000660.KS",
-      "count": 27,
+      "count": 28,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)..."
     },
     {
@@ -356,7 +356,7 @@
         "credit"
       ],
       "count": 72,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을 유지하며, 엔비디아는 국가안보 및 수출통제위원회를 신설하고 외국 정보기관의 개입 의혹과 수출통제 준수..."
+      "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
       "id": "semi",
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 647,
+      "count": 651,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -391,7 +391,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 155,
+      "count": 154,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 95,
+      "count": 96,
       "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 138,
+      "count": 137,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "japan"
       ],
-      "count": 47,
+      "count": 48,
       "focus": "**리서치 온라인 포럼 유투브 링크 공유합니다. 오늘은 9:30부터 자산, 내일은 산업 전망입니다. **많은 관심 부탁드립니다~"
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 726,
+      "count": 728,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
     }
   ],
@@ -779,18 +779,16 @@
       "datetime": "2026-11-23T20:43:24.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을..."
+      ]
     },
     {
       "id": "insidertracking/70030",
@@ -832,15 +830,18 @@
       "datetime": "2026-11-22T22:46:22.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을...",
       "tickers": [
         "NVDA",
         "AMD"
-      ]
+      ],
+      "summary": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을..."
     },
     {
       "id": "insidertracking/69964",
@@ -1412,14 +1413,18 @@
       "datetime": "2026-11-22T22:50:19.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "semi"
+        "semi",
+        "credit",
+        "macro",
+        "earnings"
       ],
+      "lead": 1,
       "score": 95,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 반도체: 재귀적 자기개선과 손정의의 SK하이닉스 인수 검토, 그리고 초장기 LTA - 최근 The Information 및 로이터에 따르면, 소프트뱅크의 손정의 회장은...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 반도체: 재귀적 자기개선과 손정의의 SK하이닉스 인수 검토, 그리고 초장기 LTA - 최근 The Information 및 로이터에 따르면, 소프트뱅크의 손정의 회장은..."
     },
     {
       "id": "HANAchina/72404",
@@ -1665,6 +1670,82 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "HANAchina/72661",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72661",
+      "datetime": "2026-11-24T01:45:19.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": ">>엔비디아 주가 급등에 공매도 세력 타격, 레버리지 공매도 상품 최대 92% 폭락 •엔비디아의 하루 수익률을 2배 역방향으로 추종하는 GraniteShares 2x Short NVDA Daily..."
+    },
+    {
+      "id": "insidertracking/70106",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70106",
+      "datetime": "2026-11-24T01:44:05.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 51,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "젠슨 황의 엔비디아 복귀에 관한 미국 하원 공동성명 11월 23일 미국 하원 중국특별위원회 존 물레나르 위원장(공화당·미시간), 정보위원회 릭 크로퍼드 위원장(공화당·아칸소), 외교위원회 브라이언 매스트..."
+    },
+    {
+      "id": "bornlupin/21259",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21259",
+      "datetime": "2026-11-24T01:37:33.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "애플, 내년 1분기 신형 보급형 노트북 출시 전망… A19 Pro 탑재 애플의 보급형 노트북 맥북 네오(MacBook Neo)가 폭발적인 판매 호조를 보이는 가운데, 애플이 2027년 3월 2세대 제품을..."
+    },
+    {
+      "id": "insidertracking/70104",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70104",
+      "datetime": "2026-11-24T01:23:03.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi",
+        "kr-market",
+        "japan"
+      ],
+      "lead": 1,
+      "score": 76,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSM",
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "젠슨 황이 엔비디아 CEO로 전격 복귀했다는 소식에 힘입어 화요일 아시아 기술주가 급등. 한국 코스피 지수는 장중 한때 7% 상승했으며, 삼성전자와 SK하이닉스는 각각 8.3%, 10% 이상 급등. 일본..."
+    },
     {
       "id": "insidertracking/70103",
       "channel": "insidertracking",
@@ -2266,10 +2347,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 시총 4위에서 2위 탈환 완료",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 시총 4위에서 2위 탈환 완료"
+      ]
     },
     {
       "id": "insidertracking/70062",
@@ -2278,11 +2359,8 @@
       "datetime": "2026-11-23T20:46:04.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 66,
       "hasText": true,
       "media": {
@@ -2291,10 +2369,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 관련 정리 - 2026년 11월 24일 젠슨 황 CEO 복귀 · 엔비디아 이사회, 젠슨 황을 사장·CEO·이사회 이사로 만장일치 복귀 결정 · 젠슨 황 복귀 즉시 발효 · 콜레트 크레스, CFO직...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 관련 정리 - 2026년 11월 24일 젠슨 황 CEO 복귀 · 엔비디아 이사회, 젠슨 황을 사장·CEO·이사회 이사로 만장일치 복귀 결정 · 젠슨 황 복귀 즉시 발효 · 콜레트 크레스, CFO직..."
+      ]
     },
     {
       "id": "insidertracking/70061",
@@ -2303,8 +2381,7 @@
       "datetime": "2026-11-23T20:44:25.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "score": 66,
       "hasText": true,
@@ -2314,10 +2391,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 24일 트럼프·젠슨 황 CEO 복귀 개입 · 트럼프, 엔비디아의 젠슨 황 CEO 복귀 결정을 “올바르고 적절한 결정”이라고 평가 · 트럼프, 엔비디아...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 24일 트럼프·젠슨 황 CEO 복귀 개입 · 트럼프, 엔비디아의 젠슨 황 CEO 복귀 결정을 “올바르고 적절한 결정”이라고 평가 · 트럼프, 엔비디아..."
+      ]
     },
     {
       "id": "insidertracking/70060",
@@ -2326,18 +2403,16 @@
       "datetime": "2026-11-23T20:43:24.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을..."
+      ]
     },
     {
       "id": "HANAchina/72637",
@@ -2781,13 +2856,13 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 66,
       "hasText": true,
+      "summary": ">>OpenAI, AMD 플래그십 GPU 대대적 개선…AMD가 직접 파운드리에 설계 투입 •OpenAI가 GPT를 활용해 AMD 플래그십 GPU의 회로 코드를 재작성하고, 5개월도 안 되는 기간에 최대...",
+      "lead": 2,
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>OpenAI, AMD 플래그십 GPU 대대적 개선…AMD가 직접 파운드리에 설계 투입 •OpenAI가 GPT를 활용해 AMD 플래그십 GPU의 회로 코드를 재작성하고, 5개월도 안 되는 기간에 최대..."
+      ]
     },
     {
       "id": "HANAchina/72620",
@@ -2798,14 +2873,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
+      "summary": ">>AI 서버 납품 직전 가격 45% 폭등, TSMC는 외상거래 축소하고 현금 요구…젠슨 황 떠나자 글로벌 공급망 균열 •AI 산업 공급망이 ‘서로 버텨주기’에서 ‘현금 결제·현물 거래’로 전환되고 있음....",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>AI 서버 납품 직전 가격 45% 폭등, TSMC는 외상거래 축소하고 현금 요구…젠슨 황 떠나자 글로벌 공급망 균열 •AI 산업 공급망이 ‘서로 버텨주기’에서 ‘현금 결제·현물 거래’로 전환되고 있음...."
+      ]
     },
     {
       "id": "bornlupin/21245",
@@ -3452,14 +3527,18 @@
       "datetime": "2026-11-22T22:50:19.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "semi"
+        "semi",
+        "credit",
+        "macro",
+        "earnings"
       ],
+      "lead": 1,
       "score": 95,
       "hasText": true,
-      "summary": "[메리츠증권 반도체/디스플레이 김선우] 반도체: 재귀적 자기개선과 손정의의 SK하이닉스 인수 검토, 그리고 초장기 LTA - 최근 The Information 및 로이터에 따르면, 소프트뱅크의 손정의 회장은...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "[메리츠증권 반도체/디스플레이 김선우] 반도체: 재귀적 자기개선과 손정의의 SK하이닉스 인수 검토, 그리고 초장기 LTA - 최근 The Information 및 로이터에 따르면, 소프트뱅크의 손정의 회장은..."
     },
     {
       "id": "bornlupin/21237",
@@ -3468,15 +3547,18 @@
       "datetime": "2026-11-22T22:46:22.000Z",
       "localDateKst": "2026-11-23",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을...",
       "tickers": [
         "NVDA",
         "AMD"
-      ]
+      ],
+      "summary": "베센트 미 재무장관, CBS 인터뷰 1. 엔비디아(NVDA)와 AI 산업 전망 - 엔비디아는 미국의 위대한 기업 중 하나이며, 현재 CFO가 경영을 맡고 있다고 언급. - 엔비디아는 여전히 막대한 수익을..."
     },
     {
       "id": "insidertracking/69993",
@@ -3667,14 +3749,16 @@
       "datetime": "2026-11-22T13:50:38.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "semi"
+        "semi",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": "씨티: AI 수요 불확실성으로 2027년 상반기(1H27E) 메모리 현물 가격 약세 전망, 하반기(2H27E) 반등 예상 — AI 수요 불확실성 속에서 2027년 상반기(1H27E) DRAM 및 NAND 현물...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "씨티: AI 수요 불확실성으로 2027년 상반기(1H27E) 메모리 현물 가격 약세 전망, 하반기(2H27E) 반등 예상 — AI 수요 불확실성 속에서 2027년 상반기(1H27E) DRAM 및 NAND 현물..."
     },
     {
       "id": "bornlupin/21235",
@@ -3683,13 +3767,14 @@
       "datetime": "2026-11-22T13:40:41.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "macro"
+        "macro",
+        "japan"
       ],
+      "lead": 1,
       "score": 57,
       "hasText": true,
-      "summary": "민주당, 트럼프의 감세 및 관세 정책 되돌리기 추진 1. 민주당, 트럼프 경제정책 전면 재검토 추진 민주당은 2026년 중간선거에서 공화당이 큰 패배를 기록한 이후 의회 권력을 활용해 트럼프 행정부의...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "민주당, 트럼프의 감세 및 관세 정책 되돌리기 추진 1. 민주당, 트럼프 경제정책 전면 재검토 추진 민주당은 2026년 중간선거에서 공화당이 큰 패배를 기록한 이후 의회 권력을 활용해 트럼프 행정부의..."
     },
     {
       "id": "HANAchina/72557",
@@ -3730,15 +3815,16 @@
       "datetime": "2026-11-22T10:10:55.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
+        "semi",
         "equity"
       ],
       "score": 65,
       "hasText": true,
-      "summary": "기술 공급업체들, 계약 체결 수개월 후에도 AI 서버 가격 최대 45% 인상 1. AI 서버 공급업체, 계약 체결 후에도 가격 최대 45% 인상 요구 델(DELL), HPE, 레노버, 슈퍼마이크로(SMCI)...",
       "tickers": [
         "NVDA",
         "SMCI"
-      ]
+      ],
+      "summary": "기술 공급업체들, 계약 체결 수개월 후에도 AI 서버 가격 최대 45% 인상 1. AI 서버 공급업체, 계약 체결 후에도 가격 최대 45% 인상 요구 델(DELL), HPE, 레노버, 슈퍼마이크로(SMCI)..."
     },
     {
       "id": "HANAchina/72551",
@@ -3883,10 +3969,10 @@
       ],
       "score": 63,
       "hasText": true,
-      "summary": "올해 남은 주요 일정 11월 25일 PCE 12월 1일 젠슨 황 하원 조사 (비공개) (상원 출석도 동의 상태: 12월 중 협의) 12월 2일: 엔비디아 법무총괄 팀 테터(Tim Teter) 하원 위원회 별도...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "올해 남은 주요 일정 11월 25일 PCE 12월 1일 젠슨 황 하원 조사 (비공개) (상원 출석도 동의 상태: 12월 중 협의) 12월 2일: 엔비디아 법무총괄 팀 테터(Tim Teter) 하원 위원회 별도..."
     },
     {
       "id": "bornlupin/21227",
@@ -3895,16 +3981,18 @@
       "datetime": "2026-11-22T04:54:42.000Z",
       "localDateKst": "2026-11-22",
       "tags": [
-        "market-note"
+        "macro",
+        "semi",
+        "earnings"
       ],
       "score": 89,
       "hasText": true,
-      "summary": "증시 폭락 관련 대만 증시 핵심 변곡점 1. 정부의 긴급 대응: 이번 무차별 투매로 개인투자자뿐 아니라 월가 대형 기관투자자들도 큰 타격을 입었다. 시장 공포가 확산되자 대만 정부는 국안기금(국가금융안정기금)...",
       "tickers": [
         "NVDA",
         "AMD",
         "TSM"
-      ]
+      ],
+      "summary": "증시 폭락 관련 대만 증시 핵심 변곡점 1. 정부의 긴급 대응: 이번 무차별 투매로 개인투자자뿐 아니라 월가 대형 기관투자자들도 큰 타격을 입었다. 시장 공포가 확산되자 대만 정부는 국안기금(국가금융안정기금)..."
     },
     {
       "id": "insidertracking/69952",
@@ -3985,16 +4073,16 @@
         "semi",
         "flows"
       ],
+      "lead": 1,
       "score": 73,
       "hasText": true,
-      "summary": "CPU는 여전히 서버의 핵심 공급 병목 1. 재고 조정 배경 및 주요 수혜주 최근 일부 서버 부품에서 재고 조정 소식이 전해졌으나, 기관 투자자들은 수요 둔화가 아닌 부품 수급 불균형 때문으로 분석함....",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "TSM",
         "INTC"
-      ]
+      ],
+      "summary": "CPU는 여전히 서버의 핵심 공급 병목 1. 재고 조정 배경 및 주요 수혜주 최근 일부 서버 부품에서 재고 조정 소식이 전해졌으나, 기관 투자자들은 수요 둔화가 아닌 부품 수급 불균형 때문으로 분석함...."
     },
     {
       "id": "HANAchina/72531",
@@ -4223,8 +4311,10 @@
       "datetime": "2026-11-21T07:17:20.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
-        "ai-policy"
+        "ai-policy",
+        "semi"
       ],
+      "lead": 1,
       "score": 70,
       "hasText": true,
       "media": {
@@ -4233,12 +4323,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "오라클 공식 계정 오라클은 OpenAI와의 계약을 이행하는 데 필요한 모든 자금을 확보했습니다. 이달 초 마무리한 마지막 자본 조달을 통해, 오라클은 이번 투자 사이클에 필요한 자금을 전액 확보한 최초의...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "ORCL"
-      ]
+      ],
+      "summary": "오라클 공식 계정 오라클은 OpenAI와의 계약을 이행하는 데 필요한 모든 자금을 확보했습니다. 이달 초 마무리한 마지막 자본 조달을 통해, 오라클은 이번 투자 사이클에 필요한 자금을 전액 확보한 최초의..."
     },
     {
       "id": "bornlupin/21222",
@@ -4247,6 +4336,7 @@
       "datetime": "2026-11-21T07:11:27.000Z",
       "localDateKst": "2026-11-21",
       "tags": [
+        "semi",
         "power",
         "earnings",
         "healthcare"
@@ -4259,13 +4349,13 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "TPU 관련 업데이트 1. 전문가가 제시한 TPU 1,000만~1,400만 개 생산량 추정치는 전력 공급 제약을 고려하면 비현실적 이었습니다. 해당 물량을 가동하려면 미국 전체 데이터센터 전력의 거의 대부분이...",
       "tickers": [
         "2454.TW"
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "TPU 관련 업데이트 1. 전문가가 제시한 TPU 1,000만~1,400만 개 생산량 추정치는 전력 공급 제약을 고려하면 비현실적 이었습니다. 해당 물량을 가동하려면 미국 전체 데이터센터 전력의 거의 대부분이..."
     },
     {
       "id": "insidertracking/69896",
@@ -4351,8 +4441,8 @@
       ],
       "score": 52,
       "hasText": true,
-      "summary": "SK 하이닉스 시가총액 1조달러는 환산 주가 약 190만원, 20일 종가 1,113,000원 기준, 상승여력 약 +70.0%",
-      "tickers": []
+      "tickers": [],
+      "summary": "SK 하이닉스 시가총액 1조달러는 환산 주가 약 190만원, 20일 종가 1,113,000원 기준, 상승여력 약 +70.0%"
     },
     {
       "id": "bornlupin/21220",
@@ -4363,12 +4453,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달...",
       "tickers": [
         "000660.KS"
-      ]
+      ],
+      "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달..."
     },
     {
       "id": "HANAchina/72508",
@@ -6561,39 +6652,6 @@
       ]
     },
     {
-      "id": "insidertracking/69706",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69706",
-      "datetime": "2026-11-19T02:53:36.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": "월스트리트저널(WSJ)을 인용한 보도에 따르면, 엔비디아 CEO 젠슨 황이 최근 불륜 논란으로 사임한 가운데 그의 가족들이 오랫동안 회사 경영에 깊이 관여해 왔으며, 일부 직원들은 황씨 일가를 사내 '왕실...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/69700",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69700",
-      "datetime": "2026-11-19T02:11:23.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아가 추진한 5,000억 달러 규모의 반도체 구매 금융 지원 프로그램에서 현재까지 실제 집행된 자금이 전혀 없으며, 첫 거래도 2027년 이전에는 성사되기 어려울 전망....",
-      "tickers": [
-        "NVDA",
-        "AVGO"
-      ]
-    },
-    {
       "id": "bornlupin/21196",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21196",
@@ -7303,24 +7361,6 @@
       "hasText": true,
       "summary": "스탠리 드러켄밀러 TomorrowX Summit 대담 26년 11월 17일 * 시장 관점: 투자 경력상 손꼽힐 정도로 향후 12개월의 불확실성이 극심함 * 대응 전략: 공격적 수익 추구보다 자본 보존을...",
       "tickers": []
-    },
-    {
-      "id": "HANAchina/72312",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72312",
-      "datetime": "2026-11-17T22:47:12.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "earnings",
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "summary": ">>FT 보도 : Nvidia ‘숨겨진’ 주요 시장 - 싱가포르 법인, 지난해 매출 1,000억 달러 돌파…전년비 72% 증가 •고객 청구지 주소 기준으로 Nvidia의 2025회계연도 싱가포르는 미국에 이어...",
-      "lead": 2,
-      "tickers": [
-        "NVDA"
-      ]
     },
     {
       "id": "bornlupin/21182",
@@ -8701,10 +8741,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 시총 4위에서 2위 탈환 완료",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 시총 4위에서 2위 탈환 완료"
+      ]
     },
     {
       "id": "insidertracking/70062",
@@ -8713,11 +8753,8 @@
       "datetime": "2026-11-23T20:46:04.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "ai-policy",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 66,
       "hasText": true,
       "media": {
@@ -8726,10 +8763,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 관련 정리 - 2026년 11월 24일 젠슨 황 CEO 복귀 · 엔비디아 이사회, 젠슨 황을 사장·CEO·이사회 이사로 만장일치 복귀 결정 · 젠슨 황 복귀 즉시 발효 · 콜레트 크레스, CFO직...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 관련 정리 - 2026년 11월 24일 젠슨 황 CEO 복귀 · 엔비디아 이사회, 젠슨 황을 사장·CEO·이사회 이사로 만장일치 복귀 결정 · 젠슨 황 복귀 즉시 발효 · 콜레트 크레스, CFO직..."
+      ]
     },
     {
       "id": "insidertracking/70061",
@@ -8738,8 +8775,7 @@
       "datetime": "2026-11-23T20:44:25.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
       "score": 66,
       "hasText": true,
@@ -8749,10 +8785,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 24일 트럼프·젠슨 황 CEO 복귀 개입 · 트럼프, 엔비디아의 젠슨 황 CEO 복귀 결정을 “올바르고 적절한 결정”이라고 평가 · 트럼프, 엔비디아...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 24일 트럼프·젠슨 황 CEO 복귀 개입 · 트럼프, 엔비디아의 젠슨 황 CEO 복귀 결정을 “올바르고 적절한 결정”이라고 평가 · 트럼프, 엔비디아..."
+      ]
     },
     {
       "id": "insidertracking/70060",
@@ -8761,18 +8797,16 @@
       "datetime": "2026-11-23T20:43:24.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
         "semi"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMZN"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 24일 🇺🇸 아메리카 • 엔비디아 이사회는 젠슨 황을 최고경영자(CEO)와 사장 및 이사회 구성원으로 즉시 복귀시키기로 만장일치 결정. 하비 존스는 이사회 의장직을..."
+      ]
     },
     {
       "id": "HANAchina/72637",
@@ -9196,13 +9230,13 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 66,
       "hasText": true,
+      "summary": ">>OpenAI, AMD 플래그십 GPU 대대적 개선…AMD가 직접 파운드리에 설계 투입 •OpenAI가 GPT를 활용해 AMD 플래그십 GPU의 회로 코드를 재작성하고, 5개월도 안 되는 기간에 최대...",
+      "lead": 2,
       "tickers": [
         "AMD"
-      ],
-      "summary": ">>OpenAI, AMD 플래그십 GPU 대대적 개선…AMD가 직접 파운드리에 설계 투입 •OpenAI가 GPT를 활용해 AMD 플래그십 GPU의 회로 코드를 재작성하고, 5개월도 안 되는 기간에 최대..."
+      ]
     },
     {
       "id": "HANAchina/72620",
@@ -9213,14 +9247,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
+      "summary": ">>AI 서버 납품 직전 가격 45% 폭등, TSMC는 외상거래 축소하고 현금 요구…젠슨 황 떠나자 글로벌 공급망 균열 •AI 산업 공급망이 ‘서로 버텨주기’에서 ‘현금 결제·현물 거래’로 전환되고 있음....",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ],
-      "summary": ">>AI 서버 납품 직전 가격 45% 폭등, TSMC는 외상거래 축소하고 현금 요구…젠슨 황 떠나자 글로벌 공급망 균열 •AI 산업 공급망이 ‘서로 버텨주기’에서 ‘현금 결제·현물 거래’로 전환되고 있음...."
+      ]
     },
     {
       "id": "bornlupin/21245",
