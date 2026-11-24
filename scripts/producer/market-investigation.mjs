@@ -47,6 +47,10 @@ export function investigationWords(interpretation, signalPacket = null) {
   };
 }
 
+/** The published files the investigation's company and market_data readers open (scripts/lib/investigation-tools.mjs). */
+export const investigationArtifacts = (read) => ({ screener: read('screener.json'), consensus: read('consensus-estimates.json'), briefs: read('event-briefs.json'),
+  calendar: read('earnings-calendar.json'), auctions: read('treasury-auctions.json'), krFlows: read('kr-investor-flows.json'), telegram: read('telegram-digest.json') });
+
 /** The ledger this run would publish, built from the artifacts on disk with this run's payload as data.json. */
 export async function marketDayForRun(data, nowMs) {
   const { marketDayInputs } = await import('../build-market-day.mjs');
@@ -64,7 +68,7 @@ export async function marketDayForRun(data, nowMs) {
  * @param {object} [options.day]         the market-day ledger (fixture seam; production builds it)
  * @param {object} [options.interpretation] the shared interpretation (fixture seam)
  */
-export async function genMarketInvestigation({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), day = undefined, interpretation = undefined, longrun = undefined } = {}) {
+export async function genMarketInvestigation({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), day = undefined, interpretation = undefined, longrun = undefined, artifacts = undefined } = {}) {
   const generatedAt = new Date(nowMs).toISOString();
   const prior = previous?.schemaVersion === INVESTIGATION_SCHEMA_VERSION ? previous : null;
   const ledger = carryLedger(prior);
@@ -100,7 +104,8 @@ export async function genMarketInvestigation({ data = null, history = [], previo
   const spent = Number(ledger[month]?.estimatedUsd) || 0;
   if (spent + LIMIT.runReserveUsd > LIMIT.monthlyBudgetUsd) return { result: retainOr('monthly-budget'), outcome: 'monthly-budget', requests: 0 };
 
-  const runner = createInvestigationRunner({ day: ledgerDay, screenFacts: (screen) => buildScreenPacket(screen, shared, context) });
+  const runner = createInvestigationRunner({ day: ledgerDay, screenFacts: (screen) => buildScreenPacket(screen, shared, context), nowMs,
+    artifacts: artifacts !== undefined ? artifacts : investigationArtifacts(readPublic) });
   const linked = linkedHeadlines(ledgerDay, selection.leads);
   const message = buildLeadMessage({ session, leads: selection.leads, linked });
   const run = await runInvestigation({ request, runTool: runner, message, corpus: [message] });

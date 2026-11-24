@@ -28,7 +28,7 @@ export function marketDayInputs(read = readJson, root = ROOT) {
   return {
     history: readHistoryRows(historyRaw),
     screener: read('screener.json'), universe: read('screener-universe.json')?.universe || [],
-    news: [...(data.news || []), ...(data.newsIntraday || [])], signals: telegram?.signals || [], telegramDigest: telegram,
+    news: [...(data.news || []), ...(data.newsIntraday || [])], signals: telegram?.signals || [], channels: telegram?.sourceCatalog || [], telegramDigest: telegram,
     calendar: read('earnings-calendar.json'), briefs: read('event-briefs.json'), macroHistory: read('macro-history.json'),
     macroCalendar: read('macro-calendar.json'), themes: loadThemeMaps(root).usThemes, indexWeights: read('sp500-weights.json')?.rows || []
   };

@@ -17,6 +17,7 @@ import { releaseAtMs } from '../../briefing/schedule.js';
 import { EVENT_NAMES } from '../regime/macro-crossroads.js';
 import { RULES } from '../../rules/thresholds.js';
 import { sessionStep, sessionStepSd, spanStepSd, materialityRank } from '../session/move-size.js';
+import { channelRoleOf } from '../../news/channel-claims.js';
 
 export const MARKET_DAY_VERSION = 'market-day.v1';
 const HOUR = 3600000;
@@ -216,30 +217,36 @@ function scheduleFacts(macroCalendar, nowMs) {
 }
 
 const SIGNAL_TOPICS = { deal: ['deal'], pt: ['analyst'], macro: ['macro'], retail: ['positioning'] };
-function signalFacts(signals, nowMs) {
+// Every fact read from a channel signal says so in its src, with the channel's role (telegram-digest.json sourceCatalog),
+// so a reader can mark it as an unverified channel claim (src/domain/news/channel-claims.js).
+function signalFacts(signals, nowMs, channels = []) {
   const since = new Date(nowMs - 2 * DAY).toISOString().slice(0, 10);
   const out = [];
   const analyst = new Map();
+  const src = (post) => ({ kind: 'telegram', post, channel: channelRoleOf(post, channels) });
   for (const signal of Array.isArray(signals) ? signals : []) {
     if (!signal?.kind || String(signal.date || '') < since) continue;
     if (signal.kind === 'deal') {
       out.push({ id: `deal:${signal.acquirer}:${signal.target}`, kind: 'deal', subjects: [signal.acquirer, signal.target], acquirer: signal.acquirer, target: signal.target, date: signal.date,
-        payment: signal.payment, ratio: signal.ratio, valueUsd: signal.valueUsd, premiumPct: signal.premiumPct, topics: ['deal'], weight: 3, src: { kind: 'telegram', post: signal.post } });
+        payment: signal.payment, ratio: signal.ratio, valueUsd: signal.valueUsd, premiumPct: signal.premiumPct, topics: ['deal'], weight: 3, src: src(signal.post) });
     } else if (signal.kind === 'pt' && signal.ticker) {
-      const row = analyst.get(signal.ticker) || { raise: 0, cut: 0, other: 0, date: signal.date };
+      const row = analyst.get(signal.ticker) || { raise: 0, cut: 0, other: 0, date: signal.date, roles: new Set() };
       row[signal.direction === 'raise' ? 'raise' : signal.direction === 'cut' ? 'cut' : 'other'] += 1;
       if (String(signal.date) > row.date) row.date = signal.date;
+      row.roles.add(channelRoleOf(signal.post, channels));
       analyst.set(signal.ticker, row);
     } else if (signal.kind === 'macro') {
       out.push({ id: `release:${signal.key}`, kind: 'release', label: signal.name, date: signal.date, actual: signal.actual, forecast: signal.forecast, previous: signal.previous, unit: signal.unit,
-        surprise: signal.surprise, subjects: [], topics: topicsOf(`${signal.name} ${signal.nameEn || ''}`, SIGNAL_TOPICS.macro), weight: 2, src: { kind: 'telegram', post: signal.post } });
+        surprise: signal.surprise, subjects: [], topics: topicsOf(`${signal.name} ${signal.nameEn || ''}`, SIGNAL_TOPICS.macro), weight: 2, src: src(signal.post) });
     } else if (signal.kind === 'retail') {
       out.push({ id: `positioning:${signal.key}`, kind: 'positioning', label: '서학개미 순매수', date: signal.date, side: signal.side, leveragedLongShare: signal.leveragedLongShare,
-        inverseShare: signal.inverseShare, top: (signal.top || []).slice(0, 3).map((row) => row.name), subjects: [], topics: ['positioning'], weight: 1, src: { kind: 'telegram', post: signal.post } });
+        inverseShare: signal.inverseShare, top: (signal.top || []).slice(0, 3).map((row) => row.name), subjects: [], topics: ['positioning'], weight: 1, src: src(signal.post) });
     }
   }
   for (const [ticker, row] of analyst) {
-    out.push({ id: `analyst:${ticker}:${row.date}`, kind: 'analyst', subjects: [ticker], date: row.date, raises: row.raise, cuts: row.cut, others: row.other, topics: ['analyst'], weight: (row.raise + row.cut) / 2 });
+    const roles = [...row.roles].filter(Boolean);
+    out.push({ id: `analyst:${ticker}:${row.date}`, kind: 'analyst', subjects: [ticker], date: row.date, raises: row.raise, cuts: row.cut, others: row.other, topics: ['analyst'], weight: (row.raise + row.cut) / 2,
+      src: { kind: 'telegram', channel: roles.length === 1 ? roles[0] : null } });
   }
   return out;
 }
@@ -420,6 +427,7 @@ function scoreMateriality(facts, links, nowMs) {
  * @param {object[]} input.universe screener-universe.json `universe` ({ sym, name, sector })
  * @param {object[]} input.news data.json news + newsIntraday
  * @param {object[]} input.signals telegram-digest.json signals
+ * @param {object[]} input.channels telegram-digest.json sourceCatalog ({ channel, role })
  * @param {object} input.calendar earnings-calendar.json
  * @param {object} input.briefs event-briefs.json
  * @param {object} input.macroHistory macro-history.json
@@ -427,7 +435,7 @@ function scoreMateriality(facts, links, nowMs) {
  * @param {object[]} input.themes the theme map ({ id, nameKr, leaders })
  * @param {object[]} input.indexWeights sp500-weights.json rows ({ sym, weight in % })
  */
-export function buildMarketDay({ history = [], screener = null, universe = [], news = [], signals = [], calendar = null, briefs = null, macroHistory = null,
+export function buildMarketDay({ history = [], screener = null, universe = [], news = [], signals = [], channels = [], calendar = null, briefs = null, macroHistory = null,
   macroCalendar = null, themes = [], indexWeights = [], nowMs = Date.now() } = {}) {
   const themesBySymbol = new Map();
   for (const theme of themes) for (const sym of theme.leaders || []) themesBySymbol.set(sym, [...(themesBySymbol.get(sym) || []), theme.id]);
@@ -436,7 +444,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   const matchers = matchersOf(universe);
   const candidates = [
     ...priceFacts(history), ...macroFacts(macroHistory), ...stockFacts(screener, universe, themesBySymbol, weights), ...groupFacts(screener, universe, themes),
-    ...briefFacts(briefs, nowMs), ...signalFacts(signals, nowMs), ...scheduleFacts(macroCalendar, nowMs), ...headlineFacts(news, matchers, nowMs)
+    ...briefFacts(briefs, nowMs), ...signalFacts(signals, nowMs, channels),...scheduleFacts(macroCalendar, nowMs), ...headlineFacts(news, matchers, nowMs)
   ];
   const moved = new Set(candidates.filter((fact) => fact.kind === 'stock-move').flatMap((fact) => fact.subjects)
     .concat(candidates.filter((fact) => fact.kind === 'group-move').flatMap((fact) => fact.leaders.map((lead) => lead.sym))));

@@ -11,7 +11,8 @@ import { appendToolItems, functionCallsOf, isWellFormedCall, runToolCalls } from
 import { NEWS_REPORT_DOMAINS, REACTION_REPORT_DOMAINS } from '../../src/domain/briefing/event-briefs.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { buildSharedInvestigationBody, extractCompletedResponseText, sharedAiUsage } from './ai-shared-analysis.mjs';
-import { INVESTIGATION_FUNCTIONS } from './investigation-tools.mjs';
+import { INVESTIGATION_FUNCTIONS, factLine } from './investigation-tools.mjs';
+import { isChannelClaimLine } from '../../src/domain/news/channel-claims.js';
 import { analysisInterpretationWarnings, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { unsupportedFigures } from './screen-reading.mjs';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
@@ -39,7 +40,8 @@ export const INVESTIGATION_ANSWER_SCHEMA = Object.freeze({
 export const INVESTIGATION_INSTRUCTIONS = [
   '너는 미국 주식 중심 투자 리서치 화면의 시장 조사 담당이다. 입력의 [단서]는 코드가 가장 최근 완료 세션에서 평소 변동 범위를 벗어났다고 고른 움직임과 바뀐 판정이다. 이 일이 왜 일어났는지 스스로 조사해 한국어로 설명한다.',
   '조사:',
-  '- 단서와 함께 온 보도 제목을 출발점으로 삼고, 필요한 자료를 함수로 읽는다: ledger(종목·주제별 사실과 보도 제목), session_moves(다른 자산의 같은 세션 가격), screen_facts(화면의 판정과 근거).',
+  '- 단서와 함께 온 보도 제목을 출발점으로 삼고, 필요한 자료를 함수로 읽는다: ledger(종목·주제별 사실과 보도 제목), session_moves(다른 자산의 같은 세션 가격), screen_facts(화면의 판정과 근거), company(한 종목의 컨센서스·실적 공시와 가이던스·다음 실적일), market_data(국채 입찰, 한국 투자자별 순매수, 채널이 전한 경제지표).',
+  '- [채널 주장 · 미확인 …] 줄은 리서치 채널이 전한 수치를 앱이 추린 미확인 단서다. 채널 주장만으로 원인을 정하지 않는다: 가격 자료, 공식 문서, 검색한 보도로 확인되면 그 근거의 kind로, 확인하지 못하면 inference로 적고, 본문에는 "채널 주장(미확인)"으로 밝힌다.',
   '- 원인은 웹검색으로 확인한다. 단서 하나에 초점을 둔 질의로 그 세션 날짜 전후의 보도와 공식 발표를 찾는다. 넓은 검색 여러 번보다 분명한 검색 한 번이 낫다.',
   '- 찾은 원인이 다른 자산과 맞는지 session_moves로 대조한다: 신용 스프레드, 달러, 금리, 시장 폭(동일가중 지수·러셀 2000), 변동성, 유가. 맞지 않는 것은 맞지 않는다고 쓴다.',
   '- 확인하지 못한 것은 확인하지 못했다고 쓴다. 원인을 지어내지 않는다.',
@@ -60,20 +62,26 @@ const md = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number);
 export function buildLeadMessage({ session = {}, leads = [], linked = {} } = {}) {
   const head = `${SECTION.leads} 미국 기준 세션 ${session.us || '미확인'}${session.kr ? ` · 한국 세션 ${session.kr}` : ''}`;
   const rows = leads.map((lead, index) => {
-    const news = (linked[lead.id] || []).slice(0, 3).map((line) => `   - ${line}`);
-    return [`${index + 1}. ${lead.text}`, ...(news.length ? ['   함께 걸린 보도 제목(원인의 후보, 확정 아님):', ...news] : [])].join('\n');
+    const news = (linked[lead.id] || []).slice(0, 5).map((line) => `   - ${line}`);
+    return [`${index + 1}. ${lead.text}`, ...(news.length ? ['   함께 걸린 보도 제목·채널 주장(원인의 후보, 확정 아님):', ...news] : [])].join('\n');
   });
   return [head, ...rows].join('\n');
 }
 
-/** The headline facts the ledger linked to each lead (day.links: headline -> move), as dated lines with their outlet. */
+/**
+ * The headline and channel facts the ledger linked to each lead (day.links: cause -> move), as dated lines: a headline
+ * with its outlet, a channel fact behind the channel-claim tag (investigation-tools.mjs factLine). At most three headlines
+ * and two channel claims per lead.
+ */
 export function linkedHeadlines(day, leads = []) {
   const byId = new Map((Array.isArray(day?.facts) ? day.facts : []).map((fact) => [fact.id, fact]));
   const out = {};
   for (const lead of leads) {
     const from = (Array.isArray(day?.links) ? day.links : []).filter((link) => link?.to === lead.id).map((link) => byId.get(link.from))
-      .filter((fact) => fact?.kind === 'headline').sort((a, b) => Number(b.materiality || 0) - Number(a.materiality || 0));
-    out[lead.id] = from.slice(0, 3).map((fact) => `${md(fact.date)} ${fact.src?.source || '출처 미상'}: ${fact.titleKo || fact.title}`);
+      .filter(Boolean).sort((a, b) => Number(b.materiality || 0) - Number(a.materiality || 0));
+    const headlines = from.filter((fact) => fact.kind === 'headline').slice(0, 3).map((fact) => `${md(fact.date)} ${fact.src?.source || '출처 미상'}: ${fact.titleKo || fact.title}`);
+    const claims = from.filter((fact) => fact.src?.kind === 'telegram' || fact.kind === 'analyst').slice(0, 2).map(factLine).filter(Boolean);
+    out[lead.id] = [...headlines, ...claims];
   }
   return out;
 }
@@ -168,7 +176,7 @@ const REPAIR_TEXT = Object.freeze({
   'figure-unsupported': '본문에 [단서]·함수 결과에 없는 수치나 날짜를 썼습니다. 자료의 값만 그대로 옮기고, 보도의 수치는 cause claim으로 옮기세요.',
   'cause-unsourced': 'news·official 원인에 실제로 검색해 찾은 문서의 url·매체·발행일이 없습니다. 문서가 없으면 inference로 바꾸세요.',
   'cause-date-invalid': '원인의 발행일이 YYYY-MM-DD가 아니거나 세션과 맞지 않습니다.',
-  'cause-figure-unsupported': 'price·inference 원인의 수치가 자료에 없습니다.',
+  'cause-figure-unsupported': 'price·inference 원인의 수치가 자료에 없습니다. 채널 주장의 수치만으로는 price 원인이 되지 않으니 inference로 바꾸세요.',
   'trade-instruction': '매수·매도 지시가 있습니다. 조건을 단 설명으로 바꾸세요.',
   'probability-claim': '% 확률을 썼습니다. 확률 수치 없이 쓰세요.',
   'url-in-body': '본문에 웹 주소를 썼습니다. 주소는 causes의 url에만 두세요.',
@@ -206,6 +214,8 @@ export function validateInvestigation(answer, { corpus = [], session = {}, cited
   const unknowns = (Array.isArray(answer?.unknowns) ? answer.unknowns : []).map((text) => String(text || '').trim()).filter(Boolean).slice(0, L.unknownsMax);
   if (!verdict || verdict.length > L.verdictMax || !paragraphs.length || paragraphs.length > L.paragraphsMax || paragraphs.some((text) => text.length < L.paragraphMin || text.length > L.paragraphMax) || !causes.length) issues.push('shape');
   const citedKeys = new Set([...cited].map(normalUrl).filter(Boolean));
+  // A cause filed as price evidence stands on the app's own data: a channel claim's figures do not support it.
+  const ownData = corpus.flatMap((text) => String(text).split('\n')).filter((line) => !isChannelClaimLine(line));
   const sessionMs = Date.parse(`${session.us || ''}T00:00:00Z`);
   const todayMs = Date.parse(`${new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10)}T00:00:00Z`);
   const checked = causes.map((cause, index) => {
@@ -218,7 +228,7 @@ export function validateInvestigation(answer, { corpus = [], session = {}, cited
       if (!row.url || !row.outlet || !onDomains(row.url, domains) || !citedKeys.has(normalUrl(row.url))) issues.push(`cause-unsourced:${index + 1}`);
       const at = Date.parse(`${row.date}T00:00:00Z`);
       if (!isIsoDay(row.date) ||!Number.isFinite(at) || at > todayMs || (Number.isFinite(sessionMs) && at < sessionMs - 10 * DAY_MS)) issues.push(`cause-date-invalid:${index + 1}`);
-    } else if (unsupportedFigures(claim, { lines: corpus, basis: session.us }).length) issues.push(`cause-figure-unsupported:${index + 1}`);
+    } else if (unsupportedFigures(claim, { lines: kind === 'price' ? ownData : corpus, basis: session.us }).length) issues.push(`cause-figure-unsupported:${index + 1}`);
     return row;
   });
   // The body may name a sourced cause's date (M/D) beside its outlet.
