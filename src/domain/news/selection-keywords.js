@@ -1121,7 +1121,9 @@ export const NEWS_BLACKLIST_KW = [
   '호신','가스총','흉기','칼부림','테러','방화','자살','사망사고','익사',
   // 연예인/방송 (금융 무관)
   '출연','방송인','배우','가수','걸그룹','보이그룹','팬미팅','콘서트','뮤직비디오',
-  '시청률','리얼리티','토크쇼','종영','첫방','복귀','열애','파경','이혼설',
+  // '복귀' is not on the list: it drops every "CEO 복귀" headline (11/23 Huang's return to Nvidia,
+  // S&P 500 +4.7%) from the news screens; a celebrity comeback still carries one of the words above.
+  '시청률','리얼리티','토크쇼','종영','첫방','열애','파경','이혼설',
   // ═══ 영문 블랙리스트 (비금융 콘텐츠 근본 차단) ═══
   // 부동산
   'housing price','real estate','mortgage','apartment','home sales','housing market','rent prices',

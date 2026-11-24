@@ -448,9 +448,21 @@ export function newsSameEvent(a, b) {
 export function cleanNewsTitle(title, source, rawSource = '') {
   const text = String(title || '');
   for (const src of [String(source || '').trim(), String(rawSource || '').trim()]) {
-    if (src && text.endsWith(` - ${src}`)) return text.slice(0, -(src.length + 3)).trim();
+    if (src && text.endsWith(` - ${src}`)) return stripColumnLabel(text.slice(0, -(src.length + 3)).trim());
   }
-  return text;
+  return stripColumnLabel(text);
+}
+
+// An outlet's column label after the headline ("Stocks Soar as …: Markets Wrap") is not the headline either, and it
+// survives translation as "…: 시장 마감" / "…: 시장 분석". Known labels only, each with the forms its translation took; a
+// colon inside a headline stays.
+export const NEWS_COLUMN_LABELS = Object.freeze([{ en: /\s*:\s*Markets Wrap$/i, ko: /\s*:\s*시장\s*(?:마감|분석|정리)$/ }]);
+export const stripColumnLabel = (title) => NEWS_COLUMN_LABELS.reduce((text, label) => text.replace(label.en, ''), String(title || '')).trim();
+/** A stored translation without the label its English original carries (only when the original carries it). */
+export function stripTranslatedColumnLabel(title, titleKo) {
+  const ko = String(titleKo || '');
+  const label = NEWS_COLUMN_LABELS.find((row) => row.en.test(String(title || '')));
+  return label ? ko.replace(label.ko, '').trim() : ko;
 }
 
 // N11 (2026-10-13 audit): paraphrases of one story are not the same headline, so newsSameEvent let seven

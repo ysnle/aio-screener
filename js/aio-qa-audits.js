@@ -3743,7 +3743,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         { id: 'home-score-hero',        order:  5, topic: '판정 히어로 + 오늘의 질문 (v59.68)', lines: 'index.html #home-score-hero' },
         { id: 'home-index-strip',       order:  7, topic: '지수 하루 흐름 4카드 (v59.51)', lines: 'index.html #home-index-strip' },
         { id: 'home-sub-indicators',    order: 12, topic: '교차 자산 줄 (선물 칩/VIX/공포·탐욕/코스피 등, v59.51 갱신)', lines: 'index.html #home-cross-assets' },
-        { id: 'home-day',               order: 13, topic: '오늘의 핵심 — 이야기·주요 뉴스·크게 움직인 종목 (v59.68)', lines: 'index.html #home-day' }
+        { id: 'home-day',               order: 13, topic: '오늘의 핵심 — 이야기·주요 뉴스·주요 종목 (v59.68)', lines: 'index.html #home-day' }
       ],
       // v49.40 home 3차 점검 완료 후 audit status
       auditStatus: {

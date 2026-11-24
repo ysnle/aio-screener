@@ -79,7 +79,8 @@ export function eventPreviews({ xr = null, schedule = [], earnings = [], names =
     const gauge = (xr.items || []).map((item) => item.pricing?.text).find((text) => /^2년물−기준금리/.test(String(text || '')));
     const expect = event.id === 'us-fed-rate'
       ? [String(xr.rateHub?.policy || '').split(/,| — /)[0] || null, gaugeText(gauge)].filter(Boolean)
-      : [lastFor(event.id), '시장 예상치(컨센서스)는 수집하지 않아 미확인'].filter(Boolean);
+      // Consensus is not a source this site collects, so its absence is not a line.
+      : [lastFor(event.id)].filter(Boolean);
     const branches = (xr.items || []).map((item) => ({ item, trigger: (item.triggers || []).find((row) => row.id === event.id) })).filter((row) => row.trigger)
       .sort((a, b) => Number(!roleOf(a.item.id)) - Number(!roleOf(b.item.id)))
       .slice(0, 3).map(({ item, trigger }) => `${trigger.text}이면 '${short(item)}'${roleOf(item.id) ? `(${roleOf(item.id)})` : ''} 쪽`);

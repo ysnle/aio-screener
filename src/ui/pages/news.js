@@ -12,7 +12,8 @@ import { newsFlow } from '../../domain/market/story/page-flow.js';
 import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
 import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
-import { pickImportantNews } from '../../domain/briefing/news-picks.js';
+import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../../domain/briefing/news-picks.js';
+import { MARKET_DAY } from '../../data/artifact-registry.js';
 import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { renderMarketTimeline, symbolNames } from '../components/market-timeline.js';
@@ -80,8 +81,6 @@ function renderNewsSummary(documentRef, root, model, status) {
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본, ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
   else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
-  const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
-  if (importantNote) Object.assign(importantNote, { textContent: `${fmt(olderCycle ? cycleEnd : newsWindow.end)}까지`, title: `주제별 핵심, ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간` });
   const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
   const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
   if (heldNews) set('last-fetch-time', `뉴스 갱신 보류, 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
@@ -483,11 +482,14 @@ function renderTickerFocusNote(documentRef, root, container, ticker, count) {
   note.replaceChildren(documentRef.createTextNode(`${ticker} 관련 기사 ${count}건만 표시 중, `), clear);
 }
 
-function renderIntradayNews(documentRef, root, canonicalItems, nowMs = Date.now()) {
+// The scored articles published after the 08:00 cut: they join the 중요 뉴스 pool (rollingNewsPool), and the ones it
+// does not pick stay in this provisional list.
+const laterNews = (root, canonicalItems, nowMs) => selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs: Date.parse(root?._serverDataMeta?.newsCycleEnd || ''), canonical: canonicalItems, nowMs });
+function renderIntradayNews(documentRef, root, later, important = new Set(), nowMs = Date.now()) {
   const anchor = documentRef?.getElementById('news-important');
   let section = documentRef?.getElementById('news-intraday');
   const cycleEndMs = Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
-  const picked = selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs, canonical: canonicalItems, nowMs });
+  const picked = later.filter((item) => !important.has(newsKey(item)));
   if (!picked.length || !anchor) {
     if (section) section.hidden = true;
     return [];
@@ -623,7 +625,18 @@ function render({ documentRef, root, store, route }) {
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
   const nowMs = Date.now();
-  const intraday = renderIntradayNews(documentRef, root, items, nowMs);
+  const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs }), tickerFocus), mineOnly ? mine : new Set());
+  const later = laterNews(root, items, nowMs);
+  // Importance rolls to the newest article and puts the stories the day's lead moves are
+  // tied to first (the same pool and pick as 오늘's 주요 뉴스).
+  const pool = rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], tickerFocus || mineOnly ? [] : later);
+  const important = pickImportantNews(groupNewsStories(pool), 5, { linked: root?.[MARKET_DAY.key] ? leadLinkedNews(root[MARKET_DAY.key]) : null });
+  const importantKeys = new Set(important.flatMap((story) => (story.storyArticles || [story]).map(newsKey)));
+  // The pool's own end: the newest article it ranked over, not the 08:00 cut.
+  const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
+  const poolEnd = compactKstTime(new Date(Math.max(0, ...pool.map((row) => Date.parse(row.pubDate || row.publishedAt || '')).filter(Number.isFinite))).toISOString());
+  if (importantNote && important.length && poolEnd) Object.assign(importantNote, { textContent: `최근 24시간, ${poolEnd.date} ${poolEnd.time}까지`, title: '주제별 핵심, 가장 새 기사까지 24시간' });
+  const intraday = renderIntradayNews(documentRef, root, later, importantKeys, nowMs);
   const intradayCount = intraday.length;
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
@@ -635,13 +648,11 @@ function render({ documentRef, root, store, route }) {
     const repaint = () => { if (documentRef.getElementById('page-market-news')?.classList?.contains('active')) paintNewsBriefs(documentRef, root, null, macroReleasesFor(root, { days: 7 })); };
     paintNewsBriefs(documentRef, root, repaint, macroReleasesFor(root, { days: 7 }));
   }).catch(() => {});
-  const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() }), tickerFocus), mineOnly ? mine : new Set());
   renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = mineOnly ? '내 종목 필터: 채널 글 중 관심·보유 종목을 다룬 글만 표시합니다.' : describeNewsScope(controls).channel;
   renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS);
   renderMineChannelPosts(documentRef, documentRef?.getElementById('news-tg-card'), root, mine, mineOnly);
-  const important = pickImportantNews(groupNewsStories(importantModel?.eligibleItems || importantModel?.items || []));
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
     importantList.replaceChildren(...(important.length

@@ -9,10 +9,15 @@ import { afterClose, agrees } from './day-account.js';
 const PROMO_TITLES = [/\bstocks? to buy\b/i, /\breasons? to buy\b/i, /\breasons? to sell\b/i, /\bto buy hand over fist\b/i, /\bundervalued\b[^.]*\bstocks\b/i, /(?<![가-힣])사라고/, /(?<![가-힣])매수 추천/];
 export const isPromotionalTitle = (title) => PROMO_TITLES.some((pattern) => pattern.test(String(title || '')));
 
-export function pickImportantNews(items = [], limit = 5) {
+/**
+ * The important stories: corrections first, then one per topic in market-impact order: a story
+ * `linked(item)` ties to the day's lead moves (leadLinkedNews) outranks an unrelated one, then the feed score decides.
+ */
+export function pickImportantNews(items = [], limit = 5, { linked = null } = {}) {
   const picked = items.filter((item) => item.storyHasRevision).slice(0, limit);
   const topics = new Set();
-  for (const item of [...items].sort((a, b) => (finite(b?.score) || 0) - (finite(a?.score) || 0))) {
+  const impact = (item) => (typeof linked === 'function' && linked(item) ? 1 : 0);
+  for (const item of [...items].sort((a, b) => impact(b) - impact(a) || (finite(b?.score) || 0) - (finite(a?.score) || 0))) {
     const topic = item?.topic || item?.feedTopic || 'general';
     // Filler is worse than a shorter list: unclassified and low-score items stay in the full feed.
     if (picked.includes(item) || item?._tgChannel || isPromotionalTitle(item?.title) || isPromotionalTitle(item?.originalTitle) || topic === 'general' || (finite(item?.score) || 0) < 50 || topics.has(topic) || picked.length >= limit) continue;
@@ -21,6 +26,32 @@ export function pickImportantNews(items = [], limit = 5) {
     if (picked.length >= limit) break;
   }
   return picked;
+}
+
+const articleKeyOf = (value) => String(value || '').replace(/[?#].*$/, '').replace(/\/$/, '').trim().toLowerCase();
+/**
+ * Whether a news story is one the market-day ledger ties to a lead move — a headline fact linked
+ * to it by subject or member (the report names the moved stock or a group's leader). Topic links are too broad to count.
+ * Returns `(story) => boolean`, matching a story's articles by link or title.
+ */
+export function leadLinkedNews(day) {
+  const facts = Array.isArray(day?.facts) ? day.facts : [];
+  const lead = new Set(facts.filter((fact) => fact.rank === 'lead' && ['price', 'stock-move', 'group-move'].includes(fact.kind)).map((fact) => fact.id));
+  const causes = new Set((Array.isArray(day?.links) ? day.links : []).filter((link) => lead.has(link.to) && (link.basis === 'subject' || link.basis === 'member')).map((link) => link.from));
+  const keys = new Set(facts.filter((fact) => fact.kind === 'headline' && causes.has(fact.id)).flatMap((fact) => [fact.src?.link, fact.title]).map(articleKeyOf).filter(Boolean));
+  return (story) => !!keys.size && (story?.storyArticles || [story]).some((row) => keys.has(articleKeyOf(row?.link || row?.url)) || keys.has(articleKeyOf(row?.originalTitle || row?.title)));
+}
+
+/**
+ * The pool importance is ranked over — the completed 08:00 KST bundle and the scored articles
+ * published after its cut (data.json newsIntraday) — cut to the `hours` before the newest article, so by evening the
+ * important list reaches the evening's stories instead of stopping at 08:00. An article without a time stays.
+ */
+export function rollingNewsPool(bundle = [], later = [], { hours = 24 } = {}) {
+  const rows = [...(Array.isArray(bundle) ? bundle : []), ...(Array.isArray(later) ? later : []).map((row) => ({ ...row, pubDate: row.pubDate || row.publishedAt }))];
+  const newest = Math.max(...rows.map(stampOf).filter(Number.isFinite));
+  if (!Number.isFinite(newest)) return rows;
+  return rows.filter((row) => { const ms = stampOf(row); return !Number.isFinite(ms) || ms > newest - hours * HOUR; });
 }
 
 // Words that look like tickers in a headline but are not companies, and company names that are ordinary words anywhere.

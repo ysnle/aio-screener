@@ -6,6 +6,7 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { readIndexLongrun } from '../market/indices/long-run.js';
+import { sessionNewsWindow } from './news-picks.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -42,8 +43,16 @@ const largestClaim =(fact, family) => claim({ subject: subjectOf(fact), measure:
 /** A group's named members ({sym, change}): its leaders under a superlative, or its main movers. */
 const memberClaim = (group, movers, word) => claim({ subject: subjectOf(group), measure: 'change1d', word, asOf: group.date, ...(CLAIM_WORDS[word].rank ? { rank: { among: subjectOf(group) } } : {}),
   figures: movers.map((row) => ({ value: row.change, unit: 'pct', basis: 'member', label: row.sym })) });
-/** A stock's pull on the S&P 500 in index bp, when it is 5bp or more. */
-const indexPull = (fact) => (Number.isFinite(fact.indexBp) && Math.abs(fact.indexBp) >= 5 ? figureClaim(fact, 'indexBp', fact.indexBp, 'bp', 'S&P 500') : null);
+/**
+ * A stock's pull on the S&P 500 as percentage points of the index's own move ("S&P 500을 1.6%p
+ * 끌어올렸습니다"), when it is 5bp or more; "+160bp만큼 영향" was a unit no reader holds.
+ */
+function pullSaid(fact) {
+  if (!Number.isFinite(fact?.indexBp) || Math.abs(fact.indexBp) < 5) return NOTHING;
+  const value = fact.indexBp / 100;
+  const pull = claim({ subject: subjectOf(fact), measure: 'indexPp', asOf: fact.date, figures: [{ value, unit: 'pp', basis: 'indexPp', label: 'S&P 500', digits: Math.abs(value) < 1 ? 2 : 1 }] });
+  return say(value > 0 ? 'S&P 500을 {pull} 끌어올렸습니다' : 'S&P 500을 {pull} 끌어내렸습니다', { pull });
+}
 /** A story field set from composed text; the story keeps every claim it prints. */
 function tell(story, field, said) {
   if (field === 'why') story.why.push(said.text); else story[field] = said.text;
@@ -89,7 +98,33 @@ export const agrees = (fact, change, seed = null) => {
   if (seed && Number.isFinite(change) && afterClose(fact, seed)) return up !== down && (change >= 0 ? up : down);
   return !Number.isFinite(change) || up === down || (change >= 0 ? up : down);
 };
+// The order of a story's reports, the ledger's own: the publisher tier (1 best, an unrated company memo last), then the
+// feed score, then materiality. The link basis comes first by construction: a stock or group story reads only reports
+// that name it (subject, member); a price story, which has none, reads its topic reports.
+const reportTier = (fact) => (Number.isFinite(fact?.tier) ? fact.tier : 9);
+export const byReportOrder = (a, b) => reportTier(a) - reportTier(b) || (Number(b.score) || 0) - (Number(a.score) || 0) || byMateriality(a, b);
 const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null, date: fact.date || null });
+/**
+ * The report a lead move shows on its face, or null. A report is evidence for a move only when it is about that move:
+ * published inside the session's news window (news-picks sessionNewsWindow: previous close to next open), its own words
+ * stating the move's direction (an up word for a rise, a down word for a fall, not both), and reached through the move's
+ * own link — `reports` arrive in link order (a stock's own name; a group's leaders or its thread's lead stock), then
+ * byReportOrder. A wrong evidence line is worse than none, so with no such report there is no line.
+ */
+function faceReport(seed, reports) {
+  const sign = Math.sign(Number(seed?.change) || 0);
+  if (!sign || !seed.date) return null;
+  const kr = seed.kind === 'price' ? FAMILY_OF.get(seed.asset)?.id === 'kr' : marketOfSymbol(seed.subjects?.[0] || seed.members?.[0] || '') === 'KR';
+  const span = sessionNewsWindow(seed.date, kr ? 'KR' : 'US');
+  const about = (fact) => {
+    const ms = Date.parse(fact.at || '');
+    const text = `${fact.title || ''} ${fact.titleKo || ''}`;
+    const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text);
+    return !!span && ms > span.start && ms <= span.end && up !== down && (sign > 0 ? up : down);
+  };
+  const fact = reports.find(about);
+  return fact ? evidenceOf(fact) : null;
+}
 const HANGUL_PAIR = /[가-힣].*[가-힣]/;
 const shownKorean = (fact) => HANGUL_PAIR.test(fact?.titleKo || '') || HANGUL_PAIR.test(fact?.title || '');
 
@@ -180,14 +215,19 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
   const { out, into } = linkIndex(day.links);
   const claimed = new Map(); // fact id -> story id
   const headlinesAbout = (subjects, change, seed = null) => facts.filter((fact) => fact.kind === 'headline' && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id)
-    && (fact.subjects || []).some((sym) => subjects.includes(sym)) && agrees(fact, change, seed)).sort(byMateriality);
+    && (fact.subjects || []).some((sym) => subjects.includes(sym)) && agrees(fact, change, seed)).sort(byReportOrder);
   // A price story's reports must name its field in their own words (the topic link alone follows the feed it came from).
   const topicHeadlines = (ids, topics, seed) => [...new Set(ids.flatMap((id) => into(id).filter((link) => link.basis === 'topic').map((link) => link.from)))]
     .map((id) => byId.get(id)).filter((fact) => fact && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id) && (fact.wordTopics || []).some((topic) => topics.includes(topic))
-      && (!afterClose(fact, seed) || agrees(fact, seed.change, seed))).sort(byMateriality);
+      && (!afterClose(fact, seed) || agrees(fact, seed.change, seed))).sort(byReportOrder);
   const stories = [];
   const assign = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
   const groupMembers = (fact) => new Set(fact.members || []);
+  // The stock that leads a fact's market-day thread (its largest move), when that is another stock move.
+  const threadLeadSymbol = (id) => {
+    const lead = byId.get((Array.isArray(day.threads) ? day.threads : []).find((thread) => (thread.facts || []).includes(id))?.lead);
+    return lead?.kind === 'stock-move' && lead.id !== id ? lead.subjects?.[0] || null : null;
+  };
 
   for (const seed of facts.filter((fact) => SEED_KINDS.has(fact.kind) && fact.kind !== 'price' || (fact.kind === 'price' && FAMILY_OF.get(fact.asset)?.id !== 'us' && FAMILY_OF.get(fact.asset)?.id !== 'kr')).sort(byMateriality)) {
     if (claimed.has(seed.id) || !['lead', 'major', 'minor'].includes(seed.rank)) continue;
@@ -219,6 +259,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
       }
       const reports = topicHeadlines(ids, family?.topics || [], seed).slice(0, 2);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[...kin, ...driven, ...reports]);
       for (const group of driven) assign(story,(group.members || []).map((sym) => facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym)));
     } else if (seed.kind === 'group-move') {
@@ -242,7 +283,16 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
       if (drivers.length) tell(story, 'why', say('{name} {driver}와 {driver.word}입니다.', { name: drivers[0].label, driver: changeClaim(drivers[0], { word: 'same-way', compare: { against: subjectOf(seed) } }) }));
       story.joins = drivenBy || null;
       const reports = headlinesAbout(members, seed.change, seed).slice(0, 3);
+      // On the face, a group's report must be about the group's move: it names one of the leaders that made the median,
+      // or the stock that leads the group's thread (that stock's report, ranked first). A report naming any other member
+      // ("헤지펀드가 매수하는 AI 주식에 Intel, Meta 포함" under 반도체 +13.5%) stays folded.
+      const leadSym = threadLeadSymbol(seed.id);
+      const leaderSyms = new Set([...(leadSym ? [leadSym] : []), ...ownLeaders.slice(0, 3).map((lead) => lead.sym)]);
+      const names = (fact) => (fact.subjects || []).some((sym) => leaderSyms.has(sym));
+      const viaLead = (fact) => Number(!!leadSym && (fact.subjects || []).includes(leadSym));
+      story.faceFrom = headlinesAbout([...leaderSyms], seed.change, seed).filter(names).sort((a, b) => viaLead(b) - viaLead(a) || byReportOrder(a, b));
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       story.related = moved.slice(0, 6).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change }));
       assign(story,[seed, ...moved, ...siblings, ...reports]);
     } else if (seed.kind === 'earnings') {
@@ -252,9 +302,10 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(seed.revenueSurprise) ? say('매출은 {revenue}', { revenue: figureClaim(seed, 'revenueSurprise', seed.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ');
       tell(story, 'title', say('{name} 실적', { name: seed.label }));
       tell(story, 'line', say('{result}{stock}', { result: result.text ? say('{result}.', { result }) : say('실적을 발표했습니다.'),
-        stock: stock ? say(' 주가 {move}{vol}{pull}.', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: indexPull(stock) ? say('(S&P 500에 {pull})', { pull: indexPull(stock) }) : NOTHING }) : NOTHING }));
+        stock: stock ? say(' 주가 {move}{vol}.{pull}', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: pullSaid(stock).text ? say(' {pull}.', { pull: pullSaid(stock) }) : NOTHING }) : NOTHING }));
       const reports = headlinesAbout([sym], stock?.change, stock).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, stock, ...reports]);
     } else if (seed.kind === 'deal') {
       const name = (sym) => facts.find((fact) => fact.subjects?.[0] === sym && fact.kind !== 'headline' && fact.label)?.label || sym;
@@ -265,6 +316,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(seed.premiumPct) ? say('프리미엄 {premium}', { premium: figureClaim(seed, 'dealPremium', seed.premiumPct, 'pct', '프리미엄') }) : NOTHING], ', ');
       tell(story, 'line', terms.text ? say('{terms}.', { terms }) : NOTHING);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, ...reports]);
     } else {
       const sym = seed.subjects?.[0];
@@ -276,19 +328,27 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(results.revenueSurprise) ? say('매출 {revenue}', { revenue: figureClaim(results, 'revenueSurprise', results.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ') : NOTHING;
       if (results) assign(story,[results]);
       if (seed.kind === 'stock-move') {
+        // With no linked report, the price its group runs on (explainedBy 'driver') is named with its move, as the group
+        // stories do; with one, the report itself is the evidence line (story.report).
+        const driver = reports.length ? null : into(seed.id).filter((link) => link.basis === 'driver').map((link) => byId.get(link.from)).find(Boolean);
         tell(story, 'title', named(seed));
-        tell(story, 'line', say('{results}{size}{driver}', { results: resultText.text ? say('실적 발표({results}) 뒤의 움직임입니다. ', { results: resultText }) : NOTHING,
-          size: indexPull(seed) ? say('S&P 500 지수에 {pull}만큼 영향을 줬습니다.', { pull: indexPull(seed) }) : say('평소 움직임의 {z}입니다.', { z: figureClaim(seed, 'z1d', Math.abs(seed.z || 0), 'x', '평소 움직임') }),
-          driver: (seed.explainedBy || []).includes('driver') ? ' 업종이 따르는 가격과 같은 방향입니다.' : '' }));
+        tell(story, 'line', say('{results}{size}{driver}', {
+          results: resultText.text ? say('실적 발표({results}) 뒤의 움직임입니다. ', { results: resultText }) : NOTHING,
+          size: pullSaid(seed).text ? say('{pull}.', { pull: pullSaid(seed) }) : say('평소 움직임의 {z}입니다.', { z: figureClaim(seed, 'z1d', Math.abs(seed.z || 0), 'x', '평소 움직임') }),
+          driver: driver ? say(' {name} {driver}와 {driver.word}입니다.', { name: driver.label, driver: changeClaim(driver, { word: 'same-way', compare: { against: subjectOf(seed) } }) }) : NOTHING }));
       } else {
         // An event's own label and reason, as the ledger wrote them.
         story.title = seed.label || seed.title || '';
         story.line = seed.why || '';
       }
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, ...reports]);
     }
     if (!story.title) continue; // a seed kind with no wording here is not shown as a bare weight bar
+    // A lead story's top linked report (byReportOrder) is shown on the face under the move, as written.
+    story.report = story.rank === 'lead' ? faceReport(seed, story.faceFrom || []) : null;
+    delete story.faceFrom;
     stories.push(story);
   }
 
