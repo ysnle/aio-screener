@@ -60,6 +60,56 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2766 - v60.52 - A 대 B 비교 다섯 곳이 두 쪽 끝 세션이 다를 때 한쪽의 이전 값을 그대로 썼다 (2026-11-24)
+
+- symptom/reproduction: SOXX 종가가 S&P 500보다 한 세션 늦으면 시나리오의 SOXX − S&P 500 20거래일이 -30.0%p로 읽혀 'AI 투자 꺾임' 조건을 채웠다(공통 날짜로는 0.0%p). 차트 상대강도는 어제 지수 종가를 오늘 종목 종가와 비교해 +10%p를 냈다(같은 날이면 -10%p). 실적 반응은 기준일 지수 봉이 없으면 더 이른 종가로 지수 움직임을 재서 '시장 동반'으로 뒤집혔고, 첫 거래일 봉이 없으면 그다음 봉을 '발표 후 첫 거래일'로 적었다. AI 기술 블록은 '차트 화면과 같은 완료 봉 기준' 머리 아래 하루 전 스크리너 RSI를 적었다.
+- root_cause: 두 계열의 변화를 각자의 마지막 값에서 계산(pctOver 각각, 지수 ≤3일 허용, 시작일 비정확 일치, 다음 봉=첫 세션, 행 세션 미대조)하고 빼거나 비교해, 한쪽이 늦을 때 두 창이 서로 다른 날짜에 끝났다.
+- fix: macro-crossroads pairedGap: 날짜로 짝지은 계열의 마지막 날이 S&P 500(10년물) 마지막 날과 같을 때만 SOXX − S&P 500·10년물 − 기대인플레이션 20거래일 차이를 계산하고, 아니면 비우고 SOXX 가격 문장에 두 날짜와 보류를 적는다. chart-analysis: 상대강도의 끝은 지수와 종목이 같은 날 종가인 마지막 봉, 그 날짜(rsAsOf)를 '…지수 종가까지'로 적고 6개월 창 안에 없으면 비운다; 상대강도선은 그 뒤 봉을 비운다. reaction-read benchMove: 시작·끝 모두 그 세션의 종가. event-briefs: releaseSession이 거래소를 싣고, 첫 거래일은 그 거래소 달력의 첫 세션; 그 봉이 없으면 firstPct 없이 최근 봉까지의 누적과 날짜만 낸다. technical-lines statedRsi: 행 세션이 차트 마지막 봉일 때만 스크리너 RSI.
+- violated_rule: 원칙 1 — 숫자는 원천의 같은 세션에서 오고, 없으면 비워 둔다.
+- prevention: 비교의 두 끝은 같은 세션이어야 하고, 한쪽이 없으면 날짜와 함께 보류한다; 각 모듈의 검사가 한쪽이 한 세션 늦은 합성 사례에서 옛 코드로 실패한다.
+- verification/residual: node scripts/ci-scenario-guidance-fixture.mjs, node scripts/ci-event-briefs-check.mjs, node scripts/ci-esm-core-unit-check.mjs(새 assertion 구간), node scripts/ci-judgement-rule-redesign-check.mjs — 새 assertion은 각각 HEAD 모듈로 바꿔 돌려 실패를 확인함.
+- files: src/domain/market/regime/macro-crossroads.js, src/domain/technical/chart-analysis.js, src/domain/briefing/reaction-read.js, src/domain/briefing/event-briefs.js, src/ai/context/technical-lines.js, scripts/ci-scenario-guidance-fixture.mjs, scripts/ci-judgement-rule-redesign-check.mjs, scripts/ci-esm-core-unit-check.mjs, scripts/ci-event-briefs-check.mjs
+
+## P2765 - v60.52 - 스크리너 순위 밖 '가격 고정' 행이 관측하지 않은 원인(인수 진행)을 이유로 적음 (2026-11-24)
+
+- symptom/reproduction: 순위 셀 설명이 '인수 진행 등으로 가격이 고정돼 순위에서 제외'라고 적었지만, 규칙은 60일 연 변동성 8% 이하·하루 평균 폭 1% 이하만 본다. 인수 여부는 어디서도 읽지 않는다.
+- root_cause: POPULATION_EXCLUSION_TEXT.pinned가 규칙이 흔히 잡아내는 사례(현금 인수)를 관측 사실처럼 적었고, 문장이 RULES.rankingPopulation.pinned 임계값을 읽지 않았다.
+- fix: src/domain/screener/row-presentation.js: pinned 문장이 RULES.rankingPopulation.pinned 임계값을 읽어 관측만 말한다('60일 연 변동성 8% 이하·하루 평균 폭 1% 이하로 가격이 거의 움직이지 않아 순위에서 뺐습니다.'). 짧은 꼬리표는 '가격 정체'.
+- violated_rule: 원칙 1 — 사실이 맞아야 한다. 원인은 관측한 것만 말한다.
+- prevention: ci-screener-presentation-check가 순위 셀 설명에 임계값 문장이 있고 '인수'가 없는지 본다.
+- verification/residual: node scripts/ci-screener-presentation-check.mjs
+- files: src/domain/screener/row-presentation.js, scripts/ci-screener-presentation-check.mjs
+
+## P2764 - v60.52 - 시나리오 판단 틀의 가능성 줄과 AI 기회비용 줄이 틀린 글자를 냈다 — 기저율 없는 기록의 'null%'과 '기회비용: 기회비용: 없음' (2026-11-24)
+
+- symptom/reproduction: 사례 10개 이상이지만 평소 비율이 없는 기록은 화면·AI에 '오른 경우 null%(12번 중 7번), 평소 비율 없음'으로 나갔다. 기회비용 자료가 모두 없으면 AI 줄이 '기회비용: 기회비용: 없음'으로 이름을 두 번 적었고, '없음'은 '기회비용이 없다'로 읽혔다.
+- root_cause: decisionFrameText가 pastEvidence의 sharePct(기저율이 없으면 null)를 기저율 유무와 따로 찍었고, 빈 기회비용 다리에 제목을 붙인 채 돌려준 것을 decisionFrameContext가 다시 제목으로 감쌌다. 빈 다리 낱말 '없음'이 자료 없음과 값 없음을 구별하지 않았다.
+- fix: 기저율이 없으면 횟수만 적는다('12번 중 7번 오름, 평소 비율 없음'). 다리 글자는 제목 없이 돌려주고 제목은 소비자가 한 번 붙인다. 빈 다리는 '비교 자료 없음'으로 적는다(화면·AI 같은 낱말).
+- violated_rule: 사실이 맞아야 한다 — 숫자는 원천에서 오고, 없으면 비워 둔다(PRODUCT 원칙 1).
+- prevention: ci-decision-frame-check: 기저율 없는 기록의 가능성 줄에 null·비율이 없음, AI 줄에서 각 다리 제목이 한 번, 빈 다리가 ': 없음'으로 읽히지 않음을 단언한다.
+- verification/residual: node scripts/ci-decision-frame-check.mjs (HEAD 코드에서 실패, 수정 뒤 통과)
+- files: src/domain/scenarios/decision-frame.js, scripts/ci-decision-frame-check.mjs
+
+## P2763 - v60.52 - AI 답변의 조건문 뒤 확률 수치가 근거 없이 나감 ('연준이 인하하면 … 상승 확률은 83%') (2026-11-24)
+
+- symptom/reproduction: 근거 자료 없는 '다음 달 S&P 500이 오를 확률은 83%입니다'는 빠지는데, 앞에 조건만 붙인 '연준이 25bp를 인하하면 다음 달 S&P 500 상승 확률은 83%입니다'는 그대로 게시됐다. 영어 'If … there is a 70% chance', '5%를 웃돌면 … 10% 하락할 가능성', '기대 수익률은 4%'도 같았다.
+- root_cause: src/ai/response/publication.js isConditionalNumericSentence가 조건 어미가 있는 문장의 숫자 전부를 규칙(임계값)으로 보고 numericClaimKind가 'conditional'로 분류해, 결과절의 예측 확률까지 근거 확인에서 빠졌다.
+- fix: conditionalForecastFigures가 조건절이 끝난 뒤(마지막 조건 어미, 또는 if/when/unless 절을 닫는 쉼표 뒤)의 확률·가능성·승률·기대 수익률 수치와 'N% 오를/하락할'을 찾고, 그런 수치가 있으면 numericClaimKind가 'forecast'를 돌려준다. stripNumericSentences는 forecast 문장에서 그 수치만 자료와 맞춰 보고, 근거가 없으면 기존 경로로 문장을 빼며 주제는 '확률'로 센다. 조건절의 임계값, 자료에 있는 빈도(73번 중 41번, 56%), 예측 수치 없는 조건문은 그대로 남는다.
+- violated_rule: 제품 원칙 5: 지어낸 퍼센트는 막고 해석은 막지 않는다 — 같은 수치가 문장 꼴에 따라 막히거나 통과했다.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.52 블록이 페이지 요청 파이프라인(_aioRunAIResponsePipeline)으로 6개 빼야 할 문장과 5개 남아야 할 문장을 돌리고, 조건절 임계값 면제와 '확률' 주제 이름을 확인한다. 옛 코드에서 실패함을 확인했다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 forecast 4건); 기존 공개·수치 필터 검사 전부 통과.
+- files: src/ai/response/publication.js, scripts/ci-ai-intelligence-contract-check.mjs
+
+## P2762 - v60.52 - AI의 기업 분석 도구가 종목 화면의 '새 실적 이전 조사' 경고 없이 옛 사업부 숫자를 건넴 (2026-11-24)
+
+- symptom/reproduction: 종목 화면은 조사일 뒤 새 실적 발표나 새 분기 공시가 있으면 '… 이전 조사입니다. 아래 사업부 숫자는 그 전 보고서 기준'이라고 알리는데, AI의 company_story 도구는 같은 글을 '조사 <날짜>'만 붙여 돌려줘 AI가 옛 숫자를 최신처럼 말할 수 있었다.
+- root_cause: src/ai/tools/stock-tools.js company_story가 storyFreshness를 부르지 않았고, 화면이 넘기는 세 기록(실적 캘린더·실적 브리프·SEC 분기 문자열)을 읽지 않았다.
+- fix: 도구가 같은 공용 자료(EARNINGS_CALENDAR·EVENT_BRIEFS refreshSharedArtifact, sec-fiscal-history.json의 분기 문자열 — 화면이 이미 읽었으면 그 값)를 읽어 같은 storyFreshness를 부른다. stale이면 본문 맨 앞에 화면과 같은 사실(새 실적 발표일 또는 분기 종료일, 사업부 숫자는 그 전 기준, 새 숫자는 fundamentals·consensus 도구)을 두고 asOf에 두 날짜를 싣는다. 기록을 못 읽으면 unknown이라 화면처럼 아무 말도 하지 않는다.
+- violated_rule: AI는 화면이 말하지 않는 것을 말하지 않는다 — 같은 원천·같은 판정.
+- prevention: scripts/ci-ai-intelligence-contract-check.mjs v60.52 company_story 2건이 캘린더 실적일과 SEC 분기 종료로 각각 stale을 만들고 도구 본문·asOf가 storyFreshness 결과와 같은지 본다. 옛 코드에서 실패함을 확인했다.
+- verification/residual: node scripts/ci-ai-intelligence-contract-check.mjs; node scripts/ci-company-profile-contract-check.mjs
+- files: src/ai/tools/stock-tools.js, scripts/ci-ai-intelligence-contract-check.mjs
+
 ## P2761 - v60.51 - 종목·테마 화면과 두 프로듀서의 남은 감사 결함 네 건: 굳은 회사 이야기의 '현재', 분할 전 컨센서스 EPS, 주말 보류 행의 다른 시점 환율, 빈 판단 틀과 조건 수 (2026-11-24)
 
 - symptom/reproduction: 전체 감사(2026-11-23, _artifacts/whole-audit-20261123/FINDINGS.md). A5: MU 회사 이야기(10/28 조사)가 '현재 상향 32건'이라 말하는 옆에서 지표 표는 '최근 4주 변경 없음'. A7: SNDK 'Forward PER 약 0.4배(종가 $94.39 ÷ 예상 EPS 합 $245.29)'. B8: history.json 11/22(일) 행의 원/달러 1,334.79·엔 159.71이 11/20 확정 종가 1,346.13·158.51과 다름. B25: 테마 상세 판단 틀 네 줄이 모두 '없음', 같은 카드에 '조건 충족 2/4'(조건 세 개만 나열)와 '기준 충족 5/6'. A1: 미국 장 시작 전 홈 시세 줄 VIX 30.88 +8.58%(값은 11/23, 등락은 11/19 종가 28.44 대비).
