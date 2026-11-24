@@ -456,11 +456,12 @@ await runSections('market-story', [
     assert.match(said(rebound, 'records').text, /^반도체 하루 \+14\.0%는 기록\(2026-01-02 이후\) 중 가장 큰 하루 상승입니다\./, 'v60.51 rebound');
     cleanSaid(said(rebound, 'records'));
   });
-  check('v60.51 the AI facts carry the state word and its conditions, and still name one Nasdaq', () => {
+  check('v60.52 the AI facts carry the state word and its conditions, each naming the index and rule (never merged with the Composite FTD)', () => {
     const lines = openingFactLines(rebound);
-    assert.ok(lines.includes('반등 상태어(규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.51 rebound');
-    assert.ok(lines.some((line) => line.startsWith('반등: 반등 시도 — 나스닥 100이 11/20 종가')), 'v60.51 rebound');
-    assert.equal(lines.filter((line) => line.startsWith('반등 확인 조건: ')).length, 2, 'v60.51 rebound');
+    assert.ok(lines.includes('반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.52 rebound terms');
+    assert.ok(lines.some((line) => line.startsWith(`반등(나스닥 100 종가, 저점 대비 +${S.reboundPct}% 규칙): 반등 시도 — 나스닥 100이 11/20 종가`)), 'v60.52 rebound terms');
+    assert.equal(lines.filter((line) => line.startsWith('반등 가격 조건(나스닥 100·S&P 500): ')).length, 2, 'v60.52 rebound terms');
+    assert.ok(lines.every((line) => !/반등 확인|바닥 확인/.test(line)), 'v60.52 the story lines never use the follow-through words');
     assert.doesNotMatch(`${texts(rebound)}\n${lines.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
   });
   const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 3, followThroughDay: 0 });
@@ -477,9 +478,10 @@ await runSections('market-story', [
     assert.equal(said(later, 'lede').text, '반도체는 저점(11/20)에서 17% 올라왔지만 고점 대비로는 아직 33% 아래, 약세장입니다. S&P 500은 200일선 위지만 나스닥 100은 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +5 sessions');
     for (const [opening, history] of [[next, day2], [later, day6]]) { assert.doesNotMatch(said(opening, 'lede').text, /하루/, 'v60.51 rebound'); cleanSaid(said(opening, 'lede'), history); }
   });
-  check('v60.51 the follow-through day, once it happened, is a fact of the state line (not a row), named without a second Nasdaq', () => {
-    assert.match(said(build(day6), 'watch').text, /^11\/27 바닥 확인일이 나왔습니다\. 나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\./, 'v60.51 rebound');
-    assert.doesNotMatch(said(rebound, 'watch').text, /바닥 확인일/, 'v60.51 none before it happens');
+  check('v60.52 the follow-through day, once it happened, is a fact of the state line (not a row), naming its own index and word', () => {
+    assert.match(said(build(day6), 'watch').text, /^11\/27 나스닥 종합 반등 확인 신호\(FTD\)가 나왔습니다\. 나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\./, 'v60.52 rebound terms');
+    assert.doesNotMatch(said(build(day6), 'watch').text, /바닥 확인/, 'v60.52 rebound terms');
+    assert.doesNotMatch(said(rebound, 'watch').text, /반등 확인 신호/, 'v60.51 none before it happens');
     assert.equal(build(day6).rebound.checks.texts.length, 2, 'v60.51 rebound');
   });
   check('v60.51 a close under the low the rebound rose from: 반등 실패 on that session, the fall\'s lede back, then nothing', () => {

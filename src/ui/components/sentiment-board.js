@@ -19,6 +19,7 @@ import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
 import { partsBar } from './figures.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { BOTTOM_WATCH_WORDS } from '../../domain/content/rebound-words.js';
 import { historyWaitText } from './data-state.js';
 import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { renderScreenReading } from './screen-reading.js';
@@ -61,7 +62,7 @@ function rawGroups(doc, model, axis, bottomWatch) {
       ['매도 소진 조건', `${bottomWatch.exhaustionMet}/${bottomWatch.exhaustion.length}`], ...bottomWatch.exhaustion.map((item) => [`${item.ok ? '충족' : '미충족'} · ${item.label}`, item.value]),
       ['회복 확인 조건', `${bottomWatch.confirmationMet}/${bottomWatch.confirmation.length}`], ...bottomWatch.confirmation.map((item) => [`${item.ok ? '충족' : '미충족'} · ${item.label}`, item.value])
     ];
-    groups.push(group('바닥 확인 조건 (시장 상태와 같은 집계)', rows, 'bottom-watch'));
+    groups.push(group(`${BOTTOM_WATCH_WORDS.label} (시장 상태와 같은 집계)`, rows, 'bottom-watch'));
   }
   if (model.mixed.length) groups.push(group('기준일과 다른 관측', [['지표', model.mixed.join(', ')]], 'mixed'));
   return groups.filter(Boolean);

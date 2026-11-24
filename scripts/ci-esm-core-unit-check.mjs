@@ -5218,7 +5218,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const history = series.map((point, i) => ({ date: bars[i].date, nasdaq: bars[i].close, rallyPhase: point.phase, rallyDay: point.day, followThroughDay: point.followThrough ? 1 : 0, breadthNewHighs: 10 + i }));
   const atFtd = rallyAttemptRead(history, { through: bars[38].date });
   const attempt = rallyAttemptRead(history, { through: bars[34].date });
-  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 2 || !/1일째는 .* 저점\(종가 90\)입니다/.test(attempt.plain)
+  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 2 || !/저점일 8\/14\(종가 90\)을 1일째로 세어/.test(attempt.rule)
     || rallyAttemptRead(history, { through: bars[10].date }) !== null) fail(`v59.57 rally attempt read wrong: ${JSON.stringify({ atFtd, attempt })}`);
   const { buildTreasuryAuctions, auctionTenor } = await load('src/domain/macro/treasury-auctions.js');
   const fixture = JSON.parse(readFileSync(path.join(root, 'scripts/fixtures/treasury-auctions/ta-ws-20261102.json'), 'utf8'));

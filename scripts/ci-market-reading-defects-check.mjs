@@ -172,6 +172,42 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
   check('v60.50 themes: 대부분 stays when one sector was flat', /11개 섹터가 대부분 내렸고/.test(mostlyDown), mostlyDown);
 }
 
+// v60.52 rebound terms — on 11/23 the story (나스닥 100, +5% off the low) and the follow-through count (나스닥 종합)
+// both read "반등 시도". The count is named by what it counts, states its base low and rule on the face, names the story's
+// index beside it when both are present, and says when its volume test compared an early-close session.
+{
+  const strip = await import('../src/ui/components/distribution-strip.js');
+  const words = await import('../src/domain/content/rebound-words.js').catch(() => ({}));
+  const rally = rallyAttemptRead(through('2026-11-23'));
+  const faceOf = (rebound) => { const doc = createFakeDocument(); const part = strip.rallyAttemptStrip(doc, through('2026-11-23'), '2026-11-23', { rebound }); return part?.textContent || ''; };
+  const story = { word: '반등 시도', low: { date: '2026-11-20', value: 25029 } };
+  const withStory = faceOf(story), alone = faceOf(null);
+  check('v60.52 rebound terms: the follow-through count never says 반등 시도', rally && !/반등 시도/.test(`${rally.state} ${rally.plain} ${rally.rule}`) && !/반등 시도/.test(alone), `${rally?.state} / ${alone}`);
+  check('v60.52 rebound terms: label names the signal and the index', alone.startsWith('반등 확인 신호(FTD) · 나스닥 종합') && words.FOLLOW_THROUGH_WORDS?.label === '반등 확인 신호(FTD) · 나스닥 종합', alone);
+  check('v60.52 rebound terms: 11/23 state counts with the low day visible as day 1', rally?.state === '저점일(11/20) 포함 2일째, 확인 전', rally?.state);
+  check('v60.52 rebound terms: the face states the base low and the rule in one line',
+    /저점일 11\/20\(종가 22,617\.73\)을 1일째로 세어 4일째부터 하루 \+1\.25% 이상·거래량 전일보다 많으면 확인/.test(alone), alone);
+  check('v60.52 rebound terms: with the story present, one line names both indexes and that they can disagree',
+    /시장 해석의 '반등 시도'는 나스닥 100 11\/20 저점 기준, 이 신호는 나스닥 종합 저점일\(11\/20\) 포함 2일째 — 지수와 규칙이 달라 엇갈릴 수 있습니다\./.test(withStory), withStory);
+  check('v60.52 rebound terms: no relation line without the story', !/시장 해석의/.test(alone), alone);
+  // Early close (NYSE half day 11/27): the tested session or the one before it.
+  const row = (date, day, phase = 1) => ({ date, nasdaq: 100 + day, rallyPhase: phase, rallyDay: day, followThroughDay: 0 });
+  const rows = [row('2026-11-19', 1), row('2026-11-20', 2), row('2026-11-23', 3), row('2026-11-24', 4), row('2026-11-25', 5), row('2026-11-27', 6), row('2026-11-30', 7)];
+  const at = (date) => rallyAttemptRead(rows, { through: date });
+  check('v60.52 rebound terms: an early-close session in the volume test is flagged (tested 11/27, or 11/30 against 11/27), not 11/25',
+    at('2026-11-27')?.shortSession === '2026-11-27' && at('2026-11-30')?.shortSession === '2026-11-27' && at('2026-11-25')?.shortSession === null,
+    JSON.stringify([at('2026-11-27')?.shortSession, at('2026-11-30')?.shortSession, at('2026-11-25')?.shortSession]));
+  const shortFace = strip.rallyAttemptStrip(createFakeDocument(), rows, '2026-11-27')?.textContent || '';
+  check('v60.52 rebound terms: the strip says the comparison is against a shortened session', /11\/27 조기 폐장 — 거래량 비교가 짧은 거래일 기준입니다\./.test(shortFace), shortFace);
+  const chart = marketCharts.indexVolumeRead(through('2026-11-23'), 'ndx')?.text || '';
+  check('v60.52 rebound terms: 기술적 분석 volume line uses the same words', chart === '거래량: 반등 확인 신호(FTD) · 나스닥 종합 저점일(11/20) 포함 2일째, 확인 전', chart);
+  // "바닥 확인" promised a confirmed bottom; no screen or AI line builder says it any more (research notes and glossary aliases aside).
+  const said = ['src/domain/market/regime/rally-attempt.js', 'src/ui/components/distribution-strip.js', 'src/domain/market/story/market-story.js', 'src/ui/components/market-story.js',
+    'src/domain/technical/market-charts.js', 'src/domain/briefing/market-read.js', 'src/ui/components/sentiment-board.js', 'src/domain/guide/lessons.js']
+    .filter((file) => /바닥 확인/.test(read(file).split('\n').filter((line) => !/^\s*(\/\/|\*)/.test(line)).join('\n')));
+  check('v60.52 rebound terms: no 바닥 확인 in the rebound and bottom-watch text builders', said.length === 0, said.join(', '));
+}
+
 if (failures.length) {
   console.error(`market reading defects: ${failures.length} failed, ${passed} passed`);
   for (const line of failures) console.error(`  FAIL ${line}`);

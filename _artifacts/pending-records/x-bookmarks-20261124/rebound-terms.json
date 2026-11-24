@@ -1,0 +1,23 @@
+{
+  "version": "v60.52",
+  "qa": [
+    {
+      "id": "QA-REBOUND-TERMS-01",
+      "text": "반등 확인 신호(FTD)는 나스닥 종합 기준으로 이름·저점일·규칙을 한 줄에 보이고 '반등 시도'를 쓰지 않는다; 시장 해석의 반등(나스닥 100)이 함께 있으면 두 지수와 엇갈릴 수 있음을 한 줄로 말하고, 거래량 비교가 조기 폐장일이면 그렇다고 말한다. ({VERSION})",
+      "verify_by": "node scripts/ci-market-reading-defects-check.mjs"
+    },
+    {
+      "id": "QA-REBOUND-TERMS-02",
+      "text": "AI에 넘기는 시장 이야기 반등 줄은 나스닥 100과 규칙(저점 대비 +5%)을 이름에 담고, 확인 신호 문장은 나스닥 종합과 반등 확인 신호(FTD)를 이름한다. ({VERSION})",
+      "verify_by": "node scripts/ci-market-story-check.mjs"
+    }
+  ],
+  "qa_section": "반등 두 읽기의 이름",
+  "changelog": [
+    "나스닥 종합의 FTD 띠가 '반등 시도' 대신 '반등 확인 신호(FTD) · 나스닥 종합'으로 이름하고 저점일·규칙을 한 줄로 보인다; 시장 해석의 '반등 시도'(나스닥 100)와 함께 있으면 지수와 규칙이 다르다는 한 줄을 둔다 ({VERSION})",
+    "조기 폐장일이 거래량 비교에 끼면 FTD 띠가 짧은 거래일 기준이라고 말한다(규칙은 그대로) ({VERSION})",
+    "'바닥 확인일'은 '반등 확인 신호(FTD)'로, 매도 소진·회복 집계 '바닥 확인 조건'은 '매도 소진·회복 조건'으로 바뀐다; 상태어는 src/domain/content/rebound-words.js 한 곳 ({VERSION})",
+    "AI 시장 이야기 반등 줄이 지수와 규칙을 이름에 담는다 ({VERSION})"
+  ],
+  "note": "반등 두 읽기(시장 해석 나스닥 100 / FTD 나스닥 종합) 이름 분리, 상태어 한 곳"
+}

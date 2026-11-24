@@ -7,6 +7,8 @@
 // pairs with the S&P 500 new-high count AIO already records. Thresholds: RULES.rallyAttempt. Pure.
 import { RULES } from '../../rules/thresholds.js';
 import { finiteNumber as finite, readNumber } from '../../shared/number.js';
+import { resolveMarketCalendarSession } from '../session/market-calendar.js';
+import { FOLLOW_THROUGH_WORDS as W } from '../../content/rebound-words.js';
 
 export const RALLY_PHASE = Object.freeze({ none: 0, attempt: 1, confirmed: 2 });
 
@@ -53,10 +55,14 @@ export function rallyAttemptSeries(bars = [], rules = RULES.rallyAttempt) {
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 const fmt = (value) => Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const halfDay = (date) => !!date && resolveMarketCalendarSession({ market: 'US', date }).halfDay === true;
 
 /**
  * The 시장 상태 reading from history rows that carry rallyPhase / rallyDay / followThroughDay (and nasdaq, breadthNewHighs).
- * Returns null outside an episode with no recent follow-through.
+ * Returns null outside an episode with no recent follow-through. Words: FOLLOW_THROUGH_WORDS (never the story's 반등 시도).
+ * `rule` is the face's one line: the base low and the rule. `shortSession` is the early-close date (NYSE half day) when
+ * the volume test that decides the state compared a shortened session — the session tested or the one before it; the
+ * rule is unchanged, the reader is told the comparison is not like for like.
  */
 export function rallyAttemptRead(history = [], { through = null, rules = RULES.rallyAttempt } = {}) {
   const rows = (history || []).filter((row) => row && readNumber(row.rallyPhase) != null && (!through || String(row.date) <= String(through)));
@@ -72,7 +78,6 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const lowRow = rows[start];
   const lowDate = lowRow?.date || null;
   const lowClose = readNumber(lowRow?.nasdaq);
-  const lowText = `${md(lowDate)} 저점${lowClose != null ? `(종가 ${fmt(lowClose)})` : ''}`;
   // A follow-through inside this episode, and whether one failed in the 40 sessions before it began.
   const episode = rows.slice(start);
   const ftdIndex = episode.findIndex((row) => Number(row.followThroughDay) === 1);
@@ -82,20 +87,25 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const before = rows.slice(Math.max(0, start - 40), start);
   const lastFtd = before.map((row) => Number(row.followThroughDay) === 1).lastIndexOf(true);
   const failedEarlier = lastFtd >= 0 && before.slice(lastFtd).every((row) => Number(row.rallyPhase) !== RALLY_PHASE.none);
+  // The base low and the rule on one line (the face states both; the story's rebound reads another index and rule).
+  // The low day itself is day 1 (day = i - lowIndex + 1), so the face says so rather than "N sessions after the low".
+  const test = `저점일 ${md(lowDate)}${lowClose != null ? `(종가 ${fmt(lowClose)})` : ''}을 1일째로 세어 ${rules.minDay}일째부터 하루 +${rules.gainPct}% 이상·거래량 전일보다 많으면 ${W.confirmed}`;
+  // An early close in the volume test: the tested session (index i of rows) or the session before it.
+  const shortAt = (i) => (i < 0 ? null : halfDay(rows[i]?.date) ? rows[i].date : halfDay(rows[i - 1]?.date) ? rows[i - 1].date : null);
   if (phase === RALLY_PHASE.attempt) {
     const toGo = Math.max(0, rules.minDay - day);
-    // Day 1 is the session that set the low (11/20, Nasdaq -5.3%); "반등 시도 1일째" there read as a
-    // rebound under way. The rule is unchanged; day 1 says the low was set and the count starts from it.
+    // Day 1 is the session that set the low (11/20, Nasdaq -5.3%); a rebound word there read as a rebound under way.
+    // The rule is unchanged; day 1 says the low was set and the count starts from it.
     const firstDay = day === 1;
-    const state = firstDay ? `${md(lowDate)} 새 저점 — 여기서 1일째` : `반등 시도 ${day}일째`;
-    const plain = firstDay
-      ? `${lowText}을 새로 낸 날이라 여기서 1일째로 셉니다. 반등은 아직 없습니다. ${rules.minDay}일째부터 나스닥이 하루 ${rules.gainPct}% 이상 오르면서 거래량이 전날보다 많으면 바닥 확인일(FTD)입니다 — 빠르면 ${toGo}거래일 뒤.`
-      : toGo > 0
-      ? `1일째는 ${lowText}입니다. ${rules.minDay}일째부터 나스닥이 하루 ${rules.gainPct}% 이상 오르면서 거래량이 전날보다 많으면 바닥 확인일(FTD)입니다 — 빠르면 ${toGo}거래일 뒤.`
-      : `1일째는 ${lowText}입니다. 아직 하루 ${rules.gainPct}% 이상 오르면서 거래량이 늘어난 날(바닥 확인일)이 없습니다.`;
+    const state = firstDay ? `${md(lowDate)} 새 저점 — 여기서 1일째, ${W.pending}` : `저점일(${md(lowDate)}) 포함 ${day}일째, ${W.pending}`;
+    const plain = firstDay ? `새 저점을 낸 날이라 반등은 아직 없습니다. 빠르면 ${toGo}거래일 뒤부터 ${W.confirmed}할 수 있습니다.`
+      : toGo > 0 ? `빠르면 ${toGo}거래일 뒤부터 ${W.confirmed}할 수 있습니다.`
+        : `아직 조건을 채운 날이 없습니다.`;
     const highsNow = readNumber(last.breadthNewHighs);
-    const ready = highsNow != null ? ` 바닥 확인일 다음 확인점은 주도주 신고가가 늘어나는지입니다 — 지금 S&P 500 52주 신고가 종목은 ${highsNow}개입니다.` : '';
-    return { phase: 'attempt', day, lowDate, lowClose, state, plain: `${plain} 그 종가 아래로 마감하면 처음부터 다시 셉니다.${failedEarlier ? ' 직전 바닥 확인일은 저점을 다시 깨며 실패했습니다.' : ''}${ready}` };
+    const ready = highsNow != null ? ` ${W.confirmed} 뒤 다음 확인점은 주도주 신고가입니다 — 지금 S&P 500 52주 신고가 종목 ${highsNow}개.` : '';
+    return { phase: 'attempt', day, lowDate, lowClose, state, shortSession: toGo > 0 ? null : shortAt(rows.length - 1),
+      rule: `${test} · 저점 종가 아래 마감이면 다시 셈`,
+      plain: `${plain}${failedEarlier ? ` 직전 ${W.name}는 저점을 다시 깨며 ${W.failed}했습니다.` : ''}${ready}` };
   }
   const ftd = ftdIndex >= 0 ? episode[ftdIndex] : null;
   const since = ftd ? episode.length - 1 - ftdIndex : null;
@@ -106,9 +116,10 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const atFtd = highs(ftd), now = highs(last);
   const leaders = atFtd != null && now != null ? ` S&P 500 52주 신고가 종목은 그날 ${atFtd}개, 지금 ${now}개입니다.` : '';
   const window = since != null && since <= rules.leaderWindowSessions
-    ? ` 바닥 확인일 뒤 며칠에서 3주 안에 주도주가 신고가로 따라 나오는지가 다음 확인점입니다(${since}거래일 지남).`
+    ? ` ${W.confirmed} 뒤 며칠에서 3주 안에 주도주가 신고가로 따라 나오는지가 다음 확인점입니다(${since}거래일 지남).`
     : '';
-  return { phase: 'confirmed', day, lowDate, lowClose, ftdDate: ftd?.date || null, since,
-    state: ftd ? `바닥 확인일 ${md(ftd.date)}${gain != null ? ` (+${gain.toFixed(2)}%)` : ''}` : '바닥 확인 후',
-    plain: `${lowText} 이후${ftd ? ` ${Number(ftd.rallyDay)}일째에` : ''} 나스닥이 거래량을 늘리며 크게 올랐습니다.${leaders}${window} ${md(lowDate)} 종가 아래로 마감하면 실패로 봅니다.` };
+  return { phase: 'confirmed', day, lowDate, lowClose, ftdDate: ftd?.date || null, since, shortSession: ftd ? shortAt(start + ftdIndex) : null,
+    state: ftd ? `${W.confirmed}(${md(ftd.date)}${gain != null ? `, +${gain.toFixed(2)}%` : ''})` : W.confirmed,
+    rule: `${test} · 저점 종가 아래 마감이면 ${W.failed}`,
+    plain: `${ftd ? `${Number(ftd.rallyDay)}일째에 ` : ''}${W.index}이 거래량을 늘리며 크게 올랐습니다.${leaders}${window}` };
 }

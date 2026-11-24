@@ -6,6 +6,7 @@
 // situation, and the same registry serves the screens, the AI context and the scenario-state producer.
 import { pastEvidence } from '../scenarios/analogs.js';
 import { hasFinalConsonant } from '../content/korean-particle.js';
+import { BOTTOM_WATCH_WORDS } from '../content/rebound-words.js';
 import { shortDate } from '../content/date-labels.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
@@ -60,7 +61,7 @@ export const LESSONS = Object.freeze([
     live: (ctx) => {
       const w = ctx?.regime?.bottomWatch;
       if (!w || !(w.exhaustionMet >= 1)) return null;
-      return `바닥 확인 조건 중 매도 소진 ${w.exhaustionMet}/${w.exhaustion.length} · 회복 확인 ${w.confirmationMet}/${w.confirmation.length}입니다 — 소진과 확인은 따로 셉니다.`;
+      return `${BOTTOM_WATCH_WORDS.label} 중 매도 소진 ${w.exhaustionMet}/${w.exhaustion.length} · 회복 확인 ${w.confirmationMet}/${w.confirmation.length}입니다 — 소진과 확인은 따로 셉니다.`;
     }
   },
   {
