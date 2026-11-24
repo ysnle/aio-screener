@@ -5025,8 +5025,9 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
       var pct = price && prev ? (price - prev) / prev * 100 : null;
       // P1728: the chart meta's previous close is the value that ran one KRX session behind; the cross-check records it
       // only when the verified previous KRX close agrees.
-      var _krCross = price > 0 && window.AIO.quoteBasis
-        ? window.AIO.quoteBasis.verifyKr({ symbol: sym, _source: 'yahoo:cross-chart', regularMarketTime: meta && meta.regularMarketTime, regularMarketPreviousClose: prev }, price, pct)
+      var _krVerify = window.AIO.quoteBasis && window.AIO.quoteBasis.verifyKr;
+      var _krCross = price > 0 && _krVerify
+        ? _krVerify({ symbol: sym, _source: 'yahoo:cross-chart', regularMarketTime: meta && meta.regularMarketTime, regularMarketPreviousClose: prev }, price, pct)
         : null;
       if (_krCross) { pct = _krCross.pct; prev = _krCross.prevClose; }
       if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }

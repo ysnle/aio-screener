@@ -5524,6 +5524,30 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (applied.length !== 1) fail('A1 a quote waiting for the history is applied again when it lands');
   const card = basis.batch([vixQuote(28.44, 8.58)], 'r2')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
   if (Math.abs(card.pct + 13.96) > 0.01 || card.quote.regularMarketPreviousClose !== 35.89 || Math.abs(card.quote.regularMarketChange + 5.01) > 1e-9 || card.quote.changeBasis !== 'history-previous-close') fail(`A1 the VIX card must read 30.88 and -13.96% on the 11/20 close: ${JSON.stringify(card)}`);
+  // Batches parked before install are applied once, in arrival order, each symbol with its latest quote.
+  const order = { _liveData: {}, AIO: {}, addEventListener() {} };
+  const park = (quotes) => quotes.forEach((q) => { (order._aioQuotePending = order._aioQuotePending || {})[q.symbol] = { quote: q, revision: null }; });
+  const late = { ...vixQuote(28.44, 8.58), regularMarketPrice: 31 };
+  park([vixQuote(28.44, 8.58), { symbol: '^GSPC', regularMarketPrice: 7000 }]);
+  park([late]);
+  const orderRuns = [];
+  order.applyLiveQuotes = (quotes) => orderRuns.push(quotes);
+  installQuoteBasis(order, { now: () => usNow });
+  if (orderRuns.length !== 1 || orderRuns[0].map((q) => q.symbol).join() !== '^VIX,^GSPC' || orderRuns[0][0] !== late) fail(`A1 parked batches must be applied once in arrival order: ${JSON.stringify(orderRuns)}`);
+  // The lazy load fails: parked quotes are applied on the provider's pair; the next batch retries and the one after is verified.
+  const { loadQuoteBasis } = await load('src/app/bootstrap.js');
+  const offline = { _liveData: {}, AIO: {}, _aioHistory: usHistory, addEventListener() {}, _aioQuotePending: { '^VIX': { quote: vixQuote(28.44, 8.58), revision: null } } };
+  const offlineRuns = [];
+  offline.applyLiveQuotes = (quotes) => offlineRuns.push(quotes);
+  let loads = 0;
+  const quoteBasisModule = await load('src/data/quote-basis.js');
+  await loadQuoteBasis(offline, () => usNow, () => (++loads === 1 ? Promise.reject(new Error('offline')) : Promise.resolve(quoteBasisModule)));
+  if (offlineRuns.length !== 1 || offlineRuns[0][0].symbol !== '^VIX') fail('A1 a failed basis load must still apply the parked quotes');
+  const plain = offline.AIO.quoteBasis.batch([vixQuote(28.44, 8.58)], 'o1')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
+  if (plain.pct !== 8.58 || plain.quote.regularMarketPreviousClose !== 28.44) fail(`A1 without the basis owner a quote keeps the provider pair: ${JSON.stringify(plain)}`);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const retried = offline.AIO.quoteBasis.batch([vixQuote(28.44, 8.58)], 'o2')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
+  if (loads !== 2 || Math.abs(retried.pct + 13.96) > 0.01) fail(`A1 the retried load must verify the next batch: loads ${loads}, ${JSON.stringify(retried)}`);
   const held = { pct: 0.5, quote: vixQuote(30.73, 0.5) };
   if (basis.batch([], 'r3')(vixQuote(28.44, 8.58), 30.88, 8.58, held).pct !== 0.5) fail('A1 a published close the quote may not replace keeps its change');  // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
   // v60.42: the chat's market header is gone (the short prompt carries the screen basis), so only the technical block is read.
