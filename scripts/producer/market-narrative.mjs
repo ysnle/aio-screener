@@ -25,7 +25,7 @@ import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/indices/index-levels.js';
 import { buildMarketOpening, openingFactLines } from '../../src/domain/market/story/market-story.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
-import { NEWS_INTRADAY_MAX } from '../lib/news-selection.mjs';
+import { NEWS_INTRADAY_MAX, stripColumnLabel, stripTranslatedColumnLabel } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
 import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
@@ -359,10 +359,12 @@ export const isFaithfulKoreanTitle = (title, ko) => {
 };
 // v59.74 (site QA 11/7: '… market eyes Fed policy : Finance : JKN' was translated with its feed tail): trailing
 // ' : Section : Outlet' / ' | Outlet' segments are the feed's labels, not the headline, and are not sent for translation.
-export const headlineForTranslation = (title) => String(title || '').replace(/(?:\s+[:|]\s+[A-Z][\w.&'-]*(?:\s[A-Z][\w.&'-]*){0,2}){1,3}$/, '').trim().slice(0, 300);
+export const headlineForTranslation = (title) => stripColumnLabel(title).replace(/(?:\s+[:|]\s+[A-Z][\w.&'-]*(?:\s[A-Z][\w.&'-]*){0,2}){1,3}$/, '').trim().slice(0, 300);
 export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
-  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isFaithfulKoreanTitle(item.title, item.titleKo)).map((item) => [item.title, item.titleKo]));
+  // A stored translation is reused under the cleaned title, without the column label its original carried.
+  const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isFaithfulKoreanTitle(item.title, item.titleKo))
+    .map((item) => [stripColumnLabel(item.title), stripTranslatedColumnLabel(item.title, item.titleKo)]));
   let reused = 0;
   for (const item of list) {
     if (hasHangul(item.title) || item.titleKo) continue;

@@ -6,6 +6,7 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { readIndexLongrun } from '../market/indices/long-run.js';
+import { sessionNewsWindow } from './news-picks.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -103,6 +104,27 @@ export const agrees = (fact, change, seed = null) => {
 const reportTier = (fact) => (Number.isFinite(fact?.tier) ? fact.tier : 9);
 export const byReportOrder = (a, b) => reportTier(a) - reportTier(b) || (Number(b.score) || 0) - (Number(a.score) || 0) || byMateriality(a, b);
 const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null, date: fact.date || null });
+/**
+ * The report a lead move shows on its face, or null. A report is evidence for a move only when it is about that move:
+ * published inside the session's news window (news-picks sessionNewsWindow: previous close to next open), its own words
+ * stating the move's direction (an up word for a rise, a down word for a fall, not both), and reached through the move's
+ * own link — `reports` arrive in link order (a stock's own name; a group's leaders or its thread's lead stock), then
+ * byReportOrder. A wrong evidence line is worse than none, so with no such report there is no line.
+ */
+function faceReport(seed, reports) {
+  const sign = Math.sign(Number(seed?.change) || 0);
+  if (!sign || !seed.date) return null;
+  const kr = seed.kind === 'price' ? FAMILY_OF.get(seed.asset)?.id === 'kr' : marketOfSymbol(seed.subjects?.[0] || seed.members?.[0] || '') === 'KR';
+  const span = sessionNewsWindow(seed.date, kr ? 'KR' : 'US');
+  const about = (fact) => {
+    const ms = Date.parse(fact.at || '');
+    const text = `${fact.title || ''} ${fact.titleKo || ''}`;
+    const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text);
+    return !!span && ms > span.start && ms <= span.end && up !== down && (sign > 0 ? up : down);
+  };
+  const fact = reports.find(about);
+  return fact ? evidenceOf(fact) : null;
+}
 const HANGUL_PAIR = /[가-힣].*[가-힣]/;
 const shownKorean = (fact) => HANGUL_PAIR.test(fact?.titleKo || '') || HANGUL_PAIR.test(fact?.title || '');
 
@@ -201,6 +223,11 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
   const stories = [];
   const assign = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
   const groupMembers = (fact) => new Set(fact.members || []);
+  // The stock that leads a fact's market-day thread (its largest move), when that is another stock move.
+  const threadLeadSymbol = (id) => {
+    const lead = byId.get((Array.isArray(day.threads) ? day.threads : []).find((thread) => (thread.facts || []).includes(id))?.lead);
+    return lead?.kind === 'stock-move' && lead.id !== id ? lead.subjects?.[0] || null : null;
+  };
 
   for (const seed of facts.filter((fact) => SEED_KINDS.has(fact.kind) && fact.kind !== 'price' || (fact.kind === 'price' && FAMILY_OF.get(fact.asset)?.id !== 'us' && FAMILY_OF.get(fact.asset)?.id !== 'kr')).sort(byMateriality)) {
     if (claimed.has(seed.id) || !['lead', 'major', 'minor'].includes(seed.rank)) continue;
@@ -232,6 +259,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
       }
       const reports = topicHeadlines(ids, family?.topics || [], seed).slice(0, 2);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[...kin, ...driven, ...reports]);
       for (const group of driven) assign(story,(group.members || []).map((sym) => facts.find((fact) => fact.kind === 'stock-move' && fact.subjects?.[0] === sym)));
     } else if (seed.kind === 'group-move') {
@@ -255,7 +283,16 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
       if (drivers.length) tell(story, 'why', say('{name} {driver}와 {driver.word}입니다.', { name: drivers[0].label, driver: changeClaim(drivers[0], { word: 'same-way', compare: { against: subjectOf(seed) } }) }));
       story.joins = drivenBy || null;
       const reports = headlinesAbout(members, seed.change, seed).slice(0, 3);
+      // On the face, a group's report must be about the group's move: it names one of the leaders that made the median,
+      // or the stock that leads the group's thread (that stock's report, ranked first). A report naming any other member
+      // ("헤지펀드가 매수하는 AI 주식에 Intel, Meta 포함" under 반도체 +13.5%) stays folded.
+      const leadSym = threadLeadSymbol(seed.id);
+      const leaderSyms = new Set([...(leadSym ? [leadSym] : []), ...ownLeaders.slice(0, 3).map((lead) => lead.sym)]);
+      const names = (fact) => (fact.subjects || []).some((sym) => leaderSyms.has(sym));
+      const viaLead = (fact) => Number(!!leadSym && (fact.subjects || []).includes(leadSym));
+      story.faceFrom = headlinesAbout([...leaderSyms], seed.change, seed).filter(names).sort((a, b) => viaLead(b) - viaLead(a) || byReportOrder(a, b));
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       story.related = moved.slice(0, 6).map((fact) => ({ sym: fact.subjects[0], label: fact.label, change: fact.change }));
       assign(story,[seed, ...moved, ...siblings, ...reports]);
     } else if (seed.kind === 'earnings') {
@@ -268,6 +305,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         stock: stock ? say(' 주가 {move}{vol}.{pull}', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: pullSaid(stock).text ? say(' {pull}.', { pull: pullSaid(stock) }) : NOTHING }) : NOTHING }));
       const reports = headlinesAbout([sym], stock?.change, stock).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, stock, ...reports]);
     } else if (seed.kind === 'deal') {
       const name = (sym) => facts.find((fact) => fact.subjects?.[0] === sym && fact.kind !== 'headline' && fact.label)?.label || sym;
@@ -278,6 +316,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(seed.premiumPct) ? say('프리미엄 {premium}', { premium: figureClaim(seed, 'dealPremium', seed.premiumPct, 'pct', '프리미엄') }) : NOTHING], ', ');
       tell(story, 'line', terms.text ? say('{terms}.', { terms }) : NOTHING);
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, ...reports]);
     } else {
       const sym = seed.subjects?.[0];
@@ -303,11 +342,13 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         story.line = seed.why || '';
       }
       story.evidence = reports.map(evidenceOf);
+      story.faceFrom ??= reports;
       assign(story,[seed, ...reports]);
     }
     if (!story.title) continue; // a seed kind with no wording here is not shown as a bare weight bar
     // A lead story's top linked report (byReportOrder) is shown on the face under the move, as written.
-    story.report = story.rank === 'lead' ? story.evidence[0] || null : null;
+    story.report = story.rank === 'lead' ? faceReport(seed, story.faceFrom || []) : null;
+    delete story.faceFrom;
     stories.push(story);
   }
 

@@ -24,13 +24,23 @@ import { renderHomeDay } from '../src/ui/components/home-day.js';
 import { renderBriefingDay } from '../src/ui/components/briefing-day.js';
 import { EVENT_BRIEFS, INDEX_LONGRUN, MARKET_DAY } from '../src/data/artifact-registry.js';
 import { saidIssues, isClaimError } from './lib/claim-validate.mjs';
+import { cleanNewsTitle, stripTranslatedColumnLabel } from './lib/news-selection.mjs';
+import { headlineForTranslation, translateHeadlines } from './producer/market-narrative.mjs';
 import { ledgerFacts } from './lib/claim-facts.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = (file) => readFileSync(resolve(root, file), 'utf8');
 const failures = [];
 const why = (error) => (error?.generatedMessage === false && 'actual' in error ? `${error.message}: actual ${inspect(error.actual)}, expected ${inspect(error.expected)}` : String(error?.message));
-const check = (label, fn) => { try { fn(); console.log(`  ok  ${label}`); } catch (error) { failures.push(label); console.log(`  FAIL ${label}\n       ${why(error).replace(/\s+/g, ' ').slice(0, 600)}`); } };
+const pending = [];
+const failed = (label, error) => { failures.push(label); console.log(`  FAIL ${label}\n       ${why(error).replace(/\s+/g, ' ').slice(0, 600)}`); };
+const check = (label, fn) => {
+  try {
+    const result = fn();
+    if (result?.then) pending.push(result.then(() => console.log(`  ok  ${label}`), (error) => failed(label, error)));
+    else console.log(`  ok  ${label}`);
+  } catch (error) { failed(label, error); }
+};
 
 // A minimal DOM: enough for the two components to render their faces into text (details/summary included).
 function fakeDocument(ids) {
@@ -49,14 +59,14 @@ const faceText = (n) => (n.tag === 'details' ? '' : n._text + ' ' + n.children.m
 
 // ── 1–2. The day account on a fixture ledger of the 11/23 shape.
 const D = '2026-11-23';
-const ledger = (withReports) => {
+const ledger = (withReports, extra = []) => {
   const report = (id, extra) => ({ id, kind: 'headline', date: D, subjects: ['NVDA'], rank: 'lead', materiality: 80, ...extra });
   const facts = [
     { id: `price:spx:${D}`, kind: 'price', asset: 'spx', label: 'S&P 500', date: D, change: 4.73, z: 5, rank: 'lead', materiality: 100 },
     { id: `price:soxx:${D}`, kind: 'price', asset: 'soxx', label: '반도체(SOXX)', date: D, change: 13.63, z: 4, rank: 'lead', materiality: 95 },
     { id: `stock:NVDA:${D}`, kind: 'stock-move', subjects: ['NVDA'], label: 'NVIDIA', date: D, change: 31.48, z: 8, indexBp: 160.2, themes: ['semiconductor'], sector: 'Technology',
       rank: 'lead', materiality: 100, explainedBy: withReports ? ['subject', 'driver'] : ['driver'] },
-    { id: `group:theme:semiconductor:${D}`, kind: 'group-move', group: 'theme:semiconductor', label: '반도체', date: D, change: 13.49, members: ['NVDA', 'AMD'],
+    { id: `group:theme:semiconductor:${D}`, kind: 'group-move', group: 'theme:semiconductor', label: '반도체', date: D, change: 13.49, members: ['NVDA', 'AMD', 'INTC'],
       leaders: [{ sym: 'NVDA', change: 31.48 }, { sym: 'AMD', change: 20.4 }], rank: 'lead', materiality: 100, explainedBy: ['member', 'driver'] },
     { id: `stock:AAPL:${D}`, kind: 'stock-move', subjects: ['AAPL'], label: 'Apple', date: D, change: 1.9, z: 0.9, indexBp: 15.9, rank: 'major', materiality: 48, explainedBy: [] },
     // Three linked reports, listed out of the ledger's order: a company memo (unrated), a tier-2 wire with the higher
@@ -65,15 +75,20 @@ const ledger = (withReports) => {
       report('memo:NVDA:0', { title: 'Nvidia shares jump', titleKo: '엔비디아 주가 급등', at: '2026-11-23T15:00:00.000Z', tier: null, score: null, materiality: 90, src: { kind: 'company-news' } }),
       report('headline:yonhap', { title: '뉴욕증시, 젠슨 황 엔비디아 CEO 재임명에 상승 출발', at: '2026-11-23T14:45:32.000Z', tier: 2, score: 90, src: { kind: 'news', link: 'https://fixture.invalid/yonhap' } }),
       report('headline:huang', { title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap', titleKo: '황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등: 시장 마감',
-        at: '2026-11-23T21:11:01.000Z', tier: 1, score: 81, src: { kind: 'news', link: 'https://fixture.invalid/huang' } })
-    ] : [])
+        at: '2026-11-23T21:11:01.000Z', tier: 1, score: 81, src: { kind: 'news', link: 'https://fixture.invalid/huang' } }),
+      // A tier-1 report naming a member that did not lead the group, with no word for the move.
+      report('headline:intc', { subjects: ['INTC'], title: 'Intel, Meta among AI stocks hedge funds are buying - Goldman', titleKo: '헤지펀드가 매수하는 AI 주식에 Intel, Meta 포함 - Goldman',
+        at: '2026-11-23T16:00:00.000Z', tier: 1, score: 95, src: { kind: 'news' } })
+    ] : []),
+    ...extra
   ];
   const links = [
     ...(withReports ? ['memo:NVDA:0', 'headline:yonhap', 'headline:huang'].map((from) => ({ from, to: `stock:NVDA:${D}`, basis: 'subject' })) : []),
     { from: `price:soxx:${D}`, to: `stock:NVDA:${D}`, basis: 'driver' }, { from: `price:soxx:${D}`, to: `group:theme:semiconductor:${D}`, basis: 'driver' },
     { from: `stock:NVDA:${D}`, to: `group:theme:semiconductor:${D}`, basis: 'member' }
   ];
-  return { schemaVersion: 'market-day.v1', generatedAt: '2026-11-24T00:52:00.000Z', sessions: { us: D }, facts, links, threads: [] };
+  return { schemaVersion: 'market-day.v1', generatedAt: '2026-11-24T00:52:00.000Z', sessions: { us: D }, facts, links,
+    threads: [{ id: `thread:stock:NVDA:${D}`, lead: `stock:NVDA:${D}`, facts: [`stock:NVDA:${D}`, `group:theme:semiconductor:${D}`] }] };
 };
 const told = buildDayAccount(ledger(true));
 const bare = buildDayAccount(ledger(false));
@@ -94,6 +109,15 @@ check('v60.51 C3 no linked report: no report line, the driver price named with i
   assert.equal(nvda(bare).report, null, 'v60.51 C3 no report');
   assert.equal(told.stories.find((story) => story.rank !== 'lead')?.report ?? null, null, 'v60.51 C3 only a lead story carries a face report');
 });
+check('v60.51 C3 a group shows a report only when it is about the group\'s move', () => {
+  const semis = (account) => account.stories.find((story) => story.id === `story:group:theme:semiconductor:${D}`) || {};
+  // The member report with no move word stays folded; the lead stock's report is the lead stock's line: no group line.
+  assert.equal(semis(told).report, null, 'v60.51 C3 반도체 shows no unrelated report');
+  const amd = (id, at, titleKo) => ({ id, kind: 'headline', date: at.slice(0, 10), subjects: ['AMD'], rank: 'major', materiality: 40, title: 'AMD shares', titleKo, at, tier: 1, score: 90, src: { kind: 'news' } });
+  const withLeader = buildDayAccount(ledger(true, [amd('headline:amd-old', '2026-11-19T15:00:00.000Z', 'AMD 주가 급등, 지난주 랠리'), amd('headline:amd', '2026-11-23T18:00:00.000Z', 'AMD 주가 급등')]));
+  assert.equal(semis(withLeader).report?.title, 'AMD 주가 급등', 'v60.51 C3 a leader\'s report inside the session window');
+  assert.equal(nvda(withLeader).report?.title, HUANG, 'v60.51 C3 NVDA keeps its own');
+});
 check('v60.51 C1 no internal wording and no bp-of-index unit in any story', () => {
   const text = [told, bare].flatMap((account) => [account.opening, ...[...account.stories, ...account.more].flatMap((story) => [story.title, story.line, ...story.why])]).join(' ');
   assert.equal(/업종이 따르는 가격|bp만큼|지수에 [+-]?\d+bp/.test(text), false, `v60.51 C1 wording ${text}`);
@@ -113,6 +137,21 @@ check('v60.51 C3 오늘 and 브리핑 show the lead report on the face, not fold
   const stories = brief.byId['briefing-day-stories'];
   assert.match(faceText(stories), /관련 보도: 황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등/, 'v60.51 C3 브리핑 face');
   assert.match(stories.textContent, /다른 보도 2건/, 'v60.51 C3 브리핑 folds the other reports');
+});
+
+check('v60.51 C3 an outlet column label leaves the headline and its stored translation, a colon inside stays', () => {
+  const wrap = 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap';
+  assert.equal(cleanNewsTitle(`${wrap} - Bloomberg.com`, 'Bloomberg.com'), 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets', 'v60.51 C3 bundle title');
+  assert.equal(headlineForTranslation(wrap), 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets', 'v60.51 C3 sent for translation');
+  assert.equal(stripTranslatedColumnLabel(wrap, `${HUANG}`), '황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등', 'v60.51 C3 stored translation');
+  assert.equal(stripTranslatedColumnLabel('뉴욕증시 동향: 시장 마감', '뉴욕증시 동향: 시장 마감'), '뉴욕증시 동향: 시장 마감', 'v60.51 C3 a Korean original keeps its words');
+  assert.equal(cleanNewsTitle('Fed: Rates on hold as inflation cools', ''), 'Fed: Rates on hold as inflation cools', 'v60.51 C3 a colon inside stays');
+});
+check('v60.51 C3 a stored translation is reused under the cleaned title without the label', async () => {
+  const items = [{ title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets' }];
+  const run = await translateHeadlines(items, { previous: [{ title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap', titleKo: HUANG }] });
+  assert.equal(run.reused, 1, 'v60.51 C3 reused');
+  assert.equal(items[0].titleKo, '황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등', 'v60.51 C3 reused translation');
 });
 
 // ── 3. Market-impact order and the blacklist.
@@ -161,5 +200,6 @@ check('v60.51 C2 오늘\'s stock row is titled for its material moves, not "크�
   assert.equal(/'크게 움직인 종목'/.test(home) || !/'주요 종목', 'home-day__stocks-label'/.test(home), false, 'v60.51 C2 home-day.js label');
 });
 
+await Promise.all(pending);
 if (failures.length) { console.error(`day-cause: ${failures.length} failed`); process.exit(1); }
 console.log('day-cause: all checks passed');
