@@ -646,23 +646,57 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   }
   const controller = new AbortController(); controller.abort();
   if ((await client.requestJson('fixture', { signal: controller.signal })).error !== 'HTTP_ABORTED' || requestCount !== 3) fail('http: pre-aborted request invoked transport');
+  // v60.51 (check-fixtures): the deadline and stall cases run on a virtual clock. On the wall clock their 5–110 ms
+  // margins were cut by event-loop delay under load (12+ parallel processes failed "a starved body beside a moving one
+  // must not be cut" and "a moving body must finish past the request deadline"), which the clock-shift sweep read as a
+  // date-dependent verdict on Wed 01:00Z and the NYSE holiday. http.js reads global setTimeout and Date.now at call time,
+  // so the case swaps both for a timer queue that advances only when every pending promise has settled.
+  const virtualTime = async (body) => {
+    const real = { setTimeout: globalThis.setTimeout, clearTimeout: globalThis.clearTimeout, now: Date.now };
+    const settle = () => new Promise((resolve) => setImmediate(resolve));
+    let now = real.now(), nextId = 0, done = false;
+    const timers = new Map();
+    globalThis.setTimeout = (task, delay = 0, ...args) => { const id = ++nextId; timers.set(id, { at: now + Math.max(0, Number(delay) || 0), id, task, args }); return id; };
+    globalThis.clearTimeout = (id) => { timers.delete(id); };
+    Date.now = () => now;
+    try {
+      const result = Promise.resolve().then(body).finally(() => { done = true; });
+      for (let step = 0; !done && step < 10000; step += 1) {
+        for (let i = 0; i < 5; i += 1) await settle();
+        if (done) break;
+        const next = [...timers.values()].sort((a, b) => a.at - b.at || a.id - b.id)[0];
+        if (!next) continue;
+        timers.delete(next.id);
+        now = Math.max(now, next.at);
+        next.task(...next.args);
+      }
+      return await result;
+    } finally {
+      globalThis.setTimeout = real.setTimeout; globalThis.clearTimeout = real.clearTimeout; Date.now = real.now;
+    }
+  };
   let complete;
-  const timeout = createHttpClient({ defaultTimeoutMs: 5, fetchImpl: () => new Promise(resolve => { complete = resolve; }) }).requestJson('fixture');
-  const timed = await Promise.race([timeout, new Promise(resolve => setTimeout(() => resolve(null), 150))]);
-  complete({ ok: true, status: 200, json: async () => ({}) });
-  if (timed?.error !== 'HTTP_TIMEOUT' || (await timeout).ok) fail('http: ignored abort published late success or never settled');
-  const bodyTimeout = await createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture');
+  const [timed, lateTimeout] = await virtualTime(async () => {
+    const timeout = createHttpClient({ defaultTimeoutMs: 5, fetchImpl: () => new Promise(resolve => { complete = resolve; }) }).requestJson('fixture');
+    const first = await Promise.race([timeout, new Promise(resolve => setTimeout(() => resolve(null), 150))]);
+    complete({ ok: true, status: 200, json: async () => ({}) });
+    return [first, await timeout];
+  });
+  if (timed?.error !== 'HTTP_TIMEOUT' || lateTimeout.ok) fail('http: ignored abort published late success or never settled');
+  const bodyTimeout = await virtualTime(() => createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture'));
   if (bodyTimeout.error !== 'HTTP_TIMEOUT') fail('http: deadline excludes JSON body wait');
   // P2072: on slow 3G a 397 KB body outlived the 8 s deadline and restarted forever. A streamed body that keeps
   // moving finishes past the request deadline; one that stops for bodyStallMs is still cut.
   const drip = (parts, gapMs) => new Response(new ReadableStream({ async start(c) { for (const part of parts) { await new Promise((r) => setTimeout(r, gapMs)); if (part == null) return; c.enqueue(new TextEncoder().encode(part)); } c.close(); } }));
-  const moving = await createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', '[1,', '2,', '3]', '}'], 20) }).requestJson('fixture');
+  const moving = await virtualTime(() => createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', '[1,', '2,', '3]', '}'], 20) }).requestJson('fixture'));
   if (!moving.ok || moving.data?.rows?.length !== 3) fail(`P2072 http: a moving body must finish past the request deadline (${moving.error})`);
-  const stalled = await createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', null], 10) }).requestJson('fixture');
+  const stalled = await virtualTime(() => createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', null], 10) }).requestJson('fixture'));
   if (stalled.ok || stalled.error !== 'HTTP_TIMEOUT') fail(`P2072 http: a stalled body must time out (${stalled.error})`);
   // A body starved by a busy link (its first byte after bodyStallMs while another body keeps moving) is not cut.
-  const busyClient = createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async (url) => url === 'big' ? drip(['{"n":', '1', ',"m":', '2', ',"k":', '3}'], 25) : drip(['{"ok":1}'], 110) });
-  const [big, starved] = await Promise.all([busyClient.requestJson('big'), busyClient.requestJson('small')]);
+  const [big, starved] = await virtualTime(() => {
+    const busyClient = createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async (url) => url === 'big' ? drip(['{"n":', '1', ',"m":', '2', ',"k":', '3}'], 25) : drip(['{"ok":1}'], 110) });
+    return Promise.all([busyClient.requestJson('big'), busyClient.requestJson('small')]);
+  });
   if (!big.ok || !starved.ok || starved.data?.ok !== 1) fail(`P2072 http: a starved body beside a moving one must not be cut (${starved.error})`);
   // P1408: a 503 with an HTML body keeps its status; a 200 with an unparseable body is a parse failure.
   const htmlError = await createHttpClient({ fetchImpl: async () => ({ ok: false, status: 503, json: async () => { throw new SyntaxError('Unexpected token <'); } }) }).requestJson('fixture');
