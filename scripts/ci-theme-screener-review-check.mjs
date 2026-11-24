@@ -15,6 +15,7 @@
 import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { SECTOR_ETF_LABELS } from '../src/domain/market/interpretation/concepts.js';
+import { factorSessionLag } from '../src/domain/screener/row-presentation.js';
 import { closeAll, freePort, startLocalServer } from './lib/browser-gate.mjs';
 
 const port = (Number(process.env.CI_THEME_SCREENER_REVIEW_PORT) || await freePort());
@@ -26,13 +27,23 @@ const SECTOR_NAMES = new Set(Object.values(SECTOR_ETF_LABELS));
 const usDay = readFileSync(new URL('../public-data/screener.json', import.meta.url), 'utf8').match(/"factorSessionDateByMarket":\{"US":"(\d{4}-\d{2}-\d{2})"/)?.[1];
 if (!usDay) { console.error('theme-screener-review: public-data/screener.json has no US factor session date'); process.exit(1); }
 const STALE_CLOCK = new Date(Date.parse(`${usDay}T12:00:00Z`) + 5 * 86400000);
+// v60.51 (check-fixtures): the 스크리너 part runs at the data's own clock — a minute after screener.json was written —
+// not the wall clock. On the wall clock, between the US close and the next screener refresh the page holds its ranks
+// (a later session has closed) and the kicker says 순위 보류, so the gate failed by the hour it ran. If the data was
+// already a session behind when it was written, the held state is what the page must show, and that is asserted.
+const screenerAsOf = readFileSync(new URL('../public-data/screener.json', import.meta.url), 'utf8').match(/"asOf":"([^"]+)"/)?.[1];
+const DATA_CLOCK = new Date(Date.parse(screenerAsOf) + 60_000);
+if (!Number.isFinite(DATA_CLOCK.getTime())) { console.error('theme-screener-review: public-data/screener.json has no asOf'); process.exit(1); }
+const DATA_HELD = !!factorSessionLag('US', usDay, DATA_CLOCK.getTime());
 
-async function open(browser, { width, height, dark, mobile = false, clock = null }) {
+async function open(browser, { width, height, dark, mobile = false, clock = null, flowing = false }) {
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: dark ? 'dark' : 'light', isMobile: mobile, hasTouch: mobile, serviceWorkers: 'block', reducedMotion: 'reduce' });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  if (clock) await page.clock.setFixedTime(clock);
+  // `flowing`: the clock starts at `clock` and runs (the drawer and the refresh scheduler time themselves).
+  if (clock && flowing) await page.clock.setSystemTime(clock);
+  else if (clock) await page.clock.setFixedTime(clock);
   await page.route('**/*', (route) => (route.request().url().startsWith(base) ? route.continue() : route.abort()));
   await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.showPage === 'function', null, { timeout: 30000 });
@@ -120,12 +131,15 @@ try {
   }
   // 스크리너 at phone light (16, 29).
   {
-    const { context, page, errors } = await open(browser, { width: 390, height: 844, dark: false, mobile: true });
+    const { context, page, errors } = await open(browser, { width: 390, height: 844, dark: false, mobile: true, clock: DATA_CLOCK, flowing: true });
     await page.evaluate(() => window.showPage('screener'));
     await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length > 0 && /순위/.test(document.getElementById('scr-kicker-counts')?.textContent || ''), null, { timeout: 60000 }).catch(() => {});
     const kicker = await page.evaluate(() => document.getElementById('scr-kicker-counts')?.textContent.trim() || '');
     const ranked = kicker.match(/([\d,]+)종목 순위/)?.[1];
-    if (!ranked) fail('screener', `kicker does not name the ranked count: "${kicker}"`);
+    // Held is a legitimate state only when a later US session had closed by the data's own clock; then it must say so.
+    const held = !ranked && DATA_HELD && /순위 보류/.test(kicker);
+    if (!ranked && !held) fail('screener', `kicker does not name the ranked count at the data's clock ${DATA_CLOCK.toISOString()}${DATA_HELD ? ` nor say 순위 보류 (US session ${usDay} is behind that clock)` : ''}: "${kicker}"`);
+    if (held) console.log(`[theme-review] screener: held at the data's clock (US session ${usDay} behind ${DATA_CLOCK.toISOString()}): "${kicker}"`);
     const banner = await page.evaluate(() => [...document.querySelectorAll('#scr-validation-banner > *')].filter((n) => n.getClientRects().length).map((n) => ({ text: n.textContent.trim(), cut: n.scrollWidth > n.clientWidth + 1 || getComputedStyle(n).textOverflow === 'ellipsis' && getComputedStyle(n).whiteSpace === 'nowrap' })));
     if (banner.some((n) => n.cut)) fail('screener', `validation banner cut on a phone: ${JSON.stringify(banner)}`);
     const firstPassed = page.locator('#screener-results-body tr[data-aio-screener-ticker] td').first();

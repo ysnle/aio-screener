@@ -1130,7 +1130,7 @@
           "id": "stock-reading-defects",
           "inputClass": "code",
           "script": "scripts/ci-stock-reading-defects-check.mjs",
-          "inputs": ["src/**", "scripts/**", "public-data/sec-fiscal-history.json", "public-data/sec-fundamentals-summary.json", "public-data/screener*.json", "public-data/consensus-estimates.json"]
+          "inputs": ["src/**", "scripts/**"]
         },
         {
           "id": "stock-producer-leftovers",
@@ -1142,7 +1142,7 @@
           "id": "market-reading-defects",
           "inputClass": "code",
           "script": "scripts/ci-market-reading-defects-check.mjs",
-          "inputs": ["src/**", "scripts/**", "public-data/history.json", "public-data/macro-history.json"]
+          "inputs": ["src/**", "scripts/**"]
         },
         {
           "id": "market-story",
@@ -2296,6 +2296,7 @@
           "inputClass": "code",
           "script": "scripts/ci-clock-shift-check.mjs",
           "timeoutMs": 420000,
+          "exclusive": true,
           "remedy": "A fixture dated from the real clock reached a session calendar or freshness window: date its rows on sessions (previousHistorySession) or pass the check a fixed clock; never change product code to pass.",
           "inputs": [
             "scripts/**",

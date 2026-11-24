@@ -106,21 +106,22 @@ await check('v60.50 the list row shows the contrary count beside MU\'s percentil
   expect(/98/.test(aapl) && !/반대 조건/.test(aapl), `AAPL rank cell: ${aapl}`);
 });
 
-await check('v60.50 the ranking model is unchanged (factor-ranks.v10): the norm fields move no score on the published cross-section', async () => {
-  const [{ createScreenerProvider }, { normalizeScreener }, { calculationRow }, { computeFactorRanks, FACTOR_RANKS_MODEL_VERSION }] = await Promise.all([
-    load('src/data/providers/screener.js'), load('src/data/normalize/screener.js'), load('src/data/contracts/screener.js'), load('src/domain/screener/factor-ranks.js')]);
+// v60.51 (check-fixtures): the cross-section is frozen (eight normalized screener rows, 2026-11-24, in
+// scripts/fixtures/reading-defects/stock-rows.json). v60.50 ranked the live screener.json, so the rule's verdict hung on
+// whether the latest refresh had computed ranks at all (918 rows held between the close and the refresh).
+await check('v60.50 the ranking model is unchanged (factor-ranks.v10): the norm fields move no score on the cross-section', async () => {
+  const [{ normalizeScreener }, { calculationRow }, { computeFactorRanks, FACTOR_RANKS_MODEL_VERSION }] = await Promise.all([
+    load('src/data/normalize/screener.js'), load('src/data/contracts/screener.js'), load('src/domain/screener/factor-ranks.js')]);
   expect(FACTOR_RANKS_MODEL_VERSION === 'factor-ranks.v10', `the model version stays v10 until a research backtest: ${FACTOR_RANKS_MODEL_VERSION}`);
-  const artifact = (name) => JSON.parse(readFileSync(new URL(`../public-data/${name}`, import.meta.url), 'utf8'));
-  const files = ['screener.json', 'screener-universe.json', 'model-validation-status.json'];
-  const httpClient = { async requestJson(url) { const name = files.find((file) => String(url).endsWith(file)); try { return { ok: true, data: artifact(name) }; } catch (_) { return { ok: false, error: 'missing' }; } } };
-  const now = Date.parse(artifact('screener.json').factorComputedAt) + 60_000;
-  const provider = createScreenerProvider({ httpClient, clock: { now: () => now, iso: () => new Date(now).toISOString() }, yieldImpl: () => Promise.resolve() });
-  const normalized = normalizeScreener(await provider.readCurrent());
-  const base = normalized.rows.map(calculationRow);
+  const frozen = JSON.parse(readFileSync(new URL('./fixtures/reading-defects/stock-rows.json', import.meta.url), 'utf8'));
+  const now = Date.parse(frozen.frozenFrom.screenerAsOf) + 60_000;
+  const base = Object.values(frozen.screenerRows).map(calculationRow);
   const withNorms = base.map((row) => (norms[row.sym] ? { ...row, _marginPriorFyMedian: norms[row.sym].median, _marginPriorFyYears: norms[row.sym].years } : row));
-  const rank = (rows) => computeFactorRanks({ rows, now, fundamentalCoveragePct: normalized.metadata.fundamentalCoveragePct, fmpOk: !!normalized.metadata.fmpOk }).rows;
+  const rank = (rows) => computeFactorRanks({ rows, now, fundamentalCoveragePct: 90.3, fmpOk: false }).rows;
   const scores = (rows) => JSON.stringify(rows.map((row) => [row.sym, row.rank, row.factorScores]));
-  expect(base.some((row) => row.sym === 'MU') && scores(rank(base)) === scores(rank(withNorms)), 'ranks and factor scores are identical with and without the norm fields');
+  const ranked = rank(base).find((row) => row.sym === 'MU');
+  expect(ranked && Number.isFinite(ranked.rank) && Object.keys(ranked.factorScores || {}).length > 0, `the frozen cross-section ranks MU with factor scores, so a norm that moved a score would show: ${JSON.stringify(ranked && [ranked.rank, ranked.factorScores])}`);
+  expect(scores(rank(base)) === scores(rank(withNorms)), 'ranks and factor scores are identical with and without the norm fields');
   const [carried] = normalizeScreener({ rows: [{ sym: 'MU', _marginPriorFyMedian: 21.2, _marginPriorFyYears: 5 }] }).rows;
   expect(carried._marginPriorFyMedian === 21.2 && carried._marginPriorFyYears === 5, `normalize keeps the norm fields: ${JSON.stringify([carried._marginPriorFyMedian, carried._marginPriorFyYears])}`);
 });

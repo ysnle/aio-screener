@@ -527,7 +527,7 @@ const { default: assert } = await import('node:assert/strict');
 {
   // The connected-concepts list shows which way a relation points (the map aside used to print the relation word alone).
   const principles = (await import('node:fs')).readFileSync(new URL('../src/ui/pages/principles.js', import.meta.url), 'utf8');
-  assert.ok(/edge\.from === node\.id \? '→' : '←'\} \$\{edge\.relation/.test(principles), 'the connected-concepts list must show the relation direction');
+  assert.ok(/edge\.from === node\.id \? '→' : '←'\} \$\{edge\.relation/.test(principles), 'v58.84 the connected-concepts list must show the relation direction');
 }
 console.log(JSON.stringify({ status: 'PASS', renderers: 1 }, null, 2));
 }, 'code'],

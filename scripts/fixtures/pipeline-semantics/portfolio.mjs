@@ -406,6 +406,13 @@ export const cases = [
     const { createPortfolioPage } = await load('src/ui/pages/portfolio.js');
     const doc = createFakeDocument({ ids: shellIds(html) });
     doc.getElementById('page-portfolio').appendChild(doc.getElementById('pf-positions-tbody'));
+    // v60.51: the fake DOM carries the shell's ids, not its text, so the day column's header text is copied in from
+    // index.html; each day cell takes its phone-card label from that header (tableCell), so the title reaches the reader.
+    const dayHeader = html.match(/<th id="pf-th-day"[^>]*title="([^"]*)"[^>]*>([^<]*)<\/th>/);
+    assert.ok(dayHeader, 'v60.51 index.html keeps the portfolio day column <th id="pf-th-day" title="…">');
+    assert.equal(dayHeader[2].trim(), '하루 등락', 'v60.51 the portfolio day column is titled 하루 등락 (a close-valued row shows that close\'s day change, not today\'s)');
+    assert.match(dayHeader[1], /종가로 평가 중인 종목은 그 종가의 하루 등락/, 'v60.51 the day column title says a close-valued row shows its close\'s change');
+    doc.getElementById('pf-th-day').textContent = dayHeader[2];
     const holdings = [{ symbol: 'NVDA', shares: 10, avgCost: 150 }, { symbol: 'AAPL', shares: 5, avgCost: 200 }];
     // The close is two days before the run: the page reads the wall clock, and a fixed date turned stale a week later.
     const closeDay = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
@@ -420,6 +427,8 @@ export const cases = [
     const rows = [...doc.getElementById('pf-positions-tbody').children].filter((tr) => tr.children?.length > 3);
     const day = rows.map((tr) => String(tr.children.find((td) => td.dataset?.label === '오늘' || /pf-th-day/.test(td.getAttribute?.('headers') || ''))?.textContent ?? tr.children[6]?.textContent));
     assert.deepEqual(day, [`-1.20% (${md})`, `+0.50% (${md})`], `v60.30 오늘 shows the close's own change, dated: ${JSON.stringify(day)}`);
+    const dayCells = rows.map((tr) => tr.children.find((td) => /pf-th-day/.test(td.getAttribute?.('headers') || '')));
+    assert.deepEqual(dayCells.map((td) => td?.dataset?.label), ['하루 등락', '하루 등락'], `v60.51 each day cell is labelled by the 하루 등락 header on the phone card: ${JSON.stringify(dayCells.map((td) => td?.dataset?.label))}`);
   } },
   { id: 'v60.30', name: 'the duplicate-holding dialog reads as plain Korean and names a currency only when it is not the listing\'s', run: async ({ load }) => {
     const { duplicateHoldingDialog } = await load('src/ui/panels/portfolio-duplicate-holding.js');

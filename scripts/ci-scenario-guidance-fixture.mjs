@@ -248,7 +248,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     // Audit 3: the 2-year proxy caveat (P1449) is said once in the rate hub; each branch keeps one short line.
     if (['reheat', 'softland', 'slowdown', 'dollarsurge'].includes(item.id) && item.pricing.tone !== 'unknown') {
       assert.match(model.rateHub.pricingNote, /프리미엄/, `P1742 ${item.id}: the 2-year proxy states its premium caveat in the hub (P1449)`);
-      assert.match(item.pricing.text, /^2년물−기준금리 [+−±]\d+\.\d{2}%p \(금리 (상단|하단) 쪽|^2년물−기준금리 [+−±]\d+\.\d{2}%p \(동결 부근/, `audit 3 ${item.id}: one short market-price line`);
+      assert.match(item.pricing.text, /^2년물−기준금리 [+−±]\d+\.\d{2}%p \(금리 (상단|하단) 쪽|^2년물−기준금리 [+−±]\d+\.\d{2}%p \(동결 부근/, `v57.54 audit 3 ${item.id}: one short market-price line`);
       assert.doesNotMatch(item.pricing.text, /프리미엄/, `audit 3 ${item.id}: the caveat is not repeated per branch`);
     }
     assert.match(item.past.text, /AIO 종가 기록|장기 일봉 기록|빈도를 계산하지|빈도로 말하지/, `P1742 ${item.id}: past-frequency line with its record span`);

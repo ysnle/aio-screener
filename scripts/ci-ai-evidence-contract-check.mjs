@@ -255,7 +255,7 @@ assert.equal(typeof AIO.normalizeAIChatEvidenceRow, 'function', 'chat evidence n
 const normalizeBlock = core.slice(core.indexOf('window.AIO.normalizeAIChatEvidenceRow'), core.indexOf('function _aioClaimEvidenceList'));
 assert.doesNotMatch(normalizeBlock, /input\.fetchedAt\s*\|\|\s*input\.generatedAt/, 'chat normalization cannot use fetch/generation time as observation');
 assert.doesNotMatch(normalizeBlock, /input\.sourceTs/, 'chat normalization cannot substitute a source/collection timestamp for observation');
-assert.doesNotMatch(normalizeBlock, /source\s*\?\s*['"]LIVE['"]/, 'arbitrary source cannot be promoted to LIVE');
+assert.doesNotMatch(normalizeBlock, /source\s*\?\s*['"]LIVE['"]/, 'v58.84 arbitrary source cannot be promoted to LIVE');
 assert.match(core, /window\.AIO\.buildAIQuoteEvidenceRow\s*=\s*function/, 'shared quote evidence producer exists');
 assert.match(core.slice(core.indexOf('window.AIO.getChatEvidenceContext')), /buildAIQuoteEvidenceRow/, 'chat evidence context consumes the shared producer');
 
@@ -273,10 +273,10 @@ assert.match(producer, /_atomicObservedAt/, 'atomic producer preserves observati
 const applyStart = data.indexOf('function applyLiveQuotes');
 const applyEnd = data.indexOf('function ', data.indexOf('window._dataSource[q.symbol]', applyStart));
 const apply = data.slice(applyStart, applyEnd > applyStart ? applyEnd : applyStart + 24000);
-assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1000}price:\s*price/, 'live quote envelope preserves price');
-assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1200}observedAt:\s*q\._atomicObservedAt/, 'live quote envelope preserves observation time');
-assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}currency:\s*_quoteCurrency/, 'live quote envelope preserves upstream currency');
-assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}unit:\s*_quoteUnit/, 'live quote envelope preserves quote unit');
+assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1000}price:\s*price/, 'v58.84 live quote envelope preservesprice');
+assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1200}observedAt:\s*q\._atomicObservedAt/, 'v58.84 live quote envelope preservesobservation time');
+assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}currency:\s*_quoteCurrency/, 'v58.84 live quote envelope preservesupstream currency');
+assert.match(apply, /quoteEnvelope:\s*\{[\s\S]{0,1400}unit:\s*_quoteUnit/, 'v58.84 live quote envelope preservesquote unit');
 
 const observedAt = new Date(OPEN_NOW - 30 * 1000).toISOString();
 const truth = { status: 'verified', decisionUse: true, issues: [], warnings: [] };

@@ -144,7 +144,7 @@ const categories = [
 
 // v57.81: the extended screener rows (Russell 2000 + Nasdaq beyond the core) exist only as a produced artifact —
 // never as a static list in the runtime bundle — and a committed shard keeps the research-only, price-free contract.
-assert(!/(?:RUSSELL_?2000|NASDAQ_LISTED)_(?:MEMBERS|SYMBOLS)\s*=\s*\[/.test(runtime), 'extended screener membership embedded as a static list'); // text-pin-ok: absence guard, no behaviour to exercise
+assert(!/(?:RUSSELL_?2000|NASDAQ_LISTED)_(?:MEMBERS|SYMBOLS)\s*=\s*\[/.test(runtime), 'v57.81 extended screener membership embedded as a static list'); // text-pin-ok: absence guard, no behaviour to exercise
 if (fs.existsSync('public-data/screener-extended.json')) {
   const shard = json('public-data/screener-extended.json');
   assert(shard.schemaVersion === 'screener-extended.v1' && shard.rankingContract?.allowedUse === 'research-relative-ranking-only' && shard.rankingContract?.tradingSignal === false,

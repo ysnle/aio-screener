@@ -64,7 +64,7 @@ for (const file of files) {
 // The adapters exist and the stage order is the documented one.
 assert.deepEqual(INTERPRETATION_STAGES, ['regime', 'marketRead', 'macroRead', 'curve', 'indexEarnings', 'crossroads', 'scenarios', 'groups', 'outlook', 'playbook', 'guide'], `${label}: stage order`);
 for (const adapter of ['src/data/selectors/interpretation.js', 'scripts/lib/market-interpretation-inputs.mjs']) {
-  assert.match(read(adapter), /buildMarketInterpretation\(/, `${label}: ${adapter} enters the pipeline`);
+  assert.match(read(adapter), /buildMarketInterpretation\(/, `v58.34 ${label}: ${adapter} enters the pipeline`);
 }
 // Behaviour on the published artifacts: one build gives every stage; the browser adapter reuses it until an input object
 // changes; a stage that throws is reported, not half-built.

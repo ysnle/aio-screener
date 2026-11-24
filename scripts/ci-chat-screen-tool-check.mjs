@@ -231,10 +231,37 @@ const pctText = (value, digits = 1) => `${signedText(value, digits)}%`;
 const stageWord = (state) => (THEME_STATES[state] ? THEME_STATES[state].split(' (')[0] : '판정 보류');
 const lineOf = (text, head) => text.split('\n').find((line) => line.startsWith(head)) || '';
 
-await check('v60.41 the committed data gives the 테마 screen 11 sector bars and US and Korean theme stages', () => {
+// v60.51: a market whose themes carry no stage is a legitimate state when, and only when, the playbook says why: its
+// benchmark's latest close is a session behind the theme basis (the screener landed before the index close, as on 11/23
+// when RSP's 11/23 close arrived after the screener's). Two refresh-screener runs were blocked on that state. Malformed
+// rows, an unexplained empty market or a hold the history does not back still fail.
+const MARKETS = ['US', 'KR'];
+const themesIn = (market) => (playbook?.themes || []).filter((row) => row.market === market);
+const benchmarkHeld = (market) => {
+  const list = themesIn(market);
+  const basis = playbook?.asOfByMarket?.[market] || null;
+  const benchAsOf = playbook?.benchmarks?.[market]?.asOf || null;
+  return list.length > 0 && !list.some((row) => row.state) && !!basis && !!benchAsOf && benchAsOf < basis
+    && list.every((row) => row.held?.reason === 'benchmark-lag' && row.held.benchmarkAsOf === benchAsOf && /^판정 보류/.test(row.stateLabel));
+};
+const heldMarkets = new Set(MARKETS.filter(benchmarkHeld));
+await check('v60.41 the committed data gives the 테마 screen 11 sector bars and US and Korean theme stages (v60.51: or a stated benchmark-lag hold)', () => {
   assert.ok(flow, 'v60.41 src/data/selectors/theme-flow.js');
   assert.equal(flow.viewItems(flowItems, 'sectors').length, 11, 'v60.41 flow.viewItems flowItems sectors .length');
-  assert.ok(playbook?.available && playbook.themes.some((row) => row.market === 'US' && row.state) && playbook.themes.some((row) => row.market === 'KR' && row.state), 'v60.41 playbook stages');
+  assert.ok(playbook?.available && Array.isArray(playbook.themes), 'v60.41 playbook available');
+  for (const row of playbook.themes) {
+    const at = `${row?.market}:${row?.id}`;
+    assert.ok(MARKETS.includes(row?.market) && typeof row.id === 'string' && row.id && typeof row.label === 'string' && row.label, `v60.51 ${at} market, id and label`);
+    assert.ok(row.state == null || Object.prototype.hasOwnProperty.call(THEME_STATES, row.state), `v60.51 ${at} state ${row.state} is a THEME_STATES key`);
+    assert.ok(typeof row.stateLabel === 'string' && (row.state ? !/^판정 보류/.test(row.stateLabel) : /^판정 보류/.test(row.stateLabel)), `v60.51 ${at} stateLabel matches its state: ${row.stateLabel}`);
+    assert.ok(Number.isFinite(row.ret1m), `v60.51 ${at} ret1m`);
+  }
+  for (const market of MARKETS) {
+    assert.ok(themesIn(market).length > 0, `v60.41 ${market} themes`);
+    assert.ok(themesIn(market).some((row) => row.state) || heldMarkets.has(market),
+      `v60.41 playbook stages: ${market} has no staged theme and no benchmark-lag hold (basis ${playbook.asOfByMarket?.[market]}, benchmark ${playbook.benchmarks?.[market]?.asOf})`);
+  }
+  if (heldMarkets.size) console.log(`chat-screen-tool: theme stages held for ${[...heldMarkets].map((m) => `${m} (benchmark ${playbook.benchmarks[m].asOf} < basis ${playbook.asOfByMarket[m]})`).join(', ')}`);
 });
 
 await check('v60.41 money_flow is registered with a strict schema (market, level, theme)', () => {
@@ -270,9 +297,15 @@ await check('v60.41 overview lists the sector bars in the screen order with the 
   }
 });
 
-const themeOf = (market) => playbook.themes.filter((row) => row.market === market && row.state).sort((a, b) => b.ret1m - a.ret1m)[0];
+// The strongest staged theme; in a market held for benchmark lag (above) the strongest held one, whose detail must still
+// list its members and print the hold the screen shows. No theme means the premise above failed: say so instead of crashing.
+const themeOf = (market) => {
+  const theme = themesIn(market).filter((row) => row.state || heldMarkets.has(market)).sort((a, b) => b.ret1m - a.ret1m)[0];
+  assert.ok(theme, `v60.51 no ${market} theme with a stage or a stated hold — see the theme-stage check above`);
+  return theme;
+};
 await check('v60.41 theme detail returns only that theme\'s members, by 3-month return, with the stage the screen shows', async () => {
-  for (const market of ['US', 'KR']) {
+  for (const market of MARKETS) {
     const theme = themeOf(market);
     const out = await runFlow({ market, level: 'theme', theme: theme.id });
     assert.ok(out.ok, `v60.41 the tool call succeeds: ${out.text}`);
