@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T10:26:37.203Z",
-  "attemptedAt": "2026-11-24T10:26:37.203Z",
-  "lastSuccessfulAt": "2026-11-24T10:26:37.203Z",
+  "generatedAt": "2026-11-24T10:52:04.048Z",
+  "attemptedAt": "2026-11-24T10:52:04.048Z",
+  "lastSuccessfulAt": "2026-11-24T10:52:04.048Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T10:26:31.872Z",
-  "until": "2026-11-24T10:26:31.872Z",
+  "since": "2026-11-10T10:52:00.544Z",
+  "until": "2026-11-24T10:52:00.544Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -85,13 +85,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1146,
+      "count": 1147,
       "freshCount": 40,
-      "eligibleTextCount": 1081,
+      "eligibleTextCount": 1082,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70127
+      "lastPostId": 70130
     },
     {
       "channel": "bornlupin",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 715,
-      "freshCount": 38,
+      "freshCount": 19,
       "eligibleTextCount": 714,
       "selectedCount": 125,
       "error": null,
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2028,
-  "retainedItemCount": 417,
+  "count": 2029,
+  "retainedItemCount": 405,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2028,
-    "eligibleTextCount": 1962,
+    "observedCount": 2029,
+    "eligibleTextCount": 1963,
     "mediaOnlyCount": 66,
     "mediaAttachedCount": 810,
     "photoPostCount": 689,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 333,
-    "broadSignalCount": 836,
+    "highSignalCount": 334,
+    "broadSignalCount": 837,
     "selectedRawCount": 365,
     "selectedEligibleCount": 365,
     "selectedRawCoveragePct": 18.6,
@@ -160,16 +160,16 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 726,
+    "semi": 643,
+    "ai-policy": 153,
+    "market-note": 727,
     "earnings": 247,
-    "semi": 642,
-    "ai-policy": 152,
     "macro": 280,
     "kr-market": 98,
     "credit": 69,
     "flows": 64,
     "optical": 23,
-    "geo": 240,
+    "geo": 239,
     "power": 187,
     "japan": 45,
     "healthcare": 48,
@@ -178,8 +178,8 @@
     "insider": 5
   },
   "tickerCounts": {
+    "NVDA": 426,
     "TSLA": 28,
-    "NVDA": 425,
     "TSM": 62,
     "2454.TW": 7,
     "ASX": 2,
@@ -257,19 +257,19 @@
     "103590.KS": 1
   },
   "themes": [
-    "Market Notes (726 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
-    "Semiconductors/Memory (642 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
+    "Market Notes (727 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
+    "Semiconductors/Memory (643 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
     "Macro/Rates (280 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 선물 현황 • 다우: 49,715.10 (+0.23%) • S&P500: 7,256.00 (+0.25%) • 나스닥100: 26,785.40 (+0.15%) • 러셀2000: 2,675.50 (+0.22%) • VIX:...",
     "Earnings/Corporate (247 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (240 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Geopolitics (239 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (187 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
-    "AI Policy/Export Controls (152 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "AI Policy/Export Controls (153 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (129 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 425,
+      "count": 426,
       "text": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 선물 현황 • 다우: 49,715.10 (+0.23%) • S&P500: 7,256.00 (+0.25%) • 나스닥100: 26,785.40 (+0.15%) • 러셀2000: 2,675.50 (+0.22%) • VIX:..."
     },
     {
@@ -344,7 +344,7 @@
       "topics": [
         "geo"
       ],
-      "count": 240,
+      "count": 239,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -362,7 +362,7 @@
       "topics": [
         "semi"
       ],
-      "count": 642,
+      "count": 643,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -389,7 +389,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 152,
+      "count": 153,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -444,7 +444,7 @@
         "japan"
       ],
       "count": 45,
-      "focus": "**리서치 온라인 포럼 유투브 링크 공유합니다. 오늘은 9:30부터 자산, 내일은 산업 전망입니다. **많은 관심 부탁드립니다~"
+      "focus": "No retained full-text sample; 45 observed posts in the 14-day research window."
     },
     {
       "id": "flows",
@@ -462,7 +462,7 @@
         "insider"
       ],
       "count": 5,
-      "focus": "앤트로픽 내부자 거래 공시에 따르면 11월 20일 다리오 아모데이 CEO와 다니엘라 아모데이 사장이 각각 337만8,378주를 주당 83달러에 매도. 매도 금액은 각각 약 2억8,040만 달러로, 두 사람의 합산 매도 규모는 약 5억6,081만 달러. 같은 날 크리스토퍼 리델 이사는 6만240주를 주당 83달러에..."
+      "focus": "No retained full-text sample; 5 observed posts in the 14-day research window."
     },
     {
       "id": "market-note",
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 726,
+      "count": 727,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     }
   ],
@@ -1667,6 +1667,40 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/70130",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70130",
+      "datetime": "2026-11-24T10:49:19.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi",
+        "ai-policy"
+      ],
+      "lead": 1,
+      "score": 66,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "내년 1월 민주당이 하원 다수당을 차지할 경우 차기 하원의장 후보로 거론되는 하킴 제프리스가 엔비디아 이사회의 젠슨 황 CEO 복귀 결정을 “정당화할 수 없고 무책임하며 이해할 수 없는 결정”이라고 비판...."
+    },
+    {
+      "id": "insidertracking/70129",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70129",
+      "datetime": "2026-11-24T10:48:35.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프 대통령과 엔비디아가 젠슨 황의 엔비디아 CEO 복귀 과정에 관여한 것을 두고 미 의회에서 민주·공화 양당 의원들의 반발에 직면."
+    },
+    {
       "id": "HANAchina/72690",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72690",
@@ -2048,13 +2082,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": ">>엔비디아 주가 급등에 공매도 세력 타격, 레버리지 공매도 상품 최대 92% 폭락 •엔비디아의 하루 수익률을 2배 역방향으로 추종하는 GraniteShares 2x Short NVDA Daily...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>엔비디아 주가 급등에 공매도 세력 타격, 레버리지 공매도 상품 최대 92% 폭락 •엔비디아의 하루 수익률을 2배 역방향으로 추종하는 GraniteShares 2x Short NVDA Daily..."
+      ]
     },
     {
       "id": "insidertracking/70106",
@@ -2148,10 +2182,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": "•대만가권 개장 +8.5% •TSMC 개장 +9.9%",
+      "lead": 1,
       "tickers": [
         "TSM"
-      ],
-      "summary": "•대만가권 개장 +8.5% •TSMC 개장 +9.9%"
+      ]
     },
     {
       "id": "HANAchina/72657",
@@ -2160,14 +2195,14 @@
       "datetime": "2026-11-24T01:00:18.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 51,
       "hasText": true,
+      "summary": ">>악성 폭로로 조롱받은 《뉴욕타임스》, ‘젠슨 황 복귀’ 평가: 충격! 왜 트럼프는 그를 그렇게 중시하나? (중국언론) •같은 날 《뉴욕타임스》 1면이 두 차례 바뀜. 오전에는 젠슨 황의 스캔들을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>악성 폭로로 조롱받은 《뉴욕타임스》, ‘젠슨 황 복귀’ 평가: 충격! 왜 트럼프는 그를 그렇게 중시하나? (중국언론) •같은 날 《뉴욕타임스》 1면이 두 차례 바뀜. 오전에는 젠슨 황의 스캔들을..."
+      ]
     },
     {
       "id": "HANAchina/72654",
@@ -2176,18 +2211,17 @@
       "datetime": "2026-11-24T00:28:15.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 74,
       "hasText": true,
+      "summary": ">>젠슨 황이 돌아왔지만, 엔비디아는 예전으로 돌아갈 수 없음 (중국언론) •젠슨 황이 CEO에서 물러난 뒤 엔비디아 주가와 기업 운영에 불확실성이 커졌고, 이사회는 기술 경쟁과 미국 정부의 입장을 고려해...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ],
-      "summary": ">>젠슨 황이 돌아왔지만, 엔비디아는 예전으로 돌아갈 수 없음 (중국언론) •젠슨 황이 CEO에서 물러난 뒤 엔비디아 주가와 기업 운영에 불확실성이 커졌고, 이사회는 기술 경쟁과 미국 정부의 입장을 고려해..."
+      ]
     },
     {
       "id": "insidertracking/70097",
@@ -2239,11 +2273,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>연준 ‘3인자’: 인플레이션 아직 목표에 도달하지 않아, 점진적 대응 필요…연속 금리 인상 가능성도 배제하지 않아 •연준 ‘3인자’인 뉴욕 연은 윌리엄스 총재는 인플레이션 목표 달성을 위해 “아직 해야 할..."
+      "summary": ">>연준 ‘3인자’: 인플레이션 아직 목표에 도달하지 않아, 점진적 대응 필요…연속 금리 인상 가능성도 배제하지 않아 •연준 ‘3인자’인 뉴욕 연은 윌리엄스 총재는 인플레이션 목표 달성을 위해 “아직 해야 할...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21257",
@@ -2322,13 +2356,13 @@
         "earnings",
         "semi"
       ],
-      "lead": 2,
       "score": 51,
       "hasText": true,
+      "summary": "• 앤트로픽 상장 이후 주가 급락과 AI 시장 전망에 대한 잡음이 이어지는 가운데, TSMC가 자사 실적에 미칠 영향에 대한 공식 입장을 밝힘 • 부품가 상승과 거시경제 불확실성으로 일반 소비재 시장은 도전에...",
+      "lead": 2,
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 앤트로픽 상장 이후 주가 급락과 AI 시장 전망에 대한 잡음이 이어지는 가운데, TSMC가 자사 실적에 미칠 영향에 대한 공식 입장을 밝힘 • 부품가 상승과 거시경제 불확실성으로 일반 소비재 시장은 도전에..."
+      ]
     },
     {
       "id": "bornlupin/21255",
@@ -2455,13 +2489,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "젠슨 황 CEO 복귀 소식과 엔비디아의 31% 급등 배경을 영상으로 정리했습니다. 트럼프 대통령의 개입 과정과 월가의 반응, 앞으로 젠슨 황에게 남아 있는 주요 일정까지 함께 살펴봤습니다. > 시간이 부족하신...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "젠슨 황 CEO 복귀 소식과 엔비디아의 31% 급등 배경을 영상으로 정리했습니다. 트럼프 대통령의 개입 과정과 월가의 반응, 앞으로 젠슨 황에게 남아 있는 주요 일정까지 함께 살펴봤습니다. > 시간이 부족하신..."
+      ]
     },
     {
       "id": "HANAchina/72645",
@@ -6572,28 +6606,6 @@
       ]
     },
     {
-      "id": "insidertracking/69747",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69747",
-      "datetime": "2026-11-19T09:24:47.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "미국 레딧 관심도는 앤트로픽과 엔비디아 집중",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/72405",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72405",
@@ -6631,21 +6643,6 @@
         "NVDA",
         "TSM"
       ]
-    },
-    {
-      "id": "insidertracking/69743",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69743",
-      "datetime": "2026-11-19T07:58:21.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "geo"
-      ],
-      "score": 58,
-      "hasText": true,
-      "summary": "우크라이나, 데이터로 드론 전쟁 고도화…러시아군 손실 극대화 우크라이나군이 드론 전쟁에 데이터 분석을 적극 도입하며 러시아군에 대한 공격 효율을 높이고 있음. 단순히 드론을 대량 투입하는 방식에서 벗어나...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "HANAchina/72401",
@@ -8415,13 +8412,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "젠슨 황 CEO 복귀 소식과 엔비디아의 31% 급등 배경을 영상으로 정리했습니다. 트럼프 대통령의 개입 과정과 월가의 반응, 앞으로 젠슨 황에게 남아 있는 주요 일정까지 함께 살펴봤습니다. > 시간이 부족하신...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "젠슨 황 CEO 복귀 소식과 엔비디아의 31% 급등 배경을 영상으로 정리했습니다. 트럼프 대통령의 개입 과정과 월가의 반응, 앞으로 젠슨 황에게 남아 있는 주요 일정까지 함께 살펴봤습니다. > 시간이 부족하신..."
+      ]
     },
     {
       "id": "HANAchina/72645",
