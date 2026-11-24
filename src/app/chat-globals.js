@@ -28,6 +28,7 @@ import { decideQuoteBasis, quoteBasisLine } from '../ai/time/quote-basis.js'; //
 import { composeLeanPrompt } from '../ai/prompt/lean-prompt.js'; // the system prompt of a turn that offers the tools
 import { buildMarketOpening, openingFactLines } from '../domain/market/story/market-story.js';
 import { INDEX_LONGRUN } from '../data/artifact-registry.js';
+import { investigationContext } from '../ai/context/investigation-context.js';
 
 /** The opening read as context lines (market-story.js), from the closes, FRED history and long-run tables the page holds. */
 function marketOpeningContext(root) {
@@ -53,8 +54,9 @@ export function installChatGlobals(root = globalThis) {
   const watchlist = () => { try { return readWatchlistSymbols(root.localStorage); } catch (_) { return []; } };
   Object.assign(root.AIO, { personalGate, personalTurn: (turn) => personalTurn({ ...turn, watchlist: watchlist() }), personalConsentCard: PERSONAL_CONSENT_CARD,
     showHoldingsConsentChoices: () => showConsentChoices(root.document, PERSONAL_CONSENT_CARD, '_aioHoldingsConsentAnswer') });
-  // The opening read the 오늘 and 시장 상태 faces lead with joins the screen basis, so the chat tells the same story.
-  root.AIO.composeLeanPrompt = (turn) => composeLeanPrompt({ ...turn, root, screenBasis: [turn?.screenBasis, marketOpeningContext(root)].filter(Boolean).join('\n') });
+  // The opening read the 오늘 and 시장 상태 faces lead with, and the day's investigation 오늘 shows, join the screen basis,
+  // so the chat tells the same story.
+  root.AIO.composeLeanPrompt = (turn) => composeLeanPrompt({ ...turn, root, screenBasis: [turn?.screenBasis, marketOpeningContext(root), investigationContext(root)].filter(Boolean).join('\n') });
   root.AIO.chatTools = chatToolKit(root); // the data tools the model may call (src/ai/tools/), run by callSharedAi
   root.AIO.promptWithoutWebSearch = (prompt) => toolsPromptWithoutSearch(promptWithoutWebSearch(prompt)); // a retry runs without search
   // The waiting line of a running answer; its question is kept in this tab's sessionStorage until the answer arrives, so
