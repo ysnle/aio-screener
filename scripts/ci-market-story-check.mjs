@@ -409,7 +409,7 @@ await runSections('market-story', [
   const S = RULES.story;
   const base = fixtureHistory();
   const after = (rows, date, m, extra = {}) => { const last = rows.at(-1); return [...rows, { date, ...Object.fromEntries(['sox', 'ndx', 'spx', 'rsp', 'dow'].map((f) => [f, +(last[f] * (m[f] ?? 1)).toFixed(2)])), breadth50: 45, ...extra }]; };
-  const day1 = after(base.map((row, i, all) => (i === all.length - 1 ? { ...row, rallyPhase: 1, rallyDay: 1, followThroughDay: 0 } : row)), '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
+  const day1 = after(base.map((row, i, all) => (i === all.length - 1 ? { ...row, rallyPhase: 1, rallyDay: 0, followThroughDay: 0 } : row)), '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 }, { rallyPhase: 1, rallyDay: 1, followThroughDay: 0 });
   const build = (history) => buildMarketOpening({ history, macroHistory: credit(3.2) });
   const rebound = build(day1);
   const facts = openingFacts(day1, credit(3.2));
@@ -456,17 +456,19 @@ await runSections('market-story', [
     assert.match(said(rebound, 'records').text, /^반도체 하루 \+14\.0%는 기록\(2026-01-02 이후\) 중 가장 큰 하루 상승입니다\./, 'v60.51 rebound');
     cleanSaid(said(rebound, 'records'));
   });
-  check('v60.51 the AI facts carry the state word and its conditions, and still name one Nasdaq', () => {
+  check('v60.52 the AI facts carry the state word and its conditions, each naming the index and rule (never merged with the Composite FTD)', () => {
     const lines = openingFactLines(rebound);
-    assert.ok(lines.includes('반등 상태어(규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.51 rebound');
-    assert.ok(lines.some((line) => line.startsWith('반등: 반등 시도 — 나스닥 100이 11/20 종가')), 'v60.51 rebound');
-    assert.equal(lines.filter((line) => line.startsWith('반등 확인 조건: ')).length, 2, 'v60.51 rebound');
+    assert.ok(lines.includes('반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.52 rebound terms');
+    assert.ok(lines.some((line) => line.startsWith(`반등(나스닥 100 종가, 저점 대비 +${S.reboundPct}% 규칙): 반등 시도 — 나스닥 100이 11/20 종가`)), 'v60.52 rebound terms');
+    assert.equal(lines.filter((line) => line.startsWith('반등 가격 조건(나스닥 100·S&P 500): ')).length, 2, 'v60.52 rebound terms');
+    assert.ok(lines.every((line) => !/반등 확인|바닥 확인/.test(line)), 'v60.52 the story lines never use the follow-through words');
     assert.doesNotMatch(`${texts(rebound)}\n${lines.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
   });
-  const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 3, followThroughDay: 0 });
-  // Five sessions after the bounce: a down day, then a follow-through day (the producer's rally fields) and two more.
-  const day6 = [['2026-11-25', 0.985, { rallyPhase: 1, rallyDay: 4, followThroughDay: 0 }], ['2026-11-27', 1.03, { rallyPhase: 2, rallyDay: 5, followThroughDay: 1 }],
-    ['2026-11-30', 1.004, { rallyPhase: 2, rallyDay: 6, followThroughDay: 0 }], ['2026-12-01', 0.996, { rallyPhase: 2, rallyDay: 7, followThroughDay: 0 }]]
+  const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
+  // Five sessions after the bounce: a down day, then a follow-through day (the producer's rally fields, v60.52 count: the
+  // 11/20 low is day 0, so 11/27 is day 4) and two more.
+  const day6 = [['2026-11-25', 0.985, { rallyPhase: 1, rallyDay: 3, followThroughDay: 0 }], ['2026-11-27', 1.03, { rallyPhase: 2, rallyDay: 4, followThroughDay: 1 }],
+    ['2026-11-30', 1.004, { rallyPhase: 2, rallyDay: 5, followThroughDay: 0 }], ['2026-12-01', 0.996, { rallyPhase: 2, rallyDay: 6, followThroughDay: 0 }]]
     .reduce((rows, [date, m, extra]) => after(rows, date, { sox: m, ndx: m, spx: m, rsp: m, dow: m }, extra), day2);
   check('v60.51 after the bounce day the lede counts from the dated low, not "하루": +1 and +5 sessions', () => {
     const next = build(day2);
@@ -477,9 +479,10 @@ await runSections('market-story', [
     assert.equal(said(later, 'lede').text, '반도체는 저점(11/20)에서 17% 올라왔지만 고점 대비로는 아직 33% 아래, 약세장입니다. S&P 500은 200일선 위지만 나스닥 100은 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +5 sessions');
     for (const [opening, history] of [[next, day2], [later, day6]]) { assert.doesNotMatch(said(opening, 'lede').text, /하루/, 'v60.51 rebound'); cleanSaid(said(opening, 'lede'), history); }
   });
-  check('v60.51 the follow-through day, once it happened, is a fact of the state line (not a row), named without a second Nasdaq', () => {
-    assert.match(said(build(day6), 'watch').text, /^11\/27 바닥 확인일이 나왔습니다\. 나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\./, 'v60.51 rebound');
-    assert.doesNotMatch(said(rebound, 'watch').text, /바닥 확인일/, 'v60.51 none before it happens');
+  check('v60.52 the follow-through day, once it happened, is a fact of the state line (not a row), naming its own index and word', () => {
+    assert.match(said(build(day6), 'watch').text, /^11\/27 나스닥 종합 반등 확인 신호\(FTD\)가 나왔습니다\. 나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\./, 'v60.52 rebound terms');
+    assert.doesNotMatch(said(build(day6), 'watch').text, /바닥 확인/, 'v60.52 rebound terms');
+    assert.doesNotMatch(said(rebound, 'watch').text, /반등 확인 신호/, 'v60.51 none before it happens');
     assert.equal(build(day6).rebound.checks.texts.length, 2, 'v60.51 rebound');
   });
   check('v60.51 a close under the low the rebound rose from: 반등 실패 on that session, the fall\'s lede back, then nothing', () => {
@@ -544,6 +547,101 @@ await runSections('market-story', [
     const all = [...rebound.lines.map((line) => line.said.text), ...rebound.rebound.checks.texts].join('\n');
     assert.doesNotMatch(all, /사세요|파세요|매수하|매도하/, 'v60.51 rebound');
     assert.doesNotMatch(all, SIZE_WORDS, 'v60.51 rebound');
+  });
+
+  // Whether other markets confirm the rebound (rebound-quality.js), from the 11/20 low to the 11/23 close, each end on its
+  // own session. `ends`: field → [value on 11/20, value on 11/23] (null leaves the field off that row); `hy`: the spread
+  // (percent) on 11/20 and 11/23 (null: no observation that day).
+  const LOW = '2026-11-20', NOW = '2026-11-23';
+  const crossMarket = ({ ends = {}, hy = [3.76, 3.5], extraRows = {} } = {}) => {
+    const history = day1.map((row) => {
+      const at = row.date === LOW ? 0 : row.date === NOW ? 1 : -1;
+      const next = { ...row, ...(extraRows[row.date] || {}) };
+      if (at < 0) return next;
+      for (const [field, pair] of Object.entries(ends)) { if (pair[at] == null) delete next[field]; else next[field] = pair[at]; }
+      return next;
+    });
+    const macroHistory = credit(3.2);
+    macroHistory.series.hyOas.observations = macroHistory.series.hyOas.observations.filter(([date]) => date !== LOW).concat(hy[0] == null ? [] : [[LOW, hy[0]]], hy[1] == null ? [] : [[NOW, hy[1]]]).sort((a, b) => a[0].localeCompare(b[0]));
+    return { history, macroHistory, opening: buildMarketOpening({ history, macroHistory }) };
+  };
+  const CONFIRMING = { dxy: [104, 103], vix: [35.89, 24], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190] };
+  const qualityOf = (opening) => opening.rebound?.quality || null;
+  const cleanQuality = (quality, history, macroHistory) => {
+    for (const piece of [quality.said, ...quality.items]) {
+      assert.deepEqual(unclaimedFigures(piece), [], `v60.53 rebound quality: figures without a claim: ${piece.text}`);
+      assert.deepEqual(saidIssues(piece, openingFacts(history, macroHistory)).filter(isClaimError), [], `v60.53 rebound quality: claim errors: ${piece.text}`);
+      assert.doesNotMatch(piece.text, /사세요|파세요|매수하|매도하|숏커버링입니다|숏커버링이었|숏커버링 때문/, `v60.53 rebound quality: no order, no asserted cause: ${piece.text}`);
+    }
+  };
+  check('v60.53 rebound quality: all four checks confirm — 4/4, 다른 시장도 확인, both ends dated, no index-only note', () => {
+    const { history, macroHistory, opening } = crossMarket({ ends: CONFIRMING });
+    const q = qualityOf(opening);
+    assert.ok(q, 'v60.53 rebound quality: an attempt carries the cross-market read');
+    assert.deepEqual([q.state, q.word, q.met, q.known, q.from, q.through], ['confirmed', '다른 시장도 확인', 4, 4, LOW, NOW], 'v60.53 rebound quality: all confirm');
+    assert.equal(q.said.text, '다른 시장 확인 4/4, 11/20 저점부터 11/23 종가까지.', 'v60.53 rebound quality: the verdict line');
+    assert.deepEqual(q.items.map((item) => item.text), [
+      '신용 확인 — 하이일드 스프레드 376bp(11/20) → 350bp(11/23)',
+      '달러 확인 — 달러 지수 104.00(11/20) → 103.00(11/23)',
+      '변동성 확인 — VIX 35.89(11/20) → 24.00(11/23), 3개월 VIX 26.00',
+      '참여 폭 확인 — 50일선 위 종목 43%(11/20) → 53%(11/23), 동일가중 +2.2%'], 'v60.53 rebound quality: one row per check, both ends with their dates');
+    assert.deepEqual(q.checks.map((row) => [row.id, row.label, row.met]), [['credit', '신용', true], ['dollar', '달러', true], ['volatility', '변동성', true], ['breadth', '참여 폭', true]], 'v60.53 rebound quality: check shape');
+    assert.doesNotMatch(q.said.text, /숏커버링/, 'v60.53 rebound quality: the note is the index-only state\'s alone');
+    cleanQuality(q, history, macroHistory);
+    const lines = openingFactLines(opening);
+    assert.ok(lines.includes(`반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): 다른 시장도 확인 — ${q.said.text}`), 'v60.53 rebound quality: the AI gets the screen\'s verdict');
+    assert.equal(lines.filter((line) => line.startsWith('반등의 다른 시장 항목: ')).length, 4, 'v60.53 rebound quality: and every row');
+  });
+  check('v60.53 rebound quality: one of four confirms — 확인 부족, not 지수만 반등, and no short-covering note', () => {
+    const { opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190] }, hy: [3.5, 3.76] });
+    const q = qualityOf(opening);
+    assert.deepEqual([q.state, q.word, q.met, q.known], ['weak', '확인 부족', 1, 4], 'v60.53 rebound quality: a confirmed check keeps the read off index-only');
+    assert.doesNotMatch(q.said.text, /숏커버링/, 'v60.53 rebound quality: the note belongs to 0 confirmed alone');
+  });
+  check('v60.53 rebound quality: only the index rose — 0/4, 지수만 반등 with the conditional note, VIX down but over its 3-month counts as unmet', () => {
+    const { history, macroHistory, opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 41], rsp: [186, 190] }, hy: [3.5, 3.76] });
+    const q = qualityOf(opening);
+    assert.deepEqual([q.state, q.word, q.met, q.known], ['index-only', '지수만 반등', 0, 4], 'v60.53 rebound quality: index only');
+    assert.equal(q.said.text, '다른 시장 확인 0/4, 11/20 저점부터 11/23 종가까지. 지수만 오른 반등은 숏커버링과 구별되지 않습니다.', 'v60.53 rebound quality: the index-only verdict and its conditional note');
+    assert.equal(q.items[2].text, '변동성 미확인 — VIX 35.89(11/20) → 27.00(11/23), 3개월 VIX 26.00', 'v60.53 rebound quality: VIX lower than at the low but over the 3-month VIX is not confirmation');
+    assert.equal(q.checks[3].met, false, 'v60.53 rebound quality: the equal weight up does not carry participation alone');
+    cleanQuality(q, history, macroHistory);
+  });
+  check('v60.53 rebound quality: a missing series shrinks the denominator and is named (3/3 still reads 다른 시장도 확인)', () => {
+    const { history, macroHistory, opening } = crossMarket({ ends: { ...CONFIRMING, dxy: [null, null] } });
+    const q = qualityOf(opening);
+    assert.deepEqual([q.state, q.met, q.known, q.total], ['confirmed', 3, 3, 4], 'v60.53 rebound quality: missing series');
+    assert.equal(q.said.text, '다른 시장 확인 3/3, 11/20 저점부터 11/23 종가까지. 자료 없음: 달러.', 'v60.53 rebound quality: the missing check is named');
+    assert.equal(q.items[1].text, '달러 자료 없음 — 달러 지수 11/20 값 없음 → 11/23 값 없음', 'v60.53 rebound quality: the missing row says which ends are missing');
+    assert.equal(q.checks[1].met, null, 'v60.53 rebound quality: unknown is null, never false');
+    cleanQuality(q, history, macroHistory);
+    const two = qualityOf(crossMarket({ ends: { ...CONFIRMING, dxy: [null, null], vix: [null, null] } }).opening);
+    assert.deepEqual([two.state, two.word, two.known], ['thin', '판단 보류', 2], 'v60.53 rebound quality: under RULES.reboundQuality.minKnown known checks no tally word is given');
+  });
+  check('v60.53 rebound quality: no borrowing across sessions — a value on a neighbouring day never stands in for the low or the latest close', () => {
+    // DXY and the spread have no 11/23 close; VIX has none on 11/20 but one on 11/19; the producer's weekend rows carry DXY.
+    const { history, macroHistory, opening } = crossMarket({ ends: { ...CONFIRMING, dxy: [104, null], vix: [null, 24] }, hy: [3.76, null],
+      extraRows: { '2026-11-19': { vix: 30, dxy: 103.5 } } });
+    const q = qualityOf(opening);
+    assert.deepEqual(q.checks.map((row) => row.met), [null, null, null, true], 'v60.53 rebound quality: three checks unknown, not read off 11/19 or 11/20');
+    assert.equal(q.items[0].text, '신용 자료 없음 — 하이일드 스프레드 376bp(11/20) → 11/23 값 없음', 'v60.53 rebound quality: the 11/20 spread is not the 11/23 one');
+    assert.equal(q.items[1].text, '달러 자료 없음 — 달러 지수 104.00(11/20) → 11/23 값 없음', 'v60.53 rebound quality: DXY without an 11/23 close');
+    assert.equal(q.items[2].text, '변동성 자료 없음 — VIX 11/20 값 없음 → 24.00(11/23), 3개월 VIX 26.00', 'v60.53 rebound quality: the 11/19 VIX is not the low\'s');
+    assert.deepEqual([q.state, q.known], ['thin', 1], 'v60.53 rebound quality: one known check is no tally word');
+    // A weekend row between the low and the latest close (the producer carries prices onto 11/21-11/22) holds a DXY value.
+    const weekendRows = [...history, { date: '2026-11-22', dxy: 102 }].sort((a, b) => a.date.localeCompare(b.date));
+    const weekend = qualityOf(buildMarketOpening({ history: weekendRows, macroHistory }));
+    assert.equal(weekend.checks[1].met, null, 'v60.53 rebound quality: a value on a non-session row is not a close of the latest session');
+  });
+  check('v60.53 rebound quality: nothing without a rebound — the crash close, a failed rebound, or the low day itself', () => {
+    const crash = buildMarketOpening({ history: base, macroHistory: credit(3.2) });
+    assert.equal(crash.rebound, null, 'v60.53 rebound quality: the fixture low has no rebound');
+    assert.ok(openingFactLines(crash).every((line) => !line.startsWith('반등의 다른 시장')), 'v60.53 rebound quality: no AI line without a rebound');
+    assert.ok(!texts(crash).includes('다른 시장 확인'), 'v60.53 rebound quality: no face text without a rebound');
+    const failed = after(day1, '2026-11-24', { sox: 0.85, ndx: 0.92, spx: 0.95, rsp: 0.97, dow: 0.96 });
+    const fell = build(failed);
+    assert.equal(fell.rebound?.state, 'failed', 'v60.53 rebound quality: the fixture fails the rebound');
+    assert.equal(fell.rebound.quality, null, 'v60.53 rebound quality: a failed rebound has no cross-market read');
   });
   report('rebound');
 }, 'code'],

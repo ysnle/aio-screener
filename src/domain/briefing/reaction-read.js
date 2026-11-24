@@ -5,6 +5,7 @@
 // rung that explains the move, and a move nothing explains says so instead of guessing.
 import { readNumber, signedText, directionOf, usdScaleWords, usdPerShareText } from '../shared/number.js';
 import { closeMoveBetween } from '../market/session/close-series.js';
+import { shortDate } from '../content/date-labels.js';
 import { figureSurprise, koreanReleaseText, latestTradeWord } from './event-briefs.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
@@ -93,6 +94,7 @@ export function earningsCells(brief) {
   const market = /\.K[SQ]$/i.test(String(brief.symbol || '')) ? 'KR' : 'US';
   const reaction = r && Number.isFinite(readNumber(r.firstPct))
     ? { basis: 'close', firstPct: readNumber(r.firstPct), firstDate: r.firstDate || null, sessions: r.sessions || 1, latestPct: readNumber(r.latestPct) }
+    : r?.firstMissing && Number.isFinite(readNumber(r.latestPct)) ? { basis: 'close', firstPct: null, firstMissing: r.firstMissing, latestDate: r.latestDate || null, sessions: r.sessions || 1, latestPct: readNumber(r.latestPct) }
     : r?.basis === 'latest-trade' && Number.isFinite(readNumber(r.extendedPct))
       ? { basis: 'latest-trade', extendedPct: readNumber(r.extendedPct), extendedAt: r.extendedAt || null, word: latestTradeWord(r, { market }) }
       : null;
@@ -123,8 +125,9 @@ export function earningsCellLines(cells) {
     ? cells.compared.map((row) => `${row.metric === 'revenue' ? '매출' : 'EPS'}${ZERO_AMOUNT.test(String(row.value || '').trim()) ? '' : ` ${koreanReleaseText(row.value)}`} (${signedOne(row.pct)}${row.note ? `, ${row.note.replace(/[()]/g, '')}` : ''})`)
     : cells.reported ? [koreanReleaseText(`${cells.reported.label} ${cells.reported.value}`)] : [];
   const r = cells.reaction;
-  const moved = r?.basis === 'latest-trade' ? r.extendedPct : r && r.sessions > 1 && Number.isFinite(r.latestPct) ? r.latestPct : r?.firstPct;
+  const moved = r?.basis === 'latest-trade' ? r.extendedPct : r && (r.sessions > 1 || r.firstPct == null) && Number.isFinite(r.latestPct) ? r.latestPct : r?.firstPct;
   const reaction = !r ? [] : r.basis === 'latest-trade' ? [`${r.word} ${signedOne(r.extendedPct)}`]
+    : r.firstPct == null ? ['첫 거래일 종가 없음',`${shortDate(r.latestDate)}까지 ${signedOne(r.latestPct)}`]
     : [`첫 거래일 ${signedOne(r.firstPct)}`, ...(r.sessions > 1 && Number.isFinite(r.latestPct) ? [`${r.sessions}거래일 ${signedOne(r.latestPct)}`] : [])];
   const cell = (term, lines, empty, extra = {}) => ({ term, lines: lines.length ? lines : [empty], empty: !lines.length, ...extra });
   return [
@@ -139,9 +142,13 @@ export function earningsCellLines(cells) {
 // against the S&P 500, since SOXX holds none of them.
 const SEMI_LAYERS = Object.freeze(['chips-compute', 'semicap-foundry', 'memory']);
 
-/** Close-to-close move of an index field from the report's base close to the first reaction session's own close. */
+/**
+ * Close-to-close move of an index field from the report's base close to the first reaction session's own close. Both ends
+ * are that very session: an index bar missing on the base date would measure a different window than the stock's.
+ */
 function benchMove(history, field, from, to) {
-  return closeMoveBetween(history, field, from, to, { exactTo: true })?.pct ?? null;
+  const move = closeMoveBetween(history, field, from, to, { exactTo: true });
+  return move && move.fromDate === String(from).slice(0, 10) ? move.pct : null;
 }
 
 /**

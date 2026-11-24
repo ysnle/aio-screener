@@ -24,6 +24,7 @@ import { signedText } from '../shared/number.js';
 import { latchedState } from '../shared/latch.js';
 import { claim, say, NOTHING, digitsApart, figureDigits, printedValue } from '../shared/claim.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
+import { BOTTOM_WATCH_WORDS } from '../content/rebound-words.js';
 import { breadthScopeOf } from '../market/breadth/screener-breadth.js';
 import { AXIS_LABELS, STATE_LABELS } from '../market/interpretation/concepts.js';
 import { isIsoDay } from '../shared/session-date.js';
@@ -988,7 +989,7 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // held on any of the last RULES.leadership.confirmWindowSessions sessions, and a break holds while the proxy stays weak
 // (hysteresis, R707); without the history (fixtures) the reading is the single session's. An SMH proxy on the Nasdaq-100's
 // 3% / 1% edges read 이탈 through the +8% rebound week of 8/5~8/10; SOXX uses its own volatility-scaled edges (RULES).
-// Owner 2026-10-18: 바닥 확인 조건 — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
+// Owner 2026-10-18: the bottom watch (labelled 매도 소진·회복 조건, BOTTOM_WATCH_WORDS) — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
 // extreme, short-term participation rebounding) and confirmation (the Nasdaq-100 and SOXX back over their
 // 50-day lines, an up-thrust session, credit widening paused). Each item is null when its input is missing.
 /**
@@ -1037,7 +1038,7 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
     : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직이라, 바닥을 단정하지 않고 확인 신호가 붙는지 보는 구간입니다'
       : cf.met >= 2 ? '회복 신호는 보이지만 매도 소진 신호가 적어, 투매 없이 버티는 반등인지 지켜볼 구간입니다'
         : '매도 소진도 회복 확인도 아직 뚜렷하지 않습니다';
-  const text = `바닥 확인 조건 — 매도 소진 ${ex.met}/${ex.total}${metText(exhaustion) ? `(${metText(exhaustion)})` : ''}, 회복 확인 ${cf.met}/${cf.total}${metText(confirmation) ? `(${metText(confirmation)})` : ''}. ${missText(confirmation) ? `아직 남은 회복 확인은 ${missText(confirmation)}입니다. ` : ''}${verdict}. 관례적 조건의 개수이며 바닥 예측이 아닙니다.`;
+  const text = `${BOTTOM_WATCH_WORDS.label} — 매도 소진 ${ex.met}/${ex.total}${metText(exhaustion) ? `(${metText(exhaustion)})` : ''}, 회복 확인 ${cf.met}/${cf.total}${metText(confirmation) ? `(${metText(confirmation)})` : ''}. ${missText(confirmation) ? `아직 남은 회복 확인은 ${missText(confirmation)}입니다. ` : ''}${verdict}. 관례적 조건의 개수이며 바닥 예측이 아닙니다.`;
   // v58.56 (re-audit #2): one plain line for the 오늘 hero; the counts and rule stay in `text` (the 6개 축 근거 fold).
   const line = ex.met >= 2 && cf.met >= 2 ? '매도 소진과 회복 신호가 함께 보입니다.'
     : ex.met >= 2 ? '매도 소진 신호는 쌓였지만 회복 확인은 아직입니다.'

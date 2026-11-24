@@ -11,6 +11,7 @@ import { signedFill, signedScale, signedTrack } from './signed-bar.js';
 import { frameHead, frameReading, markFrame } from './section-frame.js';
 import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { FOLLOW_THROUGH_WORDS } from '../../domain/content/rebound-words.js';
 import { el } from './dom.js';
 import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
@@ -161,6 +162,16 @@ function openingLine(doc, line) {
   return p;
 }
 
+/** Under the rebound line: whether other markets confirm it (its word first, then one row per check). */
+function reboundQualityBlock(doc, quality) {
+  const p = openingLine(doc, { id: 'rebound-quality', label: quality.word, said: quality.said });
+  const list = el(doc, 'ul', null, 'opening-checks');
+  for (const item of quality.items) list.append(el(doc, 'li', item.text));
+  return [p, list];
+}
+/** A face line and, after the rebound's, its cross-market checks. */
+const openingNodes = (doc, line, opening) => [openingLine(doc, line), ...(line.id === 'watch' && opening.rebound?.quality ? reboundQualityBlock(doc, opening.rebound.quality) : [])];
+
 /** The face into `host`: the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
 // With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
 export function paintOpening(doc, host, opening, tail = null) {
@@ -168,10 +179,10 @@ export function paintOpening(doc, host, opening, tail = null) {
   const [lede, ...rest] = opening.lines;
   const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
   host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
-    ...rest.filter((line) => !after.includes(line)).map((line) => openingLine(doc, line)));
+    ...rest.filter((line) => !after.includes(line)).flatMap((line) => openingNodes(doc, line, opening)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
-  if (tail) { tail.replaceChildren(...after.map((line) => openingLine(doc, line))); tail.hidden = false; }
+  if (tail) { tail.replaceChildren(...after.flatMap((line) => openingNodes(doc, line, opening))); tail.hidden = false; }
   return true;
 }
 
@@ -195,7 +206,7 @@ function openingFolds(doc, opening) {
   method.append(foldSummary(doc, 'method', '단계·진단·반등을 정하는 규칙'),
     el(doc, 'p', `단계: 종가 고점 대비 -${S.correctionPct}% 이하 조정, -${S.bearPct}% 이하 약세장, -${S.bearPct}%까지 ${S.bearEdgePp}%p 안이면 약세장 문턱, -${S.correctionPct}%보다 얕으면 조정 전. 첫 문장의 '시장 전체'는 S&P 500의 단계입니다. 막대는 같은 눈금이고 점선이 -${S.correctionPct}%와 -${S.bearPct}%입니다. 반도체는 필라델피아 반도체 지수(SOX), 고점은 ${opening.longrun ? '장기 기록의 종가 고점' : '이 화면 기록(2025-09-30 이후)의 종가 고점'}입니다.`, 'mk-story__read'),
     el(doc, 'p', `진단: 하이일드 스프레드 ${C.stressAtBp}bp 이상이면 금융 불안형. 실업률 3개월 평균이 1년 저점보다 ${G.sahmRecessionAt}%p 이상 높거나 실업수당 청구가 1년 저점보다 ${G.claimsRiseAbovePct}% 이상 많고, 나스닥 100과 동일가중의 고점 대비 낙폭 차이가 ${S.unwindGapPp}%p 미만이거나 50일선 위 종목이 ${S.broadBelowPct}% 미만이면 침체형. 나스닥 100이 동일가중보다 ${S.unwindGapPp}%p 이상 더 내렸으면 쏠림 되돌림, 그 밖에는 판단 보류. 신용 스프레드(하이일드)가 5거래일 +${C.widen5dBp}bp 이상 벌어지면 '빠르게 확대 중'을 덧붙입니다. 나스닥 100이나 동일가중이 고점 뒤 -${S.correctionPct}%에 닿은 적이 없으면 진단하지 않습니다.`, 'mk-story__read'),
-    el(doc, 'p', `반등: 나스닥 100이 고점 뒤 -${S.correctionPct}%에 닿은 하락 안에서, 가장 낮은 종가보다 ${S.reboundPct}% 이상 높게 마감하면 반등 시도이고 그 저점이 지켜지는 동안 이어집니다. 그 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감하면 추세 회복이며, 둘 다 200일선 위에 있는 동안 이어집니다. 반등이 시작된 저점 아래로 마감한 날은 반등 실패입니다. 바닥 확인일은 나스닥 종합의 종가와 거래량으로 셉니다(저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 하루 ${RULES.rallyAttempt.gainPct}% 이상 오르며 거래량이 전날보다 많은 날). 50일선·200일선은 최근 50·200거래일 종가의 평균입니다.`, 'mk-story__read'),
+    el(doc, 'p', `반등: 나스닥 100이 고점 뒤 -${S.correctionPct}%에 닿은 하락 안에서, 가장 낮은 종가보다 ${S.reboundPct}% 이상 높게 마감하면 반등 시도이고 그 저점이 지켜지는 동안 이어집니다. 그 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감하면 추세 회복이며, 둘 다 200일선 위에 있는 동안 이어집니다. 반등이 시작된 저점 아래로 마감한 날은 반등 실패입니다. ${FOLLOW_THROUGH_WORDS.name}는 다른 지수인 나스닥 종합의 종가와 거래량으로 셉니다(저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 하루 ${RULES.rallyAttempt.gainPct}% 이상 오르며 거래량이 전날보다 많은 날). 50일선·200일선은 최근 50·200거래일 종가의 평균입니다.`, 'mk-story__read'),
     el(doc, 'p', '이 기준들은 시장에서 흔히 쓰는 관행이며, 과거 자료로 검증한 예측 규칙이 아닙니다.', 'mk-story__read'));
   return [raw, method];
 }

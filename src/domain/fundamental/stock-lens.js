@@ -329,8 +329,13 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
   // flow does not shrink faster than that.
   const shrinks = impliedPct != null && Number(impliedPct.toFixed(1)) < 0;
   const rate = impliedPct != null ? Math.abs(impliedPct).toFixed(1) : null;
+  // The rate exists only under its assumptions (8%·9%·12% discount move it from about 3% to 11%): the sentence states the
+  // ones impliedGrowth solved under — the reader's slider values or the defaults (analysis-read reverseDcfAssumptions).
+  const pctOf = (v) => `${Number((v * 100).toFixed(1))}%`;
+  const under = Number.isFinite(implied?.discountRate) && Number.isFinite(implied?.terminalGrowth) ? `할인율 ${pctOf(implied.discountRate)}·영구 성장률 ${pctOf(implied.terminalGrowth)} 가정에서 ` : '';
+  const years = implied?.years || 10;
   const priced = impliedPct != null
-    ? `지금 가격은 ${shrinks ? `잉여현금흐름이 10년간 해마다 ${rate}%씩 줄어도 설명됩니다` : `잉여현금흐름이 10년간 연 ${rate}% 늘어난다고 가정합니다`}${ttm != null ? `. 실제 최근 4개 분기 매출 성장은 ${signedText(ttm, 1, '%')}입니다(매출과 현금흐름은 다른 숫자라, 같은 방향인지를 봅니다)` : ''}.`
+    ? `${under}지금 가격은 ${shrinks ? `잉여현금흐름이 ${years}년간 해마다 ${rate}%씩 줄어도 설명됩니다` : `잉여현금흐름이 ${years}년간 연 ${rate}% 늘어나야 설명됩니다`}${ttm != null ? `. 실제 최근 4개 분기 매출 성장은 ${signedText(ttm, 1, '%')}입니다(매출과 현금흐름은 다른 숫자라, 같은 방향인지를 봅니다)` : ''}.`
     : implied?.state ? '역 DCF로 가격이 가정하는 성장률을 계산할 수 없는 상태입니다(잉여현금흐름 마이너스, 금융사, 주식 수·종가 미확인 등).' : null;
   const conditions = [
     impliedPct != null ? (shrinks ? `잉여현금흐름이 가격이 가정한 연 ${rate}% 감소보다 빠르게 줄지 않는다` : `성장이 가격이 가정한 연 ${rate}% 이상으로 이어진다`) : ttm != null ? `매출 성장(최근 4개 분기 ${signedText(ttm, 1, '%')})이 크게 꺾이지 않는다` : null,

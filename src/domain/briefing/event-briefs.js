@@ -8,6 +8,8 @@ export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 import { surprisePct, readNumber, usdPerShareText } from '../shared/number.js';
 import { MARKET_MOVERS, MOVER_BY_SYMBOL } from './market-movers.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
+import { isCloseSessionDate } from '../market/session/close-series.js';
+import { shortDate } from '../content/date-labels.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 
 /** How many times a call or press-conference summary is searched for before it is left as not found. */
@@ -549,11 +551,12 @@ const EXCHANGE_ZONE = Object.freeze({ US: ['America/New_York', 16], KR: ['Asia/S
 export function releaseSession(publishedAt, { market = 'US', dateOnly = false } = {}) {
   const ms = Date.parse(publishedAt || '');
   if (!Number.isFinite(ms)) return null;
-  if (dateOnly && hasLeadingIsoDay(String(publishedAt))) return { releaseDate: String(publishedAt).slice(0, 10), afterClose: false };
+  const exchange = market === 'KR' ? 'KR' : 'US'; // the session carries its exchange, so its first trading day reads that calendar
+  if (dateOnly && hasLeadingIsoDay(String(publishedAt))) return { releaseDate: String(publishedAt).slice(0, 10), afterClose: false, market: exchange };
   const defaultClose = (EXCHANGE_ZONE[market] || EXCHANGE_ZONE.US)[1];
   const { date: releaseDate, hour, day } = exchangeClock(ms, market);
   const closeHour = day.status === 'open' && /^\d{2}:\d{2}$/.test(day.close || '') ? Number(day.close.slice(0, 2)) + Number(day.close.slice(3)) / 60 : defaultClose;
-  return { releaseDate, afterClose: !dateOnly && hour >= closeHour };
+  return { releaseDate, afterClose: !dateOnly && hour >= closeHour, market: exchange };
 }
 
 /** The exchange date, the hour (decimal) and that day's registered session for a moment. */
@@ -578,6 +581,18 @@ export function latestTradeWord(reaction, { market = 'US' } = {}) {
 
 const pctOf = (close, base) => Math.round((close / base - 1) * 1000) / 10;
 
+/** The exchange's first regular session that could trade on a release (the release day itself when it came before the open). */
+function firstSessionAfter(session) {
+  let at = Date.parse(`${session?.releaseDate}T12:00:00Z`);
+  if (!Number.isFinite(at)) return null;
+  if (session.afterClose) at += 86400000;
+  for (let i = 0; i < 14; i += 1, at += 86400000) {
+    const date = new Date(at).toISOString().slice(0, 10);
+    if (isCloseSessionDate(date, session.market === 'KR' ? 'KR' : 'US')) return date;
+  }
+  return null;
+}
+
 /**
  * Closes around a report: the last close before it, the first session that could trade on it, and the latest close.
  * `bars` are daily [{ date: 'YYYY-MM-DD', close }] in exchange dates. Settled once five sessions have traded on it.
@@ -599,6 +614,13 @@ export function earningsReaction(bars, session, { settleSessions = 5, extended =
   }
   const first = after[0];
   const latest = after.at(-1);
+  // The first session is the exchange calendar's, not whichever bar comes next: with that bar missing (11/27 after an
+  // 11/25 release and the 11/26 holiday) the next bar is a later day, and only the move through it can be stated.
+  const expectedFirst = firstSessionAfter(session);
+  if (expectedFirst && first.date > expectedFirst) {
+    return { basis: 'close', baseDate: base.date, baseClose: base.close, firstMissing: expectedFirst,
+      latestDate: latest.date, latestPct: pctOf(latest.close, base.close), sessions: after.length, settled: after.length >= settleSessions };
+  }
   // v59.71 (owner 11/07 '거래량'): the first session's volume over the mean of up to 20 sessions before the report (rvol20's
   // definition; at least 10 with a volume), so a 5% move on three times the usual turnover reads differently from one on
   // ordinary volume. Null when the bars carry no volume.
@@ -612,6 +634,7 @@ export function earningsReaction(bars, session, { settleSessions = 5, extended =
 export function reactionText(reaction) {
   const signedPct = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   if (reaction?.basis === 'latest-trade' && Number.isFinite(reaction.extendedPct)) return `발표 후 최근 체결가 ${signedPct(reaction.extendedPct)}(직전 종가 대비)`;
+  if (reaction?.firstMissing && Number.isFinite(reaction.latestPct)) return `발표 후 첫 거래일(${shortDate(reaction.firstMissing)}) 종가 없음, ${shortDate(reaction.latestDate)}까지 ${signedPct(reaction.latestPct)}`;
   if (!reaction || !Number.isFinite(reaction.firstPct)) return null;
   const first = `발표 후 첫 거래일 ${signedPct(reaction.firstPct)}`;
   if (!(reaction.sessions > 1)) return first;

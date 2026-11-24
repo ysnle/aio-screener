@@ -1,6 +1,6 @@
 ---
 name: verify-aio
-description: Drive the local AIO Screener web UI like a user (9 screens, glossary, AI panel, shell) with Playwright and capture proof; also checks route-owners surfaces against the live DOM. Use to prove a UI change works in the real app.
+description: Drive the local AIO Screener web UI like a user (8 screens / 20 routes, glossary, AI panel, shell) with Playwright and capture proof; also checks route-owners surfaces against the live DOM. Use to prove a UI change works in the real app.
 ---
 
 ## AIO Skill Operating Contract

@@ -30,15 +30,16 @@ function heldBlock(symbol) {
 }
 
 /**
- * RSI as one number: the screener row's value when it carries a session (the number the 종목 page and the [주가 추이] line
- * show), else the chart's own RSI on the same bars.
+ * RSI as one number: the screener row's value only when its session is the chart's last bar (then it is the number the
+ * 종목 page shows), else the chart's own RSI on the same bars — the block's header promises the chart's completed bars.
  */
 function statedRsi(symbol, bars, row) {
   const rowRsi = row ? readRowNumber(row, 'rsi', 'display') : null;
   const rowSession = row && isIsoDay(String(row.factorSessionDate || '').slice(0, 10)) ? String(row.factorSessionDate).slice(0, 10) : null;
-  const reading = bandedRsi(rowRsi != null && rowSession ? rowRsi : rsiWilder(bars.map((bar) => bar.close)));
+  const useRow = rowRsi != null && rowSession != null && rowSession === bars.at(-1)?.time;
+  const reading = bandedRsi(useRow ? rowRsi : rsiWilder(bars.map((bar) => bar.close)));
   if (!reading) return null;
-  const basis = rowRsi != null && rowSession ? `${rowSession} 종가, 스크리너 값` : `${bars.at(-1).time} 종가, 차트 일봉`;
+  const basis = useRow ? `${rowSession} 종가, 스크리너 값` : `${bars.at(-1).time} 종가, 차트 일봉`;
   return `RSI(14) ${reading.value.toFixed(1)} (${basis}) ${reading.word}`;
 }
 
