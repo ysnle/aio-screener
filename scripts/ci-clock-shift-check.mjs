@@ -8,7 +8,7 @@
 // KRX holidays, and fails when a verdict differs from today's. The clock moves through scripts/lib/clock-offset.mjs.
 //   node scripts/ci-clock-shift-check.mjs [--only scripts/a.mjs,scripts/b.mjs]
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { availableParallelism, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -30,34 +30,60 @@ const NOT_SWEPT = {
 const manifest = JSON.parse(readFileSync(join(root, 'architecture/qa-pipeline.json'), 'utf8'));
 const contractGroups = manifest.profiles.contracts.filter((group) => !group.startsWith('browser'));
 const only = (() => { const at = process.argv.indexOf('--only'); return at > 0 ? process.argv[at + 1].split(',') : null; })();
+// v60.51 (check-fixtures): every eligible contract runs once today and the clock reads it makes decide whether it is
+// swept. v60.49–v60.50 first required `Date.now()`/`new Date()` in the gate script's own text, so a gate whose clock
+// read sat in a fixture or module it loads was never a candidate: ci-pipeline-semantics-check.mjs (fixtures loaded from
+// scripts/fixtures/pipeline-semantics/, a close fixed at 2026-11-16 judged against src's clock) was not among the 29
+// candidates, and four of the 29 (workflow-yaml, domain-parity, structural, telegram-channels) never read the clock at
+// all — their Date.now text is mutation source or an unreached branch.
 const candidates = only ? only.map((script) => ({ id: script, script, args: [] }))
   : contractGroups.flatMap((group) => manifest.groups[group].gates)
     // v60.50: a data gate that holds code sections (scripts/lib/gate-sections.mjs) is swept too — its code sections are
     // the code contracts the old `mixed` class carried here; its data sections judge the artifact at its own stamps.
     .filter((gate) => existsSync(join(root, gate.script)))
     .filter((gate) => (gate.inputClass !== 'data' || /runSections\(/.test(readFileSync(join(root, gate.script), 'utf8')))
-      && !gate.liveData && !NOT_SWEPT[gate.id] && !gate.id.endsWith('-model')
-      && /Date\.now\(\)|new Date\(\)/.test(readFileSync(join(root, gate.script), 'utf8')));
+      && !gate.liveData && !NOT_SWEPT[gate.id] && !gate.id.endsWith('-model'));
 
-// Targets: the next seven days at 01:00Z, the nearest NYSE holiday at 15:00Z and the nearest KRX holiday at 01:00Z.
+// Targets: the next seven days at 01:00Z, the nearest NYSE holiday at 15:00Z, the nearest KRX holiday at 01:00Z, and
+// (v60.51) 30 days ahead — a fixture with a fixed date turns stale once and stays stale, so the far day catches every
+// such flip within the next 30 days (the 11/16 close went "over a week old" eight days later, outside the 7-day sweep
+// from any day before 11/17). A check whose today run took HEAVY_MS or longer (tooling suites that read the clock for
+// timings) runs on the Saturday and the far day only: a non-session day and the horizon (the full set cost ~10 minutes).
+const HORIZON_DAYS = 30;
+const HEAVY_MS = 15000;
 const addDays = (date, n) => new Date(Date.parse(`${date}T12:00:00Z`) + n * DAY).toISOString().slice(0, 10);
 const today = new Date(started).toISOString().slice(0, 10);
 const weekday = (date) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(`${date}T12:00:00Z`).getUTCDay()];
 const nearestHoliday = (exchange) => Object.values(MARKET_CALENDAR_REGISTRY[exchange]).flatMap((year) => year.holidays)
   .sort((a, b) => Math.abs(Date.parse(a) - started) - Math.abs(Date.parse(b) - started))[0];
+const horizon = addDays(today, HORIZON_DAYS);
 const targets = [
-  ...Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).map((date) => ({ label: `${weekday(date)} ${date} 01:00Z`, at: Date.parse(`${date}T01:00:00Z`) })),
+  ...Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).map((date) => ({ label: `${weekday(date)} ${date} 01:00Z`, at: Date.parse(`${date}T01:00:00Z`), daily: true, heavy: weekday(date) === 'Sat' })),
   { label: `NYSE holiday ${nearestHoliday('NYSE')} 15:00Z`, at: Date.parse(`${nearestHoliday('NYSE')}T15:00:00Z`) },
-  { label: `KRX holiday ${nearestHoliday('KRX')} 01:00Z`, at: Date.parse(`${nearestHoliday('KRX')}T01:00:00Z`) }
+  { label: `KRX holiday ${nearestHoliday('KRX')} 01:00Z`, at: Date.parse(`${nearestHoliday('KRX')}T01:00:00Z`) },
+  { label: `+${HORIZON_DAYS}d ${weekday(horizon)} ${horizon} 01:00Z`, at: Date.parse(`${horizon}T01:00:00Z`), heavy: true, horizon: true }
 ];
 
 const tmp = mkdtempSync(join(tmpdir(), 'aio-clock-shift-'));
+// v60.51 discovery control: a check whose own text never names the clock, loading (by a computed path, as the
+// pipeline-semantics runner loads its fixtures) a fixture close fixed at today and a module that judges its age by the
+// wall clock — passes today, fails once the close is over 20 days old. It must be swept and must flip on the far day,
+// or the sweep would miss the 11/16 class again.
+const CONTROL = join(tmp, 'control-check.mjs');
+writeFileSync(join(tmp, 'control-fixture.mjs'), `export const CLOSE = ${JSON.stringify(today)};\n`);
+writeFileSync(join(tmp, 'control-age.mjs'), 'export const ageDays = (date) => (Date.now() - Date.parse(`${date}T00:00:00Z`)) / 864e5;\n');
+writeFileSync(CONTROL, `const load = (name) => import(new URL(\`./control-\${name}.mjs\`, import.meta.url));
+const [{ CLOSE }, { ageDays }] = await Promise.all([load('fixture'), load('age')]);
+process.exit(ageDays(CLOSE) > 20 ? 1 : 0);\n`);
+const control = { id: 'v60.51-discovery-control', script: CONTROL, args: [], control: true };
+candidates.push(control);
 const run = (argv, offset, readsFile = '') => new Promise((done) => {
   const env = { ...process.env, AIO_CLOCK_OFFSET_MS: String(offset), AIO_CLOCK_READS_FILE: readsFile, NODE_OPTIONS: `${process.env.NODE_OPTIONS || ''} --import=${PRELOAD}`.trim() };
+  const begun = Date.now();
   const child = spawn(process.execPath, argv, { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
   let out = '';
   child.stdout.on('data', (chunk) => { out += chunk; }); child.stderr.on('data', (chunk) => { out += chunk; });
-  child.on('close', (status) => done({ status, out: out.trim().split('\n').slice(-3).join(' | ').slice(-400) }));
+  child.on('close', (status) => done({ status, ms: Date.now() - begun, out: out.trim().split('\n').slice(-3).join(' | ').slice(-400) }));
 });
 const pool = async (jobs) => {
   const results = new Array(jobs.length); let next = 0;
@@ -81,26 +107,36 @@ process.exit(buildCloseSeries([{ date: iso(2), vix: 17 }, { date: iso(1), vix: 1
   const canaryRuns = baseline.slice(candidates.length).map((result) => result.status);
   check('v60.49 the negative control (VIX rows on calendar days 1 and 2 back) fails on some target day and passes on another',
     canaryRuns.includes(0) && canaryRuns.some((status) => status !== 0), targets.map((target, i) => `${target.label}=${canaryRuns[i]}`).join(', '));
-  const swept = candidates.map((gate, i) => ({ gate, today: baseline[i] })).filter((_, i) => existsSync(join(tmp, `reads-${i}.txt`)));
-  const jobs = targets.flatMap((target) => swept.map((entry) => ({ target, entry })));
+  const swept = candidates.map((gate, i) => ({ gate, today: baseline[i], heavy: baseline[i].ms >= HEAVY_MS })).filter((_, i) => existsSync(join(tmp, `reads-${i}.txt`)));
+  const jobs = targets.flatMap((target) => swept.filter((entry) => !entry.heavy || target.heavy).map((entry) => ({ target, entry })));
+  const controlEntry = swept.find((entry) => entry.gate.control);
+  const controlJobs = jobs.filter(({ entry }) => entry.gate.control);
   const shifted = await pool(jobs.map(({ target, entry }) => () => run([entry.gate.script, ...(entry.gate.args || [])], target.at - started)));
   // A clock defect repeats; a check whose timer lost a race under this sweep's load does not. A differing verdict is run
   // again on its own before it counts (ci-esm-core's 30 ms lazy-router wait failed once that way, on no particular day).
   for (const [i, { target, entry }] of jobs.entries()) {
-    if (shifted[i].status === entry.today.status) continue;
+    if (entry.gate.control || shifted[i].status === entry.today.status) continue;
     shifted[i] = await run([entry.gate.script, ...(entry.gate.args || [])], target.at - started);
     if (shifted[i].status !== entry.today.status && !entry.rerun) { entry.rerun = true; entry.today = await run([entry.gate.script, ...(entry.gate.args || [])], 0); }
   }
+  const statusOn = (label) => shifted[jobs.findIndex(({ target, entry }) => entry.gate.control && target.label === label)]?.status;
+  check('v60.51 the discovery control (clock read only in a module it loads; a close fixed at today) is swept, passes today and fails 30 days on',
+    controlEntry && controlEntry.today.status === 0 && statusOn(targets.find((target) => target.horizon).label) === 1
+      && controlJobs.filter(({ target }) => target.daily).every(({ target }) => statusOn(target.label) === 0),
+    controlEntry ? `today=${controlEntry.today.status} ${controlJobs.map(({ target }) => `${target.label}=${statusOn(target.label)}`).join(', ')}` : 'not swept: its clock read was not seen');
   jobs.forEach(({ target, entry }, i) => {
+    if (entry.gate.control) return;
     check(`v60.49 ${entry.gate.script} gives today's verdict on ${target.label}`, shifted[i].status === entry.today.status,
       `today=${entry.today.status} shifted=${shifted[i].status}: ${shifted[i].out}`);
   });
   const seconds = Math.round((Date.now() - started) / 100) / 10;
+  const gates = swept.filter((entry) => !entry.gate.control);
   if (failures.length) {
     console.error(`Clock-shift check failed (${failures.length}):\n${failures.map((line) => `- ${line}`).join('\n')}`);
     console.error('A fixture dated from the real clock reaches a session calendar or a freshness window: date its rows on sessions (previousHistorySession) or pass the check a fixed clock.');
     process.exitCode = 1;
   } else {
-    console.log(`Clock-shift check OK: ${swept.length} of ${candidates.length} clock-reading checks keep their verdict on ${targets.map((target) => target.label).join(', ')} (${seconds}s).`);
+    const heavy = gates.filter((entry) => entry.heavy).map((entry) => entry.gate.id);
+    console.log(`Clock-shift check OK: ${gates.length} of ${candidates.length - 1} contract checks read the clock and keep their verdict on ${targets.map((target) => target.label).join(', ')}${heavy.length ? ` (${heavy.length} taking ${HEAVY_MS / 1000}s+ on the Saturday and +${HORIZON_DAYS}d only: ${heavy.join(', ')})` : ''}; the discovery control flipped on +${HORIZON_DAYS}d (${seconds}s).`);
   }
 } finally { rmSync(tmp, { recursive: true, force: true }); }

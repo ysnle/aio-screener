@@ -21,6 +21,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { callArgumentCaseFailures, callArguments } from './lib/js-call-args.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const write = process.argv.includes('--write');
@@ -40,25 +41,17 @@ const LABEL_RE = /\b(?:check|_assert)\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.
 // (assert.equal(a, b, 'message'), assert(ok, 'message')) and condition-first check(cond, 'message') never reached the
 // trace rule. Those calls are read with a small argument scanner: the message is the last top-level string argument.
 // A call with no message cannot be traced at all; those are counted per file and may not grow.
+// v60.51: the scanner (scripts/lib/js-call-args.mjs) skips strings, templates, comments and regex literals; the
+// bracket-counting one it replaced read a regex `\(` or `\{` as an opener and ran calls into their neighbours.
+// Its snippet table runs first, so a scanner that misreads one fails this gate.
 const CALL_RE = /(?<![\w.$])(assert(?:\.[A-Za-z]+)?|check)\(/g;
-function callArguments(source, open) {
-  const args = [];
-  let depth = 0, start = open + 1, quote = null;
-  for (let i = open + 1; i < source.length; i += 1) {
-    const ch = source[i];
-    if (quote) {
-      if (ch === '\\') { i += 1; continue; }
-      if (ch === quote) quote = null;
-      continue;
-    }
-    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
-    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
-    else if (ch === ')' || ch === ']' || ch === '}') {
-      if (depth === 0) { args.push(source.slice(start, i).trim()); return args; }
-      depth -= 1;
-    } else if (ch === ',' && depth === 0) { args.push(source.slice(start, i).trim()); start = i + 1; }
+{
+  const failures = callArgumentCaseFailures();
+  if (failures.length) {
+    console.error(`Assertion trace check failed:\n - the call-argument scanner misreads ${failures.length} snippet(s):`);
+    for (const failure of failures) console.error(`   ${failure}`);
+    process.exit(1);
   }
-  return null;
 }
 const STRING_ARG = /^(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`)$/s;
 function collectLabels(source) {
@@ -84,9 +77,6 @@ function collectMessageCalls(source) {
     if (match[1] === 'check' && args.length < 2) continue;
     const last = args[args.length - 1].match(STRING_ARG);
     const label = last ? (last[1] ?? last[2] ?? last[3] ?? '').trim() : '';
-    // v60.50: this scanner counts a regex `\{` as a bracket, so a call can run on to the end of a gate section and read
-    // its input tag (scripts/lib/gate-sections.mjs `}, 'code']`) as the message. A bare tag is never a message.
-    if (label === 'code' || label === 'data') continue;
     if (label && args.length > 1) labels.push(label); else if (match[1] !== 'check') messageless += 1;
   }
   return { labels, messageless };

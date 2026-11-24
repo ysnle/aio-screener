@@ -19,6 +19,12 @@ const workerBase = 'https://aio-proxy.zmfhd007.workers.dev';
 const failures = [];
 const fail = (where, message) => failures.push(`[${where}] ${message}`);
 const cors = { 'access-control-allow-origin': localBase, 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS' };
+// v60.51 (check-fixtures): the page runs at the data's own clock (a minute after screener.json was written, then
+// flowing). On the wall clock, after a later US close and before the screener refresh, the page holds its ranks and
+// the screen holds no ranked row to narrow ("table shows 0"), so the gate failed by the hour it ran.
+const screenerAsOf = readFileSync(resolve(root, 'public-data/screener.json'), 'utf8').match(/"asOf":"([^"]+)"/)?.[1];
+const DATA_CLOCK = new Date(Date.parse(screenerAsOf) + 60_000);
+if (!Number.isFinite(DATA_CLOCK.getTime())) { console.error('screener-ai-conditions: public-data/screener.json has no asOf'); process.exit(1); }
 
 function answerStream(text) {
   const plan = answerEnvelopeText({ summary: '조건 화면 제안입니다.', claims: [], sections: [{ title: '조건', body: text }], citations: [], followUps: [] });
@@ -43,6 +49,7 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' });
     await context.addInitScript(() => { try { localStorage.clear(); } catch (_) {} });
     const page = await context.newPage();
+    await page.clock.setSystemTime(DATA_CLOCK);
     const errors = [];
     page.on('pageerror', (error) => errors.push(String(error)));
     let paid = 0;

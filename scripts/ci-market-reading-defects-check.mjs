@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // v60.50 (whole audit 2026-11-23, thread market-reading-defects): fixed market sentences that did not read the current state —
 // the sign of the move, the session date, what had already happened. Each assertion below failed on the v60.49 code and
-// passes on the fix. Real rows from public-data/history.json through a fixed session (11/20 or 11/23) where practical;
-// the market-day facts are the published 11/20 values written inline (that file is replaced every refresh).
+// passes on the fix. Real rows frozen from public-data/history.json and macro-history.json through 11/23 (v60.51,
+// scripts/fixtures/reading-defects/market-rows.json); the market-day facts are the published 11/20 values written inline.
 //   node scripts/ci-market-reading-defects-check.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,11 +26,16 @@ const failures = [];
 let passed = 0;
 const check = (label, ok, detail = '') => { if (ok) passed += 1; else failures.push(`${label}${detail ? ` — ${detail}` : ''}`); };
 
-const history = readHistoryRows(JSON.parse(read('public-data/history.json')));
-const macroHistory = JSON.parse(read('public-data/macro-history.json'));
+// v60.51 (check-fixtures): these are rule assertions, so they read history and macro-history rows frozen from the
+// 2026-11-24 artifacts through 11/23 (scripts/fixtures/reading-defects/market-rows.json). v60.50 read the live files: the
+// HY spread moved 352→376bp and the 11/23 row filled in within hours, and the rolling 14-month window would have dropped
+// the early rows the 20/50/200-session reads stand on.
+const FROZEN = JSON.parse(read('scripts/fixtures/reading-defects/market-rows.json'));
+const history = readHistoryRows(FROZEN.history);
+const macroHistory = FROZEN.macroHistory;
 const through = (date) => history.filter((row) => String(row.date) <= date);
 const has = (date) => history.some((row) => row.date === date);
-if (!has('2026-11-20') || !has('2026-11-23')) failures.push('v60.50 fixture: public-data/history.json no longer holds the 11/20 and 11/23 rows these checks read');
+if (!has('2026-11-20') || !has('2026-11-23')) failures.push('v60.51 fixture: market-rows.json does not hold the 11/20 and 11/23 rows these checks read');
 const at1120 = through('2026-11-20');
 // The Korea-only day: 11/23 as it stood after Seoul closed and before New York opened — KOSPI and KOSDAQ are that
 // day's closes, every other field is the 11/20 close carried forward. Built here so later sessions do not change it.
@@ -104,7 +109,8 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
 {
   const text = reading(at1120, 'volatility-sentiment')?.text || '';
   check('v60.50 B13: the stress-and-fear pair makes no uncounted frequency claim', !/자주/.test(text), text);
-  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 widening, 부담)', /하이일드 스프레드도 부담 쪽이라.5거래일 \+\d+bp/.test(text), text);
+  // v60.51: exact again on the frozen rows (11/20 HY 3.76, five sessions after 3.23 on 11/13).
+  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 +53bp, 부담)', /하이일드 스프레드도 부담 쪽이라\(5거래일 \+53bp, 20거래일 \+38bp\)/.test(text), text);
 }
 
 // B15 — the transition's confirmation says which weakness conditions are met and which remain.

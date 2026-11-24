@@ -37,7 +37,8 @@
     "home-hero-total",
     "regime-overall",
     "home-hero-headline",
-    "home-date-label"
+    "home-date-label",
+    "home-hero-counts"
   ],
   "domWriterIntersectionAllowlistNotes": {
     "ai-panel": "A05: company-analysis.js opens the legacy-owned AI panel (class toggle) to hand over a question; src/ui/chat/panel.js owns its content.",
@@ -57,7 +58,8 @@
     "home-hero-total": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
     "regime-overall": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
     "home-hero-headline": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
-    "home-date-label": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render."
+    "home-date-label": "v58.80 F01 (P2089): the static shell's inline script paints the produced verdict (public-data/today-verdict.json) into this placeholder before the bundles run, only while it still reads '판정 대기' or its loading text; market-regime.js renderHomeRegime/renderRegimePage own every later write and take over on the first real render.",
+    "home-hero-counts": "v58.80 F01 first-paint handoff (seen once AG-DOM-WRITER followed local helper writers): the static shell's inline script fills the produced verdict counts only while home-hero-total still reads '판정 대기'; src/ui/components/home-regime.js renderHomeRegime writes it through its local set(id, text) helper on every later render and takes over on the first real render."
   },
   "routes": {
     "home": {

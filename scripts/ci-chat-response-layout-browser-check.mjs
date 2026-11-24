@@ -22,7 +22,7 @@ const styleStart = shell.indexOf('<style>', styleAnchor);
 const styleEnd = shell.indexOf('</style>', styleStart);
 assert(styleAnchor >= 0 && styleStart > styleAnchor && styleEnd > styleStart, 'could not extract AI panel CSS');
 const aiPanelCss = shell.slice(styleStart + '<style>'.length, styleEnd);
-assert(/\.ai-msg\{display:flex;flex-direction:column;/.test(aiPanelCss), 'production AI message CSS must use a column layout');
+assert(/\.ai-msg\{display:flex;flex-direction:column;/.test(aiPanelCss), 'v54.88 production AI message CSS must use a column layout');
 // P1131/R619: _appendAIMsg and the chatSendUnified completion/citation writers moved from
 // index.html's inline block G into src/ui/chat/panel.js. Only the AI-panel CSS above stays in the shell.
 assert(/var _bubbleParent = \(aiBubble \? aiBubble\.parentNode : null\) \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(chat), 'unified completion must append metadata to the content wrapper');

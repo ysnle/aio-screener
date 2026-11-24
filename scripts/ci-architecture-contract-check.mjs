@@ -706,15 +706,70 @@ if (/function (renderSectorPerfBars|setSectorPerfMode|setSectorPerfView)\b/.test
 // writes (e.g. sentiment's `[data-live-price="^VIX9D"]`) are a known gap for a future gate.
 // page-* route container ids are excluded: both native (dataset stamping) and legacy (show/hide)
 // legitimately locate the same container element without that being a content-write race.
+// Local helper writers (e.g. home-regime.js `const set = (id, text) => { const node = doc.getElementById(id); … }`)
+// hide the id behind a call site, so a file-local helper whose parameter flows into getElementById(param) makes each
+// `helper('literal-id', …)` call a write of that id. The helper body is the brace-matched block (or the expression of
+// an arrow without braces); a member call such as `map.set('x', …)` is not a helper call.
+function findLocalIdHelpers(source) {
+  const helpers = []; // { name, index }
+  const headers = [
+    /\bfunction\s+([A-Za-z_$][\w$]*)\s*\(([^()]*)\)\s*\{/g,
+    /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?(?:function\b\s*[\w$]*\s*\(([^()]*)\)\s*\{|\(([^()]*)\)\s*=>\s*|([A-Za-z_$][\w$]*)\s*=>\s*)/g,
+  ];
+  for (const header of headers) {
+    for (const match of source.matchAll(header)) {
+      const params = (match[2] ?? match[3] ?? match[4] ?? '').split(',').map((param) => (param.match(/^\s*([A-Za-z_$][\w$]*)/) || [])[1] || null);
+      const start = match.index + match[0].length;
+      let body;
+      if (source[start - 1] === '{' || source[start] === '{') {
+        let depth = 0;
+        let end = source[start - 1] === '{' ? start - 1 : start;
+        for (let i = end; i < source.length && i < end + 20000; i += 1) {
+          if (source[i] === '{') depth += 1;
+          else if (source[i] === '}' && --depth === 0) { body = source.slice(end, i + 1); break; }
+        }
+      } else {
+        body = source.slice(start).split(/[;\n]/)[0];
+      }
+      if (!body) continue;
+      // v60.51: a helper is a writer when its body writes (text, markup, value, children, visibility) or when it hands
+      // the element itself back to the caller; a helper that only reads a value (portfolio-plan-check.js
+      // `num = (id) => parseFloat(doc.getElementById(id)?.value)`) writes nothing.
+      const writes = /\.(?:textContent|innerHTML|innerText|outerHTML|value|hidden|className)\s*=(?!=)|\.(?:replaceChildren|append|appendChild|prepend|insertAdjacentHTML|replaceWith|setAttribute|removeAttribute)\(|\.classList\.(?:add|remove|toggle)\(|\.dataset\.[\w$]+\s*=(?!=)/.test(body);
+      params.forEach((param, index) => {
+        if (!param) return;
+        const lookup = `(?:[\\w$.]+\\.)?getElementById\\(\\s*${param.replace(/\$/g, '\\$')}\\s*\\)`;
+        const returnsNode = new RegExp(`^\\s*${lookup}\\s*$`).test(body) || new RegExp(`return\\s+${lookup}\\s*;`).test(body);
+        if (new RegExp(lookup).test(body) && (writes || returnsNode)) helpers.push({ name: match[1], index });
+      });
+    }
+  }
+  return helpers;
+}
 function extractWrittenIds(source) {
   const ids = new Set();
   const directPattern = /getElementById\(\s*['"]([a-z][a-z0-9-]+)['"]\s*\)/g;
   const helperPattern = /\b(?:setText|text)\(\s*documentRef\s*,\s*['"]([a-z][a-z0-9-]+)['"]/g;
-  for (const pattern of [directPattern, helperPattern]) {
+  const localHelperPatterns = findLocalIdHelpers(source).map(({ name, index }) => new RegExp(`(?<![.\\w$])${name.replace(/\$/g, '\\$')}\\(\\s*(?:[^,()]+,\\s*){${index}}['"]([a-z][a-z0-9-]+)['"]`, 'g'));
+  for (const pattern of [directPattern, helperPattern, ...localHelperPatterns]) {
     let match;
     while ((match = pattern.exec(source))) if (!match[1].startsWith('page-')) ids.add(match[1]);
   }
   return ids;
+}
+// In-gate fixture: the helper-writer idioms must be seen, and member calls with the same name must not.
+{
+  const fixture = [
+    "const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };",
+    "function paint(doc, slot, html) { const el = doc.getElementById(slot); if (el) el.innerHTML = html; }",
+    "const el = (id) => document.getElementById(id);",
+    "const num = (id) => { const value = parseFloat(doc.getElementById(id)?.value); return Number.isFinite(value) ? value : null; };",
+    "set('fixture-arrow-id', 'x'); paint(doc, 'fixture-decl-id', '<b>'); el('fixture-expr-id').textContent = 'y'; cache.set('fixture-member-key', 1); num('fixture-read-id');",
+  ].join('\n');
+  const seen = extractWrittenIds(fixture);
+  for (const id of ['fixture-arrow-id', 'fixture-decl-id', 'fixture-expr-id']) if (!seen.has(id)) fail(`AG-DOM-WRITER fixture: local helper write of ${id} not detected`);
+  if (seen.has('fixture-member-key')) fail('AG-DOM-WRITER fixture: member call cache.set(...) was counted as a helper write');
+  if (seen.has('fixture-read-id')) fail('v60.51 AG-DOM-WRITER fixture: a helper that only reads .value was counted as a writer');
 }
 // A05 (Codex review): native renderers live in components and knowledge as well as pages, and the legacy shell
 // was split into aio-pages / aio-workspace / aio-glossary (aio-macro-tech is retired). Scan every production writer.

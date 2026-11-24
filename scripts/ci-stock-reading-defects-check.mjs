@@ -1,5 +1,5 @@
 // v60.50 (stock-reading-defects, audit 2026-11-23 _artifacts/whole-audit-20261123/FINDINGS.md): the stock screens' reading
-// defects found on the live MU and SNDK pages, each held on the published rows (public-data) where the defect showed.
+// defects found on the live MU and SNDK pages, each held on the rows where the defect showed (frozen since v60.51).
 // Reads only; exits 1 on any failure.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,8 +7,6 @@ import { fileURLToPath } from 'node:url';
 import { buildFiscalRead, parseFiscalHistory } from '../src/domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../src/domain/fundamental/quarter-read.js';
 import { expandSecRecords } from '../src/data/contracts/sec-projection.js';
-import { createScreenerProvider } from '../src/data/providers/screener.js';
-import { normalizeScreener } from '../src/data/normalize/screener.js';
 import { consensusView, buildConsensusPoint, peakEarningsCaution } from '../src/domain/fundamental/consensus-read.js';
 import { buildThesisFrame, buildLensRead, buildPeerStrengths, lensIdFor } from '../src/domain/fundamental/stock-lens.js';
 import { buildTrailingYearRead } from '../src/domain/fundamental/analysis-read.js';
@@ -22,14 +20,16 @@ const readJson = (file) => JSON.parse(fs.readFileSync(path.join(ROOT, file), 'ut
 const failures = [];
 const check = (ok, label) => { if (!ok) failures.push(label); };
 
-const fiscalHistory = readJson('public-data/sec-fiscal-history.json');
-const secTable = expandSecRecords(readJson('public-data/sec-fundamentals-summary.json'));
-const screener = readJson('public-data/screener.json');
-const consensus = readJson('public-data/consensus-estimates.json');
+// v60.51 (check-fixtures): every assertion here is about a rule, so it reads rows frozen from the 2026-11-24 artifacts
+// (scripts/fixtures/reading-defects/stock-rows.json: the screener rows as normalizeScreener returns them, the consensus
+// rows, the SEC fiscal history and summary records). v60.50 read the live files and broke within hours as consensus
+// numbers and the 11/23 rows refreshed; a later refresh cannot move these.
+const FROZEN = readJson('scripts/fixtures/reading-defects/stock-rows.json');
+const fiscalHistory = FROZEN.fiscalHistory;
+const secTable = expandSecRecords(FROZEN.secSummary);
+const consensus = FROZEN.consensus;
 const now = Date.parse(consensus.generatedAt);
-const provider = createScreenerProvider({ httpClient: { requestJson: async (url) => { try { return { ok: true, data: readJson(`public-data/${String(url).split('?')[0].split('/').pop()}`) }; } catch (_) { return { ok: false, status: 404 }; } } },
-  clock: { now: () => Date.parse(screener.asOf), iso: () => screener.asOf } });
-const rows = new Map(normalizeScreener(await provider.readCurrent()).rows.map((row) => [row.sym, row]));
+const rows = new Map(Object.entries(FROZEN.screenerRows));
 const quartersOf = (sym) => parseQuarterHistory(fiscalHistory.quarters?.[sym] || '');
 const fiscalOf = (sym) => buildFiscalRead({ symbol: sym, fundamentals: { ...(secTable[sym] || {}), fiscalHistory: parseFiscalHistory(fiscalHistory.data[sym]) }, row: rows.get(sym) || null, quarters: quartersOf(sym) });
 const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text || '';

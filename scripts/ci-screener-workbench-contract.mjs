@@ -196,7 +196,7 @@ async function run() {
   const definition = createScreenDefinition({ screenId: 'fixture-screen', name: 'Fixture screen', objective: 'contract-test', filtersAST: { type: 'and', children: [{ type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'reject' }, { type: 'exists', field: 'quality.roe', nullPolicy: 'reject' }] }, hardGates: [{ type: 'range', field: 'price.dollarVolume30d', min: 1_000_000, nullPolicy: 'reject' }], ranking: { field: 'price.ret3m', direction: 'desc' }, requiredFields: ['price.ret3m', 'quality.roe'] });
   assert(validateScreenDefinition(definition).ok, 'G-SCR-DEFINITION: AST definition validates without executable code');
   const engineSource = fs.readFileSync(path.join(root, 'src/domain/screener/screen-engine.js'), 'utf8');
-  assert(!/\beval\s*\(/.test(engineSource) && !/new\s+Function\s*\(/.test(engineSource), 'G-SCR-DEFINITION: screen engine has no eval/new Function path');
+  assert(!/\beval\s*\(/.test(engineSource) && !/new\s+Function\s*\(/.test(engineSource), 'v54.12 G-SCR-DEFINITION: screen engine has no eval/new Function path');
   const result = runScreen({ definition, rows, snapshotId: 'fixture-snapshot', providerSet: ['fixture'] });
   assert(validateScreenRun(result.run).ok && result.run.resultHash && result.readiness.rowCount === rows.length, 'G-SCR-RUN: ScreenRun and readiness are reproducible', result.run);
   assert(result.passed[0]?.symbol === 'AAA', 'G-SCR-RANK: descending rank order is deterministic');

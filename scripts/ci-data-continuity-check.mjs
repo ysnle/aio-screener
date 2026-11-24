@@ -134,7 +134,7 @@ function runProducerChecks() {
     'collect-13f-figi-tickers.mjs' // v58.56
   ]) {
     const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
-    check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'Masters producer can truncate published JSON on write failure');
+    check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'v54.88 Masters producer can truncate published JSON on write failure');
   }
   // v59.85: the staging, the fail-closed order and the collision retry live in scripts/publish-data-commit.mjs (its
   // behaviour is driven against a bare remote by ci-publish-data-commit-check.mjs); the sets are the contract here.
