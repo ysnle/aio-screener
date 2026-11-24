@@ -592,6 +592,12 @@ await runSections('market-story', [
     assert.ok(lines.includes(`반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): 다른 시장도 확인 — ${q.said.text}`), 'v60.53 rebound quality: the AI gets the screen\'s verdict');
     assert.equal(lines.filter((line) => line.startsWith('반등의 다른 시장 항목: ')).length, 4, 'v60.53 rebound quality: and every row');
   });
+  check('v60.53 rebound quality: one of four confirms — 확인 부족, not 지수만 반등, and no short-covering note', () => {
+    const { opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190] }, hy: [3.5, 3.76] });
+    const q = qualityOf(opening);
+    assert.deepEqual([q.state, q.word, q.met, q.known], ['weak', '확인 부족', 1, 4], 'v60.53 rebound quality: a confirmed check keeps the read off index-only');
+    assert.doesNotMatch(q.said.text, /숏커버링/, 'v60.53 rebound quality: the note belongs to 0 confirmed alone');
+  });
   check('v60.53 rebound quality: only the index rose — 0/4, 지수만 반등 with the conditional note, VIX down but over its 3-month counts as unmet', () => {
     const { history, macroHistory, opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 41], rsp: [186, 190] }, hy: [3.5, 3.76] });
     const q = qualityOf(opening);

@@ -67,7 +67,7 @@ export function reboundQualityOf(rebound, { history = [], macroHistory = null, t
   const known = checks.filter((row) => row.met != null);
   const met = known.filter((row) => row.met).length;
   const share = known.length ? met / known.length : 0;
-  const state = known.length < R.minKnown ? 'thin' : share >= R.confirmShare ? 'confirmed' : share >= R.mixedShare ? 'mixed' : 'index-only';
+  const state = known.length < R.minKnown ? 'thin' : share >= R.confirmShare ? 'confirmed' : share >= R.mixedShare ? 'mixed' : met > 0 ? 'weak' : 'index-only';
   const tally = claim({ subject: 'rebound-quality', measure: 'tally', asOf: through,
     figures: [{ value: met, unit: 'ratio', digits: 0, basis: 'met', label: W.label }, { value: known.length, unit: 'ratio', digits: 0, basis: 'known', label: W.label }] });
   const unknown = checks.filter((row) => row.met == null).map((row) => row.label);

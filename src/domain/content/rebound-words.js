@@ -25,6 +25,7 @@ export const REBOUND_QUALITY_WORDS = Object.freeze({
   label: '다른 시장 확인',
   confirmed: '다른 시장도 확인',
   mixed: '엇갈림',
+  weak: '확인 부족',
   'index-only': '지수만 반등',
   thin: '판단 보류',
   checks: Object.freeze({ credit: '신용', dollar: '달러', volatility: '변동성', breadth: '참여 폭' }),
