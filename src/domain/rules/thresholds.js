@@ -40,6 +40,9 @@ export const RULES = Object.freeze({
   // reboundPct: a Nasdaq-100 close this far over its lowest close since the high is a rebound (rebound.js), half the
   // correction line; 76 of its 79 one-day gains of 5%+ since 1985 came inside a fall of 10%+.
   story: Object.freeze({ correctionPct: 10, bearPct: 20, bearEdgePp: 1, unwindGapPp: 5, broadBelowPct: 30, halfOffPct: 50, reboundPct: 5 }),
+  // The rebound's cross-market checks (rebound-quality.js): the share of known checks met that reads 다른 시장도 확인
+  // (3 of 4) or 엇갈림 (2 of 4), below it 지수만 반등; under minKnown known checks no word is given.
+  reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,

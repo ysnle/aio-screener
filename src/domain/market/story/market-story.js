@@ -13,6 +13,7 @@ import { claim, say, sayJoin, NOTHING } from '../../shared/claim.js';
 import { readIndexLongrun, risesInFalls, LONGRUN_DEFINITION } from '../indices/long-run.js';
 import { fallFrame, stageOf } from './fall-frame.js';
 import { episodeOf, reboundOf, reboundStanceSaid } from './rebound.js';
+import { reboundQualityOf } from './rebound-quality.js';
 import { rallyAttemptRead } from '../regime/rally-attempt.js';
 import { FOLLOW_THROUGH_WORDS } from '../../content/rebound-words.js';
 import { sessionPointBack } from '../session/close-series.js';
@@ -812,7 +813,8 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, rebound?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean}}
  *   `lines`: the face's text — the lede, the diagnosis line (its label the state word), the rebound's conditions line (its
  *   label the rebound word; it ends with the stance), the one small record line. `rebound.checks.texts`: 시장 상태's rows for
- *   다음에 확인할 가격 조건; `rebound.stance`: what each stance costs in this state (the face's paragraph and the guide).
+ *   다음에 확인할 가격 조건; `rebound.stance`: what each stance costs in this state (the face's paragraph and the guide);
+ *   `rebound.quality`: whether other markets confirm it from its low (rebound-quality.js; printed under the rebound line).
  */
 export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
@@ -839,7 +841,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   // On a rebound the record line ends with how often rises this large came inside a fall (long-run tables only).
   const frequency = rebound && rebound.state !== 'failed' ? riseFrequencySaid(longrun, rows.ndx) : NOTHING;
   const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' }), frequency], ' ');
-  if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound) });
+  if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound), quality: reboundQualityOf(rebound, { history, macroHistory, through: asOf }) });
   const lines = [
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
@@ -875,6 +877,9 @@ export function openingFactLines(opening) {
     opening.rebound ? `반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): ${opening.rebound.word}` : '',
     ...(opening.rebound?.checks?.said || []).map((piece) => `반등 가격 조건(나스닥 100·S&P 500): ${piece.text}`),
     opening.rebound ? `반등 대응(조건부, 지시 아님): ${opening.rebound.stance.text}` : '',
+    // The same cross-market checks the face prints under the rebound (rebound-quality.js); the word is rule-decided.
+    opening.rebound?.quality ? `반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): ${opening.rebound.quality.word} — ${opening.rebound.quality.said.text}` : '',
+    ...(opening.rebound?.quality?.items || []).map((piece) => `반등의 다른 시장 항목: ${piece.text}`),
     opening.korea?.text ? `한국: ${opening.korea.text}` : '',
     ...opening.standings.map((piece) => `기록 비교: ${piece.text}`),
     ...opening.table.map((row) => `지수 낙폭: ${row.said.text}`)

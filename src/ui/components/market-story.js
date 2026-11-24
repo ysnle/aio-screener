@@ -162,6 +162,16 @@ function openingLine(doc, line) {
   return p;
 }
 
+/** Under the rebound line: whether other markets confirm it (its word first, then one row per check). */
+function reboundQualityBlock(doc, quality) {
+  const p = openingLine(doc, { id: 'rebound-quality', label: quality.word, said: quality.said });
+  const list = el(doc, 'ul', null, 'opening-checks');
+  for (const item of quality.items) list.append(el(doc, 'li', item.text));
+  return [p, list];
+}
+/** A face line and, after the rebound's, its cross-market checks. */
+const openingNodes = (doc, line, opening) => [openingLine(doc, line), ...(line.id === 'watch' && opening.rebound?.quality ? reboundQualityBlock(doc, opening.rebound.quality) : [])];
+
 /** The face into `host`: the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
 // With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
 export function paintOpening(doc, host, opening, tail = null) {
@@ -169,10 +179,10 @@ export function paintOpening(doc, host, opening, tail = null) {
   const [lede, ...rest] = opening.lines;
   const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
   host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
-    ...rest.filter((line) => !after.includes(line)).map((line) => openingLine(doc, line)));
+    ...rest.filter((line) => !after.includes(line)).flatMap((line) => openingNodes(doc, line, opening)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
-  if (tail) { tail.replaceChildren(...after.map((line) => openingLine(doc, line))); tail.hidden = false; }
+  if (tail) { tail.replaceChildren(...after.flatMap((line) => openingNodes(doc, line, opening))); tail.hidden = false; }
   return true;
 }
 

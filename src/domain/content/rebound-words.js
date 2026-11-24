@@ -17,5 +17,20 @@ export const FOLLOW_THROUGH_WORDS = Object.freeze({
   failed: '실패'
 });
 
+/**
+ * The rebound's cross-market checks (src/domain/market/story/rebound-quality.js): the tally's label, its state words, each
+ * check's name and mark, and the one conditional note an index-only rebound carries (no cause is asserted).
+ */
+export const REBOUND_QUALITY_WORDS = Object.freeze({
+  label: '다른 시장 확인',
+  confirmed: '다른 시장도 확인',
+  mixed: '엇갈림',
+  'index-only': '지수만 반등',
+  thin: '판단 보류',
+  checks: Object.freeze({ credit: '신용', dollar: '달러', volatility: '변동성', breadth: '참여 폭' }),
+  marks: Object.freeze({ met: '확인', unmet: '미확인', unknown: '자료 없음' }),
+  indexOnlyNote: '지수만 오른 반등은 숏커버링과 구별되지 않습니다.'
+});
+
 /** The bottom-watch tally (market-read.js bottomWatchOf): exhaustion and recovery checks, not a bottom call. */
 export const BOTTOM_WATCH_WORDS = Object.freeze({ label: '매도 소진·회복 조건' });
