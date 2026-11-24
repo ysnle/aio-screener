@@ -5458,10 +5458,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
 // P1728: a Korean quote's change comes from the verified previous KRX close (2026-10-13: the provider's previous close
 // was one session behind after the 10/9 holiday — ^KQ11 -6.19% against -1.43%, 005930 -6.59% against -5.58%).
+// A US index quote's change is measured from the history close before its own New York session (A1: ^VIX 30.88 printed
+// +8.58% against a close two sessions old). Both rules live in src/domain/market/session/quote-basis.js; the page side and
+// its pending store in src/data/quote-basis.js.
 {
-  const vm = await import('node:vm');
-  const dataSource = readFileSync(path.join(root, 'js/aio-data.js'), 'utf8');
-  const block = dataSource.slice(dataSource.indexOf('var _AIO_KR_INDEX_FIELD'), dataSource.indexOf('function applyLiveQuotes(quotes) {'));
+  const { verifyKrQuoteChange, krIndexCloseRead, verifyUsQuoteChange } = await load('src/domain/market/session/quote-basis.js');
+  const { installQuoteBasis, quoteBasisContext } = await load('src/data/quote-basis.js');
+  const krNow = Date.parse('2026-10-13T08:00:00.000Z');
   const history = [
     { date: '2026-10-08', kosdaq: 892.27, kospi: 6625.93, fieldMeta: { kosdaq: { observedAt: '2026-10-08T00:00:00.000Z' } } },
     { date: '2026-10-09', kosdaq: 892.27, kospi: 6625.93, fieldMeta: { kosdaq: { observedAt: '2026-10-08T11:05:40.000Z' } } },
@@ -5469,11 +5472,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     { date: '2026-10-12', kosdaq: 849.19, kospi: 6384.24, fieldMeta: { kosdaq: { observedAt: '2026-10-12T00:00:00.000Z' } } },
     { date: '2026-10-13', kosdaq: 837.03, kospi: 6035.35, fieldMeta: { kosdaq: { observedAt: '2026-10-13T06:32:50.000Z', valueBasis: 'latest-completed-close' } } }];
   const rows = [{ sym: '005930.KS', ret1d: -5.58, factorSessionDate: '2026-10-13' }];
-  const win = { _aioHistory: history, addEventListener() {} };
-  const ctx = { window: win, document: { addEventListener() {} }, _aioGetCanonicalScreenerRows: () => rows, applyLiveQuotes() {} };
-  vm.createContext(ctx);
-  vm.runInContext(block, ctx);
-  const verify = win._aioVerifyKrQuoteChange;
+  const win = { _aioHistory: history, _aioGetCanonicalScreenerRows: () => rows };
+  const verify = (q, price, pct) => verifyKrQuoteChange(q, price, pct, quoteBasisContext(win, krNow));
   const kq = verify({ symbol: '^KQ11', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:32:50.000Z', regularMarketPreviousClose: 892.27 }, 837.03, -6.19);
   if (!kq || kq.status !== 'corrected' || Math.abs(kq.pct + 1.432) > 0.01 || kq.prevClose !== 849.19 || kq.basisDate !== '2026-10-12') fail(`P1728 ^KQ11 must be recomputed from the verified 10/12 close: ${JSON.stringify(kq)}`);
   const samsung = verify({ symbol: '005930.KS', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:30:12.000Z', regularMarketPreviousClose: 250500 }, 234000, -6.59);
@@ -5485,9 +5485,47 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!stale || stale.status !== 'unverified') fail('P1728 a history that stops before the previous day must not verify the change');
   if (verify({ symbol: '^KQ11', _source: 'live:naver' }, 837, -1.4) !== null || verify({ symbol: 'NVDA' }, 100, 1) !== null) fail('P1728 KRX-origin and non-KR quotes pass through unchanged');
   win._aioHistory = history;
-  const read = win._aioKrIndexCloseRead('kosdaq', history);
+  win._aioHistoryMeta = { loadedAt: krNow - 7 * 3600000 };
+  if (verify({ symbol: '^KQ11', _source: 'live:yahoo-proxy', _atomicObservedAt: '2026-10-13T06:32:50.000Z', regularMarketPreviousClose: 892.27 }, 837.03, -6.19).status !== 'unverified') fail('P1728 a history loaded more than six hours ago must not verify the change');
+  delete win._aioHistoryMeta;
+  const read = krIndexCloseRead('kosdaq', history, { now: krNow });
   if (!read || read.date !== '2026-10-13' || read.prevDate !== '2026-10-12' || Math.abs(read.pct + 1.432) > 0.01) fail(`P1729 the AI header KR close read must name both sessions: ${JSON.stringify(read)}`);
-  // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
+
+  // US: the stated rows are the A1 week (closes 11/19 28.44 and 11/20 35.89, weekend rows carried forward).
+  const usNow = Date.parse('2026-11-23T13:00:00.000Z');
+  const vixRow = (date, vix, observedAt, relation = 'latest-completed-close') => ({ date, vix, fieldMeta: { vix: { observedAt, sessionDate: observedAt.slice(0, 10), observationRelation: relation } } });
+  const usHistory = [vixRow('2026-11-19', 28.44, '2026-11-19T21:15:01.000Z'), vixRow('2026-11-20', 35.89, '2026-11-20T21:15:01.000Z'),
+    vixRow('2026-11-21', 35.89, '2026-11-20T21:15:01.000Z', 'carried-forward'), vixRow('2026-11-22', 35.89, '2026-11-20T21:15:01.000Z', 'carried-forward')];
+  const vixQuote = (prev, pct, at = '2026-11-23T12:30:00.000Z') => ({ symbol: '^VIX', _atomicObservedAt: at, regularMarketPreviousClose: prev, regularMarketPrice: 30.88, regularMarketChangePercent: pct });
+  const usCtx = { history: usHistory, now: usNow };
+  const same = verifyUsQuoteChange(vixQuote(35.89, -13.96), 30.88, -13.96, usCtx);
+  if (!same || same.status !== 'agree' || same.pct !== -13.96 || same.prevClose !== 35.89) fail(`A1 a same-session provider pair must stay: ${JSON.stringify(same)}`);
+  const stalePair = verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, usCtx);
+  if (!stalePair || stalePair.status !== 'corrected' || stalePair.prevClose !== 35.89 || stalePair.basisDate !== '2026-11-20' || Math.abs(stalePair.pct + 13.96) > 0.01) fail(`A1 a pair against an older close must be replaced from the history close: ${JSON.stringify(stalePair)}`);
+  const holiday = [vixRow('2026-11-25', 24.1, '2026-11-25T21:15:01.000Z')];
+  if (verifyUsQuoteChange(vixQuote(24.1, 1, '2026-11-27T15:00:00.000Z'), 24.3, 0.83, { history: holiday, now: Date.parse('2026-11-27T16:00:00.000Z') }) !== null) fail('A1 a holiday between the history close and the quote session keeps the provider pair');
+  if (verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, { history: [], now: usNow }) !== null) fail('A1 a missing history keeps the provider pair');
+  if (verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, { ...usCtx, loadedAt: usNow - 7 * 3600000 }) !== null) fail('A1 a history loaded more than six hours ago keeps the provider pair');
+
+  // The page side: a batch before install waits in the store and is applied on install; a corrected quote is re-based;
+  // a US index checked before the history arrived is applied again when it lands.
+  const applied = [];
+  const listeners = {};
+  const page = { _liveData: {}, applyLiveQuotes: (quotes) => applied.push(...quotes), addEventListener: (type, fn) => { listeners[type] = fn; },
+    _aioQuotePending: { '^VIX': { quote: vixQuote(28.44, 8.58), revision: null } } };
+  const basis = installQuoteBasis(page, { now: () => usNow });
+  if (applied.length !== 1 || applied[0].symbol !== '^VIX') fail('A1 a batch parked before install must be applied once the basis owner installs');
+  const before = basis.batch([vixQuote(28.44, 8.58)], 'r1')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
+  if (before.pct !== 8.58 || !page._aioQuotePending['^VIX']) fail(`A1 with no history the provider pair stays and the quote waits for the history: ${JSON.stringify(before)}`);
+  page._liveData['^VIX'] = { revision: 'r1' };
+  page._aioHistory = usHistory;
+  applied.length = 0;
+  listeners['aio:historyLoaded']();
+  if (applied.length !== 1) fail('A1 a quote waiting for the history is applied again when it lands');
+  const card = basis.batch([vixQuote(28.44, 8.58)], 'r2')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
+  if (Math.abs(card.pct + 13.96) > 0.01 || card.quote.regularMarketPreviousClose !== 35.89 || Math.abs(card.quote.regularMarketChange + 5.01) > 1e-9 || card.quote.changeBasis !== 'history-previous-close') fail(`A1 the VIX card must read 30.88 and -13.96% on the 11/20 close: ${JSON.stringify(card)}`);
+  const held = { pct: 0.5, quote: vixQuote(30.73, 0.5) };
+  if (basis.batch([], 'r3')(vixQuote(28.44, 8.58), 30.88, 8.58, held).pct !== 0.5) fail('A1 a published close the quote may not replace keeps its change');  // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
   // v60.42: the chat's market header is gone (the short prompt carries the screen basis), so only the technical block is read.
   const technicalSource = readFileSync(path.join(root, 'src/ai/context/technical-lines.js'), 'utf8');
   if (!/krDayChange\(symbol, analysis\.asOf, analysis\.last\.close\)/.test(technicalSource)) fail('v60.42 P1728 the technical block must use the verified KR change');

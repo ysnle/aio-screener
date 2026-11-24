@@ -4321,8 +4321,6 @@ async function fetchAllNews(forceRefresh = false) {
   // isFetching = false; // v27.3: finally 블록으로 이동 (중복 방지)
 
   _aioNewsProgress({ phase: 'done', count: filteredItems.length, removed: removedCount });
-  const ftEl = document.getElementById('last-fetch-time');
-  if (ftEl) ftEl.textContent = new Date().toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
   // 스테일 배너 (RSS 성공 시 항상 신선; v57.77: the absent #news-cache-ts stamp writer is retired)
   var _newsStaleBanner = document.getElementById('news-stale-banner');
   if (_newsStaleBanner) _newsStaleBanner.style.display = 'none';
@@ -5027,8 +5025,8 @@ window.AIO.validateQuoteCrossSources = async function(symbols, opts) {
       var pct = price && prev ? (price - prev) / prev * 100 : null;
       // P1728: the chart meta's previous close is the value that ran one KRX session behind; the cross-check records it
       // only when the verified previous KRX close agrees.
-      var _krCross = price > 0 && typeof _aioVerifyKrQuoteChange === 'function'
-        ? _aioVerifyKrQuoteChange({ symbol: sym, _source: 'yahoo:cross-chart', regularMarketTime: meta && meta.regularMarketTime, regularMarketPreviousClose: prev }, price, pct)
+      var _krCross = price > 0 && window.AIO.quoteBasis
+        ? window.AIO.quoteBasis.verifyKr({ symbol: sym, _source: 'yahoo:cross-chart', regularMarketTime: meta && meta.regularMarketTime, regularMarketPreviousClose: prev }, price, pct)
         : null;
       if (_krCross) { pct = _krCross.pct; prev = _krCross.prevClose; }
       if (price > 0) { _record(sym, 'yahoo:cross-chart', price, pct, { previousClose: prev || null }); return true; }
@@ -5564,146 +5562,6 @@ function _aioUpdateVixBadge(vixValue) {
   els.forEach(function(el) { el.textContent = text; });
 }
 
-// P1728 (2026-10-13): a Korean quote's daily change is measured from the previous completed KRX session's close.
-// The provider's previous close ran one session behind after the 10/9 holiday (it dropped the 10/12 session):
-// 005930 -6.59% against -5.58%, ^KQ11 -6.19% against -1.43%. The quote is checked against closes this page has
-// already loaded — the producer's KR index history (window._aioHistory) and the reconciled screener row (ret1d of the
-// same session). A disagreement is recomputed from the verified basis; with no verified basis the change is withheld
-// ('전일 기준 미확인') rather than shown on an unknown base.
-var _AIO_KR_INDEX_FIELD = { '^KS11': 'kospi', '^KQ11': 'kosdaq' };
-function _aioKstSessionDate(value) {
-  var ms = typeof value === 'number' ? (value > 0 && value < 1e12 ? value * 1000 : value) : Date.parse(value || '');
-  if (!isFinite(ms) || ms <= 0) return null;
-  return new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
-}
-// Latest history close of `field` in a KRX session before `sessionDate` (KST date of the observation, not the US cycle
-// row carrying it). The history must reach the day before the session, so a missing session is a closed market day and
-// not a producer run that has not happened yet.
-function _aioKrIndexHistoryBasis(field, sessionDate, history) {
-  var rows = Array.isArray(history) ? history : [];
-  if (!field || !/^\d{4}-\d{2}-\d{2}$/.test(String(sessionDate || ''))) return null;
-  var latestRowDate = null, best = null;
-  for (var i = 0; i < rows.length; i++) {
-    var row = rows[i];
-    if (!row) continue;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) && (!latestRowDate || row.date > latestRowDate)) latestRowDate = row.date;
-    var value = Number(row[field]);
-    if (!(value > 0)) continue;
-    var meta = (row.fieldMeta && row.fieldMeta[field]) || {};
-    if (meta.observationRelation === 'current-session' || meta.valueBasis === 'current-session') continue;
-    var session = _aioKstSessionDate(meta.observedAt) || (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) ? row.date : null);
-    if (!session || session >= sessionDate) continue;
-    if (!best || session >= best.date) best = { date: session, close: value };
-  }
-  var dayBefore = new Date(Date.parse(sessionDate + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10);
-  if (!best || !latestRowDate || latestRowDate < dayBefore) return null;
-  // P1728 review: a history loaded before the previous KRX session closed (a tab kept open overnight) carries an older
-  // close under a current-looking row date. Only a history fetched within the last six hours is a basis.
-  var loadedAt = history === window._aioHistory && window._aioHistoryMeta ? Number(window._aioHistoryMeta.loadedAt) : null;
-  if (loadedAt != null && Number.isFinite(loadedAt) && Date.now() - loadedAt > 6 * 3600000) return null;
-  return best;
-}
-// Latest completed KRX close of an index with its own one-session change (both from the producer history).
-function _aioKrIndexCloseRead(field, history) {
-  var rows = Array.isArray(history) ? history : [];
-  var last = null;
-  for (var i = 0; i < rows.length; i++) {
-    var row = rows[i];
-    var value = row && Number(row[field]);
-    if (!(value > 0)) continue;
-    var meta = (row.fieldMeta && row.fieldMeta[field]) || {};
-    if (meta.observationRelation === 'current-session' || meta.valueBasis === 'current-session') continue;
-    var session = _aioKstSessionDate(meta.observedAt) || (/^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')) ? row.date : null);
-    if (session && (!last || session >= last.date)) last = { date: session, close: value };
-  }
-  if (!last) return null;
-  var prev = _aioKrIndexHistoryBasis(field, last.date, rows);
-  return { field: field, date: last.date, close: last.close, prevDate: prev ? prev.date : null, prevClose: prev ? prev.close : null,
-    pct: prev && prev.close > 0 ? (last.close / prev.close - 1) * 100 : null };
-}
-function _aioKrScreenerRowFor(symbol) {
-  try {
-    var rows = typeof _aioGetCanonicalScreenerRows === 'function' ? _aioGetCanonicalScreenerRows() : [];
-    for (var i = 0; i < (rows || []).length; i++) {
-      if (rows[i] && String(rows[i].sym || '').toUpperCase() === symbol) return rows[i];
-    }
-  } catch (_) {}
-  return null;
-}
-// Verified one-session change of a KR symbol for a completed session: index from the history, stock from the
-// reconciled screener row of that same session. null when no verified basis exists.
-function _aioKrVerifiedDayChange(symbol, sessionDate, close) {
-  var sym = String(symbol || '').toUpperCase();
-  var field = _AIO_KR_INDEX_FIELD[sym];
-  if (field) {
-    var ref = _aioKrIndexHistoryBasis(field, sessionDate, window._aioHistory);
-    var px = Number(close);
-    return ref && px > 0 ? { pct: (px / ref.close - 1) * 100, prevClose: ref.close, basisDate: ref.date, basis: 'krx-history-previous-close' } : null;
-  }
-  if (!/\.(KS|KQ)$/.test(sym)) return null;
-  var row = _aioKrScreenerRowFor(sym);
-  var ret = row && row.ret1d != null && row.ret1d !== '' ? Number(row.ret1d) : NaN;
-  if (!row || row.factorSessionDate !== sessionDate || !isFinite(ret)) return null;
-  return { pct: ret, prevClose: Number(close) > 0 ? Number(close) / (1 + ret / 100) : null, basisDate: sessionDate, basis: 'screener-reconciled-session-change' };
-}
-// One quote: returns null for a non-KR or KRX-origin (Naver) quote, otherwise the change to publish and its basis.
-function _aioVerifyKrQuoteChange(q, price, providerPct) {
-  var sym = String(q && q.symbol || '').toUpperCase();
-  var isIndex = !!_AIO_KR_INDEX_FIELD[sym];
-  if (!isIndex && !/\.(KS|KQ)$/.test(sym)) return null;
-  if (/^live:naver/.test(String(q._source || ''))) return null;
-  var session = _aioKstSessionDate(q._atomicObservedAt || q.observedAt || q.regularMarketTime);
-  var providerPrev = Number(q.regularMarketPreviousClose || q.chartPreviousClose);
-  if (!(providerPrev > 0)) providerPrev = null;
-  var hasProviderPct = typeof providerPct === 'number' && isFinite(providerPct);
-  var out = { symbol: sym, session: session, providerPrev: providerPrev, providerPct: hasProviderPct ? providerPct : null,
-    pct: null, prevClose: null, basis: 'kr-previous-close-unverified', basisDate: null, status: 'unverified' };
-  if (!session) return out;
-  var verified = _aioKrVerifiedDayChange(sym, session, price);
-  if (verified) {
-    var agrees = isIndex
-      ? (providerPrev > 0 && Math.abs(providerPrev / verified.prevClose - 1) <= 0.0005)
-      : (hasProviderPct && Math.abs(providerPct - verified.pct) <= 0.15);
-    out.status = agrees ? 'agree' : 'corrected';
-    out.basis = verified.basis;
-    out.basisDate = verified.basisDate;
-    // Agreeing provider values stay exact; a disagreement publishes the verified change.
-    out.pct = agrees && hasProviderPct ? providerPct : verified.pct;
-    out.prevClose = agrees && providerPrev ? providerPrev : verified.prevClose;
-    return out;
-  }
-  // A stock in a session the screener has not closed yet: the provider's previous close is trusted only when the KRX
-  // indices in the same session agree with the verified history (the off-by-one is a venue calendar fault).
-  var health = window._aioKrPrevCloseHealth;
-  if (!isIndex && health && health.session === session && health.status === 'agree' && hasProviderPct && providerPrev) {
-    out.pct = providerPct; out.prevClose = providerPrev; out.basis = 'provider-previous-close-index-checked';
-    out.basisDate = health.basisDate || null; out.status = 'agree';
-  }
-  return out;
-}
-// Offline harnesses evaluate this file section without a window; the browser gets the shared readers.
-if (typeof window !== 'undefined') {
-  window._aioKrIndexCloseRead = _aioKrIndexCloseRead;
-  window._aioKrVerifiedDayChange = _aioKrVerifiedDayChange;
-  window._aioVerifyKrQuoteChange = _aioVerifyKrQuoteChange;
-}
-// A quote withheld before the history/screener arrived is re-applied once they land, unless a newer quote replaced it.
-function _aioReverifyKrQuotes() {
-  var pending = window._aioKrPendingQuotes || {};
-  var redo = [];
-  Object.keys(pending).forEach(function(sym) {
-    var entry = pending[sym];
-    var live = window._liveData && window._liveData[sym];
-    if (entry && live && live.revision === entry.revision) redo.push(entry.quote);
-  });
-  window._aioKrPendingQuotes = {};
-  if (redo.length) applyLiveQuotes(redo);
-}
-try {
-  window.addEventListener('aio:historyLoaded', _aioReverifyKrQuotes);
-  document.addEventListener('aio:nativeScreenerReady', _aioReverifyKrQuotes);
-} catch (_) {}
-
 function applyLiveQuotes(quotes) {
   if (!Array.isArray(quotes)) return;
   window._liveData = window._liveData || {};
@@ -5717,6 +5575,10 @@ function applyLiveQuotes(quotes) {
   const _batchFetchedTimes = atomicQuotes.map(function(q) { return Date.parse(q._atomicFetchedAt || '') || 0; }).filter(Boolean);
   const _batchFetchedAt = _batchFetchedTimes.length ? Math.max.apply(null, _batchFetchedTimes) : now;
   const _quoteBatchRevision = 'browser-quote-batch:' + new Date(_batchFetchedAt).toISOString() + ':' + atomicQuotes.length;
+  // src/data/quote-basis.js owns each quote's change basis and the store of quotes waiting for one; a batch that arrives
+  // before it is installed waits in that store and is applied when it installs.
+  const _basisOf = window.AIO.quoteBasis && window.AIO.quoteBasis.batch(atomicQuotes, _quoteBatchRevision, now);
+  if (!_basisOf) { atomicQuotes.forEach(function(q) { (window._aioQuotePending = window._aioQuotePending || {})[q.symbol] = { quote: q, revision: null }; }); return; }
   window.AIO._quoteBatchEpoch = {
     revision: _quoteBatchRevision,
     symbols: atomicQuotes.map(function(q) { return q.symbol; }).filter(Boolean),
@@ -5748,42 +5610,17 @@ function applyLiveQuotes(quotes) {
     'SI=F':     ['silver',   'silverPct']
   };
 
-  // P1728: the KRX indices in this batch decide whether the provider's KR previous close can be trusted for stocks
-  // whose session the screener has not closed yet (both must agree with the verified history).
-  var _krHealthChecks = atomicQuotes.filter(function(q) { return _AIO_KR_INDEX_FIELD[q.symbol]; }).map(function(q) {
-    return _aioVerifyKrQuoteChange(q, q.regularMarketPrice, q.regularMarketChangePercent);
-  }).filter(Boolean);
-  if (_krHealthChecks.length) {
-    var _krHealthSession = _krHealthChecks[0].session;
-    var _krSameSession = _krHealthChecks.every(function(c) { return c.session && c.session === _krHealthSession; });
-    var _krAllAgree = _krSameSession && _krHealthChecks.every(function(c) { return c.status === 'agree'; });
-    var _krAnyCorrected = _krHealthChecks.some(function(c) { return c.status === 'corrected'; });
-    if (_krAllAgree || _krAnyCorrected) {
-      window._aioKrPrevCloseHealth = { session: _krHealthSession, status: _krAllAgree ? 'agree' : 'disagree',
-        basisDate: _krHealthChecks[0].basisDate, checkedAt: new Date(now).toISOString() };
-    }
-  }
-  window._aioKrQuoteChecks = window._aioKrQuoteChecks || {};
-  window._aioKrPendingQuotes = window._aioKrPendingQuotes || {};
-
   atomicQuotes.forEach(q => {
     const rawPct = q.regularMarketChangePercent;
     let hasPct = (typeof rawPct === 'number' && isFinite(rawPct));
     let pct   = hasPct ? rawPct : null;
     const price = q.regularMarketPrice;
     if (typeof price !== 'number' || !isFinite(price) || price <= 0) return;
-    // P1728: Korean change from the verified previous KRX close (or withheld).
-    const _krCheck = _aioVerifyKrQuoteChange(q, price, pct);
-    if (_krCheck) {
-      pct = _krCheck.pct;
-      hasPct = (typeof pct === 'number' && isFinite(pct));
-      window._aioKrQuoteChecks[q.symbol] = Object.assign({ checkedAt: new Date(now).toISOString() }, _krCheck);
-      if (_krCheck.status === 'unverified') window._aioKrPendingQuotes[q.symbol] = { quote: q, revision: _quoteBatchRevision };
-      else delete window._aioKrPendingQuotes[q.symbol];
-      if (_krCheck.status === 'corrected') { var _krWarned = (window._aioPrevCloseWarned = window._aioPrevCloseWarned || {}), _krWarnKey = q.symbol + '|' + _krCheck.basisDate + '|' + _krCheck.providerPrev; if (!_krWarned[_krWarnKey]) { _krWarned[_krWarnKey] = 1; _aioLog('warn', 'data', q.symbol + ' 전일종가 불일치 — 제공처 ' + _krCheck.providerPrev + ' 대신 검증 기준(' + _krCheck.basisDate + ')으로 등락률 재계산 (같은 교정은 다시 기록하지 않음)'); } } // P1850 (codex F19): once per symbol, basis date and provider value (27x a session before)
-    }
-    var _held = !_krCheck && window.PriceStore && window.PriceStore.heldCloseQuote ? window.PriceStore.heldCloseQuote(q, price) : null;
-    if (_held) { pct = _held.pct; hasPct = true; q = _held.quote; }
+    // The change basis: a Korean check (verified or withheld), else the published close the quote may not replace,
+    // else the US history close before the quote's session.
+    const _basis = _basisOf(q, price, pct, window.PriceStore && window.PriceStore.heldCloseQuote ? window.PriceStore.heldCloseQuote(q, price) : null);
+    const _krCheck = _basis.kr;
+    q = _basis.quote; pct = _basis.pct; hasPct = (typeof pct === 'number' && isFinite(pct));
 
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     // KR 지수는 서버 Yahoo 배치와 브라우저 Naver가 합쳐진다. 프록시 캐시가 옛 값을

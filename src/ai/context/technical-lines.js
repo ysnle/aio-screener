@@ -15,6 +15,7 @@ import { signedText, readNumber } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { loadCompletedDailyBars } from '../../data/daily-chart-bars.js';
+import { krDayChangeOn } from '../../data/quote-basis.js';
 import { screenRowFor } from './stock-trend-line.js';
 
 const MAX_SYMBOLS = 3;
@@ -104,7 +105,7 @@ export async function chatTechnicalBlock(symbols, { root = globalThis, signal = 
     if (isAbort(error)) throw error;
     return null;
   }), LOAD_TIMEOUT_MS)));
-  const krDayChange = typeof root?._aioKrVerifiedDayChange === 'function' ? root._aioKrVerifiedDayChange.bind(root) : null;
+  const krDayChange = krDayChangeOn(root);
   const blocks = list.map((symbol, index) => {
     const data = loaded[index];
     if (!data?.bars?.length) return heldBlock(symbol);

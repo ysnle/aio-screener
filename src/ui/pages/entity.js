@@ -34,6 +34,7 @@ import { renderDataState } from '../components/data-state.js';
 import { emptyState } from '../components/empty-state.js';
 import { finiteNumber as finite, signedText, directionOf, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/session/market-calendar.js';
+import { krIndexCloseOn, verifyKrQuoteOn } from '../../data/quote-basis.js';
 import { installStockLensGlobal, stockLensContext, peerLine } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS } from '../../data/artifact-registry.js';
@@ -114,12 +115,12 @@ export function renderTickerHero(documentRef, state, root) {
     quote = { ...quote, changeBasis: envelope.changeBasis, changeBasisDate: envelope.changeBasisDate, changeCheck: envelope.changeCheck,
       providerPreviousClose: envelope.providerPreviousClose, providerPct: envelope.providerPct };
   }
-  if (quote.changeCheck === 'unverified' && price != null && typeof root?._aioVerifyKrQuoteChange === 'function') {
-    const recheck = root._aioVerifyKrQuoteChange({ symbol: id, _source: quote.source, observedAt: quote.observedAt, regularMarketPreviousClose: quote.providerPreviousClose }, price, finite(quote.providerPct));
+  if (quote.changeCheck === 'unverified' && price != null) {
+    const recheck = verifyKrQuoteOn(root, { symbol: id, _source: quote.source, observedAt: quote.observedAt, regularMarketPreviousClose: quote.providerPreviousClose }, price, finite(quote.providerPct));
     if (recheck && recheck.status !== 'unverified') quote = { ...quote, pct: recheck.pct, changeBasis: recheck.basis, changeBasisDate: recheck.basisDate, changeCheck: recheck.status };
   }
   if (quote.changeCheck === 'unverified' && price != null && /\.(KS|KQ)$/.test(String(id || ''))) {
-    const lastKrx = root?._aioKrIndexCloseRead?.('kospi', root?._aioHistory)?.date || null;
+    const lastKrx = krIndexCloseOn(root, 'kospi')?.date || null;
     const bars = state?.id === id && Array.isArray(state?.history) && state.history.length ? state.history : (root?._technicalOHLCV?.[id] || root?._tickerHistory?.[id] || []);
     const bar = lastKrx ? bars.find((row) => row && utcDayOf(row.epochMs) === lastKrx && finite(row.close) > 0) : null;
     const ms = Date.parse(quote.observedAt || '');
