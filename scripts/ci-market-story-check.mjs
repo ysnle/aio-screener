@@ -409,7 +409,7 @@ await runSections('market-story', [
   const S = RULES.story;
   const base = fixtureHistory();
   const after = (rows, date, m, extra = {}) => { const last = rows.at(-1); return [...rows, { date, ...Object.fromEntries(['sox', 'ndx', 'spx', 'rsp', 'dow'].map((f) => [f, +(last[f] * (m[f] ?? 1)).toFixed(2)])), breadth50: 45, ...extra }]; };
-  const day1 = after(base.map((row, i, all) => (i === all.length - 1 ? { ...row, rallyPhase: 1, rallyDay: 1, followThroughDay: 0 } : row)), '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
+  const day1 = after(base.map((row, i, all) => (i === all.length - 1 ? { ...row, rallyPhase: 1, rallyDay: 0, followThroughDay: 0 } : row)), '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 }, { rallyPhase: 1, rallyDay: 1, followThroughDay: 0 });
   const build = (history) => buildMarketOpening({ history, macroHistory: credit(3.2) });
   const rebound = build(day1);
   const facts = openingFacts(day1, credit(3.2));
@@ -464,10 +464,11 @@ await runSections('market-story', [
     assert.ok(lines.every((line) => !/반등 확인|바닥 확인/.test(line)), 'v60.52 the story lines never use the follow-through words');
     assert.doesNotMatch(`${texts(rebound)}\n${lines.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
   });
-  const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 3, followThroughDay: 0 });
-  // Five sessions after the bounce: a down day, then a follow-through day (the producer's rally fields) and two more.
-  const day6 = [['2026-11-25', 0.985, { rallyPhase: 1, rallyDay: 4, followThroughDay: 0 }], ['2026-11-27', 1.03, { rallyPhase: 2, rallyDay: 5, followThroughDay: 1 }],
-    ['2026-11-30', 1.004, { rallyPhase: 2, rallyDay: 6, followThroughDay: 0 }], ['2026-12-01', 0.996, { rallyPhase: 2, rallyDay: 7, followThroughDay: 0 }]]
+  const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
+  // Five sessions after the bounce: a down day, then a follow-through day (the producer's rally fields, v60.52 count: the
+  // 11/20 low is day 0, so 11/27 is day 4) and two more.
+  const day6 = [['2026-11-25', 0.985, { rallyPhase: 1, rallyDay: 3, followThroughDay: 0 }], ['2026-11-27', 1.03, { rallyPhase: 2, rallyDay: 4, followThroughDay: 1 }],
+    ['2026-11-30', 1.004, { rallyPhase: 2, rallyDay: 5, followThroughDay: 0 }], ['2026-12-01', 0.996, { rallyPhase: 2, rallyDay: 6, followThroughDay: 0 }]]
     .reduce((rows, [date, m, extra]) => after(rows, date, { sox: m, ndx: m, spx: m, rsp: m, dow: m }, extra), day2);
   check('v60.51 after the bounce day the lede counts from the dated low, not "하루": +1 and +5 sessions', () => {
     const next = build(day2);

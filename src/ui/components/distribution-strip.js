@@ -120,5 +120,5 @@ export function rallyAttemptStrip(doc, history, through, { rebound = null } = {}
 /** The one line tying the signal to the market story's rebound when both are present: which index and base each reads. */
 export function reboundRelation(read, rebound) {
   if (!read || !rebound?.word || !rebound.low?.date) return '';
-  return `시장 해석의 '${rebound.word}'${hasFinalConsonant(rebound.word) ? '은' : '는'} 나스닥 100 ${shortDate(rebound.low.date)} 저점 기준, 이 신호는 ${FOLLOW_THROUGH_WORDS.index} 저점일(${shortDate(read.lowDate)}) 포함 ${read.day}일째 — 지수와 규칙이 달라 엇갈릴 수 있습니다.`;
+  return `시장 해석의 '${rebound.word}'${hasFinalConsonant(rebound.word) ? '은' : '는'} 나스닥 100 ${shortDate(rebound.low.date)} 저점 기준, 이 신호는 ${FOLLOW_THROUGH_WORDS.index} ${read.day === 0 ? `${shortDate(read.lowDate)} 새 저점에서 다시 셈` : `저점(${shortDate(read.lowDate)}) 뒤 ${read.day}일째`} — 지수와 규칙이 달라 엇갈릴 수 있습니다.`;
 }
