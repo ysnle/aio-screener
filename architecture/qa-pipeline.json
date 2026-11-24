@@ -2283,7 +2283,8 @@
           "id": "clock-shift",
           "inputClass": "code",
           "script": "scripts/ci-clock-shift-check.mjs",
-          "timeoutMs": 720000,
+          "timeoutMs": 420000,
+          "exclusive": true,
           "remedy": "A fixture dated from the real clock reached a session calendar or freshness window: date its rows on sessions (previousHistorySession) or pass the check a fixed clock; never change product code to pass.",
           "inputs": [
             "scripts/**",
