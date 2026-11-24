@@ -12,6 +12,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { availableParallelism, tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { MARKET_CALENDAR_REGISTRY } from '../src/domain/market/session/market-calendar.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const PRELOAD = pathToFileURL(join(root, 'scripts/lib/clock-offset.mjs')).href;
@@ -71,9 +72,9 @@ const candidates = only ? only.map((script) => ({ id: script, script, args: [] }
 // 30 days ahead: a fixture with a fixed date turns stale once and stays stale, so the far day catches every such flip
 // within the next 30 days (the 11/16 close went "over a week old" eight days later). v60.49–v60.50 ran every day of the
 // next week and the nearest NYSE/KRX holidays; with every clock reader swept that cost ~10 minutes of parallel work and
-// starved the runner, so weekday-only flips (a Monday or mid-week 01:00Z date boundary) and holiday-only flips are no
-// longer probed here. A check whose today run took HEAVY_MS or longer (tooling suites that read the clock for timings)
-// runs on the far day only. JOBS: the gate is `exclusive` in qa-pipeline.json, so qa-runner runs nothing beside it, and
+// starved the runner, so the sweep keeps the Sunday, one mid-week 01:00Z day, the next NYSE holiday and the far day;
+// Monday-only and KRX-holiday-only flips are no longer probed. A check whose today run took HEAVY_MS or longer (tooling
+// suites that read the clock for timings) runs on the far day only. JOBS: the gate is `exclusive` in qa-pipeline.json, so qa-runner runs nothing beside it, and
 // its own pool takes the runner's static budget (AIO_QA_JOBS, default 4) — never more, so it cannot starve the machine
 // (v60.51 first ran availableParallelism()-1 = 11 processes beside the runner's 4 and two model checks timed out).
 const HORIZON_DAYS = 30;
@@ -84,8 +85,14 @@ const today = new Date(started).toISOString().slice(0, 10);
 const weekday = (date) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(`${date}T12:00:00Z`).getUTCDay()];
 const horizon = addDays(today, HORIZON_DAYS);
 const sunday = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).find((date) => weekday(date) === 'Sun');
+// The next mid-week day at 01:00Z (Seoul's morning, New York's previous evening: the KST date is not the UTC or New York
+// date) and the next NYSE holiday at 15:00Z, both for the checks under HEAVY_MS (v60.51, put back after the cut to two).
+const midweek = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).find((date) => ['Tue', 'Wed', 'Thu'].includes(weekday(date)));
+const nyseHoliday = Object.values(MARKET_CALENDAR_REGISTRY.NYSE).flatMap((year) => year.holidays).filter((date) => date > today).sort()[0];
 const targets = [
   { label: `Sun ${sunday} 01:00Z`, at: Date.parse(`${sunday}T01:00:00Z`), daily: true },
+  { label: `${weekday(midweek)} ${midweek} 01:00Z`, at: Date.parse(`${midweek}T01:00:00Z`), daily: true },
+  ...(nyseHoliday ? [{ label: `NYSE holiday ${nyseHoliday} 15:00Z`, at: Date.parse(`${nyseHoliday}T15:00:00Z`) }] : []),
   { label: `+${HORIZON_DAYS}d ${weekday(horizon)} ${horizon} 01:00Z`, at: Date.parse(`${horizon}T01:00:00Z`), heavy: true, horizon: true }
 ];
 
