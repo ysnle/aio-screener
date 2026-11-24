@@ -33,7 +33,8 @@ const block = (startToken, endToken) => {
 };
 const sources = {
   manual: block('const AIO_MANUAL_REFERENCE = Object.freeze({', '\n});'),
-  registry: block('// P1736:BEGIN manual-reference-expiry', '// P1736:END manual-reference-expiry'),
+  // From the expiry rules through _aioNormalizeProducedReferences, the last declaration before the produced-reference store.
+  registry: block('var AIO_MANUAL_REFERENCE_EXPIRY_RULES = Object.freeze({', '\n  return P;\n}\n'),
   events: block('window.AIO_EVENT_FRESHNESS_REGISTRY = {', '\n};'),
   schedules: block('window.AIO_MACRO_OFFICIAL_SCHEDULES = {', '\n};'),
   scheduleAsOf: block('window.AIO_MACRO_OFFICIAL_SCHEDULES_ASOF = {', '\n};')

@@ -207,7 +207,7 @@ check('P1311/R657/QA-OPS-01 alert policies use 24h, two completed exchange sessi
     && operationsAlertPolicyCheckSource.includes('one completed session is below the two-session threshold')
     && operationsAlertPolicyCheckSource.includes('DST-adjusted close')
     && operationsAlertPolicyCheckSource.includes('registered Thanksgiving holiday')
-    && operationsAlertPolicyCheckSource.includes('registered 2026-10-05 holiday')
+    && operationsAlertPolicyCheckSource.includes("krxAtClose.staleSessionDates, ['2026-10-02', '2026-10-06']")
     && operationsAlertPolicyCheckSource.includes('unregistered 2028 calendar year must remain unknown')
     && operationsAlertPolicyCheckSource.includes('must leave input objects unchanged')
     && operationsAlertPolicyCheckSource.includes('missing actual daily request cap is unknown')

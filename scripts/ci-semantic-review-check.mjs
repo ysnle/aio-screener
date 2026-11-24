@@ -89,7 +89,7 @@ warnings.push(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unk
 // src/domain/market/signal/trading-score.js's computeTradingScoreModel (single-implementation
 // extraction) — checks the domain module (where the shape now genuinely lives) plus proof the
 // legacy wrapper in `core` actually delegates to it.
-check('trading score semantic gate is present', /AIO_ARCH\.computeTradingScoreModel/.test(core) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
+check('trading score semantic gate is present', /window\.AIO_ARCH\.computeTradingScoreModel/.test(read('src/app/score-entry-points.js')) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
 // The legacy classifyMarketRegime was retired as dead code; the runtime gate now asserts it stays gone.
 check('P1753 breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && !/function\s+classifyMarketRegime\b/.test(core));
 check('P1753 P1538 ticker deep analysis is retired and issues no entry verdict', /retired ticker deep analysis stays gone and issues no entry verdict/.test(runtimeGate) && !/function\s+analyzeTickerDeep\b/.test(ui) && !/marketAllowsEntry/.test(ui));

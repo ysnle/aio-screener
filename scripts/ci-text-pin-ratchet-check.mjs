@@ -26,15 +26,21 @@ const READS_SOURCE = new RegExp(SOURCE_PATH);
 // `const x = read('src/…')`, `readFileSync(join(root, 'js/…'), 'utf8')` and similar text reads.
 const SOURCE_VAR = new RegExp(String.raw`(?:const|let|var)\s+(\w+)\s*=\s*[^;\n]*?\bread\w*\([^;\n]*?` + SOURCE_PATH, 'g');
 const escapeRe = (value) => value.replace(/[$]/g, '\\$');
+const sourceVars = (text) => [...new Set([...String(text).matchAll(SOURCE_VAR)].map((match) => escapeRe(match[1])))];
+const SECTION_ENTRY =/^\s*\[['"][\w.-]+['"],\s*async\s*(?:\(\)\s*=>|function\s*\(\))\s*\{/m;
 
 // Only checks on source text count; `.includes()` on a function's output is a behaviour test and stays free.
-export function countTextPins(source) {
+export function countTextPins(source, sharedVars = []) {
   const text = String(source);
-  // v58.86: a consolidated gate (scripts/lib/gate-sections.mjs) scopes each former gate's variables to its own section, so
-  // a source variable is resolved inside its section only.
-  const sections = text.split(/^\/\/ ── section /m);
-  if (sections.length > 1) return sections.reduce((sum, section) => sum + countTextPins(section), 0);
-  const vars = [...new Set([...text.matchAll(SOURCE_VAR)].map((match) => escapeRe(match[1])))];
+  // A consolidated gate (scripts/lib/gate-sections.mjs) scopes each former gate's variables to its own section, so a
+  // source variable is resolved inside its section and the module scope before the first section. A section starts at
+  // its `['label', async () => {` entry (code, not the banner comment above it, so editing comments never moves a boundary).
+  const sections = text.split(SECTION_ENTRY);
+  if (sections.length > 1) {
+    const shared = sourceVars(sections[0]);
+    return countTextPins(sections[0]) + sections.slice(1).reduce((sum, section) => sum + countTextPins(section, shared), 0);
+  }
+  const vars = [...new Set([...sharedVars, ...sourceVars(text)])];
   const receivers = [String.raw`\bread\w*\([^()\n]*?` + SOURCE_PATH + String.raw`[^()\n]*\)`, ...vars.map((v) => String.raw`\b${v}\b`)];
   const pins = receivers.flatMap((receiver) => [
     new RegExp(String.raw`${receiver}\s*\.includes\(\s*['"\x60]`, 'g'),

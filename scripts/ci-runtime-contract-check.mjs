@@ -1007,7 +1007,7 @@ check('R340/P712: semantic market-integrity tests cover curve exactness and KR m
 check('R340/P712: synthetic market-series formulas are absent from decision paths',
   !/50\s*\+\s*\(chg\s*\*\s*5\)/.test(html) && !/500\s*\*\s*abv50/.test(html) && !/\(85\s*-\s*p\)\s*\*\s*20\s*\+\s*250/.test(ui) && !/latestLiveVal\s*\*\s*\(1\s*\+\s*\(Math\.random/.test(core));
 check('R340/P712: KR yields and US breadth require timestamped current evidence and fail closed otherwise',
-  /T1035 → v58\.76/.test(tests) /* the KR spread widget is retired */ && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
+  !/calcKrYieldSpreads\s*\(/.test(core + ui + data + html) /* the KR spread widget is retired */ && /T1036 P1274 breadth_current_evidence_gate/.test(tests) && /getCurrentBreadthEvidence/.test(core)
   && !/function\s+updateBreadthBars/.test(ui) /* v57.60: the legacy breadth DOM writer retired; market.js renders current evidence */
   && !/DATA_SNAPSHOT\.krBond3y/.test(html.slice(html.indexOf('function updateKrMacroFromLive'), html.indexOf('function updateKrMacroFromLive') + 5000)));
 check('R344/P727: retired fxbond commentary has no orphan function, call, or DOM sink (P1425: the whole legacy updater is gone)',
@@ -1110,7 +1110,7 @@ check('P784/SA-01: Yahoo chart requests use the shared proxy registry health pat
   // wrapper — aio-data.js always overwrote the global. It has been deleted, which is the strongest
   // form of this invariant: there must be exactly ONE transport implementation and no second relay loop.
   const producerStart = data.indexOf('async function _aioFetchYahooChartData(');
-  const producer = data.slice(producerStart, data.indexOf('// 모듈 스코프', producerStart));
+  const producer = data.slice(producerStart, data.indexOf('var _fetchYahooChartData = window._fetchYahooChartData;', producerStart));
   return producerStart >= 0
     && !/function\s+_fetchYahooChartData\s*\(/.test(html)
     && !/function\s+_fetchYahooChartData\s*\(/.test(ui)
@@ -1324,16 +1324,16 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
 
 {
   // v57.61 WCAG 2.2 AA pass: focus survives re-renders, statuses are announced, names are distinct.
-  // v59.70 (S12): the 맞춤 조건 panel is the section of screener/filters.js between its banner and the conditions-block controller.
-  const custom = (read('src/ui/pages/screener/filters.js').split('// ── 맞춤 조건 panel')[1] || '').split('/** The conditions block')[0];
+  // The 맞춤 조건 panel is the section of screener/filters.js from its session state to the conditions-block controller.
+  const custom = ((text, from) => (from < 0 ? '' : text.slice(from, text.indexOf('export function createFiltersController(', from))))(read('src/ui/pages/screener/filters.js'), read('src/ui/pages/screener/filters.js').indexOf('let sessionConditions = [];'));
   const screener = readScreenerPageSource();
   const terms = read('src/ui/components/term-marks.js');
   const entity = read('src/ui/pages/entity.js');
-  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = chipKey\(condition\)/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\|[^;]*select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ (?:ctx\.)?searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 KR theme card header is keyboard operable', /kr-theme-header" role="button" tabindex="0"/.test(krData) && /e\.key === 'Enter' \|\| e\.key === ' '/.test(krData)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
-  check('v57.61 ticker price basis is a status region; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: v57.61 a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 맞춤 조건 chips keep focus across renders, the count note is a status and the chip list is not a live region', /chip\.dataset\.chip = chipKey\(condition\)/.test(custom) && /findIn\(focusKey\[0\], focusKey\[1\]\)\?\.focus\(\)/.test(custom) && /\(removes\[index\] \|\| removes\[index - 1\] \|\|[^;]*select\)\.focus\(\)/.test(custom) && /note\.setAttribute\('role', 'status'\)/.test(custom) && !/aria-live/.test(custom) && /signature !== lastSignature/.test(custom)); // text-pin-ok: a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 screener sort returns focus to the header button, non-sortable headers carry no aria-sort, hints reach assistive tech, search is debounced', /node\.dataset\.scrSort === column\)\?\.focus\?\.\(\)/.test(screener) && !/th\.setAttribute\('aria-sort', 'none'\);\n\s*\}/.test(screener) && !/정렬 적용|'적용'\}`\)/.test(screener) && /\$\{column\.label\}로 정렬/.test(screener) && /setAttribute\('aria-describedby', hintId\)/.test(screener) && /setTimeout\(\(\) => \{ (?:ctx\.)?searchTimer = null;[^}]*\}, 150\)/.test(screener)); // text-pin-ok: a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 KR theme card header is keyboard operable', /kr-theme-header" role="button" tabindex="0"/.test(krData) && /e\.key === 'Enter' \|\| e\.key === ' '/.test(krData)); // text-pin-ok: a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 term popover returns focus to its mark, exposes aria-expanded and closes when focus leaves', /mark\.setAttribute\('aria-expanded', 'false'\)/.test(terms) && /restore && hadFocus && mark\?\.isConnected/.test(terms) && /addEventListener\('focusout'/.test(terms)); // text-pin-ok: a11y attribute contract; the browser accessibility matrix covers behaviour
+  check('v57.61 ticker price basis is a status region; the back button name does not read the arrow', /status\.setAttribute\('role', 'status'\)/.test(entity) && !/aria-label', `← /.test(entity) && !/aria-label', '← /.test(entity)); // text-pin-ok: a11y attribute contract; the browser accessibility matrix covers behaviour
 }
 
 {
@@ -1341,7 +1341,7 @@ check('P1301/R650/QA-DATA-44 macro schedule dates never become lastRelease witho
   // Run the registry IIFE itself on a fake window: register, clear at unload, then fire a persisted pageshow.
   const coreSource = read('js/aio-core.js');
   const from = coreSource.indexOf('window._aioTimerRegistry = window._aioTimerRegistry || {};');
-  const to = coreSource.indexOf('// ═══ v48.98: _aioPageBus');
+  const to = coreSource.lastIndexOf('(function() {', coreSource.indexOf('if (window._aioPageBus) return;'));
   const listeners = {};
   let nextId = 1;
   const live = new Set();

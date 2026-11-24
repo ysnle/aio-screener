@@ -33,9 +33,9 @@ const appendAIMsg = sliceBetween(chat, 'function _appendAIMsg(', '\n\nasync func
 // Use the shared disclosure helper from the production chat module. Its small
 // dependency slice is self-contained and keeps this gate offline/provider-free.
 const disclosureFormat = sliceBetween(pipeline, 'function _aioPublicAIFormatAsOf(', '\n\n  function _aioBuildAIResponseDisclosure', 'disclosure formatter');
-const disclosureBuild = sliceBetween(pipeline, 'function _aioBuildAIResponseDisclosure(', '\n\n  // P1539', 'disclosure builder');
+const disclosureBuild = sliceBetween(pipeline, 'function _aioBuildAIResponseDisclosure(', 'var _AIO_DIRECTIVE_NOTICE =', 'disclosure builder');
 const disclosureAppend = sliceBetween(pipeline, 'function _aioAppendAIPublicDisclosure(', '\n\n  window._AIO_PUBLIC_AI_POLICY =', 'disclosure renderer');
-const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', '\n\n/** 검색 출처 → UI HTML */', 'citation URL normalizer');
+const citationCanonical = sliceBetween(chat, 'function _aioCanonicalResearchUrl(', 'function _searchCitationsHTML(', 'citation URL normalizer');
 const citationsHtml = sliceBetween(chat, 'function _searchCitationsHTML(', '\n\nfunction _aioResearchFailureForUser', 'citation renderer');
 const disclosureFixture = [
   "var _AIO_PUBLIC_AI_POLICY = { label: 'AI 도우미 · 교육/리서치 보조', status: 'beta-research', actionGate: 'read-only-conditional-analysis' };",

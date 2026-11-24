@@ -22,7 +22,7 @@ const context = vm.createContext({ URL, Response, AbortController, Date, console
 // v57.81: the P1422 FMP /stable rewrite, payload aliasing, quota counting and Twelve Data credit reservation were
 // retired from the transport (no live caller produces those URLs); it keeps only the timeout and caller-abort relay.
 context.window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => context.fetch(...args) });
-vm.runInContext(slice(data, 'function fetchWithTimeout(', '// ── v30.11 Task 11:'), context);
+vm.runInContext(slice(data, 'function fetchWithTimeout(', 'function _scrSignalLabel('), context);
 assert(!('_aioFmpStableUrls' in personalTransport) && !('_aioNormalizeFmpStable' in personalTransport) && !('reserveTwelveCredits' in context.window._aioPersonalProviderTransport), 'v57.81 the transport exports no FMP mapping or Twelve Data reservation'); // text-pin-ok: retirement absence
 let dispatched = [];
 context.fetch = async (url, options) => { dispatched.push({ url: String(url), options }); return Response.json({ ok: true }); };
@@ -51,7 +51,7 @@ assert(!/_getApiKey\('aio_(?:bok|kosis|rss2json|newsdata|av|td|fred|finnhub|fmp)
 context._rssIsSkipped = () => false; context._rssMarkOk = () => {}; context._rssMarkFail = () => {};
 context._rss2jsonFailed = 0; context._cfWorkerUrl = () => 'https://worker.fixture';
 context.DOMParser = class { parseFromString() { return { querySelectorAll: () => [{ querySelector: selector => ({ textContent: selector === 'title' ? 'Fixture market news headline' : 'fixture' }) }] }; } };
-vm.runInContext(slice(data, 'async function fetchOneFeed(', '// ── 텔레그램 메시지에서 원문'), context);
+vm.runInContext(slice(data, 'async function fetchOneFeed(', 'function extractOriginalSource('), context);
 let order = [];
 context.fetchViaProxy = async () => { order.push('worker'); return '<rss>' + 'x'.repeat(100) + '</rss>'; };
 context.fetchWithTimeout = async url => { order.push(url); return Response.json({ status:'ok', items:[{ title:'Fixture RSS conversion headline' }] }); };
@@ -74,7 +74,7 @@ assert(!/<input[^>]+id="(?:rss2json-api-key|aio_(?:av|finnhub|fred|td|fmp|newsda
   const coreSource = readFileSync('js/aio-core.js', 'utf8');
   const keyContext = { _AioVault: { _keyRuntime: { aio_finnhub_key: 'stored', aio_fmp_key: 'stored', aio_cf_worker_url: 'https://worker.fixture' }, getStorage: () => ({ getItem: () => 'stored' }) } };
   vm.createContext(keyContext);
-  vm.runInContext(slice(coreSource, 'function _aioIsRetiredDataKey(', '// 마이그레이션: 평문 → 암호화'), keyContext);
+  vm.runInContext(slice(coreSource, 'function _aioIsRetiredDataKey(', 'async function _migrateToEncrypted('), keyContext);
   assert(['aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key', 'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key'].every((key) => keyContext._getApiKey(key) === '')
     && keyContext._getApiKey('aio_cf_worker_url') === 'https://worker.fixture', 'v57.67 retired personal data keys are never read; the self-proxy URL still is');
   assert.equal((await keyContext._aioSaveCredential('aio_fmp_key', 'personal-fixture')).state, 'SERVER_ONLY_DATA', 'v57.67 retired personal data keys cannot be saved again');
@@ -98,12 +98,12 @@ assert(!/<input[^>]+id="(?:rss2json-api-key|aio_(?:av|finnhub|fred|td|fmp|newsda
   assert.deepEqual(Object.keys(registryContext.window._aioCollectKeySnapshot()), ['aio_cf_worker_url'], 'v57.79 key backup holds only the live self-proxy credential');
   const boot = readFileSync('src/app/bootstrap.js', 'utf8');
   const retiredKeys = ['aio_claude_api_key', 'aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key', 'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key'];
-  const cleanup = boot.slice(boot.indexOf('// v57.79: the personal data-provider keys'), boot.indexOf('const stopConnectionPanel'));
+  const cleanup = boot.slice(boot.indexOf("['aio_claude_api_key'"), boot.indexOf('const stopConnectionPanel'));
   assert(retiredKeys.every((key) => cleanup.includes(`'${key}'`)) && cleanup.includes('removeItem(key)'), 'v57.79 boot deletes the stored retired personal keys');
 }
 // P1424: migration holds must not advertise a perpetual in-flight health check.
 context.window.AIO = { getPublicConfig: () => ({ ai: { routeStatus: 'DISABLED' } }) };
-vm.runInContext(slice(ui, 'function getLLMRouteReadiness(', '// P1070/R592:'), context);
+vm.runInContext(slice(ui, 'function getLLMRouteReadiness(', 'window._aioGetLLMRouteReadiness = getLLMRouteReadiness;'), context);
 assert.equal(context.getLLMRouteReadiness().label, '공용 연결 준비 중', 'P1424 held AI route has an explicit user status');
 assert.equal(context.getLLMRouteReadiness().ready, false, 'P1424 held AI route never advertises capacity');
 installSharedRoute(context.window); // v59.11: the route target moved from src/ui/chat/panel.js to the shared transport module

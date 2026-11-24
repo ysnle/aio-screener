@@ -440,7 +440,7 @@ const nvda = { price: 125.53, pct: -14.01, quoteEnvelope: { source: 'live:yahoo-
 const sandbox = { window: { AIO: {}, _liveData: { NVDA: nvda } }, console, Date, Number, String, Object, Array, Math, isFinite, URL, AbortController,
   dynamicTickerLookup: async () => { calls.lookup += 1; return null; } };
 vm.runInNewContext(core.slice(core.indexOf('var _AIO_CLAIM_SCHEMA_VERSION'), core.indexOf('function _aioClaimEvidenceList')), sandbox);
-vm.runInNewContext(data.slice(data.indexOf('function _aioNormalizeChatTickers'), data.indexOf('// v59.20: updateDataStatusError')), sandbox);
+vm.runInNewContext(data.slice(data.indexOf('function _aioNormalizeChatTickers'), data.indexOf('function _querySWVersion(', data.indexOf('function _aioNormalizeChatTickers'))), sandbox);
 const AIO = sandbox.window.AIO;
 AIO.decideQuoteBasis = (input) => decideQuoteBasis({ ...input, now: SAT });
 AIO.evaluateDataTruth = () => single;
@@ -482,7 +482,7 @@ const chat = (read('src/ui/chat/panel.js') + '\n' + read('src/ai/response/reques
 const html = read('index.html');
 
 const helperStart = chat.indexOf('function _aioBuildChatAnalysisContext(');
-const helperEnd = chat.indexOf('\n\n// External/API/registry text is evidence', helperStart);
+const helperEnd = chat.indexOf('function _aioWrapChatExternalContext(', helperStart);
 assert.ok(helperStart >= 0 && helperEnd > helperStart, 'production helper slice is present');
 
 const boundaryKinds = [];

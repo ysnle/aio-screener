@@ -20,7 +20,7 @@ try {
   // v59.42: chatAppendMsg (per-page #chat-<ctx>-msgs) is deleted; the fixture appends its own bubbles and, like the
   // unified panel, passes appendCancelNotice.
   await page.addScriptTag({ content:
-    section('const chatState = {};', '// ── Text processing helpers') + '\n' +
+    section('const chatState = {};', 'function stripChips(') + '\n' +
     `function chatAppendMsg(ctxId, role, html, id) {
       const container = document.getElementById('chat-' + ctxId + '-msgs');
       const wrap = document.createElement('div'); wrap.className = 'acp-msg ' + role;
@@ -109,7 +109,7 @@ try {
   });
   await waiting.goto('http://aio.fixture/');
   await waiting.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
-  await waiting.addScriptTag({ content: section('const chatState = {};', '// ── Text processing helpers') });
+  await waiting.addScriptTag({ content: section('const chatState = {};', 'function stripChips(') });
   await waiting.evaluate(async () => {
     window.clock = { t: 5_000_000 };
     const { createChatRunKit } = await import('/src/ui/components/chat-run-status.js');

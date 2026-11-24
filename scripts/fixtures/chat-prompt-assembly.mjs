@@ -66,7 +66,7 @@ export async function loadChatPromptKit({ root = DEFAULT_ROOT } = {}) {
   context.globalThis = context;
   const run = (code, label) => vm.runInContext(code, context, { filename: label });
   run(slice(core, 'function _aioQuestionCue(', 'function _aioLooksFreshIntent(', 'question cue'), 'aio-core.js#cue');
-  run(slice(core, 'var _AIO_AI_SECURITY_VERSION', '// P1350: absent prices', 'untrusted block'), 'aio-core.js#untrusted');
+  run(slice(core, 'var _AIO_AI_SECURITY_VERSION', 'window.AIO.redactPortfolioForAI = function(', 'untrusted block'), 'aio-core.js#untrusted');
   run(slice(chat, 'var _CTX_TOPIC_MAP = {', 'function _buildNewsContext(', 'topic map'), 'aio-chat.js#topics');
   run(slice(chat, 'function _buildNewsContext(', '\n}\n', 'news context') + '\n}\n', 'aio-chat.js#news');
   run(slice(chat, 'function _aioChatTokens(', 'function _buildChatMemoryContext(', 'answer policy'), 'aio-chat.js#policy');
