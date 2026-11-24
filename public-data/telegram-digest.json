@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T10:52:04.048Z",
-  "attemptedAt": "2026-11-24T10:52:04.048Z",
-  "lastSuccessfulAt": "2026-11-24T10:52:04.048Z",
+  "generatedAt": "2026-11-24T11:21:59.158Z",
+  "attemptedAt": "2026-11-24T11:21:59.158Z",
+  "lastSuccessfulAt": "2026-11-24T11:21:59.158Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T10:52:00.544Z",
-  "until": "2026-11-24T10:52:00.544Z",
+  "since": "2026-11-10T11:21:55.276Z",
+  "until": "2026-11-24T11:21:55.276Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -85,13 +85,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1147,
+      "count": 1142,
       "freshCount": 40,
-      "eligibleTextCount": 1082,
+      "eligibleTextCount": 1077,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70130
+      "lastPostId": 70131
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 715,
-      "freshCount": 19,
-      "eligibleTextCount": 714,
+      "count": 717,
+      "freshCount": 36,
+      "eligibleTextCount": 716,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72691
+      "lastPostId": 72693
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2029,
-  "retainedItemCount": 405,
+  "count": 2026,
+  "retainedItemCount": 416,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2029,
-    "eligibleTextCount": 1963,
+    "observedCount": 2026,
+    "eligibleTextCount": 1960,
     "mediaOnlyCount": 66,
     "mediaAttachedCount": 810,
     "photoPostCount": 689,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 334,
-    "broadSignalCount": 837,
+    "highSignalCount": 335,
+    "broadSignalCount": 838,
     "selectedRawCount": 365,
     "selectedEligibleCount": 365,
     "selectedRawCoveragePct": 18.6,
@@ -160,11 +160,12 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 643,
-    "ai-policy": 153,
-    "market-note": 727,
-    "earnings": 247,
     "macro": 280,
+    "market-note": 724,
+    "semi": 643,
+    "healthcare": 49,
+    "ai-policy": 153,
+    "earnings": 247,
     "kr-market": 98,
     "credit": 69,
     "flows": 64,
@@ -172,13 +173,12 @@
     "geo": 239,
     "power": 187,
     "japan": 45,
-    "healthcare": 48,
     "media-only": 65,
     "equity": 129,
     "insider": 5
   },
   "tickerCounts": {
-    "NVDA": 426,
+    "NVDA": 425,
     "TSLA": 28,
     "TSM": 62,
     "2454.TW": 7,
@@ -198,7 +198,7 @@
     "APLD": 3,
     "AAPL": 3,
     "285A.T": 2,
-    "MSFT": 50,
+    "MSFT": 49,
     "META": 4,
     "ORCL": 5,
     "PLTR": 7,
@@ -257,7 +257,7 @@
     "103590.KS": 1
   },
   "themes": [
-    "Market Notes (727 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
+    "Market Notes (724 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
     "Semiconductors/Memory (643 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
     "Macro/Rates (280 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 선물 현황 • 다우: 49,715.10 (+0.23%) • S&P500: 7,256.00 (+0.25%) • 나스닥100: 26,785.40 (+0.15%) • 러셀2000: 2,675.50 (+0.22%) • VIX:...",
     "Earnings/Corporate (247 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
@@ -269,7 +269,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 426,
+      "count": 425,
       "text": "🇺🇸 미국 증시 프리마켓 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 선물 현황 • 다우: 49,715.10 (+0.23%) • S&P500: 7,256.00 (+0.25%) • 나스닥100: 26,785.40 (+0.15%) • 러셀2000: 2,675.50 (+0.22%) • VIX:..."
     },
     {
@@ -284,7 +284,7 @@
     },
     {
       "key": "MSFT",
-      "count": 50,
+      "count": 49,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 21일 🇺🇸 아메리카 • 트럼프 대통령은 중국과 무역·반도체·AI를 포괄하는 광범위한 합의를 논의 중이라고 밝혀. 중국에는 구세대 반도체만 공급하도록 제한하겠다는..."
     },
     {
@@ -434,7 +434,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 48,
+      "count": 49,
       "focus": "일라이 릴리(Eli Lilly), 중국의 먹는 비만 치료제 승인에 주가 상승 1. 중국 내 경구용 비만약 '오포글리프론' 승인 및 주가 상승 중국 의약품 규제 당국이 일라이 릴리의 경구용 비만 치료제인..."
     },
     {
@@ -470,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 727,
+      "count": 724,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     }
   ],
@@ -1667,6 +1667,51 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72693",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72693",
+      "datetime": "2026-11-24T11:10:29.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>BOK, 모레 또 금리 인상할까? AI 급락 속 골드만삭스의 경고: 소비가 버티지 못하고 있음 •로이터 조사에 따르면 경제학자 34명 중 32명이 한국은행이 11월 26일 기준금리를 25bp 인상해..."
+    },
+    {
+      "id": "insidertracking/70131",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70131",
+      "datetime": "2026-11-24T11:03:32.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi",
+        "healthcare"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "TSLA",
+        "GOOG",
+        "AVGO",
+        "AMZN",
+        "MU"
+      ],
+      "summary": "프리마켓 기준 테크 섹터 전반 하락세. 엔비디아 -5.61%, 마이크론 -7.38%, 인텔 -6.39%, AMD -4.73%, 브로드컴 -3.21% 등 반도체 중심으로 낙폭 확대. 커뮤니케이션 서비스 섹터..."
+    },
+    {
       "id": "insidertracking/70130",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/70130",
@@ -2082,13 +2127,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>엔비디아 주가 급등에 공매도 세력 타격, 레버리지 공매도 상품 최대 92% 폭락 •엔비디아의 하루 수익률을 2배 역방향으로 추종하는 GraniteShares 2x Short NVDA Daily...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>엔비디아 주가 급등에 공매도 세력 타격, 레버리지 공매도 상품 최대 92% 폭락 •엔비디아의 하루 수익률을 2배 역방향으로 추종하는 GraniteShares 2x Short NVDA Daily..."
     },
     {
       "id": "insidertracking/70106",
@@ -2182,11 +2227,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": "•대만가권 개장 +8.5% •TSMC 개장 +9.9%",
-      "lead": 1,
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "•대만가권 개장 +8.5% •TSMC 개장 +9.9%"
     },
     {
       "id": "HANAchina/72657",
@@ -2195,14 +2239,14 @@
       "datetime": "2026-11-24T01:00:18.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 51,
       "hasText": true,
-      "summary": ">>악성 폭로로 조롱받은 《뉴욕타임스》, ‘젠슨 황 복귀’ 평가: 충격! 왜 트럼프는 그를 그렇게 중시하나? (중국언론) •같은 날 《뉴욕타임스》 1면이 두 차례 바뀜. 오전에는 젠슨 황의 스캔들을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>악성 폭로로 조롱받은 《뉴욕타임스》, ‘젠슨 황 복귀’ 평가: 충격! 왜 트럼프는 그를 그렇게 중시하나? (중국언론) •같은 날 《뉴욕타임스》 1면이 두 차례 바뀜. 오전에는 젠슨 황의 스캔들을..."
     },
     {
       "id": "HANAchina/72654",
@@ -2211,17 +2255,18 @@
       "datetime": "2026-11-24T00:28:15.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 74,
       "hasText": true,
-      "summary": ">>젠슨 황이 돌아왔지만, 엔비디아는 예전으로 돌아갈 수 없음 (중국언론) •젠슨 황이 CEO에서 물러난 뒤 엔비디아 주가와 기업 운영에 불확실성이 커졌고, 이사회는 기술 경쟁과 미국 정부의 입장을 고려해...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "AMD",
         "AVGO"
-      ]
+      ],
+      "summary": ">>젠슨 황이 돌아왔지만, 엔비디아는 예전으로 돌아갈 수 없음 (중국언론) •젠슨 황이 CEO에서 물러난 뒤 엔비디아 주가와 기업 운영에 불확실성이 커졌고, 이사회는 기술 경쟁과 미국 정부의 입장을 고려해..."
     },
     {
       "id": "insidertracking/70097",
@@ -6565,22 +6610,6 @@
       ]
     },
     {
-      "id": "insidertracking/69751",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69751",
-      "datetime": "2026-11-19T10:22:33.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "TSMC와 삼성, 일부 중국 고객에게 반도체 제품 출하 중단 – FT",
-      "tickers": [
-        "TSM"
-      ]
-    },
-    {
       "id": "HANAchina/72410",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72410",
@@ -7293,29 +7322,6 @@
         "documents": []
       },
       "summary": ">>5,450억 달러! 골드만삭스, AI 프로젝트 금융 전망 대폭 상향… 하지만 핵심 보증자인 Nvidia는 이탈 중 •AI 프로젝트 금융 중 칩 관련 금융은 3,200억 달러로 올해보다 7배 증가할 전망....",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/72348",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72348",
-      "datetime": "2026-11-18T07:29:55.000Z",
-      "localDateKst": "2026-11-18",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>젠슨 황 후계자 윤곽 나오나? ‘CUDA의 아버지’ Ian Buck, 처음으로 Nvidia 실적발표 컨퍼런스콜 등장 •‘CUDA의 아버지’ Ian Buck이 처음으로 Nvidia 실적발표 컨퍼런스콜에...",
       "tickers": [
         "NVDA"
       ]
