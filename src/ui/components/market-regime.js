@@ -1,7 +1,7 @@
 import { renderHomeGuide } from './market-guide.js';
 import { renderStressOutcomes } from './stress-outcomes.js';
 import { principleLink } from './principle-link.js';
-import { AXIS_REASON_LABEL, alignInput, buildCloseSeries, hyObservation, isUsable, sessionPointBack } from '../../domain/briefing/market-read.js';
+import { AXIS_REASON_LABEL, alignInput, buildCloseSeries, hyObservation, isUsable, priceChecks, sessionPointBack } from '../../domain/briefing/market-read.js';
 import { koreaIndexParts, requestRegimeMacroHistory, summaryLine } from './home-regime.js';
 import { previousRegime } from '../../domain/briefing/daily-diff.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
@@ -248,9 +248,16 @@ function comboAndWatch(doc, root, regime, interpretation) {
     setFoldBody(raw, rawTable(doc, detailed.map(([head, ...rest]) => [head, rest.join(' — ')]), '엇갈리는 조합의 근거'));
     raw.hidden = !detailed.length;
   }
+  watchList(doc, root, interpretation);
+}
+
+// 다음에 확인할 가격 조건: one ordered list from its owner (market-read.js priceChecks) — a rebound's rows first once the
+// opening loads (`rebound`, market-story.js renderSignalOpening) — then the next release, then the rebound's stance line.
+let openingRebound = null;
+function watchList(doc, root, interpretation, rebound = null) {
   const watch = doc.getElementById('regime-watch');
   if (!watch) return;
-  const items = [...(interpretation.marketRead?.checks || [])];
+  const items = interpretation.marketRead?.statements ? priceChecks(interpretation.marketRead.statements, rebound?.checks?.texts || []) : [];
   const next = interpretation.crossroads?.nextEvent;
   const release = next?.name && next?.date ? `${next.when || shortDate(next.date)} ${next.name}` : '';
   const rows = items.map((title, index) => {
@@ -271,6 +278,12 @@ function comboAndWatch(doc, root, regime, interpretation) {
   }
   watch.replaceChildren(...rows);
   watch.closest?.('section')?.toggleAttribute?.('hidden', !rows.length);
+  // The rebound's stance under its conditions: its state word, then what each stance costs.
+  let stance = doc.getElementById('regime-watch-stance');
+  if (rebound?.stance?.text) {
+    if (!stance) { stance = el(doc, 'p', null, 'opening-line mk-watch__stance'); stance.id = 'regime-watch-stance'; watch.after(stance); }
+    stance.replaceChildren(el(doc, 'b', rebound.word, 'opening-line__label'), doc.createTextNode(` — ${rebound.stance.text}`));
+  } else stance?.remove();
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -353,7 +366,11 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow, { flowOnFace: true });
   (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintMarketLean(doc, root, regime.available ? regime : null, doc.getElementById('regime-leaders'), () => renderRegimePage({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
   heroSide(doc, regime, previous);
-  if (regime.available) import('./market-story.js').then(({ renderMarketStory, renderSignalOpening }) => { renderSignalOpening({ documentRef: doc, root, interpretation }); renderMarketStory({ documentRef: doc, root, interpretation }); })
+  if (regime.available) import('./market-story.js').then(({ renderMarketStory, renderSignalOpening }) => { renderSignalOpening({ documentRef: doc, root, interpretation, onWatch: (rebound) => {
+    watchList(doc, root, interpretation, rebound);
+    // The guide takes the same stance once the opening is read (repainted only when it changed).
+    if (rebound?.stance?.text !== openingRebound?.stance?.text) { openingRebound = rebound; const box = doc.getElementById('home-guide'); if (box?.previousElementSibling) renderHomeGuide({ documentRef: doc, root, store, anchor: box.previousElementSibling, rebound }); }
+  } }); renderMarketStory({ documentRef: doc, root, interpretation }); })
     .then(() => import('./market-narratives.js')).then(({ renderMarketNarratives }) => renderMarketNarratives({ documentRef: doc, root, interpretation })).catch(() => {});
   comboAndWatch(doc, root, regime, interpretation);
   const board = doc.getElementById('regime-board');
@@ -450,7 +467,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       let host = depthAnchor.parentElement.querySelector(':scope > #macro-crossroads');
       if (!host) { host = el(doc, 'div', null, 'xr-section'); host.id = 'macro-crossroads'; depthAnchor.insertAdjacentElement('afterend', host); }
       renderMacroCrossroads({ documentRef: doc, root, regime, host, leadAside: () => structureLink(doc, root, root.__aioScenarioOutlook) });
-      renderHomeGuide({ documentRef: doc, root, store, anchor: host });
+      renderHomeGuide({ documentRef: doc, root, store, anchor: host, rebound: openingRebound });
     };
     const showsDepth = (view) => view === 'story' || view === 'all';
     const depthFold = depthAnchor.closest?.('#regime-depth-fold');

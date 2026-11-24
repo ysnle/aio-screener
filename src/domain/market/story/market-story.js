@@ -5,8 +5,10 @@ import { earningsFilterMs, releaseAtMs } from '../../briefing/schedule.js';
 import { policyCycle } from '../../macro/macro-signals.js';
 import { seriesOf, sahmGap, claimsTrend } from '../../macro/macro-read.js';
 import { claim, say, sayJoin, NOTHING } from '../../shared/claim.js';
-import { readIndexLongrun, LONGRUN_DEFINITION } from '../indices/long-run.js';
+import { readIndexLongrun, risesInFalls, LONGRUN_DEFINITION } from '../indices/long-run.js';
 import { fallFrame, stageOf } from './fall-frame.js';
+import { episodeOf, reboundOf, reboundStanceSaid } from './rebound.js';
+import { rallyAttemptRead } from '../regime/rally-attempt.js';
 import { sessionPointBack } from '../session/close-series.js';
 import { sessionStep } from '../session/move-size.js';
 import { shortDate, shortDateAgainst } from '../../content/date-labels.js';
@@ -385,7 +387,8 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
 }
 
 export const OPENING_INDEXES = Object.freeze([
-  Object.freeze({ id: 'sox', label: '반도체', full: '필라델피아 반도체 지수(SOX)', topic: '는', part: 'leaders', longrun: 'sox' }),
+  // `bar`: the bar's name, so the index (SOX) reads apart from the fund on 기술적 분석's index card (반도체(SOXX)).
+  Object.freeze({ id: 'sox', label: '반도체', bar: '반도체(SOX)', full: '필라델피아 반도체 지수(SOX)', topic: '는', part: 'leaders', longrun: 'sox' }),
   Object.freeze({ id: 'ndx', label: '나스닥 100', topic: '은', part: 'leaders', longrun: 'ndx' }),
   Object.freeze({ id: 'spx', label: 'S&P 500', topic: '은', part: 'broad', longrun: 'spx' }),
   Object.freeze({ id: 'dow', label: '다우', topic: '는', part: 'broad', longrun: null }),
@@ -397,12 +400,14 @@ const OPENING_MOVES = Object.freeze([1, 2, 5]);
 const yearOf = (date) => String(date || '').slice(0, 4);
 const yearMonth = (date) => `${yearOf(date)}년 ${Number(String(date).slice(5, 7))}월`;
 
-// The largest n-session fall of the record so far: every earlier window of the same field is smaller.
+// The largest n-session move of the record so far on its side (a fall or a rise): every earlier window is smaller.
 function recordLargest(series, n, value) {
-  if (!(value < 0) || series.length <= n + 1) return false;
-  for (let i = n; i < series.length - 1; i += 1) if ((series[i].value / series[i - n].value - 1) * 100 <= value) return false;
+  if (!value || series.length <= n + 1) return false;
+  const side = Math.sign(value);
+  for (let i = n; i < series.length - 1; i += 1) if ((series[i].value / series[i - n].value - 1) * 100 * side >= value * side) return false;
   return true;
 }
+const sideWord = (value) => (value < 0 ? '하락' : '상승');
 
 function longrunRead(longrun, index, horizon, series, date) {
   if (!longrun || !index) return null;
@@ -433,7 +438,7 @@ function openingRow(history, spec, through, longrun) {
   const at = (n) => claim({ subject: spec.id, measure: `change${n}d`, asOf: last.date, figures: [{ value: moves[n], unit: 'pct', basis: `change${n}d`, label: spec.label }] });
   const stage = stageOf(fall.value);
   return {
-    ...spec, asOf: last.date, from: series[0].date, moves, fall, stage, day, week, deep,
+    ...spec, asOf: last.date, from: series[0].date, prevDate: sessionPointBack(series, 1, market)?.date || null, moves, fall, stage, day, week, deep, episode: episodeOf(series, fall.high),
     record: { day: recordLargest(series, 1, moves[1]), week: recordLargest(series, 5, moves[5]) },
     claims: {
       ...Object.fromEntries(OPENING_MOVES.filter((n) => Number.isFinite(moves[n])).map((n) => [n, at(n)])),
@@ -462,17 +467,18 @@ function standingSaid(row, { prefer = 'fall', skipDeep = false } = {}) {
         then: claim({ subject: row.id, measure: 'longrunEpisode', asOf: row.asOf, figures: [{ value: row.deep.since.depth, unit: 'pct', basis: 'episodeDepth', label: lab }] }) })
       : say('{lab} 고점 대비 하락은 {from}년 이후 가장 깊습니다.', { lab, from: yearOf(row.day?.from) }))
     : NOTHING;
+  // A one- or five-session rise is placed as a fall is (the 11/23 rebound: 기록 중 가장 큰 하루 상승).
   const weekMove = row.week?.move;
-  const weekSince = weekMove?.inTail && weekMove.side === 'fall' && (!weekMove.since || weekMove.since.date < yearAgo)
-    ? say('{lab} 5거래일 {d5}는 {when} 이후 가장 큰 주간 하락입니다.', { lab, d5: row.claims[5], when: weekMove.since ? yearMonth(weekMove.since.date) : `${yearOf(row.week.from)}년` })
+  const weekSince = weekMove?.inTail && (!weekMove.since || weekMove.since.date < yearAgo)
+    ? say('{lab} 5거래일 {d5}는 {when} 이후 가장 큰 주간 {w}입니다.', { lab, d5: row.claims[5], w: sideWord(weekMove.pct), when: weekMove.since ? yearMonth(weekMove.since.date) : `${yearOf(row.week.from)}년` })
     : NOTHING;
   const dayMove = row.day?.move;
-  const dayRank = dayMove?.inTail && dayMove.side === 'fall' && dayMove.rank <= 10
-    ? say(dayMove.rank === 1 ? '{lab} 하루 {d1}는 {from}년 이후 가장 큰 하루 하락입니다.' : '{lab} 하루 {d1}는 {from}년 이후 {rank}번째로 큰 하루 하락입니다.',
-      { lab, d1: row.claims[1], from: yearOf(row.day.from), rank: String(dayMove.rank) })
+  const dayRank = dayMove?.inTail && dayMove.rank <= 10
+    ? say(dayMove.rank === 1 ? '{lab} 하루 {d1}는 {from}년 이후 가장 큰 하루 {w}입니다.' : '{lab} 하루 {d1}는 {from}년 이후 {rank}번째로 큰 하루 {w}입니다.',
+      { lab, d1: row.claims[1], w: sideWord(dayMove.pct), from: yearOf(row.day.from), rank: String(dayMove.rank) })
     : NOTHING;
-  const recordDay = !row.day && row.record.day ? say('{lab} 하루 {d1}는 기록({from} 이후) 중 가장 큰 하루 하락입니다.', { lab, d1: row.claims[1], from: row.from }) : NOTHING;
-  const recordWeek = !row.week && row.record.week ? say('{lab} 5거래일 {d5}는 기록({from} 이후) 중 가장 큰 주간 하락입니다.', { lab, d5: row.claims[5], from: row.from }) : NOTHING;
+  const recordDay = !row.day && row.record.day ? say('{lab} 하루 {d1}는 기록({from} 이후) 중 가장 큰 하루 {w}입니다.', { lab, d1: row.claims[1], w: sideWord(row.moves[1]), from: row.from }) : NOTHING;
+  const recordWeek = !row.week && row.record.week ? say('{lab} 5거래일 {d5}는 기록({from} 이후) 중 가장 큰 주간 {w}입니다.', { lab, d5: row.claims[5], w: sideWord(row.moves[5]), from: row.from }) : NOTHING;
   const order = prefer === 'week' ? [weekSince, deepSince, dayRank, recordWeek, recordDay] : [deepSince, dayRank, weekSince, recordDay, recordWeek];
   return order.find((piece) => piece.text) || NOTHING;
 }
@@ -533,10 +539,10 @@ function stageClaim(row, label = row.label) {
 
 // The lede's one number: the deepest staged leader's fall as a size ("고점에서 43% 내린"), or — when the long-run table
 // places that fall — the since instead ("2022년 10월 이후 가장 깊은 하락으로"). Never both.
+const depthClaim = (row) => { const basis = `${row.fall.basis}Depth`; return claim({ subject: row.id, measure: basis, asOf: row.asOf, figures: [{ value: -row.fall.value, unit: 'share', basis, label: row.label }] }); };
 function carrierSaid(row) {
   if (row.deep?.inRange && row.fall.value < 0) return say('{when} 이후 가장 깊은 하락으로 ', { when: row.deep.since ? yearMonth(row.deep.since.trough) : `${yearOf(row.day?.from)}년` });
-  const basis = `${row.fall.basis}Depth`;
-  return say('고점에서 {depth} 내린 ', { depth: claim({ subject: row.id, measure: basis, asOf: row.asOf, figures: [{ value: -row.fall.value, unit: 'share', basis, label: row.label }] }) });
+  return say('고점에서 {depth} 내린 ', { depth: depthClaim(row) });
 }
 
 /**
@@ -561,6 +567,98 @@ function ledeSaid(leaders, spx, d) {
     ? say(spx.stage ? '시장 전체는 {st.word}에 그쳐, {plain}.' : '시장 전체는 {st.word}에 머물러, {plain}.', { ...slots, plain })
     : say('시장 전체{p} {st.word}이고, {plain}.', { ...slots, plain });
   return sayJoin([first, second], ' ');
+}
+
+// ---- the rebound (rebound.js decides the state; these say it) ------------------------------------------------------------
+const levelClaim = (row, measure, value) => claim({ subject: row.id, measure, asOf: row.asOf, figures: [{ value, unit: 'level', digits: 0, basis: measure, label: row.label }] });
+// A line's distance from the close, signed: "종가 대비 +1.6%" is a line 1.6% over the close.
+const gapClaim = (row, measure, line) => claim({ subject: row.id, measure, asOf: row.asOf, figures: [{ value: (line / row.episode.close - 1) * 100, unit: 'pct', basis: measure, label: row.label }] });
+const hasLines = (...rows) => rows.every((row) => row?.episode?.ma50 != null && row.episode.ma200 != null);
+
+/**
+ * 반등 시도: "반도체는 하루 14% 반등했지만 고점 대비로는 아직 34% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선
+ * 아래라 추세 전환은 아직 확인 전입니다." — the deepest staged leader's bounce off its own low (하루 when that low is the
+ * session before) and its fall, then the two centre indexes against their 200-day lines. 추세 회복: one sentence.
+ */
+function reboundLedeSaid(leaders, { spx, ndx }, rebound) {
+  // The deepest staged leader that rebounded as far as the rule's own line, else the Nasdaq-100 (the index the rule reads).
+  const staged = leaders.filter((row) => row.stage && row.episode?.bounce >= RULES.story.reboundPct);
+  const carrier = staged.length ? staged.reduce((a, b) => (b.fall.value < a.fall.value ? b : a)) : ndx;
+  const e = carrier.episode;
+  // The bounce day itself says 하루; every later session counts from the dated low ("저점(11/20)에서 15% 올라왔지만").
+  const slots = { lab: carrier.label, topic: carrier.topic, d: shortDate(e.low.date), depth: depthClaim(carrier),
+    up: claim({ subject: carrier.id, measure: 'fromEpisodeLow', asOf: carrier.asOf, figures: [{ value: e.bounce, unit: 'share', basis: 'fromEpisodeLow', label: carrier.label }] }),
+    st: carrier.stage ? say(', {s.word}', { s: stageClaim(carrier) }) : NOTHING };
+  if (rebound.state === 'recovered') {
+    const both = [spx, ndx].every((row) => row.episode.close > row.episode.ma50);
+    return say(both ? '{lab}{topic} 저점({d})에서 {up} 올라 고점 대비 {depth} 아래까지 왔고, S&P 500과 나스닥 100은 50일선과 200일선을 모두 되찾았습니다.'
+      : '{lab}{topic} 저점({d})에서 {up} 올라 고점 대비 {depth} 아래까지 왔고, S&P 500과 나스닥 100은 200일선 위를 지키고 있습니다.', slots);
+  }
+  const first = say(e.low.date === carrier.prevDate ? '{lab}{topic} 하루 {up} 반등했지만 고점 대비로는 아직 {depth} 아래{st}입니다.'
+    : '{lab}{topic} 저점({d})에서 {up} 올라왔지만 고점 대비로는 아직 {depth} 아래{st}입니다.', slots);
+  if (!hasLines(spx, ndx)) return first;
+  const under = [spx, ndx].filter((row) => row.episode.close <= row.episode.ma200);
+  const second = under.length === 2 ? say('S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.')
+    : under.length === 1 ? say('{a}{ta} 200일선 위지만 {b}{tb} 아래라 추세 전환은 아직 확인 전입니다.', { a: (under[0] === spx ? ndx : spx).label, ta: (under[0] === spx ? ndx : spx).topic, b: under[0].label, tb: under[0].topic })
+      : say('S&P 500과 나스닥 100이 200일선 위지만 50일선 아래라 추세 전환은 아직 확인 전입니다.');
+  return sayJoin([first, second], ' ');
+}
+
+/**
+ * The follow-through day once it has happened after the low ("11/27 바닥 확인일이 나왔습니다."), as the rally-attempt read
+ * counts it (rally-attempt.js, on the Composite's closes and volume as the screener producer stores them; history.json has
+ * no index volume, so it is not counted on the Nasdaq-100). Not a condition row: a fact of the state.
+ */
+function followThroughSaid(rebound, history, asOf) {
+  const rally = rebound.state === 'failed' ? null : rallyAttemptRead(history, { through: asOf });
+  return rally?.phase === 'confirmed' && rally.ftdDate >= rebound.low.date ? say('{d} 바닥 확인일이 나왔습니다.', { d: shortDate(rally.ftdDate) }) : NOTHING;
+}
+
+/** The face's conditions line (its label the state word): the low that withdraws the read, and the 200-day lines. */
+function reboundLineSaid(rebound, { spx, ndx }, ftd) {
+  const slots = { lab: ndx.label, d: shortDate(rebound.low.date), low: levelClaim(ndx, rebound.state === 'failed' ? 'reboundFrom' : 'episodeLow', rebound.low.value) };
+  if (rebound.state === 'failed') return say('{lab}이 반등이 시작된 {d} 종가({low}) 아래로 마감했습니다.', slots);
+  const lines = hasLines(spx, ndx) ? say('S&P 500 {s}(종가 대비 {sg}), 나스닥 100 {n}({ng})', {
+    s: levelClaim(spx, 'ma200', spx.episode.ma200), sg: gapClaim(spx, 'toMa200', spx.episode.ma200),
+    n: levelClaim(ndx, 'ma200', ndx.episode.ma200), ng: gapClaim(ndx, 'toMa200', ndx.episode.ma200) }) : NOTHING;
+  if (rebound.state === 'recovered') return sayJoin([ftd, lines.text ? say('200일선은 {lines}이고, 그 아래로 다시 마감하면 다시 판단합니다.', { lines }) : NOTHING], ' ');
+  const fail = say('{lab}이 {d} 종가({low}) 아래로 마감하면 반등 실패입니다.', slots);
+  return sayJoin([ftd, fail, lines.text ? say('200일선은 {lines}입니다.', { lines }) : NOTHING], ' ');
+}
+
+/**
+ * The rebound's rows for 시장 상태's 다음에 확인할 가격 조건, which its owner (market-read.js priceChecks) puts ahead of
+ * the axes' checks: the low with its distance, then the 200- and 50-day lines.
+ */
+function reboundChecks(rebound, { spx, ndx }) {
+  const low = levelClaim(ndx, rebound.state === 'failed' ? 'reboundFrom' : 'episodeLow', rebound.low.value);
+  const lowGap = gapClaim(ndx, rebound.state === 'failed' ? 'toReboundFrom' : 'toEpisodeLow', rebound.low.value);
+  const out = [rebound.state === 'failed'
+    ? say('{lab}이 {d} 종가 {low} 위로 되돌아오는지(종가 대비 {g})', { lab: ndx.label, d: shortDate(rebound.low.date), low, g: lowGap })
+    : say('{lab}이 {d} 종가 {low} 위를 지키는지(종가 대비 {g}) — 아래로 마감하면 반등 실패', { lab: ndx.label, d: shortDate(rebound.low.date), low, g: lowGap })];
+  if (hasLines(spx, ndx)) {
+    const slots = { s: levelClaim(spx, 'ma200', spx.episode.ma200), n: levelClaim(ndx, 'ma200', ndx.episode.ma200),
+      sg: gapClaim(spx, 'toMa200', spx.episode.ma200), ng: gapClaim(ndx, 'toMa200', ndx.episode.ma200),
+      s5: levelClaim(spx, 'ma50', spx.episode.ma50), n5: levelClaim(ndx, 'ma50', ndx.episode.ma50) };
+    out.push(rebound.state === 'recovered'
+      ? say('S&P 500과 나스닥 100이 200일선({s} · {n}) 위를 지키는지(종가 대비 {sg} · {ng}) — 아래로 마감하면 다시 판단', slots)
+      : say('S&P 500과 나스닥 100이 200일선({s} · {n}) 위로 마감하는지(종가 대비 {sg} · {ng}) — 50일선({s5} · {n5})까지 되찾으면 추세 회복', slots));
+  }
+  return { said: out, texts: out.map((piece) => piece.text) };
+}
+
+/**
+ * Under the record line on a rebound: how often one-session rises this large came inside a fall, from the long-run tables
+ * (long-run.js risesInFalls; nothing without them, or when their tail is cut above the line).
+ */
+function riseFrequencySaid(longrun, ndx) {
+  const read = longrun ? risesInFalls(longrun, ndx.longrun, RULES.story.reboundPct) : null;
+  if (!read?.total) return NOTHING;
+  const count = (value, basis) => claim({ subject: `longrun:${ndx.id}`, measure: basis, asOf: read.through, figures: [{ value, unit: 'count', basis, label: ndx.label }] });
+  return say('{from}년 이후 {lab}이 하루 {min} 이상 오른 날 {n} 가운데 {m}가 고점에서 {dd} 넘게 내린 하락 구간 안이었습니다.', {
+    from: read.from.slice(0, 4), lab: ndx.label, n: count(read.total, 'risesOver'), m: count(read.inside, 'risesInFalls'),
+    min: claim({ subject: 'story-rule', measure: 'reboundPct', asOf: read.through, figures: [{ value: read.minPct, unit: 'share', basis: 'reboundPct', label: '하루' }] }),
+    dd: claim({ subject: 'longrun-rule', measure: 'drawdownMinPct', asOf: read.through, figures: [{ value: LONGRUN_DEFINITION.drawdownMinPct, unit: 'share', basis: 'drawdownMinPct', label: '고점에서' }] }) });
 }
 
 // ---- the diagnosis line --------------------------------------------------------------------------------------------------
@@ -601,7 +699,7 @@ const BAR_INDEXES = Object.freeze(['sox', 'ndx', 'spx', 'dow', 'rsp']);
 function barsOf(rows) {
   return fallFrame(BAR_INDEXES.filter((id) => rows[id]).map((id) => {
     const row = rows[id];
-    return { id, label: row.label, part: row.part, value: row.fall.value, high: row.fall.high, valueText: say('{f}', { f: row.claims.fall }).text,
+    return { id, label: row.bar || row.label, part: row.part, value: row.fall.value, high: row.fall.high, valueText: say('{f}', { f: row.claims.fall }).text,
       stage: row.stage ? say('{f.word}', { f: row.claims.fall }).text : null };
   }));
 }
@@ -641,9 +739,11 @@ export function fallStandings(opening, { limit = 5 } = {}) {
 /**
  * The opening read at the S&P 500's last session close (or `through`).
  * @param {{history?: object[], macroHistory?: object|null, longrun?: object|null, through?: string|null}} input
- * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:'lede'|'diagnosis'|'records', label:string, said:{text:string, claims:object[]}}>,
- *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean}}
- *   `lines`: the face's text — the lede, the diagnosis line (its label the state word), the one small record line.
+ * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:'lede'|'diagnosis'|'watch'|'records', label:string, said:{text:string, claims:object[]}}>,
+ *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, rebound?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean}}
+ *   `lines`: the face's text — the lede, the diagnosis line (its label the state word), the rebound's conditions line (its
+ *   label the rebound word), the one small record line. `rebound.checks.texts`: 시장 상태's rows for 다음에 확인할 가격 조건;
+ *   `rebound.stance`: what each stance costs in this state (시장 상태 and the guide print it).
  */
 export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
@@ -660,16 +760,23 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const diagnosis = diagnoseFall({ ndx: rows.ndx, rsp: rows.rsp, credit: judged && Number.isFinite(judged.hyBp) ? judged : null,
     growth: macroHistory ? growthAt(macroHistory, asOf) : null, breadth50: breadth });
   const leaders = [rows.sox, rows.ndx].filter(Boolean);
-  const lede = ledeSaid(leaders, rows.spx, diagnosis);
+  // Inside a fall the rebound read (rebound.js) leads on a rebound; a failed one keeps the fall's lede.
+  const rebound = reboundOf(rows);
+  const reboundLede = rebound && rebound.state !== 'failed' ? reboundLedeSaid(leaders, rows, rebound) : NOTHING;
+  const lede = reboundLede.text ? reboundLede : ledeSaid(leaders, rows.spx, diagnosis);
   const ledeSince = leaders.find((row) => row.deep?.inRange && lede.text.includes(' 이후 가장 깊은 하락으로'));
   // The small record line: at most one standing per group, never the since the lede already carries.
   const leaderRecord = leaders.map((row) => standingSaid(row, { skipDeep: row === ledeSince })).find((piece) => piece.text) || NOTHING;
-  const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' })].filter((piece) => piece.text), ' ');
+  // On a rebound the record line ends with how often rises this large came inside a fall (long-run tables only).
+  const frequency = rebound && rebound.state !== 'failed' ? riseFrequencySaid(longrun, rows.ndx) : NOTHING;
+  const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' }), frequency], ' ');
   const lines = [
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
+    { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, followThroughSaid(rebound, history, asOf)) : NOTHING },
     { id: 'records', label: '', said: records }
   ].filter((line) => line.said.text);
+  if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound) });
   const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi)], ' ') : NOTHING;
   // Every standing an index earns (the face shows at most one per group; the AI facts carry all of them).
   const standings = ['sox', 'ndx', 'spx', 'dow', 'rsp'].map((id) => standingSaid(rows[id], { prefer: id === 'spx' ? 'week' : 'fall' })).filter((piece) => piece.text);
@@ -678,7 +785,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
     return { id: spec.id, part: spec.part, said: say('{lab}, {d}: {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
   });
-  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, korea, table, standings, longrun: !!longrun };
+  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, korea, table, standings, longrun: !!longrun };
 }
 
 /** The opening as typed fact lines for an AI reading or the chat (the text the screens print, and the rule word). */
@@ -690,6 +797,11 @@ export function openingFactLines(opening) {
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
     d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',
+    // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite).
+    said('watch') ? `반등: ${opening.rebound.word} — ${said('watch')}` : '',
+    opening.rebound ? `반등 상태어(규칙으로 정함, 바꾸지 말 것): ${opening.rebound.word}` : '',
+    ...(opening.rebound?.checks?.said || []).map((piece) => `반등 확인 조건: ${piece.text}`),
+    opening.rebound ? `반등 대응(조건부, 지시 아님): ${opening.rebound.stance.text}` : '',
     opening.korea?.text ? `한국: ${opening.korea.text}` : '',
     ...opening.standings.map((piece) => `기록 비교: ${piece.text}`),
     ...opening.table.map((row) => `지수 낙폭: ${row.said.text}`)

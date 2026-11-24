@@ -5,6 +5,7 @@ import { el } from './dom.js';
 import { kindFold } from './indicator-face.js';
 import { refreshScenarioArtifacts } from './macro-crossroads.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
+import { withRebound } from '../../domain/guide/market-guide.js';
 
 // A principle today's data touches: its title, which opens it in 리서치 라이브러리 › 참여 원칙 (the principle and its
 // mechanism are written there); today's reason is the link's hover.
@@ -55,12 +56,21 @@ function choiceTable(doc, direction) {
   return table;
 }
 
+// The rebound's stance first: its state word, then what each stance costs (rebound.js).
+function reboundLine(doc, rebound) {
+  const p = el(doc, 'p', null, 'xr-reading mg-rebound');
+  p.append(el(doc, 'b', rebound.word), doc.createTextNode(` — ${rebound.text}`));
+  return p;
+}
+
 /** Renders (or hides) #home-guide after `anchor`; returns the model so callers and tests can read it. */
-export function renderHomeGuide({ documentRef: doc, root, store = null, anchor = null, nowMs = Date.now() } = {}) {
+// `rebound`: the opening's rebound (market-story.js), handed in once the closes are read; a repaint without it keeps the last.
+export function renderHomeGuide({ documentRef: doc, root, store = null, anchor = null, nowMs = Date.now(), rebound } = {}) {
   if (!doc || !anchor) return null;
-  const guide = marketInterpretation(root, { store, nowMs }).guide || { available: false };
   let box = doc.getElementById('home-guide');
   if (!box) { box = el(doc, 'section', null, 'xr-section mg-guide'); box.id = 'home-guide'; box.setAttribute('aria-labelledby', 'home-guide-title'); }
+  if (rebound !== undefined) box.__aioRebound = rebound;
+  const guide = withRebound(marketInterpretation(root, { store, nowMs }).guide || { available: false }, box.__aioRebound);
   if (box.previousElementSibling !== anchor && typeof anchor.insertAdjacentElement === 'function') anchor.insertAdjacentElement('afterend', box);
   box.hidden = !guide.available;
   // The long-history outcomes and the per-refresh state can land after first paint; the guide is rebuilt with them.
@@ -84,6 +94,7 @@ export function renderHomeGuide({ documentRef: doc, root, store = null, anchor =
   box.replaceChildren(
     title,
     ...(guide.pastConflicts || []).map((text) => el(doc, 'p', `과거 표본과 어긋남: ${text}`, 'xr-reading mg-past-conflict')),
+    ...(guide.rebound ? [reboundLine(doc, guide.rebound)] : []),
     el(doc, 'h3', '여러 시나리오를 함께 놓고 보면', 'xr-h4'), el(doc, 'p', d.text, 'xr-reading'), tally,
     ...(costs ? [el(doc, 'p', '이 판단이 빗나갈 때의 기회비용', 'mg-costs-label'), costs] : []),
     ...(lean ? [lean] : []),

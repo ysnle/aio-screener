@@ -162,6 +162,9 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
     note: `'${CHOICE_WORDS.favored}'은 각 시나리오에 적힌 비용 비교를 센 것이며, 확률이나 따라 하라는 지시가 아닙니다.` };
 }
 
+/** The guide with a rebound's stance ({ word, stance: said }, rebound.js; given once the closes are read) as its lead. */
+export const withRebound = (guide, rebound) => (guide?.available && rebound?.stance?.text ? { ...guide, rebound: { word: rebound.word, text: rebound.stance.text } } : guide);
+
 /** The same model as one AI context block (chat and the server narrative read this, so their answers follow the screens). */
 export function renderMarketGuideContext(guide) {
   if (!guide?.available) return '';

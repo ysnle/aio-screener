@@ -957,7 +957,7 @@ export function buildMarketRead(input = {}) {
     headline: headline?.text || null,
     headlineReading: headline?.reading || null,
     points: lead.slice(1).map(({ text, reading }) => ({ text, reading })),
-    checks: [...new Set(statements.filter((row) => row.check).map((row) => row.check))].slice(0, 3),
+    checks: priceChecks(statements),
     statements,
     drivers,
     facts,
@@ -991,6 +991,12 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // Owner 2026-10-18: 바닥 확인 조건 — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
 // extreme, short-term participation rebounding) and confirmation (the Nasdaq-100 and SOXX back over their
 // 50-day lines, an up-thrust session, credit widening paused). Each item is null when its input is missing.
+/**
+ * 다음에 확인할 가격 조건, one ordered list: a rebound's two rows (its low, its 200-day lines; market-story.js, passed by
+ * 시장 상태 once the opening loads) ahead of the three strongest statements' checks.
+ */
+export const priceChecks = (statements, lead = []) => [...lead.slice(0, 2), ...new Set(statements.filter((row) => row.check).map((row) => row.check))].slice(0, Math.min(lead.length, 2) + 3);
+
 export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {}) {
   const W = RULES.bottomWatch, V = RULES.volatility;
   const on = (stat) => stat && (!basis || stat.date === basis) ? stat : null;

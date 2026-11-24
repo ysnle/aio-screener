@@ -5,6 +5,7 @@ import { sessionStep, spanStepSd } from '../../src/domain/market/session/move-si
 import { priceMoveSize } from '../../src/domain/market/day/facts.js';
 import { priceFamilyOf } from '../../src/domain/briefing/day-account.js';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { RULES } from '../../src/domain/rules/thresholds.js';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
 import { isQuarterGap } from '../../src/domain/fundamental/period.js';
 
@@ -34,6 +35,17 @@ function closeSeriesFacts(history, field, through) {
   values.fromRecordHigh = (last.value / Math.max(...series.map((point) => point.value)) - 1) * 100;
   // The same fall said as a size ("고점에서 43% 내린", the opening lede): unsigned.
   values.fromRecordHighDepth = -values.fromRecordHigh;
+  // The rebound read (market-story.js, rebound.js): the lowest close since that high, the close's bounce off it,
+  // the 50/200-session averages, and each line's distance from the close (signed: a line over the close is +).
+  const peakAt = series.reduce((best, point, i) => (point.value >= series[best].value ? i : best), 0);
+  const low = Math.min(...series.slice(peakAt).map((point) => point.value));
+  const mean = (n) => (series.length >= n ? series.slice(-n).reduce((sum, point) => sum + point.value, 0) / n : null);
+  Object.assign(values, { episodeLow: low, fromEpisodeLow: (last.value / low - 1) * 100, toEpisodeLow: (low / last.value - 1) * 100 });
+  // The low the last rebound (a close RULES.story.reboundPct over the running low) rose from: the 반등 실패 line's level.
+  let running = Infinity, from = null;
+  for (const point of series.slice(peakAt)) { if (point.value < running) running = point.value; else if ((point.value / running - 1) * 100 >= RULES.story.reboundPct) from = running; }
+  if (from != null) Object.assign(values, { reboundFrom: from, toReboundFrom: (from / last.value - 1) * 100 });
+  for (const n of [50, 200]) { const ma = mean(n); if (ma != null) Object.assign(values, { [`ma${n}`]: ma, [`toMa${n}`]: (ma / last.value - 1) * 100 }); }
   if (field === 'breadth50') values.above50 = level;
   if (field === 'advanceRatio') values.advancers = level;
   return { asOf: last.date, asOfBy, values, sd };
