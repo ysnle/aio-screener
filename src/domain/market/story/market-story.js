@@ -614,16 +614,17 @@ function followThroughSaid(rebound, history, asOf) {
   return rally?.phase === 'confirmed' && rally.ftdDate >= rebound.low.date ? say('{d} 바닥 확인일이 나왔습니다.', { d: shortDate(rally.ftdDate) }) : NOTHING;
 }
 
-/** The face's conditions line (its label the state word): the low that withdraws the read, and the 200-day lines. */
-function reboundLineSaid(rebound, { spx, ndx }, ftd) {
-  const slots = { lab: ndx.label, d: shortDate(rebound.low.date), low: levelClaim(ndx, rebound.state === 'failed' ? 'reboundFrom' : 'episodeLow', rebound.low.value) };
-  if (rebound.state === 'failed') return say('{lab}이 반등이 시작된 {d} 종가({low}) 아래로 마감했습니다.', slots);
-  const lines = hasLines(spx, ndx) ? say('S&P 500 {s}(종가 대비 {sg}), 나스닥 100 {n}({ng})', {
-    s: levelClaim(spx, 'ma200', spx.episode.ma200), sg: gapClaim(spx, 'toMa200', spx.episode.ma200),
-    n: levelClaim(ndx, 'ma200', ndx.episode.ma200), ng: gapClaim(ndx, 'toMa200', ndx.episode.ma200) }) : NOTHING;
-  if (rebound.state === 'recovered') return sayJoin([ftd, lines.text ? say('200일선은 {lines}이고, 그 아래로 다시 마감하면 다시 판단합니다.', { lines }) : NOTHING], ' ');
-  const fail = say('{lab}이 {d} 종가({low}) 아래로 마감하면 반등 실패입니다.', slots);
-  return sayJoin([ftd, fail, lines.text ? say('200일선은 {lines}입니다.', { lines }) : NOTHING], ' ');
+/**
+ * The face's rebound paragraph (its label the state word), on 오늘 and 시장 상태 alike: the conditions — the low that
+ * withdraws the read and the 200-day levels (their distances are 시장 상태's row) — then the stance. A failed rebound
+ * says the stance alone: it already names the broken low.
+ */
+function reboundLineSaid(rebound, { spx, ndx }, ftd, stance) {
+  if (rebound.state === 'failed') return stance;
+  const slots = { lab: ndx.label, d: shortDate(rebound.low.date), low: levelClaim(ndx, 'episodeLow', rebound.low.value) };
+  const lines = hasLines(spx, ndx) ? say('200일선은 S&P 500 {s}, 나스닥 100 {n}입니다.', { s: levelClaim(spx, 'ma200', spx.episode.ma200), n: levelClaim(ndx, 'ma200', ndx.episode.ma200) }) : NOTHING;
+  const fail = rebound.state === 'recovered' ? NOTHING : say('{lab}이 {d} 종가({low}) 아래로 마감하면 반등 실패입니다.', slots);
+  return sayJoin([ftd, fail, lines, stance], ' ');
 }
 
 /**
@@ -742,8 +743,8 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:'lede'|'diagnosis'|'watch'|'records', label:string, said:{text:string, claims:object[]}}>,
  *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, rebound?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean}}
  *   `lines`: the face's text — the lede, the diagnosis line (its label the state word), the rebound's conditions line (its
- *   label the rebound word), the one small record line. `rebound.checks.texts`: 시장 상태's rows for 다음에 확인할 가격 조건;
- *   `rebound.stance`: what each stance costs in this state (시장 상태 and the guide print it).
+ *   label the rebound word; it ends with the stance), the one small record line. `rebound.checks.texts`: 시장 상태's rows for
+ *   다음에 확인할 가격 조건; `rebound.stance`: what each stance costs in this state (the face's paragraph and the guide).
  */
 export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
@@ -770,13 +771,13 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   // On a rebound the record line ends with how often rises this large came inside a fall (long-run tables only).
   const frequency = rebound && rebound.state !== 'failed' ? riseFrequencySaid(longrun, rows.ndx) : NOTHING;
   const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' }), frequency], ' ');
+  if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound) });
   const lines = [
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
-    { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, followThroughSaid(rebound, history, asOf)) : NOTHING },
+    { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, followThroughSaid(rebound, history, asOf), rebound.stance) : NOTHING },
     { id: 'records', label: '', said: records }
   ].filter((line) => line.said.text);
-  if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound) });
   const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi)], ' ') : NOTHING;
   // Every standing an index earns (the face shows at most one per group; the AI facts carry all of them).
   const standings = ['sox', 'ndx', 'spx', 'dow', 'rsp'].map((id) => standingSaid(rows[id], { prefer: id === 'spx' ? 'week' : 'fall' })).filter((piece) => piece.text);

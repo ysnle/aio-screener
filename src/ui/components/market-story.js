@@ -152,11 +152,10 @@ function openingLine(doc, line) {
   return p;
 }
 
-/** The face into `host`: the lede, the bars, the diagnosis line, the rebound's conditions line and the small record line
- * (`omit`: line ids a screen carries elsewhere). */
-export function paintOpening(doc, host, opening, { omit = [] } = {}) {
+/** The face into `host`: the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
+export function paintOpening(doc, host, opening) {
   if (!host || !opening?.available || !opening.lines?.length) return false;
-  const [lede, ...rest] = opening.lines.filter((line) => !omit.includes(line.id));
+  const [lede, ...rest] = opening.lines;
   host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`), ...rest.map((line) => openingLine(doc, line)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
@@ -189,16 +188,16 @@ function openingFolds(doc, opening) {
 }
 
 /**
- * 시장 상태: the opening under the page head (지금 view), its table and rules folded; 한국 gets the KOSPI line. The
- * rebound's conditions are not a face line here: `onWatch` hands the rebound to market-regime.js, whose 다음에 확인할 가격
- * 조건 list leads with its rows and whose guide takes its stance, so they are said once.
+ * 시장 상태: the opening under the page head (지금 view), its table and rules folded; 한국 gets the KOSPI line. The face
+ * says the rebound (conditions and stance) as on 오늘; `onWatch` hands the rebound to market-regime.js, whose 다음에 확인할
+ * 가격 조건 list leads with its rows (with their distances) and whose guide takes its stance.
  */
 export function renderSignalOpening({ documentRef: doc, root, interpretation, onWatch = null }) {
   const host = doc?.getElementById('regime-opening');
   if (!host) return;
   const opening = readMarketOpening(root, interpretation, () => renderSignalOpening({ documentRef: doc, root, interpretation, onWatch }));
   onWatch?.(opening?.available ? opening.rebound || null : null);
-  const painted = paintOpening(doc, host, opening, { omit: ['watch'] });
+  const painted = paintOpening(doc, host, opening);
   host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
   if (painted) {
     const wasOpen = [...host.parentElement.querySelectorAll(':scope > .mk-opening__more, :scope > .mk-opening__method')].map((fold) => fold.open);
