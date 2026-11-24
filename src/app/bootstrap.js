@@ -144,6 +144,22 @@ import { NATHAN_PREVIOUS_THREADS_FRAMEWORK_IDS, NATHAN_ANALYSIS_PROTOCOL } from 
 
 export const ARCHITECTURE_VERSION = 'AR-01~16.v1';
 
+// Live quotes never wait on the lazy change-basis owner (src/data/quote-basis.js): if its chunk fails to load, the
+// parked batch and later ones are applied on the provider's own pair, and the next batch retries the load once.
+export function loadQuoteBasis(root, now, load = () => import('../data/quote-basis.js')) {
+  let retry = true;
+  const attempt = () => load().then((m) => m.installQuoteBasis(root, { now }), () => {
+    root.AIO.quoteBasis = { batch: () => {
+      if (retry) { retry = false; attempt(); }
+      return (q, price, pct, held) => held || { quote: q, pct };
+    } };
+    const parked = Object.values({ ...root._aioQuotePending }).map((entry) => entry.quote);
+    root._aioQuotePending = {};
+    if (parked[0]) root.applyLiveQuotes(parked);
+  });
+  return attempt();
+}
+
 export function resolveInitialRoute({ root = globalThis, hash = root?.location?.hash } = {}) {
   const rawRoute = String(hash || '').replace(/^#/, '').split(/[?/]/)[0].trim(); // #ticker/NVDA, #theme-detail/<id> are path forms
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
@@ -309,6 +325,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
+  loadQuoteBasis(root, clock.now);
   root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
   // The portfolio stress panel (src/ui/panels/portfolio-stress.js) is imported by its lazy route component
   // (src/ui/components/portfolio-exposure.js), so its model is outside the boot bundle; the unused _aioKrIndexStress hook went.

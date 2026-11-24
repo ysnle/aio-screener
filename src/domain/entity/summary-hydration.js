@@ -1,6 +1,7 @@
 import { canonicalEpochMs } from '../technical/chart-contract.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { requestDailyChartPayload } from '../../data/daily-chart-bars.js';
+import { verifyKrQuoteOn } from '../../data/quote-basis.js';
 
 const positive = value => finite(value) > 0 ? value : null;
 const caches = new WeakMap();
@@ -69,9 +70,7 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
     if (data.quote) {
       const providerPrev = 'providerPreviousClose' in data.quote ? data.quote.providerPreviousClose : data.quote.previousClose;
       const providerPct = 'providerPct' in data.quote ? data.quote.providerPct : data.quote.pct;
-      const check = typeof root._aioVerifyKrQuoteChange === 'function'
-        ? root._aioVerifyKrQuoteChange({ symbol: data.symbol, _source: data.quote.source, observedAt: data.quote.observedAt, regularMarketPreviousClose: providerPrev }, data.quote.price, providerPct)
-        : null;
+      const check = verifyKrQuoteOn(root, { symbol: data.symbol, _source: data.quote.source, observedAt: data.quote.observedAt, regularMarketPreviousClose: providerPrev }, data.quote.price, providerPct, now());
       if (check) {
         data.quote = { ...data.quote, pct: check.pct, previousClose: check.prevClose, regularMarketPreviousClose: check.prevClose,
           changeBasis: check.basis, changeBasisDate: check.basisDate, changeCheck: check.status,
