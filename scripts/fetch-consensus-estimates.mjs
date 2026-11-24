@@ -128,8 +128,7 @@ export function consensusPriority(screener) {
   return priority;
 }
 
-// v60.51 (A7): every row on the listing's close basis (a split the provider has not applied yet is applied here, once,
-// marked shareBasis), and a row whose EPS still reaches the close is flagged before publication. Mutates `rows`.
+// Puts every row on its listing's close basis and flags a row whose EPS still reaches the close. Mutates `rows`.
 export function applyShareBasis(rows, listings = {}) {
   const adjusted = [];
   const mismatched = [];

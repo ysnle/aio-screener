@@ -6,7 +6,7 @@
 //   A7  consensus EPS published on a pre-split basis is put on the split-adjusted close's basis, a mismatch is flagged
 //   B8  a held weekend copy carries its session's recorded close, and session math never reads the weekend row
 //   B25 a decision frame with no sourced leg is not drawn; the stage condition count lists every condition it counts
-//   A1  a US index quote's change is taken against the history close before its own session
+//   A1  the US quote-change verifier (pure function only; the quote applier does not call it yet)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -135,6 +135,8 @@ const { createFakeDocument } = await load('scripts/lib/fake-dom.mjs');
   check(verify({ symbol: 'AAPL', _atomicObservedAt: '2026-11-23T15:00:00.000Z', regularMarketPreviousClose: 200 }, 201, 0.5) === null, 'v60.51 A1 a symbol without a history field is not checked');
   check(monday?.quote?.regularMarketPreviousClose === 35.89 && monday.quote.changeBasis === 'history-previous-close' && friday?.quote?.regularMarketPreviousClose === 28.44, 'v60.51 A1 the corrected quote carries the history close as its previous close; an agreeing quote is unchanged', monday?.quote);
   check(verifyUsQuoteChange({ symbol: '^VIX', _atomicObservedAt: '2026-11-23T13:25:00.000Z', regularMarketPreviousClose: 28.44 }, 30.88, 8.58, { history, loadedAt: 0, now: Date.parse('2026-11-23T13:30:00Z') }) === null, 'v60.51 A1 a history loaded more than six hours ago is no basis');
+  const thanksgiving = [{ date: '2026-11-25', vix: 20, fieldMeta: { vix: { observedAt: '2026-11-25T21:15:00.000Z', observationRelation: 'latest-completed-close', sessionDate: '2026-11-25' } } }];
+  check(verifyUsQuoteChange({ symbol: '^VIX', _atomicObservedAt: '2026-11-27T15:00:00.000Z', regularMarketPreviousClose: 19 }, 21, 10.5, { history: thanksgiving, now: Date.parse('2026-11-27T15:05:00Z') }) === null, 'v60.51 A1 a holiday between the history close and the quote (11/26) is no basis: the provider pair stays');
 }
 
 if (failures.length) { console.error(`[stock-producer-leftovers] ${failures.length} failure(s):\n  ${failures.join('\n  ')}`); process.exit(1); }

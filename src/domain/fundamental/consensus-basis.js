@@ -1,9 +1,6 @@
-// The consensus row's share basis. SNDK split 8-for-1 (trading adjusted from 2026-11-20). The screener's close is split-adjusted
-// ($87.71 on its factor session) while the consensus provider still published pre-split EPS (next four quarters 245.29,
-// last four 116.79), so the reader's Forward PER came out 0.4x. The split is already in data we fetch: the screener row
-// carries the chart's split event (valuationSplitRatio, valuationSplitDate; src/domain/fundamental/sec-row-fields.js).
-// The consensus producer (scripts/fetch-consensus-estimates.mjs) puts the EPS on the close's basis here, and flags a row
-// whose EPS sum still reaches the price before it is published. The reader keeps its own guard (consensus-read.js).
+// Consensus EPS must share the split-adjusted close's share basis. A split after the last reported quarter (the screener
+// row's split event) can leave the provider on the old basis: the numbers decide which basis was published, the row is
+// adjusted once, and a row whose EPS still reaches the close is flagged before publication.
 import { readNumber as finite } from '../shared/number.js';
 import { PE_PLAUSIBLE_MIN } from './consensus-read.js';
 import { isoDay } from '../shared/session-date.js';

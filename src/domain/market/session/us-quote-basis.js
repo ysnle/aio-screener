@@ -1,11 +1,7 @@
-// A US index quote's change, on the completed close before the quote's own New York session. On Monday 11/23 before the
-// open ^VIX read 30.88 (Cboe extended hours, an 11/23 print) against the provider's previous close 28.44 — the 11/19
-// close; the history's 11/20 close is 35.89 — so the home quote row printed 30.88 and +8.58%: a value and a change from
-// different sessions (the right change is -13.96%). The provider's previous close is checked against the history; a
-// disagreement is recomputed from the history close. With no history basis (the history has not reached the previous
-// trading day, or was loaded more than six hours ago) the provider's pair stays as published. Loaded with the history
-// (src/app/bootstrap.js) and called by the classic quote applier (js/aio-data.js applyLiveQuotes) as
-// window._aioVerifyUsQuoteChange; Korean listings have their own check there.
+// A US index quote's change is measured from the history close before the quote's own New York session, so value and
+// change share one session; a disagreeing provider previous close is replaced by it. Without a history basis (a holiday
+// gap, a history short of the previous trading day, an old load) the provider pair stays. Not yet called by the quote
+// applier, which still holds the Korean check this belongs beside.
 import { isoDay } from '../../shared/session-date.js';
 import { readNumber } from '../../shared/number.js';
 import { sessionDateInMarket } from './session-time.js';
@@ -39,13 +35,14 @@ export function usHistoryBasis(field, session, history = []) {
 
 /**
  * One quote: null for a symbol without a history field or without a basis, else { status, pct, prevClose, basisDate,
- * providerPrev, quote } — `quote` re-based on the history close when the provider's previous close disagrees.
+ * providerPrev, quote } — `quote` re-based on the history close when the provider's previous close disagrees. `now`
+ * (ms) is the caller's clock and is required with a `loadedAt`.
  */
-export function verifyUsQuoteChange(q, price, providerPct, { history = [], loadedAt = null, now = Date.now() } = {}) {
+export function verifyUsQuoteChange(q, price, providerPct, { history = [], loadedAt = null, now } = {}) {
   const field = US_INDEX_HISTORY_FIELD[String(q?.symbol || '').toUpperCase()];
   if (!field || !(Number(price) > 0)) return null;
   const loaded = readNumber(loadedAt);
-  if (loaded != null && now - loaded > HISTORY_MAX_AGE_MS) return null;
+  if (loaded != null && !(readNumber(now) != null && now - loaded <= HISTORY_MAX_AGE_MS)) return null;
   const stamp = q._atomicObservedAt || q.observedAt || q.regularMarketTime;
   const ms = typeof stamp === 'number' ? (stamp < 1e12 ? stamp * 1000 : stamp) : Date.parse(stamp || '');
   const session = Number.isFinite(ms) && ms > 0 ? nyDate(new Date(ms).toISOString()) : null;

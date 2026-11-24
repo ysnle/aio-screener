@@ -5700,7 +5700,7 @@ function _aioReverifyKrQuotes() {
   if (redo.length) applyLiveQuotes(redo);
 }
 try {
-  window.addEventListener('aio:historyLoaded', _aioReverifyKrQuotes); window._aioReverifyQuotes = _aioReverifyKrQuotes;
+  window.addEventListener('aio:historyLoaded', _aioReverifyKrQuotes);
   document.addEventListener('aio:nativeScreenerReady', _aioReverifyKrQuotes);
 } catch (_) {}
 
@@ -5778,12 +5778,12 @@ function applyLiveQuotes(quotes) {
       pct = _krCheck.pct;
       hasPct = (typeof pct === 'number' && isFinite(pct));
       window._aioKrQuoteChecks[q.symbol] = Object.assign({ checkedAt: new Date(now).toISOString() }, _krCheck);
-      if (_krCheck.status === 'unverified') window._aioKrPendingQuotes[q.symbol] = { quote: q, revision: _quoteBatchRevision }; else delete window._aioKrPendingQuotes[q.symbol];
+      if (_krCheck.status === 'unverified') window._aioKrPendingQuotes[q.symbol] = { quote: q, revision: _quoteBatchRevision };
+      else delete window._aioKrPendingQuotes[q.symbol];
       if (_krCheck.status === 'corrected') { var _krWarned = (window._aioPrevCloseWarned = window._aioPrevCloseWarned || {}), _krWarnKey = q.symbol + '|' + _krCheck.basisDate + '|' + _krCheck.providerPrev; if (!_krWarned[_krWarnKey]) { _krWarned[_krWarnKey] = 1; _aioLog('warn', 'data', q.symbol + ' 전일종가 불일치 — 제공처 ' + _krCheck.providerPrev + ' 대신 검증 기준(' + _krCheck.basisDate + ')으로 등락률 재계산 (같은 교정은 다시 기록하지 않음)'); } } // P1850 (codex F19): once per symbol, basis date and provider value (27x a session before)
     }
     var _held = !_krCheck && window.PriceStore && window.PriceStore.heldCloseQuote ? window.PriceStore.heldCloseQuote(q, price) : null;
     if (_held) { pct = _held.pct; hasPct = true; q = _held.quote; }
-    var _usV = !_krCheck && !_held && /^\^/.test(q.symbol) && window._aioVerifyUsQuoteChange, _usC = _usV && _usV(q, price, pct, { history: window._aioHistory, loadedAt: (window._aioHistoryMeta || {}).loadedAt }); if (_usC) { pct = _usC.pct; hasPct = true; q = _usC.quote; } else if (_usV === undefined) window._aioKrPendingQuotes[q.symbol] = { quote: q, revision: _quoteBatchRevision };
 
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     // KR 지수는 서버 Yahoo 배치와 브라우저 Naver가 합쳐진다. 프록시 캐시가 옛 값을

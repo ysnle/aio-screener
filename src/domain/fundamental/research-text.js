@@ -1,8 +1,6 @@
-// A company story is researched once and frozen (public-data/company-profiles/<SYM>.json,
-// `researchedAt`), while the consensus table beside it is collected every week. MU's story said "현재 상향 32건" and
-// "최근 4주 상향 32건·하향 0건" on 11/22, when the live table read "최근 4주 변경 없음". Researched text carries its
-// research day: "현재/지금" beside a number never renders, and a figure that moves between reports (estimate revision
-// counts) names the day it was counted. The producer side (scripts/sync-company-profiles.mjs) warns on the same words.
+// Researched company text is frozen at its research day while the tables beside it are collected live, so its "now" is
+// the research day's: "현재/지금" beside a quantity renders as that day, and an undated estimate revision count is dated.
+// The profile sync warns on the same words; the stored text is never rewritten.
 
 import { stampDay } from '../shared/session-date.js';
 

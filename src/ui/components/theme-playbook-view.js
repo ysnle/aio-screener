@@ -366,8 +366,7 @@ function themeCard(doc, root, row, screenerSector = null, { days = [], change = 
 
 // The stage's own condition count, named apart from the six expert criteria ('전문가 기준 충족 5/6') on the same card.
 const stageFitText = (row) => (row.known < 2 ? '판단 보류' : `${row.met}/${row.total} 충족`);
-/** The card's condition line: the count and every condition it counts (v60.51, B25: the market-wide credit condition was
- *  counted but not listed, '조건 충족 2/4' beside three conditions); credit is named as the market's. */
+/** The card's condition line: the count and every condition it counts, the market-wide credit condition named as such. */
 export function stageConditionText(row) {
   if (!row?.state) return '단계 조건: 단계가 보류돼 조건을 세지 않습니다.';
   const listed = (row.basisText || []).map((text) => text.replace(/ \([^)]*\)/, text.startsWith(CREDIT_CONDITION) ? '(시장 전체)' : ''));

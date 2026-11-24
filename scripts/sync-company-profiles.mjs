@@ -25,8 +25,7 @@ const profiles = readdirSync(dir).filter((name) => name.endsWith('.json') && !NO
   const story = JSON.parse(readFileSync(join(dir, file), 'utf8'));
   stories.push(story);
   if (`${story.symbol}.json` !== file) throw new Error(`${file}: symbol ${story.symbol} does not match the file name`);
-  // v60.51 (A5): researched text frozen at its research day that speaks as "현재" beside a number, or counts estimate
-  // revisions without a date, is warned about (the screen dates it; interpretation never blocks the sync).
+  // Warn-only: researched text that speaks as "now" beside a figure (the screen dates it).
   for (const finding of storyResearchWarnings(story)) console.warn(`::warning::${file} ${finding.path}: ${finding.kind} "${finding.excerpt}"`);
   return { symbol: story.symbol, name: story.name, file, researchedAt: story.researchedAt || null, period: story.earnings?.period || null, layer: story.aiChain?.layer || null };
 });

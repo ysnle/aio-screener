@@ -407,14 +407,9 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
   return { held, revised };
 }
 
-// v60.51 (whole audit B8): a held copy names the session it repeats but kept the read it was made from. On Sunday 11/22
-// 23:51Z the won and yen previous-close reads (1,334.79 and 159.71, stamped at the 11/20 bar open) were held as copies of
-// the 11/20 session, whose settled close is 1,346.13 and 158.51 — one session, two values, and every reader of the last
-// row (the stock page's FX line, the AI evidence) took the other moment's quote. A held copy now carries its owner's
-// value and observation; the read it replaced stays in `heldRead`. Runs after holdRepeatedSessions, so ownership,
-// settlement and revisions are decided before; a copy whose owner is revised later follows it on the next run.
-// The latest row is left as read: ci-history-field-time-contract-check holds it to the market snapshot's own previous
-// value (the same provider read), so it is aligned on the next day's run, once a newer row exists.
+// A held copy repeats its session, so it carries that session's recorded close and observation; the replaced read stays
+// in `heldRead`. Runs after holdRepeatedSessions. The latest row is left as read (the history-time check holds it to the
+// market snapshot's previous value) and is aligned once a newer row exists.
 export function alignHeldCopies(hist, { fields = HIST_MARKET_FIELDS } = {}) {
   const rows = Array.isArray(hist) ? hist : [];
   const byDate = new Map(rows.filter((row) => row && typeof row === 'object').map((row) => [row.date, row]));
