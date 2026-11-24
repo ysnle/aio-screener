@@ -102,8 +102,8 @@ Owner decisions applied without re-asking; changed only by the user.
 - Batch end (owner 2026-11-22): integrate and commit `main` once, then ask the owner once before pushing; never mid-batch.
 - Standing authority (owner 2026-11-15): right after that push, dispatch once each the refresh/outcome workflow lanes whose published artifacts the batch made stale (changed definition fingerprint, new artifact field) and report which; no other dispatch, deploy or settings change.
 - Versioned changes use `node scripts/bump-version.mjs <version>` (R1, all version surfaces; `ci-version-check.mjs`).
-- Records (owner 2026-11-23): a P entry only when a wrong value reached users or the class is new; else a change-only `record-fix` entry (after `bump-version`). Rule ledger frozen: add a case to the principle's gate.
-- Checks state their own rows: no text pins, comment slices, live `public-data` values or expiring dates.
+- Records (2026-11-23): a P entry only if a wrong value reached users or the class is new; else change-only `record-fix` (after `bump-version`). Rule ledger frozen (R3).
+- Checks state their own rows: no live `public-data` values or expiring dates.
 - New assertions cite the P/R entry or the introducing release (`vNN.NN` with a CHANGELOG heading) — `ci-assertion-trace-check.mjs`.
 - `ci-ledger-integrity-check.mjs` freezes the R gap set and requires `verify_by:` on new open QA items.
 - New text pins on product source are frozen by `ci-text-pin-ratchet-check.mjs` — test behaviour instead.
