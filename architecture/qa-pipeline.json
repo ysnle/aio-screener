@@ -1145,6 +1145,12 @@
           "inputs": ["src/**", "scripts/**", "index.html", "public-data/history.json", "public-data/macro-history.json"]
         },
         {
+          "id": "day-cause",
+          "inputClass": "code",
+          "script": "scripts/ci-day-cause-check.mjs",
+          "inputs": ["src/**", "scripts/**"]
+        },
+        {
           "id": "judgement-rule-redesign",
           "inputClass": "code",
           "script": "scripts/ci-judgement-rule-redesign-check.mjs"

@@ -108,7 +108,9 @@ export function ledgerFacts(day) {
       const family = priceFamilyOf(fact.asset);
       if (family && fact.rank !== 'context') ((facts[`family:${family}`] ||= { values: {}, members: {} }).members[fact.asset] = priceMoveSize(fact).size);
     } else if (fact.kind === 'stock-move') {
-      put(fact.subjects[0], fact.date, { change1d: fact.change, z1d: abs(fact.z), rvol20: fact.rvol, indexBp: fact.indexBp });
+      put(fact.subjects[0], fact.date, { change1d: fact.change, z1d: abs(fact.z), rvol20: fact.rvol, indexBp: fact.indexBp,
+        // the pull printed as %p of the index move (day-account pullSaid), the same bp over 100.
+        indexPp: Number.isFinite(fact.indexBp) ? fact.indexBp / 100 : undefined });
     } else if (fact.kind === 'group-move') {
       put(fact.group, fact.date, { change1d: fact.change, median: fact.change });
       facts[fact.group].members = Object.fromEntries((fact.leaders || []).map((lead) => [lead.sym, lead.change]));

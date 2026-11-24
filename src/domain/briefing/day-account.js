@@ -6,6 +6,7 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { readIndexLongrun } from '../market/indices/long-run.js';
+import { headlineCause } from './headline-cause.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -42,8 +43,16 @@ const largestClaim =(fact, family) => claim({ subject: subjectOf(fact), measure:
 /** A group's named members ({sym, change}): its leaders under a superlative, or its main movers. */
 const memberClaim = (group, movers, word) => claim({ subject: subjectOf(group), measure: 'change1d', word, asOf: group.date, ...(CLAIM_WORDS[word].rank ? { rank: { among: subjectOf(group) } } : {}),
   figures: movers.map((row) => ({ value: row.change, unit: 'pct', basis: 'member', label: row.sym })) });
-/** A stock's pull on the S&P 500 in index bp, when it is 5bp or more. */
-const indexPull = (fact) => (Number.isFinite(fact.indexBp) && Math.abs(fact.indexBp) >= 5 ? figureClaim(fact, 'indexBp', fact.indexBp, 'bp', 'S&P 500') : null);
+/**
+ * A stock's pull on the S&P 500 as percentage points of the index's own move ("S&P 500을 1.6%p
+ * 끌어올렸습니다"), when it is 5bp or more; "+160bp만큼 영향" was a unit no reader holds.
+ */
+function pullSaid(fact) {
+  if (!Number.isFinite(fact?.indexBp) || Math.abs(fact.indexBp) < 5) return NOTHING;
+  const value = fact.indexBp / 100;
+  const pull = claim({ subject: subjectOf(fact), measure: 'indexPp', asOf: fact.date, figures: [{ value, unit: 'pp', basis: 'indexPp', label: 'S&P 500', digits: Math.abs(value) < 1 ? 2 : 1 }] });
+  return say(value > 0 ? 'S&P 500을 {pull} 끌어올렸습니다' : 'S&P 500을 {pull} 끌어내렸습니다', { pull });
+}
 /** A story field set from composed text; the story keeps every claim it prints. */
 function tell(story, field, said) {
   if (field === 'why') story.why.push(said.text); else story[field] = said.text;
@@ -130,10 +139,9 @@ export function indexSaid(facts, context = {}) {
   const us = ['spx', 'ndx', 'soxx'].map(price).filter(Boolean);
   const kr = ['kospi', 'kosdaq'].map(price).filter(Boolean);
   const listed = (list) => sayJoin(list.map((fact) => say('{name} {move}', { name: fact.label, move: changeClaim(fact, { unit: 'pct' }) })), ', ');
-  const parts = [];
-  if (us.length) parts.push(say('미국은 {list}', { list: listed(us) }));
-  if (kr.length) parts.push(say('한국은 {list}', { list: listed(kr) }));
-  if (!parts.length) return NOTHING;
+  if (!us.length && !kr.length) return NOTHING;
+  // The cause many lead facts share (threadSaid) follows the US indexes it moved.
+  const parts = [us.length ? say('미국은 {list}.', { list: listed(us) }) : NOTHING, context.thread || NOTHING, kr.length ? say('한국은 {list}.', { list: listed(kr) }) : NOTHING];
   const spx = price('spx'); const rsp = price('rsp');
   let breadth = NOTHING;
   if (spx && rsp && Math.abs(rsp.change - spx.change) >= 0.8) {
@@ -145,7 +153,26 @@ export function indexSaid(facts, context = {}) {
   }
   // The index that leads the story: the most material of the US indexes on the ledger.
   const leading = [...us].sort(byMateriality)[0];
-  return say('{parts}.{breadth}{rank}', { parts: sayJoin(parts, '. '), breadth, rank: rankSaid(leading, context) });
+  return say('{parts}{breadth}{rank}', { parts: sayJoin(parts, ' '), breadth, rank: rankSaid(leading, context) });
+}
+
+/**
+ * One driver behind several lead facts (a market-day thread joining a lead stock move to the
+ * lead groups that moved its way), said once: "황의 엔비디아 복귀 보도 뒤 반도체, AI 인프라 업종이 함께 상승했습니다."
+ * The cause is the lead stock's own (its linked report's clause); without one, nothing is said.
+ */
+export function threadSaid(stories, threads, byId) {
+  const seedOf = (story) => story.id.slice('story:'.length);
+  for (const story of stories) {
+    if (!story.cause || story.rank !== 'lead') continue;
+    const thread = (Array.isArray(threads) ? threads : []).find((row) => (row.facts || []).includes(seedOf(story)));
+    const groups = thread ? stories.filter((other) => other.kind === 'group-move' && other.rank === 'lead' && other.direction === story.direction && thread.facts.includes(seedOf(other)))
+      .map((other) => byId.get(seedOf(other))).filter(Boolean).slice(0, 3) : [];
+    if (!groups.length) continue;
+    const move = changeClaim(groups[0], { word: story.direction > 0 ? 'rise' : 'fall', unit: 'pct' });
+    return say('{cause} 보도 뒤 {list} 업종이 함께 {move.word}했습니다.', { cause: story.cause, list: groups.map((group) => group.label).join(', '), move });
+  }
+  return NOTHING;
 }
 /** The opening line: both markets' indexes, with the equal-weight S&P 500 read against the index (who carried the move). */
 export const indexLine = (facts) => indexSaid(facts).text;
@@ -252,7 +279,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(seed.revenueSurprise) ? say('매출은 {revenue}', { revenue: figureClaim(seed, 'revenueSurprise', seed.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ');
       tell(story, 'title', say('{name} 실적', { name: seed.label }));
       tell(story, 'line', say('{result}{stock}', { result: result.text ? say('{result}.', { result }) : say('실적을 발표했습니다.'),
-        stock: stock ? say(' 주가 {move}{vol}{pull}.', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: indexPull(stock) ? say('(S&P 500에 {pull})', { pull: indexPull(stock) }) : NOTHING }) : NOTHING }));
+        stock: stock ? say(' 주가 {move}{vol}.{pull}', { move: changeClaim(stock, { unit: 'pct', label: '주가' }), vol: volTag(stock), pull: pullSaid(stock).text ? say(' {pull}.', { pull: pullSaid(stock) }) : NOTHING }) : NOTHING }));
       const reports = headlinesAbout([sym], stock?.change, stock).slice(0, 3);
       story.evidence = reports.map(evidenceOf);
       assign(story,[seed, stock, ...reports]);
@@ -276,10 +303,15 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         Number.isFinite(results.revenueSurprise) ? say('매출 {revenue}', { revenue: figureClaim(results, 'revenueSurprise', results.revenueSurprise, 'pct', '매출') }) : NOTHING], ', ') : NOTHING;
       if (results) assign(story,[results]);
       if (seed.kind === 'stock-move') {
+        // The reason its own linked report states, in one clause; with no report that states
+        // one, the price its group runs on (explainedBy 'driver') is named with its move, as the group stories do.
+        story.cause = reports.map((fact) => headlineCause(fact.titleKo || fact.title)).find(Boolean) || null;
+        const driver = story.cause ? null : into(seed.id).filter((link) => link.basis === 'driver').map((link) => byId.get(link.from)).find(Boolean);
         tell(story, 'title', named(seed));
-        tell(story, 'line', say('{results}{size}{driver}', { results: resultText.text ? say('실적 발표({results}) 뒤의 움직임입니다. ', { results: resultText }) : NOTHING,
-          size: indexPull(seed) ? say('S&P 500 지수에 {pull}만큼 영향을 줬습니다.', { pull: indexPull(seed) }) : say('평소 움직임의 {z}입니다.', { z: figureClaim(seed, 'z1d', Math.abs(seed.z || 0), 'x', '평소 움직임') }),
-          driver: (seed.explainedBy || []).includes('driver') ? ' 업종이 따르는 가격과 같은 방향입니다.' : '' }));
+        tell(story, 'line', say('{cause}{results}{size}{driver}', { cause: story.cause ? say('{cause} 보도. ', { cause: story.cause }) : NOTHING,
+          results: resultText.text ? say('실적 발표({results}) 뒤의 움직임입니다. ', { results: resultText }) : NOTHING,
+          size: pullSaid(seed).text ? say('{pull}.', { pull: pullSaid(seed) }) : say('평소 움직임의 {z}입니다.', { z: figureClaim(seed, 'z1d', Math.abs(seed.z || 0), 'x', '평소 움직임') }),
+          driver: driver ? say(' {name} {driver}와 {driver.word}입니다.', { name: driver.label, driver: changeClaim(driver, { word: 'same-way', compare: { against: subjectOf(seed) } }) }) : NOTHING }));
       } else {
         // An event's own label and reason, as the ledger wrote them.
         story.title = seed.label || seed.title || '';
@@ -308,7 +340,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
     .map((fact) => ({ date: fact.date, label: fact.label, why: fact.why || (fact.hour === 'amc' ? '장 마감 후 실적' : fact.hour === 'bmo' ? '장 시작 전 실적' : ''), rank: fact.rank }));
   const face = stories.filter((story) => story.rank !== 'minor').slice(0, 6);
   const counts = facts.reduce((acc, fact) => { acc[fact.rank] = (acc[fact.rank] || 0) + 1; return acc; }, {});
-  const opening = indexSaid(facts, { history, longrun });
+  const opening = indexSaid(facts, { history, longrun, thread: threadSaid(stories, day.threads, byId) });
   const asOf = sessionLabel(day, facts);
   return {
     available: true,

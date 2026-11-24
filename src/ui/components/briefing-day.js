@@ -60,23 +60,21 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (opening) opening.textContent = account.opening;
   doc.getElementById('briefing-day-stories')?.replaceChildren(...account.stories.map((story) => storyItem(doc, story)));
   const folds = [];
-  // Analysis, so on the face: the largest few of the smaller stories (account.more is in materiality order).
-  if (account.more.length) {
+  const nameOf = (row) => (String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`);
+  // Analysis, so on the face: the largest few of the smaller stories (account.more is in materiality order), then the
+  // large moves no report or price explains, told as moves. The ledger's bookkeeping ("이유가
+  // 확인되지 않은 큰 움직임 N건", how many facts it read) is not drawn.
+  const others = [...account.more.slice(0, MORE_ON_FACE).map((story) => `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`),
+    ...account.unexplained.map((row) => `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.rvol >= 2 ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)];
+  if (others.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const story of account.more.slice(0, MORE_ON_FACE)) list.append(el(doc, 'li', `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`));
+    for (const text of others) list.append(el(doc, 'li', text));
     folds.push(el(doc, 'h3', '그 밖에 움직인 것', 'briefing-day-more-title'), list);
   }
   if (account.reported.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const row of account.reported) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.headline ? `, ${row.headline}` : ''}`));
+    for (const row of account.reported) list.append(el(doc, 'li', `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.headline ? `, ${row.headline}` : ''}`));
     folds.push(fold(doc, `실적 발표 뒤 움직임 ${account.reported.length}건`, [list]));
   }
-  if (account.unexplained.length) {
-    const list = el(doc, 'ul', null, 'briefing-day-more');
-    for (const row of account.unexplained) list.append(el(doc, 'li', `${String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`));
-    folds.push(fold(doc, `이유가 확인되지 않은 큰 움직임 ${account.unexplained.length}건`, [el(doc, 'p', '관련 보도나 같이 움직인 업종·가격이 없는 움직임입니다. 원인이 나오기 전까지는 추측하지 않습니다.', 'briefing-day-note'), list]));
-  }
-  const { facts, lead, major, noise } = account.coverage;
-  folds.push(el(doc, 'p', `확인한 발표·기사 ${facts}건 가운데 핵심 ${lead}건, 주요 ${major}건`, 'briefing-day-coverage'));
   doc.getElementById('briefing-day-folds')?.replaceChildren(...folds);
 }

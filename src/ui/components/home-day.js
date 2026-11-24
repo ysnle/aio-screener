@@ -5,8 +5,8 @@ import { signedText, directionOf } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
 import { frameHead } from './section-frame.js';
-import { pickImportantNews } from '../../domain/briefing/news-picks.js';
-import { groupNewsStories } from '../../domain/news/stories.js';
+import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../../domain/briefing/news-picks.js';
+import { groupNewsStories, selectIntradayNews } from '../../domain/news/stories.js';
 import { usThenKorea } from '../../domain/market/session/session-time.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
 
@@ -34,18 +34,21 @@ export function homeNarrativeLine(narratives, limit = 2) {
 const articleKey = (item) => String(item?.link || item?.url || item?.title || '').trim();
 
 /**
- * The top stories of 뉴스's own 중요 뉴스 (same model, grouping and pick), so the two screens name the same news.
+ * The top stories of 뉴스's own 중요 뉴스 (same model, pool, grouping and pick), so the two screens name the same news.
  * A story another block of 오늘 already lists (`shownElsewhere`, 내 종목 뉴스) is left out before the pick, so the
- * pick still fills its slots with the next topics instead of repeating that article.
+ * pick still fills its slots with the next topics instead of repeating that article. The
+ * pool rolls past the 08:00 cut (rollingNewsPool) and a story the ledger `day` ties to a lead move comes first.
  */
-export function homeHeadlines(root, store, limit = 3, shownElsewhere = []) {
+export function homeHeadlines(root, store, limit = 3, shownElsewhere = [], day = null) {
   const items = store?.getState?.()?.news?.items;
   if (!Array.isArray(items) || !items.length || typeof root?.AIO?.buildNewsSurfaceModel !== 'function') return [];
-  const model = root.AIO.buildNewsSurfaceModel('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs: Date.now() });
+  const nowMs = Date.now();
+  const model = root.AIO.buildNewsSurfaceModel('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'score', nowMs });
   const taken = new Set((Array.isArray(shownElsewhere) ? shownElsewhere : []).map(articleKey).filter(Boolean));
-  const stories = groupNewsStories(model?.eligibleItems || model?.items || [])
+  const later = selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs: Date.parse(root?._serverDataMeta?.newsCycleEnd || ''), canonical: items, nowMs });
+  const stories = groupNewsStories(rollingNewsPool(model?.eligibleItems || model?.items || [], later))
     .filter((story) => !(story.storyArticles || [story]).some((article) => taken.has(articleKey(article))));
-  const picked = pickImportantNews(stories, limit);
+  const picked = pickImportantNews(stories, limit, { linked: day ? leadLinkedNews(day) : null });
   return picked.map((item) => {
     const shown = /[가-힣].*[가-힣]/.test(item.titleKo || '') ? item.titleKo : typeof root.getDisplayTitle === 'function' ? root.getDisplayTitle(item) : '';
     return { title: shown || item.title || '', original: shown && shown !== item.title ? item.title : null };
@@ -61,7 +64,7 @@ export function renderHomeDay({ documentRef: doc, root, store = null, shownElsew
   section.hidden = !account.available;
   if (!account.available) return;
   // The news loads after the ledger on a cold start, so the headlines are part of the key.
-  const headlines = homeHeadlines(root, store, 3, shownElsewhere);
+  const headlines = homeHeadlines(root, store, 3, shownElsewhere, day);
   const narrLine = homeNarrativeLine(day.narratives);
   const key = [day.generatedAt, narrLine || '', ...headlines.map((row) => row.title)].join('|');
   if (section.dataset.renderKey === key) return;
@@ -92,15 +95,17 @@ export function renderHomeDay({ documentRef: doc, root, store = null, shownElsew
   if (stocks.length) {
     const row = el(doc, 'div', null, 'home-day__stocks');
     row.setAttribute('role', 'group');
-    row.setAttribute('aria-label', '크게 움직인 종목');
-    row.append(el(doc, 'span', '크게 움직인 종목', 'home-day__stocks-label'));
+    // The row is the ledger's material stock moves — large for the stock itself or for the
+    // S&P 500 (AAPL +1.9% pulled the index 0.16%p on a +4.7% day) — so it is named for that, not "크게 움직인".
+    row.setAttribute('aria-label', '주요 종목');
+    row.append(el(doc, 'span', '주요 종목', 'home-day__stocks-label'));
     for (const stock of stocks) {
       const direction = directionOf(stock.change, 1);
       const chip = el(doc, 'button', null, `home-day__stock${direction === 'up' ? ' is-up' : direction === 'down' ? ' is-down' : ''}`);
       chip.type = 'button';
       chip.dataset.action = 'aioOpenMarketChart';
       chip.dataset.arg = stock.sym;
-      chip.title = `${stock.label}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `, S&P 500에 ${signedText(stock.indexBp, 0, 'bp')}` : ''}`;
+      chip.title = `${stock.label}${Number.isFinite(stock.indexBp) && Math.abs(stock.indexBp) >= 5 ? `, S&P 500 기여 ${signedText(stock.indexBp / 100, 2, '%p')}` : ''}`;
       if (stock.rvol != null) chip.title += `, 거래량 평소(20일 평균)의 ${stock.rvol.toFixed(1)}배`;
       chip.append(el(doc, 'b', stock.sym), el(doc, 'span', signedText(stock.change, 1, '%')), ...(stock.rvol >= 2 ? [el(doc, 'span', `거래량 ${stock.rvol.toFixed(1)}배`, 'home-day__stock-vol')] : []));
       row.append(chip);
