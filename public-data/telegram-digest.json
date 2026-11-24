@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T01:52:13.261Z",
-  "attemptedAt": "2026-11-24T01:52:13.261Z",
-  "lastSuccessfulAt": "2026-11-24T01:52:13.261Z",
+  "generatedAt": "2026-11-24T02:21:59.888Z",
+  "attemptedAt": "2026-11-24T02:21:59.888Z",
+  "lastSuccessfulAt": "2026-11-24T02:21:59.888Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T01:52:06.953Z",
-  "until": "2026-11-24T01:52:06.953Z",
+  "since": "2026-11-10T02:21:54.295Z",
+  "until": "2026-11-24T02:21:54.295Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -85,13 +85,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1160,
+      "count": 1158,
       "freshCount": 40,
-      "eligibleTextCount": 1094,
+      "eligibleTextCount": 1092,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70107
+      "lastPostId": 70108
     },
     {
       "channel": "bornlupin",
@@ -104,7 +104,7 @@
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21259
+      "lastPostId": 21260
     },
     {
       "channel": "HANAchina",
@@ -112,12 +112,12 @@
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 723,
-      "freshCount": 38,
+      "freshCount": 39,
       "eligibleTextCount": 722,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72664
+      "lastPostId": 72666
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,21 +137,21 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2056,
-  "retainedItemCount": 427,
+  "count": 2054,
+  "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2056,
-    "eligibleTextCount": 1989,
+    "observedCount": 2054,
+    "eligibleTextCount": 1987,
     "mediaOnlyCount": 67,
     "mediaAttachedCount": 823,
     "photoPostCount": 702,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 335,
+    "highSignalCount": 337,
     "broadSignalCount": 850,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
@@ -160,27 +160,29 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 728,
-    "semi": 651,
-    "kr-market": 96,
+    "market-note": 727,
+    "semi": 652,
+    "power": 193,
+    "kr-market": 97,
+    "earnings": 251,
+    "flows": 64,
     "japan": 48,
-    "flows": 63,
     "healthcare": 49,
     "geo": 243,
     "ai-policy": 154,
     "media-only": 66,
     "macro": 284,
-    "earnings": 251,
-    "power": 192,
-    "equity": 137,
+    "equity": 135,
     "insider": 5,
     "credit": 72,
     "optical": 22
   },
   "tickerCounts": {
     "NVDA": 422,
+    "TSLA": 27,
+    "005930.KS": 30,
+    "277810.KQ": 1,
     "TSM": 66,
-    "005930.KS": 29,
     "000660.KS": 28,
     "AMD": 53,
     "AVGO": 19,
@@ -189,9 +191,8 @@
     "HPE": 1,
     "FLNC": 1,
     "DGX": 1,
-    "TSLA": 26,
     "GOOG": 44,
-    "AMZN": 48,
+    "AMZN": 46,
     "APLD": 3,
     "AAPL": 5,
     "285A.T": 2,
@@ -215,7 +216,7 @@
     "INTU": 2,
     "017670.KS": 1,
     "ASX": 1,
-    "WMT": 3,
+    "WMT": 2,
     "GSAT": 1,
     "COHR": 2,
     "NTES": 1,
@@ -255,18 +256,17 @@
     "SNOW": 1,
     "103590.KS": 1,
     "RKLB": 1,
-    "IRDM": 1,
-    "ULTA": 1
+    "IRDM": 1
   },
   "themes": [
-    "Market Notes (728 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
-    "Semiconductors/Memory (651 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
+    "Market Notes (727 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고...",
+    "Semiconductors/Memory (652 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
     "Macro/Rates (284 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58...",
     "Earnings/Corporate (251 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (243 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (192 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
+    "AI Power/Grid (193 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
     "AI Policy/Export Controls (154 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (137 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
+    "Equity/Analyst (135 posts in 14-day research window): 앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
   ],
   "catalysts": [
     {
@@ -291,7 +291,7 @@
     },
     {
       "key": "AMZN",
-      "count": 48,
+      "count": 46,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥: 24,100.14 (+6.56%) 러셀 2000: 2,670.12 (+3.42%) VIX: 26.58..."
     },
     {
@@ -301,7 +301,7 @@
     },
     {
       "key": "005930.KS",
-      "count": 29,
+      "count": 30,
       "text": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -311,7 +311,7 @@
     },
     {
       "key": "TSLA",
-      "count": 26,
+      "count": 27,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · AI 인프라 • 마이크론 (MU) — 경영진은 2027년 메모리 공급량의 75%가 이미 판매됐다고 밝힘. 메모리 가격 반전 우려와 달리 공급 여건이 추가로..."
     },
     {
@@ -364,7 +364,7 @@
       "topics": [
         "semi"
       ],
-      "count": 651,
+      "count": 652,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -382,7 +382,7 @@
       "topics": [
         "power"
       ],
-      "count": 192,
+      "count": 193,
       "focus": "트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 96,
+      "count": 97,
       "focus": "Walmart 2027 회계연도 3분기 실적 요약 실적 • 매출 $1,888.4억, YoY +5.2%, 환율 제외 +4.5% • 순매출 $1,867.6억, YoY +5.1%, 환율 제외 +4.4% •..."
     },
     {
@@ -409,7 +409,7 @@
       "topics": [
         "equity"
       ],
-      "count": 137,
+      "count": 135,
       "focus": "앤트로픽은 공모가를 주당 83달러로 확정하고, 역대 최대 규모인 813억 4,000만 달러를 조달하며 오늘 나스닥 시장에 데뷔할 예정. 완전 희석 기준 기업가치는 1조 5,000억 달러에 도달. • IPO..."
     },
     {
@@ -454,7 +454,7 @@
       "topics": [
         "flows"
       ],
-      "count": 63,
+      "count": 64,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
@@ -472,7 +472,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 728,
+      "count": 727,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 미국 FBI는 전국범죄정보센터(NCIC)의 핵심 범죄정보 데이터베이스가 해킹당했다는 의혹을 조사 중이라고..."
     }
   ],
@@ -1670,6 +1670,57 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/70108",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70108",
+      "datetime": "2026-11-24T02:04:08.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "앨리스 황과 동남아시아 반도체 네트워크 앨리스 황은 메가스피드와 인스퍼에 투자 관계를 보유한 것으로 나타남. 메가스피드는 인스퍼 자회사를 통해 수십억 달러 규모의 엔비디아 칩을 구매. 메가스피드는 싱가포르..."
+    },
+    {
+      "id": "bornlupin/21260",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21260",
+      "datetime": "2026-11-24T02:00:18.000Z",
+      "localDateKst": "2026-11-24",
+      "tags": [
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
+      ],
+      "score": 77,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "TSLA",
+        "005930.KS",
+        "277810.KQ"
+      ],
+      "summary": "오늘 바람이 정말 차갑습니다. 최근 로보틱스 업종 강세와 관련해서는 아래 보고서 참고하시기 바랍니다. 건강 유의하시고 평온한 하루 보내시기 바랍니다. 감사합니다..."
+    },
     {
       "id": "HANAchina/72661",
       "channel": "HANAchina",
@@ -4453,13 +4504,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달...",
       "tickers": [
         "000660.KS"
-      ],
-      "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달..."
+      ]
     },
     {
       "id": "HANAchina/72508",
@@ -6636,22 +6686,6 @@
       ]
     },
     {
-      "id": "insidertracking/69709",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69709",
-      "datetime": "2026-11-19T03:02:25.000Z",
-      "localDateKst": "2026-11-19",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "디인포메이션에 따르면 미국 상무부 산업안보국(BIS)을 총괄하는 제프리 케슬러가 엔비디아 H200 반도체의 수출 승인 절차를 신속하게 처리하도록 직원들에게 지시했으며, 일부 사례에서는 다른 정부 기관들의 반대...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21196",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21196",
@@ -8455,21 +8489,6 @@
       "tickers": [
         "NVDA"
       ]
-    },
-    {
-      "id": "bornlupin/21086",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21086",
-      "datetime": "2026-11-10T03:55:01.000Z",
-      "localDateKst": "2026-11-10",
-      "tags": [
-        "ai-policy",
-        "equity"
-      ],
-      "score": 55,
-      "hasText": true,
-      "summary": "앤스로픽, 아모데이 및 JP모건 CEO 다이먼과 함께하는 IPO 라이브 스트리밍 계획 앤스로픽(Anthropic PBC)은 공동 창업자 겸 최고경영자(CEO) 다리오 아모데이가 JP모건 체이스의 제이미 다이먼...",
-      "tickers": []
     }
   ],
   "current24hItems": [
