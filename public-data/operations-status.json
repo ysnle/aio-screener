@@ -23,7 +23,7 @@
     "UNAVAILABLE",
     "UNKNOWN"
   ],
-  "generatedAt": "2026-11-24T05:22:03.171Z",
+  "generatedAt": "2026-11-24T05:43:31.372Z",
   "appRevision": "v60.50",
   "dataRevision": "market-snapshot:2026-11-24T05:21:18.868Z:dd17ccf5",
   "evidenceRevision": "evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1",
@@ -50,7 +50,7 @@
     },
     "fundamental-ranking": {
       "availability": "AVAILABLE",
-      "asOf": "2026-11-22T19:59:38.317Z",
+      "asOf": "2026-11-24T05:36:57.840Z",
       "missingReason": null,
       "sources": [
         "durable"
@@ -189,9 +189,9 @@
         "quoteQualityComplete": true,
         "blockedQuotes": [],
         "generatedAt": "2026-11-24T05:21:18.868Z",
-        "ageHours": 0.01,
+        "ageHours": 0.37,
         "maxAgeHours": 12,
-        "evaluatedAt": "2026-11-24T05:22:03.171Z",
+        "evaluatedAt": "2026-11-24T05:43:31.372Z",
         "reason": null
       },
       "readiness": {
@@ -214,11 +214,11 @@
         "revision": "fast-quotes:f630007f",
         "sourceSha": "35813217bbe772fc1eb7652b067e8e3d1b7f7c80",
         "observedAt": "2026-11-24T05:22:03.171Z",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-24T05:22:03.171Z"
+        "evidenceEvaluatedAt": "2026-11-24T05:43:31.372Z"
       },
       "soak": {
         "requiredDays": 0,
@@ -282,11 +282,11 @@
         "providerSmokeBoundary": "blocking-deployment-workflow-only",
         "ready": true,
         "note": "Periodic live health observed; provider smoke remains a blocking deployment-workflow gate.",
-        "source": "periodic-live-health",
-        "observationStatus": "SUCCESS",
+        "source": "last-observed-live-health",
+        "observationStatus": "NOT_ATTEMPTED",
         "observationError": null,
         "evidenceFresh": true,
-        "evidenceEvaluatedAt": "2026-11-24T05:22:03.171Z"
+        "evidenceEvaluatedAt": "2026-11-24T05:43:31.372Z"
       },
       "scheduledAnalysisDoesNotImplyChat": true
     }
