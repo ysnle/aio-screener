@@ -407,16 +407,19 @@ export const cases = [
     const doc = createFakeDocument({ ids: shellIds(html) });
     doc.getElementById('page-portfolio').appendChild(doc.getElementById('pf-positions-tbody'));
     const holdings = [{ symbol: 'NVDA', shares: 10, avgCost: 150 }, { symbol: 'AAPL', shares: 5, avgCost: 200 }];
+    // The close is two days before the run: the page reads the wall clock, and a fixed date turned stale a week later.
+    const closeDay = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+    const md = String.raw`${Number(closeDay.slice(5, 7))}/${Number(closeDay.slice(8, 10))}`;
     const store = createStore({ initialState: { portfolio: { status: 'ready', readState: 'ready', holdings, holdingsKnown: true } } });
     const root = { _liveData: {}, fetch: () => Promise.reject(new Error('offline')),
-      SCREENER_DB: [{ sym: 'NVDA', sector: 'Technology', valuationPrice: 180, factorSessionDate: '2026-11-16', ret1d: -1.2 }, { sym: 'AAPL', sector: 'Technology', valuationPrice: 230, factorSessionDate: '2026-11-16', ret1d: 0.5 }] };
+      SCREENER_DB: [{ sym: 'NVDA', sector: 'Technology', valuationPrice: 180, factorSessionDate: closeDay, ret1d: -1.2 }, { sym: 'AAPL', sector: 'Technology', valuationPrice: 230, factorSessionDate: closeDay, ret1d: 0.5 }] };
     createPortfolioPage({ root, documentRef: doc, store }).mount();
     const status = String(doc.getElementById('pf-analysis-status').textContent || '');
-    assert.match(status, /^2종목 평가 완료.*, 모두 11\/16 종가 기준$/, `v60.30 every holding on the close says so once: ${status}`);
+    assert.ok(status.startsWith('2종목 평가 완료') && status.endsWith(`, 모두 ${md} 종가 기준`), `v60.30 every holding on the close says so once: ${status}`);
     assert.doesNotMatch(status, /2종목은/, `v60.30 the count is not repeated: ${status}`);
     const rows = [...doc.getElementById('pf-positions-tbody').children].filter((tr) => tr.children?.length > 3);
     const day = rows.map((tr) => String(tr.children.find((td) => td.dataset?.label === '오늘' || /pf-th-day/.test(td.getAttribute?.('headers') || ''))?.textContent ?? tr.children[6]?.textContent));
-    assert.deepEqual(day, ['-1.20% (11/16)', '+0.50% (11/16)'], `v60.30 오늘 shows the close's own change, dated: ${JSON.stringify(day)}`);
+    assert.deepEqual(day, [`-1.20% (${md})`, `+0.50% (${md})`], `v60.30 오늘 shows the close's own change, dated: ${JSON.stringify(day)}`);
   } },
   { id: 'v60.30', name: 'the duplicate-holding dialog reads as plain Korean and names a currency only when it is not the listing\'s', run: async ({ load }) => {
     const { duplicateHoldingDialog } = await load('src/ui/panels/portfolio-duplicate-holding.js');
