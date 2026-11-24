@@ -1,0 +1,22 @@
+{
+  "version": "v60.52",
+  "p": {
+    "title": "AI의 기업 분석 도구가 종목 화면의 '새 실적 이전 조사' 경고 없이 옛 사업부 숫자를 건넴",
+    "symptom": "종목 화면은 조사일 뒤 새 실적 발표나 새 분기 공시가 있으면 '… 이전 조사입니다. 아래 사업부 숫자는 그 전 보고서 기준'이라고 알리는데, AI의 company_story 도구는 같은 글을 '조사 <날짜>'만 붙여 돌려줘 AI가 옛 숫자를 최신처럼 말할 수 있었다.",
+    "root_cause": "src/ai/tools/stock-tools.js company_story가 storyFreshness를 부르지 않았고, 화면이 넘기는 세 기록(실적 캘린더·실적 브리프·SEC 분기 문자열)을 읽지 않았다.",
+    "fix": "도구가 같은 공용 자료(EARNINGS_CALENDAR·EVENT_BRIEFS refreshSharedArtifact, sec-fiscal-history.json의 분기 문자열 — 화면이 이미 읽었으면 그 값)를 읽어 같은 storyFreshness를 부른다. stale이면 본문 맨 앞에 화면과 같은 사실(새 실적 발표일 또는 분기 종료일, 사업부 숫자는 그 전 기준, 새 숫자는 fundamentals·consensus 도구)을 두고 asOf에 두 날짜를 싣는다. 기록을 못 읽으면 unknown이라 화면처럼 아무 말도 하지 않는다.",
+    "violated_rule": "AI는 화면이 말하지 않는 것을 말하지 않는다 — 같은 원천·같은 판정.",
+    "prevention": "scripts/ci-ai-intelligence-contract-check.mjs v60.52 company_story 2건이 캘린더 실적일과 SEC 분기 종료로 각각 stale을 만들고 도구 본문·asOf가 storyFreshness 결과와 같은지 본다. 옛 코드에서 실패함을 확인했다.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs; node scripts/ci-company-profile-contract-check.mjs",
+    "files": ["src/ai/tools/stock-tools.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "r": null,
+  "qa": [
+    { "id": "QA-AI-STORY-FRESH-01", "text": "v60.52 company_story는 종목 화면과 같은 storyFreshness로 조사일 뒤 새 실적·분기 공시를 알리고 asOf에 조사일과 새 날짜를 함께 싣는다 ({P})", "verify_by": "node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 company_story 라벨)", "done": true }
+  ],
+  "qa_section": "AI 답변과 화면의 같은 사실",
+  "changelog": [
+    "AI 기업 분석 도구가 종목 화면과 같은 판정으로 '새 실적 이전 조사'를 먼저 알리고 새 숫자는 재무 도구에서 읽게 함 ({P})"
+  ],
+  "note": "문구는 company-overview.js businessSection과 같은 사실을 도구 이름으로 바꿔 씀; 두 곳의 문구를 company-story.js 한 함수로 모으는 것은 남은 일."
+}

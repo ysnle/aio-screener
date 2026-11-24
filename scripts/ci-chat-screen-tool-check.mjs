@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { createScreenerProvider } from '../src/data/providers/screener.js';
 import { normalizeScreener } from '../src/data/normalize/screener.js';
 import { CONSENSUS_KEY } from '../src/data/consensus-estimates.js';
-import { CUSTOM_CONDITIONS, evaluateCondition, conditionCoverage } from '../src/domain/screener/custom-conditions.js';
+import { CUSTOM_CONDITIONS, evaluateCondition, conditionCoverage, conditionSource } from '../src/domain/screener/custom-conditions.js';
 import { capFilterValue } from '../src/domain/screener/row-presentation.js';
 import * as rowPresentation from '../src/domain/screener/row-presentation.js';
 
@@ -76,7 +76,8 @@ await check('v60.41 the committed artifact builds browser rows with no live mark
 });
 await check('v60.41 every condition the tool offers evaluates on at least one row of the committed data', () => {
   assert.equal(typeof read, 'function', 'v60.41 screenerInput(root).read');
-  const coverage = conditionCoverage(rows, offered.map((id) => ({ id })), read);
+  // v60.52: the cash conditions are offered but read the page-built cash map; without it the tool reports them as not applied.
+  const coverage = conditionCoverage(rows, offered.filter((id) => conditionSource(id) !== 'sec-fiscal-history').map((id) => ({ id })), read);
   const empty = coverage.filter((entry) => entry.withData === 0).map((entry) => entry.id);
   assert.deepEqual(empty, [], `v60.41 no row carries data for ${empty.join(', ')}`);
 });
@@ -97,11 +98,24 @@ await check('v60.41 the screen tool schema is strict: every object closes its pr
   assert.ok(screenTool.parameters.properties.conditions, 'v60.41 the tool takes structured conditions, not a sentence');
 });
 
-await check('v60.41 the tool offers the screener condition ids, without the cash conditions it cannot load', () => {
+await check('v60.52 the tool offers every screener condition id and does not claim parity it lacks', () => {
   const ids = CUSTOM_CONDITIONS.map((item) => item.id);
-  assert.ok(offered.length >= 28 && offered.every((id) => ids.includes(id)), `v60.41 offered ${offered.length}`);
-  assert.deepEqual(ids.filter((id) => !offered.includes(id)).sort(), ['capex-intensity-max', 'fcf-margin-min'], 'v60.41 ids.filter id offered.includes id .sort');
+  assert.deepEqual([...offered].sort(), [...ids].sort(), `v60.52 offered ${offered.length} of ${ids.length}`);
   for (const id of offered) assert.ok(screenTool.parameters.properties.conditions.description.includes(`${id}: `), `v60.41 description names ${id}`);
+  assert.ok(!screenTool.description.includes('스크리너 화면과 같은 조건 정의로') && /fcf-margin-min·capex-intensity-max는 스크리너 화면이 현금흐름 지표를 계산해 둔 뒤에만 적용/.test(screenTool.description)
+    && /AND/.test(screenTool.description), `v60.52 description: ${screenTool.description.slice(0, 160)}`);
+});
+
+// v60.52 (Codex review 1C): a requested cash condition was dropped silently and the rows came back as if it applied.
+await check('v60.52 the result names the applied condition ids and every requested one it could not evaluate, with the reason', async () => {
+  const asked = [{ id: 'pe-max', value: 20, strict: false }, { id: 'fcf-margin-min', value: 10, strict: false }, { id: 'no-such-condition', value: null, strict: false }];
+  const out = await runScreenTool(spec({ conditions: asked }));
+  assert.ok(out.ok, `v60.52 the tool call succeeds: ${out.text}`);
+  assert.match(out.text, /^【[^\n]*】\n적용한 조건 id: pe-max\n적용하지 못한 조건\(결과는 이 조건 없이 거른 것\): fcf-margin-min — 현금흐름 지표는 [^;\n]*; no-such-condition — 스크리너 조건 목록에 없는 id\n/, `v60.52 ${out.text.slice(0, 300)}`);
+  // With the page's cash map built (the screener screen turned the condition on), the same engine reader applies it.
+  const cashRoot = { ...root, _aioScreenerCash: { map: new Map(usRows.map((row) => [row.sym, { fcfMargin: row.sym === 'NVDA' ? 40 : 1, capexIntensity: 5 }])) } };
+  const cash = await registry.runTool('screen', JSON.stringify(spec({ conditions: [{ id: 'fcf-margin-min', value: 10, strict: false }] })), { root: cashRoot, now: asOfMs });
+  assert.ok(cash.ok && /\n적용한 조건 id: fcf-margin-min\n/.test(cash.text) && !/적용하지 못한 조건/.test(cash.text) && cash.entities.includes('NVDA') && cash.entities.length === 1, `v60.52 cash applied: ${cash.text.slice(0, 300)}`);
 });
 
 const PE_RET3M = [{ id: 'pe-max', value: 20, strict: false }, { id: 'ret3m-min', value: 0, strict: true }];
