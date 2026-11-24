@@ -65,7 +65,7 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   // large moves no report or price explains, told as moves. The ledger's bookkeeping ("이유가
   // 확인되지 않은 큰 움직임 N건", how many facts it read) is not drawn.
   const others = [...account.more.slice(0, MORE_ON_FACE).map((story) => `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`),
-    ...account.unexplained.map((row) => `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.rvol >= 2 ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)];
+    ...account.unexplained.map((row) => `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)];
   if (others.length) {
     const list = el(doc, 'ul', null, 'briefing-day-more');
     for (const text of others) list.append(el(doc, 'li', text));
