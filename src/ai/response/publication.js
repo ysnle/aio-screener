@@ -307,8 +307,12 @@ function derivedSentenceKept(sentence, numbers, entities, block, urls) {
   return allGood && derived > 0;
 }
 
+// A probability, likelihood or expected-return figure: "확률은 83%", "56% 확률로", "10% 하락할", "a 70% chance".
+var FORECAST_FIGURE_SOURCE = '(?:확률|가능성|승률|기대\\s*수익률?|예상\\s*수익률|probability|likelihood|chance|odds|expected\\s+return)[^\\d.!?。]{0,8}?[+\\-−]?\\d[\\d,.]*\\s*(?:%|퍼센트|percent\\b)'
+  + '|[+\\-−]?\\d[\\d,.]*\\s*(?:%|퍼센트|percent\\b)\\s*(?:의\\s*)?(?:가량\\s*|정도\\s*|안팎\\s*|내외\\s*)?(?:확률|가능성|승률|chance|probability|odds|likelihood)'
+  + '|[+\\-−]?\\d[\\d,.]*\\s*(?:%|퍼센트)\\s*(?:가량\\s*|정도\\s*|안팎\\s*|내외\\s*|가까이\\s*|더\\s*)?(?:오를|오른다|상승할|상승한다|하락할|하락한다|내릴|내린다|떨어질|떨어진다|반등할|반등한다|빠질|뛸)';
 // What a withheld figure sentence was about, for the notice line ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다").
-var WITHHELD_TOPICS = [['배당수익률', /배당\s*수익률|시가\s*배당률|dividend\s*yield/i], ['Forward PER', /forward\s*per|선행\s*PER/i], ['PER', /\bPER\b|\bP\/E\b|주가\s*수익\s*비율/i],
+var WITHHELD_TOPICS = [['확률', new RegExp(FORECAST_FIGURE_SOURCE, 'i')], ['배당수익률', /배당\s*수익률|시가\s*배당률|dividend\s*yield/i], ['Forward PER', /forward\s*per|선행\s*PER/i], ['PER', /\bPER\b|\bP\/E\b|주가\s*수익\s*비율/i],
   ['EPS', /\bEPS\b|주당\s*순?이익/i], ['목표주가', /목표\s*주?가/], ['배당', /배당|dividend/i], ['매출', /매출|revenue/i], ['이익', /영업이익|순이익|이익률|마진/],
   ['금리', /금리|국채|수익률\s*곡선/], ['환율', /환율|원\s*\/\s*달러|달러\s*\/\s*원|USD\s*\/?\s*KRW/i], ['주가', /주가|종가|현재가|시세/]];
 export function withheldTopic(sentence) {
@@ -333,6 +337,24 @@ export function isConditionalNumericSentence(sentence) {
   if (!CONDITIONAL_MARKER.test(text.replace(NON_CONDITIONAL_MYEON, ' ')) && !THRESHOLD_NOUN_RULE.test(text)) return false;
   if (OBSERVATION_MARKER.test(text)) return false;
   return !/\b(?:19|20)\d{2}-\d{2}-\d{2}\b|\b(?:19|20)\d{2}년\s*\d{1,2}월/.test(text);
+}
+
+// v60.52 (Codex review 1C): the conditional ending exempted every number in the sentence, so "연준이 25bp를 인하하면 다음
+// 달 S&P 500 상승 확률은 83%입니다" published a probability no material supports, while the same figure without "면" was
+// withheld. The threshold in the condition clause stays a rule; a probability, likelihood or expected-return figure in the
+// consequent ("확률은 83%", "56% 확률로", "10% 하락할", "a 70% chance") is a forecast and needs evidence like a current figure.
+// FORECAST_FIGURE_SOURCE is defined above WITHHELD_TOPICS, which names such a sentence 확률.
+// Where the condition clause ends: after the last conditional ending ("…하면", "…경우"), or after the comma that closes a
+// leading "if/when/unless" clause. "above/below" name a level, not a clause, so they do not end a condition.
+var CLAUSE_CONDITION_END = /(?:[가-힣](?:으면|면|라면|이라면)(?=[\s,.!?)]|$)|(?:경우|때)(?:에는|에|는)?(?=[\s,.!?)]|$)|\s시(?:에는|에)?(?=[\s,.!?)]|$)|이상이면|이하이면|넘어서면|웃돌면|밑돌면|\b(?:if|when|unless)\b[^,]*,)/gi;
+export function conditionalForecastFigures(sentence) {
+  var text = normaliseForDetection(String(sentence || '').replace(CITED_URL, ' '));
+  var masked = text.replace(new RegExp(NON_CONDITIONAL_MYEON.source, 'g'), function(word) { return ' '.repeat(word.length); });
+  var start = 0;
+  var match;
+  CLAUSE_CONDITION_END.lastIndex = 0;
+  while ((match = CLAUSE_CONDITION_END.exec(masked))) start = match.index + match[0].length;
+  return Array.from(text.slice(start).matchAll(new RegExp(FORECAST_FIGURE_SOURCE, 'gi'))).map(function(found) { return found[0]; });
 }
 
 // A number about the past or a fixed structure is not a current observation. "2008년 금융위기 때 S&P 500은 약 57%
@@ -385,7 +407,8 @@ function isFixedFact(text) {
   return !hasCurrentNumericContent(text.replace(new RegExp(FIXED_COUNT_SOURCE, 'g'), ' '));
 }
 var CITED_URL = /(?:https?:\/\/|www\.)\S+/gi;
-// 'current' | 'dated-past' | 'fixed-fact' | 'conditional' | 'none', checked in that order after the numeric test.
+// 'current' | 'dated-past' | 'fixed-fact' | 'forecast' | 'conditional' | 'none', checked in that order after the numeric
+// test; 'forecast' is a conditional whose consequent writes a forecast figure (conditionalForecastFigures).
 export function numericClaimKind(sentence, { today } = {}) {
   // A date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
   var bare = String(sentence || '').replace(CITED_URL, ' ');
@@ -394,7 +417,7 @@ export function numericClaimKind(sentence, { today } = {}) {
   var nowMs = todayMs(today);
   if (isDatedPast(text, nowMs)) return 'dated-past';
   if (isFixedFact(text)) return 'fixed-fact';
-  if (isConditionalNumericSentence(bare)) return 'conditional';
+  if (isConditionalNumericSentence(bare)) return conditionalForecastFigures(bare).length ? 'forecast' : 'conditional';
   return 'current';
 }
 
@@ -951,7 +974,10 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
       // With reference material in hand, a sentence whose only numbers are dates or window lengths ("11월 12일 종가
       // 기준 자료입니다") states no figure to check and stays.
       var nothingToCheck = Array.isArray(numbers) && numbers.length > 0 && writtenFigures(bare).length === 0;
-      var current = numericClaimKind(sentence, { today: today }) === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
+      var kind = numericClaimKind(sentence, { today: today });
+      // A conditional's threshold stays a rule; only the forecast figures of its consequent must be in the material.
+      var current = kind === 'forecast' ? !conditionalForecastFigures(bare).every(function(span) { return figuresSupported(span, numbers, { entities: entities }); })
+        : kind === 'current' && !nothingToCheck && !figuresSupported(bare, numbers, { entities: entities });
       if (current && searchedSentenceKept(sentence, searchUrls, numbers, entities, line)) { searched += 1; return [sentence]; }
       if (current && derivedSentenceKept(sentence, numbers, entities, line, searchUrls)) { derived += 1; return [sentence]; }
       if (current) { removed += 1; var topic = withheldTopic(sentence); topics[topic] = (topics[topic] || 0) + 1; }

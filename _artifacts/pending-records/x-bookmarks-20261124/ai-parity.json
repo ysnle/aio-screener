@@ -1,0 +1,23 @@
+{
+  "version": "v60.52",
+  "p": {
+    "title": "AI 답변의 조건문 뒤 확률 수치가 근거 없이 나감 ('연준이 인하하면 … 상승 확률은 83%')",
+    "symptom": "근거 자료 없는 '다음 달 S&P 500이 오를 확률은 83%입니다'는 빠지는데, 앞에 조건만 붙인 '연준이 25bp를 인하하면 다음 달 S&P 500 상승 확률은 83%입니다'는 그대로 게시됐다. 영어 'If … there is a 70% chance', '5%를 웃돌면 … 10% 하락할 가능성', '기대 수익률은 4%'도 같았다.",
+    "root_cause": "src/ai/response/publication.js isConditionalNumericSentence가 조건 어미가 있는 문장의 숫자 전부를 규칙(임계값)으로 보고 numericClaimKind가 'conditional'로 분류해, 결과절의 예측 확률까지 근거 확인에서 빠졌다.",
+    "fix": "conditionalForecastFigures가 조건절이 끝난 뒤(마지막 조건 어미, 또는 if/when/unless 절을 닫는 쉼표 뒤)의 확률·가능성·승률·기대 수익률 수치와 'N% 오를/하락할'을 찾고, 그런 수치가 있으면 numericClaimKind가 'forecast'를 돌려준다. stripNumericSentences는 forecast 문장에서 그 수치만 자료와 맞춰 보고, 근거가 없으면 기존 경로로 문장을 빼며 주제는 '확률'로 센다. 조건절의 임계값, 자료에 있는 빈도(73번 중 41번, 56%), 예측 수치 없는 조건문은 그대로 남는다.",
+    "violated_rule": "제품 원칙 5: 지어낸 퍼센트는 막고 해석은 막지 않는다 — 같은 수치가 문장 꼴에 따라 막히거나 통과했다.",
+    "prevention": "scripts/ci-ai-intelligence-contract-check.mjs v60.52 블록이 페이지 요청 파이프라인(_aioRunAIResponsePipeline)으로 6개 빼야 할 문장과 5개 남아야 할 문장을 돌리고, 조건절 임계값 면제와 '확률' 주제 이름을 확인한다. 옛 코드에서 실패함을 확인했다.",
+    "verification": "node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 forecast 4건); 기존 공개·수치 필터 검사 전부 통과.",
+    "files": ["src/ai/response/publication.js", "scripts/ci-ai-intelligence-contract-check.mjs"]
+  },
+  "r": null,
+  "qa": [
+    { "id": "QA-AI-FORECAST-01", "text": "v60.52 조건문 결과절의 확률·가능성·기대 수익률 수치는 자료에 있을 때만 남고(없으면 문장이 빠지고 '확률'로 셈), 조건절 임계값·자료에 있는 빈도·수치 없는 조건 해석은 남는다 ({P})", "verify_by": "node scripts/ci-ai-intelligence-contract-check.mjs (v60.52 forecast 라벨)", "done": true },
+    { "id": "QA-AI-FORECAST-LIVE-01", "text": "v60.52 push 뒤 배포판 AI 패널에서 '연준이 다음 달 금리를 내리면 S&P 500이 오를 확률은?'의 답이 근거 없는 확률 수치를 싣지 않고 조건 설명은 남긴다 ({P})", "verify_by": "배포판 AI 패널에서 같은 질문을 묻고 답 본문에 자료 없는 N% 확률이 없는지 본다", "done": false }
+  ],
+  "qa_section": "AI 답변과 화면의 같은 사실",
+  "changelog": [
+    "AI 답변에서 '…하면 상승 확률은 83%'처럼 조건 뒤에 숨은 근거 없는 확률·가능성·기대 수익률 수치를 빼고, 조건의 기준값과 자료에 있는 빈도는 그대로 둠 ({P})"
+  ],
+  "note": "조건절 임계값 면제는 유지; 결과절 예측 수치만 근거 확인 (publication.js conditionalForecastFigures)."
+}
