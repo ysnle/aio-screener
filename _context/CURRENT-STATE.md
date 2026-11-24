@@ -1,8 +1,8 @@
 ---
 generated_by: scripts/generate-workspace-state.mjs
-generated_from_build: 2026-11-24T23:17:00+09:00
+generated_from_build: 2026-11-25T00:05:00+09:00
 auto_refresh: true
-last_verified: 2026-11-24
+last_verified: 2026-11-25
 ---
 
 # AIO Current State
@@ -11,7 +11,7 @@ last_verified: 2026-11-24
 
 ## Application
 
-- Version: `v60.52`
+- Version: `v60.53`
 - Architecture: `hybrid-static-shell-native-esm`
 - Active routes: 20 (source: `architecture/route-owners.json`)
 - App shell: 5,287 lines / 401,958 bytes

@@ -1,10 +1,18 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-24
+last_verified: 2026-11-25
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.53 시장 조사 (2026-11-25)
+
+- [x] QA-INVESTIGATION-01: 시장 조사의 단서는 market-day 장부의 lead 등급 움직임(자산 자신의 변동 대비 크기)과 직전 세션 대비 바뀐 판정 낱말·시나리오 조건 수에서만 나온다; 금리 주도 하락·조용한 날·한 종목 충격에서 단서가 달라지고, 조용한 날은 요청하지 않고 그렇다고 말한다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-INVESTIGATION-02: 시장 조사 본문의 수치·날짜는 단서·도구 결과에만 있어야 하고, 보도·공식 원인은 이번 검색이 돌려준 문서의 url·매체·발행일을 가져야 게시된다; 해석(근거 없는 가능성, 추론만 있는 원인)은 경고만 한다. 같은 단서 묶음은 다시 묻지 않고, 검증에 막힌 묶음은 보류되며, 월 예산을 넘으면 요청하지 않는다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-INVESTIGATION-03: 오늘은 그 종가의 시장 조사를 판정 문장 먼저, 짧은 문단, 단서·출처 접힘 순으로 보이고, 시장 상태는 판정 한 줄과 오늘 링크만 둔다; 블록이 없으면 두 자리 모두 비어 숨는다. 채팅은 같은 조사를 근거 종류와 함께 읽는다. (v60.53) verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-REBOUND-QUALITY-01: 반등 시도·추세 회복이 있으면 저점일과 최근 종가를 같은 거래일끼리 비교해 신용(하이일드 스프레드 하락)·달러(DXY 하락)·변동성(VIX 하락이면서 3개월 VIX 아래)·참여 폭(50일선 위 종목 비율 상승과 동일가중 상승)을 확인/미확인/자료 없음으로 판정하고, 확인 수/아는 수와 RULES.reboundQuality로 정한 상태어(다른 시장도 확인·엇갈림·지수만 반등·판단 보류)를 반등 줄 아래 한 줄과 네 항목으로 보인다; 자료 없는 항목은 분모에서 빠지고 이름이 나오며 이웃 거래일 값을 빌리지 않는다; 원인은 단정하지 않는다. (v60.53) verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-REBOUND-QUALITY-02: AI 시장 이야기 사실 줄이 화면과 같은 반등의 다른 시장 확인 판정과 네 항목을 받는다. (v60.53) verify_by: node scripts/ci-market-story-check.mjs
 
 ## v60.52 AI 답변과 화면의 같은 사실 (2026-11-24)
 
