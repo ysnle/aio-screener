@@ -1,6 +1,7 @@
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { debateContextLines } from './company-debate.js';
+import { datedStory } from '../fundamental/research-text.js';
 
 export const AI_LAYERS = Object.freeze([
   ['power-energy', '전력·에너지'], ['cooling-electrical', '냉각·전기 설비'], ['data-center-real-estate', '데이터센터 부동산'],
@@ -107,9 +108,10 @@ export function isCompanyStory(profile, symbol) {
     && typeof profile.oneLine === 'string' && profile.oneLine.trim() !== '' && Array.isArray(profile.sources) && profile.sources.length > 0;
 }
 
-/** The story as AI context (src/ai/context/market-content.js): the flow in order, with its research date and basis. */
-export function companyStoryContext(story) {
-  if (!story?.symbol) return '';
+/** The story as AI context (src/ai/context/market-content.js, the company_story tool): the screen's dated prose in order. */
+export function companyStoryContext(stored) {
+  if (!stored?.symbol) return '';
+  const story = datedStory(stored);
   const e = story.earnings || {}, ai = story.aiChain || {}, st = story.strategy || {}, w = story.watch || {};
   const lines = [
     `${story.symbol} 기업 이해(AIO 조사 ${story.researchedAt || '날짜 미상'}, ${e.period || '기간 미상'} 실적 기준, 공시·IR·실적발표 출처):`,

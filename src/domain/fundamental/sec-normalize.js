@@ -571,8 +571,8 @@ export function recentFilingsFrom(submissions, nowMs = Date.now()) {
   return rows.sort((a, b) => b.filedAt.localeCompare(a.filedAt) || b.accession.localeCompare(a.accession)).slice(0, RECENT_FILING_MAX);
 }
 
-export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null, classFacts = null) {
-  const basis = reportingBasis(companyFacts);
+export function normalizeSecCompanyFacts(symbol, companyFacts, price, submissions = null, classFacts = null, nowMs = Date.now()) {
+  const basis = reportingBasis(companyFacts, nowMs);
   const usGaapUsd = basis.taxonomy === 'us-gaap' && basis.currency === 'USD';
   const concepts = BASIS_CONCEPTS[basis.taxonomy];
   let revenues = bestRevenueRowsByPeriod([...revenueFactRows(companyFacts, basis).filter(isAnnualFy), ...fullYearRevenueOnQuarterSpan(companyFacts, basis).recovered]);
@@ -628,7 +628,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
   };
   const recordAvailableAt = latestIso(Object.values(operandAvailability));
   const reportAgeDays = Number.isFinite(Date.parse(currentRevenue.end || ''))
-    ? Math.round((Date.now() - Date.parse(currentRevenue.end)) / 86400000)
+    ? Math.round((nowMs - Date.parse(currentRevenue.end)) / 86400000)
     : null;
   const reportRecency = reportAgeDays != null && reportAgeDays <= REPORT_RECENCY_MAX_DAYS ? 'recent-fy' : 'stale-fy';
   const revenueAcceptedAt = acceptedMap.get(String(currentRevenue.accn || '')) || null;
@@ -656,7 +656,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     // earliest time the WHOLE record's operands were all public, which is never earlier.
     acceptedAt: revenueAcceptedAt,
     availableAt: recordAvailableAt,
-    transportFetchedAt: new Date().toISOString(),
+    transportFetchedAt: new Date(nowMs).toISOString(),
     reportAgeDays,
     reportRecency,
     ...(revenueUnreported ? { periodAnchor: 'net-income', revenueStatus: 'unreported' } : {}),
@@ -666,7 +666,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     allowedUse: 'research-relative-ranking-only',
     qualityStatus,
     quality: { status: qualityStatus, stale: reportRecency !== 'recent-fy', decisionUse: false, allowedUse: 'reference' },
-    fetchedAt: new Date().toISOString(),
+    fetchedAt: new Date(nowMs).toISOString(),
     form: currentRevenue.form || null,
     accession: currentRevenue.accn || null,
     accountingStandard: basis.taxonomy === 'ifrs-full' ? 'IFRS' : 'US-GAAP',
@@ -688,7 +688,7 @@ export function normalizeSecCompanyFacts(symbol, companyFacts, price, submission
     ...(currentRevenue.reportedStart ? { revenueReportedPeriodStart: currentRevenue.reportedStart } : {}),
     // N20: recent 8-K/10-Q/10-K filings within 30 days before this read (`fetchedAt`): date, form, Item numbers,
     // accession only — no filing text.
-    recentFilings: recentFilingsFrom(submissions),
+    recentFilings: recentFilingsFrom(submissions, nowMs),
     coverage: basis.currency !== 'USD' ? [] : [...(revenue != null ? ['revenue'] : []), ...(netIncome != null ? ['netIncome'] : []), ...(equity != null ? ['equity'] : []), ...(sharesOutstanding != null ? ['sharesOutstanding'] : [])],
     pit: buildPointInTimeFacts(companyFacts, submissions, basis)
   };

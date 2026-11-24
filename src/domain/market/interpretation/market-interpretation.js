@@ -58,7 +58,7 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const regime = stage('regime', () => buildMarketRegime(inputs));
   const live = regime?.available ? regime : null;
   const marketRead = stage('marketRead', () => buildMarketRead(inputs));
-  const macroRead = stage('macroRead', () => buildMacroRead({ macro, macroHistory: inputs.macroHistory || null, regime: live, history: inputs.history }));
+  const macroRead = stage('macroRead', () => buildMacroRead({ macro, macroHistory: inputs.macroHistory || null, regime: live, history: inputs.history, nowMs }));
   const breadthState = axisState(regime, 'breadth');
   const curve = stage('curve', () => curveDynamics(inputs.macroHistory || null));
   const events = stage('events', () => upcomingMacroEvents({ releases: calendar?.releases || {}, schedules: calendar?.schedules || {}, nowMs })) || [];

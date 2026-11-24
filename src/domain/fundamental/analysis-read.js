@@ -317,7 +317,7 @@ function applyPeerBasis(rows) {
   for (const row of rows) { row.trailingThrough ||= null; delete row._ttm; }
   return basis;
 }
-export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = () => null, consensusFor = () => null, quartersFor = () => null, max = 8 } = {}) {
+export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = () => null, consensusFor = () => null, quartersFor = () => null, max = 8, now = Date.now() } = {}) {
   const sym = String(symbol || '').toUpperCase();
   const norm = (value) => String(value || '').toUpperCase();
   const subs = [];
@@ -335,7 +335,7 @@ export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = ()
     if (!metrics) return null;
     const row = byRow.get(ticker) || null;
     const pe = readRowNumber(row, 'pe', 'calculation');
-    const fwdPe = consensusView(row, consensusFor(ticker))?.fwdPe ?? null;
+    const fwdPe = consensusView(row, consensusFor(ticker), { now })?.fwdPe ?? null;
     const quarters = quartersFor(ticker);
     const ttm = Array.isArray(quarters) && quarters.length ? trailingRowFundamentals(quarters, { observedAt: metrics.periodEnd }) : null;
     return { sym: ticker, name: row?.name || ticker, self, periodEnd: metrics.periodEnd, growth: metrics.growth, margin: metrics.margin, roe: metrics.roe, pe: pe != null && pe > 0 ? pe : null,

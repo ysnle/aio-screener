@@ -2459,6 +2459,24 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     none.text.startsWith('※ 최신 수치 확인 안 됨 — 일반 설명만') && !none.text.includes('999.99') && label(none).status === '확인 필요' && !none.actionGate.appFigures);
 }
 
+// The company_story tool loads the story file the 종목 screen prints and hands the AI the same dated prose: "현재" beside
+// a figure reads as the research day, as datedStory prints it.
+{
+  const registry = await import('../src/ai/tools/registry.js');
+  const { datedStory } = await import('../src/domain/fundamental/research-text.js');
+  const researchedAt = new Date(Date.now() - 20 * 86400000).toISOString().slice(0, 10);
+  const story = { symbol: 'SMTC', researchedAt, oneLine: '데이터센터 광 연결 매출은 현재 32% 늘었다.', moat: { text: '고객 인증에 2년이 걸린다.' }, sources: [{ title: '10-K', url: 'https://www.sec.gov/' }] };
+  const served = { 'index.json': { schemaVersion: 'company-profiles-index.v1', profiles: [{ symbol: 'SMTC', file: 'SMTC.json', researchedAt }] }, 'SMTC.json': story };
+  const root = {
+    _aioNormalizeTickerInput: (raw) => String(raw || '').trim().toUpperCase(), _aioIsKnownTicker: (symbol) => symbol === 'SMTC',
+    fetch: async (url) => { const name = String(url).split('?')[0].split('/').pop(); return served[name] ? new Response(JSON.stringify(served[name]), { status: 200, headers: { 'content-type': 'application/json' } }) : new Response('', { status: 404 }); }
+  };
+  const result = await registry.runTool('company_story', JSON.stringify({ symbol: 'SMTC' }), { root, now: Date.now() });
+  const screenLine = datedStory(story).oneLine;
+  check(`v60.51 company_story gives the AI the screen's dated story text (${result.text.slice(0, 160)})`, result.ok === true && screenLine !== story.oneLine
+    && result.text.includes(screenLine) && !result.text.includes(story.oneLine) && result.text.includes(`조사 ${researchedAt}`));
+}
+
 if (failures.length) {
   console.error(`AI intelligence contract failed (${failures.length})`);
   failures.forEach((failure) => console.error(`- ${failure}`));

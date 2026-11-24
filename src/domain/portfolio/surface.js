@@ -76,7 +76,7 @@ function qualityReady(quality, { now, observedMs, maxAgeMs }) {
   return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= Math.min(maxAgeMs, freshnessMs) && observedMs != null;
 }
 
-function runtimeQuoteEvidence(row, { now = Date.now(), maxAgeMs = null } = {}) {
+function runtimeQuoteEvidence(row, { now, maxAgeMs = null } = {}) {
   const raw = row && typeof row === 'object' ? row : {};
   const hasEnvelope = raw.quoteEnvelope && typeof raw.quoteEnvelope === 'object';
   const envelope = hasEnvelope ? raw.quoteEnvelope : raw;
@@ -127,7 +127,7 @@ function runtimeQuoteEvidence(row, { now = Date.now(), maxAgeMs = null } = {}) {
   });
 }
 
-function delayedReferenceQuote(live, { now = Date.now() } = {}) {
+function delayedReferenceQuote(live, { now } = {}) {
   const envelope = live?.quoteEnvelope && typeof live.quoteEnvelope === 'object' ? live.quoteEnvelope : live || {};
   const price = firstPositive(envelope.price, envelope.regularMarketPrice);
   const observedMs = parseObservedMs(envelope.observedAt);
