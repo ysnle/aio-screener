@@ -466,6 +466,17 @@ console.log('scenario guidance fixture (basis card): PASS');
   stagedTheme.state = stagedTheme.state === 'leading' ? 'weak' : 'leading';
   const diffs = diffSnapshots(moved, baseline, 'T');
   assert.ok(diffs.some((row) => row.kind === 'lead') && diffs.some((row) => row.kind === 'theme'), 'P1743: lead and theme-stage changes are logged');
+  {
+    // v60.52: a swap of met conditions at the same count, and price evidence lost, are logged; a date roll alone is not.
+    const branch = (conditions, pricingTone) => ({ crossroads: { items: [{ id: 'aibust', title: 'AI 주도 약화 — x', met: conditions.filter(([, ok]) => ok).length, total: 3, known: 3, conditions, pricingTone }] } });
+    const a = branch([['반도체 약세 (x)', true], ['실업수당 상승 (y)', false], ['신용 스프레드 확대 (z)', true]], 'same');
+    const b = branch([['반도체 약세 (x)', true], ['실업수당 상승 (y)', true], ['신용 스프레드 확대 (z)', false]], 'same');
+    const swap = diffSnapshots(a, b, 'T').filter((row) => row.kind === 'fit').map((row) => row.text);
+    assert.deepEqual(swap, ["'AI 주도 약화' 조건 충족 2/3 그대로, 근거가 바뀜 (새로 충족: 실업수당 상승; 더 이상 아님: 신용 스프레드 확대)."], `v60.52 a swap of met conditions at the same count is logged (${JSON.stringify(swap)})`);
+    const lostPrice = diffSnapshots(a, branch(a.crossroads.items[0].conditions, 'unknown'), 'T').filter((row) => row.kind === 'pricing').map((row) => row.text);
+    assert.deepEqual(lostPrice, ["'AI 주도 약화': 시장 가격 자료가 빠져 방향을 읽지 못함(직전: 이 시나리오 쪽)."], `v60.52 price evidence lost is logged (${JSON.stringify(lostPrice)})`);
+    assert.deepEqual(diffSnapshots({ ...a, asOf: '2026-11-23' }, { ...JSON.parse(JSON.stringify(a)), asOf: '2026-11-24' }, 'T'), [], 'v60.52 a date roll alone logs nothing');
+  }
   const rotationNow = { rotation: { top: { strong: 'a', weak: 'b', scope: '미국' } } };
   assert.ok(!diffSnapshots({ rotation: { top: { strong: 'c', weak: 'b' } } }, rotationNow, 'T').some((row) => row.kind === 'rotation'), 'v57.54: a theme-scope change (all themes to US-only) is not logged as a rotation');
   assert.ok(diffSnapshots({ rotation: { top: { strong: 'c', weak: 'b', scope: '미국' } } }, rotationNow, 'T').some((row) => row.kind === 'rotation'), 'v57.54: a rotation within the same scope is logged');
