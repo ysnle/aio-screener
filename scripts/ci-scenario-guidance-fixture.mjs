@@ -846,7 +846,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 
   // 10/14: WTI 20일 -7.2%, breakeven +2bp (sd 7.9bp), UMich 51.7 (8월), dollar +2.23%, 10년물 +18bp, 2년물 − 기준금리 +0.95%p.
   const oct14 = { oil20: -7.2, oilVsYear: 21, oilSurging: false, oilHeld: false, wtiPosition: 0.45, breakeven20: 0.02, sentimentRank: { value: 51.7, date: '2026-08-01', month: '8월', percentile: 13 },
-    commodities: 'burden', dxy20: 2.23, krw20: -1.6, lean: 'hike', pricing: 0.95, tnx20: 0.18, termPremium20: 0.2, curve2s10s20: 0.15, realYield20: 0.26,
+    commodities: 'burden', dxy20: 2.23, krw20: -1.6, lean: 'hike', pricing: 0.95, tnx20: 0.18, tnxOverBreakeven20: 0.16, termPremium20: 0.2, curve2s10s20: 0.15, realYield20: 0.26,
     policy: { upper: 4, change: 0.25, changeDate: '2026-09-17', bill: null }, hy20: 40, cccGap20: 1.5, nfci4: 0.051, credit: 'neutral',
     bands: { breakeven20: 0.5 * 0.079, tnx20: 0.1, termPremium20: 0.05, curve2s10s20: 0.07, realYield20: 0.06, hy20: 12, cccGap20: 0.5, nfci4: 0.015 } };
   const m14 = buildMacroCrossroads({ signals: oct14 });
@@ -865,7 +865,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // 달러 급등 uses the 시장 axis's buffered dollar rule — DXY +2.23% (0.23pp past the line) no longer counts, +2.6% does.
   const surge = buildMacroCrossroads({ signals: oct14 }).items.find((item) => item.id === 'dollarsurge');
   assert.ok(/달러 지수 20거래일 \+2\.5% 이상 미충족/.test(surge.basis.join(' · ')), `v57.81 DXY +2.23% does not meet 달러 급등's dollar condition (${surge.basis.join(' · ')})`);
-  const three = buildMacroCrossroads({ signals: { ...oct14, oilSurging: true, wtiPosition: 0.9, tnx20: 0.3, dxy20: 2.6 } });
+  const three = buildMacroCrossroads({ signals: { ...oct14, oilSurging: true, wtiPosition: 0.9, tnx20: 0.3, tnxOverBreakeven20: 0.28, dxy20: 2.6 } });
   assert.ok(three.tiedIds.length === 3 && /시나리오가 셋입니다/.test(three.headline) && COUNT_WORDS[three.tiedIds.length] === '셋', `v57.81 three tied branches read "셋" (${three.headline})`);
   // The compact tie line is retired with the compact block; the full map's headline (above) carries the count.
 
@@ -877,6 +877,23 @@ console.log('scenario guidance fixture (basis card): PASS');
   const clean = buildMacroCrossroads({ read: cleanRead, macroHistory: cleanMh, history: cleanHistory });
   const cleanShock = clean.items.find((item) => item.id === 'oilshock');
   assert.ok(clean.leadId === 'oilshock' && cleanShock.gate.met === true && cleanShock.pricing.tone === 'same', `v57.81 a real oil shock (WTI +15%, breakevens +20bp) ranks 유가 충격 first (${clean.headline}; ${cleanShock.basis.join(' · ')})`);
+
+  // SOXX one session behind the S&P 500: the 20-session gap is read on paired dates ending at the S&P 500's close, or withheld.
+  const last100 = sessions.slice(-100);
+  const lagHistory = last100.map((date, i) => ({ date, spx: i === 99 ? 130 : 100, ...(i === 99 ? {} : { soxx: 100 }) }));
+  const lagSignals = buildScenarioSignals({ history: lagHistory });
+  const lagModel = buildMacroCrossroads({ history: lagHistory });
+  const lagBust = lagModel.items.find((item) => item.id === 'aibust');
+  assert.ok(lagSignals.soxxRel20 === null && lagModel.leadId !== 'aibust' && lagBust.pricing.tone === 'unknown'
+    && lagBust.pricing.text.includes(`${Number(last100[98].slice(5, 7))}/${Number(last100[98].slice(8))}`) && /보류/.test(lagBust.pricing.text),
+  `v60.52 SOXX a session behind the S&P 500 withholds SOXX − S&P 500 instead of reading -30%p (${lagSignals.soxxRel20}; ${lagModel.leadId}; ${lagBust.pricing.text})`);
+  const pairedSignals = buildScenarioSignals({ history: lagHistory.map((row, i) => (i === 99 ? { ...row, soxx: 130 } : row)) });
+  assert.ok(Math.abs(pairedSignals.soxxRel20) < 1e-9 && pairedSignals.soxxRelHeld === null, `v60.52 on the common date SOXX − S&P 500 reads 0.0%p (${pairedSignals.soxxRel20})`);
+  // 10y against breakevens: one window on both sides — a breakeven a day behind the 10y leaves the condition 확인 불가.
+  const rateHistory = last100.map((date, i) => ({ date, spx: 100, tnx: i < 79 ? 4 : 4 + 0.5 * (i - 78) / 21 }));
+  const beMh = (through) => mhOf({ breakeven10: last100.slice(0, through).map((date) => [date, 2.3]) });
+  const steepGate = (mh) => buildMacroCrossroads({ macroHistory: mh, history: rateHistory }).items.find((item) => item.id === 'fiscalsteep').conditions[0][1];
+  assert.ok(steepGate(beMh(99)) === null && steepGate(beMh(100)) === true, `v60.52 the 10y − breakeven gap reads both sides on the 10y's last date (${steepGate(beMh(99))}/${steepGate(beMh(100))})`);
 
   // Inflation: core PCE (8월) slowing and core CPI (9월) re-accelerating is 엇갈림 — quadrant and both branches read one flag.
   const monthly = (startYear, startMonth, count, yoyRate, lastRate) => Array.from({ length: count }, (_, i) => i).reduce((rows, i) => {
