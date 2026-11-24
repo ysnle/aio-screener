@@ -432,6 +432,13 @@ export async function renderStockChart({ documentRef: doc, root, symbol, interva
     }
     sections.append(section);
   }
+  // The AI analysis of this chart, under the code's reading (subject-reading.js, loaded with the first chart it reads).
+  const aiHost = el(doc, 'section', null, 'screen-reading');
+  aiHost.id = 'chart-subject-reading';
+  aiHost.hidden = true;
+  aiHost.setAttribute('aria-label', 'AI 분석');
+  read.after(aiHost);
+  import('./subject-reading.js').then(({ mountSubjectReading }) => mountSubjectReading({ documentRef: doc, root, hostId: aiHost.id, kind: 'chart', input: { symbol: sym, analysis, scenarios: forward } })).catch(() => {});
   const styles = strategySection(doc, analysis, levels, wilderRsi(analysis.bars.map((bar) => bar.close)));
   if (styles) sections.append(styles);
   if (levels.available) {

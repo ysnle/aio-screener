@@ -3518,6 +3518,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <section class="briefing-block charts-section" id="charts-indexes" aria-labelledby="charts-indexes-title">
     <h2 class="briefing-h2" id="charts-indexes-title">시장 지수</h2>
     <p class="charts-lead" id="charts-conclusion"></p>
+    <section class="screen-reading" id="charts-screen-reading" aria-label="AI 읽기" hidden></section>
     <div class="charts-index-grid" id="charts-index-grid"></div>
   </section>
   <section class="briefing-block charts-section" id="charts-stocks" aria-labelledby="charts-stocks-title">
@@ -3553,6 +3554,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <header class="page-head"><div><h1 class="page-title">금리와 환율</h1>
   <div class="page-subtitle" id="rates-basis">종가 기록을 불러오는 중입니다.</div></div></header>
   <div class="sx-seg page-views" role="tablist" aria-label="금리와 환율 보기"><button type="button" role="tab" aria-selected="true" class="is-active" data-view="rates">금리</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="fx">환율</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="assets">자산군</button></div>
+  <section class="screen-reading" id="fxbond-screen-reading" aria-label="AI 읽기" hidden></section>
   <!-- v58.53 개편 v2 (5e) → v59.51 (content audit): the curve card leads alone. The 원/달러 · 엔/달러 · 2년물 − 기준금리 tiles
        beside it repeated the FX cards below and the 거시 policy factor, and left; the eleven tenor values fold under the chart. -->
   <section class="briefing-block rates-block sx-card sx-card--hero mk-curve-card" aria-labelledby="rates-treasury-title">
@@ -3684,6 +3686,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       <h2 class="sx-kicker sr-only" id="themes-verdict-title">섹터 회전</h2><!-- v58.79: the reading opens the card; the kicker stays for screen readers -->
       <p class="briefing-read-headline v2-stock-lede" id="rrg-rotation-read">섹터 상대강도 기록을 읽는 중입니다.</p>
     </div>
+    <div class="screen-reading" id="themes-screen-reading" role="region" aria-label="AI 읽기" hidden></div>
     <div class="v2-themes-grid">
       <!-- v59.51 (content audit): the sector period bars are the verdict card's second tab (was a section of its own under it). -->
       <div class="sx-card v2-themes-rrg aio-frame" data-frame="themes.rrg" data-view="bars">
@@ -3771,6 +3774,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <div class="aio-page-advanced-body">
     <!-- P1444: 실시간 시세 커버리지와 무관하게 스크리너 확정 종가로 읽는 테마 흐름 (native) -->
     <section class="briefing-block" id="kr-themes-artifact-read" aria-label="국내 테마 흐름" hidden></section>
+    <section class="screen-reading" id="korea-screen-reading" aria-label="AI 읽기" hidden></section>
     <!-- The Korean theme list, the picked theme's detail and the full stage table (theme-playbook-view.js). -->
     <div id="kr-theme-stage-host"></div>
 
@@ -4018,6 +4022,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
          3-month gap to the index folds. The four prose points and the 읽는 법 cards (sector/index/single/bond) were the same
          facts as the hero, the table and 점검; their unique parts (index overlap, bond cushion) fold inside 점검. -->
     <section class="briefing-block pf-read" id="pf-read" aria-label="내 포트폴리오와 시장" hidden></section>
+    <section class="screen-reading" id="pf-ai-reading" aria-label="AI 분석" hidden></section>
     <!-- v59.70 (S16): ③ 노출 — one stacked bar by sector and the largest holding (portfolio-exposure-bar.js). -->
     <section class="aio-section pf-first" id="pf-exposure-bar" aria-labelledby="pf-exposure-bar-title" hidden>
       <div class="pf-first-head"><h2 class="briefing-h2" id="pf-exposure-bar-title">노출</h2></div>
@@ -4387,6 +4392,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       <p id="ticker-hero-line" class="ticker-hero-line" hidden></p><div id="ticker-hero-context" class="ticker-context" hidden></div>
     </div>
     </div><!-- /aio-section 종목 머리 -->
+    <section class="screen-reading" id="ticker-ai-reading" aria-label="AI 분석" hidden></section>
     <section id="ticker-company" class="company-overview" aria-label="회사 개요" hidden></section><!-- 2026-11-19: 개요 — 사업 · 밸류체인 안의 자리 · 재무 한눈에 (company-overview.js); the price chart is 기술적 분석's -->
     <section id="ticker-outlook" class="company-overview" aria-label="쟁점과 전망" hidden></section><!-- 2026-11-21: 쟁점과 전망 보기 (page-views.css) -->
   </div><!-- fix: page-ticker outer close -->

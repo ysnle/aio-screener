@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
+import { extractCompletedResponseText, sharedAiUsage } from '../../src/domain/ai/responses-payload.js'; // one reading for the producers and the browser
 
 // The free Workers AI path gets the same market glossary as the shared-model prompt.
 const HEADLINE_TRANSLATE_GLOSSARY = HEADLINE_GLOSSARY_PAIRS.map(([en, ko]) => `${en} → ${ko}`).join(', ');
@@ -18,17 +19,7 @@ export function resolveSharedAiConfig(env = process.env) {
   } catch { return null; }
 }
 
-export function extractCompletedResponseText(payload) {
-  if (payload?.status !== 'completed' || payload.error || payload.incomplete_details
-      || !(payload.model === SHARED_AI_MODEL || /^gpt-6-luna-\d{4}-\d{2}-\d{2}$/.test(payload.model || '')) || !Array.isArray(payload.output)) return null;
-  const messages = payload.output.filter(item => item?.type === 'message');
-  if (!messages.length || messages.some(item => item.status !== 'completed' || item.role !== 'assistant')) return null;
-  if (messages.some(item => !Array.isArray(item.content) || item.content.some(part => part?.type === 'refusal'))) return null;
-  const text = messages.flatMap(item => item.content)
-    .filter(part => part?.type === 'output_text' && typeof part.text === 'string')
-    .map(part => part.text).join('\n').trim();
-  return text || null;
-}
+export { extractCompletedResponseText, sharedAiUsage };
 
 // ---- request profiles ---------------------------------------------------------------------------------------------
 // v59.59 (AI lane refactor): every producer request to the shared Worker is one of three shapes. The token ceilings and
@@ -129,11 +120,6 @@ export function buildSharedInvestigationBody({ instructions, input, functions = 
 }
 
 /** Token and search counts of one Responses payload (counts only; never model text). */
-export function sharedAiUsage(payload) {
-  return { inputTokens: Number(payload?.usage?.input_tokens) || 0, outputTokens: Number(payload?.usage?.output_tokens) || 0,
-    searchCalls: Array.isArray(payload?.output) ? payload.output.filter((item) => item?.type === 'web_search_call').length : 0 };
-}
-
 // ---- transport -------------------------------------------------------------------------------------------------------
 // The one POST to the Worker's /openai route. requestSharedAnalysis, requestSharedWebSearch and the event-brief
 // producer each carried their own copy (headers, abort timer, idempotency key, error mapping); the event-brief copy keyed

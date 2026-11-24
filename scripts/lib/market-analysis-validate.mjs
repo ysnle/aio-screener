@@ -14,6 +14,7 @@ import { stripEvidenceIds } from '../../src/domain/briefing/evidence-text.js';
 import { moveMetricByLabel, moveSizeGrades, MOVE_SIZE_HEAD } from './market-analysis-moves.mjs';
 import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
 import { likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
+import { READING_PROBABILITY, READING_TRADE_INSTRUCTION } from '../../src/ai/reading/reading-core.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -419,8 +420,9 @@ export function softenReaderDuty(text) {
 // v60.24 (owner 2026-11-17: sentence validation should not block; connecting thin evidence and saying so is part of the
 // job): an interpretation whose ground is thin is not a fact the data can disprove. A likelihood word without a ground
 // kind and a past frequency without a sample are measured as warnings (analysisInterpretationWarnings), never blocked.
-const ANALYSIS_TRADE_INSTRUCTION = /(?:매수|매도|매집|손절|익절|진입|청산)(?:하세요|하십시오|해라|하라|할\s*때입니다|하시길)|(?:사세요|파세요|사라(?![지졌진질져])|팔아라|담으세요|비중을\s*(?:늘리|줄이)세요)|목표\s*가(?:는|를)?\s*\$?\d|\b(?:buy|sell)\s+now\b/i;
-const ANALYSIS_PROBABILITY = /\d+(?:\.\d+)?\s*%\s*(?:의\s*)?(?:확률|가능성|승률)|(?:확률|가능성|승률)(?:은|이|는|로|이\s*약)?\s*(?:약\s*)?\d+(?:\.\d+)?\s*%/;
+// One copy of both patterns for every lane (src/ai/reading/reading-core.js).
+const ANALYSIS_TRADE_INSTRUCTION = READING_TRADE_INSTRUCTION;
+const ANALYSIS_PROBABILITY = READING_PROBABILITY;
 // A likelihood in words stands on one of the ground kinds the prompt names (src/domain/content/likelihood-grounds.js), in
 // its own sentence or the one before it. "더 높아 보입니다" is the prompt's own example, so a degree word between the
 // particle and the adjective is read too.

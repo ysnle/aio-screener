@@ -1,29 +1,40 @@
-// v60.31 (owner 2026-11-18, text architecture): the per-screen AI reading. Facts — figures, state labels, the close date —
+// The per-screen AI reading (owner 2026-11-18, text architecture). Facts — figures, state labels, the close date —
 // are the code's, in its fixed vocabulary; the reading that connects them is written by the shared model once per change
 // of a screen's facts, checked here, and published only when it passes. Pure functions: the producer
-// (scripts/producer/screen-readings.mjs) brings the interpretation and the requester.
+// (scripts/producer/screen-readings.mjs) brings the interpretation, the published artifacts and the requester.
 //
-// The fact packet is built from the same interpretation the screens draw (scripts/lib/market-interpretation-inputs.mjs
-// interpretationFromArtifacts — the browser builds the same object through src/data/selectors/interpretation.js). An axis
-// gives only its title, state label, evidence rows, flip condition and basis; its `read` (a sentence the code assembled)
-// never enters the packet. A screen joins the readings by adding one builder to SCREEN_READING_SCREENS.
+// The fact packet is built from the same domain functions the screens draw (the shared interpretation of
+// scripts/lib/market-interpretation-inputs.mjs interpretationFromArtifacts — the browser builds the same object through
+// src/data/selectors/interpretation.js — and, per screen, the model its board renders). A packet carries titles, state
+// labels, evidence rows, flip conditions and bases; a sentence the code assembled never enters it. A screen joins the
+// readings by adding one builder to SCREEN_READING_SCREENS. The instruction, the prompt shape and the figure check are
+// shared with the browser's per-subject readings (src/ai/reading/reading-core.js).
 //
 // Interpretation is never blocked. The validator blocks a figure or date the packet does not carry, a
 // state label that contradicts the packet's, an order, an invented percentage probability, a leaked prompt label,
 // non-Korean text and a reading longer than the face allows; thin grounds and possibility words are warnings only.
 import { createHash } from 'node:crypto';
-import { printedValueAgrees, signAgrees } from '../../src/domain/shared/figure-agreement.js';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
+import { readNumber as finite, signedText } from '../../src/domain/shared/number.js';
 import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { buildSentimentModel } from '../../src/domain/market/sentiment/sentiment-model.js';
 import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src/domain/market/story/market-story.js';
 import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
+import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src/domain/technical/market-charts.js';
+import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
+import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
+import {
+  READING_CONDITIONAL, READING_MAX_CHARS, READING_MIN_CHARS, READING_RULES, READING_SECTIONS, buildReadingPrompt, buildReadingRetryPrompt,
+  coreReadingIssues, coreReadingWarnings, normalizeReading, packetFigures, unsupportedFigures
+} from '../../src/ai/reading/reading-core.js';
 
+export { packetFigures, unsupportedFigures };
 export const SCREEN_READING_SCHEMA = 'screen-readings.v1';
-export const SCREEN_READING_MAX_CHARS = 400; // the face's paragraph (3–5 sentences, about 130–230 characters asked)
-export const SCREEN_READING_MIN_CHARS = 60;
+export const SCREEN_READING_MAX_CHARS = READING_MAX_CHARS; // at most two blocks of 130–230 characters
+export const SCREEN_READING_MIN_CHARS = READING_MIN_CHARS;
 
 const md = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+const pct = (value, digits = 1) => `${signedText(value, digits)}%`;
 // A row marked (참고) is shown beside an axis but does not judge it (공포·탐욕 on the credit axis). It is left out: it is not
 // what the verdict rests on, and the history revises it within the day (F&G 25 → 26 → 27 for the 11/17 close across the
 // 11/18 refreshes), which would re-key the packet and call the model again for a figure the verdict ignores.
@@ -46,10 +57,20 @@ const countsLine = (counts, total) => {
 const usAxes = (regime) => (regime?.axes || []).filter((axis) => axis && axis.id !== 'korea'); // the counted six (market-read.js)
 const statesOf = (axes) => Object.fromEntries(axes.filter((axis) => axis?.id && axis.state).map((axis) => [axis.id, axis.state]));
 const titledStates = (axes) => axes.filter((axis) => axis?.title && axis.stateLabel).map((axis) => ({ id: axis.id, title: axis.title, stateLabel: axis.stateLabel }));
+const historyOf = (interpretation) => (Array.isArray(interpretation?.inputs?.history) ? interpretation.inputs.history : []);
+const openingOf = (interpretation, longrun, through) => buildMarketOpening({ history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through });
+const leadershipLine = (regime) => (LEADERSHIP_STATE[regime?.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '');
+// A theme's state label carries its window in parentheses; the head is the state word, the rest the basis.
+const stateHead = (theme) => String(theme.stateLabel || theme.state || '').split(/[,(]/)[0].trim();
+const themeLine = (theme) => [`${theme.label}: ${theme.stateLabel || theme.state}`,
+  finite(theme.ret1m) != null ? `1개월 ${pct(theme.ret1m)}` : '', finite(theme.ret5d) != null ? `5일 ${pct(theme.ret5d)}` : '',
+  finite(theme.above50) != null ? `50일선 위 종목 ${Math.round(theme.above50)}%` : '', theme.windText ? `시나리오 바람: ${theme.windText}` : ''].filter(Boolean).join(' · ');
+const byRet1m = (list) => [...list].filter((theme) => finite(theme.ret1m) != null).sort((a, b) => b.ret1m - a.ret1m);
 
-// ---- the registry: screen id → { name (as the screen is called), facts(interpretation) } -------------------------------------
+// ---- the registry: screen id → { name (as the screen is called), guide, facts(interpretation, context) } -----------------
 // facts() returns { basis, lines, axes } or null when the screen has nothing to read today. `axes` (id, state, title,
-// stateLabel) feed the state-word check; they are not part of the key.
+// stateLabel) feed the state-word check; they are not part of the key. `context` carries what the producer reads beside
+// the interpretation: { longrun (index-longrun.json), data (data.json) }.
 export const SCREEN_READING_SCREENS = Object.freeze({
   signal: Object.freeze({
     name: '시장 상태',
@@ -65,29 +86,31 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       const regime = interpretation?.regime;
       if (!regime?.available || !regime.asOf) return null;
       const axes = usAxes(regime);
-      const opening = buildMarketOpening({ history: interpretation?.inputs?.history || [], macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through: regime.asOf });
+      const opening = openingOf(interpretation, longrun, regime.asOf);
       return {
         basis: regime.asOf, axes, diagnosis: opening.available && opening.diagnosis?.state !== 'none' ? opening.diagnosis?.word || null : null,
         rebound: opening.available ? opening.rebound?.word || null : null,
         lines: [`기준일: ${md(regime.asOf)} 미국 종가`, ...openingFactLines(opening).map((line) => `시장 이야기 ${line}`), `종합 판정: ${regime.overall} (${countsLine(regime.counts, axes.length)})`,
-          LEADERSHIP_STATE[regime.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '', ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+          leadershipLine(regime), ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
     }
   }),
   breadth: Object.freeze({
     name: '시장 폭',
+    guide: '- 지수와 종목 다수가 같은 방향인지가 이 화면의 질문입니다. 폭이 지수 움직임을 받치는지, 일부 대형주만 끌고 가는지로 판단을 엽니다.',
     facts(interpretation) {
       const regime = interpretation?.regime;
       const axis = (regime?.axes || []).find((row) => row.id === 'breadth');
       if (!regime?.available || !regime.asOf || !axis?.stateLabel) return null;
       return {
         basis: regime.asOf, axes: [axis],
-        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, axisLine(axis, regime.asOf), `시장 상태 종합 판정: ${regime.overall} (${countsLine(regime.counts, usAxes(regime).length)})`].filter(Boolean)
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, axisLine(axis, regime.asOf), `시장 상태 종합 판정: ${regime.overall} (${countsLine(regime.counts, usAxes(regime).length)})`, leadershipLine(regime)].filter(Boolean)
       };
     }
   }),
   macro: Object.freeze({
     name: '매크로',
+    guide: '- 성장·물가 국면이 증시에 어느 쪽으로 작용하는지로 엽니다. 발표 기준월이 종가보다 오래된 지표는 그 시차를 짧게 밝히고, 다음 발표가 무엇을 바꿀 수 있는지로 맺습니다.',
     facts(interpretation) {
       const regime = interpretation?.regime;
       const read = interpretation?.macroRead;
@@ -109,6 +132,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // AAII included), and the two 시장 상태 axes the screen sets beside them (credit, volatility).
   sentiment: Object.freeze({
     name: '투자 심리',
+    guide: '- 심리가 가격보다 앞서 있는지 뒤처져 있는지로 엽니다. 공포나 탐욕 쪽 쏠림은 그 자체로 방향이 아니라 이미 가격에 들어간 정도로 읽고, 신용·변동성이 그 읽기를 받치는지 짚습니다.',
     facts(interpretation) {
       const regime = interpretation?.regime;
       const sentiment = (regime?.watchAxes || []).find((row) => row.id === 'sentiment');
@@ -119,6 +143,107 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       return {
         basis: regime.asOf, axes: [sentiment, ...context],
         lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `${axisLine(sentiment, regime.asOf)} (시장 상태 6개 지표 합계 밖의 참고 지표)`, ...cards, ...context.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+      };
+    }
+  }),
+  // 금리와 환율: the board's own model (src/domain/macro/rates-fx.js buildRatesFx — the treasury curve and its move, the
+  // 10-year close series the rates axis reads, TIPS and breakeven, the high-yield spread, the dollar, won and yen with the
+  // carry rule) and the two 시장 상태 axes the tab sets beside them (rates, and the won/yen axis).
+  fxbond: Object.freeze({
+    name: '금리와 환율',
+    guide: '- 금리와 환율이 지금 주식의 밸류에이션과 한국 투자자에게 어느 쪽으로 작용하는지로 엽니다. 곡선의 움직임(어느 쪽 금리가 움직였나)이 성장 기대인지 물가·재정 부담인지를 묶음의 상태어로만 말하고, 원·엔의 움직임은 달러와 함께 짚습니다.',
+    facts(interpretation, { data = null } = {}) {
+      const regime = interpretation?.regime;
+      if (!regime?.asOf) return null;
+      const model = buildRatesFx({ macro: data?.macro || null, history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null });
+      const t = model?.treasury;
+      if (!(t?.yields || []).some((row) => finite(row.value) != null)) return null;
+      const yields = t.yields.filter((row) => finite(row.value) != null).map((row) => `${row.label} ${Number(row.value).toFixed(2)}%${finite(row.week) != null ? ` (1주 ${signedText(row.week * 100, 0)}bp)` : ''}`);
+      const curve = (t.curve || []).filter((row) => finite(row.value) != null).map((row) => `${row.label} ${signedText(row.value, 2)}%p`);
+      const tnx = model.tnxChange || {};
+      const fx = (model.fx || []).filter((card) => card.available).map((card) => `${card.label} ${card.valueText}${finite(card.day) != null ? ` (1일 ${pct(card.day, 2)}` : ' ('}${finite(card.change20) != null ? `, 20거래일 ${pct(card.change20)})` : ')'}`.replace(' ()', ''));
+      const levels = [...(model.real || []), model.credit].filter((row) => row && row.value != null).map((row) => `${row.label} ${row.valueText}${row.weekText ? ` (${row.weekText})` : ''}${row.asOf && row.asOf !== regime.asOf ? ` (기준 ${md(row.asOf)})` : ''}`);
+      const axes = (regime.axes || []).filter((axis) => axis.id === 'rates' || axis.id === 'korea');
+      return {
+        basis: regime.asOf, axes,
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가${t.asOf && t.asOf !== regime.asOf ? `, 국채 수익률 곡선 ${md(t.asOf)} 고시` : ''}`,
+          `국채 금리: ${yields.join('; ')}`, curve.length ? `금리차: ${curve.join('; ')}` : '', t.dynamics?.label ? `곡선 움직임(규칙으로 정함): ${t.dynamics.label}` : '',
+          finite(tnx.d5Bp) != null || finite(tnx.d20Bp) != null ? `10년물 종가 변화: 5거래일 ${signedText(tnx.d5Bp, 0)}bp · 20거래일 ${signedText(tnx.d20Bp, 0)}bp` : '',
+          levels.length ? `실질금리·기대물가·신용: ${levels.join('; ')}` : '', fx.length ? `환율: ${fx.join('; ')}` : '',
+          model.carry?.available ? `엔 캐리 규칙: 엔/달러 20거래일 ${pct(-model.carry.yenStrength)} — ${model.carry.burden ? '엔 급강세 기준 넘음(부담)' : '엔 급강세 기준 아래'}` : '',
+          ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+      };
+    }
+  }),
+  // 기술적 분석 (시장 지수 view): each index's trend word and position from its published closes (market-charts.js
+  // indexChartReadings, the cards' fallback reading), the S&P 500's distribution days, the Nasdaq Composite's rally attempt
+  // and follow-through, and the Nasdaq 100 / S&P 500 rebound with its cross-market checks (market-story.js).
+  charts: Object.freeze({
+    name: '기술적 분석',
+    guide: '- 차트가 지금 어떤 자리인지로 엽니다: 지수들이 같은 추세 낱말에 모여 있는지 갈라져 있는지, 가장 약한 지수가 무엇을 말하는지. 거래량(분배일), 반등 확인 신호, 반등의 다른 시장 확인을 이어서 지금 반등을 믿을 근거가 쌓였는지 판단합니다. 추세 낱말과 반등 상태어는 묶음의 것만 씁니다.',
+    facts(interpretation, { longrun = null } = {}) {
+      const regime = interpretation?.regime;
+      const history = historyOf(interpretation);
+      if (!regime?.asOf || !history.length) return null;
+      const readings = indexChartReadings(history).filter((reading) => reading?.trendWord);
+      if (!readings.length) return null;
+      const opening = openingOf(interpretation, longrun, regime.asOf);
+      const rally = rallyAttemptRead(history, { through: regime.asOf });
+      const distribution = indexVolumeRead(history, 'spx');
+      const rebound = openingFactLines(opening).filter((line) => line.startsWith('반등'));
+      return {
+        basis: regime.asOf, axes: [], rebound: opening.available ? opening.rebound?.word || null : null,
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `지수 추세 집계: ${chartsConclusion(readings)}`,
+          ...readings.map((reading) => `${reading.label}: ${reading.trendWord}${reading.facts ? ` · ${reading.facts}` : ''}${finite(reading.rsi) != null ? ` · RSI ${Math.round(reading.rsi)}` : ''}${reading.asOf && reading.asOf !== regime.asOf ? ` (기준 ${md(reading.asOf)})` : ''}`),
+          distribution ? `S&P 500 ${distribution.text.replace(/^거래량:\s*/, '')}` : '',
+          rally ? `나스닥 종합 반등 확인 신호: ${rally.state} · 규칙: ${rally.rule}` : '', ...rebound, leadershipLine(regime)].filter(Boolean)
+      };
+    }
+  }),
+  // 테마와 섹터: the theme stages the screen's stage map and lists draw (interpretation.playbook — theme-playbook.js, the
+  // same object themePlaybookForRoot returns), the leading and weak US themes by one-month return, the macro sensitivities
+  // ranked, and the leadership state.
+  themes: Object.freeze({
+    name: '테마와 섹터',
+    guide: '- 돈이 어디로 가고 어디서 빠지는지로 엽니다. 강한 테마와 약한 테마가 같은 바람(금리·경기·AI 투자)을 공유하는지, 단계 낱말이 1개월 수익률과 같은 쪽인지 짚고, 단계가 바뀌는 조건으로 맺습니다. 단계 낱말은 묶음의 것만 씁니다.',
+    facts(interpretation) {
+      const playbook = interpretation?.playbook;
+      const us = (playbook?.themes || []).filter((theme) => theme.market === 'US');
+      const basis = playbook?.asOfByMarket?.US || playbook?.asOf || null;
+      if (!playbook?.available || !us.length || !isIsoDay(basis)) return null;
+      const leading = byRet1m(us.filter((theme) => theme.state === 'leading')).slice(0, 3);
+      const weak = byRet1m(us.filter((theme) => theme.state === 'weak')).reverse().slice(0, 3);
+      const counts = Object.entries(us.reduce((acc, theme) => { const word = stateHead(theme); return { ...acc, [word]: (acc[word] || 0) + 1 }; }, {})).map(([word, n]) => `${word} ${n}개`).join(' · ');
+      const tags = (playbook.rotation?.tags || []).filter((tag) => finite(tag.ret1m) != null);
+      const sensitivity = tags.length > 3 ? [...tags.slice(0, 2), ...tags.slice(-2)] : tags;
+      const names = (list) => (Array.isArray(list) ? list : []).map((item) => item?.label || item).filter((item) => typeof item === 'string').slice(0, 3);
+      const highlights = [['구조적 눌림', names(playbook.highlights?.structuralPullbacks)], ['역풍 속 주도', names(playbook.highlights?.headwindLeaders)], ['순풍 속 부진', names(playbook.highlights?.tailwindLaggards)]].filter(([, list]) => list.length);
+      return {
+        basis, axes: [],
+        lines: [`기준일: ${md(basis)} 미국 종가`, `미국 테마 ${us.length}개의 단계: ${counts}`,
+          ...leading.map((theme) => `강한 테마 ${themeLine(theme)}`), ...weak.map((theme) => `약한 테마 ${themeLine(theme)}`),
+          sensitivity.length ? `민감도 묶음 1개월(높은 순·낮은 순): ${sensitivity.map((tag) => `${tag.label} ${pct(tag.ret1m)}`).join('; ')}` : '',
+          ...highlights.map(([label, list]) => `${label}: ${list.join(', ')}`), leadershipLine(interpretation?.regime)].filter(Boolean)
+      };
+    }
+  }),
+  // 한국 (테마와 섹터의 한국 탭): the Korean theme stages (the playbook's KR rows, kr-themes.js krThemeArtifactRead through
+  // buildMarketInterpretation) on the Korean close, and the won/yen axis of 시장 상태.
+  korea: Object.freeze({
+    name: '한국',
+    guide: '- 한국 테마 중 어디가 버티고 어디가 밀리는지로 엽니다. 미국 주도 영역과 같은 방향인지, 원화 움직임이 그 흐름에 보태는지 덜어내는지 짚습니다. 한국 자료가 얇으면 얇다고 말합니다.',
+    facts(interpretation) {
+      const playbook = interpretation?.playbook;
+      const kr = (playbook?.themes || []).filter((theme) => theme.market === 'KR' && finite(theme.ret1m) != null);
+      const basis = playbook?.asOfByMarket?.KR || null;
+      if (!playbook?.available || !kr.length || !isIsoDay(basis)) return null;
+      const ranked = byRet1m(kr);
+      const shown = ranked.length > 6 ? [...ranked.slice(0, 3), ...ranked.slice(-3)] : ranked;
+      const axis = (interpretation?.regime?.axes || []).find((row) => row.id === 'korea');
+      return {
+        basis, axes: axis ? [axis] : [],
+        lines: [`기준일: ${md(basis)} 한국 종가`, `한국 테마 ${kr.length}개 (1개월 수익률 높은 순과 낮은 순)`, ...shown.map((theme) => `한국 테마 ${themeLine(theme)}`),
+          leadershipLine(interpretation?.regime) ? `미국 ${leadershipLine(interpretation.regime)}` : '', axis ? axisLine(axis, interpretation.regime.asOf) : ''].filter(Boolean)
       };
     }
   })
@@ -138,105 +263,21 @@ export function buildScreenPacket(screen, interpretation, context = {}) {
 }
 
 // ---- prompt ----------------------------------------------------------------------------------------------------------------
-// The rules are the same text for every screen and day, so they lead (a cacheable prefix); the screen and its facts follow.
-export const SCREEN_READING_SECTIONS = Object.freeze({ rules: '[규칙]', facts: '[사실 묶음]', retry: '[다시 쓰기]' });
-export const SCREEN_READING_RULES = [
-  SCREEN_READING_SECTIONS.rules,
-  '투자 리서치 화면의 맨 위에 붙는 짧은 읽기 한 문단을 한국어로 씁니다. 아래 사실 묶음이 화면이 이미 보여 주는 사실 전부입니다.',
-  '- 3~5문장, 130~230자 정도의 한 문단. 줄바꿈·목록·제목·괄호 속 출처 없이 이어지는 글로 씁니다.',
-  '- 처음 보는 사람도 읽히는 쉬운 말로, 그날 상황을 이어서 설명합니다: 무엇이 부담이고 무엇이 버티는지, 그 둘이 서로 어떻게 이어지는지, 무엇이 바뀌면 읽기가 달라지는지.',
-  '- 수치와 날짜는 사실 묶음에 있는 것만 그대로 옮깁니다. 새 수치를 계산하거나 더하거나 빼지 않습니다(차이·합계·평균도 쓰지 않음). 날짜는 M/D로 씁니다.',
-  '- 지표의 상태는 묶음의 낱말(양호·중립·부담·확인 불가)로만 말하고, 묶음과 다른 상태를 붙이지 않습니다.',
-  '- 조건을 단 시나리오 설명("~하면 ~쪽으로 읽힙니다")은 써도 됩니다. 매수·매도 지시와 % 확률은 쓰지 않습니다.',
-  '- 근거가 얇으면 얇다고 짧게 말하되 판단을 미루지 않습니다.',
-  '- 교과서 말투("~하는 법", "~란 무엇인가", 정의 나열)와 독자에게 할 일을 시키는 말투를 쓰지 않습니다.',
-  '- 이모지, 자료 출처·제공자 이름, 이 지시문의 꺾쇠 표시를 쓰지 않습니다. 화면 이름은 묶음에 적힌 이름 그대로 씁니다(경제 화면은 "매크로").',
-  '- 답은 그 문단만 씁니다.'
-].join('\n');
+// The rules are the same text for every screen, subject and day, so they lead (a cacheable prefix); the guide and facts follow.
+export const SCREEN_READING_SECTIONS = READING_SECTIONS;
+export const SCREEN_READING_RULES = READING_RULES;
 
 export function buildScreenReadingPrompt(packet) {
-  const name = SCREEN_READING_SCREENS[packet?.screen]?.name || '';
-  const guide = SCREEN_READING_SCREENS[packet?.screen]?.guide || '';
-  return `${SCREEN_READING_RULES}${guide ? `\n${guide}` : ''}\n\n${SCREEN_READING_SECTIONS.facts}\n화면: ${name}\n${(packet?.lines || []).map((line) => `- ${line}`).join('\n')}`;
+  const spec = SCREEN_READING_SCREENS[packet?.screen];
+  return buildReadingPrompt({ name: spec?.name || '', guide: spec?.guide || '', lines: packet?.lines || [] });
 }
-
-const ISSUE_TEXT = Object.freeze({
-  'figure-unsupported': (detail) => `사실 묶음에 없는 수치나 날짜를 썼습니다${detail ? `(${detail})` : ''}. 묶음의 수치만 그대로 옮기세요.`,
-  'state-contradiction': (detail) => `지표의 상태를 묶음과 다르게 썼습니다${detail ? `(${detail})` : ''}. 묶음의 상태 낱말을 쓰세요.`,
-  'trade-instruction': () => '매수·매도 지시가 있습니다. 조건을 단 설명으로 바꾸세요.',
-  'probability-claim': () => '% 확률을 썼습니다. 확률 수치 없이 쓰세요.',
-  'too-long': () => `너무 깁니다. ${SCREEN_READING_MAX_CHARS}자 안으로 줄이세요.`,
-  'too-short': () => '너무 짧습니다. 3~5문장으로 쓰세요.',
-  'language-not-korean': () => '한국어로 쓰세요.',
-  'prompt-label-leak': () => '지시문의 표시를 옮겨 적었습니다. 문단만 쓰세요.',
-  'emoji': () => '이모지를 빼세요.',
-  'published-text-malformed': () => '괄호나 문장 끝이 깨졌습니다. 완결된 문장으로 쓰세요.'
-});
-/** The retry: the same prompt with the blocking reasons (codes and the offending figures only, never the rejected text). */
-export function buildScreenReadingRetryPrompt(prompt, verdict) {
-  const lines = (verdict?.issues || []).map((issue) => {
-    const [code, detail] = String(issue).split(/:(.*)/s);
-    return `- ${(ISSUE_TEXT[code] || (() => `규칙 위반(${code})`))(detail)}`;
-  });
-  return `${prompt}\n\n${SCREEN_READING_SECTIONS.retry}\n직전 답은 다음 이유로 게시하지 않았습니다. 같은 규칙으로 처음부터 다시 쓰세요.\n${[...new Set(lines)].join('\n')}`;
-}
-
-// ---- figures ---------------------------------------------------------------------------------------------------------------
-// A printed figure: an optional sign, digits (thousands commas, decimals) and its unit family. 'pct' (%), 'pp' (%p), 'bp' (bp)
-// must meet the same family in the packet; any other figure ('plain': levels, 달러, 개, 배, 일, 거래일 …) meets any family.
-const DATE_MD = /(?<![\d.,/])(\d{1,2})\s?\/\s?(\d{1,2})(?![\d.,/%])|(\d{1,2})월\s?(\d{1,2})일/g;
-const FIGURE = /(?<![\d.,A-Za-z])([+\-−]?)(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?![\d,])\s?(%p|%\s?포인트|%|(?<![A-Za-z])bps?(?![A-Za-z]))?/g;
-const familyOf = (unit) => !unit ? 'plain' : /^%(?:p|\s?포인트)$/.test(unit) ? 'pp' : unit === '%' ? 'pct' : 'bp';
-function figuresOf(text) {
-  const body = String(text || '');
-  const dates = [];
-  const masked = body.replace(DATE_MD, (match, m1, d1, m2, d2, offset) => {
-    const month = Number(m1 ?? m2), day = Number(d1 ?? d2);
-    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) { dates.push({ text: match, md: `${month}/${day}`, parts: [month, day] }); return ' '.repeat(match.length); }
-    return match;
-  });
-  const figures = [];
-  for (const match of masked.matchAll(FIGURE)) {
-    // A hyphen joined to a word before it ("11/17-11/18", "S&P500-") is not a sign.
-    const before = masked.slice(Math.max(0, match.index - 1), match.index);
-    const sign = match[1] && !/[\dA-Za-z가-힣]/.test(before) ? (match[1] === '+' ? 1 : -1) : 0;
-    const digits = Number(match[2].replace(/,/g, ''));
-    const places = (match[3] || '').length;
-    const written = Number(`${digits}${places ? `.${match[3]}` : ''}`);
-    figures.push({ text: match[0].trim(), sign, written, places, value: sign < 0 ? -written : written, family: familyOf(match[4] ? match[4].replace(/s$/, '') : '') });
-  }
-  return { dates, figures };
-}
-
-/** The packet's figures and dates, read with the same rules as the text. */
-export function packetFigures(packet) {
-  const { dates, figures } = figuresOf((packet?.lines || []).join('\n'));
-  const dateSet = new Set(dates.map((row) => row.md));
-  if (packet?.basis) dateSet.add(md(packet.basis));
-  return { dates: dateSet, figures };
-}
-
-function figureAgrees(figure, known) {
-  return known.some((row) => (figure.family === 'plain' || row.family === figure.family) && printedValueAgrees(figure.written, figure.places, Math.abs(row.value)) && signAgrees(figure.sign, row.value));
-}
-
-/** The text's figures and dates the packet does not carry (a date the packet lacks may still be a ratio of two packet figures). */
-export function unsupportedFigures(text, packet) {
-  const known = packetFigures(packet);
-  const { dates, figures } = figuresOf(text);
-  const plain = (n) => ({ sign: 0, written: n, places: 0, family: 'plain' });
-  return [
-    ...dates.filter((row) => !known.dates.has(row.md) && !row.parts.every((n) => figureAgrees(plain(n), known.figures))).map((row) => row.text),
-    ...figures.filter((figure) => !figureAgrees(figure, known.figures)).map((figure) => figure.text)
-  ];
-}
+export const buildScreenReadingRetryPrompt = buildReadingRetryPrompt;
 
 // ---- state words -----------------------------------------------------------------------------------------------------------
 // The market-reading check (axisStateClaimIssues) reads "id: state" lines; the packet's axis states are handed to it in
 // that form. It knows the market axes' own words (추세, 시장 폭, 변동성, 금리, 신용); every packet axis is also read by its
 // title: the title (or its head, "환율 (원, 엔)" → 환율) followed directly by another state label.
 const STATE_WORD = '(양호|중립|부담|확인\\s?불가)';
-const CONDITIONAL = /(?:하면|이면|되면|라면|으면|면\s|경우|바뀌|전환|돌아서|넘어가)/;
 const escape = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 function titleForms(title) {
   const full = String(title || '').trim();
@@ -248,7 +289,7 @@ function titledStateIssues(text, axes = []) {
   const sentences = String(text || '').replace(/「[^」]*」|'[^']*'|"[^"]*"/g, '').split(/(?<=[.?!。])\s+|\n+/);
   for (const sentence of sentences) {
     for (const clause of sentence.split(/[,，;；]|(?<=지만|으나|는데|반면|면서)\s/)) {
-      if (CONDITIONAL.test(clause)) continue;
+      if (READING_CONDITIONAL.test(clause)) continue;
       for (const axis of axes) {
         for (const form of titleForms(axis.title)) {
           const match = clause.match(new RegExp(`${escape(form)}(?:\\s?(?:축|지표|요인|판정))?(?:은|는|이|가|도)?\\s?(?:지금\\s?|여전히\\s?|아직\\s?)?['‘"“]?${STATE_WORD}(?![가-힣]*\\s?(?:으로|로)\\s?바뀌)`));
@@ -261,51 +302,33 @@ function titledStateIssues(text, axes = []) {
 }
 
 // ---- the validator ---------------------------------------------------------------------------------------------------------
-const EMOJI = /\p{Extended_Pictographic}/u;
-const SOURCE_NAMES = /(?<![A-Za-z])(?:FRED|CNN|Yahoo|Bloomberg|Reuters|Cboe|CBOE|Investing\.com|WSJ)(?![A-Za-z])|야후|블룸버그|로이터/;
-const LATIN_TERMS = /S&P|\b[A-Z]{2,}(?:\s?\d+)?\b|\bSahm\b/g; // tickers and indicator names are Latin by nature
+const SENTENCES = (body) => body.split(/(?<=[.?!。])\s+/);
 
 /** { issues, warnings } for one reading against its packet. Issues block publication; warnings are recorded with it. */
 export function validateScreenReading(text, packet) {
   const body = String(text || '').trim();
-  const issues = [];
+  const issues = coreReadingIssues(body, packet);
   const warnings = [];
-  if (!body) return { issues: ['empty'], warnings };
-  if (body.length > SCREEN_READING_MAX_CHARS) issues.push('too-long');
-  if (body.length < SCREEN_READING_MIN_CHARS) issues.push('too-short');
-  if (PROMPT_SECTION_LABEL.test(body) || Object.values(SCREEN_READING_SECTIONS).some((label) => body.includes(label)) || /사실\s?묶음/.test(body)) issues.push('prompt-label-leak');
-  if (EMOJI.test(body)) issues.push('emoji');
-  const prose = body.replace(LATIN_TERMS, ' ');
-  const hangul = (prose.match(/[가-힣]/g) || []).length;
-  const latin = (prose.match(/[A-Za-z]/g) || []).length;
-  if (hangul < 30 || (latin >= 30 && hangul < latin * 0.6)) issues.push('language-not-korean');
-  const missing = unsupportedFigures(body, packet);
-  if (missing.length) issues.push(`figure-unsupported:${[...new Set(missing)].slice(0, 6).join(', ')}`);
+  if (issues[0] === 'empty') return { issues, warnings };
+  if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   const context = Object.entries(packet?.axisStates || {}).map(([id, state]) => `${id}: ${state}`).join('\n');
   for (const issue of axisStateClaimIssues(body, { context })) issues.push(`state-contradiction:${issue.split(':')[1] || ''}`);
   issues.push(...titledStateIssues(body, packet?.axes || []));
-  issues.push(...validateAnalysisAdmission(body, { context: (packet?.lines || []).join('\n') }).filter((issue) => issue === 'trade-instruction' || issue === 'probability-claim' || issue.startsWith('condition-count')));
-  issues.push(...publishedTextIssues(body));
-  warnings.push(...analysisInterpretationWarnings(body));
-  const sentences = body.split(/(?<=[.?!。])\s+/).filter((sentence) => /[가-힣]/.test(sentence)).length;
-  if (sentences < 3 || sentences > 5) warnings.push(`sentence-count:${sentences}`);
-  if (SOURCE_NAMES.test(body)) warnings.push('source-name');
-  if (/거시\s?경제/.test(body)) warnings.push('macro-screen-name');
-  // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause,
-  // "싸다/매력적" said without a condition, and an opening on the tally word are recorded, never blocking.
+  issues.push(...validateAnalysisAdmission(body.replace(/\n\s*\n/g, ' '), { context: (packet?.lines || []).join('\n') }).filter((issue) => issue.startsWith('condition-count')));
+  issues.push(...publishedTextIssues(body.replace(/\n\s*\n/g, ' ')));
+  warnings.push(...analysisInterpretationWarnings(body), ...coreReadingWarnings(body));
+  // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause and an opening on the
+  // tally word are recorded, never blocking.
   if (packet?.diagnosis) {
     const other = Object.values(DIAGNOSIS_WORDS).filter((word) => word !== packet.diagnosis);
-    if (body.split(/(?<=[.?!。])\s+/).some((sentence) => !CONDITIONAL.test(sentence) && other.some((word) => sentence.includes(word)))) warnings.push('diagnosis-word');
+    if (SENTENCES(body).some((sentence) => !READING_CONDITIONAL.test(sentence) && other.some((word) => sentence.includes(word)))) warnings.push('diagnosis-word');
   }
   // The rebound word the same way: another state word outside a conditional clause warns ("…로 마감하면 반등 실패" is a condition).
   const reboundOthers = Object.values(REBOUND_WORDS).filter((word) => word !== packet?.rebound);
-  if (packet?.screen === 'signal' && body.split(/(?<=[.?!。])\s+/).some((sentence) => !CONDITIONAL.test(sentence) && reboundOthers.some((word) => sentence.includes(word)))) warnings.push('rebound-word');
-  if (body.split(/(?<=[.?!。])\s+/).some((sentence) => /(?:싸|저렴|매력적)/.test(sentence) && !CONDITIONAL.test(sentence))) warnings.push('cheap-asserted');
+  if ((packet?.screen === 'signal' || packet?.screen === 'charts') && SENTENCES(body).some((sentence) => !READING_CONDITIONAL.test(sentence) && reboundOthers.some((word) => sentence.includes(word)))) warnings.push('rebound-word');
   if (/^[^.。]*(?:판정|시장 상태)[^.。]*(?:부담 우세|양호 우세|혼조|판정 보류)/.test(body)) warnings.push('tally-opening');
   return { issues: [...new Set(issues)], warnings: [...new Set(warnings)] };
 }
 
-/** The model's answer as one paragraph: surrounding quotes and line breaks removed. */
-export function normalizeScreenReading(text) {
-  return String(text ?? '').replace(/^\s*["“'‘]|["”'’]\s*$/g, '').replace(/\s*\n+\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
-}
+/** The model's answer as at most two blocks (reading-core.js normalizeReading). */
+export const normalizeScreenReading = normalizeReading;

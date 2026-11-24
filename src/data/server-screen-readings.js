@@ -5,17 +5,19 @@
 import { isIsoDay } from '../domain/shared/session-date.js';
 
 export const SCREEN_READING_SCHEMA = 'screen-readings.v1';
-const MAX_CHARS = 400;
+const MAX_CHARS = 520; // reading-core.js READING_MAX_CHARS: at most two blocks of 130–230 characters (kept literal: this reader is on the signal route)
 const MIN_CHARS = 60;
 
-/** { text, basis, generatedAt } for `screen`, or null. */
+/** { text, blocks, basis, generatedAt } for `screen`, or null. A reading is one or two blocks split by a blank line. */
 export function serverScreenReading(root, screen) {
   const block = root?._aioScreenReadings;
   if (!block || block.schemaVersion !== SCREEN_READING_SCHEMA || !block.readings || typeof block.readings !== 'object') return null;
   const reading = block.readings[screen];
   if (!reading || reading.status !== 'verified' || typeof reading.text !== 'string') return null;
   const text = reading.text.trim();
-  if (text.length < MIN_CHARS || text.length > MAX_CHARS) return null;
+  const blocks = text.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+  const size = blocks.join(' ').length;
+  if (size < MIN_CHARS || size > MAX_CHARS || blocks.length > 2) return null;
   if (!isIsoDay(reading.basis)) return null;
-  return { text, basis: reading.basis, generatedAt: reading.generatedAt || null };
+  return { text, blocks, basis: reading.basis, generatedAt: reading.generatedAt || null };
 }

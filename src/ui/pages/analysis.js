@@ -12,7 +12,6 @@ import { renderKnowledgeArrival, clearKnowledgeArrival } from '../components/kno
 import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
 import { renderScreenReading } from '../components/screen-reading.js';
-import { renderMarketInvestigation } from '../components/market-investigation.js';
 
 // The stock chart is a route-only chunk. Like createLazyPage, a failed load (GitHub Pages 429, a
 // chunk missing after a deploy) is retried twice with a growing pause; after that the section says so instead of
@@ -65,6 +64,17 @@ function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgS
   else element.removeAttribute('data-observed-at');
 }
 
+// The investigation painter and its reader load only when data.json carries an investigation (the boot loader keeps the
+// raw block on root._aioMarketInvestigation); without one the host is emptied and hidden, as the painter itself does.
+function paintInvestigation({ documentRef, root, basis, mode }) {
+  if (!root?._aioMarketInvestigation) {
+    const host = documentRef?.getElementById?.(mode === 'line' ? 'signal-investigation' : 'home-investigation');
+    if (host) { host.replaceChildren(); host.hidden = true; }
+    return;
+  }
+  import('../components/market-investigation.js').then(({ renderMarketInvestigation }) => renderMarketInvestigation({ documentRef, root, basis, mode })).catch(() => {});
+}
+
 function render({ root, documentRef, store, route, renderRegimePage }) {
   const technical = selectTechnical(store.getState());
   const signal = selectSignal(store.getState());
@@ -91,14 +101,14 @@ function render({ root, documentRef, store, route, renderRegimePage }) {
       // a stalled F&G series shows as held, not as today's score.
       renderHomeFearGreed({ documentRef, sentimentValues, fgClose, fgStale: !!fgClose && !isUsable(alignInput(fgClose.date, basis)) });
       renderHomeVix({ documentRef, root });
-      renderMarketInvestigation({ documentRef, root, basis, mode: 'full' }); // the day's investigation, verdict first
+      paintInvestigation({ documentRef, root, basis, mode: 'full' }); // the day's investigation, verdict first
     }
     if (route === 'signal') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioSignalRenderer = 'native';
       renderRegimePage?.({ documentRef, root, store });
       renderScreenReading({ documentRef, root, screen: 'signal' }); // the AI reading under the hero
-      renderMarketInvestigation({ documentRef, root, basis: closeBasis(root?._aioHistory || []), mode: 'line' }); // its verdict, owned by 오늘
+      paintInvestigation({ documentRef, root, basis: closeBasis(root?._aioHistory || []), mode: 'line' }); // its verdict, owned by 오늘
       renderKoreaParticipation({ documentRef, root, store });
     }
   }

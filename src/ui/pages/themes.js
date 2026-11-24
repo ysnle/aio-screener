@@ -6,6 +6,8 @@ import { subscribeToSlices } from '../../state/memoize.js';
 import { renderThemeStrength } from '../components/theme-strength.js';
 import { renderThemePlaybook, renderThemeDetailPlaybook, pickTheme } from '../components/theme-playbook-view.js';
 import { renderSectorMap } from '../components/sector-map.js';
+import { renderScreenReading } from '../components/screen-reading.js';
+import { themePlaybookForRoot } from '../components/theme-playbook.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applyLegacyThemeDetailAddress } from '../navigation/theme-detail.js';
 import { renderRRGStatus, renderRRGCanvas, syncVerdictView } from './themes/rrg.js';
@@ -109,6 +111,12 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           if (pendingFrame.timer != null) view?.clearTimeout?.(pendingFrame.timer);
           pendingFrame = null;
         };
+        // The AI readings of 요약 (US theme stages) and 한국 (Korean theme stages), each on the close its stages are read on.
+        const paintScreenReadings = () => {
+          const { playbook } = themePlaybookForRoot(root, store);
+          renderScreenReading({ documentRef, root, screen: 'themes', shownBasis: playbook.asOfByMarket?.US || null });
+          renderScreenReading({ documentRef, root, screen: 'korea', shownBasis: playbook.asOfByMarket?.KR || null });
+        };
         const renderNow = () => {
           cancelScheduledRender();
            renderThemes({ documentRef, root, store, route });
@@ -123,6 +131,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // The same chunk opens the summary card with the leaders against the rest (paintThemesLeaderFalls).
           if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain, paintThemesLeaderFalls }) => { paintThemesAiChain(documentRef, root); paintThemesLeaderFalls(documentRef, root); }).catch(() => {});
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
+           try { paintScreenReadings(); } catch (_) { /* a reading never takes the themes route down */ }
            try { renderSectorMap({ documentRef, root, store }); renderThemeDaySplits({ documentRef, root, store }); } catch (_) { /* the map never takes the themes route down */ } // 2026-10-13 S&P 500 map; v59.51 day splits
            syncVerdictView(documentRef, root);
            syncStandalone();

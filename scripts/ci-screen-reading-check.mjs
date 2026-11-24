@@ -14,6 +14,11 @@ import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { serverScreenReading } from '../src/data/server-screen-readings.js';
 import { renderScreenReading } from '../src/ui/components/screen-reading.js';
+import { SUBJECT_READING_KINDS, buildSubjectPacket, buildSubjectPrompt, validateSubjectReading } from '../src/ai/reading/subject-reading.js';
+import { writeSubjectReading } from '../src/ui/components/subject-reading.js';
+import { cachedSubjectReading, rememberSubjectReading } from '../src/storage/subject-readings.js';
+import { extractCompletedResponseText } from '../src/domain/ai/responses-payload.js';
+import { extractCompletedResponseText as producerExtract } from './lib/ai-shared-analysis.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => readFileSync(join(root, file), 'utf8');
@@ -74,8 +79,8 @@ await section('packet', async () => {
       && buildScreenPacket('signal', { ...FIXTURE, regime: { ...FIXTURE.regime, axes: FIXTURE.regime.axes.map((a) => (a.id === 'volatility' ? { ...a, evidence: [['VIX', '25.10 (5일 +43%)']] } : a)) } }).key !== packet.key);
   const prompts = SCREEN_READING_IDS.map((screen) => buildScreenReadingPrompt(buildScreenPacket(screen, FIXTURE)));
   check('v60.31 every screen\'s prompt opens with the same static rules (the cacheable prefix) and ends with its facts', prompts.every((prompt) => prompt.startsWith(SCREEN_READING_RULES) && prompt.includes('[사실 묶음]')));
-  check('v60.31 the registry holds 시장 상태, 시장 폭, 매크로 and 투자 심리; 매크로 reads its own six-factor read and quadrant inputs',
-    SCREEN_READING_IDS.join(',') === 'signal,breadth,macro,sentiment' && buildScreenPacket('macro', FIXTURE)?.lines.some((line) => line.includes('국면 판정 보류')) && buildScreenPacket('breadth', FIXTURE)?.axes.length === 1);
+  check('v60.54 the registry holds the four market screens and 금리와 환율, 기술적 분석, 테마와 섹터 and 한국; 매크로 reads its own six-factor read and quadrant inputs',
+    SCREEN_READING_IDS.join(',') === 'signal,breadth,macro,sentiment,fxbond,charts,themes,korea' && buildScreenPacket('macro', FIXTURE)?.lines.some((line) => line.includes('국면 판정 보류')) && buildScreenPacket('breadth', FIXTURE)?.axes.length === 1);
   const mood = buildScreenPacket('sentiment', FIXTURE);
   check('v60.31 the 투자 심리 packet carries the shared 심리 verdict, the F&G, VIX ÷ 3개월 VIX and AAII cards with their state words, and the credit and volatility axes; no assembled sentence',
     mood?.basis === '2026-11-18' && mood.lines.some((line) => line.startsWith('심리: 부담') && line.includes('공포 쪽 쏠림')) && mood.lines.some((line) => line.startsWith('공포·탐욕 지수 (F&G): 25 (공포)'))
@@ -187,6 +192,128 @@ await section('wiring', async () => {
   check('v60.31 no reading leaves the host empty and hidden', !renderScreenReading({ documentRef: doc, root: {}, screen: 'signal', shownBasis: '2026-11-18' }) && host.hidden && host.children.length === 0);
 });
 
+// ---- the other screens (lane A) on two kinds of day, and the per-subject readings (lane B) -------------------------------
+const SESSIONS_LONG = [];
+for (let t = Date.parse('2025-09-01T12:00:00Z'); t <= Date.parse('2026-11-18T12:00:00Z'); t += 86400000) { const day = new Date(t); if (day.getUTCDay() % 6) SESSIONS_LONG.push(day.toISOString().slice(0, 10)); }
+// A quiet drift up, and a rates-led selloff: the 10-year close up 30bp in five sessions while every index falls.
+const dayHistory = (kind) => SESSIONS_LONG.map((date, i) => {
+  const shock = kind === 'rates' ? Math.max(0, 5 - (SESSIONS_LONG.length - 1 - i)) : 0;
+  const drift = 1 + i * 0.0006;
+  return { date, spx: 6000 * drift * (1 - 0.012 * shock), ndx: 21000 * drift * (1 - 0.018 * shock), soxx: 250 * drift * (1 - 0.03 * shock), rut: 2200 * drift * (1 - 0.01 * shock), tnx: 4.2 + 0.06 * shock, distributionDays: kind === 'rates' ? 6 : 1 };
+});
+const theme = (market, id, label, state, stateLabel, ret1m, ret5d, above50) => ({ market, id, label, state, stateLabel, ret1m, ret5d, above50, windText: '' });
+const PLAYBOOK_AI = { available: true, asOf: '2026-11-18', asOfByMarket: { US: '2026-11-18', KR: '2026-11-19' }, highlights: {}, rotation: { tags: [{ label: 'AI 설비투자 사이클', ret1m: 12.4 }, { label: '경기 방어', ret1m: -2.1 }] },
+  themes: [theme('US', 'semis', '반도체', 'leading', '주도 지속 (6개월·1개월)', 14.2, 3.1, 88), theme('US', 'ai', 'AI 인프라', 'leading', '주도 지속 (6개월·1개월)', 9.8, 1.2, 75), theme('US', 'utilities', '유틸리티', 'weak', '약세 지속 (6개월·1개월)', -4.6, -1.1, 22),
+    theme('KR', 'hbm', '반도체 / HBM', 'leading', '주도 지속 (3개월·1개월, 코스피 대비)', 18.3, 4.4, 90), theme('KR', 'bio', '바이오', 'weak', '약세 지속 (3개월·1개월, 코스피 대비)', -7.7, -2.0, 15), theme('KR', 'ship', '조선', 'inline', '동행', 2.2, 0.4, 55)] };
+const PLAYBOOK_DEFENSIVE = { available: true, asOf: '2026-11-18', asOfByMarket: { US: '2026-11-18', KR: '2026-11-19' }, highlights: {}, rotation: { tags: [] },
+  themes: [theme('US', 'utilities', '유틸리티', 'leading', '주도 지속 (6개월·1개월)', 4.1, 0.8, 70), theme('US', 'semis', '반도체', 'weak', '약세 지속 (6개월·1개월)', -15.3, -6.2, 8),
+    theme('KR', 'telecom', '통신', 'inline', '동행', 1.1, 0.2, 50), theme('KR', 'battery', '2차전지', 'weak', '약세 지속', -9.4, -3.3, 10)] };
+const laneA = (kind, playbook) => ({ ...FIXTURE, inputs: { ...FIXTURE.inputs, history: dayHistory(kind) }, playbook });
+const MACRO_RATES = { dgs2: 4.62, dgs5: 4.71, dgs10: 4.98, dgs20: 5.31, dgs30: 5.27 };
+const MACRO_QUIET = { dgs2: 3.91, dgs5: 3.95, dgs10: 4.12, dgs20: 4.5, dgs30: 4.47 };
+
+await section('lane A: the other screens', async () => {
+  const quiet = laneA('quiet', PLAYBOOK_AI);
+  const rates = laneA('rates', PLAYBOOK_DEFENSIVE);
+  const fxQuiet = buildScreenPacket('fxbond', quiet, { data: { macro: MACRO_QUIET } });
+  const fxRates = buildScreenPacket('fxbond', rates, { data: { macro: MACRO_RATES } });
+  check('v60.54 금리와 환율 builds its packet from the board\'s own model (buildRatesFx): the curve, the 10-year close move and the rates and won/yen axes; a rates-led selloff and a quiet day give different packets',
+    !!fxQuiet && !!fxRates && fxRates.lines.some((line) => line.includes('10년 4.98%')) && fxRates.lines.some((line) => line.startsWith('10년물 종가 변화: 5거래일 +30bp'))
+      && fxQuiet.lines.some((line) => line.startsWith('10년물 종가 변화: 5거래일 0bp')) && fxRates.key !== fxQuiet.key && Object.keys(fxRates.axisStates).sort().join(',') === 'korea,rates', JSON.stringify([fxRates?.lines, fxQuiet?.lines]));
+  const chQuiet = buildScreenPacket('charts', quiet);
+  const chRates = buildScreenPacket('charts', rates);
+  const trendOf = (packet, label) => packet?.lines.find((line) => line.startsWith(`${label}: `)) || '';
+  check('v60.54 기술적 분석 builds its packet from the index cards\' readings (indexChartReadings, chartsConclusion) and the S&P 500 distribution days; the selloff and the quiet day read differently',
+    !!chQuiet && !!chRates && chQuiet.lines.some((line) => line.startsWith('지수 추세 집계: 지수 4개 중')) && chRates.lines.some((line) => line.includes('분배일) 6회')) && chQuiet.lines.some((line) => line.includes('분배일) 1회'))
+      && trendOf(chQuiet, '반도체(SOXX)') !== trendOf(chRates, '반도체(SOXX)'), JSON.stringify([chQuiet?.lines, chRates?.lines]));
+  const thAi = buildScreenPacket('themes', quiet);
+  const thDef = buildScreenPacket('themes', rates);
+  check('v60.54 테마와 섹터 builds its packet from the theme stages the screen draws (the playbook): the strong and weak US themes by one-month return; an AI-led and a defensive-led day lead with different themes',
+    thAi?.lines.find((line) => line.startsWith('강한 테마'))?.startsWith('강한 테마 반도체:') && thDef?.lines.find((line) => line.startsWith('강한 테마'))?.startsWith('강한 테마 유틸리티:')
+      && thAi.lines.some((line) => line.startsWith('미국 테마 3개의 단계: 주도 지속 2개 · 약세 지속 1개')), JSON.stringify([thAi?.lines, thDef?.lines]));
+  const krAi = buildScreenPacket('korea', quiet);
+  const krThin = buildScreenPacket('korea', rates);
+  check('v60.54 한국 reads the Korean theme stages on the Korean close with the won/yen axis; thin Korean data still builds a packet that says how many themes it has',
+    krAi?.basis === '2026-11-19' && krAi.lines.some((line) => line.startsWith('한국 테마 반도체 / HBM:')) && krThin?.lines.some((line) => line === '한국 테마 2개 (1개월 수익률 높은 순과 낮은 순)') && krAi.axes.some((axis) => axis.id === 'korea'), JSON.stringify([krAi?.lines, krThin?.lines]));
+  check('v60.54 a screen without its own facts builds no packet (no playbook, no history, no treasury yields)',
+    buildScreenPacket('themes', FIXTURE) === null && buildScreenPacket('korea', FIXTURE) === null && buildScreenPacket('fxbond', FIXTURE, { data: { macro: {} } }) === null);
+  const guides = [SCREEN_READING_RULES, ...SCREEN_READING_IDS.map((id) => buildScreenReadingPrompt({ screen: id, lines: [] })), ...SUBJECT_READING_KINDS.map((kind) => buildSubjectPrompt({ kind, lines: [] }))].join('\n');
+  check('v60.54 the shared instruction and every guide are time-proof: no date, year, ticker or index level in them',
+    !/\d{1,2}\s?\/\s?\d{1,2}|20\d\d|\b[A-Z]{3,5}\b|\d{3,},?\d*\s?(?:선|포인트)/.test(guides.replace(/M\/D/g, '')), (guides.match(/\d{1,2}\s?\/\s?\d{1,2}|20\d\d|\b[A-Z]{3,5}\b/g) || []).join(','));
+  check('v60.54 the shared instruction asks for one line of reasoning (verdict first, what the price reflects, what would confirm or change it, what does not fit) and conditional guidance without orders',
+    ['첫 문장은 판단', '이미 무엇을 반영', '무엇이 확인되면', '"다만"', '나눠 접근', '% 확률', '블록 1~2개'].every((part) => SCREEN_READING_RULES.includes(part)));
+  const TWO = `${GOOD}\n\n다만 하이일드 스프레드 343bp는 아직 350bp 아래라 신용은 중립이고, 미 10년물도 5.07%에서 중립에 머물러 있습니다. S&P 500이 50일선(7,649) 위로 마감하면 추세부터 읽기가 달라지고, 그 전까지는 서두를 이유가 적습니다. VIX가 24.56에서 내려오고 단기 불안 비율 1.01의 역전이 풀리는지가 다음 확인점이며, 그때까지는 조건이 확인될 때마다 나눠 접근하는 쪽이 비용이 작습니다.`;
+  const packet = buildScreenPacket('signal', FIXTURE);
+  check('v60.54 a reading of two blocks within 520 characters passes the producer validator; a third block is blocked',
+    validateScreenReading(TWO, packet).issues.length === 0 && TWO.length > 400 && validateScreenReading(`${TWO}\n\n${GOOD}`, packet).issues.includes('too-many-blocks'), JSON.stringify(validateScreenReading(TWO, packet)));
+  const twoBlock = { schemaVersion: SCREEN_READING_SCHEMA, readings: { signal: { status: 'verified', text: TWO, basis: '2026-11-18' }, macro: { status: 'verified', text: `${TWO}\n\n${GOOD}`, basis: '2026-11-18' } } };
+  const admitted = serverScreenReading({ _aioScreenReadings: twoBlock }, 'signal');
+  check('v60.54 the screen admits a two-block reading over the old 400-character face and paints each block as its own paragraph; three blocks are not admitted',
+    admitted?.blocks?.length === 2 && serverScreenReading({ _aioScreenReadings: twoBlock }, 'macro') === null, JSON.stringify(admitted));
+  const node = (tag) => ({ tag, className: '', textContent: '', hidden: false, children: [], append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; } });
+  const host = node('section');
+  renderScreenReading({ documentRef: { getElementById: (id) => (id === 'signal-screen-reading' ? host : null), createElement: node }, root: { _aioScreenReadings: twoBlock }, screen: 'signal', shownBasis: '2026-11-18' });
+  check('v60.54 the painter draws the two blocks as two paragraphs under one tag', host.children.filter((child) => child.className === 'screen-reading__text').length === 2);
+});
+
+// Three kinds of 종목 (a profitable megacap, a loss-making small cap, a Korean listing with thin data), one chart and one portfolio.
+const company = (symbol, { name, market = 'US', sector = null, description = null, returns = {}, sma = {}, fiscal = [], periodEnd = null, asOf = '2026-11-18' }) => ({
+  available: true, symbol, identity: { name, market, sector }, business: description ? { description } : { description: null }, associations: [],
+  marketEvidence: { asOf, returns, pctSma50: sma.s50 ?? null, pctSma200: sma.s200 ?? null }, financial: { periodEnd, fiscal: { points: fiscal } }, risks: [] });
+const MEGACAP = company('MEGA', { name: '메가 테크', sector: 'Technology', description: '스마트폰과 서비스 구독으로 매출을 내는 기기 회사입니다.', returns: { ret1m: 3.2, ret3m: 8.1, ret6m: 15.4 }, sma: { s50: 4.1, s200: 12.3 },
+  fiscal: [{ title: '매출', text: '4,160억 달러, 전년 대비 +6.4%' }, { title: '순이익률', text: '26.9%' }], periodEnd: '2026-09-27' });
+const SMALLCAP = company('TINY', { name: '타이니 바이오', sector: 'Healthcare', description: '임상 단계 신약 개발사입니다.', returns: { ret1m: -12.5, ret3m: -30.2 }, sma: { s50: -9.8, s200: -25.1 },
+  fiscal: [{ title: '순이익', text: '-1.2억 달러, 적자 지속' }, { title: '현금', text: '0.8억 달러' }], periodEnd: '2026-06-30' });
+const KOREAN = company('000000.KS', { name: '한국 소형주', market: 'KR', asOf: '2026-11-19', returns: { ret1m: 1.4 } });
+const STOCK_GOOD = '메가 테크는 기기와 구독으로 돈을 버는 회사이고, 지금 주가는 50일선보다 +4.1% 위에서 이익이 계속 늘 것을 이미 반영하고 있습니다. 매출은 4,160억 달러로 전년 대비 +6.4% 늘었고 순이익률은 26.9%입니다. 3개월 +8.1%로 시장 상태 부담 우세와는 다른 쪽에 서 있습니다.\n\n다만 시장 상태가 부담 우세라 기대가 꺾이면 먼저 흔들릴 수 있습니다. 다음 실적에서 매출 증가가 이어지는지가 확인되면 판단이 굳어지고, 꺾이면 50일선 위치부터 다시 봐야 합니다.';
+
+await section('lane B: per-subject readings', async () => {
+  const regime = FIXTURE.regime;
+  const mega = buildSubjectPacket('stock', { company: MEGACAP, valuation: '시총 약 3.5조 달러(11/18 종가), 직전 4개 분기 PER 35.2배(조정 EPS)', regime });
+  const tiny = buildSubjectPacket('stock', { company: SMALLCAP, valuation: '시총 약 4억 달러(11/18 종가)', regime });
+  const korean = buildSubjectPacket('stock', { company: KOREAN, valuation: null, regime });
+  check('v60.54 the 종목 packet connects business, valuation, the last reported year, the price trend and the market state; a loss-making small cap carries its losses and a thin Korean listing says what is missing',
+    mega?.lines.some((line) => line.startsWith('밸류에이션: 시총 약 3.5조 달러')) && mega.lines.some((line) => line.startsWith('최근 회계연도(2026-09-27): 매출: 4,160억 달러')) && mega.lines.some((line) => line.startsWith('가격 추세: 1개월 +3.2%'))
+      && tiny?.lines.some((line) => line.includes('적자 지속')) && korean?.lines.includes('사업: 사업 설명 자료 없음') && korean.lines.includes('밸류에이션: 자료 없음') && korean.basis === '2026-11-19'
+      && mega.lines.includes('미국 시장 상태 판정: 부담 우세'), JSON.stringify([mega?.lines, tiny?.lines, korean?.lines]));
+  check('v60.54 the subject key is per subject per close and changes with any fact; the same facts give the same key',
+    mega.key.startsWith('stock:MEGA:2026-11-18:') && buildSubjectPacket('stock', { company: MEGACAP, valuation: '시총 약 3.5조 달러(11/18 종가), 직전 4개 분기 PER 35.2배(조정 EPS)', regime }).key === mega.key
+      && buildSubjectPacket('stock', { company: { ...MEGACAP, marketEvidence: { ...MEGACAP.marketEvidence, pctSma50: 4.2 } }, regime }).key !== mega.key);
+  const chart = buildSubjectPacket('chart', { symbol: 'mega', analysis: { available: true, asOf: '2026-11-18', stateLabel: '상승 추세', evidence: [['50일선 대비', '+4.1%'], ['거래량 배수', '1.4배']], flip: '50일선(212.40) 아래로 마감하면 조정', templatePass: 7, fromHigh: -3.2 },
+    scenarios: { available: true, scenarios: [{ title: '회복', text: '230.10 위 마감이 이어지면 고점 재시험' }] }, regime });
+  check('v60.54 the chart packet carries the rule-decided state word, its evidence, the flip, the scenarios and the market state',
+    chart?.subject === 'MEGA' && chart.lines.includes('추세 상태어(규칙으로 정함): 상승 추세') && chart.lines.some((line) => line.startsWith('시나리오 회복: 230.10')) && chart.lines.some((line) => line.startsWith('상태가 바뀌는 조건')), JSON.stringify(chart?.lines));
+  const book = buildSubjectPacket('portfolio', { rows: { available: true, asOf: '2026-11-18', baseCurrency: 'KRW', cashPct: 12.5, rows: [{ ticker: 'MEGA', sector: 'Technology', allocationPct: 41.2, returnPct: 55.1, quantity: 120, cost: 9000, memo: '내 메모' }, { ticker: 'TINY', sector: 'Healthcare', allocationPct: 8.3, returnPct: -20.4 }] },
+    read: { trendMix: [{ label: '상승', pct: 62 }], sectorMix: [{ label: '기술', pct: 41 }] }, regime });
+  check('v60.54 the portfolio packet carries ticker, sector, weight and return only (never quantity, cost or memo), the concentration and the market state',
+    book?.lines.some((line) => line === '보유: MEGA (Technology) 비중 41.2% · 수익률 +55.1%') && book.lines.includes('상위 3종목 비중 합계 49.5%') && !book.lines.join(' ').match(/120|9000|9,000|내 메모/), JSON.stringify(book?.lines));
+  check('v60.54 a subject without its facts builds no packet (no close, no analysis, no holdings)',
+    buildSubjectPacket('stock', { company: { ...MEGACAP, marketEvidence: {} } }) === null && buildSubjectPacket('chart', { symbol: 'X', analysis: { available: false } }) === null && buildSubjectPacket('portfolio', { rows: { available: true, rows: [] } }) === null);
+  check('v60.54 the subject prompt opens with the same shared instruction as the screens and its own guide',
+    [mega, chart, book].every((p) => buildSubjectPrompt(p).startsWith(SCREEN_READING_RULES) && buildSubjectPrompt(p).includes('[사실 묶음]')) && buildSubjectPrompt(mega).length < 4000, String(buildSubjectPrompt(mega).length));
+  const ok = validateSubjectReading(STOCK_GOOD, mega);
+  check('v60.54 a two-block 종목 reading on packet figures passes; an invented figure, an order, a target price and a % probability are blocked',
+    ok.issues.length === 0 && validateSubjectReading(STOCK_GOOD.replace('26.9%', '31.5%'), mega).issues.some((issue) => issue.startsWith('figure-unsupported'))
+      && validateSubjectReading(`${STOCK_GOOD} 지금 매수하세요.`, mega).issues.includes('trade-instruction') && validateSubjectReading(`${STOCK_GOOD} 목표가는 250달러입니다.`, mega).issues.includes('trade-instruction')
+      && validateSubjectReading(STOCK_GOOD.replace('흔들릴 수 있습니다', '흔들릴 확률이 60%입니다'), mega).issues.includes('probability-claim'), JSON.stringify(ok));
+  const asked = [];
+  const request = (answers) => async (_root, prompt) => { asked.push(prompt); return answers.shift(); };
+  const verified = await writeSubjectReading({}, mega, { request: request([{ text: STOCK_GOOD }]) });
+  const retried = await writeSubjectReading({}, mega, { request: request([{ text: STOCK_GOOD.replace('26.9%', '31.5%') }, { text: STOCK_GOOD }]) });
+  const blocked = await writeSubjectReading({}, mega, { request: request([{ text: STOCK_GOOD.replace('26.9%', '31.5%') }, { text: STOCK_GOOD.replace('26.9%', '31.5%') }]) });
+  const budget = await writeSubjectReading({}, mega, { request: request([{ text: null, reason: 'budget' }]) });
+  check('v60.54 a subject reading is asked once, retried once with the blocking reasons (never the rejected text), and otherwise ends blocked or failed with one reason',
+    verified.status === 'verified' && verified.text === STOCK_GOOD && retried.status === 'verified' && blocked.status === 'blocked' && blocked.reason === 'blocked' && budget.status === 'failed' && budget.reason === 'budget'
+      && asked[2].includes('[다시 쓰기]') && asked[2].includes('31.5%') && !asked[2].includes('메가 테크는 기기와 구독'), JSON.stringify([verified.status, retried.status, blocked, budget]));
+  const store = new Map();
+  const browser = { localStorage: { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, String(value)) } };
+  rememberSubjectReading(browser, mega, { text: STOCK_GOOD, basis: mega.basis });
+  rememberSubjectReading(browser, book, { text: STOCK_GOOD, basis: book.basis });
+  check('v60.54 a 종목 reading is kept per subject per close in this browser; a portfolio reading stays in memory and never reaches storage',
+    cachedSubjectReading(browser, mega)?.text === STOCK_GOOD && String(store.get('aio_subject_readings_v1') || '').includes('stock:MEGA:2026-11-18:') && cachedSubjectReading(browser, book)?.text === STOCK_GOOD && !String(store.get('aio_subject_readings_v1') || '').includes('portfolio:'), [...store.keys()].join(','));
+  check('v60.54 the browser and the producers read a completed Worker response with one function', extractCompletedResponseText === producerExtract && extractCompletedResponseText({ status: 'completed', model: 'gpt-6-luna', output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: '읽기' }] }] }) === '읽기');
+});
+
 await section('repository data', async () => {
   const json = (file) => { try { return JSON.parse(read(file)); } catch (_) { return null; } };
   const history = readHistoryRows(json('public-data/history.json'));
@@ -204,6 +331,8 @@ await section('repository data', async () => {
   const mood = buildScreenPacket('sentiment', interpretation);
   check('v60.31 ⑨ the repository artifacts build the 투자 심리 packet, with the AAII survey read from data.json marketSurveys.aaii through the shared market input',
     !!mood && mood.basis === packet?.basis && mood.lines.some((line) => line.startsWith('심리: ')) && (!Number.isFinite(aaii?.bearish) || mood.lines.some((line) => line.startsWith(`AAII 개인 설문: 약세 ${aaii.bearish.toFixed(1)}%`))), JSON.stringify(mood?.lines || null));
+  check('v60.54 ⑨ the repository artifacts build the 금리와 환율 and 기술적 분석 packets on the same close as 시장 상태',
+    buildScreenPacket('fxbond', interpretation, { data })?.basis === packet?.basis && buildScreenPacket('charts', interpretation)?.basis === packet?.basis);
   check('v60.31 ⑨ no axis `read` sentence reaches the repository packet', !(interpretation.regime?.axes || []).some((row) => row.read && packet.lines.some((line) => line.includes(row.read))));
 });
 
