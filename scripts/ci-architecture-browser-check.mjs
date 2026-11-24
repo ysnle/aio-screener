@@ -281,7 +281,7 @@ try {
   // 거시 경제 is one native indicator board; the storyline, regime pill, curve canvas and 2Y/2s10s sinks are retired.
   // A group's cards are built when it first opens, so the reader's tap on 물가 comes first.
   await page.evaluate(() => { const fold = document.querySelector('#macro-board [data-group="inflation"] details.macro-group-fold'); if (fold) fold.open = true; });
-  await page.waitForFunction(() => !!document.querySelector('#macro-board [data-group="inflation"] .macro-stat'));
+  await page.waitForFunction(() => [...document.querySelectorAll('#macro-board [data-group="inflation"] .macro-stat-label')].some((node) => /^CPI/.test(node.textContent || '')));
   const macroRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-macro'),
     renderer: document.getElementById('page-macro')?.dataset.aioArchitectureRenderer || null,
