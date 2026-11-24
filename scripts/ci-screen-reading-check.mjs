@@ -333,6 +333,19 @@ await section('repository data', async () => {
     !!mood && mood.basis === packet?.basis && mood.lines.some((line) => line.startsWith('심리: ')) && (!Number.isFinite(aaii?.bearish) || mood.lines.some((line) => line.startsWith(`AAII 개인 설문: 약세 ${aaii.bearish.toFixed(1)}%`))), JSON.stringify(mood?.lines || null));
   check('v60.54 ⑨ the repository artifacts build the 금리와 환율 and 기술적 분석 packets on the same close as 시장 상태',
     buildScreenPacket('fxbond', interpretation, { data })?.basis === packet?.basis && buildScreenPacket('charts', interpretation)?.basis === packet?.basis);
+  {
+    const asOf = interpretation.regime.asOf;
+    const digest = { sourceCatalog: [{ channel: 'fixturechan', role: 'us-fast-breaking' }], signals: [
+      { kind: 'macro', key: 'claims', name: '미국 신규 실업수당청구건수', actual: 203000, forecast: 198000, unit: '건', date: asOf, post: 'fixturechan/1', text: 'POST BODY MUST NOT APPEAR' },
+      { kind: 'macro', key: 'old', name: '미국 소매판매', actual: 0.1, forecast: 0.3, unit: '%', date: '2026-01-02', post: 'fixturechan/2' },
+      { kind: 'pt', ticker: 'NVDA', direction: 'raise', from: 225, to: 240, currency: 'USD', broker: 'Citi', date: asOf, post: 'fixturechan/3' }] };
+    const withClaims = buildScreenPacket('macro', interpretation, { telegram: digest });
+    const plain = buildScreenPacket('macro', interpretation);
+    const claims = (withClaims?.lines || []).filter((line) => line.startsWith('[채널 주장 · 미확인 · 미국 속보 채널'));
+    check('v60.54 매크로 carries the relayed channel releases of the last week as tagged unverified claims — no post text, no target price, no older release — and none without a digest',
+      claims.length === 1 && claims[0].includes('실업수당') && !withClaims.lines.join(String.fromCharCode(10)).includes('POST BODY') && !withClaims.lines.join(String.fromCharCode(10)).includes('NVDA') && !withClaims.lines.join(String.fromCharCode(10)).includes('소매판매 실제')
+        && !(plain?.lines || []).some((line) => line.includes('채널 주장')) && withClaims.key !== plain.key, JSON.stringify(claims));
+  }
   check('v60.31 ⑨ no axis `read` sentence reaches the repository packet', !(interpretation.regime?.axes || []).some((row) => row.read && packet.lines.some((line) => line.includes(row.read))));
 });
 

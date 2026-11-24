@@ -1,14 +1,36 @@
 {
   "version": "v60.54",
   "qa": [
-    { "id": "QA-AI-CHANNEL-CLAIM-01", "text": "v60.54 시장 조사의 ledger 도구와 단서 메시지는 텔레그램 채널에서 추린 사실(인수합병·경제지표·목표주가 건수)을 '[채널 주장 · 미확인 · 채널 종류 · M/D]' 표시로만 싣고 게시물 원문은 싣지 않으며, 채널 주장 수치만 기댄 price 원인은 막는다", "verify_by": "node scripts/ci-market-investigation-check.mjs (v60.54 라벨)", "done": true },
-    { "id": "QA-AI-INVESTIGATION-ARTIFACTS-01", "text": "v60.54 시장 조사의 company 도구는 컨센서스·실적 공시 요약과 회사 가이던스·다음 실적일·채널 주장을, market_data 도구는 국채 입찰·한국 투자자별 순매수·채널 경제지표를 각 화면의 도메인 리더로 읽는다", "verify_by": "node scripts/ci-market-investigation-check.mjs (v60.54 라벨)", "done": true },
-    { "id": "QA-AI-INVESTIGATION-ARTIFACTS-LIVE-01", "text": "v60.54 push 뒤 Actions의 시장 조사 실행 trail에 company·market_data 호출이 나타나고, 게시된 원인 중 채널 주장에서 온 것은 inference이거나 검색 문서가 붙어 있다", "verify_by": "push 뒤 data.json marketInvestigation.trail과 causes를 읽는다", "done": false }
+    {
+      "id": "QA-AI-CHANNEL-CLAIM-01",
+      "text": "v60.54 시장 조사의 ledger 도구와 단서 메시지는 텔레그램 채널에서 추린 사실(인수합병·경제지표·목표주가 건수)을 '[채널 주장 · 미확인 · 채널 종류 · M/D]' 표시로만 싣고 게시물 원문은 싣지 않으며, 채널 주장 수치만 기댄 price 원인은 막는다",
+      "verify_by": "node scripts/ci-market-investigation-check.mjs (v60.54 라벨)",
+      "done": true
+    },
+    {
+      "id": "QA-AI-INVESTIGATION-ARTIFACTS-01",
+      "text": "v60.54 시장 조사의 company 도구는 컨센서스·실적 공시 요약과 회사 가이던스·다음 실적일·채널 주장을, market_data 도구는 국채 입찰·한국 투자자별 순매수·채널 경제지표를 각 화면의 도메인 리더로 읽는다",
+      "verify_by": "node scripts/ci-market-investigation-check.mjs (v60.54 라벨)",
+      "done": true
+    },
+    {
+      "id": "QA-AI-INVESTIGATION-ARTIFACTS-LIVE-01",
+      "text": "v60.54 push 뒤 Actions의 시장 조사 실행 trail에 company·market_data 호출이 나타나고, 게시된 원인 중 채널 주장에서 온 것은 inference이거나 검색 문서가 붙어 있다",
+      "verify_by": "push 뒤 data.json marketInvestigation.trail과 causes를 읽는다",
+      "done": false
+    },
+    {
+      "id": "QA-AI-CHANNEL-CLAIM-MACRO-01",
+      "text": "v60.54 매크로 화면 AI 글의 사실 묶음은 최근 1주 채널 경제지표(실제·예상)를 채널 주장(미확인) 표시로만 싣고 게시물 원문·목표주가는 싣지 않는다",
+      "verify_by": "node scripts/ci-screen-reading-check.mjs (v60.54 매크로 라벨)",
+      "done": true
+    }
   ],
   "qa_section": "AI 답변과 화면의 같은 사실",
   "changelog": [
     "시장 조사 AI가 텔레그램 채널에서 추린 사실을 '채널 주장(미확인)' 표시와 채널 종류·날짜로 읽고, 확인되지 않으면 추론으로만 쓰게 함",
-    "시장 조사 AI가 컨센서스·회사 가이던스·다음 실적일, 미 국채 입찰, 한국 투자자별 순매수를 새 읽기 도구(company, market_data)로 직접 확인함"
+    "시장 조사 AI가 컨센서스·회사 가이던스·다음 실적일, 미 국채 입찰, 한국 투자자별 순매수를 새 읽기 도구(company, market_data)로 직접 확인함",
+    "매크로 화면 AI 글이 최근 1주 채널 경제지표(실제·예상)를 미확인 표시와 함께 읽음"
   ],
-  "note": "자료 범위 감사는 _artifacts/data-coverage-audit-2026-11-25.md. 화면 읽기(screen-reading.mjs)는 다른 스레드 영역이라 channelClaimLines 헬퍼만 두고 통합 때 연결."
+  "note": "자료 범위 감사는 _artifacts/data-coverage-audit-2026-11-25.md."
 }

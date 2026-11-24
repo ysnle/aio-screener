@@ -23,6 +23,7 @@ import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
 import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src/domain/technical/market-charts.js';
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
+import { channelClaimLines } from '../../src/domain/news/channel-claims.js';
 import {
   READING_CONDITIONAL, READING_MAX_CHARS, READING_MIN_CHARS, READING_RULES, READING_SECTIONS, buildReadingPrompt, buildReadingRetryPrompt,
   coreReadingIssues, coreReadingWarnings, normalizeReading, packetFigures, unsupportedFigures
@@ -67,10 +68,15 @@ const themeLine = (theme) => [`${theme.label}: ${theme.stateLabel || theme.state
   finite(theme.above50) != null ? `50일선 위 종목 ${Math.round(theme.above50)}%` : '', theme.windText ? `시나리오 바람: ${theme.windText}` : ''].filter(Boolean).join(' · ');
 const byRet1m = (list) => [...list].filter((theme) => finite(theme.ret1m) != null).sort((a, b) => b.ret1m - a.ret1m);
 
+// The channels' economic releases against forecast (telegram-digest.json signals) the 매크로 packet carries: the last week's,
+// each behind the channel-claim tag (src/domain/news/channel-claims.js), never post text.
+const CHANNEL_RELEASE_DAYS = 7;
+const daysBefore = (isoDay, days) => new Date(Date.parse(`${isoDay}T00:00:00Z`) - days * 86400000).toISOString().slice(0, 10);
+
 // ---- the registry: screen id → { name (as the screen is called), guide, facts(interpretation, context) } -----------------
 // facts() returns { basis, lines, axes } or null when the screen has nothing to read today. `axes` (id, state, title,
 // stateLabel) feed the state-word check; they are not part of the key. `context` carries what the producer reads beside
-// the interpretation: { longrun (index-longrun.json), data (data.json) }.
+// the interpretation: { longrun (index-longrun.json), data (data.json), telegram (telegram-digest.json) }.
 export const SCREEN_READING_SCREENS = Object.freeze({
   signal: Object.freeze({
     name: '시장 상태',
@@ -111,7 +117,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   macro: Object.freeze({
     name: '매크로',
     guide: '- 성장·물가 국면이 증시에 어느 쪽으로 작용하는지로 엽니다. 발표 기준월이 종가보다 오래된 지표는 그 시차를 짧게 밝히고, 다음 발표가 무엇을 바꿀 수 있는지로 맺습니다.',
-    facts(interpretation) {
+    facts(interpretation, { telegram = null } = {}) {
       const regime = interpretation?.regime;
       const read = interpretation?.macroRead;
       const axes = (read?.axes || []).filter((axis) => axis?.title && axis.stateLabel);
@@ -123,7 +129,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
         basis: regime.asOf, axes,
         lines: [`기준일: ${md(regime.asOf)} 미국 종가와 그때까지의 공식 발표`, quadrant.label ? `성장 × 물가 국면: ${quadrant.available ? `${quadrant.label} — ` : ''}${quadrant.verdict || quadrant.label}` : '',
           inputs.length ? `국면 입력: ${inputs.join('; ')}` : '', read.counts ? `증시 영향 요인 판정: ${countsLine(read.counts, axes.length)}` : '',
-          ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+          ...axes.map((axis) => axisLine(axis, regime.asOf)),
+          ...channelClaimLines(telegram?.signals, { catalog: telegram?.sourceCatalog, market: true, since: daysBefore(regime.asOf, CHANNEL_RELEASE_DAYS), max: 3 })].filter(Boolean)
       };
     }
   }),

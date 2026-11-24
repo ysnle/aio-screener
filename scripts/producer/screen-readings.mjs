@@ -16,7 +16,8 @@ import { SCREEN_READING_IDS, SCREEN_READING_SCHEMA, buildScreenPacket, buildScre
 
 export const SCREEN_READING_PROVIDER_ATTEMPTS = 3;
 // The published long-run tables, read once per run; absent (before the first weekly run) the opening falls back to the record.
-const readPublishedLongrun = () => { try { return JSON.parse(readFileSync(new URL('../../public-data/index-longrun.json', import.meta.url), 'utf8')); } catch (_) { return null; } };
+const readPublished = (file) => { try { return JSON.parse(readFileSync(new URL(`../../public-data/${file}`, import.meta.url), 'utf8')); } catch (_) { return null; } };
+const readPublishedLongrun = () => readPublished('index-longrun.json');
 const REASON = /^[a-z0-9:-]{1,64}$/;
 const reasonCode = (reason, fallback) => (REASON.test(String(reason || '')) ? reason : fallback);
 const monthOf = (iso) => String(iso || '').slice(0, 7);
@@ -40,7 +41,7 @@ function carryLedger(previous) {
  * @param {object} [options.interpretation] the shared interpretation (fixture seam; production builds it from the published artifacts)
  * @param {string[]} [options.screens]
  */
-export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS, longrun = undefined } = {}) {
+export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS, longrun = undefined, telegram = undefined } = {}) {
   const generatedAt = new Date(nowMs).toISOString();
   const held = previous?.schemaVersion === SCREEN_READING_SCHEMA && previous.readings && typeof previous.readings === 'object' ? previous.readings : {};
   const ledger = carryLedger(previous?.schemaVersion === SCREEN_READING_SCHEMA ? previous : null);
@@ -70,8 +71,8 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     return { text: answer?.text ? normalizeScreenReading(softenReaderDuty(answer.text)) : null, reason: answer?.reason || null, usage };
   };
   // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences, and this run's
-  // data.json for the boards that read it directly (금리와 환율: macro).
-  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data };
+  // data.json for the boards that read it directly (금리와 환율: macro), and the channels' relayed releases (매크로).
+  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data, telegram: telegram !== undefined ? telegram : readPublished('telegram-digest.json') };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;
