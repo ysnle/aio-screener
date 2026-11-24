@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-24T02:52:01.207Z",
-  "attemptedAt": "2026-11-24T02:52:01.207Z",
-  "lastSuccessfulAt": "2026-11-24T02:52:01.207Z",
+  "generatedAt": "2026-11-24T03:21:32.834Z",
+  "attemptedAt": "2026-11-24T03:21:32.834Z",
+  "lastSuccessfulAt": "2026-11-24T03:21:32.834Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-10T02:51:57.540Z",
-  "until": "2026-11-24T02:51:57.540Z",
+  "since": "2026-11-10T03:21:28.493Z",
+  "until": "2026-11-24T03:21:28.493Z",
   "current24hWindow": {
     "start": "2026-11-22T23:00:00.000Z",
     "end": "2026-11-23T23:00:00.000Z",
@@ -85,9 +85,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1158,
+      "count": 1152,
       "freshCount": 20,
-      "eligibleTextCount": 1092,
+      "eligibleTextCount": 1086,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -111,9 +111,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 722,
+      "count": 714,
       "freshCount": 19,
-      "eligibleTextCount": 721,
+      "eligibleTextCount": 713,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,48 +137,48 @@
       "lastPostId": 26057
     }
   ],
-  "count": 2051,
+  "count": 2037,
   "retainedItemCount": 395,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 2051,
-    "eligibleTextCount": 1984,
+    "observedCount": 2037,
+    "eligibleTextCount": 1970,
     "mediaOnlyCount": 67,
-    "mediaAttachedCount": 823,
-    "photoPostCount": 702,
+    "mediaAttachedCount": 818,
+    "photoPostCount": 697,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 337,
-    "broadSignalCount": 850,
+    "highSignalCount": 335,
+    "broadSignalCount": 844,
     "selectedRawCount": 370,
     "selectedEligibleCount": 370,
-    "selectedRawCoveragePct": 18.6,
-    "selectedOfObservedPct": 18,
+    "selectedRawCoveragePct": 18.8,
+    "selectedOfObservedPct": 18.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 727,
-    "semi": 652,
+    "market-note": 721,
+    "semi": 649,
     "power": 192,
     "kr-market": 97,
-    "earnings": 250,
+    "earnings": 247,
     "flows": 64,
-    "japan": 47,
-    "healthcare": 49,
+    "japan": 46,
+    "healthcare": 48,
     "geo": 243,
     "ai-policy": 153,
     "media-only": 66,
-    "macro": 284,
+    "macro": 281,
     "equity": 135,
     "insider": 5,
-    "credit": 72,
+    "credit": 70,
     "optical": 22
   },
   "tickerCounts": {
-    "NVDA": 422,
+    "NVDA": 420,
     "TSLA": 27,
     "005930.KS": 30,
     "277810.KQ": 1,
@@ -186,7 +186,7 @@
     "000660.KS": 28,
     "AMD": 53,
     "AVGO": 19,
-    "MU": 25,
+    "MU": 24,
     "SNDK": 3,
     "HPE": 1,
     "FLNC": 1,
@@ -203,7 +203,7 @@
     "LITE": 3,
     "SMCI": 5,
     "APO": 1,
-    "CRWV": 14,
+    "CRWV": 13,
     "INTC": 1,
     "IT": 1,
     "2454.TW": 7,
@@ -254,15 +254,13 @@
     "NVO": 1,
     "DDOG": 1,
     "SNOW": 1,
-    "103590.KS": 1,
-    "RKLB": 1,
-    "IRDM": 1
+    "103590.KS": 1
   },
   "themes": [
-    "Market Notes (727 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
-    "Semiconductors/Memory (652 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
-    "Macro/Rates (284 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
-    "Earnings/Corporate (250 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Market Notes (721 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
+    "Semiconductors/Memory (649 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
+    "Macro/Rates (281 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp...",
+    "Earnings/Corporate (247 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (243 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (192 posts in 14-day research window): 트럼프 백악관 기자회견 & 베센트 CNBC 인터뷰 1. 트럼프 대통령 주요 발언 ① 해외 데이터센터 건설 제한 “ 미국 기업들이 해외에 데이터센터를 건설하도록 내버려 두지 않겠다. 해외에 건설한다면 막대한...",
     "AI Policy/Export Controls (153 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
@@ -271,7 +269,7 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 422,
+      "count": 420,
       "text": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -316,7 +314,7 @@
     },
     {
       "key": "MU",
-      "count": 25,
+      "count": 24,
       "text": "SK하이닉스 제이피모건 메모리가 AI의 아키텍처가 된다 핵심 메시지: 에이전틱 AI는 HBM 너머 전 메모리 계층으로 수요를 번지게 한다 홍콩 글로벌 TIG 콘퍼런스에 하이닉스 NAND 제품기획 임원 초청 — '메모리 월에서 새 메모리 하이어라키로'. 에이전틱 AI는 컴퓨트 바운드가 아니라 데이터 바운드가 됐고,..."
     },
     {
@@ -326,7 +324,7 @@
     },
     {
       "key": "CRWV",
-      "count": 14,
+      "count": 13,
       "text": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도..."
     }
   ],
@@ -337,7 +335,7 @@
       "topics": [
         "macro"
       ],
-      "count": 284,
+      "count": 281,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 19일 🇺🇸 아메리카 • 연준 10월 FOMC 의사록에서 거의 모든 위원이 추가 금리 인상이 적절할 가능성이 높다고 판단. 일부 위원은 10월 회의에서 25bp..."
     },
     {
@@ -355,7 +353,7 @@
       "topics": [
         "credit"
       ],
-      "count": 72,
+      "count": 70,
       "focus": "[SK증권 반도체 한동희, 손 건] 되돌림 코어위브에서 확인된 우려의 완화와 J-Curve 기대 AI 인프라 투자 우려의 핵심은 고금리 및 CDS 스프레드 급등에 따른 네오클라우드 자금조달 불안, 수주잔고..."
     },
     {
@@ -364,7 +362,7 @@
       "topics": [
         "semi"
       ],
-      "count": 652,
+      "count": 649,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -427,7 +425,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 250,
+      "count": 247,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -436,7 +434,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 49,
+      "count": 48,
       "focus": ">>구글 계열 AI 제약회사가 50억 달러를 조달, 직전 라운드 대비 2배 •Isomorphic Labs의 이번 자금조달은 세쿼이아캐피털, Andreessen Horowitz 등 주요 벤처캐피털이 공동으로..."
     },
     {
@@ -445,7 +443,7 @@
       "topics": [
         "japan"
       ],
-      "count": 47,
+      "count": 46,
       "focus": "**리서치 온라인 포럼 유투브 링크 공유합니다. 오늘은 9:30부터 자산, 내일은 산업 전망입니다. **많은 관심 부탁드립니다~"
     },
     {
@@ -472,7 +470,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 727,
+      "count": 721,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     }
   ],
