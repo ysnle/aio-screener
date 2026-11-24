@@ -26,7 +26,7 @@ try {
   mkdirSync(path.join(scratch, 'public-data'));
   for (const entry of readdirSync(path.join(root, 'public-data'))) {
     const from = path.join(root, 'public-data', entry);
-    // v58.51: Windows needs admin rights for a 'dir' symlink; a junction links a local directory without them.
+    // Windows needs admin rights for a 'dir' symlink; a junction links a local directory without them.
     if (statSync(from).isDirectory()) symlinkSync(from, path.join(scratch, 'public-data', entry), process.platform === 'win32' ? 'junction' : 'dir');
     else cpSync(from, path.join(scratch, 'public-data', entry));
   }
@@ -68,7 +68,7 @@ try {
     // the bundle is the previous one or a subset of it, never empty and never a row the previous run did not publish.
     const beforeLinks = new Set((before.news || []).map((row) => row.link));
     check('P1256 a failed news plane keeps the previous bundle', Array.isArray(data.news) && (data.news.length > 0 || !before.news?.length) && data.news.every((row) => beforeLinks.has(row.link)), `${data.news?.length} vs ${before.news?.length}`);
-    // P1950: once the cycle has rolled over, the previous cycle's articles are not carried into the new cycle's bundle
+    // Once the cycle has rolled over, the previous cycle's articles are not carried into the new cycle's bundle
     // (the receipt keeps their last date; meta would otherwise label them as the current cycle).
     if (Number.isFinite(nextRefresh) && Array.isArray(before.news)) {
       const { carriedNewsCandidates, getKst0800NewsCycle } = await import(pathToFileURL(path.join(scratch, 'scripts/lib/news-selection.mjs')).href);
@@ -76,11 +76,11 @@ try {
       const expired = carriedNewsCandidates(before.news, getKst0800NewsCycle(nextRefresh + 60000)).length;
       check('P1950 previous articles are candidates inside their cycle and dropped after it', kept === before.news.length && expired === 0, `in-cycle ${kept}/${before.news.length}, expired ${expired}`);
     }
-    // v59.70 (owner 11/4): the Cboe put/call block is retired — a dry run publishes no putCall, no meta.putCall* and no
+    // The Cboe put/call block is retired — a dry run publishes no putCall, no meta.putCall* and no
     // options-put-call receipt even when the previous data.json still carries them.
     check('v59.70 data.json publishes no Cboe put/call', !('putCall' in data) && !('putCallOk' in meta) && !('putCallAsOf' in meta) && !receipts['options-put-call'], JSON.stringify({ putCall: 'putCall' in data, meta: Object.keys(meta).filter((key) => /putCall/.test(key)) }));
     check('P565 the FRED plane reports its missing key instead of a fresh cycle', meta.fredHasKey === false && meta.fredFetchOk === false);
-    // A provider failure either keeps the last verified reading (P1719, with the reason) or publishes the blocked reason.
+    // A provider failure either keeps the last verified reading (with the reason) or publishes the blocked reason.
     check('P1594 the market analysis records why it did not run', (meta.marketAnalysisOk === false && typeof meta.marketAnalysisReason === 'string' && meta.marketAnalysisReason.length > 0) || (meta.marketAnalysisOk === true && typeof meta.marketAnalysisRetained?.reason === 'string'), JSON.stringify({ ok: meta.marketAnalysisOk, reason: meta.marketAnalysisReason, retained: meta.marketAnalysisRetained, ai: meta.aiUsage?.purposes?.['market-analysis'] }));
     const ai = meta.aiUsage || {};
     const reading = ai.purposes?.['market-analysis'] || {};
@@ -103,7 +103,7 @@ try {
     writeFileSync(full, JSON.stringify(parsed));
     return parsed.universe.length;
   };
-  // v58.72: the synthetic charts end on the session before the pinned clock, so the copied screener.json's sessions (a
+  // The synthetic charts end on the session before the pinned clock, so the copied screener.json's sessions (a
   // KR close the same day) read as newer and the P1988 regression guard kept the last publish instead of writing.
   const screenerFile = path.join(scratch, 'public-data', 'screener.json');
   if (existsSync(screenerFile)) {

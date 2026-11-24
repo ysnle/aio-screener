@@ -43,8 +43,8 @@ const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa
 const routes = read('src/app/routes.js');
 const slices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
-const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
-const mastersFormat = read('src/domain/masters/holdings-format.js'); // v57.60: page registry/coverage/formatters moved here
+const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // View builders split out of the page
+const mastersFormat = read('src/domain/masters/holdings-format.js'); // Page registry/coverage/formatters moved here
 const worker = read('sw.js');
 const golden = JSON.parse(read('architecture/golden-routes.json'));
 const mastersIndex = JSON.parse(read('public-data/masters/index.json'));
@@ -95,14 +95,13 @@ for (const [label, source, marker] of [
   ['capability error isolation', page, 'Promise.allSettled'],
   ['route abort signal', page, 'scope?.signal'],
   ['shared artifact cache', page, 'loadArtifactUrl(root, '],
-  ['pending state', mastersFormat, "status: 'PENDING'"] // v57.60: MASTER_REGISTRY moved to domain/masters/holdings-format.js
+  ['pending state', mastersFormat, "status: 'PENDING'"]
 ]) if (!source.includes(marker)) fail(`${label} missing marker: ${marker}`);
 
 if (/^import\s+\{[^\n]*createMastersPage[^\n]*from\s+['"]\.\.\/ui\/pages\/masters\.js['"]/m.test(bootstrap)) fail('masters page returned to the initial static module graph');
 
 if (!golden.routes.includes('masters') || golden.routes.length !== JSON.parse(read('architecture/route-owners.json')).counts.totalRoutes) fail('golden route does not contain masters or drifted from the route registry (P1321)');
 if (!/data-masters-content/.test(index)) fail('page markup lacks renderer mount');
-// 2026-10-05: the disclosure moved from the retired page hero into the style-overview reading text.
 const managersView = fs.readFileSync(new URL('../src/ui/knowledge/managers-view.js', import.meta.url), 'utf8');
 if (!/13F는 전체 포트폴리오가 아니다/.test(managersView) || /재검산된 경우에만 전체 포트폴리오로 표시/.test(index + managersView)) fail('page must carry the bounded 13F coverage disclosure without calling it the complete portfolio');
 if (/data-live-price|data-live-chg|targetPrice|target-price/.test(page + mastersFormat)) fail('masters page must not promote live market or target claims');
@@ -110,10 +109,10 @@ if (/currentPrice|targetPrice|BUY|SELL/.test(page + mastersFormat)) fail('master
 if (/\bnoop\b/.test(page)) fail('masters detail tabs must not be noop controls');
 if (!/replaceChildren/.test(page) || /innerHTML/.test(page + mastersFormat)) fail('masters renderer must use safe DOM construction');
 if (!page.includes('FILINGS_URL') || !page.includes('HOLDINGS_URL') || !page.includes('SECURITY_MASTER_URL') || !page.includes('SECURITY_MASTER_REFERENCE_URL') || !page.includes('createTopHoldingTable') || !page.includes('createFullHoldingsView') || !page.includes('createChangeLedger') || !page.includes("valueReconciliationStatus === 'MISMATCH'") || !page.includes('aioMastersHoldings') || !page.includes('aioMastersSecurityMaster') || !/^REFERENCE_METADATA_(?:CONNECTED|CURRENT|PARTIAL)$/.test(filings.status)) fail('SEC metadata/holdings/security-master artifacts are not connected');
-// P1325: the reverse lookup must have an explicit error state (it used to stay on '불러오는 중' forever
+// The reverse lookup must have an explicit error state (it used to stay on '불러오는 중' forever
 // after a failed fetch), start its ledger load at mount, and the manager cards must precede lookup/coverage.
 if (!/loadState === 'error'/.test(page) || !page.includes('retry-ticker-index') || !/loadState === 'idle'/.test(page) || !/addEventListener\('focusin', onFocusIn\)/.test(page) || /start the ticker ledger at mount/.test(page)) fail('P1325 ticker lookup lost its explicit error/retry state or mount-time load');
-// P1479: the style comparison sits between the manager cards and the lookup; the cards still come first.
+// The style comparison sits between the manager cards and the lookup; the cards still come first.
 const managersViewSource = fs.readFileSync(new URL('../src/ui/knowledge/managers-view.js', import.meta.url), 'utf8');
 // 2026-10-05 리서치 라이브러리: managers are the contents column, the open manager is the document and the ticker
 // lookup sits in the connections column, so the style groups always render before the lookup.
@@ -123,7 +122,7 @@ if (filingDiscovery.schema !== 'masters-sec-filing-discovery.v2' || filingDiscov
 if (filingDiscovery.status === 'CURRENT' && (filingDiscovery.coverage.discovered !== 37 || filingDiscovery.coverage.blocked !== 0 || filingDiscovery.managers.some((manager) => manager.status !== 'DISCOVERED' || !manager.latestSubmission?.accession || !manager.latestHoldings?.accession))) fail('current SEC filing discovery lacks all 37 filer accessions');
 if (filingDiscovery.status === 'BLOCKED' && (filingDiscovery.coverage.blocked !== 37 || filingDiscovery.managers.some((manager) => manager.status !== 'BLOCKED' || !manager.reason))) fail('blocked SEC filing discovery is not explicit');
 if (!['CURRENT', 'BLOCKED', 'PARTIAL'].includes(filingDiscovery.status)) fail('SEC filing discovery status is invalid');
-// P1488: the 13D/G block names what the filing is (5% 이상 대량 보유, 13D vs 13G) in reader language.
+// The 13D/G block names what the filing is (5% 이상 대량 보유, 13D vs 13G) in reader language.
 if (!page.includes('createOwnershipEvents') || !page.includes('5% 이상 대량 보유 신고') || !page.includes('13D는 경영에 영향을 줄 뜻')) fail('Schedule 13D/G ownership-event boundary is not connected to Masters');
 if (managerPrinciples.schema !== 'masters-manager-principles.v1' || !managerPrinciples.profiles?.some((profile) => profile.managerId === 'mark-minervini' && profile.statedPrinciples?.length >= 4 && profile.sourceUrl) || !page.includes('createPrinciplesView') || !page.includes('createInvestorCompareView')) fail('investment-principles or investor-comparison surface is incomplete');
 const filerIds = new Set(managerCatalog.managers.filter((manager) => manager.type !== 'METHOD_ONLY').map((manager) => manager.id));
@@ -245,7 +244,7 @@ if (referenceMaster.status !== 'REFERENCE_MAPPING_CONNECTED' || referenceMaster.
 const referenceTickerByCusip = new Map((referenceMaster.records || []).filter((record) => record.cusipNormalized && record.tickerReference).map((record) => [record.cusipNormalized, record]));
 const expectedReferenceTickerMatches = (holdings.allHoldings || []).filter((row) => referenceTickerByCusip.has(row.cusipNormalized || row.cusip)).length;
 if (tickerIndexReference.schema !== 'masters-13f-reference-ticker-index.v1' || tickerIndexReference.artifactRole !== 'REFERENCE_ONLY_TICKER_LOOKUP' || tickerIndexReference.sourceKind !== 'SEC_EDGAR_DERIVED_REFERENCE' || tickerIndexReference.status !== 'REFERENCE_ONLY' || tickerIndexReference.coverage?.sourceCurrentRows !== holdings.allHoldings.length || tickerIndexReference.coverage?.matchedCurrentRows !== expectedReferenceTickerMatches || tickerIndexReference.coverage?.unmappedCurrentRows !== holdings.allHoldings.length - expectedReferenceTickerMatches || tickerIndexReference.coverage?.verifiedTickerRows !== 0 || tickerIndexReference.coverage?.sectorWeightsPublished !== false || tickerIndexReference.records?.length !== tickerIndexReference.coverage?.referenceTickerCount || !tickerIndexReference.policy.includes('Absence') || !tickerIndexReference.boundary.includes('unverified')) fail('reference-only 13F ticker index boundary or coverage drifted');
-// v58.56 (re-audit #4): ticker chips come only from exact CUSIP matches. A published OpenFIGI cache keeps tickers only on
+// Ticker chips come only from exact CUSIP matches. A published OpenFIGI cache keeps tickers only on
 // EXACT answers, and every `tickerExact` the runtime builder embeds is a plain symbol.
 {
   const exactSymbol = /^[A-Z]{1,5}(?:-[A-Z]{1,2})?$/;
@@ -266,7 +265,7 @@ if (!isHistoryComposed) {
   // v2 (pre-composition) artifact: legacy pinned shape, still true until the next data refresh.
   if (historyIndex.totalPeriods !== 84 || historyIndex.rowImportedPeriods !== 84 || historyIndex.pendingRowImportPeriods !== 0 || historyIndex.managers.some((manager) => manager.periods.length !== 12 || manager.periods.some((period) => !period.indexUrl || !period.accession || !period.periodOfReport || !period.informationTableXml || !period.rowCount || period.rowImportStatus === 'METADATA_ONLY'))) fail('13F filing history rows boundary drifted');
   if (historyRows.periodsImported !== 70) fail('13F historical row artifact boundary drifted');
-  // P1449: pre-composition artifacts are grandfathered, but a regression that re-splits the
+  // pre-composition artifacts are grandfathered, but a regression that re-splits the
   // composition policy back into two separate lane implementations is still caught here.
   if (!read('scripts/collect-13f-reference.mjs').includes('lib/13f-compose.mjs') || !read('scripts/collect-13f-history-rows.mjs').includes('lib/13f-compose.mjs')) fail('13F amendment composition must use the single shared policy script');
 } else {
@@ -280,7 +279,7 @@ if (!isHistoryComposed) {
       if (period.compositionStatus === 'REVIEW_REQUIRED') {
         if (period.rowCount != null || period.reportedValueTotal != null || period.countReconciled !== false) fail(`13F REVIEW_REQUIRED period must not publish a calculable quarter total: ${manager.managerId} ${period.periodOfReport}`);
       } else if (period.rowImportStatus !== 'METADATA_ONLY') {
-        // P1462: every imported period states its composition base. History-lane periods compose
+        // Every imported period states its composition base. History-lane periods compose
         // here; current/prior periods carry the reference lane's chain (same shared policy). A
         // reference-lane period may lack a chain only when it says so (a last-known-good manager
         // whose stored verification predates the chain) — never by silent omission.
@@ -297,7 +296,7 @@ if (!isHistoryComposed) {
   }
 }
 if (historyRows.status !== 'RAW_SEC_HISTORY_CONNECTED' || historyRows.periodsImported <= 0 || historyRows.rowsImported <= 0 || historyRows.rows?.some((row) => !row.managerId || !row.reportPeriod || !row.cusipNormalized || !row.sourceUrl)) fail('13F historical row artifact boundary drifted');
-// P1449: rows written under v2 carry the accession + filingRole of each composed sub-filing.
+// Rows written under v2 carry the accession + filingRole of each composed sub-filing.
 // Old v1 rows (no roles) are tolerated only until the next data refresh regenerates the artifact.
 const historyRowsIsV2 = historyRows.schemaVersion === 'masters-13f-history-holdings.v2';
 if (historyRowsIsV2) {
@@ -313,7 +312,7 @@ if (historyRowsIsV2) {
   fail('13F historical row artifact boundary drifted');
 }
 const liveManagers = filings.managers.filter((manager) => manager.cik);
-// v59.45 (P4-QA-03): a pinned period/accession failed the first normal refresh that found the next quarter's 13F and
+// A pinned period/accession failed the first normal refresh that found the next quarter's 13F and
 // restored the Masters files. Check the shape and direction instead: a quarter-end period no older than the last one
 // reviewed, filed after its period, with an SEC accession number.
 const QUARTER_END = /^\d{4}-(03-31|06-30|09-30|12-31)$/;
@@ -357,7 +356,7 @@ if (rowPreviews.managers.length !== 5 || rowPreviews.coverage?.previewManagerCou
 if (rowPreviews.managers.some((manager) => !manager.managerId || !manager.cik || manager.cik.length !== 10 || manager.reportPeriod !== '2026-03-31' || !manager.accession || !manager.sourceUrl || manager.rows.length !== manager.rowCountPreview || manager.rows.some((row) => !row.issuer || !row.cusip || !Number.isFinite(row.value) || !Number.isFinite(row.shares) || !row.shareType))) fail('row preview evidence fields are incomplete');
 if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-family-office', 'fisher-asset-management', 'pershing-square', 'appaloosa-management', 'baupost-group', 'scion-asset-management'].includes(manager.managerId))) fail('row previews must not duplicate the connected holdings artifact managers');
 
-// P1522: a filing whose reported dollar amounts sit ~1,000x off its peers is withheld (never multiplied), and the
+// A filing whose reported dollar amounts sit ~1,000x off its peers is withheld (never multiplied), and the
 // withholding must reach every consumer of filed amounts, not only the top rows: allHoldings, reverse-lookup index
 // rows, earlier quarters and issuer aggregates, and a shard that finished before detection.
 {
@@ -369,13 +368,13 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (!suspects.has('thousandths|2026-06-30') || suspects.has('peer-a|2026-06-30') || suspects.has('peer-b|2026-06-30')) fail('P1522 detection must flag only the filer whose per-share price sits ~1,000x below its peers');
   const managers = scale.managersUnderScaleReview(suspects);
   if (managers.size !== 1 || !managers.has('thousandths')) fail('P1522 managersUnderScaleReview must name exactly the flagged managers');
-  // P1530: with exactly two filers on a security each is the other's only peer, so the median of one price cannot say which
+  // With exactly two filers on a security each is the other's only peer, so the median of one price cannot say which
   // filer is off, and the normal filer used to be flagged as 1,000x too high. Detection needs at least two peers per row.
   const twoFilers = scale.detectValueScaleSuspects([...cusips.map((c) => row('peer-a', c, 200)), ...cusips.map((c) => row('thousandths', c, 0.2))]);
   if (twoFilers.size !== 0) fail(`P1530 two filers on the same securities cannot identify the odd one; flagged ${[...twoFilers.keys()].join(', ')}`);
   const oneSidedPair = scale.detectValueScaleSuspects([...fixture, ...cusips.map((c) => row('pair-x', `${c}9`, 200)), ...cusips.map((c) => row('pair-y', `${c}9`, 0.2))]);
   if ([...oneSidedPair.keys()].some((key) => key.startsWith('pair-')) || !oneSidedPair.has('thousandths|2026-06-30')) fail('P1530 a lone two-filer security must not flag either filer, and must not hide the real three-filer outlier');
-  // P1560: a filer 1,000x too HIGH among two agreeing filers is the only one flagged (the two normal filers used to be withheld too).
+  // A filer 1,000x too HIGH among two agreeing filers is the only one flagged (the two normal filers used to be withheld too).
   const highFixture = [...cusips.map((c) => row('peer-a', c, 200)), ...cusips.map((c) => row('peer-b', c, 200)), ...cusips.map((c) => row('thousandfold', c, 200000))];
   const highSuspects = scale.detectValueScaleSuspects(highFixture);
   if (highSuspects.size !== 1 || !highSuspects.has('thousandfold|2026-06-30')) fail(`P1560 a 1,000x high filer must be the only one flagged, got ${[...highSuspects.keys()].join(', ')}`);
@@ -390,7 +389,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   const thousandthsRow = once.find((item) => item.managerId === 'thousandths');
   if (thousandthsRow.value !== null || thousandthsRow.reportedValueAsFiled !== 200 || twice.find((item) => item.managerId === 'thousandths').reportedValueAsFiled !== 200) fail('P1522 withholding must be idempotent and keep the first as-filed memo (a shard is withheld again after detection)');
   if (!/이전 분기도 같은 단위/.test(scale.describeValueScaleCarryover()) || /×\s*1,?000|곱/.test(scale.describeValueScaleCarryover())) fail('P1522 the carry-over notice must say earlier quarters are withheld and must not offer a multiplied figure');
-  const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
+  const page = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // View builders split out of the page
   const wired = [
     ['allHoldings is withheld at ingress', /allHoldings: withholdSuspectValues\(result\.value\.allHoldings, state\.valueScale\)/],
     ['a shard that finished before detection is withheld again', /state\.managerRows\.forEach\(\(artifact, managerId\) => \{[\s\S]{0,400}withholdSuspectValues\(artifact\.holdings/],
@@ -402,7 +401,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
     ['withheld sector rows are not summed as zero dollars', /scaleWithheld \? '금액 단위 확인 중'/]
   ];
   for (const [label, pattern] of wired) if (!pattern.test(page)) fail(`P1522 masters page wiring missing: ${label}`);
-  // v60.46: the page ran detection on its 365 top rows (t-rowe + baupost) and the 1,278 embedded rows found baupost +
+  // The page ran detection on its 365 top rows (t-rowe + baupost) and the 1,278 embedded rows found baupost +
   // duquesne; only every filer's full rows find all three. The producer detects on those and publishes the review.
   const runtimeBuilder = read('scripts/build-masters-runtime-artifacts.mjs');
   if (!/valueScaleReviews = detectValueScaleSuspects\(\[\.\.\.holdingsByManager\.values\(\)\]\.flat\(\)\)/.test(runtimeBuilder) || !/verification: valueScaleVerification\(manager\)/.test(runtimeBuilder)) fail('v60.46 the runtime builder detects the unit review over every manager\'s full rows and publishes it on the manager verification');
@@ -414,7 +413,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   const unpublished = [...scale.detectValueScaleSuspects(projectionRows).keys()].filter((key) => !summaryReviews.has(key));
   if (unpublished.length) fail(`v60.46 holdings-summary.json lacks the unit review of ${unpublished.join(', ')} (run node scripts/build-masters-runtime-artifacts.mjs)`);
 
-// v60.46: a shared link to one of the 31 catalog-only managers opened Warren Buffett until the catalog loaded, and an
+// A shared link to one of the 31 catalog-only managers opened Warren Buffett until the catalog loaded, and an
 // unknown id stayed on him. The address keeps its manager: loading first, then the manager or an explicit not-found.
 {
   const { MASTER_REGISTRY: staticRegistry, buildManagerRegistry: buildRegistry, resolveManagerSelection } = await import('../src/domain/masters/holdings-format.js');
@@ -425,7 +424,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (before.status !== 'loading' || before.manager || after.status !== 'selected' || after.manager?.id !== catalogOnly.id || unknown.status !== 'not-found' || unknown.manager) fail(`v60.46 a requested manager waits for the catalog and is never replaced by another: ${JSON.stringify([before.status, after.manager?.id, unknown.status])}`);
 }
 
-// v60.46: Pershing and Oaktree filed a 13F-NT for 2026-09-30 after their older holdings; the stale chip named it only after
+// Pershing and Oaktree filed a 13F-NT for 2026-09-30 after their older holdings; the stale chip named it only after
 // the 원본 공시 tab loaded the discovery artifact. The verdict reads the catalog submission, which loads with the page.
 {
   const { thirteenFCurrentness } = await import('../src/domain/masters/filing-deadline.js');
@@ -438,7 +437,7 @@ if (rowPreviews.managers.some((manager) => ['berkshire-hathaway', 'duquesne-fami
   if (pershing?.latestSubmission && pershing.latestSubmission.periodOfReport > pershing.latestFiling?.periodOfReport && !catalogPershing?.laterSubmission) fail('v60.46 the catalog latest submission is the later submission the masters detail dates');
 }
 
-// v60.46: a 13F deadline rolls over weekends and market holidays. Feb 14, 2026 (Q4 2025 + 45 days) is a Saturday and
+// A 13F deadline rolls over weekends and market holidays. Feb 14, 2026 (Q4 2025 + 45 days) is a Saturday and
 // Monday Feb 16 is Presidents' Day, so the 2025-09-30 holdings stay current through Tuesday Feb 17.
 {
   const { thirteenFStale } = await import('../src/domain/masters/filing-deadline.js');
@@ -514,7 +513,7 @@ console.log(JSON.stringify(result));
 }, 'data'],
 // ── section manager-store (was ci-masters-manager-store-check.mjs) ──
 ['manager-store', async () => {
-// v57.89: fixture check for the size-bounded 13F manager row store (scripts/lib/masters-manager-store.mjs).
+// Fixture check for the size-bounded 13F manager row store (scripts/lib/masters-manager-store.mjs).
 // Proves, on a temp directory and a small byte limit, that a large manager is split into index + parts that each fit,
 // reassembles byte-for-byte to the v1 object, survives a rewrite unchanged, shrinks back to one file (stale parts
 // removed), and that a tampered part is refused. Then checks the committed store: no manager file over the limit.
@@ -571,7 +570,7 @@ for (const name of names) {
   if (size > MANAGER_ROWS_FILE_MAX_BYTES) oversized.push(`${name} ${size}`);
 }
 if (oversized.length) fail(`manager row files over ${MANAGER_ROWS_FILE_MAX_BYTES} bytes (run node scripts/split-masters-manager-rows.mjs --write): ${oversized.join(', ')}`);
-// v59.82: the masters-store manifest names exactly its files; a changed, missing or extra file is a mismatch.
+// The masters-store manifest names exactly its files; a changed, missing or extra file is a mismatch.
 const { buildManagerStoreManifest, compareManagerStoreFiles } = await import('./lib/masters-manager-store.mjs');
 const fixtureFiles = [{ name: 'b-manager.json', buffer: Buffer.from('{"b":1}') }, { name: 'a-manager.json', buffer: Buffer.from('{"a":1}') }];
 const fixtureManifest = buildManagerStoreManifest({ files: fixtureFiles, shards: { 'a-manager': { latestFiling: { accession: 'x' }, holdings: [1], comparisons: [] } }, treeId: 'fixture' });

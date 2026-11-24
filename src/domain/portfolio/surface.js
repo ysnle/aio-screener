@@ -137,6 +137,9 @@ function delayedReferenceQuote(live, { now } = {}) {
   return ageMs >= 0 && ageMs <= DELAYED_QUOTE_MAX_AGE_MS ? { price, observedAt: envelope.observedAt } : null;
 }
 
+// v59.45 (PASS23 P23-FRESHNESS-01): a close older than a week (a long holiday is about four sessions) still values the
+// holding but is counted as stale — completeness and freshness are
+// separate facts, so the total stays 'current' while staleCloseCount / oldestCloseDate say how old its basis is.
 const CLOSE_STALE_DAYS = 7;
 function closeDateMs(close) {
   const date = String(close?.date || '');
@@ -184,11 +187,16 @@ function holdingValue(holding, live, options, close = null) {
   return { value: null, price, sourceKind: 'unavailable', observedAt: null, quoteAllowedUse: 'none', fallbackUsed: false, dailyPct: null, dailyPctEligible: false, changeBasis: null };
 }
 
+// exposureCapForVix (VIX 15/20/25/30 → 100/80/50/30/15% "max exposure") was removed — a sizing ladder on
+// retired bands with no consumer. The card shows the shared volatility band and the user's own exposure only.
 /**
  * Derives the deterministic, non-chart portion of the portfolio surface.
  * Missing canonical inputs remain null so the UI cannot turn unavailable data into a zero.
  * Read state never becomes a valuation: only an explicit read distinguishes empty/cash-only.
  */
+// `sectorOf(symbol)` is the one sector source for the bars and the 포트폴리오 해석 (the screener row the read
+// already uses); an imported holding.sector is the fallback, then 'Unclassified'.
+// `cashFx` is the app's own published USD/KRW close (cash.js appUsdKrwClose), used for cash balances only.
 export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, now = Date.now(), sectorOf = null, closeOf = null, cashFx = null } = {}) {
   const readState = PORTFOLIO_READ_STATES.includes(state?.readState) ? state.readState : (state?.status === 'locked' ? 'locked' : state?.status === 'loading' ? 'loading' : state?.status === 'failed' ? 'failed' : state?.status === 'unavailable' ? 'unavailable' : 'ready');
   const holdingsKnown = Array.isArray(state?.holdings) && (readState === 'ready' || state?.holdingsKnown === true);
@@ -197,6 +205,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const live = liveData && typeof liveData === 'object' ? liveData : {};
   const rows = holdings.map((holding) => {
     const symbol = String(holding?.symbol || holding?.ticker || '').toUpperCase();
+    // The stored code (005930) is the key the user saved; the listing symbol (005930.KS) is the key quotes, closes
+    // and sectors are published under. The reader resolves it once and every lookup here uses it.
     const listingSymbol = holdingListingKey(holding);
     const quote = holdingValue(holding, live[listingSymbol] || live[symbol] || {}, { now }, typeof closeOf === 'function' ? closeOf(listingSymbol) : null);
     const sharesValue = finite(holding?.shares);
@@ -226,17 +236,29 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
       dailyPctEligible: quote.dailyPctEligible,
       changeBasis: quote.changeBasis,
       currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null,
+      // The listing market's currency (.KS = KRW, US-listed = USD), used only to detect a mix
+      // the declarations hide — without it a won holding and a dollar holding were summed as one unit.
       listingSymbol,
       listingCurrency: symbol ? listingCurrency(listingSymbol) : null,
+      // Cost and price are different axes. A declared cost currency that
+      // differs from the price currency means the P&L subtraction has no conversion basis.
       costCurrency: String(holding?.costCurrency || '').trim().toUpperCase() || null
     };
   }).filter((row) => row.symbol);
 
+  // 수량×가격과 cash를 같은 단위로 더하려면 그 단위가 같아야 한다. 선언된 통화가
+  // 충돌하면 환산 근거가 없으므로 합계를 만들지 않는다 — 미확인 통화는 USD라는 뜻이 아니고, 통화를
+  // 선언하지 않은 포트폴리오는 기존 단일 기준 동작을 유지하되 그 가정을 드러낸다.
   const declaredBaseCurrency = String(state?.baseCurrency || '').trim().toUpperCase() || null;
+  // Cash is a list of balances, one per currency. A state without the list (older readers, fixtures) is the legacy
+  // single value in its declared cash currency, or in no declared unit (counted as the portfolio's unit, as before).
   const legacyCashValue = firstFinite(state?.cash, totals.cash);
   const cashRows = Array.isArray(state?.cashBalances)
     ? state.cashBalances.filter(Boolean).map((row) => ({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: finite(row?.amount) }))
     : [];
+  // v59.45 (PASS23 P23-CASH-01): a balance row that cannot be read is neither dropped nor a declared zero — USD 10 beside
+  // an unreadable KRW row published total assets 110, and an all-unreadable list read as "cash 0 entered". It holds the
+  // cash total (cashHeld) and is counted in cashInvalidCount.
   const cashInvalidCount = cashRows.filter((row) => !(row.amount != null && row.amount >= 0)).length;
   const cashBalances = Array.isArray(state?.cashBalances)
     ? cashRows.filter((row) => row.amount != null && row.amount >= 0)
@@ -249,13 +271,28 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     ...rows.map((row) => row.currency),
     declaredBaseCurrency
   ].filter(Boolean))];
+  // Undeclared rows count with their listing currency, so a hidden mix is still a mix.
   const effectiveCurrencies = [...new Set([...rows.map((row) => row.currency || row.listingCurrency), declaredBaseCurrency].filter(Boolean))];
+  // v59.45 (PASS23 P23-CURRENCY-01): a row whose quote currency is neither declared nor fixed by its listing (ABC.L) has an
+  // unknown unit. Dropping the null let a declared USD base read 'declared-single' and add 100 pence as $100; beside any
+  // known unit it is a mix, and the conversion below holds it instead of treating it as the base.
   const unknownUnitRows = rows.filter((row) => !row.currency && row.listingCurrency == null).length;
   const currencyBasis = declaredCurrencies.length > 1 || effectiveCurrencies.length > 1 || unknownUnitRows > 0 ? 'mixed' : declaredCurrencies.length === 1 ? 'declared-single' : 'undeclared';
   const cashKnown = readState === 'ready' && (state?.cashKnown === true || cashBalances.length > 0 || holdingsKnown);
   const cashEnteredZero = cashInvalidCount === 0 && cashBalances.length === 0 && (legacyCashValue === 0 || (Array.isArray(state?.cashBalances) && state?.cashKnown === true));
 
+  // E3/P1194 (11 §23): 혼합 통화는 **선언된 관측 rate leg**가 있을 때만 합계로 만든다. leg가 없거나
+  // 컷 이후 관측됐거나 선언 창을 넘으면 환산하지 않고, 어느 통화쌍이 왜 실패했는지 발행한다.
+  // 환산 결과는 그 자체로 근거이므로 사용한 leg(출처·관측 시각·역방향 여부)를 함께 싣는다.
+  // 원가 통화가 시세 통화와 다른 경우도 같은 근거로 환산한다 — 값이 USD이고 원가가 KRW면
+  // 환산 없이는 P&L을 만들 수 없지만, leg가 선언되면 두 축이 같은 단위가 되어 P&L이 성립한다.
+  // 값·현금 환산은 합계를 좌우하므로 하나라도 실패하면 보류하고, 원가 환산 실패는 P&L만 보류한다.
+  // The value side resolves its unit with the listing fallback, so the conflict check must too — a KRW cost on an
+  // undeclared US quote was subtracted from a dollar value (-139,900 on a $100 holding).
   const costBasisConflict = rows.some((row) => row.costCurrency && (row.currency || row.listingCurrency) && row.costCurrency !== (row.currency || row.listingCurrency));
+  // 원가 축이 이미 기준 통화면 환산할 것이 없다 — 필요한 경우에만 leg를 요구한다.
+  // The cost axis falls back exactly like the value axis (quote currency, then listing currency) — a quote
+  // without a currency once left a US cost of $2,000 as ₩2,000 and printed +333% instead of +22%.
   const costCurrencyOf = (row) => row.costCurrency || row.currency || row.listingCurrency || null;
   const costConversionNeeded = rows.some((row) => row.cost != null && (costCurrencyOf(row) || declaredBaseCurrency) !== declaredBaseCurrency);
   const fxLegs = Array.isArray(state?.fxLegs) ? state.fxLegs : [];
@@ -272,6 +309,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   };
   let currencyCompatible = currencyBasis !== 'mixed';
   let costConversionApplied = false;
+  // The app's own published USD/KRW close (already used for cash) also converts holdings when no declared
+  // leg covers the pair — refusing it held every KRW-base account with US stocks and expired declarations every 72 hours.
+  // The leg is labelled with its close date; a declared leg still wins.
   const appLeg = (from, to) => cashFx && cashFx.rate > 0 && ((from === 'USD' && to === 'KRW') || (from === 'KRW' && to === 'USD'))
     ? { rate: from === 'USD' ? cashFx.rate : 1 / cashFx.rate, leg: { from: 'USD', to: 'KRW', rate: cashFx.rate, observedAt: cashFx.date, source: 'app-close', label: cashFx.label }, inverted: from === 'KRW' } : null;
   // The app close only covers USD/KRW: with any other currency in play (or no close) the declared legs alone decide, so
@@ -340,6 +380,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     }
     conversion.legs = usedLegs;
   }
+  // The unit cash is totalled in — the declared base, else the holdings' one unit, else (no holdings) the one cash
+  // currency, else USD (the screen's default unit, named in the label). Each balance converts with a declared rate or the
+  // app's published USD/KRW close; a balance without either holds the cash total.
   const holdingsUnit = conversion.applied ? declaredBaseCurrency
     : currencyBasis === 'declared-single' ? declaredCurrencies[0]
       : currencyBasis === 'undeclared' ? effectiveCurrencies[0] || null : null;
@@ -363,6 +406,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const someRowsValued = currencyCompatible && rows.some((row) => row.value != null);
   const positionValue = readState === 'ready' && rows.length === 0 && holdingsKnown ? 0 : (rows.length ? (allRowsValued ? rows.reduce((sum, row) => sum + row.value, 0) : null) : null);
   const totalAssets = readState === 'ready' && positionValue != null && cash != null ? positionValue + cash : null;
+  // Cost aggregation inherits the same unit rule as value aggregation — mixing
+  // declared currencies, or subtracting a KRW cost from a USD value, would fabricate a P&L.
+  // 선언된 leg로 두 축이 같은 기준 통화가 되면 그 금지는 해제된다.
   const costCurrencyState = costBasisConflict
     ? costConversionApplied ? 'cost-price-mismatch-converted' : 'cost-price-mismatch-held'
     : rows.some((row) => row.costCurrency) ? 'cost-declared' : 'cost-undeclared-assumed';
@@ -372,6 +418,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     ? positionValue - totalCost
     : null;
   const totalPnlPct = totalPnl != null && totalCost > 0 ? totalPnl / totalCost * 100 : null;
+  // v59.59 (logic refactor): a converted row's value is in the base currency, so its day is the listing's move and the
+  // USD/KRW move together, (1 + r)(1 + fx) − 1 — the local dailyPct alone dropped the won's day from a KRW book's change.
+  // Without the app's previous USD/KRW close (or for another pair) the row has no base-currency daily change.
   const fxDayPct = (from) => {
     if (!from || from === declaredBaseCurrency) return 0;
     if (!(cashFx?.rate > 0 && cashFx?.prevRate > 0)) return null;
@@ -391,6 +440,8 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
   const vixQuote = runtimeQuoteEvidence(vix, { now });
   const vixValue = vixQuote?.price != null && vixQuote.price > 0 ? vixQuote.price : null;
   const sectors = new Map();
+  // v58.80 (first-users bundle 2): with no cash entered the top said "1종목 평가 완료" while the sector panel waited for
+  // "평가액이 확인되면" — the total needs cash, the split does not. Without cash the split is of the stock value.
   const sectorBasis = totalAssets != null && totalAssets > 0 ? 'total-assets-including-cash' : allRowsValued && positionValue > 0 ? 'positions-only' : null;
   const sectorDenominator = sectorBasis === 'total-assets-including-cash' ? totalAssets : sectorBasis ? positionValue : null;
   for (const row of rows) {
@@ -424,9 +475,13 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     modelVersion: PORTFOLIO_SURFACE_MODEL_VERSION,
     readState,
     valuationState,
+    // 합계가 어떤 통화 단위로 만들어졌는지, 아니면 만들 수 없었는지.
     currencyState,
     currencyBasis,
     costCurrencyState,
+    // Two different facts. baseCurrency is the base the user declared (or the one unit a conversion produced) and is
+    // what every "기준 통화" sentence names; valuationCurrency is the unit the totals are printed in, which may be the
+    // holdings' assumed listing unit when nothing is declared.
     baseCurrency: conversion.applied ? declaredBaseCurrency : (currencyBasis === 'declared-single' ? declaredCurrencies[0] : null),
     valuationCurrency: holdingsUnit,
     // Why a total is held: a currency mix a declared rate would convert, or a holding whose unit is unknown, which no rate fixes.
@@ -442,8 +497,12 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     // empty when only costs or listings carry the unit, and the mix note read "통화 혼합()".
     heldCurrencies: Object.freeze(effectiveCurrencies.slice()),
     currencySubtotals,
+    // 환산이 보류여도 "선언된" 통화는 참이므로 그대로 공개한다. 표기자(현금 hero·일간
+    // 변동 등)가 합계 미성립과 무관하게 선언 통화로 기입할 수 있게 하는 표시용 라벨이며,
+    // 미성립 합계를 만들어내는 근거로 쓰지 않는다(baseCurrency는 여전히 환산 성립 시에만 유효).
     declaredBaseCurrency: declaredBaseCurrency || null,
     declaredCashCurrency: declaredCashCurrency || null,
+    // 환산을 했다면 그 근거(사용한 leg·출처·관측 시각·창), 못 했다면 이유를 함께 발행한다.
     conversion: Object.freeze({
       ...conversion,
       legs: Object.freeze(conversion.legs.map((leg) => Object.freeze({ ...leg }))),
@@ -466,7 +525,10 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     totalPnl,
     totalPnlPct,
     cash,
+    // The amount the user typed, kept even when a currency mix holds it out of the total, so the
+    // screen can say "환산 보류" instead of "미입력". v57.81: one number only when cash is in one currency.
     cashEntered: cashCurrencies.length <= 1 && cashBalances.length ? cashBalances.reduce((sum, row) => sum + row.amount, 0) : null,
+    // Every balance in its own currency, the unit of the cash total and the rate basis used (or what was held).
     cashBalances: Object.freeze(cashBalances.map((row) => Object.freeze({ ...row }))),
     cashHeld,
     cashInvalidCount,
@@ -489,6 +551,9 @@ export function derivePortfolioSurface({ state = {}, liveData = {}, vix = null, 
     sectorBreakdown: Object.freeze(sectorBreakdown),
     sourceKind,
     sourceLabel: sourceKind === 'unavailable' ? 'portfolio-surface-unavailable' : 'native-portfolio-surface-reference-only',
+    // v59.45 (PASS23 P23-FRESHNESS-01): the oldest price basis among the valued rows. Close-valued rows used to report
+    // the save time (state.updatedAt), so the AI rows' asOf read as today on a week-old close; a row with no
+    // observation of its own (stored price) still counts at the save time.
     observedAt: rows.some((row) => row.sourceKind === 'live-quote')
       ? rows.map((row) => row.observedAt).filter(Boolean).sort()[0] || null
       : rows.some((row) => row.value != null && row.observedAt)

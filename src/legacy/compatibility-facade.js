@@ -93,6 +93,7 @@ function readThemes(root) {
     return true;
   }).map((item) => {
     const symbol = String(item?.sym || item?.symbol || item?.id || '');
+    // v59.70 (data audit R1): the facade reads the produced rotation artifact like the native provider; no browser recompute.
     const produced = selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), { lagSessions: 1 });
     const dailyPct = live[symbol]?.pct ?? null;
     return {
@@ -147,7 +148,7 @@ function readThemes(root) {
       price: finite(live[symbol]?.price),
       pct: finite(live[symbol]?.pct)
     }]));
-    const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => live[symbol]).filter((quote) => quote && quote.price && quote.pct != null && Number.isFinite(Number(quote.pct)));
+    const pricedLeaders = (selectedTheme.leaders || []).map((symbol) => live[symbol]).filter((quote) => quote && quote.price && quote.pct != null && Number.isFinite(Number(quote.pct))); // P1575
     const breadth = pricedLeaders.length >= Math.max(2, Math.ceil((selectedTheme.leaders || []).length * 0.6))
       ? Math.round(pricedLeaders.filter((quote) => Number(quote.pct) > 0).length / pricedLeaders.length * 100)
       : null;
@@ -210,11 +211,20 @@ function readEntity(root) {
   });
 }
 
+// E0/P1280 (P-A): the facade's second Vault mapping is retired. It dropped
+// targetWeight, the declared quote/cost currencies, cash/base currency, ledger,
+// FX legs and the locked/failed read states, so every consumer behind this
+// surface could see a different portfolio than the native one. One reader owns
+// the mapping (`createRuntimeReaders().readPortfolio`) and the shadow-diff gate
+// in ci-esm-core-unit-check keeps the two surfaces byte-identical by construction.
 function readPortfolio(root) {
   return createRuntimeReaders({ root }).readPortfolio();
 }
 
 function readScreener(root) {
+  // E2/S-C: the row chain is no longer written here. `resolveScreenerRows` owns it and this
+  // reader declares the evidence intent — it never substitutes the bundled legacy DB, and the s-b
+  // retired global is no longer reachable from this path.
   const rows = resolveScreenerRows(root, SCREENER_ROW_INTENT.EVIDENCE);
   const read = typeof root?.AIO_ARCH?.getScreenerState === 'function' ? root.AIO_ARCH.getScreenerState : () => null;
   const revision = read('revision') || null;
@@ -233,6 +243,7 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
     }
     originalShowPage = candidate;
     const facade = function architectureShowPage(pageId, ...args) {
+      // Capture the last committed route BEFORE the legacy side effects run.
       const previousRoute = router?.active?.() || null;
       const result = originalShowPage.apply(this, [pageId, ...args]);
       // W00-A: the typed command owns identity — DOM args never become entity ids.
@@ -241,6 +252,11 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
       try {
         router?.transition?.(canonicalRoute, { source: 'architecture-navigation', entityId: explicitEntity });
       } catch (transitionError) {
+        // The legacy shell has already painted the new page when the router
+        // mount throws, and the router resets its active state on that throw. Leaving
+        // it that way showed users a page whose router never committed. Roll the shell
+        // and the commit back through the same typed boundary and report the failure as
+        // observation — a failed navigation must be visible, never a split surface.
         let rolledBack = false;
         try {
           if (previousRoute) {
@@ -276,6 +292,8 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
       try { Object.defineProperty(candidate, '__aioArchitectureNavigation', { value: true, configurable: true }); } catch (_) {}
       return Object.freeze({ installed: candidate.__aioArchitectureNavigation === true, router, restore: () => {} });
     }
+    // Hand the single transition authority to this typed facade. The
+    // router must not also transition on the aio:pageShown event it caused.
     router?.claimNavigationAuthority?.();
     const restore = () => {
       // A host without a writable global keeps the event path, so only a facade
@@ -315,6 +333,8 @@ export function createLegacyFacade(root = globalThis, eventTarget = root?.docume
 export function exposeArchitecture(root, api, { immutableState = false } = {}) {
   if (!root || !api) return;
   const snapshotCall = (fn) => (...args) => readonlySnapshot(typeof fn === 'function' ? fn(...args) : null);
+  // Canonical state readers accept an optional dot path ('analysis.tradingScore') so a
+  // legacy caller that needs one field snapshots only that branch, not the whole store.
   const selectStatePath = (value, path) => String(path).split('.').reduce((node, key) => (node == null ? undefined : node[key]), value);
   // Only the canonical structural-sharing store opts in. Time-sensitive evidence
   // selectors and arbitrary legacy readers still create fresh snapshots.
@@ -337,6 +357,10 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       return nextSnapshot;
     };
   };
+  // v57.91 (performance audit): each published row set was deep-cloned and frozen for legacy readers — 50.7 MB for 1,143
+  // rows, 1.2s of a phone route switch after every refresh cycle. Three quarters of it is the per-field readiness and
+  // observation envelopes, which no getScreenerRows reader uses (native code reads the store; legacy and AI readers take
+  // plain row fields). This reader's snapshot leaves those two fields out; getScreenerState('rows') still has them.
   const LEGACY_ROW_OMIT = new Set(['fieldReadiness', 'fieldObservations']);
   const legacyRowsMemo = new WeakMap();
   const legacyScreenerRows = () => {
@@ -361,6 +385,8 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
        getState: stateSnapshotCall(api.getState),
        getScreenerRows: stateSnapshotCall(legacyScreenerRows),
        getScreenerState: stateSnapshotCall(api.getScreenerState),
+       // E2/S-C: the classic legacy bundle cannot import the policy module, so the declared
+       // intent is bridged here. This is the only legacy entry point into the shared resolver.
        resolveScreenerRows: (intent) => resolveScreenerRows(root, intent),
        getEvidence: snapshotCall(api.getEvidence),
        selectForDecision: snapshotCall(api.selectForDecision),
@@ -377,6 +403,7 @@ export function exposeArchitecture(root, api, { immutableState = false } = {}) {
       ingestSentiment: api.ingestSentiment,
        getAIContext: api.getAIContext,
        getAIOrchestrator: api.getAIOrchestrator,
+       // v59.70 (2nd batch A, P4): the orchestrator loads with the AI panel (src/app/chat-loader.js `alongside`).
        loadAIOrchestrator: api.loadAIOrchestrator,
        planAIQuestion: api.planAIQuestion,
        classifyAIConduct: api.classifyAIConduct,

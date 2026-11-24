@@ -54,7 +54,7 @@ for (const row of breadthRows) {
   for (const field of ['breadth20', 'breadth50', 'breadth200']) {
     if (row[field] == null) continue;
     const meta = row.fieldMeta?.[field];
-    // v58.79: S&P 500 members are the headline scope; the AIO US universe stays valid for rows written before the switch.
+    // S&P 500 members are the headline scope; the AIO US universe stays valid for rows written before the switch.
     if (!meta || meta.sourceKind !== 'derived-research' || !['sp500-members-not-official-index-breadth', 'aio-us-screener-universe-not-official-exchange'].includes(meta.universeScope)) fail(`${row.date}/${field} scope lineage missing`);
     if (!Number.isFinite(Number(meta.eligible)) || Number(meta.eligible) < 20 || !Number.isFinite(Number(meta.coveragePct)) || Number(meta.coveragePct) < 50) fail(`${row.date}/${field} insufficient universe coverage`);
   }

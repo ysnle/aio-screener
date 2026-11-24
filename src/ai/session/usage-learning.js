@@ -1,8 +1,8 @@
-// Owner 2026-10-25: the 맞춤 profile also learns from use — screens opened, the topics of completed questions, and the
+// The 맞춤 profile also learns from use — screens opened, the topics of completed questions, and the
 // tickers and themes the app itself resolved — only after the reader turns it on, only on this device.
 // What is stored is counts, never question text. Counts fade with a two-week half-life, so a changed interest moves the
 // summary. The summary fills only fields the reader has not set (src/ai/session/user-profile.js: a chosen setting
-// always wins), and like the profile it adapts explanation only (R724): no pick, size, timing or suitability verdict.
+// always wins), and like the profile it adapts explanation only: no pick, size, timing or suitability verdict.
 export const LEARN_KEY = 'aio_ai_learned_v1';
 export const LEARN_CONSENT_KEY = 'aio_ai_learn_enabled'; // '1' on · missing/'0' off
 export const LEARN_SCHEMA = 'aio-ai-learned.v1';

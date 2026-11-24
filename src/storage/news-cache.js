@@ -1,5 +1,12 @@
+// v59.31 (roadmap 11, layer 4 boot sequence): the IndexedDB news cache moved out of js/aio-data.js unchanged — the
+// news-scoped DB (AIOScreenerNewsCache), the one-time copy from the legacy AIOScreenerDB name, and the save
+// and load used by fetchAllNews and the boot render. The functions stay window globals for those classic callers.
+// src/app/compatibility-globals.js installs this before DOMContentLoaded.
 export function installNewsCache(window = globalThis) {
   /* ── Phase D: IndexedDB 뉴스 캐시 (v48.63) ─────────────────────────────── */
+  // 뉴스 원본을 IDB에 저장 → 새로고침 후 fetchAllNews 완료 전 즉시 렌더
+  // E2/S-F: 이 DB는 뉴스 캐시 전용인데 이름이 스크리너 저장소처럼 읽혔다. 이름을 뉴스
+  // 범위로 바꾸고, 이전 이름의 DB는 삭제하지 않고 'news' 스토어가 비었을 때만 복사한다(마이그레이션).
   const _AIO_IDB_NAME = 'AIOScreenerNewsCache';
   const _AIO_IDB_LEGACY_NAME = 'AIOScreenerDB';
   const _AIO_IDB_VER  = 1;

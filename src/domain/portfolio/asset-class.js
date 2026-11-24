@@ -1,3 +1,8 @@
+// 개편 v2 (3g) 채권 완충: which holdings are bond funds, the bond share of the book and how the bond part moved
+// against the stock part. The map is static and versioned: exact listed tickers of widely held US bond ETFs, each with
+// the issuer's own fund name and its bond type. Nothing is inferred from a name, sector or price; a ticker that is not
+// listed here is not a bond fund for this reading. KRX-listed bond ETFs are added only by exact 6-digit code once they
+// appear in the app's Korean registry (js/aio-kr-data.js KR_STOCK_DB holds no bond ETF as of this version).
 import { STRESS_MIN_WEEKS } from './stress-sensitivity.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { listingCurrency as sharedListingCurrency } from './fx.js';
@@ -64,6 +69,9 @@ function pearson(xs, ys) {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
 }
 
+// v59.45 (PASS22): the shared listing rule (fx.js) — this copy read every non-Korean suffix (.T, .L, .HK) as a dollar
+// listing and translated it with the USD/KRW close. Only USD and KRW listings can be translated here; any other
+// listing currency (or an unknown one) holds the correlation below.
 const listingCurrency = sharedListingCurrency;
 const MAX_FX_LAG_DAYS = 4; // the same as-of tolerance as stress-sensitivity.js
 function usdkrwAsOf(history) {
@@ -87,6 +95,8 @@ export function stockBondCorrelation({ historyMap = {}, commonDates = [], bondWe
   const currencies = new Set([...Object.keys(bondWeights), ...Object.keys(stockWeights)].map(listingCurrency));
   if ([...currencies].some((c) => c !== 'USD' && c !== 'KRW')) return { available: false, reason: 'currency-unsupported' };
   if (!base && currencies.size > 1) return { available: false, reason: 'currency-mixed' };
+  // v59.59 (logic refactor): only USD/KRW can be translated (the app's one FX close); an EUR base used to take the
+  // KRW-per-USD move inverted, as if it were a USD book.
   if (base && base !== 'USD' && base !== 'KRW') return { available: false, reason: 'currency-unsupported' };
   const translate = base && [...currencies].some((c) => c !== base);
   const fxAt = translate ? usdkrwAsOf(history) : null;
@@ -142,6 +152,7 @@ export function bondCushion({ rows = [], stressInput = null, baseCurrency = null
     const symbol = String(row.symbol || '').toUpperCase();
     const info = assetClassOf(symbol);
     const w = Number(row.value) / total;
+    // v59.45 (PASS22): lots of one ticker add up (the last lot used to overwrite the correlation weight).
     if (info) { bonds.push({ symbol, ...info, pct: w * 100 }); bondWeights[symbol] = (bondWeights[symbol] || 0) + w; } else stockWeights[symbol] = (stockWeights[symbol] || 0) + w;
   }
   bonds.sort((a, b) => b.pct - a.pct);

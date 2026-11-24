@@ -33,6 +33,9 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
   const sector = conditionsOnly ? '' : selectedValue(documentRef, 'scr-sector');
   const cap = selectedValue(documentRef, 'scr-cap');
   const query = conditionsOnly ? '' : selectedValue(documentRef, 'scr-text-search').trim().toLowerCase();
+  // 'MS' matched Morgan Stanley's symbol exactly and showed only that row — hidden by the other
+  // filters, so the table said nothing was found while MSFT sat in it; 'NV' matched MSFT·MU·AMD through letters inside
+  // their names. A short Latin query is a ticker prefix (or the start of a word in the name), not a substring.
   const tickerQuery = /^[a-z][a-z.\-]{0,4}$/.test(query);
   const minRank = Number.parseInt(selectedValue(documentRef, 'scr-min-rank'), 10) || 0;
   const { min: rsiMin, max: rsiMax } = readRsiRange(documentRef);
@@ -40,11 +43,15 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
   const setupFilter = selectedValue(documentRef, 'scr-setup');
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
   const watchlistOnly = !!documentRef.getElementById('scr-watchlist-only')?.checked;
+  // Codex browser audit H44: after a run the table mixed rejected rows into "the result". 실행 통과만 keeps
+  // the table on the run's passed set; it is switched on when a run completes and can be turned off.
   const passedOnly = !conditionsOnly && passedOnlyApplied(documentRef);
   const watchlist = watchlistOnly ? new Set(readWatchlist?.() || []) : null;
   const aliases = readAliases?.() || {};
   const words = query ? query.split(/[\s,;·+&]+/).filter(Boolean) : [];
   const matchedSymbols = new Set();
+  // 2026-10-13 review S03: structure-class aliases (매수 -> BUY) are retired with the column; only symbol-list
+  // aliases remain, and any other word is matched as text.
   words.forEach((word) => {
     const alias = aliases[word];
     if (Array.isArray(alias)) alias.forEach((symbol) => matchedSymbols.add(symbol));
@@ -52,8 +59,11 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
 
   return rows.filter((row) => {
     if (screenerMarket(row) !== listingMarket) return false;
+    // In the 확장 view a stock can belong to several lists (S&P 500 and Nasdaq, Russell 2000 and Nasdaq).
     if (market && row.index !== market && !(Array.isArray(row.membership) && row.membership.includes(market))) return false;
     if (sector && row.sector !== sector) return false;
+    // A size bucket is a reference filter — use the decision-grade live value when it
+    // exists, otherwise the plausibility-checked SEC reference value; unknown size stays excluded.
     if (cap && capBucketOf(row) !== cap) return false;
     if (minRank > 0 && !(row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= minRank)) return false;
     const rsi = readRowNumber(row, 'rsi', 'calculation');
@@ -69,12 +79,18 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
     if (passedOnly && row.screenStatus !== 'passed') return false;
     if (custom.length && !matchesConditions(row, custom, customRead)) return false;
     if (!query) return true;
+    // 'ai' is both C3.ai's ticker and a theme alias of 21 names — an exact ticker joins the alias group
+    // instead of hiding it (low, now, all, key, it, bio … collide the same way).
     if (tickerQuery) {
       const sym = String(row.sym || '').toLowerCase();
       const wordStart = (text) => String(text || '').toLowerCase().split(/[^a-z0-9]+/).some((word) => word.startsWith(query));
       return sym.startsWith(query) || wordStart(row.name) || wordStart(row.sector) || matchedSymbols.has(row.sym); // 'tech' still finds Technology
     }
     const setupText = Array.isArray(row.setupProfile?.tags) ? row.setupProfile.tags.join(' ') : '';
+    // 2026-10-13 news audit N03: the headline memo is not searchable — a word in another company's headline (or in
+    // this company's) is not a property of the stock, and it made searches return unrelated rows.
+    // '엔비디아' found nothing — the registered Korean name joins the searchable text (a list
+    // filter the reader scans, not an automatic pick).
     const koName = globalThis.AIO_TICKER_NAME_REGISTRY?.entries?.[row.sym]?.kr || globalThis.KR_STOCK_DB?.[String(row.sym || '').replace(/\.K[SQ]$/, '')]?.name || '';
     const haystack = `${row.sym} ${row.name} ${koName} ${row.memo || ''} ${row.sector || ''} ${setupText}`.toLowerCase();
     const direct = haystack.includes(query);
@@ -84,6 +100,9 @@ export function filterRows(rows, documentRef, { readWatchlist, readAliases, cond
   });
 }
 
+// The rank filter used to label thresholds with a different grade scale than the
+// grade column (60 → "B" while the column renders C). Derive the labels from
+// rankGrade so the page cannot offer two definitions of the same grade.
 export function syncRankFilterLabels(documentRef) {
   const select = documentRef?.getElementById?.('scr-min-rank');
   if (!select || !select.options) return false;
@@ -228,6 +247,9 @@ export function renderFilterChips(documentRef, { definition = null } = {}) {
   }
 }
 
+// A screen's own conditions live in its filtersAST, so they are read from the definition, not the DOM controls.
+// The top level of an AND is the list of conditions; any other root is one condition. `own` marks the screen's own
+// conditions — the editor's (visual-builder) and the listing market's (market-scope) are shown elsewhere.
 export const FILTER_FIELD_LABELS = new Map(SCREENER_FIELD_REGISTRY.fields.map(field => [field.fieldId, field.label || field.fieldId]));
 export function screenFieldLabel(field) {
   return field === 'rank' ? '백분위' : FILTER_FIELD_LABELS.get(field) || field || '조건';
@@ -245,6 +267,7 @@ export function screenBoundsText(node) {
   return [node?.min != null ? `${node.min}${unit} 이상` : null, node?.max != null ? `${node.max}${unit} 이하` : null].filter(Boolean).join(', ') || '범위';
 }
 function screenConditionText(node) {
+  // v58.64 (SCR01 class): a NOT node carries `child`, not `children`.
   if (node.type === 'not') return `${screenFieldLabel(node.child?.field || node.child?.type)} 제외`;
   if (node.type === 'and' || node.type === 'or') return `조건 ${(node.children || []).length}개 묶음`;
   if (node.type === 'exists') return `${screenFieldLabel(node.field)} 있음`;
@@ -282,16 +305,19 @@ export function renderFunnel(documentRef, { universe = 0, ready = 0, passed = 0,
   setText('scr-funnel-runid', executed
     ? `실행 기록${originLabel ? `, ${originLabel}` : ''}`
     : '실행 전');
-  const runNode = documentRef.getElementById('scr-funnel-runid');
+  const runNode = documentRef.getElementById('scr-funnel-runid'); // The run id stays in the hover, off the face
   if (runNode) runNode.title = executed ? `실행 ID ${String(runId)}` : '';
   const scope = documentRef.getElementById('scr-funnel-scope-note');
   if (scope) {
     scope.textContent = executed
+      // Codex browser audit H43: one line says why the table count differs from the run's pass count.
       ? `실행 조건 통과 ${passed}종목(대상 ${runRow != null ? runRow : '미확인'}, 조건 판단 자료 부족 ${unavailable}) — 저장·재실행·검증은 이 ${passed}종목 기준입니다. ${passedOnly ? `표에는 그중 ${filtered}행이 보입니다${filtered < passed ? '(섹터·검색 같은 표시 필터 적용)' : ''}.` : `표에는 탈락·데이터 부족 종목까지 포함한 ${filtered}행이 보입니다 — 통과 종목만 보려면 ‘실행 통과만’을 켭니다.`}`
       : '실행 전 — 조건을 실행하면 비교 기준 종목 수가 정해집니다. 표시 범위는 현재 필터 결과입니다.';
   }
 }
 
+// 종목 범위 control text and the one-line notes for what stays core-only. The option counts come from the rows
+// that arrived (기본 = this market's core rows; 확장 = the shard's rows, remembered from the last load).
 export function syncUniverseScopeControl(documentRef, root, state, listingMarket) {
   const select = documentRef.getElementById('scr-universe-scope');
   if (!select) return;
@@ -338,6 +364,7 @@ export function syncUniverseScopeControl(documentRef, root, state, listingMarket
 // Conditions last for the session (a screen change remounts the panel); the UI layer keeps no browser storage.
 let sessionConditions = [];
 
+// 개편 v2 (5i): the panel's styles live in src/ui/styles/v2-screener.css (they were injected as a <style> string).
 export const el = (doc, tag, className, text) => {
   const node = doc.createElement(tag);
   if (className) node.className = className;
@@ -407,6 +434,7 @@ export function installCustomConditions(documentRef) {
     if (search && searchFromPanel && search.value === searchFromPanel) { search.value = ''; search.dispatchEvent(new Event('change', { bubbles: true })); }
     searchFromPanel = '';
   };
+  // v58.63 (SCR04): a strict bound (미만/초과) is part of the chip's identity, so "PER 20 미만" rebuilds a "PER 20 이하" chip.
   const chipKey = (condition) => `${condition.id}${condition.strict ? ':strict' : ''}`;
   const buildChip = (condition) => {
     const chip = el(documentRef, 'span', 'scr-custom-chip');
@@ -427,6 +455,8 @@ export function installCustomConditions(documentRef) {
     return chip;
   };
   const findIn = (attr, id) => [...list.querySelectorAll(`[data-${attr}]`)].find((node) => node.dataset[attr] === id) || null;
+  // WCAG 2.4.3: chips are keyed by condition id and only rebuilt when the set or order changes; otherwise the
+  // values and counts are synced in place so a focused chip input or 빼기 button keeps focus across screener renders.
   const renderChips = () => {
     const ids = current.map(chipKey);
     const chips = [...list.children];
@@ -465,6 +495,7 @@ export function installCustomConditions(documentRef) {
     input.dispatchEvent(new Event('change', { bubbles: true }));
   };
   const applySentence = (parsed, sentence) => {
+    // v58.63 (SCR04): OR, an inverted direction or a won amount applies nothing and keeps the sentence, instead of a silently different screen.
     if (parsed.unsupported?.length) {
       const why = { or: "조건은 모두 '그리고'로 묶입니다('또는'은 지원하지 않습니다)", inverted: '반대 방향(예: PER 이상)은 목록에 없는 조건입니다', won: '거래대금은 달러 백만 단위(예: 거래대금 20백만)로 적습니다' };
       const reasons = (parsed.reasons?.length ? parsed.reasons : Object.keys(why)).map((key) => why[key]).filter(Boolean);
@@ -472,6 +503,8 @@ export function installCustomConditions(documentRef) {
       note.textContent = parseNote;
       return;
     }
+    // run-5 (breaker #6): only words shaped like a name or sector ('반도체', 'NVDA') become the name search; emoji,
+    // other scripts or SQL fragments are reported as not applied instead of silently narrowing the table to 0.
     const words = String(parsed.unknown || '').split(/\s+/).filter(Boolean);
     const searchWords = words.filter((word) => /^[\p{Script=Hangul}A-Za-z0-9.&-]{2,30}$/u.test(word));
     const dropped = words.filter((word) => !searchWords.includes(word));
@@ -488,6 +521,7 @@ export function installCustomConditions(documentRef) {
   const onClick = (event) => {
     const target = event.target;
     if (target === apply) {
+      // The sentence parser loads on the click (boot budget); the picker below works without it.
       const sentence = text.value;
       import('../../../domain/screener/condition-text-parser.js').then(({ parseConditionText }) => applySentence(parseConditionText(sentence), sentence))
         .catch(() => { note.textContent = '문장 해석을 불러오지 못했습니다. 아래 목록에서 골라 주세요.'; });
@@ -501,7 +535,6 @@ export function installCustomConditions(documentRef) {
     } else if (target.dataset?.remove) {
       const index = current.findIndex((condition) => condition.id === target.dataset.remove);
       commit(current.filter((condition) => condition.id !== target.dataset.remove));
-      // The removed button is gone: move focus to the next chip's 빼기 (or the previous one), else the picker.
       const removes = list.querySelectorAll('button[data-remove]');
       (removes[index] || removes[index - 1] || documentRef.getElementById('scr-add-condition') || select).focus();
     }
@@ -537,7 +570,11 @@ export function installCustomConditions(documentRef) {
       }
       const missing = counts.filter((item) => !item.withData && !item.source).length;
       const failed = [...new Set(counts.filter((item) => item.source?.state === 'failed').map((item) => item.source.reason))];
+      // role=status: only touch the text when it changes so the count is not re-announced on every render.
+      // 2026-10-18 bookmarks (volatility-base-rates): each added condition narrows the sample; the combination is not a tested rule.
       const noteText = [current.length && shown != null ? `조건을 모두 만족하고 다른 필터도 통과한 종목 ${shown}개` : '',
+        // 하방 과확장 matched 110 stocks yet the default table showed 0 — 실행 통과만 (on by default)
+        // keeps the table on the last run's passed set, and nothing said so.
         current.length && shown === 0 && passedOnlyApplied(documentRef) && counts.some((item) => item.pass > 0)
           ? "'조건 통과만'이 켜져 있어 조건 화면을 통과한 종목 안에서만 찾았습니다 — 끄면 전체 종목에서 찾습니다" : '',
         ...invertedConditionPairs(current).map(([lower, upper]) => `${withAndParticle(conditionLabel(lower))} ${withTopicParticle(conditionLabel(upper))} 함께 만족할 수 없습니다`),
@@ -564,6 +601,7 @@ export function createFiltersController(ctx) {
   if (populationHolder && !documentRef.getElementById('scr-population-note')) {
     const status = documentRef.createElement('p'); status.id = 'scr-universe-status'; status.setAttribute('aria-live', 'polite'); status.hidden = true;
     const note = documentRef.createElement('p'); note.id = 'scr-population-note'; note.setAttribute('aria-live', 'polite');
+    // audit #3: why some of the population is not ranked — one folded line under the universe line.
     const excluded = documentRef.createElement('details'); excluded.id = 'scr-population-excluded'; excluded.className = 'scr-ranking-method'; excluded.hidden = true;
     excluded.append(documentRef.createElement('summary'), documentRef.createElement('p'));
     const method = documentRef.createElement('details'); method.className = 'scr-ranking-method';
@@ -572,6 +610,8 @@ export function createFiltersController(ctx) {
     method.append(summary, explanation);
     populationHolder.append(status, note, excluded, method);
   }
+  // 종목 범위 — 기본 (core universe) by default; 확장 adds every Russell 2000 member and Nasdaq-listed common
+  // stock from a separate shard that is downloaded only after this choice. The choice is remembered per reader.
   documentRef.getElementById('scr-universe-scope').value = readUniverseScope(root);
 
   // 조건 추가 opens the editor in place inside the conditions block; 보기 opens its panel under the bar (one open at a time).
@@ -623,6 +663,7 @@ export function createFiltersController(ctx) {
     options[0].textContent = label;
     values.forEach((value, index) => {
       options[index + 1].value = value;
+      // 2026-10-14 audit #18: Korean option names; the value stays the artifact's own key.
       options[index + 1].textContent = key === 'index' ? (INDEX_LABELS[value] || INDEX_CODE_LABELS[value]?.[0] || value) : key === 'sector' ? sectorLabel(value) : value;
     });
     select.replaceChildren(...options);
@@ -631,6 +672,7 @@ export function createFiltersController(ctx) {
   };
   ctx.fillControls = () => {
     fillSelect('scr-market', 'index', '전체 지수'); fillSelect('scr-sector', 'sector', '전체 섹터');
+    // Apply a handed-over sector once its option exists (rows may arrive after mount).
     const sectorSelect = ctx.pendingSector ? documentRef.getElementById('scr-sector') : null;
     if (sectorSelect) {
       const options = [...sectorSelect.options].map((option) => option.value).filter(Boolean);
@@ -670,7 +712,7 @@ export function createFiltersController(ctx) {
   ctx.inputs.push((event) => {
     if (event.target.matches?.('#scr-listing-market')) {
       root._aioScreenerListingMarket = event.target.value;
-      ctx.activeRow = null; ctx.autoInspected = false;
+      ctx.activeRow = null; ctx.autoInspected = false; // 개편 v2: the inspector restarts on the new market's first row
       if (ctx.whyDrawerNode) ctx.whyDrawerNode.hidden = true;
       ++ctx.runGeneration; ctx.activeResult = null; ctx.activeRows = null; ctx.activePreview = null; ctx.activePreviewKey = null;
       selectedSymbols.clear(); compareSymbols.clear(); visibleLimit.value = 12; ctx.readSignature = '';
@@ -689,7 +731,10 @@ export function createFiltersController(ctx) {
       visibleLimit.value = 12; ctx.renderNow();
     } else if (event.target.matches?.('#scr-market, #scr-sector, #scr-cap, #scr-setup, #scr-min-rank, #scr-rsi-min, #scr-rsi-max, #scr-min-mom, #scr-text-search, #scr-watchlist-only, #scr-passed-only, #scr-custom-conditions')) {
       event.stopPropagation();
+      // The search box's blur-time change must not re-render a table the pause already rendered, or the
+      // first tap on a row button (비교 +, 관심) after typing lands on a node that the re-render just replaced.
       if (event.type === 'change' && event.target.id === 'scr-text-search' && !ctx.searchTimer) return true;
+      // Typing in the name·sector search re-renders at most once per pause (150ms); change renders at once.
       if (ctx.searchTimer) { clearTimeout(ctx.searchTimer); ctx.searchTimer = null; }
       if (event.type === 'input' && event.target.id === 'scr-text-search') {
         ctx.searchTimer = setTimeout(() => { ctx.searchTimer = null; visibleLimit.value = 12; ctx.renderNow(); }, 150);

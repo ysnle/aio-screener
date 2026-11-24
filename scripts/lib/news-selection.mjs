@@ -1,4 +1,4 @@
-// Server news backstop split out of scripts/fetch-data.mjs (v57.62): the KST 08:00 completed-24h cycle, feed list,
+// Server news backstop split out of scripts/fetch-data.mjs: the KST 08:00 completed-24h cycle, feed list,
 // source-tier/impact scoring, same-event dedupe and topic caps, intraday selection, and per-ticker memo selection.
 // Scoring and selection are pure (unit-testable without the producer); fetchNews/fetchTickerNewsItems do the RSS I/O.
 // fetch-data.mjs imports and re-exports them.
@@ -75,7 +75,7 @@ export function getKst0800NewsCycle(nowMs = Date.now()) {
 }
 
 export const NEWS_FEEDS = [
-  // Live audit 2026-10-21: the original query (twelve AND-ed words) returned no item in 68 runs since 10/19. The market's own
+  // The original query (twelve AND-ed words) returned no item in 68 runs since 10/19. The market's own
   // move explainers ("Stocks climb as SpaceX results reignite AI trade", "Markets Wrap") are what the reading needs first.
   { query: '"stocks rally" OR "stocks fall" OR "stocks surge" OR "stocks slide" OR "market selloff" OR "markets wrap" OR "stock market today" when:2d', source: 'Google News - Market movers', topic: 'macro', country: 'us', tier: 1 },
   // 2026-10-19 data audit: the "Market movers" query names Reuters/Bloomberg/CNBC as words, which matches any outlet
@@ -88,9 +88,9 @@ export const NEWS_FEEDS = [
   { query: 'dollar OR yen OR Treasury yields OR bond market OR credit spreads OR gold when:2d', source: 'Google News - FX/Bonds', topic: 'fxbond', country: 'global', tier: 1 },
   { query: 'LQD OR HYG OR corporate bonds OR credit spreads OR investment grade OAS OR rating downgrade OR AI capex funding OR data center financing when:2d', source: 'Google News - Credit/Funding', topic: 'credit', country: 'global', tier: 1 },
   { query: 'upgrade OR downgrade OR price target OR analyst rating OR earnings guidance stock when:2d', source: 'Google News - Analyst/Earnings', topic: 'analyst', country: 'us', tier: 2 },
-  // P1373: the ko/KR edition was queried with English terms and returned no in-cycle items.
+  // The ko/KR edition was queried with English terms and returned no in-cycle items.
   { query: '코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스 OR 외국인 순매수 OR 원달러 환율 when:2d', source: 'Google News - Korea markets', topic: 'korea', country: 'kr', tier: 2 },
-  // v57.71 (owner 2026-10-15): Google News indexed no Korean article after 08:00 KST by 09:56 on a -6% KOSPI morning. The
+  // Google News indexed no Korean article after 08:00 KST by 09:56 on a -6% KOSPI morning. The
   // wire's own market feed (newest first, minutes old) is read on the same refresh cadence; no per-user request.
   { url: 'https://www.yna.co.kr/rss/market.xml', source: '연합뉴스', topic: 'korea', country: 'kr', tier: 2 },
   // Owner 2026-10-18 (data-pipeline review): the week of 10/13 was driven by AI-infrastructure funding (CoreWeave bonds,
@@ -99,21 +99,21 @@ export const NEWS_FEEDS = [
   // Google's relevance ranking returned oil and gold. Two narrative feeds, each with a slot floor (NEWS_FEED_FLOORS).
   { query: 'CoreWeave OR OpenAI OR Anthropic OR neocloud OR "AI bubble" OR "AI spending" OR "data center debt" OR "memory prices" OR DRAM OR CXMT when:2d', source: 'Google News - AI narrative/Memory', topic: 'semi', country: 'us', tier: 1 },
   { query: '"hedge funds" OR deleveraging OR "margin calls" OR "private credit" OR gilts OR "French bonds" OR "European debt" OR "midterm elections" when:2d', source: 'Google News - Positioning/Sovereign/Politics', topic: 'credit', country: 'global', tier: 1 },
-  // v59.42 coverage pass (owner-approved, free sources only): the 476 rows published since 10/20 carried no energy,
+  // Coverage pass (owner-approved, free sources only): the 476 rows published since 10/20 carried no energy,
   // crypto, healthcare or Japan/China/Europe topic — only the oil words of the geopolitics feed. One query each, one seat
   // each (NEWS_FEED_FLOORS), and the Federal Reserve's own press releases (official, tier 1, scored by the same rules).
   { query: '"oil prices" OR "natural gas" OR OPEC OR "energy stocks" OR "copper prices" OR "power prices" OR uranium when:2d', source: 'Google News - Energy/Commodities', topic: 'energy', country: 'global', tier: 2 },
   { query: 'bitcoin OR ethereum OR "crypto market" OR stablecoin OR "bitcoin ETF" when:2d', source: 'Google News - Crypto', topic: 'crypto', country: 'global', tier: 2 },
   { query: '"FDA approval" OR "FDA approves" OR biotech stocks OR drugmaker OR GLP-1 OR "Eli Lilly" OR "Novo Nordisk" when:2d', source: 'Google News - Healthcare/Biotech', topic: 'healthcare', country: 'us', tier: 2 },
   { query: '"Bank of Japan" OR Nikkei OR "European Central Bank" OR "Stoxx 600" OR "China stocks" OR "Hang Seng" OR PBOC when:2d', source: 'Google News - Japan/China/Europe', topic: 'macro', country: 'global', tier: 1 },
-  // v59.62 (owner 2026-11-03): the $115B Marvell-Lumentum all-stock deal (11/2) reached no screen. No feed asked for
+  // The $115B Marvell-Lumentum all-stock deal (11/2) reached no screen. No feed asked for
   // corporate actions and no rule scored acquire/merger, so a deal headline could only win a seat as generic market news.
   // The election-sector trade (solar and healthcare names moving on midterm odds) had the same gap. One seat each.
   { query: 'acquire OR acquisition OR merger OR "all-stock deal" OR takeover OR buyout billion when:2d', source: 'Google News - Deals/M&A', topic: 'equity', country: 'us', tier: 1 },
   { query: '(midterm OR election OR Democrats OR Republicans) (solar OR "clean energy" OR healthcare OR insurers OR drugmakers OR defense OR banks) stocks when:2d', source: 'Google News - Election sectors', topic: 'equity', country: 'us', tier: 2 },
-  // v59.57: an official publisher's own feed goes quiet for days (10/29 FOMC → nothing until after the weekend), which is
+  // An official publisher's own feed goes quiet for days (10/29 FOMC → nothing until after the weekend), which is
   // not a dead feed. quietMaxHours lets the 72h dead-feed gate wait that long while the feed still answers with items.
-  // v59.72: 192h was a guess; the feed's own 9/18-11/05 history has a 291h gap (10/16 -> 10/28), so 14 days.
+  // 192h was a guess; the feed's own 9/18-11/05 history has a 291h gap (10/16 -> 10/28), so 14 days.
   { url: 'https://www.federalreserve.gov/feeds/press_all.xml', source: 'Federal Reserve', topic: 'macro', country: 'us', tier: 1, quietMaxHours: 336 },
 ].map(feed => feed.url ? feed : ({ ...feed, url: _googleNewsSearchUrl(feed.query, feed.country === 'kr' ? 'ko' : 'en-US', feed.country === 'kr' ? 'KR' : 'US', feed.country === 'kr' ? 'KR:ko' : 'US:en') }));
 
@@ -122,24 +122,24 @@ const SERVER_NEWS_PRIORITY_RULES = [
   { label: 'geopolitics-energy', points: 14, re: /\b(iran|hormuz|red sea|israel|lebanon|ukraine|sanction|tariff|export control|oil prices?|wti|brent|lng|opec)\b/i },
   { label: 'ai-semis', points: 13, re: /\b(nvidia|nvda|semiconductor|chip|hbm|dram|sk hynix|samsung electronics|tsmc|asml|blackwell|rubin|data center|ai infrastructure)\b/i },
   { label: 'credit-funding', points: 12, re: /\b(lqd|hyg|oas|credit spreads?|corporate bonds?|investment grade|high yield|rating downgrade|debt financing|funding costs?|capex funding|project finance|data center financing|private credit|junk|defaults?)\b/i },
-  // Owner 2026-10-18: the narratives that moved the AI complex that week matched no rule, so a headline such as
+  // The narratives that moved the AI complex that week matched no rule, so a headline such as
   // "Anthropic IPO valuation cut" scored topicHits 0 and was dropped by the floor below before ranking.
   { label: 'ai-narrative-funding', points: 13, re: /\b(coreweave|crwv|nebius|neoclouds?|openai|anthropic|ai bubble|ai spending|ai capex|ai trade|hyperscalers?|data cent(?:er|re) (?:debt|bonds?|financing)|gpu[- ]backed)\b/i },
   { label: 'memory-cycle', points: 12, re: /\b(memory (?:chips?|prices?|makers?|stocks?)|dram|nand|micron|sandisk|cxmt|ymtc|kioxia)\b/i },
   { label: 'deleveraging-positioning', points: 12, re: /\b(deleverag\w*|hedge funds?|margin calls?|forced selling|liquidations?|unwind(?:s|ing)?|crowded trades?|short squeeze|momentum (?:crash|unwind)|risk parity)\b/i },
   { label: 'sovereign-fiscal', points: 10, re: /\b(gilts?|bunds?|jgbs?|sovereign debt|fiscal deficit|debt crisis|bond vigilantes|term premium|(?:french|european|italian|japanese) (?:debt|bonds?))\b/i },
   { label: 'politics-elections', points: 8, re: /\b(midterms?|midterm elections?|government shutdown|debt ceiling)\b/i },
-  // v59.62: a corporate action reprices both sides and its chain (MRVL-LITE moved optical names 8-19% on 11/2).
+  // A corporate action reprices both sides and its chain (MRVL-LITE moved optical names 8-19% on 11/2).
   { label: 'corporate-action', points: 12, re: /\b(acquir(?:e|es|ed|ing)|acquisition|merger|takeover|buyout|all-stock|tender offer|spin-?off)\b/i },
   { label: 'earnings-guidance', points: 10, re: /\b(earnings|revenue|eps|guidance|outlook|margins?(?! for error| calls?)|buyback|dividend|preannounces?)\b/i },
   { label: 'analyst-action', points: 8, re: /\b(upgrade|downgrade|price target|(?<!(?:approval|economic|popularity|favorability) )rating|initiates|overweight|underweight|buy rating|sell rating)\b/i },
-  // v59.42 coverage pass (476 published rows since 10/20): `won` matched "won't" 3 of 3 times, `rating` an approval or
+  // Coverage pass (476 published rows since 10/20): `won` matched "won't" 3 of 3 times, `rating` an approval or
   // economic rating 2 of 5, `margin` "margin for error" 2 of 6.
   { label: 'fx-bonds-commodities', points: 8, re: /\b(dollar|yen|euro|yuan|won(?!['’]t)|dxy|forex|gold|copper|credit spread|yield curve)\b/i },
-  // P1504: broad market vocabulary — counts toward the topic floor with a small weight so 'Nasdaq hits new high,
+  // Broad market vocabulary — counts toward the topic floor with a small weight so 'Nasdaq hits new high,
   // 10-year yield tops 5.3%' or 'global bond sell-off' are not dropped as off-topic.
   { label: 'market-general', points: 4, re: /\b(stocks?|stock market|wall street|equities|s&p 500|nasdaq|dow jones|russell 2000|yields?|bonds?|10-year|30-year|treasur(?:y|ies)|oil|crude|commodit(?:y|ies)|futures|markets?)\b/i },
-  // v59.42 coverage pass: the topics the new feeds bring (a feed's topic is not evidence; the headline is).
+  // Coverage pass: the topics the new feeds bring (a feed's topic is not evidence; the headline is).
   { label: 'energy-commodities', points: 8, re: /\b(natural gas|energy stocks?|power prices?|electricity prices?|uranium|coal|copper prices?|refin(?:ery|ers|ing) margins?)\b/i },
   { label: 'crypto', points: 6, re: /\b(bitcoin|btc|ether(?:eum)?|crypto(?:currenc(?:y|ies))?|stablecoins?|spot (?:bitcoin|ether) etfs?|coinbase|microstrategy)\b/i },
   { label: 'healthcare-biotech', points: 6, re: /\b(fda|biotech|pharma(?:ceuticals?)?|drugmakers?|glp-1|obesity (?:drug|pill)s?|weight[- ]loss drugs?|clinical trials?|eli lilly|lilly|novo nordisk)\b/i },
@@ -151,22 +151,22 @@ const SERVER_NEWS_PRIORITY_RULES = [
 const SERVER_NEWS_CLICKBAIT_RE = /\b(next nvidia|next tesla|must buy|guaranteed return|millionaire|hidden gem|penny stock|to the moon|won't believe|don't miss|best stocks? to buy now|fortunes? (?:are|is|was|were|could be|can be|will be) made|make you (?:rich|a fortune)|life[- ]changing (?:money|wealth|returns?)|generational wealth|set (?:you )?up for life|retire (?:rich|early|a millionaire)|turn \$?[\d,]+ into|just changed everything|changes everything)\b/i;
 // 2026-10-19 data audit: video-farm reposts ("BE Stock Just Changed EVERYTHING … (rMCZTrTnh0)") end in an 11-char video id.
 const SERVER_NEWS_VIDEO_REPOST_RE = /\([A-Za-z0-9_-]{10,11}\)\s*$/;
-// Owner 2026-10-18: rumours stay labelled as rumours; a matching headline keeps its -8 and is published with verification
-// 'unconfirmed' so the reader and the model see it. 2026-10-19: one shared rule for every producer and screen.
+// Rumours stay labelled as rumours; a matching headline keeps its -8 and is published with verification
+// 'unconfirmed' so the reader and the model see it. One shared rule for every producer and screen.
 export function newsHeadlineUnverified(text) {
   return reportIsUnconfirmed(text);
 }
-const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC|Federal Reserve)\b/i; // v59.42: the Fed's own press-release feed is official
-// P1720: the Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
+const SERVER_NEWS_TIER1_SOURCE_RE = /\b(Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ|CNBC|Federal Reserve)\b/i; // The Fed's own press-release feed is official
+// The Korean-edition feed labels these same tier-2 publishers in Korean (연합뉴스 = Yonhap), which `\b` never
 // matches around Hangul, so a Yonhap headline ranked as tier 3. Same publishers, their Korean labels — not new sources.
-// v57.69 (P1804, 2026-10-15 crash audit): the intraday slot admits tier 1-2 only, and every Korean economic daily ranked
+// v57.69 (2026-10-15 crash audit): the intraday slot admits tier 1-2 only, and every Korean economic daily ranked
 // tier 3 — on a -6% KOSPI morning the slot held one US headline. The national economic dailies, wire services and
 // broadcasters are tier 2 (as MarketWatch/Barron's are); regional and single-topic outlets stay tier 3.
 const SERVER_NEWS_TIER2_SOURCE_RE = /\b(?:MarketWatch|Barron's|Nikkei|Yonhap|Naver|Korea JoongAng|The Korea Herald|The Hill|Yahoo Finance|Chosunbiz)\b|^(?:연합뉴스|연합인포맥스|뉴스1|뉴시스|중앙일보|조선일보|동아일보|한겨레|코리아\s?헤럴드|한국경제|한경닷컴|매일경제|서울경제|머니투데이|이데일리|파이낸셜뉴스|헤럴드경제|아시아경제|조선비즈|이투데이|KBS\s?뉴스|MBC\s?뉴스|SBS\s?뉴스|YTN)$/i;
-// P1504: the list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
+// The list missed the spellings Google News actually returns ("AD HOC NEWS") and several content farms
 // that filled the 2026-10-06 cycle (TradingKey ×4, livetradingnews, BBN Times, simplywall.st).
 const SERVER_NEWS_LOW_QUALITY_SOURCE_RE = /\b(Ad[- ]?hoc[- ]?news|MSN|GuruFocus|IndexBox|Pluang|Bitget|Stocktwits|TradingPedia|The Vibes|WBFF|Benzinga|Zacks|TradingKey|livetradingnews|BBN Times|simplywall\.st|Simply Wall St(?:reet)?|Telangana Today|Goodreturns|Startup Fortune|BigGo Finance|Eurasia Business News|bitcoinmagazine|GoldSilver|Motley Fool|FX Leaders|Coinpedia|Blockchain\.News|TMGM|VT Markets|Markets\.com|Admirals?|Action Forex|Moomoo|Invezz|Capital\.com|Plus500|XTB|FXOpen|Exness|AvaTrade|eToro|MarketBeat|24\/7 Wall St|Vietnam\.vn|Univest|scanx(?:\.trade)?|NextBigFuture(?:\.com)?|Press Release Distribution\w*|Unisba Media)\b/i;
-// N12 (2026-10-13 audit): the additions after Blockchain.News are CFD-broker and trading-app marketing desks (TMGM,
+// N12: the additions after Blockchain.News are CFD-broker and trading-app marketing desks (TMGM,
 // VT Markets, Markets.com, Admirals, Action Forex, Moomoo, Invezz …) and template/listicle farms (MarketBeat,
 // 24/7 Wall St). Matching runs on the host-normalised source label, so "www.tmgm.com" is caught as well.
 // Google News sometimes returns the publisher as a bare URL; only its host is kept as the source label.
@@ -175,7 +175,7 @@ export function newsSourceLabel(raw) {
   if (!/^https?:\/\//i.test(text) && !/^www\./i.test(text)) return text;
   try { return new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`).hostname.replace(/^www\./i, ''); } catch (_) { return text; }
 }
-// P1504: Korean headlines matched none of the English priority rules, so every Korean item scored on source and
+// Korean headlines matched none of the English priority rules, so every Korean item scored on source and
 // recency alone. The same topics in Korean.
 const KR_INDEX_MOVE_RE = /^(?=.*(?:코스피|코스닥|KOSPI|KOSDAQ))(?=.*(?:폭락|급락|폭등|급등|최대\s*낙폭|사이드카|서킷\s*브레이커|패닉|붕괴|투매|plung|crash|tumbl|\brout\b|soar|surg|circuit breaker|sidecar)).*/i;
 const SERVER_NEWS_PRIORITY_RULES_KO = [
@@ -186,7 +186,7 @@ const SERVER_NEWS_PRIORITY_RULES_KO = [
   { label: 'ko-flows', points: 9, re: /(외국인|기관|순매수|순매도|공매도|수급|리밸런싱|만기)/ },
   { label: 'ko-market', points: 8, re: /(코스피|코스닥|증시|지수|상장|공모)/ },
   { label: 'ko-geo-trade', points: 12, re: /(관세|제재|수출통제|중동|이란|호르무즈|전쟁|대미\s*투자)/ },
-  // Owner 2026-10-18: the same narratives in Korean (the 10/18 intraday "하루 800억씩 강제 청산" headline scored as plain 지수).
+  // The same narratives in Korean (the 10/18 intraday "하루 800억씩 강제 청산" headline scored as plain 지수).
   { label: 'ko-ai-narrative', points: 13, re: /(코어위브|네오클라우드|오픈\s?AI|앤트로픽|앤스로픽|AI\s*(?:버블|거품|수익성)|데이터센터\s*(?:채권|부채))/i },
   { label: 'ko-deleveraging', points: 12, re: /(디레버리징|헤지\s*펀드|반대\s*매매|마진\s*콜|강제\s*(?:청산|매도)|빚투|신용\s*융자|사모\s*(?:신용|대출))/ },
   { label: 'ko-sovereign-politics', points: 9, re: /(국채\s*발작|재정\s*적자|중간\s*선거|셧다운|부채\s*한도)/ },
@@ -220,7 +220,7 @@ function getServerNewsSourceTier(source, feedTier) {
   return 3;
 }
 
-// Codex browser audit H04 (2026-10-07): weather and baccarat posts were published as 실적/한국 news. The topic
+// Codex browser audit H04: weather and baccarat posts were published as 실적/한국 news. The topic
 // rules ran over "title + source + feed topic", so every item from an earnings-query feed matched /earnings/
 // through its own feed label, and the floor (topicHits > 0) passed it. Topic evidence now comes from the
 // headline alone; the feed's topic and the source name are not evidence that the article is about markets.
@@ -228,7 +228,7 @@ const SERVER_NEWS_OFFTOPIC_RE = /(바카라|카지노\s*게임|슬롯\s*머신|�
 // Owner 2026-10-12 (뉴스 30건 vs 50건): more slots would add noise, not news. Pages that are not articles — quote
 // pages, auto-generated price-target "forecasts", filing-form listings — and reposts whose headline names a month
 // two or more months before the cycle are dropped before ranking.
-const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Prices? Today\s*(?:\||$)|Price Prediction (?:for )?20\d\d|charts, data and news|Prediction for Tomorrow)/i; // v57.88: "Crude Oil Prices Today | OilPrice.com" is a quote page
+const SERVER_NEWS_NOT_ARTICLE_RE = /(Stock Price, News, Quote|Stock Quote|Quote Price and Forecast|Quote & History|Price Target\s*[—-]\s*Prediction|Forecast\s*[—-]\s*Price Target|^Form\s+\d|\bForm 4\b|Stock Price Today|Prices? Today\s*(?:\||$)|Price Prediction (?:for )?20\d\d|charts, data and news|Prediction for Tomorrow)/i; // "Crude Oil Prices Today | OilPrice.com" is a quote page
 const NEWS_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
   const match = String(headline || '').toLowerCase().match(/\b(january|february|march|april|june|july|august|september|october|november|december)\s+\d{1,2}\b/);
@@ -241,7 +241,7 @@ export function serverNewsHeadlineMonthStale(headline, nowMs = Date.now()) {
 }
 const SERVER_NEWS_POLITICS_MARKET_RE = /\b(stocks?|markets?|investors?|wall street|economy|economic|tax(?:es)?|spending|deficit|tariffs?|data cent(?:er|re)s?|energy|oil|fed)\b/i;
 
-// v60.18 (weekly audit 11/09-11/15): what an item is about, not how many keywords it hits.
+// What an item is about, not how many keywords it hits.
 // - Rules that name a subject (rates, chips, a company's earnings...) count once: the strongest one scores, a second distinct
 //   subject adds CROSS_SUBJECT_POINTS. Summing every hit let "Nvidia Stock Falls as Citi Trims Price Target Ahead of Earnings"
 //   (analyst + chips + mega-cap + earnings + "stock") outrank the CPI-day market story on 11/10 (84 vs 59-69).
@@ -362,7 +362,7 @@ export function scoreServerNewsItem(item) {
   if (topicHits > 0 && MARKET_SCOPE_RE.test(headline)) { score += MARKET_SCOPE_POINTS; reasons.push(`market-scope+${MARKET_SCOPE_POINTS}`); }
   const events = topicHits > 0 ? scheduledEventsOn(item.scheduleDates, item.ts).filter((id) => SCHEDULED_EVENT_NAMES[id].test(headline)) : [];
   if (events.length) { score += SCHEDULED_EVENT_POINTS; reasons.push(`scheduled-${events[0]}+${SCHEDULED_EVENT_POINTS}`); }
-  // P1504: a headline that touches no market topic is not market news, whatever feed returned it.
+  // A headline that touches no market topic is not market news, whatever feed returned it.
   item.topicHits = topicHits;
   item.subjectHits = subjectHits;
 
@@ -379,7 +379,7 @@ export function scoreServerNewsItem(item) {
     score -= 8;
     reasons.push('low-quality-source-8');
   }
-  // v59.42 coverage pass: question headlines (17 of 476 published rows) and buy-list listicles (5) rank below news.
+  // Coverage pass: question headlines (17 of 476 published rows) and buy-list listicles (5) rank below news.
   if (/\?\s*$/.test(headline)) {
     score -= 6;
     reasons.push('question-headline-6');
@@ -465,7 +465,7 @@ export function stripTranslatedColumnLabel(title, titleKo) {
   return label ? ko.replace(label.ko, '').trim() : ko;
 }
 
-// N11 (2026-10-13 audit): paraphrases of one story are not the same headline, so newsSameEvent let seven
+// N11: paraphrases of one story are not the same headline, so newsSameEvent let seven
 // "oil rises on Saudi attacks" and eight "stocks wait for bank earnings and CPI" items through. Within one 24h
 // cycle (the date is the cycle), a headline's key entities are its topic; at most two picks may share a pair of
 // key entities and at most four (three for an index wrap) a single one.
@@ -534,7 +534,7 @@ export function newsDisplayTopic(title, topic) {
 export const NEWS_TIER3_CAP = 12; // of the 40-slot bundle; see selectNewsBundle
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2],
   ['energy', 1], ['crypto', 1], ['healthcare', 1], ['Google News - Japan/China/Europe', 2],
-  ['Google News - Deals/M&A', 1], ['Google News - Election sectors', 1]]); // v59.42 coverage seats; v59.62 deal and election-sector seats
+  ['Google News - Deals/M&A', 1], ['Google News - Election sectors', 1]]); // Coverage seats; v59.62 deal and election-sector seats
 
 // 2026-10-19 data audit: 4 of 11 feeds returned nothing usable in a run and nothing recorded which, so a feed that died
 // (a changed URL, a query Google stopped answering) would only show as a slowly thinner bundle. Each run publishes per-feed
@@ -548,7 +548,7 @@ export function newsFeedQuietAllowanceMs(row, defaultMs) {
   const quiet = ['no-current', 'ok'].includes(row?.status) && Number(row?.parsed) > 0 ? Number(NEWS_FEED_QUIET_MAX_MS[row.source] || 0) : 0;
   return Math.max(defaultMs, quiet);
 }
-// Why an in-window article missed the selection floor (P1504). Filter reasons come from scoreServerNewsItem.
+// Why an in-window article missed the selection floor. Filter reasons come from scoreServerNewsItem.
 export function newsFloorDropReason(item) {
   if (Number(item?.tier) >= 4) return 'low-quality-source';
   if (!(item?.score > 0)) return /^[a-z-]+-filter$/.test(String(item?.selectionReason || '')) ? item.selectionReason : 'zero-score';
@@ -625,19 +625,19 @@ export function selectNewsBundle(items, krItems) {
   krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
-  // P1504: one source may hold at most three of the forty slots (AD HOC NEWS held five).
+  // One source may hold at most three of the forty slots (AD HOC NEWS held five).
   const perSource = new Map();
   const SOURCE_CAP = 3;
   const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
   const sourceFull = (it) => (perSource.get(sourceKey(it)) || 0) >= SOURCE_CAP;
-  // v59.42 coverage pass (owner-approved): aggregators and trade sites (tier 3) held 18 of 40 slots on 10/27 and 49% of
+  // Coverage pass (owner-approved): aggregators and trade sites (tier 3) held 18 of 40 slots on 10/27 and 49% of
   // the 476 rows published since 10/20, 103 of their 139 publishers once. At most TIER3_CAP slots, and outside the Korean
   // seats (few Korean outlets) a tier-3 headline needs two topic hits; tier 1-2 candidates fill the rest.
   let tier3Taken = 0;
-  // v60.18: the two hits are two subjects; broad market vocabulary is context (scoreServerNewsItem CONTEXT_RULES).
+  // The two hits are two subjects; broad market vocabulary is context (scoreServerNewsItem CONTEXT_RULES).
   const tier3Blocked = (it, needTwoHits = true) => Number(it.tier) >= 3
     && (tier3Taken >= NEWS_TIER3_CAP || (needTwoHits && !((it.subjectHits ?? it.topicHits) >= 2)));
-  // Owner 2026-10-12: one event, one slot. Two outlets reporting the same story (same specific figure, or nearly
+  // One event, one slot. Two outlets reporting the same story (same specific figure, or nearly
   // the same headline) used two of the slots; the higher-scored one is kept because candidates arrive score-ordered.
   const pickedGrams = [];
   const sameEvent = (it) => {
@@ -682,10 +682,10 @@ export function selectNewsBundle(items, krItems) {
     if (it.carried) carriedRows.add(out[out.length - 1]);
   }
   // 한국 뉴스 최대 KR_SLOTS(5)슬롯 먼저 예약
-  // Live audit 2026-10-21: three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
+  // Three of forty slots for the Korean session (22 in-window Korean items, 0 placed from the Korea
   // feed on a +3.3% sidecar day). US leads; Korea keeps five reserved seats.
   const KR_SLOTS = 5;
-  // v57.87 (10/16 audit): three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
+  // Three won-dollar headlines filled all three Korean slots on the KOSPI −7.6% day. Inside the
   // reserved slots one headline per Korean topic (환율 · 지수 움직임); further ones compete in the score-ordered fill.
   const krTopicTaken = new Set();
   for (const it of krIndexStoryFirst(krItems)) {
@@ -699,9 +699,9 @@ export function selectNewsBundle(items, krItems) {
     seen.add(k);
     pushItem(it);
   }
-  // P1373: score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40), so each under-covered
+  // score-only ranking let semis/macro/geo fill every slot (fxbond and credit got 0 of 40), so each under-covered
   // topic keeps a small floor of seats.
-  // v60.18 (weekly audit D5): the floors are reserved capacity, not first turn. Filled before the score order, their
+  // The floors are reserved capacity, not first turn. Filled before the score order, their
   // lower-scored picks used the per-source and same-entity caps first: on 11/09 the gold/crude floor rows filled `oil`, so
   // "Wall St jumps as oil slide cools inflation worries" and AP's "US stocks rally …" were capped out at seat 22 of 40.
   // Now the score order runs first and only holds back as many seats as the floors still need; the floors then take theirs.
@@ -736,21 +736,21 @@ export function selectNewsBundle(items, krItems) {
     if (out.length >= 40) break;
     if (passed.has(it)) admit(it);
   }
-  // v60.18: reserved Korean seats and topic floors decide which articles get in, not where they stand. The bundle was
+  // Reserved Korean seats and topic floors decide which articles get in, not where they stand. The bundle was
   // published in seat order, so a Korean index story of 11/11 08:05Z stood first ahead of every scored US story (dc712a5e9).
   out.sort((a, b) => (b.score || 0) - (a.score || 0) || (a.tier || 9) - (b.tier || 9) || String(b.eventTime || '').localeCompare(String(a.eventTime || '')));
   return { out, carriedPicked, carriedRows };
 }
 
-// P1720: the caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
+// The caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
 // run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
 export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntraday = null, schedules = null } = {}) {
   const cycle = getKst0800NewsCycle(nowMs);
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
-  const intradayCandidates = []; // P1720: published after cycle.endMs (08:00 KST)
+  const intradayCandidates = []; // Published after cycle.endMs (08:00 KST)
   const feedHealth = [];
-  const slotPool = []; // market timeline (2026-10-19): every dated candidate of the last 30 h, cut per 6 h KST slot later
+  const slotPool = []; // market timeline: every dated candidate of the last 30 h, cut per 6 h KST slot later
   for (const feed of NEWS_FEEDS) {
     const isKr = feed.country === 'kr';
     // 2026-10-19 pipeline redesign: `dropped` counts why in-window articles missed the floor and `lowQualitySources`
@@ -761,7 +761,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
       const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
       let parsed = [];
       for (const feedUrl of feedUrls) {
-        const candidate = _parseRssXml(await _fetchRssWithRetry(feedUrl, 12000), { limit: 40, titleLen: 200, needLink: true }) // 2026-10-12: a deeper candidate pool so the stricter filters below still fill the slots with real articles;
+        const candidate = _parseRssXml(await _fetchRssWithRetry(feedUrl, 12000), { limit: 40, titleLen: 200, needLink: true }) // A deeper candidate pool so the stricter filters below still fill the slots with real articles;
         parsed = candidate;
         const hasCurrent = candidate.some(p => {
           const ts = p.ts;
@@ -776,7 +776,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
           slotPool.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw, guid: p.guid,
             sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country, feedTier: feed.tier, feedSource: feed.source });
         }
-        // P1720: articles published after the 08:00 cut are kept aside for the provisional intraday slot; the
+        // Articles published after the 08:00 cut are kept aside for the provisional intraday slot; the
         // completed 08:00 bundle below stays the canonical window.
         if (isFinite(t) && t >= cycle.endMs) {
           intradayCandidates.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw,
@@ -802,7 +802,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
           newsCycleLabel: cycle.label,
         };
         Object.assign(item, scoreServerNewsItem(item));
-        // P1504: selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
+        // Selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
         // low-quality sources are dropped before ranking instead of filling empty slots.
         if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) {
           const why = newsFloorDropReason(item);
@@ -828,7 +828,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
     (row.topic === 'kr' ? krItems : items).push(row);
   }
   const { out, carriedPicked, carriedRows } = selectNewsBundle(items, krItems);
-  // P1720: the provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
+  // The provisional intraday slot rides on the same array without entering its JSON (non-enumerable), so every
   // existing consumer of `news` keeps the canonical 08:00 bundle unchanged.
   // Published rows that came only from the previous run (no feed returned them this time): the receipt's `updated`.
   Object.defineProperty(out, 'carriedCount', { value: carriedPicked, enumerable: false });
@@ -836,12 +836,12 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
   // look productive because its earlier articles are carried until the cycle rolls over.
   for (const row of out) { if (carriedRows.has(row)) continue; const health = feedHealth.find((h) => h.source === row.feedSource); if (health) health.selected += 1; }
   Object.defineProperty(out, 'feedHealth', { value: feedHealth, enumerable: false });
-  Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, nowMs, canonical: out }), enumerable: false }); // v59.45: the run's clock, as the cycle
+  Object.defineProperty(out, 'intraday', { value: selectNewsIntraday(intradayCandidates, { cycleEndMs: cycle.endMs, nowMs, canonical: out }), enumerable: false }); // The run's clock, as the cycle
   Object.defineProperty(out, 'slotPool', { value: slotPool, enumerable: false }); // scripts/lib/market-timeline.mjs
   return out;
 }
 
-// P1720 (coordinator N14, 2026-10-13): the completed 08:00 KST bundle left a Korean session's events out until the next
+// The completed 08:00 KST bundle left a Korean session's events out until the next
 // morning (KOSPI -5.46% on 10/13 had no headline all day). Articles published after the cut get a separate, provisional
 // slot: tier 1-2 publishers only, the same clickbait/not-article/off-topic/stale filters and topic cap as the bundle,
 // one slot per event (including events already in the bundle), at most two per publisher, at most NEWS_INTRADAY_MAX (12 since 2026-10-21; was six). When the next

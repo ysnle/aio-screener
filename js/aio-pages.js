@@ -16,12 +16,10 @@
 
 // ── Chat context: signal — 메인 CHAT_CONTEXTS에서 동적 정의됨 (중복 제거) ──
 
-// v59.51 (content audit): drawPositionDonut (v40.4) left with its #pf-position-donut canvas and #pf-donut-legend; the
+// drawPositionDonut left with its #pf-position-donut canvas and #pf-donut-legend; the
 // holdings table's 주식 중 비중 and 보유 점검 carry the mix (src/ui/pages/portfolio.js).
 
-// v57.81: saveCashPosition retired — cash is saved per currency (window._aioSaveCashBalance).
-
-// v57.77: updateRiskMonitor retired. Its [data-snap] writes inside #page-macro raced
+// updateRiskMonitor retired. Its [data-snap] writes inside #page-macro raced
 // renderSnapshotMetrics (src/ui/pages/market.js); its other keys had no sinks.
 
 var _signalMode = 'swing';
@@ -36,7 +34,7 @@ function initSignalDashboard() {
     if (typeof toggleSignalMode === 'function') toggleSignalMode(declaredMode);
   } catch(_) {}
   refreshSignalDashboard();
-  // v48.91: 타이머 레지스트리 등록
+  // 타이머 레지스트리 등록
   _signalInterval = _aioRegisterTimer('signalDashboard', refreshSignalDashboard, T.SIGNAL_REFRESH);
 
   // Fetch fresh quotes for signal page
@@ -44,22 +42,22 @@ function initSignalDashboard() {
 }
 
 function refreshSignalDashboard() {
-  // P1670: the legacy signal widgets this painted (canvas gauge, decision badge, score bars, hero
+  // The legacy signal widgets this painted (canvas gauge, decision badge, score bars, hero
   // factor bars, advice box, execution-window score, metric pills, phase label, timestamps) have
   // left the page; src/ui/pages/analysis.js owns the signal hero. Keep the shared decision
   // header and the snapshot/pulse writers that still have live sinks (the execution-window and
   // regime-badge derivations were retired: their ew-*/regime-* sinks are gone and nothing read
   // their return values).
 
-  // v57.77: snapshot date bindings (the updateRiskMonitor [data-snap] writer is retired).
+  // Snapshot date bindings (the updateRiskMonitor [data-snap] writer is retired).
   try { if (typeof window._aioRenderSnapshotDateBindings === 'function') window._aioRenderSnapshotDateBindings(); } catch(_) {}
 
-  // v42.1: 마켓 펄스 바 업데이트
+  // 마켓 펄스 바 업데이트
   try { updateMarketPulse(); } catch(e) {}
 }
 
-// v42.1: 마켓 펄스 바 — 전 페이지 상단 시장 상태 요약
-// v45.5: 데이터 미수신 시 폴백 사용 (로딩 영구 정체 방지) + 매크로 아이콘 색상 동기화
+// 마켓 펄스 바 — 전 페이지 상단 시장 상태 요약
+// 데이터 미수신 시 폴백 사용 (로딩 영구 정체 방지) + 매크로 아이콘 색상 동기화
 function updateMarketPulse() {
   var bar = document.getElementById('market-pulse-bar');
   if (!bar) return;
@@ -72,7 +70,7 @@ function updateMarketPulse() {
     if (el1b) { el1b.textContent = pulse.label; el1b.style.color = 'var(--color-text-secondary)'; }
   } catch(e) {}
 
-  // P1267: 시장폭은 timestamp가 확인된 canonical AIO 5/20/50SMA evidence만 사용한다.
+  // 시장폭은 timestamp가 확인된 canonical AIO 5/20/50SMA evidence만 사용한다.
   // 20SMA, 스냅샷, 섹터 ETF 일간 등락률은 모집단·기간·현재성이 달라 50SMA 대신 쓰지 않는다.
   try {
     var breadthEvidence = window.AIO && typeof window.AIO.getCurrentBreadthEvidence === 'function'
@@ -82,7 +80,7 @@ function updateMarketPulse() {
     var el2 = document.getElementById('mp-breadth-val');
     var el2b = document.getElementById('mp-breadth-label');
     if (bVal !== null && !isNaN(bVal)) {
-      // v52.40 (P655/EF-02b, R287): 독자 60/30 임계값 대신 breadth 페이지·signal bb-* 카드와 동일한
+      // v52.40 (P655/EF-02b): 독자 60/30 임계값 대신 breadth 페이지·signal bb-* 카드와 동일한
       // canonical NARRATIVE_ENGINE.getBreadthRegime()로 통일 — 같은 %가 표면마다 다른 색/라벨을 갖지 않게.
       var bReg = (typeof NARRATIVE_ENGINE !== 'undefined' && NARRATIVE_ENGINE.getBreadthRegime) ? NARRATIVE_ENGINE.getBreadthRegime(bVal) : null;
       var bColor = bReg ? bReg.color : (bVal >= 60 ? 'var(--color-text-success)' : bVal >= 30 ? 'var(--color-text-warning)' : 'var(--color-text-error)');
@@ -105,7 +103,7 @@ function updateMarketPulse() {
     var el3 = document.getElementById('mp-sentiment-val');
     var el3b = document.getElementById('mp-sentiment-label');
     if (fv !== null && !isNaN(fv)) {
-      var _fgZonePulse = window._aioFgZoneIndex(fv); // P1564/P1753: one zone index for colour and label (label spelled as src)
+      var _fgZonePulse = window._aioFgZoneIndex(fv); // One zone index for colour and label (label spelled as src)
       var fColor = ['var(--color-text-error)', 'var(--color-text-warning)', 'var(--color-text-primary)', 'var(--color-text-success)', '#2f7c57'][_fgZonePulse];
       var fLabel = ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'][_fgZonePulse];
       if (el3) window._aioRenderValueSlot(el3, 'value', fv, { color: fColor });
@@ -116,7 +114,7 @@ function updateMarketPulse() {
     }
   } catch(e) {}
 
-  // 4) 매크로 국면 — v57.60: the #home-market-regime source card left index.html (v57.50 I16), so the slot stays pending.
+  // 4) 매크로 국면 — v57.60: the #home-market-regime source card left index.html, so the slot stays pending.
   try {
     var elIcon = document.getElementById('mp-macro-icon');
     var elM = document.getElementById('mp-macro-val');
@@ -124,11 +122,11 @@ function updateMarketPulse() {
     window._aioRenderValueSlot(elM, 'pending', null, { text: '대기', reason: '시장 국면 산출 대기' });
   } catch(e) {}
 
-  // v57.76: the hidden #home-conclusion-bar and its 0-100 score line are retired (no caller left).
+  // The hidden #home-conclusion-bar and its 0-100 score line are retired (no caller left).
 }
 
 // Signal page live update hook
-// v48.99: _aioPageBus 마이그 (P180)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
@@ -136,15 +134,11 @@ _aioPageBus.register('html-signal-live', 'aio:liveQuotes', function() {
   if (sigPage && sigPage.classList.contains('active')) {
     refreshSignalDashboard();
   }
-  // v42.1: 어떤 페이지에서든 마켓 펄스 업데이트
+  // 어떤 페이지에서든 마켓 펄스 업데이트
   try { updateMarketPulse(); } catch(e) {}
 });
-_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { refreshSignalDashboard(); } catch(_) {} }, 0); }); // P1368: native navigation skips initSignalDashboard
+_aioPageBus.register('html-signal-shown', 'aio:pageShown', function(e) { if (e.detail === 'signal') setTimeout(function() { try { refreshSignalDashboard(); } catch(_) {} }, 0); }); // Native navigation skips initSignalDashboard
 });
-
-// P1425: the legacy FX/bond page writers (updateFxBondPage, the 10Y/JPY trend charts, the
-// cross-asset 4-axis matrix and its risk pill) were retired with their DOM; the 금리 · 환율 board in
-// src/ui/components/macro-board.js renders that route.
 
 // ═══════════════════════════════════════════════════════════════
 //  FUNDAMENTAL PAGE — Live Data + Earnings Calendar
@@ -163,8 +157,8 @@ async function initFundamentalLegacyWidgets() {
 
 // Init fundamental page on first visit
 var _fundInitDone = false;
-// v41.5: fundamental 페이지 첫 방문 시 초기화
-// v48.99: _aioPageBus 마이그 (P180)
+// Fundamental 페이지 첫 방문 시 초기화
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-fundamental-init-shown', 'aio:pageShown', function(e) {
@@ -218,11 +212,11 @@ var RRG_SUBSECTORS = [
   { sym:'BOTZ',name:'로보틱스',  color:'#1b1a17', emoji:'' },
   { sym:'ICLN',name:'클린에너지',color:'#2f7c57', emoji:'' },
   { sym:'LIT', name:'리튬/배터리',color:'#b54548', emoji:'' },
-  { sym:'KRE', name:'지역은행', color:'#978365', emoji:'' }, { sym:'ITB', name:'주택건설', color:'#544f46', emoji:'' }, { sym:'XRT', name:'소매', color:'#b54548', emoji:'' }, { sym:'IYT', name:'운송', color:'#1b1a17', emoji:'' }, // P1590: core industry groups (CIBR duplicated HACK)
+  { sym:'KRE', name:'지역은행', color:'#978365', emoji:'' }, { sym:'ITB', name:'주택건설', color:'#544f46', emoji:'' }, { sym:'XRT', name:'소매', color:'#b54548', emoji:'' }, { sym:'IYT', name:'운송', color:'#1b1a17', emoji:'' }, // Core industry groups (CIBR duplicated HACK)
   { sym:'JETS',name:'항공', color:'#544f46', emoji:'' }, { sym:'COPX',name:'구리 광산', color:'#2f7c57', emoji:'' }, { sym:'KWEB',name:'중국 인터넷', color:'#b54548', emoji:'' },
   // v59.70 (theme-sector): issuer-verified theme benchmarks (iShares, Roundhill, First Trust, Global X, VanEck, State Street,
   // Invesco pages, 2026-11-04). NCLD is GPU "neocloud" hosts (not broad cloud: SKYY), launched 2026-08; DRAM launched 2026-04.
-  // Owner (v59.70): DRAM·NCLD stay on the bars and the scatter as references only — the benchmark is SOXX (memory/semis) and
+  // Owner: DRAM·NCLD stay on the bars and the scatter as references only — the benchmark is SOXX (memory/semis) and
   // SKYY (cloud), and referenceOnly rows never enter the rotation verdict (rotationFlow) or a theme's representative ETF.
   { sym:'SOXX',name:'반도체 30', color:'var(--color-text-primary)', emoji:'' }, { sym:'DRAM',name:'메모리(참고)', color:'var(--color-text-primary)', emoji:'', referenceOnly:true, benchmark:'SOXX' },
   { sym:'SKYY',name:'클라우드', color:'#b54548', emoji:'' }, { sym:'NCLD',name:'GPU 클라우드(참고)', color:'#b54548', emoji:'', referenceOnly:true, benchmark:'SKYY' },
@@ -237,7 +231,7 @@ var THEME_MEMBERSHIP_POLICY = Object.freeze({
   version:'theme-membership.v2',
   source:'AIO curated taxonomy',
   sourceKind:'REFERENCE',
-  observedAt:'2026-11-04', // v59.70: HONA·OKTA·EXEL·UTHR added from issuer ETF top holdings; 하드웨어·기기 + IT 서비스 from XLK holdings
+  observedAt:'2026-11-04', // HONA·OKTA·EXEL·UTHR added from issuer ETF top holdings; 하드웨어·기기 + IT 서비스 from XLK holdings
   allowedUse:'reference',
   status:'reviewed',
   note:'구성 종목은 산업·사업 모델 기준의 편집 분류(2026-11-04 검토)이며 공식 지수 구성이 아닙니다. 테마 수익률은 동일가중·중앙값으로 계산합니다.'
@@ -249,7 +243,7 @@ var THEME_MAP = [
     subThemes:[
       { name:'방산 프라임', tickers:['LMT','RTX','NOC','GD','HII','LHX'] },
       { name:'우주/위성', tickers:['RKLB','ASTS','LUNR','RDW','IRDM'] },
-      { name:'항공기/부품', tickers:['BA','GE','HWM','TDG','HEI','TXT','HONA'] }, // v59.70: HONA = ITA top 10 (iShares, 2026-11-02)
+      { name:'항공기/부품', tickers:['BA','GE','HWM','TDG','HEI','TXT','HONA'] }, // HONA = ITA top 10 (iShares, 2026-11-02)
       { name:'방산 기술/드론', tickers:['PLTR','AXON','LDOS','KTOS','AVAV'] }
     ] },
   { id:'staples', nameKr:'필수소비재', emoji:'', color:'#1b1a17', etf:'XLP', etfName:'Consumer Staples',
@@ -265,7 +259,7 @@ var THEME_MAP = [
     leaders:['LLY','JNJ','ABBV','MRK','UNH','TMO','AMGN','GILD','ABT','PFE','DHR','ISRG','MRNA','VRTX','BMY','MDT','MCK','CVS','SYK','HCA','ELV','CI','REGN','BSX','COR','CAH','BDX','EW','A','HUM','VEEV','WAT','IDXX','RMD','DXCM','BIIB','ZTS','ALNY','GEHC','NVO','TEM','AZN','NVS','CNC','DVA','ARGX','HIMS','VKTX','UHS','THC','EXEL','UTHR'], leaderHighlight:['LLY','JNJ','ABBV','MRK'],
     subThemes:[
       { name:'대형 제약', tickers:['LLY','JNJ','MRK','PFE','ABBV','BMY','NVO','AZN','NVS','ZTS'] },
-      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX','EXEL','UTHR'] }, // v59.70: EXEL·UTHR = XBI top 10 (State Street, 2026-11-02)
+      { name:'바이오텍', tickers:['VRTX','REGN','AMGN','GILD','MRNA','BIIB','ALNY','ARGX','VKTX','EXEL','UTHR'] }, // EXEL·UTHR = XBI top 10 (State Street, 2026-11-02)
       { name:'디지털 헬스/의료 데이터', tickers:['VEEV','HIMS','TEM'] },
       { name:'관리의료/보험', tickers:['UNH','ELV','CI','CVS','HUM','CNC'] },
       { name:'의료기기', tickers:['ISRG','ABT','SYK','BSX','MDT','EW','BDX','DXCM','RMD','GEHC'] },
@@ -306,15 +300,15 @@ var THEME_MAP = [
     leaders:['MSFT','AMZN','ORCL','GOOGL','PANW','CRM','PLTR','NOW','FTNT','CRWD','ADBE','SNPS','CDNS','INTU','SNOW','SHOP','APP','ADSK','MDB','NET','WDAY','DDOG','ZS','TEAM','TTD','ESTC','AI','S','RBRK','PATH','APPN','PEGA','OKTA','IBM','ACN','CTSH','IT','EPAM'], leaderHighlight:['MSFT','AMZN','ORCL','GOOGL'],
     subThemes:[
       { name:'엔터프라이즈 SaaS', tickers:['ORCL','CRM','NOW','INTU','ADBE','WDAY','TEAM'] },
-      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK','OKTA'] }, // v59.70: OKTA = HACK top 10 (Amplify, 2026-11-03)
+      { name:'사이버보안', tickers:['PANW','CRWD','FTNT','ZS','NET','S','RBRK','OKTA'] }, // OKTA = HACK top 10 (Amplify, 2026-11-03)
       { name:'데이터/AI 플랫폼', tickers:['PLTR','SNOW','DDOG','MDB','ESTC','AI'] },
       { name:'광고/커머스 소프트웨어', tickers:['APP','SHOP','TTD'] },
       { name:'설계 소프트웨어(EDA·CAD)', tickers:['SNPS','CDNS','ADSK'] },
       { name:'클라우드 인프라', tickers:['MSFT','AMZN','GOOGL'] },
       { name:'업무 자동화 소프트웨어', tickers:['PATH','APPN','PEGA'] },
-      { name:'IT 서비스', tickers:['IBM','ACN','CTSH','IT','EPAM'] } // v59.70 (owner): GICS IT 서비스; IBM 1.51%·ACN 1.02%·CTSH·IT = XLK holdings (State Street, 2026-11-02)
+      { name:'IT 서비스', tickers:['IBM','ACN','CTSH','IT','EPAM'] } // GICS IT 서비스; IBM 1.51%·ACN 1.02%·CTSH·IT = XLK holdings (State Street, 2026-11-02)
     ] },
-  // v59.70 (owner): AAPL·MSI·HPQ were in no US theme. Members = XLK holdings (State Street, 2026-11-02): AAPL 15.50%,
+  // AAPL·MSI·HPQ were in no US theme. Members = XLK holdings (State Street, 2026-11-02): AAPL 15.50%,
   // MSI 0.51%, TEL 0.40%, TDY 0.19%, HPQ 0.17%, ZBRA 0.11%, TRMB 0.10%. DELL·HPE·SMCI stay in ai_infra 서버/HW,
   // STX·WDC·NTAP in 반도체 메모리/스토리지, GLW in 광통신, KEYS in 로보틱스. No single ETF fits, so it is a composite.
   { id:'hardware', nameKr:'하드웨어·기기', emoji:'', color:'#544f46', etf:null, etfName:'(커스텀 합산)', isComposite: true,
@@ -442,7 +436,7 @@ var ALL_RRG_ETFS = RRG_SECTORS.concat(RRG_SUBSECTORS);
 // 히스토리컬 가격 데이터 저장소 (심볼별)
 var _priceHistory = {};
 
-// v59.42: calcLiveRS (a wrapper over AIO_ARCH.computeRelativeRotation) is deleted; nothing called it. The themes route
+// calcLiveRS (a wrapper over AIO_ARCH.computeRelativeRotation) is deleted; nothing called it. The themes route
 // reads src/domain/themes/rrg.js through bootstrap (RM-03 item 2).
 
 // ══════════════════════════════════════════════════════════════════
@@ -460,7 +454,7 @@ function calcCompositePerf(tickers, weights) {
     var chg = d.pct;
     var w;
     if (weights && weights[t]) {
-      // v36.4: ETF 추종 정적 비중 (정확한 섹터 대표성)
+      // ETF 추종 정적 비중 (정확한 섹터 대표성)
       w = weights[t];
     } else {
       // 시가총액 근거가 없으면 가격 프록시를 만들지 않고 동일가중한다.
@@ -515,8 +509,8 @@ function getThemePerf(theme) {
 // ══════════════════════════════════════════════════════════════════
 //  시장 브레드스 (Market Breadth) — screener compute_breadth 기반
 // ══════════════════════════════════════════════════════════════════
-function calcSectorUpShare(tickers) { // v59.70 R9: was calcSectorBreadth — leaders up today, not moving-average breadth
-  // 당일 등락(_liveData) 기준; 등락 없는 종목은 분모에서 뺀다(P2262).
+function calcSectorUpShare(tickers) { // Was calcSectorBreadth — leaders up today, not moving-average breadth
+  // 당일 등락(_liveData) 기준; 등락 없는 종목은 분모에서 뺀다.
   let ld = window._liveData || {};
   var above = 0, total = 0;
   tickers.forEach(function(t) {
@@ -531,24 +525,21 @@ function calcSectorUpShare(tickers) { // v59.70 R9: was calcSectorBreadth — le
 
 var _rrgViewMode = 'sectors'; // 'sectors' or 'subsectors' or 'all'
 
-// v58.97: setRRGView moved to src/ui/components/rrg-view.js; the fenced legacy drawRRG canvas fallback is gone —
-// src/ui/pages/themes.js draws the RRG scatter, status and quadrant chips.
-
 // ═══════════════════════════════════════════════════════════════
 //  SECTOR PERFORMANCE BARS (확장: 11 섹터 + 서브섹터)
 // ═══════════════════════════════════════════════════════════════
-// v58.95: the 11섹터/+세부 업종 toggle lives in src/ui/components/sector-perf-view.js, the bars in src/ui/pages/themes.js.
+// The 11섹터/+세부 업종 toggle lives in src/ui/components/sector-perf-view.js, the bars in src/ui/pages/themes.js.
 var _sectorPerfView = 'sectors'; // 'sectors' or 'all'
 
-// v45.5: 1주 모드 weekly 캐시 (Yahoo Finance range=5d 사용)
+// 1주 모드 weekly 캐시 (Yahoo Finance range=5d 사용)
 var _sectorWeeklyCache = {}; // sym -> pct
 var _sectorWeeklyFetching = false;
 var _sectorWeeklyTs = 0;
 
 // Current sector/theme rankings must be live/delayed only; there is no static fallback pct table
-// (v58.20: the empty _SECTOR_PCT_FALLBACK placeholder was read by nothing and is gone).
+// (the empty _SECTOR_PCT_FALLBACK placeholder was read by nothing and is gone).
 
-// v45.5: Yahoo Finance 5일 차트로 주간 수익률 계산 (CORS 프록시 경유)
+// Yahoo Finance 5일 차트로 주간 수익률 계산 (CORS 프록시 경유)
 async function _fetchOneSectorWeekly(sym) {
   try {
     var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1d&range=5d';
@@ -569,7 +560,6 @@ async function _fetchOneSectorWeekly(sym) {
     return (last - first) / first * 100;
   } catch(e) {}
 
-  // P1756: the Stooq fallback was removed — every Stooq request answered 404 (direct and via the Worker).
   return null;
 }
 
@@ -605,7 +595,7 @@ function fetchSectorWeeklyPerf() {
 function _themeFinitePct(v) {
   return v != null && isFinite(Number(v));
 }
-// v58.76: _themeFmtPct / _themeSafeFixed served only the retired sub-theme deep analysis.
+// _themeFmtPct / _themeSafeFixed served only the retired sub-theme deep analysis.
 
 function showThemeDetail(themeId) {
   var idx = THEME_INDEX[themeId];
@@ -623,7 +613,7 @@ function showThemeDetail(themeId) {
     if (typeof window.showPage === 'function') window.showPage('theme-detail');
     return;
   }
-  // v58.53 review: the themes page can be active before its native module mounts the detail listeners; an
+  // The themes page can be active before its native module mounts the detail listeners; an
   // aio:themeDetailShown fired then was lost and the panel stayed hidden. Leave the id for the mount to open.
   if (container.dataset.aioThemeDetailPanelRenderer !== 'native') {
     window._currentThemeId = themeId;
@@ -634,14 +624,13 @@ function showThemeDetail(themeId) {
   let ld = window._liveData || {};
 
   var perf = getThemePerf(theme);
-  // v58.99: the unread summary-header html string (P788 moved that header to themes.js) is gone.
 
-  // P790: detailed leader cards are owned by the native child surface.
+  // Detailed leader cards are owned by the native child surface.
 
-  // P789: sub-theme composition and breadth are owned by the native child surface.
+  // sub-theme composition and breadth are owned by the native child surface.
   var breadth = calcSectorUpShare(theme.leaders);
 
-  // P797: all visible theme-detail content is owned by the native child surfaces.
+  // All visible theme-detail content is owned by the native child surfaces.
   legacyContainer.replaceChildren();
   window._currentThemeId = themeId;
   try {
@@ -713,7 +702,7 @@ function closeThemeDetail() {
   try { document.dispatchEvent(new CustomEvent('aio:themeDetailClosed')); } catch(_) {}
 }
 
-// v58.76: the developer-only 세분화 테마 grid and its detail panel (showSubThemeDetail / renderSubThemesGrid) are retired.
+// The developer-only 세분화 테마 grid and its detail panel (showSubThemeDetail / renderSubThemesGrid) are retired.
 
 // ═══════════════════════════════════════════════════════════════
 //  누적 히스토리 수집 (RS 정밀도 향상)
@@ -729,9 +718,6 @@ function collectPriceHistory() {
     if (_priceHistory[sym].length > 100) _priceHistory[sym].shift();
   });
 }
-
-// v59.70 (data audit R1): hydrateRRGDailyHistory (P721) is gone — the RRG point comes only from the produced rotation
-// artifact (data.json rotationHistory), so the per-visit Yahoo daily fetch for 11 sectors + SPY fed nothing.
 
 // ═══════════════════════════════════════════════════════════════
 //  세분화 테마 (Sub-Themes) — 시장 핵심 트렌드 & 대장주
@@ -851,10 +837,10 @@ var KR_INSIGHT_MAP = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  v38.3: 테마별 맞춤 인사이트 데이터 (레퍼런스 기반)
+//  테마별 맞춤 인사이트 데이터 (레퍼런스 기반)
 // ═══════════════════════════════════════════════════════════════
 var THEME_INSIGHTS = Object.freeze({});
-// v59.42: SUB_THEME_INSIGHTS, THEME_NARRATIVES and THEME_NARRATIVES_META (empty, never read) are deleted.
+// SUB_THEME_INSIGHTS, THEME_NARRATIVES and THEME_NARRATIVES_META (empty, never read) are deleted.
 // ═══════════════════════════════════════════════════════════════
 // 한국 22개 테마 구조적 내러티브 (why / valueChain / playerRoles)
 // kr-theme 상세 페이지 + Top 3 한국 핫테마 AI 프롬프트 주입용
@@ -866,14 +852,14 @@ var KR_THEME_NARRATIVES = Object.freeze({});
 // ═══════════════════════════════════════════════════════════════
 //  THEMES PAGE INIT & EVENT WIRING
 // ═══════════════════════════════════════════════════════════════
-// v48.99: _aioPageBus 마이그 (P180)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿) — 아래 html-themes-live까지.
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-themes-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') {
     setTimeout(function() {
       document.dispatchEvent(new CustomEvent('aio:themesViewChanged'));
-      // v45.5: 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
+      // 1주 캐시 백그라운드 프리페치 (사용자가 1주 탭 클릭 시 즉각 표시)
       if (Object.keys(_sectorWeeklyCache).length === 0 && !_sectorWeeklyFetching) {
         try { fetchSectorWeeklyPerf(); } catch(_e) {}
       }
@@ -895,4 +881,4 @@ _aioPageBus.register('html-themes-live', 'aio:liveQuotes', function() {
 });
 });
 
-// v59.42: the CHAT_DEFAULT_CHIPS.themes override left with CHAT_DEFAULT_CHIPS (it had no reader).
+// The CHAT_DEFAULT_CHIPS.themes override left with CHAT_DEFAULT_CHIPS (it had no reader).

@@ -1,3 +1,6 @@
+// v59.44 (X bookmarks 10/30): the screener's cash conditions (FCF margin, capex ÷ revenue) read the SEC fiscal history,
+// loaded only when one of them is chosen (fiscal-read.js is a lazy chunk; the history is about 0.5 MB). The map sits on
+// root._aioScreenerCash so the boot-set screener reads it without importing this chunk.
 import { requestFiscalHistory, issuerSic } from './fiscal-read.js';
 import { parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { cashMetrics } from '../../domain/fundamental/cash-metrics.js';

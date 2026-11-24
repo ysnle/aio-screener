@@ -26,7 +26,7 @@ const PRINCIPLES_ROUTE_BY_CHAPTER = Object.freeze({
   D: ['fxbond', '금리곡선·실질금리', '1년~10년'], E: ['macro', '성장·물가·고용', '월간~분기'], F: ['fundamental', '매출·마진·현금흐름', '분기~연간'],
   G: ['fundamental', '재무제표·자본효율', '분기~연간'], H: ['technical', '가격·거래량·시장구조', '일간~주간'], I: ['portfolio', '비중·상관·낙폭', '월간~연간'],
   J: ['technical', '추세·변동성·무효화', '일간~주간'], K: ['themes', '산업 병목·설비투자', '분기~다년'], L: ['themes', 'AI 가치사슬·수요', '분기~다년'],
-  M: ['fundamental', '투하자본·자본비용', '연간~다년'], N: ['sentiment', '변동성·꼬리위험', '일간~분기'], O: ['screener', '품질·성장·밸류에이션', '분기~다년'] // v57.50 I24: N was the retired 'options' route (P1321); VIX·기간 구조 live on 투자 심리
+  M: ['fundamental', '투하자본·자본비용', '연간~다년'], N: ['sentiment', '변동성·꼬리위험', '일간~분기'], O: ['screener', '품질·성장·밸류에이션', '분기~다년'] // N was the retired 'options' route; VIX·기간 구조 live on 투자 심리
 });
 const ATLAS_ROUTE_BY_LAYER = Object.freeze({
   F0: ['principles', '문제·학습·시스템 분류', '구조'], F1: ['themes', '물리·계산·반도체 제약', '다년'], F2: ['themes', '학습 방식·모델 품질', '분기~다년'],

@@ -108,7 +108,7 @@ const goldenPath = path.join(root, 'architecture/fixtures/trading-score-golden.j
 const golden = JSON.parse(readFileSync(goldenPath, 'utf8'));
 if (!Array.isArray(golden.fixtures) || golden.fixtures.length < 5) fail('trading-score golden fixture missing or too small — re-run scripts/dump-trading-score-fixtures.mjs');
 const SCORE_FIELDS = ['total', 'score', 'volScore', 'momScore', 'trendScore', 'breadthScore', 'macroScore', 'componentCoveragePct', 'partial'];
-// P1388: an intentional model change (trading-score.v4) re-baselines the scenarios through the same
+// An intentional model change (trading-score.v4) re-baselines the scenarios through the same
 // input resolver. The legacy wrapper now reads close-basis runtime evidence, so the Chromium dump
 // can no longer inject scenario inputs; AIO_REGEN_TRADING_GOLDEN=1 rewrites expected outputs only.
 if (process.env.AIO_REGEN_TRADING_GOLDEN === '1') {
@@ -192,7 +192,7 @@ for (const fixture of newsGolden.fixtures) {
   // The historical legacy fixtures contain title/empty-desc rows only. The
   // old output is kept as evidence of the unsafe parity that was retired.
   if (fixture.items.some((item) => String(item?.summary || item?.desc || '').trim().length >= 40)) fail(`NEWS_GOLDEN_FIXTURE_UNEXPECTED_ARTICLE:${fixture.name}`);
-  // v60.16: no eligible article carries no score (the 50 baseline read as an observed neutral).
+  // No eligible article carries no score (the 50 baseline read as an observed neutral).
   if (extractedSentiment.score !== null || extractedSentiment.sampleSufficient !== false || extractedSentiment.total !== 0 || extractedRisk.length !== 0) {
     fail(`NEWS_HEADLINE_BOUNDARY_MISMATCH:${fixture.name} sentiment=${JSON.stringify(extractedSentiment)} risk=${JSON.stringify(extractedRisk)}`);
   }
@@ -320,19 +320,19 @@ for (const fixture of factorRanksGolden.fixtures) {
 // P1534 (owner decision, agent-recommended): one set of Fear & Greed and VIX band edges. src/domain/rules/thresholds.js owns the
 // numbers; the legacy shell cannot import ESM at parse time, so its closures keep inline copies that this block pins to the
 // src result over the whole scale. F&G edges are CNN's published integer bands (0-24, 25-44, 45-55, 56-75, 76-100); VIX
-// 18 / 25 / 32 is the band set the regime alert already used (P1367). Alerts compare band indexes, so the copies must agree.
+// 18 / 25 / 32 is the band set the regime alert already used. Alerts compare band indexes, so the copies must agree.
 {
   const { RULES } = await import('../src/domain/rules/thresholds.js');
   const { fearGreedBand } = await import('../src/domain/market/sentiment/metrics.js');
   const { vixBand } = await import('../src/domain/market/sentiment/narrative.js');
-  const board = await import('../src/domain/market/sentiment/sentiment-model.js'); // v60.31: the 투자 심리 cards' band (moved from the UI board)
+  const board = await import('../src/domain/market/sentiment/sentiment-model.js'); // The 투자 심리 cards' band (moved from the UI board)
   const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const pick = (name) => [...core.matchAll(new RegExp(`(?:function ${name}\\(v\\)\\s*\\{[^\\n]*\\}|var ${name} = function\\(v\\)\\{[^\\n]*\\};)`, 'g'))].map((match) => match[0]);
   const build = (name, text) => new Function(`${text}\nreturn ${name};`)();
   const fgLabels = ['극단 공포', '공포', '중립', '탐욕', '극단 탐욕'];
   const vixLabels = ['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'];
   const legacyFg = pick('_fgZone'), legacyVix = pick('_vixBand');
-  // P1753: AIO.computeMarketState reuses window._aioVixBandIndex/_aioFgZoneIndex instead of its own copy, so exactly one
+  // AIO.computeMarketState reuses window._aioVixBandIndex/_aioFgZoneIndex instead of its own copy, so exactly one
   // legacy copy of each band function may exist (a second copy coming back is drift risk again).
   if (legacyFg.length !== 1 || legacyVix.length !== 1) fail(`P1534/P1753 expected exactly one legacy copy each of _fgZone/_vixBand in js/aio-core.js, found ${legacyFg.length}/${legacyVix.length}`);
   if (RULES.volatility.highAt !== 32 || RULES.volatility.calmBelow !== 18 || RULES.volatility.stressAt !== 25) fail('P1534 RULES.volatility must carry the 18 / 25 / 32 band edges');
@@ -362,7 +362,7 @@ for (const fixture of factorRanksGolden.fixtures) {
   if (Math.abs(vixIndex(32) - vixIndex(24)) !== 2) fail('P1534 VIX 24 -> 32 must still span two bands (severe regime drift)');
   // A copy of the label ladder with a non-CNN edge must not come back anywhere in product code.
   const copies = [];
-  // v59.84: the home VIX card and the market story kept their own ladders (32/25/18 and 30/20); they read vixBand now.
+  // The home VIX card and the market story kept their own ladders (32/25/18 and 30/20); they read vixBand now.
   for (const file of ['js/aio-pages.js', 'src/ui/chat/panel.js', 'js/aio-data.js', 'js/aio-ui.js', 'js/aio-core.js', 'src/ui/pages/analysis.js', 'src/ui/components/sentiment-board.js', 'src/domain/market/sentiment/sentiment-model.js', 'src/ui/components/home-vix.js', 'src/domain/market/story/market-story.js']) {
     readFileSync(path.join(root, file), 'utf8').split('\n').forEach((line, index) => {
       if (/<=\s*25\s*\?\s*'극단/.test(line) || /<=\s*45\s*\?\s*'공포'/.test(line) || /<\s*55\s*\?\s*(?:2|'중립')/.test(line) || /<\s*75\s*\?\s*(?:3|'탐욕')/.test(line) || /\bvix\s*<\s*(?:15|20|30)\s*\?/.test(line) || /\bvix(?:\.to|\.value)?\s*>=\s*(?:15|20|30)\s*\?/.test(line) || /\bvp\s*>=\s*\d+\s*\?/.test(line)) copies.push(`${file}:${index + 1}`);
@@ -372,14 +372,14 @@ for (const fixture of factorRanksGolden.fixtures) {
   const rules = [...core.matchAll(/fgMax:\s*(\d+)/g)].map((match) => Number(match[1]));
   const expectedMax = [RULES.fearGreed.extremeFearBelow, RULES.fearGreed.fearBelow, RULES.fearGreed.greedAbove + 1, RULES.fearGreed.extremeGreedAbove + 1, 101];
   if (JSON.stringify(rules) !== JSON.stringify(expectedMax)) fail(`P1534 AIO_ACTION_RULES.sentimentAction edges ${JSON.stringify(rules)} must match RULES.fearGreed ${JSON.stringify(expectedMax)}`);
-  // P1557: the VIX ladder inside AIO_ACTION_RULES (home/briefing cards) used 15/20/25/30 next to the 18/25/32 status; pin its edges and names too.
+  // The VIX ladder inside AIO_ACTION_RULES (home/briefing cards) used 15/20/25/30 next to the 18/25/32 status; pin its edges and names too.
   const vixRules = [...core.matchAll(/vixMax:\s*(Infinity|\d+)/g)].map((match) => match[1] === 'Infinity' ? Infinity : Number(match[1]));
   const expectedVixMax = [RULES.volatility.calmBelow, RULES.volatility.stressAt, RULES.volatility.highAt, Infinity];
   if (JSON.stringify(vixRules) !== JSON.stringify(expectedVixMax)) fail(`P1557 AIO_ACTION_RULES.positionSizing edges ${JSON.stringify(vixRules)} must match RULES.volatility ${JSON.stringify(expectedVixMax)}`);
   const ladderLabels = [...core.slice(core.indexOf('positionSizing: {'), core.indexOf('getRule: function(vix)')).matchAll(/label:\s*'([^']+)'/g)].map((match) => match[1]);
   if (JSON.stringify(ladderLabels) !== JSON.stringify(['저변동 구간', '통상 범위', '변동성 경계 구간', '고변동 구간'])) fail(`P1557 AIO_ACTION_RULES.positionSizing labels ${JSON.stringify(ladderLabels)} must be the shared VIX band names`);
   if (/sizePct/.test(core.slice(core.indexOf('window.AIO_ACTION_RULES'), core.indexOf('window.AIO_ACTION_RULES') + 6000).replace(/\/\/.*$/gm, ''))) fail('P1557 AIO_ACTION_RULES must not carry a position size (sizePct)');
-  // P1564: the threshold registry's VIX and F&G ladders are a third copy; pin their edges to RULES as well.
+  // The threshold registry's VIX and F&G ladders are a third copy; pin their edges to RULES as well.
   const registryStart = core.indexOf('window.AIO_THRESHOLD_REGISTRY = {');
   const vixBlock = core.slice(core.indexOf('  VIX: {', registryStart), core.indexOf('  FG: {', registryStart));
   const fgBlock = core.slice(core.indexOf('  FG: {', registryStart), core.indexOf('  HY_SPREAD: {', registryStart));
@@ -396,7 +396,7 @@ for (const fixture of factorRanksGolden.fixtures) {
   if (oldVixEdges.length) fail(`P1564 a VIX comparison with a non-shared edge (15/20/30) remains (${oldVixEdges.length}): ${oldVixEdges.slice(0, 8).join(', ')}`);
 }
 
-// ── REAL parity (v59.88, ADR-0003 S6): the technical snapshot and the holding technical risk vs the golden dump of the
+// ── REAL parity (ADR-0003 S6): the technical snapshot and the holding technical risk vs the golden dump of the
 // legacy js/aio-core.js engine (scripts/dump-technical-snapshot-fixtures.mjs, run from the pre-extraction revision) ──
 const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fixtures/technical-snapshot-golden.json'), 'utf8'));
 {
@@ -426,7 +426,7 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
   POSITION_RISK_SCENARIOS.forEach(({ name, positions, context }, i) => {
     const golden = technicalGolden.positions[i];
     const items = positions.map((p) => positionTechnicalRisk(p, p.ohlcv || [], context));
-    // v60.16: the holding-level read is the legacy one. The book-level read is value-weighted over the scored positions
+    // The holding-level read is the legacy one. The book-level read is value-weighted over the scored positions
     // (technical-risk.js), so a scored book is compared on the fields that did not change and its figures are pinned below;
     // a held book is still the legacy output (coveragePct is the one added field).
     const book = { ...strip(portfolioTechnicalRisk(positions, items, context), true), items: undefined, coveragePct: undefined };

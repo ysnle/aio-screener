@@ -1,4 +1,4 @@
-// P1544: ticker symbols in Telegram posts are matched case-sensitively; only company/product names are
+// Ticker symbols in Telegram posts are matched case-sensitively; only company/product names are
 // case-insensitive. The previous /i flag on `\bBE\b|\bMU\b|\bCAT\b|\bMETA\b|\bLITE\b` tagged ordinary
 // English ("to be", "mu", "cat", "meta", "lite") with tickers, which the digest then counted as catalysts.
 const SYMBOL_PART = /^(?:\\b)?[A-Z][A-Z0-9]{1,5}(?:\\b)?$/;
@@ -6,7 +6,7 @@ const SYMBOL_PART = /^(?:\\b)?[A-Z][A-Z0-9]{1,5}(?:\\b)?$/;
 // 2026-10-13 news audit N16: product names (TPU, Trainium, Gemini, SOFC, MI450, Copilot) say which company a
 // post is RELATED to, not who published or is the subject of it; they live in RELATED_PATTERNS and never count
 // toward the issuer tally (tickerCounts/catalysts).
-// v57.88 (screen audit): Korean company names for posts that never write the English one ('마이크론 타이중 신공장').
+// Korean company names for posts that never write the English one ('마이크론 타이중 신공장').
 const TICKER_PATTERNS = [
   ['NVDA', /\bNVDA\b|nvidia|엔비디아/i], ['AMD', /\bAMD\b|Advanced Micro/i],
   ['TSLA', /\bTSLA\b|Tesla|테슬라/i], ['CAT', /\bCAT\b|Caterpillar/i], ['AMAT', /\bAMAT\b|Applied Materials/i],
@@ -32,7 +32,7 @@ const TICKER_PATTERNS = [
 
 // Company names that are also ordinary English words ("coherent", "oracle", "apple", "azure", "gemini").
 // They only count when written as a proper noun (Capitalized or UPPERCASE).
-// v59.45 (R3-02): 'micron-scale' and 'amazon rainforest' are words too.
+// 'micron-scale' and 'amazon rainforest' are words too.
 const COMMON_WORD_NAMES = new Set(['Coherent', 'Oracle', 'Apple', 'Azure', 'Gemini', 'Copilot', 'Astera', 'Adobe', 'Micron', 'Amazon']);
 const commonWordName = (part) => {
   const word = part.replace(/^\\b|\\b$/g, '');
@@ -80,7 +80,7 @@ export function matchTickers(raw, aliasRows = []) {
 // tickers are not each the subject, so the post does not add to any issuer's tally.
 export const LIST_POST_TICKER_THRESHOLD = 6;
 
-// P1722 (10/13): "영국 기관: 호르무즈 … 선박 6척 피격" was tagged 한국장·수급 because a bare 기관 matched. 기관 is the
+// "영국 기관: 호르무즈 … 선박 6척 피격" was tagged 한국장·수급 because a bare 기관 matched. 기관 is the
 // Korean institutional-investor group only next to a trade/flow word or listed with 외국인·개인 — not any agency.
 export const KR_INSTITUTIONAL_FLOW = /기관(?:\s*투자자)?(?:들?[이은의])?[^.\n:]{0,12}?(?:순?매수|순?매도|매매|수급|자금\s*유입|자금\s*유출)|(?:외국인|개인)\s*(?:과|와|·|,|및|\/)\s*기관|기관\s*(?:과|와|·|,|및|\/)\s*(?:외국인|개인)/;
 

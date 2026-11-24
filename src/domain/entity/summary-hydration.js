@@ -1,3 +1,4 @@
+// One route-owned, identity-checked public chart response supplies quote and history.
 import { canonicalEpochMs } from '../technical/chart-contract.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { requestDailyChartPayload } from '../../data/daily-chart-bars.js';
@@ -68,6 +69,10 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
     root._tickerHistory ||= {};
     root._tickerHistory[data.symbol] = data.history;
     if (data.quote) {
+      // A KRX quote's change is published only against the verified previous KRX close (the chart meta's
+      // previous close ran one session behind after the 10/9 holiday); with no verified basis the change is withheld.
+      // A cached summary is applied again on a revisit: check against the provider's own values, kept from the first
+      // pass, not the already-verified (or withheld) ones.
       const providerPrev = 'providerPreviousClose' in data.quote ? data.quote.providerPreviousClose : data.quote.previousClose;
       const providerPct = 'providerPct' in data.quote ? data.quote.providerPct : data.quote.pct;
       const check = verifyKrQuoteOn(root, { symbol: data.symbol, _source: data.quote.source, observedAt: data.quote.observedAt, regularMarketPreviousClose: providerPrev }, data.quote.price, providerPct, now());
@@ -98,7 +103,7 @@ export function createSummaryHydrator({ root = globalThis, now = () => Date.now(
       controller = null;
       if (!id || !/^[A-Z0-9.^=\-]{1,24}$/.test(id)) return;
       if (fresh) {
-        if (saved.data) { onStatus('ready', id); apply(saved.data); }
+        if (saved.data) { onStatus('ready', id); apply(saved.data); } // Status first so the ready render reads it
         else onStatus('unavailable', id);
         return;
       }

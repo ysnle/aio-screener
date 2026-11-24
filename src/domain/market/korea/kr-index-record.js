@@ -1,3 +1,8 @@
+// The two Korean index cards disagreed — 시장 상태 read "최근 21개 한국 거래일
+// -21.0%" with no day figure, the chart tab "하루 -7.6%, 20거래일 -19.6%" with no rarity — while the briefing called the
+// same day a record. Both cards now read one record per index: the 1- and 5-session change and, when it sits in the
+// tail (KR_SHOCK_TAIL_PCT), its position in AIO's own record. KOSPI is the briefing's koreaMoveRecord itself; KOSDAQ is
+// measured by the same rule (exact KRX session spans, the last 252 changes). One month is KR_MONTH_SESSIONS everywhere.
 import { koreaMoveRecord, koreaRecordText, krSessionThrough, KR_SHOCK_TAIL_PCT } from '../../briefing/market-read.js';
 import { RULES } from '../../rules/thresholds.js';
 import { buildCloseSeries, recordPercentile } from '../session/close-series.js';

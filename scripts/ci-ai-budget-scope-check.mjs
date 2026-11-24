@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// P1421: changing a model must not leave an unmetered paid-AI path behind.
+// Changing a model must not leave an unmetered paid-AI path behind.
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { reuseWorkerHealthEvidence } from './build-operations-status.mjs';
 import { describeSharedConnection } from '../src/domain/ai/shared-connection.js';
-import { PRODUCER_SOURCE_FILES } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + its split lib modules
+import { PRODUCER_SOURCE_FILES } from './lib/producer-source.mjs'; // fetch-data.mjs + its split lib modules
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = path => readFileSync(resolve(root, path), 'utf8');
@@ -39,7 +39,7 @@ check('P1421 Actions receives automation authentication rather than a provider k
 const config = JSON.parse(read('public-config.json'));
 check('P1421 public AI configuration cannot fall back to a personal key', config.ai?.chatPolicy === 'shared-worker-only' && config.ai?.serverMode === 'shared-worker-only' && config.ai?.provider === 'openai' && config.ai?.model === 'gpt-6-luna');
 
-// P1421 / v60.50: the browser certifies the route from the Worker's own /health on every load (the release-scoped
+// The browser certifies the route from the Worker's own /health on every load (the release-scoped
 // config only names the Worker). A Worker that is not ready, or runs another provider or model, is not a route.
 const health = (ai) => ({ schemaVersion: 'aio-worker-health.v1', ai: { ready: true, provider: 'openai', model: 'gpt-6-luna', ...ai } });
 assert.equal(describeSharedConnection(health({})).ok, true, 'P1421 matching OpenAI health is a route');

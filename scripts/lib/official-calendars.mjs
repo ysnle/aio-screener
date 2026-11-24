@@ -93,7 +93,7 @@ function validateFomcYear(year, meetings, { sepPending = false } = {}) {
 
 // The current year must parse to exactly 8 meetings (4 with SEP); the next year is optional (the Fed posts it
 // mid-year) but, when its panel exists, must pass the same test. Any anomaly fails the whole parse closed.
-// v60.14: the Fed posts next year's dates before it marks the projection meetings (2027 panel, 2026-11-12: eight
+// The Fed posts next year's dates before it marks the projection meetings (2027 panel, 2026-11-12: eight
 // meetings, no mark). That panel is accepted with sep null (not yet known); rejecting it had also taken the valid
 // current year off the screen. One to three marks is still an anomaly.
 export function selectFomcMeetings(parsed, nowMs = Date.now()) {
@@ -246,7 +246,7 @@ export function buildMacroCalendarPayload({ nowMs = Date.now(), fredSchedules = 
   };
 }
 
-// ── Fed policy rate (P1732) ─────────────────────────────────────────────────
+// ── Fed policy rate ─────────────────────────────────────────────────
 // current only when both bounds are finite, observed on the same date, exactly 25bp apart and no older than
 // FED_POLICY_RATE_MAX_AGE_DAYS; anything else is published as stale with the reason (consumers then show the
 // previous reference with its date instead of a current-looking value).

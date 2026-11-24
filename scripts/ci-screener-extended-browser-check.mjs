@@ -1,4 +1,4 @@
-// v57.81: browser gate for the screener's 종목 범위 control. The extended shard is route-stubbed with a small shard built by
+// Browser gate for the screener's 종목 범위 control. The extended shard is route-stubbed with a small shard built by
 // the producer's own payload builder from real core rows (renamed symbols), so the check needs no network. On PC and
 // phone widths it proves: the default view never requests the shard; 확장 requests it once and merges its rows; the
 // rank labels name the extended contract; search, the index filter, sort, compare and the ticker link work on shard
@@ -9,7 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { buildExtendedShardPayload } from './fetch-data.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const port = (Number(process.env.AIO_SCREENER_EXTENDED_TEST_PORT) || await freePort());
@@ -68,7 +68,7 @@ try {
     const defaultState = await page.evaluate(() => ({ scope: document.getElementById('scr-universe-scope').value, label: document.getElementById('scr-universe-scope').options[0].textContent, rows: window.AIO_ARCH.getScreenerState().rows.length }));
     if (defaultState.scope !== 'core' || !/^기본 \(\d+종목\)$/.test(defaultState.label) || defaultState.rows !== coreRowCount) fail(viewport.id, `default scope/label/rows wrong: ${JSON.stringify(defaultState)}`);
 
-    // v59.70 (S12): 종목 범위 and 정렬 live in the 보기 panel under the condition row (every width), so the gate opens and
+    // 종목 범위 and 정렬 live in the 보기 panel under the condition row (every width), so the gate opens and
     // closes it the way a reader does instead of typing into controls that are not on screen.
     const filterSheet = async (open) => {
       const isOpen = await page.evaluate(() => document.getElementById('scr-view-panel')?.hidden === false);
@@ -103,7 +103,7 @@ try {
     if (extended.rankTitles.length && extended.rankTitles.some((id) => id !== 'extended-universe')) fail(viewport.id, `rank cells not labelled with the extended contract: ${extended.rankTitles.join(',')}`);
 
     // Search finds a shard row.
-    // v57.83: the stub copies a real core row, so whether it passes the default preset (rank 60+, 통과 종목만) depends on the
+    // The stub copies a real core row, so whether it passes the default preset (rank 60+, 통과 종목만) depends on the
     // day's data (2026-10-16: rank 54). The search, compare and row-open steps test a shard row, so the pass filter is off while they run.
     const target = identityRows[0].sym;
     const setPassedOnly = (on) => page.evaluate((value) => { const box = document.getElementById('scr-passed-only'); if (box && box.checked !== value) { box.checked = value; box.dispatchEvent(new Event('change', { bubbles: true })); } }, on);
@@ -116,7 +116,7 @@ try {
     const hasRussellOption = await page.evaluate(() => [...document.getElementById('scr-market').options].some((option) => option.value === 'RUSSELL2000'));
     if (!hasRussellOption) fail(viewport.id, 'index filter has no 러셀2000 option in the extended view');
     else {
-      // v59.70 (S12): the 지수 condition sits in the + 조건 panel.
+      // The 지수 condition sits in the + 조건 panel.
       if (await page.locator('#scr-condition-panel').isHidden()) await page.click('#scr-add-condition');
       await page.selectOption('#scr-market', 'RUSSELL2000');
       await page.waitForTimeout(300);
@@ -152,7 +152,6 @@ try {
       setTimeout(() => { observer.disconnect(); resolve(removed); }, 2500);
     }));
     if (idleRebuilds) fail(viewport.id, `settled table rebuilt ${idleRebuilds} time(s) with no input`);
-    // v58.56 (#12): 비교 moved from the row's "+" to the inspector/sheet — open the row, then press 비교 추가 there.
     await page.locator(`#screener-results-body [data-aio-screener-ticker="${target}"]`).first().click({ position: { x: 4, y: 4 } });
     await page.waitForFunction((sym) => { const drawer = document.getElementById('scr-why-drawer'); return drawer && !drawer.hidden && document.getElementById('scr-why-title')?.textContent === sym; }, target, { timeout: 10000 });
     await page.locator('#scr-why-drawer [data-aio-screener-action="why-compare"]').first().click();
@@ -179,7 +178,7 @@ try {
     }, target);
     if (!tickerRow || tickerRow.tier !== 'extended' || tickerRow.contract !== 'extended') fail(viewport.id, `ticker page does not read the shard row: ${JSON.stringify(tickerRow)}`);
     if (passedOnly) await setPassedOnly(true);
-    // v58.56 review (preset switch): switching screens keeps '실행 통과만' — the first preset tap used to clear it.
+    // Review (preset switch): switching screens keeps '실행 통과만' — the first preset tap used to clear it.
     if (passedOnly) {
       const kept = await page.evaluate(() => {
         const select = document.getElementById('scr-screen-select');

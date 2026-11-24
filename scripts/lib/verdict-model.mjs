@@ -1,4 +1,4 @@
-// v60.18 (weekly audit D7/D4): which code wrote public-data/today-verdict.json. The record v60.14 wrote (1/4/1) stood
+// Which code wrote public-data/today-verdict.json. The record v60.14 wrote (1/4/1) stood
 // beside the v60.16 screen's 1/3/2 with nothing to say they came from different rules, and the Saturday 11/14 count change
 // (2/3/1 → 1/4/1, no new session) was the v60.13–14 release, not an input. The producer stamps the record with this
 // fingerprint and ci-metric-consistency-check compares it with the live code: a different stamp is a stale-model record

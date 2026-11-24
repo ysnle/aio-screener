@@ -1,3 +1,7 @@
+// v59.70 (post-boot budget): the screen-term additions that term marks underline (TERM_MARKS in
+// src/ui/components/term-marks.js), moved unchanged out of screen-term-additions.js. They join GLOSSARY when it arrives so
+// the marks and their popovers stay as before; the other additions load on real glossary use. screen-term-additions.js
+// still lists every addition in its original order (it references these entries by index).
 export const SCREEN_TERM_MARKED = Object.freeze([
   { term: 'bp (베이시스 포인트)', alias: 'bp 베이시스포인트 basis point', cat: '기초', def: '금리·스프레드 변화를 세는 단위로, 1bp는 0.01%포인트입니다. "10년물 +22bp"는 금리가 0.22%포인트 올랐다는 뜻입니다.' },
   { term: '백분위', alias: 'percentile 퍼센타일', cat: '기초', def: '여러 값 가운데 어디쯤인지를 0~100으로 나타낸 위치입니다. 90이면 비교 대상의 약 90%보다 높거나 같다는 뜻이고(동점 처리와 표본 크기에 따라 조금 다릅니다), 점수나 등급이 아닙니다.' },

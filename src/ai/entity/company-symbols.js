@@ -2,6 +2,7 @@
 // topic proxy. Kept apart from the question planner so the chat ticker resolver and the evidence binding read it
 // without loading the planner (intent taxonomy, research plan) at boot.
 
+// Sector/index topic words resolve to proxy symbols (반도체 → SOXX, owner 2026-11-04); they are topics, not a named company.
 export const CHAT_TOPIC_PROXIES = new Set(['SOXX', 'SMH', 'IGV', 'DX-Y.NYB']);
 
 export function companyEntitySymbols(questionPlan, limit = 5) {

@@ -1,4 +1,4 @@
-// v59.70 D6 (owner decision): headlines arrive in Korean from the producer (titleKo, or titleKoFailed with the original);
+// Headlines arrive in Korean from the producer (titleKo, or titleKoFailed with the original);
 // the browser does not translate. This gate fails when a client-side translation path comes back anywhere the page
 // loads: the deleted translation functions (defined or called), the deferred translation queue, or a machine
 // translation endpoint. The replacement (titleKo first, a marked failure) is tested by behaviour: T889b in js/aio-tests.js
@@ -21,7 +21,7 @@ walk('js');
 walk('src');
 // js/aio-tests.js asserts the retirement by name (typeof window.autoTranslateNews !== 'function').
 const ASSERTS_ABSENCE = new Set([join('js', 'aio-tests.js')]);
-// The client relay host list mirrors the Worker's ALLOWED_DOMAINS (P1756, proxy-continuity); it names hosts, it does not translate.
+// The client relay host list mirrors the Worker's ALLOWED_DOMAINS (proxy-continuity); it names hosts, it does not translate.
 const HOST_MIRROR = join('src', 'data', 'providers', 'proxy-transport.js');
 const failures = [];
 for (const file of files) {

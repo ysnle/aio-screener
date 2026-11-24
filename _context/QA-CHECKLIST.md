@@ -6,6 +6,23 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.51 검사 결정성 (2026-11-24)
+
+- [x] QA-CHECK-FIXTURES-01: v60.51 규칙에 대한 검사는 검사 안에 적힌 행이나 scripts/fixtures/의 고정 행을 읽고, public-data를 읽는 단정은 'data' 구역에만 있다. 시계를 읽는 모든 계약 검사는 다음 7일·가까운 휴장일·30일 뒤에 같은 판정을 낸다. verify_by: node scripts/ci-clock-shift-check.mjs
+- [x] QA-CHECK-FIXTURES-02: v60.51 데이터 발행 전 검사(chat-screen-tool)는 벤치마크 종가 지연으로 테마 단계가 보류된 정당한 상태에서 발행을 막지 않고, 형식이 깨진 테마 행에서는 막는다. verify_by: node scripts/ci-chat-screen-tool-check.mjs
+- [x] QA-DAY-CAUSE-01: 선두 움직임은 지수 기여를 %p로 말하고, 연결된 보도 중 원장 순서(출처 등급·점수)의 첫 보도를 한국어 제목 그대로 오늘·브리핑 본문에 보인다; 연결 보도가 없으면 보도 줄이 없다. (v60.51) verify_by: node scripts/ci-day-cause-check.mjs && node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-DAY-CAUSE-02: 오늘 주요 뉴스와 뉴스 중요 뉴스는 08:00 묶음과 그 뒤 채점된 기사를 가장 새 기사 기준 24시간으로 합쳐, 선두 움직임과 이어진 기사를 먼저 고른다. (v60.51) verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-DOMAIN-CLOCK-01: src/domain의 함수는 시계를 스스로 읽지 않는다: 시계 읽기는 내보낸 함수의 매개변수 기본값이거나 호출자가 now/nowMs/asOfMs를 주지 않았을 때의 대체값뿐이다(예외 src/domain/briefing/macro-releases.js, 사유는 검사 안에 적음). 내부 helper가 읽던 시계(SEC 정규화의 보고 경과일·수집 시각, SEC 보고서 신선도, 뉴스 선별 감사 시각, 포트폴리오 시세 증거, 팩터 순위)는 진입점의 now로 이어진다. (v60.51) verify_by: node scripts/ci-market-session-contract-check.mjs
+- [x] QA-AI-STORY-DATED-01: AI의 company_story 도구와 종목 질문 맥락은 종목 화면과 같은 날짜가 붙은 회사 이야기(datedStory)를 받는다: '현재'+수량은 'M/D 조사 당시'로 읽힌다. (v60.51) verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-BOOT-BUDGET-V6051-01: 부팅 예산: 네이티브 모듈 gzip 510,500, 옛 스크립트 gzip 316,500·raw 968,000(시세 등락 기준 규칙이 js/aio-data.js에서 네이티브로 옮겨 가 두 예산의 합은 줄었다). (v60.51) verify_by: node scripts/ci-boot-bundle-budget-check.mjs
+- [x] QA-QUOTE-BASIS-01: 미국 지수 시세의 등락은 시세 세션 앞의 기록 종가 기준이다; 제공처 전일종가가 다른 세션이면 기록 종가로 다시 계산하고, 휴장일 사이·기록 없음이면 제공처 짝을 둔다. (v60.51) verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-OPENING-REBOUND-01: 시장 해석은 고점 대비 -10%에 닿은 나스닥 100의 하락 안에서 가장 낮은 종가보다 5% 이상 높게 마감하면 반등 시도로 읽는다. 첫 문장은 반등 폭과 고점 대비 낙폭(숫자 둘), 둘째 문장은 S&P 500과 나스닥 100의 200일선 위치를 말하고, 진단 줄은 그대로 남는다. 반등 줄은 상태어를 머리에 두고 반등이 시작된 저점(넘으면 반등 실패)과 두 지수의 200일선 수준·종가 대비 거리를 싣는다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-OPENING-REBOUND-02: 추세 회복은 저점 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감한 날부터 둘 다 200일선 위에 있는 동안 이어지고, 반등 실패는 반등이 시작된 저점 아래로 마감한 그 거래일에만 보인다. 시장 상태의 다음에 확인할 가격 조건은 반등이 있을 때 저점·200일선/50일선·바닥 확인일(나스닥 종합 기준) 항목을 앞에 두고, 시장 상태 얼굴에는 반등 줄을 다시 쓰지 않는다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-STOCK-RESEARCH-DAY-01: v60.51 회사 이야기의 '현재/지금'+수량과 날짜 없는 추정치 수정 건수는 'M/D 조사 당시'로 그려지고, 프로듀서는 같은 글을 경고한다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
+- [x] QA-CONSENSUS-SPLIT-BASIS-01: v60.51 분할 전 기준으로 발행된 컨센서스 EPS는 스크리너 행의 분할 사건으로 종가 기준에 맞춰지고, EPS가 종가 이상인 행은 발행 전에 표시된다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
+- [x] QA-HISTORY-HELD-COPY-01: v60.51 history.json의 보류 사본은 그 세션 주인 행의 값을 싣고, 세션 계산은 주말 행을 읽지 않는다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
+- [x] QA-THEME-EMPTY-FRAME-01: v60.51 네 다리가 모두 원천 없는 판단 틀은 그리지 않고, 테마 카드의 단계 조건 수는 세는 조건을 모두 적는다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
+
 ## v60.50 재무 공시 기간 규칙 (2026-11-24)
 
 - [x] QA-CLAIM-FUND-PERIOD-01: 재무 공시의 '전년보다' 자기자본 변화와 직전 분기 대비 재고·매출채권 변화는 period.js의 1년(300~400일)·한 분기(75~125일) 간격일 때만 나온다. 이익의 질 '위 막대' 문구는 막대가 그려질 때만 붙는다. (v60.50) verify_by: node scripts/ci-sentence-claim-replay-check.mjs

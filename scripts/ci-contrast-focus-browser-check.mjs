@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (screen review 2026-11-04 #2, #4, #25, #26): every route in light and dark at 1440px, all folds open.
+// Every route in light and dark at 1440px, all folds open.
 //   contrast — text against the background it is painted on (ancestor colours composited) meets WCAG AA: 4.5, or 3 for
 //              large text (24px, or 18.66px bold). Text over an image or gradient is skipped (not measurable here).
 //   links    — no link keeps the browser's default blue or purple (뉴스 시간대별 시황 headlines were UA blue in dark, 1.85).
@@ -87,7 +87,7 @@ function audit() {
   const folds = [...page.querySelectorAll('details > summary')]
     .filter((s) => s.parentElement.firstElementChild === s && !s.parentElement.hasAttribute('data-view-open') && visible(s) && !marked(s))
     .map((s) => ({ sig: sig(s.parentElement), text: s.textContent.trim().slice(0, 30) }));
-  // Owner decision (screen review #36): the screen, its tabs and its labels are 매크로; '거시' stays only in body sentences.
+  // Owner decision: the screen, its tabs and its labels are 매크로; '거시' stays only in body sentences.
   const labels = [...page.querySelectorAll('h1, h2, h3, h4, summary, .aio-section-label, button, [role="tab"], .lu-gl-tag')]
     .filter((node) => visible(node) && /거시/.test(node.textContent))
     .map((node) => ({ sig: sig(node), text: node.textContent.trim().slice(0, 40) }));
@@ -161,7 +161,7 @@ function focusShown(k) {
   return { ok: outline || ring, sig, text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30) };
 }
 
-// v59.70 (integration review): the shared busy spinner (ui-states.css button[aria-busy]::after) on every visible button of the
+// The shared busy spinner (ui-states.css button[aria-busy]::after) on every visible button of the
 // route and the AI panel's buttons. An absolutely placed spinner must not cross the label; one in the flow must keep the
 // button's content inside the button (no overflow past its edge).
 function busyOverlap() {

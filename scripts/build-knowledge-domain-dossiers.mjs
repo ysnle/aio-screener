@@ -30,7 +30,7 @@ const dossiers = guides.map((guide) => {
   const productIds = (registry.products || []).filter((product) => (product.taxonomyNodeIds || []).some((nodeId) => nodeIds.has(nodeId))).map((product) => product.productId);
   const packet = packetByDomain.get(domainId);
   const sourceIds = [...new Set([...(guide.sourceIds || []), ...(packet?.sources || []).map((source) => source.id)])];
-  // W04-B/P1149 (C02): a verification question is not a KPI, and a mechanism sentence plus a node
+  // A verification question is not a KPI, and a mechanism sentence plus a node
   // title list is not a validated value chain. Measurable dimensions, research questions, metric
   // definitions, and chain nodes/edges are separate fields; anything that has not been normalized
   // stays an explicit unclassified candidate instead of passing on schema shape alone.

@@ -5,6 +5,10 @@ function serializeCompatibilityEventDetail(detail) {
   const seen = new WeakSet();
   const serialize = (value) => {
     if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    // A Date, Map or Set has no own enumerable keys, so it used to serialize as {} and two different
+    // events from two targets collapsed into one. They serialize by value; any other non-plain object is not
+    // fingerprinted at all (an event token is used instead), because a duplicate delivery is harmless while a
+    // dropped distinct event is a stale screen.
     if (value instanceof Date) return `date:${Number.isFinite(value.getTime()) ? value.getTime() : 'invalid'}`;
     if (seen.has(value)) throw new TypeError('cyclic event detail');
     seen.add(value);
@@ -74,6 +78,7 @@ export function createCompatibilityEventAdapter({ root = globalThis, eventTarget
     recentEvents.set(key, { source, expiresAt: at + COMPATIBILITY_EVENT_DEDUPE_WINDOW_MS });
   };
 
+  // One failed consumer must not block sibling refresh consumers.
   const reportError = (error) => {
     try { onError(error); } catch (reportingError) { console.error(reportingError); }
   };
@@ -87,10 +92,13 @@ export function createCompatibilityEventAdapter({ root = globalThis, eventTarget
         if (disposed) return;
         const at = readNow();
         const key = eventKey(name, event);
+        // Only a delivered event is remembered. Remembering the suppressed mirror rewrote the
+        // record's source, so the next genuine update from the original target was dropped too.
         if (isDuplicate(key, source, at)) return;
         remember(key, source, at);
         for (const callback of [...subscription.listeners]) {
           if (disposed) break;
+          // A listener removed by an earlier listener during this dispatch is not called (native EventTarget).
           if (!subscription.listeners.has(callback)) continue;
           try {
             const result = callback(event);

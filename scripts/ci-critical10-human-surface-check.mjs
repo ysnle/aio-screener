@@ -1,4 +1,4 @@
-// v52.58 H3-H/H3-I: real Chromium first-viewport, keyboard, and accessible-name audit.
+// H3-H/H3-I: real Chromium first-viewport, keyboard, and accessible-name audit.
 // This is intentionally separate from the 22x4 geometry matrix: it exercises the
 // route's real showPage() lifecycle and records the human-surface contract per page.
 
@@ -16,12 +16,12 @@ const BASE_URL = `http://127.0.0.1:${PORT}/index.html`;
 const OUT_PATH = process.env.CI_HUMAN_SURFACE_OUT
   ? resolve(root, process.env.CI_HUMAN_SURFACE_OUT)
   : resolve(root, '_artifacts', 'critical10-human-surface-audit.json');
-// Owner 2026-11-19: the 차트 tab (technical) is a derived view of 기술적 분석, so its human surface is audited on charts.
+// The 차트 tab (technical) is a derived view of 기술적 분석, so its human surface is audited on charts.
 const ROUTES = ['home','signal','breadth','sentiment','briefing','charts','macro','fxbond','fundamental','themes'];
 
 async function main() {
   mkdirSync(dirname(OUT_PATH), { recursive: true });
-  const server = await startLocalServer(PORT, { label: 'critical10/server' }); // v57.62 shared lifecycle
+  const server = await startLocalServer(PORT, { label: 'critical10/server' }); // Shared lifecycle
   const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const result = { version: null, viewport: null, routes: [], consoleErrors: [], generatedAt: new Date().toISOString() };
   let exitCode = 0;

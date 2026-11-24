@@ -39,7 +39,7 @@ function report() {
   if (!failed.length) return;
   console.error(`Version sync failed. Canonical version: ${version}`);
   failed.forEach((failure) => console.error(` - ${failure}`));
-  // P555/R246: this gate has repeatedly failed on commits that could not possibly have
+  // This gate has repeatedly failed on commits that could not possibly have
   // caused the drift themselves (e.g. an operator-note.json content edit inherited a break
   // left by an earlier incomplete version bump). Print the direct remediation command so
   // whoever sees this failure — including someone with no context on R1 — can fix it in
@@ -48,7 +48,7 @@ function report() {
   process.exit(1);
 }
 
-// v60.50: the code locations are one section; the published operations status (a producer rewrites its revision from
+// The code locations are one section; the published operations status (a producer rewrites its revision from
 // version.json every run) is the other, so a data run checks only the data it publishes.
 await runSections('version', [
 ['version-sync', async () => {
@@ -58,7 +58,7 @@ const sw = read('sw.js');
 const rootGuide = read('CLAUDE.md');
 const contextGuide = read('_context/CLAUDE.md');
 const changelog = read('CHANGELOG.md');
-// v57.54: dated handoff documents (MARKET-PRINCIPLES-ATLAS-*-2026-08-10.*, SCREENER-...-HANDOFF-2026-08-12.md)
+// Dated handoff documents (MARKET-PRINCIPLES-ATLAS-*-2026-08-10.*, SCREENER-...-HANDOFF-2026-08-12.md)
 // and the RULES.md frontmatter target_version are frozen history. They are no longer required to carry the
 // current version — requiring it made bump-version relabel stale documents as current on every release.
 const publicConfig = JSON.parse(read('public-config.json'));
@@ -101,11 +101,11 @@ check('CHANGELOG latest release header', new RegExp(`^##\\s+${versionRe}\\b`, 'm
 const cachebusters = [...html.matchAll(/\?v=([\d.]+)"/g)].map((match) => match[1]);
 // Preloads are reusable only when the request URL matches the executed script.
 // A bare preload plus a versioned script silently downloads both resources.
-// v59.16 (roadmap 11): aio-chat is inserted after boot by src/app/chat-loader.js with the aio-core cachebuster, so it
+// aio-chat is inserted after boot by src/app/chat-loader.js with the aio-core cachebuster, so it
 // has no static tag here (architecture/runtime-script-order.json lists it as lazy).
 for (const name of ['aio-core', 'aio-data', 'aio-ui']) {
   const url = `./js/${name}.js?v=${versionNumber}`;
-  // v58.80 F01: the legacy scripts are no longer preloaded (they raced the first screen's HTML and stylesheet on slow
+  // The legacy scripts are no longer preloaded (they raced the first screen's HTML and stylesheet on slow
   // lines); a preload that does come back must still name the executed URL.
   const preloads = [...html.matchAll(new RegExp(`rel="preload" as="script" href="([^"]*${name}\.js[^"]*)"`, 'g'))].map((match) => match[1]);
   check(`${name} preload parity`, html.includes(`<script src="${url}"`) && preloads.every((href) => href === url), `script and any preload must use ${url}`);

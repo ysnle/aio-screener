@@ -1,3 +1,8 @@
+// v59.69 (owner 2026-11-03, "좋은 실적에도 왜 떨어지지?"): why a stock moved the way it did after its report, read as a
+// short ladder of checks a reader would run — did the numbers beat, what did guidance say, how far had the price run
+// into the report, did the market or its group move the same way, and what the reports name (spending, execution,
+// management). Each rung is measured from the brief, the closes or the reported reasons; the conclusion is the first
+// rung that explains the move, and a move nothing explains says so instead of guessing.
 import { readNumber, signedText, directionOf, usdScaleWords, usdPerShareText } from '../shared/number.js';
 import { closeMoveBetween } from '../market/session/close-series.js';
 import { figureSurprise, koreanReleaseText, latestTradeWord } from './event-briefs.js';
@@ -8,6 +13,7 @@ const RUN_UP_MIN = 25; // % over the three months into the report — expectatio
 const WITH_MARKET = 2; // %p — a move within this of its benchmark, and mostly matched by it, is the market's or the group's
 
 const GUIDE_WEAK = /(?:전망|가이던스|guidance|outlook)[^.]{0,40}(?:못 미|밑돌|하회|하향|낮|신중|보수|부진|우려|실망)/i;
+// Step 4: "매출총이익률 전망은 시장 기대보다 낮아" (AAPL) is an outlook below the estimate, not only 신중.
 const GUIDE_BELOW = /(?:전망|가이던스|guidance|outlook)[^.]{0,40}(?:못 미|밑돌|하회|(?:기대|예상|컨센서스)(?:보다|에)?\s*(?:낮|못))/i;
 const GUIDE_STRONG = /(?:전망|가이던스|guidance|outlook)[^.]{0,40}(?:상향|높|웃돌|상회|올려|올렸)/i;
 const REASON_CLASSES = Object.freeze([
@@ -17,6 +23,7 @@ const REASON_CLASSES = Object.freeze([
   { id: 'priced', label: '기대 선반영', re: /(?:높은 기대|기대가 컸|눈높이|선반영|이미 반영|기대치가 높|밸류에이션 부담)/ }
 ]);
 
+// The same comparison the briefing line prints (figureSurprise) — not the stored percentage on its own.
 const firstSurprise = (figures, metric, provisional) => {
   for (const figure of figures || []) {
     if (figure?.metric !== metric) continue;
@@ -99,6 +106,7 @@ export function earningsCells(brief) {
   return { compared, reported: lead ? { label: lead.label, value: lead.value } : null, outlook, reaction };
 }
 
+// A stored "$0.00 billion" is a rounding of a sub-billion amount, not a zero (OKLO 11/6 read "매출 0만 달러").
 export const ZERO_AMOUNT = /^-?\$\s*0(?:\.0+)?\s*(?:(?<![A-Za-z])(?:billion|million|bn|mn)\b)?$/i;
 
 /**
@@ -152,6 +160,8 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
   const ret3m = row ? readRowNumber(row, 'ret3m') : null, since = readNumber(reaction.latestPct);
   const sameSession = row?.factorSessionDate === reaction.latestDate && reaction.latestDate && ret3m != null && since != null;
   const runUp = sameSession ? ((1 + ret3m / 100) / (1 + since / 100) - 1) * 100 : null;
+  // The semiconductor proxy is SOXX; only the three chip layers are read against it (oil, power and
+  // software in the AI chain are not semiconductors and read against the S&P 500).
   const semi = SEMI_LAYERS.includes(brief.layer);
   const benchField = semi ? 'soxx' : 'spx';
   const bench = benchMove(history, benchField, reaction.baseDate, reaction.firstDate);
@@ -174,6 +184,7 @@ export function reactionRead(brief, { row = null, history = [] } = {}) {
     runUp == null ? null : { id: 'run-up', value: `발표 전 3개월 ${pctText(runUp, 0)}`, hit: down && runUp >= RUN_UP_MIN },
     bench == null ? null : { id: 'market', value: `${benchName} ${pctText(bench)}`,
       hit: Math.sign(bench) === Math.sign(move) && Math.abs(move - bench) <= WITH_MARKET && Math.abs(bench) >= 0.6 * Math.abs(move) },
+    // The reaction day's turnover against the 20 sessions before the report — weight, not a cause, so it never picks the kind.
     readNumber(reaction.firstVolumeRatio) == null ? null : { id: 'volume', value: `거래량 평소의 ${readNumber(reaction.firstVolumeRatio).toFixed(1)}배`, hit: false }
   ].filter(Boolean);
 

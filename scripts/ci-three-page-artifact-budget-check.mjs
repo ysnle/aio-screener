@@ -55,10 +55,10 @@ try {
   const mastersSelection = await summarize(requests, (path) => path.startsWith('/public-data/objects/masters/'));
   if (mastersSelection.paths.length) throw new Error(`Masters profile selection loaded a full manager shard: ${JSON.stringify(mastersSelection.paths)}`);
   requests = [];
-  // v60.35 (owner 2026-11-20): three tabs — 원본 공시 holds the filings and the 13D/G large-holding reports, so it loads both.
+  // Three tabs — 원본 공시 holds the filings and the 13D/G large-holding reports, so it loads both.
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="filings"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersFilings === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
-  // P1498/P1508: 13D/G events carry issuer name, issuer CIK and percent of class; each file keeps its own 460 KB budget.
+  // 13D/G events carry issuer name, issuer CIK and percent of class; each file keeps its own 460 KB budget.
   const mastersFilings = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
   if (mastersFilings.paths.length !== 2 || !mastersFilings.paths.includes('/public-data/masters/filings.json') || !mastersFilings.paths.includes('/public-data/masters/filing-discovery.json') || mastersFilings.bytes > 920_000) throw new Error(`Masters filings lazy artifact contract failed: ${JSON.stringify(mastersFilings)}`);
   await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="berkshire-hathaway"]').click();
@@ -76,7 +76,7 @@ try {
   await page.locator('#page-masters [data-masters-action="load-quarters"]').click();
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersHistoryRows === 'connected');
   const mastersQuarter = await summarize(requests, (path) => path.startsWith('/public-data/masters/'));
-  // P1498: the first full 13F run with amendment composition (P1462) records ORIGINAL/RESTATEMENT/NEW HOLDINGS
+  // The first full 13F run with amendment composition records ORIGINAL/RESTATEMENT/NEW HOLDINGS
   // parts for every period; history-index grew 85 KB -> 156 KB. The quarter view still loads only the index and one shard.
   assertBudget(mastersQuarter, 260_000, 'Masters selected-manager quarter artifacts');
   if (mastersQuarter.paths.some((path) => /\/(?:history-holdings|issuer-aggregates)\.json$/.test(path))) throw new Error(`Masters quarter view requested a canonical monolith: ${JSON.stringify(mastersQuarter.paths)}`);
@@ -91,7 +91,7 @@ try {
   requests = [];
   await page.evaluate(() => window.AIO_ARCH.navigate('principles'));
   await page.waitForFunction(() => document.getElementById('page-principles')?.dataset.aioPrinciplesNarrative === 'connected');
-  // v60.35: the library-wide search index (research-shell.js, the shelf and the search) is the shell's, loaded once per
+  // The library-wide search index (research-shell.js, the shelf and the search) is the shell's, loaded once per
   // session; 대가 보유 종목 no longer loads it (owner 2026-11-20: no library search on its head), so in this sequence it
   // now lands here. It keeps its own budget; the narrative-first budget counts the route's own artifacts.
   const shellIndex = await summarize(requests, (path) => path === '/public-data/knowledge/search-index.json');

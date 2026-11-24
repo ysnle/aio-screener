@@ -13,7 +13,7 @@ const check = (label, condition, detail = '') => {
 };
 
 const version = JSON.parse(read('version.json')).version;
-// v57.54: RULES.md is read for its "## R<n>." headings only (ledger structure). The prose markers this
+// RULES.md is read for its "## R<n>." headings only (ledger structure). The prose markers this
 // gate and its siblings used to grep ("R220 ... Workflow memory must be compacted", "P514-Q1", "v50.89
 // workflow compaction") moved to architecture/governance-markers.json, so compressing a ledger no longer
 // breaks CI. What must not silently disappear is the enforcing gate, and that is what is checked below.
@@ -76,7 +76,7 @@ const oversizedSkills = skillStats.filter((item) => item.lines > 300 || item.byt
 const preflightBytes = ['AGENTS.md', '_context/CURRENT-STATE.md']
   .reduce((sum, path) => sum + statSync(join(worktreeRoot, path)).size, 0);
 
-// v57.54 governance markers: each policy keeps its ledger trace (rule/postmortem/QA ids) in JSON, and
+// Governance markers: each policy keeps its ledger trace (rule/postmortem/QA ids) in JSON, and
 // the check is on what enforces it — the gate scripts exist and run in a qa-pipeline group.
 const wiredGateScripts = new Set(Object.values(qaPipeline.groups || {}).flatMap((group) => (group.gates || []).map((gate) => gate.script)));
 const ruleHeadings = new Set([...rules.matchAll(/^## (R\d+)\./gm)].map((match) => match[1]));

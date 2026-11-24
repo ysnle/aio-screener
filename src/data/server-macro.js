@@ -1,5 +1,11 @@
+// Server macro projection (public-data/data.json `macro`, `marketSurveys`, `officialWebReferences`). Legacy unification
+// : moved from js/aio-data.js _aioLoadServerData. It writes the macro fields onto the snapshot, the per-key
+// evidence and the server metadata it is handed; the legacy loader keeps the window globals, the sentiment ingest and
+// the Treasury projection.
 import { isFiniteNumber as finite } from '../domain/shared/number.js';
 
+// v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth come from server FRED. consConf (Conference Board) stays
+// out: FRED has no such series, and UMCSENT (Michigan) is a different indicator.
 export const SERVER_MACRO_KEYS = Object.freeze(['cpi', 'coreCpi', 'cpiSa', 'coreCpiSa', 'pce', 'corePce', 'fedRate', 'fedTargetLower', 'fedTargetUpper', 'unemployment', 'nfp', 'housingStarts', 'retailSales', 'usWageGrowth', 'dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y', 'realYield10', 'breakeven10']);
 
 // BLS headline/core CPI fields are canonical only when the typed series explicitly says NSA. The SA companions stay
@@ -15,8 +21,10 @@ function projectKey(k, { macro, meta, snapshot, evidence }) {
   let source = null;
   if (!cpiDefinitionBlocked && finite(macro[k])) {
     snapshot[k] = macro[k];
+    // No FRED change beside a newer Treasury level.
     const deltaAligned = macro[`_source_${k}`] !== 'us-treasury-official-primary' || (macro[`_deltaAsOf_${k}`] && macro[`_deltaAsOf_${k}`] === macro[`_asOf_${k}`]);
-    if (deltaAligned && finite(macro[`${k}Delta5`])) snapshot[`_${k}Delta5`] = macro[`${k}Delta5`]; else delete snapshot[`_${k}Delta5`];
+    if (deltaAligned && finite(macro[`${k}Delta5`])) snapshot[`_${k}Delta5`] = macro[`${k}Delta5`]; else delete snapshot[`_${k}Delta5`]; // one-week change for the briefing read
+    // The declared snapshot field is `usUnemploy`; the server key is `unemployment`.
     if (k === 'unemployment') snapshot.usUnemploy = macro[k];
     source = macro[`_source_${k}`]
       || ((k === 'pce' || k === 'corePce') && macro._bea?.status === 'ok' ? 'bea-official-primary' : null)
@@ -31,6 +39,7 @@ function projectKey(k, { macro, meta, snapshot, evidence }) {
     };
     if (snapshot._fieldTs && macro[`_asOf_${k}`]) snapshot._fieldTs[`macro_${k}`] = macro[`_asOf_${k}`];
   }
+  // FRED month-over-month delta.
   if (finite(macro[`${k}Delta`])) snapshot[`_${k}Delta`] = macro[`${k}Delta`];
   return source;
 }
@@ -39,7 +48,7 @@ function projectKey(k, { macro, meta, snapshot, evidence }) {
 function projectHighYield({ macro, meta, snapshot, evidence, serverMeta }) {
   if (!finite(macro.hyOAS)) return null;
   const valueBp = Math.round(macro.hyOAS * 100);
-  if (finite(macro.hyOASDelta5)) snapshot._hySpreadDelta5Bp = Math.round(macro.hyOASDelta5 * 100);
+  if (finite(macro.hyOASDelta5)) snapshot._hySpreadDelta5Bp = Math.round(macro.hyOASDelta5 * 100); // P1390
   const source = macro._source_hyOAS || 'last-known-good';
   const official = source === 'fred-official-public-csv' || source === 'fred-official-primary';
   const hy = {

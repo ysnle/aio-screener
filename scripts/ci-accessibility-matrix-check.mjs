@@ -21,7 +21,7 @@ const outPath = process.env.CI_A11Y_OUT
 
 async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
-  const server = await startLocalServer(port, { label: 'accessibility-matrix/server' }); // v57.62 shared lifecycle
+  const server = await startLocalServer(port, { label: 'accessibility-matrix/server' }); // Shared lifecycle
   const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const result = {
     schemaVersion: 'aio-accessibility-evidence.v2',
@@ -50,10 +50,10 @@ async function main() {
       await page.evaluate((id) => window.showPage(id, null), routeKey);
       await page.waitForTimeout(150);
       const audit = await page.evaluate((id) => {
-        const target = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view (theme-detail, technical) is audited on its host screen
+        const target = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // A derived view (theme-detail, technical) is audited on its host screen
         const root = document.getElementById('page-' + target);
         const visible = (el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
-        // v58.63 (architecture audit C1): the old oracle read textContent/value for every control, so an unlabeled select
+        // The old oracle read textContent/value for every control, so an unlabeled select
         // was "named" by its option list and an unlabeled checkbox by value="on", while an input named through
         // aria-labelledby or <label for> read as nameless. This follows the accessible-name order for those cases.
         const clean = (text) => String(text || '').replace(/\s+/g, ' ').trim();
@@ -79,17 +79,17 @@ async function main() {
         const unnamedCanvas = canvases.filter((el) => !name(el) && !el.getAttribute('aria-describedby')).map((el) => el.id || 'canvas');
         const textNodes = root ? Array.from(root.querySelectorAll('*')).filter((el) => visible(el) && (el.children.length === 0) && (el.textContent || '').trim()) : [];
         const fontUnder10 = textNodes.filter((el) => parseFloat(getComputedStyle(el).fontSize || '0') < 10).map((el) => ({ id:el.id || '', text:(el.textContent || '').trim().slice(0, 70), fontSize:getComputedStyle(el).fontSize, html:el.outerHTML.slice(0, 220) })).slice(0, 50);
-        // v58.50: a 24px min-height box at a fractional y reads 23.9999 from getBoundingClientRect (1/64px layout units), so compare with a sub-pixel tolerance.
+        // A 24px min-height box at a fractional y reads 23.9999 from getBoundingClientRect (1/64px layout units), so compare with a sub-pixel tolerance.
         const under24 = (v) => v < 24 - 0.01;
         const smallTargets = controls.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (under24(r.width) || under24(r.height)); }).map((el) => {
           const r = el.getBoundingClientRect();
           const parentText = (el.parentElement?.textContent || '').replace(/\s+/g, ' ').trim();
           const inlineTextException = (el.tagName === 'A' || el.classList.contains('aio-term')) && getComputedStyle(el).display === 'inline' && parentText.length > name(el).length;
-          // P1658: a clipped keyboard-only control is not a pointer target until focus, when it renders full size.
+          // A clipped keyboard-only control is not a pointer target until focus, when it renders full size.
           const focusOnlyException = /rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(getComputedStyle(el).clip) && el.classList.contains('aio-basis-btn');
           return { id:el.id || '', text:name(el).slice(0, 60), width:Math.round(r.width), height:Math.round(r.height), exception:inlineTextException ? 'wcag-inline-text' : focusOnlyException ? 'keyboard-focus-only' : null };
         });
-        // v58.63 (C1): judge every small target, then keep a bounded sample for the report — slicing first let 80 exceptions
+        // Judge every small target, then keep a bounded sample for the report — slicing first let 80 exceptions
         // hide the 81st real violation.
         const smallTargetViolationsAll = smallTargets.filter((row) => !row.exception);
         const smallTargetExceptionsAll = smallTargets.filter((row) => !!row.exception);
@@ -101,7 +101,7 @@ async function main() {
       result.routes.push(audit);
     }
     result.status = result.routes.some((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled)) || result.consoleErrors.length ? 'fail' : 'pass';
-    // P1277: a passing report without a revision cannot be tied to the tested source.
+    // A passing report without a revision cannot be tied to the tested source.
     if (!result.appRevision || !result.gitHead) result.status = 'fail';
     result.certificationStatus = result.status === 'pass' ? 'PARTIAL_AUTOMATED' : 'FAILED_AUTOMATED';
   } catch (error) {
@@ -113,7 +113,7 @@ async function main() {
   }
   console.log(`[ci-accessibility-matrix] routes=${result.routes.length}, status=${result.status}, consoleErrors=${result.consoleErrors.length}, artifact=${outPath}`);
   if (result.status === 'fail') {
-    // P1333: CI keeps only stdout, so name the failing route and the failing items there.
+    // CI keeps only stdout, so name the failing route and the failing items there.
     const failing = result.routes.filter((r) => !r.active || !r.skipLink || r.nameless.length || r.selectsWithoutName.length || r.positiveTabindex.length || r.unnamedCanvas.length || r.fontUnder10.length || r.smallTargetViolationCount || r.modalContracts.some((modal) => !modal.labelled))
       .map((r) => ({ route: r.routeId, active: r.active, skipLink: r.skipLink, nameless: r.nameless.slice(0, 3), selects: r.selectsWithoutName.length, tabindex: r.positiveTabindex.length, canvas: r.unnamedCanvas.slice(0, 3), fontUnder10: r.fontUnder10.slice(0, 3), smallTargets: (r.smallTargetViolations || []).slice(0, 3) }));
     console.log('[ci-accessibility-matrix] FAILING ' + JSON.stringify({ error: result.error || null, revision: result.appRevision || null, gitHead: result.gitHead || null, consoleErrors: result.consoleErrors.slice(0, 3), routes: failing }).slice(0, 4000));

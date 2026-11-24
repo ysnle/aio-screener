@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // scripts/report-qa-failures.mjs — QA 실패 상세를 Step Summary로 내보낸다
 //
-// 배경 (P1083):
+// 배경:
 //   data-watchdog.yml의 요약 스텝은 JS 템플릿 리터럴을 `node -e "..."`로 넘겼고,
 //   그 문자열이 bash에 먼저 확장되어 `${failed.map(...)}: bad substitution`으로
 //   죽었다. 결과적으로 Step Summary가 빈 채로 발행되어, 실패한 게이트가 무엇인지

@@ -26,7 +26,7 @@ const expectedBlocked = [
 ];
 for (const id of expectedBlocked) if (byId.get(id)?.status !== 'BLOCKED') fail(`${id} must remain blocked until external rights/data are configured`);
 
-// P1757: the full ledger is producer-only (data-store branch). Without it the published projection, which keeps each
+// The full ledger is producer-only (data-store branch). Without it the published projection, which keeps each
 // row's pit.schemaVersion/observationCount, still proves PIT coverage; only the ledger's own counter cross-check skips.
 const ledger = readSecLedger();
 const sec = ledger.present ? ledger.data : json('public-data/sec-fundamentals-summary.json');
@@ -36,7 +36,7 @@ if (byId.get('point-in-time-fundamentals')?.status !== 'PARTIAL') fail('PIT fund
 if (!pitRows.length) fail('SEC PIT artifact coverage is missing');
 if (ledger.present && sec.pointInTimeCoverage !== pitRows.length) fail('SEC PIT artifact coverage is inconsistent with the ledger counter');
 if (!ledger.present) console.log(secLedgerSkipNote('professional-data-gap', 'ledger pointInTimeCoverage counter cross-check (PIT rows counted from the projection)', ledger));
-// v57.81: the acceptance-time reader moved with the normalizer to src/domain/fundamental/sec-normalize.js (shared with
+// The acceptance-time reader moved with the normalizer to src/domain/fundamental/sec-normalize.js (shared with
 // the browser's out-of-universe issuer read); the producer still owns the submissions fetch. Tested by behaviour: a
 // filing's submissions acceptance time reaches the normalized record (not a source-text pin).
 {
@@ -70,8 +70,8 @@ const history = json('public-data/masters/history-index.json');
 const filingsGap = byId.get('insider-and-institutional-filings');
 if (filingsGap?.status !== 'PARTIAL' || masters.reconciledManagers < 7 || masters.fullRowsAvailable < 1000 || history.totalPeriods < 80) fail('verified 13F partial capability evidence missing');
 
-// P1136/R620: the portfolio risk attributions moved with inline block A into js/aio-workspace.js.
-const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-backtest-lab.js') + read('src/domain/portfolio/risk-readout.js'); // v59.03: lab renderer moved to src/
+// The portfolio risk attributions moved with inline block A into js/aio-workspace.js.
+const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-backtest-lab.js') + read('src/domain/portfolio/risk-readout.js');
 const portfolioGap = byId.get('portfolio-risk-attribution');
 for (const marker of ['_calcPortfolioVaR', 'conditionalVar5', 'riskContribution', '_aioRenderPortfolioStress', 'benchmarkCorrelation']) {
   if (!workspace.includes(marker)) fail(`portfolio risk marker missing: ${marker}`);

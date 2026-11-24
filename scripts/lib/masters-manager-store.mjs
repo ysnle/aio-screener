@@ -1,4 +1,4 @@
-// v57.89: producer-side 13F manager row store (public-data/masters/managers/<id>.json).
+// producer-side 13F manager row store (public-data/masters/managers/<id>.json).
 // GitHub warns on pushed files over 50 MB and rejects them over 100 MB; BlackRock's full row ledger reached 60.5 MB
 // (49,968 rows) and is rewritten every quarter, so a manager whose pretty JSON exceeds MANAGER_ROWS_FILE_MAX_BYTES is
 // written as an index (<id>.json) plus content-only parts (<id>.part-N.json, holdings then comparisons in source order).

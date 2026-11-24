@@ -1,4 +1,11 @@
 // The largest absolute value on one shared scale, never below `floor` so a quiet day does not fill the track.
+// One two-sided bar for every signed comparison — the briefing's asset moves, a stock against its index
+// (종목 and the screener's why panel), the validation spread and the portfolio's gap to the index. Five screens each
+// computed their own scale, zero line and colours; the zero line, the shared max-abs scale and the colour rule live here.
+//
+// Tones: 'dir' follows the printed sign (rising red, falling blue, 0.0 grey), 'bench' is the comparison index in light
+// ink, 'flat' is a move with no good or bad side (rates in bp, the dollar), 'verdict' is 양호/부담 (green/amber).
+
 export function signedScale(values, floor = 1) {
   return Math.max(floor, ...values.filter((value) => Number.isFinite(value)).map((value) => Math.abs(value)));
 }

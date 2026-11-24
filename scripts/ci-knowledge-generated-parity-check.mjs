@@ -98,7 +98,7 @@ function writeCandidateArtifact({ changed, before, after, isolatedRoot, identity
   console.log(`Candidate status: ${manifest.status}; ${changedFiles.length} generated target(s); tested SHA ${identity.checkoutSha}.`);
 }
 
-// v60.50: the knowledge builders turn code-owned sources into code-owned outputs (a code section). The 13F issuer
+// The knowledge builders turn code-owned sources into code-owned outputs (a code section). The 13F issuer
 // aggregates are derived from the holdings a producer publishes, so their parity is a data section that also runs in a
 // data run. Candidate mode (knowledge-build-candidate.yml) runs both lists as one build.
 const knowledgeBuilders = [
@@ -147,7 +147,7 @@ const knowledgeTargets = [
   'public-data/knowledge/learning-graph.json',
   'public-data/knowledge/articles',
   'public-data/knowledge/route-targets.json',
-  'public-data/knowledge/search-index.json', // v57.54 P1768: built from LESSONS but unchecked, it missed the 2026-10-11 frames
+  'public-data/knowledge/search-index.json', // Built from LESSONS but unchecked, it missed the 2026-10-11 frames
   'public-data/knowledge/coverage-matrix.json',
   'public-data/knowledge/domain-dossiers.json',
   'public-data/knowledge/domain-dossiers',

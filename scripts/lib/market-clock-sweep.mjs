@@ -1,11 +1,11 @@
-// scripts/lib/market-clock-sweep.mjs — v59.50 (recurrence audit 2026-10-31)
+// scripts/lib/market-clock-sweep.mjs
 //
 // The time-boundary class (P2159 weekend chip, P2162 RUT close and Sunday reopen, P16-TIME-01 special open) was tested
 // with a few example clocks per fix; v59.49 replaced the snapshot classifier's examples with a schedule sweep. This does
 // the same for the shared clock functions every screen reads — latestCompletedUsSession, latestCompletedKrSession,
 // marketClock().us/.kr phases and isSessionCurrent — against an oracle that converts time with Intl (not nyParts or
 // kstParts) and takes each day's hours from the calendar table as data. The default window holds the US DST end
-// (2026-11-01), the KRX exam-day session (2026-11-19, 10:00-16:30), Thanksgiving (11-26) and its 13:00 close (11-27).
+// , the KRX exam-day session, Thanksgiving (11-26) and its 13:00 close (11-27).
 
 const MINUTE = 60000;
 const DAY = 86400000;

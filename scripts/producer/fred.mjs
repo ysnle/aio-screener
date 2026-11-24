@@ -38,7 +38,7 @@ export async function fetchFred(key, { previous = null, schedules = null, nowMs 
     _failedSeries: [],
     _failureReason: 'api-key-not-configured'
   };
-  // P565/R256: a single failed FRED series used to be swallowed with no log and no field-level
+  // A single failed FRED series used to be swallowed with no log and no field-level
   // flag — only the aggregate macroKeyCount dropped by one, with nothing telling anyone WHICH
   // series broke. enrichFundamentals (FMP) already detects and surfaces plan/auth errors
   // explicitly; this brings FRED to the same standard so a stale/broken series (the mechanism
@@ -61,7 +61,7 @@ export async function fetchFred(key, { previous = null, schedules = null, nowMs 
     try {
       const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${spec.id}` +
         `&api_key=${key}&file_type=json&sort_order=desc&limit=14`;
-      // P1336: one transient runner→FRED abort failed CPI/UNRATE for a whole cycle; retry once after 3 s.
+      // One transient runner→FRED abort failed CPI/UNRATE for a whole cycle; retry once after 3 s.
       const j = await fetchFn(url).catch(async () => { await new Promise((r) => setTimeout(r, 3000)); return fetchFn(url); });
       // A provider can return an HTTP-success JSON envelope containing no
       // usable observations (rate-limit/error payload, '.', or NaN).  Such a
@@ -91,7 +91,7 @@ export async function fetchFred(key, { previous = null, schedules = null, nowMs 
           const delta = round((obs[0].v - obs[1].v) * scale, 3);
           if (delta !== null) out[field + 'Delta'] = delta;
         }
-        // P1390: a one-week change (5 observations) for daily series that drive the briefing read.
+        // A one-week change (5 observations) for daily series that drive the briefing read.
         if (spec.delta5 && obs.length >= 6) {
           const delta5 = round((obs[0].v - obs[5].v) * scale, 3);
           if (delta5 !== null) out[field + 'Delta5'] = delta5;
@@ -129,7 +129,7 @@ export async function fetchFred(key, { previous = null, schedules = null, nowMs 
           const prevYoY = (yoyPrev && yoyPrev.v !== 0 && yoyPrev.d !== yoy?.d)
             ? round((prev.v / yoyPrev.v - 1) * 100, 1) : null;
           if (curYoY !== null && prevYoY !== null) out[field + 'Delta'] = round(curYoY - prevYoY, 1);
-          // v58.71: a new level without its change clears the change; the merge with the last run would otherwise keep
+          // A new level without its change clears the change; the merge with the last run would otherwise keep
           // the previous month's change beside the new level (and the reading would call inflation rising or easing on it).
           else if (curYoY !== null) out[field + 'Delta'] = null;
         }

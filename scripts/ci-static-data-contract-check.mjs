@@ -12,8 +12,6 @@ const ui = read('js/aio-ui.js');
 const marketPage = read('src/ui/pages/market.js');
 const index = read('index.html');
 const chat = read('src/ui/chat/panel.js');
-// P1134/R620: the KR/SEC data plane extracted from index.html's inline block C now lives in
-// js/aio-kr-data.js, so it joins the searched runtime union.
 const runtime = `${core}\n${dataCode}\n${ui}\n${marketPage}\n${index}\n${chat}\n${read('js/aio-kr-data.js')}`;
 const data = json('public-data/data.json');
 const screener = json('public-data/screener.json');
@@ -25,7 +23,7 @@ function hasNumber(value) { return value != null && value !== '' && Number.isFin
 function segment(id) { return screener?.breadth?.segments?.[id] || {}; }
 function historyHas(...keys) { return history.length >= 3 && keys.every((key) => history.some((row) => hasNumber(row?.[key]))); }
 
-// P1301/R650/QA-DATA-44: exercise the annual collector and candidate preview without network or writes.
+// Exercise the annual collector and candidate preview without network or writes.
 const annualCandidates = await collectAnnualOfficialSchedules('2026-09-28');
 const fomc2027 = annualCandidates.byCalendarId['us-fomc']?.years?.find((year) => year.year === 2027);
 assert(annualCandidates.schedules['us-fomc']?.includes('2027-01-27') && fomc2027?.tentative === true,
@@ -94,7 +92,7 @@ const prohibited = [
   [/var\s+HISTORICAL_PRECEDENTS\s*=|lockoutRally\s*:\s*\{/, 'unused embedded historical precedent registry'],
   [/DATA_SNAPSHOT\.(?:spx|nasdaq|gold)\s*\/\s*(?:10|45)/, 'synthetic cross-symbol quote approximation'],
   [/<[^>]+\b(?:data-live-(?:price|chg|pct|field)|data-snap)="[^"]+"[^>]*>[\s+\-▲▼$₩%.,()]*\d[\d\s+\-▲▼$₩%.,()]*<\//, 'numeric DOM seed in runtime value slot'],
-  // P721: data-live-kr-change 래퍼의 직접 텍스트에 숫자 리터럴 금지 — kr-home KOSPI "▲ 200.86"이
+  // data-live-kr-change 래퍼의 직접 텍스트에 숫자 리터럴 금지 — kr-home KOSPI "▲ 200.86"이
   // 위 패턴(속성명 불일치 + 중첩 태그)을 빠져나가 미수신 시 현재값처럼 노출된 회귀의 재발 방지.
   [/<[a-z]+[^>]*\bdata-live-kr-change="[^"$]*"[^>]*>[^<]*\d/, 'numeric literal in kr-change runtime slot']
 ];
@@ -106,7 +104,7 @@ prohibited.forEach(([pattern, label]) => {
 
 assert(/AIO_MANUAL_REFERENCE/.test(core), 'manual reference registry missing');
 ['source:', 'sourceUrl:', 'asOf:', 'operationalUse:'].forEach((token) => assert(core.includes(token), `manual reference provenance missing ${token}`));
-// v59.70 (S7/I10): the Korean CPI comes from official-references.json items.krCpi only; the absence of a hand-kept seed is
+// The Korean CPI comes from official-references.json items.krCpi only; the absence of a hand-kept seed is
 // a behaviour check in ci-manual-reference-expiry-check (AIO_MANUAL_REFERENCE has no krInflation).
 assert(/data-operational-use['"],\s*['"]blocked['"]/.test(runtime) || /data-operational-use="blocked"/.test(runtime), 'blocked unavailable-state contract missing');
 
@@ -117,7 +115,7 @@ const categories = [
   ['market-quotes', historyHas('spx','nasdaq','dow') || data.meta?.quotesPublished === true, 'runtime/history artifact'],
   ['volatility', historyHas('vix'), 'history.json / live quote'],
   ['fear-greed', hasNumber(data.fearGreed?.score), 'server artifact'],
-  // v59.70 (owner 11/4): retired like NAAIM — Cboe terms forbid storing it, so the producer has no put/call plane.
+  // Retired like NAAIM — Cboe terms forbid storing it, so the producer has no put/call plane.
   ['put-call', !sourcePlanes({ prior: {}, attemptedAt: '2026-11-04T00:00:00Z', env: {} }).some((plane) => plane.id === 'putCall'), 'retired (Cboe terms)'],
   ['aaii', /aaiiBear:null/.test(snapshot), 'explicit unavailable'],
   ['naaim', /naaimExposure:null/.test(snapshot), 'explicit unavailable'],
@@ -130,7 +128,7 @@ const categories = [
   ['cpi-pce', hasNumber(macro.cpi) && hasNumber(macro.pce), 'FRED/BLS artifact'],
   ['employment-wages', hasNumber(macro.unemployment) && hasNumber(macro.usWageGrowth), 'FRED/BLS artifact'],
   ['retail-housing-ism', hasNumber(macro.retailSales) && hasNumber(macro.housingStarts) && /ism-mfg/.test(core), 'artifact + official calendar'],
-  // v59.70 (R7): the Fed range comes from the producer (data.json policyRates.fed); BOK keeps its manual reference.
+  // The Fed range comes from the producer (data.json policyRates.fed); BOK keeps its manual reference.
   ['central-bank-policy', Number.isFinite(data.policyRates?.fed?.upper) && /bokPolicy:[\s\S]*?sourceUrl:/.test(core), 'producer Fed range + official manual BOK reference'],
   ['macro-calendar', /AIO_MACRO_CALENDAR/.test(core) && /2026-08-12/.test(core) && /2026-08-27/.test(core), 'official release calendar'],
   ['news', (Array.isArray(data.news) && data.news.length > 0)
@@ -142,7 +140,7 @@ const categories = [
   ['kr-macro-vkospi-supply', /bokPolicy:[\s\S]*?official/.test(core) && !/kr-vkospi-chart/.test(core) /* v58.76: the developer-only VKOSPI chart is retired */ &&!/fetchKrSupplyData|updateKrSupplyDOM/.test(runtime), 'official reference + explicit unavailable (P1671: KR supply plane retired)']
 ];
 
-// v57.81: the extended screener rows (Russell 2000 + Nasdaq beyond the core) exist only as a produced artifact —
+// The extended screener rows (Russell 2000 + Nasdaq beyond the core) exist only as a produced artifact —
 // never as a static list in the runtime bundle — and a committed shard keeps the research-only, price-free contract.
 assert(!/(?:RUSSELL_?2000|NASDAQ_LISTED)_(?:MEMBERS|SYMBOLS)\s*=\s*\[/.test(runtime), 'v57.81 extended screener membership embedded as a static list'); // text-pin-ok: absence guard, no behaviour to exercise
 if (fs.existsSync('public-data/screener-extended.json')) {

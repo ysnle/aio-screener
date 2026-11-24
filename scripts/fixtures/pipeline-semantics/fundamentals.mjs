@@ -81,7 +81,6 @@ export const cases = [
       assert.equal(moneyText(1, 'USD mn'), '100만 달러');
       assert.equal(moneyText(0.05, 'KRW bn'), '5,000만 원');
       assert.equal(moneyText(850, 'USD mn'), '8.5억 달러');
-      // 2026-11-19: the segment bars moved from the company story fold to 종목 개요's 사업 (company-overview.js).
       const { segmentBars } = await load('src/ui/components/company-overview.js');
       const doc = stubDocument();
       const bars = segmentBars(doc, { revenue: { value: 100, unit: 'USD bn' }, segments: [{ name: '서버', revenue: 40, unit: 'USD bn', share: null }, { name: '기기', revenue: 30, unit: 'USD bn' }] });

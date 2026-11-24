@@ -1,4 +1,4 @@
-// v59.43: earnings-results filings on EDGAR, shared by the event-brief producer and the earnings-calendar gap check.
+// earnings-results filings on EDGAR, shared by the event-brief producer and the earnings-calendar gap check.
 // Requests go through createSecClient (scripts/lib/sec-edgar.mjs: declared User-Agent, paced, retried). This module only
 // parses: the submissions feed into rows with their 8-K items, the full submission text into its documents, and HTML
 // into plain text for the brief's number check.

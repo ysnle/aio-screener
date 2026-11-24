@@ -27,7 +27,7 @@ assert.equal(rsiSeriesWilder(Array.from({ length: 30 }, (_, i) => 10 + i)).at(-1
 assert.equal(rsiSeriesWilder(Array.from({ length: 30 }, () => 10)).at(-1), 50, 'v59.74 RSI of a flat series is 50, not 100');
 assert.ok(macdSeries(Array.from({ length: 60 }, () => 50)).hist.at(-1) === 0, 'v59.74 MACD of a flat series is 0');
 
-// Layer registry: the base tier starts on, everything else off; the only added moving average is EMA 8·21 (owner 2026-11-07).
+// Layer registry: the base tier starts on, everything else off; the only added moving average is EMA 8·21.
 assert.deepEqual(CHART_LAYERS.filter((l) => l.tier === 'base').map((l) => l.id), ['ma', 'profile', 'trend'], 'v59.74 base tier');
 assert.deepEqual(CHART_LAYERS.filter((l) => l.tier === 'ma').map((l) => l.id), ['ema821'], 'v59.74 one added moving-average set');
 for (const id of ['rsi', 'macd', 'divergence', 'fib', 'bands', 'vcp', 'signals', 'rs', 'levels', 'ema821']) assert.equal(DEFAULT_LAYERS[id], false, `v59.74 ${id} is opt-in`);
@@ -47,7 +47,7 @@ assert.equal(maAlignment(Object.fromEntries(BASE_MA.map((p) => [p, smaSeries(ris
 // Trend areas: a confirmed run needs 3 bars; a rise then a fall paints an up segment followed by a down segment.
 const wave = [...Array.from({ length: 150 }, (_, i) => 100 + i), ...Array.from({ length: 150 }, (_, i) => 249 - i * 1.2)];
 const waveBars = wave.map((c, i) => ({ time: `2025-${String(1 + Math.floor(i / 28) % 12).padStart(2, '0')}-${String(1 + i % 28).padStart(2, '0')}`, open: c, high: c + 1, low: c - 1, close: c, volume: 1000 }));
-// v59.85: the areas follow the canonical trend (bands.js classifyTrend through trend-state.js), which needs the 200-bar line.
+// The areas follow the canonical trend (bands.js classifyTrend through trend-state.js), which needs the 200-bar line.
 const longWave = [...Array.from({ length: 320 }, (_, i) => 100 + i * 0.5), ...Array.from({ length: 260 }, (_, i) => 260 - i * 0.6)];
 const longBars = longWave.map((c, i) => ({ time: `t${String(i).padStart(4, '0')}`, open: c, high: c * 1.01, low: c * 0.99, close: c, volume: 1000 }));
 const regimes = trendRegimes(longBars);
@@ -71,7 +71,7 @@ assert.equal(trendRegimes(longBars.slice(0, 150)).trend, null, 'v59.85 under 200
   assert.equal(cross.classifyTrend({ s50: 6, s200: 2, positionOnly: true }).label, '회복 시도', 'v59.85 above both with the 50-day still under the 200-day is 회복 시도');
 }
 
-// v59.85 a weekly or intraday series names its own unit: 50·200-week lines are 주선, intraday lines 봉선 — never 일선.
+// A weekly or intraday series names its own unit: 50·200-week lines are 주선, intraday lines 봉선 — never 일선.
 {
   const { trendOfBars, barUnit } = await import('../src/domain/technical/trend-state.js');
   const weekly = Array.from({ length: 300 }, (_, i) => ({ time: new Date(Date.UTC(2020, 0, 6 + 7 * i)).toISOString().slice(0, 10), open: 100 + i, high: 103 + i, low: 98 + i, close: 100 + i }));
@@ -87,7 +87,7 @@ assert.equal(trendRegimes(longBars.slice(0, 150)).trend, null, 'v59.85 under 200
   assert.match(bufferedTrend({ pctSma50: 5, pctSma200: 9, adrPct: 2, ret5d: 1 }).text, /50일선/, 'v59.85 the screener row keeps its daily words');
 }
 
-// v59.85 relative volume: daily = last ÷ the previous 50 bars' average; intraday = last ÷ the same clock slot's average
+// Relative volume: daily = last ÷ the previous 50 bars' average; intraday = last ÷ the same clock slot's average
 // over the previous 10 sessions, so an opening bar is not compared with lunchtime bars.
 {
   const { relativeVolume, volumeAverageSeries } = await import('../src/domain/technical/chart-layers.js');

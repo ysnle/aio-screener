@@ -21,6 +21,8 @@ function chronology(record) {
   return values.length ? Math.max(...values) : null;
 }
 
+// R2-03: an observation stamped further ahead than a normal clock difference is not newer than a
+// real one; it is compared as undated, so a vix=99 stamped six hours ahead no longer blocks a vix=17 observed now.
 const FUTURE_OBSERVATION_SKEW_MS = 5 * 60 * 1000;
 const observedTime = (value, nowMs) => {
   const at = time(value);

@@ -78,7 +78,7 @@ export const CANDIDATE_SHADOW_MODEL = Object.freeze({
 
 // Inputs of the 'signed-yields' value definition (factor-ranks.js), which no recorded model uses at present.
 // TTM net income (last four reported/derived quarters) and the latest fiscal-year equity over close × SEC shares.
-// A loss gives a negative yield; a missing input stays missing (nothing is estimated). v57.88 (review): quarters or a
+// A loss gives a negative yield; a missing input stays missing (nothing is estimated). v57.88: quarters or a
 // fiscal year that ended more than FUNDAMENTAL_MAX_PERIOD_AGE_DAYS before `now` (a filer that stopped reporting) stay missing.
 export function signedYields(sym, valuation, fiscal, now = null) {
   const price = Number(valuation?.price);
@@ -181,7 +181,7 @@ export function spearman(xs, ys) {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
 }
 
-// Expertise review 2026-10-19: the top-minus-bottom spread uses 40% of the list and pools two markets whose ranks are
+// The top-minus-bottom spread uses 40% of the list and pools two markets whose ranks are
 // computed separately. The rank information coefficient — Spearman correlation of the whole ranked order with the
 // forward returns — is measured per market (ranks are per market), with the share of listed names that could not be
 // measured (a delisted or halted name has no forward bar; it is counted, not silently dropped).

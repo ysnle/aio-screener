@@ -134,7 +134,7 @@ const exp = portfolioExposure({ surface: { rows: sectors.map((sector, i) => ({ s
 check('v59.70 ③ five sectors and 기타, largest holding and sector named', exp.available && exp.segments?.length === 6 && exp.segments.at(-1).label === '기타' && exp.topSymbol === 'S0' && exp.topSector?.label === 'Tech' && Math.abs(exp.topSector.pct - 40) < 1e-9 && Math.abs(exp.segments.reduce((sum, row) => sum + row.pct, 0) - 100) < 1e-9, JSON.stringify(exp));
 check('v59.70 ③ an empty book draws no bar', portfolioExposure({ surface: { rows: [] } }).reason === 'empty');
 
-// 6. The plan check keeps its refusal rules (P2071) in the native module.
+// 6. The plan check keeps its refusal rules in the native module.
 const { planCheckLines = () => ({}) } = await load('src/ui/components/portfolio-plan-check.js');
 const plan = planCheckLines({ entry: 100, stop: 90, target: 130, amount: 1000, total: 10000 });
 check('v59.70 plan check: risk -10.0%, reward 3.00배, loss 1.0% of capital', plan.lines?.[0]?.includes('-10.0%') && plan.lines?.[1]?.includes('3.00배') && plan.lines?.[2]?.includes('전체 자본의 1.0%'), JSON.stringify(plan));

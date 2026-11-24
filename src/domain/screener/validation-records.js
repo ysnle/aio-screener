@@ -1,3 +1,8 @@
+// Reads of the screener's validation records for the 사후 검증 view. The 10-year factor study
+// (public-data/factor-backtest-longrun.json, also read by its producer): how old it is against the window after which
+// it no longer describes the current model or universe, and its composite IC by holding length. The daily back-test:
+// each market's own IC beside the pooled one. The study's universe is chosen on the run date, so an old study is shown
+// with its date. Same window as the lineage audit's research-horizon policy for this file (scripts/ci-data-lineage-audit.mjs).
 export const LONGRUN_STALE_AFTER_DAYS = 120;
 
 export function longrunStudyAge(artifact, nowMs = Date.now()) {

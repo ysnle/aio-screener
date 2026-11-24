@@ -60,7 +60,7 @@ const PRINTS_FIGURE_ANY = /\d[\d,.]*\s*(?:%|bp)/;
 const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/domain/briefing/market-read.js': 216,
   'src/domain/fundamental/fiscal-read.js': 0, 'src/domain/fundamental/quarter-read.js': 0,
   'src/domain/fundamental/earnings-quality.js': 0, 'src/domain/fundamental/peer-read.js': 0,
-  // v60.50 market-story: the opening read is printed from claims; the 10 are the week card's older sentences (11 before).
+  // market-story: the opening read is printed from claims; the 10 are the week card's older sentences (11 before).
   'src/domain/market/story/market-story.js': 10,
   // consensus-read: peMultipleText, the multiple formatter its unconverted consumers (screener table, company analysis, AI context) share.
   'src/domain/fundamental/consensus-read.js': 1 });
@@ -88,7 +88,7 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
     const found = claimIssues(row, facts).filter(isClaimError).map((issue) => issue.check);
     if (!found.includes(check)) failures.push(`self-test: a false ${check} claim was not flagged (${found.join(',') || 'no issue'})`);
   }
-  // v60.46: a claim whose subject, figure basis or comparison has no facts is 'unlinked' (a warning), never a silent pass.
+  // A claim whose subject, figure basis or comparison has no facts is 'unlinked' (a warning), never a silent pass.
   const loose = claimIssues(claim({ subject: 'ndx', measure: 'change1d', word: 'broad-rise', asOf: D, compare: { against: 'rut', measure: 'change1d' }, figures: [{ value: -1.2, unit: 'pct', basis: 'change1d', label: '나스닥 100' }] }), facts);
   const looseFigure = claimIssues(claim({ subject: 'spx', measure: 'change1d', asOf: D, figures: [{ value: 3.3, unit: 'pct', basis: 'change60d', label: 'S&P 500 60일' }] }), facts);
   if (!loose.some((issue) => issue.check === 'unlinked' && !isClaimError(issue)) || loose.some(isClaimError) || !looseFigure.some((issue) => issue.check === 'unlinked'))
@@ -100,7 +100,7 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
   const right = claim({ subject: 'group', measure: 'change1d', word: 'most-fell', asOf: D, rank: { among: 'group' }, figures: [{ value: -9.5, unit: 'pct', basis: 'member', label: 'AAA' }, { value: -8.8, unit: 'pct', basis: 'member', label: 'BBB' }] });
   if (claimIssues(right, facts).length) failures.push(`self-test: a true superlative was flagged ${JSON.stringify(claimIssues(right, facts))}`);
 
-  // v60.49 a filer's figures: one false claim per period rule must be flagged, and a true one pass.
+  // A filer's figures: one false claim per period rule must be flagged, and a true one pass.
   const filer = { 'filer:TEST': { periods: { 'FY:2026-01-31': { revenue: 200e9, netIncome: 50e9 }, 'FY:2025-01-31': { revenue: 100e9, netIncome: 20e9 },
     'FY:2023-01-31': { revenue: 80e9 }, 'Q:2026-07-31': { revenue: 60e9 }, 'Q:2025-07-31': { revenue: 40e9 }, 'TTM:2026-07-31': { pe: 31.2 } } } };
   const on = (figures, extra = {}) => claim({ subject: 'filer:TEST', measure: 'm', asOf: extra.asOf ?? '2026-01-31', figures, ...extra });
@@ -127,7 +127,7 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
   const oldRead = { text: '최근 회계연도 매출 2,159억 달러(+65.5%), 약 5년 연평균 +67.2%. 5년 연속 증가입니다.', claims: [] };
   if (saidIssues(oldRead, filer).filter((issue) => issue.check === 'e-label').length < 2) failures.push('v60.49 self-test: a fundamental sentence without claims was not flagged');
 
-  // v60.50 negative controls on the two period defects. (1) An equity change against a fiscal year two years back, said as
+  // Negative controls on the two period defects. (1) An equity change against a fiscal year two years back, said as
   // "전년보다": the checker flags the old claim (h-across) and the read no longer makes it.
   const gapYears = [{ periodEnd: '2022-12-31', revenue: 100e9, netIncome: 10e9, equity: 50e9 }, { periodEnd: '2024-12-31', revenue: 120e9, netIncome: 30e9, equity: 80e9 }];
   const gapRead = buildFiscalRead({ symbol: 'TEST', fundamentals: { symbol: 'TEST', periodType: 'FY', observedAt: '2024-12-31', roe: 45, fiscalHistory: gapYears } });
@@ -202,7 +202,7 @@ const macroIds = MACRO_SERIES.map((series) => series.id);
 let accounts = 0, accountClaims = 0;
 const checkAccount = (where, day, history, briefs = null) => {
   const ledger = oneSessionDay(day, history);
-  // v60.50: with the closes, the opening ranks its leading index's move within the record (recordFacts holds that rank).
+  // With the closes, the opening ranks its leading index's move within the record (recordFacts holds that rank).
   const account = buildDayAccount(ledger, { briefs, history });
   if (!account.available) return;
   accounts += 1;
@@ -241,7 +241,7 @@ const consensusNow = Date.parse(consensus.generatedAt);
 const sicOf = (symbol) => String(fiscalHistory.issuerSic?.[symbol] ?? '').split('|')[0] || null;
 const bySector = new Map();
 for (const row of canonicalRows.values()) if (row.sector && fiscalHistory.data?.[row.sym]) bySector.set(row.sector, [...(bySector.get(row.sector) || []), row.sym]);
-// v60.50 negative control on real output: per converted producer, the first sentence that prints a figure must be flagged
+// Negative control on real output: per converted producer, the first sentence that prints a figure must be flagged
 // once its claims are dropped (e-label) and once its first figure is moved off its data (value).
 const controlled = new Set();
 const control = (kind, part, facts) => {
@@ -265,7 +265,7 @@ for (const symbol of Object.keys(fiscalHistory.data || {}).sort()) {
   const expanded = expandShardRow(screener, screener.data?.[symbol]);
   const row = canonicalRows.get(symbol) || null;
   const facts = filerFacts(symbol, { annual, quarters: quarterText, summary: secTable[symbol] || null, row: expanded });
-  // v60.50 the same-sector peers as the screen picks them (fiscal-read.js peerSection), their facts from the stored strings.
+  // The same-sector peers as the screen picks them (fiscal-read.js peerSection), their facts from the stored strings.
   const peerSymbols = row?.sector ? (bySector.get(row.sector) || []).filter((sym) => sym !== symbol) : [];
   addPeerFacts(facts, symbol, { peers: peerSymbols.map((sym) => ({ symbol: sym, annual: fiscalHistory.data[sym], held: financialKind(sym, row.sector, sicOf(sym)) != null })), ownHeld: financialKind(symbol, row?.sector, sicOf(symbol)) != null });
   const estimate = consensus.rows?.[symbol] || null;
@@ -274,7 +274,7 @@ for (const symbol of Object.keys(fiscalHistory.data || {}).sort()) {
   const peer = row?.sector ? buildPeerRead({ symbol, sector: row.sector, peers: peerSymbols, sicFor: sicOf,
     seriesFor: (sym) => (fiscalHistory.data[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscalHistory.data[sym]), sym === symbol ? { ...(secTable[symbol] || {}) } : null, sym) : null) }) : { available: false };
   const point = estimate ? buildConsensusPoint(row, estimate, { now: consensusNow }) : null;
-  const priced = estimate ? buildPricedInRead(row, estimate, { now: consensusNow }) : null; // v60.50 종목 개요 이 주가가 반영하는 것
+  const priced = estimate ? buildPricedInRead(row, estimate, { now: consensusNow }) : null; // 종목 개요 이 주가가 반영하는 것
   const said = [['headline', { text: fiscal.headline || '', claims: fiscal.headlineClaims || [] }], ...fiscal.points.map((point) => [point.id, point]),
     ['quarter', { text: quarter.headline || '', claims: quarter.claims || [] }], ['working-capital', { text: working.headline || '', claims: working.claims || [] }],
     ...(quality ? [['quality-trend', quality.trendLabel], ...quality.rows.map((item) => [`quality-${item.id}`, { text: [item.name, item.detail, item.value.text].filter(Boolean).join(' '), probe: [item.detail, item.value.text].filter(Boolean).join(' '), claims: item.value.claims }]),

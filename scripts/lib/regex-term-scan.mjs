@@ -1,4 +1,4 @@
-// scripts/lib/regex-term-scan.mjs — v59.50 (recurrence audit 2026-10-31)
+// scripts/lib/regex-term-scan.mjs
 //
 // The substring class (P1503, P1755, P2131, P2146, P2164: 'sPIKe' read as PIK, '시즌이란' as Iran, '유가증권' as 유가,
 // '불안정' as 안정) recurred 18 times because each fix bounded the terms of one regex and the next keyword list was

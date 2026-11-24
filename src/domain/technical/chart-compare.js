@@ -1,3 +1,7 @@
+// v58.79 (owner 2026-10-25, chart review): compare a stock's price path with other symbols on its own chart. Each other
+// symbol is rebased to the stock's close on the first shared day of the window, so the lines start together and the gap
+// between them is the relative return; the table gives the same comparison as plain period returns. Pure functions on
+// completed daily bars — no DOM, no network.
 export const COMPARE_WINDOW = 130; // about six months of sessions on the daily chart
 export const COMPARE_PERIODS = Object.freeze([['1개월', 21], ['3개월', 63], ['6개월', 126], ['1년', 252]]);
 export const COMPARE_MAX = 3;
@@ -42,11 +46,14 @@ export function rebasedLine(bars, otherBars, window = COMPARE_WINDOW) {
   const scale = bars[base].close / aligned[base];
   const points = [];
   for (let k = base; k < bars.length; k++) if (aligned[k] > 0) points.push({ time: bars[k].time, value: aligned[k] * scale });
-  return points.length >= 2 ? { points, start: bars[base].time, endPct: (aligned.at(-1) > 0 ? (aligned.at(-1) / aligned[base] - 1) * 100 : null) } : null;
+  return points.length >= 2 ? { points, start: bars[base].time, endPct: (aligned.at(-1) > 0 ? (aligned.at(-1) / aligned[base] - 1) * 100 : null) } : null; // %, as every other return here
 }
 
 /** Period returns (%) from completed closes, newest close against the close `n` sessions earlier. */
 export function periodReturns(bars) {
+  // v59.59 (logic refactor): counted on the bar index, as alignedPeriodReturns is. Filtering out a bar without a close
+  // first made "1개월 = 21 sessions" reach 22 sessions back, so the stock row and the comparison rows covered different
+  // spans; a missing start close is now null for that period.
   const closes = (Array.isArray(bars) ? bars : []).map((bar) => bar?.close);
   const last = closes.at(-1);
   return Object.fromEntries(COMPARE_PERIODS.map(([label, n]) => {

@@ -46,7 +46,7 @@ export const COPY_RULES = Object.freeze([
   ['zero-direction', /(?:^|[^\d.,])[+-]?0(?:\.0+)?(?:%p|%|bp|pt)?\s*\([^)]*(?:강세|약세|상승|하락|확대|축소|오름|내림)\)/],
   ['mixed-precision', { test: (line) => new Set([...line.matchAll(/(?:대비|거래일|일|주|개월|년)\s+[+-]?\d+\.(\d+)%(?!p)/g)].map((m) => m[1].length)).size > 1 }]
 ]);
-// Owner 2026-11-07: questions belong in long prose only; a short label, heading, chip or card line written as a question
+// Questions belong in long prose only; a short label, heading, chip or card line written as a question
 // ('연준이 더 올릴까, 멈출까', '왜 보는가', '오늘의 질문') reads as a quiz. It is read with news headlines hidden (their
 // sources' words) and skips the long-form knowledge pages.
 export const QUESTION_LABEL = /(?:[?？]|까요?|는가|인가|나요|있나|가나|됐나|했나|빠졌나|올랐나)$/;
@@ -72,7 +72,7 @@ export function lintLines(text, route) {
   }
   return found;
 }
-// P2115: a signed number drawn in the rising/falling/flat colour must carry that sign as printed — 테마 coloured a
+// A signed number drawn in the rising/falling/flat colour must carry that sign as printed — 테마 coloured a
 // printed +0.04% flat because the colour rounded to one decimal while the text showed two. Runs inside the page.
 export function signColourMismatches(selector) {
   const out = [];
@@ -148,7 +148,7 @@ if (isMain) {
     const colourCanary = await page.evaluate(signColourMismatches, '#sign-colour-canary');
     await page.evaluate(() => document.getElementById('sign-colour-canary')?.remove());
     if (colourCanary.join('|') !== '+0.04% drawn flat') failures.push({ message: 'P2115 sign-colour canary failed', detail: colourCanary });
-    // P2115: what 오늘 can show — five 90-point macro stories used to stop the home cascade at 90, and the one-per-topic
+    // What 오늘 can show — five 90-point macro stories used to stop the home cascade at 90, and the one-per-topic
     // cap then left a single headline. The cascade must count what the cap leaves.
     const homeNews = await page.evaluate(() => {
       const now = Date.now(), at = new Date(now - 3 * 3600000).toISOString();

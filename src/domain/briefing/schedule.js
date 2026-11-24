@@ -2,11 +2,11 @@ import { MARKET_CALENDAR_REGISTRY, MARKET_HOLIDAY_NAMES } from '../market/sessio
 import { SCHEDULED_EVENTS, activeScheduledEvents } from './scheduled-events.js';
 import { isIsoDay } from '../shared/session-date.js';
 
-// P1389: the briefing opens with what is coming. Official release dates come from
+// The briefing opens with what is coming. Official release dates come from
 // AIO_MACRO_CALENDAR (advanced by AIO_MACRO_OFFICIAL_SCHEDULES); release clock times are the
 // agencies' standing times (BLS/BEA/Census 08:30 ET, ISM 10:00 ET, FOMC statement 14:00 ET).
 // No consensus figure is shown — none is collected, and an invented one would be worse than none.
-// P1399 (Codex review 2026-10-03): a passed clock time is not a received result. status is
+// A passed clock time is not a received result. status is
 // 'received' only when the result itself is in hand (an EPS actual); otherwise 'time-passed'.
 
 // T04 (expert review 2026-10-13): "직전 +${nfp}천 명" printed "+-15천 명" for a job loss. Payrolls arrive in thousands and are
@@ -151,8 +151,8 @@ function previousNyseBusinessDay(date) {
   return date;
 }
 
-// v58.74 (owner review 10/24): elections fixed by law are listed with the official source and the review date.
-// v59.42: they live in the scheduled-event registry (scheduled-events.js) with a lead window and an expiry; the old
+// Elections fixed by law are listed with the official source and the review date.
+// They live in the scheduled-event registry (scheduled-events.js) with a lead window and an expiry; the old
 // name stays for existing readers.
 export const POLITICAL_EVENTS = SCHEDULED_EVENTS;
 
@@ -173,7 +173,7 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
     const krx = previousKrxBusinessDay(isoDate(y, m, nthWeekday(y, m, 4, 2)));
     push(`krx-expiry-${krx}`, Date.parse(`${krx}T15:20:00+09:00`), QUARTER_MONTHS.has(m) ? '한국 선물·옵션 동시 만기' : '한국 옵션 만기',
       '만기 정산과 지수 추종 자금의 리밸런싱이 장 마감 무렵 대형주 수급을 흔들 수 있음');
-    // v58.82: a third Friday that is an NYSE holiday (Juneteenth observed 2027-06-18) expires on the session before.
+    // A third Friday that is an NYSE holiday (Juneteenth observed 2027-06-18) expires on the session before.
     const us = previousNyseBusinessDay(isoDate(y, m, nthWeekday(y, m, 5, 3)));
     push(`us-expiry-${us}`, etWallClockToMs(us, [16, 0]), QUARTER_MONTHS.has(m) ? '미국 지수 선물·옵션 분기 만기' : '미국 월물 옵션 만기',
       '대규모 옵션 포지션이 정리되며 만기 주간 지수 변동이 커지거나 오히려 줄 수 있음');
@@ -216,7 +216,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
       : etWallClockToMs(date, profile.et);
     if (!Number.isFinite(atMs) || atMs < nowMs - 6 * 3600000 || atMs > nowMs + days * 86400000) continue;
     const when = formatKstWhen(atMs);
-    // P1737: the economic-projection flag is shown only when the Fed calendar the producer read marks this meeting.
+    // The economic-projection flag is shown only when the Fed calendar the producer read marks this meeting.
     const label = profile === RELEASE_PROFILES['us-fomc'] && release?.sepMeeting === true ? `${profile.label}, 경제전망 발표` : profile.label;
     rows.push({ id: `macro:${key === 'us-fed-rate' ? 'us-fomc' : key}:${date}`, kind: 'macro', atMs, when: `${when.label} KST`, label, why: profile.why,
       originalTimeZone: profile.kst ? 'Asia/Seoul' : 'America/New_York', source: release.source || null,
@@ -228,7 +228,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     .filter((row) => row?.symbol && names[row.symbol] && row.date)
     .map((row) => ({ row, atMs: earningsFilterMs(row) }))
     .filter(({ atMs }) => atMs >= nowMs - 6 * 3600000 && atMs <= nowMs + days * 86400000);
-  // v58.52: an earnings-season session carries dozens of S&P 500 reports. Keep the most market-moving ones (index weight,
+  // An earnings-season session carries dozens of S&P 500 reports. Keep the most market-moving ones (index weight,
   // else the quarter's revenue estimate) and list them by time — the clock-then-name cut kept EFX·GM·GPC·HAL·HAS·KEY and
   // dropped 3M, Netflix, Meta and Tesla on 10/20.
   const weightOf = ({ row }) => (Number.isFinite(Number(row.indexWeight)) && Number(row.indexWeight) > 0 ? Number(row.indexWeight) : 0);
@@ -267,7 +267,7 @@ export function buildBriefingSchedule({ releases = {}, snapshot = {}, policyRang
     const whenLabel = (row.hour === 'bmo' || row.hour === 'amc') && kstDay ? `한국 ${kstDay} ${row.hour === 'amc' ? '새벽' : '밤'} (미국 ${usDate} ${session}, 시각 미정)`
       : row.hour === 'bmo' || row.hour === 'amc' ? `${usDate} 미국 ${session} (시각 미정)` : `${usDate} 미국, 발표 시각 미정`;
     void when;
-    // v57.88 (screen audit): '장 전' has no announced clock time — the 08:00 ET placeholder made it read '예정 시각 지남' at
+    // '장 전' has no announced clock time — the 08:00 ET placeholder made it read '예정 시각 지남' at
     // 08:10 ET. It is past only once the regular session has opened (09:30 ET).
     const passed = (row.hour === 'bmo' ? etWallClockToMs(row.date, [9, 30]) : atMs) < nowMs;
     rows.push({ id: `earnings:${row.symbol}:${row.date}:${row.hour || 'unknown'}`, kind: 'earnings', atMs, when: whenLabel, label: `${names[row.symbol]} (${row.symbol}) 실적`,

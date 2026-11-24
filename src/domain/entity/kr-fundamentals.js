@@ -1,5 +1,8 @@
 import { signedText } from '../shared/number.js';
 
+// OpenDART annual accounts (public-data/kr-fundamentals.json) as readable points for a Korean listing.
+// Figures are the filing's own KRW values; ratios are computed from the same report and say which basis they use.
+// The browser loads it through src/data/artifact-registry.js KR_FUNDAMENTALS.
 const krw = (value) => {
   if (!Number.isFinite(value)) return null;
   const abs = Math.abs(value);

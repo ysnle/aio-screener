@@ -1,4 +1,4 @@
-// Owner 2026-10-14: the AI panel keeps conversations like an LLM site — a list of past conversations to reopen and
+// The AI panel keeps conversations like an LLM site — a list of past conversations to reopen and
 // continue — stored only on this device, and only after the reader agrees on their first conversation.
 // One conversation follows the reader across screens (the panel is one assistant, not one chat per page); the screen a
 // question was asked on travels with each turn. The full transcript is kept here; the model context is the recent part

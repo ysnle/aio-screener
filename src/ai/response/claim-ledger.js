@@ -80,12 +80,12 @@ export function validateAnswerPlan(plan, options = {}) {
   const errors = [];
   if (plan?.schemaVersion !== 'answer-plan.v1') errors.push('schema_version_invalid');
   const prose = [plan?.summary, ...(Array.isArray(plan?.sections) ? plan.sections.map((section) => typeof section === 'string' ? section : `${section?.title || ''} ${section?.body || ''}`) : [])].join(' ');
-  // P1172 (05 A04): 수치 조건을 해제하는 것은 **수치를 추적하는 타입의 claim**뿐이다. 이전에는 claim이
+  // 수치 조건을 해제하는 것은 **수치를 추적하는 타입의 claim**뿐이다. 이전에는 claim이
   // 하나라도 있으면(예: 텍스트 claim) untracked numeric prose 조건이 꺼져, 근거가 연결되지 않은 현재
   // 사실 숫자가 그대로 공개될 수 있었다.
   const planClaims = plan?.claims?.claims || [];
   const numericClaims = planClaims.filter((claim) => NUMERIC_TYPES.has(claim?.type));
-  // P1740: a threshold inside a condition ("VIX가 20을 넘으면") is a rule, not an untracked current value.
+  // A threshold inside a condition ("VIX가 20을 넘으면") is a rule, not an untracked current value.
   const UNTRACKED = /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|:)?\s*\d[\d,.]*|\b(?:19|20)\d{2}-\d{2}-\d{2}\b)/i;
   const hasUntrackedNumericContent = options.currentSensitive === true
     && prose.split('\n').flatMap((line) => splitAnswerSentences(line)).some((sentence) => UNTRACKED.test(sentence) && !isConditionalNumericSentence(sentence))

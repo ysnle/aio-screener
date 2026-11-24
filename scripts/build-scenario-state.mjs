@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1743 (owner 2026-10-13): the forward view has to keep running with the market, not only when someone opens a screen.
+// The forward view has to keep running with the market, not only when someone opens a screen.
 // Every data refresh (refresh-data.yml, after fetch-data) this producer — no network, published artifacts only —
 //   1. recomputes the macro crossroads (every branch in the registry) and the theme playbook (every US and KR theme),
 //   2. scores any newly published release (CPI, jobs, PCE, retail sales, policy rate) against every branch's rule,
@@ -13,7 +13,7 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
-import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs'; // owner 2026-10-19: one interpretation pipeline
+import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs'; // One interpretation pipeline
 import { releaseActuals, actualText, scoreRelease, EVENT_NAMES } from '../src/domain/market/regime/macro-crossroads.js';
 import { THEME_STATES, THEME_STAGE_RULE } from '../src/domain/scenarios/analogs.js';
 import { SCENARIO_STATE_CURRENT } from '../src/domain/scenarios/theme-stage.js';
@@ -40,7 +40,8 @@ export function classicLiteral(file, head, close, rootDir = ROOT) {
   const start = source.indexOf(head);
   if (start < 0) return null;
   const end = source.indexOf(close, start);
-  try { return vm.runInNewContext(`(${source.slice(start + head.length - 1, end + 2)})`, {}, { timeout: 1000 }); } catch { return null; }
+  // No vm timeout: the slice is a data literal, and a timeout under a loaded runner would read as "no themes".
+  try { return vm.runInNewContext(`(${source.slice(start + head.length - 1, end + 2)})`, {}); } catch { return null; }
 }
 
 /** THEME_MAP (js/aio-pages.js) and KR_THEME_MAP (js/aio-kr-data.js) are plain literals; evaluate them in isolation. */
@@ -118,7 +119,7 @@ export function diffSnapshots(previous, current, at) {
       push('pricing', `'${short(item.title)}'에 대한 시장 가격이 ${label[old.pricingTone] || old.pricingTone}에서 ${withDirectionParticle(label[item.pricingTone] || item.pricingTone)} 바뀌었습니다.`);
     }
   }
-  // Owner 2026-10-19: the market guide's cross-scenario direction and the principles today's data touches are logged too.
+  // The market guide's cross-scenario direction and the principles today's data touches are logged too.
   const pg = previous.guide || null, cg = current.guide || null;
   if (pg && cg && pg.robust !== cg.robust) push('guide', cg.robust ? `여러 시나리오에 걸쳐 손해가 작은 선택이 '${pg.robust ? choiceName(pg.robust) : '집계 없음'}'에서 ${withDirectionParticle(`'${choiceName(cg.robust)}'`)} 바뀌었습니다.` : (cg.split ? '살아 있는 시나리오들이 유리한 선택지를 서로 다르게 적어 한쪽으로 세지 않습니다.' : '핵심 조건을 갖춘 시나리오가 없어 선택지 집계를 멈췄습니다.'));
   if (pg && cg) {
@@ -141,7 +142,7 @@ export function diffSnapshots(previous, current, at) {
   }
   if (stageMoves.length) push('theme', `테마 단계 변화 ${stageMoves.length}건 — ${stageMoves.slice(0, 6).join(' · ')}${stageMoves.length > 6 ? ' 외' : ''}.`);
   const topBefore = previous.rotation?.top, topNow = current.rotation?.top;
-  // v57.54 review: compare only within the same theme scope (US-only vs all themes), so a scope change is not a market move.
+  // Compare only within the same theme scope (US-only vs all themes), so a scope change is not a market move.
   if (topBefore && topNow && topBefore.scope === topNow.scope && (topBefore.strong !== topNow.strong || topBefore.weak !== topNow.weak)) push('rotation', `1개월 기준 가장 강한 테마 성격 '${topNow.strong}', 가장 약한 성격 '${topNow.weak}'(직전: '${topBefore.strong}' / '${topBefore.weak}').`);
   return out;
 }
@@ -163,8 +164,8 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
 
 export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, longrun = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
-  // Owner 2026-10-19: the shared interpretation (the same stages the screens, the AI and the narrative read).
-  // v59.70 (R8): the shared input builder also carries the sector rotation (data.json) and the index-earnings input, so
+  // The shared interpretation (the same stages the screens, the AI and the narrative read).
+  // The shared input builder also carries the sector rotation (data.json) and the index-earnings input, so
   // the structure outlook and guide here read the same stages as the screens.
   const interpretation = interpretationFromArtifacts({ data, history, macroHistory, calendar, outcomes, previous, screener: screener || {}, themeMaps, consensus, nowMs });
   const { crossroads, guide } = interpretation;
@@ -201,7 +202,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   const payload = {
     schemaVersion: SCENARIO_STATE_SCHEMA, status: SCENARIO_STATE_CURRENT, generatedAt: at,
     sourceLabel: 'AIO 공개 산출물(거시 기록·확정 종가·스크리너)로 갱신마다 재계산',
-    // v60.46: screenerComputedAt names the screener.json the theme rows were built from. The screener lane rewrites that
+    // screenerComputedAt names the screener.json the theme rows were built from. The screener lane rewrites that
     // file between market refreshes, so a same-close comparison with the live pipeline holds only on the same file.
     basis: { macroAsOf: crossroads.asOf || null, themeAsOf: themeDay || null, themeAsOfByMarket: playbook.asOfByMarket || null, outcomesAt: outcomes?.generatedAt || null, screenerComputedAt: screener?.factorComputedAt || null },
     // v58.75 (persona review): the rule the theme rows and rotation text were built with (screens skip a mismatched copy).
@@ -211,7 +212,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
     themeHistory: themeHistory.sort((a, b) => a.date.localeCompare(b.date)).slice(-MAX_THEME_DAYS)
   };
   // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
-  // v60.50: the record carries the opening read's lines (market-story.js buildMarketOpening) for the static shell to paint.
+  // The record carries the opening read's lines (market-story.js buildMarketOpening) for the static shell to paint.
   const opening = buildMarketOpening({ history: interpretation.inputs?.history || history, macroHistory, longrun, through: interpretation.regime?.asOf || null });
   Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint(), opening), enumerable: false });
   return payload;
@@ -227,9 +228,9 @@ export function openingStory(opening, asOf) {
 // First-users F01 (run-5 phone): on slow 3G the 오늘 verdict waited ~40 s for 1.9 MB of scripts and history. The static
 // shell paints this record (the same interpretation the screen computes) until the screen's own render replaces it.
 export const TODAY_VERDICT_SCHEMA = 'today-verdict.v1';
-// v60.18 (weekly audit D7): `model` names the code that computed it (scripts/lib/verdict-model.mjs), so a record written by
+// `model` names the code that computed it (scripts/lib/verdict-model.mjs), so a record written by
 // older rules is visible beside the screen's recomputation instead of a silent 1/4/1 next to 1/3/2.
-// v60.50: `story` (openingStory) is added without a schema bump — the shell paints heroLine when a record has none, so a
+// `story` (openingStory) is added without a schema bump — the shell paints heroLine when a record has none, so a
 // record written before this release still renders (index.html), and this one renders on an older shell.
 export function todayVerdictFrom(regime, at, model = null, opening = null) {
   if (!regime?.available || !regime.overall || !regime.asOf) return null;

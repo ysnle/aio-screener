@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.89: one-time, offline conversion of public-data/masters/managers/<id>.json into the size-bounded store
+// one-time, offline conversion of public-data/masters/managers/<id>.json into the size-bounded store
 // (scripts/lib/masters-manager-store.mjs). No network, no new data: each file is read, reassembled, and rewritten
 // through the same writer the 13F producers now use, then read back and compared byte-for-byte with the original
 // v1 serialization. Without --write it only reports what would change. Re-running on converted files is a no-op.

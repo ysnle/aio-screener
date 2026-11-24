@@ -26,7 +26,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
   const execute = async (input = {}) => {
     const questionPlan = input.questionPlan || plan(input);
     const actionPermission = questionPlan?.actionPermission || null;
-    // P1120: a plan whose personalized action permission is denied is dispatched with an
+    // A plan whose personalized action permission is denied is dispatched with an
     // explicit disclosure limitation instead of being refused before the provider. The
     // conduct, tool, and typed-claim boundaries downstream still own hard refusals; this
     // softens only the suitability/current-evidence precondition that a private research
@@ -95,7 +95,7 @@ export function createAIAnswerOrchestrator({ root = globalThis, now = () => new 
     parseAnswerPlanText,
     renderAnswerPlan,
     answerPublication,
-    companyEntitySymbols, // P1740: names a question resolved (엔비디아 → NVDA) for the legacy chat data injection
+    companyEntitySymbols, // Names a question resolved (엔비디아 → NVDA) for the legacy chat data injection
     createCapabilityPlan,
     buildAIKnowledgeContext: (query, options = {}) => knowledgeRetriever?.buildContext
       ? knowledgeRetriever.buildContext(query, options)

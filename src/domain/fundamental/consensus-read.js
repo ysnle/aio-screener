@@ -1,3 +1,7 @@
+// The forward view of a US listing — analyst consensus EPS for the next four fiscal quarters
+// (public-data/consensus-estimates.json, reference only). Consensus EPS is an adjusted figure (one-offs excluded), so
+// the growth and the PER beside it use the last four reported quarters on that same basis, never the SEC net income.
+// The price is the screener artifact's close (valuationPrice). Nothing here enters a score.
 import { readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
@@ -10,6 +14,9 @@ export const CONSENSUS_PRICE_MAX_AGE_DAYS = 10;
 export const CONSENSUS_NET_REVISION_FLOOR = 2;
 /** A one-month move this large either way is a price direction for the revisions comparison. */
 export const CONSENSUS_PRICE_MOVE_PCT = 5;
+// GOOGL read "직전 4개 분기 PER 17.8배 · 예상 이익 -35%" — the trailing sum (19.91) carried
+// what the forward consensus (12.94) leaves out, so a "same adjusted basis" comparison was not one. A forward sum 30%
+// or more below the trailing sum is not compared: both sums are shown, the trailing PER and the growth are not.
 export const CONSENSUS_BASIS_GAP = -30;
 // A reported quarter at least twice its own estimate with the forward sum 15% or more below the trailing sum is the same
 // mismatch at a smaller gap (GOOGL -29.4% with one quarter at 9.11 against an estimate of 2.88).
@@ -25,8 +32,15 @@ const DAY_MS = 86400000;
 // The consensus figures read from the screener row, dated by its price session rather than by the estimate.
 const ROW_MEASURES = Object.freeze(['ret1m', 'pctFrom52wHigh', 'reportedPe']);
 
+// CRWD showed "직전 4개 분기 PER 2073.6배 · Forward PER 2851.3배" (EPS $0.08) and the screener
+// TSLA 454.4배 with nothing saying the multiple no longer measures price against profit. Above this a multiple is shown
+// as not meaningful (the sort still uses the number).
 export const PE_MEANINGFUL_MAX = 200;
+// SNDK printed "Forward PER 약 0.4배" — four quarters' EPS at or above the close means the price and the EPS
+// are not on the same share basis (a split, a share class); no multiple is printed from them, and the reason is.
 export const PE_PLAUSIBLE_MIN = 1;
+// Expected earnings growth at or above this is where a forward multiple flatters at a cyclical peak. One
+// condition for the 이 주가가 반영하는 것 reading (priced-in.js) and the 투자 논지 valuation path (stock-lens.js buildThesisFrame).
 export const PEAK_EARNINGS_GROWTH = 50;
 export const peakEarningsCaution = (view) => view?.growth != null && view.growth >= PEAK_EARNINGS_GROWTH;
 export const peMultipleText =(pe, digits = 1) => (Number.isFinite(pe) ? (pe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과(이익이 작아 의미 낮음)` : `${pe.toFixed(digits)}배`) : '—');
@@ -40,9 +54,11 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
   const fwdEps = finite(estimate.fwd.eps);
   const trailingEps = finite(estimate.trailing.eps);
   if (price == null || price <= 0 || fwdEps == null || trailingEps == null) return null;
+  // Codex audit F29: the estimate's age was checked but the close's was not — a 2020 close beside a 2026
+  // consensus produced a "current" Forward PER. A dated close older than CONSENSUS_PRICE_MAX_AGE_DAYS is not used.
   const priceDate = String(row?.factorSessionDate || '').slice(0, 10) || null;
   const priceMs = priceDate ? Date.parse(`${priceDate}T00:00:00Z`) : NaN;
-  if (!priceDate || !Number.isFinite(priceMs) || now - priceMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS || priceMs > now) return null;
+  if (!priceDate || !Number.isFinite(priceMs) || now - priceMs > CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS || priceMs > now) return null; // An undated close fails closed
   const basisHeld = Math.max(fwdEps, trailingEps) * PE_PLAUSIBLE_MIN >= price;
   return {
     price, priceDate, asOf: new Date(asOf).toISOString().slice(0, 10),
@@ -56,6 +72,7 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
         oneOffQuarter: oneOff?.[0] || null, oneOffMultiple: oneOff ? finite(oneOff[1]) / finite(oneOff[2]) : null };
     })(),
     minEstimates: finite(estimate.fwd.minEstimates), up4w: finite(estimate.fwd.up4w) || 0, down4w: finite(estimate.fwd.down4w) || 0,
+    // Both counts absent is "not collected", not "no change".
     revisionsKnown: finite(estimate.fwd.up4w) != null || finite(estimate.fwd.down4w) != null,
     spread: finite(estimate.fwd.hi) != null && finite(estimate.fwd.lo) != null && fwdEps > 0 ? (estimate.fwd.hi - estimate.fwd.lo) / fwdEps * 100 : null
   };
@@ -65,6 +82,8 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
 export function buildConsensusPoint(row, estimate, options = {}) {
   const view = consensusView(row, estimate, options);
   if (!view) return null;
+  // Review (E1/8j): the window is the next four quarters not yet reported (the usual forward-EPS convention). When the
+  // first of them has already ended — results due, not yet out — that is said, so '향후' does not read as all-future quarters.
   const [fy, fm] = String(view.fwdFrom || '').split('-').map(Number);
   const firstEnded = Number.isFinite(fy) && Number.isFinite(fm) && Date.UTC(fy, fm, 1) <= Date.parse(`${view.priceDate || view.asOf}T00:00:00Z`);
   const ym = (text) => { const [y, m] = String(text || '').split('-').map(Number); return Number.isFinite(y) && Number.isFinite(m) ? `${y}년 ${m}월` : String(text || ''); };
@@ -102,7 +121,14 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const cautions = [];
   if (view.minEstimates != null && view.minEstimates < CONSENSUS_THIN_ESTIMATES) cautions.push(say('추정 애널리스트가 {n}명뿐이라 흔들리기 쉽습니다', { n: String(view.minEstimates) }));
   if (view.spread != null && view.spread >= 30) cautions.push(say('최고·최저 추정 차이가 {spread}로 넓습니다', { spread: on('spread', [{ value: view.spread, unit: 'share', basis: 'spread', label: '최고·최저 추정 차이' }]) }));
+  // The peak-earnings caution is part of the 이 주가가 반영하는 것 condition (priced-in.js), not a separate warning here.
+  // v58.74 (text audit 종목 C6): price against expectations — where the price sits against its 52-week high beside the net
+  // revision direction, and a reported (GAAP) PER below the adjusted one, which points at one-off items.
+  // v59.45 (pipeline review P19-CONSENSUS-01): the distance from the 52-week high is a position, not a direction — a
+  // stock 20% under its high and up 20% this month read "반대 방향" beside upward revisions. The price direction is the
+  // last month's move (the revisions' four weeks); the high stays as context.
   const fromHigh = finite(row?.pctFrom52wHigh);
+  // Boundary contract: the price direction and the PER gap are judged on calculable screener values.
   const month = readRowNumber(row, 'ret1m', 'calculation');
   const netRev = view.up4w - view.down4w;
   const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
@@ -117,6 +143,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const said = say('{lead} — {body}. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다({asOf} 수집).', { lead, asOf: view.asOf,
     body: sayJoin([basis, say('애널리스트 최소 {n}명, {revisions}', { n: String(view.minEstimates ?? '?'), revisions }), versus, gaapGap, ...cautions], '. ') });
   const text = said.text;
+  // One revision either way is not a direction — the net count (up − down) must reach the floor.
   const net = view.up4w - view.down4w;
   const clears = Math.abs(net) >= CONSENSUS_NET_REVISION_FLOOR;
   const tone = !clears ? 'neutral' : net > 0 ? 'favorable' : 'burden';

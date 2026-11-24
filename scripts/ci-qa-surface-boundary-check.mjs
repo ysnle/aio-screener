@@ -1,4 +1,4 @@
-// v59.70 P2 (legacy core wave 2): the classic boot scripts define only the audits a runtime path still calls.
+// P2 (legacy core wave 2): the classic boot scripts define only the audits a runtime path still calls.
 // Audits whose only callers are QA entry points (the audit registry, the page deep-audit table, tests) live in
 // js/aio-qa-audits.js, which AIO.loadQaAudits() loads on demand and the Pages artifact leaves out. The allowlist
 // below is the set that stayed because a user-facing path calls it (epoch sync, public readiness in dev mode, the

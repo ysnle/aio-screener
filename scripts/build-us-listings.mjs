@@ -1,4 +1,4 @@
-// v57.81: every US exchange-listed symbol (Nasdaq, NYSE, NYSE American, NYSE Arca, Cboe BZX, IEX) for exact-match
+// Every US exchange-listed symbol (Nasdaq, NYSE, NYSE American, NYSE Arca, Cboe BZX, IEX) for exact-match
 // symbol checks in the portfolio entry box and the ticker page (owner: "전체 상장 목록 … 최소 나스닥, S&P 500,
 // 다우존스, 러셀2000"). Source: the official Nasdaq Trader symbol directory (nasdaqlisted.txt + otherlisted.txt),
 // joined to SEC company_tickers_exchange.json for the CIK by exact symbol. Only symbol, security name, exchange code,

@@ -1,4 +1,4 @@
-// P1618: real route lifecycle, local overflow, drawer, theme and AI input acceptance.
+// Real route lifecycle, local overflow, drawer, theme and AI input acceptance.
 // This gate uses local artifacts and aborts external requests; no paid AI is called.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
@@ -18,10 +18,10 @@ const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).
 const failures = [];
 const observations = [];
 const check = (condition, message, detail) => { if (!condition) failures.push({ message, detail }); };
-// v57.60: screenshots are captured as buffers and written atomically so a Windows file lock
+// Screenshots are captured as buffers and written atomically so a Windows file lock
 // (viewer/indexer holding the previous PNG) retries instead of failing the viewport.
 const snap = async (page, name, options = {}) => atomicWriteFile(resolve(out, name), await page.screenshot(options));
-// v57.60: wait for the state the next check reads instead of a fixed sleep; on timeout the check reports it.
+// Wait for the state the next check reads instead of a fixed sleep; on timeout the check reports it.
 const settle = (page, predicate, arg) => page.waitForFunction(predicate, arg, { timeout: 5000 }).catch(() => {});
 mkdirSync(out, { recursive: true });
 let server, browser;
@@ -44,11 +44,11 @@ try {
     }
     await page.waitForTimeout(350);
     if (!isolatedInjection) {
-      // P1619: actual production hooks expose app identity and one visible futures value.
+      // Actual production hooks expose app identity and one visible futures value.
       check(await page.locator('#app-version-badge').isVisible() && (await page.locator('#app-version-badge').innerText()).trim() === version, `${viewport.name}: app version is not visible/current`);
       check(!/VIX/.test(await page.locator('#app-version-badge').innerText()), `${viewport.name}: VIX overwrites app identity`);
       check(!/베타/.test(await page.locator('#topbar-ai-btn').innerText()) && (await page.locator('#ai-panel-title').innerText()).trim() === 'AI 도우미', `${viewport.name}: stale AI beta label`);
-      // v58.89: one in-page read. locator.evaluateAll matched '[hidden]' and then evaluated, so a fallback the 오늘 render
+      // One in-page read. locator.evaluateAll matched '[hidden]' and then evaluated, so a fallback the 오늘 render
       // un-hid in between (futures missing: an intended state) was read as a visible hidden fallback.
       check(await page.evaluate(() => [...document.querySelectorAll('.kpi-fallback[hidden]')].every((el) => getComputedStyle(el).display === 'none')), `${viewport.name}: hidden futures fallback is visibly duplicated`);
     }
@@ -83,7 +83,7 @@ try {
     // v57.81 (phone/iPad audit): a tap fired pointerout right after pointerup and closed the basis card inside the
     // same tap, so no [title]/data-basis explanation was readable on touch. A tap on a non-focusable explained element
     // inside .page (and on the topbar quote status) must leave #aio-basis-card open, inside the viewport.
-    // v58.53: a folded element is not a visible target — Chromium keeps a box size for closed <details> content
+    // A folded element is not a visible target — Chromium keeps a box size for closed <details> content
     // (::details-content is content-visibility:hidden), so the size check alone picked cards inside a closed fold.
     await page.evaluate(() => window.showPage('macro', null));
     await settle(page, () => !!document.querySelector('#page-macro.active [title], #page-macro.active [data-basis]'));
@@ -109,7 +109,7 @@ try {
         await page.waitForTimeout(300);
         const card = await page.evaluate(() => { const el = document.getElementById('aio-basis-card'); const box = el?.getBoundingClientRect(); return el && { visible: !el.hidden && box.width > 0, left: box.left, right: box.right, top: box.top, bottom: box.bottom, text: el.textContent.slice(0, 60) }; });
         check(!!card?.visible && card.left >= 0 && card.right <= viewport.width + 1 && card.top >= 0 && card.bottom <= viewport.height + 1, `${viewport.name}: a tap on an explained ${name} element must leave #aio-basis-card visible in the viewport (v57.81)`, card);
-        // v58.75: the bottom-left corner sits 0.4px under the sidebar's 단축키 button on tablet1024 and Chromium's touch
+        // The bottom-left corner sits 0.4px under the sidebar's 단축키 button on tablet1024 and Chromium's touch
         // adjustment snaps the tap onto it, so the outside tap goes to the first spot with nothing interactive within 24px.
         const outside = await page.evaluate(({ w, h }) => [[4, h - 4], [w - 4, h - 4], [w / 2, h - 4], [w - 4, 80], [w / 2, h / 2]].find(([x, y]) => [-24, 0, 24].every((dx) => [-24, 0, 24].every((dy) => {
           const hit = document.elementFromPoint(Math.min(w - 1, Math.max(0, x + dx)), Math.min(h - 1, Math.max(0, y + dy)));
@@ -128,7 +128,7 @@ try {
     check(await page.locator('#regime-board details, #regime-board-watch details').count() === 0, `${viewport.name}: an indicator row is folded (v60.31)`);
     check(!await page.locator('#page-signal .regime-scenario-card').count(), `${viewport.name}: v60.36 the three market flows are 시장 폭's, not 시장 상태's`);
     check(!await page.locator('#regime-positioning').count(), `${viewport.name}: retired weekly positioning widget remains (P1628)`);
-    // v58.56 · v60.31: the 한국 시장 card is the 한국 view's open section (summary line = latest KOSPI close).
+    // The 한국 시장 card is the 한국 view's open section (summary line = latest KOSPI close).
     check(await page.locator('#regime-kr-summary').isVisible() && await page.locator('#regime-board-kr [data-market="KR"]').count() >= 2 && await page.locator('#regime-kr-participation').isVisible(), `${viewport.name}: Korean index and participation consumers absent (P1628)`);
     await snap(page, `${viewport.name}-market-regime.png`, { fullPage: true });
     // The three conditional market flows sit on 시장 폭 after its verdict.
@@ -169,7 +169,7 @@ try {
     await openNav(); await page.locator('#sidebar-theme-btn').click(); await page.keyboard.press('Escape');
     const secondTheme = await page.locator('body').evaluate((el) => el.classList.contains('dark-theme'));
     check(firstTheme !== secondTheme, `${viewport.name}: theme did not change`, { firstTheme, secondTheme });
-    // P1620: the actual glossary renderer must remain readable in both themes and close the drawer.
+    // The actual glossary renderer must remain readable in both themes and close the drawer.
     for (const dark of [false, true]) {
       await openNav();
       if (await page.locator('body').evaluate((el) => el.classList.contains('dark-theme')) !== dark) await page.locator('#sidebar-theme-btn').click();
@@ -197,7 +197,7 @@ try {
     }
     await page.evaluate(() => { window.showPage('themes', null); document.querySelectorAll('.page[data-view]').forEach((node) => { node.dataset.view = 'all'; }); }); // every view of the page
     await settle(page, () => !!document.querySelector('.theme-strength-table > tbody > tr[data-group]'));
-    // v59.59: the route loop visits theme-detail, then leaves before 테마 mounts; a plain 테마 visit must open the overview,
+    // The route loop visits theme-detail, then leaves before 테마 mounts; a plain 테마 visit must open the overview,
     // not that pending detail (#themes?theme=defense hid every compare button and the click below timed out).
     check(await page.evaluate(() => location.hash === '#themes' && !window._aioOpenThemeDetailOnThemes), `${viewport.name}: plain 테마 re-entry opened a stale pending theme detail (v59.59)`, await page.evaluate(() => location.hash));
     const constituents = await page.evaluate(async () => {
@@ -206,13 +206,13 @@ try {
       return [...document.querySelectorAll('.theme-strength-table > tbody > tr[data-group]')].map((row) => ({ id: row.dataset.group, actual: [...row.querySelectorAll('.theme-strength-constituents button')].map((node) => node.textContent), expected: model.groups.find((group) => group.id === row.dataset.group)?.constituents.map((entry) => entry.sym) }));
     });
     check(constituents.length > 0 && constituents.every((row) => JSON.stringify(row.actual) === JSON.stringify(row.expected)), `${viewport.name}: theme table omits listed members (P1620)`, constituents);
-    // P1622: expanding constituent comparison must preserve members, missingness and focus.
+    // Expanding constituent comparison must preserve members, missingness and focus.
     await page.locator('[data-compare-group]').first().click();
     check(await page.locator('.theme-member-table tbody tr').count() === constituents[0].expected?.length, `${viewport.name}: intra-theme comparison loses constituents (P1622)`);
     check(await page.locator('[data-compare-group]').first().evaluate((el) => el.getAttribute('aria-expanded') === 'true' && document.activeElement === el), `${viewport.name}: comparison expansion loses focus (P1622)`);
     await snap(page, `${viewport.name}-theme-comparison.png`);
     await page.evaluate(() => window.showPage('home', null));
-    // v57.76: the five home breadth cards are replaced by one link to the 시장 폭 screen.
+    // The five home breadth cards are replaced by one link to the 시장 폭 screen.
     check(await page.locator('.home-breadth-cards, #home-participation').count() === 0, `${viewport.name}: home leaves breadth to 시장 상태 (v57.76, v59.68)`);
     await page.locator('#topbar-ai-btn').click();
     await settle(page, () => { const panel = document.getElementById('ai-panel'); return !!panel?.classList.contains('open') && !!document.querySelector('.app')?.inert && !panel.getAnimations().some((animation) => animation.playState === 'running'); });

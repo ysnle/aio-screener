@@ -1,8 +1,8 @@
-// P1740: the unified panel read only capitalised symbols, so "엔비디아 실적 어때?" reached the model with no quote,
+// The unified panel read only capitalised symbols, so "엔비디아 실적 어때?" reached the model with no quote,
 // trend or filing data while the QuestionPlan had already resolved NVDA. One resolver now feeds both chat surfaces:
 // typed symbols + names the plan resolved through the ticker registry + the curated nickname table with a Korean
 // particle ("엔비디아는"). A demonstrative follow-up ("이 종목", "그 회사") reuses the previous turn's companies;
-// nothing else is inferred (P1339: no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
+// nothing else is inferred (no ticker guessing). companiesOnly drops index/FX/commodity nicknames, which the
 // unified panel answers from its market and domain blocks instead.
 // This is the one question ticker resolver. The typed-symbol scan (extract-tickers.js) and the
 // nickname table (src/domain/instruments/nicknames.js) are imported, not handed in: the chat's own fuzzy map is gone, and a

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.54: retired user-facing vocabulary gate (static). The dictionary is architecture/ui-vocabulary.json (banned term,
+// Retired user-facing vocabulary gate (static). The dictionary is architecture/ui-vocabulary.json (banned term,
 // preferred term, allowed contexts); offenders that existed when the gate was introduced are listed in
 // architecture/ui-render-baseline.json under "vocabulary" and only NEW offenders fail. Visible strings are markup text
 // nodes and visible attributes of index.html (no <script>/<style>/comments) and string/template literals of src/ui
@@ -110,7 +110,7 @@ const sources = [{ file: 'index.html', strings: markupStrings(readFileSync(resol
 for (const file of walk(resolve(root, 'src/ui')).filter((path) => path.endsWith('.js')).sort()) {
   sources.push({ file: relative(root, file).replace(/\\/g, '/'), strings: scriptStrings(readFileSync(file, 'utf8')) });
 }
-// v57.54: the legacy classic-script owners still render most screens; they are scanned too (dictionary scope.legacyScripts).
+// The legacy classic-script owners still render most screens; they are scanned too (dictionary scope.legacyScripts).
 for (const rel of dictionary.scope?.legacyScripts || []) {
   if (existsSync(resolve(root, rel))) sources.push({ file: rel, strings: scriptStrings(readFileSync(resolve(root, rel), 'utf8')) });
 }

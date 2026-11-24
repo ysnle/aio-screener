@@ -1,3 +1,8 @@
+// News scoring, exclusion and selection — the one owner, moved from js/aio-data.js (scoreItem, classifyTopic,
+// getSentimentFromText, isUnverifiedClaim, calcNewsImpactVector, the surface contracts and buildNewsSurfaceModel).
+// Every keyword list goes through keyword-match.js, so a list can no longer pick its own rule (P2116 'nfl' in
+// 'inflation', 'tax' in 'taxi', '핵' in '핵심'). Pure: what the classic code read from window comes in through `env`
+// (src/app/news-selection-entry-points.js builds it). Formulas and thresholds are unchanged.
 import { keywordHit, keywordMatcher, matchedKeywords, countKeywords } from './keyword-match.js';
 import { keywordMayMatch, textPairs } from './keyword-prefilter.js';
 import { classifyNewsTextStance } from './scoring.js';
@@ -25,6 +30,8 @@ const UNVERIFIED_CLAIM_KW = [
   '복수의 소식통', '사정에 정통한', '알려진 바에 따르면'
 ];
 const hasUnverifiedClaim = keywordMatcher(UNVERIFIED_CLAIM_KW);
+// v59.45 (pipeline review P20-VERIFY-01): the shared report rule (rumour, chatter, anonymous source) and the producer's
+// own 'unconfirmed' label decide too, so a headline the news bundle calls a rumour is never verified-current here.
 export function isUnverifiedClaim(item) {
   if (item && String(item.verification || '').toLowerCase() === 'unconfirmed') return true;
   const text = (item.title || '') + ' ' + (item.desc || '') + ' ' + (item.summary || '') + ' ' + (item.translated || '');
@@ -37,12 +44,14 @@ export function classifyTopic(item) {
   let bestTopic = 'general';
   let bestScore = 0;
   Object.entries(TOPIC_KEYWORDS).forEach(([topic, keywords]) => {
-    const hits = keywords.filter((kw) => keywordHit(text, kw)).length;
+    const hits = keywords.filter((kw) => keywordHit(text, kw)).length; // 'AI' not inside 'said', 'Meta' not inside 'metal'
     if (hits > bestScore) {
       bestScore = hits;
       bestTopic = topic;
     }
   });
+  // 소스 제공 topics 태그는 우리 TOPIC_KEYWORDS 어휘에 실제로 있는 값이고 자체 매칭이 0건일 때만 채택한다.
+  // 그렇지 않으면 정직하게 'general'로 둔다 (SCOTUS 기사가 소스의 넓은 'AI Policy' 분류만으로 반도체·AI가 되던 문제).
   if (bestScore === 0 && item.topics && item.topics.length > 0 && Object.prototype.hasOwnProperty.call(TOPIC_KEYWORDS, item.topics[0])) {
     bestTopic = item.topics[0];
   }
@@ -112,6 +121,7 @@ const LARGE_TICKERS = new Set([
 ]);
 const URGENT_KW = ['crash','surge','plunge','soar','spike','collapse','record high','record low',
   '급등','급락','폭락','폭등','사상최고','사상최저','긴급','속보','breaking'];
+// 시장 영향력 있는 인물의 발언·인터뷰·연설은 높은 중요도
 const KEY_FIGURES = ['powell','yellen','lagarde','jensen huang','tim cook','elon musk',
   'satya nadella','lisa su','altman','sam altman','dario amodei','greg brockman','demis hassabis','ilya sutskever',
   'buffett','dimon','dalio','ackman','druckenmiller',
@@ -123,6 +133,7 @@ const KEY_FIGURES = ['powell','yellen','lagarde','jensen huang','tim cook','elon
 const SPEECH_KW = ['says','said','interview','speech','remarks','testimony','hearing',
   'conference','keynote','told','warns','expects','sees','calls for','announces',
   '발언','인터뷰','연설','기자회견','증언','청문','담화','언급','경고','전망','선언'];
+// 5대 우선 토픽 (매크로/지정학/주식/외환/채권) — 시장에 직접 영향
 const PRIORITY_KW = [
   // 매크로/경제
   'gdp','cpi','ppi','pce','employment','unemployment','payroll','fomc','fed fund','rate cut','rate hike',
@@ -142,6 +153,7 @@ const PRIORITY_KW = [
   // 채권/금리
   'treasury','yield','bond','credit spread','yield curve','inversion',
   '국채','수익률','채권','크레딧 스프레드','수익률 곡선',
+  // v48.18 (integrate 2026-04-18): AI 인프라 공급 가시성
   'mtia','meta mtia','tpu roadmap','lta','long-term agreement','custom silicon',
   'vera rubin','rubin cpx','nvlink fusion','cx9','blackwell ultra',
   // 메모리 패러다임
@@ -161,23 +173,28 @@ const PRIORITY_KW = [
   // 자산배분/로테이션
   'data dependence','forward guidance failure','2% inflation target','mid-inflation',
   '중물가','데이터 디펜던스','이익 확산','quality rotation',
+  // v50.15 (텔레그램 통합): 최신 AI 인프라/메모리/소버린 AI 토픽
   'ai factory','ai 팩토리','sovereign ai','소버린 ai','socamm','vera cpu','vera rubin','kyber',
   'hbm4','hbm4e','hbm5','lpddr6','agentic ai','에이전트 ai','physical ai','피지컬 ai',
   'memory shortage','메모리 부족','dram shortage','asic','tpu','positioning unwind','포지셔닝 청산',
   'rate cut withdrawn','금리인하 철회','memory super-cycle','메모리 슈퍼사이클','data center power','데이터센터 전력',
   'hormuz','호르무즈','red sea','홍해','houthi','후티','lng fid','exaone','blackwell','rubin',
 ];
+// 정치/시사 키워드가 있지만 시장 연관 키워드가 없으면 대폭 감점
 const POLITICS_ONLY_KW = ['election','vote','poll','campaign','congress','senate','legislation','bill passed',
   '선거','투표','여론조사','국회','국정감사','법안','탄핵','청문회','대통령실','비서실',
   'supreme court','abortion','immigration','gun control','death penalty',
   '이민','총기','사형','낙태','인권','시위','집회','데모'];
+// "대통령 AI 보조금 발표", "반도체 규제 완화" 같은 금융영향 정책 뉴스는 정치 감점에서 뺀다
 const POLICY_KW = ['보조금','규제','정책','세금','감세','증세','관세','수출규제','수출통제',
   'subsidy','regulation','policy','tax','tariff','export control','sanction','stimulus',
   'antitrust','legislation','executive order','행정명령','법안'];
 const SPAM_KW = ['sponsored','advertisement','promoted','partner content','editorial','opinion piece'];
+// 클릭베이트/투자 스팸 감지 — 소거법 (패턴 매칭 즉시 차단)
 const CLICKBAIT_RE = /(\d+배|\d+x\b|텐배거|대박주|급등주|폭등 예고|급등 임박|10x|100x|next tesla|next nvidia|must buy|guaranteed return|millionaire|get rich|won't believe|don't miss|last chance|놓치면 후회|지금이 마지막|마지막 기회|수익률 보장|원금 보장|100% 수익|이 주식만|이 종목만|반드시 사야|무조건 사야|리딩방|시크릿|비밀 종목|숨겨진 종목|아무도 모르는|전문가만 아는|삼성 잡는|애플 잡는|엔비디아 잡는|best stock.?to buy|stocks? to buy now|hidden gem|secret stock|penny stock|easy money|yolo stock|to the moon|explosive growth potential)/i;
 // 광범위 한국어 키워드('기업','수출','에너지' 등)만으로 통과한 경우 — 지방정부 보도자료 패턴
 const KR_BROAD_KW = ['기업','수출','수입','에너지','산업','경제','금융','은행','시장','무역'];
+// 제목에 금융과 전혀 무관한 패턴이 있으면 차단
 const NON_FINANCE_TITLE_PATTERNS = [
   /how to (?:cook|bake|clean|fix|decorate|style|dress)/,
   /best (?:phones|laptops|tablets|headphones|cameras|shows|movies|songs|books|games|apps|gifts|deals)/,
@@ -196,6 +213,7 @@ const NON_FINANCE_TITLE_PATTERNS = [
   /(?:사장|원장|이사장|회장)\s*(?:\d+연임|취임|퇴임|이취임)/,
   // 영문 순수 비금융 패턴 (정치 제거 — 무역/관세/금융정책과 공존 가능하므로)
   /(?:governor|mayor)\s+(?:signs|vetoes|declares)\s+(?!.*(?:tax|budget|tariff|trade))/,
+  // 한국어 비금융 패턴 추가
   /오늘의?\s*날씨|기상\s*(?:청|특보)|(?:폭우|폭설|한파|폭염)\s*(?:주의보|경보)/,
   /(?:축구|야구|농구|배구|골프)\s*(?:결과|경기|시즌|감독)/,
   /건강\s*(?:관리|검진|보험|증진)|의료\s*(?:봉사|지원|서비스)/,
@@ -208,6 +226,7 @@ const NON_FINANCE_TITLE_PATTERNS = [
   /(?:미용|피부|성형|다이어트|헬스)\s*(?:클리닉|시술|관리)/,
 ];
 
+// 키워드 길이 가중치 — 영문: 1글자=0.3, 2글자=0.6, 3-4글자=1.0, 5글자+=1.3 / CJK: 1글자=0.5, 2글자=0.9, 3글자+=1.0
 function keywordWeight(kw) {
   const l = kw.length;
   if (/[가-힯一-鿿぀-ヿ]/.test(kw)) return l <= 1 ? 0.5 : l <= 2 ? 0.9 : 1.0;
@@ -224,6 +243,9 @@ function weightedHits(list, title, desc, pairs) {
   return hits;
 }
 
+// v59.45 (pipeline review P20-CACHE-01): the key carries every input of the cached (time-free) part — a richer summary,
+// a new tier or country is a new entry — and the freshness points are added on each call, so a long-open tab no longer
+// keeps a five-day-old article at its first-hour score.
 function scoreCacheKey(item) {
   return [item.title || '', item.source || '', item.pubDate || '', item.desc || '', item.tier ?? '', item.country || '', item.verification || ''].join('|');
 }
@@ -267,19 +289,23 @@ export function scoreItem(item, env = {}) {
   const scoreReasons = [];
   const text = ((item.title || '') + ' ' + (item.desc || '')).toLowerCase();
 
+  // ── 1. 키워드 매칭 점수 (제목 가중치 + 키워드 길이 가중치) ──
   const titleLow = (item.title || '').toLowerCase();
   const descLow = (item.desc || '').toLowerCase();
-  const pairs = textPairs(titleLow + '\n' + descLow);
+  const pairs = textPairs(titleLow + '\n' + descLow); // Keywords whose first letters are absent are skipped
   const macroHits = weightedHits(MACRO_KW, titleLow, descLow, pairs);
   const techHits = weightedHits(TECH_KW, titleLow, descLow, pairs);
   const medHits = weightedHits(MED_KW, titleLow, descLow, pairs);
   const analystHits = weightedHits(ANALYST_KW, titleLow, descLow, pairs);
 
+  // 로그 스케일 + 밀도 기반 점수 (키워드 나열 역전 방지)
   score += Math.min(Math.round(Math.log2(macroHits + 1) * 16), 40);   // 1→16, 2→25, 4→32, 8→40
   score += Math.min(Math.round(Math.log2(techHits + 1) * 12), 30);    // 1→12, 2→19, 4→24
   score += Math.min(Math.round(Math.log2(medHits + 1) * 6), 15);      // 1→6, 2→10, 4→12
+  // 애널리스트 소폭 보너스 (목표주가/등급 변경은 투자 정보), 최대 +3
   score += Math.min(analystHits, 1) * 3;
 
+  // 키워드 밀도 보너스 — 짧은 텍스트에 핵심 키워드 집중 = 높은 점수
   const totalHits = macroHits + techHits + medHits;
   const wordCount = text.split(/\s+/).length;
   if (wordCount > 0 && totalHits > 0) {
@@ -299,6 +325,7 @@ export function scoreItem(item, env = {}) {
   const freshness = freshnessPoints(item, env);
   score += freshness;
 
+  // ── 4. 티커 언급 부스트 (오탐 방지 — extractTickers 재사용) ──
   const foundTickers = extractTickers(item);
   const tickerMentions = foundTickers.length;
   const titleText = (item.title || '');
@@ -313,7 +340,7 @@ export function scoreItem(item, env = {}) {
     const hasLarge = foundTickers.some((t) => LARGE_TICKERS.has(t));
     if (hasMega) score += 8;
     else if (hasLarge) score += 4;
-    if (analystHits > 0) {
+    if (analystHits > 0) { // 대형주 목표주가·등급 변경 — 시장 임팩트
       if (hasMega) score += 10;
       else if (hasLarge) score += 5;
     }
@@ -321,14 +348,17 @@ export function scoreItem(item, env = {}) {
 
   // ── 5. 감정 강도 부스트 (극단적 표현) ──
   score += 3 * countKeywords(text, URGENT_KW, VERB_FORMS);
+  // ── 5b. v39.0: 핵심 인물 발언/인터뷰 부스트 ──
   const hasKeyFigure = KEY_FIGURES.some((kw) => keywordHit(text, kw));
   if (hasKeyFigure) {
     score += 8;
     if (SPEECH_KW.some((kw) => keywordHit(text, kw))) score += 7;
   }
+  // ── 5c. v40.4: 5대 우선 토픽 부스트 ──
   const priorityHits = countKeywords(text, PRIORITY_KW);
   if (priorityHits >= 3) score += 15;
   else if (priorityHits >= 1) score += 5;
+  // ── 5d. v40.4/v46.6: 비시장 정치/시사 뉴스 강력 감점 (정책/규제 키워드는 예외) ──
   const politicsHits = countKeywords(text, POLITICS_ONLY_KW);
   const hasPolicyKW = POLICY_KW.some((kw) => keywordHit(text, kw));
   if (politicsHits > 0 && priorityHits === 0 && finRelevance <= 1.5 && !hasPolicyKW) score -= 25;
@@ -349,6 +379,7 @@ export function scoreItem(item, env = {}) {
       return 0;
     }
   }
+  // STEP 2: 금융 관련성 게이트 — v42.5: 가중치 히트 < 0.5 (짧은 키워드 1개 단독 히트 = 차단)
   if (finRelevance < 0.5) {
     const finKwMatches = matchedKeywords(text, FINANCE_RELEVANCE_KW);
     if (finKwMatches.length === 0) {
@@ -356,7 +387,7 @@ export function scoreItem(item, env = {}) {
       return 0;
     }
     const allBroad = finKwMatches.every((kw) => KR_BROAD_KW.includes(kw));
-    if (allBroad && finKwMatches.length <= 3) {
+    if (allBroad && finKwMatches.length <= 3) { // 광범위 KW 3개까지도 차단
       item._blacklisted = true;
       return 0;
     }
@@ -423,7 +454,7 @@ export const NEWS_SURFACE_CONTRACTS = {
     newsCyclePolicy: 'kst-0800-completed-24h',
     anchor: '08:00 KST',
     windowHours: 24,
-    maxItems: 4, minCount: 4, maxPerTopic: 1,
+    maxItems: 4, minCount: 4, maxPerTopic: 1, // One 71-point item used to satisfy the cascade and fill the whole surface
     minScoreCascade: [90, 70, 50],
     excludedTopics: ['analyst'],
     staleStaticPolicy: 'reference-only',
@@ -451,6 +482,7 @@ export const NEWS_SURFACE_CONTRACTS = {
     allowFilters: true,
     sortMode: 'ui'
   },
+  // 분석 페이지를 같은 뉴스 캐시에 토픽 필터로 연결 — topics는 classifyTopic 실존 키만 쓴다.
   macro:       { surfaceId: 'macro',       role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','ai-policy','power','energy'], sortMode: 'score' },
   fxbond:      { surfaceId: 'fxbond',      role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['macro','geo','market-note','credit','bond','fx','fxbond'],        sortMode: 'score' },
   technical:   { surfaceId: 'technical',   role: 'analysis-page-topic-strip', newsCyclePolicy: 'kst-0800-completed-24h', anchor: '08:00 KST', windowHours: 24, maxItems: 6, minScore: 35, topics: ['semi','optical','power','memory','materials','market-note'], sortMode: 'score' },
@@ -470,6 +502,7 @@ export function newsPubMs(item) {
 export function newsSourceTier(item) {
   if (item && item.tier != null && isFinite(Number(item.tier))) return Number(item.tier);
   const src = String(item && item.source || '');
+  // v59.45 (pipeline review P20-TIER-01): whole names only — "Software News" is not FT, "Investinghub" not Investing.com.
   if (/\b(?:Reuters|Bloomberg|Associated Press|AP News|Financial Times|Wall Street Journal|WSJ)\b/i.test(src) || /\bFT\b/.test(src)) return 1;
   if (/\b(?:CNBC|MarketWatch|Barron's|Barrons?|Yahoo Finance|Investing\.com|Seeking Alpha|Economist|NYT|Nikkei|Yonhap|Naver)\b/i.test(src)) return 2;
   if (/^TG\s|Telegram/i.test(src) || item && (item._tgChannel || item.tgSlug)) return 4;
@@ -575,7 +608,7 @@ export function normalizeNewsItem(surfaceId, item, contract, nowMs, cycleWindow,
   const itemCycleStart = item && item.newsCycleStart ? new Date(item.newsCycleStart).getTime() : 0;
   const itemCycleEnd = item && item.newsCycleEnd ? new Date(item.newsCycleEnd).getTime() : 0;
   const serverCycleTrusted = !!(item && item._serverBackstop && item.newsCyclePolicy === contract.newsCyclePolicy && isFinite(itemCycleStart) && isFinite(itemCycleEnd) && itemCycleEnd > itemCycleStart && nowMs - itemCycleEnd <= (contract.windowHours || 24) * 3600000
-    && itemCycleEnd <= nowMs + 5 * 60 * 1000);
+    && itemCycleEnd <= nowMs + 5 * 60 * 1000); // Only the latest cycle (an older one restored a 43h-old headline as current)
   if (!inNewsCycle && serverCycleTrusted && pubMs && !futurePublication && pubMs >= itemCycleStart && pubMs < itemCycleEnd) inNewsCycle = true;
   const statusAgeHours = inNewsCycle && !futurePublication && contract.newsCyclePolicy === 'kst-0800-completed-24h' ? Math.min(ageHours, contract.windowHours || 24) : ageHours;
   let tickers = [];
@@ -638,13 +671,16 @@ function applyNewsFilterOptions(rows, opts, env) {
     } else if (cf === 'eu') {
       filtered = filtered.filter((i) => ['eu','uk'].indexOf(String(i.country || '').toLowerCase()) !== -1);
     } else if (cf === 'tg') {
+      // The producer stores the channel slug ('fastdesk') in _tgChannel; any truthy value is a channel row.
       filtered = filtered.filter((i) => !!i._tgChannel || /^TG\s/i.test(i.source || '') || !!i.tgSlug);
     } else {
       filtered = filtered.filter((i) => String(i.country || '').toLowerCase() === cf);
     }
   }
+  // A channel post is not an article; its facts reach 뉴스 as the 시장 신호 card and the AI reading.
   if (cf !== 'tg') filtered = filtered.filter((i) => !(i._tgChannel || i.tgSlug || /^TG\s/i.test(i.source || '')));
   const tf = opts.topicFilter || controls.topicFilter || 'all';
+  // 'company' (기업 chip) is the one distinct filter the retired type tabs carried — a named company is the subject.
   if (tf === 'company') filtered = filtered.filter((i) => isCompanyNews(i, env));
   else if (tf && tf !== 'all') filtered = filtered.filter((i) => i.topic === tf || (i.topics && i.topics.indexOf(tf) >= 0));
   return filtered;
@@ -680,13 +716,17 @@ export function buildNewsSurfaceModel(surfaceId, items, opts = {}, env = {}) {
     }
     return row.ageHours <= (contract.windowHours || 48);
   });
+  // 오늘 창에 든 건수와 창 밖에 남은 과거 수집분을 분리해 보존한다 ('오늘 자료 미확보 · 이전 수집분 N건').
   const outOfWindowCount = normalized.length - windowRows.length;
   if (surfaceId === 'home') windowRows = windowRows.filter((i) => contract.excludedTopics.indexOf(i.topic) === -1);
   if (surfaceId === 'market-news') windowRows = applyNewsFilterOptions(windowRows, opts, env);
+  // 분석 페이지 토픽 필터 (contract.topics) — 같은 캐시에서 페이지별 관련 토픽만
   if (contract.topics && contract.topics.length) windowRows = windowRows.filter((i) => contract.topics.indexOf(i.topic) >= 0);
 
   let scored = windowRows;
   if (contract.minScoreCascade) {
+    // Count what can still be shown — one row per dedupe key and at most maxPerTopic per topic. Counting raw rows
+    // let four 90-point stories on one topic stop the cascade, and the topic cap then left a single headline on home.
     const showable = (rows) => {
       if (!contract.maxPerTopic) return rows.length;
       const keys = {}, perTopic = {};
@@ -707,6 +747,7 @@ export function buildNewsSurfaceModel(surfaceId, items, opts = {}, env = {}) {
     scored = windowRows.filter((i) => i.score >= (contract.minScore || 0));
   }
 
+  // Explicit corrections survive score selection and remain individually reachable.
   windowRows.filter(isRevision).forEach((row) => { if (scored.indexOf(row) < 0) scored.push(row); });
   if (stories) {
     const selectedKeys = new Set(scored.map(dedupeKey));
@@ -812,6 +853,8 @@ export function newsSelectionAudit(items, env = {}) {
     const topic = item && (item.topic || classifyTopic(item)) || 'general';
     const source = String(item && item.source || 'unknown');
     const tier = String(newsSourceTier(item));
+    // The same row rule the 뉴스 page uses, so a row of the latest completed 08:00 cycle counts as current
+    // until the next cut (raw age called it stale once it passed 24 h, 06-08 KST for every row, while the page showed it).
     const status = normalizeNewsItem('market-news', item, marketNewsContract, nowMs, marketNewsCycle, env).verificationStatus;
     const reasons = Array.isArray(item && item._scoreReasons) ? item._scoreReasons : [];
     if (score >= 90) audit.scoreBuckets.gte90++;
@@ -835,6 +878,9 @@ export function newsSelectionAudit(items, env = {}) {
   return audit;
 }
 
+// Coverage pass: how well a Telegram post answers an AI-chat question (src/ui/chat/panel.js ranks the digest's broad
+// items with it). The tickers, tags and shared topic words compare under the one keyword rule; '엔' stands alone or as
+// 엔화/엔저/엔고, so '엔비디아' is not the yen.
 const TELEGRAM_QUERY_KW = ['반도체', '메모리', 'mlcc', '금리', '코스피', 'ai', 'etf', '목표주가', '달러', '엔', '엔화', '엔저', '엔고', '상향', '하향'];
 export function telegramItemQueryRelevance(item, query) {
   const q = String(query || '').toLowerCase();

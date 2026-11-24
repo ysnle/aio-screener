@@ -36,7 +36,7 @@ try {
     }
     if (url.startsWith(localBase) && new URL(url).pathname === '/public-config.json') {
       const config = JSON.parse(readFileSync(resolve(root, 'public-config.json'), 'utf8'));
-      // P1421: fixture readiness is independent of the held deployment state.
+      // Fixture readiness is independent of the held deployment state.
       config.ai = { ...config.ai, workerUrl: workerBase, provider: 'openai', model: 'gpt-6-luna', serverMode: 'shared-worker-only', chatPolicy: 'shared-worker-only', routeStatus: 'PUBLISHED' };
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(config) });
     }
@@ -53,7 +53,7 @@ try {
       const requestBody = JSON.parse(request.postData() || '{}');
       observedRequests.push({ headers: request.headers(), body: requestBody });
       if (requestBody.stream === false) {
-        // v57.54: answer every [n] in the batch (on-screen headlines can share a batch with the fixture item).
+        // Answer every [n] in the batch (on-screen headlines can share a batch with the fixture item).
         const prompt = JSON.stringify(requestBody.input || '');
         const translated = JSON.stringify([...prompt.matchAll(/\[(\d+)\] Title: ([^\\]*)/g)].filter(([, , title]) => !title.startsWith('Omit item')).map(([, n, title]) => ({ idx: Number(n), title: title.includes('Luna transport fixture') ? '공용 번역 연결 확인' : '화면 기사 번역 ' + n, desc: '수집된 자료의 번역입니다.', summary: '번역 응답을 확인했습니다.', tickers: [] })));
         return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'completed', model: 'gpt-6-luna', output: [{ type: 'message', content: [{ type: 'output_text', text: translated }] }], usage: { input_tokens: 10, output_tokens: 20 } }) });
@@ -65,7 +65,7 @@ try {
         citations: [],
         followUps: ['근거 범위를 설명해줘']
       });
-      // v60.41: the text-first envelope streams in pieces, the META block split across two deltas.
+      // The text-first envelope streams in pieces, the META block split across two deltas.
       const cut = plan.indexOf('[AI_ANSWER_META]') + 8;
       const body = [
         `data: ${JSON.stringify({ type: 'response.output_text.delta', delta: plan.slice(0, cut) })}\n\n`,
@@ -84,7 +84,7 @@ try {
   await page.goto(`${localBase}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.callSharedAi === 'function' && typeof window._aioEnsureClaudeRoute === 'function' && typeof window.AIO_ARCH?.parseAIAnswerPlan === 'function', { timeout: 30000 });
 
-  // v60.41: the answers below in the text-first envelope (lead, "### " sections, trailing [AI_ANSWER_META] block).
+  // The answers below in the text-first envelope (lead, "### " sections, trailing [AI_ANSWER_META] block).
   const unboundFields = { summary: '변동성과 위험 선호를 함께 확인해야 합니다.', claims: [{ type: 'metric', text: 'VIX', value: 15.2, unit: 'index', asOf: '2026-08-18T13:00:00Z', source: 'fixture', evidenceIds: ['missing-vix'], status: 'verified' }],
     sections: [{ title: '조건', body: '확인된 근거가 부족하면 정성적 조건만 유지합니다.' }], citations: [], followUps: [] };
   const cutAnswer = answerEnvelopeText({ summary: '공급과 수요를 함께 확인해야 합니다.', sections: [{ title: '확인 순서', body: '수주 잔고를 먼저 봅니다.' }], claims: [], followUps: ['다음 질문'] });
@@ -126,7 +126,7 @@ try {
     });
     const brokenMeta = window._aioRunAIResponsePipeline(fx.brokenMeta, { entrypoint: 'broken-meta-fixture', streamPhase: 'complete', record: false });
     const partial = fx.partials.map((raw) => window._aioRunAIResponsePipeline(raw, { entrypoint: 'partial-fixture', streamPhase: 'partial', record: false }));
-    // P1519: an unavailable publication module must not dereference a null plan or expose raw output.
+    // An unavailable publication module must not dereference a null plan or expose raw output.
     const architecture = Object.getOwnPropertyDescriptor(window, 'AIO_ARCH');
     let unavailable;
     try {
@@ -145,10 +145,10 @@ try {
     reject(new Error(`public route fixture stalled at ${stage}; held orchestrator ${heldOrchestrator}; worker requests ${observedRequests.length}; pending ${[...pendingRequests].join(' ') || 'none'}`));
   }, 60000); })]).finally(() => clearTimeout(stalled));
 
-  // v59.70 (D6): the browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
+  // The browser news translation is deleted; headlines arrive in Korean from the producer (titleKo).
   const browserTranslation = await page.evaluate(() => ['autoTranslateNews', 'freeTranslateNews', '_gtBatchTranslate'].filter((name) => typeof window[name] === 'function'));
-  // v59.16 (roadmap 11): a real reader's browser (navigator.webdriver false) loads src/ui/chat/panel.js only on first use.
-  // v60.19: there is no idle load (owner D1, v59.70: AI loads on hover or focus) — the old "idle armed" read counted any
+  // A real reader's browser (navigator.webdriver false) loads src/ui/chat/panel.js only on first use.
+  // There is no idle load (owner D1, v59.70: AI loads on hover or focus) — the old "idle armed" read counted any
   // requestIdleCallback on the page and was true only through the glossary's idle load. Hovering the AI button loads the
   // chat without opening the panel; asking before that loads the panel, replays the queued open and send, and reaches the Worker.
   const lazyContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });

@@ -1,11 +1,11 @@
-// Static-database expiry gate (R605/P1081).
+// Static-database expiry gate.
 // Hand-curated configuration (universe membership, theme constituents, official
 // calendars, manual policy references) never refreshes itself. Structure (the
 // mirror matches its source, provenance fields exist, the review report works)
 // fails this gate. A lapsed review window is a wall-clock judgement: it warns
 // here and never fails, because this gate also runs in the data-refresh publish
 // step, where a failure stops every data release while the screen already shows
-// the lapsed value as expired (P1542). The universe and macro-calendar review
+// the lapsed value as expired. The universe and macro-calendar review
 // workflows and the manual-reference expiry watchdog raise the issue.
 
 import { readFileSync } from 'node:fs';
@@ -27,12 +27,11 @@ const ageDays = (iso) => {
 };
 
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-// P1134/R620: KR_THEME_MAP moved out of index.html's inline block C into js/aio-kr-data.js.
 const krData = read('js/aio-kr-data.js');
 const universe = JSON.parse(read('public-data/screener-universe.json'));
 const meta = universe.meta || {};
 
-// P1081/R605/QA-DATA-45: monthly review evidence must mirror the existing expiry
+// Monthly review evidence must mirror the existing expiry
 // thresholds and must not disclose or change static-universe membership.
 const reviewFixture = {
   meta: { lastBulkUpdate: '2026-01-01', staleAfterDays: 30, replaceAfterDays: 90 },
@@ -81,7 +80,7 @@ check('static-db:universe-record-count', Number(meta.recordCount) >= 100, `recor
 // keep lastRelease tied to a verified result and require only nextRelease to advance.
 const todayIso = new Date(nowMs).toISOString().slice(0, 10);
 const calBlock = core.match(/window\.AIO_MACRO_CALENDAR = \{[\s\S]*?\n\};/)?.[0] || '';
-// P1386: the runtime advances nextRelease from AIO_MACRO_OFFICIAL_SCHEDULES (P1301); a past literal is
+// The runtime advances nextRelease from AIO_MACRO_OFFICIAL_SCHEDULES; a past literal is
 // stale only when that official schedule has no later date either (CI otherwise broke on every release day).
 const scheduleBlock = core.match(/window\.AIO_MACRO_OFFICIAL_SCHEDULES = \{[\s\S]*?\n\};/)?.[0] || '';
 const officialNext = (key) => {
@@ -122,13 +121,13 @@ const staleEvents = [...eventRegistry.matchAll(/(\w+):\s*\{[^}]*?eventDate:\s*'(
 warn('static-db:events-beyond-interest-window-removed', staleEvents.length === 0, `expired events still registered: ${staleEvents.join(', ')} (R605: remove explicitly in data-refresh)`);
 
 // S5: manual policy references must carry observation + publication + source.
-for (const key of ['bokPolicy']) { // v59.70 (R7, S7/I10): fedPolicy and krInflation are producer-only now
+for (const key of ['bokPolicy']) { // fedPolicy and krInflation are producer-only now
   const block = core.match(new RegExp(`${key}: Object\\.freeze\\(\\{[\\s\\S]*?\\}\\)`))?.[0] || '';
   check(`static-db:manual-ref-${key}-has-asOf`, /(asOf|observation|publishedAt):/.test(block), `${key} provenance missing`);
   check(`static-db:manual-ref-${key}-has-sourceUrl`, /sourceUrl:\s*'https?:\/\//.test(block), `${key} sourceUrl missing`);
 }
 
-// S3: theme map carries constituents only — no point-in-time figures (R604).
+// S3: theme map carries constituents only — no point-in-time figures.
 const themeBlock = krData.match(/var KR_THEME_MAP = \{[\s\S]*?\n\};/)?.[0] || '';
 check('static-db:theme-map-present', themeBlock.length > 0, 'KR_THEME_MAP block missing');
 check('static-db:theme-map-no-market-cap-annotation', !/시총 ~[\d.]+조/.test(themeBlock), 'point-in-time market-cap annotation in KR_THEME_MAP (R604)');

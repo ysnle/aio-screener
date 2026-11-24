@@ -1,4 +1,4 @@
-// v60.31 (owner 2026-11-18): the per-screen AI readings, published as data.json `screenReadings`. One reading per screen of
+// The per-screen AI readings, published as data.json `screenReadings`. One reading per screen of
 // scripts/lib/screen-reading.mjs SCREEN_READING_SCREENS, written when that screen's fact packet changes (in practice when
 // a new US close lands, 1–3 times a day), never per refresh and never per visitor.
 //
@@ -69,7 +69,7 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     row.estimatedUsd = Math.round((row.estimatedUsd + estimateAiCostUsd(usage)) * 1e5) / 1e5;
     return { text: answer?.text ? normalizeScreenReading(softenReaderDuty(answer.text)) : null, reason: answer?.reason || null, usage };
   };
-  // v60.50: the long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences.
+  // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences.
   const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun() };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);

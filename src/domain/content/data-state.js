@@ -1,3 +1,10 @@
+// v58.80 (first-users bundle 3): one vocabulary for a value that is not on screen. Personas on a slow phone read "자료가
+// 없습니다" while the file was still on its way (요약 공시, 다음 실적 일정, 테마 28개 중 0개, 포트폴리오 가격 없음) and the
+// same words after a failed download. Four different facts, said the same way on every screen:
+//   loading         asked, no answer yet              → 불러오는 중
+//   failed          the transfer broke or timed out   → 받지 못함 (a retry is possible)
+//   absent          answered, and there is no record  → 자료 없음
+//   not-applicable  the measure does not apply        → 해당 없음
 import { withObjectParticle, withSubjectParticle } from './korean-particle.js';
 
 export const DATA_STATES = Object.freeze(['loading', 'failed', 'absent', 'not-applicable']);
@@ -19,6 +26,8 @@ export function dataStateText(state, subject) {
   return `${withSubjectParticle(what)} 없습니다`;
 }
 
+// The entity page's SEC projection: the provider dispatches only after the projection settles, so a synced symbol
+// without fundamentalsMeta means the load failed (review v58.53, moved here so 요약 and its tiles read one state).
 export function entityFundamentalsState(state, { requestedId = '', onDemandStatus = null } = {}) {
   if (state?.fundamentals) return 'ready';
   const wanted = String(requestedId || '').trim().toUpperCase();

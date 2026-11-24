@@ -39,7 +39,7 @@ const PATTERNS = Object.freeze({
 
 const CURRENT_PATTERN = /(지금|현재|오늘|장중|장전|장후|방금|최근|실시간|최신|이번\s*주|\bas\s*of\b|\bnow\b|\btoday\b|\bcurrent(?!c)|\blive\b|\blatest\b|\brecent)/i;
 const HISTORICAL_PATTERN = /(과거|당시|지난\s*\d+|\b(?:19|20)\d{2}\b|\bhistorical|\bback\s+in\b)/i;
-// P1740: colloquial trade questions ("사도 돼?", "살까", "팔까", "담아도", "들어가도") are action questions too.
+// Colloquial trade questions ("사도 돼?", "살까", "팔까", "담아도", "들어가도") are action questions too.
 const ACTION_PATTERN = /(추천|매수|매도|진입|청산|손절|익절|비중|수량|포지션|리밸런싱|사야|팔아|사도\s*(?:돼|될까|되나|괜찮)|살까|사볼까|팔까|팔아도|담아도|담을까|들어가도|물타기|불타기|\brecommend|\bbuy|\bsell|\bentry|\bexit|\bstop.?loss|\ballocation|\bposition)/i;
 // Suitability is a pre-provider boundary for personalized or executable
 // actions, not a vocabulary filter. Educational/conditional discussions may
@@ -69,7 +69,7 @@ export function classifyQuestionIntent(query, context = {}) {
   const route = String(context.route || '').toLowerCase();
   const tickerMatch = text.match(TICKER_PATTERN);
   const tickerToken = tickerMatch ? tickerMatch[1].replace(/^\$/, '').toUpperCase() : '';
-  // P1740: a company resolved by name ("엔비디아", "삼성전자") is the same signal as a typed symbol.
+  // A company resolved by name ("엔비디아", "삼성전자") is the same signal as a typed symbol.
   const hasTicker = Boolean(tickerToken && !NON_TICKER_TERMS.has(tickerToken)) || context.hasEntity === true;
   if (/^(themes|theme-detail)$/.test(route)) scores.SECTOR_ANALYSIS += 5;
   if (/^(ticker|fundamental|company)$/.test(route)) scores.ENTITY_ANALYSIS += 4;
@@ -108,7 +108,6 @@ export function classifyQuestionIntent(query, context = {}) {
   // that moves with the market, so the numeric/currentness guards must stay on even
   // though the Korean company name never matches TICKER_PATTERN. A pure concept
   // question ("PER이 뭐야?") is EDUCATION-primary and is deliberately excluded
-  // (P1074).
   const educationOnly = primary === 'EDUCATION' && !hit.ENTITY_ANALYSIS && !hit.COMPARISON && !hit.SCREENING;
   const metricFactQuestion = hit.ENTITY_FACT && !HISTORICAL_PATTERN.test(text) && !educationOnly;
   const inherentlyCurrent = QUOTE_NOW_PATTERN.test(text) ||

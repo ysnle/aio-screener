@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.50: weekly producer for public-data/index-longrun.json — how large the current market fall is against long history.
+// Weekly producer for public-data/index-longrun.json — how large the current market fall is against long history.
 // history.json starts 2025-09-30, so a screen could not say "the largest weekly fall since March 2020" or set a drawdown
 // beside 2020 and 2022 without hard-coding it. This fetches daily closes as far back as Yahoo serves them for the S&P 500,
 // Nasdaq-100, Philadelphia Semiconductor index and KOSPI (the history.json fields spx, ndx, sox, kospi) through

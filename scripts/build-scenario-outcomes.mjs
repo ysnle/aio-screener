@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1743: weekly producer for public-data/scenario-outcomes.json — the "past frequency" evidence line on decades of daily
+// Weekly producer for public-data/scenario-outcomes.json — the "past frequency" evidence line on decades of daily
 // closes instead of AIO's own ~1-year record.
 //   branches — for every macro branch analog (src/domain/scenarios/analogs.js BRANCH_ANALOGS): what the S&P 500 did
 //              20 and 63 sessions after past, non-overlapping episodes of the same market move.
@@ -69,8 +69,8 @@ export function buildScenarioOutcomes({ market = {}, proxies = {}, themeProxy = 
   for (const [themeId, symbol] of Object.entries(themeProxy)) {
     const closes = proxies[symbol];
     if (!closes?.length) continue;
-    // v57.84 (owner decision): past stages on the live rule — returns less the index with the same bands (basis 'relative-banded').
-    // Audit 2026-10-17 (owner D5): the live US stage reads against the equal-weight S&P 500 (RSP); ^GSPC only without it.
+    // Past stages on the live rule — returns less the index with the same bands (basis 'relative-banded').
+    // The live US stage reads against the equal-weight S&P 500 (RSP); ^GSPC only without it.
     // A ^GSPC fallback row carries the ^GSPC stamp, so the screen does not read it against RSP and the next run retries.
     const ew = stageBenchmark?.length ? stageBenchmark : null;
     themes[themeId] = { symbol, ...themeStateOutcomes(closes, { horizon: THEME_OUTCOME_HORIZON, benchmark: ew || market.spx || null, benchmarkField: ew ? THEME_OUTCOME_BENCHMARK : 'spx' }) };
@@ -112,7 +112,7 @@ async function main() {
   const fingerprints = scenarioOutcomeFingerprints();
   if (!body.corrections && previous?.corrections && previous?.fingerprints?.corrections === fingerprints.corrections) body.corrections = previous.corrections;
   const payload = { schemaVersion: SCENARIO_OUTCOMES_SCHEMA, status: 'current', generatedAt: new Date().toISOString(), fingerprints,
-    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^IXIC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // owner 2026-10-19: market-move proxies; a share is read only beyond the base rate
+    source: 'Yahoo Finance 일봉 종가 (^GSPC, ^IXIC, ^TNX, ^VIX, CL=F, DX-Y.NYB, RSP, 테마 대표 ETF)', sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: '장기 일봉 기록', method: ANALOG_METHOD, // market-move proxies; a share is read only beyond the base rate
     returnBasis: '가격 수익률(배당 제외), 거래일 기준 · 겹치지 않는 표본', ...body };
   await atomicWriteFile(OUT, JSON.stringify(payload));
   console.log(`[scenario-outcomes] ${body.from}~${body.to} · branches ${Object.keys(body.branches).length} · themes ${Object.keys(body.themes).length} · corrections ${body.corrections ? `${body.corrections.n}/${body.corrections.bear}` : 'none'}`);

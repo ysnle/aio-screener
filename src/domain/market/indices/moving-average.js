@@ -1,8 +1,14 @@
+// S&P 500 50/200-day moving averages from the committed daily history (public-data/history.json).
+// The trend input otherwise depends on a live Yahoo chart fetch through a CORS proxy; when that fails the
+// market-environment score was held. Completed daily closes match the close-basis rule, so the
+// history is a valid fallback — never a replacement for a fresher live series.
 import { sessionDateInMarket, isValidMarketDate as validDate } from '../session/session-time.js';
 import { historyFieldMeta } from './history-meta.js';
 
 export function spxMovingAveragesFromHistory(rows, { asOf = null } = {}) {
   if (!Array.isArray(rows)) return null;
+  // history.date is a collection bucket; repeated weekend observations
+  // belong to the same NY trading session. Conflicting closes are held, not guessed.
   const unique = new Map();
   for (const row of rows) {
     if (!validDate(row?.date)

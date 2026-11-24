@@ -1,3 +1,8 @@
+// 종목 머리: a year of daily closes under the name and price — the line with its 200-day line, the year's
+// highest and lowest close, and one state line (the last close, 고점 대비, 200일선 대비). The bars are the ones 기술적 분석
+// reads (daily-chart-bars.js: the same transport and completed-session rule) and the numbers come from market-charts.js
+// yearCloseRead. No bars, nothing drawn. Chart analysis lives on 기술적 분석, so the line is a way there:
+// it opens the symbol in that screen's 종목 분석 view.
 import { loadCompletedDailyBars } from '../../data/daily-chart-bars.js';
 import { yearCloseRead } from '../../domain/technical/market-charts.js';
 import { signedText } from '../../domain/shared/number.js';

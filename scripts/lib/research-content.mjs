@@ -64,7 +64,7 @@ export function readIndustryStories() {
 }
 export const readConceptStories = () => readJson(CONCEPT_STORIES_SOURCE).stories;
 
-// v59.70: the published copies ship without indentation (the principles first paint carries catalog.json against the
+// The published copies ship without indentation (the principles first paint carries catalog.json against the
 // 120,000-byte narrative budget); the readable form is the source in content/research.
 export const serializeResearchArtifact = (value) => `${JSON.stringify(value)}\n`;
 

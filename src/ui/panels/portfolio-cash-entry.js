@@ -18,6 +18,9 @@ export function paintCashBox(input, amount) {
   return true;
 }
 
+// typed: { value, badInput } as the box held them when the save was asked for (a render may refill the box
+// before this runs). Settles the box's owner and
+// returns the number reader's result ({ ok, empty, value } or { ok: false, reason }).
 export function checkCashEntry(input, typed) {
   const currency = input?.dataset?.currency;
   // A negative, unreadable or too-large amount is refused beside the box, never saved as $0 or kept unbounded.

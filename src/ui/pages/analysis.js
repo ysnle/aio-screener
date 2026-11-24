@@ -13,11 +13,37 @@ import { renderHomeVix } from '../components/home-vix.js';
 import { readNumber as finite } from '../../domain/shared/number.js';
 import { renderScreenReading } from '../components/screen-reading.js';
 
+// The stock chart is a route-only chunk. Like createLazyPage, a failed load (GitHub Pages 429, a
+// chunk missing after a deploy) is retried twice with a growing pause; after that the section says so instead of
+// keeping an empty canvas and 판정 대기. Only the import is caught: an error inside installStockChart still surfaces.
+// The 시장 상태 board is the signal route's own code (src/app/bootstrap.js loads it with that route). The import edge stays
+// in this lazy chunk: from the boot entry it re-split the shared chunks and added ~8 KB to the boot module set.
 let regimeBoardModule = null;
 export function loadRegimeBoard() {
   return (regimeBoardModule ||= import('../components/market-regime.js').catch((error) => { regimeBoardModule = null; throw error; }));
 }
 
+// The stock chart and the 차트 tab's 시장 상태 one-line summary left this slice — the chart is the
+// analysis slot on 기술적 분석 (src/ui/pages/charts.js), and `technical` is a derived view of that route.
+
+// RM-01: home and technical secondary/chart surfaces remain compatibility
+// boundaries. P785 transferred the technical market-health primary surface, P786 transferred
+// the signal score/decision hero, and P787 transfers only the home score/decision summary.
+// RSI/MACD/Weinstein/MTF/chart/narrative and home detail surfaces remain compatibility
+// boundaries. P820 transferred the home Fear & Greed score and P821 transfers the quality
+// meter as a fail-closed surface because the legacy implementation was incorrectly reusing
+// the trading score under a different title. P822 transfers only the technical chart title/
+// metadata; the canvas and indicator calculations remain compatibility-owned.
+
+// The score hero, adjustment rows and home score summary were retired; the 시장 상태 board is rendered by
+// ../components/market-regime.js, which the signal route's loader hands in (renderRegimePage), and the home hero by
+// ../components/home-regime.js. A static import of the board put its whole tree (axis rows, radar, crossroads, guide,
+// deep dives) in 오늘 and 차트 as well.
+
+// T09/T11 (expert review 2026-10-13): the home score was the intraday value beside a close-based '전일 대비', its label
+// banded the rounded value while the colour banded the raw one ('극단적 공포' vs the sentiment card's '극단 공포'), and
+// greed used a hard-coded #b1f1cb (1.3:1 on ivory). The score is now the completed-close value (fgClose, computed by the
+// caller from the shared series), banded once by fearGreedBand, coloured with theme tokens.
 const FEAR_GREED_COLOR = Object.freeze({ '극단 공포': 'var(--color-text-error)', '공포': 'var(--color-text-warning)', '중립': 'var(--color-text-secondary)', '탐욕': 'var(--color-text-success)', '극단 탐욕': 'var(--color-text-success)' });
 function renderHomeFearGreed({ documentRef, sentimentValues, fgClose = null, fgStale = false }) {
   const element = documentRef?.getElementById('home-fg-score');
@@ -54,11 +80,14 @@ function render({ root, documentRef, store, route, renderRegimePage }) {
     if (route === 'home') {
       page.dataset.aioArchitectureRenderer = 'native';
       page.dataset.aioHomeRenderer = 'native';
+      // Perf: one market-input read per home render; the daily loop reuses the regime home just computed.
       const homeRegime = renderHomeRegime({ documentRef, root, store });
-      renderDailyLoop({ documentRef, root, store, regime: homeRegime });
+      renderDailyLoop({ documentRef, root, store, regime: homeRegime }); // P1432
       const history = root?._aioHistory || [];
       const basis = closeBasis(history);
       const fgClose = buildCloseSeries(history, 'fg', { through: basis }).at(-1) || null;
+      // T09 + review: the close value counts only when it is aligned with the basis (same rule as the sentiment card);
+      // a stalled F&G series shows as held, not as today's score.
       renderHomeFearGreed({ documentRef, sentimentValues, fgClose, fgStale: !!fgClose && !isUsable(alignInput(fgClose.date, basis)) });
       renderHomeVix({ documentRef, root });
     }
@@ -95,6 +124,8 @@ export function createAnalysisPage({ root = globalThis, documentRef, store, rout
         bag.add(() => root.removeEventListener?.('aio:refresh:done', renderNow));
       }
       const page = documentRef?.getElementById(`page-${route}`);
+      // A research document that links here (#signal?metric=… / #technical?metric=…) names what the reader
+      // came to check; the note leaves with the route.
       renderKnowledgeArrival({ documentRef, root, routeId: route });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: route }));
       let suppliedMaterialBridge = page?.querySelector?.(`[data-aio-supplied-material-route="${route}"]`) || null;

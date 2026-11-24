@@ -1,4 +1,4 @@
-// P1339: company-name → ticker resolution without guessing (memory rule: no ticker inference).
+// company-name → ticker resolution without guessing (memory rule: no ticker inference).
 // A registered ticker stays itself; an exact English/Korean company name resolves; registry aliases apply only
 // to input that is not ticker-shaped, so GOOG / HR / SQ are never rewritten to a different issuer.
 // An all-capital ticker-shaped input is read as a ticker: it matches a display name only when it equals the registry's
@@ -26,7 +26,7 @@ export function typedNameMatches(typed, name) {
   return typedAsTicker(text) ? String(name) === text : String(name).toLowerCase() === text.toLowerCase();
 }
 
-// v57.54 review: a search with no exact match ("삼성") showed a one-second toast and left the previous stock on screen.
+// A search with no exact match ("삼성") showed a one-second toast and left the previous stock on screen.
 // These are candidates for the user to pick (names or symbols containing the query) — never opened automatically.
 export function searchCandidates(raw, { entries = {}, krStockDb = {}, krToYahoo = null, limit = 6 } = {}) {
   const query = String(raw || '').trim().toLowerCase();
@@ -59,13 +59,13 @@ export function isKnownSymbol(symbol, { entries = {}, krStockDb = {}, universe =
  * registry match. `known` uses the same owner as the ticker route (isKnownSymbol: name registry, KRX list, screener universe).
  */
 export function resolveHoldingInput(raw, { entries = {}, krStockDb = {}, universe = [], krToYahoo = null } = {}) {
-  const text = String(raw || '').normalize('NFKC').trim(); // v58.82: full-width ＡＡＰＬ is AAPL
+  const text = String(raw || '').normalize('NFKC').trim(); // full-width ＡＡＰＬ is AAPL
   if (!text) return { symbol: '', known: false, resolvedFrom: null };
   const typed = text.toUpperCase();
   const tickerShaped = /^[A-Z0-9.^=-]{1,10}$/.test(typed);
   const named = tickerShaped ? null : resolveRegisteredName(text, entries);
   const symbol = named || typed;
-  // v59.53: the stored issuer key and its quote listing are separate identities. Only an exact registry resolves
+  // The stored issuer key and its quote listing are separate identities. Only an exact registry resolves
   // a bare code; an unknown code is never assigned a guessed exchange or US dollar currency.
   let listingSymbol = symbol;
   if (/^\d{6}$/.test(symbol)) {

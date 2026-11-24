@@ -26,12 +26,12 @@
 //     "status": { "time": "10:40 KST", "title", "agent"?, "bullets": [] } | null }
 //   Any text may contain {P} / {R}; they become the allocated ids (e.g. P1322).
 //
-// Change-only entry (v57.54) — features, cleanups, refactors and other non-defect work. Omit "p" (or set
+// Change-only entry — features, cleanups, refactors and other non-defect work. Omit "p" (or set
 // it to null): no P id is allocated and BUG-POSTMORTEM.md is not touched, so the defect ledger only holds
 // defects. "r" must then be null/absent (a rule is anchored to the postmortem that motivated it), and no
 // text may use {P}/{R}. Everything else behaves as for a fix entry:
 //   { "version": "v57.54", "date": "2026-10-14",
-//     "changelog": [ "**Lead (v57.54):** what changed and why" ],
+//     "changelog": [ "**Lead:** what changed and why" ],
 //     "note": "version.json note",
 //     "qa": [ ... ]?, "qa_section": "..."?,          // optional, same shape as above
 //     "status": { "time", "title", "bullets" }? }     // optional, same shape as above
@@ -132,7 +132,7 @@ function validateEntry(entry) {
   const errors = [];
   if (!isObject(entry)) return ['entry.json must be a JSON object'];
   scanControlChars(entry, 'entry', errors);
-  // v58.63 (architecture audit A27): the same canonical grammar bump-version writes — a ".00" patch is the major alone
+  // The same canonical grammar bump-version writes — a ".00" patch is the major alone
   // ("v59"), so a major-only release was blocked here though bump-version and CI accept it.
   if (!/^v\d{1,3}(?:\.\d{1,2})?$/.test(entry.version || '')) errors.push('version must be canonical like "v56.80" or "v59"');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.date || '')) errors.push('date must be YYYY-MM-DD');
@@ -144,7 +144,7 @@ function validateEntry(entry) {
     for (const key of ['title', 'symptom', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification']) {
       if (!nonEmpty(entry.p[key])) errors.push(`p.${key} is required`);
     }
-    // v59.84 (recurrence analysis S3): an entry names the files it changed, so scripts/prior-fixes.mjs can show it to the
+    // An entry names the files it changed, so scripts/prior-fixes.mjs can show it to the
     // next change of the same file. Entries keyed only by prose were found by nobody.
     if (!Array.isArray(entry.p.files) || !entry.p.files.length || !entry.p.files.every((file) => nonEmpty(file) && !/^[\\/]|^[A-Za-z]:/.test(file))) {
       errors.push('p.files is required: the repo-relative paths the fix changed (e.g. ["src/domain/macro/macro-read.js"])');
@@ -310,7 +310,7 @@ export function computeRecord(root, entry) {
       if (!/[.!?)。]$/.test(text)) text += '.';
       return `- [${row.done === false ? ' ' : 'x'}] ${row.id}: ${text} verify_by: ${one(row.verify_by)}`;
     };
-    // P1347: updating a named existing item is explicit; inserts still reject duplicates.
+    // Updating a named existing item is explicit; inserts still reject duplicates.
     for (const row of qaRows.filter((item) => item.update === true)) {
       const pattern = new RegExp(`^- \\[[ xX]\\]\\s+${escapeRe(row.id)}\\s*:[^\\n]*`, 'gm');
       const matches = [...qa.text.matchAll(pattern)];
@@ -432,7 +432,7 @@ export function writeAtomically(files) {
 const USAGE = 'usage: node scripts/record-fix.mjs <entry.json> [--root DIR] [--dry-run] [--no-regen]';
 
 function main(argv) {
-  // v59.70: an unknown argument fails before anything is read, and --help only prints (scripts/lib/cli-args.mjs).
+  // An unknown argument fails before anything is read, and --help only prints (scripts/lib/cli-args.mjs).
   let args;
   try { args = parseCliArgs(argv.slice(2), { usage: USAGE, flags: ['--dry-run', '--no-regen'], options: ['--root'], positional: { min: 0, max: 1 } }); }
   catch (error) { if (error instanceof CliArgsError) throw new RecordFixError(error.message); throw error; }

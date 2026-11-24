@@ -15,7 +15,7 @@ if (mode === 'timed') {
   await new Promise((resolve) => setTimeout(resolve, 150));
   appendFileSync(record, JSON.stringify({ id, event: 'end' }) + '\n');
 }
-// v58.63 (A25): the outcome comes from a file outside the gate identity, so the same fingerprint can pass then fail.
+// The outcome comes from a file outside the gate identity, so the same fingerprint can pass then fail.
 if (mode === 'toggle') {
   const { readFileSync } = await import('node:fs');
   const path = args[args.indexOf('--path') + 1];

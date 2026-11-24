@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.28: the words the screens print as named measures must have a glossary entry. The glossary a reader searches is
+// The words the screens print as named measures must have a glossary entry. The glossary a reader searches is
 // assembled at runtime (src/ui/knowledge/glossary-bridge.js): js/aio-glossary.js, the screen-term lists under
 // src/domain/knowledge/ and the canonical concepts (concept-core.js). A UI word is covered when it equals an entry's term,
 // the term before its bracket, a name inside the bracket, or one of its aliases.

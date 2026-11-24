@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.18 (weekly audit 2026-11-15 S3): the market reading of 11/12-11/13 spelled Latin names out in Hangul (에이아이,
+// The market reading of 11/12-11/13 spelled Latin names out in Hangul (에이아이,
 // 씨엔비씨, 에스앤피500) beside "AI" and "S&P 500" elsewhere on the same screen (9e92f0a1d: 17 times). The provider's text
 // enters the artifact through splitMarketSentence (body and the day's sentence); the spelled forms are put back there.
 // This gate checks the rule and the published reading.
@@ -19,7 +19,7 @@ const report = () => {
   if (failed.length) { console.error(`ai-spelled-terms: ${failed.length} failed`); process.exit(1); }
 };
 
-// v60.50: the rule runs on fixed text (code); the published reading is a data section that also runs in a data run.
+// The rule runs on fixed text (code); the published reading is a data section that also runs in a data run.
 await runSections('ai-spelled-terms', [
 ['rule', async () => {
 check('v60.18 the reading and the day sentence write AI, CNBC and S&P 500 in Latin', () => {

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// scripts/ci-regex-term-ratchet-check.mjs — v59.50 (recurrence audit 2026-10-31)
+// scripts/ci-regex-term-ratchet-check.mjs
 //
 // Keyword regexes that can match inside a longer word (scripts/lib/regex-term-scan.mjs) are counted per file and may
-// only shrink. The class recurred 18 times (P1503 … P2131, P2146, P2164) because each fix bounded one list. New lists
+// only shrink. The class recurred 18 times (P1503 … P2131) because each fix bounded one list. New lists
 // write \b(?:FED|CPI)\b, (?<![A-Za-z])AI(?![A-Za-z]), (?<![가-힣])이란 or 유가(?!증권) instead of a bare term.
 //
 // Usage:
@@ -41,11 +41,11 @@ export function compareToBaseline(counts, baseline) {
 }
 
 const selfTest = [
-  ['PIK|부도|BDC', ['PIK', 'BDC']], // P2146: 'sPIKe'
+  ['PIK|부도|BDC', ['PIK', 'BDC']], // 'sPIKe'
   [String.raw`\b(?:PIK|BDCs?)\b|부도`, []],
-  ['호르무즈|이란|유가|crude', ['이란', '유가', 'crude']], // P2146: '시즌이란', '유가증권'
+  ['호르무즈|이란|유가|crude', ['이란', '유가', 'crude']], // '시즌이란', '유가증권'
   [String.raw`(?<![가-힣])이란|유가(?!증권)|\bcrude\b`, []],
-  ['(부담|안정|양호)', ['안정']], // P2164: '불안정'
+  ['(부담|안정|양호)', ['안정']], // '불안정'
   [String.raw`^(?:ok|fresh|live)$`, []],
   ['analy(?:st|sis)|report(?:s|ed)', []],
 ].filter(([source, want]) => JSON.stringify(unboundedTerms(source)) !== JSON.stringify(want));

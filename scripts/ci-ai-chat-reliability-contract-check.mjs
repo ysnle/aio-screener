@@ -19,16 +19,16 @@ const errors = [];
 const check = (label, condition) => { if (!condition) errors.push(label); };
 
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const chat = read('src/ui/chat/panel.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js') + String.fromCharCode(10) + read('src/ai/response/request-pipeline.js'); // v59.11: the shared AI route moved to the transport module; v59.15: the request/response pipeline module
+const chat = read('src/ui/chat/panel.js') + String.fromCharCode(10) + read('src/data/providers/shared-ai-transport.js') + String.fromCharCode(10) + read('src/ai/response/request-pipeline.js');
 const data = read('js/aio-data.js');
 const html = read('index.html');
-// P1136/R620: the sidebar credential-save handler (and other user-state writers) moved with
+// The sidebar credential-save handler (and other user-state writers) moved with
 // index.html's inline block A into js/aio-workspace.js.
 const workspace = read('js/aio-workspace.js');
 const worker = read('cloudflare-worker-proxy.js');
 const config = json('public-config.json');
 
-// v57.79: retired personal provider keys left the registry (no input, no reader); the sensitive set still lists
+// Retired personal provider keys left the registry (no input, no reader); the sensitive set still lists
 // them so any leftover stored value stays encrypted until boot deletes it.
 for (const key of ['aio_rss2json_key', 'aio_bok_key', 'aio_kosis_key']) {
   check(`v57.79 provider registry excludes retired ${key}`, !core.includes(`credentialKey: '${key}'`)); // text-pin-ok: retirement absence
@@ -39,16 +39,13 @@ check('safeLS returns a write result', core.includes('return { ok: true, key: ke
 check('safeLS throws on write failure', /async function safeLS\([\s\S]{0,1800}throw e;/.test(core));
 check('credential save performs readback', core.includes('persistence_readback_mismatch') && core.includes('safeLSGet(lsKey, \'\')'));
 check('credential save has no plaintext fallback', !/safeLS[\s\S]{0,120}localStorage\.setItem\(lsKey/.test(core));
-// P1136/R620: the sidebar credential-save handler moved with inline block A into js/aio-workspace.js.
-// P1421: browser personal AI credentials cannot bypass the shared monthly authority.
+// The sidebar credential-save handler moved with inline block A into js/aio-workspace.js.
+// Browser personal AI credentials cannot bypass the shared monthly authority.
 check('P1421: personal AI helpers fail closed', workspace.includes("function getApiKey() { return ''; }") && !workspace.includes('function setApiKey') /* v58.19: the zero-caller setApiKey stub is retired, so no saver exists */ && !html.includes('id="sidebar-api-key"'));
 check('P1421: retired AI credentials cannot be read or saved', core.includes("lsKey === 'aio_claude_api_key' || lsKey === 'aio_perplexity_key'") && !core.includes("credentialKey: 'aio_claude_api_key'"));
 check('route readiness is explicit', chat.includes("reason: 'NO_ROUTE'") && chat.includes('WORKER_NOT_READY'));
 check('route readiness follows the selected target and never bypasses Worker health because a personal key also exists', chat.indexOf('if (!target || !target.serverKey)') < chat.indexOf('var cacheTtl = cached && cached.ok') && uiRouteReadinessUsesTarget());
 check('Worker health is deduplicated and transient failures have a short cache', chat.includes('_aioWorkerHealthInFlight[target.workerUrl]') && chat.includes('cached && cached.ok ? 60000 : 5000') && /var _AIO_HEALTH_TIMEOUT_MS = 12000;[\s\S]*ctrl\.abort\(\); \}, _AIO_HEALTH_TIMEOUT_MS\)[\s\S]*timeoutMs: _AIO_HEALTH_TIMEOUT_MS \+ 500/.test(chat));
-// P1131/R619: the unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js,
-// so these three `_uni*` assertions now read the chat module.
-// v57.62: the dead per-page chatSend was retired, so these read the one remaining (unified) chat surface.
 check('v57.62 per-page chatSend retired (unified panel is the only chat surface)', !chat.includes('async function chatSend(') && chat.includes('async function chatSendUnified('));
 check('v57.62 research preparation is shared and cancellable in the chat surface', chat.includes('async function _aioPrepareAIResearch') && chat.includes('_aioPrepareAIResearch(_uniQuestionPlan, { signal: _uniResearchAbort.signal })'));
 check('v60.42 knowledge reference retrieval is read by the reference tool through the orchestrator facade boundary', read('src/ai/tools/market-tools.js').includes('getAIOrchestrator?.()?.buildAIKnowledgeContext?.(ask') && read('src/ai/retrieval/knowledge.js').includes('currentClaimsAllowed: false'));
@@ -57,7 +54,7 @@ check('required research always hands off to the shared Worker search (P1655)', 
 check('research evidence gate is executable ESM SSOT', chat.includes('evaluateAIResearchEvidenceFloor') && !chat.includes('function _aioBuildResearchEvidenceDocuments'));
 check('Worker route does not certify native search tool', core.includes("'NATIVE_TOOL_UNVERIFIED'") && !core.includes("'NATIVE_TOOL_ROUTE_READY'") && core.includes('nativeCitationCount'));
 check('P1655 research diagnostic audit exposes contract and last preparation', core.includes('contractReady: contractReady') && core.includes('lastPreparation:') && core.includes("transport: 'shared-worker'"));
-// v60.50: the route decision itself is checked as release-scoped code in ci-release-revision-check.mjs.
+// The route decision itself is checked as release-scoped code in ci-release-revision-check.mjs.
 const configWorkerUrl = String(config.ai?.workerUrl || '').trim().replace(/\/+$/, '');
 const publicRoutePublished = /^https:\/\//i.test(configWorkerUrl) && config.ai?.routeStatus === 'PUBLISHED';
 const bootRouteContract = publicRoutePublished
@@ -65,13 +62,13 @@ const bootRouteContract = publicRoutePublished
   : core.includes('workerUrl: workerUrl || null') && core.includes('loadPublicConfig');
 check('P1421 boot fallback follows the generated shared policy without storing a provider secret', bootRouteContract && !/(?:ANTHROPIC|OPENAI)_API_KEY/.test(read('public-config.json')));
 check('P1421: AI target is exclusively the published Worker', chat.includes("publicWorker + '/openai'") && !chat.includes('api.anthropic.com') && !chat.includes("source: 'personal-key'") && !chat.includes("source: 'local-config'"));
-check('v57.62 the chat surface uses the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _uniClaimEvidence')); // v57.62: per-page copy retired
+check('v57.62 the chat surface uses the expanded evidence registry', chat.includes('function _aioCollectAIClaimEvidence') && chat.includes('evidence: _uniClaimEvidence')); // per-page copy retired
 check('invalid or unbound AnswerPlan claims degrade claim scope instead of erasing the answer', chat.includes('answer-plan-claim-degraded') && chat.includes('droppedClaims') && !chat.includes("blocked: true,\n      text: 'AI 베타 안전 모드\\n\\n현재성 수치의 AnswerPlan claim"));
-// v60.41: a partial stream renders the filtered body written so far (the fixed waiting line is gone); only a finished
+// A partial stream renders the filtered body written so far (the fixed waiting line is gone); only a finished
 // answer reaches the raw-text fallback, and the stream preview passes the same pipeline (streamPhase 'partial').
 check('v60.41 partial streams render the filtered body, never a fixed waiting line or the raw fallback', chat.includes("var isPartialStream = meta.streamPhase === 'partial'") && /_uniOnChunk = function\(fullText\)[\s\S]{0,1200}streamPhase: 'partial', record: false/.test(chat));
 check('Worker token cap and stop reason are consumed by the client', chat.includes('workerMaxTokens') && chat.includes('effectiveMaxTokens') && chat.includes("stopReason === 'max_tokens'") && chat.includes('completion: completion || null'));
-// Legacy unification (2026-10-17): the gate lives in src/data/server-market-analysis.js; run it with prose that passes
+// Legacy unification: the gate lives in src/data/server-market-analysis.js; run it with prose that passes
 // every check except the typed metric evidence.
 {
   const { verifyServerMarketAnalysis } = await import('../src/data/server-market-analysis.js');
@@ -82,11 +79,11 @@ check('Worker token cap and stop reason are consumed by the client', chat.includ
   check('server market prose requires typed evidence before client publish', untyped.analysis === null && untyped.meta.reason === 'metric-evidence-required' && typed.analysis?.status === 'verified');
 }
 check('Worker exposes health readiness', worker.includes("_u.pathname === '/health'") && worker.includes("schemaVersion: 'aio-worker-health.v1'") && worker.includes('ai: { configured'));
-check('Worker CORS allows every browser chat header', /'Access-Control-Allow-Headers': \[[^\]]*AI_HEADERS\.appToken[^\]]*AI_HEADERS\.idempotencyKey/.test(worker)); // v59.87: names from the shared contract; worker/openai-contract.test.mjs checks the live preflight
-// v60.39: the shared releaseQuota helper left with /relay. The AI path releases its own reservation
+check('Worker CORS allows every browser chat header', /'Access-Control-Allow-Headers': \[[^\]]*AI_HEADERS\.appToken[^\]]*AI_HEADERS\.idempotencyKey/.test(worker)); // Names from the shared contract; worker/openai-contract.test.mjs checks the live preflight
+// The shared releaseQuota helper left with /relay. The AI path releases its own reservation
 // when the request is cancelled or fails to start, before any upstream dispatch.
 check('v60.39 Worker releases an AI reservation that never reached dispatch', /if \(signal\?\.aborted\) \{\s*await rpc\('release', payload\);/.test(worker) && /catch \(error\) \{ await rpc\('release', payload\); throw error; \}/.test(worker));
-check('Worker exposes effective token cap', /\[AI_HEADERS\.maxTokens\]: String\(maxTokens\)/.test(worker)); // v59.87: header name from the shared contract
+check('Worker exposes effective token cap', /\[AI_HEADERS\.maxTokens\]: String\(maxTokens\)/.test(worker)); // Header name from the shared contract
 
 function uiRouteReadinessUsesTarget() {
   const ui = read('js/aio-ui.js');
@@ -100,7 +97,7 @@ if (errors.length) {
 }
 console.log('AI chat reliability contract OK');
 }, 'code'],
-// ── section operations-ai (v60.50: the published operations status, split from `reliability` so it runs in a data run) ──
+// ── section operations-ai (the published operations status, split from `reliability` so it runs in a data run) ──
 ['operations-ai', async () => {
 const { readFileSync } = await import('node:fs');
 const text = readFileSync(new URL('../public-data/operations-status.json', import.meta.url), 'utf8');
@@ -121,11 +118,11 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { default: assert } = await import('node:assert/strict');
 
-const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const start = source.indexOf('async function callSharedAi(');
 const end = source.indexOf('function _aioResolveChatTickers(', start);
 assert(start >= 0 && end > start);
-// P1245 (05 A05): callSharedAi records native citations and research tool errors in the per-request
+// callSharedAi records native citations and research tool errors in the per-request
 // stream store, so this isolated transport context must execute the real store rather than a stub
 // that can drift from it. The fixture passes no requestId, so the store returns no record and the
 // transport assertions below are unchanged.
@@ -186,7 +183,7 @@ for (const serverKey of [true]) {
       },
     };
     context.window = context;
-    context.AI_WORKER_CONTRACT = (await import('../src/domain/ai/worker-contract.js')).AI_WORKER_CONTRACT; context.AIO = {}; // v59.87: installed by chat-globals beside the chat
+    context.AI_WORKER_CONTRACT = (await import('../src/domain/ai/worker-contract.js')).AI_WORKER_CONTRACT; context.AIO = {}; // Installed by chat-globals beside the chat
     context._lastClaudeUsage = { input_tokens: 99999 };
     vm.createContext(context);
     vm.runInContext(source.slice(storeStart, storeEnd) + '\n' + source.slice(start, end), context);
@@ -215,7 +212,7 @@ for (const serverKey of [true]) {
       assert.equal(result.done.length, 0, kind + ' cannot complete successfully');
       assert.equal(result.errors.length, 1, kind + ' must report failure');
       assert.equal(result.cancelled, 0, 'timeout is not user cancellation');
-      // P1421: a Responses failure must remain attached to its owning request.
+      // A Responses failure must remain attached to its owning request.
       if (kind === 'provider-error' || kind === 'response-failed') {
         assert.equal(context._aioAIRequestStream('fixture-stream-' + kind).researchError,
           kind === 'provider-error' ? 'fixture overloaded' : 'provider failed');
@@ -227,7 +224,7 @@ for (const serverKey of [true]) {
 }
 console.log('AI provider stream check OK: ' + assertions + ' isolated Responses Worker transport scenarios.');
 }, 'code'],
-// ── section tool-loop (v60.02, plan 045): the data-tool rounds of callSharedAi against a scripted Worker stream ──
+// ── section tool-loop: the data-tool rounds of callSharedAi against a scripted Worker stream ──
 ['tool-loop', async () => {
 const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
@@ -459,7 +456,7 @@ const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowledge.js');
 const { evaluateResearchEvidenceFloor } = await import('../src/ai/research/evidence.js');
-const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
+const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
 const section = (a,b) => { const start=source.indexOf(a), end=source.indexOf(b,start); assert(start>=0 && end>start); return source.slice(start,end); };
 const states = {}, button = { disabled: true }, documentListeners = {};
 const root = { AbortController, setTimeout, clearTimeout, URL, console, document: {
@@ -470,7 +467,7 @@ const root = { AbortController, setTimeout, clearTimeout, URL, console, document
   localStorage: { getItem:()=>null }, _getApiKey:()=> 'fixture', escHtml:String };
 root.window=root;
 vm.createContext(root);
-// v59.11: the cancellation helpers come from the shared transport module (moved from src/ui/chat/panel.js).
+// The cancellation helpers come from the shared transport module (moved from src/ui/chat/panel.js).
 const { installSharedRoute } = await import('../src/data/providers/shared-ai-transport.js');
 const transport = installSharedRoute({});
 for (const name of ['_aioChatAbortError', '_aioThrowIfChatAborted', '_aioRunChatTask', '_aioLinkChatAbortSignal']) root[name] = transport[name];
@@ -516,7 +513,7 @@ root._aioCancelChatRequest('themes','route-test');
 let timedOutSignal;
 await assert.rejects(root._aioRunChatTask(signal => { timedOutSignal = signal; return new Promise(()=>{}); },{timeoutMs:5}),{code:'RESEARCH_TIMEOUT'});
 assert(timedOutSignal && timedOutSignal.aborted);
-// P1655: no browser-side search provider remains; a required question always hands off to the shared Worker search.
+// No browser-side search provider remains; a required question always hands off to the shared Worker search.
 const prepared=await root._aioPrepareAIResearch({researchDecision:{requirement:'REQUIRED'},researchPlan:{planId:'p'}});
 assert(prepared.nativeFallbackRequired===true && prepared.externalResult===null && prepared.failure===null);
 assert.equal((await root._aioPrepareAIResearch({researchDecision:{requirement:'NOT_NEEDED'}})).nativeFallbackRequired,false, 'v60.02 tool loop');
@@ -550,13 +547,10 @@ let resolveLoad; const shared=createAIKnowledgeRetriever({timeoutMs:100,loadInde
 const cancel=new AbortController(); const a=shared.buildContext('금리',{signal:cancel.signal}), b=shared.buildContext('AI');
 await Promise.resolve(); cancel.abort(); assert.equal((await a).audit.status,'CANCELLED', 'v60.02 tool loop');
 resolveLoad({articles:[]}); assert.equal((await b).audit.status,'NO_RELEVANT_MATCH', 'v60.02 tool loop');
-// v57.62: the dead per-page chatSend (P1653 removed every #chat-<ctx>-inp it needed) is gone; the unified panel is the
-// only chat path, so its stream callbacks carry the stale-epoch guard.
 assert(!source.includes('async function chatSend(') && !source.includes('var _pageOnError = function'), 'v57.62 per-page chatSend retired');
 for(const marker of ['var _uniOnChunk = function(fullText) {','var _uniOnDone = function(fullText, completion) {','var _uniOnError = function(errMsg) {']) {
   assert(source.indexOf(marker)>=0 && source.slice(source.indexOf(marker),source.indexOf(marker)+150).includes('if (!_isCurrentUnifiedRun()) return;'), 'v57.62 unified callback is epoch-guarded: '+marker);
 }
-// P1740: the uncalled per-page chatClear (no .acp-clear button exists) was removed; any clear entry point must cancel first.
 assert(!/function chatClear\(/.test(source) || source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
 vm.runInContext(section('window._aioChatFreshnessInfo = function()', 'function chatFromChip('), root);
 root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
@@ -565,10 +559,8 @@ root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
 assert.equal(root._aioChatFreshnessInfo().ldAgeMin,null, 'v60.02 tool loop');
 const shell=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=readFileSync(new URL('../js/aio-ui.js',import.meta.url),'utf8');
-// P1131/R619: the unified chat surface (inline block G) moved from index.html into src/ui/chat/panel.js, so
-// the assertions that read it now read the chat module.
 const chatShell=readFileSync(new URL('../src/ui/chat/panel.js',import.meta.url),'utf8');
-// P1136/R620: showConfirmModal/_confirmCancelCallback moved with inline block A into js/aio-workspace.js.
+// showConfirmModal/_confirmCancelCallback moved with inline block A into js/aio-workspace.js.
 const shellWorkspace=readFileSync(new URL('../js/aio-workspace.js',import.meta.url),'utf8');
 assert(chatShell.includes('preparation: _uniPreparedResearch, externalResult: _uniWebResult'));
 assert(chatShell.includes("typeof _uniPreparedResearch !== 'object'"));
@@ -580,10 +572,10 @@ assert(unifiedChat.includes('_uniRun.quotaPending = true') && source.includes("c
 // The trailing `options` (named actions, one optional second action) keeps the onCancel slot the quota prompt relies on.
 assert(shellWorkspace.includes('function showConfirmModal(title, msg, onConfirm, icon, onCancel, options)'));
 assert(shellWorkspace.includes('_confirmCancelCallback') && shellWorkspace.includes("closeConfirmModal('trap')"));
-// P1342: R592 is enforced by behaviour (the quota badge never flips the switch for a missing route), not by an unused snapshot helper.
+// R592 is enforced by behaviour (the quota badge never flips the switch for a missing route), not by an unused snapshot helper.
 assert(ui.includes('function getLLMRouteReadiness(') && ui.includes('window._aioGetLLMRouteReadiness'));
 const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('function toggleLLM()'));
-// v57.77: AI is always on (P1653) — route readiness is the only gate; no OFF branch ('AI OFF' / unlimited quota) remains.
+// AI is always on — route readiness is the only gate; no OFF branch ('AI OFF' / unlimited quota) remains.
 assert(quotaUi.includes('if (!route.ready)') && !quotaUi.includes('isOn') && !quotaUi.includes("'AI OFF'"), 'v57.77 quota badge gates on route readiness only');
 const toggleUi=ui.slice(ui.indexOf('function toggleLLM()'),ui.indexOf('function consumeLLMQuery()'));
 assert(toggleUi.includes('updateQuotaBadge()') && !toggleUi.includes('classList'), 'v57.77 toggleLLM only refreshes the readout');
@@ -592,7 +584,7 @@ assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('return 
 assert(!consumeUi.includes('getLLMState'), 'v57.77 no OFF/unlimited quota shortcut'); // text-pin-ok: retirement absence
 assert(consumeUi.includes('saveQuota(quota)') && !consumeUi.includes('showConfirmModal') && !/dailyQueryLimit|calcDailyLimit/.test(ui), 'v59.42 the browser keeps no daily AI limit of its own and never asks to go over one; the Worker owns the cap');
 assert(/function _aioWorkerClientQuota\(\)[\s\S]{0,400}health\.ai\.client/.test(ui) && quotaUi.includes('_aioWorkerClientQuota()'), 'v59.42 the quota badge shows the Worker-reported ai.client allowance');
-// v57.62: quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
+// Quota and freshness preflight contracts read the unified panel (the per-page chatSend copy was retired).
 const quotaAwait=unifiedChat.indexOf('_qOk = await consumeLLMQuery();');
 // v59.51 (run-6 double send): the first entry takes the lock and clears the box before execute awaits anything, so a second
 // Enter finds an empty box; the quota await still rejects a cancelled epoch before the question joins the history.
@@ -602,13 +594,13 @@ assert(quotaAwait>=0 && unifiedChat.indexOf('if (!_isCurrentUnifiedRun())', quot
 assert(!/Promise\.race\(\[[\s\S]{0,500}ensureFreshChatAnswerData/.test(unifiedChat));
 assert(/_withTimeout\(window\.AIO\.ensureFreshChatAnswerData\([\s\S]{0,260}\), 6500, 'chatFresh'/.test(unifiedChat) && /_withTimeout\(window\.AIO\.ensureFreshDataForUse\([\s\S]{0,260}\), 4500, 'freshness'/.test(unifiedChat), 'v57.62 unified freshness preflight is bounded (6.5s / 4.5s)');
 assert(!source.includes('function _aioChatAbortPromise('));
-// v57.60: suggestion chips (KR theme buttons, follow-up chips) go through the unified AI panel; the retired per-page
-// #chat-<ctx>-inp lookup (P1653) only produced a missing-input toast.
+// Suggestion chips (KR theme buttons, follow-up chips) go through the unified AI panel; the retired per-page
+// #chat-<ctx>-inp lookup only produced a missing-input toast.
 {
   const chip = section('function chatFromChip(ctxId, q) {', 'function _aioWhenDomReady(fn)');
   assert(chip.includes("getElementById('ai-panel-inp')") && chip.includes('chatSendUnified()') && !chip.includes("'chat-' + ctxId + '-inp'") && !/\bchatSend\(ctxId/.test(chip), 'v57.60 chatFromChip routes to the unified AI panel');
 }
-assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // P1758/v57.54: kr-tech, kr-themes, kr-macro retired; v59.70: the kr-market alias too
+assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !source.includes("'kr-themes':") && !/'kr-macro':\s*(?:'|_aio)/.test(source)); // kr-tech, kr-themes, kr-macro retired; v59.70: the kr-market alias too
 // v59.70 (coverage audit S20): the AI panel's screen map follows the route registry. Every context, retrieval-map key and
 // move target is a registered route, every screen tab has a context (기술적 분석 and 대가 보유 종목 had none, so the
 // panel did nothing there), and screen names are read from ROUTE_HUBS — no hand-written copies left to go stale
@@ -618,7 +610,7 @@ assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !sou
   const { ROUTE_HUBS } = await import(new URL('../src/ui/navigation/route-hubs.js', import.meta.url));
   const routes = new Set(ROUTE_IDS);
   const keysOf = (text) => [...text.matchAll(/(?:^|[{,\s])'?([a-z][a-z-]*)'?\s*:/g)].map((m) => m[1]);
-  // v60.42: each context is a title only ({ title: '...' }), so only the top-level keys are read.
+  // Each context is a title only ({ title: '...' }), so only the top-level keys are read.
   const contexts = [...section('const CHAT_CONTEXTS = {', '\n};').matchAll(/^\s+'?([a-z][a-z-]*)'?\s*:\s*\{/gm)].map((m) => m[1]);
   const unknown = contexts.filter((key) => !routes.has(key));
   assert(contexts.length >= 8 && !unknown.length, `v59.70 AI panel names unregistered routes: ${[...new Set(unknown)].join(', ')}`);
@@ -629,7 +621,7 @@ assert(!source.includes("'kr-market':") && !source.includes("'kr-tech'") && !sou
 }
 assert(source.includes('function _aioWrapChatExternalContext(') && unifiedChat.includes('window._aioWrapChatExternalContext') && unifiedChat.includes("_wrapUnifiedExternal('SCREENER_RESULT'") && unifiedChat.includes("_wrapUnifiedExternal('DOMAIN_LIVE_DATA'"), 'v60.42 the blocks still injected are wrapped as untrusted data');
 assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_ENRICHMENT|NEWS_TELEGRAM)'/.test(unifiedChat), 'v60.42 the data the tools read is not pre-injected');
-// P1756: the first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each
+// The first attempt keeps automatic web search; a retry after a timeout/5xx repeats the request without it (each
 // searched attempt is billed and reserves search budget), says so in its status line, and every attempt resets the
 // citation collector so a failed searched attempt's sources are never bound to the retry's answer.
 {
@@ -645,7 +637,7 @@ assert(!/_wrapUnifiedExternal\('(?:TECHNICAL_ENRICHMENT|DEEP_COMPARISON|TICKER_E
   const trimAt = stream.indexOf('var _bodyBytes = function'), trimEnd = stream.indexOf("console.log('[AIO] callSharedAi", trimAt);
   assert(trimAt > 0 && trimEnd > trimAt, 'v59.44 callSharedAi trims the request by UTF-8 bytes');
   const trimBody = new Function('system', '_trimmedMessages', 'window', 'AI_WORKER_CONTRACT', `${stream.slice(trimAt, trimEnd)}; return { bytes: _bodyBytes(system, _trimmedMessages), turns: _trimmedMessages.length };`);
-  const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: the trim target is the shared contract's
+  const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // The trim target is the shared contract's
   const trim = (system, messages) => trimBody(system, messages, { AIO: {} }, AI_WORKER_CONTRACT);
   const ko = (n) => '가'.repeat(n);
   const turns = (...sizes) => sizes.map((n, i) => ({ role: i % 2 ? 'assistant' : 'user', content: ko(n) }));

@@ -15,7 +15,7 @@ import { SOURCE_REGISTRY_CATEGORY_IDS, DATA_SOURCE_REGISTRY } from '../src/data/
 import { deriveFredCycle } from './lib/refresh-continuity.mjs';
 import { atomicWriteFile, atomicWriteFileSync } from './lib/atomic-write.mjs';
 import { parseFredHyOasCsv, parseTreasuryYieldCurveHtml } from './fetch-data.mjs';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { readProducerSource } from './lib/producer-source.mjs'; // fetch-data.mjs + the lib modules split out of it
 import { runSections } from './lib/gate-sections.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -136,7 +136,7 @@ function runProducerChecks() {
     const source = fs.readFileSync(path.join(ROOT, 'scripts', script), 'utf8');
     check('producer:masters-atomic:' + script, source.includes("./lib/atomic-write.mjs") && !/\bfs\.writeFile\(/.test(source), 'v54.88 Masters producer can truncate published JSON on write failure');
   }
-  // v59.85: the staging, the fail-closed order and the collision retry live in scripts/publish-data-commit.mjs (its
+  // The staging, the fail-closed order and the collision retry live in scripts/publish-data-commit.mjs (its
   // behaviour is driven against a bare remote by ci-publish-data-commit-check.mjs); the sets are the contract here.
   const refreshSet = DATA_PUBLISH_SETS['refresh-data'];
   const screenerSet = DATA_PUBLISH_SETS['refresh-screener'];
@@ -166,7 +166,7 @@ function runProducerChecks() {
     && reconciliation.includes('atomicWriteFile(RECONCILIATION_STATUS_OUT'), 'status builders can tear published JSON on write failure (P1080)');
   check('producer:source-failure-isolated', fetchData.includes('Promise.allSettled') && fetchData.includes('settledValue'), 'source planes still share a fail-fast Promise.all');
   check('producer:fred-requires-complete-series', fetchData.includes('deriveFredCycle({')
-    && fetchData.includes('fredExpectedSeriesCount: fred.expected.length') // 2026-10-19: deriveFredPlane (scripts/producer/fred.mjs)
+    && fetchData.includes('fredExpectedSeriesCount: fred.expected.length') // deriveFredPlane (scripts/producer/fred.mjs)
     && fetchData.includes('fredLastSuccessfulAt'), 'FRED aggregate success does not require complete finite series evidence');
   check('producer:fred-yoy-no-period-substitution', !/monthsBetween\([^\n]+\)\s*>=\s*12\)\s*\|\|\s*obs\[obs\.length\s*-\s*1\]/.test(fetchData), 'YoY still substitutes an arbitrary oldest observation');
   check('producer:unknown-ohlcv-preserved', /volume:\s*typeof v === 'number'[^\n]+:\s*null/.test(fetchData)
@@ -250,18 +250,18 @@ function finish(section, inventory = null) {
   if (!result.ok) process.exitCode = 1;
 }
 
-// v60.50: producer source, parser and registry contracts are code; the published artifacts are a data section that also
+// Producer source, parser and registry contracts are code; the published artifacts are a data section that also
 // runs in a data run.
 await runSections('data-continuity', [
 ['producers', async () => {
-// P1518/R690: secondary producers share the same collision-safe atomic boundary.
+// Secondary producers share the same collision-safe atomic boundary.
 for (const name of ['fetch-earnings-calendar', 'fetch-sec-fundamentals']) { // A09: CFTC producer retired
   const source = readText(`scripts/${name}.mjs`);
   check(`P1518:producer:${name}:shared-atomic`, source.includes("import { atomicWriteFile } from './lib/atomic-write.mjs';")
     && source.includes('await atomicWriteFile(') && !/await (?:writeFile|rename)\(/.test(source), 'producer must preserve formatting through shared atomic writer');
 }
 
-// v58.20 review B1: the optional earnings calendar runs before the core screener step under `set -e`; a provider failure
+// B1: the optional earnings calendar runs before the core screener step under `set -e`; a provider failure
 // must keep the previous file and annotate, not exit non-zero and stop the screener/SEC refresh for the cycle.
 {
   const source = readText('scripts/fetch-earnings-calendar.mjs');

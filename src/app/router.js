@@ -44,6 +44,8 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
   function resolvePage() {
     if (resolvedPage) return Promise.resolve(resolvedPage);
     if (pendingPage) return pendingPage;
+    // GitHub Pages answers bursts with 429, and one failed import left the screen empty
+    // until the reader navigated away and back. A failed load is retried twice with a growing pause first.
     const loadWithRetry = (attempt = 0) => Promise.resolve().then(loader).catch((error) => {
       if (attempt >= retryDelaysMs.length) throw error;
       return new Promise((resolve) => setTimeout(resolve, retryDelaysMs[attempt])).then(() => loadWithRetry(attempt + 1));
@@ -74,6 +76,7 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
           if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) return;
           innerDispose = page.mount(context);
           if (typeof innerDispose !== 'function') innerDispose = null;
+          // Mount itself can navigate away before returning its disposer.
           if (disposed || context.scope?.disposed || context.scope?.isCurrent?.() === false) {
             try { innerDispose?.(); } catch (_) {}
             innerDispose = null;
@@ -106,6 +109,8 @@ export function createLazyPage({ route, loader, factory, errorMessage, retryDela
 // The 종목 tabs (개요 · 쟁점과 전망 · 재무 공시) are about one company, and each keeps it in the address as ?sym= (run-6 #12);
 // 쟁점과 전망 is a view of the ticker page (?view=outlook).
 const ENTITY_ROUTES = new Set(['ticker', 'fundamental']);
+// 기술적 분석 names the symbol in its analysis slot as ?sym= too, but it is the chart's subject, not the
+// 종목 screen's company; the retired 차트 tab's address (#technical/NVDA, #technical?sym=NVDA) opens that slot.
 const CHART_ROUTE = 'charts';
 const CHART_ROUTE_ALIASES = Object.freeze({ technical: CHART_ROUTE });
 const CHART_SUBJECT_VIEW = 'analysis'; // the view that shows the chart symbol (page-views.css)
@@ -115,7 +120,7 @@ function normalizeEntityId(candidate) {
   if (typeof candidate === 'object') return null;
   let text = String(candidate);
   try { text = decodeURIComponent(text); } catch (_) { /* malformed % sequence: the regex below refuses it */ }
-  const normalized = text.normalize('NFKC').trim().toUpperCase();
+  const normalized = text.normalize('NFKC').trim().toUpperCase(); // #ticker/ＡＡＰＬ (percent-encoded in the hash) is AAPL
   if (!normalized || !/^[A-Z0-9][A-Z0-9.\-=]*$/.test(normalized)) return null;
   return normalized;
 }
@@ -131,6 +136,9 @@ function entityIdFor(route, detail = {}) {
   return null;
 }
 
+// The selected company and theme live in the address, so a copied link, a reload and back/forward
+// reopen the same subject. #ticker?sym=NVDA seeds the 종목 summary; #themes?theme=<id> seeds the theme detail.
+// Other query keys (knowledge context) are left untouched.
 const THEME_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
 // A screen cut into views (src/ui/navigation/page-views.js) keeps the open one as ?view=; the first view has no key.
 const VIEW_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
@@ -142,8 +150,11 @@ export function parseRouteDeepLink(hash, themeIds = null) {
   const routeId = rawRoute === 'theme-detail' ? 'themes' : CHART_ROUTE_ALIASES[rawRoute] || rawRoute;
   if (!isRouteId(routeId)) return null;
   const params = new URLSearchParams(match[2] || '');
+  // #fundamental/AAPL opened the fundamentals of whatever was selected before (or nothing) — both entity routes read it.
   const entityId = ENTITY_ROUTES.has(routeId) ? normalizeEntityId(params.get('sym') || pathArg) : null;
   const chartSymbol = routeId === CHART_ROUTE ? normalizeEntityId(params.get('sym') || pathArg) : null;
+  // v59.70 (fix-r1-theme): the old #theme-detail/<id> address names a theme too (legacyThemeDetailTarget, one parser
+  // with the boot route); with the US theme ids an unknown or retired id names none, and the list stays.
   const legacy = rawRoute === 'theme-detail' ? legacyThemeDetailTarget(hash, themeIds) : null;
   const theme = rawRoute === 'themes' ? String(params.get('theme') || '').trim() : legacy?.themeId || '';
   const view = String(params.get('view') || '');
@@ -214,6 +225,8 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     const resolved = link.entityId && typeof runtimeRoot._aioNormalizeTickerInput === 'function' ? normalizeEntityId(runtimeRoot._aioNormalizeTickerInput(link.entityId)) : null;
     if (resolved && resolved !== link.entityId) link = { ...link, entityId: resolved };
     if (link.entityId && (/^#[a-z]+\//.test(location.hash) || resolved)) writeHash(link.routeId, 'sym', link.entityId); // canonical address
+    // 재무 공시 is not cut into views; an old ?view= there is dropped. The ticker page's views (개요 · 쟁점과 전망) apply above,
+    // and its retired ones (메모, 2026-11-19) fall back to 개요 there.
     if (link.view && ENTITY_ROUTES.has(link.routeId) && !viewsOf(link.routeId).length) writeHash(link.routeId, 'view', null);
     if (link.entityId && link.routeId === 'ticker') {
       const current = String(runtimeRoot.AIO?.state?._currentTickerSym || runtimeRoot._currentTickerSym || '').toUpperCase();
@@ -261,6 +274,7 @@ function installRouteDeepLinks({ runtimeRoot, documentRef, activeRoute }) {
     if (ENTITY_ROUTES.has(routeId) && symbol) writeHash(routeId, 'sym', symbol);
   };
   const onCommit = () => {
+    // An old detail address set while 테마 was already open (no mount reads it) opens its theme on the commit.
     if (/^#theme-detail(?:[/?]|$)/.test(location.hash)) applyAddress();
     const link = parseRouteDeepLink(location.hash);
     if (!link?.entityId) writeSubject();
@@ -357,7 +371,12 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   let disposed = false;
   let started = false;
   let startedHandle = null;
+  // A single navigation authority owns the transition. While the
+  // compatibility facade is installed it emits the typed command; the raw
+  // aio:pageShown event is then observation-only and must not replay a mount.
   let navigationAuthority = 'event';
+  // The committed view state belongs to the transition, not to any page
+  // private. It moves on every commit that carries one and resets on a real transition.
   let activeViewState = null;
 
   function disposeActive() {
@@ -369,6 +388,13 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     try { dispose?.(); } catch (_) {}
   }
 
+  // A committed route must always be observable as marked, and the marker belongs to the PAGE NODE,
+  // not to the mount: `page-macro` is always the vs03 slice, so its identity attributes never
+  // change. They used to be deleted when the mount scope was disposed, so any dispose that followed
+  // the mount — a second navigation install, a re-transition settling late — left the page mounted,
+  // `aioArchitectureRoute` set and `completeness: loaded` while the entire document reported itself
+  // unmarked. Architecture, vertical-slice, user-journey and headless all read only that marker and
+  // all failed on macro. Assert it; never remove it. Only state/issues are dynamic.
   function assertSliceMarker(routeId) {
     const pageNode = context.documentRef?.getElementById?.(`page-${routeId}`);
     const slice = getVerticalSliceContract(routeId);
@@ -385,6 +411,8 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     return pageNode;
   }
 
+  // Publish the committed result so shell observers (store route,
+  // timeline) follow the single commit instead of re-driving navigation.
   function publishNavigationCommit({ routeId, entityId, mountId, command, directEntry, recommit }) {
     const EventConstructor = context.runtimeRoot?.CustomEvent || globalThis.CustomEvent;
     if (typeof EventConstructor !== 'function') return;
@@ -404,6 +432,10 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
 
   function transition(route, detail = {}) {
     if (disposed) return false;
+    // One typed command owns identity. A scalar second argument is the
+    // legacy page id carried by aio:pageShown, never an entity id; DOM nodes,
+    // arrays, and arbitrary objects are only read through explicit
+    // entityId/ticker/symbol/args fields, so a nav element can never become scope.
     const detailObject = detail && typeof detail === 'object' && !Array.isArray(detail) ? detail : null;
     const command = normalizeNavigationCommand(detailObject ? { routeId: route, ...detailObject } : { routeId: route });
     if (!command) return false;
@@ -414,6 +446,10 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       // Re-committing to the route we are already on is still a commit: if the node that carries
       // the marker was replaced, this is the only place that can restore it.
       assertSliceMarker(normalizedRoute);
+      // A re-commit that carries a NEW view state is a commit for the view identity —
+      // the mount survives, but the committed view state moves and every observer must see it.
+      // Silently dropping the payload here is what left same-route view changes (tab, filter,
+      // anchor intent) invisible to the store and to any consumer of the commit result.
       if (command.viewState && command.viewState !== activeViewState) {
         activeViewState = command.viewState;
         publishNavigationCommit({
@@ -428,6 +464,7 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     }
     const transitionId = ++transitionSequence;
     disposeActive();
+    // Cleanup may synchronously navigate again or dispose the router.
     if (disposed || transitionId !== transitionSequence) return false;
     const page = routes[normalizedRoute];
     const scope = createRouteScope({
@@ -439,6 +476,8 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
     });
     activeScope = scope;
     activeRoute = normalizedRoute;
+    // A real transition replaces the committed view state — a view state
+    // from the previous route must never follow the new route around.
     activeViewState = command.viewState;
     // The marker is asserted AFTER the mount, not before it. Written first, it was torn down by a
     // re-transition that disposed this scope while the replacement mount could no longer find the
@@ -472,6 +511,8 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
       const unsubscribe = context.store?.subscribe?.(updateSliceState);
       if (unsubscribe) scope.add(unsubscribe);
     }
+    // Publish the committed result so shell observers follow the single
+    // commit instead of re-driving navigation.
     publishNavigationCommit({
       routeId: normalizedRoute,
       entityId: nextEntityId,
@@ -483,6 +524,8 @@ export function createLifecycleRouter({ root, registry, context = {} } = {}) {
   }
 
   function onPageShown(event) {
+    // With an external authority installed the event only announces a
+    // result. Replaying it here is what produced two mounts and a stale store route.
     if (navigationAuthority === 'external') return;
     const detail = event?.detail;
     const route = typeof detail === 'string' ? detail : detail?.pageId || detail?.route;

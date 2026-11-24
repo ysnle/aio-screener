@@ -1,3 +1,13 @@
+// P1418 (owner request 2026-10-03, open-source comparison): a portfolio 점검 list in the manner of
+// Ghostfolio's X-ray rules (apps/api/src/models/rules, defaults in rule-settings.ts), reimplemented on
+// this screener's surface model. Only rules with a published default flag anything:
+//   · single holding: the existing 10/15/25% concentration tiers (domain/portfolio/concentration.js)
+//   · single currency: Ghostfolio CurrencyClusterRiskCurrentInvestment thresholdMax 0.5
+//   · single account (not tracked here) and fees (no fee ledger) are reported as not measured.
+// Region, asset type, sector and cash are shown as shares with no verdict — Ghostfolio's regional
+// and asset-class bands are target allocations from world market-cap weights, which would be advice.
+// All shares use the surface's base-currency values; a holding without a value is excluded
+// and counted, never treated as zero.
 import { holdingListingKey, listingCurrency, listingRegion } from './fx.js';
 import { concentrationPenaltyForWeight } from './concentration.js';
 import { holdingBand, holdingTierText, HOLDING_BAND_BASIS } from './concentration-bands.js';
@@ -26,7 +36,10 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const valued = rows.filter((row) => finite(row?.value) != null && finite(row.value) > 0);
   const excluded = rows.length - valued.length;
   const invested = valued.reduce((sum, row) => sum + finite(row.value), 0);
+  // The hero showed the entered cash while this card said '미입력' — the card derived cash from
+  // totalAssets, which is null whenever one holding is unpriced. Read the same surface.cash the hero reads.
   const cash = finite(surface?.cash);
+  // Cash is a list of balances; `cashHeld` says one of them had no rate into the total's unit.
   const cashHeld = cash == null && (surface?.cashHeld === true || finite(surface?.cashEntered) > 0);
   const totalKnown = finite(surface?.totalAssets) > 0;
   if (!valued.length || !(invested > 0)) {
@@ -40,13 +53,18 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
   const byCurrency = shares(valued.map((row) => [currencyOf(row), finite(row.value)]), invested);
   const byRegion = shares(valued.map((row) => [listingRegion(keyOf(row)), finite(row.value)]), invested);
   const byType = shares(valued.map((row) => [assetTypeOf(keyOf(row)) || '미분류', finite(row.value)]), invested);
+  // The sector card printed 'Technology 38%' beside Korean labels everywhere else.
   const bySector = shares(valued.map((row) => { const name = sectorOf(keyOf(row)) || row.sector || ''; return [name ? sectorLabel(name) : '미분류', finite(row.value)]; }), invested);
   const top = byHolding[0];
   const topCurrency = byCurrency[0];
   const baseCurrency = String(surface?.baseCurrency || '').toUpperCase() || null;
   const holdingTier = concentrationPenaltyForWeight(top.pct);
+  // With most holdings unpriced, 'QQQ 100%' is an artefact of the missing prices, not a fact.
   const shareHeld = excluded > 0 && excluded >= valued.length;
   const heldNote = `가격을 못 가져온 종목이 ${excluded}개라 아직 판단하지 않았어요(가격을 확인한 ${valued.length}종목만 계산하면 ${top.name} ${top.pct.toFixed(0)}%).`;
+  // Expert review #18: the 10/15/25% tiers are this app's own bands, not a published standard —
+  // labelled '내부 구간'; 10~25% is shown for reference and only above 25% reads '주의'.
+  // A broad index ETF (QQQ, SPY) is many companies — 40% of it is not '한 종목' risk; it is named instead.
   const topIsEtf = assetTypeOf(top.name) === 'ETF';
   const checks = [
     { id: 'single-holding', label: '한 종목 쏠림', value: shareHeld ? '판정 보류' : `${top.name} ${top.pct.toFixed(1)}%`,
@@ -54,6 +72,9 @@ export function derivePortfolioChecks({ surface = null, assetTypeOf = () => null
       detail: shareHeld ? heldNote : holdingBand(top.pct) === 'attention' && topIsEtf ? `가장 큰 보유가 ETF(${top.name})라 한 회사 쏠림은 아닙니다 — 그 ETF가 담은 지수·업종의 쏠림은 섹터 구성으로 확인합니다.` : holdingTierText(top.pct),
       basis: `내부 구간: ${HOLDING_BAND_BASIS}`, tier: holdingTier },
     { id: 'single-currency', label: '한 통화 쏠림', value: `${topCurrency.name} ${topCurrency.pct.toFixed(0)}%`,
+      // X10: this is the valuation (listing) currency mix. Translation risk exists only against a
+      // different base currency; the companies' own revenue/cost FX exposure is not measured here.
+      // Holding the base currency itself carries no translation risk, so a KRW-base 70% KRW mix is information.
       status: topCurrency.pct / 100 > SINGLE_CURRENCY_MAX ? (byCurrency.length === 1 || (baseCurrency && topCurrency.name === baseCurrency) ? 'info' : 'attention') : 'ok',
       detail: (byCurrency.length === 1
         ? (baseCurrency && topCurrency.name === baseCurrency

@@ -35,7 +35,7 @@ for (const rel of [...walk('scripts'), ...walk('src'), ...walk('js')]) {
   if (!hit) continue;
   readers.push(rel);
   check(`v59.70 R2 ${rel} reads history.json through readHistoryRows`, EXPANDS.test(code), hit.trim().slice(0, 140));
-  // v59.70 (integration review 89e8c881): a reader that expands and then still falls back to `payload.rows` reads the
+  // A reader that expands and then still falls back to `payload.rows` reads the
   // stored history.v2 shape (compact fieldMeta) whenever the expander's answer is not an array. A variable that holds
   // what a history.json read returned must not be read as `.rows`.
   const payloadVars = [...code.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*[^\n;]*history\.json/g)].map((match) => match[1]);

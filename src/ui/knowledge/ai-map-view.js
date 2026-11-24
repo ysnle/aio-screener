@@ -1,3 +1,10 @@
+// 산업 지도 › AI 지도: one document with three maps — 밸류체인 (the seven layers as cards, each naming
+// the higher layers it supplies; downward links in the raw table), 데이터센터·전력 (power to cloud in five stages
+// on the shared node graph, src/ui/components/node-graph.js) and 자본순환 (one company in focus: the money coming in, the
+// commitments going out, and the companies on both sides). Folds are only the raw table, the method and the sources
+// (indicator-face.js kindFold). The data comes shaped from src/domain/knowledge/ai-map.js; nothing here computes a figure
+// or writes a reading. Controls carry data-atlas-action (atlas.js owns the state and the address); company chips open the
+// 종목 screen through the shared showTicker action, as the layer card does.
 import { el } from './research-shell.js';
 import { createNodeGraph, columnPositions } from '../components/node-graph.js';
 import { kindFold } from '../components/indicator-face.js';

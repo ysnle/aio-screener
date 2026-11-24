@@ -22,6 +22,8 @@ export function conditionReader({ forwardPe = none, cashMetrics = none, channelS
     if (key === 'fcfMargin' || key === 'capexIntensity') return cashMetrics(String(row?.sym || row?.symbol || '').toUpperCase())?.[key] ?? null;
     if (CHANNEL_SIGNAL_KEYS.includes(key)) return channelSignalValue(channelSignals(), row, key);
     const fieldId = FIELD_BY_ROW_KEY.get(key);
+    // Annual filing figures (PER·PBR·ROE·이익률·성장률) share the rank's 456-day budget; a filter labelled
+    // '최근 회계연도' still reads an older STALE figure as the table displays it, but never a CONFLICT value.
     if (row?.fieldReadiness && fieldId && FILING_KEYS.has(key)) return FILING_STATUSES.has(row.fieldReadiness.fields?.[fieldId]?.status) ? finite(row[key]) : null;
     if (row?.fieldReadiness && fieldId) return fieldValueForPurpose(row, fieldId, 'calculation');
     return typeof row?.[key] === 'string' || typeof row?.[key] === 'boolean' || Array.isArray(row?.[key]) ? row[key] : finite(row?.[key]);

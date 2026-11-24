@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.42 (owner audit 2026-10-28): KOSPI/KOSDAQ index-weight proxies for the 오늘 '한국 고유 요인' line, which names the
+// KOSPI/KOSDAQ index-weight proxies for the 오늘 '한국 고유 요인' line, which names the
 // largest contributors (weight × one-day return). KRX's own constituent download needs a login, so the weights come from
 // Naver Finance's market-value ranking (KRX prices redistributed): every common stock of the market is read to get the
 // total, preferred shares (codes not ending in 0) are left out, and only the top names' weight shares are published —
@@ -38,7 +38,7 @@ export function marketWeights(stocks, top) {
   return { asOf, count: common.length, rows };
 }
 
-// v59.45 (R3-04): the weight denominator is the whole market — a short page or a missing totalCount ended the walk after
+// The weight denominator is the whole market — a short page or a missing totalCount ended the walk after
 // page 1 and the top names' shares came out inflated (50.05% → 62.73%). The walk now has to reach the declared total.
 export const KR_WEIGHTS_MIN_COMPLETE = 0.98;
 export async function fetchMarket(market, fetchImpl, { pauseMs = 300 } = {}) {

@@ -38,6 +38,7 @@ function loadFailure(doc, text, section) {
   return box;
 }
 
+// v58.74 (text audit 리서치): each count names its unit — the 산업 지도 chip elsewhere counts articles (95편), this one domains.
 function groupHeader(doc, title, count, open, value, unit = '') {
   const head = navButton(doc, `${title} ${count}${unit}`, { action: 'section', value });
   head.classList.add('rl-nav-group-head');
@@ -80,6 +81,7 @@ function buildNav(doc, state, data, labels) {
   rel.appendChild(groupHeader(doc, '관계 가이드', guides.length || 5, state.section === 'relationships', 'relationships', '편'));
   if (state.section === 'relationships') guides.forEach((guide) => rel.appendChild(navButton(doc, guide.title, { active: state.view === 'guide' && state.selectedRelationshipGuideId === guide.id, action: 'relationship-guide', value: guide.id, sub: true })));
   frag.appendChild(rel);
+  // AI 지도: the value chain, the data-center chain and, when its dated file has deals, the capital flows.
   const maps = AI_MAPS.filter((map) => (data.aiMaps || []).includes(map.id));
   const mapGroup = el(doc, 'div', 'rl-nav-group');
   mapGroup.appendChild(groupHeader(doc, 'AI 지도', maps.length || 2, state.section === 'aimap', 'aimap', '장'));
@@ -131,6 +133,10 @@ export const PRODUCT_CATEGORY_LABELS = {
 };
 const readable = (id) => String(id || '').replaceAll('-', ' ');
 
+// The registry's problemSolved text is English and a registry edit would regenerate dependent artifacts, so the
+// reader line is a Korean table keyed by productId (ci-atlas-contract-check keeps it in step with the registry). It
+// restates the registry line and adds nothing: no volume, share, customer or production claim. A product without an
+// entry shows no line instead of the English text.
 export const PRODUCT_PROBLEM_LABELS = {
   'nvidia-gpu-accelerator-platform': 'AI 학습·추론의 병렬 연산',
   'amd-instinct-accelerator-family': 'AI·HPC 워크로드의 병렬 연산',
@@ -156,6 +162,11 @@ export const PRODUCT_PROBLEM_LABELS = {
   'siemens-industrial-copilot': '도메인 맥락을 갖춘 엔지니어링·정비·제조 업무 보조'
 };
 
+// The registry records which products map to a node, never who supplies whom. A player listed on
+// a node without a product mapped there is company-level role context, so the two are grouped and labelled apart and
+// a reader-facing note says what the list is not, instead of one list that reads as a supply chain. Production stage
+// stays hidden (the registry boundary withholds it) and the boundary wording itself is not shown: the page keeps
+// source and review copy out of the reader's text (ci-atlas-browser-check INTERNAL_COPY).
 export function rolesBlock(doc, node, registry) {
   const players = (registry?.players || []).filter((player) => player.taxonomyNodeIds?.includes(node.id));
   const products = (registry?.products || []).filter((product) => product.taxonomyNodeIds?.includes(node.id));
@@ -218,6 +229,8 @@ function renderRelationshipGuide(doc, guide, selectedNodeId, failed = false, sou
   const article = el(doc, 'article', 'af-article');
   if (!guide) { article.appendChild(failed ? loadFailure(doc, '관계 가이드를 불러오지 못했습니다.', 'relationships') : el(doc, 'p', 'rl-copy', '관계 가이드를 불러오는 중입니다.')); return article; }
   article.dataset.atlasRelationshipGuide = guide.id;
+  // Name the company and the date a guide's company claims come from — a target figure
+  // credited to '회사' could not be traced to who said it or when.
   const anchor = [guide.ticker ? `기준 회사 ${guide.ticker}` : null, guide.asOf ? `${guide.asOf} 발표 기준` : null].filter(Boolean).join(', ');
   article.append(el(doc, 'p', 'af-kicker', [`관계 가이드`, guide.eyebrow, anchor].filter(Boolean).join(', ')), el(doc, 'h2', 'af-issue', guide.title), el(doc, 'p', 'af-lead', guide.summary));
   const nodeById = new Map((guide.nodes || []).map((node) => [node.id, node]));
@@ -295,6 +308,8 @@ function domainMap(doc, domain, labels, parts) {
   return figure;
 }
 
+// X07: industry documents are structural explanations; their folded basis names the sources and the
+// boundary (structure, not a company's current numbers) the way concept and lesson documents already do.
 function industryBasis(doc, basis) {
   if (!basis) return null;
   return renderBasis(doc, {
@@ -323,6 +338,8 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
         article.appendChild(el(doc, 'p', 'af-lead', text.lead));
         const map = domainMap(doc, domain, labels, parts);
         if (map) article.appendChild(map);
+        // Screen review #19: the face is the lead and the sub-area map; the longer analysis of how money
+        // and constraints move through the field is kept whole in a fold below them.
         const analysis = el(doc, 'details', 'af-basis af-domain-analysis');
         analysis.append(el(doc, 'summary', null, '분야 분석'), prose(doc, text.body));
         article.appendChild(analysis);
@@ -334,6 +351,11 @@ export function renderIndustryPage(doc, { root, state, data, labels, parts, onLo
         if (guide) article.appendChild(guide);
       }
       main.appendChild(article);
+      // 2026-10-14 audit: the sub-areas already sit in the left TOC and in the reading-order map above;
+      // a third list in the right column repeated them. v58.56 (#8): the column holds the value-chain layer card
+      // instead — where this domain sits among the seven layers, with the companies of each layer.
+      // The themes this domain explains, with their stage now. v59.54 (two layers, atlas visual first): the layer
+      // card is the page's one picture, so it leads the column and, in one column, comes before the article.
       const layers = parts.layers?.(domain);
       if (layers) aside.appendChild(layers);
       const themes = themeStageBlock(doc, root, themesForDomain(domain.id), block);

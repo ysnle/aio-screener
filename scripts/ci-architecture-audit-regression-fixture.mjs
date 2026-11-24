@@ -1,4 +1,4 @@
-// v58.63 architecture quality audit (_artifacts/architecture-quality-audit/): the offline counterexamples behind the
+// Architecture quality audit (_artifacts/architecture-quality-audit/): the offline counterexamples behind the
 // fixed findings, each with a positive control, so a fix cannot silently regress or over-correct. Read-only, no network.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

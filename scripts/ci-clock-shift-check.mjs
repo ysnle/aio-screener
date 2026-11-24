@@ -26,7 +26,7 @@ const NOT_SWEPT = {
   'clock-shift': 'this gate',
   'data-pipeline': 'runs the 45/366-day generator sweep itself',
   'browser-data-fixture': 'tests the browser clock script, which steps aside when Date.now is not native',
-  // v60.51: the two slowest clock readers (79s and 35s, a third of the sweep). Their reads are run timings and
+  // The two slowest clock readers (79s and 35s, a third of the sweep). Their reads are run timings and
   // generation stamps, not a market calendar; both kept their verdict on all ten v60.51 targets (next seven days,
   // NYSE and KRX holidays, +30 days) before the sweep was cut to two.
   'qa-runner-behavior': 'drives qa-runner on fixture manifests; its clock reads time the runs',
@@ -60,14 +60,14 @@ function reachesClock(file, seen = new Set()) {
 }
 const candidates = only ? only.map((script) => ({ id: script, script, args: [] }))
   : contractGroups.flatMap((group) => manifest.groups[group].gates)
-    // v60.50: a data gate that holds code sections (scripts/lib/gate-sections.mjs) is swept too — its code sections are
+    // A data gate that holds code sections (scripts/lib/gate-sections.mjs) is swept too — its code sections are
     // the code contracts the old `mixed` class carried here; its data sections judge the artifact at its own stamps.
     .filter((gate) => existsSync(join(root, gate.script)))
     .filter((gate) => (gate.inputClass !== 'data' || /runSections\(/.test(readFileSync(join(root, gate.script), 'utf8')))
       && !gate.liveData && !NOT_SWEPT[gate.id] && !gate.id.endsWith('-model'))
     .filter((gate) => reachesClock(join(root, gate.script)));
 
-// Targets (v60.51): the next Sunday at 01:00Z — Saturday evening in New York, Sunday in UTC and Seoul, so "now" is no
+// Targets: the next Sunday at 01:00Z — Saturday evening in New York, Sunday in UTC and Seoul, so "now" is no
 // session anywhere and a lookback of one or two calendar days lands on the weekend (the v60.49 VIX fixture class) — and
 // 30 days ahead: a fixture with a fixed date turns stale once and stays stale, so the far day catches every such flip
 // within the next 30 days (the 11/16 close went "over a week old" eight days later). v60.49–v60.50 ran every day of the
@@ -86,7 +86,7 @@ const weekday = (date) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new 
 const horizon = addDays(today, HORIZON_DAYS);
 const sunday = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).find((date) => weekday(date) === 'Sun');
 // The next mid-week day at 01:00Z (Seoul's morning, New York's previous evening: the KST date is not the UTC or New York
-// date) and the next NYSE holiday at 15:00Z, both for the checks under HEAVY_MS (v60.51, put back after the cut to two).
+// date) and the next NYSE holiday at 15:00Z, both for the checks under HEAVY_MS (put back after the cut to two).
 const midweek = Array.from({ length: 7 }, (_, i) => addDays(today, i + 1)).find((date) => ['Tue', 'Wed', 'Thu'].includes(weekday(date)));
 const nyseHoliday = Object.values(MARKET_CALENDAR_REGISTRY.NYSE).flatMap((year) => year.holidays).filter((date) => date > today).sort()[0];
 const targets = [
@@ -97,7 +97,7 @@ const targets = [
 ];
 
 const tmp = mkdtempSync(join(tmpdir(), 'aio-clock-shift-'));
-// v60.51 discovery control: a check whose own text never names the clock, loading (by a computed path, as the
+// Discovery control: a check whose own text never names the clock, loading (by a computed path, as the
 // pipeline-semantics runner loads its fixtures) a fixture close fixed at today and a module that judges its age by the
 // wall clock — passes today, fails once the close is over 20 days old. It must be swept and must flip on the far day,
 // or the sweep would miss the 11/16 class again.

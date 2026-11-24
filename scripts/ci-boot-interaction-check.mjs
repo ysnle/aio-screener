@@ -35,14 +35,14 @@ if (stageDir) {
   chunkInputs = JSON.parse(readFileSync(join(stageDir, 'inputs.json'), 'utf8'));
   bootModules = JSON.parse(readFileSync(join(stageDir, 'manifest.json'), 'utf8')).bootModules;
 }
-// Shipped files that belong to the AI panel: they must not load before a user reaches an AI control (owner D1).
-// v60.19: the AI request/response pipeline is panel code too (only the chat send reads it); it had loaded right after boot.
+// Shipped files that belong to the AI panel: they must not load before a user reaches an AI control.
+// The AI request/response pipeline is panel code too (only the chat send reads it); it had loaded right after boot.
 const AI_PANEL_INPUTS = ['src/ui/chat/panel.js', 'src/domain/research/supplied-materials.js', 'src/app/chat-globals.js', 'src/ui/components/ai-profile.js', 'src/ai/intent/question-cues.js', 'src/ai/response/request-pipeline.js'];
 const aiPanelFiles = new Set([...Object.entries(chunkInputs).filter(([, inputs]) => inputs.some((input) => AI_PANEL_INPUTS.includes(input))).map(([file]) => file)]);
 const pathOf = (url) => { try { return new URL(url).pathname.replace(/^\//, ''); } catch { return ''; } };
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
 
-// P1756: the chart library loads on first chart use. A boot requests nothing; the first ensure('lwc') requests
+// The chart library loads on first chart use. A boot requests nothing; the first ensure('lwc') requests
 // lightweight-charts once, a second call reuses it, and any other name resolves null without a request (v59.55: Chart.js
 // left with its last screen, so no Chart.js URL is ever requested).
 async function verifyOnDemandChartLibrary(browserInstance) {
@@ -80,7 +80,7 @@ async function verifyOnDemandChartLibrary(browserInstance) {
   }
 }
 
-// v60.10 view-link contract: delayed work follows the selected view, including address and cross-route navigation.
+// view-link contract: delayed work follows the selected view, including address and cross-route navigation.
 async function verifyScenarioView(page) {
   const view = () => page.locator('#page-signal').getAttribute('data-view');
   const map = page.locator('#regime-depth-fold #macro-crossroads');
@@ -111,7 +111,7 @@ async function verifyScenarioView(page) {
   const branchName = (await branchLink.textContent()).trim();
   await branchLink.click();
   await page.waitForURL((url) => url.hash === '#signal?view=story');
-  // v60.35: scenarios are one pick list (.xr-pick) with the chosen card in .xr-pick-detail. The 매크로 link must
+  // Scenarios are one pick list (.xr-pick) with the chosen card in .xr-pick-detail. The 매크로 link must
   // land on that scenario: its pick pressed and focused, and the detail card showing the same branch.
   await page.waitForFunction(() => document.activeElement?.matches?.('#regime-depth-fold .xr-pick[aria-pressed="true"]'));
   const opened = await page.evaluate(() => {
@@ -124,7 +124,7 @@ async function verifyScenarioView(page) {
   return { passed: back === 'now' && direct === 'story' && crossRoute === 'story' && unvisited && !macroOwnsMap && branchOpened, back, direct, crossRoute, unvisited, macroOwnsMap, branchName, opened };
 }
 
-// v57.62: shared lifecycle — resolves only on the server ready line; the server is closed even if launch throws.
+// Shared lifecycle — resolves only on the server ready line; the server is closed even if launch throws.
 const server = await startLocalServer(port, { label: 'boot-interaction/server', env: stageDir ? { AIO_SERVE_ROOT: join(stageDir, 'pages') } : {} });
 let browser;
 let evidence = null;
@@ -171,7 +171,7 @@ try {
   await page.evaluate(() => new Promise((resolvePaint) => {
     requestAnimationFrame(() => requestAnimationFrame(resolvePaint));
   }));
-  // v59.75: let 오늘 (the landing route) render before the switch. 오늘의 핵심 (home-day.js) loads only when it has, and a
+  // Let 오늘 (the landing route) render before the switch. 오늘의 핵심 (home-day.js) loads only when it has, and a
   // run that switched first measured ~19 KB less, so the pinned-clock CI run hid the v59.74 overrun. Measure the case a
   // reader who lands on 오늘 and then opens 시장 신호 actually gets.
   await page.waitForFunction(() => document.getElementById('home-daily-loop')?.dataset.aioDailyLoopRenderer === 'native', null, { timeout: 10000 }).catch(() => {});
@@ -197,12 +197,12 @@ try {
       domNodes: document.getElementsByTagName('*').length,
       activeRouteDomNodes: document.querySelector('.page.active')?.getElementsByTagName('*').length || 0,
       scenarioDepthDeferred: !document.querySelector('#regime-depth-fold :is(#macro-crossroads, #home-guide)'),
-      // v60.24: the deferred story view defers its DOM, not its data — the AI context and the lead's tie-keeping read
+      // The deferred story view defers its DOM, not its data — the AI context and the lead's tie-keeping read
       // scenario-state.json on the default (now) view too.
       scenarioStateLoaded: !!window._aioScenarioState?.schemaVersion,
       activePage: document.querySelector('.page.active')?.id || '',
       bootStatusPresent: !!document.getElementById('aio-boot-status'),
-      // Codex audit F14 (2026-10-15): decodedJsMbMax had no measurement. Same-origin scripts (classic + native ESM)
+      // Codex audit F14: decodedJsMbMax had no measurement. Same-origin scripts (classic + native ESM)
       // fetched by the end of the observation window, decoded bytes; cross-origin CDN libraries report 0 decoded bytes
       // without Timing-Allow-Origin, so they are counted separately and not added to the budget figure.
       ...(() => {
@@ -232,7 +232,7 @@ try {
   };
   result.aiPanelRequestsBeforeUse = aiFiles.map((entry) => entry.path);
   result.largestLazyFiles = lazyFiles.sort((a, b) => b.bytes - a.bytes).slice(0, 8).map(({ path, bytes, startMs }) => ({ path, bytes, startMs }));
-  // v59.70 (integration): AIO_BOOT_LAZY_DUMP=<file> writes every lazy file with its source inputs, so a budget miss can
+  // AIO_BOOT_LAZY_DUMP=<file> writes every lazy file with its source inputs, so a budget miss can
   // be attributed to the inputs that grew (chunk names are content hashes and change between builds).
   if (process.env.AIO_BOOT_LAZY_DUMP) writeFileSync(process.env.AIO_BOOT_LAZY_DUMP, JSON.stringify(lazyFiles.map(({ path, bytes }) => ({ path, bytes, inputs: chunkInputs[path] || [] })), null, 1) + '\n');
   result.measuredBundle = measureSource ? 'source' : 'deploy';
@@ -244,7 +244,7 @@ try {
     await page.waitForTimeout(500);
     const afterHover = await page.evaluate(() => performance.getEntriesByType('resource').map((entry) => entry.name));
     result.aiPanelOnHover = [...new Set(afterHover.map(pathOf).filter((file) => aiPanelFiles.has(file) && !seen.has(file)))].sort();
-    // v60.19: js/aio-glossary.js waits for a reader too (src/app/classic-loader.js); pointing at a term mark starts it.
+    // js/aio-glossary.js waits for a reader too (src/app/classic-loader.js); pointing at a term mark starts it.
     result.glossaryBeforeUse = seen.has('js/aio-glossary.js');
     result.termMarksBeforeGlossary = await page.locator('.page.active .aio-term').count();
     if (result.termMarksBeforeGlossary) {
@@ -271,7 +271,7 @@ try {
   if (!result.scenarioStateLoaded) failures.push('v60.24 scenario-state.json was not loaded on the default 시장 신호 view (the story view defers DOM only)');
   if (result.bootStatusPresent) failures.push('boot status did not hard-release');
   if (!measureSource) {
-    // v59.70 (owner D1): the AI panel script and reference corpus wait for an AI control; hovering it starts both.
+    // The AI panel script and reference corpus wait for an AI control; hovering it starts both.
     if (result.aiPanelRequestsBeforeUse.length) failures.push(`AI panel files fetched before any AI control was reached: ${result.aiPanelRequestsBeforeUse.join(', ')}`);
     const corpusChunk = Object.entries(chunkInputs).find(([, inputs]) => inputs.includes('src/domain/research/supplied-materials.js'))?.[0];
     const pipelineChunk = Object.entries(chunkInputs).find(([, inputs]) => inputs.includes('src/ai/response/request-pipeline.js'))?.[0];
@@ -308,8 +308,8 @@ try {
     command: 'node scripts/ci-boot-interaction-check.mjs',
     gateStatus: failures.length ? 'FAIL' : 'PASS',
     targetStatus: targetFailures.length ? 'TARGET_MISS' : 'TARGET_COMPLIANT',
-    // Codex audit F13 (2026-10-15): the operations-slo targets are a reported goal, not a blocking gate; qa-runner
-    // prints a TARGET_MISS line beside the PASS so a green run is never read as "performance target met" (R701).
+    // Codex audit F13: the operations-slo targets are a reported goal, not a blocking gate; qa-runner
+    // prints a TARGET_MISS line beside the PASS so a green run is never read as "performance target met".
     targetPolicy: 'report-not-blocking',
     targetFailures,
     metrics: result

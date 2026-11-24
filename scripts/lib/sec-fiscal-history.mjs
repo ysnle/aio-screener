@@ -1,12 +1,12 @@
 // scripts/lib/sec-fiscal-history.mjs — the pure fiscal-history projection used by scripts/build-sec-runtime-projection.mjs.
 //
 // The builder reads the producer-only ledger and writes public-data at module top level, so a gate cannot import it.
-// The pure series builders live here (moved verbatim, v59.48) so ci-fiscal-quality-fixture imports the code the builder
+// The pure series builders live here (moved verbatim) so ci-fiscal-quality-fixture imports the code the builder
 // runs instead of slicing the builder's source text.
 import { bestRevenueRowsByPeriod } from '../../src/domain/fundamental/sec-report.js';
 import { anchorConcept, anchorConceptRows, discreteQuarterSeries, secDebtBasis, secDebtCurrentCoverage, SEC_FIELD_CONCEPT_PREFERENCE } from '../../src/domain/fundamental/sec-earnings.js';
 
-// P1627: whole-million rounding turned small profits/losses into zero and made the
+// whole-million rounding turned small profits/losses into zero and made the
 // fiscal timeline disagree with the exact annual receipt. Preserve USD thousands
 // in compact USD-million fields (and 1,000 shares in million-share fields).
 export function compactFiscalMillions(value) {
@@ -27,8 +27,8 @@ function balanceAt(rows, periodEnd) {
 export function quarterlyHistory(observations = {}) {
   const quarters = new Map();
   for (const [field, qField, fyField] of [['revenue', 'revenueQ', 'revenue'], ['netIncome', 'netIncomeQ', 'netIncome']]) {
-    // 2026-10-13 F05: revenue rows are reduced to one per period by the shared concept rule first.
-    // 2026-10-17 (logic audit D6): net income keeps the concept of its latest quarter (the derived fourth quarter
+    // Revenue rows are reduced to one per period by the shared concept rule first.
+    // Net income keeps the concept of its latest quarter (the derived fourth quarter
     // nets a fiscal year of that same concept); another concept fills only a quarter it never reported.
     const anchor = field === 'netIncome' ? anchorConcept(observations[qField], SEC_FIELD_CONCEPT_PREFERENCE.netIncome) : null;
     const pref = anchor ? [anchor, ...SEC_FIELD_CONCEPT_PREFERENCE.netIncome] : SEC_FIELD_CONCEPT_PREFERENCE.netIncome;
@@ -52,9 +52,9 @@ export function quarterlyHistory(observations = {}) {
 // six full years of revenue / net income from 10-K FY facts of about twelve months, one row per period end —
 // the latest filing wins) is written as its own small artifact, sec-fiscal-history.json, loaded only by the
 // 재무 공시 page; the 1 MiB runtime summary stays as it was. PIT observations stay producer-side.
-// P1446: the series also carries the cash chain — operating cash flow, capital spending, long-term debt —
+// The series also carries the cash chain — operating cash flow, capital spending, long-term debt —
 // and the share count reported on the cover page after each fiscal year end (buybacks / dilution).
-// v58.55: two more columns — year-end total assets and annual R&D expense (DuPont, Sloan accruals, R&D ÷ revenue). They are
+// Two more columns — year-end total assets and annual R&D expense (DuPont, Sloan accruals, R&D ÷ revenue). They are
 // written only for a record whose observations were read by the v58.55 normalizer (the arrays exist, even empty), so the
 // page can tell "not yet collected" (8 columns) from "not reported" (10 columns, empty cell).
 // v58.75 (persona review): seven more columns — gross profit, operating income, cash, short-term investments, stock-based
@@ -69,10 +69,10 @@ const DURATION_FIELDS = new Set(['revenue', 'netIncome', 'operatingCashFlow', 'c
 export const FISCAL_HISTORY_FORMAT = 'periodEnd:revenue:netIncome:equity:operatingCashFlow:capex:longTermDebt:sharesMillions[:totalAssets:researchAndDevelopment[:grossProfit:operatingIncome:cash:shortTermInvestments:shareBasedCompensation:buybacks:dividends]] (USD millions; the first bracket is present once the issuer was read with total assets and R&D, the second on the latest two fiscal years once it was read with the capital items — absent = not yet collected, empty = not reported)';
 // The annual rows of one field the series is built from.
 function annualFieldRows(observations, field) {
-  // 2026-10-13 F05: one revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
+  // One revenue row per period by the shared concept rule (a REIT's customer-contract subtotal
   // no longer wins a same-filing tie against total revenues).
   return (field === 'revenue' ? bestRevenueRowsByPeriod(observations.revenue) : Array.isArray(observations[field]) ? observations[field] : []).filter((row) => {
-    // P1627: the source also collects annual foreign-issuer 20-F/40-F facts.
+    // The source also collects annual foreign-issuer 20-F/40-F facts.
     // Dropping their form here left ARM/BABA/NBIS/MNDY on a one-year fallback.
     if (!/^(10-K|20-F|40-F)(\/A)?$/.test(String(row?.form || '')) || !Number.isFinite(row?.value) || !row.periodEnd) return false;
     if (!DURATION_FIELDS.has(field)) return true;
@@ -100,9 +100,9 @@ export function fiscalHistory(observations = {}) {
   const byEnd = new Map();
   for (const field of FY_FIELDS) {
     const fieldRows = annualFieldRows(observations, field);
-    // 2026-10-17 (logic audit D6): one concept per series — the concept of the latest year — so a year-over-year read
+    // One concept per series — the concept of the latest year — so a year-over-year read
     // never compares LongTermDebt with LongTermDebtNoncurrent or NetIncomeLoss with ProfitLoss. Equity keeps its
-    // parent-first rank (P1449) and revenue its per-period rule (F05). v60.28: a debt series also keeps one basis
+    // parent-first rank and revenue its per-period rule (F05). v60.28: a debt series also keeps one basis
     // (lease-inclusive or debt-only), so a year the anchor never reported is not filled from the other basis.
     const anchored = SEC_FIELD_CONCEPT_PREFERENCE[field] ? anchorConceptRows(fieldRows, SEC_FIELD_CONCEPT_PREFERENCE[field]) : fieldRows;
     for (const row of anchored) {
@@ -110,7 +110,7 @@ export function fiscalHistory(observations = {}) {
       const rowRank = row.concept === 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest' ? 1 : 0;
       const storedFiledAt = entry.filedAt[field];
       const storedRank = entry.conceptRank[field];
-      // P1449: the ROE / P-B denominators need a parent-company equity series. A later
+      // The ROE / P-B denominators need a parent-company equity series. A later
       // filing can carry only the NCI-inclusive total for a period whose parent row was
       // already filed (Agilent FY2025 did this for FY2023/FY2024 with its AOCI value),
       // so parent equity must outrank the NCI tagging across filings, not just within

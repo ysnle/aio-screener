@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.74: copies drafted 쟁점과 이면 (debate, underTheHood) from a drafts folder into the company stories beside them in
+// Copies drafted 쟁점과 이면 (debate, underTheHood) from a drafts folder into the company stories beside them in
 // public-data/company-profiles/, after the same checks the contract runs, then the caller re-runs
 // scripts/sync-company-profiles.mjs. A workspace tool: local files only, nothing fetched.
 // Usage: node scripts/merge-company-debates.mjs [drafts-dir]   (default _artifacts/company-debate-20261107/drafts)

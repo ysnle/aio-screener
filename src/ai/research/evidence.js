@@ -67,7 +67,7 @@ export function createEvidenceDocument(input = {}) {
     entities: Object.freeze(Array.isArray(input.entities) ? input.entities.map(text).filter(Boolean) : []),
     eventTime: input.eventTime || input.publishedAt || null,
     status: canonical ? text(input.status || 'RESULTS_FOUND').toUpperCase() : 'INVALID',
-    // P1172 (05 A05): the request context a document was collected for. Without it a later question
+    // The request context a document was collected for. Without it a later question
     // cannot tell this set from another request's set, so the floor had to treat "official domain"
     // as "this question is answered". Declared here (not in the caller) so normalization keeps it.
     requestId: text(input.requestId) || null,
@@ -349,7 +349,7 @@ export function evaluateResearchEvidenceFloor(input = {}) {
     primaryDomains
   });
   const nativeReady = evidenceFloor(nativeDocuments, nativeCitations, stop, { primaryDomains });
-  // P1172 (05 A05): 도메인·개수·깊이가 충족돼도 그 출처가 **이 질문의 것**인지는 별개다. 취소·재시도·
+  // 도메인·개수·깊이가 충족돼도 그 출처가 **이 질문의 것**인지는 별개다. 취소·재시도·
   // 늦은 응답의 citation이 다른 요청의 답을 채우지 못하도록 요청 결속을 함께 판정한다.
   const binding = verifyEvidenceBinding({
     citations: [...externalCitations, ...nativeCitations],
@@ -371,13 +371,13 @@ export function evaluateResearchEvidenceFloor(input = {}) {
   const citations = externalReady ? externalCitations : nativeReady ? nativeCitations :
     (externalCitations.length ? externalCitations : nativeCitations);
   const eligibleDocuments = eligibleEvidenceDocuments(documents, citations);
-  // v59.45 P12-RESEARCH-02: with a PARTIAL binding only the documents bound to this request can verify the answer;
+  // P12-RESEARCH-02: with a PARTIAL binding only the documents bound to this request can verify the answer;
   // the unbound ones stay as reference (ready) but never count toward the current-claim floor.
   const boundUrls = new Set(binding.status === 'PARTIAL' ? binding.boundUrls || [] : []);
   const verifiable = binding.status === 'PARTIAL' ? eligibleDocuments.filter((document) => boundUrls.has(canonicalUrl(document.canonicalUrl))) : eligibleDocuments;
   const bindingVerified = binding.ok === true && (binding.checked === true
     || (binding.status === 'PARTIAL' && evidenceFloor(verifiable, citations, stop, { primaryDomains })));
-  // P1608: citation availability is not publication/event-time verification.
+  // Citation availability is not publication/event-time verification.
   // Search collection time and dates guessed from URLs never establish recency.
   const asOf = Date.parse(decision.decidedAt || questionPlan.researchPlan?.eventWindow?.asOf || '');
   const days = questionPlan.researchPlan?.eventWindow?.lookbackDays;

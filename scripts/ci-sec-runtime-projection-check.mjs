@@ -6,7 +6,7 @@ import { readSecLedger, secLedgerSkipNote } from './lib/sec-ledger.mjs';
 import { expandSecRecords } from '../src/data/contracts/sec-projection.js';
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-// P1757: the canonical ledger is producer-only (data-store branch). The producer runs this gate with the ledger it
+// The canonical ledger is producer-only (data-store branch). The producer runs this gate with the ledger it
 // just wrote; CI restores it only when its digest matches this checkout's manifest. Without it, the projection-only
 // contract (identity, size bound, manifest self-consistency, receipt fixtures) still runs and the source-vs-projection
 // comparison is skipped with a label, never passed silently.
@@ -15,7 +15,7 @@ const sourceText = ledger.present ? ledger.text : null;
 const runtimeText = read('public-data/sec-fundamentals-summary.json');
 const source = ledger.present ? ledger.data : null;
 const runtimeArtifact = JSON.parse(runtimeText);
-// v59.47: records are compared after the record-defaults expansion every reader applies.
+// Records are compared after the record-defaults expansion every reader applies.
 const runtime = { ...runtimeArtifact, data: expandSecRecords(runtimeArtifact) };
 const manifest = JSON.parse(read('public-data/sec-fundamentals-summary.manifest.json'));
 const canonicalText = (value) => value.replace(/\r\n?/g, '\n');
@@ -32,14 +32,14 @@ if (manifest.runtimeSha256 !== sha256(runtimeText) || manifest.runtimeBytes !== 
 if (!/^[0-9a-f]{64}$/.test(String(manifest.sourceSha256 || '')) || !(manifest.sourceBytes > 0)) fail('projection manifest does not name its canonical source digest');
 if (!source) console.log(secLedgerSkipNote('sec-runtime-projection', 'source-vs-projection field, equity, digest and published-receipt checks', ledger));
 const sourceSymbols = source ? Object.keys(source.data || {}) : [];
-// 2026-10-13 F03/F05: the publish-time heal is idempotent, so a healed source passes through the projection unchanged.
+// The publish-time heal is idempotent, so a healed source passes through the projection unchanged.
 for (const symbol of sourceSymbols) {
   const once = reconcileSecRevenueShares(source.data[symbol]);
   if (reconcileSecRevenueShares(once) !== once) fail(`${symbol} revenue/shares heal is not idempotent`);
 }
 if (source && (sourceSymbols.length !== runtimeSymbols.length || sourceSymbols.some((symbol) => !runtime.data[symbol]))) fail('runtime symbol coverage differs from canonical source');
 for (const symbol of sourceSymbols) {
-  // 2026-10-13 F03/F05: the producer heals revenue/shares at publish time (reconcileSecRevenueShares) before the
+  // The producer heals revenue/shares at publish time (reconcileSecRevenueShares) before the
   // projection is built, so the projection's own idempotent heal leaves these fields equal to the source.
   const canonical = source.data[symbol];
   const projected = runtime.data[symbol];
@@ -66,7 +66,7 @@ for (const symbol of sourceSymbols) {
   const canonical = source.data[symbol];
   const projected = runtime.data[symbol];
   const reconciled = reconcileSecEquity(canonical);
-  // P1449: the projection drops a redundant `equityConcept: 'StockholdersEquity'` (the shipped
+  // The projection drops a redundant `equityConcept: 'StockholdersEquity'` (the shipped
   // record IS the parent basis by policy) but keeps the conflict evidence; the comparator mirrors
   // that rule so the identity the reader sees is exactly what the runtime gets.
   const expectedConcept = reconciled?.equityConcept === 'StockholdersEquity' ? undefined : reconciled?.equityConcept;
@@ -130,7 +130,7 @@ if (source) {
 }
 
 // 배선: 생산자가 receipt를 발행하고 projection이 소비자에게 넘긴다.
-// P1256: 계약의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다 — 본체 토큰은 정본에서,
+// 계약의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다 — 본체 토큰은 정본에서,
 // SEC 발행 배선 토큰은 생산자 소스에서 검사한다.
 const receiptImplSource = read('scripts/lib/domain-receipt.mjs');
 for (const token of ['buildDomainReceipt', 'lastSuccessfulObservation', 'NO_REFRESH_RETAINED', 'legacyUnknown', 'generatedAtIsNotFreshness']) {

@@ -1,4 +1,4 @@
-// v57.70 (2026-10-15 audit): Telegram summaries reached the news screen with pictographs ("▶️ 주요 코멘트", "☁️ CRWV"),
+// Telegram summaries reached the news screen with pictographs ("▶️ 주요 코멘트", "☁️ CRWV"),
 // box-drawing rules ("━━━━") and quoted Chinese originals ("韩国首尔综指下跌6%。"), against the no-emoji rule. A segment
 // written in Chinese with no Hangul is the channel's quoted source, not its Korean summary, and is left out; a single
 // Hanja inside a Korean sentence (中, 韓) stays. Pure: no I/O.

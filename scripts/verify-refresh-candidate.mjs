@@ -41,7 +41,7 @@ function candidateFiles(cwd, explicitPaths) {
   return [...new Set([...gitLines(cwd, ['diff', '--no-renames', '--name-only', 'HEAD']), ...gitLines(cwd, ['ls-files', '--others', '--exclude-standard'])])].sort();
 }
 
-// P1415: a producer may delete files (the masters builder garbage-collects unreferenced 13F
+// A producer may delete files (the masters builder garbage-collects unreferenced 13F
 // projections). A tracked file that is gone from the worktree is a deletion in the candidate, not an
 // unreadable file — treating it as MISSING failed every operator dispatch (it always runs the full
 // 13F chain) while schedule runs, which rarely do, passed.
@@ -76,7 +76,7 @@ function digestGitTree(cwd, files, revision, deleted = []) {
     const objectSpec = `${revision}:${file}`;
     const sizeResult = spawnSync('git', ['cat-file', '-s', objectSpec], { cwd, encoding: 'utf8', maxBuffer: 4096 });
     const expectedBytes = Number(String(sizeResult.stdout || '').trim());
-    // P1415: a recorded deletion must be absent from the staged/committed tree.
+    // A recorded deletion must be absent from the staged/committed tree.
     if (deletedSet.has(file)) { hash.update(sizeResult.status === 0 ? 'PRESENT' : 'DELETED'); continue; }
     if (sizeResult.status !== 0 || !Number.isSafeInteger(expectedBytes) || expectedBytes < 0) {
       missing.push(file);
@@ -168,7 +168,7 @@ function expectGitTree(cwd, expectPath, revision) {
     console.error('[refresh-candidate] recorded candidate schema or repository does not match this run');
     process.exit(2);
   }
-  // P1497: content-addressed 13F objects are deleted and re-created with similar bytes; staged rename detection
+  // content-addressed 13F objects are deleted and re-created with similar bytes; staged rename detection
   // folded each deleted path into its successor, so the staged set lost 1,110 deletions the candidate recorded.
   const files = revision === '' ? gitLines(cwd, ['diff', '--cached', '--no-renames', '--name-only', 'HEAD']) : baseline.files;
   const { digest, missing } = digestGitTree(cwd, baseline.files, revision, Array.isArray(baseline.deleted) ? baseline.deleted : []);
@@ -216,7 +216,7 @@ function selfTest() {
     const tampered = runCli('--expect', baselinePath);
     if (tampered.status !== 1 || !/CANDIDATE MISMATCH/.test(tampered.stderr)) throw new Error(`tampered candidate was not rejected: ${tampered.status} ${tampered.stderr}`);
     // re-record the new tree — expect must pass
-    // P1299/QA-DATA-42: staged and committed blobs above Node's default 1 MiB buffer remain verifiable.
+    // Staged and committed blobs above Node's default 1 MiB buffer remain verifiable.
     writeFileSync(join(repo, 'large.bin'), Buffer.alloc(1024 * 1024 + 64, 0x61));
     record(repo, baselinePath, null);
     const clean = runCli('--expect', baselinePath);
@@ -237,7 +237,7 @@ function selfTest() {
     git('commit', '-m', 'validated');
     const committed = runCli('--expect-commit', baselinePath);
     if (committed.status !== 0) throw new Error(`P1299/QA-DATA-42 committed candidate with >1 MiB blob was rejected: ${committed.stderr}`);
-    // P1415: a producer deletion is part of the candidate through every gate.
+    // A producer deletion is part of the candidate through every gate.
     rmSync(join(repo, 'artifact.json'));
     record(repo, baselinePath, null);
     const deletedExpect = runCli('--expect', baselinePath);
@@ -248,7 +248,7 @@ function selfTest() {
     git('commit', '-m', 'gc');
     const deletedCommitted = runCli('--expect-commit', baselinePath);
     if (deletedCommitted.status !== 0) throw new Error(`P1415 committed deletion rejected: ${deletedCommitted.stderr}`);
-    // P1497: a deletion plus a near-identical new file (a content-addressed object replaced) is not a rename.
+    // A deletion plus a near-identical new file (a content-addressed object replaced) is not a rename.
     const body = `${'{"rows":['.padEnd(20, ' ')}${Array.from({ length: 200 }, (_, i) => i).join(',')}]}
 `;
     writeFileSync(join(repo, 'obj-a.json'), body);

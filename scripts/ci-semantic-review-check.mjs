@@ -15,12 +15,11 @@ const check = (label, condition, detail = '') => {
 const version = JSON.parse(read('version.json')).version;
 const html = read('index.html');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-// P1132/R619: the ticker deep-analysis entry-verdict gate moved from index.html's block F to js/aio-ui.js.
 const ui = read('js/aio-ui.js');
 const tests = read('js/aio-tests.js');
 const runtimeGate = read('scripts/ci-runtime-contract-check.mjs');
 const tradingScoreDomain = read('src/domain/market/signal/trading-score.js');
-// v57.54: the R219/P513/P513-Q1/v50.89 prose-marker checks that used to read RULES.md, QA-CHECKLIST.md,
+// The R219/P513/P513-Q1/v50.89 prose-marker checks that used to read RULES.md, QA-CHECKLIST.md,
 // BUG-POSTMORTEM.md and CHANGELOG.md are replaced by architecture/governance-markers.json (policy
 // "semantic-review"), verified by ci-workflow-compaction-check.mjs. This gate checks code and evidence only.
 const coveragePath = '_artifacts/exhaustive-audit-20260831/coverage-summary.json';
@@ -58,11 +57,11 @@ const report = {
 };
 
 check('semantic review script exists', exists('scripts/ci-semantic-review-check.mjs'));
-// v57.84: the inventory is a report, not a floor. The old `shapeOnlyLabels >= 50` floor made deleting a shallow
+// The inventory is a report, not a floor. The old `shapeOnlyLabels >= 50` floor made deleting a shallow
 // shape-only assertion fail CI, so the gate rewarded keeping the very tests it called a backlog.
 check('audit inventory is measurable', assertLabels.length > 0, JSON.stringify(report));
 check('runtime contract gate references semantic review', /ci-semantic-review-check\.mjs/.test(runtimeGate) && /semantic review/.test(runtimeGate));
-// v57.84: certification was impossible by construction (`releaseCertified === false` was required). It may now
+// Certification was impossible by construction (`releaseCertified === false` was required). It may now
 // be true only with a named reviewer, a date, an evidence path, and full current-line coverage.
 const certificationValid = coverage?.releaseCertified === false
   || (coverage?.releaseCertified === true && typeof coverage.certifiedAt === 'string' && /^\d{4}-\d{2}-\d{2}/.test(coverage.certifiedAt)
@@ -78,19 +77,18 @@ check('line-level semantic coverage ledger exists and stays fail-closed until ce
   JSON.stringify(report.semanticCoverage));
 warnings.push(`SEMANTIC_REVIEW_OPEN current=${currentCoveragePct === null ? 'unknown' : currentCoveragePct.toFixed(2)}% (${coverage?.currentSemanticallyReviewedLines || 0}/${coverage?.codeConfigCurrentLines || 0} lines), history=${historyCoveragePct === null ? 'unknown' : historyCoveragePct.toFixed(2)}% (${coverage?.historyReviewedTransitions || 0}/${coverage?.codeHistoryTransitions || 0} transitions); structural/audit PASS is not semantic certification.`);
 
-// P553: aligned with the same relaxation in ci-runtime-contract-check.mjs — the object literal
+// Aligned with the same relaxation in ci-runtime-contract-check.mjs — the object literal
 // no longer has to be the literal return expression (computeTradingScore builds it into a
 // variable first so the result can be cached), only the `{ total, score: total` shape must exist.
 // v51.98/Phase 3 [A3]: computeTradingScore/classifyMarketRegime moved from index.html inline to
-// js/aio-core.js (P594) — these now search `core`, not `html`. The breadth200 check is additionally
+// js/aio-core.js — these now search `core`, not `html`. The breadth200 check is additionally
 // scoped to classifyMarketRegime's own body (not a free-floating search across all of `core`,
 // which is large enough to contain an unrelated coincidental "breadth200...: 75)" match elsewhere).
-// RM-03 (2026-07-19): the alias-producing literal moved into
+// RM-03: the alias-producing literal moved into
 // src/domain/market/signal/trading-score.js's computeTradingScoreModel (single-implementation
 // extraction) — checks the domain module (where the shape now genuinely lives) plus proof the
 // legacy wrapper in `core` actually delegates to it.
 check('trading score semantic gate is present', /window\.AIO_ARCH\.computeTradingScoreModel/.test(read('src/app/score-entry-points.js')) && /\{\s*total\s*,\s*score\s*:\s*total/.test(tradingScoreDomain));
-// The legacy classifyMarketRegime was retired as dead code; the runtime gate now asserts it stays gone.
 check('P1753 breadth neutral fallback semantic gate is present', /optimistic breadth default 75/.test(runtimeGate) && !/function\s+classifyMarketRegime\b/.test(core));
 check('P1753 P1538 ticker deep analysis is retired and issues no entry verdict', /retired ticker deep analysis stays gone and issues no entry verdict/.test(runtimeGate) && !/function\s+analyzeTickerDeep\b/.test(ui) && !/marketAllowsEntry/.test(ui));
 check('event-risk semantic gate fails closed without an embedded point-in-time timeline', /event risk context fails closed/.test(runtimeGate) && /AIO_EVENT_RISK_CONTEXT/.test(core) && /available:\s*false/.test(core) && /asOf:\s*null/.test(core) && /timeline:\s*\[\]/.test(core));

@@ -1,3 +1,5 @@
+// The 테마 screen's daily "what changed" — sub-theme relative strength from the published
+// screener returns (no live quotes needed), and the AI capital-spending flow linked to those themes.
 import { themeStrengthLead } from '../../domain/market/story/page-flow.js';
 import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
@@ -16,10 +18,12 @@ import { dataStateText } from '../../domain/content/data-state.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 
 const SESSIONS = Object.freeze({ ret1d: 1, ret5d: 5, ret10d: 10, ret1m: 21, ret3m: 63, ret6m: 126 });
+// Audit 19: rank movement words, kept apart from the playbook's stage words (주도·조정·반등·약세).
 const DIRECTION = Object.freeze({ improving: ['최근 강해짐', 'favorable'], steady: ['큰 변화 없음', 'neutral'], weakening: ['최근 식음', 'burden'] });
 
 const pct = (value, digits = 1) => (value == null ? '—' : signedText(value, digits, '%'));
 
+// S&P 500 return over the same number of sessions, on the close basis.
 export function benchmarkReturns(history = []) {
   const spx = buildCloseSeries(history, 'spx', { through: closeBasis(history) });
   const last = spx[spx.length - 1];
@@ -31,12 +35,16 @@ export function benchmarkReturns(history = []) {
   return out;
 }
 
+// Codex browser audit H24: factorObservedAt is a bar start (the Korean session's 10/7 00:00 UTC), so during
+// the US session it printed "10/7 종가 기준" for US closes of 10/6. The basis is the completed session date
+// per market; the bar start is only a fallback for artifacts without per-market dates.
 export function basisOf(rows, metadata = null, history = []) {
   const sessions = metadata?.factorSessionDateByMarket;
   if (sessions && typeof sessions === 'object') {
     const us = isIsoDay(sessions.US || '') ? sessions.US : null;
 
     if (us) {
+      // X03: the date alone does not say whether the ranking may be read as today's leaders.
       const expected = latestCompletedUsSession(Date.now(), { requirePrevious: false })?.date || null;
       return expected && us < expected
         ? { label: `${shortDate(us)} 미국 종가 기준(최신 거래일 ${shortDate(expected)} 반영 전 — 지금의 주도가 아닌 기준일 참고 순위)`, stale: true, chip: sessionChipText(us, expected) }
@@ -51,6 +59,9 @@ export function basisOf(rows, metadata = null, history = []) {
   return dates.length ? { label: `${shortDate(dates[dates.length - 1])} 종가 기준` } : null;
 }
 
+// v59.70 (theme-sector, owner: "which theme led the day and the week, at a glance"): the face is one ranked bar list for
+// the chosen window (1일·1주·1개월·3개월). A row opens its members: each member's bar, its gap to the sub-theme median and
+// its share of the equal-weight average (return ÷ measured members). The multi-column table moved into a fold.
 const dirClass = (value) => ({ up: ' is-up', down: ' is-down' }[directionOf(value)] || '');
 function rankBar(doc, value, max) {
   const track = el(doc, 'span', null, 'tsr-track');
@@ -107,6 +118,7 @@ function detailTable(doc, root, model, ordered) {
   const table = el(doc, 'table', null, 'theme-strength-table');
   const thead = el(doc, 'thead');
   const hr = el(doc, 'tr');
+  // Without the S&P 500 return every 'S&P 대비' cell was '—'; the column is left out until it has values.
   const showVs = model.groups.some((group) => Number.isFinite(group.vsBenchmark));
   const labels = ['순위', '세부 테마', '1일', '1주', '2주', '1개월', '3개월', ...(showVs ? ['S&P 대비'] : []), '50일선 위', '순위 변화(3개월→1개월)', '구성 종목 전체'];
   labels.forEach((label) => hr.append(el(doc, 'th', label)));
@@ -115,12 +127,14 @@ function detailTable(doc, root, model, ordered) {
   for (const group of ordered) {
     const tr = el(doc, 'tr');
     tr.dataset.group = group.id;
+    // A group with fewer than 4 measured members is a reference row, not a ranked one.
     tr.append(el(doc, 'td', group.rank == null ? (group.smallSample ? '참고' : '—') : String(group.rank), 'is-rank'));
     const nameCell = el(doc, 'td');
     nameCell.append(el(doc, 'span', group.name, 'theme-strength-name'), el(doc, 'span', ` ${group.themeName}, ${group.listed}종목${group.members !== group.listed ? ` (수익률 ${group.members}개)` : ''}${group.smallSample ? `, 표본 ${group.members}종목, 참고` : ''}`, 'theme-strength-theme'));
     tr.append(nameCell);
     for (const key of ['ret1d', 'ret5d', 'ret10d', 'ret1m', 'ret3m']) {
       const cell = el(doc, 'td', pct(group[key] ?? null), `is-num${key === model.sortKey ? ' is-sorted' : ''}${dirClass(group[key])}${key === 'ret3m' ? ' is-quiet' : ''}`);
+      // A week that fell beyond the group's typical weekly move (group.recent, recent-check.js) is said in the title.
       if (key === 'ret5d' && group.recent?.broken) { cell.title = '평소 1주 움직임의 2배를 넘는 하락'; cell.dataset.recentBreak = 'true'; }
       tr.append(cell);
     }
@@ -142,11 +156,12 @@ function detailTable(doc, root, model, ordered) {
     }
     leaderCell.append(constituents);
     tr.append(leaderCell);
+    // v57.91 (phone audit): under 600px each row becomes a card (responsive.css); every value carries its column name.
     [...tr.children].forEach((cell, index) => { if (labels[index]) cell.dataset.label = labels[index].replace('(3개월→1개월)', ''); });
     tbody.append(tr);
   }
   table.append(thead, tbody);
-  const scroll = el(doc, 'div', null, 'aio-table-scroll');
+  const scroll = el(doc, 'div', null, 'aio-table-scroll'); // Cleanup: on a phone the table ran past the screen with no way to scroll
   scroll.append(table);
   scroll.setAttribute('role', 'region');
   scroll.setAttribute('aria-label', '세부 테마 상대강도 순위 표, 가로 스크롤');
@@ -167,10 +182,12 @@ function rankMoveFigure(doc, ranked) {
 
 function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggle, onCompare, onOrder) {
   host.replaceChildren();
+  // Section frame: title, the close as its chip (the full basis is the chip's hover), the period/order controls.
   const head = el(doc, 'div', null, 'theme-strength-head aio-frame-head');
   markFrame(host, 'themes.ranking');
   head.append(el(doc, 'h2', '세부 테마 순위', 'briefing-h2'));
   const controls = el(doc, 'div', null, 'theme-strength-controls aio-frame-actions');
+  // The order flips to read the weakest first; ranks keep their numbers.
   const weakestFirst = root._aioThemeStrengthOrder === 'asc';
   const tabs = (label, entries, active, onPick) => {
     const group = el(doc, 'div', null, 'theme-strength-periods');
@@ -190,13 +207,14 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   controls.append(tabs('순위 기간', STRENGTH_TABS.map((key) => [key, GROUP_WINDOWS[key], !hasKey(key)]), model.sortKey, onSort),
     tabs('정렬 방향', [['desc', '강한 순'], ['asc', '약한 순']], weakestFirst ? 'asc' : 'desc', onOrder));
   const basisText = `${basis ? basis.label : '스크리너 수익률 수신 대기'}, 구성 종목 ${model.windowLabel} 수익률의 중앙값으로 순위(${weakestFirst ? '약한 순' : '강한 순'}), S&P 500 ${model.windowLabel} ${pct(model.benchmark)}`;
-  if (basis) head.append(asOfChip(doc, basis.chip || closeChipText(basis.label), basisText));
+  if (basis) head.append(asOfChip(doc, basis.chip || closeChipText(basis.label), basisText)); // One lag label (session-lag.js)
   head.append(controls);
   host.append(head);
+  // On a stale basis the list stays as a dated reference and the "now leading" reading is held.
   const lead = basis?.stale ? '최신 거래일 종가가 아직 반영되지 않아 지금의 주도·개선 판단은 보류합니다. 아래 순위는 기준일 시점의 참고 값입니다.' : themeStrengthLead(model, { stages: root?.__aioThemePlaybook?.themes || null });
   // The reading is about the strong side; with the list flipped it says so.
   if (lead) host.append(sectionLead(doc, weakestFirst && !basis?.stale ? `강한 순으로 보면, ${lead}` : lead));
-  if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; }
+  if (!model.groups.length) { const load = screenerRowsState(root); host.append(el(doc, 'p', load === 'ready' ? '이 보기에서 비교할 테마 수익률이 없습니다.' : `${dataStateText(load, '스크리너 수익률')}.`, 'briefing-empty')); return; } // Bundle 3
   // Ranked rows flip with the order; reference rows (small samples, no rank) stay after them either way.
   const ranked = model.groups.filter((group) => group.rank != null);
   const ordered = [...(weakestFirst ? [...ranked].reverse() : ranked), ...model.groups.filter((group) => group.rank == null)];
@@ -248,7 +266,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   host._aioScrollEdges?.disconnect?.();
   fold.append(frame);
   host.append(fold);
-  host._aioScrollEdges = attachScrollCue(scroll, { frame, root });
+  host._aioScrollEdges = attachScrollCue(scroll, { frame, root }); // Shared helper (scroll-cue.js)
+  // v59.55 (alignment pass): why some sub-themes have no rank is fold depth, not a face footnote.
   const reference = model.groups.filter((group) => group.smallSample).length;
   if (model.excluded.length || reference) {
     const excluded = el(doc, 'details', null, 'theme-strength-unranked');
@@ -269,6 +288,8 @@ function renderStrength(doc, root, host, model, basis, onSort, expanded, onToggl
   }
 }
 
+// 개편 v2 (3f): the five strongest ranked sub-themes beside the sector scatter — the same model, window and rank
+// as the table below (no second computation), with the rank-movement word and a link down to the full table.
 const DIRECTION_CHIP = Object.freeze({ improving: 'sx-chip--good', steady: 'sx-chip--neutral', weakening: 'sx-chip--warn' });
 function renderTopSubthemes(doc, host, model, basis) {
   const top = model.groups.filter((group) => group.rank != null && Number.isFinite(group[model.sortKey])).slice(0, 5);
@@ -276,9 +297,11 @@ function renderTopSubthemes(doc, host, model, basis) {
   host.replaceChildren();
   if (!top.length) return;
   const head = el(doc, 'div', null, 'sx-card__head');
+  // The order is visible (rank numbers); "N 중앙값 순" became the title's hover.
   const title = el(doc, 'h3', `세부 테마 상위, ${model.windowLabel}`, 'sx-card__title');
   title.title = `구성 종목 ${model.windowLabel} 수익률 중앙값 순`;
   head.append(title);
+  // A stale basis is a short chip (the full sentence is its hover), not a banner over the list.
   if (basis?.stale) { const chip = el(doc, 'span', basis.chip, 'sx-chip sx-chip--date v2-themes-top__stale'); chip.title = basis.label; head.append(chip); }
   host.append(head);
   const list = el(doc, 'ol', null, 'v2-themes-top__list');
@@ -288,6 +311,8 @@ function renderTopSubthemes(doc, host, model, basis) {
     const name = el(doc, 'span', null, 'v2-themes-top__name');
     name.append(el(doc, 'b', group.name), el(doc, 'span', `${group.themeName}, ${group.listed}종목`, 'v2-themes-top__theme'));
     const dir = DIRECTION[group.direction];
+    // v59.70 (re-review N1): no placeholder for a missing chip — a class-less span took the phone's third column and
+    // pushed the value into a 20px cell. The value sits in the last column by CSS, whatever cells precede it.
     li.append(el(doc, 'span', String(group.rank), 'v2-themes-top__rank'), name);
     if (dir && !basis?.stale) li.append(el(doc, 'span', directionLabel(group, { short: true }), `sx-chip sx-chip--sm ${directionLabel(group) === dir[0] ? DIRECTION_CHIP[group.direction] || 'sx-chip--neutral' : 'sx-chip--neutral'}`));
     li.append(el(doc, 'b', pct(group[model.sortKey]), `v2-themes-top__value ${({ up: 'is-up', down: 'is-down' }[directionOf(group[model.sortKey])] || '')}`));
@@ -301,6 +326,9 @@ function renderTopSubthemes(doc, host, model, basis) {
   host.append(more);
 }
 
+// A whole theme's value. v58.74: the playbook pools the members of every sub-theme (src/domain/scenarios/theme-playbook.js),
+// so its own number is read first — the same theme showed -6.0% here and -7.7% in 테마 시나리오 on one page. Before the
+// playbook has rendered, the median of the sub-theme medians stands in and the caption says so.
 function themeGroupValues(model, themeId, root = null) {
   const pooled = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === themeId);
   if (pooled && Number.isFinite(pooled[model.sortKey])) return { value: pooled[model.sortKey], count: pooled.memberCount ?? pooled.members ?? null, pooled: true };
@@ -312,14 +340,20 @@ function themeGroupValues(model, themeId, root = null) {
 
 function renderCapexFlow(doc, root, host, model) {
   host.replaceChildren();
+  // Section frame: the dated, cited basis is the head's chip (its hover keeps the full sentence and the source).
   markFrame(host, 'themes.capex-flow');
   const capexHead = el(doc, 'div', null, 'sx-card__head aio-frame-head capex-flow-head');
   capexHead.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
   host.append(capexHead);
+  // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
+  // The split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
+  // cited reference with its date — never as an AIO estimate.
   capexHead.append(asOfChip(doc, `${AI_CAPEX_FLOW.asOf} 인용 자료`, `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분, 참고 자료(현재 신호 아님), 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준, 테마 값은 테마 시나리오와 같은 구성 종목 전체 중앙값. 출처: ${AI_CAPEX_FLOW.source}`));
   const bar = el(doc, 'div', null, 'capex-flow-bar');
   bar.setAttribute('role', 'img');
   bar.setAttribute('aria-label', AI_CAPEX_FLOW.layers.map((layer) => `${layer.label} ${layer.share}`).join(', '));
+  // '네트워크 15', '냉각 7.5' were cut inside 7.5%-wide segments. The bar carries short labels only
+  // (hidden on a phone), and the values sit in one legend line under it.
   const key = el(doc, 'p', null, 'capex-flow-legend');
   for (const layer of AI_CAPEX_FLOW.layers) {
     const seg = el(doc, 'div', null, `capex-flow-seg is-${layer.id}`);
@@ -332,11 +366,14 @@ function renderCapexFlow(doc, root, host, model) {
   }
   host.append(bar, key);
   const grid = el(doc, 'div', null, 'capex-flow-grid');
+  // One shared week axis for every card, derived from the data and stated on screen.
   const maxWeeks = Math.max(1, ...AI_BOTTLENECK_LEAD_TIMES.rows.map((row) => Number(row.weeks?.[1]) || 0));
   for (const layer of AI_CAPEX_FLOW.layers) {
     const card = el(doc, 'section', null, 'capex-flow-card');
     card.dataset.layer = layer.id;
     const head = el(doc, 'div', null, 'trend-card-head');
+    // The number is a share of a hypothetical 100달러 of AI capex (an estimate), not a spend or a
+    // growth rate — the value and the note both say so.
     const value = el(doc, 'span', `$${layer.share} / $100`, 'trend-card-value');
     value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 공개 리서치 인용)`;
     head.append(el(doc, 'h3', layer.label, 'trend-card-title'), value);
@@ -345,6 +382,7 @@ function renderCapexFlow(doc, root, host, model) {
     for (const themeId of layer.themes) {
       const theme = model.themes?.[themeId];
       if (!theme) continue;
+      // Audit 16: one method with the 테마 시나리오 cards — the median of the sub-theme medians on the latest session.
       const subs = themeGroupValues(model, themeId, root);
       const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
       button.type = 'button';
@@ -381,8 +419,10 @@ function renderCapexFlow(doc, root, host, model) {
     }
     grid.append(card);
   }
+  // The shared week axis is the grid's hover instead of a sentence above it.
   grid.title = `각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대), 모든 카드가 같은 0~${maxWeeks}주 축`;
   host.append(grid);
+  // The bottleneck sentence is the section's reading; the date and supplier scope are its hover.
   const leadLine = el(doc, 'p', AI_BOTTLENECK_LEAD_TIMES.note.replace(/\s*공급사는 원 자료에 나온 곳만 표시합니다\.?$/, ''), 'aio-frame-reading');
   leadLine.title = `납기 ${AI_BOTTLENECK_LEAD_TIMES.asOf} 기준, 공급사는 원 자료에 나온 곳만 표시, 출처: ${AI_BOTTLENECK_LEAD_TIMES.source}`;
   host.append(leadLine);
@@ -394,6 +434,8 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   if (!strengthHost && !flowHost) return null;
   const rows = store?.getState?.()?.screener?.rows || [];
   const focusedGroup = strengthHost?.contains(doc.activeElement) ? doc.activeElement?.dataset?.compareGroup : null;
+  // v59.70 (owner: a week over 15 sessions): 1주 leads, the same window as the sector bars and the hero; 1개월 stands in
+  // while the screener carries no five-session returns.
   const chosen = STRENGTH_TABS.includes(root._aioThemeStrengthSort) ? root._aioThemeStrengthSort : null;
   const build = (sortKey) => buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey, benchmark: benchmarkReturns(root?._aioHistory || []) });
   let model = build(chosen || 'ret5d');
@@ -404,7 +446,7 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
     strengthHost.dataset.aioThemeStrengthRenderer = 'native';
     const topHost = doc.getElementById('themes-top-subthemes');
     if (topHost) renderTopSubthemes(doc, topHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []));
-    if(focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find(button=>button.dataset.compareGroup===focusedGroup)?.focus({preventScroll:true});
+    if(focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find(button=>button.dataset.compareGroup===focusedGroup)?.focus({preventScroll:true}); // P1622 preserve comparison focus across async data repaint too.
   }
   if (flowHost) { renderCapexFlow(doc, root, flowHost, model); flowHost.dataset.aioCapexFlowRenderer = 'native'; }
   return model;

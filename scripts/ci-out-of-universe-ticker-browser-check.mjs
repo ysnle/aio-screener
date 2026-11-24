@@ -1,6 +1,6 @@
 // v57.81 (owner 2026-10-15: "단순 내부 데이터베이스에 등록만 한다고 끝이 아니야"): a US listing outside the published
 // screener universe works across the app — it is placed against the universe with the screener's own formula, 종목's
-// 개요 and 재무 공시 read its SEC filing on demand (or say why not), its chart opens on 기술적 분석 (v60.31), the watchlist,
+// 개요 and 재무 공시 read its SEC filing on demand (or say why not), its chart opens on 기술적 분석, the watchlist,
 // portfolio and AI context accept it, and an unlisted symbol is refused. Real route lifecycle; Yahoo chart, SEC
 // companyfacts/submissions and the listing directory are intercepted fixtures; every other external call (AI included)
 // is aborted. Not a live provider certification.
@@ -72,7 +72,7 @@ async function layout(page, label) {
   observations.push({ label, layout: result });
   check(result.overflow <= 2 && !result.clipped.length, `${label}: content escapes the viewport (v57.81)`, result);
 }
-// v60.31: 종목 is company analysis (개요, 재무 공시) with no placement block, price chart or rank; the on-demand record is
+// 종목 is company analysis (개요, 재무 공시) with no placement block, price chart or rank; the on-demand record is
 // read where the screens read it, and the chart is 기술적 분석's analysis slot.
 const recordReady = (page, sym, timeout = 30000) => page.waitForFunction((s) => window._aioOnDemandSymbol?.(s)?.status === 'ready', sym, { timeout });
 
@@ -133,7 +133,7 @@ try {
       await page.evaluate(() => window.showTicker('BUFX'));
       const bufx = await page.waitForFunction(() => /Fixture Dynamic Buffer ETF/.test(document.getElementById('ticker-hero-fullname')?.textContent || ''), null, { timeout: 15000 }).then(() => true).catch(() => false);
       check(bufx, `${label}: an unregistered listed symbol must show its official listing name (v59.54)`, await page.evaluate(() => document.getElementById('ticker-hero-fullname')?.textContent || ''));
-      // v59.74 (integration review): the name stays after the symbol's own quote request re-renders the hero; a confirmed
+      // The name stays after the symbol's own quote request re-renders the hero; a confirmed
       // listing counts as known, which used to drop the cached name back to the letters about a second later.
       await page.waitForFunction(() => !window.__aioQuoteDemand?.state().running, null, { timeout: 15000 }).catch(() => {});
       await page.waitForTimeout(1500);
@@ -164,7 +164,7 @@ try {
       const haloFund = await page.evaluate(() => document.getElementById('fund-data-status')?.textContent || '');
       check(/CIK/.test(haloFund) && !/SEC 데이터 미수신/.test(haloFund), `${label}: HALO 재무 status must name the missing CIK (v57.81)`, haloFund);
 
-      // 5. Watchlist accepts listed symbols (v58.76: price alerts are retired), refuse unlisted ones, and add accepted ones to the quote set.
+      // 5. Watchlist accepts listed symbols (price alerts are retired), refuse unlisted ones, and add accepted ones to the quote set.
       const accept = await page.evaluate(async () => {
         localStorage.setItem('aio_watchlists', JSON.stringify([{ id: 'wl-oou', name: 'fixture', tickers: [] }]));
         localStorage.setItem('aio_watchlist_active', 'wl-oou');
@@ -179,8 +179,8 @@ try {
       check(accept.saved.includes('MLI') && !accept.saved.includes('ZZZZ'), `${label}: watchlist must accept a listed symbol and refuse an unlisted one (v57.81)`, accept);
       check(['MLI', 'UFPT'].every((s) => accept.quoteSet.includes(s)) && !accept.quoteSet.includes('ZZZZ') && accept.zzzz.ok === false, `${label}: accepted symbols must join the quote request set; unlisted never (v57.81)`, accept);
 
-      // 5b. P2070: a stock page's 관심 종목 추가 with no list makes a "관심 종목" list instead of asking to pick one.
-      //     P2069: a typed search for an unlisted symbol stays on the search miss instead of opening a stock page.
+      // 5b. A stock page's 관심 종목 추가 with no list makes a "관심 종목" list instead of asking to pick one.
+      //     A typed search for an unlisted symbol stays on the search miss instead of opening a stock page.
       const firstUse = await page.evaluate(async () => {
         localStorage.removeItem('aio_watchlists');
         localStorage.removeItem('aio_watchlist_active');

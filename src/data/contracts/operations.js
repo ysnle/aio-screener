@@ -1,20 +1,38 @@
+// NO_ROUTE is a real operational state the artifact already published
+// (`ai.publicChat.status`) but never declared, so the vocabulary must name it.
 export const OPERATIONS_STATUS = Object.freeze(['CURRENT', 'DEGRADED', 'BLOCKED', 'OPERATOR_REQUIRED', 'NO_ROUTE', 'UNKNOWN']);
 export const RIGHTS_STATUS = Object.freeze(['VERIFIED', 'REVIEW_REQUIRED', 'OPERATOR_REQUIRED', 'UNAVAILABLE', 'UNKNOWN']);
 export const OPERATIONAL_STATE_CODES = Object.freeze(['NOT_CONFIGURED', 'CONFIGURED_HEALTHY', 'CONFIGURED_BROKEN', 'STALE', 'NOT_OBSERVED', 'RIGHTS_REVIEW_REQUIRED']);
+// P1173 (17 작업 단위 5): `overall`/`planes.*.status` says what an operator's pipeline is doing. It does
+// not say which features a user can actually rely on right now. Overall reflects durable health and
+// open operator blockers. A browser plane that was never observed leaves it unchanged. Feature availability is
+// therefore a separate axis with its own closed vocabulary.
 export const FEATURE_AVAILABILITY = Object.freeze(['AVAILABLE', 'DEGRADED', 'UNAVAILABLE', 'UNKNOWN']);
+// 도메인 receipt의 발행 상태는 수집 성공의 어휘이다 —
+// "기존값 유지(NO_REFRESH_RETAINED)"는 성공이 아니며, NOT_ATTEMPTED는 결과가 아니다.
 export const DOMAIN_RECEIPT_PUBLICATION_STATUS = Object.freeze(['SUCCESS', 'PARTIAL', 'NO_REFRESH_RETAINED', 'EMPTY', 'NOT_ATTEMPTED']);
 
 export function createOperationsStatus(input = {}) {
   return Object.freeze({
     schemaVersion: String(input.schemaVersion || 'operations-status-v1'),
+    // This field used to publish OPERATIONAL_STATE_CODES under the name
+    // `statusVocabulary`, so the declared vocabulary and the values actually used
+    // for `overall`/`planes.*.status` had zero overlap and no consumer could
+    // interpret them. `status` and `statusCode` are two different axes and now
+    // declare two differently named vocabularies.
     statusVocabulary: OPERATIONS_STATUS,
     statusCodeVocabulary: OPERATIONAL_STATE_CODES,
+    // P1103: RIGHTS_STATUS was declared here but never published, so the
+    // `rights`/`licensedForUse` values (REVIEW_REQUIRED, OPERATOR_REQUIRED) were
+    // unfalsifiable for a consumer that only had the artifact.
     rightsVocabulary: RIGHTS_STATUS,
     generatedAt: input.generatedAt || null,
     appRevision: String(input.appRevision || 'unknown'),
     dataRevision: String(input.dataRevision || 'unknown'),
     evidenceRevision: String(input.evidenceRevision || 'unknown'),
     overall: OPERATIONS_STATUS.includes(input.overall) ? input.overall : 'UNKNOWN',
+    // P1173 (17 작업 단위 5): a field the contract drops is not published. The aggregate's scope and the
+    // per-feature availability have to survive normalization to be readable by a consumer at all.
     overallBasis: input.overallBasis && typeof input.overallBasis === 'object'
       ? Object.freeze({
         planes: Object.freeze(Array.isArray(input.overallBasis.planes) ? input.overallBasis.planes.map(String) : []),
@@ -31,6 +49,8 @@ export function createOperationsStatus(input = {}) {
         sources: Object.freeze(Array.isArray(entry?.sources) ? entry.sources.map(String) : [])
       })])))
       : Object.freeze({}),
+    // 도메인 receipt의 소비 결과 — 원본 receipt의 `publication.status`는 이 표면에서
+    // 선언 어휘와 겹치지 않도록 `publicationStatus`로 이름을 바꿔 실어 나른다.
     domainReceipts: input.domainReceipts && typeof input.domainReceipts === 'object'
       ? Object.freeze(Object.fromEntries(Object.entries(input.domainReceipts).map(([domain, entry]) => [String(domain), Object.freeze({
         publicationStatus: DOMAIN_RECEIPT_PUBLICATION_STATUS.includes(entry?.publicationStatus) ? entry.publicationStatus : 'NOT_ATTEMPTED',
@@ -96,6 +116,7 @@ export function validateOperationsStatus(status) {
     }
   };
   walk(surface, 'operations');
+  // 도메인 receipt의 publicationStatus도 선언 어휘로 해석 가능해야 한다.
   const domainStatuses = new Set(DOMAIN_RECEIPT_PUBLICATION_STATUS);
   for (const [domain, entry] of Object.entries(status?.domainReceipts || {})) {
     if (!domainStatuses.has(entry?.publicationStatus)) errors.push(`undeclared_domain_publication_status:${domain}`);

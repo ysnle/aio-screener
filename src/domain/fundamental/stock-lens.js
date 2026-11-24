@@ -1,3 +1,7 @@
+// v58.75 (owner 2026-10-24, '고르는 법' layer B): how an expert reads one company — the lens for its kind of business, where
+// it stands against its named theme peers, the situations that favour or burden it, a thesis template with its checks and
+// break signals, and the market link. Pure: everything comes in as arguments (parsed SEC history, screener rows, consensus,
+// the interpretation's crossroads, regime). The app never picks: these are facts, conditions and counts — no price, weight, grade or odds.
 import { finiteFact as finite, fiscalYearLabel, isPriorAnnualPeriod } from './period.js';
 import { themeProfile, windFor, WIND_LABELS, EXPOSURE_TAGS } from '../scenarios/exposures.js';
 import { BRANCHES } from '../market/regime/macro-crossroads.js';
@@ -10,7 +14,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { formatScreenerPrice } from '../screener/market-scope.js';
 
 const pct = (value, digits = 1) => (value == null ? null : `${value.toFixed(digits)}%`);
-const usdShort = (value) => usdKoreanText(value);
+const usdShort = (value) => usdKoreanText(value); // first-users F33: one money format
 const branchTitle = (branch) => String(branch?.title || '').split(' — ')[0];
 
 // ── 1. Lens registry ────────────────────────────────────────────────────────────────────────────────────────────────
@@ -30,6 +34,8 @@ export const STOCK_LENSES = Object.freeze({
     metrics: [M('revenueGrowth', '광고 경기와 사용자 확대가 매출 성장에 바로 드러납니다.'), M('operatingMargin', '플랫폼 지배력은 높은 영업이익률로 나타납니다.'),
       M('capexIntensity', 'AI 데이터센터 투자가 매출 대비 얼마나 큰지가 이익의 압박 요인입니다.'), M('fcfMargin', '투자를 하고도 현금이 남는지 확인합니다.'),
       M('shareholderReturn', '남는 현금을 자사주·배당으로 돌리는지가 주당 가치에 영향을 줍니다.'), M('revisions', '이익 전망 수정 방향이 투자 비용 부담을 먼저 반영합니다.')] },
+  // SIC 3571 holds Apple next to server makers; "고객의 설비투자" misdescribed a device maker, so the
+  // lens names both buyers (기업 설비투자 · 소비자 교체 주기).
   hardware: { label: '하드웨어·기기', why: '기업의 설비투자나 소비자의 기기 교체 주기에 매출이 따라가는 업종이라, 성장 속도와 마진, 투자 부담을 함께 봅니다.',
     metrics: [M('revenueGrowth', '기업 고객의 설비투자나 소비자의 교체 수요가 매출 성장으로 나타납니다.'), M('grossMargin', '부품 원가와 가격 협상력이 매출총이익률에 드러납니다.'),
       M('capexIntensity', '생산능력 확충이 매출보다 앞서는지 확인합니다.'), M('netCash', '사이클이 꺾일 때 버틸 재무 여력입니다.'), M('revisions', '고객의 투자 계획이나 신제품 수요 변화가 이익 전망에 먼저 반영됩니다.')] },
@@ -96,6 +102,10 @@ const UNCOLLECTED = Object.freeze({ inventory: '재고 — 10-Q 재무상태표�
   nim: '순이자마진 — 분기 실적 자료', cet1: 'CET1 자본비율 — 분기 실적 자료', creditCost: '대손비용 — 10-Q 손익계산서', pipeline: '임상·특허 일정 — 10-K 사업 설명',
   backlog: '수주잔고 — 실적 발표 자료', ffo: 'FFO — 리츠 보충 자료' });
 
+// MU read '비슷' with four quarters +256.3% and the latest quarter +379.3% — the trend compared the four
+// quarters with the fiscal year (both +256%). The newest piece is compared with the longer run it sits in: the latest
+// quarter's year-over-year growth against the four-quarter growth, else the four quarters against the fiscal year. A gap
+// beyond max(3%p, a tenth of the longer run's size) is a direction.
 export function growthTrend(quarter, trailing, fiscal) {
   const [recent, base] = quarter != null && trailing != null ? [quarter, trailing] : trailing != null && fiscal != null ? [trailing, fiscal] : [null, null];
   if (recent == null) return null;
@@ -108,6 +118,8 @@ export function growthTrend(quarter, trailing, fiscal) {
 function metricValue(id, ctx) {
   const years = (ctx.history || []).filter((year) => finite(year?.revenue) > 0);
   const latest = years.at(-1) || null;
+  // v59.45 (pipeline review P19-PERIOD-01): the year before is the adjacent fiscal year only (the 재무 공시 view's rule);
+  // FY2022 → FY2025 is not "전년", so growth, prior capex, average-equity ROE and "1년 전" margin wait for it.
   const prior = latest && isPriorAnnualPeriod(latest, years.at(-2)) ? years.at(-2) : null;
   const label = latest ? fiscalYearLabel(latest.periodEnd) || '최근 연도' : null;
   const ladder = ctx.marginCash?.state === 'ready' ? ctx.marginCash : null;
@@ -147,6 +159,8 @@ function metricValue(id, ctx) {
     case 'sbcRatio': return ladder?.capital?.sbcRatio != null ? { text: `매출의 ${pct(ladder.capital.sbcRatio)}, ${ladder.label}`, trend: null } : null;
     case 'shareholderReturn': return ladder?.capital?.returnedShareOfFcf != null ? { text: `${RETURNED_LABEL[ladder.capital.returnedBasis] || RETURNED_LABEL.both}이 잉여현금의 ${ladder.capital.returnedShareOfFcf.toFixed(0)}%, ${ladder.label}`, trend: null } : null;
     case 'dividends': return ladder?.capital?.dividends != null ? { text: `배당 ${usdShort(ladder.capital.dividends)}${ladder.capital.fcf > 0 ? `(잉여현금의 ${(ladder.capital.dividends / ladder.capital.fcf * 100).toFixed(0)}%)` : ''}, ${ladder.label}`, trend: null } : null;
+    // v59.45 (P19-CASH-01): the collected debt is long-term only, so the figure names that scope.
+    // A debt figure that includes finance leases says so (ctx.debtBasis, sec-fiscal-history.json debtBasis).
     case 'netCash': return ladder?.cash?.net != null ? { text: `${ladder.cash.net >= 0 ? '순현금' : '순부채'} ${usdShort(Math.abs(ladder.cash.net))}(현금 − ${debtLabel(ladder.cash.debtBasis)}), ${ladder.label} 말`, trend: null } : null;
     case 'leverage': {
       const value = latest && finite(latest.longTermDebt) != null && finite(latest.equity) > 0 ? latest.longTermDebt / latest.equity * 100 : null;
@@ -160,7 +174,7 @@ function metricValue(id, ctx) {
     case 'revisions': {
       const fwd = ctx.consensus?.fwd;
       if (!fwd) return null;
-      if (finite(fwd.up4w) == null && finite(fwd.down4w) == null) return { text: '최근 4주 수정 자료 없음', trend: null };
+      if (finite(fwd.up4w) == null && finite(fwd.down4w) == null) return { text: '최근 4주 수정 자료 없음', trend: null }; // Not collected ≠ no change
       const up = finite(fwd.up4w) || 0, down = finite(fwd.down4w) || 0;
       return { text: up || down ? `최근 4주 상향 ${up}, 하향 ${down}` : '최근 4주 변경 없음', trend: up > down ? '상향 우세' : down > up ? '하향 우세' : '중립' };
     }
@@ -187,10 +201,14 @@ export const metricLabel = (id) => METRIC_LABELS[id] || id;
 // rows: [self, ...peers] with growth, margin, roe, fcfMargin, fwdPe, ret3m. Higher is the stronger side except the
 // forward PER (a lower multiple is a lighter price burden). A metric needs this company's value and at least four values.
 export const PEER_FACTS = Object.freeze([
+  // v60.50 (C): `healthy` — at or above this level a quality metric is not listed as 약한 점 for trailing richer peers
+  // (MU ROE 88.3% read 약한 점 as 5th of 8). It can still be a strength.
   { id: 'growth', label: '매출 성장', unit: '%', better: 'high' }, { id: 'margin', label: '순이익률', unit: '%', better: 'high', healthy: 20 },
   { id: 'roe', label: 'ROE', unit: '%', better: 'high', healthy: 20 }, { id: 'fcfMargin', label: '잉여현금 마진', unit: '%', better: 'high', healthy: 15 },
   { id: 'fwdPe', label: 'Forward PER', unit: '배', better: 'low' }, { id: 'ret3m', label: '3개월 주가 수익률', unit: '%', better: 'high' }
 ]);
+// Under the consensus peak-earnings caution (peakEarnings) a low forward PER is not a strength — MU read '강한 점
+// Forward PER 3.4배, 가격 부담이 가벼운 편' right under the 이 주가가 반영하는 것 condition that says why it looks low.
 export function buildPeerStrengths(rows = [], { max = 3, peakEarnings = false } = {}) {
   const self = rows.find((row) => row?.self);
   if (!self) return null;
@@ -199,9 +217,13 @@ export function buildPeerStrengths(rows = [], { max = 3, peakEarnings = false } 
     const value = finite(self[fact.id]);
     const values = rows.map((row) => finite(row[fact.id])).filter((v) => v != null);
     if (value == null || values.length < 4) continue;
+    // v59.45 (pipeline review P19-PEER-01): ties share a rank ("공동") and sit at their mid rank, and a value equal to
+    // the peer median is neither a strength nor a weakness — four equal growth rates read "1위 · 강점" before.
     const ahead = values.filter((v) => (fact.better === 'high' ? v > value : v < value)).length;
     const tied = values.filter((v) => v === value).length;
     const rank = ahead + 1;
+    // v58.80 (first-users bundle 1): the median is the peers' own, without this company — the 재무 공시 theme card used
+    // peers only (ROE 24.3%) while this read counted the company too (26.2%), so one peer group had two medians.
     const peerValues = rows.filter((row) => !row?.self).map((row) => finite(row[fact.id])).filter((v) => v != null);
     if (!peerValues.length) continue;
     const sorted = [...peerValues].sort((a, b) => a - b);
@@ -219,6 +241,8 @@ export function buildPeerStrengths(rows = [], { max = 3, peakEarnings = false } 
   return { strengths, weaknesses, facts, peers: rows.length - 1 };
 }
 
+// The time basis of the peer comparison (analysis-read.js buildThemePeers `basis`), for the '기준' fold line.
+// A peer group without a basis (built before 2026-11-18) reads as fiscal years throughout.
 export function peerBasisText(basis = null) {
   const ttmIds = ['growth', 'margin'].filter((id) => basis?.[id]?.basis === 'ttm');
   const label = { growth: '매출 성장', margin: '순이익률' };
@@ -301,6 +325,8 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
   const support = levels?.supportCandidates?.[0] || null;
   const resistance = levels?.resistanceCandidates?.[0] || null;
   const price = (v) => `$${Number(v).toFixed(2)}`;
+  // A negative implied growth is a shrink the price still explains; the thesis then holds while free cash
+  // flow does not shrink faster than that.
   const shrinks = impliedPct != null && Number(impliedPct.toFixed(1)) < 0;
   const rate = impliedPct != null ? Math.abs(impliedPct).toFixed(1) : null;
   const priced = impliedPct != null
@@ -325,6 +351,7 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
   ].filter(Boolean);
   const paths = [
     { id: 'earnings', label: '이익 성장 경로', holds: '매출과 이익률이 유지돼 이익이 늘면, 배수가 그대로여도 이익만큼 가치가 커집니다.', fails: '성장 둔화나 이익률 하락이 겹치면 이 경로가 약해집니다.' },
+    // Under the consensus peak-earnings caution a low forward multiple is not read as room to re-rate.
     { id: 'multiple', label: '밸류에이션(배수) 경로', holds: peerPe?.value != null && peerPe?.median != null ? `Forward PER ${peerPe.value.toFixed(1)}배가 동종 중앙값 ${peerPe.median.toFixed(1)}배보다 ${peerPe.value >= peerPe.median ? '높아, 배수가 더 오르려면 동종보다 빠른 성장이 확인돼야 합니다'
       : peakEarnings ? '낮지만, 큰 이익 증가를 전제로 한 배수라 경기순환 업종이면 이익 정점 근처에서 가장 낮게 보입니다 — 다시 매겨질 여지보다 이익 전망이 유지되는지가 먼저입니다'
         : '낮아, 전망이 계속 좋아질 때 배수가 동종 쪽으로 다시 매겨질 여지가 있습니다'}.` : '이익 전망이 좋아지고 시장 환경이 받쳐 주면 같은 이익에 더 높은 배수가 매겨질 수 있습니다.',
@@ -335,12 +362,14 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
 
 // ── 5. What to keep watching ───────────────────────────────────────────────────────────────────────────────────────
 export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500', currency = 'USD' } = {}) {
+  // A Korean stock's levels printed as "$228000.00"; prices follow the listing currency.
   const money = (value) => formatScreenerPrice(Number(value), currency);
   const items = [];
   if (schedule?.text) items.push({ id: 'earnings', label: '다음 실적', now: schedule.text, why: '가이던스와 마진 방향이 논지를 가장 직접 확인합니다.' });
   const fwd = consensus?.fwd;
   if (fwd) items.push({ id: 'revisions', label: '이익 전망 방향', now: `최근 4주 상향 ${finite(fwd.up4w) || 0}, 하향 ${finite(fwd.down4w) || 0}`, why: '가격보다 먼저 방향이 바뀌는 경우가 많습니다.' });
   if (trailing?.margin != null) items.push({ id: 'margin', label: '이익률 추세', now: `최근 4개 분기 순이익률 ${trailing.margin.toFixed(1)}%${trailing.priorMargin != null ? `(1년 전 ${trailing.priorMargin.toFixed(1)}%)` : ''}`, why: '성장보다 이익률이 먼저 꺾이는 일이 흔합니다.' });
+  // Boundary contract: the watch item prints the 3-month return the readiness contract lets the screen show.
   const r3 = readRowNumber(row, 'ret3m', 'display');
   if (r3 != null) items.push({ id: 'relative', label: '상대강도', now: `3개월 ${signedText(r3, 1, '%')}${benchmarkRet3m != null ? `, 같은 기간 ${benchmarkLabel} ${signedText(benchmarkRet3m, 1, '%')}` : ''}`, why: '지수보다 강한지 약한지가 수급의 방향입니다.' });
   const support = levels?.supportCandidates?.[0];

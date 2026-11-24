@@ -1,5 +1,6 @@
 import { listingMarketOfSymbol } from '../market/session/session-time.js';
 
+// Listing market owns the comparison population; a US ADR is a US listing.
 export const MARKET_POPULATION_POLICY = 'market-separated.v1';
 export const MARKET_LABELS = Object.freeze({ US: '미국', KR: '한국' });
 

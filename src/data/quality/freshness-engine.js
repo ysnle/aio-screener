@@ -1,4 +1,19 @@
+// v59.19 (roadmap 11, layer 2 quality/evidence): the freshness helpers moved out of js/aio-core.js unchanged —
+// FRESHNESS_ENGINE (date normalising, stale checks and the relative-age badge), AIO_Cache (the TTL localStorage cache),
+// _aioFeedHealth (RSS/API feed dead-endpoint tracking) and the _lastFetch/_markFetch registry. The classic scripts read
+// them as window globals; src/app/compatibility-globals.js installs them at boot.
 export function installFreshnessEngine(window = globalThis) {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FRESHNESS_ENGINE (renamed from window.DATE_ENGINE, which shared its name with the calendar const DATE_ENGINE below) — 날짜 표준화 + Stale 감지 중앙 유틸
+  // ─────────────────────────────────────────────────────────────────────────
+  // 용도: DATA_SNAPSHOT · SCREENER_DB · _lastFetch · 뉴스 타임스탬프 등
+  //       프로젝트 전체에서 **단일 진실의 원천**으로 사용.
+  // 철학:
+  //   - 하드코딩 날짜 문자열 금지 (FRESHNESS_ENGINE.now() / .isoNow() 사용)
+  //   - stale 판정은 isStale(ts, maxAgeMs)로 통일
+  //   - UI 배지는 staleBadge(ts)로 자동 생성 (실시간 · N분 전 · N일 전)
+  //   - 애널리스트 리포트는 staleBadge(ts, 'report')로 7일 이상이면 경고
+  // ═══════════════════════════════════════════════════════════════════════════
   window.FRESHNESS_ENGINE = (function() {
     var MIN = 60000, HR = 3600000, DAY = 86400000;
     var LOCALE = 'ko-KR';
@@ -30,6 +45,8 @@ export function installFreshnessEngine(window = globalThis) {
       return 0;
     }
 
+    // R2-06: a time further ahead than a normal clock difference is not "방금"; like a missing
+    // time it reads as unconfirmed (Infinity → stale, '—'), never as fresh.
     var FUTURE_SKEW_MS = 5 * MIN;
     function ageMs(v) {
       var t = toTs(v);
@@ -55,6 +72,7 @@ export function installFreshnessEngine(window = globalThis) {
       return Math.floor(a / (365 * DAY)) + '년 전';
     }
 
+    // "2026-04-19 13:45" — 한국 로케일
     function formatAbsolute(v, opts) {
       var t = toTs(v);
       if (!t) return '—';
@@ -83,6 +101,8 @@ export function installFreshnessEngine(window = globalThis) {
       else { icon = ''; tone = 'stale'; }                        // stale
       var label = formatRelative(v);
       if (opts.asHtml === false) return icon + ' ' + label;
+      // The colour and type come from .aio-stale-badge (src/ui/styles/legacy-core.css) — the old inline colours, at
+      // the --fs-min floor instead of 11px; the unused opts.fontSize override went with it.
       return '<span class="aio-stale-badge aio-stale-badge--' + tone + '" title="' + formatAbsolute(v) + '">' + icon + ' ' + label + '</span>';
     }
 
@@ -110,6 +130,14 @@ export function installFreshnessEngine(window = globalThis) {
     };
   })();
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 통일된 캐시 레이어 — localStorage 기반, 명시적 TTL + 만료 감지
+  // ─────────────────────────────────────────────────────────────────────────
+  // 철학:
+  //   - 모든 localStorage 캐시는 이 API 경유 (난립 방지)
+  //   - TTL 초과 시 자동 만료 (get 반환 null)
+  //   - 용량 초과 시 LRU-like 정리 (오래된 항목 자동 삭제)
+  // ═══════════════════════════════════════════════════════════════════════════
   window.AIO_Cache = (function() {
     var PREFIX = '_aioCache:';
     var DEFAULT_TTL = 60 * 60 * 1000; // 1시간
@@ -204,6 +232,14 @@ export function installFreshnessEngine(window = globalThis) {
     return { get: get, set: set, del: del, stats: stats, clear: clear, prune: _prune };
   })();
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RSS/API 피드 헬스체크 — dead endpoint 자동 비활성화
+  // ─────────────────────────────────────────────────────────────────────────
+  // - 각 피드의 성공/실패 카운트 추적 (1시간 window + 24시간 window)
+  // - 24h 내 3회+ 연속 실패 시 _disabled=true 자동 전환 (다음 fetch에서 skip)
+  // - 1h window 내 성공 1회 이상 있으면 복구
+  // - 상태는 localStorage 저장 (_aioFeedHealth), 세션 간 지속
+  // ═══════════════════════════════════════════════════════════════════════════
   window._aioFeedHealth = (function() {
     var KEY = '_aioFeedHealthV1';
     var FAIL_THRESHOLD = 3;        // 연속 실패 N회 → disable
@@ -280,6 +316,9 @@ export function installFreshnessEngine(window = globalThis) {
     };
   })();
 
+  // _lastFetch — API별 마지막 성공 타임스탬프 중앙 저장소
+  // 각 fetch 함수가 성공 시 FRESHNESS_ENGINE.now() 값을 기록.
+  // UI는 staleBadge(_lastFetch[apiName], category)로 freshness 표시.
   window._lastFetch = window._lastFetch || {};
   window._markFetch = function(apiName) {
     window._lastFetch[apiName] = window.FRESHNESS_ENGINE.now();

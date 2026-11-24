@@ -1,3 +1,8 @@
+// P1643 (owner 2026-10-12, "Claude Dashboard" reference): every number can say where it came from and how old it
+// is. The screens explained numbers through native `title` hovers — invisible on phones and to the keyboard, and
+// with no observation age. This upgrades any titled element inside a page into one basis card: the existing
+// explanation, then the observation time and its age when the element (or its card) declares one. Provider names
+// stay off the face of the screen; the card is the hover place the owner allowed for them.
 import { placeTooltipBody } from './term-tooltip.js';
 import { claimPopover, releasePopover, watchScroll, hoverSuppressed } from './popover.js';
 import { countOpenSessionsBetween, latestCompletedSession } from '../../domain/market/session/market-calendar.js';
@@ -6,12 +11,14 @@ import { isIsoDay } from '../../domain/shared/session-date.js';
 const DATE_ATTRS = ['data-observed-at', 'data-source-ts', 'data-as-of'];
 const KST = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 
-const CADENCE_DAYS = Object.freeze({ monthly: 75, quarterly: 135, annual: 456 });
+const CADENCE_DAYS = Object.freeze({ monthly: 75, quarterly: 135, annual: 456 }); // a month's value can be ~75 days old just before the next release; 15 months for annual filings
 export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshness = null } = {}) {
   const text = String(stamp || '').trim();
   if (!text) return null;
   const judged = freshness ? (/stale|expired|delayed|late/.test(freshness) ? true : /current|fresh|ok/.test(freshness) ? false : null) : undefined;
   if (isIsoDay(text)) {
+    // v59.45 (pipeline review R1-04): a date after the latest completed session (a future date, or today while the session
+    // is still open) is not "최신 거래일" — it is named as not yet complete and claims neither fresh nor late.
     if (CADENCE_DAYS[cadence]) {
       const rawDays = Math.floor((nowMs - Date.parse(`${text}T00:00:00Z`)) / 86400000);
       if (rawDays < 0) return { label: `${text} 기준`, age: '아직 오지 않은 날짜', days: null, cadence, stale: judged !== undefined ? judged : null };
@@ -28,7 +35,7 @@ export function basisAge(stamp, nowMs, { market = 'US', cadence = null, freshnes
   if (!Number.isFinite(parsed)) return null;
   const hours = (nowMs - parsed) / 3600000;
   const label = `${KST.format(new Date(parsed)).replace(/\.\s?/g, '-').replace(/-\s*$/, '').replace(/-(\d{2}:)/, ' $1')} KST 관측`;
-  if (hours < 0) return { label, age: null, hours, stale: judged !== undefined ? judged : null };
+  if (hours < 0) return { label, age: null, hours, stale: judged !== undefined ? judged : null }; // R1-04: a future instant is not "fresh"
   const age = hours < 1 ? '1시간 이내' : hours < 48 ? `${Math.floor(hours)}시간 전` : `${Math.floor(hours / 24)}일 전`;
   const byCadence = cadence === 'intraday' ? hours > 24 : cadence === 'session' ? hours > 96 : CADENCE_DAYS[cadence] ? hours / 24 > CADENCE_DAYS[cadence] : null;
   return { label, age, hours, stale: judged !== undefined ? judged : byCadence };
@@ -70,6 +77,8 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
 
   const target = (event) => {
     const el = event.target?.closest?.('[title], [data-basis]');
+    // Outside the pages only opted-in shell elements ([data-basis-zone], the topbar quote status) read their
+    // basis; their full sentence lived in `title` alone and could not be reached by a tap.
     if (!el || !el.closest('.page, [data-basis-zone]') || el.closest('.term-tooltip, .aio-tooltip')) return null;
     // Take the text out of `title` so the browser's own tooltip does not double the card.
     const title = el.getAttribute('title');
@@ -115,6 +124,9 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   };
 
   const onOver = (event) => { if (event.pointerType === 'touch' || hoverSuppressed(root)) return; const el = target(event); if (el) show(el, 'hover'); };
+  // v57.81 (phone/iPad audit): a tap fires pointerout right after pointerup (relatedTarget null), which closed the
+  // card inside the same tap, so no basis was readable on touch. Touch pointerout is ignored; a touch card closes on
+  // the next pointerdown outside its element, on scroll, or on Escape. Mouse hover and keyboard focus are unchanged.
   const onOut = (event) => { if (event.pointerType === 'touch') return; if (anchor && !anchor.contains(event.relatedTarget)) hide(); };
   const onFocus = (event) => {
     const el = target(event);
@@ -131,6 +143,7 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
       return;
     }
     const el = target(event);
+    // First-users run 4: on touch a control's tap is its action; only non-interactive values open a card.
     if (el && !el.closest('button, a[href], input, select, textarea, summary, [role="button"], [data-action]')) show(el, 'touch'); else hide();
   };
 
@@ -141,9 +154,13 @@ export function installValueBasis(doc, { root = globalThis, now = () => Date.now
   doc.addEventListener('pointerdown', onPointerDown, true);
   root.addEventListener?.('scroll', hide, true);
   doc.addEventListener('aio:pageShown', hide);
+  // U01: explained cards (article/section with a basis) were unreachable by keyboard. Each gets one small
+  // "근거" button, invisible until it has keyboard focus, so the card face does not change; the button sits inside
+  // the card, so focusing it opens that card's basis through the same focusin path. Sections are not tab stops.
   let scanFrame = null;
   const scan = () => {
     scanFrame = null;
+    // v57.61 (perf): only the shown page is scanned; a route change rescans (aio:pageShown below).
     const active = doc.querySelector('.page.active');
     if (!active) return;
     for (const cardEl of active.querySelectorAll('article[title], article[data-basis], section[title], section[data-basis]')) {

@@ -1,4 +1,4 @@
-// P1734: automated official-reference lane (replaces the operator WebSearch snapshot).
+// Automated official-reference lane (replaces the operator WebSearch snapshot).
 // Stage 1 asks the shared Worker's hosted search for a candidate {value, date, sourceUrl}.
 // Stage 2 fetches that sourceUrl itself (https + official allowed domain only) and publishes a value
 // only when the page text contains the value and its date. A model answer that the page does not
@@ -242,7 +242,7 @@ export async function fetchOfficialPage(raw, domains, { fetchImpl = fetch, timeo
   return result;
 }
 
-// v57.81: the customs press board links each post as <a data-id="<nttSn>" data-url="<nttSnUrl>" title="...">
+// The customs press board links each post as <a data-id="<nttSn>" data-url="<nttSnUrl>" title="...">
 // submitted by POST; the same detail page answers a GET carrying both keys (checked 2026-10-15). Only the
 // newest preliminary-figure post is resolved (확정치 and 운송비용 posts are other releases). Returns [] on any
 // miss, so the lane falls back to the static hints and the page check is unchanged.
@@ -520,7 +520,7 @@ function capFrom(env) {
   return /^\d{1,3}$/.test(raw) && Number(raw) >= 1 && Number(raw) <= 150 ? Number(raw) : LANE_POLICY.monthlyCallCap;
 }
 
-// P1734: the call ledger survives runs whose data commit never landed (fetch/promotion failure, push race), via the
+// The call ledger survives runs whose data commit never landed (fetch/promotion failure, push race), via the
 // Actions cache in refresh-data.yml. Counters and per-item attempt times take the larger/later of ledger and artifact.
 export const OFFICIAL_REF_LEDGER_SCHEMA = 'official-ref-ledger.v1';
 const safeCount = (value) => (Number.isSafeInteger(value) && value >= 0 ? value : 0);

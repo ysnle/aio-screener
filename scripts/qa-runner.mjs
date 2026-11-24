@@ -97,7 +97,7 @@ const has = (name) => argv.includes(name);
 const requestedGroup = option('--group');
 const profile = argv[0] && !argv[0].startsWith('-') ? argv[0] : (requestedGroup ? 'group' : 'affected');
 const explicitFilesOption = option('--files');
-// P2113: `--files a b` kept only `a` and dropped the rest without a word, so a task's QA ran on one file.
+// `--files a b` kept only `a` and dropped the rest without a word, so a task's QA ran on one file.
 const strayFile = explicitFilesOption !== null ? argv[argv.indexOf('--files') + 2] : undefined;
 if (strayFile !== undefined && !strayFile.startsWith('-')) {
   console.error(`[qa] --files takes one comma-separated list; "${strayFile}" was given as a separate argument. Use --files ${explicitFilesOption},${strayFile}`);
@@ -113,17 +113,17 @@ const listOnly = has('--list');
 const keepGoing = has('--keep-going') && process.env.CI !== 'true';
 if (has('--keep-going') && !keepGoing) console.log('[qa] NOTE --keep-going is ignored under CI=true');
 const explain = has('--explain');
-// v60.50: a data run (producer pre-push, reduced-scope CI of a data-only commit) runs only gates declared inputClass "data",
+// A data run (producer pre-push, reduced-scope CI of a data-only commit) runs only gates declared inputClass "data",
 // and each of them skips its `code` sections (scripts/lib/qa-live-data.mjs, gate-sections.mjs). The data-commit profile is
 // only ever a producer's pre-push run.
 const dataRun = has('--data-run') || profile === 'data-commit';
-// v59.70 (I8): a ci.yml contract shard reports live-content gate failures instead of failing on them.
+// A ci.yml contract shard reports live-content gate failures instead of failing on them.
 const origin = qaOrigin();
 const positiveInteger = (value, fallback) => {
   const number = Number(value);
   return Number.isFinite(number) && number >= 1 ? Math.floor(number) : fallback;
 };
-// 2026-10-13: 6 static + 3 browser jobs (each heavy gate now opening 3 pages) froze the owner's 16 GB laptop.
+// 6 static + 3 browser jobs (each heavy gate now opening 3 pages) froze the owner's 16 GB laptop.
 const maxStaticJobs = positiveInteger(option('--jobs') || process.env.AIO_QA_JOBS, 4);
 // Browser gates own separate ports and processes. Timing measurements run alone;
 // CI keeps one worker inside each existing matrix shard.
@@ -216,7 +216,7 @@ if (profile === 'candidate') {
     console.error('[qa] CANDIDATE FAIL — QA 검증 트리(verified-tree.json)가 없습니다. 커밋 후보는 QA가 통과시킨 tree와만 결속됩니다 — 먼저 QA 런을 실행하세요.');
     process.exit(2);
   }
-  // P1518: a content inventory from fast/affected/retry is not release certification.
+  // A content inventory from fast/affected/retry is not release certification.
   const requiredIds = (manifest.profiles.full || []).flatMap(group => (manifest.groups[group]?.gates || []).map(gate => gate.id)).sort();
   const evidenceIds = (verified.gateIds || []).slice().sort();
   if (verified.schemaVersion !== 'aio-qa-verified-tree.v2' || verified.profile !== 'full' || verified.noCache !== true
@@ -271,7 +271,7 @@ if (profile === 'candidate') {
   for (const file of staged) {
     if (taskFiles.includes(file)) continue;
     const workDigest = candidateDigest(file);
-    // P1518: every staged file must match, including files outside the task list.
+    // Every staged file must match, including files outside the task list.
     if (!matchesIndex(file)) {
       mismatches.push({ file, reason: 'staged-differs-from-worktree', detail: '추가 staged 파일이 working tree와 다릅니다(부분 staging)' });
       continue;
@@ -280,7 +280,7 @@ if (profile === 'candidate') {
       mismatches.push({ file, reason: 'staged-file-not-verified', detail: 'QA가 검증하지 않은 파일이 staged에 있습니다' });
     }
   }
-  // P1518: unchanged index entries are part of the commit too. A QA-only edit to
+  // Unchanged index entries are part of the commit too. A QA-only edit to
   // tracked dependency B must not certify a commit that stages only caller A.
   for (const file of indexObjects.keys()) {
     if (staged.has(file)) continue;
@@ -396,7 +396,7 @@ if (requestedGroup) {
   if (impactedGateIds.length) changedGateIds = [...new Set([...changedGateIds, ...impactedGateIds])];
   selectedGroups = ['preflight', ...impacted];
 } else if (profile === 'data-commit') {
-  // v60.14: what a data producer runs before it pushes — the groups ci.yml will run on that commit (preflight plus the
+  // What a data producer runs before it pushes — the groups ci.yml will run on that commit (preflight plus the
   // origin's contract groups, read from qa-pipeline.json originScopes), minus the ones the job already ran (--except).
   // Bot data commits passed the data group and then failed CI on gates outside it (data-pipeline 11/12,
   // metric-consistency 11/10), which stopped Pages for 14.7 h and 6.8 h until a person fixed main.
@@ -517,7 +517,7 @@ function inputFingerprint(patterns) {
   return digest;
 }
 
-// v58.63 (architecture audit A06): the fingerprint hashed the gate script but not the local modules it imports, so a
+// The fingerprint hashed the gate script but not the local modules it imports, so a
 // change in an imported checker or src/ module left the cache key unchanged and an old PASS was reused. The static
 // relative-import closure of the script (import ... from './x', import('./x'), export ... from './x') joins the key.
 const importClosureCache = new Map();
@@ -878,22 +878,22 @@ function runGate(gate) {
           console.log(`[qa] PASS ${gate.id} (${durationMs}ms)`);
         } else {
           console.error(`[qa] ${advisory ? 'ADVISORY' : 'FAIL'} ${gate.id} (${durationMs}ms${timedOut ? ', timeout' : ''})${advisory ? (profile === 'watchdog' ? ' — repository upkeep, reported by the data watchdog; CI and local runs still fail on it' : ' — live content in a CI contract shard; its watchdog twin keeps watching it') : ''}`);
-          // v58.86: job logs expire and their download host is not reachable from every agent session, but check-run
+          // Job logs expire and their download host is not reachable from every agent session, but check-run
           // annotations stay readable through the API, so the quarterly gate cleanup can count failures per gate.
           const level = advisory ? 'warning' : 'error';
           if (process.env.GITHUB_ACTIONS === 'true') console.log(`::${level} title=qa-gate-${advisory ? 'advisory' : 'fail'}::${gate.id}`);
-          // v58.63 (A25): a failure invalidates this gate's cached success (from this run's view and on disk).
+          // A failure invalidates this gate's cached success (from this run's view and on disk).
           const fresh = readJson(cachePath, null);
           if (successCache.gates[gate.id] || fresh?.gates?.[gate.id]) {
             delete successCache.gates[gate.id];
             if (fresh && fresh.gates) { successCache.gates = { ...fresh.gates, ...successCache.gates }; delete successCache.gates[gate.id]; }
             writeJsonAtomic(cachePath, successCache);
           }
-          // v57.54: the failing lines first — the 30-line tail can be all warnings (data-lineage printed 30 NESTED-WARN
+          // The failing lines first — the 30-line tail can be all warnings (data-lineage printed 30 NESTED-WARN
           // rows after its one FAIL row), which sent the reader into a 34KB failure file to find the cause.
           const causes = failureCauseLines(redactText([stdout, stderr].filter(Boolean).join('\n'), secrets));
           if (causes.length) console.error(`[qa] CAUSE ${gate.id}: ${causes.join(' | ')}`);
-          // v58.54: on GitHub Actions the cause also becomes a check annotation — it shows on the run summary and through
+          // On GitHub Actions the cause also becomes a check annotation — it shows on the run summary and through
           // the checks API, where the job log and artifacts are not always reachable (redacted, bounded, one line).
           if (process.env.GITHUB_ACTIONS === 'true') {
             const tail = redactText([stdout, stderr].filter(Boolean).join('\n'), secrets).split(/\r?\n/).filter(Boolean).slice(-6);
@@ -918,7 +918,7 @@ function runGate(gate) {
   });
 }
 
-// v57.60: the pool budgets gate weight, not job count. A gate's optional manifest `weight` (default 1)
+// The pool budgets gate weight, not job count. A gate's optional manifest `weight` (default 1)
 // marks heavy multi-page browser gates; a single gate heavier than the limit still runs alone.
 const gateWeight = (gate) => {
   const weight = Number(gate.weight);
@@ -953,7 +953,7 @@ async function runPool(gates, concurrency) {
 
 const startedAt = new Date().toISOString();
 const startedMs = Date.now();
-// P1518: bind certification to the bytes present BEFORE gates run.
+// Bind certification to the bytes present BEFORE gates run.
 if (profile === 'full' && noCache) allFiles.forEach(fileDigest);
 const results = [];
 const phases = [...new Set(selectedGates.map((gate) => gate.phase))].sort((a, b) => a - b);
@@ -983,7 +983,7 @@ catch (error) { console.error(`[qa] WARN could not clean failure-output staging 
 pruneRuns(runsDir, { keep: KEEP_RUNS, protect: [runId, (() => { try { return JSON.parse(readFileSync(failedBatchPath, 'utf8')).runId; } catch { return null; } })()] });
 
 const counts = results.reduce((acc, result) => ({ ...acc, [result.status]: (acc[result.status] || 0) + 1 }), {});
-// Codex audit F13 (2026-10-15): gate PASS and the operations-slo performance target are different facts (R701). A boot
+// Codex audit F13: gate PASS and the operations-slo performance target are different facts. A boot
 // report written by this run that missed its target is carried in the run report and printed beside the counts.
 const targets = {};
 {

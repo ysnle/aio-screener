@@ -1,3 +1,7 @@
+// v58.79 (owner 2026-10-25, chart review): the same chart read under four trading styles, so a reader picks the logic
+// that fits their horizon and temperament instead of one verdict. The chosen style stays on this device (storage
+// gateway). Each style shows its own conditions (met/total is a count) and its stop, profit-taking and invalidation
+// rule; nothing fills the plan fields and no slot carries this stock's price (R724 — the reader chooses the price).
 import { strategyLenses, STRATEGY_STYLES } from '../../domain/technical/chart-strategies.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { el } from './dom.js';
@@ -12,6 +16,9 @@ export function strategySection(doc, analysis, levels, rsi = null) {
   section.id = 'chart-strategies';
   section.append(el(doc, 'h3', '매매 방식별로 보기', 'briefing-h2'));
   const fit = lenses.filter((lens) => lens.met === lens.total).map((lens) => lens.name);
+  // R4-02: the share is of the conditions that could be checked (met/known), unknowns stay out of the denominator,
+  // and "가장 많이 맞는 방식" is named only when one style leads with at least one met condition — an all-zero tie read
+  // "돌파(0/5)" and opened that tab as if it fitted best.
   const ratio = (lens) => (lens.known > 0 ? lens.met / lens.known : null);
   const ranked = lenses.filter((lens) => ratio(lens) != null && lens.met > 0).sort((a, b) => ratio(b) - ratio(a));
   const best = ranked.length && (ranked.length === 1 || ratio(ranked[0]) > ratio(ranked[1])) ? ranked[0] : null;
@@ -42,6 +49,7 @@ export function strategySection(doc, analysis, levels, rsi = null) {
       list.append(item);
     }
     const rules = el(doc, 'dl', null, 'regime-evidence chart-strategy-rules');
+    // P24-PRODUCT-01: the slots name the style's rule, not this stock's price; prices are in the 가격 레벨 section.
     for (const [label, value] of [['이 방식의 손절 규칙', lens.stop], ['이 방식의 이익 확정 규칙', lens.target], ['계획 무효', lens.invalidation]]) rules.append(el(doc, 'dt', label), el(doc, 'dd', value));
     card.replaceChildren(head, who, list, rules);
   };

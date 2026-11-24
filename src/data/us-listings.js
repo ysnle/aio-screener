@@ -1,3 +1,9 @@
+// Every US exchange-listed symbol (public-data/us-listings.json, built in Actions by
+// scripts/build-us-listings.mjs from the Nasdaq Trader symbol directory + SEC CIKs). Never on the boot path: it is
+// loaded only when a symbol is unknown to the name registry, the KRX list and the screener universe.
+// Exact symbol match only. The one rewrite is the documented class-share separator (BRK.B / BRK/B -> BRK-B,
+// the form the universe, quotes and SEC use). Company names are never resolved automatically; since v57.83 a
+// name search offers listing candidates for the reader to choose from (searchUsListingNames), nothing more.
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 import { artifactUrl } from './artifact-registry.js';
 
@@ -84,6 +90,8 @@ export async function isListedUsSymbol(sym) {
   return lookupUsListing(await loadUsListings(), symbol);
 }
 
+// SPAC units, warrants and rights ("Opendoor Technologies Inc - Series A Warrants") are not the company's
+// shares; the directory names them after " - ". Partnership and trust units ("- Common Units Representing …") stay.
 const DERIVATIVE_LINE_RE = /\s-\s.*\b(?:warrants?|rights?|units?)\b/i;
 const EQUITY_UNITS_RE = /\b(?:common|partnership|depositary|beneficial|representing)\b[^-]*\bunits?\b/i;
 export function isDerivativeListingName(name) {

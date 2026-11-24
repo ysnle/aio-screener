@@ -17,7 +17,7 @@ const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${de
 const num = (text, re) => { const hit = String(text || '').match(re); return hit ? Number(hit[1].replace('−', '-')) : null; };
 
 const { buildMarketRegime, oasDelta20Bp, alignInput, isUsable, buildCloseSeries } = await load('src/domain/briefing/market-read.js');
-// v59.97: the 시장 상태 axis withholds an input more than two US sessions behind the S&P 500 close (state 'unknown'), while
+// The 시장 상태 axis withholds an input more than two US sessions behind the S&P 500 close (state 'unknown'), while
 // other readers still date their last observation. A comparison with a withheld axis is skipped, never silently.
 const skip = (what, axisId, alignment, basis) => console.log(`[metric-consistency] SKIP ${what}: ${axisId} withheld (input ${alignment?.lag ?? 'n/a'} sessions behind ${basis || 'n/a'})`);
 const withheldBy = (reg, axisId, inputDate) => {
@@ -40,7 +40,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: the screen-model agreement and rule checks are code tests (the published files are their realistic input); the
+// The screen-model agreement and rule checks are code tests (the published files are their realistic input); the
 // published 오늘 verdict record is reconciled in the data section, which also runs in a data run.
 await runSections('metric-consistency', [
 ['screen-models', async () => {
@@ -48,7 +48,7 @@ await runSections('metric-consistency', [
 const { readHistoryRows } = await load('src/domain/market/indices/history-rows.js');
 const history = readHistoryRows(json('public-data/history.json'));
 const macroHistory = json('public-data/macro-history.json');
-// v59.97: the published rows and OAS observations through the 11/6 close, pinned for the fixed-date replays (sections 7, 8).
+// The published rows and OAS observations through the 11/6 close, pinned for the fixed-date replays (sections 7, 8).
 const pinned1106 = json('architecture/fixtures/market-close-2026-11-06.json');
 const pinnedHistory = readHistoryRows(pinned1106.history);
 const hy = oasDelta20Bp(macroHistory, 'hyOas');
@@ -77,7 +77,7 @@ if (ten5 != null && storyRow('rates')) check('v59.70 6 시장 상태 story quote
 if (hy?.value != null) {
   const hy20 = Math.round(hy.value); const hy5 = Math.round(hy.d5);
   check('v59.70 5 매크로 credit chapter quotes the one 20-session OAS reading', num(creditNow, /하이일드 [\d.]+ → [\d.]+% \(([+-]?\d+)bp\)/) === hy20, `${creditNow} vs ${hy20}`);
-  // v59.97: the pair reads through the 10-year's last close; when that close is older than the HY observation, its HY
+  // The pair reads through the 10-year's last close; when that close is older than the HY observation, its HY
   // change is the 20-session reading at that close.
   const pairOlder = pairRow?.asOf && pairRow.asOf < hy.date;
   if (pairOlder) console.log(`[metric-consistency] 연결해서 보면 rates-credit reads through ${pairRow.asOf} (HY observed ${hy.date}); its HY change is compared at that close`);
@@ -208,7 +208,7 @@ check('v59.74 a displaced close replaces a carried placeholder in its own row', 
 const liveHeld = [{ date: '2026-11-02', ndx: 28384.85, fieldMeta: { ndx: { observedAt: '2026-11-02T14:30:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'carried-forward', sessionDate: '2026-10-30', carriedFrom: '2026-10-30', heldReason: 'session-already-recorded' } } }];
 mergeBackfillBars(liveHeld, { '2026-11-02': { date: '2026-11-02', ndx: 28102.4, fieldMeta: { ndx: metaAt('2026-11-02', 'latest-completed-close') } } }, ['ndx']);
 check('v59.74 the backfill bar replaces a carried placeholder stamped on its own row date', liveHeld[0].ndx === 28102.4 && liveHeld[0].fieldMeta.ndx.sessionDate === '2026-11-02', JSON.stringify(liveHeld[0]));
-// ── 8. v59.84 (screen review C1, recurrence analysis): one fact, one state. P1691/P1761/P2229/P2287 matched one pair of
+// ── 8. v59.84: one fact, one state. P1691/P1761/P2229/P2287 matched one pair of
 // screens at a time; this checks every reader of the same fact against its owner on the same close, at the 11/6 close
 // where the readers disagreed (HY 348bp with a 20-session record widening; 10-year -38bp with stocks down), and on today's
 // files. A reader may word the state differently but never call it another state.
@@ -219,7 +219,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   const { participationShift, ROTATION_TITLE, buildMarketScenarios } = await load('src/domain/market/regime/regime-scenarios.js');
   const { buildMarketInterpretation } = await load('src/domain/market/interpretation/market-interpretation.js');
   const data = json('public-data/data.json');
-  // v59.97: the 11/6 close is a pinned fixture (architecture/fixtures/market-close-2026-11-06.json — the published rows and
+  // The 11/6 close is a pinned fixture (architecture/fixtures/market-close-2026-11-06.json — the published rows and
   // OAS observations through that close), so the replay neither drops out when the close leaves the published window nor
   // fails when the producer repairs an old row. Exact values are asserted on the fixture only; today's files get the
   // comparisons.
@@ -393,7 +393,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   check('v59.85 chart bars and the screener row read one trend word', trendOfBars(bars)?.label === bufferedTrend(row)?.label, `${trendOfBars(bars)?.label} vs ${bufferedTrend(row)?.label}`);
 }
 
-// ── v60.18 (weekly audit 2026-11-15): the week of 11/9–11/13 replayed on its own closes (market-close-2026-11-06.json plus
+// ── v60.18: the week of 11/9–11/13 replayed on its own closes (market-close-2026-11-06.json plus
 // market-week-2026-11-13.json, the rows and FRED observations published through the 11/13 close). Each axis states its
 // level and its recent direction from their own numbers; the 10-year's five-session jump and the CCC leg hold; a
 // Saturday clock does not move a Friday verdict; the market-day ledger ranks a cumulative move.
@@ -407,7 +407,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
     const hyAt = oasDelta20Bp(mh, 'hyOas', day);
     return buildMarketRegime({ history: weekRows.filter((row) => row.date <= day), macroHistory: mh, credit: hyAt ? { hyBp: hyAt.level * 100, hyDelta5Bp: hyAt.d5, hyAsOf: hyAt.date } : {}, now: Date.parse(nowIso) });
   };
-  // v60.31: an axis carries no sentence — its direction and its reason are evidence rows (AXIS_DIRECTION_LABEL, AXIS_REASON_LABEL).
+  // An axis carries no sentence — its direction and its reason are evidence rows (AXIS_DIRECTION_LABEL, AXIS_REASON_LABEL).
   const rowOf = (reg, id, label) => [...(reg.axes || []), ...(reg.watchAxes || [])].find((row) => row.id === id)?.evidence?.find(([name]) => name === label)?.[1] || '';
   const dir = (reg, id) => rowOf(reg, id, '최근 흐름 (5거래일)');
   const why = (reg, id) => rowOf(reg, id, '판정 사유');
@@ -418,7 +418,7 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   for (const day of ['2026-11-09', '2026-11-11']) {
     const reg = days[day];
     check(`v60.18 D6 [${day}] the hero says the leaders' and the index's shared rebound under the line once`, reg.heroLine === '주도주와 지수 모두 추세선 아래에서 반등 중입니다.', reg.heroLine);
-    // v60.31: the rebound days' direction rows say 반등 for both sides (the D6 sentence check has no sentence left to read).
+    // The rebound days' direction rows say 반등 for both sides (the D6 sentence check has no sentence left to read).
     for (const id of ['trend', 'leadership']) check(`v60.18 D6 (v60.31 row) [${day}] the ${id} direction row reads the rebound, not a fall`, /반등$/.test(dir(reg, id)), dir(reg, id));
   }
   check('v60.18 D6 (v60.31 row) [11/9] the SOXX direction names the turn and the leg ending today', dir(days['2026-11-09'], 'leadership') === '11/3 155.00 → 11/5 131.90 -14.9%, 이후 이틀 +11.3% 반등', dir(days['2026-11-09'], 'leadership'));
@@ -458,12 +458,12 @@ check('v59.74 the backfill bar replaces a carried placeholder stamped on its own
   if (story) check('v60.18 D12 a week-ranked price story says its five-session leg', /5거래일 \+29bp로 평소 5거래일 변동의 \d\.\d배입니다/.test(story.line), story.line);
 }
 
-// ── v60.18 (weekly audit D7/D4): the 오늘 record the static shell paints first against the live code. today-verdict.json
+// ── v60.18: the 오늘 record the static shell paints first against the live code. today-verdict.json
 // written by v60.14 (1/4/1) stood beside the v60.16 screen's 1/3/2 with nothing naming the gap. The record carries the
 // model that wrote it (scripts/lib/verdict-model.mjs): a different model is named here as STALE-MODEL with both verdicts
 // (it converges on the next refresh-data run; producers do not run locally); the same model must give the same verdict
 // from the same published inputs at the record's own clock — a difference there is a session or input leak.
-// v60.26: a verdict written before an input was republished is not a same-inputs comparison (the screener lane's deadlock).
+// A verdict written before an input was republished is not a same-inputs comparison (the screener lane's deadlock).
 {
   const written = { generatedAt: '2026-11-17T21:21:58.253Z', asOf: '2026-11-17', overall: '부담 우세', heroLine: 'x', counts: { favorable: 1, neutral: 2, burden: 3 }, model: 'm' };
   const moved = { ...written, counts: { favorable: 0, neutral: 3, burden: 3 } };

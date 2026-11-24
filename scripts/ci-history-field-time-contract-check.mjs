@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deriveMarketSession } from './build-market-snapshot.mjs';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { readProducerSource } from './lib/producer-source.mjs'; // fetch-data.mjs + the lib modules split out of it
 import { holdRepeatedSessions, continuousReopenPrint, mergeMacroLastKnownGood, normalizeHistoryRows, parseBeaPceHtml, validateMarketAnalysisText, HIST_FIELD_PLAUSIBILITY, histValueWithinPlausibility, parseFredDexkousCsv, compareUsdKrwCrossCheck } from './fetch-data.mjs';
 import { readHistoryRows, compactHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { observationSessionDate } from '../src/domain/market/session/history-session.js';
@@ -17,7 +17,7 @@ if (!Array.isArray(history) || history.length < 2) fail('history.json must conta
 const fields = ['spx', 'nasdaq', 'dow', 'rut', 'vix', 'vvix', 'tnx', 'dxy', 'wti', 'gold', 'kospi', 'kosdaq', 'btc', 'usdkrw'];
 const errors = [];
 const fetchDataSource = readProducerSource();
-if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[prevIndex \+ 1\]\??\.timestamp/.test(fetchDataSource)) { // v58.80: the bar after the previous one is the current bar (a weekend reopen bar is not)
+if (!/regularMarketPreviousCloseObservedAt:[\s\S]{0,260}closeBars\[prevIndex \+ 1\]\??\.timestamp/.test(fetchDataSource)) { // The bar after the previous one is the current bar (a weekend reopen bar is not)
   errors.push('fetch-data: previous completed close must use the current daily bar opening boundary, not the previous bar opening time');
 }
 // P1192 (P1095 권위): 완료 컷 행은 그 컷을 넘는 시각의 previous-completed-close를 담을 수 없다.
@@ -31,7 +31,7 @@ if (!/previousBarOpenedAt:/.test(fetchDataSource)
   || !/observedAtBoundary: 'previous-bar-open'/.test(fetchDataSource)) {
   errors.push('fetch-data: a previous-completed-close stamp that exceeds the row cut must fall back to the previous bar boundary or be dropped (P1192)');
 }
-// P1117: every lane that writes a history fieldMeta must publish the timestamp-source and
+// Every lane that writes a history fieldMeta must publish the timestamp-source and
 // observation-relation markers. The market lane computed them and then dropped them in its
 // projection, so the artifact gate that looks for `observedAtSource` skipped its assertions
 // forever. Assert each lane emits the marker instead of trusting one of them.
@@ -49,7 +49,7 @@ for (const [lane, literal] of [
 let observedFieldCount = 0;
 let numericFieldCount = 0;
 let previousDate = null;
-// P1246: 타당 범위는 producer가 선언한 **하나의** 맵을 그대로 쓴다. 게이트가 자기 리터럴을 따로
+// 타당 범위는 producer가 선언한 **하나의** 맵을 그대로 쓴다. 게이트가 자기 리터럴을 따로
 // 들고 있으면 선언과 집행이 조용히 어긋난다(P1127이 지적한 바로 그 경로).
 const ranges = HIST_FIELD_PLAUSIBILITY;
 
@@ -118,8 +118,8 @@ for (const [field, symbol] of Object.entries(fieldSymbols)) {
   // regularMarketPreviousClose with the boundary timestamp that closed it, and the snapshot
   // exposes that same previous value. The old continuous special case compared two DIFFERENT
   // live observations through a 2% band precisely because the artifacts deliberately disagreed;
-  // they no longer do, so one rule covers every instrument (P1160 follow-up).
-  // P1703: an extended-hours print (^VIX global trading hours) is not the completed close either.
+  // they no longer do, so one rule covers every instrument.
+  // An extended-hours print (^VIX global trading hours) is not the completed close either.
   // The session is re-derived from the observation with the producer's own classifier, so a snapshot written before the
   // classifier learned about extended-hours prints is judged by today's rule.
   const session = deriveMarketSession({ instrumentId: symbol, observedAt: quote.observedAt, now: Date.parse(quote.fetchedAt || snapshot.generatedAt || '') }) || quote.session;
@@ -137,7 +137,7 @@ if (numericFieldCount === 0 || observedFieldCount !== numericFieldCount) {
   fail(`${errors.slice(0, 8).join('; ') || 'no numeric fields with complete field-level evidence'}`);
 }
 if (errors.length) fail(errors.slice(0, 12).join('; '));
-// v59.70 (R2): the same five keys after the history.v2 round trip — fetchedAt and lastSuccessfulAt come back from the
+// The same five keys after the history.v2 round trip — fetchedAt and lastSuccessfulAt come back from the
 // field's checkedAt, source / sourceKind / allowedUse from the field dictionary — whichever shape the file is stored in.
 {
   const stored = readJson('public-data/history.json');
@@ -166,7 +166,7 @@ const beaFixture = parseBeaPceHtml(`
 if (beaFixture.values.pce !== 3.7 || beaFixture.values.corePce !== 3.3 || beaFixture.values.pceMoM !== -0.1 || beaFixture.values.corePceMoM !== 0.1 || beaFixture.observedAt !== '2026-06-01') {
   fail(`BEA PCE parser fixture failed: ${JSON.stringify(beaFixture)}`);
 }
-// P1096: the live release page interposes the goods/services/food/energy detail
+// The live release page interposes the goods/services/food/energy detail
 // between the monthly headline and the monthly core sentence. A character
 // window that wide crossed into the twelve-month paragraph and published
 // corePceMoM 3.3 (== corePce YoY) beside a correct pceMoM. The monthly core
@@ -205,7 +205,7 @@ const beaYoyOnlyFixture = parseBeaPceHtml(`
 if (beaYoyOnlyFixture.values.pceMoM !== null || beaYoyOnlyFixture.values.corePceMoM !== null) {
   fail(`BEA PCE yoy-only fixture published a monthly figure it could not know: ${JSON.stringify(beaYoyOnlyFixture.values)}`);
 }
-// P1101: rows written by the market lane and the screener lane must converge on
+// Rows written by the market lane and the screener lane must converge on
 // one column set, and a fieldMeta entry must never outlive its finite value.
 const raggedFixture = normalizeHistoryRows([
   { date: '2026-09-15', seriesMode: 'completed-market-cut', cycleEnd: '2026-09-14T23:00:00.000Z', spx: 7000, fg: 30, breadth20: 55, pcr: 0.92, fieldMeta: { spx: { observedAt: '2026-09-15T20:00:00.000Z' }, fg: { observedAt: '2026-09-15T00:00:00.000Z' }, pcr: { observedAt: '2026-09-15' } } },
@@ -220,7 +220,7 @@ if (Object.keys(raggedFixture[1].fieldMeta).length !== 0 || Object.keys(raggedFi
 if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('marketSnapshotRevision') || !fixtureColumns[0].includes('spx') || raggedFixture[1].breadth20 !== null || 'pcr' in raggedFixture[0] || 'pcr' in raggedFixture[0].fieldMeta) {
   fail(`history row normalization did not fill the shared column set: ${fixtureColumns[0]}`);
 }
-// v57.81: one session is one observation. The 10/12 DXY bar (row 10/12) and the same close read as the previous close
+// One session is one observation. The 10/12 DXY bar (row 10/12) and the same close read as the previous close
 // at the 10/13 run (row 10/13) were two observations of 102.58; a later row repeating a recorded session is held.
 {
   const meta = (observedAt, fetchedAt, extra = {}) => ({ observedAt, fetchedAt, lastSuccessfulAt: fetchedAt, source: 'Yahoo chart', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'completed-market-series', ...extra });
@@ -239,7 +239,7 @@ if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('m
   const snapshot = JSON.stringify(rows);
   const second = holdRepeatedSessions(rows, { at: '2026-10-15T08:30:00Z' });
   if (second.held.length || second.revised.length || JSON.stringify(rows) !== snapshot) fail('v57.81 holding repeated sessions is idempotent');
-  // v58.71: today's row is rewritten each run; a value the owner already replaced does not come back, and a previous-close
+  // today's row is rewritten each run; a value the owner already replaced does not come back, and a previous-close
   // read does not revise a settled latest-close owner.
   const today = (value, extra) => ({ date: '2026-10-14', usdkrw: value, dow: 52495.9, fieldMeta: { usdkrw: meta('2026-10-11T23:00:00Z', '2026-10-14T09:00:00Z', { ...prevClose, sessionDate: '2026-10-09' }), dow: meta('2026-10-13T13:30:00Z', '2026-10-14T09:00:00Z', { ...prevClose, sessionDate: '2026-10-13' }), ...extra } });
   const owned = [rows[0], { date: '2026-10-13', dow: 52495.88, fieldMeta: { dow: meta('2026-10-13T20:46:03Z', '2026-10-13T23:54:00Z', { observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: '2026-10-13' }) } }];
@@ -248,7 +248,7 @@ if (!fixtureColumns[0].includes('breadth200,') || !fixtureColumns[0].includes('m
   // An evening reopen print of futures/FX/DXY is not a completed close; a Friday settle print is.
   if (!continuousReopenPrint('CL=F', '2026-10-11T23:01:22Z') || !continuousReopenPrint('DX-Y.NYB', '2026-10-04T23:26:48Z') || continuousReopenPrint('CL=F', '2026-10-09T20:59:58Z') || continuousReopenPrint('^GSPC', '2026-10-11T23:01:22Z')) fail('v57.81 a Sunday-evening futures/DXY print belongs to a session that has not completed');
 }
-// v57.81 (analysis audit 2026-10-15): the published won rows as written before sessionDate existed. The 10/12 row carries
+// The published won rows as written before sessionDate existed. The 10/12 row carries
 // the 10/9 bar (the 10/8 backfill row's own stamp and value) and the 10/14 and 10/15 rows share the 10/14 23:00Z stamp
 // with different values. FX bars are dated by the London session they close, so the reader collapses each copy onto
 // its session and the producer holds the later repeat.
@@ -275,7 +275,7 @@ const lkg = mergeMacroLastKnownGood(
   { _source: 'fred:no-key', _failedSeries: ['pce'] },
   { cpi: 3.5, _asOf_cpi: '2026-06-01', _source_cpi: 'fred-official-primary', hyOAS: 2.71, _source_hyOAS: 'fred-official-public-csv', _failedSeries: ['vix'] }
 );
-// 2026-10-14: `_failedSeries` lists only the current run's failures (an earlier run's 'vix' is not accumulated).
+// `_failedSeries` lists only the current run's failures (an earlier run's 'vix' is not accumulated).
 if (lkg.cpi !== 3.5 || lkg.hyOAS !== 2.71 || !lkg._failedSeries.includes('pce') || lkg._failedSeries.includes('vix')
   || lkg._source_cpi !== 'last-known-good' || lkg._source_hyOAS !== 'last-known-good'
   || lkg._originSource_cpi !== 'fred-official-primary' || lkg._freshness_cpi !== 'stale-reference') {
@@ -357,7 +357,7 @@ if (!/const officialDate = String\(officialFx\?\.observedAt/.test(fetchDataSourc
 
 // v58.68 (live 2026-10-21/22): after the refresh outage the 10/21 row held the 10/20 close (valueBasis previous-completed-close),
 // the backfill kept it, and the 10/21 US close never entered history. A bar replaces a value from another session; a
-// completed record of the bar's own session still wins (P1656).
+// completed record of the bar's own session still wins.
 {
   const { mergeBackfillBars } = await import('./producer/history.mjs');
   const morningCut = { observedAt: '2026-10-20T13:30:00.000Z', valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', sessionDate: '2026-10-20' };

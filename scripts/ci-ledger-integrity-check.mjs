@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// scripts/ci-ledger-integrity-check.mjs — P1123/R618
+// scripts/ci-ledger-integrity-check.mjs
 //
 // The ledgers (RULES/QA-CHECKLIST) are only a self-improvement loop if their
 // shape is machine-checked. Two things were silently drifting:
@@ -37,15 +37,15 @@ const check = (label, ok, detail = '') => { if (!ok) errors.push(detail ? `${lab
 
 // ── 1. R number gaps are an explicit, frozen set ────────────────────────────
 const rulesText = read('_context/RULES.md');
-// v57.84: reading only `## R<n>.` froze R1–R53 and R172–R178 as "absent" although their bodies exist.
+// Reading only `## R<n>.` froze R1–R53 and R172–R178 as "absent" although their bodies exist.
 const occurrences = ruleIdOccurrences(rulesText);
 const defined = new Set(occurrences);
 if (!defined.size) errors.push('RULES.md declares no R headings; the ledger parser is broken or the file moved');
 const seenIds = new Set();
 const duplicateIds = occurrences.filter((n) => (seenIds.has(n) ? true : (seenIds.add(n), false)));
 check('v57.84 one R number names one rule (a reused number makes every citation ambiguous)', duplicateIds.length === 0, `duplicated: ${[...new Set(duplicateIds)].map((n) => `R${n}`).join(', ')}`);
-// v58.63 (architecture audit A14): the scan ceiling was the highest R still in RULES.md, so deleting the newest rule
-// (R719) shrank the ceiling with it and no gap appeared. The ceiling is also held by the highest rule the CHANGELOG
+// The scan ceiling was the highest R still in RULES.md, so deleting the newest rule
+//  shrank the ceiling with it and no gap appeared. The ceiling is also held by the highest rule the CHANGELOG
 // records as added ("P1907/R719") and by the manifest, so the newest rule cannot vanish without a new gap.
 const changelogMaxR = Math.max(0, ...[...read('CHANGELOG.md').matchAll(/\bP\d+\/R(\d+)\b/g)].map((match) => Number(match[1])));
 const priorManifestMaxR = existsSync(join(root, RULE_GAP_PATH)) ? Number(JSON.parse(read(RULE_GAP_PATH)).maxR) || 0 : 0;

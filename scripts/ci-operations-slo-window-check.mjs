@@ -76,7 +76,7 @@ const reproObserved = {
 const repro = buildSloWindow({ observed: reproObserved, cadencePerDay: cadence, query: completeQuery, alertEvidence: { deduped: true, source: 'github-issues-api' }, now: at });
 check('P1166 O04 repro: a zero-run required domain cannot be certified', repro.status !== 'CERTIFIED_WINDOW');
 
-// R24-07/P1242: push 등 다른 trigger로 채운 창은 예정 도착이 아니다. 종전 집계는
+// Push 등 다른 trigger로 채운 창은 예정 도착이 아니다. 종전 집계는
 // workflow_dispatch만 제외하고 나머지를 전부 scheduled로 세어, 30일간 push 성공만 있는 lane도
 // MEASURED·CERTIFIED_WINDOW가 될 수 있었다(06 O02·O04).
 const pushOnly = buildSloWindow({
@@ -109,7 +109,7 @@ const healthy = buildSloWindow({
 });
 check('P1166 a fully observed window still certifies', healthy.status === 'CERTIFIED_WINDOW' && healthy.windows['30d'].status === 'PASS');
 
-// P1597: incomplete dates/provenance, future runs and duplicate IDs cannot certify.
+// Incomplete dates/provenance, future runs and duplicate IDs cannot certify.
 const validObserved = Object.fromEntries(Object.keys(cadence).map(id => [id, fixtureRuns(cadence[id], 30, at)]));
 for (const [label, observed, query] of [
   ['missing query metadata', validObserved, {}],
@@ -159,7 +159,7 @@ const manualOnly = buildSloWindow({
 });
 check('P1166 manual runs do not substitute for scheduled arrivals', manualOnly.status !== 'CERTIFIED_WINDOW' && manualOnly.windows['30d'].domains.screener.observedRuns === 0);
 
-// v57.83 codex audit F30: Worker scheduler dispatches count toward delivery (operator dispatches still do not), and a
+// Codex audit F30: Worker scheduler dispatches count toward delivery (operator dispatches still do not), and a
 // schedule changed mid-window is not back-filled over the whole window.
 {
   const { expectedRunsFromHistory, isAutomatedDispatch } = await import('./build-operations-slo-window.mjs');
@@ -182,7 +182,7 @@ check('P1166 manual runs do not substitute for scheduled arrivals', manualOnly.s
   check('v57.83 the lane names its denominator basis', withHistory.windows['30d'].domains.market.expectedRunsBasis === 'cadence-history' && withHistory.windows['30d'].domains.screener.expectedRunsBasis === 'current-cron-backfilled');
 }
 
-// v59.27: the committed window is refreshed by the producer (6-hour throttle) and staged with the data commit,
+// The committed window is refreshed by the producer (6-hour throttle) and staged with the data commit,
 // so the fast-quote soak reads measured days instead of the template's permanent 0.
 {
   const refresh = await readFile(new URL('../.github/workflows/refresh-data.yml', import.meta.url), 'utf8');

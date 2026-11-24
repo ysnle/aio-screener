@@ -2,6 +2,8 @@ import { finiteFact as finite, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTA
 import { reconcileSecEarningsBasis } from './sec-earnings.js';
 
 export const SEC_REPORT_MODEL_VERSION = 'sec-report.v3';
+// 'current' follows the project's one fiscal-year-end age rule (456 days = the next 10-K's latest
+// deadline). At 400 days a December filer's FY report read "최신 연간 보고서 아님" in February, before its next 10-K was due.
 export const SEC_FRESHNESS_POLICY = Object.freeze({
   currentMaxAgeDays: FUNDAMENTAL_MAX_PERIOD_AGE_DAYS,
   agedMaxAgeDays: 730,
@@ -9,6 +11,8 @@ export const SEC_FRESHNESS_POLICY = Object.freeze({
 });
 
 const METRIC_DEFINITIONS = Object.freeze([
+  // Korean labels; ROE is shown once, in the fiscal reading (average equity, the standard basis) —
+  // a second end-of-year ROE beside it read as a conflicting number (S07).
   ['revenue', '매출', 'currency'],
   ['netIncome', '순이익', 'currency'],
   ['equity', '자기자본(기말)', 'currency'],
@@ -46,6 +50,7 @@ function observationEffectiveAt(row) {
   return row?.acceptedAt || row?.effectiveAt || row?.filedAt || null;
 }
 
+// For the same period and filing, parent-company equity outranks the NCI-inclusive total.
 const CONCEPT_RANK = Object.freeze({ StockholdersEquity: 0, StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest: 1 });
 const conceptRank = (row) => CONCEPT_RANK[row?.concept] ?? 0;
 
@@ -66,6 +71,8 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   const asOfMs = Date.parse(asOf || '');
   const observations = record?.pit?.observations || {};
   if (!Number.isFinite(asOfMs) || !observations || typeof observations !== 'object') return null;
+  // The as-of cut applies the producer's revenue concept rule (bestRevenueRowsByPeriod) to what was
+  // public by asOf, so a fee subtotal or an assessed-tax-inclusive line no longer wins on recency and growth stays one concept.
   const publicRevenue = (Array.isArray(observations.revenue) ? observations.revenue : []).filter((row) => {
     const effectiveMs = Date.parse(observationEffectiveAt(row) || '');
     return Number.isFinite(effectiveMs) && effectiveMs <= asOfMs && Date.parse(row?.periodEnd || '') <= asOfMs && finite(row?.value) != null;
@@ -75,6 +82,7 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   if (!revenue) return null;
   const netIncome = selectObservationAsOf(observations.netIncome, asOfMs, revenue);
   const equity = selectObservationAsOf(observations.equity, asOfMs, revenue);
+  // The fallback share count must belong to the same fiscal year (within 400 days of its end).
   const fallbackShares = selectObservationAsOf(observations.sharesOutstanding, asOfMs);
   const shares = selectObservationAsOf(observations.sharesOutstanding, asOfMs, revenue)
     || (fallbackShares && shareGapDays(fallbackShares.periodEnd, revenue.periodEnd) <= SEC_SHARES_MAX_GAP_DAYS ? fallbackShares : null);
@@ -104,11 +112,16 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   };
   if (priorRevenue && finite(priorRevenue.value) > 0) result.revGrowth = Math.round((result.revenue / finite(priorRevenue.value) - 1) * 1000) / 10;
   if (result.netIncome != null && result.revenue !== 0) result.margin = Math.round(result.netIncome / result.revenue * 1000) / 10;
+  // ROE over the average of the prior and current year-end equity (same concept), as the producer.
   const priorEquity = priorRevenue ? finite(selectObservationAsOf((Array.isArray(observations.equity) ? observations.equity : []).filter((row) => !equity?.concept || row.concept === equity.concept), asOfMs, priorRevenue)?.value) : null;
   if (result.netIncome != null && result.equity > 0) {
     result.roeBasis = priorEquity > 0 ? 'average-equity' : 'year-end-equity';
     result.roe = Math.round(result.netIncome / (priorEquity > 0 ? (result.equity + priorEquity) / 2 : result.equity) * 1000) / 10;
   }
+  // v59.45 (pipeline review P19-PIT-01): the as-of read kept native-currency amounts but dropped the currency and priced
+  // them with a USD close (EUR earnings × USD price → PE 100). The currency and form travel with the result, and a price
+  // ratio is formed only where the current read forms one: USD amounts, a domestic share basis, a share count not
+  // flagged off-scale.
   const reportingCurrency = String(record?.pit?.currency || record?.reportingCurrency || 'USD').toUpperCase();
   result.reportingCurrency = reportingCurrency;
   const foreignShareBasis = /^(20-F|40-F)/.test(String(record?.form || revenue.form || ''));
@@ -125,6 +138,9 @@ export function selectSecFundamentalsAsOf(record = {}, asOf, { priceAsOf = null 
   return Object.freeze(result);
 }
 
+// An artifact written before the concept order changed carries the NCI-inclusive total.
+// Use the same filing's parent-company equity (the ROE/P-B denominator, consistent with
+// NetIncomeLoss) and re-derive ROE and P/B from it; a non-positive parent equity leaves both empty.
 export function reconcileSecEquity(record) {
   if (!record || typeof record !== 'object') return record;
   // v6: a non-USD record publishes no amounts; its native equity stays in reportedAmounts (its ROE is already same-currency).
@@ -151,18 +167,41 @@ export function reconcileSecEquity(record) {
   return corrected;
 }
 
+// 2026-10-13 screener data audit (F03/F04/F05/F06/F10/F16/F17): one SEC normalization policy shared by the
+// producer (companyfacts rows: start/end/val/filed), the screener merge and the page projection (PIT rows:
+// periodStart/periodEnd/value/filedAt), so a stored record is healed by the same rule a fresh fetch applies.
+// A cover-page share count dated more than 400 days from the fiscal year end is a different year's count
+// (V/MA/CMCSA carried 2009 shares and printed P/E 2-9).
 export const SEC_SHARES_MAX_GAP_DAYS = 400;
+// A 20-F share count is ordinary shares while the US line is often an ADS of several (BABA 8, PDD 4,
+// JD 2, AZN 0.5), so no price ratio is built on it. A 40-F (Canadian MJDS) lists its common shares directly.
 export const FOREIGN_ORDINARY_SHARE_FORMS = /^20-F(\/A)?$/;
 // F05: a net margin above 100% means the revenue concept is a subtotal (ESS customer-contract revenue 9.4M
 // against 1.89B total revenues), not a business fact; the margin is withheld.
 export const SEC_MARGIN_HOLD_ABOVE_PCT = 100;
+// Primary revenue concepts compete on size for the same fiscal period: a customer-contract subtotal never
+// exceeds total revenues (REITs, insurers, banks report rent/premium/interest outside ASC 606). The
+// assessed-tax-inclusive concept (XOM/VLO style) is used only when no primary concept reported the period.
+// 2026-10-14 (sec-annual-concepts.v4): utility totals compete as primary; a goods-only line is a fallback because the
+// selection takes one row per period (never a sum), so a goods or services component must not outrank a total.
+// SalesRevenueServicesNet is not added: without summation it would publish a partial revenue for mixed filers.
+// 2026-10-16 (sec-annual-concepts.v5): regional banks tag no total revenue at all (TFC, FITB, RF, PNFP, SYF) or only a
+// fee subtotal under the ASC 606 concepts (MTB 1.66B, HBAN 1.56B, EWBC 0.06B — margins 141-1,218%, withheld). Their
+// net revenue is net interest income + noninterest income of the same filing, the definition the large banks tag as
+// RevenuesNetOfInterestExpense (GS FY2025: 13,559M + 44,724M = 58,283M exactly). It is the one derived concept and
+// competes as primary, so the largest-total rule replaces a fee subtotal with it.
 export const SEC_BANK_NET_REVENUE_CONCEPT = 'derived:InterestIncomeExpenseNet+NoninterestIncome';
 export const SEC_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 'SalesRevenueNet', 'RevenuesNetOfInterestExpense', 'RegulatedAndUnregulatedOperatingRevenue', 'ElectricUtilityRevenue', SEC_BANK_NET_REVENUE_CONCEPT]);
 export const SEC_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueFromContractWithCustomerIncludingAssessedTax', 'SalesRevenueGoodsNet']);
+// 2026-10-16 (sec-annual-concepts.v6, owner-approved ratio-only model): IFRS filers (ifrs-full) compete under the same
+// one-row-per-period rule. RevenueAndOperatingIncome (HSBC, UBS, BBVA total operating income; BP/SHEL revenue plus other
+// income) is a fallback so it never outranks a reported Revenue line.
 export const SEC_IFRS_PRIMARY_REVENUE_CONCEPTS = Object.freeze(['Revenue', 'RevenueFromContractsWithCustomers']);
 export const SEC_IFRS_FALLBACK_REVENUE_CONCEPTS = Object.freeze(['RevenueAndOperatingIncome']);
 const PRIMARY_REVENUE = new Set([...SEC_PRIMARY_REVENUE_CONCEPTS, ...SEC_IFRS_PRIMARY_REVENUE_CONCEPTS]);
 const KNOWN_REVENUE = new Set([...PRIMARY_REVENUE, ...SEC_FALLBACK_REVENUE_CONCEPTS, ...SEC_IFRS_FALLBACK_REVENUE_CONCEPTS]);
+// Reference market-cap plausibility: a share basis whose implied daily turnover falls outside this band is
+// a scale, ADR-ratio or share-class error, not a company size.
 export const SEC_REFERENCE_TURNOVER_BOUNDS = Object.freeze({ min: 0.0005, max: 0.2 });
 
 const rowStart = (row) => row?.periodStart ?? row?.start ?? null;
@@ -250,6 +289,7 @@ export function reconcileSecRevenueShares(record) {
     delete next.margin;
     dropCoverage('margin');
   }
+  // The growth of a revenue subtotal is not the business' growth either (CPT +81.7%, BBVA IFRS).
   if (next.marginHeld && finite(next.margin) == null && finite(next.revGrowth) != null) {
     edit();
     next.revGrowthHeld = { value: next.revGrowth, reason: 'revenue-subtotal' };
@@ -266,6 +306,7 @@ export function reconcileSecRevenueShares(record) {
     delete next.pb;
     dropCoverage('sharesOutstanding', 'pe', 'pb');
   }
+  // Records written before the 20-F rule (normalizer 2026-10-17) are healed the same way until their re-read.
   if (finite(next.sharesOutstanding) != null && FOREIGN_ORDINARY_SHARE_FORMS.test(String(next.form || ''))) {
     edit();
     next.sharesHeld = { value: finite(next.sharesOutstanding), observedAt: next.sharesObservedAt || null, reason: 'foreign-share-basis-unverified' };
@@ -278,10 +319,14 @@ export function reconcileSecRevenueShares(record) {
   return next;
 }
 
+// The TTM / common-earnings P/E numerator and the average-equity ROE follow the heal.
 export function reconcileSecRecord(record) {
   return reconcileSecEarningsBasis(reconcileSecEquity(reconcileSecRevenueShares(record)));
 }
 
+// F04/F10: which share count may price a market cap. A count the producer matched to net income ÷ diluted EPS
+// is used as is; an older record without that check (494 of 659 on 2026-10-09) or an unchecked one is used only
+// when the implied daily turnover is plausible. A stale-period or scale-mismatched count is never used.
 export function secSharesTrust(record, { price = null, dollarVolume30d = null } = {}) {
   const shares = finite(record?.sharesOutstanding);
   // v6: a non-USD report or an IFRS ADR share basis is withheld by the normalizer and says so.
@@ -310,6 +355,8 @@ export function deriveSecReport(fundamentals = null, now = Date.now()) {
   const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
   const metrics = METRIC_DEFINITIONS
     .filter(([key]) => coverage.includes(key) && finite(input[key]) != null)
+    // A P/E healed onto the last four quarters says so.
+    // A one-off gain in that numerator (sec-valuation-basis secEarningsOneOff) is named on the label.
     .map(([key, label, unit]) => Object.freeze({ key, label: key !== 'pe' ? label : (input.peEarnings?.basis === 'ttm' ? 'P/E(최근 4개 분기 순이익)' : label) + (input.earningsOneOff?.length ? ' · 일회성 이익 포함' : ''), unit, value: finite(input[key]) }));
   const anomalies = detectAnomalies(input, metrics);
   const notApplicable = input.notApplicable === true || input.applicability === 'not-applicable';

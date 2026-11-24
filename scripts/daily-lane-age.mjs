@@ -4,7 +4,7 @@
 // Sources: the Actions-cache marker written after a published poll (.cache/daily-lane/last-poll.json),
 // and the artifact's own clock fields (they move only when the SEC evidence changes, so they are a
 // lower bound, not the poll time).
-// v58.87 (P2093 follow-up): a failed lane used to be retried on every 30-minute cycle, so a failure that repeats (an
+// A failed lane used to be retried on every 30-minute cycle, so a failure that repeats (an
 // over-budget file, a contract break) re-ran the whole SEC chain all day. --record-failure keeps the last good poll
 // time and counts failures; the next attempts wait 1, 2, 4, then at most 8 hours. A published poll clears the count.
 import fs from 'node:fs';

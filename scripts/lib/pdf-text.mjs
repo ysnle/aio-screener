@@ -1,4 +1,4 @@
-// v59.42: plain text from a simple PDF (the Fed's press-conference transcript) without a dependency. Flate streams are
+// Plain text from a simple PDF (the Fed's press-conference transcript) without a dependency. Flate streams are
 // inflated; text-showing operators (Tj, TJ, ', ") are read from literal strings, and hex strings through the ToUnicode
 // maps found in the file. The result is checked by the caller (readableEnglish): a PDF this cannot read keeps the
 // summary on its report basis instead of producing a garbled "transcript".

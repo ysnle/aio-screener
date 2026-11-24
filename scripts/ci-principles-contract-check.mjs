@@ -12,7 +12,6 @@ const routes = read('src/app/routes.js');
 const verticalSlices = read('src/app/vertical-slices.js');
 const bootstrap = read('src/app/bootstrap.js');
 const page = read('src/ui/pages/principles.js');
-// S17 (D8): the concept-map catalog moved to content/research; content markers are checked there, renderer markers in the page.
 const catalogSource = read('content/research/principles/catalog.json');
 const contentLib = read('scripts/lib/research-content.mjs');
 const conceptsView = read('src/ui/knowledge/concepts-view.js');
@@ -77,7 +76,7 @@ if (narrative.schemaVersion !== 'principles-narrative.v1' || narrative.parts?.le
 if (!narrative.thesis?.includes('무엇을 소유할지') || narrativeChapters.some((chapter) => !chapter.title || !chapter.lead || chapter.paragraphs?.length < 3 || chapter.chain?.length < 4 || !chapter.marketBridge || !chapter.checkpoint || !['STRUCTURAL', 'FRAMEWORK'].includes(chapter.classification) || !chapter.lessonIds?.length || !chapter.sources?.every((source) => /^https:\/\//.test(source.url)))) fail('narrative chapter depth, boundary, or source contract drifted');
 if (!conceptsView.includes('function renderStory') || !page.includes('NARRATIVE_URL') || !page.includes('selectedNarrativeChapterId') || !page.includes("chapter: state.view === 'story'")) fail('column renderer or its deep-link state is disconnected');
 if (!/data-principles-content/.test(index)) fail('page markup lacks renderer mount');
-// Sources and review status are verified in the build gates; the reading surface carries neither (owner, 2026-10-05).
+// Sources and review status are verified in the build gates; the reading surface carries neither.
 if (/출처|검토 질문|체크포인트|근거는 항목별 표시|텔레그램은 발견용/.test(conceptsView + frameView + researchShell)) fail('library reading surface must not show source notes, review questions or boundary chips');
 if (!/RESEARCH_URL/.test(page) || !/CHAPTERS_URL/.test(page) || !/LESSON_LIBRARY_URL/.test(page) || !/NODE_GUIDES_URL/.test(page) || !/aioPrinciplesResearch/.test(page) || !/aioPrinciplesChapters/.test(page) || !/aioPrinciplesLessonLibrary/.test(page) || !/aioPrinciplesNodeGuides/.test(page) || !/aioPrinciplesKnowledgeArticles/.test(page)) fail('principles page is not connected to the authored A~O curriculum, node knowledge base, deep article corpus, and reconciled evidence registry');
 if (!page.includes('article identity mismatch') || !page.includes('validateCurrentObservationsArtifact')) fail('principles runtime artifact identity/schema/URL safety gates are missing');

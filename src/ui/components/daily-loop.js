@@ -1,3 +1,7 @@
+// P1432 (stage 5): the 오늘 daily loop — the names I hold or watch and their news, the hero's "판단이 바뀌는 조건" tile with
+// the next scheduled events, the AI supply-chain visual and one link row to the screens that hold the rest.
+// 밤사이 핵심, 주요 발표 요약, 다가오는 일정, 오늘 확인할 3가지 and "지난 마감 이후 변화" left
+// 오늘 — each repeated a block on 뉴스, 브리핑 or the hero (same pickers, same rows). The links row says where they are.
 import { buildMyNames } from '../../domain/briefing/daily-diff.js';
 import { readMarketRegime } from '../../data/selectors/interpretation.js';
 import { withObjectParticle } from '../../domain/content/korean-particle.js';
@@ -14,6 +18,9 @@ function call(root, name, arg, fallback) {
 
 const observedMs = (quote) => { const parsed = Date.parse(quote?.observedAt || ''); return Number.isFinite(parsed) ? parsed : Number(quote?.ts); };
 
+// v57.79 (UI review): the 코스피 chip names its basis: a live/delayed quote carries its KST time, and it is used only when
+// it is newer than the last completed KRX close and its own previous close agrees with that close (within 5%); otherwise
+// the model is that close with its date, or null when there is neither.
 export const KR_CHIP_GUARD_PCT = 5;
 const kstParts = (ms) => { const iso = new Date(ms + 9 * 3600000).toISOString(); return { date: iso.slice(0, 10), time: iso.slice(11, 16) }; };
 export function koreaQuoteChip({ live = null, closes = [] } = {}) {
@@ -33,6 +40,8 @@ export function koreaQuoteChip({ live = null, closes = [] } = {}) {
   return { basis: 'live', reason: 'live', date: when.date, time: when.time, value: price, pct: Number.isFinite(pct) ? pct : null, delayed: /DELAYED/i.test(String(live?.marketState || live?.session || '')) };
 }
 
+// The chip shows only a live KOSPI quote — the completed KRX close is the hero's Korea line, so a close chip was the
+// third 코스피 on the page.
 function renderKoreaQuote(doc, root) {
   const chip = doc.getElementById('home-kospi-chip');
   if (!chip) return null;
@@ -69,6 +78,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
   host.replaceChildren(head);
   host.dataset.empty = model.names.length ? 'false' : 'true';
   if (!model.names.length) {
+    // An empty list is one action, not a sentence about two screens.
     const add = el(doc, 'button', '관심·보유 종목 추가 → 포트폴리오', 'flow-next-link daily-card-more');
     add.type = 'button';
     add.dataset.action = 'showPage';
@@ -92,6 +102,7 @@ function renderMyNames(doc, host, root, store, regime = null) {
     list.append(li);
   }
   host.append(list);
+  // Codex audit F25: more than eight names were cut silently; the count and the way to the rest are said.
   if (model.names.length > 8) {
     const more = el(doc, 'button', `전체 ${model.names.length}개 중 8개 표시, 나머지는 스크리너의 내 워치리스트에서 →`, 'flow-next-link');
     more.type = 'button';
@@ -105,6 +116,9 @@ function renderMyNames(doc, host, root, store, regime = null) {
   return model;
 }
 
+// Code review: the row's price follows the same freshness rule as its change capsule — a current or
+// delayed quote shows as is; an older quote shows with its observation date (amber, never as today's number); no
+// usable quote shows nothing. One price notation with the screener (formatScreenerPrice: ₩ whole won, $ two decimals).
 function namePrice(doc, symbol, quote, screenerRow = null) {
   const price = Number(quote?.price);
   const node = el(doc, 'span', '', 'daily-name-price');
@@ -122,6 +136,7 @@ function namePrice(doc, symbol, quote, screenerRow = null) {
   return node;
 }
 
+// T16 (expert review 2026-10-13): the schedule uses the briefing's S&P 500 name list and requests the calendar once itself.
 function renderMyNews(doc, host, root, store, names) {
   const symbols = new Set((names || []).map((row) => row.symbol));
   host.replaceChildren(el(doc, 'h2', '내 종목 뉴스', 'briefing-h2'));
@@ -155,15 +170,21 @@ function renderMyNews(doc, host, root, store, names) {
   return mine.map(({ item }) => item);
 }
 
+// Perf: `regime` is the one home already computed this render (renderHomeRegime returns it); without it the
+// loop reads the regime itself, so a caller that renders the loop alone sees the same breadth state.
 export function renderDailyLoop({ documentRef: doc, root, store, regime = null }) {
   const host = doc?.getElementById('home-daily-loop');
   if (!host) return null;
   const current = regime || readMarketRegime(root);
   renderKoreaQuote(doc, root);
+  // v59.68 (owner 2026-11-03, 홈 = prices, stocks, news): the flip conditions and next events (시장 상태, 브리핑 own them),
+  // the AI supply chain (테마와 섹터) and the link row left 오늘.
   const namesHost = doc.getElementById('home-my-names');
   const names = namesHost ? renderMyNames(doc, namesHost, root, store, current) : null;
   const newsHost = doc.getElementById('home-my-news');
   const myNews = newsHost ? renderMyNews(doc, newsHost, root, store, names?.names || []) : [];
+  // v59.67 (phase 5): 오늘의 핵심 — the day's top stories, movers and headlines (a lazy chunk; market-day.json loads on first use).
+  // Its headline pick leaves out the stories 내 종목 뉴스 already lists, so one page never names the same article twice.
   import('./home-day.js').then(({ renderHomeDay }) => renderHomeDay({ documentRef: doc, root, store, shownElsewhere: myNews })).catch(() => {});
   host.dataset.aioDailyLoopRenderer = 'native';
   return { names };

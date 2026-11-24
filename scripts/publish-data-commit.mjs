@@ -72,7 +72,7 @@ export function publish({ set: id, candidate = null, retry = '', branch = 'main'
   if (set.candidateFile && !candidate) { console.error(`::error::set ${id} verifies a candidate; pass --candidate`); return 2; }
   const env = { ...process.env, CANDIDATE: candidate || '' };
   const fail = (message) => { console.error(`::error::${message}`); return 1; };
-  // v60.50: a data commit is public-data/ only — the set as declared, and everything in the index when it is committed
+  // A data commit is public-data/ only — the set as declared, and everything in the index when it is committed
   // (a hook or an earlier step may have staged more than the set names).
   const outsideSet = outsideDataRoot([...set.required, ...set.optional]);
   if (outsideSet.length) return fail(`${id}: set names path(s) outside ${DATA_ROOT}: ${outsideSet.join(' ')}`);

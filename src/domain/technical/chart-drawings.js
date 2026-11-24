@@ -1,3 +1,8 @@
+// v58.79 (owner 2026-10-25, "전문 차트 작도가 자동으로 안 되는거야?"): the drawings a chartist adds by hand, made by fixed rules
+// so two readers get the same line — a trendline through two confirmed swing points that no close has broken since, and
+// the volume-weighted average price anchored at a dated event (Brian Shannon's anchored VWAP). Pattern names (head and
+// shoulders, wedges) and Fibonacci ratios stay out: they depend on the reader and carry no tested rule. Pure functions on
+// completed daily bars — no DOM, no network; nothing here is an entry, stop or target.
 import { swingPoints } from './price-levels.js';
 import { adrPctOf } from './definitions.js';
 import { RULES } from '../rules/thresholds.js';
@@ -65,6 +70,8 @@ export function anchoredVwap(bars, anchorIndex) {
   const values = list.map((bar, k) => {
     if (k < anchorIndex) return null;
     const volume = finite(bar?.volume);
+    // P24-VWAP-01: a bar without a volume figure repeated the last VWAP as if nothing traded. It is a gap in the
+    // line (null) and leaves the sum; a reported 0 (a halted session) still carries the value.
     if (k > anchorIndex && volume == null) return null;
     if (volume > 0 && finite(bar.high) != null && finite(bar.low) != null && finite(bar.close) != null) { pv += (bar.high + bar.low + bar.close) / 3 * volume; vol += volume; }
     return vol > 0 ? pv / vol : null;
@@ -79,6 +86,8 @@ export function vwapAnchors(bars) {
   if (last < 20 || !list.some((bar) => finite(bar?.volume) > 0)) return [];
   const pick = (from, better) => { let best = -1; for (let k = Math.max(0, from); k <= last; k++) if (best < 0 || better(list[k], list[best])) best = k; return best; };
   const out = [];
+  // P24-VWAP-01: the anchor names the span actually loaded — 60 bars read "52주 고점" while the chart's own range
+  // said "최근 60거래일". A year needs RULES fullYearSessions bars, six months 126.
   const span = last + 1;
   const high = pick(last - 251, (a, b) => a.high > b.high);
   if (high >= 0 && high < last - 1) out.push({ id: 'high52', label: span >= RULES.technical.fullYearSessions ? '52주 고점' : `최근 ${Math.min(span, 252)}거래일 고점`, short: '고점', index: high });

@@ -1,3 +1,10 @@
+// 기술적 분석 — a screen of its own, like 매크로. "기술적 분석에서는 시장 지수와
+// 대표 종목/대장주들을 분석해서 하나하나 보여줘야" — the screen holds the one chart analysis slot (#stock-chart-section,
+// stock-chart.js) that the 종목 screen's 차트 tab used to hold. Three views: 시장 지수 (one card per index) and 대표 종목
+// (the largest S&P 500 weights and the day's material movers, with the screener's fields as the raw table under them),
+// both the same card part (market-candles.js, each card read from the bars it draws), and 종목 분석, the slot alone
+// (2026-11-20: under both card views it made each over 10,000px tall on a phone). The page's search, a card or a row
+// opens its symbol there.
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
@@ -30,6 +37,8 @@ function screenerOf(root, store) {
 // the bars it draws), so the table carries numbers only.
 function stockTable(doc, rows, asOf, open, current, GROUPS) {
   const table = el(doc, 'table', null, 'charts-table');
+  // rows from an earlier session than the header's index close say their own session, with the
+  // same words as 테마와 섹터 ("11/16 종가 기준, 11/17 반영 전").
   const behind = stockTableSessionBehind(rows, asOf);
   if (behind) table.append(el(doc, 'caption', sessionChipText(behind, String(asOf).slice(0, 10)), 'charts-table__session'));
   const head = el(doc, 'tr');
@@ -37,6 +46,7 @@ function stockTable(doc, rows, asOf, open, current, GROUPS) {
   table.append(el(doc, 'thead'), el(doc, 'tbody'));
   table.tHead.append(head);
   const pct = (value) => (Number.isFinite(value) ? `${signedText(value, 1)}%` : '—');
+  // A group row names each part (S&P 500 비중 상위, 11/20 크게 움직인 종목) where the table note used to.
   let group = null;
   for (const pick of rows) {
     if (pick.group !== group) {
@@ -87,6 +97,7 @@ function render(documentRef, root, store, page, cards, stockCards, basis) {
   } else if (grid) delete grid.dataset.state;
   // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it.
   cards.update(history);
+  // Under the index cards, this fall among each index's past falls (the long-run tables; hidden without them).
   if (grid) {
     let standings = documentRef.getElementById('charts-fall-standings');
     if (!standings) { standings = el(documentRef, 'div', null, 'charts-standings'); standings.id = 'charts-fall-standings'; standings.hidden = true; grid.after(standings); }

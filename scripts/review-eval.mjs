@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/review-eval.mjs — v59.42
+// scripts/review-eval.mjs
 //
 // Reviewer eval built from real incidents (REVIEW.md "리뷰어를 고치는 방법"). Each line of
 // architecture/review-eval-cases.jsonl is a bug case (the commit that introduced a later P-entry defect, with the

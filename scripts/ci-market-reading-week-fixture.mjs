@@ -243,7 +243,7 @@ await section('rejection log', async () => {
     log.attempts.length === rejections.REJECTIONS_MAX && log.attempts.at(-1).at === new Date(nowMs + 29 * 60000).toISOString()
       && log.attempts.every((row) => !/https?:|@example/.test(row.text) && row.text.length <= rejections.REJECTION_TEXT_MAX)
       && rejections.rejectionIssueCounts(log).some(([issue, count]) => issue === 'direction-sign-contradiction:market.semis' && count === rejections.REJECTIONS_MAX), JSON.stringify(log.attempts.at(-1)));
-  // P1719: rejected AI text never enters the repository or a published artifact. The log is written outside the tree
+  // Rejected AI text never enters the repository or a published artifact. The log is written outside the tree
   // ($RUNNER_TEMP in CI) and refresh-data uploads it as a short-retention Actions artifact; no publish set, Pages
   // exclude, manifest entry or lineage row names it, because nothing published carries it.
   const outside = relative(root, MARKET_ANALYSIS_REJECTIONS_OUT);
@@ -289,7 +289,7 @@ await section('v60.19 size words', async () => {
   check('v60.19 the block name is a prompt label: left in the text it blocks', va.PROMPT_SECTION_LABEL.test('MOVE_SIZE 기준으로 보면'));
 });
 
-// v60.21: the six-axis met-condition count failed its pre-registered backtest (model-validation-status.json marketLean),
+// The six-axis met-condition count failed its pre-registered backtest (model-validation-status.json marketLean),
 // and the v60.19 prompt stopped offering it as a likelihood ground; the validator still accepted it. Prompt and validator
 // now read one list of ground kinds (src/domain/content/likelihood-grounds.js). The passing sentences quote the wording
 // the model is given: the decision frame and the VIX-band risk line, built by their own functions.
@@ -299,7 +299,7 @@ await section('v60.21 likelihood ground', async () => {
   const { buildDecisionFrame, decisionFrameText, decisionFrameContext } = await import('../src/domain/scenarios/decision-frame.js');
   const { vixBandRiskLine } = await import('../src/domain/market/signal/vix-band-record.js');
   const { evidenceStrength } = await import('../src/domain/shared/evidence-strength.js');
-  // v60.24 (owner 2026-11-17): the ground kinds are measured, not enforced — an ungrounded likelihood is a warning
+  // The ground kinds are measured, not enforced — an ungrounded likelihood is a warning
   // (analysisInterpretationWarnings) and the admission stays empty; the prompt asks the model to say the ground is thin.
   const admission = (text) => [...va.validateAnalysisAdmission(text), ...va.analysisInterpretationWarnings(text)];
   const conduct = marketAnalysisPromptSections({}).find(([id]) => id === 'conduct')?.[1] || '';

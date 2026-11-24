@@ -191,7 +191,7 @@ function valueUnitNormalizationOf(bundles) {
   return { publishedUnit: 'USD', corrected: filings.some((entry) => entry.multiplier !== 1), filings };
 }
 
-// P1462: one description of how a period's rows were assembled, for the current and prior quarter.
+// One description of how a period's rows were assembled, for the current and prior quarter.
 // The chain is always published (a single ORIGINAL entry included) so consumers never infer it.
 function amendmentSemanticsOf(bundle) {
   const chain = bundle.amendmentChain || [];
@@ -202,7 +202,7 @@ function amendmentSemanticsOf(bundle) {
 }
 
 async function composePeriodFilings(fallbackFiling, periodSubmissions = []) {
-  // P1449: the composition policy itself lives in scripts/lib/13f-compose.mjs (one policy,
+  // The composition policy itself lives in scripts/lib/13f-compose.mjs (one policy,
   // one implementation — R619). This wrapper only fetches the bundles in filedAt order.
   // v59.45 (pipeline review P5 resolve-13f-prior-filings note): only submissions for the fallback filing's own report
   // period are composed — a priorFiling re-pointed by the manual resolver must not merge another quarter's rows.
@@ -331,7 +331,7 @@ for (const manager of verified) {
       comparisonActionCounts: actionCounts,
       corporateActionReviewStatus: 'REVIEW_REQUIRED',
       amendmentSemantics: amendmentSemanticsOf(currentBundle),
-      // P1462: the prior quarter is composed with the same policy; its chain is published so the
+      // The prior quarter is composed with the same policy; its chain is published so the
       // history index can show how the comparison base was assembled (not only the current one).
       priorAmendmentSemantics: priorBundle ? amendmentSemanticsOf(priorBundle) : null,
       comparisonKeyPolicy: 'NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE',
@@ -364,7 +364,7 @@ for (const manager of verified) {
     holdings: fullRows,
     comparisons: comparisonRecords
   };
-  // v57.89: rows over 32 MiB are written as <id>.json index + <id>.part-N.json (GitHub 50 MB warning).
+  // Rows over 32 MiB are written as <id>.json index + <id>.part-N.json (GitHub 50 MB warning).
   await writeManagerRows(shardsDir, shard);
   shards[manager.id] = { url: `./public-data/masters/managers/${manager.id}.json`, fullRows: fullRows.length, comparisonRows: comparisonRecords.length, reportPeriod: filing.periodOfReport, accession: filing.accession };
   if (embeddedManagerIds.has(manager.id)) {
@@ -397,7 +397,7 @@ const refreshedFilings = {
   ...filings,
   generatedAt,
   latestAvailablePeriod,
-  // v58.81 (P2093): 13D/G events live only in filing-discovery.json (the masters page reads them there); an older
+  // 13D/G events live only in filing-discovery.json (the masters page reads them there); an older
   // filings.json copy is dropped here so the file stays within its size budget.
   managers: filings.managers.map(({ ownershipEvents: _events, ...manager }) => {
     const refreshed = managersWithFreshness.find((item) => item.id === manager.id);

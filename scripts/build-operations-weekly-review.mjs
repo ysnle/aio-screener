@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Collects the weekly operator review evidence (v58.84) and prints the issue body to stdout.
+// Collects the weekly operator review evidence and prints the issue body to stdout.
 // Runs only in .github/workflows/operations-weekly-review.yml. Token values are sent only to
 // their own issuer and never printed; `--status-file` receives needsAction for the workflow.
 import { writeFileSync } from 'node:fs';
@@ -56,7 +56,7 @@ async function repoSizeKb(fetchImpl, token, repo) {
   return Number.isSafeInteger(body?.size) ? body.size : null;
 }
 
-// v59.27: falls back to the automation token the Worker also accepts here, so no extra secret is needed.
+// Falls back to the automation token the Worker also accepts here, so no extra secret is needed.
 async function aiUsage(fetchImpl, operatorToken, automationToken) {
   if (!operatorToken && !automationToken) return { configured: false };
   const url = new URL(endpoints.proxy.operatorAiUsagePath, endpoints.proxy.baseUrl).href;

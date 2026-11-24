@@ -11,7 +11,7 @@ import { DESKTOP_PRIMARY_VIEWPORT } from './desktop-qa-config.mjs';
 // than a hand-maintained list. A chart may declare an explicit non-tier sentinel
 // or any recognized tier/alias, so a canonical tier like T3_PUBLIC_DELAYED can
 // never fail this gate merely because the list was not extended in lockstep with
-// src/data/contracts/source-kind.js (P1074).
+// src/data/contracts/source-kind.js.
 const NON_TIER_CHART_KINDS = new Set(['unavailable', 'live', 'derived']);
 const chartKindAllowed = (kind) => NON_TIER_CHART_KINDS.has(String(kind || '').trim().toLowerCase()) || isRecognizedSourceKind(kind);
 
@@ -77,9 +77,9 @@ try {
   if (!boot.navigationInstalled || !boot.hasNavigate) throw new Error(`typed navigation facade not installed: ${JSON.stringify(boot)}`);
   if (!boot.summaryBlocked) throw new Error('offline sentiment must remain blocked');
   await waitForTopbar('서버 ', 'initial snapshot', 15000);
-  // v57.64: the native runtime skips the legacy home repaint after the snapshot, so the home VIX cell has its own
+  // The native runtime skips the legacy home repaint after the snapshot, so the home VIX cell has its own
   // sink; with a published VIX close it must not stay '—'.
-  // v59.85: that sink (window._aioRenderHomeVix) is installed by src/app/legacy-screen-bridges.js, a lazy chunk outside
+  // That sink (window._aioRenderHomeVix) is installed by src/app/legacy-screen-bridges.js, a lazy chunk outside
   // the boot set, so the topbar can be ready before it. Asserting before it lands failed on slow runners (three threads
   // on 11/08, each passing on rerun); the check now waits for the sink it tests.
   await page.waitForFunction(() => typeof window._aioRenderHomeVix === 'function', null, { timeout: 15000 });
@@ -100,7 +100,7 @@ try {
       title: el?.getAttribute('title') || ''
     };
   });
-  // P1326/R671 (QA-UX-07): one slot, one vocabulary — a server snapshot is 종가/지난 시세, never live.
+  // One slot, one vocabulary — a server snapshot is 종가/지난 시세, never live.
   if (!/^서버 .+, 시세 16종$/.test(quoteTopbar.text) || !/^(close|stale)$/.test(quoteTopbar.className) || !/실시간 시세가 아닌/.test(quoteTopbar.title) || quoteTopbar.duplicate) {
     throw new Error(`snapshot quote topbar must stay reference-only while external providers are blocked: ${JSON.stringify(quoteTopbar)}`);
   }
@@ -154,7 +154,7 @@ try {
     window._live2Y = 4.85;
     window._live10Y = 5.11;
     window._fredData = { DGS2: { value: 4.85, observedAt }, DGS10: { value: 5.11, observedAt }, T10Y2Y: { value: 0.26, observedAt, unit: 'percentage-point', source: treasury.source } };
-    // P1425: the 거시 boards read the published data.json macro block (official cut + monthly releases).
+    // The 거시 boards read the published data.json macro block (official cut + monthly releases).
     window._aioServerMacro = { dgs2: 4.85, dgs5: 4.99, dgs10: 5.11, dgs20: 5.45, dgs30: 5.4, t10y2y: 0.26, _asOf_dgs2: '2026-09-24', _asOf_dgs5: '2026-09-24', _asOf_dgs10: '2026-09-24', _asOf_dgs20: '2026-09-24', _asOf_dgs30: '2026-09-24',
       cpi: 3.1, _asOf_cpi: '2026-12-01', _source_cpi: 'bls-official-primary', pce: 2.9, _asOf_pce: '2026-12-01', corePce: 2.8, _asOf_corePce: '2026-12-01', unemployment: 4.2, unemploymentDelta: 0.1, _asOf_unemployment: '2026-09-01',
       fedTargetLower: 3.75, fedTargetUpper: 4, _asOf_fedTargetLower: '2026-09-24', realYield10: 2.1, _asOf_realYield10: '2026-09-24', hyOAS: 3.1, _asOf_hyOAS: '2026-09-24' };
@@ -165,7 +165,7 @@ try {
   const sentimentRoute = await page.evaluate(() => ({
     active: window.AIO_ARCH.router.active(),
     storeRoute: window.AIO_ARCH.getState().route,
-    // P1396: the five-card board replaced the overall badge; the page publishes its own state.
+    // The five-card board replaced the overall badge; the page publishes its own state.
     state: document.getElementById('page-sentiment')?.dataset.aioArchitectureState,
     renderer: document.getElementById('page-sentiment')?.dataset.aioArchitectureRenderer,
     boardRenderer: document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer || null,
@@ -174,7 +174,7 @@ try {
   }));
   if (sentimentRoute.active !== 'sentiment' || sentimentRoute.storeRoute !== 'sentiment' || !['blocked', 'observed'].includes(sentimentRoute.state) || sentimentRoute.renderer !== 'native' || sentimentRoute.boardRenderer !== 'native' || sentimentRoute.badge) throw new Error(`sentiment lifecycle failed (P1586 + v59.51 + v59.70: three published-source cards (put/call retired) + the self-computed composite; high yield lives on the credit board): ${JSON.stringify(sentimentRoute)}`);
 
-  // P1425: the shell no longer prints snapshot-date rows (the fxbond 기준일 row left with the rebuild);
+  // The shell no longer prints snapshot-date rows (the fxbond 기준일 row left with the rebuild);
   // the binding is exercised on its own fixture sinks.
   const staleDateRoute = await page.evaluate(() => {
     const fixture = document.createElement('div');
@@ -189,8 +189,6 @@ try {
   });
   if (staleDateRoute.tnxDate !== '2026-09-24' || staleDateRoute.tnxStale === staleDateRoute.briefingStale || !staleDateRoute.tnxStale.includes('일 경과')) throw new Error(`snapshot date item binding failed: ${JSON.stringify(staleDateRoute)}`);
 
-  // P1396: the SKEW card had no current producer and was retired with the sentiment rebuild;
-  // the page must not re-introduce an empty SKEW sink.
   if (await page.evaluate(() => !!document.getElementById('sent-skew-value'))) throw new Error('retired SKEW sink reappeared');
 
   await page.evaluate(() => window.AIO_ARCH.navigate('guide'));
@@ -249,8 +247,8 @@ try {
     window._serverDataMeta.newsCycleEnd = new Date(Date.now() + 3600000).toISOString();
     document.dispatchEvent(new CustomEvent('aio:newsUpdated', { detail: { fixture: 'news-entity-p1205' } }));
   });
-  // P1391: a top-scored item renders in the important list (and is excluded from the full feed).
-  // P1601: arrivals are accepted explicitly so they do not replace the reader's focused card.
+  // A top-scored item renders in the important list (and is excluded from the full feed).
+  // Arrivals are accepted explicitly so they do not replace the reader's focused card.
   await page.waitForFunction(() => document.querySelector('[data-news-updates]')?.hidden === false);
   await page.locator('[data-news-updates]').click();
   await page.waitForFunction(() => document.getElementById('page-market-news')?.textContent?.includes('네비우스 $NBIS'));
@@ -266,7 +264,7 @@ try {
     };
   });
   if (!newsEntityRoute.text.includes('네비우스 $NBIS 한글 안전') || newsEntityRoute.imgCount || newsEntityRoute.scriptCount || newsEntityRoute.onerrorCount || newsEntityRoute.doubleDecoded || newsEntityRoute.xssExecuted) throw new Error(`news text entity/XSS contract failed: ${JSON.stringify(newsEntityRoute)}`);
-  // P1403: a server backstop item from an older cycle stays stale; only the latest cycle is trusted.
+  // A server backstop item from an older cycle stays stale; only the latest cycle is trusted.
   const backstopCycle = await page.evaluate(() => {
     const contract = { newsCyclePolicy: 'kst-0800-completed-24h', windowHours: 24 };
     const nowMs = Date.now();
@@ -280,8 +278,8 @@ try {
   if (backstopCycle.oldTrusted || backstopCycle.oldStatus !== 'stale' || !backstopCycle.latestTrusted) throw new Error(`P1403 server backstop cycle trust wrong: ${JSON.stringify(backstopCycle)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('macro'));
   await page.waitForFunction(() => document.getElementById('page-macro')?.dataset.aioArchitectureRoute === 'macro');
-  // P1425: 거시 경제 is one native indicator board; the storyline, regime pill, curve canvas and 2Y/2s10s sinks are retired.
-  // v59.70 DOM1: a group's cards are built when it first opens, so the reader's tap on 물가 comes first.
+  // 거시 경제 is one native indicator board; the storyline, regime pill, curve canvas and 2Y/2s10s sinks are retired.
+  // A group's cards are built when it first opens, so the reader's tap on 물가 comes first.
   await page.evaluate(() => { const fold = document.querySelector('#macro-board [data-group="inflation"] details.macro-group-fold'); if (fold) fold.open = true; });
   await page.waitForFunction(() => !!document.querySelector('#macro-board [data-group="inflation"] .macro-stat'));
   const macroRoute = await page.evaluate(() => ({
@@ -303,8 +301,8 @@ try {
   // 표시되고, (b) 개인 키를 실은 URL은 공유 Worker로 중계되지 않으며 PRIVATE_ROUTE_REQUIRED
   // 사유 힌트로 거부된다 — 릴레이 2순위 배선이 개인 키를 공유 Worker에 넘기지 않는다는 것을
   // 브라우저에서 확인한다.
-  // v58.63 (architecture audit C5): half (a) read #macro-2y-value, retired above, so it was skipped on every run; source
-  // names also moved off the numbers into the folded 데이터 출처 (owner 2026-10-06). Only the live half (b) is asserted.
+  // Half (a) read #macro-2y-value, retired above, so it was skipped on every run; source
+  // names also moved off the numbers into the folded 데이터 출처. Only the live half (b) is asserted.
   const cred05 = await page.evaluate(async () => {
     let failure = null;
     try {
@@ -320,7 +318,7 @@ try {
 
   await page.evaluate(() => window.AIO_ARCH.navigate('fxbond'));
   await page.waitForFunction(() => document.getElementById('page-fxbond')?.dataset.aioArchitectureRoute === 'fxbond');
-  // P1425: 금리와 환율 = official curve, real yield/breakeven/credit, dollar/won/yen/10Y close-basis cards.
+  // 금리와 환율 = official curve, real yield/breakeven/credit, dollar/won/yen/10Y close-basis cards.
   const fxbondRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-fxbond'),
     renderer: document.getElementById('page-fxbond')?.dataset.aioArchitectureRenderer || null,
@@ -335,7 +333,7 @@ try {
     nativeLiveSinkCount: document.querySelectorAll('#page-fxbond[data-aio-architecture-renderer="native"] [data-live-price], #page-fxbond[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['fxbond-risk-pill', 'yc-inversion-badge', 'carry-score-bar', 'cam-verdict-text', 'sc-2s10s', 'fxbond-tnx-trend', 'koreaCurveChart'].filter((id) => document.getElementById(id))
   }));
-  // P1428 (Codex review): the same measure must read the same on every screen. F&G's day change came from
+  // The same measure must read the same on every screen. F&G's day change came from
   // CNN's previous_close on home and from the completed-close history on 투자 심리 (+3 vs +2), and the
   // sentiment summary used 350bp/+15bp beside cards using 450bp/+25bp.
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
@@ -345,7 +343,7 @@ try {
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioSentimentBoardRenderer === 'native');
   const sentimentFg = await page.evaluate(() => document.querySelector('#page-sentiment [data-metric="fg"] .trend-card-change')?.textContent || '');
   const fgNumber = (text, label) => { const m = new RegExp(`${label}\\s*([+−-]?\\d+)`).exec(text); return m ? Number(m[1].replace('-', '-')) : null; };
-  // v59.74 (QA-SENT-29/P1219): the change carries its own name; an unlabelled number read as a second score. Empty = no history yet.
+  // The change carries its own name; an unlabelled number read as a second score. Empty = no history yet.
   if (homeFg.trim() && !/^(전일 대비 [+-]\d+|전일과 같음)$/.test(homeFg.trim())) throw new Error(`v59.74 QA-SENT-29 home F&G change lost its label: ${JSON.stringify(homeFg)}`);
   const homeFgDelta = fgNumber(homeFg, '전일 대비');
   const sentimentFgDelta = fgNumber(sentimentFg, '전일');
@@ -381,7 +379,7 @@ try {
   if (!assetRefresh.summaryBefore.startsWith('최근 1개월') || !assetRefresh.summaryAfter.startsWith('최근 1개월')) throw new Error(`v60.21 자산군 요약이 선택 기간과 다릅니다: ${JSON.stringify(assetRefresh)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('breadth'));
   await page.waitForFunction(() => document.getElementById('page-breadth')?.dataset.aioArchitectureRoute === 'breadth');
-  // P1395: the breadth page is the native trend-card board (P1416: ten dated series in three groups + one judgement).
+  // The breadth page is the native trend-card board (ten dated series in three groups + one judgement).
   const breadthRoute = await page.evaluate(() => ({
     pageExists: !!document.getElementById('page-breadth'),
     renderer: document.getElementById('page-breadth')?.dataset.aioArchitectureRenderer || null,
@@ -400,7 +398,7 @@ try {
     rrgStatusText: document.getElementById('rrg-chart-status')?.textContent || '',
     rrgChartRenderer: document.getElementById('rrg-canvas')?.dataset.aioRrgChartRenderer || null,
     rrgCanvasSize: [document.getElementById('rrg-canvas')?.width || 0, document.getElementById('rrg-canvas')?.height || 0],
-    performanceNarrativeRetired: !document.getElementById('sector-perf-analysis'), // v57.76: 섹터 흐름 분석 box retired
+    performanceNarrativeRetired: !document.getElementById('sector-perf-analysis'), // 섹터 흐름 분석 box retired
     rrgCanvasCssWidth: document.getElementById('rrg-canvas')?.getBoundingClientRect().width || 0,
     rrgFrameWidth: document.getElementById('rrg-canvas-frame')?.clientWidth || 0,
     rrgCanvasInAdvancedFold: !!document.getElementById('rrg-canvas')?.closest('.aio-page-advanced-toggle'),
@@ -481,25 +479,23 @@ try {
     extensionRenderer: document.getElementById('ticker-hero-ext')?.dataset.aioTickerExtensionRenderer || null,
     extensionDisplay: document.getElementById('ticker-hero-ext')?.style.display || '',
     extensionText: document.getElementById('ticker-hero-ext')?.textContent || '',
-    // v57.76: the 요약 tab's 최근 3봉 형태 section (ticker-candle-symbol) was retired; the subject hand-off is what remains.
     retiredCandleSection: !!document.getElementById('ticker-candle-symbol') || !!document.getElementById('realtime-pattern-indicator'),
     subject: String(window._aioLastOpenedSymbol || '').toUpperCase(),
     searchBeforeRead: (() => { const search = document.getElementById('ticker-search-open'); const read = document.getElementById('ticker-company'); /* v60.31: the company overview is the reading */ return !!(search && read && (search.compareDocumentPosition(read) & Node.DOCUMENT_POSITION_FOLLOWING)); })(),
   }));
-  // v60.31: 종목 is company analysis (개요, 재무 공시); its price chart is 기술적 분석's analysis slot (ci-chart-scale drives it).
+  // 종목 is company analysis (개요, 재무 공시); its price chart is 기술적 분석's analysis slot (ci-chart-scale drives it).
   await page.waitForFunction(() => /재무 한눈에/.test(document.getElementById('ticker-company')?.textContent || ''), null, { timeout: 15000 }).catch(() => {});
   tickerRoute.companyOverview = await page.evaluate(() => !document.getElementById('ticker-company')?.hidden && /재무 한눈에/.test(document.getElementById('ticker-company')?.textContent || ''));
   if (!tickerRoute.companyOverview) throw new Error(`v60.31 ticker company overview failed: ${JSON.stringify(tickerRoute)}`);
-  // P1430: the ticker page's inner tabs (재무 공시 · 가격 이력) were retired — the 종목 hub tabs own that split.
   const tickerLayout = await page.evaluate(() => ({
     innerTabs: document.querySelectorAll('#page-ticker [data-ticker-tab]').length,
-    // v60.38 (owner 2026-11-21): 개요 and 쟁점과 전망 are views of the ticker page, each a hub tab.
+    // 개요 and 쟁점과 전망 are views of the ticker page, each a hub tab.
     hubTabs: [...document.querySelectorAll('#aio-hub-tabs .aio-hub-tab')].map((tab) => [tab.dataset.arg, tab.dataset.hubView].filter(Boolean).join(':')),
-    // Owner 2026-11-19: the 차트 tab is retired; the subject line links to 기술적 분석 instead.
+    // The 차트 tab is retired; the subject line links to 기술적 분석 instead.
     chartLink: document.querySelector('#aio-hub-tabs .aio-hub-subject-chart')?.dataset.action || ''
   }));
   if (tickerLayout.innerTabs !== 0 || tickerLayout.hubTabs.join(',') !== 'ticker:overview,ticker:outlook,fundamental' || tickerLayout.chartLink !== 'aioOpenMarketChart') throw new Error(`P1430 ticker summary layout failed: ${JSON.stringify(tickerLayout)}`);
-  // v60.31: the 종목 reading and its theme line are retired; a theme opened from another screen (showThemeDetail, the
+  // The 종목 reading and its theme line are retired; a theme opened from another screen (showThemeDetail, the
   // knowledge views' theme links) still hands the detail over to 테마 lazily. NVDA's own leader theme is the fixture.
   const relatedThemeId = await page.evaluate(() => (window.THEME_MAP || []).find((theme) => (theme.leaders || []).includes('NVDA'))?.id || null);
   if (!relatedThemeId) throw new Error('no THEME_MAP theme lists NVDA as a leader');
@@ -522,7 +518,7 @@ try {
     pendingThemeId: window._aioOpenThemeDetailOnThemes || null
   }), relatedThemeId);
   if (tickerThemeBridge.activePage !== 'page-themes' || tickerThemeBridge.panelThemeId !== relatedThemeId || tickerThemeBridge.pendingThemeId !== null || !tickerThemeBridge.summaryText.includes('지금 단계는')) throw new Error(`ticker-to-theme lazy route handoff failed: ${JSON.stringify(tickerThemeBridge)}`);
-  // P1321: the options route is retired; its old hash must alias to sentiment instead of a stub page.
+  // The options route is retired; its old hash must alias to sentiment instead of a stub page.
   // QA-ROUTE-19 / R666
   const optionsRetired = await page.evaluate(() => ({ pageGone: !document.getElementById('page-options'), routeGone: !(window.AIO_ALL_ROUTE_PAGE_IDS || []).includes('options'), alias: window.AIO_ROUTE_REGISTRY?.canonical?.options || null }));
   if (!optionsRetired.pageGone || !optionsRetired.routeGone || optionsRetired.alias !== 'sentiment') throw new Error(`options retirement failed: ${JSON.stringify(optionsRetired)}`);
@@ -539,7 +535,6 @@ try {
     reportModel: document.getElementById('page-fundamental')?.dataset.aioSecReportModel || null,
     reportTitle: document.getElementById('fund-native-sec-title')?.textContent || '',
     reportMeta: document.getElementById('fund-native-sec-meta')?.textContent || '',
-    // P1591 (S08): accession, acceptance time and PIT basis moved from the reader line to the hover title.
     reportMetaTitle: document.getElementById('fund-native-sec-meta')?.title || '',
     reportCoverage: document.getElementById('fund-native-sec-coverage')?.textContent || '',
     reportGridRenderer: document.getElementById('fund-native-sec-grid')?.dataset.aioSecReportRenderer || null,
@@ -557,7 +552,7 @@ try {
     surfaceRenderer: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurface || null,
     surfaceModel: document.getElementById('page-portfolio')?.dataset.aioPortfolioSurfaceModel || null,
     holdingCountRenderer: document.getElementById('pf-holding-count')?.dataset.aioPortfolioSurfaceRenderer || null,
-    // v59.51 (content audit): the sector card, exposure column and position donut are retired; pin their absence.
+    // The sector card, exposure column and position donut are retired; pin their absence.
     retiredSurfaces: ['pf-sector-breakdown', 'pf-exposure-current', 'pf-exposure-rule', 'pf-position-donut'].filter((id) => document.getElementById(id)),
     tableRowCount: document.querySelectorAll('#pf-positions-tbody tr').length,
     rawPrimarySinkCount: document.querySelectorAll('#page-portfolio #pf-analysis-status').length,
@@ -587,10 +582,10 @@ try {
   if (portfolioMath.missing.pnl !== '—' || portfolioMath.missing.cells[5] !== '매수가 없음' /* v59.51: empty cells name why */ || portfolioMath.daily.daily !== '—' || portfolioMath.daily.pct !== '—' || portfolioMath.live.value !== '$2,100' || portfolioMath.live.pnl !== '+$1,200' || portfolioMath.live.daily !== '$0' || !portfolioMath.live.cells.includes('$200.00')) throw new Error('portfolio valuation regression: ' + JSON.stringify(portfolioMath));
   // Owner 2026-11-19 ("탭 없애고 연결"): the 종목 › 차트 tab is retired; `technical` is a derived view that opens 기술적 분석,
   // whose page holds the one analysis slot (stock-chart.js) after its two views (replaces the 2026-10-18 chart-first
-  // order on the 차트 tab). The 0-100 health score (P1420) and the retired 차트 tab blocks must stay gone.
+  // order on the 차트 tab). The 0-100 health score and the retired 차트 tab blocks must stay gone.
   await page.evaluate(() => window.AIO_ARCH.navigate('technical'));
   await page.waitForFunction(() => document.getElementById('page-charts')?.dataset.aioArchitectureRoute === 'charts' && document.getElementById('page-charts')?.classList.contains('active'));
-  // v60.35: the slot is the 종목 분석 view and draws when that view is first shown.
+  // The slot is the 종목 분석 view and draws when that view is first shown.
   await page.evaluate(() => window._aioShowPageView?.('page-charts', 'analysis'));
   await page.waitForFunction(() => document.getElementById('stock-chart-section')?.dataset.aioStockChart === 'installed', null, { timeout: 15000 }).catch(() => {});
   const technicalRoute = await page.evaluate(() => {
@@ -603,7 +598,7 @@ try {
       slotOnCharts: !!pageNode?.querySelector(':scope > #stock-chart-section'),
       hubChartTab: !!document.querySelector('#aio-hub-tabs [data-arg="technical"]'),
       retiredScore: !!document.getElementById('health-score-display') || !!document.getElementById('health-components'),
-      stockChartForm: document.getElementById('stock-chart-section')?.dataset.aioStockChart || null, // v57.76: install state moved off the retired form
+      stockChartForm: document.getElementById('stock-chart-section')?.dataset.aioStockChart || null, // Install state moved off the retired form
       retiredTechnicalBlocks: ['stock-chart-form', 'vis-technical', 'tech-indicators-live', 'mtf-analysis', 'pattern-signals', 'institutional-technical-brief', 'tv-chart-technical', 'kr-health-val', 'tech-regime-summary'].filter((id) => document.getElementById(id)),
       candleTitle: document.getElementById('stock-chart-title')?.textContent || '',
       retiredCandle: !!document.getElementById('tech-candle-chart')
@@ -612,7 +607,7 @@ try {
   if (technicalRoute.renderer !== 'native' || !technicalRoute.technicalShellEmpty || technicalRoute.slots !== 1 || !technicalRoute.slotOnCharts || technicalRoute.hubChartTab || technicalRoute.retiredScore || technicalRoute.stockChartForm !== 'installed' || technicalRoute.retiredTechnicalBlocks.length || !technicalRoute.candleTitle.trim() || technicalRoute.retiredCandle) throw new Error(`2026-11-19 technical → charts analysis slot surface failed: ${JSON.stringify(technicalRoute)}`);
   await page.evaluate(() => window.AIO_ARCH.navigate('signal'));
   await page.waitForFunction(() => document.getElementById('page-signal')?.dataset.aioArchitectureRoute === 'signal');
-  // P1392: the 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard
+  // The 시장 상태 screen is the native six-axis regime board; the legacy signal dashboard
   // writer must not overwrite it (fence), and every axis states evidence and a flip condition.
   await page.waitForFunction(() => document.querySelectorAll('#regime-board [data-axis]').length >= 6, null, { timeout: 30000 });
   const signalRoute = await page.evaluate(() => {
@@ -663,7 +658,7 @@ try {
   await page.evaluate(() => window.AIO_ARCH.navigate('home'));
   await page.waitForFunction(() => document.getElementById('page-home')?.dataset.aioArchitectureRoute === 'home');
   const homeRoute = await page.evaluate(() => {
-    // v57.50 I16: the retired-score cards (#home-trading-signal, #home-quality-*) left the DOM; the hero is the home verdict.
+    // The retired-score cards (#home-trading-signal, #home-quality-*) left the DOM; the hero is the home verdict.
     const primarySelectors = '#home-hero-total, #home-hero-headline, #home-hero-desc';
     const ids = ['home-hero-total', 'home-hero-headline', 'home-hero-desc'];
     const before = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)?.textContent || '']));
@@ -704,13 +699,13 @@ try {
     throw new Error(`P1389 briefing read failed: ${JSON.stringify(briefingSummary)}`);
   const contentRoutes = await page.evaluate(({ market, macro, fxbond, breadth, themes, themeDetail, ticker, fundamental, portfolio, technical, signal, home }) => ({
     active: window.AIO_ARCH.router.active(),
-    // P770: market-news and briefing must expose native primary-feed markers; secondary AI digest
+    // market-news and briefing must expose native primary-feed markers; secondary AI digest
     // content remains a compatibility/narrative boundary.
     marketRenderer: market.renderer,
     marketFeedRenderer: market.feedRenderer,
     briefingRenderer: document.getElementById('page-briefing')?.dataset.aioArchitectureRenderer || null,
     briefingSlice: document.getElementById('page-briefing')?.dataset.aioArchitectureSlice || null,
-    briefingFeedRenderer: document.getElementById('page-briefing')?.dataset.aioBriefingRenderer || null, // P1389: the read replaces the feed
+    briefingFeedRenderer: document.getElementById('page-briefing')?.dataset.aioBriefingRenderer || null, // The read replaces the feed
     macroRenderer: macro.renderer,
     macroPrimaryRenderer: macro.macroRenderer,
     fxbondRenderer: fxbond.renderer,
@@ -742,7 +737,7 @@ try {
   // chart-owning route, the legacy named-timer registry size, and browserErrors) rather than a
   // full listener census — Chromium has no production-safe "list all listeners" API; CDP's
   // getEventListeners would work but adds a real maintenance cost this gate does not yet justify.
-  // 2026-07-21: root-caused an intermittent false positive here — js/aio-data.js:6630 calls
+  // root-caused an intermittent false positive here — js/aio-data.js:6630 calls
   // startDataScheduler() (which registers the 'dataStatus' timer) via a flat, non-jittered
   // setTimeout(fn, 15000) at boot, decoupled from route navigation entirely. If the two laps'
   // combined wall-clock time happens to straddle that 15s mark, 'dataStatus' appears "new" between
@@ -750,12 +745,12 @@ try {
   // in this gate's own measurement window. Waiting for that one boot-delayed timer to exist before
   // lap 1 starts makes both snapshots observe a stable post-boot state, which is what this
   // assertion was always supposed to compare.
-  await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry, { timeout: 40000 }); // v58.76: the alerts-check timer left with the retired price alerts
+  await page.waitForFunction(() => window._aioTimerRegistry && 'dataStatus' in window._aioTimerRegistry, { timeout: 40000 }); // The alerts-check timer left with the retired price alerts
   const ROUTE_IDS_FOR_ROUNDTRIP = ROUTE_IDS;
   async function traverseAllRoutes() {
     for (const route of ROUTE_IDS_FOR_ROUNDTRIP) {
       await page.evaluate((r) => window.AIO_ARCH.navigate(r), route);
-      // P826: theme-detail is a derived inline surface whose canonical owner is
+      // theme-detail is a derived inline surface whose canonical owner is
       // the themes page. The compatibility facade intentionally replays that
       // canonical route, so the round-trip wait must assert the owner mount and
       // the visible native detail panel rather than the retired standalone page.
@@ -809,13 +804,13 @@ try {
     headline: document.getElementById('home-hero-headline')?.textContent ?? null
   }));
   if (homeSurface.renderer !== 'native' || homeSurface.homeRenderer !== 'native') throw new Error(`home renderer marker regressed after round trip: ${JSON.stringify(homeSurface)}`);
-  // P1392: the home card shows the regime label (the 0-100 score was retired), never a number.
+  // The home card shows the regime label (the 0-100 score was retired), never a number.
   if (!['판정 대기', '양호 우세', '다소 양호', '혼조', '다소 부담', '부담 우세'].includes(homeSurface.heroTotal || '')) throw new Error(`home hero regime label invalid: ${JSON.stringify(homeSurface)}`);
 
   await page.evaluate(() => window.showPage('sentiment'));
   await page.waitForFunction(() => document.getElementById('page-sentiment')?.dataset.aioArchitectureRoute === 'sentiment');
   if (errors.length) throw new Error(`browser errors: ${errors.join(' | ')}`);
-  // v60.22: a late history record changes the story's evidence while the reader is inside its disclosure.
+  // A late history record changes the story's evidence while the reader is inside its disclosure.
   const storyPage = await browser.newPage({ viewport: DESKTOP_PRIMARY_VIEWPORT, serviceWorkers: 'block' });
   let releaseHistory;
   const heldHistory = new Promise((resolve) => { releaseHistory = resolve; });
@@ -824,7 +819,7 @@ try {
     await storyPage.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
     await storyPage.route('**/public-data/scenario-outcomes.json*', async (route) => { await heldHistory; await route.fallback(); });
     await storyPage.goto(`${baseUrl}#signal?view=story`, { waitUntil: 'domcontentloaded' });
-    // v60.35: the top stories are unfolded (no .mk-narr__more fold). What the reader can be inside is a story's link
+    // The top stories are unfolded (no .mk-narr__more fold). What the reader can be inside is a story's link
     // to its scenario; the late record repaints the section and must keep that keyboard focus on the same control.
     const link = storyPage.locator('#regime-narratives .mk-narr__story .mk-narr__scenario [data-focus-key]').first();
     await link.focus();

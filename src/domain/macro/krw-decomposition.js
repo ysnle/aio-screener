@@ -1,3 +1,8 @@
+// v59.56 (handoff item 3, owner 11/1 "찾기 힘든 정보를 가공해 쉽게"): why the won moved — how much of the last 20 sessions'
+// 원/달러 move the dollar's own move explains, and how much is left for Korea. The won's usual sensitivity to the dollar
+// index is the least-squares slope of 5-session % changes over the past year of shared closes (history.json, completed
+// closes only; daily changes are blurred because the two closes are stamped at different hours); the dollar's share is that slope times the dollar index's 20-session move, the rest is the Korea share.
+// It is a split of one past move, not a forecast, and the slope changes over time (the fold says how well it fit).
 import { buildCloseSeries, closeBasis, sessionPointBack } from '../market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
 import { directionOf, signedText } from '../shared/number.js';
@@ -45,6 +50,10 @@ export function buildKrwDecomposition(history = [], { through = undefined } = {}
     const last = series.at(-1); const back = sessionPointBack(series, n);
     return last && back && back.value > 0 ? { from: back.date, to: last.date, pct: pct(last.value, back.value) } : null;
   };
+  // v59.70 (re-review N2): the KOSPI leg is its own 20 Korean sessions, the one KOSPI 20-session change 매크로 and 시장 상태
+  // quote (-19.3%); counted in the won's US sessions it read -18.6% for the same label.
+  // It ends on the latest Korean close, not the US basis: after the Korean close and before the US one, clamping it to
+  // the SPX date dropped Monday's KOSPI session and printed a second 20-session number.
   const krw = move('usdkrw'); const dxy = move('dxy'); const kospiChange = closeChange(history, 'kospi', n, { through: through === undefined ? null : through });
   const kospi = kospiChange ? { pct: kospiChange.pct } : null;
   if (!krw || !dxy) return { available: false, reason: '원/달러와 달러 지수의 20거래일 변화를 계산하지 못했습니다.' };

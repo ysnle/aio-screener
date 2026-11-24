@@ -1,4 +1,4 @@
-// v58.79 (owner 2026-10-25): AIO's own theme-stage record started on 2026-10-12, so the stage run ("N거래일째") and the
+// AIO's own theme-stage record started on 2026-10-12, so the stage run ("N거래일째") and the
 // one-month strip read at most ten sessions. The screener run already holds two years of adjusted closes for every
 // member; this rebuilds each past session's theme rows from those closes (the same closesToFactors fields the live row
 // carries) and runs them through the same group-strength and playbook rules the screens use. Output is the compact
@@ -49,7 +49,7 @@ function rowAsOf(row, date, { exact }) {
   if (index < 29 || (exact && row.dates[index] !== date)) return null;
   const factors = closesToFactors(row.closes.slice(0, index + 1));
   if (!factors) return null;
-  const { price, ...fields } = factors; // P715: no raw price, as in the live artifact
+  const { price, ...fields } = factors; // No raw price, as in the live artifact
   return { sym: row.sym, ...fields, factorSessionDate: row.dates[index] };
 }
 

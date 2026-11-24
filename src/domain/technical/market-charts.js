@@ -1,3 +1,10 @@
+// v59.64 (owner 2026-11-03: "기술적 분석에서는 차트 분석으로 지수와 대표 핵심 종목들 분석해주고, 설명해주고"): the 기술적
+// 분석 screen's readings. Indexes are read from the published closes (history.json, one close per session); core stocks
+// from the screener's derived fields. Every word is a rule over those numbers — the trend from where the close sits
+// against its 50- and 200-day averages and which way the 50-day is going, momentum from the 14-day RSI (Wilder),
+// support and resistance from swing points (a close that is the lowest/highest of five sessions on each side), the
+// double top and the six-month support from index-levels.js. Breadth enters only where it changes the reading of a
+// trend (owner: "시장 폭만 본다고 해서 의미가 없듯이"). No target, entry or stop is ever named.
 import { usThenKorea } from '../market/session/session-time.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
@@ -64,6 +71,10 @@ export function trendOf({ close, ma50, ma200 }) {
 
 /** A card's tone from its trend: the classifier's own tone (favorable / neutral / burden). */
 const TONE = Object.freeze({ favorable: 'up', burden: 'down' });
+// v59.71 (owner 11/07 '가격 움직임과 거래량이 가장 근본'): what the volume said, from the history the producers already
+// keep — the S&P 500's distribution days (a close down 0.2% or more on more volume than the session before, last 25
+// sessions) and the Nasdaq Composite's rally attempt / follow-through day (a 1.25%+ gain on rising volume). Only the
+// indexes whose daily volume the producers read carry a line; the others say nothing rather than guess.
 export function indexVolumeRead(history, field) {
   if (field === 'spx') {
     for (let i = (history?.length || 0) - 1; i >= 0; i -= 1) {
@@ -242,6 +253,7 @@ export function stockGroupLabels(day = null) {
 export function coreStockRows({ screener = null, indexWeights = [], day = null, universe = [] } = {}) {
   const names = new Map((Array.isArray(universe) ? universe : []).map((item) => [item.sym, item.name]));
   const top = topIndexWeights(indexWeights, 10);
+  // v59.70 (re-review N7): the same US → Korea order as 오늘's names, no third market.
   const movers = usThenKorea((day?.facts || []).filter((fact) => fact.kind === 'stock-move' && ['lead', 'major'].includes(fact.rank)), (fact) => String(fact.subjects?.[0] || '')).map((fact) => fact.subjects[0]);
   const rows = [];
   const companies = new Set();
@@ -252,7 +264,11 @@ export function coreStockRows({ screener = null, indexWeights = [], day = null, 
     const row = screener?.data?.[sym];
     const vs50 = readRowNumber(row, 'pctSma50'); const vs200 = readRowNumber(row, 'pctSma200');
     if (vs50 === null) continue;
+    // v59.70 (lens audit, one trend per stock): a stock reads the 종목 page's buffered trend (bands.js, ADR bands and the
+    // five-session drop), so the table and the stock page name the same state. The index cards above read the bars they draw
+    // (barsChartReading, trend-state.js). NV −8.8% / −1.0% read '추세 이탈' here and '하락 추세' on 종목.
     const buffered = vs200 === null ? null : bufferedTrend(row);
+    // '고점 대비' is the 종목·스크리너·테마 field (pctFrom52wHigh, the 52-week intraday high), not the close high.
     const trend = trendKey(buffered) || 'unknown';
     rows.push({ sym, name: names.get(sym) || sym, group: top.includes(sym) ? 'weight' : 'mover', ret1d: readRowNumber(row, 'ret1d'), vs50, vs200,
       fromHigh: readRowNumber(row, 'pctFrom52wHigh'), rsi: readRowNumber(row, 'rsi'), rvol: readRowNumber(row, 'rvol20'), trend, trendWord: buffered?.label || TREND_WORDS.unknown,
@@ -283,5 +299,5 @@ export function chartsConclusion(readings) {
   for (const key of [...TREND_ORDER, ...list.map((r) => r.trend)]) for (const r of list) if (r.trend === key && !words.includes(r.trendWord)) words.push(r.trendWord);
   const parts = words.map((word) => `${word} ${list.filter((r) => r.trendWord === word).length}개`);
   const weakest = list.filter((r) => Number.isFinite(r.s50)).sort((a, b) => a.s50 - b.s50)[0];
-  return `지수 ${list.length}개 중 ${parts.join(', ')}.${weakest ? ` 가장 약한 곳은 ${weakest.label}, 50일선 대비 ${signed(weakest.s50)}입니다.` : ''}`;
+  return `지수 ${list.length}개 중 ${parts.join(', ')}.${weakest ? ` 가장 약한 곳은 ${weakest.label}, 50일선 대비 ${signed(weakest.s50)}입니다.` : ''}`; // A label like 반도체(SOXX) took a second parenthesis
 }

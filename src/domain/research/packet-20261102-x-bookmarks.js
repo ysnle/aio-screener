@@ -1,3 +1,7 @@
+// The owner's X bookmarks added after the 2026-11-01 read. Every bookmark in x.com/i/history above the first
+// id of the 11/01 read was read in full through the owner's browser — article bodies, author threads, quoted posts, other
+// users' replies — plus the four sustain_abund replies the 11/01 read could not open. Same reference-only shape as
+// packet-20261101-x-bookmarks.js: nothing here is a live value, a ranking input or a call. Ledger: _artifacts/x-bookmarks-20261102/.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 // Grades on the ledger's scale: A checked or reusable, B cited or confirming, C none.
 const SOURCE_TIMELINE = Object.freeze({
@@ -26,6 +30,8 @@ const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   timeline: SOURCE_TIMELINE[statusId], quality: SOURCE_QUALITY[statusId]
 });
 
+// What the 2026-11-02 read covered: 9 bookmarks above the 11/01 read (8 investment, 1 off-topic LLM explainer) plus the four
+// replies left unread on 11/01.
 export const PACKET_20261102_AUDIT = Object.freeze({
   readOn: '2026-11-02', newSinceLedger: 9, inScope: 8, agentPractice: 1, unrelated: 0, framesAdded: 3,
   repoState: Object.freeze({ reflected: 2, partial: 4, missing: 2, conflict: 0, notApplicable: 1 }),

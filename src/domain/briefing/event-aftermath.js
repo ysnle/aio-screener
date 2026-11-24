@@ -1,3 +1,11 @@
+// v59.70 (X bookmarks #6, #11): two readings under 주요 발표 요약.
+//   eventAftermath — after a market-wide release (FOMC, a core mover's report), where money went over the next two or
+//     three completed sessions: technology (Nasdaq 100) vs defensives (staples, utilities, health care) vs the broad
+//     market (equal-weight S&P 500 and the Russell 2000), each against the S&P 500. Three outcomes: 기술로 복귀,
+//     방어 지속, 전체 확산 — or no clear direction.
+//   beatButFell — among recent reports that beat the EPS estimate, how many closed lower on the first session that could
+//     trade on them, beside the same share for all reports ('호재 무반응').
+// Both are context lines; neither feeds a verdict or a score.
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { figureSurprise, releaseSession } from './event-briefs.js';
 

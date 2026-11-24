@@ -1,6 +1,8 @@
 import { canonicalSourceTier } from './source-kind.js';
 
 export const MARKET_SNAPSHOT_STATUS = Object.freeze(['published', 'partial', 'failed', 'unavailable']);
+// 관측값 종류(value kind)는 registry가 선언하는 의미 축이다. quote가 공급한
+// 종류는 registry 정본과 대조해 거부하고, 덮어쓰거나 alias하지 않는다.
 export const QUOTE_VALUE_KINDS = Object.freeze(['index', 'rate', 'fx', 'price']);
 export const MARKET_QUALITY_STATUS = Object.freeze([
   'CURRENT',
@@ -39,7 +41,14 @@ export const QUOTE_IDENTITIES = Object.freeze([
 
 export const TIER_0_REQUIRED = TIER_0_INSTRUMENTS.length;
 
+// Live 2026-10-21: the market reading explained KOSPI +3.3% only as "AI 투자심리 회복" while Nasdaq 100 futures were
+// +0.99% and semis led — none of those moves was evidence it could cite. These rows are evidence-only: published in
+// `evidenceQuotes` beside the Tier-0 quotes, never required for publication (a missing or stale row is simply absent)
+// and never read by the Tier-0 consumers. Like Tier 0 they are market-level reference values, not the per-symbol
+// quote plane P715 stopped redistributing.
 export const EVIDENCE_TIER_INSTRUMENTS = Object.freeze([
+  // v59.74 (owner 2026-11-04 "SOXX로 하자"): semis evidence is SOXX like every other 반도체 surface. SMH rows in a
+  // snapshot published before the switch are skipped (LEGACY_EVIDENCE_IDS), never cited, until the next refresh.
   { instrumentId: 'SOXX', metricId: 'market.sector.semis', unit: 'USD', valueKind: 'price' },
   { instrumentId: 'ES=F', metricId: 'market.futures.sp500', unit: 'index', valueKind: 'index' },
   { instrumentId: 'NQ=F', metricId: 'market.futures.nasdaq100', unit: 'index', valueKind: 'index' },
@@ -113,7 +122,15 @@ function normalizeQuote(quote = {}) {
   const changePct = quote.changePct ?? quote.pct ?? quote.regularMarketChangePercent;
   const previousValue = quote.previousValue ?? quote.previousClose ?? quote.regularMarketPreviousClose ?? null;
   const derivedBasis = previousValue != null && String(previousValue).trim() !== '' && typeof previousValue !== 'boolean' && Number.isFinite(Number(previousValue)) ? 'provider-previous-value' : 'unknown';
+  // Record how the metric identity was resolved. The registry
+  // fallback exists so a producer that omits metricId still round-trips the
+  // registry's own value, but a published quote must be *supplied* — silent
+  // derivation cannot stand in for an explicitly declared metric, and it must
+  // never paper over a supplied value that contradicts the registry (the
+  // validator rejects that mismatch instead of repairing it here).
   const suppliedMetricId = quote.metricId == null || String(quote.metricId).trim() === '' || typeof quote.metricId === 'boolean' ? '' : String(quote.metricId);
+  // valueKind도 metricId와 같은 identity 축이다 — 공급분은 registry와
+  // 대조해 거부하고(정규화가 모순을 감추지 않음), 부재 시에만 registry에서 파생한다.
   const suppliedValueKind = quote.valueKind == null || String(quote.valueKind).trim() === '' || typeof quote.valueKind === 'boolean' ? '' : String(quote.valueKind);
   const normalized = {
     evidenceId: String(quote.evidenceId || ''),
@@ -126,6 +143,8 @@ function normalizeQuote(quote = {}) {
     previousValue,
     changePct: changePct == null ? null : Number(changePct),
     unit: String(quote.unit || instrument?.unit || 'unitless'),
+    // source/sourceKind의 'unknown'/'provider' 기본값이 존재 검사를 공허하게 만들었다
+    // (정규화가 빈 입력을 사실상의 값으로 승격). 빈 입력은 빈 채로 남겨 validator가 잡는다.
     source: String(quote.source || ''),
     sourceKind: String(quote.sourceKind || ''),
     observedAt: asIso(quote.observedAt),
@@ -171,7 +190,13 @@ export function validateMarketSnapshot(snapshot, options = {}) {
   if (snapshot?.status === 'published' && (!snapshot.lastSuccessfulAt || Number.isNaN(Date.parse(snapshot.lastSuccessfulAt)))) {
     errors.push('lastSuccessfulAt_required_for_publish');
   }
+  // Publishing is accepted from the MEASURED instrument set, not the
+  // coverage numbers the payload reports about itself. A snapshot cannot pass by
+  // declaring 16/16 while shipping fewer, duplicate, unknown, or wrong-unit quotes.
   const audit = auditMarketSnapshotCoverage(snapshot, options);
+  // Validate the 정본 before trusting the comparisons it feeds. A corrupted
+  // registry (duplicate metric, malformed id, undeclared valueKind) fails closed
+  // here instead of laundering its own errors into "coverage matched".
   const registryCheck = validateInstrumentRegistry(options.instruments || TIER_0_INSTRUMENTS);
   for (const registryError of registryCheck.errors) errors.push(`registry_invalid:${registryError}`);
   if (snapshot?.status === 'published') {
@@ -191,13 +216,23 @@ export function validateMarketSnapshot(snapshot, options = {}) {
     for (const field of ['evidenceId', 'metricId', 'instrumentId', 'unit', 'source', 'sourceKind', 'observedAt', 'fetchedAt', 'quality']) {
       if (!quote?.[field]) errors.push(`quote_${field}_missing`);
     }
+    // A quote may carry the right instrument and unit while naming a
+    // different metric entirely. The registry row is the identity contract, so an
+    // explicitly supplied metricId that disagrees is rejected — never repaired by
+    // the registry fallback, which only applies when the field is absent.
     const registryRow = audit.registry.get(String(quote?.instrumentId || quote?.symbol || ''));
     if (registryRow && quote?.metricId && String(quote.metricId) !== String(registryRow.metricId)) {
       errors.push(`quote_metric_mismatch:${quote.instrumentId}:${quote.metricId}!=${registryRow.metricId}`);
     }
+    // valueKind is the same identity axis. Only a *supplied* kind can
+    // contradict the registry (a missing kind is derived with its basis recorded);
+    // a contradiction is rejected, never aliased into the expected kind.
     if (registryRow?.valueKind && quote?.valueKind && String(quote.valueKind) !== String(registryRow.valueKind)) {
       errors.push(`quote_value_kind_mismatch:${quote.instrumentId}:${quote.valueKind}!=${registryRow.valueKind}`);
     }
+    // sourceKind must resolve through the canonical tier vocabulary
+    // (source-kind.js) — an invented provider string fails closed instead of
+    // quietly standing in for an evidence authority it never declared.
     if (quote?.sourceKind && canonicalSourceTier(quote.sourceKind) === null) {
       errors.push(`quote_source_kind_unrecognized:${quote.instrumentId}:${quote.sourceKind}`);
     }
@@ -273,11 +308,17 @@ export function auditMarketSnapshotCoverage(snapshot, { instruments = TIER_0_INS
       unitMismatches.push(Object.freeze({ instrumentId, expected: entry.unit, actual: unit }));
       continue;
     }
+    // Identity is (instrumentId, metricId, unit). A quote whose
+    // metricId contradicts the registry does not count toward coverage even when
+    // its unit happens to match, so a swapped metric can never round up coverage.
     const metricId = String(quote?.metricId || '');
     if (metricId !== String(entry.metricId)) {
       metricMismatches.push(Object.freeze({ instrumentId, expected: entry.metricId, actual: metricId }));
       continue;
     }
+    // valueKind joins the identity tuple. A missing kind derives from
+    // the registry row (raw artifacts predating the field keep counting); a kind
+    // that contradicts the registry is excluded from coverage like a wrong metric.
     if (entry.valueKind && String(quote?.valueKind || entry.valueKind) !== entry.valueKind) {
       valueKindMismatches.push(Object.freeze({ instrumentId, expected: entry.valueKind, actual: String(quote?.valueKind || '') }));
       continue;

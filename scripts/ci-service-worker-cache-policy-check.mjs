@@ -21,14 +21,14 @@ for (const required of ['./', './index.html', './offline.html', './version.json'
 const installBlock = source.slice(source.indexOf("self.addEventListener('install'"), source.indexOf("self.addEventListener('activate'"));
 if (!/cache\.addAll\(CRITICAL_SHELL_ASSETS\)/.test(installBlock)) fail('critical assets are not installed atomically');
 if (/Promise\.allSettled/.test(installBlock)) fail('install path hides partial failures');
-// P1111: a hand-maintained "published runtime registry" sat next to the install
+// A hand-maintained "published runtime registry" sat next to the install
 // path — 187 entries, no reader anywhere in the repository, 11 of them pointing at
 // files that no longer existed — and this assertion was the only thing that
 // referenced it. The registry was removed; the reintroduction guard stays.
 if (/PUBLISHED_RUNTIME_ASSETS/.test(source)) fail('the removed published-runtime registry returned to the service worker');
 if (!/RUNTIME_SHELL_PATH_RE/.test(source) || !/isRuntimeShell/.test(source)) fail('requested js/src modules are not runtime cached');
 
-// P1086: TTL was enforced only by purge-on-write, so the network-failure fallback
+// TTL was enforced only by purge-on-write, so the network-failure fallback
 // returned `caches.match(...)` regardless of age and an offline client could be
 // served arbitrarily old market data as if it were current. The read path must
 // bound the age itself and must not silently return an expired entry.
@@ -41,7 +41,7 @@ if (!/REFERENCE_MAX_AGE_MS/.test(source)) fail('reference cache fallback has no 
 if (!/_stale:\s*true/.test(source)) fail('a stale cache response is indistinguishable from a current one');
 if (!/x-cache-time/.test(source) || !/x-cache-ttl/.test(source)) fail('cache entries do not carry the timestamp/ttl headers the age bound needs');
 
-// P1112: a cache pattern that names an artifact no client fetches describes a
+// A cache pattern that names an artifact no client fetches describes a
 // cache that never fills — dead configuration that reads as a guarantee. Every
 // published artifact named by the cache routing tables must be referenced by a
 // client bundle. The reverse gap (artifacts the client does read but the tables
@@ -118,7 +118,7 @@ if (CORE_DATA_ARTIFACTS.some((name) => !coreTableFlat.includes(`/public-data/${n
 }
 if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core data table must not route shell assets');
 
-// P1410: behaviour, not text — run the real fetch handler over an in-memory CacheStorage. A copy
+// Behaviour, not text — run the real fetch handler over an in-memory CacheStorage. A copy
 // cached under one minute's `?t=` must still answer the next minute's request when the network fails.
 {
   const vm = await import('node:vm');
@@ -182,7 +182,7 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   if (!/PURGE_INTERVAL_MS/.test(source) || !/maybePurgeExpiredData\(c\)/.test(source)) fail('v57.61 DATA_CACHE purge is no longer throttled');
 }
 
-// P1755: behaviour of the shell branch. A classic script carrying THIS worker's ?v= is served
+// Behaviour of the shell branch. A classic script carrying THIS worker's ?v= is served
 // cache-first from this version's shell cache; any other ?v= and every unversioned shell asset go
 // to the network with HTTP revalidation ('no-cache', never 'no-store'); a version bump renames the
 // shell cache, activation deletes the old one, and the new worker re-fetches the versioned script.
@@ -257,7 +257,7 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   if (log.length !== before + 1 || fresh.text === first.text) fail('P1755 the bumped worker served a versioned script without fetching it');
   const staleAfterBump = await sw2.dispatch(versioned);
   if (log.length !== before + 2 || staleAfterBump.text === first.text) fail('P1755 the bumped worker served the previous version cache-first');
-  // v57.54 review: a code change shipped under the SAME version must still reach returning readers.
+  // A code change shipped under the SAME version must still reach returning readers.
   const rehashed = source.replace("const SW_CODE_HASH = 'local';", "const SW_CODE_HASH = 'c0ffee000001';");
   if (rehashed === source) fail('v57.54 sw.js has no SW_CODE_HASH placeholder for the deploy-time code hash');
   const sameVersionShell = [...stores.keys()].find((name) => name.startsWith('aio-shell-'));
@@ -268,7 +268,7 @@ if (/javascript|index\.html|aio-core\.js|sw\.js/.test(coreTable)) fail('the core
   await sw3.dispatch(`${base}/js/aio-core.js?v=${assetVersion}9`);
   if (log.length !== beforeHash + 1) fail('v57.54 a new code hash served a same-version script from the old cache');
 }
-// v59.98: a precache entry must answer the request the page actually makes. Install the worker with a real addAll, go
+// A precache entry must answer the request the page actually makes. Install the worker with a real addAll, go
 // offline, and request every index.html script whose path is precached exactly as the page writes its src (a ?v=
 // query included): cache.match compares the query, so a query-less precache entry for a versioned script is dead.
 {

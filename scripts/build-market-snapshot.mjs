@@ -29,7 +29,7 @@ const PUBLISHABLE_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 // costs freshness, which is the safe direction.
 const CLOSED_VENUE_MAX_AGE_MS = 3 * DAY_MS;
 
-// P1617: the KR holiday calendar now exists as a registry (src/domain/market/session/market-calendar.js),
+// The KR holiday calendar now exists as a registry (src/domain/market/session/market-calendar.js),
 // so the Korean-index closed-venue bound is calendar-derived instead of a fixed window. A venue
 // holiday adjacent to a weekend (한글날 Fri 2026-10-09 + 주말 → no KRX session between the Thu 10/8 close and the Mon 10/12 open)
 // pushed a legitimate Wednesday close past the 72h leash and the snapshot attempt failed closed
@@ -83,7 +83,7 @@ function isContinuousInstrument(symbol) {
   return /(?:=X$|(?:CL|BZ|GC|SI|ES|NQ)=F$|DX-Y\.NYB$)/i.test(symbol);
 }
 
-// Evidence tier (2026-10-21): SOXX (SMH before v59.74) trades the US regular session; Tokyo and Hong Kong indices keep their own venue
+// Evidence tier: SOXX (SMH before v59.74) trades the US regular session; Tokyo and Hong Kong indices keep their own venue
 // hours (no holiday calendar — a holiday fails toward a missing evidence row, never toward a mislabelled close).
 const ASIA_VENUE_SESSIONS = Object.freeze({
   '^N225': { zone: 'Asia/Tokyo', open: 9 * 60, close: 15 * 60 + 30 },
@@ -114,7 +114,7 @@ function scheduledSession(symbol, observedMs, nowMs) {
   const zone = asia ? asia.zone : isKorea ? 'Asia/Seoul' : 'America/New_York';
   const observedLocal = zoneParts(observedMs, zone);
   const nowLocal = zoneParts(nowMs, zone);
-  // v58.82: a KRX day with moved hours (수능 10:00-16:30) takes them from the calendar.
+  // A KRX day with moved hours (수능 10:00-16:30) takes them from the calendar.
   const krToday = isKorea ? resolveMarketCalendarSession({ market: 'KR', date: dateInTimezone(nowMs, 'Asia/Seoul') }) : null;
   const hhmm = (text) => Number(text.slice(0, 2)) * 60 + Number(text.slice(3, 5));
   const openMinutes = asia ? asia.open : krToday?.status === 'open' ? hhmm(krToday.open) : isKorea ? 9 * 60 : 9 * 60 + 30;
@@ -122,7 +122,7 @@ function scheduledSession(symbol, observedMs, nowMs) {
   const nowMinute = minuteOfDay(nowLocal);
   const observedMinute = minuteOfDay(observedLocal);
   if (!nowLocal || !isWeekday(nowLocal.weekday)) return 'MARKET_CLOSED';
-  // v58.82: a weekday KRX holiday (설·추석 runs) is a closed venue, not an open session with a 24h previous-close leash —
+  // A weekday KRX holiday (설·추석 runs) is a closed venue, not an open session with a 24h previous-close leash —
   // 10:00 KST on the second day of 설날 2027 (02-09) read the Fri 02-05 close as STALE_UNEXPECTED.
   if (krToday?.reason === 'holiday') return 'MARKET_CLOSED';
   if (nowMinute != null && nowMinute >= openMinutes && nowMinute < closeMinutes) {
@@ -181,7 +181,7 @@ export function deriveMarketSession({ instrumentId, observedAt, providerSession 
   // labelled MARKET_CLOSED beside the 10/12 completed close (15.21), so the snapshot, the history close and the
   // commentary prompt disagreed. A US index observation outside its regular window that is not the latest regular
   // close is an extended-hours print, not a completed close.
-  // P1738: ^TNX/^IRX print before the cash open too (10/13 09:05 ET 5.206 beside the 5.24 completed close).
+  // ^TNX/^IRX print before the cash open too (10/13 09:05 ET 5.206 beside the 5.24 completed close).
   // v59.49 (refresh-data 10-30 13:36Z): a cash index has no extended hours, and Yahoo stamps ^RUT's close at 16:30 ET.
   // Once the next session opened, that close was read as an after-hours print (until the delayed feed caught up) and
   // the history gate wanted the close before it. A post-close cash-index print stays the completed close.
@@ -273,7 +273,7 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     if (!observedAt) return null;
     const fetchedAt = iso(raw.fetchedAt) || iso(attemptedAt);
     const session = deriveMarketSession({ instrumentId: instrument.instrumentId, observedAt, providerSession: raw.marketSession || raw.marketState, now });
-    // P1617: the closed-current promotion must match the session layer's calendar rule. Forcing it
+    // The closed-current promotion must match the session layer's calendar rule. Forcing it
     // for US instruments only (isLatestUsRegularClose) left KR indices on the 3-day age leash one
     // layer down, so a venue holiday adjacent to a weekend produced session=MARKET_CLOSED but
     // quality=STALE and the snapshot was still rejected.
@@ -281,7 +281,7 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       && (isLatestUsRegularClose({ instrumentId: instrument.instrumentId, observedAt, now })
         || observedAtOrAfterLastKrSessionClose(instrument.instrumentId, Date.parse(observedAt), now))
       ? 'CLOSED_CURRENT' : quoteQuality({ ...raw, observedAt }, now, session);
-    // v59.49 (review): a provider field sent as null is missing, not zero (Number(null) === 0 published previousValue 0).
+    // A provider field sent as null is missing, not zero (Number(null) === 0 published previousValue 0).
     const present = (value) => (value == null || value === '' ? NaN : Number(value));
     const providerPreviousValue = present(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
@@ -297,7 +297,7 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
         ? present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
         : null,
       unit: instrument.unit,
-      // W03-C/P1183: identity fields come from the registry the validator checks
+      // Identity fields come from the registry the validator checks
       // against — valueKind travels with metricId/unit instead of being re-derived
       // (or silently dropped) at the boundary.
       valueKind: instrument.valueKind,

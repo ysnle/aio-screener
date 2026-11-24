@@ -1,4 +1,4 @@
-// P1594: bind a level to its own metric mention; never borrow the next metric's number.
+// Bind a level to its own metric mention; never borrow the next metric's number.
 const escapeRe = value => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const moveVerb = /^\s*(?:오른|내린|상승|하락|올라|내려|떨어|급등|급락|반등|증가|감소|높아|낮아|올랐|내렸|빠진|뛴)/;
 const labelPattern = labels => `(?<![A-Za-z0-9_.:-])(?:${[...new Set(labels)].sort((a, b) => b.length - a.length).map(escapeRe).join('|')})(?![A-Za-z0-9_.:-])`;
@@ -27,7 +27,7 @@ export function isNonMetricNumber(text, index, length) {
 export const LIST_ITEM_BREAK = /[,，、]/;
 
 export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, unit = null } = {}) {
-  // v57.81: citation brackets ("[7890d4bb]", "[d94fc971]") were read as levels — 7890 for the S&P 500 on 10/15.
+  // Citation brackets ("[7890d4bb]", "[d94fc971]") were read as levels — 7890 for the S&P 500 on 10/15.
   const body = String(text).replace(/https?:\/\/\S+/g, ' ').replace(/\[[^\]]*\]/g, ' ').replace(/\b[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+(?::[a-zA-Z0-9_-]+)?/g, ' ');
   const values = [];
   const mentions = new RegExp(labelPattern(labels), 'gi');
@@ -45,7 +45,7 @@ export function analysisLevelsAfterLabels(text, labels, { allLabels = labels, un
     for (const match of clause.matchAll(numbers)) {
       const [, sign, digits, suffix = ''] = match;
       const after = clause.slice(match.index + match[0].length);
-      // P1688 review: a count ("상위 10개 기업", "500종목") is not the metric's level. P1719: nor a date or clock time.
+      // A count ("상위 10개 기업", "500종목") is not the metric's level. Nor a date or clock time.
       if (isNonMetricNumber(clause, match.index, match[0].length)) continue;
       if (previousEnd >= 0 && LIST_ITEM_BREAK.test(clause.slice(previousEnd, match.index))) break;
       previousEnd = match.index + match[0].length;

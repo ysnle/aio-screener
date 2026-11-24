@@ -1,3 +1,8 @@
+// v57.54 (owner X packet 2026-10-14, image 3): per-market price temperature on the sentiment screen — the first gauge
+// here for KOSPI, KOSDAQ and Nikkei. One visual (five component rank bars + the index with its extreme spells shaded) on
+// the face, the state and past-spell outcomes in a raw-table fold; the method joins the screen's method fold
+// (temperatureMethodNodes). D02: no average score and no band.
+// Hidden until the producer (scripts/build-market-temperature.mjs) has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_PATHS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/market/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
@@ -12,6 +17,7 @@ const pct = (value, digits = 1) => { if (!Number.isFinite(value)) return '—'; 
 const md = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}` : '—');
 const STATE_LABEL = { cold: '강한 냉각', hot: '강한 과열' };
 
+// Not meeting the three-component extreme rule does not mean that every component is ordinary.
 export function temperatureStateLabel(market) {
   if (STATE_LABEL[market.state]) return STATE_LABEL[market.state];
   if (market.cold > 0 && market.hot > 0) return '냉각·과열 혼재';
@@ -30,7 +36,7 @@ export function temperatureStateText(market, rules = TEMPERATURE_RULES) {
 
 // The 63-session result after past first days of the same spell, against any day; the ± is two standard errors
 // (spell starts at least 63 sessions apart, so the windows do not overlap; the all-days baseline uses n/63 windows, the
-// stress-outcomes D08 rule). R706: under 10 cases no averages, 10-29 a small-sample note.
+// stress-outcomes D08 rule). Under 10 cases no averages, 10-29 a small-sample note.
 export function temperatureEvidence(market, state = market.state) {
   const from = String(market.from || '').slice(0, 4);
   const spell = market.outcomes?.[state]?.h63;
@@ -80,6 +86,8 @@ function componentBars(doc, market, rules) {
     const fill = el(doc, 'span', null, `temp-bar${tone}`);
     fill.style.width = `${Math.max(2, Math.round(row.score || 0))}%`;
     track.append(fill);
+    // v58.75 (persona review): the bar is a 3-year rank, not the reading itself — "RSI 14일 11" read as RSI 11.
+    // The value now shows today's raw reading first and the rank as "순위 n/100".
     const raw = rawText(row);
     item.append(el(doc, 'span', row.label, 'temp-bar-label'), track, el(doc, 'span', Number.isFinite(row.score) ? `${raw ? `${raw} · ` : ''}3년 순위 ${Math.round(row.score)}/100${tone ? (tone === ' is-cold' ? ', 하위 10% 구간' : ', 상위 10% 구간') : ''}` : '—', 'temp-bar-value'));
     if (def) item.title = `${def.label}: ${def.basis}. 앞 숫자는 오늘 값, 순위는 최근 3년(756거래일) 안에서의 위치(0 가장 낮음, 100 가장 높음)`;
@@ -129,6 +137,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const stale = staleMarketIds(payload, markets);
     const current = markets.filter((item) => !stale.has(item.id));
     const extreme = current.filter((item) => item.state !== 'none').map((item) => `${item.label}(${STATE_LABEL[item.state]} ${item.streak}거래일째)`);
+    // The face is the state line and the tiles; what the table measures opens with the detail fold.
     const lead = !current.length ? '최신 종가 자료가 없어 현재 냉각·과열 여부를 판단하지 않습니다.'
       : extreme.length ? `지금 강한 과열·냉각 구간: ${extreme.join(', ')}.` : '강한 냉각·과열 기준에 해당하는 지수는 없습니다.';
 
@@ -155,6 +164,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
       for (const row of item.components || []) {
         const bar = el(doc, 'span', null, `temp-tile-bar${row.score <= rules.coldAtOrBelow ? ' is-cold' : row.score >= rules.hotAtOrAbove ? ' is-hot' : ''}`);
         bar.style.height = `${Math.max(12, Math.round(row.score || 0))}%`;
+        // v59.55 (visual audit): each unnamed bar says which component it is on hover; the detail fold below has them all.
         bar.title = `${row.label} 3년 순위 ${Number.isFinite(row.score) ? Math.round(row.score) : '—'}/100`;
         spark.append(bar);
       }

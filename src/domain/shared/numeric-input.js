@@ -1,5 +1,9 @@
 import { withObjectParticle, withSubjectParticle, withTopicParticle } from '../content/korean-particle.js';
 
+// v58.80 (first-users bundle 6): one reader for every typed number (cash, simulation amount and years, plan prices).
+// The breaker persona typed -100, 1e309 and 99999999999999999999: cash silently emptied to $0, the simulation ran on
+// with a negative amount, and a 20-digit balance was accepted as "$100,000,000,000,000,000,000". Each field now says
+// what was wrong and keeps the typed text; nothing is saved from a refused value.
 /**
  * @param {string|number} raw  the typed text (commas and spaces allowed)
  * @param {{ label?: string, min?: number, max?: number, integer?: boolean, allowEmpty?: boolean, badInput?: boolean }} spec

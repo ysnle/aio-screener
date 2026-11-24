@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-terms.js';
 
-// v59.74: the free Workers AI path gets the same market glossary as the shared-model prompt.
+// The free Workers AI path gets the same market glossary as the shared-model prompt.
 const HEADLINE_TRANSLATE_GLOSSARY = HEADLINE_GLOSSARY_PAIRS.map(([en, ko]) => `${en} → ${ko}`).join(', ');
 
 export const SHARED_AI_MODEL = 'gpt-6-luna';
@@ -53,7 +53,7 @@ export const SHARED_AI_PURPOSES = Object.freeze({
   'market-analysis': { profile: 'analysis', owner: 'scripts/producer/market-narrative.mjs' },
   'headline-translation': { profile: 'analysis', owner: 'scripts/producer/market-narrative.mjs' },
   'slot-summary': { profile: 'analysis', owner: 'scripts/lib/market-timeline.mjs' },
-  // v60.31: one 130–230 character paragraph per screen. The ceiling keeps the analysis profile's low reasoning room
+  // One 130–230 character paragraph per screen. The ceiling keeps the analysis profile's low reasoning room
   // (about 230 more output tokens than reasoning off, ai-effort-experiment) over a ~300-token answer, and lowers the
   // Worker's per-request reservation (max_output_tokens x output price) to match.
   'screen-reading': { profile: 'analysis', owner: 'scripts/producer/screen-readings.mjs', maxOutputTokens: 1500 },
@@ -86,7 +86,7 @@ export function buildSharedTextBody(prompt, { profile = 'analysis', maxOutputTok
     ...(schemaName || schema ? { text: jsonSchemaFormat(schemaName, schema) } : {}) };
 }
 
-// P1734: one bounded hosted-search request for the official-reference lane. The body mirrors the Worker
+// One bounded hosted-search request for the official-reference lane. The body mirrors the Worker
 // admission contract (worker/openai-budget.mjs): exactly one web_search tool, search_context_size 'low',
 // return_token_budget 'default', an explicit official allowed_domains filter, and at most two tool calls.
 // The answer is only a candidate; scripts/lib/web-reference-verify.mjs publishes nothing it cannot find on
@@ -111,7 +111,7 @@ export function sharedAiUsage(payload) {
 }
 
 // ---- transport -------------------------------------------------------------------------------------------------------
-// v59.59: the one POST to the Worker's /openai route. requestSharedAnalysis, requestSharedWebSearch and the event-brief
+// The one POST to the Worker's /openai route. requestSharedAnalysis, requestSharedWebSearch and the event-brief
 // producer each carried their own copy (headers, abort timer, idempotency key, error mapping); the event-brief copy keyed
 // requests by Date.now() and no run attempt. `purpose` labels the idempotency key so the Worker's request log tells the
 // lanes apart, and a fresh UUID per actual request prevents replaying a spent reservation.
@@ -171,7 +171,7 @@ export async function requestSharedJson(body, { timeoutMs = body?.tools ? SHARED
 
 export async function requestSharedAnalysis(prompt, { purpose = 'market-analysis', timeoutMs = SHARED_AI_TIMEOUT_MS.analysis, ...options } = {}) {
   let body;
-  // v60.31: a purpose may lower its profile's output ceiling (SHARED_AI_PURPOSES maxOutputTokens).
+  // A purpose may lower its profile's output ceiling (SHARED_AI_PURPOSES maxOutputTokens).
   try { body = buildSharedTextBody(prompt, { profile: 'analysis', maxOutputTokens: sharedAiPurpose(purpose)?.maxOutputTokens }); } catch { return { text: null, reason: 'analysis-request-invalid' }; }
   return requestSharedText(body, { purpose, timeoutMs, ...options });
 }
@@ -183,9 +183,9 @@ export async function requestSharedWebSearch(prompt, { env = process.env, fetchI
   return requestSharedText(body, { env, fetchImpl, timeoutMs, purpose });
 }
 
-// 2026-10-14: headline translation on the Worker's Workers AI binding (free daily allowance). Returns the translated
+// Headline translation on the Worker's Workers AI binding (free daily allowance). Returns the translated
 // strings, or null with a reason — the caller then uses the shared OpenAI path, so a missing binding costs nothing.
-// v57.61: the Worker accepts at most 20 titles per call (WORKERS_AI_TRANSLATE_MAX_TITLES), so larger lists go in
+// The Worker accepts at most 20 titles per call (WORKERS_AI_TRANSLATE_MAX_TITLES), so larger lists go in
 // sequential chunks; any failed chunk fails the whole list (the caller then uses one shared-model request). The
 // reason carries the Worker's short error code only — never model output — because it lands in Actions logs.
 export const WORKERS_AI_TRANSLATE_CHUNK = 20;

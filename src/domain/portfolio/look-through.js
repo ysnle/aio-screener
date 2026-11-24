@@ -1,3 +1,7 @@
+// v58.80 (owner 2026-10-25, ETF look-through stage 1): holdings in S&P 500 trackers expanded into the index members with
+// the published weights (public-data/sp500-weights.json, IVV holdings), then merged with the stocks held directly, so the
+// 읽는 법 cards show the overlap (NVDA held directly and through SPY) and the real single-name and sector concentration.
+// Other ETFs (QQQ, sector funds) stay one line each: their holdings need issuer files (stage 2, an owner decision).
 import { normalizeSectorKey } from '../screener/sector-label.js';
 
 export const SP500_TRACKERS = Object.freeze(['SPY', 'VOO', 'IVV', 'SPLG']);
@@ -15,6 +19,9 @@ export function lookThrough({ rows = [], sp500 = null, isBond = () => false, unp
   if (!members.length || !trackers.length) return { available: false };
   const weightSum = Number(sp500.totalWeight) > 0 ? Number(sp500.totalWeight) : members.reduce((sum, row) => sum + Number(row.weight), 0);
   const lines = new Map();
+  // v59.45 (PASS22 P22-LOOKTHROUGH-01): the first add fixed the sector, so NVDA held directly with no sector before SPY
+  // read Unclassified and after SPY read Technology. A known sector fills an unknown one, and the index file's GICS
+  // sector wins over the holding row's on a conflict, so the input order no longer changes the sector card.
   const add = (symbol, part, value, sector, etf = null) => {
     const key = keyOf(symbol);
     const known = normalizeSectorKey(sector) || null;

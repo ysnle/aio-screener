@@ -1,3 +1,5 @@
+// The volatility complex (매크로 › 주제별로 보기 › 변동성, and the MOVE card on 금리와 환율). Kept out of
+// macro-chapters.js so the rates board can read it without loading every chapter.
 import { signedText } from '../shared/number.js';
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { MARKET_WINDOWS, closeChange } from '../market/session/market-windows.js';
@@ -16,6 +18,10 @@ const whenOf = (event) => {
   return Number.isFinite(at) ? `${formatKstWhen(at).label} KST ${event.name}` : `${dayLabel(event.date)} ${event.name}`;
 };
 
+// v59.74 (owner 11/7: "VIX, VVIX, MOVE … 채권시장과 환율시장 모두 반영"): the volatility complex. VIX9D, VIX3M, VVIX, MOVE and
+// SKEW were collected into history.json and shown nowhere. VIX keeps the 시장 상태 volatility edges (RULES.volatility);
+// VVIX, MOVE and SKEW have no validated fixed lines, so each is placed inside its own record (mid-rank percentile, the
+// credit-tier method) and the read compares where bond volatility and equity volatility sit in theirs.
 const VOL_RECORD_SESSIONS = 252; // one year of sessions
 const VOL_TIERS = Object.freeze([['vix', 'VIX'], ['vvix', 'VVIX'], ['move', 'MOVE'], ['skew', 'SKEW']]);
 function closeRange(history, field, label, basis) {

@@ -1,3 +1,5 @@
+// Observed six-axis conditions, shared by the market screen and AI context.
+// This is a conditional reading of completed observations, never a forecast or a trade instruction.
 import { alignMarketInputs, buildMarketRegime, usdKrwWindow } from '../../briefing/market-read.js';
 import { alignInput, buildCloseSeries } from '../session/close-series.js';
 import { RULES } from '../../rules/thresholds.js';
@@ -38,6 +40,7 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const daily = field => clip(buildCloseSeries(input.history, field, { through }));
   const macro = (field, factor = 1) => clip(macroSeries(macroHistory, field, through, factor));
   const chart = (id, title, unit, series, { format = count, refs = [], domain = null, note = '', guide = null } = {}) => ({ id, title, unit, series, format, refLines: refs, domain, note, guide });
+  // run-5 (skeptic #5): the trend verdict is read against the 50-day line, which the index charts did not draw.
   const ma50 = (field) => {
     const all = buildCloseSeries(input.history, field, { through });
     return { label: '50일선', series: clip(all.map((point, index) => index >= 49 ? { date: point.date, value: all.slice(index - 49, index + 1).reduce((sum, item) => sum + item.value, 0) / 50 } : null).filter(Boolean)) };
@@ -46,6 +49,8 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
   const ratio = daily('vix').filter(point => vix3m.get(point.date) > 0).map(point => ({ date: point.date, value: point.value / vix3m.get(point.date) }));
   const definitions = {
     trend: [chart('spx', 'S&P 500 종가', '지수 pt', spx, { guide: ma50('spx') }),
+      // The leadership proxy and the small caps beside the S&P 500 — the trend axis is capped when both break.
+      // The proxy is SOXX; the note quotes the rule's own edges.
       chart('soxx', 'SOXX 종가', 'pt', daily('soxx'), { guide: ma50('soxx'), note: `반도체 주도주의 흐름. 5거래일 ${RULES.leadership.proxyDrop5dPct}% 이상 하락하거나 50일선보다 ${RULES.leadership.proxyBufferPct}% 넘게 아래면 주도 영역이 약해지는지 확인합니다.` }),
       chart('rut', '러셀 2000 종가', '지수 pt', daily('rut'), { note: '중소형주의 흐름. 200일선 아래에 있으면 상승이 대형주 밖으로 퍼지지 못한 상태입니다.' })],
     breadth: [chart('breadth20', '20일선 위 종목 비율 (단기)', '%', daily('breadth20'), { format: percent, refs: [RULES.breadth.weakBelow, RULES.breadth.broadAtLeast], domain: [0, 100], note: '단기 참여도. 50일선 비율보다 먼저 움직여 참여가 넓어지거나 줄어드는 방향을 먼저 보여 줍니다.' }),
@@ -57,6 +62,8 @@ export function buildRegimeAxisHistory(input = {}, { macroHistory = null, regime
       chart('tips', '10년 실질금리(TIPS)', '%', macro('realYield10'), { format: percent, note: '명목금리와 실질금리는 서로 다른 관측일일 수 있습니다. 같은 날짜의 자료가 없으면 분해해 단정하지 않습니다.' }),
       chart('breakeven', '10년 기대인플레이션', '%', macro('breakeven10'), { format: percent, note: '물가 예상만이 아니라 유동성·위험 프리미엄도 포함하는 인플레이션 보상 지표입니다.' })],
     credit: [chart('hy', '하이일드 스프레드(OAS)', 'bp', macro('hyOas', 100), { refs: [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], note: '하이일드 스프레드는 수준과 5거래일 확대·축소를 구분해서 읽습니다.' }),
+      // v57.79 (UI review): chart names carry a plain-Korean name with the market abbreviation in brackets (OAS · CCC · TIPS).
+      // The weakest tier against B — the average can stay calm while CCC borrowers lose access first.
       chart('ccc-b', '최하위(CCC)·B 등급 가산금리 격차', 'bp', tierGap(macro('cccOas', 100), macro('bOas', 100)), { note: '가장 약한 등급(CCC 이하)과 B 등급의 OAS 차이. 격차는 상대 차이입니다. 벌어지면 시장이 가장 약한 기업을 더 따로 가려내고 있다는 뜻이며, CCC 금리 수준 자체가 올랐는지는 하이일드 가산금리와 함께 확인합니다.' })],
     commodities: [chart('wti', 'WTI 선물', 'USD / 배럴', daily('wti'), { format: value => `$${value.toFixed(1)}` }),
       chart('dxy', '달러 지수', '지수 pt', daily('dxy'), { format: value => value.toFixed(1) })],
@@ -115,7 +122,12 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
   const hold = missing.length > 0;
   const facts = essential.flatMap(id => (byId[id]?.evidence || []).slice(0, id === 'trend' ? 2 : 1).map(([label, value]) => `${label} ${value}`));
   const confirmed = states => !hold && states;
+  // "credit calm" is the shared creditState 'favorable' (the outlook's 부합 count uses the same rule); a neutral
+  // credit axis (HY +45bp over 20 sessions) confirmed 소수 종목 주도 here while the outlook counted it 미충족 (3/4).
   const calmRisk = byId.credit?.state === 'favorable' && byId.volatility?.state !== 'burden';
+  // 소수 종목 주도 also needs the leaders to be holding (regime.leadership, market-read). When the
+  // leadership proxy and the market-wide confirmations break together, the weakness card carries the transition reading
+  // ('소수 주도 → 동반 약세 전환 확인 중') — the three ids stay, so the forward-branch registry's shape keys are unchanged.
   const leadership = regime.leadership || { state: 'unknown', break: false };
   const leadersHolding = leadership.state === 'holding';
   const transition = !hold && !!leadership.break;
@@ -140,6 +152,7 @@ export function buildMarketScenarios(input = {}, { regime = buildMarketRegime(in
       observe: ['지수 회복이 하루 움직임에 그치는지', '시장 폭과 신고가·신저가도 동시에 회복하는지', 'HY 확대·VIX 역전이 실제로 완화되는지'] }
   ].map(item => ({ ...item, held: hold, status: hold ? '판단 보류' : item.confirmed ? '현재 조건 충족' : '관찰할 조건',
     facts, missing: missing.map(id => byId[id]?.title || (id === 'basis' ? '최신 종가 기록' : id)),
+    // An unconfirmed weakness card reads as the transition while the leadership break holds.
     transition: item.id === 'weakness' && transition && !item.confirmed ? transitionTitle : null }));
   return { available: true, asOf: regime.asOf, held: hold, scenarios, participation, transitionTitle, leadership: { state: leadership.state, break: !!leadership.break, summary: leadership.summary || null, met: leadership.met ?? 0, total: leadership.confirmations?.length ?? 0, need: leadership.need ?? RULES.leadership.minConfirmations },
     axes: regime.axes.map(axis => ({ id: axis.id, observe: OBSERVE[axis.id] || '', condition: axis.flip || null })),
@@ -153,6 +166,7 @@ export function renderMarketScenarioContext(input = {}, options = {}) {
 /** The structure-flow block from a built model (the shared interpretation's `scenarios` stage). */
 export function renderMarketScenarioModel(model) {
   if (!model?.available) return '';
+  // The leadership-break flag is stated before the cards, so the narrative cannot say the leaders are still leading.
   const lead = model.leadership?.break ? `주도 영역 이탈(leadershipBreak): 예 — ${model.leadership.summary}. 소수 종목 주도 조건 미충족, '${model.transitionTitle || TRANSITION_TITLE}'.\n`
     : model.leadership?.state === 'weak' ? `주도 영역 이탈(leadershipBreak): 확산 미확인 — ${model.leadership.summary}. 주도주는 약해졌고 시장 전반 확인은 ${model.leadership.met}/${model.leadership.total}개. 소수 종목 주도 조건 미충족.\n`
     : model.leadership?.state === 'holding' ? '주도 영역 이탈(leadershipBreak): 아니오.\n' : '주도 영역 이탈(leadershipBreak): 확인 불가.\n';
@@ -160,6 +174,10 @@ export function renderMarketScenarioModel(model) {
     + model.scenarios.map(item => `${item.transition || item.title} (${item.status}): ${item.interpretation}\n관측: ${item.facts.join('; ')}\n유효 조건: ${item.conditions.join(' ')}\n반증: ${item.counterEvidence}\n다음 확인: ${item.observe.join('; ')}`).join('\n');
 }
 
+// A Korean index observation belongs to its KRX session, never the US
+// cycle row carrying it through a Korean holiday/weekend.
+// One shared formatter (toLocaleDateString built one per row) and a memo per history array identity
+// (+ length guard), field and completed KRX session date — the only time-dependent input. Callers get fresh points.
 const KST_DATE = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'numeric', day: 'numeric' });
 const KOREA_SERIES_MEMO = new WeakMap();
 export function buildKoreaIndexSeries(history = [], field, { nowMs = Date.now() } = {}) {
@@ -185,6 +203,7 @@ function computeKoreaIndexSeries(history, field, completed) {
     const value = finite(row?.[field]);
     const meta = historyFieldMeta(row, field);
     if (!(value > 0) || meta?.observationRelation === 'current-session' || meta?.valueBasis === 'current-session') continue;
+    // A held copy is not a session; a session-dated (or previous-close) value is dated by its own session.
     if (isHeldHistoryValue(meta)) continue;
     const stamp = String(meta?.observedAt || row?.date || '');
     let observed = historyFieldSessionDate(meta, field) || date(stamp);
@@ -200,6 +219,8 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
   const definitions = [['kospi', '코스피', '한국 대형주 중심 지수'], ['kosdaq', '코스닥', '코스닥 상장 종목 지수']];
   const indices = definitions.map(([id, title, scope]) => {
     const series = buildKoreaIndexSeries(input.history, id, { nowMs }).slice(-126);
+    // One month is KR_MONTH_SESSIONS on both Korean index cards, and the day/5-day move with its record position
+    // (when rare) is the same record the briefing reads (kr-index-record.js).
     const last = series.at(-1), prior = series.at(-(KR_MONTH_SESSIONS + 1));
     const change = last && prior?.value > 0 && countOpenSessionsBetween(prior.date, last.date, 'KR') === KR_MONTH_SESSIONS ? (last.value / prior.value - 1) * 100 : null;
     const record = last ? krIndexMoveRecord(input.history, id, { now: nowMs }) : null;
@@ -207,16 +228,18 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
     return last ? { id, title, scope, series, asOf: last.date, last: last.value, change, unit: '지수 pt',
       stale: !!completed && last.date !== completed.date,
       read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${signedText(change, 1)}%${move ? `, ${move}` : ''}.`, record,
+      // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
       observe: `${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
   const fx = buildCloseSeries(input.history, 'usdkrw', { through }).filter(point => {
     const weekday = new Date(`${point.date}T12:00:00Z`).getUTCDay(); return weekday !== 0 && weekday !== 6;
   }).slice(-126);
+  // The same 20-session window as the 환율 axis (usdKrwWindow) — the card used 21 observations from another base.
   const lastFx = fx.at(-1);
   const fxWindow = usdKrwWindow(fx);
   const fxChange = fxWindow ? fxWindow.change : null;
   const cards = [...indices];
-  if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일, 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: !!through && alignInput(lastFx.date, through).status === 'stale',
+  if (lastFx) cards.push({ id: 'usdkrw', title: '원 / 달러', scope: '외환 관측일, 뉴욕 날짜', series: fx, asOf: lastFx.date, last: lastFx.value, change: fxChange, unit: 'KRW / USD', stale: !!through && alignInput(lastFx.date, through).status === 'stale', // v59.45 (PASS17): read against the basis, not fixed false
     // T20: a move small against the won's own volatility (move-size.js) is 보합권, not a currency direction.
     read: fxChange == null ? '방향을 계산할 외환 관측 기록이 부족합니다.' : `20거래일 ${signedText(fxChange, 1)}%${fxWindow.meanShift != null ? `(20일 평균 ${signedText(fxWindow.meanShift, 1)}%)` : ''}. ${spanMoveGrade(fx, fxChange, 20) === 'small' ? '원/달러 평소 변동에 비해 작은 움직임이라 원화 방향을 말하기 어려운 보합권입니다.' : !fxWindow.agrees ? `20일 평균은 그만큼 움직이지 않아 시작점의 일시적 수준 영향이 큽니다 — 원화 ${fxChange > 0 ? '약세' : '강세'}로 단정하지 않습니다.` : fxChange > 0 ? '같은 달러에 더 많은 원화가 필요해 원화 약세 방향입니다.' : '같은 달러에 필요한 원화가 줄어 원화 강세 방향입니다.'} 외국인 수급이나 수출 실적의 실제 변화는 별도 자료로 확인합니다.`,
     observe: '환율 움직임과 한국 주가를 같은 날짜·기간으로 확인합니다. 서로 관측일이 다르면 직접적인 인과나 상대강도로 단정하지 않습니다.' });

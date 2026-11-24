@@ -4,7 +4,7 @@
 //   producer  buildScenarioOutcomes on a small synthetic history writes base quartiles, drawdown and cash fields
 //   frame     buildDecisionFrame on fixtures: distinct / not distinct, n < 10, 10–29, missing quartiles, conflict, past-record
 //   copy      the shared renderer and the 시장 상태 story cards keep the ground of every favoured side inside the frame —
-//             v60.24 (owner 2026-11-17): in its fold (근거 종류) and the side line's title, no longer as a face tag
+//             In its fold (근거 종류) and the side line's title, no longer as a face tag
 //   artifact  the committed scenario-outcomes.json is read only under its stamps (old definition → no long record)
 // DECISION_FRAME_NARRATIVES=<module path> mounts another market-narratives renderer (the negative control on the old one).
 import path from 'node:path';
@@ -143,7 +143,7 @@ const crossroads = buildMacroCrossroads({ signals, outcomes });
       && picks[0].getAttribute('aria-pressed') === 'false' && section.querySelectorAll('.mk-narr__story').length === 1 && !section.querySelector('.mk-narr__rest'), { first, now: shownStory() });
 }
 
-// ── v60.24 guide and theme lines (owner 2026-11-17): the ground kind is not glued onto face lines outside the frame ──
+// ── v60.24 guide and theme lines: the ground kind is not glued onto face lines outside the frame ──
 {
   const { buildMarketGuide, renderMarketGuideContext } = await load('src/domain/guide/market-guide.js');
   const { buildMarketRegime } = await load('src/domain/briefing/market-read.js');

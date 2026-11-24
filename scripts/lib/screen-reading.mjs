@@ -8,7 +8,7 @@
 // gives only its title, state label, evidence rows, flip condition and basis; its `read` (a sentence the code assembled)
 // never enters the packet. A screen joins the readings by adding one builder to SCREEN_READING_SCREENS.
 //
-// Owner 2026-11-17: interpretation is never blocked. The validator blocks a figure or date the packet does not carry, a
+// Interpretation is never blocked. The validator blocks a figure or date the packet does not carry, a
 // state label that contradicts the packet's, an order, an invented percentage probability, a leaked prompt label,
 // non-Korean text and a reading longer than the face allows; thin grounds and possibility words are warnings only.
 import { createHash } from 'node:crypto';
@@ -53,7 +53,7 @@ const titledStates = (axes) => axes.filter((axis) => axis?.title && axis.stateLa
 export const SCREEN_READING_SCREENS = Object.freeze({
   signal: Object.freeze({
     name: '시장 상태',
-    // v60.50 (owner 2026-11-23): the screen opens with the story (주도주 · 시장 전체 · 진단, market-story.js); the reading
+    // The screen opens with the story (주도주 · 시장 전체 · 진단, market-story.js); the reading
     // continues it and says what the price reflects. `guide` is this screen's own instruction, after the shared rules.
     guide: [
       '- 첫 문장은 종합 판정 낱말("시장 상태는 … 부담 우세입니다")로 열지 말고 시장 이야기로 엽니다: 주도주가 얼마나 내렸고, 시장 전체는 얼마나 덜 내렸고, 그 차이가 말하는 진단.',
@@ -263,7 +263,7 @@ function titledStateIssues(text, axes = []) {
 // ---- the validator ---------------------------------------------------------------------------------------------------------
 const EMOJI = /\p{Extended_Pictographic}/u;
 const SOURCE_NAMES = /(?<![A-Za-z])(?:FRED|CNN|Yahoo|Bloomberg|Reuters|Cboe|CBOE|Investing\.com|WSJ)(?![A-Za-z])|야후|블룸버그|로이터/;
-const LATIN_TERMS = /S&P|\b[A-Z]{2,}(?:\s?\d+)?\b|\bSahm\b/g; // tickers and indicator names are Latin by nature (P1585)
+const LATIN_TERMS = /S&P|\b[A-Z]{2,}(?:\s?\d+)?\b|\bSahm\b/g; // tickers and indicator names are Latin by nature
 
 /** { issues, warnings } for one reading against its packet. Issues block publication; warnings are recorded with it. */
 export function validateScreenReading(text, packet) {
@@ -291,7 +291,7 @@ export function validateScreenReading(text, packet) {
   if (sentences < 3 || sentences > 5) warnings.push(`sentence-count:${sentences}`);
   if (SOURCE_NAMES.test(body)) warnings.push('source-name');
   if (/거시\s?경제/.test(body)) warnings.push('macro-screen-name');
-  // v60.50 (owner 2026-11-23): interpretation warns. A diagnosis word other than the packet's outside a conditional clause,
+  // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause,
   // "싸다/매력적" said without a condition, and an opening on the tally word are recorded, never blocking.
   if (packet?.diagnosis) {
     const other = Object.values(DIAGNOSIS_WORDS).filter((word) => word !== packet.diagnosis);

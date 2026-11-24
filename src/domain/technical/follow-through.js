@@ -1,3 +1,8 @@
+// v57.87 (owner X-bookmark read 2026-10-16): the follow-through evidence the bookmarked chart frameworks keep returning
+// to, computed on completed daily bars — pocket pivots, heavy-volume down days, the base number since a trend started,
+// climax signs after a long run, and how a stock closed on its index's down days. Pure functions over arrays; a field
+// is null when its inputs are short or missing (never guessed). Reference conditions for the screener, not an entry,
+// exit or sizing rule. Thresholds are RULES.technical.followThrough.
 import { RULES } from '../rules/thresholds.js';
 
 export const FOLLOW_THROUGH_VERSION = 'follow-through.v1';
@@ -79,6 +84,8 @@ export function baseCount(closes) {
   let lastBaseLow = null;
   let restartedAt = null;
   const restart = (close, i) => { count = 0; high = close; pullbackStart = null; pullbackLow = Infinity; lastBaseLow = null; restartedAt = i; };
+  // The producer passes two years of closes (FACTOR_HISTORY_RANGE), so the lowest close seen so far was a
+  // two-year low and a new 52-week low above it never restarted the count. The low is the trailing rangeSessions span.
   const span = RULES.technical.rangeSessions;
   const lowIndex = [];
   for (let i = 1; i < values.length; i += 1) {
@@ -115,6 +122,8 @@ export function baseCount(closes) {
 export function climaxSigns(closes, volumes) {
   const n = Math.min(closes?.length || 0, volumes?.length || 0);
   if (n < RULES.technical.fullYearSessions) return null;
+  // "of the year" and the 52-week low are the last rangeSessions sessions — the two-year producer series made a
+  // year-old gain or volume spike outrank the latest ten sessions and measured the run from a two-year low.
   const m = Math.min(n, RULES.technical.rangeSessions);
   const c = closes.slice(-m);
   const v = volumes.slice(-m);

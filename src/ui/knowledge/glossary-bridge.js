@@ -1,3 +1,10 @@
+// The glossary and the learning screens share one concept source, and a glossary search
+// also finds the frames, lessons and industry-map nodes that explain the term.
+//  1. mergeConceptCore: canonical concepts replace a legacy glossary entry of the same term/alias, or are
+//     added — one definition per concept across the product.
+//  2. installGlossaryBridge: the entry parts and screen/concept buttons of the glossary modal. v59.70: the cross-surface
+//     search moved to the command search; loadKnowledgeSearch / openKnowledgeResult (below) are what it reads, with
+//     public-data/knowledge/search-index.json and the ranker (knowledge-search.js) loaded on its first query.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { knowledgeRouteHref, navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { SCREEN_TERM_MARKED } from '../../domain/knowledge/screen-term-marked.js';
@@ -28,6 +35,8 @@ export function mergeConceptCore(glossary, concepts = CONCEPT_CORE) {
   return { replaced, added };
 }
 
+// A term that a screen measures (HY 스프레드 → 투자 심리, RSI → 차트, 시장 폭 → 시장 폭) also offers
+// that screen, not only library notes. Keys: SCREEN_TERMS for market indicators, term + aliases for canonical concepts.
 const CONCEPT_BY_ID = new Map(CONCEPT_CORE.map((concept) => [concept.id, concept]));
 export function screenLinksForQuery(query) {
   const q = normalize(query);
@@ -44,6 +53,10 @@ export function screenLinksForQuery(query) {
   return [...routes.values()];
 }
 
+// 개편 v2 (3h): a glossary entry reads as definition → formula → limits → "이 개념이 쓰이는 화면". The parts are
+// cut from the entry's own text (sentences), never written here: a sentence with "=" is the formula line, a later
+// sentence that states a limit or a caution goes under 한계, the rest is the definition. A figure-source row
+// (GLOSSARY_FIGURE_SOURCES) adds its condition to the limits and its source as the evidence line.
 const LIMIT_WORDS = /않|아닙|아니|없습|없고|다를|달라|다릅|주의|한계|왜곡|민감|보장|빗나|착각|오해|과장|함께 봐|함께 봅|별도|단정/;
 export function splitDefinition(def) {
   const sentences = String(def || '').trim().split(/(?<=[.!?])\s+(?=[^\d\s])/).filter(Boolean);
@@ -70,6 +83,8 @@ export function glossaryEntryParts(entry, figureSources = null) {
   return { ...parts, basis: figure ? [figure.kind, figure.src].filter(Boolean).join(', ') : null, screens: screensForEntry(entry), conceptId: entry?.conceptId || null };
 }
 
+// One address builder (knowledgeRouteHref, the route's hash query). On the page already open the hash change
+// fires popstate, and the page re-reads its selection from the address.
 function routeUrl(root, route) {
   return knowledgeRouteHref({ root, page: route.page, params: route.params || {} });
 }
@@ -77,6 +92,13 @@ function routeUrl(root, route) {
 export function installGlossaryBridge({ root = globalThis, documentRef = root.document } = {}) {
   if (!documentRef || root._aioGlossaryBridgeInstalled) return;
   root._aioGlossaryBridgeInstalled = true;
+  // js/aio-glossary.js loads after boot (src/app/classic-loader.js), so the merge runs when GLOSSARY arrives.
+  // v59.70 (post-boot budget): when GLOSSARY arrives only the screen terms that term marks underline join it (the marked
+  // set is in the boot set), then the concept merge and the deferred terms, so the marks and their popovers are as before;
+  // classic-loader waits for this before aio:glossaryReady. The other screen-term additions (~21 KB) join on real glossary
+  // use (_aioGlossaryFull: the glossary or command search opens, a term mark is hovered or focused). That rebuilds GLOSSARY
+  // from the copy taken on arrival in the original sequence (every addition, the concept merge, the deferred terms), so
+  // the result is the same list, entry for entry, as before the split.
   let arrived = null;
   const appendMarked = (glossary, entries) => {
     const key = (text) => String(text || '').toLowerCase().replace(/\s*\(.*$/, '').replace(/\s+/g, '');
@@ -119,6 +141,8 @@ export function installGlossaryBridge({ root = globalThis, documentRef = root.do
   };
 }
 
+// v59.70 (wave2-f S23): the glossary's own search box and its cross-surface section (research notes, "지금 값을 보는 화면")
+// left for the one command search (src/ui/navigation/command-search.js); these two helpers are what it reads.
 let knowledgeLoad = null;
 /** The generated knowledge index and its ranker (knowledge-search.js, bundle E): { index, search }; a failed fetch settles
  * to { index: null, search, failed: true } so the caller can say so instead of waiting. */
@@ -147,5 +171,6 @@ export function openKnowledgeResult(root, entry) {
   // A different page mounts on showPage; the page already on screen gets the new address (a hash step, popstate) and re-reads the selection.
   const samePage = root.AIO?.state?.activePage === entry.route.page;
   if (samePage || typeof root.showPage !== 'function') { root.location.assign(routeUrl(root, entry.route)); return; }
+  // pushState + showPage lost the selection (showPage strips the knowledge keys); keep it as the pending URL.
   navigateKnowledgeRoute({ root, page: entry.route.page, params: entry.route.params || {} });
 }

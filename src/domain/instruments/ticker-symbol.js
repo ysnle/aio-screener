@@ -20,7 +20,7 @@ function compact(value) {
 }
 
 export function normalizeTickerInput(raw, { krStockDb = {}, krToYahoo = null, isListed = null } = {}) {
-  // v58.82: NFKC folds a full-width or IME-typed ticker (ＡＡＰＬ → AAPL) to ASCII; it changes the characters' form, not the symbol.
+  // NFKC folds a full-width or IME-typed ticker (ＡＡＰＬ → AAPL) to ASCII; it changes the characters' form, not the symbol.
   const text = String(raw == null ? '' : raw).normalize('NFKC').trim();
   if (!text) return '';
   const toYahoo = (code) => (typeof krToYahoo === 'function' ? krToYahoo(code) : `${code}.KS`);
@@ -33,9 +33,9 @@ export function normalizeTickerInput(raw, { krStockDb = {}, krToYahoo = null, is
     const entries = Object.entries(krStockDb && typeof krStockDb === 'object' ? krStockDb : {});
     const exact = entries.find(([, info]) => compact(info && info.name) === wanted);
     if (exact) return toYahoo(exact[0]);
-    // P1345: even a unique prefix is not an exact registered company name.
+    // Even a unique prefix is not an exact registered company name.
   }
-  // v57.55 review (8p): BRK.B · BRK/B · BRK-B are one class share; the AIO universe lists it with a dash, so 'BRK.B' opened a page
+  // Review (8p): BRK.B · BRK/B · BRK-B are one class share; the AIO universe lists it with a dash, so 'BRK.B' opened a page
   // with no name or rows. Only the separator changes, and only when the dash form is listed and the typed form is not.
   const share = upper.match(CLASS_SHARE_RE);
   if (share && typeof isListed === 'function' && !isListed(upper) && isListed(`${share[1]}-${share[2]}`)) return `${share[1]}-${share[2]}`;

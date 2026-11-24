@@ -23,6 +23,11 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   const axisById = Object.fromEntries((regime?.axes || []).map((row) => [row.id, row]));
   const fx = rateFx || {};
   const wti20 = fx.wti20 ?? null;
+  // Expert review M06: WTI alone read as easing oil while Brent rose sharply; such a node is held, not coloured favourable.
+  // A same-day Brent-WTI gap far outside its usual range (abnormal) holds the node as well — neither the
+  // Brent reading nor "WTI 하락 = 물가 완화" is drawn from a pair that may not be comparable.
+  // The one shared Brent/WTI rule (macro-signals oilDivergence) — the rate hub, the scenario conditions and
+  // this node no longer disagree (WTI -7.2% drawn ▼ beside "두 유가의 방향이 달라 하락으로 보지 않습니다").
   const oilHeld = oilDivergence(oil).held;
   // A 5-session move against the 20-session direction is named beside it (direction unchanged).
   const wti5 = fx.wti5 ?? null;
@@ -35,6 +40,7 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   // it ('기준일이 달라 보류') whenever the real yield posted a day later blanked the node while 주제별로 보기 printed the same
   // breakeven move; only the real-versus-breakeven comparison below needs one date.
   const bei5 = finite(m.breakeven10Delta5);
+  // The same midpoint as the 통화정책 axis — upper − 0.125 assumed a 25bp-wide range.
   const pricing = policyPricing(m).pricing;
   // The rates node, its sentence and its legend line read the leg the verdict reported.
   const ratesRead = ratesEvidence(axisById.rates?.decidedBy || null, fx.tnx20 ?? null);
@@ -47,6 +53,7 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   // "안정" is said only when creditState() is favorable — the same verdict as the 시장 상태 credit
   // axis. A small 5-day move alone is not calm (the level or a 20-session widening can still hold the axis at 중립/부담).
   const creditVerdict = axisById.credit?.state || creditState({ hyBp: hyBpNow, hy5, hy20: hyObs?.change20 ?? null });
+  // Codex audit F06: a 부담 names the input that decided it (level / 5-session / 20-session record), never a fixed "수준".
   const record20 = mh ? hyWidening20Record(mh) : null;
   const cause = creditCause({ hyBp: hyBpNow, hy5, hy20Record: record20 });
   const burdenText = cause.level ? `스프레드 수준(${Math.round(hyBpNow)}bp)이 부담 구간(${RULES.credit.stressAtBp}bp 이상)입니다`
@@ -93,6 +100,8 @@ export function buildMacroChain({ macro = null, macroHistory = null, regime = nu
   if (nodes[3].dir === 'down') links.push(axisById.rates && axisById.rates.state !== 'favorable'
     ? `10년물 20거래일 ${signed(axisById.rates.decidedBy?.d20 ?? fx.tnx20, 0, 'bp')}${growthScare ? `, S&P 500 20거래일 ${signed(growthScare.spx20, 1, '%')}` : ''} — 금리 지표 ${axisById.rates.stateLabel}.`
     : `10년물이 20일 동안 ${signed(axisById.rates?.decidedBy?.d20 ?? fx.tnx20, 0, 'bp')} 내려 할인율 부담이 줄고 있습니다.`);
+  // Codex browser audit H15: when two neighbours on the textbook path moved in opposite directions, the arrow is
+  // not working right now — say so as a question to check, instead of letting the drawn arrow imply it does.
   for (const [a, b] of [[0, 1], [1, 3]]) { // the policy node is a level against the target, not a move
     const from = nodes[a];
     const to = nodes[b];

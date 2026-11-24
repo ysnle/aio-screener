@@ -1,4 +1,4 @@
-// P1608: execute source-first selection, recency boundaries and the actual
+// Execute source-first selection, recency boundaries and the actual
 // legacy Responses adapter. No network, provider key or paid API is used.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -11,7 +11,7 @@ const health = { ai: { paidWebSearchEnabled: true, maxTokens: 4000 } };
 const plan = { queryId: 'test-query', query: 'NVDA 현재 주가', intent: { primary: 'ENTITY_FACT' },
   researchDecision: { requirement: 'OPTIONAL', currentSensitive: true, decidedAt: new Date(now).toISOString() },
   researchPlan: { eventWindow: { asOf: '2026-10-11', lookbackDays: 1 }, stopConditions: { minimumIndependentSources: 1, minimumPrimarySources: 1 } } };
-// v60.41: coverage is a usable price basis — here the Friday 2026-10-09 close read on Sunday (no second source needed).
+// Coverage is a usable price basis — here the Friday 2026-10-09 close read on Sunday (no second source needed).
 const row = { symbol: 'NVDA', source: 'fixture', observedAt: '2026-10-09T20:00:00Z', decisionUse: true, truthStatus: 'warn', truthIssues: ['single_source_no_crosscheck'], basis: 'close', basisStatus: 'usable', hasLivePrice: true };
 const internal = hasInternalCurrentEvidence({ freshness: { status: 'ok', after: { quoteRows: [row] } }, tickers: ['NVDA'], questionPlan: plan, now });
 assert.equal(internal, true, 'P1608 v60.41 a usable close basis answers a price question without a second source');
@@ -74,7 +74,7 @@ let sent, done, error;
 const stream = { citations: [], researchError: null };
 const output = { id: 'resp_mock', status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: '참고 설명', annotations: [{ type: 'url_citation', url: cite.url, title: cite.title }] }] }] };
 const events = [{ type: 'response.output_text.delta', delta: '참고 설명' }, { type: 'response.completed', response: output }];
-const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // v59.87: chat-globals installs it beside the chat
+const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js'); // chat-globals installs it beside the chat
 const context = vm.createContext({ AI_WORKER_CONTRACT, window: { AIO: { attachNativeSearch } }, console: { log() {} }, AbortController, TextDecoder, setTimeout, clearTimeout,
   getApiKey: () => '', getModelConfig: () => ({ reasoningEffort: 'none', label: 'fixture' }),
   _aioAIRequestStream: () => stream, _aioThrowIfChatAborted: signal => { if (signal?.aborted) throw new DOMException('aborted', 'AbortError'); },
@@ -108,11 +108,10 @@ context._uniResearchDecision = plan.researchDecision;
 for (const name of ['_uniTickerData', '_uniDomainData', '_uniNewsCtx']) context[name] = '';
 const helperStart = chat.indexOf('function _shouldUseClaudeWebSearch(');
 vm.runInContext(chat.slice(helperStart, chat.indexOf('\nwindow._shouldUseClaudeWebSearch', helperStart)), context);
-// v57.62: the per-page chatSend caller was retired; the unified panel is the only production chat caller.
 assert.ok(!chat.includes('var _useClaudeWebSearch = false;') && !chat.includes('async function chatSend('), 'v57.62 per-page chatSend caller retired');
 for (const [variable, marker] of [['_uniUseClaudeWebSearch', 'var _uniUseClaudeWebSearch = false;']]) {
   const blockStart = chat.indexOf(marker);
-  // P1740: the unified caller decides once in _uniDecideWebSearch (before its status blocks); run that actual function.
+  // The unified caller decides once in _uniDecideWebSearch (before its status blocks); run that actual function.
   const block = variable === '_uniUseClaudeWebSearch'
     ? chat.slice(blockStart, chat.indexOf('var _withTimeout', blockStart)) + '\n_uniDecideWebSearch();'
     : chat.slice(blockStart, chat.indexOf('if (' + variable + ') {', blockStart));
@@ -140,12 +139,12 @@ for (const [variable, marker] of [['_uniUseClaudeWebSearch', 'var _uniUseClaudeW
   context.chatFreshPreflight = { status: 'ok', after: { quoteRows: [row] } }; context._uniFreshPreflight = context.chatFreshPreflight;
 }
 console.log('PASS: P1608 the production chat caller preserves internal/external evidence; required research always reaches the Worker.');
-// P1653/P1655: the opt-out toggle is retired; neither the transport nor core keeps a per-browser preference.
+// The opt-out toggle is retired; neither the transport nor core keeps a per-browser preference.
 const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 assert.equal(/aio_web_search_enabled/.test(chat) || /aio_web_search_enabled/.test(core), false, 'P1655 no web-search opt-out preference remains');
 console.log('PASS: P1655 web search is automatic (no opt-out preference).');
 
-// P1621: a loaded screen cache cannot suppress the chat's financial evidence. The financials reach the model through the
+// A loaded screen cache cannot suppress the chat's financial evidence. The financials reach the model through the
 // fundamentals tool, which reads the shared provider every time (the provider caches), whatever the screen has loaded.
 {
   const { runTool } = await import('../src/ai/tools/registry.js');

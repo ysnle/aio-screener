@@ -1,8 +1,17 @@
+// P1471 (knowledge review 2026-10-04, 1차·2차): the industry map turned each domain's list order into
+// upstream → downstream edges (GPU → ASIC → NPU, copper → lithium → rare earths, healthcare →
+// manufacturing → automotive → finance) and labelled them 상류/하류. A list is not a supply chain.
+// This module is the canonical, typed relation set: every edge says what kind of link it is, and
+// parallel members of a domain (alternative accelerators, separate commodities, separate applications)
+// are left unlinked or linked as alternatives — never as stages.
 export const RELATION_TYPES = Object.freeze({
   contains: { label: '포함', directed: true, forward: '포함하는 하위 개념', backward: '속한 상위 개념' },
+  // Component edges are authored part → whole ('NAND가 SSD의 저장 매체'), so the part's
+  // page names where it goes and the whole's page lists its parts — the labels used to read the other way.
   component: { label: '구성', directed: true, forward: '이것이 들어가는 곳', backward: '구성 요소' },
   // A technology or a contract that something rests on is not a physical part of it.
   basis: { label: '바탕', directed: true, forward: '이것을 바탕으로 하는 것', backward: '바탕이 되는 기술·계약' },
+  // A design attribute is not a part — precision belongs to an accelerator as a property.
   property: { label: '성능 속성', directed: true, forward: '이 속성으로 비교하는 대상', backward: '성능 속성' },
   'next-step': { label: '다음 단계', directed: true, forward: '다음 단계', backward: '앞 단계' },
   supplies: { label: '공급', directed: true, forward: '공급받는 쪽', backward: '공급하는 쪽' },
@@ -168,6 +177,7 @@ export function typedRelations(taxonomyCoverage, titleOf = (id) => id) {
   const edges = [...DOMAIN_RELATIONS];
   for (const edge of taxonomyCoverage?.relationshipModel?.crossDomainEdges || []) {
     const type = CROSS_TYPE[edge.type] || 'conditional';
+    // The producer's conditions, sources and review date travel with the edge for a details view.
     edges.push({ from: edge.from, to: edge.to, type, text: CROSS_TEXT[edge.id] || '', sourceType: edge.type || null,
       conditions: Array.isArray(edge.conditions) ? edge.conditions : [], sourceIds: Array.isArray(edge.sourceIds) ? edge.sourceIds : [], reviewedAt: edge.reviewedAt || null });
   }

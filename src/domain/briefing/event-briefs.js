@@ -1,3 +1,8 @@
+// The market's biggest scheduled events — the FOMC decision and the earnings of a fixed
+// market-mover list — each get a short brief built in Actions (scripts/fetch-event-briefs.mjs) from the primary source:
+// the Fed statement, the company's 8-K/6-K Ex.99.1 on EDGAR, the DART 공정공시. This module is shared by the producer
+// and the screens: the mover list, the number check that drops any figure the fetched source text does not contain,
+// the DART preliminary-results table parser, and the selectors 오늘 and 종목 read.
 export const EVENT_BRIEFS_SCHEMA = 'event-briefs.v1';
 
 import { surprisePct, readNumber, usdPerShareText } from '../shared/number.js';
@@ -10,6 +15,10 @@ export const CALL_SEARCH_MAX_ATTEMPTS = 2;
 
 export { MARKET_MOVERS, MOVER_BY_SYMBOL };
 
+// A calendar-only brief said "원문 요약 정리 중" until its filing was summarised, with no
+// limit, so a report whose filing the SEC lane never reads (NU, NVMI, CAMT on 6-K; OKLO) kept the promise for days (NU from
+// 11/12 21:05Z, CAMT from 11/04). An issuer's release is on EDGAR the day it reports; a day later the wait is closed: the
+// brief keeps the provider's figures and says so, and a filing that still turns up inside the watch window replaces it.
 export const PROVISIONAL_SUMMARY_WAIT_MS = 24 * 3600000; // 72 runs of the 20-minute event-briefs schedule
 const PROVISIONAL_WAITING = '원문 요약 정리 중';
 const PROVISIONAL_CLOSED = '제공처 집계';
@@ -26,6 +35,8 @@ export function overdueProvisional(brief, atMs) {
 }
 
 /** 1 = shown in full on 오늘 (FOMC, the core movers); 2 = one line (other movers and the story names). */
+// v59.44 (owner 2026-10-30, "현재 AI 시장에서 중요한 종목"): weight comes from where a name sits on the AI chain and how
+// hard the market took its report, not from its index weight. The company-story layers outside the chain are folded.
 export const NON_AI_LAYERS = Object.freeze(['ai-adopter', 'ai-exposed', 'limited']);
 export const MARKET_MOVING_PCT = 8; // a post-report move this large puts an AI-chain name on the face as a card
 
@@ -50,12 +61,18 @@ export function briefTier(brief) {
 // Wires and business news allowed beside the issuer's own pages when a call or press conference is summarised from
 // reports (the transcript comes later or never as free text).
 export const NEWS_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'marketwatch.com', 'yna.co.kr']);
+// v59.44 (first live run: 3 of 4 searches found nothing behind the paywalled wires): why a stock moved is also read
+// from open market desks and the Korean economic press (ten domains, the search body's limit). Company IR is left out:
+// a release does not report the reaction.
 export const REACTION_REPORT_DOMAINS = Object.freeze(['reuters.com', 'apnews.com', 'cnbc.com', 'marketwatch.com', 'finance.yahoo.com', 'investing.com',
   'barrons.com', 'yna.co.kr', 'hankyung.com', 'mk.co.kr']);
+// A watch line is an item to check, not an instruction; the producer and the renderer share it.
 export { watchItem } from '../content/reader-duty.js';
 
 // A line that only says the reason was not found is not a reason.
 export const isNoReasonText = (text) => /(찾지 못|확인하지 못|확인할 근거|뒷받침되지 않|확인되지 않|알 수 없|정리할 수 없|근거가 없|확인해 ?주지)/.test(String(text || ''));
+// v59.44 (10/30 live data): a reason stored before the outlet list changed can point at the company's own IR page or a
+// paywalled outlet ("회사 자료는 … 확인해 주지는 않습니다"); a stored reason is kept only from the current outlets.
 export function onReportDomain(url, domains = REACTION_REPORT_DOMAINS) {
   let host = '';
   try { host = new URL(String(url || '')).hostname.toLowerCase(); } catch { return false; }
@@ -74,6 +91,11 @@ export function normalizeSourceText(text) {
     .replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// v59.56 (X bookmarks 11/01 pipeline review): 289 items of the 59 briefs were dropped as number-not-in-source, and 129 of
+// them only for a period label — the year of a guidance line ("2026년 4분기 전망", "Q1 2027"), "3Q", or a reporting window
+// ("최근 12개월", "첫 9개월") the source writes in words ("trailing twelve months", "nine months ended"). Amazon's TTM free
+// cash flow (-$42.4B) and Intel's Q4 margin guidance were among them. A period label names when, not how much: a bare
+// year (no $, comma or decimal around it, no unit after it), nQ, and 3/6/9/12-month windows are skipped like Q3.
 const PERIOD_RE = /(?:(?<![\d,.$₩])(?:19|20)\d{2}(?![\d,.]|\s*(?:%|퍼센트|percent|bp|million|billion|trillion|억|조|만|천|백만|십억|달러|원|명|개|주|건|대|톤|kgU|lb)))|\b[1-4]Q\b|(?:최근|첫|지난|직전)\s*(?:3|6|9|12)\s*개월|(?<![\d.])(?:3|6|9|12)\s*개월(?=\s*(?:누계|기준|간|동안|합계|[$₩(,]))|\b(?:3|6|9|12)[- ]months?\b|\bTTM\b/gi;
 
 /** The numeric tokens of `text` (commas removed), quarter ordinals and period labels skipped. */
@@ -82,6 +104,9 @@ export function numberTokens(text) {
   return [...cleaned.matchAll(NUMBER_RE)].map((m) => m[0].replace(/,/g, '').replace(/\.$/, '')).filter((token) => token !== '');
 }
 
+// Call points written in Korean units ("2,200억 달러", "285억~335억 달러") were dropped against an English source
+// ("$220 billion", "$28.5 billion"). A dollar amount in 억 or 조 also counts as its billion form (억 ÷ 10, 조 × 1,000).
+// Only when the text names 달러, so a 억원 figure is never matched against a dollar one.
 function koreanDollarForms(text) {
   const forms = new Map();
   const raw = String(text ?? '');
@@ -114,6 +139,9 @@ export function unverifiedNumbers(text, numbers) {
 
 const squash = (text) => normalizeSourceText(text).toLowerCase();
 
+// v59.45 (pipeline review P21-NUMBER-01): the digits alone let "$5 million … declined 5 percent" stand behind "$5 billion,
+// 매출이 5% 증가". An amount's scale word and a change's direction must also agree with the quote. Still a check that the
+// item says what its quote says — not a parse of the accounts (period, GAAP basis and line item stay the model's reading).
 const SCALE_OF = Object.freeze({ trillion: 't', tn: 't', 조: 't', billion: 'b', bn: 'b', b: 'b', 십억: 'b', million: 'm', mn: 'm', m: 'm', 백만: 'm', 억: 'e', thousand: 'k', k: 'k', 천: 'k', 만: 'w' });
 const SCALED_RE = /(\d[\d,]*(?:\.\d+)?)\s*(trillion|billion|million|thousand|tn|bn|mn|조|십억|억|백만|천|만|[bmk](?![a-z]))/gi;
 function scaledAmounts(text) {
@@ -175,6 +203,7 @@ export function verifyFreeText(points, sourceText) {
 // The filing is a fixed form: unit line ("단위 : 백만원, %"), then per account a 당해실적 row with current, previous
 // quarter, QoQ %, (turn flag), year-ago, YoY %. Parsed directly — no AI touches these numbers.
 const DART_ACCOUNTS = Object.freeze([['revenue', '매출액'], ['operatingIncome', '영업이익'], ['pretaxIncome', '법인세비용차감전계속사업이익'], ['netIncome', '당기순이익']]);
+// Samsung files in 조원 with decimals ("195.25"); the table was read as integers in 백만원 only.
 const DART_UNITS = Object.freeze({ '원': 1, '천원': 1e3, '백만원': 1e6, '십억원': 1e9, '억원': 1e8, '조원': 1e12 });
 const DART_AMOUNT = '-?[\\d,]+(?:\\.\\d+)?';
 
@@ -210,6 +239,10 @@ export function formatKrw(value, unit = 1) {
   return `${sign}${Math.round(abs).toLocaleString('en-US')}원`;
 }
 
+// ---- vs expectations -------------------------------------------------------------------------------------------------
+// A reported figure is compared with the provider estimate only when its text parses to one amount.
+// v59.45 (pipeline review P21-AMOUNT-01): the whole text must be one amount — "$5 million to $6 million", a negative or
+// a bracketed loss, or an unknown unit is not compared (null). "bn"/"B", "mn"/"M", "tn"/"T", "K" are the usual short units.
 const USD_SCALE = Object.freeze({ trillion: 1e12, tn: 1e12, t: 1e12, billion: 1e9, bn: 1e9, b: 1e9, million: 1e6, mn: 1e6, mm: 1e6, m: 1e6, thousand: 1e3, k: 1e3, '': 1 });
 export function parseUsdAmount(value) {
   const m = String(value ?? '').replace(/,/g, '').trim().match(/^(?:US)?\$\s*(\d+(?:\.\d+)?)\s*([A-Za-z]*)\.?$/);
@@ -229,6 +262,11 @@ export function parseUsdPerShare(value) {
   return m ? (m[1] || m[2] ? -1 : 1) * Number(m[3]) : null;
 }
 
+// v59.59 (feature audit 2026-11-02, CCJ): a foreign private issuer's release (6-K / 40-F / 20-F exhibit) is often in its
+// home currency. Cameco's 'Revenue 619' is C$619 million; compared with the provider's USD-based consensus it printed
+// '예상 대비 −14.6%' under a reported "revenue beat". A domestic filing (8-K) is compared as before (its text may mention
+// the euro or the yen as an exposure); a foreign issuer's release is compared only when it is shown to be in US dollars:
+// a stated presentation currency, else US$-prefixed amounts outnumbering other-currency ones.
 export const FOREIGN_ISSUER_FORM = /\b(?:6-K|40-F|20-F)\b/;
 const CURRENCY_NAME = '(U\\.?S\\.?|United States|Canadian|Australian|New Taiwan|Hong Kong|Singapore|New Zealand)\\s+dollars?|euros?|Japanese yen|Swiss francs?|pounds sterling|renminbi';
 const PRESENTATION = new RegExp(`(?:\\b(?:in|of)\\s+(?:millions|thousands|billions)\\s+of|amounts?\\s+(?:are\\s+)?(?:in|expressed\\s+in|stated\\s+in|reported\\s+in|presented\\s+in))\\s+(?:${CURRENCY_NAME})`, 'i');
@@ -250,8 +288,15 @@ export function consensusComparable({ form = '', currency = null } = {}) {
   return !FOREIGN_ISSUER_FORM.test(String(form || '')) || currency === 'USD';
 }
 
+// The formula lives in shared/number.js; re-exported here for the producer and existing imports.
 export { surprisePct };
 
+// Which per-share amount the provider's EPS consensus (adjusted / non-GAAP by convention) is compared with.
+// The report's own "GAAP 기준" line beside an adjusted line printed two comparisons (LLY, EME), and a GAAP value whose
+// note named the adjusted amount was compared as is (INTC GAAP $0.60 read +50.2% against a $0.40 adjusted consensus;
+// the adjusted $0.52 is +30.1%). One rule: the brief's adjusted line if it has one (only that line is compared); else
+// an adjusted amount the line's own note names; a GAAP-labelled line alone is not compared; an unlabelled line (issuers
+// that report GAAP only, AMZN, GOOGL) is compared and says it is the reported basis. "조정 전" is the unadjusted figure.
 const ADJUSTED_RE = /non-?GAAP|비\s*GAAP|조정(?!\s*전)|adjusted/i;
 const GAAP_RE = /GAAP|보고 기준|reported|조정\s*전/i;
 const perShareValue = (value) => parseUsdPerShare(String(value ?? '').replace(/\s*per\s+(?:fully\s+)?(?:diluted\s+)?(?:common\s+)?share\b.*$/i, ''));
@@ -271,6 +316,15 @@ export function epsComparisonBasis(figure, figures = []) {
   return actual == null ? null : { actual, basis: 'reported' };
 }
 
+// v59.70 (refactor step 2, one surprise per report): the briefing line, the reaction read and the 오늘 earnings story
+// each derived the surprise their own way. AAPL read EPS +3.6% (GAAP $2.10, briefing) beside +1.1% (오늘), its annual
+// $479B revenue read +314.1% against the quarter's estimate, and TLN's GAAP $2.88 read −68.3% where the provider's
+// same-basis actual is −37.9%. One reader now: an annual line is not compared with a quarterly estimate; the EPS line
+// is chosen by epsComparisonBasis; the provider's own actual (the calendar row market-day facts read, stamped by the
+// producer as estimate.providerActual) is the compared amount when present, else the brief's.
+// The period test once covered annual revenue only — POWL's 연간 희석 EPS read +40.3% and RGTI's 첫 9개월 매출 −60.7%
+// beside the quarter's estimate. One classification for every metric: the label decides, else the quoted sentence when it
+// names one period only. A row that names no period is the release's headline period, the quarter.
 const CUMULATIVE_RE = /누적|반기|(?:첫|처음)\s*(?:6|9|여섯|아홉)\s*개월|(?:^|[^\d])[69]\s*개월|\bYTD\b|\byear[-\s]?(?<![A-Za-z])to(?![A-Za-z])[-\s]?date\b|(?:\bfirst\s+)?\b(?:six|nine|6|9)\s+months\b|\b(?:first|second)\s+half\b|\b[H][12]\b|\b9M\b/i;
 const QUARTER_RE = /분기|quarter|\bQ[1-4]\b|\b[1-4]Q\b|three\s+months|(?:^|[^\d])3\s*개월|13\s+weeks/i;
 const ANNUAL_RE = /연간|통년|회계연도|full[-\s]?year|annual|fiscal\s+year|twelve\s+months|(?:^|[^\d])12\s*개월|year\s+ended|\bFY\s?'?\d{0,4}\b/i;
@@ -337,6 +391,9 @@ export function figureSurprise(figure, figures = [], { provisional = false } = {
   return { pct, note: basis.basis === 'adjusted-in-note' ? `(조정 ${basis.amount} 기준)` : basis.basis === 'reported' ? '(보고 기준)' : '', basis: basis.basis };
 }
 
+// Release amounts and phrases copied in English ("$16.5 billion", "up 21%", "$1.89 per diluted share",
+// "3-3/4 to 4 percent") read in Korean units on screen. Display only — the stored figure keeps the source text the
+// parsers and gates read. Idempotent: a Korean string passes through unchanged.
 const trimZero = (text) => text.replace(/\.0$/, '');
 // A plain count in Korean scale words (1조 / 165억 / 25.2억 / 7,710만); `digits` widens the 억 decimals for a range.
 function scaleKorean(value, digits = 1) {
@@ -347,6 +404,7 @@ function scaleKorean(value, digits = 1) {
   return `${Math.round(value / 1e4).toLocaleString('en-US')}만`;
 }
 function usdKorean(usd) { return `${scaleKorean(usd)} 달러`; }
+// v59.56 (text pass): both ends of a range in one scale — '2.2억 to 2.2억' rounded two different figures to one.
 function scalePair(a, b) {
   for (const digits of [1, 2]) {
     const left = scaleKorean(a, digits), right = scaleKorean(b, digits);
@@ -421,6 +479,9 @@ export function estimateAiCostUsd({ inputTokens = 0, outputTokens = 0, searchCal
 
 // ---- selectors for 오늘 and 종목 --------------------------------------------------------------------------------------
 const DAY = 86400000;
+// The trademark, registered and service-mark signs (U+2122, U+00AE, U+2120) of a company's
+// release ('Scorpio', 'PCIe' in the 11/3 briefs) fall in Extended_Pictographic and can
+// draw as emoji glyphs; the producer drops them from every shown field, and a brief written before that is read the same way.
 const TRADE_MARKS = /[\u2122\u00AE\u2120]/g;
 export function withoutTradeMarks(value) {
   if (typeof value === 'string') return value.replace(TRADE_MARKS, '');
@@ -445,6 +506,7 @@ export function recentBriefs(artifact, { nowMs = Date.now(), days = 3, limit = 4
 /** The latest brief for one symbol (종목 page), within ~one quarter. */
 export function latestBriefFor(artifact, symbol, { nowMs = Date.now(), days = 100 } = {}) {
   const key = String(symbol || '').toUpperCase();
+  // v59.45 (pipeline review P21-TIME-01): the same gate as 오늘 — no pending brief, nothing published in the future.
   return briefsOf(artifact).filter((brief) => String(brief.symbol || '').toUpperCase() === key && brief.status !== 'pending'
     && publishedMs(brief) <= nowMs + 3600000 && nowMs - publishedMs(brief) <= days * DAY)
     .sort((a, b) => publishedMs(b) - publishedMs(a))[0] || null;
@@ -461,6 +523,8 @@ export function homeBriefTiers(artifact, { nowMs = Date.now(), coreLimit = 4, no
     .filter((brief, index, list) => brief.kind !== 'earnings' || !brief.symbol
       || list.findIndex((other) => other.kind === 'earnings' && other.symbol === brief.symbol && other.eventDate === brief.eventDate) === index);
   const within = (brief, days) => nowMs - publishedMs(brief) <= days * DAY;
+  // v59.44 (first live earnings week: 17 tier-1 lines): FOMC first; then the listed core names and moves of 15% or more,
+  // newest first (INTC -23% after hours ahead of a two-day-old GOOGL); then the other tier-1 reports by the size of the move.
   const rank = (brief) => (brief.kind === 'fomc' ? 0
     : Number(brief.tier) === 1 || MOVER_BY_SYMBOL[brief.symbol]?.tier === 1 || Math.abs(reactionPct(brief) ?? 0) >= 15 ? 1 : 2);
   const tier1 = live.filter((brief) => briefTier(brief) === 1 && within(brief, 3))
@@ -526,6 +590,8 @@ export function earningsReaction(bars, session, { settleSessions = 5, extended =
   const base = rows.filter(beforeOrOn).at(-1);
   const after = rows.filter((row) => !beforeOrOn(row));
   if (!base) return null;
+  // Until a regular session after the report has closed, the latest trade (extended hours or a session still open) is all
+  // there is.
   if (!after.length) {
     const atMs = Number(extended?.atMs);
     if (!(Number(extended?.price) > 0) || !Number.isFinite(atMs) || (Number.isFinite(releaseMs) && atMs < releaseMs)) return null;
@@ -533,6 +599,9 @@ export function earningsReaction(bars, session, { settleSessions = 5, extended =
   }
   const first = after[0];
   const latest = after.at(-1);
+  // v59.71 (owner 11/07 '거래량'): the first session's volume over the mean of up to 20 sessions before the report (rvol20's
+  // definition; at least 10 with a volume), so a 5% move on three times the usual turnover reads differently from one on
+  // ordinary volume. Null when the bars carry no volume.
   const prior = rows.filter(beforeOrOn).slice(-20).map((row) => Number(row.volume)).filter((v) => v > 0);
   const firstVolumeRatio = Number(first.volume) > 0 && prior.length >= 10 ? Math.round(first.volume / (prior.reduce((a, b) => a + b, 0) / prior.length) * 10) / 10 : null;
   return { basis: 'close', baseDate: base.date, baseClose: base.close, firstDate: first.date, firstPct: pctOf(first.close, base.close), firstVolumeRatio,
@@ -546,6 +615,8 @@ export function reactionText(reaction) {
   if (!reaction || !Number.isFinite(reaction.firstPct)) return null;
   const first = `발표 후 첫 거래일 ${signedPct(reaction.firstPct)}`;
   if (!(reaction.sessions > 1)) return first;
+  // v59.44 (X bookmarks 10/30, "3-day rule"): from the third session on, whether the move kept going after the first day
+  // or gave part of it back — the path, not a buy or sell signal.
   const gap = reaction.latestPct - reaction.firstPct;
   const path = reaction.sessions >= 3 && Math.abs(reaction.firstPct) >= 3 && Math.abs(gap) >= 1
     ? (Math.sign(gap) === Math.sign(reaction.firstPct) ? `, 첫날 뒤에도 더 ${reaction.firstPct < 0 ? '내림' : '오름'}` : `, 첫날 ${reaction.firstPct < 0 ? '낙폭' : '상승'} 일부 되돌림`) : '';
@@ -566,6 +637,8 @@ export function isKoreanHeadline(text) {
 export function briefHeadline(text, { nameKo, figures = [], sourceNumbers = null } = {}) {
   const value = String(text || '').trim();
   const generic = `${nameKo} 실적 발표`;
+  // v59.44 (first live run): a release title left in English inside a Korean line ("Fiscal First Quarter 2027 실적
+  // 발표") or an amount kept in the filing's thousands ("$1,902,418천") is rebuilt from the figures as well.
   const english = /[A-Za-z]{2,}(?:[\s-]+[A-Za-z]{2,}){2,}/.test(value);
   const rawUnit = /\$[\d,]+\s*천/.test(value);
   if (value && isKoreanHeadline(value) && value !== generic && !english && !rawUnit && (!sourceNumbers || !unverifiedNumbers(value, sourceNumbers).length)) return value;

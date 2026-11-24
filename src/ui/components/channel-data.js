@@ -1,3 +1,7 @@
+// v58.71 (owner 2026-10-23: "평소 우리가 놓칠 수 있는 핵심 주요 정보/데이터들"): the numbers the research channels relay —
+// economic releases against the forecast, target-price and rating actions, quarters against estimates, and the share
+// of leveraged long products in Korean retail net buying of US stocks — read from telegram-digest.json `signals`
+// (scripts/lib/telegram-signals.mjs). One visual (the leverage share by day), one reading, the rows in a fold.
 import { signalLine } from '../../domain/news/channel-lines.js';
 
 const el = (doc, tag, text, className) => {
@@ -41,6 +45,7 @@ export function channelDataModel(signals, { recentDays = 3 } = {}) {
   if (recentActions.length) {
     sentences.push(`${day(since)} 이후 목표주가 상향 ${recentActions.filter((s) => s.direction === 'raise').length}건, 하향 ${recentActions.filter((s) => s.direction === 'cut').length}건${recentReports.length ? `, 실적은 예상 상회 ${recentReports.filter((s) => !missed(s) && [s.revenue, s.eps].includes('beat')).length}곳, 하회 ${recentReports.filter(missed).length}곳` : ''}입니다.`);
   }
+  // An announced deal reprices both names and their chain, so the newest one is said on the face.
   const recentDeals = deals.filter(recent);
   if (recentDeals.length) sentences.push(`${day(recentDeals[0].date)} ${signalLine(recentDeals[0])}${recentDeals.length > 1 ? ` 외 ${recentDeals.length - 1}건` : ''}.`);
   if (retail[0]) {

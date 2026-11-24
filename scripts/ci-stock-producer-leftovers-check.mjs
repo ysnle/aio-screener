@@ -49,7 +49,7 @@ const { createFakeDocument } = await load('scripts/lib/fake-dom.mjs');
   check(/컨센서스는 10\/28 조사 당시 최근 4주 상향 32건/.test(outlookHost.textContent), 'v60.51 A5 쟁점과 전망 강세 읽기 dates its revision count', outlookHost.textContent.slice(0, 300));
 }
 
-// ── A7: SNDK 8-for-1 (2026-11-20), consensus row as Nasdaq published it on 11/23 ──
+// ── A7: SNDK 8-for-1, consensus row as Nasdaq published it on 11/23 ──
 {
   const { alignConsensusSplit, consensusBasisMismatch } = await load('src/domain/fundamental/consensus-basis.js');
   const { applyShareBasis } = await load('scripts/fetch-consensus-estimates.mjs');

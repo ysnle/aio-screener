@@ -1,4 +1,4 @@
-// The 시장 기울기 lean speaks a direction only where its backtest passed (owner 2026-11-15), and the backtest harness
+// The 시장 기울기 lean speaks a direction only where its backtest passed, and the backtest harness
 // reads the past the way a reader had it.
 //
 // Part 1 — label gate. Every lean surface (the 시장 상태 card as painted, its chip, the AI context line) is rendered over
@@ -75,7 +75,7 @@ for (const [name, verdict] of Object.entries(verdicts)) {
         // The Korea reference is never backtested, so it never carries a direction word.
         if ((!ok || surface === 'kr') && DIRECTION_WORD.test(text)) check(false, `v60.19 ${where}: ${surface} says a direction without a passing verdict — ${text.slice(0, 160)}`);
       }
-      // R724: no lean maps to a choice, passing verdict or not (one behaviour, market-lean.js).
+      // No lean maps to a choice, passing verdict or not (one behaviour, market-lean.js).
       check(!('choices' in model.us) && !/덜 불리한 선택/.test(texts.ai), `v60.19 ${where}: the lean carries a choice list`);
       if (!ok) {
         if (regime) check(/양호 \d · 중립 \d · 부담 \d/.test(model.us.label), `v60.19 ${where}: label is not the condition count (${model.us.label})`);
@@ -102,7 +102,7 @@ if (session && moduleArg <= 0) {
     bands: [{ id: 'normal', label: '15~20', horizons: { 21: { hitRate: 63, nEff: 136, n: 2856 } }, risk: { cases: 118, drawdownCases: 10, drawdownShare: 8.5 } }, { id: 'stress', label: '30~40', horizons: { 21: { hitRate: 60, nEff: 30 } }, risk: { cases: 21, drawdownCases: 6, drawdownShare: 28.6 } }, { id: 'panic', label: '40 이상', horizons: { 21: { hitRate: 70, nEff: 9.9 } }, risk: { cases: 7, drawdownCases: 3, drawdownShare: 42.9 } }] };
   const line = (vix, rec = record) => vixBandRiskLine(vixBandRecord(rec, vix));
   check(line(19.3)?.text === 'VIX 19.3(15~20 구간): 1990년 이후 이런 날 뒤 21거래일 안에 -5% 이상 빠진 경우 9% (겹치지 않는 사례 118개 중 10개, 평소 14%)', `v60.19 risk line beside the base rate and case count: ${line(19.3)?.text}`);
-  // v60.46: the share is taken on the non-overlapping cases it is printed beside — not on every overlapping day.
+  // The share is taken on the non-overlapping cases it is printed beside — not on every overlapping day.
   const { stressRiskSummary } = await import(pathToFileURL(path.join(ROOT, 'src/domain/market/signal/stress-outcomes.js')).href);
   const windows = Array.from({ length: 42 }, (_, i) => ({ index: i, drawdown: i < 5 ? -6 : -1, ret: i < 5 ? -6 : 2 }));
   const summary = stressRiskSummary(windows);

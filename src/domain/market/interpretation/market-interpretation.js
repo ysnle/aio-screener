@@ -1,3 +1,19 @@
+// Owner 2026-10-19 ("전체 구조 개편"): the one interpretation pipeline. Every surface that explains the market — 오늘,
+// 시장 상태, 거시, 테마, 브리핑, the AI chat, the server narrative and scenario-state.json — reads the same stages built
+// once, in one order, from one input object:
+//
+//   inputs → regime (six axes) → marketRead (briefing statements) → macroRead → curve (2s10s move) → events
+//          → crossroads (macro branches) → scenarios (structure flows) → rows → indexEarnings
+//          → groups (US theme strength) → outlook → playbook (theme stages) → guide (shared market guide) → flow
+// (P28-CONTRACT-01: the execution order; INTERPRETATION_STAGES below is the older declared list the boundary gate pins.)
+//
+// Before this module each surface assembled the chain itself with different inputs: the browser's crossroads skipped
+// the previous lead (a tie could name a different branch than the narrative), the briefing built it without the regime
+// (no breadth condition), and the outlook and theme playbook grouped the screener rows two different ways. Adapters
+// collect inputs (src/data/selectors/interpretation.js in the browser, scripts/lib/market-interpretation-inputs.mjs in
+// the producers); stage builders are called only here (scripts/ci-interpretation-boundary-check.mjs).
+//
+// Pure: no DOM, no I/O. A stage that throws is recorded in `errors` and later stages see null, never a partial object.
 import { buildMarketRead, buildMarketRegime } from '../../briefing/market-read.js';
 import { buildMacroRead } from '../../macro/macro-read.js';
 import { curveDynamics } from '../../macro/rates-fx.js';
@@ -60,6 +76,7 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const marketRead = stage('marketRead', () => buildMarketRead(inputs));
   const macroRead = stage('macroRead', () => buildMacroRead({ macro, macroHistory: inputs.macroHistory || null, regime: live, history: inputs.history, nowMs }));
   const breadthState = axisState(regime, 'breadth');
+  // v58.32 (expertise review 1): the 2s10s move (bull/bear, steepening/flattening, un-inversion) and index earnings.
   const curve = stage('curve', () => curveDynamics(inputs.macroHistory || null));
   const events = stage('events', () => upcomingMacroEvents({ releases: calendar?.releases || {}, schedules: calendar?.schedules || {}, nowMs })) || [];
   const crossroads = stage('crossroads', () => buildMacroCrossroads({ read: macroRead ? { ...macroRead, breadthState } : macroRead, macroHistory: inputs.macroHistory || null, history: inputs.history, events, outcomes, previousLeadId: previous?.crossroads?.leadId || null }));
@@ -68,6 +85,7 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
   const rows = screenerRows ? stage('rows', () => typedScreenerRows(screenerRows)) : null;
   const indexEarnings = earningsInput ? stage('indexEarnings', () => buildIndexEarnings({ rows: rows || [], now: nowMs, ...earningsInput })) : null;
   const groups = rows ? stage('groups', () => buildGroupStrength({ themes: themeMaps?.usThemes || [], rows, sortKey: 'ret3m', now: nowMs }).groups || []) : null;
+  // X03: "현재 주도" may name only themes measured on the latest completed session.
   const leadingThemes = (groups || []).filter((group) => group.ret3m != null && group.rankable !== false && group.current)
     .map((group) => ({ name: group.name || group.subTheme || group.id, ret3m: group.ret3m, themeId: group.themeId || null }));
   const outlook = scenarios?.available ? stage('outlook', () => buildScenarioOutlook({ scenarios, regime, sectors: outlookSectors(rotationHistory, nowMs), themes: leadingThemes })) : null;
@@ -76,6 +94,7 @@ export function buildMarketInterpretation({ market = {}, macro = null, calendar 
     crossroads, credit: axisState(regime, 'credit'), outcomes, labels: themeMaps?.labels || {}, history: inputs.history
   })) : null;
   const guide = regime ? stage('guide', () => buildMarketGuide({ regime, outlook, crossroads, curve, indexEarnings, nowMs })) : null;
+  // Where the session's money went — sectors, sub-themes, the 10-year yield and fear.
   const flow = rotationHistory ? stage('flow', () => buildMarketFlow({ rotationHistory, history: inputs.history, themes: themeMaps?.usThemes || null, rows, nowMs })) : null;
   return { version: INTERPRETATION_VERSION, asOf: regime?.asOf || null, nowMs, inputs, regime, marketRead, macroRead, curve, indexEarnings, events, crossroads, scenarios, groups, outlook, playbook, guide, flow, errors };
 }

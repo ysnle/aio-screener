@@ -5,14 +5,14 @@ import { round } from '../lib/producer-math.mjs';
 import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { _fetchRss } from '../lib/producer-http.mjs';
 
-// 2026-10-13 F01/F02: Yahoo's KRX daily close is often not the exchange close (closing call auction not
+// Yahoo's KRX daily close is often not the exchange close (closing call auction not
 // reflected — 005930 2026-10-08 262,000 vs 263,000; 14 of the last 26 sessions differed by up to 2.3%), and
 // a session it lists with an empty close (KRX 2026-10-12) froze every KR row on the prior session. The
 // exchange daily series redistributed by the KR portal keeps the same volumes and split basis, so its
 // close/high/low replace Yahoo's on matching dates and fill the empty sessions. Yahoo's adjusted/raw
 // ratio is carried onto the corrected close so dividend adjustment is unchanged. If the series is
 // missing or disagrees beyond a corporate-action-sized gap, Yahoo values stay and the gap stays listed.
-// Screen audit 2026-10-20: from 2026-09-14 the portal series carries the merged KRX + Nextrade last price (after-market
+// From 2026-09-14 the portal series carries the merged KRX + Nextrade last price (after-market
 // until 20:00), not the KRX close — SK hynix 10/20 1,190,000 against the KRX close 1,223,000 that the index and the wire
 // use, and the portal's own day change (−87,000) is taken from the KRX close 1,277,000, not from its 10/19 row 1,304,000.
 // Replacing closes moved 24 of the last 25 sessions per stock off the KRX close and turned a −4.2% day into −7.1%.

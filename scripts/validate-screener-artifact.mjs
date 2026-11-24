@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 import { readNumber } from '../src/domain/shared/number.js';
 import { LATEST_SESSION_VOLUME_BASIS } from '../src/domain/screener/price-factors.js';
 import { rowFactContractErrors } from '../src/domain/screener/row-facts-contract.js';
@@ -27,7 +27,7 @@ const currentFactorRows = rows.filter(row => {
 if (!Number.isInteger(universe) || universe < 100) errors.push('universe must be an integer >= 100');
 if (!Number.isInteger(ok) || ok !== rows.length) errors.push(`ok must equal data row count (${ok} != ${rows.length})`);
 if (universe > 0 && ok / universe < 0.8) errors.push(`coverage below 80% (${ok}/${universe})`);
-// v59.46 R3-05: rows carried per symbol (rowsRetained) are not this run's reads — fetch coverage counts read rows plus
+// R3-05: rows carried per symbol (rowsRetained) are not this run's reads — fetch coverage counts read rows plus
 // rows of a market kept whole (marketRetained), so a carry cannot lift a failing run over the floor.
 {
   const keptMarkets = new Set(Object.keys(payload.marketRetained && typeof payload.marketRetained === 'object' ? payload.marketRetained : {}));
@@ -46,7 +46,7 @@ if (!breadth || !breadth.all || !breadth.us || !breadth.kr) errors.push('all/us/
 for (const key of ['all', 'us', 'kr']) {
   const segment = breadth && breadth[key];
   if (!segment) continue;
-  // v58.71: a market kept from the last publish (marketRetained) carries its own segment; the mixed `all` segment then
+  // A market kept from the last publish (marketRetained) carries its own segment; the mixed `all` segment then
   // counts only the fetched markets, so its coverage is not judged. Every other key still needs 80%.
   const retainedMarkets = payload.marketRetained && typeof payload.marketRetained === 'object' ? Object.keys(payload.marketRetained) : [];
   if (segment.retained && !(segment.retained.from && retainedMarkets.includes(key.toUpperCase()))) errors.push(`${key} breadth is retained without a matching marketRetained entry`);
@@ -55,7 +55,7 @@ for (const key of ['all', 'us', 'kr']) {
   if (!segment.observedAt || !Number.isFinite(new Date(segment.observedAt).getTime())) errors.push(`${key} breadth observedAt missing`);
 }
 if (!contract || contract.allowedUse !== 'research-relative-ranking-only' || contract.tradingSignal !== false) errors.push('research-only ranking contract missing');
-// v60.26: the latest-session volume basis (producers write LATEST_SESSION_VOLUME_BASIS); artifacts before v60.26 carry none.
+// The latest-session volume basis (producers write LATEST_SESSION_VOLUME_BASIS); artifacts before v60.26 carry none.
 if (payload.volumeBasis !== undefined) {
   const basis = payload.volumeBasis;
   if (!basis || basis.latestSession !== LATEST_SESSION_VOLUME_BASIS.latestSession || !Array.isArray(basis.markets) || !Array.isArray(basis.fields)
@@ -66,7 +66,7 @@ if (mixedRevision && (!contract || contract.allowedUse !== 'research-relative-ra
 if (fundamentalRows.some(row => !row.fundamentalSource || !row.fundamentalModel || !row.fundamentalObservedAt || !Number.isFinite(new Date(row.fundamentalObservedAt).getTime()))) errors.push('fundamental rows require source/model/observedAt lineage');
 if (payload.fundamentalCount != null && Number(payload.fundamentalCount) !== fundamentalRows.length) errors.push(`fundamentalCount mismatch (${payload.fundamentalCount} != ${fundamentalRows.length})`);
 
-// v58.56 (#6): the back-test's per-date spread arrays (사후 검증 draws one bar per rebalance) must line up with spreadDates,
+// The back-test's per-date spread arrays (사후 검증 draws one bar per rebalance) must line up with spreadDates,
 // sit inside rebalanceDates, and average back to the published means. Absent arrays (artifacts before v58.56) are allowed.
 const backtest = payload && payload.backtest;
 if (backtest && Array.isArray(backtest.spreadDates)) {
@@ -86,12 +86,12 @@ if (backtest && Array.isArray(backtest.spreadDates)) {
 
 for (let i = 0; i < rows.length; i++) {
   const row = rows[i];
-  // P715: raw per-symbol price must NOT be published (redistribution posture) - derived-only artifact.
+  // Raw per-symbol price must NOT be published (redistribution posture) - derived-only artifact.
   if (row && 'price' in row) { errors.push(`row ${i} publishes raw price (forbidden since P715)`); break; }
   if (!row || (readNumber(row.ret1m) == null && readNumber(row.rsi) == null)) { errors.push(`row ${i} has no derived factors`); break; }
   if (!row.observedAt || !Number.isFinite(new Date(row.observedAt).getTime())) { errors.push(`row ${i} has invalid observedAt`); break; }
 }
-// v60.28: the margin/revenue-growth basis and the dividend facts (src/domain/screener/row-facts-contract.js).
+// The margin/revenue-growth basis and the dividend facts (src/domain/screener/row-facts-contract.js).
 for (const [sym, row] of Object.entries(payload.data || {})) {
   const problems = rowFactContractErrors(row || {});
   if (problems.length) { errors.push(`row ${sym}: ${problems.join('; ')}`); break; }

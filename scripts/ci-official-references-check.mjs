@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1734: contract + fixture gate for the automated official-reference lane.
+// Contract + fixture gate for the automated official-reference lane.
 // Real lane functions run against an injected fetch that serves a fake Worker answer and fake official
 // page bodies, so nothing here calls AI or an official site. Proves: the search request stays inside the
 // Worker budget contract, only page-confirmed values are published, failures keep the last verified value

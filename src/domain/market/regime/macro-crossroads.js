@@ -1,3 +1,12 @@
+// The forward view as a general engine, not a set of named examples.
+//   signals  — every macro/market observation the branches can test, computed once from published artifacts
+//   BRANCHES — a registry of macro paths; each is data: rule conditions, a cause→effect chain, exposure tags it
+//              strengthens/weakens (themes inherit these through src/domain/scenarios/exposures.js), release
+//              triggers that can be scored automatically when the data lands, a market-pricing line, and the
+//              reader's four choices with their opportunity cost and the relatively favoured one.
+// Likelihood has three evidence lines only (AGENTS 2026-10-13): met-condition count, the direction market prices
+// lean, and past frequency (long history from scenario-outcomes.json when published, else AIO's own closes) with its
+// sample size. Never a probability percentage, a price, a size, a date to act or a named stock.
 import { CHOICE_WORDS } from '../../content/choice-words.js';
 import { dollarRiseBurden } from '../../briefing/market-read.js';
 import { buildCloseSeries, sessionPointBack } from '../session/close-series.js';
@@ -19,12 +28,17 @@ const JOB = RULES.payrollPrintK; // one month's print lines, shared with the rel
 const P = RULES.policy;
 const L = RULES.leadership;
 const last = (series) => series.length ? series[series.length - 1] : null;
+// "20거래일" counts open sessions like 시장 상태 and 매크로 (sessionPointBack), not array slots — a gap
+// in the record made WTI read -7.2% here and -11.4% there on the same day.
 const changeOver = (series, n) => { const back = sessionPointBack(series, n); return back ? series[series.length - 1].value - back.value : null; };
 const pctOver = (series, n) => { const back = sessionPointBack(series, n); return back?.value ? (series[series.length - 1].value / back.value - 1) * 100 : null; };
 const fmt = (value, digits = 1) => value == null ? '—' : value.toFixed(digits);
 const signed = (value, digits = 1, unit = '') => signedText(value, digits, unit);
+// A change in a yield or a yield spread is written in bp everywhere (briefing already did: 10년물 +28bp).
 const bpChange = (value) => value == null ? '—' : signed(value * 100, 0, 'bp');
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+// v58.74 (text audit A3): event dates use one time base, the schedule's KST clock (FOMC 10/28 14:00 ET is 10/29 03:00 KST);
+// an id without a known release time keeps its calendar date.
 export function eventWhenText(event) {
   if (!event?.date) return '';
   const ms = releaseAtMs(event.id, event.date);
@@ -40,8 +54,13 @@ export const CHOICES = Object.freeze({
   defend: '방어 전환'
 });
 
+// Which present structure (src/domain/market/regime/regime-scenarios.js) a branch tends to push the market toward — the bridge
+// from "지금 구조" to "향후 시나리오".
+// One count word list for 매크로 and 홈 ("두 시나리오" was hard-coded beside "시나리오가 셋").
 export const COUNT_WORDS = Object.freeze(['', '하나', '둘', '셋', '넷', '다섯', '여섯', '일곱', '여덟']);
 
+// FRED dates a target-range change by its effective day, the session after the FOMC decision
+// ('연준 9/17 인상' for the 9/16 decision); the reading names the decision day.
 export function fomcDecisionDate(effectiveDate) {
   const at = Date.parse(`${String(effectiveDate || '').slice(0, 10)}T00:00:00Z`);
   return Number.isFinite(at) ? new Date(at - 86400000).toISOString().slice(0, 10) : effectiveDate || null;
@@ -53,6 +72,7 @@ export function upcomingMacroEvents({ releases = {}, schedules = {}, nowMs = Dat
   const today = new Date(nowMs).toISOString().slice(0, 10);
   const horizon = new Date(nowMs + horizonDays * 86400000).toISOString().slice(0, 10);
   const alias = { 'us-fomc': 'us-fed-rate' }; // the official FOMC page and the policy-rate release share one date set
+  // Codex audit F07: a release later today is still next; one whose release time has passed is not.
   const notYet = (id, date) => { const at = releaseAtMs(id, date); return Number.isFinite(at) ? at > nowMs : date >= today; };
   const out = new Map();
   for (const [rawId, dates] of Object.entries(schedules || {})) {
@@ -79,6 +99,7 @@ export function releaseActuals(macroHistory) {
     const u = unemployment.length > 1 && last(unemployment).date === last(payrolls).date ? last(unemployment).value - unemployment[unemployment.length - 2].value : null;
     const wageMoM = wages?.date === last(payrolls).date ? wages.value : null;
     out['us-nfp'] = { period: last(payrolls).date, payroll: last(payrolls).value - payrolls[payrolls.length - 2].value, unempDelta: u, wageMoM,
+      // v59.45 (P17-RELEASE-01): a part of the same report not yet in the history keeps the release pending (scored when it arrives).
       missing: [u == null ? 'unemployment' : null, wageMoM == null ? 'hourlyEarnings' : null].filter(Boolean) };
   }
   const pce = mom('corePceIndex');
@@ -91,6 +112,7 @@ export function releaseActuals(macroHistory) {
   return out;
 }
 
+// Wording audit: payrolls arrive in thousands and read in 만 명 (51 -> +5.1만 명), like briefing/schedule.js.
 const manPeople = (thousands, sign = false) => { if (!has(thousands)) return '—'; const v = Number((Math.abs(thousands) / 10).toFixed(1)); return thousands === 0 ? '0명' : `${thousands < 0 ? '-' : sign ? '+' : ''}${v.toLocaleString('en-US')}만 명`; };
 const ACTUAL_TEXT = {
   'us-cpi': (a) => `근원 CPI 전월 대비 ${signed(a.coreMoM, 2, '%')}${a.headMoM != null ? `, 전체 CPI ${signed(a.headMoM, 2, '%')}` : ''}`,
@@ -117,15 +139,19 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   const oil20 = pctOver(wti, 20);
   const oilVsYear = wti.length >= 120 ? (last(wti).value / (wti.slice(-250).reduce((sum, p) => sum + p.value, 0) / Math.min(250, wti.length)) - 1) * 100 : null;
   const hy20 = changeOver(hy, 20);
+  // v57.75 (US scenario audit): 10y − 2y paired by date (bear steepening); v59.70: SOXX against the S&P 500 is
+  // the AI-leadership measure (it was the Nasdaq-100, with SMH beside it).
   const d2ByDate = new Map(mh('dgs2').map((row) => [row.date, row.value]));
   const curve2s10s = mh('dgs10').filter((row) => d2ByDate.has(row.date)).map((row) => ({ date: row.date, value: row.value - d2ByDate.get(row.date) }));
   const spx20 = pctOver(spx, 20), soxx20 = pctOver(soxx, 20);
   // Brent beside WTI (buildMacroRead().oil → brentWtiCheck): an abnormal same-day gap is never compared.
   const oilCheck = read?.oil && !read.oil.abnormal ? read.oil : null;
+  // One Brent/WTI rule for every oil read — a held pair makes every WTI-based condition 확인 불가.
   const oilDiv = read?.oil ? oilDivergence(read.oil, { wti20: finite(read.oil.wti20) ?? oil20 }) : { held: false, kind: null, text: null };
   const bothOil = (test) => { const b20 = finite(oilCheck?.brent20); if (!has(oil20) || b20 == null) return null; const a = test(oil20); return a === test(b20) ? a : null; };
   const oilYear = last(wti) ? wti.filter((row) => Date.parse(row.date) >= Date.parse(last(wti).date) - 365 * 86400000).map((row) => row.value) : [];
   const wtiPosition = oilYear.length > 20 ? (last(wti).value - Math.min(...oilYear)) / ((Math.max(...oilYear) - Math.min(...oilYear)) || 1) : null;
+  // A "rose / widened" condition counts only past 0.5 sd of that series' own n-period changes.
   const spxByDate = new Map(spx.map((row) => [row.date, row.value]));
   const soxxRatio = soxx.filter((row) => spxByDate.get(row.date)).map((row) => ({ date: row.date, value: row.value / spxByDate.get(row.date) }));
   const bands = {
@@ -134,6 +160,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     hy20: changeBand(hy, 20, { scale: 100 })?.band, cccGap20: changeBand(gap, 20)?.band, tnx20: changeBand(tnx, 20)?.band,
     nfci4: changeBand(nfci, 4, { window: 52 })?.band, soxxRel20: changeBand(soxxRatio, 20, { kind: 'pct' })?.band
   };
+  // The shared PCE·CPI direction from the 매크로 inflation axis (same flag as the quadrant).
   const inflationDir = inflation.direction || null;
   // The core CPI pace pairs with the year-over-year rate of its own month; a missing year-ago row leaves the pair empty.
   const coreCpiPaceRow = annualised3m(mh('coreCpiIndex'));
@@ -148,22 +175,26 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     curve20: changeOver(mh('t10y3m'), 20), curve2s10s20: changeOver(curve2s10s, 20), realYield20: changeOver(mh('realYield10'), 20), hy20: hy20 == null ? null : hy20 * 100,
     cccGap20: changeOver(gap, 20), nfci: finite(last(nfci)?.value), hyBp: finite(last(hy)?.value) == null ? null : last(hy).value * 100, nfci4: changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays)?.value ?? null, bands,
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
+    // v57.86 (live review): a held pair still answers a test both 20-session moves pass — only a split answer is 확인 불가.
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
     tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: all(soxx20, spx20) ? soxx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
+    // The policy path — last target change and the 3-month bill (10y − (10y-3m)) against the range.
     policy: (() => {
       const fed = mh('fedTargetUpper'), d10 = mh('dgs10'), c = mh('t10y3m');
       if (fed.length < 2) return null;
       let i = fed.length - 1; while (i > 0 && fed[i - 1].value === fed[i].value) i -= 1;
       const cByDate = new Map(c.map((row) => [row.date, row.value]));
       const pair = [...d10].reverse().find((row) => cByDate.has(row.date));
+      // v58.74 (text audit #25): the lower bound is read, not assumed 25bp below the upper.
       const lowerRow = last(mh('fedTargetLower'));
       return { upper: last(fed).value, lower: lowerRow?.value ?? last(fed).value - 0.25, changeDate: i > 0 ? fomcDecisionDate(fed[i].date) : null, change: i > 0 ? fed[i].value - fed[i - 1].value : 0,
         bill: pair ? pair.value - cByDate.get(pair.date) : null, billDate: pair?.date || null };
     })(),
     commodities: axis('commodities')?.state || 'unknown', breadth: read?.breadthState ?? null,
+    // 2026-10-19 screen audit: the regime's leadership break (trend axis, briefing headline) — null when the read carries none.
     leadershipBreak: read?.leadership?.available ? !!read.leadership.break : null,
     asOf: [growth.sahm?.date, inflation.pace?.date, last(tnx)?.date].filter(Boolean).sort().at(-1) || null
   };
@@ -176,6 +207,7 @@ const leanPricing = (want, note = '') => (s) => {
   const tone = s.lean === want ? 'same' : s.lean === 'hold' ? 'neutral' : 'against';
   return { tone, text: `2년물−기준금리 ${signed(s.pricing, 2, '%p')} (${s.lean === 'hike' ? '금리 상단 쪽' : s.lean === 'cut' ? '금리 하단 쪽' : '동결 부근'}${note && s.lean === want ? note : ''})` };
 };
+// A market move inside its dead zone (0.5 sd of the series' own n-period changes) is 중립, not a direction.
 const bandText = (band, unit, digits) => (band == null ? '' : unit === '%p→bp' ? `±${Math.round(band * 100)}bp` : `±${band.toFixed(digits)}${unit}`);
 const deltaPricing = (key, label, unit, digits, wantUp) => (s) => {
   const value = s[key];
@@ -190,11 +222,19 @@ const deltaPricing = (key, label, unit, digits, wantUp) => (s) => {
 // Dead-zone tests for the ">0" conditions: true only past the band, false otherwise, null without a value.
 const rose = (s, key) => (has(s[key]) ? bandDirection(s[key], s.bands?.[key]) === 'up' : null);
 const RATES_RISE = RULES.rates.move20dBp / 100; // the 시장 상태 rates axis threshold (25bp), in % units
+// v57.84 (macro threshold consolidation): condition labels print the RULES value they test, so a label cannot drift from its rule.
 const OIL_SURGE_LABEL = `유가 급등 (WTI 20거래일 +${RULES.oil.rise20dPct}% 이상 또는 1년 평균 대비 +${RULES.oil.aboveYearAvgPct}% 이상)`;
 const V = RULES.volatility;
 
+// v57.69 (2026-10-15 crash audit): 물가 둔화 was read on core PCE alone, a month behind CPI — the hot September CPI
+// (core 3-month pace above its year) still counted as disinflation and kept 'softland' in the lead. Both core
+// measures must be at or below their own 1-year pace; either one accelerating is not disinflation.
+// Both branches and the 매크로 quadrant read one flag — core PCE and core CPI must agree past the 0.5pp step,
+// each on its newest release (macro-signals inflationDirection). Signals without the read derive it from the same fields.
 const inflationOf = (s) => s.inflationDir || inflationDirection({ pce: all(s.corePace, s.coreYoy) ? { pace: s.corePace, yoy: s.coreYoy } : null, cpi: all(s.coreCpiPace, s.coreCpiYoy) ? { pace: s.coreCpiPace, yoy: s.coreCpiYoy } : null });
 const inflationIs = (want) => (s) => { const d = inflationOf(s); return d.state === 'unknown' ? null : d.dir === want; };
+// v59.45 (P18-INFLATION-01): v57.69 lets one published measure decide when the other is missing; the condition then says
+// which one it read instead of "PCE·CPI 모두" (one measure was shown as a two-measure cross-check).
 const inflationLabel = (word, pace) => (s) => {
   const d = inflationOf(s);
   const only = d.single ? (d.pce ? '근원 PCE' : '근원 CPI') : null;
@@ -203,6 +243,8 @@ const inflationLabel = (word, pace) => (s) => {
 };
 const disinflating = inflationIs('down');
 
+// v57.91 (owner X-bookmark item pass 2026-10-16): per branch, what to check next and what would show the reading is
+// wrong. Reference text only — no condition, gate, count or ranking reads it; it travels with the item to the AI context.
 export const BRANCH_NOTES = Object.freeze({
   reheat: { checks: ['메모리·전자기기 가격 급등이 상품 물가로 번지는지(인하를 늦추는 경로)', '생산성 기대가 실현 전에 지출을 늘려 수요 물가를 먼저 만드는지 — 생산성 지표가 실제로 확인되는지', '은행 대출·광의통화 가속과 유가 충격이 겹치는지(1970년대형 조합)'],
     invalidation: ['장기 기대인플레가 안정되고 유가가 빠르게 되돌림', '설비투자발 가격 상승이 서비스·임금으로 번지지 않음(공급 효과 우세)'] },
@@ -219,6 +261,7 @@ export const BRANCH_NOTES = Object.freeze({
   reflation: { checks: ['설비가동률 상승이 생산 확대·설비투자를 동반하는지, 특정 병목의 가격 급등인지'],
     invalidation: ['가동률 상승과 함께 근원 물가·임금이 넓게 가속함(물가 재가속 시나리오 쪽)'] },
   aibust: { checks: ['토큰을 전력으로 환산한 수요 대 발표된 데이터센터 파이프라인 × 실제 전환율', '분산·혼합 세대 학습의 상용 채택과 대형 수요자의 부지·계획 축소', '금리 하락이 설비투자 삭감·주문 감소·신용 스트레스와 함께 오는지(나쁜 금리 하락)', 'AI 연계 회사채 스프레드와 공급자-고객 지분 순환 비중', '좋은 실적 뒤 업종 급락이 반복되는지',
+      // v59.56 (X bookmarks 11/01): the 10/30 authors read the drop as "who funds AI capex, on what terms" — four gauges together.
       '네 계기판이 같은 쪽인지 — 이익 추정치 상향·하향 종목 수, 하이일드·CCC의 60거래일 분화(투자등급은 그대로인데 하위 등급만 넓어지는지), 빅테크 설비투자 ÷ 영업현금흐름, 이익 없는 상장과 상장 첫날 수익률'],
     invalidation: ['토큰 단가 하락보다 사용량 증가가 빨라 총지출이 늘어남', 'AI는 성공하지만 투자가 가벼워지는 경로 — 꺾임이 아니라 하드웨어에서 소프트웨어로 주도 이동', '가격이 무너져도 남은 인프라가 생산성을 올리는 생산적 버블 경로', '제도 관성과 정책 대응이 노동 대체 속도를 늦춤',
       '이익 전망 하향이 넓어지지 않고 하이일드가 안정되며 동일가중 지수가 버팀 — 강세장의 끝이 아니라 주도주가 다른 업종으로 넘어가는 중'] },
@@ -264,6 +307,8 @@ export const BRANCHES = Object.freeze([
     costly: ['stage'],
     explore: [['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지'], ['themes', '테마와 섹터', '방어 업종의 상대강도']] },
   { id: 'oilshock', shape: 'concentration', axes: ['commodities'], title: '유가 충격 — 물가와 성장이 함께 부담받는 시나리오',
+    // The oil surge is the gate; each condition is its own channel — the shared 유가·달러 state (fired by the
+    // dollar) became the WTI 1-year range, breakevens count past their dead zone, and the survey is ranked on its own record.
     gate: [0], conditions: [[OIL_SURGE_LABEL, (s) => s.oilSurging], ['10년 기대인플레이션 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'breakeven20')],
       [(s) => `소비자심리가 최근 3년 기록의 하위 ${MACRO_SIGNAL_RULES.sentimentLowPct}%${s.sentimentRank ? ` (${s.sentimentRank.month} ${s.sentimentRank.value.toFixed(1)}${s.sentimentRank.percentile == null ? '' : `, 하위 ${Math.round(s.sentimentRank.percentile)}%`})` : ''}`, (s) => s.sentimentRank?.percentile == null ? null : s.sentimentRank.percentile <= MACRO_SIGNAL_RULES.sentimentLowPct],
       [`유가가 1년 범위 상단 (WTI 1년 범위 ${RULES.oil.rangeHighAt * 100}% 이상)`, (s) => s.oilHeld || !has(s.wtiPosition) ? null : s.wtiPosition >= RULES.oil.rangeHighAt]],
@@ -276,6 +321,7 @@ export const BRANCHES = Object.freeze([
     costly: ['stage'],
     explore: [['fxbond', '금리와 환율', '기대인플레이션과 10년물이 유가를 따라 오르는지'], ['themes', '테마와 섹터', '에너지 업종의 상대강도']] },
   { id: 'creditstress', shape: 'weakness', axes: ['credit'], title: '신용 경색 — 돈줄이 마르는 시나리오',
+    // v57.86 (live review): the gate is the level alone — the 부담 axis also fires on a fast 20-session move, so 325bp led '돈줄이 마르는'.
     gate: [1], conditions: [['신용 지표 부담 (하이일드 스프레드 높음 또는 빠른 확대)', (s) => s.credit === 'unknown' ? null : s.credit === 'burden'], [`스프레드 수준이 부담 구간 (하이일드 ${RULES.credit.stressAtBp}bp 이상 또는 금융여건지수 0 초과)`, (s) => has(s.hyBp) || has(s.nfci) ? (has(s.hyBp) && s.hyBp >= RULES.credit.stressAtBp) || (has(s.nfci) && s.nfci > 0) : null] /* v57.84: the +50bp 20-session test implied condition 0, so one move counted twice and 325bp with NFCI -0.5 read 4/4 '돈줄이 마르는' */, ['가장 약한 등급(CCC)과 B 등급 격차 20회 관측 확대 (평소 변동 범위 밖)', (s) => rose(s, 'cccGap20')], ['금융여건지수(NFCI) 4주 전보다 긴축 방향 (평소 변동 범위 밖)', (s) => rose(s, 'nfci4')]],
     chain: ['신용 스프레드 확대', '약한 기업부터 차환·조달 곤란', '투자·고용 축소', '이익 하향 + 위험 회피', '주가 하락이 신용 위험으로 번짐'],
     firmer: ['defensive'], weaker: ['financials', 'liquidity', 'cyclical', 'growth', 'consumer'],
@@ -305,6 +351,11 @@ export const BRANCHES = Object.freeze([
     favored: ['hold', 'stage'], favoredWhy: '금리 상승이 성장 기대 때문이라면 이익이 함께 늘어 주가가 버티는 경향이 있습니다 — 물가 때문인 금리 상승과 구분합니다.',
     costly: ['wait', 'defend'],
     explore: [['themes', '테마와 섹터', '경기민감·금융 업종 개선'], ['screener', '스크리너', '이익 추정이 오르는 후보']] },
+  // v57.75 (owner 2026-10-15, US thesis; US scenario audit): the AI-capex cycle had no branch — semiconductor, AI infra,
+  // photonics and KR memory were judged only through growth/cyclical tags. v59.70: SOXX lagging the S&P 500 by
+  // RULES.leadership.aiLagSemis20dPp over 20 sessions is the measured AI-leadership test (the Nasdaq-100 3pp and SMH 8pp lags before).
+  // 2026-10-19 screen audit: so does the regime's leadership break — the briefing named the AI-leader correction the central
+  // variable while this gate (20-session lags only) stayed shut and the home and AI text led with the 2/4 oil branch.
   { id: 'aibust', shape: 'weakness', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — 이익과 고용이 함께 식는 시나리오',
     gate: [0], conditions: [[`반도체(SOXX)가 S&P 500보다 20거래일 ${L.aiLagSemis20dPp}%p 이상 뒤처짐, 또는 시장 상태의 주도 영역 이탈 확인 (AI 주도 약화)`, (s) => s.leadershipBreak === true || (has(s.soxxRel20) && s.soxxRel20 <= -L.aiLagSemis20dPp) ? true : has(s.soxxRel20) || s.leadershipBreak === false ? false : null], ['일자리 3개월 평균이 그 전 3개월보다 적음', (s) => all(s.payroll3, s.payrollPrior3) ? s.payroll3 < s.payrollPrior3 : null], [`하이일드 스프레드 20회 관측 +${RULES.credit.widen20dBp}bp 이상 확대`, (s) => has(s.hy20) ? s.hy20 >= RULES.credit.widen20dBp : null], [`실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsWatchAbovePct}% 이상 높음`, (s) => has(s.claimsUp) ? s.claimsUp >= G.claimsWatchAbovePct : null]],
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
@@ -315,7 +366,10 @@ export const BRANCHES = Object.freeze([
     favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 진입은 하향이 이어질 때의 하락을 떠안고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
     costly: ['stage'],
     explore: [['themes', '테마와 섹터', '반도체·AI 인프라 테마의 단계와 약화 신호'], ['signal', '시장 상태', '하이일드 스프레드와 시장 폭이 함께 나빠지는지']] },
+  // The owner's US chain (recession → cuts and deficit spending → long rates up) as a measurable branch —
+  // the 10-year rising on term premium and real yield, not on inflation expectations, with the 2s10s widening.
   { id: 'fiscalsteep', shape: 'weakness', axes: ['rates', 'policy'], title: '장기 금리 상승 — 정책이 받쳐도 할인율이 오르는 시나리오',
+    // "10년물 상승" uses the 시장 상태 rates threshold (RULES.rates, 25bp) — +18bp read 충족 here and 중립 there.
     gate: [0], conditions: [[`10년물 20거래일 +${RULES.rates.move20dBp}bp 이상(시장 상태 금리 기준), 기대인플레이션 변화보다 10bp 이상 더 오름`, (s) => all(s.tnx20, s.breakeven20) ? s.tnx20 >= RATES_RISE && s.tnx20 - s.breakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'termPremium20')], ['10년-2년 금리차 20회 관측 확대 (장기 쪽이 더 오름, 평소 변동 범위 밖)', (s) => rose(s, 'curve2s10s20')], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
     chain: ['경기 대응 재정 지출, 국채 발행 증가', '기간 프리미엄 상승', '정책금리는 그대로거나 내려도 10년물 상승', '할인율 상승 → 이익이 그대로여도 가치 하락', '고PER 성장주·배당주 부담'],
     firmer: [], weaker: ['growth', 'yield', 'liquidity', 'consumer'], mixed: ['financials', 'dollar'],
@@ -338,6 +392,8 @@ export const BRANCHES = Object.freeze([
     explore: [['sentiment', '투자 심리', 'VIX·단기 불안 비율·심리 지표'], ['signal', '시장 상태', '신용 지표가 버티는지']] }
 ]);
 
+// Audit D2 (owner 2026-10-17, option 1): the analogs test daily market moves, not the branch's gate conditions (macro
+// series are monthly and the long record carries only spx/tnx/vix/wti/dxy), so every frequency line says so once.
 function pastFor(branchId, { history, outcomes }) {
   const analog = BRANCH_ANALOGS[branchId];
   if (!analog) return { text: '과거 비교 기준이 정의되지 않았습니다.', n: 0 };
@@ -357,6 +413,12 @@ const DEFENSIVE_CHOICES = new Set(['wait', 'defend']);
 const lastBatchim = (text) => { const syllables = String(text || '').match(/[가-힣]/g); if (!syllables) return false; return (syllables.at(-1).charCodeAt(0) - 0xac00) % 28 !== 0; };
 const subjectParticle = (text) => (lastBatchim(text) ? '이' : '가');
 const andParticle = (text) => (lastBatchim(text) ? '과' : '와');
+// v57.84 (owner 2026-10-16: favored stays, a conflict with the past frequency is named beside it). The favoured choices lean
+// one way — all wait/defend expects a weaker tape than usual, none of them a stronger one; a mixed pair leans neither way.
+// The past frequency conflicts when its up-share sits on the other side of the record's base rate by more than two binomial
+// standard errors of that base rate at the branch's sample size (BASE_RATE_SE, shared with frequencyText so the two never
+// disagree; 56% against a 64% base over 73 cases is sampling noise, not a contradiction). Needs the app-wide floor of 10
+// non-overlapping cases.
 const PAST_CONFLICT_SE = BASE_RATE_SE;
 /** Which way a set of favoured choices leans: 'defensive' (all wait/defend), 'risky' (none of them), else null. */
 export const favoredLean = (favored) => (!favored?.length ? null : favored.every((key) => DEFENSIVE_CHOICES.has(key)) ? 'defensive' : favored.every((key) => !DEFENSIVE_CHOICES.has(key)) ? 'risky' : null);
@@ -401,6 +463,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     const conditions = branch.conditions.map(([label, test]) => { let ok = null; try { ok = test(s); } catch (_) { ok = null; } let text = label; if (typeof label === 'function') { try { text = label(s); } catch (_) { text = ''; } } return [text, ok == null ? null : !!ok]; });
     const known = conditions.filter(([, ok]) => ok != null);
     const met = known.filter(([, ok]) => ok).length;
+    // The core condition (gate). A branch whose gate is not met cannot rank first or lead the home card.
     const gateIdx = new Set(branch.gate || []);
     const gateResults = [...gateIdx].map((index) => conditions[index]?.[1] ?? null);
     const gateMet = !gateIdx.size ? true : gateResults.some((ok) => ok === true) ? true : gateResults.every((ok) => ok === false) ? false : null;
@@ -410,6 +473,7 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     if (cashText) choices.wait = choices.wait.replace('현금성 자산의 이자', cashText);
     const mixed = (branch.mixed || []).map((tag) => EXPOSURE_TAGS[tag]).join(', ');
     const past = pastFor(branch.id, { history, outcomes });
+    // A chain link whose own condition is unmet this time (외국인 자금 유출 while the won is not weak) says so.
     const chain = branch.chain.map((text, index) => (branch.chainNeeds?.[index] != null && conditions[branch.chainNeeds[index]]?.[1] === false ? `${text} (이번엔 미확인)` : text));
     return { id: branch.id, shape: branch.shape || null, axes: branch.axes || [], title: branch.title, chain, conditions, pricingInConditions: !!branch.pricingInConditions, choices, favored: branch.favored, favoredWhy: branch.favoredWhy, costly: branch.costly || [],
       firmer: branch.firmer, weaker: branch.weaker, mixed: branch.mixed || [],
@@ -425,24 +489,37 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
       checks: BRANCH_NOTES[branch.id]?.checks || [], invalidation: BRANCH_NOTES[branch.id]?.invalidation || [] };
   });
   const ratio = (item) => item.known < 2 ? -1 : item.met / item.total;
+  // A branch whose conditions already count 2y − midpoint does not get the same gauge again as a tie-break.
   const pricedSame = (item) => item.pricing.tone === 'same' && !item.pricingInConditions;
+  // A tie keeps the previous refresh's lead (10/14 flipped oilshock → softland within an hour on a level count).
   const kept = (item) => item.id === previousLeadId;
+  // Only a branch whose core condition is met can lead, tie or be the alternative; the rest keep their
+  // count and read "조건 일부 충족 · 핵심 조건 미충족".
   const gated = (item) => (item.gate.met === true && item.known >= 2 ? 1 : 0);
   const ranked = [...items].sort((a, b) => gated(b) - gated(a) || ratio(b) - ratio(a) || kept(b) - kept(a) || pricedSame(b) - pricedSame(a));
   const lead = ranked[0];
   const held = !lead || !gated(lead) || ratio(lead) <= 0;
+  // The alternative is the next branch by fit — conditions met, then a met core
+  // condition, then market pricing — and one whose core condition is not met carries that tag (altTag) wherever it is named.
   const others = items.filter((item) => item !== lead && item.known >= 2 && item.met > 0).sort((a, b) => ratio(b) - ratio(a) || gated(b) - gated(a) || pricedSame(b) - pricedSame(a));
   // Branches level with the lead on met conditions are a tie, not a lead and a runner-up: the headline says so.
   const tied = held ? [] : ranked.filter((item) => gated(item) && ratio(item) === ratio(lead));
   const partial = items.filter((item) => item.gate.met !== true && item.known >= 2 && item.met > 0).sort((a, b) => ratio(b) - ratio(a))[0] || null;
   const alt = held ? null : tied[1] || others[0] || null;
   const altTag = alt && !gated(alt) ? `핵심 조건 ${alt.gate.met === false ? '미충족' : '확인 불가'}` : null;
+  // v59.74 (weekly outlook review 11/7): nextEvent is the next release that tests any branch; decidingEvent is the one that
+  // tests the branches in play, named apart only when it is a later release (see nextDecidingEvent).
   const inPlay = tied.length >= 2 ? tied.map((item) => item.id) : [lead, alt].filter((item) => item && !held).map((item) => item.id);
   const nextEvent = nextDecidingEvent(events);
   const deciding = nextDecidingEvent(events, inPlay, { inPlayOnly: true });
   const decidingEvent = deciding && nextEvent && deciding.id !== nextEvent.id ? deciding : null;
 
+  // The rate hub: why higher rates hurt, what would have to happen for them to fall, and which release shows it.
+  // Oil falling is read on WTI and Brent together: opposite 20-session signs on the same futures basis are 혼재, not
+  // "유가 하락 진행 중". European spot Brent (no futures record yet) is quoted for reference only.
+  // The same held verdict as the 매크로 chain and the scenario conditions (macro-signals oilDivergence).
   const oilSplit = !!s.oilHeld;
+  // Audit D4: "falling" uses the transmission chain's own threshold (RULES.oil.fall20dPct), not any decline below zero.
   const oilFalling = has(s.oil20) && s.oil20 <= RULES.oil.fall20dPct;
   const p = s.policy;
   const policyLine = p ? `연준 ${p.changeDate ? `${md(p.changeDate)} ${p.change > 0 ? '인상' : '인하'}(${bpChange(p.change)}) 뒤 ` : ''}상단 ${fmt(p.upper, 2)}%${p.bill != null ? `, 3개월물 ${fmt(p.bill, 2)}%(${md(p.billDate)}) — ${p.bill > p.upper ? `목표 범위 상단보다 ${Math.round((p.bill - p.upper) * 100)}bp 높게 거래` : p.bill < p.lower ? `목표 범위 하단보다 ${Math.round((p.lower - p.bill) * 100)}bp 낮게 거래` : '목표 범위 안에서 거래'}${p.bill > p.upper || p.bill < p.lower ? '(국채 수급도 섞인 관측값이라 정책 예상으로 단정하지 않음)' : ''}` : ''}` : null;
@@ -470,13 +547,17 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   if (downPaths >= 2 && s.tnx20 != null && s.tnx20 >= RATES_RISE) {
     rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 보이는데도${p?.change > 0 ? ` 연준은 ${md(p.changeDate)}에 올렸고` : ''} 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
   } else if (downPaths === 0 && s.tnx20 != null && s.tnx20 <= -RATES_RISE) {
+    // The same 20 sessions on stocks and long bonds say whether the fall was a flight to bonds.
     rateHub.tension = relations.flow
       ? `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 같은 기간 S&P 500 ${signed(relations.moves.spx.value, 1, '%')}, 장기채 ${signed(relations.moves.tlt.value, 1, '%')}로 위험 회피 때 국채에 돈이 몰린 모양입니다${relations.driver && relations.moves.soxx ? `. 주식 하락은 반도체(${signed(relations.moves.soxx.value, 1, '%')})가 이끌었습니다` : ''}.`
       : `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 안전자산 선호나 해외 요인일 수 있어, 위험 회피가 원인인지 신용·변동성 축과 함께 확인합니다.`;
   }
   const short = (item) => item.title.split(' — ')[0];
+  // v57.86 (live review): a branch whose conditions already test its own price gauge cannot be "confirmed" by it again.
   const tone = (item) => item.pricingInConditions && item.pricing.tone === 'same' ? '' : item.pricing.tone === 'same' ? '시장 가격도 같은 방향' : item.pricing.tone === 'against' ? '시장 가격은 반대' : item.pricing.tone === 'neutral' ? '시장 가격은 중립' : '';
   const sameFit = tied.every((item) => item.met === lead.met && item.total === lead.total);
+  // v59.56 (text-quality audit): the headline listed a tie as 'AI 투자 꺾임'과 '유가 충격' while the cards and the market guide
+  // list it in registry order; the lead-keeping order decides leadId, not the order a tie is written in.
   const registryIndex = (item) => BRANCHES.findIndex((branch) => branch.id === item.id);
   const tiedText = [...tied].sort((a, b) => registryIndex(a) - registryIndex(b)).map((item) => { const extra = [sameFit ? '' : item.fit, tone(item)].filter(Boolean).join(', '); return `'${short(item)}'${extra ? `(${extra})` : ''}`; });
   const headline = held ? (partial ? `핵심 조건이 충족된 시나리오가 없어 중심 시나리오를 정하지 않습니다 — 조건이 가장 많이 맞는 '${short(partial)}'도 핵심 조건(${partial.gate.labels[0].split(' (')[0]})은 ${partial.gate.met === false ? '충족하지 못했습니다' : '확인할 수 없습니다'}.${nextEvent ? ` 다음 발표: ${nextEvent.when} ${nextEvent.name}.` : ''}` : '조건을 확인할 관측이 부족하거나 뚜렷하게 맞는 시나리오가 없어 판단을 보류합니다.')
@@ -489,6 +570,15 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
     leadId: held ? null : lead.id, altId: alt?.id || null, altTag, tiedIds: tied.length >= 2 ? tied.map((item) => item.id) : [], items, rateHub, relations, events, nextEvent, decidingEvent, cash: s.cash ? { value: s.cash.value, date: s.cash.date } : null };
 }
 
+// MERGED #13 (run-6): the next release had three answers on one day (11/6 고용 on 시장 상태, 11/10 CPI on the lead's
+// choices, 11/3 ISM on the 매크로 header). The one selector: the earliest release that tests a branch in play (the tied set,
+// else the lead and the alternative), else the earliest that tests any branch. A release no branch reads (ISM) decides
+// no scenario and is never "다음 갈림길".
+// v59.74 (weekly outlook review 11/7): preferring the branches in play skipped an earlier release that tests another branch
+// — on 11/7 the tie (성장 재가속·AI 투자 꺾임·변동성 충격) made 11/17 소매판매 the "다음 주요 발표" over the 11/10 CPI, the
+// 시장 상태 week list (8 days) then held no release, and the 매크로 header contradicted its own CPI card. A release that tests any
+// branch moves the condition counts, so the shared selector is now the earliest such release; the in-play pick
+// (inPlayOnly) is published apart as crossroads.decidingEvent, for the sentences that say which release settles a tie.
 export function nextDecidingEvent(events, branchIds = [], { inPlayOnly = false } = {}) {
   const list = Array.isArray(events) ? events : [];
   const tests = (event, pool) => BRANCHES.some((branch) => (!pool || pool.has(branch.id)) && branch.triggers.some(([id]) => id === event.id));
@@ -527,6 +617,10 @@ export function renderMacroCrossroadsContext(model, { state = null, frameText = 
   lines.push(`금리가 내려가려면: ${model.rateHub.pathsDown.map((p) => `${p.label} ${p.stateText || (p.ok == null ? '확인 불가' : p.ok ? '진행 중' : '아직 아님')} (${p.evidence}${p.next ? `; 확인: ${p.next}` : ''})`).join(' / ')}. ${model.rateHub.caveat}`);
   const rank = (item) => (item.id === model.leadId ? 2 : item.id === model.altId ? 1 : 0);
   const ordered = [...model.items].sort((a, b) => rank(b) - rank(a) || b.met / b.total - a.met / a.total);
+  // v59.59 (AI token budget): a one-line branch whose long-record frequency is within sampling noise of the base rate
+  // repeated the same 150-character sentence (record span, base rate, "방향을 말할 수 없습니다") for up to ten branches.
+  // When those branches share one record, span, horizon and base, the shared part is said once and each line keeps its
+  // own label and case count. A small sample (< 30) or an informative frequency keeps its full screen text.
   const pastKey = (past) => `${past.source}|${past.from}|${past.to}|${past.horizon}|${past.baseUpPct}`;
   const plain = ordered.filter((item) => rank(item) === 0 && item.past?.source === 'long' && pastEvidence(item.past).informative === false && !pastEvidence(item.past).small);
   const sharedKey = plain.length >= 2 && plain.every((item) => pastKey(item.past) === pastKey(plain[0].past)) ? pastKey(plain[0].past) : null;
@@ -546,6 +640,8 @@ export function renderMacroCrossroadsContext(model, { state = null, frameText = 
     const side = frame ? '' : ` 이 시나리오에서 ${CHOICE_WORDS.favored}(비용 가설 — 과거 성과로 검증한 우위 아님): ${item.favored.map((key) => CHOICES[key]).join(', ')} (${item.favoredWhy})${item.pastConflict ? ` [과거 표본과 어긋남: 비슷한 때 ${item.pastConflict.sharePct}% 상승, 전체 ${item.pastConflict.basePct}%]` : ''}`;
     lines.push(detailed
       ? `- ${item.title}: ${item.status || item.fit} [${item.basis.join(', ')}]. 인과: ${item.chain.join(' → ')}. 강해지는 쪽: ${item.impact.firmer}; 약해지는 쪽: ${item.impact.weaker}${item.impact.mixed ? `; 혼재: ${item.impact.mixed}` : ''}. 시장 가격: ${item.pricing.text.replace(/\.$/, '')}. ${evidence} 확인 일정: ${item.triggers.map((t) => `${t.when} — ${t.text}`).join('; ') || '일정 없음(시장 지표로 확인)'}. 선택지: ${Object.entries(item.choices).map(([key, text]) => `${CHOICES[key]} — ${text}`).join(' / ')}${side}${item.checks?.length ? ` 더 확인할 것(참고): ${item.checks.join('; ')}.` : ''}${!frame && item.invalidation?.length ? ` 이 읽기가 빗나가는 조건: ${item.invalidation.join('; ')}.` : ''}`
+      // The one-line branches carried no past frequency, so the reading said "과거 빈도와 표본 수는
+      // 제공되지 않아" while the screen showed 138 cases — the count line is kept short but present.
       : `- ${item.title}: ${item.status || item.fit}. 인과: ${item.chain.join(' → ')}. 과거 빈도: ${pastLine(item)}. 시장 가격: ${item.pricing.tone === 'same' ? '이 시나리오 쪽' : item.pricing.tone === 'against' ? '반대쪽' : item.pricing.tone === 'neutral' ? '중립' : '보류'}. 이 시나리오라면 ${CHOICE_WORDS.favored}(비용 가설): ${item.favored.map((key) => CHOICES[key]).join(', ')}${item.pastConflict ? ' (과거 표본과 어긋남)' : ''}`);
   }
   const macroLog = macroTransitions(state);

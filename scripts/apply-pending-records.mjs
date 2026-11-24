@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deferred ledger records for parallel threads (v59.56).
+// Deferred ledger records for parallel threads.
 //
 // Parallel threads that each ran bump-version and record-fix claimed the same "next" version and the same P ids
 // (2026-10-26: PRs #78-#80 all wrote v58.81-v58.83 and two wrote P2093), and the integrator renumbered by hand.
@@ -105,7 +105,7 @@ export const USAGE = [
 ].join('\n');
 
 function main(argv) {
-  // v59.70: an unknown argument fails, --help only prints, and writing needs --apply (cli-args.mjs says why).
+  // An unknown argument fails, --help only prints, and writing needs --apply (cli-args.mjs says why).
   let args;
   try { args = parseCliArgs(argv, { usage: USAGE, flags: ['--dry-run', '--apply'], options: ['--dir'], positional: { max: 1 } }); }
   catch (error) { if (error instanceof CliArgsError) { console.error(error.message); return 2; } throw error; }

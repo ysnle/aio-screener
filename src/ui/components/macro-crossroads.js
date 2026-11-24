@@ -1,3 +1,8 @@
+// "향후 시나리오" — the forward branches, owned by 시장 상태 › 시나리오와 전망 (매크로, 테마 and
+// 오늘 link here). Every scenario is one row of a pick list ordered by conditions met; the chosen row's card shows in
+// full — conditions met, what the market prices, the cause→effect chain with the places it strengthens and weakens and
+// their themes, the dated triggers, the decision frame and the choices. Then the record of past judgements (raw table).
+// The shared driver (rate-hub.js) is 금리와 환율's. Reads only published artifacts already loaded for 시장 상태.
 import { CHOICES, EVENT_NAMES, fomcDecisionDate, macroTransitions } from '../../domain/market/regime/macro-crossroads.js';
 import { SCENARIO_ORDER_LABEL, orderedScenarios, scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
@@ -20,6 +25,9 @@ const TONE = { same: '시장 가격 같은 방향', against: '시장 가격 반�
 
 export { themeLinkRow };
 
+// The branches come from the shared interpretation, so 거시, 오늘, 브리핑, 테마 and the AI read one
+// model: the same regime (breadth condition), the published previous lead (a tie keeps it) and the same release dates.
+// `regime` is accepted for older callers and ignored — the interpretation builds it from the same inputs.
 export function crossroadsForRoot(root, { nowMs = Date.now() } = {}) {
   return marketInterpretation(root, { nowMs }).crossroads;
 }
@@ -38,8 +46,9 @@ const pastConflictTag = (doc, item) => {
 };
 function meter(doc, item) {
   const box = el(doc, 'span', null, 'xr-meter');
+  // WCAG 1.1.1: the fit text is printed right beside the dots, so the meter is decorative for assistive tech.
   box.setAttribute('aria-hidden', 'true');
-  const order = (ok) => ok === true ? 0 : ok === false ? 1 : 2;
+  const order = (ok) => ok === true ? 0 : ok === false ? 1 : 2; // filled dots first, so 3/4 reads as three filled
   for (const [, ok] of [...item.conditions].sort((a, b) => order(a[1]) - order(b[1]))) box.append(el(doc, 'span', null, `xr-dot ${ok == null ? 'is-unknown' : ok ? 'is-met' : 'is-unmet'}`));
   return box;
 }
@@ -58,11 +67,17 @@ function linkButton(doc, root, label, route, anchor = null) {
   button.type = 'button';
   button.addEventListener('click', () => {
     root.showPage?.(route);
+    // 거시's scenarios now follow the current-state blocks, which can still grow after the route change — the
+    // scroll repeats briefly (one 60ms try landed ~2,000px short on desktop).
     if (anchor) for (const delay of [80, 400, 1200]) setTimeout(() => doc.getElementById(anchor)?.scrollIntoView?.({ block: 'start' }), delay);
   });
   return button;
 }
 
+// Each path links straight to the themes its exposure tags favour (US: the theme's detail; KR: the
+// Korean theme stages on 테마, after the US ones). The same registry the playbook uses; no ticker is named.
+// v57.71 / v57.86 (owner 2026-10-15, live review): the list is the path's exposure, not the themes' current strength
+// ("순풍인 테마 반도체" on a -4% chip day read as a call on today's move), so the label names it as that condition.
 function themeLinks(doc, root, item, max) {
   if (!item) return null;
   const { wind, themes } = themesForBranch(item);
@@ -95,6 +110,10 @@ function themeLinkRow(doc, root, item, { max = 4 } = {}) {
   return row;
 }
 
+//  every scenario is one row of a list — name, met/total and one line; the chosen row's card shows in full
+// beside the list (below it on a narrow screen), the first one to start. No fold: the list is the comparison and the card is
+// the reading; each card's sample is its frame's raw-table fold. Three full cards stacked ran to 6,700px on a phone.
+// The order and the heading that names it are the domain's (scenario-lead.js orderedScenarios).
 function scenarioMap(doc, root, model, picked = null) {
   const { lead, items } = orderedScenarios(model);
   const leadIds = new Set(lead.ids);
@@ -169,6 +188,7 @@ function scenarioCard(doc, root, item, frame = null) {
   const tags = el(doc, 'p', null, 'xr-map-tags');
   tags.append(el(doc, 'span', TONE[item.pricing.tone] || TONE.unknown, `xr-tag is-${item.pricing.tone}`),
     el(doc, 'span', `${CHOICE_WORDS.favored}: ${item.favored.map((key) => CHOICES[key]).join(', ')}`, 'xr-tag is-choice'));
+  // Favored stays; a conflict with the past frequency is named beside it.
   if (item.pastConflict) tags.append(pastConflictTag(doc, item));
   card.append(head, ...(sub ? [el(doc, 'p', sub, 'xr-map-sub')] : []), tags);
   const body = el(doc, 'div', null, 'xr-branch-body');
@@ -181,11 +201,13 @@ function scenarioCard(doc, root, item, frame = null) {
   body.append(impact);
   body.append(el(doc, 'h4', '판단 근거', 'xr-h4'));
   const evidence = el(doc, 'ul', null, 'xr-evidence');
+  // v58.74 (text audit): the conditions carry commas and '또는' themselves; joined into one sentence they read as five lines.
   const conditionItem = el(doc, 'li', `조건 ${item.met}/${item.total}`);
   const conditionList = el(doc, 'ul', null, 'xr-conditions');
   for (const text of item.basis) conditionList.append(el(doc, 'li', text));
   conditionItem.append(conditionList);
   evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`));
+  // v59.56 (X bookmarks 11/01): the AI-capex funding gauge the authors read, from SEC quarterly filings — reference, not a condition.
   const cashflow = item.id === 'aibust' ? bigtechCashflowText(root) : '';
   if (cashflow) evidence.append(el(doc, 'li', cashflow));
   body.append(evidence);
@@ -214,11 +236,16 @@ function scenarioCard(doc, root, item, frame = null) {
 }
 
 const shortDate = (iso) => md(String(iso || '').slice(0, 10));
+// A release is named by its own period (8월분, 9/17 결정), and the day AIO judged it comes after —
+// "10/13 CPI (2026-08-01 기준)" read as if the August CPI came out on 10/13.
 const periodLabel = (period) => { const text = String(period || ''); const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?/.exec(text); if (!m) return text ? `(${text})` : ''; return !m[3] || m[3] === '01' ? `${Number(m[2])}월분` : `${Number(m[2])}/${Number(m[3])}`; };
+// v58.74 (text audit): records written before the text pass keep their old wording ('유가 충격'(으)로, −0.5%); they are
+// read with today's particle and sign rule instead of being rewritten in the stored history.
 const recordText = (text) => String(text ?? '').replace(/('[^']+'|[가-힣A-Za-z0-9]+)\(으\)로/g, (match, word) => withDirectionParticle(word)).replace(/−(?=\d)/g, '-');
 /** P1743: what the automated record saw change — branch lead/alt shifts, condition flips, and scored releases. */
+// The record is reference for a returning reader — one closed line on the face.
 function changeLog(doc, state, open = false, checkedAt = null) {
-  const transitions = macroTransitions(state).slice(-6).reverse();
+  const transitions = macroTransitions(state).slice(-6).reverse(); // v59.51 (area H): macro events only
   const scored = (state?.eventOutcomes || []).slice(-6).reverse();
   if (!transitions.length && !scored.length) return null;
   const box = markFold(el(doc, 'details', null, 'xr-changes'), 'raw-table');
@@ -233,10 +260,13 @@ function changeLog(doc, state, open = false, checkedAt = null) {
   if (transitions.length) {
     box.append(el(doc, 'h4', '최근 변화', 'xr-h4'));
     const list = el(doc, 'ul', null, 'xr-transitions');
+    // Several records a day read as contradictions with the date alone — the KST time is shown.
     const stamp = (iso) => { const ms = Date.parse(iso || ''); if (!Number.isFinite(ms)) return shortDate(iso); const kst = new Date(ms + 9 * 3600000).toISOString(); return `${md(kst.slice(0, 10))} ${kst.slice(11, 16)} KST`; };
     for (const row of transitions) list.append(el(doc, 'li', `${stamp(row.at)} ${recordText(row.text)}`));
     box.append(list);
   }
+  // The "recomputed every refresh" caption became the fold's hover.
+  // An unchanged state keeps its published bytes, so the producer ledger's checkedAt is the last recomputation.
   const computedAt = checkedAt || state?.generatedAt;
   box.title = computedAt ? `마지막 계산 ${shortDate(computedAt)}` : '';
   return box;
@@ -253,6 +283,7 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   const changesOpen = !!target.querySelector('details.xr-changes')?.open;
   const aside = leadAside?.() || null;
   if (!model.available) { target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), ...(aside ? [aside] : [])); return model; }
+  // v57.79 (UI review): the heading says what the list is, not how to use it; v60.50: in the words of the order's owner.
   const mapHead = el(doc, 'h3', `시나리오 ${model.items.length}개 — ${SCENARIO_ORDER_LABEL}`, 'xr-h3');
   const basis = el(doc, 'p', '과거 빈도는 비슷한 시장 움직임으로 고른 비교입니다.', 'xr-reading');
   target.replaceChildren(el(doc, 'p', model.headline, 'xr-lead'), ...(aside ? [aside] : []), mapHead, basis, scenarioMap(doc, root, model, picked), ...[changeLog(doc, root?.[SCENARIO_STATE.key], changesOpen, root?._aioArtifactFreshness?.('scenario-state.json')?.checkedAt)].filter(Boolean));

@@ -23,7 +23,7 @@ export function questionBlocks({ ctxId = '', text = '', root = {}, subjects = []
   }
   // v58.75 (persona review): setup/breakout/pattern questions read the chart's setup coach (life cycle, checklist count,
   // weekly/daily agreement, the stock's own past breakouts); company analysis/thesis/comparison questions read the
-  // stock lens. Each block is added only for its question type (P1740).
+  // stock lens. Each block is added only for its question type.
   if (SETUP_WORDS.test(text)) {
     const coach = typeof root._aioSetupCoachFor === 'function' ? root._aioSetupCoachFor('') : null;
     out.push(coach && onChart(coach.symbol) ? setupCoachContext(coach) : SETUP_COACH_MISSING);
@@ -37,7 +37,7 @@ export function questionBlocks({ ctxId = '', text = '', root = {}, subjects = []
     const block = stockLensBlock(lens);
     if (block) out.push(block);
   }
-  // 2026-11-18: a valuation or dividend question gets how the 종목 screen forms its PER and the row's dividend fields.
+  // A valuation or dividend question gets how the 종목 screen forms its PER and the row's dividend fields.
   const valuationSymbol = subjects[0] || (ctxId === 'ticker' ? String(root._currentTickerId || '').toUpperCase() : '');
   if (valuationSymbol && VALUATION_ASKED.test(text)) {
     const block = valuationContext(root, valuationSymbol);
@@ -191,7 +191,7 @@ export function focusedThemeContext({ root = {}, ctxId = '', query = '', playboo
   const row = playbook?.available ? playbook.themes.find((item) => item.market === 'US' && item.id === theme.id) : null;
   const pctText = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
   const leaders = new Set((theme.leaders || []).map((sym) => String(sym).toUpperCase()));
-  // v59.46 boundary contract: the members' 1-month moves are read through the screener readiness contract.
+  // Boundary contract: the members' 1-month moves are read through the screener readiness contract.
   const ret1m = (item) => readRowNumber(item, 'ret1m', 'display');
   const priced = rows.filter((item) => leaders.has(String(item?.sym || '').toUpperCase()) && ret1m(item) != null);
   const dates = [...new Set(priced.map((item) => item.factorSessionDate).filter(Boolean))].sort();
@@ -249,7 +249,7 @@ export function newsWindow(query = '', now = Date.now()) {
   };
 }
 
-// P1729 (moved from src/ui/chat/panel.js, v58.75): the 08:00 KST window boundary and the provisional post-08:00 slot. The
+// P1729 (moved from src/ui/chat/panel.js): the 08:00 KST window boundary and the provisional post-08:00 slot. The
 // canonical bundle closes at 08:00, so a Korean session's events reach it only the next morning; the model is told which
 // window it reads and whether any post-08:00 headline exists, so an empty slot is not read as "nothing happened".
 export function newsWindowContext(root = globalThis) {
@@ -278,7 +278,7 @@ export function newsWindowContext(root = globalThis) {
   return out;
 }
 
-// v58.75 (persona review): per-turn pieces of the AI panel, moved out of src/ui/chat/panel.js (R620).
+// v58.75 (persona review): per-turn pieces of the AI panel, moved out of src/ui/chat/panel.js.
 // A screen-selected company (chat-tickers.js source 'screen') is named to the model and heads the answer.
 export const screenSubjectPrompt = (symbol) => `\n\n[화면 종목]\n질문에 종목 이름이 없어, 사용자가 지금 화면에서 보고 있는 ${symbol}를 대상으로 답한다. 다른 종목으로 바꾸지 말고, 이 종목 자료가 비어 있으면 비어 있다고 밝힌다.\n`;
 export const answerHead = (symbol, gate, text) => (symbol && !gate?.blocked ? `보고 있는 ${symbol} 기준\n\n${text}` : text);

@@ -29,7 +29,7 @@ const tickerTab = stockHub.routes.find((route) => route.id === 'ticker');
 // The retired 메모 view's address (2026-11-19: the notes are a section of 개요) still opens the company, with the notes on
 // the face, and settles on the plain address.
 cases.push({ route: 'ticker', tab: tickerTab.label, sym: 'NVDA', form: 'path', memo: true, hash: '#ticker/NVDA?view=memo' });
-// v60.38 (owner 2026-11-21): 쟁점과 전망 is a view of the ticker page shown as a hub tab; its address opens it, keeps it,
+// 쟁점과 전망 is a view of the ticker page shown as a hub tab; its address opens it, keeps it,
 // and 개요's sections are off the face there.
 cases.push({ route: 'ticker', tab: '쟁점과 전망', sym: 'NVDA', form: 'query', view: 'outlook', hash: '#ticker?sym=NVDA&view=outlook' });
 

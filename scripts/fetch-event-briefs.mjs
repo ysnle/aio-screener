@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.43 (owner audit 2026-10-28): briefs for the market's biggest scheduled events, written to
+// Briefs for the market's biggest scheduled events, written to
 // public-data/event-briefs.json by .github/workflows/event-briefs.yml (producers run only in Actions; locally this runs
 // only with --fixture and --out).
 //
@@ -44,9 +44,9 @@ const DAY = 86400000;
 const RETAIN_DAYS = 120;
 // The home screen reads the file whole (1 MiB client cap, src/data/artifact-registry.js). Past this budget the oldest briefs go
 // first, but never one inside the fetch lookback (it would be fetched and summarised again) or one with this month's AI cost
-// (the month ledger is summed from kept briefs) (artifact audit, v59.48).
+// (the month ledger is summed from kept briefs) (artifact audit).
 const BRIEF_BYTE_BUDGET = 640 * 1024;
-const FIRST_RUN_LOOKBACK_DAYS = 12; // the first run (2026-10-29) reaches back to 10/18, so META's 10/21 report is in
+const FIRST_RUN_LOOKBACK_DAYS = 12; // the first run reaches back to 10/18, so META's 10/21 report is in
 const LOOKBACK_DAYS = 4;
 const CALL_SEARCH_AFTER_MS = 2 * 3600000; // the call starts ~1.5 h after an after-close release
 const PRESSER_AFTER_MS = 105 * 60000; // 14:30 ET start, about an hour long
@@ -176,7 +176,7 @@ function liveSources({ env, fetchImpl = fetch }) {
       const zone = daily.meta?.exchangeTimezoneName || 'America/New_York';
       const dateOf = (sec) => new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(sec * 1000));
       const closes = daily.indicators?.quote?.[0]?.close || [];
-      const volumes = daily.indicators?.quote?.[0]?.volume || []; // v59.71: the reaction day's volume against the 20 before
+      const volumes = daily.indicators?.quote?.[0]?.volume || []; // The reaction day's volume against the 20 before
       // While the regular session is open, its daily bar is a live price, not a close: it is left out.
       const regular = daily.meta?.currentTradingPeriod?.regular;
       const nowSec = Date.now() / 1000;
@@ -191,7 +191,7 @@ function liveSources({ env, fetchImpl = fetch }) {
       }
       return { bars, extended: last };
     },
-    // v59.59: the shared transport (scripts/lib/ai-shared-analysis.mjs); the brief keeps its short purpose ('earnings-NVT')
+    // The shared transport (scripts/lib/ai-shared-analysis.mjs); the brief keeps its short purpose ('earnings-NVT')
     // and the Worker log gets the lane prefix. Structured summaries read up to SOURCE_CHAR_CAP characters, so every
     // event-brief request keeps the search deadline.
     async ai(body, purpose) {
@@ -238,7 +238,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null, 
   const vs = (actual, estimate) => (Number.isFinite(actual) && num(estimate) != null && num(estimate) !== 0 ? { value: num(estimate), surprisePct: surprisePct(actual, num(estimate)), source: source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: preReportSeenAt(row, new Date(at).toISOString()) } : null);
   if (revenueActual != null) {
     const estimate = vs(revenueActual, row.revenueEstimate);
-    // v59.84: a sub-billion revenue (OKLO $1.86 million) printed "$0.00 billion" and read as zero revenue on 오늘.
+    // A sub-billion revenue (OKLO $1.86 million) printed "$0.00 billion" and read as zero revenue on 오늘.
     figures.push({ metric: 'revenue', label: '매출', value: usdScaleWords(revenueActual), text: '', ...(estimate ? { estimate } : {}) });
   }
   if (epsActual != null) {
@@ -247,7 +247,7 @@ export function provisionalBrief(row, mover, { source = null, sourceUrl = null, 
   }
   return { id: `calendar-${mover.sym}-${row.date}`, kind: 'earnings', status: 'provisional', basis: 'provider', symbol: mover.sym, nameKo: mover.nameKo, tier: mover.tier,
     ...(mover.layer ? { layer: mover.layer } : {}), eventDate: row.date, publishedAt: new Date(at).toISOString(),
-    // No report hour: before or after the close is unknown, so no session can be named for the price (reviewer, v59.44).
+    // No report hour: before or after the close is unknown, so no session can be named for the price (reviewer).
     ...(row.hour === 'bmo' || row.hour === 'amc' ? {} : { timing: 'unknown' }),
     headline: provisionalHeadline(mover.nameKo, new Date(at).toISOString(), nowMs), figures, details: [], guidance: [], watch: [], dropped: [], ai: [],
     source: { kind: 'PROVIDER', title: `${source || 'Finnhub'} 실적 집계`, url: sourceUrl } };
@@ -276,7 +276,7 @@ function safeWatch(list, sourceText) {
   return (Array.isArray(list) ? list : []).map(watchItem).filter((text) => text && !unverifiedNumbers(text, numbers).length).slice(0, 4);
 }
 
-// v59.97: a headline that does not read as Korean (two Hangul syllables) falls back, so the stored brief always passes
+// A headline that does not read as Korean (two Hangul syllables) falls back, so the stored brief always passes
 // the headline-translation preflight gate.
 // The producer's own FOMC headline, dated by the decision ("10/28 FOMC 결정").
 const fomcFallbackHeadline = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))} FOMC 결정`;
@@ -286,8 +286,6 @@ function safeHeadline(text, sourceText, fallback) {
   return value && isKoreanHeadline(value) && !unverifiedNumbers(value, sourceNumberSet(sourceText)).length ? value : fallback;
 }
 
-// P2138 / v59.45 P21-EPS-01: the GAAP-only test moved into epsComparisonBasis (src/domain/briefing/event-briefs.js, v59.48),
-// which also reads an adjusted amount named in the note and skips a GAAP line when an adjusted line exists.
 export const CASH_METRICS = Object.freeze(['capex', 'free_cash_flow', 'operating_cash_flow']);
 
 /** The AI earnings extraction, checked. `estimate` is the provider calendar row (reference). */
@@ -306,7 +304,7 @@ export function assembleEarningsSections(json, sourceText, estimate = null) {
     }
     if (figure.metric === 'eps_diluted' && readNumber(estimate.epsEstimate) != null) {
       // v59.45 (P21-AMOUNT-01): one per-share amount, its sign kept ("$(0.12)" is a loss), or no comparison.
-      // v59.48: the amount the adjusted consensus is compared with (epsComparisonBasis), named on the estimate.
+      // The amount the adjusted consensus is compared with (epsComparisonBasis), named on the estimate.
       const comparison = epsComparisonBasis(figure, figures.kept);
       const pct = comparison ? surprisePct(comparison.actual, Number(estimate.epsEstimate)) : null;
       if (pct != null) return { ...figure, estimate: { value: Number(estimate.epsEstimate), surprisePct: pct, source: estimate.source || 'Finnhub', basis: 'provider-consensus-reference', seenBeforeReportAt: estimate.estimateLastSeenAt || null, actualBasis: comparison.basis, ...(comparison.amount ? { comparedAmount: comparison.amount } : {}) } };
@@ -456,7 +454,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     if (!cik) { if (!mover.extended) errors.push(`sec: no CIK for ${mover.sym}`); continue; }
     try {
       const filings = (await sources.secFilings(cik)).filter((row) => Date.parse(row.acceptedAt || row.filingDate || '') >= nowMs - lookbackMs
-        // v59.44: a story name may be a foreign filer (ASML, ARM, CAMT) with no 8-K; its 6-K counts once it reads like results.
+        // A story name may be a foreign filer (ASML, ARM, CAMT) with no 8-K; its 6-K counts once it reads like results.
         && (mover.foreignIssuer ? row.form === '6-K' : isResultsFiling(row) || (mover.extended && row.form === '6-K')));
       for (const filing of filings) {
         const id = `earnings-${mover.sym}-${filing.accession}`;
@@ -539,7 +537,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
   }
   for (const row of earningsRows) {
     const mover = listed.get(row?.symbol);
-    // v59.45: a calendar date after today cannot carry a reported result yet (a provider row ahead of time is not a report).
+    // A calendar date after today cannot carry a reported result yet (a provider row ahead of time is not a report).
     if (!mover || (row.epsActual == null && row.revenueActual == null) || nowMs - Date.parse(row.date) > lookbackMs + DAY || Date.parse(row.date) - nowMs > DAY || summaryOf(row.symbol, row.date)) continue;
     const id = `calendar-${mover.sym}-${row.date}`;
     // v59.45 (pipeline review P21-PROVISIONAL-01): the provider's figures can still change before the filing is summarised;
@@ -551,14 +549,14 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
       briefs.set(id, { ...prior, figures: fresh.figures, headline: fresh.headline, source: fresh.source, providerRevisedAt: nowIso });
     }
   }
-  // v60.18: a stored calendar-only brief past the wait (its calendar row may have rolled off) closes its "정리 중" headline.
+  // A stored calendar-only brief past the wait (its calendar row may have rolled off) closes its "정리 중" headline.
   for (const [id, brief] of briefs) {
     if (brief.status !== 'provisional') continue;
     const headline = provisionalHeadline(brief.nameKo, brief.publishedAt, nowMs);
     if (headline !== brief.headline) briefs.set(id, { ...brief, headline });
   }
 
-  // P2137: a headline copied in English from the release, or the bare "실적 발표", is rebuilt from the checked figures.
+  // A headline copied in English from the release, or the bare "실적 발표", is rebuilt from the checked figures.
   // v59.45 (pipeline review P21-AMOUNT-01/EPS-01): a stored comparison is re-read with the current parser — a unitless table
   // figure ("$1,902,418", "$ 173.0") or "$12.1B" printed -99.9% / -100% against the consensus.
   const recompared = (figure, actual) => {
@@ -614,7 +612,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     if (changed) briefs.set(id, { ...brief, figures });
   }
 
-  // v59.44: closes around each recent report (and the latest trade until a session has closed on it), until settled.
+  // Closes around each recent report (and the latest trade until a session has closed on it), until settled.
   status.prices = 'idle';
   for (const [id, brief] of briefs) {
     if (brief.kind !== 'earnings' || brief.status === 'pending' || brief.timing === 'unknown' || brief.reaction?.settled || nowMs - (Date.parse(brief.publishedAt) || 0) > REACTION_DAYS * DAY || typeof sources.prices !== 'function') continue;
@@ -631,7 +629,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     } catch (error) { errors.push(`prices ${brief.symbol}: ${String(error.message || error).slice(0, 120)}`); status.prices = 'partial-error'; }
   }
 
-  // v59.44: why it moved, once the price has answered (one search per brief, at most two tries, an hour after release).
+  // Why it moved, once the price has answered (one search per brief, at most two tries, an hour after release).
   // A move that reverses after the search (after-hours down, first session up) is searched once more, so the reasons
   // never explain the opposite of the price beside them.
   const sign = (brief) => Math.sign(reactionPct(brief) ?? 0);
@@ -673,7 +671,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     allowedUse: 'reference',
     basis: 'Primary sources: federalreserve.gov statements, SEC EDGAR 8-K/6-K Ex.99, DART 공정공시. Call and press-conference points are report-based until a transcript is available. Figures not found in the fetched source are dropped.',
     status, aiReason, errors: errors.slice(0, 20),
-    // v60.18: the wait after which a calendar-only brief stops saying "정리 중" (the artifact gate reads it).
+    // The wait after which a calendar-only brief stops saying "정리 중" (the artifact gate reads it).
     provisionalWaitMs: PROVISIONAL_SUMMARY_WAIT_MS,
     costLedger: { month, requests: monthEntries.length, estimatedUsd: Math.round(monthEntries.reduce((sum, entry) => sum + (entry.estimatedUsd || 0), 0) * 1e4) / 1e4,
       rateCard: AI_RATE_CARD, perBriefEstimateUsd: { withoutSearch: 0.003, withOneSearch: 0.018 } },
@@ -681,7 +679,7 @@ export async function buildEventBriefs({ previous = null, sources, nowMs = Date.
     reportWatch: Object.fromEntries(Object.entries(watch).filter(([sym]) => extended.some((mover) => mover.sym === sym))),
     // The release text stays only while a call summary is still to be checked against it.
     // A release-only brief (story names) has no call summary to check, so its release text is not kept.
-    // v59.70 (screen review 31): shown fields carry no trademark signs; checkText stays as fetched for the quote check.
+    // Shown fields carry no trademark signs; checkText stays as fetched for the quote check.
     briefs: kept.map(({ checkText, ...brief }) => ({ ...withoutTradeMarks(brief), ...(checkText && brief.status !== 'pending' && brief.scope !== 'release' && !brief.callPoints?.done && (brief.callPoints?.attempts || 0) < MAX_SEARCH_ATTEMPTS ? { checkText } : {}) }))
   };
 }

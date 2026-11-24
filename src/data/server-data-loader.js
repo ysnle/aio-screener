@@ -2,6 +2,10 @@ import { refreshSharedArtifact } from './shared-artifacts.js';
 import { mergeRotationDetail, rotationDetailPending } from '../domain/themes/rotation-detail.js';
 import { ROTATION_DETAIL } from './artifact-registry.js';
 
+// v59.70 (data audit R11): data.json carries the rotation coordinates and rotation-detail.json the series. The one
+// loader merges them into _serverDataMeta.rotationHistory, so the stock, portfolio, screener and theme readers keep the
+// accessor and the same verdicts. The series load beside data.json; if they arrive later, aio:rotationDetailLoaded
+// asks the screens to repaint.
 const ROTATION_DETAIL_WAIT_MS = 1500;
 function attachRotationDetail(window) {
   const meta = window._serverDataMeta;
@@ -51,6 +55,7 @@ export function installServerDataLoader(window = globalThis) {
     const fred = window._fredData && typeof window._fredData === 'object' ? window._fredData : {};
     const fields = [];
     AIO_SERVER_TREASURY_FIELDS.forEach(function(definition) {
+      // R2-07: Number(null) is 0, so a missing maturity became a 0% official yield; missing stays missing.
       const finiteOrNaN = (raw) => (raw == null || raw === '' ? NaN : Number(raw));
       const value = finiteOrNaN(macro[definition.field] ?? (treasury.values && treasury.values[definition.field]));
       if (!Number.isFinite(value)) return;
@@ -117,22 +122,31 @@ export function installServerDataLoader(window = globalThis) {
     return { applied: fields.length, fields };
   }
 
+  // One load at a time. A call made while one is running joins it, so an older response can never land
+  // after a newer one and overwrite its meta (the loads share _serverDataMeta across several awaits).
   var _loadInFlight = null;
   async function _aioLoadServerData() {
     if (_loadInFlight) return _loadInFlight;
     _loadInFlight = (async function() {
       try {
+        // Once a data.json has announced its series file, each reload fetches it beside data.json; the first
+        // load fetches it only after data.json names it (attachRotationDetail), so an older data.json asks for nothing.
         if (rotationDetailPending(window._serverDataMeta?.rotationHistory) || window[ROTATION_DETAIL.key]) refreshSharedArtifact(window, ROTATION_DETAIL);
         // Fetch, reconciliation check and market-cycle gate: src/data/server-data.js (bound by the compat bridge).
         var fetched = await window._aioFetchServerData();
         if (!fetched.ok) {
           if (typeof _aioLog === 'function') _aioLog('warn', 'data', fetched.reason);
+          // v59.70 (ui-states): published so the shell can say the file did not arrive (src/ui/components/data-state.js).
           _aioServerDataFailed(fetched.reason, fetched.empty ? 'empty' : 'failed');
           return false;
         }
         window.__aioServerDataLoadState = 'ready';
         window.__aioServerDataApplied = true;
         var d = fetched.data;
+        // data.json can resolve before aio-core exposes DATA_SNAPSHOT on a
+        // cold origin. Previously the macro block was then skipped permanently
+        // even though cycle/news metadata loaded, producing saved-key + blank-card
+        // behavior that disappeared only on warm-cache reloads.
         var _snapshotBridgeWait = 0;
         while (!window.DATA_SNAPSHOT && _snapshotBridgeWait < 60) {
           await new Promise(function(resolve) { setTimeout(resolve, 50); });
@@ -156,7 +170,7 @@ export function installServerDataLoader(window = globalThis) {
         globalThis._aioServerDataBridgeAttempts = 0;
 
         window._serverDataMeta = window._aioBuildServerDataMeta(d, fetched.reconciliation);
-        await attachRotationDetail(window);
+        await attachRotationDetail(window); // The rotation series join before any screen reads them
         var _serverGeneratedMs = d.meta.generatedAt ? new Date(d.meta.generatedAt).getTime() : NaN;
         var _liveCoreEligible = window._serverDataMeta.liveCoreEligible;
         var ageMin = window._serverDataMeta.ageMin;
@@ -198,7 +212,7 @@ export function installServerDataLoader(window = globalThis) {
           applyLiveQuotes(d.quotes);
         }
         // 2) 매크로 → DATA_SNAPSHOT (FRED 서버값, 채팅/macro 페이지가 소비)
-        globalThis._serverMacroEvidence = window._serverMacroEvidence || {}; globalThis._aioServerMacro = d.macro && typeof d.macro === 'object' ? d.macro : null;
+        globalThis._serverMacroEvidence = window._serverMacroEvidence || {}; globalThis._aioServerMacro = d.macro && typeof d.macro === 'object' ? d.macro : null; // Native 거시 boards read the published macro block (dates, deltas, freshness)
         // FRED/BEA/BLS/HY OAS/surveys → DATA_SNAPSHOT + evidence: src/data/server-macro.js (bound by the compat bridge).
         var _serverMacro = window._aioApplyServerMacro(d, window.DATA_SNAPSHOT, window._serverMacroEvidence, window._serverDataMeta);
         var _serverFredApplied = _serverMacro.fredApplied;
@@ -230,6 +244,7 @@ export function installServerDataLoader(window = globalThis) {
             if (d.meta && d.meta.officialReferencesCheckedAt) _aioLoadOfficialReferences();
           }
         } catch (_refErr) { if (typeof _aioLog === 'function') _aioLog('warn', 'reference', 'produced references: ' + (_refErr && _refErr.message || _refErr)); }
+        // F&G previousScore → _fearGreedDelta 계산
         if (d.fearGreed && typeof d.fearGreed.score === 'number') {
           if (typeof d.fearGreed.previousScore === 'number') {
             var _fgCloses = Array.isArray(d.fearGreed.history) ? d.fearGreed.history.filter(function(p) { return p && typeof p.score === 'number' && isFinite(p.score); }) : [];
@@ -240,6 +255,7 @@ export function installServerDataLoader(window = globalThis) {
             window.DATA_SNAPSHOT._fearGreedWeekDelta = d.fearGreed.score - d.fearGreed.previousWeek;
           }
         }
+        // _fieldTs.macro_fred — FRED 매크로 마지막 적용 시각 기록
         if (d.meta.fredFetchOk && _serverFredApplied > 0 && window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
           window.DATA_SNAPSHOT._fieldTs.macro_fred = d.meta.fredLastSuccessfulAt || d.meta.generatedAt || new Date().toISOString();
         }
@@ -254,14 +270,17 @@ export function installServerDataLoader(window = globalThis) {
           if (typeof _applyFearGreedScore === 'function') {
             _applyFearGreedScore({ score: d.fearGreed.score, sourceKind: 'T3_PUBLIC_DELAYED', sourceLabel: 'cnn-via-github-actions', sourceTs: d.fearGreed.asOf || d.meta.generatedAt, operationalUse: 'reference-only' });
           }
+          // _fieldTs.fearGreed — Fear & Greed 마지막 적용 시각 기록
           if (window.DATA_SNAPSHOT && window.DATA_SNAPSHOT._fieldTs) {
             window.DATA_SNAPSHOT._fieldTs.fearGreed = d.fearGreed.asOf || d.meta.generatedAt || new Date().toISOString();
           }
         }
+        // 5) v50.28/WO-6: 서버 뉴스 백스톱 저장 + (클라이언트 뉴스 비었을 때만) 적용 — additive
         if (Array.isArray(d.news) && d.news.length) {
           window._serverNewsBackstop = d.news;
           try { _aioApplyNewsBackstop(false); } catch(_) {}
         }
+        // post-08:00 provisional headlines (producer P1720) — a separate slot, never merged into the 08:00 bundle.
         window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday.slice(0, 12) : []; // NEWS_INTRADAY_MAX (src/domain/news/stories.js)
         try {
           if (typeof _aioLoadServerTelegramDigest === 'function') {
@@ -275,7 +294,12 @@ export function installServerDataLoader(window = globalThis) {
             }, function() { return false; });
           }
         } catch(_) {}
+        // 6) v50.48/Phase 4: 서버 LLM 시장 분석문(운영자 키 있을 때 cron 생성) — 있으면 합성 sink가 템플릿 대신 우선 사용.
+        // v52.75/WP-AI0: do not expose generated-but-unverified LLM prose to any
+        // public sink. A future typed/semantic producer must opt in explicitly.
         window._serverMarketAnalysis = null;
+        // The producer's one-sentence line is validated on its own (no number, ticker or
+        // instruction) and shown on the home card even when this run's long reading was held.
         window._aioMarketSentence = d.marketAnalysis && d.marketAnalysis.sentence && d.marketAnalysis.sentence.text ? d.marketAnalysis.sentence : null;
         // The per-screen AI readings, kept raw; each screen admits its own (src/data/server-screen-readings.js).
         window._aioScreenReadings = d.screenReadings && typeof d.screenReadings === 'object' ? d.screenReadings : null;
@@ -292,9 +316,14 @@ export function installServerDataLoader(window = globalThis) {
           if (window._serverDataMeta) window._serverDataMeta.marketAnalysis = _serverMarketGate.meta;
           try { if (window._aioRenderMarketAnalysisSinks) window._aioRenderMarketAnalysisSinks(); } catch(_) {}
         }
+        // 6) P768/ARX-16: screener artifact는 native provider/orchestrator가 단일 fetch하고, 그 load state는
+        // native slice에서 읽는다(src/data/page-completeness.js). 이 경로는 투영도 상태 기록도 하지 않는다.
         if (typeof _aioLog === 'function') _aioLog('info', 'data', 'server data.json 적용: quotes ' + (d.quotes ? d.quotes.length : 0) + ', age ' + ageMin + 'min');
-        _aioRenderServerDataAge();
+        _aioRenderServerDataAge(); // 나이 배지 갱신
+        // v51.65 → v59.88 (S6): one paint of the pipeline status bar — notices, stale hand-kept fields, the toggle summary
+        // (src/ui/components/pipeline-status.js, installed by the lazy screen bridges; before that the install paints it).
         try { if (typeof window._aioRenderPipelineStatus === 'function') window._aioRenderPipelineStatus(); } catch(_) {}
+        // 보이는 페이지 분석 텍스트도 새 데이터로 재생성 (숨은 페이지는 스킵)
         try { if (window.AIO && typeof window.AIO.refreshActivePageNarratives === 'function') window.AIO.refreshActivePageNarratives(); } catch(_) {}
         try {
           window.dispatchEvent(new CustomEvent('aio:serverDataLoaded', { detail: window._serverDataMeta }));
@@ -310,6 +339,8 @@ export function installServerDataLoader(window = globalThis) {
     try { return await _loadInFlight; } finally { _loadInFlight = null; }
   }
 
+  // v59.70 (ui-states): published so the shell can say the file did not arrive (src/ui/components/data-state.js). A failed
+  // refresh after a good load is not an outage: the applied copy stays on screen with its date.
   function _aioServerDataFailed(reason, state) {
     if (window.__aioServerDataApplied) return;
     window.__aioServerDataLoadState = state === 'empty' ? 'empty' : 'failed'; // empty: answered without a payload

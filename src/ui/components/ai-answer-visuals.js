@@ -1,6 +1,6 @@
-// P1741: visuals under an AI answer, drawn by the app from the same data the screens use — completed daily bars
+// Visuals under an AI answer, drawn by the app from the same data the screens use — completed daily bars
 // (chart-analysis), issuer filings (fiscal history) — never from numbers the model wrote. The unified AI panel is the
-// only AI entry point (owner 2026-10-12) and had no visual at all; the sparkline/diagram code lived on the retired
+// only AI entry point and had no visual at all; the sparkline/diagram code lived on the retired
 // per-page chat path. Each figure states its basis date; a figure whose data is missing is not drawn.
 import { escapeHtml as esc } from '../html.js';
 import { analyzeChart } from '../../domain/technical/chart-analysis.js';
@@ -104,7 +104,7 @@ export async function buildFundamentalsVisual({ documentRef: doc, root, symbol }
   let rows = [];
   let unit = '분기';
   if (typeof quarterText === 'string') {
-    // v58.63 (architecture audit C07): Number('') is 0, so a quarter with no reported net income drew "순이익률 0%" exactly
+    // Number('') is 0, so a quarter with no reported net income drew "순이익률 0%" exactly
     // like a real break-even quarter. An empty cell is missing, not zero.
     const cell = (value) => (value == null || String(value).trim() === '' ? null : finite(Number(value)));
     rows = quarterText.split(';').map((part) => part.split(':')).filter((cells) => isIsoDay(cells[0] || ''))
@@ -148,7 +148,7 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   const series = (await Promise.all(symbols.slice(0, 3).map(async (symbol) => ({ symbol, bars: (await loadBars(root, symbol, '6mo')).slice(-RELATIVE_CLOSES) }))))
     .filter((item) => item.bars.length >= 20);
   if (series.length < 2) return null;
-  // v58.63 (architecture audit C08): the lines were aligned by position, so two series ending on different sessions
+  // The lines were aligned by position, so two series ending on different sessions
   // (a holiday in one market) put 7/1 and 7/2 on the same x and the caption named only the first line's dates. The
   // lines now share the completed sessions every series has, each rebased on the same first common date.
   const dayOf = (bar) => String(bar.time ?? '').slice(0, 10);
@@ -178,7 +178,7 @@ export async function buildRelativeVisual({ documentRef: doc, root, symbols }) {
   return figure;
 }
 
-// P1743: the same branches the 거시 screen draws — met-condition dots, market-price side, the favoured choice.
+// The same branches the 거시 screen draws — met-condition dots, market-price side, the favoured choice.
 async function buildCrossroadsVisual({ documentRef: doc, root }) {
   const model = crossroadsForRoot(root, { regime: readMarketRegime(root) });
   if (!model?.available || model.held) return null;
@@ -197,9 +197,9 @@ async function buildCrossroadsVisual({ documentRef: doc, root }) {
   return figure;
 }
 
-// P1743: every theme's stage (long trend × 1 month) and its macro wind, as four short lists.
+// Every theme's stage (long trend × 1 month) and its macro wind, as four short lists.
 async function buildThemesVisual({ documentRef: doc, root }) {
-  const store = root?.AIO?.store || { getState: () => ({ screener: { rows: root?.AIO_ARCH?.getScreenerRows?.() || [] } }) }; // v57.77 perf: shared row snapshot, not a whole-slice clone
+  const store = root?.AIO?.store || { getState: () => ({ screener: { rows: root?.AIO_ARCH?.getScreenerRows?.() || [] } }) }; // Perf: shared row snapshot, not a whole-slice clone
   const { playbook } = themePlaybookForRoot(root, store);
   if (!playbook?.available) return null;
   const pct = (value) => `${signedText(value, 1)}%`;
@@ -229,9 +229,9 @@ export async function renderAnswerVisuals({ documentRef: doc = globalThis.docume
   return drawn;
 }
 
-// P1741: the unified panel's mount — a host above the source badge, kept only when a figure was drawn.
+// The unified panel's mount — a host above the source badge, kept only when a figure was drawn.
 export async function attachAnswerVisuals({ documentRef: doc = globalThis.document, parent, before = null, scroller = null, ...rest } = {}) {
-  // v59.70 (D3): an answer that holds a screen gets the 스크리너 조건 card (the one path that makes screener conditions).
+  // An answer that holds a screen gets the 스크리너 조건 card (the one path that makes screener conditions).
   if (doc && parent) import('./screener-ai-conditions.js').then(({ attachScreenerConditions }) => attachScreenerConditions({ documentRef: doc, root: rest.root || globalThis, parent, before, query: rest.query }))
     .then((card) => { if (card && scroller) scroller.scrollTop = scroller.scrollHeight; }).catch(() => {});
   if (!doc || !parent || !chooseAnswerVisuals(rest).length) return [];

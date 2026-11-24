@@ -75,7 +75,7 @@ const snapshotInput = readers.readAnalysis().tradingScoreInputs;
 const blocked = computeTradingScoreModel(snapshotInput);
 assert.equal(blocked.total, null, 'snapshot/reference values must block native score');
 assert.equal(blocked.decisionBlocked, true, 'snapshot/reference values must set decisionBlocked');
-// P1345/R670: missing completed-close proof clears the numeric input, regardless of its old status.
+// Missing completed-close proof clears the numeric input, regardless of its old status.
 assert.ok(Object.values(snapshotInput.decisionEvidence).every((row) => row.value == null && row.allowedUse === 'none'), 'P1345: unproven snapshot close escaped its hold');
 
 const liveRoot = {
@@ -122,7 +122,6 @@ const sentimentFallback = fallbackReader.readSentiment();
 assert.equal(sentimentFallback.fearGreed, 42);
 assert.equal(sentimentFallback.fearGreedSource, 'DATA_SNAPSHOT:fear-greed');
 assert.equal(sentimentFallback.fearGreedObservedAt, '2026-08-01');
-// v59.70 (owner 11/4): the Cboe put/call reads are gone; a leftover runtime value or snapshot field is not projected.
 assert.ok(!('putCall' in sentimentFallback) && !('putCallObservedAt' in sentimentFallback), 'v59.70 readSentiment projects no put/call');
 assert.ok(!('pcr' in fallbackReader.readEntity().options), 'v59.70 readEntity options carry no put/call');
 assert.ok(!('sentiment.putCall' in fallbackReader.readObservationCatalog()), 'v59.70 the observation catalog has no put/call');
@@ -182,7 +181,7 @@ assert.deepEqual(coverageEdges.coverage, { current: 0.2, present: 0.6, expected:
 assert.equal(newsCoverage([]).observedAt, null);
 console.log('Screener observation coverage: freshness/duplicate parity and bounded timestamp parsing OK.');
 
-// P1035: cached canonical rows must avoid rescans without concealing clock
+// Cached canonical rows must avoid rescans without concealing clock
 // boundaries, rollback, newly published rows, or mutable legacy inputs.
 let cacheClock = coverageNow;
 let rowReads = 0;

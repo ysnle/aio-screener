@@ -41,7 +41,7 @@ for (const doc of catalog.documents) {
   }
   warn(`${doc.path} contains replacement-character encoding damage`, !text.includes('\uFFFD'), 'historical evidence remains explicit-only until recovered from Git history');
   if (doc.autoRefresh) check(`${doc.path} declares parseable last_verified with auto_refresh`, /^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || ''));
-  // P1125: staleness applies to every document that CLAIMS a verification date, not only
+  // Staleness applies to every document that CLAIMS a verification date, not only
   // auto-refresh and current-handoff ones. A frozen historical snapshot is exempt — its date
   // is provenance, not a currency claim (23 docs past the threshold today are frozen snapshots).
   // But `auto_refresh: true` is an explicit claim that the document stays current, and it is
@@ -50,7 +50,7 @@ for (const doc of catalog.documents) {
   if (doc.kind === 'historical-snapshot' && !doc.autoRefresh) continue;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(doc.lastVerified || '')) continue;
   const ageDays = Math.floor((now - new Date(`${doc.lastVerified}T00:00:00Z`).getTime()) / 86400000);
-  // v57.54: a dated research record of a supplied packet (source_kind REFERENCE, no auto_refresh) keeps its claims as
+  // A dated research record of a supplied packet (source_kind REFERENCE, no auto_refresh) keeps its claims as
   // REFERENCE/UNVERIFIED as of that packet; its date is provenance like a snapshot's. It still warns below, but it does
   // not grow the ratchet — otherwise the calendar alone failed every push (08-29 crossed 45d on 10-14, 08-30 the next day).
   const datedReferenceRecord = doc.kind === 'research-record' && !doc.autoRefresh && /^source_kind:\s*REFERENCE\s*$/m.test(text.slice(0, 600));
@@ -58,7 +58,7 @@ for (const doc of catalog.documents) {
   warn(`${doc.path} last_verified is ${ageDays}d old`, ageDays <= STALE_DAYS, `threshold=${STALE_DAYS}d`);
 }
 
-// P1125 (v60.50): a document crossing 45 days is a calendar fact, not a code change, so the stale set is reported as a
+// A document crossing 45 days is a calendar fact, not a code change, so the stale set is reported as a
 // warning everywhere and never fails a run (the 11-04 fix push failed on CODE-MAP turning 46 days old; the ratchet's
 // baseline file and its --write path are gone).
 warn('P1125 stale documents (refresh or mark as a historical snapshot)', staleDocs.length === 0, `${staleDocs.length}: ${staleDocs.slice(0, 6).join(', ')}`);

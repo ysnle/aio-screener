@@ -11,7 +11,7 @@ const row = (code, name, cur, prev, ago, month = '11509') => ({ '出表日期': 
   '營業收入-當月營收': String(cur), '營業收入-上月營收': String(prev), '營業收入-去年當月營收': String(ago), '營業收入-上月比較增減(%)': '0', '營業收入-去年同月增減(%)': '0',
   '累計營業收入-當月累計營收': String(cur * 9), '累計營業收入-去年累計營收': String(ago * 9), '累計營業收入-前期比較增減(%)': '0', '備註': '-' });
 
-// v60.50: the producer and read model run on fixtures (code); the committed artifact's schema also runs in a data run.
+// The producer and read model run on fixtures (code); the committed artifact's schema also runs in a data run.
 await runSections('tw-monthly-revenue-fixture', [
 ['producer', async () => {
 assert.equal(rocMonth('11509'), '2026-09', 'v59.56 ROC 115/09 is 2026-09');
@@ -21,7 +21,7 @@ assert.equal(shiftMonth('2026-09', -12), '2025-09', 'v59.56 twelve months back')
 
 const tsmc = parseRevenueRow(row('2330', '台積電', 330000000, 300000000, 250000000));
 assert.equal(tsmc.month, '2026-09', 'v59.56 ROC data month parsed');
-// v60.46: 出表日期 is the MOPS table's generation date, not the company's filing date — stored as tableDate.
+// 出表日期 is the MOPS table's generation date, not the company's filing date — stored as tableDate.
 assert.equal(tsmc.tableDate, '2026-10-17', 'v60.46 ROC table date (出表日期) parsed as tableDate');
 assert.equal('publishedAt' in tsmc, false, 'v60.46 the table date is not stored as a publication date');
 assert.equal(tsmc.yoyPct, 32, 'v59.56 YoY computed from the source amounts');
@@ -51,7 +51,7 @@ assert.equal(view.reported, 5, 'v59.56 companies on an older month (6669 August)
 const server = view.groups.find((g) => g.id === 'server-odm');
 assert.equal(server.yoyPct, Math.round(((800000000 + 100) / (700000000 + 100) - 1) * 1000) / 10, 'v59.56 group YoY is the sum of amounts, not a median of rates');
 assert.match(view.reading, /^대만 AI 공급망 5개사의 9월 매출 합계는 1년 전보다 \+\d+\.\d%이고, 5개사 중 3개사가 늘었습니다\. 가장 크게 늘어난 묶음은 /, `v59.56 face sentence (${view.reading})`);
-// v60.28: all or none of the companies rising is said as such, not "16개사 중 16개사".
+// All or none of the companies rising is said as such, not "16개사 중 16개사".
 const withYoy = (yoyPct) => buildTwRevenueView({ ...artifact, companies: artifact.companies.map((c) => ({ ...c, yoyPct })) }, { nowMs: Date.parse('2026-10-20T00:00:00Z') }).reading;
 assert.match(withYoy(5), /이고, 5개사 모두 늘었습니다\./, `v60.28 every company up reads 모두 (${withYoy(5)})`);
 assert.match(withYoy(-5), /이고, 늘어난 회사는 없습니다\./, `v60.28 no company up reads 없습니다 (${withYoy(-5)})`);
@@ -84,7 +84,7 @@ assert.equal(carriedView.reported, 1, 'v59.94 a carried company on an older mont
 assert.match(carriedView.reading, /합계는 1년 전보다 \+\d+\.\d%입니다\./, `v60.28 one company states only the total (${carriedView.reading})`);
 const recarried = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: carriedRun, generatedAt: '2026-11-02T00:00:00Z' });
 assert.ok(sameRevenueData(recarried, carriedRun), 'v59.94 re-carrying the same records compares unchanged');
-// v60.46: a record or artifact written before the rename (publishedAt) is carried and read as its table date.
+// A record or artifact written before the rename (publishedAt) is carried and read as its table date.
 const legacy = { ...prevArtifact, publishedAt: '2026-09-17', tableDate: undefined, companies: prevArtifact.companies.map(({ tableDate, ...c }) => ({ ...c, publishedAt: '2026-09-17' })) };
 const fromLegacy = buildTwMonthlyRevenue({ rows: [row('2330', '台積電', 330, 300, 250)], previous: legacy, generatedAt: '2026-11-05T00:00:00Z' }).companies.find((c) => c.code === '2454');
 assert.equal(fromLegacy.tableDate, '2026-09-17', 'v60.46 a carried pre-rename record keeps its date as tableDate');

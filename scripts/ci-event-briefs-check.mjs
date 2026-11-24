@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.42 (owner audit 2026-10-28): the event-brief producer on fixtures. A figure the fetched source does not contain is
+// The event-brief producer on fixtures. A figure the fetched source does not contain is
 // dropped, a quote that is not in the source drops its item, a call or press-conference point with an invented figure
 // or an off-list source is dropped, the DART table is parsed without AI, the estimate comparison and the AI cost are
 // recorded, a different company's DART filing is not used, and the producer refuses to write public-data outside Actions.
@@ -27,7 +27,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: the producer and domain checks run on fixtures (code); the published artifact is checked in its own data section,
+// The producer and domain checks run on fixtures (code); the published artifact is checked in its own data section,
 // which also runs in a data run.
 await runSections('event-briefs', [
 ['fixtures', async () => {
@@ -145,7 +145,7 @@ check('v59.42 the producer does not write public-data outside Actions', () => {
   eq(run.status, 2, run.stderr);
 });
 
-// v59.42: the earnings calendar's second source — a results 8-K in the 45 days before the window settles 'unconfirmed'.
+// The earnings calendar's second source — a results 8-K in the 45 days before the window settles 'unconfirmed'.
 const { applyReportedFilings } = await import('./fetch-earnings-calendar.mjs');
 check('v59.42 a name that already reported leaves the unconfirmed list with its filing', () => {
   const out = applyReportedFilings({ unconfirmed: ['META', 'NVDA', 'TSM'] }, {
@@ -171,7 +171,7 @@ check('v59.70 estimate first/last seen times survive rewrites and stop at the re
   same([r2.estimateFirstSeenAt, r2.estimateLastSeenAt, r3.estimateFirstSeenAt, r3.estimateLastSeenAt, revised.estimateFirstSeenAt, late.estimateLastSeenAt], [t1, t2, t1, t2, t3, null]);
 });
 
-// v59.94: a failed day or IPO query is recorded, not published as an empty, current result.
+// A failed day or IPO query is recorded, not published as an empty, current result.
 const { earningsQueryGaps, mergeEarningsRows } = await import('./fetch-earnings-calendar.mjs');
 check('v59.94 a failed day query is listed in earningsDayGaps and its week rows survive', () => {
   const days = ['2026-11-09', '2026-11-10'];
@@ -194,7 +194,7 @@ check('v59.94 all queries succeeding yields no gaps and iposAvailable true', () 
   same(out.ipos, ipo);
 });
 
-// v59.42: KOSPI weight proxies — common stocks only (no preferred, no ETF), the share at the previous close.
+// KOSPI weight proxies — common stocks only (no preferred, no ETF), the share at the previous close.
 const { buildKrIndexWeights } = await import('./fetch-kr-index-weights.mjs');
 const { readFileSync } = await import('node:fs');
 check('v59.42 KR weights: common stocks at the previous close', () => {
@@ -216,7 +216,7 @@ check('v59.94 KR weights: a blank or null day ratio is missing, not zero', () =>
   same(flat.rows.map((row) => [row.code, row.ret1dPct, row.weightPct]), [['000040', 0, 100]]);
 });
 
-// v59.44 (owner 2026-10-29): news by weight — tiers, the price after the report, Samsung's 조원 table, Korean headlines.
+// News by weight — tiers, the price after the report, Samsung's 조원 table, Korean headlines.
 const { homeBriefTiers, briefTier, releaseSession, earningsReaction, reactionText, briefHeadline, parseDartPreliminaryResults, formatKrw } = await import('../src/domain/briefing/event-briefs.js');
 const { extendedMovers } = await import('./fetch-event-briefs.mjs');
 check('v59.44 tiers: FOMC and the core movers in full, others one line, the rest folded', () => {
@@ -397,7 +397,7 @@ check('v59.44 the AI chain by group: US members, median, weakest first', () => {
   const r = (sym, ret1d, ret1m) => ({ sym, ret1d, ret1m });
   const flow = aiChainFlow({ themes, rows: [r('MU', -5, -12), r('SNDK', -5.3, -23.6), r('WDC', -1, -8), r('000660.KS', 13, 40), r('CRWV', -5, -30), r('NBIS', -5.7, -27), r('IREN', -4, -20), r('KO', 1, 3), r('PEP', 1, 3), r('MNST', 1, 3), r('A', 1, 1), r('B', 1, 1)] });
   same(flow.groups.map((group) => [group.name, group.ret1d, group.ret1m]), [['네오클라우드', -5, -27], ['메모리', -5, -12]]);
-  like(flow.reading, /2개 묶음이 지난 거래일과 한 달 모두 내렸습니다/); // v59.55: every group down on both windows reads as one clause
+  like(flow.reading, /2개 묶음이 지난 거래일과 한 달 모두 내렸습니다/); // Every group down on both windows reads as one clause
 });
 sources.manifest.ai['reasons-MSFT'] = { status: 'completed', model: 'gpt-6-luna', usage: { input_tokens: 3000, output_tokens: 200 }, output: [{ type: 'web_search_call', status: 'completed' }, { type: 'message', status: 'completed', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify({ reasons: [
   { text: 'Azure 성장이 기대에 못 미쳤다는 보도', url: 'https://www.cnbc.com/msft-q1' }, { text: '설비투자 $150 billion 전망', url: 'https://www.cnbc.com/msft-capex' }, { text: '블로그 추측', url: 'https://example.com/x' }] }) }] }] };
@@ -457,7 +457,7 @@ check('v59.44 a report with no hour is not timed against a session', () => {
   const brief = noHour.briefs.find((row) => row.symbol === 'INTC');
   same([brief?.status, brief?.reaction], ['provisional', undefined]);
 });
-// v60.18 (weekly audit 2026-11-15): NU said "원문 요약 정리 중" from 11/12 21:05Z for days, as CAMT/NVMI/OKLO did; the wait
+// NU said "원문 요약 정리 중" from 11/12 21:05Z for days, as CAMT/NVMI/OKLO did; the wait
 // had no bound. A day after the report the headline says the figures are the provider's; a filing found later still wins.
 {
   const { PROVISIONAL_SUMMARY_WAIT_MS, overdueProvisional, provisionalWaiting } = await import('../src/domain/briefing/event-briefs.js');
@@ -507,7 +507,7 @@ check('v59.44 a story name filing on 6-K is matched on its results 6-K only', ()
   });
 }
 
-// v59.56: the market reading is handed the reports whose sessions closed on its US close (the 10/30 reading never saw them).
+// The market reading is handed the reports whose sessions closed on its US close (the 10/30 reading never saw them).
 check('v59.56 earnings context: the close\'s own reports and leaders first, figures and reasons from the brief', () => {
   const brief = (symbol, firstDate, latestPct, extra = {}) => ({ kind: 'earnings', symbol, nameKo: symbol, eventDate: '2026-10-29', reaction: { basis: 'close', firstDate, latestDate: '2026-10-30', latestPct, sessions: firstDate === '2026-10-30' ? 1 : 2 }, ...extra });
   const briefs = { briefs: [

@@ -1,4 +1,4 @@
-// Owner 2026-10-25: "맞춤" in the AI panel header — the reader sets how answers should explain (experience, lens,
+// "맞춤" in the AI panel header — the reader sets how answers should explain (experience, lens,
 // horizon, loss tolerance, markets, interests, length). The profile is stored on this device and every question
 // carries it through window.AIO.aiProfileContext (read by src/ui/chat/panel.js _buildUserProfileContext). It adapts the
 // explanation only; the boundary text lives in src/ai/session/user-profile.js.
@@ -35,7 +35,7 @@ export function installAIProfile(root = globalThis, doc = root.document, { stora
   root.AIO = root.AIO || {};
   root.AIO.aiProfileContext = () => buildProfileContext(profile, learnedSummary());
 
-  // Owner 2026-10-25: use teaches the profile only after the reader turns it on (recordUsage stores nothing otherwise).
+  // Use teaches the profile only after the reader turns it on (recordUsage stores nothing otherwise).
   // Counts only: a screen opened, a completed question's topics, and the ticker or theme the app itself resolved.
   const record = (event) => { try { recordUsage(storage, event); } catch (_) { /* learning never blocks the panel */ } };
   const onScreen = (event) => {

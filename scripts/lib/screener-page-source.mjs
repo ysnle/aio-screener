@@ -1,4 +1,4 @@
-// v59.70 (S12): the screener page is split into src/ui/pages/screener/*.js behind the src/ui/pages/screener.js facade.
+// The screener page is split into src/ui/pages/screener/*.js behind the src/ui/pages/screener.js facade.
 // Source contracts that read "the screener page" read every file of it as one text, in a fixed order.
 import fs from 'node:fs';
 import path from 'node:path';

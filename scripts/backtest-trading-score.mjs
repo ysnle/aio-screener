@@ -1,19 +1,19 @@
 // ─────────────────────────────────────────────────────────────────────────
-// scripts/backtest-trading-score.mjs — Phase 3 [C3] validation harness (P599)
+// scripts/backtest-trading-score.mjs — Phase 3 [C3] validation harness
 //
 // 왜: computeTradingScore(js/aio-core.js, 홈 화면 중심 지표)는 어떤 백테스트/IC/적중률 검증도
 //     없다(Fable 진단 C3). 이 스크립트는 public-data/history.json(일별 시장 스냅샷)에 대해 매일
 //     재구성 점수 vs forward 5/21일 SPX 수익률을 계산·누적한다. scripts/fetch-data.mjs의
-//     updateBacktestHistory()(P586, 팩터 IC 시계열 누적)와 동일한 날짜별 upsert + 캡 패턴.
+//     updateBacktestHistory()(팩터 IC 시계열 누적)와 동일한 날짜별 upsert + 캡 패턴.
 //
-// RM-03 (2026-07-19): this file used to keep its own "v52.1 기준 — 로직/가중치/임계값 그대로
+// RM-03: this file used to keep its own "v52.1 기준 — 로직/가중치/임계값 그대로
 // 복사" copy of the 5 sub-score functions. That copy had already drifted from the live formula in
 // three ways the copy-paste comment did not track (F-11): a stale neutral-50 trend fallback where
 // live now returns null/missing, a `hyg<76` HYG-dollar-price credit-stress channel live removed
-// (P714/R343) that this file was still double-counting alongside its own separate bp
+//  that this file was still double-counting alongside its own separate bp
 // approximation, and an aaiiBear breadth-floor adjustment with no live counterpart at all.
 // reconstructScore() now calls the single extracted src/domain/market/signal/trading-score.js model
-// instead (R352: extraction is code motion, not a parallel model) — see that file's own comment
+// instead (extraction is code motion, not a parallel model) — see that file's own comment
 // for the full parity story and architecture/fixtures/trading-score-golden.json /
 // scripts/ci-domain-parity-check.mjs for the standing parity gate.
 //
@@ -53,14 +53,14 @@ const OUT_PATH = argValue('out', `${__dir}/../public-data/score-backtest-history
 const CLAMP = (v, lo, hi) => Math.max(lo, Math.min(hi, Number.isFinite(v) ? v : lo));
 
 // 전체 조합 — 재현 가능한 입력만 사용. breadth200/pcr는 history.json에 구조적으로 없다(가끔
-// 결측이 아니라 이 데이터소스 자체에 필드가 없음). RM-03 이전에는 라이브의 옛(v52.1) "실시간
+// 결측이 아니라 이 데이터소스 자체에 필드가 없음). RM-03 이전에는 라이브의 옛 "실시간
 // 미수신" 폴백 상수(57/0.95)를 재현한다고 문서화돼 있었지만, 그 폴백 상수 자체가 F-11이 찾은
 // 드리프트였다 — 라이브의 현재 동작(모델의 fail-closed null/false)에 맞춰 정직하게 정렬한다.
 // 결과적으로 componentCoveragePct가 100→80(초기 200MA 트레일링 미형성 구간은 더 낮게)으로
 // 낮아지고 재구성 점수도 소폭 이동한다. 의도된 정정이며 버그 아님(재현이 아니라 정렬).
 // 뉴스감성 보정은 과거 뉴스 데이터가 없어 완전히 생략(모델에 null/[] 전달 — "실패 시 두 보정
 // 모두 건너뜀"과 같은 경로).
-// Credit (R343): the model's hyBp is the FRED HY OAS in bp. The former HYG-price proxy ((100 - HYG) * 15, with a
+// Credit: the model's hyBp is the FRED HY OAS in bp. The former HYG-price proxy ((100 - HYG) * 15, with a
 // constant HYG 78 = 330 bp when the caller had no HYG) fed a fabricated, duration-contaminated spread into the
 // risk-appetite axis of every reconstructed score. A caller passes a measured OAS as `hyBp` or nothing; with nothing
 // the axis is missing and the model re-normalises over the components it has.
@@ -124,7 +124,7 @@ function forwardReturn(series, idx, daysAhead, lag = 0) {
 
 // A sample-size floor is not a significance test. Keep the legacy boolean fail-closed until
 // this producer emits an actual CI or p-value with an explicitly reviewed method.
-// Daily rows with an n-session forward return overlap: n consecutive rows share most of one window (R1247). The floor is
+// Daily rows with an n-session forward return overlap: n consecutive rows share most of one window. The floor is
 // judged on the count of windows that do not overlap, counted from the rows' own session positions (a window may start
 // at the session that closed the one before) — rows / n rounded down read 284 rows as 56 windows where 57 exist. A
 // correlation without its counted windows (`nEff`) has none: the floor fails closed.
@@ -180,7 +180,7 @@ export async function runBacktest(historyPath, outPath) {
       dataCompleteness: {
         vix: typeof d.vix === 'number', dxy: typeof d.dxy === 'number', tnx: typeof d.tnx === 'number',
         wti: typeof d.wti === 'number', vvix: typeof d.vvix === 'number',
-        hyOas: false, // history.json carries no FRED HY OAS; the risk-appetite axis is missing, never proxied (R343)
+        hyOas: false, // history.json carries no FRED HY OAS; the risk-appetite axis is missing, never proxied
         trend200maAvailable: spx200ma != null,
         breadthPcrFellBackToUnavailable: true, // history.json에 이 필드들은 아예 없음 — 항상 참(RM-03: 중립 근사가 아니라 정직한 미수신)
         newsSentimentOmitted: true,
@@ -218,7 +218,7 @@ export async function runBacktest(historyPath, outPath) {
     generatedAt: new Date().toISOString(),
     note: 'Phase 3 [C3] P599 — computeTradingScore 재구성 검증 하네스. RM-03(2026-07-19)부터 src/domain/market/signal/trading-score.js 단일 구현을 호출한다. breadth/pcr/뉴스감성은 history.json에 구조적으로 없어 라이브의 현재 fail-closed 미수신 처리(null/false)를 그대로 따른다 — 예전의 중립 상수 근사(57/0.95)는 제거됨(F-11 드리프트였음). 과거 행은 발행 당시 값이 아니라 실행마다 history.json 창으로 다시 계산한 값이다(restatement). summary의 sampleSizeSufficient는 관측 수 바닥일 뿐이며, 이 하네스는 CI/p-value를 계산하지 않아 statistical significance는 UNKNOWN, statisticallyMeaningful은 false로 fail-closed한다.',
     summary: summarizeTradingScoreBacktest(corr5d, corr21d, lagged),
-    // What the reconstructed score rests on: no credit input (R343) and no breadth, so it is a volatility + trend + macro read.
+    // What the reconstructed score rests on: no credit input and no breadth, so it is a volatility + trend + macro read.
     inputs: { credit: 'none: no FRED HY OAS in history.json; the HYG-price proxy is not used', missingInputPolicy: 'missing stays missing (no neutral default)', rowBasis: 'completed US sessions only' },
     // The rows are reconstructions, not the scores the screens published: every run recomputes each row inside history.json's
     // rolling window, so a past row changes when sessions leave the window's start (its 200-session average stops

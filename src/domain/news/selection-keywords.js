@@ -1,3 +1,10 @@
+// The news keyword lists, moved unchanged from js/aio-data.js (the scorer's MACRO/TECH/MED/ANALYST lists, the
+// exclusion list, the topic vocabulary and the finance-relevance list). Every list is matched by keyword-match.js.
+// Data only; src/domain/news/selection.js reads them.
+
+// ── 뉴스 스코어링 키워드 ────────────────────────────────────────
+// MACRO_KW: 시장 전체에 영향 → 홈 페이지 우선 노출 (+25점)
+// 지정학적 시나리오 분석 — 특정 국가 참조는 분석 시점의 실제 리스크를 반영합니다. 주기적으로 현행화 필요.
 export const MACRO_KW = [
   'FOMC','FOMC minutes','Federal Reserve','Fed','rate hike','rate cut','interest rate','pivot',
   'short covering','short squeeze','hedge fund short','prime book leverage',
@@ -7,16 +14,19 @@ export const MACRO_KW = [
   'AI capex funding','AI infrastructure funding','capital funding pulse','LQD YTM','LQD yield',
   'investment grade OAS','IG OAS','ICE BofA OAS','corporate OAS','HY OAS','credit downgrade',
   'MAGS ETF','Hartnett','recession recognition','sticky inflation','inflation persistence',
+  // v53.43 (integrate 2026-07-20): AI infrastructure cycle / funding and breadth debate.
   'capex revenue crossover','depreciation wall','capital intensity','capacity digestion',
   'funding runway','AI infrastructure cycle','oil inflation pass-through','forced deleveraging',
   'margin debt','energy inflation impulse','hyperscaler debt capacity','cloud backlog conversion',
   'multiple compression','supply bottleneck narrative','overbuild risk',
+  // v53.90 (integrate 2026-08-09): AI power-quality, demand falsifier, and breadth-risk vocabulary.
   'AI load ramp','peak-to-average load','electricity price volatility','transformer stress',
   'voltage flicker','harmonic distortion','load-following','GPU resale price',
   'GPU rental repricing','frontier lab growth','OCF acceleration','interconnection queue risk',
   'power-quality study','behind-the-meter economics','memory LTA allocation',
   'climax top','railroad track','200SMA stretch','relative-strength pullback',
   'inverse ETF','hedge proxy','short-demand proxy','event-driven risk window',
+  // v54.11 (integrate 2026-08-11/12): dated market-briefing vocabulary.
   'CPI release window','CPI surprise path','oil-rate conflict','AI compute financing',
   'compute financing platform','third-party capital','equity dilution','margin deleveraging',
   'forced liquidation','earnings beat breadth','market narrative bridge','foreign flow reversal',
@@ -24,12 +34,14 @@ export const MACRO_KW = [
 
   'CPI','PCE','GDP','GDPNow','inflation','deflation','recession','stagflation',
   'tariff','trade war','sanction','export ban','supply chain',
+  // ── v37.5: 관세/무역전쟁 키워드 보강 (2025-2026 핵심 이슈)
   'Section 301','reciprocal tariff','retaliatory tariff','countervailing duty',
   'anti-dumping','de minimis','USMCA','trade deficit','trade surplus','customs duty',
   'trade negotiation','trade deal','trade agreement','trade representative','USTR',
   'import duty','export restriction','entity list','blacklist','commerce department',
   '상호관세','보복관세','반덤핑','상계관세','무역적자','무역협상','관세율','수입관세','수출제한',
   '엔티티리스트','무역대표부','통상압력','무역분쟁','무역협정',
+  // ── 지정학·전쟁 (2026 지정학적 리스크 모니터링) — v37.2 보강
   'war','attack','missile','invasion','nuclear','conflict','geopolitical',
   'Iran','Hormuz','strait','airstrike','ceasefire','escalation','Middle East',
   'Israel','Lebanon','Hezbollah','CENTCOM','drone','drone strike','blockade',
@@ -41,6 +53,7 @@ export const MACRO_KW = [
   'earnings season','S&P','Nasdaq','Dow','market breadth','correction',
   'oil price','OPEC','energy crisis','gold','commodities',
   'bank failure','liquidity','margin call','short squeeze',
+  // ── 한국어 추가 (이란전쟁·스태그) — v37.2 보강
   '금리','전쟁','경기침체','인플레','관세','수출규제','부양책','긴축',
   '달러','원화','환율','채권','국채','기준금리',
   '이란','호르무즈','원유 급등','스태그플레이션','에너지 위기','유가 충격',
@@ -48,11 +61,13 @@ export const MACRO_KW = [
   // ── 전쟁/유가 추가 키워드
   'hormuz','호르무즈','demand destruction','수요파괴','refinery','정유','brent','wti-brent','spread',
   '카타르','qatar','lng','force majeure','불가항력','netanyahu','네타냐후','capitulation','항복매도',
+  // JP모건/SemiAnalysis 프레임워크 키워드
   'fortress iran','supply gap','oil premium','geopolitical premium','barbell strategy',
   'oil supply gap','oil disruption','Bab el-Mandeb','바브엘만데브',
   'net leverage','positioning','tactical positioning','forced buy',
   '요새 이란','공급 공백','유가 프리미엄','바벨 전략','순레버리지','포지셔닝',
   'server price','AI server price','서버 가격','BOM cost',
+  // v49.99 (integrate 2026-05-31): 텔레그램 3채널 통합 키워드
   'memory ASP','DRAM ASP','NAND ASP','메모리 ASP','DRAM 가격','NAND 가격',
   'memory TAM','메모리 TAM','agentic AI memory','에이전틱 AI 메모리',
   'MLCC price','MLCC 가격','MLCC 인상','passive components','수동부품 가격',
@@ -66,11 +81,13 @@ export const MACRO_KW = [
   'quantum milestone','Quantinuum H2','양자컴퓨터 마일스톤','32 qubit',
   'LTA prepayment','LTA 선지급','memory LTA','메모리 장기계약',
   'Kioxia','키옥시아','NAND cycle peak','낸드 사이클 정점',
+  // MACRO_KW 추가 — 분석가·인플레·메모리수급 (ANALYST_KW max+3이라 여기에도 등록)
   'Hartnett','Michael Hartnett','BofA inflation','inflation warning','인플레 경고',
   'Ueda','BOJ Ueda','우에다','G7 central bank','G7 금리',
   'memory supply','memory shortage','메모리 수급','메모리 공급 부족','반도체 수급',
   'AI server demand','AI 서버 수요','server supply constraint','서버 공급 제약',
   'Dell AI server','Dell earnings','Dell FY27','FY1Q27',
+  // v48.16 (integrate 2026-04-18): Citi 자산배분 + Fed + 데이터센터 규제
   'escalate to de-escalate','고조 후 완화','quality rotation','퀄리티 로테이션',
   'earnings broadening','이익 확산','defensive tilt','디펜시브 전환',
   'bear market checklist','tactical overweight','전술적 비중확대',
@@ -79,7 +96,9 @@ export const MACRO_KW = [
   'Wartsila','34SG engine','onsite power','온사이트 발전',
   'data dependence','데이터 디펜던스','forward guidance 실패',
   '평균물가목표','2% 물가목표','중물가',
+  // JP모건 유가 시나리오 + 트럼프 국방예산 (2026.04)
   'demand destruction threshold','oil price scenario','gasoline price','K-shaped recovery',
+  // Telegram 7d macro/policy extensions.
   'BOJ 1%','JGB purchase taper','Nikkei 70000','Iran reconstruction fund',
   'US-Iran MOU','Hormuz reopening','Hormuz oil shipments','AI model export control',
   'Fable 5 export control','Mythos 5 export control','foreign national AI access',
@@ -92,10 +111,12 @@ export const MACRO_KW = [
   'Golden Dome','defense budget','national defense','FY2027 defense',
   'Virginia-class submarine','F-35 procurement','defense spending',
   'weapons production','Indo-Pacific','무기 재고 재건','국방예산','골든 돔',
+  // Power & Utilities Supercycle 키워드
   'power supercycle','AI power demand','Rate Base','power PPA','transmission grid',
   'onsite power','gas turbine','fuel cell','onsite generation','power purchase agreement',
   '전력 슈퍼사이클','가스터빈','연료전지','송전 병목','전력 PPA','유틸리티 성장',
   '전력 직접계약','Rate Base 확대','전력 인프라','AI 전력',
+  // 민간신용·소비심리·시장미시구조 (퍼펙트스톰 분석)
   'private credit','사모신용','사모펀드','사모대출','redemption','환매','redemption wave','환매 위기',
   'private credit default','default rate','디폴트율','Apollo','Blackstone credit',
   'consumer sentiment','소비자심리','Michigan sentiment','미시간 소비심리',
@@ -104,17 +125,20 @@ export const MACRO_KW = [
   'pension rebalancing','연기금 리밸런싱','hedge unwind','헤지 해소','숏감마 해소',
   'Trump Reversal Index','reversal index','capitulation signal','항복 신호',
   'short gamma','숏감마','dealer gamma','딜러감마',
+  // ── v31.8: 채권·금리·통화정책 심화
   'quantitative easing','quantitative tightening','reverse repo','RRP',
   'term premium','real yield','TIPS','breakeven inflation','fed funds',
   'dot plot','jackson hole','minutes','beige book','bank term funding',
   'sovereign debt','fiscal deficit','debt ceiling','government shutdown',
   'investment grade','high yield','junk bond','credit default swap','CDS',
   'BBB downgrade','fallen angel','covenant','leverage loan','CLO',
+  // ── v31.8: 외환·글로벌 중앙은행
   'ECB','BOJ','BOE','PBOC','BOK','RBA','SNB','Riksbank',
   'carry trade','currency intervention','forex reserve','capital outflow',
   'dollar index','euro','sterling','swiss franc','emerging market currency',
   'bilateral swap','dedollarization','BRICS currency','petrodollar',
   'won','ringgit','rupee','baht','peso','lira','rand','real',
+  // ── v31.8: 경제지표 심화
   'ISM','PMI','services PMI','manufacturing PMI','consumer confidence',
   'retail sales','industrial production','housing starts','building permits',
   'durable goods','factory orders','trade balance','current account',
@@ -123,17 +147,20 @@ export const MACRO_KW = [
   'capacity utilization','business inventories','wholesale inventories',
   'Michigan sentiment','Conference Board','Philly Fed','Empire State',
   'Chicago PMI','Dallas Fed','Richmond Fed','Kansas City Fed',
+  // ── v31.8: 시스템 리스크·금융안정
   'systemic risk','financial stability','bank run','deposit flight',
   'FDIC','bailout','bail-in','too big to fail','stress test',
   'counterparty risk','rehypothecation','shadow banking','money market',
   'commercial real estate','CRE','office vacancy','CMBS',
   'pension fund','sovereign wealth fund','central bank buying',
+  // ── v31.8: 지정학 심화
   'Taiwan Strait','South China Sea','AUKUS','NATO expansion',
   'Ukraine','Russia','North Korea','ICBM','hypersonic',
   'Red Sea','Houthi','shipping disruption','Suez','Panama Canal',
   'rare earth','critical minerals','chip war','tech decoupling',
   'friendshoring','nearshoring','reshoring','onshoring',
   'SWIFT','financial sanctions','asset freeze','embargo',
+  // ── v31.8: 한국어 매크로 심화
   '통화정책','양적완화','양적긴축','테이퍼링','피봇','금통위',
   '물가','소비자물가','생산자물가','근원물가','기대인플레',
   '고용','실업률','신규고용','비농업고용','고용지표',
@@ -147,6 +174,7 @@ export const MACRO_KW = [
   '대만해협','남중국해','홍해','후티','수에즈','공급망',
   '탈달러화','페트로달러','위안화 결제',
   '희토류','핵심광물','기술패권','디커플링',
+  // Citi 매크로 싱크탱크 + 미래에셋 쓰리백 (2026.04)
   'GPU rental','GPU rental price','compute rental','GPU shortage','compute shortage',
   'GPU 렌탈','GPU 가격','컴퓨트 부족','컴퓨팅 병목',
   'labor participation','participation rate','경활률','경제활동참가율',
@@ -154,6 +182,7 @@ export const MACRO_KW = [
   'sector rotation','sector overweight','sector underweight','섹터 로테이션',
   'Hormuz vulnerability','호르무즈 취약','energy import','에너지 수입',
   'neutral downgrade','주식 중립','overweight to neutral',
+  // GS KOSPI + JPM GDW + 추경 + 나프타 + 반도체 포지셔닝 (2026.04)
   'KOSPI 7000','KOSPI target','KOSPI forward PE','코스피 선행PER','코스피 목표가',
   'ERLI','이익수정선행지표','earnings revision leading',
   '추가경정예산','supplementary budget Korea','Korean fiscal stimulus',
@@ -163,6 +192,7 @@ export const MACRO_KW = [
   '한국 수출 역대 최대','Korea export record','반도체 수출 급등',
   'Long-only positioning','hedge fund semiconductor','롱온리 반도체',
   'helium supply','헬륨 공급','helium EUV','helium shortage',
+  // ── v37.7: AI 투자·전력수요·정책 키워드
   'AI CapEx','hyperscaler CapEx','data center CapEx','cloud CapEx','AI spending',
   'power demand','electricity demand','grid capacity','grid bottleneck','grid congestion',
   'nuclear revival','nuclear renaissance','energy permitting','permitting reform',
@@ -173,10 +203,12 @@ export const MACRO_KW = [
   'AI투자','빅테크설비투자','데이터센터투자','전력수요','전력난','송전망','계통',
   '원전르네상스','에너지허가','산업정책','반도체특별법','K칩스법',
   'AI규제','AI거버넌스',
+  // AI 기업 성장 마일스톤 — 시장 임팩트 높음 (TECH_KW 중복→+40점 합산)
   'Anthropic','OpenAI','xAI','AI run-rate','run-rate revenue','ARR milestone',
   'enterprise AI adoption','AI enterprise deal','AI contract',
   'GW-scale compute','gigawatt compute','AI compute demand',
   'GPT-6','GPT 6','Sam Altman','Dario Amodei',
+  // 4개 글 통합 — TFP/생산성/H4L/자본조달/SPY200MA (2026.04.08)
   'total factor productivity','TFP growth','productivity gap','AI productivity gap',
   'unit labor cost','labor productivity growth','productivity expectation',
   'higher for longer','H4L policy','Fed H4L','sticky inflation',
@@ -188,11 +220,13 @@ export const MACRO_KW = [
   'capital allocation','cost of capital','equity financing','debt financing',
   'SPY 200-day','SPY 200MA','200-day moving average resistance','S&P 200DMA',
   '이란 휴전 재충전','ceasefire two-week','2주 휴전 리스크',
+  // DC전력믹스·BTM·AI보안 (2026.04.09)
   'BTM natural gas','BTM generation','behind-meter generation','grid constraint decade',
   'training inference mix','datacenter workload shift','backup power leadtime',
   'diesel genset cost','standby power capacity','prime power bridge',
   'AI vulnerability','zero-day AI','AI security arms race','shadow AI risk',
   '추론DC 입지','DC워크로드 전환','BTM 천연가스','스탠바이전력','AI 취약점',
+  // Citi 스태그플레이션 플레이북 (2026.04.09)
   'stagflation playbook','stagflation scenario 2026','stagflation equity',
   'net short positioning','short extension phase','de-risking phase',
   'sector dispersion EPS','energy EPS offset','headline EPS intact',
@@ -200,8 +234,10 @@ export const MACRO_KW = [
   'Eurostoxx50 positioning','DM xUS positioning','Korea net long risk',
   '스태그플레이션 플레이북','지정학 헤지','순공매도','에너지 EPS 상쇄','섹터 편차',
   '포지셔닝 해소','비중확대 영국','비중축소 일본','라틴아메리카 헤지',
+  // 시장 브레드쓰 구조 분석 (2026.04.09)
   'bull trap','breadth divergence','market internals','above 50-day','above 200-day',
   '불트랩','이평정배열','브레드쓰 괴리','갭업 돌파','50일선 탈환','브레드쓰 확인',
+  // FOMC 듀얼리스크 + TGA 메커니즘 + 4월 이벤트 (2026.04.10)
   'FOMC dual risk','dual mandate tension','bidirectional rate signal','rate hike signal',
   'non-housing services sticky','non-shelter services','core services ex-housing',
   'low hiring trap','low hiring vulnerability','hiring pause AI',
@@ -222,6 +258,7 @@ export const MACRO_KW = [
   'TGA 메커니즘','재무부 유동성','역레포 인출','T-bill 발행 전략',
   '바이백 재개','바이백 블랙아웃','세금 시즌 유동성','정치적 유동성',
   '중간선거 시장','재무부 vs 연준','베센트','감세 환류',
+  // 걸프 인프라 피해 + 이창용 한은 (2026.04.10)
   'Gulf energy infrastructure','Ras Laffan damage','Sitra refinery','East-West pipeline',
   'refinery outage','pipeline attack','energy infrastructure repair','supply shock measurable',
   'Saudi Aramco attack','Khurais attack','Manifa attack','pumping station attack',
@@ -229,6 +266,8 @@ export const MACRO_KW = [
   'exchange rate DXY relative','걸프 인프라 피해','라스 라판','시트라 정유소',
   '동서 파이프라인','정유 가동중단','공급 충격 정량화','이창용 총재','WGBI 유입',
   '추경 초과세수','환율 DXY 상대비교',
+  // 2026 매크로 키워드 확장
+  // 일본 금리 정규화
   'BOJ rate hike','BOJ normalization','Ueda','Japanese bond','JGB','30Y JGB',
   'yen carry unwind','Japan rate path','Tankan','BoJ April',
   '일본 금리','우에다','JGB','엔 캐리 청산','일본 국채','일본 금리 정규화',
@@ -247,12 +286,14 @@ export const MACRO_KW = [
   // 생산성/AI 경제 영향
   'AI productivity','TFP','total factor productivity','AI GDP impact','automation displacement',
   'AI 생산성','총요소생산성','AI GDP 영향',
+  // JP모건 뷰 휴전 베타 + 뉴스 브리핑 + Citi SW Shock
   'ceasefire beta','휴전 베타','retracement','되돌림률','안도 랠리','relief rally',
   'Novorossiysk','노보로시스크','Black Sea oil','흑해 원유','oil loading halt',
   'GCC energy infrastructure','걸프 에너지 인프라','통행료 제도','Hormuz toll',
   'manufacturing GDP','제조업 GDP','reshoring','리쇼어링',
   'Hungary election','헝가리 선거','Fidesz','Magyar','HUF','HGB',
   'Kraken Fed account','크라켄 연준 계정','crypto payment','크립토 결제',
+  // 이란 협상 결렬 + 실질금리 + 사모신용 + SW-Semi 로테이션 (10건 통합)
   'naval blockade','해군 봉쇄','mine clearing','기뢰 제거','Hormuz mine','호르무즈 기뢰',
   'IRGC toll','물동량 정상화','physical supply gap','공급 갭 14M bbl',
   'Iran negotiation failure','이란 협상 결렬','Islamabad talks','이슬라마바드 협상',
@@ -266,6 +307,7 @@ export const MACRO_KW = [
   'forward PE compression','선행PER 압축','Mag7 underperform','top-10 concentration',
   'Beveridge curve','베버리지 곡선','Inverse-L Phillips','필립스 곡선',
   'wage growth tracker','WGT','임금추적지수','unit labor cost rise',
+  // PPI 수요파괴 + 기대인플레 탈앵커링 + Mission Accomplished 괴리 + CTA (2026.04.16)
   'margin compression','마진 압축','trade margin squeeze','도매 마진 축소',
   'PPI-to-PCE','PCE pass-through','PCE 패스스루','PPI PCE 전이',
   'intermediate demand','중간재 수요','stage 2 demand','파이프라인 물가',
@@ -280,6 +322,7 @@ export const MACRO_KW = [
   'energy cost structural','에너지 비용 구조적','post-war energy premium',
   'IEA Birol','비롤','energy security threat',
   'short squeeze software','소프트웨어 숏스퀴즈','software semi rotation',
+  // 분배 단계 진단 + UW 확장 F&G + RiskBot + ZBT + Pain Trade (2026.04.16)
   'distribution phase','분배 단계','distribution top','topping process','topping pattern',
   'narrow rally','협소 랠리','top-heavy rally','top-decile leadership','상위 5% 주도',
   'breadth failure','브레드쓰 부실','breadth divergence','internal divergence','내부 괴리',
@@ -313,6 +356,7 @@ export const MACRO_KW = [
   'earnings yield bond yield','주식 채권 기대수익 격차',
   'market internals deterioration','시장 내부 악화','internals gap widening',
   'Anna Karenina market','안나 카레니나 시장','unique distribution signature',
+  // v48.61 (integrate 2026-04-21): 매크로 추가 키워드
   'GPU rental spike','GPU 임대가 급등','B200 rental','H100 rental','A100 rental',
   'DRAM contract +61%','NAND contract +73%','memory contract 2Q26','메모리 계약가',
   'token survivor charge','Tumi Amazon Connect','AI manager','컴퓨팅 용량 부족',
@@ -321,6 +365,7 @@ export const MACRO_KW = [
   'rideshare AV cannibalization','라이드셰어 AV 잠식','5% 16% scenario',
   'SAAR 300-600만 감소','자동차 판매 극단 베어','US driver labor 350만',
   'CapEx 67% 2026','CapEx 16% 2027','hyperscaler 8000억',
+  // v48.65 (integrate 2026-04-25): 리스크 관리 프레임워크 + 우주 경제
   'dual-scenario planning','scenario planning investing','양방향 시나리오 플래닝',
   'risk calibration','portfolio concentration risk','personal black swan event',
   'optimism tipping point','risk accumulation threshold','macro risk management tool',
@@ -331,9 +376,11 @@ export const MACRO_KW = [
   'space economy 2026','commercial space station','Starlab station',
   'Amazon Globalstar acquisition','D2D spectrum','satellite broadband M&A',
   '골든돔 예산','아르테미스','스페이스X IPO','상업우주정거장','위성통신 M&A',
+  // v48.67 (integrate 2026-04-26): 이란 봉쇄·메모리 LTA 메가트렌드
   'Hormuz blockade','Iran blockade','호르무즈 봉쇄','호르무즈 해협 봉쇄',
   'shadow fleet','그림자 선대','제재 우회 선박','이란 유조선',
   'LTA agreement','memory LTA','long-term supply agreement','메모리 장기공급계약',
+  // UAE OPEC+ 탈퇴 + AI 수익화 + 모델 증류
   'UAE OPEC exit','UAE OPEC departure','UAE 탈퇴','UAE production quota',
   'OPEC+ realignment','OPEC 이탈','UAE 증산 결정',
   'model distillation','xAI distillation','Grok distillation','모델 증류',
@@ -345,6 +392,7 @@ export const MACRO_KW = [
   'double beat 68%','earnings double beat','어닝 더블비트',
   'tariff sensitivity 12%','tariff exposure high','관세 고노출',
   'fintech BNPL cycle','SOFI earnings','LC loan origination',
+  // v48.87 (integrate 2026-05-07): 25건 시장 자료 매크로 키워드
   'server CPU TAM','서버 CPU TAM','CPU TAM revision','CPU GPU ratio','CPU:GPU ratio',
   'agentic CPU','에이전틱 CPU','agentic workload CPU','CPU GPU additive',
   'AI inference cost','AI 추론 비용','LLM inference cost','LLM 비용','inference cost margin',
@@ -358,6 +406,7 @@ export const MACRO_KW = [
   'smartphone unit decline','스마트폰 유닛 감소','smartphone YoY negative','PC demand 2H26',
   'TSMC 3nm constraint','TSMC capacity constraint','TSMC AMD allocation',
   '153K wafers','TSMC N3 supply','AMD supply bottleneck',
+  // v51.09 (integrate 2026-06-22): 스위스 미이란 협상 + BOJ 비둘기 + 중국 희토류 + 영국 스타머 + WTI $75
   'Iran 60-day roadmap','Iran Switzerland talks','Iran final agreement','미이란 60일 로드맵','이란 스위스 협상',
   'Iran reconstruction fund','이란 재건 개발','Iran petrochemical export exemption','이란 석유화학 수출 면제',
   'Iran frozen assets release','이란 동결자산 해제','Lebanon ceasefire Iran','레바논 종식 이란',
@@ -369,6 +418,7 @@ export const MACRO_KW = [
   'UK political risk','영국 불확실성','브렉시트 방향성','post-Brexit policy',
   'WTI below 75','WTI $75','WTI 75달러','원유 $75 이하','유가 $75',
   'Trump Anthropic','Trump AI security','트럼프 앤트로픽','AI 안보 정책 완화',
+  // v51.13 (integrate 2026-06-23): GS 침체 하향 + 순환매 + 이란 라이선스 + 유가 + 분기말 리스크 + ECB
   'Goldman Sachs recession 15','GS recession probability','GS 침체 확률','recession probability down',
   'Goldman Sachs soft landing','GS soft landing','경기침체 확률 하향','GS 15 percent recession',
   'quarter-end rebalancing','분기말 리밸런싱','Q-end sell pressure','quarter end selling',
@@ -385,9 +435,11 @@ export const MACRO_KW = [
   'yuan undervalued G7','위안화 저평가 G7','G7 imbalance','라가르드 위안화',
   'reverse repo surge','역레포 급증','Fed reverse repo','역환매조건부채권 급증',
   'Greenspan death','앨런 그린스펀 별세','Greenspan passed away',
+  // Telegram channel cross-checks: narrative discovery only; current values require primary evidence.
   'AI infrastructure broadening','market broadening','KOSPI positioning','KOSPI deleveraging',
   'Texas data center queue','Texas water stress','interconnection queue 474GW','temporary Hormuz safe route',
   'US-Japan FX intervention','DXY long unwind','credit deleveraging','single-name leverage unwind',
+  // v54.44 (integrate 2026-08-22): user-supplied funding-supply and volatility transmission frame.
   'term premium','Treasury buyback','Treasury issuance','corporate bond issuance','corporate issuance',
   'long-end supply demand','AI capex financing','dealer gamma','negative gamma','options expiry','VIX expiry',
   'all-asset deleveraging','China credit impulse','China fixed asset investment','국채 발행 공급','기업채 발행',
@@ -395,8 +447,11 @@ export const MACRO_KW = [
   'PCE GDP','GDP second estimate','Jackson Hole','Fed path','month-end rebalancing','passive rebalancing',
   'shareholder return','buyback cancellation','DRAM short squeeze','Korea leverage','central bank UST selling',
   '주주환원','자사주 소각','월말 리밸런싱','DRAM 숏스퀴즈','한국 레버리지','중앙은행 국채 매도',
+  // v54.66 (integrate 2026-08-29): supplied liquidity-channel and conditional-guidance vocabulary.
   'TGA to reserves','repo market stress','SOFR OIS','SOFR-OIS spread','MMF outflow','FIMA repo',
   'liquidity depth','duration supply','Treasury corporate supply','AI bond supply','capital bottleneck',
+  // v54.71 (integrate 2026-08-30): market confirmation, lagged housing/employment,
+  // and AI inference-system economics from the latest supplied material batch.
   'index confirmation','equal-weight confirmation','small-cap confirmation','sector relative strength',
   'earnings event risk','price acceptance','retest confirmation','QQQ support','SPY confirmation',
   'housing supply lag','housing demand shock','property tax employment','local government employment',
@@ -432,6 +487,7 @@ export const TECH_KW = [
   'customer concentration risk','prepaid supply commitment','custom supply chain risk',
   'HBM cycle debate','memory cycle top','AI capex funding risk',
   '반도체','파운드리','HBM','AI 가속기','메모리','D램','낸드',
+  // ── v31.8: AI/반도체 밸류체인 심화
   'GPU','TPU','NPU','AI accelerator','inference chip','training chip',
   'advanced packaging','chiplet','2nm','3nm','1.4nm','GAA','gate-all-around',
   'wafer','silicon','fab','foundry capacity','utilization rate',
@@ -443,7 +499,10 @@ export const TECH_KW = [
   'AI agent','AI assistant','enterprise AI','edge AI',
   'transformer','large language model','LLM','foundation model',
   'AI regulation','AI safety','AI governance',
+  // ── v37.6: 2026 핵심 기술 키워드 대폭 확장
+  // 반도체 첨단패키징·인터커넥트
   'CPO','co-packaged optics','silicon photonics','optical interconnect',
+  // 광인터커넥트 심화 (레이저 병목, 변조기, 폼팩터)
   'VCSEL','EML','EML laser','DFB','DFB laser','CW laser',
   'WDM','wavelength division multiplexing','ELSFP','Kyber','Kyber rack',
   'Teralight','POET','optical interposer','InP','InP substrate','indium phosphide',
@@ -455,6 +514,7 @@ export const TECH_KW = [
   'Scintil Photonics','OCS','optical circuit switch','R300 OCS',
   'MAI-Transcribe','MAI-Voice','MAI-Image','Microsoft AI','Mustafa Suleyman',
   'Maia chip','custom XPU','Structera',
+  // v48.16 (integrate 2026-04-18): 신규 프레임워크 키워드
   'MTIA','Meta MTIA','MTIA v450','Arke',                        // Meta 커스텀 실리콘 — AVGO 다년간 파트너십 2029년까지
   'HBF','high bandwidth flash','HBM+HBF','inference memory',     // SanDisk AI 추론 메모리 신 카테고리
   'Glasswing','Project Glasswing','OpenAI TAC','Trust Access',   // Anthropic/OpenAI 보안 파트너 프로그램
@@ -465,6 +525,7 @@ export const TECH_KW = [
   'LTA','long-term agreement','메모리 LTA',                       // 메모리 장기공급계약 레버리지 역전
   'Cloud Next','Google I/O','Marketing Live','Brandcast',        // Google 2026년 이벤트 캘린더
   'Ask Maps','Personal Intelligence','Search Live',              // Gemini 통합 확장
+  // DC 전력 심화 (HVDC, 전력 스택, parasitic loss)
   'HVDC','high voltage DC','parasitic energy','parasitic loss',
   'skin effect','thyristor','IGBT','power semiconductor','VRM',
   'rack power','TDP 2300W','Vera Rubin TDP','NVL72','NVL144','600kW rack','1MW rack',
@@ -474,16 +535,20 @@ export const TECH_KW = [
   'BSPDN','backside power delivery','backside power',
   'interposer','RDL','redistribution layer',
   'HBM4','HBM3E','HBM4E','12-Hi','16-Hi',
+  // GPU 렌탈/네오클라우드/메모리 가격 (SemiAnalysis/Jefferies/메리츠)
   'GPU rental','GPU shortage','compute rental','GPU rental index',
   'neocloud','CoreWeave','Nebius','GPU subletting',
   'DRAM price','NAND price','memory price','fixed price','contract price',
+  // v53.43 (integrate 2026-07-20): P-game versus Q/capital-game lenses.
   'token deflation','memory price momentum','neocloud funding','GPU depreciation',
   'rental yield spread','capital runway','capex intensity','frontier model capex',
   'long-term agreement','floor price','prepayment','memory supercycle',
+  // v54.11 (integrate 2026-08-11/12): briefing report themes and ticker clusters.
   'AI compute financing','compute financing platform','personal AI agent','on-device model',
   'humanoid shipment','physical AI shipment','custom AI silicon','equity offering','equity dilution',
   'earnings beat breadth','photonics earnings','neocloud earnings reaction','asset manager 200SMA',
   'oil and gas leadership','memory two-way risk','forced liquidation','margin deleveraging',
+  // v53.90 (integrate 2026-08-09): power-quality and technical setup vocabulary.
   'AI data-center power','GPU load ramp','transformer thermal stress','harmonic distortion',
   'voltage flicker','rack load volatility','power-quality monitoring','GPU resale price',
   'frontier lab growth','memory LTA allocation','relative-strength pullback','climax top',
@@ -507,6 +572,7 @@ export const TECH_KW = [
   'data center power','power density','rack density',
   'nuclear data center','SMR data center','AI power demand',
   'UPS','power distribution','busbar','transformer shortage',
+  // SemiAnalysis 공급망 병목 + 미래에셋 쓰리백 (2026.04)
   'PCB bottleneck','CCL','copper clad laminate','drill bit shortage','multilayer PCB',
   'always-on agent','KAIROS','multi-agent workflow','token consumption','컴퓨팅 과점',
   'GPU spot price','B200 spot','compute oligopoly','infrastructure poverty','인프라 빈곤',
@@ -515,15 +581,18 @@ export const TECH_KW = [
   'Argan','AGX','Compass Systems','field labor shortage',
   'N3 sold out','TSMC N3','wafer allocation','cleanroom',
   'LSA prepayment','memory floor price','LSA선불금','모듈형 데이터센터',
+  // NVDA NTC + BofA 메모리슈퍼사이클 + Anthropic (2026.04)
   'neural texture compression','NTC compression','VRAM compression','texture compression',
   'Rubin Ultra','HBM Rubin','memory supercycle 2027','memory supercycle 2028',
   'ERLI','earnings revision leading indicator','이익수정선행지표',
   'helium supply chain','helium semiconductor','헬륨 공급망',
+  // WSTS 2026년 2월 + Intel 18A + MU LTA 구조개선 (2026.04, JP모건/KeyBanc)
   'WSTS','semiconductor revenue','monthly semiconductor',
   '18A','Panther Lake','Intel 14A','Humu Fish',
   'server CPU','server CPU demand','server CPU price',
   'LTA structure','pricing floor contract','Intel foundry customer',
   'DRAM pricing','NAND pricing','memory contract price',
+  // Citi 1Q26 + KeyBanc Asia Tour (HBM4/CoWoS/파운드리) + Anthropic/GPT 6.0 (2026.04)
   'EMIB-T','HBM4 qualification','HBM4 yield','HBM4 supply',
   'Lunar Lake','Lunar Lake sales','Lunar Lake revival',
   'analog price hike','analog pricing','analog semiconductor pricing',
@@ -535,6 +604,7 @@ export const TECH_KW = [
   'Anthropic ARR','Claude enterprise','Anthropic enterprise','Anthropic revenue',
   'GW-scale TPU','gigawatt TPU','GW TPU','TPU 2027 deployment',
   'Samsung HBM4','SK Hynix HBM4','Micron HBM4',
+  // TSMC 병목 + EMIB vs CoWoS 패키징 경쟁 + 3.5D 아키텍처 (2026.04, Damnang/JPM GTM)
   'SoIC','SoIC-T','SoIC-W','system on integrated chips',
   'Foveros Direct','hybrid bonding','copper-to-copper bonding','direct bonding',
   'XDSiP','Broadcom XDSiP','3.5D packaging','3.5D architecture',
@@ -548,6 +618,7 @@ export const TECH_KW = [
   'EMIB-M','MIM capacitor','power delivery network',
   'TSMC bottleneck','foundry bottleneck','wafer allocation',
   'AI hyperscalers','hyperscaler capex','hyperscaler weight',
+  // WF AMD Tactical + MS/JPM/Evercore/UBS MRVL-NVDA Partnership (2026.04.01)
   'Turin CPU','Zen 6','EPYC Turin','Diamond Rapids','EPYC share gain',
   'EPYC server CPU','AMD server CPU','server CPU TAM',
   'NVLink Fusion IP','XPU NVLink','NVLink scale-up',
@@ -555,6 +626,7 @@ export const TECH_KW = [
   'Scorpio X','ALAB Scorpio','NVLink switch',
   'AI-RAN 5G','AI-RAN 6G','Cavium baseband',
   'NVSwitch alternative','rack scale-up','heterogeneous compute',
+  // MS LRCX + Evercore WFE + Memory super-cycle + UBS Rubin Ultra (2026.04.06)
   'WFE forecast','wafer fab equipment','WFE 2026','WFE 2027',
   'memory super-cycle','DRAM super cycle','NAND super cycle',
   'Rubin Ultra 2-die','Rubin 288 rack','CoPoS 2026',
@@ -563,6 +635,7 @@ export const TECH_KW = [
   'MLPerf v6','MLPerf benchmark','CPO teach-in',
   'HBM bit growth','NAND bit growth','memory bit growth',
   'SABRE 3D','SABRE Syndion','etch equipment',
+  // KeyBanc Asia Tour — DC/서버/패키징 심화 (2026.04.05-06)
   'Zebra Fish','Humu Fish','Mediatek TPU','MTK TPU',
   'Trainium 3A','Trainium 3B','Trainium 4','AWS custom chip',
   'MTIA Arke','MTIA Iris','MTIA Apollo','MTIA Olympia',
@@ -581,10 +654,12 @@ export const TECH_KW = [
   '800V architecture','800V platform','silicon carbide','SiC','GaN',
   'ultra-fast charging','solid state battery','sodium-ion battery',
   'LFP','NMC','dry electrode','4680 cell',
+  // ── v37.7: 양자컴퓨팅
   'quantum computing','quantum computer','qubit','quantum advantage','quantum supremacy',
   'quantum error correction','topological qubit','quantum processor','quantum algorithm',
   'IONQ','IonQ','Rigetti','D-Wave','IBM Quantum','Google Willow','Quantinuum',
   'quantum networking','quantum cryptography','post-quantum','PQC',
+  // 광자 양자컴퓨팅 + 양자-암호 위협 (PhotonCap Xanadu + 돈스 Google/BTC)
   'photonic quantum','photonic QC','Xanadu','XNDU','Borealis','Aurora quantum','GKP qubit',
   'optical loss','squeezed light','silicon nitride PIC','PsiQuantum','photonic processor',
   'CRQC','cryptographically relevant quantum','quantum threat bitcoin','P2PK vulnerability',
@@ -609,43 +684,52 @@ export const TECH_KW = [
   'META ad revenue overtake','Reels AI recommendation','AI video generation tool','Google search share decline',
   'Amazon LEO antenna','LEO gigabit aviation',
   'Western Digital','Seagate Technology','SanDisk earnings','WDC target','STX target',
+  // ── v37.7: 우주경제·위성·LEO
   'space economy','LEO','low earth orbit','satellite constellation','Starlink',
   'AST SpaceMobile','Kuiper constellation','OneWeb','Iridium','Globalstar',
   'Planet Labs','Rocket Lab','Blue Origin','space station','orbital',
   'space data center','satellite internet','direct-to-cell','D2C satellite',
+  // ── v37.7: 사이버보안 심화
   'zero trust','ZTNA','SASE','XDR','EDR','MDR','SOAR','SIEM',
   'ransomware','phishing','threat detection','identity security','IAM','PAM',
   'Fortinet','FTNT','SentinelOne','Okta','OKTA','Varonis','Rubrik',
   'cloud security','container security','DevSecOps','CNAPP','CSPM',
   'post-quantum cryptography','AI security','deepfake detection',
+  // ── v37.7: 핵에너지 르네상스·전력인프라
   'nuclear renaissance','Constellation Energy','CEG','Vistra','VST','Talen Energy',
   'Three Mile Island','power purchase agreement','PPA','grid modernization',
   'NuScale','NuScale Power','OKLO','Kairos Power','TerraPower','X-energy',
   'transformer','grid transformer','power transformer','substation',
   'Quanta Services','EATON','Vertiv','Schneider Electric',
+  // ── v37.7: AI 인프라 소프트웨어·MLOps
   'MLOps','AI inference','AI training','model serving','vector database',
   'RAG','retrieval augmented generation','fine-tuning','RLHF','DPO',
   'synthetic data','data labeling','Scale AI','Weights & Biases','Databricks',
   'Hugging Face','vLLM','TensorRT','ONNX','model optimization',
+  // ── v37.3: 메가캡 테크 기업 · AI 기업 · 핵심 이벤트
   'Apple','AAPL','iPhone','iPad','Mac','Vision Pro','WWDC','App Store','Apple Intelligence',
   'Microsoft','MSFT','Windows','Azure','Copilot','Build','Activision',
   'Google','GOOGL','Alphabet','Search','YouTube','Waymo','Google I/O','Google Cloud',
   'Amazon','AMZN','AWS','Prime','Alexa','re:Invent','Kuiper','Amazon Robotics',
   'Meta','META','Facebook','Instagram','WhatsApp','Reality Labs','Llama','Threads',
   'Tesla','TSLA','FSD','Full Self-Driving','Robotaxi','Cybertruck','Optimus','Megapack','Terafab','Supercharger','Gigafactory',
+  // ── 빅테크/AI CEO 키워드
   'Jensen Huang','Lisa Su','Dario Amodei','Satya Nadella','Sundar Pichai',
   'Mark Zuckerberg','Andy Jassy','Tim Cook','Sanjay Mehrotra','Elon Musk',
   'Greg Brockman','Ilya Sutskever','Demis Hassabis',
   'NVIDIA','NVDA','GTC','Blackwell','Rubin','CUDA','DGX','Grace',
+  // ── v37.3: AI 스타트업 · 플랫폼 기업
   'OpenAI','ChatGPT','GPT-5','Sora','Sam Altman','AGI',
   'Anthropic','Claude','constitutional AI',
   'xAI','Grok','Elon Musk AI',
   'Mistral','Cohere','Perplexity','AI21','Inflection',
   'Hugging Face','Stability AI','Midjourney','Runway',
+  // ── v37.3: 클라우드 · SaaS · 사이버보안
   'Salesforce','CRM','ServiceNow','NOW','Snowflake','SNOW','Palantir','PLTR',
   'CrowdStrike','CRWD','Palo Alto','PANW','Datadog','DDOG','Zscaler',
   'Shopify','SHOP','Block Inc','PayPal','PYPL','Stripe',
   'Oracle','ORCL','Oracle Cloud','SAP','Workday','WDAY',
+  // ── v37.3: 테크 이벤트 · 컨퍼런스
   'CES','MWC','GTC','WWDC','Google I/O','Build','re:Invent','re:MARS',
   'Computex','Computex 2026','GTC Taipei','GTC 타이페이','Computex keynote',
   'WF6','tungsten hexafluoride','Kanto Denka','Central Glass','silicon capacitor',
@@ -655,6 +739,7 @@ export const TECH_KW = [
   'Vera Rubin Windows PC','ARM PC','NVDA PC chip','on-device AI PC',
   'Kioxia BiCS','BICS10','NAND scaling','수평 스케일링','낸드 수평 미세화',
   'MLCC shortage','MLCC supply','passive component price','MLCC 부족','수동소자',
+  // TECH_KW 추가 — Susquehanna·Dell실적·HBM점유율·일본반도체 (ANALYST_KW max+3 보완)
   'Susquehanna','Susquehanna upgrades','Susquehanna raises','Susquehanna initiates',
   'KB Securities','KB증권 목표가','KB증권 상향','KB 증권',
   'Lynx Equity','DA Davidson','Melius Research',
@@ -669,16 +754,20 @@ export const TECH_KW = [
   'Winbond','윈본드','NAND flash price','낸드 플래시 가격',
   'memory contract price','메모리 계약가','분기 계약가',
   'product launch','developer conference','keynote','developer day',
+  // ── v37.3: 한국어 테크 기업
   '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
   '오픈AI','앤트로픽','일론 머스크','젠슨 황','팀 쿡',
   '자율주행','로보택시','로봇','휴머노이드','비전프로',
   'FSD','완전자율주행','기가팩토리','테라팹','슈퍼차저',
+  // ── v31.8: 한국 반도체 심화
   '삼성전자','SK하이닉스','삼성파운드리','HBM3E','HBM4',
   '선단공정','첨단패키징','반도체 수출','반도체 장비','반도체 소재',
   'AI 서버','데이터센터','클라우드','하이퍼스케일러',
   '웨이퍼','실리콘','팹','가동률','수율',
   'GPU 수요','AI 투자','AI 인프라','전력 수요',
+  // ── v37.6: 한국어 핵심 기술 키워드 대폭 확장
   'CPO','광패키징','광인터커넥트','실리콘 포토닉스',
+  // 광인터커넥트+전력 한국어
   '광트랜시버','EML레이저','VCSEL','DFB레이저','파장분할다중화','인듐인화물','InP기판',
   '광인터포저','테라라이트','포엣','HVDC','고압직류','전력손실','스킨이펙트',
   '전력반도체','랙전력','기생에너지','PJM','계통연계','지중HVDC',
@@ -695,14 +784,18 @@ export const TECH_KW = [
   'L4자율주행','라이다','센서퓨전',
   '리스크파이브','RISC-V','ARM아키텍처',
   '후면전력전달','BSPDN','재배선층',
+  // ── v37.7: 한국어 양자·우주·사이버·원전 키워드
   '양자컴퓨팅','양자컴퓨터','큐비트','양자우위','양자암호',
   '우주경제','저궤도위성','위성인터넷','스타링크','우주데이터센터',
   '제로트러스트','사이버보안','랜섬웨어','클라우드보안','AI보안',
   '원전르네상스','소형모듈원전','뉴스케일','전력망','변압기','송전','배전',
   'MLOps','AI추론','AI학습','벡터DB','RAG','파인튜닝','합성데이터',
+  // ── v38.5: 신규 키워드
   'NVLink Fusion','AI-RAN','XPU','semi-custom AI',
   'Enterprise SSD','LTA','long-term agreement',
   'Foundry 2.0','파운드리 2.0',
+  // 6개 자료 통합 (2026.04.03)
+  // 샘 알트먼 AGI/Sora
   'automated researcher','automated company','OpenClaw','super agent',
   'AGI timeline','cognitive horsepower','AI resilience','compute crunch',
   'Sora shutdown','Sora cancelled','video generation shutdown',
@@ -717,10 +810,13 @@ export const TECH_KW = [
   'hyperscaler memory spend','메모리 CapEx','메모리 인플레이션',
   // MS 일본 DC
   'data sovereignty','데이터 주권','Japan data center','Takaichi AI strategy',
+  // Capex 효율화 사이클 + 네오클라우드 + 자본조달 (2026.04.08)
   'Capex efficiency cycle','AI ROI cycle','GPU utilization maximize','inference optimization cycle',
   'CoreWeave CRWV','Nebius NBIS','neocloud GPU rental','neocloud overhang',
   'IREN neocloud','NBIS upside','neocloud sector rotation',
   'AI fabric bottleneck','network fabric performance','AI performance bottleneck',
+  // MSFT/AVGO/Samsung/LITE/CRDO 6개 리포트 통합 (2026.04.07, GS/Citi/JPM/미즈호)
+  // CRDO AEC/ZFO/ALC
   'AEC cable','active electrical cable','AEC 800G','AEC 1.6T','Credo AEC',
   'ZeroFlap optics','ZFO transceiver','ZFO optics','zero flap optics',
   'active linear cable','ALC cable','ALC optics','ALC transceiver',
@@ -737,11 +833,13 @@ export const TECH_KW = [
   'memory earnings sustainability','memory cycle sustainability',
   // Serdes 기술
   'Credo Serdes','CRDO Serdes','Serdes DSP','DSP-based AEC',
+  // DC전력+AI보안+맥북 통합 (2026.04.09)
   'MacBook Neo','chip binning','binned chip supply','A18 Pro binned',
   'Project Glasswing','Claude Mythos','shadow AI','shadow IT AI',
   'aeroderivative turbine','prime power generation','load following power',
   'demand response datacenter','inference datacenter proximity','BTM gas power',
   '맥북 네오','칩 빈닝','빈닝 칩','클로드 미토스','섀도 AI',
+  // NAND HBF + AI사이버 임계점 + 걸프 인프라 + TPU 로열티 (2026.04.10)
   'KVCache eSSD','KV cache SSD','high bandwidth flash','HBF NAND','16-layer SLC',
   'QLC eSSD','NAND wafer capacity','NAND supply tight','375L NAND','459L NAND',
   'SanDisk HBF','SNDK earnings','WDC earnings','STX earnings',
@@ -751,6 +849,8 @@ export const TECH_KW = [
   'TPU royalty','TPU asset-light','GCP marginal OI','cloud OI contribution',
   'KVCache','고대역폭 플래시','NAND 공급 타이트','제한적 공개','사이버 신뢰',
   '앤트로픽 자체칩','TPU 로열티','클라우드 한계이익률',
+  // 2026 신규 AI/반도체 키워드 확장
+  // 추론 모델 (O1/O3/O4)
   'o1','o3','o4-mini','test-time compute','inference scaling','reasoning model','chain of thought',
   'GPT-5','GPT-o1','o1-mini','o3-mini',
   // Stargate / 대규모 AI 인프라
@@ -771,6 +871,7 @@ export const TECH_KW = [
   // 한국어 추가
   '추론 모델','추론 스케일링','테스트타임 컴퓨트','스타게이트',
   '세레브라스','그록','지식 증류','엣지 추론','유리기판','하이브리드 본딩','칩렛 표준',
+  // Cantor AI 인프라 + 번스타인 Muse + Citi SW Shock + 미즈호/Citi 오라클
   'neocloud','neo-cloud','네오클라우드','AI factory','AI 팩토리',
   'credit wrapper','credit backstop','크레딧 래퍼','크레딧 백스톱',
   'BYOG','bring your own generation','자체 발전',
@@ -781,6 +882,7 @@ export const TECH_KW = [
   'Fusion Agentic','Agent Hub','AI Agent Studio','에이전틱 앱',
   'vibe coding','바이브 코딩','RoCE fabric','off-box virtualization',
   'seat-based','좌석 기반','AI shock','terminal value risk',
+  // TD Cowen DC채널체크 + QCOM 추론시장 + DC리싱 구조 (2026.04.16)
   'DC leasing','data center leasing','GW-scale leasing','DC leasing record',
   'powered shell','triple-net pricing','powered shell deal','turn-key DC',
   'Snapdragon X Elite','Snapdragon X Plus','Windows on ARM','Copilot+ PC',
@@ -788,6 +890,8 @@ export const TECH_KW = [
   'QCOM rerating','inference market','device AI','디바이스 AI','추론 시장',
   '스냅드래곤 X 엘리트','윈도우 온 ARM','AI PC 리레이팅','DC 리싱',
   '파워드 쉘','트리플넷','데이터센터 리싱',
+  // v48.61 (integrate 2026-04-21): 20개 자료 통합 (JPM/Citi/GS/WF/TDC)
+  // Apple CEO 전환 (Tim Cook → John Ternus 2026-09-01)
   'John Ternus','Ternus CEO','hardware CEO','Johny Srouji','Arthur Levinson',
   'Executive Chairman','Chief Hardware Officer','스마트폰 이후 폼팩터','Apple M 시리즈 전환',
   'Vision Pro 총괄','Personal Siri','personalized Siri','WWDC 2026',
@@ -846,6 +950,8 @@ export const TECH_KW = [
   // 기타
   'Manus acquisition','0→1억 ARR','Mercor 1B ARR','Cursor 3',
   'survivor charge','생존자 비용','Dell memory surcharge',
+  // v48.65 (integrate 2026-04-25): 우주·전력반도체·유리기판·패턴분석
+  // 전력반도체 800V HVDC 생태계
   'GaNFast','GeneSiC','Navitas','NVTS GaN','800V HVDC rack','800V power semiconductor',
   'Wolfspeed SiC','WOLF SiC turnaround','SiC MOSFETs','wide-bandgap semiconductor',
   'Power Integrations','POWI GaN','PowiGaN','1MW rack power','Kyber 800V',
@@ -888,6 +994,7 @@ export const TECH_KW = [
   'open interest momentum','OI momentum','OI EMA crossover','OI breakout signal',
   'open interest expansion','open interest contraction','OI reversal signal',
   '미결제약정 모멘텀','미결제약정 EMA','OI 모멘텀','미결제약정 확장','미결제약정 수축',
+  // BootDrive + 메모리 4계층 + AI ARR + QCOM ASIC
   'BootDrive','boot drive','OS drive NVMe','부트드라이브',
   'BlueField-4','BlueField4','BF4 DPU','DPU boot',
   'MonTitan','MonTitan NAND','TLC boot SSD','MonTitan TLC',
@@ -911,12 +1018,14 @@ export const TECH_KW = [
   'BootDrive NVMe boot server','NVMe OS drive server',
   'QCOM DC ASIC','Qualcomm hyperscaler ASIC','Snapdragon ASIC datacenter',
   'QCOM automotive record','Snapdragon Digital Chassis','자동차 반도체 QCOM',
+  // v51.09 (integrate 2026-06-22): Minervini 차트 분석 + BROS VCP 돌파 예시
   'Minervini','Minervini pressure','Minervini Buy Risk','Minervini TPR',
   'TPR','Trend Persistence Ratio','RPR','Relative Price Ratio',
   'Dutch Bros','BROS','Dutch Bros Coffee',
   'ASML EUV clarification','ASML EUV no export','ASML China EUV',
   'SK Hynix number one','SK Hynix market cap 1st','SK하이닉스 시총 1위','하이닉스 삼성 역전',
   'HBM leadership','HBM market leader','HBM 주도권 교체',
+  // v51.13 (integrate 2026-06-23): HALOS + Vera Rubin EU + Micron Anthropic + CRDO 상향 + SpaceX 회사채 + DeepMind
   'HALOS platform','NVIDIA HALOS','HALOS safety','HALOS humanoid','엔비디아 HALOS','HALOS 로봇 안전',
   'AI factory Europe','European AI factory','유럽 AI 팩토리','AI 슈퍼컴퓨터 유럽','Europe 35 AI',
   'Vera Rubin supercomputer','Vera Rubin EU','Vera Rubin 35 countries','베라 루빈 유럽',
@@ -941,6 +1050,7 @@ export const MED_KW = [
   'guidance raise','guidance cut','outlook','beat estimates','miss estimates',
   'acquisition','merger','IPO','buyback','dividend','spin-off',
   'partnership','strategic partnership','strategic alliance','joint venture','collaboration',
+  // 광통신·전력 기업이슈
   'optical transceiver','광트랜시버','EML laser','VCSEL','DFB laser',
   'laser bottleneck','레이저 부족','레이저 병목','InP shortage','인듐인화물 부족',
   'HVDC','power delivery','전력전달','AC DC','전력 변환',
@@ -950,6 +1060,7 @@ export const MED_KW = [
   '파트너십','전략적 제휴','합작','위성통신','발전소','데이터센터 전력',
   'chip','battery','electric vehicle','cloud','SaaS','cybersecurity','blockchain',
   'bitcoin','crypto','ETF','recall','lawsuit','regulatory',
+  // ── v31.8: 기업 이벤트 심화
   'stock split','secondary offering','share repurchase','tender offer',
   'activist investor','proxy fight','board shake-up','CEO change','CFO',
   'insider buying','insider selling','Form 4','13F filing','SEC filing',
@@ -964,30 +1075,38 @@ export const MED_KW = [
   'patent','intellectual property','trade secret','antitrust','monopoly',
   'supply shortage','inventory build','channel check','demand trend',
   'defense','defence','military','weapon','missile defense','arms deal',
+  // ── v37.6: 방산·에너지·EV 키워드 보강
   'Golden Dome','Iron Dome','missile shield','hypersonic defense','space defense',
   'drone defense','counter-drone','directed energy','laser weapon',
   'nuclear power','SMR','uranium','renewable energy','solar','wind',
   'EV battery','lithium','cobalt','nickel','cathode','anode','solid state battery',
   '800V','SiC inverter','fast charging','battery swap','V2G','vehicle-to-grid',
+  // ── v37.7: GLP-1·비만치료제 세부 확장
   'Wegovy','Ozempic','Mounjaro','Zepbound','tirzepatide','semaglutide','liraglutide',
   'oral GLP-1','GLP-1 agonist','incretin','weight loss drug','obesity drug','anti-obesity',
   'Medicare obesity','Medicare GLP-1','Novo Nordisk','NVO','Eli Lilly','LLY','Amgen obesity',
+  // ── v37.7: 바이오·제약 심화
   'bispecific antibody','ADC','antibody drug conjugate','CAR-T','cell therapy','gene therapy',
   'mRNA','RNA therapeutics','CRISPR','gene editing','BBB shuttle','brain-blood barrier',
   'Phase 1','Phase 2','Phase 3','NDA','BLA','PDUFA','EMA approval',
   'orphan drug','rare disease','oncology','immunotherapy','checkpoint inhibitor','PD-1','PD-L1',
   'biosimilar','generic drug','patent cliff','loss of exclusivity','LOE',
+  // ── v37.7: ESS·에너지저장
   'ESS','energy storage','BESS','grid-scale battery','grid storage','battery storage',
   'stationary storage','utility-scale','peak shaving','frequency regulation',
+  // ── v37.7: 조선·해운·해양
   'shipbuilding','shipyard','newbuild','order book','vessel','tanker','bulk carrier',
   'container ship','LNG carrier','warship','naval vessel','frigate','destroyer',
   'HD Hyundai','Hanwha Ocean','Samsung Heavy','Daewoo Shipbuilding',
+  // ── v37.7: 우주·위성 기업
   'SpaceX','Rocket Lab','RKLB','Blue Origin','satellite','Starlink','AST SpaceMobile','ASTS',
   'Iridium','IRDM','Globalstar','GSAT','Planet Labs','L3Harris','LHX',
+  // ── v37.7: 사이버보안 기업 이벤트
   'ransomware attack','data breach','cyber attack','zero-day','vulnerability',
   'Fortinet','FTNT','SentinelOne','Okta','Rubrik','IPO',
   'biotech','FDA approval','clinical trial','Phase 3','drug pipeline',
   'SPAC','de-SPAC','direct listing','Dutch auction',
+  // ── v37.3: 기업 이벤트 · 제품 · 규제 보강
   'product launch','product reveal','product announcement','new product',
   'developer conference','keynote','investor day','analyst day','capital markets day',
   'CEO','CTO','CFO resignation','management change','succession',
@@ -1000,17 +1119,20 @@ export const MED_KW = [
   'Visa','Mastercard','Amex','AXP',
   'JPMorgan','Goldman Sachs','Morgan Stanley','Bank of America','Citigroup',
   'Berkshire','Buffett','Munger',
+  // ── v37.3: 한국어 기업 이벤트 보강
   '제품 출시','신제품','개발자 컨퍼런스','키노트','투자자의 날',
   '독점금지','반독점','벌금','규제','플랫폼 규제',
   '데이터 유출','서비스 장애','해킹',
   '넷플릭스','디즈니','스포티파이','우버','에어비앤비',
   '버크셔','버핏','JP모건','골드만삭스','모건스탠리',
+  // ── v31.8: 한국어 기업 이벤트
   '실적','매출','영업이익','순이익','가이던스','전망','컨센서스',
   '자사주','자사주 매입','자사주 소각','배당','증자','감자',
   '인수합병','M&A','공개매수','경영권','지배구조',
   '공매도 잔고','신용잔고','대차잔고','기관 순매수','외국인 순매수',
   '상장폐지','거래정지','관리종목','불성실공시',
   '방산','방위산업','무기','군수','원전','원자력','우라늄',
+  // ── v37.6: 한국 방산·에너지·EV·바이오 키워드 보강
   '골든돔','아이언돔','미사일방어','극초음속','우주방위','드론방어','레이저무기',
   'SMR','소형모듈원전','원전수출','한수원','두산에너빌리티',
   '2차전지','리튬','배터리','전기차','수소','태양광','풍력',
@@ -1019,6 +1141,7 @@ export const MED_KW = [
   '바이오','신약','임상','FDA','식약처',
   'GLP-1','비만치료제','바이오시밀러','ADC','항체약물접합체',
   '조선','LNG선','컨테이너선','벌크선','해운',
+  // ── v37.7: 한국 바이오·ESS·조선·우주 키워드 보강
   '위고비','오젬픽','마운자로','제패운드','세마글루타이드','티르제파타이드',
   '경구GLP-1','비만약','체중감량','항비만','노보노디스크','일라이릴리',
   '이중항체','CAR-T','세포치료','유전자치료','mRNA','크리스퍼','유전자편집',
@@ -1028,6 +1151,7 @@ export const MED_KW = [
   '한화에어로스페이스','현대로템','LIG넥스원','풍산',
   '우주항공','위성','발사체','누리호','스타링크','저궤도',
   '사이버공격','랜섬웨어','해킹','보안사고','제로데이',
+  // v48.67 (integrate 2026-04-26): 추론 아키텍처 분화·TSMC 이원화·SKH 기술·Tesla HW4+
   'SparseCore','TPU 8t SparseCore',                         // Google TPU 8t 임베딩·불규칙 메모리 엔진
   'Boardfly','Boardfly ICI',                                 // TPU 8i 추론 전용 네트워크 토폴로지
   'SOCAMM2','SoCAMM2','SOCAMM 192GB',                      // NVDA Vera CPU용 1c nm LPDDR5X 192GB 모듈
@@ -1038,6 +1162,7 @@ export const MED_KW = [
   'N2U','TSMC N2U',                                         // TSMC 2028 N2 3년차 확장 (+3~5% 성능)
   'HW4+','Tesla HW4 Plus','HW4 chipset 64GB',              // 테슬라 신규 자율주행 칩셋 (64GB, 2027 양산)
   '321-layer NAND','321L NAND','321단 낸드',               // SKH 321단 NAND (2026 국내 50% 전환 목표)
+  // v48.87 (integrate 2026-05-07): 25건 시장 자료 기술 키워드
   'AGI CPU','AGI CPU pipeline','ARM AGI CPU',             // ARM AGI CPU 파이프라인 $2B+
   'Scorpio','Scorpio X','Scorpio XPU',                    // ALAB Scorpio XPU 콘텐츠
   'Helios','MI450','MI455',                               // AMD MI450/Helios 차세대 GPU
@@ -1059,15 +1184,18 @@ export const MED_KW = [
   'Palantir AIP','Rule of 40','Rule of 120',            // PLTR 지표
   'HAWK','HawkEye 360','RF geospatial',                 // HawkEye360 신규
   'scale-across','scale-up scale-out',                  // AI 컴퓨팅 아키텍처
+  // HANA/Insider/BornLupin supply-chain observations.
   'VC electrolyte additive','vinylene carbonate','ESS attach rate','AI copper foil','CCL price increase',
   'PCIe 6.0 NAND','UFS 5.0 NAND','Qwen3.8-Max','TPU v9','HBM4 test equipment',
   'Korea semiconductor power 6.3GW','industrial water 650kt/day','foldable smartphone demand',
   'AI inference token intensity','memory LTA 3-5 year','CoPoS panel packaging',
+  // v54.44 (integrate 2026-08-22): inference-efficiency and AI-deal-map reference terms.
   'inference efficiency','memory wall','tokens per watt','decode memory bound','prefill decode',
   'SRAM','on-chip memory','transformer specialized','low batch inference','AI deal loop',
   'Cerebras','Groq','Etched','Frozen v2','Frozen v2 hardware','Mistral','Figure AI',
   'OpenAI deals','Anthropic deals','model lab','neocloud workload','KV cache','decode latency',
   '추론 효율','메모리 벽','토큰당 전력','온칩 메모리','트랜스포머 특화','저배치 추론','AI 거래 순환',
+  // v54.66 (integrate 2026-08-29): query-shape, hardware qualification, robotics and pattern taxonomy.
   'query type economics','inference query mix','tokens per user','token demand relay','query energy',
   'verification bottleneck','Amdahl law','AI hardware financing','AI overbuild timing','HBF qualification',
   'HBF standardization','compute tray PCB','NVSwitch tray','midplane PCB','low-Dk CCL','HVLP copper foil',
@@ -1079,6 +1207,7 @@ export const MED_KW = [
   '둥근바닥','둥근천장','쐐기형 패턴','깃발형 패턴','삼각수렴','대칭확산','컵앤핸들','울프웨이브','콰시모도',
   'usage-based pricing','outcome-based pricing','AI-native software','profitable growth software','software de-rating',
   'usage 기반 가격','성과 기반 가격','AI 네이티브 소프트웨어','소프트웨어 수익성장','소프트웨어 재평가',
+  // v54.71 (integrate 2026-08-30): Jalapeño / hardware-software co-design.
   'Jalapeño','Jalapeno','hardware-software co-design','explicit placement','NUMA locality',
   'collective communication','compiler mapping search','AI-assisted chip design','energy per request',
   'GigaKernel','KV locality','prefill decode SLO','hardware software 공동설계','명시적 배치','메모리 locality',
@@ -1096,6 +1225,7 @@ export const ANALYST_KW = [
   'Jefferies','JPMorgan','Goldman Sachs','Morgan Stanley','Citigroup','Bank of America',
   'KeyBanc','Piper Sandler','Barclays','UBS','Deutsche Bank','RBC Capital',
   'Mizuho','Needham','Wedbush','Canaccord','Truist','Oppenheimer','Stifel',
+  // 텔레그램 채널 주요 기관 추가 — 이번 주 핵심 리포트 기관
   'Susquehanna','Susquehanna Financial','SIG','Lynx Equity','Lynx equity',
   'DA Davidson','Melius Research','Melius','KB Securities','KB증권',
   'Hartnett','Michael Hartnett','BofA Hartnett',
@@ -1105,6 +1235,7 @@ export const ANALYST_KW = [
   '비중확대','비중축소','시장수익률','매수 유지','중립 유지',
 ];
 
+// 비주식 뉴스 블랙리스트 — 부동산, 연예, 스포츠, 생활, 날씨 등 제거
 export const NEWS_BLACKLIST_KW = [
   // ═══ 한국어 블랙리스트 ═══
   // 부동산
@@ -1151,29 +1282,36 @@ export const NEWS_BLACKLIST_KW = [
   'murder','homicide','kidnapping','robbery','assault','shooting suspect',
   'car crash','traffic accident','wildfire','flood damage','tornado',
   'missing person','fugitive','manhunt','drug bust','drug trafficking',
+  // 한국어 셀럽/비금융 보강
   '카다시안','유명 모델','약물 운전','음주 단속','전용기','사생활','열애설',
   // 크립토 스팸 (Price Prediction 기사 완전 차단)
   'price prediction','price forecast 2025','price forecast 2026','price forecast 2027',
   'price prediction 2025','price prediction 2026','price prediction 2027','price prediction 2030',
   'could reach $','can reach $','will reach $','might reach $',
+  // v48.20 (integrate): 2026년 AI 클릭베이트 패턴 보강
   'ai stock to buy now','next ai winner','ai stock of the decade','ai stock of the year',
   '100x ai stock','ai millionaire','quantum stock to buy','ai picks under $',
   'ai 황제주','ai 대박주','ai 차세대 황제','양자 대장주','암호화폐 무료',
   'should you buy','is it a good investment','worth buying',
   'meme coin','memecoin','shiba','dogecoin','pepe coin','floki',
   'airdrop','free tokens','crypto giveaway','pump and dump',
+  // 정치/선거 (금융 무관) — 경제정책은 MACRO_KW에서 별도 처리
   '대선','총선','보궐선거','국회의원','지방선거','후보자','공천','당대표','정당','여당','야당',
   '탄핵','국정감사','청문회','의원','국회','개헌','선거법',
   'presidential election','midterm election','campaign rally','political party','senator','congressman',
   'primary election','ballot','voting results','gubernatorial',
+  // 종교/문화/교육 (금융 무관)
   '교회','사찰','성당','목사','스님','종교','예배','미사','법회',
   '수능','입시','대학교','학교','교사','교수','학원','과외',
   '축제','전시회','공연','뮤지컬','오페라','클래식',
   'church','mosque','temple','pastor','sermon','worship',
   'school shooting','campus','graduation','university ranking','homework',
+  // 스포츠 보강 (기존 누락)
   'mls','pga','ufc','wwe','formula 1','f1 race','grand prix','wimbledon','us open tennis',
   'world series','stanley cup','champions trophy','cricket','rugby','golf tournament',
   '월드컵','프리미어리그','챔피언스리그','메시','호날두','손흥민','EPL','KBO','K리그',
+  // ── v31.8: 블랙리스트 대폭 강화 — 비금융 콘텐츠 근본 차단
+  // 건강/의료 (금융 무관 — 바이오 기업 뉴스는 MED_KW에서 처리)
   'diet plan','weight management','home remedy','natural cure','herbal supplement',
   'mental health tips','stress relief','sleep tips','wellness routine','self care',
   '건강법','민간요법','다이어트 식단','운동법','스트레칭','명상법',
@@ -1210,6 +1348,8 @@ export const NEWS_BLACKLIST_KW = [
   'campaign speech','political rally','endorsement','primary debate',
   'voter turnout','swing state','battleground','midterm results',
   '유세','지지율 조사','당내 경선','정치 스캔들',
+  // ── v34.1: 지역/지방 뉴스 근본 차단 — 투자와 무관한 한국 지역 뉴스 완전 제거
+  // 지방자치/행정 (금융 무관)
   '시장이','군수','구청장','도지사','면장','읍장','동장','이장',
   '시의회','군의회','구의회','도의회','지방의회','지방자치',
   '시청','군청','구청','도청','주민센터','행정복지센터',
@@ -1267,6 +1407,8 @@ export const NEWS_BLACKLIST_KW = [
   // 영문 순수 사회 이슈 (금융 문맥 공존 불가)
   'gun control','abortion rights','lgbtq rights',
   'school shooting','mass shooting',
+  // ── v38.3 B4: 비금융 한국 뉴스 추가 차단 (보험/카드/CSR/인사/부동산 등)
+  // 보험/카드 상품 (금융 산업 뉴스와 구분 — 개인 상품 광고성)
   '보험료 인상','보험료 인하','보험 가입','보험금 청구','보험 상품','보험설계사',
   '카드 혜택','신용카드 추천','카드 포인트','카드 할인','연회비',
   // CSR/ESG 보도자료 (투자 판단 무관)
@@ -1280,6 +1422,8 @@ export const NEWS_BLACKLIST_KW = [
   '훈련 실시','군사 훈련','합동 훈련',
   // 생활 경제 팁 (투자 무관)
   '절약법','가계부','용돈','저축 습관','짠테크',
+  // ── v39.2: 투자 스팸/클릭베이트/광고성 기사 근본 차단
+  // 한국어 투자 스팸 (주식 추천 사이트/네이버 카페/블로그 광고)
   '10배','100배','1000배','대박주','급등주','텐배거',
   '이 주식만','이 종목만','반드시 사야','무조건 사야','지금 안 사면',
   '놓치면 후회','지금이 마지막','마지막 기회','급등 임박','폭등 예고',
@@ -1313,9 +1457,11 @@ export const TOPIC_KEYWORDS = {
               'PMI','ISM','consumer confidence','retail sales','industrial production','nonfarm','payroll','employment','unemployment',
               '통화정책','재정','소비자물가','생산자물가','고용','실업률','경상수지','무역수지','한국은행','금통위',
               'ECB','BOJ','BOE','PBOC','BOK','RBA',
+              // JP모건 유가/크로스에셋
               'oil shock','demand destruction','gasoline price','K-shaped','stagflation',
               'quality growth','cross-asset','energy exporter','energy importer','relief rally',
               'bear flattener','term structure','유가 충격','수요 파괴','스태그플레이션','K자형',
+              // v48.16 (integrate 2026-04-18): 데이터센터 규제·주 정책 + 통화정책 체계 전환
               'data center ban','DC moratorium','data center regulation','grid connection delay',
               'Maine DC','Virginia DC','Ohio DC','state moratorium','DC siting',
               'data dependence','forward guidance failure','2% inflation target','mid-inflation',
@@ -1328,6 +1474,7 @@ export const TOPIC_KEYWORDS = {
               'rare earth','critical minerals','chip war','tech decoupling','friendshoring','nearshoring',
               '홍해','후티','수에즈','대만해협','남중국해','기술패권','디커플링','핵심광물','희토류',
               'ceasefire','escalation','airstrike','invasion','defense spending',
+              // 중동 전쟁·지정학 키워드 보강
               'israel','lebanon','hezbollah','hormuz','strait','blockade','CENTCOM','drone','drone strike',
               'IRGC','proxy','oil tanker','tanker seizure','shipping lane','oil embargo',
               '이란','이스라엘','레바논','헤즈볼라','호르무즈','봉쇄','공습','드론','유조선','해상봉쇄'],
@@ -1344,12 +1491,14 @@ export const TOPIC_KEYWORDS = {
               'AI accelerator','inference','training','AI infrastructure','AI spending',
               'Micron','Intel','Qualcomm','Broadcom','Marvell','ARM','Samsung foundry','SK Hynix',
               '삼성전자','SK하이닉스','AI 서버','데이터센터','웨이퍼','선단공정','메모리',
+              // 첨단패키징·인터커넥트·AI신패러다임
               'CPO','co-packaged optics','silicon photonics','glass substrate','유리기판','광패키징',
               'BSPDN','backside power','interposer','HBM4','HBM3E',
               'agentic AI','에이전틱AI','multi-agent','reasoning model','on-device AI','AI PC',
               'sovereign AI','소버린AI','custom silicon','ASIC','Trainium','Inferentia',
               'liquid cooling','immersion cooling','액침냉각','수냉',
               'InfiniBand','NVLink','Ultra Ethernet',
+              // 메모리 CapEx/HBM/AGI (SemiAnalysis/AMD/Altman)
               'HBM sold out','HBM shortage','HBM4E','custom HBM','memory CapEx',
               'DRAM price','LPDDR5','memory inflation','memory supercycle',
               'VVP pricing','server price increase','B200 server',
@@ -1357,6 +1506,7 @@ export const TOPIC_KEYWORDS = {
               'data sovereignty','데이터 주권',
               'HBM 매진','메모리 인플레이션','메모리 CapEx','서버 가격 인상',
               '휴머노이드','humanoid','Figure','Optimus',
+              // 메가캡 테크 · AI 기업 · 주요 이벤트
               'NVIDIA','Apple','AAPL','Microsoft','MSFT','Google','GOOGL','Alphabet','Amazon','AMZN',
               'Meta','META','Tesla','TSLA','GTC','WWDC','Google I/O','Build','re:Invent','CES',
               'OpenAI','ChatGPT','GPT','Anthropic','Claude','xAI','Grok','Mistral','Perplexity',
@@ -1364,6 +1514,7 @@ export const TOPIC_KEYWORDS = {
               'LLM','large language model','foundation model','AGI',
               '엔비디아','테슬라','애플','마이크로소프트','구글','아마존','메타',
               '오픈AI','앤트로픽','자율주행','로보택시','비전프로',
+              // v48.16 (integrate 2026-04-18): 커스텀 실리콘 + 광학 + 신규 AI 이벤트
               'MTIA','Meta MTIA','Rubin CPX','Vera Rubin','NVLink Fusion','CX9',
               'HBF','high bandwidth flash','DustPhotonics','ZR optical','x402',
               'Google Cloud Next','Google I/O','Marketing Live','Brandcast','Ask Maps',
@@ -1381,6 +1532,7 @@ export const TOPIC_KEYWORDS = {
               'oil supply','oil demand','oil inventory','SPR','strategic petroleum','OPEC+',
               'natural gas','Henry Hub','TTF','coal','carbon','emission','carbon credit',
               'nuclear','uranium','SMR','solar','wind','renewable','clean energy','hydrogen',
+              // 데이터센터 전력·EV 800V·배터리
               'data center power','AI power demand','nuclear data center','grid infrastructure',
               '800V','SiC','solid state battery','LFP','sodium-ion','EV battery',
               'liquid cooling','immersion cooling','power density',
@@ -1408,6 +1560,7 @@ export const TOPIC_KEYWORDS = {
               'Kanto Denka','Central Glass','Samsung Electro-Mechanics','Murata','TDK'],
   analyst:  ['price target','target price','upgrades to','downgrades to','initiates coverage','overweight','underweight',
               'buy rating','sell rating','목표주가','투자의견'],
+  // ── v31.8: 신규 토픽 추가
   bond:     ['bond','treasury','yield','credit spread','investment grade','high yield','junk bond',
               'corporate bond','sovereign bond','municipal bond','TIPS','TLT','HYG','LQD',
               'duration','convexity','coupon','maturity','issuance','auction',
@@ -1430,9 +1583,11 @@ export const TOPIC_KEYWORDS = {
               'Lockheed','Raytheon','Northrop','General Dynamics','BAE','Boeing defense',
               'NATO','defense budget','defense spending','arms deal','procurement',
               'space','satellite','rocket','launch','SpaceX','Rocket Lab',
+              // 골든돔·드론방어·우주방위
               'Golden Dome','Iron Dome','missile defense','missile shield','hypersonic defense',
               'drone defense','counter-drone','directed energy','laser weapon','space defense',
               'DARPA','AUKUS','Palantir defense','Anduril','Shield AI',
+              // 트럼프 FY2027 국방예산 $1.5T
               'FY2027','defense budget','national defense','defense wish list',
               'Virginia-class','submarine','F-35 procurement','weapons production',
               'Indo-Pacific','munitions','stockpile','무기 재고','국방예산','버지니아급',
@@ -1444,6 +1599,7 @@ export const TOPIC_KEYWORDS = {
               'S&P 500','Nasdaq','Dow','Russell','KOSPI','KOSDAQ',
               '주식','주가','시장','상승','하락','급등','급락','시가총액','상장',
               '코스피','코스닥','나스닥','다우',
+              // 기업 이벤트 · 금융 기업 보강
               'acquisition','merger','M&A','antitrust','DOJ','FTC',
               'product launch','keynote','investor day','analyst day',
               'CEO','management change','restructuring','layoff','cost cutting',
@@ -1452,6 +1608,7 @@ export const TOPIC_KEYWORDS = {
               'Visa','Mastercard','Salesforce','CrowdStrike','Palantir','Snowflake',
               '인수합병','경영권','구조조정','해고','인원감축',
               'JP모건','골드만삭스','버크셔','버핏','넷플릭스','디즈니'],
+  // ── v37.7: 헬스케어/바이오 토픽 신설
   healthcare:['GLP-1','Wegovy','Ozempic','Mounjaro','Zepbound','semaglutide','tirzepatide',
               'obesity drug','weight loss drug','anti-obesity','oral GLP-1',
               'Novo Nordisk','NVO','Eli Lilly','LLY','Amgen',
@@ -1465,6 +1622,7 @@ export const TOPIC_KEYWORDS = {
               '바이오','신약','임상','FDA','식약처','바이오시밀러',
               '항체약물접합체','ADC','이중항체','CAR-T','세포치료','유전자치료',
               '알테오젠','에이비엘바이오','삼성바이오로직스','셀트리온'],
+  // ── v37.7: 조선·해운 토픽 신설
   shipbuilding:['shipbuilding','shipyard','newbuild','vessel','order book',
               'LNG carrier','tanker','container ship','bulk carrier',
               'warship','naval vessel','frigate','destroyer','submarine',
@@ -1474,6 +1632,7 @@ export const TOPIC_KEYWORDS = {
               '조선','LNG선','컨테이너선','벌크선','해운','군함','수주',
               'HD현대중공업','한화오션','삼성중공업','HD현대미포',
               '해운운임','BDI','친환경선박','메탄올추진','암모니아추진'],
+  // ── v37.7: 우주·위성 토픽 신설
   space:    ['space','satellite','LEO','low earth orbit','Starlink','SpaceX',
               'Rocket Lab','RKLB','Blue Origin','AST SpaceMobile','ASTS',
               'Iridium','Globalstar','Planet Labs','L3Harris','Northrop Grumman',
@@ -1482,6 +1641,7 @@ export const TOPIC_KEYWORDS = {
               'space debris','space defense','DARPA','Space Force',
               '우주','위성','발사체','저궤도','스타링크','우주경제',
               '누리호','우주항공청','우주방위'],
+  // ── v37.7: 양자컴퓨팅 토픽 신설
   quantum:  ['quantum computing','quantum computer','qubit','quantum advantage',
               'quantum supremacy','quantum error correction','topological qubit',
               'IONQ','IonQ','Rigetti','D-Wave','IBM Quantum','Google Willow','Quantinuum',
@@ -1489,6 +1649,7 @@ export const TOPIC_KEYWORDS = {
               '양자컴퓨팅','양자컴퓨터','큐비트','양자우위','양자암호'],
 };
 
+// 금융 관련성 화이트리스트 키워드 — 비금융 소스에서 이 중 하나라도 있어야 통과
 export const FINANCE_RELEVANCE_KW = [
   // 시장/경제
   'stock','market','share','equity','index','dow','s&p','nasdaq','russell',
@@ -1511,6 +1672,7 @@ export const FINANCE_RELEVANCE_KW = [
   'ceo','cfo','board','shareholder','analyst','upgrade','downgrade','price target',
   'revenue growth','profit margin','operating income','free cash flow',
   'supply chain','trade war','tariff','sanction','export ban','regulation',
+  // ── v31.8: 채권·금리·통화 심화
   'yield curve','credit spread','investment grade','high yield','junk bond',
   'corporate bond','sovereign','municipal bond','duration','convexity',
   'coupon','maturity','issuance','auction','repo','reverse repo',
@@ -1519,6 +1681,7 @@ export const FINANCE_RELEVANCE_KW = [
   'quantitative','tightening','easing','tapering','balance sheet',
   'currency','forex','fx','exchange rate','dollar index','dxy',
   'carry trade','intervention','capital flow','devaluation',
+  // ── v31.8: 기업 이벤트 심화
   'insider buying','insider selling','13f','sec filing','proxy','activist',
   'spin-off','spinoff','divestiture','restructuring','bankruptcy','chapter 11',
   'share repurchase','tender offer','secondary offering','shelf registration',
@@ -1528,15 +1691,18 @@ export const FINANCE_RELEVANCE_KW = [
   'ebitda','fcf','roic','roe','roa','roce',
   'backlog','order book','bookings','pipeline','contract win','contract award',
   'index inclusion','rebalancing','reconstitution',
+  // ── v31.8: 방산/우주/에너지전환
   'defense','defence','military','weapon','arms deal','defense budget',
   'space','satellite','rocket','launch vehicle',
   'nuclear','uranium','smr','solar panel','wind turbine','hydrogen',
   'ev battery','lithium','cobalt','nickel','cathode','solid state',
   'carbon credit','emission','esg','sustainability',
+  // ── v31.8: 지정학 → 시장 영향
   'geopolitical','war','conflict','escalation','ceasefire','sanction',
   'embargo','blockade','strait','shipping disruption','supply disruption',
   'rare earth','critical mineral','export control','chip ban',
   'friendshoring','nearshoring','reshoring','decoupling',
+  // ── v31.8: 시장 구조
   'short interest','short squeeze','gamma squeeze','options expiration','opex',
   'dark pool','market maker','dealer','liquidity','bid-ask spread',
   'volatility','vix','implied volatility','realized volatility',
@@ -1548,6 +1714,7 @@ export const FINANCE_RELEVANCE_KW = [
   '주식','시장','주가','코스피','코스닥','투자','펀드','매출','이익','수익',
   '금리','채권','은행','대출','금융','경제','산업','수출','수입','무역',
   '반도체','배터리','전기차','바이오','제약','원유','에너지',
+  // ── v31.8: 한국어 심화
   '환율','원달러','달러인덱스','엔화','위안화',
   '국채','회사채','하이일드','크레딧','스프레드','듀레이션',
   '한국은행','금통위','기준금리','통화정책',

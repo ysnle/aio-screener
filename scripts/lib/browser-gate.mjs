@@ -1,4 +1,4 @@
-// v57.60: shared lifecycle for browser gates that own a local static server.
+// Shared lifecycle for browser gates that own a local static server.
 // startLocalServer resolves only on the start-local-node ready line (no "assume ready"
 // fallback) and rejects on early exit or timeout; closeAll always closes the browser and
 // kills the server, even when chromium.launch() threw before a browser existed.

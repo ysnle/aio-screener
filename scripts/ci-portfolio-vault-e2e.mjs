@@ -23,7 +23,7 @@ const artifactDir = resolve(root, '_artifacts', isLive ? 'portfolio-vault-live' 
 const localRevision = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const localGitHead = (() => { try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(); } catch (_) { return null; } })();
 
-// P1350: invoke the production helper with deferred crypto dependencies, never a substitute helper.
+// Invoke the production helper with deferred crypto dependencies, never a substitute helper.
 export async function runFinancialSecurityRaceFixtures(api = window._aioFinancialSecurity) {
   const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
   const memory = (initial = {}) => {
@@ -94,7 +94,7 @@ export async function runFinancialSecurityRaceFixtures(api = window._aioFinancia
   return outcomes;
 }
 
-// v57.81: a symbol outside AIO's registries but on the official US listing (the canned Nasdaq Trader sample) saves, is
+// A symbol outside AIO's registries but on the official US listing (the canned Nasdaq Trader sample) saves, is
 // requested for a quote like any holding and values at that quote; a listed symbol with no quote shows 가격 없음 and is
 // left out of the totals; an unlisted symbol (APPL) is rejected; an unreachable listing never saves.
 const LISTING_WORKER_HOST = 'aio-proxy.zmfhd007.workers.dev';
@@ -187,7 +187,7 @@ async function runUsListingHoldingFixture(browser, check) {
     }
     check('v57.81 every holding joins the quote request set (in or out of the universe)', state.requested.includes('HWKN') && state.requested.includes('GHC'), JSON.stringify(state));
     check('v57.81 listed out-of-universe holding values at the live quote (3 x (52.10 - 40))', /\$52\.10/.test(state.hwknPrice) && state.hwknPnl === '+$36.30' && Math.abs((state.live?.pct ?? 0) - 2.157) < 0.01, JSON.stringify(state));
-    check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '가격 없음' && state.hwknWeight === '합계 대기', JSON.stringify(state)); // v59.51 (content audit): empty cells name why
+    check('v57.81 listed holding with no quote shows 가격 없음 and keeps quantity and cost', state.ghcPrice === '가격 없음' && state.ghcQty === '3' && /^\$40\.00$/.test(state.ghcCost) && state.ghcPnl === '가격 없음' && state.hwknWeight === '합계 대기', JSON.stringify(state)); // Empty cells name why
     check('v57.86 totals say they wait for the 가격 없음 holding', /가격 없음 1종목이 있어 총자산과 손익은 모든 종목 가격을 받은 뒤 표시합니다/.test(state.status), JSON.stringify(state));
     // With the unpriced holding removed every holding is valued: the hero total, weight and day change come from the quote.
     const solo = await page.evaluate(async () => {
@@ -198,7 +198,7 @@ async function runUsListingHoldingFixture(browser, check) {
       return { total: document.getElementById('pf-total-value')?.textContent || '', pnl: document.getElementById('pf-total-pnl')?.textContent || '', dailyChg: document.getElementById('pf-daily-chg')?.textContent || '', dailyPct: document.getElementById('pf-daily-pct')?.textContent || '', weight: cell('pf-th-weight'), status: document.getElementById('pf-analysis-status')?.textContent || '' };
     });
     // The portfolio-wide day change keeps its rule (a reference quote is not decision-grade); with no cash entered the total
-    // is the holdings' value and the status says so (v57.86); the quote's own day change is checked above via _liveData.
+    // is the holdings' value and the status says so; the quote's own day change is checked above via _liveData.
     check('v57.81 fully priced listed holding: P&L total, weight and complete valuation from the live quote', solo.pnl === '+$36' && /^100\.0%/.test(solo.weight) && /1종목 평가 완료/.test(solo.status), JSON.stringify(solo));
     check('v57.86 no cash entered: the hero total is the holdings value and the status names it', /^\$156/.test(solo.total) && /현금 미입력 — 총자산은 주식 평가액/.test(solo.status), JSON.stringify(solo));
   } finally {
@@ -215,7 +215,7 @@ async function runUsListingHoldingFixture(browser, check) {
 
 async function main() {
   mkdirSync(artifactDir, { recursive: true });
-  const server = isLive ? null : await startLocalServer(port, { label: 'portfolio-vault/server' }); // v57.62 shared lifecycle
+  const server = isLive ? null : await startLocalServer(port, { label: 'portfolio-vault/server' }); // Shared lifecycle
   const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const report = {
     schemaVersion: 'aio-portfolio-vault-evidence.v1',
@@ -226,7 +226,7 @@ async function main() {
     scope: isLive ? `live Chromium, ${baseUrl}, external network allowed` : 'local Chromium, external network blocked'
   };
   const check = (id, ok, detail) => report.checks.push({ id, ok: !!ok, detail: detail || '' });
-  // P1277: the artifact itself must identify the tested source or served revision.
+  // The artifact itself must identify the tested source or served revision.
   check('P1277 evidence revision bound', !!report.appRevision || isLive, 'local appRevision and gitHead are required');
   if (!isLive) check('P1277 local source SHA bound', !!report.gitHead, 'git rev-parse HEAD');
   try {
@@ -241,7 +241,7 @@ async function main() {
     });
     if (isLive) check('P1277 live served revision bound', !!report.appRevision, 'live /version.json');
     await page.waitForFunction(() => typeof window.AIO === 'object' && typeof window.AIO.loadTests === 'function', { timeout: 30000 });
-    // P1350: test the production bridge, never inject a substitute implementation.
+    // Test the production bridge, never inject a substitute implementation.
     await page.waitForFunction(() => typeof window._aioFinancialSecurity?.authenticateVault === 'function', { timeout: 30000 });
     await page.waitForFunction(portfolioPanelsReady, { timeout: 30000 });
     const capability = await page.evaluate(() => ({
@@ -341,7 +341,7 @@ async function main() {
     check('PFE2-07 opt_out_is_explicit_plaintext', boundary.optOutPlain && boundary.rawRoundTrip, JSON.stringify(boundary));
     check('PFE2-08 portfolio_input_boundary', !boundary.domHasExecutableHandler && boundary.escapedTextVisible, JSON.stringify(boundary));
 
-    // v59.52: execute the real portfolio reader: SPY is an adjusted benchmark only when its return is calculable.
+    // Execute the real portfolio reader: SPY is an adjusted benchmark only when its return is calculable.
     const benchmarkReadiness = await page.evaluate(async () => {
       const { renderPortfolioRead } = await import('./src/ui/components/portfolio-read.js');
       const { benchmarkRowFor } = await import('./src/domain/market/indices/benchmarks.js');
@@ -397,10 +397,10 @@ async function main() {
     check('PFR-01 unset_target_not_rendered_as_zero (P1176)', targetSemantics.unsetCell === '미설정' && !/\$0\.00|-100/.test(targetSemantics.unsetCell), JSON.stringify(targetSemantics));
     check('PFR-01 real_target_still_renders_amount (P1176)', targetSemantics.setStored === 150 && /^\$150/.test(targetSemantics.setCell), JSON.stringify(targetSemantics));
 
-    // E3/P1181 (11 P11-01): durable acknowledgement — 메모리 반영과 영구 저장은 다른 사건이다.
+    // Durable acknowledgement — 메모리 반영과 영구 저장은 다른 사건이다.
     // persist가 거부되면 ack는 실패로 돌아야 하며(거짓 완료 금지), 저장 경로는 성공 ack를 양성 대조로 남긴다.
     const durableAck = await page.evaluate(async () => {
-      // P1350: this fixture tests quota failure on an unprotected repository, not a locked Vault.
+      // This fixture tests quota failure on an unprotected repository, not a locked Vault.
       localStorage.clear(); _AioVault.lock();
       localStorage.setItem('aio_portfolio_vault_optout', '1');
       const originalSafeLS = window.safeLS;
@@ -429,7 +429,7 @@ async function main() {
       durableAck.successAck?.ok === true && durableAck.successAck?.durable === true && durableAck.durableRow === true,
       JSON.stringify(durableAck));
 
-    // E3/P1187 (11 P11-02): 통화를 선언할 writer가 없어 선언은 import로만 들어왔고, 수정 경로는 객체를
+    // 통화를 선언할 writer가 없어 선언은 import로만 들어왔고, 수정 경로는 객체를
     // 통째로 교체해 그 선언을 지웠다. 폼 선언이 저장까지 흐르고, 빈 선언은 미선언(null)로 남으며,
     // 형식이 틀린 선언은 저장되지 않는 것을 고정한다. 6자리 코드는 티커 검증을 항상 통과하므로
     // 거부가 통화 검증에서만 일어났다는 것이 판별 가능하다.
@@ -448,7 +448,6 @@ async function main() {
         return window.addPortfolioPosition();
       };
       await fill('005930', 'krw');
-      // v59.54 (run-6 #16): a double submit joins the running add; it used to ask "이미 보유 중인 종목 — 바꿀까요?" about the holding just added.
       const first = fill('000660', '');
       await Promise.all([first, window.addPortfolioPosition()]);
       const doubleRows = window.getPortfolioData().filter((p) => p.ticker === '000660').length;
@@ -474,11 +473,11 @@ async function main() {
       };
     });
     check('PFE2-12 cost_currency_writer_round_trip (P1187)',
-      // P2066 (v58.80 first-users F18): a blank currency box under the "매수 단가 (KRW)" label keeps KRW, not dollars.
+      // A blank currency box under the "매수 단가 (KRW)" label keeps KRW, not dollars.
       currencyWriter.declared === 'KRW' && currencyWriter.undeclared === 'KRW' && currencyWriter.nameLabel === 'KRW' && currencyWriter.updateAsked && currencyWriter.rows === 2 && currencyWriter.doubleRows === 1 && !currencyWriter.doubleAsked && currencyWriter.invalidRejected,
       JSON.stringify(currencyWriter));
 
-    // v57.81: SPCX (SpaceX, Nasdaq since 2026-06-12) sat in the screener universe but the portfolio box checked only its own
+    // SPCX (SpaceX, Nasdaq since 2026-06-12) sat in the screener universe but the portfolio box checked only its own
     // hand list and rejected it. The box now shares the ticker-route owner: exact universe match is accepted, a registered
     // nickname resolves to it, and a near-miss ticker is neither rewritten nor saved.
     const listedSymbol = await page.evaluate(async () => {
@@ -513,7 +512,7 @@ async function main() {
     });
     check('PFE2-24 listed_universe_symbol_accepted_exactly (v57.81)',
       listedSymbol.nearMissSaved.length === 0 && listedSymbol.exact.join() === 'SPCX'
-      && listedSymbol.toasts.filter((message) => /(검증되지 않은 티커라|상장 목록을 불러오지 못해) 저장하지 않았습니다/.test(message)).length === 2, // v57.81: with no listing artifact a near-miss is refused as unchecked
+      && listedSymbol.toasts.filter((message) => /(검증되지 않은 티커라|상장 목록을 불러오지 못해) 저장하지 않았습니다/.test(message)).length === 2, // With no listing artifact a near-miss is refused as unchecked
       JSON.stringify(listedSymbol));
     check('PFE2-25 verified_nickname_resolves_by_registry (v57.81)',
       listedSymbol.alias.join() === 'SPCX' && listedSymbol.toasts.some((message) => /"스엑" = SPCX/.test(message)),
@@ -523,19 +522,19 @@ async function main() {
     const planCheck = await page.evaluate(() => {
       const set = (values) => Object.entries(values).forEach(([id, value]) => { document.getElementById(id).value = value; });
       set({ 'rr-entry': '100', 'rr-stop': '90', 'rr-target': '130', 'rr-capital': '1000', 'rr-total': '10000' });
-      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // Native portfolio-plan-check.js
       const shown = !document.getElementById('rr-result').hidden;
       set({ 'rr-stop': '110' });
-      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // Native portfolio-plan-check.js
       const hiddenOnStop = document.getElementById('rr-result').hidden;
       set({ 'rr-stop': '90', 'rr-capital': '99999999999999999999' });
-      document.querySelector('#page-portfolio [data-plan-check]').click(); // v59.70: native portfolio-plan-check.js
+      document.querySelector('#page-portfolio [data-plan-check]').click(); // Native portfolio-plan-check.js
       return { shown, hiddenOnStop, hiddenOnHuge: document.getElementById('rr-result').hidden, text: document.getElementById('rr-lines').textContent };
     });
     check('PFE2-26 refused_plan_check_hides_previous_result (P2071)',
       planCheck.shown && planCheck.hiddenOnStop && planCheck.hiddenOnHuge, JSON.stringify(planCheck));
 
-    // E3/P1187 (11 P11-01): 가져오기·전체 삭제 경로는 savePortfolioData의 반환을 버려 persist가
+    // 가져오기·전체 삭제 경로는 savePortfolioData의 반환을 버려 persist가
     // 거부돼도 완료를 말했다. 두 경로 모두 실패 ack에서 성공 문구를 내지 않아야 한다.
     const ackPaths = await page.evaluate(async () => {
       const originalSafeLS = window.safeLS;
@@ -585,7 +584,7 @@ async function main() {
       && /전체 삭제가 확정되지 않았습니다/.test(ackPaths.clearResult.messages[0]),
       JSON.stringify(ackPaths.clearResult));
 
-    // E3/E4/P1188 (11 P11-02): 계좌·현금 통화와 현금 수익률·RF는 폼이 쓰는 입력이다. 선언이
+    // 계좌·현금 통화와 현금 수익률·RF는 폼이 쓰는 입력이다. 선언이
     // 저장 키로 흐르고, 무효 형식은 조용히 남지 않고 지워지는 것을 실브라우저에서 고정한다.
     const assumptionWriter = await page.evaluate(() => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -597,7 +596,7 @@ async function main() {
         window.savePortfolioAssumption(id, el.value);
         return true;
       };
-      // v57.81: the cash-currency field is retired (each cash balance carries its own currency); the base field carries
+      // The cash-currency field is retired (each cash balance carries its own currency); the base field carries
       // the invalid-declaration probe instead.
       const retiredCashCurrencyField = !document.getElementById('pf-cash-currency-input');
       const present = set('pf-base-currency-input', 'usd')
@@ -618,7 +617,7 @@ async function main() {
       && assumptionWriter.declared.cashReturn === '4' && assumptionWriter.invalidRemoved === true,
       JSON.stringify(assumptionWriter));
 
-    // E4/P1191: 계좌 원장이 폼 → Vault 경로 저장 → TWR/MWR 계약을 실제 브라우저에서 통과하는지.
+    // 계좌 원장이 폼 → Vault 경로 저장 → TWR/MWR 계약을 실제 브라우저에서 통과하는지.
     const ledgerFlow = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
       window.showPage('portfolio');
@@ -657,7 +656,7 @@ async function main() {
       && ledgerFlow.heldStatus === 'blocked' && ledgerFlow.heldCode === 'account-input-incomplete',
       JSON.stringify(ledgerFlow));
 
-    // E3/E4/P1191: 선언한 통화·수익률·RF·원장이 실제 화면에 그려지는지. 네트워크 경계(시세·차트)만
+    // 선언한 통화·수익률·RF·원장이 실제 화면에 그려지는지. 네트워크 경계(시세·차트)만
     // 스텁하고, 나머지 경로(폼 선언 → reader → provider → surface/패널)는 실코드로 돌린다.
     const rendered = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -696,16 +695,16 @@ async function main() {
       return {
         currencyNote: (document.getElementById('pf-currency-note') || {}).textContent || '',
         riskHtml: (document.getElementById('pf-risk-metrics') || {}).innerHTML || '',
-        // P1449/P1458: ledger account performance is its own panel since the
+        // Ledger account performance is its own panel since the
         // price-history gate stopped owning it — collect both render targets.
         ledgerHtml: (document.getElementById('pf-ledger-performance') || {}).innerHTML || ''
       };
     });
     const cres = [
       ['currencyNote', rendered.currencyNote.includes('통화 USD')],
-      ['twr-in-ledger-panel', /실제 계좌 성과 TWR\(기간 누적(, 근사)?\) \+10\.00%/.test(rendered.ledgerHtml)], // v57.92 E08: a flow without a same-day valuation marks the TWR 근사
-      ['mwr-in-ledger-panel', /MWR\(연율\) \+8\.\d\d%/.test(rendered.ledgerHtml)], // P1684: units named (TWR period-cumulative, MWR annualized)
-      ['period-in-ledger-panel', /USD, 입출금 기간 끝 반영, \d+기간/.test(rendered.ledgerHtml)], // v57.92: flow timing in words
+      ['twr-in-ledger-panel', /실제 계좌 성과 TWR\(기간 누적(, 근사)?\) \+10\.00%/.test(rendered.ledgerHtml)], // A flow without a same-day valuation marks the TWR 근사
+      ['mwr-in-ledger-panel', /MWR\(연율\) \+8\.\d\d%/.test(rendered.ledgerHtml)], // Units named (TWR period-cumulative, MWR annualized)
+      ['period-in-ledger-panel', /USD, 입출금 기간 끝 반영, \d+기간/.test(rendered.ledgerHtml)], // Flow timing in words
       ['no-price-claim', /시세 이력.*무관하게/.test(rendered.ledgerHtml)],
       ['pointer-in-risk-panel', /원장 성과 요약/.test(rendered.riskHtml)],
       ['whole-account-scope', /계좌 전체/.test(rendered.riskHtml)],
@@ -729,7 +728,7 @@ async function main() {
       const strategyHtml = (document.getElementById('pf-risk-metrics') || {}).innerHTML || '';
       window.savePortfolioAssumption('pf-exposure-path-input', 'current_composition_retrospective');
       const positions = JSON.parse(localStorage.getItem('aio_portfolio_data'));
-      // v57.84 P1864: JPY — the app's USD/KRW close would convert KRW, so the hold path needs a pair the app has no close for
+      // JPY — the app's USD/KRW close would convert KRW, so the hold path needs a pair the app has no close for
       positions[1].currency = 'JPY';       // 기준 통화와 다른 보유 통화 → 혼합
       positions[0].costCurrency = 'JPY';   // 원가 통화와 시세 통화 불일치 → P&L 보류
       localStorage.setItem('aio_portfolio_data', JSON.stringify(positions));
@@ -746,15 +745,15 @@ async function main() {
     check('PFE2-18 strategy_path_and_currency_holds_render (P1193/P1181)',
       /목표 비중 유지 전략/.test(declaredStates.strategyHtml)
       && /목표 AAA 50\.0%\/BBB 50\.0%/.test(declaredStates.strategyHtml)
-      && /분모 주식 부분/.test(declaredStates.strategyHtml) && /data-risk-scope="invested_sleeve"/.test(declaredStates.strategyHtml) // P1684: Korean line; codes in data-* and the folded identifiers
-      && /현금 몫을 정하지 않아 주식 부분만 계산했습니다/.test(declaredStates.strategyHtml) && /account-hold strategy-account-scope-not-declared/.test(declaredStates.strategyHtml) // v60.30: plain-language account-view hold, code in the fold
+      && /분모 주식 부분/.test(declaredStates.strategyHtml) && /data-risk-scope="invested_sleeve"/.test(declaredStates.strategyHtml) // Korean line; codes in data-* and the folded identifiers
+      && /현금 몫을 정하지 않아 주식 부분만 계산했습니다/.test(declaredStates.strategyHtml) && /account-hold strategy-account-scope-not-declared/.test(declaredStates.strategyHtml) // plain-language account-view hold, code in the fold
       && declaredStates.declaredPath === 'current_composition_retrospective'
       && declaredStates.mixedNote.includes('통화 혼합')
       && declaredStates.mixedNote.includes('환산 없어 합계 보류')
       && declaredStates.mixedNote.includes('원가/시세 불일치'),
       JSON.stringify({ strategyHtml: (declaredStates.strategyHtml || '').slice(0, 600), mixedNote: declaredStates.mixedNote, declaredPath: declaredStates.declaredPath }));
 
-    // E3/P1194: 선언한 FX leg가 저장되고, 그 leg로 혼합 통화 합계가 실제로 환산되며, 지우면 다시
+    // 선언한 FX leg가 저장되고, 그 leg로 혼합 통화 합계가 실제로 환산되며, 지우면 다시
     // 보류로 돌아가는지(양성·음성 대조)를 실브라우저에서 확인한다.
     const fxFlow = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -792,7 +791,7 @@ async function main() {
       && fxFlow.heldNote.includes('통화 혼합') && fxFlow.heldNote.includes('환산 없어 합계 보류'),
       JSON.stringify(fxFlow));
 
-    // E3/P1196: 원가 통화가 시세 통화와 다른 보유는 환산 근거가 없으면 P&L을 만들 수 없지만,
+    // 원가 통화가 시세 통화와 다른 보유는 환산 근거가 없으면 P&L을 만들 수 없지만,
     // leg를 선언하면 두 축이 같은 기준 통화가 되어 P&L이 성립한다(양성·음성 대조).
     const costAxisFlow = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -833,7 +832,7 @@ async function main() {
       && costAxisFlow.converted.pnl.trim() !== '—' && costAxisFlow.converted.pnl.includes('1,88'),
       JSON.stringify(costAxisFlow));
 
-    // P1198: 셸은 선언되지 않은 정책을 지어내지 않는다 — 전략 경로에서 정책을 지우면 'daily로 돌았다'가
+    // 셸은 선언되지 않은 정책을 지어내지 않는다 — 전략 경로에서 정책을 지우면 'daily로 돌았다'가
     // 아니라 엔진이 보류해야 하고, 패널은 선언/적용/미선언을 구분해 말해야 한다(양성·음성 대조).
     const policyDeclarationFlow = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -873,7 +872,7 @@ async function main() {
       && policyDeclarationFlow.strategyDeclared.includes('rebalance monthly'),
       JSON.stringify({ retrospective: policyDeclarationFlow.retrospective.slice(0, 400), undeclared: policyDeclarationFlow.strategyUndeclared.slice(0, 400), declared: policyDeclarationFlow.strategyDeclared.slice(0, 400) }));
 
-    // P1200/P1201: 현금 몫이 계좌 범위를 선언하는지(양성·음성 대조)와, 회고 경로에서 정책 셀렉터가
+    // 현금 몫이 계좌 범위를 선언하는지(양성·음성 대조)와, 회고 경로에서 정책 셀렉터가
     // 비활성으로 그 사실을 드러내는지를 실브라우저에서 확인한다.
     const strategyCashFlow = await page.evaluate(async () => {
       localStorage.setItem('aio_portfolio_vault_optout', '1');
@@ -885,7 +884,7 @@ async function main() {
       localStorage.setItem('aio_portfolio_base_currency', 'USD');
       localStorage.setItem('aio_portfolio_cash_currency', 'USD');
       localStorage.setItem('aio_portfolio_cash_return', '3.65');
-      // v57.54: a fixed 180 ms read raced the recompute on slower CI runners (the over-allocation case read the previous
+      // A fixed 180 ms read raced the recompute on slower CI runners (the over-allocation case read the previous
       // panel). Each remount now waits, bounded at 4 s, for the state the scenario expects, then reads.
       const read = () => ({
         panel: (document.getElementById('pf-risk-metrics') || {}).textContent || '',
@@ -920,7 +919,7 @@ async function main() {
       && strategyCashFlow.retrospective.panel.includes('rebalance monthly(미사용)'),
       JSON.stringify({ partial: strategyCashFlow.partial.panel.slice(0, 300), over: strategyCashFlow.over.panel.slice(0, 200), retrospective: { panel: strategyCashFlow.retrospective.panel.slice(0, 200), disabled: strategyCashFlow.retrospective.policyDisabled } }));
 
-    // P1202: VaR `certified` 렌더 상태를 실측한다 — 판정 자체는 ESM fixture가 고정했지만(P1190),
+    // VaR `certified` 렌더 상태를 실측한다 — 판정 자체는 ESM fixture가 고정했지만,
     // 긴 표본에서 랩 행이 실제로 '인증'을 그리는지는 브라우저에서 본 적이 없었다. 짧은 표본은 '인증 보류'로
     // 남아야 한다(양성·음성 대조).
     const varCertFlow = await page.evaluate(async () => {
@@ -972,11 +971,11 @@ async function main() {
     for (const [name, ok] of Object.entries(races)) check('P1350 cancelled Vault operation ' + name, ok, JSON.stringify(races));
     const security = await page.evaluate(async () => {
       localStorage.clear(); sessionStorage.clear(); _AioVault.lock(); _AioVault._publicMode = false;
-      // v58.52: the trade journal (aio_portfolio_trades) is personal data on the same Vault path.
+      // The trade journal (aio_portfolio_trades) is personal data on the same Vault path.
       const keys = ['aio_portfolio_data', 'aio_portfolio_ledger', 'aio_portfolio_fx_legs', 'aio_portfolio_trades'];
       const values = [JSON.stringify([{ticker:'AAPL',qty:2,cost:100,costCurrency:'USD'}]), JSON.stringify({transactions:[{amount:321}],valuations:[]}), JSON.stringify([{from:'USD',to:'KRW',rate:1400}]), JSON.stringify({version:1,trades:[{id:'t1',date:'2026-10-01',symbol:'AAPL',side:'buy',qty:2,price:100}],rules:{}})];
       keys.forEach((key, index) => localStorage.setItem(key, values[index]));
-      // v57.79: the self-proxy URL is the only live credential (personal provider keys are deleted at boot).
+      // The self-proxy URL is the only live credential (personal provider keys are deleted at boot).
       localStorage.setItem('aio_cf_worker_url','https://worker.fixture.invalid');
       await _AioVault.unlock('2468'); await _migrateToEncrypted(); await _restoreDecryptedKeys();
       const migrated = keys.every((key) => localStorage.getItem(key).startsWith('aio_enc::'));
@@ -1002,7 +1001,7 @@ async function main() {
       _AioVault.lock(); localStorage.removeItem('aio_vault_verify_v1');
       await _AioVault.unlock('2468');
       const legacySentinel = !!localStorage.getItem('aio_vault_verify_v1');
-      // P1363: salt-only legacy state protects no ciphertext; the first PIN establishes the
+      // salt-only legacy state protects no ciphertext; the first PIN establishes the
       // sentinel (no dead-end lockout), and that sentinel then rejects a different PIN.
       _AioVault.lock(); localStorage.clear(); localStorage.setItem('aio_vault_salt',btoa(String.fromCharCode(...new Uint8Array(16))));
       let saltOnly = false;
@@ -1013,7 +1012,7 @@ async function main() {
         try { await _AioVault.unlock('9999'); } catch (_) { rejected = !_AioVault.isUnlocked(); }
         saltOnly = established && rejected;
       } catch (_) { saltOnly = false; }
-      // P1350: switching to public-PC session storage never reuses private-origin caches.
+      // Switching to public-PC session storage never reuses private-origin caches.
       localStorage.clear(); await _AioVault.unlock('2468'); await safeLS('aio_portfolio_data',values[0]); _AioVault._keyRuntime.aio_portfolio_data=values[0];
       const privateStored = localStorage.getItem('aio_portfolio_data');
       window._aioVaultPublicMode({checked:true});
@@ -1073,7 +1072,7 @@ async function main() {
       const invalidCalendar = window.AIO.redactPortfolioForAI(rows,{now:Date.parse('2026-03-02T12:00:00Z'),liveData:{AAPL:{price:150,currency:'USD',observedAt:'2026-02-30T12:00:00Z'},MSFT:{price:300,currency:'USD',observedAt:'2026-02-30T12:00:00Z'}}});
       localStorage.setItem('aio_portfolio_data',JSON.stringify(rows));
       localStorage.setItem('aio_portfolio_journal_v1',JSON.stringify([{ts:Date.now(),date:now,note:'RECENT_EXPLICIT_NOTE'}]));
-      // v59.51 (content audit): the in-page journal note field (#pf-journal-note) is retired with the AI workbench; the stored
+      // The in-page journal note field (#pf-journal-note) is retired with the AI workbench; the stored
       // journal entries are what the AI panel's journal prompt can attach, under its own consent.
       const journalFieldRetired = !document.getElementById('pf-journal-note');
       window.AIO.setPortfolioAIConsent(true); window.AIO.setPortfolioJournalAIConsent(false);
@@ -1095,9 +1094,9 @@ async function main() {
     check('P1350 AI_identical_stale_dates_hold_valuation',aiPrivacy.stale.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.stale));
     check('P1350 AI_calendar_rollover_is_not_an_observation',aiPrivacy.invalidCalendar.every((row)=>row.allocationPct===null && row.returnPct===null),JSON.stringify(aiPrivacy.invalidCalendar));
     check('P1350 journal_separate_consent_and_preview',aiPrivacy.noUnexpectedNotes && aiPrivacy.preview.noteIncluded && aiPrivacy.preview.fields.includes('currentJournal') && aiPrivacy.revoked,JSON.stringify(aiPrivacy));
-    // v59.51 (content audit): the P1350 journal-save checks drove #pf-journal-note, which is retired; pin the retirement.
+    // The P1350 journal-save checks drove #pf-journal-note, which is retired; pin the retirement.
     check('v59.51 (content audit) in-page journal note field is retired',aiPrivacy.journalFieldRetired===true,JSON.stringify({journalFieldRetired:aiPrivacy.journalFieldRetired}));
-    // v57.81: cash is one balance per currency. A legacy single value reads as one balance without a write; the per-currency
+    // Cash is one balance per currency. A legacy single value reads as one balance without a write; the per-currency
     // boxes save through the bridge (legacy copy dropped only after the new key reads back); a PIN lock/unlock and the
     // backup bundle (old single-cash bundles included) round-trip the balances.
     const cashModel = await page.evaluate(async () => {
@@ -1112,17 +1111,17 @@ async function main() {
       document.getElementById('pf-pin-input').value = '1357';
       await window.unlockPortfolio(); // test PIN in this throwaway context only
       window.showPage('portfolio');
-      // v59.92: waits for the lazy native page (it paints the boxes) instead of a fixed 120 ms, which a loaded run outlasted.
+      // Waits for the lazy native page (it paints the boxes) instead of a fixed 120 ms, which a loaded run outlasted.
       for (let waited = 0; waited < 5000 && document.getElementById('page-portfolio')?.dataset.aioArchitectureRenderer !== 'native'; waited += 50) await new Promise((r) => setTimeout(r, 50));
       const krwBox = document.getElementById('pf-cash-krw-input');
       const usdBox = document.getElementById('pf-cash-usd-input');
       const restoredBox = krwBox?.value === '5000';
       usdBox.value = '1200';
-      await window._aioSaveCashBalance(usdBox); // v58.80: the shared number reader loads on first use, so the save resolves after it
+      await window._aioSaveCashBalance(usdBox); // The shared number reader loads on first use, so the save resolves after it
       const saved = localStorage.getItem('aio_portfolio_cash_balances');
       const legacyDropped = localStorage.getItem('aio_portfolio_cash') === null;
       // v58.80 (first-users bundle 6): a refused amount says why and leaves the stored balance as it was.
-      // v59.92: a render set off by the previous save lands while the check loads (aio:portfolioStressInput repaints the
+      // A render set off by the previous save lands while the check loads (aio:portfolioStressInput repaints the
       // native page synchronously) and again after the refusal; the refused text stays instead of turning back into 1200.
       usdBox.value = '-100';
       const refusing = window._aioSaveCashBalance(usdBox);
@@ -1158,7 +1157,7 @@ async function main() {
     check('v57.81 backup_round_trips_cash_balances_and_old_single_cash',
       cashModel.exported === twoBalances && cashModel.newRestored === twoBalances
       && cashModel.oldRestored === '[{"currency":"KRW","amount":250000}]', JSON.stringify(cashModel));
-    // v59.21 (P2106): a portfolio render while the number check loads refills an unfocused box with the stored amount;
+    // A portfolio render while the number check loads refills an unfocused box with the stored amount;
     // the save keeps the amount that was typed when it was asked for.
     const refillRace = await page.evaluate(async () => {
       const usdBox = document.getElementById('pf-cash-usd-input');

@@ -1,4 +1,4 @@
-// Audit 2026-10-14: the AI panel was disabled on 투자 대가(masters) and 사용 안내(guide) although the panel's evidence
+// The AI panel was disabled on 투자 대가(masters) and 사용 안내(guide) although the panel's evidence
 // builder already reads 13F holdings for the masters focus. The classic panel's map lives in src/ui/chat/panel.js, which may
 // not grow (decomposition ratchet), so the two screens are registered here through the same globals it reads.
 const EXTRA = Object.freeze([

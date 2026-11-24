@@ -4,7 +4,7 @@
 import { runSections } from './lib/gate-sections.mjs';
 
 await runSections('ai-evidence', [
-// ── section screen-facts (S5, ADR-0003, v59.87): the AI reads the facts the screens compute ──
+// ── section screen-facts (S5, ADR-0003): the AI reads the facts the screens compute ──
 ['screen-facts', async () => {
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
@@ -21,7 +21,7 @@ assert.ok(line.includes(`52주 범위 ${Math.round(page.position * 100)}% 위치
 assert.ok(line.includes('RSI 31') && line.includes('11/6 종가'), `v59.87 RSI and session date: ${line}`);
 assert.equal(stockTrendLine({ symbol: 'X', row: null }), null, 'v59.87 no row, no line');
 assert.ok(stockTrendLine({ symbol: 'NVDA', row: { ...row, ret1d: -14.01 } }).includes('1거래일 -14.0%, 5거래일 -8.8%'), 'v60.41 the last session change leads the returns');
-// v59.87 row order: published screener row, then a ready on-demand row; a KR listing outside the universe has none.
+// Row order: published screener row, then a ready on-demand row; a KR listing outside the universe has none.
 const root = { _aioGetCanonicalScreenerRows: () => [row], _aioOnDemandSymbol: (sym) => (sym === 'ZZZZ' ? { status: 'ready', row: { ...row, sym: 'ZZZZ' } } : null) };
 assert.equal(screenRowFor(root, 'nvda').source, 'screener', 'v59.87 published row first');
 assert.equal(screenRowFor(root, 'ZZZZ').source, 'on-demand', 'v59.87 then the ready on-demand row');
@@ -29,7 +29,7 @@ assert.ok((await chatStockTrendLine('ZZZZ', { root })).includes('요청 시 산�
 let requested = 0;
 assert.equal(await chatStockTrendLine('000660.KS', { root: { ...root, _aioRequestOnDemandSymbol: () => { requested += 1; } } }), null, 'v59.87 a KR listing outside the universe has no line');
 assert.equal(requested, 0, 'v59.87 a KR listing is never sent to the US on-demand reader');
-// v59.87 no second computation path in the chat: the trend tool returns the shared screen-row line and downloads nothing.
+// No second computation path in the chat: the trend tool returns the shared screen-row line and downloads nothing.
 const { runTool: runTrendTool } = await import('../src/ai/tools/registry.js');
 let trendDownloads = 0;
 const trendRoot = { ...root, fetch: () => { trendDownloads += 1; throw new Error('no fetch'); }, fetchViaProxy: () => { trendDownloads += 1; throw new Error('no chart download'); },
@@ -40,7 +40,7 @@ assert.equal(trendDownloads, 0, 'v60.42 the trend tool downloads nothing');
 const { buildChatMacroLines } = await import('../src/ai/context/chat-macro-lines.js');
 const fx = buildChatMacroLines({ ctxId: 'fxbond', root: { _liveData: { 'DX-Y.NYB': { price: 120 } }, DATA_SNAPSHOT: { dxy: 99.5 } } });
 assert.ok(fx.some((l) => l.includes('99.50') && l.includes('스냅샷 참고')) && !fx.some((l) => l.includes('120')), `v59.87 DXY fallback is the labelled snapshot, not the raw live quote: ${fx.join()}`);
-// v59.87 the RSI zone is RULES.technical.rsi.
+// The RSI zone is RULES.technical.rsi.
 const { RULES } = await import('../src/domain/rules/thresholds.js');
 const { buildTechnicalConditions } = await import('../src/ai/analysis/technical.js');
 const zone = (rsi14) => buildTechnicalConditions({ indicators: { rsi14 } }).conditions[0].status;
@@ -48,13 +48,13 @@ assert.equal(zone(RULES.technical.rsi.overbought), 'overbought', 'v59.87 overbou
 assert.equal(zone(RULES.technical.rsi.overbought - 0.1), 'neutral', 'v59.87 just under the overbought band is neutral');
 assert.equal(zone(RULES.technical.rsi.oversold), 'oversold', 'v59.87 oversold band is RULES');
 assert.equal(zone(RULES.technical.rsi.oversold + 0.1), 'neutral', 'v59.87 just over the oversold band is neutral');
-// v59.87 one browser–Worker contract: the Worker's model and the chat's trim target come from it; the published config agrees.
+// One browser–Worker contract: the Worker's model and the chat's trim target come from it; the published config agrees.
 const contract = await import('../src/domain/ai/worker-contract.js');
 const budget = await import('../worker/openai-budget.mjs');
 assert.equal(budget.OPENAI_MODEL, contract.AI_MODEL, 'v59.87 the Worker serves the contract model');
 assert.ok(contract.AI_CLIENT_BODY_TARGET_BYTES < contract.AI_REQUEST_MAX_BYTES, 'v59.87 the chat trims under the Worker limit');
 assert.equal(JSON.parse(read('public-config.json')).ai?.model, contract.AI_MODEL, 'v59.87 public-config.json names the contract model');
-// v59.87 one AI policy folder; the retriever has no fetch of its own even when a global fetch exists.
+// One AI policy folder; the retriever has no fetch of its own even when a global fetch exists.
 const { existsSync } = await import('node:fs');
 assert.ok(!existsSync(new URL('../src/ai/policy.js', import.meta.url)) && !existsSync(new URL('../src/ai/policies', import.meta.url)), 'v59.87 src/ai/policy/ is the one policy folder');
 const { createAIKnowledgeRetriever } = await import('../src/ai/retrieval/knowledge.js');
@@ -100,7 +100,7 @@ assert.equal(evaluate([{ ...row, allowedUse: 'reference' }]).status, 'UNVERIFIED
 assert.equal(evaluate([{ ...row, currentClaim: false }]).status, 'UNVERIFIED');
 assert.equal(evaluate([{ ...row, qualityStatus: 'unknown' }]).status, 'UNVERIFIED');
 assert.equal(evaluate([{ ...row, freshnessStatus: 'stale' }]).status, 'UNVERIFIED');
-// v58.63 (architecture audit C2): the old case kept freshnessMs (which wins) and moved observedAt out of the period, so it
+// The old case kept freshnessMs (which wins) and moved observedAt out of the period, so it
 // failed for the period and never exercised the SLA. Only the SLA changes here, once on each field name.
 assert.equal(evaluate([{ ...row, freshnessMs: 1 }]).status, 'UNVERIFIED', 'v58.63 C2 an expired freshness SLA alone must unverify the premise');
 { const { freshnessMs: _sla, ...aliasRow } = row; assert.equal(evaluate([{ ...aliasRow, freshnessMaxAgeMs: 1 }]).status, 'UNVERIFIED', 'v58.63 C2 the freshnessMaxAgeMs alias applies when freshnessMs is absent'); }
@@ -243,7 +243,7 @@ const sandbox = {
 };
 vm.runInNewContext(core.slice(helperStart, helperEnd), sandbox, { filename: 'js/aio-core.js#quote-evidence' });
 const AIO = sandbox.window.AIO;
-// v60.41: the producer reads its price basis from src/ai/time/quote-basis.js (installed with the chat). These fixtures
+// The producer reads its price basis from src/ai/time/quote-basis.js (installed with the chat). These fixtures
 // are intraday claims, so they run at a fixed open NYSE instant (Wed 2026-11-18 10:00 ET).
 const { decideQuoteBasis } = await import('../src/ai/time/quote-basis.js');
 const OPEN_NOW = Date.parse('2026-11-18T15:00:00Z');
@@ -304,7 +304,7 @@ assert.equal(contextRow.metric, 'price');
 assert.equal(contextRow.entity, 'AAPL');
 assert.equal(contextRow.asOf, observedAt);
 assert.equal(contextRow.sourceKind, 'LIVE');
-// v60.41: an intraday quote no second source confirmed is not usable; it asks for a refresh instead of reading as a conflict.
+// An intraday quote no second source confirmed is not usable; it asks for a refresh instead of reading as a conflict.
 for (const status of ['unknown', 'stale', 'warn']) {
   const unconfirmed = AIO.buildAIQuoteEvidenceRow('AAPL', quote, { truth: { status, decisionUse: true } });
   assert.equal(unconfirmed.decisionUse, false, `v60.41 truth ${status} intraday quote is not usable`);
@@ -390,7 +390,7 @@ assert.equal(duplicateConflict[0].status, 'conflict', 'conflicting duplicate quo
 
 console.log('PASS ai-quote-evidence: shared envelope tuple, observation/source/currency fail-closed rules, sibling consumer parity and duplicate conflict rejection');
 }, 'code'],
-// ── section quote-basis (v60.41): the chat states a confirmed close with its date on a closed market ──
+// ── section quote-basis: the chat states a confirmed close with its date on a closed market ──
 // Live failure 2026-11-21 (Saturday): "엔비디아 … 지금 주가는 52주 고점 대비 어디야?" was refused ("교차검증 상태가 차단") after
 // 39 s although _liveData.NVDA held the 2026-11-20 close: every ticker needed a 2-minute-old, cross-checked quote.
 ['quote-basis', async () => {
@@ -593,9 +593,8 @@ const numericOnlyQuote = sandbox.window._aioBuildChatAnalysisContext(noPeriodPla
 assert.equal(numericOnlyQuote.questionPlan.premise.status, 'UNVERIFIED', 'numeric quote cannot infer a requested period');
 assert.equal(numericOnlyQuote.audit.requestedPeriod, null, 'numeric quote cannot create a requested period');
 
-// v57.62: the dead per-page chatSend (no #chat-<ctx>-inp since P1653) was retired; only the unified surface remains.
 assert.ok(!/async function chatSend\x28/.test(chat) && !/_pageAnalysisSlice/.test(chat), 'v57.62 per-page chatSend retired');
-// P1131/R619: the unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js.
+// The unified chat surface moved from index.html's inline block G into src/ui/chat/panel.js.
 // All three assertions below follow the code there — including the chip markup, which is emitted by
 // _aiDefaultChips (also block G) rather than authored in the shell. The gate caught that assumption
 // when it failed on the stale index.html read.
@@ -604,7 +603,7 @@ assert.ok(/_uniAnalysisSlice\.questionPlan/.test(chat) && /sysPrompt \+= _uniAna
 assert.ok(/premise-[\x27\x22] \+ premiseStatus\.toLowerCase\(\)/.test(chat) && /CONTRADICTED/.test(chat), 'pipeline adds premise limitations without a blanket block');
 assert.ok(/_aioAIClaimEvidenceTuple/.test(chat) && /status: 'conflict'/.test(chat), 'claim registry marks conflicting tuples explicitly');
 assert.ok((chat.match(/<button type="button" class="ai-chip"/g) || []).length >= 2 && !/<div class="ai-chip"/.test(chat), 'unified chat chips are keyboard-activatable buttons');
-// v59.51 (content audit): aiChipClick delegates to the one chip path, chatFromChip, which ends in the unified send.
+// aiChipClick delegates to the one chip path, chatFromChip, which ends in the unified send.
 assert.ok(/function chatFromChip\(ctxId, q\)[\s\S]{0,1200}return chatSendUnified\(\);[\s\S]*function aiChipClick\(el\)[\s\S]{0,120}chatFromChip\x28/.test(chat), 'v59.51 (content audit): keyboard chip activation retains the unified send path through chatFromChip');
 assert.ok(boundaryKinds.filter(kind => kind === 'DOMAIN_ANALYSIS').length >= 4, 'all analysis contexts use the untrusted boundary');
 
@@ -621,7 +620,7 @@ const { createEntityProvider } = await import('../src/data/providers/entity.js')
 const { selectPublicEarnings } = await import('../src/data/providers/earnings.js');
 const { assessWorkerSetup } = await import('./check-worker-setup.mjs');
 
-// P1607: execute the actual keyless AI consumer (the chat's fundamentals tool), not a parallel implementation.
+// Execute the actual keyless AI consumer (the chat's fundamentals tool), not a parallel implementation.
 const { runTool } = await import('../src/ai/tools/registry.js');
 const chat = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
 const facts = { symbol:'NVDA', source:'SEC EDGAR companyfacts', periodType:'FY', observedAt:'2026-01-31', filedAt:'2026-03-01', coverage:['revenue','netIncome'], revenue:123, netIncome:0 };

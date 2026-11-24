@@ -16,7 +16,7 @@ import { searchKnowledgeIndex } from '../src/ui/knowledge/knowledge-search.js';
 const generatedSearchIndex = JSON.parse(readFileSync(new URL('../public-data/knowledge/search-index.json', import.meta.url), 'utf8'));
 const reasoningIndex = createAIKnowledgeIndex([], { suppliedMaterials: SUPPLIED_MATERIALS_REFERENCE });
 
-// P1605: every promoted frame must have a real source, note, learning path and retrieval consumer.
+// Every promoted frame must have a real source, note, learning path and retrieval consumer.
 for (const claim of PACKET_20261011_CLAIMS) {
   assert.deepEqual(getSuppliedMaterialClaims({ ids: [claim.id] }), [claim], 'P1605: canonical claim retrieval');
   const id = claim.id.replace('claim-20261011-', '');
@@ -32,7 +32,7 @@ const runId = process.env.AIO_QA_RUN_ID || `theme-research-${Date.now()}`;
 const output = process.env.AIO_QA_EVIDENCE_PATH || resolve(root, '.cache/aio-qa/runs', runId, 'theme-research/evidence.json');
 mkdirSync(dirname(output), { recursive: true });
 const fixture = { profile: 'isolated-local-artifacts', initialMode: 'light', personalData: 'none', source: 'local published artifacts; synthetic stock bars' };
-// v58.84: the two pinned chart libraries are served from the SRI-checked copies the entity-quality and
+// The two pinned chart libraries are served from the SRI-checked copies the entity-quality and
 // out-of-universe journeys already use, so the gate no longer needs the CDN (it timed out wherever egress is blocked).
 const pinnedLibraries = [
   { url: 'https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js', file: 'browser-lightweight-charts.js', sri: 'OK7vELvjHdhUFi31JYioPIcRHTROLdcDa6ZsNWgvgLaKj+9JqhU0Ad8g4wz3CXjA' }
@@ -40,7 +40,7 @@ const pinnedLibraries = [
   if (createHash('sha384').update(body).digest('base64') !== item.sri) throw new Error(`Pinned chart library SRI mismatch: ${item.file}`);
   return { ...item, body }; });
 const report = createBrowserEvidence({ root, runId, fixture, providerVersion: createRequire(import.meta.url)('playwright/package.json').version, operation: 'theme-research-journeys', environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-artifacts+two-pinned-chart-libraries-from-local-copies; remote-blocked' } });
-const server = await startLocalServer(port, { label: 'theme-research/server' }); // v57.62 shared lifecycle (15 s ready-line timeout)
+const server = await startLocalServer(port, { label: 'theme-research/server' }); // Shared lifecycle (15 s ready-line timeout)
 let browser;
 try {
   browser = await chromium.launch();
@@ -53,7 +53,7 @@ try {
   const page = await context.newPage();
   await page.goto(`${base}index.html`);
   await page.waitForFunction(() => window.AIO_ARCH && typeof window.toggleTheme === 'function');
-  // P1756: lightweight-charts loads on first chart use. This journey replaces window._aioFetchYahooChartData (whose
+  // lightweight-charts loads on first chart use. This journey replaces window._aioFetchYahooChartData (whose
   // chart-screen wrapper waits for the library), so it requests the library through the same loader first.
   await page.evaluate(() => window._aioEnsureChartLibrary('lwc'));
   await page.waitForFunction(() => window.LightweightCharts?.createChart);
@@ -81,7 +81,7 @@ try {
     await page.reload(); await page.waitForFunction(() => window.AIO_ARCH);
     assert.equal(await page.locator('body').evaluate((body) => body.classList.contains('dark-theme')), mode === 'dark', 'P1604: mode survives reload');
   }
-  // v58.52 (screen audit 2026-10-20): a Korean theme link from another route lands on 테마 with the detail open and in view.
+  // A Korean theme link from another route lands on 테마 with the detail open and in view.
   await page.evaluate(() => window.showPage('ticker'));
   await page.locator('#page-ticker.active').waitFor({ state: 'visible' });
   await page.evaluate(() => window.openKrThemeDetail('semi'));
@@ -92,7 +92,7 @@ try {
   const krDetailTop = await page.evaluate(() => document.getElementById('kr-theme-detail-panel').getBoundingClientRect().top);
   assert.ok(krDetailTop >= -4 && krDetailTop < 400, `v58.52 the Korean theme detail is in view after the jump (top ${krDetailTop})`);
   await page.evaluate(() => window.showPage('themes'));
-  // v59.51: the 섹터 RS tooltip left 테마 with the sector bars' own section. The tooltip mechanics are what is under test,
+  // The 섹터 RS tooltip left 테마 with the sector bars' own section. The tooltip mechanics are what is under test,
   // so a fixture tooltip with the shared markup goes on the page.
   await page.evaluate(() => {
     const tip = document.createElement('span');
@@ -107,7 +107,7 @@ try {
   await tooltip.press('Enter'); assert.equal(await tooltip.getAttribute('aria-expanded'), 'true', 'P1604: Enter opens exactly once');
   await tooltip.press(' '); assert.equal(await tooltip.getAttribute('aria-expanded'), 'false', 'P1604: Space closes exactly once');
   await capture('tooltip-keyboard', 'themes','themes','click, Escape, Enter, Space', 'one state transition per input');
-  // P1604: a native button carrying role=button must retain its native single activation.
+  // A native button carrying role=button must retain its native single activation.
   await page.evaluate(() => { const b=document.createElement('button'); b.id='fixture-native-button'; b.setAttribute('role','button'); b.dataset.action='toggleTheme'; document.body.append(b); });
   await page.locator('#fixture-native-button').press('Enter');
   assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('dark-theme')), false, 'P1604: native Enter toggles once');
@@ -118,7 +118,7 @@ try {
     window._aioFetchYahooChartData=async()=>({timestamps,opens:timestamps.map((_,i)=>100+i/5),highs:timestamps.map((_,i)=>102+i/5),lows:timestamps.map((_,i)=>99+i/5),closes:timestamps.map((_,i)=>101+i/5),volumes:timestamps.map(()=>100000),meta:{exchangeTimezoneName:'America/New_York'}});
     window.showPage('technical');
   });
-  // v60.35: the analysis slot draws only once its 종목 분석 view is shown; the reader opens it from the view tabs.
+  // The analysis slot draws only once its 종목 분석 view is shown; the reader opens it from the view tabs.
   await page.locator('#page-charts .page-views [data-view="analysis"]').click();
   await page.waitForFunction(()=>window.__aioStockChartInstance?.chart);
   const chartBefore=await page.evaluate(()=>({range:window.__aioStockChartInstance.chart.timeScale().getVisibleLogicalRange(),text:window.__aioStockChartInstance.chart.options().layout.textColor}));
@@ -126,13 +126,13 @@ try {
   const chartAfter=await page.evaluate(()=>({range:window.__aioStockChartInstance.chart.timeScale().getVisibleLogicalRange(),text:window.__aioStockChartInstance.chart.options().layout.textColor}));
   assert.notEqual(chartAfter.text,chartBefore.text,'P1604: existing stock chart recolors immediately');
   assert.deepEqual(chartAfter.range,chartBefore.range,'P1604: recoloring preserves chart view');
-  // Owner 2026-11-19: the old 차트 route opens the analysis slot on 기술적 분석.
+  // The old 차트 route opens the analysis slot on 기술적 분석.
   await capture('stock-chart-recolor','charts','charts','toggle existing chart from dark to light','axis colors updated; logical range retained');
   await page.evaluate(()=> { Storage.prototype.setItem=function(){throw new DOMException('fixture','SecurityError');}; });
   await page.locator('#sidebar-theme-btn').click();
   assert.equal(await page.locator('body').evaluate(b=>b.classList.contains('dark-theme')),true,'P1604: storage refusal keeps theme functional');
   await capture('theme-storage-refusal','charts','charts','toggle with rejected persistence','visible dark mode and chart update continue');
-  // v59.70: the mount render is followed ~15 ms later by the narrative hydration render. A reader who opens the 목차
+  // The mount render is followed ~15 ms later by the narrative hydration render. A reader who opens the 목차
   // list in between keeps it open (it used to be rebuilt closed: the open was recorded only by the later 'toggle' task,
   // which made this journey time out on a hidden title about 1 run in 3). The list is opened from inside the mount.
   const openedDuringMount=await page.evaluate(async()=>{
@@ -150,7 +150,7 @@ try {
   assert.deepEqual(openedDuringMount,{opened:true,rebuilt:true,open:true,narrative:'connected'},'v59.70: a 목차 list opened during the mount render stays open after hydration');
   for(const lesson of PACKET_20261011_LESSONS) {
     const navigation=page.getByRole('navigation',{name:'개념·분석 목차',exact:true});
-    // v59.51: the open group's titles sit in one closed list; a reader opens it once and it stays open across re-renders.
+    // The open group's titles sit in one closed list; a reader opens it once and it stays open across re-renders.
     const list=navigation.locator('details.rl-nav-list');
     if(await list.count() && !(await list.evaluate(node=>node.open))) await list.locator('summary').click();
     const button=navigation.getByRole('button',{name:lesson.issue,exact:true}).or(navigation.getByRole('checkbox',{name:lesson.issue,exact:true}));

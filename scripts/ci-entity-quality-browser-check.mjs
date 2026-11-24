@@ -1,4 +1,4 @@
-// P1624/P1625/P1626/P1627: real route consumers; intercepted Yahoo fixture, local published artifacts.
+// Real route consumers; intercepted Yahoo fixture, local published artifacts.
 // External requests are aborted except this identity-checked chart fixture. No paid AI/provider call executes.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
@@ -19,7 +19,7 @@ const sourceFiles = ['index.html','src/ui/pages/entity.js','src/ui/pages/screene
   'src/data/providers/screener.js','src/domain/fundamental/fiscal-read.js','src/domain/technical/chart-scenarios.js'];
 const sourceHashes = Object.fromEntries(sourceFiles.map(file=>[file,createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')]));
 const failures = [], observations = [], executedCases = [];
-// v57.60: screenshots are captured as buffers and written atomically (retries Windows EPERM/EBUSY locks).
+// Screenshots are captured as buffers and written atomically (retries Windows EPERM/EBUSY locks).
 const snap = async (page, name, options = {}) => atomicWriteFile(resolve(out, name), await page.screenshot(options));
 const viewports = [{ name: 'phone', width:390, height:844 }, { name:'tablet', width:820, height:1180 }, { name:'desktop', width:1440, height:1000 }];
 const check = (condition, message, detail) => { if (!condition) failures.push({ message, detail }); };
@@ -79,7 +79,7 @@ let server, browser;
 try {
   server = await startLocalServer(port, { label: 'entity-quality/server' });
   browser = await chromium.launch({ headless:true });
-  // QA speed (2026-10-12): the six viewport x theme cases are independent pages on one browser; run three at once.
+  // QA speed: the six viewport x theme cases are independent pages on one browser; run three at once.
   const allCases = viewports.flatMap((viewport) => [false, true].map((dark) => ({ viewport, dark })));
   const cases = allCases.filter(({ viewport, dark }) => !process.env.AIO_ENTITY_QUALITY_CASE || process.env.AIO_ENTITY_QUALITY_CASE === `${viewport.name}-${dark ? 'dark' : 'light'}`);
   check(cases.length > 0, 'v59.52 selected entity-quality case must exist', process.env.AIO_ENTITY_QUALITY_CASE);
@@ -98,7 +98,7 @@ try {
       if (body) { intercepted.push(url); return route.fulfill({ status:200, contentType:'application/json', body,
         headers:{'Access-Control-Allow-Origin':'*'} }); }
       // A deliberately unavailable ticker is HTTP 404, not relay failure. Do not let blocked background
-      // network calls poison the healthy fixture's per-origin transport circuit (P784).
+      // network calls poison the healthy fixture's per-origin transport circuit.
       if(/query[12]\.finance\.yahoo\.com\//.test(decodeTarget(url)))return route.fulfill({status:404,contentType:'application/json',
         body:JSON.stringify({chart:{result:null,error:{code:'Not Found',description:'Offline fixture source unavailable'}}}),headers:{'Access-Control-Allow-Origin':'*'}});
       if (url.startsWith(base) || url.startsWith('data:')) return route.continue();
@@ -117,7 +117,7 @@ try {
       }
       // Enter the actual summary action first. No technical route or chart fetch is invoked beforehand.
       await page.evaluate(()=>{ window.showTicker('AEHR'); });
-      // 2026-11-19: 개요 is the company (사업 · 밸류체인 안의 자리 · 재무 한눈에); the price chart is 기술적 분석's.
+      // 개요 is the company (사업 · 밸류체인 안의 자리 · 재무 한눈에); the price chart is 기술적 분석's.
       await page.waitForFunction(()=>document.getElementById('ticker-hero-price')?.textContent.includes('84.64')
         && document.querySelectorAll('#ticker-company:not([hidden]) [data-company-section]').length>=3
         && document.querySelector('#ticker-company details[data-fold-kind="sources"] a'), null, {timeout:20000}); // the listing description (and its source link) arrives after the sections
@@ -138,7 +138,7 @@ try {
       await captureLayout(page,`${label}/summary`);
       await snap(page, `browser-${label}-summary.png`);
       check(await page.locator('#ticker-hero-valuation').count()===1 && !await page.locator('.company-analysis-expanded, .company-analysis-routes').count(),`${label}: the valuation line is missing or the retired second summary returned (v59.51)`);
-      // P1630: a quote update keeps the fold the reader opened (and its focus).
+      // A quote update keeps the fold the reader opened (and its focus).
       const rerender = await page.evaluate(()=>{
         const fold=document.querySelector('#ticker-company details'); if (!fold) return { skipped:true, reason:'no-company-fold', open:null, focus:null };
         const name=fold.querySelector('summary').textContent;
@@ -154,7 +154,7 @@ try {
       await page.locator('.ai-ph-close').click();
 
       await page.evaluate(()=>window.showPage('screener'));
-      // v59.70 (S12): 시장 sits in the condition row at every width; 정렬 is in the 보기 panel — open it like a reader.
+      // 시장 sits in the condition row at every width; 정렬 is in the 보기 panel — open it like a reader.
       await page.waitForSelector('#scr-listing-market');
       // The route module mounts after showPage; its condition row (chip signature) marks the controls as wired.
       await page.waitForFunction(()=>document.getElementById('scr-active-filter-chips')?.dataset.chipSignature !== undefined);
@@ -164,7 +164,7 @@ try {
       for (const market of ['US','KR']) {
         await page.locator('#scr-listing-market').selectOption(market);
         // Settle on an observable outcome instead of a swallowed wait + fixed sleep: rows of THIS market
-        // (no stale rows from the previous selection) or the population note stating a deferral (P1649/P1650).
+        // (no stale rows from the previous selection) or the population note stating a deferral.
         const settled = await page.waitForFunction((selected)=>{
           const rows=[...document.querySelectorAll('#screener-results-body tr[data-aio-screener-ticker]')];
           if (rows.length && rows.every(row=>/\.K[QS]$/.test(row.dataset.aioScreenerTicker)===(selected==='KR'))) return true;
@@ -179,14 +179,14 @@ try {
           symbol:row.dataset.aioScreenerTicker,price:row.querySelector('[data-column-key="price"]')?.textContent || '',
           ret3m:parseFloat(row.querySelector('[data-column-key="ret3m"]')?.textContent) })));
         const populationNote = await page.locator('#scr-population-note').textContent();
-        // P1650: a market whose latest completed session is newer than its published factor session
-        // legitimately holds ranking and states the reason (P1649: "…반영 대기"). Accept that
+        // A market whose latest completed session is newer than its published factor session
+        // legitimately holds ranking and states the reason ("…반영 대기"). Accept that
         // documented deferral; an empty population with no stated reason stays a P1625 regression.
         const deferredWithReason = listing.length === 0 && /반영 대기/.test(populationNote);
         observations.push({label,market,listing,note:populationNote});
         check(listing.length>0 || deferredWithReason,`${label}: ${market} published population has no visible constituents (P1625)`,{listing,note:populationNote});
         check(listing.every(row=>/\.K[QS]$/.test(row.symbol)===(market==='KR')),`${label}: US/KR listings are mixed (P1625)`,listing);
-        // P715: published rows intentionally omit raw prices. Offline source absence remains '—'.
+        // Published rows intentionally omit raw prices. Offline source absence remains '—'.
         check(listing.every(row=>row.price==='—' || (market==='US' ? /\$/.test(row.price) : /₩|원/.test(row.price))),`${label}: received listing price has no currency (P1625)`,listing);
         const values=listing.map(row=>row.ret3m).filter(Number.isFinite);
         if(values.length>1)check(values.every((value,i)=>!i || value<=values[i-1]),`${label}: actual 3M return ordering is incorrect (P1625)`,values);
@@ -215,7 +215,7 @@ try {
       await captureLayout(page,`${label}/fiscal`);
       await snap(page, `browser-${label}-fiscal.png`, { fullPage:true });
 
-      // Owner 2026-11-19: the 종목 hub line's '기술적 분석에서 보기' opens this company in 기술적 분석's analysis slot (the
+      // The 종목 hub line's '기술적 분석에서 보기' opens this company in 기술적 분석's analysis slot (the
       // 차트 tab is retired); the three paths are on the slot's face, the reading order in its method fold.
       const subjectSym = await page.evaluate(()=>window._aioLastOpenedSymbol);
       await page.locator('#aio-hub-tabs .aio-hub-subject-chart').click();

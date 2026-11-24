@@ -160,7 +160,7 @@ export const cases = [
     const { BRANCHES } = await load('src/domain/market/regime/macro-crossroads.js');
     const one = inflationDirection({ pce: { pace: 1, yoy: 3, date: '2026-09-01' } });
     const both = inflationDirection({ pce: { pace: 1, yoy: 3, date: '2026-09-01' }, cpi: { pace: 1, yoy: 3, date: '2026-09-01' } });
-    // v57.69 keeps a single published measure deciding; the condition then names that measure instead of "모두".
+    // Keeps a single published measure deciding; the condition then names that measure instead of "모두".
     const [label, test] = BRANCHES.find((x) => x.id === 'softland').conditions[0];
     assert.equal(test({ inflationDir: one }), true);
     assert.doesNotMatch(label({ inflationDir: one }), /PCE·CPI 모두/);

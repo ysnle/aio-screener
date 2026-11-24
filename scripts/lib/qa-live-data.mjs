@@ -15,7 +15,7 @@
 // A data run — a producer's pre-push gate (the data-commit profile, or --data-run) and the reduced-scope CI of a data-only
 // commit — runs `data` gates only. The code under a data-only commit already passed full push CI (resolve-release-source.mjs
 // rides the data on that code, direct or overlay), so a code assertion there can only repeat that verdict, or stop the live
-// data for every reader on a calendar rule or a code fixture (P2749: a weekday fixture blocked every refresh for hours).
+// data for every reader on a calendar rule or a code fixture (a weekday fixture blocked every refresh for hours).
 // A script that holds both kinds splits them into sections (scripts/lib/gate-sections.mjs): the runner sets DATA_RUN_ENV
 // for a data run and runSections skips the `code` sections there. Such a gate is declared `data`.
 export const GATE_INPUT_CLASSES = Object.freeze(['data', 'code']);

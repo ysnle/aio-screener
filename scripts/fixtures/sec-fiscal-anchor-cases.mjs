@@ -1,4 +1,4 @@
-// v60.26 SEC fiscal-year anchor cases (companyfacts-shaped). Each case takes a normalizeSecCompanyFacts implementation,
+// SEC fiscal-year anchor cases (companyfacts-shaped). Each case takes a normalizeSecCompanyFacts implementation,
 // so the contract gate runs them on the current normalizer and the same cases can be pointed at an older one.
 // (a) net income newer than revenue: the year is the income year, revenue/margin/growth empty.
 // (b) LHX FY2025 shape: the 10-K tags the full-year revenue on a quarter span; it is the annual revenue, not a quarter.

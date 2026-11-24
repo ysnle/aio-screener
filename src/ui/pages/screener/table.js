@@ -25,6 +25,9 @@ import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourced
 import { renderBacktest, renderConditionalEvidence, renderFactorTab, renderStaleNote, renderValidationState } from './validation-tab.js';
 function createRankNode(documentRef, row, hold = null) {
   const wrap = documentRef.createElement('div');
+  // When the current epoch's re-rank is held, the previous run's relative score and
+  // rank must not stay on the table as if they answered the new selection — the row cell
+  // says 순위 보류 with the reason, matching the banner on the same screen.
   if (hold) {
     const rankCellHold = documentRef.createElement('span');
     rankCellHold.textContent = '순위 보류';
@@ -42,14 +45,17 @@ function createRankNode(documentRef, row, hold = null) {
   const rank = visibleRank(row);
   if (rank == null) {
     wrap.appendChild(text(documentRef, '—'));
+    // A fund, a SPAC or a thinly traded 확장 name is shown but not compared with operating companies.
     const excluded = POPULATION_EXCLUSION_TEXT[row.populationExclusion]?.long;
     if (excluded) wrap.title = excluded;
   } else {
     const value = documentRef.createElement('div');
     value.textContent = String(rank);
+    // The percentile names its population — the core universe, or core + Russell 2000·Nasdaq (확장).
     const contract = RANKING_CONTRACTS[row.rankingUniverse === 'extended' ? 'extended' : 'core'];
     wrap.dataset.rankingContract = contract.id;
     wrap.title = `${MARKET_LABELS[screenerMarket(row)]} 시장의 계산 가능한 종목 중 백분위 ${rank}, ${contract.label} — 만점이나 상승 확률이 아닙니다. 조건을 선택해도 팩터 백분위의 모집단은 바뀌지 않습니다.`;
+    // A descriptive position, not a verdict — one neutral colour, no green/red judgement.
     value.className = 'scr-rank-value';
     const bar = documentRef.createElement('div');
     bar.className = 'scr-rank-bar';
@@ -58,6 +64,7 @@ function createRankNode(documentRef, row, hold = null) {
     fill.style.width = `${Math.max(0, Math.min(100, rank))}%`;
     bar.appendChild(fill);
     wrap.append(value, bar);
+    // A row under its 200-day line or in a five-session break names its contrary checks beside the percentile.
     const gate = topPickGate(row);
     if (gate.held && gate.contraryCount > 0) {
       const contrary = documentRef.createElement('span');
@@ -124,6 +131,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   }
   if (key === 'sector') {
     if (row.sectorSource !== 'sec-sic' || !row.sector) return row.sector;
+    // A sector translated from the SEC SIC code (no curated sector) says so beside the value.
     const cell = documentRef.createElement('span');
     const tag = documentRef.createElement('small');
     tag.textContent = ' SIC';
@@ -161,6 +169,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
         failed.title = dataStateText('failed', '시세');
         return failed;
       }
+      // Raw prices are not republished; an uncovered row shows a quiet dash, not a word on every line.
       const missing = text(documentRef, '—');
       missing.style.color = 'var(--color-text-secondary)';
       missing.title = '실시간 시세가 연결되지 않은 종목 — 공개 데이터에는 종목별 가격을 싣지 않습니다.';
@@ -187,6 +196,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     // observedAt/source/freshness to the row itself and do not inherit the global LIVE badge,
     // which counts topbar coverage rather than this instrument's quote.
     const wrap = documentRef.createElement('span');
+    // Won prices have no minor unit — show them as whole numbers with the ₩ sign instead of '161500.00 KRW'.
     const value = text(documentRef, formatScreenerPrice(price, currency));
     value.dataset.quoteFreshness = observedAt ? 'observed' : 'unverified';
     value.title = `${currency || '통화 미확인'}, ${stamp}, ${source || '출처 미확인'}, ${observedAt ? '행 자체 관측' : '현재성 미확인 — 전역 LIVE에 상속하지 않음'}`;
@@ -200,6 +210,8 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     }
     return wrap;
   }
+  // Returns read at a glance in the app's rise/fall colours (returnColor was defined but unused);
+  // 52주 고점 대비 is never positive, so it stays in the text colour rather than a column of red.
   if (['ret1m', 'ret3m', 'ret6m', 'pctSma50'].includes(key)) {
     const node = documentRef.createElement('span');
     node.textContent = returnText(row[key]);
@@ -216,6 +228,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     return node;
   }
   if (key === 'pctFrom52wHigh') return returnText(row.pctFrom52wHigh);
+  // v58.75 (persona review): trader and fundamental fact columns. Each cell says what it was computed from on hover.
   if (key === 'ret5d') {
     const node = text(documentRef, returnText(row.ret5d));
     node.style.color = returnColor(row.ret5d);
@@ -276,6 +289,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     const later = String(row._valuationPeEarningsLaterQuarter || '');
     const peNotes = key !== 'pe' ? '' : `${row._valuationPeOneOff ? ', 일회성 이익 포함' : ''}${/^\d{4}-\d{2}/.test(later) && later > String(row._valuationPeEarningsThrough || '') ? `, ${later.slice(0, 7)} 분기 공시는 미반영` : ''}`;
     const empty = key === 'pe' && row._valuationPeLoss ? '순손실이라 PER 없음' : key === 'pb' && row._valuationPbDeficit ? '자기자본이 0 이하라 PBR 없음' : '공시 자료가 없거나 비정상 값이라 비움';
+    // Margin and revenue growth name their own period (the latest four quarters or the fiscal year); ROE is the fiscal year.
     const quarterly = (key === 'margin' || key === 'revGrowth') && (row[`_${key}Basis`] ?? row[`${key}Basis`]) === 'ttm';
     const basis = key === 'margin' || key === 'revGrowth' || key === 'roe' ? `, ${filingBasisLabel(row, key)} 기준` : '';
     node.title = value == null ? empty : quarterly
@@ -298,6 +312,8 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   }
   if (key === 'vcpScore') {
     const node = documentRef.createElement('span');
+    // Codex browser audit H46: a green/red 0–100 number read as a validated buy score. The structure stage comes
+    // first; the number is labelled as how many contraction rules are met, in a neutral colour.
     node.textContent = row.vcpScore == null ? '—' : `${vcpStageLabel(row.vcpStage)}, 충족도 ${row.vcpScore}`;
     node.title = '변동성 수축(VCP) 규칙 — 수축 횟수, 수축 깊이 감소, 거래량 감소 — 을 얼마나 충족하는지 0~100으로 합친 값입니다. 과거 성과로 검증된 매수 점수가 아닙니다.';
     node.style.color = row.vcpScore == null ? 'var(--color-text-secondary)' : 'var(--color-text-secondary)';
@@ -305,6 +321,8 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   }
   if (key === 'fwdPe') {
     const view = consensusView(row, consensusRowFor(screenerRuntime.consensusRoot, row.sym || row.symbol));
+    // The estimates arrive in batches (214/904 on the first runs), so a missing value before full
+    // coverage is "not collected yet", not "no estimate".
     const coverage = screenerRuntime.consensusRoot?._aioConsensusEstimates?.coverage;
     const partial = !view && /^[A-Z.-]+$/.test(String(row.sym || '')) && finite(coverage?.covered) != null && coverage.covered < coverage.universeUs;
     const node = text(documentRef, view?.fwdPe != null ? (view.fwdPe > PE_MEANINGFUL_MAX ? `${PE_MEANINGFUL_MAX}배 초과` : `${numberText(view.fwdPe, 1)}배`) : view?.priceBasisHeld ? '보류' : view ? '적자 예상' : partial ? '수집 전' : '—');
@@ -354,6 +372,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
     // N21: an empty cell says why — waiting for its rotation turn, fetch failed, no headline that names the
     // company, or not collected for this market. Sources stay in the hover only.
     const newsEmpty = { 'rotation-pending': '순환 대기', 'fetch-failed': '수신 실패', 'no-verified-article': '확인된 기사 없음', 'not-covered': '수집 대상 아님' };
+    // An empty memo is a quiet dash (its reason in the hover), not a word repeated down the column.
     memo.textContent = row.newsMemo ? row.newsMemo.slice(0, 70) : '—';
     if (!row.newsMemo) memo.style.color = 'var(--color-text-secondary)';
     const newsSources = Array.isArray(row.newsMemoSources) ? row.newsMemoSources.filter(Boolean) : [];
@@ -374,7 +393,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
 }
 
 const MONO_COLUMNS = new Set(['price', 'pctFrom52wHigh', 'rank', 'momentum', 'trend', 'lowvol', 'value', 'quality', 'ret1m', 'ret3m', 'ret6m', 'rsi', 'pctSma50', 'kalman', 'vcpScore', 'mcap', 'fwdPe',
-  'ret5d', 'rs6m', 'rs12m', 'rvol20', 'adrPct', 'dollarVolume30d', 'pivotDist', 'pe', 'pb', 'roe', 'margin', 'revGrowth']);
+  'ret5d', 'rs6m', 'rs12m', 'rvol20', 'adrPct', 'dollarVolume30d', 'pivotDist', 'pe', 'pb', 'roe', 'margin', 'revGrowth']); // The new fact columns
 function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, rankHold, capOrder, quoteRequestState } = {}) {
   const tr = documentRef.createElement('tr');
   const symbol = row.sym || row.symbol;
@@ -395,7 +414,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
   visibleColumns.forEach((column) => {
     const td = documentRef.createElement('td');
     td.dataset.columnKey = column.key;
-    td.dataset.label = column.label;
+    td.dataset.label = column.label; // The phone card row (<600px) names each value without the header row
     td.className = `scr-column-cell scr-column-${column.key}${column.sticky ? ' scr-column-sticky' : ''}`;
     td.style.textAlign = column.align;
     td.style.minWidth = `${column.width}px`;
@@ -410,6 +429,7 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
     const field = fieldId && row.fieldReadiness?.fields?.[fieldId];
     if (field) {
       td.dataset.fieldStatus = field.status;
+      // Reader words for the field state; the raw code stays in data-field-status for tools.
       const STATUS_WORDS = { CURRENT: '최신', INFERRED: '다른 값에서 계산', UNSUPPORTED: '이 종목에는 없는 항목', BLOCKED_RIGHTS: '사용 권리 확인 전', DELAYED: '지연된 종가 기준', STALE: '오래된 값', LAST_GOOD: '마지막 정상값', MISSING: '관측 시각 미확인', CONFLICT: '출처 간 값이 다름', UNAVAILABLE: '값 없음' };
       td.title = `${field.sourceId || '출처 미확인'}, 관측 ${field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인'}, ${STATUS_WORDS[field.status] || field.status}`;
       if (field.status === 'CONFLICT' && fieldValueForPurpose(row, fieldId) != null) {
@@ -418,6 +438,8 @@ function createTableRow(documentRef, row, { readLiveData, readWatchlist, onWatch
         note.className = 'scr-cell-note';
         td.appendChild(note);
       } else if (['STALE', 'LAST_GOOD'].includes(field.status) && fieldValueForPurpose(row, fieldId) != null) {
+        // Every stale cell used to repeat "YYYY-MM-DD · 참고", burying the numbers.
+        // The cell is muted and marked; one table-level note states the date(s) once (renderStaleNote).
         td.dataset.staleAsOf = field.observedAt ? String(field.observedAt).slice(0, 10) : '시각 미확인';
         td.style.color = 'var(--color-text-secondary)';
       }
@@ -433,6 +455,8 @@ export function getVisibleColumns(columnPreset, customColumns = []) {
   return keys.map((key) => byKey.get(key)).filter(Boolean);
 }
 
+// Every row repeated "10/16 종가" under its price. The day most rows share moves to the 가격 header
+// (and the phone card label); a row whose close is from another day keeps its own note, so a stale price still shows its date.
 function shareCloseDay(documentRef, table, body) {
   const notes = [...body.querySelectorAll('.scr-close-note')];
   const counts = new Map();
@@ -465,9 +489,11 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     th.className = `scr-column-header${column.sticky ? ' scr-column-sticky' : ''}`;
     th.style.textAlign = column.align;
     th.style.minWidth = `${column.width}px`;
+    // Jargon columns carry a one-line explanation on hover.
     if (column.hint) th.title = column.hint;
-    const fwdCoverage = column.key === 'fwdPe' ? screenerRuntime.consensusRoot?._aioConsensusEstimates?.coverage : null;
+    const fwdCoverage = column.key === 'fwdPe' ? screenerRuntime.consensusRoot?._aioConsensusEstimates?.coverage : null; // E1-01
     if (fwdCoverage?.universeUs) th.title = `${th.title}, 수집 ${fwdCoverage.covered}/${fwdCoverage.universeUs}종목`;
+    // WCAG 1.3.1: hover-only hints are also exposed to keyboard and screen-reader users via aria-describedby.
     let hintId = '';
     if (th.title) {
       hintId = `scr-col-hint-${column.key}`;
@@ -482,6 +508,7 @@ function renderTableHeader(documentRef, table, visibleColumns, sortState) {
     if (column.sortable) {
       const button = documentRef.createElement('button');
       button.type = 'button';
+      // A column can sort by another key (시총 순서 → mcap) and show a short header ('#') while its name stays whole.
       const sortKeyName = column.sortAs || column.key;
       button.dataset.scrSort = sortKeyName;
       button.className = 'scr-sort-btn';
@@ -552,6 +579,7 @@ function tableRowInputs(row, { readLiveData, readWatchlist, selectedSymbols, com
     const estimates = screenerRuntime.consensusRoot?.[CONSENSUS_KEY];
     inputs.push(estimates, consensusRowFor(screenerRuntime.consensusRoot, symbol), estimates?.coverage?.covered, estimates?.coverage?.universeUs);
   }
+  // The RS percentiles come from the whole dataset and the theme stages from the scenario state, not the row.
   if (visibleColumns.some((column) => column.key === 'rs6m' || column.key === 'rs12m')) inputs.push(screenerRuntime.currentRsPercentiles.get(symbol));
   if (visibleColumns.some((column) => column.key === 'themeStage')) inputs.push(screenerRuntime.themeStageRoot?._aioScenarioState, screenerRuntime.themeStageRows);
   return inputs;
@@ -576,6 +604,7 @@ function tableRowNodes(documentRef, body, rows, options) {
   return nodes;
 }
 
+// The market-cap order of the rows the table holds (1 = largest). Rows without a cap get no number.
 function capOrderMap(rows, readLiveData) {
   const order = new Map();
   rows.map((row) => ({ symbol: row.sym || row.symbol, cap: capFilterValue(liveRow(row, readLiveData)) }))
@@ -585,6 +614,9 @@ function capOrderMap(rows, readLiveData) {
   return order;
 }
 
+// AMZN·GOOGL·META were silently absent because they failed the chosen screen. The line above the table
+// names the screen, the count and the order, and lists the largest caps the screen left out with the condition each
+// failed (the row's own value against the threshold — no new numbers).
 const DROPPED_CAP_POOL = 20;
 function screenLeaves(node) {
   if (!node || typeof node !== 'object') return [];
@@ -665,9 +697,13 @@ function renderTableStatus(documentRef, { status, scopeRows, filtered, condition
     const withCap = filtered.filter((row) => capFilterValue(liveRow(row, readLiveData)) != null).length;
     if (!withCap) order = shortOrder = '시총 자료 없음, 조건 순위 순';
     else if (withCap < filtered.length) order = `${order}(시총 확인 ${withCap}종목 먼저)`;
+    // v58.80 (first-users F21, owner-delegated 2026-10-26): the default stays market cap — leading with an order the
+    // back-test cannot yet tell from chance would read as a recommendation — and the line now says so.
     const validation = documentRef.getElementById('scr-validation-banner')?.dataset?.validationState;
     if (withCap && !sortState.ascending && validation !== 'favorable') order = `${order} — 순위가 우연과 구별되지 않아 기본은 시총 순, 백분위 머리글을 누르면 순위 순`;
   }
+  // Quote refreshes re-render the table, so the text is written only when it changes.
+  // The face keeps the order; why the default is market cap (and the cap coverage) is the hover.
   const lineText = lead ? `${lead}, ${shortOrder}` : shortOrder;
   if (textNode.title !== order) textNode.title = order;
   if (textNode.textContent !== lineText) textNode.textContent = lineText;
@@ -760,11 +796,13 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   const currentState = { ...rawState, metadata: { ...rawState?.metadata, populationRanking: rawState?.metadata?.ranking || null, ranking: marketRankingMetadata(rawState?.metadata, listingMarket) } };
   const sourceState = workbenchResult?.run ? { ...currentState, metadata: workbenchResult.snapshotMetadata || {}, status: 'partial', lastRun: workbenchResult.run, readiness: workbenchResult.readiness } : currentState;
   const state = { ...sourceState, metadata: { ...sourceState.metadata, selectionMarket: listingMarket, ranking: marketRankingMetadata(sourceState.metadata, listingMarket) } };
+  // 실행 전에는 파이프라인 기본 결과가 아니라 **선택한 정의**의 미리보기를 표시한다.
   const preview = workbenchResult?.run ? null : previewResult;
   const page = documentRef?.getElementById('page-screener');
   if (!page) return;
   const rows = rowsOverride || state?.rows || [];
   syncScreenerControlAvailability(documentRef, { rows: currentState.rows || [], listingMarket, ranking: currentState.metadata.ranking, profiles: root?.AIO_TRADER_PROFILES || null });
+  // v58.75 (persona review): RS percentiles over the whole loaded set (before display filters) and the theme-stage inputs.
   screenerRuntime.currentRsPercentiles = marketReturnPercentiles(rows);
   screenerRuntime.themeStageRoot = root;
   screenerRuntime.themeStageRows = currentState.rows || rows;
@@ -776,11 +814,15 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const field = SCREENER_FIELD_REGISTRY.get(ranking.field);
     presetOrder.textContent = `조건 순위, ${field?.label || field?.name || (ranking.field === 'rank' ? '선택 비중의 팩터 백분위' : ranking.field)} ${ranking.direction === 'asc' ? '낮은 순' : '높은 순'}`;
   }
+  // 밸류·퀄리티 stay switched off until fundamentals cover enough of the universe, so the columns were
+  // '—' on every row. A factor column with no score in any row is left out instead of shown empty.
   const scored = (key) => rows.some((row) => finite(row?.factorScores?.[key]) != null);
   const visibleColumns = getVisibleColumns(columnPreset, customColumns).filter((column) => !['value', 'quality'].includes(column.key) || scored(column.key));
   screenerRuntime.consensusRoot = root;
   const custom = parseConditionValue(selectedValue(documentRef, 'scr-custom-conditions'));
   const scopeRows = scopedRows(rows, listingMarket);
+  // A condition the market has no data for (e.g. SEC financials for 한국) is greyed out instead of returning 0.
+  // Forward PER loads on demand, so it stays offered for 미국 even before the estimates arrive.
   if (screenerRuntime.availableCache.rows !== scopeRows.length || screenerRuntime.availableCache.market !== listingMarket || screenerRuntime.availableCache.source !== rows || screenerRuntime.availableCache.signals !== root?.AIO_TELEGRAM_SIGNALS) {
     screenerRuntime.availableCache = { rows: scopeRows.length, market: listingMarket, source: rows, signals: root?.AIO_TELEGRAM_SIGNALS, ids: availableConditionIds(scopeRows, customRead) };
     sourcedConditionIdsFor(listingMarket).forEach((id) => screenerRuntime.availableCache.ids.add(id));
@@ -802,6 +844,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   requestConditionSources(root, custom, onDataChange);
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
+  // v58.56 (4b): the phone's one-line rows apply to the default columns only (screener-quality.css).
   if (table) table.dataset.columnPreset = columnPreset;
   const body = documentRef.getElementById('screener-results-body');
   if (body) {
@@ -830,12 +873,16 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
         });
       }
       const capLabel = { MEGA: '초대형($1T+)', LARGE: '대형($10B~1T)', MID: '중형($2~10B)', SMALL: '소형(<$2B)' }[capFilter] || capFilter;
+      // When every row of the chosen market is held because its price indicators are older than the
+      // latest session, the table is empty for lack of current data, not because no stock met the conditions.
       const listingRows = (state?.rows || []).filter((row) => screenerMarket(row) === listingMarket);
       const heldForData = listingRows.length > 0 && listingRows.every((row) => row.screenStatus === 'unavailable');
+      // On a slow phone the factor file had not arrived yet, every row read 'unavailable', and the
+      // table said all 904 were "not on the latest session" — a final verdict for a load still in progress.
       const factorsPending = heldForData && !state?.metadata?.asOf;
       const rowsFailed = state?.status === 'unavailable' && screenerRowsState(root) === 'failed';
       const emptyMessage = state?.status === 'unavailable'
-        ? `${dataStateText(rowsFailed ? 'failed' : 'loading', '스크리너 자료')}`
+        ? `${dataStateText(rowsFailed ? 'failed' : 'loading', '스크리너 자료')}` // Bundle 3: was '미수신' for both
         : factorsPending
           ? '종목 지표를 불러오는 중입니다 — 도착하면 순위가 표시됩니다'
         : heldForData
@@ -843,11 +890,14 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
           : capFilter && capHeld > 0
           ? `조건을 충족한 0건 / 시총 정보가 없어 판정 보류 ${capHeld}건 — 시총 적격 ${rows.length - capHeld}/${rows.length}, 적용 컷 ${capLabel}`
           : sessionLine?.table || '조건에 맞는 종목이 없습니다';
+      // Say what the search ran over and offer the way back, instead of one dead sentence.
       const searchRaw = selectedValue(documentRef, 'scr-text-search').trim();
-      const searchText = searchRaw.length > 40 ? `${searchRaw.slice(0, 40)}…` : searchRaw;
+      const searchText = searchRaw.length > 40 ? `${searchRaw.slice(0, 40)}…` : searchRaw; // first-users run 4 (breaker #16): a 5,000-char query ran off-screen
       const scopedMessage = state?.status !== 'unavailable' && !(capFilter && capHeld > 0) && searchText
         ? `'${searchText}' — 지금 시장·섹터·조건 안에서는 찾지 못했습니다. 전체에서 찾으려면 조건을 지웁니다.`
         : emptyMessage;
+      // The cell holds the shared data state — a skeleton while the rows or the factor file are on the way,
+      // one line plus 다시 시도 when the read failed, one line plus the ways out when the conditions leave nothing.
       const stateCell = cell(documentRef, '', 'scr-empty-cell');
       stateCell.colSpan = visibleColumns.length;
       empty.appendChild(stateCell);
@@ -856,6 +906,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
         : rowsFailed ? { state: 'error', text: scopedMessage, onRetry }
           : { state: 'empty', text: scopedMessage });
       stateCell.dataset.scrState = loading ? 'loading' : rowsFailed ? 'error' : 'empty';
+      // run-2: while the factor file is still arriving, "clear the filters" is not the way out.
       if (state?.status !== 'unavailable' && !factorsPending && !sourcesPending) {
         const actions = documentRef.createElement('div');
         actions.className = 'scr-empty-actions';
@@ -869,12 +920,16 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
           return button;
         };
         if (searchText) actions.appendChild(action('검색어 지우기', 'clear-filter', 'scr-text-search'));
+        // run-5 (breaker #1): 'RSI 30 이하' matched 68 stocks, the table showed 0 inside 실행 통과만, and the only way out
+        // ('모두 지우기') also deleted the condition. The narrower scope is offered first and keeps the condition.
         if (passedOnlyApplied(documentRef)) actions.appendChild(action("'조건 통과만' 끄고 전체에서 찾기", 'clear-filter', 'scr-passed-only'));
         actions.appendChild(action('조건 모두 지우기', 'reset-all-filters'));
         empty.firstChild.appendChild(actions);
       }
       body.appendChild(empty);
     } else {
+      // Under another sort (a preset sorts by 조건 순위) a market-cap number in the first column read as the
+      // rank, so "#" is the row's place in the order the table is sorted by; under the default 시총 sort that is the cap order.
       const capOrder = !visibleColumns.some((column) => column.key === 'capOrder') ? null
         : sortState.column === 'mcap' ? capOrderMap(filtered, readLiveData) : new Map(filtered.map((row, index) => [row.sym || row.symbol, index + 1]));
       const nodes = tableRowNodes(documentRef, body, visible, { readLiveData, readWatchlist, onWatchlistToggle, onExplain, onCompare, selectedSymbols, compareSymbols, visibleColumns, capOrder, quoteRequestState, rankHold: currentState.metadata.ranking.available === false ? { reason: currentState.metadata.ranking.rankingUnavailableReason } : root._aioRankingHold || null });
@@ -899,6 +954,7 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   renderStaleNote(documentRef, body);
   const loadMore = documentRef.getElementById('scr-load-more-wrap');
   if (loadMore) {
+    // The button names how many rows it will actually add; the summary confirms the end.
     loadMore.hidden = visibleLimit.value >= filtered.length;
     const moreButton = loadMore.querySelector('[data-aio-screener-action="load-more"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, filtered.length - visibleLimit.value))}개 더 보기`;
@@ -909,11 +965,17 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const ranking = currentState.metadata.ranking;
     const weights = ranking.appliedFactorWeights || {};
     const order = documentRef.getElementById('scr-order')?.selectedOptions?.[0]?.textContent || SCREENER_COLUMN_REGISTRY.find(column => column.key === sortState.column)?.label || '조건 순위';
+    // 2026-10-14 audit #3: one denominator on this screen — the rows the ranking actually ranked (the same set the
+    // reading's top 20% and the stock summary's rank use). Why the rest of the population is not ranked is folded.
+    // The ranked market's population is its listed rows (marketPopulation); an overseas listing shown in the US list is
+    // named apart, so 모집단 is the universe size every screen quotes.
     const listed = scopedRows(currentState.rows || [], listingMarket);
     const population = marketPopulation(listed, listingMarket);
     const overseas = listed.length - population.length;
     const rankedCount = overallRankedCount(population, listingMarket);
+    // Which population the percentiles come from — the core universe or the extended one.
     const contract = RANKING_CONTRACTS[rawState?.metadata?.universeScope === 'extended' ? 'extended' : 'core'];
+    // The counts stay on screen; the order (already in its select) and the weights are the line's hover.
     diagnostics.textContent = `${MARKET_LABELS[listingMarket]} 순위 계산 ${rankedCount}종목(${contract.label}), 표시 ${filtered.length}개`;
     const weightsTitle = `${order}, 비중 ${Object.entries(weights).map(([key, value]) => `${FACTOR_LABELS[key]?.label || key} ${Math.round(value * 100)}%`).join(' / ') || '계산 보류'}`;
     diagnostics.dataset.rankingContract = contract.id;
@@ -922,6 +984,8 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
       // The reasons partition the rows without an overall rank, so they add up to the count left out.
       const unranked = population.filter((row) => finite(row?.overallRank) == null);
       const left = unranked.length;
+      // Funds, SPACs and sub-$1M 확장 names are left out of the ranked population by design (and
+      // prices pinned by a pending acquisition).
       const exclusionParts = Object.entries(POPULATION_EXCLUSION_TEXT).map(([reason, label]) => {
         const n = unranked.filter((row) => row?.populationExclusion === reason).length;
         return n ? `${label.short} ${n}` : null;
@@ -947,18 +1011,22 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   if (ranked) ranked.textContent = String(allRows.filter((row) => row.screenStatus === 'passed').length);
   if (top) {
     top.textContent = String(allRows.filter((row) => row.screenStatus === 'passed' && finite(row.rank) != null && row.rank >= 80).length);
+    // 2026-10-14 audit #3: this count is the factor percentile ≥ 80, not a rank — name it so (index.html label follows).
+    // The percentile is rounded (79.5 counts as 80), so this reads slightly above the reading's
+    // 상위 20% by screen rank — a different order (selected screen, all markets). The label says which one it is.
     const lead = top.parentElement?.firstChild;
     if (lead?.nodeType === 3 && /^(?:그중\s*)?(?:랭크|백분위) 80 이상\s*$/.test(lead.textContent)) lead.textContent = lead.textContent.replace(/(?:랭크|백분위) 80 이상\s*$/, '팩터 백분위 80 이상(반올림) ');
   }
   if (factorCount) factorCount.textContent = String(state?.metadata?.ranking?.activeFactors?.length || '—');
   const asOf = page.querySelector('[data-factor-asof]');
   const marketFactorSession = state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorObservedAt;
-  const kstDay = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) && /T/.test(String(value)) ? new Date(at + 9 * 3600000).toISOString().slice(0, 10) : value; };
+  const kstDay = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) && /T/.test(String(value)) ? new Date(at + 9 * 3600000).toISOString().slice(0, 10) : value; }; // 계산일 in KST
   const monthDay = (value) => { const day = stampDay(value); return day ? shortDate(day) : String(value || '').slice(0, 10) || '—'; };
   if (asOf) asOf.textContent = marketFactorSession ? `${MARKET_LABELS[listingMarket] || ''} ${monthDay(marketFactorSession)} 종가 기준, ${state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '계산일 미확인'}` : state?.metadata?.asOf ? `${monthDay(kstDay(state.metadata.asOf))} 계산` : '팩터 데이터 대기';
   const provenance = page.querySelector('[data-screener-provenance]');
   if (provenance) {
     const metadata = state?.metadata || {};
+    // The ISO stamps are UTC; '수집 2026-10-23 21:49' beside '10/23 종가 기준' read as a KST time before the US open.
     const fmtDate = (value) => { const at = Date.parse(value || ''); return Number.isFinite(at) ? `${new Date(at + 9 * 3600000).toISOString().slice(0, 16).replace('T', ' ')} 한국 시간` : value ? String(value).slice(0, 16).replace('T', ' ') : '—'; };
     const sec = metadata.secFundamentalsEligible > 0
       ? `SEC 연간 재무 ${metadata.secFundamentalsStored || 0}/${metadata.secFundamentalsEligible}종목`
@@ -974,11 +1042,18 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const validationNote = validation.status === 'READY'
       ? '모델 검증 통과(거래 판단에 쓰려면 별도 승인 필요)'
       : '모델 검증 미통과 — 거래 판단에 쓰지 않습니다';
+    // `metadata.factorObservedAt`는 Yahoo 일봉 timestamp, 즉 그 세션 **바의 시작**이다.
+    // 종가로 계산한 팩터를 '관측 시각'으로 표시하면 그날 개장 시점에 이미 알 수 있었다는 의미가 된다.
+    // 세션 기준일과 수집·생성 시각을 분리하고, 바 시작 시각을 관측시각으로 승격하지 않는다.
+    // P1170의 시장별 세션 맵이 provider를 통과하면 그 값을 쓴다 — 혼합 시장의
+    // 세션일은 하나의 스칼라로 합칠 수 없고, 없을 때만 호환 바 시작 날짜로 폴백한다.
     const sessionByMarket = metadata.factorSessionDateByMarket && typeof metadata.factorSessionDateByMarket === 'object' ? metadata.factorSessionDateByMarket : null;
     const factorSessionDate = sessionByMarket
       ? (sessionByMarket[listingMarket] ? `${MARKET_LABELS[listingMarket] || listingMarket} ${String(sessionByMarket[listingMarket]).slice(0, 10)}` : '')
       : String(metadata.factorSessionDate || metadata.factorObservedAt || '').slice(0, 10);
     const factorSessionLabel = factorSessionDate ? `팩터 ${factorSessionDate} 세션 종가 기준(일봉 바 시작 ${fmtDate(metadata.factorObservedAt)}, 관측시각 아님)` : '팩터 기준 세션 미확인';
+    // v58.74 (text audit): raw tokens (BLOCKED, n blockers, basis bar-start) and the provider name left the visible line;
+    // the provider and the blocker count sit in the hover title.
     provenance.textContent = `연구용 스냅샷, ${factorSessionLabel}, 수집 ${fmtDate(metadata.factorFetchedAt || metadata.asOf)}, 생성 ${fmtDate(metadata.asOf)}, ${sec}, ${universeNote}, ${researchNote}, ${validationNote}. 거래소 공식 집계가 아닙니다.`;
     provenance.title = `${metadata.source ? `출처: ${metadata.source}. ` : ''}${validation.blockers?.length ? `검증 미충족 요건 ${validation.blockers.length}개. ` : ''}${metadata.fundamentalCoverageScope ? `${metadata.fundamentalCoverageScope}, ` : ''}일봉 timestamp는 바 시작이며 종가 기반 팩터의 관측시각이 아닙니다. 세션 기준일·수집시각·생성시각을 분리해 표시합니다.`;
     provenance.dataset.sourceKind = 'reference';
@@ -994,8 +1069,18 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const items = screenConditions(preview.definition);
     return { builtin: items.filter((item) => item.own), user: items.filter((item) => item.origin === 'visual-builder') };
   })() : null;
+  // 개편 v2 (3c): the kicker states the collected and computable counts once, before the close basis.
   const kickerCounts = documentRef.getElementById('scr-kicker-counts');
+  // The kicker, the status line and the drawer's '전체 N위 / M' used four totals with no link
+  // between them. The kicker names the chain (collected → computed → ranked), the drawer reads against the same ranked
+  // count, and the status line's 조건 통과 is the subset of that.
+  // The ranked count is the rows carrying an overall rank (the drawer's denominator); with none because the
+  // market's close is behind, the reason replaces the bare 0.
   if (kickerCounts) kickerCounts.textContent = state?.status === 'unavailable' || !allRows.length ? '' : `${readyCount === allRows.length ? '' : `${allRows.length}종목 중 `}${readyCount}종목 계산, ${sessionLine?.header || `${marketRankedCount}종목 순위`}`;
+  // 정적 유니버스가 MIC·assetType을 발행하지 않으면 식별 미확인 행이 남는다. 가격 조회
+  // 성공과 식별 metadata 확인을 같은 것으로 읽지 않도록 미확인 수와 누락 필드를 함께 표시한다.
+  // v58.74 (owner decision INTL, resolved on the recommended option): Tokyo/Taiwan listings stay in the table for their
+  // theme context but are outside the US ranking population (factor-ranks 'foreign'); the count line says so.
   const foreignRows = allRows.filter((row) => row.populationExclusion === 'foreign' || /\.(T|TWO?)$/i.test(String(row.sym || '')));
   const foreignNote = foreignRows.length ? `해외 상장 ${foreignRows.length}개(${foreignRows.slice(0, 4).map((row) => row.sym).join(', ')})는 표에 남기되 미국 순위에서는 뺍니다. ` : '';
   const identityGaps = allRows.filter((row) => row.identityValidation && row.identityValidation.ok === false);
@@ -1038,12 +1123,16 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
     const active = ranking.activeFactors || [];
     const reasons = ranking.inactiveFactorReasons || {};
     const omitted = ['size', 'value', 'quality'].filter((key) => !active.includes(key));
+    // 2026-10-13 review S15: reader labels and one short reason per excluded factor; the model's full reason
+    // (coverage %, gate list) stays in the hover title.
     const label = (key) => FACTOR_LABELS[key]?.label || key;
     const shortReason = (key) => key === 'size' ? '시가총액 미수신' : ['value', 'quality'].includes(key) ? `재무 자료 커버리지 ${finite(ranking.factorCoverage?.[key]?.coveragePct) ?? '—'}%(기준 80%)` : '자료 부족';
     coverage.textContent = active.length ? `활성 팩터 ${active.length}개: ${active.map(label).join(', ')}${omitted.length ? ` | 제외: ${omitted.map((key) => `${label(key)}(${shortReason(key)})`).join(', ')}` : ''}` : '활성 팩터 없음 — 팩터 자료 미수신';
     coverage.title = [omitted.map((key) => reasons[key] ? `${label(key)}: ${reasons[key]}` : '').filter(Boolean).join(' / '), hold ? `순위 보류 사유: ${hold.reason}` : ''].filter(Boolean).join(' | ');
   }
   if (holdEl) {
+    // LC-73 style: when a re-rank is held, the visible summary (not just a tooltip)
+    // discloses that the previous calculation was discarded and why.
     const holdCopy = describeRankingHold(hold, { market: listingMarket, factorSessionDate: state?.metadata?.factorSessionDateByMarket?.[listingMarket] || state?.metadata?.factorSessionDate || state?.metadata?.asOf || state?.revision || null });
     holdEl.hidden = !holdCopy;
     if (holdCopy) {
@@ -1090,6 +1179,8 @@ export function createQuoteRequester(ctx) {
     // again without this page adding a fetch of its own.
     const want = norm(unpriced).filter((symbol) => !asked.has(symbol)).slice(0, QUOTE_REQUEST_LIMIT);
     if (!want.length) return;
+    // While the owner waits out a failed fetch's retry delay a new request would cut it short; the rows read as not
+    // received and joining that retry (they are registered) brings their quotes.
     if (demand.state?.()?.retryPending) {
       want.forEach((symbol) => asked.set(symbol, 'failed'));
       return;

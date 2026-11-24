@@ -1,3 +1,19 @@
+// v59.70 (wave2-f S23, owner D4 2026-11-04): one command search replaces the four search boxes (종목 #ticker-direct-search,
+// 도움말 #guide-search-input, 용어 사전 #glossary-search and Ctrl+K's "focus whatever box is on screen"). Ctrl/⌘K, the
+// topbar 검색 button, the 종목 page's search button, the hub's 종목 고르기 and the glossary's 검색 open it; the screener's
+// 표에서 찾기 stays a table filter (focused with "/", screen-shortcuts.js).
+//
+// Results come in four groups, each from the one owner of that data:
+//   종목   — the name registry and the KRX list (searchCandidates), the official US listing by name (us-listings.js,
+//           loaded on the first Latin query) and the typed symbol itself. A typed symbol is checked against the listing
+//           before it opens (_aioAcceptSymbol); one that is not listed is refused, never guessed (no ticker inference).
+//   화면   — ROUTE_HUBS, named as the menu names them (routeLabel).
+//   용어   — the glossary registry (root.GLOSSARY), then the generated knowledge index (knowledge-search.js, bundle E)
+//           for research notes, lessons and map nodes.
+//   도움말 — the guide's paragraphs (guide.js findGuideMatches), loaded on first use.
+// The dialog (#aio-command-search, COMMAND_SEARCH_MARKUP below) is added to the page on first use: a native modal
+// <dialog>, so focus stays inside, Esc closes and focus returns to the opener. Keys: ↑/↓ move, Enter opens (not while a
+// Korean syllable is still composing), Esc closes. The module loads lazily (src/app/compatibility-globals.js).
 import { ROUTE_HUBS, routeLabel } from './route-hubs.js';
 import { searchCandidates } from '../../domain/instruments/resolve-name.js';
 import { loadKnowledgeSearch, normalize, openKnowledgeResult } from '../knowledge/glossary-bridge.js';
@@ -175,6 +191,7 @@ export function createCommandSearch({ root = globalThis, documentRef = root?.doc
     const origin = activeRoute();
     opener = null;
     close();
+    // 기술적 분석 opens the pick in its analysis slot and stays; the 종목 company is not changed.
     if (origin === 'charts' && typeof root.aioOpenMarketChart === 'function') { root.aioOpenMarketChart(symbol); return; }
     root.showTicker?.(symbol);
     // 재무 공시 keeps its tab: the subject changes, the reader stays where they were.

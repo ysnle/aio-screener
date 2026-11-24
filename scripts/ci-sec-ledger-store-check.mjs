@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.90: fixture check for the data-store layout of the producer-only SEC ledger (scripts/lib/sec-ledger-store.mjs,
+// Fixture check for the data-store layout of the producer-only SEC ledger (scripts/lib/sec-ledger-store.mjs,
 // used by scripts/sec-fundamentals-store.mjs restore/publish). On a small part limit and a throwaway git repository it
 // proves: the ledger splits on line boundaries into parts that each fit, the split is deterministic (same tree id,
 // CRLF input included), a store commit reassembles to the exact canonical text whose digest the projection manifest

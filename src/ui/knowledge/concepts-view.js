@@ -1,3 +1,8 @@
+// 리서치 라이브러리 · 개념·분석. Five kinds of document behind one table of contents:
+// 분석 노트 (issue-led features), 칼럼 (the author's twelve-chapter essay), 개념 사전 (the canonical
+// concepts, shared with the glossary), 원리 레슨 (A–O lessons) and 개념 지도 (the principle graph).
+// Only the open group of the contents is expanded; the right column shows where the open document
+// leads. No review-status, memo or source panels (owner direction 2026-10-05).
 import { ROUTE_HUBS } from '../navigation/route-hubs.js';
 import { COLUMN_FRAME_LINKS, LESSONS, PATHS, lessonById } from '../../domain/knowledge/learning-core.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
@@ -66,6 +71,7 @@ function buildNav(doc, state, data) {
         for (const id of path.lessons) {
           const lesson = lessonById(id);
           if (!lesson) continue;
+          // A broad industry name carries the narrow question the note actually covers.
           box.appendChild(navButton(doc, lesson.model ? lesson.title : lesson.issue.split(' — ')[0], { active: state.view === 'frames' && (state.frameId || LESSONS[0].id) === id, action: 'frame', value: id, sub: true, meta: lesson.model ? lesson.scope : null }));
         }
       }
@@ -90,12 +96,17 @@ function buildNav(doc, state, data) {
     if (open && group.id === 'map') {
       box.appendChild(navButton(doc, '관계 지도 — 원리 사이의 연결', { active: state.view === 'map', action: 'mode', value: 'graph', sub: true }));
     }
+    // The open group's contents (up to ~110 titles) are one closed line; the group switcher above
+    // and the search stay on the face, and the open document sits in the middle column.
     if (open && box.children.length > 2) {
       const list = el(doc, 'details', 'rl-nav-list');
       const summary = el(doc, 'summary', 'rl-nav-title', `${group.title} 목차${count != null ? `, ${count}편` : ''}`);
       list.append(summary, ...[...box.children].slice(1));
       // Once a reader opens the list it stays open across the re-render each title click causes.
       list.open = Boolean(state.navListOpen);
+      // The 'toggle' event is queued as a later task, so a render that lands in between (the mount render is
+      // followed ~15 ms later by the hydration render) rebuilt the list closed and lost the reader's open. The summary
+      // click records the new state at once (it runs before the default toggle; Enter/Space on a summary also click).
       summary.addEventListener('click', () => { state.navListOpen = !list.open; });
       list.addEventListener('toggle', () => { state.navListOpen = list.open; });
       box.appendChild(list);
@@ -109,6 +120,8 @@ function buildNav(doc, state, data) {
   return nav;
 }
 
+//  the participation principles (태도 · 전략 · 속지 말 것 · 믿을 것) are reference, so the full set
+// lives here; 시장 상태's 오늘의 가이드 shows only the ones today's data touches, with today's reason, and links here.
 function renderRules(doc) {
   const article = el(doc, 'article', 'af-article rl-entry');
   article.dataset.principlesRules = 'native';
@@ -155,6 +168,8 @@ function renderStory(doc, data, state) {
   return article;
 }
 
+// 개편 v2 (3h): the entry card reads definition → formula → limits on the left and "이 개념이 쓰이는 곳" on the
+// right (the screens that measure it today, then the analysis notes that use it). Parts are cut from concept.def.
 function routeName(routeId) {
   const hub = ROUTE_HUBS.find((item) => item.routes.some((route) => route.id === routeId));
   const name = hub?.routes.find((route) => route.id === routeId)?.label || routeId;
@@ -235,6 +250,8 @@ function storyTable(doc, spec) {
   return wrap;
 }
 
+// One "same word" list mixed synonyms with components, related and opposite
+// concepts. Three labelled rows instead; a name that is itself a dictionary concept opens it.
 const conceptByName = new Map();
 for (const item of CONCEPT_CORE) for (const name of [item.term, item.term.replace(/\s*\(.*$/, ''), ...item.aliases, ...(item.covers || [])]) if (!conceptByName.has(name)) conceptByName.set(name, item);
 function conceptTermList(doc, concept) {
@@ -289,6 +306,9 @@ function conceptsInLesson(lesson) {
   return CONCEPT_CORE.filter((concept) => [concept.term.replace(/\s*\(.*$/, ''), ...concept.aliases, ...(concept.covers || [])].some((name) => name.length >= 2 && !/^[a-z]/.test(name) && text.includes(name))).slice(0, 5);
 }
 
+// 개편 v2 (3h): three reading paths over the analysis-note series (learning-core PATHS) — 기초 (numbers,
+// statements, prices), 중급 (money, rates, company returns), 심화 (industries, expectations, charts). Each step opens
+// the first note of that series; counts are the notes the series holds. Shown while browsing, not while reading.
 export const LEARNING_PATHS = Object.freeze([
   { level: '기초', title: '숫자와 기업을 읽는 바탕', paths: ['foundation', 'accounting', 'economy'] },
   { level: '중급', title: '돈과 금리가 기업에 닿는 길', paths: ['money', 'rates', 'business'] },
@@ -318,6 +338,8 @@ function learningPaths(doc) {
     card.append(head, el(doc, 'h2', 'rl-path-title', band.title), list);
     row.appendChild(card);
   }
+  // Screen review #30: on a phone the three cards scroll sideways and the next one peeks in at the edge,
+  // which read as a clipped card. The dots (phone only, CSS) say how many cards there are and which one is in view.
   const wrap = el(doc, 'div', 'rl-paths-wrap');
   const dots = el(doc, 'div', 'rl-paths-dots');
   dots.setAttribute('aria-hidden', 'true');
@@ -341,6 +363,7 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
   if (state.view === 'frames') {
     const lesson = lessonById(state.frameId) || LESSONS[0];
     main.appendChild(renderFrameArticle(doc, lesson));
+    // The themes this note explains, with their stage now, come first in the connection column.
     const themes = themeStageBlock(doc, root, themesForNote(lesson.id), block);
     if (themes) aside.appendChild(themes);
     renderFrameConnections(doc, lesson, { onNavigate, onConcept, block }).forEach((node) => aside.appendChild(node));
@@ -376,10 +399,12 @@ export function renderConceptsPage(doc, { root, state, data, renderMap, mapAside
     const lesson = (data.lessons || []).find((item) => item.id === state.lessonId) || null;
     main.appendChild(renderLesson(doc, lesson, Boolean(data.lessonLibraryError), data.lessonSources || []));
     if (lesson) {
+      // The column listed the whole chapter including the open lesson. It now
+      // answers what to read before, what comes next, which concepts the lesson uses and where to test it.
       const lessonButton = (item) => { const b = el(doc, 'button', 'af-route'); b.type = 'button'; b.dataset.principlesAction = 'select-lesson'; b.dataset.principlesValue = item.id; b.append(el(doc, 'strong', null, `${item.id} ${item.title}`)); return b; };
       const siblings = (data.lessons || []).filter((item) => item.chapterId === lesson.chapterId);
       const at = siblings.findIndex((item) => item.id === lesson.id);
-      const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]\d{1,2}$/.test(id));
+      const prereqIds = (lesson.prerequisites || lesson.metadata?.prerequisites || []).map((item) => String(item).split(' ')[0]).filter((id) => /^[A-O]\d{1,2}$/.test(id)); // v58.63 (audit UI-01): `d` was a literal letter, so D2/D3 never linked
       const prereqs = prereqIds.map((id) => (data.lessons || []).find((item) => item.id === id)).filter(Boolean);
       if (prereqs.length) { const box = block('선행 레슨'); prereqs.forEach((item) => box.appendChild(lessonButton(item))); aside.appendChild(box); }
       if (at > 0 || (at >= 0 && at < siblings.length - 1)) {

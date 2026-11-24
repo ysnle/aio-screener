@@ -1,3 +1,9 @@
+// "every move explained three ways — the correlation, the news that came with it, and
+// what to watch next". On 10/28 the KOSPI rose 6.6% and 오늘 said only '한국 고유 요인'. This names the largest index
+// contributors (index weight × the screener's one-day return, same session only) and attaches each one's dated item:
+// its event brief (the filing itself), else a Telegram post tagged with the exact symbol, else a headline that names the
+// company by the shared keyword rule. A contribution is an arithmetic share of the index move, not a cause; the item is
+// what was published around that session, not proof it moved the price.
 import { keywordHit } from '../../news/keyword-match.js';
 import { reportIsUnconfirmed } from '../../news/report-verification.js';
 import { MOVER_BY_SYMBOL } from '../../briefing/market-movers.js';
@@ -60,6 +66,8 @@ export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], teleg
   const inWindow = (ms) => Number.isFinite(ms) && ms >= sessionCloseMs - 30 * HOUR && ms <= sessionCloseMs + HOUR;
   const key = String(sym).toUpperCase();
   const brief = (briefs || []).find((item) => String(item?.symbol || '').toUpperCase() === key && inWindow(Date.parse(item.publishedAt)));
+  // An after-close US report is published early the next KST morning, so the KST day of
+  // publishedAt named the reaction day (INTC "10/30 실적 발표" for a 10/29 report); the brief's own eventDate is the day.
   const eventMd = /^\d{4}-(\d{2})-(\d{2})$/.exec(String(brief?.eventDate || ''));
   if (brief) return { kind: 'brief', text: `${brief.period ? `${brief.period} ` : ''}실적 발표`, atMs: Date.parse(brief.publishedAt), dateText: eventMd ? `${Number(eventMd[1])}/${Number(eventMd[2])}` : null, url: brief.source?.url || null };
   const names = namesFor(sym, name);
@@ -70,10 +78,14 @@ export function datedItemFor({ sym, name }, { sessionCloseMs, briefs = [], teleg
     .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0))[0];
   const headline = (news || []).filter((item) => inWindow(Date.parse(item?.pubDate || item?.eventTime || '')) && names.some((value) => keywordHit(String(item.title || '').toLowerCase(), value)))
     .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0))[0];
+  // A headline is preferred over a channel post when both exist (a named publisher over a summarised post).
+  // v59.45 (pipeline review P21 move-attribution): a rumour or anonymous-source headline keeps its label here as everywhere
+  // (the shared report rule), so it never reads as a confirmed item beside the move.
   if (headline) {
     const unconfirmed = headline.verification === 'unconfirmed' || reportIsUnconfirmed(headline.title);
     return { kind: 'news', text: `${unconfirmed ? '[미확인] ' : ''}${clip(headline.title)}`, atMs: Date.parse(headline.pubDate || headline.eventTime), url: headline.link || null, unconfirmed };
   }
+  // The post's extracted fact about this name, never its own text.
   const line = post ? channelLineFor(key, post, signals) : null;
   if (line) return { kind: 'telegram', text: clip(line), atMs: Date.parse(post.datetime), url: post.url || null };
   return null;
@@ -84,6 +96,7 @@ export function contributorsSentence(model, { indexName, sessionCloseMs, briefs,
   if (!model?.items?.length) return null;
   const pieces = model.items.map((item) => {
     const dated = datedItemFor(item, { sessionCloseMs, briefs, telegram, signals, news });
+    // Text pass: fixed decimals so '-3%' never sits beside '-7.1%'.
     const sign = (value, digits) => `${value > 0 ? '+' : ''}${round(value, digits).toFixed(digits)}`;
     const datedText = dated ? `, ${dated.dateText || mdOf(dated.atMs)} ${dated.text}` : '';
     return { ...item, dated, text: `${item.name} ${sign(item.ret1d, 1)}%(기여 ${sign(item.contributionPp, Math.abs(item.contributionPp) < 0.5 ? 2 : 1)}%p${datedText})` };

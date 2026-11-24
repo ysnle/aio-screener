@@ -55,7 +55,7 @@ const report = (summary) => {
   console.log(JSON.stringify({ ok: true, ...summary }));
 };
 
-// v60.50: the atlas contract is code; the published Telegram digest against the atlas index is a data section that also
+// The atlas contract is code; the published Telegram digest against the atlas index is a data section that also
 // runs in a data run.
 await runSections('atlas-contract', [
 ['atlas', async () => {
@@ -144,7 +144,7 @@ if (data.deepTaxonomyTopics !== 10 || data.deepTaxonomyBranches !== 50 || data.d
 }
 if (data.referencePlayers !== 21 || data.referenceProducts !== 22 || data.referenceSources !== 23 || playerProduct.players.length !== 21 || playerProduct.products.length !== 22 || playerProduct.sources.length !== 23 || playerProduct.publication !== 'EDUCATIONAL_REFERENCE_ONLY') errors.push('player/product registry counts or publication boundary');
 if (data.playerProductCurrentnessArtifact !== 'public-data/atlas/player-product-currentness.json' || data.currentnessPlayers !== 21 || data.currentnessProducts !== 22 || currentness.status !== 'REFERENCE_CURRENTNESS_CONNECTED' || currentness.players.length !== 21 || currentness.products.length !== 22 || currentness.products.some((product) => !product.productionStatus || !product.asOf || !product.statusBasis) || currentness.freshnessStatus !== 'CADENCE_JUDGED_AT_RUNTIME' || currentness.coverage?.officialCheckedRows !== 43 || currentness.coverage?.currentNumericClaims !== 0 || currentness.coverage?.productionVolumeClaims !== 0 || currentness.coverage?.generationSpecificVerifiedClaims !== 0 || currentness.coverage?.financialClaims !== 0 || !atlas.includes('mergePlayerProductCurrentness')) errors.push('player/product currentness coverage or freshness boundary');
-// v57.83 codex audit F17: one currentness policy — the artifact carries dates and points at the runtime cadence; it does
+// Codex audit F17: one currentness policy — the artifact carries dates and points at the runtime cadence; it does
 // not keep its own review window beside knowledge-cadence.js.
 {
   const { KNOWLEDGE_CADENCE } = await import('../src/domain/knowledge/knowledge-cadence.js');
@@ -166,7 +166,7 @@ for (const guide of relationshipGuides.guides || []) {
 }
 if (data.relationshipGuides !== 5 || data.relationshipNodes !== 35 || data.relationshipEdges !== 31 || relationshipGuides.publication !== 'EDUCATIONAL_REFERENCE_ONLY' || relationshipGuides.guides.length !== 5 || relationshipNodeCount !== 35 || relationshipEdgeCount !== 31 || invalidRelationshipGuides.length) errors.push(`relationship guide coverage${invalidRelationshipGuides.length ? `: ${invalidRelationshipGuides.join(',')}` : ''}`);
 const relationshipNode = (guideId, nodeId) => relationshipGuides.guides.find((guide) => guide.id === guideId)?.nodes?.find((node) => node.id === nodeId);
-// P1495: depth markers in reader Korean — the same models (state-space r*, KV bytes, OCF→FCF, recovery time, PUE, link budget).
+// Depth markers in reader Korean — the same models (state-space r*, KV bytes, OCF→FCF, recovery time, PUE, link budget).
 const relationshipDepthChecks = [
   ['r-star estimation', relationshipNode('neutral-rate-policy-gap', 'rstar')?.mechanism?.includes('칼만 필터') && relationshipNode('neutral-rate-policy-gap', 'rstar')?.metrics?.includes('자료 발표 시점·모형 버전')],
   ['KV capacity model', relationshipNode('nand-inference-fcf', 'kv-cache')?.mechanism?.includes('키·값 헤드 수') && relationshipNode('nand-inference-fcf', 'kv-cache')?.metrics?.includes('토큰당 바이트·활성 토큰 수')],
@@ -245,7 +245,7 @@ for (const product of playerProduct.products) {
 }
 if (invalidReferenceEdges.length) errors.push(`player/product reference edges invalid: ${invalidReferenceEdges.join(',')}`);
 if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCurrentObservationsArtifact') || !atlas.includes('applySafeExternalLink')) errors.push('atlas runtime artifact identity/schema/URL safety gates are missing');
-// P1524 (audit H88/H89): a player listed on a node with no product mapped there is company-level role context, not a
+// A player listed on a node with no product mapped there is company-level role context, not a
 // supplier of that node. The role block groups the two apart, shows the registry's own boundary, keeps the production
 // stage hidden (the boundary withholds it), and shows registry ids in Korean.
 {
@@ -274,7 +274,7 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   if (cxl.product.length || !cxl.reference.includes('kioxia') || !cxl.reference.includes('sandisk')) errors.push('P1524 KIOXIA and Sandisk on the CXL node must read as company-level role reference, not a supplier');
   if (photonic.product.length || !photonic.reference.includes('ibm')) errors.push('P1524 IBM on the photonic-compute node must read as company-level role reference, not a supplier');
   if (!rareEarths.product.some((id) => /mp-materials/.test(id))) errors.push('P1524 a registry product mapped to a node must appear in the product group');
-  // P1593 (F92): a rare-earth materials product is not industrial equipment (turbines, transformers, pumps).
+  // A rare-earth materials product is not industrial equipment (turbines, transformers, pumps).
   if ([...equipment.product, ...equipment.reference].some((id) => /mp-materials/.test(id))) errors.push('P1593 MP Materials must not be linked to the industrial-equipment node');
   if (!/직접 공급을 뜻하지 않습니다/.test(cxl.text) || !/현재 매출·출하·점유율·양산 여부를 나타내지 않습니다/.test(cxl.text)) errors.push('P1524 the role block must say what the list is not: reference roles are not direct supply and carry no current revenue, share or production claim');
   if (/출처|REFERENCE_ONLY|ROLE_REFERENCE|1차/.test(cxl.text + photonic.text + equipment.text)) errors.push('P1524 the role block must not show source or review copy to the reader');
@@ -295,7 +295,7 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   const everyText = registry.products.flatMap((product) => product.taxonomyNodeIds || []).map((id) => groups(id).listText).join(' ');
   if (/MATURE|RAMP|ROADMAP_OPTION|MIXED_BY_GENERATION|양산/.test(everyText)) errors.push('P1524 the role block must not show production stage (withheld by the registry boundary)');
 }
-// v58.56 (re-audit #8): the value-chain layer card shows a ticker only for an exact listing. Every curated US pair
+// The value-chain layer card shows a ticker only for an exact listing. Every curated US pair
 // (ticker, CIK) must appear as that exact pair in the SEC-CIK listing file, every KRX code (with its name) in the KR screener universe, every
 // mapped player in the registry, and every layer domain in the taxonomy.
 {
@@ -314,7 +314,7 @@ if (!atlas.includes('article identity mismatch') || !atlas.includes('validateCur
   const domainIds = new Set((research.taxonomyDomains || []).map((domain) => domain.id));
   VALUE_CHAIN_LAYERS.flatMap((layer) => layer.domains).forEach((id) => { if (!domainIds.has(id)) errors.push(`v58.56 value-chain layer names unknown domain ${id}`); });
 }
-// v60.28: the layer card's companies come from the company stories' AI layer through one table. Every story layer is
+// The layer card's companies come from the company stories' AI layer through one table. Every story layer is
 // mapped to an atlas layer or listed as outside it, and with today's stories every layer, the model layer too, names a
 // company (the hand registry alone left 모델 empty and 클라우드·데이터센터 with one or two names).
 {
@@ -347,7 +347,7 @@ report({ route: 'atlas', packets: data.packets, candidateNodes: data.candidateNo
 }, 'code'],
 ['published-telegram-digest', async () => {
 const telegramLineageCount = telegramReference.retainedItemCount ?? telegramReference.observedItems?.length ?? null;
-// v60.18: counts come from the published catalog (a retired channel stays in it, marked, and is not expected), not a literal.
+// Counts come from the published catalog (a retired channel stays in it, marked, and is not expected), not a literal.
 const telegramBoundary = telegramDigestBoundary(telegramReference);
 if (data.telegramReferenceArtifact !== 'public-data/telegram-digest.json' || data.telegramReferenceChannels !== telegramBoundary.catalogCount || data.telegramObservedLineage !== telegramLineageCount || !telegramBoundary.collectionConsistent || !telegramBoundary.catalogMatchesRows || telegramReference.channels.some((channel) => !channel.channel || channel.error === undefined)) errors.push('telegram discovery coverage');
 report({ route: 'atlas', telegramChannels: telegramBoundary.catalogCount, telegramObservedLineage: telegramLineageCount });

@@ -93,7 +93,7 @@ function measure() {
 
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  // Self-test (v57.54): source pins count, output checks and marked lines do not, growth and new files fail.
+  // Self-test: source pins count, output checks and marked lines do not, growth and new files fail.
   const fixture = [
     "const page = read('src/ui/pages/home.js');",
     "check('v57.54 copy', page.includes('지금'));",

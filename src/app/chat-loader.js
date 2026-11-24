@@ -33,6 +33,10 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     }
     if (input && filled && !input.value && !input.disabled && calls.length && calls[calls.length - 1][0] !== 'chatSendUnified') input.value = filled;
   };
+  // v59.70 (2nd batch A, QUALITY-BAR 4): a click that waits for the panel script is visible. The AI buttons show the
+  // shared busy spinner (button[aria-busy], ui-states.css) while it loads; a failed load, or one still pending after
+  // DATA_STATE_TIMEOUT_MS, puts one line with 다시 시도 at the top of the content (the same look as the core-file notice).
+  // Only a user action shows either: a hover warm-up loads silently.
   let notice = null;
   let slowTimer = null;
   const buttons = () => [...(doc.querySelectorAll?.('[data-action="toggleAIPanel"]') || [])].filter((button) => !button.closest('#ai-panel'));
@@ -72,6 +76,8 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     stubs[name] = function (...args) {
       const input = doc.getElementById('ai-panel-inp');
       const draft = input?.value || '';
+      // Keep the draft visible until the real send accepts it, including a failed script load. A repeated Enter
+      // retries loading without queuing the same draft twice.
       if (name === 'chatSendUnified') {
         if (!draft.trim() || queue.some(([entry, , , queuedDraft]) => entry === name && queuedDraft === draft)) { load().catch(() => {}); return; }
       }
@@ -84,6 +90,9 @@ export function installChatLoader(root = globalThis, doc = root.document, { onLo
     root[name] = stubs[name];
   }
   root.AIO.loadChat = load;
+  // v59.70 (owner D1, 2nd batch A P1): no idle prefetch. The panel script and the AI reference corpus (about 886 KB with
+  // their chunks) load when a pointer or the keyboard reaches an AI control, a moment before the click that needs them;
+  // a tap or a programmatic open still loads through the stubs above, and the dispatch waits for the corpus.
   const warm = (event) => {
     if (!event.target?.closest?.(AI_TRIGGERS)) return;
     doc.removeEventListener?.('pointerover', warm, true);

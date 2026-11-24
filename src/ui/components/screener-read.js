@@ -1,3 +1,5 @@
+// 스크리너's lead block — top-fifth sector mix against the universe (bars), the connected reading
+// (mix → rotation → trend health → past performance), and where to continue.
 import { buildScreenerRead } from '../../domain/screener/screener-read.js';
 import { summarizeValidation } from './screener-validation.js';
 import { readMarketRegime } from '../../data/selectors/interpretation.js';
@@ -16,6 +18,7 @@ function mixVisual(doc, read, limit = 6) {
     const pair = el(doc, 'div', null, 'stock-read-bar-pair');
     for (const [kind, value] of [['stock', row.top], ['bench', row.all]]) {
       const item = el(doc, 'div', null, 'stock-read-bar-row');
+      // v59.55 (visual review): a share, not a move — ink against the universe's gold, not the rising red.
       const bar = el(doc, 'div', null, `stock-read-bar is-${kind}`);
       bar.style.width = `${Math.max(2, value / max * 100).toFixed(1)}%`;
       item.append(bar, el(doc, 'span', `${value.toFixed(0)}%`, 'stock-read-bar-value'));
@@ -30,6 +33,11 @@ function mixVisual(doc, read, limit = 6) {
   return box;
 }
 
+// Codex browser audit H44: "1위 ILMN" pointed at the whole universe's top rank while the table showed a
+// Technology-only, passed-only set. The ticker link follows the first row of the table as it is filtered
+// and sorted now; the read above keeps describing the full ranking.
+// Once the table has rendered, an empty table means no lead — a re-render of the read must
+// not bring back the previous first row's link.
 let tableLead = null;
 let tableRendered = false;
 export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
@@ -44,9 +52,10 @@ export function syncScreenerNextLead(doc, row, { scoped = false } = {}) {
   button.textContent = `${tableLead.sym} 종목 보기 →`;
   const why = item?.querySelector('.flow-next-why');
   if (why) why.textContent = tableLead.scoped ? '지금 표(조건·표시 필터·정렬)의 맨 위 종목을 요약·차트·재무로 확인' : '상위 종목 하나를 요약·차트·재무로 확인';
-  if (why) button.title = why.textContent;
+  if (why) button.title = why.textContent; // The why is the link's hover
 }
 
+// A next list rendered outside renderScreenerRead (the KR branch) re-points its ticker link the same way.
 export function reapplyScreenerNextLead(doc) {
   if (tableRendered) syncScreenerNextLead(doc, tableLead, { scoped: tableLead?.scoped });
 }
@@ -64,9 +73,11 @@ export function renderScreenerRead({ documentRef: doc, root, rows = [] }) {
   host.replaceChildren(el(doc, 'h2', '지금 순위가 말하는 것', 'briefing-h2'));
   if (!read.available) { host.append(el(doc, 'p', read.reason, 'daily-empty')); renderNextSteps(doc, doc.getElementById('screener-next'), []); return read; }
   host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
+  // The reasoning comes first, but the table is one click away instead of two screens down.
   const jump = el(doc, 'button', '순위 표로 가기', 'flow-next-link');
   jump.type = 'button';
   jump.addEventListener('click', () => {
+    // 개편 v2: this reading sits in the 사후 검증 view; the table is the 순위 view, so switch to it first.
     if (doc.getElementById('page-screener')?.dataset.scrView !== 'rank') doc.getElementById('scr-tab-button-ranking')?.click();
     const table = doc.getElementById('screener-results-table');
     table?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });

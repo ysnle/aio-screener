@@ -24,7 +24,7 @@ const port = (Number(process.env.AIO_ARCH_TEST_PORT) || await freePort());
 const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const OUT_PATH = resolve(root, 'architecture/fixtures/weinstein-mtf-golden.json');
 
-// v57.76: the legacy index.html updateMTF writer was retired with the 차트 tab multi-timeframe panel, so this dump
+// The legacy index.html updateMTF writer was retired with the 차트 tab multi-timeframe panel, so this dump
 // can no longer run against the current tree. The golden fixture stays as the frozen legacy record that
 // scripts/ci-domain-parity-check.mjs compares src/domain/technical/stage.js against. The dump still works from a
 // pre-extraction checkout, where updateMTF is defined.

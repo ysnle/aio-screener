@@ -55,7 +55,7 @@ export const cases = [
     const unknown = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: '999999', shares: 1 }], cashKnown: true, cash: 0 }, now: NOW,
       closeOf: () => ({ price: 100000, date: '2026-10-29' }) });
     assert.equal(unknown.positionValue, null, 'a lone unknown currency is also held');
-    // v59.54: the hold names its own reason, so no reader says "currencies mixed" or "declare a rate" for it.
+    // The hold names its own reason, so no reader says "currencies mixed" or "declare a rate" for it.
     assert.equal(unknown.currencyHeldReason, 'unknown-unit');
     assert.equal(result.currencyHeldReason, 'mixed');
     const { buildPortfolioRead } = await load('src/domain/portfolio/portfolio-read.js');
@@ -94,7 +94,7 @@ export const cases = [
     assert.doesNotMatch(tinyDown.headline, /내리는 흐름인 종목은 없습니다/);
     const zero = buildPortfolioRead({ surface: { rows: [{ symbol: 'UP', value: 1 }] }, rows: [{ sym: 'UP', pctSma50: 10, pctSma200: 20 }] });
     assert.match(zero.headline, /내리는 흐름인 종목은 없습니다/);
-    // v59.86: with neither an up nor a down share the line leads with the holdings' own state, not two empty clauses.
+    // With neither an up nor a down share the line leads with the holdings' own state, not two empty clauses.
     const flat = buildPortfolioRead({ surface: { rows: [{ symbol: 'FLAT', value: 1 }] }, rows: [{ sym: 'FLAT', pctSma50: 1, pctSma200: 15 }] });
     assert.match(flat.headline, /100%는 아직 방향이 뚜렷하지 않고, 오르거나 내리는 흐름인 종목은 없습니다/);
     assert.doesNotMatch(flat.headline, /오르는 흐름에 있는 종목은 없고/);
@@ -190,7 +190,7 @@ export const cases = [
     const mixed = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: 'ABC.L', shares: 1, price: 100 }, { symbol: 'AAPL', shares: 1, price: 100 }], cashKnown: true, cash: 0 }, now: NOW });
     assert.equal(mixed.positionValue, null);
     assert.equal(mixed.currencyState, 'mixed-without-conversion');
-    // v59.86: an unconverted USD/KRW mix keeps each row's P&L in its own unit (the table printed a won gain with $).
+    // An unconverted USD/KRW mix keeps each row's P&L in its own unit (the table printed a won gain with $).
     const krMix = derivePortfolioSurface({ state: { readState: 'ready', holdings: [{ symbol: 'AAPL', shares: 1, price: 200, avgCost: 180, currency: 'USD' }, { symbol: '005930.KS', shares: 10, price: 100000, avgCost: 55000, currency: 'KRW' }], cashKnown: true, cash: 0 }, now: NOW });
     assert.equal(krMix.currencyState, 'mixed-without-conversion');
     assert.deepEqual(krMix.rows.map((row) => [row.valueUnit, row.costUnit]), [['USD', 'USD'], ['KRW', 'KRW']]);
@@ -406,7 +406,7 @@ export const cases = [
     const { createPortfolioPage } = await load('src/ui/pages/portfolio.js');
     const doc = createFakeDocument({ ids: shellIds(html) });
     doc.getElementById('page-portfolio').appendChild(doc.getElementById('pf-positions-tbody'));
-    // v60.51: the fake DOM carries the shell's ids, not its text, so the day column's header text is copied in from
+    // The fake DOM carries the shell's ids, not its text, so the day column's header text is copied in from
     // index.html; each day cell takes its phone-card label from that header (tableCell), so the title reaches the reader.
     const dayHeader = html.match(/<th id="pf-th-day"[^>]*title="([^"]*)"[^>]*>([^<]*)<\/th>/);
     assert.ok(dayHeader, 'v60.51 index.html keeps the portfolio day column <th id="pf-th-day" title="…">');

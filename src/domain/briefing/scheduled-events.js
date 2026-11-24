@@ -1,4 +1,4 @@
-// v59.42 (owner audit 2026-10-28): scheduled non-economic events — elections and similar dates fixed in advance by law or
+// Scheduled non-economic events — elections and similar dates fixed in advance by law or
 // an official body — in one registry. v58.74 kept two elections inside schedule.js and showed them only inside the
 // schedule's own window, so on 10/28 the home list (3 days) could not show the 11/3 US midterm. Each entry now says:
 // - atKst: when the market-relevant moment happens (polls close, the count starts), in KST;
@@ -12,7 +12,7 @@ export const SCHEDULED_EVENTS = Object.freeze([
   Object.freeze({ id: 'us-midterm-2026', kind: 'election', atKst: '2026-11-04T09:00:00+09:00', label: '미국 중간선거 (11/3, 동부 투표 마감)',
     why: '의회 다수당에 따라 재정·관세·규제 기대와 금리가 바뀔 수 있음. 개표 결과는 11/4 오전부터',
     source: '2 U.S.C. 7 (U.S. general election, 2026-11-03)', reviewedAt: '2026-10-29', leadDays: 10, expiresAt: '2026-11-10', major: true,
-    // v59.62: the US market day and the 시장 상태 week-ahead line (market-story.js read its own copy of this date before).
+    // The US market day and the 시장 상태 week-ahead line (market-story.js read its own copy of this date before).
     marketDate: '2026-11-03', storyTitle: '미국 중간선거', storyWhy: '의회 구성이 정해집니다. 결과 전에는 변동성이 커지기 쉽고, 결과 뒤 되돌림이 나오는지 봅니다.' })
 ]);
 

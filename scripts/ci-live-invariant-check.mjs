@@ -1,4 +1,4 @@
-// R290: standing invariants re-verified against the LIVE deployed site on a schedule
+// Standing invariants re-verified against the LIVE deployed site on a schedule
 // independent of new commits. Source gates (ci-structural-check.mjs, ci-runtime-contract-check.mjs)
 // prove correctness of the repository at commit time; they cannot prove GitHub Pages/CDN is still
 // *serving* that same correct state days later with zero new commits in between. P638/C1 (stale
@@ -24,7 +24,7 @@ const warn = (label, condition, detail = '') => {
   if (!condition) warnings.push(label + (detail ? ': ' + detail : ''));
 };
 
-// v59.60: 9 of the 7-day Pages deploy failures were this check meeting HTTP 503 (src/chunks/*.js, public-config.json) in
+// 9 of the 7-day Pages deploy failures were this check meeting HTTP 503 (src/chunks/*.js, public-config.json) in
 // the first seconds after the deploy step, while ci-external-pipeline-check before it already retries. A 5xx or a network
 // error is retried; a 4xx is a real missing file and fails at once.
 const RETRY_MS = Number(process.env.AIO_LIVE_RETRY_MS || 5000);

@@ -1,3 +1,8 @@
+// Owner-approved: the one reader of the published VIX-band record (stress-outcomes.json) for today's band — the
+// 시장 상태 risk line beside the six-axis state block, the AI scenario_record tool's `vix` id and the stress card read
+// it here, under the artifact's live definition stamp. It returns figures only where the shared sample rule
+// (evidence-strength.js) allows them, always beside the base rate and the case count; it never turns them into a
+// direction or an instruction. A follow-up decision frame (likelihood / payoff / opportunity cost) can take `risk` as is.
 import { RISK_RULE, stressBandOf } from './stress-outcomes.js';
 import { currentStressOutcomes } from '../../scenarios/outcome-fingerprints.js';
 import { evidenceStrength } from '../../shared/evidence-strength.js';

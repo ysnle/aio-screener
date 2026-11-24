@@ -41,7 +41,7 @@ export function renderAnswerPlan(plan, { format = 'text' } = {}) {
   const parts = [];
   if (line(plan.summary)) parts.push(line(plan.summary));
   const claims = Array.isArray(plan.claims?.claims) ? plan.claims.claims : [];
-  // P1740: verified values read as one labelled list and each section title renders as a heading, so a longer
+  // Verified values read as one labelled list and each section title renders as a heading, so a longer
   // analysis keeps a visible structure instead of a run of plain paragraphs.
   // v59.45 (pipeline review P11-AI-01): a text claim is a sourced sentence, not a checked value; it no longer sits under
   // "확인된 수치" as if its meaning had been verified like a number tuple.

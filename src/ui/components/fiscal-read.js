@@ -1,3 +1,5 @@
+// 재무 공시's lead block — annual revenue and net income as bars, the margin under each year,
+// and the connected reading (growth → profitability → earnings vs price → price vs results).
 import { buildFiscalRead, reconcileFiscalHistory, shareSplitBreaks, financialKind, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { buildEarningsQuality } from '../../domain/fundamental/earnings-quality.js';
 import { figureText } from '../../domain/shared/claim.js';
@@ -21,17 +23,24 @@ import { debtLabel } from '../../domain/fundamental/sec-earnings.js';
 
 // E05: a success is kept for 6 hours and a failure only for 60 seconds, so a 503 is retried and a new artifact
 // is picked up in a long-open tab.
+// The provider earnings calendar (week rows + the v58.75 six-week `upcoming` map), shared with the company summary.
+
 const FISCAL_OK_TTL_MS = 6 * 60 * 60 * 1000;
 const FISCAL_RETRY_MS = 60 * 1000;
 export function requestFiscalHistory(root, onReady, key = 'default') {
   const age = Date.now() - Number(root._aioSecFiscalHistoryAt || 0);
   if (root._aioSecFiscalHistory && age < FISCAL_OK_TTL_MS) return;
   if (root._aioSecFiscalHistory === null && age < FISCAL_RETRY_MS) return;
+  // The pending history request belongs to the most recently displayed
+  // company. Its completion must not repaint the prior issuer after navigation.
+  // One pending callback per caller (key) — 종목 요약 renders the company card and the analysis cards from the
+  // same request, and a single slot let the later caller drop the earlier one's repaint.
   (root._aioSecFiscalHistoryOnReady ||= {})[key] = onReady;
   if (root._aioSecFiscalHistoryRequested) return;
   const fetchFn = root?.fetch || globalThis.fetch;
   if (typeof fetchFn !== 'function') return;
   root._aioSecFiscalHistoryRequested = true;
+  // The summary manifest names the fiscal artifact once the producer has written it.
   loadArtifact(root, 'sec-fundamentals-summary.manifest.json')
     .then((manifest) => (`./${manifest?.fiscalHistory?.path}` === artifactUrl('sec-fiscal-history.json') ? loadArtifact(root, 'sec-fiscal-history.json') : null))
     .then((artifact) => { root._aioSecFiscalHistoryAt = Date.now(); root._aioSecFiscalHistoryFailed = false; root._aioSecFiscalHistory = artifact?.data && typeof artifact.data === 'object' ? artifact.data : null; root._aioSecQuarterHistory = artifact?.quarters && typeof artifact.quarters === 'object' ? artifact.quarters : null; root._aioSecFiscalPrecision = artifact?.precision || null; root._aioSecIssuerSic = artifact?.issuerSic && typeof artifact.issuerSic === 'object' ? artifact.issuerSic : null; root._aioSecDebtBasis = artifact?.debtBasis && typeof artifact.debtBasis === 'object' ? artifact.debtBasis : null; root._aioSecDebtCurrent = artifact?.debtCurrent && typeof artifact.debtCurrent === 'object' ? artifact.debtCurrent : null; })
@@ -41,6 +50,8 @@ export function requestFiscalHistory(root, onReady, key = 'default') {
 
 const number = (value) => value != null && value !== '' && typeof value !== 'boolean' && Number.isFinite(Number(value)) ? Number(value) : null;
 
+// All years share one zero line and one monetary scale. Losses point down;
+// an actual zero has zero height and a missing fact has no bar.
 export function fiscalBarGeometry(values = []) {
   const amounts = values.map(number).filter((value) => value != null);
   const positive = Math.max(0, ...amounts);
@@ -58,10 +69,14 @@ export function formatFiscalAmount(value) {
   return v == null ? '자료 없음' : usdKoreanText(v, { precise: true });
 }
 
+// 2026-10-13 review S20: the table and bar labels read in the same units as the reading; the exact filed amount
+// (formatFiscalAmount) stays in the cell title. First-users F33: Korean units (조·억·만 달러).
 export function formatFiscalCompact(value) {
   const v = number(value);
   return v == null ? '자료 없음' : usdKoreanText(v);
 }
+// First-users run-6 #6: "매출 2,745억 달러" did not fit a bar column and overlapped its neighbour; the bar label is the amount
+// alone (the legend under the chart names the two rows, 금액 USD is on the basis line) and the full figure is the hover.
 function amountNode(doc, tag, prefix, value, className) {
   const node = el(doc, tag, number(value) == null ? '—' : formatFiscalCompact(value).replace(/\s*달러$/, ''), className);
   node.title = `${prefix}${formatFiscalAmount(value)}`;
@@ -92,6 +107,10 @@ function fiscalChart(doc, rows, { quarter = false } = {}) {
       bar.title = `${year.periodEnd} ${label} ${formatFiscalAmount(year[field])}`;
       stack.append(bar);
     }
+    // 2026-10-14 audit #8: quarters carry the same net margin label as years (the table below has it); the
+    // year-over-year line says plainly when the same quarter a year earlier is not in the record.
+    // First-users run-6 #6: the full end date broke mid-date in a narrow column; the axis reads FY2025 / 2026-06 and the
+    // date is the hover.
     const axis = el(doc, 'span', `${quarter ? String(year.periodEnd || '').slice(0, 7) : fiscalYearLabel(year.periodEnd) || year.periodEnd}${year.derived ? '*' : ''}`, 'fiscal-year');
     axis.title = `${quarter ? '분기' : '회계연도'} 말 ${year.periodEnd}`;
     const margin = el(doc, 'span', year.margin == null ? '—' : `${year.margin.toFixed(1)}%`, 'fiscal-margin');
@@ -120,6 +139,8 @@ function fiscalTable(doc, rows, { quarter = false, debtBasis = null } = {}) {
   const table = el(doc, 'table', null, 'fiscal-amount-table');
   table.append(el(doc, 'caption', `${quarter ? '분기' : '연간'} 금액, USD(B=10억·T=1조, 정확한 금액은 칸 위에 마우스), 자료 없음은 0이 아닙니다`));
   const head = el(doc, 'thead'); const headRow = el(doc, 'tr');
+  // 2026-10-14 audit #21: a cover-page share count is not split-adjusted (620M → 24,400M across a split); the column
+  // says so when such a jump is in the rows, and every year uses one unit (M주, one digit count for all rows).
   const splitBreaks = quarter ? [] : shareSplitBreaks(rows);
   const shareValues = rows.map((year) => number(year.shares)).filter((value) => value != null);
   const shareDigits = shareValues.length && Math.max(...shareValues) < 1e8 ? 1 : 0;
@@ -147,13 +168,17 @@ function fiscalTable(doc, rows, { quarter = false, debtBasis = null } = {}) {
   return region;
 }
 
+// 2026-10-14 audit #21: amount tables fold (closed) under the chart so the chart and the reading come first.
 const tableFold = (doc, what, ...nodes) => kindFold(doc, 'raw-table', what, nodes);
 
+// The last eight fiscal quarters — revenue bars with the change against the same
+// quarter a year earlier underneath; a derived fourth quarter is marked.
 function quarterSection(doc, root, symbol) {
   const text = root?._aioSecQuarterHistory?.[symbol];
   if (!text) return null;
   const read = buildQuarterRead(parseQuarterHistory(text), { symbol });
   if (!read.available) return null;
+  // The quarters are the second view of the 매출과 순이익 card (연간 | 분기), not a card of their own.
   const box = el(doc, 'div', null, 'fiscal-quarters');
   box.dataset.count = String(read.rows.length);
   box.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
@@ -163,6 +188,7 @@ function quarterSection(doc, root, symbol) {
   return box;
 }
 
+// Where the company sits among same-sector SEC filers on the same four definitions.
 function peerSection(doc, root, symbol, row, rows, fundamentals) {
   const history = root?._aioSecFiscalHistory;
   if (!history || !row?.sector) return null;
@@ -186,7 +212,7 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
       const tone = metric.percentile >= 75 ? 'favorable' : metric.percentile <= 25 ? 'burden' : 'neutral';
       const bar = el(doc, 'div', null, `stock-read-bar is-${tone}`);
       bar.style.width = `${Math.max(2, metric.percentile).toFixed(1)}%`;
-      const track = el(doc, 'div', null, 'stock-read-track');
+      const track = el(doc, 'div', null, 'stock-read-track'); // The fill sits on a 0-100 track
       track.append(bar);
       item.append(track, el(doc, 'span', metric.said.text, 'stock-read-bar-value'));
     }
@@ -200,6 +226,9 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   return box;
 }
 
+// 개편 v2 (5g): 이익의 질 — operating cash flow ÷ net income for each filed year (the trend is only the years in
+// sec-fiscal-history; no year is estimated), the latest free-cash-flow margin and the one-year share count change.
+// Banks are skipped: their operating cash flow mixes deposits and loans, so the ratio does not read as earnings quality.
 function earningsQualityCard(doc, read, analysis) {
   if (read.points.some((point) => point.id === 'bank')) return null;
   // The analysis module loads on first use (fundamental-analysis-lazy.js); until it arrives the accrual row waits for the repaint.
@@ -236,12 +265,14 @@ function earningsQualityCard(doc, read, analysis) {
       trend.append(col);
     }
   }
+  // The Sloan (1996) accrual ratio on its original denominator (average total assets), now that assets are collected.
   for (const item of quality.rows) {
     const line = row(item.name, item.pending ? analysis?.COLLECTION_PENDING_LABEL || '' : item.detail, item.value.text, item.id === 'cash-ratio' ? trend : null);
     if (item.hover) line.title = item.hover.text;
     if (item.burden) line.classList.add('is-burden');
   }
   card.append(rows);
+  // v58.74 (text audit 종목 C4): the two signals can disagree; the expert says how both are true and what to check next.
   if (quality.reconcile) card.append(el(doc, 'p', quality.reconcile.text, 'v2-fiscal-quality__reconcile'));
   // ③ 원리 / 지금 읽기 / 한계 and the study it rests on, behind one 계산 방법 fold.
   const body = el(doc, 'div', null, 'sx-disclosure__body');
@@ -269,6 +300,8 @@ export function dartLink(doc, company) {
   return link;
 }
 
+// v59.70 (X bookmarks #8): quarter-end inventory and trade receivables beside the cash-flow card — the working capital
+// that can take a free-cash-flow quarter down while revenue grows. One bar pair per quarter (the step's change).
 const fiscalQuarterLabel = (periodEnd) => `${String(periodEnd).slice(2, 4)}.${String(periodEnd).slice(5, 7)}`;
 function workingCapitalCard(doc, quarters, symbol) {
   const read = buildWorkingCapitalRead(quarters, { symbol });
@@ -303,6 +336,9 @@ function workingCapitalCard(doc, quarters, symbol) {
   return card;
 }
 
+// The page is ① revenue and margin trend (the business lens leads its cards), ② cash flow, accruals and
+// the thesis conditions, ③ what the filing says with the peer standing, ④ the market environments. Each visual section
+// carries its chart; only raw tables, methods and sources fold.
 function fiscalSection(doc, id, title) {
   const box = el(doc, 'section', null, 'fiscal-section');
   box.dataset.entitySection = id;
@@ -321,6 +357,10 @@ function sourceLink(doc, fundamentals, { filings = false } = {}) {
   return link;
 }
 
+// v58.55 (3d) → v59.51: 듀폰 분해 beside 역 DCF, moved from 종목 요약 into the 투자 논지 틀 fold here. The
+// node is kept on the host and rebuilt only when its inputs change, so a re-render of the page never resets a slider the
+// reader is moving. `close` is the completed-session valuation close (entity.js), never the live quote.
+// issuerSic is "3674|Semiconductors & Related Devices"; the code is what financialKind reads.
 export const issuerSic = (root, symbol) => String(root?._aioSecIssuerSic?.[symbol] ?? '').split('|')[0] || null;
 // The artifact's debtBasis map lists only the lease-inclusive issuers; every other symbol is long-term debt only.
 export const debtBasisFor = (root, symbol) => root?._aioSecDebtBasis?.[symbol] === 'lease-inclusive' ? 'lease-inclusive' : 'long-term';
@@ -345,6 +385,8 @@ function analysisPair(doc, root, host, analysis, { symbol, fundamentals, close, 
   return host._aioAnalysisPair;
 }
 
+// v59.51 (owner 2026-10-31, two layers): the stale-or-current meaning of the annual report's age, in words. A 10-K is due
+// 60-90 days after the fiscal year ends, so a year-end older than a year means the next annual report is due or late.
 export function annualAgeText(periodEnd, today = Date.now()) {
   if (!isIsoDay(String(periodEnd || ''))) return null;
   const days = Math.floor((today - Date.parse(periodEnd)) / 86400000);
@@ -379,6 +421,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   const quarterText = root?._aioSecQuarterHistory?.[symbol];
   const debtBasis = debtBasisFor(root, symbol);
   const read = buildFiscalRead({ symbol, fundamentals, row, quarters: quarterText ? parseQuarterHistory(quarterText) : [], sic: issuerSic(root, symbol), debtBasis });
+  // The forward view (consensus, reference only) follows the reported reading.
   if (!/\.K[SQ]$/.test(symbol)) {
     requestConsensusEstimates(root, () => renderFiscalRead({ documentRef: doc, root, state }));
     refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed && doc.getElementById('fund-flow')?.dataset.fiscalSymbol === symbol) renderFiscalRead({ documentRef: doc, root, state }); }).catch(() => {});
@@ -390,25 +433,34 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   const rawReport = doc.getElementById('fund-native-sec-report');
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
   if (!read.available) {
+    // 2026-10-13 review S12: a KRX listing is read from Korean filings (DART), not as "SEC 미수신".
     if (/\.K[SQ]$/.test(symbol)) {
       host.append(emptyState(doc, { title: '한국 공시(DART) 재무', reason: `${symbol} — 한국 상장 종목의 연간 재무는 한국 공시(DART) 사업보고서 원문에서 확인합니다.`, compact: true }));
       const dart = dartLink(doc, root?._aioKrFundamentals?.companies?.[symbol]);
       if (dart) host.append(dart);
+    // On a slow phone NVDA read "SEC 공시 대상이 아니거나…" while the history file was still on its
+    // way (undefined = not answered yet); run-2: a failed download is not "no record" either.
+    // An ETF has no company filings at all; "not covered or not collected yet" read as a gap in the data.
     } else if (row && (row.sector === 'ETF' || row.index === 'ETF')) {
       host.append(emptyState(doc, { title: 'ETF는 기업 재무 공시가 없습니다', reason: `${symbol}${row.name ? ` (${row.name})` : ''} — 지수를 따르는 상장지수펀드라 매출·이익 대신 가격 흐름과 추종 지수로 읽습니다.`, next: '가격 흐름과 이동평균은 차트 화면에서 확인합니다.', compact: true }));
     } else if (root?._aioSecFiscalHistory === undefined) host.append(emptyState(doc, { title: '재무 기록을 불러오는 중입니다', reason: `${symbol} — 공시 재무 파일이 도착하면 여기에 그립니다.`, compact: true }));
     else if (root?._aioSecFiscalHistoryFailed) host.append(emptyState(doc, { title: '재무 파일을 받지 못했습니다', reason: `${symbol} — 연결이 느리거나 끊겨 공시 재무 파일이 도착하지 않았습니다.`, next: '1분 뒤 이 화면을 다시 열면 다시 받습니다.', compact: true }));
     else host.append(emptyState(doc, { title: 'SEC 연간 재무 기록이 없습니다', reason: `${symbol} — SEC 공시 대상이 아니거나 아직 수집되지 않은 종목입니다.`, next: 'ETF는 사업회사 재무와 구분합니다.', compact: true }));
   } else {
+    // 개편 v2 (5g): ① hero (the reading in one line + basis) → ② revenue/income card beside 이익의 질 → quarters,
+    // the reading rows and peers as cards.
     host.querySelector('h2').classList.add('sr-only');
     const hero = el(doc, 'div', null, 'sx-card sx-card--hero v2-fiscal-hero');
     hero.append(el(doc, 'span', `SEC 연간, ${read.history.length}개 회계연도`, 'sx-kicker'));
+    // 2026-10-14 audit #9: the one filing date of the page. First-users run-6 #15: '회계연도 말로부터 399일' did not say whether
+    // that is stale; the line says what the age means and the day count is the hover.
     const age = annualAgeText(read.latest.periodEnd);
     const basis = el(doc, 'p', `${fiscalYearLabel(read.latest.periodEnd) || '연간'} 연간 공시(회계연도 말 ${read.latest.periodEnd || '미상'}${fundamentals?.filedAt ? `, 제출 ${fundamentals.filedAt}` : ''}, 금액 USD)${age ? ` — ${age.text}` : ''}`, 'fiscal-period-basis sx-meta');
     if (age) basis.title = `회계연도 말로부터 ${age.days}일. 미국 상장사의 연간 보고서(10-K)는 회계연도가 끝난 뒤 60~90일 안에 제출합니다.`;
     const annualSource = sourceLink(doc, fundamentals);
     if (annualSource) basis.append(doc.createTextNode(', '), annualSource);
     if (read.headline) hero.append(el(doc, 'p', `${symbol} — ${read.headline}`, 'briefing-read-headline v2-stock-lede'));
+    // v58.75 (persona review): the last four filed quarters and the next report date under the (possibly old) annual line.
     const extra = analysis ? analysis.fiscalExtras(doc, { root, symbol, quarters: quarterText ? parseQuarterHistory(quarterText) : [], history: read.history, consensus: consensusRowFor(root, symbol), calendar: root?.[EARNINGS_CALENDAR.key], calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key), rows, fundamentals, series: !!series, financial: read.points.some((point) => point.id === 'bank') }) : null;
     if (extra) hero.append(...extra.hero);
     hero.append(basis);
@@ -430,6 +482,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
         el(doc, 'p', `${read.latest.preciseAnnual ? '최근 연간 값은 같은 회계연도의 정확한 공시 금액으로 맞췄습니다. ' : ''}기존 연간·분기 이력은 백만 달러 단위로 반올림되어 과거 비율과 평균 자기자본 ROE에 근사 오차가 있습니다. 정밀 이력이 갱신되기 전까지 소수 금액을 복원하지 않습니다.`, 'theme-strength-basis')]));
     }
     chartCard.append(annualPanel);
+    // Quarters are the second view of this card (연간 | 분기), remembered while the company stays.
     const quarterBox = quarterSection(doc, root, symbol);
     if (quarterBox) {
       const view = host.dataset.fiscalView === 'quarter' ? 'quarter' : 'annual';
@@ -454,14 +507,20 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
       show(view);
     }
     trend.append(chartCard);
+    // The margin ladder, EPS against consensus and R&D ÷ revenue sit under the trend, on the face (2026-11-19: only the
+    // raw tables, the methods and the sources fold).
     const rd = series && analysis ? analysis.rdCard(doc, read.history) : null;
     trend.append(...[...(extra?.cards || []), rd].filter(Boolean));
+    // Codex browser audit H35: "최신" annual data is not the latest company state. Without quarters the gap after
+    // the fiscal year end is named, so an old 10-K is not read as the current quarter.
     if (!quarterBox && read.latest?.periodEnd) {
       const missing = el(doc, 'p', `분기 실적 자료 없음, 위 연간 숫자는 ${read.latest.periodEnd}까지입니다.`, 'fiscal-missing-period');
       const quarterSource = sourceLink(doc, fundamentals, { filings: true });
       if (quarterSource) missing.append(doc.createTextNode(' '), quarterSource);
       trend.append(missing);
     }
+    // v59.70 (S15 ②): cash against earnings (accruals) and the working capital behind a cash swing, then the reverse DCF and
+    // the DuPont split (the same deferred analysis chunk).
     const cash = fiscalSection(doc, 'cash', '현금흐름과 발생액');
     const quality = earningsQualityCard(doc, read, analysis);
     if (quality) quality.dataset.sectionVisual = 'accruals';
@@ -508,7 +567,9 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   host.querySelectorAll('details > summary').forEach((summary) => { if (openFolds.has(summary.textContent)) summary.parentElement.open = true; });
   // The 요약 · 차트 tabs sit above the page; the next links name only other screens.
   renderNextSteps(doc, next, [
+    // The news screen opens on 기업 뉴스 narrowed to this ticker.
     { route: 'market-news', label: '뉴스', why: `${row?.name || symbol} 실적 발표·가이던스 소식`, ctx: { ticker: symbol } },
+    // 2026-10-14 audit #22: the company's numbers continue into the theme and macro crossroads.
     { route: 'themes', label: '테마 시나리오', why: '이 회사가 속한 테마가 지금 어느 단계이고 거시와 어떤 방향인지', ctx: { anchor: 'theme-playbook' } },
     { route: 'signal', label: '시나리오', ctx: { anchor: 'regime-depth-fold' }, why: '금리·경기 시나리오와 이 실적 흐름' }
   ]);

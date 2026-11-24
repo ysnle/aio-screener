@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.81: contract gate for the extended screener universe (every Russell 2000 member and every Nasdaq-listed common
+// Contract gate for the extended screener universe (every Russell 2000 member and every Nasdaq-listed common
 // stock beyond the core). Runs without the network: canned IWM/nasdaqlisted/otherlisted samples, the membership floor
 // and retain-on-failure rule, the lossless row encoding, schema parity with core rows, the provider's lazy shard read
 // (the default view never requests it), the ranking contract label, the workflow job shape and every registration.
@@ -30,7 +30,7 @@ let passed = 0;
 const check = (label, ok, detail = '') => { if (ok) passed += 1; else failures.push(`${label}${detail ? `: ${detail}` : ''}`); };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-// ── 1. Membership parsers on canned samples (v57.81) ─────────────────────────────────────────────────────────────
+// ── 1. Membership parsers on canned samples ─────────────────────────────────────────────────────────────
 const IWM_SAMPLE = [
   'iShares Russell 2000 ETF',
   'Fund Holdings as of,"Oct 14, 2026"',
@@ -92,7 +92,7 @@ check('v57.81 nasdaqlisted: fifth-character W/R/U rule applies only without a co
 const other = parseOtherListed(OTHER_SAMPLE);
 check('v57.81 otherlisted: share-class separator normalized to the universe form (MOG.A -> MOG-A)', other.rows.some((row) => row.sym === 'MOG-A' && row.exchange === 'NYSE'));
 
-// ── 2. Merge, floors and retain-on-failure (v57.81) ──────────────────────────────────────────────────────────────
+// ── 2. Merge, floors and retain-on-failure ──────────────────────────────────────────────────────────────
 check('v57.81 membership floors are Russell 2000 >= 1,800 and Nasdaq common >= 2,500', MEMBERSHIP_FLOORS.r2000 === 1800 && MEMBERSHIP_FLOORS.nasdaq === 2500);
 const smallFloors = { r2000: 3, nasdaq: 5 };
 const first = buildExtendedUniverse({ iwm, nasdaq, other, coreSymbols: ['AAPL'], floors: smallFloors, now: '2026-10-15T00:00:00.000Z' });
@@ -112,7 +112,7 @@ check('v57.81 retain: a source below its floor is treated as failed and keeps th
 const nothing = buildExtendedUniverse({ iwmError: 'down', nasdaqError: 'down', previous: null, floors: smallFloors });
 check('v57.81 retain: no source and no previous file is unusable (the producer writes nothing)', nothing.usable === false && nothing.payload.meta.sources.r2000.status === 'UNAVAILABLE');
 
-// ── 3. Lossless row encoding and shard schema parity (v57.81) ────────────────────────────────────────────────────
+// ── 3. Lossless row encoding and shard schema parity ────────────────────────────────────────────────────
 const publishedCore = json('public-data/screener.json');
 const core = expandScreenerArtifact(publishedCore);
 const coreUniverse = json('public-data/screener-universe.json').universe || [];
@@ -120,7 +120,7 @@ const encodedCore = encodeShardRows(core.data);
 const expandedCore = expandShardRows({ ...encodedCore, schemaVersion: EXTENDED_SHARD_SCHEMA });
 const mismatched = Object.keys(core.data).filter((sym) => !same(Object.entries(expandedCore[sym] || {}).sort(), Object.entries(core.data[sym]).sort()));
 check('v57.81 row-defaults encoding is lossless on every core row', mismatched.length === 0 && Object.keys(expandedCore).length === Object.keys(core.data).length, mismatched.slice(0, 5).join(','));
-// v57.95: screener.json itself ships in that encoding once the producer has run. Whichever shape the committed file
+// screener.json itself ships in that encoding once the producer has run. Whichever shape the committed file
 // has, it expands to full rows, and the producer's encode -> reader's expand round trip returns every row and every
 // top-level field unchanged.
 const roundTrip = expandScreenerArtifact(JSON.parse(JSON.stringify(encodeScreenerArtifact(core))));
@@ -146,7 +146,7 @@ const shardData = Object.fromEntries(renamed.map(({ from, sym }) => {
 }));
 const identityRows = renamed.map(({ sym, row }, index) => ({ sym, name: `${row.name} (fixture)`, sector: row.sector || null, index: index % 2 ? 'NASDAQ' : 'RUSSELL2000', membership: index % 2 ? ['NASDAQ'] : ['RUSSELL2000', 'NASDAQ'], exchange: 'NASDAQ' }));
 identityRows.push({ sym: 'ZXQZZ', name: 'Unfetched fixture', sector: null, index: 'NASDAQ', membership: ['NASDAQ'], exchange: 'NASDAQ' });
-identityRows[1].sector = null; identityRows[2].sector = null; identityRows[5].sector = 'Healthcare'; // v57.96: Nasdaq-only rows without a sector (a blank check, an operating company) and a curated sector beside a SIC code
+identityRows[1].sector = null; identityRows[2].sector = null; identityRows[5].sector = 'Healthcare'; // Nasdaq-only rows without a sector (a blank check, an operating company) and a curated sector beside a SIC code
 const membership = { generatedAt: '2026-10-15T00:00:00.000Z', meta: { sources: { r2000: { status: 'CURRENT', asOf: '2026-10-14' }, nasdaq: { status: 'CURRENT', asOf: '2026-10-14T14:01' } }, counts: { extended: identityRows.length } }, coreMembership: { AAPL: ['NASDAQ'], MSFT: ['NASDAQ'] } };
 const shard = buildExtendedShardPayload({
   data: shardData, syms: identityRows.map((row) => row.sym), identityRows, membership,
@@ -175,14 +175,14 @@ if (existsSync(join(root, 'public-data/screener-extended.json'))) {
   check('v57.81 committed extended shard keeps the contract', committed.ok, committed.errors.join(' | '));
   for (const note of committed.notes) console.log(`[screener-extended] note: ${note} (the shard job drops them on its next due check)`);
 }
-// v59.49: a core expansion leaves the moved symbols in the shard; the committed check notes it and the due rule refreshes.
+// A core expansion leaves the moved symbols in the shard; the committed check notes it and the due rule refreshes.
 const overlapShard = { ...shard, data: { ...shard.data, AAPL: shard.data[renamed[0].sym] }, ok: shard.ok + 1 };
 check('v59.49 core overlap: the committed-shard check notes it, the producer check still fails, and the shard is due',
   validateExtendedShard(overlapShard, { coreData: core.data, freshness: false, coreOverlap: 'note' }).notes.some((note) => /duplicated/.test(note))
   && validateExtendedShard(overlapShard, { coreData: core.data, freshness: false }).errors.some((error) => /duplicated/.test(error))
   && extendedRefreshDue({ previousShard: { ...overlapShard, asOf: core.asOf, factorSessionDateByMarket: { US: '2026-10-15' } }, coreScreener: { data: core.data, factorSessionDateByMarket: { US: '2026-10-15' } }, nowMs: Date.parse(core.asOf) }).reason === 'core-universe-overlap');
 
-// ── 4. Producer due rule, SEC compact ledger, operations availability (v57.81) ───────────────────────────────────
+// ── 4. Producer due rule, SEC compact ledger, operations availability ───────────────────────────────────
 const nowMs = Date.parse('2026-10-15T22:30:00Z');
 check('v57.81 due: missing shard is due; core session advance is due; same session within 26h is not; 26h backstop is due',
   extendedRefreshDue({ previousShard: null, nowMs }).due
@@ -191,7 +191,7 @@ check('v57.81 due: missing shard is due; core session advance is due; same sessi
   && extendedRefreshDue({ previousShard: { ...shard, asOf: '2026-10-14T19:00:00Z', factorSessionDateByMarket: { US: '2026-10-15' } }, coreScreener: { factorSessionDateByMarket: { US: '2026-10-15' } }, nowMs }).due);
 const compact = compactSecRecord({ symbol: 'X', revenue: 1, recentFilings: [{ form: '8-K' }], pit: { schemaVersion: 'sec-pit-facts.v1', status: 'filed-date-only', observationCount: 3, acceptedTimeCount: 0, observations: { revenue: [1, 2, 3] } } });
 const secOptions = extendedSecOptions({});
-// 2026-10-16 (P1872 follow-up): SEC SIC rides the extended ledger (issuerSic) into the shard identity and the ranker.
+// SEC SIC rides the extended ledger (issuerSic) into the shard identity and the ranker.
 const sicNow = Date.parse('2026-10-16T00:00:00Z');
 const sicLedger = { OLD: { sic: '6770', observedAt: '2026-09-01T00:00:00Z' }, NEW: { sic: '7372', observedAt: '2026-10-10T00:00:00Z' }, OLDER: { sic: '6770', observedAt: '2026-08-01T00:00:00Z' } };
 check('v57.84 SIC SIC-only pass: missing codes first, then codes older than 30 days oldest first; symbols read this run and fresh codes are skipped; bounded; 0 disables',
@@ -213,7 +213,7 @@ const retainedOps = deriveExtendedScreenerAvailability({ schemaVersion: EXTENDED
 check('v57.81 operations status: extended availability AVAILABLE / DEGRADED(stale, retained) / UNAVAILABLE(absent)',
   fresh.availability === 'AVAILABLE' && stale.availability === 'DEGRADED' && /h-old/.test(stale.missingReason) && retainedOps.availability === 'DEGRADED' && /r2000/.test(retainedOps.missingReason) && deriveExtendedScreenerAvailability(null).availability === 'UNAVAILABLE');
 
-// ── 5. Provider: lazy shard read, merge and ranking contract (v57.81) ───────────────────────────────────────────
+// ── 5. Provider: lazy shard read, merge and ranking contract ───────────────────────────────────────────
 const responses = {
   './public-data/screener.json': publishedCore,
   './public-data/screener-universe.json': json('public-data/screener-universe.json'),
@@ -231,7 +231,7 @@ const provider = createScreenerProvider({ httpClient, readUniverseScope: () => s
 const coreRead = await provider.readCurrent();
 check('v57.81 default view does not request the extended shard', requested.length === 3 && !requested.includes(EXTENDED_SHARD_URL) && coreRead.metadata.universeScope === 'core' && !coreRead.rows.some((row) => 'universeTier' in row || 'membership' in row), JSON.stringify(requested));
 {
-  // v57.95: the provider reads the encoded core file into the same rows as the plain (expanded) file.
+  // The provider reads the encoded core file into the same rows as the plain (expanded) file.
   const fixedNow = Date.parse(core.asOf) + 3600000;
   const clock = { now: () => fixedNow, iso: () => new Date(fixedNow).toISOString() };
   const readWith = async (artifact) => createScreenerProvider({
@@ -293,14 +293,14 @@ check('v57.96 a Nasdaq-only row without a sector takes the SEC SIC sector, marke
   JSON.stringify({ b: blankCheck && [blankCheck.sector, blankCheck.sectorSource], o: operating && [operating.sector, operating.sectorSource, operating.industry], c: curated && [curated.sector, curated.sectorSource], d: shard.sicDescriptions }));
 console.log(`[screener-extended] provider + ranking over ${extendedState.rows.length} rows: ${extendedMs} ms (node)`);
 
-// ── 6. Scope storage (v57.81) ───────────────────────────────────────────────────────────────────────────────────
+// ── 6. Scope storage ───────────────────────────────────────────────────────────────────────────────────
 const store = new Map();
 const fakeRoot = { localStorage: { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, String(value)) } };
 check('v57.81 the 종목 범위 choice is remembered per reader and anything else reads as 기본',
   readUniverseScope(fakeRoot) === 'core' && writeUniverseScope(fakeRoot, 'extended') === 'extended' && readUniverseScope(fakeRoot) === 'extended'
   && writeUniverseScope(fakeRoot, 'bogus') === 'core' && readUniverseScope({ localStorage: { getItem: () => { throw new Error('blocked'); } } }) === 'core');
 
-// ── 7. Workflow job shape and registrations (v57.81) ────────────────────────────────────────────────────────────
+// ── 7. Workflow job shape and registrations ────────────────────────────────────────────────────────────
 const workflow = read('.github/workflows/refresh-screener.yml');
 // Comment lines are dropped so a job's prose can neither satisfy nor break a structural check.
 const jobBlock = (name) => (workflow.match(new RegExp(`\\n  ${name}:\\n[\\s\\S]*?(?=\\n  [a-z][a-z-]*:\\n|$)`))?.[0] || '')
@@ -316,7 +316,7 @@ check('v57.81 workflow: due check -> membership -> SEC batch -> shard -> validat
   order.every((token, index) => extendedJob.indexOf(token) >= 0 && (index === 0 || extendedJob.indexOf(token) > extendedJob.indexOf(order[index - 1]))), order.filter((token) => extendedJob.indexOf(token) < 0).join(','));
 check('v57.81 workflow: the core job never stages extended files and the core converge does not wait for the extended job',
   !/screener-extended|sec-fundamentals-extended/.test(coreJob) && /needs: refresh-screener\n/.test(convergeJob) && /needs: refresh-screener-extended/.test(convergeExtended) && /group: live-convergence/.test(convergeExtended));
-// v59.85: the staged set is the refresh-screener-extended publish set (scripts/lib/data-publish-sets.mjs).
+// The staged set is the refresh-screener-extended publish set (scripts/lib/data-publish-sets.mjs).
 check('v57.81 workflow: the extended commit stages only its three files', JSON.stringify(publishSetPaths('refresh-screener-extended')) === JSON.stringify(['public-data/screener-extended.json', 'public-data/screener-extended-universe.json', 'public-data/sec-fundamentals-extended.json']) && !/git add -- public-data\/screener\.json/.test(extendedJob));
 const lineage = read('scripts/ci-data-lineage-audit.mjs');
 check('v57.81 freshness registry lists the shard, the membership file and the extended SEC ledger', ['screener-extended.json', 'screener-extended-universe.json', 'sec-fundamentals-extended.json'].every((name) => lineage.includes(`'${name}'`)));

@@ -25,7 +25,7 @@ export function deriveOperationalState({ configured = false, healthy = false, st
   return healthy ? 'CONFIGURED_HEALTHY' : 'CONFIGURED_BROKEN';
 }
 
-// v60.18: `overall` asks for an operator only while an operator blocker is open. It was the constant OPERATOR_REQUIRED
+// `overall` asks for an operator only while an operator blocker is open. It was the constant OPERATOR_REQUIRED
 // whenever the durable plane published, so it read the same all week (11/09-11/15) with blockers [] and told nobody anything.
 export function deriveOverall({ durableOk = false, blockers = [] } = {}) {
   if (!durableOk) return 'BLOCKED';
@@ -62,7 +62,7 @@ async function fetchHealth(baseUrl, healthPath = '/health', headers = {}) {
   return { response, body };
 }
 
-// P1271: health alone cannot make the user-facing quote feature AVAILABLE.
+// Health alone cannot make the user-facing quote feature AVAILABLE.
 // The public route is disabled until rights and the measured soak both close.
 export function deriveFastQuoteAvailability({ configured = false, healthy = false, rightsReviewed = false, soakObservedDays = 0, soakRequiredDays = 7 } = {}) {
   if (!configured) return { availability: 'UNAVAILABLE', missingReason: 'fast-quote-endpoint-not-configured' };
@@ -82,7 +82,7 @@ export function deriveFastQuoteAvailability({ configured = false, healthy = fals
  * ci-refresh-artifact-integrity-check explicitly allows. An operator must
  * configure a missing key; a configured provider that did not fetch is BLOCKED.
  */
-// P1256 (E5 O06 / 06 O06): 도메인 receipt 소비 — "새 수집 성공"과 "기존값 유지"를 같은 성공으로
+// 도메인 receipt 소비 — "새 수집 성공"과 "기존값 유지"를 같은 성공으로
 // 말하지 않는다. 사용자 복구 설명은 내부 runId 대신 기능 수준 언어로 바꿔 발행한다(O05의 축).
 export function deriveDomainStatus(domainReceipts = null) {
   const entries = domainReceipts && typeof domainReceipts === 'object' ? domainReceipts : {};
@@ -103,7 +103,7 @@ export function deriveDomainStatus(domainReceipts = null) {
   }));
 }
 
-// v57.81: availability of the extended screener shard. Absent → UNAVAILABLE (the screener offers only the core view's
+// Availability of the extended screener shard. Absent → UNAVAILABLE (the screener offers only the core view's
 // data then); older than two days, below its coverage floor, or built on a retained membership source → DEGRADED.
 export const EXTENDED_SHARD_MAX_AGE_HOURS = 48;
 export function deriveExtendedScreenerAvailability(shard, now = new Date().toISOString()) {
@@ -131,7 +131,7 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
   const nowMs = Date.parse(now || '');
   const ageMs = Number.isFinite(generatedMs) && Number.isFinite(nowMs) ? nowMs - generatedMs : null;
   const ageHours = ageMs == null ? null : ageMs / 3_600_000;
-  // P1291/R641: artifact metadata cannot extend the canonical wall-clock freshness window.
+  // Artifact metadata cannot extend the canonical wall-clock freshness window.
   const maxAgeHours = MARKET_CYCLE_FRESHNESS_SLA_MS / 3_600_000;
   const coverage = marketSnapshot?.coverage || {};
   const coverageComplete = Number(coverage.tier0Required) > 0
@@ -145,7 +145,7 @@ export function deriveDurableFreshness({ data = {}, marketSnapshot = {}, now = n
     && quotes.length === Number(coverage.tier0Required)
     && blockedQuotes.length === 0;
   const withinSla = ageMs != null && ageMs >= 0 && ageMs <= MARKET_CYCLE_FRESHNESS_SLA_MS;
-  // P1291/R641: operational freshness follows the same wall-clock SLA as browser decisions.
+  // Operational freshness follows the same wall-clock SLA as browser decisions.
   return Object.freeze({
     fresh: withinSla && coverageComplete && quoteQualityComplete,
     withinSla,
@@ -289,7 +289,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_PATH, 'utf8')); } catch (_) { sec = null; }
   }
   if (!sec) {
-    // P1757: the full ledger is producer-only (data-store branch) and absent from the refresh-data checkout; the
+    // The full ledger is producer-only (data-store branch) and absent from the refresh-data checkout; the
     // published projection carries the same eligible/stored counters, so coverage never falls back to a guess.
     try { sec = JSON.parse(await readFile(SEC_FUNDAMENTALS_SUMMARY_PATH, 'utf8')); } catch (_) { sec = null; }
   }
@@ -321,10 +321,10 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     && coverage.tier0Observed === coverage.tier0Required
     && coverage.tier0Required > 0
     && durableFreshness.fresh;
-  // P1719: a retained (previous verified) analysis is shown, but this run's call was blocked — not CURRENT.
+  // A retained (previous verified) analysis is shown, but this run's call was blocked — not CURRENT.
   const scheduledAnalysisRetained = data?.meta?.marketAnalysisRetained || null;
   const scheduledAnalysisOk = data?.meta?.marketAnalysisOk === true && !scheduledAnalysisRetained;
-  // v57.54: a retained analysis is DEGRADED with statusCode STALE — 'STALE' is not an OPERATIONS_STATUS and made the
+  // A retained analysis is DEGRADED with statusCode STALE — 'STALE' is not an OPERATIONS_STATUS and made the
   // operations contract reject the artifact, failing the whole refresh whenever the analysis was retained.
   const fastConfigured = fastEndpoint !== 'not-configured';
   const [fastObserved, fastRequired] = String(fastEvidence.fastCoverage || '').split('/').map(Number);
@@ -350,12 +350,12 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   const blockers = [];
   if (!durableOk) blockers.push('durable_tier0_publish_blocked');
   if (!durableFreshness.fresh) blockers.push('durable_market_cycle_stale');
-  // v59.32 (owner 2026-10-27): the rights decision is recorded in worker-endpoints.json; once it is made and the
+  // The rights decision is recorded in worker-endpoints.json; once it is made and the
   // quote feature is available these are no longer open blockers.
   if (quoteAvailability.availability !== 'AVAILABLE') blockers.push('fast_plane_soak_and_rights_review_required');
   if (fastConfig.rightsReviewed !== true) blockers.push('provider_rights_review_required');
   if (!proxyHealthy) blockers.push('ai_proxy_deploy_or_readiness_required');
-  // v60.18: the Worker can be healthy while the provider refuses the shared account (11/10: credit_balance_exhausted, 11 h).
+  // The Worker can be healthy while the provider refuses the shared account (11/10: credit_balance_exhausted, 11 h).
   if (aiProviderRefusal(data)) blockers.push('ai_provider_account_refused');
   if (secCoverage.coveragePct < 80) blockers.push('sec_fundamentals_coverage_below_80_percent');
   const status = createOperationsStatus({
@@ -364,7 +364,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
     dataRevision: snapshot.revision || `public-data:${data?.meta?.generatedAt || 'unknown'}`,
     evidenceRevision: 'evidence-contract:v1+inferred-claim:v1+reconciliation:v2+page-timeline:v1',
     overall: deriveOverall({ durableOk, blockers }),
-    // P1173: planes/excludes describe direct plane status inputs. The blockers list is a separate input.
+    // planes/excludes describe direct plane status inputs. The blockers list is a separate input.
     overallBasis: {
       planes: ['durable'],
       excludes: ['fast', 'browser'],
@@ -391,7 +391,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         missingReason: proxyHealthy ? null : !proxyConfigured ? 'ai-shared-proxy-not-configured' : 'ai-shared-proxy-not-ready',
         sources: ['fast']
       },
-      // v57.81: the extended screener shard (Russell 2000 + Nasdaq beyond the core) is published by its own job.
+      // The extended screener shard (Russell 2000 + Nasdaq beyond the core) is published by its own job.
       'screener-extended': deriveExtendedScreenerAvailability(extendedShard, now),
       // 브라우저 평면은 이 producer가 관측하지 않는다. 정상이 아니라 UNKNOWN이고, 그 이유가 사용자에게
       // 전달된다 — `overall`이 이 평면을 포함하지 않는다는 사실도 overallBasis.excludes가 말한다.
@@ -402,7 +402,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         sources: ['browser']
       }
     },
-    // P1256: 도메인 receipt의 사용자 복구 설명 — "새 수집 성공"과 "기존값 유지 중"이 여기서 갈린다.
+    // 도메인 receipt의 사용자 복구 설명 — "새 수집 성공"과 "기존값 유지 중"이 여기서 갈린다.
     domainReceipts: deriveDomainStatus(data?.meta?.domainReceipts),
     planes: {
       durable: {
@@ -414,7 +414,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
         status: 'OPERATOR_REQUIRED', statusCode: deriveOperationalState({ configured: fastConfigured, healthy: fastHealthy, stale: fastConfigured && fastEvidence.fastHealthStatus != null && fastEvidence.fastEvidenceFresh !== true }), scheduler: 'cloudflare-cron', endpoint: fastEndpoint,
         health: {
           // P1166 (17 작업 단위 3 / 06 O05): 오래된 성공은 성공 시각(observedAt)을 유지하되 현재 건강
-          // 상태로 승격하지 않는다. 재사용 창(P1104)을 벗어난 관측은 200이어도 CURRENT가 아니다.
+          // 상태로 승격하지 않는다. 재사용 창 을 벗어난 관측은 200이어도 CURRENT가 아니다.
           status: Number(fastEvidence.fastHealthStatus) === 200
             ? (fastEvidence.fastEvidenceFresh === true ? 'CURRENT' : 'UNKNOWN')
             : 'OPERATOR_REQUIRED',
@@ -426,7 +426,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
           source: fastEvidence.fastEvidenceSource || fastEvidence.evidenceSource || 'periodic-live-health',
           observationStatus: fastEvidence.fastObservationStatus || (fastEvidence.observationAttempted ? 'UNKNOWN' : 'NOT_ATTEMPTED'),
           observationError: fastEvidence.fastObservationError || null,
-          // P1104: a carried-over observation is only usable while it is inside
+          // A carried-over observation is only usable while it is inside
           // the reuse window. Publishing the decision (and when it was made) lets
           // a consumer tell "CURRENT" from "CURRENT as of the last attempt".
           evidenceFresh: fastEvidence.fastEvidenceFresh === true,
@@ -490,7 +490,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       fred: {
         rights: fredConfigured ? 'REVIEW_REQUIRED' : 'OPERATOR_REQUIRED', statusCode: fredConfigured ? 'RIGHTS_REVIEW_REQUIRED' : 'NOT_CONFIGURED',
         use: 'official-series',
-        // v57.84: FRED relays third-party series; the ICE BofA HY OAS carries ICE's own reproduction restriction.
+        // FRED relays third-party series; the ICE BofA HY OAS carries ICE's own reproduction restriction.
         rightsNotes: ['BAMLH0A0HYM2: ICE Data Indices — reproduction requires ICE prior written permission (FRED series notice)'],
         status: fredProviderStatus,
         lastAttemptAt: data?.meta?.fredAttemptedAt || data?.meta?.generatedAt || null,
@@ -507,7 +507,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
       closure: reconciliation?.closure || null,
       rawProducerClaimGate: 'not_applicable_for_quote_plane'
     },
-    // v60.46: no route-ownership block. It was a copy of architecture/route-owners.json (code state) inside a data
+    // No route-ownership block. It was a copy of architecture/route-owners.json (code state) inside a data
     // artifact; nothing read it, and a data overlay release (data built on newer code, shipped on older code) failed CI
     // on the copy 43 times on 11/19-20 (nativeLazyOwner). Route ownership is checked against the code by
     // ci-retirement-contract.mjs and ci-operations-contract-check.mjs.
@@ -515,7 +515,7 @@ export async function writeOperationsStatus({ data, marketSnapshot, reconciliati
   });
   const validation = validateOperationsStatus(status);
   if (!validation.ok) throw new Error(`OPERATIONS_STATUS_INVALID:${validation.errors.join(',')}`);
-  // v60.50: this is the producer's only output. public-config.json (the AI route and the fast-plane promotion) is
+  // This is the producer's only output. public-config.json (the AI route and the fast-plane promotion) is
   // release-scoped and changes only in code commits; the browser checks both Workers itself on every load. The FRED
   // fetch result lives here as providers.fred.status, not in architecture/public-readiness.json.
   await atomicWriteFile(OPERATIONS_STATUS_OUT, `${JSON.stringify(status, null, 2)}\n`);

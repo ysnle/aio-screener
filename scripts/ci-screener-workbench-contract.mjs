@@ -1,4 +1,4 @@
-import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // The page is split under src/ui/pages/screener/
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +33,7 @@ import { filterRows, liveRow, sortRows, extensionMultiple, forwardPe, capFilterV
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -113,7 +113,7 @@ function fixtureRow(symbol, market, offset = 0) {
 }
 
 async function run() {
-  // P1038: hashing optimizations must keep persisted snapshot/replay identifiers
+  // Hashing optimizations must keep persisted snapshot/replay identifiers
   // byte-for-byte compatible, including UTF-16 and the old undefined semantics.
   const referenceHash = value => {
     const text = stableSerialize(value);
@@ -226,7 +226,7 @@ async function run() {
   const queryRows = [{ sym: 'NVDA', name: 'NVIDIA', signal: 'BUY' }, { sym: 'QQQ', name: 'Nasdaq ETF', memo: 'NVDA exposure', signal: 'HOLD' }];
   const queryAliases = () => ({ nvda: ['NVDA'], 매수: 'BUY' });
   assert(filterRows(queryRows, queryDocument('NVDA'), { readAliases: queryAliases }).map((row) => row.sym).join(',') === 'NVDA' && filterRows(queryRows, queryDocument('매수'), { readAliases: queryAliases }).length === 0, 'G-SCR-SEARCH: alias-only queries do not match every row; retired structure-class aliases (S03, provider signal is always null) no longer filter');
-  // v58.52 (screen audit 2026-10-20): 'MS' showed only Morgan Stanley (hidden by a filter, so nothing) and 'NV' matched letters inside other names.
+  // 'MS' showed only Morgan Stanley (hidden by a filter, so nothing) and 'NV' matched letters inside other names.
   const tickerRows = [{ sym: 'MS', name: 'Morgan Stanley', sector: 'Financials' }, { sym: 'MSFT', name: 'Microsoft', sector: 'Technology' }, { sym: 'NVDA', name: 'NVIDIA', sector: 'Technology' }, { sym: 'MU', name: 'Micron Technology', sector: 'Technology' }, { sym: 'AAPL', name: 'Apple Inc.', sector: 'Technology' }];
   const techDocument = (query) => ({ getElementById: (id) => ({ value: id === 'scr-text-search' ? query : id === 'scr-sector' ? 'Technology' : '', checked: false }) });
   assert(filterRows(tickerRows, techDocument('MS')).map((row) => row.sym).join(',') === 'MSFT' && filterRows(tickerRows, techDocument('NV')).map((row) => row.sym).join(',') === 'NVDA'
@@ -252,7 +252,7 @@ async function run() {
   defensiveRows[1].vol = 20; defensiveRows[1].rank = 20;
   assert(runScreen({ definition: presetsA.find((item) => item.screenId === 'preset-lowvol'), rows: defensiveRows }).passed[0]?.sym === 'LOWVOL',
     'G-SCR-PRESET: lower volatility wins regardless of unrelated composite rank');
-  // W07-B/P1146 (M02): passing the filters is not the same as being rankable. A row whose
+  // Passing the filters is not the same as being rankable. A row whose
   // ranking field is missing stays visible as passed but must not receive rank 1, and the
   // explanation must name the missing ranking field.
   {
@@ -282,7 +282,7 @@ async function run() {
   try { importSavedScreen(JSON.stringify(tampered)); } catch (_) { importRejected = true; }
   assert(importRejected, 'G-SCR-IMPORT: migration cannot rehash a tampered current definition into validity');
 
-  // v58.51: refresh-planner, provider-capability, regime, pit-validation and outcome-ledger had no product caller and were removed
+  // refresh-planner, provider-capability, regime, pit-validation and outcome-ledger had no product caller and were removed
   // with their G-SCR-REFRESH/CAPABILITY/RECON/REGIME/PIT/PROMOTION/OUTCOME/COST fixtures. The published validation gate below stays BLOCKED.
 
   const artifact = expandScreenerArtifact(readJson('public-data/screener.json'));
@@ -292,9 +292,9 @@ async function run() {
   const factorRows = artifactRows.filter((row) => Number.isFinite(Number(row?.ret1m)) || Number.isFinite(Number(row?.rsi)));
   const expectedFundamentalCoverage = artifact.fundamentalCoverageDenominator > 0
     ? Math.round((Number(artifact.fundamentalCount || 0) / artifact.fundamentalCoverageDenominator) * 1000) / 10 : 0;
-  // P1439: the curated universe grew 873 → 931 on 2026-10-01 and this literal failed every screener refresh
+  // The curated universe grew 873 → 931 on 2026-10-01 and this literal failed every screener refresh
   // since; the published universe may not exceed the curated identity universe it was built from.
-  // v60.02: the universe it was built from is the lineage the artifact carries; a later review that removes rows
+  // The universe it was built from is the lineage the artifact carries; a later review that removes rows
   // shrinks the mirror before the next screener refresh rebuilds the artifact.
   const curatedUniverse = Number(artifact.universeLineage?.recordCount
     ?? readJson('public-data/screener-universe.json')?.meta?.recordCount ?? 0);
@@ -323,7 +323,7 @@ async function run() {
   const screenerOrchestrator = fs.readFileSync(path.join(root, 'src/data/orchestrators/screener.js'), 'utf8');
   assert(provider.includes('buildFieldReadiness') && provider.includes('fieldObservations'), 'G-SCR-PIPELINE: provider emits field-level readiness and observations');
   assert(provider.includes('rightsByField') && provider.includes('resolveFieldRights') && provider.includes('sourceKindByField'), 'G-SCR-RIGHTS: provider resolves explicit rights/source kind per field before readiness');
-  // v60.27: the unpriced rendered rows are asked from the quote owner itself (bounded per request); the scheduler path
+  // The unpriced rendered rows are asked from the quote owner itself (bounded per request); the scheduler path
   // skipped them while a scheduled quote run was in flight. Behaviour: ci-screener-presentation-check.mjs.
   assert(screenerUi.includes('__aioQuoteDemand') && screenerUi.includes('QUOTE_REQUEST_LIMIT') && screenerUi.includes('registerLiveSymbol') && !screenerUi.includes('runScheduledRefresh'), 'G-SCR-LIVE: rendered screener rows register bounded live-quote demand');
   assert(page.includes('screener-factor-confidence') && page.includes('screener-factor-diagnostics') && screenerUi.includes('미래 수익률 확률 아님') && screenerUi.includes('dataset.decisionEligible'), 'G-SCR-FACTOR-UX: confidence and research-only diagnostics are visible and cannot masquerade as return probability');
@@ -546,9 +546,9 @@ async function run() {
   const declaredQuote = (await d06Read(d06Quote({ currency: 'USD' }))).rows[0];
   assert(declaredQuote.price === 101 && declaredQuote.liveQuoteDiagnostic.admissible === true,
     'P1174 G-SCR-QUOTE-ATOMIC: the same quote with a declared currency is adopted, so the check discriminates');
-  // P1177 (QA-SCR-01): the snapshot identity belongs to the **observation set that arrived**. When the
+  // The snapshot identity belongs to the **observation set that arrived**. When the
   // live-derived diagnostic is part of the hash, one price tick mints a new ranked snapshot and the run
-  // the user stored is replaced by background churn (P1074). The second half is the control: a changed
+  // the user stored is replaced by background churn. The second half is the control: a changed
   // artifact observation must still mint a new identity, so this is not a blanket freeze.
   const rejectedQuoteRead = await d06Read(d06Quote({}));
   const tickedQuoteRead = await d06Read(d06Quote({ price: 102 }));
@@ -709,8 +709,6 @@ async function run() {
     }
   }
 
-  // v58.51: the return-comparison contract (src/domain/screener/return-contract.js, P1174) had no product caller and was removed.
-
   let liveReads = 0;
   const oneSnapshotProvider = createScreenerProvider({
     httpClient: { requestJson: async url => ({ ok: true, data: url.includes('screener-universe') ? providerUniverse : providerArtifact }) },
@@ -818,7 +816,7 @@ async function run() {
     assert(providerSource.includes(token), `P1171 G-SCR-REGISTRY: the screener provider must consume the registry (${token} missing)`);
   }
 
-  // P1872: one freshness rule for annual filing figures. The registry's calculation budget equals the factor ranker's
+  // One freshness rule for annual filing figures. The registry's calculation budget equals the factor ranker's
   // 456-day period rule (30/90 days nulled PER·ROE before the ranker saw them), and funds, SPACs and sub-$1M 확장 rows
   // leave the ranked population but stay as rows with a null rank and the reason.
   for (const fieldId of ['valuation.pe', 'valuation.pb', 'quality.roe', 'quality.margin', 'quality.revGrowth']) {
@@ -829,7 +827,7 @@ async function run() {
     [{ name: 'Armada Acquisition Corp. III' }, 'spac'],
     [{ name: 'StoneBridge Acquisition II Corporation' }, 'spac'],
     [{ name: 'Ares Capital Corporation' }, null],
-    // v57.84 SIC: SEC SIC 6770 OR the name rule — SIC catches SPACs without "Acquisition" in the name, and pre-merger
+    // SIC: SEC SIC 6770 OR the name rule — SIC catches SPACs without "Acquisition" in the name, and pre-merger
     // SPACs filed under a target-industry code (Plum Acquisition Corp. IV, 4911) still leave by name.
     [{ name: 'Churchill Capital Corp XI', sic: '6770' }, 'spac'],
     [{ name: 'Talon Capital Corp', sic: '6770' }, 'spac'],
@@ -864,7 +862,7 @@ async function run() {
   const tokyo = foreignResult.rows.find((row) => row.sym === '8035.T');
   assert(foreignResult.populationExclusions?.foreign === 1 && tokyo?.rank === null && tokyo?.populationExclusion === 'foreign' && foreignResult.inputAudit?.eligibleRows === 8,
     'audit 2026-10-17 a foreign listing stays as a row with a null rank and the foreign reason', JSON.stringify({ excl: foreignResult.populationExclusions, tokyo }));
-  // v60.26: a deal-pinned row stays visible with its reason and stays out of the sector statistics, so the ordinary
+  // A deal-pinned row stays visible with its reason and stays out of the sector statistics, so the ordinary
   // rows rank exactly as they would without it (it topped the 저변동 preset and ranked AES #2 of 821).
   const pinnedResult = computeFactorRanks({ rows: [...exclusionRows, { sym: 'AES', name: 'AES Corp', sector: 'Tech', ret1m: 3, ret3m: 6, ret6m: 9, vol: 2.54, adrPct: 0.32, pctSma50: 1, pctSma200: 1 }], weights: { momentum: 1, lowvol: 1 }, weightsPolicy: 'explicit', now: 0 });
   const pinnedRow = pinnedResult.rows.find((row) => row.sym === 'AES');

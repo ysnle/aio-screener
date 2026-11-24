@@ -1,6 +1,6 @@
-// Official/public macro sources split out of scripts/fetch-data.mjs (v57.62): FRED public CSV (HY OAS, DEXKOUS),
+// Official/public macro sources split out of scripts/fetch-data.mjs: FRED public CSV (HY OAS, DEXKOUS),
 // Treasury yield curve, AAII sentiment, BEA PCE, CNN Fear & Greed and BLS (incl. v57.59 release-day cache bypass).
-// v59.70: the Cboe put/call reader is deleted (owner 11/4: Cboe terms forbid storing and redistributing). Parsers are pure; fetchers take the previous artifact block and return last-known-good
+// The Cboe put/call reader is deleted (owner 11/4: Cboe terms forbid storing and redistributing). Parsers are pure; fetchers take the previous artifact block and return last-known-good
 // evidence. fetch-data.mjs imports and re-exports them.
 import { round } from './producer-math.mjs';
 import { UA, fetchJSON, _fetchRss } from './producer-http.mjs';
@@ -20,7 +20,7 @@ export const FRED_SERIES = {
   // twelve-month CPI-U series.  Keep the SA series as explicitly named
   // companions below so an analytical consumer cannot mistake one for the
   // BLS release headline.
-  // v60.46: `frequency` lets the FRED plane skip a monthly series between its scheduled releases (scripts/producer/fred.mjs).
+  // `frequency` lets the FRED plane skip a monthly series between its scheduled releases (scripts/producer/fred.mjs).
   cpi:        { id: 'CPIAUCNS', kind: 'yoy', frequency: 'monthly' },
   coreCpi:    { id: 'CPILFENS', kind: 'yoy', frequency: 'monthly' },
   cpiSa:      { id: 'CPIAUCSL', kind: 'yoy', frequency: 'monthly' },
@@ -28,7 +28,7 @@ export const FRED_SERIES = {
   pce:        { id: 'PCEPI',    kind: 'yoy', frequency: 'monthly' },
   corePce:    { id: 'PCEPILFE', kind: 'yoy', frequency: 'monthly' },
   fedRate:    { id: 'FEDFUNDS', kind: 'level', frequency: 'monthly' }, // effective rate, MONTHLY average — not the policy target
-  // 2026-10-01: the FOMC target range itself (official daily FRED series); the policy-rate surfaces
+  // The FOMC target range itself (official daily FRED series); the policy-rate surfaces
   // compared FEDFUNDS' monthly average (3.63) with BOK's policy rate and the 3.75-4.00 decision.
   fedTargetLower: { id: 'DFEDTARL', kind: 'level' },
   fedTargetUpper: { id: 'DFEDTARU', kind: 'level' },
@@ -44,7 +44,7 @@ export const FRED_SERIES = {
   dgs20:         { id: 'DGS20',           kind: 'level' },               // 미 국채 20Y (%)
   dgs30:         { id: 'DGS30',           kind: 'level' },               // 미 국채 30Y (%)
   t10y2y:        { id: 'T10Y2Y',          kind: 'level' },               // 10Y-2Y 스프레드 (%p), 단일 만기에서 추정 금지
-  // P1390: decompose a nominal 10Y move into real yield (TIPS) and inflation compensation; a real-yield-led
+  // Decompose a nominal 10Y move into real yield (TIPS) and inflation compensation; a real-yield-led
   // rise compresses equity multiples, a breakeven-led rise runs through the oil/inflation channel.
   realYield10:   { id: 'DFII10',          kind: 'level', delta5: true }, // 10Y TIPS 실질금리 (%)
   breakeven10:   { id: 'T10YIE',          kind: 'level', delta5: true }, // 10Y 기대인플레이션(BEI, %)
@@ -196,7 +196,7 @@ export async function fetchFredDexkousPublic(previous = null) {
 // 순수 판정: **같은 날짜**의 공급자 확정 종가와 공식 관측치를 비교해 상태를 말한다. 어느 값도 바꾸지
 // 않는다. 시점이 다른 두 값(공식 계열의 공표 지연)을 비교해 "불일치"라고 말하면 지연을 데이터 오류로
 // 오표기하는 것이므로, 날짜가 다르면 판정하지 않고 not-comparable로 남긴다.
-// 실측(2026-09-25): DEXKOUS 최신 관측은 7일 전이고 그 사이 스팟이 2.09% 움직였다 — 지연을 무시한
+// 실측: DEXKOUS 최신 관측은 7일 전이고 그 사이 스팟이 2.09% 움직였다 — 지연을 무시한
 // 비교는 정상 계열을 매일 'divergent'로 신고했을 것이다.
 export function compareUsdKrwCrossCheck({ provider = null, official = null, latestProvider = null, tolerancePct = 5, attemptedAt = new Date().toISOString() } = {}) {
   const providerDate = String(provider?.date || (provider?.observedAt ? String(provider.observedAt).slice(0, 10) : '') || '').slice(0, 10) || null;
@@ -292,7 +292,7 @@ export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOStri
     };
     const values = { dgs2: pick(2), dgs5: pick(5), dgs10: pick(10), dgs20: pick(20), dgs30: pick(30) };
     if (!Object.values(values).every(Number.isFinite)) return null;
-    // v58.56 (re-audit #9): the feed's other tenors on the same official cut. Only the five above decide whether a row is
+    // The feed's other tenors on the same official cut. Only the five above decide whether a row is
     // complete; a short tenor the feed left blank (e.g. a new bill tenor) is simply absent, never filled in.
     for (const [field, tag] of TREASURY_EXTRA_TENORS) {
       const value = Number((entry.match(new RegExp(`<d:${tag}\\b[^>]*>([^<]+)<\\/d:${tag}>`, 'i')) || [])[1]);
@@ -311,7 +311,7 @@ export function parseTreasuryYieldCurveXml(xml, fetchedAt = new Date().toISOStri
     observedAt: latest.observedAt,
     fetchedAt,
     values: { ...latest.values, t10y2y: round(latest.values.dgs10 - latest.values.dgs2, 3) },
-    // Codex review 2026-10-05: earlier sessions of the same feed, so 1-day and 1-week changes are taken
+    // Earlier sessions of the same feed, so 1-day and 1-week changes are taken
     // from the same official series as the level (newest first).
     series: parsed.slice(0, 8).map((entry) => ({ observedAt: entry.observedAt, values: entry.values })),
     allowedUse: 'official-observation-and-derived-same-date-spread',
@@ -448,7 +448,7 @@ export async function fetchAaiiSentiment(previous = null) {
 export function mergeMacroLastKnownGood(current, previous) {
   if (!previous || typeof previous !== 'object') return current || {};
   const merged = { ...previous, ...(current || {}) };
-  // P1142: `_failureReason`은 no-key/plane-fail 런에서만 설정되고 keyed 성공 런은 이 필드를
+  // `_failureReason`은 no-key/plane-fail 런에서만 설정되고 keyed 성공 런은 이 필드를
   // 쓰지 않는다. spread는 previous-only 키를 보존하므로, 키를 등록한 뒤 성공한 런에서도 과거
   // `api-key-not-configured`가 완성된 FRED 런 옆에 계속 게시되는 모순이 생겼다(data.json:599 vs meta).
   // keyed 런(`_source: 'fred'`)이면 이전 런의 실패 사유를 지운다 — no-key/plane-fail 런은
@@ -473,13 +473,13 @@ export function mergeMacroLastKnownGood(current, previous) {
         if (!merged[`_freshness_${field}`]) merged[`_freshness_${field}`] = 'observed';
         continue;
       }
-      // P1090: `_freshness_*` is published as the field's CURRENT freshness, but the
+      // `_freshness_*` is published as the field's CURRENT freshness, but the
       // old code only ever set it — never cleared it. Once a field had been carried
       // forward in any earlier cycle it kept reading `stale-reference` forever, even
       // after every source recovered. All 19 macro fields were published as stale
       // while `_source_*` named a live official primary fetch, which made a real
       // last-known-good indistinguishable from a refreshed value.
-      // P1385: unconditional — a newly added series (fedTargetLower/Upper, P1375) had no previous
+      // Unconditional — a newly added series (fedTargetLower/Upper) had no previous
       // marker, so it was published with `_source_*` but no `_freshness_*` and CI went red.
       merged[`_freshness_${field}`] = 'observed';
       continue;
@@ -516,7 +516,7 @@ function _signedPercent(direction, value) {
   return /^decreas/i.test(String(direction || '')) ? -parsed : parsed;
 }
 
-// P869: FRED publication lag must not leave a newly released PCE print blank or
+// FRED publication lag must not leave a newly released PCE print blank or
 // stale. BEA's release page is the primary source for the current headline/core
 // PCE rates; observation period, release time and next release remain separate.
 // BEA publishes the monthly change and the twelve-month change in separate
@@ -524,7 +524,7 @@ function _signedPercent(direction, value) {
 // detail sits between the headline and core sentences. A bounded look-ahead
 // window therefore crossed the paragraph boundary and captured the
 // twelve-month figure: the published `corePceMoM` was 3.3, exactly the core
-// YoY 3.3, beside a correct `pceMoM` of 0.2 (P1096). Slice each paragraph by
+// YoY 3.3, beside a correct `pceMoM` of 0.2. Slice each paragraph by
 // its own lead-in and parse the headline/core pair inside that slice.
 function _beaParagraph(text, startRe, endRe) {
   const source = String(text || '');
@@ -594,7 +594,7 @@ export async function fetchBeaPce(previous = null) {
     return { ...parseBeaPceHtml(releaseHtml, releaseUrl, attemptedAt), attemptedAt };
   } catch (error) {
     console.warn(`[fetch-data] BEA PCE 실패: ${error && error.message || error}`);
-    // P1572: the carried row is spread first so a failed attempt can never republish it as 'ok'.
+    // The carried row is spread first so a failed attempt can never republish it as 'ok'.
     return {
       ...(previous && typeof previous === 'object' ? previous : {}),
       status: previous && previous.values ? 'last-known-good' : 'unavailable',
@@ -637,7 +637,7 @@ export async function fetchFearGreed(previous = null) {
         .filter(Boolean);
       // The response carries the daily series (midnight timestamps) plus an
       // intraday reading, so keying by full timestamp published two points for
-      // one calendar day — a daily series a day-join cannot use (P1100).
+      // one calendar day — a daily series a day-join cannot use.
       // Keep one point per day and prefer CNN's own daily marker.
       const byDay = new Map();
       for (const row of normalizedHistory) {

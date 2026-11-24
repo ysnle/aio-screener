@@ -1,3 +1,5 @@
+// The eleven US sector ETFs on the last completed session, largest gain to largest loss. Read from the produced
+// rotation artifact; a sector whose row is not current for that session is left out rather than shown with an old number.
 import { selectProducedRotation } from '../../domain/themes/produced-rotation.js';
 import { SECTOR_ETF_LABELS, sectorRecentCheck, leaderFading } from '../../domain/market/regime/scenario-outlook.js';
 import { rrgSettledQuadrant } from '../../domain/themes/recent-check.js';
@@ -5,6 +7,7 @@ import { RRG_BORDER_WORD, RRG_QUADRANT_WORDS } from '../../domain/themes/rrg.js'
 import { el } from './dom.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 
+// One date format on 오늘 (M/D), and the block is an h2 like its sibling sections.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : String(date || ''); };
 const QUADRANT = { ...RRG_QUADRANT_WORDS, Border: RRG_BORDER_WORD }; // the RRG chart's short words; the long border label ran past the card's text edge
 const quadrantLabel = (key) => QUADRANT[key] || null;
@@ -13,6 +16,8 @@ export function sectorMoves(artifact, nowMs = Date.now()) {
   const rows = Object.entries(SECTOR_ETF_LABELS).map(([symbol, label]) => {
     const row = selectProducedRotation(artifact, symbol, nowMs);
     const daily = typeof row?.dailyPct === 'number' && Number.isFinite(row.dailyPct) ? row.dailyPct : null;
+    // "기술 -2.98% 선도" — RRG trails price by weeks; a 선도 sector whose relative strength fell by
+    // more than twice its own typical five-session move (the themes screen's rsRecentCheck) shows that change instead.
     if (daily == null) return null;
     const recent = sectorRecentCheck(row);
     const rel5 = recent?.rel5 ?? null;
@@ -22,9 +27,12 @@ export function sectorMoves(artifact, nowMs = Date.now()) {
       // on the last point alone read XLB·XLY·XLF 기준선 부근 and XLU 선도 here while 테마·섹터 read 개선.
       quadrant: fading ? `상대강도 5일 ${rel5.toFixed(1)}%` : quadrantLabel(rrgSettledQuadrant(row) ?? row.quadrant), session: row.sessionDate };
   }).filter(Boolean).sort((a, b) => b.daily - a.daily);
+  // A sector counts as up only when its printed two-decimal move is above zero (+0.003 reads +0.00%).
   return { rows, session: rows[0]?.session || null, upCount: rows.filter((row) => directionOf(row.daily, 2) === 'up').length };
 }
 
+// One owner per fact: the eleven bars on 브리핑 repeated 테마와 섹터 › 요약. 브리핑 carries one
+// line — the session, how many sectors rose, the strongest and the weakest with their moves — and a link to that screen.
 export function sectorMovesLine(model) {
   if (!model || model.rows.length < 6) return '';
   const top = model.rows[0], bottom = model.rows.at(-1);
@@ -40,7 +48,7 @@ export function renderSectorMoves({ documentRef: doc, root, host = null, nowMs =
   if (!content) { content = el(doc, 'div', null, 'sector-moves-content'); host.prepend(content); }
   const text = sectorMovesLine(model);
   if (!text) { host.hidden = true; content.replaceChildren(); return null; }
-  host.setAttribute('data-observed-at', model.session);
+  host.setAttribute('data-observed-at', model.session); // The basis card dates the line.
   const title = el(doc, 'h2', '섹터와 움직인 이유', 'briefing-h2');
   title.id = 'briefing-sector-moves-title';
   host.setAttribute('aria-labelledby', title.id);

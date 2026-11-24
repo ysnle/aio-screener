@@ -1,3 +1,9 @@
+// v59.74 (owner 2026-11-07, chart redesign): the chart's layers on every bar interval (minute, hour, day, week, month).
+// The base tier (5·10·20·50·100·200 moving averages with their alignment, the volume profile and the trend areas, on top
+// of the candles and volume) is on for every stock; the added moving averages (EMA 8·21) and the studies (RSI, MACD,
+// divergence, Fibonacci, Bollinger squeeze/expansion, and on daily bars VCP, signals, the RS line, price levels) are
+// opt-in from one toggle row and remembered on this device. Calculations live in domain/technical/chart-layers.js; this file only
+// draws them with Lightweight Charts series and series primitives (custom canvas layers, available since 4.1).
 import { CHART_LAYERS, resolveLayers, layerFacts } from '../../domain/technical/chart-layers.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { el } from './dom.js';
@@ -15,6 +21,8 @@ export const AXIS_PX = 76;
 // [period, line width, line style]: the short set (5·10·20) and the mid/long set (20·50·200) heavier, 100 thin, 200 dashed.
 const MA_STYLE = Object.freeze([[5, 1.6, 0], [10, 1.6, 0], [20, 2, 0], [50, 1.8, 0], [100, 1, 0], [200, 1.8, 2]]);
 
+// The volume profile's share of the plot width, drawn from the right edge. The recent-bars view leaves at least this much
+// empty room right of the last bar, so the profile rows never sit on the latest candles.
 export const PROFILE_SHARE = 0.2;
 const PROFILE_MAX_PX = 150;
 /** The logical range that shows the last `count` bars with the profile's share of the width free right of the last bar. */
@@ -89,6 +97,8 @@ export function attachChartLayers({ doc, root, instance, layers, analysis = null
     for (const pane of owned.panes) pane.dispose();
     owned = { series: [], primitives: [], priceLines: [], panes: [] };
   };
+  // The fixed axis width lines the price chart up with its study panes; a compact card has no panes, and the reserved
+  // 76 px read as an empty strip beside a 330 px plot (chart-scale 2026-11-19), so its axis is as wide as its labels.
   if (!compact) chart.applyOptions({ rightPriceScale: { minimumWidth: AXIS_PX } });
 
   // One study pane: its own chart under the price chart, time axis hidden except on the last pane, synced both ways.

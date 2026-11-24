@@ -1,3 +1,8 @@
+// An expert's reading of this company — the business lens (which numbers matter for this kind
+// of business), standing against named theme peers with what to keep watching, the thesis conditions and the
+// favourable/unfavourable situations. 재무 공시 draws them on the face (lensCard, peerStandingCard, thesisCard,
+// situationCard); 종목 개요 reads one peer line (peerLine); the AI panel reads the same data (window._aioStockLensFor).
+// Readings come from src/domain/fundamental/stock-lens.js. Loaded with the entity route (never the boot set).
 import { shortDate } from '../../domain/content/date-labels.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
@@ -42,6 +47,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const consensus = consensusOf(root, sym);
   const quartersFor = (s) => (root?._aioSecQuarterHistory?.[s] ? parseQuarterHistory(root._aioSecQuarterHistory[s]) : null);
   const peers = buildThemePeers({ symbol: sym, themes, rows, seriesFor, consensusFor: (s) => consensusOf(root, s), quartersFor });
+  // The stock's themes, primary first, from the one owner the 가격 line and the theme link also read.
   const themeList = stockThemes(themes, sym).map(({ id, label }) => ({ id, label }));
   const themeIds = themeList.map((theme) => theme.id);
   const stages = themeStagesFor(root, { symbol: sym, themeIds });
@@ -54,7 +60,11 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const spx = buildCloseSeries(root?._aioHistory || [], 'spx');
   const barsIn = (Array.isArray(bars) && bars.length ? bars : root?._aioEntitySummaries?.[sym]?.history || []).map((bar) => ({ date: isoOf(bar), close: bar?.close }));
   const beta = market === 'US' ? dailyBeta(barsIn, spx) : null;
+  // run-5 (skeptic #11): the stock's 3-month return is an adjusted close (dividends in), so its benchmark is SPY's
+  // adjusted return from the same factor session — the basis the 지수 대비 card above already uses (F10). Without that row
+  // the S&P 500 index window (MARKET_WINDOWS.quarter) stands in and is named as the index.
   const spyRow = market === 'US' && sym !== 'SPY' ? rows.find((item) => item?.sym === 'SPY' && item.factorSessionDate && item.factorSessionDate === row?.factorSessionDate && readRowNumber(item, 'ret3m', 'display') != null) : null;
+  // A Korean stock is read against its own index, as the 지수 대비 card above it is (코스피, or 코스닥 for .KQ).
   const krIndex = /\.KQ$/i.test(sym) ? ['kosdaq', '코스닥 지수'] : ['kospi', '코스피 지수'];
   const benchmark = market !== 'US' ? { pct: closeChange(root?._aioHistory || [], krIndex[0], MARKET_WINDOWS.quarter)?.pct ?? null, label: krIndex[1] }
     : spyRow ? { pct: readRowNumber(spyRow, 'ret3m', 'display'), label: 'S&P 500(SPY, 배당 포함)' } : { pct: closeChange(root?._aioHistory || [], 'spx', MARKET_WINDOWS.quarter)?.pct ?? null, label: 'S&P 500 지수' };

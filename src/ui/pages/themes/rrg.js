@@ -11,15 +11,23 @@ import { stampDay } from '../../../domain/shared/session-date.js';
 import { usCloseSession, viewItems } from '../../../data/selectors/theme-flow.js';
 import { NEAR_HIGH_TAB } from './sectors.js';
 
+// plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
+// The notes name both windows and no longer say "계속 강해지는 중 / 나아지는 중" — the vertical axis
+// compares with about 50 sessions ago, so a sector can sit in 선도 while its last week fell hard (the chip then says so).
+// A point within the neutral band around 100 on either axis is 경계 and stays out of the four verdicts.
 export const QUADRANTS = Object.freeze([
   ...['Leading', 'Improving', 'Weakening', 'Lagging'].map((key) => ({ key, label: RRG_QUADRANT_WORDS[key], note: RRG_QUADRANT_READS[key] })),
+  // The band is each sector's own typical 5-session move on that axis, with hysteresis.
   { key: 'Border', label: RRG_BORDER_LABEL, note: `두 축 중 하나가 100에 그 섹터의 평소 5거래일 움직임만큼 가까워 사분면을 정하지 않음(움직임 기록이 없으면 ±${RRG_NEUTRAL_BAND}). 한 번 정한 사분면은 반대쪽으로 그 폭의 절반을 넘어야 바뀜. 속이 빈 점은 놓인 구역과 판정이 다른 섹터로, 이름 옆에 판정을 적음`, optional: true }
 ]);
 
+// The screen reads the previous session's artifact (flagged lagging) until the refresh lands, never session ticks.
 export const RRG_LAG = Object.freeze({ lagSessions: 1 });
+// The banded zone and the five-session relative-strength check of one item, from the session-checked artifact row.
 export function readingOf(root, item) {
   const symbol = String(item?.symbol || item?.id || '');
   const produced = symbol ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, symbol, Date.now(), RRG_LAG) : null;
+  // The produced 20-session trail sizes the band and carries hysteresis (recent-check.js rrgZone).
   return rrgRecentReading({ ...item, trail: produced?.trail || item?.trail || null }, produced?.relativeStrength || null);
 }
 export function zoneKey(root, item) {
@@ -69,6 +77,8 @@ export function renderRRGStatus({ documentRef, root, store, route }) {
     return;
   }
   const close = usCloseSession(root);
+  // v58.79 (layout over captions): the line keeps the quadrant counts; the window and the close are the card head's
+  // chip, and the tail's meaning is the line's hover (the tail control names itself).
   status.textContent = `선도 ${counts.Leading}, 개선 ${counts.Improving}, 약화 ${counts.Weakening}, 후행 ${counts.Lagging}${counts.Border ? `, ${RRG_BORDER_LABEL} ${counts.Border}` : ''}`;
   status.title = `${rrgTrailLength(root) ? `꼬리 = 최근 ${rrgTrailLength(root)}거래일 경로(작은 점이 시작), 화살표 = 오늘 위치. ` : ''}속이 빈 점 = 놓인 구역과 판정이 다른 섹터(이름 옆에 판정)`;
   writeSectorCardChip(documentRef, root);
@@ -87,6 +97,8 @@ export function writeSectorCardChip(documentRef, root) {
 }
 
 export const RRG_TRAILS = Object.freeze([['short', '짧게', 5], ['long', '길게', 10], ['off', '끔', 0]]);
+// v58.78 (owner 2026-10-25, "RRG 차트 난리"): daily tails crossed each other in the leading cluster and widened the axes, so
+// the chart opens on today's positions only; a tail is the reader's choice.
 export const RRG_TRAIL_DEFAULT = 'off';
 export const rrgTrailOf = (root) => RRG_TRAILS.find(([key]) => key === (root?._aioRrgTrail || RRG_TRAIL_DEFAULT)) || RRG_TRAILS[2];
 export function rrgTrailLength(root) {
@@ -134,6 +146,9 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
   canvas.dataset.aioRrgChartRenderer = 'native';
   const items = viewItems(selectThemesItems(store?.getState?.() || {}), activeView(root));
   const validItems = items.filter((item) => finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null);
+  // The scatter is the section's visual. Its height follows the frame width (taller ratio on a phone so the
+  // eleven dots do not crowd), and the backing store follows devicePixelRatio so text stays sharp. Drawing below is in
+  // CSS pixels; a hidden frame (no judged sector) falls back to a desktop size.
   const frameWidth = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
   const width = frameWidth > 0 ? Math.round(frameWidth) : 900;
   const compact = width < 520;
@@ -150,11 +165,16 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
   if (!context) return;
   context.setTransform?.(ratio, 0, 0, ratio, 0, 0);
   const palette = chartPalette(root);
+  // Expert review M19: the point colours are the legend's own CSS tokens, so the 개선 dot matches its legend entry
+  // and every colour follows the dark theme (the old hard-coded ink vanished on the dark canvas).
   let style = null;
   try { style = root.getComputedStyle(documentRef.body); } catch (_) { style = null; }
   const token = (key, fallback) => style?.getPropertyValue?.(key)?.trim() || fallback;
+  // 개편 v2 (3f): 선도 green, 후행 amber, 개선·약화 ink — red stays for falling prices only, never a quadrant.
   const colors = { Leading: token('--data-green', '#2f7c57'), Improving: token('--text-secondary', '#544f46'), Weakening: token('--text-secondary', '#544f46'), Lagging: token('--data-amber', '#714f19') };
   const muted = token('--text-muted', '#978365');
+  // v58.75 (persona review): StockCharts-style tails — each sector's last sessions from the produced 20-session trail
+  // (each point on its own trailing window), drawn dashed toward an arrow at today's dot. 짧게 5, 길게 10, 끔.
   const trailLength = rrgTrailLength(root);
   ensureRrgTrailTabs(documentRef, root, store, route);
   const trails = new Map();
@@ -205,6 +225,8 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
   context.setLineDash([]);
   context.font = '12px "Pretendard Variable", Pretendard, sans-serif';
   context.textAlign = 'center';
+  // 100 is the sector's own 100-session average relative price, not "the same as SPY".
+  // plain-Korean axis titles; the precise definitions sit once in the 사분면별 섹터 fold.
   context.fillText(compact ? '상대강도(시장 대비) →' : '상대강도(시장 대비, 100 = 50일 평균) →', (plot.left + plot.right) / 2, height - 6);
   context.save();
   context.translate(11, (plot.top + plot.bottom) / 2);
@@ -253,7 +275,13 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
     }
     context.restore();
   });
+  // Dots first, then one-line labels ("XLF 금융") placed by trying eight spots around each dot,
+  // then the same spots farther out with a leader line, against every label and dot already on the canvas — the
+  // two-line ticker/name stack overlapped in the crowded leading cluster.
   const radius = compact ? 5 : 6;
+  // v58.80 (first-users bundle 2): XLRE and XLF sat inside the 선도 area while the text called them 개선 and 기준선 부근 —
+  // the text uses the settled zone (band + hysteresis), the dot its raw position. A dot whose settled zone differs from
+  // where it sits is drawn as a ring and its label names the settled word.
   const rawQuadrant = (item) => rrgQuadrantOf(item.rsRatio, item.rsMomentum);
   const dots = validItems.map((item) => { const zone = zoneKey(root, item); return { item, zone, held: zone !== rawQuadrant(item), x: px(item.rsRatio), y: py(item.rsMomentum), color: colors[zone] || muted }; });
   for (const dot of dots) {
@@ -328,9 +356,14 @@ export function renderRRGCanvas({ documentRef, root, store, route }) {
   }
 }
 
+// The quadrant-count pill in the page head (renderThemeCyclePill) is retired — the status line
+// above the scatter (renderRRGStatus) prints the same counts for the same view.
+
+// The verdict card shows the scatter or the sector period bars; the choice is kept for the session.
 export function syncVerdictView(documentRef, root) {
   const card = documentRef?.querySelector?.('#themes-verdict .v2-themes-rrg');
   if (!card) return;
+  // v59.70 (theme-sector): the period bars are the default view (which sector led the day or week); the scatter is second.
   const view = root?._aioThemesVerdictView === 'rrg' ? 'rrg' : 'bars';
   card.dataset.view = view;
   documentRef.querySelectorAll('#themes-verdict-tabs [data-view]').forEach((button) => {

@@ -97,7 +97,7 @@ const acceptance = artifact.acceptance || {};
 const sessions = artifact.sessions || [];
 const requiredDimensions = ['screen-reader-reading-order', 'keyboard-only', 'computed-contrast', '200-percent-zoom-reflow', 'dialog-focus-trap-and-return'];
 if (artifact.schemaVersion !== 'human-validation.v1' || study.participantsPerPersona < 5 || study.personas?.length !== 3 || study.tasks?.length < 6 || requiredDimensions.some((dimension) => !study.manualAccessibilityDimensions?.includes(dimension))) fail('study topology is incomplete');
-// v57.83 codex audit F23: the study covers phone and tablet as well as desktop, and the household pilot (the real readers)
+// Codex audit F23: the study covers phone and tablet as well as desktop, and the household pilot (the real readers)
 // is declared without ever certifying anything.
 if (!['desktop', 'phone', 'tablet'].every((platform) => study.platforms?.includes(platform))) fail('study must cover desktop, phone and tablet');
 const pilot = artifact.householdPilot || {};

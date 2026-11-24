@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.62: exits 0 when two JSON documents are equal after dropping the named top-level keys, 1 when they differ or a side
+// Exits 0 when two JSON documents are equal after dropping the named top-level keys, 1 when they differ or a side
 // cannot be read. Workflows use it to skip "timestamp only" commits without assuming the file is pretty-printed.
 //   node scripts/lib/json-same-except.mjs <key[,key...]> <old: path or git rev:path> <new: path>
 import { spawnSync } from 'node:child_process';

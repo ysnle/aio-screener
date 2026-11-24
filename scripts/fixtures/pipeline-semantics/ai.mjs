@@ -117,7 +117,7 @@ export const cases = [
     const reordered = sample([...rows].reverse().map((row, i) => ({ ...row, rank: i })), {}, { recentTickers: ['X0', 'X1'] });
     assert.deepEqual(first.rows.map((row) => row.sym), reordered.rows.map((row) => row.sym));
     assert.ok(first.diversity.sectorCount >= 4);
-    // v59.54: the order is day-seeded, so another day draws another sample, and no day hands every question the A-names.
+    // The order is day-seeded, so another day draws another sample, and no day hands every question the A-names.
     const dayA = sample(rows, {}, { sampleDay: '2026-11-01' }), dayB = sample(rows, {}, { sampleDay: '2026-11-02' });
     assert.deepEqual(dayA.rows.map((row) => row.sym), sample([...rows].reverse(), {}, { sampleDay: '2026-11-01' }).rows.map((row) => row.sym));
     assert.notDeepEqual(dayA.rows.map((row) => row.sym), dayB.rows.map((row) => row.sym));
@@ -338,7 +338,7 @@ export const cases = [
   } },
   { id: 'P13-SCREEN-02', name: '시총이 없거나 0인 종목을 소형주로 고르지 않는다', run: async ({ load }) => {
       const { readScreenSentence, runScreen } = await load('src/ai/context/screener-query.js');
-      // v60.41: the screener filter's buckets (SMALL < $2B, MID $2~10B, lower bound inclusive).
+      // The screener filter's buckets (SMALL < $2B, MID $2~10B, lower bound inclusive).
       const out = runScreen(readScreenSentence('소형주 후보'), { rows: [{ sym: 'MISSING', mcap: null }, { sym: 'ZERO', mcap: 0 }, { sym: 'NAN', mcap: NaN },
         { sym: 'NEG', mcap: -1 }, { sym: 'SMALL', mcap: 1 }, { sym: 'EDGE', mcap: 2 }, { sym: 'LARGE', mcap: 100 }] });
       assert.deepEqual(out.rows.map((row) => row.sym), ['SMALL']);

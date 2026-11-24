@@ -1,3 +1,6 @@
+// Two 오늘 blocks beside the six-axis verdict — the market clock with the Korea↔US link check
+// (domain/market/session/session-bridge.js) and the probabilistic lean (domain/market/regime/market-lean.js). Neither changes the
+// verdict; both say what they are built from.
 import { el } from './dom.js';
 import { kindFold, setFoldBody } from './indicator-face.js';
 import { buildSessionBridge, renderSessionBridgeContext } from '../../domain/market/session/session-bridge.js';
@@ -10,6 +13,7 @@ import { EVENT_BRIEFS, KR_INDEX_WEIGHTS, MARKET_TEMPERATURE, STRESS_OUTCOMES, lo
 
 const VERDICT_WORDS = Object.freeze({ supports: '근거 맞음', partial: '일부 맞음', against: '근거 약함', unknown: '판단 보류' });
 
+// What the contributor lines read — screener rows, the two weight sources, briefs, Telegram posts and headlines.
 function attributionOf(root, store) {
   const state = store?.getState?.() || {};
   let rows = state.screener?.rows;
@@ -64,7 +68,7 @@ function loadLeanValidation(root, rerender) {
 }
 
 function leanModel(root, regime) {
-  // R670: the VIX band is read on the same completed US close as the verdict, not the after-hours print.
+  // The VIX band is read on the same completed US close as the verdict, not the after-hours print.
   const history = root?._aioHistory || [];
   const vix = buildCloseSeries(history, 'vix', { through: regime?.asOf || closeBasis(history) }).at(-1)?.value ?? null;
   return buildMarketLean({ regime, stress: root?.[STRESS_OUTCOMES.key] || null, temperature: root?.[MARKET_TEMPERATURE.key] || null, vix, validation: root?.[LEAN_VALIDATION_KEY] || null });
@@ -78,6 +82,7 @@ export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
   const model = buildSessionBridge({ nowMs: Date.now(), snapshot: snapshotOf(root, store), attribution: attributionOf(root, store) });
   let box = doc.getElementById('home-session-bridge');
   if (!model.available) { if (box) box.hidden = true; return model; }
+  // v59.51 (two layers): the bridge is the expert layer of the one Korea line — it opens inside that line's fold.
   if (!box) { box = el(doc, 'div', null, 'session-bridge'); box.id = 'home-session-bridge'; anchor.append(box); }
   const nodes = [el(doc, 'p', model.clockLine, 'session-bridge__clock')];
   // The line above (home-kr-line) is the last completed Korean close; during the session these checks read today's
@@ -95,10 +100,14 @@ export function paintSessionBridge(doc, root, store, anchor, rerender = null) {
       item.append(el(doc, 'span', link.label, 'session-bridge__label'), doc.createTextNode(' '), el(doc, 'span', VERDICT_WORDS[link.verdict], 'session-bridge__verdict'), el(doc, 'span', ` ${link.evidence}. ${link.text}`, 'session-bridge__text'));
       list.append(item);
     }
+    // Live layout (owner reading standard, 3-5 lines a block): the four checks fold under one summary on the face.
     const more = el(doc, 'details', null, 'session-bridge__more');
     more.append(el(doc, 'summary', `원인 후보 ${model.links.length}가지 점검`), list);
     nodes.push(more);
   }
+  // v59.51 (first-users run-6, home audit): one rule for weekend futures — while CME is shut for the weekend
+  // (usWeekendClosed, the rule the quote row uses) there is no futures line; Friday's settle-relative move printed
+  // "-1.81%, 14시간 전" beside a row that said 선물 주말 휴장.
   const futures = model.futuresLine && !usWeekendClosed() ? `미국 선물: ${model.futuresLine}` : null;
   for (const [text, className] of [[model.usLeaders?.line || null, 'session-bridge__line'], [futures, model.futuresStale ? 'session-bridge__line is-stale' : 'session-bridge__line'], [model.next, 'session-bridge__line'], [model.oil, 'session-bridge__line']]) {
     if (text) nodes.push(el(doc, 'p', text, className));
@@ -118,6 +127,10 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   const model = leanModel(root, regime);
   let box = doc.getElementById('home-lean');
   if (!model.us.available) { if (box) box.hidden = true; return model; }
+  // v59.51 (two layers; owner 2026-10-26 element, renamed): "매수·매도 우위" read as a timing call, so the face is one line —
+  // the month-ahead tilt of the whole US market — and the base rate, the votes, what would change it and the Korea
+  // reference open under it. market-lean.js maps no lean to a choice, so there is no choice line to show.
+  // the state line is on the face; the votes, base rate, flip and the Korea reference are its raw-table fold.
   if (!box) { box = el(doc, 'div', null, 'market-lean'); box.id = 'home-lean'; anchor.insertAdjacentElement('afterend', box); }
   const head = el(doc, 'p', null, 'market-lean__head');
   const chip = el(doc, 'span', model.us.label, 'market-lean__state');
@@ -156,6 +169,8 @@ export function paintMarketLean(doc, root, regime, anchor, rerender = null) {
   return model;
 }
 
+// The 오늘 hero call (src/ui/components/market-regime.js renderHomeRegime): clock and links inside the Korea line's fold.
+// The month tilt is painted on 시장 상태 under its leaders line.
 export function paintHome(doc, root, store, regime, rerender, currentRegime) {
   exposeContextReaders(root, store, currentRegime);
   paintSessionBridge(doc, root, store, doc.getElementById('home-kr-line'), rerender);

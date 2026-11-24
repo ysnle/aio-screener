@@ -1,4 +1,4 @@
-// Owner 2026-10-19: the producers' adapter of the interpretation pipeline (src/domain/market/interpretation/
+// The producers' adapter of the interpretation pipeline (src/domain/market/interpretation/
 // market-interpretation.js). fetch-data (the published narrative) and build-scenario-state (scenario-state.json) build
 // the regime, branches, structure flows, theme stages and market guide through this one function, from the same
 // published artifacts the screens read. v59.70 (data audit R8): the input itself is now assembled by the shared builder
@@ -8,13 +8,13 @@
 // js/aio-core.js) and a fresher HY read from its own FRED fetch.
 import { buildMarketInterpretation } from '../../src/domain/market/interpretation/market-interpretation.js';
 import { indexEarningsInput, interpretationInput, regimeMarketInput } from '../../src/domain/market/interpretation/inputs.js';
-import { expandScreenerArtifact } from '../../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../../src/data/screener-extended.js'; // Core row encoding
 import { readHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
-// P1635/P1685: the screen's regime inputs (credit with the 20-session HY change, rates) from the published
+// The screen's regime inputs (credit with the 20-session HY change, rates) from the published
 // market data. The browser reads the same values through src/data/selectors/market-inputs.js.
 export function marketAnalysisRegimeInput(data, history = [], macroHistory = null, { screener = null, nowMs = Date.now() } = {}) {
-  // v59.70: accept the published history.v2 payload as well as v1 rows (a raw v2 object read as rows gave an empty regime).
+  // Accept the published history.v2 payload as well as v1 rows (a raw v2 object read as rows gave an empty regime).
   return regimeMarketInput({ macro: data?.macro || null, fearGreed: data?.fearGreed || null, history: readHistoryRows(history), macroHistory,
     breadthSp500: screener?.breadth?.segments?.sp500 || null, aaii: data?.marketSurveys?.aaii || null, nowMs }); // M05: the narrative uses the same latest-session admission as the screen
 }

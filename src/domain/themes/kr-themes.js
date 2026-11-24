@@ -4,8 +4,13 @@ import { signedText } from '../shared/number.js';
 import { isoDay, latestSessionRows } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
+// Boundary contract: member values are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key);
 
+// One owner for Korean theme names and ticker → theme membership.
+// Theme names used to live in three local maps inside js/aio-kr-data.js (card META, rank N,
+// detail CN) that disagreed and were missing ids (quantum/uam/hydrogen/space had no detail
+// name). Membership comes from the structural KR_THEME_MAP (codes only).
 export const KR_THEME_LABELS = Object.freeze({
   defense: 'K-방산 / 항공우주',
   semi: '반도체 / HBM',
@@ -53,12 +58,18 @@ export function krThemesForSymbol(symbol, themeMap) {
     .map(([id]) => Object.freeze({ id, label: krThemeLabel(id) }));
 }
 
+// The KR theme block promised 수급·모멘텀·성과 while live coverage read 0/28.
+// The published screener artifact already carries completed-close returns for the KRX members, so each
+// theme gets a median 1-/3-month return and a 50-day share from those rows, labelled as such.
 export const KR_THEME_MIN_COVERED = 3;
 export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
   const bySymbol = new Map((rows || []).map((row) => [String(row?.sym || '').toUpperCase(), row]));
+  // P18-KRTHEME-01: found rows were the sample — one stale member with ret1m 50 and two current members without a
+  // return passed the three-member rule, read +50% and took the newest member's date. A member counts only on the latest
+  // KR close among the rows and when not marked stale; each figure needs KR_THEME_MIN_COVERED members that carry it.
   const sessionOf = (row) => isoDay(row?.factorSessionDate);
   const latest = latestSessionRows((rows || []).filter((row) => /\.(KS|KQ)$/i.test(String(row?.sym || '')))).basis;
-  const median = (values) => sharedMedian(values, { minCount: KR_THEME_MIN_COVERED });
+  const median = (values) => sharedMedian(values, { minCount: KR_THEME_MIN_COVERED }); // theme-medians.js
   const themes = Object.entries(themeMap || {}).map(([id, members]) => {
     const found = (Array.isArray(members) ? members : []).map((member) => bySymbol.get(`${member.code}.KS`) || bySymbol.get(`${member.code}.KQ`)).filter(Boolean);
     const current = found.filter((row) => latest && sessionOf(row) === latest && row?.factorQuality?.stale !== true);
@@ -69,15 +80,24 @@ export function krThemeArtifactRead({ themeMap = {}, rows = [] } = {}) {
       // keep the rows that exist but sit on an older close or are stale.
       covered: current.filter((row) => value(row, 'ret1m') != null).length, found: found.length, notCurrent: found.length - current.length,
       ret1m: median(current.map((row) => value(row, 'ret1m'))), ret3m: median(current.map((row) => value(row, 'ret3m'))),
+      // The week and the members' typical volatility (recent-check.js), and the KR close the values sit on —
+      // KR rows close a session after the US ones, so the theme screen prints both dates instead of one.
       ret5d: median(current.map((row) => value(row, 'ret5d'))), vol: median(current.map((row) => value(row, 'vol'))),
       basis: current.length ? latest : null,
       above50Pct: above.length >= KR_THEME_MIN_COVERED ? Math.round(above.filter((row) => value(row, 'pctSma50') > 0).length / above.length * 100) : null,
+      // The same largest-traded check as the group-strength table, so the theme screen cannot read a +12.6%
+      // semiconductor median while its two largest names fell 12-18% over the month.
       heavyweights: heavyweightsOf(current)
     };
   });
   themes.forEach((theme) => { theme.heavyweightNote = heavyweightLine(theme); });
+  // Codex browser audit H27: US sub-themes need three priced members while KR themes ranked on two (a "median"
+  // of two names is their average). KR bars need three members with the figure on the latest close; the US headline
+  // ranking (group-strength.js) keeps its own floor, so the two regions are not one rule.
   const usable = themes.filter((theme) => theme.covered >= KR_THEME_MIN_COVERED && theme.ret1m != null).sort((a, b) => b.ret1m - a.ret1m);
   const pct = (value) => (value == null ? '—' : `${signedText(value, 1)}%`);
+  // "강한 테마는 … 광통신(-3.2%)" named a falling theme strong (5 sessions -20.4%). A top theme at or below
+  // 0 is only the least weak, and each name carries its last five sessions beside the month.
   const top = usable.slice(0, 3);
   const strongWord = top.every((t) => t.ret1m > 0) ? '강한 테마는' : '상대적으로 덜 약한 테마는';
   const named = (t) => `${t.label}(1개월 ${pct(t.ret1m)}${t.ret5d != null ? `, 5거래일 ${pct(t.ret5d)}` : ''})`;

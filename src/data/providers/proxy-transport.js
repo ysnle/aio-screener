@@ -1,3 +1,9 @@
+// v59.22 (roadmap 11, layer 3 providers): the relay transport moved out of js/aio-data.js unchanged — the Worker URL
+// (_cfWorkerUrl), the shared-Worker host mirror, the proxy registry
+// (_PROXY_REGISTRY), the proxy response checks and cache, and fetchViaProxy, which every provider fetch goes through.
+// The names stay window globals for the classic callers. src/app/compatibility-globals.js installs this before
+// DOMContentLoaded; the registry is built at install as it was when aio-data.js loaded.
+// scripts/ci-proxy-continuity-check.mjs runs this file in its offline harness.
 export function installProxyTransport(window = globalThis) {
   const _cfWorkerUrl = () => {
     var personal = typeof _getApiKey === 'function' ? _getApiKey('aio_cf_worker_url') : '';
@@ -12,6 +18,9 @@ export function installProxyTransport(window = globalThis) {
     } catch (_) { return ''; }
   };
 
+  // The shared Worker relays only these upstream hosts (ALLOWED_DOMAINS in cloudflare-worker-proxy.js; exact host
+  // or a subdomain of one). It answered 403 to every other host, so a 4-minute idle on 오늘 spent dozens of requests
+  // on feeds it would never relay. scripts/ci-proxy-continuity-check.mjs fails if this copy drifts from the Worker's.
   const _AIO_SHARED_WORKER_HOSTS = [
     'query1.finance.yahoo.com', 'query2.finance.yahoo.com', 'finance.yahoo.com',
     'api.rss2json.com',
@@ -47,8 +56,13 @@ export function installProxyTransport(window = globalThis) {
         var personalWorker = typeof _getApiKey === 'function' ? (_getApiKey('aio_cf_worker_url') || '') : '';
         add('cf-worker', 'CF Worker', 0, cf, function(u){ return cf+'?url='+encodeURIComponent(u); }).userOwned = !!personalWorker;
       }
+      // 2026-10-13 network audit: corsproxy.io answers 403 to this production origin on every request (its free tier
+      // rejects non-development origins), so it only added a failed hop after each Worker miss. Removed from the chain.
+      // Tier 2: 보조 프록시
       add('allorigins-raw', 'allorigins/raw', 2, 'https://api.allorigins.win/raw', function(u){ return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u); });
       add('allorigins-get', 'allorigins/get', 2, 'https://api.allorigins.win/get', function(u){ return 'https://api.allorigins.win/get?url='+encodeURIComponent(u); });
+      // v59.81 (hosting review 2026-11-08): codetabs.com answered 522 or nothing after ~20 s on 5 of 5 probes (KR and US
+      // tickers), so after a Worker miss it only delayed the failure. allorigins stays as the last resort for public URLs.
       this.list = next;
     },
     state: function(p, url) {
@@ -87,8 +101,10 @@ export function installProxyTransport(window = globalThis) {
         p.fails++;
         p.failCount = (p.failCount || 0) + 1;
         p.lastFail = Date.now();
+        // Three consecutive chart-proxy failures open cooldown.
         if (p.fails >= 3 || wasProbe || reason === 429) {
           p.disabled = true;
+          // Exponential backoff + jitter — 60s → 120s → 240s → 480s → max 1800s
           p.cooldownLevel = (p.cooldownLevel || 0) + 1;
           var baseDelay = T.COOLDOWN * Math.pow(2, Math.min(p.cooldownLevel - 1, 5)); // 최대 32x
           var jitter = Math.random() * 0.3 * baseDelay; // ±30% jitter (thundering herd 방지)
@@ -124,6 +140,7 @@ export function installProxyTransport(window = globalThis) {
     },
     // 하위 호환: mkUrl 함수 배열 반환 (기존 PROXY_LIST 형태)
     getMkUrls: function(url) { return this.getActive(url).map(function(p){ return p.mkUrl; }); },
+    // CF Worker 부하 분산: 라운드로빈 카운터
     _rrIndex: 0,
     getRotated: function(url) { return this.getActive(url); }
   };
@@ -174,12 +191,14 @@ export function installProxyTransport(window = globalThis) {
       var symbol = decodeURIComponent(requestUrl.pathname.split('/').pop()).toUpperCase();
       var result = json && json.chart && json.chart.result && json.chart.result[0];
       var meta = result && result.meta, interval = requestUrl.searchParams.get('interval');
+      // A well-formed answer for the wrong identity is the upstream's verdict, not a relay fault.
       var mismatch = !meta || String(meta.symbol || '').toUpperCase() !== symbol ? 'chart symbol mismatch' : (interval && meta.dataGranularity && meta.dataGranularity !== interval ? 'chart interval mismatch' : '');
       if (mismatch) throw Object.assign(new Error(mismatch), { aioUpstreamVerdict: true });
     }
     return { jsonReady: expectJson, json: json, body: expectJson ? JSON.stringify(json) : probe };
   }
 
+  // Exact request identity; deliberately never read the old truncated-key cache.
   function _aioProxyCacheKey(url) {
     return 'aio_proxy_v2_' + encodeURIComponent(url);
   }
@@ -187,7 +206,7 @@ export function installProxyTransport(window = globalThis) {
     try {
       var parsed = new URL(url);
       return !!(parsed.username || parsed.password) || Array.from(parsed.searchParams.keys()).some(function(key) {
-        return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url|crtfc_key|service_?key|cert_?key)$/i.test(key);
+        return /^(?:api[-_]?key|key|token|access[-_]?token|client[-_]?secret|auth|authorization|signature|url|crtfc_key|service_?key|cert_?key)$/i.test(key); // DART crtfc_key, data.go.kr serviceKey, KOSIS certkey
       });
     } catch (_) { return true; }
   }
@@ -242,6 +261,8 @@ export function installProxyTransport(window = globalThis) {
     // may relay credential-bearing requests; the shared public Worker is rejected even
     // though _cfWorkerUrl() happily returns it for anonymous traffic.
     if (sensitive) active = active.filter(function(p) { return p.id === 'cf-worker' && p.userOwned === true; });
+    // The shared Worker refuses hosts outside its allowlist (403), so such a URL goes straight to the next relay.
+    // A Worker the user deployed may allow more, so it is still tried.
     else if (!_aioSharedWorkerRelays(url)) active = active.filter(function(p) { return !(p.id === 'cf-worker' && p.userOwned !== true); });
     // Per-proxy timeouts are not enough when the registry falls back sequentially.
     // A shared deadline aborts the current attempt and prevents a 5× timeout hang.
@@ -258,6 +279,8 @@ export function installProxyTransport(window = globalThis) {
     var errors = [], upstreamVerdict = false;
     try {
       for (var i = 0; i < active.length; i++) {
+        // Once the Worker relayed a definitive upstream answer (missing symbol, unauthorized, wrong identity), a
+        // public relay would fetch the same answer — the chain stops; it continues only for relay faults (5xx/403/429/timeout).
         if (deadlineCtrl.signal.aborted || upstreamVerdict) break;
         var proxy = active[i];
         if (!_PROXY_REGISTRY.claim(proxy, url)) continue;

@@ -1,6 +1,6 @@
 import { deriveSecReport } from '../../domain/fundamental/sec-report.js';
 
-// P1607: reuse the public annual facts without inventing a paid-provider/TTM shape.
+// Reuse the public annual facts without inventing a paid-provider/TTM shape.
 export function formatSecResearchEvidence(record, now = Date.now()) {
   if (!record || !Number.isFinite(now)) return '';
   const availability = [record.availableAt, record.acceptedAt, record.effectiveAt, record.filedAt].filter(value => value != null);

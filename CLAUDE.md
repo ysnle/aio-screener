@@ -3,7 +3,7 @@
 AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + native ESM 투자 리서치 터미널이다. 변동하는 버전·라우트·파일 크기·지식 상태의 정본은 `_context/CURRENT-STATE.md`이며, 이 문서에는 복제하지 않는다.
 
 - 배포: `https://ysnle.github.io/aio-screener/`
-- 현재 버전: **v60.50**
+- 현재 버전: **v60.51**
 - **버전 이력 → CHANGELOG.md** (v60.19 이하는 한 줄 요약 + git 히스토리). 버그 계보 → `_context/BUG-POSTMORTEM.md`(반복 클래스 표 + 압축 원장), 검증 이력 → `_context/QA-CHECKLIST.md`(v60.19 이하는 절마다 한 줄).
 - 버전별 작업 요약은 CHANGELOG.md에만 쓴다.
 - 코드 구조: `index.html` 정적 셸 + `js/` 호환 모듈 + `src/` native ESM. 현재 집계는 `_context/CURRENT-STATE.md`, 구간 탐색은 `_context/CODE-MAP.md`를 사용한다.
@@ -35,7 +35,7 @@ AIO Screener는 GitHub Pages에서 제공되는 하이브리드 정적 셸 + nat
 
 **R1. 버전 동기화**: title · badge · APP_VERSION · version.json · sw.js SW_VERSION · 런타임·배포 revision 메타데이터(public-config·architecture·wrangler·operations-status) · CHANGELOG.md · JS cachebusters (날짜가 박힌 핸드오프 문서는 동결) — **반드시 `node scripts/bump-version.mjs <버전>`으로 일괄 패치**
 **R2. 버전 체계**: `v{major}.{patch}` 숫자 단조 증가 (두 자리 patch 허용)
-**R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`). 결함이 아닌 기능·정리는 `p` 없는 change-only 항목으로 기록(P 번호 미할당)하고, 새 assertion은 도입 릴리스(`v57.54 …`)를 인용한다
+**R3. 버그 수정 시 사후 분석**: P/R/QA/CHANGELOG/상태는 `node scripts/record-fix.mjs <entry.json>`로 한 번에 기록 (수기 편집 금지, 형식은 `/version-up`). P 항목은 사용자에게 틀린 값이 나갔거나 새 종류의 결함일 때만 쓰고, 그 밖의 기능·정리·push 전에 잡은 결함은 `p` 없는 change-only 항목으로 기록(P 번호 미할당)하며, 새 R은 어느 원칙에도 없는 종류일 때만 쓴다.  새 assertion은 도입 릴리스(`v57.54 …`)를 인용한다
 **R27. Commands↔Skills 동기화**: 새 스킬 시 command wrapper 동시 생성
 
 ---

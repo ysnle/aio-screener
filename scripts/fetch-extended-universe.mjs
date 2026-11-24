@@ -1,4 +1,4 @@
-// v57.81: refreshes public-data/screener-extended-universe.json — every Russell 2000 member and every Nasdaq-listed
+// Refreshes public-data/screener-extended-universe.json — every Russell 2000 member and every Nasdaq-listed
 // common stock outside the core universe, with membership tags. Runs only in GitHub Actions (refresh-screener,
 // extended job). Each source failing or falling below its floor keeps the previous run's rows (scripts/lib/
 // extended-universe.mjs); when neither source and no previous file is usable the file is left as it is.

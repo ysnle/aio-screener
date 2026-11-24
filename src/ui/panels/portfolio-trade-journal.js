@@ -1,3 +1,7 @@
+// 매매일지 · 복기 panel. The record and the reader's rules are stored through the shell's
+// portfolio vault path (root._aioPortfolioTrades: same PIN encryption and backup as holdings and the account ledger);
+// the numbers come from src/domain/portfolio/trade-journal.js. The form is built once per page mount so a live-quote
+// re-render never wipes what the reader is typing; only the summary, mirrors and list are redrawn.
 import { TRADE_REASONS, TRADE_MOODS, normalizeJournal, normalizeTrade, normalizeRules, realizeTrades, journalReview, rulesMirror } from '../../domain/portfolio/trade-journal.js';
 import { signedText } from '../../domain/shared/number.js';
 
@@ -114,10 +118,15 @@ function bookOf(surface) {
   const rows = Array.isArray(surface?.rows) ? surface.rows : [];
   const total = Number(surface?.totalAssets);
   const weights = Number.isFinite(total) && total > 0 ? rows.filter((row) => Number(row.value) > 0).map((row) => ({ symbol: row.symbol, pct: row.value / total * 100 })) : [];
+  // v58.63 (architecture audit UI-D02): an undeclared price currency fell through `!row.currency`, so a KRW cost was divided
+  // into a USD close ("-99.9% 손절 위반") while the surface held that P&L. The price side uses the listing currency as the
+  // surface does; a cost in another currency is not compared.
   const losses = rows.filter((row) => {
     const priceCurrency = row.currency || row.listingCurrency || null;
     return Number(row.price) > 0 && Number(row.avgCost) > 0 && (!row.costCurrency || row.costCurrency === priceCurrency);
   }).map((row) => ({ symbol: row.symbol, pnlPct: (row.price / row.avgCost - 1) * 100 }));
+  // v58.63 (UI-D01): Number(null) is 0, so an unentered cash balance read "지금 현금 0.0% — 벗어남"; and the holding count
+  // came from valued rows only ("지금 0개" with two holdings awaiting a value). Missing stays missing; the count is the book's.
   const cashPct = surface?.cashPct == null || !Number.isFinite(Number(surface.cashPct)) ? null : Number(surface.cashPct);
   const holdingCount = Number.isFinite(Number(surface?.holdingCount)) ? Number(surface.holdingCount) : rows.length;
   return { weights, cashPct, losses, holdingCount };
@@ -159,6 +168,7 @@ function renderDynamic(doc, root, host, surface) {
       card('평균 이익, 손실', `${pct(s.avgWinPct)}, ${pct(s.avgLossPct)}`, s.payoff == null ? null : `손익비 ${s.payoff.toFixed(2)}`),
       card('실현 손익', Object.entries(s.pnlByCurrency).map(([currency, amount]) => money(amount, currency)).join(', ') || '—', '수수료·세금 반영'),
       card('보유 기간 중앙값', `이익 ${s.holdWinDays ?? '—'}일, 손실 ${s.holdLossDays ?? '—'}일`, null),
+      // v58.75 (spec F6): shown only when some closed lot carried a stop price.
       ...(s.stopKept?.n ? [card('손절 가격 지킴', `${s.stopKept.kept}/${s.stopKept.n}건`, '매수 때 적은 손절 가격 이상에서 판 비율')] : [])
     );
     summary.append(cards);
@@ -176,6 +186,7 @@ function renderDynamic(doc, root, host, surface) {
       fold.append(list);
       summary.append(fold);
     }
+    // v58.75 (spec F6): results by the mood written at the buy, from the reader's own record (hidden with no mood written).
     if (s.byMood.length) {
       const fold = el(doc, 'details', null, 'pf-trade-fold');
       fold.append(el(doc, 'summary', '매수할 때 마음별 결과'));

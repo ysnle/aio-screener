@@ -1,4 +1,10 @@
 // Em widths: Hangul is about one em, '%' 0.85, digits and Latin about 0.58, other punctuation narrower.
+// v59.70 (render hotfix 2026-11-04): SVG text labels that would print on top of each other move vertically apart. The
+// 02:54Z data put the 1개월 yield (4.03) one tick above the axis floor (3.9%), so its value label sat on the axis label
+// at every desktop width (ci-viewport-matrix "svg text overlaps"). Boxes are estimated from the text and font size (the
+// builder runs before layout): a label that hits a fixed one (an axis or tick label) or one already settled moves just
+// clear of it, away from the side it hit, at most `maxSteps` times. Charts call it once after drawing their labels.
+
 function textWidth(text, fontSize) {
   return [...String(text || '')].reduce((sum, ch) => sum + fontSize * (/[ㄱ-힝]/.test(ch) ? 1 : ch === '%' ? 0.85 : /[.,:·]/.test(ch) ? 0.35 : 0.58), 0);
 }

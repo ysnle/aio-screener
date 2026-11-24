@@ -1,3 +1,10 @@
+// Phase 1 (owner 2026-11-03: "예를 들어 설명하는 걸 그대로 옮기지 말고 구조적으로 파악해서 분석하고 연결"): one
+// ledger of what happened in the last day, built from the artifacts the producers already publish, in one shape every
+// screen and the AI reading can select from by its own role. A fact is a move (an index, an asset, a stock, a group) or
+// an event (a headline, a reported quarter, a deal, an analyst action, a release, a dated event). Nothing here names a
+// company, a date or a level by hand: what is unusual is decided by the size of a move against its own recent
+// volatility, and what a move is linked to is decided by shared subjects (the same ticker, a member of the same group)
+// or a shared topic. A move with no subject link is kept and marked unexplained instead of being given a guessed cause.
 import { readNumber, surprisePct } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 import { sessionCloses } from '../indices/index-levels.js';
@@ -15,6 +22,10 @@ export const MARKET_DAY_VERSION = 'market-day.v1';
 const HOUR = 3600000;
 const DAY = 24 * HOUR;
 
+// Prices and levels read from history.json (session-keyed closes). `unit` bp means the field is a yield in percent.
+// v59.70 (lens plan step 7): `unit` names the change, not the value — 4.123 with unit 'bp' is a 4.123% level that moved in
+// bp. Each price fact also carries valueUnit ('%' level, 'level' price or index) and changeUnit ('bp' or 'pct'); `unit`
+// stays for artifacts already published and their readers.
 export const ASSETS = Object.freeze([
   ['spx', 'S&P 500', 'index', ['equity-us']], ['ndx', '나스닥100', 'index', ['equity-us', 'ai-semis']],
   ['soxx', '반도체(SOXX)', 'index', ['ai-semis']], ['rut', '러셀2000', 'index', ['equity-us', 'small-caps']],
@@ -95,6 +106,8 @@ function priceFacts(history) {
     const move = priceMove(series, asset.unit);
     if (!move) continue;
     const last = series.at(-1);
+    // A day move is one session. A close the producer carried forward drops out of the series,
+    // and the step over the gap (WTI 10/30→11/3, 나스닥100 the same) read as that day's -7.7% / -0.7%; no fact then.
     if (countOpenSessionsBetween(series.at(-2).date, last.date, closeSessionMarket(asset.field) || 'US') !== 1) continue;
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
       value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: priceMoveSize(move).size });
@@ -341,6 +354,21 @@ function threadsOf(facts, links) {
     .sort((a, b) => b.weight - a.weight).slice(0, 12);
 }
 
+// ── Materiality (owner 2026-11-03: "경중을 따져서 중요한 데이터는 중요한 곳에 … 쓸모없는 정보를 중요한 것처럼 하지 말아줘") ──
+// Each fact gets 0–100 from what it is worth to the market, never from how loudly it is written:
+//  - a price: its move against its own volatility (the session, or the five-session leg while it still extends), a core
+//    gauge (the index, the 10-year, the dollar, oil, gold, HY spread, VIX, KOSPI) counting fully and a secondary one at
+//    70% (RULES.moveMateriality);
+//  - a stock: the larger of its own surprise (|z| scaled by liquidity) and its pull on the S&P 500 (index bp);
+//  - a group: its median move times how one-sided it was; a reported quarter: index weight and surprise; a deal: its
+//    size; an upcoming item: index weight, or the release's standing (jobs, CPI, FOMC, PCE) or a major dated event;
+//  - a headline or report: its source tier, raised to part of the largest move it is linked to (a story is as important
+//    as what it moved). Machine-written stock-page items are noise and leave the ledger;
+//  - what a price explains: a price that drives a group or a stock the same way that day (GROUP_DRIVERS, the driver
+//    link) is raised to part of the largest move it drives, by the same rule as a story. Index weight reaches it through
+//    that move (a stock's pull on the S&P 500 in index bp). On 11/11 the chip index (+6.01%, z 1.85) ranked below the
+//    dollar (z 2.11) while the chip groups it drives led the day; its own z said nothing of what it moved.
+// Tiers (RULES.moveMateriality.tiers): lead >= 60, major >= 35, minor >= 15, below that the fact is context only.
 const MAJOR_RELEASES = new Set(['us-nfp', 'us-cpi', 'us-fed-rate', 'us-pce']);
 export const HEADLINE_NOISE = /\b(?:stock forecasts?|price, chart|tokenized (?:stock|bstock)s?|price \([A-Z]+\/USD\) today|outperforms competitors|underperforms (?:\w+ )?when compared to competitors|(?:sells|buys) \$[\d,]+ (?:in|of|worth)|executes (?:sale|purchase) of|position in|stake (?:raised|lowered|trimmed|boosted)|shares (?:sold|bought|acquired) by|stock quote|stock price today|should you buy)\b/i;
 const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)));

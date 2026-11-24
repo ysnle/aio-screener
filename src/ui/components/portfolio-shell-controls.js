@@ -1,3 +1,7 @@
+// v59.70 (legacy core wave 2, portfolio leftovers): the two classic writers left on 포트폴리오 moved here unchanged from
+// js/aio-core.js — the R:R calculator's position select (#rr-position-select) and the 저장 기록 잠금 badge with its
+// set/unlock panels (#vault-status-badge). Callers keep the same globals; _AioVault is js/aio-core.js's global
+// lexical binding. src/app/compatibility-globals.js installs this before DOMContentLoaded.
 export function installPortfolioShellControls(window = globalThis, document = globalThis.document) {
   var escHtml = function(value) { return window.escHtml(value); };
   var getPortfolioData = function() { return window.getPortfolioData(); };
@@ -8,7 +12,8 @@ export function installPortfolioShellControls(window = globalThis, document = gl
     var current = sel.value;
     sel.innerHTML = '<option value="">포지션에서 자동 입력...</option>' +
       positions.map(function(p){
-        var tk = escHtml(p.ticker);
+        var tk = escHtml(p.ticker); // A stored ticker is escaped (it was raw HTML in the option)
+        // v59.45 (P27-IMPORT-01): an imported position without a readable cost shows '원가 미확인', not '$NaN'.
         var costNum = Number(p.cost);
         // A KRW cost read "@ $70000.00"; the cost keeps its own unit (declared, else the listing's).
         var won = (p.costCurrency || p.currency) === 'KRW' || (!p.costCurrency && !p.currency && /\.\b(KS|KQ)\b$/i.test(String(p.ticker || '')));

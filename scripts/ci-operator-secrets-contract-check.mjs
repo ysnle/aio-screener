@@ -47,7 +47,7 @@ for (const file of workflows) {
   }
 }
 
-// P1158: `dependabot.yml` has always CLAIMED that every Action is pinned to a full commit SHA,
+// `dependabot.yml` has always CLAIMED that every Action is pinned to a full commit SHA,
 // but nothing verified it — an unpinned `uses: actions/checkout@v5` would have drifted silently
 // for as long as it took someone to read the file. A mutable tag is a supply-chain hole: whatever
 // that tag points at runs with this repository's token.
@@ -104,7 +104,7 @@ if (existsSync(CATALOG)) {
 }
 
 // v60.19 (Codex audit: AI-OPERATIONS): the runbook told the operator the $20 month was a hard block ("상한에 도달하면 추가
-// 유료 요청을 차단한다") while the deployed Worker runs it as a target (owner 2026-10-27). Doc follows the shipped mode.
+// 유료 요청을 차단한다") while the deployed Worker runs it as a target. Doc follows the shipped mode.
 {
   const proxyToml = existsSync('worker/wrangler.proxy.toml') ? readFileSync('worker/wrangler.proxy.toml', 'utf8') : '';
   if (/^AI_MONTHLY_BUDGET_MODE\s*=\s*"target"/m.test(proxyToml)) {

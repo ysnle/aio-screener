@@ -1,11 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────
-// scripts/backtest-factors-longrun.mjs — WO-3 reduced-scope validation (P666)
+// scripts/backtest-factors-longrun.mjs — WO-3 reduced-scope validation
 //
 // 왜: CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-3("Factor Model 연구→프로덕션 검증")의
 //     완료 게이트("최소 수년·다중 regime, 6개 rebalance보다 충분히 큰 표본")를 문자 그대로
 //     만족하는 건 라이브 프로덕션 팩터 백테스트(scripts/fetch-data.mjs backtestFactors())가
 //     현재 SCREENER_DB 873종목의 딱 1년치(6개 리밸런스 시점)만 쓰고 있어 불가능 — 코드 자체에
-//     이미 "6개 리밸런스로는 부족"이라는 취지의 주석(P586/C2)이 있었다. 사용자 확인(2026-07-10,
+//     이미 "6개 리밸런스로는 부족"이라는 취지의 주석 이 있었다. 사용자 확인(2026-07-10,
 //     AskUserQuestion) 후 "제한된 표본"으로 진행: 시총 상위 ~120종목만 골라(대형/유동성 높은
 //     이름 위주 — Yahoo 부하와 표본 크기의 균형) 10년치를 fetch, 월간(~21거래일) 리밸런스로
 //     ~100개 이상의 시점을 확보해 momentum/trend/lowvol/kalman(+composite) IC를 재검증한다.
@@ -54,7 +54,7 @@ const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2'); // BRK.B → BR
 const REBALANCE_STEP_DAYS = 21;
 // The study's age rule is the page's too (src/domain/screener/validation-records.js).
 export { LONGRUN_STALE_AFTER_DAYS, longrunStudyAge };
-// v58.83: external benchmark — Kenneth French Data Library daily momentum factor (primary source, free).
+// External benchmark — Kenneth French Data Library daily momentum factor (primary source, free).
 const FRENCH_MOMENTUM_DAILY_URL = 'https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip';
 
 async function fetchFrenchMomentumDaily() {
@@ -103,7 +103,7 @@ async function fetchDailyBars(symbol, range) {
         dates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10));
         closeArr.push(c);
         const a = Array.isArray(adjArr) ? adjArr[i] : undefined;
-        // W07-D/P1146 (M04): a missing adjusted close stays missing. Substituting the raw close
+        // A missing adjusted close stays missing. Substituting the raw close
         // silently mixes raw and adjusted bases inside one return series across splits/dividends
         // (and across the split boundary itself), so the producer records the gap instead.
         if (typeof a === 'number' && isFinite(a) && a > 0) adjArr2.push(a);
@@ -115,7 +115,7 @@ async function fetchDailyBars(symbol, range) {
   return null;
 }
 
-// v58.83: screener-universe.json no longer carries a numeric mcap (identity rows only), so the old
+// screener-universe.json no longer carries a numeric mcap (identity rows only), so the old
 // filter selected 0 tickers. Market cap is now today's valuationPrice × valuationSharesOutstanding from
 // screener.json, US listings only (KR rows are KRW and are not ranked against USD). Selecting by
 // today's cap is part of the survivorship bias already disclosed in survivorshipBiasCaveat.
@@ -137,7 +137,7 @@ async function loadTopUniverse(topN) {
   const universe = JSON.parse(await readFile(`${__dir}/../public-data/screener-universe.json`, 'utf8'));
   const screener = JSON.parse(await readFile(`${__dir}/../public-data/screener.json`, 'utf8'));
   const rows = selectTopByMarketCap(universe.universe, screener.data, topN);
-  // v59.45: the methodology text cites the full universe size; `rows` is already cut to topN.
+  // The methodology text cites the full universe size; `rows` is already cut to topN.
   return { rows, fullSize: Array.isArray(universe.universe) ? universe.universe.length : null };
 }
 
@@ -150,7 +150,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
     return bars ? { sym: row.sym, mcap: row.mcap, closes: bars.closes, adjCloses: bars.adjCloses, dates: bars.dates, adjustedCloseStatus: bars.adjustedCloseStatus, adjustedMissing: bars.adjustedMissing } : null;
   });
   const fetched = stockResults.filter(Boolean);
-  // W07-D/P1146: fail closed on an incomplete adjusted series. Ranking raw and adjusted return
+  // Fail closed on an incomplete adjusted series. Ranking raw and adjusted return
   // bases together would compare unlike price axes, so incomplete tickers are excluded and counted.
   const stockData = fetched.filter((s) => s.adjustedCloseStatus === 'complete');
   const adjustedCloseExcluded = fetched.length - stockData.length;
@@ -256,7 +256,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
       icInferenceCaveat: 'Forward windows (up to 63 trading days) overlap across 21-day rebalances, so the IC observations are serially dependent while se = std/sqrt(n) assumes independence. tStat/ci95 are kept as the naive descriptive figures; hac.hacTStat/hac.hacCi95 apply a Newey-West (Bartlett) HAC standard error with lag max(ceil(fwd/21)-1, floor(4(n/100)^(2/9))) (v58.83). HAC corrects serial dependence only — it does not remove survivorship bias, multiple-testing across factors and horizons, or regime-sample non-contiguity.',
       priceBasisCaveat: 'Only tickers whose Yahoo adjusted-close series is complete over the requested range are ranked (universe.adjustedCloseExcluded counts the rest). Raw and adjusted closes are never mixed in one return series, and no automatic corporate-action repair is attempted.',
       liveModelParity: 'This still validates only 4 of the live _aioComputeFactorRanks() model\'s 7 factors, always at the production-fixed NEUTRAL weights (same limitation already documented in fetch-data.mjs backtestFactors() since P586/C2) — marketState proposal tilts are not promoted or validated here.',
-      modelFingerprint: baselineRef.modelFingerprint, // P1449: same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
+      modelFingerprint: baselineRef.modelFingerprint, // Same model identity contract as the daily backtest artifact (its rebalance offsets differ, so its canonical string may differ from the daily one)
     },
     universe: { requestedTop: topN, fetchedTickers: stockData.length, fullUniverseSize, dataRange: range, priceBasis: 'adjusted-close-only', adjustedCloseExcluded },
     rebalanceDates: { count: offsetsAsc.length, comparedToProductionBacktest: BACKTEST_REBALANCE_OFFSETS.length },
@@ -286,7 +286,7 @@ export async function runFactorLongrunBacktest(range, topN, outPath) {
 // ICIR = mean(IC)/stddev(IC) across rebalance dates, with t-stat and normal-approximation 95% CI —
 // standard quant factor-research convention (distinct from WO-2's Fisher-z pooled-observation CI,
 // since here each "observation" is itself a cross-sectional IC estimate, not a single date's return).
-// W07-D/P1146 (M05): consecutive rebalances are 21 trading days apart while forward windows run up
+// Consecutive rebalances are 21 trading days apart while forward windows run up
 // to 63 days, so the IC observations overlap and are serially dependent. se = std/sqrt(n) treats
 // them as independent, which understates the interval width. The t-stat/CI here are descriptive
 // naive figures, not a validated significance test. v58.83: each entry also carries `hac`, a

@@ -1,3 +1,7 @@
+// v58.80 (first-users F23, cross-cutting causes 3 and 4): one owner for the small floating layers — the glossary term
+// popover, the "?" tooltips and the touch title popover. Only one is open at a time (opening one closes the other), all
+// are placed inside the viewport by one rule, and while one is open the floating chrome steps aside
+// (body.aio-popover-open hides 맨 위로, which sat on top of popovers near the bottom-right).
 import { openLayer } from '../behaviors/layers.js';
 
 export const POPOVER_EDGE = 8;
@@ -5,6 +9,8 @@ export const POPOVER_EDGE = 8;
 // Below the anchor when it fits, else above, else whichever side has more room, clamped to the viewport.
 export function placePopover(anchorRect, size, viewport) {
   const width = Math.min(size.width, viewport.width - POPOVER_EDGE * 2);
+  // The popover starts where the term starts. Centred on a short term near the content's left
+  // edge, a 320px popover reached back over the sidebar.
   const left = Math.max(POPOVER_EDGE, Math.min(anchorRect.left, viewport.width - width - POPOVER_EDGE));
   const below = anchorRect.bottom + 6;
   const above = anchorRect.top - size.height - 6;
@@ -30,6 +36,7 @@ export function claimPopover(documentRef, close, { dismiss = close } = {}) {
   documentRef?.body?.classList.add('aio-popover-open');
 }
 
+// A popover calls this as it closes; only the owner of the open slot clears it.
 export function releasePopover(documentRef, close) {
   if (current?.close !== close) return;
   current.release();
@@ -39,6 +46,10 @@ export function releasePopover(documentRef, close) {
 
 export function openPopoverCount() { return current ? 1 : 0; }
 
+// N4#6/#7: a page scrolled under a resting mouse fired pointerover and opened popovers nobody pointed at. Hover opens
+// are ignored for a moment after any scroll; taps, clicks and keyboard focus are unaffected.
+// run-5: a route change draws a new page under the same resting mouse (a sidebar click left the 시장 상태
+// tooltip open on arrival), so after a navigation hover waits for the pointer to really move (movement 0 = synthetic).
 let lastScrollAt = -Infinity;
 let awaitingMove = false;
 const watched = new WeakSet();

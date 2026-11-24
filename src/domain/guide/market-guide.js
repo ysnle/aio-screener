@@ -1,3 +1,18 @@
+// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): ONE model every surface reads to explain the market — the screens, the AI
+// chat, the server narrative and the scenario-state producer. It composes the existing engines; it adds no condition of
+// its own:
+//   situation — the six-axis verdict, the present structure (scenario-outlook), the macro driver (macro-crossroads) and
+//               the next official release, in plain words
+//   paths     — the live branches (core condition met) and the watch branches (some conditions, core not met), each
+//               with the three evidence lines the crossroads already carries (count · market pricing · past frequency)
+//   direction — across the counted branches (the lead, and every branch with its core condition and at least half of its
+//               conditions met; v60.50), how many favour each of the four shared choices and how many name it costly;
+//               the choice with the best favoured-minus-costly score costs least if the reading is wrong.
+//               The stance's first line follows the lead and says so when that cross-branch choice differs.
+//               A count of branch texts, never a probability, and never an instruction about the reader's own
+//               holdings.
+//   stance    — what to lean toward and what to avoid, derived from the direction, the lead's exposures and the traps
+//   lessons   — the concept layer (lessons.js) entries today's data touches, each linked to the principles library
 import { pastEvidence } from '../scenarios/analogs.js';
 import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
@@ -23,6 +38,8 @@ const OVERALL_MEANING = Object.freeze({
   '판정 보류': '판정에 필요한 관측이 부족해 전체 판단을 보류합니다.'
 });
 
+// A branch counts in the tally when its core condition is met and at least half of
+// all its conditions are (a 1/4 branch no longer weighs as much as a 3/4 one); the lead is always counted.
 const isLive = (item) => item?.gate?.met === true && item.known >= 2 && item.met > 0 && item.met * 2 >= item.total;
 const isWatch = (item) => item?.known >= 2 && item.met > 0;
 const ratio = (item) => (item.total ? item.met / item.total : 0);
@@ -30,6 +47,7 @@ const ratio = (item) => (item.total ? item.met / item.total : 0);
 function evidenceOf(item) {
   const pricing = item.pricingInConditions && item.pricing?.tone === 'same' ? null
     : { same: '시장 가격도 이쪽', against: '시장 가격은 반대쪽', neutral: '시장 가격은 중립' }[item.pricing?.tone] || null;
+  // One reading of the past frequency (analogs.js pastEvidence) — a share only where it differs from the base.
   const e = pastEvidence(item.past);
   const past = e.informative ? `과거 비슷한 때 ${e.n}번 중 ${e.sharePct}% 상승, 전체 기준선 ${e.baseUpPct}%${e.small ? ' (표본이 작음)' : ''}`
     : e.informative === false ? `과거 비슷한 때 ${e.n}번 — 전체 기준선(${e.baseUpPct}%)과 구별되지 않음`
@@ -46,6 +64,10 @@ function pathOf(item) {
   };
 }
 
+// The tally counted branches, so writing one cause as two branches (the same axes)
+// moved the pick without any new market fact. Branches that share a 거시 axis are one cluster of evidence: a choice
+// scores by the clusters that favour it minus the clusters that call it costly. The tally is a count of written cost
+// comparisons — not an expected or worst-case cost — and the sentences say only that.
 export function axisClusters(paths) {
   const parent = new Map();
   const find = (key) => { while (parent.get(key) !== key) key = parent.get(key); return key; };
@@ -90,6 +112,9 @@ function stanceOf({ direction, leadPath, lessons }) {
   const pursue = [];
   const avoid = [];
   const robust = direction.robust;
+  // The first line follows the lead — its own lower-cost choice (the robust one when
+  // the lead favours it) in its own sentence; a robust choice across the counted branches that the lead does not favour is
+  // said apart, as differing from the lead. A tie (no single lead) keeps the cross-branch choice.
   const leadChoice = leadPath ? (leadPath.favored.includes(robust) ? robust : leadPath.favored[0]) || null : robust;
   if (leadChoice) pursue.push(`${choiceName(leadChoice)}: ${leadPath?.choices?.[leadChoice] || '같은 수로 맞는 시나리오들에서 손해가 작은 쪽(확률 아님)'}`);
   else pursue.push('한 방향에 걸지 않기 — 나눠서, 다음 확인 조건을 붙여서 판단합니다.');
@@ -97,6 +122,10 @@ function stanceOf({ direction, leadPath, lessons }) {
   if (leadPath?.firmer && !/없음/.test(leadPath.firmer)) pursue.push(`'${leadPath.short}'에서 강해지는 쪽(${leadPath.firmer})이 실제로 버티는지 테마·섹터에서 확인`);
   if (leadPath?.triggers?.[0]) pursue.push(`다음 확인 신호를 미리 적어 두기: ${leadPath.triggers[0].when} — ${leadPath.triggers[0].text}`);
   const costly = direction.tally.filter((row) => row.costlyIn.length);
+  // A rule-table cost is the decision frame's cost hypothesis (src/domain/scenarios/decision-frame.js), never a
+  // past result. The screen line reads plain — `note` (the stance headings' title and the
+  // guide card's scope note) already says these are counted cost comparisons, not odds; the AI block names the ground
+  // kind on the first `costAvoid` lines. v60.50: a choice the lead favours says so instead of standing bare.
   for (const row of costly.slice(0, 2)) {
     const where = row.costlyIn.map((name) => `'${name}'`).join('·');
     avoid.push(leadPath?.favored.includes(row.key) ? `'${row.name}' — 선두 '${leadPath.short}'에서는 비용이 작지만 ${withDirectionParticle(where)} 가면 손해가 큰 선택입니다`
@@ -131,6 +160,9 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const direction = buildDirection(live, watch);
   const flow = outlook?.available ? outlook.items?.find((item) => item.id === outlook.leadId) || null : null;
   const nextEvent = crossroads?.nextEvent || null;
+  // The fork named the 11/6 jobs report while the 11/3 midterm, a bigger repricing, came first.
+  // A major dated event (scheduled-events.js) that lands before the next macro release is said first; no branch reads it,
+  // so it does not change which release decides a scenario.
   const firstEvent = activeScheduledEvents({ nowMs, days: 7 }).filter((event) => event.major && event.marketDate && (!nextEvent?.date || event.marketDate <= nextEvent.date))
     .sort((a, b) => a.marketDate.localeCompare(b.marketDate))[0] || null;
   const decides = nextEvent ? [...live, ...watch].filter((path) => path.triggers.some((t) => t.id === nextEvent.id)).map((path) => path.short) : [];
@@ -142,6 +174,9 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
       : tiedPaths.length ? `${tiedNames} 쪽 조건이 같은 수로 맞아(${tiedPaths[0].fit}) 어느 한쪽으로 정하지 않습니다.` : crossroads?.headline || '거시 시나리오 판단을 보류합니다.' },
     { id: 'next', label: '다음 갈림길', text: `${firstEvent ? `${md(firstEvent.marketDate)} ${firstEvent.storyTitle || firstEvent.label} 결과 → ` : ''}${nextEvent ? `${nextEvent.when || md(nextEvent.date)} ${nextEvent.name}${decides.length ? ` — '${decides.slice(0, 3).join("', '")}' 쪽을 가릅니다` : ''}.` : crossroads?.available && Array.isArray(crossroads.events) ? '45일 안에 예정된 주요 발표가 없습니다.' : '발표 일정을 확인하지 못했습니다.'}` }
   ];
+  // A live scenario whose past sample ran against its own conclusion (pastConflict) lost
+  // that limit whenever other lessons filled the lesson slots. The conflict is not a lesson; it stays beside the
+  // headline on the screen and in the AI block, every time.
   const pastConflicts = live.filter((path) => path.pastConflict).map((path) => {
     const c = path.pastConflict;
     return `'${path.short}' 시나리오는 비슷했던 과거 ${c.n}번 중 ${c.horizon}거래일 뒤 오른 경우가 ${c.sharePct}%(전체 기간 ${c.basePct}%)로, 이 시나리오의 ${c.lean === 'defensive' ? '방어' : '위험 감수'} 쪽 결론과 반대였습니다 — 이 선택은 조건부 비용 비교이며 과거 표본은 반대 근거입니다.`;
@@ -149,6 +184,8 @@ export function buildMarketGuide({ regime = null, outlook = null, crossroads = n
   const ctx = { regime, outlook, crossroads, direction, curve, indexEarnings, nowMs };
   const lessons = selectLessons(ctx);
   const stance = stanceOf({ direction, leadPath, lessons });
+  // v58.74 (text audit): the next release on the calendar is not always the one that tests the central scenario ('AI 투자
+  // 꺾임' turns on the jobs report, not the FOMC); when they differ, the central scenario's own decider is named.
   const leadTrigger = leadPath?.triggers?.[0] || null;
   const leadDecider = leadTrigger && leadTrigger.id !== nextEvent?.id ? ` 중심 시나리오 ${withObjectParticle(`'${leadPath.short}'`)} 가를 확인은 ${leadTrigger.when} — ${leadTrigger.text}입니다.` : '';
   const apart = leadPath && direction.robust && !leadPath.favored.includes(direction.robust) ? `, 시나리오 전체로는 '${choiceName(direction.robust)}'` : '';

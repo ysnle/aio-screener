@@ -73,7 +73,7 @@ export function nonOverlappingCount(positions, horizon) {
   return count;
 }
 
-// Spearman rho of a score with an n-session forward return sampled every session (R1247). Consecutive rows share
+// Spearman rho of a score with an n-session forward return sampled every session. Consecutive rows share
 // (h-1)/h of one window, so the interval uses the count of non-overlapping windows (nEff), not the row count:
 // Fisher z with se = 1/sqrt(nEff - 3). `hac` is a second reading of the same rho — the mean of the standardised rank
 // products with a Newey-West standard error at lag >= h-1. The IID interval is kept only as `ci95NaiveIid`.

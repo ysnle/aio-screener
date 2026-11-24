@@ -11,9 +11,9 @@ export const CORE_SYMBOLS = [
   '^GSPC','^IXIC','^NDX','^DJI','^RUT','^VIX','^VIX3M','^VVIX','^FTSE','^N225','^HSI',
   // 금리 (Yahoo: ^TNX=10Y, ^TYX=30Y, ^FVX=5Y, ^IRX=13주)
   '^TNX','^TYX','^FVX','^IRX',
-  // 원자재·환율 (v50.40: GBPUSD/CNY/AUDUSD 추가 — fxbond 페이지 "—" unavailable 해소, 클라이언트 LIVE_SYMBOLS와 정합)
+  // 원자재·환율 (GBPUSD/CNY/AUDUSD 추가 — fxbond 페이지 "—" unavailable 해소, 클라이언트 LIVE_SYMBOLS와 정합)
   'CL=F','BZ=F','GC=F','SI=F','DX-Y.NYB','KRW=X','EURUSD=X','JPY=X','GBPUSD=X','CNY=X','AUDUSD=X',
-  // 미국 지수 선물 (2026-10-21: 시황 해석의 증거 계층 — market-snapshot evidenceQuotes. 공개 시세 평면이 아니다, P715)
+  // 미국 지수 선물 (2026-10-21: 시황 해석의 증거 계층 — market-snapshot evidenceQuotes. 공개 시세 평면이 아니다)
   'ES=F','NQ=F',
   // 신용·핵심 ETF (breadth/리스크 입력)
   'HYG','LQD','TLT','SPY','QQQ','IWM','RSP','DIA','SMH','SOXX','XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLU','XLRE','XLB','XLC',
@@ -33,17 +33,17 @@ export const CORE_SYMBOLS = [
 export const AUX_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D']);
 export const SYMBOLS = [...CORE_SYMBOLS, ...AUX_SYMBOLS];
 
-// v50.24/WO-1: Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
+// Yahoo는 두 호스트(query1/query2)를 운영하고 차단/레이트리밋이 호스트마다 다르게
 // 걸리는 경우가 잦다. GitHub Actions 러너 IP가 한 호스트에서 막혀도 다른 호스트로 폴백 → 전량 실패
 // (= data.json 미갱신)를 줄인다. 2 호스트 × 2 시도 = 최대 4회. 그래도 다 실패하면 throw(해당 심볼만).
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
 
 // ── Yahoo v8/chart: 한 심볼의 현재가 + 전일종가 (호스트 폴백 내성) ──
-// v51.64 P545: 주말/휴장 수집 시 Yahoo meta.chartPreviousClose가 전주 종가를 반환해
+// 주말/휴장 수집 시 Yahoo meta.chartPreviousClose가 전주 종가를 반환해
 // 주간 변동률이 일간으로 오표시되는 구조적 문제 수정.
 // → range=5d OHLCV 배열의 실제 전전일 종가(closes[-2])로 일간 Pct 계산.
 //   OHLCV 배열이 2개 미만일 때만 chartPreviousClose로 폴백.
-// P1799 (2026-10-15): closes[-2] assumes the last bar is the current session. At the KRX open Yahoo has not printed
+// closes[-2] assumes the last bar is the current session. At the KRX open Yahoo has not printed
 // today's bar yet (or prints it with a null close), so closes[-2] was the close two sessions back: 10/15 09:01 KST
 // showed KOSPI -5.53% / KOSDAQ -6.24% against the 10/13 close instead of -5.1% / -4.75% against 10/14, and on 10/14
 // the -0.44% close read as -5.88%. For Seoul-session quotes the previous close is the last bar dated before the
@@ -110,7 +110,7 @@ export async function fetchQuote(symbol) {
       } else if (prevBar) {
         prev = null; pct = null; pctSource = 'previous-session-close-missing';
       } else {
-        // P1581: with range=5d, chartPreviousClose is the close BEFORE the 5-day window, so using it
+        // With range=5d, chartPreviousClose is the close BEFORE the 5-day window, so using it
         // printed a multi-day change as the daily change (the P545 class). Only meta.previousClose is a
         // previous session close; without it the change stays missing.
         prev = (typeof m.previousClose === 'number' && m.previousClose > 0) ? m.previousClose : null;
@@ -131,16 +131,16 @@ export async function fetchQuote(symbol) {
         // represented by the current bar's timestamp. Using the previous
         // bar's own timestamp made otherwise-correct previous-close values
         // appear one market day older on WTI/gold/BTC/KR series.
-        // P1799: when the current session's bar is not printed yet, its opening boundary is unknown — fail closed (P1095).
+        // When the current session's bar is not printed yet, its opening boundary is unknown — fail closed.
         regularMarketPreviousCloseObservedAt: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex + 1]?.timestamp)
           ? new Date(closeBars[prevIndex + 1].timestamp * 1000).toISOString()
           : null,
-        // P1192: 위 경계가 이 행의 완료 컷을 넘을 때(진행 중 bar의 개시 시각이 KST-08:00 컷보다
+        // 위 경계가 이 행의 완료 컷을 넘을 때(진행 중 bar의 개시 시각이 KST-08:00 컷보다
         // 뒤인 창 — FX/상품) 쓸 직전 bar의 개시 경계. 관측 시각이 아니라 bar 경계다.
         previousBarOpenedAt: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex].timestamp)
           ? new Date(closeBars[prevIndex].timestamp * 1000).toISOString()
           : null,
-        // v57.70 (2026-10-15 audit): the boundary above is 00:00 ET of the NEXT day for futures/DXY bars, and readers
+        // The boundary above is 00:00 ET of the NEXT day for futures/DXY bars, and readers
         // dated the close by that boundary — the 10/12 WTI close sat on 10/13 and the briefing read 0.0% for a day.
         // The previous bar's own trading date, in the exchange's time zone, names the session the close belongs to.
         previousCloseSessionDate: prevIndex >= 0 && Number.isFinite(closeBars[prevIndex].timestamp)
@@ -180,7 +180,7 @@ export async function fetchQuote(symbol) {
         qualityStatus: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING',
         quality: { status: Number.isFinite(m.regularMarketTime) ? 'CURRENT' : 'MISSING', stale: false, decisionUse: false, allowedUse: 'reference' },
       };
-      // P1721: on a weekday an FX pair is always in session, so its history row and daily change rest entirely on the
+      // On a weekday an FX pair is always in session, so its history row and daily change rest entirely on the
       // previous close. Yahoo's daily FX bars dropped Mon 10/12 and left 10/13 null, so closes[-2] reached back to the
       // Friday 10/9 bar and 10/12-10/13 both recorded 1,342.99 (the screen froze at 10/9). The FX previous close is now
       // the hourly close at the 23:00Z (KST 08:00) cut — the same cut the history row carries. A failed hourly read
@@ -211,7 +211,7 @@ export async function fetchQuote(symbol) {
   throw lastErr;
 }
 
-// v58.80 (P2065): Yahoo's continuous crude contracts quote the next month two to four sessions before the expiring month's
+// Yahoo's continuous crude contracts quote the next month two to four sessions before the expiring month's
 // last trade, while their daily bars — and so the previous close above — stay on the expiring month. The 1-day change
 // divided two contracts: WTI 10/20 read −5.6% for −0.7% (December 97.82 against November's 103.66), 9/18 −5.8% while
 // Brent fell 0.9%, Brent 10/23 −1.3% for +2.8% (January 111.70 against December's 113.17). The explicit contract whose
@@ -275,8 +275,8 @@ async function alignRollingFuturesQuote(host, quote, nowMs = Date.now()) {
   quote.contract = null;
 }
 
-// v58.69: the last hourly close of one exchange-local session (the fallback when that session's daily close is empty).
-// v58.69: also the session's first hourly stamp, so the history backfill can key a filled hole like a daily bar.
+// The last hourly close of one exchange-local session (the fallback when that session's daily close is empty).
+// Also the session's first hourly stamp, so the history backfill can key a filled hole like a daily bar.
 export function hourlySessionClose(res, date, timeZone) {
   const stamps = res?.timestamp || [], closes = res?.indicators?.quote?.[0]?.close || [];
   let close = null, openAt = null;
@@ -299,7 +299,7 @@ async function hourlyLastClose(host, symbol, date, timeZone) {
   return hourlySessionClose(await fetchHourly(host, symbol), date, timeZone)?.close ?? null;
 }
 
-// v58.69: a session the daily chart lists with an empty close (Yahoo ^GSPC/^IXIC/SMH 2026-10-21) stays a permanent hole
+// A session the daily chart lists with an empty close (Yahoo ^GSPC/^IXIC/SMH 2026-10-21) stays a permanent hole
 // in history, and every 1-day change after it is read across two sessions. The history backfill fills it from hourly bars.
 export async function fetchHourlySessionClose(symbol, date, timeZone) {
   for (const host of YAHOO_HOSTS) {
@@ -308,7 +308,7 @@ export async function fetchHourlySessionClose(symbol, date, timeZone) {
   return null;
 }
 
-// P1721: FX trades Sunday 22:00Z to Friday ~21:00Z; Saturday/Sunday (UTC) keep the daily-bar path (a Friday close).
+// FX trades Sunday 22:00Z to Friday ~21:00Z; Saturday/Sunday (UTC) keep the daily-bar path (a Friday close).
 function FX_WEEKDAY_SESSION(nowMs) {
   const day = new Date(nowMs).getUTCDay();
   return day >= 1 && day <= 5;
@@ -345,10 +345,10 @@ export function fxCloseAtCut(timestamps = [], closes = [], nowMs = Date.now()) {
   };
 }
 
-// v50.99: fetch 성공처럼 보이는 데이터 품질 검증.
+// Fetch 성공처럼 보이는 데이터 품질 검증.
 // Yahoo가 에러 없이 stale/비정상 데이터를 반환할 수 있음 — 전일 종가 대비 변동폭으로 판별.
 // 허용 범위: 금리(±1.0%p 절대 변동) / 변동성 지수(±200%) / 크립토(±50%) / 그 외(±30%). 범위 초과 시 재시도 대상.
-// v58.20 review B1: the rate tolerance was a 5% relative move, which rejected ^IRX at low rates (0.10 -> 0.04) although
+// B1: the rate tolerance was a 5% relative move, which rejected ^IRX at low rates (0.10 -> 0.04) although
 // the comment said percentage points, and the 30% default dropped ^VIX on real spike days (2024-08-05 +65%,
 // 2018-02-05 +116%) — the crash day lost its VIX and failed the Tier-0 snapshot gate.
 function _quoteVerifyTol(symbol) {
@@ -467,7 +467,7 @@ export async function fetchCoinGeckoCrossCheck() {
 // ── v50.52 B4: Yahoo v8/chart 다일 종가 히스토리 (백필용) ──
 // 왜: fetchQuote는 range=5d + meta(현재가)만 읽어 history가 하루 1건씩만 쌓임(20~60일 대기).
 //     range=6mo로 일별 종가 배열을 1회 받아 history.json을 즉시 시드 → 차트 대기 제거.
-// v59.75: currency pairs quoted to four places keep them in history (a 2-place EUR/USD would print 1.15 for 1.1544).
+// Currency pairs quoted to four places keep them in history (a 2-place EUR/USD would print 1.15 for 1.1544).
 export const FOUR_PLACE_QUOTES = Object.freeze(new Set(['EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']));
 export async function fetchHistory(symbol, range = '6mo') {
   for (const host of YAHOO_HOSTS) {
@@ -479,7 +479,7 @@ export async function fetchHistory(symbol, range = '6mo') {
       const q0 = res?.indicators?.quote?.[0];
       const closes = q0?.close;
       const fetchedAt = new Date().toISOString();
-      // v51.91 P587/R265/C6: Yahoo's chart endpoint already returns a parallel
+      // Yahoo's chart endpoint already returns a parallel
       // indicators.adjclose[0].adjclose series (split+dividend adjusted, no extra query param
       // needed — verified by direct fetch, not assumed) alongside the raw OHLCV. Expose it as
       // `adjClose` per row; callers that compute returns/momentum on dividend-paying equities
@@ -489,15 +489,15 @@ export async function fetchHistory(symbol, range = '6mo') {
       // function's other consumer (backfillHistory, index-level symbols only) stay on raw values.
       const adjArr = res?.indicators?.adjclose?.[0]?.adjclose;
       if (!Array.isArray(ts) || !Array.isArray(closes)) throw new Error('no history arrays');
-      // v57.81: the row assembly is shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-      // v60.28: the URL names events=div, so an absent dividend list is evidence of none (dividendFacts).
+      // The row assembly is shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+      // The URL names events=div, so an absent dividend list is evidence of none (dividendFacts).
       return dailyRowsFromYahooChart(res, { fetchedAt, closeDigits: FOUR_PLACE_QUOTES.has(symbol) ? 4 : 2, dividendEvents: true });
     } catch (e) { /* 호스트 폴백 */ }
   }
   return [];
 }
 
-// v50.99: verification pass — quotes that failed or moved beyond the sanity band are retried once, and (v51.92/Phase 2
+// Verification pass — quotes that failed or moved beyond the sanity band are retried once, and (v51.92/Phase 2
 // [B1]) core ETFs Yahoo still could not serve fall back to Twelve Data. Without TWELVE_DATA_API_KEY the fallback is
 // inert (same pattern as FRED/FMP). Split out of fetch-data.mjs main (pipeline redesign, 2026-10-19).
 export async function collectVerifiedQuotes(quotesRaw, { twelveDataKey = process.env.TWELVE_DATA_API_KEY, log = console.log, warn = console.warn } = {}) {

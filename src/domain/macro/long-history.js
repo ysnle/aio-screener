@@ -8,6 +8,8 @@ import { finiteNumber as finite } from '../shared/number.js';
  * level against the past — not a direction, a signal or a forecast.
  */
 
+// These are monthly means of daily observations, so the artifact's own calendar month is still
+// in progress (a partial mean). That month is left out and the card names the completed month it compares.
 const DAILY_MEANS = new Set(['dgs10', 'dgs2', 't10y3m', 'realYield10', 'vix']);
 
 export const LONG_HISTORY_ORDER = Object.freeze(['fedFunds', 'dgs10', 'dgs2', 't10y3m', 'realYield10', 'coreCpiYoY', 'unemployment', 'vix']);
@@ -25,6 +27,9 @@ export function longHistoryRows(artifact) {
     const all = (Array.isArray(entry?.observations) ? entry.observations : [])
       .map(([month, value]) => ({ month: String(month || ''), value: finite(value) }))
       .filter((point) => /^\d{4}-\d{2}$/.test(point.month) && point.value != null);
+    // v59.45 (P18-LONG-01): the open month is the month this series was fetched, not the artifact's date — a retained
+    // (stale) series keeps its mid-month mean while generatedAt moves on. A stale series without its own fetch date
+    // cannot show its last month was complete, so that month is left out.
     const openMonth = monthOf(entry?.fetchedAt) || (entry?.stale === true ? null : monthOf(artifact?.generatedAt));
     const unprovenLast = DAILY_MEANS.has(field) && entry?.stale === true && !monthOf(entry?.fetchedAt);
     const partial = DAILY_MEANS.has(field) && all.length && (unprovenLast || (openMonth && all[all.length - 1].month >= openMonth)) ? all[all.length - 1] : null;
@@ -34,6 +39,8 @@ export function longHistoryRows(artifact) {
     const below = points.filter((point) => point.value <= last.value).length;
     const max = points.reduce((best, point) => (point.value > best.value ? point : best), points[0]);
     const min = points.reduce((best, point) => (point.value < best.value ? point : best), points[0]);
+    // 285 of 286 months rounded to "100%가 이하" while the card beside it printed a higher peak;
+    // 100 is kept for a value that really is the period high and 0 can't occur (the value counts itself), so clamp to 99.
     const percentile = last.value >= max.value ? 100 : Math.min(99, Math.round((below / points.length) * 100));
     const unit = entry.unit === 'index' ? '' : entry.unit === 'percentage-points' ? '%p' : '%';
     const fmt = (value) => `${value.toFixed(2)}${unit}`;
@@ -53,6 +60,8 @@ export function longHistoryRows(artifact) {
       positionText: `${monthLabel(points[0].month)} 이후 ${points.length}개월 중 ${percentile}%가 ${monthLabel(last.month)} 값 이하, ${place}`,
       rangeText: `최고 ${fmt(max.value)}(${monthLabel(max.month)}), 최저 ${fmt(min.value)}(${monthLabel(min.month)})`,
       partialMonth: partial ? partial.month : null,
+      // Unemployment and core CPI are the month's survey/year-on-year value, not a mean of daily data
+      // (FRED FEDFUNDS is published as the monthly average, so it keeps the word).
       monthText: `${monthLabel(last.month)} ${DAILY_MEANS.has(field) || field === 'fedFunds' ? '월평균' : '값'}${partial ? `, 진행 중인 ${monthLabel(partial.month)}은 빼고 비교` : ''}`
     });
   }).filter(Boolean);

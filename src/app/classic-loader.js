@@ -1,4 +1,11 @@
 // The glossary carries the same cachebuster as the static shell scripts (bump-version patches those).
+// P3 (legacy core wave 2): js/aio-glossary.js (the GLOSSARY literals, about 114 KB) is no longer a boot script.
+// Nothing reads GLOSSARY while the classic scripts evaluate: term marks, the glossary modal and the research shell read
+// it when they run. It loads when a reader asks for it: a pointer or focus on a 용어 사전 button or a term mark, the
+// glossary modal, the command search or the research search; automated test browsers load it at once (as the chat and
+// the QA audits do). Term marks do not wait for it: they mark the fixed TERM_MARKS list, every target of which names a
+// real entry (pipeline-semantics RUN6-TERM-01). aio:glossaryReady tells the readers it has arrived.
+
 function scriptVersion(doc) {
   const src = doc.querySelector?.('script[src*="aio-core.js"]')?.getAttribute('src') || '';
   const match = /[?&]v=([\d.]+)/.exec(src);
@@ -24,6 +31,7 @@ export function installGlossaryLoader(root = globalThis, doc = root.document) {
     doc.head.appendChild(script);
   }));
   root.AIO.loadGlossary = load;
+  // v59.70 (post-boot budget): real glossary use (the modal, a search, a term mark) also brings the remaining screen terms.
   root.AIO.loadGlossaryFull = () => load().then(() => root._aioGlossaryFull?.());
   // Pointing at or focusing a 용어 사전 button or a term mark starts that load, so the first open does not wait for it.
   const intent = (event) => {

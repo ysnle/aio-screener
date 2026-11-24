@@ -1,3 +1,14 @@
+// P1472 (knowledge review 2026-10-04, 1차·2차): one canonical source for the concepts the learning
+// screens and the glossary share. A concept here is merged into the glossary at boot (replacing a
+// legacy entry of the same term or alias, else added), found by the unified knowledge search, and
+// linked from lessons — so the short definition and the lesson never say two different things.
+// Every definition separates look-alike concepts, keeps units straight and states when it breaks.
+// Pure data; no DOM.
+
+// One list of "same word" mixed synonyms, components, related and opposite
+// concepts (임대율·공실률, 상관·인과, 운전자본·재고). aliases are true synonyms only — the glossary
+// merge replaces a legacy entry by them — while related and contrast name neighbouring concepts and the
+// look-alike a reader must keep apart. All three are search keys.
 const LINKS = {
   'pct-vs-pp': [[], ['변화율(%)']],
   'arith-vs-geo': [['변동성 손실', 'volatility drag', '최대 낙폭'], ['산술평균 수익률']],
@@ -87,6 +98,9 @@ const LINKS = {
   'pue': [[], []]
 };
 
+// Codex browser audit H55: a compound entry (신주 발행과 구주 매출, 임상 1·2·3상) listed each
+// part under "같은 뜻", which erased the very distinction the entry teaches. Parts and loose names move to
+// `covers` ("이 글에서 다루는 용어"): still search and glossary-merge keys, never presented as synonyms.
 const COVERS = {
   'arith-vs-geo': ['연평균 복리 수익률', 'CAGR', '기하평균 수익률'],
   'correlation': ['상관계수'],
@@ -143,6 +157,8 @@ export const CONCEPT_CORE = Object.freeze([
   c('policy-vs-long-rate', '정책금리와 장기금리', '거시·돈', ['장단기 금리'], '정책금리는 중앙은행이 정하는 하루짜리 금리이고, 장기금리는 시장이 정한다. 장기금리 ≈ 앞으로의 단기금리 예상의 평균 + 기간 프리미엄. 그래서 금리 인하가 시작돼도 물가 재상승 우려나 국채 공급 증가로 장기금리가 오르고 장기채 가격이 떨어질 수 있다.'),
   c('seasonal-revision', '계절조정과 수정치', '거시·돈', ['계절조정', '수정치', 'revision'], '계절조정은 명절·날씨처럼 해마다 반복되는 패턴을 빼고 추세를 보게 한 값이다. 고용·GDP는 처음 발표 뒤 여러 번 수정되며, 수정 폭이 첫 발표의 놀라움보다 클 때도 있다. 한 번의 발표보다 수정 후 추세를 본다.'),
   c('level-vs-change', '수준과 변화율', '거시·돈', [], '수준은 지금 값, 변화율은 얼마나 빨리 바뀌는지다. 실업률이 낮은 수준이어도 빠르게 오르고 있다면 방향은 나빠지는 중이다. 전년 대비는 기저 효과(작년이 특히 낮거나 높았던 영향)를 받으므로 전월 대비 연율과 함께 본다.'),
+  // ── 경제 기본 ──
+  // v57.91 (X bookmarks, knowledge items): private lending recurred across 10+ items with no dictionary entry.
   c('private-credit', '사모대출(사모신용)', '거시·돈', ['private credit', '사모신용', '직접대출', 'direct lending'], '은행이 아닌 운용사가 펀드 자금으로 기업에 직접 빌려주는 대출. 은행 대출은 예금을 새로 만들어 통화량을 늘리고 위기가 빠르게 드러나며, 회사채는 기존 돈을 옮길 뿐이고 매일 가격이 매겨진다. 사모대출도 기업에 새 대출(신용)을 내주지만 은행처럼 예금을 새로 만들지는 않아 통화량을 직접 늘리지 않고, 시장가격도 없어, 변동금리 이자 부담과 손실이 운용사가 평가를 바꿀 때 늦게 한꺼번에 드러난다.'),
   c('opportunity-cost', '기회비용', '경제 기본', ['opportunity cost'], '어떤 선택을 할 때 포기한 대안 중 가장 가치 있는 것. 현금을 그냥 두는 비용은 0이 아니라 그 돈으로 얻을 수 있었던 이자·수익이다. 경제적 이익과 자본비용 개념의 출발점이다.'),
   c('yield-gap', '일드갭(이익수익률 − 국채금리)', '시장·밸류에이션', ['yield gap', '이익수익률 차이', 'earnings yield gap'], '주식의 예상 이익수익률(1 ÷ 선행 PER)에서 국채 금리를 뺀 값이다. 선행 PER 10배면 이익수익률 10%이고, 국채가 4%면 일드갭은 6%p다. 넓을수록 채권 대비 주식이 싸 보이지만, 그 예상 이익이 실제로 유지된다는 가정 위의 숫자다 — 이익이 정점이라 곧 줄어들 업종에서는 낮은 PER과 넓은 일드갭이 함께 나타난다.'),

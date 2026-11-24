@@ -1,5 +1,14 @@
+// RM-03: extracted from js/aio-core.js:computeTradingScore (v51.98 Phase 3 A3 relocated it from
+// index.html; this packet moves the scoring math itself into a pure module while the legacy
+// function becomes a thin wrapper that gathers inputs and calls this). This is a pure function:
+// no DOM, no global reads, no fetch — every value the legacy wrapper used to read from its own
+// globals is now an explicit parameter, already clamped/evidence-gated exactly as the legacy
+// wrapper gated it before. The formula itself (thresholds, weights,
+// corrections, order of operations) is transcribed unchanged — this is code motion, not a new
+// model (R352/F-03: legacy and native must not diverge into two different formulas).
 import { RULES } from '../../rules/thresholds.js';
 
+// v5: the trend component uses the market read's 1% noise buffer around the 50-day line.
 export const TRADING_SCORE_MODEL_VERSION = 'trading-score.v6';
 export const SIGNAL_DECISION_MODEL_VERSION = 'signal-from-trading-score.v1';
 export const SIGNAL_PRESENTATION_MODEL_VERSION = 'signal-presentation.v2';
@@ -77,6 +86,12 @@ export function computeTradingScoreModel(input = {}) {
   const decisionValue = (key, fallback, minimum, maximum) => {
     if (!hasDecisionEvidence) return boundedNumber(fallback, minimum, maximum);
     const evidence = input.decisionEvidence[key];
+    // Runtime evidence uses `verified_current`; older callers may still use
+    // `live`/`fresh`.  Accept only those explicitly current statuses and an
+    // explicit decision-use grant.  Reference/snapshot/stale values must not
+    // silently fall back into the score.
+    // A close-basis value (latest completed US regular session) describes the
+    // market for this reference score; it is tracked so the result can never be decision-eligible.
     const closeBasis = evidence?.allowedUse === 'close-basis' && evidence.status === 'session_close';
     if (!evidence || (!closeBasis && (evidence.allowedUse !== 'decision' || !['live', 'fresh', 'verified_current'].includes(evidence.status)))) return null;
     const bounded = boundedNumber(evidence.value, minimum, maximum);
@@ -98,6 +113,8 @@ export function computeTradingScoreModel(input = {}) {
   const spx50ma = decisionValue('spx50ma', input.spx50ma, Number.MIN_VALUE, Number.MAX_VALUE);
   const spxPrice = decisionValue('spxPrice', input.spxPrice, Number.MIN_VALUE, Number.MAX_VALUE);
   const hyBp = decisionValue('hyBp', input.hyBp, 0, 10_000);
+  // This input is the share of AIO US stocks above their 20-day SMA (the bands below were set for it).
+  // `breadth200` is the legacy evidence key kept for the decision-evidence contract; `breadth20` is the accurate name.
   const breadth20 = decisionValue('breadth200', input.breadth20 ?? input.breadth200, 0, 100);
   // Keyword-count news heuristics are reference-only unless a producer supplies
   // an independently current, decision-authorized evidence envelope. Raw news
@@ -123,8 +140,17 @@ export function computeTradingScoreModel(input = {}) {
     if (vix >= 18 && vix < 30) volScore = Math.min(100, volScore + 12);
   }
 
+  // 2. Risk-appetite Score (25%) — the HY credit spread. CNN Fear & Greed already blends VIX, junk-bond
+  // demand, breadth and momentum, so it is shown on its own and does not enter the composite. v59.70 (trading-score.v6,
+  // owner 11/4): the Cboe put/call half is removed with its source (Cboe terms forbid storing the statistics).
   let momScore = hyBp == null ? null : hyBp < 300 ? 80 : hyBp < 350 ? 70 : hyBp < 450 ? 55 : hyBp < 550 ? 35 : hyBp < 700 ? 20 : 8;
 
+  // 3. Trend Score (20%) — SPX vs estimated MAs (종가 기준)
+  // v57.83 (trading-score.v5): a close 0.15% above the 50-day line scored as "above" while the market read already
+  // called it 시험 구간. Within ±RULES.trend.bufferPct (1%) of the line the component sits between above (68) and
+  // below (50); "above"/"below" need the buffer cleared, the same rule as the 시장 상태 trend axis.
+  // Crash replay: a close under the 200-day line is 부담 on that axis, but a bear-market rally 2%+ over a falling
+  // 50-day line (2022-07/08) scored the top band 82. Under the 200-day line only the 32/15 bands apply.
   const trendBuffer = RULES.trend.bufferPct / 100;
   let trendCalcScore = null;
   if (!spxPrice || !spx50ma || !spx200ma) trendCalcScore = null;
@@ -146,6 +172,9 @@ export function computeTradingScoreModel(input = {}) {
   else if (breadth20 != null) breadthCalcScore = 12;
   let breadthScore = breadthAvailable ? breadthCalcScore : null;
 
+  // 5. Macro Score (10%) — 기저 55, 누진 감점
+  // VVIX is an optional stress modifier (it is often not collected client-side); dollar and
+  // 10Y yield are the required macro inputs.
   let macroScore = dxy != null && tnx != null ? 55 : null;
   if (macroScore != null && dxy > 107) macroScore -= 12;
   if (macroScore != null && dxy > 110) macroScore -= 8;
@@ -170,6 +199,8 @@ export function computeTradingScoreModel(input = {}) {
 
   const weightedComponents = [
     { value: volScore, weight: 25 }, { value: momScore, weight: 25 },
+    // v59.59 (logic refactor): the gated scores, not the raw *CalcScore — a stale MA or unavailable breadth was listed in
+    // componentMissing yet still moved the total at full coverage (the legacy path, where callers pass the flags).
     { value: trendScore, weight: 20 }, { value: breadthScore, weight: 20 },
     { value: macroScore, weight: 10 }
   ];
@@ -182,6 +213,12 @@ export function computeTradingScoreModel(input = {}) {
     : hasDecisionEvidence ? 80 : 0;
   let compositeScore = hasDecisionEvidence && availableWeight < decisionCoverageThreshold ? null : rawCompositeScore;
 
+  // post-composite adjustments and the [5,100] clamp move the published total
+  // AFTER the weighted component sum. They were never exposed, so the visible
+  // breakdown could not explain the visible total: independently rounded
+  // contributions drift by ±1, and the golden `bear_crisis_full_data` case publishes
+  // total 5 against components that sum to 13 with nothing naming the difference.
+  // Record every term so the identity is reconstructible.
   const adjustments = [];
   const applyAdjustment = (key, delta) => {
     if (compositeScore == null || !delta) return;
@@ -221,10 +258,13 @@ export function computeTradingScoreModel(input = {}) {
     componentCoveragePct: availableWeight,
     componentMissing: Object.freeze(componentMissing),
     partial: availableWeight < 100,
+    // base-axis coverage does not certify the optional stress corrections.
     missingOptionalInputs: Object.freeze(Object.entries({ vvix, oilPrice, hyBp }).filter(([, value]) => value == null).map(([key]) => key)),
     decisionBlocked: hasDecisionEvidence && total == null,
     decisionCoverageThreshold,
     rawCompositeScore,
+    // The exact terms behind `total`, so the visible breakdown can be
+    // reconciled: total = clamp(round(weightedSumRaw / availableWeight) + Σadjustments).
     scoreBreakdown: Object.freeze({
       componentWeights: Object.freeze({ volScore: 25, momScore: 25, trendScore: 20, breadthScore: 20, macroScore: 10 }),
       availableWeight,
@@ -238,6 +278,10 @@ export function computeTradingScoreModel(input = {}) {
       total
     }),
     newsAdjustmentApplied: newsSentimentScore != null || decisionNewsRiskSignals.length > 0,
+    // A complete input vector is not the same thing as a validated predictive
+    // model.  Keep this false unless an explicit future validation contract is
+    // supplied; current score-backtest evidence is descriptive/reference-only.
+    // Which inputs used the close basis, and the basis itself, travel with the score.
     closeBasis: closeBasisKeys.length && input.closeBasis ? Object.freeze({ date: input.closeBasis.date, label: input.closeBasis.label || '', inSession: input.closeBasis.inSession === true, keys: Object.freeze(closeBasisKeys.slice()) }) : null,
     decisionEligible: input.decisionEligible === true && closeBasisKeys.length === 0
       && predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
@@ -306,6 +350,10 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const optionalLabels = { vvix: 'VVIX', hyBp: '하이일드 스프레드', oilPrice: 'WTI' };
   const optionalMissing = Array.isArray(score.missingOptionalInputs) ? score.missingOptionalInputs : [];
   const optionalText = optionalMissing.length ? ` 보조 입력 미수신: ${optionalMissing.map(key => optionalLabels[key] || key).join(', ')}.` : '';
+  // The published total is not the weighted component sum — post-composite
+  // adjustments and the [5,100] clamp move it afterwards. Carry the exact terms into the
+  // presentation so the visible hero can reconcile the components it already shows with
+  // the total it shows beside them, instead of leaving the difference unnamed.
   const breakdown = score?.scoreBreakdown && typeof score.scoreBreakdown === 'object' ? score.scoreBreakdown : null;
   const predictiveValidation = score?.predictiveValidation === PREDICTIVE_VALIDATION_ESTABLISHED
     ? PREDICTIVE_VALIDATION_ESTABLISHED
@@ -314,6 +362,7 @@ export function deriveTradingScoreDecisionPresentation({ score = {}, inputVersio
   const missingLabels = { volatility: '변동성', momentum: '위험선호', trend: '추세', breadth: '시장 폭', macro: '매크로' };
   const missingText = missing.map((key) => missingLabels[key] || key).join(', ');
   const reasons = missing.map((key) => `missing:${key}`);
+  // The basis the inputs were read on (e.g. "9/28 미국 정규장 종가 기준") is part of the statement.
   const basisLabel = score?.closeBasis?.label || '';
   if (total == null) {
     return Object.freeze({

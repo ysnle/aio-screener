@@ -1,4 +1,4 @@
-// Worked-number blocks for the 112 principles lessons (v57.98), merged from the per-chapter authoring files.
+// Worked-number blocks for the 112 principles lessons, merged from the per-chapter authoring files.
 // Shape matches the analysis notes' example in src/domain/knowledge/learning-core.js — inputs → steps → result —
 // plus `limit`, the condition under which the calculation stops holding. Every number is an illustrative
 // assumption (the lesson's folded basis says so); none is presented as a current market fact.

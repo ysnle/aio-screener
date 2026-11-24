@@ -1,3 +1,7 @@
+// The screener row's SEC fields (P/E, P/B, ROE, margin, revenue growth, the reference-cap share basis and the
+// fundamental lineage) from one reconciled annual record and the row's own completed close. Moved out of
+// scripts/fetch-data.mjs enrichSecFundamentals so the browser's out-of-universe read builds the same fields; the
+// producer calls this per symbol. Returns null when nothing usable remains (the producer then skips the symbol).
 import { secSharesTrust } from './sec-report.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, finiteFact } from './period.js';
 import { trailingRowFundamentals } from './trailing-year.js';
@@ -32,10 +36,17 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   // `row` is an SEC ledger record here, not a screener row: its annual figures are read once.
   const { roe: fyRoe, margin: fyMargin, revGrowth: fyRevGrowth } = row;
   if (typeof fyRoe === 'number' && Number.isFinite(fyRoe)) rec.roe = fyRoe;
+  // Margin and revenue growth on the P/E's basis — the latest four quarters (vs the four before them) when the
+  // issuer's quarter series carries them, else the fiscal year — each with its basis and end date (trailing-year.js).
+  // ROE stays on the fiscal year (fundamentalPeriod/fundamentalPeriodEnd): equity is annual in the store.
   Object.assign(rec, trailingRowFundamentals(row.reportingCurrency && row.reportingCurrency !== 'USD' ? [] : quarters, {
     margin: fyMargin, revGrowth: fyRevGrowth, observedAt: row.observedAt, heldRevenue: !!(row.marginHeld || row.revGrowthHeld) }));
+  // P/E and P/B are priced only on the close passed here. A ratio stored in the ledger was priced on the
+  // close of its fetch day (up to 28 days earlier) and carried no pePrice, so it is never copied through.
   if (Number.isFinite(px) && px > 0 && trust.shares) {
     const shares = trust.shares;
+    // The numerator is the last four quarters when they end after the fiscal year
+    // (TTM), and earnings available to common when the filer tags them; the basis travels with the row.
     const earnings = row.peEarnings && Number.isFinite(Number(row.peEarnings.value)) ? row.peEarnings : null;
     const netIncome = earnings ? Number(earnings.value) : Number(row.netIncome);
     // P/B is priced on the latest reported common equity when the record carries it (sec-valuation-basis secPbEquity).
@@ -70,9 +81,14 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
     rec.valuationSharesBasis = split ? 'dei-cover-split-adjusted' : (row.sharesBasis || 'dei-cover');
     if (split) { rec.valuationSplitRatio = split.ratio; rec.valuationSplitDate = split.since; }
   }
+  // A filing whose period ended over 15 months ago is not current fundamentals (companyfacts concept gaps
+  // left WFC on FY2019 and NEE on FY2012); the fields stay missing rather than ranking on a stale year.
+  // F15: the same 456-day fiscal-year-end age (period.js FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) sets the quality label.
   const sessionMs = Date.parse(String(factorSessionDate || '').slice(0, 10));
   const reportAgeDays = row.observedAt ? Math.floor(((Number.isFinite(sessionMs) ? sessionMs : nowMs) - Date.parse(row.observedAt)) / 86400000) : null;
   if (row.observedAt && (nowMs - Date.parse(row.observedAt)) / 86400000 > FUNDAMENTAL_MAX_PERIOD_AGE_DAYS) return null;
+  // P/E under 2 or P/B under 0.1 is a share-class/unit mismatch (BRK-B, IBKR), not a valuation — and the
+  // same share basis cannot size a reference market cap either.
   const shareBasisMismatch = (rec.pe != null && !(rec.pe >= 2)) || (rec.pb != null && !(rec.pb >= 0.1));
   if (rec.pe != null && !(rec.pe >= 2)) ['pe', 'pePrice', 'pePriceBasis', 'peEarningsBasis', 'peEarningsThrough', 'peEarningsConcept', 'peOneOff', 'peEarningsLaterQuarter'].forEach((key) => delete rec[key]);
   if (rec.pb != null && !(rec.pb >= 0.1)) ['pb', 'pbPrice', 'pbPriceBasis', 'pbEquityThrough', 'pbEquityBasis'].forEach((key) => delete rec[key]);
@@ -89,6 +105,8 @@ export function secFundamentalRowFields(row, { price = null, dollarVolume30d = n
   const pbDenominator = finiteFact(row.pbEquity?.value) ?? finiteFact(row.equity);
   if (pbDenominator != null && pbDenominator <= 0) rec.pbDeficit = true;
   if (!['pe', 'pb', 'roe', 'margin', 'revGrowth', 'valuationSharesOutstanding'].some((key) => rec[key] != null)) return null;
+  // v59.45 (pipeline review P19 future rows): a fiscal year ending after the session, or a filing time after now, is not a
+  // current observation (2099/2100 read CURRENT); the report freshness gate (sec-report) already refuses them.
   const availableMs = Date.parse(row.availableAt || row.acceptedAt || row.filedAt || '');
   const future = (reportAgeDays != null && reportAgeDays < 0) || (Number.isFinite(availableMs) && availableMs > nowMs);
   const current = !future && reportAgeDays != null && reportAgeDays <= FUNDAMENTAL_MAX_PERIOD_AGE_DAYS;

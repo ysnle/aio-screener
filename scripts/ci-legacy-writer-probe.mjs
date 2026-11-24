@@ -1,4 +1,4 @@
-// v59.70 L0 (legacy core wave 2): which classic js/aio-*.js functions still write into each route's page, measured in a
+// L0 (legacy core wave 2): which classic js/aio-*.js functions still write into each route's page, measured in a
 // real browser. Text/HTML setters and node insertion are wrapped; a write inside a .page is attributed to the first
 // script frame on the stack (a classic file, an index.html inline block, or src/**). The allowlist
 // (architecture/legacy-writer-allowlist.json) is the set of `file function` pairs per route measured when it was written;

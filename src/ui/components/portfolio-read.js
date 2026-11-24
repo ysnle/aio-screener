@@ -1,3 +1,5 @@
+// 포트폴리오's lead block — value share by trend state (one stacked bar), sector weights coloured
+// by rotation quadrant, and the reading that ties the book to the market.
 import { buildPortfolioRead } from '../../domain/portfolio/portfolio-read.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { renderNextSteps } from './page-flow.js';
@@ -18,12 +20,15 @@ import { BRANCHES } from '../../domain/market/regime/macro-crossroads.js';
 import { scenarioLead } from '../../domain/market/regime/scenario-lead.js';
 import { US_THEME_PROFILES, windFor } from '../../domain/scenarios/exposures.js';
 
+// The 3-month gap to the blended index split into sector, stock selection, FX and cash —
+// bars on one scale, the total underneath, then what the arithmetic does not claim.
 function attributionBox(doc, attribution) {
   const box = el(doc, 'div', null, 'pf-attribution');
   box.append(el(doc, 'span', `지수 대비 차이의 원인, ${attribution.window}`, 'stock-read-vis-title'));
   const max = signedScale(attribution.excess.map((part) => part.pct), 0.5);
   for (const part of attribution.excess) {
     const line = el(doc, 'div', null, 'scr-ic-row');
+    // The shared two-sided bar; a gap to the index is a direction (rising red, falling blue), not green/red.
     const track = signedBar(doc, part.pct, max, { trackClass: 'pf-attribution-track' });
     line.append(el(doc, 'span', part.label, 'scr-ic-label'), track, el(doc, 'span', `${signedText(part.pct, 1)}%p`, 'scr-ic-value'));
     box.append(line);
@@ -32,6 +37,7 @@ function attributionBox(doc, attribution) {
   box.append(el(doc, 'p', `합계 ${sign(attribution.excessPct)}%p = 지금 구성의 3개월 수익률 ${sign(attribution.totalPct)}% − ${attribution.blendedLabel} ${sign(attribution.blendedPct)}%`, 'theme-strength-basis'));
   const notes = [];
   if (attribution.sectorMappedPct < 100) notes.push(`섹터 효과는 미국 섹터 ETF가 대응되는 보유액 ${attribution.sectorMappedPct.toFixed(0)}%에서만 분리(나머지는 종목 선택에 포함)`);
+  // v59.45 (P3-PF-01): a sector ETF whose close date differs from the stock's is not compared over another window.
   if (attribution.sectorBasisHeld?.length) notes.push(`섹터 ETF 종가 기준일이 종목과 다른 ${attribution.sectorBasisHeld.length}종목은 섹터 효과를 나누지 않음`);
   if (!attribution.cashDeclared) notes.push('현금을 입력하지 않아 주식 부분만 계산(현금 효과 0)');
   else if (attribution.cashSharePct > 0) notes.push(`현금 ${attribution.cashSharePct.toFixed(0)}% — 지수에 투자됐다면 얻었을 수익률만큼이 현금 효과`);
@@ -46,6 +52,10 @@ function attributionBox(doc, attribution) {
   return box;
 }
 
+// v58.75 (persona review): the holdings read against the branch whose conditions fit best now. Each holding takes the
+// exposure tags of its US themes (THEME_MAP membership) or, failing that, of the theme its sector maps to; bond ETFs and
+// broad ETFs carry no tag. The value share on each side of that branch (scenarios/exposures.js windFor) is one bar.
+// The tags are reviewed hypotheses, not measured sensitivities, and the bar is not a probability or an instruction.
 const SECTOR_PROFILE = Object.freeze({ Technology: 'software', 'Communication Services': 'comm', Consumer: 'consumer_disc', Healthcare: 'healthcare', 'Consumer Defensive': 'staples',
   Financials: 'financials', Energy: 'energy', Industrials: 'industrials', Utilities: 'utilities', Materials: 'materials', 'Real Estate': 'reits' });
 const WIND_TONE = Object.freeze({ head: 'down', mixed: 'pullback', tail: 'up' });
@@ -67,6 +77,9 @@ export function scenarioExposure({ rows = [], branch = null, themeMap = [] } = {
   return { available: true, holdings: valued.length, share };
 }
 
+// v59.51 (area H, one scenario source): the exposure against the branch whose conditions fit best now — or, in a tie, one
+// exposure per tied branch — read through scenarioLead (shared by the read fold and the 점검 기준 list). A tie is never
+// shown as one lead. Returns null while the scenario model is held.
 export function leadScenarioExposures(root, surface) {
   let crossroads = null;
   try { crossroads = marketInterpretation(root).crossroads || null; } catch (_) { crossroads = null; }
@@ -115,15 +128,21 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.dataset.aioPortfolioReadRenderer = 'native';
   let rows = [];
   try { rows = typeof root?._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() || [] : []; } catch (_) { rows = []; }
+  // Holdings outside the screener universe read with their on-demand rows (same normalization, own date).
   if (Array.isArray(root?._aioPortfolioOnDemandRows) && root._aioPortfolioOnDemandRows.length) rows = [...rows, ...root._aioPortfolioOnDemandRows];
   const history = root?._aioHistory || [];
   const spy = rows.find((row) => row?.sym === 'SPY') || null;
   const spyReturn = readRowNumber(spy, 'ret3m', 'calculation');
+  // US holdings are measured against SPY's adjusted return (dividends included, the same basis
+  // as the stocks' and sector ETFs' returns); KRX holdings against the KOSPI/KOSDAQ price index.
   const marketReturnFor = (symbol) => {
     const bench = benchmarkRowFor(symbol, history);
     if (bench.market === 'US' && spyReturn != null) {
+      // E02: null is missing, not 0% return. X01: this return once sat inside the comment, so SPY was never used.
       return { ret3m: spyReturn, label: 'S&P 500(SPY, 배당 포함)', asOf: spy.factorSessionDate || null };
     }
+    // v59.71 (quant review): a stock's 3-month return is on adjusted closes (dividends in), an index here is a price index,
+    // so dividends land in 종목 선택; the label says so rather than reading as a like-for-like comparison.
     return bench && bench.label ? { ...bench, label: `${bench.label}(가격 지수, 배당 제외)` } : bench;
   };
   // #22: the USD/KRW 3-month return ends on the series' last close; that date travels with it so a holding whose
@@ -132,6 +151,9 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   const read = buildPortfolioRead({ surface, rows, benchmarkFor: (symbol) => benchmarkRowFor(symbol, history), marketReturnFor, usdkrwReturnPct: indexReturns(history, 'usdkrw').ret3m, usdkrwAsOf, rotation: currentRotationItems(root?._serverDataMeta?.rotationHistory, Date.now()), krRecord: koreaMoveRecord(history, { now: Date.now() }), themeMap: Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [], regime: readMarketRegime(root, () => renderPortfolioRead({ documentRef: doc, root, surface: root?._aioPortfolioSurface || surface })) });
   const next = doc.getElementById('pf-next');
   if (!read.available) {
+    // A hold is not an absence — the reason (currency mix without declared rates) is
+    // user-facing content, printed here instead of silently removing the section.
+    // With no holdings the table's own empty state is the one message; this section stays hidden.
     host.hidden = read.empty === true;
     host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'), el(doc, 'p', read.reason, 'daily-empty'));
     renderNextSteps(doc, next, []);
@@ -141,6 +163,8 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   host.replaceChildren(el(doc, 'h2', '내 포트폴리오와 시장', 'briefing-h2'));
   if (read.excluded) host.querySelector('h2').append(el(doc, 'span', `스크리너 기록이 없는 ${read.excluded}종목 제외${read.total > 0 && read.excludedValue != null ? ` — 제외 보유액은 평가액의 ${(read.excludedValue / read.total * 100).toFixed(0)}%` : ''}`, 'briefing-h2-note'));
   if (read.headline) host.append(el(doc, 'p', read.headline, 'briefing-read-headline'));
+  // v59.51 (two layers): the face is the lead and one visual (value share by trend state). The sector/rotation bars, the
+  // 3-month attribution, the scenario exposure and the four analysis points move into one closed expert fold.
   const visuals = el(doc, 'div', null, 'stock-read-visuals');
   const detail = el(doc, 'div', null, 'stock-read-visuals');
   if (read.trendMix.length) {
@@ -160,6 +184,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   }
   if (read.sectorMix.length) {
     const box = el(doc, 'div', null, 'pf-sector-mix');
+    // The same denominator as the 비중 · 섹터 배분 bars, named on the title.
     box.append(el(doc, 'span', `섹터 비중(${read.sectorMix[0].basis === 'stock-part' ? '주식 부분 중' : '현금 포함 총자산 대비'}), 섹터 회전 단계`, 'stock-read-vis-title'));
     for (const row of read.sectorMix.slice(0, 6)) {
       const line = el(doc, 'div', null, 'stock-read-bars');
@@ -187,6 +212,7 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
     more.append(list, detail);
     host.append(more);
   }
+  // Questions that start from the holdings, sent to the shared AI panel.
   const ask = askRow(doc, [
     ['쏠림 점검', '내 포트폴리오의 섹터·종목 집중과 지수 대비 위험을 점검해줘'],
     ['시나리오가 틀리면', '지금 중심 시나리오가 틀렸을 때 내 포트폴리오에서 먼저 흔들릴 종목과 대응 원칙을 알려줘'],
@@ -197,6 +223,10 @@ export function renderPortfolioRead({ documentRef: doc, root, surface }) {
   return read;
 }
 
+// 개편 v2 (3g): 실질 종목 수 · 시장 민감도 β in the hero and the three 읽는 법 cards beside the holdings. Every figure comes
+// from the stored holdings (surface rows in the base currency), the book's own weekly regression on its home index
+// (stress-sensitivity.js, inputs handed over by the legacy stress panel) and the published S&P 500 weights
+// (public-data/sp500-weights.json, IVV holdings). No holdings → nothing renders; a missing input says 없음.
 let sp500Weights = null;
 let sp500Requested = false;
 /** The S&P 500 weights once loaded (null before); the 점검 criteria expand index trackers with the same file. */
@@ -215,6 +245,8 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
   const rows = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => Number(row?.value) > 0);
   const total = rows.reduce((sum, row) => sum + Number(row.value), 0);
   if (!rows.length || !(total > 0) || surface?.currencyState === 'mixed-without-conversion') return { available: false };
+  // v59.45 (PASS23): two lots of one ticker are one holding — the effective number of holdings and the stress weights were
+  // computed per lot (and Object.fromEntries kept only the last lot's weight).
   const weights = bookWeights(rows.map((row) => ({ symbol: row.symbol, value: row.value })));
   const effectiveN = 1 / weights.reduce((sum, item) => sum + item.w * item.w, 0);
   let beta = null;
@@ -225,10 +257,14 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
     if (est.available && est.fits?.equity) { beta = est.fits.equity.beta; betaNote = `${est.weeks}주 주간 수익률, 설명력 R² ${est.fits.equity.r2 == null ? '—' : est.fits.equity.r2.toFixed(2)}`; }
     else betaNote = est.reason === 'weeks-insufficient' ? `겹치는 가격 기록 ${est.weeks}주 — ${STRESS_MIN_WEEKS}주 이상 필요` : '가격 기록이 있는 종목이 80%에 못 미침';
   }
+  // Sector shares of the stock part. v58.63: the denominator is the stock part itself — bond
+  // ETFs from the fixed asset-class list are left out, so NVDA 500 + TLT 500 reads Technology 100% of the stock part,
+  // not 50% under a "주식 평가액" label.
   const stockRows = rows.filter((row) => !assetClassOf(String(row.symbol || '').toUpperCase()));
   const stockTotal = stockRows.reduce((sum, row) => sum + Number(row.value), 0);
   const sectorShares = new Map();
   if (stockTotal > 0) for (const row of stockRows) { const name = row.sector || 'Unclassified'; sectorShares.set(name, (sectorShares.get(name) || 0) + Number(row.value) / stockTotal * 100); }
+  // ETF look-through: S&P 500 trackers expanded into their members; the sector card then reads the expanded mix.
   const unpriced = (Array.isArray(surface?.rows) ? surface.rows : []).filter((row) => !(Number(row?.value) > 0)).map((row) => String(row?.symbol || '').toUpperCase()).filter((symbol) => SP500_TRACKERS.includes(symbol));
   const look = lookThrough({ rows, sp500, isBond: (symbol) => !!assetClassOf(symbol), unpriced });
   const topSector = look.available
@@ -247,6 +283,10 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
     };
   }
   const bonds = bondCushion({ rows, stressInput, baseCurrency: surface?.baseCurrency || null, history });
+  // β is fitted on the holdings alone (weights normalised over valued holdings, local
+  // listing-currency prices). It is named as the holdings' sensitivity; the whole-account figure scales it by the
+  // invested share only when cash and the total are known, and a foreign-listed holding in another base currency is
+  // flagged (the exchange-rate move is outside this fit).
   const exposurePct = Number.isFinite(Number(surface?.exposurePct)) && surface?.exposurePct != null ? Number(surface.exposurePct) : null;
   const accountBeta = beta != null && exposurePct != null ? beta * exposurePct / 100 : null;
   const base = String(surface?.baseCurrency || '').toUpperCase();
@@ -254,6 +294,8 @@ export function portfolioLens({ surface, stressInput = null, history = [], sp500
   return { available: true, holdings: rows.length, effectiveN, lookThrough: look.available ? look : null, beta, betaNote, accountBeta, exposurePct, fxOutside, topSector: topSector ? { name: sectorLabel(topSector.name), pct: topSector.pct } : null, stockHoldings: stockRows.length, index, bonds };
 }
 
+// ETF look-through card: the six largest names after expansion, each bar split into the part held directly and the
+// part held through the trackers, then one sentence on the largest overlap. Shown only when a tracker has a value.
 const LOOK_THROUGH_ROWS = 6;
 const lookThroughLabel = (line) => (line.symbol === 'GOOGL' ? '알파벳' : line.symbol);
 function lookThroughCard(doc, look, card) {
@@ -281,6 +323,8 @@ function lookThroughCard(doc, look, card) {
   return node;
 }
 
+// 개편 v2 (3g) 채권 완충: the bond share of the holdings (0% is a reading too) and, with price records, how the bond
+// part moved in the weeks the stock part fell. Past association only — the text says rates can push both down together.
 const signedPct = (value) => `${signedText(value, 1)}%`;
 export function bondCushionCard(bonds) {
   if (!bonds?.available) return null;
@@ -314,6 +358,9 @@ export function bondCushionCard(bonds) {
   return { title: '채권 완충', value: corr.available ? `${bonds.bondPct.toFixed(0)}%, 상관 ${corr.r.toFixed(2)}` : `${bonds.bondPct.toFixed(0)}%`, tone, text: parts.join(' ') };
 }
 
+// v59.51 (content audit, two layers): the 읽는 법 cards left the face. Their sector and single-holding cards were the same
+// facts as 점검's criteria and were dropped; the parts nothing else says — the effective number of holdings, ETF
+// look-through, the index overlap with β, and the bond cushion — render into 점검's expert fold (.pf-checks-fold).
 export function renderPortfolioLens({ documentRef: doc, root, surface, checks = null, sectorLabel = (name) => name }) {
   const fold = doc?.querySelector?.('#pf-checks .pf-checks-fold');
   fold?.querySelector(':scope > .pf-reading')?.remove();
@@ -332,6 +379,7 @@ export function renderPortfolioLens({ documentRef: doc, root, surface, checks = 
   if (look) cards.push(lookThroughCard(doc, look, card));
   if (lens.topSector) {
     const heavy = sectorBand(lens.topSector.pct) === 'over';
+    // v58.80 (first-users bundle 2): one holding read "비중이 고르게 나뉘어" — there is nothing to spread.
     const spread = lens.holdings <= 1 ? ' 한 종목만 보유해 종목 사이의 분산은 없습니다.'
       : lens.effectiveN < lens.holdings - 0.5
       ? ` 실질 종목 수가 ${lens.effectiveN.toFixed(1)}개로 보유 수(${lens.holdings}개)보다 적은 것은 비중이 몇 종목에 몰려 있기 때문입니다.`

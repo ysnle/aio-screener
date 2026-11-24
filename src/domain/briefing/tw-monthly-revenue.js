@@ -1,4 +1,10 @@
 import { signedText } from '../shared/number.js';
+// v59.56 (X-bookmark gap 2, 2026-11-01): the read model of public-data/tw-monthly-revenue.json
+// (scripts/fetch-tw-monthly-revenue.mjs, TWSE OpenAPI t187ap05_L). Taiwan's listed AI supply chain reports each month's
+// revenue by the 10th, a month or more before the US quarterly results it feeds; the AI 공급망 흐름 block sets it under
+// the US price medians. Sums and changes come from the source's own amounts; a group with no company in the latest
+// month is left out, and companies on an older month never enter the latest month's sum.
+// The browser loads it through src/data/artifact-registry.js TW_MONTHLY_REVENUE.
 export const TW_MONTHLY_REVENUE_SCHEMA = 'tw-monthly-revenue.v1';
 // The month M figure is due by the 10th of M+1; past the 15th of M+2 the latest month is a month late.
 const LATE_AFTER_DAY = 15;
@@ -42,6 +48,7 @@ export function buildTwRevenueView(artifact, { nowMs = Date.now(), loadState = '
   const listed = (artifact.groups || []).reduce((n, g) => n + (g.codes || []).length, 0);
   const late = monthsLate(month, nowMs);
   const strongest = [...groups].filter((g) => g.yoyPct != null).sort((a, b) => b.yoyPct - a.yoyPct)[0];
+  // "16개사 중 16개사가 늘었습니다" repeated the count; all or none is said as such.
   const upText = current.length === 1 ? '' : up === current.length ? `${current.length}개사 모두 늘었습니다` : up === 0 ? '늘어난 회사는 없습니다' : `${current.length}개사 중 ${up}개사가 늘었습니다`;
   const reading = `대만 AI 공급망 ${current.length}개사의 ${monthLabel(month)} 매출 합계는 1년 전보다 ${signedPct(totalYoy)}${upText ? `이고, ${upText}.` : '입니다.'}`
     + (strongest && strongest.yoyPct > 0 ? ` 가장 크게 늘어난 묶음은 ${strongest.name} ${signedPct(strongest.yoyPct)}입니다.` : '')

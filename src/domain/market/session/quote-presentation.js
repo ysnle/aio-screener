@@ -18,6 +18,7 @@ function qualityKey(envelope) {
 function allowedUseOf(envelope) {
   const key = String(envelope?.allowedUse ?? '').trim().toLowerCase();
   if (key === 'decision' || key === 'trading') return 'decision';
+  // v59.45 (PASS16 candidate): a producer's explicit 'none' stays none; it is not widened to reference.
   return key && key !== 'none' ? 'reference' : 'none';
 }
 

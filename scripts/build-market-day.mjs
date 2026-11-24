@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// v59.63 phase 1: writes public-data/market-day.json, the one ledger of the last day's moves and events
+// Phase 1: writes public-data/market-day.json, the one ledger of the last day's moves and events
 // (src/domain/market/day/facts.js), from artifacts this refresh and the other producers already published. A run that
 // cannot read history or the screener leaves the previous artifact in place.
-// v59.70 (owner D6, screen review 12): the one network step — headline facts the news bundle did not translate (the
+// The one network step — headline facts the news bundle did not translate (the
 // screener's per-company memos) get a Korean title here, on the Worker's free Workers AI path only, so every headline
 // 오늘의 핵심, 브리핑 and the stock pages show is Korean in the artifact. A title that fails keeps its original and is
 // marked titleKoFailed; a screen may show it with that mark or pass it over, never as if it were translated.
@@ -83,7 +83,7 @@ async function main() {
   day.headlineTranslation = await translateDayHeadlines(day, { previous: readJson('market-day.json'), translate: (titles) => requestWorkersAiTranslation(titles) })
     .catch((error) => ({ failed: null, reason: `error:${String(error?.message || error).slice(0, 60)}` }));
   console.log(`[market-day] headline translation ${JSON.stringify(day.headlineTranslation)}`);
-  // v59.70 (owner 11/07): the stories the market is relaying, counts only (src/domain/narrative/narratives.js) — the same
+  // The stories the market is relaying, counts only (src/domain/narrative/narratives.js) — the same
   // detection the market reading's prompt uses, so 시장 상태 shows what the reading weighed.
   day.narratives = narrativesFor(inputs, nowMs, readJson('market-day.json')?.narratives || null);
   await atomicWriteFile(PD('market-day.json'), JSON.stringify(day));

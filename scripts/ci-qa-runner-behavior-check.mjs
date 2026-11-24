@@ -278,7 +278,7 @@ try {
   const emptyRerun = run('rerun-failed');
   if (emptyRerun.status !== 2 || !/FAIL gate가 없습니다/.test(emptyRerun.stderr)) fail('rerun-failed did not refuse an empty failure batch with an explicit cause', emptyRerun);
 
-  // v58.63 (architecture audit A25): same identity PASS -> --no-cache FAIL -> rerun-failed must run the gate for real.
+  // Same identity PASS -> --no-cache FAIL -> rerun-failed must run the gate for real.
   const togglePath = join(cacheDir, 'toggle-state.txt');
   writeFileSync(manifestPath, JSON.stringify({
     ...base,
@@ -298,7 +298,7 @@ try {
   const toggleRetry = run('rerun-failed');
   const toggleRetryReport = JSON.parse(readFileSync(join(cacheDir, 'last-run.json'), 'utf8'));
   if (toggleRetry.status !== 1 || toggleRetryReport.counts?.CACHED) fail('A25 rerun-failed resolved a failure from an older cached success instead of running the gate', toggleRetry);
-  // v58.63 (architecture audit A26): a failed id that no longer names a gate makes the retry refuse, not exit 0 with nothing run.
+  // A failed id that no longer names a gate makes the retry refuse, not exit 0 with nothing run.
   writeFileSync(manifestPath, JSON.stringify({
     ...base,
     groups: { fixture: { phase: 0, kind: 'static', inputs: [fixtureScript], gates: [
@@ -339,7 +339,7 @@ try {
   const sawConcPass = runReports.some((report) => (report.results || []).some((item) => item.id === 'conc-pass' && item.status === 'PASS'));
   if (!sawConcFail || !sawConcPass) fail('per-run reports did not preserve both concurrent results independently', concFailRun);
 
-  // P1518: partial runs and failed-only recovery cannot mint or overwrite full evidence.
+  // Partial runs and failed-only recovery cannot mint or overwrite full evidence.
   const releaseManifest = { ...base, groups: { fixture: { phase: 0, kind: 'static', gates: [
     { id: 'release-pass', script: fixtureScript, inputs: ['dependency.txt', 'new-module.js'], args: ['--mode', 'pass'] }
   ] } }, profiles: { full: ['fixture'], fast: ['fixture'] } };
@@ -362,7 +362,7 @@ try {
   git('config', 'user.email', 'fixture@aio.test');
   git('config', 'user.name', 'fixture');
   const attributes = '*.cmd text eol=crlf\n';
-  // P3-QA-02 (v59.45): exercise the real candidate CLI with a blob larger than spawnSync's default buffer.
+  // P3-QA-02: exercise the real candidate CLI with a blob larger than spawnSync's default buffer.
   const largeBlob = Buffer.alloc(1024 * 1024 + 1);
   writeFileSync(join(candidateRepo, 'large.bin'), largeBlob);
   writeFileSync(join(candidateRepo, '.gitattributes'), attributes);
@@ -390,7 +390,7 @@ try {
   git('add', 'extra.txt');
   const unverifiedFile = runCandidate('candidate', '--files', 'task.txt');
   if (unverifiedFile.status !== 1 || !/staged-file-not-verified/.test(unverifiedFile.stderr)) fail('candidate accepted an unverified staged file', unverifiedFile);
-  // P1518: an extra file can match the verified WORKTREE while its INDEX is different.
+  // An extra file can match the verified WORKTREE while its INDEX is different.
   writeFileSync(join(candidateRepo, 'extra.txt'), 'worktree-after-stage\n');
   writeVerifiedTree('fixture-extra-partial', { 'task.txt': digest('v3\n'), 'extra.txt': digest('worktree-after-stage\n') });
   const extraPartial = runCandidate('candidate', '--files', 'task.txt');
@@ -399,7 +399,7 @@ try {
   writeVerifiedTree('fixture-clean', { 'task.txt': digest('v3\n') });
   const cleanCandidate = runCandidate('candidate', '--files', 'task.txt');
   if (cleanCandidate.status !== 0) fail('candidate rejected a staged tree identical to the QA-verified tree', cleanCandidate);
-  // P1518: both unchanged dependencies (above) and staged tasks may have a different checkout EOL.
+  // Both unchanged dependencies (above) and staged tasks may have a different checkout EOL.
   writeFileSync(join(candidateRepo, 'windows.cmd'), 'after\r\n');
   git('add', 'windows.cmd');
   writeVerifiedTree('fixture-staged-crlf', { 'task.txt': digest('v3\n'), 'windows.cmd': digest('after\r\n') });
@@ -453,7 +453,7 @@ try {
 
   // v60.46 (static-dynamic audit rec. 8): a data run — the data-commit profile a producer runs before its push, or
   // --data-run in the reduced-scope CI of a data-only commit — runs data gates only; every other selection is unchanged.
-  // v60.50: `mixed` is gone and an undeclared gate no longer rides into a data run (before, both ran there in full).
+  // `mixed` is gone and an undeclared gate no longer rides into a data run (before, both ran there in full).
   writeFileSync(manifestPath, JSON.stringify({
     ...base,
     originScopes: { 'refresh-data': ['data'] },
@@ -480,7 +480,7 @@ try {
   if (selection('--group', 'data') !== 'data-code,data-data,data-undeclared') fail('v60.46 a source run keeps every gate');
   if (selection('test') !== 'data-code,data-data,data-undeclared,pre-code,pre-data') fail('v60.46 a profile run keeps every gate');
 
-  // v57.54: a failure reports its cause rows first, even when warnings fill the 30-line tail.
+  // A failure reports its cause rows first, even when warnings fill the 30-line tail.
   const { failureCauseLines } = await import('./lib/qa-failure-cause.mjs');
   const noisy = ['Data lineage audit: 38 artifacts | mode=strict PASS=33 WARN=4 FAIL=1', 'PASS a.json', 'FAIL market-temperature.json policy=x', '     FAIL: lineage timestamp is unexpectedly in the future',
     ...Array.from({ length: 40 }, (_, i) => `     NESTED-WARN n${i}.json nested artifact declares no freshness timestamp`), 'Data lineage audit: 38 artifacts | mode=strict PASS=38 WARN=0 FAIL=0'].join('\n');

@@ -1,4 +1,4 @@
-// P1757: public-data/sec-fundamentals.json (~67 MB canonical SEC ledger) is producer-only. The browser reads the
+// public-data/sec-fundamentals.json (~67 MB canonical SEC ledger) is producer-only. The browser reads the
 // bounded projection (sec-fundamentals-summary.json + sec-fiscal-history.json); the ledger itself lives on the orphan
 // `data-store` branch as one force-pushed commit (no history growth on main) and is restored at the start of each
 // producer run by scripts/sec-fundamentals-store.mjs. Gates that need the full ledger read it through here and degrade

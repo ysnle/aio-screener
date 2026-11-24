@@ -15,7 +15,7 @@ export const FRESH_STATUSES = Object.freeze({
   bea: Object.freeze(['ok', 'cached-fresh']),
   treasury: Object.freeze(['ok', 'cached-fresh']),
   fredHyOas: Object.freeze(['ok', 'cached-fresh']),
-  // 2026-10-19: the AAII reader's success status is current-reference.
+  // The AAII reader's success status is current-reference.
   aaii: Object.freeze(['ok', 'cached-fresh', 'current-reference'])
 });
 
@@ -34,7 +34,7 @@ export function readPreviousPlanes(previous) {
     bea: macro && macro._bea || null,
     treasury: macro && macro._treasury || null,
     fredHyOas: macro && macro._fredHyOas || null,
-    // P1246: the FX cross-check record keeps the official source record verbatim, so the next run reuses it as
+    // The FX cross-check record keeps the official source record verbatim, so the next run reuses it as
     // `previous` for the 12-hour cache (lineage continues without a separate artifact).
     fredDexkous: previous && previous.providerCrossChecks && previous.providerCrossChecks.fx && previous.providerCrossChecks.fx.official || null,
     marketSurveys: previous && previous.marketSurveys || null,
@@ -51,7 +51,7 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
   return [
     { id: 'quotes', label: 'quote', run: () => mapLimit(SYMBOLS, 6, fetchQuote),
       fallback: () => SYMBOLS.map((symbol) => ({ __error: true, item: symbol, msg: 'quote-plane-failed' })) },
-    // v60.46: the previous macro and the release calendar let a monthly series skip the fetch between its releases.
+    // The previous macro and the release calendar let a monthly series skip the fetch between its releases.
     { id: 'fred', label: 'FRED', run: () => fetchFred(env.FRED_API_KEY, { previous: prior.macro, schedules: blsReleaseSchedules }),
       fallback: () => ({ _source: 'fred:unavailable', _attemptedAt: attemptedAt, _successfulSeries: [], _failedSeries: Object.keys(FRED_SERIES), _failureReason: 'fred-plane-failed' }) },
     { id: 'fearGreed', label: 'Fear & Greed', run: () => fetchFearGreed(prior.fearGreed),
@@ -61,11 +61,11 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
         status: prior.fearGreed?.score != null ? 'stale-reference' : 'unavailable',
         attemptedAt, fetchedAt: null, failureReason: 'fear-greed-plane-failed'
       }) },
-    // 2026-10-19: same-cycle articles stay candidates (carriedNewsCandidates).
-    // v60.18: the macro calendar's release dates let a headline naming the day's scheduled release rank as the day's story.
+    // same-cycle articles stay candidates (carriedNewsCandidates).
+    // The macro calendar's release dates let a headline naming the day's scheduled release rank as the day's story.
     { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news, carryIntraday: prior.newsIntraday, schedules: blsReleaseSchedules }),
       fallback: () => (prior.news && prior.news.length ? prior.news : []) },
-    // v59.70: the Cboe put/call plane is deleted (owner 11/4: Cboe terms forbid storing and redistributing its statistics).
+    // The Cboe put/call plane is deleted (owner 11/4: Cboe terms forbid storing and redistributing its statistics).
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),
       fallback: () => (prior.bls?.series ? { ...prior.bls, status: 'stale', attemptedAt, failureReason: 'bls-plane-failed' }
         : { status: 'unavailable', ...unavailable, lastSuccessfulAt: null, values: {}, series: {}, failures: [{ metricId: 'batch', reason: 'bls-plane-failed' }] }) },

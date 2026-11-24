@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { finalizePageDecision } from '../src/domain/market/signal/page-decision.js';
 import { deriveSignalDecisionFromTradingScore } from '../src/domain/market/signal/trading-score.js';
 
-// P1357: execute the production legacy builder against the native presentation.
+// Execute the production legacy builder against the native presentation.
 const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 const start = core.indexOf('window._aioBuildPageDecision = function(pageId) {');
 const end = core.indexOf('\nwindow.AIO_PAGE_ACTION_HUBS', start);
@@ -23,7 +23,7 @@ const context = vm.createContext({ window, document,
   _aioDecisionEsc: (text) => String(text), _aioTruncateAtWord: (text) => String(text)
 });
 vm.runInContext(core.slice(start, end), context);
-// v59.70 (D2): the dev-only decision header renderer is deleted; the builder still feeds AI context and audits.
+// The dev-only decision header renderer is deleted; the builder still feeds AI context and audits.
 assert.ok(!core.includes('_aioRenderPageDecisionHeader') && !core.includes('aio-decision-header'), 'v59.70 deleted decision header renderer stays deleted');
 let d = window._aioBuildPageDecision('signal');
 assert.equal(d.referenceSummary.score, 58, 'P1357 native 58 survives a blocked live epoch');

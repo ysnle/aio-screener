@@ -65,7 +65,7 @@ if (!errors.length) {
   check('HTML version badge exposes the same version', html.includes(`id="app-version-badge">${version.version}</span>`));
   check('data artifact has generatedAt', Boolean(data.meta?.generatedAt));
   check('screener artifact has asOf and research-only contract', Boolean(screener.asOf) && screener.rankingContract?.tradingSignal === false && screener.rankingContract?.allowedUse === 'research-relative-ranking-only');
-  // v60.50: public-config.json is release-scoped — only code commits (and bump-version for appRevision) change it. The
+  // public-config.json is release-scoped — only code commits (and bump-version for appRevision) change it. The
   // AI route is the operator's decision: PUBLISHED with no reason, or DISABLED with one. Worker readiness is not copied
   // in; the browser probes /health itself. Both Worker addresses are the ones architecture/worker-endpoints.json names.
   const endpoints = json('architecture/worker-endpoints.json');
@@ -95,7 +95,7 @@ if (!errors.length) {
     && !allowlist.publicRootAllowlist.includes('js/*.js')
     && !allowlist.publicRootAllowlist.includes('js/aio-tests.js'));
   check('Pages allowlist excludes the browser test bundle', Array.isArray(allowlist.excludedFromPagesArtifact) && allowlist.excludedFromPagesArtifact.includes('js/aio-tests.js') && !sw.includes('./js/aio-tests.js'));
-  // v59.98: classic scripts are requested with ?v=<version>, which a query-less precache entry never matches, so every
+  // Classic scripts are requested with ?v=<version>, which a query-less precache entry never matches, so every
   // runtime script is cached by the worker's runtime shell rule on first use instead of the install precache.
   const runtimeShellSource = sw.match(/const RUNTIME_SHELL_PATH_RE = \/(.+)\/;/)?.[1];
   const runtimeShellRe = runtimeShellSource ? new RegExp(runtimeShellSource) : null;
@@ -147,7 +147,6 @@ for (const file of ['architecture/asset-manifest.json', 'architecture/release-ma
 console.log('[release-manifests-code-only] OK: asset/release manifests carry no data revision fields');
 }, 'code'],
 // ── section release-rollback-invariants (kept from the retired ci-release-manifest-contract.mjs) ──
-// v58.89: version revision parity moved to ci-version-check; these two invariants did not.
 ['release-rollback-invariants', async () => {
 const { readFileSync } = await import('node:fs');
 const manifest = JSON.parse(readFileSync('architecture/asset-manifest.json', 'utf8'));

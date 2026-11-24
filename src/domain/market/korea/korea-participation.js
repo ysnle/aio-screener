@@ -1,3 +1,4 @@
+// Korean participation is derived from its own dated, completed-session sample.
 import { marketRows } from '../../screener/market-scope.js';
 import { latestCompletedKrSession, resolveMarketCalendarSession } from '../session/market-calendar.js';
 import { buildGroupStrength, median } from '../../themes/group-strength.js';
@@ -12,7 +13,14 @@ export function koreanThemeGroups(map = {}, rows = []) {
   return Object.entries(map).map(([id,members]) => ({ id, nameKr:KR_THEME_LABELS[id]||id, subThemes:[{ name:KR_THEME_LABELS[id]||id,
     tickers:(Array.isArray(members) ? members : []).map(member => ids.get(String(member.code || member.sym || '').replace(/\.K[QS]$/, ''))).filter(Boolean) }] }));
 }
+// The index's own 1- and 5-session change beside the same-session sample's median and the count of members down
+// 3% or more. A cap-weighted index far below the equal-weight median says the move sat in the largest names; the
+// sentence states the numbers and that reading, nothing about flows (net buying is not collected).
 const sgn = (v) => signedText(v, 1, '%');
+// 10/15 read "코스피 -7.6% vs 표본 중앙값 -6.5%(-3% 이하 175개 · 하락 221개)" with no
+// reading — the gap was inside the ±2%p tilt band — although 92% of the sample fell. How far a move spread is its own
+// reading: SPREAD_SHARE of the sample moving one way, or BIG_MOVE_SHARE moving 3% or more, is a move across the sample.
+// The 5-session gap is read by the same rules (spread first, then where the size sat).
 export const SPREAD_SHARE = 0.8;
 export const BIG_MOVE_SHARE = 0.5;
 function moveCounts(values) {
@@ -27,6 +35,8 @@ function spreadWord(counts) {
 function gapReading(indexMove, counts, { lead = '' } = {}) {
   const spread = spreadWord(counts);
   const gap = indexMove - counts.median;
+  // The gap is read with the index direction — on 10/16 KOSPI +2.0% against a +4.6% median read
+  // '지수 하락 폭이 … 하락이 몰렸습니다'. Four cases: the index moved more or less than the median, up or down.
   const more = spread ? '더 ' : '';
   const size = Math.abs(indexMove) < 1.5 ? ''
     : indexMove < 0 && gap <= -2 ? `지수 하락 폭이 표본 중앙값보다 훨씬 커 시가총액이 큰 종목에 하락이 ${more}몰렸습니다`
@@ -43,9 +53,12 @@ function sessionRead({ observed, date, index }) {
   const out = { count:day.count, ret1d:day.median, ret5d:week5.median, down3:day.down3, up3:day.up3, falling:day.falling, falling5:week5.falling, down3_5:week5.down3, spread:spreadWord(day)?.dir || null, spread5:spreadWord(week5)?.dir || null, text:null };
   if (out.ret1d==null || out.count<20) return out;
   const md = `${Number(date.slice(5,7))}/${Number(date.slice(8,10))}`;
+  // An up day counts the up side (+3% 이상 · 상승), a down or flat day the down side.
   const sample = `AIO 추적 종목(한국) ${out.count}개 하루 수익률 중앙값 ${sgn(out.ret1d)}${out.ret1d > 0 ? `(+3% 이상 ${out.up3}개, 상승 ${day.rising}개)` : `(-3% 이하 ${out.down3}개, 하락 ${out.falling}개)`}`;
   const same = index?.date===date && finite(index?.d1)!=null;
   if (!same) { const spread = spreadWord(day); out.text = `${md} ${sample}${spread ? ` — 표본의 ${spread.share}%가 ${spread.dir==='down'?'내려 표본 전반으로 번진 하락':'올라 표본 전반으로 번진 상승'}입니다` : ''}.`; return out; }
+  // The index is KOSPI, so its gap is read against KOSPI-listed members only; KOSDAQ names keep their own median
+  // (2026-11-13: five-session median +1.4% for 148 .KS names, +8.2% for 91 .KQ names, +2.7% mixed).
   const listed = suffix => observed.filter(row => String(row.sym).endsWith(suffix));
   const of = (rows, key) => moveCounts(rows.map(row => read(row, key)).filter(v => v!=null));
   const ks = listed('.KS'), kq = listed('.KQ');
@@ -65,7 +78,7 @@ export function buildKoreaParticipation({ rows=[], themes={}, nowMs=Date.now(), 
   const population=marketRows(rows,'KR'), latest=latestCompletedKrSession(nowMs);
   const valid=population.filter(row => row.factorSessionDate <= latest?.date && resolveMarketCalendarSession({market:'KR',date:row.factorSessionDate}).status==='open');
   const { basis: date, rows: observed } = latestSessionRows(valid);
-  const breadth50=breadthCounts(observed,'pctSma50',read), breadth200=breadthCounts(observed,'pctSma200',read);
+  const breadth50=breadthCounts(observed,'pctSma50',read), breadth200=breadthCounts(observed,'pctSma200',read); // One counter
   const returns=Object.fromEntries(['ret1m','ret3m'].map(key=>[key,median(observed.map(row=>read(row,key)).filter(v=>v!=null))]));
   const typed=observed.map(row=>({...row,...Object.fromEntries(['ret1m','ret3m','ret6m','pctSma50'].map(key=>[key,read(row,key)]))}));
   const groups=buildGroupStrength({rows:typed,themes:koreanThemeGroups(themes,typed),market:'KR'}).groups.filter(g=>g.ret3m!=null).slice(0,5);

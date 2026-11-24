@@ -1,4 +1,4 @@
-// The AI market reading's rejected attempts, kept for the operator (weekly audit 2026-11-15). Pure: no I/O.
+// The AI market reading's rejected attempts, kept for the operator. Pure: no I/O.
 //
 // A rejected model answer went to the Actions log only, cut at 400 characters. The week's second most frequent block,
 // axis-state-contradiction:volatility (23 attempts), could then not be diagnosed: the cut text stopped before the

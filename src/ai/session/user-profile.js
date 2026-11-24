@@ -1,4 +1,4 @@
-// Owner 2026-10-25: the AI panel adapts to the reader — experience, the lens they read first, horizon, how much loss
+// The AI panel adapts to the reader — experience, the lens they read first, horizon, how much loss
 // they can sit through, markets and interests. Stored only on this device and sent with each question.
 // R724 boundary: the profile changes how an answer explains (depth, order of evidence, examples, length), never what
 // it picks. No stock, price, size, timing or "suits you" verdict comes out of it; a question asking for one is answered
@@ -99,7 +99,7 @@ export function profileSummary(profile) {
 
 const UNSET = '\n\n【사용자 투자 프로필】\n미설정 — 위험 성향·투자 기간을 가정하지 말고, 답이 성향에 따라 달라지면 성향별로 나눠 설명한다.\n';
 
-// Owner 2026-10-25: what use taught (src/ai/session/usage-learning.js summarizeLearned) fills only what the reader has
+// What use taught (src/ai/session/usage-learning.js summarizeLearned) fills only what the reader has
 // not chosen. Learned lines say they are estimates; tickers and themes are examples, never subjects to rate.
 function learnedLines(p, learned) {
   if (!learned || learned.empty) return [];

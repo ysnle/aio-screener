@@ -1,4 +1,5 @@
 import { AI_MODEL, AI_PROVIDER } from './worker-contract.js';
+// Server configuration, caller access and a data artifact are different evidence.
 export function describeSharedConnection(health, httpOk = true) {
   if (!httpOk || health?.schemaVersion !== 'aio-worker-health.v1') return { ok: false, reason: 'WORKER_NOT_READY', label: '공용 AI 연결 미확인' };
   if (health.ai?.appTokenRequired && health.ai?.appTokenAccepted !== true) {

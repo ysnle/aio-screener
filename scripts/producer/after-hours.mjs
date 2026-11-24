@@ -1,4 +1,4 @@
-// v59.25 (owner 2026-10-27): the 08:00 KST reading never saw the US after-hours session. On 10/26 Celestica +9%,
+// The 08:00 KST reading never saw the US after-hours session. On 10/26 Celestica +9%,
 // Whirlpool -8.5% and Cadence +2.4% moved on earnings after the close, and the site had no lane that collected them.
 // The day's after-close reporters (earnings-calendar.json, hour=amc) are read from Yahoo's 5-minute chart with
 // extended hours: the last 16:00-20:00 ET print of that session against the regular close. Provisional, reference-only.

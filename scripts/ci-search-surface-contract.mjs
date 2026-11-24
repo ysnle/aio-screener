@@ -114,14 +114,14 @@ check('v59.70 no shell binding takes a browser key (reload, find, address bar, t
 // 4. The module's pure parts: screens from the menu table, glossary ranking, no symbol guessing.
 check('v59.70 시장 폭 finds the breadth screen first', search.matchScreens('시장 폭')[0]?.route === 'breadth', JSON.stringify(search.matchScreens('시장 폭')[0]));
 check('v59.70 the glossary ranks the term itself first', search.matchTerms('PER', [{ term: 'PEG', def: 'PER을 성장률로 나눈 값' }, { term: 'PER (주가수익비율)', def: '주가 ÷ 주당순이익' }])[0]?.term === 'PER (주가수익비율)');
-// v60.30 (2026-11-18): '삼성' listed the glossary entry KOSPI, whose definition names 삼성전자. A two-character query
+// '삼성' listed the glossary entry KOSPI, whose definition names 삼성전자. A two-character query
 // matches term names and aliases only; a definition-only hit needs three characters.
 {
   const kospi = [{ term: 'KOSPI', def: '한국 종합주가지수. 유가증권시장 대형주 중심. 삼성전자, SK하이닉스 등 포함.' }];
   check('v60.30 a two-character query does not list a glossary term only because its definition contains it', search.matchTerms('삼성', kospi).length === 0, JSON.stringify(search.matchTerms('삼성', kospi)));
   check('v60.30 a longer query still finds a definition-only term', search.matchTerms('삼성전자', kospi)[0]?.term === 'KOSPI');
 }
-// v60.19 (Codex audit): the command search handled only the arrows; Home and End did nothing. Its option keys are the
+// The command search handled only the arrows; Home and End did nothing. Its option keys are the
 // shared listbox's (behaviors/listbox.js nextOptionIndex), every one of them.
 {
   const { createFakeDocument } = await import('./lib/fake-dom.mjs');

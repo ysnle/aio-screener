@@ -22,8 +22,8 @@ const REQUIRED_BY_INTENT = Object.freeze({
   ENTITY_FACT: ['entity-quote'],
   COMPARISON: ['entity-quote', 'fundamentals'],
   TECHNICAL_ANALYSIS: ['technical'],
-  // v59.46 (owner 2026-10-31): option chains, IV and GEX are not collected — no free daily source is accurate enough, so
-  // the options route retired (P1321). An options question reads the market-level volatility the app does keep (VIX on
+  // Option chains, IV and GEX are not collected — no free daily source is accurate enough, so
+  // the options route retired. An options question reads the market-level volatility the app does keep (VIX on
   // 투자 심리; v59.70 retired the Cboe put/call) plus the quote; 'options' named a tool nothing provides.
   OPTIONS_ANALYSIS: ['market-snapshot', 'entity-quote'],
   MACRO_ANALYSIS: ['macro'],
@@ -50,7 +50,7 @@ export function createQuestionPlan({ query = '', route = null, now = new Date(),
   const planNow = validDate(now);
   const normalized = String(query || '').trim();
   const entities = resolveEntities(normalized, { root, route });
-  // P1740: company names resolve before classification, so "엔비디아 어때?" is an entity question like "NVDA 어때?".
+  // Company names resolve before classification, so "엔비디아 어때?" is an entity question like "NVDA 어때?".
   const intent = classifyQuestionIntent(normalized, { route, hasEntity: entities.entities.some((entity) => entity.verified && (entity.market === 'US' || entity.market === 'KR') && !String(entity.symbol).startsWith('^') && !CHAT_TOPIC_PROXIES.has(entity.symbol)) });
   const time = resolveQuestionTime(normalized, planNow);
   const currentSensitive = intent.currentSensitive || time.currentSensitive;

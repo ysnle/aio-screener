@@ -13,8 +13,10 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     name: row?.name || row?.company || '',
     index: row?.index || null,
     shareClassOf: row?.shareClassOf || null,
+    // Present only when the extended shard is loaded (core|extended, and RUSSELL2000/NASDAQ/index tags).
     ...(row?.universeTier ? { universeTier: row.universeTier === 'extended' ? 'extended' : 'core' } : {}),
     ...(Array.isArray(row?.membership) ? { membership: row.membership.map(String) } : {}),
+    // The filer's SEC SIC code when the extended shard carries one (blank checks 6770 leave the ranking).
     ...(row?.sic ? { sic: String(row.sic) } : {}),
     market: row?.market || row?.instrumentRef?.market || null,
     currency: row?.currency || row?.instrumentRef?.currency || null,
@@ -23,6 +25,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     score: finite(row?.score),
     rank: finite(row?.rank),
     sector: row?.sector || null,
+    // A sector translated from the SEC SIC code is marked, with the code as its industry text.
     ...(row?.sectorSource === 'sec-sic' ? { sectorSource: 'sec-sic' } : {}),
     ...(row?.industry ? { industry: String(row.industry) } : {}),
     source: row?.source || 'screener-artifact',
@@ -53,6 +56,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     emaBasis: row?.emaBasis || null,
     mcap: finite(row?.mcap),
     nativeMarketCap: row?.nativeMarketCap ? { ...row.nativeMarketCap } : null,
+    // artifact-derived reference size (SEC shares × artifact close) — size-bucket filter/display only.
     referenceMarketCap: row?.referenceMarketCap && Number.isFinite(row.referenceMarketCap.billions) ? { ...row.referenceMarketCap } : null,
     _mcapObservedAt: row?._mcapObservedAt || null,
     _mcapFetchedAt: row?._mcapFetchedAt || null,
@@ -62,9 +66,10 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _mcapQuality: row?._mcapQuality && typeof row._mcapQuality === 'object' ? { ...row._mcapQuality } : null,
     _mcapRevision: row?._mcapRevision || null,
     rsi: finite(row?.rsi),
+    // The S&P 500 map's 1일/1주 tabs read these; the normalizer dropped them, so the tabs never enabled.
     ret1d: finite(row?.ret1d),
     ret5d: finite(row?.ret5d),
-    ret10d: finite(row?.ret10d),
+    ret10d: finite(row?.ret10d), // 2주 on the theme ranking
     ret1m: finite(row?.ret1m),
     ret3m: finite(row?.ret3m),
     ret6m: finite(row?.ret6m),
@@ -75,7 +80,7 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     benchmarkRelativeStrength: finite(row?.benchmarkRelativeStrength),
     pctSma50: finite(row?.pctSma50),
     pctSma200: finite(row?.pctSma200),
-    pctSma5: finite(row?.pctSma5), pctSma10: finite(row?.pctSma10), pctSma20: finite(row?.pctSma20),
+    pctSma5: finite(row?.pctSma5), pctSma10: finite(row?.pctSma10), pctSma20: finite(row?.pctSma20), // 2026-10-14 custom conditions
     pctFromCloseHigh52w: finite(row?.pctFromCloseHigh52w),
     kalmanVel: finite(row?.kalmanVel),
     kalmanPt: finite(row?.kalmanPt),
@@ -85,7 +90,8 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     vcpScore: finite(row?.vcpScore),
     vcpStage: row?.vcpStage || null,
     vcpPivot: finite(row?.vcpPivot),
-    vcpContractions: finite(row?.vcpContractions), vcpShrinking: typeof row?.vcpShrinking === 'boolean' ? row.vcpShrinking : null,
+    vcpContractions: finite(row?.vcpContractions), vcpShrinking: typeof row?.vcpShrinking === 'boolean' ? row.vcpShrinking : null, // 2026-10-14 custom conditions
+    // follow-through evidence (technical/follow-through.js)
     pocketPivotAgo: finite(row?.pocketPivotAgo), pocketPivots10: finite(row?.pocketPivots10), heavyDownDays25: finite(row?.heavyDownDays25),
     baseCount: finite(row?.baseCount), baseForming: typeof row?.baseForming === 'boolean' ? row?.baseForming : null, baseDepthPct: finite(row?.baseDepthPct),
     baseCountLowerBound: row?.baseCountLowerBound ?? null, breakoutAgo: finite(row?.breakoutAgo),
@@ -97,8 +103,8 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     roe: finite(row?.roe),
     margin: finite(row?.margin),
     revGrowth: finite(row?.revGrowth),
-    _marginBasis: row?._marginBasis || null, _marginThrough: row?._marginThrough || null,
-    _marginPriorFyMedian: finite(row?._marginPriorFyMedian), _marginPriorFyYears: finite(row?._marginPriorFyYears),
+    _marginBasis: row?._marginBasis || null, _marginThrough: row?._marginThrough || null, // 'ttm' | 'fy' (absent = FY)
+    _marginPriorFyMedian: finite(row?._marginPriorFyMedian), _marginPriorFyYears: finite(row?._marginPriorFyYears), // peak-earnings.js
     _revGrowthBasis: row?._revGrowthBasis || null, _revGrowthThrough: row?._revGrowthThrough || null,
     dividendTtm: finite(row?.dividendTtm), dividendYieldPct: finite(row?.dividendYieldPct), dividendLastExDate: row?.dividendLastExDate || null,
     dividendCount12m: finite(row?.dividendCount12m), dividendBasis: row?.dividendBasis || null,
@@ -121,6 +127,8 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     _fundamentalFiledAt: row?._fundamentalFiledAt || null,
     _fundamentalFetchedAt: row?._fundamentalFetchedAt || null,
     _fundamentalAccession: row?._fundamentalAccession || null,
+    // v58.63 (architecture audit SCR03/C06): the provider's canonical valuation close; consensus-read, index-earnings
+    // and the stock page read it first, so dropping it here turned a Forward PER of 20 into "없음" after normalisation.
     _valuationPrice: finite(row?._valuationPrice),
     _valuationPePrice: finite(row?._valuationPePrice),
     _valuationPePriceBasis: row?._valuationPePriceBasis || null,
@@ -142,8 +150,11 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     observedAt: row?.observedAt || null,
     fetchedAt: row?.fetchedAt || null,
     factorObservedAt: row?.factorObservedAt || null,
+    // The whitelist must pass the producer's time contract through —
+    // a silent drop here re-derives every session/basis label from the bar start.
     factorBarStart: row?.factorBarStart || null,
     factorSessionDate: row?.factorSessionDate || null,
+    // R3-05: a row the producer carried from the last publish (this run did not read it) says so.
     retainedFrom: row?.retainedFrom || null,
     factorSessionTimezone: row?.factorSessionTimezone || null,
     factorTimeBasis: row?.factorTimeBasis || null,
@@ -152,11 +163,16 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     factorSourceKind: row?.factorSourceKind || null,
     factorAllowedUse: row?.factorAllowedUse || null,
     factorQuality: row?.factorQuality && typeof row.factorQuality === 'object' ? { ...row.factorQuality } : null,
+    // P1255 (07:M04 계열 잔여 D2): producer가 발행한 가격 기준(조정 범위) 선언을 화이트리스트가
+    // 조용히 버리면 소비자는 조정 수익률과 raw 가격수익률을 구분할 수 없다 — 시간 계약 필드
+    //  과 같은 규칙으로 가격 기준 계약도 통과시킨다.
     priceBasis: row?.priceBasis || null,
     adjustedCloseStatus: row?.adjustedCloseStatus || null,
     adjustedCloseCoveragePct: finite(row?.adjustedCloseCoveragePct),
     backtestEligible: row?.backtestEligible == null ? null : !!row.backtestEligible,
     instrumentRef: row?.instrumentRef && typeof row.instrumentRef === 'object' ? { ...row.instrumentRef } : null,
+    // 명시적 화이트리스트가 선언된 필드를 조용히 버리면 provider가 발행한 식별
+    // 검증 상태가 소비자에게 도달하지 않는다. 행 정규화는 같은 계약을 통과시킨다.
     identityValidation: row?.identityValidation && typeof row.identityValidation === 'object'
       ? { ...row.identityValidation, missing: Array.isArray(row.identityValidation.missing) ? [...row.identityValidation.missing] : [] }
       : null,

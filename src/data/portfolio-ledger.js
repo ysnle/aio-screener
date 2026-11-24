@@ -24,6 +24,7 @@ const COVERAGE_IDS = LEDGER_COVERAGE_INPUTS.map((entry) => entry.id);
 const DAY_COUNT = 'actual-365';
 const TRANSACTION_KINDS = ['deposit', 'withdrawal'];
 
+// v59.45 (PASS27 P27-IMPORT-01): a day that does not exist is not a ledger date.
 const cleanDate = calendarDate;
 
 function cleanAmount(value) {
@@ -64,6 +65,10 @@ export function normalizeLedger(raw) {
     .map((entry) => ({ date: cleanDate(entry?.date), amount: cleanAmount(entry?.amount) }))
     .filter((entry) => entry.date && entry.amount != null)
     .sort(byDate);
+  // v59.45 (PASS27 P27-IMPORT-01): a row that could not be read is a missing flow or mark, so the matching "all included"
+  // declaration no longer holds — a dropped deposit with 입출금 still declared read as a higher account return. The
+  // declaration is withdrawn (account performance holds on account-input-incomplete until the reader re-declares it); a
+  // stored ledger written by this module never carries such rows, so its declaration is unchanged.
   if (ledger.transactions.length < rawTransactions.length) delete ledger.coverage['deposits-withdrawals'];
   if (ledger.valuations.length < rawValuations.length) delete ledger.coverage['valuation-cuts'];
   return ledger;
@@ -75,6 +80,9 @@ export function appendLedgerTransaction(ledger, input = {}) {
   const amount = cleanAmount(input.amount);
   if (!date || amount == null) return { ok: false, reason: 'invalid-ledger-entry', ledger: base };
   if (!TRANSACTION_KINDS.includes(input.kind)) return { ok: false, reason: 'invalid-ledger-kind', ledger: base };
+  // v59.45 (PASS27 P27-LEDGER-01): '추가' adds a flow. A second deposit on the same day used to replace the first (100 then
+  // 200 kept 200, not 300) while the screen said the deposit was saved; the period's net flow already sums every row.
+  // The stable sort keeps same-day rows in entry order, so the remove index still names the row the list shows.
   const next = { ...base, transactions: base.transactions.concat([{ date, kind: input.kind, amount }]).sort(byDate) };
   return { ok: true, ledger: next };
 }
@@ -93,6 +101,7 @@ export function appendLedgerValuation(ledger, input = {}) {
 export function removeLedgerEntry(ledger, kind, index) {
   const base = normalizeLedger(ledger);
   if (!base) return { ok: false, reason: 'ledger-missing', ledger: null };
+  // v59.45 (PASS27): an unknown kind is refused instead of deleting a transaction row.
   if (kind !== 'valuation' && kind !== 'transaction') return { ok: false, reason: 'invalid-ledger-kind', ledger: base };
   const list = kind === 'valuation' ? base.valuations : base.transactions;
   const position = Number(index);

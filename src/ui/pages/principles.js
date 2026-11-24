@@ -119,6 +119,8 @@ function createPrinciplesArrivalContext(documentRef, context, onReturn) {
   return block;
 }
 
+// The concept map draws through the shared node graph (src/ui/components/node-graph.js, also the 산업 지도 AI maps);
+// layoutConceptGraph (hop-distance columns) moved there with it.
 export { layoutConceptGraph };
 
 function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, depth = 1) {
@@ -126,6 +128,8 @@ function createSvgGraph(documentRef, selectedId, visibleNodes, visibleEdges, dep
   const visible = new Set(visibleNodes.map((node) => node.id));
   const edges = visibleEdges.filter((edge) => visible.has(edge.from) && visible.has(edge.to)).map((edge) => {
     const active = edge.from === selectedId || edge.to === selectedId;
+    // Relation labels only on the selected node's edges — labels on every line overlapped the
+    // lines and each other, hiding what a connection means. Other edges stay as lines (aria-label keeps the text).
     return { from: edge.from, to: edge.to, active, label: active ? edge.relation : null, title: `${NODE_BY_ID.get(edge.from).title}에서 ${NODE_BY_ID.get(edge.to).title}: ${edge.relation}` };
   });
   return createNodeGraph(documentRef, {
@@ -192,6 +196,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
        const initialPath = CATALOG.paths.some((item) => item.id === sharedRoute.path) ? sharedRoute.path : 'beginner';
        const initialLesson = /^[A-O]\d{1,2}$/.test(sharedRoute.lesson || '') ? sharedRoute.lesson : null;
        const learning = createAppKnowledgeLearningState(root);
+       // The hub opens on 분석 프레임 unless the link asks for the column (story), a lesson or a map mode.
        const initialView = arrivalChapter ? 'story' : initialLesson ? 'lesson' : !sharedRoute.mode || sharedRoute.mode === 'frames' ? 'frames' : sharedRoute.mode === 'story' ? 'story' : sharedRoute.mode === 'concept' ? 'concept' : sharedRoute.mode === 'rules' ? 'rules' : 'map';
         const state = { openGroup: initialView === 'map' ? 'map' : initialView, conceptId: sharedRoute.mode === 'concept' ? sharedRoute.node : null, lessonId: initialLesson, chapterId: arrivalChapter || sharedRoute.chapter || 'money-is-choice', frameId: sharedRoute.mode === 'frames' && sharedRoute.node ? sharedRoute.node : null, mode: initialMode, view: initialView, query: '', arrivalContext: arrivalChapter ? arrivalContext : null, selectedId: initialNode, selectedNarrativeChapterId: arrivalChapter || sharedRoute.chapter || 'money-is-choice', pathId: initialPath, step: sharedRoute.step ?? 0, depth: 1, activeLessonId: initialLesson, lessonPage: 1, lessonPanelOpen: Boolean(initialLesson), activeReferenceStageId: 'stage-00', activeReferenceLessonId: 'bb-learning-contract', expandedSections: new Set(['scarcity']), expandedGroups: new Set(['scarcity-choice-path']), narrative: null, research: null, chapters: null, lessonLibrary: null, nodeGuides: null, knowledgeConcepts: null, knowledgeAliases: null, knowledgeArticles: { articles: [] }, routeTargets: null, currentObservations: null, knowledgeStatus: null, referenceCurriculum: null, narrativeError: false, researchError: false, chaptersError: false, lessonLibraryError: false, nodeGuidesError: false, knowledgeConceptsError: false, knowledgeAliasesError: false, knowledgeArticlesError: false, routeTargetsError: false, currentObservationsError: false, knowledgeStatusError: false, referenceCurriculumError: false, loadingArticleIds: new Set(), articleErrors: new Set() };
       page.dataset.aioArchitectureRoute = 'principles';
@@ -240,6 +245,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         return scoped.filter((node) => nodeMatches(node, state.query) || node.id === state.selectedId);
       }
 
+      // 2026-10-05 리서치 라이브러리 redesign: one shell (목차 · 본문 · 연결); the open document decides
+      // the right column. renderMap keeps the principle graph as the 개념 지도 document.
       function renderMap() {
         const wrap = element(documentRef, 'div', 'rl-map principles-graph-workspace');
         const nodes = visibleGraphNodes();
@@ -278,6 +285,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           });
           blocks.push(box);
         }
+        // E12: dated observations tied to this concept (market rows follow the latest closes).
         if (state.currentObservations) {
           const observed = createCurrentObservationBlock(documentRef, state.currentObservations, { page: 'principles', nodeId: node.id, title: '이 개념의 지금 수치' });
           if (observed.dataset.knowledgeCurrentObservationCount !== '0') { const box = block('지금 값'); box.appendChild(observed); blocks.push(box); }
@@ -320,6 +328,7 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
 
       function render() {
         if (!isAlive()) return;
+        // Asynchronous content hydration must preserve the reader's current place and keyboard context.
         const active = documentRef.activeElement;
         const readingFocused = active === content.querySelector('.rl-main');
         const action = content.contains(active) ? active?.closest?.('[data-principles-action]') : null;
@@ -356,6 +365,8 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
           .find((node) => node.dataset.principlesAction === focusAction && node.dataset.principlesValue === focusValue)?.focus({ preventScroll: true });
       }
 
+      // Expert review #21: each lesson states its own document's authoring status and review date
+      // (articles.json authoringStatus/reviewedAt) — a draft reads "초안 · 검토일 YYYY-MM-DD"; no catalog-wide date.
       function markLessonAuthoring(shell) {
         const node = shell.querySelector?.('article[data-principles-lesson-id]');
         const lessonId = node?.dataset.principlesLessonId;
@@ -389,7 +400,10 @@ export function createPrinciplesPage({ root = globalThis, documentRef = root.doc
         if (action === 'group') {
           const opening = state.openGroup !== value;
           state.openGroup = opening ? value : null;
-          state.navListOpen = opening;
+          state.navListOpen = opening; // Picking a kind asks for its titles, so its closed 목차 opens
+          // Codex browser audit H53: switching the kind tab kept the previous document in the body, so a
+          // reader under "개념 사전" was still reading a lesson. Opening a kind now opens that kind's
+          // last-read document (or its first one); closing the open tab only folds the contents.
           if (opening) {
             state.view = value;
             if (value === 'lesson') { state.lessonId = state.lessonId || state.activeLessonId || 'A1'; state.activeLessonId = state.lessonId; }

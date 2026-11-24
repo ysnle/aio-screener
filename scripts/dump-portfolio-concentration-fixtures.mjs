@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { freePort } from './lib/browser-gate.mjs';
 
-// RM-03 continued (2026-07-21, P758): dumps (scenario, legacy window.calcPortfolioTechnicalRisk()
+// RM-03 continued: dumps (scenario, legacy window.calcPortfolioTechnicalRisk()
 // output) tuples by driving the REAL, unmodified js/aio-core.js function inside a real Chromium
 // page. Positions are given empty OHLCV so calcSellPressure's insufficient-data path (score:0,
 // verified fail-closed in calcSellPressure itself) isolates topWeightPct/concentrationPenalty as

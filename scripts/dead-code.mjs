@@ -6,7 +6,7 @@
 //   node scripts/dead-code.mjs self-test                     splitter/remover fixture (run by the workspace gate)
 // A report is a candidate list, not a verdict: names in RULES.md are contracts, string-built references
 // (`window['_aio' + x]`, onclick="name(", data-action) are invisible to it, and a test-only reference means
-// the function and its test go together (R675). Read-only except `remove`.
+// the function and its test go together. Read-only except `remove`.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { splitTopLevel, describeStatement } from './lib/js-toplevel.mjs';
@@ -38,7 +38,7 @@ function removeStatements(source, names) {
   for (const st of statements(s)) {
     if (!wanted.has(st.name) || st.a < cursor) continue;
     const lineStart = s.lastIndexOf('\n', st.a - 1) + 1;
-    // P1347: line expansion must never consume a neighbouring statement.
+    // Line expansion must never consume a neighbouring statement.
     let a = /^\s*$/.test(s.slice(lineStart, st.a)) ? lineStart : st.a;
     for (;;) {
       const prevEnd = a - 1;

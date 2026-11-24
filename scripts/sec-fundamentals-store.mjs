@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1757: keeps the producer-only SEC ledger (public-data/sec-fundamentals.json, ~67 MB) off main's history.
+// Keeps the producer-only SEC ledger (public-data/sec-fundamentals.json, ~67 MB) off main's history.
 // The ledger lives on the branch `data-store` as one commit that each refresh-screener run force-pushes
 // (no history growth, no Actions-cache eviction risk). v57.90: that commit holds an index plus byte-exact parts of at
 // most 32 MiB (scripts/lib/sec-ledger-store.mjs), because the single blob reached 87.8 MB against GitHub's 100 MB
@@ -18,7 +18,7 @@
 //       ledger rebuilt from nothing can never shrink the public projection.
 //   publish [--github-output]
 //       Force-pushes the local ledger (index + parts) to data-store (lease-protected) as a commit whose one parentless
-//       parent holds the ledger it replaced (v59.61: a digest-matched restore falls back to it),
+//       parent holds the ledger it replaced (a digest-matched restore falls back to it),
 //       unless the branch already holds the identical tree. Run it BEFORE pushing main: main's manifest must never name a
 //       digest the store never held.
 import { spawnSync } from 'node:child_process';
@@ -100,7 +100,7 @@ async function restore({ force = false, matchManifest = false } = {}) {
   // 1. data-store branch (one commit, depth 1).
   const fetched = git(['fetch', '--no-tags', '--depth=1', 'origin', `+refs/heads/${SEC_STORE_BRANCH}:${STORE_REF}`]);
   if (fetched.ok) {
-    // v57.90: index + verified parts joined into the canonical text (or the pre-v57.90 single blob).
+    // Index + verified parts joined into the canonical text (or the pre-v57.90 single blob).
     const { layout, buffer, error } = readSecStore((name) => blobAt(`${STORE_REF}:${name}`));
     const store = accept(buffer, expected);
     if (store && !store.rejected) {
@@ -108,7 +108,7 @@ async function restore({ force = false, matchManifest = false } = {}) {
       return { source: 'store', sha256: store.digest, matchesManifest: store.digest === manifestDigest(), commit: git(['rev-parse', STORE_REF]).stdout, layout };
     }
     tried.push(`store:${layout}:${store?.rejected ? `digest-mismatch:${store.digest.slice(0, 12)}` : error ? `invalid:${error}` : 'missing-file'}`);
-    // v59.61: the tip's one parent holds the ledger it replaced. After a publish whose main push failed (or before main's
+    // The tip's one parent holds the ledger it replaced. After a publish whose main push failed (or before main's
     // commit lands) main still names that one, so a digest-matched restore reads it instead of skipping (release TLA+ model).
     if (matchManifest && store?.rejected && git(['fetch', '--no-tags', '--depth=2', 'origin', `+refs/heads/${SEC_STORE_BRANCH}:${STORE_REF}`]).ok) {
       const prior = readSecStore((name) => blobAt(`${STORE_REF}^1:${name}`));
@@ -161,7 +161,7 @@ function publish() {
   if (previousTree && previousTree === tree) return { published: false, reason: 'unchanged', sha256, commit: previousCommit, ...shape };
   const sourceSha = git(['rev-parse', 'HEAD']).stdout || 'unknown';
   const identity = { GIT_AUTHOR_NAME: 'aio-data-bot', GIT_AUTHOR_EMAIL: 'actions@github.com', GIT_COMMITTER_NAME: 'aio-data-bot', GIT_COMMITTER_EMAIL: 'actions@github.com' };
-  // v59.61: keep exactly one previous ledger as the tip's only parent — a parentless copy of the replaced tree, so the
+  // Keep exactly one previous ledger as the tip's only parent — a parentless copy of the replaced tree, so the
   // chain never grows and no blob is uploaded twice (the replaced tree is already on the remote).
   let parentArgs = [];
   if (previousTree) {

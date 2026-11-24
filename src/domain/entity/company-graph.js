@@ -1,3 +1,10 @@
+// v59.74 (owner 2026-11-07 '돈과 기술이 어떻게/어디서 흐르는지'): one graph over every researched company story. Each
+// story names its buyers (sell.customers, aiChain.sellsTo), the hops of its money flow (moneyFlow.steps: who pays whom),
+// its partners (make.partners, aiChain.dependsOn: suppliers, co-developers or investors, money either way) and its
+// rivals (competition.arenas). An edge exists only where a story names another covered company
+// by an exact registered name (company-aliases.js), and it keeps the sentence that said so and whose story said it.
+// Amounts on the nodes are the stories' own figures with their period (revenue, capex); nothing is summed across
+// periods or estimated. scripts/sync-company-profiles.mjs writes the result to public-data/company-profiles/graph.json.
 import { companiesNamedIn, PRIVATE_NODES, COMPANY_ALIASES } from './company-aliases.js';
 import { readNumber } from '../shared/number.js';
 

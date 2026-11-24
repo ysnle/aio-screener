@@ -38,7 +38,7 @@ export function buildDomainReceipts({ previousMeta, attemptedAt, generatedAt, sy
       eligible: symbolCount, attempted: symbolCount, updated: quotes.length, stored: quotes.length,
       failures: failed.map((symbol) => ({ symbol, status: 'TRANSIENT_PROVIDER_FAILURE', attemptedAt }))
     }),
-    // Pipeline redesign (2026-10-19): every news count is in feeds. `updated` used to be articles against `eligible` feeds
+    // Pipeline redesign: every news count is in feeds. `updated` used to be articles against `eligible` feeds
     // (29 of 12), so the receipt could never show a feed that stopped answering. A feed is updated when it answered with
     // a usable current item this run; it is stored when the bundle still carries its articles (carried from an earlier run).
     news: (() => {

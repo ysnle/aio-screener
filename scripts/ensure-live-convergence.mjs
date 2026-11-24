@@ -154,7 +154,7 @@ async function findAttestedRun(runs) {
   return null;
 }
 
-// Pipeline redesign (2026-10-19): on weekdays every cycle awaits its own new commit, and a CI run that settles after the
+// Pipeline redesign: on weekdays every cycle awaits its own new commit, and a CI run that settles after the
 // 12-minute wait ended that cycle as AWAITING (green); the next cycle awaited a newer commit, so a failed data CI was
 // seen only by the 6-hour freshness watchdog. Each awaiting cycle now looks back at the newest settled dispatched data
 // CI for an earlier revision: a failure there (with nothing newer settled green) fails this cycle within ~30 minutes.
@@ -241,7 +241,7 @@ try {
         finish('DISPATCHED_CI');
       }
       note(`no successful attested CI run for the target revision (${runs.length} run(s), completed=${anyCompleted})`);
-      // v57.92 (audit W06): the --await-sha branch already turned a settled CI failure red (v57.88); this default branch
+      // The --await-sha branch already turned a settled CI failure red; this default branch
       // (used after "No changes" cycles) ended green on the same state. Both now share the rule: every run finished and
       // one failed → exit 1. A cancelled run or one still running stays green.
       const settledFailure = runs.length > 0 && runs.every((run) => run.status === 'completed') && runs.some(unsuccessful);

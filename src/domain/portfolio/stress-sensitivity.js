@@ -1,3 +1,15 @@
+// The stress panel multiplied hand-picked sector constants (Tech -0.8% for a
+// +100bp rate shock), so its numbers had nothing behind them. A risk desk estimates each book's sensitivity from its own
+// return history. This module regresses the book's weekly return — today's weights applied to each holding's
+// adjusted closes — on one factor at a time over the same weeks:
+//   equity  each holding's home index (S&P 500 for US listings, KOSPI for .KS/.KQ), blended by weight;
+//   rate    the change in the 10-year Treasury yield (bp);
+//   oil     the WTI front-month change (%);
+//   krw     the USD/KRW change (%; positive = weaker won).
+// One factor at a time on purpose: a "rate +100bp" scenario wants the total association (a rate rise usually moves
+// equities too), not a partial effect holding the market fixed. Weekly (5-session) steps from the end of the book's
+// common dates: Korean and US closes on the same calendar date are ~16 hours apart, which daily pairs understate.
+// A shock is the weekly relationship scaled linearly — an extrapolation the label states, never a forecast.
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { listingCurrency } from './fx.js';
 
@@ -54,6 +66,8 @@ export function regressOne(xs, ys) {
  */
 export function estimateBookSensitivities({ historyMap = {}, commonDates = [], weights = {}, history = [] } = {}) {
   const dates = [...(Array.isArray(commonDates) ? commonDates : [])].sort();
+  // v59.59 (logic refactor): only USD and KRW listings have an index factor here (S&P 500, KOSPI); a Tokyo or Hong Kong
+  // holding used to be regressed on the S&P 500 as if it were a US stock. Others leave the coverage.
   const syms = Object.keys(weights).filter((sym) => weights[sym] > 0 && historyMap[sym] && ['USD', 'KRW'].includes(listingCurrency(sym)));
   const covered = syms.reduce((s, sym) => s + weights[sym], 0);
   if (!syms.length || covered < 0.8) return { available: false, reason: 'weights-uncovered', covered };
@@ -108,6 +122,7 @@ export function krwTranslationPct({ weights = {}, baseCurrency = null, shockPct 
   if (base !== 'KRW' && base !== 'USD') return null;
   let total = 0;
   for (const [sym, w] of Object.entries(weights)) {
+    // By listing currency — a non-KRW, non-USD listing does not move with USD/KRW alone, so it is not counted.
     const currency = listingCurrency(sym);
     if (base === 'KRW' && currency === 'USD') total += w * shockPct;
     if (base === 'USD' && currency === 'KRW') total += w * ((1 / (1 + shockPct / 100)) - 1) * 100;

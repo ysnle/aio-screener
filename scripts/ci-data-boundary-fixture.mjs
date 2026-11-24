@@ -91,7 +91,7 @@ for (const row of session) for (const market of ['US', 'KR']) {
 
 const thirteenF = [];
 for (const period of ['2026-03-31', '2026-06-30', '2026-09-30', '2025-12-31']) for (let t = Date.parse('2026-05-01T00:00:00Z'); t < Date.parse('2027-03-01T00:00:00Z'); t += 86400000 * 3) thirteenF.push([period, t, filing.thirteenFStale(period, t)]);
-// v60.46: re-pinned once the deadline rolls over market holidays; the only changed sample is 2026-09-30 on 2027-02-16
+// re-pinned once the deadline rolls over market holidays; the only changed sample is 2026-09-30 on 2027-02-16
 // (Presidents' Day 2027 moves its deadline to Feb 16), pinned in ci-masters-contract-check.mjs.
 check('v59.87 thirteenFStale (moved to domain/masters/filing-deadline.js) is unchanged', hash(thirteenF) === 'ad8018f673fdbc160237e5349e9313d4a6d3eeb2b4ad90a1fb5f93215caed0e7', hash(thirteenF));
 const tempPayload = { generatedAt: '2026-11-20T00:00:00Z', retained: ['jp'] };
@@ -99,7 +99,7 @@ const tempMarkets = [{ id: 'us', asOf: '2026-11-19' }, { id: 'kr', asOf: '2026-1
 const temp = [];
 for (let t = Date.parse('2026-11-19T00:00:00Z'); t < Date.parse('2026-12-02T00:00:00Z'); t += 6 * H) temp.push([t, [...temperature.staleMarketIds(tempPayload, tempMarkets, t)].sort()]);
 temp.push(['no-gen', [...temperature.staleMarketIds({}, tempMarkets, Date.parse('2026-11-20T00:00:00Z'))].sort()]);
-// v60.30: a retained body holding its market's latest close (jp at the newest date) is no longer stale; the pin moved once.
+// A retained body holding its market's latest close (jp at the newest date) is no longer stale; the pin moved once.
 check('v59.87 staleMarketIds (moved to domain/market/sentiment/market-temperature.js) is unchanged', hash(temp) === '10de95daa54afb28083460babbb1819b55e2e6deb7e92f575aa93481de45d4c7', hash(temp));
 
 // The grade itself, case by case.

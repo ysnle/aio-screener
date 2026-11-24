@@ -69,7 +69,7 @@ function rawGroups(doc, model, axis, bottomWatch) {
 
 // The method: what each indicator measures and its rule, the link to its principle in the research library, the two
 // reference indicators' place against the six 시장 상태 indicators, and the price temperature's rules.
-// The VIX-band record at the verdict's completed VIX close (the same close 시장 상태's risk line reads; R670).
+// The VIX-band record at the verdict's completed VIX close (the same close 시장 상태's risk line reads).
 function fearRecord(root, inputs, regime) {
   const vix = regime?.asOf ? buildCloseSeries(inputs?.history, 'vix', { through: regime.asOf }).at(-1) : null;
   return vix?.date === regime.asOf ? vixBandRecord(root?.[STRESS_OUTCOMES.key] || null, vix.value) : null;
@@ -122,6 +122,8 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
     state.textContent = axis?.stateLabel || '판정 대기';
     state.className = `regime-state is-${axis?.state || 'unknown'} sx-chip sx-chip--sm sx-chip--${CHIP_TONE[axis?.state] || 'neutral'}`;
   }
+  // The hero line says what days at today's fear level were followed by (the VIX-band record,
+  // vix-band-record.js vixBandLedeSaid); the axis's 판정 사유 row, the label-only line it replaces, stays in the raw table.
   if (!root?.[STRESS_OUTCOMES.key]) refreshSharedArtifact(root, STRESS_OUTCOMES).then(({ changed } = {}) => { if (changed) renderSentimentBoard({ documentRef: doc, root }); }).catch(() => {});
   set('sentiment-read', vixBandLedeSaid(fearRecord(root, inputs, regime)).text);
   set('sentiment-synthesis', model.tally.length ? model.tally.join(' · ') : '기준일에 맞는 심리 지표 관측 없음');

@@ -1,3 +1,13 @@
+// The market-environment score is a reference description, so it is computed
+// on the latest completed US regular session — "직전 미국장 종가 기준" — instead of being
+// blank whenever the US market is closed (i.e. every Korean daytime session).
+//
+// The reference score always describes that completed close, including during
+// the next session. Fetch time and a newer intraday price are not closing-price evidence.
+//   - quote inputs require a closing observation on the basis date;
+//   - daily published inputs (F&G, put/call, HY spread, breadth): dated no earlier than the
+//     session before it, because these series publish after the close with a one-day lag.
+// Anything older, undated or non-finite stays out, so the score never mixes in stale days.
 import { latestCompletedUsSession, nyParts } from '../session/market-calendar.js';
 import { isValidMarketDate } from '../session/session-time.js';
 
@@ -54,6 +64,7 @@ export function describeCloseBasis(basis) {
   return `${month}/${day} 미국 정규장 종가 기준`;
 }
 
+// Inspect observation provenance before selecting, without mutating live quotes.
 export function selectCloseBasisObservation({ key, candidates = [], basis, nowMs } = {}) {
   for (const candidate of candidates) {
     if (!candidate) continue;

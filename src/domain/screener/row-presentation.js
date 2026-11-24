@@ -1,3 +1,6 @@
+// Structure: pure row-presentation helpers for the screener table (labels, visible rank, size bucket,
+// staleness and held-ranking copy). No DOM, network or storage — src/ui/pages/screener.js re-exports these names
+// for the gates that import them from the page.
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
@@ -11,14 +14,19 @@ export const FACTOR_LABELS = Object.freeze({
   // PBR's equity is the latest filed balance sheet (a quarter when one was filed after the fiscal year).
   value: { label: '밸류', color: 'var(--color-text-warning)', description: '저PER·저PBR — PER은 최근 4개 분기(TTM) 순이익, PBR은 가장 최근에 공시된 재무상태표(분기 포함)의 자본 기준' },
   quality: { label: '퀄리티', color: 'var(--color-text-warning)', description: 'ROE·순이익률 — ROE는 최근 연간(FY), 순이익률은 최근 4개 분기(없으면 최근 연간) 공시 기준' },
+  // 2026-10-17 audit: kalmanVelConf is the filter's daily trend velocity discounted by its own uncertainty, and the discount
+  // is 1~9% (median 2%) because the state covariance is in log units — it reads as a speed, not a confidence.
   kalman: { label: '추세 속도', color: 'var(--color-accent)', description: '칼만 필터로 추정한 최근 90거래일 추세의 하루 속도(불확실성만큼 소폭 할인)' }
 });
 
+// size-bucket value in USD billions — decision-grade live cap first, else the
+// plausibility-checked SEC reference cap; null means "size unknown" (never a zero).
 export function capFilterValue(row = {}) {
   return capReading(row)?.billions ?? null;
 }
 /** The size value with its basis: 'live' (decision-grade quote cap) or 'reference' (SEC shares × completed close). */
 export function capReading(row = {}) {
+  // Boundary contract: the live cap is read through the readiness contract (calculation purpose).
   const mcap = readRowNumber(row, 'mcap', 'calculation');
   if (mcap != null && mcap > 0) return { billions: mcap, basis: 'live' };
   const reference = finite(row.referenceMarketCap?.billions);
@@ -40,15 +48,25 @@ export function visibleRank(row) {
   return row?.screenStatus === 'unavailable' || row?.screenStatus === 'rejected' ? null : finite(row?.rank);
 }
 
+// Single source of truth for the displayed position. A rejected row keeps its raw
+// rank, so the cell must read the same visible rank the rank cell shows —
+// otherwise a row labelled 조건 미충족 displays a position.
+// The rank is a tie-aware percentile among eligible rows
+// under the chosen criteria; an A-F letter cut those percentiles at uncalibrated bands and read as
+// a quality grade. The position itself is shown instead.
 export function rankGrade(rank) {
   const value = finite(rank);
   return value == null ? null : `상위 ${Math.max(1, Math.round(100 - value))}%`;
 }
 
 export function vcpStageLabel(stage) {
+  // The producer's gate is a moving-average order (price > 150 > 200-day line, above the 50-day line, within
+  // 30% of the 52-week high) — not a Weinstein stage and not the 50·200-day position the stock summary calls 상승 추세.
+  // A close above the pivot on heavy volume that closed down is not a breakout (price-factors.js).
   return ({ not_stage2: '이동평균 배열 미충족', breakout: '피벗 돌파', pivot_down: '피벗 위 하락(거래량 증가)', extended: '피벗에서 확장(+5% 초과)', near_pivot: '피벗 근접', contracting: '변동폭 수축', basing: '기반 형성', stage2_only: '이동평균 배열 충족' })[stage] || '관측';
 }
 
+// One honest statement of staleness per table instead of one per cell.
 export function describeStaleDates(dates = []) {
   const unique = [...new Set(dates.filter(Boolean))].sort();
   if (!unique.length) return '';
@@ -56,6 +74,8 @@ export function describeStaleDates(dates = []) {
   return `흐리게 표시된 값은 ${span} 기준 관측값으로 최신이 아닙니다(참고용). 셀을 누르거나 마우스를 올리면 출처·관측 시각이 보입니다.`;
 }
 
+// 2026-10-13 review S01: a weight profile whose computable share is under the model's 80% floor can only
+// produce a held ranking. Measure it from the ranking's own per-factor coverage so the button can say so.
 export function profileComputability(weights, factorCoverage) {
   const entries = Object.entries(weights || {}).filter(([, value]) => Number.isFinite(Number(value)) && Number(value) > 0);
   const total = entries.reduce((sum, [, value]) => sum + Number(value), 0);
@@ -66,6 +86,11 @@ export function profileComputability(weights, factorCoverage) {
   return { pct, available: pct >= 80, missing };
 }
 
+// User copy for a held re-rank — the same vocabulary as the model's own fail-closed
+// semantics (결측은 중립 취급하지 않음, W07-A/P1146).
+// Codex structure review 2026-10-12 (UI): the selected market's own factor session versus that market's
+// latest completed session. KR closes 15:30 KST, so after the close a 10/08 KR factor file is behind even
+// while the US file is current — the hold copy and the population note must name the market that is late.
 export function factorSessionLag(market, factorSessionDate, now = Date.now()) {
   const session = String(factorSessionDate || '').slice(0, 10);
   const latest = latestCompletedSession(market, now);
@@ -96,6 +121,8 @@ export const POPULATION_EXCLUSION_TEXT = Object.freeze({
 
 export function describeRankingHold(hold, { factorSessionDate = null, market = 'US', now = Date.now() } = {}) {
   if (!hold || !hold.reason) return null;
+  // When the price inputs are simply one session behind, say that — not a
+  // generic coverage failure that reads as if the screener were broken.
   const lag = factorSessionLag(market, factorSessionDate, now);
   if (/coverage|eligible/.test(hold.reason) && lag) {
     return `순위 보류 — 가격 자료가 ${lag.session.slice(5).replace('-', '/')} 종가 기준이고, 그 뒤 ${lag.latest.slice(5).replace('-', '/')} ${lag.label}이 끝났습니다. 다음 자료 갱신으로 최신 종가가 들어오면 순위를 다시 계산합니다(지난 값으로 순위를 매기지 않습니다).`;
@@ -111,6 +138,9 @@ export function describeRankingHold(hold, { factorSessionDate = null, market = '
   return `순위 보류 — 요청한 조건에서 팩터 계산 기준을 충족하지 못해 순위를 매기지 않았습니다(결측 팩터는 중립값으로 대체하지 않습니다). 이전 계산은 폐기됐습니다.`;
 }
 
+// v57.87 (owner X-bookmark read 2026-10-16): the follow-through evidence of one row in short words, plus a longer title.
+// Order: base number → pocket pivot → down-day resilience → heavy down days → climax signs. Missing pieces are left out;
+// a row with none of them reads '—'. Words only — no entry, exit or target.
 export const CLIMAX_SIGN_LABELS = Object.freeze({ 'run-up-days': '10일 중 8일 이상 상승', 'largest-gain': '연중 최대 상승폭', 'largest-volume': '연중 최대 거래량 상승일', 'stretch-200': '200일선 +70% 이상' });
 export function followThroughSummary(row = {}) {
   const num = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
@@ -135,6 +165,8 @@ export function followThroughSummary(row = {}) {
   return { text: parts.length ? parts.join(', ') : '—', title: details.join('\n'), climax: signs.length };
 }
 
+// The time basis of a row's filing figures, for the cell titles and the inspector. A row without a basis field
+// (artifacts before 2026-11-18) is the fiscal year. ROE is always the fiscal year (equity is annual in the store).
 const basisField = (row, field) => row?.[`_${field}Basis`] ?? row?.[`${field}Basis`] ?? null;
 const throughField = (row, field) => row?.[`_${field}Through`] ?? row?.[`${field}Through`] ?? null;
 const fyText = (periodEnd) => fiscalYearLabel(periodEnd) || '최근 회계연도';
@@ -177,4 +209,5 @@ export function filingBasisSummary(row = {}) {
   return parts.join(', ');
 }
 
+// 2026-11-18 (owner: 배당수익률): the dividend token lives in a leaf module the ticker header reads too.
 export { dividendYieldText } from './dividend-text.js';

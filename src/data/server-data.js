@@ -1,10 +1,15 @@
+// Server data artifact (public-data/data.json + reconciliation-status.json). Legacy unification: the fetch,
+// the reconciliation check and the market-cycle gate moved here from js/aio-data.js _aioLoadServerData, which still
+// projects the payload into DATA_SNAPSHOT and the legacy evidence globals.
 import { artifactUrl } from './artifact-registry.js';
 
+// Canonical policy is 12h; artifact metadata does not configure runtime freshness.
 export const LIVE_CORE_FRESHNESS_SLA_HOURS = 12;
 const LIVE_CORE_FRESHNESS_SLA_MS = LIVE_CORE_FRESHNESS_SLA_HOURS * 60 * 60 * 1000;
 const RECONCILIATION_SCHEMA = 'reconciliation-status-v2';
 const RECONCILIATION_CATEGORY_COUNT = 22;
 
+// An exact wall-clock window; a future artifact or a closed market never extends it.
 export function isStrictLiveCoreFreshnessAge(ageMs) {
   return Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= LIVE_CORE_FRESHNESS_SLA_MS;
 }
@@ -52,6 +57,7 @@ export function assessServerCycle(meta = {}, now = Date.now()) {
   return {
     generatedMs,
     ageMs,
+    // Whole minutes; the raw quotient reached the news stale banner as "118.27963333333334분".
     ageMin: Number.isFinite(ageMs) ? Math.max(0, Math.round(ageMs / 60000)) : null,
     ageHours: Number.isFinite(ageHours) ? ageHours : null,
     coverage,
@@ -62,6 +68,9 @@ export function assessServerCycle(meta = {}, now = Date.now()) {
   };
 }
 
+// The window._serverDataMeta record the legacy screens read.
+// A lane that failed its check on this refresh is held at the last published value (scripts/lib/lane-quarantine.mjs);
+// the shell's 주의 항목 bar names it as stale while the rest of the data is current.
 export function laneQuarantineNotices(entries) {
   return (Array.isArray(entries) ? entries : []).filter((lane) => lane && lane.lane).map((lane) => {
     const sinceMs = Date.parse(lane.since || '');
@@ -101,7 +110,7 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
     newsCycleEnd: m.newsCycleEnd || null,
     newsCycleLabel: m.newsCycleLabel || null,
     newsNextRefresh: m.newsNextRefresh || null,
-    laneQuarantine: Array.isArray(m.laneQuarantine) ? m.laneQuarantine : [],
+    laneQuarantine: Array.isArray(m.laneQuarantine) ? m.laneQuarantine : [], // Lanes held at the last published value
     pipelineNotices: laneQuarantineNotices(m.laneQuarantine),
     marketSnapshotRevision: m.marketSnapshotRevision || null,
     marketSnapshotAttemptRevision: m.marketSnapshotAttemptRevision || null,
@@ -123,8 +132,11 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
     cycleManifestRevision: m.cycleManifestRevision || null,
     cycleManifestAttemptRevision: m.cycleManifestAttemptRevision || null,
     cycleComponents: m.cycleComponents || null,
+    // v52.75/WP-AI0: generation success is not semantic verification; the raw LLM marketAnalysis stays blocked until
+    // the producer emits an explicit semantic-gate pass.
     marketAnalysisSemanticOk: m.marketAnalysisSemanticOk === true,
     marketAnalysisOk: m.marketAnalysisOk === true && m.marketAnalysisSemanticOk === true,
+    // The AI panel names a blocked scheduled analysis or the retained previous verified one.
     marketAnalysisReason: m.marketAnalysisReason || null,
     marketAnalysisBlockCause: m.marketAnalysisBlockCause || null,
     marketAnalysisRetained: m.marketAnalysisRetained || null,
@@ -151,6 +163,9 @@ export function buildServerDataMeta(d, { reconciliation, now = Date.now() } = {}
   };
 }
 
+// Fetches data.json, then the reconciliation artifact built from it. The minute cache-buster bypasses the
+// 10-minute CDN copy so both files come from the same origin minute.
+// prefetched: the <head> boot request for data.json (src/data/boot-prefetch.js); a failed one falls back to a fetch.
 export async function fetchServerData({ fetch = globalThis.fetch, now = () => Date.now(), prefetched = null } = {}) {
   const minute = prefetched?.minute ?? Math.floor(now() / 60000);
   const response = await (prefetched?.response ? prefetched.response.catch(() => null) : Promise.resolve(null))

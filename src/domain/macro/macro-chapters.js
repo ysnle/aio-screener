@@ -1,3 +1,7 @@
+// v59.55 (owner 11/1, "PCE 분석 및 설명은 아예 없고, 유가 분석 없고, 최근 금/은 급락에 대해서도 설명은 없고, 고용/노동 분석
+// 없고, 향후 … CPI 발표 체크해야된다라는 내용도 없고"): 매크로's six chapters. Each answers one question with one small
+// picture, the latest numbers, what they mean for stocks, the next dated release and the condition that would change the
+// read. Every number comes from macro-history.json (FRED) or history.json; every sentence is chosen by a rule here.
 import { oneSessionDay } from '../market/day/one-session.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { dayLabel, ratesLegsOffset } from '../market/story/market-story.js';
@@ -18,6 +22,7 @@ import { closeMoveGrade } from '../market/session/move-size.js';
 import { AXIS_LABELS } from '../market/interpretation/concepts.js';
 import { shortDate } from '../content/date-labels.js';
 
+// The shared signedText, so a 20-session +0.04% prints 0.0%, never '+0.0%'.
 const signed = (value, digits = 2, unit = '%') => signedText(value, digits, unit);
 const bp = (value) => signedText(value, 0, 'bp');
 
@@ -29,11 +34,16 @@ function series(macroHistory, id) {
 const lastMoM = (rows) => { const tail = rows.slice(-2); return tail.length === 2 ? monthOverMonth(tail).at(-1) || null : null; };
 const monthName = (date) => `${Number(String(date).slice(5, 7))}월`;
 const nextOf = (events, ids) => (events || []).find((event) => ids.includes(event.id)) || null;
+// v59.74 (macro review): the release in Korean time, as the page subtitle and the policy-rate card say it — an FOMC decision
+// at 14:00 ET is 12/10(목) 04:00 KST, and the chapter read '12/9(수) FOMC 회의' beside it.
 const whenOf = (event) => {
   if (!event) return '';
   const at = releaseAtMs(event.id, event.date);
   return Number.isFinite(at) ? `${formatKstWhen(at).label} KST ${event.name}` : `${dayLabel(event.date)} ${event.name}`;
 };
+// Every chapter change is the shared 20-session window ('20거래일'), counted in exchange sessions.
+// Rows (history.json carries weekend copies) and 21 calendar days gave WTI +12.7% / 달러 -0.3% here beside the six-factor
+// table's 20거래일 +14.3% / 0.0% on the same screen.
 const WINDOW = MARKET_WINDOWS.rule;
 const shortDay = (date) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`;
 function historySpan(history, field) {
@@ -146,10 +156,15 @@ function labor(macroHistory, events) {
   };
 }
 
+// 10년 = 실질 + 기대인플레 holds only on one date: the legs are cut at the latest date all three have (FRED posts the
+// real yield a day after the others). v59.74: the oil and metals chapters read the same cut, so one screen does not print a
+// 20-session breakeven of -11bp (rates) beside -10bp (oil).
+// real retail sales within ±0.2% of flat month over month read as 버티는 정도 (the print's own rounding band is ±0.1%p).
 const REAL_RETAIL_FLAT_PCT = 0.2;
 const splitThrough = (macroHistory) => ['dgs10', 'realYield10', 'breakeven10'].map((id) => series(macroHistory, id).at(-1)?.date || '').sort()[0] || null;
 
 function rates(macroHistory, events, history = []) {
+  // The line names the FRED legs' span, so 4.98% (10/29) beside the market 4.93% (10/30) reads.
   const through = splitThrough(macroHistory);
   const ten = macroChange(macroHistory, 'dgs10', through); const real = macroChange(macroHistory, 'realYield10', through);
   const be = macroChange(macroHistory, 'breakeven10', through); const term = macroChange(macroHistory, 'termPremium10');
@@ -202,16 +217,22 @@ function rates(macroHistory, events, history = []) {
   return {
     id: 'rates', title: `${AXIS_LABELS.rates} — 움직인 이유`, question: '금리 변화의 원인, 물가와 성장 걱정',
     viz: { caption: '20거래일 변화 (bp)', unit: 'bp', points: points.map(([x, value], index) => ({ x, value, hot: index === 1 })) },
+    // The 10-year itself is the market close reading every screen shares (closeChange on history tnx); the
+    // FRED legs, cut on their own common date, split the move and keep their own span beside them.
     now: market ? `10년 ${market.from.toFixed(2)} → ${market.to.toFixed(2)}% (${shortDay(market.fromDate)}→${shortDay(market.date)}, ${bp(market.bp)}) · 실질 ${bp(real.bp)} · 기대인플레 ${bp(be.bp)} (${shortDay(ten.fromDate)}→${shortDay(ten.date)})`
       : `10년 ${ten.from.toFixed(2)} → ${ten.to.toFixed(2)}% (${shortDay(ten.fromDate)}→${shortDay(ten.date)}, ${bp(ten.bp)}) = 실질 ${bp(real.bp)} + 기대인플레 ${bp(be.bp)}`,
     mean: read,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
     flip: '기대인플레가 같이 움직이기 시작하면 해석이 물가 쪽으로 바뀝니다.',
+    // each FRED leg names its own date — '2년 4.46%' (FRED, 11/5) sat undated beside the policy
+    // card's 4.51% (Treasury, 11/6).
     detail: [['10년 실질금리', `${real.to.toFixed(2)}% (${shortDay(real.date)})`], ['10년 기대인플레', `${be.to.toFixed(2)}% (${shortDay(be.date)})`], ['기간 프리미엄', term ? `${term.to.toFixed(2)}% (${shortDay(term.date)}, 20거래일 ${bp(term.bp)})` : '—'], ['2년 (FRED)', two ? `${two.to.toFixed(2)}% (${shortDay(two.date)})` : '—'],
       ...(path ? [[`정책금리 ${mid.toFixed(2)}% 대비 단기 금리`, path]] : []), ...(termSplit ? [['10년 변화 나누기', termSplit]] : [])]
   };
 }
 
+// v59.64 (owner 2026-11-03: "금&은/유가/금리/신용 스프레드 등등 … 각각 분석해서 시장 상황들이랑 연결"): oil, metals and the
+// dollar are chapters of their own (oil and gold shared one card, and silver had no reading at all).
 function oil(history, macroHistory) {
   const wti = historySpan(history, 'wti');
   if (!wti) return null;
@@ -272,6 +293,8 @@ function metals(history, macroHistory) {
   const fromPeak = (gold.to / peak.value - 1) * 100;
   const read = goldRead(gold, real, dollar);
   const ratio = silver ? gold.to / silver.to : null;
+  // Silver is gold with an industrial (and higher-beta) leg. Silver lagging a falling gold is not a haven move — the
+  // gold/silver ratio rises when growth worry or de-risking hits the more volatile metal first.
   const silverRead = !silver ? '' : silver.pct - gold.pct >= 3 ? ' 은이 금보다 강해 산업 수요(경기) 기대가 섞여 있습니다.'
     : gold.pct - silver.pct >= 3 ? (silver.pct < 0 && gold.pct <= 0 ? ' 은이 금보다 더 빠져(금/은 비율 상승), 산업 수요 걱정이나 변동성 큰 자산부터 줄이는 움직임이 겹쳤습니다.' : ' 은이 금보다 약해 경기보다 안전자산 쪽 수요입니다.')
       : ' 은은 금과 비슷하게 움직였습니다.';
@@ -286,6 +309,10 @@ function metals(history, macroHistory) {
   };
 }
 
+// Gold has no yield: a falling real yield or a weaker dollar lowers what holding it costs, so gold usually moves against
+// both. v59.74 (macro review): each leg counts only past the cross-asset lines (gold 2%, real yield 10bp, dollar 1%) and the
+// read names the leg that explains the move — gold -3.4% while the real yield fell 27bp and the dollar sat still read
+// '실질금리·달러와 크게 어긋나지 않았습니다', the opposite of what 금리와 환율 said about the same 20 sessions.
 const GOLD_EXCESS = 2;
 export function goldRead(gold, real, dollar) {
   const C = RULES.crossAsset;
@@ -332,7 +359,7 @@ function dollarChapter(history, macroHistory = null) {
   // The 환율 axis's yen-rally line (RULES.fx.yenRally20dPct) decides when the carry check is worth naming; the size word
   // comes from the yen's own volatility.
   const carry = jpy && jpy.pct <= -RULES.fx.yenRally20dPct ? ` 엔화가 ${jpy.grade === 'large' ? '빠르게 ' : ''}강해져(엔/달러 ${signed(jpy.pct, 1)}) 낮은 엔화 금리로 빌린 돈이 되돌아가는지(캐리 청산) 봐야 합니다.` : '';
-  const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct, grade: krw.grade }) : '';
+  const won = krw ? wonMoveSentence(krw.pct, { dxy20: dxy.pct, grade: krw.grade }) : ''; // One reading with the 성장·한국 chapter
   return {
     id: 'dollar', title: '달러 · 환율 — 세계 돈줄의 방향', question: '달러가 세계 유동성을 조이는지 푸는지',
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: '달러지수', value: dxy.pct, hot: true }, jpy ? { x: '엔/달러', value: jpy.pct } : null, krw ? { x: '원/달러', value: krw.pct } : null].filter(Boolean) },
@@ -340,12 +367,16 @@ function dollarChapter(history, macroHistory = null) {
     mean: `${read}.${carry}${won}`,
     next: '매일 · 미국 금리 발표와 일본은행 회의',
     flip: '달러가 오르면서 미국 금리도 오르면 긴축 쪽, 달러가 오르는데 금리가 내리면 위험 회피(안전자산 달러) 쪽입니다.',
+    // v59.75 (macro audit 11/7): the rate-differential driver, the same OECD monthly read as the 금리와 환율 FX cards.
     detail: [['달러지수 20거래일 전', dxy.from.toFixed(2)], ['엔/달러 20거래일', jpy ? signed(jpy.pct, 1) : '—'], ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—'],
       ...[rateDifferential(macroHistory, history, 'usdjpy'), rateDifferential(macroHistory, history, 'usdkrw')].filter(Boolean)
         .map((row) => [`${row.name} 10년 금리차`, `${row.value.toFixed(2)}%p (${Number(row.month.slice(5))}월${row.change == null ? '' : `, 6개월 ${signed(row.change, 2, '%p')}`})`])]
   };
 }
 
+// Each chapter's "오늘" line from the market-day ledger (src/domain/market/day/facts.js) — the chapter's own
+// gauge that moved most against its usual day, what moved with it (driver links: oil → energy names), and the most
+// material report on the same topic. Nothing is said when the ledger is missing or every gauge moved as usual.
 const CHAPTER_ASSETS = Object.freeze({ inflation: ['breakeven10'], labor: [], rates: ['tnx', 'dgs2', 'realYield10'], oil: ['wti', 'brent'],
   metals: ['gold', 'silver'], dollar: ['dxy', 'usdjpy', 'usdkrw'], credit: ['hyOas', 'igOas', 'cccOas'], volatility: ['vix'], growth: ['kospi', 'kosdaq'] });
 const CHAPTER_TOPICS = Object.freeze({ inflation: ['inflation'], labor: ['jobs'], rates: ['rates'], oil: ['energy'], metals: ['metals'], dollar: ['fx'], credit: ['credit'], volatility: ['volatility'], growth: ['korea'] });
@@ -374,11 +405,19 @@ export function chapterToday(day, chapterId) {
   if (!lead && !report) return null;
   const size = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? bp(fact.change) : signed(fact.change, 1));
   const parts = [];
+  // The gauge's move is its session's (11/20 Friday), read on Monday night as "오늘"; the line is
+  // labelled with that session's date (`label`), and "가장 큰 변화" is that session's.
   if (lead) parts.push(`${lead.label} ${size(lead)}, 평소 하루 변동의 ${Math.abs(lead.z).toFixed(1)}배${lead.rank === 'lead' ? '로 이날 가장 큰 변화 중 하나입니다' : '입니다'}`);
   if (moved.length) parts.push(`같이 움직인 업종은 ${moved.slice(0, 2).map((group) => `${group.label}(${signed(group.change, 1)})`).join(', ')}입니다`);
   return { text: `${parts.join('. ')}${parts.length ? '.' : ''}`, label: shortDate(lead?.date || report?.date) || '최근 거래일', report: report ? { title: koreanTitle(report), date: report.date } : null, rank: lead?.rank || report?.rank || 'minor' };
 }
 
+// v59.70 (X bookmarks #4): each spread tier's level inside its own recorded range — the 10/50/90th percentiles of every
+// FRED observation kept (ICE BofA: about three years) and where today sits. A quantile band, never a fixed '150bp' line:
+// the index definitions differ from the ones such lines are quoted from.
+// v59.75 (macro audit 11/7): BB and B join the ladder between 하이일드 and CCC. A tier enters only when its record starts
+// with the others' (within a month): BB/B held one year until the producer kept three, and a one-year percentile beside
+// three-year ones would read as the same yardstick.
 const TIERS = Object.freeze([['igOas', '투자등급'], ['hyOas', '하이일드'], ['bbOas', 'BB'], ['bOas', 'B'], ['cccOas', 'CCC']]);
 const SAME_RECORD_DAYS = 31;
 function spreadRange(macroHistory, id, label) {
@@ -406,6 +445,8 @@ export function creditRanges(macroHistory) {
   return { ranges, since, line: `${lead.label} ${lead.now.toFixed(2)}%, ${since} 기록의 ${lead.pct}% 위치${others.length ? ` — ${restText}` : ''}.` };
 }
 
+// v59.70 (X bookmarks #3, owner 11/4): the chapter reads the credit axis's own rule (RULES.credit through creditState) and
+// its one 20-session reading (oasDelta20Bp) — '+40bp or 4.5%' and a '3.5% 돌파' flip here said 위기 where 시장 상태 said 중립.
 function credit(macroHistory) {
   const hy20 = oasDelta20Bp(macroHistory, 'hyOas');
   if (!hy20) return null;
@@ -436,10 +477,12 @@ function credit(macroHistory) {
 
 function growthKorea(macroHistory, history, events) {
   const kospi = historySpan(history, 'kospi');
+  // US semiconductors are SOXX, as on 무슨 일이 있었나.
   const semis = historySpan(history, 'soxx');
   const krw = historySpan(history, 'usdkrw');
   const sentiment = series(macroHistory, 'consumerSentiment').at(-1);
   const retail = lastMoM(series(macroHistory, 'retailSales'));
+  // v59.75 (macro audit 11/7): output beside spending — industrial production (Fed G.17), month over month.
   const output = lastMoM(series(macroHistory, 'industrialProduction'));
   // retail sales are nominal. With headline CPI +0.65% in the same month a +0.8% print is about +0.1%
   // in real terms — the release band's '과열' and this chapter's '꺾이지 않았습니다' were reading two different things.
@@ -461,6 +504,8 @@ function growthKorea(macroHistory, history, events) {
     // each monthly value carries its month — '소비심리 48.1' (September) sat undated beside today's KOSPI.
     now: [sentiment ? `소비심리 ${sentiment.value.toFixed(1)}(${monthName(sentiment.date)})` : null, retail ? `소매판매 ${signed(retail.value, 1)}(${monthName(retail.date)})` : null, output ? `산업생산 ${signed(output.value, 1)}(${monthName(output.date)})` : null, kospi ? `코스피 ${signed(kospi.pct, 1)}` : null].filter(Boolean).join(' · '),
     mean: `${sentiment && sentiment.value < 60 ? (spending.startsWith('소매판매는 명목') ? '소비심리는 낮고, ' : '소비심리는 낮지만 ') : ''}${spending}${korea}.${won}`,
+    // v59.75 (macro audit 11/7): the flip named ISM, which is not collected (licensed, not on FRED); it now reads the two
+    // official monthly series the chapter shows. The '외국인 매매 · 아직 제공하지 않음' row (no source) left.
     next: whenOf(next) || '소매판매 · 산업생산 (매월 중순)',
     flip: '소매판매와 산업생산이 두 달 연속 함께 줄면 경기 둔화로 읽습니다.',
     detail: [['소비심리(미시간)', sentiment ? sentiment.value.toFixed(1) : '—'], ['소매판매 전월비 (명목)', retail ? `${signed(retail.value, 1)}${realRetail != null ? `, 실질 약 ${signed(realRetail, 1)}` : ''}` : '—'], ...(output ? [['산업생산 전월비', `${signed(output.value, 1)} (${monthName(output.date)})`]] : []), ['원/달러 20거래일', krw ? signed(krw.pct, 1) : '—']]

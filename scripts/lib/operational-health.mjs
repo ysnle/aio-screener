@@ -21,7 +21,7 @@ export const WATCHDOG_THRESHOLDS = Object.freeze({
   receiptStaleMs: 3 * 86400000
 });
 
-// P1596: passing blocking gates does not certify optional services or workflow cadence.
+// Passing blocking gates does not certify optional services or workflow cadence.
 export function summarizeOperationalChecks(checks = [], warnings = []) {
   const failed = checks.filter(check => !check.ok && check.severity === 'error');
   const degraded = checks.filter(check => !check.ok && check.severity !== 'error');
@@ -34,7 +34,7 @@ export function marketAnalysisDiagnostic(data) {
   return String(analysis?.reason || data?.meta?.marketAnalysisReason || analysis?.semanticIssues?.join(',') || 'analysis-unavailable').slice(0, 600);
 }
 
-// v60.18: the AI provider refused the shared account (HTTP 401/402/403/429: exhausted credit, revoked key, billing). The
+// The AI provider refused the shared account (HTTP 401/402/403/429: exhausted credit, revoked key, billing). The
 // analysis lane cannot heal that itself, so the watchdog raises it as an operator error with the real cause; a validator
 // block or a salvaged reading is not a refusal. A retained reading records why the new call failed.
 export function aiProviderRefusal(data) {
@@ -94,7 +94,7 @@ export function dataSourceWarnings(data, { nowMs = Date.now(), feedStaleMs = WAT
   return warnings;
 }
 // A feed with no usable item for three days is broken, not quiet: the watchdog fails, which opens the operations issue.
-// v59.57: a low-cadence official feed that still answers with items (the Fed after an FOMC week) gets its own quiet
+// A low-cadence official feed that still answers with items (the Fed after an FOMC week) gets its own quiet
 // allowance (NEWS_FEED_QUIET_MAX_MS); 11/01 22:55Z it failed every Pages release and watchdog run at exactly 72h.
 export function deadNewsFeeds(data, { nowMs = Date.now(), deadMs = WATCHDOG_THRESHOLDS.newsFeedDeadMs } = {}) {
   return (Array.isArray(data?.meta?.newsFeedHealth) ? data.meta.newsFeedHealth : [])

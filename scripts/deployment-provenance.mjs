@@ -6,7 +6,7 @@ import { inflateRawSync } from 'node:zlib';
 
 const SHA = /^[0-9a-f]{40}$/;
 
-// P1351: bounded run lists are discovery hints, never the final provenance authority.
+// Bounded run lists are discovery hints, never the final provenance authority.
 function isTrustedRunIdentity(run, { repository, name, runId, allowInProgress = false }) {
   return Number.isSafeInteger(Number(runId)) && Number(runId) > 0
     && Number(run?.id) === Number(runId)
@@ -14,7 +14,7 @@ function isTrustedRunIdentity(run, { repository, name, runId, allowInProgress = 
     && run?.head_repository?.full_name === repository
     && ['push', 'workflow_dispatch', 'workflow_run'].includes(run?.event)
     && ((run?.status === 'completed' && run?.conclusion === 'success')
-      // P2112: the API can still report the running release as 'queued' while its own deploy job runs.
+      // The API can still report the running release as 'queued' while its own deploy job runs.
       || (allowInProgress && ['in_progress', 'queued'].includes(run?.status)));
 }
 

@@ -11,14 +11,14 @@ const { default: path } = await import('node:path');
 const { fileURLToPath } = await import('node:url');
 const { OPERATIONS_STATUS, DOMAIN_RECEIPT_PUBLICATION_STATUS, createOperationsStatus, validateOperationsStatus } = await import('../src/data/contracts/operations.js');
 const { deriveDurableFreshness, deriveDomainStatus, deriveFastQuoteAvailability, deriveFredProviderStatus, deriveFundamentalRankingAvailability, reuseWorkerHealthEvidence, deriveOverall } = await import('./build-operations-status.mjs');
-// v60.25: a later market refresh cannot renew the independent SEC observation.
+// A later market refresh cannot renew the independent SEC observation.
 const secObserved = '2026-11-16T22:36:15.988Z';
 const secReceipt = { lastSuccessfulObservation: secObserved };
 const coveredSec = { coveragePct: 80 };
 const ranking = deriveFundamentalRankingAvailability(coveredSec, secReceipt, false);
 if (ranking.asOf !== secObserved || ranking.availability !== 'DEGRADED' || !ranking.missingReason) throw new Error('[operations-status] v60.25 retained SEC observation or degraded reason lost');
 if (deriveFundamentalRankingAvailability(coveredSec, null, true).asOf !== null) throw new Error('[operations-status] v60.25 unobserved SEC ranking was dated');
-// v60.18: overall follows the blockers (it was OPERATOR_REQUIRED all week with blockers []); every combination of the two inputs.
+// Overall follows the blockers (it was OPERATOR_REQUIRED all week with blockers []); every combination of the two inputs.
 for (const durableOk of [true, false]) for (const blockers of [[], ['ai_proxy_deploy_or_readiness_required']]) {
   const expected = !durableOk ? 'BLOCKED' : blockers.length ? 'OPERATOR_REQUIRED' : 'CURRENT';
   if (deriveOverall({ durableOk, blockers }) !== expected) throw new Error(`[operations-status] v60.18 overall for durableOk=${durableOk} blockers=${blockers.length} must be ${expected}`);
@@ -31,15 +31,15 @@ const status = JSON.parse(read('public-data/operations-status.json'));
 const data = JSON.parse(read('public-data/data.json'));
 const validation = validateOperationsStatus(status);
 if (!validation.ok) throw new Error(`[operations-status] ${validation.errors.join(',')}`);
-// v57.54: every status literal the builder can publish is in the declared vocabulary. A retained AI analysis wrote
+// Every status literal the builder can publish is in the declared vocabulary. A retained AI analysis wrote
 // 'STALE' (a statusCode, not a status), the contract rejected the artifact, and that refresh failed outright.
 // PASS (readiness criteria) and MATCH (reconciliation tier) belong to other contracts outside the walked surface.
 const builderStatusLiterals = [...read('scripts/build-operations-status.mjs').matchAll(/\bstatus:\s*([^,\n]+)/g)]
   .flatMap((match) => [...match[1].matchAll(/'([A-Z_]+)'/g)].map((literal) => literal[1]))
   .filter((literal) => !OPERATIONS_STATUS.includes(literal) && !['PASS', 'MATCH'].includes(literal));
 if (builderStatusLiterals.length) throw new Error(`[operations-status] v57.54 builder publishes undeclared status: ${[...new Set(builderStatusLiterals)].join(',')}`);
-// P1271: a healthy endpoint without rights/soak must not become an AVAILABLE quote feature in operations-status.
-// v60.50: whether the browser reads the plane is the operator's promotion in public-config.json (ci-fast-plane-consumer-gate).
+// A healthy endpoint without rights/soak must not become an AVAILABLE quote feature in operations-status.
+// Whether the browser reads the plane is the operator's promotion in public-config.json (ci-fast-plane-consumer-gate).
 const healthyUncertified = deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: false, soakObservedDays: 0 });
 if (healthyUncertified.availability !== 'UNAVAILABLE' || healthyUncertified.missingReason !== 'fast-quote-provider-rights-not-reviewed') throw new Error('[operations-status] uncertified fast quotes were promoted');
 if (deriveFastQuoteAvailability({ configured: true, healthy: true, rightsReviewed: true, soakObservedDays: 6 }).availability !== 'UNAVAILABLE') throw new Error('[operations-status] incomplete fast quote soak was promoted');
@@ -100,7 +100,7 @@ if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(stat
 // failed this gate 43 times on 11/19-20 (nativeLazyOwner) while nothing read the block. Route ownership is checked
 // against the code by ci-retirement-contract.mjs.
 if (Object.hasOwn(createOperationsStatus({ routes: { supported: 1, nativeLazyOwner: ['home'] } }), 'routes')) throw new Error('[operations-status] v60.46 the published status must not copy route ownership (code state) from route-owners.json');if (status.overall === 'VERIFIED_LIVE') throw new Error('[operations-status] invalid unsupported overall status');
-// P1719: a retained previous analysis is not a successful call this run.
+// A retained previous analysis is not a successful call this run.
 const scheduledAnalysisOk = data.meta?.marketAnalysisOk === true && !data.meta?.marketAnalysisRetained;
 if ((status.ai?.scheduledAnalysis?.status === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis status does not match data.meta.marketAnalysisOk');
 if ((status.ai?.scheduledAnalysis?.lastCallSucceeded === 'CURRENT') !== scheduledAnalysisOk) throw new Error('[operations-status] scheduledAnalysis lastCallSucceeded does not match data.meta.marketAnalysisOk');
@@ -108,7 +108,7 @@ const expectedFredAttempt = data.meta?.fredAttemptedAt || data.meta?.generatedAt
 if (status.providers?.fred?.lastAttemptAt !== expectedFredAttempt) throw new Error('[operations-status] FRED lastAttemptAt must use explicit provider attempt evidence');
 if (data.meta?.fredFetchOk === true && status.providers?.fred?.lastFetchAt !== (data.meta?.fredLastSuccessfulAt || data.meta?.generatedAt || null)) throw new Error('[operations-status] FRED lastFetchAt must use explicit successful-fetch evidence');
 
-// P1189: FRED provider status is an operational claim and must come from
+// FRED provider status is an operational claim and must come from
 // OPERATIONS_STATUS. It used to publish 'UNAVAILABLE' — a rights/feature word
 // (P1091 two-axes confusion) — so validateOperationsStatus rejected the whole
 // artifact and fetch-data.mjs aborted before writing operations-status, which
@@ -127,7 +127,7 @@ for (const [input, expected] of fredStatusFixtures) {
 if (fredStatusFixtures.some(([input]) => deriveFredProviderStatus(input) === 'UNAVAILABLE')) throw new Error('[operations-status] the retired rights word leaked back into an operations status');
 const builderSource = read('scripts/build-operations-status.mjs');
 if (!/status: fredProviderStatus/.test(builderSource)) throw new Error('[operations-status] the FRED provider status must be derived, not written inline');
-// P1256 (E5 O06 / 06 O06): 도메인 receipt 일반화 픽스처 — SEC 외 도메인도 전부 실패·일부 실패·
+// 도메인 receipt 일반화 픽스처 — SEC 외 도메인도 전부 실패·일부 실패·
 // 미수집을 구분하고, 소비자는 "기존값 유지"를 "새 수집 성공"으로 말하지 않아야 한다.
 // 이 픽스처는 구 P1169의 SEC 전용 판정을 모든 도메인의 공통 계약으로 고정한다.
 const receiptAt = '2026-09-25T00:00:00.000Z';
@@ -182,7 +182,7 @@ if (!['CURRENT', 'OPERATOR_REQUIRED', 'BLOCKED', 'STALE'].includes(operations.pl
 if (operations.planes?.fast?.status !== 'OPERATOR_REQUIRED') fail('fast plane must remain operator-required until endpoint and soak evidence exist');
 if (!/^https:\/\/aio-screener-data-plane\.[^/]+\.workers\.dev$/.test(String(operations.planes?.fast?.endpoint || ''))) fail('fast plane endpoint must identify the deployed data-plane base URL without a path suffix');
 if (operations.planes.fast.health?.status === 'CURRENT' && operations.planes.fast.health?.statusCode !== 200) fail('fast plane current health evidence must be HTTP 200');
-// v59.32: the blockers close once the owner's rights decision and the quote feature are both in place
+// The blockers close once the owner's rights decision and the quote feature are both in place
 // (ci-fast-plane-consumer-gate checks the promoted side); until then they must stay published.
 if (operations.featureAvailability?.quotes?.availability !== 'AVAILABLE') {
   if (!operations.blockers?.includes('fast_plane_soak_and_rights_review_required')) fail('missing blocker fast_plane_soak_and_rights_review_required');

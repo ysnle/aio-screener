@@ -56,7 +56,7 @@ export function composeAmendmentChain(bundles) {
     }
   }
   if (!effective) throw new Error(`No effective 13F holdings rows for ${bundles?.[0]?.filing?.accession || 'unknown filing'}`);
-  // P1449: 합성된 행의 출처(A(authorisor)·role)를 행 순서에 맞춰 함께 돌려준다 — 행 수집기가
+  // 합성된 행의 출처(A(authorisor)·role)를 행 순서에 맞춰 함께 돌려준다 — 행 수집기가
   // 각 행에 accession / filingRole을 붙이는 데 사용한다.
   return { ...effective, amendmentChain, rowProvenance: provenance };
 }

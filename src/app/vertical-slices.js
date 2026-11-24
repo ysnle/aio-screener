@@ -1,7 +1,7 @@
 // Wave 3: page work is delivered as an ordered set of vertical slices. This registry is
 // the executable boundary for route pairing, required producer intent, and the
 // acceptance checks that every slice must carry before it can be called done.
-// Product scope is desktop, tablet and phone (owner 2026-10-11); responsive layout is owned by responsive.css and
+// Product scope is desktop, tablet and phone; responsive layout is owned by responsive.css and
 // checked by the responsive browser gate rather than a per-slice mobile dimension.
 const ACCEPTANCE = Object.freeze(['lifecycle', 'data', 'fieldTimeline', 'renderer', 'chart', 'narrative', 'requiredData', 'states', 'chartFallback', 'directEntry', 'routeReentry', 'outage', 'copyReview']);
 
@@ -18,7 +18,7 @@ export const VERTICAL_SLICE_CONTRACTS = Object.freeze([
   Object.freeze({ id: 'vs11-principles', order: 11, routes: Object.freeze(['principles']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs12-masters', order: 12, routes: Object.freeze(['masters']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
   Object.freeze({ id: 'vs13-atlas', order: 13, routes: Object.freeze(['atlas']), requiredData: Object.freeze([]), acceptance: ACCEPTANCE }),
-  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts', 'technical']), requiredData: Object.freeze(['quotes']), acceptance: ACCEPTANCE }) // v59.64 기술적 분석; v60.31: technical is its derived view (the retired 종목 차트 tab), as theme-detail is 테마's
+  Object.freeze({ id: 'vs14-charts', order: 14, routes: Object.freeze(['charts', 'technical']), requiredData: Object.freeze(['quotes']), acceptance: ACCEPTANCE }) // 기술적 분석; v60.31: technical is its derived view (the retired 종목 차트 tab), as theme-detail is 테마's
 ]);
 
 const ROUTE_TO_SLICE = new Map(VERTICAL_SLICE_CONTRACTS.flatMap((slice) => slice.routes.map((route) => [route, slice])));

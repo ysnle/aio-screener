@@ -44,7 +44,7 @@ var AIO_MARKET_LEARNING_REFERENCE = {
 
 function _aioMarketLearningCurriculumContext(ctxId, q) {
   try {
-    // Question-selected only, like the AI-infrastructure framework (P1740): the page list covered every route, so this
+    // Question-selected only, like the AI-infrastructure framework: the page list covered every route, so this
     // 8K-character packet was in every prompt, a two-stock return comparison included.
     var ask = String(q || '').toLowerCase();
     if (!/예측|대응|주도주|리더|불타기|물타기|손절|반대매매|담보|신용|지수\s*(?:바스켓|편입|추종)|바스켓|패시브|에코챔버|복기|거래일지|정보 과잉/.test(ask)) return '';
@@ -226,7 +226,7 @@ var AIO_AI_INFRA_CYCLE_REFERENCE = {
 
 function _aioAIInfraCycleContext(ctxId, q) {
   try {
-    // P1740: question-selected only. The page list covered every route and the caller passed no question, so this
+    // question-selected only. The page list covered every route and the caller passed no question, so this
     // 16K-character packet was in every prompt and pulled unrelated answers toward AI/power/semiconductor names.
     // Generic market words (earnings, oil, credit, breadth, calendar, 실적, 고용) no longer select it; AI-infrastructure
     // topics and the companies the framework is about do.
@@ -377,7 +377,7 @@ if (typeof window !== 'undefined') window._aioWrapChatExternalContext = _aioWrap
 // The screens the AI panel answers on, each with the panel's title. The prompt itself is built per turn in chatSendUnified.
 const CHAT_CONTEXTS = {
   technical: { title: 'AI 기술적 분석가' },
-  charts: { title: 'AI 지수 차트 분석가' }, // v59.70: the 기술적 분석 screen had no context, so the panel did nothing there
+  charts: { title: 'AI 지수 차트 분석가' }, // The 기술적 분석 screen had no context, so the panel did nothing there
   macro: { title: 'AI 거시 분석가' },
   fundamental: { title: 'AI 펀더멘털 분석가' },
   themes: { title: 'AI 테마 분석가' },
@@ -394,8 +394,7 @@ const CHAT_CONTEXTS = {
   'market-news': { title: 'AI 뉴스 분석가' },
   principles: { title: 'AI 시장 원리 학습 분석가' },
   atlas: { title: 'AI 시대 지식 지도 분석가' },
-  masters: { title: 'AI 대가 보유 종목 분석가' } // v59.70: a screen tab without a context left the panel silent
-  // v57.54: kr-themes/kr-macro retired like kr-tech (P1758) — no screen opens them; 테마·거시 contexts answer KR sections.
+  masters: { title: 'AI 대가 보유 종목 분석가' } // A screen tab without a context left the panel silent
 };
 
 if (typeof window !== 'undefined') {
@@ -464,7 +463,7 @@ function _aioBeginChatRequest(ctxId, query, options) {
   state._streamStartedAt = run.startedAt;
   var sendButton = document.getElementById('chat-' + ctxId + '-btn');
   sendButton = document.getElementById(buttonId) || sendButton;
-  if (sendButton) { sendButton.disabled = true; if (sendButton.setAttribute) sendButton.setAttribute('aria-busy', 'true'); } // v59.70: shared busy look (ui-states.css)
+  if (sendButton) { sendButton.disabled = true; if (sendButton.setAttribute) sendButton.setAttribute('aria-busy', 'true'); } // Shared busy look (ui-states.css)
   var chatLog = document.getElementById('ai-panel-msgs'); // role=log: the answer is read once it is whole, not word by word
   if (chatLog && chatLog.setAttribute) chatLog.setAttribute('aria-busy', 'true');
   if (sendButton && sendButton.parentNode && typeof document.createElement === 'function') {
@@ -589,9 +588,9 @@ function extractChips(text) {
 }
 
 function renderMarkdownLight(text) {
-  if (typeof window._aioStripPictographs === 'function') text = window._aioStripPictographs(text); // P1500: no emoji in answers
+  if (typeof window._aioStripPictographs === 'function') text = window._aioStripPictographs(text); // No emoji in answers
   // v30.14→v33.4: 마크다운 테이블·헤더·리스트·코드블록 완전 렌더링
-  // v33.4: 코드 펜스(```) 처리 추가
+  // 코드 펜스(```) 처리 추가
   var lines = text.split('\n');
   var html = [];
   var inTable = false;
@@ -603,7 +602,7 @@ function renderMarkdownLight(text) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
   function inlineFmt(s) {
-    return s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"<>]+)\)/g, function(_, label, url) { var u = url.replace(/&amp;/g, '&'), hashAt = u.indexOf('#'), hash = hashAt >= 0 ? u.slice(hashAt) : '', base = hashAt >= 0 ? u.slice(0, hashAt) : u, q = base.indexOf('?'), keep = q < 0 ? [] : base.slice(q + 1).split('&').filter(function(kv) { return kv && !/^(?:utm_[a-z]+|ftag|oc|fbclid|gclid)=/i.test(kv); }); var plain = (q < 0 ? base : base.slice(0, q)) + (keep.length ? '?' + keep.join('&') : '') + hash, clean = plain.replace(/&/g, '&amp;'); var host = ''; try { host = new URL(plain).hostname.replace(/^www\./, ''); } catch (_) {} return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer"' + (host ? ' title="' + host + '"' : '') + '>' + label + '</a>'; }) // v57.55 review (B5-F7): citations render as links without tracking parameters
+    return s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s"<>]+)\)/g, function(_, label, url) { var u = url.replace(/&amp;/g, '&'), hashAt = u.indexOf('#'), hash = hashAt >= 0 ? u.slice(hashAt) : '', base = hashAt >= 0 ? u.slice(0, hashAt) : u, q = base.indexOf('?'), keep = q < 0 ? [] : base.slice(q + 1).split('&').filter(function(kv) { return kv && !/^(?:utm_[a-z]+|ftag|oc|fbclid|gclid)=/i.test(kv); }); var plain = (q < 0 ? base : base.slice(0, q)) + (keep.length ? '?' + keep.join('&') : '') + hash, clean = plain.replace(/&/g, '&amp;'); var host = ''; try { host = new URL(plain).hostname.replace(/^www\./, ''); } catch (_) {} return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer"' + (host ? ' title="' + host + '"' : '') + '>' + label + '</a>'; }) // Citations render as links without tracking parameters
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code class="lch-code">$1</code>');
@@ -616,7 +615,7 @@ function renderMarkdownLight(text) {
   function flushTable() {
     if (tableRows.length === 0) return;
     var hdr = tableRows[0];
-    // v31.1: 5컬럼 초과 시 테이블 대신 리스트로 변환 (가로 깨짐 방지)
+    // 5컬럼 초과 시 테이블 대신 리스트로 변환 (가로 깨짐 방지)
     if (hdr.length > 5) {
       for (var r = 1; r < tableRows.length; r++) {
         var item = '<div class="lch-row">';
@@ -645,7 +644,7 @@ function renderMarkdownLight(text) {
   for (var i = 0; i < lines.length; i++) {
     var raw = lines[i];
     var esc = escLine(raw);
-    // v33.4: 코드 펜스(```) 처리
+    // 코드 펜스(```) 처리
     if (raw.trim().startsWith('```')) {
       if (inTable) flushTable();
       if (inCodeBlock) {
@@ -692,7 +691,7 @@ function renderMarkdownLight(text) {
   return html.join('');
 }
 
-// v59.42: chatRenderChips and chatAppendMsg are deleted. They wrote into per-page #chat-<ctx>-chips / -msgs
+// chatRenderChips and chatAppendMsg are deleted. They wrote into per-page #chat-<ctx>-chips / -msgs
 // containers that no markup has (the unified AI panel uses #ai-panel-msgs through _appendAIMsg).
 
 function _aioChatError(error, status) {
@@ -702,13 +701,13 @@ function _aioChatError(error, status) {
   return normalized;
 }
 
-async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { // v57.81: was callClaude (shared Worker route); repo-only callers, no alias
+async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { // Was callClaude (shared Worker route); repo-only callers, no alias
   opts = opts || {};
   var _stage = function(name, detail) { try { return opts.onStage ? opts.onStage(name, detail) : undefined; } catch (_) {} }; // the panel's waiting line
-  // P1245 (05 A05): 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
+  // 이 스트림의 불변 요청 id. 재시도는 같은 요청 객체를 재사용하므로 id도 안정적이고,
   // 수집기·진단·evidence floor는 모두 이 값만 쓰고 공유 전역을 읽지 않는다.
   var _streamRequestId = opts.requestId ? String(opts.requestId) : null;
-  await (window._aioAIAnswerReady ? window._aioAIAnswerReady() : window._aioAIPipelineReady); // v59.15 pipeline + v59.70 answer orchestrator load after boot (src/app/compatibility-globals.js)
+  await (window._aioAIAnswerReady ? window._aioAIAnswerReady() : window._aioAIPipelineReady); // Pipeline + v59.70 answer orchestrator load after boot (src/app/compatibility-globals.js)
   var _streamState = _aioAIRequestStream(_streamRequestId);
   var _chatSignal = opts.signal;
   try { _aioThrowIfChatAborted(_chatSignal); } catch (abortBeforeRoute) {
@@ -729,7 +728,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     onError(routeFailure.displayMessage || routeFailure.userMessage);
     return;
   }
-  var _claudeTarget = routeState.target || _aioClaudeTarget(apiKey);   // v50.52 B5: 서버 키 모드면 개인 키 불요
+  var _claudeTarget = routeState.target || _aioClaudeTarget(apiKey); // 서버 키 모드면 개인 키 불요
   if (!routeState.ok) {
     var missingCreds = _aioChatError({ message: routeState.reason, status: routeState.reason === 'NO_ROUTE' || routeState.reason === 'VAULT_LOCKED' ? 401 : 503 });
     onError(window._aioRouteNotice(routeState.reason) || missingCreds.displayMessage || (missingCreds.userMessage + ' ' + missingCreds.nextAction));
@@ -738,7 +737,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var modelCfg = getModelConfig(opts.modelKey);
   var _aiStartedAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
 
-  // v51.04: systemPrompt + messages 크기 모니터링 + 자동 트리밍 (90K+ 시 oldest 제거, system 보존)
+  // systemPrompt + messages 크기 모니터링 + 자동 트리밍 (90K+ 시 oldest 제거, system 보존)
   var _sysLen = (system || '').length;
   var _trimmedMessages = messages.slice();
   var _totalChars = _sysLen + _trimmedMessages.reduce(function(s,m){return s+(m.content||'').length;},0);
@@ -788,8 +787,8 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   _cutSystem(8000);
   console.log('[AIO] callSharedAi: system=' + Math.round(_sysLen/1000) + 'K + msgs=' + Math.round((_totalChars-_sysLen)/1000) + 'K = ' + Math.round(_totalChars/1000) + 'K자 (' + modelCfg.label + ')');
 
-  // v30.5: AbortController — 연결 30초 + 청크 간 15초 타임아웃
-  // v31.3: thinking 모드는 60초 (추론 시간 필요)
+  // AbortController — 연결 30초 + 청크 간 15초 타임아웃
+  // Thinking 모드는 60초 (추론 시간 필요)
   var timeoutMs = opts.webSearch === true || modelCfg.thinking ? 60000 : 30000;
   var ctrl = new AbortController();
   var _unlinkChatAbort = _aioLinkChatAbortSignal(_chatSignal, ctrl);
@@ -805,7 +804,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     input: _trimmedMessages.map(function(message) { return { role: message.role, content: String(message.content || '') }; }),
     max_output_tokens: effectiveMaxTokens, reasoning: { effort: modelCfg.reasoningEffort || 'none' }, store: false, stream: true
   };
-  // P1608: reuse the metered route; old Workers receive a text request.
+  // Reuse the metered route; old Workers receive a text request.
   var searchEnabledNow = opts.webSearch === true;
   if (window.AIO?.attachNativeSearch) reqBody = window.AIO.attachNativeSearch(reqBody, { enabled: searchEnabledNow, health: routeState.health, mustSearch: opts.mustSearch, context: opts.searchContext });
   if (reqBody.tools && window._aioAIBudgetPolicy) window._aioAIBudgetPolicy.preparePaidWebSearch({ serverKey: true, health: routeState.health, state: window });
@@ -816,9 +815,9 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   var _armConnect = function() { connectionTimedOut = false; connectTimer = setTimeout(function() { connectionTimedOut = true; ctrl.abort(); }, timeoutMs); };
   var _claudeHeaders = { 'Content-Type': 'application/json' };
   _claudeHeaders[_aiContract.headers.appToken] = _aioAppToken();
-  var _idempotencyKey = _streamRequestId ? _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : '') : null; // v57.61: a retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
-  // v30.5: 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단. v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
-  var _chunkTimeoutMs = Math.max((typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000, modelCfg.reasoningEffort === 'medium' ? 90000 : (modelCfg.thinking || opts.webSearch === true) ? 45000 : 0); // v57.61: reasoning/search streams are silent until the first text
+  var _idempotencyKey = _streamRequestId ? _streamRequestId + (opts.retryAttempt > 0 ? ':retry' + Math.min(2, opts.retryAttempt) : '') : null; // A retry is a new paid attempt (reusing the key got 409) that the Worker counts as the same question
+  // 청크 간 15초 타임아웃 — 서버가 멈추면 자동 중단. v49.78 C4 P418: T 객체 미정의 가능성 방어 — typeof 체크 + 명시적 15000ms fallback
+  var _chunkTimeoutMs = Math.max((typeof T !== 'undefined' && T && T.CHUNK_TIMEOUT) ? T.CHUNK_TIMEOUT : 15000, modelCfg.reasoningEffort === 'medium' ? 90000 : (modelCfg.thinking || opts.webSearch === true) ? 45000 : 0); // reasoning/search streams are silent until the first text
   try {
    for (;;) { // one pass per request; each tool round is its own paid attempt with its own key
     if (_tools) reqBody = _tools.body;
@@ -855,16 +854,16 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
     if (_tools) _tools.beginRound();
     window._lastClaudeUsage = null;
 
-    // v50.10: native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
-    // P1245 (05 A05): 리셋 대상이 공유 전역이 아니라 이 요청의 기록이므로, 겹쳐 도는 다른 스트림의
+    // Native web_search 인용/검색결과 수집 (사용자 출처 표면화). 요청 시작 시 리셋.
+    // 리셋 대상이 공유 전역이 아니라 이 요청의 기록이므로, 겹쳐 도는 다른 스트림의
     // 인용을 지우지 않는다.
-    if (_streamState && !(_tools && _tools.rounds > 0)) { // P1756: every attempt resets — a no-search retry must not inherit a failed searched attempt's citations (a tool round keeps them).
+    if (_streamState && !(_tools && _tools.rounds > 0)) { // Every attempt resets — a no-search retry must not inherit a failed searched attempt's citations (a tool round keeps them).
       _streamState.citations.length = 0;
       _streamState.researchError = null;
     }
     function _pushWebCite(url, title) {
       if (!url || typeof url !== 'string' || !/^https?:\/\//i.test(url)) return;
-      // P1245: 소유자(요청 id) 없는 스트림은 인용을 수집하지 않는다 — 임의의 전역에 붙이지 않는다.
+      // 소유자(요청 id) 없는 스트림은 인용을 수집하지 않는다 — 임의의 전역에 붙이지 않는다.
       if (!_streamState) return;
       var arr = _streamState.citations;
       for (var _ci = 0; _ci < arr.length; _ci++) { if (arr[_ci].url === url) return; }
@@ -934,7 +933,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         if (result.done || stopReason === 'client_output_limit') break;
       }
       if (!sawMessageStop && stopReason !== 'client_output_limit') throw new Error('AI stream ended before response completion');
-      // v48.0: usage 기반 실제 쿼터 정산 + cache hit rate 로그
+      // Usage 기반 실제 쿼터 정산 + cache hit rate 로그
       if (responseUsage) {
         var _u = responseUsage;
         var _inp = _u.input_tokens || 0;
@@ -948,7 +947,7 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
         if (typeof _refineQuotaByUsage === 'function') {
           try { _refineQuotaByUsage(modelCfg, _totalInput, _out, _cacheR); } catch(e) {}
         }
-        // v49.79 P427/R164: 누적 비용 추적 (AIO.getApiUsage() 조회 가능)
+        // 누적 비용 추적 (AIO.getApiUsage() 조회 가능)
         try {
           if (typeof window._aioTrackApiUsage === 'function') {
             window._aioTrackApiUsage({ model: AI_WORKER_CONTRACT.model, inputTokens: _totalInput, outputTokens: _out });
@@ -1023,21 +1022,17 @@ async function callSharedAi(system, messages, onChunk, onDone, onError, opts) { 
   }
 }
 
-// ── 스크리너 질의 — src/ai/context/screener-query.js (legacy unification 2026-10-17). The chat calls the window names
+// ── 스크리너 질의 — src/ai/context/screener-query.js. The chat calls the window names
 // (_aioBuildScreenerAiContext) that src/app/chat-globals.js binds with the chat.
 
-// _extractTickers moved to src/ai/entity/extract-tickers.js (v59.14, roadmap item 11; window._extractTickers).
-
-// P1740: typed symbols + plan-resolved company names + nickname table — one resolver, src/ai/entity/chat-tickers.js (v59.88).
+// Typed symbols + plan-resolved company names + nickname table — one resolver, src/ai/entity/chat-tickers.js.
 function _aioResolveChatTickers(q, questionPlan, state, options) {
   var resolve = window.AIO && window.AIO.resolveChatTickers;
   if (typeof resolve !== 'function') return [];
-  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), root: window, ctxId: (options && options.ctxId) || '' }); // v58.75: the screen's company (chat-tickers.js screenSubjectTicker)
+  return resolve({ query: q, questionPlan: questionPlan, state: state, companiesOnly: !!(options && options.companiesOnly), root: window, ctxId: (options && options.ctxId) || '' }); // The screen's company (chat-tickers.js screenSubjectTicker)
 }
 
-// _withTimeout moved to src/platform/with-timeout.js (v59.14, roadmap item 11; window._withTimeout).
-
-// v50.38 트랙2: 매크로/외환/채권/테마 채팅에 페이지 도메인 라이브 데이터 주입 (시세 너머 정성+정량).
+// 트랙2: 매크로/외환/채권/테마 채팅에 페이지 도메인 라이브 데이터 주입 (시세 너머 정성+정량).
 //   기존 compute/스냅샷 재사용 — 네트워크 비의존(라이브 캐시 + DATA_SNAPSHOT FRED값 + 내부 compute 함수).
 //   도메인 무관 ctx면 '' 반환(자기 게이팅).
 
@@ -1069,12 +1064,12 @@ function _fetchDomainContextForChat(ctxId) {
 }
 window._fetchDomainContextForChat = _fetchDomainContextForChat;
 
-// P1621: questions can cross page boundaries; select existing domain summaries without paid retrieval.
+// Questions can cross page boundaries; select existing domain summaries without paid retrieval.
 function _aioDomainContextForQuestion(ctxId, query, tickers) {
   return window.AIO && typeof window.AIO.buildQuestionDomainContext === 'function' ? window.AIO.buildQuestionDomainContext({ ctxId: ctxId, query: query, root: window, readDomain: _fetchDomainContextForChat, tickers: tickers || [], blocks: window._aioChoosing || null }) : _fetchDomainContextForChat(ctxId);
 }
 
-// v57.50 C05/C06/C08: the market header reads what the screen shows — the completed-close rows
+// The market header reads what the screen shows — the completed-close rows
 // (_aioScreenBasisEvidence), the home card's F&G close reading and the 시장 상태 overall verdict. Returns null when
 // no close row exists yet (the answer's basis line then names the screen without a close date).
 function _aioChatCloseMarketBasis() {
@@ -1133,7 +1128,7 @@ function _buildNewsContext(ctxId, query) {
   var queryWords = q.split(/\s+/).map(function(w) { return w.replace(/[^0-9a-z가-힣]/gi, ''); }).filter(function(w) { return w.length > 2; });
   var now = Date.now();
   var H24 = 24 * 3600000;
-  var span = window._aioChoosing ? window._aioChoosing.newsWindow(query, now) : null; // v58.75: "이번 주" reads up to 7 days
+  var span = window._aioChoosing ? window._aioChoosing.newsWindow(query, now) : null; // "이번 주" reads up to 7 days
 
   // 24시간 이내 뉴스만
   var recent = newsCache.filter(function(it) {
@@ -1170,9 +1165,9 @@ function _buildNewsContext(ctxId, query) {
   var top = scored.slice(0, span ? span.limit : itemCap);
   if (top.length === 0) return _windowCtx;
 
-  // v48.12: 제목 + 본문 요약(desc 또는 summary) 120자까지 주입 — "왜 올랐나/내렸나" 맥락 제공
+  // 제목 + 본문 요약(desc 또는 summary) 120자까지 주입 — "왜 올랐나/내렸나" 맥락 제공
   //         기관 리서치처럼 '이유와 근거'를 AI가 설명하려면 헤드라인만으로 부족
-  // v48.55: 뉴스 언급 티커 배열 구조화 주입 (사용자 지적 "뉴스/소식 파이프라인에서 관련 기업 정보 있으면 가져오고")
+  // 뉴스 언급 티커 배열 구조화 주입 (사용자 지적 "뉴스/소식 파이프라인에서 관련 기업 정보 있으면 가져오고")
   var mentionedTickers = new Set();
   var entries = top.map(function(s, idx) {
     var it = s.item;
@@ -1185,7 +1180,7 @@ function _buildNewsContext(ctxId, query) {
     var actionRaw = tr && tr.ko_action ? String(tr.ko_action).replace(/\s+/g, ' ').trim() : '';
     var marketRaw = tr && tr.ko_market ? String(tr.ko_market).replace(/\s+/g, ' ').trim() : '';
     var descShort = descRaw ? descRaw.substring(0, descCap) + (descRaw.length > descCap ? '...' : '') : '';
-    // v48.55: 각 뉴스 item의 티커 수집 (extractTickers + cached 티커 병합)
+    // 각 뉴스 item의 티커 수집 (extractTickers + cached 티커 병합)
     var itemTickers = [];
     try {
       if (typeof getDisplayTickers === 'function') itemTickers = getDisplayTickers(it) || [];
@@ -1214,7 +1209,7 @@ function _buildNewsContext(ctxId, query) {
     entry.tickers.forEach(function(t) { mentionedTickers.add(t.replace('$','').toUpperCase()); });
   });
 
-  // v48.55: 뉴스 언급 티커 집계 (별도 섹션으로 프롬프트 주입 → AI가 관련 종목 추적 가능)
+  // 뉴스 언급 티커 집계 (별도 섹션으로 프롬프트 주입 → AI가 관련 종목 추적 가능)
   var tickerSummary = '';
   if (mentionedTickers.size > 0) {
     var tkrList = Array.from(mentionedTickers).slice(0, 15).join(', ');
@@ -1247,10 +1242,10 @@ function _aioTickerNewsFromCache(ticker, opts) {
       if (_kdb && /^\d{6}$/.test(_krCode) && _kdb[_krCode] && _kdb[_krCode].name) names.push(_kdb[_krCode].name); // 005930 → 삼성전자 (뉴스는 한글명으로 표기)
     } catch (_k) {}
     try {
-      // P1339: registry is { entries: { TICKER: { en, kr, alt } } } (KR keys keep .KS/.KQ); a flat map never matched.
+      // Registry is { entries: { TICKER: { en, kr, alt } } } (KR keys keep .KS/.KQ); a flat map never matched.
       var regEntries = (window.AIO_TICKER_NAME_REGISTRY && window.AIO_TICKER_NAME_REGISTRY.entries) || {};
       var regEntry = regEntries[rawUpper] || regEntries[sym];
-      // P1550: an alt that is another issuer's registry key ('ms' on MSFT vs Morgan Stanley 'MS') is not an alias of this one.
+      // An alt that is another issuer's registry key ('ms' on MSFT vs Morgan Stanley 'MS') is not an alias of this one.
       if (regEntry) { enName = regEntry.en || ''; [regEntry.kr].concat(regEntry.alt || []).forEach(function(name) { if (name && !regEntries[String(name).toUpperCase()]) names.push(name); }); }
     } catch (_a) {}
     var matcher = typeof window._aioCompanyMatcher === 'function' ? window._aioCompanyMatcher(sym, enName, names) : null;
@@ -1345,7 +1340,7 @@ function _aioChatAnswerPolicy(query, ctxId, detectedTickers, screenerResult) {
   var hasTicker = tickers.length > 0;
   var hasScreener = !!(screenerResult && screenerResult.matched);
   var isBroadRecommendation = !!(screenerResult && screenerResult.mode === 'diversified-recommendation');
-  // v59.42: cue words in src/ai/intent/question-cues.js ('per' no longer hits "operating", 'hold' no longer hits "threshold").
+  // Cue words in src/ai/intent/question-cues.js ('per' no longer hits "operating", 'hold' no longer hits "threshold").
   var asksDecision = intent.wantsAction || _aioQuestionCue('asksDecisionCue', q);
   var asksSimple = intent.intents.indexOf('EXPLAIN_BEGINNER') >= 0 || _aioQuestionCue('asksSimpleCue', q);
   var asksFreshMarket = intent.wantsFresh || intent.intents.indexOf('MACRO_LINKAGE') >= 0;
@@ -1402,7 +1397,7 @@ function _buildChatMemoryContext(ctxId, query) {
 window._classifyChatIntent = _classifyChatIntent;
 window._buildChatMemoryContext = _buildChatMemoryContext;
 
-// P1608: provider-neutral source-first choice; the Worker owns admission.
+// provider-neutral source-first choice; the Worker owns admission.
 function _shouldUseClaudeWebSearch(query, ctxId, detectedTickers, questionPlan, researchState) {
   var route = window._aioLastClaudeRouteState;
   return !!window.AIO?.selectNativeSearch?.({ decision: questionPlan?.researchDecision, questionPlan: questionPlan, externalResult: researchState?.externalResult,
@@ -1423,7 +1418,7 @@ function _aioCanonicalResearchUrl(value) {
 function _searchCitationsHTML(sr) {
   if (!sr || !sr.citations || sr.citations.length === 0) return '';
   var html = '<div class="aio-search-sources">';
-  // v50.10: OpenAI 웹검색 출처도 동일 렌더 (engine === 'claude')
+  // OpenAI 웹검색 출처도 동일 렌더 (engine === 'claude')
   var engName = sr.engine === 'claude' ? 'AI 웹검색' : 'Web Research';
   html += '<div class="lch-src-head">' + engName + ' 참고 링크</div>';
   html += '<div class="lch-src-note">검색된 링크이며, 답변의 근거로 검증됐다는 뜻은 아닙니다.</div>';
@@ -1435,7 +1430,7 @@ function _searchCitationsHTML(sr) {
     seen[url] = true;
     var domain = '';
     try { domain = new URL(url).hostname.replace('www.', ''); } catch(e) { domain = url.substring(0, 30); }
-    // v48.91: escHtml() 적용 — API 응답 URL/domain XSS 방지
+    // escHtml() 적용 — API 응답 URL/domain XSS 방지
     var title = typeof sr.citations[i] === 'object' && sr.citations[i].title;
     var label = title ? String(title).slice(0, 180) + ', ' + domain : domain;
     html += '<a href="' + escHtml(url) + '" target="_blank" rel="noopener noreferrer" class="lch-src-link">[' + (i+1) + '] ' + escHtml(label) + '</a>';
@@ -1453,7 +1448,7 @@ function _aioResearchFailureForUser(error) {
   return messages[code] || 'Web Research 공급자 또는 출처 검증에 실패했습니다.';
 }
 
-// P1655 (owner 2026-10-12): the browser-side Google CSE/Perplexity path is removed. Current-information research
+// The browser-side Google CSE/Perplexity path is removed. Current-information research
 // runs only through the shared Worker's web search, so a required question always hands off to that transport.
 async function _aioPrepareAIResearch(questionPlan, options) {
   options = options || {};
@@ -1470,11 +1465,11 @@ async function _aioPrepareAIResearch(questionPlan, options) {
 }
 
 // ── Send message ───────────────────────────────────────────────────────
-// v58.76: the console-only chat export (_aioExportChatData) and price/VIX alerts (_aioAddAlert/_aioCheckAlerts, the
+// The console-only chat export (_aioExportChatData) and price/VIX alerts (_aioAddAlert/_aioCheckAlerts, the
 // background hidden-tab check) are retired — no screen created an alert or offered the export since v57.62/v57.77.
 
-// Owner 2026-10-25: the 맞춤 profile set in the AI panel header (src/ai/session/user-profile.js) adapts the explanation
-// only; unset, the AI is told not to assume one (P1740) and an answer that depends on risk appetite is split by case.
+// The 맞춤 profile set in the AI panel header (src/ai/session/user-profile.js) adapts the explanation
+// only; unset, the AI is told not to assume one and an answer that depends on risk appetite is split by case.
 function _buildUserProfileContext() {
   if (window.AIO && typeof window.AIO.aiProfileContext === 'function') { try { return window.AIO.aiProfileContext(); } catch (_) {} }
   return '\n\n【사용자 투자 프로필】\n미설정 — 위험 성향·투자 기간을 가정하지 말고, 답이 성향에 따라 달라지면 성향별로 나눠 설명한다.\n';
@@ -1485,7 +1480,7 @@ window._buildUserProfileContext = _buildUserProfileContext;
 // v59.88 (ADR-0003 S6): the nickname table (v49.69 P369 _resolveTickerFromFuzzy) is src/domain/instruments/nicknames.js;
 // window._resolveTickerFromFuzzy is its exact-word lookup, installed by src/app/compatibility-globals.js.
 
-// v49.69 P365 R129: 후속 질문 3개 자동 제안 — 답변 내용 + 페이지 컨텍스트 + 감지된 ticker로 유기적 후속 질문 생성
+// 후속 질문 3개 자동 제안 — 답변 내용 + 페이지 컨텍스트 + 감지된 ticker로 유기적 후속 질문 생성
 // 사용자 정직 요구: "AI 채팅에서 활용할 수 있는 모든 답변/기능" — 대화 깊이 + 유기적 흐름
 function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers, questionPlan) {
   if (!ctxId || !aiResponse) return [];
@@ -1560,7 +1555,7 @@ function _suggestFollowUpQuestions(ctxId, userQuery, aiResponse, detectedTickers
 }
 window._suggestFollowUpQuestions = _suggestFollowUpQuestions;
 
-// chatSendUnified freshness 계산 (v57.62: per-page chatSend 퇴역) — 날짜(KST)·liveData stale·snapAge
+// chatSendUnified freshness 계산 (per-page chatSend 퇴역) — 날짜(KST)·liveData stale·snapAge
 window._aioChatFreshnessInfo = function() {
   var todayStr;
   try {
@@ -1583,12 +1578,12 @@ window._aioChatFreshnessInfo = function() {
     (ldAgeMin == null ? '' : ', 가장 최근 관측 ' + ldAgeMin + '분 전') +
     ' — 각 종목의 기준시각·시장 세션·출처를 따로 적용. 참고값은 현재가로 단정하지 않음';
   var snapAge = (typeof DATA_SNAPSHOT !== 'undefined' && DATA_SNAPSHOT._updated)
-    ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : null; // v57.92 A07: unknown is not 999h
+    ? Math.round((Date.now() - new Date(DATA_SNAPSHOT._updated).getTime()) / 3600000) : null; // Unknown is not 999h
   return { todayStr: todayStr, ldAgeMin: ldAgeMin, liveStatus: liveStatus, snapAge: snapAge };
 };
 
 // ── Click a suggestion chip ────────────────────────────────────────────
-// v57.60: the per-page #chat-<ctx>-inp inputs were retired (P1653), so a chip routed to the per-page chatSend
+// The per-page #chat-<ctx>-inp inputs were retired, so a chip routed to the per-page chatSend
 // only produced a "채팅 입력창 DOM 부재" toast. Chips now open the one AI panel, fill #ai-panel-inp and send there.
 function chatFromChip(ctxId, q) {
   var question = String(q == null ? '' : q).trim();
@@ -1604,26 +1599,22 @@ function chatFromChip(ctxId, q) {
 }
 
 function _aioWhenDomReady(fn) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); }
-// v59.42: the per-panel header injector (policy tag + 대화 기록 button) is deleted; .aio-chat .acp-header panels no
-// longer exist, and the one AI panel shows its policy line in #ai-panel-policy (index.html).
 
-// ── 종목 · 재무 공시 search: moved to src/ui/components/fundamental-search.js (v59.12, roadmap item 11) ──
-// _bumpApiCounter/_isQuotaExceeded moved to src/data/api-quota.js (v59.14, roadmap item 11).
+// ── 종목 · 재무 공시 search: moved to src/ui/components/fundamental-search.js ──
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// P1131/R619: index.html의 마지막 인라인 블록 G(사이드바·AI 패널 토글 + 통합 chatSendUnified
+// index.html의 마지막 인라인 블록 G(사이드바·AI 패널 토글 + 통합 chatSendUnified
 // + aiChipClick, 1,006줄)를 이 파일로 옮겼다. 블록 G는 문서상 마지막 클래식 블록이라 뒤에
 // 오는 인라인 블록이 없어 파싱 순서 의존 위험이 가장 낮았다. 옮긴 코드의 최상위 심볼은
 // toggleSidebar/_aiCurrentCtx/_aiCtxMap/_aiDefaultChips/toggleAIPanel/updateAIPanelContext/
 // _appendAIMsg/chatSendUnified/aiChipClick이며, 이들은 여기서 전역 함수 선언으로 남으므로
 // index.html의 data-action 위임과 core의 호출부가 그대로 동작한다(호출은 모두 DOMContentLoaded 이후).
 // ═══════════════════════════════════════════════════════════════════════════════
-// toggleSidebar and the collapsed-state restore moved to src/ui/components/sidebar-toggle.js (v59.14, roadmap item 11).
 
-// v40.4: 통합 AI 사이드 패널 로직
+// 통합 AI 사이드 패널 로직
 var _aiCurrentCtx = null;
-var _aioChoosing = null; // v58.75: src/ai/context/choosing-blocks.js, loaded on the first question
-// v47.8: AI 분석가 패널 지원 페이지
+var _aioChoosing = null; // src/ai/context/choosing-blocks.js, loaded on the first question
+// AI 분석가 패널 지원 페이지
 // v48.14 (Agent P1-4): signal/theme-detail/briefing 복구 — 이들 페이지 내러티브 강화돼 AI 분석 가치 ↑
 // 제거 유지: breadth/sentiment — technical/themes 내용과 중복
 var _aiCtxMap = {
@@ -1631,7 +1622,7 @@ var _aiCtxMap = {
   'fundamental':'fundamental','themes':'themes','portfolio':'portfolio',
   'signal':'signal','screener':'screener','ticker':'ticker','theme-detail':'theme-detail','briefing':'briefing',
   'market-news':'market-news','breadth':'breadth','sentiment':'sentiment',
-  'principles':'principles','atlas':'atlas' // v57.54: KR 테마·거시 sections live in themes/macro; their kr-* keys are retired
+  'principles':'principles','atlas':'atlas' // KR 테마·거시 sections live in themes/macro; their kr-* keys are retired
 };
 // Codex browser audit H13: chips promised timing, entry conditions and risk scores the product does not
 // produce. They now ask what the screen can answer — why signals disagree, what would prove a reading
@@ -1698,14 +1689,14 @@ function toggleAIPanel() {
       var aiInp = document.getElementById('ai-panel-inp');
       var aiBtn = document.getElementById('ai-panel-btn');
       if (aiInp) aiInp.disabled = false;
-      if (aiBtn) aiBtn.disabled = !!getChatState(_aiCurrentCtx)._activeRequest; // v59.74 SM-08: an answer still running keeps 전송 off
+      if (aiBtn) aiBtn.disabled = !!getChatState(_aiCurrentCtx)._activeRequest; // An answer still running keeps 전송 off
     }
     var inp = document.getElementById('ai-panel-inp');
     if (inp && !inp.disabled) setTimeout(function() { inp.focus(); }, 300);
   }
 }
 
-// P1729: the panel names the clocks its answers read — latest quote observation, completed-close date, the news window
+// The panel names the clocks its answers read — latest quote observation, completed-close date, the news window
 // with the post-08:00 slot, and whether the scheduled market commentary was blocked or is a retained earlier version.
 // One line inside the existing policy box (no new widget); providers stay out of the text.
 function _aioAiPanelBasisText(nowMs) {
@@ -1764,11 +1755,11 @@ function updateAIPanelContext(pageId) {
   var chatContexts = window.CHAT_CONTEXTS || {};
   var aiInp = document.getElementById('ai-panel-inp');
   var aiBtn = document.getElementById('ai-panel-btn');
-  // v52.14 P6/P613: 페이지 전환으로 채팅 컨텍스트가 실제로 바뀔 때만 공유 입력창을 비움 — 이전 페이지의
+  // 페이지 전환으로 채팅 컨텍스트가 실제로 바뀔 때만 공유 입력창을 비움 — 이전 페이지의
   // 자동채움 프롬프트(예: fundamental "NVDA 종합 기업 분석해줘...")가 다른 페이지까지 따라다니던 문제 수정.
   // 같은 페이지 내 재호출(_ctxChanged=false)에서는 사용자가 입력 중인 값을 건드리지 않음.
   var _ctxChanged = (_aiCurrentCtx !== ctxId);
-  var _keepRunningAnswer = !!(window._aioKeepRunningAnswer && window._aioKeepRunningAnswer(_aiCurrentCtx, ctxId, chatContexts)); // v58.75: one conversation across screens (chat-sessions.js)
+  var _keepRunningAnswer = !!(window._aioKeepRunningAnswer && window._aioKeepRunningAnswer(_aiCurrentCtx, ctxId, chatContexts)); // One conversation across screens (chat-sessions.js)
   if (_ctxChanged && _aiCurrentCtx && !_keepRunningAnswer && typeof window._aioCancelChatRequest === 'function') {
     // This also covers callers that switch the panel context directly without
     // going through the document pageShown event.
@@ -1790,11 +1781,11 @@ function updateAIPanelContext(pageId) {
     return;
   }
   if (aiInp) { aiInp.disabled = false; if (_ctxChanged) { aiInp.value = ''; _aioSyncQuestionCount(); } }
-  if (aiBtn) aiBtn.disabled = !!getChatState(ctxId)._activeRequest; // v59.74 SM-08: a kept-running answer still owns the send button
+  if (aiBtn) aiBtn.disabled = !!getChatState(ctxId)._activeRequest; // A kept-running answer still owns the send button
   _aiCurrentCtx = ctxId;
   var titleEl = document.getElementById('ai-panel-title');
   var _ctxPublicTitle = String(chatContexts[ctxId].title || '리서치').replace(/^AI\s*/i, '').replace(/분석가/g, '리서치');
-  if (titleEl) { titleEl.textContent = 'AI 도우미'; titleEl.title = 'AI 도우미, ' + _ctxPublicTitle; var ctxLine = document.createElement('span'); ctxLine.className = 'ai-ph-ctx'; ctxLine.textContent = _ctxPublicTitle; titleEl.appendChild(ctxLine); } // v58.80 run-5: the screen name is its own small line, never 'AI 도우미, ...'
+  if (titleEl) { titleEl.textContent = 'AI 도우미'; titleEl.title = 'AI 도우미, ' + _ctxPublicTitle; var ctxLine = document.createElement('span'); ctxLine.className = 'ai-ph-ctx'; ctxLine.textContent = _ctxPublicTitle; titleEl.appendChild(ctxLine); } // run-5: the screen name is its own small line, never 'AI 도우미, ...'
   _aioRenderAiPanelBasis(); // P1729
   // 메시지 이력 복원
   var msgsEl = document.getElementById('ai-panel-msgs');
@@ -1853,13 +1844,13 @@ function _appendAIMsg(role, html, id) {
   // through the HTML sanitiser, whose on-handler filter deleted " onerror=alert(1)&gt;" from the escaped text, so the
   // echo silently dropped part of the question. User bubbles take the raw question as textContent (newlines kept by
   // the .ai-msg.user rule); only answers are rendered markup.
-  // P567/R258: this set innerHTML directly with no DOMPurify pass, unlike the per-page
+  // This set innerHTML directly with no DOMPurify pass, unlike the per-page
   // embedded chat (_aioSafeMD, aio-core.js) which deliberately double-gates AI-rendered
   // markdown through DOMPurify. No concrete bypass was found (renderMarkdownLight already
   // HTML-escapes text before applying its own bold/list/table transforms), but a prompt-
   // injection payload surfaced through a web-search result or news article is exactly the
   // kind of untrusted content this second gate exists to catch — hardening for defense in
-  // depth so both chat surfaces meet the same standard. 2026-10-19: tables kept; without DOMPurify, text via an inert template.
+  // depth so both chat surfaces meet the same standard. Tables kept; without DOMPurify, text via an inert template.
   if (role === 'user') bubble.textContent = String(html == null ? '' : html);
   else if (typeof DOMPurify !== 'undefined' && DOMPurify.sanitize && typeof window.safeHtml === 'function') bubble.innerHTML = window.safeHtml(html, window.AIO_SAFE_MD_TAGS);
   else { var inert = document.createElement('template'); inert.innerHTML = String(html || '').replace(/<br\s*\/?>/gi, '\n'); bubble.innerText = inert.content.textContent; }
@@ -1884,7 +1875,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var inp = document.getElementById('ai-panel-inp');
   var btn = document.getElementById('ai-panel-btn');
   if (!inp) { _aioLog('warn', 'debug', 'ai-panel-inp 없음'); return; }
-  // v54.95/P1070: unified and per-page turns share one request lifecycle. A
+  // Unified and per-page turns share one request lifecycle. A
   // preparation-phase turn is already busy; only a genuinely stale owned run
   // may be cancelled, never silently detached from its AbortController/epoch.
   if (!_uniTurn && (state._activeRequest || state.streaming)) {
@@ -1940,7 +1931,7 @@ async function chatSendUnified(_aioDispatchOptions) {
         query: q,
         route: ctxId,
         surface: 'unified-chat',
-        // P1120: the pre-provider action-permission refusal was retired. The orchestrator now
+        // The pre-provider action-permission refusal was retired. The orchestrator now
         // dispatches with an actionLimitations disclosure; hard refusals live in the conduct,
         // tool, and claim boundaries downstream.
         legacyRunner: function(questionPlan) {
@@ -1988,8 +1979,8 @@ async function chatSendUnified(_aioDispatchOptions) {
       if (btn) { btn.disabled = false; btn.textContent = '전송'; }
     }
   }
-  // v46.9/v52.30: API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
-  // v57.79: route failures use the explicit route-state notice; no personal-key guidance remains.
+  // API 키/서버키 경로 체크를 쿼터 차감 전에 수행 (키 없으면 쿼터 낭비 방지)
+  // Route failures use the explicit route-state notice; no personal-key guidance remains.
   // Shared route contract: 브리핑/번역은 운영자 서버키 가능 여부를 Worker health로만 확정한다.
   var _uniClaudeKey = typeof getApiKey === 'function' ? getApiKey() : '';
   var _uniRoute;
@@ -1999,11 +1990,11 @@ async function chatSendUnified(_aioDispatchOptions) {
       : { ok: typeof _aioHasClaudeRoute === 'function' ? _aioHasClaudeRoute(_uniClaudeKey) : !!_uniClaudeKey, reason: 'NO_ROUTE' };
   } catch (_uniRouteError) {
     if (_isCurrentUnifiedRun()) {
-      // v58.63 (architecture audit A17): read the user's cancel BEFORE cleanup — _releaseUnifiedRun aborts the controller
+      // Read the user's cancel BEFORE cleanup — _releaseUnifiedRun aborts the controller
       // with 'completed', so checking afterwards always looked cancelled and a timeout ended with no notice at all.
       var _uniUserCancelled = !!(_uniSignal && _uniSignal.aborted);
       _releaseUnifiedRun();
-      if (!_uniUserCancelled) _unsentTurn(typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.'); // v58.80 (first-users F24): the question stays above its failure notice and goes back to the box for a retry
+      if (!_uniUserCancelled) _unsentTurn(typeof _aioRouteNotice === 'function' ? _aioRouteNotice('WORKER_NOT_READY') : 'AI 라우트를 확인하지 못했습니다. 잠시 후 다시 시도하세요.'); // The question stays above its failure notice and goes back to the box for a retry
     }
     return;
   }
@@ -2025,7 +2016,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     return;
   }
   _aioHoldingsDeclinedFor = null;
-  // v47.8: consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
+  // consumeLLMQuery가 Promise 반환 가능(쿼터 초과 모달) → await 필수
   if (typeof consumeLLMQuery === 'function') {
     var _qOk;
     if (_uniRun) _uniRun.quotaPending = true;
@@ -2034,9 +2025,9 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (!_isCurrentUnifiedRun()) { _releaseUnifiedRun(); return; }
     if (!_qOk) { _releaseUnifiedRun(); _unsentTurn(null); return; }
   }
-  // v47.8: streaming 잠금은 callSharedAi 직전으로 이동 — 데이터 주입 hang 시 영구 잠김 방지
+  // Streaming 잠금은 callSharedAi 직전으로 이동 — 데이터 주입 hang 시 영구 잠김 방지
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
-  // v46.6: messages trim
+  // Messages trim
   var _mt2 = state.messages.reduce(function(s,m){return s+(m.content||'').length;},0);
   if (_mt2 > 60000) {
     while (state.messages.length > 2 && _mt2 > 40000) { var rm = state.messages.shift(); _mt2 -= (rm.content||'').length; }
@@ -2053,7 +2044,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   state._turnEntities = [];
   // v52.78/WP-AI3: page-scoped reference retrieval uses the active question.
   window._aioActiveAIQuery = q;
-  if (typeof _aioCreateAIRequestObject !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // v59.15: the pipeline module loads after boot
+  if (typeof _aioCreateAIRequestObject !== 'function' && window._aioAIPipelineReady) await window._aioAIPipelineReady; // The pipeline module loads after boot
 
   // The one chat path. The prompt is short on every turn; what it does not carry the model reads through the data tools.
   ctxId = _aiCurrentCtx;
@@ -2067,7 +2058,7 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniUseClaudeWebSearch = false;
   var _uniWsDecided = false, _uniSearchInternalReady = false, _uniPolicy = null, _uniMode = 'analysis';
   var _uniScreenSubject = '', _uniPortfolioData = false;
-  // P1740: one decision used before the status blocks are written (and again only if preparation threw before it). The
+  // One decision used before the status blocks are written (and again only if preparation threw before it). The
   // answer mode is chosen here: search is offered in every mode except quick.
   var _uniDecideWebSearch = function() {
     try { _uniPolicy = typeof _aioChatAnswerPolicy === 'function' ? _aioChatAnswerPolicy(q, ctxId, detectedTickers, _uniScreenerResult) : null; } catch(_) { _uniPolicy = null; }
@@ -2079,7 +2070,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_uniResearchRequired && _uniResearchFailure && _uniResearchFailure.code === 'DISABLED_BY_USER') _uniUseClaudeWebSearch = false;
     _uniWsDecided = true;
   };
-  // v54.95/P1070: preparation timeout/abort is bound to the same unified
+  // Preparation timeout/abort is bound to the same unified
   // epoch. Legacy data helpers may ignore AbortSignal, but this wrapper still
   // stops the awaiting turn and prevents its result from being published.
   var _withTimeout = function(promise, ms, label, onTimeout) {
@@ -2166,7 +2157,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (detectedTickers.source === 'screen' && _aioChoosing) sysPrompt += _aioChoosing.screenSubjectPrompt(_uniScreenSubject = detectedTickers[0]);
 
     // 1c. 자연어 퀀트 스크리너 — 특정 티커가 없을 때 후보군을 다양화해 추천 편향을 줄임
-    // E2/S-E (P1239): 일반 채팅과 같은 helper를 소비한다(중복 구현 제거).
+    // E2/S-E: 일반 채팅과 같은 helper를 소비한다(중복 구현 제거).
     // 조건 검색은 모델이 screen 도구로 직접 채우고, 여기서는 넓은 비교 표본만 넣는다.
     if (detectedTickers.length === 0 && typeof _aioBuildScreenerAiContext === 'function') {
       try {
@@ -2208,7 +2199,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_uniPersonalGate.personal && typeof window.AIO.personalTurn === 'function') { // Holdings and watchlist from any screen, only after consent (personal-turn.js)
       var _uniPf = window.AIO.personalTurn({ root: window, query: q, ctxId: ctxId, pending: window._aioTakePortfolioPrompt ? window._aioTakePortfolioPrompt() : null, wrap: _wrapUnifiedExternal });
       _uniPortfolioData = _uniPf.data; sysPrompt += _uniPf.prompt; }
-    // P1740: decide hosted web search before the status blocks are written. It used to be decided after them, so a
+    // Decide hosted web search before the status blocks are written. It used to be decided after them, so a
     // searched answer still told the model "웹검색: 미실행 … MISS — 추측하지 말고 제한사항으로 밝혀라".
     _uniDecideWebSearch();
     if (typeof _buildChatMemoryContext === 'function') {
@@ -2261,7 +2252,7 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   if (!sysPrompt) sysPrompt = '';
 
-  // P1740: one principles block chosen by the question (src/ai/response/answer-principles.js).
+  // One principles block chosen by the question (src/ai/response/answer-principles.js).
   var _fi2 = window._aioChatFreshnessInfo ? window._aioChatFreshnessInfo() : {};
   var _pSnapAge = Number.isFinite(_fi2.snapAge) ? _fi2.snapAge : null;
   var _liveStatus = _fi2.liveStatus || '미수신 — 가격 수치 인용 자체 금지. "실시간 연결 중" 안내만';
@@ -2273,15 +2264,15 @@ async function chatSendUnified(_aioDispatchOptions) {
   // 7. 모델 자동 선택 (질문 복잡도 기반)
   var selectedModelKey = 'luna';
   try { selectedModelKey = typeof _detectQueryComplexity === 'function' ? _detectQueryComplexity(q, ctxId) : 'luna'; } catch(e) {}
-  // P1740: analysis/decision/comparison answers reason before writing; a quick fact or definition stays on the fast model.
-  if (/^(analysis|decision|comparison|outlook)$/.test(_uniMode)) selectedModelKey = 'luna-medium'; // v57.61: medium reasoning for multi-step answers (+~$0.002 each)
+  // analysis/decision/comparison answers reason before writing; a quick fact or definition stays on the fast model.
+  if (/^(analysis|decision|comparison|outlook)$/.test(_uniMode)) selectedModelKey = 'luna-medium'; // Medium reasoning for multi-step answers (+~$0.002 each)
   else if (_uniMode === 'explain') selectedModelKey = 'luna-low'; // a concept explanation (감마 스퀴즈, 듀레이션) reasons briefly before writing the mechanism
   var selectedModelCfg = typeof getModelConfig === 'function' ? getModelConfig(selectedModelKey) : { label: selectedModelKey };
   // What the answer's figures are checked against: the injected data blocks, without the earlier-conversation and
   // reader-note blocks (their numbers are as of another day) and without the instruction tail.
-  var _uniReferenceText = window.AIO && typeof window.AIO.answerReferenceText === 'function' ? window.AIO.answerReferenceText(sysPrompt) : '';  var modelOpts = { modelKey: selectedModelKey, maxTokens: _uniMode === 'quick' ? 4000 : selectedModelKey === 'luna-medium' ? 12000 : 8000 }; // v57.61: reasoning tokens share this cap
+  var _uniReferenceText = window.AIO && typeof window.AIO.answerReferenceText === 'function' ? window.AIO.answerReferenceText(sysPrompt) : '';  var modelOpts = { modelKey: selectedModelKey, maxTokens: _uniMode === 'quick' ? 4000 : selectedModelKey === 'luna-medium' ? 12000 : 8000 }; // Reasoning tokens share this cap
   sysPrompt += window.AIO && typeof window.AIO.answerModeGuide === 'function' ? window.AIO.answerModeGuide(_uniMode) : '';
-  // P1741: tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
+  // Tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
   try {
     sysPrompt += window.AIO.describeAnswerVisuals(window.AIO.chooseAnswerVisuals({ query: q, mode: _uniMode, canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }));
   } catch (_) {}
@@ -2336,11 +2327,11 @@ async function chatSendUnified(_aioDispatchOptions) {
   var _uniAIRequest = typeof _aioCreateAIRequestObject === 'function'
     ? _aioCreateAIRequestObject('unified-chat', { ctxId: ctxId, query: q, model: selectedModelKey, questionPlan: _uniQuestionPlan })
     : null;
-  // P1245 (05 A05): 이 실행의 불변 요청 id. 스트림·evidence gate·출처 렌더가 모두 이 값만 쓴다.
+  // 이 실행의 불변 요청 id. 스트림·evidence gate·출처 렌더가 모두 이 값만 쓴다.
   var _uniRequestId = _uniAIRequest ? _uniAIRequest.requestId : null;
   if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, selectedModelKey);
 
-  // v46.10: onChunk/onDone/onError + 재시도/폴백
+  // onChunk/onDone/onError + 재시도/폴백
   // The answer is text first (src/ai/response/answer-envelope.js), so it is shown while it streams. Each preview
   // passes the same evidence and action filters as the finished answer (a partial run records nothing), at most every
   // 350 ms; the sentence still being written is held back by the filters' whole-sentence rule. onDone replaces the
@@ -2362,10 +2353,10 @@ async function chatSendUnified(_aioDispatchOptions) {
 
   var _uniOnDone = function(fullText, completion) {
     if (!_isCurrentUnifiedRun()) return;
-    var _searchAttached = modelOpts.webSearch === true && !(state._retryCount > 0); // P1756: retries run without search
+    var _searchAttached = modelOpts.webSearch === true && !(state._retryCount > 0); // Retries run without search
     if (_uniAIRequest) { _uniAIRequest.answerMode = _uniMode; _uniAIRequest.searched = _searchAttached; } // read by the answer-quality log
     state._retryCount = 0;
-    // v58.77: the "웹검색 중" line no longer stays after the answer; it says "searched" only when this answer has citations.
+    // The "웹검색 중" line no longer stays after the answer; it says "searched" only when this answer has citations.
     _aioSettleWebSearchStatus(window.AIO && typeof window.AIO.searchStatusText === 'function'
       ? window.AIO.searchStatusText({ attached: _searchAttached, citationCount: _searchAttached ? _aioAIRequestCitations(_uniRequestId).length : 0, searchCalls: completion ? completion.searchCalls : null })
       : (_searchAttached ? '웹검색으로 보강해 답했습니다.' : '웹검색 응답이 늦어 검색 없이 앱 자료로 답했습니다.'));
@@ -2380,7 +2371,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       : { blocked: true, text: 'AI 도우미 안전 모드\n\n공통 안전 검증을 사용할 수 없어 답변을 표시하지 않습니다.', actionGate: { blocked: true } };
     var visible = _uniDoneResult.text;
     var _publicGate = _uniDoneResult.actionGate;
-    if (_aioChoosing) visible = _aioChoosing.answerHead(_uniScreenSubject, _publicGate, visible); // v58.75: the screen company the answer read
+    if (_aioChoosing) visible = _aioChoosing.answerHead(_uniScreenSubject, _publicGate, visible); // The screen company the answer read
     if (_uniResearchRequired && !_uniResearchGate.ready) {
       _publicGate = Object.assign({}, _publicGate || {}, {
         degraded: true,
@@ -2394,7 +2385,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     } else if (!aiBubble) { aiBubble = _appendAIMsg('ai', _uniSafeRender(visible)); }
     state.messages.push({ role: 'assistant', content: visible });
 
-    // v46.10: 모델 배지
+    // 모델 배지
     var _bubbleParent = (aiBubble ? aiBubble.parentNode : null) || (streamEl ? streamEl.querySelector('.ai-msg-content') : null);
     if (_bubbleParent) {
       var badgeEl = document.createElement('div');
@@ -2402,7 +2393,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       badgeEl.textContent = selectedModelCfg.label || selectedModelKey;
       _bubbleParent.appendChild(badgeEl);
       if (typeof _aioAppendAIPublicDisclosure === 'function') {
-        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence, closeBasisDates: _uniDoneResult.closeBasisDates, releaseBasis: _uniDoneResult.releaseBasis, otherPublishedClaims: _uniDoneResult.otherPublishedClaims }); // v58.63 (architecture audit A18): the published close dates the pipeline returned label the answer
+        _aioAppendAIPublicDisclosure(_bubbleParent, { ctxId: ctxId, tickers: detectedTickers, freshness: _uniFreshPreflight, actionGate: _publicGate, evidence: _uniDoneResult.evidence, closeBasisDates: _uniDoneResult.closeBasisDates, releaseBasis: _uniDoneResult.releaseBasis, otherPublishedClaims: _uniDoneResult.otherPublishedClaims }); // The published close dates the pipeline returned label the answer
       }
 
       // AIQ-P0-04: blocked model text cannot be followed by an actionable card or
@@ -2413,18 +2404,18 @@ async function chatSendUnified(_aioDispatchOptions) {
         return;
       }
 
-      // v46.10: 데이터 신뢰도 배지
+      // 데이터 신뢰도 배지
       var _srcBadge = document.createElement('div');
       _srcBadge.className = 'lch-src-badge';
-      _srcBadge.innerHTML = _aioChoosing ? _aioChoosing.sourceBadge(window, ctxId, { ticker: _uniTickerData, fundamentals: _uniFundamentalsData, technical: _uniTechnicalData, screener: !!_uniScreenerStr, domain: _uniDomainData, news: _uniNewsCtx, portfolio: _uniPortfolioData, web: !!_uniWebResult, aiWeb: _uniUseClaudeWebSearch }) : ''; // v58.75: used evidence only
+      _srcBadge.innerHTML = _aioChoosing ? _aioChoosing.sourceBadge(window, ctxId, { ticker: _uniTickerData, fundamentals: _uniFundamentalsData, technical: _uniTechnicalData, screener: !!_uniScreenerStr, domain: _uniDomainData, news: _uniNewsCtx, portfolio: _uniPortfolioData, web: !!_uniWebResult, aiWeb: _uniUseClaudeWebSearch }) : ''; // Used evidence only
       if (_srcBadge.innerHTML) _bubbleParent.appendChild(_srcBadge);
 
-      // P1741: figures drawn by the app from completed bars and filings (never from the model's numbers), placed
+      // Figures drawn by the app from completed bars and filings (never from the model's numbers), placed
       // directly under the answer text. Not drawn when the gate blocked the answer (returned above).
       if (window.AIO && typeof window.AIO.attachAnswerVisuals === 'function') window.AIO.attachAnswerVisuals({ parent: _bubbleParent, before: badgeEl, scroller: document.getElementById('ai-panel-msgs'), query: q, mode: _uniMode,
         canonical: (_uniQuestionPlan && _uniQuestionPlan.intent && _uniQuestionPlan.intent.intents) || [], tickers: detectedTickers }).catch(function() {});
 
-      // v46.10: 피드백 버튼
+      // 피드백 버튼
       var _fbId = 'fb-' + Date.now();
       var _fbDiv = document.createElement('div');
       _fbDiv.className = 'lch-fb';
@@ -2433,8 +2424,8 @@ async function chatSendUnified(_aioDispatchOptions) {
       _bubbleParent.appendChild(_fbDiv);
     }
 
-    // v46.10: 웹검색 출처 링크
-    // P1245 (05 A05): 이 요청이 수집한 인용만 표시한다(공유 전역은 다른 스트림의 출처를 섞었다).
+    // 웹검색 출처 링크
+    // 이 요청이 수집한 인용만 표시한다(공유 전역은 다른 스트림의 출처를 섞었다).
     var _uniCitationResult = _uniWebResult;
     var _uniNativeCites = _aioAIRequestCitations(_uniRequestId);
     if ((!_uniCitationResult || !_uniCitationResult.citations || !_uniCitationResult.citations.length) && _uniUseClaudeWebSearch && _uniNativeCites.length) {
@@ -2449,7 +2440,7 @@ async function chatSendUnified(_aioDispatchOptions) {
       }
     }
 
-    // v46.10: 대화 기록 저장
+    // 대화 기록 저장
     if (typeof saveChatEntry === 'function') saveChatEntry(ctxId, q, visible);
     // What the reader said about themselves (the plan's `remember`) is stored with consent and said once under the answer.
     var _uniRemembered = window.AIO && typeof window.AIO.rememberReaderNotes === 'function' ? window.AIO.rememberReaderNotes(_uniDoneResult.remember) : '';
@@ -2468,7 +2459,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     _releaseUnifiedRun();
   };
 
-  // v46.10: 자동 재시도 + 모델 폴백
+  // 자동 재시도 + 모델 폴백
   var _uniOnError = function(errMsg) {
     if (!_isCurrentUnifiedRun()) return;
     if (_uniSignal && _uniSignal.aborted) { _releaseUnifiedRun(); return; }
@@ -2483,7 +2474,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     if (_retryable && _retried < 2) {
       state._retryCount = _retried + 1;
       var nextModel = selectedModelKey;
-      var _retryNote = modelOpts.webSearch === true ? ', 웹 검색 없이' : ''; // P1756: retries run without web search — each searched attempt is billed and reserves search budget even on a timeout/5xx; the first attempt keeps search.
+      var _retryNote = modelOpts.webSearch === true ? ', 웹 검색 없이' : ''; // Retries run without web search — each searched attempt is billed and reserves search budget even on a timeout/5xx; the first attempt keeps search.
       if (_retried >= 1 && _currentIdx >= 0 && _currentIdx < _fallbackOrder.length - 1) {
         nextModel = _fallbackOrder[_currentIdx + 1];
         _appendAIMsg('ai', '<div class="lch-note lch-note-warn">응답이 늦어 ' + (typeof getModelConfig === 'function' ? getModelConfig(nextModel).label : nextModel) + '로 다시 시도합니다' + _retryNote + '...</div>');
@@ -2497,7 +2488,7 @@ async function chatSendUnified(_aioDispatchOptions) {
           if (typeof _aioBeginAIRequestAttempt === 'function') _aioBeginAIRequestAttempt(_uniAIRequest, nextModel);
           callSharedAi((window.AIO && window.AIO.promptWithoutWebSearch || String)(sysPrompt), state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { modelKey: nextModel, webSearch: false, signal: _uniSignal, requestId: _uniRequestId, retryAttempt: _retried + 1 }));
         } catch(rtEx) {
-          // v47.8: 재시도 callSharedAi 동기 throw 방어
+          // 재시도 callSharedAi 동기 throw 방어
           state._retryCount = 0;
           _releaseUnifiedRun();
           _appendAIMsg('ai', '<span class="lch-err">재시도 실패: ' + _uniSafeRender(rtEx.message || '알 수 없는 오류') + '</span>');
@@ -2513,7 +2504,7 @@ async function chatSendUnified(_aioDispatchOptions) {
     _appendAIMsg('ai', '<span class="lch-err">' + _uniSafeRender(errMsg) + '</span>');
   };
 
-  // v47.8: callSharedAi 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
+  // callSharedAi 호출 자체가 동기 throw 시 streaming 영구 잠김 방어
   try {
     callSharedAi(sysPrompt, state.messages, _uniOnChunk, _uniOnDone, _uniOnError, Object.assign({}, modelOpts, { signal: _uniSignal, requestId: _uniRequestId }));
   } catch(callEx) {
@@ -2531,7 +2522,7 @@ function aiChipClick(el) {
 }
 
 // showPage 연결: 페이지 전환 시 AI 맥락 자동 업데이트
-// v48.99: _aioPageBus 마이그 (P180)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿). v59.16: _aioWhenDomReady, as the script may load after it.
 _aioWhenDomReady(function() {
 _aioPageBus.register('html-ai-panel-shown', 'aio:pageShown', function(e) {

@@ -1,3 +1,9 @@
+// Fundamentals come from the bounded current-facts projection via the
+// platform httpClient gateway) instead of legacy's `_fundAnalysisData` global, which in practice
+// is only ever populated by the AI-chat ticker-analysis flow (src/ui/chat/panel.js) and stays null for
+// ordinary page browsing — this fetch is a strict improvement, not a behavior change, for the
+// entity route's fundamentals field. id/quote/options still come from the injected `read`
+// callback (legacy projection) — those are out of scope for this slice (see session card).
 import { expandSecRecords } from '../contracts/sec-projection.js';
 import { artifactUrl } from '../artifact-registry.js';
 
@@ -14,6 +20,8 @@ function lastHistoryObservedAt(history = []) {
 }
 
 export function createEntityProvider({ read = () => ({}), httpClient, fundamentalsUrl = artifactUrl('sec-fundamentals-summary.json'), fundamentalWatchlist = DEFAULT_FUNDAMENTAL_WATCHLIST, now = () => Date.now(), cacheTtlMs = 30 * 60 * 1000, readOnDemand = () => null } = {}) {
+  // An out-of-universe US listing's annual SEC record, read on demand with the producer's normalizer
+  // (src/data/on-demand-symbol.js), stands in only when the published projection has no row for the symbol.
   const onDemandFundamentals = (symbol) => { try { const record = readOnDemand(symbol); return record && String(record.symbol || '').toUpperCase() === symbol ? { ...record } : null; } catch (_) { return null; } };
   let fundamentalsTablePromise = null;
   let fundamentalsProjection = null;
@@ -23,9 +31,14 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
     if (fundamentalsProjection && now() - fundamentalsLoadedAt < cacheTtlMs) return Promise.resolve(fundamentalsProjection);
     if (fundamentalsTablePromise) return fundamentalsTablePromise;
     if (!httpClient || typeof httpClient.requestJson !== 'function') return Promise.resolve({ table: {}, meta: null });
+    // The whole-table request belongs to this provider, not its first route.
+    // A disposed consumer is suppressed by the orchestrator; it cannot abort another
+    // consumer's shared load. The gateway bounds the request including its body.
     fundamentalsTablePromise = Promise.resolve().then(() => httpClient.requestJson(fundamentalsUrl, { cache: 'no-store' })).then((response) => {
       if (response.ok && response.data && response.data.data && typeof response.data.data === 'object' && !Array.isArray(response.data.data)) {
         fundamentalsLoadedAt = now();
+        // Uniform values ship once in recordDefaults; expand them. availableAt is dropped where it equals
+        // acceptedAt (1 MiB bound); restore it for every consumer.
         const table = expandSecRecords(response.data);
         for (const record of Object.values(table)) {
           if (record && typeof record === 'object' && record.availableAt == null && record.acceptedAt) record.availableAt = record.acceptedAt;
@@ -82,6 +95,8 @@ export function createEntityProvider({ read = () => ({}), httpClient, fundamenta
         history,
         fundamentals,
         fundamentalsWatchlist,
+        // The meta names the symbol it was checked for — a sync made before the ticker changed carried the
+        // table's meta with no NVDA record, and the 재무 tile read 'SEC 연간 공시 없음' for ~10s on a ticker the table holds.
         fundamentalsMeta: projection?.meta ? { ...projection.meta, checkedFor: id } : null,
         options: value.options || null,
         updatedAt: latestObservedAt([

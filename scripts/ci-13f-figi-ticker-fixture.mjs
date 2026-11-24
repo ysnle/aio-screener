@@ -1,4 +1,4 @@
-// v58.56 (re-audit #4): 13F ticker chips — exact CUSIP matches only. Proves, without network, the OpenFIGI answer
+// 13F ticker chips — exact CUSIP matches only. Proves, without network, the OpenFIGI answer
 // classification, the cache/recheck policy, the reference-crosswalk exclusions, the source-conflict rule, the readable
 // issuer names, and the page lookup used before the first Actions build has embedded `tickerExact`.
 import assert from 'node:assert/strict';

@@ -2,7 +2,7 @@
 // scripts/ci-section-visual-contract.mjs — v59.70 (PLAN S13/S15, perf-legacy-plan-20261104)
 //
 // The 종목 개요 and 재무 공시 tabs are three sections each, and every section that carries a reading carries its visual:
-//   개요 (2026-11-19) — ① 사업 (segment revenue bars), ② 밸류체인 안의 자리 (layer, customers, suppliers, capital flows),
+//   개요 — ① 사업 (segment revenue bars), ② 밸류체인 안의 자리 (layer, customers, suppliers, capital flows),
 //          ③ 재무 한눈에 (figure rows with a state word); only 원자료 표 · 계산 방법 · 데이터 출처 fold;
 //   재무 — ① 매출과 이익률 추세 (revenue/income chart), ② 현금흐름과 발생액 (accruals chart, the reverse DCF and DuPont),
 //          ③ 공시가 말하는 것 (the findings as rows, with the raw SEC report as its 원자료 표).
@@ -45,7 +45,7 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   check('v59.70 S15 ① 매출과 이익률 추세 carries the revenue/income chart', !!trend && visualIn(trend));
   check('v59.70 S15 ② 현금흐름과 발생액 carries the accruals chart', !!cash && visualIn(cash));
   check('v59.70 #8 ② draws quarter-end inventory and receivables when they are collected', !!find(cash, (item) => item?.dataset?.sectionVisual === 'working-capital'));
-  // 2026-11-19: ③ is on the face — one row per finding of the filing — and folds only 원자료 표 · 계산 방법.
+  // ③ is on the face — one row per finding of the filing — and folds only 원자료 표 · 계산 방법.
   check('v60.31 ③ 공시가 말하는 것 shows the findings as rows on the face', !!sec && all(sec, (item) => String(item.className || '').includes('stock-read-point ')).length >= 2);
   check('v59.70 S15 the raw SEC report fold sits in ③', !!find(sec, (item) => item.id === 'fund-native-sec-report'));
   const fiscalFolds = all(host, (item) => tag(item) === 'details');
@@ -73,7 +73,7 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   const sections = all(host, (item) => item?.dataset?.companySection);
   check('v60.38 종목 개요 is three sections: business, place, money', sections.map((item) => item.dataset.companySection).join(',') === 'business,place,money', sections.map((item) => item.dataset.companySection).join(','));
   const [business, where, figures] = sections;
-  // v60.38 (owner 2026-11-21): 쟁점과 전망 is the next view, painted with 개요; 개요 ends on one line to it naming the issue.
+  // 쟁점과 전망 is the next view, painted with 개요; 개요 ends on one line to it naming the issue.
   const outlook = find(outlookHost, (item) => item?.dataset?.companySection === 'outlook');
   const next = find(host, (item) => item?.dataset?.companyNext === 'outlook');
   check('v60.38 쟁점과 전망 is its own view and 개요 ends on a link to it named by the issue', !!outlook && !!next && next.textContent.includes(story.debate.question)

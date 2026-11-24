@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (S12, owner decision D3): the AI panel is the one path that makes screener conditions. This gate drives the
+// The AI panel is the one path that makes screener conditions. This gate drives the
 // real panel against a fixture Worker (no paid call) and checks the whole loop: an answer's '스크리너 조건:' line
 // becomes a card, 스크리너에 적용 writes #scr-custom-conditions, opens 스크리너, the chips show the same conditions
 // and the card reports the table's count. Cases: applied, empty result (0 rows -> shared empty state + card says so),
@@ -135,7 +135,7 @@ try {
       if (testCase.expect === 'applied' && !(Number(result.shown) > 0 && Number(result.shown) < baseline)) fail(testCase.id, `table shows ${result.shown} (before ${baseline}); the conditions did not narrow it`);
       if (!/조건을 모두 만족하고 다른 필터도 통과한 종목 \d+개/.test(note)) fail(testCase.id, `condition panel note does not state the count: ${note.slice(0, 80)}`);
       if (testCase.expect === 'empty' && !result.emptyState) fail(testCase.id, 'a zero-row screen did not show the shared empty state');
-      // v59.70 (review 89e8c881): the card itself must report the table's count. The panel swaps its messages on the page
+      // The card itself must report the table's count. The panel swaps its messages on the page
       // change, so the card is read through the handle taken before 적용; it settles once the apply resolves.
       const settled = await card.evaluate((node) => new Promise((resolve) => {
         const started = Date.now();

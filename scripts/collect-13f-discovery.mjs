@@ -37,7 +37,7 @@ async function enrichFilingDocuments(cik, filing) {
   throw new Error(`13F information table XML not found for ${enriched.accession}`);
 }
 
-// v58.72: the browser-loaded discovery artifact is written compact. Indented, the resumed 13D/G events
+// The browser-loaded discovery artifact is written compact. Indented, the resumed 13D/G events
 // (10 per manager) pushed filing-discovery.json past its 460 KB lazy-load budget and stopped the data refresh.
 async function writeAtomic(file, value, { pretty = true } = {}) {
   await writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile });
@@ -57,7 +57,7 @@ if (ownershipOnly) {
       return ownershipClient.json(`https://data.sec.gov/submissions/CIK${cik}.json`);
     }
   });
-  // P1309: the daily poll reads submissions JSON only; issuer/percent come from the cache of earlier full runs.
+  // The daily poll reads submissions JSON only; issuer/percent come from the cache of earlier full runs.
   await enrichOwnershipEvents({ artifact, previous: previousDiscovery, fetchText: null, archiveBaseFor: archiveBase });
   await writeAtomic(discoveryPath, slimDiscoveryArtifact(artifact), { pretty: false });
   console.log(JSON.stringify({

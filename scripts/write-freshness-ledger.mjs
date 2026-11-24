@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70: writes public-data/freshness/<workflow>.json, the one freshness record the lineage audit, the watchdog and the
+// Writes public-data/freshness/<workflow>.json, the one freshness record the lineage audit, the watchdog and the
 // screens read (schema in src/data/contracts/artifact-freshness.js). Run by a producing workflow after its producers and
 // before its validation gates and release-manifest sync, so the gates see exactly what will be committed.
 //
@@ -33,7 +33,7 @@ export function buildLedger({ workflow, runStartedMs, nowIso = new Date().toISOS
     const prior = previous?.artifacts?.[file] || null;
     const current = readArtifact(file);
     if (!current) {
-      // v60.18: an artifact whose refresh path waits on an owner decision (blockedBy) is absent by design; it read
+      // An artifact whose refresh path waits on an owner decision (blockedBy) is absent by design; it read
       // "missing" on every run all week (kr-fundamentals.json) beside real gaps. It is recorded as blocked, with the reason.
       artifacts[file] = { ...base, producedAt: null, checkedAt: prior?.checkedAt || null, basisSession: null, lastAttempt: { at: nowIso, status: entry.blockedBy ? 'blocked' : 'missing' }, ...(entry.blockedBy ? { blockedBy: entry.blockedBy } : {}) };
       continue;
@@ -56,7 +56,7 @@ export function buildLedger({ workflow, runStartedMs, nowIso = new Date().toISOS
       basisSession: artifactBasisSession(file, payload),
       lastAttempt: { at: nowIso, status },
     };
-    // v59.85: a declared clock or basis path that no longer resolves is named on the row (and by the watchdog), not
+    // A declared clock or basis path that no longer resolves is named on the row (and by the watchdog), not
     // failed here: refusing the refresh over a registry path would freeze the data the registry describes.
     const drift = artifactContractDrift(file, payload);
     if (drift.length) artifacts[file].contractDrift = drift;

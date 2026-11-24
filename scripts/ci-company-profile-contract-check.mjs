@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.43: the researched company stories (public-data/company-profiles/) keep their contract: the index matches the
+// The researched company stories (public-data/company-profiles/) keep their contract: the index matches the
 // files, every story has each step of the flow, every cited source id resolves to a dated https source, the AI layer
 // is from the fixed list, the money flow has 3-6 hops, labelled cash uses, and no trade instruction or
 // "전문가가 보는" label appears. The reader helpers are checked on fixed cases.
@@ -16,7 +16,7 @@ import { existsSync } from 'node:fs';
 import { LAYER_INDUSTRY, SYMBOL_INDUSTRY } from '../src/domain/entity/industry-links.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-// v59.44: `--dir <folder>` checks researched stories in a staging folder (no index there) before they are synced in.
+// `--dir <folder>` checks researched stories in a staging folder (no index there) before they are synced in.
 const dirArg = process.argv.indexOf('--dir');
 const staging = dirArg > 0 ? resolve(process.argv[dirArg + 1] || '') : null;
 const dir = staging || join(root, 'public-data', 'company-profiles');
@@ -62,7 +62,7 @@ for (const file of files) {
     if (AI_LAYERS.some(([slug]) => new RegExp(`(^|[^A-Za-z-])${slug}($|[^A-Za-z-])`).test(lead))) fail(`${file}: aiChain.${key} leads with a layer slug: ${line.slice(0, 60)}`);
   }
   for (const row of story.guidance?.latest || []) if (!/[가-힣]/.test(row?.metric || '') && /\b[a-z]{4,}\b/.test(row?.metric || '')) fail(`${file}: guidance metric in English: ${row.metric}`);
-  // v59.85: the face's four numbers are the latest reported quarter. A quarter is reported within about two months of
+  // The face's four numbers are the latest reported quarter. A quarter is reported within about two months of
   // its end, so a period ending more than 150 days before the research day is a fiscal year (or an older quarter) shown
   // as current — 57 stories read 4-12 months back (NVDA FY2026 ended 2026-01-25 on 2026-10-28). A half-year filer
   // (basis 'half-year') reports twice a year.
@@ -79,10 +79,10 @@ for (const file of files) {
   const order = text.match(ORDER);
   if (order) fail(`${file}: trade wording "${order[0]}"`);
   if (/전문가가 보는/.test(text)) fail(`${file}: labels "전문가가 보는"`);
-  // v59.74: 쟁점과 이면 (optional per story) cite only the story's own sources (src/domain/entity/company-debate.js).
+  // 쟁점과 이면 (optional per story) cite only the story's own sources (src/domain/entity/company-debate.js).
   for (const issue of debateIssues(story, ids)) fail(`${file}: ${issue}`);
 }
-// v59.74: the company graph is the one the stories build (scripts/sync-company-profiles.mjs writes it).
+// The company graph is the one the stories build (scripts/sync-company-profiles.mjs writes it).
 if (!staging) {
   const graphPath = join(dir, 'graph.json');
   const built = buildCompanyGraph(stories);
@@ -103,7 +103,7 @@ assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-28' }], 
 assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-10-27' }], '2026-10-29'), { state: 'current', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: null }, 'v59.43 a report before the research day is in the story');
 assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }], '2026-11-04'), { state: 'current', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: null }, 'v59.43 a future report does not age the story');
 assert.deepEqual(storyFreshness(story, [{ symbol: 'AAA', date: '2026-11-05' }, { symbol: 'BBB', date: '2026-11-01' }], '2026-11-06'), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-11-05', newQuarterEnd: null }, 'v59.43 only reports for the story symbol age it');
-// v59.85: a report the coming-week calendar no longer holds still ages the story — an earnings brief read from the filing,
+// A report the coming-week calendar no longer holds still ages the story — an earnings brief read from the filing,
 // or an SEC quarter ending after the story's own period.
 assert.deepEqual(storyFreshness(story, [], '2026-11-08', { briefs: [{ kind: 'earnings', symbol: 'AAA', eventDate: '2026-11-04' }, { kind: 'fomc', symbol: 'AAA', eventDate: '2026-11-05' }] }), { state: 'stale', researchedAt: '2026-10-28', newReport: '2026-11-04', newQuarterEnd: null }, 'v59.85 an earnings brief after the research day ages the story');
 const annual = { symbol: 'AAA', researchedAt: '2026-10-28', earnings: { period: 'FY2026 (ended 2026-01-25)' } };
@@ -113,14 +113,14 @@ assert.equal(storyPeriodEnd({ earnings: { period: 'FY2026 (ended 2026-06-30, pre
 assert.equal(storyPeriodEnd({ earnings: { period: 'H1 2026 (2026-01-01 ~ 2026-06-30)' } }), '2026-06-30', 'v59.85 a range ends after its tilde');
 assert.deepEqual(storyFreshness(annual, [], '2026-11-08', { quarters: '2026-01-25:68127:42960:d;2026-04-26:81615:58321:r;2026-07-26:96221:59688:r' }), { state: 'stale', researchedAt: '2026-10-28', newReport: null, newQuarterEnd: '2026-07-26' }, 'v59.85 an SEC quarter after the story period means newer numbers exist');
 assert.equal(storyFreshness({ ...annual, earnings: { period: 'Q2 FY2027', periodEnd: '2026-07-26' } }, [], '2026-11-08', { quarters: '2026-07-26:96221:59688:r;2026-07-28:1:1:r' }).state, 'current', 'v59.85 a quarter ending within two weeks of the story period is the same quarter');
-// v60.31: every 산업 지도 domain 종목 개요 links to exists in the library text.
+// Every 산업 지도 domain 종목 개요 links to exists in the library text.
 {
   const atlas = JSON.parse(readFileSync(join(root, 'public-data', 'atlas', 'industry-stories.json'), 'utf8'));
   for (const [key, link] of Object.entries({ ...LAYER_INDUSTRY, ...SYMBOL_INDUSTRY })) {
     if (!atlas.domains?.[link.domain]) fail(`v60.31 industry-links ${key}: unknown 산업 지도 domain ${link.domain}`);
   }
 }
-// v59.74 company names: exact, whole word, longest name first; a ticker-shaped word is not a company.
+// Company names: exact, whole word, longest name first; a ticker-shaped word is not a company.
 assert.deepEqual(companiesNamedIn('Samsung SDI와 Samsung Electronics, 삼성전기'), ['006400.KS', '005930.KS', '009150.KS'], 'v59.74 the longest registered name wins');
 assert.deepEqual(companiesNamedIn('Metal 가공, Armada, NOW 진행'), [], 'v59.74 a name inside a longer word or a ticker-shaped word links nothing');
 assert.deepEqual(companiesNamedIn('하이퍼스케일러 (Microsoft Azure, Google Cloud, AWS)'), ['MSFT', 'GOOGL', 'AMZN'], 'v59.74 product names resolve to their company once');
@@ -135,7 +135,7 @@ assert.deepEqual(near.buyers, [], 'v59.74 a company named after the dash of a cu
 assert.deepEqual(companyNeighbourhood(tiny, 'TSM').partners.map((r) => r.symbol), ['ASML'], 'v59.74 a partner line is a partnership, not a payment');
 assert.deepEqual(near.rivals.map((r) => r.symbol), ['AMD'], 'v59.74 rivals come from the competition arenas');
 assert.equal(tiny.nodes.AMD.name, 'Advanced Micro Devices', 'v59.74 the short name drops the legal suffix');
-// v60.28: names inside a parenthetical that qualifies a named subject are that subject's relationships, not edges of the
+// Names inside a parenthetical that qualifies a named subject are that subject's relationships, not edges of the
 // story's company; a bracketed member list under a category head still links its members.
 {
   const marvell = 'Marvell (AWS Trainium·Microsoft Maia 협력으로 보도)';

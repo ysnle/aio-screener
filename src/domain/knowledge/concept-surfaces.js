@@ -21,6 +21,9 @@ export const CONCEPT_SURFACES = Object.freeze({
   'gmv-vs-revenue': ['frame:software'], 'price-volume-mix': ['frame:consumer'], 'freight-capacity': ['frame:transport'],
   'stocks-to-use': ['frame:agri'], 'fx-revenue-cost': ['frame:fx-exporters'], 'arith-vs-geo': ['frame:geo-mean'],
   'nominal-real-relative': ['frame:real-relative'], 'working-capital': ['frame:three-statements'], elasticity: ['frame:elasticity'],
+  // `route:<routeId>` is the analysis screen that measures the concept today. Canonical concepts gain
+  // their screen; the market indicators below are glossary terms (not CONCEPT_CORE entries) whose search keys are
+  // listed in SCREEN_TERMS. The search index builder ignores route: surfaces (no index entry has that id).
   'term-premium': ['frame:long-bond', 'route:fxbond'],
   'policy-vs-long-rate': ['route:fxbond'],
   'fx-return-for-foreigners': ['route:macro'],
@@ -39,6 +42,8 @@ export const CONCEPT_SURFACES = Object.freeze({
   'market-regime': ['route:signal']
 });
 
+// Search keys for the screen-measured terms above that have no CONCEPT_CORE entry. Keys are glossary
+// term spellings (js/aio-glossary.js) so a glossary search for the term also offers the screen that shows it.
 export const SCREEN_TERMS = Object.freeze({
   'hy-spread': Object.freeze(['하이일드 스프레드', 'HY 스프레드', 'OAS', '신용스프레드', '신용 스프레드', 'high yield']),
   vix: Object.freeze(['VIX', '공포지수', '변동성 지수', 'VIX3M', '기간 구조']),

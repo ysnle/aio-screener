@@ -40,7 +40,7 @@ export function restampOverlayRevision(file, document, version) {
   return next;
 }
 
-// v60.50: producers write public-data/ only, so operations-status.json is the one overlay file that carries a code
+// Producers write public-data/ only, so operations-status.json is the one overlay file that carries a code
 // revision stamp; public-config.json and the architecture manifests come from the code commit with their own version.
 export const RESTAMP_FILES = Object.freeze([
   'public-data/operations-status.json'

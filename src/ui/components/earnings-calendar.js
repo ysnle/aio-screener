@@ -12,6 +12,7 @@ const DAY_MS = 86400000;
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 const MAX_VISIBLE = 9; // per section
 
+// Earnings dates are US exchange calendar dates, so "today" is the New York date.
 export function earningsNyDate(now) {
   const ms = now instanceof Date ? now.getTime() : Number(now);
   return dateInTimezone(ms, 'America/New_York') || new Date(ms).toISOString().slice(0, 10);
@@ -45,6 +46,7 @@ function sessionHtml(label, tone, items, esc) {
   return html;
 }
 
+// Weekly layout — one column per weekday, IPOs first, then Before Open and After Close.
 export function earningsWeekHtml(earnings, ipos, week, { now = new Date(), esc = escapeHtml } = {}) {
   const sorted = earnings.slice().sort((a, b) => {
     if (a.date !== b.date) return a.date > b.date ? 1 : -1;
@@ -91,6 +93,7 @@ export function createEarningsCalendar({ root = globalThis, documentRef = root.d
     const fromStr = week[0];
     const toStr = week[4];
     body.innerHTML = `<div class="pgl-ec-msg is-wait"><span class="aio-spinner pgl-ec-spin"></span>어닝 캘린더 요청 중… (${fromStr} ~ ${toStr})</div>`;
+    // Personal API keys are retired; the stored public-data snapshot is the only source.
     try {
       const snapshot = await fetchEarningsCalendarSnapshot({ root });
       const status = documentRef.getElementById('earn-cal-status');
@@ -112,6 +115,7 @@ export function createEarningsCalendar({ root = globalThis, documentRef = root.d
     }
   }
 
+  // 이전 / 이번주 / 다음 (data-action="_aioEarnCalWeekShift" data-arg="-1|0|1").
   function shiftWeek(offset) {
     weekOffset = parseInt(offset, 10) || 0;
     return load();

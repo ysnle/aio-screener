@@ -119,7 +119,7 @@ function pearson(xs, ys) {
   return sxx > 0 && syy > 0 ? sxy / Math.sqrt(sxx * syy) : null;
 }
 
-// Pre-registered (v58.83, before the first run): the implementation is called consistent with the
+// Pre-registered (before the first run): the implementation is called consistent with the
 // documented momentum anomaly when at least MIN_WINDOWS windows overlap and Pearson r >= PASS_R;
 // r <= 0 is a FAIL (our "momentum" moves against the published factor); anything between is
 // INCONCLUSIVE. The universe is ~120 US mega caps while the published factor spans all NYSE/AMEX/

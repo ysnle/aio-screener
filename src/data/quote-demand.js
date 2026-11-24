@@ -1,3 +1,9 @@
+// v59.74 (state-machine audit, deepening): the one owner of live quote requests. 12 call sites used to call the provider
+// fetch directly, with coalescing, symbols, retry and status spread over five globals; a call made during a fetch lost
+// its symbols (SM-04b). Interface: request(symbols?) -> Promise<result>, register(symbol), state(). Invariants: one fetch
+// at a time; covered symbols join it, new ones share one follow-up fetch; registered symbols join every fetch; at most one
+// retry, cancelled by any fetch and skipped while hidden; every outcome reaches onOutcome. `fetchQuotes(symbols,
+// { failures })` is injected (js/aio-data.js in the page, an offline stand-in in the gate) and reports `retryAfterMs`.
 const norm = (list) => (Array.isArray(list) ? list : [])
   .map((sym) => String(sym || '').trim().toUpperCase())
   .filter(Boolean);

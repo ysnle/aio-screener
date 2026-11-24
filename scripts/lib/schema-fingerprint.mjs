@@ -5,7 +5,7 @@
 // - every scalar (string, number, boolean, null) is one kind 's', so null on one refresh and a number on the next
 //   is the same structure;
 // - keys deeper than maxDepth object steps are cut ('…').
-// Measured on the data bot's own commits (2026-11-03/04): depth 6 changed 7 of 958 deployed files between two
+// Measured on the data bot's own commits: depth 6 changed 7 of 958 deployed files between two
 // refreshes 16 h apart, mostly news-source and theme-id keys and arrays that were empty on one run; the default
 // depth 3 with schemaDrift's empty/map tolerance is what the browser-data fixture gate compares.
 

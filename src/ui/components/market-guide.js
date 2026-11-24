@@ -1,3 +1,9 @@
+// Owner 2026-10-19 ("시나리오·대응 가이드와 학습"): 시장 상태's guide card — which way to lean across the live scenarios
+// (the reading of the choice tally, the opportunity cost if it is wrong, what to lean toward and avoid; the tally itself is
+// a raw table) and the principles today's data touches, one line each that opens the principle in the library's 참여 원칙,
+// where the full set lives. The guide's headline is not drawn: it restated the 시나리오 lead above it (the closest scenario,
+// the next release) and the tally reading below.
+// Reads the guide stage of the shared interpretation.
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { ALL_LESSONS, LESSON_KINDS } from '../../domain/guide/lessons.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';

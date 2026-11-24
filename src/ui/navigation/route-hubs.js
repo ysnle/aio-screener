@@ -3,14 +3,14 @@
 import { readSavedStockSubject, saveStockSubject } from '../../data/stock-subject-store.js';
 export const ROUTE_HUBS = Object.freeze([
   { id: 'today', label: '오늘', routes: [{ id: 'home', label: '요약' }, { id: 'briefing', label: '브리핑' }, { id: 'market-news', label: '뉴스' }] },
-  // Owner 2026-11-20: 시장 상태 and 매크로 are one screen — the verdict, then the evidence behind it, each tab named for itself.
+  // 시장 상태 and 매크로 are one screen — the verdict, then the evidence behind it, each tab named for itself.
   { id: 'market', label: '시장과 매크로', plainTabs: true, routes: [{ id: 'signal', label: '시장 상태' }, { id: 'breadth', label: '시장 폭' }, { id: 'sentiment', label: '투자 심리' }, { id: 'macro', label: '매크로' }, { id: 'fxbond', label: '금리와 환율' }] },
-  // v59.64 (owner 2026-11-03): 기술적 분석 is a screen of its own, like 매크로.
+  // 기술적 분석 is a screen of its own, like 매크로.
   { id: 'charts', label: '기술적 분석', routes: [{ id: 'charts', label: '기술적 분석' }] },
   { id: 'themes', label: '테마와 섹터', routes: [{ id: 'themes', label: '테마와 섹터', also: ['theme-detail'] }, { id: 'theme-detail', label: '테마 상세', tab: false }] },
-  // P1430: one 종목 screen — 개요 · 재무 공시 are views of the same selected company. Owner 2026-11-19 ("탭 없애고 연결"):
+  // One 종목 screen — 개요 · 재무 공시 are views of the same selected company. Owner 2026-11-19 ("탭 없애고 연결"):
   // the 차트 tab left for 기술적 분석; the hub line links there with the company (renderSubject).
-  // Owner 2026-11-21: the ticker page is cut into views (개요 · 쟁점과 전망, its page-views row); viewTabs shows each as a
+  // The ticker page is cut into views (개요 · 쟁점과 전망, its page-views row); viewTabs shows each as a
   // tab of this line, so the screen reads 개요 · 쟁점과 전망 · 재무 공시.
   // v59.55 (flow review): 스크리너 before 종목 — find, then examine; the sidebar, phone tab bar and number keys share it.
   { id: 'screener', label: '스크리너', routes: [{ id: 'screener', label: '스크리너' }] },
@@ -24,7 +24,7 @@ export function hubForRoute(routeId) {
   return ROUTE_HUBS.find((hub) => hub.routes.some((route) => route.id === routeId)) || null;
 }
 
-// v59.70: the name a route goes by outside its own screen ('매크로, 금리와 환율', '종목, 차트', '스크리너'); the AI panel's
+// The name a route goes by outside its own screen ('매크로, 금리와 환율', '종목, 차트', '스크리너'); the AI panel's
 // page hints and move suggestions read it here instead of keeping their own copies of screen names.
 export function routeLabel(routeId) {
   const hub = hubForRoute(routeId);
@@ -34,7 +34,7 @@ export function routeLabel(routeId) {
   return !route || route.label === hub.label || route.label === '개요' || hub.routes.length === 1 ? hub.label : `${hub.label}, ${route.label}`;
 }
 
-// P1430: the 종목 screen names the company all three tabs are about, and where the user came from.
+// The 종목 screen names the company all three tabs are about, and where the user came from.
 const SUBJECT_ORIGINS = Object.freeze({ home: '오늘', briefing: '브리핑', 'market-news': '뉴스', screener: '스크리너', themes: '테마', portfolio: '포트폴리오', masters: '대가 보유 종목', signal: '시장 상태', breadth: '시장 폭', sentiment: '투자 심리' });
 
 export function readStockSubject(root) {
@@ -105,13 +105,13 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   const nav = documentRef?.getElementById?.('aio-hub-tabs');
   if (!nav) return null;
   delete nav.dataset.pending; // the static shell's held height (index.html, phone CLS)
-  // v58.80 (first-users F26): 도움말 is help, not research — the sidebar no longer marks 리서치 라이브러리; the topbar button does.
+  // 도움말 is help, not research — the sidebar no longer marks 리서치 라이브러리; the topbar button does.
   const help = documentRef.getElementById?.('topbar-help-btn');
   if (help) { if (routeId === 'guide') help.setAttribute('aria-current', 'page'); else help.removeAttribute('aria-current'); }
   const hub = hubForRoute(routeId);
   const tabs = hub ? hub.routes.filter((route) => route.tab !== false) : [];
   nav.replaceChildren();
-  // Audit 2026-10-14: a hidden route with no parent tab (도움말 under 리서치 라이브러리) is not one of the hub's views —
+  // A hidden route with no parent tab (도움말 under 리서치 라이브러리) is not one of the hub's views —
   // showing the three research tabs with none selected read as a broken state.
   const current = hub ? hub.routes.find((route) => route.id === routeId) : null;
   const orphan = current?.tab === false && !tabs.some((tab) => (tab.also || []).includes(routeId));
@@ -122,10 +122,10 @@ export function renderHubTabs({ documentRef, routeId, root = globalThis }) {
   }
   nav.hidden = false;
   nav.dataset.hub = hub.id;
-  // First-users F08 (runs 1-4) put the menu name above a tab's own title; v59.70 (screen review #32) drops it — the hub's tab
+  // First-users F08 (runs 1-4) put the menu name above a tab's own title; v59.70 drops it — the hub's tab
   // strip names the tab and the sidebar / bottom bar mark the menu, so the extra word only floated between date and title.
   const subject = hub.id === 'stock' ? readStockSubject(root) : null;
-  // v58.53 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
+  // 개편 v2: the tabs sit in one segmented control (soft-ui.css .aio-hub-seg).
   // First-users run-6 #20: a screen reader heard three loose buttons; the segment is the screen's tab list (one tab stop and
   // the arrow keys come from behaviors/roving.js; a tab opens a screen, so arrows move focus and Enter opens it).
   const seg = documentRef.createElement('span');
@@ -222,7 +222,7 @@ export function installRouteHubTabs({ root = globalThis, documentRef = root.docu
   };
 }
 
-// P1430: the one place that changes the 종목 screen's company. Display continuity only — the AI
+// The one place that changes the 종목 screen's company. Display continuity only — the AI
 // context scope (_currentTickerId) and the entity store keep their own owners.
 export function setStockSubject({ root = globalThis, documentRef = root?.document, symbol, name = '' } = {}) {
   const next = String(symbol || '').trim().toUpperCase();

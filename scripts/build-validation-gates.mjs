@@ -170,7 +170,7 @@ export function judgeMarketLeanRisk(study, spec) {
     evidenceGeneratedAt: study.generatedAt || null };
 }
 
-// The 시장 기울기 lean (owner 2026-11-15): one verdict per direction on the study scripts/backtest-market-lean.mjs writes,
+// The 시장 기울기 lean: one verdict per direction on the study scripts/backtest-market-lean.mjs writes,
 // by the criterion declared in validation-gate-criteria.json `marketLean` before the first run. market-lean.js reads
 // this block (model-validation-status.json `marketLean`) and speaks a direction only where `directions` says true.
 export const LEAN_BACKTEST_PATH = 'public-data/market-lean-backtest.json';

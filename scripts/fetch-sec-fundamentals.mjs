@@ -13,7 +13,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { finiteFact, sameFiscalPeriod, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
 import { reconcileSecRecord, bestRevenueRowsByPeriod, shareGapDays, SEC_SHARES_MAX_GAP_DAYS, SEC_MARGIN_HOLD_ABOVE_PCT, SEC_PRIMARY_REVENUE_CONCEPTS, SEC_FALLBACK_REVENUE_CONCEPTS } from '../src/domain/fundamental/sec-report.js';
-// v57.81: the companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
+// The companyfacts normalizer lives in src/domain/fundamental/sec-normalize.js (shared with the browser's
 // out-of-universe issuer read); re-exported here so the gates and callers keep their imports.
 import { tickerKey, SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, SEC_SUCCESSOR_ISSUERS, mergeSuccessorCompanyFacts, mergeSuccessorSubmissions, classifyIssuerCapability, parseClassShareFacts, classInstanceUrl, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { secClassification } from '../src/domain/fundamental/sic-sector.js';
@@ -21,10 +21,10 @@ import { reconcileSecValuationBasis } from '../src/domain/fundamental/sec-valuat
 import { quarterlyHistory } from './lib/sec-fiscal-history.mjs';
 export { SEC_NORMALIZER_VERSION, SEC_CONCEPT_SET_VERSION, SEC_CONCEPT_SET_REASON_CODES, reportingBasis, classifyIssuerCapability, parseClassShareFacts, CLASS_EPS_TOLERANCE, selectClassDimensionedShares, classInstanceUrl, RECENT_FILING_WINDOW_DAYS, RECENT_FILING_MAX, recentFilingsFrom, normalizeSecCompanyFacts } from '../src/domain/fundamental/sec-normalize.js';
 import { buildDomainReceipt } from './lib/domain-receipt.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 import { readNumber } from '../src/domain/shared/number.js';
 
-// P1256: 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
+// 도메인 receipt 계약은 이제 모든 수집 도메인이 공유한다(SEC는 첫 수용자).
 export { buildDomainReceipt };
 
 const sha256Hex = (value) => createHash('sha256').update(String(value)).digest('hex');
@@ -38,7 +38,7 @@ const SEC_TICKERS_URL = 'https://www.sec.gov/files/company_tickers_exchange.json
 const SEC_FACTS_BASE = 'https://data.sec.gov/api/xbrl/companyfacts/CIK';
 const SEC_SUBMISSIONS_BASE = 'https://data.sec.gov/submissions/CIK';
 const DEFAULT_BATCH_LIMIT = 24;
-// v58.55: a normalizer change that adds observation fields (total assets and R&D for DuPont, Sloan accruals and R&D ÷
+// A normalizer change that adds observation fields (total assets and R&D for DuPont, Sloan accruals and R&D ÷
 // revenue) makes every stored core record due at once. At 24 per run (5 runs a day) the ~840 core issuers took about
 // a week, so records due ONLY for that backfill get extra slots on top of the normal batch: 24 + 48 = 72 issuers per
 // run (~2 SEC requests each at the 150 ms pace, about 1-2 minutes, well under SEC's 10 requests/second), which fills
@@ -55,7 +55,7 @@ const FAILURE_RETRY_AFTER_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = process.env.SEC_USER_AGENT || '';
 
 
-// 2026-11-02: every SEC request of this producer goes through the one paced client (scripts/lib/sec-edgar.mjs) the 13F
+// Every SEC request of this producer goes through the one paced client (scripts/lib/sec-edgar.mjs) the 13F
 // and earnings lanes use: requests queued at ≤8/s (SEC fair access allows 10), a deadline on each attempt, retries only
 // for 403/429/5xx and dropped connections (one client per attempt count; the lanes that use them run one after another). Before, this file sent the companyfacts/submissions pair in parallel
 // with no spacing and retried a definitive 404. `tries` keeps its old meaning (total attempts).
@@ -67,7 +67,7 @@ function secClient(tries) {
 }
 const fetchJSON = (url, tries = 3, as = 'json') => (as === 'json' ? secClient(tries).json(url) : secClient(tries).text(url));
 
-// Pure (v58.71): the form-type daily index as cik -> latest filing date (YYYY-MM-DD) for periodic report forms.
+// Pure: the form-type daily index as cik -> latest filing date (YYYY-MM-DD) for periodic report forms.
 export function parsePeriodicFilers(indexText, into = new Map()) {
   for (const line of String(indexText || '').split(/\r?\n/)) {
     const form = line.slice(0, 12).trim();
@@ -176,16 +176,16 @@ function buildTickerMap(payload) {
 // publication 성공"을 하나의 성공 상태로 합치지 않도록 카운터를 독립 기록한다. receipt는 job exit
 // code가 아니라 시도·갱신·보존·terminal·transient 수에서 계산되며, 생성시각 하나로 데이터가
 // 새로워졌다고 표시하지 않는다.
-// (P1256: buildDomainReceipt의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다.)
+// (buildDomainReceipt의 정본 구현은 scripts/lib/domain-receipt.mjs로 이전했다.)
 
-// v57.81: the extended screener universe (Russell 2000 + Nasdaq common stocks outside the core) keeps its own ledger.
+// The extended screener universe (Russell 2000 + Nasdaq common stocks outside the core) keeps its own ledger.
 // Records are the same normalizeSecCompanyFacts output with the point-in-time observation arrays dropped (the
 // ~90 KB/issuer arrays feed the core 재무 공시 projection only), so ~4,000 issuers stay a few MB on main instead of
 // growing the producer-only core ledger past the data-store push limit. The batch converges over daily runs.
 export const SEC_EXTENDED_LEDGER = `${ROOT}/public-data/sec-fundamentals-extended.json`;
 export const SEC_EXTENDED_UNIVERSE = `${ROOT}/public-data/screener-extended-universe.json`;
 export const SEC_EXTENDED_DEFAULT_BATCH = 600;
-// 2026-10-16 (P1872 follow-up): the ledger keeps each issuer's SEC Standard Industrial Classification in `issuerSic`
+// The ledger keeps each issuer's SEC Standard Industrial Classification in `issuerSic`
 // so the ranker can drop blank-check companies (SIC 6770) by the filer's own code instead of its name. Every
 // submissions read records it — including issuers whose facts are terminal-unsupported (most SPACs report no
 // revenue) — and a SIC-only pass (one submissions request each, same 150 ms pace) fills issuers without a code or
@@ -227,7 +227,7 @@ export function sicBackfillTargets(eligible, issuerSic, attemptedSymbols, { limi
     .slice(0, limit);
 }
 
-// Pure (v58.55): the normal batch first, then up to `extra` stored records that are due only because their observation
+// Pure: the normal batch first, then up to `extra` stored records that are due only because their observation
 // arrays predate the current normalizer (no failure, fetched inside the regular refresh window).
 export function selectSecBatch(sorted, limit, extra = 0, nowMs = Date.now(), refreshAfterMs = REFRESH_AFTER_MS) {
   const primary = sorted.slice(0, limit);
@@ -237,7 +237,7 @@ export function selectSecBatch(sorted, limit, extra = 0, nowMs = Date.now(), ref
   return [...primary, ...sorted.slice(limit).filter(backfillOnly).slice(0, extra)];
 }
 
-// v59.97: an issuer recorded without comparable annual facts (a recent listing that has filed only 10-Qs) is read again
+// An issuer recorded without comparable annual facts (a recent listing that has filed only 10-Qs) is read again
 // once it files a periodic report dated after that attempt. The daily index carries no form type, so any periodic form
 // counts (one extra read per quarter for such an issuer); the retry stamps a new attemptedAt, so one filing triggers once.
 export const SEC_NO_ANNUAL_REASON_CODES = Object.freeze(['required-us-gaap-annual-concepts-unavailable', 'required-ifrs-annual-concepts-unavailable']);
@@ -303,10 +303,10 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   let previousExists = true;
   let previous;
   try { previous = JSON.parse(await readFile(outPath, 'utf8')); } catch { previousExists = false; previous = { schemaVersion: '2.0', data: {} }; }
-  // P1757: the ledger is producer-only (data-store branch) and restored before this runs. In Actions a missing ledger
+  // The ledger is producer-only (data-store branch) and restored before this runs. In Actions a missing ledger
   // means the restore chain failed; starting from nothing with a 24-symbol batch would publish a near-empty projection,
   // so only an explicit full rebuild (SEC_FULL_REBUILD=1, set by the workflow when every restore source is gone) may.
-  // v57.81: the extended ledger lives on main and starts empty by design (requireRestored false).
+  // The extended ledger lives on main and starts empty by design (requireRestored false).
   const fullRebuild = process.env.SEC_FULL_REBUILD === '1' && scope === 'core';
   if (requireRestored && !previousExists && process.env.GITHUB_ACTIONS === 'true' && !fullRebuild) {
     throw new Error('P1757: public-data/sec-fundamentals.json was not restored (run scripts/sec-fundamentals-store.mjs restore, or set SEC_FULL_REBUILD=1 for a deliberate full rebuild)');
@@ -335,7 +335,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     console.warn('[sec-fundamentals] skipped: SEC_USER_AGENT repository variable is required by SEC fair-access policy');
     return skipped;
   }
-  // F08 (2026-10-13): ETFs/trusts are not operating companies — a commodity trust's "revenue" is its trading
+  // F08: ETFs/trusts are not operating companies — a commodity trust's "revenue" is its trading
   // gain or loss (USO margin 115%, SLV negative revenue). They are excluded from collection and pruned below.
   const etfSymbols = new Set((universePayload.universe || []).filter(isEtfUniverseRow).map(row => row.sym));
   const symbols = (universePayload.universe || []).map(row => row && row.sym).filter(sym => sym && !/\.(KS|KQ)$/i.test(sym) && !etfSymbols.has(sym));
@@ -347,7 +347,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
   const tickerMap = buildTickerMap(tickerPayload);
   const eligible = symbols.filter(symbol => tickerMap.has(tickerKey(symbol)));
   const now = Date.now();
-  // P1757: a full rebuild collects every eligible issuer in one run (~2 SEC requests each at the 150 ms pace).
+  // A full rebuild collects every eligible issuer in one run (~2 SEC requests each at the 150 ms pace).
   const limit = fullRebuild ? Math.max(1, eligible.length) : Number.isFinite(batchLimit) && batchLimit > 0 ? Math.floor(batchLimit) : Math.max(1, Math.min(100, Number(process.env.SEC_BATCH_LIMIT) || DEFAULT_BATCH_LIMIT));
   const force = process.env.SEC_REFRESH === '1';
   const retryFailedNow = process.env.SEC_RETRY_FAILED === '1';
@@ -366,19 +366,19 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
       symbol,
       periodicFiledAt,
       fetchedAt: previous.data && previous.data[symbol] && previous.data[symbol].fetchedAt,
-      // Codex review 2026-10-05: P1446 added the cash chain (operating cash flow, capex, debt) to new
+      // P1446 added the cash chain (operating cash flow, capex, debt) to new
       // fetches, but stored records only refresh after REFRESH_AFTER_MS, so all 592 published issuers
       // still lacked it. A stored record without the cash-chain observations is due now.
-      // v57.81: a compact (extended) record drops the observation arrays on purpose, so it is never 'missing' them.
+      // A compact (extended) record drops the observation arrays on purpose, so it is never 'missing' them.
       cashChainMissing: !compact && Boolean(previous.data && previous.data[symbol] && (!Array.isArray(previous.data[symbol]?.pit?.observations?.operatingCashFlow) || !Array.isArray(previous.data[symbol]?.pit?.observations?.revenueQ))),
-      // 2026-10-13 F04: a record from an older normalizer (494 of 659 lacked the P1587 share check) is due now;
+      // A record from an older normalizer (494 of 659 lacked the P1587 share check) is due now;
       // the publish-time heal below covers what its stored observations allow until then.
       normalizerOutdated: Boolean(previous.data && previous.data[symbol] && previous.data[symbol].normalizerVersion !== SEC_NORMALIZER_VERSION),
-      // v58.55: a stored record without the total-assets / R&D observation arrays (written before they were read).
+      // A stored record without the total-assets / R&D observation arrays (written before they were read).
       assetChainMissing: !compact && Boolean(previous.data && previous.data[symbol] && !Array.isArray(previous.data[symbol]?.pit?.observations?.totalAssets)),
-      // P1798: a stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
+      // A stored record without a share count leaves market cap, P/E and the value factor blank (GOOGL/META
       // waited 2-5 days behind 700 outdated records), so it is refreshed first among the due records.
-      // 2026-10-17: a count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
+      // A count withheld by policy (non-USD report, 20-F ordinary shares) is not missing — a re-read cannot fill it.
       newFiling: Boolean(previous.data?.[symbol]?.fetchedAt && (periodicFiledAt || '') >= String(previous.data[symbol].fetchedAt).slice(0, 10)),
       sharesMissing: Boolean(previous.data && previous.data[symbol] && !(Number(previous.data[symbol].sharesOutstanding) > 0)
         && !['reporting-currency-differs', 'foreign-share-basis-unverified'].includes(previous.data[symbol].sharesCheck)),
@@ -388,11 +388,11 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     }))
     .map(row => ({ ...row, noAnnualRecheck: filedAfterNoAnnualAttempt(row.priorFailure, row.periodicFiledAt) }));
   const dueTargets = candidates
-    // v57.87: a successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
+    // A successor registrant (SEC_SUCCESSOR_ISSUERS) is rechecked once per entry version with its predecessor's facts.
     .filter(row => isSecTargetDue(row, { now, force, successor: SEC_SUCCESSOR_ISSUERS[tickerMap.get(tickerKey(row.symbol))?.cik], recheckUnsupported, retryFailedNow }))
     // Prefer never-attempted and retryable candidates. Terminal taxonomy
     // failures remain in the audit but cannot starve fresh coverage.
-    // 2026-10-16: a failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
+    // A failure recorded under an older concept set is rechecked FIRST. It sorted last behind every due
     // record, and a normalizer bump makes ~750 records due at 24 per run, so GS/CRWD/VLO/ODFL/KHC/ARE/SJM (normalizable
     // since v3/v4) sat a month as failures. Each recheck stamps the current version, so this set is bounded.
     .sort((a, b) => Number(b.conceptSetChanged) - Number(a.conceptSetChanged) || Number(b.noAnnualRecheck) - Number(a.noAnnualRecheck) || Number(Boolean(a.priorFailure)) - Number(Boolean(b.priorFailure)) || Number(b.newFiling) - Number(a.newFiling) || Number(b.sharesMissing) - Number(a.sharesMissing) || String(a.fetchedAt || '').localeCompare(String(b.fetchedAt || '')) || a.symbol.localeCompare(b.symbol));
@@ -457,7 +457,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
         continue;
       }
       let normalized = normalizeSecCompanyFacts(target.symbol, facts, price, submissions);
-      // P1798: no count in companyfacts — read the class-dimensioned facts from the same 10-K's XBRL instance.
+      // No count in companyfacts — read the class-dimensioned facts from the same 10-K's XBRL instance.
       const instanceUrl = normalized && normalized.sharesOutstanding == null && ['stale-period', 'unreported'].includes(normalized.sharesCheck)
         ? classInstanceUrl(successor && !ownAccessions.has(normalized.accession) ? successor.predecessorCik : meta.cik, normalized.accession, submissions) : null;
       if (instanceUrl) {
@@ -494,16 +494,16 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
     await new Promise(resolve => setTimeout(resolve, 150));
   }
 
-  // P1449: heal stored rows at publish time. Records written before the P1402 parent-first
+  // Heal stored rows at publish time. Records written before the P1402 parent-first
   // concept order (for example Agilent, whose NCI-inclusive tag carried its AOCI value) keep
   // shipping -226M until their 28-day re-fetch; when the same filing's parent
   // StockholdersEquity row is in the stored PIT observations, use it without waiting.
-  // 2026-10-13 F03/F05: the same publish-time heal re-selects revenue per period, withholds margins above 100%
+  // The same publish-time heal re-selects revenue per period, withholds margins above 100%
   // and drops share counts from another fiscal year (reconcileSecRevenueShares), so every stored row follows
   // the new policy on the next run instead of waiting for its re-fetch. F08: ETF rows are pruned.
   let healedCount = 0;
   let etfPruned = 0;
-  // v57.81: the extended ledger follows its universe — a symbol that left it (moved into the core or delisted) is dropped.
+  // The extended ledger follows its universe — a symbol that left it (moved into the core or delisted) is dropped.
   const universeSymbols = new Set(symbols);
   // v58.71 (pipeline audit): the core ledger kept AVB, BRK.B, PSKY, WBD and EA after they left the universe (EA last read
   // 08-14), inflating `stored`. The core follows its universe too, unless the universe read came back implausibly small.
@@ -569,7 +569,7 @@ export async function refreshSecFundamentals(priceHints = null, { scope = 'core'
 
 const __entryArg = process.argv[1] ? process.argv[1].replace(/\\/g, '/') : '';
 if (__entryArg && (import.meta.url === `file://${__entryArg}` || import.meta.url === `file:///${__entryArg}`)) {
-  // v57.81: SEC_LEDGER_SCOPE=extended refreshes the extended-universe ledger (refresh-screener extended job).
+  // SEC_LEDGER_SCOPE=extended refreshes the extended-universe ledger (refresh-screener extended job).
   (process.env.SEC_LEDGER_SCOPE === 'extended' ? refreshSecFundamentals(null, extendedSecOptions()) : refreshSecFundamentals()).catch(error => {
     console.error('[sec-fundamentals] fatal:', error);
     process.exit(1);

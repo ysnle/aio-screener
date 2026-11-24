@@ -2,7 +2,7 @@
 // how the run's collection status is judged, and how long a channel has been failing. Pure, so the rules are testable
 // without the network; the registry itself (CHANNEL_CATALOG) stays in the producer.
 //
-// v60.18 (weekly audit 2026-11-15): the digest read "partial" on every run from 10/26 20:52Z because one handle stopped
+// The digest read "partial" on every run from 10/26 20:52Z because one handle stopped
 // serving a public preview — t.me/s/aetherjapanresearch answers with a contact card ("Send Message"), not a post list
 // (checked 2026-11-15), so every run threw "first page parsed no posts" (lastPostId frozen at 26057) and the status could
 // never be "ok" again; nothing said how long the channel had been failing. A channel that no longer publishes a preview is

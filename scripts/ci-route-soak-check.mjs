@@ -17,7 +17,7 @@ const baseUrl = `http://127.0.0.1:${port}/index.html`;
 const ROUTES = ROUTE_IDS;
 const version = JSON.parse(readFileSync(resolve(root, 'version.json'), 'utf8')).version;
 const git = (args) => { try { return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(); } catch { return null; } };
-let hosts = {}; // v60.31: a derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical
+let hosts = {}; // A derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical
 const canonical = (route) => hosts[route] || route;
 const isExpectedOfflineConsole = (message) => /net::ERR_FAILED/.test(message)
   || /^\[AIO:api\]\s+[\w-]+:\s+warn\s+.*error/.test(message);
@@ -90,7 +90,7 @@ try {
   });
   report.entityRoundTrip = entityRoundTrip;
   if (JSON.stringify(entityRoundTrip.sequence.map((row) => row.entityId)) !== JSON.stringify(['AAPL', 'MSFT', 'AAPL']) || entityRoundTrip.active !== 'ticker') throw new Error(`entity A→B→A failed: ${JSON.stringify(entityRoundTrip)}`);
-  // v59.70 (N6): direct entry with a late module graph. A deep link's first page hooks run while the deferred classic
+  // Direct entry with a late module graph. A deep link's first page hooks run while the deferred classic
   // scripts evaluate; holding bootstrap.js 1.5 s makes the relay transport arrive after the legacy 500 ms BOK/KOSIS
   // timer every time (the old code threw "_cfWorkerUrl is not defined" there and never fetched). Each entry must log no
   // console error, 매크로 must render natively after the transport is ready, and the 시장 상태 한국 board must show its policy card.

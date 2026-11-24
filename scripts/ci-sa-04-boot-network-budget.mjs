@@ -32,7 +32,7 @@ try {
     serverFredReady: window._serverDataMeta?.fredFetchOk === true,
     serverHyReady: !!window._serverDataMeta?.hyOAS,
     serverHyFieldPresent: Object.prototype.hasOwnProperty.call(window._serverDataMeta || {}, 'hyOAS'),
-    // v60.43: the scheduler keeps no task for a value data.json or history.json already carries.
+    // The scheduler keeps no task for a value data.json or history.json already carries.
     retiredTasks: ['fred', 'hySpread', 'sentiment', 'vixHistory', 'maUpdate', 'technicals'].filter((key) => window.REFRESH_SCHEDULE?.[key]),
     quoteRequestPolicy: 'snapshot-backed outage ceiling'
   }));

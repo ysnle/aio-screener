@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { freePort } from './lib/browser-gate.mjs';
 
-// RM-03 continued (2026-07-21, P757): dumps (scenario, legacy window.AIO.getUsTreasuryCurveEvidence()
+// RM-03 continued: dumps (scenario, legacy window.AIO.getUsTreasuryCurveEvidence()
 // output) tuples by driving the REAL, unmodified js/aio-core.js function inside a real Chromium
 // page — the golden fixture src/domain/macro/treasury-curve.js's parity gate compares against.
 // MUST be run against the pre-extraction commit (before getUsTreasuryCurveEvidence is rewritten to

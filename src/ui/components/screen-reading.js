@@ -1,3 +1,6 @@
+// The screen's AI reading (owner 2026-11-18, text architecture) — one open paragraph right under its first verdict, with a small
+// "AI 읽기" tag and the close it was written on. Shown only when the producer verified it and its basis is the close the
+// screen shows now; otherwise the host is emptied and hidden (an empty place, no stand-in text). Text goes in as text.
 import { serverScreenReading } from '../../data/server-screen-readings.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 

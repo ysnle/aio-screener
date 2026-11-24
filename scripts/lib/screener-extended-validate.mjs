@@ -1,4 +1,4 @@
-// v57.81: semantic contract of the extended screener shard (public-data/screener-extended.json). Used by the
+// Semantic contract of the extended screener shard (public-data/screener-extended.json). Used by the
 // refresh workflow before commit (with freshness) and by the CI contract gate (structure only).
 import { EXTENDED_ROW_ENCODING, EXTENDED_SHARD_SCHEMA, expandShardRows, shardIdentityRows } from '../../src/data/screener-extended.js';
 import { readNumber } from '../../src/domain/shared/number.js';
@@ -48,7 +48,7 @@ export function validateExtendedShard(shard, { coreData = null, now = Date.now()
   if (shard.factorTimeBasis !== 'bar-start') errors.push('factorTimeBasis must be bar-start');
   if (!shard.membership?.asOf || !shard.membership?.status) errors.push('membership asOf/status missing');
   // Schema parity with the core artifact: no field the core row schema does not have; every lineage key present.
-  // v60.28: the margin/revenue-growth basis fields may precede the first core run that writes them.
+  // The margin/revenue-growth basis fields may precede the first core run that writes them.
   const coreKeys = coreData ? new Set([...CONDITIONAL_FACTOR_FIELDS, ...TRAILING_BASIS_FIELDS, ...Object.values(coreData).flatMap((row) => Object.keys(row || {}))]) : null;
   for (const sym of symbols) {
     const row = data[sym];

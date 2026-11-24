@@ -1,5 +1,13 @@
+// The one reading of "which scenario leads" for every screen, the AI and the producer (run-6 MERGED #2). A pure
+// function of the crossroads model (src/domain/market/regime/macro-crossroads.js buildMacroCrossroads), kept apart from that
+// module so a reader of the lead does not import the whole scenario builder.
 import { hasFinalConsonant } from '../../content/korean-particle.js';
 
+// MERGED #2 (run-6): 종목·재무·포트폴리오 named 'AI 투자 꺾임' and 시장 상태 '유가 충격' for the same 2/4 vs 2/4 — each
+// consumer broke the tie its own way. The one reading of "which branch leads": a tie is every tied branch (tiedIds),
+// never one of them; leadId/altId stay the stable order the tie-hold and the producer record use.
+// Two layers: `face` is the plain sentence for a beginner; `detail` is the expert fold — each branch's
+// count and which conditions it met and missed.
 /**
  * The order the scenario list is shown in, and the heading that names it (one owner, so the two cannot disagree). The
  * order is the current branches (lead or tie, then the alternative), then a met core condition before none (v57.81 audit

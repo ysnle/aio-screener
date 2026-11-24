@@ -27,7 +27,7 @@ const errors = [];
 const warnings = [];
 
 // C0 (tab/lf/cr 제외) + C1 제어문자 범위 — mojibake의 실제 시그니처(U+0080 등)를 잡는다.
-// v59.70: 규칙은 scripts/lib/control-chars.mjs 하나다 (agent-hook post-edit 경고가 같은 규칙을 쓴다).
+// 규칙은 scripts/lib/control-chars.mjs 하나다 (agent-hook post-edit 경고가 같은 규칙을 쓴다).
 
 // ── 1) 워크플로 YAML: 하드 게이트 (baseline 없음, 0건 필수) ─────────────────────
 const workflowFiles = readdirSync(join(root, '.github', 'workflows'))
@@ -114,7 +114,7 @@ if (process.argv.includes('--write-baseline')) {
   process.exit(0);
 }
 
-// ── 3) P1500 (owner 2026-10-06): no emoji or pictographs in product code ─────────────────────
+// ── 3) P1500: no emoji or pictographs in product code ─────────────────────
 // The shell, legacy modules and native ESM render no emoji. Arrows ↔ ↗ ↙ ▶ ◀ and the UI glyphs ★ ☆ ☰
 // (watchlist star, menu icon) are typography, not emoji. Lines that remove pictographs from external text
 // keep their character classes. The glyphs are listed explicitly because \p{Extended_Pictographic} is
@@ -143,7 +143,7 @@ if (process.argv.includes('--write-baseline')) {
   }
   if (hits.length) errors.push(`P1500 emoji/pictograph in product code (${hits.length}): ${hits.slice(0, 12).join(', ')}`);
 
-  // P1523: trading instructions, certainty claims and unsourced probabilities that were rewritten as observation
+  // Trading instructions, certainty claims and unsourced probabilities that were rewritten as observation
   // conditions must not come back. Exact phrases only (the audit found them in live legacy text), so educational
   // descriptions of a method elsewhere never trip this.
   const INSTRUCTION_PHRASES = [
@@ -154,15 +154,15 @@ if (process.argv.includes('--write-baseline')) {
     ['현재 행동 지시', /현재 행동:/], ['추격 매수 자제 권고', /추격 ?매수는 자제/], ['비중 축소 검토 라벨', /비중 축소 검토/],
     ['관망 우선 라벨', /관망 우선/], ['세력 단정', /물량 털기/], ['진짜 추세 단정', /가 진짜 추세/], ['파산 확률 단정', /파산 확률 최소화/],
     ['신호 사다리 라벨', /'(?:중립 · 관망|주의 · 축소|위험 · 방어)'/],
-    // P1535: action enums are internal; the reader sees load levels, and prompts state conditions instead of a verdict.
+    // Action enums are internal; the reader sees load levels, and prompts state conditions instead of a verdict.
     ['매수 우호 라벨', /매수 우호/], ['포지션 사이즈 지시 표시', /포지션 사이즈: |포지션 사이즈 축소 권장/], ['센티먼트 행동 라벨', /센티먼트 행동:/],
     ['진입 전략 요청', /진입 전략 알려줘/], ['행동 결론 강제', /행동 결론\(/], ['확실한 우위 단정', /확실한 우위/], ['비중 제한 권장', /비중 제한 권장/],
     ['최종 추천 강제', /최종 추천 시/], ['행동 코드 직접 표시', /_itbBadge\((?:item|result|sp|sellPressure|lock|blowoffTop)\.action/],
-    // P1538: letter grades, composite verdicts and per-line instructions retired from the technical and portfolio analysis.
+    // Letter grades, composite verdicts and per-line instructions retired from the technical and portfolio analysis.
     ['진입 등급 카드', /진입 등급/], ['기관급 판정 라벨', /기관급 (?:후보|미너비니)/], ['등급 진입 문구', /등급\s*진입\s*(?:기회|품질)/], ['손절 검토 대상 목록', /손절 검토 대상/],
     ['현금비중 권고', /현금비중\s*30%\+?\s*권장/], ['매도 계획 준비 문구', /매도 계획 준비/], ['이익실현 재배치 지시', /승자 일부 이익실현/], ['해자 등급 판정', /verdict\s*=\s*score\s*>=\s*7\s*\?/], ['생태계 점수 판정', /Strong Platform\/Ecosystem|ecosystemScore\s*[:=]/],
     ['리스크 등급 n/5', /등급\s*'\s*\+\s*riskGrade/], ['엔진 점수 직접 표시', /instEngine\.(?:score|verdict)/],
-    // P1540: the score's own long-run validation shows no positive relation to forward returns, so its bands name the stress signals
+    // The score's own long-run validation shows no positive relation to forward returns, so its bands name the stress signals
     // observed, not a favourable environment; the band explanations no longer tell the reader to trim, hold cash or stay out.
     ['환경 우호 라벨', /환경 우호/], ['환경 양호 밴드 라벨', /(?:>=\s*60\s*\?\s*|● )'?환경 양호|환경 양호 —/], ['신규 진입 자제 문구', /신규 진입 자제/], ['리스크 자산 비중 축소 문구', /리스크 자산 비중 축소/],
     ['공격적 포지셔닝 문구', /공격적 포지셔닝/], ['동반 상승 기대 문구', /동반 상승 기대/],

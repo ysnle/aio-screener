@@ -15,7 +15,7 @@ export function is13FFilingSeason(value) {
   return false;
 }
 
-// v58.87 (P2093 follow-up): filing-discovery.json is read for 13D/G events and coverage (src/ui/pages/masters.js);
+// filing-discovery.json is read for 13D/G events and coverage (src/ui/pages/masters.js);
 // the full 13F filing blocks with their SEC URLs live in filings.json, which the full run builds from the in-memory
 // discovery. The discovery artifact keeps only the accession reference that the contract and the next run compare.
 const FILING_REF_KEYS = Object.freeze(['accession', 'form', 'baseForm', 'periodOfReport', 'filedAt']);
@@ -163,7 +163,7 @@ export async function updateOwnershipOnlyDiscovery({
   return { artifact, pending13fHrTriggers, in13fFilingSeason: is13FFilingSeason(checkedAt) };
 }
 
-// Codex review 2026-10-05: add the subject company and percent of class to each 13D/G event. Filings are
+// Add the subject company and percent of class to each 13D/G event. Filings are
 // immutable, so values already parsed for an accession are reused and only new events are fetched.
 export async function enrichOwnershipEvents({ artifact, previous, fetchText, archiveBaseFor }) {
   const known = new Map();
@@ -176,7 +176,7 @@ export async function enrichOwnershipEvents({ artifact, previous, fetchText, arc
     for (let index = 0; index < events.length; index += 1) {
       const event = events[index];
       const cached = known.get(event.accession);
-      // P1498: an accession cached with no issuer name is fetched again on a full run (the first parser missed the header form).
+      // An accession cached with no issuer name is fetched again on a full run (the first parser missed the header form).
       if (cached && (cached.subjectCompany || typeof fetchText !== 'function')) { events[index] = { ...event, subjectCompany: cached.subjectCompany ?? null, subjectCik: cached.subjectCik ?? null, percentOfClass: cached.percentOfClass ?? null }; continue; }
       if (typeof fetchText !== 'function') continue;
       const base = archiveBaseFor(manager.cik, event.accession);

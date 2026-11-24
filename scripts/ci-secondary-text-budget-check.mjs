@@ -15,7 +15,7 @@
 //   node scripts/ci-secondary-text-budget-check.mjs --tighten   lower ceilings to what is measured now (shrink only)
 //   node scripts/ci-secondary-text-budget-check.mjs --write     record every route's ceiling (deliberate; owner-approved growth)
 //
-// v59.50 (recurrence audit 2026-10-31): the measured home text moved 343 → 417 between two data days (a calendar event's
+// The measured home text moved 343 → 417 between two data days (a calendar event's
 // note, the day's question, the weekend fallback chips) and blocked two deploys at 417/418, though no caption was added.
 // The budget measures the layout, so it now reads one pinned data commit at one pinned clock (`dataPin` in
 // architecture/secondary-text-budget.json): public-data/* is served from `git show <commit>:public-data/…` and the page
@@ -101,7 +101,7 @@ function measure({ pattern, readingMax, asofMax, contracts }) {
     if (asof.length > asofMax) problems.push(`as-of chip ${asof.length} chars: ${asof}`);
     if (readings.length > 1) problems.push(`${readings.length} readings`);
     if (readings.some((n) => n > readingMax)) problems.push(`reading ${Math.max(...readings)} chars`);
-    // v59.70 (S24): a story frame holds exactly one drawn visual and one reading, and at most one fold.
+    // A story frame holds exactly one drawn visual and one reading, and at most one fold.
     const contract = contracts[frame.dataset.frameContract];
     if (contract) {
       const own = (node) => node.closest('[data-frame]') === frame;
@@ -125,7 +125,7 @@ if (isMain) {
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
     page.on('pageerror', (error) => failures.push({ message: 'runtime error', detail: error.message }));
-    // v59.51: a route measures after its own loads settle. A fixed 900 ms caught the atlas domain guide either before its
+    // A route measures after its own loads settle. A fixed 900 ms caught the atlas domain guide either before its
     // data file arrived (13 chars) or after (431), so two runs on the same pinned data disagreed.
     let pending = 0;
     page.on('request', () => { pending += 1; });
@@ -170,7 +170,7 @@ if (isMain) {
       host.dataset.frame = 'canary.frame';
       host.innerHTML = `<div class="sx-card__head aio-frame-head"><h2 class="sx-card__title">제목</h2><span class="sx-card__meta">기준 설명 한 줄</span><span class="aio-asof">${'가'.repeat(40)}</span></div><p class="aio-frame-reading">${'나'.repeat(300)}</p><p class="aio-frame-reading">다</p><p class="canary-basis">${'라'.repeat(50)}</p>`;
       document.querySelector('.page.active').appendChild(host);
-      // v59.70 (S24): a story frame with no drawn visual and two folds must trip the story contract.
+      // A story frame with no drawn visual and two folds must trip the story contract.
       const story = document.createElement('section');
       story.dataset.frame = 'canary.story';
       story.dataset.frameContract = 'story';

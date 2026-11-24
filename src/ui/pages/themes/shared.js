@@ -1,6 +1,7 @@
 // Theme screens: small helpers shared by the RRG, sector board and theme detail modules.
 import { directionOf } from '../../../domain/shared/number.js';
 
+// A change that rounds to zero is drawn in the text colour, not rising red or falling blue.
 export const dirColor = (value, digits = 1) => { const dir = directionOf(value, digits); return value == null ? 'var(--color-text-secondary)' : dir === 'up' ? 'var(--color-data-up)' : dir === 'down' ? 'var(--color-data-down)' : 'var(--color-text-primary)'; };
 
 export const finiteOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);

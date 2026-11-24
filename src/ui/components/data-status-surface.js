@@ -1,4 +1,15 @@
+// v59.20 (roadmap 11, layer 2 quality/evidence): every writer of the two data-status surfaces moved here unchanged, so
+// one module owns #data-status-panel and #snapshot-stale-warning (AG-DOM-WRITER): showDataError, the source dashboard
+// (_renderApiDashboard) and the stale-source banner (_checkAllDeadBanner) and AIO.updateSnapshotStaleBanner from
+// js/aio-core.js, updateDataStatusError/updateDataStatus from js/aio-data.js, and the three inline writes that stay in
+// their callers as calls: the snapshot-age warning of applyDataSnapshot (_aioApplySnapshotStaleWarning), the storage
+// warning at boot (_aioShowStorageBlockedWarning) and the _aioLog error-surge notice (_aioShowErrorSurge). The inline
+// span styles became the .dsp-msg classes in src/ui/styles/legacy-data.css with the same values.
+// src/app/compatibility-globals.js installs this before DOMContentLoaded, as the classic definitions were.
 export function installDataStatusSurface(window = globalThis, document = globalThis.document) {
+  // ── v30.10: 글로벌 에러 표시 유틸리티 (사용자 피드백 제공) ─────────────
+  // 에러 유형: 'api' | 'parse' | 'dom' | 'network'
+  // 심각도: 'warn' (노란색, 자동 소멸) | 'error' (빨간색, 수동 닫기)
   window._aioErrors = window._aioErrors || {};
   function showDataError(area, msg, severity) {
     severity = severity || 'warn';
@@ -59,6 +70,7 @@ export function installDataStatusSurface(window = globalThis, document = globalT
   }
 
   function _checkAllDeadBanner() {
+    // 전체 API 모니터링 (finnhub, fear-greed, exchange-rate 포함)
     var apis = Object.keys(window._apiHealth);
     var deadCount = 0, warnCount = 0, deadNames = [];
     apis.forEach(function(k) {
@@ -133,6 +145,7 @@ export function installDataStatusSurface(window = globalThis, document = globalT
     const el = document.getElementById('data-status-panel');
     if (!el) return;
     const now = Date.now();
+    // Stale 감지 — 마지막 시세 갱신이 10분 이상 경과하면 경고
     const lastQuoteTs = window._quoteTimestamps ? Math.max(0, ...Object.values(window._quoteTimestamps)) : 0;
     const staleMin = lastQuoteTs > 0 ? Math.floor((now - lastQuoteTs) / 60000) : -1;
 
@@ -181,17 +194,24 @@ export function installDataStatusSurface(window = globalThis, document = globalT
   }
 
   function _aioApplySnapshotStaleWarning(S) {
+      // Staleness 경고 — 스냅샷 기준이지만 실시간 데이터가 들어오면 자동 해제
+      // 개선: 고정 12초 타이머 → 반복 폴링 + 이벤트 리스너로 확실히 해제
       const updated = (S._marketDataUpdated || S._updated) ? new Date(S._marketDataUpdated || S._updated).getTime() : 0;
       const age = updated ? (Date.now() - updated) : Infinity;
       const staleEl = document.getElementById('snapshot-stale-warning');
       if (staleEl) {
-        if (updated && !isNaN(age) && age > 24 * 60 * 60 * 1000) {
+        if (updated && !isNaN(age) && age > 24 * 60 * 60 * 1000) { // No stamp read "Infinityh old"
           const hrs = Math.floor(age / 3600000);
           var mdDate = S._marketDataDate || S._snapshotDate || '날짜 확인 불가';
           var tgDate = S._telegramDigestDate || (S._telegramDigestUpdated ? String(S._telegramDigestUpdated).slice(0, 10) : '날짜 확인 불가');
           staleEl.textContent = '시장 자료는 ' + mdDate + ' 기준(' + hrs + '시간 전), 뉴스·테마 요약은 ' + tgDate + ' 기준입니다. 실시간 시세가 들어오면 자동으로 바뀝니다.';
           staleEl.style.display = 'block';
 
+          // 실시간 데이터 수신 감지 — 반복 체크 (5초 간격, 최대 2분)
+          // v48.14 (Agent W11): 2분 폴링 루프 제거 — 순수 이벤트 구독으로 전환
+          // aio:liveDataReceived + aio:liveQuotes 둘 다 구독해서 stale 해제
+          // 첫 로드 후 45초 내 아무 이벤트 없으면 마지막 1회 확인 (만약 이벤트 누락)
+          // One pending listener set at a time: a repeated stale apply keeps the set already waiting.
           if (stalePending) return;
           var _onStaleLiveFire = function(ev) {
             if (ev && ev.detail && ev.detail.coreCoverageOk === false) return;

@@ -25,10 +25,10 @@ const fixture = {
 if (recentSubmissionRows(fixture).length !== 4) fail('fixture form discovery failed');
 const ownershipRows = recentOwnershipRows(fixture);
 if (ownershipRows.length !== 2 || ownershipRows[0].form !== 'SC 13G/A') fail('Schedule 13D/G ownership-event discovery failed');
-// v58.71: structured Schedules filed since 2024-12-18 carry the full 'SCHEDULE 13G' form name.
+// Structured Schedules filed since 2024-12-18 carry the full 'SCHEDULE 13G' form name.
 const structuredOwnership = recentOwnershipRows({ filings: { recent: { form: ['SCHEDULE 13G/A', 'SCHEDULE 13D', 'SC 13G'], accessionNumber: ['0000000002-26-000003', '0000000002-26-000002', '0000000002-24-000001'], filingDate: ['2026-10-20', '2026-09-30', '2024-12-10'] } } });
 if (structuredOwnership.map((row) => row.form).join('|') !== 'SCHEDULE 13G/A|SCHEDULE 13D|SC 13G') fail('structured SCHEDULE 13D/G forms must be discovered');
-// v58.71: a lagging manager's newer-period 13F-NT does not take the holdings amendment's original out of its period group.
+// A lagging manager's newer-period 13F-NT does not take the holdings amendment's original out of its period group.
 const lagging = select13fFilings({ filings: { recent: { form: ['13F-NT', '13F-HR/A', '13F-HR'], accessionNumber: ['0000000003-26-000003', '0000000003-26-000002', '0000000003-26-000001'], filingDate: ['2026-08-14', '2026-07-01', '2026-05-15'], reportDate: ['2026-06-30', '2026-03-31', '2026-03-31'] } } });
 if (lagging.latestPeriodSubmissions.map((row) => row.form).join('|') !== '13F-HR/A|13F-HR') fail('latest holdings period group must be keyed on the holdings period, not a newer notice');
 const selected = select13fFilings(fixture);
@@ -53,7 +53,7 @@ if ((workflow.match(/name: Refresh weekly SEC 13F and daily 13D-G discovery/g) |
   || !/cron: '33 7 \* \* \*'/.test(workflow)
   || !/steps\.daily-lane\.outputs\.due == 'true'/.test(mastersWorkflowStep)
   || !/daily-lane-age\.mjs/.test(workflow)
-  // v57.92 (audit W03): the restored marker is also written and saved after a published daily poll
+  // The restored marker is also written and saved after a published daily poll
   || !/daily-lane-age\.mjs --write-marker/.test(workflow) || !/name: Save daily-lane poll marker[\s\S]*?actions\/cache\/save@[\s\S]*?path: \.cache\/daily-lane/.test(workflow)
   || !/MASTERS_MODE.*operator/.test(mastersWorkflowStep)
   || !/collect-13f-discovery\.mjs --ownership-only/.test(mastersWorkflowStep)
@@ -68,8 +68,8 @@ if ((workflow.match(/name: Refresh weekly SEC 13F and daily 13D-G discovery/g) |
   || !/steps\.masters\.outcome == 'success' \|\| steps\.masters\.outcome == 'skipped'/.test(workflow)) {
   fail('P1309/R654/QA-DATA-51 must keep daily ownership-only polling and run full 13F rows during filing-season Mondays, for unconnected HR/HR-A filings, or by explicit dispatch');
 }
-const mastersPage = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // v59.70: view builders split out of the page
-// P1488: the 13D/G list keeps an as-of label ("… 확인 기준") in reader language instead of the artifact wording.
+const mastersPage = read('src/ui/pages/masters.js') + read('src/ui/pages/masters-views.js'); // View builders split out of the page
+// The 13D/G list keeps an as-of label ("… 확인 기준") in reader language instead of the artifact wording.
 if (!mastersPage.includes('SEC 발견 artifact 기준일') || !mastersPage.includes('${ownershipAsOf} 확인 기준') || mastersPage.includes('SEC 온라인 현재성 발견')) {
   fail('P1309/R654/QA-DATA-51 must label last published SEC artifacts with an as-of date instead of claiming a fresh online poll');
 }
@@ -111,17 +111,17 @@ const mastersGate = read('scripts/ci-masters-contract-check.mjs');
 if (!/filing-discovery\.json/.test(mastersGate)) fail('masters gate does not consume filing discovery');
 const tickerIndexBuilder = read('scripts/build-13f-reference-ticker-index.mjs');
 if (!/build-13f-reference-ticker-index\.mjs/.test(workflow) || !/REFERENCE_ONLY_TICKER_LOOKUP/.test(tickerIndexBuilder) || !/Absence from this bounded index does not prove absence/.test(tickerIndexBuilder)) fail('reference-only 13F ticker lookup is not part of the refresh boundary');
-// v58.87 (P2093 follow-up): filing-discovery.json carries only accession references for the 13F blocks (filings.json
+// filing-discovery.json carries only accession references for the 13F blocks (filings.json
 // holds the full blocks and URLs); 13D/G events are kept whole because the masters page reads them there.
 const slimmed = slimDiscoveryManager({ managerId: 'm', status: 'DISCOVERED', latestSubmission: { accession: 'a', form: '13F-HR', periodOfReport: '2026-06-30', indexUrl: 'https://x' }, latestHoldings: { accession: 'a', form: '13F-HR', informationTableXml: 'https://x' }, priorHoldings: { accession: 'b' }, latestPeriodSubmissions: [{}], priorPeriodSubmissions: [{}], ownershipEvents: [{ accession: 'e', indexUrl: 'https://x' }] });
 if (slimmed.latestSubmission.indexUrl || slimmed.latestHoldings.informationTableXml || slimmed.latestHoldings.accession !== 'a' || 'priorHoldings' in slimmed || 'latestPeriodSubmissions' in slimmed || 'priorPeriodSubmissions' in slimmed || slimmed.ownershipEvents[0].indexUrl !== 'https://x') fail('filing discovery must keep accession references and whole 13D/G events only');
 if ((read('scripts/collect-13f-discovery.mjs').match(/writeAtomic\(discoveryPath, slimDiscoveryArtifact\(artifact\)/g) || []).length !== 2) fail('both discovery writers must slim the artifact');
-// v58.87 (P2093 follow-up): a failed lane backs off 1, 2, 4, max 8 h instead of re-running every 30-minute cycle.
+// A failed lane backs off 1, 2, 4, max 8 h instead of re-running every 30-minute cycle.
 const lastFailure = Date.parse('2026-10-26T10:00:00Z');
 const marker3 = failureMarker(failureMarker(failureMarker({ polledAt: '2026-10-25T09:00:00Z' }, lastFailure), lastFailure), lastFailure);
 if (marker3.failures !== 3 || marker3.polledAt !== '2026-10-25T09:00:00Z' || retryBackoffHours(3) !== 4 || retryBackoffHours(9) !== 8 || retryBackoffHours(0) !== 0
   || !inRetryBackoff({ marker: marker3, now: lastFailure + 3.9 * 3600000 }) || inRetryBackoff({ marker: marker3, now: lastFailure + 4 * 3600000 }) || inRetryBackoff({ marker: { polledAt: '2026-10-25T09:00:00Z' }, now: lastFailure })) fail('daily-lane failure backoff is wrong');
-// v60.18: a degradable lane that keeps failing must reach the operations alert (11/06-11/15 failed with warnings only).
+// A degradable lane that keeps failing must reach the operations alert (11/06-11/15 failed with warnings only).
 // Exhaustive over 0..6 consecutive failures, plus the step that turns the count into a red run without continue-on-error.
 for (let n = 0; n <= 6; n += 1) {
   let m = { polledAt: '2026-10-25T09:00:00Z' };

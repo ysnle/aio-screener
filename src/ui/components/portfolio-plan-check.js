@@ -1,3 +1,7 @@
+// 점검 › 내 계획 점검 — moved from js/aio-ui.js calculateRR (v58.75 owner 2026-10-24: the app proposes no
+// price or size; it states the risk width, the reward-to-risk multiple when a target is given, the loss at the stop and its
+// share of capital). The rules are unchanged: a refused input hides the previous result, values above 1e12 are
+// refused. The position select that fills the entry price stays with js/aio-core.js (_aioRRFillFromPosition).
 export function planCheckLines({ entry, stop, target = null, amount = null, total = null } = {}) {
   const ok = (value) => (Number.isFinite(value) && value > 0 ? value : null);
   [entry, stop, target, amount, total] = [entry, stop, target, amount, total].map(ok);

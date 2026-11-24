@@ -1,3 +1,8 @@
+// v59.28 (roadmap 11, layer 3 providers): the Naver Finance Korea collector moved out of js/aio-data.js unchanged —
+// fetchKrNaverQuotes (KOSPI/KOSDAQ indices and every KR_STOCK_DB name, Yahoo-compatible rows) and fetchKrDailyCandles
+// (the fchart daily OHLCV series behind the own candle chart). The names stay window globals for the classic callers
+// (fetchLiveQuotes, the KR dynamic loader, aio-kr-data). src/app/compatibility-globals.js installs this before
+// DOMContentLoaded.
 export function installNaverKrCollector(window = globalThis) {
   // ═══ v36: 네이버 파이낸스 — 한국 시장 1차 데이터 소스 ═══════════════════
   // 네이버 API → CORS 프록시 → Yahoo-compatible 포맷 변환
@@ -27,6 +32,10 @@ export function installNaverKrCollector(window = globalThis) {
         var chgVal = parseFloat(String(data.compareToPreviousClosePrice ?? data.cv ?? '').replace(/,/g, ''));
 
         if (price > 0) {
+          // FABLE-LIVE-AUDIT-2026-07-07 C5/L2-2: Naver의 compareToPreviousClosePrice(부호 포함, 원 단위)로
+          // 전일종가를 직접 역산해 첨부. Yahoo ^KS11/^KQ11의 chartPreviousClose는 미국 휴장일 인접 주간에
+          // 한 세션 어긋난 값을 돌려주는 경우가 실측됐음(예: 7/3 종가를 7/6 전일종가로 반환) — KR 지수는
+          // KRX 소스(Naver)가 항상 정확하므로 이 값을 우선 사용해야 함(아래 병합부에서 sticky 처리).
           var _prevClose = isFinite(chgVal) ? (price - chgVal) : null;
           results.push({
             symbol: idx.yahoo,
@@ -79,6 +88,7 @@ export function installNaverKrCollector(window = globalThis) {
               var chgPct = parseFloat(String(d.cr ?? d.fluctuationsRatio ?? '').replace(/,/g, ''));
               var chgVal = parseFloat(String(d.cv ?? d.compareToPreviousClosePrice ?? '').replace(/,/g, ''));
 
+              // 가격/등락률 유효성 검증
               if (!isFinite(price)) price = 0;
               if (!isFinite(chgPct) || Math.abs(chgPct) > 30) chgPct = null; // 한국 상한가 ±30%
               if (!isFinite(chgVal)) chgVal = null;
@@ -99,6 +109,7 @@ export function installNaverKrCollector(window = globalThis) {
         }
       } catch(e) { /* polling batch 실패 — m.stock 개별 폴백 */ }
 
+      // 배치 실패 시 m.stock 개별 요청 폴백 (5→10개로 확대, 가중치 높은 종목 우선)
       if (!batchOk) {
         var fallbackBatch = batch.slice(0, 10);
         await Promise.allSettled(fallbackBatch.map(async function(code) {
@@ -128,6 +139,8 @@ export function installNaverKrCollector(window = globalThis) {
       }
     }
 
+    // ── 3차/4차 폴백: api.finance.naver.com / fchart.stock.naver.com ──
+    // 1차(배치)+2차(개별) 완료 후 아직 데이터 없는 종목에 대해 siseJson 엔드포인트 시도
     var allCodesFlat = [];
     function _aioCollectKrCodes(src) {
       if (!src) return;
@@ -139,6 +152,8 @@ export function installNaverKrCollector(window = globalThis) {
         if (src.code) allCodesFlat.push(src.code);
         else if (src.symbol && /^[0-9]{6}$/.test(String(src.symbol))) allCodesFlat.push(src.symbol);
         else Object.keys(src).forEach(function(k) {
+          // KR_STOCK_DB는 코드가 KEY ('103140': {name,price,...})이고 값엔 .code/.symbol 없음.
+          // 이전엔 값만 재귀해 6자리 KEY를 놓쳐 0개 추출 → siseJson 최종 폴백 tier 무력화. 키가 6자리 코드면 직접 수집.
           if (/^[0-9]{6}$/.test(k)) allCodesFlat.push(k);
           _aioCollectKrCodes(src[k]);
         });
@@ -191,6 +206,7 @@ export function installNaverKrCollector(window = globalThis) {
               rows.push({ date: m[1], open: +m[2], high: +m[3], low: +m[4], close: +m[5], vol: +m[6] });
             }
             if (rows.length === 0) return;
+            // 파싱 결과 검증 — 가격 유효성 + 범위
             rows = rows.filter(function(r) { return r.close > 0 && isFinite(r.close) && r.open > 0; });
             if (rows.length === 0) return;
             var latest = rows[rows.length - 1];
@@ -228,6 +244,9 @@ export function installNaverKrCollector(window = globalThis) {
     return results;
   }
 
+  // TradingView KRX 위젯 하드 브레이크(FABLE-LIVE-AUDIT-2026-07-04.md P3) 대체용 —
+  // Naver fchart 일봉 OHLCV 시리즈 직접 fetch(자체 캔들 차트 렌더용). 파싱 정규식은 위 fetchKrNaverQuotes()의
+  // siseJson 폴백 파서와 동일 패턴 재사용(이미 이 코드베이스에서 검증된 방식 — eval/Function 없이 안전 추출).
   async function fetchKrDailyCandles(code, count) {
     code = String(code || '').replace(/\.(KS|KQ)$/i, '').trim();
     count = count || 120;

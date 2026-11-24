@@ -4,10 +4,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 const source = readFileSync(new URL('../js/aio-data.js', import.meta.url), 'utf8');
-// v59.22: the relay transport moved to src/data/providers/proxy-transport.js; the harness runs its installer.
 const transport = readFileSync(new URL('../src/data/providers/proxy-transport.js', import.meta.url), 'utf8').replace('export function installProxyTransport', 'function installProxyTransport');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-// P1132/R619: the inline Yahoo chart helper moved from index.html's block F into js/aio-ui.js.
 const ui = readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
 const section = (text, a, b) => {
   const start = text.indexOf(a), end = text.indexOf(b, start);
@@ -102,7 +100,7 @@ for(let i=0;i<8;i++) check(reg.getRotated('https://example.org/')[0].id==='cf-wo
 const missing = harness({fetcher:async()=>new Response('',{status:404})});
 await assert.rejects(missing.root.fetchViaProxy(url(),{parseJson:true}));
 check(missing.root.registry.list.every(p=>missing.root.registry.state(p,url()).fails===0),'missing ticker does not poison relay health');
-// P1758: a definitive upstream answer relayed by the Worker ends the chain; only a relay fault reaches a public relay.
+// A definitive upstream answer relayed by the Worker ends the chain; only a relay fault reaches a public relay.
 check(missing.calls.length===1 && missing.calls[0][0].startsWith('https://owned.example?url='), 'P1758 a Worker-relayed upstream 404 never fans out to public relays');
 const verdict = harness({fetcher:async()=>new Response(JSON.stringify(chart('SPY')))});
 await assert.rejects(verdict.root.fetchViaProxy(url('AAPL'),{parseJson:true}),{code:'UPSTREAM_REJECTED'});
@@ -116,7 +114,7 @@ check(/v7\/finance\/spark\?symbols=/.test(quotes1758) && /i \+= 20\)/.test(quote
 check(quotes1758.indexOf('const _PRICE_RULES') < quotes1758.indexOf('await _yfBatchFetch('), 'P1758 the batch runs after the price rules it validates against are initialised');
 check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', "if (ticker.endsWith('.KS') || ticker.endsWith('.KQ')) {")) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
 
-// v60.48: a host that sends no cross-origin header can only be read through the relay. "Try the host directly, fall back
+// A host that sends no cross-origin header can only be read through the relay. "Try the host directly, fall back
 // to the relay" made two failed requests (and two console errors) per symbol before the relay was asked. The pattern is
 // searched in every shipped script, so a new call site fails here with its file and line.
 {
@@ -142,13 +140,13 @@ const privateRequest=harness();
 await assert.rejects(privateRequest.root.fetchViaProxy('https://example.org/api?api_key=fixture-secret',{parseJson:true}),{code:'PRIVATE_ROUTE_REQUIRED'});
 check(privateRequest.calls.length===0 && privateRequest.store.size===0,'credential-bearing requests never reach public relays or persistent cache');
 
-// P1756: the client mirror of the Worker allowlist must equal ALLOWED_DOMAINS, and a host outside it never reaches
+// The client mirror of the Worker allowlist must equal ALLOWED_DOMAINS, and a host outside it never reaches
 // the shared Worker (it answered 403 to every client RSS feed host), while a Worker the user owns is still tried.
 const worker = readFileSync(new URL('../cloudflare-worker-proxy.js', import.meta.url), 'utf8');
 const workerHosts = [...section(worker, 'const ALLOWED_DOMAINS = [', '];').matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
 const clientHosts = [...vm.runInContext('_AIO_SHARED_WORKER_HOSTS', h.context)].sort();
 check(workerHosts.length >= 10 && JSON.stringify(workerHosts) === JSON.stringify(clientHosts), 'P1756 client shared-Worker host mirror equals the Worker ALLOWED_DOMAINS');
-// v57.81: retired personal-key and dead-fallback providers have no browser path through the Worker, so neither list relays them.
+// Retired personal-key and dead-fallback providers have no browser path through the Worker, so neither list relays them.
 const retiredRelayHosts = ['www.alphavantage.co', 'api.twelvedata.com', 'finnhub.io', 'api.stlouisfed.org', 'financialmodelingprep.com', 'newsdata.io', 'stooq.com', 'www.stooq.com', 'nitter.net',
   // Hosts the browser stopped calling (fear-greed, FX reference and translate APIs, bare rss2json.com).
   'api.fear-and-greed.com', 'production.dataviz.cnn.io', 'api.alternative.me', 'open.er-api.com', 'api.exchangerate-api.com', 'translate.googleapis.com', 'translate.google.com', 'rss2json.com'];
@@ -162,13 +160,12 @@ check(await shared.root.fetchViaProxy('https://feeds.a.dj.com/rss/RSSMarketsMain
 const owned = harness({personal:'https://mine.example', fetcher:async()=>new Response(feedXml)});
 await owned.root.fetchViaProxy('https://feeds.a.dj.com/rss/RSSMarketsMain.xml',{parseText:true});
 check(owned.calls[0][0].startsWith('https://mine.example?url='), 'P1756 a Worker the user owns is still tried for any host');
-// P1756: the browser RSS run is skipped while data.json news is fresh (< 2 h) — the screens render that bundle either way.
+// The browser RSS run is skipped while data.json news is fresh (< 2 h) — the screens render that bundle either way.
 const fresh = vm.createContext({ Date, isFinite, window:{}, DATA_APIS:{ finnhub:{ key:()=>'' } }, _getApiKey:()=>'' });
 vm.runInContext(section(source, 'function _aioServerNewsFresh()', 'async function fetchAllNews('), fresh);
 const freshAt = (ms) => { fresh.window._serverNewsBackstop=[{title:'x'}]; fresh.window._serverDataMeta={generatedAt:new Date(Date.now()-ms).toISOString()}; return fresh._aioServerNewsFresh(); };
 check(freshAt(30*60000) && !freshAt(3*3600000) && (fresh.window._serverNewsBackstop=[], !fresh._aioServerNewsFresh()), 'P1756 server news is fresh only when present and generated under 2 hours ago');
 const fetchAll = section(source, 'async function fetchAllNews(', 'allItems = allItems.filter(');
-// v57.76: the personal Finnhub/NewsData merge was removed, so a fresh server bundle always ends the run at the top.
 check(/if \(_serverNewsFresh\) \{[\s\S]{0,480}return;/.test(fetchAll) && /if \(forceRefresh && typeof showToast === 'function'\) showToast\('뉴스는 서버가 /.test(fetchAll) && !/_aioPersonalNewsKeys|fetchFinnhubNewsFormatted|fetchNewsDataIO/.test(fetchAll), 'P1756 fetchAllNews skips the feed fan-out while server news is fresh; v57.76 no personal-key news merge remains');
 const pagesSource = readFileSync(new URL('../js/aio-pages.js', import.meta.url), 'utf8');
 const krDataSource = readFileSync(new URL('../js/aio-kr-data.js', import.meta.url), 'utf8');
@@ -179,7 +176,7 @@ check(!/financialmodelingprep\.com|data-logo-fallback/.test(pagesSource), 'v57.8
 
 const canonical=harness({fetcher:async()=>new Response(JSON.stringify(chart('NVDA','1wk')))});
 vm.runInContext(section(source,'async function _aioFetchYahooChartData(', 'var _fetchYahooChartData = window._fetchYahooChartData;'),canonical.context);
-// P1132/R619: the inline delegation wrapper from index.html's block F was deleted (it was always
+// The inline delegation wrapper from index.html's block F was deleted (it was always
 // shadowed by aio-data.js's window assignment). The canonical producer above is the only transport.
 const weekly=await canonical.root._aioFetchYahooChartData('NVDA','2y','1wk');
 check(weekly.symbol==='NVDA' && weekly.interval==='1wk' && weekly.meta.regularMarketTime===1787918400,'inline chart delegates to the canonical identity/timeframe/observation producer');

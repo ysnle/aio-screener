@@ -73,7 +73,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
     const currentObservedAt = String(macro._asOf_hyOAS || '');
     if (!currentObservedAt || String(fredHyOas.observedAt || '') >= currentObservedAt) {
       promote(macro, 'hyOAS', Number(fredHyOas.value), fredHyOas.observedAt, 'fred-official-public-csv');
-      // v58.71: a newer CSV date brings its own deltas; the API deltas belong to the older date and go.
+      // A newer CSV date brings its own deltas; the API deltas belong to the older date and go.
       if (currentObservedAt !== String(fredHyOas.observedAt || '')) {
         for (const [suffix, value] of [['Delta', fredHyOas.delta], ['Delta5', fredHyOas.delta5]]) {
           if (readNumber(value) != null) macro[`hyOAS${suffix}`] = Number(value);
@@ -100,7 +100,7 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
     }
   }
   // BEA promotes only a collection of this run (not 'cached-fresh'), as before the split.
-  // v58.71: and only when its month is not older than the FRED month (the release page can still link the last month).
+  // And only when its month is not older than the FRED month (the release page can still link the last month).
   const beaNotOlder = (field) => !macro[`_asOf_${field}`] || String(bea.observedAt || '') >= String(macro[`_asOf_${field}`]);
   if (bea.status === 'ok' && bea.values) {
     if (Number.isFinite(bea.values.pce) && beaNotOlder('pce')) {
@@ -114,8 +114,8 @@ export function mergeMacroPlanes({ macroRaw, previousMacro, bls, bea, treasury, 
 }
 
 // Market surveys (AAII from its official table; subscriber-only surveys stay preserved/blocked, nothing synthesized).
-// `checkedAt` means the live automated check; the carried editorial snapshot time keeps its own name (P1107).
-// P1737 (2026-10-13): NAAIM is retired (undated three-month-delayed page number, not verifiable), so the carried
+// `checkedAt` means the live automated check; the carried editorial snapshot time keeps its own name.
+// NAAIM is retired (undated three-month-delayed page number, not verifiable), so the carried
 // snapshot no longer brings it forward; AAII and the Investors Intelligence boundary are unchanged.
 export function buildMarketSurveys(previousMarketSurveys, aaii) {
   const surveyAttemptedAt = aaii.attemptedAt || new Date().toISOString();

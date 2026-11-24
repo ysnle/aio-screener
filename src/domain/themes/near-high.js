@@ -1,3 +1,7 @@
+// v59.70 (X bookmarks 11/4 packet §4 #2): how many of each sector's S&P 500 members close within 5% of their 52-week
+// closing high — a breadth reading per sector, beside the sector ETF's own return. The population is the index
+// membership (screener metadata.indexWeights, GICS sectors); the value is the screener row's pctFromCloseHigh52w on the
+// US factor session the bars print. A member without that session's value is not measured, never counted as far.
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { GICS_KO } from '../market/indices/sector-map.js';
 

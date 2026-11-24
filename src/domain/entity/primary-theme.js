@@ -1,3 +1,6 @@
+// The one owner of "this stock's themes" on the 종목 screen, so the 가격 line, the market line and the theme link never
+// name two different themes for one stock. Every reader takes the list from here: the themes that list the stock (leaders or a sub-theme), in the theme
+// map's order, and the first of them is the stock's primary theme. Pure: the caller passes the maps it already holds.
 import { koreanThemeGroups } from '../market/korea/korea-participation.js';
 import { themeMarketOf } from '../scenarios/theme-stage.js';
 

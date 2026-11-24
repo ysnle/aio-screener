@@ -20,7 +20,7 @@ const HIST_SYMBOLS = {
   '^GSPC': 'spx', '^IXIC': 'nasdaq', '^NDX': 'ndx', '^DJI': 'dow', '^RUT': 'rut',
   '^VIX': 'vix', '^VIX3M': 'vix3m', '^VVIX': 'vvix', '^TNX': 'tnx',
   'DX-Y.NYB': 'dxy', 'CL=F': 'wti', 'GC=F': 'gold',
-  // P1721: Brent front-month futures, collected in SYMBOLS already, get the same completed-close column as WTI (CL=F).
+  // Brent front-month futures, collected in SYMBOLS already, get the same completed-close column as WTI (CL=F).
   // The 거시 Brent value was FRED's Europe Brent *spot* (DCOILBRENTEU, days behind, 125-135 vs futures ~105 on 10/2-10/6),
   // a different basis than the WTI futures beside it.
   'BZ=F': 'brent',
@@ -29,18 +29,18 @@ const HIST_SYMBOLS = {
   // CORS를 처리)로 일별 히스토리를 갖는다. 새 출처·새 키·새 약관이 없고, 백테스트 랩의 통화 축이
   // 요구하던 "과거 FX 시계열 공급원"이 이 열이다. 교차검증은 FRED DEXKOUS(공식 bilateral)가 한다.
   'KRW=X': 'usdkrw',
-  // P1394: USD/JPY joins the FX axis (yen carry / BOJ channel); the <60-observation rule backfills 1y on the next run.
+  // USD/JPY joins the FX axis (yen carry / BOJ channel); the <60-observation rule backfills 1y on the next run.
   'JPY=X': 'usdjpy',
-  // P1586: 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
+  // 20-year Treasury ETF closes feed the safe-haven component of the self-computed sentiment index.
   'TLT': 'tlt',
   // v57.83 (owner 2026-10-16: "지수는 덜 빠져도 AI·반도체는 많이 빠졌다"): the semiconductor ETF, already collected in
   // SYMBOLS, gets a daily close column so a semiconductor drawdown under a steady index (2026-02~03, 2026-07) is on record.
   // The <60-observation rule backfills one year on the next run. Nothing reads it for a judgement yet.
   'SMH': 'smh',
-  // v59.70 (owner 11/4): SOXX is the 'AI 주도' leadership proxy (market-read leadershipBreakOf). A core column, so the thin-
+  // SOXX is the 'AI 주도' leadership proxy (market-read leadershipBreakOf). A core column, so the thin-
   // field rule (<60 observations) runs the full one-year daily backfill on the next run.
   'SOXX': 'soxx',
-  // Audit 2026-10-17 (owner D5): the equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
+  // The equal-weight S&P 500 ETF, already in SYMBOLS, is the US theme stage's benchmark.
   'RSP': 'rsp',
   // v59.55 (owner 11/1, 매크로 원자재 장): COMEX silver futures, already a live quote, get a completed-close column beside
   // gold so the gold/silver ratio and silver's drawdown have a record. The <60-observation rule backfills one year.
@@ -85,10 +85,10 @@ const HIST_MARKET_FIELDS = HIST_FIELDS.filter(field => field !== 'fg');
 // 30-minute market lane used to omit them entirely while the screener lane
 // deleted the key when a window had too few eligible symbols. Rows then had
 // different key sets and a one-row breadth lag was indistinguishable from
-// "unavailable" (P1101). Both lanes now publish every column; absence is null.
+// "unavailable". Both lanes now publish every column; absence is null.
 const HIST_BREADTH_FIELDS = ['breadth20','breadth50','breadth200','advanceRatio','advanceDecline','breadth40','breadthUp4','breadthDown4','breadthNewHighs','breadthNewLows','breadthLow20','breadthLow63','distributionDays','rallyPhase','rallyDay','followThroughDay','breadth50Rising']; // P1416 · v58.68 recent closing lows · v59.57 follow-through day · v59.70 above a rising 50-day line
 const HIST_ALL_FIELDS = [...HIST_FIELDS, ...HIST_BREADTH_FIELDS];
-// v59.70 (owner 11/4): the Cboe put/call column (P1586 'pcr') is retired — Cboe's terms forbid storing and
+// The Cboe put/call column (P1586 'pcr') is retired — Cboe's terms forbid storing and
 // redistributing its statistics — and every write removes the stored values with their provenance.
 export const RETIRED_HIST_FIELDS = Object.freeze(['pcr']);
 // Per-row cycle metadata. Rows seeded by the historical backfill never carried
@@ -115,10 +115,10 @@ export function normalizeHistoryRows(hist) {
 // v53.14/AR-07 Batch 0: history.json은 행의 공통 date만으로 관측시각을 대표하지 않는다.
 // 각 수치에 source/observedAt/fetchedAt/allowedUse를 보존해 미국·한국·24/7 자산의
 // 거래일·수집일을 섞지 않는다. 기존 숫자 필드는 하위 호환으로 유지한다.
-// Codex browser audit H02 (2026-10-07): no refresh ran between the US 10/5 close and the 10/6 open, so the 10/5
+// Codex browser audit H02: no refresh ran between the US 10/5 close and the 10/6 open, so the 10/5
 // S&P 500 close never entered history and "어제와 달라진 점" compared 10/2 with 10/6. The daily backfill only ran
 // for thin histories. A completed US session missing from the last ten days now triggers the same backfill,
-// which writes the provider's daily bar for that session (completed bars only, P1399).
+// which writes the provider's daily bar for that session (completed bars only).
 export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays = 10) {
   const basis = latestCompletedUsSession(nowMs);
   if (!basis?.date) return [];
@@ -146,7 +146,7 @@ export function missingRecentUsSessions(hist, nowMs = Date.now(), lookbackDays =
 // filled" by that placeholder and dropped the real close. Such rows trigger the daily backfill, whose bars replace a
 // value from another session (mergeBackfillBars), so a gap left by an earlier run is repaired on the next refresh.
 // Korean fields (KRX holidays), 24/7 BTC and FX (their own day boundary) are not US sessions and are not checked.
-// v60.13: derived from the column list (the hand-kept list missed sox, skew, vix3m, vvix and move, so their 11/13 close stayed
+// Derived from the column list (the hand-kept list missed sox, skew, vix3m, vvix and move, so their 11/13 close stayed
 // on the 11/14 row only).
 const NON_US_SESSION_FIELDS = new Set(['kospi', 'kosdaq', 'btc', 'usdkrw', 'usdjpy', 'eurusd', 'gbpusd', 'usdcny', 'audusd']);
 export const US_SESSION_HISTORY_FIELDS = Object.freeze(HIST_MARKET_FIELDS.filter((field) => !NON_US_SESSION_FIELDS.has(field)));
@@ -169,10 +169,10 @@ export function heldUsSessionFields(hist, nowMs = Date.now(), lookbackDays = 10,
   return out;
 }
 
-// v59.70 (R12): the research columns of quotes.mjs AUX_SYMBOLS. Their thin history never triggers the full backfill
+// The research columns of quotes.mjs AUX_SYMBOLS. Their thin history never triggers the full backfill
 // (all ~30 symbols); they backfill on their own, once an hour at most (minute < 30), so a series the provider does not
 // serve costs four requests an hour instead of a full refetch every cycle.
-// v59.75: the four fold currencies backfill on the same lane.
+// The four fold currencies backfill on the same lane.
 const AUX_HIST_SYMBOLS = Object.freeze(['^SOX', '^MOVE', '^SKEW', '^VIX9D', 'EURUSD=X', 'GBPUSD=X', 'CNY=X', 'AUDUSD=X']);
 const AUX_HIST_FIELDS = new Set(AUX_HIST_SYMBOLS.map((sym) => HIST_SYMBOLS[sym]));
 
@@ -182,19 +182,19 @@ async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
   for (const r of results) {
     if (!r || r.__error || !Array.isArray(r.rows)) continue;
     const field = HIST_SYMBOLS[r.sym];
-    // v57.81: a futures/FX/DXY/BTC bar is still trading until the next bar opens, so the newest bar of a continuous
+    // A futures/FX/DXY/BTC bar is still trading until the next bar opens, so the newest bar of a continuous
     // instrument is never written as a completed close (the market lane records it as a previous close once closed).
     const continuous = /(=F|=X)$|^DX-Y\.NYB$|-USD$/.test(r.sym);
     for (const [barIndex, bar] of r.rows.entries()) {
       if (continuous && barIndex === r.rows.length - 1) continue;
-      // v57.81: a bar is keyed by its own session in its zone. Yahoo FX bars open at 00:00 London (23:00Z in summer),
+      // A bar is keyed by its own session in its zone. Yahoo FX bars open at 00:00 London (23:00Z in summer),
       // so the UTC date of the stamp filed the 10/9 won bar under 10/8.
       const sessionDate = barSessionDateForField(field, bar.observedAt) || bar.date;
       const row = { ...bar, date: sessionDate };
-      // P1246: 품질 경계는 백필 레인에도 똑같이 적용된다. 선언된 타당 범위를 벗어난 공급자 값은
+      // 품질 경계는 백필 레인에도 똑같이 적용된다. 선언된 타당 범위를 벗어난 공급자 값은
       // 관측으로 승격하지 않는다 — 그 날짜의 행 자체를 만들지 않는다(값도 fieldMeta도 없음).
       if (!histValueWithinPlausibility(field, row.close)) continue;
-      if (!isSessionComplete(row.date, /^\^?(KS|KQ)/.test(r.sym) ? 'kr' : 'us')) continue; // P1399: no partial bar
+      if (!isSessionComplete(row.date, /^\^?(KS|KQ)/.test(r.sym) ? 'kr' : 'us')) continue; // No partial bar
       if (!byDate[row.date]) byDate[row.date] = { date: row.date };
       byDate[row.date][field] = row.close;
       byDate[row.date].fieldMeta = byDate[row.date].fieldMeta || {};
@@ -205,15 +205,15 @@ async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
         source: 'Yahoo chart',
         sourceKind: 'T3_PUBLIC_DELAYED',
         allowedUse: 'research-history',
-        // P1117: every history fieldMeta must declare how the timestamp was obtained.
+        // Every history fieldMeta must declare how the timestamp was obtained.
         // This backfill lane published neither marker, so a row it wrote last would fail
         // the artifact gate that requires an observation relation on every market field.
         observationRelation: 'latest-completed-close',
         observedAtSource: row.observedAt ? 'provider-current' : 'unavailable',
-        sessionDate, // v57.81: the bar's own session (its open stamp's local date)
+        sessionDate, // The bar's own session (its open stamp's local date)
       };
     }
-    // v58.69: a US session the daily chart lists with an empty close takes that session's last hourly close, marked
+    // A US session the daily chart lists with an empty close takes that session's last hourly close, marked
     // closeApproximate (measured 10/20-10/22: S&P 500 within 0.01% of the daily close). Korea is left empty — the
     // hourly bars miss KRX's closing auction (KOSPI 10/21 5,703 hourly vs 5,736 daily).
     if (continuous || /^\^?(KS|KQ)/.test(r.sym)) continue;
@@ -235,7 +235,7 @@ async function backfillHistory(hist, syms = Object.keys(HIST_SYMBOLS)) {
   return mergeBackfillBars(hist, byDate, HIST_FIELDS);
 }
 
-// P1656: a backfill only fills gaps. It runs whenever any field is thin, so overwriting every row replaced the
+// A backfill only fills gaps. It runs whenever any field is thin, so overwriting every row replaced the
 // producer's completed-close record (valueBasis, close-time observedAt) with a daily bar stamped at its bar start, and
 // the score's close-basis selector then rejected that day's VIX/SPX.
 // v58.68 (live 2026-10-21/22): a "completed record" only counts for its own session. After the 14-hour refresh outage
@@ -283,7 +283,7 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
         const offSession = meta && !carried && !ownSession && historyHeldSessionDate(meta, f) != null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
         if (!carried && !offSession && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
-        // v60.39: the same bar read again (same value, same observation) keeps the stamp it was first checked at. Every
+        // The same bar read again (same value, same observation) keeps the stamp it was first checked at. Every
         // cycle used to restamp ~250 old rows' check time while 0-3 values changed, so each commit rewrote the whole file.
         if (existing[f] === byDate[date][f] && sameObservation(meta, byDate[date].fieldMeta?.[f])) continue;
         existing[f] = byDate[date][f];
@@ -331,7 +331,7 @@ function carryForwardHistoryEvidence(hist) {
   return hist;
 }
 
-// v57.81: history.json carried one market session under two row dates. A row is keyed by the UTC run date and holds
+// history.json carried one market session under two row dates. A row is keyed by the UTC run date and holds
 // the latest completed close known at that run, so the backfill lane's 10/12 DXY bar (row 10/12) and the market lane's
 // previous close at the 10/13 23:51Z run (the same 10/12 close, row 10/13) were two "observations" of 102.58, and a
 // weekend row repeated Friday's close as if new. Each field's session is now compared across rows: the earliest row
@@ -468,7 +468,7 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
     const owned = rows.some((row) => row !== current && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && sessionOf(row.fieldMeta?.[field], field) === session);
     if (owned) continue;
     let target = rows.find((row) => row?.date === session);
-    // v59.74: a value carried forward from an earlier session is a placeholder, not this session's close — it is
+    // A value carried forward from an earlier session is a placeholder, not this session's close — it is
     // replaced (the 11/4 row held the 11/3 WTI close, so the 11/4 close displaced from the 11/5 row was dropped).
     const targetMeta = target?.fieldMeta?.[field];
     const placeholder = targetMeta?.observationRelation === 'carried-forward' && (historyFieldSessionDate(targetMeta, field) || targetMeta.sessionDate || session) !== session;
@@ -500,7 +500,7 @@ export function dropSessionlessReads(hist, today, rec, { fields = HIST_MARKET_FI
   return dropped;
 }
 
-// v57.81: every completed close names its session. A previous close takes the provider bar's own trading date (v57.70)
+// Every completed close names its session. A previous close takes the provider bar's own trading date
 // or, when the provider gave none, the session its bar-boundary stamp determines; a closing print takes its
 // exchange-local date. A print stamped on a day its market has no session names none (historyObservationSession) and is
 // held by holdRepeatedSessions. The intake step of updateHistory, exported for the history session model.
@@ -519,7 +519,7 @@ export function usPreOpenIndexPrint(symbol, observedAt) {
   return !['Sat', 'Sun'].includes(day) && parts.minute < 9 * 60 + 30;
 }
 
-// v57.81: futures, DXY and FX reopen at 18:00 ET for the next trading day. A print from that evening (the 10/04 and 10/11
+// Futures, DXY and FX reopen at 18:00 ET for the next trading day. A print from that evening (the 10/04 and 10/11
 // Sunday 23:01-23:26Z WTI/DXY/gold/won prints filed as MARKET_CLOSED) belongs to a session that has not completed, so
 // it is never a completed close; the history takes the previous completed close instead.
 // v58.71 (pipeline audit): spot FX reopens at 17:00 ET, an hour before futures — the Sunday 21:17Z (17:17 EDT) won and
@@ -557,13 +557,13 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       const isOpenPoint = session === 'CURRENT_SESSION' || session === 'DELAYED_IN_SESSION';
       const previousClose = Number(q.regularMarketPreviousClose ?? q.chartPreviousClose);
       const previousObservedAt = q.regularMarketPreviousCloseObservedAt || null;
-      // P1656: VIX-family indices also print in Cboe's extended hours; a weekday print before the 09:30 ET open
+      // VIX-family indices also print in Cboe's extended hours; a weekday print before the 09:30 ET open
       // is that session's pre-open value, not a completed close (10/12 07:01 ET VIX 15.48 was filed as one).
-      // v57.81: an evening reopen print of a futures/FX/DXY session is the same case (continuousReopenPrint).
+      // An evening reopen print of a futures/FX/DXY session is the same case (continuousReopenPrint).
       const preOpenPrint = !isOpenPoint && (usPreOpenIndexPrint(q.symbol, q.observedAt) || continuousReopenPrint(q.symbol, q.observedAt));
-      // v58.69: an hourly stand-in for an empty daily bar (quotes.mjs previousCloseApproximate) prices the change, not history.
+      // An hourly stand-in for an empty daily bar (quotes.mjs previousCloseApproximate) prices the change, not history.
       const usePreviousClose = (isOpenPoint || preOpenPrint) && Number.isFinite(previousClose) && previousClose > 0 && !q.previousCloseApproximate;
-      // P1576: in session without a previous close there is no completed close to record; the
+      // In session without a previous close there is no completed close to record; the
       // intraday price must not be written as one (fail closed, like P1095's timestamp rule).
       bySym[q.symbol] = usePreviousClose ? previousClose : (isOpenPoint || preOpenPrint) ? null : q.regularMarketPrice;
       // A history row is a completed daily close, not the provider's intraday
@@ -571,12 +571,12 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       // previous completed daily bar (regularMarketPreviousClose, stamped with the boundary
       // that closed it, see regularMarketPreviousCloseObservedAt above), so they take the
       // same path as sessioned instruments.
-      // 2026-09-20: this lane used to override continuous quotes back to regularMarketPrice.
+      // This lane used to override continuous quotes back to regularMarketPrice.
       // P1144's premise ("a 24/7 quote has no previous completed day") was false — the daily
       // chart provides one — and recording a mid-day observation as a completed daily close is
       // exactly what ci-history-field-time-contract-check rejects as "in-session observation
       // promoted as daily close", which kept CI red and Pages undeployed.
-      // P1095: a previous-completed-close value must not inherit the CURRENT
+      // A previous-completed-close value must not inherit the CURRENT
       // observation's timestamp. The old fallback (`previousObservedAt || q.observedAt`)
       // did exactly that whenever the provider omitted
       // `regularMarketPreviousCloseObservedAt`, so history.json published the prior
@@ -628,7 +628,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       marketSession: quote?.marketSession || quote?.marketState || fallback.marketSession || null,
       observedMarketSession: quote?.observedMarketSession || fallback.observedMarketSession || null,
       valueBasis: quote?.valueBasis || fallback.valueBasis || null,
-      // P1117: bySymQuote computes observationRelation/observedAtSource, but this projection
+      // bySymQuote computes observationRelation/observedAtSource, but this projection
       // dropped both, so history.json never published the substitution marker the
       // previous-completed-close fix was supposed to expose. The artifact gate skipped its
       // assertions forever because it looks for exactly this field. Publish what the
@@ -637,7 +637,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       observedAtSource: quote?.observedAtSource || fallback.observedAtSource || 'provider-current',
       ...(quote?.sessionDate ? { sessionDate: quote.sessionDate } : {}),
     });
-    // P1246: 값과 증거를 **한 번의 열거**에서 만든다. 종전에는 `rec`의 명시적 pick 목록과 이 루프가
+    // 값과 증거를 **한 번의 열거**에서 만든다. 종전에는 `rec`의 명시적 pick 목록과 이 루프가
     // 같은 HIST_SYMBOLS 매핑을 두 번 나열해, 한쪽만 고치면 값과 fieldMeta가 서로 다른 필드 집합을
     // 갖게 됐다(새 필드를 추가할 때 특히 조용히 어긋난다).
     const fieldValues = {};
@@ -674,7 +674,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       fieldMeta,
     };
     let hist = [];
-    try { hist = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* 최초 실행 */ } // v59.70 R2: v1 or history.v2
+    try { hist = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* 최초 실행 */ } // v1 or history.v2
     // CNN publishes a dated historical series in the same response as the
     // current Fear & Greed value. Backfill those observations with their real
     // dates instead of waiting 60 future refresh cycles or inventing history.
@@ -691,7 +691,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
         sourceKind: 'secondary-index',
         allowedUse: 'reference-history'
       };
-      // v60.40: the graph returns the same year of points every cycle; a point already on record keeps its check time
+      // The graph returns the same year of points every cycle; a point already on record keeps its check time
       // (this lane restamped 251 rows on every refresh, so each commit rewrote the whole file).
       if (row.fg === Number(point.score) && sameObservation(row.fieldMeta?.fg, meta)) continue;
       row.fg = Number(point.score);
@@ -701,10 +701,10 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     // `fieldMeta.fg` cites the CNN historical graph, so the row value must be
     // that series' point for the day. The headline `fearGreed.score` is rounded
     // separately, and spreading it over the row published 26 beside provenance
-    // that recorded 26.11 (P1100).
+    // that recorded 26.11.
     const fgSeriesValue = hist.find((row) => row?.date === today)?.fg;
     if (readNumber(fgSeriesValue) != null) rec.fg = Number(fgSeriesValue);
-    // v50.52 B4: 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
+    // 최초/얇을 때(또는 BACKFILL=1) 6개월 일별 종가로 과거 시드 — 차트 대기 제거(멱등).
     let backfilled = 0;
     const needsFieldMeta = hist.some(row => HIST_MARKET_FIELDS.some(field => typeof row?.[field] === 'number' && !row?.fieldMeta?.[field]?.observedAt));
     const thinField = (field) => hist.filter((row) => typeof row?.[field] === 'number' && Number.isFinite(row[field])).length < 60;
@@ -714,7 +714,7 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     if (missingSessions.length) console.log(`[fetch-data] 최근 미국 거래일 종가 누락 ${missingSessions.join(',')} — 일봉 백필 실행`);
     const heldFields = heldUsSessionFields(hist, Date.parse(fetchedAt) || Date.now());
     if (heldFields.length) console.log(`[fetch-data] 미국 거래일인데 이전 종가로 채워진 값 ${heldFields.length}건 (${heldFields.slice(0, 6).map((row) => `${row.field} ${row.date}`).join(', ')}) — 일봉 백필 실행`);
-    // v59.74: a held weekday field refetches only its own symbols, at most once an hour (minute < 30) like the aux lane, so
+    // A held weekday field refetches only its own symbols, at most once an hour (minute < 30) like the aux lane, so
     // a session the provider never serves costs a few requests an hour, not a full one-year refetch every cycle.
     const heldSyms = [...new Set(heldFields.map((row) => Object.keys(HIST_SYMBOLS).find((sym) => HIST_SYMBOLS[sym] === row.field)).filter(Boolean))];
     if (hist.length < 60 || process.env.BACKFILL === '1' || needsFieldMeta || needsFieldBackfill || missingSessions.length) {
@@ -731,21 +731,21 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
     if (displaced.length) console.log(`[fetch-data] history: kept ${displaced.length} session close(s) in their own rows before the upsert (${displaced.map((row) => `${row.field} ${row.session}`).join(', ')})`);
     const idx = hist.findIndex(h => h && h.date === today);
     if (idx >= 0) hist[idx] = { ...hist[idx], ...rec, fieldMeta: { ...(hist[idx].fieldMeta || {}), ...fieldMeta } }; else hist.push(rec); // 같은 날 = upsert
-    // v57.81: a session already recorded on an earlier row is held on this one, never a second observation.
+    // A session already recorded on an earlier row is held on this one, never a second observation.
     const held = holdRepeatedSessions(hist, { at: fetchedAt });
     if (held.held.length || held.revised.length) console.log(`[fetch-data] history: 같은 세션 반복 ${held.held.length}건 보류 표시, 재조회 갱신 ${held.revised.length}건`);
     const copies = alignHeldCopies(hist);
     if (copies.length) console.log(`[fetch-data] history: held copies set to their session's recorded close ${copies.length} (${copies.slice(0, 6).map((row) => `${row.field} ${row.date}`).join(', ')})`);
     hist.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     if (hist.length > 420) hist = hist.slice(hist.length - 420);  // 14개월 cap
-    await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(hist)))); // v59.70 R2: history.v2
-    // P1246: 이번 실행이 실제로 기록한 USD/KRW 확정 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
+    await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(hist)))); // history.v2
+    // 이번 실행이 실제로 기록한 USD/KRW 확정 종가. FRED DEXKOUS 교차검증이 이 값을 기준으로
     // 삼는다 — 아티팩트가 실제로 담은 값이어야 검증이 의미를 갖는다. 없으면 null로 남겨 교차검증이
     // "판정 불가"를 말하게 한다(값을 지어내지 않는다).
     const fxObservation = Number.isFinite(fieldValues.usdkrw)
       ? { value: fieldValues.usdkrw, date: today, observedAt: fieldMeta.usdkrw?.observedAt || null, valueBasis: fieldMeta.usdkrw?.valueBasis || null }
       : null;
-    // P1246: 공식 관측일과 **같은 시점**의 우리 확정 종가를 골라 비교한다. 하루 어긋난 봉까지는 같은
+    // 공식 관측일과 **같은 시점**의 우리 확정 종가를 골라 비교한다. 하루 어긋난 봉까지는 같은
     // 시점으로 보되 실제 날짜를 레코드에 남긴다. 그 이상 벌어지면 최신값으로 대신하지 않고 '판정 불가'
     // 로 남긴다 — 시점이 다른 두 값을 비교해 불일치라고 말하는 것은 공표 지연을 데이터 오류로
     // 오표기하는 것이다.

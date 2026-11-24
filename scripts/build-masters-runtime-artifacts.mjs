@@ -29,7 +29,7 @@ const [holdings, historyIndex, historyRows, issuerAggregates, mastersIndex, fili
   readJson('security-master.json')
 ]);
 
-// v58.56 (re-audit #4): rows carry `tickerExact` only when the CUSIP maps to exactly one listed symbol — the exact
+// Rows carry `tickerExact` only when the CUSIP maps to exactly one listed symbol — the exact
 // entries of the reference crosswalk and the OpenFIGI cache (collect-13f-figi-tickers.mjs), dropped where they disagree.
 // The page shows a ticker chip (→ 종목 요약) for these rows and the readable SEC name for the rest.
 const readOptionalJson = async (name) => { try { return await readJson(name); } catch (error) { if (error?.code === 'ENOENT') return null; throw error; } };
@@ -104,7 +104,7 @@ let valueScaleReviews = new Map();
     comparisonsByManager.set(manager.id, store.managerComparisons);
     holdingsByManager.set(manager.id, store.managerRows);
   }
-  // v60.46: the page used to run this on its 365 top rows (or 1,278 embedded rows), and each sample missed one of the
+  // The page used to run this on its 365 top rows (or 1,278 embedded rows), and each sample missed one of the
   // three thousand-dollar filers of 2026-09-30; every filer's full rows find all three.
   valueScaleReviews = detectValueScaleSuspects([...holdingsByManager.values()].flat());
   const splitSuspects = detectSplitSuspects([...comparisonsByManager.values()].flat());
@@ -363,7 +363,7 @@ console.log(JSON.stringify({
   fullComparisonsExcludedFromBootstrap: (holdings.comparisons || []).length
 }, null, 2));
 
-// P1370: remove projections the just-written summary no longer references (one
+// Remove projections the just-written summary no longer references (one
 // generation per manager stays on Pages instead of an unbounded daily pile-up).
 const projectionDir = path.join(mastersDir, '..', 'objects', 'masters');
 const referencedProjections = new Set(Object.values(managerShards).map((shard) => `${shard.sha256}.json`));

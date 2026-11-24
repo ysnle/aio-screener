@@ -1,4 +1,4 @@
-// v60.41: test fixtures in the answer envelope the model now writes (src/ai/response/answer-envelope.js): markdown text
+// Test fixtures in the answer envelope the model now writes (src/ai/response/answer-envelope.js): markdown text
 // first (the lead before the first "### " heading is the summary, each "### 제목" + body is a section), then one trailing
 // [AI_ANSWER_META]{claims, citations, followUps, remember}[/AI_ANSWER_META] block. Gates describe a case as the plan fields
 // it means and get the text the model would send.

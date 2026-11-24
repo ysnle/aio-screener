@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/ci-pipeline-semantics-check.mjs — v59.45
+// scripts/ci-pipeline-semantics-check.mjs
 //
 // Meaning-level regressions from the 2026-10-24..31 pipeline review (Codex PASS2–PASS30, Claude follow-up).
 // Each `scripts/fixtures/pipeline-semantics/<area>.mjs` exports `cases`: [{ id, name, run }], where `id` is the

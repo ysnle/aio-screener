@@ -68,7 +68,7 @@ for (const row of entries) {
 }
 
 const surveys = data.marketSurveys || {};
-// P1107: the carried web-research snapshot time and the live automated check time
+// The carried web-research snapshot time and the live automated check time
 // are different facts. This gate owns the snapshot time; the live check time is
 // asserted by ci-artifact-semantics-check. Until a refresh publishes the split,
 // the coalescing read keeps this comparison meaningful instead of vacuous.
@@ -104,7 +104,7 @@ if (!aaii.fetchedAt || Date.now() - parseDate(aaii.fetchedAt, 'AAII fetchedAt').
 if (aaii.relayUrl && aaii.sourceKind !== 'publisher-public-web-via-reader-relay') fail('AAII relay lineage is not explicit');
 }
 
-// P1737 (2026-10-13): NAAIM is retired from the screen (undated three-month-delayed page number, not verifiable); a
+// NAAIM is retired from the screen (undated three-month-delayed page number, not verifiable); a
 // carried NAAIM value may not reappear as a promoted reference.
 const naaim = surveys.naaim;
 if (naaim && naaim.status !== 'stale-reference') fail('P1737 retired NAAIM value must not be promoted');
@@ -113,7 +113,7 @@ if (surveys.investorsIntelligence?.status !== 'blocked-no-public-numeric') {
   fail('Investors Intelligence must remain blocked without a public numeric reading');
 }
 
-// P1737: the Korea export reference lives in public-data/official-references.json (P1734 lane; its own gate is
+// The Korea export reference lives in public-data/official-references.json (P1734 lane; its own gate is
 // ci-official-references-check.mjs). The legacy data.json copy is checked only while an older data.json still carries it.
 const krExports = data.officialWebReferences?.krExports;
 if (krExports) {

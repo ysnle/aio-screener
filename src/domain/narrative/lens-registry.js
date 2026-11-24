@@ -1,3 +1,9 @@
+// v59.70 (owner 2026-11-07, "어떤 데이터로 어떤 생각을 바탕으로 어떤 관점을 주는지"): the market lenses the screens read
+// through, in one place. Each lens names the question it answers, the reading it encodes, the data behind it, what it
+// cannot tell (the limits the X-bookmark review set — _artifacts/x-bookmarks-20261105/CLAUDE-RESPONSE-20261107.md), and
+// the screen where its evidence lives. `measure` reads the loaded artifacts and returns the basis date and the coverage
+// actually behind the reading today (N of M, a stale input, a missing market), so a screen states its own reach instead
+// of implying a complete market. Pure: the browser adapter (src/ui/components/page-sources.js) gathers the inputs.
 import { readNumber } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { marketPopulation } from '../screener/market-scope.js';
@@ -70,6 +76,7 @@ export const LENSES = Object.freeze([
   {
     id: 'sentiment', label: '투자 심리', home: 'sentiment',
     question: '참여자의 공포와 과열 정도',
+    // The put/call ratio is retired (owner 11/04, Cboe terms); the lens reads the survey against VIX only.
     reading: '공포·탐욕 지수를 VIX와 겹쳐, 겁만 난 상태와 투매를 나눈다.',
     data: ['CNN 공포·탐욕 지수', 'Cboe VIX 일별 종가'],
     limits: ['공포·탐욕 지수는 여러 지표를 묶은 합성값이라, 어느 구성 요소가 움직였는지는 따로 확인해야 한다.'],

@@ -20,15 +20,13 @@
 function getApiKey() { return ''; }
 
 
-// v57.77: the #sidebar-api-key listener was deleted with its input (P1421: AI keys are server-only).
-
 /* v46.6: 글로벌 로딩 워치독 — 60초 후 "로딩 중" 영구 고정 방지
  * 프록시 전면 장애 시 10+ 페이지에서 "로딩 중..."이 영구 표시되는 문제 해결.
  * 실제 데이터가 로드되면 이미 교체됐으므로 워치독은 잔존 로딩만 처리. */
 setTimeout(function() {
   // 현재 활성 페이지의 "로딩 중" 요소만 처리 (비활성 페이지는 진입 시 init에서 처리)
   var _loadingPatterns = ['로딩 중...','로딩 중…','분석 로딩 중…','분석 로딩 중...','데이터 로딩 중...','데이터 로딩 중…','데이터 로딩 중'];
-  // v57.75: personal API keys are retired (v57.67), so the old "API 키를 설정하면" hint pointed at a removed setting.
+  // Personal API keys are retired, so the old "API 키를 설정하면" hint pointed at a removed setting.
   var _fallbackMsg = '데이터 연결 지연 — 새로고침(R키) 시도';
   var replaced = 0;
   document.querySelectorAll('.page.active *').forEach(function(el) {
@@ -60,18 +58,18 @@ setTimeout(function() {
     });
     if (total > 0) console.log('[AIO v46.10] 로딩 워치독 (비활성): ' + total + '개 대체');
   }, 10000); // 비활성 페이지는 40초 후
-}, 30000); // v46.10: 60초→30초 (사용자 대기 시간 단축)
+}, 30000); // 60초→30초 (사용자 대기 시간 단축)
 
-// v58.74: openApiKeyConfig() left with its last button (the news translation status line); AI is always on.
+// openApiKeyConfig() left with its last button (the news translation status line); AI is always on.
 
 // ══════════════════════════════════════════════════════════════════════
 // Portfolio Management — localStorage CRUD + PIN Lock + Real-time Sync
 // ══════════════════════════════════════════════════════════════════════
 const PF_STORAGE_KEY = 'aio_portfolio_data';
-const PF_PIN_KEY = 'aio_portfolio_pin'; // v52.46: 레거시 평문 PIN — 공유 Vault로 마이그레이션 후 제거 대상
+const PF_PIN_KEY = 'aio_portfolio_pin'; // 레거시 평문 PIN — 공유 Vault로 마이그레이션 후 제거 대상
 const PF_VAULT_OPTOUT_KEY = 'aio_portfolio_vault_optout';
 
-// v52.46 WO-1A/P661/R294: 포트폴리오를 API 키와 동일한 _AioVault(AES-GCM-256+PBKDF2)로 보호.
+// 포트폴리오를 API 키와 동일한 _AioVault(AES-GCM-256+PBKDF2)로 보호.
 // UI가 "PIN 설정 후 저장 시 AES-256 암호화"라고 명시해왔으나 실제로는 완전히 별개의 평문
 // localStorage 경로였다(Codex P0-2, PIN도 평문 비교). 이제 _AIO_SENSITIVE_KEYS에 편입해
 // safeLS 계약을 그대로 따른다 — PIN을 설정하지 않은 사용자는 기존과 동일하게 평문(계약 변경 없음).
@@ -85,7 +83,7 @@ function _pfVaultOptedOut() {
 }
 function getPortfolioData() {
   try {
-    if (isPortfolioLocked()) return []; // P1350: a failed locked write cannot expose its runtime cache.
+    if (isPortfolioLocked()) return []; // A failed locked write cannot expose its runtime cache.
     if (!_pfVaultOptedOut() && typeof _AioVault !== 'undefined' && _AioVault._keyRuntime && _AioVault._keyRuntime[PF_STORAGE_KEY] !== undefined) {
       return JSON.parse(_AioVault._keyRuntime[PF_STORAGE_KEY] || '[]');
     }
@@ -96,7 +94,7 @@ function getPortfolioData() {
     return JSON.parse(raw);
   } catch(e) { return []; }
 }
-// v58.82: 다른 탭이 보유 종목을 바꾸면 이 탭의 오래된 사본으로 덮지 않는다(편집 거절). 가져오기·전체 삭제는 { replace: true }.
+// 다른 탭이 보유 종목을 바꾸면 이 탭의 오래된 사본으로 덮지 않는다(편집 거절). 가져오기·전체 삭제는 { replace: true }.
 window.addEventListener('storage', function(e) { if (e.key === PF_STORAGE_KEY) window.__aioPfOtherTab = true; });
 function _pfSaveFailText(saved, text) {
   return saved.reason === 'other-tab' ? '다른 탭에서 포트폴리오가 바뀌어 저장하지 않았습니다. 다시 불러온 뒤 입력하세요.' : text;
@@ -113,7 +111,7 @@ function savePortfolioData(positions, opts) {
       _AioVault._keyRuntime[PF_STORAGE_KEY] = json; // 동기 read가 항상 최신값을 보게 즉시 갱신
     }
   } catch(e) { memoryOk = false; }
-  // E3/P1181 (11 P11-01): 메모리 반영과 영구 저장 성공은 서로 다른 사건이다. 이전에는 지연 persist가
+  // 메모리 반영과 영구 저장 성공은 서로 다른 사건이다. 이전에는 지연 persist가
   // 실패해도 호출자가 즉시 '완료'를 알렸다 — 이제 persist 결과를 반환해 호출자가 성공/실패를 구분한다.
   var persist;
   if (_pfVaultOptedOut() || typeof safeLS !== 'function') {
@@ -137,14 +135,14 @@ function savePortfolioData(positions, opts) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// E3/E4/P1188: 통화·현금 수익률·RF 선언의 단일 writer.
+// 통화·현금 수익률·RF 선언의 단일 writer.
 // 통화/수익률은 입력이지 추정값이 아니다 — 선언이 없으면 키를 만들지 않고, 잘못된 형식은
 // 저장하지 않는다(빈 값 = 삭제). reader(runtime-readers)가 같은 키를 읽으므로 키·정규화는
-// bootstrap이 노출한 `_pfPortfolioAssumptions` 한 곳에서 온다(R632).
+// bootstrap이 노출한 `_pfPortfolioAssumptions` 한 곳에서 온다.
 // ══════════════════════════════════════════════════════════════════════
 var PF_ASSUMPTION_FIELDS = {
   'pf-base-currency-input': { key: 'baseCurrency', kind: 'currency' },
-  // v57.81: cash-currency field retired — each cash balance carries its currency; the old key only places legacy cash.
+  // cash-currency field retired — each cash balance carries its currency; the old key only places legacy cash.
   'pf-cash-return-input': { key: 'cashReturn', kind: 'rate' },
   'pf-rf-input': { key: 'riskFreeRate', kind: 'rate' },
   'pf-exposure-path-input': { key: 'exposurePath', kind: 'path' },
@@ -154,7 +152,7 @@ function _pfAssumptionApi() {
   return (typeof window !== 'undefined' && window._pfPortfolioAssumptions) ? window._pfPortfolioAssumptions : null;
 }
 function readPortfolioAssumptionDeclarations() {
-  // 키·정규화·저장 읽기는 portfolio-assumptions.js 한 곳이 소유한다 — 셸은 위임만 한다(R632).
+  // 키·정규화·저장 읽기는 portfolio-assumptions.js 한 곳이 소유한다 — 셸은 위임만 한다.
   var api = _pfAssumptionApi();
   if (!api || typeof api.read !== 'function') return { baseCurrency: null, cashCurrency: null, cashReturn: null, riskFreeRate: null };
   try { return api.read(localStorage); } catch(e) { return { baseCurrency: null, cashCurrency: null, cashReturn: null, riskFreeRate: null }; }
@@ -171,7 +169,7 @@ function savePortfolioAssumption(fieldId, value) {
   else normalized = api.normalizeRebalancePolicy ? api.normalizeRebalancePolicy(value) : null;
   try {
     // 유효하지 않은 선언은 남기지 않는다 — 3자리 코드·범위 밖 수익률·인식할 수 없는 열거형은 이전
-    // 선언까지 지운다(P1198: 열거형도 예외가 아니다 — 지어낸 기본값을 저장하지 않는다). 비율만 입력
+    // 선언까지 지운다(열거형도 예외가 아니다 — 지어낸 기본값을 저장하지 않는다). 비율만 입력
     // 원문을 보존해 화면이 그대로 되돌릴 수 있게 한다.
     if (normalized == null) localStorage.removeItem(key);
     else localStorage.setItem(key, field.kind === 'rate' ? String(value).trim() : normalized);
@@ -185,13 +183,13 @@ function savePortfolioAssumption(fieldId, value) {
 window.savePortfolioAssumption = savePortfolioAssumption;
 
 // ══════════════════════════════════════════════════════════════════════
-// E4/P1191: 계좌 원장(입출금·기간 평가액) 입력.
+// 계좌 원장(입출금·기간 평가액) 입력.
 // TWR/MWR은 원장 없이 계산되지 않으므로(assessAccountPerformance) 원장 자체가 입력이어야 한다.
 // 원장은 사용자 금융 데이터다 — 포지션과 같은 Vault 경로(safeLS + `_keyRuntime` 동기 캐시)로
 // 저장하고 별도 평문 키를 만들지 않는다.
 // ══════════════════════════════════════════════════════════════════════
 var PF_LEDGER_KEY = 'aio_portfolio_ledger';
-// E3/P1194: FX leg도 같은 저장 규약을 쓴다 — 목록형 선언은 한 경로(safeLS + 동기 캐시 + ack)로 통일한다.
+// FX leg도 같은 저장 규약을 쓴다 — 목록형 선언은 한 경로(safeLS + 동기 캐시 + ack)로 통일한다.
 var PF_FX_KEY = 'aio_portfolio_fx_legs';
 function _pfLedgerApi() {
   return (typeof window !== 'undefined' && window._pfPortfolioLedger) ? window._pfPortfolioLedger : null;
@@ -199,7 +197,7 @@ function _pfLedgerApi() {
 function _pfFxApi() {
   return (typeof window !== 'undefined' && window._pfPortfolioFx) ? window._pfPortfolioFx : null;
 }
-// P1199: 저장 *정책*(safeLS ack + Vault 동기 캐시 + 자체 평문 키 없음)은 셸이 소유하되, 그 *형태*는
+// 저장 *정책*(safeLS ack + Vault 동기 캐시 + 자체 평문 키 없음)은 셸이 소유하되, 그 *형태*는
 // 네이티브 모듈이 가진다 — ack가 "메모리 반영"과 "영구 저장"을 분리해 보고하는 계약이 브라우저 없이
 // 테스트된다(이 블록이 ratchet에서 조용히 자라던 자리다).
 var _pfDeclarationStore = null;
@@ -232,7 +230,7 @@ function _pfDeclarationWrite(key, value) {
 function savePortfolioLedger(ledger) { return _pfDeclarationWrite(PF_LEDGER_KEY, ledger); }
 function getPortfolioFxLegs() { var store = _pfDeclarations(); var legs = !isPortfolioLocked() && store ? store.read(PF_FX_KEY) : null; return Array.isArray(legs) ? legs : []; }
 function savePortfolioFxLegs(legs) { return _pfDeclarationWrite(PF_FX_KEY, Array.isArray(legs) ? legs : []); }
-var PF_TRADES_KEY = 'aio_portfolio_trades'; // v58.52 매매일지·내 원칙: 같은 Vault 경로 (src/ui/panels/portfolio-trade-journal.js)
+var PF_TRADES_KEY = 'aio_portfolio_trades'; // 매매일지·내 원칙: 같은 Vault 경로 (src/ui/panels/portfolio-trade-journal.js)
 function getPortfolioTrades() { var store = _pfDeclarations(), value = !isPortfolioLocked() && store ? store.read(PF_TRADES_KEY) : null; return value && typeof value === 'object' ? value : null; }
 window._aioPortfolioTrades = { read: getPortfolioTrades, write: function(value) { return _pfDeclarationWrite(PF_TRADES_KEY, value); } };
 function _pfLedgerRead() {
@@ -243,7 +241,7 @@ function _pfFxRead() {
   var api = _pfFxApi();
   return api ? api.normalize(getPortfolioFxLegs()) : [];
 }
-// P1195: 마크업·문구는 네이티브 패널(src/ui/panels/portfolio-declarations.js)이 소유한다 —
+// 마크업·문구는 네이티브 패널(src/ui/panels/portfolio-declarations.js)이 소유한다 —
 // 셸은 저장 경로와 핸들러, ack 순서만 남긴다(이 블록이 ratchet에서 가장 빨리 자라던 부분이었다).
 var PF_FIELD_IDS = {
   transaction: ['pf-ledger-date', 'pf-ledger-kind', 'pf-ledger-amount'],
@@ -336,7 +334,7 @@ function renderPortfolioLedger() {
     ledger: ledger,
     coverageState: api && typeof api.coverageState === 'function' ? api.coverageState(ledger) : { inputs: [] }
   });
-  // P1449: ledger·규약이 바뀌면 계좌 성과 요약도 같은 epoch에서 다시 계산한다.
+  // ledger·규약이 바뀌면 계좌 성과 요약도 같은 epoch에서 다시 계산한다.
   try { refreshPortfolioLedgerPerformance(); } catch(e) {}
 }
 window._aioAddLedgerEntry = function() { return addLedgerEntry('transaction'); };
@@ -394,7 +392,7 @@ async function unlockPortfolio() {
   const input = document.getElementById('pf-pin-input');
   if (!input) return;
   const pin = input.value.trim();
-  if (pin.length < 4 || pin.length > 20) { showToast('PIN은 4~20자로 입력하세요.'); return; } // P1399: same contract as the vault setup
+  if (pin.length < 4 || pin.length > 20) { showToast('PIN은 4~20자로 입력하세요.'); return; } // Same contract as the vault setup
   if (typeof _AioVault === 'undefined') { showToast('보안 모듈을 불러오지 못했습니다.'); return; }
   var optedOut = _pfVaultOptedOut();
   var storage = _AioVault.getStorage();
@@ -407,7 +405,7 @@ async function unlockPortfolio() {
     input.value = '';
     showPortfolioMain();
   } catch (error) {
-    if (error && error.message === 'vault-operation-cancelled') return; _AioVault.lock(); // P1350: do not re-lock a newer unlock operation.
+    if (error && error.message === 'vault-operation-cancelled') return; _AioVault.lock(); // Do not re-lock a newer unlock operation.
     if (optedOut) { try { storage.setItem(PF_VAULT_OPTOUT_KEY, '1'); } catch (_) {} }
     showToast('PIN 또는 저장된 암호문을 확인할 수 없습니다.');
   }
@@ -420,7 +418,7 @@ function setupPortfolioPin() {
   if (lockScreen) lockScreen.style.display = 'block';
   if (mainEl) mainEl.style.display = 'none';
   pinInput.value = '';
-  // v52.46: 별도 keydown 핸들러 제거 — input의 data-on-enter="unlockPortfolio"가 이미 동일 로직 처리
+  // 별도 keydown 핸들러 제거 — input의 data-on-enter="unlockPortfolio"가 이미 동일 로직 처리
   // (신규 Vault 생성/기존 Vault 잠금해제 모두 unlockPortfolio() 한 경로로 통합)
   pinInput.placeholder = _AioVault.getStorage().getItem('aio_vault_salt') ? '기존 PIN 입력' : '새 PIN(4~20자)';
   pinInput.focus();
@@ -448,7 +446,7 @@ function showPortfolioMain() {
   renderPortfolio();
 }
 
-// v52.87 P702: 시안의 조용한 기본 화면을 유지하면서 입력 폼은 명시적 CTA로 연다.
+// 시안의 조용한 기본 화면을 유지하면서 입력 폼은 명시적 CTA로 연다.
 window._aioTogglePortfolioEntry = function(forceOpen) {
   var section = document.getElementById('pf-entry-section');
   if (!section) return;
@@ -461,48 +459,48 @@ window._aioTogglePortfolioEntry = function(forceOpen) {
 };
 
 // Add/Edit Position
-// E3/P1181 (11 P11-01): 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
+// 완료 알림은 durable ack 뒤에 온다 — persist가 거부되면 '완료'를 말하지 않는다.
 // v58.64 (BND01 class): the unlisted-ticker check awaits the network; a reader who typed the next holding meanwhile
 // lost it, because the form was cleared after the save. The form is cleared (and the entry panel closed) only while it
 // still holds what was submitted.
 function _pfFormSnapshot() { return JSON.stringify(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost', 'pf-add-target', 'pf-add-cost-currency', 'pf-add-memo'].map(function(id) { var el = document.getElementById(id); return el ? String(el.value) : ''; })); }
-var _pfConfirmedAdd = null, _pfAddRun = null; // v57.55 review (B4-F2/F6): one-shot confirm for an unlisted six-digit code or a won-sized USD cost
-// P2197: one add at a time; the same form joins the running add (a double click asked to replace what it just saved).
+var _pfConfirmedAdd = null, _pfAddRun = null; // one-shot confirm for an unlisted six-digit code or a won-sized USD cost
+// One add at a time; the same form joins the running add (a double click asked to replace what it just saved).
 async function addPortfolioPosition() {
   var form = _pfFormSnapshot();
   if (_pfAddRun && _pfAddRun.form === form) return _pfAddRun.done;
   var run = { form: form, done: _pfAddRun ? _pfAddRun.done.catch(function() {}).then(_pfAddOnce) : _pfAddOnce() };
-  _pfAddRun = run; var pfAddBtn = document.querySelector('[data-action="addPortfolioPosition"]'); if (pfAddBtn) pfAddBtn.setAttribute('aria-busy', 'true'); // v59.70: busy, still clickable (P2197)
+  _pfAddRun = run; var pfAddBtn = document.querySelector('[data-action="addPortfolioPosition"]'); if (pfAddBtn) pfAddBtn.setAttribute('aria-busy', 'true'); // Busy, still clickable
   try { return await run.done; } finally { if (_pfAddRun === run) { _pfAddRun = null; if (pfAddBtn) pfAddBtn.removeAttribute('aria-busy'); } }
 }
 async function _pfAddOnce() {
   const pfFormAtSubmit = _pfFormSnapshot();
-  // P1592 (F14): '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
-  const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // v57.81: shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match (P1339)
+  // '005930.KS' / '000660.KQ' (the screener's own format) is the same listed code — keep the six digits.
+  const pfRawTicker = (document.getElementById('pf-add-ticker').value || '').trim(), pfHolding = typeof window._aioResolveHoldingInput === 'function' ? window._aioResolveHoldingInput(pfRawTicker) : null; // Shared symbol owner with the ticker route — ticker-shaped input kept as typed; only a name ("스엑") resolves, by exact registry match
   let ticker = ((pfHolding && pfHolding.symbol) || pfRawTicker.toUpperCase()).replace(/^(\d{6})\.K[SQ]$/, '$1');
-  var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // v58.80 F06/F25: input-check.js checks the values taken now; every field is read before the first await
+  var pfCheckPending = typeof window._aioReadHoldingInputs === 'function' ? window._aioReadHoldingInputs().catch(function() { return null; }) : Promise.resolve(null); // input-check.js checks the values taken now; every field is read before the first await
   // P1176 (22 PFR01): 빈 칸을 0으로 직렬화하면 화면이 '목표 $0.00 · -100%'를 만든다 — 미설정은 null로 남긴다.
   const pfTargetEl = document.getElementById('pf-add-target'), parsedTarget = parseFloat(pfTargetEl.value);
-  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { showToast('목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'); window._aioRefuseField?.('pf-add-target', 'target'); return; } window._aioClearField?.('pf-add-target'); // v58.82: 말없이 미설정 저장하지 않음
+  if (pfTargetEl.validity?.badInput || (pfTargetEl.value.trim() && !(parsedTarget > 0))) { showToast('목표가는 0보다 큰 숫자로 입력하거나 비워 두세요.'); window._aioRefuseField?.('pf-add-target', 'target'); return; } window._aioClearField?.('pf-add-target'); // 말없이 미설정 저장하지 않음
   const target = Number.isFinite(parsedTarget) && parsedTarget > 0 ? parsedTarget : null;
   const memo = (document.getElementById('pf-add-memo').value || '').trim();
-  // E3/P1187 (11 P11-02): 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를
+  // 원가 통화는 합산의 단위다 — 이 경로에 writer가 없어서 사용자는 통화를
   // 선언할 방법이 없었고, 선언은 import로만 들어왔다. 선언이 비면 null로 남기고 티커·시세·locale로
-  // 추정하지 않는다(11 §23). 선언했는데 형식이 틀리면 조용히 버리지 않고 거부한다(R628).
+  // 추정하지 않는다(11 §23). 선언했는데 형식이 틀리면 조용히 버리지 않고 거부한다.
   const costCurrencyEl = document.getElementById('pf-add-cost-currency');
   const costCurrencyRaw = (costCurrencyEl ? costCurrencyEl.value : '').trim().toUpperCase();
   if (costCurrencyRaw && !/^[A-Z]{3}$/.test(costCurrencyRaw)) {
     showToast('원가 통화는 3자리 코드(예: USD, KRW)로 입력하거나 비워 두세요.'); window._aioRefuseField?.('pf-add-cost-currency', 'currency');
     return;
   } else window._aioClearField?.('pf-add-cost-currency');
-  // v58.80 F18: the default currency follows the resolved ticker, the same rule as the cost label.
+  // The default currency follows the resolved ticker, the same rule as the cost label.
   const costCurrency = costCurrencyRaw || (/^\d{6}$/.test(ticker) ? 'KRW' : null);
   var pfCheck = await pfCheckPending; if (!pfCheck || !pfCheck.ok) { showToast(pfCheck ? pfCheck.reason : '입력 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; }
   const qty = pfCheck.qty, cost = pfCheck.cost;
   var knownTickers = (typeof KNOWN_TICKERS !== 'undefined') ? KNOWN_TICKERS : [], snapFb = (typeof _SNAP_FALLBACK !== 'undefined') ? _SNAP_FALLBACK : {};
   let ld = window._liveData || {};
-  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker) || !!(pfHolding && pfHolding.known); // v46.6: KNOWN_TICKERS is a Set — .has(); v57.81: + screener universe / name registry
-  // v57.81: unknown to every registry -> the lazy official US listing decides (exact symbol; only BRK.B -> BRK-B). Listed: saved with its official name; not listed: rejected below; unavailable: never saved.
+  var isKnown = (knownTickers.has ? knownTickers.has(ticker) : (knownTickers.indexOf ? knownTickers.indexOf(ticker) >= 0 : false)) || snapFb[ticker] || ld[ticker] || /^\d{6}$/.test(ticker) || !!(pfHolding && pfHolding.known); // KNOWN_TICKERS is a Set — .has(); v57.81: + screener universe / name registry
+  // Unknown to every registry -> the lazy official US listing decides (exact symbol; only BRK.B -> BRK-B). Listed: saved with its official name; not listed: rejected below; unavailable: never saved.
   var pfListing = null, pfListingSym = typeof window._aioUsListingSymbol === 'function' ? window._aioUsListingSymbol(ticker) : ticker; if (!isKnown && typeof window._aioCheckUsListing === 'function') { try { pfListing = await window._aioCheckUsListing(pfListingSym); } catch (_) { pfListing = null; } if (!pfListing || pfListing.listed == null) { showToast('"' + (pfRawTicker || ticker) + '"는 AIO 종목 목록에 없어 미국 상장 목록과 대조해야 하는데, 지금 상장 목록을 불러오지 못해 저장하지 않았습니다. 잠시 후 다시 시도하세요.'); return; } if (pfListing.listed === true) { ticker = pfListingSym; isKnown = true; } }
   var krCode = /^\d{6}$/.test(ticker), krListed = krCode && typeof window._aioIsKnownTicker === 'function' && (window._aioIsKnownTicker(ticker) || window._aioIsKnownTicker(ticker + '.KS') || window._aioIsKnownTicker(ticker + '.KQ')), pfRefPrice = (ld[ticker] && +ld[ticker].price) || 0, pfWarn = krCode && !krListed ? '"' + ticker + '"는 AIO 한국 종목 목록에 없는 코드입니다. 시세·차트를 받지 못할 수 있어요. 코드가 맞으면 그대로 저장할까요?' : (!krCode && (costCurrency || 'USD') === 'USD' && (pfRefPrice > 0 ? cost > pfRefPrice * 10 : cost >= 50000 && ticker !== 'BRK-A')) ? '매수 단가(' + cost.toLocaleString() + ')는 달러로 저장됩니다' + (pfRefPrice > 0 ? '(현재가 $' + pfRefPrice.toFixed(2) + '의 10배 이상)' : '') + '. 원화로 산 금액이라면 원가 통화 칸에 KRW를 적어 주세요. 그대로 저장할까요?' : ''; if (isKnown && pfWarn && _pfConfirmedAdd !== ticker + '|' + cost) { showConfirmModal('입력값 확인', pfWarn, function() { _pfConfirmedAdd = ticker + '|' + cost; addPortfolioPosition(); }); return; } _pfConfirmedAdd = null;
   if (!isKnown) {
@@ -515,8 +513,8 @@ async function _pfAddOnce() {
   if (pfMain) pfMain.classList.toggle('is-empty', positions.length === 0);
   const existing = positions.findIndex(p => p.ticker === ticker);
   if (existing >= 0) {
-    const editing = document.getElementById('pf-add-ticker')?.dataset.editing === ticker; // P1592 (F15): an edit is not a duplicate
-    // E3/P1187: 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
+    const editing = document.getElementById('pf-add-ticker')?.dataset.editing === ticker; // An edit is not a duplicate
+    // 통째 교체는 import로 들어온 sector·targetWeight·note·시세 통화를 지웠다 —
     // 폼이 소유한 필드만 덮어쓰고 나머지는 보존한다.
     const commit = async function(next, doneText) {
       positions[existing] = next;
@@ -537,8 +535,8 @@ async function _pfAddOnce() {
   }
   const saved = await savePortfolioData(positions);
   if (saved.reason !== 'other-tab' && _pfFormSnapshot() === pfFormAtSubmit) { clearPortfolioForm(); window._aioTogglePortfolioEntry(false); }
-  window._aioRevealHolding = ticker; renderPortfolio(); // v58.80 run-5: portfolio.js scrolls to the new row
-  // v48.3 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
+  window._aioRevealHolding = ticker; renderPortfolio(); // run-5: portfolio.js scrolls to the new row
+  // 신규 추가 토스트 → E3/P1181: 완료 문구는 durable ack 성공 뒤에만 노출된다.
   if (typeof showToast === 'function') {
     showToast(saved.ok
       ? ticker + ' 포지션 추가 완료' + (pfHolding && pfHolding.resolvedFrom ? ' ("' + pfHolding.resolvedFrom + '" = ' + ticker + ')' : '') + (pfListing && pfListing.listed === true && pfListing.name ? ', ' + pfListing.name : '') + ', 브라우저에 저장됨'
@@ -552,7 +550,7 @@ function removePosition(ticker) {
     async function() {
       const positions = getPortfolioData().filter(p => p.ticker !== ticker);
       const saved = await savePortfolioData(positions);
-      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
+      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // Focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
         showToast(_pfSaveFailText(saved, '영구 저장 실패 — 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.'));
       }
@@ -564,7 +562,7 @@ function editPosition(ticker) {
   const positions = getPortfolioData();
   const p = positions.find(pos => pos.ticker === ticker);
   if (!p) return;
-  // P1449: "수정"은 안내만 던지지 않는다 — 편집 입력 폼이 닫혀 있으면 열어 준다.
+  // "수정"은 안내만 던지지 않는다 — 편집 입력 폼이 닫혀 있으면 열어 준다.
   // (그렇지 않으면 스크롤+포커스가 접힌 섹션을 목표로 하고, 사용자는 어디를 편집하는지 못 본다.)
   try { if (typeof window._aioTogglePortfolioEntry === 'function') window._aioTogglePortfolioEntry(true); } catch(e) {}
   var tkEl = document.getElementById('pf-add-ticker');
@@ -580,7 +578,7 @@ function editPosition(ticker) {
   if (ccEl) ccEl.value = p.costCurrency || '';
   if (memoEl) memoEl.value = p.memo || '';
   _pfSyncEntryCurrencyLabels();
-  // v48.3: 편집 UX 개선 — 폼으로 스크롤 + 포커스 + 토스트 안내 (사용자가 어디서 편집 중인지 명확화)
+  // 편집 UX 개선 — 폼으로 스크롤 + 포커스 + 토스트 안내 (사용자가 어디서 편집 중인지 명확화)
   if (tkEl) {
     try { tkEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) { tkEl.scrollIntoView(); }
     setTimeout(function(){ if (qtyEl) qtyEl.focus(); }, 400);
@@ -615,7 +613,7 @@ if (typeof document !== 'undefined') document.addEventListener('input', function
   var id = event && event.target && event.target.id;
   if (id === 'pf-add-cost-currency' || id === 'pf-add-ticker') _pfSyncEntryCurrencyLabels();
 });
-// v58.80 F25: Enter submits the add form (not while composing Korean).
+// Enter submits the add form (not while composing Korean).
 if (typeof document !== 'undefined') document.addEventListener('keydown', function(event) {
   var id = event && event.target && event.target.id;
   if (event.key !== 'Enter' || event.isComposing || !/^pf-add-(ticker|qty|cost|target|cost-currency|memo)$/.test(id || '')) return;
@@ -629,7 +627,7 @@ var _confirmSettled = true;
 var _confirmPreviousFocus = null;
 // options: { okLabel, alt: { label, onSelect } } — a second action in the same dialog, settled once like 확인.
 function showConfirmModal(title, msg, onConfirm, icon, onCancel, options) {
-  // P1070/R592: replacing or dismissing a confirmation must settle the
+  // Replacing or dismissing a confirmation must settle the
   // previous caller exactly once; quota prompts rely on this for Promise
   // liveness when ESC, backdrop, or the delegated cancel action is used.
   if (!_confirmSettled && typeof _confirmCancelCallback === 'function') {
@@ -674,7 +672,7 @@ function showConfirmModal(title, msg, onConfirm, icon, onCancel, options) {
   if (modal._aioTrapCleanup) modal._aioTrapCleanup();
   modal.style.display = 'flex'; modal.dataset.tone = /삭제|지우|초기화|제거|비우|덮어/.test(title + ' ' + msg) ? 'danger' : 'neutral'; // run-4: only removals are red
   modal._aioTrapCleanup = typeof window._aioModalTrap === 'function' ? window._aioModalTrap(modal, function() { closeConfirmModal('trap'); }) : null;
-  (document.getElementById('aio-confirm-cancel') || okBtn).focus(); // v58.80 run-5: Enter on arrival kept the old value; it no longer overwrote a holding
+  (document.getElementById('aio-confirm-cancel') || okBtn).focus(); // run-5: Enter on arrival kept the old value; it no longer overwrote a holding
 }
 function closeConfirmModal(reason) {
   var modal = document.getElementById('aio-confirm-modal');
@@ -690,7 +688,7 @@ function closeConfirmModal(reason) {
   if (cancelCallback) { try { cancelCallback(reason || 'dismissed'); } catch (_) {} }
 }
 
-// v48.14: showPromptModal — 네이티브 prompt() 대체 (Agent C5/P1-2 대응, R6 준수)
+// showPromptModal — 네이티브 prompt() 대체 (Agent C5/P1-2 대응, R6 준수)
 // 사용: showPromptModal('제목', '라벨', '기본값', function(value){ ... })
 // value === null이면 취소, string이면 입력값 (빈 문자열 포함)
 function showPromptModal(title, label, defaultValue, onSubmit, opts) {
@@ -729,7 +727,7 @@ function showPromptModal(title, label, defaultValue, onSubmit, opts) {
     if (previousFocus && document.contains(previousFocus) && !previousFocus.disabled) { try { previousFocus.focus(); } catch (_) {} }
     try { if (typeof onSubmit === 'function') onSubmit(val); } catch(e) { if (typeof _aioLog === 'function') _aioLog('error', 'modal', 'prompt onSubmit failed: ' + e.message); }
   }
-  input.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); _close(input.value); } }); // v58.80 B18: stop the Enter from reopening the prompt
+  input.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); _close(input.value); } }); // Stop the Enter from reopening the prompt
   document.getElementById('aio-prompt-cancel').addEventListener('click', function() { _close(null); });
   document.getElementById('aio-prompt-ok').addEventListener('click', function() { _close(input.value); });
   modal.addEventListener('click', function(e) { if (e.target === modal) _close(null); });
@@ -739,11 +737,11 @@ function clearAllPositions() {
   showConfirmModal(
     '포트폴리오 전체 삭제',
     '모든 포지션이 영구 삭제됩니다. 이 작업은 되돌릴 수 없습니다. 정말 삭제하시겠습니까?',
-    // E3/P1187 (11 P11-01): 이 경로는 savePortfolioData의 반환을 버려 persist가 거부돼도 조용히
+    // 이 경로는 savePortfolioData의 반환을 버려 persist가 거부돼도 조용히
     // 성공한 것처럼 보였다 — 삭제도 durable ack 뒤에만 확정으로 말한다.
     async function() {
       const saved = await savePortfolioData([], { replace: true });
-      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // v57.81: focus left <body> (src/ui/components/shell-overlays.js)
+      renderPortfolio(); window._aioFocusPortfolioAfterDelete?.(); // Focus left <body> (src/ui/components/shell-overlays.js)
       if (typeof showToast === 'function' && !saved.ok) {
         showToast('영구 저장 실패 — 전체 삭제가 확정되지 않았습니다. 새로고침 시 되돌아올 수 있습니다.');
       }
@@ -754,8 +752,8 @@ function clearAllPositions() {
 
 // Render Portfolio
 function renderPortfolio() {
-  // v52.46 WO-1A: 실제 잠금 게이트 — 이전엔 이 자리를 지키던 checkPortfolioPin()이
-  // 어디서도 호출되지 않는 고아 함수라 PIN이 설정돼도 진입 시 잠금화면이 뜬 적이 없었다(R294).
+  // WO-1A: 실제 잠금 게이트 — 이전엔 이 자리를 지키던 checkPortfolioPin()이
+  // 어디서도 호출되지 않는 고아 함수라 PIN이 설정돼도 진입 시 잠금화면이 뜬 적이 없었다.
   if (typeof isPortfolioLocked === 'function' && isPortfolioLocked()) {
     var lock = document.getElementById('pf-lock-screen');
     var main = document.getElementById('pf-main');
@@ -763,33 +761,33 @@ function renderPortfolio() {
     if (main) main.style.display = 'none';
     return;
   }
-  const positions = getPortfolioData(); try { window._pfPortfolioBackup.renderReminder(positions.length); } catch (_) {} // v58.84 backup reminder
+  const positions = getPortfolioData(); try { window._pfPortfolioBackup.renderReminder(positions.length); } catch (_) {} // Backup reminder
   const tbody = document.getElementById('pf-positions-tbody');
   if (!tbody) return;
   var _nativePortfolioTable = tbody.dataset.aioPortfolioTableRenderer === 'native';
   var _pfEmpty = positions.length === 0;
   var _pfMain = document.getElementById('pf-main');
   if (_pfMain) _pfMain.classList.toggle('is-empty', _pfEmpty);
-  ['pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) { // v57.81: 비중·섹터 stays visible when empty (it holds the cash boxes); v59.70: pf-benchmark-section left with the native portfolio chart (wave2-d)
+  ['pf-holdings-analysis-section','pf-risk-panel'].forEach(function(id) { // 비중·섹터 stays visible when empty (it holds the cash boxes); v59.70: pf-benchmark-section left with the native portfolio chart (wave2-d)
     var el = document.getElementById(id);
     if (el) el.hidden = _pfEmpty;
   });
-  // v48.47: R:R 계산기 포지션 드롭다운 동기화
+  // R:R 계산기 포지션 드롭다운 동기화
   try { if (typeof window._aioRRPopulateSelect === 'function') window._aioRRPopulateSelect(); } catch(_){}
 
   if (positions.length === 0) {
-    // v59.42: the empty-state row is the native page's (src/ui/pages/portfolio.js renderPortfolioTable); this one was
+    // The empty-state row is the native page's (src/ui/pages/portfolio.js renderPortfolioTable); this one was
     // replaced within ~1.4 s of every portfolio entry.
     return;
   }
 
-  // v59.42: the holdings rows are built by the native page only (renderPortfolioTable, which flags the tbody 'native').
+  // The holdings rows are built by the native page only (renderPortfolioTable, which flags the tbody 'native').
   // The legacy row builder painted first on every portfolio entry and showed each holding as "(시세 미수신)" with no
   // price, P&L or weight for ~0.7-1.4 s until native replaced it, so before native mounts a neutral row stands in.
   if (!_nativePortfolioTable) tbody.innerHTML = '<tr><td colspan="10" class="pfp-empty">보유 ' + positions.length + '종목을 불러오는 중입니다</td></tr>';
 
-  // v57.81: the per-currency cash boxes are restored by the native portfolio page from the same balances it totals.
-  // E3/E4/P1188: 선언 필드 복원 — 저장된 원문(코드/퍼센트)을 그대로 되돌린다.
+  // The per-currency cash boxes are restored by the native portfolio page from the same balances it totals.
+  // 선언 필드 복원 — 저장된 원문(코드/퍼센트)을 그대로 되돌린다.
   var _pfApi = _pfAssumptionApi();
   if (_pfApi && _pfApi.keys) {
     Object.keys(PF_ASSUMPTION_FIELDS).forEach(function(id) {
@@ -797,7 +795,7 @@ function renderPortfolio() {
       if (!el) return;
       try { el.value = localStorage.getItem(_pfApi.keys[PF_ASSUMPTION_FIELDS[id].key]) || ''; } catch(e) { el.value = ''; }
     });
-    // P1201: 정책은 전략 경로에서만 소비된다 — 회고 경로에서는 비활성으로 그 사실을 드러낸다(선언은 보존).
+    // 정책은 전략 경로에서만 소비된다 — 회고 경로에서는 비활성으로 그 사실을 드러낸다(선언은 보존).
     var pathEl = document.getElementById('pf-exposure-path-input');
     var policyEl = document.getElementById('pf-rebalance-policy-input');
     if (pathEl && policyEl) {
@@ -807,21 +805,19 @@ function renderPortfolio() {
       policyEl.title = strategyPathSelected ? '' : '지금 구성 그대로 방식에서는 리밸런싱 정책이 쓰이지 않습니다.';
     }
   }
-  // E4/P1191: 원장 입력도 같은 화면 복원 주기에 함께 수화한다.
+  // 원장 입력도 같은 화면 복원 주기에 함께 수화한다.
   try { renderPortfolioLedger(); } catch(e) {}
-  // E3/P1194: FX leg 목록도 같은 주기에 수화한다(사용 가능/창 초과 표시 포함).
+  // FX leg 목록도 같은 주기에 수화한다(사용 가능/창 초과 표시 포함).
   try { renderPortfolioFxLegs(); } catch(e) {}
 }
 
-// v59.51 (content audit): the per-holding mini charts (_aioRenderPortfolioHoldingCharts, #pf-holdings-charts) were retired.
-
-// v59.42: _pfLegacyMoney / _pfLegacyCurrencyOf (P1449) left with the legacy row builder; native rows format money per currency.
-// v57.77: updatePortfolioSummary() only fed the retired 포트폴리오 자동 진단 (#pf-analysis-text) and left with it.
+// _pfLegacyMoney / _pfLegacyCurrencyOf left with the legacy row builder; native rows format money per currency.
+// updatePortfolioSummary() only fed the retired 포트폴리오 자동 진단 (#pf-analysis-text) and left with it.
 
 function refreshPortfolioPrices() {
   const positions = getPortfolioData();
   if (!positions.length) return;
-  // v48.27 (QA-2): fetchYahooQuotes 미정의 무음 실패 → 정상 경로 복구
+  // fetchYahooQuotes 미정의 무음 실패 → 정상 경로 복구
   // (1) fetchLiveQuotes 우선 (KNOWN_TICKERS 글로벌 갱신, 검증된 함수)
   // (2) 포트폴리오 전용 종목(KNOWN_TICKERS 미포함)은 _fetchYahooChartData로 개별 보강
   const tickers = positions.map(p => p.ticker);
@@ -878,7 +874,7 @@ function refreshPortfolioLedgerPerformance() {
   var perfPct = function(v) { return v == null ? '보류' : (v >= 0 ? '+' : '') + (v * 100).toFixed(2) + '%'; };
   var html;
   if (accountPerf.status === 'ready') {
-    // v57.92: a TWR whose flows fall between valuations is a boundary approximation — named as such, with the engine's reason.
+    // A TWR whose flows fall between valuations is a boundary approximation — named as such, with the engine's reason.
     var twrApprox = accountPerf.twrExact === false;
     html = '<b>실제 계좌 성과 TWR(기간 누적' + (twrApprox ? ', 근사' : '') + ') ' + _escHtmlSafe(perfPct(accountPerf.twr)) + ', MWR(' + (accountPerf.units.mwrShown === 'period-irr' ? '기간 누적, 1년 미만이라 연율화 안 함' : '연율') + ') ' + _escHtmlSafe(perfPct(accountPerf.mwrShown)) + '</b> — ' // #6: different units, both named
       + _escHtmlSafe(accountPerf.currency + ', ' + (accountPerf.flowTiming === 'start-of-period' ? '입출금 기간 시작 반영' : '입출금 기간 끝 반영') + ', ' + accountPerf.sample.periods + '기간 ' + accountPerf.sample.from + '~' + accountPerf.sample.to)
@@ -892,14 +888,14 @@ function refreshPortfolioLedgerPerformance() {
   return accountPerf;
 }
 
-// v58.63 (architecture audit LEGACY03): a calculation for holdings A that finished after the holdings changed to B
+// A calculation for holdings A that finished after the holdings changed to B
 // replaced B's hold message with A's metrics and _lastPortfolioRiskEstimate. Each run takes a number and the holdings it
 // read; after the history wait it publishes only if it is still the latest run for the same holdings.
 var _pfRiskEpoch = 0;
 async function refreshPortfolioRisk() {
-  // P1449: 원장 계좌 성과는 시세 이력 게이트와 독립 계산 — 어떤 보류에서도 항상 갱신한다.
+  // 원장 계좌 성과는 시세 이력 게이트와 독립 계산 — 어떤 보류에서도 항상 갱신한다.
   try { refreshPortfolioLedgerPerformance(); } catch(e) {}
-  // v59.05: the panel is src/ui/components/portfolio-risk-metrics.js. A run before that module is installed is
+  // The panel is src/ui/components/portfolio-risk-metrics.js. A run before that module is installed is
   // remembered and repeated on install.
   if (typeof window._aioRenderPortfolioRiskStatus !== 'function') { window._aioPortfolioRiskPending = true; return; }
   var status = function(text, warn) { return window._aioRenderPortfolioRiskStatus(text, warn); };
@@ -964,14 +960,14 @@ async function refreshPortfolioRisk() {
     return;
   }
 
-  // P1258: 위험 입력 조립(입력 자격·구성 스냅샷·returnsMap·estimate 호출)은 네이티브
+  // 위험 입력 조립(입력 자격·구성 스냅샷·returnsMap·estimate 호출)은 네이티브
   // src/ui/panels/portfolio-risk-input.js가 소유한다 — 셸은 증거 수집(_aioDecisionMetric),
   // 사유별 문구, 렌더만 남긴다(P1195/P1199 선례의 분해 잔여 해소).
   var priceEvidenceMap = {};
   positions.forEach(function(p) {
     priceEvidenceMap[p.ticker] = typeof _aioDecisionMetric === 'function' ? _aioDecisionMetric(p.ticker, 'price', null) : null;
   });
-  var cashValue = 0, _pfCash = window._pfPortfolioCash || null; // v57.81: the per-currency balances below are the cash input
+  var cashValue = 0, _pfCash = window._pfPortfolioCash || null; // The per-currency balances below are the cash input
   var cashBalances = _pfCash ? _pfCash.read().balances : null;
   var declarations = readPortfolioAssumptionDeclarations();
   var assembled = (typeof window._pfAssembleRiskEstimateInput === 'function') ? window._pfAssembleRiskEstimateInput({
@@ -981,10 +977,10 @@ async function refreshPortfolioRisk() {
     validTickers: validTickers,
     commonDates: commonDates,
     cashValue: cashValue,
-    cashBalances: cashBalances, cashFx: _pfCash ? _pfCash.appFx() : null, // v57.81: one balance per currency, app USD/KRW close
-    declarations: declarations, fxLegs: getPortfolioFxLegs(), // P1407: one base currency for weights
+    cashBalances: cashBalances, cashFx: _pfCash ? _pfCash.appFx() : null, // One balance per currency, app USD/KRW close
+    declarations: declarations, fxLegs: getPortfolioFxLegs(), // One base currency for weights
     surface: window._aioPortfolioSurface, // a holding without a live quote is weighted from the value the valuation screen shows
-    // P1445: completed USD/KRW closes so foreign holdings' returns include the currency move
+    // Completed USD/KRW closes so foreign holdings' returns include the currency move
     fxHistory: (window._aioHistory || []).map(function(r) { var m = r && r.fieldMeta && r.fieldMeta.usdkrw; return { date: String((m && m.observedAt) || (r && r.date) || '').slice(0, 10), value: r && r.usdkrw }; })
   }) : null;
   if (!assembled || !assembled.ok) {
@@ -1015,8 +1011,6 @@ async function refreshPortfolioRisk() {
   try { refreshPortfolioTechnicalRisk(); } catch(_) {}
 }
 
-// v59.04: the exposure panel and the stress panel placement moved to src/ui/components/portfolio-exposure.js
-// (window._aioRenderPortfolioExposure / _aioRenderPortfolioStress, installed by src/app/legacy-screen-bridges.js).
 function _escHtmlSafe(s){ return (typeof escHtml==='function') ? escHtml(String(s)) : String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
 async function refreshPortfolioTechnicalRisk() {
@@ -1066,11 +1060,6 @@ async function refreshPortfolioTechnicalRisk() {
 }
 window.refreshPortfolioTechnicalRisk = refreshPortfolioTechnicalRisk;
 
-// v59.05: the 리스크 지표 panel renderer and its status lines moved to src/ui/components/portfolio-risk-metrics.js.
-
-// v59.03: the backtest lab result renderer and its formatters moved to src/ui/components/portfolio-backtest-lab.js
-// (window._aioRenderPortfolioBacktestLab and window._aioBtVarCertLabel, installed by src/app/legacy-screen-bridges.js).
-
 async function runPortfolioBacktestLab() {
   var status = function(text, warn) { if (typeof window._aioRenderPortfolioBacktestStatus === 'function') window._aioRenderPortfolioBacktestStatus(text, warn); };
   var positions = (typeof getPortfolioData === 'function') ? getPortfolioData() : [];
@@ -1092,7 +1081,7 @@ async function runPortfolioBacktestLab() {
     var d = (typeof _fetchYahooChartData === 'function') ? await _fetchYahooChartData(t, '10y', '1d') : null;
      if (d && d.timestamps && d.closes && (Array.isArray(d.adjustedCloses) || Array.isArray(d.adjCloses)) && d.backtestEligible !== false) priceMap[t] = d;
   }));
-  // P1259 (QA-FX-SERIES): 기준 통화 수익률은 월말 관측 FX 시계열을 요구한다 — 랩과 같은 chart 경로로
+  // 기준 통화 수익률은 월말 관측 FX 시계열을 요구한다 — 랩과 같은 chart 경로로
   // KRW=X를 관측해 넘기고, 못 얻으면 엔진이 현지 통화 결과만 게시한다(추정하지 않음).
   var fxSeries = null;
   try {
@@ -1108,7 +1097,7 @@ async function runPortfolioBacktestLab() {
         benchmarkSymbol: benchmark || 'SPY',
         // Only the rate the reader entered; the result names it as one rate over the whole period.
         rfAnnual: (readPortfolioAssumptionDeclarations() || {}).riskFreeRate,
-        // P1247 (E3/E4): 랩의 시작 구성도 환산 주장이다. 평가 화면(surface)과 **같은** 선언(기준 통화 +
+        // 랩의 시작 구성도 환산 주장이다. 평가 화면(surface)과 **같은** 선언(기준 통화 +
         // 관측 FX leg)을 넘긴다 — 넘기지 않으면 혼합 통화 구성은 1:1 합산 대신 보류된다.
         baseCurrency: (readPortfolioAssumptionDeclarations() || {}).baseCurrency || null,
         fxLegs: getPortfolioFxLegs(),
@@ -1133,7 +1122,7 @@ function _aioPortfolioJournalEntries() {
   } catch(_) { return []; }
 }
 
-// v59.51 (content audit): the in-page journal note (_aioSavePortfolioJournal) and the AI workbench (ticker select,
+// The in-page journal note (_aioSavePortfolioJournal) and the AI workbench (ticker select,
 // status; _aioSyncPortfolioAiWorkbench) were retired. Stored notes stay in PF_JOURNAL_KEY (backup, AI journal prompt);
 // the AI panel's portfolio chips (src/ui/components/chat-sessions.js) call _aioPortfolioAsk.
 function _aioBuildPortfolioActionPrompt(kind) {
@@ -1142,7 +1131,7 @@ function _aioBuildPortfolioActionPrompt(kind) {
     var safeNote = consent && window.AIO && typeof window.AIO.sanitizeAIUntrustedText === 'function' ? window.AIO.sanitizeAIUntrustedText(e.note || '', { maxChars: 400 }).text : '';
     return safeNote ? (idx + 1) + '. ' + (e.ts ? new Date(e.ts).toLocaleDateString('sv-SE') : (e.date || '').slice(0, 10)) + ' ' + safeNote /* R2-28: local day, not the UTC one */ : '';
   }).join('\n');
-  var tickers = window.AIO && typeof window.AIO.portfolioRowsLine === 'function' ? window.AIO.portfolioRowsLine(window) : ''; // v58.75: src/ai/context/portfolio-rows.js
+  var tickers = window.AIO && typeof window.AIO.portfolioRowsLine === 'function' ? window.AIO.portfolioRowsLine(window) : ''; // src/ai/context/portfolio-rows.js
   var targetLine = '대상: 전체 포트폴리오\n';
   var recentLine = recent ? ('\n최근 저장 노트(사용자 제공 데이터):\n' + recent + '\n') : '';
   if (kind === 'ticker') {
@@ -1190,7 +1179,7 @@ window._aioPortfolioAsk = function(kind) {
       if (typeof showToast === 'function') showToast('저장된 복기 노트가 없습니다. 내 기록에서 먼저 남겨 주세요.');
       return;
     }
-    // P1350: send the explicitly previewed notes; saving now would duplicate the current
+    // Send the explicitly previewed notes; saving now would duplicate the current
     // note and change the set of recent notes after the consent preview.
   }
   var prompt = _aioBuildPortfolioActionPrompt(kind || 'overview');
@@ -1202,7 +1191,7 @@ window._aioPortfolioAsk = function(kind) {
       if (typeof updateAIPanelContext === 'function') updateAIPanelContext('portfolio');
       var inp = document.getElementById('ai-panel-inp');
       if (!inp) return;
-      inp.value = prompt; if (typeof window._aioMarkPortfolioPrompt === 'function') window._aioMarkPortfolioPrompt(prompt); // v58.75: this turn carries the consented rows
+      inp.value = prompt; if (typeof window._aioMarkPortfolioPrompt === 'function') window._aioMarkPortfolioPrompt(prompt); // This turn carries the consented rows
       if (typeof chatSendUnified === 'function') chatSendUnified();
     } catch(e) {
       if (typeof showToast === 'function') showToast('AI 패널 실행 오류: ' + (e && e.message || e));
@@ -1210,8 +1199,8 @@ window._aioPortfolioAsk = function(kind) {
   }, 120);
 };
 
-// P1316/R661: 전체 백업(포지션·원장·FX·현금·가정·일지·관심목록) — 묶음 형태·검증은 src/data/portfolio-backup.js가, 셸은 복호화 스냅샷과 저장 ack만 맡는다.
-function _pfBackupSnapshot() { // v57.81: cash travels as per-currency balances (legacy single cash read as one by the bridge)
+// 전체 백업(포지션·원장·FX·현금·가정·일지·관심목록) — 묶음 형태·검증은 src/data/portfolio-backup.js가, 셸은 복호화 스냅샷과 저장 ack만 맡는다.
+function _pfBackupSnapshot() { // Cash travels as per-currency balances (legacy single cash read as one by the bridge)
   var keys = (_pfAssumptionApi() || {}).keys || {}, assumptions = {}, cashRead = null; try { Object.keys(keys).forEach(function(n) { var v = localStorage.getItem(keys[n]); if (v != null) assumptions[n] = v; }); cashRead = window._pfPortfolioCash ? window._pfPortfolioCash.read() : null; } catch(e) {}
   return { positions: getPortfolioData(), ledger: getPortfolioLedger(), fxLegs: getPortfolioFxLegs(), cash: null, cashBalances: cashRead && cashRead.known ? cashRead.balances : null, assumptions: assumptions, journal: _aioPortfolioJournalEntries(), trades: getPortfolioTrades(), watchlists: getWatchlists(), activeWatchlistId: getActiveWatchlistId() || null }; }
 function exportPortfolio() {
@@ -1245,7 +1234,7 @@ function importPortfolio(event) {
     // v59.45 (PASS27 P27-IMPORT-01): what the import changed on the way in is named before the reader confirms.
     var adj = parsed.adjustments || {}, adjText = [adj.positionsDropped > 0 ? '읽을 수 없는 포지션 ' + adj.positionsDropped + '개 제외' : '', adj.positionsCostUnknown > 0 ? '매수 단가 없는 포지션 ' + adj.positionsCostUnknown + '개는 단가 미확인' : '', adj.ledgerDropped > 0 ? '읽을 수 없는 원장 항목 ' + adj.ledgerDropped + '개 제외(포함 범위 선언 해제)' : '', mergeModule ? mergeModule.mergedImportText(adj.positionsMerged) : ''].filter(Boolean).join(', ');
     showConfirmModal('데이터 가져오기', (bundle ? '전체 백업(' + api.describe(parsed.counts) + ')을' : c.positions.length + '개 포지션을') + ' 가져오시겠습니까? 기존 데이터가 대체됩니다.' + (adjText ? ' 파일에서 바뀐 점: ' + adjText + '.' : ''), async function() {
-      // E3/P1187: 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
+      // 가져오기도 durable ack 뒤에만 '완료'를 말한다 — P1316: 묶음은 모든 섹션 ack를 합산한다.
       var acks = [Object.assign({ section: 'positions' }, await savePortfolioData(c.positions, { replace: true }))].concat(bundle ? await _pfRestoreBackupSections(c) : []);
       renderPortfolio();
       var failed = acks.filter(function(r) { return !(r && r.ok); }).map(function(r) { return _PF_SECTION_LABEL[r && r.section] || '일부 항목'; }).filter(function(name, i, all) { return all.indexOf(name) === i; });
@@ -1258,7 +1247,7 @@ function importPortfolio(event) {
 // ══════════════════════════════════════════════════════════════════════
 // 다중 워치리스트 시스템 — localStorage CRUD + Live Price + SCREENER_DB 연동
 // ══════════════════════════════════════════════════════════════════════
-// v59.42: one store — src/data/watchlist-store.js (window._aioWatchlistStore, installed at boot) reads and writes the
+// One store — src/data/watchlist-store.js (window._aioWatchlistStore, installed at boot) reads and writes the
 // lists. This copy dropped a list with no tickers array on read, so the next save deleted it; the store repairs it.
 // Every caller is a user action or a render that waits for the same boot, so before it nothing is read or written.
 function getWatchlists() {
@@ -1274,7 +1263,7 @@ function saveWatchlists(lists) {
 function getActiveWatchlistId() {
   return window._aioWatchlistStore ? window._aioWatchlistStore.activeId() : '';
 }
-function setActiveWatchlistId(id) { // v59.45: false when the write was refused (the restore reports it)
+function setActiveWatchlistId(id) { // False when the write was refused (the restore reports it)
   return !!(window._aioWatchlistStore && window._aioWatchlistStore.setActiveId(id));
 }
 
@@ -1368,7 +1357,7 @@ function addToWatchlist(ticker, note, accepted, request) {
   if (!ticker) { showToast('티커를 입력하세요.'); return; }
   var pending = { listId: activeId, fromInputs: fromInputs, typed: typed };
   if (accepted !== true && typeof window._aioAcceptSymbol !== 'function') { showToast('종목 확인 도구를 아직 불러오지 못했습니다. 잠시 뒤 다시 추가하세요.'); return; } // run-4 #5
-  if (accepted !== true) { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok) addToWatchlist(r.id || ticker, note, true, pending); else if (r.reason === 'listing-unavailable') showToast(String(ticker).slice(0, 24) + ': 미국 상장 목록을 받지 못해 확인할 수 없습니다. 잠시 뒤 다시 추가하세요.'); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // like the holding form, an unchecked symbol is not saved // v57.81: known or US-listed (listing directory) symbols only; accepted ones join the quote request set
+  if (accepted !== true) { window._aioAcceptSymbol(ticker).then(function(r) { if (r.ok) addToWatchlist(r.id || ticker, note, true, pending); else if (r.reason === 'listing-unavailable') showToast(String(ticker).slice(0, 24) + ': 미국 상장 목록을 받지 못해 확인할 수 없습니다. 잠시 뒤 다시 추가하세요.'); else window._aioToastWithNameHint(ticker, ticker + ': 등록 종목·미국 상장 목록에서 찾지 못한 티커입니다. 철자를 확인하세요.'); }); return; } // like the holding form, an unchecked symbol is not saved // Known or US-listed (listing directory) symbols only; accepted ones join the quote request set
   var lists = getWatchlists();
   var wl = lists.find(function(l) { return l.id === activeId; });
   if (!wl) { if (request) showToast(ticker + ': 추가하려던 워치리스트가 삭제되어 추가하지 않았습니다.'); return; }
@@ -1400,7 +1389,7 @@ function removeFromWatchlist(ticker) {
 function showToast(msg) {
   if (typeof window._aioToast === 'function') { window._aioToast(msg); return; }
   var toast = document.createElement('div');
-  toast.className = 'aio-toast wsl-toast'; toast.textContent = String(msg == null ? '' : msg).replace(/\S{33,}/g, function(w) { return w.slice(0, 24) + '…'; }).slice(0, 320); // run-4 #10 // v57.81: .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
+  toast.className = 'aio-toast wsl-toast'; toast.textContent = String(msg == null ? '' : msg).replace(/\S{33,}/g, function(w) { return w.slice(0, 24) + '…'; }).slice(0, 320); // run-4 #10 // .aio-toast stacks above the first-visit disclaimer; look: legacy-workspace.css
   document.body.appendChild(toast);
   requestAnimationFrame(function() { toast.style.opacity = '1'; });
   setTimeout(function() {
@@ -1409,7 +1398,7 @@ function showToast(msg) {
   }, 2000);
 }
 
-// v59.06: the list view (select, buttons, table) is drawn by src/ui/components/portfolio-watchlist.js through
+// The list view (select, buttons, table) is drawn by src/ui/components/portfolio-watchlist.js through
 // window._aioRenderWatchlist (src/app/legacy-screen-bridges.js); a call before that module loaded is repeated on install.
 // Its rows open a ticker and its 삭제 buttons call removeFromWatchlist by data-action.
 function _aioRenderWatchlistView(mode) {
@@ -1419,7 +1408,7 @@ function _aioRenderWatchlistView(mode) {
 function refreshWatchlistUI() { _aioRenderWatchlistView('full'); }
 
 // 포트폴리오 페이지 진입 시 워치리스트도 렌더
-// v48.99: _aioPageBus 마이그 (P180)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: wrapped in DOMContentLoaded (P556/R247 template) — _aioPageBus.register is a
 // bare top-level call, which would throw before js/aio-core.js has defined it once that script is
 // `defer`red. DOMContentLoaded always fires after all deferred scripts have run.
@@ -1440,7 +1429,7 @@ var pfShownAtLoad = document.getElementById('page-portfolio'); if (pfShownAtLoad
 });
 
 // Hook: refresh portfolio on live data update
-// v48.99: _aioPageBus 마이그 (P180)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿) — 아래 참조.
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-portfolio-render-live', 'aio:liveQuotes', function() {
@@ -1448,7 +1437,7 @@ _aioPageBus.register('html-portfolio-render-live', 'aio:liveQuotes', function() 
   if (pfPage && pfPage.classList.contains('active')) { renderPortfolio(); }
 });
 
-// v31.9: Portfolio pageShown — 페이지 진입 시 즉시 렌더 + 리스크 자동 계산
+// Portfolio pageShown — 페이지 진입 시 즉시 렌더 + 리스크 자동 계산
 _aioPageBus.register('html-portfolio-render-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'portfolio') {
     try { renderPortfolio(); } catch(err) { _aioLog('warn', 'init', 'Portfolio init error: ' + (err && err.message || err)); }
@@ -1463,7 +1452,7 @@ _aioPageBus.register('html-portfolio-render-shown', 'aio:pageShown', function(e)
     }, 500);
   }
 });
-// P734: a hard reload can restore an encrypted portfolio before the pageShown
+// A hard reload can restore an encrypted portfolio before the pageShown
 // event registration runs; render the active route once so the lock gate owns
 // the visible surface immediately instead of leaving the unlocked shell open.
 if (document.getElementById('page-portfolio') && document.getElementById('page-portfolio').classList.contains('active')) {
@@ -1471,11 +1460,11 @@ if (document.getElementById('page-portfolio') && document.getElementById('page-p
 }
 });
 
-// v59.42: CHAT_DEFAULT_CHIPS is deleted. Its only reader, chatRenderChips, wrote into per-page #chat-<ctx>-chips
+// CHAT_DEFAULT_CHIPS is deleted. Its only reader, chatRenderChips, wrote into per-page #chat-<ctx>-chips
 // containers that no markup has; the AI panel's chips come from src/ui/chat/panel.js _aiDefaultChips.
 
 // ═══ v29.1: 대화 기록 localStorage 저장/열람 시스템 ═══════════════════
-// v48.27 (P8): 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)
+// 200→100건 + 응답 300→200자 truncate (한글 UTF-8 3bytes 고려, ~100KB 한도)
 const CHAT_HISTORY_LS = 'aio_chat_history';
 const CHAT_HISTORY_MAX = 50; // v52.79/WP-AI4: 30일 retention/off policy
 
@@ -1507,7 +1496,7 @@ function _saveChatHistory(history) {
   while (history.length > CHAT_HISTORY_MAX) history.shift();
   try { localStorage.setItem(CHAT_HISTORY_LS, JSON.stringify(history)); return true; }
   catch(e) {
-    // v49.79 P424/R161: QuotaExceededError 강화 처리 — 자동 prune + 사용자 toast 알림 (silent fail 차단)
+    // QuotaExceededError 강화 처리 — 자동 prune + 사용자 toast 알림 (silent fail 차단)
     var isQuotaExceeded = (e && (e.name === 'QuotaExceededError' || e.code === 22 || /quota/i.test(String(e.message || ''))));
     try {
       while (history.length > 50) history.shift();
@@ -1533,7 +1522,7 @@ function _saveChatHistory(history) {
   }
 }
 
-// v46.6: AI 응답 피드백 저장
+// AI 응답 피드백 저장
 function _aiFeedback(fbId, score) {
   try {
     var fb = JSON.parse(localStorage.getItem('aio_ai_feedback') || '[]');
@@ -1560,13 +1549,13 @@ function saveChatEntry(ctxId, question, answer) {
   return _saveChatHistory(history);
 }
 
-// v59.42: openChatHistory (the 대화 기록 overlay) is deleted. Its only opener was a header button injected into
+// openChatHistory (the 대화 기록 overlay) is deleted. Its only opener was a header button injected into
 // .aio-chat .acp-header panels that no markup has, so the overlay could not be reached.
 
-// v57.77: getDataAge / renderStaleWarning retired (their only sinks, the risk-monitor grids, are gone).
+// getDataAge / renderStaleWarning retired (their only sinks, the risk-monitor grids, are gone).
 // ═══ v48.14: 한국 주요 이슈 카드 자동 렌더링 (Agent P1-21 — newsCache 재사용) ═══
 // kr-home 진입 시 호출. 08:00 KST 완료 24h 한국 관련 뉴스 Top 4 자동 추출해 카드 교체.
-// v53.7 (P725): renderKrIssues 퇴역 — kr-home 이슈 컨테이너가 페이지와 함께 삭제됨
+// renderKrIssues 퇴역 — kr-home 이슈 컨테이너가 페이지와 함께 삭제됨
 
 // ═══ 테마별 최신 뉴스 자동 매칭 (newsCache에서 테마 구성종목·이름 기반 필터) ═══
 // 테마 Top 3에 대해 최근 7일 뉴스 최대 3건 자동 주입 — narrative의 정적 수치 보완용

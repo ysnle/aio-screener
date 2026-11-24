@@ -20,6 +20,9 @@ import { QUADRANTS, readingOf, zoneKey, activeView, viewItems, shortSession, krC
 import { SECTOR_PERIODS, rankSectorPeriod, sectorPeriodMode, sectorPeriodValue, themeDefinitionOf, themeItemLabel, usCloseSession } from '../../../data/selectors/theme-flow.js';
 import { memberRoleParts, memberTable } from './detail.js';
 
+// 시장 상태's 자금 흐름 named, for the last session, the sub-themes that split inside one theme, the
+// members that split inside one sub-theme, and the strongest and weakest sub-themes (market-flow.js buildThemeFlow). They
+// are a theme reading, so they live here, in the 지난 거래일 fold beside the S&P 500 map.
 export function renderThemeDaySplits({ documentRef, root, store }) {
   const host = documentRef?.getElementById('themes-day-splits');
   if (!host) return;
@@ -31,6 +34,7 @@ export function renderThemeDaySplits({ documentRef, root, store }) {
     flow.strongLine, flow.weakLine
   ].filter(Boolean) : [];
   host.hidden = !lines.length;
+  // The map left this fold (it is open under the verdict), so the fold shows only when there are splits.
   const fold = host.closest?.('details');
   if (fold) fold.hidden = !lines.length;
   if (!lines.length) { host.replaceChildren(); return; }
@@ -44,6 +48,10 @@ export function renderThemeDaySplits({ documentRef, root, store }) {
   host.replaceChildren(heading, list);
 }
 
+// The 섹터 흐름 분석 box (sector-perf-analysis) and its writer are retired — it repeated the 섹터 회전 판정
+// sentence and the 1일·1주 bars right above it.
+
+// KR themes from the published screener rows; the summary states what is actually covered.
 export function renderKrThemeArtifact({ documentRef, root, store }) {
   const host = documentRef?.getElementById('kr-themes-artifact-read');
   if (!host) return;
@@ -52,15 +60,19 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
   const read = krThemeArtifactRead({ themeMap, rows: store?.getState?.()?.screener?.rows || [] });
   const krClose = krCloseSession(store?.getState?.()?.screener?.rows || []);
   const summary = documentRef.getElementById('kr-themes-summary');
+  // v58.80 (first-users bundle 3): before the rows arrive "28개 중 0개" read as a final count.
   const load = (store?.getState?.()?.screener?.rows || []).length ? 'ready' : screenerRowsState(root);
   if (summary) summary.textContent = load === 'ready' ? `한국 테마 (${read.totalThemes}개 중 ${read.coveredThemes}개를 ${krClose ? `${shortSession(krClose)} ` : ''}확정 종가로 비교)` : `한국 테마 (${DATA_STATE_CHIPS[load]})`;
   host.dataset.aioKrThemeArtifactRenderer = 'native';
   host.hidden = false;
   const el = (tag, text, className) => { const node = documentRef.createElement(tag); if (text != null) node.textContent = text; if (className) node.className = className; return node; };
+  // Section frame: the title carries the close as its chip; the shown-rows rule and the click hint are its hover.
   const heading = el('h2', '한국 테마 흐름 ', 'briefing-h2');
   if (krClose) heading.append(asOfChip(documentRef, `${shortSession(krClose)} 종가`, `${shortSession(krClose)} 확정 종가 기준${read.usable.length > 12 ? `, 상위 6개와 하위 6개(전체 ${read.usable.length}개 중)` : ''}`));
   host.replaceChildren(heading, el('p', read.read, 'flow-lead'));
   const max = Math.max(1, ...read.usable.map((theme) => Math.abs(theme.ret1m)));
+  // The strongest and the weakest six both show (the reading names the weak ones), and bars
+  // grow from a zero line so a loss never looks like a long gain.
   const shown = read.usable.length > 12 ? [...read.usable.slice(0, 6), ...read.usable.slice(-6)] : read.usable;
   for (const theme of shown) {
     const line = el('div', null, 'stock-read-bars');
@@ -79,6 +91,7 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
     const value = el('span', `1개월 ${signedText(theme.ret1m, 1)}%, ${theme.covered}/${theme.members}종목`, 'stock-read-bar-value');
     value.title = `3개월 ${theme.ret3m == null ? '—' : `${signedText(theme.ret3m, 1)}%`}${theme.above50Pct != null ? `, 50일선 위 ${theme.above50Pct}%` : ''}`;
     item.append(track, value);
+    // The Korean theme rows were not clickable, so a Korean theme's detail had no entry here.
     const label = typeof root?.openKrThemeDetail === 'function' ? el('button', theme.label, 'stock-read-bar-label theme-strength-open') : el('span', theme.label, 'stock-read-bar-label');
     if (label.tagName === 'BUTTON') {
       label.type = 'button';
@@ -88,9 +101,11 @@ export function renderKrThemeArtifact({ documentRef, root, store }) {
     line.append(label, item);
     host.append(line);
   }
-  syncKrLiveBlocks(documentRef, root);
+  syncKrLiveBlocks(documentRef, root); // v58.75
 }
 
+// v59.70 (X bookmarks #2): one metric tab after the periods — each sector's S&P 500 members within 5% of the 52-week
+// closing high (domain/themes/near-high.js). It reads the 11 sectors only, so it is disabled in the other scopes.
 export const NEAR_HIGH_TAB = Object.freeze(['near52', '고점 근처']);
 // The period tabs replace the static 1일·1주 pair (index.html #sector-perf-tabs) with native buttons.
 export function ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady = false } = {}) {
@@ -120,6 +135,9 @@ export function ensureSectorPeriodTabs(documentRef, root, store, route, mode, { 
   });
 }
 
+// v58.75 (persona review): outside Korean hours the live-quote KRX blocks read "시세 미수신", "수집 대기…" and "유효 테마
+// 0/28". They hide while no Korean live quote covers any theme (the close-based read above is the view then); the fold
+// itself stays only while a theme detail is open in it.
 export function krLiveThemeCount(root) {
   try { return root?.AIO?.evaluateKrThemeQuoteCoverage?.(root._liveData || {}, root.KR_THEME_MAP || {})?.validThemeCount || 0; } catch (_) { return 0; }
 }
@@ -183,7 +201,7 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
   const host = documentRef?.getElementById('sector-perf-bars');
   if (!host) return;
   host.dataset.aioThemePerformanceBarsRenderer = 'native';
-  const view = activeView(root);
+  const view = activeView(root); // The card's one scope control (11섹터 · 세부 업종 · 전체) drives the bars too
   const screenerRows = screenerRowMap(store);
   const allItems = selectThemesItems(store?.getState?.() || {});
   const nearHigh = view === 'sectors' ? nearHighOf(store) : null;
@@ -193,16 +211,20 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     renderNearHighBars(documentRef, root, host, viewItems(allItems, 'sectors'), nearHigh);
     return;
   }
+  // v59.70 (owner: a week over 15 sessions): 1주 first when the rotation artifact carries it, else 1개월, else the day.
   const mode = sectorPeriodMode(allItems, screenerRows, root?._aioSectorPeriod);
   ensureSectorPeriodTabs(documentRef, root, store, route, mode, { nearHighReady });
   if (host.dataset.metric) { delete host.dataset.metric; delete host.dataset.session; writeSectorCardChip(documentRef, root); }
   // SPY over the same window: the screener's SPY row, only when it closed on the rotation's session.
   const close = usCloseSession(root);
   const { period, spy, rows: ranked } = rankSectorPeriod(viewItems(allItems, view), screenerRows, mode, { close });
+  // The bar badge reads the same banded zone as the scatter — a point within ±band of 100 is 경계 here too.
   const rows = ranked.map((row) => ({ ...row, label: themeItemLabel(root, row.item), quadrant: zoneKey(root, row.item) || 'neutral' }));
   host.replaceChildren();
+  // The hero names the 11 sectors' ends over the same period the bars show (default 1주), on every period change.
   const sectorRows = view === 'sectors' ? rows : viewItems(allItems, 'sectors').map((item) => ({ label: themeItemLabel(root, item), pct: sectorPeriodValue(item, screenerRows, mode) }));
   writeSectorHero(documentRef, root, sectorRows, period[1]);
+  // The bars are the verdict card's second tab, so with no return yet the tab says so instead of hiding a section.
   if (!rows.length || !rows.some((row) => row.pct != null)) {
     const empty = documentRef.createElement('div');
     empty.textContent = '섹터 성과 데이터 수신 대기';
@@ -211,8 +233,10 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     return;
   }
   const maxAbs = Math.max(0.5, ...rows.map((row) => Math.abs(row.pct ?? 0)));
+  // v58.79 (layout over captions): the close date is the card head's chip; the column rule (right %p = SPY over the same
+  // period, — = no value) is the bars' hover.
   host.title = `${period[1]} 수익률${close ? `, ${shortSession(close)} 미국 종가 기준` : ''}${spy != null ? `, 오른쪽 %p = 같은 기간 SPY(${signedText(spy, 2)}%) 대비` : ', SPY 같은 기간 값 대기'}, 값이 없는 섹터는 —, 오른쪽 끝 = 약 50거래일 회전 단계`;
-  const colors = { Leading: 'var(--color-text-success)', Improving: 'var(--color-text-secondary)', Weakening: 'var(--color-text-secondary)', Lagging: 'var(--color-text-warning)' };
+  const colors = { Leading: 'var(--color-text-success)', Improving: 'var(--color-text-secondary)', Weakening: 'var(--color-text-secondary)', Lagging: 'var(--color-text-warning)' }; // The scatter's quadrant colours
   rows.forEach((row) => {
     const line = documentRef.createElement('div');
     line.dataset.themePerformanceRow = row.symbol;
@@ -240,12 +264,14 @@ export function renderThemePerformanceBars({ documentRef, root, store, route }) 
     const value = documentRef.createElement('span');
     value.textContent = row.pct == null ? '—' : `${signedText(row.pct, mode === '1d' || mode === '1w' ? 2 : 1)}%`;
     value.className = 'thp-perf-value';
-    value.style.color = dirColor(row.pct, mode === '1d' || mode === '1w' ? 2 : 1);
+    value.style.color = dirColor(row.pct, mode === '1d' || mode === '1w' ? 2 : 1); // Colour follows the printed digits
     const vsSpy = documentRef.createElement('span');
     vsSpy.textContent = row.vsSpy == null ? '' : `${signedText(row.vsSpy, 1)}%p`;
     vsSpy.className = 'thp-perf-vs';
     if (row.vsSpy != null) vsSpy.title = `${period[1]} SPY 대비 ${signedText(row.vsSpy, 2)}%p`;
     const badge = documentRef.createElement('span');
+    // run-2 (F12): "선도" beside the day's worst move read as a contradiction; the badge is the ~50-session
+    // rotation stage, not this period's move, so it says so.
     const quadrantWord = RRG_QUADRANT_WORDS[row.quadrant];
     badge.textContent = row.pct == null ? '대기' : (row.quadrant === 'Border' ? RRG_BORDER_LABEL : quadrantWord ? `50일 ${quadrantWord}` : '중립');
     if (quadrantWord) badge.title = `약 50거래일 상대강도 회전 단계 — 위 막대(${period[1]})와 다른 기간입니다`;
@@ -323,6 +349,8 @@ export function resolveThemeDetailId(root, item) {
   return theme?.id ? String(theme.id) : null;
 }
 
+// "11/2까지 1주, 강한 섹터는 …, 약한 섹터는 …입니다." — the 11 sectors over the bars' period. Without values the
+// ~50-session rotation reading stays the hero (renderThemes) and its copy under the scatter hides.
 export function writeSectorHero(documentRef, root, rows, periodLabel) {
   const read = documentRef.getElementById('rrg-rotation-read');
   const detail = documentRef.getElementById('rrg-rotation-detail');
@@ -332,6 +360,7 @@ export function writeSectorHero(documentRef, root, rows, periodLabel) {
   const close = usCloseSession(root);
   const name = (part) => part.map((row) => `${row.label} ${signedText(row.pct, 1)}%`).join(', ');
   const up = list.filter((row) => directionOf(row.pct, 1) === 'up').slice(0, 3), down = list.filter((row) => directionOf(row.pct, 1) === 'down').slice(-2).reverse();
+  // "11개 섹터가 대부분 내렸고" on a week all 11 fell — 모두 when every sector moved that way.
   const all = (dir) => (list.every((row) => directionOf(row.pct, 1) === dir) ? '모두' : '대부분');
   const body = up.length && down.length ? `강한 섹터는 ${name(up)}, 약한 섹터는 ${name(down)}입니다.`
     : up.length ? `${list.length}개 섹터가 ${all('up')} 올랐고 ${name(up)}가 앞섰습니다.` : `${list.length}개 섹터가 ${all('down')} 내렸고 ${name(list.slice(-3).reverse())}가 가장 약했습니다.`;
@@ -342,6 +371,7 @@ export function writeSectorHero(documentRef, root, rows, periodLabel) {
 }
 
 export function themeDetailDeepLink(hash, root) {
+  // One parser with the boot route (src/ui/navigation/theme-detail.js); a retired id opens the plain list.
   const ids = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP.map((theme) => String(theme?.id || '')) : null;
   return legacyThemeDetailTarget(hash, ids);
 }
@@ -356,6 +386,8 @@ export function createChip(documentRef, item, root) {
   // LC-54: 상세 제공 여부를 데이터 계약으로 드러낸다 — 읽기 전용 칩과 상세 버튼이
   // 같은 외형이면 사용자가 눌러도 아무 일도 없는 이유를 알 수 없다.
   chip.dataset.detailAvailability = detailId ? 'available' : 'summary-only';
+  // The quadrant says where a sector stands on relative strength; the period return is a separate number.
+  // Only the return is coloured, so a lagging sector that rose today no longer reads as a green chip in 후행.
   chip.textContent = `${symbol} ${label}`;
   if (pct != null) {
     const change = documentRef.createElement('span');
@@ -363,6 +395,8 @@ export function createChip(documentRef, item, root) {
     change.style.color = dirColor(pct, 2);
     chip.append(change);
   }
+  // A 경계 chip names the quadrants it sits between; a chip whose last five sessions of relative strength ran
+  // against its quadrant says so (rrgRecentReading), so 선도 is never read as "still strengthening" during a break.
   const reading = item?.rrgReading || null;
   if (reading?.border || reading?.reversal) {
     chip.dataset.rrgReading = reading.label;
@@ -371,15 +405,17 @@ export function createChip(documentRef, item, root) {
     note.style.color = 'var(--color-text-secondary)';
     chip.append(note);
   }
-  chip.className = detailId ? 'thp-chip thp-chip--detail' : 'thp-chip';
+  chip.className = detailId ? 'thp-chip thp-chip--detail' : 'thp-chip'; // The dashed border marks summary-only; opacity dropped the % below 4.5:1
   if (detailId) {
     chip.type = 'button';
     chip.dataset.action = 'showThemeDetail';
     chip.dataset.arg = detailId;
     chip.dataset.passEl = '1';
-    chip.setAttribute('aria-label', `${chip.textContent} — 테마 상세 열기`);
+    chip.setAttribute('aria-label', `${chip.textContent} — 테마 상세 열기`); // The name starts with the visible text
     chip.title = '테마 상세 열기';
   } else {
+    // Codex browser audit H23: the leading sector (e.g. XLK) ended the "which sector → why → which company" path.
+    // A summary-only sector now takes the reader to the sub-theme ranking, where its themes and names are listed.
     chip.setAttribute('role', 'button');
     chip.tabIndex = 0;
     chip.style.cursor = 'pointer';
@@ -401,6 +437,7 @@ export function renderThemes({ documentRef, root, store, route }) {
   items.forEach((item) => {
     const quadrant = String(item?.quadrant || 'unknown');
     if (groups.has(quadrant) && quadrant !== 'Border' && finite(item?.rsRatio) != null && finite(item?.rsMomentum) != null) {
+      // The neutral band (경계) and the five-session reversal travel with the item to the chip and the verdict line.
       const reading = readingOf(root, item);
       const reversal = reading?.reversal ? `상대강도 ${signedText(reading.check.change, 1)}% ${reading.reversal === 'fell' ? '반락' : '반등'}` : null;
       groups.get(reading?.border ? 'Border' : (reading?.quadrant || quadrant)).push({ ...item, rrgReading: reading, recentReversal: reversal });
@@ -413,9 +450,11 @@ export function renderThemes({ documentRef, root, store, route }) {
   const detailCount = items.filter((item) => resolveThemeDetailId(root, item)).length;
   const legend = documentRef.createElement('div');
   legend.dataset.themeDetailLegend = 'true';
+  // Codex browser audit H22: the quadrant and the chip return answer different windows; the legend says which.
+  // The quadrant definition is the fold's method note (rrg-method-note); the legend keeps only the chip facts.
   legend.textContent = `칩 옆 % = 1일 등락률로, 사분면(가로 50일 평균 대비, 세로 10거래일 전 대비)과 별개라 후행 섹터가 그날은 올랐을 수 있습니다. '최근 5거래일 상대강도'는 그 주 움직임이 평소 1주 움직임의 2배를 넘게 사분면과 반대일 때만 붙습니다. 실선 칩 ${detailCount}개는 테마 상세, 점선 칩 ${Math.max(0, items.length - detailCount)}개는 세부 테마 순위로 연결됩니다.`;
   legend.className = 'thp-quadrant-legend';
-  if (classifiedCount) container.appendChild(legend);
+  if (classifiedCount) container.appendChild(legend); // No quadrant legend over an empty quadrant area
   const appendUnclassified = () => {
     const pending = items.filter((item) => !groups.has(String(item?.quadrant || 'unknown')) || String(item?.quadrant) === 'Border' || finite(item?.rsRatio) == null || finite(item?.rsMomentum) == null);
     if (!pending.length) return;
@@ -425,6 +464,10 @@ export function renderThemes({ documentRef, root, store, route }) {
     pending.forEach((item) => catalog.appendChild(createChip(documentRef, item, root)));
     container.appendChild(catalog);
   };
+  // With no sector judged, the page shows one status line (the verdict) instead of empty quadrants and
+  // hides the dead view tabs. The sector chips stay as a flat row: they are the page's entry to each theme's detail.
+  // The scatter (rrg-chart-block) is the section's visual and hides with nothing to plot; the chips then sit in
+  // the fold, opened once so the entry stays visible (a reader's own close is kept), and closed again once quadrants exist.
   const chartBlock = documentRef.getElementById('rrg-chart-block');
   const fold = documentRef.getElementById('rrg-quadrant-fold');
   const foldSummary = fold?.querySelector?.('summary');
@@ -434,7 +477,7 @@ export function renderThemes({ documentRef, root, store, route }) {
     if (foldSummary) foldSummary.textContent = '섹터 목록, 상대강도 판정 전';
     if (fold && !fold.dataset.aioAutoOpened) { fold.open = true; fold.dataset.aioAutoOpened = 'true'; }
     appendUnclassified();
-    if (viewTabs) viewTabs.hidden = false;
+    if (viewTabs) viewTabs.hidden = false; // The scope also drives the bars, so it stays without a judged sector
     const read = documentRef.getElementById('rrg-rotation-read');
     const close = usCloseSession(root);
     if (read) read.textContent = `섹터 회전은 최신 확정 종가의 상대강도 기록이 들어오면 표시합니다${close ? ` (지금 기록은 ${shortSession(close)} 종가까지)` : ''} — 그 전에는 아래 S&P 500 지도와 세부 테마 순위로 읽습니다.`;
@@ -471,6 +514,7 @@ export function renderThemes({ documentRef, root, store, route }) {
     container.appendChild(card);
   });
   appendUnclassified();
+  // One reading of all four quadrants, tied to the 시장 상태 breadth axis.
   let revisions = null;
   try { revisions = marketInterpretation(root, { store }).indexEarnings?.sectors || null; } catch (_) { revisions = null; }
   const flow = rotationFlow({ groups: Object.fromEntries(groups), regime: readMarketRegime(root), revisions });

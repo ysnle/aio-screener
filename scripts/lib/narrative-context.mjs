@@ -11,16 +11,16 @@ import { readFileSync } from 'node:fs';
 import { LESSONS } from '../../src/domain/knowledge/learning-core.js';
 import { reportVerification } from '../../src/domain/news/report-verification.js';
 
-// v59.70: the story registry and its detection live in src/domain/narrative/narratives.js, so the screens read the same
+// The story registry and its detection live in src/domain/narrative/narratives.js, so the screens read the same
 // stories the prompt does (market-day.json `narratives`); this module keeps the prompt text built from them.
-// v60.19: a mover's 급등/급락 is its own volatility's grade (move-size.js), not the |5-session| ≥ 10% that admits it.
+// A mover's 급등/급락 is its own volatility's grade (move-size.js), not the |5-session| ≥ 10% that admits it.
 import { annualVolMoveGrade, moveVerb } from '../../src/domain/market/session/move-size.js';
 import { NARRATIVE_WINDOW_HOURS, NARRATIVE_RECENT_HOURS, NARRATIVE_MAX_THEMES, NARRATIVE_MOVER_MIN_ABS_RET5D, NARRATIVE_THEMES, telegramPosts, moverMemos } from '../../src/domain/narrative/narratives.js';
 export { NARRATIVE_WINDOW_HOURS, NARRATIVE_RECENT_HOURS, NARRATIVE_MAX_THEMES, NARRATIVE_MOVER_MIN_ABS_RET5D, NARRATIVE_THEMES };
 export const NARRATIVE_SAMPLES_PER_THEME = 2;
 
 // A rumour is named as one ("루머", "설"); an anonymous-source report is "미확인". Both stay labelled in the prompt.
-// 2026-10-19: the rule is shared with the news bundle (src/domain/news/report-verification.js).
+// The rule is shared with the news bundle (src/domain/news/report-verification.js).
 const CITED_RE = /블룸버그|Bloomberg|로이터|Reuters|파이낸셜\s?타임스|\bFT\b|WSJ|월스트리트저널|CNBC|폴리티코|Politico|The Information|닛케이|Nikkei|중국\s?언론|JP\s?모건|JPMorgan|모건\s?스탠리|Morgan Stanley|골드만|Goldman|BofA|노무라|Nomura|번스타인|Bernstein|씨티|\bCiti(?:group)?\b|도이체|Deutsche|KeyBanc|키뱅크|가트너|Gartner/gi;
 
 export function narrativeVerification(text) {
@@ -36,7 +36,7 @@ const clip = (text, max) => {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 };
 
-// v58.71 (owner 2026-10-23): the channels also relay numbers the reading never saw — economic releases against the
+// The channels also relay numbers the reading never saw — economic releases against the
 // forecast, analyst target-price and rating actions, reported quarters against estimates and the daily list of what
 // Korean retail investors bought in US stocks (signals extracted by scripts/lib/telegram-signals.mjs). They join the
 // context as one CHANNEL_DATA block: still secondary, still not METRIC_EVIDENCE.

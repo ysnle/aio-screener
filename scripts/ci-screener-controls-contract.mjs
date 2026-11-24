@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (S12): the screener's setup row is one bar — 표에서 찾기, 시장, 섹터, + 조건, 보기 — plus the two view tabs.
+// The screener's setup row is one bar — 표에서 찾기, 시장, 섹터, + 조건, 보기 — plus the two view tabs.
 // Owner decision D3 cut about 30 always-visible controls to that set and moved the ScreenDefinition JSON drawer to
 // 개발자 모드. This gate counts what a reader actually sees above the ranking table on the real route, so a control
 // added back to the bar (or a panel that stops folding) fails here instead of drifting in.

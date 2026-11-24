@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 const repository = process.env.GITHUB_REPOSITORY || 'ysnle/aio-screener';
 const token = process.env.GITHUB_TOKEN || '';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const MAX_PAGES = 30; // P1597: 49/day * 30 days plus bounded dispatch/retry headroom.
+export const MAX_PAGES = 30; // 49/day * 30 days plus bounded dispatch/retry headroom.
 
 // P1166 (17 작업 단위 2 / 06 O02): data domain별 독립 SLO. 예전에는 market+screener run을 한 풀로
 // 합쳐 성공률을 냈기 때문에, 한 도메인이 아예 0회 실행돼도 다른 도메인의 30일 성공이 window를
@@ -70,7 +70,7 @@ export async function deriveExpectedRunsPerDay(workflowFile, root = repoRoot) {
   return cronRunsPerDayFromSource(source);
 }
 
-// Codex audit F30 (2026-10-15): the denominator was today's cron x the window, so a schedule changed mid-window was
+// Codex audit F30: the denominator was today's cron x the window, so a schedule changed mid-window was
 // back-filled over all 30 days. With the workflow file's commit history the expected count is summed per segment
 // ([{ from, perDay }] ascending; each segment runs until the next one starts).
 export function expectedRunsFromHistory(segments, fromMs, toMs) {
@@ -183,11 +183,11 @@ const summarize = (runs) => {
 
 // 17: 수동 실행을 추가해 분모를 유리하게 바꾸지 않는다 → workflow_dispatch run은 lane 계산에서
 // 제외하고 개수만 남긴다. 취소·미실행은 별도 상태로 기록한다(성공률 분모에는 남는다).
-// R24-07/P1242: 예정 도착(scheduled arrival)은 `schedule` event만 측정한다. 종전에는
+// 예정 도착(scheduled arrival)은 `schedule` event만 측정한다. 종전에는
 // workflow_dispatch만 제외하고 push 등 나머지 trigger를 전부 scheduled로 세어, 30일간 push 성공만
 // 있는 lane도 MEASURED·창 PASS가 될 수 있었다. 다른 trigger는 별도 lane의 사실이므로 제외하고
 // 개수·종류만 남긴다. 결과적으로 push-only 창은 NOT_OBSERVED이며 PASS가 될 수 없다.
-// F30: the data-plane Worker's dispatches are the designed scheduler (P1377: GitHub cron ran every 4-6 h), not an
+// F30: the data-plane Worker's dispatches are the designed scheduler (GitHub cron ran every 4-6 h), not an
 // operator's manual run. They carry trigger=scheduler, which the workflow's run-name puts in display_title, so they
 // count toward delivery; operator dispatches stay excluded. scheduledArrivalRate keeps its GitHub-cron meaning.
 export const isAutomatedDispatch = (run) => run.event === 'workflow_dispatch' && /(?:^|[\s·(])scheduler(?:$|[\s)])/.test(String(run.display_title || ''));
@@ -231,7 +231,7 @@ const buildLane = (runs, { workflow, required, expectedRuns, expectedRunsBasis =
 
 // 순수 계산부: 네트워크 없이 repro fixture로 검증할 수 있도록 export한다.
 export function buildSloWindow({ observed = {}, cadencePerDay = {}, cadenceHistory = {}, query = {}, alertEvidence = {}, now: evaluatedAt = new Date(), cutoff: evaluatedCutoff = evaluatedAt, repository: repo = repository, collectionMode = 'MEASURED_RUNTIME' }) {
-  // P1597: future/invalid timestamps and duplicate API run IDs cannot create evidence.
+  // future/invalid timestamps and duplicate API run IDs cannot create evidence.
   observed = Object.fromEntries(Object.keys(SLO_DOMAINS).map(id => {
     const seen = new Set();
     const runs = (observed[id] || []).filter(run => {
@@ -278,7 +278,7 @@ export function buildSloWindow({ observed = {}, cadencePerDay = {}, cadenceHisto
         everySourcePaginated: incompleteSources.length === 0
       },
       // 하위 호환 필드: 종전 소비자가 읽던 pooled artifact/watchdog 요약. PASS 판정에는 쓰지 않는다.
-      // R24-07/P1242: this pooled compatibility summary counts schedule arrivals only, like the lanes.
+      // This pooled compatibility summary counts schedule arrivals only, like the lanes.
       artifact: summarize([...(observed.market || []), ...(observed.screener || [])]
         .filter((run) => new Date(run.created_at) >= since && run.event === 'schedule')),
       watchdog: lanes.watchdog ? { ...lanes.watchdog } : null,

@@ -1,3 +1,6 @@
+// The company model the AI panel reads (root.__aioCompanyAnalysis) and the 시총·PER line under the price. v59.51 retired the
+// second company summary; 2026-11-19 (종목 개요) moved the rest: the DART accounts are rows of 재무 한눈에, the latest
+// earnings brief sits on 재무 공시, and the AI hand-off is a button of the overview's action row (companyAskButton).
 import { buildCompanyAnalysis } from '../../domain/entity/company-analysis.js';
 import { businessProfileFor } from '../../domain/entity/business-profiles.js';
 import { requestFiscalHistory, issuerSic, debtBasisFor } from './fiscal-read.js';
@@ -10,26 +13,32 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { dividendYieldText } from '../../domain/screener/dividend-text.js';
 import { KR_FUNDAMENTALS, SCENARIO_STATE } from '../../data/artifact-registry.js';
 const mdOf = (date) => { const m = String(date || '').match(/^\d{4}-(\d{2})-(\d{2})/); return m ? `${Number(m[1])}/${Number(m[2])}` : ''; };
+// Review (8m, semi-expert panel): the numbers a reader looks for first, on one line, each with its own date. US
+// listings only (Korean listings have their own OpenDART block); a value that is not there is left out, never estimated.
 export function keyMetricsLine(row, consensus, earnings = [], today = new Date().toISOString().slice(0, 10), schedule = null) {
   if (!row) return null;
   const parts = [];
   const close = mdOf(row.factorSessionDate);
   const mcap = readRowNumber(row, 'mcap', 'display'), pe = readRowNumber(row, 'pe', 'display');
   const cap = mcap != null && mcap > 0 ? mcap : Number(row.referenceMarketCap?.billions) > 0 ? Number(row.referenceMarketCap.billions) : null;
+  // $4.61T / $95B read as English units to a Korean reader; the same 조/억 달러 as the calendar.
   if (cap) parts.push(`시총 약 ${cap >= 1000 ? `${Number((cap / 1000).toFixed(2))}조 달러` : `${Math.round(cap * 10).toLocaleString('en-US')}억 달러`}${close ? `(${close} 종가)` : ''}`);
   const view = consensusView(row, consensus);
   if (view?.trailingPe != null) parts.push(`직전 4개 분기 PER ${peMultipleText(view.trailingPe)}(조정 EPS)`);
   else if (pe != null && pe > 0) parts.push(row._valuationPeEarningsBasis === 'ttm' && row._valuationPeEarningsThrough ? `최근 4개 분기 PER ${peMultipleText(pe)}(공시 순이익, ${String(row._valuationPeEarningsThrough).slice(0, 7)} 분기까지)` : `최근 회계연도 PER ${peMultipleText(pe)}`);
   if (view?.fwdPe != null) parts.push(`Forward PER ${peMultipleText(view.fwdPe)}(예상치 ${mdOf(view.asOf)})`);
-  const dividend = dividendYieldText(row);
+  const dividend = dividendYieldText(row); // 2026-11-18 (owner: 배당수익률)
   if (dividend) parts.push(dividend);
   const symbol = String(row.sym || row.symbol || '').toUpperCase();
   const next = (Array.isArray(earnings) ? earnings : []).filter((item) => String(item?.symbol || '').toUpperCase() === symbol && String(item?.date || '') >= today).sort((a, b) => String(a.date).localeCompare(String(b.date)))[0];
+  // v58.75 (persona review): the schedule read (next date with session count, or the last report and "미확정") when loaded.
   if (schedule?.text) parts.push(schedule.text);
   else if (next) parts.push(`다음 실적 발표 ${mdOf(next.date)}`);
   return parts.length ? parts.join(', ') : null;
 }
 
+// This renderer reads existing issuer-keyed caches only; no provider or paid calls. Late repaints (DART accounts,
+// fiscal history, consensus) use the latest route state kept on root.
 export function renderCompanyAnalysis({ documentRef: doc, root = globalThis, state }) {
   if (!root) return null;
   root.__aioCompanyArgs = { state };
@@ -37,11 +46,15 @@ export function renderCompanyAnalysis({ documentRef: doc, root = globalThis, sta
   const again = () => { if (root?._currentTickerId === id && doc.getElementById('page-ticker')?.classList.contains('active')) renderCompanyAnalysis({ documentRef: doc, root, ...root.__aioCompanyArgs }); };
   const valuation = doc?.getElementById('ticker-hero-valuation');
   if (valuation && valuation.dataset.symbol !== id) { valuation.dataset.symbol = id; valuation.textContent = ''; valuation.hidden = true; }
+  // First-users run 4 (breaker #11): a symbol the US listing refused has no company to summarise.
   if (!id || root?._aioOnDemandSymbol?.(id)?.status === 'not-listed') { root.__aioCompanyAnalysis = null; return null; }
+  // Korean listings read OpenDART annual accounts (loaded once per TTL; re-render when a new copy arrives).
+  // 2026-10-14 audit #5: the theme stage rows (scenario-state.json) are read here too, not only after 거시 opened them.
   refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed) again(); }).catch(() => {});
   if (/\.K[SQ]$/.test(id)) refreshSharedArtifact(root, KR_FUNDAMENTALS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
   requestFiscalHistory(root, again, 'company');
   let rows = []; try { rows = root?._aioGetCanonicalScreenerRows?.() || []; } catch (_) { rows = []; }
+  // An out-of-universe US listing reads its on-demand row and SEC record (same formulas, computed on request).
   const onDemand = !/\.K[SQ]$/.test(id) && typeof root?._aioOnDemandSymbol === 'function' ? root._aioOnDemandSymbol(id) : null;
   const row = rows.find((item) => String(item.sym || item.symbol || '').toUpperCase() === id) || (onDemand?.status === 'ready' ? onDemand.row : null);
   const candidate = root?._aioEntitySummaries?.[id];
@@ -54,6 +67,7 @@ export function renderCompanyAnalysis({ documentRef: doc, root = globalThis, sta
   let keys = null;
   if (!/\.K[SQ]$/.test(id)) {
     requestConsensusEstimates(root, again);
+    // The line under the price carries the valuation only.
     keys = keyMetricsLine(row, consensusRowFor(root, id), []);
   }
   if (valuation) { if (valuation.textContent !== (keys || '')) valuation.textContent = keys || ''; valuation.hidden = !keys; }

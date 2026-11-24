@@ -1,4 +1,4 @@
-// P1465: the candidate archive records the page's own default ranking before outcomes exist and
+// The candidate archive records the page's own default ranking before outcomes exist and
 // measures each stock on its own completed-session calendar. Fixture checks (no network):
 //  1. the producer ranks the published artifacts through the page's read path (same identity
 //     builder the page uses), and the entry's top fifth is ordered by that ranking;
@@ -7,7 +7,7 @@
 //  4. measured entries are never overwritten by a same-date re-run; old lists are trimmed;
 //  5. the summary only averages entries of the latest model identity;
 //  6. the published artifact (when present) is the declared schema with a consistent summary;
-//  7. (2026-10-16) the candidate model is ranked on the same rows, recorded beside the entry as `shadow`, measured on
+//  7. the candidate model is ranked on the same rows, recorded beside the entry as `shadow`, measured on
 //     the entry's dates and summarized on its own identity, while the default ranking keeps its own definitions.
 import { mkdtemp, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -26,7 +26,7 @@ const root = new URL('../', import.meta.url);
 // 1. Page-path ranking on the repository artifacts.
 const screener = JSON.parse(await readFile(new URL('public-data/screener.json', root), 'utf8'));
 const now = Date.parse(screener.asOf) + 60_000;
-// 2026-10-19: the shadow model's 12-1 momentum reads ret12m, which the factor lane publishes from the 2y history. Until
+// The shadow model's 12-1 momentum reads ret12m, which the factor lane publishes from the 2y history. Until
 // the repository's snapshot carries it, the fixture ranks a temporary copy where ret12m is derived from ret6m, so the
 // shadow path is still exercised; once the snapshot has the field, the published values are used unchanged.
 let rankRoot = root;
@@ -125,7 +125,7 @@ if (!shadow || shadow.model !== CANDIDATE_SHADOW_MODEL.id || !shadow.identity.st
 }
 const loss = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } });
 if (loss.earningsYieldTtm !== -0.4 || loss.bookYield !== 0.5) fail(`signed yields must keep a loss negative: ${JSON.stringify(loss)}`);
-// v57.88 (review): a filer whose last quarter / fiscal year ended years ago has no current yield.
+// A filer whose last quarter / fiscal year ended years ago has no current yield.
 const staleYields = signedYields('X', { price: 10, shares: 1e6 }, { quarters: { X: '2025-03-31:1:-1:r;2025-06-30:1:-1:r;2025-09-30:1:-1:r;2025-12-31:1:-1:d' }, data: { X: '2025-12-31:4:-4:5::::1' } }, Date.parse('2028-06-01T00:00:00Z'));
 if (staleYields.earningsYieldTtm !== null || staleYields.bookYield !== null) fail(`signed yields must drop periods older than the fundamental age limit: ${JSON.stringify(staleYields)}`);
 const shadowArchive = emptyCandidateArchive();

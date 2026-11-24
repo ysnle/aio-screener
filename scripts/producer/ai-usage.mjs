@@ -15,7 +15,7 @@ export function createAiUsage({ env = process.env, fetchImpl = undefined } = {})
   const count = (purpose, ok, reason, usage = null) => {
     const row = step(purpose);
     row.requests += 1;
-    // v59.59: token counts per step (the provider's usage block; counts only). Input tokens per request is the cost
+    // Token counts per step (the provider's usage block; counts only). Input tokens per request is the cost
     // metric the AI-context work is judged by (OpenAI usage baseline 2026-10-26: ~2.5k -> ~11.7k per request).
     if (usage) {
       row.inputTokens = (row.inputTokens || 0) + (Number(usage.inputTokens) || 0);
@@ -54,7 +54,7 @@ export function marketAnalysisOutcome(analysis, usageRow) {
   if (!analysis) return 'analysis-unavailable';
   if (analysis.status === 'verified') {
     if (analysis.retained) return 'retained-previous';
-    if (analysis.salvaged) return 'salvaged'; // v60.02: published after removing its offending lines (salvageMarketAnalysis)
+    if (analysis.salvaged) return 'salvaged'; // Published after removing its offending lines (salvageMarketAnalysis)
     return requests ? (requests > 1 ? 'verified-after-retry' : 'verified') : 'reused';
   }
   return requests ? 'blocked' : (REASON.test(String(analysis.reason || '')) ? analysis.reason : 'blocked');

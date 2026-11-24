@@ -1,3 +1,10 @@
+// v57.54 (owner X packet 2026-10-14, image 3 "밭 온도계"): a per-market price temperature — the S&P 500 and Nasdaq
+// first, with KOSPI, KOSDAQ and Nikkei (no gauge on the sentiment screen before) as the secondary read. The published thermometer's formula
+// is not public, so this is AIO's own documented reconstruction from daily closes only — not that index and not CNN's.
+// D02 holds: no 0-100 average and no 공포~탐욕 band. Each component's rank against its own trailing three
+// years is shown side by side; a market is "과도한 냉각/고온" only when at least three of the five components sit in the
+// bottom/top decile at once, and the evidence line is what the index did after past first days of such spells.
+// Pure function shared by the producer (scripts/build-market-temperature.mjs) and the unit check.
 import { isIsoDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
 import { latestCompletedSession } from '../session/market-calendar.js';
@@ -58,7 +65,7 @@ function rawComponents(closes) {
       const delta = closes[i] - closes[i - 1];
       const up = Math.max(delta, 0), down = Math.max(-delta, 0);
       if (i <= 14) { gain += up / 14; loss += down / 14; } else { gain = (gain * 13 + up) / 14; loss = (loss * 13 + down) / 14; }
-      if (i >= 14) rsi[i] = loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss);
+      if (i >= 14) rsi[i] = loss === 0 ? (gain === 0 ? 50 : 100) : 100 - 100 / (1 + gain / loss); // Flat = 50, as rsiWilder
     }
     if (i >= 20) {
       let s = 0, s2 = 0;
@@ -78,7 +85,7 @@ export function trailingRanks(values, { window = TEMPERATURE_RULES.rankWindow, m
     const v = values[i];
     if (v == null) continue;
     const sample = values.slice(Math.max(0, i - window + 1), i + 1).filter((w) => w != null);
-    if (sample.length >= minSample) out[i] = Math.round(percentileOf(sample, v) * 10) / 10;
+    if (sample.length >= minSample) out[i] = Math.round(percentileOf(sample, v) * 10) / 10; // shared/percentile.js
   }
   return out;
 }
@@ -128,6 +135,10 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
   let streak = 0;
   for (let i = last; i >= 0 && states[i] === states[last]; i -= 1) streak += 1;
 
+  // Evidence: forward price returns after the first day of each spell (a re-entry within clusterGapSessions joins the
+  // previous spell), against every ranked day as the baseline. Spell starts can sit closer together than the horizon
+  // (a 21-session gap is shorter than a 63-session window — codex audit F05, 2026-10-15), so each horizon keeps only
+  // starts at least h sessions after the previous kept one: n is the non-overlapping sample, clusters the spell count.
   const forward = (i, h) => (i + h < n ? (closes[i + h] / closes[i] - 1) * 100 : null);
   const outcomes = {};
   for (const state of ['cold', 'hot']) {
@@ -161,6 +172,8 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
     asOf: dates[last],
     close: round(closes[last], 2),
     change1d: round((closes[last] / closes[last - 1] - 1) * 100, 4), // four decimals: a one-decimal print must not round twice
+    // v58.80 (first-users bundle 1): raw at 4 places was rounded again on screen — the S&P 20-session return -1.546%
+    // stored as -0.0155 printed -1.6% here beside -1.5% elsewhere. Six places keep the one rounding on the screen.
     components: TEMPERATURE_COMPONENTS.map(({ id, label }) => ({ id, label, score: ranks[id][last], raw: round(raw[id][last], 6) })),
     cold: now.cold,
     hot: now.hot,

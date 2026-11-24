@@ -1,3 +1,5 @@
+// Whether the desktop sidebar was left collapsed (localStorage aio_sidebar_collapsed, '1' or ''). UI modules may
+// not touch storage (architecture contract); src/ui/components/sidebar-toggle.js reads and writes through here.
 const SIDEBAR_KEY = 'aio_sidebar_collapsed';
 
 export function readSidebarCollapsed(root = globalThis) {

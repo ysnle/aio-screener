@@ -31,7 +31,7 @@
 
 const CANDIDATE_COMMIT = 'node scripts/verify-refresh-candidate.mjs --expect-commit "$CANDIDATE"';
 
-// v60.50: a data commit touches public-data/ and nothing else. Code state (public-config.json, architecture/*) changes
+// A data commit touches public-data/ and nothing else. Code state (public-config.json, architecture/*) changes
 // only in code commits, so a data commit never needs merging with one. The publisher refuses a set path or a staged path
 // outside this root.
 export const DATA_ROOT = 'public-data/';
@@ -47,14 +47,14 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/history.json',
     ],
     optional: [
-      'public-data/rotation-detail.json', // v59.70 (R11): rotationHistory split from data.json; same commit or live trails vanish
+      'public-data/rotation-detail.json', // rotationHistory split from data.json; same commit or live trails vanish
       'public-data/macro-history.json', // P1426
       'public-data/macro-calendar.json', // P1654
       'public-data/stress-outcomes.json', // P1661
-      'public-data/today-verdict.json', // v58.80 F01
+      'public-data/today-verdict.json', // F01
       'public-data/scenario-outcomes.json', // P1743
       'public-data/scenario-state.json', // P1743
-      'public-data/index-longrun.json', // v60.50: weekly long-run drawdowns and tail moves (daily lane)
+      'public-data/index-longrun.json', // Weekly long-run drawdowns and tail moves (daily lane)
       'public-data/market-day.json', // v59.63
       'public-data/market-temperature.json', // v57.54
       'public-data/official-references.json', // P1734
@@ -82,7 +82,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'public-data/masters/issuer-aggregates.json',
       'public-data/masters/ticker-index-reference.json',
       'public-data/masters/cusip-ticker-map.json',
-      'public-data/masters/managers-store.json', // v59.82: rows live on the masters-store branch
+      'public-data/masters/managers-store.json', // Rows live on the masters-store branch
       'public-data/objects/masters',
       'public-data/masters/history/managers',
     ],
@@ -91,7 +91,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
       'node scripts/ci-masters-contract-check.mjs --staged',
       'node scripts/verify-refresh-candidate.mjs --expect-staged "$CANDIDATE"',
     ],
-    // v59.82: main's manifest must never name a tree the masters-store branch never held.
+    // main's manifest must never name a tree the masters-store branch never held.
     beforeCommit: ['git diff --staged --quiet -- public-data/masters/managers-store.json || node scripts/masters-managers-store.mjs publish'],
     verifyCommit: [CANDIDATE_COMMIT],
     onRebaseFail: 'collision',
@@ -102,7 +102,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     workflow: 'refresh-screener.yml',
     message: 'data: refresh screener and SEC fundamentals',
     candidateFile: 'aio-refresh-screener-candidate.json',
-    // P1757: public-data/sec-fundamentals.json is gitignored and published to the data-store branch (beforeCommit).
+    // public-data/sec-fundamentals.json is gitignored and published to the data-store branch (beforeCommit).
     required: [
       'public-data/screener.json',
       'public-data/sec-fundamentals-summary.json',
@@ -131,11 +131,11 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     ],
     timestampOnly: {},
     afterStage: ['node scripts/verify-refresh-candidate.mjs --expect-staged "$CANDIDATE"'],
-    // P1757: the SEC ledger store is published before main, so main's manifest never names a digest the store lacks.
+    // The SEC ledger store is published before main, so main's manifest never names a digest the store lacks.
     beforeCommit: ['node scripts/sec-fundamentals-store.mjs publish'],
     verifyCommit: [CANDIDATE_COMMIT],
     onRebaseFail: 'collision',
-    // v60.18: the re-run is the bot's own cycle, so it goes as a scheduler run; the operator default forced the extended
+    // The re-run is the bot's own cycle, so it goes as a scheduler run; the operator default forced the extended
     // shard to refetch a current session (2026-11-15 01:31Z: 3,856 rows replaced by 3,669).
     collision: { workflow: 'refresh-screener.yml', inputs: { trigger: 'scheduler' } },
     ciOrigin: 'refresh-screener',
@@ -181,7 +181,7 @@ export const DATA_PUBLISH_SETS = Object.freeze({
     // Only this workflow writes these files, so a rebase cannot change them; the publisher's own parse check suffices.
     verifyCommit: [],
     onRebaseFail: 'collision',
-    collision: { workflow: 'event-briefs.yml', inputs: { trigger: 'scheduler' } }, // v60.19: an automatic re-run, like the two above
+    collision: { workflow: 'event-briefs.yml', inputs: { trigger: 'scheduler' } }, // An automatic re-run, like the two above
     ciOrigin: 'event-briefs',
   }),
 });

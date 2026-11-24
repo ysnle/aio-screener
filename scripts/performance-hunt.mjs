@@ -5,7 +5,7 @@ import { ROUTE_IDS } from '../src/app/routes.js';
 
 const label = process.argv[2] || 'sample';
 if (!/^[a-z0-9-]+$/.test(label)) throw new Error('Invalid sample label');
-// v59.70: the OS picks the port (scripts/lib/browser-gate.mjs); the origin follows the server's ready line.
+// The OS picks the port (scripts/lib/browser-gate.mjs); the origin follows the server's ready line.
 const server = await startLocalServer(0, { label: 'performance-hunt/server' });
 const origin = `http://127.0.0.1:${server.port}`;
 let browser;

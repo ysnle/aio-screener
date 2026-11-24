@@ -1,18 +1,18 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // js/aio-kr-data.js — P1134/R620: index.html 인라인 블록 C(3,473줄)에서 추출한 KR/SEC 데이터 플레인.
 // KR 테마 카드·심층분석(filterKrThemes/initKoreaThemes/showKrThemeDetail/_buildKrThemeDeepAnalysis),
-// (v60.46: VKOSPI 브라우저 수집은 읽는 화면이 없어 퇴역 — 값은 어디에도 표시되지 않았다),
-// (P1671: KR 수급·투자자 TOP10 수집은 표시 소비처가 없어 퇴역), KR_STOCK_DB/KR_THEME_MAP/_KR_SECTOR_MAP,
-// (v59.51: SEC 공시·재무 helpers는 레거시 재무 검색과 함께 퇴역).
+// (VKOSPI 브라우저 수집은 읽는 화면이 없어 퇴역 — 값은 어디에도 표시되지 않았다),
+// (KR 수급·투자자 TOP10 수집은 표시 소비처가 없어 퇴역), KR_STOCK_DB/KR_THEME_MAP/_KR_SECTOR_MAP,
+// (SEC 공시·재무 helpers는 레거시 재무 검색과 함께 퇴역).
 //
 // 왜 새 파일인가: 이 블록을 aio-data.js에 접어넣으면 그 파일이 20k가 되어 index.html의 모놀리스를
 // 데이터 파일로 옮기는 것에 그친다(R620(3) — 압력의 측면 이동). 렌더러가 아니라 수집·정규화 계층이라
 // aio-ui.js/aio-pages.js와도 책임이 다르다.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// v53.7 (P725): the KR page chat chips left with their pages (no chat-kr-* chip container remains);
+// The KR page chat chips left with their pages (no chat-kr-* chip container remains);
 // evidence-first contexts are defined in src/ui/chat/panel.js.
-// v58.63 (architecture audit LEGACY02): the two filters only set inline display on the current cards, so a live-quote
+// The two filters only set inline display on the current cards, so a live-quote
 // re-render brought every card back while the buttons still showed a selection, and the second filter overwrote the
 // first. Both selections are state; one predicate (heat AND sector) runs after every card render.
 var _krThemeFilter = { heat: 'all', sector: 'all' };
@@ -32,7 +32,7 @@ function filterKrThemes(btn, heat) {
   _krApplyThemeFilter();
 }
 
-// v57.77: the card badge, the filter key and the detail header name the weighted intraday move in plain bands.
+// The card badge, the filter key and the detail header name the weighted intraday move in plain bands.
 // The ±1%/±3% cuts are display bands only (no back-tested basis), so the words describe the move, not a grade.
 // data-heat keys stay (hot/warm/cool/cold) because the filter bar and the badge colours read them.
 function _krThemeMoveBand(avg) {
@@ -44,7 +44,7 @@ function _krThemeMoveBand(avg) {
   return { heat: 'cold', label: '-3% 이하' };
 }
 
-// v35.5: 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
+// 카탈리스트 데이터 JS 분리 — 한 곳에서 업데이트 가능
 var KR_THEME_CATALYSTS = Object.freeze({});
 var KR_THEME_CATALYSTS_META = Object.freeze({ status:'unavailable', reason:'정적 카탈리스트 제거 — 최신 뉴스 증거만 허용' });
 function _krCatalystReferenceText() { return ''; }
@@ -80,7 +80,7 @@ window.AIO.evaluateKrThemeQuoteCoverage = function(ld, themeMap) {
   };
 };
 
-// v35.5: 섹터 카테고리 필터
+// 섹터 카테고리 필터
 var _KR_SECTOR_MAP = {
   'tech':     ['semi','ai-sw','robot','photonics_kr'],
   'industry': ['defense','shipbuilding','power-grid','nuclear','battery','auto','construction','steel_chem','logistics','energy_kr','wind_solar','hydrogen'],
@@ -95,13 +95,13 @@ function filterKrSector(btn, sector) {
   _krApplyThemeFilter();
 }
 
-// v53.7 (P725): krSupplyTab 퇴역 — kr-supply 페이지 삭제
+// krSupplyTab 퇴역 — kr-supply 페이지 삭제
 
 // ── Korea Home: live data update ────────────────────────────────
-// v53.7 (P725): initKoreaHome 퇴역 — kr-home 페이지가 통합으로 삭제됨 (지수/배지/ETF 갱신은 이관 대상 아님)
-// v48.99: _aioPageBus 마이그 (P180)
+// initKoreaHome 퇴역 — kr-home 페이지가 통합으로 삭제됨 (지수/배지/ETF 갱신은 이관 대상 아님)
+// _aioPageBus 마이그
 // v51.99/Phase3[A2]: DOMContentLoaded 래핑(P556/R247 템플릿).
-// v53.7 (P725): KR 전용 5페이지를 themes/macro/technical 통합 섹션으로 이관 —
+// KR 전용 5페이지를 themes/macro/technical 통합 섹션으로 이관 —
 // 트리거를 통합 대상 페이지로 재배선. kr-home/kr-supply는 퇴역(전용 init 삭제),
 // 공유 데이터 fetch(KR 시세)는 _aioEnsureKrDataLoaded()로 1회 보장.
 function _aioEnsureKrDataLoaded() {
@@ -109,7 +109,7 @@ function _aioEnsureKrDataLoaded() {
   window._krDynamicLoaded = true;
   if (typeof fetchKrDynamicData === 'function') { try { fetchKrDynamicData(); } catch(_e) {} }
 }
-// v58.76: the developer-only KR macro/technical cards and their writers (initKoreaMacro/initKoreaTechnical) are retired.
+// The developer-only KR macro/technical cards and their writers (initKoreaMacro/initKoreaTechnical) are retired.
 document.addEventListener('DOMContentLoaded', function() {
 _aioPageBus.register('html-kr-shown', 'aio:pageShown', function(e) {
   if (e.detail === 'themes') initKoreaThemes();
@@ -123,16 +123,16 @@ _aioPageBus.register('html-kr-live', 'aio:liveQuotes', function() {
 });
 });
 
-// v53.7 (P725): initKoreaSupply 퇴역 — kr-supply 페이지 삭제. P1671: 수급 fetch도 퇴역, 동적 fetch는 _aioEnsureKrDataLoaded()가 담당.
+// initKoreaSupply 퇴역 — kr-supply 페이지 삭제. 수급 fetch도 퇴역, 동적 fetch는 _aioEnsureKrDataLoaded()가 담당.
 
 function initKoreaThemes() {
   let ld = window._liveData || {};
-  // v53.7 (P725): 테마 progressive 접기 버튼 — 통합 섹션에서 idempotent 보장
+  // 테마 progressive 접기 버튼 — 통합 섹션에서 idempotent 보장
   if (typeof window._aioEnsureKrThemeProgressive === 'function') { try { window._aioEnsureKrThemeProgressive(); } catch(_e) {} }
   refreshKrThemeRuntimeWeights();
   var quoteCoverage = window.AIO && typeof window.AIO.evaluateKrThemeQuoteCoverage === 'function'
     ? window.AIO.evaluateKrThemeQuoteCoverage(ld, KR_THEME_MAP) : { validThemeIds: [] };
-  // v40.4: 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
+  // 카드를 KR_THEME_MAP에서 동적 생성 (정적 HTML 제거됨 — 단일 진실 원천)
   if (typeof renderKrThemeCardsFromMap === 'function') renderKrThemeCardsFromMap();
   // 1. pill: 종목명 · 가격 · 등락률 명확 표시
   document.querySelectorAll('#kr-integrated-themes .kr-ticker-pill[data-live-symbol]').forEach(function(pill) {
@@ -182,7 +182,7 @@ function initKoreaThemes() {
       avg = pcts.reduce(function(a,b){return a+b;}, 0) / pcts.length;
     }
 
-    // 일간 가중평균 등락 구간 (v57.77: 등급이 아니라 등락 폭 표기)
+    // 일간 가중평균 등락 구간 (등급이 아니라 등락 폭 표기)
     var band = _krThemeMoveBand(avg), heat = band.heat, heatLabel = band.label;
 
     // DOM 업데이트
@@ -200,7 +200,7 @@ function initKoreaThemes() {
       statEl.style.color = avg >= 0 ? 'var(--color-data-up)' : 'var(--color-data-down)';
     }
 
-    // v35.5: 카탈리스트 텍스트 JS 변수에서 동적 주입
+    // 카탈리스트 텍스트 JS 변수에서 동적 주입
     var catalyst = _krCatalystReferenceText(KR_THEME_CATALYSTS[themeId] || '');
     var catalystLead = catalyst.length > 260 ? catalyst.slice(0, 260).replace(/\s+\S*$/, '') + '…' : catalyst;
     var catEl = card.querySelector('.kr-theme-catalyst');
@@ -214,7 +214,7 @@ function initKoreaThemes() {
   renderKrThemePerfBars(ld);
   if (typeof _generateKrThemesAnalysis === 'function') _generateKrThemesAnalysis(ld);
 }
-// v40.4: KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
+// KR_THEME_MAP 기반 테마 카드 동적 생성 — 단일 진실 원천(Single Source of Truth)
 // 정적 HTML 카드 제거. KR_THEME_MAP + KR_STOCK_DB + KR_THEME_CATALYSTS에서 자동 생성.
 function renderKrThemeCardsFromMap() {
   var container = document.getElementById('kr-theme-container');
@@ -321,7 +321,7 @@ function renderKrThemeCardsFromMap() {
     '</div>';
   });
 
-  // v58.63 (LEGACY02): the re-render replaces every card; the focused control inside a card is found again by its theme
+  // The re-render replaces every card; the focused control inside a card is found again by its theme
   // and role after the swap, and the reader's filter selection is re-applied.
   var focusedEl = document.activeElement && container.contains(document.activeElement) ? document.activeElement : null;
   var focusedCard = focusedEl && focusedEl.closest ? focusedEl.closest('[data-theme-id]') : null;
@@ -352,7 +352,7 @@ function renderKrThemeCardsFromMap() {
       if (e.target.closest('.kr-ticker-pill') || e.target.closest('.kr-theme-card-more')) return;
       if (typeof showKrThemeDetail === 'function') showKrThemeDetail(themeId);
     });
-    var header = card.querySelector('.kr-theme-header'); // v57.61 WCAG 2.1.1: the header (no nested controls) is the keyboard entry
+    var header = card.querySelector('.kr-theme-header'); // WCAG 2.1.1: the header (no nested controls) is the keyboard entry
     if (header) header.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (typeof showKrThemeDetail === 'function') showKrThemeDetail(themeId); } });
   });
 }
@@ -360,7 +360,7 @@ function renderKrThemeCardsFromMap() {
 function renderKrThemePerfBars(ld) {
   refreshKrThemeRuntimeWeights();
   var c = document.getElementById('kr-theme-perf-bars'); if (!c||!ld||Object.keys(ld).length<5) return;
-  var N={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){N[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
+  var N={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){N[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // One label owner
   var res=[];for(var tid in KR_THEME_MAP){var t=KR_THEME_MAP[tid],ws=0,vs=0;t.forEach(function(s){var d=ld[krTickerToYahoo(s.code)];if(d&&d.pct != null&&s.w>0){vs+=d.pct*s.w;ws+=s.w;}});if(ws>0)res.push({id:tid,name:N[tid]||tid,perf:vs/ws});}
   if(!res.length)return;res.sort(function(a,b){return b.perf-a.perf;});var mx=Math.max.apply(null,res.map(function(r){return Math.abs(r.perf);}));if(mx<0.01)mx=1;
   var h='';res.forEach(function(r,i){var p=r.perf>=0,bw=Math.min(Math.abs(r.perf)/mx*100,100),cl=p?'var(--color-data-up)':'var(--color-data-down)',rk=i<3?'<b style="color:'+cl+';">'+(i+1)+'</b> ':'';
@@ -371,10 +371,10 @@ function showKrThemeDetail(themeId) {
   refreshKrThemeRuntimeWeights();
   var panel=document.getElementById('kr-theme-detail-panel'),content=document.getElementById('kr-theme-detail-content');
   if(!panel||!content)return;var tmap=KR_THEME_MAP[themeId];if(!tmap)return;var ld=window._liveData||{};
-  var CN=window.AIO_KR_THEME_LABELS||{}; // P1327: one label owner (src/domain/themes/kr-themes.js)
+  var CN=window.AIO_KR_THEME_LABELS||{}; // One label owner (src/domain/themes/kr-themes.js)
   var cat=_krCatalystReferenceText(KR_THEME_CATALYSTS[themeId]||'');
   // 테마 통계 계산
-  // v58.63 (architecture audit A05): a stock without a received change (pct null/undefined) used to count as +0.00%, so a
+  // A stock without a received change (pct null/undefined) used to count as +0.00%, so a
   // theme with no quotes read "+0.00% · 상승 비율 0%" and the deep read diagnosed "하락 0개 > 상승 0개". A missing quote is
   // missing: it is left out of every count, the averages show "—" and the diagnosis waits.
   var hasPct=function(d){return !!d&&d.pct!=null&&isFinite(Number(d.pct));};
@@ -391,7 +391,7 @@ function showKrThemeDetail(themeId) {
   var avgText=avg==null?'—':(ip?'+':'')+avg.toFixed(2)+'%';
   var totalStocks=tmap.length,quoted=upCnt+dnCnt,upRatio=quoted>0?Math.round(upCnt/quoted*100):null;
 
-  // v57.77: 등락 구간 표기 (카드와 같은 구간, 등급 아님)
+  // 등락 구간 표기 (카드와 같은 구간, 등급 아님)
   var strength=ws>0?_krThemeMoveBand(avg).label:'시세 미수신',strengthCol=ws>0&&avg>=1?'var(--color-data-up)':ws>0&&avg<=-1?'var(--color-data-down)':'var(--color-text-secondary)';
 
   // 종목 테이블 (등락률 순 정렬)
@@ -467,7 +467,7 @@ function showKrThemeDetail(themeId) {
 function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, topPct, botStock, botPct, sorted, ld, tmap) {
   var h = '<div class="krl-deep">';
   h += '<div class="krl-deep-t">심층 분석</div>';
-  // v58.63 (A05): no received change, no diagnosis.
+  // No received change, no diagnosis.
   if (avg == null || upCnt + dnCnt === 0) return h + '<div class="krl-deep-p">구성 종목 시세를 아직 받지 못해 테마 진단을 보류합니다. 시세가 들어오면 다시 계산합니다.</div></div>';
   var ss = [];
 
@@ -521,7 +521,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   }
 
   // 6) v38.3: 레퍼런스 기반 한국 테마 맞춤 인사이트
-  var kti = (typeof KR_THEME_INSIGHTS !== 'undefined' && KR_THEME_INSIGHTS) ? KR_THEME_INSIGHTS[themeId] : null; // P1315: optional global — bare read threw and aborted every KR theme detail
+  var kti = (typeof KR_THEME_INSIGHTS !== 'undefined' && KR_THEME_INSIGHTS) ? KR_THEME_INSIGHTS[themeId] : null; // Optional global — bare read threw and aborted every KR theme detail
   if (kti) {
     ss.push('');
     ss.push(' <b>테마 인사이트</b>');
@@ -533,7 +533,7 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
     }
   }
 
-  // v48.14: 한국 구조적 내러티브 (KR_THEME_NARRATIVES는 kr_* ID 체계 → KR_INSIGHT_MAP 역매핑)
+  // 한국 구조적 내러티브 (KR_THEME_NARRATIVES는 kr_* ID 체계 → KR_INSIGHT_MAP 역매핑)
   var krNarrKey = null;
   if (typeof KR_INSIGHT_MAP !== 'undefined' && typeof KR_THEME_NARRATIVES !== 'undefined') {
     krNarrKey = Object.keys(KR_INSIGHT_MAP).find(function(k){ return KR_INSIGHT_MAP[k] === themeId; });
@@ -589,12 +589,12 @@ function _buildKrThemeDeepAnalysis(themeId, avg, upCnt, dnCnt, total, topStock, 
   return h;
 }
 
-// v59.42: _enrichMarketCap is retired. It walked KR_STOCK_DB by index, but KR_STOCK_DB is an object keyed by code, so it
+// _enrichMarketCap is retired. It walked KR_STOCK_DB by index, but KR_STOCK_DB is an object keyed by code, so it
 // never wrote a value and the theme-detail '시총' column always read '—'. The column left with it (a sourceless cell);
 // a market cap returns only with a checked source and unit.
 
 // ══════════════════════════════════════════════════════════════════
-// v29.4: Korean Market Data — 대폭 강화
+// Korean Market Data — 대폭 강화
 // ══════════════════════════════════════════════════════════════════
 // Naver Finance API + Yahoo Finance .KS/.KQ + 동적 테마 계산
 // ──────────────────────────────────────────────────────────────────
@@ -612,7 +612,7 @@ var KR_STOCK_DB = {
   '058470': {name:'리노공업', sector:'반도체장비', themes:['semi']},
   '240810': {name:'원익IPS', sector:'반도체장비', themes:['semi']},
   '036930': {name:'주성엔지니어링', sector:'반도체장비', themes:['semi']},
-  '131970': {name:'두산테스나', sector:'반도체테스트', themes:['semi']}, // 2026-10-13: KIND/KOSDAQ150 PDF name; was mislabelled 테크윙
+  '131970': {name:'두산테스나', sector:'반도체테스트', themes:['semi']}, // KIND/KOSDAQ150 PDF name; was mislabelled 테크윙
   '089030': {name:'테크윙', sector:'반도체장비', themes:['semi']},
   '005290': {name:'동진쎄미켐', sector:'반도체소재', themes:['semi']},
   '007660': {name:'이수페타시스', sector:'서버용PCB', themes:['semi']},
@@ -708,7 +708,7 @@ var KR_STOCK_DB = {
   '018880': {name:'한온시스템', sector:'열관리', themes:['auto']},
   // ════════ 로봇 (6) ════════
   '277810': {name:'레인보우로보틱스', sector:'로봇', themes:['robot']},
-  '315640': {name:'딥노이드', sector:'의료AI', themes:[]}, // 2026-10-13: KIND name for 315640 (뉴로메카 is 348340, not in the universe)
+  '315640': {name:'딥노이드', sector:'의료AI', themes:[]}, // KIND name for 315640 (뉴로메카 is 348340, not in the universe)
   '178320': {name:'서진시스템', sector:'통신장비/ESS', themes:['telecom','wind_solar']},
   '454910': {name:'두산로보틱스', sector:'협동로봇', themes:['robot']},
   '056080': {name:'유진로봇', sector:'서비스로봇', themes:['robot']},
@@ -799,7 +799,7 @@ var KR_STOCK_DB = {
   '041190': {name:'우리기술투자', sector:'크립토투자', themes:['crypto']},
   '047080': {name:'한빛소프트', sector:'크립토게임', themes:['crypto']},
   // ════════ v35.8 신규: 의료기기/디지털헬스 재구성 ════════
-  '000250': {name:'삼천당제약', sector:'GLP-1 제약', themes:['medtech_kr']}, // 2026-10-13: was keyed 047820 (초록뱀미디어 in KIND)
+  '000250': {name:'삼천당제약', sector:'GLP-1 제약', themes:['medtech_kr']}, // Was keyed 047820 (초록뱀미디어 in KIND)
   '018670': {name:'SK가스', sector:'에너지', themes:['energy_kr']},
   // ════════ v41.9 신규: 신재생/수소 테마 종목 (양자·UAM·우주는 v59.70 퇴역) ════════
   '112610': {name:'씨에스윈드', sector:'풍력타워', themes:['wind_solar']},
@@ -810,23 +810,23 @@ var KR_STOCK_DB = {
   '032500': {name:'케이엠더블유', sector:'통신장비', themes:['photonics_kr']},
   '218410': {name:'RFHIC', sector:'RF반도체', themes:['photonics_kr']},
   '138080': {name:'오이솔루션', sector:'광모듈', themes:['photonics_kr']},
-  // v46.10: KR_THEME_MAP 누락 종목 보충 (8건)
+  // KR_THEME_MAP 누락 종목 보충 (8건)
   '007310': {name:'오뚜기', sector:'식품', themes:['kfood']},
   '018290': {name:'브이티', sector:'뷰티', themes:['kbeauty']},
-  '950130': {name:'엑세스바이오', sector:'진단키트', themes:['bio']}, // 2026-10-13: KIND name for 950130 (was mislabelled 엑시큐어)
+  '950130': {name:'엑세스바이오', sector:'진단키트', themes:['bio']}, // KIND name for 950130 (was mislabelled 엑시큐어)
   '439090': {name:'마녀공장', sector:'뷰티', themes:['kbeauty']},
   '085660': {name:'차바이오텍', sector:'바이오', themes:['medtech_kr']},
   '950160': {name:'코오롱티슈진', sector:'바이오', themes:['medtech_kr']},
   '322310': {name:'오로스테크놀로지', sector:'의료기기', themes:['medtech_kr']},
 };
 
-// v35.8: 테마별 종목 매핑 + 비중(w) 합계 100
+// 테마별 종목 매핑 + 비중(w) 합계 100
 // 테마 구성만 정적으로 보관한다. 비중은 런타임 시총 커버리지가 충분하면 시총가중,
 // 그렇지 않으면 동일가중으로 계산한다.
 var KR_THEME_MAP = {
 // 정적 구성(코드·테마 소속)만 보관한다. 시총·주도주 서술·가중치는 런타임 산출물로만
 // 채운다 — 주석에 시점 박힌 수치를 남기면 현재값으로 오해된다. 시점 박힌 시총
-// 서술은 제거하고 역할 서술(예: "K방산 절대 대장")만 남긴다(R604).
+// 서술은 제거하고 역할 서술(예: "K방산 절대 대장")만 남긴다.
   'defense': [
     {code:'012450'}, // 한화에어로스페이스 (K방산 절대 대장, 수출 주도)
     {code:'047810'}, // KAI (경공격기/KF-21)
@@ -834,7 +834,7 @@ var KR_THEME_MAP = {
     {code:'064350'}, // 현대로템 (전차/철도)
     {code:'272210'}, // 한화시스템 (C4I/레이더)
     {code:'000880'},  // 한화 (방산 지주)
-    // v59.70 (owner): 한화에어로·KAI·현대로템·한화시스템·LIG·한화는 주력 사업(방산) 기준으로 여기에만 둔다.
+    // 한화에어로·KAI·현대로템·한화시스템·LIG·한화는 주력 사업(방산) 기준으로 여기에만 둔다.
     // 우주·UAM 테마는 이들을 빼면 주력 사업이 우주·UAM인 종목이 남지 않아(효성중공업=전력기기, 한화엔진=선박 엔진) 퇴역,
     // 양자는 5종목 모두 주력이 통신·통신장비라 퇴역했다.
     {code:'103140'}   // 풍산 (탄약 독점)
@@ -969,7 +969,7 @@ var KR_THEME_MAP = {
     {code:'032830'},  // 삼성생명
     {code:'000810'},  // 삼성화재
     {code:'323410'},  // 카카오뱅크 (핀테크)
-    {code:'006800'},  // 미래에셋증권 (P1589: 거래대금 상위 증권사)
+    {code:'006800'}, // 미래에셋증권 (거래대금 상위 증권사)
     {code:'016360'}   // 삼성증권
   ],
   'kfood': [
@@ -977,7 +977,7 @@ var KR_THEME_MAP = {
     {code:'097950'}, // CJ제일제당
     {code:'271560'}, // 오리온
     {code:'004370'}, // 농심
-    {code:'007310'}, // 오뚜기 (P1589: 001800은 오리온홀딩스였음)
+    {code:'007310'}, // 오뚜기 (001800은 오리온홀딩스였음)
     {code:'280360'},  // 롯데웰푸드
     {code:'005180'},  // 빙그레
     {code:'000080'}   // 하이트진로
@@ -1073,14 +1073,14 @@ function refreshKrThemeRuntimeWeights() {
     var total = useCapWeight ? observed.reduce(function(sum, v) { return sum + v; }, 0) : rows.length;
     rows.forEach(function(row, i) {
       row.w = useCapWeight && caps[i] != null ? caps[i] / total * 100 : (useCapWeight ? 0 : 100 / rows.length);
-      row._weightSource = useCapWeight ? 'live-market-cap' : 'equal-weight'; row.wLabel = useCapWeight ? (Math.round(row.w * 10) / 10) + '%' : '동일가중'; // P1327: an equal split is not a measured weight
+      row._weightSource = useCapWeight ? 'live-market-cap' : 'equal-weight'; row.wLabel = useCapWeight ? (Math.round(row.w * 10) / 10) + '%' : '동일가중'; // An equal split is not a measured weight
     });
   });
 }
 
 // Helper: resolve Korean stock code to Yahoo Finance symbol
 function krTickerToYahoo(code) {
-  // KOSDAQ stocks (v35.6: SCREENER_DB 전체 KOSDAQ 종목 동기화 — 40종목)
+  // KOSDAQ stocks (SCREENER_DB 전체 KOSDAQ 종목 동기화 — 40종목)
   var kosdaq = {
     '028300':1,'030520':1,'033100':1,'035900':1,'036930':1,'039030':1,'041020':1,
     '056080':1,'058470':1,'086520':1,
@@ -1092,12 +1092,12 @@ function krTickerToYahoo(code) {
     '214150':1,'328130':1,'338220':1,'322510':1,'049950':1,
     '069540':1,'032500':1,'138080':1,'327260':1,'010170':1,'062970':1,'368770':1,'100590':1,'218410':1,'050890':1,
     '439090':1,'085660':1,'950160':1,'322310':1,'041190':1,
-    '005290':1,'083650':1,'018290':1,'041510':1,'035760':1 // P1589: corrected from listing exchange 2026-10-10
+    '005290':1,'083650':1,'018290':1,'041510':1,'035760':1 // Corrected from listing exchange 2026-10-10
   };
   return code + (kosdaq[code] ? '.KQ' : '.KS');
 }
 
-// v59.51: the SEC EDGAR helpers (fetchSECFilings/fetchSECFinancials/fetchSECFrame/_secFrameRank, SEC_TICKER_CIK) left
+// The SEC EDGAR helpers (fetchSECFilings/fetchSECFinancials/fetchSECFrame/_secFrameRank, SEC_TICKER_CIK) left
 // with the legacy 재무 search; the native entity slice reads the committed SEC projection.
 
 // ══════════════════════════════════════════════════════════════════
@@ -1124,7 +1124,7 @@ async function dynamicTickerLookup(ticker, opts) {
   if (!opts.forceFresh && ld[ticker] && ld[ticker].price) {
     return { ticker: ticker, price: ld[ticker].price, pct: ld[ticker].pct, source: 'cache', cacheAgeMs: isFinite(cachedAgeMs) ? cachedAgeMs : null };
   }
-  // 2. Yahoo chart through the shared relay chain (P1758): the Worker first, a public relay only after the Worker failed
+  // 2. Yahoo chart through the shared relay chain: the Worker first, a public relay only after the Worker failed
   // this request. The v49.78 race sent every lookup to four public relays at once and never tried the Worker; the
   // shared deadline keeps the worst case close to that race.
   window._aioTickerLookupDiag = window._aioTickerLookupDiag || {};
@@ -1197,9 +1197,7 @@ async function dynamicTickerLookup(ticker, opts) {
     } catch(e6) {}
   }
 
-  // v57.79: the personal-key Finnhub /quote fallback (P352) was removed; personal provider keys are retired (v57.67).
-
-  // v49.67 P352 R122: 모든 폴백 실패 → 구조화된 진단 응답 반환 (이전 null → reason/suggestedAction 명시)
+  // 모든 폴백 실패 → 구조화된 진단 응답 반환 (이전 null → reason/suggestedAction 명시)
   var _ftType = ticker.endsWith('.KS') || ticker.endsWith('.KQ') ? 'KR 종목 (.KS/.KQ)' :
                 ticker.includes('=X') ? '환율' :
                 ticker.includes('=F') ? '선물' :
@@ -1227,7 +1225,7 @@ async function dynamicTickerLookup(ticker, opts) {
 
 // ── 1) 한국 매크로 분석 ──
 
-// P1552: the KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
+// The KR analysis paragraphs used to turn the 0-100 market score into a narrative ("favourable environment", "keep a
 // defensive position", "historically rotation was active"). The score has no recorded predictive validation, so the line states
 // the value, its basis and that it is not a forecast, with no colour ladder and no conclusion.
 function _krReferenceScoreLine(label) {
@@ -1252,7 +1250,7 @@ function _generateKrThemesAnalysis(ld) {
     return;
   }
   var validIds = coverage.validThemeIds;
-  var CN={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){CN[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // P1327: one label owner
+  var CN={};Object.keys(window.AIO_KR_THEME_LABELS||{}).forEach(function(k){CN[k]=window.AIO_KR_THEME_LABELS[k].split(' / ')[0];}); // One label owner
   var perfs = [];
   for (var tid in KR_THEME_MAP) {
     var t = KR_THEME_MAP[tid], ws = 0, vs = 0;
@@ -1293,7 +1291,7 @@ function _generateKrThemesAnalysis(ld) {
   else h += '<span>성장·방어 균형. 모멘텀 추종보다 실적 기반 종목 선별 유효.</span>';
   h += '<br>';
 
-  // v38.4: 미국 연동 테마 분석 (매크로 시그널 레퍼런스)
+  // 미국 연동 테마 분석 (매크로 시그널 레퍼런스)
   var usLd = window._liveData || {};
   // v38.4d: ETF 매핑 검증 완료 + 누락 6개 추가. 모든 티커는 _liveData에서 수신 확인됨.
   var usThemeLinks = {
@@ -1332,7 +1330,7 @@ function _generateKrThemesAnalysis(ld) {
     });
   }
 
-  // v38.4: 테마 순환매 사이클 프레임
+  // 테마 순환매 사이클 프레임
   if (perfs.length >= 5) {
     h += '<br><b>【순환매 사이클 진단】</b> ';
     var topPerf = perfs[0].perf, botPerf = perfs[perfs.length - 1].perf;
@@ -1347,7 +1345,7 @@ function _generateKrThemesAnalysis(ld) {
     }
   }
 
-  // v40.4: 매크로 환경 연동 테마 진단
+  // 매크로 환경 연동 테마 진단
   var krMacroVix = usLd['^VIX'] ? usLd['^VIX'].price : null;
   var krMacroWti = usLd['CL=F'] ? usLd['CL=F'].price : null;
   var krMacroKrw = usLd['KRW=X'] ? usLd['KRW=X'].price : null;

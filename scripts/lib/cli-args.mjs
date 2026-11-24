@@ -1,4 +1,4 @@
-// v59.70: strict argument parsing for the scripts that write the ledgers and the version (apply-pending-records,
+// Strict argument parsing for the scripts that write the ledgers and the version (apply-pending-records,
 // record-fix, bump-version). theme-sector ran `apply-pending-records.mjs --help` on 2026-11-04: the script ignored the
 // unknown flag, bumped to v59.70, recorded every thread's entries and deleted the pending files. Now an unknown flag
 // fails before anything is read, and --help (or -h) prints the usage and exits 0. ci-record-fix-check replays both.

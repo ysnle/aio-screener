@@ -1,3 +1,7 @@
+// v58.75 (owner 2026-10-24, '고르는 법' E): how a news reader connects today's items to the market read. Pure functions over
+// the shared macro-crossroads model (lead/alternative branches, their triggers, exposure lists), the schedule rows, the
+// theme map and the channel/screener rows already loaded. Nothing here predicts: each line is a stated condition, a
+// collected expectation or a recorded reaction, and an item without data is left out.
 import { EXPOSURE_TAGS, US_THEME_PROFILES, windFor, WIND_LABELS } from '../scenarios/exposures.js';
 import { formatUsdRevenue, earningsFilterMs, reportedNumber, dedupeEarningsRows } from './schedule.js';
 import { isIsoDay } from '../shared/session-date.js';
@@ -88,6 +92,7 @@ export function eventPreviews({ xr = null, schedule = [], earnings = [], names =
       note: event.id === 'us-fed-rate' && xr.rateHub?.now ? '2년물과 기준금리의 차이는 시장 예상을 어림한 값이며 기간 프리미엄이 섞여 있습니다.' : null });
   }
   const lead = live.find((row) => row.role === '선두')?.item || null;
+  // v59.45 (pipeline review P26-EVENT-01): the schedule's own DST-aware clock (12:00Z/20:05Z were summer-time only).
   const reports = dedupeEarningsRows(earnings).filter((row) => row?.symbol && names[row.symbol] && row.date && Number(row.indexWeight) > 0)
     .map((row) => ({ row, atMs: earningsFilterMs(row) }))
     .filter(({ row, atMs }) => Number.isFinite(atMs) && atMs >= nowMs - 6 * 3600000 && atMs <= horizon && reportedNumber(row.epsActual) == null && reportedNumber(row.revenueActual) == null)
@@ -117,10 +122,14 @@ const SESSION_LABEL = Object.freeze({ bmo: '장 전', dmh: '장중', amc: '장 �
 export function buildEarningsWeek({ earnings = [], weekStart = null, weekEnd = null, rows = [], names = {}, watched = new Set(), held = new Set(), perSession = 8 } = {}) {
   const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
   const inside = (date) => isIsoDay(String(date || '')) && (!weekStart || date >= weekStart) && (!weekEnd || date <= weekEnd);
+  // v59.45 (pipeline review P26-WEEK-01): one row per report (the schedule's dedupe), so a repeated row is not two reports.
   const list = dedupeEarningsRows((Array.isArray(earnings) ? earnings : []).filter((row) => row?.symbol && inside(row.date))).map((row) => {
     const symbol = String(row.symbol).toUpperCase();
     const screener = bySym.get(symbol);
     const mcap = Number(screener?.mcap);
+    // The calendar's estimates for foreign filers are in their reporting currency (KSPI "매출 예상
+    // 1.27조 달러" was tenge), and the row has no currency field. Estimates are shown — and used for ordering — only for an
+    // index member or a name in our screener universe, whose estimates are in dollars.
     const dollarEstimates = Number(row.indexWeight) > 0 || !!screener;
     const eps = dollarEstimates && row.epsEstimate != null && row.epsEstimate !== '' && Number.isFinite(Number(row.epsEstimate)) ? Number(row.epsEstimate) : null;
     return { symbol, name: String(names[symbol] || screener?.name || '').replace(/\s*\(The\)$/i, ''), date: row.date, session: ['bmo', 'dmh', 'amc'].includes(row.hour) ? row.hour : 'unknown',

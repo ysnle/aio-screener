@@ -1,3 +1,7 @@
+// v59.66 (owner 2026-11-03, phase 4): 시장 상태 reads its indicators in pairs. "시장 폭만 본다고 해서 의미가 없듯이 다른 구조와
+//같이 봐야 의미가 생긴다" — breadth means something against the index's own trend, sentiment against volatility and
+// positioning, rates against credit, Korea against the won. Each pair is one plain reading of what the combination says,
+// from closes and published series only (history.json, macro-history.json, market-day.json positioning).
 import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { sessionCloses } from '../indices/index-levels.js';
@@ -8,6 +12,8 @@ import { creditJudgement } from '../../briefing/credit-reading.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const unit = (value) => Math.max(0.04, Math.min(0.96, value));
+// Each pair is also a 2×2 map — x and y run 0..1 (left→right, bottom→top), the four cells name what that
+// combination means, and the dot is where the latest closes sit. cells are [bottom-left, bottom-right, top-left, top-right].
 const quad = (x, y, xAxis, yAxis, cells) => ({ x: unit(x), y: unit(y), xAxis, yAxis, cells });
 const bp = (value) => signedText(value, 0, 'bp');
 const WINDOW = 20;
@@ -31,6 +37,8 @@ function change(closes, n) {
   return start ? (end / start - 1) * 100 : null;
 }
 
+// The equal-weight gap reads with the direction of both indexes. "동일가중이 앞섰다" meant "상승이 넓어졌다"
+// only in a rise; on 11/20 (S&P 500 -9.4%, 동일가중 -4.2%) it meant the fall was heavier in the large caps.
 const GAP_PP = 3;
 function equalWeightGap(spx, rsp) {
   if (rsp.length <= WINDOW || rsp.at(-1).date !== spx.at(-1).date) return '';
@@ -60,10 +68,14 @@ function trendAndBreadth(history) {
   const { broadAbovePct, narrowBelowPct } = RULES.breadthCross;
   let text;
   if (below && b >= broadAbovePct) text = `S&P 500은 50일선 아래(${pct(vs50)})지만 구성 종목의 ${b}%는 아직 50일선 위입니다. 하락이 대형주 몇 곳에 몰린 조정이고 시장 전체가 무너진 것은 아닙니다. 이 비율이 ${narrowBelowPct}% 아래로 내려가면 약세가 넓게 퍼진 것으로 바뀝니다.`;
+  // Breadth says how widely the fall spread; which caps fell more is the equal-weight gap's (below), so
+  // this line no longer adds "대형주 몇 곳의 문제가 아닙니다" — S&P 500 -9.4% against equal weight -4.2% read as its opposite.
   else if (below && b < narrowBelowPct) text = `지수도 구성 종목도 함께 50일선 아래(종목 ${b}%만 위)입니다. 하락이 넓게 퍼져 있습니다.`;
   else if (!below && b < narrowBelowPct) text = `지수는 50일선 위(${pct(vs50)})지만 구성 종목은 ${b}%만 50일선 위입니다. 소수 대형주가 받치는 좁은 상승이라, 그 종목들이 꺾이면 지수도 쉽게 밀립니다.`;
   else if (!below && b >= broadAbovePct) text = `지수와 구성 종목 대부분(${b}%)이 함께 50일선 위입니다. 넓게 받쳐진 상승 추세입니다.`;
   else text = `지수는 50일선 ${below ? '아래' : '위'}(${pct(vs50)}), 구성 종목은 ${b}%가 50일선 위로 중간입니다. 폭이 아직 방향을 정하지 못했습니다.`;
+  // v59.70 (lens plan step 3): a member above a falling 50-day line is a bounce, not participation; when most of the
+  // above-line share sits on falling lines the reading says so.
   const rising = lastValue(history, 'breadth50Rising');
   if (rising !== null && b - rising >= 15) text += ` 다만 50일선 위 ${b}% 중 선 자체가 오르는 종목은 ${Math.round(rising)}%라, 상당수는 내리는 선 위의 반등입니다.`;
   text += equalWeightGap(spx, sessionCloses(history, 'rsp'));
@@ -92,6 +104,8 @@ function volatilityAndSentiment(history, day, macroHistory) {
   // Extreme fear is the gauge's own band (published whole number under RULES.fearGreed.extremeFearBelow).
   const fearful = fg !== null && fearGreedBand(fg).label === '극단 공포';
   let read;
+  // "과거에는 이런 겹침 뒤 반등이 자주 나왔지만" had no count, and the same screen's base rate read
+  // "평소와 구별 안 됨". The credit condition stays, read from the credit judgement of the same close.
   if (stressed && fearful) read = `지수 불안과 심리 공포가 함께 높습니다. ${creditSpread(macroHistory, vixAt)}`;
   else if (stressed) read = '지수 변동성은 커졌지만 심리 지표는 아직 극단 공포가 아닙니다. 투매형 바닥 신호로 보기는 이릅니다.';
   else if (fearful) read = `심리 지수는 극단 공포 쪽인데 VIX는 큰 하락 대비를 보이지 않습니다. 겁은 났지만 투매는 아닌 상태라, 공포만으로 바닥이라고 보기는 어렵습니다.`;
@@ -109,6 +123,7 @@ function ratesAndCredit(history, macroHistory) {
   if (tnx.length <= WINDOW || !macroHistory) return null;
   const end = tnx.at(-1); const start = tnx.at(-1 - WINDOW);
   const yieldBp = (end.value - start.value) * 100;
+  // The credit axis's own 20-session HY change (one reading for every screen), through the same close.
   const spreadBp = hyDelta20Bp(macroHistory, end.date)?.value ?? null;
   if (spreadBp === null) return null;
   const widening = spreadBp >= RULES.credit.widen20dBp;
@@ -126,6 +141,8 @@ function ratesAndCredit(history, macroHistory) {
   return { id: 'rates-credit', title: '금리와 신용', axes: ['rates', 'credit'], asOf: end.date || null, text: `${numbers} ${read}`, map };
 }
 
+// The pair reads both series through the last date they share. On 11/23 the KOSPI close (-3.3%) was
+// paired with the won's 11/20 New York close (+0.9%) and called "함께 나온 하락"; a later KOSPI session is named on its own.
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 function koreaAndWon(history) {
   const kospiAll = sessionCloses(history, 'kospi'); const krwAll = sessionCloses(history, 'usdkrw');
@@ -136,6 +153,7 @@ function koreaAndWon(history) {
   const later = kospiAll.at(-1).date > anchor ? kospiAll.at(-1) : null;
   const k5 = change(kospi, 5); const w5 = change(krw, 5);
   if (!Number.isFinite(k5) || !Number.isFinite(w5)) return null;
+  // A day as large as a week (11/3: -3.6% inside a flat week) is read on the day; otherwise on the week.
   const k1 = change(kospi, 1); const w1 = change(krw, 1);
   const daily = Number.isFinite(k1) && Number.isFinite(w1) && Math.abs(k1) >= 2.5;
   const [k, w, kDown, wWeak, label] = daily ? [k1, w1, -2.5, 0.5, '하루'] : [k5, w5, -3, 1, '5거래일'];

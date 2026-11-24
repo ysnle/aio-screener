@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (owner D6, screen review 12): headline translation belongs to the producers. Every headline a screen shows —
+// Headline translation belongs to the producers. Every headline a screen shows —
 // 뉴스 and 시간대별 시황 (data.json news, newsIntraday, marketTimeline), 오늘의 핵심 and 브리핑 (market-day.json headline
 // facts), 실적 요약 (event-briefs.json headline) — is Korean in the artifact, or its original carries titleKoFailed.
 //   1. translateDayHeadlines on fixtures: reuse, the free path, the failure mark, and no paid fallback.
@@ -25,7 +25,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: 1 and 2 test code on fixtures; 3 validates the published artifacts and also runs in a data run.
+// 1 and 2 test code on fixtures; 3 validates the published artifacts and also runs in a data run.
 await runSections('headline-translation', [
 ['producer-lane', async () => {
 const { translateDayHeadlines } = await load('scripts/build-market-day.mjs');

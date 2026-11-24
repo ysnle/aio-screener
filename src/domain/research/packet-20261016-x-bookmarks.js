@@ -1,9 +1,15 @@
+// The owner's X bookmarks read in full — posts, author threads, quoted posts, long-form
+// articles and every attached image — then cross-checked against what AIO already teaches. Recurring frameworks
+// become analysis frames; dated numbers stay dated with a verification state. Nothing here is a live value, a
+// ranking input or a call — same reference-only shape as packet-20261015.js. The per-item ledger lives in
+// _artifacts/x-bookmarks-20261016/ledger.json.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   id: `${handle}-${statusId}`, author: handle, sourceUrl: `https://x.com/${handle}/status/${statusId}`, publishedAt: date, publishedAtKst: date,
   sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'FRAMEWORK_EXTRACTED', summary, checks: Object.freeze(checks)
 });
 
+// What the full read covered and what it found. Counts are from the 2026-10-16 read; the ledger keeps one row per item.
 export const PACKET_20261016_AUDIT = Object.freeze({
   readOn: '2026-10-16', bookmarks: 834, fetched: 830, fetchErrors: 4, nonInvestment: 102, analyzed: 732, images: 2379, withThreads: 219, withArticles: 268,
   dateRange: Object.freeze(['2022-06-06', '2026-10-16']), previouslyReferenced: 68,
@@ -16,7 +22,11 @@ export const PACKET_20261016_AUDIT = Object.freeze({
     '추정치 수정 이력을 모은다는 서술을 실제 수집 범위(최근 4주 상향·하향)에 맞춤(지식 베이스)',
     '10/14 패킷의 온도계 이미지 출처와 84% 수치의 근거를 바로잡음'
   ]),
+  // The per-item pass over frame/scenario/screener-rule rows left partial, missing or conflict by the full read —
+  // each one merged into a frame or a scenario branch, left partial with the measured part proposed to the owner, or declined.
   itemFollowUp: Object.freeze({ reviewedOn: '2026-10-16', items: 152, reflected: 104, partial: 37, proposed: 7, declined: 4, sourcesAdded: 90 }),
+  // Screener rules the bookmarks keep returning to. Recorded for the owner; pocket pivot, base number, ADR floor, down-day
+  // resilience and daily climax signs became optional user conditions in v57.87 (technical/follow-through.js).
   screenerCandidates: Object.freeze(['포켓 피벗(상승일 거래량 > 직전 10일 최대 하락일 거래량)', '분배일 집계', '베이스 번호(1~4번째)', 'ADR% 하한', '지수 하락 종가일의 상대 회복력', 'Stockbee 5일·10일 상승/하락 비율', '분기 ±25% 종목 수', '클라이맥스 징후(주봉)']),
   sourceErrors: Object.freeze([
     'KKDW_KOREA 2025-11-22: PIK 비중과 자산 커버리지 비율을 작성자가 다른 기준으로 읽음 — 프레임만 쓰고 수치는 쓰지 않음',

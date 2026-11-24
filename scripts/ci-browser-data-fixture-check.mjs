@@ -27,7 +27,7 @@ const check = (label, ok) => { if (!ok) failures.push(label); };
 
 // 1. The pin's own consistency (blocks everywhere). Whether live data still has the pinned structures is drift, a
 // live-data judgement: scripts/ci-browser-data-pin-drift-check.mjs (liveData: content — reports in CI, fails in the
-// data watchdog twin and locally). v59.70 (integration review 89e8c881): this gate used to fail the next source push
+// data watchdog twin and locally). v59.70: this gate used to fail the next source push
 // as soon as refresh-data wrote a new structure (history.v2, putCall removed, rotation-detail.json).
 const manifest = readManifest();
 const integrity = checkPinIntegrity(manifest);
@@ -94,7 +94,7 @@ check('v59.70 a map with other data keys is not drift', drift({ ...pinned, meta:
 check('v59.70 null against a number is not drift', drift({ ...pinned, rows: [{ sym: 'NVDA', price: null, tags: [] }] }).length === 0);
 check('v59.70 a scalar replaced by an object is drift', drift({ ...pinned, meta: { ...pinned.meta, asOf: { date: 'x' } } }).includes('meta.asOf'));
 const scratch = mkdtempSync(join(tmpdir(), 'aio-browser-data-'));
-// P2635: a later row can omit a key that an earlier row supplied as an empty array.
+// A later row can omit a key that an earlier row supplied as an empty array.
 const optionalRows = [{ missing: [], value: 1 }, { value: 2 }];
 const persistedShape = JSON.parse(JSON.stringify(schemaShape(optionalRows)));
 check('P2635 an optional empty field survives a pin and row reordering',
@@ -152,7 +152,7 @@ check('v59.70 the pin is installed before the gates run', /install --from "\$SNA
 const watchdog = loadYaml(readFileSync(join(root, '.github/workflows/watchdog-browser.yml'), 'utf8'));
 const crons = (watchdog.on?.schedule || []).map((entry) => entry.cron);
 const hours = crons.flatMap((cron) => String(cron.split(' ')[1]).split(','));
-// v59.80: only the live-data shards; the repin job that follows them pins the data they passed on purpose.
+// Only the live-data shards; the repin job that follows them pins the data they passed on purpose.
 const watchdogRuns = JSON.stringify(watchdog.jobs.browser);
 check(`v59.70 watchdog-browser runs twice a day: ${crons.join(' ')}`, hours.length === 2);
 check('v59.70 watchdog-browser runs every CI browser group on live data', JSON.stringify(watchdog.jobs.browser.strategy.matrix.group) === JSON.stringify(ci.jobs.browser.strategy.matrix.group) && !/browser-data-fixture|AIO_BROWSER_CLOCK_AT|AIO_BROWSER_DATA_ROOT/.test(watchdogRuns));

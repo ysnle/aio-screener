@@ -30,9 +30,9 @@ const BUDGETS = [
   { id: 'masters-quarter-view', bytes: size('public-data/masters/history-index.json') + largestManagerShard(), budget: 260_000 },
   { id: 'masters-principles', bytes: size('public-data/masters/manager-principles.json'), budget: 10_000 },
   { id: 'masters-ticker-reference', bytes: size('public-data/masters/ticker-index-reference.json'), budget: 200_000 },
-  // v57.81: lazy official US listing (~12k symbols, columnar). The client refuses more than 2 MiB (src/data/us-listings.js).
+  // Lazy official US listing (~12k symbols, columnar). The client refuses more than 2 MiB (src/data/us-listings.js).
   { id: 'us-listings', bytes: size('public-data/us-listings.json'), budget: 1_200_000 },
-  // v57.81: the extended screener shard is fetched only when a reader picks 확장. Estimate ~4,200 rows × ~1.2-1.5 KB
+  // The extended screener shard is fetched only when a reader picks 확장. Estimate ~4,200 rows × ~1.2-1.5 KB
   // after row-default encoding ≈ 5-6.3 MB; the 15 MB cap leaves room for the unencoded worst case (4,200 × 2.6 KB ≈ 11 MB).
   // Over the cap, split by membership (R2000 / Nasdaq-only shards) or trim detail-only fields.
   { id: 'screener-extended-shard', bytes: size('public-data/screener-extended.json'), budget: 15_000_000 },
@@ -44,21 +44,21 @@ const BUDGETS = [
   // columns on the latest two years + issuer SIC; src/ui/components/fiscal-read.js 1 MiB), the earnings calendar (six-week
   // universe map; artifact-registry.js EARNINGS_CALENDAR 512 KiB) and consensus estimates (surprise history; 1 MiB).
   { id: 'sec-fiscal-history', bytes: size('public-data/sec-fiscal-history.json'), budget: 1_048_576 },
-  // v59.48: the SEC runtime projection the screener and stock pages read; scripts/ci-sec-runtime-projection-check.mjs fails it
+  // The SEC runtime projection the screener and stock pages read; scripts/ci-sec-runtime-projection-check.mjs fails it
   // above 1 MiB, and before this row nothing warned at 90% (it reached the bound with no notice before recordDefaults).
   { id: 'sec-fundamentals-summary', bytes: size('public-data/sec-fundamentals-summary.json'), budget: 1_048_576 },
   { id: 'earnings-calendar', bytes: size('public-data/earnings-calendar.json'), budget: 524_288 },
   { id: 'consensus-estimates', bytes: size('public-data/consensus-estimates.json'), budget: 1_048_576 },
-  // v59.42: ~120 days of FOMC and mover briefs (~3-5 KB each) plus a release text while its call summary is pending;
+  // ~120 days of FOMC and mover briefs (~3-5 KB each) plus a release text while its call summary is pending;
   // the client reads at most 1 MiB (src/data/artifact-registry.js EVENT_BRIEFS).
   { id: 'event-briefs', bytes: size('public-data/event-briefs.json'), budget: 1_048_576 },
-  // v59.42: 50 top-name weight rows; the client reads at most 64 KiB (src/data/artifact-registry.js KR_INDEX_WEIGHTS).
+  // 50 top-name weight rows; the client reads at most 64 KiB (src/data/artifact-registry.js KR_INDEX_WEIGHTS).
   { id: 'kr-index-weights', bytes: size('public-data/kr-index-weights.json'), budget: 65_536 }
 ];
 
-// v58.81 (P2093, refresh 10/26): `--only <prefix>` checks one lane's budgets (the 13F lane runs it for `masters-`), so an
+// v58.81 (refresh 10/26): `--only <prefix>` checks one lane's budgets (the 13F lane runs it for `masters-`), so an
 // oversized lane file is caught inside its own degradable step and restored there instead of refusing the whole refresh.
-// v60.14: every file the browser reads with a byte cap (src/data/artifact-registry.js maxBytes) is watched at that cap —
+// Every file the browser reads with a byte cap (src/data/artifact-registry.js maxBytes) is watched at that cap —
 // above it the client refuses the file and the block goes empty. The hand list above covered 16 files; the registry
 // names the rest (macro-history, market-day, scenario-state, rotation-detail, ...), so a new descriptor is covered
 // the day it is added.

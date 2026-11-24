@@ -1,13 +1,22 @@
+// v59.36 (roadmap 11, layer 4 boot sequence): the master boot sequence moved out of js/aio-data.js unchanged —
+// initV20DataEngine, which js/aio-ui.js calls on DOMContentLoaded: server data first, then the timed provider phases
+// and the recurring scheduler. The boot-phase object (_aioBootPhase) and newsCache it reads stay declared in the classic
+// scripts; a module resolves those names in the shared global scope.
+// src/app/compatibility-globals.js installs this before DOMContentLoaded.
 import { readHistoryRows } from '../domain/market/indices/history-rows.js';
 
 export function installBootSequence(window = globalThis) {
+  // js/aio-data.js _aioLoadHistory expands history.json through the one reader.
   window.__aioReadHistoryRows = readHistoryRows;
   async function initV20DataEngine() {
     _aioBootPhase.quoteReady = false;
     console.log('[AIO v20] ═══════════════════════════════════════');
     console.log('[AIO v20] Data Engine v20 초기화 시작');
+    // 서버 데이터(data.json) 먼저 적용 — 프록시 실패와 무관하게 즉시 신선한 화면
     try { await _aioLoadServerData(); } catch(_) {}
+    // 30분 주기 재로드 + 1분 나이 배지 갱신 시작 (boot-only 갭 해소)
     try { _aioStartServerDataPolling(); } catch(_) {}
+    // 일별 히스토리 로드(차트 소비자 데이터 레이어, 충분히 누적 시 시드 대체)
     try { _aioLoadHistory(); } catch(_) {}
     try { _aioLoadOperatorNote(); } catch(_) {}
     console.log('[AIO v20] ═══════════════════════════════════════');

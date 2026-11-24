@@ -5,6 +5,11 @@ function requirement(id, maxAgeMs, options = {}) {
   return Object.freeze({ id, maxAgeMs, required: options.required !== false, direction: !!options.direction, marketRevision: !!options.marketRevision, cycle: options.cycle || null });
 }
 
+// A02: the news cycle closes daily at 08:00 KST (23:00 UTC). A wall-clock 30-hour allowance let
+// yesterday's cycle read as current all day. A cycle is current only when it is the latest one that should have
+// been published (the newest 08:00 KST boundary at least `graceMs` ago).
+// `newsIntraday` (articles after the 08:00 cut, '08:00 이후 장중 속보 · 잠정') is a provisional slot beside this
+// completed cycle, not a requirement — an empty slot is a quiet session, never a stale page.
 const NEWS_CYCLE = Object.freeze({ boundaryUtcHour: 23, graceMs: 3 * HOUR });
 export function expectedCycleEnd(now, { boundaryUtcHour, graceMs } = NEWS_CYCLE) {
   const ready = new Date(now - graceMs);
@@ -20,7 +25,7 @@ export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
   briefing: Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
   'market-news': Object.freeze([requirement('news.completedCycle', 30 * HOUR, { cycle: NEWS_CYCLE }), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
   technical: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true }), requirement('breadth.us', 4 * DAY)]),
-  charts: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]),
+  charts: Object.freeze([requirement('technical.history', 4 * DAY), requirement('market.^GSPC', 4 * DAY, { direction: true, marketRevision: true })]), // 기술적 분석: index closes
   screener: Object.freeze([
     requirement('screener.snapshot', 4 * DAY),
     requirement('screener.factorCoverage', 4 * DAY),
@@ -35,7 +40,7 @@ export const PAGE_DATA_TIMELINE_CONTRACTS = Object.freeze({
   'theme-detail': Object.freeze([requirement('themeDetail.quoteCoverage', 4 * DAY, { direction: true })]),
   macro: Object.freeze([requirement('macro.cpi', 50 * DAY), requirement('macro.pce', 75 * DAY), requirement('macro.employment', 50 * DAY), requirement('macro.fedRate', 50 * DAY), requirement('market.^TNX', 4 * DAY, { marketRevision: true })]),
   fxbond: Object.freeze([requirement('market.DX-Y.NYB', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.KRW=X', 2 * DAY, { direction: true, marketRevision: true }), requirement('market.^TNX', 4 * DAY, { marketRevision: true }), requirement('market.^IRX', 4 * DAY, { marketRevision: true }), requirement('sentiment.hySpread', 4 * DAY)]),
-  fundamental: Object.freeze([requirement('fundamental.referenceScope', 450 * DAY)])
+  fundamental: Object.freeze([requirement('fundamental.referenceScope', 450 * DAY)]) // Selected issuer or actual watchlist scope.
   // A04: the retired options route has no contract (its alias redirects to 시장 상태).
 });
 

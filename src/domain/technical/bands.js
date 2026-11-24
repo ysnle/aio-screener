@@ -1,3 +1,11 @@
+// v57.81 (analysis audit 2026-10-15, screener + stock): one owner for the buffers every trend label passes. A price
+// 0.01% over its 50-day line read "상승 추세" and "추세 양호"; MRVL after a 13.8% five-session fall read the same; a
+// stock 6.9% under the line was coloured favourable. The buffers are in units of the stock's own average daily range
+// (ADR, the published adrPct) so a volatile name needs a larger move to count:
+//   - within NEAR_LINE_ADR of the 50-day line, above or below, is "50일선 부근" — the side is not readable yet;
+//   - a five-session fall of more than RECENT_DROP_ADR daily ranges is a short-term break that a slow up-trend label
+//     must not hide (two full daily ranges in a week is well outside a normal week for that stock).
+// A missing input never passes: the favourable states need every value they test.
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { peakEarningsPe, peakEarningsNote } from '../screener/peak-earnings.js';
 import { RULES } from '../rules/thresholds.js';
@@ -5,6 +13,7 @@ import { extensionMultiple, extensionStateFor } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
+// Boundary contract: screener row numbers are read through the readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
 
 /** |distance to the 50-day line| below this many average daily ranges = 부근 (neither side). v57.84: RULES constant. */
@@ -80,6 +89,8 @@ function classifyTrendDaily({ s50, s200, adr = null, drop = null, positionOnly =
   if (s50 == null || s200 == null || !Number.isFinite(s50) || !Number.isFinite(s200)) return null;
   const line200 = s200 >= 0 ? `200일선 위(${signed(s200)})` : `200일선 아래(${signed(s200)})`;
   const hasAdr = adr != null && adr > 0;
+  // R4-03: the 50-day band needs only the ADR. With the five-session return missing the row skipped it and a close
+  // 0.05% over the line read "50일선은 회복(+0.1%)" — the 0.01% call v57.81 removed. The band is tested first.
   if (hasAdr && Math.abs(s50) < NEAR_LINE_ADR * adr) {
     return { id: 'near50', tone: 'neutral', label: '50일선 부근', drop,
       text: `50일선과 ${signed(s50)} 차이로 일평균 변동폭(${adr.toFixed(1)}%)의 ${NEAR_LINE_ADR}배 안 — 50일선 위인지 아래인지 아직 가를 수 없는 자리이고, ${line200}입니다${drop?.broken ? `. ${recentDropText(drop)}` : ''}` };
@@ -107,6 +118,9 @@ export function bufferedTrend(row) {
   return classifyTrend({ s50: value(row, 'pctSma50'), s200: value(row, 'pctSma200'), adr: finite(row?.adrPct), drop: recentDrop(row) });
 }
 
+// v59.71 (owner 11/07 '가격 움직임과 거래량'): the trend stays a price reading (the three screens share its states), and the
+// volume beside it says whether the move carried weight — the screener's own follow-through fields: 50-day-average-plus
+// down days of 1%+ in the last 25 sessions (shown from 5, row-presentation.js) and pocket pivots in the last 10.
 export const HEAVY_DOWN_NOTICE = 5;
 export function trendVolumeNote(row, trend = bufferedTrend(row)) {
   if (!trend) return '';
@@ -148,6 +162,7 @@ export function modelContraryEvidence(row) {
   if (rsi == null) unchecked.push('RSI');
   else if (rsi >= overbought) hits.push(`RSI ${rsi.toFixed(1)} 과열권(${overbought} 이상)`);
   else if (rsi <= oversold) hits.push(`RSI ${rsi.toFixed(1)} 과매도권(${oversold} 이하)`);
+  // A low P/E on a margin far above the company's own prior-year norm (screener/peak-earnings.js).
   const peak = peakEarningsPe(row);
   if (!peak.checked) unchecked.push('이익 정점 PER');
   else if (peak.peak) hits.push(peakEarningsNote(row));

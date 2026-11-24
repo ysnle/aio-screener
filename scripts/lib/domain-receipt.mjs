@@ -71,7 +71,7 @@ export function buildDomainReceipt({
   };
 }
 
-// P1256: 사용자 복구 설명 — "기존값 유지"와 "새 수집 성공"을 같은 성공으로 말하지 않는다.
+// 사용자 복구 설명 — "기존값 유지"와 "새 수집 성공"을 같은 성공으로 말하지 않는다.
 // O05의 기능 수준 언어와 같은 축을 쓴다: 내부 runId 대신 사용자가 지금 무엇을 믿을 수 있는지.
 export function describeDomainReceipt(receipt) {
   const status = receipt?.publication?.status || 'NOT_ATTEMPTED';

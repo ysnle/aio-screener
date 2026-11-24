@@ -7,7 +7,6 @@ import { chromium } from 'playwright';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const shell = readFileSync(path.join(root, 'index.html'), 'utf8').replace(/\r\n/g, '\n');
 const chat = readFileSync(path.join(root, 'src', 'ui', 'chat', 'panel.js'), 'utf8').replace(/\r\n/g, '\n');
-// v59.15: the public disclosure helpers moved to the AI request/response pipeline module (indented inside its installer).
 const pipeline = readFileSync(path.join(root, 'src', 'ai', 'response', 'request-pipeline.js'), 'utf8').replace(/\r\n/g, '\n');
 
 function sliceBetween(source, startMarker, endMarker, label) {
@@ -23,7 +22,7 @@ const styleEnd = shell.indexOf('</style>', styleStart);
 assert(styleAnchor >= 0 && styleStart > styleAnchor && styleEnd > styleStart, 'could not extract AI panel CSS');
 const aiPanelCss = shell.slice(styleStart + '<style>'.length, styleEnd);
 assert(/\.ai-msg\{display:flex;flex-direction:column;/.test(aiPanelCss), 'v54.88 production AI message CSS must use a column layout');
-// P1131/R619: _appendAIMsg and the chatSendUnified completion/citation writers moved from
+// _appendAIMsg and the chatSendUnified completion/citation writers moved from
 // index.html's inline block G into src/ui/chat/panel.js. Only the AI-panel CSS above stays in the shell.
 assert(/var _bubbleParent = \(aiBubble \? aiBubble\.parentNode : null\) \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(chat), 'unified completion must append metadata to the content wrapper');
 assert(/var citTarget = _bubbleParent \|\| \(streamEl \? streamEl\.querySelector\('\.ai-msg-content'\) : null\);/.test(chat), 'unified citations must use the content wrapper');
@@ -220,7 +219,7 @@ try {
     };
   }, messageId);
 
-  const widths = [400, 1280]; // P1324: 400 is the fixed desktop AI-panel width; phone/tablet widths are out of scope
+  const widths = [400, 1280]; // 400 is the fixed desktop AI-panel width; phone/tablet widths are out of scope
   const positiveMetrics = {};
   for (const width of widths) {
     await page.setViewportSize({ width, height: 900 });

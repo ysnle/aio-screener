@@ -1,3 +1,7 @@
+// v59.65 (owner 2026-11-03, phase 3): 브리핑's 지난 24시간 section. The face carries the opening line (both markets, with the
+// equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
+// the largest of the smaller stories follow on the face; the reports behind a story and the big moves nothing explains
+// open in folds.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market/day/one-session.js';
@@ -45,11 +49,13 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (!section) return;
   const day = root?.[MARKET_DAY.key] || null;
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
+  // The event briefs tell which big moves were a company's own report (TEAM 11/6); they arrive on their own.
   const briefs = root?.[EVENT_BRIEFS.key] || null;
   if (root && !briefs) refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
+  // The closes and the long-run tables rank the leading index's move in the opening line (day-account rankSaid).
   const longrun = root?.[INDEX_LONGRUN.key] || null;
   if (root && !longrun) refreshSharedArtifact(root, INDEX_LONGRUN).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs, history: root?._aioHistory || null, longrun });
+  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs, history: root?._aioHistory || null, longrun }); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
   const key = `${day.generatedAt}|${briefs?.generatedAt || ''}|${longrun?.generatedAt || ''}|${root?._aioHistory?.at?.(-1)?.date || ''}`;

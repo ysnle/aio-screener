@@ -1,7 +1,7 @@
 // P1736/P1737 manual-reference expiry gate.
 // Every hand-kept value that can go stale (policy rates, KR CPI, the official release schedules, the exchange holiday
 // tables, the operator web snapshots) carries asOf plus nextExpectedAt/maxAgeDays/coverageEnd in the registry inside
-// js/aio-core.js (P1736:BEGIN..END). This gate evaluates that same block against the committed producer artifacts.
+// js/aio-core.js (BEGIN..END). This gate evaluates that same block against the committed producer artifacts.
 //
 // Structure (registry coverage, consumer wiring, fixtures) fails the gate. An expired value does NOT fail it: the screen
 // already holds it as '기한 지남' and the data watchdog opens/updates one issue from --issue-body (owner direction P1542:
@@ -110,7 +110,7 @@ const verifiedLater = fixture({ now: kstNoon('2026-11-10'), produced: W.__normal
 check('P1737 fixture: verified BOK/exports supersede the manual or data.json copies',
   ['bokPolicy', 'krExports'].every((id) => byId(verifiedLater, id).status === 'superseded'), JSON.stringify(verifiedLater.items.map((item) => [item.id, item.status])));
 check('v59.70 S7/I10 no manual KR CPI item remains (the official-reference producer is its only source)', !('krInflation' in W.AIO_MANUAL_REFERENCE) && !verifiedLater.items.some((item) => item.id === 'krInflation'));
-// v58.74: the clock follows the manual BOK meeting (past its grace) so a recorded decision does not move the fixture.
+// The clock follows the manual BOK meeting (past its grace) so a recorded decision does not move the fixture.
 const unverifiedLater = fixture({ now: kstNoon(dayAfter(W.AIO_MANUAL_REFERENCE.bokPolicy.next, 3)), produced: W.__normalize({}, refs('unverified')) });
 check('P1737 fixture: unverified artifact values never supersede; the expired manual values are held (v58.74: clock past the manual BOK meeting)',
   byId(unverifiedLater, 'bokPolicy').held === true);
@@ -124,7 +124,7 @@ check('P1736 fixture: an exhausted schedule row is held',
 check('P1736 fixture: the holiday tables enter review 61 days before the last registered year ends',
   byId(fixture({ now: kstNoon('2027-11-15') }), 'holidays:KRX').status === 'due' && byId(fixture({ now: kstNoon('2028-01-02') }), 'holidays:NYSE').held === true);
 
-// P1737: produced calendars replace (not union) the hand-kept FOMC/ISM rows; a non-ok FOMC status keeps the manual dates.
+// Produced calendars replace (not union) the hand-kept FOMC/ISM rows; a non-ok FOMC status keeps the manual dates.
 {
   const manual = { 'us-fomc': ['2026-09-16', '2026-10-28', '2026-12-09'], 'us-fed-rate': ['2026-09-16', '2026-10-28', '2026-12-09'], 'us-ism-mfg': ['2026-10-01', '2026-11-02'], 'us-cpi': ['2026-10-14'] };
   const payload = (fomcStatus) => ({ schemaVersion: 'macro-calendar.v1', generatedAt: '2026-10-13T00:00:00Z',
@@ -143,16 +143,16 @@ check('P1736 fixture: the holiday tables enter review 61 days before the last re
 
 // ── Consumer wiring ─────────────────────────────────────────────────────────
 const ui = read('js/aio-ui.js');
-const dataJs = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
+const dataJs = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js');
 check('P1736 applyDataSnapshot holds an expired BOK value as 기한 지남', /'bok-rate':\s*refHeld\('bokPolicy'/.test(core));
 check('P1737 v57.60 fed-target fallback and the CP2 text writer use AIO.getFedPolicyRange (the retired cp2-detail DOM sink stays gone)', /'fed-target':[^\n]*_fedRange/.test(core) && !/getElementById\('cp2-detail'\)/.test(core) && /function getCP2Text\(\)[\s\S]{0,700}getFedPolicyRange\(\)/.test(core));
-// v59.68: 오늘's next-event row (daily-loop.js) is retired; 브리핑 and 시장 상태 keep the Fed-range read.
+// 오늘's next-event row (daily-loop.js) is retired; 브리핑 and 시장 상태 keep the Fed-range read.
 for (const file of ['src/ui/components/briefing-read.js', 'src/ui/pages/market.js']) check(`P1737 ${file} reads the Fed range through AIO.getFedPolicyRange`, /getFedPolicyRange/.test(read(file)));
 check('P1736 the BOK next-meeting helper has no hand-typed month/day list', !/function getNextBOK\(\)\s*\{[\s\S]{0,200}var schedule = \[\[/.test(ui) && /function getNextBOK\(\)[\s\S]{0,300}releases\['kr-bok'\]/.test(ui));
 check('P1737 data.json and official-references.json reach applyProducedReferences', /applyProducedReferences\(\{ policyRates:/.test(dataJs) && /official-references\.json/.test(dataJs) && /applyProducedReferences\(\{ officialReferences: payload \}\)/.test(dataJs));
 // The browser fetches the artifact only after data.json announces it (meta.officialReferencesCheckedAt). fetch-data
 // sets that before the lane runs in the same workflow, so the announcement may lag the file by one run: that is a
-// warning, never a failure (P1736: failing here would block the very data commit that first carries the file).
+// warning, never a failure (failing here would block the very data commit that first carries the file).
 // Only an announcement newer than the file itself is wrong.
 const announcedAt = Date.parse(data.meta?.officialReferencesCheckedAt || '');
 const fileCheckedAt = Date.parse(officialReferences?.checkedAt || '');
@@ -168,7 +168,7 @@ console.log('| id | status | asOf | expires | where |');
 for (const item of audit.items) console.log(`| ${item.id} | ${item.status} | ${md(item.asOf)} | ${md(item.expiresAt)} | ${item.where} |`);
 const expired = audit.items.filter((item) => item.held);
 const due = audit.items.filter((item) => item.status === 'due');
-// v60.19: the watchdog issue opens when a value enters its review window (reviewLeadDays), not only once it has expired,
+// The watchdog issue opens when a value enters its review window (reviewLeadDays), not only once it has expired,
 // so the operator hears about a hand-kept artifact before it goes stale (the 180-day structural research record had no
 // warning before its expiry would have stopped the publish path). The digest names the due items too.
 const digest = [...expired.map((item) => `${item.id}@${item.expiresAt}`), ...due.map((item) => `due:${item.id}@${item.expiresAt}`)].sort().join(',');

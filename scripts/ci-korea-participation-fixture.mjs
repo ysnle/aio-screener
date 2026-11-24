@@ -6,7 +6,7 @@ import { runSections } from './lib/gate-sections.mjs';
 await runSections('korea-participation-fixture', [
 // ── section korea-participation (was ci-korea-participation-fixture.mjs) ──
 ['korea-participation', async () => {
-// P1628: Korean sessions, sample denominators, currency-independent participation and missingness.
+// Korean sessions, sample denominators, currency-independent participation and missingness.
 const { default: assert } = await import('node:assert/strict');
 const { buildKoreaParticipation } = await import('../src/domain/market/korea/korea-participation.js');
 const rows=[{sym:'005930.KS',factorSessionDate:'2026-10-08',pctSma50:3,pctSma200:-2,ret1m:2,ret3m:6},
@@ -20,7 +20,7 @@ assert.equal(model.breadth50.pct,50,'P1628 missing/cross-market rows cannot chan
 assert.equal(model.returns.ret3m,8,'P1628 Korean returns use the same session sample');
 assert.equal(buildKoreaParticipation({rows:[],nowMs:Date.parse('2026-10-11T18:00:00Z')}).available,false,'P1628 absent Korean rows generate no market numbers');
 assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direction is not invented institutional flow');
-// P1723: the index day beside the same-session sample median, and the largest-traded names beside an equal-weight median.
+// The index day beside the same-session sample median, and the largest-traded names beside an equal-weight median.
 {
   const { heavyweightLine } = await import('../src/domain/themes/group-strength.js');
   const sample = Array.from({ length: 30 }, (_, i) => ({ sym: `${String(100000 + i)}.KS`, factorSessionDate: '2026-10-13', pctSma50: i % 2 ? 1 : -1, pctSma200: 1, ret1m: 15, ret3m: 20,
@@ -30,9 +30,9 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const shock = buildKoreaParticipation({ rows: sample, themes, nowMs: Date.parse('2026-10-13T09:00:00Z'), index: { date: '2026-10-13', d1: -5.46, d5: -13.8 } });
   assert.equal(shock.session.ret1d, -1, 'P1723 the sample 1-day median comes from the same session');
   assert.equal(shock.session.down3, 8, 'P1723 members down 3% or more are counted');
-  // v57.81: every member fell, so the spread is read first; the size gap still names the large caps (pin "몰린 것으로 보입니다" -> "더 몰렸습니다").
+  // Every member fell, so the spread is read first; the size gap still names the large caps (pin "몰린 것으로 보입니다" -> "더 몰렸습니다").
   {
-    // v60.16: KOSPI is set against KOSPI-listed members only; KOSDAQ names (here far stronger) get their own median.
+    // KOSPI is set against KOSPI-listed members only; KOSDAQ names (here far stronger) get their own median.
     const kq = Array.from({ length: 25 }, (_, i) => ({ sym: `${String(300000 + i)}.KQ`, factorSessionDate: '2026-10-13', pctSma50: 1, pctSma200: 1, ret1m: 1, ret3m: 1, ret1d: 6, ret5d: 9 }));
     const split = buildKoreaParticipation({ rows: [...sample, ...kq], themes, nowMs: Date.parse('2026-10-13T09:00:00Z'), index: { date: '2026-10-13', d1: -5.46, d5: -13.8 } }).session;
     assert.ok(/AIO 추적 코스피 종목 30개 하루 수익률 중앙값 -1\.0%/.test(split.text) && /표본 중앙값 -6\.0%로/.test(split.text) && /코스닥 종목 25개 중앙값은 하루 \+6\.0%, 5거래일 \+9\.0%\.$/.test(split.text)
@@ -45,7 +45,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const line = heavyweightLine(semi);
   assert.ok(/거래대금 상위 3종목의 1개월 수익률 중앙값은 -12\.0%/.test(line) && /동일가중 테마 중앙값 \+15\.0%와 방향이 반대입니다/.test(line), `P1723 the largest-traded names are not hidden by the median (${line})`);
 }
-// v57.81 (analysis audit 2026-10-15): data of the 10/15 KRX close — KOSPI -7.57% (5 sessions -18.4%), 221 of 239 sampled
+// Data of the 10/15 KRX close — KOSPI -7.57% (5 sessions -18.4%), 221 of 239 sampled
 // names down, 175 of them by 3% or more; KOSDAQ -7.65%.
 {
   const now = Date.parse('2026-10-15T09:00:00Z');
@@ -54,7 +54,7 @@ assert.ok(model.missing.includes('외국인·기관 순매수'),'P1628 FX direct
   const spread = buildKoreaParticipation({ rows: wide, nowMs: now, index: { date: '2026-10-15', d1: -7.57, d5: -18.4 } });
   assert.match(spread.session.text, /표본의 92%가 내려 표본 전반으로 번진 하락입니다/, `v57.81 the 92%-falling sample reads 표본 전반으로 번진 하락 (${spread.session.text})`);
   assert.match(spread.session.text, /5거래일은 지수 -18\.4%, 표본 중앙값 -13\.0%로, 표본의 92%가 내려 표본 전반으로 번진 하락입니다 — 지수 하락 폭이 표본 중앙값보다 훨씬 커/, `v57.81 the 5-session gap is read by the same rules (${spread.session.text})`);
-  // v57.88 (screen audit): the 10/16 up day — KOSPI +2.0% against a +4.6% sample median, 90% of the sample up. The gap is
+  // The 10/16 up day — KOSPI +2.0% against a +4.6% sample median, 90% of the sample up. The gap is
   // read with the index direction, and an up day counts the up side.
   const rebound = buildKoreaParticipation({ rows: wide.map((row, i) => ({ ...row, factorSessionDate: '2026-10-16', ret1d: i < 215 ? 4.6 : -1, ret5d: 1 })), nowMs: Date.parse('2026-10-16T09:00:00Z'), index: { date: '2026-10-16', d1: 2.0, d5: 0.5 } });
   assert.ok(/덜 오르고 중소형 종목이 더 올랐습니다/.test(rebound.session.text) && !/하락이/.test(rebound.session.text) && /\(\+3% 이상 215개, 상승 215개\)/.test(rebound.session.text), `v57.88 an up day must not read as a large-cap decline (${rebound.session.text})`);
@@ -99,7 +99,7 @@ console.log('PASS P1628 Korean completed-session participation and honest unavai
 }, 'code'],
 // ── section kr-investor-flows (was ci-kr-investor-flows-fixture.mjs) ──
 ['kr-investor-flows', async () => {
-// v58.55 개편 v2 (5n) 투자자별 순매수; v59.70 (R6(b)) the Naver investor trend: parser on recorded responses, closed days,
+// 개편 v2 (5n) 투자자별 순매수; v59.70 (R6(b)) the Naver investor trend: parser on recorded responses, closed days,
 // a format change, the incremental merge, the stale guard (previous numbers kept, R5 lowers the use) and the read model.
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');

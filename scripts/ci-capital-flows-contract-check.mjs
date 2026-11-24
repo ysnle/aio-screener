@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/ci-capital-flows-contract-check.mjs — 산업 지도 › AI 지도 자본순환 (owner 2026-11-19)
+// scripts/ci-capital-flows-contract-check.mjs — 산업 지도 › AI 지도 자본순환
 //
 // public-data/atlas/capital-flows.json (ai-capital-flows.v1) carries dated deals between AI companies — equity, debt,
 // guarantees, purchase and cloud commitments, supply, leases — with their amounts. It is a file of its own beside the

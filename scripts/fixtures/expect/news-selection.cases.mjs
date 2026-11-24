@@ -1,4 +1,4 @@
-// Expect cases for news scoring and selection (v59.42): what 오늘 (home), 브리핑 and 시장 뉴스 pick from one fixed feed,
+// Expect cases for news scoring and selection: what 오늘 (home), 브리핑 and 시장 뉴스 pick from one fixed feed,
 // each article's score, topic and exclusion, and the one keyword rule every list uses. A change to a keyword list, a
 // weight or a surface contract shows up here as a diff of the picked headlines.
 export const suite = { name: 'news-selection', source: 'src/domain/news/selection.js' };
@@ -22,11 +22,11 @@ const FEED = [
   { title: 'Rosenblatt raises RingCentral stock price target on guidance boost', desc: '', source: 'Investing.com', tier: 3, country: 'us', pubDate: at(12) },
   { title: '반도체는 버티는데 증시는 휘청…코스닥 1%대 급락', desc: '', source: '연합뉴스', tier: 2, country: 'kr', pubDate: at(13), tickers: ['KOSDAQ'] },
   { title: 'SK하이닉스 내일 3분기 실적공개…주주환원 카드 나오나', desc: '', source: '한국경제', tier: 2, country: 'kr', pubDate: at(14), tickers: ['$SK하이닉스'] },
-  // P2116: 'nfl' used to sit inside 'inflation' and drop this headline.
+  // 'nfl' used to sit inside 'inflation' and drop this headline.
   { title: 'Inflation expectations ease as core prices cool for a third month', desc: body('CPI and PCE readings softened.'), source: 'Reuters', tier: 1, country: 'us', pubDate: at(3) },
-  // v59.42: 'tax' (policy exemption) no longer sits inside 'taxi'; 'surge' no longer inside 'Surgery'.
+  // 'tax' (policy exemption) no longer sits inside 'taxi'; 'surge' no longer inside 'Surgery'.
   { title: 'Taxi drivers rally at city hall over new permits', desc: '', source: 'Local Wire', tier: 3, country: 'us', pubDate: at(3) },
-  // v59.42: '핵' (priority) no longer sits inside '핵심'.
+  // '핵' (priority) no longer sits inside '핵심'.
   { title: '핵심 인재 채용 박람회 열려', desc: '', source: '지역신문', tier: 3, country: 'kr', pubDate: at(3) },
   // Exclusion: blacklist, clickbait, sports, crypto price prediction.
   { title: 'NFL ratings slip again as streaming deal looms', desc: '', source: 'ESPN', tier: 3, country: 'us', pubDate: at(2) },
@@ -86,12 +86,12 @@ export default async function cases({ load }) {
     const model = selection.buildNewsSurfaceModel(surfaceId, feed.map((item) => ({ ...item })), { nowMs: NOW, ...WINDOW, ...opts }, context);
     out.push({ name, input: { surfaceId, opts }, output: show(model) });
   }
-  // P2115: five 90-point macro stories must not stop the home cascade at one headline.
+  // Five 90-point macro stories must not stop the home cascade at one headline.
   const crowded = ['Core prices ease for third month', 'Treasury yields jump after CPI', 'Powell signals patience on cuts', 'Payrolls beat forecasts in October', 'Dollar firms on hawkish Fed minutes']
     .map((title, k) => ({ title, source: 'Reuters', tier: 1, country: 'us', topic: 'macro', score: 95 - k, pubDate: at(3), link: `https://example.test/macro-${k}` }))
     .concat([['energy', 'Oil supply cut lifts crude'], ['geo', 'Border talks stall again'], ['earnings', 'Chipmaker beats revenue guide']].map(([topic, title], k) => ({ title, source: 'Reuters', tier: 1, country: 'us', topic, score: 80 - k, pubDate: at(3), link: `https://example.test/${topic}-${k}` })));
   out.push({ name: 'home-crowded-topic', input: crowded.map((item) => `${item.score} ${item.topic} ${item.title}`), output: show(selection.buildNewsSurfaceModel('home', crowded, { nowMs: NOW, ...WINDOW }, context)) });
-  // v60.16: the market-wide lead on 홈 follows the topic keys the producer emits (fxbond, credit), and the source tier
+  // The market-wide lead on 홈 follows the topic keys the producer emits (fxbond, credit), and the source tier
   // (already in the score) is not added again: a tier-3 bond story 10 points behind leads a tier-1 chip story.
   const lead = [['semi', 'Chip makers extend gains', 80, 1], ['fxbond', 'Dollar and Treasury yields climb', 70, 3], ['credit', 'Credit spreads widen on funding worry', 65, 3], ['equity', 'Retailer posts quarterly results', 78, 2]]
     .map(([topic, title, score, tier], k) => ({ title, source: `Wire ${k}`, tier, country: 'us', topic, score, pubDate: at(3), link: `https://example.test/lead-${k}` }));

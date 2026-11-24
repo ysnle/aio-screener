@@ -42,9 +42,9 @@ import { installConnectionPanel } from '../ui/panels/connections.js';
 import { installAskPanel } from '../ui/panels/ask-panel.js';
 import { applyProducedMacroCalendar } from '../data/macro-calendar.js';
 import { installResponsiveShell } from '../ui/components/responsive-shell.js';
-import { installChatLoader } from './chat-loader.js'; // v59.16 roadmap 11: the AI panel script loads after boot
-import { installChatSessions } from '../ui/components/chat-sessions.js'; // owner 2026-10-14: saved conversations
-import { installPanelContexts } from '../ai/context/panel-contexts.js'; // audit 2026-10-14: AI on masters/guide
+import { installChatLoader } from './chat-loader.js'; // Roadmap 11: the AI panel script loads after boot
+import { installChatSessions } from '../ui/components/chat-sessions.js'; // Saved conversations
+import { installPanelContexts } from '../ai/context/panel-contexts.js'; // AI on masters/guide
 import { readMarketRegime } from '../data/selectors/interpretation.js';
 import { collectMarketInputs } from '../data/selectors/market-inputs.js';
 import { alignInput, buildCloseSeries, closeBasis, isUsable } from '../domain/briefing/market-read.js';
@@ -96,14 +96,14 @@ import { createLazyPage, createRouteRegistry, createLifecycleRouter } from './ro
 // Classic-shell compatibility belongs at the app boundary. Domain modules
 // remain pure and reusable in Node/worker contexts without browser globals.
 if (typeof window !== 'undefined') {
-  installCompatibilityGlobals(window); // v57.62: the window.* bridge assignments live in compatibility-globals.js
-// v59.16 (roadmap 11): src/ui/chat/panel.js loads after boot (src/app/chat-loader.js); the panel's context and session glue
+  installCompatibilityGlobals(window); // The window.* bridge assignments live in compatibility-globals.js
+// src/ui/chat/panel.js loads after boot (src/app/chat-loader.js); the panel's context and session glue
 // installs once it has, in the order it used to run at boot.
 installChatLoader(window, document, { onLoaded: () => {
   try { installPanelContexts(window); } catch (_) { /* masters/guide keep the disabled panel */ }
   try { installChatSessions(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() }); } catch (_) { /* the panel keeps working without saved conversations */ }
 }, alongside: () => Promise.all([
-  // v59.70 (P4): the answer orchestrator the panel dispatches through. An automated browser loads the panel at boot,
+  // The answer orchestrator the panel dispatches through. An automated browser loads the panel at boot,
   // before createAIOArchitecture has installed AIO_ARCH, so this waits for it (20 s at most).
   new Promise((resolveArchitecture) => {
     const started = Date.now();
@@ -116,7 +116,7 @@ installChatLoader(window, document, { onLoaded: () => {
   }).catch(() => { /* the panel reports the failed dispatch */ }),
   // The request/response pipeline the chat send waits for (src/app/compatibility-globals.js, loaded on first read).
   window._aioAIPipelineReady,
-  // Owner 2026-10-25: the 맞춤 profile and the touch chip fold live in the panel, outside the boot module budget. v59.70 (D1):
+  // The 맞춤 profile and the touch chip fold live in the panel, outside the boot module budget. v59.70 (D1):
   // they load with the panel script, and the queued calls replay after them, so the first question carries the profile.
   import('../ui/components/ai-profile.js').then(({ installAIProfile }) => installAIProfile(window, document, { storage: (() => { try { return window.localStorage; } catch (_) { return null; } })() })).catch(() => { /* answers fall back to the unset-profile line */ }),
   import('../ui/components/ai-chip-fold.js').then(({ installAIChipFold }) => installAIChipFold(window, document)).catch(() => { /* the chips stay open */ })
@@ -165,7 +165,7 @@ export function resolveInitialRoute({ root = globalThis, hash = root?.location?.
   const canonicalRoute = root?.AIO_ROUTE_REGISTRY?.canonical?.[rawRoute]
     || (rawRoute === 'theme-detail' ? 'themes' : rawRoute);
   if (rawRoute === 'theme-detail') {
-    // v59.70: the address's own id wins; a retired or unknown id opens the list. Without an id the current selection
+    // The address's own id wins; a retired or unknown id opens the list. Without an id the current selection
     // carries over (a knowledge link), never the first theme.
     if (applyLegacyThemeDetailAddress(root, hash)?.named) return ROUTE_IDS.includes(canonicalRoute) ? canonicalRoute : 'home';
     const themeId = String(
@@ -225,10 +225,10 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // the data-layer readers, not through legacy.read* projections.  The legacy
   // facade remains available only for compatibility actions and navigation.
   const runtimeReaders = createRuntimeReaders({ root, now: clock.now });
-  // P1328/R670: the legacy computeTradingScore wrapper reads the one native score-input path.
+  // The legacy computeTradingScore wrapper reads the one native score-input path.
   root._aioReadTradingScoreInputs = () => runtimeReaders.readTradingScoreInputs();
   root._aioFinalizePageDecision = (decision) => finalizePageDecision(decision, store.getState()?.analysis?.signal);
-  // P1338: the facade whitelist never exposed this, so aio-data fell back to () => [] and wiped the saved
+  // The facade whitelist never exposed this, so aio-data fell back to () => [] and wiped the saved
   // news-sentiment history on every render.
   root._aioNormalizeNewsSentimentHistory = normalizeNewsSentimentHistory;
   // Codex browser audit H31: legacy readers (the candle-shape observation) need the same completed-session
@@ -236,7 +236,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // Codex browser audit H104: the AI answered from live intraday breadth ("200일선 위 44.") while the screen read
   // the 10/6 close (50% above the 200-day). The chat now receives the same close-basis readings the screen shows,
   // as the first and authoritative block; live values are labelled as live and secondary.
-  // v57.48 review #7: the same closes are also registered as typed reference evidence (fixed metric ids, the real
+  // The same closes are also registered as typed reference evidence (fixed metric ids, the real
   // close date as asOf, source 'close-basis'), so an answer's VIX/10Y claim binds instead of being dropped as unverified.
   // The chat claim collector adds these rows on both surfaces; a stale live row points at its close substitute.
   // the official macro releases and daily rates the 매크로 screens print (CPI/PCE/payrolls/Fed range/
@@ -266,7 +266,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const regime = readMarketRegime(root);
       if (!regime?.available) return renderMacroReleaseEvidenceContext(readMacroReleaseEvidence()); // releases do not wait on the close basis
       const axes = (regime.axes || []).map((axis) => `- ${axis.title}: ${axis.verdictLabel}${axis.basis ? ` (${axis.basis})` : ''} — ${(axis.evidence || []).map(([label, value]) => `${label} ${value}`).join(', ')}`);
-      // Screen audit 2026-10-19: the 오늘/국면 판정 screens lead with the leadership break and the bottom-watch line, but
+      // The 오늘/국면 판정 screens lead with the leadership break and the bottom-watch line, but
       // the chat on those pages received only the six axes, so "오늘 엇갈리는 신호" was answered without either.
       const lead = regime.leadership?.available ? `- 주도 영역(나스닥 100 · 반도체): ${({ break: '이탈 확인', weak: '약세 · 시장 전반 확산 미확인', holding: '유지', unknown: '판단 보류' })[regime.leadership.state] || '판단 보류'}${regime.leadership.summary ? ` — ${regime.leadership.summary}` : ''}` : null;
       const bottom = regime.bottomWatch?.text ? `- ${regime.bottomWatch.text}` : null;
@@ -275,7 +275,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       return [`Screen basis (identical to what the user sees; use these numbers for current-market facts): US close ${regime.asOf}, overall ${regime.overall}.`, ...axes, lead, bottom, typed, releases].filter(Boolean).join('\n');
     } catch (_) { return ''; }
   };
-  // v57.50 C06: one Fear & Greed reader for the legacy surfaces (AI header, _liveSnap, AIO.marketState).
+  // One Fear & Greed reader for the legacy surfaces (AI header, _liveSnap, AIO.marketState).
   // Same rule as the home card (analysis.js renderHomeFearGreed): the completed-close value aligned with the US close
   // basis; a close that is behind the basis is held (null); with no close series yet, the canonical value is used and
   // labelled as such. Callers show '—' for null — never a default number.
@@ -295,18 +295,18 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         : null;
     } catch (_) { return null; }
   };
-  // v57.50 C08: the legacy AI header names the same overall verdict the 시장 상태 screen shows (not the retired score bands).
+  // The legacy AI header names the same overall verdict the 시장 상태 screen shows (not the retired score bands).
   root._aioMarketRegimeSummary = () => {
     try {
       const regime = readMarketRegime(root);
-      // Owner 2026-10-18: the trend axis state and the leadership read travel too, so legacy consumers (cycle model, AI
+      // The trend axis state and the leadership read travel too, so legacy consumers (cycle model, AI
       // context) read the 시장 상태 trend instead of one session's S&P 500 sign.
       const trend = (regime?.axes || []).find((axis) => axis.id === 'trend')?.state || null;
       return regime ? Object.freeze({ available: !!regime.available, sufficient: regime.sufficient === true, overall: regime.overall || null, asOf: regime.asOf || null, counts: regime.counts || null,
         trend, leadership: regime.leadership?.state || null }) : null;
     } catch (_) { return null; }
   };
-  // Screen audit 2026-10-20: the top bar read "10/19 마감" all evening after KOSPI closed 10/20 at -3.73%. A Korean close
+  // The top bar read "10/19 마감" all evening after KOSPI closed 10/20 at -3.73%. A Korean close
   // that is already in the daily record is named beside the US close (js/aio-core.js _aioWriteQuoteStatus).
   root._aioWithKrClose = (detail) => {
     const text = String(detail || '');
@@ -319,17 +319,17 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const count = text.match(/(?: · |, )시세 \d+종$/)?.[0] || '';
     return `${count ? text.slice(0, -count.length) : text} · 한국 ${label} 마감${count}`;
   };
-  root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // v58.52: the top pulse bar's verdict
-  root._aioArtifactFreshness = (file) => readArtifactFreshness(file, { root, now: clock.now() }); // v59.70: one reader for every freshness badge
-  // v58.80 (first-users F08): the producer's sentence is the day's question (owner 2026-10-15), shown as 오늘의 질문.
-  // v59.51: it sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
+  root._aioRegimePulse = () => regimePulse(root._aioMarketRegimeSummary()); // The top pulse bar's verdict
+  root._aioArtifactFreshness = (file) => readArtifactFreshness(file, { root, now: clock.now() }); // One reader for every freshness badge
+  // The producer's sentence is the day's question, shown as 오늘의 질문.
+  // It sits inside the home verdict card, which carries the verdict it questions, so it repeats no verdict.
   // The Korean close label needs the daily record, which loads after the first top-bar render.
   root.addEventListener?.('aio:historyLoaded', () => { try { root.document?.dispatchEvent(new root.CustomEvent('aio:quoteTopbar', { detail: {} })); } catch (_) {} });
   loadQuoteBasis(root, clock.now);
   root._aioLatestCompletedSessionDate = (market = 'US') => latestCompletedSession(market, clock.now())?.date || null;
   // The portfolio stress panel (src/ui/panels/portfolio-stress.js) is imported by its lazy route component
   // (src/ui/components/portfolio-exposure.js), so its model is outside the boot bundle; the unused _aioKrIndexStress hook went.
-  // P1339: the S&P 500 50/200-day averages come from the committed daily history, on the close basis; this is
+  // The S&P 500 50/200-day averages come from the committed daily history, on the close basis; this is
   // their only writer (the browser fetches no 1-year S&P 500 chart for them).
   const applyHistoryMa = () => {
     const basis = latestCompletedUsSession(clock.now());
@@ -435,7 +435,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const sentimentProvider = createSentimentProvider({ read: runtimeReaders.readSentiment, now: clock.now });
   const sentimentCommands = createSentimentCommands({ store });
   const syncSentiment = createSentimentOrchestrator({ provider: sentimentProvider, evidenceStore, store, commands: sentimentCommands, snapshotEvidence, clock });
-  // v57.79: the cross-route summary projection wrote #fg-score-big/#fg-score-val/#fg-rating-text/#vix-term-regime-text,
+  // The cross-route summary projection wrote #fg-score-big/#fg-score-val/#fg-rating-text/#vix-term-regime-text,
   // which no page creates any more (R705 dead-id scan), so the sync no longer paints anything itself.
   const syncSentimentProjection = (patch = null) => syncSentiment.sync(patch);
   const ingestSentiment = (patch = {}) => syncSentimentProjection(patch);
@@ -445,7 +445,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   const marketCommands = createMarketCommands({ store });
   const syncMarket = createMarketOrchestrator({ provider: createMarketProvider({ read: runtimeReaders.readMarket }), commands: marketCommands });
   const themesCommands = createThemesCommands({ store });
-  // P800: themes data is assembled by the native provider from explicit runtime inputs;
+  // Themes data is assembled by the native provider from explicit runtime inputs;
   // legacy.readThemes remains a compatibility facade for non-cut-over consumers only.
   const syncThemes = createThemesOrchestrator({
     provider: createThemesProvider({
@@ -467,12 +467,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     commands: themesCommands
   });
   const entityCommands = createEntityCommands({ store });
-  // ARX-04/P977: entity fundamentals use the bounded SEC current-facts projection; append-only
+  // Entity fundamentals use the bounded SEC current-facts projection; append-only
   // PIT observations stay outside the interactive payload.
   // — see src/data/providers/entity.js. id/quote/options remain legacy.readEntity projections.
   const entityProvider = createEntityProvider({ read: runtimeReaders.readEntity, httpClient, now: clock.now,
-    readOnDemand: (symbol) => root?._aioOnDemandSymbol?.(symbol)?.sec || null }); // v57.81: out-of-universe listings
-  // v57.81: the AI's public-facts reader asks for an out-of-universe US listing on demand (at most three per question,
+    readOnDemand: (symbol) => root?._aioOnDemandSymbol?.(symbol)?.sec || null }); // out-of-universe listings
+  // The AI's public-facts reader asks for an out-of-universe US listing on demand (at most three per question,
   // the reader's own two-at-a-time cap) before reading, so a listed name outside the universe is not "no filings".
   if (root?.AIO) root.AIO.readPublicFundamentals = async (symbols = []) => {
     const first = await entityProvider.readFundamentals(symbols);
@@ -484,7 +484,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   };
   if (root?.AIO) root.AIO.readPublicEarnings = createPublicEarningsReader(root);
   const syncEntity = createEntityOrchestrator({ provider: entityProvider, commands: entityCommands });
-  // P1668: only the ticker/fundamental pages read entity state, so boot and broadcast refreshes
+  // Only the ticker/fundamental pages read entity state, so boot and broadcast refreshes
   // skip the SEC fundamentals projection until one of them has been shown or a ticker selected.
   let entityConsumerSeen = false;
   // Called only after the router below exists; a deep link can open the ticker before pageShown is heard.
@@ -523,7 +523,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   // published artifact + identity universe. Legacy SCREENER_DB/profile/watchlist helpers remain
   // compatibility boundaries for non-cut-over consumers; the native route does not read legacy
   // DOM projections.
-  // v57.50 C09: the screener's regime label came from the legacy AIO.marketState (riskScore/cyclePhase), so it could
+  // The screener's regime label came from the legacy AIO.marketState (riskScore/cyclePhase), so it could
   // call the market '위험회피' while the 시장 상태 screen read '혼조'. The weight resolver now receives the screen's
   // overall verdict, translated onto its existing riskScore scale (one fixed point per verdict; '판정 보류' = no input).
   // The weights stay the fixed neutral model until a promotion record exists — only the candidate label follows.
@@ -537,7 +537,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   };
   root._aioScreenRegimeWeightInput = screenRegimeWeightInput; // the legacy _aioFactorWeights wrapper reads the same input
   const syncScreener = createScreenerOrchestrator({
-    // v57.81: 확장 (Russell 2000 + Nasdaq beyond the core) is the reader's remembered choice; its shard is first fetched
+    // 확장 (Russell 2000 + Nasdaq beyond the core) is the reader's remembered choice; its shard is first fetched
     // only while the screener route is showing, so another screen never pays for the download.
     provider: createScreenerProvider({
       httpClient,
@@ -554,11 +554,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       const profileKey = typeof root?._aioGetActiveProfile === 'function' ? root._aioGetActiveProfile() : 'balanced';
       const profile = profileKey && root?.AIO_TRADER_PROFILES ? root.AIO_TRADER_PROFILES[profileKey] : null;
       const resolved = deriveFactorWeights({ marketState: screenRegimeWeightInput(), profile: profileKey === 'balanced' ? null : profile });
-      // W07-A/P1146: an explicit user profile is a requested model; the neutral default is
+      // An explicit user profile is a requested model; the neutral default is
       // the versioned default model and keeps renormalizing over available factors.
       return { weights: resolved?.weights || null, weightsPolicy: resolved?.source === 'explicit-user-profile' ? 'explicit' : 'model-default', regimeLabel: resolved?.regimeLabel || null, now: clock.now() };
     },
-    // P1452: the native path discards a dead run the same way the legacy wrapper does — the
+    // The native path discards a dead run the same way the legacy wrapper does — the
     // hold (reason + requested/excluded weights) is published for the screener's hold banner
     // and the window state markers are cleared, so a failed re-rank never leaves the old
     // ranking displayed under the new selection on either surface.
@@ -576,7 +576,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         });
       } else {
         delete root._aioRankingHold;
-        // P1463: the weights this ranking was requested with — the validation views compare the
+        // The weights this ranking was requested with — the validation views compare the
         // stored model fingerprint against THIS model, so a selected profile never reads as validated.
         if (ranking?.requestedFactorWeights) root._aioRankingWeights = ranking.requestedFactorWeights;
       }
@@ -609,7 +609,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules['market-news'] = createLazyPage({ route: 'market-news', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'market-news' }) });
   modules.briefing = createLazyPage({ route: 'briefing', loader: () => import('../ui/pages/news.js'), factory: ({ createNewsPage }) => createNewsPage({ root, documentRef, store, route: 'briefing' }) });
   modules.macro = createLazyPage({ route: 'macro', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'macro' }) });
-  modules.charts = createLazyPage({ route: 'charts', loader: () => import('../ui/pages/charts.js'), factory: ({ createChartsPage }) => createChartsPage({ root, documentRef, store, route: 'charts' }) }); // v59.64 기술적 분석
+  modules.charts = createLazyPage({ route: 'charts', loader: () => import('../ui/pages/charts.js'), factory: ({ createChartsPage }) => createChartsPage({ root, documentRef, store, route: 'charts' }) }); // 기술적 분석
   modules.fxbond = createLazyPage({ route: 'fxbond', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'fxbond' }) });
   modules.breadth = createLazyPage({ route: 'breadth', loader: () => import('../ui/pages/market.js'), factory: ({ createMarketSlicePage }) => createMarketSlicePage({ documentRef, store, route: 'breadth' }) });
   modules.themes = createLazyPage({ route: 'themes', loader: () => import('../ui/pages/themes.js'), factory: ({ createThemesPage }) => createThemesPage({ documentRef, store, route: 'themes' }) });
@@ -649,11 +649,11 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
   modules.home = createLazyPage({ route: 'home', loader: () => import('../ui/pages/analysis.js'), factory: ({ createAnalysisPage }) => createAnalysisPage({ root, documentRef, store, route: 'home' }) });
   // The 시장 상태 board (market-regime.js and its tree) is the signal route's own code; 오늘 and 차트 do not load it.
   modules.signal = createLazyPage({ route: 'signal', loader: () => import('../ui/pages/analysis.js').then((page) => page.loadRegimeBoard().then((board) => ({ ...page, renderRegimePage: board.renderRegimePage }))), factory: ({ createAnalysisPage, renderRegimePage }) => createAnalysisPage({ root, documentRef, store, route: 'signal', renderRegimePage }) });
-  // Owner 2026-11-19: `technical` is a derived view of 기술적 분석 (AIO_ROUTE_REGISTRY canonical technical → charts); the
+  // `technical` is a derived view of 기술적 분석 (AIO_ROUTE_REGISTRY canonical technical → charts); the
   // chart it held is the charts route's analysis slot, so the route has no page module of its own.
   const router = createLifecycleRouter({ root: eventTarget, registry: createRouteRegistry({ modules }), context: { store, evidenceStore, legacy, clock, documentRef, runtimeRoot: root } });
 
-  // P1755: every legacy refresh cycle (aio:refresh:done) used to re-download and re-validate screener.json
+  // Every legacy refresh cycle (aio:refresh:done) used to re-download and re-validate screener.json
   // (2.6 MB) + universe + validation although the artifact changes on a multi-hour cadence. A refresh cycle
   // now re-reads the artifacts only when the cycle was forced, no rows are held (failed/empty read), or the
   // last artifact read is older than the legacy server-data reload interval; otherwise it re-derives rows
@@ -734,12 +734,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
 
   function start() {
     let disposed = false;
-    const stopInterpretationStore = registerInterpretationStore(root, store); // owner 2026-10-19: one row source for the shared interpretation
+    const stopInterpretationStore = registerInterpretationStore(root, store); // One row source for the shared interpretation
     const stopColorTheme = documentRef?.body && root?.getComputedStyle ? installColorTheme(root, documentRef) : () => {};
-    const stopLoadFailureNotice = installLoadFailureNotice(root, documentRef); // v59.70: history.json / data.json did not arrive
-    // P1653/P1655: web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
+    const stopLoadFailureNotice = installLoadFailureNotice(root, documentRef); // history.json / data.json did not arrive
+    // Web search is automatic through the shared Worker; drop the old opt-out and retired personal search keys.
     try { ['aio_web_search_enabled', 'aio_google_cse_key', 'aio_google_cse_cx', 'aio_perplexity_key'].forEach((key) => root.localStorage?.removeItem(key)); } catch (_) { /* storage unavailable */ }
-    // v57.79: the personal data-provider keys (v57.67) and the personal AI key (P1421) are never read; drop their stored values.
+    // The personal data-provider keys and the personal AI key are never read; drop their stored values.
     try {
       ['aio_claude_api_key', 'aio_rss2json_key', 'aio_av_key', 'aio_finnhub_key', 'aio_fred_key', 'aio_td_key', 'aio_fmp_key',
         'aio_newsdata_key', 'aio_bok_key', 'aio_kosis_key', 'aio_fred_relay_consent'].forEach((key) => root.localStorage?.removeItem(key));
@@ -758,7 +758,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       subscribe: (check) => {
         const stopServer = legacy.on('aio:serverDataLoaded', check);
         const stopHistory = compatibilityEvents.on('aio:historyLoaded', check);
-        // v59.70: a failed read settles the gate too (critical-data-gate.js coreReadsSettled).
+        // A failed read settles the gate too (critical-data-gate.js coreReadsSettled).
         const failedEvents = ['aio:serverDataFailed', 'aio:historyFailed'];
         failedEvents.forEach((name) => root?.addEventListener?.(name, check));
         return () => { stopServer(); stopHistory(); failedEvents.forEach((name) => root?.removeEventListener?.(name, check)); };
@@ -771,7 +771,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         eventTarget.dispatchEvent(new CustomEvent('aio:dataTimelineUpdated', { detail: { reason, audit: getPageDataTimelineAudit() } }));
       } catch (_) {}
     }, { isActive: () => !disposed });
-    // P858: the legacy snapshot/DOM shell already provides the first paint.
+    // The legacy snapshot/DOM shell already provides the first paint.
     // Keep only the small decision-state projections on the critical path;
     // news/entity/themes/portfolio/screener hydration is staged after the
     // interactive boot window so large normalization passes cannot become a
@@ -787,7 +787,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       // Server hydration commonly finishes before the staged startup reaches
       // this task. Do not rebuild and refetch that same universe a second time.
       () => store.getState()?.screener?.rows?.length ? null : syncScreenerAfterCriticalData()
-      // v59.70 (owner D1): the AI reference corpus is no longer prefetched here; chat-loader.js asks for it when a pointer
+      // The AI reference corpus is no longer prefetched here; chat-loader.js asks for it when a pointer
       // or focus reaches an AI control, and the AI dispatch awaits it either way.
     ];
     let deferredStartupIndex = 0;
@@ -836,32 +836,32 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         Promise.resolve().then(() => syncPortfolio.sync()),
         Promise.resolve().then(() => syncScreenerAfterCriticalData()),
         Promise.resolve().then(() => syncAnalysis.sync()),
-        Promise.resolve().then(() => loadFreshnessLedgers(root)) // v59.70: the producer ledgers behind every freshness badge
+        Promise.resolve().then(() => loadFreshnessLedgers(root)) // The producer ledgers behind every freshness badge
       ]);
       if (!disposed) emitDataTimelineUpdated('server-data');
     }, { isActive: () => !disposed });
     const stopServerMarketData = legacy.on('aio:serverDataLoaded', syncServerArtifactConsumers);
     const stopThemesRefresh = compatibilityEvents.on('aio:refresh:done', syncThemes.sync);
-    const stopRotationDetail = legacy.on('aio:rotationDetailLoaded', syncThemes.sync); // v59.70 (R11): series arrived after data.json
+    const stopRotationDetail = legacy.on('aio:rotationDetailLoaded', syncThemes.sync); // Series arrived after data.json
     const stopThemeDetail = legacy.on('aio:themeDetailShown', syncThemes.sync);
     const stopEntityRefresh = compatibilityEvents.on('aio:refresh:done', syncEntityForConsumers);
     const stopEntityChanged = legacy.on('aio:entityChanged', syncEntity.sync);
-    // P1317/R663: a selected ticker outside the core quote list (e.g. most KR names) had no
+    // A selected ticker outside the core quote list (e.g. most KR names) had no
     // quote request at all, so its page stayed "—" forever. Register it and request it once;
     // when quotes arrive while the ticker route is active, re-derive the entity and overview.
     const requestSelectedTickerQuote = (event) => {
       const id = String(event?.detail?.id || '').trim().toUpperCase();
       if (!id || event?.detail?.source !== 'ticker-selection' || root?._liveData?.[id]?.price != null) return;
       if (typeof root?.AIO?.registerLiveSymbol === 'function') root.AIO.registerLiveSymbol(id, { reason: 'ticker-selection' });
-      // P1624: the active summary owns one quote + history request through the existing provider.
+      // The active summary owns one quote + history request through the existing provider.
       if (String(router.active() || '').replace(/^page-/, '') === 'ticker' && typeof root?._aioFetchYahooChartData === 'function') return;
       if (typeof root?.fetchLiveQuotes === 'function') Promise.resolve().then(() => root.fetchLiveQuotes([id])).catch(() => {});
     };
     const stopTickerQuoteRequest = legacy.on('aio:entityChanged', requestSelectedTickerQuote);
-    // P1320/R665: "?" term tooltips open on hover, focus or tap and stay inside the viewport.
+    // "?" term tooltips open on hover, focus or tap and stay inside the viewport.
     const stopTermTooltips = installTermTooltips(documentRef, { root });
     const stopValueBasis = installValueBasis(documentRef, { root }); // P1643
-    const stopTermMarks = installTermMarks(documentRef, { root }); // v57.55 review (2b): first-use term marks in reading text
+    const stopTermMarks = installTermMarks(documentRef, { root }); // Review (2b): first-use term marks in reading text
     const stopTickerQuotes = legacy.on('aio:liveQuotes', () => {
       if (disposed || String(router.active() || '').replace(/^page-/, '') !== 'ticker') return;
       const id = String(root?._currentTickerId || '').trim().toUpperCase();
@@ -885,14 +885,14 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopEntityShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['ticker', 'fundamental']), syncEntityOnDemand, { withScope: true }));
     const stopPortfolioShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['portfolio']), syncPortfolio.sync));
     const stopPortfolioChanged = legacy.on('aio:portfolioChanged', syncPortfolio.sync);
-    // v57.77 perf: the screen re-entry uses the same held/due rule as a refresh cycle, so a revisit inside the
+    // Perf: the screen re-entry uses the same held/due rule as a refresh cycle, so a revisit inside the
     // 30-minute window re-derives rows from the held artifacts instead of re-downloading screener.json + universe +
     // validation. A forced (manual) refresh cycle still re-reads them through aio:refresh:done below.
     const screenerArtifactReadDue = () => !store.getState()?.screener?.rows?.length
       || screenerArtifactReadAt == null || clock.now() - screenerArtifactReadAt >= SCREENER_ARTIFACT_RECHECK_MS;
     const stopScreenerRefresh = compatibilityEvents.on('aio:refresh:done', (event) => {
       const forced = event?.detail?.forceRefresh === true;
-      // v57.79: a manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
+      // A manual refresh also drops the held validation/fiscal artifacts (maxAgeMs up to 6h) so a remounted
       // tab reads the newly published files instead of the pre-refresh copies.
       if (forced && typeof root.fetch === 'function') clearArtifactCache(stableFetcher(root), { abortInFlight: false });
       const due = forced || screenerArtifactReadDue();
@@ -930,30 +930,30 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     const stopAnalysisRefresh = compatibilityEvents.on('aio:refresh:done', syncAnalysis.sync);
     const stopAnalysisChanged = legacy.on('aio:entityChanged', syncAnalysis.sync);
     const stopAnalysisShown = legacy.on('aio:pageShown', onCurrentRouteShown(new Set(['home', 'signal', 'charts']), syncAnalysis.sync));
-    // P1505: one folded 데이터 출처 note per screen.
-    // Owner 2026-10-25: the index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
+    // One folded 데이터 출처 note per screen.
+    // The index strip on 오늘 loads with the route (lazy chunk; the boot module set stays unchanged).
     const renderIndexStrip = () => import('../ui/components/home-index-strip.js').then(({ renderHomeIndexStrip }) => renderHomeIndexStrip({ documentRef, root })).catch(() => {});
     const stopSourcesShown = legacy.on('aio:pageShown', (event) => { const route = normalizeShownRoute(event); queueMicrotask(() => { if (disposed) return; renderPageSources(documentRef, route); if (route === 'home') { syncHomeQuoteRow({ documentRef, root }); renderIndexStrip(); } }); });
     const stopKpiTrendHistory = compatibilityEvents.on('aio:historyLoaded', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); });
-    const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); }); // v58.80 run-5: the live chip's observation time
+    const stopQuoteHeading = legacy.on('aio:liveQuotes', () => { if (!disposed) syncHomeQuoteRow({ documentRef, root }); }); // run-5: the live chip's observation time
     queueMicrotask(() => { if (disposed) return; const initial = String(router.active() || '').replace(/^page-/, ''); renderPageSources(documentRef, initial); if (initial === 'home') { syncHomeQuoteRow({ documentRef, root }); renderIndexStrip(); } });
     // E2/LC-26: a mode change is a score input change, so re-derive the analysis slice instead of
     // leaving the hero on the previous mode until the next refresh cycle. Deliberately its own
     // event (not `aio:refresh:done`) so toggling the pill does not re-run every route provider.
     const stopAnalysisModeChange = compatibilityEvents.on('aio:signalScoreModeChanged', syncAnalysis.sync);
-    // P1339: score inputs that land after boot (history.json MA fallback, F&G / put-call / HY spread) re-derive
+    // Score inputs that land after boot (history.json MA fallback, F&G / put-call / HY spread) re-derive
     // the analysis slice; otherwise the hero stays 'held' on the boot-time snapshot until the next refresh.
     const stopAnalysisHistory = compatibilityEvents.on('aio:historyLoaded', () => { applyHistoryMa(); syncAnalysis.sync(); });
     const stopAnalysisSentiment = legacy.on('aio:sentimentUpdated', syncAnalysis.sync);
-    const stopAnalysisSnapshot = legacy.on('aio:marketSnapshot', syncAnalysis.sync); // P1345: late canonical quotes are analysis inputs.
+    const stopAnalysisSnapshot = legacy.on('aio:marketSnapshot', syncAnalysis.sync); // Late canonical quotes are analysis inputs.
     const stopShown = legacy.on('aio:navigationCommitted', (event) => {
-      // W00/P1143: the store route follows the router's single committed result, so
+      // The store route follows the router's single committed result, so
       // DOM, router, scope, and canonical state move together on one navigation.
       const committed = event?.detail?.routeId || router.active();
       if (committed) store.dispatch({ type: 'route/changed', payload: committed });
     });
     const stopTimelineStore = store.subscribe(() => emitDataTimelineUpdated('store-updated'));
-    // P1357: late history/snapshot inputs update the native reference immediately;
+    // Late history/snapshot inputs update the native reference immediately;
     // re-project the market pulse from that same committed analysis revision too.
     let pulseAnalysis = store.getState()?.analysis;
     let pulseProjectionQueued = false;
@@ -984,7 +984,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (documentRef?.visibilityState !== 'hidden') refreshStaleActivePage();
     };
     documentRef?.addEventListener?.('visibilitychange', onVisibilityTimelineCheck);
-    // P1592 (F31): the skip link moves focus without writing '#main-content' into the route hash — that
+    // The skip link moves focus without writing '#main-content' into the route hash — that
     // hash reloaded as a route named 'main-content' and showed an empty page.
     const onSkipLink = (event) => {
       const link = event.target?.closest?.('a.skip-link');
@@ -1006,12 +1006,12 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // first so observers of aio:navigationCommitted see the very first commit.
     const stopPageViews = installPageViews({ root, documentRef });
     const stopHubTabs = installRouteHubTabs({ root, documentRef, activeRoute: () => router.active() }); // 8-screen IA
-    // v59.68 (owner 2026-11-03, "cut helper text"): the per-screen principles fold (owner 2026-10-19) left the screens;
+    // v59.68 (owner 2026-11-03, "cut helper text"): the per-screen principles fold left the screens;
     // the lessons stay in 리서치 라이브러리 (domain/guide/lessons.js).
-    const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // v57.81: back restores scroll
-    const stopShellOverlays = installShellOverlays({ root, documentRef }); // v57.81: banner/disclaimer offsets, glossary backdrop
-    installScreenShortcuts({ root, documentRef }); // v57.54: ? help rows and 1..8 keys from ROUTE_HUBS
-    // P1430: 오늘 index cards → that index's chart in 기술적 분석's analysis slot. v58.75: stock-chart.js loads with the
+    const stopScrollMemory = installRouteScrollMemory({ root, documentRef, activeRoute: () => router.active() }); // Back restores scroll
+    const stopShellOverlays = installShellOverlays({ root, documentRef }); // banner/disclaimer offsets, glossary backdrop
+    installScreenShortcuts({ root, documentRef }); // ? help rows and 1..8 keys from ROUTE_HUBS
+    // 오늘 index cards → that index's chart in 기술적 분석's analysis slot. v58.75: stock-chart.js loads with the
     // charts route instead of the boot module set; the click imports it (the same chunk the route needs anyway). If the
     // import fails, the request is set the way openMarketChart sets it and the route renders it when it loads.
     root.aioOpenMarketChart = (symbol) => import('../ui/components/stock-chart.js')
@@ -1058,7 +1058,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       if (marketSnapshot ? announced !== marketSnapshot.revision : snapshotPending === 0) loadSnapshot().catch(() => {});
     };
     const stopSnapshotRevision = legacy.on('aio:serverDataLoaded', reloadSnapshotOnRevision);
-    // P1654: extend the official release schedule from the producer artifact (refreshed with each server data load).
+    // Extend the official release schedule from the producer artifact (refreshed with each server data load).
     const mergeMacroCalendar = () => { if (!disposed) applyProducedMacroCalendar(root).catch(() => {}); };
     const stopMacroCalendar = legacy.on('aio:serverDataLoaded', mergeMacroCalendar);
     mergeMacroCalendar();
@@ -1070,7 +1070,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
         applyMarketSnapshotToLegacy(root, marketSnapshot, { sourceId: result.source });
         syncSentimentProjection();
         syncMarket.sync();
-        syncAnalysis.sync(); // P1345: the ready path also works when the host has no event bridge.
+        syncAnalysis.sync(); // The ready path also works when the host has no event bridge.
         emitDataTimelineUpdated('market-snapshot');
       }
     }
@@ -1153,7 +1153,7 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
       afterBootWanted = false;
       stopAfterBoot();
       router.dispose();
-      // Fable-advisor review (2026-07-21): drop any in-flight screener/entity fetch resolution
+      // Fable-advisor review: drop any in-flight screener/entity fetch resolution
       // permanently once the app is torn down — see the generation-counter guard in those two
       // orchestrators for the (more common) case of a newer sync() superseding an older one.
       syncScreener.dispose();
@@ -1243,19 +1243,19 @@ export function createAIOArchitecture({ root = globalThis, documentRef = root.do
     // classifier — deliberately NOT reusing classifyMovingAverageStructure (single-symbol price MA
     // stack, categorically different input) or the RSP/SPY-ratio breadth-signal-val logic.
     ,classifyBreadthParticipation
-    // RM-03 continued (2026-07-21, P757): single-implementation treasury-curve/2s10s model —
+    // RM-03 continued: single-implementation treasury-curve/2s10s model —
     // js/aio-core.js's getUsTreasuryCurveEvidence wrapper calls this instead of keeping its own
     // copy of the multi-source fallback formula (R352/F-03).
     ,deriveTreasuryCurveEvidence
-    // RM-03 continued (2026-07-21, P758): concentration-risk slice of the holding technical risk
+    // RM-03 continued: concentration-risk slice of the holding technical risk
     // (src/domain/portfolio/technical-risk.js imports concentrationPenaltyForWeight itself).
     ,deriveConcentrationRisk
-    // RM-03 continued (2026-07-21, P759): the legacy screener ranking wrapper resolves its
+    // RM-03 continued: the legacy screener ranking wrapper resolves its
     // existing profile/regime inputs and projects this pure model back onto SCREENER_DB; native
     // consumers can use the same implementation without importing legacy globals (R352/F-03).
     ,computeFactorRanks
     ,deriveFactorWeights
-    // P1449: the legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
+    // The legacy bridge (LC-39/P1215 family) needs the same subject continuity the native
     // renders use — the 종목 · 차트 button names the company for the whole 종목 screen.
     ,setStockSubject
     ,getVerticalSliceContract: (route) => getVerticalSliceContract(route)

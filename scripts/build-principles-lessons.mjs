@@ -29,7 +29,7 @@ const lessonSourceIds = {
   N1: ['SRC-EIA-ENERGY', 'MP-IEA'], N2: ['SRC-USGS-MCS'], N3: ['SRC-IFR', 'PS-16'], N4: ['SRC-NHTSA-AV'], N5: ['SRC-DOD-BUDGET'], N6: ['PS-18', 'SRC-NASA'],
   G8: ['SRC-FINRA-OPTIONS', 'MP-SEC'], N7: ['SRC-FDA-DRUG-DEV'], N8: ['SRC-FDA-DEVICE'], N9: ['SRC-BIS-BASEL3', 'SRC-FRED-USNIM'], N10: ['MP-SEC'], N11: ['SRC-BEA-CONSUMER'], N12: ['SRC-BTS'],
   N13: ['SRC-CENSUS-CONSTRUCTION', 'SRC-NAREIT', 'SRC-NAREIT-FFO'], N14: ['SRC-FCC'], N15: ['SRC-USDA-WASDE'],
-  // F86/F87 (v57.32): lessons that tell a dated event point at the record of that event, not only a topic page.
+  // F86/F87: lessons that tell a dated event point at the record of that event, not only a topic page.
   B2: ['SRC-BLS-CPI-2022', 'MP-BLS'], C4: ['SRC-FRH-GREAT-RECESSION', 'MP-FED-ED'], D2: ['SRC-FRED-DFII10', 'MP-FED-MP'],
   D4: ['SRC-FRED-WALCL', 'MP-FED-MP'], E2: ['SRC-FRED-T10Y2Y', 'MP-TREASURY'], E7: ['SRC-BIS-BULL90', 'MP-IMF'],
   H4: ['SRC-SEC-GME-2021', 'MP-SEC'], O5: ['SRC-NTS', 'MP-SEC']
@@ -248,7 +248,7 @@ const sources = [
   { id: 'SRC-NTS', publisher: '국세청', title: '국세청', url: 'https://www.nts.go.kr/' }
 ];
 
-// F87 (v57.32): the basis panel showed English page titles ('Education', 'Topics') under Korean prose, so
+// F87: the basis panel showed English page titles ('Education', 'Topics') under Korean prose, so
 // the reader could not tell what to look up. Each source gets a Korean name and what it lets the reader check.
 const SOURCE_READING = {
   'MP-OECD': ['OECD 생산성 자료', '나라별 생산성 수준과 추이'],
@@ -310,7 +310,7 @@ for (const source of sources) {
 
 const storyIssues = Object.entries(PRINCIPLE_STORIES).flatMap(([id, story]) => storyProblems(id, story));
 if (storyIssues.length) throw new Error(`Lesson reading text outside the length standard: ${storyIssues.join('; ')}`);
-// v57.98: every lesson carries a worked-number block (inputs → steps → result → limit).
+// Every lesson carries a worked-number block (inputs → steps → result → limit).
 const workedIssues = drafts.flatMap((draft) => workedProblems(draft.id, PRINCIPLE_WORKED[draft.id]));
 const unknownWorked = Object.keys(PRINCIPLE_WORKED).filter((id) => !drafts.some((draft) => draft.id === id));
 if (workedIssues.length || unknownWorked.length) throw new Error(`Lesson worked-number blocks outside the standard: ${[...workedIssues, ...unknownWorked.map((id) => `${id}: unknown lesson`)].join('; ')}`);

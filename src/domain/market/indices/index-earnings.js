@@ -1,3 +1,10 @@
+// The site read every stock's consensus revisions but never the index's. A strategist reads
+// the S&P 500 as a whole first: are analysts raising or cutting next-year earnings (revision breadth leads the index EPS
+// trend), what forward multiple the index trades on, and how its earnings yield compares with the 10-year real yield
+// (the equity risk premium — the extra return stocks offer over an inflation-protected Treasury).
+// Inputs are artifacts the site already publishes: member weights (screener metadata.indexWeights, IVV holdings),
+// next-four-quarter consensus EPS with 4-week up/down revision counts (consensus-estimates.json), each member's completed
+// close (screener row valuationPrice) and FRED DFII10. Nothing here is a forecast or a grade.
 import { dataStateText } from '../../content/data-state.js';
 import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../../fundamental/consensus-read.js';
 import { readNumber as finite } from '../../shared/number.js';
@@ -12,6 +19,7 @@ const SHARE_CLASS_OF = Object.freeze({ GOOG: 'GOOGL', FOX: 'FOXA', NWS: 'NWSA' }
 
 function weightRows(weights) {
   const rows = Array.isArray(weights?.rows) ? weights.rows : [];
+  // v59.45 (P17-EARNINGS-01): the weight is summed as the number it was checked as (a string weight concatenated).
   return rows.map((row) => (Array.isArray(row) ? { sym: row[0], sector: row[1], weight: row[2] } : row))
     .filter((row) => row?.sym && finite(row.weight) > 0)
     .map((row) => ({ ...row, weight: finite(row.weight) }));
@@ -24,12 +32,17 @@ function revisionOf(stats) {
   return total > 0 ? (stats.up - stats.down) / total : null;
 }
 
+// v58.63 (architecture audit F-DELTA-01): the index stage read every member's consensus and close without the age limits
+// the stock card applies (consensusView: estimates within 21 days, closes within 10), so an outage kept publishing "최근 4주"
+// breadth and a forward PER on old inputs. The same limits apply per member; an expired member leaves the coverage.
 export function buildIndexEarnings({ rows = [], weights = null, consensus = null, realYield10 = null, realYieldAsOf = null, now = Date.now() } = {}) {
   const nowMs = Number.isFinite(Number(now)) ? Number(now) : Date.now();
   const estimateCurrent = (asOf) => { const ms = Date.parse(asOf || ''); return Number.isFinite(ms) && nowMs - ms <= CONSENSUS_MAX_AGE_DAYS * DAY_MS && ms - nowMs <= DAY_MS; };
+  // v59.45 (P17-EARNINGS-01): a close dated after now is not the latest close.
   const closeCurrent = (row) => { const day = String(row?.factorSessionDate || '').slice(0, 10); const ms = day ? Date.parse(`${day}T00:00:00Z`) : NaN; return Number.isFinite(ms) && ms <= nowMs && nowMs - ms <= CONSENSUS_PRICE_MAX_AGE_DAYS * DAY_MS; };
   const members = weightRows(weights);
   const estimates = consensus?.rows && typeof consensus.rows === 'object' ? consensus.rows : null;
+  // v58.80 (first-users bundle 3): weights not loaded yet (null) is a load in progress, not "없습니다".
   if (!members.length || !estimates) return { available: false, reason: `${!members.length ? dataStateText(weights == null ? 'loading' : 'absent', '지수 구성 비중') : dataStateText('loading', '컨센서스 자료')}.` };
   const bySym = new Map((Array.isArray(rows) ? rows : []).map((row) => [String(row?.sym || row?.symbol || '').toUpperCase(), row]));
   const totalWeight = members.reduce((sum, row) => sum + row.weight, 0);
@@ -45,6 +58,8 @@ export function buildIndexEarnings({ rows = [], weights = null, consensus = null
     if (est.asOf && (!latest || est.asOf > latest)) latest = est.asOf;
     if (est.asOf && (!oldest || est.asOf < oldest)) oldest = est.asOf;
     const secondClass = Object.hasOwn(SHARE_CLASS_OF, sym) && members.some((row) => String(row.sym).toUpperCase() === SHARE_CLASS_OF[sym]);
+    // v59.59 (logic refactor): a member without both 4-week revision counts is not collected, not "0 up, 0 down" — it
+    // used to add its weight to the revision coverage, so the 80% gate passed with a breadth resting on a few members.
     const revisionsKnown = finite(fwd.up4w) != null && finite(fwd.down4w) != null;
     if (revisionsKnown) {
       const up = secondClass ? 0 : finite(fwd.up4w);

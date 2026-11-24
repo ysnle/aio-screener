@@ -3,7 +3,7 @@
 // when a user key exists. This producer fills public-data/earnings-calendar.json
 // so keyless clients still see the coming week's schedule as reference data.
 // Finnhub free: 60 calls/min. Eleven calls per run (week + 9 single days of earnings, IPO), then ~25 paced weekday calls
-// for the next weeks' universe dates (v58.75, ~1.1 s apart) — inside the quota.
+// for the next weeks' universe dates (~1.1 s apart) — inside the quota.
 // Without FINNHUB_API_KEY the artifact is preserved with status operator-key-required.
 
 import { readFile } from 'node:fs/promises';
@@ -59,7 +59,7 @@ export function largeCapScheduleGaps(earningsRows = [], { sp500Rows = [], univer
   };
 }
 
-// v59.42 (owner audit 2026-10-28): META read 'unconfirmed' in the week after it had reported. A second free official
+// META read 'unconfirmed' in the week after it had reported. A second free official
 // source settles the gap: an 8-K with Item 2.02 (Results of Operations) on EDGAR in the 45 days before the window means
 // the quarter is already out, so the name moves to `recentlyReported` with that filing. The rest stay unconfirmed with
 // the reason. Foreign issuers file 6-K without item numbers, so they are not settled this way.
@@ -140,7 +140,7 @@ export function mergeEarningsRows(...lists) {
   }
   return [...merged.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.symbol).localeCompare(String(b.symbol)));
 }
-// v59.94: a failed day query or IPO query is recorded instead of reading as an empty, current result. dayResults[i] is
+// A failed day query or IPO query is recorded instead of reading as an empty, current result. dayResults[i] is
 // the row array for days[i] or null when that query failed; ipoResult is an array or null. A failed day still keeps
 // what the week query returned (the merge does that); it is only listed in earningsDayGaps.
 export function earningsQueryGaps({ days = [], dayResults = [], ipoResult = null } = {}) {
@@ -186,7 +186,7 @@ async function main() {
     // This header always claimed the artifact is "preserved with status
     // operator-key-required", but the code returned without writing anything, so
     // the path never existed: every keyless client (including the browser
-    // earnings panel's snapshot fallback) got a 404 (P1115). Publish an explicit
+    // earnings panel's snapshot fallback) got a 404. Publish an explicit
     // unavailable snapshot, and never overwrite a real one with it.
     if (previous && previous.status === 'current-reference') {
       console.warn('[earnings-calendar] skipped: FINNHUB_API_KEY is not configured; the published reference snapshot is preserved');
@@ -240,7 +240,7 @@ async function main() {
   const universeSymbols = new Set((Array.isArray(universe?.universe) ? universe.universe : []).map((row) => String(row?.sym || '').trim().toUpperCase().replace(/[./]/g, '-')).filter((sym) => sym && !/-(KS|KQ|T|TW)$/.test(sym)));
   const upcoming = upcomingEarningsMap([...earnings, ...upcomingRows], universeSymbols.size ? universeSymbols : null, isoDay(now));
   console.log(`[earnings-calendar] upcoming ${upcomingDays.length} day queries (${upcomingGaps.length} failed), ${Object.keys(upcoming).length} universe listings dated`);
-  // v58.52: S&P 500 weight per row so the briefing schedule keeps the market-moving reports (META, TSLA, NFLX) when a
+  // S&P 500 weight per row so the briefing schedule keeps the market-moving reports (META, TSLA, NFLX) when a
   // single session carries dozens of names; the screen used to keep the first six by clock time and name.
   const indexWeightOf = new Map((Array.isArray(sp500?.rows) ? sp500.rows : []).filter((r) => r?.sym && readNumber(r.weight) != null).map((r) => [r.sym, Number(r.weight)]));
   const payload = {
@@ -265,7 +265,7 @@ async function main() {
       epsEstimate: typeof row.epsEstimate === 'number' ? row.epsEstimate : null,
       revenueEstimate: typeof row.revenueEstimate === 'number' ? row.revenueEstimate : null,
       indexWeight: indexWeightOf.has(row.symbol) ? indexWeightOf.get(row.symbol) : null,
-      // P1382: after the report Finnhub returns the actuals; headline-only earnings news cites them.
+      // After the report Finnhub returns the actuals; headline-only earnings news cites them.
       epsActual: typeof row.epsActual === 'number' ? row.epsActual : null,
       revenueActual: typeof row.revenueActual === 'number' ? row.revenueActual : null
     })), previous?.earnings, new Date().toISOString()),
@@ -283,7 +283,7 @@ async function main() {
 
 // Run only as a script, so the window/coverage helpers can be imported by checks without a provider call.
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  // v58.20 review B1: this optional reference calendar runs before the core screener step under `set -e`, so one Finnhub
+  // B1: this optional reference calendar runs before the core screener step under `set -e`, so one Finnhub
   // timeout/429 used to stop the whole screener and SEC refresh for the cycle. The file is written only at the end, so a
   // failure keeps the previous one; it is annotated and the job goes on, like the other optional lanes (sp500-weights).
   main().catch((error) => { console.log(`::warning::earnings calendar not refreshed (${error?.message || error}); previous file kept`); });

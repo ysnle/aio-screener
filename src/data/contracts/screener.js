@@ -1,3 +1,6 @@
+// SCR-OS-01/02/05/07/09: the screener workbench contract is intentionally
+// dependency-free so providers, the browser engine, AI adapters and scripts
+// can consume the same immutable shapes without importing the legacy shell.
 import { CANONICAL_SOURCE_TIERS, canonicalSourceTier } from './source-kind.js';
 import { latestCompletedUsSession, latestCompletedKrSession, nyParts } from '../../domain/market/session/market-calendar.js';
 import { listingMarketOfSymbol, timeZoneForSymbol } from '../../domain/market/session/session-time.js';
@@ -12,6 +15,9 @@ export const FIELD_STATUS = Object.freeze([
 export const CALCULABLE_FIELD_STATUSES = Object.freeze(['CURRENT', 'DELAYED', 'INFERRED']);
 const DISPLAYABLE_FIELD_STATUSES = new Set([...CALCULABLE_FIELD_STATUSES, 'STALE', 'LAST_GOOD', 'CONFLICT']);
 
+// P1177/R24-04: the live quote overlay keys. This list is the canonical source for both the
+// snapshot identity projection (provider) and the calculation input identity (screen engine),
+// so adding a live-derived key can no longer silently miss one of the two identities.
 export const LIVE_QUOTE_DERIVED_ROW_KEYS = Object.freeze([
   'price', 'priceObservedAt', 'priceFetchedAt', 'priceSource', 'priceSourceKind',
   'priceAllowedUse', 'priceAllowedUseCeiling', 'priceQuality', 'priceRightsId', 'priceRevision',
@@ -147,6 +153,9 @@ export async function stableHashAsync(value, { yieldImpl, signal, workPerChunk =
   return state.result();
 }
 
+// Identity is reference data from the curated universe: a symbol and its name do not expire with the review window
+// (null = no freshness budget). A lapsed universe review is reported once for the page (universeFreshnessStatus); with a
+// 30-day budget here every row turned unusable on day 31 and the default screen showed no stocks.
 const FIELD_ROWS = [
   ['identity.symbol', '종목 코드', 'string', 'text', 'symbol', null],
   ['identity.name', '기업명', 'string', 'text', 'name', null],
@@ -174,6 +183,8 @@ const FIELD_ROWS = [
   ['technical.ema21', 'EMA21', 'number', 'currency', 'ema21', 3],
   ['technical.ema60', 'EMA60', 'number', 'currency', 'ema60', 3],
   ['valuation.marketCap', '시가총액', 'number', 'USD_bn', 'mcap', 7],
+  // 2026-10-16 (owner-approved): annual filing figures share the factor ranker's 456-day rule. The former 30/90-day
+  // budgets made calculationRow null PER·ROE for 0.4%/5.2% of rows, so value and quality never reached the rank.
   ['valuation.pe', 'PER', 'number', 'multiple', 'pe', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
   ['valuation.pb', 'PBR', 'number', 'multiple', 'pb', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
   ['quality.roe', 'ROE', 'number', 'percent', 'roe', FUNDAMENTAL_MAX_PERIOD_AGE_DAYS],
@@ -329,6 +340,12 @@ function fieldObservationContext(row, definition) {
   };
 }
 
+// Codex review 2026-10-05 (931종목 전부 순위 보류): session/eod fields were aged in calendar days, so the
+// Friday close counted as stale by Monday evening although no session had completed since. An
+// observation from the latest completed US (or KRX) session is within budget whatever the weekend
+// or holiday length.
+// The calendar lookups build Intl formatters; 900+ rows × dozens of fields made boot paint wait seconds.
+// The latest session per market is memoized per minute and the observation's NY date per timestamp.
 const sessionMemo = { minute: null, us: null, kr: null };
 const nyDateMemo = new Map();
 function latestSessions(now) {
@@ -340,6 +357,9 @@ function nyDate(ms) {
   if (!nyDateMemo.has(ms)) { if (nyDateMemo.size > 5000) nyDateMemo.clear(); nyDateMemo.set(ms, nyParts(ms).date); }
   return nyDateMemo.get(ms);
 }
+// F07/V04 (D1 request): Tokyo/Taipei listings were judged against the New York session. There is no
+// exchange holiday calendar for them here, so the latest completed session is the latest weekday whose local
+// close (+30 min) has passed; a local holiday reads as one session behind and falls back to the calendar budget.
 const INTL_CLOSE_MINUTES = Object.freeze({ 'Asia/Tokyo': 15 * 60 + 30, 'Asia/Taipei': 13 * 60 + 30 });
 const intlFormatters = new Map();
 function localParts(ms, timeZone) {
@@ -371,6 +391,9 @@ export function isLatestSessionObservation(observedMs, now, market = 'US', timeZ
 
 export function classifyFieldStatus({ value, observedAt, now = Date.now(), freshnessBudgetMs = null, supported = true, rights = 'UNKNOWN', conflict = false, sourceKind = 'T3_PUBLIC_DELAYED', lastGood = false, cadence = null, market = 'US', timeZone = null } = {}) {
   if (!supported) return 'UNSUPPORTED';
+  // A known public delayed source can support research while its redistribution
+  // rights remain under review. UNKNOWN/denied access is still blocked, and the
+  // review flag must never be promoted to VERIFIED or CURRENT.
   const reviewedPublicReference = String(rights) === 'REVIEW_REQUIRED' && String(sourceKind) === 'T3_PUBLIC_DELAYED';
   if (String(rights) !== 'VERIFIED' && !reviewedPublicReference) return 'BLOCKED_RIGHTS';
   if (conflict) return 'CONFLICT';
@@ -396,12 +419,19 @@ export function fieldValueForPurpose(row, fieldId, purpose = 'display') {
   return allowed ? value : null;
 }
 
+// Boundary contract: domain code reads a row's number by its row key through the readiness contract instead of
+// row[key], so missing, rights and age are judged once here (korea-participation carried this as a local `read`).
+// A key the registry does not define (ret5d, ret10d) is read as the plain number it is. A row that carries no readiness
+// (backtest rebuilds, fixtures, older artifacts) has nothing to judge and reads its plain number for either purpose — the
+// `row.fieldReadiness ? fieldValueForPurpose(…) : finite(row[key])` convention the screener page already followed.
 const FIELD_ID_BY_ROW_KEY = new Map(SCREENER_FIELD_REGISTRY.fields.filter((field) => field.type === 'number').map((field) => [field.rowKey, field.fieldId]));
 export function readRowNumber(row, rowKey, purpose = 'display') {
   const fieldId = FIELD_ID_BY_ROW_KEY.get(rowKey);
   return readNumber(fieldId && row?.fieldReadiness ? fieldValueForPurpose(row, fieldId, purpose) : row?.[rowKey]);
 }
 
+// `price` is the live quote overlay (LIVE_QUOTE_PRICE_ROW_KEYS) carrying its own observation time; the
+// close readiness under the same row key judges the artifact's close, so readRowNumber would hide a valid live quote.
 export function readLiveQuotePrice(row) {
   const price = readNumber(row?.price);
   return price == null ? null : { price, observedAt: row?.priceObservedAt || null };
@@ -422,6 +452,7 @@ export function buildFieldReadiness(row = {}, { registry = SCREENER_FIELD_REGIST
   const instrumentRef = row.instrumentRef || createInstrumentRef(row);
   const observations = [];
   const readiness = {};
+  // KR, INTL (Tokyo/Taipei, judged on their own local session) or US.
   const symbol = String(row.sym || row.symbol || '');
   const listingMarket = /\.(KS|KQ)$/i.test(symbol) || row.market === 'KR' ? 'KR'
     : String(row.listingMarket || '').toUpperCase() === 'INTL' || listingMarketOfSymbol(symbol) === 'INTL' ? 'INTL' : 'US';
@@ -601,6 +632,9 @@ export function createScreenRun(input = {}) {
     unavailable: Number.isInteger(input.unavailable) ? input.unavailable : 0,
     providerSet: Object.freeze(Array.isArray(input.providerSet) ? [...input.providerSet] : []),
     engineVersion: String(input.engineVersion || 'screen-engine.v1'),
+    // Input identity separated from the observation set. Present on new runs
+    // only — legacy (screen-engine.v5) records keep their original shape byte-for-byte so
+    // their stored identity and result stay replayable under their legacy semantics.
     ...(input.calculationInputId ? { calculationInputId: String(input.calculationInputId) } : {}),
     ...(input.factorInputPolicy ? { factorInputPolicy: String(input.factorInputPolicy) } : {}),
     explanationsHash: String(input.explanationsHash || ''),
@@ -613,6 +647,8 @@ export function createScreenRun(input = {}) {
 export function validateScreenRun(run) {
   const errors = [];
   for (const field of ['runId', 'screenId', 'definitionHash', 'snapshotId', 'engineVersion']) if (!run?.[field]) errors.push(`${field}_missing`);
+  // Runs under the calculation-input identity contract must declare it.
+  // screen-engine.v5 records predate the field and keep legacy_identity_semantics.
   if (run?.engineVersion !== 'screen-engine.v5') {
     if (!run?.calculationInputId) errors.push('calculation_input_id_missing');
     if (!run?.factorInputPolicy) errors.push('factor_input_policy_missing');

@@ -85,7 +85,7 @@ export function withArchiveUrls(cik, filing) {
   };
 }
 
-// P1547: every attempt carries a wall-clock deadline that also covers the body read; a provider that stalls
+// Every attempt carries a wall-clock deadline that also covers the body read; a provider that stalls
 // after the headers can no longer hold the whole 13F lane until the job timeout.
 export function createSecClient({ userAgent = requireSecUserAgent(), minIntervalMs = 125, maxRetries = 3, requestTimeoutMs = 60000, fetchFn = globalThis.fetch } = {}) {
   if (typeof fetchFn !== 'function') throw new Error('fetch is unavailable');
@@ -177,12 +177,12 @@ export function assertNoPlaceholderSecUserAgents(source, label = 'source') {
   }
 }
 
-// Codex review 2026-10-05: a 13D/G line with only a form and a date gives no reason to read it. The SEC
+// A 13D/G line with only a form and a date gives no reason to read it. The SEC
 // header names the subject company; the cover page states the percent of class. Both are parsed best
 // effort — a value that is not found stays null and the screen says so; it is never estimated.
 export function parseOwnershipHeader(sgml = '') {
   const text = String(sgml);
-  // P1498: the .hdr.sgml file uses tag form (<SUBJECT-COMPANY> … <CONFORMED-NAME>, <CIK>); the full .txt
+  // The .hdr.sgml file uses tag form (<SUBJECT-COMPANY> … <CONFORMED-NAME>, <CIK>); the full .txt
   // submission uses the colon form (SUBJECT COMPANY: … COMPANY CONFORMED NAME:). Read both.
   const subject = (text.split(/<SUBJECT-COMPANY>|SUBJECT COMPANY:/i)[1] || '').split(/<\/SUBJECT-COMPANY>|<FILED-BY>|FILED BY:/i)[0];
   const name = subject.match(/(?:COMPANY CONFORMED NAME:|<CONFORMED-NAME>)[ \t]*([^\r\n<]+)/i)?.[1]?.trim() || null;

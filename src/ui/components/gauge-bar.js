@@ -1,7 +1,11 @@
+// A threshold gauge — the rule's bands coloured by their effect on stocks, with the current value pinned.
+// Its own module, so the 공포·탐욕 band (sentiment-board.js) and the index earnings breadth draw the same SVG
+// gauge without loading the macro board.
 import { signedText } from '../../domain/shared/number.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 
+// v59.70 (render hotfix): a value that rounds to zero prints without a sign — dxy20 0.03 read '+0.0%' (and -0.03 '-0.0').
 const signedNumber = (value, digits) => signedText(value, digits, '', { plus: false });
 
 export const TONE_WORD = Object.freeze({ favorable: '양호', neutral: '중립', burden: '부담' });
@@ -32,12 +36,14 @@ export function gaugeBar(doc, g) {
     svg.append(node);
     return node;
   };
+  // A band can carry its own name (the F&G scale's 극단 공포…극단 탐욕) — the name sits under the band, a 2-unit
+  // gap separates neighbours, and `active` darkens the band holding today's value (a level, not a verdict colour).
   for (const band of g.bands) {
     const gap = band.name ? 1 : 0;
     add('rect', { x: x(band.from) + gap, y: 16, width: Math.max(0, x(band.to) - x(band.from) - gap * 2), height: 8, rx: band.name ? 4 : 0, class: `macro-gauge-band is-${band.tone}${band.active ? ' is-active' : ''}` });
     if (band.name) add('text', { x: (x(band.from) + x(band.to)) / 2, y: 40, 'text-anchor': 'middle', class: `macro-gauge-label${band.active ? ' is-active' : ''}` }, band.name);
   }
-  const labelWidth = (text) => [...String(text || '')].reduce((sum, ch) => sum + (/[ㄱ-힝]/.test(ch) ? 12 : 7.5), 0);
+  const labelWidth = (text) => [...String(text || '')].reduce((sum, ch) => sum + (/[ㄱ-힝]/.test(ch) ? 12 : 7.5), 0); // 12px labels (owner type scale 2026-10-23)
   const placed = [...(g.markers || [])].sort((a, b) => a.at - b.at).map((marker) => ({ marker, at: x(marker.at), anchor: 'middle' }));
   placed.forEach((item, i) => {
     const prev = placed[i - 1];

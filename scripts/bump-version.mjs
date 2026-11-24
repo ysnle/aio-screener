@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// scripts/bump-version.mjs — R1 버전 동기화 자동화 (v51.64)
+// scripts/bump-version.mjs — R1 버전 동기화 자동화
 //
 // 사용법:
 //   node scripts/bump-version.mjs <새버전>
@@ -24,7 +24,7 @@
 //   - CHANGELOG.md에 새 섹션 헤더를 자동 삽입하지만 내용은 직접 채워야 함.
 //   - v57.54: 날짜가 박힌 과거 핸드오프 문서(MARKET-PRINCIPLES-ATLAS-*-2026-08-10.*,
 //     SCREENER-OPEN-SOURCE-BENCHMARK-AND-REBUILD-HANDOFF-2026-08-12.md)와 RULES.md frontmatter
-//     target_version은 더 이상 다시 쓰지 않는다. 그 문서들은 마지막 값(v57.54)에 동결된 이력이며,
+//     target_version은 더 이상 다시 쓰지 않는다. 그 문서들은 마지막 값 에 동결된 이력이며,
 //     매 범프마다 "현재 버전"으로 재라벨링하면 이력을 위조하고 diff만 늘린다. 앱·배포가 실제로
 //     읽는 표면(1~4, 7)만 패치한다.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ function canonicalizeVersion(raw) {
     : `v${parsed.major}.${String(parsed.patch).padStart(2, '0')}`;
 }
 
-// v59.70: an unknown argument fails before any file is touched, and --help only prints (scripts/lib/cli-args.mjs).
+// An unknown argument fails before any file is touched, and --help only prints (scripts/lib/cli-args.mjs).
 const USAGE = '사용법: node scripts/bump-version.mjs <버전> [--resume-from <이전 버전>] [--align-generated]  (예: v51.65)';
 let cli;
 try { cli = parseCliArgs(process.argv.slice(2), { usage: USAGE, flags: ['--align-generated'], options: ['--resume-from'], positional: { max: 1 } }); }
@@ -134,7 +134,7 @@ try {
   process.exit(1);
 }
 
-// P1355: align only incoming producer metadata to this already-versioned local app.
+// Align only incoming producer metadata to this already-versioned local app.
 if (cli.flags.has('--align-generated')) {
   try {
     if (resumeFrom || prevVer !== newVer) throw new Error('--align-generated requires the existing current version, without --resume-from');
@@ -287,7 +287,7 @@ try {
 
 // ── 5–6. 에이전트 가이드의 "현재 버전" 줄 ─────────────────────────────────────
 // 정본은 version.json과 생성형 _context/CURRENT-STATE.md다. 가이드가 "현재 버전" 줄을 들고 있으면
-// 그 한 줄만 바꾸고(P596: 문서 전체 치환은 과거 기록을 위조했다), 줄이 없으면 아무것도 쓰지 않는다.
+// 그 한 줄만 바꾸고(문서 전체 치환은 과거 기록을 위조했다), 줄이 없으면 아무것도 쓰지 않는다.
 // 예전에는 줄이 없을 때 파일 전체의 prevVer를 치환하는 대체 경로가 있었는데, 그 경로가 이력 텍스트를
 // 오염시키는 원인이었으므로 제거했다. 가이드에서 이 줄을 지우면 범프 대상에서 자연스럽게 빠진다.
 for (const [step, rel, pattern] of [
@@ -312,7 +312,7 @@ for (const [step, rel, pattern] of [
 console.log('7. CHANGELOG.md 패치...');
 try {
   // R1 extension: runtime/deploy revision metadata that the app, Worker /health and release gates read.
-  // Dated handoff documents and ledger frontmatter are frozen history and are not rewritten (v57.54).
+  // Dated handoff documents and ledger frontmatter are frozen history and are not rewritten.
   try {
     for (const artifactPath of [
       'public-config.json',

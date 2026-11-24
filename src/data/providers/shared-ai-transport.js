@@ -5,7 +5,7 @@
 // fetch. The window names are the ones the classic scripts already call; installCompatibilityGlobals installs them.
 
 export function installSharedRoute(window = globalThis) {
-  // v54.69 chat-resilience: every per-page turn owns a cancellation token and
+  // chat-resilience: every per-page turn owns a cancellation token and
   // epoch.  Network promises cannot always be cancelled (for example a legacy
   // data helper may not accept AbortSignal), so the epoch guard is the second
   // boundary that prevents stale callbacks from publishing into a newer turn.
@@ -59,7 +59,7 @@ export function installSharedRoute(window = globalThis) {
   function _aioClaudeTarget() {
     try {
       var publicCfg = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
-      if (publicCfg && publicCfg.ai && publicCfg.ai.routeStatus === 'DISABLED') return null; // P1424: a held route is not a generation entitlement.
+      if (publicCfg && publicCfg.ai && publicCfg.ai.routeStatus === 'DISABLED') return null; // A held route is not a generation entitlement.
       var publicWorker = publicCfg && publicCfg.ai && typeof publicCfg.ai.workerUrl === 'string' ? publicCfg.ai.workerUrl.trim().replace(/\/+$/, '') : '';
       var healthPath = (publicCfg && publicCfg.ai && publicCfg.ai.healthPath) || '/health';
       if (publicWorker) return { url: publicWorker + '/openai', healthUrl: publicWorker + healthPath, workerUrl: publicWorker, serverKey: true, source: 'public-config' };
@@ -68,7 +68,7 @@ export function installSharedRoute(window = globalThis) {
   }
   window._aioClaudeTarget = _aioClaudeTarget;
 
-  // v52.47 WO-1B: Worker /anthropic 라우트에 실어보내는 공유 앱 토큰. 공개 클라이언트 JS에
+  // WO-1B: Worker /anthropic 라우트에 실어보내는 공유 앱 토큰. 공개 클라이언트 JS에
   // 그대로 노출되므로 진짜 비밀이 아니다 — Worker(cloudflare-worker-proxy.js)가 이 값과 동일한
   // env.AIO_APP_TOKEN을 설정했을 때만 "URL만 아는" curl/스크립트 남용을 거르는 최소 방어선으로
   // 쓰인다(운영자가 설정 안 하면 Worker가 이 헤더를 아예 검사하지 않음 — 하위호환).
@@ -90,7 +90,7 @@ export function installSharedRoute(window = globalThis) {
     }
     return value;
   }
-  // v58.63 (architecture audit A16): one health lifetime. The fetch (and its one quiet retry) aborts at this bound, and the
+  // One health lifetime. The fetch (and its one quiet retry) aborts at this bound, and the
   // wait around it lasts slightly longer, so an 8.5s healthy answer on a slow phone is no longer a RESEARCH_TIMEOUT that
   // the cache then records as READY a moment later.
   var _AIO_HEALTH_TIMEOUT_MS = 12000;
@@ -115,7 +115,7 @@ export function installSharedRoute(window = globalThis) {
     if (!_aioWorkerHealthInFlight[target.workerUrl]) {
       _aioWorkerHealthInFlight[target.workerUrl] = (async function() {
         var ctrl = new AbortController();
-        var timer = setTimeout(function() { ctrl.abort(); }, _AIO_HEALTH_TIMEOUT_MS); // P1653: slow mobile networks timed out at 7s and refused the question
+        var timer = setTimeout(function() { ctrl.abort(); }, _AIO_HEALTH_TIMEOUT_MS); // Slow mobile networks timed out at 7s and refused the question
         try {
           var _healthInit = { method: 'GET', cache: 'no-store', credentials: 'omit', headers: { 'X-AIO-App-Token': _aioAppToken() }, signal: ctrl.signal }; var response = await fetch(target.healthUrl, _healthInit).catch(async function(firstError) { if (ctrl.signal.aborted) throw firstError; await new Promise(function(resolve) { setTimeout(resolve, 1200); }); return fetch(target.healthUrl, _healthInit); }); // one quiet retry for a dropped mobile connection
           var payload = await response.json().catch(function() { return null; });

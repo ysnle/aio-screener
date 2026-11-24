@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (screen review 2026-11-04 #1): a phone rule (inside @media (max-width: ≤760px)) that re-lays an element out must
+// A phone rule (inside @media (max-width: ≤760px)) that re-lays an element out must
 // win the cascade. responsive.css set the 1-column phone grid for 금리와 환율 '원화는 왜 움직였나' and 뉴스 '뉴스가 모이는 곳'
 // with specificity (1,1,0) while the 2-column rule above it was (1,2,0), so on a 390px phone the read column was 4px wide
 // and its text stacked one letter per line. This gate parses every stylesheet the app loads and fails when a phone

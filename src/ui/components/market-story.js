@@ -1,3 +1,7 @@
+// 시장 상태 › 시나리오와 전망's last card — 무슨 일이 있었나. One picture (one week of moves on the shared two-sided bar, STORY_SESSIONS),
+// one reading (domain/market/story/market-story.js), the week-ahead list on the face, and one raw-table fold with the
+// asset-by-asset confirmation and the earnings reactions. The week-ahead list owns the next release on this page; the 다음에 확인할 것
+// card below keeps the two price checks.
 import { buildMarketStory, buildMarketOpening, fallStandings } from '../../domain/market/story/market-story.js';
 import { LONGRUN_DEFINITION } from '../../domain/market/indices/long-run.js';
 import { fallBars } from './fall-bars.js';
@@ -66,6 +70,7 @@ function questionRow(doc, story) {
 }
 
 function detailFold(doc, story) {
+  //  the rows behind the reading — the levels' reading itself is on the face (renderMarketStory).
   const fold = markFold(el(doc, 'details', null, 'mk-story__more'), 'raw-table');
   fold.append(foldSummary(doc, 'raw-table', `${story.levels ? '차트 위치, ' : ''}금리·신용·유가·금·한국 확인과 실적 반응`));
   if (story.levels) {
@@ -119,6 +124,7 @@ function detailFold(doc, story) {
 export function readMarketStory(root, interpretation, rerender) {
   const briefs = ensure(root, EVENT_BRIEFS, rerender);
   const calendar = ensure(root, EARNINGS_CALENDAR, rerender);
+  // The market-day stories' movers — a report one of them is about joins the week list whatever its weight.
   const day = ensure(root, MARKET_DAY, rerender);
   const storySymbols = new Map();
   for (const item of Array.isArray(day?.narratives?.stories) ? day.narratives.stories : []) {
@@ -133,6 +139,9 @@ export function readMarketStory(root, interpretation, rerender) {
   return { key, build };
 }
 
+// ---- v60.50: the opening read on the faces of 오늘 and 시장 상태 ----------------------------------------
+// The domain (buildMarketOpening) owns every sentence; this paints its lines. The long-run tables (index-longrun.json,
+// weekly) join when published; without them the sentences fall back to the record history.json holds.
 let openingMemo = null;
 export function readMarketOpening(root, interpretation, rerender) {
   const longrun = ensure(root, INDEX_LONGRUN, rerender);

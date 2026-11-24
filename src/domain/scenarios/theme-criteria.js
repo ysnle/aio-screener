@@ -1,4 +1,4 @@
-import { median } from '../themes/theme-medians.js';
+import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
 import { finiteNumber as finite, signedText } from '../shared/number.js';
 import { windFor, WIND_LABELS, EXPOSURE_TAGS } from './exposures.js';
 import { ABOVE50_FLOOR } from './theme-playbook.js';
@@ -8,6 +8,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { AXIS_LABELS, STATE_LABELS } from '../market/interpretation/concepts.js';
 
+// Boundary contract: member numbers are read through the screener readiness contract, not row[key].
 const value = (row, key) => readRowNumber(row, key, 'calculation');
 const shown = (row, key) => readRowNumber(row, key, 'display');
 
@@ -21,6 +22,9 @@ export const THEME_CRITERIA_RULES = Object.freeze({
   macroSessions: 20
 });
 const R = THEME_CRITERIA_RULES;
+// The markets whose listings a criterion's source covers. The consensus (consensus-estimates.json) and the earnings
+// calendar (earnings-calendar.json) carry US listings only, so a Korean theme is counted out of the four criteria that
+// apply to it ("3/4"), not left with two that can never be checked ("3/6, 미확인 2").
 export const CRITERIA_MARKETS = Object.freeze({ revisions: Object.freeze(['US']), catalyst: Object.freeze(['US']) });
 const appliesTo = (id, market) => !CRITERIA_MARKETS[id] || CRITERIA_MARKETS[id].includes(market || 'US');
 
@@ -36,6 +40,7 @@ export function themeMemberStats(members = []) {
     count: rows.length,
     ret1m: median(rows.map((row) => value(row, 'ret1m'))), ret3m: median(rows.map((row) => value(row, 'ret3m'))), ret5d: median(rows.map((row) => row.ret5d)),
     ret6m: median(rows.map((row) => value(row, 'ret6m'))),
+    // v59.45 (P8-THEME-01): how many members each median actually stands on (a row without the return is not a sample).
     ret1mCount: rows.filter((row) => value(row, 'ret1m') != null).length, ret3mCount: rows.filter((row) => value(row, 'ret3m') != null).length,
     ret6mCount: rows.filter((row) => value(row, 'ret6m') != null).length,
     ret5dCount: rows.filter((row) => finite(row.ret5d) != null).length,
@@ -110,6 +115,9 @@ export function themeCriteria({ row = null, members = [], benchmark = null, cons
   return { headline: `${countText}${unmet.length ? ` — 미충족: ${unmet.join(', ')}` : ''}`, items: applied, met: metCount, known: knownCount, total: applied.length, unmet, countText };
 }
 
+// 2026-11-18 (테마 시나리오 table read 미국 헬스케어 "4/6" while its detail read "6개 중 5개"): a criterion whose data is
+// missing is not an unmet one, so the short count names the unchecked ones and a sort never ranks a half-checked count
+// against a fully checked one.
 /** The table cell's count: "5/6", or "4/6, 미확인 2" while some criteria cannot be checked; '—' without criteria. */
 export function criteriaCellText(criteria) {
   if (!criteria) return '—';

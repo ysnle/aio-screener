@@ -1,3 +1,4 @@
+// Conditional readings from observed bars. No price targets or probabilities.
 import { formatScreenerPrice } from '../screener/market-scope.js';
 import { finiteNumber as finite } from '../shared/number.js';
 
@@ -82,6 +83,10 @@ export function buildChartScenarios(analysis, { currency = null } = {}) {
     { id: 'range', title: '범위 안 흐름', text: `${price(support)}~${price(resistance)} 안에서 머무르면 방향보다 범위와 거래량 변화를 살펴봅니다. 고점·저점이 함께 높아지는지, 하락일 거래량이 늘어나는지가 다음 구분 기준입니다.` },
     { id: 'weakness', title: '약화 조건', level: support, text: `${contractionLow === support ? '마지막 수축 저점' : '최근 20거래일 저점'} ${price(support)} 아래 종가가 이어지면 기존 가격 구조가 약해집니다. 이후 같은 가격을 회복하는지에 따라 이탈 지속과 범위 복귀를 구분합니다.` }
   ];
+  // v58.74 (text audit): the expert's first question about three paths — which trigger the close is nearer to.
+  // P24-DISTANCE-01: both distances are the move from today's close (one denominator). The old sentence put
+  // resistance/close - 1 (the rise needed, 20% for 100 -> 120) after "기준보다 아래", where 100 is 16.7% under 120, and
+  // measured support from the support price, so the two sides were compared on different bases.
   const toWeak = last.close > 0 && support > 0 ? (1 - support / last.close) * 100 : null;
   const toRecover = last.close > 0 && resistance > 0 ? (resistance / last.close - 1) * 100 : null;
   const nearest = toWeak != null && toRecover != null && toWeak >= 0 && toRecover >= 0

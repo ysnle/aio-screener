@@ -36,6 +36,7 @@ function installPortfolioPanelGlobals(root, documentRef) {
     coverageState: ledgerCoverageState
   };
   root._pfDeclarationPanels = { applyLedgerPanel, applyFxPanel, showDeclarationStatus, readDeclaredFields, clearDeclaredFields };
+  // Section normalisation reuses each section's owner (ledger, FX, assumptions); an import lists each ticker once.
   const backupDeps = {
     normalizeLedger,
     normalizeFxLegs,

@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-// Knowledge source liveness report (v60.46). Non-gating by design: a remote site's 404, bot wall or outage is not a
+// Knowledge source liveness report. Non-gating by design: a remote site's 404, bot wall or outage is not a
 // property of this commit, so CI never runs this. ci-knowledge-corpus-check holds the offline rule (dated source on a
 // moving "latest" URL); this script is the network half an editor runs before refreshing source URLs.
 //
 //   node scripts/report-knowledge-source-liveness.mjs [--json]
-//
-// dead         404/410 — the page is gone; replace the URL in its source of truth, then rebuild
-// inconclusive 401/403/429/5xx/network — usually a bot wall (OECD, BLS, sec.gov without a contact UA); open it in a browser
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

@@ -27,7 +27,7 @@ try {
   await page.waitForFunction(() => window.AIO_ARCH?.getScreenerState?.()?.rows?.length >= 800, { timeout: 30000 });
   await page.evaluate(() => window.showPage('screener'));
   await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length === 12, { timeout: 30000 });
-  await page.locator('#scr-tab-button-backtest').click(); // v59.51: the 사후 검증 view carries the evidence panel
+  await page.locator('#scr-tab-button-backtest').click(); // The 사후 검증 view carries the evidence panel
   await page.waitForFunction(() => document.getElementById('scr-tab-evidence')?.hidden === false, { timeout: 5000 });
   const conditionalEvidencePanel = await page.locator('#screener-conditional-evidence-panel').evaluate((node) => ({ status: node.dataset.statusCode, text: node.textContent }));
   if (conditionalEvidencePanel.status !== 'NO_CONDITIONAL_EVIDENCE' || /keygen|password|download/i.test(conditionalEvidencePanel.text)) throw new Error(`conditional evidence fail-closed contract invalid: ${JSON.stringify(conditionalEvidencePanel)}`);
@@ -76,14 +76,14 @@ try {
   const requiredFailures = result.timeline.checks.filter((check) => check.required && check.status !== 'PASS');
   if (result.timeline.checks.length !== 6 || requiredFailures.length) throw new Error(`required quant timeline failed: ${JSON.stringify(requiredFailures)}`);
   if (!result.ranking?.available || result.ranking?.inputVersion !== result.timeline.checks.find((check) => check.id === 'screener.snapshot')?.revision) throw new Error(`ranking revision mismatch: ${JSON.stringify(result.ranking)}`);
-  // P1872: annual SEC figures within the 456-day rule are current, so value/quality may be active — but only on the
+  // Annual SEC figures within the 456-day rule are current, so value/quality may be active — but only on the
   // ranker's own terms (coverage of current fundamentals at least 80% of ranked rows), never from stale inputs.
   for (const factor of ['value', 'quality']) {
     const coverage = result.ranking.factorCoverage?.[factor];
     if ((result.ranking.activeFactors || []).includes(factor) && !(coverage?.coveragePct >= coverage?.minCoveragePct)) throw new Error(`P1872 ${factor} active below its coverage floor: ${JSON.stringify(coverage)}`);
   }
 
-  // v60.35 (owner 2026-11-20): the 조건 화면 list is one visible picker at the top of the conditions block.
+  // The 조건 화면 list is one visible picker at the top of the conditions block.
   const screenChoices = await page.locator('#scr-conditions #scr-screen-select option:not([hidden])').evaluateAll(nodes => nodes.map(node => node.value));
   if (screenChoices.length < 2) throw new Error('screen selector fixture requires distinct definitions');
   if (!(await page.locator('#scr-screen-select').isVisible())) throw new Error('v60.35 the 조건 화면 picker is visible in the conditions block');
@@ -101,7 +101,7 @@ try {
     const note = document.getElementById('screener-readiness-note') || {};
     return {
       title: note.title || '',
-      status: `${document.getElementById('scr-workbench-status')?.textContent || ''} ${document.getElementById('scr-workbench-status')?.title || ''}`, // P1431: the definition id moved to the title
+      status: `${document.getElementById('scr-workbench-status')?.textContent || ''} ${document.getElementById('scr-workbench-status')?.title || ''}`,
       history: document.getElementById('scr-run-history')?.textContent || '',
       funnel: ['universe', 'ready', 'passed', 'unavailable'].map((key) => document.getElementById(`scr-funnel-${key}`)?.textContent).join('/')
     };
@@ -111,7 +111,6 @@ try {
   const previewSweep = [];
   for (const screenId of sweepIds) {
     await choosePreset(screenId);
-    // v58.74: the preset id moved from the readiness sentence to its title.
     await page.waitForFunction((id) => { const note = document.getElementById('screener-readiness-note'); return `${note?.textContent || ''} ${note?.title || ''}`.includes(id); }, screenId);
     previewSweep.push(await page.evaluate(readPreviewUi));
   }
@@ -121,7 +120,7 @@ try {
   if (previewSweep.some((entry) => entry.history !== historyBeforeSweep)) throw new Error('P1165 preview must not record a run');
   await choosePreset(screenChoices[0]);
 
-  // P1167 (15 D04/D05): 일봉 timestamp는 그 세션 바의 시작이며 종가 기반 팩터의 관측시각이 아니다.
+  // 일봉 timestamp는 그 세션 바의 시작이며 종가 기반 팩터의 관측시각이 아니다.
   // 정적 유니버스가 MIC·assetType을 발행하지 않으면 그 미확인이 행과 화면에 남아야 한다.
   const timeAndIdentity = await page.evaluate(() => {
     const rows = window.AIO_ARCH.getScreenerState().rows;
@@ -162,8 +161,8 @@ try {
   const historyAfterReentry = await page.evaluate(runHistoryLens);
   if (historyAfterReentry.length > historyBeforeReentry.length) throw new Error(`P1168 screener re-entry accumulated identical pipeline runs: ${historyBeforeReentry.length} -> ${historyAfterReentry.length}`);
   if (historyAfterReentry.some((entry) => entry.startsWith('untagged|'))) throw new Error(`P1168 machine runs must be tagged in the run history: ${JSON.stringify(historyAfterReentry)}`);
-  // v59.70 (S12): a run condition is set in the editor and shows as one chip; the chip's × clears the same control.
-  // v60.35: 조건 추가 inside #scr-conditions opens that editor in place (the + 조건 bar button is gone).
+  // A run condition is set in the editor and shows as one chip; the chip's × clears the same control.
+  // 조건 추가 inside #scr-conditions opens that editor in place (the + 조건 bar button is gone).
   const rsiChip = '#scr-active-filter-chips [data-aio-screener-action="clear-filter"][data-aio-screener-arg="scr-rsi-min"]';
   const openConditions = async () => {
     if (await page.locator('#scr-rsi-min').isVisible()) return;
@@ -182,7 +181,7 @@ try {
   await page.locator('#scr-rsi-min').fill('52');
   await page.locator('#scr-rsi-min').dispatchEvent('change');
   if (await page.locator(rsiChip).count() !== 1 || !/RSI 52 이상/.test(await page.locator(rsiChip).textContent())) throw new Error('replacing a condition appended a second source of truth');
-  // The run (ScreenDefinition) is a developer surface (owner D3): 개발자 모드 shows the drawer.
+  // The run (ScreenDefinition) is a developer surface: 개발자 모드 shows the drawer.
   const openDeveloperDrawer = () => page.evaluate(() => { document.body.classList.add('aio-dev-mode'); const drawer = document.getElementById('scr-developer-drawer'); if (drawer) drawer.open = true; });
   await openDeveloperDrawer();
   await page.locator('[data-aio-screener-action="screen-run-visual"]').click();
@@ -193,9 +192,9 @@ try {
   // is deliberately re-synced on `aio:refresh:done` (src/app/bootstrap.js), not on
   // quote ticks, so immutability under quote churn is the contract the design
   // actually offers. Asserting "a tick must mint a new snapshotId" encoded the
-  // pre-overlay design and can no longer hold (P1074).
+  // pre-overlay design and can no longer hold.
   const afterQuoteTick = await page.evaluate(async () => {
-    // P1269: running a different definition can replace one of the first 12
+    // Running a different definition can replace one of the first 12
     // visible symbols. Seed the current visible set before asserting its price
     // overlay; an unseeded new row correctly says "미수신" in an offline fixture.
     const visibleNow = [...document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]')]
@@ -229,7 +228,7 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('#screener-results-body [data-aio-screener-ticker]').length > 0);
   await openDeveloperDrawer(); // the run history sits in the developer drawer
   await page.getByRole('button', { name: '저장 입력으로 재현', exact: true }).first().click();
-  // P1518: H113 names the archived run and its data date; verify that current
+  // H113 names the archived run and its data date; verify that current
   // surface instead of timing out on retired copy. Hash/row parity follows below.
   await page.waitForFunction(() => {
     const status = document.getElementById('scr-workbench-status');
@@ -239,7 +238,7 @@ try {
   if (replayed.resultHash !== recorded.resultHash || replayed.explanationsHash !== recorded.explanationsHash || replayed.rows < 800) throw new Error('persisted replay changed inputs/results after reload');
   await page.getByRole('button', { name: '보관 삭제', exact: true }).click();
   await page.waitForFunction(() => document.getElementById('scr-run-history')?.textContent.includes('보관한 사용자 실행 없음'));
-  // v59.21 (P2107): leaving the screen while the run archive is read, then coming back, reads it again instead of
+  // Leaving the screen while the run archive is read, then coming back, reads it again instead of
   // leaving the list marked as loading (its replay buttons never appeared).
   const revisitArchive = await page.evaluate(async () => {
     const list = () => document.getElementById('scr-run-history');

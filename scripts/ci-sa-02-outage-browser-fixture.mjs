@@ -45,7 +45,7 @@ async function runOnce(browser, run) {
     topbar: document.getElementById('live-quote-ts')?.textContent || ''
   }));
   await page.close();
-  // P1326/R671: a server snapshot is labelled 종가/지난 시세 (never live) with the snapshot named in the title.
+  // A server snapshot is labelled 종가/지난 시세 (never live) with the snapshot named in the title.
   const topbarOk = /^서버 /.test(early.topbar.text) && /^(close|stale)$/.test(early.topbar.className)
     && /서버 기준 스냅샷/.test(early.topbar.title);
   const topbarStructuralOk = early.topbar.text.length > 0 && /^(close|stale)$/.test(early.topbar.className) && early.topbar.title.length > 0;
@@ -62,7 +62,7 @@ async function runOnce(browser, run) {
 async function runCoreFileFailure(browser) {
   const page = await browser.newPage();
   let refuse = true;
-  // v59.70: the screener read waits on the critical-data gate; a failed history/data read now settles it at once,
+  // The screener read waits on the critical-data gate; a failed history/data read now settles it at once,
   // where it used to hold that read for the gate's 20 s fallback. Timed from navigation.
   let screenerRequestedAt = null;
   let navigatedAt = Date.now();

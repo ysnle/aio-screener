@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.50 (owner 2026-11-23): the opening read of 오늘 and 시장 상태 (src/domain/market/story/market-story.js
+// The opening read of 오늘 and 시장 상태 (src/domain/market/story/market-story.js
 // buildMarketOpening). On the 11/20 crash the home said only "부담 우세 / 주도주와 지수 모두 추세선 아래에서 하락 중입니다."
 // The face is now three layers — the lede (one plain sentence of stage words and the diagnosis, at most one number), the
 // fall bars, the diagnosis line — then one small record line; every figure is a claim and every size word computed. This
@@ -295,7 +295,7 @@ await runSections('market-story', [
   report('verdict-record-shapes');
 }, 'code'],
 ['story-screens', async () => {
-  // v60.50 (owner 2026-11-23): the story on five more screens — each a plain line from the domain, its figures claims.
+  // The story on five more screens — each a plain line from the domain, its figures claims.
   const clean = (piece) => { assert.deepEqual(unclaimedFigures(piece), [], `v60.50 figures without a claim: ${piece.text}`); assert.doesNotMatch(piece.text, SIZE_WORDS, 'v60.50 story-screens'); assert.doesNotMatch(piece.text, /사세요|파세요|매수하|매도하/, 'v60.50 story-screens'); };
   // 기술적 분석: this fall among the index's past falls, only with the long-run tables.
   const history = fixtureHistory({ ndxEnd: 0.802 });
@@ -404,7 +404,7 @@ await runSections('market-story', [
   report('story-screens');
 }, 'code'],
 ['rebound', async () => {
-  // v60.51 (owner 2026-11-24): the rebound inside a fall (rebound.js), on fixture closes built here. The crash fixture ends
+  // The rebound inside a fall (rebound.js), on fixture closes built here. The crash fixture ends
   // at its low on 11/20; the sessions after it are the 11/23 shape (SOX +14%, NDX +6.9%, S&P 500 +4.7%) and what follows.
   const S = RULES.story;
   const base = fixtureHistory();

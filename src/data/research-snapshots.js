@@ -1,3 +1,4 @@
+// P1602/ST-11/12: explicit local immutable captures. Positions/accounts never cross this allowlist.
 import { isIsoDay } from '../domain/shared/session-date.js';
 export const RESEARCH_SNAPSHOT_KEY = 'aio:research-snapshots:v1';
 const stores = new WeakMap();
@@ -68,7 +69,7 @@ export function createResearchSnapshots({ storage, now = () => new Date().toISOS
     async capture(raw) {
       if (state === 'unreadable') throw Error('기존 저장본을 읽지 못했습니다. 기존 자료를 보존하기 위해 새 저장을 보류합니다.');
       const content = projectResearchSnapshot(raw);
-      const id = await digest(JSON.stringify(content));
+      const id = await digest(JSON.stringify(content)); // save/build/review clocks do not affect content identity.
       const existing = records.find((row) => row.id === id);
       if (existing) return existing;
       if (records.length >= 60) throw Error('저장본 60개에 도달했습니다. 기존 저장본은 자동 삭제하지 않습니다.');

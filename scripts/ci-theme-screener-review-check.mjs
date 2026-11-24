@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70: screen review 2026-11-04 (1차 통합본) items owned by the 테마 and 스크리너 screens, as one browser gate so the
+// Screen review 2026-11-04 (1차 통합본) items owned by the 테마 and 스크리너 screens, as one browser gate so the
 // same class fails again instead of waiting for the next eye review.
 //   3  AI 설비투자 띠: segment labels >= 4.5:1 in dark; each card's layer name and '$N / $100' stay on one line each.
 //   15 테마 시나리오 lead is short (<= 3 lines on a phone) and says which rule it uses (1개월 수익률, 주도 단계 or not).

@@ -1,11 +1,11 @@
-// HTTP helpers shared by scripts/fetch-data.mjs and its split-out source modules (v57.62).
-// One definition of the bot User-Agent, the JSON retry policy (P1547) and the RSS/HTML text fetch.
-// 2026-11-02: the deadline/error/retry mechanics live in ./http-fetch.mjs, shared with the standalone collectors.
+// HTTP helpers shared by scripts/fetch-data.mjs and its split-out source modules.
+// One definition of the bot User-Agent, the JSON retry policy and the RSS/HTML text fetch.
+// The deadline/error/retry mechanics live in ./http-fetch.mjs, shared with the standalone collectors.
 import { fetchJsonWithDeadline, fetchTextWithDeadline, withRetry } from './http-fetch.mjs';
 
 export const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; AIO-Screener-bot/1.0)' };
 
-// P1547: the deadline covers the body read, and a definitive 4xx (not 408/429) is returned to the caller instead of
+// The deadline covers the body read, and a definitive 4xx (not 408/429) is returned to the caller instead of
 // being retried against the same provider.
 export function fetchJSON(url, opts = {}, tries = 3) {
   return withRetry(() => fetchJsonWithDeadline(url, { timeoutMs: 12000, init: { headers: UA, ...opts } }), { tries });
@@ -16,7 +16,7 @@ export function _fetchRss(url, timeoutMs) {
   return fetchTextWithDeadline(url, { timeoutMs: timeoutMs || 12000, init: { headers: UA } });
 }
 
-// P734: Google News RSS can transiently serve a cached window with no items in
+// Google News RSS can transiently serve a cached window with no items in
 // the completed 08:00 KST cycle. Retry the feed and then broaden only the
 // provider query window; the caller still filters every item back to the
 // canonical 24-hour cycle, so stale articles are never promoted as current.

@@ -1,3 +1,13 @@
+// Codex browser audit H97: the same NVDA common stock (CUSIP 67066G104, 2026-06-30) read
+// $388.6B for 1.94B shares in BlackRock's filing and $74.0M for 370M shares in T. Rowe Price's — about $200
+// versus $0.20 a share. The T. Rowe filing reports in thousands of dollars, and its cover total is in the same
+// thousands unit as its rows, so totals reconciling to the cover page cannot catch this. The producer now normalises
+// the unit per filing (scripts/lib/13f-value-unit.mjs); this check stays as the second guard. It compares each
+// filing's implied price per share with the other filers of the same CUSIP and period. A filing whose comparable rows sit ~1,000× apart is put under review: its dollar amounts and
+// weights are withheld rather than multiplied by a guessed factor. Pure; no DOM.
+// Detection runs in the producer (scripts/build-masters-runtime-artifacts.mjs) over every manager's full row store and
+// is published as managers[].verification.valueScaleReview in holdings-summary.json; the page reads that status
+// (valueScaleReviewsOf). A truncated sample of rows has too few same-security peers to flag every filer.
 import { readNumber as finite } from '../shared/number.js';
 
 const median = (values) => {
@@ -28,7 +38,11 @@ export function detectValueScaleSuspects(rows = [], { minRows = 2, minPeers = 2,
     const period = key.split('|')[1];
     for (const item of list) {
       const peers = list.filter((other) => other.managerId !== item.managerId).map((other) => other.price);
+      // One peer cannot say which of two filers is off (each looks 1,000x away from the other), so the
+      // normal filer of a two-filer security would be flagged along with the odd one. Two peers keep the median honest.
       if (peers.length < minPeers) continue;
+      // With exactly two peers the median is their mean, so one filer reporting 1,000x too high drags the mean up and
+      // makes both normal filers look 1,000x too low. Two peers are a reference only when they agree with each other.
       if (peers.length === 2 && Math.max(...peers) / Math.min(...peers) > 2) continue;
       const managerKey = `${item.managerId}|${period}`;
       if (!ratios.has(managerKey)) ratios.set(managerKey, []);

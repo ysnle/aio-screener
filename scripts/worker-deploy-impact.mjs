@@ -39,7 +39,7 @@ export function getWorkerDeploymentInputs() {
       ...[...collectStaticModuleGraph('worker/data-plane.js')].map(toRepoPath),
       'worker/wrangler.example.toml'
     ].sort(),
-    // P1421: pricing/receipt modules are deployable Worker code too.
+    // pricing/receipt modules are deployable Worker code too.
     aiProxy: [
       ...[...collectStaticModuleGraph('cloudflare-worker-proxy.js')].map(toRepoPath),
       'worker/wrangler.proxy.toml'
@@ -96,7 +96,7 @@ export function shouldDeployWorker({ plane, manual = false, attestedChanged = fa
     try { advanceLeavesWorkerUntouched = newerMainChanges?.[plane] === false && isAncestor(testedSha, latestMainSha); } catch { advanceLeavesWorkerUntouched = false; }
     if (!advanceLeavesWorkerUntouched) return false;
   }
-  // P1351: an explicit redeploy still cannot overwrite a newer main revision.
+  // An explicit redeploy still cannot overwrite a newer main revision.
   if (manual) {
     if (latestMainSha === testedSha) return true;
     // Data-only advance: the live Worker may already be ahead of the tested SHA; never move its source label backwards.

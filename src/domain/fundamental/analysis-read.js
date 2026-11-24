@@ -1,3 +1,7 @@
+// v58.55 (개편 v2 3d/5g): the analysis cards v58.53 left out until their inputs were collected — DuPont, R&D ÷ revenue,
+// the Sloan (1996) accrual ratio and a reverse DCF calculator. Pure: the parsed SEC fiscal history (sec-fiscal-history.json,
+// newest last) and the screener/SEC facts in, plain reading objects out. Nothing here is a score or a verdict; a missing
+// input returns a state ('pending' = not yet collected, 'unreported' = the filer does not tag it) instead of a number.
 import { surprisePct } from '../shared/number.js';
 import { dataStateText } from '../content/data-state.js';
 import { finiteFact as finite, isPriorAnnualPeriod, FUNDAMENTAL_MAX_PERIOD_AGE_DAYS, fiscalYearLabel, secQuarterLabel } from './period.js';
@@ -10,6 +14,7 @@ import { isIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 
 const subject = (word) => `${word}${hasFinalConsonant(word) ? '이' : '가'}`;
+// v58.74 (text audit): the DuPont sentence names the driver; one clause says what that driver's change means.
 const DRIVER_MEANING = Object.freeze({
   margin: '매출 1달러에서 남는 이익이 변했다는 뜻입니다.',
   turnover: '자산(현금·재고·설비 등)이 매출보다 빠르거나 느리게 늘었다는 뜻입니다.',
@@ -19,12 +24,15 @@ const DRIVER_MEANING = Object.freeze({
 const sorted = (history) => (Array.isArray(history) ? history : []).filter((year) => isIsoDay(String(year?.periodEnd || '')))
   .slice().sort((a, b) => a.periodEnd.localeCompare(b.periodEnd));
 
+// 'collected' once any row carries the v58.55 columns (the producer writes them for a whole issuer at once).
 export function assetChainState(history) {
   const rows = sorted(history);
   if (!rows.length) return 'none';
   return rows.some((year) => year.assetChain) ? 'collected' : 'pending';
 }
 
+// The shared 52/53-week rule — LDOS's year ended 2026-01-02 is its FY2025, as the
+// company summary beside these cards already says.
 const fyLabel = (periodEnd) => fiscalYearLabel(periodEnd) || '연간 공시';
 
 // Average of this year-end and the prior fiscal year-end when both exist, else null.
@@ -34,6 +42,9 @@ function averageOf(rows, index, field) {
   return now != null && prior != null ? (now + prior) / 2 : null;
 }
 
+// An annual reading is only drawn for a current fiscal year. A record the SEC read flags stale, a latest
+// fiscal year older than the repo's one 456-day rule (period.js), or a share count observed more than that far from the
+// fiscal year end is 'stale' — Barrick's FY2010 cash flow and 2010 shares must never meet a 2026 close.
 const DAY_MS = 86400000;
 export function annualStaleReason({ periodEnd, fundamentals = null, nowMs = Date.now(), shares = false } = {}) {
   const end = Date.parse(String(periodEnd || ''));
@@ -56,6 +67,10 @@ export const DUPONT_FACTORS = Object.freeze([
   { id: 'leverage', label: '재무 레버리지' }
 ]);
 
+// ROE = 순이익률 × 자산회전율 × 재무 레버리지 for the latest fiscal year and the year before it. v58.55: each column
+// uses average assets and equity when its prior year-end exists (positive equity), else its year-end values — the same
+// rule as the 재무 공시 ROE (domain fiscal-read.js) — and names its own basis. A prior year that cannot be decomposed
+// (negative equity, missing items) is dropped and the latest year stands alone.
 export function buildDupontRead(history, { fundamentals = null, nowMs = Date.now() } = {}) {
   const rows = sorted(history);
   const chain = assetChainState(rows);
@@ -97,6 +112,9 @@ export function buildDupontRead(history, { fundamentals = null, nowMs = Date.now
     const largest = moves.slice().sort((a, b) => Math.abs(b.log) - Math.abs(a.log))[0];
     const roeDelta = (now.roe - prev.roe) * 100;
     const fmt = (factor, value) => (factor.id === 'margin' ? `${(value * 100).toFixed(1)}%` : value.toFixed(Math.abs(value) < 0.1 ? 3 : 2));
+    // The cause of a rise or fall is the largest factor moving the SAME way as ROE; a
+    // factor moving against it offset the change and is named as such (margin +40% under a falling ROE was printed as
+    // the reason it fell).
     const sign = Math.sign(roeDelta);
     const along = moves.filter((move) => Math.sign(move.log) === sign).sort((a, b) => Math.abs(b.log) - Math.abs(a.log));
     const against = moves.filter((move) => Math.sign(move.log) === -sign && Math.abs(move.log) > 1e-9).sort((a, b) => Math.abs(b.log) - Math.abs(a.log));
@@ -189,6 +207,12 @@ export function reverseDcfInputs({ history, fundamentals, close, financial = fal
   if (ocf == null || capex == null) return { state: 'missing', reason: `${fyLabel(latest.periodEnd)} 영업현금흐름 또는 설비투자가 공시 수집본에 없어 잉여현금흐름을 만들 수 없습니다.` };
   const fcf = ocf - capex;
   if (!(fcf > 0)) return { state: 'fcf-negative', fcf, periodEnd: latest.periodEnd, reason: `${fyLabel(latest.periodEnd)} 잉여현금흐름이 0 이하라(영업현금흐름 − 설비투자 ≤ 0) 현재 가격이 가정하는 성장률을 풀 수 없습니다.` };
+  // v59.45 (pipeline review P19-DCF-01): a share count the normalizer flagged as off-scale is not a verified count, and the
+  // "지금 가격" needs a current close — a dated 1990 close passed the date-shape check. The age rule is the Forward PER's
+  // (CONSENSUS_PRICE_MAX_AGE_DAYS); a close dated after now is not current either.
+  // v59.71 (quant review): the close is split-adjusted, the SEC cover count is not until the next filing — Sandisk's 8:1
+  // priced a market value of 1/8. A close taken from a screener row carries that row's verified count (split-scaled and
+  // turnover-checked by secFundamentalRowFields), so price and count are on one basis; the filed count is the fallback.
   const rowShares = finite(close?.shares);
   const shares = rowShares > 0 ? rowShares : fundamentals?.sharesCheck === 'scale-mismatch' ? null : finite(fundamentals?.sharesOutstanding);
   if (!(shares > 0)) return { state: 'missing', reason: '검증된 주식 수가 없어(공시 표지 주식 수 미확인) 시가총액을 만들지 않습니다.' };
@@ -227,6 +251,7 @@ export function buildEarningsSchedule({ symbol, calendar = null, consensus = nul
   const next = candidates.filter((item) => today && item.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0] || null;
   const lastReported = usDateFromSlash(consensus?.trailing?.lastReportedAt);
   const windowEnd = String(calendar?.upcomingWindow?.to || calendar?.weekEnd || '').slice(0, 10) || null;
+  // Days the producer failed to read are listed; a missing date then is not "no report in the window".
   const gaps = Array.isArray(calendar?.upcomingGaps) ? calendar.upcomingGaps.length : 0;
   if (next) {
     const sessions = next.date === today ? 0 : countOpenSessionsBetween(today, next.date, 'US');
@@ -234,6 +259,7 @@ export function buildEarningsSchedule({ symbol, calendar = null, consensus = nul
     return { state: 'scheduled', date: next.date, hour, sessions, lastReported,
       text: `다음 실적 ${next.date === today ? '오늘' : monthDay(next.date)}${hour ? `(${hour})` : ''}${next.date === today ? '' : `, ${sessions}거래일 후`}` };
   }
+  // v58.80 (first-users bundle 3): without the calendar the date is not "미확정" — the list is on its way or did not arrive.
   const pending = !calendar && (calendarState === 'loading' || calendarState === 'failed') ? calendarState : null;
   if (pending) return { state: pending, date: null, lastReported, windowEnd: null, text: `${lastReported ? `직전 발표 ${monthDay(lastReported)}, ` : ''}${pending === 'loading' ? '실적 일정 불러오는 중' : '실적 일정 받지 못함'}`, title: `${dataStateText(pending, '실적 일정 자료')}.` };
   return { state: usable ? 'unconfirmed' : 'unknown', date: null, lastReported, windowEnd,
@@ -265,6 +291,10 @@ export function buildSurpriseRead(consensus = null, { quarters = [] } = {}) {
 /** What a capital-return sum covers (buildMarginCashRead returnedBasis), for the cards that print it. */
 export const RETURNED_LABEL = Object.freeze({ both: '자사주 매입과 배당 합', 'buybacks-only': '확인된 자사주 매입(배당 자료 없음)', 'dividends-only': '확인된 배당(자사주 매입 자료 없음)' });
 
+// Gross → operating → net margin, net cash and the capital-return line from the latest year that carries the v58.75 columns.
+// 'pending' = the issuer's record predates them; a column the filer does not tag is null (never zero).
+// debtBasis: the issuer's sec-fiscal-history.json debtBasis ('lease-inclusive' when finance leases are in the debt figure).
+// debtCurrent: 'included' / 'excluded' (the part due within a year, sec-fiscal-history.json debtCurrent), null when unknown.
 export function buildMarginCashRead(history = [], { debtBasis = null, debtCurrent = null } = {}) {
   const rows = sorted(history);
   if (!rows.length) return { state: 'none' };
@@ -272,6 +302,7 @@ export function buildMarginCashRead(history = [], { debtBasis = null, debtCurren
   if (!latest) return { state: 'pending' };
   const revenue = finite(latest.revenue);
   const ratio = (value) => (revenue > 0 && finite(value) != null ? finite(value) / revenue * 100 : null);
+  // v59.45 (pipeline review P19-PERIOD-01 class): the prior column is the adjacent fiscal year only, not any earlier one.
   const before = rows.filter((year) => year.capitalChain && year.periodEnd < latest.periodEnd).at(-1) || null;
   const prior = before && isPriorAnnualPeriod(latest, before) ? before : null;
   const priorRevenue = finite(prior?.revenue);
@@ -288,16 +319,26 @@ export function buildMarginCashRead(history = [], { debtBasis = null, debtCurren
   const ocf = finite(latest.operatingCashFlow), capex = finite(latest.capex);
   const fcf = ocf != null && capex != null ? ocf - capex : null;
   const buybacks = finite(latest.buybacks), dividends = finite(latest.dividends), sbc = finite(latest.shareBasedCompensation);
+  // v59.45 (pipeline review P19-CASH-01): a column the filer does not tag is not a reported 0, so a sum with one side missing
+  // is the sum of the confirmed items and says which (returnedBasis); net cash is liquid − long-term debt (debtBasis).
   const returned = buybacks != null || dividends != null ? (buybacks ?? 0) + (dividends ?? 0) : null;
   const returnedBasis = returned == null ? null : buybacks != null && dividends != null ? 'both' : buybacks != null ? 'buybacks-only' : 'dividends-only';
   return {
     state: 'ready', periodEnd: latest.periodEnd, label: fyLabel(latest.periodEnd), priorLabel: prior ? fyLabel(prior.periodEnd) : null, ladder,
+    // NVDA FY2026 had no short-term investments collected after FY2025 reported $34.6B, so net
+    // cash read $3.1B instead of ~10x that. When the prior year had them and this year's are missing, net cash is held.
     cash: liquid == null ? null : { cash, shortTermInvestments: sti, liquid, debt, net: debt != null && !(sti == null && finite(prior?.shortTermInvestments) > 0) ? liquid - debt : null, investmentsMissing: sti == null && finite(prior?.shortTermInvestments) > 0, debtBasis: debtBasis === 'lease-inclusive' ? debtBasis : 'long-term',
       debtCurrent: debtCurrent === 'included' || debtCurrent === 'excluded' ? debtCurrent : null },
     capital: { sbc, sbcRatio: ratio(sbc), buybacks, dividends, returned, returnedBasis, fcf, returnedShareOfFcf: returned != null && fcf > 0 ? returned / fcf * 100 : null }
   };
 }
 
+// Same-theme companies by name (AIO themes: the smallest sub-themes holding this listing first, then the theme leaders),
+// with the numbers a reader compares across a peer group. Only issuers with a SEC fiscal series; at most `max`.
+// 매출 성장 and 순이익률 read the latest four quarters (trailing-year.js, the screener row's basis) when this company
+// and at least PEER_TTM_MIN_SHARE of the group have them; otherwise the whole metric stays on each company's fiscal year.
+// One ranking never mixes a four-quarter figure with a fiscal-year one: in a TTM metric a company without quarters is left out.
+// `quartersFor(ticker)` returns the parsed quarter series (quarter-read.js parseQuarterHistory) or null.
 export const PEER_TTM_MIN_SHARE = 0.7;
 const PEER_TTM_METRICS = Object.freeze([['growth', 'revGrowth'], ['margin', 'margin']]);
 function applyPeerBasis(rows) {
@@ -334,6 +375,7 @@ export function buildThemePeers({ symbol, themes = [], rows = [], seriesFor = ()
     const metrics = fiscalMetricsOf(seriesFor(ticker));
     if (!metrics) return null;
     const row = byRow.get(ticker) || null;
+    // Boundary contract: the peer comparison reads PER and the 3-month return through the screener readiness contract.
     const pe = readRowNumber(row, 'pe', 'calculation');
     const fwdPe = consensusView(row, consensusFor(ticker), { now })?.fwdPe ?? null;
     const quarters = quartersFor(ticker);

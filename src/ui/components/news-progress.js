@@ -1,3 +1,8 @@
+// Legacy unification (2026-10-26, roadmap item 11, screen 오늘 · 뉴스): the 뉴스 page's collection progress line and bar
+// (#news-progress-wrap/-label/-bar) moved here from the writers inside fetchAllNews in js/aio-data.js. Texts, widths and
+// the 2.5s hide after completion are unchanged. fetchAllNews still runs the collection and reports each step through
+// window._aioRenderNewsProgress; it also keeps the last step in window._aioNewsProgressState so a step reported before
+// this module loaded is painted when src/app/compatibility-globals.js installs it.
 export function renderNewsProgress({ documentRef = globalThis.document, state } = {}) {
   if (!state) return;
   const wrap = documentRef?.getElementById?.('news-progress-wrap');
@@ -26,7 +31,7 @@ export function renderNewsProgress({ documentRef = globalThis.document, state } 
       setWidth(100);
       if (wrap) setTimeout(() => { wrap.style.display = 'none'; }, 2500);
       break;
-    case 'empty':
+    case 'empty': // The run finished with no items
       setLabel('뉴스 소스 연결 실패 — 새로고침하거나 잠시 후 다시 시도하세요.');
       break;
     case 'error':

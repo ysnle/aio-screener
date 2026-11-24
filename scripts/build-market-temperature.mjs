@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// v57.54: producer for public-data/market-temperature.json — per-market price temperature (src/domain/market/sentiment/
+// Producer for public-data/market-temperature.json — per-market price temperature (src/domain/market/sentiment/
 // market-temperature.js) for KOSPI, KOSDAQ, S&P 500, Nasdaq Composite and Nikkei 225 from long daily closes.
 // Runs only in GitHub Actions (refresh-data, every full refresh, skipped while the artifact is under 4 hours old).
 // A session counts only after its market has closed (fetch-data isSessionComplete), so an intraday Seoul/Tokyo print is
-// never ranked as a close. Yahoo lists some KRX sessions with an empty close (2026-10-13) — for KOSPI/KOSDAQ the exchange
+// never ranked as a close. Yahoo lists some KRX sessions with an empty close — for KOSPI/KOSDAQ the exchange
 // daily series fetch-data already reconciles stock closes with (KR_EXCHANGE_CLOSE_SOURCE) replaces and fills the last
 // ~100 sessions. A session still empty after that is dropped and listed in the market's gaps, never carried forward.
 // On any fetch failure the market keeps its previous body; with no market at all the artifact is left unchanged.

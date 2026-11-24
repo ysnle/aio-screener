@@ -11,7 +11,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { fetchJsonWithDeadline, sleep } from './lib/http-fetch.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 import { readNumber } from '../src/domain/shared/number.js';
 import { alignConsensusSplit, consensusBasisMismatch } from '../src/domain/fundamental/consensus-basis.js';
 
@@ -80,7 +80,7 @@ async function getJson(url) {
   return body?.data ?? null;
 }
 
-// v57.54 review: an empty answer (200 with data:null, or only the just-reported quarter ahead) must not wipe a
+// An empty answer (200 with data:null, or only the just-reported quarter ahead) must not wipe a
 // good row and hide it for NO_COVERAGE_RETRY_DAYS; keep the previous row until the reader's age limit expires it.
 export function nextConsensusRow(previousRow, row, asOf) {
   if (row) return row;
@@ -89,7 +89,7 @@ export function nextConsensusRow(previousRow, row, asOf) {
   return { unavailable: true, checkedAt: asOf };
 }
 
-// 2026-10-14: never-fetched symbols go largest first — S&P 500 index weight, then 30-session dollar volume — so a
+// never-fetched symbols go largest first — S&P 500 index weight, then 30-session dollar volume — so a
 // fresh universe reaches the names that matter before alphabetical tails. `priority` maps sym -> { weight, dollarVolume30d }.
 const priorityCompare = (priority, a, b) => {
   const pa = priority?.[a] || {}; const pb = priority?.[b] || {};
@@ -148,7 +148,7 @@ async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
   const universe = JSON.parse(await readFile(`${ROOT}/public-data/screener-universe.json`, 'utf8'));
-  const symbols = [...new Set((universe.universe || []).map((row) => String(row.sym || '').toUpperCase()).filter((sym) => sym && !/\.(?:KS|KQ|T|TW)$/.test(sym)))]; // US listings only (v57.54: Tokyo/Taiwan rows were asked too)
+  const symbols = [...new Set((universe.universe || []).map((row) => String(row.sym || '').toUpperCase()).filter((sym) => sym && !/\.(?:KS|KQ|T|TW)$/.test(sym)))]; // US listings only (Tokyo/Taiwan rows were asked too)
   const rows = {};
   const keep = new Set(symbols);
   for (const [sym, row] of Object.entries(previous?.rows || {})) if (keep.has(sym)) rows[sym] = row;

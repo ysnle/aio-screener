@@ -17,9 +17,9 @@ const fixture = { now: '2026-10-10T03:00:00Z', profile: 'empty-isolated',
 const report = createBrowserEvidence({ root, runId, providerVersion: createRequire(import.meta.url)('playwright/package.json').version,
   operation: 'reference-adoption-journeys', fixture,
   environment: { mode: 'headless-fixture', viewport: { width: 1440, height: 900 }, locale: 'ko-KR', timezone: 'Asia/Seoul', initialStateId: fixture.profile, networkPolicy: 'local-only' } });
-// v57.60: the shared helper clears its readiness timer on exit and kills the server on timeout.
+// The shared helper clears its readiness timer on exit and kills the server on timeout.
 const server = await startLocalServer(port, { label: 'reference-adoption/server' });
-// v57.60: poll a DOM condition for a bounded window instead of one instantaneous read.
+// Poll a DOM condition for a bounded window instead of one instantaneous read.
 const pollTrue = async (probe, timeoutMs = 2000, intervalMs = 100) => {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
@@ -64,7 +64,7 @@ try {
   const article = page.locator('#news-important-list .news-item-card').filter({ hasText: 'NVIDIA' }).first();
   assert.equal(await article.locator('[data-issuer-role=subject]').textContent(), '$NVDA', 'P1601: registered exact issuer');
   let popups = 0; context.on('page', () => popups++);
-  // v60.35 (owner 2026-11-20): the headline is the link to the original (new tab, no opener); the publisher and the
+  // The headline is the link to the original (new tab, no opener); the publisher and the
   // publication time are its hover; a story with one version carries no fold.
   const headlineLink = article.locator('a.news-item-link');
   assert.equal(await headlineLink.getAttribute('href'), fixture.news.link, 'P1601: headline links to the original article');
@@ -74,7 +74,7 @@ try {
   assert.equal(await article.locator('.news-evidence').count(), 0, 'v60.35: a single-version story has no sources fold');
   const focusedLink = article.locator('a[href]').first();
   await focusedLink.focus();
-  // v57.60: confirm focus actually landed before the update events fire, so the retention check below
+  // Confirm focus actually landed before the update events fire, so the retention check below
   // measures the arrival path rather than a focus() that had not taken yet.
   assert.ok(await pollTrue(() => focusedLink.evaluate((node) => document.activeElement === node)), 'v57.60: article link focus took before data arrival');
   await page.evaluate((news) => {
@@ -120,8 +120,8 @@ try {
   await page.locator('#page-briefing [data-research-snapshots=briefing] > summary').click();
   await capture({ stepId: 'briefing-local-archive-empty', route: 'briefing', stateId: 'archive-empty', action: { type: 'disclose', target: 'local briefing archive' }, locator: '#page-briefing [data-research-snapshots=briefing]', expected: 'only explicitly saved reports, no fabricated past briefings', actual: 'empty isolated archive' });
   await page.evaluate(() => window.showPage('themes'));
-  // v59.70: the sector card opens on its 등락 bars; the sector chips (detail triggers) are the 회전 view's.
-  // v59.70 (integration-20261104): the tab's click handler is bound when the lazy 테마 module mounts, and the static HTML
+  // The sector card opens on its 등락 bars; the sector chips (detail triggers) are the 회전 view's.
+  // The tab's click handler is bound when the lazy 테마 module mounts, and the static HTML
   // already says data-view="bars", so a click before the mount was lost and left the chips in the hidden fold (one run
   // in two locally). Click until the card shows the 회전 view, for at most 20 s.
   const rotationTab = page.locator('#themes-verdict-tabs [data-view="rrg"]');
@@ -133,7 +133,7 @@ try {
     }
     assert.ok(await rotationShown(), 'v59.70 the 회전 tab switches the sector card to the scatter view');
   }
-  // v57.54: while the sector-rotation artifact lags the latest close its quadrant chips are hidden; the theme playbook's
+  // While the sector-rotation artifact lags the latest close its quadrant chips are hidden; the theme playbook's
   // detail buttons (data-theme-id) are then the visible triggers. Either kind is a detail trigger (themes.js rule).
   const TRIGGERS = '#page-themes [data-action=showThemeDetail]:visible, #page-themes button[data-theme-id]:visible';
   await page.locator(TRIGGERS).first().waitFor({ state: 'visible' });
@@ -141,7 +141,7 @@ try {
   const themeId = (await trigger.getAttribute('data-arg')) || (await trigger.getAttribute('data-theme-id'));
   await trigger.click();
   await page.waitForFunction(() => document.getElementById('theme-detail-panel')?.style.display !== 'none');
-  // v57.54: this wait failed in 4 of the last 100 CI runs (bare "waitForFunction: Timeout 30000ms"). Under 4x CPU
+  // This wait failed in 4 of the last 100 CI runs (bare "waitForFunction: Timeout 30000ms"). Under 4x CPU
   // throttling focus ends on <body> with no theme event after close, i.e. the trigger node is replaced by a
   // background re-render (store/refresh cycle) rather than never focused. Name which case occurred instead of a
   // bare timeout, so a recurrence points at src/ui/pages/themes.js focus preservation, not at the harness.
@@ -159,7 +159,7 @@ try {
     }), themeId);
     throw new Error(`theme close focus not restored to ${themeId}: ${JSON.stringify(state)} (triggerStillMounted=false: a re-render replaced the trigger after close; true: focus was never returned)`, { cause: error });
   }
-  // 2026-10-19: the follow used to stop after its first re-focus, so a second replacing render (main CI after #73)
+  // The follow used to stop after its first re-focus, so a second replacing render (main CI after #73)
   // still dropped focus. Replace the trigger twice on purpose; focus must land on each replacement.
   for (let round = 1; round <= 2; round += 1) {
     await page.evaluate((id) => {

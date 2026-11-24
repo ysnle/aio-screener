@@ -1,6 +1,6 @@
-// v58.70 (owner 2026-10-23): one failing auxiliary check used to refuse the whole refresh. Of 100 refresh runs from
+// One failing auxiliary check used to refuse the whole refresh. Of 100 refresh runs from
 // 10/21 00:58Z to 10/23 01:20Z, 34 were refused at artifact validation by checks that each concern one lane: the
-// intraday news count (P1982), the narrative's evidence lineage (P1977) and macro freshness markers (P1975). Quotes,
+// intraday news count, the narrative's evidence lineage and macro freshness markers. Quotes,
 // closes, history and the snapshot were valid in those runs and stayed off the site with them.
 //
 // A degradable lane is a part of data.json whose failure can be contained: the lane is put back to its last

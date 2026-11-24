@@ -4,7 +4,7 @@
 // `replayLean` (live buildMarketRegime, point in time) — reused, not copied; the bootstrap, split and non-overlap rules
 // are its exports too. The criterion was written before the first run and is registered unchanged in
 // architecture/validation-gate-criteria.json `marketLeanRisk`; scripts/build-validation-gates.mjs judges risk-result.json
-// against it into model-validation-status.json `marketLean.risk` (review v60.19 A5), and the 시장 상태 fold states that verdict.
+// against it into model-validation-status.json `marketLean.risk`, and the 시장 상태 fold states that verdict.
 //
 //   node scripts/backtest-market-lean-risk.mjs --out-dir=<dir> [--rows=<cache.json>]
 // Writes <dir>/rows.json (when fetched), <dir>/readings.json and <dir>/risk-result.json. Runs weekly beside the direction

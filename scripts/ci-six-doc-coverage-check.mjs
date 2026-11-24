@@ -54,7 +54,7 @@ const principlesLessons = catalogCount('lessons');
 const principlesPaths = catalogCount('paths');
 const principlesEdges = catalogCount('edges');
 
-// v59.97: the 13F artifacts are rewritten every quarter when managers file, so the gate checks that each published
+// The 13F artifacts are rewritten every quarter when managers file, so the gate checks that each published
 // count agrees with the rows it describes instead of pinning one quarter's numbers (an extra holdings row used to fail
 // every data release).
 const uniqueCount = (rows, pick) => new Set((rows || []).map(pick).filter(Boolean)).size;
@@ -79,7 +79,7 @@ function mastersCountConsistency({ holdings, securityMaster, historyIndex, histo
   ];
 }
 
-// v59.97 replay: one extra holdings row with every count that describes it updated passes; the same row with the
+// Replay: one extra holdings row with every count that describes it updated passes; the same row with the
 // embedded count left stale fails.
 function mastersCountSelfTest() {
   const base = {
@@ -100,7 +100,7 @@ function mastersCountSelfTest() {
   ];
 }
 
-// v60.50: the code-owned counts (documents, atlas, principles) are a code section; the published Telegram digest and 13F
+// The code-owned counts (documents, atlas, principles) are a code section; the published Telegram digest and 13F
 // artifacts are a data section that also runs in a data run.
 const codeChecks = () => [
   ...sourceDocs.map((file) => ({ check: `source exists: ${file}`, pass: fs.existsSync(path.join(root, file)) })),
@@ -127,11 +127,11 @@ const codeChecks = () => [
   ...mastersCountSelfTest()
 ];
 const dataChecks = () => [
-  // v60.18: counts come from the published catalog (retired channels stay in it, marked, and are not expected).
+  // Counts come from the published catalog (retired channels stay in it, marked, and are not expected).
   { check: 'telegram digest contains every catalog channel with explicit partial-failure lineage', pass:
       atlasIndex.telegramReferenceArtifact === 'public-data/telegram-digest.json' && atlasIndex.telegramReferenceChannels === telegramDigestBoundary(telegramReference).catalogCount &&
       telegramDigestBoundary(telegramReference).catalogMatchesRows && telegramDigestBoundary(telegramReference).collectionConsistent },
-  // v59.70: the latest 13F period moves forward every quarter (2026-06-30 -> 2026-09-30 on 11/06), so the check
+  // The latest 13F period moves forward every quarter (2026-06-30 -> 2026-09-30 on 11/06), so the check
   // follows the data: a past quarter-end that equals the newest period any manager reports.
   { check: 'masters latest available period is a past quarter-end equal to the newest manager period', pass: /^\d{4}-(03-31|06-30|09-30|12-31)$/.test(String(mastersFilings.latestAvailablePeriod || '')) && Date.parse(mastersFilings.latestAvailablePeriod) <= Date.now() && mastersFilings.latestAvailablePeriod === (mastersFilings.managers || []).map((item) => item.latestAvailablePeriod).filter(Boolean).sort().at(-1) },
   { check: 'masters filings contain stale Scion reference', pass: mastersFilings.managers?.some((item) => item.id === 'scion-asset-management' && item.freshnessStatus === 'STALE_REFERENCE') },

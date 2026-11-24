@@ -115,7 +115,7 @@ function buildCategory(definition, marketSnapshot, checkedAt) {
   // Rights are not a freshness axis: a fully observed category does not verify
   // redistribution rights. Promoting REVIEW_REQUIRED to CURRENT here marked seven
   // categories `promotable: true` inside the same artifact set whose blockers
-  // still published `provider_rights_review_required` (P1103).
+  // still published `provider_rights_review_required`.
   const rights = definition.rights;
   return {
     categoryId: definition.categoryId,
@@ -204,7 +204,7 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
       evidenceCheck('history-minimum-60', historyCoverage(history, 'fg', 60), 'public-data/history.json', latestHistory?.date)
     ], { gate: 'current-source-history' }),
 
-    // v59.70 (owner 11/4): put/call is retired (Cboe terms forbid storing and redistributing); the category stays BLOCKED
+    // put/call is retired (Cboe terms forbid storing and redistributing); the category stays BLOCKED
     // like NAAIM so the 22-category contract does not shift.
     categoryDefinition('put-call', [
       evidenceCheck('redistribution-rights', false, 'operator/provider-contract', null, 'Cboe statistics need prior written consent to copy, store or redistribute.')
@@ -220,7 +220,7 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
       evidenceCheck('latest-public-reference', naaimLatestPublic, 'public-data/data.json', naaim?.observedAt, 'Last public NAAIM value is retained with its observation date.'),
       evidenceCheck('current-freshness', naaimFresh, 'public-data/data.json', naaim?.observedAt, 'The public page is stale after its subscription transition.'),
       evidenceCheck('redistribution-rights-for-trading', false, 'operator/provider-contract', null, 'NAAIM page requires subscription for current access.')
-    // P1737 (2026-10-13): NAAIM is retired from the screen and no longer carried in data.json, so this category stays
+    // NAAIM is retired from the screen and no longer carried in data.json, so this category stays
     // BLOCKED with the reason below; the category itself is kept so the 22-category contract does not shift.
     ], { gate: 'latest-public-reference-with-rights-boundary', policyBlocked: !naaimLatestPublic, rights: 'OPERATOR_REQUIRED', partialReason: 'Last public NAAIM observation is available, but it is stale/reference-only.', blockedReason: 'NAAIM retired: the official page shows only an undated three-month-delayed number that cannot be verified; inference forbidden.' }),
 
@@ -267,12 +267,12 @@ export function buildReconciliationStatus({ data = {}, marketSnapshot = {}, scre
     categoryDefinition('cpi-pce', [
       evidenceCheck('bls-cpi-official-current-release', ['ok', 'cached-fresh'].includes(bls.status) && finite(bls?.series?.cpi?.value) && !!bls?.series?.cpi?.observedAt, 'public-data/data.json', bls?.series?.cpi?.observedAt),
       evidenceCheck('bea-pce-official-current-release', bea.status === 'ok' && finite(bea?.values?.pce) && finite(bea?.values?.corePce) && !!bea?.releasedAt, 'public-data/data.json', bea?.releasedAt)
-    // P1140/QA-P1103: `rights` is an axis of RIGHTS_STATUS, not of RECONCILIATION_STATUS. These two
+    // `rights` is an axis of RIGHTS_STATUS, not of RECONCILIATION_STATUS. These two
     // categories declared `'CURRENT'` — a status word — which the artifact's own published
     // rightsVocabulary does not contain, so the rights axis was unreadable to any consumer holding
     // only the artifact. P1140 set VERIFIED, but VERIFIED is the recorded-verification state
     // and ci-artifact-semantics-check forbids promotable categories while any rights
-    // blocker is published — the committed artifact then failed its own gate (P1144).
+    // blocker is published — the committed artifact then failed its own gate.
     // Keep the REVIEW_REQUIRED default: official-government origin is recorded in the
     // source contract, and promotion waits for the recorded operator verification.
     ], { gate: 'bls-bea-official-release', rights: 'REVIEW_REQUIRED' }),

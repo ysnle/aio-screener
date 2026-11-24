@@ -61,7 +61,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     return request;
   }
 
-  // P1245 (05 A05): 수집된 native citation과 research tool 오류는 **그것을 만든 스트림의 요청**에 속한다.
+  // 수집된 native citation과 research tool 오류는 **그것을 만든 스트림의 요청**에 속한다.
   // 종전에는 단일 전역(`_aioLastClaudeCitations`·`_aioLastClaudeResearchError`)에 저장되고 모든 스트림이
   // 시작 시 리셋했으며, request id도 `_aioActiveAIRequestId`라는 전역을 응답 파이프라인이 쓰고 수집기가
   // 읽었다. 그래서 ① 두 요청이 겹치면(per-page + unified, 또는 재시도) 한 스트림이 다른 스트림의 인용을
@@ -103,14 +103,14 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     return _aioAIRequestStream(order[order.length - 1]);
   }
 
-  // P897: the ESM evidence module is the only producer/consumer contract for
+  // The ESM evidence module is the only producer/consumer contract for
   // both chat surfaces. If bootstrap has not exposed it, fail closed instead of
   // keeping a second legacy implementation that can drift again.
   function _aioEvaluateAIResearchGate(input) {
     input = input || {};
-    // P1172 (05 A05): 이 요청의 id를 함께 넘겨 출처 결속을 판정 가능하게 한다. questionPlan.queryId와
+    // 이 요청의 id를 함께 넘겨 출처 결속을 판정 가능하게 한다. questionPlan.queryId와
     // chat 요청 id는 서로 다른 이름공간이므로 둘 다 기대값으로 넘긴다(없으면 UNVERIFIABLE로 남는다).
-    // P1245: 여기서 공유 전역(`_aioActiveAIRequestId`)으로 기대값을 채우지 않는다. 그 전역은 응답
+    // 여기서 공유 전역(`_aioActiveAIRequestId`)으로 기대값을 채우지 않는다. 그 전역은 응답
     // 파이프라인이 쓰고 수집기가 읽어 동시 요청에서 다른 요청의 id가 이 요청의 기대값으로 둔갑했다.
     // 호출자가 자기 id를 말하지 않으면 UNVERIFIABLE로 남는 것이 맞다 — 모르는 것을 아는 것처럼 채우지 않는다.
     if (window.AIO_ARCH && typeof window.AIO_ARCH.evaluateAIResearchEvidenceFloor === 'function') {
@@ -251,7 +251,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     return publication ? publication.hasCurrentNumericContent(value) : true;
   }
 
-  // v58.77: the "웹검색 중" status line turns into what happened once the answer (or its failure) arrives.
+  // The "웹검색 중" status line turns into what happened once the answer (or its failure) arrives.
   function _aioSettleWebSearchStatus(text) {
     var lines = document.querySelectorAll('#ai-panel-msgs .ai-websearch-status:not([data-settled])');
     var line = lines[lines.length - 1];
@@ -372,7 +372,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
         reasons: (gate.reasons || []).concat(publishAudit.issues || ['automated-publish-gate'])
       };
     }
-    // P1120: a typed-claim mismatch used to replace the whole answer with a refusal. The
+    // A typed-claim mismatch used to replace the whole answer with a refusal. The
     // answer-plan renderer already drops unbound claims, so the recoverable prose is kept and
     // the dropped numeric scope is disclosed instead of the entire answer being withheld.
     var claimAuditBlocked = claimAudit.blocked === true;
@@ -386,7 +386,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       limitationNotes.push(String(notice).replace(/^※\s*/, ''));
       gate = Object.assign({}, gate, { blocked: false, degraded: true, reasons: (gate.reasons || []).concat([reason]), limitations: existing.concat([reason]) });
     }
-    // P1120: the personalized-action and typed-claim boundaries are disclosures now, not
+    // The personalized-action and typed-claim boundaries are disclosures now, not
     // refusals. The answer is kept; the scope that could not be verified is named.
     var conductLimitations = Array.isArray(conductAudit && conductAudit.limitations) ? conductAudit.limitations : [];
     if (!isPartialStream && conductLimitations.indexOf('suitability-context-missing') >= 0) {
@@ -539,7 +539,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
   var _aioBasePublicAIActionPolicyPrompt = _aioPublicAIActionPolicyPrompt;
   _aioPublicAIActionPolicyPrompt = function() {
     var base = _aioBasePublicAIActionPolicyPrompt();
-    // P1740: the shape is chosen per question (【이번 답변의 형태】); this contract fixes only the envelope, voice and
+    // The shape is chosen per question (【이번 답변의 형태】); this contract fixes only the envelope, voice and
     // number rules. The old fixed "summary ≤2 sentences, ≤4 sections × ≤3 sentences, 1,500 tokens" made every answer the
     // same short generic memo.
     return base + '\n\n【출력 계약】\n' +
@@ -591,7 +591,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     // v57.48 #7/#19: an answer bound to the screen's completed closes says so (date, not "미확인"), and the detailed
     // limitation notes the answer no longer stacks at its top are listed here, in Korean.
     var closeDates = Array.isArray(meta.closeBasisDates) ? meta.closeBasisDates : []; // published close-basis claims only, not every collected row
-    // QA-VERIFY-16 live check (2026-10-13): an answer whose only published numbers are completed closes is labelled by
+    // QA-VERIFY-16 live check: an answer whose only published numbers are completed closes is labelled by
     // those closes, even when page quote rows were collected (live rows it never cited cannot make it "확인 필요").
     // The same holds for official macro releases (a month's CPI does not change with the live quotes): the label names the
     // reference month and the source 공식 발표, alongside the close date when both kinds were cited.
@@ -627,7 +627,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
   var _AIO_DIRECTIVE_NOTICE = '[개별 매매 지시는 제공하지 않습니다. 조건과 근거를 확인해 직접 판단하세요.]';
   function _aioApplyAIActionGate(text, meta) {
     var raw = String(text || '');
-    var action = '(?:매수|매도|추가\\s*매수|분할\\s*매수|손절|익절|청산|(?:신규|매수)\\s*진입|포지션\\s*정리)'; // v57.84: bare 진입/정리 replaced "근거를 정리하세요"
+    var action = '(?:매수|매도|추가\\s*매수|분할\\s*매수|손절|익절|청산|(?:신규|매수)\\s*진입|포지션\\s*정리)'; // Bare 진입/정리 replaced "근거를 정리하세요"
     var recommend = new RegExp(action + '\\s*(?:을|를)?\\s*(?:추천|권고|권장|제안)(?!\\s*(?:하지|드리지|이\\s*아|은\\s*아))');
     var imperative = new RegExp(action + '\\s*(?:하세요|하십시오|하라|하시기\\s*바랍니다|해야\\s*(?:합니다|한다|해요))');
     var colloquial = /(?:사세요|파세요|담으세요|사야\s*(?:합니다|한다)|팔아야\s*(?:합니다|한다))/;
@@ -658,13 +658,13 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
     var zoneAssessment = /^\s*(?:고\s*(?:보는|볼\s*수\s*있는|판단되는|읽히는)\s*)?(?:구간|상황|국면|환경|시점)/;
     var indirect = /(?:다는|라는)\s*것(?:이|은)\s*[^,.]{0,30}(?:원칙|규칙|격언|주장|철학|방식)|(?:한다|하라|해라|하세요|된다|합니다)\s*(?:고|라고|는|라는)\s*(?:봤|보았|했|말했|주장했|강조했|설명했|조언했|권했|가르쳤|규칙|원칙|격언)|(?:라는|이라는|다는)\s*(?:규칙|원칙|격언)|(?:하는|한|권장하는|추천하는|권하는)\s*(?:이유|까닭|배경)/;
     var negated = /(?:아닙니다|아니다|않습니다|않는다|금지|하지\s*마|하지\s*않|제공하지|드리지|지시가\s*아|지시 아님)/;
-    // v58.63 (architecture audit A15): English directives are directives too ("You should buy NVDA now." passed untouched).
+    // English directives are directives too ("You should buy NVDA now." passed untouched).
     var english = /\b(?:you\s+(?:should|must|need\s+to|ought\s+to)|i\s+(?:recommend|suggest|advise)(?:\s+(?:you|that\s+you))?|we\s+recommend(?:\s+(?:you|that\s+you))?|it(?:'s|\s+is)\s+time\s+to)\s+(?:buy|sell|short|add\s+to|trim|dump|load\s+up\s+on|go\s+long|go\s+short|exit)\b|(?:^|[.!?]\s*)(?:buy|sell|short)\s+(?:[A-Z]{1,5}\b|shares|the\s+stock|it\s+now|now)|\bstrong\s+(?:buy|sell)\b/i;
     var englishIndirect = /\b(?:said|argued|wrote|believed|taught|advised|warned)\s+(?:that\s+)?(?:you|investors|traders)\b|\bthe\s+(?:rule|principle|maxim)\s+(?:is|says)\b/i;
     // The price may be digits ("1,050달러", "175~178달러", "7만 원") or Korean number words with a currency ("천오십 달러").
-    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*(?:\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?|[일이삼사오육칠팔구십백천만억]+\\s*(?:달러|원))\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // v58.75: priced imperatives ("손절은 178달러에서 하세요")
+    var pricedImperative = new RegExp('(?:' + action + '|손절가|목표가|매수가|매도가|진입가|익절가)\\s*(?:은|는|을|를)?\\s*(?:\\$?\\d[\\d,.]*(?:\\s*[~\\-–]\\s*\\$?\\d[\\d,.]*)?(?:\\s*(?:천|만|억))?\\s*(?:달러|원)?|[일이삼사오육칠팔구십백천만억]+\\s*(?:달러|원))\\s*(?:에서|에|으로|로|부근에서|근처에서)\\s*(?:하세요|하십시오|하라|두세요|잡으세요|거세요|설정하세요|정하세요|하시기\\s*바랍니다)'); // Priced imperatives ("손절은 178달러에서 하세요")
     var patterns = [recommend, imperative, colloquial, weight, tickerAction, english, pricedImperative, sizedWeight, allocation, nominalised, colloquialHold, positionImperative, englishSoft];
-    // v58.63 (A15): a negation exempts a directive only when it binds to that directive — inside the matched words or right
+    // A negation exempts a directive only when it binds to that directive — inside the matched words or right
     // after/before them ("매수를 추천하지 않습니다", "not a buy"). A negation elsewhere in the sentence ("매수하세요 그리고 손절하지
     // 마세요") no longer clears the buy instruction beside it.
     var bound = function(clause, m) {
@@ -690,7 +690,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
       return matchesOf(clause, indirect).some(function(q) { return end <= q.index + q[0].length && end >= q.index - 3; }) ||
         matchesOf(clause, englishIndirect).some(function(q) { return start >= q.index && start <= q.index + q[0].length + 3; });
     };
-    // P2114: a decimal point ("177.50달러") does not end a sentence; splitting there let a priced imperative with cents through.
+    // A decimal point ("177.50달러") does not end a sentence; splitting there let a priced imperative with cents through.
     var sentences = raw.match(/(?:[^.!?。\n]|\.(?=\d))+(?:[.!?。]+|\n|$)\s*/g) || [raw];
     // Matching reads a normalised copy (NFKC, markdown emphasis and backticks removed); the published text is untouched.
     var normalise = function(sentence) { return String(sentence).normalize('NFKC').replace(/\*\*|__|[*`]/g, ''); };
@@ -761,7 +761,7 @@ export function installAIRequestPipeline(window = globalThis, document = globalT
   window.AIO.getAIResponsePipelineAudit = function() {
     return (window._aioAiPipelineAudit || []).slice();
   };
-  // P1245 (05 A05): 진단은 "가장 최근 스트림"의 기록을 읽는다. 게이트/공개 경로는 이 접근자를 쓰지 않고
+  // 진단은 "가장 최근 스트림"의 기록을 읽는다. 게이트/공개 경로는 이 접근자를 쓰지 않고
   // 각자 자기 요청 id로 `_aioAIRequestCitations(requestId)`를 읽어 동시 요청에서 섞이지 않는다.
   window.AIO.getLatestAIRequestStream = function() { return _aioLatestAIRequestStream(); };
 

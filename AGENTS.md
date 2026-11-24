@@ -102,8 +102,9 @@ Owner decisions applied without re-asking; changed only by the user.
 - Batch end (owner 2026-11-22): integrate and commit `main` once, then ask the owner once before pushing; never mid-batch.
 - Standing authority (owner 2026-11-15): right after that push, dispatch once each the refresh/outcome workflow lanes whose published artifacts the batch made stale (changed definition fingerprint, new artifact field) and report which; no other dispatch, deploy or settings change.
 - Versioned changes use `node scripts/bump-version.mjs <version>` (R1, all version surfaces; `ci-version-check.mjs`).
-- Bug fixes get a new P entry; features/cleanups a change-only `record-fix` entry (after `bump-version`; it regenerates workspace state).
-- Recurring defect classes become RULES/QA plus a gate.
+- Records (owner 2026-11-23): one version per push. A P entry only when a wrong value reached users or the defect is a new class; everything else (features, cleanups, defects caught before push, repeats of a known class) is a change-only `record-fix` entry (after `bump-version`; it regenerates workspace state).
+- The rule ledger is frozen: a new defect adds a case to the gate of the principle it broke, not a new R. A new R needs a class no principle covers.
+- Checks are behaviour tests: run the code on rows the check states itself and compare what it prints. No source-text pins, no comment-boundary slices, no values borrowed from live `public-data`, no fixed dates that expire.
 - New assertions cite the P/R entry or the introducing release (`vNN.NN` with a CHANGELOG heading) — `ci-assertion-trace-check.mjs`.
 - `ci-ledger-integrity-check.mjs` freezes the R gap set and requires `verify_by:` on new open QA items.
 - New text pins on product source are frozen by `ci-text-pin-ratchet-check.mjs` — test behaviour instead.

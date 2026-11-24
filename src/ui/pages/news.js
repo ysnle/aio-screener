@@ -39,6 +39,9 @@ const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'native-model-unavailable': '뉴스 분류를 불러오지 못했습니다.'
 });
 
+// The article list follows the country/topic controls; the channel (Telegram) list below it is classified
+// on its own and never follows them. Both scopes are written out so a count is never read as covering the other list.
+// The type tabs left (기업 is a topic chip now), so only country and topic count as filters.
 export function describeNewsScope(controls) {
   const active = !!controls && ['countryFilter', 'topicFilter'].some((key) => controls[key] && controls[key] !== 'all');
   return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '시장 신호는 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
@@ -64,14 +67,26 @@ function renderNewsSummary(documentRef, root, model, status) {
     if (node) node.textContent = value == null || value === '' ? fallback : String(value);
   };
   set('news-24h-count', model?.eligibleCount ?? summary.itemCount, '0');
+  // Once the news model has loaded, zero sources is a result, not a check still in progress.
   set('news-24h-sources', summary.sourceCount ? `${summary.sourceCount}개 출처` : (model ? '0개 출처' : '출처 확인 중'));
+  // The keyword sentiment/risk strip left with P1391, so no news sentiment score is shown at all.
   let cut = null;
   try { cut = root?.AIO?.getSharedMarketCut?.() || null; } catch (_) {}
   const generatedAt = root?._serverDataMeta?.generatedAt || null;
+  // v57.91 (wording audit): '10. 16. 오후 08:51' read unlike every other stamp on the screen — one M/D HH:MM form.
   const generatedStamp = generatedAt ? compactKstTime(generatedAt) : null;
   const generatedLabel = generatedStamp ? `${generatedStamp.date} ${generatedStamp.time}` : '';
+  // The list is filtered to the 08:00 KST window of today, but the header named the
+  // data revision's older cut ("기준시각 경과 · 10/04 08:00") beside 10/5 articles. The header now names
+  // the window the list actually uses, and staleness is stated as the last collection time.
   const newsWindow = briefingWindowKST(Date.now());
+  // One date format on the news screen (M/D HH:MM), the same as the cards and the intraday list.
   const fmt = (ms) => { const t = compactKstTime(new Date(ms).toISOString()); return t ? `${t.date} ${t.time}` : ''; };
+  // When the published cycle is older than today's 08:00 window, the header names the cycle the
+  // articles actually come from instead of the wall-clock window they do not fill.
+  // X21: the list is filtered by the model's own window (the published cycle when it is admissible,
+  // otherwise the latest completed 08:00 window). The header used the server cycle even when the model had fallen
+  // back, so it named 10/11~10/12 above 10/12 23:00 articles. Name the window the list actually used.
   const modelStart = Date.parse(model?.newsCycle?.start || '');
   const modelEnd = Date.parse(model?.newsCycle?.end || '');
   const hasModelWindow = Number.isFinite(modelStart) && Number.isFinite(modelEnd) && modelEnd > modelStart;
@@ -81,6 +96,7 @@ function renderNewsSummary(documentRef, root, model, status) {
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본, ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
   else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
+  // A quarantined news lane is an earlier publish (scripts/lib/lane-quarantine.mjs); name that collection time.
   const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
   const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
   if (heldNews) set('last-fetch-time', `뉴스 갱신 보류, 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
@@ -99,7 +115,10 @@ function safeUrl(value) {
   }
 }
 
+// T17 (expert review 2026-10-13): the 긍정/부정/주의 badge counted bull/bear words in the headline — a grade with no
+// validated basis. Only the article's verification state is shown; an analysed article carries no badge.
 function articleStatus(item) {
+  // 개편 v2: the tone is a data attribute; its colour lives in v2-today.css (no inline style).
   if (isNewsAnalysisEligible(item)) return { label: '', tone: 'eligible' };
   return isNewsHeadlineOnly(item)
     ? { label: '본문 없음', tone: 'headline-only' }
@@ -114,6 +133,10 @@ function displayValue(root, functionName, item, fallback = '') {
   return fallback;
 }
 
+// One formatting owner for the absolute publication time. The previous
+// `root.getAbsoluteTime` lookup has no implementation anywhere in the repo, so the card silently
+// dropped the absolute time and showed only a relative label. The publication time is rendered
+// with its timezone and is never treated as the underlying event time.
 export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
   const ms = value instanceof Date ? value.getTime() : Date.parse(value || '');
   if (!Number.isFinite(ms)) return '';
@@ -127,6 +150,8 @@ export function formatAbsoluteTime(value, timeZone = 'Asia/Seoul') {
   }
 }
 
+// The 44px time column wrapped "2026. 10. 03. 14:20 GMT+9" over four lines.
+// It shows month/day over HH:mm in KST; the full stamp stays in the tooltip and data attribute.
 export function compactKstTime(value) {
   const ms = Date.parse(value || '');
   if (!Number.isFinite(ms)) return null;
@@ -154,6 +179,7 @@ function createTickerBadge(documentRef, ticker, direct = false) {
   return badge;
 }
 
+// A headline whose producer translation failed (titleKoFailed) shows the original with a short mark.
 export function untranslatedMark(documentRef, item) {
   if (!item?.titleKoFailed || /[가-힣]/.test(item?.titleKo || '')) return null;
   const mark = documentRef.createElement('span');
@@ -163,7 +189,10 @@ export function untranslatedMark(documentRef, item) {
   return mark;
 }
 
+// P1391: a headline-only item without a real translation used to get a generated sentence
+// ("매크로 · Reuters 기사 · 중요도 48") as its title. Show the translated title or the original.
 function realTitle(root, item) {
+  // The producer's titleKo leads; an older session cache or ko_title is the fallback.
   let ko = /[가-힣]/.test(item?.titleKo || '') ? item.titleKo : '';
   if (!ko && !item?.titleKoFailed) {
     try {
@@ -174,18 +203,28 @@ function realTitle(root, item) {
   const original = typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item) : item?.title;
   const translated = /[가-힣]/.test(ko) && typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item, ko) : ko;
   const title = /[가-힣]/.test(ko) ? translated : (original || item?.headline || '제목 없음');
-  const fixed = fixKoreanTerms(item?.title, title);
-  return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed;
+  const fixed = fixKoreanTerms(item?.title, title); // Shared glossary
+  return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed; // P1500
 }
 
 const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', geo: '지정학', energy: '에너지', metals: '원자재', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
 
+// v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
+// that scenario's axes; the old fixed topic → scenario names did not exist among the live branches. The model is
+// computed once a minute, not per card.
+// v58.75 (persona review): the topic alone named a scenario — every 거시 headline read "관련 시나리오 'AI 투자 꺾임'"
+// because that branch shares the growth axis. The headline's own words decide (SCENARIO_TITLE_TERMS in
+// src/domain/briefing/event-guide.js), and the card now carries the whole chain — axis → live branch → burdened and
+// helped exposures → what to check — instead of the branch name alone ('고르는 법' E1).
+// The topic only keeps a scenario off unrelated feeds, so the broad macro feed may reach the oil, rates and policy branches.
 const TOPIC_AXES = Object.freeze({ macro: ['inflation', 'growth', 'commodities', 'rates', 'policy'], fxbond: ['rates', 'policy'], bond: ['rates', 'policy'], fx: ['rates', 'policy'], energy: ['commodities'], metals: ['commodities'], geo: ['commodities'], credit: ['credit'], semi: ['growth', 'credit'] });
 let scenarioMemo = { at: 0, xr: null };
 function liveScenarioFor(root, item, shownTitle = '') {
   const axes = TOPIC_AXES[item?.topic || item?.feedTopic];
   if (!axes) return null;
   const now = Date.now();
+  // A model read before the close history loaded (no lead) is kept for 3 seconds, not a minute — the first paint
+  // cached it and no card named a scenario until the minute passed.
   if (now - scenarioMemo.at > (scenarioMemo.xr?.leadId ? 60000 : 3000)) {
     let xr = null;
     try { xr = crossroadsForRoot(root, { nowMs: now }); } catch (_) { xr = null; }
@@ -203,6 +242,7 @@ function createNewsCard(documentRef, root, item, index) {
   // formatter supplies the absolute, timezone-aware timestamp instead of ''.
   const absTime = displayValue(root, 'getAbsoluteTime', item, '') || formatAbsoluteTime(publishedIso);
   const timeAgo = item?.pubDate ? displayValue(root, 'getTimeAgo', new Date(item.pubDate), '') : '';
+  // The free translator's known misreadings (earnings → 수익) are corrected against the shared glossary.
   const title = fixKoreanTerms(item?.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item));
   const summary = displayValue(root, 'getDisplaySummary', item, item?.summary || item?.desc || '');
   const extractedTickers = displayValue(root, 'getDisplayTickers', item, []);
@@ -225,6 +265,8 @@ function createNewsCard(documentRef, root, item, index) {
     day.textContent = compact.date;
     absolute.append(day, documentRef.createTextNode(compact.time));
   } else absolute.textContent = absTime || timeAgo || '—';
+  // Keep the raw publication instant and its timezone representation on the node so
+  // the absolute time survives independently of the display string and the original article link.
   if (publishedIso) {
     absolute.dataset.publishedAt = publishedIso;
     absolute.setAttribute('title', `발행 ${absTime || publishedIso} (한국 시간)`);
@@ -239,12 +281,19 @@ function createNewsCard(documentRef, root, item, index) {
   body.className = 'news-item-body';
   const headline = documentRef.createElement('div');
   headline.className = 'news-item-headline';
+  // Earnings headlines carry the structured estimate/actual line on the news screen too.
+  // It is resolved first so an earnings story is tagged with the reporting company only — a
+  // mentioned analyst's firm (Morgan Stanley on a Nike story) is not the article's subject.
   let earnings = null;
   try {
     if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: symbolNames(root) });
   } catch (_) { earnings = null; }
   const tickers = earnings?.symbols?.length ? [...earnings.symbols] : earnings?.symbol ? [earnings.symbol] : extractedTickers;
+  // One badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
   const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
+  // Registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge.
+  // v58.75 (persona review): the badges ran into each other and into the title ("$NVDA$AAPL애플은"); they sit on their own
+  // line above the title, separated by spaces.
   const badges = uniqueTickers.filter((ticker) => !String(ticker).includes('_')).slice(0, 4);
   if (badges.length) {
     const row = documentRef.createElement('div');
@@ -255,8 +304,13 @@ function createNewsCard(documentRef, root, item, index) {
     });
     headline.appendChild(row);
   }
+  // A Cyrillic/CJK feed name is shown as '외신' instead of leaking untranslated.
   const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
   const source = item?._tgChannel ? `TG, ${rawSource}` : rawSource;
+  // LC-34: the headline is the link to the original (new tab, noopener); the card keeps its larger pointer target, and the
+  // delegation ignores the anchor so the URL cannot open twice. The publisher, the original title and the full
+  // publication time are the headline's hover (sources stay off the screen text, owner 2026-10-06); the per-card
+  // '원문과 출처' fold that held them left.
   const hover = [source, item?.title && item.title !== title ? `원문 제목 ${item.title}` : '', absTime ? `발행 ${absTime}` : ''].filter(Boolean).join(', ');
   if (link) {
     const anchor = documentRef.createElement('a');
@@ -277,6 +331,8 @@ function createNewsCard(documentRef, root, item, index) {
   if (untranslated) headline.appendChild(untranslated);
   body.appendChild(headline);
   const headlineOnly = isNewsHeadlineOnly(item);
+  // LC-32: a headline-only card has no article body, so no causal summary is shown (P1391: and no
+  // boundary sentence either — the absence is the boundary).
   if (summary && !headlineOnly) {
     const summaryNode = documentRef.createElement('div');
     summaryNode.className = 'news-item-summary';
@@ -290,6 +346,7 @@ function createNewsCard(documentRef, root, item, index) {
     earningsNode.title = earnings.source || '';
     body.appendChild(earningsNode);
   }
+  // An intraday KOSPI/KOSDAQ crash or surge headline carries the session's close when the close reversed it.
   const closeNote = krIndexCloseNote(item, root?._aioHistory || []);
   if (closeNote) {
     const closeNode = documentRef.createElement('div');
@@ -299,8 +356,12 @@ function createNewsCard(documentRef, root, item, index) {
   }
   const meta = documentRef.createElement('div');
   meta.className = 'news-item-meta';
+  // Developer markers (selection score, headline-only boundary, feed-review flag) are not
+  // user content. LC-31 still holds — a feed-query topic is shown only as a plain label, never as a verified sector
+  // assignment elsewhere.
   const shownTopic = newsTopicOf(item);
   const topicLabel = TOPIC_LABELS[shownTopic] || '';
+  // A rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
   const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
   // The evidence kind (공시, 기업 발표…) and a correction or retraction are facts about the article, so they sit
   // on the meta line beside the time; '기사' is every row's kind and says nothing.
@@ -309,6 +370,8 @@ function createNewsCard(documentRef, root, item, index) {
     .filter(Boolean)
     .join(', ');
   body.appendChild(meta);
+  // The face is never folded: the scenario chain — axis → branch → burdened/helped exposures →
+  // what to check — is one line on the face; how the link is made is its hover.
   const chain = liveScenarioFor(root, item, title);
   const chainNote = '헤드라인의 주제가 지금 선두·대안 시나리오가 보는 축과 맞을 때만 잇고, 영향은 시나리오의 노출 분류이며 예측이 아닙니다.';
   if (chain) {
@@ -327,6 +390,7 @@ function createNewsCard(documentRef, root, item, index) {
     const evidenceTitle = documentRef.createElement('summary');
     evidenceTitle.textContent = `변경 이력 ${item.storyArticles.length}건`;
     evidenceTitle.title = item.storySelection || '';
+    // Each fold names its headline to a screen reader.
     evidenceTitle.setAttribute('aria-label', `${evidenceTitle.textContent} — ${String(title || '').slice(0, 80)}`);
     evidence.appendChild(evidenceTitle);
     const timeline = documentRef.createElement('ol');
@@ -338,6 +402,7 @@ function createNewsCard(documentRef, root, item, index) {
       if (articleUrl) {
         const anchor = documentRef.createElement('a');
         anchor.href = articleUrl; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
+        // same-cycle carry made multi-article stories common; a 15px inline link failed the 24px target rule on ipad820.
         anchor.classList.add('aio-inline-target'); // --touch-min, src/ui/styles/layout-primitives.css
         row.appendChild(anchor);
       } else row.textContent = label;
@@ -357,6 +422,7 @@ function createNewsCard(documentRef, root, item, index) {
     const chip = documentRef.createElement('span');
     chip.className = 'sx-chip sx-chip--sm news-topic-chip';
     chip.textContent = topicLabel;
+    // LC-31: a feed-query topic says how it was classified, on the chip's hover.
     if (isNewsTopicReviewRequired(item)) chip.title = `${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전`;
     side.append(chip);
   }
@@ -367,6 +433,8 @@ function createNewsCard(documentRef, root, item, index) {
 
 const newsKey = (item) => newsArticleKey(item);
 
+// 재무 공시 → 뉴스 arrives with one ticker. The feed is narrowed to stories whose issuer resolves to that
+// ticker (the same resolver the card badges use), until the reader clears it.
 function newsTickerFocus(root) {
   const value = String(root?._aioNewsTickerFocus || '').trim().toUpperCase();
   return /^[A-Z0-9][A-Z0-9.^=-]{0,11}$/.test(value) ? value : null;
@@ -387,6 +455,9 @@ function focusModel(root, model, ticker) {
   return narrowModel(model, (item) => mentionsTicker(root, item, ticker));
 }
 
+// v58.75 (persona review): a '내 종목' chip narrows the articles to stories about a watched or held company (the same issuer
+// resolver as the badges) and swaps the channel feed for the channel posts whose extracted tickers name one. With no
+// watched or held company the chip is disabled and says why.
 function myNewsSymbols(root, store) {
   const watched = displayValue(root, '_aioWatchlistGet', undefined, []);
   const holdings = store?.getState?.()?.portfolio?.holdings;
@@ -413,6 +484,7 @@ function syncMineChip(documentRef, root, symbols, active) {
     chip.className = 'chip sh-soft-chip';
     chip.textContent = '내 종목';
     chip.addEventListener('click', () => {
+      // first-users run-3 N#23: a disabled chip gave no reason on touch (a title never shows); a tap now says what to do.
       if (chip.getAttribute('aria-disabled') === 'true') { root.showToast?.(chip.title); return; }
       root._aioNewsMineOnly = !root._aioNewsMineOnly;
       documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-mine-filter' } }));
@@ -436,6 +508,7 @@ function renderMineChannelPosts(documentRef, card, root, symbols, active) {
     box.id = 'news-tg-mine';
     card.append(box);
   }
+  // A post shows as the fact extracted from it about my name (channel-lines.js), never its text.
   const signals = Array.isArray(root?.AIO_TELEGRAM_SIGNALS) ? root.AIO_TELEGRAM_SIGNALS : [];
   const posts = (Array.isArray(root?.AIO_TELEGRAM_CURRENT_ITEMS) ? root.AIO_TELEGRAM_CURRENT_ITEMS : [])
     .map((post) => {
@@ -511,7 +584,7 @@ function renderIntradayNews(documentRef, root, later, important = new Set(), now
   const note = documentRef.createElement('span');
   note.className = 'briefing-h2-note';
   note.textContent = `${end ? `${end.date} ${end.time}` : '08:00'} 이후`;
-  note.title = '다음 08:00 수집본 전까지의 헤드라인'; note.classList.add('aio-asof');
+  note.title = '다음 08:00 수집본 전까지의 헤드라인'; note.classList.add('aio-asof'); // Chip
   heading.append(note);
   const list = documentRef.createElement('ul');
   list.className = 'news-intraday-list';
@@ -523,9 +596,13 @@ function renderIntradayNews(documentRef, root, later, important = new Set(), now
     time.textContent = stampParts ? (stampParts.date === today ? stampParts.time : `${stampParts.date} ${stampParts.time}`) : '';
     const href = safeUrl(item.link || item.url);
     const titleNode = documentRef.createElement(href ? 'a' : 'span');
+    // The intraday headlines read in Korean like the cards (same display/translation path).
     titleNode.textContent = `${item.verification === 'unconfirmed' ? '[미확인] ' : ''}${fixKoreanTerms(item.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item)) || String(item.title || '')}`;
     if (href) { titleNode.href = href; titleNode.target = '_blank'; titleNode.rel = 'noopener noreferrer'; }
+    // A 12px/1.5 link was an 18-21px target; padding keeps every headline link at least 24px tall.
+    // The browser-default link blue measured 1.94:1 in dark; the text colour token passes in both themes.
     titleNode.className = 'nws-intraday-link'; // src/ui/styles/news-page.css
+    // Sources stay off the screen text: publisher and full time live in the hover.
     titleNode.title = [item.source, formatAbsoluteTime(item.publishedMs ? new Date(item.publishedMs) : null)].filter(Boolean).join(', ');
     row.append(time, titleNode);
     const untranslatedRow = untranslatedMark(documentRef, item);
@@ -544,6 +621,9 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   if (!displayed.length) {
     const empty = documentRef.createElement('div');
     empty.className = 'nws-empty';
+    // 창 밖에 남은 과거 수집분을 오늘 뉴스로 읽히게 두지 않는다.
+    // LC-32: 분류가 피드 query에서 복사된 경우, 0건은 '해당 주제 뉴스가 없다'가 아니라
+    // '이 필터가 피드 분류를 기준으로 걸러낸 결과'임을 함께 밝힌다.
     const reviewFlagged = eligible.filter(isNewsTopicReviewRequired).length;
     const outOfWindow = Number(model?.outOfWindowCount || 0);
     empty.textContent = status === 'unavailable'
@@ -563,22 +643,30 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
       empty.append(documentRef.createElement('br'), reset);
     }
   } else {
+    // The 카테고리별 grouped view left with the type tabs — each card already names its topic, and the topic
+    // chips narrow the list to one group.
     displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index)));
   }
 
   const count = documentRef.getElementById('market-news-count');
-  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `중요 사건 ${exclude.size}건, 그 밖의 사건 ${eligible.length}건${describeNewsScope(controls).articles === '필터 적용' ? ', 필터 적용' : ''}`; count.title = `조건에 맞는 기사 ${model?.eligibleCount || 0}건을 같은 사건끼리 묶은 수`; }
+  if (count) { count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite'); count.textContent = `중요 사건 ${exclude.size}건, 그 밖의 사건 ${eligible.length}건${describeNewsScope(controls).articles === '필터 적용' ? ', 필터 적용' : ''}`; count.title = `조건에 맞는 기사 ${model?.eligibleCount || 0}건을 같은 사건끼리 묶은 수`; } // One status line; the shown/total split stays beside 더 보기
   const summary = documentRef.getElementById('news-visible-summary');
   if (summary) summary.textContent = `기사 ${model?.eligibleCount || 0}건, 아래 사건 ${eligible.length}건 중 ${displayed.length}건 표시`;
   const more = documentRef.getElementById('news-load-more-wrap');
   if (more) {
+    // "더 보기"는 렌더 가능한 풀(model.items, maxItems 계약)을 기준으로 숨긴다 —
+    // eligibleCount(전체 창 개수)는 계약 캡보다 클 수 있어, 모든 기사를 표시한 뒤에도 버튼이
+    // 남아 클릭해도 아무것도 추가되지 않는 결함이 나왔다. 남은 이유는 요약이 말한다.
     const poolSize = eligible.length;
     more.hidden = displayed.length >= poolSize;
+    // Name what 'more' does and where the list ends, in reader terms.
     const moreButton = more.querySelector('[data-action="_aioNewsLoadMore"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, poolSize - displayed.length))}개 더 보기`;
   }
 }
 
+// The selected country/topic is carried in the accessibility tree, not only in inline
+// colour — chips are toggle buttons with aria-pressed.
 function syncNewsControlState(documentRef, controls) {
   const mark = (selector, current) => {
     documentRef?.querySelectorAll?.(selector).forEach((node) => {
@@ -606,6 +694,7 @@ function render({ documentRef, root, store, route }) {
   }
   if (route === 'briefing') {
     renderBriefingRead({ documentRef, root, store });
+    // The last 24 hours as linked stories (a lazy chunk; market-day.json loads on first use).
     import('../components/briefing-day.js').then(({ renderBriefingDay }) => renderBriefingDay({ documentRef, root })).catch(() => {});
     // T18: the title date is the US close the read is based on, not the KST calendar day.
     root?._aioRenderBriefingDateLine?.(undefined, closeBasis(root?._aioHistory || []));
@@ -624,6 +713,7 @@ function render({ documentRef, root, store, route }) {
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
   renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
+  // After the Korean close (15:30 KST) until the next 08:00 bundle, the header says where the session's articles are.
   const nowMs = Date.now();
   const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs }), tickerFocus), mineOnly ? mine : new Set());
   const later = laterNews(root, items, nowMs);
@@ -641,9 +731,11 @@ function render({ documentRef, root, store, route }) {
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();
   const windowLabel = documentRef?.getElementById('news-window-label');
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
-    windowLabel.title = '한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본';
+    windowLabel.title = '한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본'; // The window stays, the routing rule is its hover
   }
   syncNewsControlState(documentRef, controls);
+  // v59.44 (owner 2026-10-30, "each screen too"): the release summaries in the same tiers as 오늘 (a lazy chunk), with the
+  // monthly releases of the last week, ahead of 중요 뉴스 — what came out and why the price moved, then the coverage.
   import('../components/event-briefs.js').then(({ paintNewsBriefs }) => {
     const repaint = () => { if (documentRef.getElementById('page-market-news')?.classList?.contains('active')) paintNewsBriefs(documentRef, root, null, macroReleasesFor(root, { days: 7 })); };
     paintNewsBriefs(documentRef, root, repaint, macroReleasesFor(root, { days: 7 }));
@@ -651,7 +743,7 @@ function render({ documentRef, root, store, route }) {
   renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = mineOnly ? '내 종목 필터: 채널 글 중 관심·보유 종목을 다룬 글만 표시합니다.' : describeNewsScope(controls).channel;
-  renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS);
+  renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS); // v58.71
   renderMineChannelPosts(documentRef, documentRef?.getElementById('news-tg-card'), root, mine, mineOnly);
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
@@ -669,8 +761,8 @@ function render({ documentRef, root, store, route }) {
     }).catch(() => {});
   }
   appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
-  renderMarketTimeline({ documentRef, root, nowMs });
-  renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next);
+  renderMarketTimeline({ documentRef, root, nowMs }); // The six-hour slots moved here from 브리핑 (a closed fold)
+  renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';
 }
 
@@ -680,6 +772,8 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
     mount() {
       const bag = createResourceBag();
       const page = documentRef?.getElementById(`page-${route}`);
+      // Incoming data stays pending while the reader is on this screen.
+      // Filter/load-more actions apply immediately; arrivals never replace a focused article.
       let renderedKeys = null;
       let renderedControls = '';
       const updates = route === 'market-news' ? documentRef.createElement('button') : null;
@@ -727,10 +821,14 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
       }
+      // A ticker handed over from 재무 공시 opens 기업 뉴스 narrowed to it; a plain visit shows everything.
+      // 기업 뉴스 is the 기업 topic chip (the type tabs left).
       if (route === 'market-news') {
         const handoffContext = consumeResearchHandoff({ root, routeId: 'market-news' })?.context || {};
         const focus = String(handoffContext.ticker || '').trim().toUpperCase();
         root._aioNewsTickerFocus = focus || null;
+        // P1730 (R2 next-step links): a briefing link that names a topic or country opens the list already filtered,
+        // through the same filter functions and chips the reader would press.
         const chip = (group, value) => [...(documentRef.querySelectorAll?.(`#${group} [data-arg]`) || [])].find((node) => node.dataset.arg === value) || null;
         if (focus && typeof root?.filterNewsByTopic === 'function') {
           try { root.filterNewsByTopic('company', chip('news-topic-chips', 'company')); } catch (_) {}
@@ -744,10 +842,13 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
           try { root.filterNewsByCountry(country, chip('news-country-chips', country)); } catch (_) {}
         }
       }
+      // A render that throws during mount releases what this page already attached; the
+      // router disposes only its own scope.
       try { renderNow(); } catch (error) { bag.dispose(); throw error; }
       const unsubscribe = store && subscribeToSlices(store, route === 'briefing' ? ['news', 'analysis', 'marketSnapshot'] : ['news'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
       const eventTarget = documentRef || root;
+      // The news cards read the close history too (krIndexCloseNote), so both routes redraw when it loads.
       ['aio:newsUpdated', 'aio:newsSurfaceInvalidated', 'aio:refresh:done', 'aio:serverDataLoaded', 'aio:historyLoaded',
         ...(route === 'briefing' ? ['aio:sentimentUpdated', 'aio:liveQuotes', 'aio:marketSnapshot'] : [])].forEach((eventName) => {
         eventTarget?.addEventListener?.(eventName, renderNow);

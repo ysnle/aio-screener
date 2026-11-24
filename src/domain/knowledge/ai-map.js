@@ -1,3 +1,10 @@
+// 산업 지도 › AI 지도: the three maps of the AI build-out — the value chain with the supply links between
+// its layers, the power-to-cloud data-center chain, and the capital flows between AI companies. This module only shapes
+// data the repo already holds; it adds no number and states no reading. The layer links are counts of the company
+// stories' own customer and money-flow lines (public-data/company-profiles/graph.json); the chain is the atlas nodes and
+// the 전력(GW)에서 토큰까지 guide in five stages with the reference capex split and lead times; the capital flows come from
+// public-data/atlas/capital-flows.json, a dated file of its own beside the atlas (whose role references carry no current
+// claim, RULES R433), checked by scripts/ci-capital-flows-contract-check.mjs.
 import { isIsoDay } from '../shared/session-date.js';
 import { readNumber } from '../shared/number.js';
 

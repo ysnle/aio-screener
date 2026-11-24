@@ -1,4 +1,4 @@
-// v57.90: data-store layout for the producer-only SEC ledger (public-data/sec-fundamentals.json).
+// data-store layout for the producer-only SEC ledger (public-data/sec-fundamentals.json).
 // Until v57.89 the ledger was one blob on the data-store branch; it reached 87.8 MB on 2026-10-16 (P1757 era ~67 MB),
 // about 12 MB under GitHub's 100 MB per-file push rejection. The branch now holds an index plus byte-exact parts:
 // the canonical (LF-normalized) text is cut greedily at line boundaries into parts of at most SEC_STORE_PART_MAX_BYTES,
@@ -10,7 +10,7 @@ import { canonicalText, SEC_STORE_FILE } from './sec-ledger.mjs';
 
 export const SEC_STORE_INDEX_SCHEMA = 'sec-fundamentals-store-index.v1';
 export const SEC_STORE_INDEX_FILE = 'sec-fundamentals.index.json';
-// 32 MiB keeps every part 36% under GitHub's 50 MB warning (same limit as the 13F manager row store, v57.89).
+// 32 MiB keeps every part 36% under GitHub's 50 MB warning (same limit as the 13F manager row store).
 export const SEC_STORE_PART_MAX_BYTES = 32 * 1024 * 1024;
 export const secStorePartName = (index) => `${SEC_STORE_FILE}.part-${index + 1}`;
 

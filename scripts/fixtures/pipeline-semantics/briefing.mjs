@@ -205,7 +205,7 @@ export const cases = [
   } },
 
   // ---- R1/R3: reviewer follow-ups ------------------------------------------------------------------------------------------
-  // v59.55 (C3): the briefing bars are the shared two-sided bar; the rule is tested on it instead of pinning text.
+  // The briefing bars are the shared two-sided bar; the rule is tested on it instead of pinning text.
   { id: 'R1-05', name: '0.0%로 표시되는 이동 막대는 하락 색이 아니다', run: async ({ load }) => {
       const { signedFill } = await load('src/ui/components/signed-bar.js');
       const doc = { createElement: () => ({ className: '', style: {}, dataset: {} }) };

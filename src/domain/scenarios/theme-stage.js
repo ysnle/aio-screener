@@ -1,12 +1,26 @@
+// 2026-10-14 audit #5: one accessor for "which stage is this stock's theme in", shared by the stock summary, the
+// company card and the screener reading so all three say exactly what 테마 시나리오 says (scenario-state.json rows).
+// Theme-level only: the favoured choice belongs to the theme, never a buy/sell instruction on a single stock.
+// When the per-refresh state is not current the accessor returns [] and callers render nothing (no placeholder).
 import { THEME_STATES } from './analogs.js';
 import { WIND_LABELS } from './exposures.js';
 import { CHOICES } from '../market/regime/macro-crossroads.js';
 import { countOpenSessionsBetween, latestCompletedSession } from '../market/session/market-calendar.js';
 import { isIsoDay } from '../shared/session-date.js';
 
+// v58.75 (persona review): v2 = members pooled once per theme. scenario-state.json stamps the version it was built
+// with, so a state written by the older group-median rule (crypto -25.1% there, -44.7% pooled) is never shown beside it.
+// Defined here (theme-playbook.js re-exports it) so the stage reader checks the same version without an import cycle.
+// v3 = the 2026-11-04 theme membership (하드웨어·기기, IT 서비스, +HONA·OKTA·EXEL·UTHR; KR UAM·우주·양자 retired), so
+// a state built on the old members (software -5.1% there, -4.0% now) waits for the next refresh's rebuild.
 export const THEME_PLAYBOOK_VERSION = 'theme-playbook.v3';
 
+// The producer writes status 'current' (scripts/build-scenario-state.mjs) while the readers required 'ok',
+// so the stage chips never rendered. One constant for the writer and every reader.
 export const SCENARIO_STATE_CURRENT = 'current';
+// v59.45 (P10-STATE-01): a payload that downloaded just now is not therefore current. A theme basis more than this many
+// sessions behind its market's latest completed session is an old observation; a stamped other playbook version is
+// another model. Fields the payload does not carry are not guessed (an unregistered calendar year is not rejected).
 export const SCENARIO_BASIS_MAX_LAG = 2;
 export function scenarioBasisCurrent(date, market = 'US', nowMs = Date.now()) {
   const day = String(date || '').slice(0, 10);

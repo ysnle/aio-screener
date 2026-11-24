@@ -1,4 +1,4 @@
-// Expect cases for the market-wide lean (owner 2026-10-26): what the 오늘 screen and the AI context print for each
+// Expect cases for the market-wide lean: what the 오늘 screen and the AI context print for each
 // evidence mix. Scenarios mirror the v58.81 unit checks in ci-esm-core-unit-check.mjs; this file shows the whole text.
 export const suite = { name: 'market-lean', source: 'src/domain/market/regime/market-lean.js' };
 

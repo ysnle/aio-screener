@@ -20,7 +20,7 @@ const RULES = '_context/RULES.md';
 const POSTMORTEM = '_context/BUG-POSTMORTEM.md';
 const BEGIN = '<!-- ledger-class-report:begin -->';
 const END = '<!-- ledger-class-report:end -->';
-const RECENT_FROM = 1900; // P1900 ≈ v57.9 (2026-10-17): the "recent" column covers the last ~300 entries.
+const RECENT_FROM = 1900; // P1900 ≈ v57.9: the "recent" column covers the last ~300 entries.
 
 export function principleMap(rulesText) {
   const names = {};

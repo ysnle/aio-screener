@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (integration review 89e8c881): live data against the pinned browser snapshot (architecture/browser-data-fixture.json).
+// Live data against the pinned browser snapshot (architecture/browser-data-fixture.json).
 // When a producer starts writing a new structure (history.v2, putCall removed, rotation-detail.json added, market-day
 // headlineTranslation), the pinned snapshot no longer looks like production and needs a re-pin. That is a live-data
 // judgement, not a source defect (R634 / I8, scripts/lib/qa-live-data.mjs): this gate declares liveData: "content", so

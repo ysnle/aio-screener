@@ -8,7 +8,7 @@ import { fetchJSON, _fetchRss } from '../lib/producer-http.mjs';
 import { REPO_ROOT } from './paths.mjs';
 import { seriesFetchDue } from '../lib/series-fetch-due.mjs';
 
-// P1426 (owner review 2026-10-03): the 거시 screen needs direction, not just the latest print — the
+// The 거시 screen needs direction, not just the latest print — the
 // three-month pace of inflation, the Sahm-rule unemployment gap, the payroll trend, weekly claims and
 // a year of daily rates/credit. One raw-observation artifact from FRED (the operator key in Actions);
 // every derived figure is computed in src/domain/macro so the rule and its inputs stay inspectable.
@@ -16,7 +16,7 @@ import { seriesFetchDue } from '../lib/series-fetch-due.mjs';
 export const MACRO_HISTORY_SERIES = Object.freeze({
   cpiIndex:       { id: 'CPIAUCSL',      frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI-U (계절조정 지수)' },
   coreCpiIndex:   { id: 'CPILFESL',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 CPI-U (계절조정 지수)' },
-  // P1427: the official headline YoY is the NSA index; cards plot NSA so their history matches the value shown.
+  // The official headline YoY is the NSA index; cards plot NSA so their history matches the value shown.
   cpiIndexNsa:    { id: 'CPIAUCNS',      frequency: 'monthly', limit: 40,  unit: 'index', label: 'CPI-U (계절조정 전 지수)' },
   coreCpiIndexNsa:{ id: 'CPILFENS',      frequency: 'monthly', limit: 40,  unit: 'index', label: '근원 CPI-U (계절조정 전 지수)' },
   pceIndex:       { id: 'PCEPI',         frequency: 'monthly', limit: 40,  unit: 'index', label: 'PCE 물가지수' },
@@ -46,7 +46,7 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   dgs5:           { id: 'DGS5',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 5년' },
   dgs20:          { id: 'DGS20',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 20년' },
   dgs30:          { id: 'DGS30',         frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 30년' },
-  // v58.56 (re-audit #9): the short and middle tenors the curve was missing (1개월·3개월·6개월·1년·3년·7년). The Treasury
+  // The short and middle tenors the curve was missing (1개월·3개월·6개월·1년·3년·7년). The Treasury
   // XML feed now carries them for today's cut (scripts/lib/macro-sources.mjs); these H.15 series give the same par yields
   // with history for the dashed "1개월 전" line, and DGS3MO replaces the 3-month point derived from T10Y3M.
   dgs1mo:         { id: 'DGS1MO',        frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 1개월' },
@@ -55,7 +55,7 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   dgs1:           { id: 'DGS1',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 1년' },
   dgs3:           { id: 'DGS3',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 3년' },
   dgs7:           { id: 'DGS7',          frequency: 'daily',   limit: 50,  unit: 'percent', label: '미 국채 7년' },
-  // v58.56 (re-audit #14): the FOMC Summary of Economic Projections' longer-run federal funds rate median (FRED FEDTARMDLR,
+  // The FOMC Summary of Economic Projections' longer-run federal funds rate median (FRED FEDTARMDLR,
   // "Longer Run FOMC Summary of Economic Projections for the Fed Funds Rate, Median", one observation per SEP release date,
   // four a year). The Taylor tile's default r* = this median − the 2% inflation target, shown with the SEP date.
   sepLongRunFedFunds: { id: 'FEDTARMDLR', frequency: 'sep-release', limit: 8, unit: 'percent', label: 'FOMC 장기 연방기금금리 전망 중앙값 (SEP)' },
@@ -69,9 +69,9 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // v59.70 (X bookmarks #4): HY, IG and CCC keep everything FRED serves (ICE BofA series: the last three years, about 790
   // observations) so 매크로's credit chapter can place today's level in its own long range (quantile bands, no fixed line).
   hyOas:          { id: 'BAMLH0A0HYM2',  frequency: 'daily',   limit: 800, unit: 'percent', label: '하이일드 스프레드' },
-  // P1586: investment-grade OAS — the junk-bond component is HY minus IG.
+  // investment-grade OAS — the junk-bond component is HY minus IG.
   igOas:          { id: 'BAMLC0A0CM',    frequency: 'daily',   limit: 800, unit: 'percent', label: '투자등급 회사채 스프레드' },
-  // P1638: rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
+  // Rating tiers — stress usually starts in the weakest borrowers (CCC) before the HY average moves.
   // v59.75 (macro audit 11/7): BB and B keep the same three-year record as HY/IG/CCC. At 280 they held one year, so the
   // credit chapter could not place them in the same range as the other tiers and left them unread.
   bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 800, unit: 'percent', label: 'BB 등급 스프레드' },
@@ -205,12 +205,12 @@ export async function writeMacroHistory(key, { fetchFn = fetchJSON, nowMs = Date
   return { written: true, series: Object.keys(series).length, fetched: Object.keys(series).length - kept.length, kept: kept.length, failed };
 }
 
-// P1654: the release dates of the four FRED-published indicators the calendar shows. The browser calendar was a
+// The release dates of the four FRED-published indicators the calendar shows. The browser calendar was a
 // hand-maintained array that ran out after 2026-12; the producer now writes the official FRED release schedule each
 // run (BOK is not a FRED release and stays on its annual official calendar; FOMC/ISM: see P1731/P1733 below).
 export const MACRO_CALENDAR_OUT = `${REPO_ROOT}/public-data/macro-calendar.json`;
 export const MACRO_CALENDAR_RELEASES = Object.freeze({ 'us-retail': 9, 'us-cpi': 10, 'us-nfp': 50, 'us-pce': 54 });
-// P1731/P1733: the same artifact now also carries the FOMC meetings (official Fed page, rechecked at most every 12h,
+// The same artifact now also carries the FOMC meetings (official Fed page, rechecked at most every 12h,
 // previous parse kept on failure) and the rule-derived ISM PMI dates; neither needs the FRED key. I/O is injectable
 // so the gate can run this end to end on fixtures without touching public-data.
 export async function writeMacroCalendar(key, { fetchFn = fetchJSON, fetchTextFn = (url) => _fetchRss(url, 15000), nowMs = Date.now(), outPath = MACRO_CALENDAR_OUT, readFn = readFile, writeFn = atomicWriteFile } = {}) {

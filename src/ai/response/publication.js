@@ -1,4 +1,4 @@
-// P1519: one evidence-publication policy shared by the legacy adapter and native ESM.
+// One evidence-publication policy shared by the legacy adapter and native ESM.
 import { isoDay, stampDay } from '../../domain/shared/session-date.js';
 import { printedValueAgrees, signAgrees, directionAgrees, dayAgrees } from '../../domain/shared/figure-agreement.js';
 import { splitAnswerText } from './answer-envelope.js';
@@ -45,7 +45,7 @@ export function claimSourceUrl(value) {
 // P1525 (audit H104 class): a current-sensitive sentence carrying a count or a magnitude must be bound to evidence, not
 // slip through because its unit was not on the list. Counts (개/곳/건/명/종목) and Korean magnitudes (조/억/만) are
 // covered; 개월/개년 stay out so a period like "3개월" is not read as a current figure.
-// Briefing audit 2026-10-17: the particles 가/도/의 joined the metric list ("VIX가 15.2로" published unbound); a period after
+// The particles 가/도/의 joined the metric list ("VIX가 15.2로" published unbound); a period after
 // the number ("금리가 3개월") stays out. v58.77 (pipeline audit AI-02): index levels without a unit ("코스피는 2,450이다") are covered.
 // A market instrument whose level is quoted without a unit, optionally with an alias or a per-unit word:
 // "달러인덱스(DXY)는 104.2입니다", "WTI는 배럴당 71.4입니다", "10년물은 4.15에 마감했다".
@@ -66,7 +66,7 @@ export function hasCurrentNumericContent(value) {
   return /(?:[$₩€]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|bp|bps|원|달러|USD|배|포인트|pt|지수)|(?:VIX(?:\s*지수)?|PER|PBR|PSR|PEG|ROE|RSI|주가|시세|환율|금리|시가총액|매출|영업이익)\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스피|KOSPI)(?:\s*200)?\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:코스닥|나스닥|다우|닛케이|니케이|러셀\s*2000|S&P\s*500|KOSDAQ|Nasdaq|Dow|Nikkei)\s*(?:지수)?\s*(?:는|은|이|가|도|의|:)?\s*\d[\d,.]*(?!\s*(?:개월|개년|년|분기|주|일|거래일|세션))|(?:현재|최신|지금|오늘)[^.!?。！？\n]{0,40}?\d[\d,.]*|\d[\d,.]*\s*(?:개(?![월년]|\s*분기)|곳|건|명|종목|조|억|만)|\b(?:19|20)\d{2}-\d{2}-\d{2}(?!\d))/i.test(text);
 }
 
-// X02 (2026-10-13): a period/question mark only ends a sentence when it is not glued to the next
+// X02: a period/question mark only ends a sentence when it is not glued to the next
 // ASCII token — "14.84", "apnews.com" and "?utm_source" stay whole, so a dropped numeric claim
 // leaves no "84, 미 10년물 5." fragment and a kept URL is never re-joined with inserted spaces.
 export function splitAnswerSentences(line) {
@@ -197,7 +197,7 @@ export function tidyInlineCitations(value) {
 // sources (plan 044: "a current figure must exist in what the model was given — injected evidence, search citations").
 // It is not when the sentence derives the figure itself, or when an AIO figure for the same subject, metric and unit
 // says otherwise. Table cells and typed claims never take search figures (AGENTS: search never feeds tables or scores).
-// 2026-11-18: "연환산" names a reported annualised figure ("2026년 연환산 배당 $2.12"), not a derivation of the sentence.
+// "연환산" names a reported annualised figure ("2026년 연환산 배당 $2.12"), not a derivation of the sentence.
 var DERIVED_FIGURE = /(?:계산|(?<!연)환산|합치면|합산|더하면|빼면|나누면|곱하면|평균하면|차이(?:는|가)|격차(?:는|가)|이므로|따라서|즉,?\s)/;
 function citationUrlSet(citations) {
   var urls = (Array.isArray(citations) ? citations : []).map(function(item) { return claimSourceUrl(typeof item === 'string' ? item : item && item.url); }).filter(Boolean);
@@ -317,7 +317,7 @@ export function withheldTopic(sentence) {
   return hit ? hit[0] : '';
 }
 
-// P1740: a threshold inside a condition ("VIX가 20을 넘으면", "RSI 70 이상이면 과매수로 본다", "if yields top 5%")
+// A threshold inside a condition ("VIX가 20을 넘으면", "RSI 70 이상이면 과매수로 본다", "if yields top 5%")
 // is a rule, not an observation. Stripping every sentence with a number removed exactly the invalidation levels and
 // confirmation signals the answer contract asks for. A sentence is a condition only when it has a conditional
 // ending and no marker of a present or past observation; "현재 15인 VIX가 20을 넘으면" still carries a current value.
@@ -387,7 +387,7 @@ function isFixedFact(text) {
 var CITED_URL = /(?:https?:\/\/|www\.)\S+/gi;
 // 'current' | 'dated-past' | 'fixed-fact' | 'conditional' | 'none', checked in that order after the numeric test.
 export function numericClaimKind(sentence, { today } = {}) {
-  // P1681: a date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
+  // A date or number inside a cited URL path ("…/2026/10/12/fed-…") is not a current claim of the sentence.
   var bare = String(sentence || '').replace(CITED_URL, ' ');
   if (!hasCurrentNumericContent(bare)) return 'none';
   var text = normaliseForDetection(bare);
@@ -893,7 +893,7 @@ function stripNumericSentences(value, today, numbers, entities, searchUrls, tool
   var header = null;
   var text = String(value || '').split('\n').map(function(line) {
     if (!line.trim()) { header = null; return ''; }
-    // P1740: a markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
+    // A markdown table keeps its rows; only an unverified current-number cell becomes "확인 필요". Dropping the
     // whole row left a header with no body. A cell whose every figure is a supported number keeps its value.
     // A cell is checked as its row and column read it: the subject its column header (or its row label) names, and the
     // metric and basis of its row label (or its column header). "| RSI | 58 | 26 |" under "| 기준 | NVDA | AMD |" needs
@@ -1013,7 +1013,7 @@ export function stripUnverifiedCurrentEventSentences(value, isBound, { today } =
   }).filter(function(line) { return line !== null; }).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   return { text: text, dropped: dropped };
 }
-// v59.45 P11-AI-01: the same event rule, read as "would this text lose a sentence against these rows".
+// P11-AI-01: the same event rule, read as "would this text lose a sentence against these rows".
 function currentEventSentenceUnbound(value, rows) {
   return stripUnverifiedCurrentEventSentences(value, function(sentence) { return eventBoundToEvidence(sentence, rows); }).dropped > 0;
 }
@@ -1041,7 +1041,7 @@ function guardFallback(text, currentSensitive, options) {
   var cited = function(bare, sentence, block) { return searchedSentenceKept(sentence, searchUrls, numbers, entities, block); };
   var events = null;
   if (options && options.evidenceCount === 0 && !numbers) events = stripUnverifiedCurrentEventSentences(numeric.text, searchUrls ? cited : null, { today: today });
-  // v58.77 AI-01: with evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
+  // With evidence rows handed in, an event sentence must name what one of them covers (same as the plan path).
   else if (options && (Array.isArray(options.evidenceRows) || numbers)) events = stripUnverifiedCurrentEventSentences(numeric.text, function(sentence, whole, block) { return eventBoundToEvidence(sentence, options.evidenceRows || []) || figuresSupported(sentence, numbers, { entities: entities }) || cited(sentence, whole, block); }, { today: today });
   if (events) { result.text = events.text; result.removedEventSentences = events.dropped; }
   result.text = wholeUnits(result.text).text.trim(); // a lead whose body the filters removed goes too
@@ -1056,7 +1056,7 @@ export function extractAnswerFallbackResult(rawText, currentSensitive, options) 
   return guardFallback(splitAnswerText(rawText, { unfinished: options && options.unfinished === true }).body, currentSensitive === true, options);
 }
 
-// v57.48 review #19: an answer opened with up to five "※" notices, three of them in English ("decision-grade",
+// An answer opened with up to five "※" notices, three of them in English ("decision-grade",
 // "Web Research", "Evidence"). The reader now gets one Korean line naming what was not confirmed; each detailed
 // notice moves to the folded answer-evidence panel. `figuresShown` keeps the line truthful when the published answer
 // shows confirmed values and only the rest was withheld or unconfirmed. It is read from what was published — a typed
@@ -1069,7 +1069,7 @@ const CURRENT_GAP_REASONS = ['market-session-evidence-unavailable', 'current-evi
 // search ran and how many sources it cited. `search` ({ searchedSentences, removedNumericSentences }) is given when this
 // answer's search cited sources: then the line never says "일반 설명만" — it says which figures are the searched ones.
 var REMOVAL_REASONS = ['answer-plan-claim-degraded', 'typed-claim-validation'];
-// 2026-11-18: the line names what was withheld ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다") when the filters say
+// The line names what was withheld ("배당수익률 문장 1개는 근거 수치가 없어 뺐습니다") when the filters say
 // (search.withheldTopics, counts by topic), what the app computed (계산값) and how many cut sentences it left out.
 function withheldPhrase(topics) {
   var entries = Object.keys(topics && typeof topics === 'object' ? topics : {}).map(function(topic) { return [topic, Number(topics[topic]) || 0]; })
@@ -1122,7 +1122,7 @@ export function buildPublishableAnswerPlan(plan, bindingEvidence, currentSensiti
     var reasons = [];
     var type = String(claim && claim.type || '');
     var ids = Array.isArray(claim && claim.evidenceIds) ? claim.evidenceIds.map(String) : [];
-    // P1688 live check (2026-10-13): the model labelled exact registry copies type "market_data"; a claim that carries a
+    // P1688 live check: the model labelled exact registry copies type "market_data"; a claim that carries a
     // metric and a numeric value is numeric whatever its label, so it is validated (not dropped as untyped content).
     var numeric = /^(?:numeric|metric|percentage|probability)$/.test(type) || (type !== 'text' && !!(claim && claim.metric) && typeof (claim && claim.value) === 'number');
     var labelAgrees = !numeric || claimLabelAgrees(claim);

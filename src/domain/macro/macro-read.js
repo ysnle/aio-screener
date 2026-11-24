@@ -1,9 +1,20 @@
+// The 매크로 tab explains the economy for a non-specialist —
+// whether each reading is good or bad for stocks, which way it is moving, and how the pieces connect.
+// Every judgement is a published rule with its threshold shown (the 시장 상태 pattern):
+//   growth    — Sahm rule (3-month average unemployment 0.5pp above its prior 12-month low; Claudia Sahm,
+//               2019, FRED SAHMREALTIME) and the 3-month payroll average,
+//   inflation — core PCE (the measure the FOMC's 2% objective uses) and its 3-month annualised pace,
+//   policy    — the 2-year yield against the policy rate (what the market prices for the next moves) and
+//               the real policy rate against the FOMC's longer-run neutral (3.0% nominal - 2% = about 1%).
+// Rates, credit and oil/dollar reuse the 시장 상태 axes, so the two screens never disagree.
+// What a regime has tended to mean for stocks is labelled 해석 (a historical tendency, not a forecast).
 import { AXIS_REASON_LABEL, creditCause, creditState, hyObservation, hyWidening20Record } from '../briefing/market-read.js';
 import { buildCloseSeries, closeBasis, sessionPointBack as closeSessionPointBack } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { brentWtiCheck } from './liquidity-growth.js';
 import { inflationDirection, oilDivergence, policyCycle, MACRO_SIGNAL_RULES } from './macro-signals.js';
 import { peopleText, signedText, readNumber as finite } from '../shared/number.js';
+// The neutral real rate on the 정책 axis is the Taylor rule's own SEP-derived r* (an import cycle used only at call time).
 import { sepNeutral } from './taylor-rule.js';
 import { fedTargetRange } from './fed-target-range.js';
 import { AXIS_LABELS, STATE_LABELS, axisNames } from '../market/interpretation/concepts.js';
@@ -121,6 +132,10 @@ export function annualised3m(series) {
 }
 
 /** Sahm rule: 3-month average unemployment minus the lowest 3-month average of the prior 12 months. */
+// v59.71 (quant review): the windows are calendar months, not array neighbours — a skipped release (October
+// 2025, the shutdown month) averaged non-adjacent months and stretched "the prior 12" to 13 calendar months. A 3-month
+// average uses the months present in its three (at least two); the prior window is the 12 calendar months before, at
+// least 11 present — one missing release does not blank the reading for a year.
 export function sahmGap(unemployment) {
   if (unemployment.length < 15) return null;
   const byMonth = new Map(unemployment.map((row) => [row.date.slice(0, 7), row]));
@@ -197,8 +212,10 @@ function growthAxis({ macro, mh }) {
   const unrate = finite(macro.unemployment) ?? lastOf(unemployment)?.value ?? null;
   let state = 'neutral';
   if (sahm == null && payroll == null && nfp == null) state = 'unknown';
+  // Audit D5: one payroll month (revised, noisy) no longer decides burden on its own; the 3-month average does.
   else if ((sahm && sahm.value >= G.sahmRecessionAt) || (payroll && payroll.avg3 < 0)) state = 'burden';
   else if (sahm && sahm.value < G.sahmWatchAt && payroll && payroll.avg3 >= G.payrollSolidK) state = 'favorable';
+  // Expert review M18: a neutral reason names the indicator that held it there instead of a generic either/or.
   const partial = !sahm || !payroll ? ['growth.partial'] : null;
   const sahmText = sahm ? `${sahm.value.toFixed(2)}%p` : null;
   const avg3Text = payroll ? peopleText(payroll.avg3, { sign: true }) : null;
@@ -209,6 +226,8 @@ function growthAxis({ macro, mh }) {
           : sahm && sahm.value >= G.sahmWatchAt ? reasonRow(['growth.sahmWatch', sahmText, `주의 ${G.sahmWatchAt}~${G.sahmRecessionAt}%p`])
             : payroll && payroll.avg3 < G.payrollSolidK ? reasonRow(['growth.payrollSlow', avg3Text, `기준 ${G.payrollSolidK / 10}만 명`, sahm ? `Sahm ${sahmText}` : null])
               : reasonRow(['growth.middle'], partial);
+  // The card leads with the indicator that decided the state. A calm Sahm reading beside a neutral
+  // verdict (decided by slow payroll growth) read as a contradiction.
   const payrollHeld = state === 'neutral' && sahm && sahm.value < G.sahmWatchAt && payroll && payroll.avg3 < G.payrollSolidK;
   const payrollTriggered = (state === 'burden' && !(sahm && sahm.value >= G.sahmRecessionAt)) || payrollHeld;
   const growthGauge = sahm && !payrollTriggered ? gauge({ label: 'Sahm 지표 (실업률 3개월 평균 − 1년 저점)', value: sahm.value, unit: '%p', digits: 2, ...cuts(0, 1, [G.sahmWatchAt, G.sahmRecessionAt], ['favorable', 'neutral', 'burden'], [[G.sahmWatchAt, `${G.sahmWatchAt}`], [G.sahmRecessionAt, `침체 신호 ${G.sahmRecessionAt}`]]) })
@@ -246,9 +265,14 @@ export function coreInflationRead({ macro = {}, mh = null } = {}) {
   const coreCpiPace = annualised3m(coreCpiIndex);
   // The pace's own month, never an older month's yoy; a missing year-ago row reads the 13- or 11-month base (yoyAt).
   const coreCpiYoy = coreCpiPace ? yoyAt(coreCpiIndex, coreCpiPace.date) : null;
+  // The direction of core inflation needs core PCE and core CPI to agree, each on its newest release —
+  // the quadrant, the 물가 axis, the 물가 chapter and the '물가 재가속' / '물가 둔화' scenarios all read this one flag.
+  // The PCE pair compares the 3-month pace with the year-over-year rate of the same month, as the
+  // CPI pair already did — the released yoy (macro.corePce) can be a month newer than the history the pace is read from.
   const paceYoy = pace ? corePceYoySeries.find((row) => row.date === pace.date)?.value ?? null : null;
   const releasedSameMonth = pace && String(macro?._asOf_corePce || '').slice(0, 7) === pace.date.slice(0, 7);
   const pceYoyForPace = paceYoy ?? (releasedSameMonth ? yoy : null);
+  // Each measure's earlier releases, for the speed's hold band (macro-signals measureDirection).
   const marginsOf = (index, yoyOf) => index.slice(-I.latchMonths).map((row) => {
     const p = annualised3m(index.filter((item) => item.date <= row.date)), y = p && yoyOf(row.date);
     return y == null ? null : { date: row.date, margin: p.value - y };
@@ -263,8 +287,14 @@ export function coreInflationRead({ macro = {}, mh = null } = {}) {
 }
 
 function inflationAxis({ macro, mh }) {
+  // v59.59 (logic refactor): macro.corePce stays the number of record, but the producer rounds it to one decimal; when
+  // the unrounded series value is that same figure (within the rounding), the series value is read, as the Taylor rule
+  // does — 3.05 published as 3.1 crossed the 0.1pp buffer above the 3% line only through the rounding (coreInflationRead).
   const shared = coreInflationRead({ macro, mh });
   const { corePceYoySeries, yoy, pace, coreCpiPace, coreCpiYoy, pceYoyForPace, direction, directionLabel } = shared;
+  // 2026-10-19 (expertise review): the composition of sticky core CPI — shelter (lags market rents by about a year) and
+  // services ex-shelter ("supercore", wage-driven). A 3-month pace within 0.3pp of the year reads as steady. Evidence only: neither part
+  // changes the axis state.
   const parts = [['주거비', 'shelterCpiIndex'], ['주거비 제외 서비스', 'supercoreCpiIndex']].map(([name, field]) => {
     const index = seriesOf(mh, field);
     const yoyRow = lastOf(yoySeries(index));
@@ -278,12 +308,17 @@ function inflationAxis({ macro, mh }) {
   const sixMonthsAgo = corePceYoySeries.length > 6 ? corePceYoySeries[corePceYoySeries.length - 7].value : null;
   const breakeven = finite(macro.breakeven10);
   const accelerating = direction.state === 'unknown' ? null : direction.dir === 'up';
+  // Core PCE 3.0076% against the 3.0% line was 부담 by 0.008pp. The level alone needs a 0.1pp margin; at
+  // the line (or anywhere from 2.5%) a re-accelerating core measure — PCE or the newer CPI — is what fires, and the read says which.
   const levelAt = I.missPct + MACRO_SIGNAL_RULES.inflationLevelBufferPp;
   const reaccel = direction.reaccelerating;
   let state = 'neutral';
   let firedBy = null;
   if (yoy == null) state = 'unknown';
   else if (yoy >= levelAt) { state = 'burden'; firedBy = 'level'; }
+  // One measure re-accelerating while the other slows is 엇갈림 on the quadrant and fails the 물가 재가속
+  // branch, so the axis no longer calls it 부담 — a single 3-month pace is noisy (±0.1pp a month is ±1.2pp annualised).
+  // The axis fires on agreement (direction 'up') and names the mixed reading otherwise.
   else if (yoy >= I.nearTargetPct && reaccel.length && direction.dir === 'up') { state = 'burden'; firedBy = 'reaccel'; }
   else if (yoy <= I.nearTargetPct && !direction.anyUp && (pace ? pace.value <= (pceYoyForPace ?? yoy) : delta != null && delta <= 0)) state = 'favorable';
   const gap = yoy == null ? null : yoy - I.targetPct;
@@ -314,6 +349,8 @@ function inflationAxis({ macro, mh }) {
       ['근원 CPI 구성 (주거비, 주거비 제외 서비스)', composition],
       [directionLabel, direction.state === 'unknown' ? null : `${direction.label} — ${direction.text}`],
       ['6개월 전 근원 PCE', sixMonthsAgo == null ? null : `${sixMonthsAgo.toFixed(1)}%`],
+      // Each print names its month — a September CPI (held by the October comparator gap) sat
+      // unlabelled beside October readings.
       ['헤드라인 CPI, PCE', finite(macro.cpi) == null ? null : [['cpi', macro.cpi], ['pce', macro.pce]].map(([key, value]) => `${finite(value)?.toFixed(1) ?? '—'}%${monthOfAsOf(macro[`_asOf_${key}`])}`).join(', ')],
       ['10년 기대인플레이션', breakeven == null ? null : `${breakeven.toFixed(2)}%`]
     ],
@@ -344,8 +381,12 @@ function policyAxis({ macro, inflationState, growthState = null, neutralReal = P
   let state = 'neutral';
   if (mid == null || (pricing == null && realPolicy == null)) state = 'unknown';
   else if ((pricing != null && pricing >= P.pricedMovePp) || (realPolicy != null && realPolicy >= P.restrictiveRealPct)) state = 'burden';
+  // Audit D3: cuts priced because growth is breaking are not a tailwind (the axis link says so), so a weak growth axis
+  // holds the reading at neutral instead of favorable.
   const recessionCut = pricing != null && pricing <= -P.pricedMovePp && growthState === 'burden';
   if (state === 'neutral' && pricing != null && pricing <= -P.pricedMovePp && inflationState !== 'burden' && !recessionCut) state = 'favorable';
+  // 2년물 − 기준금리 중간값은 정책 경로와 기간·위험 프리미엄을 분리하지 못한 대용 지표다 — the evidence row names the
+  // gap's level only; the proxy caveat is the screen's method text, not a reason.
   const pricingText = pricing == null ? null : pricing >= P.pricedMovePp ? '기준금리보다 뚜렷이 높은' : pricing <= -P.pricedMovePp ? '기준금리보다 뚜렷이 낮은' : '기준금리 부근(동결에 가까운)';
   // where policy sits against neutral is the fact a rates desk leads with: a 2-year above the midpoint with a real policy
   // rate still under the neutral estimate is named beside the gap.
@@ -364,9 +405,14 @@ function policyAxis({ macro, inflationState, growthState = null, neutralReal = P
   const realBurden = state === 'burden' && (pricing == null || pricing < P.pricedMovePp) && realPolicy != null;
   return axis('policy', state, {
     gauge: realBurden ? gauge({ label: '실질 기준금리 (중간값 − 근원 PCE)', value: realPolicy, unit: '%', digits: 1, ...cuts(-2, 4, [P.restrictiveRealPct], ['neutral', 'burden'], [[neutralReal, `중립 약 ${fmtNeutral(neutralReal)}%`], [P.restrictiveRealPct, `${P.restrictiveRealPct}%`]]) }) : gauge({ label: '2년물 − 기준금리 중간값', value: pricing, unit: '%p', digits: 2, ...cuts(-1.5, 1.5, [-P.pricedMovePp, P.pricedMovePp], ['favorable', 'neutral', 'burden'], [[-P.pricedMovePp, `-${P.pricedMovePp}%p`], [P.pricedMovePp, `+${P.pricedMovePp}%p`]]) }),
+    // The headline states the observed gap; the reading below says why it is not
+    // a forecast of hikes (premia are not separated).
+    // v60.18 (weekly audit D1 class): a 부담 decided by the real policy rate is headed by that rate, as its gauge already is —
+    // '2년물이 기준금리 중간값과 비슷함' beside 부담 named the leg that did not fire.
     headline: realBurden ? `실질 기준금리 ${realPolicy.toFixed(1)}%` : pricing == null ? null : pricing >= P.pricedMovePp ? `2년물이 기준금리 중간값보다 ${pricing.toFixed(2)}%p 높음` : pricing <= -P.pricedMovePp ? `2년물이 기준금리 중간값보다 ${Math.abs(pricing).toFixed(2)}%p 낮음` : '2년물이 기준금리 중간값과 비슷함',
     evidence: [
       reason,
+      // Only the upper bound arriving threw on lower.toFixed and stopped the whole macro read.
       ['연준 목표 범위', upper == null || lower == null ? null : `${lower.toFixed(2)}~${upper.toFixed(2)}%`],
       ['2년물 − 기준금리 중간값', pricing == null ? null : `${signed(pricing, 2, '%p')} (${pricingText} 수준)`],
       ['실질 기준금리 (중간값 − 근원 PCE)', realPolicy == null ? null : `${realPolicy.toFixed(1)}% (중립 약 ${fmtNeutral(neutralReal)}%)`]
@@ -423,9 +469,12 @@ function sharedGauges({ rateFx, regime, hyObs }) {
   const creditDecided = decidedOf('credit');
   const hyBp = hyObs?.level ?? null;
   const hy5 = hyObs?.change5 ?? null;
+  // Codex audit F06: the gauge follows the leg the verdict reported — a burden from the 20-session record is drawn on that change.
   const creditLeg = stateOf('credit') !== 'burden' ? null : creditDecided?.leg || creditCause({ hyBp, hy5, hy20Record: rateFx?.hy20Record || null }).primary;
   const creditByChange = creditLeg === 'fast5';
   const creditBy20 = creditLeg === 'wide20' && finite(rateFx?.hy20Record?.value) != null;
+  // v57.50 (W1 request): a level under the tight cut is drawn favourable only when creditState() says so (5-day not
+  // widening, no 20-session widening, no heavy hedging) — otherwise that band is neutral, as on the 시장 상태 axis.
   const creditVerdict = stateOf('credit') !== 'unknown' ? stateOf('credit') : creditState({ hyBp, hy5, hy20: hyObs?.change20 ?? null });
   const lowTone = creditVerdict === 'favorable' ? 'favorable' : 'neutral';
   const record20 = rateFx?.hy20Record;
@@ -434,12 +483,14 @@ function sharedGauges({ rateFx, regime, hyObs }) {
     : creditByChange
     ? gauge({ label: '하이일드 스프레드 5거래일 변화', value: hy5, unit: 'bp', digits: 0, ...cuts(-50, 100, [0, RULES.credit.widen5dBp], ['favorable', 'neutral', 'burden'], [[0, '0'], [RULES.credit.widen5dBp, `+${RULES.credit.widen5dBp} 급확대`]]) })
     : gauge({ label: '하이일드 스프레드', value: hyBp, unit: 'bp', digits: 0, ...cuts(200, 700, [RULES.credit.tightBelowBp, RULES.credit.stressAtBp], [lowTone, 'neutral', 'burden'], [[RULES.credit.tightBelowBp, `${RULES.credit.tightBelowBp}`], [RULES.credit.stressAtBp, `${RULES.credit.stressAtBp}`]]) });
+  // The gauge and headline draw the leg the rates verdict reported (decidedBy), never a re-derived one.
   const ratesDecided = decidedOf('rates');
   const ratesRead = ratesEvidence(ratesDecided, rateFx?.tnx20 ?? null);
   const tnx20 = ratesDecided ? ratesDecided.d20 : rateFx?.tnx20 ?? null;
   const tnxPosition = ratesDecided ? ratesDecided.position : rateFx?.tnxPosition ?? null;
   const ratesBySpeed = ratesRead.leg === 'speed' && finite(ratesDecided.d5) != null;
   const ratesByRange = (ratesRead.leg === 'range' || ratesRead.leg === 'held') && tnxPosition != null;
+  // v57.86 (live review): a 부담 held between the 80% exit and the 90% entry drew its pin in the neutral band — the cut is the exit line then.
   const ratesHeld = ratesRead.leg === 'held';
   const ratesCut = (ratesHeld ? RULES.rates.rangeExitAt : RULES.rates.rangeHighAt) * 100;
   const speedCut = ratesBySpeed ? ratesDecided.line : null;
@@ -448,15 +499,20 @@ function sharedGauges({ rateFx, regime, hyObs }) {
     : ratesByRange
     ? gauge({ label: '10년물 1년 범위 내 위치', value: tnxPosition * 100, unit: '%', digits: 0, ...cuts(0, 100, [ratesCut], ['neutral', 'burden'], [[ratesCut, ratesHeld ? `유지 ${ratesCut}%` : `상단 ${ratesCut}%`]]) })
     : gauge({ label: '10년물 20일 변화', value: tnx20, unit: 'bp', digits: 0, ...cuts(-75, 75, [-RULES.rates.move20dBp, RULES.rates.move20dBp], ['favorable', 'neutral', 'burden'], [[-RULES.rates.move20dBp, `-${RULES.rates.move20dBp}`], [RULES.rates.move20dBp, `+${RULES.rates.move20dBp}`]]) });
+  // The values (and leg) the 시장 상태 verdict read override the macro screen's own closes.
   const commodityDecided = decidedOf('commodities');
   const { wti20 = null, wti5 = null, dxy20 = null, wtiPosition = null, dxyPosition = null } = { ...rateFx, ...commodityDecided };
   const dollarLine = dxyPosition != null && dxyPosition >= RULES.dollar.rangeHighAt ? RULES.dollar.rise20dPct : RULES.dollar.rise20dPct + RULES.dollar.bufferPct;
+  // The leg the commodities verdict reported; the re-derivation is only the no-regime fallback (it ignored a held Brent/WTI pair).
   const commodityTrigger = stateOf('commodities') !== 'burden' ? 'dollar'
     : commodityDecided?.leg || (rateFx?.wtiHigh ? 'oil-range' : wti20 != null && wti20 >= RULES.oil.rise20dPct ? 'oil-change' : 'dollar');
   const commodities = commodityTrigger === 'oil-range' && wtiPosition != null
     ? gauge({ label: 'WTI 1년 범위 내 위치', value: wtiPosition * 100, unit: '%', digits: 1, ...cuts(0, 100, [RULES.oil.rangeHighAt * 100], ['neutral', 'burden'], [[RULES.oil.rangeHighAt * 100, `${RULES.oil.rangeHighAt * 100}%`]]) })
     : commodityTrigger === 'oil-change'
       ? gauge({ label: 'WTI 20일 변화', value: wti20, unit: '%', digits: 1, ...cuts(-20, 20, [RULES.oil.fall20dPct, RULES.oil.rise20dPct], ['favorable', 'neutral', 'burden'], [[RULES.oil.fall20dPct, `${RULES.oil.fall20dPct}%`], [RULES.oil.rise20dPct, `+${RULES.oil.rise20dPct}%`]]) })
+      // v57.84 (threshold consolidation): the burden band starts where dollarRiseBurden() does — rise20dPct + bufferPct, or
+      // rise20dPct at the top of the dollar's one-year range — and the falling band is favourable only when the axis is (easing
+      // needs oil falling too). DXY +2.2% read 중립 on the axis with the pin in the burden band.
       : gauge({ label: '달러 지수 20일 변화', value: dxy20, unit: '%', digits: 1, ...cuts(-5, 5, [0, dollarLine], [stateOf('commodities') === 'favorable' ? 'favorable' : 'neutral', 'neutral', 'burden'], [[dollarLine, `+${dollarLine}%`]]) });
   const koreaDecided = decidedOf('korea');
   const { krw20 = null, jpy20 = null } = { ...rateFx, ...koreaDecided };
@@ -464,15 +520,20 @@ function sharedGauges({ rateFx, regime, hyObs }) {
     : stateOf('korea') === 'burden' && (krw20 == null || krw20 < RULES.fx.krwMove20dPct) && jpy20 != null && jpy20 <= -RULES.fx.yenRally20dPct;
   return {
     rates: { gauge: rates, headline: ratesRead.headline, evidence: ratesRead },
+    // The 5-session WTI move is named when it runs against the 20-session direction; v60.18: a 부담 from the WTI range names it.
     commodities: { gauge: commodities, headline: wti20 == null ? null : `WTI ${commodityTrigger === 'oil-range' && wtiPosition != null ? `1년 범위 ${Math.round(wtiPosition * 100)}%, ` : ''}20거래일 ${signed(wti20, 1, '%')}${wti5 != null && Math.abs(wti5) >= RULES.oil.turn5dPct && Math.sign(wti5) !== Math.sign(wti20) ? `(최근 5일 ${signed(wti5, 1, '%')})` : ''}, 달러 ${signed(dxy20, 1, '%')}` },
     credit: { gauge: credit, headline: hyBp == null ? null : `하이일드 ${hyBp.toFixed(0)}bp${hy5 == null ? '' : ` (5거래일 ${signed(hy5, 0, 'bp')}${creditBy20 ? `, 20거래일 ${signed(record20.value, 0, 'bp')}` : ''})`}` },
     korea: yenLeg
       ? { gauge: gauge({ label: '엔화 20일 강세 폭 (엔/달러 하락률)', value: -jpy20, unit: '%', digits: 1, ...cuts(-5, 8, [RULES.fx.yenRally20dPct], ['neutral', 'burden'], [[RULES.fx.yenRally20dPct, `+${RULES.fx.yenRally20dPct}% 엔 급강세`]]) }), headline: `엔/달러 20거래일 ${signed(jpy20, 1, '%')}, 엔 강세` } /* v59.45 (P18-FX-01): the USD/JPY fall, not the yen's own return */
+      // v57.86 (live review): a won past -2% held at 중립 (KOSPI contradicts, last-day turn, endpoint-only) drew its pin in the
+      // favourable band — each outer band takes its tone only when the axis reached it, as the dollar gauge does.
       : { gauge: gauge({ label: '원/달러 20거래일 변화', value: krw20, unit: '%', digits: 1, ...cuts(-5, 5, [-RULES.fx.krwMove20dPct, RULES.fx.krwMove20dPct], [stateOf('korea') === 'favorable' ? 'favorable' : 'neutral', 'neutral', stateOf('korea') === 'burden' ? 'burden' : 'neutral'], [[-RULES.fx.krwMove20dPct, `-${RULES.fx.krwMove20dPct}%`], [RULES.fx.krwMove20dPct, `+${RULES.fx.krwMove20dPct}%`]]) }), headline: krw20 == null ? null : `원/달러 20일 ${signed(krw20, 1, '%')}` }
   };
 }
 
+// The quadrant's rule in words (the method fold) is src/domain/macro/quadrant-method.js — v60.50 moved it off the boot path.
 /** Growth × inflation direction — the classic four-regime frame, with its historical tendency as 해석. */
+// Expert review M12: a quarter or month label for the observation a regime input reads ("26년 2분기", "9월").
 export function periodLabel(date, frequency) {
   const [year, month] = String(date || '').split('-').map(Number);
   if (!year || !month) return '';
@@ -483,7 +544,10 @@ export function periodLabel(date, frequency) {
 function buildRegime(growth, inflation, mh = null) {
   const g = growth.detail;
   const i = inflation.detail;
+  // Expert review M12 → v57.50 D16/D17: a direction inside its dead band is held (근소 · 경계), not decided; the read names
+  // the month each input describes — the GDP card below can be a quarter older than the payroll month the quadrant reads.
   const growthMargin = g?.payroll && g?.sahm && g.sahm.value < G.sahmWatchAt ? g.payroll.avg3 - (g.payroll.prior3 - G.payrollSlowdownK) : null;
+  // The inflation direction is the shared PCE·CPI flag (inflationAxis detail.direction).
   const dirFlag = i?.direction && i.direction.state !== 'unknown' ? i.direction : null;
   const inflationMargin = i?.pace && (i.paceYoy ?? i.yoy) != null ? i.pace.value - (i.paceYoy ?? i.yoy) : null;
   const splitShort = dirFlag?.state === 'mixed' ? [dirFlag.pce, dirFlag.cpi].map((row) => `${row.name}${row.month ? ` ${row.month}` : ''} ${row.dir === 'up' ? '재가속' : '둔화'}`).join(', ') : null;
@@ -517,6 +581,9 @@ function buildRegime(growth, inflation, mh = null) {
   const gdpLast = mh ? seriesOf(mh, 'realGdp').at(-1) : null;
   const asOfNote = [g?.payroll ? `고용 ${periodLabel(g.payroll.date)}` : null, i?.pace ? `근원 PCE ${periodLabel(i.pace.date)}` : null, dirFlag?.cpi?.date ? `근원 CPI ${periodLabel(dirFlag.cpi.date)}` : null].filter(Boolean).join(', ');
   const timing = asOfNote ? `사분면은 ${asOfNote} 발표 기준입니다${gdpLast ? `(아래 실질 GDP 카드는 ${periodLabel(gdpLast.date, 'quarterly')} 기준이라 더 이릅니다)` : ''}.` : null;
+  // The quadrant reads the 3-month SPEED of prices, so its label says "물가 속도 둔화" — beside an inflation
+  // axis that can still read 부담 on the level. Regime readings describe what tended to happen, not where to allocate.
+  // The regimes' 해석 paragraphs (reading) left with the held one — no screen or AI context read them since 안 A.
   const table = {
     'up/down': { id: 'goldilocks', label: '성장 견조, 물가 속도 둔화', tone: 'favorable' },
     'up/up': { id: 'reflation', label: '성장 견조, 물가 상승', tone: 'neutral' },
@@ -524,6 +591,8 @@ function buildRegime(growth, inflation, mh = null) {
     'down/down': { id: 'disinflation-slowdown', label: '성장 둔화, 물가 속도 둔화', tone: 'neutral' }
   };
   const key = growthDir && inflationDir ? `${growthDir}/${inflationDir}` : null;
+  // Codex browser audit H14: the quadrant could not be reproduced from the screen. Each rule is listed with the
+  // value it read, the threshold and the outcome, so the placement can be recomputed from these rows alone.
   const n = (value, digits = 1) => (value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toFixed(digits));
   const inputs = [
     g?.sahm ? ['Sahm 지표', `${n(g.sahm.value, 2)}%p`, `${G.sahmWatchAt}%p 이상이면 둔화`, g.sahm.value >= G.sahmWatchAt ? '둔화 신호' : '기준 미만'] : ['Sahm 지표', '—', `${G.sahmWatchAt}%p 이상이면 둔화`, '자료 없음'],
@@ -532,6 +601,9 @@ function buildRegime(growth, inflation, mh = null) {
       : [i?.pace && i.yoy != null ? ['근원 PCE', `최근 3개월 연율 ${n(i.pace.value)}%, 전년 대비 ${n(i.paceYoy ?? i.yoy)}%`, `차이 ${I.reaccelPp}%p 이상이면 그 방향(빠르면 상승, 느리면 둔화)`, inflationHeld ? `${inflationHeld} (차이 ${n(Math.abs(inflationMargin))}%p)` : inflationDir === 'up' ? '상승 방향' : '둔화 방향'] : ['근원 PCE', '—', '3개월 연율과 전년 대비 비교', '자료 없음']]),
     ...(dirFlag && !dirFlag.single ? [['물가 방향 (두 지표)', dirFlag.label, '두 지표가 같은 쪽이어야 방향, 반대면 엇갈림', inflationDir ? (inflationDir === 'up' ? '상승 방향' : '둔화 방향') : inflationHeld === '방향 보류' ? '방향 보류' : `${inflationHeld} — 방향 보류`]] : [])
   ];
+  // The verdict line says what is known, level first — the price level against the
+  // target, then the speed (the quadrant's axis; '보류' only here), the growth direction and the policy cycle. A held
+  // quadrant still reads "물가 목표 위 · 속도 보류, 성장 견조, 연준 인상 국면", never a bare '보류'.
   const yoy = i?.yoy ?? null;
   const level = yoy == null ? '' : ` 목표 ${yoy > I.nearTargetPct ? '위' : yoy < I.targetPct ? '아래' : '근처'} ·`;
   const speed = inflationDir ? (inflationDir === 'up' ? '상승' : '둔화') : splitShort ? `엇갈림(${splitShort})` : '보류';
@@ -540,12 +612,18 @@ function buildRegime(growth, inflation, mh = null) {
   const verdict = [`물가${level} 속도 ${speed}${i?.direction?.edge ? '(경계)' : ''}`, growthWord, policy && `연준 ${policy} 국면`].filter(Boolean).join(', ');
   const picked = key ? table[key] : null;
   if (picked) return { ...picked, available: true, provisional, growthDir, inflationDir, inputs, near, held, timing, verdict };
+  // v58.74 (text audit C2): a held quadrant names what settles it — the cut each held input has to cross at the next release
+  // (the payroll cuts move with the trailing 3 months once a new month arrives, so they are today's lines).
   const deciders = [
+    // Both 3-month windows roll at the next report, so today's cut (prior3 − 1.5·step) was not
+    // the line the next print has to cross. Restate it as the single new monthly print, on the rolled windows
+    // (prior revisions ignored).
     !growthDir && nextPayrollCuts(g?.payroll, G) ? (({ down, up }) => `다음 고용보고서의 한 달 일자리 증가가 ${peopleText(down, { sign: true })} 이하면 '성장 둔화', ${peopleText(up, { sign: true })} 이상이면 '성장 견조'로 정해집니다(이전 달 수정치 제외).`)(nextPayrollCuts(g.payroll, G)) : null,
     !inflationDir && inflationHeld === '엇갈림' ? `근원 PCE와 근원 CPI의 3개월 속도가 같은 쪽으로 모이면(둘 다 전년 대비보다 ${I.reaccelPp}%p 이상 빠르거나 느림) 물가 방향이 정해집니다.` : null,
     !inflationDir && inflationHeld && inflationHeld !== '엇갈림' ? `근원 물가 3개월 연율이 전년 대비보다 ${I.reaccelPp}%p 이상 빠르면 '물가 속도 상승', 그만큼 느리면 '물가 속도 둔화'로 정해집니다.` : null
   ].filter(Boolean);
   const decider = deciders.length ? deciders.join(' ') : null;
+  // The held paragraph (reading) left — the verdict line says what is held and what is known.
   return { available: false, label: '국면 판정 보류', tone: 'unknown', decider, provisional: true, growthDir, inflationDir, inputs, near, held, timing, verdict };
 }
 
@@ -554,7 +632,7 @@ export function closeChanges(history = []) {
   const basis = closeBasis(history);
   const change = (field, kind, sessions = 20) => {
     const series = buildCloseSeries(history, field, { through: basis });
-    const point = closeSessionPointBack(series, sessions);
+    const point = closeSessionPointBack(series, sessions); // M01 → v57.50: the 시장 상태 session helper on the same close series
     if (!point) return null;
     const last = series[series.length - 1].value;
     const back = point.value;
@@ -573,6 +651,8 @@ export function closeChanges(history = []) {
   return { basis, wti20: change('wti'), wti5: change('wti', 'pct', 5), dxy20: change('dxy'), tnx20: change('tnx', 'bp'), gold20: change('gold'), krw20: change('usdkrw'), jpy20: change('usdjpy'), wtiPosition, wtiHigh: wtiPosition != null && wtiPosition >= RULES.oil.rangeHighAt, tnxPosition: position('tnx'), dxyPosition: position('dxy') };
 }
 
+// Where the 매크로 / 금리 · 환율 reading continues. Links follow the axis states and name why; sectors are
+// pointed to through the observed rotation (테마 · 섹터), never through an assumed macro beta per industry.
 export function macroNextSteps(read) {
   const byId = Object.fromEntries((read?.axes || []).map((row) => [row.id, row]));
   const state = (id) => byId[id]?.state || 'unknown';

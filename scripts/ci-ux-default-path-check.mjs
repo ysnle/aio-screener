@@ -9,8 +9,6 @@ const ui = readFileSync(join(root, 'js/aio-ui.js'), 'utf8');
 const data = readFileSync(join(root, 'js/aio-data.js'), 'utf8');
 const qaPipeline = JSON.parse(readFileSync(join(root, 'architecture/qa-pipeline.json'), 'utf8'));
 const qaScripts = Object.values(qaPipeline.groups || {}).flatMap((group) => group.gates || []).map((gate) => gate.script);
-// v57.54: the P529/P532/P534 QA-CHECKLIST and R228/R231 RULES prose-marker checks moved to
-// architecture/governance-markers.json (policy "default-path-ux"); this gate checks the shell itself.
 
 const failures = [];
 const check = (label, condition) => {
@@ -34,7 +32,7 @@ for (const [label, pattern] of forbiddenVisiblePatterns) {
 
 check(
   'signal lockout legacy sink must remain hidden if runtime still references it',
-  // P1392: the 시장 상태 rebuild removed the sink entirely, which also satisfies the contract.
+  // The 시장 상태 rebuild removed the sink entirely, which also satisfies the contract.
   !/id="signal-lockout-control"/.test(html) || /id="signal-lockout-control"[^>]*style="display:none;"[^>]*aria-hidden="true"/.test(html)
 );
 check(
@@ -49,18 +47,18 @@ const operatorNoteIndex = html.indexOf('id="home-operator-note"');
 const homeHeadIndex = html.indexOf('id="home-date-label"');
 const homeHeroIndex = html.indexOf('id="home-score-hero"');
 check('home operator note placeholder must exist exactly once', (html.match(/id="home-operator-note"/g) || []).length === 1);
-// v58.56 (re-audit #5): the note sat above the page head, so 오늘 opened with an unlabeled sentence before the date and
+// The note sat above the page head, so 오늘 opened with an unlabeled sentence before the date and
 // title. It now follows the page head and precedes the verdict hero.
-// v59.51 (content audit): 오늘의 질문 moved inside the verdict hero, beside the answer it questions (after the verdict, before
+// 오늘의 질문 moved inside the verdict hero, beside the answer it questions (after the verdict, before
 // the basis headline), still after the page head.
 const homeHeadlineIndex = html.indexOf('id="home-hero-headline"');
 check('v59.51 (content audit) home operator note sits inside the verdict hero, before its basis headline, after the page head', homeHeadIndex > 0 && homeHeroIndex > homeHeadIndex && operatorNoteIndex > homeHeroIndex && homeHeadlineIndex > operatorNoteIndex);
 check('home operator note must use prominent first-screen styling', /aio-operator-note-title[\s\S]*font-size:18px/.test(html));
-// v57.76: the note is one dated sentence (v57.71); its body/tag/lead/more styles had no DOM producer and left the shell.
+// The note is one dated sentence; its body/tag/lead/more styles had no DOM producer and left the shell.
 check('v57.76 operator-note CSS carries no selector without a DOM producer', !/aio-operator-note-(?:body|tags?|lead|more)\b/.test(html)); // text-pin-ok: asserts removed CSS is absent
 check('visual hierarchy refresh must move away from one-note terminal styling', /v51\.43: visual hierarchy refresh/.test(html) && /--data-amber:[\s\S]*--data-red:[\s\S]*--data-purple:/.test(html));
-// v57.71 (owner 2026-10-15): the card is "오늘의 한 문장" — one dated sentence, no memo body or tags.
-// v53.7 (P725): kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,
+// The card is "오늘의 한 문장" — one dated sentence, no memo body or tags.
+// kr-technical 페이지 퇴역 — 레거시 intro 은닉 규칙 대신 페이지 자체가 없어야 하고,
 // 이관된 통합 섹션에는 insight-box가 애초에 포함되지 않아야 한다.
 check('KR technical default path is retired (v53.7 P725; v59.70 D5: the folded section left too)', !/id="page-kr-technical"/.test(html) && !/id="kr-integrated-technical"/.test(html));
 check('v58.76 the retired SEC annual scan grid leaves no styles behind', !/#fund-cards-grid/.test(html));
@@ -73,14 +71,14 @@ const unlabeledCanvas = canvasTags.filter((tag) => !/\b(aria-label|aria-labelled
 check('visible canvas elements must have accessible names or be explicitly hidden', canvasTags.length > 0 && unlabeledCanvas.length === 0, `unlabeled=${unlabeledCanvas.slice(0, 3).join(' | ')}`);
 
 check('chart registry resize must skip hidden charts to avoid viewport resize storms',
-  // v59.59: a third clause matched `offsetParent !== null` in js/aio-ui.js's Ctrl+K handler, not chart code; it left with that handler.
+  // A third clause matched `offsetParent !== null` in js/aio-ui.js's Ctrl+K handler, not chart code; it left with that handler.
   /resizeAllVisible/.test(core) && /_isVisibleChart/.test(core),
   'resizeAllVisible/_isVisibleChart contract missing');
 check('quote status comes from one presenter; the data layer no longer writes clock-based quote labels (P1326/R671)',
   !/클라 시세/.test(data) && /aio:quoteTopbar/.test(data),
   'UX-10 single presenter missing');
 check('guide must preserve compact methodology reference', /id="guide-methodology"/.test(html));
-// P1428: the guide's 판정 읽는 법 replaces the retired SIGNAL-score methodology.
+// The guide's 판정 읽는 법 replaces the retired SIGNAL-score methodology.
 check('methodology reference must preserve core decision concepts', /양호[\s\S]{0,600}중립[\s\S]{0,600}부담[\s\S]{0,600}판정 보류/.test(html) && /판정 기준/.test(html) && /기준일 칩/.test(html) && /상위 N%/.test(html) && !/SIGNAL 점수 산식/.test(html));
 
 const divOpen = (html.match(/<div\b/g) || []).length;

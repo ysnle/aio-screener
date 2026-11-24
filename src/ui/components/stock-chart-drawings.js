@@ -1,3 +1,7 @@
+// Drawings on the daily chart — rule trendlines, anchored VWAP and the user's own horizontal
+// lines — behind one toggle row under the interval buttons. The rule lines come from domain/technical/chart-drawings.js;
+// the user's lines stay on this device (storage gateway) and feed the plan check below the chart, which reads them
+// against the price-level map. Nothing drawn here is a proposed entry, stop or target.
 import { ruleTrendLines, anchoredVwap, vwapAnchors, nearestMappedLevel, DRAWING_RULES } from '../../domain/technical/chart-drawings.js';
 import { createStorageGateway } from '../../platform/storage.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -36,7 +40,7 @@ export function attachChartDrawings({ doc, root, sym, instance, analysis, levels
   const { chart, candles } = instance;
   const bars = analysis.bars;
   const last = bars.length - 1;
-  const pref = { trend: false, avwap: false, ...readJson(PREF_KEY, {}) };
+  const pref = { trend: false, avwap: false, ...readJson(PREF_KEY, {}) }; // Trend reads as areas (layers); the rule lines are opt-in
   const trend = ruleTrendLines(bars);
   const anchors = vwapAnchors(bars);
   let trendSeries = [], vwapSeries = [], minePriceLines = [], drawing = false;

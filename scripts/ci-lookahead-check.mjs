@@ -1,6 +1,6 @@
 // v58.80 (owner 2026-10-25, freqtrade lookahead-analysis / recursive-analysis): a reading for a past date must not change
 // when the data after that date changes or disappears, and today's reading must not depend on how much older history the
-// file happens to keep (R725, P2064). R697 asks past frequencies to use "only data available at each case date"; until now
+// file happens to keep. R697 asks past frequencies to use "only data available at each case date"; until now
 // that held by code review only. This gate re-runs readings on cut or rewritten data, the way freqtrade re-runs a backtest:
 //   1. as-of invariance   — f(full file, as of D) equals f(the file as it stood at D)                  (lookahead)
 //   2. future perturbation — rewriting every close after D leaves D's backfilled row unchanged         (lookahead in recomputation)
@@ -103,7 +103,7 @@ if (creditEvaluated < checkDates.length / 2) fail(`the credit axis was evaluated
   }
 }
 
-// 2. Future perturbation of the theme-stage backfill (v58.79), on a seeded synthetic panel over the real US theme map:
+// 2. Future perturbation of the theme-stage backfill, on a seeded synthetic panel over the real US theme map:
 // every sampled session's row must stay the same when every close after it is rewritten.
 let backfillChecked = 0;
 {

@@ -13,7 +13,7 @@
 // screen that has not moved (session-lean.js paints 오늘's session fold too) stay out until that screen moves; their folds
 // are counted in the browser by .claude/skills/verify-aio/scripts/features/market.mjs (fold census). v60.35: the
 // 시나리오와 전망 renderers joined — they draw folds only on 시장 상태 (decision-frame.js also on 테마, marked the same way).
-// On the old code (v60.30) this fails: the 시장 상태 axis rows, the hero 판정 근거 and every combination were <details>.
+// On the old code this fails: the 시장 상태 axis rows, the hero 판정 근거 and every combination were <details>.
 // 시장 폭 and 투자 심리 failed before they moved: per-card 기준 notes (noteFold), the 나머지 지표 보기 and 종목 보기 folds, the
 // 원리 folds (deepDiveFold), the synthesis's 이어서 읽기 and the price temperature's detail and method folds were unmarked.
 // 매크로 and 금리와 환율 failed too: the six factor rows, each indicator group, the always-open shells (data-view-open), the
@@ -33,7 +33,7 @@ export const SCREENS = Object.freeze({
       'src/ui/components/market-regime.js', 'src/ui/components/indicator-face.js', 'src/ui/components/stress-outcomes.js',
       'src/ui/components/distribution-strip.js', 'src/ui/components/correction-base-rate.js', 'src/ui/components/korea-participation.js',
       'src/ui/components/regime-radar.js', 'src/ui/components/screen-reading.js', 'src/ui/components/page-sources.js',
-      // v60.35 (owner 2026-11-20): the 시나리오와 전망 view — what happened, the stories, the flows and macro scenarios with
+      // The 시나리오와 전망 view — what happened, the stories, the flows and macro scenarios with
       // their decision frames, and today's guide.
       'src/ui/components/market-story.js', 'src/ui/components/market-narratives.js', 'src/ui/components/macro-crossroads.js',
       'src/ui/components/decision-frame.js', 'src/ui/components/market-guide.js', 'src/ui/components/pick-list.js'
@@ -64,7 +64,7 @@ export const SCREENS = Object.freeze({
     page: 'page-fxbond',
     modules: ['src/ui/components/macro-board.js', 'src/ui/components/rate-hub.js', 'src/ui/components/krw-read.js', 'src/ui/components/indicator-face.js', 'src/ui/components/page-sources.js']
   },
-  // 기술적 분석 (owner 2026-11-19): the 시장 지수 cards, the 대표 종목 table and the one analysis slot with its coach,
+  // 기술적 분석: the 시장 지수 cards, the 대표 종목 table and the one analysis slot with its coach,
   // strategy, layer, drawing and comparison parts.
   charts: {
     page: 'page-charts',
@@ -75,7 +75,7 @@ export const SCREENS = Object.freeze({
       'src/ui/components/indicator-face.js', 'src/ui/components/page-sources.js'
     ]
   },
-  // 산업 지도 › AI 지도 (owner 2026-11-19): the one view of #page-atlas on the 안 A face. The rest of the atlas (domain
+  // 산업 지도 › AI 지도: the one view of #page-atlas on the 안 A face. The rest of the atlas (domain
   // analysis, deep branches, basis folds in atlas.js and industry-view.js) has not moved, so only the view's own modules
   // are read and the page's index.html section is not (html: false).
   'atlas-ai-map': {
@@ -83,7 +83,7 @@ export const SCREENS = Object.freeze({
     html: false,
     modules: ['src/ui/knowledge/ai-map-view.js', 'src/ui/components/node-graph.js', 'src/ui/components/indicator-face.js']
   },
-  // 테마와 섹터 › 테마 시나리오 and 한국 (v60.37): the theme list with the picked theme's detail, the rules (method) and the
+  // 테마와 섹터 › 테마 시나리오 and 한국: the theme list with the picked theme's detail, the rules (method) and the
   // full stage table (raw-table). The rest of #page-themes has not moved, so its index.html section is not read; the KR
   // close read (sectors.js renderKrThemeArtifact) draws no fold.
   'themes-scenario': {
@@ -91,7 +91,7 @@ export const SCREENS = Object.freeze({
     html: false,
     modules: ['src/ui/components/theme-playbook-view.js', 'src/ui/components/pick-list.js', 'src/ui/components/decision-frame.js']
   },
-  // 종목 (owner 2026-11-19): the company overview (사업 · 밸류체인 안의 자리 · 재무 한눈에) and the reader's notes, opened
+  // 종목: the company overview (사업 · 밸류체인 안의 자리 · 재무 한눈에) and the reader's notes, opened
   // as a section there (research-snapshots.js open: true; its briefing panel stays a fold of 브리핑).
   ticker: {
     page: 'page-ticker',

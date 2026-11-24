@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v58.55 개편 v2 (5n) 투자자별 순매수: daily net buying by investor type (개인 · 외국인 · 기관) on KOSPI/KOSDAQ.
+// 개편 v2 (5n) 투자자별 순매수: daily net buying by investor type (개인 · 외국인 · 기관) on KOSPI/KOSDAQ.
 // v59.70 (owner 2026-11-04, R6(b) "Naver로 교체"): the source moved from the Bank of Korea ECOS 802Y001 table — which
 // publishes the foreign investors' figure only — to Naver Finance's index investor trend (KRX figures redistributed, the
 // same request layer as scripts/fetch-kr-index-weights.mjs), which gives all three. One request per market per KRX

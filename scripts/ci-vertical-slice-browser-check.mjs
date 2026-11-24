@@ -21,7 +21,7 @@ try {
   await page.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForFunction(() => typeof window.AIO_ARCH === 'object' && typeof window.AIO_ARCH.navigate === 'function', { timeout: 30000 });
-  // v60.31: a derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical.
+  // A derived view (theme-detail, technical) settles on its host screen — read from AIO_ROUTE_REGISTRY.canonical.
   const hosts = await page.evaluate(() => ({ ...(window.AIO_ROUTE_REGISTRY?.canonical || {}) }));
   for (const slice of VERTICAL_SLICE_CONTRACTS) {
     const routeResults = [];

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Cloud session bootstrap (v59.56). A Claude Code cloud container clones the repository without node_modules and
+// Cloud session bootstrap. A Claude Code cloud container clones the repository without node_modules and
 // ships its own Chromium under PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers) at a revision that can lag the repo's
 // pinned Playwright. Every cloud thread used to rediscover both by hand (npm ci, then "Executable doesn't exist"
 // on the first browser gate, then a manual symlink). This script does it once, idempotently:

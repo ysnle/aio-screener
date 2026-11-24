@@ -109,7 +109,7 @@ fs.renameSync(styleTemp, path.join(dist, STYLE_ENTRY));
 const outputs = Object.fromEntries(Object.entries(build.metafile.outputs).map(([file, value]) => [rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file)))), value]));
 const bootModules = new Set(bootOutputs(build.metafile).map((file) => rel(path.join(srcDir, path.relative(bundleOut, path.resolve(dist, file))))));
 
-// 5. v58.80 (first-users F01): the module script sits at the end of a ~120 KB (gzip) index.html, so on a 50 KB/s line
+// 5. v58.80: the module script sits at the end of a ~120 KB (gzip) index.html, so on a 50 KB/s line
 // bootstrap.js started only after the whole page had arrived (~13 s) and its static chunks after that (~32 s). The
 // boot set is announced as modulepreload (where: see below), so it downloads beside the legacy scripts instead of after
 // them. Order: the entry first, then its chunks.

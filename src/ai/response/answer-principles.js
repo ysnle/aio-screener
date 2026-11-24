@@ -1,4 +1,4 @@
-// P1740: one principles block chosen by the question. The old tail appended a training-cutoff claim for another
+// One principles block chosen by the question. The old tail appended a training-cutoff claim for another
 // model ("2025년 초"), a stock-only 6-step memo and six trend rules to every question (a PER definition got them too),
 // and judged web search by grepping the prompt for "웹검색" while the real search decision came later.
 // Every turn carries the data tools, so what the prompt does not hold is read through them and never declared absent.
@@ -21,7 +21,7 @@ export function buildAnswerPrinciples({ today, hasTickers = false, liveStatus = 
   lines.push('', '【데이터 상태】', `• 실시간 시세: ${liveStatus}`,
     '• 가격 기록·기술 지표·기업 재무·컨센서스·뉴스·섹터와 테마 흐름·매크로 발표: 위에 없으면 도구로 읽는다. 도구가 돌려준 항목·기간만 쓰고, 읽지 않은 자료를 읽은 것처럼 말하지 않는다.',
     webSearch ? SEARCH_ON : '• 웹검색: 사용하지 않음 — 주입 데이터 밖의 최신 사실은 단정하지 마라');
-  // v48.11: a static snapshot 72h+ old is never quoted as current.
+  // A static snapshot 72h+ old is never quoted as current.
   // v57.92 (internal audit A07): the file age says whether the pipeline is behind, not whether a value is current — an
   // unknown age was passed as 999 (printed "999시간(42일) 경과"), and a monthly figure before its next release or a holiday
   // close is still the latest value. Each value is judged by its own date; an unknown file age is said as unknown.
@@ -34,14 +34,14 @@ export function buildAnswerPrinciples({ today, hasTickers = false, liveStatus = 
   return `${lines.join('\n')}\n`;
 }
 
-// P1741: tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
+// Tell the model which app-drawn figures will sit under its answer, so the prose can point to them.
 const VISUAL_LABEL = { price: '종가와 50·200일 이동평균 흐름(최근 약 6개월, 완료 일봉)', fundamentals: '분기(또는 연도)별 매출 막대와 순이익률(공시 기준)', relative: '종목별 상대 수익률(시작일=100, 최근 약 3개월)' };
 export function describeAnswerVisuals(picks = []) {
   if (!picks.length) return '';
   return `\n【답변 아래에 함께 표시되는 그림】\n${picks.map((v) => `- ${v.symbols.join(', ')}: ${VISUAL_LABEL[v.kind] || v.kind}`).join('\n')}\n앱이 데이터로 직접 그리는 그림이다. 본문에서 "아래 그림"처럼 가리켜 무엇을 봐야 하는지 해석을 덧붙여도 되지만, 그림 속 수치를 추측해 쓰지 마라.\n`;
 }
 
-// v57.54 review: a retry after a searched attempt timed out runs without web search; its prompt must say so, or the
+// A retry after a searched attempt timed out runs without web search; its prompt must say so, or the
 // model is told it searched and may present remembered facts as sourced, dated results.
 const SEARCH_ON = '• 웹검색: 이번 답변에서 사용할 수 있음 — 앱 자료로 알 수 없는 것만 검색하고, 검색으로 확인한 사실은 출처와 날짜를 함께 밝혀라';
 const SEARCH_OFF = '• 웹검색: 사용하지 않음(지연으로 검색 없이 다시 시도) — 주입 데이터 밖의 최신 사실은 단정하지 마라';

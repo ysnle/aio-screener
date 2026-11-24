@@ -1,3 +1,7 @@
+// v59.44 (owner 2026-10-30, "요즘 주식 시장은 반도체 OF 반도체야"): how the AI supply chain moved, group by group, for the
+// user whose holdings sit there. The groups are the 테마 screen's own sub-themes (root.THEME_MAP) of the semiconductor,
+// AI-infrastructure and photonics themes; each is the median of its US members' returns from the screener rows (the
+// same closes the screener ranks). Observed returns only — no label of what the move means.
 import { median as sharedMedian } from '../themes/theme-medians.js';
 import { selectProducedRotation } from '../themes/produced-rotation.js';
 import { readNumber as finite, signedText } from '../shared/number.js';
@@ -6,6 +10,8 @@ import { claim, say } from '../shared/claim.js';
 import { NEAR_HIGH_MIN_MEASURED } from '../themes/near-high.js';
 import { fallFrame } from '../market/story/fall-frame.js';
 
+// The market's leaders (주도 영역, AI·반도체) as themes. Not the AI capex chain of market-flow.js
+// (AI_CAPEX_CHAIN_THEMES: power and utilities too) — a different question, a different set.
 export const LEADER_THEMES = Object.freeze(['semiconductor', 'ai_infra', 'photonics']);
 export const AI_CHAIN_MIN_MEMBERS = 3;
 /** v60.50: the leaders' listings — every ticker in a sub-theme of LEADER_THEMES (the groups aiChainFlow reads). */
@@ -42,8 +48,10 @@ export function leaderFalls({ themes = [], rows = [], session = null } = {}) {
   return { asOf: session, leaders, rest, said, bars: fallFrame([bar('leader-themes', '주도 테마(AI·반도체)', leaders), bar('other-themes', '나머지 테마', rest)]) };
 }
 
+// Boundary contract: the medians take the 1-month return the screener readiness contract allows in a calculation.
 const ret1m = (row) => readRowNumber(row, 'ret1m', 'calculation');
 
+// The shared theme median (theme-medians.js), kept at one decimal as this reading prints it.
 function median(values) {
   const value = sharedMedian(values);
   return value == null ? null : Math.round(value * 10) / 10;
@@ -51,6 +59,9 @@ function median(values) {
 const signed = (value) => signedText(value, 1, '%');
 
 /** Groups sorted weakest first over one month, and one sentence of counts. */
+// v59.45 (pipeline review P21-CHAIN-01): with `session` (the screener's US factor session, the date the block prints),
+// only rows measured on that session enter a median — a row left on an older session is another period. Each group keeps
+// how many of its US listings were measured (`measured` of `listed`).
 export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
   const bySymbol = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
   const groups = [];
@@ -75,6 +86,9 @@ export function aiChainFlow({ themes = [], rows = [], session = null } = {}) {
   return { groups, reading, down1d, down1m };
 }
 
+// v59.44 (owner 2026-10-30, "지금 잘 버티는 건 헬스케어/리츠/필수소비재"; X bookmarks 10/30 — healthcare up in the US, Korea
+// and Japan while semis fell): on a session the AI side fell and two or more defensive sectors rose, one sentence of that
+// contrast from the sector ETFs' last completed session (the produced rotation artifact 브리핑's sector bars read).
 const AI_SIDE = Object.freeze({ SMH: '반도체', IGV: '소프트웨어' });
 const DEFENSIVE = Object.freeze({ XLV: '헬스케어', XLP: '필수소비재', XLRE: '부동산', XLU: '유틸리티' });
 const pct = (value) => signedText(value, 1, '%');

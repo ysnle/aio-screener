@@ -143,6 +143,7 @@ const consensus = {
     if (!root?.[CONSENSUS_KEY]) await requestConsensusEstimates(root);
     const row = screenRowFor(root, sym)?.row || null;
     const point = buildConsensusPoint(row, consensusRowFor(root, sym), { now });
+    // The 종목 개요 reading of what the price discounts (with the peak-earnings condition), the same facts.
     const priced = buildPricedInRead(row, consensusRowFor(root, sym), { now });
     const earnings = await nextEarningsLine(root, sym, now);
     const hasPoint = !!(point?.text && day(point.asOf));

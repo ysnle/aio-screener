@@ -1,5 +1,5 @@
-// P1355: imported producer artifacts retain their data identity and observation timestamps.
-// v60.49: the asset/release manifests left this list — a producer no longer writes them, so they change only with a code
+// Imported producer artifacts retain their data identity and observation timestamps.
+// The asset/release manifests left this list — a producer no longer writes them, so they change only with a code
 // release (bump-version rewrites their appRevision/workerRevision directly).
 export const GENERATED_VERSION_FILES = Object.freeze(['public-data/operations-status.json']);
 export function alignGeneratedVersion(documents, { version, snapshotRevision } = {}) {

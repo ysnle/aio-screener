@@ -1,9 +1,9 @@
-// P1358: durable, date-aligned completed-session research evidence. Raw prices
-// remain private to the producer (P715); no intraday ticks or invented seeds.
+// Durable, date-aligned completed-session research evidence. Raw prices
+// remain private to the producer; no intraday ticks or invented seeds.
 import { latestCompletedUsSession, nyParts, resolveMarketCalendarSession } from '../../src/ai/time/market-session.js';
 import { computeRelativeRotation, relativeRotationTrail, RRG_WINDOW_SESSIONS } from '../../src/domain/themes/rrg.js';
 
-export const ROTATION_SYMBOLS = Object.freeze(['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC','SMH','IGV','XBI','ITA','OIH','AMLP','URA','XOP','HACK','GDX','BOTZ','ICLN','LIT','KRE','ITB','XRT','IYT','JETS','COPX','KWEB','SOXX','DRAM','SKYY','NCLD','DTCR','GRID','NLR','IAI','KIE','PEJ','EWY']); // v59.70: +11 issuer-verified theme ETFs
+export const ROTATION_SYMBOLS = Object.freeze(['XLK','XLF','XLE','XLV','XLI','XLY','XLP','XLRE','XLB','XLU','XLC','SMH','IGV','XBI','ITA','OIH','AMLP','URA','XOP','HACK','GDX','BOTZ','ICLN','LIT','KRE','ITB','XRT','IYT','JETS','COPX','KWEB','SOXX','DRAM','SKYY','NCLD','DTCR','GRID','NLR','IAI','KIE','PEJ','EWY']); // +11 issuer-verified theme ETFs
 const CONTRACT = Object.freeze({ schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', source: 'Yahoo chart completed daily history', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'research-reference-only', allowedUseCeiling: 'reference', rightsStatus: 'REVIEW_REQUIRED', decisionUse: false, completionGraceMinutes: 5 });
 const validDate = value => {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -117,7 +117,7 @@ export function buildRotationHistory({ histories = {}, previous = null, now = Da
       performanceWindows: { dailySessions: 1, weeklySessions: 5 },
       // Indexing removes absolute asset/SPY price levels; no raw quote redistribution.
       relativeStrength: dates.map((sessionDate,index) => ({ sessionDate, value: rounding(indexedRatios[index]) })),
-      // v57.84 (owner decision 3-3): the last 20 daily RRG points, each on its own trailing 100-session window, for the
+      // The last 20 daily RRG points, each on its own trailing 100-session window, for the
       // reader's noise-sized boundary band and hysteresis (recent-check.js rrgZone).
       trail: relativeRotationTrail({ history: allDates.map(date => asset.byDate.get(date)), benchmarkHistory: allDates.map(date => benchmark.byDate.get(date)), dates: allDates })
     };

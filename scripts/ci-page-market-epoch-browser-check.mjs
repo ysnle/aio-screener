@@ -51,7 +51,7 @@ try {
   await page.waitForTimeout(100);
   const report = await page.evaluate(() => {
     const audit = window.AIO.getPageMarketEpochAudit();
-    // v59.70 (D2): the dev-only decision header is deleted; every contract page carries its own epoch stamp.
+    // The dev-only decision header is deleted; every contract page carries its own epoch stamp.
     const stamps = Object.keys(window.AIO?.PAGE_MARKET_EPOCH_CONTRACT || {}).map((pageId) => {
       const root = document.getElementById(`page-${pageId}`);
       return {
@@ -66,13 +66,12 @@ try {
       fieldTimeline: window.AIO_ARCH?.getPageDataTimelineAudit?.() || null,
       stamps,
       reconciliation: window.AIO.getDataReconciliationStatus(),
-      // P1395: the breadth page is a set of dated trend cards over the AIO history artifact; it
+      // The breadth page is a set of dated trend cards over the AIO history artifact; it
       // states its population and never claims an official exchange A/D or McClellan series.
       breadthHistory: (() => {
         const page = document.getElementById('page-breadth');
         return {
           cards: page ? page.querySelectorAll('.trend-card').length : 0,
-          // v58.79: the population and not-official lineage moved from a page footnote to the basis line's hover.
           text: `${page?.textContent || ''} ${document.getElementById('breadth-basis')?.title || ''}`
         };
       })()
@@ -105,7 +104,7 @@ try {
   if (report.stamps.length !== pageIds.length) throw new Error(`page epoch stamps ${report.stamps.length}/${pageIds.length}`);
   const badStamps = report.stamps.filter((stamp) => stamp.revision !== report.audit.sharedRevision || !stamp.cutEnd || !stamp.epoch);
   if (badStamps.length) throw new Error(`page epoch stamp missing: ${JSON.stringify(badStamps)}`);
-  // v59.51: the S&P 500 card left the board (the index line is drawn beside breadth, not as its own card).
+  // The S&P 500 card left the board (the index line is drawn beside breadth, not as its own card).
   if (report.breadthHistory.cards !== 9 || !/AIO 미국 관찰 종목|S&P 500 구성 종목/.test(report.breadthHistory.text) || !/거래소·지수 공식 통계가 아닙니다/.test(report.breadthHistory.text) || /McClellan/.test(report.breadthHistory.text)) throw new Error(`breadth board lineage mismatch: ${JSON.stringify({ cards: report.breadthHistory.cards })}`);
   console.log(JSON.stringify({
     ok: true,

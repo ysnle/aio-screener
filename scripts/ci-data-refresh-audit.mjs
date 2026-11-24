@@ -14,7 +14,7 @@ const json = (file) => JSON.parse(read(file));
 const MARKET_SNAPSHOT_MAX_AGE_DAYS = 0.5;
 const MARKET_SNAPSHOT_MAX_AGE_MS = MARKET_SNAPSHOT_MAX_AGE_DAYS * 86400000;
 const BOK_POLICY_MAX_AGE_DAYS = 60;
-// P1556: a policy meeting passes before anyone can record its result (the value is a hand-kept official reference). The audit
+// A policy meeting passes before anyone can record its result (the value is a hand-kept official reference). The audit
 // gates every 30-minute refresh, so an overdue meeting is a warning for this many days and blocks only after them; otherwise
 // the whole pipeline would stop on the meeting day with nobody to update the value.
 const BOK_MEETING_GRACE_DAYS = 14;
@@ -369,14 +369,14 @@ function assertSnapshotDiagnosticWorkflowContract(source = read('.github/workflo
   const captureAt = workflow.indexOf('      - name: Capture redacted market snapshot diagnostics\n');
   const uploadAt = workflow.indexOf('      - name: Upload failed market snapshot diagnostics\n');
 
-  // P1289/R639/QA-DATA-32: keep the run-scoped diagnostic upload wired after fetch and fail closed.
+  // Keep the run-scoped diagnostic upload wired after fetch and fail closed.
   check(fetchAt >= 0 && fetchAt < captureAt && captureAt < uploadAt, 'capture/upload order after market fetch');
   check(/^\s+id:\s*snapshot-diagnostic\s*$/m.test(capture), 'capture step exposes the snapshot-diagnostic output id');
   check(/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*\}\}/.test(capture), 'capture runs after failed fetch steps');
   check(/AIO_MARKET_FETCH_OUTCOME:\s*\$\{\{\s*steps\.fetch-market\.outcome\s*\}\}/.test(capture), 'capture records market fetch outcome');
   check(/run:\s*node scripts\/ci-data-refresh-audit\.mjs --write-snapshot-diagnostic "\$RUNNER_TEMP\/market-snapshot-diagnostic\.json"/.test(capture), 'capture writes the runner-temp diagnostic');
   check(/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*&&\s*steps\.snapshot-diagnostic\.outputs\.capture\s*==\s*'true'\s*\}\}/.test(upload), 'upload runs only for a captured diagnostic');
-  // v57.54: the invariant is an immutable pin, not one specific SHA. Hard-coding the SHA here failed every
+  // The invariant is an immutable pin, not one specific SHA. Hard-coding the SHA here failed every
   // Dependabot github-actions bump PR (3 of 28 CI failures in the last 100 runs); the bump is reviewed on the PR.
   check(/uses:\s*actions\/upload-artifact@[0-9a-f]{40}(?:\s|$)/.test(upload), 'v57.54 artifact action is pinned to an immutable full commit SHA');
   check(/name:\s*market-snapshot-diagnostic-\$\{\{\s*github\.run_id\s*\}\}/.test(upload), 'artifact name is run scoped');
@@ -423,7 +423,7 @@ function assertRefreshCandidateSelfTestWiring(source = read('.github/workflows/r
   const reconciliation = workflowStep(source, 'Validate evidence-derived 22-category reconciliation') || '';
   const selfTestAt = reconciliation.indexOf('node scripts/verify-refresh-candidate.mjs --self-test');
   const auditAt = refreshAuditPosition(reconciliation);
-  // P1299/QA-DATA-42: a valid >1 MiB staged/commit blob must be exercised on every data refresh.
+  // A valid >1 MiB staged/commit blob must be exercised on every data refresh.
   if (selfTestAt < 0 || auditAt < 0 || selfTestAt >= auditAt) {
     throw new Error('P1299/QA-DATA-42 candidate helper self-test must run before the refresh data audit');
   }
@@ -481,7 +481,7 @@ function assertBokPolicyFixtures() {
     currentCalendar,
     { snapshotWired: true, nowMs: fixedNow }
   );
-  // P1556: the day after the meeting is a warning (the result is still being recorded), three weeks after it blocks again.
+  // The day after the meeting is a warning (the result is still being recorded), three weeks after it blocks again.
   const meetingMs = Date.parse('2026-10-22T00:00:00.000Z');
   const dayAfter = assessBokPolicyEvidence(currentPolicy, currentCalendar, { snapshotWired: true, nowMs: meetingMs + 86400000 });
   const beyondGrace = assessBokPolicyEvidence(currentPolicy, currentCalendar, { snapshotWired: true, nowMs: meetingMs + 20 * 86400000 });
@@ -521,7 +521,7 @@ function assertBokPolicyFixtures() {
   }
 }
 
-// P1292/R642: future publication timestamps are visible as FUTURE and cannot
+// Future publication timestamps are visible as FUTURE and cannot
 // become A1 OK through a forced result or enter structural promotion.
 function assertFutureSnapshotFixtures() {
   const fixedNow = Date.parse('2026-09-27T00:00:00.000Z');
@@ -625,7 +625,7 @@ const snapshot = json('public-data/market-snapshot.json');
 const snapshotStatus = json('public-data/market-snapshot-status.json');
 const screener = json('public-data/screener.json');
 const history = readHistoryRows(json('public-data/history.json'));
-const dataRuntime = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js'); // v59.34: the server data loader moved to src
+const dataRuntime = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js');
 const coreRuntime = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
 const rows = [];
 
@@ -658,7 +658,7 @@ if (failedAttemptFixture.publishedAt !== '2026-09-11T02:36:03.988Z'
 // fresh generatedAt plus complete *attempted* coverage is still not eligible
 // when the producer reports DEGRADED/marketSnapshotPublished=false.
 const cycleFixture = json('architecture/fixtures/data-cycle-freshness.json');
-// Legacy unification (2026-10-17): the fixtures run the runtime's own market-cycle gate (src/data/server-data.js), not a copy.
+// Legacy unification: the fixtures run the runtime's own market-cycle gate (src/data/server-data.js), not a copy.
 const { assessServerCycle } = await import('../src/data/server-data.js');
 function assessRuntimeCycle(fixture) {
   const cycle = assessServerCycle({ generatedAt: fixture.generatedAt, cycleStatus: fixture.cycleStatus, marketSnapshotPublished: fixture.marketSnapshotPublished, marketSnapshotCoverage: fixture.coverage, marketCycleFreshnessSlaHours: fixture.marketCycleFreshnessSlaHours }, Date.parse(fixture.now || ''));
@@ -736,7 +736,7 @@ const pceForced = bea.status === 'ok' && macro._source_pce === 'bea-official-pri
   : (pceReleaseAt && ageDays(pceReleaseAt) <= 35 ? 'CRITICAL' : 'SKIPPED');
 add('E1', 'CPI / PCE', pceReleaseAt, 'monthly', `CPI=${macro.cpi ?? '—'} (obs ${macro._asOf_cpi || '—'}) PCE=${macro.pce ?? '—'} (obs ${macro._asOf_pce || '—'}) corePCE=${macro.corePce ?? '—'} BEA=${bea.status || 'unavailable'} source=${macro._source_pce || macro._source || 'unknown'}`, pceForced);
 add('E2', 'Employment / wages / retail / housing', officialMacroFetchAt, 'monthly', `unemployment=${macro.unemployment ?? '—'} wage=${macro.usWageGrowth ?? '—'}; observation period is retained separately from fetch freshness`);
-// P1275: derive the audit from the user-visible FOMC registry. A copied July
+// Derive the audit from the user-visible FOMC registry. A copied July
 // date made E3/E4 report STALE after the September decision was already shown.
 const eventStart = coreRuntime.indexOf('window.AIO_EVENT_FRESHNESS_REGISTRY = {');
 const eventEnd = coreRuntime.indexOf('\n};', eventStart);
@@ -784,9 +784,6 @@ add('G2', 'Global indices', quote('^GSPC')?.observedAt, 'daily', `SPX=${quote('^
 add('G3', 'Crypto', quote('BTC-USD')?.observedAt, 'daily', `BTC=${quote('BTC-USD')?.value ?? '—'} ETH=${quote('ETH-USD')?.value ?? '—'}`);
 
 const sourceChecks = {
-  // P1134/R620: these KR functions and the catalyst meta block moved from index.html's inline
-  // block C to js/aio-kr-data.js — the audit must read the file that now owns them.
-  // v59.28 moved fetchKrNaverQuotes to src/data/providers/naver-kr.js; v59.42 removed the last js/ comment naming it.
   fetchKrNaverQuotes: /async function fetchKrNaverQuotes\(/.test(read('src/data/providers/naver-kr.js')),
   renderKrThemePerfBars: /renderKrThemePerfBars/.test(read('js/aio-kr-data.js')),
   themeCatalystRetired: /KR_THEME_CATALYSTS_META[\s\S]{0,120}status:'unavailable'/.test(read('js/aio-kr-data.js'))
@@ -828,7 +825,7 @@ console.log('|---|---|---|---:|---|---|---|');
 for (const row of rows) console.log(`| ${row.id} | ${row.category} | ${row.observedAt || '—'} | ${row.ageDays == null ? '—' : row.ageDays.toFixed(2)} | ${row.cadence} | ${row.status} | ${row.detail} |`);
 console.log(`H-dynamic | ${dynamicOk ? 'PASS' : 'FAIL'} | ${JSON.stringify(sourceChecks)}`);
 if (bokPolicyEvidence.warnings.length) console.log(`WARN | BOK policy: ${bokPolicyEvidence.warnings.join(', ')} — record the latest decision in AIO_MANUAL_REFERENCE.bokPolicy (value, status, asOf, next) and the us-/kr- calendar entry within ${BOK_MEETING_GRACE_DAYS} days of the meeting.`);
-// P1276: retain useful rejected-row context while keeping provider-derived error text bounded and redacted.
+// Retain useful rejected-row context while keeping provider-derived error text bounded and redacted.
 const snapshotErrorSummary = summarizeSnapshotErrors(snapshotStatus.errors);
 console.log(`D1-structural | ${structuralOk ? 'yes' : 'no'} | rows=${rows.length} unknownSessions=${unknownSessions.length} tier0=${snapshot.coverage?.observed}/${snapshot.coverage?.required} snapshotFreshness=${classifySnapshotFreshness(snapshotAudit.publishedAt, now)} attempt=${snapshotStatus.attemptStatus || 'unknown'} snapshotErrors=${JSON.stringify(snapshotErrorSummary)} policyStates=${JSON.stringify({ A1: auditState.A1, B1: auditState.B1, B2: auditState.B2, B3: auditState.B3, C4: auditState.C4, E3: auditState.E3, E4: auditState.E4 })}`);
 

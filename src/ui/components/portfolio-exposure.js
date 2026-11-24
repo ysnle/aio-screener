@@ -1,3 +1,9 @@
+// Legacy unification (2026-10-26, roadmap item 11, screen 포트폴리오): the 익스포저·집중도 panel (#pf-exposure-panel) and
+// the stress panel placement (#pf-stress-panel) moved here from js/aio-workspace.js (v50.54 3D/3E). The reading (shares,
+// bands, warnings) is src/domain/portfolio/exposure-panel.js on RULES.portfolio; this module collects the base-currency rows
+// (window._pfBaseValues) and renders. refreshPortfolioRisk still collects the returns and history and calls the two window names that
+// src/app/legacy-screen-bridges.js installs; 평균 상관 is the mean of the risk panel's own matrix (risk-readout.js), so
+// every cell it averages is on one return basis.
 import { escapeHtml } from '../html.js';
 import { deriveExposurePanel } from '../../domain/portfolio/exposure-panel.js';
 import { holdingListingKey } from '../../domain/portfolio/fx.js';
@@ -8,6 +14,8 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   if (!el) return;
   if (!positions || !positions.length) { el.innerHTML = ''; return; }
   const db = typeof root._aioGetCanonicalScreenerRows === 'function' ? root._aioGetCanonicalScreenerRows() : [];
+  // R1 (C24): weights over total assets including cash, the denominator of the native sector bars and the
+  // 포트폴리오 해석; without a known total the panel falls back to the position sum and says so. Cash is not a sector.
   const surf = root._aioPortfolioSurface || {};
   // The listing each holding was resolved to once by the portfolio reader (surface rows), not a second resolution.
   const listingOf = new Map((Array.isArray(surf.rows) ? surf.rows : []).map((row) => [String(row?.symbol || '').toUpperCase(), holdingListingKey(row)]));
@@ -44,6 +52,9 @@ export function renderPortfolioExposure(positions, returnsMap, { documentRef = g
   el.insertAdjacentHTML('beforeend', root._pfBaseNote(base));
 }
 
+// v50.54 3E: the stress scenarios. 개편 v2 (3g): the same price records feed the 포트폴리오 hero's 시장 민감도 β
+// (src/ui/components/portfolio-read.js); Sensitivities are regressed on the book's own weekly returns
+// (src/ui/panels/portfolio-stress.js builds the HTML), not hand-set sector betas.
 export function renderPortfolioStress(positions, historyMap, commonDates, { documentRef = globalThis.document, root = globalThis } = {}) {
   root._aioPortfolioStressInput = { historyMap: historyMap || {}, commonDates: commonDates || [] };
   try { root.dispatchEvent(new CustomEvent('aio:portfolioStressInput')); } catch (_) {}

@@ -31,7 +31,7 @@ function closeSeriesFacts(history, field, through) {
   }
   const year = series.filter((point) => Date.parse(point.date) >= Date.parse(last.date) - 365 * DAY_MS).map((point) => point.value);
   if (year.length) values.fromYearHigh = (last.value / Math.max(...year) - 1) * 100;
-  // v60.50: the fall from the record's closing high (the opening read without the long-run tables).
+  // The fall from the record's closing high (the opening read without the long-run tables).
   values.fromRecordHigh = (last.value / Math.max(...series.map((point) => point.value)) - 1) * 100;
   // The same fall said as a size ("고점에서 43% 내린", the opening lede): unsigned.
   values.fromRecordHighDepth = -values.fromRecordHigh;
@@ -149,7 +149,7 @@ export function ledgerFacts(day) {
   return facts;
 }
 
-// v60.49 a filer's facts, per period (claim.js CLAIM_PERIODS), read from the stored SEC strings, the filing summary and the
+// A filer's facts, per period (claim.js CLAIM_PERIODS), read from the stored SEC strings, the filing summary and the
 // screener row themselves — never from the fundamental read. Amounts are USD; the strings are USD millions.
 const MILLION = 1e6;
 const cells = (text) => String(text || '').split(';').map((part) => part.split(':')).filter((row) => isIsoDay(row[0]));
@@ -299,7 +299,7 @@ export function consensusFacts(symbol, { estimate = null, row = null } = {}) {
   const growth = trailingEps > 0 && fwdEps != null ? (fwdEps / trailingEps - 1) * 100 : null;
   const values = { price, fwdEps, trailingEps, fwdPe: price > 0 && fwdEps > 0 ? price / fwdEps : null, trailingPe: price > 0 && trailingEps > 0 ? price / trailingEps : null,
     growth, drop: growth == null ? null : -growth, ret1m: known(row?.ret1m), pctFrom52wHigh: known(row?.pctFrom52wHigh), reportedPe: known(row?.pe),
-    // v60.50 이 주가가 반영하는 것 (priced-in.js): the close against its 52-week closing high, and the estimate cut that
+    // 이 주가가 반영하는 것 (priced-in.js): the close against its 52-week closing high, and the estimate cut that
     // brings the forward multiple up to today's trailing one.
     pctFromCloseHigh52w: known(row?.pctFromCloseHigh52w), cut: fwdEps > 0 && trailingEps > 0 && fwdEps > trailingEps ? (1 - trailingEps / fwdEps) * 100 : null,
     spread: readNumber(estimate.fwd.hi) != null && readNumber(estimate.fwd.lo) != null && fwdEps > 0 ? (estimate.fwd.hi - estimate.fwd.lo) / fwdEps * 100 : null };

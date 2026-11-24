@@ -188,7 +188,7 @@ try {
     writeFileSync(join(second.runner, 'public-data/a.json'), '{"v":');
     check('v59.85 unparsable staged JSON refuses the run', inRepo(second.runner, { set: 'data' }) === 1 && remoteLog().split('\n').length === 1);
   }
-  { // v60.50: a data commit is public-data/ only — a set naming another path, a path staged before the run, or one a hook stages
+  { // A data commit is public-data/ only — a set naming another path, a path staged before the run, or one a hook stages
     const { runner } = fresh();
     writeFileSync(join(runner, 'public-data/a.json'), '{"v":10}\n');
     writeFileSync(join(runner, 'notes.txt'), 'code edit\n');
@@ -217,7 +217,7 @@ for (const [id, set] of Object.entries(DATA_PUBLISH_SETS)) {
   check(`v59.85 ${set.workflow} publishes set ${id} through the shared publisher`, workflow.includes(`scripts/publish-data-commit.mjs --set ${id}`));
   check(`v59.85 set ${id} declares a collision workflow only with the collision policy`, (set.onRebaseFail === 'collision') === Boolean(set.collision));
   if (set.collision) check(`v59.85 ${set.collision.workflow} accepts the retry input the collision re-run sends`, /\n\s+retry:\n/.test(read(`.github/workflows/${set.collision.workflow}`)));
-  // v60.18: a collision re-run is the bot repeating its own cycle. Where the workflow takes a `trigger` input whose default
+  // A collision re-run is the bot repeating its own cycle. Where the workflow takes a `trigger` input whose default
   // is 'operator', a re-run sent without trigger=scheduler ran as an operator run: on 2026-11-15 01:31Z the screener
   // retry forced the extended shard (SCREENER_EXTENDED_FORCE), refetched a current session 10 minutes after the last
   // build and replaced 3,856 rows with 3,669, and the SLO window counted the retry as an operator run.
@@ -233,7 +233,7 @@ for (const workflow of new Set(Object.values(DATA_PUBLISH_SETS).map((set) => set
   const text = read(`.github/workflows/${workflow}`);
   check(`v59.85 ${workflow} keeps no hand-written push loop`, !/until git push|git push origin HEAD:main|stage_if_exists/.test(text));
 }
-// v60.50: the publisher is the only way a workflow commits, so its public-data/ rule covers every data commit. The one
+// The publisher is the only way a workflow commits, so its public-data/ rule covers every data commit. The one
 // other commit is the browser test pin (architecture/browser-data-fixture.json), which watchdog-browser.yml re-pins.
 const OWN_COMMIT_WORKFLOWS = { 'watchdog-browser.yml': 'architecture/browser-data-fixture.json' };
 for (const file of readdirSync(join(root, '.github/workflows')).filter((name) => /\.ya?ml$/.test(name))) {

@@ -6,7 +6,7 @@
 // new sentence or branch was easier to add than the old one was to find. History lives in git and the ledger
 // (scripts/why-trace.mjs, scripts/prior-fixes.mjs); a comment says what the code does now.
 //
-// The per-file count of comment lines that name a release (v52.1–v99.99) or a postmortem id (P1000–P9999) may shrink but
+// The per-file count of comment lines that name a release or a postmortem id may shrink but
 // may not grow, and a file without such comments may not start carrying them. A new reason worth keeping in the file is
 // written as the rule itself, without the release tag.
 //

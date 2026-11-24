@@ -1,3 +1,7 @@
+// Daily call counters for the free provider tiers (localStorage aio_quota_{provider}, reset each UTC day);
+// a warning at 80% and a skip notice at the limit. A local counter does not see another browser or application,
+// so the shared atomic quota (window.AIO.tryAcquireAIQuota) answers first when it handles the provider. Moved
+// unchanged from src/ui/chat/panel.js (roadmap item 11, layer 1 채팅); window._bumpApiCounter/_isQuotaExceeded keep the names.
 export const QUOTA_LIMITS = {
   fmp: { daily: 250, label: 'FMP 재무제표' },
   twelveData: { daily: 800, label: 'Twelve Data 지표' },

@@ -1,3 +1,8 @@
+// The trade journal. The reader records each buy and sell with the reason it was made; this
+// module turns that record into realised results (FIFO lots per symbol and currency), the reader's own statistics, and
+// factual mirrors against the rules the reader declared. It never tells the reader what to buy or sell (AGENTS: no
+// personal trade instructions) — every line is a measurement of the reader's own record or a gap against the reader's
+// own rule, with the sample size beside it.
 import { readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
 
@@ -11,6 +16,9 @@ export const TRADE_MOODS = Object.freeze({ plan: '계획대로', fomo: '놓칠�
 export const MIN_SAMPLE = 10;
 const DAY_MS = 86400000;
 
+// v59.45 (PASS27 P27-IMPORT-01 class): Date.parse rolls 2026-02-30 over to 3/2, so the shape check alone kept a day that
+// does not exist. A calendar date is a YYYY-MM-DD string that survives the round trip; the ledger and the account
+// performance check use the same helper.
 export function calendarDate(value) {
   const text = String(value == null ? '' : value).trim();
   if (!isIsoDay(text)) return null;
@@ -29,6 +37,8 @@ export function normalizeTrade(input = {}, { idOf = () => `t${Date.now().toStrin
   const side = input.side === 'sell' ? 'sell' : input.side === 'buy' ? 'buy' : null;
   const qty = finite(input.qty);
   const price = finite(input.price);
+  // v59.45 (PASS22): an empty fee is 0, but a fee that was written and cannot be read is an error, not a free trade; a
+  // written currency outside the supported codes is an error, not USD.
   const feeGiven = input.fee != null && String(input.fee).trim() !== '';
   const fee = feeGiven ? finite(input.fee) : 0;
   const currencyGiven = input.currency != null && String(input.currency).trim() !== '';
@@ -103,6 +113,8 @@ const median = (values) => { if (!values.length) return null; const s = [...valu
 /** Statistics of closed lots: rates in %, money per currency (never summed across currencies). */
 export function journalStats(closed = []) {
   const wins = closed.filter((row) => row.pnl > 0);
+  // v59.59 (logic refactor): a break-even lot is neither — counting pnl 0 as a loss pulled the average loss toward 0%
+  // and blanked the payoff ratio when the only "loss" was a flat sale.
   const losses = closed.filter((row) => row.pnl < 0);
   const flats = closed.length - wins.length - losses.length;
   const avgWin = mean(wins.map((row) => row.pnlPct));
@@ -114,6 +126,8 @@ export function journalStats(closed = []) {
     .sort((a, b) => b.n - a.n);
   const byMood = Object.entries(closed.filter((row) => row.entryMood).reduce((map, row) => { (map[row.entryMood] ||= []).push(row); return map; }, {}))
     .map(([mood, rows]) => ({ mood, label: TRADE_MOODS[mood] || mood, n: rows.length, wins: rows.filter((row) => row.pnl > 0).length, avgPct: mean(rows.map((row) => row.pnlPct)) }));
+  // v58.75 (persona review, spec F6): stop adherence on the reader's own record — of the closed lots bought with a stop price,
+  // how many were sold at or above that stop (a sale below it went past the plan; a gap or slippage also counts as below).
   const withStop = closed.filter((row) => Number.isFinite(row.stop) && row.stop > 0);
   const stopKept = { n: withStop.length, kept: withStop.filter((row) => row.sellPrice >= row.stop).length };
   return {

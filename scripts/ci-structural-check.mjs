@@ -14,7 +14,7 @@ const ui = read('js/aio-ui.js');
 const data = read('js/aio-data.js');
 const chat = read('src/ui/chat/panel.js');
 const glossary = read('js/aio-glossary.js');
-// P1133/R620: js/aio-pages.js is a registered runtime file. Omitting it here would make the R280
+// js/aio-pages.js is a registered runtime file. Omitting it here would make the R280
 // duplicate-global scan blind to it — the exact gap P605 exploited.
 const pages = read('js/aio-pages.js');
 const krData = read('js/aio-kr-data.js');
@@ -40,34 +40,34 @@ check(
     && ui.indexOf('function _aioGetKstDateParts') < ui.indexOf('_aioGetKstDateParts(new Date())')
 );
 check('date label must not use shifted Date.getDay()', !/kst\.getDay\(\)/.test(ui));
-// v58.55: the home date line (#home-date-label) has one owner, home-regime.js (split from market-regime.js; date · close basis, design 2b; the
+// The home date line (#home-date-label) has one owner, home-regime.js (split from market-regime.js; date · close basis, design 2b; the
 // single-writer rule is AG-DOM-WRITER). The legacy pin here matched an unused variable; the KST intent moves to the owner.
 check('v58.55 home date line must use the KST formatter', /getElementById\('home-date-label'\)[\s\S]{0,400}timeZone: 'Asia\/Seoul'/.test(read('src/ui/components/home-regime.js')));
 
-// v58.76: the KOSPI/KOSDAQ cards that carried these sinks were developer-only and are retired; the quote pipeline below
+// The KOSPI/KOSDAQ cards that carried these sinks were developer-only and are retired; the quote pipeline below
 // still writes any [data-live-prev-close] / [data-live-kr-change] sink (the T823 fixture covers the behaviour).
 check('KOSDAQ snapshot previous-close mapping must exist', /'kosdaq-prev':\s+_snap\.localeFull\(S\.kosdaqPrev\)/.test(core));
 check('quote pipeline must update previous-close sinks', /data-live-prev-close/.test(data) && /previousClose\.toLocaleString/.test(data));
 check('KR change sink must derive delta from the same price and previous close', /atomicDelta = price - previousClose/.test(data));
 check('T823 KST/KR regression test must exist', /T823 v5056_kst_kr_index_contract/.test(tests));
 check('T823 must validate numeric KR index consistency', /expectedDelta823 = price823 - prev823/.test(tests));
-// P1386: later official dates may be appended; the verified history prefix must stay intact.
+// Later official dates may be appended; the verified history prefix must stay intact.
 check('official NFP/CPI/ISM schedule must replace mechanical monthly dates', /'us-nfp': \['2026-07-02', '2026-08-07', '2026-09-04', '2026-10-02'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-cpi': \['2026-07-14', '2026-08-12', '2026-09-11', '2026-10-14'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-ism-mfg': \['2026-07-01', '2026-08-03', '2026-09-01', '2026-10-01'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core) && /'us-ism-svc': \['2026-07-06', '2026-08-05', '2026-09-03', '2026-10-05'(?:, '\d{4}-\d{2}-\d{2}')*\]/.test(core));
-check('macro page must expose the next official release', /id="macro-board-basis"/.test(html) && /const first = crossroads\?\.nextEvent \|\| null;[\s\S]{0,200}다음 주요 발표는 \$\{label\(first\)\}/.test(read('src/ui/components/macro-board.js'))); // v59.51: one next-release answer, in the board header, from crossroads.nextEvent (v59.74: the next release; the tie decider follows apart)
+check('macro page must expose the next official release', /id="macro-board-basis"/.test(html) && /const first = crossroads\?\.nextEvent \|\| null;[\s\S]{0,200}다음 주요 발표는 \$\{label\(first\)\}/.test(read('src/ui/components/macro-board.js'))); // One next-release answer, in the board header, from crossroads.nextEvent (the next release; the tie decider follows apart)
 check('VVIX live snapshot and fallback mirror must update together', /DATA_SNAPSHOT\._fallback\.vvix = price/.test(data));
 check('known KR ticker mappings must be corrected', /sym:'011200\.KS', name:'HMM'/.test(data) && /sym:'041510\.KQ', name:'SM엔터테인먼트'/.test(data) && /'403870\.KQ': \{ en: 'HPSP'/.test(core));
 check('known KR ticker mapping regressions must be absent', !/sym:'011200\.KS', name:'HJ중공업'|sym:'041510\.KS'|'403870\.KQ': \{ en: 'HJ Sci'/.test(data + core));
 check('KR composite cards must keep live bindings on value children', !/class="kr-(?:etf|screen)-card"[^>]*data-live-price=/.test(html));
-// v53.7 (P725): kr-home 퇴역으로 composite 카드가 사라질 수 있음 — 존재할 때만 소유권 계약을 강제(패턴 계약)
+// kr-home 퇴역으로 composite 카드가 사라질 수 있음 — 존재할 때만 소유권 계약을 강제(패턴 계약)
 check('KR composite cards must expose stable symbol ownership', !/class="kr-etf-card"/.test(html) || /class="kr-etf-card" data-live-symbol=/.test(html));
-// P1134/R620: the pill template moved with block C into js/aio-kr-data.js. The positive marker is
+// The pill template moved with block C into js/aio-kr-data.js. The positive marker is
 // read from its new owner; the reintroduction guard stays broad (both files) so it cannot be
 // satisfied by the template reappearing in the shell.
 check('dynamic KR theme pills must keep live bindings on value children', /class="kr-ticker-pill" data-live-symbol=/.test(krData) && !/class="kr-ticker-pill" data-live-price=/.test(html + krData));
 check('KRW-denominated equity prices must use a KR-specific sanity range', /if \(\/\\\.\(KS\|KQ\)\$\/\.test\(sym\)\) return \[1, 10000000\]/.test(core));
 check('reference-only unavailable values must warn rather than block deployment', /truth-blocked-reference-only[\s\S]*status: row\.operationalUse === 'reference-only' \? 'warn' : 'block'/.test(core));
 check('text audit must distinguish ratios and MA periods from calendar dates', /var slashFormula =/.test(core) && /!slashFormula &&/.test(core));
-// v58.93: the progress label renders from src/ui/components/news-progress.js; fetchAllNews passes the elapsed time.
+// The progress label renders from src/ui/components/news-progress.js; fetchAllNews passes the elapsed time.
 const newsProgressLabel = await (async () => {
   const { renderNewsProgress } = await import('../src/ui/components/news-progress.js');
   const label = { textContent: '' };
@@ -76,7 +76,7 @@ const newsProgressLabel = await (async () => {
 })();
 check('long news refresh must switch to an honest background status', newsProgressLabel === '백그라운드 갱신, 4/9' && /elapsedMs: Date\.now\(\) - _fetchStartTime/.test(data));
 
-// R280 (P605): index.html and the js/*.js modules are all classic (non-module) <script>s sharing
+// index.html and the js/*.js modules are all classic (non-module) <script>s sharing
 // one global scope. A top-level `function name(){}`/`async function name(){}` declared in more
 // than one of these files silently loses all but the last-to-execute definition — no error, no
 // warning, and (per <script defer> spec ordering) the external module always wins over an inline
@@ -100,7 +100,7 @@ const RUNTIME_SCRIPT_FILES = {
 // Functions nested inside an IIFE/closure (indented, not column 0) are scoped to that closure and
 // cannot collide with another file's global, so they must not trip this check.
 const TOP_LEVEL_FN_RE = /^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm;
-// P605 follow-up (v52.19) removed index.html's dead `fetchKrDynamicData` copy and judged the 5
+// P605 follow-up removed index.html's dead `fetchKrDynamicData` copy and judged the 5
 // orphaned KR fetchers it alone called — zero cross-file shadows remain as of that cleanup.
 // Add future confirmed-intentional exceptions here only after they're actually verified (the
 // second check below fails loudly if an entry here turns out not to be shadowed at all).
@@ -173,7 +173,7 @@ const orderManifest = JSON.parse(read('architecture/runtime-script-order.json'))
 check('runtime script order must match architecture/runtime-script-order.json exactly (R622/P1135)'
   + (JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order) ? '' : `: html=[${scriptOrder.join(', ')}] manifest=[${orderManifest.order.join(', ')}]`),
   JSON.stringify(scriptOrder) === JSON.stringify(orderManifest.order));
-// v59.16 (roadmap 11): `lazy` lists runtime files that are inserted after boot (src/ui/chat/panel.js via src/app/chat-loader.js)
+// `lazy` lists runtime files that are inserted after boot (src/ui/chat/panel.js via src/app/chat-loader.js)
 // instead of loading as static shell scripts.
 const lazyScripts = orderManifest.lazy || [];
 check('runtime script order manifest must list every measured runtime file exactly once (R622/P1135)',

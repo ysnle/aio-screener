@@ -1,3 +1,6 @@
+// The screens' reader for the producer freshness ledgers (schema: src/data/contracts/artifact-freshness.js).
+// A freshness badge draws from readArtifactFreshness(file) and nothing else, so the screen and the watchdog
+// (scripts/ci-external-pipeline-check.mjs, the same freshnessState) grade an artifact the same way.
 import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, freshnessState } from './contracts/artifact-freshness.js';
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { artifactFamilyUrl } from './artifact-registry.js';

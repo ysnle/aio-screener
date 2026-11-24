@@ -1,3 +1,10 @@
+// v59.57 (X bookmarks 11/02 — damipov "바닥 신호 FTD", shmath8218 "쉬는 것도 매매다", laylaperfume's two scenarios): the
+// index follow-through day. AIO counted O'Neil's distribution days (selling under volume) but not the other half of the
+// same method: after a correction, the lowest close is day 1 of a rally attempt; the count runs while no later close
+// undercuts it; from day 4 a session up 1.25% or more on volume above the prior session is the follow-through day
+// (the method reads it as institutions buying again; price and total volume cannot show who bought); a later close below the day-1 close fails it. The bookmarked read added the part that
+// decides whether it matters — leaders breaking out to new highs within days to three weeks after it — which the screen
+// pairs with the S&P 500 new-high count AIO already records. Thresholds: RULES.rallyAttempt. Pure.
 import { RULES } from '../../rules/thresholds.js';
 import { finiteNumber as finite, readNumber } from '../../shared/number.js';
 
@@ -77,6 +84,8 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const failedEarlier = lastFtd >= 0 && before.slice(lastFtd).every((row) => Number(row.rallyPhase) !== RALLY_PHASE.none);
   if (phase === RALLY_PHASE.attempt) {
     const toGo = Math.max(0, rules.minDay - day);
+    // Day 1 is the session that set the low (11/20, Nasdaq -5.3%); "반등 시도 1일째" there read as a
+    // rebound under way. The rule is unchanged; day 1 says the low was set and the count starts from it.
     const firstDay = day === 1;
     const state = firstDay ? `${md(lowDate)} 새 저점 — 여기서 1일째` : `반등 시도 ${day}일째`;
     const plain = firstDay

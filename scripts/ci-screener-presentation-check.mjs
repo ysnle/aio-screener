@@ -1,4 +1,4 @@
-// v60.26: the screener page states only what its rows support — the overall rank, the P/B basis, why a market has no
+// The screener page states only what its rows support — the overall rank, the P/B basis, why a market has no
 // rank, a condition whose source is still loading, and the new exclusion / close / volume-basis fields. Each block mounts
 // the real page (scripts/lib/fake-dom.mjs) or calls the domain module the page reads; offline, no browser.
 import assert from 'node:assert/strict';
@@ -73,7 +73,7 @@ const doc = createFakeDocument({ ids: shellIds(html) });
 const root = { fetch: () => Promise.reject(new Error('offline gate')), _liveData: {} };
 createScreenerPage({ documentRef: doc, store, root, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
 const kicker = () => String(doc.getElementById('scr-kicker-counts').textContent || '');
-// v60.35 (owner 2026-11-20): the 전체 순위 column left the table; the 백분위 sort is the overall order, its rounded ties
+// The 전체 순위 column left the table; the 백분위 sort is the overall order, its rounded ties
 // broken by the unrounded composite (overallRank), never by the active screen's order (screenRank).
 check('v60.26 the 백분위 sort follows the overall rank, not the active screen order', () => {
   const ranked = presetRows.filter((row) => !row.sym.endsWith('.KS') && Number.isFinite(row.overallRank));
@@ -105,7 +105,7 @@ check('v60.26 a market whose factor session is behind says why it has no rank', 
   krDoc.getElementById('scr-passed-only').checked = true;
   krDoc.getElementById('scr-min-rank').value = '50'; // a rank condition: nothing can pass while no row is ranked
   createScreenerPage({ documentRef: krDoc, store: krStore, root: { fetch: () => Promise.reject(new Error('offline')), _liveData: {}, _aioScreenerListingMarket: 'KR' }, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
-  // v60.30: the header says why once (its close stamp names the market and date); the table says it short.
+  // The header says why once (its close stamp names the market and date); the table says it short.
   assert.ok(String(krDoc.getElementById('scr-kicker-counts').textContent || '').includes('순위 보류(최신 거래일 종가 대기)'), `v60.26 KR kicker names the held rank: '${krDoc.getElementById('scr-kicker-counts').textContent}'`);
   const body = krDoc.getElementById('screener-results-body');
   if (!body.querySelector('[data-aio-screener-ticker]')) assert.ok(String(body.textContent || '').includes('순위 보류 — 최신 거래일 종가가 들어오면 순위를 매깁니다'), `v60.26 the empty table names the held rank: '${body.textContent}'`);
@@ -133,7 +133,7 @@ check('v60.30 an unranked market shows its whole list unranked under the default
   assert.doesNotMatch(status, /통과 종목만 보기/, 'v60.30 no way back to a passed set that does not exist');
 });
 
-// v60.30: the inspector's factor rows carry the name and the score; what a factor measures is a line in the fold.
+// The inspector's factor rows carry the name and the score; what a factor measures is a line in the fold.
 check('v60.30 the inspector puts the factor definition in the fold, not glued to the factor label', () => {
   const source = readFileSync(new URL('../src/ui/pages/screener/inspector.js', import.meta.url), 'utf8');
   assert.doesNotMatch(source, /sx-factor__desc/, 'v60.30 no description span inside the factor label');

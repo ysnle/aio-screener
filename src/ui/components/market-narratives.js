@@ -1,3 +1,11 @@
+// 시장 상태's 시장이 말하는 이야기 — after the scenarios and today's guide (what the indicators
+// say comes next), before 무슨 일이 있었나 (what moved). One visual, how much each story is relayed (the last 24 hours
+// shaded), whose rows pick the story read below it: the question, the attention, whether the indicators back the scenario
+// it points to (src/domain/narrative/narrative-cards.js), and a link to that scenario. Counts only: no relayed post text is
+// shown.
+// (owner 2026-11-20, face never folded; one owner per piece) a scenario's frame, choices, confirm and break signals are
+// the 시나리오 section's (macro-crossroads.js) — the story names the scenario and its status and links there; the reading
+// frame is the analysis note in 리서치 라이브러리, linked by id.
 import { el } from './dom.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { buildNarrativeCards } from '../../domain/narrative/narrative-cards.js';
@@ -97,6 +105,7 @@ export function renderMarketNarratives({ documentRef: doc, root, interpretation 
   const at = new Date(Date.parse(model.at) + 9 * 3600000);
   const asOf = Number.isFinite(at.getTime()) ? `${at.getUTCMonth() + 1}/${at.getUTCDate()} ${String(at.getUTCHours()).padStart(2, '0')}:${String(at.getUTCMinutes()).padStart(2, '0')} KST까지 ${model.windowHours}시간` : `${model.windowHours}시간`;
   const legend = el(doc, 'p', '진한 부분은 최근 24시간. 언급 수는 관심의 크기이지 사실 여부나 가격 영향이 아닙니다.', 'mk-narr__legend');
+  // v59.70 '바뀐 점': stories that entered or left the top list since the previous KST day (narratives.changes).
   const change = day.narratives.changes;
   const names = (ids) => (ids || []).map((id) => NARRATIVE_BY_ID[id]?.label || id).join(', ');
   const changeLine = change && (change.added?.length || change.dropped?.length)

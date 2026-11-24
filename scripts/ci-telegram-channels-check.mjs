@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.18 (weekly audit 2026-11-15): the Telegram digest was "partial (3 channels)" from 10/26 20:52Z to 11/15 because one
+// The Telegram digest was "partial (3 channels)" from 10/26 20:52Z to 11/15 because one
 // channel's public preview became a contact card and every run threw "first page parsed no posts"; nothing bounded how long
 // a channel may fail. This gate checks the status rule (retired channels are not expected) and bounds, over the published
 // artifact, how long an active channel may keep failing before it is fixed or retired in the registry.
@@ -18,7 +18,7 @@ const report = () => {
   if (failed.length) { console.error(`telegram-channels: ${failed.length} failed`); process.exit(1); }
 };
 
-// v60.50: the status rule runs on fixtures (code); the bound on the published digest also runs in a data run.
+// The status rule runs on fixtures (code); the bound on the published digest also runs in a data run.
 await runSections('telegram-channels', [
 ['status-rule', async () => {
 const catalog = [

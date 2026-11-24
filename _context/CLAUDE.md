@@ -12,7 +12,7 @@ target_version: version.json
 
 P1518 구조 재검토: 아래 canonical 경로·훅·미러·권한 경계를 workspace/skill/profile gate와 대조했다. 지식 본문 의미 검수나 배포 상태의 재인증은 아니다.
 
-- **현재 버전**: v60.50
+- **현재 버전**: v60.51
 - 공통 preflight: `CURRENT-STATE.md` 한 번 확인; `WORKFLOW-GOVERNANCE.md`·`INDEX.md`·스킬은 필요한 경우만 참조
 - 대형 원장: `RULES.md`, `BUG-POSTMORTEM.md`, `QA-CHECKLIST.md`, `KNOWLEDGE-BASE.md`는 관련 용어/ID 범위만 읽는다.
 
@@ -54,6 +54,6 @@ This table lists the core routes only; the full set of commands is the files in 
 
 1. Change canonical sources, then regenerate consumers.
 2. Never hand-edit generated current-state, catalog, skill mirror, or agent profiles.
-3. Add a P entry for defects, R/QA promotion for recurring classes, and an executable negative control.
+3. Add a P entry only when a wrong value reached users or the defect is a new class; other changes are change-only records. A new defect adds a case to its principle's gate (the rule ledger is frozen), with an executable negative control.
 4. Do not copy live/deployed state into durable prose; measure it with live gates at observation time.
 5. Automatic commit and deployment are forbidden without explicit user authorization.

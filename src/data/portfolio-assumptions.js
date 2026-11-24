@@ -37,6 +37,10 @@ export function normalizeAnnualRate(value) {
   return percent / 100;
 }
 
+// 열거형도 다른 선언과 같은 규칙을 따른다 — 미선언(빈 값)과 인식할 수 없는 값은 **null**이고
+// 기본값을 지어내지 않는다. 예전에는 둘 다 기본값('daily'·'retrospective')이 되어, 정책을 한 번도
+// 선언하지 않은 사용자에게 'daily'가 선언으로 게시됐고 정책 오타는 조용히 daily 리밸런싱이 됐다.
+// 인식 불가 여부는 caller가 말할 수 있도록 readPortfolioAssumptions가 `unrecognized`로 발행한다.
 export function normalizeExposurePath(value) {
   const text = String(value == null ? '' : value).trim();
   return EXPOSURE_PATHS.includes(text) ? text : null;

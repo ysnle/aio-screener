@@ -1,6 +1,6 @@
 import { installGlossaryBridge } from '../ui/knowledge/glossary-bridge.js';
-import { installGlossaryLoader } from './classic-loader.js';
-import { fetchEarningsCalendarSnapshot } from '../data/earnings-calendar-snapshot.js'; // roadmap 11: moved from js/aio-pages.js
+import { installGlossaryLoader } from './classic-loader.js'; // js/aio-glossary.js leaves the boot scripts
+import { fetchEarningsCalendarSnapshot } from '../data/earnings-calendar-snapshot.js';
 import { installFreshnessEngine } from '../data/quality/freshness-engine.js';
 import { installDataStatusSurface } from '../ui/components/data-status-surface.js';
 import { installHomeStatusSurface } from '../ui/components/home-status-surface.js';
@@ -11,7 +11,7 @@ import { installProxyTransport } from '../data/providers/proxy-transport.js';
 import { installNaverUsCollector } from '../data/providers/naver-us.js';
 import { installNaverKrCollector } from '../data/providers/naver-kr.js';
 import { installTelegramCollector } from '../data/providers/telegram-direct.js';
-import { installVaultCrypto } from '../storage/vault-crypto.js';
+import { installVaultCrypto } from '../storage/vault-crypto.js'; // Roadmap 11: the AioVault cryptography from js/aio-core.js
 import { installNewsCache } from '../storage/news-cache.js';
 import { installNewsSelection } from './news-selection-entry-points.js';
 import { installRefreshScheduler } from './refresh-scheduler.js';
@@ -20,7 +20,7 @@ import { installPublicReadiness } from '../data/public-readiness.js';
 import { installBootSequence } from './boot-sequence.js';
 import { installTraderProfiles } from './trader-profiles.js';
 import { installScoreEntryPoints } from './score-entry-points.js';
-import { installSharedRoute } from '../data/providers/shared-ai-transport.js'; // roadmap 11: the shared AI route, moved from src/ui/chat/panel.js
+import { installSharedRoute } from '../data/providers/shared-ai-transport.js';
 import { withTimeout } from '../platform/with-timeout.js';
 import { bumpApiCounter, isQuotaExceeded } from '../data/api-quota.js';
 import { extractTickers } from '../ai/entity/extract-tickers.js';
@@ -33,7 +33,7 @@ import { formatSecResearchEvidence } from '../ai/context/sec-fundamentals.js';
 import { chooseAnswerVisuals } from '../ai/response/answer-visual-choice.js';
 import { buildChatPolicyLines } from '../ai/context/policy-lines.js';
 import { resolveChatTickers } from '../ai/entity/chat-tickers.js';
-import { portfolioRowsLine } from '../ai/context/portfolio-rows.js';
+import { portfolioRowsLine } from '../ai/context/portfolio-rows.js'; // Redacted holdings line (workbench + AI panel)
 import { selectNativeSearch, attachNativeSearch, hasInternalCurrentEvidence, searchStatusText, searchMustRun, nativeSearchOptions } from '../ai/research/native-search.js';
 import { isKnownSymbol, resolveHoldingInput, resolveRegisteredName, searchCandidates } from '../domain/instruments/resolve-name.js';
 import { hasFinalConsonant } from '../domain/content/korean-particle.js';
@@ -64,7 +64,7 @@ import { verifyServerMarketAnalysis } from '../data/server-market-analysis.js';
 import { routeLabel } from '../ui/navigation/route-hubs.js';
 
 export function installCompatibilityGlobals(root = globalThis) {
-  root._aioRouteLabel = routeLabel;
+  root._aioRouteLabel = routeLabel; // Screen names for src/ui/chat/panel.js, from ROUTE_HUBS
   const window = root;
   const document = root.document;
   installVaultCrypto(window);
@@ -96,12 +96,19 @@ export function installCompatibilityGlobals(root = globalThis) {
     configurable: true,
     get: () => (aiPipeline ||= import('../ai/response/request-pipeline.js').then((m) => { m.installAIRequestPipeline(window, document); }).catch(() => { aiPipeline = null; }))
   });
+  // v59.70 (integration QA): a shared-AI reply is published through the answer orchestrator, which loads lazily beside the
+  // panel (P4). A stream that finished before it loaded read a null parse ("reading 'plan'") and showed as a 502
+  // "AI 서버를 일시적으로 사용할 수 없습니다", so callSharedAi (src/ui/chat/panel.js) waits for both. The load promise is cached.
+  // It also waits for the panel loader (AIO.loadChat: the profile and the research digest that load beside the panel).
+  // The panel module imports its own helpers, so callSharedAi cannot exist before them.
   window._aioAIAnswerReady = () => {
     const arch = window.AIO_ARCH;
     const orchestrator = arch?.getAIOrchestrator?.() || typeof arch?.loadAIOrchestrator !== 'function' ? null : arch.loadAIOrchestrator().catch(() => null);
     const panel = typeof window.AIO?.loadChat === 'function' ? window.AIO.loadChat().catch(() => null) : null;
     return Promise.all([window._aioAIPipelineReady, orchestrator, panel]);
   };
+  // boot-time helpers that only lived in src/ui/chat/panel.js — the promise bound, the free-tier call
+  // counters, the question ticker scan and the desktop sidebar toggle (its saved state is restored here).
   window._withTimeout = withTimeout;
   window._bumpApiCounter = (providerKey) => bumpApiCounter(providerKey, window);
   window._isQuotaExceeded = (providerKey) => isQuotaExceeded(providerKey, window);
@@ -113,16 +120,23 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.toggleSidebar = () => toggleSidebar({ documentRef: document, root: window });
   if (document) restoreSidebar({ documentRef: document, root: window });
   window._aioPersonalProviderTransport = createPersonalProviderTransport({ fetch: (...args) => window.fetch(...args) });
-  window._aioCompletedBars = completedBars;
+  window._aioCompletedBars = completedBars; // The AI trend line reads completed sessions only, like the chart
+  // Legacy unification: the chat's screener query engine moved here from js/aio-data.js. Every call reads
+  // the canonical rows the native screener orchestrator ranked (no second ranking run) and the producer's factor date.
   const screenerState = (path) => { try { return window.AIO_ARCH?.getScreenerState?.(path) ?? null; } catch (_) { return null; } };
+  // Screener-universe breadth, checked once (legacy unification 2026-10-17: replaces the projected breadth globals).
   window._aioScreenerBreadth = (breadth = screenerState('metadata.breadth'), now = Date.now()) => readScreenerBreadth(breadth, now);
+  // Per-screen data completeness reads the native screener slice.
   installPageCompleteness(window, {
     readScreener: () => {
       const metadata = {};
+      // v59.45 (P28-COMPLETENESS-01): universe + artifactRows let the screener producer report measured coverage.
       for (const key of ['universeFreshnessStatus', 'backtest', 'detail', 'universe', 'artifactRows']) { const value = screenerState(`metadata.${key}`); if (value != null) metadata[key] = key === 'backtest' ? true : value; }
       return { status: screenerState('status'), revision: screenerState('revision'), updatedAt: screenerState('updatedAt'), metadata };
     }
   });
+  // The legacy data.json loader fetches and gates the server artifact here.
+  // The six-hour market slots (data.json marketTimeline) are kept for the briefing's 시간대별 시황.
   window._aioFetchServerData = () => fetchServerData({ fetch: (...args) => window.fetch(...args), prefetched: takeBootPrefetch(window, 'data') }).then((result) => {
     if (result?.ok) window._serverMarketTimeline = result.data.marketTimeline?.schemaVersion === 'market-timeline.v1' ? result.data.marketTimeline : null;
     return result;
@@ -138,7 +152,11 @@ export function installCompatibilityGlobals(root = globalThis) {
   window.AIO.describeSharedConnection = describeSharedConnection;
   window._aioOpenFeedback = () => import('../ui/components/feedback-form.js').then((m) => m.openFeedbackDialog({ documentRef: document, windowRef: window, version: typeof APP_VERSION === 'string' ? APP_VERSION : '' })).catch(() => null); // roadmap 12
   window.AIO.formatSecResearchEvidence = formatSecResearchEvidence;
+  // research-channel numbers in the chat context; loaded after boot (the chat checks that it exists).
   import('../ai/context/channel-signals.js').then((module) => { window.AIO.formatChannelSignalEvidence = module.formatChannelSignalEvidence; }).catch(() => {});
+  // v59.48 (boot budget): buildMarketContentContext, buildQuestionDomainContext and the answer mode/principle helpers
+  // install with the chat (src/app/chat-globals.js, loaded by src/app/chat-loader.js); only src/ui/chat/panel.js reads them.
+  // data-drawn figures under an AI answer. v58.80 (bundle 4): the builders load with the first answer (both are async).
   const answerVisuals = () => import('../ui/components/ai-answer-visuals.js');
   window.AIO.renderAnswerVisuals = (options) => answerVisuals().then((module) => module.renderAnswerVisuals(options));
   window.AIO.chooseAnswerVisuals = chooseAnswerVisuals;
@@ -150,19 +168,32 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window.AIO.searchMustRun = searchMustRun;
   window.AIO.nativeSearchOptions = nativeSearchOptions;
   window.AIO.hasInternalCurrentEvidence = hasInternalCurrentEvidence;
+  // v58.80 (boot budget): the backtest engine loads on demand, when the form is read (_aioReadBacktestInputs awaits it
+  // before the shell's synchronous AIO.buildPortfolioBacktestLab call). v59.72: the idle warm on every route is gone —
+  // it spent 28.6 KB of each route's post-boot budget on an engine only 포트폴리오's run button uses.
   const backtestLab = () => import('../domain/portfolio/backtest.js').then((module) => { window.AIO.buildPortfolioBacktestLab = module.buildPortfolioBacktestLab; return module; });
   window._aioLoadBacktestLab = backtestLab;
   // The holding technical engine and the return statistics load the same way: 포트폴리오's risk runs
   // await this before their synchronous calls (src/app/technical-engine-globals.js).
   window._aioLoadTechnicalEngine = () => import('./technical-engine-globals.js').then((module) => module.installTechnicalEngine(window));
-  installGlossaryBridge({ root: window, documentRef: window.document });
+  installGlossaryBridge({ root: window, documentRef: window.document }); // One concept source + cross-surface search
   installGlossaryLoader(window, window.document);
+  // The classic-shell form is the writer for the declared currency /
+  // cash-return / RF inputs; it consumes the same keys and normalizers the
+  // reader uses, so the two ends cannot drift.
   window._pfPortfolioAssumptions = { keys: PORTFOLIO_ASSUMPTION_KEYS, exposurePaths: EXPOSURE_PATHS, rebalancePolicies: REBALANCE_POLICIES, normalizeCurrencyCode, normalizeAnnualRate, normalizeExposurePath, normalizeRebalancePolicy, read: readPortfolioAssumptions };
+  // E3/P1194 (11 §23): 선언된 FX leg의 유효성·환산 근거는 도메인 모듈이 소유하고, 셸은 DOM과 저장만 맡는다.
   window._pfPortfolioFx = { maxAgeMs: FX_LEG_MAX_AGE_MS, normalize: normalizeFxLegs, appendLeg: appendFxLeg, removeLeg: removeFxLeg, legsState: fxLegsState, withListingTickers };
+  // 선언 패널의 마크업·ack 문구는 네이티브가 소유한다 — 셸은 저장 경로와 순서만 남긴다.
+  // 선언 저장소의 *형태*(읽기 규칙·ack 분리)는 네이티브가 소유하고, 셸이 저장 정책(경로)을 주입한다.
   window._pfDeclarationsStore = { create: createDeclarationsStore };
   // The add form's 합치기 (a second buy of a held ticker) loads its dialog and merge rule on first use; the backup import
   // merges with the same rule (portfolio-screen-bridges.js).
   window._aioHoldingMerge = () => import('../ui/panels/portfolio-duplicate-holding.js');
+  // The ticker route, quote request and screener lookup share one canonical symbol —
+  // a bare KRX code or registered Korean name resolves to `005930.KS`-style keys.
+  // Registered company names (엔비디아 / nvidia / 퀄컴) resolve by exact registry match when the KRX
+  // normalizer left the input unchanged — no fuzzy guessing.
   window._aioNormalizeTickerInput = (raw) => {
     const rows = typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [];
     const isListed = (symbol) => rows.some((row) => (row?.sym || row?.symbol) === symbol);
@@ -171,9 +202,14 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     return resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries) || normalized;
   };
   window._aioResolveRegisteredName = (raw) => resolveRegisteredName(raw, window.AIO_TICKER_NAME_REGISTRY?.entries);
+  // A search with no exact match keeps a message under the box with candidates to pick (no auto-open).
+  // A symbol the US listing directory confirmed this session is known as well (it is a real listing, not a typo).
   const listedSeen = new Set();
   window._aioIsKnownTicker = (symbol) => isKnownSymbol(symbol, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
     universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [] }) || listedSeen.has(String(symbol || '').trim().toUpperCase());
+  // A US-listed symbol outside the published universe is read on demand with the producer's
+  // own functions (src/data/on-demand-symbol.js). Nothing loads at boot — the reader, the listing directory and a
+  // symbol's chart/filings load only when a screen asks for that one symbol (session cache, two symbols at a time).
   const checkListed = (symbol) => import('../data/us-listings.js').then((module) => module.isListedUsSymbol(symbol))
     .then((listing) => { if (listing?.listed) listedSeen.add(String(symbol || '').trim().toUpperCase()); return listing || { listed: false }; })
     .catch(() => ({ listed: false, directoryAvailable: false }));
@@ -201,9 +237,12 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   }))));
   window._aioRequestOnDemandSymbol = (symbol) => onDemandReady().then((reader) => reader.load(symbol)).catch(() => null);
   window._aioOnDemandSymbol = (symbol) => onDemandReader?.peek(symbol) || null;
+  // The chat's per-symbol data block carries the on-demand placement text (empty for universe/unlisted symbols).
   window._aioOnDemandChatContext = (symbol) => window._aioRequestOnDemandSymbol(symbol)
     .then((record) => (record?.status === 'ready' ? import('../domain/entity/out-of-universe-read.js').then((module) => module.outOfUniverseContext(record)) : ''))
     .catch(() => '');
+  // A watchlist or alert symbol is accepted when AIO knows it or the US listing directory lists it, and an
+  // accepted symbol joins the live-quote request set (the next scheduled quote refresh fetches it).
   window._aioAcceptSymbol = (raw) => {
     const id = typeof window._aioNormalizeTickerInput === 'function' ? window._aioNormalizeTickerInput(raw) : String(raw || '').trim().toUpperCase();
     if (!/^[A-Z0-9.^=\-]{1,12}$/.test(id)) return Promise.resolve({ ok: false, id, reason: 'shape' });
@@ -212,8 +251,11 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     return checkListed(id).then((listing) => (listing?.listed ? accept('us-listing')
       : { ok: false, id, reason: listing?.directoryAvailable === false ? 'listing-unavailable' : 'not-listed' }));
   };
+  // The portfolio entry box shares this owner — it had its own narrower hand list and rejected universe symbols (SPCX).
   window._aioResolveHoldingInput = (raw) => resolveHoldingInput(raw, { entries: window.AIO_TICKER_NAME_REGISTRY?.entries, krStockDb: window.KR_STOCK_DB,
     universe: typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [], krToYahoo: window.krTickerToYahoo });
+  // Cash is one balance per currency (원화 현금 · 달러 현금). Storage shape and the legacy single-value migration are
+  // owned by src/data/portfolio-cash.js; the shell reads, writes and re-renders through this one bridge.
   window._pfPortfolioCash = {
     key: PORTFOLIO_CASH_KEY,
     legacyKey: LEGACY_CASH_KEY,
@@ -222,7 +264,10 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     write: (balances) => writeCashBalances(window.localStorage, balances),
     appFx: () => appUsdKrwClose(window._aioHistory || [])
   };
+  // The screener star and 포트폴리오 관심 종목 share one store.
   window._aioWatchlistGet = () => readWatchlistSymbols(window.localStorage);
+  // The named lists' CRUD in js/aio-workspace.js reads and writes through the same store (one writer).
+  // The active list id and the default-target rule live in the store too (js/aio-workspace.js read the key raw).
   window._aioWatchlistStore = {
     read: () => readWatchlists(window.localStorage),
     write: (lists) => writeWatchlists(window.localStorage, lists),
@@ -236,6 +281,7 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     try { window.dispatchEvent(new CustomEvent('aio:screener:watchlist', { detail: { symbol: sym, watchlist: result.watchlist } })); } catch (_) {}
     return result;
   };
+  // v58.80 (first-users bundle 6): typed numbers go through one reader (loaded on first use, outside the boot set).
   const inputCheck = () => import('../ui/components/input-check.js');
   window._aioReadBacktestInputs = () => Promise.all([inputCheck(), backtestLab()]).then(([{ readBacktestInputs }]) => readBacktestInputs(document));
   // The values are taken synchronously, before the lazy import, so the form can be refilled while the check loads.
@@ -243,6 +289,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     const snapshot = Object.fromEntries(['pf-add-ticker', 'pf-add-qty', 'pf-add-cost'].map((id) => { const input = document.getElementById(id); return [id, { value: input?.value ?? '', badInput: !!input?.validity?.badInput }]; }));
     return inputCheck().then(({ readHoldingInputs }) => readHoldingInputs(document, snapshot));
   };
+  // run-5 (breaker #5): a refused ticker, currency or target is refused like a refused number (input-check.js
+  // refuseField: marked, focused, typed text kept), not only in a toast. _aioClearField takes a passed field's mark off.
   window._aioRefuseField = (id, refusal) => inputCheck().then(({ refuseField, HOLDING_REFUSALS }) => refuseField(document.getElementById(id), { ok: false, reason: HOLDING_REFUSALS[refusal] || refusal })).catch(() => null);
   window._aioClearField = (id) => inputCheck().then(({ markField }) => markField(document.getElementById(id), { ok: true })).catch(() => null);
   // The box is marked as the save's before any wait, so a render queued by the previous save cannot refill it while the
@@ -261,13 +309,21 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
       try { window.renderPortfolio?.(); } catch (_) {}
     }, () => { delete el.dataset.cashEntry; });
   };
+  // The official US listing (public-data/us-listings.json) is fetched only when a symbol is unknown to the
+  // registries above — never at boot. Exact symbol only; listed:null means it could not be checked (never accept).
   window._aioCheckUsListing = (symbol) => isListedUsSymbol(symbol);
+  // The legacy analysis sink and macro calendar read these native rules (one owner each).
   window._aioStripEvidenceIds = stripEvidenceIds;
   window._aioMacroReleaseNotYet = (key, date, nowMs, today) => {
     const at = releaseAtMs(key, date);
     return Number.isFinite(at) ? at > nowMs : date >= today;
   };
+  // The 거시 header named FOMC by its US date (10/28(수)) beside the body's 10/29(목) 03:00 KST.
   window._aioReleaseKstLabel = (key, date) => { const at = releaseAtMs(key, date); return Number.isFinite(at) ? formatKstWhen(at).label : null; };
+  // Roadmap item 11: the globals of screen code moved out of js/ (macro v58.85, home VIX v58.91, news chips v58.92,
+  // news progress v58.93, home action plan v58.94) are installed from one lazy module, outside the boot set.
+  // 종목 · 재무 공시: the search moved out of src/ui/chat/panel.js and is installed with the bridges; a search asked
+  // before they load (a deep link from another screen) runs on install. The report state starts empty, as before.
   window._fundAnalysisData = null;
   window._fundCache = window._fundCache || {};
   window.fundamentalSearch = () => { window._aioFundSearchPending = true; };
@@ -279,9 +335,19 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._aioUsListingSymbol = (symbol) => usListingSymbol(symbol);
   const universeSymbols = () => new Set((typeof window._aioGetCanonicalScreenerRows === 'function' ? window._aioGetCanonicalScreenerRows() || [] : [])
     .map((row) => String(row?.sym || row?.symbol || '').toUpperCase()).filter(Boolean));
+  // The watchlist, price-alert and holding boxes accept symbols only; when a typed company name is refused,
+  // the refusal names the listing candidates (registry names first, then the US listing) for the reader to type.
+  // v59.70 (wave2-f S23, D4): the 종목 box and its candidate buttons (first-users F22, v58.80 run-5) are the command
+  // search's 종목 scope now (src/ui/navigation/command-search.js): registry and KRX names as you type, the US listing by
+  // name from the third Latin letter, and a typed symbol checked against the listing before it opens.
+  // The module loads on first use (or when the page is idle), outside the boot module set; until then these names load it.
+  // _aioOpenCommandSearch returns a promise of the search, so a script can await it before reading results.
   const commandSearch = () => import('../ui/navigation/command-search.js').then((m) => m.installCommandSearch({ root: window, documentRef: document }));
   window._aioOpenCommandSearch = (request) => commandSearch().then((search) => { search?.open(request); return search; });
   window._aioCommandSearchIsOpen = () => Boolean(document.getElementById('aio-command-search')?.open);
+  // v59.70 (integration review, as D1): no idle warm-up, which put 11.7KB into every visit's post-boot JS. The module loads
+  // when the reader reaches for it: the first hover or focus of a search button, or a Ctrl/⌘ press (before its K) — and
+  // Ctrl+K, '/' and a click load it on demand through _aioOpenCommandSearch anyway.
   const warmEvents = ['pointerover', 'focusin', 'keydown'];
   const warmCommandSearch = (event) => {
     if (event.type === 'keydown' ? !(event.key === 'Control' || event.key === 'Meta' || event.key === '/')
@@ -319,6 +385,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
       hint.className = 'ticker-search-hint'; // src/ui/styles/entity-quality.css
       hint.setAttribute('role', 'status');
       row.insertAdjacentElement('afterend', hint);
+      // Clearing also retires the pending listing lookup, or a late answer for the
+      // cleared query re-attached its candidates under an empty box.
       const clear = () => { hint.replaceChildren(); delete hint.dataset.listingQuery; input.removeAttribute('aria-describedby'); };
       input.addEventListener('click', clear);
       document.addEventListener('aio:tickerViewReset', clear);
@@ -331,6 +399,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     lead.textContent = query
       ? `'${query.slice(0, 40)}'${hasFinalConsonant(query.slice(0, 40)) ? '과' : '와'} 정확히 일치하는 종목이 없습니다. ${picks.length ? '아래에서 고르거나 티커·종목코드로 검색해 주세요.' : '티커(예: NVDA)·종목코드(예: 005930)·정확한 회사명으로 검색해 주세요.'}`
       : '티커·종목코드·회사명을 입력해 주세요.';
+    // v58.80 (first-users F17 residual): the refusal sat above the previous stock's full analysis, which read as the
+    // analysis of the typed symbol. The line now names whose analysis is still shown below.
     const shown = window._currentTickerId;
     if (shown && document.getElementById('page-ticker')?.classList.contains('active')) lead.textContent += ` 아래는 직전에 보던 ${window._currentTickerName && window._currentTickerName !== shown ? `${window._currentTickerName}(${shown})` : shown} 분석 그대로입니다.`;
     const list = document.createElement('div');
@@ -345,6 +415,8 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
     };
     picks.forEach(addPick);
     hint.replaceChildren(lead, ...(picks.length ? [list] : []));
+    // A company name outside the name registry is searched in the US listing directory and
+    // offered as candidates — the reader chooses; nothing is resolved automatically. Loaded only on a miss.
     if (query.length >= 3 && /[A-Za-z]/.test(query) && picks.length < 6) {
       const token = (hint.dataset.listingQuery = query);
       import('../data/us-listings.js').then(async (module) => {
@@ -361,11 +433,17 @@ Object.assign(window.AIO, { buildChatPolicyLines, resolveChatTickers, portfolioR
   window._aioNewsStories = { key: newsArticleKey, group: groupNewsStories, isRevision: isNewsRevision,
     issuers: (row, candidates) => resolveNewsIssuers(row, candidates, window.AIO_TICKER_NAME_REGISTRY?.entries) };
   window._aioTickerDisplayName = (symbol) => tickerDisplayName(symbol, { krStockDb: window.KR_STOCK_DB });
+  // One currentness vocabulary (실시간/지연/종가/지난 시세) from observation times + US calendar.
   window._aioDescribeQuoteCurrentness = describeQuoteCurrentness;
+  // Korean theme names and ticker → theme membership have one owner; a KRX stock's theme links open the
+  // Korean theme detail through src/ui/navigation/theme-detail.js.
   window.AIO_KR_THEME_LABELS = KR_THEME_LABELS;
-  window.AIO_MA_STRUCTURE_LABELS = MA_STRUCTURE_LABELS;
+  window.AIO_MA_STRUCTURE_LABELS = MA_STRUCTURE_LABELS; // v57.55 (C19 wiring): the legacy SPY card reads the same moving-average order names
   window.openKrThemeDetail = (themeId, { settle = false } = {}) => {
     if (!window.KR_THEME_MAP?.[themeId]) return false;
+    // From a stock page the detail was filled before the 테마 route mounted, and the mount closed
+    // the fold around it — the reader landed at the top of 테마 with nothing open. Off the route, the id waits for the
+    // themes page to mount (src/ui/pages/themes.js) and that page opens it.
     if (!document.getElementById('page-themes')?.classList.contains('active') && typeof window.showPage === 'function') {
       window._aioOpenKrThemeDetailOnThemes = themeId;
       window.showPage('themes');

@@ -1,3 +1,10 @@
+// The FRED release schedule written by the producer (public-data/macro-calendar.json) extends the hand-kept
+// official schedule arrays in the legacy calendar, so CPI/NFP/PCE/retail dates keep flowing past the last manual
+// entry. Those dates are only added (union), never removed.
+// The producer also publishes FOMC meetings (Federal Reserve calendar page, meta.fomcStatus) and ISM PMI dates
+// (release rule). A union would leave a hand-kept date behind if the Fed moved a meeting, so these replace the manual
+// dates instead: FOMC for the years the producer covers, only while meta.fomcStatus is 'ok' (otherwise the manual
+// dates stay, with their own expiry in the manual-reference registry); ISM for the months the producer covers.
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { isIsoDay } from '../domain/shared/session-date.js';
 

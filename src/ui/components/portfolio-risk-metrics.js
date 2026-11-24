@@ -1,3 +1,10 @@
+// Legacy unification (2026-10-26, roadmap item 11, screen 포트폴리오): the 리스크 지표 panel (#pf-risk-metrics: scope
+// declaration, VaR 95/99·Sharpe·MDD tiles, correlation matrix, notes) and its hold/status lines moved here from
+// js/aio-workspace.js (_renderRiskMetrics and the refreshPortfolioRisk writers). Texts and the scope rules (22:PFR02/
+// PFR09, P1188, P1197, P1449) are unchanged. refreshPortfolioRisk still fetches the history and assembles the estimate;
+// it reports through window._aioRenderPortfolioRiskStatus / _aioRenderPortfolioRiskMetrics (src/app/legacy-screen-bridges.js).
+// The figures are src/domain/portfolio/risk-readout.js: the shell hands over the estimate and the return series, this
+// module renders the read-out and returns it (the exposure panel reads its correlation matrix).
 import { escapeHtml } from '../html.js';
 import { buildRiskReadout } from '../../domain/portfolio/risk-readout.js';
 import { shortDate } from '../../domain/content/date-labels.js';
@@ -66,11 +73,13 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
   let scopeLabel = scopeToken === 'whole_account' ? '계좌 전체' : scopeToken === 'invested_sleeve' ? '주식 부분' : null;
   let scopeSuffix = scopeLabel ? ', ' + scopeLabel : '';
 
-  function fmtLoss(v) { return (v !== null && v !== undefined) ? '-' + (v * 100).toFixed(2) + '%' : '—'; }
+  function fmtLoss(v) { return (v !== null && v !== undefined) ? '-' + (v * 100).toFixed(2) + '%' : '—'; } // null일 때 "-—" 대신 "—"
   function fmtN(v, d) { return (v !== null && v !== undefined) ? v.toFixed(d !== undefined ? d : 2) : '—'; }
   // #17: Sharpe and MDD carry no 우수/양호/위험 grade — the value and its sample period only.
   function plainTone(v) { return v === null || v === undefined ? 'is-muted' : 'is-plain'; }
 
+  // 선언 블록 — 측정 경로/분모/RF/표본/snapshot. 실제 계좌 성과(TWR/MWR)는 P1449부터
+  // pf-ledger-performance 요약으로 분리됐다(시세 이력 게이트와 무관).
   let declLines = [];
   let declCodes = null;
   if (est) {
@@ -81,7 +90,7 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
     const ref = data.referenceValued;
     if (ref) declParts.push('비중은 ' + (ref.count < ref.total ? ref.total + '종목 중 ' + ref.count + '종목 ' : '') + (ref.date ? shortDate(ref.date) + ' ' : '') + '종가 평가액 기준');
     declCodes = ['path ' + est.exposureHistoryMode, 'rebalance ' + (est.rebalancePolicyApplied ? est.rebalancePolicy : (est.rebalancePolicyDeclared ? est.rebalancePolicyDeclared + '(미사용)' : '미선언')), 'scope ' + (scopeToken || '—'), 'lineage ' + (est.pathLineage || '—'), 'snapshot ' + est.compositionSnapshotId + ' @ ' + (est.valuationCut || '—')];
-    if (est.pathLineage === 'legacy-risk-path') declParts.push('실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ', 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : ''));
+    if (est.pathLineage === 'legacy-risk-path') declParts.push('실제 계좌 이력 아님' + (est.rebalancePolicyDeclared ? ', 선언 정책 ' + _escHtmlSafe(est.rebalancePolicyDeclared) + ' 미사용' : '')); // 소비되지 않는 선언을 화면이 말한다
     if (est.pathLineage === 'fixed-target-weight-strategy') {
       let declaredTargets = est.strategy && est.strategy.targetWeights ? Object.keys(est.strategy.targetWeights) : [];
       declParts.push('목표 비중 유지 전략, 실제 계좌 이력 아님' + (est.strategy && est.strategy.cashWeight > 0 ? ', 현금 ' + (est.strategy.cashWeight * 100).toFixed(1) + '%' : '') + (declaredTargets.length
@@ -90,6 +99,8 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
     }
     declLines.push(_escHtmlSafe(declParts.join(', ')));
     if (est.wholeAccountHold) {
+      // Each reason the account view is held says what is missing and what would make it available; the code
+      // (est.wholeAccountHold) goes to the folded 계산 식별자 below.
       const holdReason = est.wholeAccountHold === 'cash-declaration-unresolved'
         ? '현금을 기준 통화로 바꿀 환율이 없어 계좌 전체가 아닌 주식 부분만 계산했습니다. 현금 통화와 기준 통화 사이 환율을 기록하면 계좌 전체로 계산합니다.'
         : est.wholeAccountHold === 'strategy-account-scope-not-declared'
@@ -105,6 +116,7 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
 
   // 지표 카드
   let mdd = mddRes ? mddRes.mdd : null;
+  // Every card names its real sample ("최근 n거래일 표본"); Sharpe needs about a year of returns.
   let sampleTag = ', 최근 ' + days + '거래일 표본';
   let sharpeThin = !(days >= 250);
   let cards = '<div class="wsl-rk-tiles">';
@@ -168,12 +180,15 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
     corrRes.matrix.forEach(function(row, i) {
       heatHtml += '<tr><td class="wsl-rk-hd is-label">' + ts[i] + '</td>';
       row.forEach(function(val, j) {
+        // A flat or too-short pair has no correlation (null) — a plain dash, not a colour for 0.
         if (val == null || !isFinite(val)) { heatHtml += '<td class="wsl-rk-hv" title="변동이 없거나 표본이 짧아 상관을 계산하지 않음">—</td>'; return; }
         let abs = Math.abs(val);
         let bg, textC;
         if (val >= 0.99) {
           bg = 'rgba(var(--ink-rgb),0.4)'; textC = 'var(--color-text-secondary)';
         } else {
+          // v59.69 (visual audit): theme tokens, tint rising with |r| (darkest at the extremes, clear near 0), and the
+          // primary text colour on every tint — the old hand-built RGB put white text on pale pink (below AA).
           bg = 'color-mix(in srgb, ' + (val > 0 ? 'var(--color-text-error)' : 'var(--blue-11)') + ' ' + Math.round(abs * 40) + '%, transparent)';
           textC = 'var(--color-text-primary)';
         }
@@ -192,6 +207,8 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
   let note = '<div class="wsl-rk-note">' +
     '역사적 시뮬레이션 VaR — ' + (scopeLabel ? _escHtmlSafe(scopeLabel) + ' 범위' : '선언된 범위') +
     '의 과거 수익률 기준입니다. 실제 손실은 이보다 클 수 있습니다.</div>';
+  // The ledger account performance lives in its own panel — this panel says so
+  // in the SAME innerHTML pass (an appended node raced with re-renders and vanished).
   note += '<div class="wsl-aside">실제 계좌 성과(TWR/MWR)는 원장 성과 요약에서 시세 이력과 무관하게 표시합니다.</div>';
 
   el.innerHTML = declHtml + cards + contribHtml + heatHtml + note;
@@ -204,6 +221,7 @@ export function renderPortfolioRiskMetrics(data, { documentRef = globalThis.docu
       delete cell.dataset.heatFg;
     });
   }
+  // Returns of foreign holdings without a same-period USD/KRW close leave the currency move out.
   if (data.fxExcluded) el.insertAdjacentHTML('beforeend', '<div class="wsl-aside is-warn">해외 종목 수익률에 환율 변동이 빠져 있습니다(같은 기간 원/달러 종가 부족) — 계좌 통화 기준 전체 위험보다 작게 나올 수 있습니다.</div>');
   return readout;
 }

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Entity summary and company analysis (P1624). v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
+// Entity summary and company analysis. v58.86 gate consolidation: the sections below were separate gates until v58.86. They check one subject, so one gate
 // runs them in order; every section runs even when an earlier one fails, and the failure names the section.
 import { runSections } from './lib/gate-sections.mjs';
 
 await runSections('entity-summary-fixture', [
 // ── section entity-summary (was ci-entity-summary-fixture.mjs) ──
 ['entity-summary', async () => {
-// P1624: first-summary public history, identity, quote basis, race/cancellation and signed-return regression.
+// first-summary public history, identity, quote basis, race/cancellation and signed-return regression.
 const { default: assert } = await import('node:assert/strict');
 const { readFile } = await import('node:fs/promises');
 const { normalizeSummaryChart, createSummaryHydrator } = await import('../src/domain/entity/summary-hydration.js');
@@ -71,7 +71,7 @@ console.log('PASS P1624 entity summary: first-load history, quote currency/basis
 }, 'code'],
 // ── section company-analysis (was ci-company-analysis-fixture.mjs) ──
 ['company-analysis', async () => {
-// P1624: examples are regression cases; the analysis contract is identical for every issuer.
+// Examples are regression cases; the analysis contract is identical for every issuer.
 const { default: assert } = await import('node:assert/strict');
 const { buildCompanyAnalysis, companyAnalysisContext } = await import('../src/domain/entity/company-analysis.js');
 const nowMs=Date.parse('2026-10-11T18:00:00Z');

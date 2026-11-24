@@ -1,3 +1,13 @@
+// One rule for "is this report confirmed?" (pipeline redesign, 2026-10-19). Rumours stay labelled as
+// rumours. The news bundle, the intraday slot, the market timeline and the narrative context each carried their own
+// pattern, so the same headline could be "[미확인]" in one place and plain in another (the Korean "관계자가 전했다"
+// form and "알려졌다" were caught only by the narrative context; "market chatter" and "찌라시"-style wording only by the
+// news bundle). Every producer and screen now asks this module.
+//
+// Levels: 'rumor' — the text itself names a rumour or speculation; 'unconfirmed' — an anonymous or unnamed-source
+// report (in Korean the hearsay clause "…것으로 알려졌다 / …라고 전해졌다"; "소식이 전해졌다" and "12조로 알려졌다" are
+// ordinary reporting); 'reported' — neither. Published artifacts keep their existing contract: a news row carries
+// verification 'unconfirmed' for either of the first two (reportIsUnconfirmed), the narrative context keeps both levels.
 const RUMOR_EN = /\b(rumou?rs?|rumou?red|speculation|speculat(?:e|es|ing)|market chatter|chatter)\b/i;
 // "-설" names a rumour after a noun ("위기설 확산"); 건설·시설·증설 and other words that end in 설 are not rumours.
 const RUMOR_KO = /루머|소문|찌라시|파산설|매각설|인수설|합병설|(?<![건시증신개창가소해사부상연매이특포폭강적역학전복진병논통정욕독])설\s*(?:나와|돌아|확산|제기)/;

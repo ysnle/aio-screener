@@ -60,15 +60,15 @@ const VARIANTS = [
   { label: '새 날 재사용 차단 제거', expect: ['N5'], chart: false, module: 'scripts/producer/market-narrative.mjs', replacements: [
     ['const reused = sentenceDayOpen ? null : reusableMarketAnalysis(', 'const reused = reusableMarketAnalysis('],
   ] },
-  // v60.02: a salvage that publishes without the validator's zero-issue verdict must break N1 and N3.
+  // A salvage that publishes without the validator's zero-issue verdict must break N1 and N3.
   { label: '검증 없는 줄 빼기', expect: ['N1', 'N3'], chart: false, module: 'scripts/producer/market-narrative.mjs', replacements: [
     ['.find((row) => row.ok);', '.find((row) => row.ok) || { ok: true, text, removed: [], semantic: { ...semantic, ok: true } };'],
   ] },
-  // v60.18: before, a thrown provider failure skipped the retain path.
+  // Before, a thrown provider failure skipped the retain path.
   { label: 'v60.18 이전 코드(던진 실패는 바로 지표만)', expect: ['N7'], module: 'scripts/producer/market-narrative.mjs', replacements: [
     ["return retainOrFallback(error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error');", "return buildMarketAnalysisFallback(data, error?.name === 'AbortError' ? 'provider-timeout' : 'provider-error', metricEvidence, newsEvidence, keep);"],
   ] },
-  // v60.24: an interpretation finding made blocking again: the seed answer is retried and not published.
+  // An interpretation finding made blocking again: the seed answer is retried and not published.
   { label: '해석 문장을 다시 막음', expect: ['N8'], chart: false, seed: true, module: 'scripts/producer/market-narrative.mjs', replacements: [],
     deps: { 'scripts/lib/market-analysis-validate.mjs': [['warnings.push(...analysisInterpretationWarnings(body));', 'issues.push(...analysisInterpretationWarnings(body));']] } },
 ];
@@ -86,7 +86,7 @@ const TIME_STEPS = {
   nextDay: (ms) => { const next = new Date(ms); next.setUTCHours(23, 30, 0, 0); return next.getTime() > ms ? next.getTime() : next.getTime() + 86400000; },
   expire: (ms) => ms + 13 * 3600000,
 };
-// v60.02: a six-line reading whose only issue is one wrong level on its own line, on both attempts — the run publishes it
+// A six-line reading whose only issue is one wrong level on its own line, on both attempts — the run publishes it
 // without that line (salvageMarketAnalysis).
 const SALVAGE_BAD_LINE = 'S&P 500은 7,100으로 마감했다.';
 const SALVAGEABLE = ['S&P 500은 10월 12일 7,807.24로 마감했다.', '코스피는 5.46% 하락했다.', SALVAGE_BAD_LINE, '위험 선호는 제한적이다.',
@@ -175,7 +175,7 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     }
     if (reading?.lastVerified && (reading.lastVerified.lastVerified || reading.lastVerified.retained)) note('N2-last-verified-chain', trace, Object.keys(reading.lastVerified));
     if (freshThisRun && reading.status === 'verified' && !reading.retained && !PASSING.has(event.provider)) note('N3-verified-without-passing-answer', trace, event.provider);
-    // v60.02: a salvaged reading is verified only without its offending line, and only an answer that was blocked is salvaged.
+    // A salvaged reading is verified only without its offending line, and only an answer that was blocked is salvaged.
     if (freshThisRun && reading.status === 'verified' && event.provider === 'salvage' && !(reading.salvaged?.removed >= 1 && !String(reading.full || '').includes('7,100'))) note('N3-salvaged-kept-bad-line', trace, reading.salvaged);
     if (freshThisRun && reading.salvaged && event.provider !== 'salvage') note('N3-salvaged-without-block', trace, event.provider);
     if (freshThisRun && reading.status === 'verified' && next.calls === 0) note('N3-fresh-verified-without-call', trace, reading.generatedAt);
@@ -265,7 +265,7 @@ let real;
 let realSeed;
 const variantResults = [];
 // The seed must still exercise the interpretation class: on the fixture snapshot it has no issue and only the likelihood
-// warning (v60.24).
+// warning.
 const seedCheck = validate.validateMarketAnalysisText(`${GOOD}\n${OLD_HABIT}`, { meta: { generatedAt: new RealDate(BASE_MS).toISOString() }, news: [], macro: {} }, snapshotFor(0), { history: [] });
 if (seedCheck.issues.length || seedCheck.warnings.join(',') !== 'likelihood-qualitative') fail(`v60.24 the interpretive seed is no longer issue-free with only the likelihood warning: issues ${seedCheck.issues.join(', ') || 'none'}; warnings ${seedCheck.warnings.join(', ') || 'none'}`);
 globalThis.Date = SimulatedDate;

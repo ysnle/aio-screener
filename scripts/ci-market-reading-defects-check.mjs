@@ -109,7 +109,7 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
 {
   const text = reading(at1120, 'volatility-sentiment')?.text || '';
   check('v60.50 B13: the stress-and-fear pair makes no uncounted frequency claim', !/자주/.test(text), text);
-  // v60.51: exact again on the frozen rows (11/20 HY 3.76, five sessions after 3.23 on 11/13).
+  // Exact again on the frozen rows (11/20 HY 3.76, five sessions after 3.23 on 11/13).
   check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 +53bp, 부담)', /하이일드 스프레드도 부담 쪽이라\(5거래일 \+53bp, 20거래일 \+38bp\)/.test(text), text);
 }
 

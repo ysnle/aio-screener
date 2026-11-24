@@ -269,9 +269,9 @@ check('P1309/R654/QA-DATA-51 full-discovery-failure-path-preserves-ownership-lkg
   collectorSource.includes('ownershipFailureFields(previousOwnership, generatedAt, reason)'));
 
 const producerWiring = [
-  // v58.72 (P2006): the discovery writer passes `pretty` through (filing-discovery.json is written compact).
+  // The discovery writer passes `pretty` through (filing-discovery.json is written compact).
   ['collect-13f-discovery.mjs', ['writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile })']],
-  // v58.81 (P2093): the reference writer also keeps filing-discovery.json compact and filings.json free of 13D/G events.
+  // The reference writer also keeps filing-discovery.json compact and filings.json free of 13D/G events.
   ['collect-13f-reference.mjs', ['writeJsonIfSemanticallyChanged(file, value, { pretty, writer: atomicWriteFile })', '}, { pretty: false });', 'ownershipEvents: _events']],
   ['collect-13f-history-index.mjs', ['writeJsonIfSemanticallyChanged(outputPath, result, { writer: atomicWriteFile })']],
   ['collect-13f-history-rows.mjs', [
@@ -337,7 +337,7 @@ try {
   await fs.rm(directory, { recursive: true, force: true });
 }
 
-// P1370: content-addressed manager projections must not embed the daily build/review stamps
+// content-addressed manager projections must not embed the daily build/review stamps
 // (they re-hashed unchanged quarters every day: 37 managers x 30 days = 1110 files, 252MB),
 // and the builder must prune projections the current summary no longer references.
 {
@@ -348,7 +348,7 @@ try {
 }
 
 {
-  // P1498: SEC .hdr.sgml files use the tag form; the first parser read only the colon form and left every issuer empty.
+  // SEC .hdr.sgml files use the tag form; the first parser read only the colon form and left every issuer empty.
   const tagForm = parseOwnershipHeader(`<SUBJECT-COMPANY>
 <COMPANY-DATA>
 <CONFORMED-NAME>APPLE INC

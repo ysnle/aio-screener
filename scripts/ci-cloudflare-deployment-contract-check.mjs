@@ -28,7 +28,7 @@ check('P1312/R658/QA-OPS-02 private AI usage route and Durable Object query are 
   && /handleOperatorAiUsage/.test(worker)
   && /AIO_OPERATOR_TOKEN/.test(worker)
   && /operation === 'usage'/.test(worker));
-// v57.61: the endpoint registry and the fetch handlers must list the same routes, both ways, so a new route
+// The endpoint registry and the fetch handlers must list the same routes, both ways, so a new route
 // (e.g. /workers-ai/translate) cannot ship undocumented and a retired one cannot linger in the registry.
 {
   const sameSet = (a, b) => a.size === b.size && [...a].every((item) => b.has(item));
@@ -62,7 +62,7 @@ check('P1312/R658/QA-OPS-02 private AI usage route and Durable Object query are 
     && deployStep.indexOf('grep -Eqi') > 0 && deployStep.indexOf('grep -Eqi') < deployStep.indexOf("sed -i '/^\\[ai\\]")
     && /not retrying without the binding"\s*\n\s*exit 1/.test(deployStep)
     && /workersAiBound: !!\(env && env\.AI\)/.test(worker));
-  // v57.92 (audit W01/W02): a single auth failure is retried with the binding before it is dropped, and a policy 429 from
+  // A single auth failure is retried with the binding before it is dropped, and a policy 429 from
   // the paid smoke is operating-blocked (warning), not a code failure that rolls back to a revision on the same ledger.
   const smokeStep = proxyWorkflow.slice(proxyWorkflow.indexOf('- name: Verify health, readiness'), proxyWorkflow.indexOf('- name: Roll back failed AI-proxy'));
   check('v57.92 W01 the [ai] binding is dropped only after the same deploy fails twice',
@@ -85,7 +85,7 @@ for (const [name, workflow, workerKey] of [['proxy', proxyWorkflow, 'aiProxy'], 
   check(`${name} Wrangler is exact-versioned`, /wrangler@\d+\.\d+\.\d+/.test(workflow));
   check(`${name} deployment runs source contracts first`, /qa-runner\.mjs\s+--group\s+cloudflare\s+--no-cache/.test(workflow));
   check(`${name} deployment verifies live health`, /health/.test(workflow) && /curl/.test(workflow));
-  // P1159: this gate used to accept any exact wrangler pin without checking the runtime it needs.
+  // This gate used to accept any exact wrangler pin without checking the runtime it needs.
   // A version unification that looked purely cosmetic then failed the fast-plane deploy with
   // "Wrangler requires at least Node.js v22.0.0. You are using v20.20.2" — the old 4.44.0 pin was
   // load-bearing for Node 20, not a stale preference. Read both numbers, not just their shape.
@@ -110,7 +110,7 @@ for (const [name, workflow, workerKey] of [['proxy', proxyWorkflow, 'aiProxy'], 
 }
 
 {
-  // P1341: an identity-less legacy Worker is recorded as a sentinel and rollback verification accepts the
+  // An identity-less legacy Worker is recorded as a sentinel and rollback verification accepts the
   // sentinel only when the restored Worker again has no sourceSha — it never waives a real SHA comparison.
   const dataPlaneWorkflow = read('.github/workflows/deploy-data-plane.yml');
   check('P1341 data-plane baseline records an identity-less Worker as legacy-unidentified and rejects malformed SHAs',
@@ -164,9 +164,9 @@ check('P1308/R653/QA-DATA-50 cumulative reconciliation recovers only a still-mis
   !skipCoalescedDeployment && recoverCoalescedDeployment && !avoidCrossPlaneDeployment && !alreadyConverged);
 check('P1308/R653/QA-DATA-50 delayed CI events cannot overwrite a newer main/live Worker SHA or a divergent production identity', !staleCiRun && !liveWorkerIsNewer && divergentLiveWorker);
 
-// P1351: main advancing only by data-refresh commits must not strand the Worker planes. Observed 2026-10-07: the merge
+// Main advancing only by data-refresh commits must not strand the Worker planes. Observed 2026-10-07: the merge
 // push's CI run finished after the refresh bot's next commit, the exact-HEAD guard skipped every deploy step, bot CI runs
-// are workflow_dispatch (no workflow_run event, R606), so nothing re-drove the proxy and Pages release checks failed on
+// are workflow_dispatch (no workflow_run event), so nothing re-drove the proxy and Pages release checks failed on
 // the revision drift for nine runs. A newer main is ignorable only when no commit in between touches the plane's inputs.
 {
   const sha = (char) => char.repeat(40);
@@ -247,7 +247,7 @@ try {
 check('P1307/R652/QA-DATA-49 rollback resolver accepts a single active version and rejects a split baseline',
   resolvesSingleActiveRollback && rejectsSplitRollback && rollbackResolver.includes('percentage !== 100'));
 
-// P1351: ordering and exact-ID provenance fixtures prevent a list/array fallback becoming release authority.
+// Ordering and exact-ID provenance fixtures prevent a list/array fallback becoming release authority.
 const { resolveActiveWorkerVersionId } = await import('./resolve-worker-rollback-version.mjs');
 const record = (created_on, version_id = activeVersionId) => ({ created_on, versions: [{ percentage: 100, version_id }] });
 for (const [name, records] of [
@@ -295,12 +295,12 @@ for (const workflow of [proxyWorkflow, dataWorkflow]) {
 const pagesWorkflow = read('.github/workflows/pages-deploy.yml');
 check('P1351 Pages mutation and release verification require latest-main guard', pagesWorkflow.includes('Recheck main head immediately before Pages mutation') && /id: deployment\s+if: steps\.latest-main\.outputs\.safe == 'true'/.test(pagesWorkflow) && /Verify released Pages and all external planes\s+if: steps\.latest-main\.outputs\.safe == 'true'/.test(pagesWorkflow));
 
-// P1334/R674: a fork PR can name its branch 'main'; workflow_run deploys must require a push from this repository.
+// A fork PR can name its branch 'main'; workflow_run deploys must require a push from this repository.
 for (const wf of ['.github/workflows/deploy-ai-proxy.yml', '.github/workflows/deploy-data-plane.yml']) {
   const text = readFileSync(wf, 'utf8');
   check(wf + ' deploys only from a push to this repository, never a fork workflow_run (P1334/R674)', text.includes("github.event.workflow_run.event == 'push'") && text.includes('github.event.workflow_run.head_repository.full_name == github.repository') && text.includes(`[ "$ci_event" = 'push' ]`) && text.includes('[ "$ci_repo" = "$GITHUB_REPOSITORY" ]'));
 }
-// v59.27: a manual redeploy needs no run id typed in — blank resolves the newest successful main push CI,
+// A manual redeploy needs no run id typed in — blank resolves the newest successful main push CI,
 // which then passes every exact-run check above unchanged (Pages resolves the run and its SHA the same way).
 for (const [wf, text] of [['deploy-ai-proxy.yml', proxyWorkflow], ['deploy-data-plane.yml', dataWorkflow]]) {
   check(wf + ' v59.27 a blank manual ci_run_id resolves the latest successful main push CI', /ci_run_id:[\s\S]*?required: false/.test(text)

@@ -1,5 +1,10 @@
 import { parseKnowledgeTargetContext } from '../../app/knowledge-route-state.js';
 
+// Research documents link 227 times into analysis screens, but only four pages read what the reader came
+// to check. Any page can call this on mount: it shows "what you came here to check" and a way back, or removes the
+// note when the URL carries no knowledge context.
+// The note belongs to the arrival, not to the page: every route change (showPage and back/forward both publish
+// aio:knowledgeRouteContext) re-evaluates the notes on screen, so a note never outlives the link that brought it.
 const PERIOD_LABELS = Object.freeze({ TTM_3Y: '최근 12개월과 3년', '5Y': '5년', '3Y_5Y': '3~5년' });
 const NOTE_SELECTOR = '.aio-knowledge-arrival';
 

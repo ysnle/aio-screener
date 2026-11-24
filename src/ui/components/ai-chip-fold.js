@@ -1,4 +1,4 @@
-// Owner 2026-10-25: on a phone or iPad the AI panel's example questions stayed on screen for the whole conversation
+// On a phone or iPad the AI panel's example questions stayed on screen for the whole conversation
 // (up to 110px under the answers, refilled with follow-ups after every answer) and squeezed the answers further when
 // the keyboard opened. On touch and narrow layouts (CSS in chat-sessions.css):
 //   - before the first question the chips sit on one sideways-scrolling row;

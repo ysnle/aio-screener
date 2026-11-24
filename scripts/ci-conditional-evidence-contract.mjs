@@ -10,7 +10,7 @@ import {
 } from '../src/domain/screener/conditional-evidence.js';
 import { classifyEvidenceLineage, EVIDENCE_LINEAGE_VERSION, normalizeEvidenceLineage } from '../src/domain/screener/evidence-lineage.js';
 
-const screenerUi = readScreenerPageSource(); // v59.70 (S12): the page is split under src/ui/pages/screener/
+const screenerUi = readScreenerPageSource(); // The page is split under src/ui/pages/screener/
 const screenerShell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 const now = '2026-09-12T00:00:00.000Z';
@@ -62,7 +62,7 @@ assert.equal(result.lineage.usableRecords, 40);
 assert.equal(result.decisionEligible, false);
 assert.equal(result.disclaimer, CONDITIONAL_EVIDENCE_DISCLAIMER);
 
-// v58.64 SCR05: one observation repeated is one sample unit; overlapping or unknown outcome windows are not READY.
+// One observation repeated is one sample unit; overlapping or unknown outcome windows are not READY.
 const repeated = evaluateConditionalEvidence({ observations: Array.from({ length: 30 }, () => observations[0]), now, minSampleRefuse: 1 });
 assert.notEqual(repeated.status, 'READY', 'v58.64 SCR05 a repeated observation is not a READY sample');
 assert.equal(repeated.sample.trials, 1, 'v58.64 SCR05 a repeated unit counts once');
@@ -117,7 +117,7 @@ assert.ok(blockedLineage.reasons.includes('missing_rights_id'));
 assert.ok(CONDITIONAL_EVIDENCE_REGISTRY.gapFill.requiredInputs.includes('exchange-calendar'));
 assert.match(screenerUi, /renderConditionalEvidence\(documentRef, state\?\.metadata\)/);
 assert.match(screenerUi, /\['ranking', 'factors', 'backtest', 'evidence'\]/);
-assert.match(screenerShell, /id="scr-tab-button-backtest"/); // v59.51: the 사후 검증 view shows the conditional-evidence panel; its own row button left
+assert.match(screenerShell, /id="scr-tab-button-backtest"/); // The 사후 검증 view shows the conditional-evidence panel; its own row button left
 assert.match(screenerShell, /id="screener-conditional-evidence-panel"/);
 assert.ok(!screenerUi.includes('innerHTML'));
 

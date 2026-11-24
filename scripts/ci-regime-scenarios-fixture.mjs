@@ -1,4 +1,4 @@
-// P1628: offline regime condition/series/venue-date contracts. No provider calls or producer execution.
+// Offline regime condition/series/venue-date contracts. No provider calls or producer execution.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { AXIS_KOREA_LABEL, AXIS_REASON_LABEL, buildMarketRegime, bp } from '../src/domain/briefing/market-read.js';
@@ -14,7 +14,7 @@ for (let instant = Date.parse('2025-10-01T12:00:00Z'); instant <= Date.parse('20
   const current = new Date(instant), date = current.toISOString().slice(0, 10), weekday = current.getUTCDay();
   if (weekday !== 0 && weekday !== 6 && resolveMarketCalendarSession({ market: 'US', date }).status !== 'closed') dates.push(date);
 }
-// v57.81 · v59.70: SOXX is the leadership proxy 소수 종목 주도 now needs (a missing proxy is 확인 불가, never holding).
+// SOXX is the leadership proxy 소수 종목 주도 now needs (a missing proxy is 확인 불가, never holding).
 const history = dates.map((date, index) => ({ date, spx: 6000 + index * 6, nasdaq: 22000 + index * 20, ndx: 20000 + index * 20, soxx: 250 + index * 0.4, vix: 14, vix3m: 17,
   breadth50: 65, breadth200: 68, advanceRatio: .58, tnx: 4.1, wti: 80, dxy: 100, gold: 2000 }));
 const asOf = history.at(-1).date;
@@ -24,7 +24,7 @@ const macroHistory = { schemaVersion: 'macro-history.v1', series: {
   hyOas: { observations: dates.map(date => [date, 3]) }, realYield10: { observations: dates.map(date => [date, 1.8]) }, breakeven10: { observations: dates.map(date => [date, 2.3]) }
 } };
 const regime = buildMarketRegime(input);
-// P1926 (v58.21): a yield difference in bp is exact to 0.01bp, so the rates latch's +10bp exit is not tripped by 9.9999bp.
+// A yield difference in bp is exact to 0.01bp, so the rates latch's +10bp exit is not tripped by 9.9999bp.
 assert.ok(bp(5.10, 5.00) === 10 && bp(4.30, 4.20) === 10 && bp(5.00, 5.10) === -10 && bp(null, 5) === null, `P1926 bp(5.10, 5.00) must be exactly 10 (got ${bp(5.10, 5.00)})`);
 assert.equal(regime.axes.find(row => row.id === 'trend').state, 'favorable', 'P1628 fixture must exercise a genuine computed upward regime');
 let model = buildMarketScenarios(input, { regime });
@@ -106,7 +106,7 @@ const selectors = descendants(breadthPlot).filter(node => node.tagName === 'butt
 selectors[1].listeners.click();
 assert.equal(descendants(breadthPlot).find(node => node.className === 'regime-axis-plot').dataset.historySeries, 'breadth200', 'P1628 switching SMA50/200 must render the chosen actual series');
 assert.equal(selectors[1].attributes['aria-pressed'], 'true', 'P1628 chart selection must expose its active state');
-// v60.31: every axis's evidence rows and flip rule are in the one raw-table fold (data-fold-kind), one group per axis.
+// Every axis's evidence rows and flip rule are in the one raw-table fold (data-fold-kind), one group per axis.
 const rawFold = descendants(page).find(node => node.id === 'regime-raw');
 assert.ok(rawFold?.tagName === 'details' && rawFold.dataset.foldKind === 'raw-table' && ['trend', 'breadth', 'volatility', 'credit', 'rates', 'commodities'].every(id => descendants(rawFold).some(node => node.dataset.rawAxis === id)), 'v60.31 the raw-table fold holds one group per axis');
 // The three model-backed flows are 시장 폭's (market-structure.js), after that page's verdict; 시장 상태 draws none.
@@ -120,7 +120,7 @@ assert.ok(rawFold?.tagName === 'details' && rawFold.dataset.foldKind === 'raw-ta
   assert.ok(descendants(section).some(node => node.tagName === 'details' && node.dataset.foldKind === 'method'), 'v60.36 the flows keep their one method fold');
   assert.equal(descendants(page).filter(node => node.dataset.scenario).length, 0, 'v60.36 the flows are not drawn on 시장 상태 any more');
 }
-// v57.76: 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
+// 시장 상태 reads current state then links once to 거시 for the branches by release (no compact branch block), and
 // the VIX-only past-outcome table is a fold inside the volatility card, not a separate unbridged section.
 assert.ok(!descendants(page).some(node => node.id === 'signal-crossroads' || String(node.className).includes('xr-compact')), 'v57.76 시장 상태 no longer repeats the 거시 branch block');
 // The other screens' link (테마's '시나리오의 근거') still opens the owning view in place.
@@ -175,8 +175,8 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   const regime = buildMarketRegime({ history: rows, now });
   const regimeCalm = buildMarketRegime({ history: calm, now });
   assert.deepEqual(regime.axes.map((row) => row.state), regimeCalm.axes.map((row) => row.state), 'P1723 a Korean shock never changes a US axis state');
-  // P1746 (audit 2026-10-14): the note was printed twice on adjacent axis cards; it now rides the volatility axis only.
-  // v60.31: the note is an evidence row (AXIS_KOREA_LABEL), not a sentence appended to the reading.
+  // The note was printed twice on adjacent axis cards; it now rides the volatility axis only.
+  // The note is an evidence row (AXIS_KOREA_LABEL), not a sentence appended to the reading.
   const krRow = (reg, id) => reg.axes.find((row) => row.id === id).evidence.find(([label]) => label === AXIS_KOREA_LABEL)?.[1] || '';
   assert.ok(krRow(regime, 'volatility').startsWith('10/13 코스피 -6.0%') && !krRow(regime, 'trend'), 'P1723/P1746 (v60.31 row) the rare Korean move is named once, on the volatility axis');
   assert.ok(!krRow(regimeCalm, 'volatility') && !krRow(regimeCalm, 'trend'), 'P1723 (v60.31 row) an ordinary Korean day adds nothing to the US axes');
@@ -192,7 +192,7 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.ok(brent.basis === 'futures' && brent.abnormal && /보류/.test(brent.sentence) && !/20거래일 기준 브렌트/.test(brent.sentence), `P1726 an abnormal Brent-WTI futures gap holds the spread reading (${brent.sentence})`);
   const spot = brentWtiCheck({ series: { brent: { observations: rows.filter((row) => row.wti != null).slice(-25).map((row) => [row.date, 120]) } } }, rows);
   assert.ok(spot.basis === 'spot' && spot.spread == null && spot.diverges === false, `P1726 FRED spot Brent is not compared with the WTI future (${JSON.stringify(spot)})`);
-  // P1727: scenario confirmation and the outlook count use one credit rule (creditState favorable).
+  // Scenario confirmation and the outlook count use one credit rule (creditState favorable).
   const neutralCredit = { ...narrow, credit: { ...narrow.credit, hyDelta20Bp: 45 } };
   const neutralRegime = buildMarketRegime(neutralCredit);
   const scenarios = buildMarketScenarios(neutralCredit, { regime: neutralRegime });
@@ -201,11 +201,11 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.ok(scenarios.scenarios.find((item) => item.id === 'concentration').confirmed === false && outlook.items.find((item) => item.id === 'concentration').met === 4 && outlook.items.find((item) => item.id === 'concentration').total === 5, 'P1727 (v57.81: 5th check 주도 영역 유지) a neutral credit axis neither confirms 소수 종목 주도 nor counts as 신용 안정');
 }
 {
-  // v60.16: verdict rules — the rates speed leg, the volatility latch with a level floor on the spike leg, and the
+  // Verdict rules — the rates speed leg, the volatility latch with a level floor on the spike leg, and the
   // overall label as a function of the net count.
   const { overallLabel, buildMarketRead } = await import('../src/domain/briefing/market-read.js');
   const axisOf = (rows, id) => buildMarketRegime({ ...input, history: rows }).axes.find((row) => row.id === id);
-  // v60.31: the leg that holds a state is the 판정 사유 row (fixed vocabulary), not a sentence.
+  // The leg that holds a state is the 판정 사유 row (fixed vocabulary), not a sentence.
   const reasonOf = (axis) => axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
   // `path` is laid on the last sessions so that path[step] is the latest close; earlier sessions keep `before`.
   const laid = (field, path, step, before, extra = {}) => history.map((row, index) => {
@@ -224,7 +224,7 @@ assert.ok(css.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') && cs
   assert.ok(shock.flipDistance?.toward === 'neutral' && shock.flipDistance.value === -18, `v60.16 the speed leg's exit is the nearest flip (5 sessions ago +10bp): ${JSON.stringify(shock.flipDistance)}`);
   assert.ok(shockHeld.state === 'burden' && shockHeld.shock?.now === false && /^5거래일 급등 부담 유지 \(\d+\/\d+부터\)$/.test(reasonOf(shockHeld)), `v60.16 (v60.31 reason row) the speed leg holds until the rise is under +10bp: ${shockHeld.state} ${reasonOf(shockHeld)}`);
   assert.ok(shockOver.state === 'neutral' && shockOver.shock === null && /5거래일 \+15bp 이상\(자체 기록 상위 5%\)/.test(shockOver.flip) && /1년 범위 90% 이상에서 5일 상승/.test(shockOver.flip), `v60.16 the speed leg releases and the 중립 flip names all three legs: ${shockOver.state} ${shockOver.flip}`);
-  // v60.18 (weekly audit D1): the rates axis reports the leg that decided it, and the 매크로 headline, chain node, chain
+  // The rates axis reports the leg that decided it, and the 매크로 headline, chain node, chain
   // sentence and legend render from that one object — a 5-session +29bp 부담 was headed '10년물 20거래일 +5bp'.
   {
     const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');

@@ -1,4 +1,4 @@
-// Screen review #19 (2026-11-04, v59.70): research headings name the subject, not a reading lesson. A title, list
+// Screen review #19: research headings name the subject, not a reading lesson. A title, list
 // label, aside block or fold summary on 개념·분석 / 산업 지도 that says '읽는 법 / 읽는 순서 / 읽는 방법 / 읽는 핵심' or
 // '먼저 알아둘 …' is the textbook tone the owner removed (feedback: no textbook tone, 2026-11-04).
 // Behaviour, not source text: every analysis note is rendered (article + connection column) and every 산업 지도

@@ -1,3 +1,8 @@
+// P1467 (review 2026-10-04, "동종 기업 비교"): one company's growth, margin, cash and capital
+// efficiency only mean something next to companies doing similar business. Peers are the screener
+// universe's issuers in the same sector that file with the SEC; each metric is computed the same way
+// for every issuer from its own latest fiscal year (and the year before), and the company is placed
+// by percentile among peers whose latest fiscal year ended within a year of its own.
 import { finiteFact, isPriorAnnualPeriod } from './period.js';
 import { financialKind } from './financial-kind.js';
 import { claim, say, periodId } from '../shared/claim.js';
@@ -15,7 +20,7 @@ export const PEER_METRICS = Object.freeze([
 // Metrics from one issuer's fiscal series (oldest → newest, USD).
 export function fiscalMetrics(series = []) {
   const source = Array.isArray(series) ? series : [];
-  if (source.some((year,index) => index && String(year?.periodEnd) <= String(source[index-1]?.periodEnd))) return null;
+  if (source.some((year,index) => index && String(year?.periodEnd) <= String(source[index-1]?.periodEnd))) return null; // A corrupt period sequence cannot turn a stale row into a newer filing.
   const years = source.filter((year) => finite(year?.revenue) > 0)
     .sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
   const latest = years[years.length - 1];
@@ -28,6 +33,7 @@ export function fiscalMetrics(series = []) {
   const avgEquity = annualPair && finite(latest.equity) > 0 && finite(prior?.equity) > 0 ? (latest.equity + prior.equity) / 2 : null;
   return {
     periodEnd: latest.periodEnd || null,
+    // The precise same-FY annual receipt outranks a ratio from legacy rounded millions.
     growth: annualPair ? finite(latest.verifiedRevGrowth) ?? (latest.revenue / prior.revenue - 1) * 100 : null,
     margin: ni != null ? ni / latest.revenue * 100 : null,
     fcfMargin: ocf != null && capex != null ? (ocf - capex) / latest.revenue * 100 : null,
@@ -60,6 +66,10 @@ const monthsApart = (a, b) => {
 export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, peers = [], minPeers = 5, sicFor = () => null } = {}) {
   const own = fiscalMetrics(seriesFor(symbol));
   if (!own || !sector) return { available: false, reason: !sector ? 'sector-unknown' : 'own-series-missing' };
+  // banks' operating cash flows include deposit/loan/trading asset changes.
+  // OCF minus capex remains an arithmetic fact, but it is not an industrial FCF
+  // margin and cannot supply a higher-is-better financial-sector percentile.
+  // One financial rule (Visa is not a bank); an insurer's float-driven cash flow is held from the FCF comparison too.
   const cashHeld = (sym) => financialKind(sym, sector, sicFor(sym)) != null;
   const financial = cashHeld(symbol);
   const reit = financialKind(symbol, sector, sicFor(symbol)) === 'reit';
@@ -72,6 +82,8 @@ export function buildPeerRead({ symbol, sector = null, seriesFor = () => null, p
     const value = finite(own[metric.id]);
     if (financial && metric.id === 'fcfMargin') return { ...metric, label: reit ? '잉여현금 마진(리츠 비교 보류)' : '잉여현금 마진(금융사 비교 보류)', higherIs: null,
       value, median: null, percentile: null, n: 0, reason: 'financial-cash-flow-not-comparable' };
+    // The same rule applies to the peer side — a card network's FCF margin was ranked against five banks' OCF−capex
+    // (0th percentile) while the bank itself was held. Lending peers drop out of the FCF comparison set, so n shrinks.
     const values = peerMetrics.filter((peer) => metric.id !== 'fcfMargin' || !cashHeld(peer.symbol))
       .map((peer) => finite(peer.metrics[metric.id])).filter((v) => v != null);
     if (value == null || values.length < minPeers) return { ...metric, value, median: median(values), percentile: null, n: values.length };

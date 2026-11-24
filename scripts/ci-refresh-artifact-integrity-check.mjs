@@ -32,7 +32,7 @@ const currentMeta = current.meta || {};
 const previousMeta = previous?.meta || {};
 // A cycle that kept last-known-good FRED values is explicit when the producer labelled it with its source. With the
 // key present, fredFetchOk is true only when every expected series succeeded, so one failed series is a labelled
-// partial cycle that still publishes (P1189); a key-present cycle in which no series succeeded is a total loss.
+// partial cycle that still publishes; a key-present cycle in which no series succeeded is a total loss.
 const fredSuccessfulCount = Array.isArray(currentMeta.fredSuccessfulSeries) ? currentMeta.fredSuccessfulSeries.length : null;
 const fredFailedCount = Array.isArray(currentMeta.fredFailedSeries) ? currentMeta.fredFailedSeries.length : null;
 const explicitFredLkgBoundary = currentMeta.fredFetchOk !== true
@@ -48,7 +48,7 @@ if (degradedFred) {
   console.error('refresh artifact integrity failed: FRED success regressed; an LKG payload may be consumed locally but cannot be committed as the new public cycle');
   process.exit(1);
 }
-// v60.19 (Codex audit): the rules below hold whatever the previous cycle was. A partial cycle followed by a total loss,
+// The rules below hold whatever the previous cycle was. A partial cycle followed by a total loss,
 // or by an LKG carry with no source, passed because only a healthy previous cycle was compared.
 if (currentMeta.fredHasKey === true && fredSuccessfulCount === 0) {
   console.error('refresh artifact integrity failed: every FRED series failed with the key present; the cycle cannot publish as refreshed');

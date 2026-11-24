@@ -1,4 +1,4 @@
-// P1627: offline signed-chart, period, precision and missing-data regression contracts.
+// Offline signed-chart, period, precision and missing-data regression contracts.
 // Does not import or execute the data producer, fetch a provider, or write artifacts.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -67,7 +67,7 @@ assert.equal(sandbox.convert(-7126000), -7.126, 'P1627 producer must retain sign
 assert.equal(sandbox.convert(400000), 0.4, 'P1627 a sub-million profit must not disappear into zero');
 assert.equal(sandbox.convert(null), '', 'P1627 producer must not turn missing into zero');
 {
-  // P1627: annual and quarterly history use the same precision (USD thousands inside USD-million fields).
+  // Annual and quarterly history use the same precision (USD thousands inside USD-million fields).
   const quarter = (end, start, fiscalPeriod, value) => ({ form: '10-Q', periodStart: start, periodEnd: end, fiscalPeriod, filedAt: `${end.slice(0, 4)}-12-01`, value });
   const quarters = quarterlyHistory({ revenueQ: [quarter('2025-03-31', '2025-01-01', 'Q1', 20001000), quarter('2025-06-30', '2025-04-01', 'Q2', 20400000)],
     netIncomeQ: [quarter('2025-03-31', '2025-01-01', 'Q1', -7126000), quarter('2025-06-30', '2025-04-01', 'Q2', 400000)] });
@@ -95,7 +95,7 @@ class Element {
 function descendants(node) { return node.children.flatMap((child) => [child, ...descendants(child)]); }
 const host = new Element('section'); const next = new Element('nav');
 const doc = { createElement: (tag) => new Element(tag), createTextNode: (text) => { const node = new Element('#text'); node.textContent = text; return node; }, getElementById: (id) => id === 'fund-flow' ? host : id === 'fund-next' ? next : null };
-// v58.64 (M1): this root already holds a fresh history. Without the timestamp it fell back to the real fetch, whose
+// This root already holds a fresh history. Without the timestamp it fell back to the real fetch, whose
 // late failure repainted AEHR over the race below once roots stopped sharing one name-keyed artifact store.
 const root = { _aioSecFiscalHistory: { AEHR: compact }, _aioSecFiscalHistoryAt: Date.now(), _aioSecQuarterHistory: {}, _aioGetCanonicalScreenerRows: () => [{ sym: 'AEHR', sector: 'Technology' }] };
 renderFiscalRead({ documentRef: doc, root, state: { id: 'AEHR', fundamentals: fixture } });
@@ -115,7 +115,7 @@ const css = readFileSync(new URL('../src/ui/styles/fiscal-quality.css', import.m
 assert.ok(css.includes('.fiscal-peers .stock-read-bar-row { display: grid; grid-template-columns: minmax(0, 1fr);'), 'P1627 compact peer rows must stack rather than collide');
 assert.ok(css.includes('var(--color-accent)') && css.includes('var(--color-text-primary)'), 'P1627 financial surfaces must use semantic dark/light colors');
 
-// P1627: complete a shared history read after the user already changed issuers.
+// Complete a shared history read after the user already changed issuers.
 let resolveHistory;
 const response = (value) => ({ ok: true, headers: { get: () => null }, text: async () => JSON.stringify(value) });
 const waiting = new Promise((resolve) => { resolveHistory = resolve; });
@@ -154,7 +154,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   const line = sandbox.fiscal(obs);
   const legacy = sandbox.fiscal({ ...obs, totalAssets: undefined, researchAndDevelopment: undefined });
   assert.ok(sandbox.fiscal({ ...obs, grossProfit: undefined }).split(';').every((row) => row.split(':').length === 10), 'v58.55 a record read with assets/R&D ships the two extra columns');
-  // v58.75: a record read by the v58.75 normalizer also carries the seven capital columns on its latest two years only.
+  // A record read by the v58.75 normalizer also carries the seven capital columns on its latest two years only.
   assert.deepEqual(line.split(';').map((row) => row.split(':').length), [10, 17, 17], 'v58.75 the capital columns ride the latest two fiscal years only (artifact size)');
   assert.ok(legacy.split(';').every((row) => row.split(':').length === 8), 'v58.55 a record written before keeps the 8-column row (= not yet collected)');
   const parsed = parseFiscalHistory(line);
@@ -195,7 +195,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: {}, close }).state, 'missing', 'v58.55 no verified share count, no market value');
   assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: facts, close: { value: 50 } }).state, 'missing', 'v58.55 an undated price is not used');
   assert.equal(reverseDcfInputs({ nowMs: dcfAt, history: parsed, fundamentals: facts, close, financial: true }).state, 'financial', 'v58.55 lending financials are not valued on FCF');
-  // v58.55 review: an old fiscal year or a far share count is 'stale', never solved against today's close (B: FY2010).
+  // An old fiscal year or a far share count is 'stale', never solved against today's close (B: FY2010).
   const at = Date.parse('2026-10-21T00:00:00Z');
   const fy2010 = parsed.map((year, i) => ({ ...year, periodEnd: `${2008 + i}-12-31` }));
   assert.equal(reverseDcfInputs({ history: fy2010, fundamentals: { sharesOutstanding: 1e9, sharesObservedAt: '2011-02-10' }, close, nowMs: at }).state, 'stale', 'v58.55 a fiscal year past the 456-day rule is not valued');
@@ -221,7 +221,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.ok(!batch.some((row) => row.symbol === 'FAIL' || row.symbol === 'NEW'), 'v58.55 the extra slots exclude failures and never-fetched issuers');
   assert.equal(selectSecBatch(due, 24, 0, nowMs).length, 24, 'v58.55 without extra slots the batch stays at its limit');
 
-  // v59.97: an issuer recorded without annual facts (only 10-Qs filed) is read again once a newer periodic filing exists.
+  // An issuer recorded without annual facts (only 10-Qs filed) is read again once a newer periodic filing exists.
   {
     const sec = await import('./fetch-sec-fundamentals.mjs');
     assert.equal(typeof sec.isSecTargetDue, 'function', 'v59.97 the SEC due test is an exported pure function');
@@ -242,7 +242,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
     assert.equal(sec.isSecTargetDue(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-14T23:30:00.000Z'), '0001990001'), { now: Date.parse('2026-10-15T06:00:00Z') }), false, 'v59.97 the retry keeps the 24-hour failure spacing');
     // v60.19 (Codex numbers audit): a 10-K dated the attempt's own UTC day (morning attempt, afternoon filing) is due.
     assert.equal(dueAt(row(terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-15T09:00:00.000Z'), '0001990001')), true, 'v60.19 a first annual filing dated the attempt\'s own UTC day is due on the next run');
-    // v60.19: a filing seen while the retry waits is kept on the failure record and stays due after the index window.
+    // A filing seen while the retry waits is kept on the failure record and stays due after the index window.
     const waiting = terminal('required-us-gaap-annual-concepts-unavailable', '2026-10-15T09:00:00.000Z');
     const kept = sec.noAnnualFilingCheckpoint(waiting, '2026-10-15');
     assert.equal(kept?.filingSeenAt, '2026-10-15', 'v60.19 the seen filing date is checkpointed on the failure record');
@@ -336,7 +336,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   assert.equal(buildConsensusRow(forecast, { earningsSurpriseTable: { rows: surpriseRows } }, 'now').hist, '2026-07:2.22:2.09;2026-04:1.87:1.7;2026-01:1.57:1.45;2025-10:1.24:1.18', 'v58.75 the producer keeps each quarter\'s consensus beside the reported EPS');
   const surprise = read.buildSurpriseRead(consensus);
   assert.ok(surprise.rows[0].quarter === '2026-01' && surprise.beats === 2 && surprise.misses === 1, 'v58.75 oldest first; beats and misses counted');
-  // v60.28: AVGO's consensus names its quarter ended 2026-08-02 '2026-07'; the card takes the SEC cards' label for it.
+  // AVGO's consensus names its quarter ended 2026-08-02 '2026-07'; the card takes the SEC cards' label for it.
   {
     const period = await import('../src/domain/fundamental/period.js');
     const { parseQuarterHistory } = await import('../src/domain/fundamental/quarter-read.js');
@@ -410,7 +410,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
     assert.ok(lease.lens.includes('장기부채(리스 포함)'), 'v60.28 the stock lens reads the same debt basis');
     const plain = await page('PLAIN');
     assert.ok(plain.header.includes('장기부채') && !plain.text.includes('리스 포함'), 'v60.28 a symbol outside the debtBasis map reads 장기부채');
-    // v60.30: the note names the part due within a year as missing only for a noncurrent concept (debtCurrent map); a total
+    // The note names the part due within a year as missing only for a noncurrent concept (debtCurrent map); a total
     // such as LongTermDebt carries it, so its note says it is included.
     assert.ok(plain.cash.includes('대 장기부채 ') && plain.cash.includes('1년 안에 갚을 몫과 리스 부채는 빠져'), 'v60.30 a noncurrent debt concept names the part due within a year as missing');
     const total = await page('TOTAL');
@@ -446,7 +446,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   // v58.80 (first-users bundle 1): one peer group has one median, the peers' own (growth 10..30 → 20, not 22.5 with SELF).
   assert.equal(sw.facts.find((fact) => fact.id === 'growth').median, 20, 'v58.80 the peer median excludes the company itself');
 
-  // v59.51: the lens reads the shared crossroads (marketInterpretation) through scenarioLead; a held model names no lead.
+  // The lens reads the shared crossroads (marketInterpretation) through scenarioLead; a held model names no lead.
   const crossroads = { available: true, leadId: 'aibust', tiedIds: [], items: [{ id: 'aibust', title: 'AI 투자 꺾임 — 설비투자 둔화', fit: '조건 충족 3/4' }, { id: 'oilshock', title: '유가 충격 — 원유 급등', fit: '조건 충족 3/4' }] };
   const situation = lens.buildSituationRead({ themes: [{ id: 'semiconductor', label: '반도체' }], crossroads });
   assert.ok(situation.favour.length && situation.burden.length && situation.now.includes('부담'), 'v58.75 AI capex exposure is burdened by the AI-bust branch');

@@ -15,9 +15,9 @@
 // New code imports finiteNumber / readNumber / isFiniteNumber (shared/number.js) and isoDay / isIsoDay /
 // hasLeadingIsoDay / stampDay / latestSessionRows (shared/session-date.js). After the v59.46 migration src/ holds no
 // local reader and only parsers (patterns that capture or strip a date inside text) plus the import-free exchange
-// calendar (P1533) keep a date pattern; they are the baseline, and every other file is held at zero.
+// calendar keep a date pattern; they are the baseline, and every other file is held at zero.
 //
-// v59.50 (recurrence audit 2026-10-31): P2164 found Number(null)=0 in scripts/lib after src/ reached zero copies, so the
+// P2164 found Number(null)=0 in scripts/lib after src/ reached zero copies, so the
 // count also covers scripts/ (producers and their libs; CI gates and fixtures are not product code), and a fourth metric
 // counts the P715 trap itself:
 //   nullAsZero  — `Number.isFinite(Number(x))`, which is true for null, '' and false; use isFiniteNumber/readNumber.

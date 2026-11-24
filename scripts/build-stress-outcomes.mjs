@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1661: weekly producer for public-data/stress-outcomes.json — what the S&P 500 did 21 and 63 sessions after
+// Weekly producer for public-data/stress-outcomes.json — what the S&P 500 did 21 and 63 sessions after
 // past days in each VIX band since 1990 (the VIX series starts 1990-01-02). Runs only in GitHub Actions
 // (refresh-data daily lane; weekly by design — skipped while the artifact is under 7 days old AND its definition stamp
 // matches the live code, src/domain/scenarios/outcome-fingerprints.js). On any fetch failure it exits 0 and leaves

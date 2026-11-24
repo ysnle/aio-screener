@@ -1,5 +1,5 @@
-// v58.81 (owner 2026-10-26): "지금 어느 장이 열려 있고, 한국장 마감과 미국 장전 시세가 서로 어떻게 이어지는가".
-// The verdict is fixed to the last completed US close (R670); this model sits beside it and reads the clock and the
+// "지금 어느 장이 열려 있고, 한국장 마감과 미국 장전 시세가 서로 어떻게 이어지는가".
+// The verdict is fixed to the last completed US close; this model sits beside it and reads the clock and the
 // published snapshot (Tier-0 quotes plus the evidence-only rows: futures, semis, Nikkei, Hang Seng). It never feeds the
 // six-axis tally. The Korean session is explained as candidate drivers each checked against the same day's numbers —
 // US cue, Asia together, the won, Korea-only — so the reader sees several links at once instead of one cause.
@@ -71,7 +71,7 @@ export function marketClock(nowMs = Date.now()) {
     const open = minuteOf(krDay.open), close = minuteOf(krDay.close);
     if (kst.minute < open) kr = { phase: 'before', label: '한국장 개장 전', opensIn: open - kst.minute };
     else if (kst.minute < close) kr = { phase: 'regular', label: '한국 정규장', closesIn: close - kst.minute };
-    // P1533: the close is final 30 minutes after 15:30 (closing auction and publication).
+    // The close is final 30 minutes after 15:30 (closing auction and publication).
     else if (kst.minute < close + 30) kr = { phase: 'closing', label: '한국장 마감 직후(종가 확정 대기)' };
     else kr = { phase: 'closed-today', label: '한국장 마감', nextOpen: nextOpenDate('KR', kst.date) };
   }
@@ -166,7 +166,7 @@ export function koreaLinks({ kospi, kosdaq: kosdaqRow, nasdaq: nasdaqRow, semis:
     const excess = Math.max(Math.abs(kr), Math.abs(kosdaq?.change ?? 0)) - Math.max(...outside);
     const gap = kosdaq?.change != null ? kosdaq.change - kr : null;
     const verdict = excess >= BRIDGE_RULES.koreaExcessPct ? 'supports' : 'against';
-    // P2127: the wording follows the day's direction — on an up day a KOSDAQ below the KOSPI rose less, it did not fall.
+    // The wording follows the day's direction — on an up day a KOSDAQ below the KOSPI rose less, it did not fall.
     const kqSide = sideOf(kosdaq?.change, 0.1);
     const gapText = gap == null || Math.abs(gap) < BRIDGE_RULES.kosdaqGapPct ? ''
       : kqSide !== 0 && kqSide !== krSide ? ` 코스닥은 반대로 ${pct(kosdaq.change)} 움직여 코스피와 ${Math.abs(gap).toFixed(1)}%p 벌어졌습니다 — 대형주와 중소형주가 갈린 날입니다.`
@@ -174,7 +174,7 @@ export function koreaLinks({ kospi, kosdaq: kosdaqRow, nasdaq: nasdaqRow, semis:
           : ` 코스닥은 코스피보다 ${Math.abs(gap).toFixed(1)}%p 덜 ${krSide > 0 ? '올라' : '빠져'} 대형주 쪽 움직임이 컸습니다.`;
     links.push({ id: 'local', label: '한국 고유 요인', verdict, evidence: `코스피 ${pct(kr)}${kosdaq?.change != null ? `, 코스닥 ${pct(kosdaq.change)}` : ''}`,
       text: (verdict === 'supports' ? `바깥 신호보다 ${excess.toFixed(1)}%p 더 움직여 국내 수급·업종·개별 소식의 몫이 큽니다.` : '바깥 신호와 비슷한 크기라 국내 요인만으로 볼 필요는 적습니다.') + gapText
-        // v59.42 (owner audit 2026-10-28): the names behind the move, with the item published around that session.
+        // The names behind the move, with the item published around that session.
         + (krLeaders?.text ? ` ${krLeaders.text}` : '') });
   }
   return links;
@@ -193,7 +193,7 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   // Korea's latest session (date in KST) with its candidate drivers.
   const kospiMs = Date.parse(r.kospi?.observedAt || '');
   const krDate = Number.isFinite(kospiMs) ? kstParts(kospiMs).date : null;
-  // v59.42: the contributors of the latest Korean session (completed sessions only: a live session's screener rows
+  // The contributors of the latest Korean session (completed sessions only: a live session's screener rows
   // are still the previous close) and of the last completed US session.
   const krLive = clock.kr.phase === 'regular' && krDate === clock.kstDate;
   const krLeaders = attribution && krDate && !krLive ? leadersFor(attribution, { weights: krWeightRows(attribution.krWeights), sessionDate: krDate, indexChange: r.kospi?.change ?? null,
@@ -207,7 +207,7 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const kosdaqSame = sameKstDate(r.kosdaq, krDate);
   const koreaHead = r.kospi?.change != null ? `한국장 ${md(krDate)} ${krLive ? `진행 중(${kstClock(Date.parse(r.kospi.observedAt))} 관측)` : '마감'} 코스피 ${pct(r.kospi.change)}${kosdaqSame?.change != null ? `, 코스닥 ${pct(kosdaqSame.change)}` : ''}` : null;
   // The face names the leaders and their dated item in words; the numbers sit in the folded '한국 고유 요인' line.
-  // Text pass (v59.56): whole sentences instead of '근거: X.' / '종목: A, B.' fragments; the verb follows the day's sign.
+  // Text pass: whole sentences instead of '근거: X.' / '종목: A, B.' fragments; the verb follows the day's sign.
   const krDown = (r.kospi?.change ?? 0) < 0;
   const leaderNames = krLeaders ? ` 코스피를 가장 많이 ${krDown ? '끌어내린' : '끌어올린'} 종목은 ${krLeaders.pieces.map((piece) => `${piece.name}${piece.dated?.kind === 'brief' ? `(${piece.dated.text})` : ''}`).join(', ')}입니다.` : '';
   const supportedText = supported.length === 2 ? `${withAndParticle(supported[0])} ${supported[1]}` : supported.join(' · ');
@@ -243,7 +243,7 @@ export function buildSessionBridge({ nowMs = Date.now(), snapshot = null, attrib
   const oilMs = Date.parse(r.wti?.observedAt || '');
   const oilDay = Number.isFinite(oilMs) ? kstParts(oilMs).date.slice(5).split('-').map(Number).join('/') : null;
   const oil = r.wti?.change != null && Math.abs(r.wti.change) >= BRIDGE_RULES.oilPct
-    // Feature audit 2026-11-02: this is the live CL=F quote (Sunday-night futures on a Monday morning), while 자금 흐름 above
+    // This is the live CL=F quote (Sunday-night futures on a Monday morning), while 자금 흐름 above
     // quotes the last settle's day; the observation day keeps the two from reading as one contradictory number.
     ? `유가(WTI 선물${oilDay ? ` ${oilDay} 시세` : ''}, 직전 정산 대비) ${pct(r.wti.change)} — ${r.wti.change < 0 ? '물가·금리 부담을 덜어 주는 쪽' : '물가·금리 부담을 키우는 쪽'}이라 금리와 성장주 흐름을 같이 봅니다.` : null;
   const snapshotAgeMin = ageMinutes(snapshot?.generatedAt, nowMs);

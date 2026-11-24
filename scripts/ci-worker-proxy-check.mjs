@@ -1,6 +1,6 @@
 // Non-AI surface of the aio-proxy Worker: the generic ?url= data proxy, its transport boundary, the
 // Cloudflare rate-limit bindings, /workers-ai/translate and the public /health payload.
-// v60.39: this gate was scripts/ci-worker-relay-check.mjs. The BOK/KOSIS /relay route left the Worker
+// This gate was scripts/ci-worker-relay-check.mjs. The BOK/KOSIS /relay route left the Worker
 // (its browser client left in v60.38), so its assertions were removed and the shared ones (transport,
 // rate limiting, dev-origin errors) now run on the generic proxy. /openai lives in worker/openai-contract.test.mjs.
 import worker from '../cloudflare-worker-proxy.js';
@@ -41,7 +41,7 @@ async function main() {
     method, headers: new Headers({ ...(origin ? { Origin: origin } : {}), ...headers }),
   });
 
-  // ── Retired /relay (v60.39) ────────────────────────────────────────────────
+  // ── Retired /relay ────────────────────────────────────────────────
   // The path now reaches the generic proxy, which needs ?url=, so a BOK query gets the generic 400.
   {
     const retired = await worker.fetch(new Request('https://worker.example/relay?provider=bok&statCode=722Y001&cycle=M&start=202601&end=202602', { headers: { Origin: PROD_ORIGIN } }), { BOK_API_KEY: 'relay-fixture-secret-value', AIO_QUOTA_DO: atomicQuota() });
@@ -49,7 +49,7 @@ async function main() {
     check('v60.39 P1151 /relay is no longer a Worker route', retired.status === 400 && /url parameter required/.test(retiredText) && retired.headers.get('X-AIO-Relay-Provider') === null, [retired.status, retiredText.slice(0, 80)]);
   }
 
-  // ── Shared proxy surface (P1156) ───────────────────────────────────────────
+  // ── Shared proxy surface ───────────────────────────────────────────
   // The generic ?url= route never refused a request: the Origin allowlist only chose which
   // ACAO value to echo, so any client could ride this Worker to every ALLOWED_DOMAINS host.
   const proxyEnv = { AIO_QUOTA_DO: atomicQuota() };
@@ -60,7 +60,7 @@ async function main() {
   const proxyBadMethod = await worker.fetch(proxyRequest({ method: 'POST' }), proxyEnv);
   check('P1156 the generic proxy stays GET-only', proxyBadMethod.status === 405, proxyBadMethod.status);
 
-  // ── Transport boundary (P1413) ─────────────────────────────────────────────
+  // ── Transport boundary ─────────────────────────────────────────────
   {
     const realFetch = globalThis.fetch;
     try {
@@ -80,7 +80,7 @@ async function main() {
     }
   }
 
-  // ── Cloudflare-native rate limiting (P1157) ────────────────────────────────
+  // ── Cloudflare-native rate limiting ────────────────────────────────
   // `workers.dev` has no zone, so a WAF rate limiting rule is not available to this deployment.
   // These bindings are the strongest bound it can carry, and a missing/throwing binding must
   // degrade to the in-isolate Map rather than admitting or rejecting blindly.
@@ -94,7 +94,7 @@ async function main() {
     return ids.length >= 3 && new Set(ids).size === ids.length && ids.every((id) => Number(id) > 0);
   })());
 
-  // v59.97: the shared bindings must bound exactly what the in-isolate fallback bounds, so a deploy with the binding
+  // The shared bindings must bound exactly what the in-isolate fallback bounds, so a deploy with the binding
   // and an isolate without it admit the same rate.
   {
     const declaredLimit = (name) => {
@@ -165,7 +165,7 @@ async function main() {
     }
   }
 
-  // ── /workers-ai/translate (v57.61) ─────────────────────────────────────────
+  // ── /workers-ai/translate ─────────────────────────────────────────
   {
     const AUTOMATION = 'automation-fixture-token-' + 'y'.repeat(32);
     const MODEL_TEXT = 'MODEL-OUTPUT-MUST-NOT-LEAK';
@@ -187,7 +187,7 @@ async function main() {
     const good = await worker.fetch(translate(titles(2)), ok);
     const goodBody = await good.json();
     check('v57.61 translate returns one translation per title', good.status === 200 && goodBody.translations?.length === 2, goodBody);
-    // v59.74: the producer's glossary reaches the free model's system prompt (bounded); a request without one still works.
+    // The producer's glossary reaches the free model's system prompt (bounded); a request without one still works.
     let seenSystem = '';
     const glossed = await worker.fetch(translate(null, { raw: JSON.stringify({ titles: titles(2), glossary: 'muted → 약한·제한적, oil prices → 유가' }) }),
       { AIO_AUTOMATION_TOKEN: AUTOMATION, AI: { run: async (_model, input) => { seenSystem = input.messages[0].content; return { response: '["번역 0", "번역 1"]' }; } } });
@@ -210,7 +210,7 @@ async function main() {
     check('v57.61 translate error bodies carry short codes only, never model output or exception text',
       failureBodies.every((text) => !text.includes(MODEL_TEXT) && !/"detail"/.test(text) && /"error":"[a-z0-9:-]+"/.test(text))
       && JSON.parse(failureBodies[1]).error === 'workers-ai-unparsed:count-mismatch' && JSON.parse(failureBodies[2]).error === 'workers-ai-unparsed:empty-item', failureBodies);
-    // v57.83 codex audit F18: the operator kill switch stops Workers AI too (it is billed outside the OpenAI ledger).
+    // Codex audit F18: the operator kill switch stops Workers AI too (it is billed outside the OpenAI ledger).
     let killedRuns = 0;
     const killed = await worker.fetch(translate(titles(2)), { AIO_AUTOMATION_TOKEN: AUTOMATION, AI_KILL_SWITCH: '1', AI: { run: async () => { killedRuns++; return { response: '["a","b"]' }; } } });
     check('v57.83 AI_KILL_SWITCH=1 stops Workers AI translation before any AI.run', killed.status === 503 && killedRuns === 0 && (await killed.json()).error === 'kill-switch', { status: killed.status, killedRuns });
@@ -253,7 +253,7 @@ async function main() {
       && healthBody.ai?.dailyCap === undefined
       && !healthText.includes('AI_DAILY_CAP'), healthBody.ai);
 
-  // v60.31: a Yahoo chart body whose OHLC values are mostly null is asked for once more past the edge copy; a body that
+  // A Yahoo chart body whose OHLC values are mostly null is asked for once more past the edge copy; a body that
   // stays hollow is served uncached.
   {
     const realFetch = globalThis.fetch;

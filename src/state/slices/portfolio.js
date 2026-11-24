@@ -21,8 +21,12 @@ export function portfolioReducer(state = createInitialPortfolioState(), action =
       cashKnown: payload.cashKnown === true || Number.isFinite(payload.cash),
       totals: payload.totals && typeof payload.totals === 'object' ? { ...payload.totals } : null,
       privacy: payload.privacy || 'opt-in',
+      // 선언(기준 통화·현금 통화·FX leg)은 표시 상태의 일부다. 이 리듀서가 필드를 열거하며
+      // 조용히 버리면 surface는 영원히 '미선언'으로 보류하고, 환산 근거가 선언돼도 도달하지 못한다 —
+      // P1181의 provider 드롭과 같은 클래스(선언이 경계에서 사라진다).
       baseCurrency: String(payload.baseCurrency || '').trim().toUpperCase() || null,
       cashCurrency: String(payload.cashCurrency || '').trim().toUpperCase() || null,
+      // per-currency cash balances; enumerated here so the reducer does not drop them (the P1194 class).
       ...(Array.isArray(payload.cashBalances) ? { cashBalances: payload.cashBalances.map((row) => ({ ...row })) } : {}),
       fxLegs: Array.isArray(payload.fxLegs) ? payload.fxLegs.map((leg) => ({ ...leg })) : [],
       updatedAt: action.meta?.updatedAt || payload.updatedAt || state.updatedAt || null

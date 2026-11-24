@@ -70,7 +70,6 @@ const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text
   const view = consensusView(rows.get('MU'), consensus.rows.MU, { now });
   check(view?.fwdPe != null && view.fwdPe > 2 && view.fwdPe < 6, `v60.50 B28: MU forward PER off the published rows (${view?.fwdPe})`);
   check(peakEarningsCaution(view), `v60.50 B28: MU expected growth ${view?.growth} does not raise the peak-earnings caution`);
-  // v60.50 (이 주가가 반영하는 것): the caution moved from the consensus line into the priced-in condition (section 9).
   const point = buildConsensusPoint(rows.get('MU'), consensus.rows.MU, { now });
   check(!point.text.includes('정점 근처에서'), `v60.50 B28: MU consensus line still repeats the caution the priced-in condition carries (${point.text})`);
   check(buildPricedInRead(rows.get('MU'), consensus.rows.MU, { now })?.text.includes('경기순환 업종이면 호황이 꺾이는지가 갈림입니다'), 'v60.50 B28: MU lost its peak-earnings caution');
@@ -112,7 +111,7 @@ const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text
   check(point && point.text.startsWith('Forward PER 보류') && !/0\.\d배/.test(point.text) && point.text.includes('같은 주식 기준'), `v60.50 A7: SNDK consensus line does not withhold the PER with its reason (${point?.text})`);
 }
 
-// 9. 이 주가가 반영하는 것 (owner 2026-11-23): the price against its 52-week closing high and the estimates, the condition
+// 9. 이 주가가 반영하는 것: the price against its 52-week closing high and the estimates, the condition
 // as arithmetic (cut = 1 − trailing EPS ÷ forward EPS), the peak caution joined in, withheld on unreadable inputs.
 {
   const priced = (sym) => buildPricedInRead(rows.get(sym), consensus.rows[sym], { now });

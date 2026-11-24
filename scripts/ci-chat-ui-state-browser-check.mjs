@@ -15,9 +15,9 @@ try {
   const page = await browser.newPage();
   await page.route('**/*', route => route.abort());
   await page.setContent('<div id="chat-home-msgs"></div><div><button id="chat-home-btn">전송</button></div>');
-  // v59.11: the cancellation helpers live in the shared transport module (moved from src/ui/chat/panel.js).
+  // The cancellation helpers live in the shared transport module (moved from src/ui/chat/panel.js).
   await page.addScriptTag({ type: 'module', content: readFileSync(new URL('../src/data/providers/shared-ai-transport.js', import.meta.url), 'utf8') + '\ninstallSharedRoute(window);' });
-  // v59.42: chatAppendMsg (per-page #chat-<ctx>-msgs) is deleted; the fixture appends its own bubbles and, like the
+  // chatAppendMsg (per-page #chat-<ctx>-msgs) is deleted; the fixture appends its own bubbles and, like the
   // unified panel, passes appendCancelNotice.
   await page.addScriptTag({ content:
     section('const chatState = {};', 'function stripChips(') + '\n' +
@@ -35,7 +35,7 @@ try {
     const run = _aioBeginChatRequest('home', '중단 질문', { appendCancelNotice: fixtureCancelNotice });
     run.userMessage = { role: 'user', content: '중단 질문' };
     state.messages.push(run.userMessage);
-    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading'); // v57.62: chatShowLoading (per-page only) retired
+    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading');
     chatAppendMsg('home', 'ai', '부분 답변<span class="chat-cursor">▌</span>', 'chat-home-streaming');
     window.fixtureRun = run;
   });
@@ -50,7 +50,7 @@ try {
   })), { aborted: true, active: false, messages: 2, pending: 0, status: '답변 생성이 중지되었습니다.' });
   assert(await page.evaluate(() => {
     const run = _aioBeginChatRequest('home', '이동 중단');
-    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading'); // v57.62: chatShowLoading (per-page only) retired
+    chatAppendMsg('home', 'ai', '<span class="chat-dots"><span>·</span><span>·</span><span>·</span></span>', 'chat-home-loading');
     document.dispatchEvent(new CustomEvent('aio:pageShown', { detail: { pageId: 'market' } }));
     return run.controller.signal.aborted && !document.querySelector('.chat-dots') && !getChatState('home').streaming;
   }));
@@ -72,7 +72,7 @@ try {
     _aioCancelChatRequest('home', 'user-cancelled');
     return { loading: !!document.getElementById('ai-panel-loading'), carets: document.querySelectorAll('.lch-caret').length, partialKept: msgs.textContent.includes('부분 답변'), notices };
   }), { loading: false, carets: 0, partialKept: true, notices: 1 }, 'v59.97 stop leaves no 분석 중 bubble or caret in the unified panel');
-  // P1136/R620: the chat-history block moved out of index.html's inline block A into
+  // The chat-history block moved out of index.html's inline block A into
   // js/aio-workspace.js. The slice boundaries must follow the code, or this guard silently
   // degrades to an empty string and the storage assertions below test nothing.
   const shell = readFileSync(new URL('../js/aio-workspace.js', import.meta.url), 'utf8');
@@ -94,9 +94,9 @@ try {
     fixtureWriteDenied = true;
     return _getChatHistory().map(row => row.q);
   }), ['보존 질문']);
-  // v59.42: the unreachable 대화 기록 overlay (openChatHistory) is deleted, so its dialog focus checks went with it.
+  // The unreachable 대화 기록 overlay (openChatHistory) is deleted, so its dialog focus checks went with it.
   assert.equal(await page.evaluate(() => typeof window.openChatHistory), 'undefined', 'v59.42 the retired chat history overlay stays absent');
-  // v60.02 (plan 050): the waiting line. The page is served from a fixture origin so the chat-loaded ESM modules import
+  // The waiting line. The page is served from a fixture origin so the chat-loaded ESM modules import
   // as they do in the app; the request lifecycle is the real slice above; the clock is injected (no wall-clock date).
   const waiting = await browser.newPage();
   const repo = new URL('../', import.meta.url);

@@ -14,9 +14,9 @@ export function resolveActiveWorkerVersionId(payload) {
     throw new Error('Cloudflare returned no active Worker deployment; automatic rollback baseline is unavailable');
   }
 
-  // P1335: Wrangler lists deployments oldest-first, so deployments[0] rolled a Worker back to a
+  // Wrangler lists deployments oldest-first, so deployments[0] rolled a Worker back to a
   // July version. The active deployment is the newest one by created_on.
-  // P1351: an undated record cannot be ordered safely against the active deployment.
+  // An undated record cannot be ordered safely against the active deployment.
   const dated = deployments.map((deployment) => {
     const created = Date.parse(deployment?.created_on || deployment?.createdOn || '');
     if (!Number.isFinite(created)) throw new Error('Worker rollback baseline has a missing or invalid deployment date');

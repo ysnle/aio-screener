@@ -1,4 +1,4 @@
-// v59.49: exhaustive time sweep for the producer's market-session classifier (scripts/build-market-snapshot.mjs).
+// Exhaustive time sweep for the producer's market-session classifier (scripts/build-market-snapshot.mjs).
 // The history gate (ci-history-field-time-contract-check.mjs) compares the history row with the snapshot's value when
 // the session is a completed close and with previousValue when it is in session, so every print must land in the right
 // one of those two sets. Example fixtures caught one boundary at a time (VIX GTH, TNX pre-open, Friday 17:00 ET); the

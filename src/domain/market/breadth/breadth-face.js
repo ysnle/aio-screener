@@ -19,6 +19,7 @@ export const MEASURE_READS = Object.freeze({
   dd: 'count'
 });
 
+// The rule of the breadth speed word (market-read breadthSpeedOf), for the method fold.
 export const BREADTH_SPEED_METHOD = `방향: 50일선 위 비율의 ${B.speedSessions}거래일 변화가 지난 1년 같은 변화 크기 중앙값의 ${B.speedMultiple}배를 넘으면 '${BREADTH_SPEED_WORDS.down}'·'${BREADTH_SPEED_WORDS.up}', 그 안이면 표시 없음. 판정과 개수는 바꾸지 않습니다.`;
 
 const pp = (value) => `${signedText(value, 0)}%p`;

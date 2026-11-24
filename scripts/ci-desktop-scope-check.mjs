@@ -62,7 +62,7 @@ check('knowledge route targets have no mobile persona', !/mobile-keyboard-screen
 check('knowledge depth audit has no mobile persona', !/mobile-keyboard-screenreader/.test(depthAudit));
 check('principles audit contract has no mobile persona', !/mobile-keyboard-screenreader/.test(auditContract));
 
-// P1618: one ESM lifecycle and one external stylesheet implement compact screens.
+// One ESM lifecycle and one external stylesheet implement compact screens.
 const shellHtml = read('index.html');
 const uiJs = read('js/aio-ui.js');
 check('shell loads responsive stylesheet (P1618)', /src\/ui\/styles\/responsive\.css/.test(shellHtml));

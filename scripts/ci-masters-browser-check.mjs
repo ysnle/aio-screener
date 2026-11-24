@@ -42,7 +42,7 @@ try {
       shell: Boolean(host?.querySelector('.rl-shell .rl-nav') && host.querySelector('.rl-main') && host.querySelector('.rl-aside')),
       managers: host?.querySelectorAll('.rl-nav [data-masters-action="select-manager"]').length || 0,
       styleGroups: host?.querySelectorAll('.rl-nav .rl-nav-title').length || 0,
-      // P1488: the change view shows one table — the top-holdings table only when no comparison ledger exists.
+      // The change view shows one table — the top-holdings table only when no comparison ledger exists.
       topRows: (host?.querySelectorAll('.masters-holdings-section:not(.masters-change-ledger) tbody tr').length || 0) || (host?.querySelectorAll('.masters-change-ledger tbody tr').length || 0),
       fullRows: ds.aioMastersFullRows,
       coverage: [ds.aioMastersData, ds.aioMastersCoverageState, ds.aioMastersCurrentFull, ds.aioMastersStaleFull, ds.aioMastersPreviewOnly, ds.aioMastersMetadataOnly, ds.aioMastersMethodOnly, ds.aioMastersOfficialPrinciples, ds.aioMastersVerifiedSecurityRecords, ds.aioMastersLatestPeriodMissing].join(','),
@@ -72,11 +72,11 @@ try {
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersView === 'holdings');
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSelectedShard === 'connected');
   if (await page.locator('#page-masters .masters-full-holdings-table tbody tr').count() !== 25) throw new Error('full holdings pagination failed');
-  // v60.35 (owner 2026-11-20): three tabs — 변화 · 보유 · 원본 공시. 보유 also carries the sector mix and the stated principles.
+  // Three tabs — 변화 · 보유 · 원본 공시. 보유 also carries the sector mix and the stated principles.
   const tabs = await page.locator('#page-masters .masters-detail-tabs [data-masters-action="view"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.mastersValue).join(','));
   if (tabs !== 'changes,holdings,filings') throw new Error(`manager tabs are not 변화/보유/원본 공시: ${tabs}`);
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersSecurityMaster === 'connected' && document.getElementById('page-masters')?.dataset.aioMastersReferenceMaster === 'connected');
-  // P1488: one sector state per card — the reference classification when it exists, else the unavailable state.
+  // One sector state per card — the reference classification when it exists, else the unavailable state.
   if (await page.locator('#page-masters .masters-reference-sector-view').count() + await page.locator('#page-masters [data-masters-sector-state="unavailable"]').count() !== 1) throw new Error('sector preparation state missing');
   if (!await page.locator('#page-masters .masters-holdings-section:not(.masters-change-ledger) tbody tr').count()) throw new Error('보유 tab lost the top-holdings table');
   await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
@@ -109,7 +109,7 @@ try {
   for (const [id, rows] of [['fisher-asset-management', 10], ['appaloosa-management', 10], ['scion-asset-management', 8]]) {
     await page.locator(`#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="${id}"]`).click();
     await page.locator('#page-masters [data-masters-action="view"][data-masters-value="changes"]').click();
-    // P1488: the change view renders one table (top holdings, or the comparison ledger when it exists).
+    // The change view renders one table (top holdings, or the comparison ledger when it exists).
     await page.waitForFunction((want) => (document.querySelectorAll('#page-masters .masters-holdings-section:not(.masters-change-ledger) tbody tr').length || document.querySelectorAll('#page-masters .masters-change-ledger tbody tr').length) === want, rows);
   }
   await page.waitForFunction(() => document.querySelector('#page-masters .masters-change-summary')?.textContent.includes('2025-06-30'));
@@ -118,21 +118,21 @@ try {
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersDiscovery === 'connected');
   if (!(await page.locator('#page-masters .masters-ownership-events').textContent()).includes('13D')) throw new Error('Schedule 13D/G ownership view missing');
   await page.locator('#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="mark-minervini"]').click();
-  // P1488: method-only profiles open straight on their principles (no 13F tabs).
+  // method-only profiles open straight on their principles (no 13F tabs).
   await page.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersPrinciples === 'connected');
   if (!(await page.locator('#page-masters .masters-detail-card').textContent()).includes('방법론 전용 프로필')) throw new Error('Mark Minervini method-only profile missing');
   if (await page.locator('#page-masters .masters-principle-card').count() < 4 || !(await page.locator('#page-masters .masters-principles-view').textContent()).includes('SEPA')) throw new Error('Mark Minervini official methodology content missing');
-  // P1488: a method-only profile has no 13F to compare — the comparison uses two filers.
+  // A method-only profile has no 13F to compare — the comparison uses two filers.
   if (await page.locator('#page-masters [data-masters-action="toggle-compare"]').count()) throw new Error('method-only profile still offers 13F comparison');
   for (const id of ['fisher-asset-management', 'berkshire-hathaway']) {
     await page.locator(`#page-masters .rl-nav [data-masters-action="select-manager"][data-masters-value="${id}"]`).click();
     await page.locator('#page-masters [data-masters-action="toggle-compare"]').click();
   }
-  // v60.35: with two managers picked, the comparison shows under the manager header (no tab of its own).
+  // With two managers picked, the comparison shows under the manager header (no tab of its own).
   await page.waitForFunction(() => document.querySelectorAll('#page-masters .masters-compare-view .masters-metric').length >= 2, null, { timeout: 10000 }).catch(() => {});
   if (await page.locator('#page-masters .masters-compare-view .masters-metric').count() < 2) throw new Error('manager comparison surface missing');
 
-  // P1325: manager list renders before the lookup; the lookup never ends in an endless loading state.
+  // Manager list renders before the lookup; the lookup never ends in an endless loading state.
   const order = await page.evaluate(() => {
     const shell = document.querySelector('#page-masters .rl-shell');
     const nav = shell?.querySelector('.rl-nav');
@@ -150,7 +150,7 @@ try {
     }, expect, { timeout: 5000 });
     lookupStates[symbol] = expect;
   }
-  // v60.35: an older address keeps working — ?mode=sectors opens 보유, ?mode=quarters opens 변화 with the trend loaded.
+  // An older address keeps working — ?mode=sectors opens 보유, ?mode=quarters opens 변화 with the trend loaded.
   const legacy = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
     await legacy.route('**/*', (route) => route.request().url().startsWith(`http://127.0.0.1:${port}/`) ? route.continue() : route.abort());
@@ -165,7 +165,7 @@ try {
   try {
     await failPage.route('**/*', (route) => { const url = route.request().url(); return url.startsWith(`http://127.0.0.1:${port}/`) && !url.includes('ticker-index-reference') ? route.continue() : route.abort(); });
     await openMasters(failPage);
-    // P1330: the ledger loads on first focus, not at mount.
+    // The ledger loads on first focus, not at mount.
     await failPage.locator('#page-masters [data-masters-action="ticker-search"]').first().focus();
     await failPage.waitForFunction(() => document.getElementById('page-masters')?.dataset.aioMastersTickerIndex === 'fallback', { timeout: 12000 });
     const failText = await failPage.locator('#page-masters .masters-ticker-lookup-results').textContent();

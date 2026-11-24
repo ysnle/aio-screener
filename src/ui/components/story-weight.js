@@ -1,3 +1,6 @@
+// v59.68 (owner 2026-11-03, "경중" and "visual elements"): a story's weight drawn beside its title — a bar the length of its
+// market-day materiality (0–100, the ledger's own rank measure: move against its volatility, index weight, source tier)
+// and the lead fact's direction. The bar orders the day at a glance; it is a ranking, never a forecast.
 import { el } from './dom.js';
 
 export function storyWeight(doc, story) {

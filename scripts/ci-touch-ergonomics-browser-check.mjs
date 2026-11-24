@@ -1,7 +1,7 @@
-// v57.81: touch ergonomics on a phone (390x844, touch, mobile) and an iPad (820x1180, touch), every route.
+// Touch ergonomics on a phone (390x844, touch, mobile) and an iPad (820x1180, touch), every route.
 // A phone/iPad parity audit found 36px phone buttons (a width rule outranked the coarse-pointer rule), 24px folds,
 // 38px hub tabs, 33px drawer rows, a 13px-wide glossary close button and 11-14px inputs that make iOS zoom on focus.
-// For every route in src/app/routes.js this gate asserts (v57.81):
+// For every route in src/app/routes.js this gate asserts:
 //   (a) no visible input/select/textarea under 16px (iOS focus zoom);
 //   (b) primary navigation (drawer rows, hub tabs, topbar buttons, page summaries) at least 44px tall;
 //   (c) no visible interactive element under 24x24 CSS px, except inline links/terms inside running text (WCAG 2.5.8);

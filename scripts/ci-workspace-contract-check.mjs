@@ -28,7 +28,7 @@ const expectedState = renderCurrentState(state);
 check('generated workspace byte accounting is checkout-newline invariant', canonicalTextBytes('alpha\nbeta\n') === canonicalTextBytes('alpha\r\nbeta\r\n'));
 const renderedOperationsSection = expectedState.split('## Operations Boundary')[1]?.split('## Read Policy')[0] || '';
 check('generated operations boundary pins no data-refresh-scoped timestamp', renderedOperationsSection.length > 0 && !/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(renderedOperationsSection), 'a data-refresh timestamp here makes preflight fail on every data promotion (R603/P1079)');
-// P1160: the timestamp guard above missed a data-scoped VALUE. `operations.overall` flips between
+// The timestamp guard above missed a data-scoped VALUE. `operations.overall` flips between
 // BLOCKED and OPERATOR_REQUIRED whenever the durable freshness changes, so pinning it made preflight
 // fail after every scheduled data commit — and since Pages waits on CI, that alone stopped the site
 // from deploying. Pin the shape of the boundary, never a value the bot rewrites.
@@ -45,7 +45,7 @@ for (const guide of ['AGENTS.md', 'CLAUDE.md', '_context/INDEX.md', '_context/CL
   check(`${guide} avoids historical architecture constants`, !/(39,?000\+?|~32,?000|2\.2MB|21개 SPA|라우트 17개|R1~R18|204개 검증|버전 6곳)/i.test(text));
 }
 check('root AGENTS.md stays below the default project-instruction budget', Buffer.byteLength(read('AGENTS.md'), 'utf8') <= 16_000);
-// v59.74: ratchet — measured 10,410 B after the writing-for-agents pass; lower it when the file shrinks, raise only with a reason here.
+// Ratchet — measured 10,410 B after the writing-for-agents pass; lower it when the file shrinks, raise only with a reason here.
 check('root CLAUDE.md stays compact', Buffer.byteLength(read('CLAUDE.md'), 'utf8') <= 11_000);
 check('context index stays compact', Buffer.byteLength(read('_context/INDEX.md'), 'utf8') <= 24_000);
 check('context guide stays compact', Buffer.byteLength(read('_context/CLAUDE.md'), 'utf8') <= 24_000);
@@ -77,20 +77,20 @@ const runHook = (mode, payload, environment = {}) => spawnSync(process.execPath,
 const safeHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git status --short' } });
 check('safe command hook fixture passes silently', safeHook.status === 0 && safeHook.stdout === '', safeHook.stderr);
 const dangerousHook = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command: 'git reset --hard HEAD' } });
-// P1340: whole-tree discards are denied like reset --hard; a single-path checkout stays allowed.
+// whole-tree discards are denied like reset --hard; a single-path checkout stays allowed.
 for (const command of ['git checkout -- .', 'git restore .', 'git restore --worktree .', 'git restore -s HEAD .', 'git checkout -f', 'git clean -fd', 'git clean --force -d']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (P1340)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
 }
-// P1342: the reachability tooling lives in the repo (not a session scratchpad) and its splitter/remover stay correct.
+// The reachability tooling lives in the repo (not a session scratchpad) and its splitter/remover stay correct.
 const deadCodeSelfTest = spawnSync(process.execPath, [join(root, 'scripts', 'dead-code.mjs'), 'self-test'], { cwd: root, encoding: 'utf8', timeout: 15_000 });
 check('dead-code tooling self-test passes (P1342)', deadCodeSelfTest.status === 0, deadCodeSelfTest.stderr);
-// v59.93: the guard matched one spelling per command; these forced pushes and whole-tree discards passed it.
+// The guard matched one spelling per command; these forced pushes and whole-tree discards passed it.
 for (const command of ['git push origin main --force', 'git push -f origin main', 'git push --force-with-lease', 'git push --force-with-lease=main origin main', 'git push origin +main', 'git -C . reset --hard HEAD', 'git restore --source=HEAD .', 'git -C . restore .']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (v59.93)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
 }
-// v60.07: a push chained with ";" or "|" runs after a failed step (the v57.82 conflict-marker push).
+// A push chained with ";" or "|" runs after a failed step (the v57.82 conflict-marker push).
 for (const command of ['git merge origin/main; git push origin main', 'node scripts/qa-runner.mjs affected | tail -3; git push', 'git status | git push origin main']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard denies "${command}" (v60.07)`, /"permissionDecision":"deny"/.test(out.stdout || ''));
@@ -103,7 +103,7 @@ for (const command of ['git push origin main', 'git push --follow-tags origin ma
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`guard allows "${command}" (v59.93)`, !/deny/.test(out.stdout || ''));
 }
-// v59.94: a quoted +refspec is a forced push and an index-plus-worktree restore discards; an index-only restore just unstages.
+// A quoted +refspec is a forced push and an index-plus-worktree restore discards; an index-only restore just unstages.
 for (const command of ['git push origin "+main"', "git push origin '+main'", 'git push origin "+HEAD:main"', 'git restore --staged --worktree .', 'git restore -SW .']) {
   const out = runHook('guard-command', { cwd: root, hook_event_name: 'PreToolUse', tool_input: { command } });
   check(`v59.94 guard denies ${JSON.stringify(command)}`, /"permissionDecision":"deny"/.test(out.stdout || ''));
@@ -116,7 +116,7 @@ check('guard allows a single-path checkout (P1340)', !/deny/.test(runHook('guard
 let dangerousOutput = {};
 try { dangerousOutput = JSON.parse(dangerousHook.stdout || '{}'); } catch { dangerousOutput = {}; }
 check('destructive command hook fixture returns documented deny output', dangerousHook.status === 0 && dangerousOutput.hookSpecificOutput?.hookEventName === 'PreToolUse' && dangerousOutput.hookSpecificOutput?.permissionDecision === 'deny');
-// v59.70 (owner 2026-11-04): post-edit warns, never blocks, on a control character in the edited file, using the one rule
+// post-edit warns, never blocks, on a control character in the edited file, using the one rule
 // ci-control-char-check uses (scripts/lib/control-chars.mjs).
 {
   const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs');
@@ -144,7 +144,7 @@ const sessionHook = runHook('session-start', { cwd: root, hook_event_name: 'Sess
 let sessionOutput = {};
 try { sessionOutput = JSON.parse(sessionHook.stdout || '{}'); } catch { sessionOutput = {}; }
 check('SessionStart hook fixture injects generated current state', sessionHook.status === 0 && sessionOutput.hookSpecificOutput?.hookEventName === 'SessionStart' && String(sessionOutput.hookSpecificOutput?.additionalContext || '').includes(state.application.version));
-// v59.56: cloud sessions are told whether setup is needed; local sessions get no cloud line. Browser revisions link to
+// Cloud sessions are told whether setup is needed; local sessions get no cloud line. Browser revisions link to
 // the newest installed revision of the same browser and nothing is planned when the pinned one exists.
 const cloudOff = runHook('session-start', { cwd: root, hook_event_name: 'SessionStart' }, { CLAUDE_CODE_REMOTE: '' });
 const cloudOn = runHook('session-start', { cwd: root, hook_event_name: 'SessionStart' }, { CLAUDE_CODE_REMOTE: 'true' });
@@ -164,7 +164,7 @@ let advisoryOutput = {};
 try { advisoryOutput = JSON.parse(advisoryPostEdit.stdout || '{}'); } catch { advisoryOutput = {}; }
 check('PostToolUse fixture defers QA to task closeout without blocking the edit', advisoryPostEdit.status === 0 && /^AIO closeout reminder:/.test(String(advisoryOutput.systemMessage || '')), advisoryPostEdit.stderr || advisoryPostEdit.stdout);
 
-// P1084: every fixture above uses the Codex apply_patch shape, where the patch
+// Every fixture above uses the Codex apply_patch shape, where the patch
 // text arrives in `tool_input.command`. Claude Code's Edit/Write tools send
 // `tool_input.file_path` and no `command` key, so a hook that reads only
 // `command` passed every Codex fixture while being completely inert on Claude.
@@ -229,13 +229,13 @@ check('failure escalation workflow exists', exists('.github/workflows/operations
 const operationsAlert = read('.github/workflows/operations-alert.yml');
 check('operations alert monitors each required workflow', ['CI', 'Data freshness watchdog', 'Knowledge base lint'].every((name) => operationsAlert.includes(`'${name}'`)));
 check('v57.92 W04 operations alert serializes per workflow, not in one global pending slot', /group: aio-operations-alert-\$\{\{ github\.event\.workflow\.name \|\| github\.event\.workflow_run\.name \}\}/.test(operationsAlert));
-// v59.78: keyed by the workflow, not the run-name, so a dispatched 'Refresh market data · scheduler' run closes the same issue.
+// Keyed by the workflow, not the run-name, so a dispatched 'Refresh market data · scheduler' run closes the same issue.
 check('v59.78 operations alert keys issues by workflow name, not run-name', /const workflow = context\.payload\.workflow\?\.name \|\| run\.name;/.test(operationsAlert));
 check('operations alert deduplicates one issue by workflow marker', /aio-operations-alert:\$\{workflow\}/.test(operationsAlert) && /listForRepo/.test(operationsAlert) && /includes\(marker\)/.test(operationsAlert));
 check('operations alert threshold matches the two-consecutive-failure SLO', /consecutiveFailures\s*=\s*1/.test(operationsAlert) && /consecutiveFailures\s*<\s*2/.test(operationsAlert) && /candidate\.conclusion === 'success'/.test(operationsAlert));
 check('operations alert updates failures without duplicate-comment spam and closes matching recovery', /state:\s*'open'/.test(operationsAlert) && /listComments/.test(operationsAlert) && /failureSignature/.test(operationsAlert) && /sameSignatureSeen/.test(operationsAlert) && /reopened/.test(operationsAlert) && /signatureChanged/.test(operationsAlert) && !/Still failing:/.test(operationsAlert) && /state:\s*'closed'/.test(operationsAlert) && /if \(succeeded\)/.test(operationsAlert));
 check('operations alert body carries failed jobs/gates and a stable signature', /failedGateSummary/.test(operationsAlert) && /Failure signature:/.test(operationsAlert) && /aio-operations-alert-signature/.test(operationsAlert));
-// P1598: execute the actual github-script with injected APIs; no GitHub issue is written.
+// Execute the actual github-script with injected APIs; no GitHub issue is written.
 {
   const script = operationsAlert.split('          script: |\n')[1].split('\n').map(line => line.replace(/^            /, '')).join('\n');
   const execute = new (Object.getPrototypeOf(async function () {}).constructor)('github', 'context', 'core', 'require', script);
@@ -268,7 +268,7 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   const skipped = await scenario({ ...run, conclusion: 'skipped' }, history);
   const recovered = await scenario({ ...run, conclusion: 'success' }, [{ ...run, conclusion: 'success' }]);
   check('P1598 stale/skipped completions cannot mutate alerts and success skips failed-job reads', !stale.mutations.length && !skipped.mutations.length && !recovered.jobReads);
-  // Pipeline redesign (2026-10-19): a refresh run whose cadence gate skipped every work job observed nothing — it neither closes the
+  // Pipeline redesign: a refresh run whose cadence gate skipped every work job observed nothing — it neither closes the
   // open alert as recovered nor breaks the failure streak (weekend red-CI stalls used to close their own alert).
   const refresh = { ...run, name: 'Refresh market data' };
   const marker = { number: 7, state: 'open', body: '<!-- aio-operations-alert:Refresh market data -->' };
@@ -278,7 +278,7 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   check('P1598 a refresh run that skipped every work job does not close the open alert', !quiet.mutations.length);
   const worked = await scenario({ ...refresh, conclusion: 'success' }, [{ ...refresh, conclusion: 'success' }], 'first', failJobs, marker);
   check('P1598 a refresh run that did work still closes the alert as recovered', worked.mutations.some((m) => m.state === 'closed'));
-  // v58.77 pipeline audit OPS-01: a Pages run that skipped the deploy (main moved on) keeps the alert; a verified deploy closes it.
+  // Pipeline audit OPS-01: a Pages run that skipped the deploy (main moved on) keeps the alert; a verified deploy closes it.
   const pages = { ...run, name: 'Deploy GitHub Pages' };
   const pagesMarker = { number: 8, state: 'open', body: '<!-- aio-operations-alert:Deploy GitHub Pages -->' };
   const pagesJob = (verify) => () => [{ name: 'deploy', conclusion: 'success', steps: [{ name: 'Deploy to GitHub Pages', conclusion: verify }, { name: 'Verify released Pages and all external planes', conclusion: verify }] }];
@@ -292,7 +292,7 @@ check('operations alert body carries failed jobs/gates and a stable signature', 
   check('v58.84 a lone pass after a failure keeps the alert open and silent; a second consecutive pass closes it', !lonePass.mutations.length && secondPass.mutations.some((m) => m.state === 'closed'));
   const streak = await scenario(refresh, [refresh, { ...refresh, id: 8, conclusion: 'success', updated_at: '2026-10-10T11:30:00Z' }, { ...refresh, id: 7, updated_at: '2026-10-10T11:00:00Z' }], 'first', (id) => (id === 8 ? skipJobs() : failJobs()));
   check('P1598 a skip run between two refresh failures does not break the failure streak', streak.mutations.some((m) => /Consecutive failures observed in latest 100 main runs: \*\*2\*\*/.test(m.body || '')));
-  // v60.18: the Worker's dispatches carry the run-name 'Refresh market data · scheduler' while the alert key is the workflow
+  // The Worker's dispatches carry the run-name 'Refresh market data · scheduler' while the alert key is the workflow
   // name; the streak filtered runs on that name, so two scheduler failures in a row counted as one and opened nothing.
   const scheduled = { ...refresh, name: 'Refresh market data · scheduler', run_started_at: '2026-10-10T12:00:00Z' };
   const schedulerStreak = await scenario(scheduled, [scheduled, { ...scheduled, id: 8, run_started_at: '2026-10-10T11:30:00Z', updated_at: '2026-10-10T11:37:00Z' }], 'first', failJobs, null, 'Refresh market data');
@@ -307,7 +307,7 @@ check('data watchdog declares the GitHub Pages header policy', /LIVE_HEADER_POLI
 check('header limitations cannot silently become publication-ready', /OPERATOR_REQUIRED|PUBLIC_DEPLOY.*OPERATOR_REQUIRED/s.test(liveInvariant));
 check('live header policy has a deterministic behavior gate', qaScripts.includes('scripts/ci-workspace-contract-check.mjs') && read('scripts/ci-workspace-contract-check.mjs').includes("['live-header-policy'"));
 
-// v57.54: the no-auto-commit policy is enforced in code above (hook config and agent-hook.mjs never commit,
+// The no-auto-commit policy is enforced in code above (hook config and agent-hook.mjs never commit,
 // push or deploy). Its prose is required only in its canonical home (AGENTS.md) and the Codex hook config;
 // CLAUDE.md, WORKFLOW-GOVERNANCE.md and OPERATOR-RUNBOOK.md may restate or drop it freely when compressed.
 const noAutoCommitSurfaces = ['AGENTS.md', '.codex/hooks.json'];

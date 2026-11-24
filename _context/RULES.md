@@ -210,7 +210,7 @@ Version identifiers use `v<major>` for a major rollover and `v<major>.<patch>` w
 BUG-POSTMORTEM.md 각 버그 항목에 `violated_rule: R{N}` 태그 필수 기록
 
 ## R3. 버그 수정 시 사후 분석 필수
-결함 수정은 `bump-version` 뒤 `node scripts/record-fix.mjs <entry.json>`으로 P/R/QA/CHANGELOG를 한 번에 기록한다.
+결함 수정은 `bump-version` 뒤 `node scripts/record-fix.mjs <entry.json>`으로 P/R/QA/CHANGELOG를 한 번에 기록한다. P 항목은 사용자에게 틀린 값이 나갔거나 새 종류의 결함일 때만 쓰고, 나머지는 `p` 없는 change-only 항목이다. 규칙 원장은 동결이다: 새 결함은 어긴 원칙의 게이트에 사례를 더하고, 어느 원칙에도 없는 종류일 때만 새 R을 쓴다(정본 AGENTS.md, 소유자 2026-11-23).
 
 ## R2. 버전 체계
 **Superseded by R475 (v57.79)**: versions use canonical major or two-digit patch notation.

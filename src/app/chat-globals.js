@@ -3,7 +3,7 @@
 // shape (answer-modes.js) and the answer principles (answer-principles.js). No boot caller reads them, so they left
 // compatibility-globals.js: the panel module imports this file and installs it before it defines anything, and
 // src/app/chat-loader.js replays queued panel calls (and resolves AIO.loadChat, which the T-tests wait on) after that.
-// v59.49: the screener query engine joins them; it reads the page's rows and quotes itself (screenerInput), the factor
+// The screener query engine joins them; it reads the page's rows and quotes itself (screenerInput), the factor
 // date through AIO.screenerFactorAsOf in compatibility-globals.js beside the screener state.
 import { buildMarketContentContext, buildQuestionDomainContext } from '../ai/context/market-content.js';
 import { buildScreenerAiContext, runScreen, screenerInput } from '../ai/context/screener-query.js';

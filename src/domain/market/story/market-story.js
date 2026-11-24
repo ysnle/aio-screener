@@ -1,3 +1,8 @@
+// v59.55 (owner 11/1, "결과만 보여주고 있어"): 시장 상태's opening read — what moved over the last week of US sessions, which
+// reports moved it, whether rates, credit, oil, gold and Korea confirm the same story, and what in the coming week would
+// change it. Every sentence is chosen by a rule over the closes (history.json), FRED (macro-history.json), the earnings
+// briefs (event-briefs.json) and the earnings calendar; nothing here names a date, a company or a level by hand except
+// SCHEDULED_EVENTS.
 import { MOVER_BY_SYMBOL } from '../../briefing/market-movers.js';
 import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
@@ -22,21 +27,30 @@ import { oasDelta20Bp } from '../../briefing/market-read.js';
 import { creditJudgement, creditReading, cccTailLine } from '../../briefing/credit-reading.js';
 import { vixBand } from '../sentiment/narrative.js';
 
+// One week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
+// sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
 export const STORY_SESSIONS = MARKET_WINDOWS.week;
 export const STORY_RULE = Object.freeze({
   flatPct: 1, leaderMovePct: 2, leaderGapPct: 2, // concentration: |move| under flatPct is flat; NDX ±leaderMovePct with RSP leaderGapPct apart is narrow
-  oilPct: 5, goldPct: 3, koreaSemisPct: 3
+  oilPct: 5, goldPct: 3, koreaSemisPct: 3 // oil and gold moves, KOSPI tracking SOXX (the leadership proxy)
 });
 // A quiet ten-year can hide two legs that cancel (real +12bp, breakeven -11bp): an offset when the legs point opposite
 // ways and either passed the rate line on its own. One rule for the week here and the 20 sessions of the 매크로 chapter.
 export const ratesLegsOffset = (real, be) => real.bp * be.bp < 0 && Math.max(Math.abs(real.bp), Math.abs(be.bp)) >= RULES.crossAsset.rate20dBp;
 
+// Dated events no collected calendar carries. v59.62: read from the one registry (briefing/scheduled-events.js); this
+// file kept its own copy of the midterm, so a moved or added date had to be written twice.
 export const SCHEDULED_EVENTS = Object.freeze(REGISTRY.filter((event) => event.marketDate && event.storyWhy)
   .map((event) => Object.freeze({ date: event.marketDate, title: event.storyTitle || event.label, why: event.storyWhy })));
 
 const NON_AI_LAYERS = new Set(['ai-adopter', 'ai-exposed', 'limited']);
 const REPORT_WEIGHT_MIN = 1; // % of the S&P 500 — a smaller report outside the mover list does not change the week's read
+// v59.74 (weekly outlook review 11/7): a week with no report at 1% left the list empty while CSCO 0.64% and AMAT 0.46%
+// reported; the two heaviest at this floor fill an empty week (Moderna 0.1% stays out).
 const REPORT_WEIGHT_FALLBACK = 0.3;
+// The biggest single session of the window is named when the S&P 500 moved at least this much (11/5 -4.4% was
+// missing from a lead that read only the five-session totals), and a session with this small a share of advancing
+// members is named as a broad sell-off even when the week's equal-weight total stayed small.
 const BIG_DAY_PCT = 2;
 const BROAD_SELL_ADVANCE = 0.25;
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -50,11 +64,18 @@ export function dayLabel(date) {
 const pctText = (value, digits = 1) => signedText(value, digits, '%');
 const bpText = (value) => signedText(value, 0, 'bp');
 
+// The US sessions: weekday rows with an S&P 500 close (weekend rows carry Friday forward). A
+// weekday row written before that day's close carries the prior close (fieldMeta.spx.sessionDate is the earlier day),
+// so it is not a session — counting it made "10/12 → 11/2, 15거래일" out of the 14 sessions 10/12 → 10/30.
 function usSessions(history) {
   return (Array.isArray(history) ? history : []).filter((row) => row?.date && weekday(row.date) && readNumber(row.spx) !== null
     && (!historyFieldMeta(row, 'spx')?.sessionDate || historyFieldMeta(row, 'spx').sessionDate === row.date));
 }
 
+// A field's close on `from` (else the nearest earlier close) and its latest close on or before `to`.
+// Read from the session-keyed close series (buildCloseSeries), as the verdict table's 5일 변화 is. The row dates
+// carry a prior close forward (the 11/2 row held the 10/30 Nasdaq-100 and WTI), so a row-date read printed NDX -3.0% and
+// WTI +0.8% for the week the table measured at -4.4% and -6.6%.
 function span(history, field, from, to) {
   let start = null; let end = null;
   for (const point of buildCloseSeries(history, field, { market: closeSessionMarket(field) || 'US' })) {
@@ -95,6 +116,12 @@ function concentrationOf(m) {
   return { kind: spx < 0 ? 'broad-down' : 'broad-up' };
 }
 
+// The ten-year move split into the real yield and breakeven inflation (FRED DFII10 + T10YIE ≈ DGS10).
+// The 10-year line is the market close series every other screen reads (history tnx, the
+// 5거래일 column of the verdict table); the FRED legs only split it into real yield and inflation expectations.
+// The 10-year window is the rates axis's own: `sessions` closes back from the 10-year's last close on or before `to`,
+// read only while that close is within the axis's lag. A 10-year two sessions behind the S&P 500 therefore prints the
+// axis's 5-session change dated by its own close, and the FRED legs split that same span of sessions.
 function tenYearSpan(history, sessions, to) {
   const change = closeChange(history, 'tnx', sessions, { through: to });
   if (!change || !isUsable(alignInput(change.to.date, to))) return null;
@@ -124,6 +151,8 @@ function ratesOf(macroHistory, history, from, to, sessions) {
   return { ten, real, be, kind };
 }
 
+// The week's spread change is the five-session OAS reading of oasDelta20Bp — the same
+// observations, dates and session filter as the verdict table and 매크로 — not a calendar span cut at the stock dates.
 function oasWeek(macroHistory, id, from, to, sessions) {
   const read = sessions === 5 ? oasDelta20Bp(macroHistory, id, to) : null;
   if (!read || read.d5 == null) return macroSpan(macroHistory, id, from, to);
@@ -146,6 +175,8 @@ function creditOf(macroHistory, from, to, sessions) {
 const RATE_READ = Object.freeze({
   'growth-fear': '대부분 실질금리 하락이라 물가 안도보다 성장 걱정에 안전자산인 국채로 돈이 옮겨 간 쪽입니다',
   'inflation-relief': '대부분 기대인플레 하락이라 물가 안도 쪽입니다',
+  // The week read 기대인플레 하락 → 물가 안도 while 1년 중 위치 and 금리와 신용 on the same page called the same fall
+  // a flight to safety, because high yield widened with it. A fall in yields beside widening spreads is read the way those cards read it.
   flight: '기대인플레 하락이 컸지만 하이일드 스프레드가 함께 벌어져, 물가 안도보다 경기·신용 걱정 속 국채로 피한 쪽으로 읽습니다',
   'real-up': '대부분 실질금리 상승이라 긴축 부담 쪽입니다',
   'inflation-fear': '대부분 기대인플레 상승이라 물가 걱정 쪽입니다',
@@ -174,6 +205,8 @@ export function earningsMovers(briefs, { from, to } = {}) {
     .filter((row) => (seen.has(row.symbol) ? false : seen.add(row.symbol)));
 }
 
+// The window's largest S&P 500 session, its Nasdaq-100 move, the share of advancing members and a fixed event
+// (SCHEDULED_EVENTS) dated in the window before it. Order in time only — the event is not named as the cause.
 export function biggestDay(history, { from, to, events = SCHEDULED_EVENTS } = {}) {
   const spx = buildCloseSeries(history, 'spx', { market: 'US' }).filter((p) => readNumber(p.value) !== null);
   const ndx = new Map(buildCloseSeries(history, 'ndx', { market: 'US' }).filter((p) => readNumber(p.value) !== null).map((p) => [p.date, Number(p.value)]));
@@ -215,6 +248,7 @@ function lead({ drivers, rates, asOf = null, bigDay = null }) {
   // sentence does not say the name led the move.
   if (drivers.length) parts.push(`실적 다음 날 ${drivers.map((row) => `${row.name} ${pctText(row.pct)}`).join(', ')}로 지수와 같은 방향이었습니다.`);
   const tail = [];
+  // The split comes from FRED, a session behind the closes; the span is named when it ends earlier.
   const tenSpan = rates && asOf && rates.ten.toDate < asOf ? `(${dayLabel(rates.ten.toDate).split('(')[0]}까지) ` : '';
   if (rates && rates.kind !== 'flat') tail.push(`10년 금리 ${tenSpan}${bpText(rates.ten.bp)}는 ${rateRead(rates)}`);
   if (tail.length) parts.push(`${tail.join('. ')}.`);
@@ -263,6 +297,7 @@ function confirmations({ moves, rates, credit, macroHistory, history, asOf, star
   }
   const vix = span(history, 'vix', start, asOf); const fg = span(history, 'fg', start, asOf);
   if (vix) rows.push({ id: 'mood', label: '심리', value: [`VIX ${vix.from.toFixed(1)} → ${vix.to.toFixed(1)}`, fg ? `공포·탐욕 ${Math.round(fg.from)} → ${Math.round(fg.to)}` : null].filter(Boolean).join(' · '),
+    // The band is narrative.vixBand (18/25/32, RULES.volatility); a 30/20 ladder here called 25.6 '경계' on its own edges.
     read: vix.to >= RULES.volatility.calmBelow ? `VIX ${vix.to.toFixed(1)}는 ${vixBand(vix.to).label}입니다.` : vix.to - vix.from >= 3 ? `VIX가 ${(vix.to - vix.from).toFixed(1)} 올랐지만 ${vixBand(vix.to).label}입니다.` : '조용한 편입니다.' });
   return rows;
 }
@@ -277,10 +312,16 @@ const releaseWhy = (event, story, hiking = false) => (event.id === 'us-nfp'
     : event.id === 'us-fed-rate' ? '금리 결정과 함께 앞으로의 경로 발언을 봅니다.'
       : event.id === 'us-retail' ? '소비가 버티는지, 성장 걱정이 소비로 번지는지 봅니다.' : '결과에 따라 지금 시나리오가 바뀔 수 있습니다.');
 
+// v59.74 (weekly outlook review 11/7): every collected release in the window is listed (crossroads.events), not only the
+// one that decides the tied branches — that rule skipped the 11/10 CPI for the 11/17 retail sales, which fell outside the
+// eight days, and the list had no release at all. `storySymbols` (symbol → story label, from the market-day narratives)
+// lets a report the stories are about onto the list whatever its index weight (CoreWeave, outside the S&P 500).
 function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], storySymbols = null, story, nowMs, macroHistory = null, days = 8 }) {
   const out = [];
   const hiking = policyCycle(seriesOf(macroHistory, 'fedTargetUpper')).hiking;
   const horizon = nowMs + days * 86400000;
+  // An item belongs to the week ahead from the reader's own day — the KST date. A US event dated
+  // 11/3 (the midterm vote) is over by 11/4 KST; the old 12-hour grace on a UTC day kept it at the top of '다음 주'.
   const kstToday = new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
   const inside = (date) => { const ms = Date.parse(`${date}T23:59:00Z`); return Number.isFinite(ms) && String(date) >= kstToday && ms <= horizon; };
   // A US release or report carries an ET date; with a known clock it is 'next' until that moment, not until KST midnight
@@ -299,6 +340,9 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
       why: `${releaseWhy(event, story, hiking)}${decides ? ' 지금 맞서는 시나리오를 가르는 발표입니다.' : ''}` });
   }
   const aiStory = story.concentration.kind === 'narrow-down' || story.concentration.kind === 'narrow-up';
+  // v59.70 (step 3 screen audit): a quiet week listed Moderna 0.1% as "대형 기술주 쏠림이 이어질지 가르는 실적" — the line's
+  // sentence followed the market's story, not the company, and any weight qualified. A report is on the list when its
+  // index weight is at least REPORT_WEIGHT_MIN or it is on the market-mover list; the AI sentence needs a mover on the line.
   const pending = (Array.isArray(calendar?.earnings) ? calendar.earnings : [])
     .filter((row) => row?.symbol && row.date && readNumber(row.epsActual) === null && ahead(reportAt(row), row.date));
   const byWeight = (a, b) => (Number(b.indexWeight) || 0) - (Number(a.indexWeight) || 0);
@@ -323,12 +367,15 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
     : `이 기간 S&P 500 실적 가운데 ${byLoad.indexOf(rows) + 1}번째로 비중이 큰(${sessionWeight(rows).toFixed(1)}%) 발표입니다. 같은 업종의 가이던스를 함께 확인합니다.`);
   for (const rows of [...sessionsOf.values()].sort((a, b) => a[0].date.localeCompare(b[0].date) || slotOf(a[0]) - slotOf(b[0]))) {
     const { date, hour } = rows[0];
+    // v59.56 (text review): one naming rule per line — Korean names only when every company on it has one, otherwise
+    // tickers for all ('애플 · PLTR' mixed the two; no Korean name is guessed for a company outside the mover list).
     const allKo = rows.every((row) => MOVER_BY_SYMBOL[row.symbol]?.nameKo);
     const nameOf = (row) => (allKo ? MOVER_BY_SYMBOL[row.symbol].nameKo : row.symbol);
     out.push({ kind: 'earnings', date, slot: slotOf(rows[0]), when: `${dayLabel(date)}${SESSION_WORDS[hour] ? ` ${SESSION_WORDS[hour]}` : ''}`,
       names: rows.map(nameOf).join(' · '),
       title: `${rows.map(nameOf).join(' · ')} 실적 (S&P 500 비중 ${rows.length === 1 ? `${Number(rows[0].indexWeight).toFixed(1)}%`
         : rows.map((row) => `${nameOf(row)} ${Number(row.indexWeight).toFixed(1)}%`).join(' · ')})`,
+      // Two report days printed the same sentence; the later one says it continues the question.
       why: !(aiStory && rows.some((row) => MOVER_BY_SYMBOL[row.symbol]))
         ? (fallbackWeek ? fallbackWhy(rows)
           : rows.reduce((sum, row) => sum + Number(row.indexWeight), 0) >= REPORT_WEIGHT_MIN ? '지수 비중이 커서 결과가 지수 방향에 바로 들어옵니다.' : '주도주 목록에 든 회사라 같은 업종 판단에 바로 쓰입니다.')
@@ -341,7 +388,9 @@ function weekAhead({ calendar, nextEvent, decidingEvent = null, events = [], sto
       names: row.symbol, title: `${row.symbol} 실적`, story: storyOf(row),
       why: `지금 많이 오가는 '${storyOf(row)}' 이야기의 당사자입니다. 그 이야기가 숫자로 맞는지 이 실적에서 확인합니다.` });
   }
+  // One day's reports in session order — 장 전 before 장 마감 후 (QCOM after the close was listed first).
   out.sort((a, b) => a.date.localeCompare(b.date) || (a.slot ?? 1) - (b.slot ?? 1));
+  // A daily item names its last observation — FRED's ICE spreads post a business day behind the closes.
   if (story.credit?.kind !== 'calm' && story.credit) out.push({ kind: 'daily', date: '', when: '매일', title: `${story.credit.ccc ? 'CCC · ' : ''}하이일드 스프레드 (${dayLabel(story.credit.hy.toDate).split('(')[0]} 관측)`, asOf: story.credit.hy.toDate, why: '약한 등급부터 계속 벌어지면 주가 조정이 신용 경계로 바뀝니다.' });
   if (story.moves.wti && story.moves.wti.pct >= STORY_RULE.oilPct) out.push({ kind: 'daily', date: '', when: '매일', title: `유가 (${dayLabel(story.moves.wti.toDate).split('(')[0]} 종가)`, asOf: story.moves.wti.toDate, why: '더 오르면 물가 경로와 금리 인하 기대가 함께 바뀝니다.' });
   return out.slice(0, 6);
@@ -381,11 +430,27 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
   story.earnings = [...reported.filter((row) => row.core).slice(0, 8),
     ...reported.filter((row) => !row.core && Math.abs(row.pct) >= 8).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 4)];
   story.week = weekAhead({ calendar, nextEvent, decidingEvent, events, storySymbols, story, nowMs, macroHistory });
+  // Where the indexes sit on their charts (index-levels.js) — distance from the high, the 50/200-day lines, the
+  // support below and a double top at or through its neck. Not a cross-asset check, so it is its own block.
   const levels = indexLevels(history);
   story.levels = levels.length ? { rows: levels.map((level) => ({ id: level.field, label: level.label, value: levelValue(level).replace(`${level.label} `, '') })), read: levelsRead(levels) } : null;
   return story;
 }
 
+// ---- v60.50: the opening read ---------------------------------------------------------------------------
+// "부담 우세" counts six indicators; on the 11/20 crash it was the whole explanation. The opening says the fall in parts,
+// separately: 주도주 (AI·반도체 and the Nasdaq — how far they fell, and where that ranks), 시장 전체 (S&P 500, Dow, equal
+// weight — how much less), 진단 (a rule-decided state word from the gap between the two and from credit, with what would
+// flip it). What the price reflects is the AI reading's (PRODUCT.md principle 5), fed openingFactLines(). Every figure is a
+// claim (shared/claim.js); a size word ("가장 큰", "이후 가장 깊은") appears only when the record or the long-run tables
+// (indices/long-run.js, public-data/index-longrun.json) make it true. '반도체' is the Philadelphia Semiconductor index (SOX,
+// the long-run table's index; `full` names it in the folds), not the SOXX fund the verdict's leadership axis and the 오늘
+// index card read. One Nasdaq on the face: the Nasdaq-100 (the diagnosis's index, and the long-run table's).
+//
+// The face, in three layers (owner 2026-11-23, "간편하면서 직관적인 문구"): the lede — one plain sentence of stage words and
+// the diagnosis in everyday words, at most one number; the bars — each index's fall from its closing high on one scale
+// with the 조정 and 약세장 lines; the diagnosis line — the state word, its one reason and what flips it. The record
+// sentences are one small line under it; every figure behind them is in the table fold and the AI facts.
 export const OPENING_INDEXES = Object.freeze([
   // `bar`: the bar's name, so the index (SOX) reads apart from the fund on 기술적 분석's index card (반도체(SOXX)).
   Object.freeze({ id: 'sox', label: '반도체', bar: '반도체(SOX)', full: '필라델피아 반도체 지수(SOX)', topic: '는', part: 'leaders', longrun: 'sox' }),
@@ -483,6 +548,7 @@ function standingSaid(row, { prefer = 'fall', skipDeep = false } = {}) {
   return order.find((piece) => piece.text) || NOTHING;
 }
 
+// "반도체 지수(SOX)는 11/20 하루 -10.7%, 고점(6/22) 대비 -42.5%로 약세장입니다." The 2- and 5-session moves are in the table.
 function indexSentence(row, { date = true } = {}) {
   const day = Number.isFinite(row.moves[1]) ? say(date ? '{d} 하루 {m}, ' : '하루 {m}, ', { d: shortDate(row.asOf), m: row.claims[1] }) : NOTHING;
   const slots = { lab: row.label, topic: row.topic, day, fall: fallSaid(row, row.asOf), st: row.claims.fall };
@@ -705,6 +771,7 @@ function barsOf(rows) {
   }));
 }
 
+// ---- v60.50 기술적 분석: this fall among the index's past falls (the long-run tables only) ---------------------------------
 const STANDING_INDEXES = Object.freeze(['ndx', 'spx', 'sox', 'kospi']);
 /**
  * "나스닥 100의 이번 하락은 1985년 이후 고점에서 10% 이상 내린 35번 가운데 12번째로 깊습니다. 약세장 기준(-20%)까지 0.2%p
@@ -781,6 +848,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi)], ' ') : NOTHING;
   // Every standing an index earns (the face shows at most one per group; the AI facts carry all of them).
   const standings = ['sox', 'ndx', 'spx', 'dow', 'rsp'].map((id) => standingSaid(rows[id], { prefer: id === 'spx' ? 'week' : 'fall' })).filter((piece) => piece.text);
+  // The full grid for the raw-table fold and the AI facts: every index's 1/2/5-session moves and fall from the high.
   const table = OPENING_INDEXES.filter((spec) => rows[spec.id]).map((spec) => {
     const row = rows[spec.id];
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));

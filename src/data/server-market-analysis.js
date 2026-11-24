@@ -33,9 +33,9 @@ export function verifyServerMarketAnalysis(marketAnalysis, { fallbackGeneratedAt
   const verified = semanticContract && !publishAudit.blocked;
   const generatedAt = ma.generatedAt || fallbackGeneratedAt;
   const source = ma.source || ma.model || 'github-actions-market-analysis';
-  // P1719/P1729: this run's text was blocked and the previous verified analysis is shown (<= 12h old).
+  // This run's text was blocked and the previous verified analysis is shown (<= 12h old).
   const retained = ma.retained && typeof ma.retained === 'object' ? ma.retained : null;
-  // P1122: the narrative is published with its boundary, not instead of one.
+  // The narrative is published with its boundary, not instead of one.
   const disclosure = typeof ma.disclosure === 'string' ? ma.disclosure : null;
   const analysis = verified ? {
     status: 'verified',

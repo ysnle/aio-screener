@@ -103,7 +103,7 @@ export function extractRecentRecommendationTickers(messages, { rows = [] } = {})
   } catch (_) { return []; }
 }
 
-// v59.54: the sample order is a hash of the symbol and the day, not alphabetical order, which handed every broad question
+// The sample order is a hash of the symbol and the day, not alphabetical order, which handed every broad question
 // the same first names in each sector. It carries no score: the same day and rows give the same sample whatever the rank
 // or input order, and the next day draws another one.
 function sampleOrder(sym, day) {
@@ -425,7 +425,7 @@ export function formatComparisonSample(result, { rankAsOf = null } = {}) {
   const dv = result.diversity || {};
   lines.push('비교 범위: 섹터 ' + (dv.sectorCount || '?') + '개 · 시장/지역 ' + (dv.marketCount || '?') + '개 · 시총 구간 ' + (dv.capBucketCount || '?') + '개. 최근 대화에서 다룬 ' + (result.recentSuppressed || 0) + '개 종목은 뒤로 미뤘다.');
   lines.push('이 목록은 날짜별로 섞은 순서에서 섹터·시장별 표시 수를 제한한 비교 표본이며 매력도나 투자 우선순위가 아니다. 전체 시장을 대표하는 통계 표본도 아니다. 종목을 대신 고르지 말고 비교 기준, 충족한 조건과 미확인 항목을 설명하라.');
-  // v59.46 boundary contract: the result rows' numbers are read through the screener readiness contract.
+  // Boundary contract: the result rows' numbers are read through the screener readiness contract.
   const value = (row, key) => readRowNumber(row, key, 'display');
   result.rows.forEach((r, i) => {
     const live = readLiveQuotePrice(r);

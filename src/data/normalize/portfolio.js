@@ -9,6 +9,10 @@ function positiveFinite(value) {
   return number != null && number > 0 ? number : null;
 }
 
+// P1176 (22 PFR01): a price target and a target weight are different types. `numeric(0)`
+// kept the legacy writer's "field left blank" sentinel as a real target price, which the
+// table then rendered as $0.00 plus a -100% potential return. An explicit 0% weight, by
+// contrast, is a meaningful value and must survive.
 function weightPercent(value) {
   const number = numeric(value);
   return number != null && number >= 0 && number <= 100 ? number : null;
@@ -34,6 +38,8 @@ export function normalizePortfolio(raw = {}) {
     revision: holding?.revision || null,
     changeBasis: holding?.changeBasis || 'unknown',
     directionCompatible: holding?.directionCompatible === true || (!!holding?.changeBasis && holding.changeBasis !== 'unknown'),
+    // 통화는 표시가 아니라 합산의 단위다. 정규화가 버리면 이후 합산이 서로 다른
+    // 단위를 더하고도 complete라고 말할 수 있다 — 선언을 보존하고, 없으면 추정하지 않는다.
     currency: String(holding?.currency || holding?.priceCurrency || '').trim().toUpperCase() || null,
     costCurrency: String(holding?.costCurrency || '').trim().toUpperCase() || null,
     sector: holding?.sector ? String(holding.sector) : null,
@@ -62,7 +68,10 @@ export function normalizePortfolio(raw = {}) {
     cashKnown: raw.cashKnown === true || numeric(raw.cash) != null,
     baseCurrency: String(raw.baseCurrency || raw.currency || '').trim().toUpperCase() || null,
     cashCurrency: String(raw.cashCurrency || '').trim().toUpperCase() || null,
+    // per-currency cash balances pass through (the surface converts them); absent stays absent.
     ...(Array.isArray(raw.cashBalances) ? { cashBalances: Object.freeze(raw.cashBalances.map((row) => Object.freeze({ currency: String(row?.currency || '').trim().toUpperCase() || null, amount: numeric(row?.amount) }))) } : {}),
+    // 선언된 FX leg는 환산의 유일한 근거다 — 정규화가 지우면 surface는 영원히 보류만 한다.
+    // 여기서는 통과만 시키고 유효성(관측 시각·창)은 surface의 fx 계약이 판정한다.
     fxLegs: Object.freeze((Array.isArray(raw.fxLegs) ? raw.fxLegs : []).map((leg) => Object.freeze({
       from: String(leg?.from || '').trim().toUpperCase() || null,
       to: String(leg?.to || '').trim().toUpperCase() || null,

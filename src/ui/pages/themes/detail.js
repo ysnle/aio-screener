@@ -29,9 +29,13 @@ import { themeDayMoveRead, themeSpreadRead, themeBreadthRead } from '../../../do
 // The one-day readings' tones (src/domain/themes/theme-day-read.js) as the panel's text colours.
 const TONE_COLOR = Object.freeze({ muted: 'var(--color-text-secondary)', neutral: 'var(--color-text-secondary)', favorable: 'var(--color-text-success)', caution: 'var(--color-text-warning)' });
 
+// v58.75 (persona review): the theme's representative ETF against SPY over the produced 100 sessions (rotationHistory
+// relativeStrength, rebased to 100 on the first session) — the line an RRG point summarises. No ETF, no chart.
 export const stageWord = (state) => String(THEME_STATES[state] || '').split(' (')[0];
 export const pctText = (value) => (finiteOrNull(value) == null ? '—' : `${signedText(value, 1)}%`);
 
+// v58.75 (persona review, teach-and-check A-3): the ETF's sector-rotation quadrant ten sessions ago (the produced trail)
+// against now — a move the trail records, not a forecast.
 export const RRG_MOVE_SESSIONS = 10;
 export function rrgMoveOf(root, themeId) {
   const etf = (root?.THEME_MAP || []).find((theme) => theme?.id === themeId)?.etf || null;
@@ -85,6 +89,10 @@ export function themeCriteriaSummary(root, store, themeId) {
     scenarios: { favorable: teach.split.favorable, unfavorable: teach.split.unfavorable, breaks: row.breaks || [] } };
 }
 
+// v59.51 (content audit, owner's two layers): the face of the theme detail is one short reading for a beginner — the
+// stage, the move against the market, the strongest and weakest part inside, and what the lead scenario means for it —
+// and the criteria headline. The analysis behind it (reasons, the sub-theme flow, the stage read and the criteria table
+// with the conditional scenarios) sits in one expert fold. This fills the slots renderThemeDetailSummary leaves.
 export const WIND_PLAIN = Object.freeze({ tail: '유리한 쪽', head: '불리한 쪽', mixed: '유리·불리가 섞인 쪽', none: '영향이 크지 않은 쪽' });
 export function renderThemeDetailTeach({ documentRef, root, store }) {
   const readingHost = documentRef?.getElementById('theme-detail-reading');
@@ -108,6 +116,7 @@ export function renderThemeDetailTeach({ documentRef, root, store }) {
     if (rel) lines.push(`최근 ${rel.series.length}거래일은 시장(SPY)${directionOf(rel.total, 1) == null ? '과' : '보다'} ${word(rel.total, false)}, 최근 20거래일은 ${word(rel.recent, true)}.`);
     const ranked = themeFlowOf(root, store, themeId, etf).flow.rows.filter((group) => !group.smallSample && group.ret3m != null);
     if (ranked.length >= 2) lines.push(`테마 안에서는 ${ranked[0].name} 쪽이 가장 강하고, ${ranked.at(-1).name} 쪽이 가장 약합니다(3개월).`);
+    // v59.51 (one lead source): scenarioLead — a tie names every tied branch and reads their common wind (혼재 if they differ).
     const scenario = teach.scenario;
     if (scenario?.items?.length && WIND_PLAIN[row.wind?.lead]) lines.push(scenario.state === 'tie'
       ? `${String(scenario.face || '').replace(/\.$/, '')} — 이 테마에는 ${WIND_PLAIN[row.wind.lead]}입니다.`
@@ -120,6 +129,7 @@ export function renderThemeDetailTeach({ documentRef, root, store }) {
       revisions: revisionCounts(teach.consensus, teach.measured.map((member) => member.sym)), rrgMove: rrgMoveOf(root, themeId), headlines: themeHeadlines(root, store, teach.measured, teach.after) });
     const list = make('ul', null, 'thp-why-list');
     reasons.forEach((item) => list.append(make('li', item.text)));
+    // Which causes qualify is the heading's hover, not a line under the list.
     why.replaceChildren(Object.assign(make('div', '이 흐름의 이유', 'thp-detail-heading'), { title: '거시 축 이동, 이익 전망 수정, 섹터 회전 이동, 선두 시나리오, 같은 날 보도처럼 데이터로 확인되는 원인만 적습니다.' }), reasons.length ? list : make('p', '데이터로 확인되는 원인이 아직 없습니다(미확인).', 'thp-detail-empty'));
     why.hidden = false;
   }
@@ -160,9 +170,11 @@ export function relativeSeriesOf(root, etf) {
   return { series, total: last.value / series[0].value * 100 - 100, recent: last.value / back20.value * 100 - 100 };
 }
 
+// The theme's own flow from the published screener medians (sub-theme groups), read by the expert fold and the reading.
 export function themeFlowOf(root, store, themeId, etf, label = null) {
   const rows = store?.getState?.()?.screener?.rows || [];
   const model = buildGroupStrength({ themes: root?.THEME_MAP || [], rows, sortKey: 'ret3m', benchmark: benchmarkReturns(root?._aioHistory || []) });
+  // The ETF's rotation state is read only through the session-checked selector.
   const etfRotation = etf ? selectProducedRotation(root?._serverDataMeta?.rotationHistory, etf, Date.now()) : null;
   const stageRow = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === themeId && row.state);
   const themeName = (root?.THEME_MAP || []).find((theme) => theme?.id === themeId)?.nameKr || label || null;
@@ -194,6 +206,8 @@ export function relativeStrengthChart(documentRef, root, detail) {
   box.className = 'thp-rel';
   const head = documentRef.createElement('div');
   head.className = 'thp-detail-heading';
+  // The reading above the chart says what the line did; the how-to caption left and the method
+  // (rebased to 100 on the first session; the scatter compares this line with its 50-session average) is the head's hover.
   head.textContent = `시장(SPY)과 견준 대표 ETF ${etf}, 최근 ${series.length}거래일`;
   head.title = `${shortSession(series[0].sessionDate)}을 100으로 놓은 ${etf} ÷ SPY 상대가격(${shortSession(last.sessionDate)} ${last.value.toFixed(1)}). 섹터 회전 그래프의 점은 이 선을 50거래일 평균과 견준 값입니다.`;
   box.append(head, svg);
@@ -227,6 +241,8 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
   header.className = 'thp-summary-header';
   header.append(title, performance);
 
+  // The provenance line (provider and taxonomy text beside the number) and the leaders line (the
+  // member table lists them) left the face; the quote basis is the day move's hover.
   const themeItem = selectThemesItems(store?.getState?.() || {}).find((item) => String(item?.id || '') === String(detail.id));
   const closeOf = usCloseSession(root);
   performance.title = detail.source === 'quote-missing' || pct == null ? '시세 근거 미확보'
@@ -242,6 +258,7 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
   const summary = documentRef.createElement('h3');
   summary.className = 'thp-expert-title';
   summary.textContent = '원인과 세부 흐름';
+  // The membership review date stays with the theme; it opens the expert fold rather than sitting on the face.
   const membership = detail.membershipPolicy || {};
   const provenance = documentRef.createElement('p');
   provenance.className = 'theme-strength-basis thp-summary-provenance';
@@ -261,6 +278,7 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
     flowHead.className = 'thp-detail-heading';
     flowHead.textContent = '세부 테마 흐름 — 구성 종목 중앙값';
     box.append(flowHead);
+    // The same stale admission as the theme table — the read is a dated reference, not today's leaders.
     const basis = basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []);
     if (flow.read) { const p = documentRef.createElement('p'); p.className = 'flow-lead'; p.textContent = basis?.stale ? `${basis.label}. ${flow.read}` : flow.read; box.append(p); }
     const max = Math.max(1, ...flow.rows.map((group) => Math.abs(group.ret3m ?? 0)));
@@ -272,10 +290,10 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
       name.textContent = group.smallSample ? `${group.name}, 표본 ${group.members}종목, 참고` : group.name; // D15
       const item = documentRef.createElement('div');
       item.className = 'stock-read-bar-row';
-      const bar = signedBar(documentRef, group.ret3m ?? 0, max);
+      const bar = signedBar(documentRef, group.ret3m ?? 0, max); // A falling group sits left of zero
       const value = documentRef.createElement('span');
       value.className = 'stock-read-bar-value';
-      const dir = directionLabel(group);
+      const dir = directionLabel(group); // 3개월→1개월 순위 변화 (audit 19: not the playbook stage words; v58.74 names a contrary week)
       value.textContent = `3개월 ${group.ret3m == null ? '—' : `${signedText(group.ret3m, 1)}%`}, 1개월 ${group.ret1m == null ? '—' : `${signedText(group.ret1m, 1)}%`}${group.ret5d != null ? `, 5거래일 ${signedText(group.ret5d, 1)}%` : ''}${group.above50Pct != null ? `, 50일선 위 ${group.above50Pct}%` : ''}${dir ? `, ${dir}` : ''}`;
       item.append(bar, value);
       line.append(name, item);
@@ -283,12 +301,17 @@ export function renderThemeDetailSummary({ documentRef, root, store, themeId = n
     }
     expert.append(box);
   }
+  // The theme's 시나리오 read (renderThemeDetailPlaybook fills this); a stale copy (older placement) is
+  // dropped so the id stays unique. Then the criteria table with the conditional scenarios (renderThemeDetailTeach).
   documentRef.getElementById('theme-detail-native-playbook')?.remove();
   expert.append(make('div', 'theme-detail-native-section tp-detail', 'theme-detail-native-playbook'), make('div', 'theme-detail-native-section thp-criteria', 'theme-detail-native-criteria-table'));
   host.hidden = false;
   renderThemeDetailNext(documentRef, flow.next, themeName || detail.label);
 }
 
+// v57.50 (W1 request): the theme detail continues where its reading points — themeDetailFlow().next (the screener search
+// and 시장 폭). v59.51: with the 'AI에게 묻기' chips (the legacy #page-theme-detail block's three, on the
+// shared _aioAskInPanel handler) they close the panel, after the members, instead of sitting mid-panel.
 export function renderThemeDetailNext(documentRef, next, askName) {
   const host = documentRef?.getElementById('theme-detail-native-next');
   if (!host) return;
@@ -359,6 +382,8 @@ export function renderThemeDetailComposition({ documentRef, root, store, themeId
   const heading = documentRef.createElement('div');
   heading.textContent = '구성 종목, 기간 수익률과 추세 위치';
   heading.className = 'thp-detail-heading thp-detail-heading--loose';
+  // The 세부 테마별 당일 등락 fold left the face — its sub-theme day cards are the 당일 상세 fold's
+  // 서브테마 panel (renderThemeDetailSubthemeGap) and its 상승 종목 비율 line repeated the 참여 폭 panel there.
   const screenerRows = screenerRowMap(store);
   const seen = new Set();
   const members = (detail.subThemes || []).flatMap((subTheme) => (subTheme.tickers || []).map((symbol) => ({ sym: String(symbol).toUpperCase(), group: subTheme.name || '' })))
@@ -366,6 +391,8 @@ export function renderThemeDetailComposition({ documentRef, root, store, themeId
   const rerender = () => { if (String(root?._currentThemeId || '') === String(detail.id)) { renderThemeDetailComposition({ documentRef, root, store }); renderThemeDetailTeach({ documentRef, root, store }); } };
   const parts = [heading];
   const teach = themeTeachFor({ root, store, market: 'US', themeId: detail.id });
+  // v58.75 (persona review): a Finviz-style member table (1주·1개월·3개월·6개월, 50일선·52주 고점 거리, 20일 평균 대비
+  // 거래량, sortable) separates leaders from laggards.
   const table = members.some((member) => member.row) ? memberTable(documentRef, root, members, { onSort: rerender, showGroup: (detail.subThemes || []).length > 1, ariaLabel: `${detail.label} 구성 종목 표`, roles: teach?.roles || null }) : null;
   const roleFold = table ? memberRoleParts(documentRef, teach, members) : null;
   if (table) parts.push(table.lead, table.region, table.basis, ...(roleFold ? [roleFold] : []));
@@ -432,6 +459,9 @@ export function subthemeDayCards(documentRef, detail) {
   return subThemes;
 }
 
+// v58.75 (persona review, A-2·5): folded, how an expert picks inside a theme — the role counts against the members' median,
+// each role's definition, its pro and con, the members that fit it now, and the liquidity / earnings flags. v59.51: the
+// role count and the 50-day share left the face (one line over the table) for this fold.
 export function memberRoleParts(documentRef, teach, members = []) {
   const roles = teach?.roles;
   if (!roles?.measured) return null;
@@ -460,8 +490,11 @@ export const MEMBER_COLUMNS = Object.freeze([['ret5d', '1주'], ['ret1m', '1개�
  * third carry a plain flag (a rank fact, not a grade). Sort state lives on root so a repaint keeps it.
  */
 export function memberTable(documentRef, root, members, { onSort, showGroup = false, ariaLabel = '구성 종목 표', basisDate = null, roles = null } = {}) {
+  // v58.75 (persona review, A-5): with member roles (theme-criteria.js memberRoles) the last column names the role and its
+  // liquidity / earnings flags instead of the 3개월 third.
   const roleMap = roles?.measured ? roles.roles : null;
   const sort = root._aioMemberSort && MEMBER_COLUMNS.some(([key]) => key === root._aioMemberSort.key) ? root._aioMemberSort : { key: 'ret3m', dir: -1 };
+  // Boundary contract (stage 2): a member's published numbers are read through the readiness contract.
   const memberValue = (member, key) => readRowNumber(member.row, key, 'display');
   const ranked = members.filter((member) => memberValue(member, 'ret3m') != null).sort((a, b) => memberValue(b, 'ret3m') - memberValue(a, 'ret3m'));
   const third = ranked.length >= 6 ? Math.floor(ranked.length / 3) : 0;
@@ -532,10 +565,13 @@ export function memberTable(documentRef, root, members, { onSort, showGroup = fa
   region.tabIndex = 0;
   region.append(table);
   const name = (member) => member.label;
+  // One line over the table, names only (the numbers are in the table; the 50-day share is in the
+  // roles fold).
   const lead = make('p', ranked.length >= 4
     ? `3개월 기준 앞선 종목은 ${ranked.slice(0, 3).map(name).join('·')}, 뒤처진 종목은 ${ranked.slice(-2).reverse().map(name).join('·')}입니다.`
     : '구성 종목의 기간 수익률 기록이 적어 앞선·뒤처진 종목을 나누지 않습니다.', 'thp-detail-body');
   const latestMemberSession = latestSessionRows(members, (member) => stampDay(member.row?.factorSessionDate)).basis;
+  // The close date stays; how to read the columns is its hover.
   const basis = make('p', basisDate || (latestMemberSession ? `${shortSession(latestMemberSession)} 종가 기준` : '종가 기준일 미확인'), 'thp-perf-basis');
   basis.title = `거래량 배수 = 최근 거래량 ÷ 20일 평균, ${roleMap ? "역할은 아래 '테마 안에서 종목 고르는 법'의 정의" : `3개월 순위는 이 표 안에서의 위치(기록 ${ranked.length}종목)`}`;
   if (sorted.length > 18) {
@@ -547,6 +583,8 @@ export function memberTable(documentRef, root, members, { onSort, showGroup = fa
   return { lead, region, basis };
 }
 
+// v58.75 (persona review): what is scheduled for the theme's members — the published earnings calendar week and the
+// four-week estimate revisions (consensus-estimates.json fwd.up4w / down4w). Both load once and repaint on arrival.
 export function themeCatalysts(documentRef, root, symbols, rerender) {
   if (!root[EARNINGS_CALENDAR.key]) refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed) rerender(); }).catch(() => {});
   if (!root[CONSENSUS_KEY]) requestConsensusEstimates(root, rerender);
@@ -560,6 +598,8 @@ export function themeCatalysts(documentRef, root, symbols, rerender) {
     const span = calendar.weekStart && calendar.weekEnd ? `${shortSession(calendar.weekStart)}~${shortSession(calendar.weekEnd)}` : '이번 달력 주간';
     lines.push(due.length ? `실적 발표 예정(${span}, 구성 종목): ${due.map((row) => `${row.symbol} ${shortSession(row.date)}${hour[row.hour] ? ` ${hour[row.hour]}` : ''}`).join(', ')}.` : `${span} 실적 발표 예정인 구성 종목은 달력에 없습니다.`);
   }
+  // The four-week estimate-revision count left this box — the expert fold's '이 흐름의 이유' prints
+  // the same count (theme-criteria.js revisionCounts); the consensus still loads here for that reason and the criteria.
   if (!lines.length) return null;
   const box = documentRef.createElement('div');
   box.className = 'thp-catalysts';
@@ -736,7 +776,7 @@ export function renderThemeDetailSubthemeGap({ documentRef, root, store, themeId
       : '세부 테마 간 당일 반응은 비슷했습니다.';
     body.textContent = `세부 테마 격차 ${spread.toFixed(1)}%p, 최강 ${rows[0].name} ${signedText(rows[0].pct, 2, '%')}, 최약 ${rows[rows.length - 1].name} ${signedText(rows[rows.length - 1].pct, 2, '%')} — ${read}`;
   }
-  host.replaceChildren(heading, body, subthemeDayCards(documentRef, detail));
+  host.replaceChildren(heading, body, subthemeDayCards(documentRef, detail)); // Each sub-theme's day move and its members
   host.hidden = false;
 }
 
@@ -756,9 +796,13 @@ export function renderThemeDetailBenchmark({ documentRef, root, store, themeId =
   const body = documentRef.createElement('div');
   body.className = 'thp-detail-body';
   const themePct = finite(detail.pct);
+  // Codex browser audit H25: when the theme's own return IS its representative ETF (반도체 = SMH), "SMH 대비
+  // +0.00%p · 유사" compared SMH with itself. The comparison then moves to the broad market (SPY); without a
+  // SPY quote it says why it is skipped instead of producing an empty "유사" verdict.
   const ownSymbol = detail.etf || detail.compositeBase || null;
   const ownPct = ownSymbol ? finite(detailQuote(detail, ownSymbol)?.pct) : null;
   const selfCompare = Boolean(ownSymbol && themePct != null && ownPct != null && Math.abs(themePct - ownPct) < 0.005);
+  // On a weekend SPY has no live quote; the S&P 500 close of the detail's own session stands in.
   const spxClose = (() => { if (detail.quoteBasis?.kind !== 'completed-close' || !detail.quoteBasis.session) return null; const series = buildCloseSeries(root?._aioHistory || [], 'spx'); const at = series.findIndex((point) => point.date === detail.quoteBasis.session); return at > 0 ? (series[at].value / series[at - 1].value - 1) * 100 : null; })();
   const marketPct = finite(detailQuote(detail, 'SPY')?.pct ?? root?._liveData?.SPY?.pct ?? root?._liveData?.SPY?.changePercent ?? spxClose);
   const benchmarkSymbol = selfCompare ? (marketPct != null ? 'SPY' : null) : ownSymbol;
@@ -771,17 +815,21 @@ export function renderThemeDetailBenchmark({ documentRef, root, store, themeId =
     const diff = themePct - benchmarkPct;
     const direction = diff > 0.5 ? '상회' : diff < -0.5 ? '하회' : '유사';
     const context = direction === '상회' ? '당일은 시장보다 강했습니다.' : direction === '하회' ? '당일은 시장보다 약했습니다.' : '당일 시장과 비슷했습니다.';
+    // v58.74 (text audit): one session is read as one session — "상대 모멘텀이 우세" claimed a trend from a day.
     body.textContent = `${selfCompare ? `${withTopicParticle(`${ownSymbol}(테마 대표 ETF)`)} 당일 시장(SPY)보다 ` : `${benchmarkSymbol} 대비 `}${signedText(diff, 2, '%p')}(테마 ${signedText(themePct, 2, '%')}, ${selfCompare ? '시장' : '벤치마크'} ${signedText(benchmarkPct, 2, '%')}) — ${context}`;
   }
   host.replaceChildren(heading, body);
   host.hidden = false;
 }
 
+// v58.75 (persona review): the five same-day panels (등락 구간, 종목 간 격차, 참여 폭, 서브테마 격차, 벤치마크) and the leader
+// price cards read one session. They move, unchanged and with their ids, into one fold whose summary is the day in one line.
 export const DAY_HOSTS = Object.freeze(['theme-detail-native-leaders', 'theme-detail-native-temperature', 'theme-detail-native-spread', 'theme-detail-native-breadth-health', 'theme-detail-native-subtheme-gap', 'theme-detail-native-benchmark']);
 export function themeDayLine(detail) {
   const pct = finite(detail?.pct);
   if (pct == null) return '당일 등락: 시세 대기';
   const priced = (detail.leaders || []).map((symbol) => ({ symbol, pct: detailQuote(detail, symbol)?.pct })).filter((row) => finite(row.pct) != null).sort((a, b) => b.pct - a.pct);
+  // R1-02: a member printed as 0.0% is not counted as rising — the count follows the printed sign (directionOf).
   const up = priced.filter((row) => directionOf(row.pct, 1) === 'up').length;
   const ends = priced.length >= 2 ? `, 최강 ${priced[0].symbol} ${signedText(priced[0].pct, 1)}%·최약 ${priced.at(-1).symbol} ${signedText(priced.at(-1).pct, 1)}%` : '';
   return `당일 ${signedText(pct, 1)}%${priced.length ? `, ${priced.length}종목 중 ${up}종목 상승(${Math.round(up / priced.length * 100)}%)` : ''}${ends}`;

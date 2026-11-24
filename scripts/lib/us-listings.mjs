@@ -1,4 +1,4 @@
-// v57.81: pure parts of the US exchange-listing producer (scripts/build-us-listings.mjs) — parse the Nasdaq Trader
+// Pure parts of the US exchange-listing producer (scripts/build-us-listings.mjs) — parse the Nasdaq Trader
 // symbol directory, normalise symbols to the form AIO writes, join SEC CIKs, and check the publish floors.
 // No network and no file writes here, so scripts/ci-us-listings-check.mjs runs the same code on a tiny canned sample.
 //
@@ -23,7 +23,7 @@ export const WIDE_INDEX_TAGS = Object.freeze(['SP400', 'NASDAQ', 'NYSE', 'RUSSEL
 export const MAX_CORE_MISSES = 5;
 export const MAX_WIDE_MISS_SHARE = 0.05;
 // Exchange codes: Q is assigned here to nasdaqlisted rows; the rest are otherlisted.txt `Exchange` values.
-// v57.81: F (NYSE Texas, e.g. ET) and M (NYSE Chicago) appeared in the first live run; an unrecognised one-letter code is
+// F (NYSE Texas, e.g. ET) and M (NYSE Chicago) appeared in the first live run; an unrecognised one-letter code is
 // kept under its own letter (counted in meta) instead of dropping a listed security.
 export const EXCHANGE_CODES = Object.freeze({ Q: 'Nasdaq', N: 'NYSE', A: 'NYSE American', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX', F: 'NYSE Texas', M: 'NYSE Chicago' });
 const NAME_MAX = 64;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.18 (weekly audit 2026-11-15, D13/D5): the server news bundle ranks by what an article is about and which session it
+// The server news bundle ranks by what an article is about and which session it
 // covers, publishes in rank order, keeps topic floors as reserved capacity instead of first turn, and carries the closed
 // intraday slot into the next 08:00 bundle. Unit cases use headlines from the committed bundles of 11/09-11/14.
 // NEWS_SELECTION_MODULE=<file url> runs the same cases against another copy of scripts/lib/news-selection.mjs.
@@ -20,7 +20,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: 1-6 are unit cases on headline fixtures (code); 7 checks the committed bundle and also runs in a data run.
+// 1-6 are unit cases on headline fixtures (code); 7 checks the committed bundle and also runs in a data run.
 await runSections('news-ranking', [
 ['ranking-rules', async () => {
 

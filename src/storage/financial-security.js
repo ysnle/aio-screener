@@ -1,3 +1,4 @@
+// Shared Vault authentication, financial-section migration and AI input semantics.
 import { readNumber as finite } from '../domain/shared/number.js';
 export const VERIFY_KEY = 'aio_vault_verify_v1';
 const VERIFY_TEXT = 'AIO Vault authenticated v1';
@@ -18,6 +19,8 @@ export async function authenticateVault(vault, pin, { storage, saltStorage, sens
     existing = saltStorage.getItem('aio_vault_salt');
     verify = storage.getItem(VERIFY_KEY);
     const ciphertexts = sensitiveKeys.map((key) => storage.getItem(key)).filter(encrypted);
+    // A salt with neither sentinel nor ciphertext protects nothing (pre-P1350 unlocks
+    // wrote the salt before any save). Establish the sentinel instead of a dead-end lockout.
     if (existing) {
       vault._salt = Uint8Array.from(atob(existing), (char) => char.charCodeAt(0));
       if (vault._salt.length !== 16) throw new Error('vault-salt-invalid');

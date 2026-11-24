@@ -1,3 +1,6 @@
+// Read of the forward candidate record (public-data/screener-candidate-archive.json), shared by
+// the producer (which stores it as the artifact's summary) and the page. Only measured entries of
+// the latest ranking identity are averaged, so a model change starts a new record.
 const isNum = (value) => typeof value === 'number' && Number.isFinite(value);
 const mean = (values) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null);
 const round = (value, digits = 4) => (isNum(value) ? Math.round(value * 10 ** digits) / 10 ** digits : null);
@@ -26,6 +29,11 @@ export function summarizeCandidateArchive(archive) {
   };
 }
 
+// Daily entries held 21 sessions overlap, so twenty consecutive entries are about one
+// independent observation and their average t-statistic is badly inflated. Evidence uses only entries that start on
+// or after the previous chosen entry's forward date. The decision rule is fixed before the data: fewer than
+// INDEPENDENT_MIN independent entries is 'insufficient'; otherwise the rank is 'supported' only when the mean US rank
+// IC is positive with t >= 2, else 'not-supported'.
 export const INDEPENDENT_MIN = 12;
 export function independentEvidence(measured) {
   const chosen = [];
@@ -47,6 +55,8 @@ export function independentEvidence(measured) {
   return { n: chosen.length, dates: chosen.map((entry) => entry.date), icUS, icKR, topVsUniverse, decision, min: INDEPENDENT_MIN };
 }
 
+// The candidate model recorded beside the default ranking (entry.shadow), averaged over its own latest
+// identity on the same dates. Absent until the producer has written a shadow record.
 function shadowSummary(entries) {
   const withShadow = entries.filter((entry) => entry?.shadow?.identity);
   const identity = withShadow[withShadow.length - 1]?.shadow.identity || null;

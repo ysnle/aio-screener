@@ -34,7 +34,7 @@ import { writeThemeStageBackfill } from './theme-stage-backfill.mjs';
 //     무료 대규모 소스 없음 → 가격 파생 4팩터부터(정직). 심볼은 SCREENER_DB에서 런타임 추출(단일 출처).
 export const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
 
-// 2026-10-13 V03: the fund flag read only `sector === 'ETF'`, so the eleven sector SPDRs (index 'ETF',
+// The fund flag read only `sector === 'ETF'`, so the eleven sector SPDRs (index 'ETF',
 // sector = their GICS sector) and IWM/DIA (sector Financials) were counted as stocks in breadth. A fund is
 // declared by the catalogue's index or sector, or named as one (ETF / SPDR); a company name such as
 // "Northern Trust" is not matched.
@@ -61,9 +61,9 @@ export async function getScreenerUniverse() {
     const syms = (j.universe || []).map(r => r && r.sym).filter(Boolean);
     return {
       symbols: [...new Set(syms)],
-      // P1443: the backtest ranks with the live model, which normalizes within sectors.
+      // The backtest ranks with the live model, which normalizes within sectors.
       sectors: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, r.sector || null])),
-      // P1449: breadth contributors must say which entries are ETFs (asset type), not silently
+      // Breadth contributors must say which entries are ETFs (asset type), not silently
       // mix them into "미국 주식" counts — ETFs are already inside the screener universe.
       assetType: Object.fromEntries((j.universe || []).filter(r => r && r.sym).map(r => [r.sym, screenerAssetType(r)])),
       shareClassOf: Object.fromEntries((j.universe || []).filter(r => r && r.sym && r.shareClassOf).map(r => [r.sym, r.shareClassOf])),
@@ -80,7 +80,7 @@ export async function getScreenerUniverse() {
 // Yahoo 심볼 정규화: 클래스주 BRK.B→BRK-B. KR(.KS/.KQ)·일반은 보존.
 const _yhSym = (s) => s.replace(/^([A-Z]+)\.([A-Z])$/, '$1-$2');
 
-// v51.91 P586/C2: append each backtest run's IC/spread/hitRate to a small time series so drift
+// Append each backtest run's IC/spread/hitRate to a small time series so drift
 // (or a broken factor silently going to IC~0) is visible across runs instead of being overwritten
 // every 6h with no history. Separate file from history.json (daily market data, different
 // producer/cadence) to avoid entangling two independently-working accumulation paths.
@@ -214,7 +214,7 @@ async function enrichFundamentals(syms) {
   return { data: out, hasKey: true, ok, total: us.length, planError: false };
 }
 
-// v60.28: one issuer's parsed quarter series from its ledger PIT observations, through the projection's own builder
+// One issuer's parsed quarter series from its ledger PIT observations, through the projection's own builder
 // (scripts/lib/sec-fiscal-history.mjs quarterlyHistory) and the page's parser. A compact extended-ledger record carries the
 // same builder's string as quarterHistory (fetch-sec-fundamentals.mjs compactSecRecord); [] without either.
 export function secQuartersOf(record) {
@@ -223,7 +223,7 @@ export function secQuartersOf(record) {
   return parseQuarterHistory(typeof text === 'string' ? text : '');
 }
 
-// v60.50: the issuer's prior fiscal-year net margin median ({ median, years } or null) before `through`, from the annual
+// The issuer's prior fiscal-year net margin median ({ median, years } or null) before `through`, from the annual
 // series sec-fiscal-history.json publishes (scripts/lib/sec-fiscal-history.mjs fiscalHistory over the ledger's PIT
 // observations). The compact extended ledger keeps no observations, so its rows carry no norm.
 export function secMarginPriorNormOf(record, through) {
@@ -237,7 +237,7 @@ export function secMarginPriorNormOf(record, through) {
 
 export async function enrichSecFundamentals(syms, priceData, priceResults = null, assetTypeOf = {}, { ledgerPath = SEC_FUNDAMENTALS_OUT } = {}) {
   try {
-    // v57.81: the extended universe reads its own compact ledger (public-data/sec-fundamentals-extended.json).
+    // The extended universe reads its own compact ledger (public-data/sec-fundamentals-extended.json).
     const payload = JSON.parse(await readFile(ledgerPath, 'utf8'));
     const rows = payload && payload.data || {};
     const out = {};
@@ -248,7 +248,7 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
     // 발행 아티팩트에 가격을 기록하지 않으며, 계산 근거(가격·발행주식·관측일)를
     // rec에 함께 남겨 PIT 재현이 가능하게 한다.
     const priceBySym = new Map();
-    const splitsBySym = new Map(); // v59.70: chart split events, so a pre-split SEC share count is scaled to the close's basis
+    const splitsBySym = new Map(); // Chart split events, so a pre-split SEC share count is scaled to the close's basis
     for (const r of (Array.isArray(priceResults) ? priceResults : [])) {
       if (!r || r.__error || typeof r.sym !== 'string') continue;
       const series = Array.isArray(r.adjCloses) && r.adjCloses.length ? r.adjCloses : r.closes;
@@ -257,18 +257,18 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       if (Array.isArray(r.splits) && r.splits.length) splitsBySym.set(r.sym, r.splits);
     }
     for (const sym of syms) {
-      // 2026-10-13 F08: ETFs/trusts carry no operating financials (USO margin 115%, SLV negative revenue).
+      // ETFs/trusts carry no operating financials (USO margin 115%, SLV negative revenue).
       if (assetTypeOf?.[sym] === 'ETF' || String(priceData?.[sym]?.assetType || '').toUpperCase() === 'ETF') continue;
       // P1402 parent equity + F03/F05 heal (revenue per period, margin > 100% withheld, other-year shares dropped).
       const row = reconcileSecRecord(rows[sym]);
       if (!row || !row.fetchedAt || Date.now() - new Date(row.fetchedAt).getTime() > maxFetchAge) continue;
-      // v57.81: the per-symbol SEC row fields are one shared pure function (src/domain/fundamental/sec-row-fields.js),
+      // The per-symbol SEC row fields are one shared pure function (src/domain/fundamental/sec-row-fields.js),
       // so the browser's out-of-universe read builds them the same way.
-      // v60.28: the issuer's quarter series, built by the same function as sec-fiscal-history `quarters` (the 재무 공시 read),
+      // The issuer's quarter series, built by the same function as sec-fiscal-history `quarters` (the 재무 공시 read),
       // so margin and revenue growth share the P/E's four-quarter basis. The compact extended ledger keeps no observations.
       const rec = secFundamentalRowFields(row, { price: priceBySym.get(sym), dollarVolume30d: priceData?.[sym]?.dollarVolume30d, factorSessionDate: priceData?.[sym]?.factorSessionDate, payloadModel: payload.model, splits: splitsBySym.get(sym) || [], quarters: secQuartersOf(rows[sym]) });
       if (!rec) continue;
-      // v60.50: the prior fiscal-year margin norm, from the same annual series as sec-fiscal-history.json.
+      // The prior fiscal-year margin norm, from the same annual series as sec-fiscal-history.json.
       const norm = typeof rec.margin === 'number' ? secMarginPriorNormOf(rows[sym], rec.marginThrough || rec.fundamentalPeriodEnd) : null;
       if (norm) { rec.marginPriorFyMedian = norm.median; rec.marginPriorFyYears = norm.years; }
       out[sym] = rec;
@@ -282,7 +282,7 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
       model: payload.model || 'sec-fy-normalized-v2',
       generatedAt: payload.generatedAt || null,
       source: payload.source || 'SEC EDGAR companyfacts',
-      // 2026-10-16: the filer's SEC SIC code per issuer (scripts/fetch-sec-fundamentals.mjs issuerSic).
+      // The filer's SEC SIC code per issuer (scripts/fetch-sec-fundamentals.mjs issuerSic).
       sicBySymbol: payload.issuerSic && typeof payload.issuerSic === 'object' ? payload.issuerSic : {}
     };
   } catch (error) {
@@ -304,16 +304,16 @@ export const FACTOR_HISTORY_RANGE = '2y';
 export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   const computedAt = new Date().toISOString();
   const fetchOne = async (sym) => {
-    // P1442 (review 2026-10-04): factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
+    // Factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
     // US open used the in-progress daily bar for returns, volume, ranges and VCP. Only bars whose session
     // has closed (isSessionComplete, the same guard the breadth path uses) enter any factor.
     let fetched = await fetchHistory(_yhSym(sym), FACTOR_HISTORY_RANGE);
     const providerMeta = fetched?.meta || null;
     const market = sessionSegmentOfSymbol(sym);
     let providerNullCloseDates = fetched?.nullCloseDates || [];
-    // v60.26: the chart's dividends, read before the KR reconciliation rebuilds the rows.
+    // The chart's dividends, read before the KR reconciliation rebuilds the rows.
     const dividends = Array.isArray(fetched?.dividends) ? fetched.dividends : [];
-    const dividendEventsRequested = fetched?.dividendEventsRequested === true; // v60.28: also lost in the KR rebuild
+    const dividendEventsRequested = fetched?.dividendEventsRequested === true; // Also lost in the KR rebuild
     let closeReconciliation = null;
     if (market === 'kr' && Array.isArray(fetched) && fetched.length) {
       const exchange = await fetchKrExchangeDaily(sym, fetched[0].date);
@@ -323,7 +323,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
       providerNullCloseDates = reconciled.nullCloseDates;
       closeReconciliation = reconciled.report;
     }
-    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    // Shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
     return priceHistoryFromRows(sym, fetched, { providerMeta, nullCloseDates: providerNullCloseDates, closeReconciliation, market, dividendEventsRequested, dividends });
   };
   const results = await mapLimit(syms, concurrency, fetchOne);
@@ -339,7 +339,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
     failedAt.forEach((i, k) => { if (!priceMissing(retried[k])) { results[i] = retried[k]; recovered += 1; } });
     console.log(`[fetch-data] price factors retry: ${recovered}/${failedAt.length} recovered`);
   }
-  // 2026-10-13 F13: non-USD traded value is converted session by session at that currency's daily USD
+  // non-USD traded value is converted session by session at that currency's daily USD
   // close (one 1y FX series per currency), so KR/JP/TW rows carry a USD figure with its basis instead of null.
   const quoteCurrencyOf = (r) => listingCurrencyOf(r?.sym, r?.providerMeta);
   const fxSeries = new Map();
@@ -350,7 +350,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
       if (series.length) fxSeries.set(currency, series);
     } catch { /* conversion stays unavailable for this currency */ }
   }
-  // v57.87: index one-session returns for the down-day resilience field — S&P 500 for US listings, KOSPI / KOSDAQ for
+  // Index one-session returns for the down-day resilience field — S&P 500 for US listings, KOSPI / KOSDAQ for
   // Korean ones — on completed sessions only (the same guard as the factor histories).
   // The same KOSPI / KOSDAQ bars give Korean rows a 3-month benchmark return (US rows read SPY's own row), so
   // relative strength is not US-only.
@@ -367,7 +367,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   let ok = 0;
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
-    // v57.81: shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
+    // Shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
     const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks });
     if (f) {
       data[r.sym] = f; ok++;
@@ -385,7 +385,7 @@ export function computeScreenerBreadth(syms, results, assetTypeOf = null, option
   // F07/V04: Tokyo/Taiwan listings are not US stocks; they stay in `all` only. Self-contained on purpose
   // (the contract gate evaluates this function alone); suffixes mirror INTL_LISTING_TIME_ZONE in session-time.js.
   const isUs = (sym) => !isKr(sym) && !/\.(T|TW|TWO)$/i.test(String(sym || ''));
-  // v57.50 D21: stocks only — ETFs are excluded from numerator and denominator when the asset type is known.
+  // Stocks only — ETFs are excluded from numerator and denominator when the asset type is known.
   const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
   syms = (syms || []).filter((sym) => !isEtf(sym));
   const validRows = (results || []).filter(r => r && !r.__error && !isEtf(r.sym) && Array.isArray(r.adjCloses) && r.adjCloses.length >= 2
@@ -522,7 +522,7 @@ export function applyTickerNewsResults(data, { eligible = [], targets = [], resu
       continue;
     }
     const selected = selectTickerNewsMemo(result.items, { sym, name: names[sym], nowMs });
-    // An empty feed is often transient (P734); like a failed fetch it keeps a still-valid verified memo.
+    // An empty feed is often transient; like a failed fetch it keeps a still-valid verified memo.
     if (!selected && !(Array.isArray(result.items) && result.items.length) && retain(sym)) { counts.retained++; continue; }
     if (!selected) { row.newsStatus = 'no-verified-article'; counts.noVerifiedArticle++; continue; }
     const lineage = deriveTickerNewsLineage(selected.items, result.fetchedAt);
@@ -544,7 +544,7 @@ async function _enrichTickerNews(prioSyms, data) {
   const meta = new Map(universeRows.filter((row) => row && row.sym).map((row) => [row.sym, row]));
   const names = Object.fromEntries([...meta].map(([sym, row]) => [sym, row.name || '']));
   // Universe order (largest names first) is the rotation order; ETFs and rows without a name are not covered.
-  // v57.51: the same ETF rule as breadth and SEC (sector SPDRs carry a GICS sector but index 'ETF').
+  // The same ETF rule as breadth and SEC (sector SPDRs carry a GICS sector but index 'ETF').
   const eligible = prioSyms.filter((sym) => data[sym] && meta.has(sym) && screenerAssetType(meta.get(sym)) !== 'ETF' && names[sym]);
   let previous = {};
   try { previous = expandScreenerArtifact(JSON.parse(await readFile(SCREENER_OUT, 'utf8'))).data || {}; } catch (_) { previous = {}; }
@@ -559,7 +559,7 @@ async function _enrichTickerNews(prioSyms, data) {
   return counts.collected + counts.retained;
 }
 
-// v57.81: one merge for the core artifact and the extended shard (the same rule, not a copy).
+// One merge for the core artifact and the extended shard (the same rule, not a copy).
 export function mergeSecIntoFactorRows(data, secData = {}) {
   for (const sym in secData) {
     // A screener row represents a successfully derived factor observation. A
@@ -570,8 +570,8 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
     ['pe','pb','roe','margin','revGrowth'].forEach(key => {
       if (typeof data[sym][key] !== 'number' && typeof sec[key] === 'number') {
         data[sym][key] = sec[key];
-        // v60.28: a margin or revenue growth carries its basis ('ttm' | 'fy') and end date with it.
-        // v60.50: the margin also carries the company's own prior fiscal-year median it is compared with (peak-earnings.js).
+        // A margin or revenue growth carries its basis ('ttm' | 'fy') and end date with it.
+        // The margin also carries the company's own prior fiscal-year median it is compared with (peak-earnings.js).
         if (key === 'margin' || key === 'revGrowth') for (const suffix of ['Basis', 'Through', ...(key === 'margin' ? ['PriorFyMedian', 'PriorFyYears'] : [])]) if (sec[`${key}${suffix}`] != null) data[sym][`${key}${suffix}`] = sec[`${key}${suffix}`];
       }
     });
@@ -581,7 +581,7 @@ export function mergeSecIntoFactorRows(data, secData = {}) {
       });
       // 메모리 한정 가격으로 재계산한 pe/pb는 계산 근거(가격·기저·발행주식·관측일)를
       // 행에 함께 남긴다. 발행 아티팩트에 원시가를 기록하지 않는다.
-      // 2026-10-13 F04/F10: the verified share basis and the close it multiplies travel with the row.
+      // The verified share basis and the close it multiplies travel with the row.
       ['pePrice','pePriceBasis','peEarningsBasis','peEarningsThrough','peEarningsConcept','peOneOff','peLoss','pbDeficit','peEarningsLaterQuarter','pbPrice','pbPriceBasis','pbEquityThrough','pbEquityBasis','valuationPrice','valuationPriceBasis','valuationSharesOutstanding','valuationSharesObservedAt','valuationSharesCheck','valuationSharesBasis','valuationSplitRatio','valuationSplitDate','valuationHeldReason'].forEach(key => {
         if (sec[key] != null) data[sym][key] = sec[key];
       });
@@ -614,7 +614,7 @@ export function retainMarketRows({ data, syms, previous, market = 'KR', floor = 
   return { market, from: previous?.asOf || null, fetched, universe: universe.length, carried: carried.length, reason: `fetched ${fetched}/${universe.length} below ${Math.round(floor * 100)}%` };
 }
 
-// v59.46 R3-05 (owner 2026-10-31): a US run above the 80% floor dropped the up-to-20% of names it failed to read, so a
+// R3-05: a US run above the 80% floor dropped the up-to-20% of names it failed to read, so a
 // stock's row vanished for a day although last night's row existed. A missing symbol keeps its last published row with
 // its own factorSessionDate and retainedFrom (the first run that carried it); the ranking already scores only rows on
 // the latest completed session, so a carried row is shown with its date and never ranked as current. A row older than
@@ -709,36 +709,36 @@ export async function enrichScreener() {
   try {
     backtest = backtestFactors(results.filter(r => r && r.closes && r.closes.length >= BACKTEST_MIN_SERIES_CLOSES), {
       universeMeta: universeLineage,
-      sectorOf: (sym) => universeInfo.sectors?.[sym] ?? null // P1443: live-model parity (sector-relative z-scores)
+      sectorOf: (sym) => universeInfo.sectors?.[sym] ?? null // live-model parity (sector-relative z-scores)
     });
   }
   catch (e) { console.warn('[fetch-data] backtest 실패(무시):', e && e.message || e); }
   const assetTypeOf = (sym) => universeInfo.assetType?.[sym] ?? null;
   let sp500Weights = null;
   try { sp500Weights = JSON.parse(await readFile(`${REPO_ROOT}/public-data/sp500-weights.json`, 'utf8')); } catch { /* not collected yet */ }
-  // v57.51 V09: a secondary share class (GOOG→GOOGL, FOX→FOXA, NWS→NWSA) is one issuer; equal-weight breadth counts it once.
+  // A secondary share class (GOOG→GOOGL, FOX→FOXA, NWS→NWSA) is one issuer; equal-weight breadth counts it once.
   const secondaryClass = new Set(Object.keys(universeInfo.shareClassOf || {}));
   const breadthSyms = syms.filter((sym) => !secondaryClass.has(sym));
   const breadthResults = (results || []).filter((row) => !secondaryClass.has(row?.sym));
   const sp500Members = sp500MemberSet(sp500Weights);
   const breadth = computeScreenerBreadth(breadthSyms, breadthResults, assetTypeOf, { sp500Members });
   if (krRetained && previousArtifact?.breadth?.segments?.kr) breadth.segments.kr = { ...previousArtifact.breadth.segments.kr, retained: { from: krRetained.from, reason: krRetained.reason } };
-  // P1449: breadth contributors carry each symbol's asset type so the drilldown can say which
+  // Breadth contributors carry each symbol's asset type so the drilldown can say which
   // single-day moves need a corporate-action check. v57.50 D21: ETFs are no longer in the breadth population.
-  // v58.79 (owner 2026-10-25): the history's headline breadth is S&P 500 members (the AIO universe stays in screener.json).
+  // The history's headline breadth is S&P 500 members (the AIO universe stays in screener.json).
   const breadthHistory = computeScreenerBreadthHistory(breadthSyms, breadthResults, undefined, Date.now(), assetTypeOf, sp500Members);
-  // P1416: distribution days need the index's own volume; one extra daily-bar request.
+  // Distribution days need the index's own volume; one extra daily-bar request.
   // fetchHistory does not throw: it returns [] when every host failed, so an empty read is reported here.
   const spxBars = await fetchHistory('^GSPC', '6mo');
   if (!spxBars?.length) console.warn('[fetch-data] ^GSPC daily bars came back empty: no distribution-day count is written for this run');
   const distribution = { series: distributionDaySeries((spxBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
-  // v59.57: the Nasdaq Composite rally attempt and follow-through day (O'Neil) need the index's own volume too.
+  // The Nasdaq Composite rally attempt and follow-through day (O'Neil) need the index's own volume too.
   const ixicBars = await fetchHistory('^IXIC', '1y');
   if (!ixicBars?.length) console.warn('[fetch-data] ^IXIC daily bars came back empty: no rally-attempt / follow-through state is written for this run');
   const rally = { series: rallyAttemptSeries((ixicBars || []).map((bar) => ({ date: bar.date, close: bar.close, volume: bar.volume }))) };
   const breadthHistoryInfo = await updateScreenerBreadthHistory(breadthHistory, Date.now(), distribution, rally);
   await writeBreadthContributors(breadthHistory, Date.now());
-  // v58.79 (owner 2026-10-25): the theme-stage record before 10/12, recomputed from these closes with the live rule.
+  // The theme-stage record before 10/12, recomputed from these closes with the live rule.
   try { await writeThemeStageBackfill(results, Date.now()); }
   catch (e) { console.warn('[fetch-data] theme stage backfill 실패(무시):', e && e.message || e); }
   const usUniverse = syms.filter(s => listingMarketOfSymbol(s) === 'US').length;
@@ -748,7 +748,7 @@ export async function enrichScreener() {
   }).length;
   const fundamentalCoveragePct = usUniverse ? round(fundamentalCount / usUniverse * 100, 1) : 0;
 
-  // v51.91 P586/C2: IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
+  // IC/spread/hitRate 시계열 누적(별도 아티팩트) — 매 실행 덮어쓰기로 드리프트가
   // 안 보이던 문제 시정. screener.json 자체는 계속 최신 1개 스냅샷만 유지(기존 소비자 영향 없음).
   let backtestHistInfo = null;
   try { backtestHistInfo = await updateBacktestHistory(backtest); }
@@ -761,7 +761,7 @@ export async function enrichScreener() {
   // data-live-price 라이브 갱신 경로로만 채워진다(미커버 종목은 '—').
   for (const sym in data) { if (data[sym] && 'price' in data[sym]) delete data[sym].price; }
 
-  // P1170 (15 D04): 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다. 시장별로
+  // 혼합 시장의 전역 max 하나는 개별 종목의 최신성을 대표하지 못한다. 시장별로
   // barStart 범위와 세션 기준일을 남기고, 값의 시간 기저를 basis로 표시한다.
   const factorScopes = factorScopesByMarket(data);
   // 2026-10-13 S&P 500 map: the member weights refreshed just before this step (fetch-sp500-weights.mjs) travel
@@ -782,16 +782,16 @@ export async function enrichScreener() {
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
-    // v60.26: the newest session's volume is the provider's provisional figure at factorComputedAt (US).
+    // The newest session's volume is the provider's provisional figure at factorComputedAt (US).
     volumeBasis: LATEST_SESSION_VOLUME_BASIS,
     source: 'github-actions:yahoo-2y',
     universe: syms.length,
-    // v58.71: rows carried for a retained market count as published rows; marketRetained names them.
+    // Rows carried for a retained market count as published rows; marketRetained names them.
     ok: Object.keys(data).length,
     ...(krRetained ? { marketRetained: { KR: krRetained } } : {}),
-    // v59.46 R3-05: per-row carry of unfetched US names; fetch coverage (validator) counts only rows read this run.
+    // R3-05: per-row carry of unfetched US names; fetch coverage (validator) counts only rows read this run.
     ...(usRowsRetained ? { rowsRetained: { US: usRowsRetained } } : {}),
-    // P1589: a universe symbol whose history failed this run is listed, not silently absent
+    // A universe symbol whose history failed this run is listed, not silently absent
     // (WBD/ET appeared in some runs and vanished in others with no trace).
     unfetchedSymbols: syms.filter((sym) => !data[sym] || data[sym].retainedFrom).sort(),
     fmpHasKey: fmpResult.hasKey,
@@ -836,9 +836,9 @@ export async function enrichScreener() {
     data,
     backtest,
   };
-  // v57.95: rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
+  // Rows are written in the row-defaults encoding (shared lineage once per file); readers expand it.
   await atomicWriteFile(SCREENER_OUT, JSON.stringify(encodeScreenerArtifact(payload)));
-  // P1465: record today's default-profile candidates (the page's own ranking path on the files just
+  // Record today's default-profile candidates (the page's own ranking path on the files just
   // written) and fill the outcomes of entries whose 21-session window has closed. Non-fatal.
   try {
     const archiveInfo = await updateCandidateArchive({ root: pathToFileURL(`${REPO_ROOT}/`), results, write: (url, text) => atomicWriteFile(fileURLToPath(url), text) });

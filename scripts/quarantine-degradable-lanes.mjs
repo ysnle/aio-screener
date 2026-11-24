@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v58.70 (owner 2026-10-23): refresh-data step between the producers and the validation gates. It runs the artifact
+// refresh-data step between the producers and the validation gates. It runs the artifact
 // semantics check once in report mode; when every failure is tagged with a degradable lane (scripts/lib/lane-quarantine.mjs),
 // those lanes go back to the last published data.json (main HEAD) or are flagged, and data.meta.laneQuarantine says so.
 // Any untagged failure leaves data.json untouched, so the validation step below still refuses the whole refresh.

@@ -1,3 +1,7 @@
+// 2026-10-05 owner decision: 리서치 라이브러리 — one skeleton for the three research pages
+// (개념·분석, 산업 지도, 대가 보유 종목): a header with the page name, one line on what the page
+// answers and one search across every research surface; below it 목차 · 본문 · 연결 in three columns.
+// The skeleton owns layout and search only; each page fills the three columns with its own content.
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
 import { loadKnowledgeIndex, searchKnowledgeIndex } from './knowledge-search.js';
 import { createStorageGateway } from '../../platform/storage.js';
@@ -7,6 +11,8 @@ import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { SCENARIO_STATE } from '../../data/artifact-registry.js';
 import { bindCombobox } from '../behaviors/listbox.js';
 
+// Review (2e, beginner panel): two ways in before the 400-book shelf — the start of the column series (written as a
+// sequence from money to the stock market) and the notes that match the next release the 오늘/거시 screens are waiting for.
 const EVENT_TOPICS = Object.freeze([
   [/cpi|pce|ppi|물가/i, ['물가', '디스인플레이션', '금리']],
   [/fomc|연준|금리 결정/i, ['정책금리', '금리', '채권']],
@@ -16,7 +22,7 @@ const EVENT_TOPICS = Object.freeze([
 export function readingPicks(entries, crossroads) {
   const docs = (entries || []).filter((entry) => entry?.route?.page && entry.title);
   const first = docs.filter((entry) => entry.surface === 'column').slice(0, 5);
-  const event = crossroads?.nextEvent;
+  const event = crossroads?.nextEvent; // v59.51 (area H): the one next-release selector
   const topics = event ? (EVENT_TOPICS.find(([pattern]) => pattern.test(`${event.id} ${event.name}`))?.[1] || []) : [];
   const today = topics.length ? docs.filter((entry) => topics.some((word) => String(entry.title).includes(word))).slice(0, 4) : [];
   return { first, today, eventLabel: event?.name || null };
@@ -168,6 +174,9 @@ export function el(doc, tag, className, text) {
 const loadIndex = (root) => loadKnowledgeIndex(root);
 
 const normalize = (text) => String(text || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
+// Codex browser audit H52: concepts were listed first regardless of fit, so the note whose title is
+// "…ROIC" sat below four loosely related concepts in a scrolled box. Concepts are scored on the same
+// scale as the index (exact name 100 · title 60 · synonym/covered term 50 · related 15) and merged.
 function conceptMatches(query, limit = 6) {
   const q = normalize(query);
   if (q.length < 2) return [];
@@ -185,6 +194,7 @@ function conceptMatches(query, limit = 6) {
   return scored.sort((a, b) => b.score - a.score).slice(0, limit)
     .map(({ concept, score }) => ({ id: `concept:${concept.id}`, surface: 'concept', surfaceLabel: '개념', group: concept.cat, title: concept.term, text: concept.def.slice(0, 120), score, route: { page: 'principles', params: { mode: 'concept', node: concept.id } } }));
 }
+// first-users run-2 R2-20: a word the screens use (분배일) may live only in 용어 사전; it is found here too and opens there.
 function glossaryMatches(root, query, known, limit = 4) {
   const q = normalize(query);
   if (q.length < 2) return [];
@@ -203,6 +213,7 @@ export function routeHref(root, route) {
 export function openResearchRoute(root, route, { currentPage, onLocal } = {}) {
   if (!route?.page) return;
   if (route.page === currentPage && typeof onLocal === 'function') { onLocal(route.params || {}); return; }
+  // pushState + showPage lost the selection (showPage strips the knowledge keys); the pending route URL keeps it.
   if (typeof root.showPage === 'function') navigateKnowledgeRoute({ root, page: route.page, params: route.params || {} });
   else root.location.assign(routeHref(root, route));
 }
@@ -213,6 +224,8 @@ export function researchDocumentOpen(root) {
   return /[?&](?:node|chapter|lesson|domain|manager)=/.test(locationQuery) && !/[?&]mode=graph(?:&|$)/.test(locationQuery);
 }
 
+// `libraryTools` (default on): the whole-library search and the "이 화면 관련 글" chips in the head. 대가 보유 종목 turns
+// them off: its head is the manager list's, and the library-wide tools belong on 개념·분석.
 export function createResearchShell(doc, { root = globalThis, route, lead = null, onLocal = null, libraryTools = true } = {}) {
   ensureResearchStyle(doc);
   const page = RESEARCH_PAGES.find((item) => item.route === route) || RESEARCH_PAGES[0];
@@ -232,6 +245,8 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   // The hub tab bar above already switches pages and the breadcrumb names the hub; the shell header
   // carries only the page title, what it answers and the search.
   void pages;
+  // v58.79 (layout over captions): the page list under the title repeated the hub tabs; it is the title's hover now, and a
+  // caller's own lead line still shows.
   const heading = el(doc, 'h1', 'rl-title', page.title);
   heading.title = page.summary;
   titleBox.append(heading, ...(lead ? [el(doc, 'p', 'rl-sub', lead)] : []));
@@ -276,7 +291,7 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
       row.addEventListener('click', () => {
         closeResults(); input.value = '';
         if (item.glossaryTerm) {
-          root.openGlossary?.(item.glossaryTerm);
+          root.openGlossary?.(item.glossaryTerm); // The glossary opens on the term (its search box left for the command search)
           return;
         }
         openResearchRoute(root, item.route, { currentPage: route, onLocal });
@@ -288,6 +303,8 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   };
   let timer = null;
   input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 120); });
+  // The list closes only when focus leaves the whole search box. Tab from the input
+  // into a result button kept the old 180ms blur timer, which hid the list and dropped focus to BODY.
   search.addEventListener('focusout', (event) => {
     if (event.relatedTarget && search.contains(event.relatedTarget)) return;
     setTimeout(() => { if (!search.contains(doc.activeElement)) closeResults(); }, 180);
@@ -304,8 +321,21 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
   const aside = el(doc, 'aside', 'rl-aside');
   aside.setAttribute('aria-label', '연결');
   grid.append(nav, main, aside);
+  // P1642 (owner reference 2026-10-12, a "read later" list turned into a library) and P1674 (owner
+  // 2026-10-13, the same library on video): every document is a spine on a shelf — the title runs down
+  // the spine, the tint is its topic group, a light band marks what this browser has opened. Chips pick
+  // the collection, a spine opens a card with the excerpt, and the card opens the document or asks AI.
   const shelf = el(doc, 'details', 'rl-shelf');
   const prefs = createStorageGateway({ prefix: 'aio' });
+  // X17: browsing and reading are different moments. With no document chosen the shelf is the
+  // way in (remembered open/closed); once a document is open the text comes first and the shelf folds to its
+  // one-line summary — on a phone it otherwise pushed the chosen document several screens down.
+  // The graph view (mode=graph&node=…) is browsing, not reading — it keeps the shelf.
+  // 2026-10-14 audit: on a phone the shelf starts folded unless the reader opened it before. A bare mode=frames is not
+  // a chosen document (mount rewrites a fresh #principles to it), so the shelf stays the way in there.
+  // v58.75 (persona review): the open shelf sat above the 원칙 · 대가 · 아틀라스 text on desktop by default, so each screen
+  // opened on the whole library. The shelf now starts folded everywhere (one line), and three documents of this screen
+  // sit above it — the open document's own topic group when one is open, else the first of this screen's collection.
   shelf.open = false;
   const shelfTitle = el(doc, 'summary', null, '서가, 컬렉션 불러오는 중');
   const shelfBody = el(doc, 'div', 'rl-shelf-body');
@@ -327,12 +357,16 @@ export function createResearchShell(doc, { root = globalThis, route, lead = null
     related.replaceChildren(row);
     related.hidden = false;
   });
+  // The whole-library shelf is one place, 개념·분석; 산업 지도 and 대가 보유 종목 open on their own
+  // content (the hub tabs and the search still reach every document).
   shell.append(head, related, ...(route === 'principles' ? [shelf] : []), grid);
   attachSelectionAsk(doc, root, main, route);
   revealActiveNav(nav); // runs after this task, once the view has filled the TOC
   return { shell, nav, main, aside, input };
 }
 
+// The one top AI panel answers every question: fill its input and leave sending to the
+// reader, so nothing here spends the shared AI budget by itself.
 export function askLibraryAi(root, prompt, context = 'principles') {
   const doc = root?.document;
   if (!doc || !prompt) return false;
@@ -393,6 +427,8 @@ function attachSelectionAsk(doc, root, main, route) {
   });
 }
 
+// The TOC is its own scroll box; after a render, bring the selected entry into it so the
+// reader sees where the open document sits (a lesson deep in a 52-item list stayed off-screen).
 export function revealActiveNav(nav) {
   const view = nav?.ownerDocument?.defaultView;
   const reveal = () => {
@@ -487,6 +523,10 @@ function openEntry(entries, page, search) {
       && Object.entries(entry.route.params).every(([key, value]) => params.get(key) === String(value)))
     .sort((a, b) => Object.keys(b.route.params).length - Object.keys(a.route.params).length)[0] || null;
 }
+// The spine shows the main title (before " — ") in one column, cut from the end with "…" so its start stays readable;
+// the full title is the spine's accessible name and its hover/focus tip. v57.79 (UI review): a two-column title broke
+// mid-phrase and the second column read as a stray fragment ("의 구분", "전이", "감소"). Size follows that text and a
+// stable per-document variation, and encodes nothing else.
 function spineShape(entry) {
   const chars = [...String(entry.title).split(' — ')[0].trim()];
   const perColumn = Math.min(15, Math.max(8, chars.length));
@@ -530,6 +570,8 @@ function renderShelf(doc, root, { shelfTitle, shelfBody, prefs, entries, current
   const sorts = el(doc, 'div', 'rl-shelf-sort');
   sorts.setAttribute('role', 'group');
   sorts.setAttribute('aria-label', '정렬');
+  // 2026-10-14 audit: the spine shade is the topic group inside a collection; say so once next to the chips.
+  // Shades repeat across distant groups, so the line names neighbouring spines and shows only in topic order.
   const legend = el(doc, 'p', 'rl-shelf-legend', '같은 색 묶음 = 같은 주제');
   tools.append(chips, sorts);
   const stage = el(doc, 'div', 'rl-shelf-stage');

@@ -87,6 +87,11 @@ function element(documentRef, tag, className, text) {
 // The seven layers and the story-layer table live in src/domain/knowledge/value-chain-layers.js (the 종목 개요 reads them too).
 const VALUE_CHAIN_CROSS_DOMAINS = Object.freeze(['domain-ai-economics', 'domain-geopolitics-policy-security', 'domain-capital-markets-company-map', 'domain-adjacent-future-tech']);
 
+// Tickers for registry companies only where the listing is one exact symbol. US symbols carry the SEC CIK
+// so scripts/ci-atlas-contract-check.mjs can prove each pair against public-data/us-listings.json (Nasdaq Trader + SEC CIK);
+// Samsung Electronics is its KRX code (checked against public-data/screener-universe.json). No ticker: private (Shield AI), listed only
+// outside the US/Korea (KIOXIA, Siemens), or a subsidiary whose parent has two share classes (Google Cloud → Alphabet).
+// AWS is shown through its parent's single listing, labelled as the parent.
 export const ATLAS_PLAYER_LISTINGS = Object.freeze({
   nvidia: Object.freeze({ ticker: 'NVDA', cik: '0001045810' }),
   amd: Object.freeze({ ticker: 'AMD', cik: '0000002488' }),
@@ -128,6 +133,8 @@ export function valueChainLayerPlayers(layer, research, registry, profiles = [])
   };
   const rows = [];
   const seen = new Set();
+  // Counting matching tags pushed NVIDIA (two compute tags, one network tag) behind four
+  // memory makers in 반도체·메모리. A player whose first (primary) tag is in this layer comes first, then registry order.
   (registry?.players || [])
     .map((player, order) => {
       const symbol = PLAYER_PROFILE_SYMBOL[player.playerId] || ATLAS_PLAYER_LISTINGS[player.playerId]?.ticker || null;
@@ -211,6 +218,7 @@ function createValueChainLayers(documentRef, research, registry, selectedDomainI
     cross.appendChild(link);
   });
   block.appendChild(cross);
+  // The not-a-recommendation line stays; how to use the layers is its hover.
   block.appendChild(Object.assign(element(documentRef, 'p', 'atlas-layers-note', '기업은 역할 예시, 추천 아님'), { title: '층을 누르면 그 분야 설명이, 티커를 누르면 종목 개요가 열립니다.' }));
   return block;
 }
@@ -323,6 +331,8 @@ function createDeepTaxonomyView(documentRef, node, deepTaxonomy, selectedTopicId
   return block;
 }
 
+// Relations come from the typed canonical set (atlas-relations.js). The producer's per-domain
+// list order (domainChains) is not a supply chain and no longer becomes 상류/하류 edges.
 function mergeTaxonomyRelationships(taxonomyCoverage) {
   const nodes = taxonomyCoverage?.nodes || [];
   const byId = new Map(nodes.map((node) => [node.nodeId, node]));
@@ -345,6 +355,8 @@ function relationList(documentRef, groups = []) {
 
 function createDomainGuide(documentRef, domain, guide, packet, claimLedger) {
   if (!guide) return null;
+  // v59.70 (QUALITY-BAR 6): the face is the domain's name and its one-paragraph flow. The column labels are gone, the
+  // observation/verification paragraph opens the evidence fold, and the 'follow the sub-areas below' how-to line is cut.
   const block = element(documentRef, 'section', 'atlas-domain-brief');
   block.append(
     element(documentRef, 'h3', 'atlas-domain-detail-title', DOMAIN_LABELS[domain.id] || domain.title),
@@ -440,6 +452,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         if (!target?.routeId) return;
         navigateKnowledgeTarget({ root, target: { ...target, returnContext: target.returnContext || { route: 'atlas' } } });
       };
+      // v58.80 (first-users R2-17, atlas): opening a document adds a history entry, so Back returns to the previous one.
       const syncSharedState = ({ push = false } = {}) => (push ? pushKnowledgeRouteState : replaceKnowledgeRouteState)({ root, page: 'atlas', state: {
         mode: state.tab,
         node: state.tab === 'taxonomy' ? state.selectedDomainNodeId : state.tab === 'relationships' ? state.selectedRelationshipNodeId : state.tab === 'aimap' ? state.aiMap.node : null,
@@ -459,6 +472,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
        let ensureFoundationDetailCapabilities = () => {};
        let retryCapabilities = () => {};
        let loadKnowledgeArticle = () => {};
+       // 2026-10-05 리서치 라이브러리 redesign: 목차 · 본문 · 연결 shell (industry-view.js). The tab is now the
+       // open contents section; the view is the open document (domain overview, part, AI-foundation module, guide).
        const viewOf = () => state.tab === 'foundations' ? 'module' : state.tab === 'relationships' ? 'guide' : state.tab === 'aimap' ? 'aimap' : state.atlasView === 'domain' ? 'domain' : 'node';
        const todayIso = () => new Date().toISOString().slice(0, 10);
        const capitalView = () => capitalFlowsView(state.capitalFlows, { today: todayIso() });
@@ -510,6 +525,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              layers: (domain) => createValueChainLayers(documentRef, state.research, state.registry, domain?.id || null, root?.[COMPANY_PROFILE_INDEX.key]?.profiles || []),
              domainStory: (domain) => stripReferenceChrome(createDomainGuide(documentRef, domain, (state.domainGuides?.guides || []).find((guide) => guide.id === domain.id), (state.domainPackets?.packets || []).find((packet) => packet.domainId === domain.id), state.claimLedger)),
              relations: (nodeId) => { const entry = coverage.find((item) => item.nodeId === nodeId); return entry ? relationList(documentRef, entry.relationGroups) : null; },
+             // X07: the reading view strips the old source chrome, so domain and node documents lost every
+             // path to their evidence. One folded "근거와 가정" carries the same sources: the domain guide and review
+             // packet for a domain; the anchored deep-taxonomy topics (then the domain packet) for a node.
              basis: (domain, node = null) => {
                const guide = (state.domainGuides?.guides || []).find((item) => item.id === domain?.id) || null;
                const packet = (state.domainPackets?.packets || []).find((item) => item.domainId === domain?.id) || null;
@@ -535,6 +553,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
              syncSharedState({ push: true });
              render();
            },
+           // v58.63 (architecture audit UI-04): pushState then route() lost mode/node — the legacy showPage clears the query
+           // of a plain route first. The shared knowledge navigator carries them through, as research-shell does.
            onFrame: (id) => { navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'frames', node: id } }); },
            onConcept: (id) => { navigateKnowledgeRoute({ root, page: 'principles', params: { mode: 'concept', node: id } }); }
          });
@@ -585,6 +605,7 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
         if (action === 'domain-node') {
           state.tab = 'taxonomy'; // also from an AI 지도 stage, which lists the atlas parts it holds
           state.atlasView = 'node';
+          // A node opened from outside its domain's TOC (the value-chain card) selects that domain too.
           const owner = state.research?.taxonomyDomains?.find((item) => (item.nodes || []).some((node) => node.id === value));
           if (owner) state.selectedDomainId = owner.id;
           state.selectedDomainNodeId = value;
@@ -612,6 +633,9 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           if (action === 'module') ensureFoundationDetailCapabilities();
           if (state.query) ensureSearchCapabilities();
           if (action === 'module') content.querySelector('[data-atlas-learning-detail-title]')?.focus({ preventScroll: true });
+          // v57.81 (phone/iPad audit): on compact layouts the table of contents sits below the document, so a domain
+          // picked there loaded the new document out of sight. As on #principles, the view moves to the document and
+          // its title takes focus; on wide layouts, where the title is already in view, the picked item keeps focus.
           const docTitle = ['domain', 'domain-node', 'relationship-guide'].includes(action) && target.closest('.rl-nav')
             ? content.querySelector('.rl-main .af-issue, .rl-main h2') : null;
           const titleBox = docTitle?.getBoundingClientRect?.();
@@ -759,6 +783,8 @@ export function createAtlasPage({ root = globalThis, documentRef = root.document
           };
           loadKnowledgeArticle = async (moduleId) => {
             if (!moduleId || state.loadingArticleIds.has(moduleId) || state.knowledgeArticles.articles.some((article) => article.lessonId === moduleId)) return;
+            // v59.45 (P30-LOAD-01 class): the artifact cache keeps a parsed copy that failed the identity check, so a
+            // retry after a failure fetches the file again instead of re-reading the same rejected copy.
             const retryAfterFailure = state.articleErrors.has(moduleId);
             state.articleErrors.delete(moduleId);
             state.loadingArticleIds.add(moduleId);

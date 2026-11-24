@@ -1,3 +1,5 @@
+// One owner for the researched company stories (public-data/company-profiles/). The index is small and shared;
+// each story (~15 KB) is fetched only when its stock page opens and kept for the tab's life.
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
 // The story helpers and the renderer load with the first story, not at boot (architecture/boot-budget.json).
@@ -34,6 +36,9 @@ export function requestCompanyStory(root, symbol, onChange) {
     const entry = companyProfileEntry(root, id);
     const store = storeOf(root);
     const have = store.rows[id];
+    // v59.45 (pipeline review P25-STORY-02): a story withdrawn from the index leaves the store (and the AI context) too,
+    // and a kept story must match the index row's research date, period and — once the index carries it — content hash;
+    // the research date alone did not see a same-day correction.
     if (!entry || !entry.file) { if (store.rows[id]) { delete store.rows[id]; delete store.context[id]; delete store.entries[id]; onChange?.(); } else if (changed) onChange?.(); return; }
     if ((have && storyMatchesEntry(have, entry, store.entries[id])) || store.inFlight[id] || Date.now() - (store.failed[id] || 0) < 60000) { if (changed) onChange?.(); return; }
     store.inFlight[id] = Promise.all([loadJsonArtifact(stableFetcher(root), artifactFamilyUrl('company-profile', entry.file), { maxAgeMs: 0, force: true, maxBytes: 256 * 1024 }), storyHelpers()])
@@ -48,6 +53,9 @@ export function requestCompanyStory(root, symbol, onChange) {
   }).catch(() => {});
 }
 
+// The company graph (who pays whom across the stories) and the AI map's dated capital deals, each fetched once
+// when the first company overview renders and kept for the tab's life. A failed read is retried after a minute; the
+// overview renders without it.
 const SIDE_ARTIFACTS = Object.freeze({
   graph: { url: artifactUrl('company-profiles/graph.json'), maxBytes: 512 * 1024, valid: (p) => p?.schemaVersion === 'company-graph.v1' && p.nodes && Array.isArray(p.edges) },
   capital: { url: artifactUrl('atlas/capital-flows.json'), maxBytes: 256 * 1024, valid: (p) => p?.schemaVersion === 'ai-capital-flows.v1' && p.nodes && Array.isArray(p.edges) }

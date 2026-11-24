@@ -1,12 +1,3 @@
-// ╔═══════════════════════════════════════════════════════════════════════════╗
-// ║  P3-1 PHASE 2 ▸ MODULE 3: UI START (실제 분할 적용 v48.26)                ║
-// ║  책임: Render + Page Router + Charts + Filters + Gauges                   ║
-// ║  의존성: MODULE 1 (stores) + MODULE 2 (data fetch/score/translate)        ║
-// ║  Chart instances: 페이지별 레지스트리에서 생성·정리                      ║
-// ║  주의: MODULE 1/2의 함수 호출은 모두 이벤트/타이머 콜백 내부 (즉시 호출 X) ║
-// ╚═══════════════════════════════════════════════════════════════════════════╝
-// v57.60: the legacy breadth-page DOM writers and their bp-* chart registry were removed;
-// the breadth route is rendered by src/ui/pages/market.js and window._breadth* globals are set by the screener breadth producer.
 
 function _aioGetKstDateParts(input) {
   var date = input instanceof Date ? input : new Date(input == null ? Date.now() : input);
@@ -42,33 +33,33 @@ window.AIO.getKstDateParts = _aioGetKstDateParts;
 // ── 앱 시작 시 시세 초기화 ────────────────────────────────────────
 /* v20: DOMContentLoaded Handler #1 - Core Data Init */
 document.addEventListener('DOMContentLoaded', () => {
-  // v34.2: APP_VERSION 단일 소스 → title + 배지 자동 반영
+  // APP_VERSION 단일 소스 → title + 배지 자동 반영
   if (typeof APP_VERSION === 'string') {
-    // P1499: keep a route title the first showPage already set; this ran after it and reset deep links.
+    // Keep a route title the first showPage already set; this ran after it and reset deep links.
     if (!/ · AIO Screener$/.test(document.title)) document.title = 'AIO Screener ' + APP_VERSION + ' — 올인원 투자 터미널';
     var vBadge = document.getElementById('app-version-badge');
     if (vBadge) vBadge.textContent = APP_VERSION;
   }
 
-  // v48.23 (P3-1): AIO 네임스페이스 최종 바인딩 — 모든 모듈 정의 후
+  // AIO 네임스페이스 최종 바인딩 — 모든 모듈 정의 후
   try { if (window.AIO && typeof window.AIO._bindCore === 'function') window.AIO._bindCore(); } catch(_){}
 
 
-  // v30.12 P4: 이전 번역 캐시 복원 (새로고침 시 재번역 방지)
+  // 이전 번역 캐시 복원 (새로고침 시 재번역 방지)
   var _tcRestored = _tcLoadFromStorage();
   if (_tcRestored > 0) console.log('[AIO v30.12] 번역 캐시 ' + _tcRestored + '건 복원됨');
 
-  // v46.10: localStorage 가용 여부 감지 (Safari 개인정보보호 모드)
+  // localStorage 가용 여부 감지 (Safari 개인정보보호 모드)
   (function() {
     try { localStorage.setItem('_ls_test', '1'); localStorage.removeItem('_ls_test'); }
     catch(e) {
-      if (typeof _aioShowStorageBlockedWarning === 'function') _aioShowStorageBlockedWarning(); // v59.20: src/ui/components/data-status-surface.js
+      if (typeof _aioShowStorageBlockedWarning === 'function') _aioShowStorageBlockedWarning(); // src/ui/components/data-status-surface.js
     }
   })();
 
   // v17: 정적 기본값 즉시 로드 (API 연결 전에 빈칸/— 없애기)
   applyStaticFallbacks();
-  // v30.3: DATA_SNAPSHOT → HTML 매핑 (단일 진실 원천)
+  // DATA_SNAPSHOT → HTML 매핑 (단일 진실 원천)
   if (typeof applyDataSnapshot === 'function') applyDataSnapshot();
   // v52.55/H3-A: 스냅샷을 _lastFG에 복사하지 않는다. 현재값과 참고값을
   // getCanonicalMetric()이 구분해야 점수/설명/배지가 같은 provenance를 소비한다.
@@ -78,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // src/data/quote-demand.js installed it, called the demand with no symbols and returned undefined — every caller's
   // symbols (scheduler runs, live-binding repair, a stock opened from search) and every result were dropped. The demand
   // owns failure counting and backoff; fetchLiveQuotes is not reassigned outside src/data/quote-demand.js.
-  // v30.11: T1 _liveQuoteInterval 삭제 — REFRESH_SCHEDULE.quotes가 60s 지터 포함 단일 경로
+  // T1 _liveQuoteInterval 삭제 — REFRESH_SCHEDULE.quotes가 60s 지터 포함 단일 경로
   // Pre-fetch news in background after 3s delay (non-blocking)
   setTimeout(function() {
     try { if (typeof fetchAllNews === 'function') { var p = fetchAllNews(false); if (p && p.catch) p.catch(function(){}); } } catch(e){}
@@ -93,21 +84,21 @@ document.addEventListener('DOMContentLoaded', () => {
 //  - the shared Worker owns the daily cap; the browser shows its reported allowance
 //  - localStorage keeps only a per-day usage count
 // ═══════════════════════════════════════════════════════════════════════
-// v30.13: LLM 예산 관리 시스템 (Budget Management)
-// v31.3: 적응형 추론 — 같은 gpt-6-luna 모델에 기본 'luna'(추론 없음), 분석·판단 질문은 'luna-low'로 승격
+// LLM 예산 관리 시스템 (Budget Management)
+// 적응형 추론 — 같은 gpt-6-luna 모델에 기본 'luna'(추론 없음), 분석·판단 질문은 'luna-low'로 승격
 // (v31.3의 Haiku/Sonnet/Thinking 세 단계는 퇴역; 아래 'deep'·'analysis' 패턴 짝은 둘 다 'luna-low'를 돌려준다)
 // 모델 가격과 환율은 시점 의존 데이터이므로 코드에 저장하지 않는다.
 // 비용 표시는 공급자 청구 내역을 연결하기 전까지 unavailable로 유지한다.
 const LLM_MODELS = {
   luna: { id: 'gpt-6-luna', label: 'GPT-6 Luna', reasoningEffort: 'none' }, 'luna-low': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 심층', reasoningEffort: 'low', thinking: true },
-  'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 분석', reasoningEffort: 'medium', thinking: true } // v57.61: analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
+  'luna-medium': { id: 'gpt-6-luna', label: 'GPT-6 Luna, 분석', reasoningEffort: 'medium', thinking: true } // analysis/decision/comparison/outlook; medium reasoning adds ~2-5k output tokens (~$0.002)
 };
 // A company the question names — typed or by name — through the one resolver (src/ai/entity/chat-tickers.js).
 function _aioQueryNamesCompany(query) {
   var resolve = window.AIO && window.AIO.resolveChatTickers;
   return typeof resolve === 'function' && resolve({ query: query, companiesOnly: true }).length > 0;
 }
-// v31.3: 질문 복잡도 감지 → 모델 자동 선택
+// 질문 복잡도 감지 → 모델 자동 선택
 function _detectQueryComplexity(query, ctxId) {
   var q = query.toLowerCase();
   var qLen = query.length;
@@ -119,7 +110,7 @@ function _detectQueryComplexity(query, ctxId) {
   if (ctxId === 'fundamental') {
     var fundThinking = /DCF|밸류에이션.*모델|적정.*주가|내재.*가치|WACC|잔여.*이익|EV\/EBITDA.*비교|피어.*그룹|산업.*비교.*분석|sum.?of.?parts|comp.*analysis|intrinsic.*value|free.?cash.?flow.*model|종합.*기업.*분석|종합.*분석.*해줘|15개.*관점|심층.*분석/;
     if (fundThinking.test(q)) return 'luna-low';
-    // v34.5: fundamental 컨텍스트에서 티커가 감지되면 'luna-low' 사용 (15개 관점 분석 품질 보장)
+    // Fundamental 컨텍스트에서 티커가 감지되면 'luna-low' 사용 (15개 관점 분석 품질 보장)
     var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var fundSonnet = /재무.*분석|실적.*분석|매출.*성장|이익률|부채.*비율|경쟁.*우위|해자|moat|경영진|사업.*모델|revenue|earnings|margin|competitive|valuation|분석|어때|전망|투자|알려/;
     if (hasTicker || fundSonnet.test(q)) return 'luna-low';
@@ -129,7 +120,7 @@ function _detectQueryComplexity(query, ctxId) {
   else if (ctxId === 'technical') {
     var techThinking = /멀티.*타임프레임|다중.*시간|엘리어트.*파동|피보나치.*되돌림.*정밀|와이코프|wyckoff|elliott|intermarket.*analysis|상호.*시장.*분석|divergence.*종합|다이버전스.*종합/;
     if (techThinking.test(q)) return 'luna-low';
-    // v34.5: 티커 감지 시 'luna-low' (비교 분석 포함)
+    // 티커 감지 시 'luna-low' (비교 분석 포함)
     var hasTicker = typeof _aioQueryNamesCompany === 'function' && _aioQueryNamesCompany(query);
     var techSonnet = /진입.*시점|매수.*타이밍|손절.*설정|목표가|지지.*저항|추세.*분석|패턴.*분석|RSI|MACD|볼린저|이동평균|골든크로스|데드크로스|weinstein|stage.*분석|support|resistance|entry|stop.?loss|target|비교|vs|VS|분석|어때|전망/;
     if (hasTicker || techSonnet.test(q)) return 'luna-low';
@@ -162,7 +153,7 @@ function _detectQueryComplexity(query, ctxId) {
     var senSonnet = /공포.*탐욕|지금.*바닥|바닥.*신호|VIX.*해석|AAII|NAAIM|풋콜|put.*call|심리.*분석|과매수|과매도|fear.*greed/;
     if (senSonnet.test(q)) return 'luna-low';
   }
-  // P1758/v57.54: 한국 기술·테마·거시 컨텍스트 퇴역 — 한국 섹션은 technical/themes/macro 화면 안에 있고 그 컨텍스트가 답한다
+  // 한국 기술·테마·거시 컨텍스트 퇴역 — 한국 섹션은 technical/themes/macro 화면 안에 있고 그 컨텍스트가 답한다
   // 테마(themes, theme-detail): 섹터/테마·교차 분석 모두 'luna-low'
   else if (ctxId === 'themes' || ctxId === 'theme-detail') {
     var thThinking = /교차.*분석|테마.*간.*상관|밸류.*체인.*분석|업스트림.*다운스트림|수혜주.*종합|value.*chain|cross.*theme|supply.*chain.*analysis/;
@@ -178,7 +169,7 @@ function _detectQueryComplexity(query, ctxId) {
   if (thinkingKw.test(q) || thinkingEn.test(q)) return 'luna-low';
 
   // 분석/전략/판단이 필요한 패턴 → 'luna-low'
-  // P1740: colloquial trade questions ("사도 돼?", "살까", "팔까") reason on the deeper model like 매수 타이밍.
+  // Colloquial trade questions ("사도 돼?", "살까", "팔까") reason on the deeper model like 매수 타이밍.
   var sonnetKw = /사도\s*(?:돼|될까|되나|괜찮)|살까|팔까|담아도|들어가도|전략.*제안|매수.*타이밍|진입.*시점|손절|목표가.*설정|섹터.*로테이션|어떻게.*대응|포트폴리오|종합.*판단|비교.*해줘|분석.*해줘|전망.*해줘|평가.*해줘|진단.*해줘|추천.*해줘|왜.*그래|왜.*떨어|왜.*올라|원인.*뭐|이유.*뭐|어떻게.*해야|장단점|리스크.*뭐|영향.*분석/;
   var sonnetEn = /strategy|recommend|analyze|forecast|evaluate|diagnose|compare|pros.*cons|impact.*analysis|what.*should|why.*drop|why.*rise|how.*respond/;
   if (sonnetKw.test(q) || sonnetEn.test(q)) return 'luna-low';
@@ -201,14 +192,14 @@ function _detectQueryComplexity(query, ctxId) {
 }
 
 function getSelectedModel() {
-  return 'luna'; // v31.3: 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
+  return 'luna'; // 기본 Haiku (질문별 자동 승격은 chatSend에서 처리)
 }
 
 function getModelConfig(modelKey) {
   return LLM_MODELS[modelKey || getSelectedModel()] || LLM_MODELS.luna;
 }
 
-// v59.42: the shared Worker owns the daily allowance (AI_PER_CLIENT_DAILY_CAP, 150 per connection by default) and
+// The shared Worker owns the daily allowance (AI_PER_CLIENT_DAILY_CAP, 150 per connection by default) and
 // reports it in /health as ai.client. The browser's own 20/day limit and its over-limit confirm contradicted that
 // (AI is always on) and stopped questions the Worker would have answered, so the badge now shows the Worker's count.
 function _aioWorkerClientQuota() {
@@ -218,10 +209,7 @@ function _aioWorkerClientQuota() {
   return { dailyLimit: client.dailyLimit, remainingToday: Math.max(0, Math.min(client.dailyLimit, client.remainingToday)) };
 }
 
-// v57.77: getLLMState() retired — the AI ON/OFF switch track left with P1653 (AI is always on),
-// so the state read always returned true and every OFF branch was dead.
-
-// v53.59 P855: quota is not capability.  The UI must not advertise available
+// Quota is not capability.  The UI must not advertise available
 // calls when neither a personal key nor a healthy shared Worker route exists.
 function getLLMRouteReadiness() {
   var config = window.AIO && typeof window.AIO.getPublicConfig === 'function' ? window.AIO.getPublicConfig() : null;
@@ -231,7 +219,7 @@ function getLLMRouteReadiness() {
   if (!workerUrl) return { ready: false, reason: 'NO_ROUTE', label: '연결 없음' };
   var health = window._aioLastClaudeRouteState;
   if (health && health.target && health.target.workerUrl === workerUrl && health.ok === true) {
-    return { ready: true, reason: 'SHARED_WORKER', label: (health.health && health.health.ai && health.health.ai.budgetSaver && health.health.ai.budgetSaver.active && health.health.ai.budgetSaver.label) || '사용 가능' }; // P1759: month's last 20% → '예산 절약 모드 · 웹 검색 없이'
+    return { ready: true, reason: 'SHARED_WORKER', label: (health.health && health.health.ai && health.health.ai.budgetSaver && health.health.ai.budgetSaver.active && health.health.ai.budgetSaver.label) || '사용 가능' }; // month's last 20% → '예산 절약 모드 · 웹 검색 없이'
   }
   if (health && health.target && health.target.workerUrl === workerUrl && health.reason === 'WORKER_NOT_READY') {
     return { ready: false, reason: 'WORKER_NOT_READY', label: 'AI 연결 안 됨, 잠시 뒤 다시 시도' };
@@ -239,8 +227,8 @@ function getLLMRouteReadiness() {
   return { ready: false, reason: 'WORKER_NOT_CHECKED', label: '연결 확인 중' };
 }
 
-// P1070/R592: switch state, route readiness, and quota are independent dimensions. A missing route must
-// never be represented by mutating the user's ON/OFF switch (P1342: the unused combined snapshot was deleted).
+// Switch state, route readiness, and quota are independent dimensions. A missing route must
+// never be represented by mutating the user's ON/OFF switch (the unused combined snapshot was deleted).
 window._aioGetLLMRouteReadiness = getLLMRouteReadiness;
 
 function getQuota() {
@@ -259,7 +247,7 @@ function saveQuota(quota) {
   try { localStorage.setItem('llm_quota', JSON.stringify(quota)); } catch(e) {}
 }
 
-// v48.0: 실제 usage 토큰 기반 쿼터 정산 refinement.
+// 실제 usage 토큰 기반 쿼터 정산 refinement.
 //   기존 consumeLLMQuery()는 avgInputTokens/avgOutputTokens 고정 추정치로 미리 차감.
 //   실응답 수신 후 이 함수가 (실제 비용) - (추정 비용) 차이를 quota.costUSD에 가감.
 //   cache_read_input_tokens는 input 단가의 10%로 과금되므로 cache hit 시 큰 절감.
@@ -293,9 +281,9 @@ function updateQuotaBadge() {
   const model = getModelConfig();
   const route = getLLMRouteReadiness();
 
-  // v57.77: AI is always on (P1653), so route readiness is the only gate — a missing route shows its label, never an OFF state.
+  // AI is always on, so route readiness is the only gate — a missing route shows its label, never an OFF state.
   if (!route.ready) {
-    // v58.56 (re-audit #26): the sidebar card is one line — the short state; the full sentence stays in the title.
+    // The sidebar card is one line — the short state; the full sentence stays in the title.
     if (swLabel) { swLabel.textContent = String(route.label || '').split(/ · |, /)[0].replace(/^AI\s+/, ''); swLabel.title = route.label; swLabel.className = 'llm-switch-label'; }
     if (capEl) capEl.textContent = '—';
     if (remEl) { remEl.textContent = '—'; remEl.className = 'llm-quota-val empty'; }
@@ -322,7 +310,7 @@ function updateQuotaBadge() {
 
   if (badge)    badge.textContent = allowance ? remaining + '/' + allowance.dailyLimit : '—';
   if (hdrBadge) {
-    // v50.13: 헤더 배지는 'AI · 모델'만 — 남은 횟수는 옆 #llm-quota가 단독 표시(중복 제거).
+    // 헤더 배지는 'AI · 모델'만 — 남은 횟수는 옆 #llm-quota가 단독 표시(중복 제거).
     const hdrText = 'AI, ' + model.label;
     hdrBadge.textContent = hdrText;
     hdrBadge.style.color = grade === 'green' ? 'var(--blue-11)' : grade === 'warn' ? 'var(--amber-11)' : 'var(--orange-11)';
@@ -332,7 +320,7 @@ function updateQuotaBadge() {
 }
 
 function toggleLLM() {
-  // v57.77: AI is always on (P1653) — #llm-header-badge still dispatches this action, which now only refreshes
+  // AI is always on — #llm-header-badge still dispatches this action, which now only refreshes
   // the connection/quota readout; there is no ON/OFF state to flip.
   updateQuotaBadge();
 }
@@ -340,7 +328,7 @@ function toggleLLM() {
 // Call this every time an LLM query is actually made
 function consumeLLMQuery() {
   // Fail closed before any quota accounting: a missing provider route never becomes a call.
-  // v57.77: the OFF/unlimited shortcut left with the AI switch (P1653) — every call is charged.
+  // The OFF/unlimited shortcut left with the AI switch — every call is charged.
   var route = getLLMRouteReadiness();
   if (!route.ready) {
     if (typeof updateQuotaBadge === 'function') updateQuotaBadge();
@@ -357,15 +345,15 @@ function consumeLLMQuery() {
 // Init on load
 /* v20: DOMContentLoaded Handler #2 - UI Keys/Quota */
 document.addEventListener('DOMContentLoaded', () => {
-  // v31.3: 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
+  // 적응형 모델 — 기본 Haiku, 질문 복잡도에 따라 Sonnet/Thinking 자동 승격
   updateQuotaBadge();
 
   // ── 확장 API 키 상태 복원 ──
-  // P1424: readiness is checked even when cached news needs no translation.
+  // Readiness is checked even when cached news needs no translation.
   if (typeof _aioEnsureClaudeRoute === 'function') _aioEnsureClaudeRoute('').then(updateQuotaBadge).catch(updateQuotaBadge);
   // 실제 비밀값은 런타임 조회 경로만 사용한다. password input의 value에 원문을 넣으면
   // 접근성 트리/브라우저 자동화 스냅샷에서 노출될 수 있다.
-  // v57.76: the personal data/AI key inputs left the shell (v57.67); only the self-proxy URL input remains.
+  // The personal data/AI key inputs left the shell; only the self-proxy URL input remains.
   var _keyMap = [
     ['aio_cf_worker_url', 'aio_cf_worker_input']
   ];
@@ -378,22 +366,22 @@ document.addEventListener('DOMContentLoaded', () => {
       el.setAttribute('aria-label', (el.getAttribute('placeholder') || 'API 키') + ', 저장됨');
     }
   });
-  // v30.11: Vault 상태 배지 초기화
+  // Vault 상태 배지 초기화
   if (typeof _updateVaultStatus === 'function') _updateVaultStatus();
   if (typeof _aioRefreshProviderStatuses === 'function') _aioRefreshProviderStatuses();
   // Auto-reset check every minute (for midnight rollover)
-  // v48.91: 타이머 레지스트리 등록
+  // 타이머 레지스트리 등록
   window._quotaBadgeInterval = _aioRegisterTimer('quotaBadge', updateQuotaBadge, T.COOLDOWN);
 
 // ── Dynamic date labels ─────────────────────────────────────────
 (function updateDateLabels() {
   const kst = _aioGetKstDateParts(new Date());
   const dateStr = kst.dateStr;
-  // v58.55: the home kicker (#home-date-label, date · close basis) is written by src/ui/components/market-regime.js only.
+  // The home kicker (#home-date-label, date · close basis) is written by src/ui/components/market-regime.js only.
   
   // Update version badge
   const vb = document.getElementById('app-version-badge');
-  if (vb) vb.title = (typeof APP_VERSION !== 'undefined' ? APP_VERSION : vb.textContent.trim()) + ', 확인: ' + dateStr; // P1624: identity tooltip must match the app, not a historical literal.
+  if (vb) vb.title = (typeof APP_VERSION !== 'undefined' ? APP_VERSION : vb.textContent.trim()) + ', 확인: ' + dateStr; // Identity tooltip must match the app, not a historical literal.
 })();
 });
 
@@ -412,7 +400,7 @@ const GH_POLL_MAX  = 30 * 60 * 1000;         // 최대 30분 (백오프 한계)
 const GH_VERSION_PATH = 'version.json';      // 저장소 루트의 파일
 let   _ghCurrentVersion = null;
 let   _ghPollTimer      = null;
-let   _ghFailCount      = 0;                 // v30.11: 연속 실패 횟수 (지수 백오프용)
+let   _ghFailCount      = 0; // 연속 실패 횟수 (지수 백오프용)
 
 // ── 저장소 설정 저장/로드 ──────────────────────────────────
 function saveGhRepo() {
@@ -461,7 +449,7 @@ async function ghPollOnce() {
     const resp = await fetch(url, { cache: 'no-store', signal: _ghCtrl.signal });
     clearTimeout(_ghTimer);
 
-    // v30.11: rate-limit 감지 (403 + x-ratelimit-remaining)
+    // rate-limit 감지 (403 + x-ratelimit-remaining)
     if (resp.status === 403) {
       const remaining = resp.headers.get('x-ratelimit-remaining');
       const resetTs   = resp.headers.get('x-ratelimit-reset');
@@ -478,7 +466,7 @@ async function ghPollOnce() {
     const data = await resp.json();
     const ver  = data.version || data.v || String(data);
 
-    // v30.11: 성공 시 실패 카운터 리셋 & 정상 간격 복원
+    // 성공 시 실패 카운터 리셋 & 정상 간격 복원
     if (_ghFailCount > 0) {
       _ghFailCount = 0;
       _rescheduleGhPoll();
@@ -502,15 +490,15 @@ async function ghPollOnce() {
     const isOffline = !navigator.onLine;
     const errMsg = isOffline ? ' 오프라인' : (' 연결 실패 (' + _ghFailCount + ')');
     setGhStatus(errMsg, '#ec5d5e');
-    // v30.11: 지수 백오프 — 연속 실패 시 폴링 간격 증가
+    // 지수 백오프 — 연속 실패 시 폴링 간격 증가
     _rescheduleGhPoll();
   }
 }
 
-// v30.11: 지수 백오프 폴링 간격 재조정
+// 지수 백오프 폴링 간격 재조정
 function _rescheduleGhPoll() {
   const backoff = Math.min(GH_POLL_MS * Math.pow(2, _ghFailCount), GH_POLL_MAX);
-  // v48.91: 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
+  // 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
   _ghPollTimer = _aioRegisterTimer('ghPoll', ghPollOnce, backoff);
   if (_ghFailCount > 0) {
     console.log('[AIO] GH poll backoff: ' + Math.round(backoff/1000) + 's (fails=' + _ghFailCount + ')');
@@ -531,7 +519,7 @@ function showUpdateBanner(newVer, builtTs) {
   banner.classList.add('show');
 }
 
-// Roadmap 11: forceRefresh() (v34.6) is deleted — nothing called it; the update banner reloads through _aioForceReload.
+// Roadmap 11: forceRefresh() is deleted — nothing called it; the update banner reloads through _aioForceReload.
 
 // ── 폴링 시작/재시작 ─────────────────────────────────────
 function startGhPolling() {
@@ -541,14 +529,14 @@ function startGhPolling() {
   if (!repo) { setGhStatus('— 미설정', ''); return; }
 
   ghPollOnce(); // 즉시 1회 실행
-  // v48.91: 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
+  // 타이머 레지스트리 등록 (_aioRegisterTimer가 기존 ID 정리 포함)
   _ghPollTimer = _aioRegisterTimer('ghPoll', ghPollOnce, GH_POLL_MS);
 }
 
 // ── DOMContentLoaded 시 초기화 ───────────────────────────
 /* v20: DOMContentLoaded Handler #3 - GitHub Polling */
 document.addEventListener('DOMContentLoaded', () => {
-  // v34.6: 캐시 버스트 쿼리스트링 제거 (URL 정리)
+  // 캐시 버스트 쿼리스트링 제거 (URL 정리)
   if (window.location.search.includes('v=')) {
     window.history.replaceState(null, '', window.location.pathname);
   }
@@ -558,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => refreshHomeDashboard(), 500);
 });
 
-// v30.11: 네트워크 복구 시 즉시 재폴링 (오프라인→온라인 전환)
+// 네트워크 복구 시 즉시 재폴링 (오프라인→온라인 전환)
 window.addEventListener('online', () => {
   if (loadGhRepo()) {
     _ghFailCount = 0;
@@ -579,7 +567,7 @@ function _aioParseRouteHash(hashValue) {
   var raw = String(hashValue || '').replace(/^#/, '');
   var separator = raw.indexOf('?');
   var path = (separator >= 0 ? raw.slice(0, separator) : raw).split('/'), routeId = path[0];
-  var params = new URLSearchParams(separator >= 0 ? raw.slice(separator + 1) : ''); // v57.54: #ticker/NVDA reads as #ticker?sym=NVDA (was a blank page)
+  var params = new URLSearchParams(separator >= 0 ? raw.slice(separator + 1) : ''); // #ticker/NVDA reads as #ticker?sym=NVDA (was a blank page)
   if (routeId === 'ticker' && path[1] && !params.has('sym')) params.set('sym', path[1]); return { routeId: routeId || 'home', params: params };
 }
 function _aioSyncKnowledgeRouteContext() {
@@ -621,12 +609,10 @@ window._aioSyncKnowledgeRouteContext = _aioSyncKnowledgeRouteContext;
 })();
 
 // ── Global refresh: all data sources ──────────────────────────────────
-// Roadmap 11: the refresh progress surface (bindAioRefreshProgressSurface) moved to src/ui/components/refresh-progress.js,
-// installed with the screen bridges (src/app/legacy-screen-bridges.js).
 
 // Roadmap 11: globalRefresh (the topbar 새로고침 button) moved there too, so one module writes #topbar-refresh-btn. Its
 // fallback branch for a shell without AIO.forceRefreshAllData / AIO.runScheduledRefresh is deleted — both always exist.
-// That branch was the last js/ caller of fetchPutCall; v59.70 deleted the Cboe reader itself (owner 11/4).
+// That branch was the last js/ caller of fetchPutCall; v59.70 deleted the Cboe reader itself.
 
 
 
@@ -694,7 +680,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var el = document.getElementById(id);
     if (el) el.setAttribute('aria-live', 'polite');
   });
-  // v57.77: #score-gauge-val retired with the score (P1392/P1670) — its aria-live hook was removed.
 
   // 9~23: 모든 DOM이 구성된 뒤 실행 (AI 패널/모달이 이 스크립트 뒤에 위치)
   setTimeout(function() {
@@ -732,7 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // 14. skip-link: HTML에 .skip-link 하드코딩 완료 (L1942) — JS 중복 생성 제거 (v41.4)
+  // 14. skip-link: HTML에 .skip-link 하드코딩 완료 (L1942) — JS 중복 생성 제거
 
   // 15. v40.9: main landmark 설정
   var contentEl = document.querySelector('.content');
@@ -761,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 17. v41: 모든 [role="button"]에 Enter/Space 키보드 핸들링
   document.querySelectorAll('[role="button"]:not(.nav-item)').forEach(function(el) {
     el.addEventListener('keydown', function(e) {
-      if (e.defaultPrevented || e.repeat || el.tagName === 'BUTTON' || el.tagName === 'A') return; // P1604: native controls already own keyboard activation.
+      if (e.defaultPrevented || e.repeat || el.tagName === 'BUTTON' || el.tagName === 'A') return; // Native controls already own keyboard activation.
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         el.click();
@@ -824,8 +809,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 0);
 });
 
-// v49.2: Institutional Technical Brief helpers. v57.76: the 차트 tab brief (runInstitutionalTechnicalBrief and its panel
-// renderers) was deleted with its DOM; these label helpers stay for the portfolio technical-risk table.
 function _itbNum(v, digits) {
   if (v === null || v === undefined || !isFinite(Number(v))) return '--';
   return Number(v).toFixed(digits == null ? 2 : digits);
@@ -843,7 +826,7 @@ function _itbActionTone(action) {
   return 'info';
 }
 
-// P1535: the engines keep their internal action enums (unit tests and golden fixtures read them), but the reader sees
+// The engines keep their internal action enums (unit tests and golden fixtures read them), but the reader sees
 // the load level a score stands for, not a position instruction. An unknown or missing enum reads as withheld.
 var _ITB_ACTION_LABELS = {
   HOLD_CORE: '부담 낮음', NO_ADD_RAISE_STOP: '부담 일부 확인', TRIM_25_33: '부담 높음', TRIM_50: '부담 매우 높음',
@@ -862,7 +845,7 @@ function _itbPortfolioObserved(result) {
   return '포지션 ' + items.length + '개 중 부담 신호 ' + hot + '개' + measured;
 }
 
-// P1546: the sell-pressure engine's 0-100 sum has no predictive validation, so the panel reports how many measured
+// The sell-pressure engine's 0-100 sum has no predictive validation, so the panel reports how many measured
 // conditions are present (a count the reader can audit against the flag badges), not a score out of 100.
 function _itbObservedCount(sp) {
   var flags = (sp && sp.flags) || [];
@@ -899,11 +882,8 @@ function renderPortfolioTechnicalRisk(result) {
 
 window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
-// v59.51 (content audit): the _aioDiagram SVG engine (v50.81) drew its last type, factor-radar, into the retired
-// 재무 공시 #vis-fundamental-radar; it was deleted with _aioRenderFundamentalRadar.
-
 // ──────────────────────────────────────────────────────────────────────────────
-// v50.82 Phase 2: 페이지별 SVG 다이어그램 렌더러
+// Phase 2: 페이지별 SVG 다이어그램 렌더러
 // 각 페이지 진입(aio:pageShown) 시 _aioDiagram 엔진으로 시각화 주입
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
@@ -916,23 +896,21 @@ window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
       if ((pid === 'home' || pid === 'signal') && window.__AIO_ARCH_RUNTIME__) return;
       switch (pid) {
         case 'home':
-          // P1010: the native analysis page exclusively owns the home score.
+          // The native analysis page exclusively owns the home score.
           break;
         case 'signal':
-          // v52.65: vis-signal-score(원형게이지, 이미 DOM 부재) 대체 — 시안 2a 히어로(index.html
+          // vis-signal-score(원형게이지, 이미 DOM 부재) 대체 — 시안 2a 히어로(index.html
           // score-gauge-val 등)는 refreshSignalDashboard()가 렌더(js/aio-core.js 로드순서 의존이라
           // typeof 가드 후 호출). initSignalDashboard()가 이미 페이지 진입 시 호출하므로 중복 안전.
           try { if (typeof window.refreshSignalDashboard === 'function') window.refreshSignalDashboard(); } catch(_) {}
           break;
-        // v58.88 (legacy decomposition 2/8 시장 상태): the breadth/sentiment diagram slots (#vis-breadth-regime,
-        // #vis-sentiment-gauge) are gone; src/ui/components/breadth-board.js and src/ui/pages/sentiment.js own those routes.
       }
     } catch (e) {
       if (typeof _aioLog === 'function') _aioLog('warn', 'ui', 'vis-phase2 render err:' + pid + ' ' + (e && e.message));
     }
   }
 
-  var VIS_PAGES = ['signal']; // v59.42: the briefing/macro/fxbond/screener diagram slots are gone; v59.51: #vis-portfolio too
+  var VIS_PAGES = ['signal'];
 
   // 페이지 전환 훅
   if (window._aioPageBus) {
@@ -954,21 +932,18 @@ window.renderPortfolioTechnicalRisk = renderPortfolioTechnicalRisk;
 
   window._aioRenderPageDiagram = _aioRenderPageDiagram;
 
-  // v58.19: Phase 3 AI 채팅 자동 시각화(_aioChatAutoVis/_autoVisRaw/_findRow)는 호출자가 0건이라 제거했다.
+  // Phase 3 AI 채팅 자동 시각화(_aioChatAutoVis/_autoVisRaw/_findRow)는 호출자가 0건이라 제거했다.
   // 채팅 답변 도표는 src/ui/components/ai-answer-visuals.js가 맡는다.
 })();
 
-// v59.51 (content audit): the legacy 기업분석 report renderers (_renderFundHeader … _renderFundVariance and
-// _renderFundamentalFinancialsCharts, moved here from the chat script in v51.17) were deleted with their #fund-rpt-* sinks;
-// the native entity slice (src/ui/pages/entity.js) is the one company report.
 window.AIO = window.AIO || {};
 
-// Roadmap 11: the 용어 사전 floating-button drag handler (P1130, block E) is deleted with its #glossary-btn — the button
+// Roadmap 11: the 용어 사전 floating-button drag handler (block E) is deleted with its #glossary-btn — the button
 // was hidden (display:none) since v40.6, when the sidebar 용어 사전 row replaced it.
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// P1132/R619: index.html 인라인 블록 F(3,106줄 — 용어사전 시스템, 스크롤탑,
+// index.html 인라인 블록 F(3,106줄 — 용어사전 시스템, 스크롤탑,
 // GMO 글로벌 개요, 키보드 단축키/내비, 티커 가격 차트, 종합 기술적 분석 엔진(Weinstein/추세/
 // VCP/Minervini 등 — 미국 종목 심층 분석 analyzeTickerDeep는 P1753 퇴역), KR VKOSPI·건강도·수급 차트, KR 기술
 // 페이지, Phase-2 기능과 TradingView 위젯, McClellan·벤치마크 차트, 가격 알림, 접근성,
@@ -983,9 +958,6 @@ window.AIO = window.AIO || {};
 // GLOSSARY SYSTEM — 투자 용어 사전
 // ══════════════════════════════════════════════════════════════════
 
-// Roadmap 11: the glossary modal (openGlossary, renderGlossaryCats, renderGlossaryItems, filterGlossary and the seven
-// reader groups) moved to src/ui/knowledge/glossary-modal.js, installed at boot by src/app/compatibility-globals.js.
-
 // v33.0 → roadmap 11: the .insight-box click toggle and the first-visit unfold (aio_visited) are deleted — no page has an
 // .insight-box since v51.58, so neither ever matched an element.
 // 이전 localStorage 키 정리
@@ -996,8 +968,8 @@ window.AIO = window.AIO || {};
   } catch (_) {}
 })();
 
-// v38.8: 로딩 상태 타임아웃 — 15초 후에도 "로딩 중"이면 안내 메시지 표시
-// v48.57: 워치독 범위 확장 (earn-cal-body / risk-radar-body / kr-investor 3개 / last-fetch-time / home-quality-label / score-gauge-result)
+// 로딩 상태 타임아웃 — 15초 후에도 "로딩 중"이면 안내 메시지 표시
+// 워치독 범위 확장 (earn-cal-body / risk-radar-body / kr-investor 3개 / last-fetch-time / home-quality-label / score-gauge-result)
 setTimeout(function() {
   var loadingPatterns = ['로딩 중', '생성 중', 'Loading', '계산중', '계산 중', '분석 로딩', '데이터 로딩'];
   // Roadmap 11: #macro-storyline, #risk-radar-body, #home-quality-label and #risk-radar-status left the markup; the
@@ -1027,7 +999,7 @@ setTimeout(function() {
   var contentEl = document.querySelector('.content');
   var scrollBtn = document.getElementById('scroll-top-btn');
   if (contentEl && scrollBtn) {
-    // v46.4: throttle로 scroll 성능 최적화 (고빈도 이벤트 16ms 간격 제한)
+    // throttle로 scroll 성능 최적화 (고빈도 이벤트 16ms 간격 제한)
     var _scrollTick = false;
     contentEl.addEventListener('scroll', function() {
       if (_scrollTick) return;
@@ -1044,12 +1016,8 @@ setTimeout(function() {
   }
 })();
 
-// v57.76: the home GMO table (GMO_MARKETS, renderGmoTable, toggleGmoExpand) is retired with its folded home
+// The home GMO table (GMO_MARKETS, renderGmoTable, toggleGmoExpand) is retired with its folded home
 // section — a third price surface beside the KPI strip and the cross-asset row.
-
-// v57.77: _aioBridgeVolIndicesLive (^MOVE/^VVIX live→data-snap bridge), its 'html-vol-indices-live' bus
-// registration and 2.2s timer were deleted — the move/vvix data-snap sinks are gone and the ^VVIX
-// DATA_SNAPSHOT mirror is written by js/aio-data.js on quote acceptance.
 
 // Roadmap 11: the ? help modal (openKbdHelp / closeKbdHelp) and the keydown shortcuts (Escape, Ctrl/⌘K, ?, 1..8, R) moved
 // to src/ui/navigation/screen-shortcuts.js beside the screen table they read; src/app/bootstrap.js installs them.
@@ -1058,42 +1026,31 @@ setTimeout(function() {
 // NEW FUNCTIONS: Enhanced Technical Analysis Features
 // ═════════════════════════════════════════════════════════════════
 
-// v57.77: the market-health wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
+// The market-health wrapper that painted #m7-health-row / #breadth-bar / #breadth-pct is retired — none of
 // those sinks exist, and the wrapper dropped the call arguments.
 
 // Ticker Analysis Deep Dive
-// v30.10: 빈 DOMContentLoaded 핸들러 제거 (메모리 절약)
+// 빈 DOMContentLoaded 핸들러 제거 (메모리 절약)
 // Ticker tab/period state and chart lifecycle are native in entity.js.
 
-// v57.77: the Stage/trend-position/dip/setup/cross/divergence engine (_detectStage … _detectDivergence) fed only the
-// retired KR index and KR ticker Stage cards (analyzeKrIndex / the old analyzeKrTickerDeep) and was deleted with them.
-
-// v58.76: the developer-only 한국 기술 widgets (VKOSPI chart, 현재 입력, KR spreads, KR breadth and initKoreaTechnical)
+// The developer-only 한국 기술 widgets (VKOSPI chart, 현재 입력, KR spreads, KR breadth and initKoreaTechnical)
 // are retired with their data-dev-only cards; the 한국 시장 fold keeps the native index trends and the news lane.
 
-// v59.70 (D5): analyzeKrTickerDeep left with the 한국 시장 추세 fold (#kr-ticker-analysis-input); the global search opens 종목.
-
-// P1430: calculateEntryQualityLocal retired with the ticker 가격·추세 위치 점검 calculator.
-
-// v59.70 (S16/L6): '내 계획 점검' (calculateRR) moved to src/ui/components/portfolio-plan-check.js.
+// analyzeKrTickerDeep left with the 한국 시장 추세 fold (#kr-ticker-analysis-input); the global search opens 종목.
 
 // ══════════════════════════════════════════════════════════════════
-// v34.9: Phase 2-4 신규 기능 모음
+// Phase 2-4 신규 기능 모음
 // ══════════════════════════════════════════════════════════════════
 
-// v58.76: the developer-only 한국 종목 일봉 chart (loadKrCandleChart / loadTVChart:kr) is retired; 종목 owns the KR chart.
+// The developer-only 한국 종목 일봉 chart (loadKrCandleChart / loadTVChart:kr) is retired; 종목 owns the KR chart.
 
-// v57.76 (EF-12 retired): _aioSyncTvOhlcFallback and its page-bus hooks were deleted with the #tv-tech-ohlc strip.
+// Legacy McClellan row writer and its EMA state removed — no .bb-label rows and no A/D history source.
 
-// v59.51 (content audit): the 종목 요약 팩터 fold (window._aioRenderTickerOverview, v59.01 ticker-overview.js) was retired.
-
-// v57.60: legacy McClellan row writer and its EMA state removed — no .bb-label rows and no A/D history source.
-
-// v59.70 (S16/L6): updateBenchmarkChart (per-holding Yahoo calls behind 새로고침) is retired; 포트폴리오 ① draws the
+// updateBenchmarkChart (per-holding Yahoo calls behind 새로고침) is retired; 포트폴리오 ① draws the
 // native trend chart from the published closes (src/ui/components/portfolio-value-trend.js).
 
 
-// P1736: this used to roll a hand-typed month/day list forward every year (10/16, 11/27 against the official 10/22,
+// This used to roll a hand-typed month/day list forward every year (10/16, 11/27 against the official 10/22,
 // 11/26). The next meeting now comes only from the official kr-bok schedule; when it has none, nothing is guessed.
 function getNextBOK() {
   var release = window.AIO_MACRO_CALENDAR && window.AIO_MACRO_CALENDAR.releases && window.AIO_MACRO_CALENDAR.releases['kr-bok'];
@@ -1116,7 +1073,7 @@ function applyA11yIndicators() {
 }
 
 // ── Phase 4-5: 다크/라이트 테마 전환 ──
-// v52.62 아이보리 리디자인: 기본 테마가 dark→light(아이보리)로 반전되며 토글 클래스도
+// 아이보리 리디자인: 기본 테마가 dark→light(아이보리)로 반전되며 토글 클래스도
 // light-theme→dark-theme로 롤네임(클래스 없음 = 기본 아이보리, 클래스 있음 = 그래파이트 다크).
 // localStorage 값 의미는 기존과 동일('light'/'dark' = 현재 표시 중인 테마) — 마이그레이션 불필요:
 // 과거 'light' 저장값을 가진 사용자는 클래스 미부착 상태(신규 기본 아이보리)로 자연 수렴한다.
@@ -1126,10 +1083,10 @@ function toggleTheme() {
   body.classList.toggle('dark-theme');
   var isDark = body.classList.contains('dark-theme');
   if (btn) btn.textContent = isDark ? 'Dark' : 'Light';
-  // v40.6: 사이드바 테마 버튼 라벨 동기화
+  // 사이드바 테마 버튼 라벨 동기화
   var sbLabel = document.getElementById('sidebar-theme-label');
-  if (sbLabel) sbLabel.textContent = isDark ? '라이트 모드로 전환' : '다크 모드로 전환'; // P1591 (G07): the label names the action
-  try { localStorage.setItem('aio_theme', isDark ? 'dark' : 'light'); } catch (_) {} // P1604: storage refusal cannot interrupt the visible action.
+  if (sbLabel) sbLabel.textContent = isDark ? '라이트 모드로 전환' : '다크 모드로 전환'; // The label names the action
+  try { localStorage.setItem('aio_theme', isDark ? 'dark' : 'light'); } catch (_) {} // Storage refusal cannot interrupt the visible action.
   document.dispatchEvent(new CustomEvent('aio:colorThemeChanged', { detail: { theme: isDark ? 'dark' : 'light' } }));
   // TradingView iframe 테마 업데이트
   document.querySelectorAll('iframe[src*="tradingview"]').forEach(function(f) {
@@ -1140,7 +1097,7 @@ function toggleTheme() {
 (function() {
   var saved = null;
   try { saved = localStorage.getItem('aio_theme'); } catch (_) {}
-  if (saved === 'dark' || (saved == null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) { // v57.54: no saved choice follows the device setting
+  if (saved === 'dark' || (saved == null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) { // No saved choice follows the device setting
     document.body.classList.add('dark-theme'); // already set by the inline script at the top of <body>; kept for a blocked inline script
     var btn = document.getElementById('theme-toggle');
     if (btn) btn.textContent = 'Dark';
@@ -1192,16 +1149,15 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 // 안으로 이동(P556/R247 템플릿) — 이전엔 최상위 무방비 호출이라, defer 적용 시 예외가 나면 바로
 // 다음 줄의 beforeunload 리스너 등록과 이 스크립트 블록의 나머지 전부가 등록되지 않는 가장 심각한
 // 연쇄 실패 지점이었다(가격알림·접근성 인디케이터·McClellan 오실레이터·BOK 회의일 표시 전부 영향).
-window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); // v48.91: 언로드 시 전체 정리
+window.addEventListener('beforeunload', function() { _aioClearAllTimers(); }); // 언로드 시 전체 정리
 
 // ── P714: 첫 방문 투자 면책 고지 (1회, 확인 시까지 유지) ──
 // 기존 면책은 guide 페이지 <details> 안에 접혀 있어 실질 도달률이 0에 가까웠다.
-// v58.53 개편 v2: 고정 하단 바 → 최초 1회 떠 있는 카드(비차단) + 페이지 하단 한 줄(.sx-page-foot)에서 다시 열기.
-// v58.80 run-5 (phone #2): the notice is drawn by the static shell (index.html #aio-disclaimer-tpl) as the page parses —
+// 개편 v2: 고정 하단 바 → 최초 1회 떠 있는 카드(비차단) + 페이지 하단 한 줄(.sx-page-foot)에서 다시 열기.
+// run-5 (phone #2): the notice is drawn by the static shell (index.html #aio-disclaimer-tpl) as the page parses —
 // from this late classic script it landed at 39 s on slow 3G and pushed the reading down (CLS 0.74). The foot reopens it.
 window._aioShowDisclaimer = function() { if (typeof window._aioMountDisclaimer === 'function') window._aioMountDisclaimer(true); };
 
-// P1429 (owner 2026-10-04): the first-visit "처음 오셨나요?" onboarding card was removed — users are active traders; no how-to prompts.
 // ── 초기화 ──
 document.addEventListener('DOMContentLoaded', function() {
   window._globalUpdateInterval = _aioRegisterTimer('globalUpdate', function() {

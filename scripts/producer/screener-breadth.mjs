@@ -15,16 +15,16 @@ import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/ind
 // the screener. Date alignment is explicit; array position is never used to
 // align different securities. This remains AIO-universe research data, not
 // official exchange advance/decline data.
-// v58.79 (owner 2026-10-25): the headline breadth is S&P 500 members, not the AIO watch list — a fourth bucket
+// The headline breadth is S&P 500 members, not the AIO watch list — a fourth bucket
 // (sp500) counts members only, judged on the same adjusted closes; the history writer prefers it (SP500_SCOPE below).
 // v59.70 (lens plan step 3): '평균선이 오르면서 그 위' — above the 50-day average while that average is higher than it was
 // RISING_LOOKBACK sessions earlier. A share above a falling line is a bounce inside a down-trend, not participation.
 export const RISING_LOOKBACK = 10;
-// v59.71: dates newer than this many calendar days may still be revised (late bars, dividend-adjusted closes); older ones keep their first value.
+// Dates newer than this many calendar days may still be revised (late bars, dividend-adjusted closes); older ones keep their first value.
 export const BREADTH_REVISION_DAYS = 7;
 export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowMs = Date.now(), assetTypeOf = null, sp500Members = null) {
   const isMember = (sym) => sp500Members instanceof Set && sp500Members.has(String(sym || '').toUpperCase());
-  // v57.50 D21: breadth is a share of stocks; ETFs (index trackers, VIX products) are excluded from both
+  // Breadth is a share of stocks; ETFs (index trackers, VIX products) are excluded from both
   // the numerator and the denominator when the universe's asset type is known.
   const isEtf = (sym) => typeof assetTypeOf === 'function' && assetTypeOf(sym) === 'ETF';
   const symbolSet = new Set((syms || []).filter((sym) => !isEtf(sym)));
@@ -39,9 +39,9 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     sp500: [...symbolSet].filter((sym) => segmentFor(sym) === 'us' && isMember(sym)).length
   };
   const blank = () => ({ eligible: 0, advances: 0, declines: 0, unchanged: 0, observedAt: null, above: { 20: 0, 40: 0, 50: 0, 200: 0, rising50: 0 }, eligibleByWindow: { 20: 0, 40: 0, 50: 0, 200: 0, rising50: 0 },
-    // P1416: StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
+    // StockBee 4% movers, 52-week highs/lows; each with its own eligible denominator.
     up4: 0, down4: 0, moverEligible: 0, newHighs: 0, newLows: 0, highLowEligible: 0, contributors: { up4: [], down4: [], newHigh: [], newLow: [] },
-    // v58.68: recent closing lows (20 / 63 sessions), each with its own eligible denominator.
+    // Recent closing lows (20 / 63 sessions), each with its own eligible denominator.
     low20: 0, low20Eligible: 0, low63: 0, low63Eligible: 0 });
   const getBucket = (date) => {
     if (!buckets.has(date)) buckets.set(date, { all: blank(), us: blank(), kr: blank(), sp500: blank() });
@@ -53,7 +53,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
     if (signal.moverEligible) bucket.moverEligible += 1;
     for (const window of [20, 63]) if (signal[`low${window}Eligible`]) { bucket[`low${window}Eligible`] += 1; if (signal[`low${window}`]) bucket[`low${window}`] += 1; }
     const change = signal.change == null ? null : round(signal.change * 100, 2);
-    // P1449: contributors carry their asset type; a ≥20% one-day move is flagged as
+    // Contributors carry their asset type; a ≥20% one-day move is flagged as
     // possibly corporate-action-affected (spin-off etc.) — the audit source does not exist yet,
     // so the UI must show this as '조정 여부 미확인', not as a crash reading.
     const assetType = typeof assetTypeOf === 'function' ? (assetTypeOf(sym) || null) : null;
@@ -155,7 +155,7 @@ export function computeScreenerBreadthHistory(syms, results, maxRows = 252, nowM
       ...(universe.sp500 ? { sp500: finalize(segments.sp500, universe.sp500) } : {}) }));
 }
 
-// v58.79: which segment a history point's headline breadth comes from — S&P 500 members when that bucket judged at
+// Which segment a history point's headline breadth comes from — S&P 500 members when that bucket judged at
 // least 300 of them that day, otherwise the AIO US universe (membership artifact missing or a thin day).
 export const SP500_SCOPE = 'sp500-members-not-official-index-breadth';
 export const AIO_US_SCOPE = 'aio-us-screener-universe-not-official-exchange';
@@ -164,10 +164,10 @@ export function headlineBreadthSegment(point) {
   return point?.us ? { segment: point.us, scope: AIO_US_SCOPE, source: 'AIO US screener universe from Yahoo adjusted-close history' } : null;
 }
 
-// P1416: which stocks made each count — the latest 20 completed sessions, US segment. Names come
+// Which stocks made each count — the latest 20 completed sessions, US segment. Names come
 // from the screener universe on the client; this artifact carries symbols and the day's change only.
 const BREADTH_CONTRIBUTORS_OUT = `${REPO_ROOT}/public-data/breadth-contributors.json`;
-// v57.69 (P1802): the history lane already withholds a count judged on less than half the universe; the
+// The history lane already withholds a count judged on less than half the universe; the
 // contributor lane did not, so 10/14 was published with one eligible mover and the screen read 0 as a count.
 export const breadthMinimumEligible = (universe) => Math.max(20, Math.ceil(Number(universe) * 0.5));
 export function buildBreadthContributorSessions(rows, nowMs = Date.now()) {
@@ -180,7 +180,7 @@ export function buildBreadthContributorSessions(rows, nowMs = Date.now()) {
       date: point.date,
       universeScope: scope,
       eligible: segment.signalEligible || null,
-      // P1449: contributor entries become objects — asset type (ETF/stock) plus the
+      // Contributor entries become objects — asset type (ETF/stock) plus the
       // corporate-action suspicion flag (|day change| >= 20%). "미국 주식" counts bundle ETFs
       // with individual names, so the drilldown must say which is which.
       signals: Object.fromEntries(Object.entries(segment.contributors).map(([key, list]) => [key,
@@ -203,11 +203,11 @@ export async function writeBreadthContributors(rows, nowMs = Date.now()) {
 export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), distribution = null, rally = null) {
   if (!Array.isArray(rows) || rows.length < 60) return { updated: false, rows: rows?.length || 0 };
   let history = [];
-  try { history = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* first producer run */ } // v59.70 R2
-  const asRead = structuredClone(history); // v60.39: cells that do not change keep their check time (keepCheckTimes)
+  try { history = readHistoryRows(JSON.parse(await readFile(HIST, 'utf8'))); } catch { /* first producer run */ } // R2
+  const asRead = structuredClone(history); // Cells that do not change keep their check time (keepCheckTimes)
   const fetchedAt = new Date().toISOString();
   const fields = ['breadth20', 'breadth50', 'breadth200', 'advanceRatio', 'advanceDecline', 'breadth40', 'breadthUp4', 'breadthDown4', 'breadthNewHighs', 'breadthNewLows', 'breadthLow20', 'breadthLow63', 'breadth50Rising'];
-  // P1416: each count is judged against its own eligible population.
+  // Each count is judged against its own eligible population.
   const eligibleFor = (segment, field) => {
     const window = /^breadth(20|40|50|200)$/.exec(field)?.[1];
     if (window) return Number(segment.eligibleByWindow?.[window]);
@@ -217,7 +217,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     if (field === 'breadthLow20' || field === 'breadthLow63') return Number(segment.signalEligible?.[field === 'breadthLow20' ? 'low20' : 'low63']);
     return Number(segment.eligible);
   };
-  // P1399: an earlier in-session run may have written today's partial breadth; clear it.
+  // An earlier in-session run may have written today's partial breadth; clear it.
   for (const row of history) {
     if (!row?.date || isSessionComplete(row.date, 'us', nowMs)) continue;
     for (const field of fields) { if (field in row) row[field] = null; if (row.fieldMeta) delete row.fieldMeta[field]; }
@@ -243,7 +243,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
       const value = rawValue == null || rawValue === '' ? Number.NaN : Number(rawValue);
       if (!Number.isFinite(value) || !Number.isFinite(eligible) || eligible < minimumEligible) {
         // Keep the column so the row shape stays stable; null plus no fieldMeta
-        // is the single spelling of "no observation" (P1101).
+        // is the single spelling of "no observation".
         target[field] = null;
         delete target.fieldMeta[field];
         continue;
@@ -256,7 +256,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
         source: headline.source,
         sourceKind: 'derived-research',
         allowedUse: 'research-history',
-        // P1117: the screener breadth lane writes into the same rows; without these two
+        // The screener breadth lane writes into the same rows; without these two
         // markers its fields would be the only fieldMeta keys on the latest row that the
         // history artifact gate could not classify.
         observationRelation: 'latest-completed-close',
@@ -281,7 +281,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
       }
     }
   }
-  // P1416: S&P 500 distribution days (25-session count) from the index's own completed bars.
+  // S&P 500 distribution days (25-session count) from the index's own completed bars.
   let distributionRows = 0;
   for (const point of Array.isArray(distribution?.series) ? distribution.series : []) {
     if (!point?.date || point.count == null || !isSessionComplete(point.date, 'us', nowMs)) continue;
@@ -297,7 +297,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     };
     distributionRows += 1;
   }
-  // v59.57: Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count from the lowest close,
+  // Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count from the lowest close,
   // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/regime/rally-attempt.js).
   let rallyRows = 0;
   for (const point of Array.isArray(rally?.series) ? rally.series : []) {
@@ -322,6 +322,6 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
   }
   history.sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
   if (history.length > 420) history = history.slice(-420);
-  await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(keepCheckTimes(asRead, history))))); // v59.70 R2: history.v2
+  await atomicWriteFile(HIST, JSON.stringify(compactHistoryRows(normalizeHistoryRows(keepCheckTimes(asRead, history))))); // history.v2
   return { updated: true, rows: rows.length, totalHistoryRows: history.length, distributionRows, rallyRows };
 }

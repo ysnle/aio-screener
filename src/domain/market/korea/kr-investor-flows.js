@@ -1,4 +1,9 @@
 import { isoDay } from '../../shared/session-date.js';
+// 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs;
+// Naver Finance investor trend, KRX figures — ECOS published the foreign investors only). Each market reads the latest session's net purchase per investor type that the source
+// publishes, plus the last 20 sessions of each series with 5- and 20-session sums. An investor type the source does not
+// publish is named as missing, never derived (개인 = -(외국인 + 기관) is not an identity: 기타법인 trade too).
+// The browser loads it through src/data/artifact-registry.js KR_INVESTOR_FLOWS.
 export const KR_INVESTOR_FLOWS_SCHEMA = 'kr-investor-flows.v1';
 export const KR_FLOW_TREND_SESSIONS = 20;
 const STALE_AFTER_DAYS = 5; // a weekend plus a holiday; later than that the card says 지연
@@ -9,10 +14,13 @@ const INVESTOR_ORDER = Object.freeze([['individual', '개인'], ['foreign', '외
 const sum = (points) => points.reduce((s, p) => s + p.value, 0);
 const kstToday = (nowMs) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(nowMs));
 
+// States: loading (no file yet, request in flight) · unavailable (fetch failed, unknown schema, or no matching source item)
+// · pending (the producer's 수집 전 marker, status not-collected) · ok. v58.55 review: only the marker reads as 수집 전.
 export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadState = 'loading' } = {}) {
   if (!artifact) return loadState === 'failed' ? { state: 'unavailable', reason: 'fetch-failed' } : { state: 'loading' };
   if (artifact.schemaVersion !== KR_INVESTOR_FLOWS_SCHEMA) return { state: 'unavailable', reason: 'schema' };
   if (artifact.status === 'not-collected') return { state: 'pending', reason: artifact.reason || null };
+  // 'stale' is the producer's format guard (nothing parsed, previous numbers kept) — shown, marked 지연, reference use.
   const sourceStale = artifact.status === 'stale';
   if (artifact.status !== 'ok' && !sourceStale) return { state: 'unavailable', reason: artifact.status || 'unknown', source: artifact.source || null };
   const today = kstToday(nowMs);
@@ -28,6 +36,8 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
       const last = series.at(-1);
       rows.push({ id: investor, label: investorLabel, value: last.date === date ? last.value : null, date: last.date });
       const recent = series.slice(-KR_FLOW_TREND_SESSIONS);
+      // v59.59 (logic refactor): an investor series that ends before the market's latest session has no current 5/20-session
+      // sum — the row value was already withheld, but its sums sat next to the other investors' current ones.
       const current = last.date === date;
       trends.push({ id: investor, label: investorLabel, points: recent, sum5: current && series.length >= 5 ? sum(series.slice(-5)) : null, sum20: current && series.length >= KR_FLOW_TREND_SESSIONS ? sum(recent) : null, sessions: recent.length });
     }

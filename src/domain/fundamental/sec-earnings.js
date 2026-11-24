@@ -1,7 +1,25 @@
+// 2026-10-17 (logic audit D1/D2/D6/D7, owner-approved recommendations): the earnings and equity bases that price P/E and
+// ROE, read from a record's own PIT observations so the producer, the page projection, the screener merge and the
+// browser's out-of-universe read share one rule.
+//  D6 — a field's series keeps one XBRL concept: the concept of its latest period, falling back to another concept
+//       only for a period that concept never reported (EXEL/MTCH LongTermDebt vs LongTermDebtNoncurrent, AVB/MDLN
+//       NetIncomeLoss vs ProfitLoss mixed the year-over-year read).
+//  D1 — P/E is priced on the last four consecutive quarters (TTM) when they end after the fiscal year; a fourth
+//       quarter only filed inside the 10-K is derived as FY − Q1..Q3. Otherwise the fiscal year.
+//  D7 — the P/E numerator is earnings available to common stockholders when the filer tags it for every period used
+//       (preferred dividends and participating securities removed); otherwise net income.
+//  D2 — ROE is net income over the average of the prior and current fiscal year-end equity (same concept); a missing
+//       or non-positive prior year falls back to year-end equity and says so (roeBasis 'year-end-equity').
 import { finiteFact as finite, isPriorAnnualPeriod, isQuarterSpan, isQuarterGap } from './period.js';
 
 export const SEC_COMMON_INCOME_CONCEPT = 'NetIncomeLossAvailableToCommonStockholdersBasic';
+// The first concept of each list is the anchor when several report the latest period.
+// R&D expense as filed, in preference order. The acquired in-process R&D variants are the same line without
+// purchased IPR&D; the plain concept is preferred, the software variant is the last fallback. ResearchAndDevelopmentInProcess
+// (purchased IPR&D alone) is not ongoing R&D and is not read.
 export const SEC_RD_CONCEPTS = Object.freeze(['ResearchAndDevelopmentExpense', 'ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost', 'ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost']);
+// v58.75 (persona review): US-GAAP concepts for the margin ladder, net cash and capital return, in preference order. Cash is
+// cash and equivalents only (restricted cash is a different total); short-term investments are read as their own column.
 export const SEC_CAPITAL_CONCEPTS = Object.freeze({
   grossProfit: ['GrossProfit'],
   operatingIncome: ['OperatingIncomeLoss'],
@@ -18,6 +36,11 @@ export const SEC_IFRS_CAPITAL_CONCEPTS = Object.freeze({ grossProfit: ['GrossPro
 export const SEC_TOTAL_DEBT_DERIVED_CONCEPT = 'derived:LongTermDebtTotal';
 // The same pairing on the lease-inclusive lines (LongTermDebtAndCapitalLeaseObligations + its current portion).
 export const SEC_DEBT_AND_LEASE_DERIVED_CONCEPT = 'derived:LongTermDebtAndLeaseTotal';
+// 2026-11-18 (debt coverage): 304 of 795 issuers had no latest-year debt because they tag only the lease-inclusive debt lines
+// (AVGO FY2022+, CVX, KO...). Those lines are read after the debt-only ones and carry their basis: a series anchored on one
+// says 'lease-inclusive' (finance-lease obligations inside the figure). Instrument-level concepts (DebtInstrumentCarryingAmount,
+// SeniorNotes, LongTermNotesPayable, UnsecuredDebt) are not read: companyfacts drops the instrument dimension, so one
+// tranche cannot be told from the total. DebtLongtermAndShorttermCombinedAmount is not read either (short-term borrowings in).
 export const SEC_DEBT_LEASE_CONCEPTS = Object.freeze(['LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities', SEC_DEBT_AND_LEASE_DERIVED_CONCEPT, 'LongTermDebtAndCapitalLeaseObligations']);
 export const secDebtBasis = (concept) => (concept == null ? null : SEC_DEBT_LEASE_CONCEPTS.includes(concept) ? 'lease-inclusive' : 'long-term');
 // Whether the debt figure includes the part due within a year. us-gaap sums each total from a noncurrent line and its
@@ -79,6 +102,9 @@ export function anchorConceptRows(rows, preference = []) {
   return list.filter((row) => row.concept === anchor || (!covered.has(key(row)) && conceptFamily(row.concept) === family));
 }
 
+// Discrete quarters (latest filing per period end), plus a fourth quarter derived from a fiscal year (330+ days) that
+// contains exactly three of them. Sorted oldest first. A quarter is 77–119 days: 12- and 16-week fiscal quarters
+// (Kroger, Costco, AutoZone, CAVA) count beside the 13/14-week ones.
 export function discreteQuarterSeries(quarterRows, annualRows = []) {
   const byEnd = new Map();
   for (const row of Array.isArray(quarterRows) ? quarterRows : []) {

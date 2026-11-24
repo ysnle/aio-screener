@@ -2,13 +2,13 @@ import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { closeAll, startLocalServer, freePort } from './lib/browser-gate.mjs';
 import { ROUTE_IDS } from '../src/app/routes.js';
-// v59.59 (QA-CRED-32): the run writes to its own ignored folder; _artifacts/structural-quality-20260906 stays the frozen
+// The run writes to its own ignored folder; _artifacts/structural-quality-20260906 stays the frozen
 // 2026-09-06 evidence it is named for (every local run used to overwrite two tracked files there).
 const OUT_DIR = '_artifacts/user-journey';
 mkdirSync(OUT_DIR, { recursive: true });
 const PORT = (Number(process.env.CI_USER_JOURNEY_PORT) || await freePort());
 const BASE_URL = 'http://127.0.0.1:' + PORT + '/';
-const server = await startLocalServer(PORT, { label: 'user-journey/server' }); // v57.62 shared lifecycle
+const server = await startLocalServer(PORT, { label: 'user-journey/server' }); // Shared lifecycle
 const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
 const report = { generatedAt: new Date().toISOString(), routes: [], checks: [], errors: [] };
 const check = (name, ok) => { report.checks.push({ name, ok }); if (!ok) throw new Error(name); };
@@ -44,7 +44,7 @@ try {
     const flow = { available: true, session: '2026-10-30', themes: { available: true, memberSplits: [{ up: { sym: 'AAA', d1: 2 }, down: { sym: 'BBB', d1: -1 } }] } };
     renderSectorMoves({ documentRef: doc, root, host: sector, nowMs });
     renderMoveNews(doc, root, null, flow);
-    // v60.35: the sector bars are one line with a link to 테마와 섹터, and 움직인 이유 is on the face (no <details>).
+    // The sector bars are one line with a link to 테마와 섹터, and 움직인 이유 is on the face (no <details>).
     const block = sector.querySelector('#briefing-move-news');
     const sectorLine = /10\/30 종가, 미국 섹터 ETF 6개 중 6개 상승/.test(sector.textContent) && !!sector.querySelector('[data-action="showPage"][data-arg="themes"]');
     const onFace = !!block && block.tagName !== 'DETAILS' && !sector.querySelector('details');
@@ -91,7 +91,7 @@ try {
   const focusedInGuide = () => { const el = document.activeElement; return Boolean(el?.id && el.id !== 'page-guide' && document.getElementById('page-guide')?.contains(el)); };
   await page.waitForFunction(focusedInGuide, null, { timeout: 3000 }).catch(() => {});
   check('guide focused paragraph', await page.evaluate(() => { const el = document.activeElement; return Boolean(el?.id && el.id !== 'page-guide' && document.getElementById('page-guide')?.contains(el)) && document.getElementById('aio-command-search')?.open === false; }));
-  // v59.51 (content audit): the guide's screen cards (#guide-screen-cards) are retired — the menu itself names the 8 screens;
+  // The guide's screen cards (#guide-screen-cards) are retired — the menu itself names the 8 screens;
   // the guide is three folded chapters (판정 기준표, 읽는 법, 데이터) under the hero.
   check('v59.51 (content audit) guide has no screen cards and three folded chapters (P1428 successor)', await page.locator('#guide-screen-cards').count() === 0 && await page.locator('#guide-score-components').count() === 0 && await page.locator('#page-guide > .aio-guide-chapter').count() === 3);
   const fixtures = await page.evaluate(async () => {

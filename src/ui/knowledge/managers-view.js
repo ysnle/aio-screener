@@ -48,6 +48,7 @@ export function renderManagersPage(doc, { root, catalog, registry, selectedId, o
   if (methodOnly.length) appendGroup('방법론 참고(13F 미신고)', methodOnly);
   if (overview) {
     const article = el(doc, 'article', 'af-article');
+    // Expert review #25: a two-sentence lead; the longer explanation is folded below it.
     const more = el(doc, 'details', 'af-basis');
     more.append(el(doc, 'summary', null, '13F로 보이는 것과 안 보이는 것'),
       el(doc, 'p', 'rl-copy', '운용사마다 실제 기준 분기와 제출일이 다르니 각 상세의 보고 분기를 함께 본다. 지수를 그대로 따라가는 운용사의 보유 변화는 판단이 아니라 자금 흐름의 결과이고, 퀀트 펀드의 보유 목록에는 숏 포지션이 빠져 있어 방향을 말해 주지 않는다. 매크로 펀드의 핵심 포지션인 선물·외환·국채는 아예 보이지 않는다.'));

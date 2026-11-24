@@ -5,7 +5,7 @@ import { normalizeEntity } from '../src/data/normalize/entity.js';
 import { buildRuntimeObservationCatalog } from '../src/data/runtime-readers.js';
 import { evaluatePageDataTimeline } from '../src/data/contracts/page-timeline.js';
 
-// P1360: execute the real committed artifact through production provider/catalog.
+// Execute the real committed artifact through production provider/catalog.
 const artifact = JSON.parse(readFileSync(new URL('../public-data/sec-fundamentals-summary.json', import.meta.url), 'utf8'));
 const now = Date.parse(artifact.generatedAt);
 async function stateFor(id = null, source = artifact) {

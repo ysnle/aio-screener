@@ -31,7 +31,7 @@ if (!VIEWPORTS.length) throw new Error('AIO_VIEWPORT_NAMES did not match a known
 async function activateRoute(page, routeId) {
   if (routeId === 'theme-detail') await addressThemeDetail(page); // a detail needs a theme id (fix-r1-theme)
   return page.evaluate((id) => {
-    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view lives on its host screen
+    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // A derived view lives on its host screen
     const targetPage = document.getElementById('page-' + targetPageId);
     if (!targetPage) return { routeId: id, fatal: 'page element missing' };
     if (window.__AIO_VIEWPORT_FULL_INIT__ && typeof window.showPage === 'function') {
@@ -46,7 +46,7 @@ async function activateRoute(page, routeId) {
 
 async function auditRoute(page, routeId) {
   return page.evaluate((id) => {
-    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // v60.31: a derived view lives on its host screen
+    const targetPageId = window.AIO_ROUTE_REGISTRY?.canonical?.[id] || id; // A derived view lives on its host screen
     const targetPage = document.getElementById('page-' + targetPageId);
     if (!targetPage) return { routeId: id, fatal: 'page element missing' };
     const pageEl = targetPage;
@@ -58,7 +58,7 @@ async function auditRoute(page, routeId) {
 
     const controls = Array.from(activeRoot.querySelectorAll('button,[role="button"],a[href],input,select,textarea'))
       .slice(0, 800)
-      // P1272: a programmatically triggered, aria-hidden/visibility:hidden file input
+      // A programmatically triggered, aria-hidden/visibility:hidden file input
       // is outside the accessible control set. Keep visible unlabeled controls failing.
       .filter((el) => el.closest('[aria-hidden="true"]') == null && getComputedStyle(el).visibility !== 'hidden' && getComputedStyle(el).display !== 'none')
       .filter((el) => !ownText(el));
@@ -151,7 +151,7 @@ async function auditRoute(page, routeId) {
       routeId: id,
       activeFound: !!pageEl,
       docOverflowX: Math.max(docEl.scrollWidth - docEl.clientWidth, body.scrollWidth - body.clientWidth),
-      // QA 2026-11-07: the page scrolls inside #main-content; a document taller than the window is a second, outer scroll
+      // The page scrolls inside #main-content; a document taller than the window is a second, outer scroll
       // (absolute .sr-only nodes escaped an unpositioned scroller and pushed the phone shell up over a blank band).
       docOverflowY: Math.max(0, docEl.scrollHeight - docEl.clientHeight),
       badTextCount: badTextNodes.length,
@@ -208,7 +208,7 @@ async function settleRoute(page, routeId) {
 async function main() {
   if (SCREENSHOTS) mkdirSync(OUT_DIR, { recursive: true });
   console.log(`[ci-viewport-matrix] starting local server on ${PORT}`);
-  const server = await startLocalServer(PORT, { label: 'viewport-matrix/server' }); // v57.62 shared lifecycle
+  const server = await startLocalServer(PORT, { label: 'viewport-matrix/server' }); // Shared lifecycle
   console.log('[ci-viewport-matrix] launching chromium');
   const browser = await chromium.launch().catch(async (error) => { await closeAll({ server }); throw error; });
   const failures = [];
@@ -219,7 +219,7 @@ async function main() {
   // per-page listeners and attribute each error to whichever route was active when it fired
   // (best-effort — a small settle delay after showPage() in FULL_INIT mode narrows the window
   // where an error could be misattributed to the next route instead of the one that caused it).
-  // 실측(2026-07-10, WO-4): 이 필터 없이 첫 FULL_INIT 실행 시 8개 콤보가 실패했으나, 전부
+  // 실측: 이 필터 없이 첫 FULL_INIT 실행 시 8개 콤보가 실패했으나, 전부
   // `[AIO:api] {source}: warn → error {errCount: 3}` 형태 — js/aio-core.js의 `_reportApiError()`가
   // 외부 API가 3회 연속 실패하면 자체 헬스 상태를 warn→error로 전이시키며 남기는, 의도된 로그다
   // (아래 route.abort()가 모든 외부 요청을 차단하는 이 하네스 자체의 설계상 당연히 발생). 실제

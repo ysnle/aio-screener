@@ -46,7 +46,7 @@ await assert.rejects(loadJsonArtifact(neverFetch, './never.json', { timeoutMs: 1
 assert.equal(timeoutAborted, true, 'timeout must abort the underlying request');
 assert.equal(artifactCacheSnapshot(neverFetch).inFlight, 0, 'timed-out request must leave no in-flight entry');
 
-// P2072: a slow but moving download (the 1 MB SEC summary on 3G) finishes past timeoutMs; a stalled one is cut.
+// A slow but moving download (the 1 MB SEC summary on 3G) finishes past timeoutMs; a stalled one is cut.
 const drip = (parts, gapMs) => async () => new Response(new ReadableStream({ async start(c) { for (const part of parts) { await new Promise((r) => setTimeout(r, gapMs)); if (part == null) return; c.enqueue(new TextEncoder().encode(part)); } c.close(); } }));
 const slowFetch = drip(['{"a":', '[1,', '2]', '}'], 25);
 assert.deepEqual(await loadJsonArtifact(slowFetch, './slow.json', { timeoutMs: 30, stallMs: 80 }), { a: [1, 2] }, 'P2072 a moving body must finish past timeoutMs');
@@ -115,7 +115,7 @@ completions[1]({ ok: true, json: async () => ({ revision: 'new' }) });
 assert.deepEqual(await newPending, { revision: 'new' });
 assert.deepEqual(await loadJsonArtifact(ignoresAbort, './retry.json'), { revision: 'new' });
 
-// v57.77 / v58.64 (architecture audit M1): callers take one fetcher per root from stableFetcher(root), so `maxAgeMs`
+// Callers take one fetcher per root from stableFetcher(root), so `maxAgeMs`
 // applies across calls, `force` still re-reads and a clear reaches the same store. Two roots whose fetchers share a
 // name keep separate stores (the v57.77 name-keyed store mixed them).
 let boundCalls = 0;
@@ -140,7 +140,7 @@ clearArtifactCache(stableFetcher(boundRoot));
 assert.equal(artifactCacheSnapshot(stableFetcher(boundRoot)).resolved, 0, 'v57.77: clearing the root fetcher clears its store');
 assert.equal(artifactCacheSnapshot(stableFetcher(otherRoot)).resolved, 1, 'v58.64 M1 clearing one root leaves the other root store');
 
-// v59.23 (P2108): a deadline held past its time by a long task must not abort a response queued behind it.
+// A deadline held past its time by a long task must not abort a response queued behind it.
 let lateResolve = null;
 const lateFetch = () => new Promise((resolve) => { lateResolve = () => resolve({ ok: true, json: async () => ({ late: true }) }); });
 const lateLoad = loadJsonArtifact(lateFetch, './late.json', { timeoutMs: 100 }).catch((error) => ({ error: error.message }));

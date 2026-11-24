@@ -20,7 +20,7 @@ export const SET_PATH = 'architecture/ai-chat-question-set.json';
 export const SET_SCHEMA = 'aio-ai-chat-question-set.v1';
 export const REPORT_SCHEMA = 'aio-ai-chat-eval-report.v1';
 export const TASK_IDS = Object.freeze(['market-state', 'money-flow', 'screen', 'company', 'holdings']);
-// The situations the owner listed (2026-11-21); each needs at least two questions.
+// The situations the owner listed; each needs at least two questions.
 export const REQUIRED_SITUATIONS = Object.freeze([
   'closed-market', 'intraday', 'korea', 'etf', 'out-of-universe', 'korean-name', 'compare', 'follow-up', 'vague', 'definition',
   'on-screen-number', 'macro-release', 'web-cause', 'earnings', 'dividend', 'valuation', 'technical', 'scenario-history',

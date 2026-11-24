@@ -14,7 +14,7 @@ const live = read('scripts/ci-live-invariant-check.mjs');
 const operations = read('scripts/build-operations-status.mjs');
 const fail = (message) => { throw new Error(`[deployment-convergence] ${message}`); };
 
-// P1351: exact identity checks and current-main guards cover retries and manual redeploys.
+// Exact identity checks and current-main guards cover retries and manual redeploys.
 if (!pages.includes('Recheck main head immediately before Pages mutation') || !pages.includes('Recheck main head before Pages retry') || !pages.includes("steps.retry-main.outputs.safe == 'true'")) fail('P1351 Pages lacks latest-main mutation/retry guards');
 if (!external.includes('resolveProvenanceRun') || !external.includes('verification-unavailable')) fail('P1351 observer lacks exact-run fallback or unavailable-evidence boundary');
 for (const workflow of [pages, proxyWorkflow, fastWorkflow]) {
@@ -73,7 +73,7 @@ if (!operations.includes('proxySourceSha') || !operations.includes('fastSourceSh
   if (pushOther.ok) fail('v60.19 a push CI run whose attestation differs from its head must not deploy');
   if (runAttestedReleaseRule({ attestation: attestation(A, '999'), runId: 123, repository, ciEvent: 'push', ciHeadSha: A }, rule).ok) fail('v60.21 an attestation from another CI run must not release');
 
-  // v60.21: the watchdog's CI trust (pages-source-matches-attested-ci) is the same rule with the deployed SHA as the
+  // The watchdog's CI trust (pages-source-matches-attested-ci) is the same rule with the deployed SHA as the
   // required SHA. The run's head_sha alone called a correct dispatched release untrusted and an unattested one trusted.
   const ciRun = (event, headSha) => ({ id: 123, name: 'CI', head_branch: 'main', head_repository: { full_name: repository }, head_sha: headSha, event, status: 'completed', conclusion: 'success' });
   const trust = (event, headSha, attestedSha, deployedSha) => ciReleaseTrust({ run: ciRun(event, headSha), runId: 123, repository, attestation: attestedSha ? attestation(attestedSha) : null, unavailable: attestedSha ? '' : 'artifact expired', deployedSha }, rule);

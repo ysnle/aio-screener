@@ -1,3 +1,7 @@
+// v57.91 (performance audit): the legacy news scorer (js/aio-data.js scoreItem) tests about 2,500 keywords
+// against every article with a Unicode word-boundary regex — about 5 million calls per news cycle, a 36-second task on
+// a phone. A keyword can only match where its first two letters occur, so the article's letter pairs prefilter the
+// list: keywords whose pair is absent are skipped, the rest go through the same matcher (identical hits and score).
 /** Every single character and adjacent pair in `text` (UTF-16 units, as String.prototype.indexOf compares). */
 export function textPairs(text) {
   const pairs = new Set();

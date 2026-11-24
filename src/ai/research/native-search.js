@@ -1,4 +1,4 @@
-// P1608: internal evidence first, one shared paid-search transport second. Search is offered, and the model decides per
+// Internal evidence first, one shared paid-search transport second. Search is offered, and the model decides per
 // question whether to use it (tool_choice 'auto'); it is forced only when the reader asked for it, or when a turn
 // without the data tools asks a current question the injected data does not cover.
 import { evaluateResearchEvidenceFloor } from './evidence.js';
@@ -14,7 +14,7 @@ const DEEP_SEARCH_MODES = Object.freeze(['analysis', 'decision', 'comparison', '
  */
 export function selectNativeSearch({ decision = {}, questionPlan, externalResult, preparation = {}, optedOut = false, health, mode = null } = {}) {
   if (optedOut || decision.userOptOut || preparation.cancelled || preparation.externalEvidenceReady || decision.requirement === 'FORBIDDEN') return false;
-  // P1759: in the month's last 20% the Worker strips search anyway (webSearchAvailable:false) — don't ask for it.
+  // In the month's last 20% the Worker strips search anyway (webSearchAvailable:false) — don't ask for it.
   if (health?.ai?.paidWebSearchEnabled !== true || health.ai.webSearchAvailable === false) return false;
   if (externalResult && evaluateResearchEvidenceFloor({ questionPlan, externalResult, required: true }).ready) return false;
   return mode !== 'quick' || decision.requestedByUser === true;
@@ -40,7 +40,7 @@ export function nativeSearchOptions({ decision = {}, mode = null, internalEviden
 
 export function attachNativeSearch(body, { enabled = false, health, mustSearch, context = 'low' } = {}) {
   if (!enabled || health?.ai?.paidWebSearchEnabled !== true || health?.ai?.webSearchAvailable === false) return body;
-  // v57.61: a medium-effort analysis keeps medium reasoning. Only a Worker that admits it (maxTokens above the old 8192
+  // A medium-effort analysis keeps medium reasoning. Only a Worker that admits it (maxTokens above the old 8192
   // limit marks the v57.61 budget) gets 'medium'; older ones stay 'low'. The search context is medium only when the
   // caller asks for it (a deep mode whose research is REQUIRED) on such a Worker.
   const deep = body.reasoning?.effort === 'medium' && Number(health?.ai?.maxTokens) > 8192;

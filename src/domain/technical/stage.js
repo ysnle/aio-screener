@@ -33,8 +33,16 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   const shortMAState = shortBull ? 'SHORT_BULL_STACK_5_10_20' : shortBear ? 'SHORT_BEAR_STACK_5_10_20' : 'SHORT_MIXED';
   const longMAState = longBull ? 'LONG_BULL_STACK_50_100_200' : longBear ? 'LONG_BEAR_STACK_50_100_200' : 'LONG_MIXED';
   const fullMAState = fullBull ? 'FULL_BULL_STACK_5_10_20_50_100_200' : fullBear ? 'FULL_BEAR_STACK_5_10_20_50_100_200' : 'PARTIAL_STACK';
+  // Audit 2026-10-17 follow-up: the 0-100 maStackScore composite had no surface and no stated basis (AGENTS: no grade
+  // without evidence), so the model returns only the named stack states.
+  // The close is read against the 50- and 20-day lines before the stack. A full bull stack with
+  // the close under the 50-day line is damaged, and under the 20-day line a pullback — DELL closed 9.1% under its
+  // 20-day line and read "정배열(50일선 상승)". A missing close never reads as an advance.
   const under50 = !!(sma50 && lastClose != null && lastClose < sma50);
   const under20 = !!(sma20 && lastClose != null && lastClose < sma20);
+  // The trend is the close over a 50-day line that is over the 200-day line (Minervini's core
+  // template), not the full 5>10>20>50>100>200 stack — on the 10/16 screener rows 172 of 286 names above both lines with
+  // the 50 over the 200 read 혼조 after two quiet sessions. The short 5·10·20 order stays its own field (shortMAState).
   const bullHeld = !!(sma50 && sma200 && lastClose != null && !under50 && lastClose > sma50 && sma50 > sma200);
   const trendState = bullHeld && !under20 && sma50Rising !== false ? 'UPTREND' : bullHeld && !under20 ? 'TOPPING' : bullHeld ? 'PULLBACK'
     : fullBear ? 'DOWNTREND' : under50 ? 'TREND_DAMAGED' : 'MIXED';
@@ -46,6 +54,9 @@ export function classifyMovingAverageStructure({ sma5 = null, sma10 = null, sma2
   });
 }
 
+// stageEstimate is a moving-average-stack reading (5·10·20·50·100·200 order + 50-day slope), not
+// Weinstein's 30-week stage. The enum ids stay for parity; anything shown to a reader uses these names, and
+// 'Stage n' is reserved for the Weinstein reading (chart-analysis weinstein).
 export const MA_STRUCTURE_LABELS = Object.freeze({
   STAGE_2_ADVANCE: '이동평균 배열, 상승 추세(50일선 상승)',
   STAGE_3_TOPPING: '이동평균 배열, 상승 추세(50일선 둔화)',
@@ -91,6 +102,8 @@ export function deriveMultiTimeframeView(snapshot) {
   });
 }
 
+// 2026-07-21/P756: sma(closes, period) is the simple average of the last `period` values (null if fewer) — the legacy
+// _calcSMA. v57.84: it is technical/definitions.js smaLast, the one copy the chart and the screener producer also use.
 const sma = smaLast;
 
 /**
@@ -135,6 +148,7 @@ export function deriveTechnicalStageFromOhlcv({ symbol = null, ohlcv = [], input
   const previous = closes.at(-2) ?? null;
   const changePct = current != null && previous ? ((current - previous) / previous) * 100 : null;
   const structure = classifyMovingAverageStructure({ sma5, sma10, sma20, sma50, sma100, sma200, sma50Prior, lastClose: current });
+  // The 20-day position is the close against the 20-day line itself, not the stack's verdict.
   const trend = current != null && sma20 != null ? (current > sma20 ? 'above-ma20' : current < sma20 ? 'below-ma20' : null) : null;
   const nowMs = Number(now);
   const ageMs = latestObservedMs == null || !Number.isFinite(nowMs) ? null : nowMs - latestObservedMs;

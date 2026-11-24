@@ -123,7 +123,7 @@ function pin(rev) {
   return 0;
 }
 
-// v59.70 (integration review 89e8c881): the pin's own consistency, independent of what the producers write now. CI
+// The pin's own consistency, independent of what the producers write now. CI
 // blocks on this (scripts/ci-browser-data-fixture-check.mjs); the drift below is live data and only reports in CI.
 // When the pinned commit is in this clone its tree must give exactly the pinned blob ids and be an ancestor of HEAD
 // (a squash or rebase would leave the pin unreachable on the remote); `install` also checks every blob id of the

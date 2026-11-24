@@ -28,7 +28,7 @@ const finish = (section, extra = {}) => {
   if (failed.length) process.exit(1);
 };
 
-// v60.50: the repository contracts are one section; the published operations status (and its agreement with the durable
+// The repository contracts are one section; the published operations status (and its agreement with the durable
 // artifact, the market snapshot and the release-scoped config) is the other, which also runs in a data run.
 await runSections('operations-contract', [
 ['repository', async () => {
@@ -86,7 +86,7 @@ const requiredTargets = {
 };
 for (const [key, value] of Object.entries(requiredTargets)) check(`SLO target ${key}`, slo.targets?.[key] === value, `${slo.targets?.[key]} != ${value}`);
 check('route soak declaration', ['pending', 'pass'].includes(slo.localBoundary?.routeSoak?.status));
-check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === json('architecture/route-owners.json').counts.totalRoutes); // P1321: derived, not pinned
+check('route soak topology', slo.localBoundary?.routeSoak?.laps === 3 && slo.localBoundary?.routeSoak?.routes === json('architecture/route-owners.json').counts.totalRoutes); // Derived, not pinned
 check('security header gate is explicit', slo.localBoundary?.securityHeaders?.status === 'edge-required' && slo.localBoundary?.securityHeaders?.manifest === '_headers');
 check('public readiness decision is conservative', readiness.publicBetaDecision === 'BLOCKED_UNTIL_OPERATOR_CRITERIA_CLOSE');
 check('human validation remains evidence-bound', humanValidation.schemaVersion === 'human-validation.v1' && humanValidation.certification === 'OPERATOR_REQUIRED' && readiness.criteria?.find((criterion) => criterion.id === 'accessibility-manual')?.evidence.includes('architecture/human-validation.json'));
@@ -123,7 +123,7 @@ const uses = [...`${workflowText}\n${localActionText}`.matchAll(/^\s*-?\s*uses:\
 const localUses = uses.filter((ref) => ref.startsWith('./.github/actions/'));
 check('v59.70 all GitHub Actions refs are SHA pinned (local composite actions excepted)', uses.length > 0 && uses.every((ref) => localUses.includes(ref) || /@[0-9a-f]{40}$/i.test(ref)), uses.filter((ref) => !localUses.includes(ref) && !/@[0-9a-f]{40}$/i.test(ref)).join(', '));
 check('v59.70 every local composite action a workflow uses exists', localUses.every((ref) => existsSync(join(root, ref, 'action.yml'))), localUses.join(', '));
-// v58.82: both deploys install Wrangler from its own lockfile without install scripts (the job holds the Cloudflare token).
+// Both deploys install Wrangler from its own lockfile without install scripts (the job holds the Cloudflare token).
 const wranglerPackage = JSON.parse(read('tools/wrangler/package.json')), wranglerLock = JSON.parse(read('tools/wrangler/package-lock.json'));
 const lockedWrangler = /^\d+\.\d+\.\d+$/.test(wranglerPackage.dependencies?.wrangler || '') && wranglerLock.packages?.['node_modules/wrangler']?.version === wranglerPackage.dependencies.wrangler;
 for (const [label, text] of [['v58.82 Wrangler install is locked', read('.github/workflows/deploy-data-plane.yml')], ['v58.82 AI proxy Wrangler install is locked', aiProxyWorkflow]]) {
@@ -159,9 +159,9 @@ const operations = json('public-data/operations-status.json');
 const durableData = json('public-data/data.json');
 const publicConfig = json('public-config.json');
 const snapshot = json('public-data/market-snapshot.json');
-// v60.49: operations-status.json is the one owner of the data revision (the release manifests no longer copy it).
+// operations-status.json is the one owner of the data revision (the release manifests no longer copy it).
 check('v60.49 operations data revision names the published market snapshot', operations.dataRevision === snapshot.revision, `${operations.dataRevision} != ${snapshot.revision}`);
-// v60.50: the FRED fetch result is data and is published once, in operations-status.json; the release-scoped readiness
+// The FRED fetch result is data and is published once, in operations-status.json; the release-scoped readiness
 // manifest no longer carries a copy that every refresh rewrote.
 const fredSuccess = durableData.meta?.fredHasKey === true && durableData.meta?.fredFetchOk === true;
 check('v60.50 operations FRED status mirrors the durable artifact', (operations.providers?.fred?.status === 'CURRENT') === fredSuccess
@@ -193,7 +193,7 @@ const operationsAudit = validateOperationsStatus(operations);
 check('P1173 the published feature axis passes the contract that declares it',
   operationsAudit.ok && validateOperationsStatus({ ...operations, featureAvailability: { ...features, quotes: { ...features.quotes, availability: 'FINE' } } }).errors.includes('undeclared_availability:operations.featureAvailability.quotes'),
   JSON.stringify(operationsAudit.errors));
-// v60.50: public-config.json is release-scoped. The AI route is the operator's decision (PUBLISHED, or DISABLED with a
+// public-config.json is release-scoped. The AI route is the operator's decision (PUBLISHED, or DISABLED with a
 // reason); whether the Worker is ready is the browser's own /health probe, and the producer's observation stays in
 // operations-status.json. The config is checked as code in ci-release-revision-check.mjs; here only that both name the
 // same Worker.

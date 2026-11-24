@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/ci-instruction-text-ratchet-check.mjs — v59.50 (recurrence audit 2026-10-31, R724)
+// scripts/ci-instruction-text-ratchet-check.mjs
 //
 // Counts per file the Korean string literals in src/ that read as a trading directive or a computed price level
 // (scripts/lib/instruction-text-scan.mjs) and lets the count only shrink. The baseline holds the allowed cases: the AI
@@ -28,7 +28,7 @@ const walk = (dir) => readdirSync(join(root, dir), { withFileTypes: true }).flat
 const selfTest = [
   ["const t = '분할 접근은 하이일드 스프레드 확대가 멈춘 뒤가 맞습니다.';", 1],
   ["const t = '나눠 보는 편이 맞습니다.';", 1],
-  ["const t = '원인이 확인될 때까지 기다리는 쪽이 맞습니다.';", 1], // v59.51 content audit: missed by the v59.50 scanner
+  ["const t = '원인이 확인될 때까지 기다리는 쪽이 맞습니다.';", 1], // Content audit: missed by the v59.50 scanner
   ['const t = `종가에서 ATR 1배 아래는 ${price(close - levels.atr)}입니다.`;', 1],
   ['const t = `손절가 ${fmt(stop)}`;', 1],
   ["const t = '분할 접근의 비용은 스프레드가 안정되기 전에 큽니다.';", 0],
@@ -46,7 +46,7 @@ for (const file of walk('src').sort()) {
   const issues = instructionIssues(readFileSync(join(root, file), 'utf8'));
   if (issues.length) { counts[file] = issues.length; details[file] = issues; }
 }
-// v59.70 (PLAN S13/S15): no visible '읽는 법 / 보는 법 / 먼저 … 확인하세요' text. The remaining cases belong to other screens
+// No visible '읽는 법 / 보는 법 / 먼저 … 확인하세요' text. The remaining cases belong to other screens
 // (two knowledge-page sentences, one guide AI chip) and may only go away; quoted source titles (src/domain/research) are
 // data, not screen text.
 const HOW_TO_READ_ALLOWED = Object.freeze({ 'src/ui/knowledge/current-observations.js': 1,'src/ai/context/panel-contexts.js': 1 });

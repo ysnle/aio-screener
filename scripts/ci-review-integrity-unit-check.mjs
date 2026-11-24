@@ -1,7 +1,7 @@
 // P1462–P1469 (v57.19 takeover review): executable negative controls for the meaning fixes.
-import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // The page is split under src/ui/pages/screener/
 import { readFileSync } from 'node:fs';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { readProducerSource } from './lib/producer-source.mjs'; // fetch-data.mjs + the lib modules split out of it
 import { liveScreenerModelFingerprint, buildRankingIdentity } from '../src/domain/screener/model-fingerprint.js';
 import { SCREENER_COLUMN_REGISTRY } from '../src/ui/pages/screener.js';
 import { buildAttribution, fxReturnInto } from '../src/domain/portfolio/attribution.js';
@@ -22,7 +22,7 @@ const fail = (message) => { throw new Error(`[review-integrity] ${message}`); };
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const near = (a, b, eps = 0.011) => Math.abs(a - b) <= eps;
 
-// P1462: current/prior 13F periods carry the reference lane's composition chain; the gate refuses a
+// current/prior 13F periods carry the reference lane's composition chain; the gate refuses a
 // silent omission instead of skipping those periods.
 const reference = read('scripts/collect-13f-reference.mjs');
 const historyRows = read('scripts/collect-13f-history-rows.mjs');
@@ -31,32 +31,32 @@ if (!/priorAmendmentSemantics: priorBundle \? amendmentSemanticsOf\(priorBundle\
 if (!/verification\?\.priorAmendmentSemantics/.test(historyRows) || !/compositionSource = 'REFERENCE_LANE'/.test(historyRows)) fail('P1462 history rows must carry the reference-lane chain');
 if (/!\['IMPORTED_CURRENT', 'IMPORTED_PRIOR'\]\.includes\(period\.rowImportStatus\)/.test(mastersGate) || !/REFERENCE_LANE_UNSTATED/.test(mastersGate)) fail('P1462 masters gate must check current/prior periods, not skip them');
 
-// P1463: the validation identity follows the weights the screen ranks with.
+// The validation identity follows the weights the screen ranks with.
 const fpDefault = liveScreenerModelFingerprint();
 if (liveScreenerModelFingerprint({ momentum: 0.333333, trend: 0.166667, lowvol: 0.333333, kalman: 0.166667 }) !== fpDefault) fail('P1463 applied default weights must match the default identity');
 if (liveScreenerModelFingerprint({ momentum: 0.6, trend: 0.1, lowvol: 0.1, kalman: 0.2 }) === fpDefault) fail('P1463 a profile with other weights must not read as the validated model');
 if (!/liveScreenerModelFingerprint\(metadata\?\.ranking\?\.appliedFactorWeights\)/.test(readScreenerPageSource())) fail('P1463 the 검증 view must pass the applied weights');
 if (buildRankingIdentity({ appliedFactorWeights: { momentum: 0.5, trend: 0.5 }, activeFactors: ['trend', 'momentum'] }) !== buildRankingIdentity({ appliedFactorWeights: { trend: 0.5, momentum: 0.5 }, activeFactors: ['momentum', 'trend'] })) fail('P1465 ranking identity must be order-independent');
 
-// P1464: the percentile column is not called a score.
+// The percentile column is not called a score.
 const rankColumn = SCREENER_COLUMN_REGISTRY.find((column) => column.key === 'rank');
 if (rankColumn?.label !== '백분위' || /상대 점수/.test(readScreenerPageSource())) fail('P1464 rank column must read 백분위, not 상대 점수');
 
-// P1466: attribution identity R − B = sector + stock + fx + cash, and FX inversion.
+// Attribution identity R − B = sector + stock + fx + cash, and FX inversion.
 // v59.45 (P3-PF-01): the sector ETF row carries its session date; a sector return from another date holds the split.
 const rows = { AAA: { sym: 'AAA', ret3m: 10, sector: 'Technology', factorSessionDate: '2026-10-12' }, XLK: { sym: 'XLK', ret3m: 6, factorSessionDate: '2026-10-12' }, '000001.KS': { sym: '000001.KS', ret3m: -12, sector: 'Technology', factorSessionDate: '2026-10-12' } };
 const market = (symbol) => (/\.KS$/.test(symbol) ? { ret3m: -15, label: '코스피', asOf: '2026-10-12' } : { ret3m: 3, label: 'S&P 500(SPY)', asOf: '2026-10-12' });
 const attribution = buildAttribution({ holdings: [{ symbol: 'AAA', value: 600, convertedFrom: 'USD' }, { symbol: '000001.KS', value: 200 }], cash: 200, baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: 2 });
 const excessSum = attribution.excess.reduce((sum, part) => sum + part.pct, 0);
 if (!attribution.available || !near(excessSum, attribution.excessPct) || !near(attribution.totalPct, 3.95) || !near(attribution.blendedPct, -2.37)) fail(`P1466 attribution identity broken: ${JSON.stringify(attribution.excess)} total ${attribution.totalPct}`);
-// Portfolio audit 2026-10-17: weights are start-of-window values (today's value ÷ its 3-month base-currency growth).
+// Weights are start-of-window values (today's value ÷ its 3-month base-currency growth).
 if (attribution.components.find((c) => c.id === 'sector').pct !== 1.67 || attribution.excess.find((c) => c.id === 'cash').pct !== 0.49) fail('P1466 sector/cash components drifted');
 const lookAhead = buildAttribution({ holdings: [{ symbol: 'AAA', value: 200 }, { symbol: 'BBB', value: 100 }], rowFor: (s) => ({ AAA: { ret3m: 100, factorSessionDate: '2026-10-12' }, BBB: { ret3m: 0, factorSessionDate: '2026-10-12' } })[s], marketReturnFor: market });
 if (!near(lookAhead.totalPct, 50)) fail(`portfolio audit 2026-10-17 today's quantities went 200 → 300 (+50%), not the end-weighted +66.7%: ${lookAhead.totalPct}`);
 if (!near(fxReturnInto('KRW', 'USD', 2), 1 / 1.02 - 1, 1e-9) || fxReturnInto('EUR', 'KRW', 2) !== null) fail('P1466 FX conversion must invert KRW→USD and refuse unknown pairs');
 const noFx = buildAttribution({ holdings: [{ symbol: 'AAA', value: 100, convertedFrom: 'USD' }], baseCurrency: 'KRW', rowFor: (s) => rows[s], marketReturnFor: market, usdkrwReturnPct: null });
 if (noFx.available || noFx.skipped[0]?.reason !== 'no-fx') fail('P1466 a converted holding without an FX return must be skipped, not counted at 0');
-// P1681 (X08): an undated index (or stock) close cannot be shown to match — the holding is held out, not assumed aligned.
+// An undated index (or stock) close cannot be shown to match — the holding is held out, not assumed aligned.
 const undated = buildAttribution({ holdings: [{ symbol: 'AAA', value: 100 }], rowFor: (s) => rows[s], marketReturnFor: () => ({ ret3m: 3, label: 'S&P 500(SPY)', asOf: null }) });
 if (undated.available || undated.skipped[0]?.reason !== 'basis-mismatch') fail('P1681 an undated benchmark close must hold the holding out of attribution');
 const held = buildPortfolioRead({ surface: { currencyState: 'mixed-without-conversion', declaredCurrencies: ['USD', 'KRW'], rows: [] } });
@@ -77,7 +77,7 @@ if (gapBehind.tone !== 'burden' || !/0\.1%p 뒤처집니다/.test(gapBehind.text
 const gapAhead = gapRead(0.04);
 if (gapAhead.tone !== 'neutral' || /뒤처|앞섭|앞섰/.test(gapAhead.text + gapAhead.headline)) fail(`v59.97 a +0.04%p gap prints 0.0%p and must read neutral: ${JSON.stringify(gapAhead)}`);
 
-// P1467: peers use the same definitions, a 12-month fiscal window and a minimum count.
+// Peers use the same definitions, a 12-month fiscal window and a minimum count.
 const series = (rev, ni, eq, end = '2025-12-31') => [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 10, equity: eq }, { periodEnd: end, revenue: rev, netIncome: ni, equity: eq }];
 const book2 = { ME: series(130, 20, 100), P1: series(105, 5, 100), P2: series(110, 8, 100), P3: series(101, 2, 100), P4: series(120, 12, 100), P5: series(90, -3, 100), OLD: series(500, 200, 100, '2023-06-30') };
 const metrics = fiscalMetrics(book2.ME);
@@ -86,16 +86,16 @@ const peer = buildPeerRead({ symbol: 'ME', sector: 'Technology', peers: Object.k
 if (!peer.available || peer.peers !== 5 || peer.rows.find((r) => r.id === 'growth').percentile !== 100) fail(`P1467 peer read must exclude stale fiscal years and rank on growth: ${JSON.stringify(peer)}`);
 if (buildPeerRead({ symbol: 'ME', sector: 'Technology', peers: ['P1', 'P2'], seriesFor: (s) => book2[s] }).available) fail('P1467 too few peers must not produce a comparison');
 
-// P1468: overlap is measured — identical factors collapse to one signal, independent ones do not.
+// Overlap is measured — identical factors collapse to one signal, independent ones do not.
 const synthetic = Array.from({ length: 60 }, (_, i) => ({ _z_momentum: i, _z_trend: i * 2 + 1, _z_lowvol: (i * 37) % 61, _z_kalman: (i * 17) % 59 }));
 const overlap = measureFactorOverlap(synthetic, ['momentum', 'trend', 'lowvol', 'kalman']);
 if (!overlap || overlap.pairs[0].label !== '모멘텀–추세' || overlap.pairs[0].rho !== 1 || !(overlap.effective > 2 && overlap.effective < 3.2)) fail(`P1468 overlap measurement drifted: ${JSON.stringify(overlap)}`);
 if (!/겹치지 않는 정보 약/.test(overlapSentence(overlap)) || measureFactorOverlap(synthetic.slice(0, 10), ['momentum', 'trend'])) fail('P1468 overlap sentence or minimum sample drifted');
 
-// P1469: the term premium comes from the official FRED series and is named by its model.
+// The term premium comes from the official FRED series and is named by its model.
 if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim-Wright/.test(read('src/ui/components/macro-board.js'))) fail('P1469 term premium series or model label missing');
 
-// v57.48 expert review (portfolio, 13F, research). Hypothetical holdings only.
+// Expert review (portfolio, 13F, research). Hypothetical holdings only.
 {
   const { derivePortfolioSurface } = await import('../src/domain/portfolio/surface.js');
   const { derivePortfolioChecks } = await import('../src/domain/portfolio/checks.js');
@@ -128,9 +128,9 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const coverage = Object.fromEntries(['trades', 'deposits-withdrawals', 'dividends-splits', 'fees-taxes', 'fx', 'valuation-cuts'].map((name) => [name, true]));
   const perf = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-03-01', kind: 'trade', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2027-01-01', amount: 121 }] } });
   if (perf.status !== 'ready' || perf.units?.twr !== 'period-cumulative' || perf.units?.mwr !== 'annualized-irr') fail(`#6 account performance must name the TWR/MWR units: ${perf.status} ${JSON.stringify(perf.units)}`);
-  const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-risk-metrics.js'); // v59.05: risk panel moved to src/
+  const workspace = read('js/aio-workspace.js') + read('src/ui/components/portfolio-risk-metrics.js');
   if (!/TWR\(기간 누적/.test(workspace) || !/MWR\('[^\n]*'연율'\) \+ '\) '/.test(workspace)) fail('#6 the ledger panel must label TWR(기간 누적) and MWR(연율)');
-  // v60.16: a sample under one year shows the un-annualised money-weighted return and says so (one month at +5% read +77.62% a year).
+  // A sample under one year shows the un-annualised money-weighted return and says so (one month at +5% read +77.62% a year).
   const month = assessAccountPerformance({ ledger: { currency: 'USD', dayCount: 'actual-365', flowTiming: 'end-of-period', coverage, transactions: [{ date: '2026-01-02', kind: 'fee', amount: 0 }], valuations: [{ date: '2026-01-01', amount: 100 }, { date: '2026-02-01', amount: 105 }] } });
   if (perf.units.mwrShown !== 'annualized-irr' || Math.abs(perf.mwrShown - 0.21) > 1e-6 || month.units.mwrShown !== 'period-irr' || Math.abs(month.mwrShown - 0.05) > 1e-6 || !(month.mwr > 0.7)) fail(`v60.16 a sub-year MWR must be shown un-annualised and labelled: ${JSON.stringify({ year: [perf.units.mwrShown, perf.mwrShown], month: [month.units.mwrShown, month.mwrShown, month.mwr] })}`);
   // #8/#17/#16: thin 99% sample reads 표본 최악일 with the tail count; no Sharpe/MDD grades; internal codes folded.
@@ -162,7 +162,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const trend = krBook.points.find((point) => point.id === 'trend');
   if (krBook.trendMix.find((row) => row.state === 'near').pct !== 30 || krBook.trendMix.find((row) => row.state === 'up').pct !== 0) fail(`v57.81 QQQ at +0.38% vs its 50-day line reads 선 근처, not 오르는 흐름: ${JSON.stringify(krBook.trendMix)}`);
   if (/미국 보유 중 하락 추세/.test(trend.text) || !/30%는 아직 방향이 뚜렷하지 않습니다/.test(krBook.headline)) fail(`v57.81/v59.51 (content audit: the face says 선 근처 as '아직 방향이 뚜렷하지 않습니다') the US breadth clause covers only US holdings (KRX names in a downtrend are not "시장 폭" exposure): ${trend.text}`);
-  // v57.83 codex audit F08: "미국 보유 중 X%" is measured on the US holdings with a trend read — US 50 all down beside
+  // Codex audit F08: "미국 보유 중 X%" is measured on the US holdings with a trend read — US 50 all down beside
   // KR 50 all up is 100%, not 50%.
   const mixed = buildPortfolioRead({ surface: { rows: [{ symbol: 'AAPL', value: 50 }, { symbol: '005930.KS', value: 50 }] }, rows: [{ sym: 'AAPL', pctSma50: -10, pctSma200: -10 }, { sym: '005930.KS', pctSma50: 10, pctSma200: 10 }], regime });
   if (!/미국 보유 중 하락 추세 종목\(100%\)/.test(mixed.points.find((point) => point.id === 'trend').text)) fail(`v57.83 the US clause uses the US denominator: ${mixed.points.find((point) => point.id === 'trend').text}`);
@@ -173,7 +173,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   // Clean case: a holding well above both lines stays 상승 추세.
   const clean = buildPortfolioRead({ surface: { rows: [{ symbol: 'MSFT', value: 100 }] }, rows: [{ sym: 'MSFT', sector: 'Technology', pctSma50: 5.95, pctSma200: 23.1, adrPct: 1.6 }], regime });
   if (clean.trendMix.find((row) => row.state === 'up').pct !== 100) fail('v57.81 clean: MSFT 5.95% above its 50-day line is still 상승 추세');
-  // v60.50 (owner 2026-11-23): the face leads with the share in the market's leaders (the AI supply chain's sub-themes,
+  // The face leads with the share in the market's leaders (the AI supply chain's sub-themes,
   // ai-chain-flow.js leaderMembers) and each part's value-weighted distance from its 52-week closing high; a Korean
   // listing is outside the US theme map and is left out by name; no theme map, no line.
   const chain = [{ id: 'semiconductor', subThemes: [{ name: 'AI 칩', tickers: ['NVDA'] }] }, { id: 'software', subThemes: [{ name: 'SW', tickers: ['MSFT'] }] }];
@@ -196,7 +196,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (!/100%가 시장보다 강해지는 '선도' 섹터/.test(xlkClear.points.find((point) => point.id === 'rotation').text)) fail('v57.81 clean: a clear 선도 point without a recent reversal still reads 선도');
 }
 
-// v57.92 exhaustive audit E01–E08: synthetic counterexamples that passed the earlier fixtures.
+// Exhaustive audit E01–E08: synthetic counterexamples that passed the earlier fixtures.
 {
   const now = Date.parse('2026-10-16T13:00:00Z');
   // E01: a KRW cost on an undeclared US quote is a unit conflict (listing fallback), not a -99.9% loss.
@@ -220,7 +220,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   const withFx = assembleRiskEstimateInput({ ...fxInput, fxHistory: dates.map((date, i) => ({ date, value: 1300 + i * 20 })) });
   if (noFx.fxIncluded !== false || noFx.returnCurrencyBasis !== 'local-currency-per-holding') fail(`E04 USD-only/KRW-base without FX history: ${noFx.returnCurrencyBasis}/${noFx.fxIncluded}`);
   if (withFx.fxIncluded !== true || withFx.returnCurrencyBasis !== 'KRW-incl-fx') fail(`E04 USD-only/KRW-base with FX history: ${withFx.returnCurrencyBasis}/${withFx.fxIncluded}`);
-  // Portfolio audit 2026-10-17: two lots of one ticker add up (AAA 1 + 9 shares beside BBB 10 at $100 is 50/50, not 64/36).
+  // Two lots of one ticker add up (AAA 1 + 9 shares beside BBB 10 at $100 is 50/50, not 64/36).
   const lots = assembleRiskEstimateInput({ ...fxInput, positions: [{ ticker: 'AAA', qty: 1, currency: 'USD' }, { ticker: 'AAA', qty: 9, currency: 'USD' }, { ticker: 'BBB', qty: 10, currency: 'USD' }], priceEvidenceMap: { AAA: fxInput.priceEvidenceMap.AAA, BBB: fxInput.priceEvidenceMap.AAA }, historyMap: { AAA: fxInput.historyMap.AAA, BBB: fxInput.historyMap.AAA }, validTickers: ['AAA', 'BBB'], declarations: { baseCurrency: 'USD' }, fxLegs: [] });
   const lotWeight = (lots.snapshot?.members || []).filter((m) => m.ticker === 'AAA').reduce((sum, m) => sum + m.resolvedWeight, 0);
   if (!near(lotWeight, 0.5, 1e-9)) fail(`portfolio audit 2026-10-17 lots of one ticker must sum to its weight (0.5), got ${lotWeight}`);
@@ -254,7 +254,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (dense.twrExact !== true || !near(dense.twr, 0.066667, 1e-5)) fail(`E08 a valuation on the flow date gives the exact chain: ${dense.twr}`);
 }
 
-// v57.92 internal review M02 + audit K01 + masters share class.
+// Internal review M02 + audit K01 + masters share class.
 {
   // M02: a full-year range needs a year of real bars, not a year-long array of empty rows.
   const empty = Array(239).fill(null);
@@ -273,7 +273,7 @@ if (!/termPremium10:\s+\{ id: 'THREEFYTP10'/.test(readProducerSource()) || !/Kim
   if (shareClassTag('CAP STK CL A') !== 'A주' || shareClassTag('CAP STK CL C') !== 'C주' || shareClassTag('COM') !== null || shareClassTag('CLASS B COM') !== 'B주') fail('masters share-class tag');
 }
 
-// v58.77 pipeline pass-2: FMP query keeps one '?'; dossier facts by whole word (v59.70: the Cboe put/call plane is deleted).
+// Pipeline pass-2: FMP query keeps one '?'; dossier facts by whole word (the Cboe put/call plane is deleted).
 {
   const { planeFresh } = await import('./producer/source-planes.mjs');
   if (!/endpoint\.includes\('\?'\) \? '&' : '\?'/.test(read('scripts/producer/screener.mjs'))) fail('P2-DATA-07 FMP endpoint with a query must append apikey with &');

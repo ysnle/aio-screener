@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.78: unit contract for the refresh release source decision (resolve-release-source.mjs) and the overlay revision
+// Unit contract for the refresh release source decision (resolve-release-source.mjs) and the overlay revision
 // restamp (build-data-overlay.mjs). Offline: synthetic first-parent chains and push CI tables only.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -25,7 +25,7 @@ let decision = decideReleaseSource({ chain, sourceSha: sha(5), pushRuns: table({
 assert.equal(decision.mode, 'direct', 'v59.78 green code under the refresh commit releases it directly');
 assert.equal(decision.codeSha, sha(1), 'v59.78 release-source contract');
 
-// P1952: a treesame commit above the code commit carrying the green push CI also counts.
+// A treesame commit above the code commit carrying the green push CI also counts.
 decision = decideReleaseSource({ chain, sourceSha: sha(5), pushRuns: table({ [sha(5)]: red, [sha(3)]: green }) });
 assert.equal(decision.mode, 'direct', 'v59.78 a treesame commit above the code commit with green push CI releases directly (P1952)');
 assert.equal(decision.testedOn, sha(3), 'v59.78 release-source contract');
@@ -118,7 +118,7 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
 }
 assert.ok(!/':\(exclude\)public-data'/.test(ci), 'v59.78 the generated path list lives in scripts/lib/data-publish-sets.mjs only');
 
-// v59.78: the data watchdog reports repository upkeep instead of going red on it; every other run still fails on it.
+// The data watchdog reports repository upkeep instead of going red on it; every other run still fails on it.
 const maintenance = { id: 'watchdog-browser-data-pin-drift', watchdogRole: 'maintenance' };
 assert.equal(failureBlocks(maintenance, 'source', WATCHDOG_PROFILE), false, 'v59.78 release-source contract');
 assert.equal(failureBlocks(maintenance, 'source', 'group'), true, 'v59.78 release-source contract');
@@ -126,7 +126,6 @@ assert.equal(failureBlocks(maintenance, 'ci', 'group'), true, 'v59.78 release-so
 assert.equal(failureBlocks({ id: 'external-pipeline' }, 'source', WATCHDOG_PROFILE), true, 'v59.78 live-data gates keep the watchdog red');
 const pipeline = JSON.parse(readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
 const roles = Object.values(pipeline.groups).flatMap((group) => group.gates || []).filter((gate) => gate.watchdogRole).map((gate) => `${gate.id}:${gate.watchdogRole}`).sort();
-// v60.50: the knowledge-lint twin is gone (its document-age ratchet now only warns, so it had nothing to watch).
 assert.deepEqual(roles, ['watchdog-browser-data-pin-drift:maintenance'], 'v59.78 only repository-upkeep twins are maintenance; data and live gates stay blocking');
 
 console.log('release source contract PASS: direct, treesame, wait, overlay, refuse decisions; overlay restamp; workflow wiring; preflight overlay; converge budget; watchdog maintenance roles');

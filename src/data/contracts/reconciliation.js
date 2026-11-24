@@ -5,7 +5,13 @@ export const RECONCILIATION_STATUS = Object.freeze(['MATCH', 'PARTIAL', 'BLOCKED
 export function createReconciliationStatus(input = {}) {
   return Object.freeze({
     schemaVersion: String(input.schemaVersion || 'reconciliation-status-v1'),
+    // MATCH/PARTIAL/BLOCKED were validated against this vocabulary but the
+    // artifact never published it, so a consumer reading only the artifact had no
+    // way to interpret `overall` or `categories[].status`.
     statusVocabulary: RECONCILIATION_STATUS,
+    // The rights axis is published per category and must come with its own
+    // vocabulary, otherwise `REVIEW_REQUIRED`/`OPERATOR_REQUIRED` are unreadable
+    // to a consumer that only has the artifact.
     rightsVocabulary: RIGHTS_STATUS,
     generatedAt: input.generatedAt || null,
     revision: String(input.revision || 'unpublished'),
@@ -48,6 +54,8 @@ export function validateReconciliationStatus(status, expectedCount = 22) {
       if (!origin?.id || !origin?.authority || !origin?.sourceKind || !origin?.access || !origin?.url || !Array.isArray(origin?.fields) || origin.fields.length === 0) errors.push(`category_origin_invalid:${category?.categoryId || 'missing'}:${origin?.id || 'missing'}`);
     }
     if (!category?.evidence || !Number.isInteger(category.evidence.observed) || !Number.isInteger(category.evidence.required)) errors.push(`category_evidence_missing:${category?.categoryId || 'missing'}`);
+    // The rights axis is published inside each category's evidence and was
+    // never checked against the vocabulary the same artifact declares.
     if (declaredRights && category?.evidence?.rights !== undefined && !declaredRights.has(category.evidence.rights)) {
       errors.push(`category_rights_undeclared:${category?.categoryId || 'missing'}:${category.evidence.rights}`);
     }

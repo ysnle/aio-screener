@@ -29,12 +29,12 @@ import { runSections } from './lib/gate-sections.mjs';
 
 const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
 
-// v60.50: the counterexamples are code tests; whether the shipped market reading leaks an evidence-id bracket through the
+// The counterexamples are code tests; whether the shipped market reading leaks an evidence-id bracket through the
 // stripper is a data section that also runs in a data run.
 await runSections('codex-structure-regression-fixture', [
 ['counterexamples', async () => {
 
-// v60.13 pipeline review. Each case fails on the code before the fix.
+// Pipeline review. Each case fails on the code before the fix.
 {
   const { sessionCloses } = await import('../src/domain/market/indices/index-levels.js');
   const { commonDateSplit } = await import('../src/domain/briefing/market-read.js');
@@ -82,7 +82,7 @@ await runSections('codex-structure-regression-fixture', [
   assert.ok(!aligned.r.splitHeld || aligned.r.realYield10Delta5 == null, 'P2406 a split is either computed on the common date or declared held');
 }
 
-// v60.14 proposals batch. Each case fails on the code before the change.
+// Proposals batch. Each case fails on the code before the change.
 {
   const { creditState, leadershipBreakOf } = await import('../src/domain/briefing/market-read.js');
   const { realYoyLatest } = await import('../src/domain/macro/macro-read.js');
@@ -212,13 +212,13 @@ assert.equal(serverNewsHeadlineMonthStale('Stocks rally on August 14 as Fed sign
 assert.equal(serverNewsHeadlineMonthStale('Stocks rally on October 10 as Fed signals cut', now), false);
 assert.equal(newsSameEvent(newsHeadlineSignature('Fed holds rates steady at 4.25% - Reuters'), newsHeadlineSignature('Fed holds rates steady at 4.25%, signals patience - CNBC')), true, 'the same event is deduped');
 assert.equal(newsSameEvent(newsHeadlineSignature('Oil jumps on Middle East supply fears'), newsHeadlineSignature('Apple unveils new iPhone lineup')), false);
-// 2026-10-19 data audit (v58.27): noise that reached the 10/19 bundle, same-story repeats, and the closed-cycle carry.
+// 2026-10-19 data audit: noise that reached the 10/19 bundle, same-story repeats, and the closed-cycle carry.
 const topicHitsOf = (title, source = 'X') => { const it = { title, source, scoringNowMs: now }; scoreServerNewsItem(it); return it.topicHits; };
 assert.equal(topicHitsOf('ValleyCentral Voting Guide: 2026 midterm elections'), 0, 'a voting guide is not market news');
 assert.ok(topicHitsOf('Data center backlash set to sway midterm elections') > 0, 'an election story with a market topic stays');
 assert.equal(scoreServerNewsItem({ title: 'BE Stock Just Changed EVERYTHING — Bloom Energy (rMCZTrTnh0)', source: 'X', scoringNowMs: now }).selectionReason, 'clickbait-filter');
 assert.equal(topicHitsOf('Investing in the public benefit - Anthropic', 'Anthropic'), 0, 'the publisher suffix is not topic evidence');
-// v59.42 news coverage pass: "won't" is not the won, an approval rating is not an analyst rating, "margin for error" is not a margin.
+// News coverage pass: "won't" is not the won, an approval rating is not an analyst rating, "margin for error" is not a margin.
 const ruleLabels = (title) => scoreServerNewsItem({ title, source: 'X', scoringNowMs: now }).selectionReason.split(' | ').map((r) => r.replace(/[+-]\d+$/, ''));
 assert.ok(!ruleLabels('Hormuz flows won’t solve the energy challenge').includes('fx-bonds-commodities'), "P2123 won't is not the currency");
 assert.ok(ruleLabels('Korean won slides past 1,450 per dollar').includes('fx-bonds-commodities'), 'P2123 the won stays a currency');
@@ -226,7 +226,7 @@ assert.ok(!ruleLabels('US midterm elections: Trump approval rating falls to new 
 assert.ok(ruleLabels('KeyBanc downgrades Carpenter Technology stock rating').includes('analyst-action'), 'P2123 a stock rating stays an analyst action');
 assert.ok(!ruleLabels("Citadel says AI trade has little margin for error").includes('earnings-guidance'), 'P2123 margin for error is not a margin');
 assert.ok(ruleLabels('Bernstein raises Bloom Energy price target on margin strength').includes('earnings-guidance'), 'P2123 a margin stays an earnings word');
-// v59.42 coverage pass: tier 3 held 18 of 40 slots on 10/27; at most 12 per bundle, and a tier-3 row needs two topic hits.
+// Coverage pass: tier 3 held 18 of 40 slots on 10/27; at most 12 per bundle, and a tier-3 row needs two topic hits.
 const W = ['amber','birch','cobalt','delta','ember','fjord','garnet','harbor','indigo','juniper','krypton','lumen','meadow','nickel','onyx','prairie','quartz','raven','sierra','tundra','umber','violet','willow','xenon','yarrow','zephyr','acorn','basalt','cedar','dune'];
 const poolRow = (k, tier, score, topicHits) => ({ title: `${W[k]} ${W[(k + 7) % 30]}works lifts ${W[(k + 13) % 30]}ville output`, link: `https://e.test/${k}`, source: `Pub${k}`, tier, score, topicHits, topic: 'macro', ts: now - k * 60000 });
 const pool = [...Array.from({ length: 16 }, (_, k) => poolRow(k, 3, 90 - k, k < 14 ? 2 : 1)), ...Array.from({ length: 14 }, (_, k) => poolRow(16 + k, 1, 60 - k, 1))];
@@ -272,7 +272,7 @@ const health1 = mergeNewsFeedHealth(null, [{ source: 'A', status: 'ok', kept: 3 
 const health2 = mergeNewsFeedHealth(health1, [{ source: 'A', status: 'ok', kept: 2 }, { source: 'B', status: 'error', kept: 0 }], healthAt);
 assert.deepEqual(health2.map((row) => [row.source, row.missStreak]), [['A', 0], ['B', 2]], 'a feed without usable items accumulates a streak');
 assert.deepEqual(deadNewsFeeds({ meta: { newsFeedHealth: health2 } }, { nowMs: Date.parse(healthAt) }), ['B'], 'a feed never healthy since first seen 3.5 days ago is dead');
-// v59.57: the Fed's own feed answered with 20 items but none current for 75h after the 10/29 FOMC week; every Pages
+// The Fed's own feed answered with 20 items but none current for 75h after the 10/29 FOMC week; every Pages
 // release and watchdog run failed on it. A quiet official feed waits its quietMaxHours; an erroring or empty one does not.
 const fedQuiet = { source: 'Federal Reserve', status: 'no-current', parsed: 20, missStreak: 98, lastHealthyAt: '2026-10-29T22:51:02.658Z' };
 const fedNow = Date.parse('2026-11-02T01:28:00.000Z');
@@ -293,7 +293,7 @@ assert.equal(newsFloorDropReason({ tier: 4, score: 50, topicHits: 2 }), 'low-qua
 assert.equal(newsFloorDropReason({ tier: 2, score: 0, selectionReason: 'clickbait-filter' }), 'clickbait-filter');
 assert.equal(newsFloorDropReason({ tier: 2, score: 40, topicHits: 0 }), 'no-market-topic');
 for (const [text, level] of [['CoreWeave weighs debt sale, people familiar say', 'unconfirmed'], ['삼성전자 매각설 확산', 'rumor'], ['업계 관계자들이 전했다', 'unconfirmed'], ['Market Chatter: Oracle', 'rumor'], ['Nvidia beats estimates', 'reported'],
-  // v60.16: 건설·시설·증설 end in 설 and are not rumours; "알려졌다" marks a report unconfirmed only as the hearsay clause.
+  // 건설·시설·증설 end in 설 and are not rumours; "알려졌다" marks a report unconfirmed only as the hearsay clause.
   ['AI 데이터센터 건설 확산에 전력주 강세', 'reported'], ['반도체 시설 확산', 'reported'], ['파운드리 증설 제기', 'reported'], ['위기설 확산에 은행주 약세', 'rumor'], ['합병 설 돌아', 'rumor'],
   ['삼성전자, 3분기 영업이익 12조로 알려졌다', 'reported'], ['연준 금리 인하 소식이 전해졌다', 'reported'], ['엔비디아가 인수를 검토 중인 것으로 알려졌다', 'unconfirmed'], ['감산에 합의했다고 전해졌다', 'unconfirmed']]) {
   assert.equal(reportVerification(text), level, `report verification: ${text}`);
@@ -301,7 +301,7 @@ for (const [text, level] of [['CoreWeave weighs debt sale, people familiar say',
   assert.equal(newsHeadlineUnverified(text), level !== 'reported', `news bundle uses the shared rule: ${text}`);
 }
 
-// P1651: a KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
+// A KRX close aligns to the latest completed KRX session, not the US basis (10/12 -3.6% was shown as 10/8).
 const krHistory = [
   { date: '2026-10-08', spx: 100, kospi: 6625.93, fieldMeta: { spx: { observedAt: '2026-10-08T20:00:00Z' }, kospi: { observedAt: '2026-10-08T06:30:00Z' } } },
   { date: '2026-10-09', spx: 101, kospi: 6625.93, fieldMeta: { spx: { observedAt: '2026-10-09T20:00:00Z' }, kospi: { observedAt: '2026-10-08T06:30:00Z' } } },
@@ -310,7 +310,7 @@ const krHistory = [
 const krAligned = alignMarketInputs({ history: krHistory, now: Date.parse('2026-10-12T09:00:00Z') });
 assert.equal(krAligned.basis, '2026-10-09');
 assert.equal(krAligned.s.kospi?.date, '2026-10-12', 'P1651: KOSPI uses its own completed session');
-// P1652: fundamentals whose period ended over 15 months before the session are held.
+// Fundamentals whose period ended over 15 months before the session are held.
 assert.equal(fundamentalPeriodTooOld('2019-12-31', '2026-10-09'), true);
 assert.equal(fundamentalPeriodTooOld('2025-12-31', '2026-10-09'), false);
 const chat = fs.readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8');
@@ -319,7 +319,7 @@ assert.ok(!/v49\.75 구조:/.test(chat), 'P1652: no developer structure badge un
 const core = fs.readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
 assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation brackets are stripped from AI text');
 {
-  // v57.83 codex audit F11: run the real stripper on the inputs that leaked (a comma list of dotted ids on the briefing)
+  // Codex audit F11: run the real stripper on the inputs that leaked (a comma list of dotted ids on the briefing)
   // instead of only checking that part of the regex exists; ordinary brackets, parentheses and links survive.
   const { stripEvidenceIds: strip } = await import('../src/domain/briefing/evidence-text.js');
   assert.equal(strip('지수가 올랐습니다 [market.index.spx, market.index.kospi]. 다음'), '지수가 올랐습니다. 다음', 'v57.83: a comma list of evidence ids is removed');
@@ -339,7 +339,7 @@ assert.ok(core.includes('(?:headline:|market-analysis:'), 'P1651: whole citation
   assert.ok(core.includes("window._aioStripEvidenceIds(txt)"), 'v57.83: the legacy analysis sink uses the native stripper (P1847)');
 }
 
-// P1653: AI is always on, web search is automatic, one AI panel.
+// AI is always on, web search is automatic, one AI panel.
 const shell = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 assert.ok(!/id="llm-switch-track"/.test(shell), 'P1653: no AI ON/OFF switch');
 const aioUi1653 = fs.readFileSync(new URL('../js/aio-ui.js', import.meta.url), 'utf8');
@@ -351,7 +351,7 @@ assert.ok(!/aio-web-search-toggle/.test(connections), 'P1653: no web search togg
 const shellJs = fs.readFileSync(new URL('../src/ui/components/responsive-shell.js', import.meta.url), 'utf8');
 assert.ok(!/documentElement\.style\.setProperty\('--aio-visual/.test(shellJs), 'P1653: keyboard viewport events do not restyle the whole document');
 
-// P1654: free official data lanes.
+// Free official data lanes.
 const { netLiquiditySeries } = await import('../src/domain/macro/liquidity-growth.js');
 const week = (i) => new Date(Date.UTC(2026, 0, 7) + i * 7 * 86400000).toISOString().slice(0, 10);
 const liq = netLiquiditySeries({ series: { fedBalanceSheet: { observations: [[week(0), 6600000], [week(1), 6610000]] }, treasuryAccount: { observations: [[week(0), 800000], [week(1), 800000]] }, reverseRepo: { observations: [[week(0), 200], [week(1), 200]] } } });
@@ -364,13 +364,13 @@ assert.equal(accounts.basis, 'CFS'); assert.equal(accounts.current.revenue, 1000
 const { krFundamentalPoints } = await import('../src/domain/entity/kr-fundamentals.js');
 assert.match(krFundamentalPoints({ fiscalYear: 2025, basis: 'CFS', current: { revenue: 2e12, operatingIncome: 2e11 }, prior: { revenue: 1e12 } }).points[0].text, /전년 대비 \+100\.0%/);
 
-// P1655: one research transport — the shared Worker web search; no browser-side Google/Perplexity keys.
+// One research transport — the shared Worker web search; no browser-side Google/Perplexity keys.
 assert.ok(!/aio_google_cse_key_input/.test(shell) && !/_googleSearch|_aiWebSearch/.test(chat), 'P1655: personal search path removed');
-// P1656: history keeps completed-close evidence; pre-open index prints are not closes.
+// History keeps completed-close evidence; pre-open index prints are not closes.
 const { usPreOpenIndexPrint } = await import('./fetch-data.mjs');
 assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-12T11:01:01Z'), true, 'P1656: Monday 07:01 ET VIX is a pre-open print');
 assert.equal(usPreOpenIndexPrint('^VIX', '2026-10-09T20:15:01Z'), false, 'P1656: the 16:15 ET VIX close stays a close');
-// v58.68: read as behaviour — the same session's completed record is kept; a record of another session is not that close.
+// Read as behaviour — the same session's completed record is kept; a record of another session is not that close.
 const { mergeBackfillBars } = await import('./producer/history.mjs');
 const kept = [{ date: '2026-10-09', vix: 19.1, fieldMeta: { vix: { valueBasis: 'completed-close', sessionDate: '2026-10-09', observedAt: '2026-10-09T20:15:01Z' } } }];
 mergeBackfillBars(kept, { '2026-10-09': { vix: 18.7, fieldMeta: { vix: { sessionDate: '2026-10-09' } } } }, ['vix']);
@@ -387,7 +387,7 @@ for (const id of ['trend', 'breadth', 'volatility', 'rates', 'credit', 'commodit
   assert.equal(resolves, true, `v60.31 ${id} principle note resolves`);
 }
 assert.ok(!/추가 근거와 출처/.test(fs.readFileSync(new URL('../src/ui/components/market-regime.js', import.meta.url), 'utf8')), 'P1660: no evidence-dump fold title');
-// P1661: past outcomes by VIX band replace the failed composite score.
+// Past outcomes by VIX band replace the failed composite score.
 const { buildStressOutcomes, stressBandOf } = await import('../src/domain/market/signal/stress-outcomes.js');
 const days = Array.from({ length: 120 }, (_, i) => new Date(Date.UTC(2020, 0, 1) + i * 86400000).toISOString().slice(0, 10));
 const stress = buildStressOutcomes(days.map((d, i) => [d, 100 + i]), days.map((d, i) => [d, i < 60 ? 35 : 12]), { horizons: [21] });
@@ -403,18 +403,18 @@ for (const file of ['sentiment-board.js', 'breadth-board.js', 'market-regime.js'
   assert.equal(linksOnly, true, `v60.31 ${file} links its principle note and teaches nothing itself`);
 }
 
-// P1664: a product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
+// A product-surface edit outside the knowledge routes does not pull the knowledge browser shard; viewport gates run pages together.
 const qaManifest = JSON.parse(fs.readFileSync(new URL('../architecture/qa-pipeline.json', import.meta.url), 'utf8'));
 const surfaceRule = qaManifest.impactRules.find((rule) => rule.patterns.includes('src/ui/**'));
 assert.ok(surfaceRule && !surfaceRule.groups.includes('browser-knowledge') && surfaceRule.groups.includes('browser-viewport'), 'P1664: src/ui edits select viewport but not the knowledge shard');
 for (const file of ['ci-responsive-browser-check.mjs', 'ci-viewport-matrix-check.mjs']) assert.ok(RegExp('Promise\\.all\\((RESPONSIVE_QA_VIEWPORTS|VIEWPORTS)\\.map').test(fs.readFileSync(new URL(`./${file}`, import.meta.url), 'utf8')), `P1664: ${file} runs viewports together`);
-// P1665: the watchdog's own previous run is a warning, and a missing Worker dispatch token triggers a data-plane redeploy.
+// The watchdog's own previous run is a warning, and a missing Worker dispatch token triggers a data-plane redeploy.
 assert.ok(/selfObservation = mode === 'watchdog' && id === 'watchdog'/.test(fs.readFileSync(new URL('./ci-external-pipeline-check.mjs', import.meta.url), 'utf8')), 'P1665: watchdog does not latch on its own failure');
 assert.ok(/scheduler-dispatch-token-missing/.test(fs.readFileSync(new URL('../.github/workflows/deploy-data-plane.yml', import.meta.url), 'utf8')), 'P1665: missing dispatch token repairs the Worker');
-// P1666: the producer job alone holds the refresh lock; waiting for CI/Pages runs in a separate job, and the watchdog follows each Pages deploy.
+// The producer job alone holds the refresh lock; waiting for CI/Pages runs in a separate job, and the watchdog follows each Pages deploy.
 for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
   const wf = loadYaml(fs.readFileSync(new URL(`../.github/workflows/${file}`, import.meta.url), 'utf8'));
-  // P1757: refresh-data.yml gains a read-only `cadence` job ahead of the producer; it holds no lock and writes nothing.
+  // refresh-data.yml gains a read-only `cadence` job ahead of the producer; it holds no lock and writes nothing.
   const producer = Object.entries(wf.jobs).find(([name]) => !['converge', 'cadence'].includes(name));
   assert.ok(!wf.concurrency && producer[1].concurrency?.group === 'refresh-data' && wf.jobs.converge?.concurrency?.group === 'live-convergence', `P1666: ${file} convergence does not hold the refresh lock`);
   assert.ok(!producer[1].steps.some((step) => /ensure-live-convergence/.test(step.run || '')), `P1666: ${file} producer does not wait for Pages`);
@@ -422,7 +422,7 @@ for (const file of ['refresh-data.yml', 'refresh-screener.yml']) {
 const watchdogWf = loadYaml(fs.readFileSync(new URL('../.github/workflows/data-watchdog.yml', import.meta.url), 'utf8'));
 assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes('Deploy GitHub Pages'), 'P1666: watchdog follows each Pages deploy');
 
-// v60.18 (weekly audit D3): one reason for "why is this figure the previous release", decided where the board is assembled
+// One reason for "why is this figure the previous release", decided where the board is assembled
 // and rendered by the card chip and the '최근 공식 발표' block. The October CPI index was collected, but October 2025 was
 // never published, so the year-over-year stays on September — the card read '이번 수집 실패, 직전 발표값'.
 {
@@ -466,13 +466,13 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
     treasuryAccount: { frequency: 'weekly', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 900000]) },
     reverseRepo: { frequency: 'daily', observations: Array.from({ length: 10 }, (_, i) => [wk(i), 1]) },
     sofr: { frequency: 'daily', observations: weekdays.map((d) => [d, 3.87]) },
-    // v60.19: both bounds of one date (fed-target-range.js); the old upper − 0.25 width is no longer assumed.
+    // Both bounds of one date (fed-target-range.js); the old upper − 0.25 width is no longer assumed.
     fedTargetUpper: { frequency: 'daily', observations: [[day(0), 4]] },
     fedTargetLower: { frequency: 'daily', observations: [[day(0), 3.75]] },
     brent: { frequency: 'daily', observations: weekdays.map((d, i) => [d, 90 * (i < weekdays.length - 10 ? 1 : 1.25)]) }
   } };
   const lastWeekday = weekdays.at(-1);
-  // P1726: the Brent comparison reads Brent futures closes from history (same contract type as WTI), not FRED spot.
+  // The Brent comparison reads Brent futures closes from history (same contract type as WTI), not FRED spot.
   const history = weekdays.map((d, i) => ({ date: d, spx: 6000, wti: 85, brent: 90 * (i < weekdays.length - 10 ? 1 : 1.25) }));
   const referenceMs = Date.parse(`${lastWeekday}T00:00:00Z`) + 2 * 86400000;
   const items = Object.fromEntries(buildLiquidityGrowthGroups(mh, { history, referenceMs }).flatMap((g) => g.items).map((item) => [item.id, item]));
@@ -518,7 +518,7 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
 }
 
 console.log('codex-structure-regression-fixture: OK');
-// Pipeline redesign (2026-10-19): the news receipt counts feeds on every axis, so a feed that stopped answering shows as
+// Pipeline redesign: the news receipt counts feeds on every axis, so a feed that stopped answering shows as
 // a failure even while its earlier articles are carried (before, 29 articles were "updated" out of 12 feeds).
 {
   const [first, second] = NEWS_FEEDS.map((feed) => feed.source);
@@ -528,7 +528,7 @@ console.log('codex-structure-regression-fixture: OK');
   assert.equal(receipt.publication.status, 'PARTIAL', 'a feed that did not answer makes the news receipt partial');
   assert.match(receipt.publication.basis, /3 article\(s\), 2 collected this run/);
 }
-// Pipeline redesign (2026-10-19): a data CI run that settles after its own 12-minute convergence wait fails the next
+// Pipeline redesign: a data CI run that settles after its own 12-minute convergence wait fails the next
 // awaiting cycle (before, only the 6-hour freshness watchdog saw it). Runs the real driver against a stubbed API.
 {
   const stub = `data:text/javascript,${encodeURIComponent(`globalThis.fetch = async (url) => { const u = new URL(url); const json = (b) => new Response(JSON.stringify(b), { status: 200 });
@@ -541,7 +541,7 @@ console.log('codex-structure-regression-fixture: OK');
   assert.equal(failed.status, 1, `an earlier data revision whose CI settled red fails the awaiting cycle: ${failed.stdout}${failed.stderr}`);
   assert.match(failed.stdout, /previous data revision old settled with a failed CI run 49/);
   assert.equal(converge('success').status, 0, 'an earlier green data revision leaves the awaiting cycle green');
-  // v58.77 pipeline audit OPS-02: a timed-out or approval-blocked CI run is a failed attestation; a cancelled one is not.
+  // Pipeline audit OPS-02: a timed-out or approval-blocked CI run is a failed attestation; a cancelled one is not.
   assert.equal(converge('timed_out').status, 1, 'P2052 an earlier data revision whose CI timed out fails the awaiting cycle');
   assert.equal(converge('action_required').status, 1, 'P2052 an earlier data revision whose CI needs approval fails the awaiting cycle');
   assert.equal(converge('cancelled').status, 0, 'P2052 a cancelled earlier run stays green');

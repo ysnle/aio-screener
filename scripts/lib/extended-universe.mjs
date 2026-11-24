@@ -1,4 +1,4 @@
-// v57.81: membership of the extended screener universe — Russell 2000 members (the iShares IWM daily holdings file,
+// Membership of the extended screener universe — Russell 2000 members (the iShares IWM daily holdings file,
 // the fund that tracks the index) and Nasdaq-listed common stocks (the Nasdaq Trader symbol directory). Pure parsers
 // and the merge/floor/retain rule live here so the CI gate exercises them on canned samples without the network.
 import { parseCsvLine } from '../fetch-sp500-weights.mjs';

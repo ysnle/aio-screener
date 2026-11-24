@@ -7,9 +7,9 @@ import { filterRows, sortRows } from '../src/ui/pages/screener.js';
 import { buildGroupStrength } from '../src/domain/themes/group-strength.js';
 import { normalizeScreener } from '../src/data/normalize/screener.js';
 import { createScreenerOrchestrator } from '../src/data/orchestrators/screener.js';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 
-// P1625: extreme observations in another listing market must not move US peer ranks.
+// Extreme observations in another listing market must not move US peer ranks.
 const fixtureRow = (sym, seed, market = 'US') => ({
   sym, market, sector: 'Technology', ret1m: seed, ret3m: seed * 2, ret6m: seed * 3,
   pctSma50: seed, pctSma200: seed * 2, vol: 10 + seed, rsi: 40 + seed,
@@ -61,7 +61,7 @@ assert.equal(published.rows[0].rank, null, 'P1625: unavailable rerank cannot ret
 
 // Actual artifact audit is local read-only evidence, not a forced PLTR ranking expectation.
 const artifact = expandScreenerArtifact(JSON.parse(readFileSync(new URL('../public-data/screener.json', import.meta.url))));
-// v60.18: one universe size. Overseas listings (Tokyo, Taiwan) are shown in the US list but are no market's population, so
+// One universe size. Overseas listings (Tokyo, Taiwan) are shown in the US list but are no market's population, so
 // the screener's 모집단 and the 시장 폭 lens's "미국 N종목" are the same count (918 vs 914 counted them on one side only).
 {
   const tokyo = { sym: '8035.T', listingMarket: 'INTL', currency: 'JPY' };

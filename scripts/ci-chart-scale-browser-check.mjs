@@ -1,4 +1,4 @@
-// v60.31 chart-scale (owner 2026-11-19, "차트 스케일이 안 맞거나 깨져서 나온다"): the three candle surfaces drawn at their
+// chart-scale (owner 2026-11-19, "차트 스케일이 안 맞거나 깨져서 나온다"): the three candle surfaces drawn at their
 // real size and scale. Intercepted Yahoo fixtures (the 11/18 SPY session arrived with 64 of 79 five-minute bars null) and
 // the pinned lightweight-charts bytes; every other external request is aborted. No paid AI/provider call executes.
 //   오늘 지수 줄 — each candle at its own time slot: the 16:00 closing bar at the right end, not beside 10:40.
@@ -47,7 +47,7 @@ function dailyFixture(sym, base, wave) {
     currentTradingPeriod: { regular: { start: SESSION_START, end: SESSION_END } } },
     timestamp: timestamps, indicators: { quote: [{ open: closes.map((c) => c * 0.996), high: closes.map((c) => c * 1.01), low: closes.map((c) => c * 0.99), close: closes, volume }], adjclose: [{ adjclose: closes }] } }] } };
 }
-// v60.31: the analysis slot's 주 bar period (the 종목 price chart and its 1m–1y ranges left with the 차트 tab).
+// The analysis slot's 주 bar period (the 종목 price chart and its 1m–1y ranges left with the 차트 tab).
 function weeklyFixture(sym, base, wave) {
   const daily = dailyFixture(sym, base, wave), result = daily.chart.result[0], quote = result.indicators.quote[0];
   const every5 = (values) => values.filter((_, i) => i % 5 === 0);
@@ -72,7 +72,7 @@ function fixtureFor(url) {
   return match ? FIXTURES[`${match[1]} ${match[2]}`] || null : null;
 }
 
-// Owner 2026-11-19: (1) the last candle sits left of the volume profile rows (the recent view leaves the profile's share of
+// (1) the last candle sits left of the volume profile rows (the recent view leaves the profile's share of
 // the plot free right of it); (2) no price label is drawn on the axis over its tick numbers — the last close and every
 // level are tags inside the plot (stock-chart-layers.js), inside the plot's width and not on top of each other.
 function labelChecks(label, sym, geometry, lastValueVisible) {
@@ -176,8 +176,8 @@ try {
       check(/Lightweight Charts/.test(sources) && /tradingview\.com/.test(sources), `${label}: 기술적 분석 데이터 출처 must carry the chart library attribution once the card logo is off`, sources.slice(0, 200));
       if (shots) await page.locator('#charts-indexes').screenshot({ path: resolve(shots, `charts-${label}.png`) });
 
-      // 대표 종목 (owner 2026-11-19): the same card part, one card per stock. Nothing is requested while the view is closed;
-      // opening it loads all its cards (v60.35, not only those scrolled into view), at most four at a time; a stock with bars draws its candles under
+      // 대표 종목: the same card part, one card per stock. Nothing is requested while the view is closed;
+      // opening it loads all its cards (not only those scrolled into view), at most four at a time; a stock with bars draws its candles under
       // the same label rules, one without says the date and that there is no value, and the cards of a row stay aligned.
       check(stockLoads.total === 0, `${label}: 대표 종목 cards requested bars while their view was closed`, stockLoads);
       await page.locator('#page-charts .page-views [data-view="stocks"]').click();
@@ -230,7 +230,7 @@ try {
       labelChecks(label, 'NVDA', stock.geometry, stock.lastValueVisible);
       check(stock.entireTextOnly === true, `${label}: the candle chart's price axis draws ticks cut at the pane edge (entireTextOnly, chart-scale v60.31)`, stock);
       if (shots) await page.locator('#stock-chart-canvas').screenshot({ path: resolve(shots, `stock-${label}.png`) });
-      // v60.31: a symbol open in the slot switches bar periods — 주 redraws NVDA on weekly bars and reads them; 일 returns.
+      // A symbol open in the slot switches bar periods — 주 redraws NVDA on weekly bars and reads them; 일 returns.
       const periods = page.getByRole('group', { name: '봉 주기' });
       await periods.getByRole('button', { name: '주', exact: true }).click();
       const weekly = await page.waitForFunction(() => document.getElementById('stock-chart-state')?.textContent === '주봉' && /주봉 기준/.test(document.getElementById('stock-chart-evidence')?.textContent || '')

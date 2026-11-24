@@ -1,3 +1,7 @@
+// The owner's X bookmarks added after the 2026-10-28 read. Every bookmark in x.com/i/history above the first
+// id of the 10/28 read was read in full — posts, author threads, quoted posts and every attached image — then compared with
+// what AIO already teaches and shows. Same reference-only shape as packet-20261028-x-bookmarks.js: nothing here is a live
+// value, a ranking input or a call. The ledger is _artifacts/x-bookmarks-20261030/.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 // From _artifacts/x-bookmarks-20261030/ledger.json (grade scale there): A checked or reusable, B cited or confirming, C none.
 const SOURCE_TIMELINE = Object.freeze({
@@ -24,12 +28,16 @@ const SOURCE_QUALITY = Object.freeze({
   '2116001035575816689': Object.freeze({"data": "B", "coverage": "A", "logic": "A", "insight": "B"}),
   '2115264014032986365': Object.freeze({"data": "C", "coverage": "B", "logic": "A", "insight": "B"})
 });
+// v59.44 (owner 2026-10-30, "시간과 시계열도 같이 보고 있는거지? 퀄리티·커버리지·로직·관점"): each source carries when it was
+// posted against the event it reads and what AIO's own data showed afterwards (timeline), and four grades (quality) on the
+// ledger's scale — data checked, coverage, logic with a falsifier, insight new to AIO.
 const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   id: `${handle}-${statusId}`, author: handle, sourceUrl: `https://x.com/${handle}/status/${statusId}`, publishedAt: date, publishedAtKst: date,
   sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'FRAMEWORK_EXTRACTED', summary, checks: Object.freeze(checks),
   timeline: SOURCE_TIMELINE[statusId], quality: SOURCE_QUALITY[statusId]
 });
 
+// What the 2026-10-30 read covered: 19 bookmarks new since the 10/28 read, 16 investment material, 3 agent practice.
 export const PACKET_20261030_AUDIT = Object.freeze({
   readOn: '2026-10-30', newSinceLedger: 19, inScope: 16, agentPractice: 3, unrelated: 0, framesAdded: 4,
   repoState: Object.freeze({ reflected: 6, partial: 8, missing: 1, conflict: 0, notApplicable: 4 }),
@@ -41,6 +49,7 @@ export const PACKET_20261030_AUDIT = Object.freeze({
   ]),
   declined: Object.freeze(['개별 매매 포지션 공개와 가격 구간 매매', '헤지펀드 공매도 비율과 상장 이벤트 반등 예측(단일 출처, 확인 불가)', '종교 비유 문체']),
   conflictsFixed: Object.freeze([]),
+  // What the read changed on the screens, beside the frames.
   structural: Object.freeze([
     'AI 공급망 흐름 문장에 같은 거래일 방어 업종(헬스케어·필수소비재·부동산·유틸리티) 대비를 붙임',
     '실적 요약이 설비투자·잉여현금흐름·영업현금흐름을 함께 뽑고 카드 앞면에 보임',

@@ -15,7 +15,7 @@ const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 // Which figures fit this question. At most two, so a figure supports the answer instead of replacing it.
 export function chooseAnswerVisuals({ query = '', mode = 'analysis', canonical = [], tickers = [] } = {}) {
   const companies = (Array.isArray(tickers) ? tickers : []).filter((symbol) => symbol && !/^\^|=X$|=F$|-USD$/.test(symbol)).slice(0, 3);
-  // P1743: a market-level outlook question gets the branch table, and the theme stages when it is about themes/sectors.
+  // A market-level outlook question gets the branch table, and the theme stages when it is about themes/sectors.
   if (!companies.length && mode === 'outlook') return [{ kind: 'crossroads', symbols: [] }, ...(THEME_WORDS.test(query) ? [{ kind: 'themes', symbols: [] }] : [])];
   if (!companies.length && THEME_WORDS.test(query) && mode !== 'quick') return [{ kind: 'themes', symbols: [] }];
   if (!companies.length || mode === 'quick' && !CHART_WORDS.test(query) && !FUNDAMENTAL_WORDS.test(query)) return [];

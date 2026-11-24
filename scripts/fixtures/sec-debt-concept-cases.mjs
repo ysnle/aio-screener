@@ -1,4 +1,4 @@
-// v60.28 SEC long-term debt concept cases (companyfacts-shaped, synthetic). Each case takes the code under test —
+// SEC long-term debt concept cases (companyfacts-shaped, synthetic). Each case takes the code under test —
 // { normalize: normalizeSecCompanyFacts, fiscalHistory, fiscalDebtBasis } — so the contract gate runs them on the current
 // normalizer and the same cases can be pointed at an older copy (fiscalDebtBasis may be absent there).
 // (a) a filer that tags only LongTermDebtAndCapitalLeaseObligations (+Current): the series is noncurrent + current of one

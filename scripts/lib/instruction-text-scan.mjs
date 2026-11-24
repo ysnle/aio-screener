@@ -1,4 +1,4 @@
-// scripts/lib/instruction-text-scan.mjs — v59.50 (recurrence audit 2026-10-31)
+// scripts/lib/instruction-text-scan.mjs
 //
 // R724 (the app never proposes a price, weight, timing or stock) recurred 20 times (P1507 … P2151 chart lens, P2165 chart
 // coach, the regime-choice "분할 접근은 … 확인된 뒤가 맞습니다") because each fix removed exact phrases from one surface

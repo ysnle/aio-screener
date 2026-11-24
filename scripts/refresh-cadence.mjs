@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// P1757: refresh-data cadence decision (owner decision 2026-10-14). When the US and KRX markets are both closed over
+// refresh-data cadence decision. When the US and KRX markets are both closed over
 // the weekend no new prices exist, so the 30-minute refresh skips and only a news cycle runs, about every hour
-// (v57.54: was 2 hours — weekend policy, tariff and geopolitical news arrive while no market is open).
+// (was 2 hours — weekend policy, tariff and geopolitical news arrive while no market is open).
 // Used by the `cadence` job of refresh-data.yml before any install; it reads only the exchange calendar (the one
 // holiday/half-day source, src/domain/market/session/market-calendar.js) and the published data.json clock.
 //
@@ -16,7 +16,7 @@
 //
 // Modes: full (every lane), news (weekend news cycle; the producer still runs end to end), skip (no producer job).
 // Operator workflow_dispatch and the daily '33 7 * * *' cron are always full; a Worker scheduler dispatch
-// (trigger=scheduler, P1377) and the :17/:47 cron follow the weekend rule.
+// (trigger=scheduler) and the :17/:47 cron follow the weekend rule.
 import fs from 'node:fs';
 import { resolveMarketCalendarSession, MARKET_CALENDAR_ADAPTERS, dateInTimezone } from '../src/domain/market/session/market-calendar.js';
 
@@ -101,7 +101,7 @@ export function marketQuietWindow(nowMs = Date.now()) {
 export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', schedule = '', trigger = '', lastNewsAt = null, cronCovered = false } = {}) {
   if (eventName === 'workflow_dispatch' && trigger !== 'scheduler') return { mode: 'full', reason: 'operator-dispatch' };
   if (eventName === 'schedule' && schedule === DAILY_LANE_CRON) return { mode: 'full', reason: 'daily-cron' };
-  // v59.85: the :17/:47 cron is the fallback for the Worker's :20/:50 dispatch; a (usually late) cron stands down when
+  // The :17/:47 cron is the fallback for the Worker's :20/:50 dispatch; a (usually late) cron stands down when
   // that dispatch is live or succeeded inside the window (scripts/cron-fallback-guard.mjs).
   if (eventName === 'schedule' && cronCovered) return { mode: 'skip', reason: 'cron-fallback-covered-by-scheduler-run' };
   const window = marketQuietWindow(nowMs);
@@ -109,7 +109,7 @@ export function decideRefreshCadence({ nowMs = Date.now(), eventName = '', sched
   const lastMs = Date.parse(lastNewsAt || '');
   const ageMin = Number.isFinite(lastMs) ? Math.floor((Number(nowMs) - lastMs) / MINUTE) : null;
   if (ageMin == null || ageMin < 0 || ageMin >= WEEKEND_NEWS_DUE_MIN) return { mode: 'news', reason: `weekend-news-due-age-${ageMin ?? 'unknown'}m`, window };
-  // 2026-10-19: a market-timeline slot (06/12/18/24 KST, scripts/lib/market-timeline.mjs) ended after the last cycle —
+  // A market-timeline slot (06/12/18/24 KST, scripts/lib/market-timeline.mjs) ended after the last cycle —
   // run the news cycle now so the slot is sealed at its boundary rather than up to an hour later.
   if (lastMs < latestMarketSlotEnd(nowMs)) return { mode: 'news', reason: 'market-slot-boundary', window };
   return { mode: 'skip', reason: `weekend-news-not-due-age-${ageMin}m`, window };

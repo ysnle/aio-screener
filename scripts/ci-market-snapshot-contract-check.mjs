@@ -37,10 +37,10 @@ const sessionFixtures = [
   ['KRW=X', '2026-07-28T01:59:00.000Z', '2026-07-28T02:00:00.000Z', 'CURRENT_SESSION'],
   ['BTC-USD', '2026-07-28T01:00:00.000Z', '2026-07-28T03:00:00.000Z', 'DELAYED_IN_SESSION'],
   ['BTC-USD', '2026-07-28T04:00:01.000Z', '2026-07-28T03:00:00.000Z', 'SOURCE_UNAVAILABLE'],
-  // P1703: a ^VIX global-trading-hours print (03:46 ET) is not the completed close; the 16:15 ET close still is.
+  // A ^VIX global-trading-hours print (03:46 ET) is not the completed close; the 16:15 ET close still is.
   ['^VIX', '2026-10-13T07:46:31.000Z', '2026-10-13T08:01:37.000Z', 'AFTER_HOURS', 'REGULAR'],
   ['^VIX', '2026-10-12T20:15:00.000Z', '2026-10-13T08:01:37.000Z', 'MARKET_CLOSED', 'REGULAR'],
-  // P1738: a ^TNX pre-open print (09:05 ET) is not the completed close; the 14:59 ET close still is.
+  // A ^TNX pre-open print (09:05 ET) is not the completed close; the 14:59 ET close still is.
   ['^TNX', '2026-10-13T13:05:25.000Z', '2026-10-13T13:20:35.555Z', 'AFTER_HOURS'],
   ['^TNX', '2026-10-09T18:59:00.000Z', '2026-10-09T21:00:00.000Z', 'MARKET_CLOSED'],
   // v59.49 (refresh-data 10-30 13:36Z): Yahoo stamps the ^RUT close 16:30 ET; once the next session opens it is the
@@ -63,7 +63,7 @@ for (const [instrumentId, observedAt, now, expected, providerSession] of session
   const actual = deriveMarketSession({ instrumentId, observedAt, providerSession, now: Date.parse(now) });
   if (actual !== expected) fail(`${instrumentId} session fixture expected ${expected}, got ${actual}`);
 }
-// v59.49: two weeks (one with the 11-01 DST change) every 10 minutes; each print a provider holds must land in the
+// Two weeks (one with the 11-01 DST change) every 10 minutes; each print a provider holds must land in the
 // completed-close or in-session set the venue schedule gives it (scripts/lib/market-session-sweep.mjs). HEAD before
 // v59.49 failed 96 points: the Sunday reopen, RUT's 16:30 stamp after the open, and RUT on Monday 09:30-09:45 ET.
 {
@@ -131,7 +131,7 @@ if (future.complete || !future.snapshot.quotes.every((row) => row.quality === 'Q
 const missingObservation = buildMarketSnapshot({ quotes: fixtureQuotes.map((row, index) => index === 0 ? { ...row, observedAt: null } : row), attemptedAt, source: 'fixture', now: Date.parse(attemptedAt) });
 if (missingObservation.complete || missingObservation.coverage.observed !== TIER_0_INSTRUMENTS.length - 1) fail('missing observation time did not fail closed as incomplete coverage');
 
-// W03-A/P1145: publishing is accepted from the MEASURED required set, not the
+// Publishing is accepted from the MEASURED required set, not the
 // payload's self-reported coverage. Each tamper must be rejected, a duplicate can
 // never round up declared coverage, and optional Tier-1 gaps must not become a
 // Tier-0 failure.
@@ -149,7 +149,7 @@ tamperCase('unit changed', (candidate) => { candidate.quotes[0].unit = 'WRONG_UN
 tamperCase('duplicate instrument', (candidate) => { candidate.quotes[1] = { ...candidate.quotes[0] }; }, 'published_tier0_duplicate');
 tamperCase('unknown instrument', (candidate) => { candidate.quotes[0].instrumentId = 'NOT-IN-REGISTRY'; }, 'published_instrument_unknown');
 tamperCase('declared over ship', (candidate) => { candidate.coverage = { ...candidate.coverage, required: 17, tier0Required: 17 }; }, 'published_declared_coverage_mismatch');
-// R24-02/P1178: metric identity is part of the registry contract. Instrument,
+// Metric identity is part of the registry contract. Instrument,
 // unit, and value can all look plausible while the quote names a different
 // metric entirely, so the validator must reject the mismatch instead of
 // letting normalizeQuote's registry fallback hide it — and a swapped pair can
@@ -194,7 +194,7 @@ tamperCase('R24-02/P1178 metricId removed', (candidate) => { delete candidate.qu
   const result = validateMarketSnapshot(createMarketSnapshot(candidate));
   if (!result.ok || result.audit.tier1.complete !== false || result.audit.declaredMatchesMeasured !== true) fail(`W03-A: an optional Tier-1 gap was folded into Tier-0 acceptance: ${JSON.stringify(result)}`);
 }
-// W03-C/P1183: the quote identity tuple is (instrumentId, metricId, unit, valueKind)
+// The quote identity tuple is (instrumentId, metricId, unit, valueKind)
 // and the source fields are evidence claims, not cosmetic labels. Normalization used to
 // fill 'unknown'/'provider' defaults for a missing source/sourceKind — which made the
 // existence loop vacuous — and the registry itself was never validated, so a duplicated
@@ -224,7 +224,7 @@ tamperCase('P1183 valueKind contradicts the registry', (candidate) => { candidat
   if (derived.source !== '' || derived.sourceKind !== '') fail(`P1183 a missing source was promoted to a value: ${derived.source}/${derived.sourceKind}`);
 }
 {
-  // P1183: the registry validates itself first. A duplicated metric or an undeclared
+  // The registry validates itself first. A duplicated metric or an undeclared
   // valueKind in the 정본 cannot be laundered by quotes that match it.
   if (!validateInstrumentRegistry(TIER_0_INSTRUMENTS).ok) fail('P1183 the shipped Tier-0 registry does not validate');
   const duplicateMetric = TIER_0_INSTRUMENTS.map((row, index) => index === 1 ? { ...row, metricId: TIER_0_INSTRUMENTS[0].metricId } : row);
@@ -270,7 +270,7 @@ tamperCase('P1183 valueKind contradicts the registry', (candidate) => { candidat
 const loaderSource = fs.readFileSync(path.join(root, 'src/data/market-snapshot-loader.js'), 'utf8');
 if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('validateMarketSnapshot')) fail('browser loader lacks fail-closed validation');
 
-// P1160: a venue that is CONFIRMED closed must not be judged by a 24h "daily session" age. A Friday
+// A venue that is CONFIRMED closed must not be judged by a 24h "daily session" age. A Friday
 // close read on a Sunday is ~46h old, so every Korean index and every FX/futures/commodity
 // instrument was classified STALE_UNEXPECTED, the Tier-0 quality gate failed, and
 // public-data/market-snapshot.json stopped publishing for the whole weekend — the site then served
@@ -315,7 +315,7 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
   const btc = deriveMarketSession({ instrumentId: 'BTC-USD', observedAt: fridayClose, providerSession: 'REGULAR', now: sunday });
   if (btc !== 'STALE_UNEXPECTED') fail(`P1160 BTC-USD accepted a 2-day-old observation: ${btc}`);
 }
-// v58.62 evidence tier (live 2026-10-21: the reading could not cite semis, US futures or Asia). The tier is published
+// Evidence tier (live 2026-10-21: the reading could not cite semis, US futures or Asia). The tier is published
 // beside Tier 0, never decides publication and never enters the Tier-0 quote list the consumers read.
 {
   const tier = readJson('scripts/fixtures/market-analysis-evidence-tier-20261021.json');
@@ -337,7 +337,7 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
   tampered.evidenceQuotes.push({ ...tampered.evidenceQuotes[0], instrumentId: 'AAPL' });
   const rejected = validateMarketSnapshot(createMarketSnapshot(tampered));
   if (rejected.ok || !rejected.errors.includes('evidence_quote_identity_mismatch:NQ=F') || !rejected.errors.includes('evidence_quote_unknown:AAPL')) fail(`v58.62 an evidence row with a wrong identity or an unknown symbol was accepted: ${JSON.stringify(rejected.errors)}`);
-  // v59.74: semis evidence moved SMH → SOXX (owner 2026-11-04). A snapshot published before the switch still carries an
+  // Semis evidence moved SMH → SOXX. A snapshot published before the switch still carries an
   // SMH row; it validates (the row is skipped, not cited) so the loader keeps the rest of the snapshot until the next refresh.
   const legacy = JSON.parse(JSON.stringify(withTier.snapshot));
   legacy.evidenceQuotes = legacy.evidenceQuotes.map((row) => row.instrumentId === 'SOXX' ? { ...row, instrumentId: 'SMH' } : row);
@@ -346,7 +346,7 @@ if (!loaderSource.includes('snapshot_not_published') || !loaderSource.includes('
 }
 const bridgeSource = fs.readFileSync(path.join(root, 'src/legacy/market-snapshot-bridge.js'), 'utf8');
 if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.includes('market-snapshot-fallback')) fail('legacy bridge does not preserve snapshot provenance');
-// v60.18 (weekly audit D2): the published close's change stays until a live quote observed after that close arrives. Yahoo
+// The published close's change stays until a live quote observed after that close arrives. Yahoo
 // spark answered DX-Y.NYB -0.001% at 2026-11-13T21:59:59Z — the published close's own time — and the home strip read 0.00%
 // over the completed session's +0.23%. The live overwrite (js/aio-data.js applyLiveQuotes) asks PriceStore.publishedChange.
 {
@@ -371,7 +371,7 @@ if (!bridgeSource.includes("policyKey: 'static_snapshot'") || !bridgeSource.incl
   if (!/PriceStore\.heldCloseQuote\(q, price\)/.test(apply)) fail('v60.18 applyLiveQuotes must ask PriceStore.heldCloseQuote before it stores and paints a live change');
 }
 const refresh = fs.readFileSync(path.join(root, '.github/workflows/refresh-data.yml'), 'utf8');
-// v59.85: the staged set is the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
+// The staged set is the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
 if (!refresh.includes('scripts/publish-data-commit.mjs --set refresh-data') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot.json') || !workflowPublishes('refresh-data.yml', 'public-data/market-snapshot-status.json')) fail('refresh workflow does not publish snapshot artifacts');
 
 console.log(JSON.stringify({

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.81: contract for the official US listing (public-data/us-listings.json) and its lazy client check.
+// Contract for the official US listing (public-data/us-listings.json) and its lazy client check.
 // Runs the producer's pure parser/floors/SEC join on a tiny canned sample (scripts/fixtures/us-listings), the client
 // lookup with a stubbed fetch, the wiring (workflow, lineage, headroom, not on the boot path), and — when the artifact
 // exists — its published shape. No network.
@@ -41,7 +41,7 @@ check('v57.81 exchange codes, ETF flag and name cleanup', () => {
   assert.equal(bySym.get('AAPL').exch, 'Q');
   assert.equal(bySym.get('SPY').exch, 'P');
   assert.equal(bySym.get('IEXG').exch, 'V');
-  // v57.81 first live run: ET (Energy Transfer, NYSE Texas 'F') was dropped as an unknown exchange; LP common units are equities.
+  // First live run: ET (Energy Transfer, NYSE Texas 'F') was dropped as an unknown exchange; LP common units are equities.
   assert.equal(bySym.get('ET')?.exch, 'F');
   assert.equal(lib.EXCHANGE_CODES.F, 'NYSE Texas');
   assert.equal(bySym.get('XNEW')?.exch, 'K', 'an unrecognised one-letter venue keeps the listed security');
@@ -101,7 +101,7 @@ check('v57.81 client lookup: listed, unlisted, no fuzzy rewrite, no name search'
   assert.equal(appl.listed, false, 'APPL is not rewritten to AAPL');
   assert.equal(appl.name, null);
   assert.equal(client.lookupUsListing(index, 'Hawkins').listed, false, 'company names are never resolved by the exact lookup');
-  // v57.83: a name search offers candidates to choose from (never an automatic resolution); short or non-Latin queries return none.
+  // A name search offers candidates to choose from (never an automatic resolution); short or non-Latin queries return none.
   const named = client.searchUsListingNames(index, 'hawkins');
   assert.equal(named[0]?.symbol, 'HWKN', 'a company name is offered as a listing candidate');
   assert.equal(named[0]?.exchange, 'Nasdaq');

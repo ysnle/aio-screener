@@ -21,18 +21,18 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { RECONCILIATION_STATUS } from '../src/data/contracts/reconciliation.js';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { readProducerSource } from './lib/producer-source.mjs'; // fetch-data.mjs + the lib modules split out of it
 import { snapshotEvidenceRows } from './lib/market-analysis-validate.mjs';
 import { NEWS_INTRADAY_MAX } from '../src/domain/news/stories.js';
-import { readLaneQuarantine } from './lib/lane-quarantine.mjs'; // P1982: one limit for producer, page, AI and this check
-import { SIGNAL_LIMITS } from './lib/telegram-signals.mjs'; // v59.70: the producer's kind list, not a copy
+import { readLaneQuarantine } from './lib/lane-quarantine.mjs'; // One limit for producer, page, AI and this check
+import { SIGNAL_LIMITS } from './lib/telegram-signals.mjs'; // The producer's kind list, not a copy
 
 const read = (path) => readFileSync(path, 'utf8');
 const json = (path) => JSON.parse(read(path).replace(/^\uFEFF/, ''));
 const readIf = (path) => (existsSync(path) ? json(path) : null);
 
 const errors = [];
-// v58.70: a check tagged with a degradable lane (scripts/lib/lane-quarantine.mjs) is reported per lane, and skipped while the
+// A check tagged with a degradable lane (scripts/lib/lane-quarantine.mjs) is reported per lane, and skipped while the
 // published data.meta.laneQuarantine declares that lane. Untagged checks always block.
 const laneFailures = [];
 let quarantinedLanes = new Map();
@@ -47,7 +47,7 @@ const check = (label, ok, detail = '', lane = null) => {
 // A producer fix reaches the published artifact only on the next refresh cycle,
 // so the artifact assertions below are gated for one cycle. That gate must
 // expire: an unbounded "transition" branch turns into a permanent vacuous pass
-// and the defect silently returns (P1099). After the deadline the assertions
+// and the defect silently returns. After the deadline the assertions
 // run unconditionally; the refreshed artifact is expected to satisfy them.
 const TRANSITION_DEADLINE = '2026-10-18T00:00:00Z';
 const inTransition = (label) => {
@@ -143,7 +143,7 @@ if (Array.isArray(history) && history.length) {
       marketFields.length > 0 && marketFields.every((field) => typeof latest.fieldMeta[field]?.observationRelation === 'string'),
       `missing on ${marketFields.filter((field) => typeof latest.fieldMeta[field]?.observationRelation !== 'string').join(', ')}`);
     const violations = [];
-    // P1144: 24/7 continuous quotes (BTC-USD) have no previous completed day
+    // 24/7 continuous quotes (BTC-USD) have no previous completed day
     // distinct from the current observation. The producer records the observed
     // value as latest-completed-close from this fix forward; rows committed
     // before the fix still carry the old previous-completed-close stamp and
@@ -286,14 +286,13 @@ if (data?.marketAnalysis) {
   // The legacy-namespace exemption above must expire together with the producer
   // fix. Without this, a published artifact with zero canonical rows passes both
   // canonical assertions vacuously and the unit/metricId drift is invisible
-  // (P1108).
   if (canonicalRows.length === 0 && !inTransition('narrative evidence predates P1093 canonical rows')) {
     check('narrative evidence publishes rows that resolve against the snapshot', false,
       `${(data.marketAnalysis.metricEvidence || []).length} metricEvidence rows carry no canonicalMetricId`, 'narrative');
   }
   const unitDefs = new Map();
   for (const [, row] of snapshotByInstrument) unitDefs.set(row.metricId, row.unit);
-  // P1719: a retained (earlier verified, ≤12 h) narrative cites the values it was verified against, not this run's
+  // A retained (earlier verified, ≤12 h) narrative cites the values it was verified against, not this run's
   // snapshot; its unit and metricId must still match, but the value is from its own, labelled observation time.
   const retainedAt = Date.parse(data.marketAnalysis.retained?.from || '');
   const retained = Number.isFinite(retainedAt) && Date.parse(data.meta?.generatedAt || data.generatedAt || '') - retainedAt <= 12 * 3600000;
@@ -332,7 +331,7 @@ if (domain) {
     const expected = Math.max(5, Math.min(100, Math.round(breakdown.weightedSumRaw / breakdown.availableWeight) + breakdown.adjustmentsTotal));
     if (out.total !== expected) broken.push(`${fixture.name}: total ${out.total} != reconstructed ${expected}`);
     if (breakdown.total !== out.total) broken.push(`${fixture.name}: breakdown.total ${breakdown.total} != total ${out.total}`);
-    // P1118: the hero renders from the presentation, not from the score object. If the
+    // The hero renders from the presentation, not from the score object. If the
     // presentation does not carry the same terms, the visible rows cannot explain the
     // visible total even though the artifact itself reconciles.
     const presentation = domain.deriveTradingScoreDecisionPresentation({ score: out, inputVersion: 'golden' });
@@ -387,7 +386,7 @@ if (data?.fearGreed?.history) {
   const last = points[points.length - 1];
   const lastDay = String(last?.observedAt || '').slice(0, 10);
   const headlineDay = String(data.fearGreed.asOf || '').slice(0, 10);
-  // P1379: CNN's same-day daily marker (00:00) and its intraday headline are two observations;
+  // CNN's same-day daily marker (00:00) and its intraday headline are two observations;
   // the headline may legitimately move after the marker. Equality is only required when the
   // headline is not later than the marker (it then has no newer reading to carry).
   const headlineLater = Date.parse(data.fearGreed.asOf || '') > Date.parse(last?.observedAt || '');
@@ -433,18 +432,17 @@ if (telegram?.coverage) {
     check('selectedOfObservedPct cannot exceed 100', Number(coverage.selectedOfObservedPct) <= 100, `${coverage.selectedOfObservedPct}%`);
   }
   check('the selected set is a subset of the observed window', selected <= observed, `${selected} > ${observed}`);
-  // P1683: the lineage rows moved to telegram-observed.json; a digest still carrying them (pre-split) is read as before.
   const lineageRows = Array.isArray(telegram.observedItems) ? telegram.observedItems : readIf('public-data/telegram-observed.json')?.observedItems;
-  // v60.39: the lineage file is producer state (Actions cache, not on main); the count is compared where the rows exist.
+  // The lineage file is producer state (Actions cache, not on main); the count is compared where the rows exist.
   const lineageHere = Array.isArray(telegram.observedItems) || existsSync('public-data/telegram-observed.json');
   check('v60.39 telegram observed lineage count matches the published payload where the lineage rows exist',
     !lineageHere || observed === (Array.isArray(lineageRows) ? lineageRows.length : -1),
     `coverage=${observed} items=${lineageRows?.length ?? 'missing'}`);
 }
-// v58.71: digest `signals` are numbers read from the posts, never the post text (P715); each has a known kind and key.
+// Digest `signals` are numbers read from the posts, never the post text; each has a known kind and key.
 if (Array.isArray(telegram?.signals)) {
   const longest = (value) => (typeof value === 'string' ? value.length : value && typeof value === 'object' ? Math.max(0, ...Object.values(value).map(longest)) : 0);
-  // v59.70: this list was a copy; v59.62 added the 'deal' kind to the producer and the copy refused 25 refreshes in a row
+  // This list was a copy; v59.62 added the 'deal' kind to the producer and the copy refused 25 refreshes in a row
   // (11/03 13:50Z~). The kinds are the producer's SIGNAL_LIMITS keys, and every kind the extractors emit must have a limit.
   const knownKinds = new Set(Object.keys(SIGNAL_LIMITS));
   const emittedKinds = [...readFileSync('scripts/lib/telegram-signals.mjs', 'utf8').matchAll(/\bkind: '([a-z-]+)'/g)].map((match) => match[1]);
@@ -516,8 +514,8 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
   check(`excluded product scope republishes nothing (${retired})`, !existsSync(retired), 'retired artifact is published again');
 }
 
-// P1731/P1733: macro-calendar events say where each date came from, and the FOMC
-// schedule the consumers merge is exactly the official decision days. P1732: a
+// macro-calendar events say where each date came from, and the FOMC
+// schedule the consumers merge is exactly the official decision days. A
 // current policyRates.fed is the same 25bp range as the published FRED bounds.
 // Transition: the committed artifacts predate these fields; assert once present.
 {
@@ -531,7 +529,7 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
         && (fomcEvents.length === 0 || ((macroCalendar.schedules?.['us-fomc'] || []).join() === fomcDates && (macroCalendar.schedules?.['us-fed-rate'] || []).join() === fomcDates)),
       `events=${fomcEvents.length}`);
     const years = [...new Set(fomcEvents.map((event) => event.date.slice(0, 4)))];
-    // v60.14: a later year the Fed has dated but not yet marked carries sep null on every meeting.
+    // A later year the Fed has dated but not yet marked carries sep null on every meeting.
     const sepUnknown = (year) => year !== years[0] && fomcEvents.filter((event) => event.date.startsWith(year)).every((event) => event.sep === null);
     check('P1731 every published FOMC year has 8 meetings with 4 SEP meetings (v60.14: or none marked yet, after the first year)',
       years.every((year) => fomcEvents.filter((event) => event.date.startsWith(year)).length === 8 && (sepUnknown(year) || fomcEvents.filter((event) => event.date.startsWith(year) && event.sep === true).length === 4)),
@@ -568,7 +566,7 @@ for (const retired of ['public-data/knowledge/quantitative-labs.json', 'public-d
   check('no tracked file contains an unresolved merge-conflict marker', files.length === 0, files.join(', '));
 }
 
-// v58.70: the refresh lane-quarantine step reads which failures are lane-tagged (scripts/quarantine-degradable-lanes.mjs).
+// The refresh lane-quarantine step reads which failures are lane-tagged (scripts/quarantine-degradable-lanes.mjs).
 if (process.env.AIO_LANE_REPORT) writeFileSync(process.env.AIO_LANE_REPORT, JSON.stringify({ errors, laneFailures }, null, 2) + '\n');
 if (errors.length) {
   console.error('Artifact semantics check failed:');

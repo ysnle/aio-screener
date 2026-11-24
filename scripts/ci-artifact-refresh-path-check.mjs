@@ -32,7 +32,7 @@ for (const name of readdirSync(join(root, 'js'))) if (name.endsWith('.js') && na
 runtimeFiles.push('index.html', 'sw.js');
 const readers = new Map();
 for (const file of runtimeFiles) {
-  // v59.87 (S2): readers name most artifacts by registry id (artifactUrl / loadArtifact / the registry's descriptors).
+  // Readers name most artifacts by registry id (artifactUrl / loadArtifact / the registry's descriptors).
   const text = read(file);
   const names = [...[...text.matchAll(/public-data\/([a-z0-9][a-z0-9-]*\.json)/g)].map((match) => match[1]), ...artifactIdLiterals(text).filter((id) => /^[a-z0-9][a-z0-9-]*\.json$/.test(id))];
   for (const name of names) {
@@ -60,7 +60,7 @@ for (const [name, spec] of Object.entries(ARTIFACT_FRESHNESS)) {
   const workflowPath = `.github/workflows/${spec.workflow}`;
   if (!existsSync(join(root, workflowPath))) { check(`v59.70 ${name} workflow exists`, false, workflowPath); continue; }
   const text = (workflowText[spec.workflow] ||= read(workflowPath));
-  // v59.85: the publish set is the staged-path contract (scripts/lib/data-publish-sets.mjs), not the workflow text.
+  // The publish set is the staged-path contract (scripts/lib/data-publish-sets.mjs), not the workflow text.
   check(`v59.70 ${spec.workflow} stages public-data/${name}`, workflowPublishes(spec.workflow, `public-data/${name}`), 'add it to the workflow\'s set in scripts/lib/data-publish-sets.mjs');
   const hours = lineageMaxHours(name);
   check(`v59.70 ${name} staleAfterMinutes equals the lineage audit bound`, hours != null && hours * 60 === spec.staleAfterMinutes, `registry=${spec.staleAfterMinutes}m lineage=${hours == null ? 'missing' : `${hours * 60}m`}`);

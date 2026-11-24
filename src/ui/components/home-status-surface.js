@@ -1,10 +1,23 @@
+// v59.70 (L3, legacy core wave 2): the home 오늘의 질문 renderer (#home-operator-note) and the topbar server data age
+// badge (#server-data-age) moved here unchanged from js/aio-data.js, so the two home status sinks have one native owner;
+// the operator-note.json loader and its placeholder check went to src/data/operator-note.js (ui code does not fetch). Callers keep the same window globals; src/app/compatibility-globals.js
+// installs this before DOMContentLoaded, as data-status-surface.js is.
 import { installOperatorNote } from '../../data/operator-note.js';
 
 export function installHomeStatusSurface(window = globalThis, document = globalThis.document) {
+  // The loader runs at boot for the home card, so it stays in the boot set (a lazy chunk landed in the post-boot window).
   installOperatorNote(window);
   var escHtml = function(value) { return window.escHtml(value); }; // js/aio-data.js escHtml, a classic global by the time either writer runs
   var _aioIsOperatorNotePlaceholder = function(note) { return typeof window._aioIsOperatorNotePlaceholder === 'function' ? window._aioIsOperatorNotePlaceholder(note) : false; }; // src/data/operator-note.js, installed with the loader
 
+  // This was defined 3 times in this file (v-baseline) — only the
+  // last definition below ever took effect (each `function` redeclaration + `window.x =`
+  // silently overwrote the previous one), so the two earlier ~25-line copies were fully dead:
+  // any future fix applied to them would compile fine and have zero effect. Removed rather than
+  // left as unreachable code.
+  // The operator note becomes "오늘의 한 문장" — one sentence that names the day's market
+  // tension. The producer writes it once per 08:00 KST day (data.json marketAnalysis.sentence); an operator line in
+  // operator-note.json (`sentence`, `updated` = that day) takes its place. Older than the previous day, nothing shows.
   function _aioRenderOperatorNote() {
     var el = document.getElementById('home-operator-note');
     if (!el) return;
@@ -15,6 +28,8 @@ export function installHomeStatusSurface(window = globalThis, document = globalT
       ? { text: String(note.sentence), day: note.updated, by: '운영자' } : null;
     var produced = window._aioMarketSentence;
     var line = manual || (produced && produced.text && (produced.day === day || produced.day === yesterday) ? { text: String(produced.text), day: produced.day, by: null } : null);
+    // Questions stay in long prose; a line written as a question (the producer's older prompt asked for one)
+    // is not shown as the day's line. The producer now writes a statement (scripts/lib/market-analysis-prompt.mjs).
     if (line && /[?？]|(?:까요?|는가|인가|나요)[\s.。]*$/.test(String(line.text).trim())) line = null;
     if (!line) { el.style.display = 'none'; el.innerHTML = ''; return; }
     var md = Number(line.day.slice(5, 7)) + '/' + Number(line.day.slice(8, 10));
@@ -22,14 +37,17 @@ export function installHomeStatusSurface(window = globalThis, document = globalT
       '<div class="aio-operator-note-card aio-operator-note-priority aio-market-sentence" data-source-kind="REFERENCE" data-operational-use="reference-only" data-sentence-day="' + escHtml(line.day) + '">' +
         '<div class="aio-operator-note-meta">' +
           '<span class="aio-operator-note-kicker">오늘의 쟁점</span>' +
-          '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' +
+          '<span class="aio-operator-note-date">' + escHtml(md) + ' 작성' + (line.by ? ', ' + escHtml(line.by) : '') + '</span>' + // v58.80 (first-users run-4): the writing day, not the close it reads
         '</div>' +
-        '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' +
+        '<div class="aio-operator-note-title">' + escHtml(line.text) + '</div>' + // The note sits inside the home verdict card, which already leads with the verdict it questions
       '</div>';
     el.style.display = 'block';
   }
   window._aioRenderOperatorNote = _aioRenderOperatorNote;
 
+  // v50.24/WO-4: 서버 데이터 나이를 topbar 배지로 표면화 — 사용자가 "지금 보는 데이터가 N분 전 것"을
+  // 항상 알 수 있게. 60분+ amber, 180분+ red. ageMin은 _serverDataMeta.generatedAt 기준으로 매번 재계산
+  // (배지 갱신 타이머가 1분마다 호출해도 나이가 정확히 카운트업되도록).
   function _aioRenderServerDataAge() {
     try {
       var el = document.getElementById('server-data-age');

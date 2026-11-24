@@ -1,11 +1,11 @@
-import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // The page is split under src/ui/pages/screener/
 import { DATA_PUBLISH_SETS, publishSetPaths, workflowPublishes } from './lib/data-publish-sets.mjs';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
-import { readProducerSource } from './lib/producer-source.mjs'; // v57.62: fetch-data.mjs + the lib modules split out of it
+import { readProducerSource } from './lib/producer-source.mjs'; // fetch-data.mjs + the lib modules split out of it
 import { backtestFactors, deriveCyclePublication, deriveFactorQuality, deriveTickerNewsLineage, writeMacroCalendar } from './fetch-data.mjs';
 import { mergeProducedMacroCalendar } from '../src/data/macro-calendar.js';
 import { FOMC_RECHECK_MS, buildIsmRuleEvents, deriveFedPolicyRate, parseFomcCalendarHtml, selectFomcMeetings } from './lib/official-calendars.mjs';
@@ -14,7 +14,7 @@ import { FACTOR_FRESHNESS_MS } from '../src/domain/screener/factor-ranks.js';
 import { percentileRank01, spearman } from './lib/rank-statistics.mjs';
 import { SHARED_AI_MODEL, SHARED_AI_PROFILES as ANALYSIS_PROFILES, extractCompletedResponseText, requestSharedAnalysis, resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { marketAnalysisDiagnostic, aiProviderRefusal, summarizeOperationalChecks, workflowCadence, operationalSummary, WATCHDOG_THRESHOLDS } from './lib/operational-health.mjs';
-import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // v57.95 core row encoding
+import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Core row encoding
 import { parseHoldings } from './fetch-sp500-weights.mjs';
 import { softenReaderDuty } from './lib/market-analysis-validate.mjs';
 import { runSections } from './lib/gate-sections.mjs';
@@ -36,12 +36,12 @@ const report = () => {
 };
 const barStartBasis = 'bar-start';
 
-// v60.50: the pipeline contracts are code (a few borrow a published file as realistic input); the published screener's
+// The pipeline contracts are code (a few borrow a published file as realistic input); the published screener's
 // session contract is a data section that also runs in a data run.
 await runSections('data-pipeline', [
 ['contracts', async () => {
 
-// v59.72: the IVV holdings file renamed 'Weight (%)' to 'Market Weight'; both headers parse (stale since 10/27).
+// The IVV holdings file renamed 'Weight (%)' to 'Market Weight'; both headers parse (stale since 10/27).
 for (const weightHeader of ['Weight (%)', 'Market Weight']) {
   const csv = `Fund Holdings as of,"Nov 05, 2026"
 
@@ -54,7 +54,7 @@ Ticker,Name,Type,Sector,Asset Class,Market Value,${weightHeader}
   check(`v59.72 S&P 500 holdings parse the '${weightHeader}' header`, rows[0]?.weight === 7.92, JSON.stringify(parsed).slice(0, 200));
 }
 
-// v59.72: the AI reading published '…조정 여부를 확인해야 합니다' (rendered-copy reader-duty); the ending is rewritten.
+// The AI reading published '…조정 여부를 확인해야 합니다' (rendered-copy reader-duty); the ending is rewritten.
 check('v59.72 AI reading reader-duty endings become state endings', softenReaderDuty('조정 여부를 확인해야 합니다. CPI를 지켜봐야 합니다. 금리를 점검할 필요가 있습니다.') === '조정 여부를 확인할 대목입니다. CPI를 지켜볼 대목입니다. 금리를 점검할 대목입니다.');
 check('v59.72 the producer publishes the rewritten reading', /text: softenReaderDuty\(semantic\.text \|\| text\)/.test(read('scripts/producer/market-narrative.mjs')));
 
@@ -88,7 +88,7 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
   check('v59.82 the full 13F chain restores the row store first and writes its manifest last', fullChain.indexOf('masters-managers-store.mjs restore --require') > -1
     && fullChain.indexOf('masters-managers-store.mjs restore --require') < fullChain.indexOf('collect-13f-reference.mjs')
     && fullChain.lastIndexOf('masters-managers-store.mjs manifest') > fullChain.lastIndexOf('build-masters-runtime-artifacts.mjs'));
-  // v59.85: the staged set and the before-commit store publish are the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
+  // The staged set and the before-commit store publish are the refresh-data publish set (scripts/lib/data-publish-sets.mjs).
   const refreshSet = DATA_PUBLISH_SETS['refresh-data'];
   check('v59.82 the commit stages the manifest, not the rows, and publishes the store before main is pushed', !publishSetPaths('refresh-data').includes('public-data/masters/managers')
     && publishSetPaths('refresh-data').includes('public-data/masters/managers-store.json')
@@ -96,7 +96,7 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
   check('v59.82 a failed 13F lane drops its half-rewritten row store', /git checkout -- public-data\/masters public-data\/objects\/masters\n[\s\S]{0,400}rm -rf public-data\/masters\/managers\n/.test(refresh));
 }
 
-// v59.72 (P2266): a failed CI browser shard reruns only its failed gates once before failing the push.
+// A failed CI browser shard reruns only its failed gates once before failing the push.
 {
   const ci = read('.github/workflows/ci.yml');
   const browserJob = ci.slice(ci.indexOf('\n  browser:'), ci.indexOf('\n  attest:'));
@@ -104,14 +104,14 @@ check('v59.72 the producer publishes the rewritten reading', /text: softenReader
   check('v59.72 CI browser shards rerun failed gates once', /run: \|\n\s+node scripts\/qa-runner\.mjs --group \$\{\{ matrix\.group \}\} --no-cache && exit 0\n[\s\S]*\n\s+node scripts\/qa-runner\.mjs rerun-failed --no-cache\n/.test(shard), shard.slice(0, 200));
 }
 
-// P1596: optional degradation is visible even when release-blocking gates pass.
+// Optional degradation is visible even when release-blocking gates pass.
 check('P1596 warnings cannot be reported as healthy', summarizeOperationalChecks([], ['AI unavailable']).status === 'DEGRADED'
   && summarizeOperationalChecks([{ ok: false, severity: 'warning' }]).gateStatus === 'PASS'
   && summarizeOperationalChecks([{ ok: false, severity: 'error' }]).status === 'FAIL'
   && summarizeOperationalChecks([{ ok: true, severity: 'error' }]).status === 'PASS');
 check('P1596 AI diagnostics retain the actual semantic failure', marketAnalysisDiagnostic({ marketAnalysis: { reason: 'metric-value-mismatch:market.vix' } }) === 'metric-value-mismatch:market.vix'
   && marketAnalysisDiagnostic({ meta: { marketAnalysisOk: true } }) === 'verified');
-// v60.18: the 11/10 14:51Z refresh (be745561b) — blocked on provider-http-429 for 11 h — is an operator error in the
+// The 11/10 14:51Z refresh (be745561b) — blocked on provider-http-429 for 11 h — is an operator error in the
 // watchdog; a validator block or a verified reading is not.
 check('v60.18 a provider refusal of the shared AI account is named as an operator error; a validator block is not',
   aiProviderRefusal({ meta: { marketAnalysisOk: false, marketAnalysisReason: 'provider-http-429' }, marketAnalysis: { status: 'blocked', reason: 'provider-http-429', semanticIssues: ['provider-http-429'] } }) === 'provider-http-429'
@@ -134,7 +134,7 @@ check('v60.25 preserving the prior reading retains the reason the new AI call fa
   check('P1596 cadence detects missing slots despite a recent success', !workflowCadence([run(5), run(180)], { now, maxAgeMinutes: 65 }).ok
     && workflowCadence([run(5), run(35)], { now, maxAgeMinutes: 65 }).ok
     && !workflowCadence([run(-10)], { now, maxAgeMinutes: 65 }).ok);
-  // v59.59: the watchdog's workflow_run arrivals count toward its cadence; the default still counts only the cron and dispatches.
+  // The watchdog's workflow_run arrivals count toward its cadence; the default still counts only the cron and dispatches.
   const triggered = (minutes) => ({ ...run(minutes), event: 'workflow_run' });
   check('P1596 v59.59 watchdog cadence counts workflow_run arrivals only when asked', !workflowCadence([run(5), triggered(60), run(300)], { now, maxAgeMinutes: 125 }).ok
     && workflowCadence([run(5), triggered(60), run(300)], { now, maxAgeMinutes: 125, events: ['schedule', 'workflow_dispatch', 'workflow_run'] }).ok);
@@ -153,7 +153,7 @@ for (const [label, input, blocker] of [
   const cycle = deriveCyclePublication(input);
   check(`cycle publication fails closed for ${label}`, cycle.status === 'DEGRADED' && cycle.blockers.includes(blocker), JSON.stringify(cycle));
 }
-// P1069/R591: factor/score ties require average ranks. The no-tie d-squared
+// factor/score ties require average ranks. The no-tie d-squared
 // shortcut produces a different answer for this fixture and is not acceptable
 // for percentile factors or IC reporting.
 const tieFixture = JSON.parse(read('architecture/fixtures/backtest-ranking-ties.json'));
@@ -184,7 +184,7 @@ const checkNodeHeredocSyntax = (label, text) => {
     catch (error) { check(`${label} Node heredoc ${index + 1} parses`, false, error.message); }
   });
 };
-// P584/R265/C1: extract a top-level `function NAME(...) { ... }` by brace-depth counting (not a
+// Extract a top-level `function NAME(...) { ... }` by brace-depth counting (not a
 // regex bound) so nested control-flow braces inside the function don't truncate the extraction.
 const extractFunctionSource = (text, name) => {
   const sig = `function ${name}(`;
@@ -217,7 +217,7 @@ const fetchData = readProducerSource();
   const now = Date.parse('2026-10-10T12:00:00Z');
   check('P1581: the Yahoo quote fallback never derives a daily change from chartPreviousClose (5-day window start)', /prev = \(typeof m\.previousClose === 'number' && m\.previousClose > 0\) \? m\.previousClose : null;/.test(fetchData) && !/prev = \(typeof m\.chartPreviousClose === 'number'/.test(fetchData));
   {
-    // P1799: at the KRX open the current session's bar is missing, so the previous close is the last bar dated before
+    // At the KRX open the current session's bar is missing, so the previous close is the last bar dated before
     // the session (10/15 09:01 KST KOSPI against the 10/14 close 6008.81, not the 10/13 close 6035.35).
     const { previousCloseBarIndex } = await import('./fetch-data.mjs');
     const kst = { exchangeTimezoneName: 'Asia/Seoul', gmtoffset: 32400 };
@@ -240,14 +240,14 @@ const fetchData = readProducerSource();
       krHole === 2 && holed[krHole].close === null && usHole === 1
         && /\.filter\(\(bar\) => Number\.isFinite\(bar\.timestamp\)\)/.test(quoteSource) && /previousCloseApproximate/.test(readFileSync(new URL('./producer/history.mjs', import.meta.url), 'utf8')),
       JSON.stringify({ krHole, usHole }));
-    // v58.69: the history backfill fills a US daily hole from that session's last hourly close (10/21 S&P 500 7,757.22),
+    // The history backfill fills a US daily hole from that session's last hourly close (10/21 S&P 500 7,757.22),
     // keyed at the session's first hourly stamp; empty hourly closes and other sessions are skipped. Korea is not filled.
     const { hourlySessionClose } = await import('./producer/quotes.mjs');
     const hourlyRes = { timestamp: ['2026-10-20T19:30:00Z', '2026-10-21T13:30:00Z', '2026-10-21T18:30:00Z', '2026-10-21T19:30:00Z', '2026-10-22T13:30:00Z'].map((iso) => Date.parse(iso) / 1000),
       indicators: { quote: [{ close: [7711.7, 7730.1, 7757.22, null, 7700] }] } };
     const filled = hourlySessionClose(hourlyRes, '2026-10-21', 'America/New_York');
     const historySource = readFileSync(new URL('./producer/history.mjs', import.meta.url), 'utf8');
-    // v58.70 (owner 2026-10-23): a failing degradable lane goes back to the last publish and is declared; others publish.
+    // A failing degradable lane goes back to the last publish and is declared; others publish.
     const { applyLaneQuarantine, readLaneQuarantine } = await import('./lib/lane-quarantine.mjs');
     const previousData = { meta: { generatedAt: '2026-10-23T00:51:12Z', newsCount: 2, newsIntradayCount: 1, newsCycleEnd: 'old-cut', marketAnalysisOk: true, laneQuarantine: [{ lane: 'narrative', since: '2026-10-22T23:50:00Z', check: 'x' }] },
       news: ['a', 'b'], newsIntraday: ['c'], marketAnalysis: { summary: 'old', generatedAt: '2026-10-23T00:50:00Z' }, quotes: ['old-q'] };
@@ -281,8 +281,8 @@ const fetchData = readProducerSource();
       JSON.stringify(filled));
   }
   {
-    // v58.20 review B1: quote verification keeps real spike days and low-rate moves. ^VIX +65% (2024-08-05) and +116%
-    // (2018-02-05) were dropped as provider errors, and ^IRX 0.10 -> 0.04 failed a relative 5% bound meant as points.
+    // B1: quote verification keeps real spike days and low-rate moves. ^VIX +65% and +116%
+    //  were dropped as provider errors, and ^IRX 0.10 -> 0.04 failed a relative 5% bound meant as points.
     const { _quoteOk } = await import('./fetch-data.mjs');
     const quote = (symbol, prev, price) => ({ symbol, regularMarketPreviousClose: prev, regularMarketPrice: price });
     check('v58.20 VIX spike days and low-rate yield moves pass quote verification; an implausible equity jump still retries',
@@ -291,7 +291,7 @@ const fetchData = readProducerSource();
       'quote tolerance');
   }
   {
-    // P1587: a cover-page share count 1000x off the EPS-implied count (PKG, 2026) is withheld, never priced.
+    // A cover-page share count 1000x off the EPS-implied count (PKG, 2026) is withheld, never priced.
     const { normalizeSecCompanyFacts } = await import('./fetch-sec-fundamentals.mjs');
     const fy = (val, extra = {}) => ({ val, form: '10-K', fp: 'FY', fy: 2025, start: '2025-01-01', end: '2025-12-31', filed: '2026-02-25', accn: 'a', ...extra });
     const facts = (shares) => ({ facts: { 'us-gaap': { Revenues: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, StockholdersEquity: { units: { USD: [{ ...fy(4.598e9), start: undefined }] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } }, dei: { EntityCommonStockSharesOutstanding: { units: { shares: [{ val: shares, form: '10-K', fp: 'FY', end: '2026-02-20', filed: '2026-02-25', accn: 'a' }] } } } } });
@@ -300,7 +300,7 @@ const fetchData = readProducerSource();
     check('P1587: SEC share counts far from net income / diluted EPS are withheld before P/E and P/B',
       bad?.sharesCheck === 'scale-mismatch' && bad?.sharesOutstanding === null && bad?.pe == null && good?.sharesCheck === 'consistent' && Math.abs(good?.pe - 26.5) < 0.2,
       JSON.stringify({ bad: bad && { c: bad.sharesCheck, pe: bad.pe }, good: good && { c: good.sharesCheck, pe: good.pe } }));
-    // v58.20 review B1: a split after the 10-K. The FY cover count (pre-split) passes the EPS check from the same filing,
+    // B1: a split after the 10-K. The FY cover count (pre-split) passes the EPS check from the same filing,
     // so the post-split close used to price P/E at a tenth of its value. A later 10-Q cover count at a near-integer
     // ratio replaces it as a split. v60.16: an ordinary buyback-sized change is the newer count on the same basis
     // (dei-cover-latest), and a jump outside 0.67–1.5 that is not a split keeps the 10-K count.
@@ -330,7 +330,7 @@ const fetchData = readProducerSource();
         && Math.abs(adjusted?.pe - 14.43) < 0.05 && Math.abs(adjusted?.pb - 10.48) < 0.05
         && unadjusted?.pe == null && unadjusted?.pb < 2 && notYet?.valuationSplitRatio == null && before?.valuationSplitRatio == null,
       JSON.stringify({ eight, adjusted: adjusted && { s: adjusted.valuationSharesOutstanding, pe: adjusted.pe, pb: adjusted.pb }, unadjusted: unadjusted && { pe: unadjusted.pe, pb: unadjusted.pb } }));
-    // 2026-10-14: a filer with no reported share count (class-dimensioned dei) is priced on net income / diluted EPS;
+    // A filer with no reported share count (class-dimensioned dei) is priced on net income / diluted EPS;
     // utility revenue concepts count as annual revenue.
     const multiClass = { facts: { 'us-gaap': { RegulatedAndUnregulatedOperatingRevenue: { units: { USD: [fy(8.6e9), fy(8.4e9, { start: '2024-01-01', end: '2024-12-31', fy: 2024, accn: 'b' })] } }, NetIncomeLoss: { units: { USD: [fy(774.1e6)] } }, EarningsPerShareDiluted: { units: { 'USD/shares': [fy(8.62)] } } } } };
     const implied = normalizeSecCompanyFacts('MULTI', multiClass, 229.94, null);
@@ -339,7 +339,7 @@ const fetchData = readProducerSource();
       implied?.sharesBasis === 'eps-implied' && Math.abs(implied?.sharesOutstanding - 774.1e6 / 8.62) < 1 && Math.abs(implied?.pe - 26.7) < 0.2
         && implied?.revenue === 8.6e9 && noEps?.sharesOutstanding == null && bad?.sharesBasis == null,
       JSON.stringify({ implied: implied && { b: implied.sharesBasis, s: implied.sharesOutstanding, pe: implied.pe, r: implied.revenue }, noEps: noEps && noEps.sharesOutstanding }));
-    // v57.66 P1798: class-dimensioned 10-K instance facts (shapes of the V, WMG, COKE and BRK FY2025 filings).
+    // class-dimensioned 10-K instance facts (shapes of the V, WMG, COKE and BRK FY2025 filings).
     const { parseClassShareFacts, selectClassDimensionedShares, classInstanceUrl } = await import('./fetch-sec-fundamentals.mjs');
     const instance = (symbols, classes) => {
       const ctx = (id, member, period) => `<xbrli:context id="${id}"><xbrli:entity><xbrli:identifier scheme="http://www.sec.gov/CIK">1</xbrli:identifier>${member ? `<xbrli:segment><xbrldi:explicitMember dimension="us-gaap:StatementClassOfStockAxis">us-gaap:${member}</xbrldi:explicitMember></xbrli:segment>` : ''}</xbrli:entity><xbrli:period>${period}</xbrli:period></xbrli:context>`;
@@ -374,7 +374,7 @@ const fetchData = readProducerSource();
       JSON.stringify({ visa, wmg, coke, brk, differ, priced: priced && { b: priced.sharesBasis, s: priced.sharesOutstanding, pe: priced.pe }, withheld: withheld && withheld.sharesClassCheck }));
   }
   {
-    // 2026-10-14: the BLS cache is bypassed on a scheduled CPI/NFP date from 12:35Z when it was filled before 13:35Z.
+    // The BLS cache is bypassed on a scheduled CPI/NFP date from 12:35Z when it was filled before 13:35Z.
     const { blsReleaseCacheBypass, fetchBlsSeries } = await import('./fetch-data.mjs');
     const schedules = { 'us-cpi': ['2026-10-14'], 'us-nfp': ['2026-11-06'], 'us-pce': ['2026-10-15'] };
     const at = (iso) => Date.parse(iso);
@@ -390,7 +390,7 @@ const fetchData = readProducerSource();
       JSON.stringify({ cached: cached.status }));
   }
   check('P1576: an in-session quote without a previous close is never written to history as a completed close', /bySym\[q\.symbol\] = usePreviousClose \? previousClose : \(isOpenPoint \|\| preOpenPrint\) \? null : q\.regularMarketPrice;/.test(fetchData));
-  // v59.70: the P1573 Cboe currentness check left with the Cboe reader (ci-data-audit-contract holds its absence).
+  // The P1573 Cboe currentness check left with the Cboe reader (ci-data-audit-contract holds its absence).
 }
 {
   const beaCatch = fetchData.slice(fetchData.indexOf('async function fetchBeaPce('), fetchData.indexOf('async function fetchBeaPce(') + 1600);
@@ -400,7 +400,7 @@ const fetchData = readProducerSource();
 const fetchTelegram = read('scripts/fetch-telegram-digest.mjs');
 const reconciliationBuilder = read('scripts/build-reconciliation-status.mjs');
 const core = (read('js/aio-core.js') + String.fromCharCode(10) + read('js/aio-qa-audits.js')) /* P1329: audits live in the QA bundle */;
-const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */ + '\n' + read('src/data/pipeline-notices.js') /* v59.88: the pipeline status notices moved to src */; // v59.34/v59.35: the server data loader and the public readiness model moved to src
+const data = read('js/aio-data.js') + '\n' + read('src/data/server-data-loader.js') + '\n' + read('src/data/public-readiness.js') + '\n' + read('src/domain/news/selection.js') + '\n' + read('src/app/news-selection-entry-points.js') /* v59.42: news scoring and selection moved to src */ + '\n' + read('src/data/pipeline-notices.js') /* v59.88: the pipeline status notices moved to src */;
 const chat = read('src/ui/chat/panel.js');
 const tests = read('js/aio-tests.js');
 const screenerPage = readScreenerPageSource();
@@ -408,18 +408,14 @@ const screenerProvider = read('src/data/providers/screener.js');
 const newsPage = read('src/ui/pages/news.js');
 const marketPage = read('src/ui/pages/market.js');
 const html = read('index.html');
-// P1133/R620: page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
+// page-level renderers extracted from index.html's inline block D live in js/aio-pages.js.
 const pagesSource = read('js/aio-pages.js');
-// v57.54: the P517/P531/P535 + R222/R230/R232 ledger prose-marker check moved to architecture/governance-markers.json
-// (policy "data-pipeline-contract"); this gate no longer reads QA-CHECKLIST/RULES/BUG-POSTMORTEM.
 const marketNewsStart = html.indexOf('id="page-market-news"');
 const marketNewsEnd = marketNewsStart >= 0 ? html.indexOf('<!-- ═══════════════ PAGE:', marketNewsStart + 1) : -1;
 const marketNewsHtml = marketNewsStart >= 0 ? html.slice(marketNewsStart, marketNewsEnd > marketNewsStart ? marketNewsEnd : marketNewsStart + 9000) : '';
 const newsEmptyStart = data.indexOf('현재 조건에서');
 const newsEmptyBlock = newsEmptyStart >= 0 ? data.slice(newsEmptyStart, newsEmptyStart + 1400) : '';
 
-// v57.76: the home news list (and its P1273 headline-only fixture) is retired with the "오늘의 시장" banner; news
-// lives on the 뉴스 screen only. v57.79: the renderHomeFeed no-op stub is gone too (no caller remained).
 {
   const homeStart = html.indexOf('id="page-home"');
   const homeEnd = html.indexOf('id="page-signal"', homeStart);
@@ -499,14 +495,14 @@ check('P1421 refresh workflow fetches market data with official optional secrets
       && sharedAiPurpose('event-brief-fomc-presser')?.profile === 'search' && sharedAiPurpose('unregistered') === null
       && requestBody.max_output_tokens === SHARED_AI_PROFILES.analysis.maxOutputTokens && requestBody.reasoning.effort === SHARED_AI_PROFILES.analysis.effort
       && /^market-analysis-42-1-[0-9a-f-]{36}$/.test(requests[0].options.headers['X-AIO-Idempotency-Key']));
-  // v59.97 invariant: the client outwaits the Worker deadline for its kind of request (60 s non-search, 120 s search), so the
+  // Invariant: the client outwaits the Worker deadline for its kind of request (60 s non-search, 120 s search), so the
   // Worker answers first and a slow answer is not abandoned while its budget reservation stays held.
   const { SHARED_AI_TIMEOUT_MS } = await import('./lib/ai-shared-analysis.mjs');
   check('v59.97 the shared-AI client timeouts outlast the Worker deadlines (analysis > 60 s, search > 120 s)',
     SHARED_AI_TIMEOUT_MS.analysis > 60000 && SHARED_AI_TIMEOUT_MS.search > 120000);
 }
 {
-  // v59.59: the market-reading prompt is worded by scripts/lib/market-analysis-prompt.mjs from the packet the generator
+  // The market-reading prompt is worded by scripts/lib/market-analysis-prompt.mjs from the packet the generator
   // assembles. Static rules come first and REGIME_CONTEXT before the per-run evidence (shared, cacheable prefix); an absent
   // optional block leaves no gap; the one-sentence instruction stays last; the retry appends to the unchanged prompt.
   const mp = await import('./lib/market-analysis-prompt.mjs');
@@ -517,10 +513,10 @@ check('P1421 refresh workflow fetches market data with official optional secrets
   const prompt = mp.buildMarketAnalysisPrompt(packet);
   check('v59.59 market-reading prompt sections: static rules, then REGIME_CONTEXT, then per-run evidence; optional blocks drop cleanly; sentence last',
     ids.indexOf('style') < ids.indexOf('regime') && ids.indexOf('regime') < ids.indexOf('metricEvidence') && ids.at(-1) === 'sentence'
-      // v60.50: the static 'story' rule (the opening read's order, "싸다" only as a condition) sits after 'order' — 26 blocks.
+      // The static 'story' rule (the opening read's order, "싸다" only as a condition) sits after 'order' — 26 blocks.
       && !ids.includes('koreaIntraday') && !ids.includes('narrative') && !ids.includes('moveSize') && full.length === 26 && full.at(-1) === 'sentence'
       && ids.indexOf('story') === ids.indexOf('order') + 1
-      // v60.19: the per-run MOVE_SIZE grades follow MARKET_DRIVERS, after the cached prefix.
+      // The per-run MOVE_SIZE grades follow MARKET_DRIVERS, after the cached prefix.
       && full.indexOf('moveSize') === full.indexOf('drivers') + 1
       && !prompt.includes('\n\n\n\n') && prompt.startsWith('아래 근거로 시장 해석을') && prompt.includes('METRIC_EVIDENCE:\n- E')
       && mp.buildMarketAnalysisRetryPrompt(prompt, 'issue').startsWith(`${prompt}\n\nPREVIOUS_ATTEMPT_REJECTED`)
@@ -558,7 +554,7 @@ check('watchdog runs the aggregate local+external profile', /qa-runner\.mjs watc
 check('watchdog checks data and Telegram freshness', /pages-data-freshness/.test(externalPipeline) && /pages-telegram-freshness/.test(externalPipeline));
 check('watchdog checks live Telegram channel coverage', /pages-telegram-coverage/.test(externalPipeline) && /lastPostId/.test(externalPipeline));
 check('watchdog freshness threshold tolerates transient Actions lag', /default:\s*'360'/.test(watchdog) && /AIO_LIVE_MAX_AGE_MIN:/.test(watchdog));
-// v59.59: the floors live in WATCHDOG_THRESHOLDS; pin their values and that the observer reads them.
+// The floors live in WATCHDOG_THRESHOLDS; pin their values and that the observer reads them.
 check('watchdog has core quality floors for public data', WATCHDOG_THRESHOLDS.minSymbolsOk === 70 && WATCHDOG_THRESHOLDS.minNewsCount === 10 && WATCHDOG_THRESHOLDS.minTelegramCount === 100 && WATCHDOG_THRESHOLDS.maxFailingTelegramChannels === 1
   && ['minSymbolsOk', 'minNewsCount', 'minTelegramCount', 'maxFailingTelegramChannels'].every((key) => externalPipeline.includes(`WATCHDOG_THRESHOLDS.${key}`)));
 check('watchdog reports optional degraded services', /fearGreedOk/.test(externalPipeline) && /fredFetchOk/.test(externalPipeline) && /marketAnalysisOk/.test(externalPipeline));
@@ -580,7 +576,7 @@ check('market analysis news selection uses independent clusters instead of a bli
 check('news artifacts expose source tier, content depth, event time, and independence lineage', /sourceTierLabel/.test(fetchData) && /contentDepth:\s*'headline-only'/.test(fetchData) && /eventTime:/.test(fetchData) && /independenceKey:/.test(fetchData));
 check('market-analysis news evidence excludes headline-only rows and requires article content', /isMarketAnalysisNewsEligible/.test(fetchData) && /MARKET_ANALYSIS_NEWS_HEADLINE_DEPTHS/.test(fetchData) && /body\.length\s*>=\s*40/.test(fetchData) && /causalEvidence\s*=\s*buildMarketAnalysisNewsEvidence\(data\)/.test(fetchData));
 check('server Treasury curve bridge projects every dated maturity to browser consumers', /AIO_SERVER_TREASURY_FIELDS/.test(data) && ['dgs2', 'dgs5', 'dgs10', 'dgs20', 'dgs30', 't10y2y'].every((field) => new RegExp(`field:\\s*'${field}'`).test(data)) && /window\._fredData\s*=\s*fred/.test(data) && /DATA_SNAPSHOT\[snapshotKey\]/.test(data) && /globalThis\[definition\.runtimeKey\]/.test(data) && /window\._live5Y/.test(data) && /window\._live20Y/.test(data) && /tnx20y/.test(data) && /treasuryProjectedFields/.test(data));
-// Legacy unification (2026-10-17): the browser macro projection lives in src/data/server-macro.js; run it.
+// Legacy unification: the browser macro projection lives in src/data/server-macro.js; run it.
 const { applyServerMacro } = await import('../src/data/server-macro.js');
 const cpiProjection = (adjustment) => {
   const snapshot = { _fieldTs: {} };
@@ -604,7 +600,7 @@ check('screener Kalman factor uses comparable log percent scale', /Math\.log\(v\
 check('screener pipeline emits timestamped universe breadth and a research-only ranking contract', /computeScreenerBreadth/.test(fetchData) && /factorObservedAt/.test(fetchData) && /coveragePct/.test(fetchData) && /rankingContract/.test(fetchData) && /research-relative-ranking-only/.test(fetchData));
 check('fetch-data preserves the last-known-good artifact on core quote outage', /CORE_QUOTE_COVERAGE_FAILED/.test(fetchData) && fetchData.indexOf('CORE_QUOTE_COVERAGE_FAILED') < fetchData.indexOf('await atomicWriteFile(OUT'));
 check('22-category reconciliation is computed from executable artifact checks, not a static status table', /buildReconciliationStatus/.test(reconciliationBuilder) && /evidenceCheck/.test(reconciliationBuilder) && /runtimeBlockedCategories/.test(reconciliationBuilder) && /policyBlockedCategories/.test(reconciliationBuilder) && !/const CATEGORY_STATUS/.test(reconciliationBuilder));
-// Legacy unification (2026-10-17): the data.json fetch, reconciliation check and market-cycle gate live in
+// Legacy unification: the data.json fetch, reconciliation check and market-cycle gate live in
 // src/data/server-data.js; run them instead of reading the loader's source.
 const serverData = await import('../src/data/server-data.js');
 const serverMetaFixture = (meta, nowIso = '2026-09-12T15:20:00.000Z') => serverData.buildServerDataMeta({ meta: { generatedAt: '2026-09-12T15:16:10.361Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true, marketSnapshotCoverage: { tier0Required: 16, tier0Observed: 16 }, ...meta } }, { reconciliation: null, now: Date.parse(nowIso) });
@@ -629,7 +625,7 @@ check('page evidence is fail-closed by shared market epoch and revision state', 
 check('fetch-data exposes an isolated screener-only refresh path', /SCREENER_ONLY/.test(fetchData) && /export async function enrichScreener/.test(fetchData));
   check('screener rows retain per-symbol observation/source/use lineage', /f\.observedAt\s*=\s*r\.observedAt/.test(fetchData) && /f\.sourceKind\s*=\s*'T3_PUBLIC_DELAYED'/.test(fetchData) && /f\.allowedUse\s*=\s*'research-relative-ranking-only'/.test(fetchData));
 check('ticker news keeps publication and fetch timestamps separate and provider prioritizes explicit lineage', /deriveTickerNewsLineage/.test(fetchData) && /newsObservedAt\s*=\s*lineage\.newsObservedAt/.test(fetchData) && /newsFetchedAt\s*=\s*lineage\.newsFetchedAt/.test(fetchData) && !/newsTs\s*=\s*Date\.now\(\)/.test(fetchData) && /newsObservedAt:\s*newsObservedAt/.test(screenerProvider) && /newsFetchedAt:\s*newsFetchedAt/.test(screenerProvider));
-// v57.76: the personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
+// The personal-FRED-key retry after a server FRED failure was removed with the retired personal keys.
 {
   const shared = serverMetaFixture({ newsCycleStart: 'n0', marketSnapshotRevision: 'm0', cycleManifestRevision: 'c0', marketCycleFreshnessSlaHours: 48 });
   check('client preserves the server shared cycle; v57.76 no personal FRED retry remains',
@@ -652,9 +648,9 @@ check('AAII weekly reference refresh is automated with bounded publisher-direct/
 check('HY OAS has a keyless official FRED public-download adapter with LKG and typed lineage',
   /parseFredHyOasCsv/.test(fetchData) && /fetchFredHyOasPublic/.test(fetchData) && /fredgraph\.csv\?id=BAMLH0A0HYM2/.test(fetchData) &&
   /FRED_HY_OAS_CACHE_MAX_AGE_MS/.test(fetchData) && /fred-official-public-csv/.test(fetchData) && /fredHyOasObservedAt/.test(fetchData));
-// P1419: the carry card measured "US-Japan" as US 10Y minus the Bank of KOREA rate; no Japanese yield
+// The carry card measured "US-Japan" as US 10Y minus the Bank of KOREA rate; no Japanese yield
 // is collected, so the card reports the yen's own 20-day move (the 시장 상태 FX-axis rule) and no gap.
-// P1425: the rule lives in the 금리 · 환율 domain module; the legacy composite writer is deleted.
+// The rule lives in the 금리 · 환율 domain module; the legacy composite writer is deleted.
 {
   const ratesFx = read('src/domain/macro/rates-fx.js');
   check('P1419 FX/bond carry reads the yen 20-day move and never a Korea-rate gap labelled US-Japan',
@@ -706,7 +702,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('BLS normalizer rejects M13, preserves units/observation periods, and derives YoY/MoM deterministically', ok, detail.slice(0, 1200));
 }
-// v60.02: BLS sends `footnotes: [{}]` on rows without a footnote; the empty object made every series read
+// BLS sends `footnotes: [{}]` on rows without a footnote; the empty object made every series read
 // 'footnote-present'. Only a footnote with a code or text counts.
 {
   let ok = false;
@@ -735,7 +731,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('v60.02 BLS footnotes: an empty footnote object is no footnote; a coded footnote is footnote-present', ok, detail.slice(0, 600));
 }
-// v59.98: the 2026-11-10 refresh read October 2026 CPI while BLS never published October 2025 (the 2025 shutdown), and
+// The 2026-11-10 refresh read October 2026 CPI while BLS never published October 2025 (the 2025 shutdown), and
 // the four CPI series were reported as failed fetches every cycle. A comparator month the source never published is a
 // gap, as on the FRED path: no YoY value, no failure, collection ok. A history that is simply too short still fails.
 {
@@ -788,7 +784,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const evidence = buildMarketAnalysisNewsEvidence(data);
     const semantic = validateMarketAnalysisText('Markets moved because the documented catalyst changed risk pricing.', { ...data, macro: {} });
     ok = !isMarketAnalysisNewsEligible(headline) && isMarketAnalysisNewsEligible(excerpt) && evidence.length === 1 && evidence[0].title === excerpt.title && semantic.causalEvidenceCount === 1
-      // P1119 (S9): the retained headline-only shape is a declared rights boundary, not a
+      // The retained headline-only shape is a declared rights boundary, not a
       // silently unpopulated field. The policy must travel with the code that enforces it.
       && MARKET_ANALYSIS_NEWS_CONTENT_POLICY.retainedDepth === 'headline-only'
       && MARKET_ANALYSIS_NEWS_CONTENT_POLICY.excerptRetention === 'not-permitted-source-rights'
@@ -798,7 +794,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('market analysis rejects headline-only news as causal evidence while accepting a substantive excerpt', ok, detail.slice(0, 1600));
 }
 {
-  // P1122: causal prose is no longer discarded because article bodies are never retained
+  // Causal prose is no longer discarded because article bodies are never retained
   // (rights). It is published with attribution required instead — an unattributed causal
   // sentence warns; a headline-attributed one does not.
   let ok = false;
@@ -807,7 +803,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
     const headline = { title: '금리 우려로 지수 하락', source: 'Reuters', link: 'https://example.test/rate', eventTime: '2026-08-12T11:00:00.000Z', contentDepth: 'headline-only', score: 80 };
     const data = { meta: { generatedAt: '2026-08-12T12:01:00.000Z' }, news: [headline], macro: {} };
-    // P1139/QA-EXHAUST-80: the causal detector used to be an English word list, so this fixture
+    // The causal detector used to be an English word list, so this fixture
     // carried an English parenthetical purely to make the branch fire at all — Korean causal prose
     // was invisible. The Korean cases below deliberately have NO English token: they fail if the
     // Korean vocabulary is removed, which is exactly the regression the gate now prevents.
@@ -830,7 +826,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('headline-only causal prose warns on missing attribution instead of blocking the narrative', ok, detail.slice(0, 1600));
 }
 {
-  // P1372: the 2026-10-01 artifact published an English "Korean Market Analysis" whose one-liner was
+  // The 2026-10-01 artifact published an English "Korean Market Analysis" whose one-liner was
   // its markdown heading and which called an intraday delayed KOSPI value a close, marked verified.
   let ok = false;
   let detail = '';
@@ -855,7 +851,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('P1372 market analysis must be Korean, heading-free, and never call an in-session value a close', ok, detail.slice(0, 1600));
   {
-    // P1585: a correct sentence that states the move before the level must pass; a wrong level must not.
+    // A correct sentence that states the move before the level must pass; a wrong level must not.
     const { validateMarketAnalysisText } = await import('./fetch-data.mjs');
     const snapshot = { quotes: [
       { instrumentId: '^GSPC', evidenceId: 'market.index.spx:t', value: 7816.7, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-09T20:00:00.000Z', session: 'MARKET_CLOSED' },
@@ -879,10 +875,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       JSON.stringify({ moveFirst: moveFirst.issues, wrongLevel: wrongLevel.issues }));
   }
   {
-    // T03/T08 (v57.48 review): the 10/13 artifact published, as verified, "유가 -6.40%인 코스피는 장중 하락" (-6.40% was KOSPI's
+    // T03/T08: the 10/13 artifact published, as verified, "유가 -6.40%인 코스피는 장중 하락" (-6.40% was KOSPI's
     // move) and "금리 -0.08%" (a relative change of the yield). A % move is now checked against the named metric's own
     // changePct under its Korean name too, a rate moves only in bp, and an in-session value needs 장중 + its time.
-    // These fixtures test other rules on a -6% KOSPI day; the v57.69 KOSPI-mention rule is checked on its own (P1800).
+    // These fixtures test other rules on a -6% KOSPI day; the v57.69 KOSPI-mention rule is checked on its own.
     const { validateMarketAnalysisText: validateAll } = await import('./fetch-data.mjs');
     const validateMarketAnalysisText = (...args) => { const result = validateAll(...args); return { ...result, issues: result.issues.filter((issue) => issue !== 'korea-move-unaddressed') }; };
     const snapshot = { quotes: [
@@ -918,7 +914,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     check('P1688/T08 the commentary prompt carries completed closes only and an in-session value needs 장중 + its time',
       !timed.issues.length && untimed.issues.includes('intraday-time-missing:market.kospi')
         && /const promptEvidence = metricEvidence\.filter\(\(row\) => !row\.session \|\| MARKET_ANALYSIS_CLOSED_SESSIONS\.includes\(row\.session\)\)/.test(source)
-        // v58.62: 24 rows — the evidence tier (5) plus Tier 0, macro and F&G no longer fit in 16.
+        // 24 rows — the evidence tier (5) plus Tier 0, macro and F&G no longer fit in 16.
         && /promptEvidence\.slice\(0, 24\)/.test(source) && /금리\(10Y\)의 변화는 bp로만/.test(source) && !/현금 비중을 두는 쪽이 유리할 가능성/.test(source),
       JSON.stringify({ timed: timed.issues, untimed: untimed.issues }));
   }
@@ -940,7 +936,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const wrong = issues('S&P 500은 7,100으로 마감했다. 위험 선호는 제한적이다.');
   const wrongAfterDate = issues('S&P 500은 10월 12일 7,100으로 마감했다.');
   const contextQuoted = issues('S&P 500은 20일 고점 7,100 아래에서 7,807.24로 마감했다.', '20일 고점 7,100 대비');
-  // Review (v57.52): a context value written as the current level is still a wrong level.
+  // Review: a context value written as the current level is still a wrong level.
   const contextAsLevel = issues('S&P 500은 7,100으로 마감했다.', '20일 고점 7,100 대비');
   const contextBounded = issues('S&P 500은 10으로 마감했다.', '종합: 2026-10-13 100');
   check('P1719 dates and clock times are not metric levels; a wrong level still blocks; the REGIME_CONTEXT exception is whole-number bounded and needs a reference marker',
@@ -998,15 +994,15 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1719 a rejected text is logged (400 chars) and never published; the run passes the previous artifact analysis',
     /\.slice\(0, 400\)/.test(source) && /genMarketAnalysis\(data, marketSnapshotForConsumers, \{ previous: previous\?\.marketAnalysis \|\| null(?: \}|, request: aiUsage\.shared\('market-analysis'\) \})\)/.test(source)
       && /data\.meta\.marketAnalysisRetained = marketAnalysis\.retained \|\| null/.test(source));
-  // Review (v57.52): one news cut per run — fetchNews and meta.newsCycleEnd use the same attempt time, so a run that
+  // Review: one news cut per run — fetchNews and meta.newsCycleEnd use the same attempt time, so a run that
   // straddles 08:00 KST cannot pick newsIntraday against the previous cut and fail P1720.
   check('P1720 fetchNews and meta.newsCycleEnd share the run attempt time',
     /fetchNews\(Date\.parse\(attemptedAt\)[,)]/.test(source) && /const newsCycle = getKst0800NewsCycle\(Date\.parse\(attemptedAt\)\)/.test(source));
 }
 {
   // v57.69 (2026-10-15 crash audit): on a -1.1% S&P 500 / -5.5% KOSPI morning after a hot CPI the published reading
-  // said "물가 둔화 경로", named no cause and no KOSPI move (P1800; the crossroads lead is P1801); the contributor lane published a one-stock session
-  // (P1802); the free translator's mixed-script lines passed (P1803); Korean dailies could not enter the intraday slot (P1804).
+  // said "물가 둔화 경로", named no cause and no KOSPI move (the crossroads lead is P1801); the contributor lane published a one-stock session
+  // ; the free translator's mixed-script lines passed; Korean dailies could not enter the intraday slot.
   const { validateMarketAnalysisText, isCleanKoreanTitle, translateHeadlines, buildBreadthContributorSessions, selectNewsIntraday } = await import('./fetch-data.mjs');
   const snapshot = { quotes: [
     { instrumentId: '^GSPC', evidenceId: 'market.index.spx:c', value: 7718.94, changePct: -1.11, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-14T20:00:00.000Z', session: 'MARKET_CLOSED' },
@@ -1016,7 +1012,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news, macro: { cpiDelta: 0.3 } };
   const v = (text, data = hot) => validateMarketAnalysisText(text, data, snapshot).issues;
   const ok = v('Reuters 헤드라인에 따르면 뜨거운 물가 지표에 S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
-  // v60.24 (owner 2026-11-17): a missing cause on a large move is interpretation — a warning, no longer a block.
+  // A missing cause on a large move is interpretation — a warning, no longer a block.
   const { issues: noCause, warnings: noCauseWarnings } = validateMarketAnalysisText('S&P 500은 1.11% 하락한 7,718.94로 마감했다. 코스피는 09:20 KST 장중 6.21% 급락했다.', hot, snapshot);
   const easing = v('보도에 따르면 S&P 500은 1.11% 하락했다. 장기금리 하락은 물가 둔화 경로와 일치한다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
   const quotedPath = v('보도에 따르면 S&P 500은 1.11% 하락했다. 「물가 둔화」 경로는 이번 발표로 멀어졌다. 코스피는 09:20 KST 장중 6.21% 급락했다.');
@@ -1053,10 +1049,10 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '인간형 AI와 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
       && !isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 2번째 수천억 달러 규모 거래 협상 중')
       && isFaithfulKoreanTitle('Anthropic and Nscale in talks for second multibillion-dollar deal', '앤트로픽과 Nscale, 두 번째 수십억 달러 규모 거래 협상 중')
-      // v58.72: a Vietnamese word in the Korean line is rejected; an accented name the title carries is kept
+      // A Vietnamese word in the Korean line is rejected; an accented name the title carries is kept
       && !isFaithfulKoreanTitle('Bessent dismisses AI bubble fears', '미 재무장관 베센트, AI 버블 우려 bác함')
       && isFaithfulKoreanTitle('Nestlé cuts outlook', 'Nestlé, 연간 전망 하향')
-      // v58.74: a market term comes back as its market word ("Treasury Haven" is not "재정 예금 안정성")
+      // A market term comes back as its market word ("Treasury Haven" is not "재정 예금 안정성")
       && !isFaithfulKoreanTitle('Treasury Haven Appeal Fades', '재정 예금 안정성 매력 약화')
       && isFaithfulKoreanTitle('Treasury Haven Appeal Fades', '미 국채 안전자산 매력 약화')
       && !isFaithfulKoreanTitle('Nscale, Anthropic in Talks for $45 Billion Cloud Computing Deal', 'Nscale, 앤트로픽과 4,500억 달러 클라우드 계약 협상')
@@ -1170,17 +1166,17 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && benchmarkFieldFor('005930.KS') === 'kospi' && benchmarkFieldFor('247540.KQ') === 'kosdaq' && benchmarkFieldFor('^KS11') === null);
 }
 {
-  // v57.71 (owner 2026-10-15): "오늘의 한 문장" — written on the analysis call's last line, validated on its own, fixed
+  // "오늘의 한 문장" — written on the analysis call's last line, validated on its own, fixed
   // once per 08:00 KST day; the Korean wire's market feed is read directly.
   const { splitMarketSentence, validateMarketSentence, dailyMarketSentence, marketSentenceDay, marketSentenceRejectReason } = await import('./lib/market-analysis-validate.mjs');
-  // Screen audit 2026-10-19: no 10/19 sentence passed and the home kept 10/18's line. 매도 소진 (the bottom-watch split the
+  // No 10/19 sentence passed and the home kept 10/18's line. 매도 소진 (the bottom-watch split the
   // prompt invites) is a noun phrase, not an instruction; a dropped candidate names its reason for the refresh log.
   check('v57.71 (screen audit 2026-10-19) 매도 소진 is not an instruction, and an imperative 매도 still is',
     !!validateMarketSentence('매도 소진은 바닥의 신호와 더 깊은 조정의 전조 사이에 있다.') && validateMarketSentence('지금 매도하세요, 조정이 깊어집니다') === null
       && marketSentenceRejectReason('나스닥 급락이 기회로 읽힌다.') === 'names-company-or-index'
-      // Owner 2026-11-07: the day's line is a statement; a question is refused.
+      // The day's line is a statement; a question is refused.
       && marketSentenceRejectReason('오늘의 하락은 기회인가, 서사의 끝인가?') === 'question' && marketSentenceRejectReason('오늘의 반등은 다음 주에도 이어질까') === 'question', 'sentence validator');
-  // Screen audit 2026-10-20: KOSPI -3.73% gave back a two-day rebound and the line read as bottoming.
+  // KOSPI -3.73% gave back a two-day rebound and the line read as bottoming.
   const { marketAnalysisLargeMoveDirection } = await import('./lib/market-analysis-validate.mjs');
   const kospiDown = marketAnalysisLargeMoveDirection([{ evidenceId: 'k', metricId: 'market.kospi' }, { evidenceId: 's', metricId: 'market.spx' }], new Map([['k', -3.73], ['s', 0.41]]), null);
   const breakdownDay = dailyMarketSentence({ candidate: '소진 신호가 쌓이는 가운데, 회복 확인은 아직이다.', previous: { text: '아침 문장은 그대로 남는다.', day: '2026-10-20' }, nowMs: Date.parse('2026-10-20T09:20:00.000Z'), largeMove: true, largeMoveDirection: kospiDown });
@@ -1264,7 +1260,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     { instrumentId: '^KS11', evidenceId: 'market.index.kospi:c', value: 5635.83, changePct: -6.21, unit: 'index', source: 'Yahoo chart', observedAt: '2026-10-15T00:20:00.000Z', session: 'DELAYED_IN_SESSION' }
   ] };
   const hot = { meta: { generatedAt: '2026-10-15T00:21:00.000Z' }, news: [{ title: 'Nasdaq ends sharply lower as hot inflation data stokes rate-hike bets', source: 'Reuters', link: 'https://example.test/cpi', pubDate: '2026-10-14T21:00:00.000Z', score: 80 }], macro: { cpiDelta: 0.3 } };
-  // v60.24 (owner 2026-11-17): these are interpretation-class findings — measured as warnings, never blocking; an
+  // These are interpretation-class findings — measured as warnings, never blocking; an
   // invented probability and an order in the same reading still block.
   const v = (text) => { const result = validateMarketAnalysisText(text, hot, snapshot); return result.issues.length ? ['blocked', ...result.issues] : result.warnings; };
   const tail = ' 코스피는 09:20 KST 장중 6.21% 급락했다.';
@@ -1354,15 +1350,15 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   const stub = (answers) => async (prompt) => { prompts.push(prompt); return { text: answers.shift() ?? null }; };
   const warn = console.warn; console.warn = () => {};
   let promptRun;
-  // v57.81: the producer reads the published history (KOSPI 10/15 vs S&P 500 10/14), so the comparing sentence names both
+  // The producer reads the published history (KOSPI 10/15 vs S&P 500 10/14), so the comparing sentence names both
   // sessions; the undated 06:52 wording is checked against a two-session history below.
   const dated0652 = recorded0652.replace('완료 종가에서 코스피 -7.56%', '완료 종가에서 코스피(10/15) -7.56%').replace('미국 주가지수 -1.11%', '미국 주가지수(10/14) -1.11%')
-    // v57.87: the live context says no flow qualifies yet; the reply carries that verdict (noLeadIssues).
+    // The live context says no flow qualifies yet; the reply carries that verdict (noLeadIssues).
     .replace('완료 종가에서 코스피(10/15) -7.56%', '완료 종가에서 코스피(10/15) -7.56%(중심 흐름은 아직 정하기 이릅니다)');
-  // v57.86: the producer is handed the history as it stood at 06:52 (rows through 10/15, whose US fields repeat the 10/14
+  // The producer is handed the history as it stood at 06:52 (rows through 10/15, whose US fields repeat the 10/14
   // closes) — reading today's published file broke this dated check once a 10/16 row with that day's KOSPI close landed.
   const published = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8')));
-  // v59.70: the US semiconductor line is SOXX; sessions without a soxx column read the dated Yahoo closes the crash replay uses.
+  // The US semiconductor line is SOXX; sessions without a soxx column read the dated Yahoo closes the crash replay uses.
   const soxxFixture = JSON.parse(readFileSync(new URL('../architecture/fixtures/soxx-daily-closes.json', import.meta.url), 'utf8')).closes;
   for (const row of published) {
     const meta = row.fieldMeta?.spx, session = meta?.sessionDate || row.date;
@@ -1378,7 +1374,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && /LARGE_MOVE \(S&P 500 1% 이상 또는 코스피 3% 이상\)/.test(prompts[0] || ''),
     JSON.stringify({ basis, sameBasis, noHistory, intradayAsClose, status: promptRun?.status, reason: promptRun?.reason }));
   {
-    // v57.87 (10/16 audit): the completed crash close travels as a dated line, and a reading that speaks only of the next
+    // The completed crash close travels as a dated line, and a reading that speaks only of the next
     // session's rebound is blocked; the news bundle's Korean slots open with the index's own move headline.
     const { priorSessionMoveIssues } = await import('./lib/market-analysis-validate.mjs');
     const { krIndexStoryFirst, scoreServerNewsItem } = await import('./lib/news-selection.mjs');
@@ -1386,7 +1382,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const crashTitle = '코스피 7% 폭락…사이드카 발동';
     const ranked = krIndexStoryFirst([{ title: '증시 폭락에 원·달러 환율 급등' }, { title: crashTitle }]);
     check('v57.87 a large completed close reaches the prompt dated and must be named; the KOSPI move headline takes the first Korean slot',
-      // v60.18: the moves are listed by size against each one's own volatility (scripts/lib/market-analysis-moves.mjs) — the
+      // The moves are listed by size against each one's own volatility (scripts/lib/market-analysis-moves.mjs) — the
       // KOSPI crash close leads and SOXX's 5-session move follows on the same line; the reading opens with the lead.
       /직전 완료 세션의 큰 움직임: 코스피 10\/15 종가 -7\.5\d%[^\n]* · 반도체\(SOXX\) 10\/14 종가/.test(ctx) && !priorSessionMoveIssues(dated0652, { context: ctx }).length
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
@@ -1404,13 +1400,13 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && noLeadIssues('가장 가까운 흐름은 「소수 종목 주도」이고 관망이 유리합니다.', { context: noLeadCtx }).includes('no-lead-overstated')
         && !noLeadIssues('아직 중심 흐름을 정하기 이르고, 「소수 종목 주도」도 핵심 조건 미충족입니다.', { context: noLeadCtx }).length
         && !noLeadIssues('「고른 상승」에 가깝습니다.', { context: '중심 흐름: 고른 상승' }).length
-        // v57.88: phrase-level — "이르면 다음 주 …" is not the verdict
+        // phrase-level — "이르면 다음 주 …" is not the verdict
         && noLeadIssues('이르면 다음 주 「소수 종목 주도」 흐름이 유리합니다.', { context: noLeadCtx }).includes('no-lead-overstated')
         && krSlotTopic('환율 1,353원 치솟으며') === 'fx' && krSlotTopic(crashTitle) === 'index-move' && krSlotTopic('Samsung wonders') === null
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));
     const { marketDriversContext, upcomingPoliticalLine } = await import('./producer/market-narrative.mjs');
-    const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-29T02:00:00Z')) }); // v59.62: the midterm row (Knesset row expired)
+    const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-29T02:00:00Z')) }); // The midterm row (Knesset row expired)
     check('v58.74 an election inside the next week reaches the confirm/deny row; none after it',
       /- NEXT_CHECK \(확인·반증\):[^\n]*정치 일정: 11\/4 KST 미국 중간선거/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- NEXT_CHECK[^\n]*/)?.[0] || '');
     const idle = marketDriversContext({ history: oilHistory });
@@ -1438,7 +1434,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     dropped = await genMarketAnalysis(data, crashed, { previous, request: stub([bad, bad]), nowMs: now, history: [], recordRejections: null });
   } finally { console.warn = warn; }
   const exact = validateMarketAnalysisText(reading, data, at0555);
-  // v60.24: the blocked attempt's reason is its wrong KOSPI change (a fact); the missing cause is a warning since then.
+  // The blocked attempt's reason is its wrong KOSPI change (a fact); the missing cause is a warning since then.
   check('v60.24 a verified reading is kept (labelled with its time) while later attempts are blocked on a fact, survives one blocked run, and is dropped after a large move',
     kept?.status === 'verified' && kept.retained?.from === verifiedAt && /metric-(?:value|change)-mismatch/.test(kept.retained?.reason || '') && !/causal-attribution/.test(kept.retained?.reason || '')
       && exact.issues.includes('metric-change-mismatch:market.kospi') && !retainedReadingIssues(previous, exact).length
@@ -1455,7 +1451,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     plain);
 }
 {
-  // P1720: post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
+  // post-08:00 articles go to a separate provisional slot (tier 1-2, curation filters, one per event, max 6,
   // Korean items first); the completed 08:00 bundle is unchanged.
   const { selectNewsIntraday, NEWS_INTRADAY_MAX } = await import('./fetch-data.mjs');
   const end = Date.parse('2026-10-12T23:00:00.000Z');
@@ -1492,7 +1488,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && /Object\.defineProperty\(out, 'intraday', \{ value: selectNewsIntraday\(/.test(source));
 }
 {
-  // P1721: Yahoo's daily FX bars dropped Mon 10/12 and left 10/13 null, so the FX previous close reached back to 10/9 and
+  // Yahoo's daily FX bars dropped Mon 10/12 and left 10/13 null, so the FX previous close reached back to 10/9 and
   // the won froze at 1,342.99 for two days. The FX previous close is the hourly close at the 23:00Z (KST 08:00) cut.
   const { fxCloseAtCut, boundPreviousCloseToCut, HIST_FIELD_PLAUSIBILITY } = await import('./fetch-data.mjs');
   const fri20 = Date.parse('2026-10-09T20:00:00Z') / 1000;
@@ -1513,17 +1509,17 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     /'BZ=F': 'brent'/.test(source) && /'wti','brent','gold'/.test(source) && Array.isArray(HIST_FIELD_PLAUSIBILITY.brent));
 }
 {
-  // P1722: a bare 기관 ("영국 기관: 호르무즈 … 선박 피격") is not the Korean institutional-investor flow.
+  // A bare 기관 ("영국 기관: 호르무즈 … 선박 피격") is not the Korean institutional-investor flow.
   const { KR_INSTITUTIONAL_FLOW } = await import('./lib/telegram-tickers.mjs');
   const digestSource = read('scripts/fetch-telegram-digest.mjs');
   check('P1722 telegram 한국장/수급 tags need 기관 as an investor group, not any agency',
     !KR_INSTITUTIONAL_FLOW.test('영국 기관: 호르무즈 해협 및 인근 해역에서 선박 6척 하루 동안 잇따라 피격') && KR_INSTITUTIONAL_FLOW.test('외국인과 기관이 동반 매도')
       && KR_INSTITUTIONAL_FLOW.test('기관이 3,000억 순매도') && !/외국인\|기관\|코스피/.test(digestSource) && !/수급\|외국인\|기관\|순매수/.test(digestSource)
-      // v58.74: a bare 국장 (an agency director) no longer tags 한국장
+      // A bare 국장 (an agency director) no longer tags 한국장
       && !/\|국장\|/.test(digestSource));
 }
 {
-  // P1385: a FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
+  // A FRED series added after the previous artifact (fedTargetLower/Upper) must still get an
   // explicit freshness marker; the semantics gate rejects `_source_*` without `_freshness_*`.
   let ok = false;
   let detail = '';
@@ -1538,7 +1534,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1385 newly added macro series publish an observed freshness marker', ok, detail);
 }
 {
-  // P1119/P1122: the headline-only rights boundary stays (no article body is retained), but
+  // The headline-only rights boundary stays (no article body is retained), but
   // its absence no longer withholds the narrative — causal prose is attributed and warned,
   // not blocked. Both halves are asserted so neither can drift silently.
   const fetchDataSource = readProducerSource();
@@ -1598,7 +1594,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('SEC companyfacts normalizer preserves annual period and computes bounded comparable ratios', ok, detail.slice(0, 500));
 }
 {
-  // P1374: a bank that reports only RevenuesNetOfInterestExpense was terminal (no revenue); a filer that
+  // A bank that reports only RevenuesNetOfInterestExpense was terminal (no revenue); a filer that
   // reports both keeps its standard revenue concept for the same period (lowest-priority fallback).
   let ok = false;
   let detail = '';
@@ -1616,7 +1612,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const both = normalizeSecCompanyFacts('BTH', { cik: 4, entityName: 'Both Corp', facts: { 'us-gaap': {
       Revenues: { units: { USD: [period(400, 'a', '2024-01-01', '2024-12-31', '2025-02-20'), period(500, 'b', '2025-01-01', '2025-12-31', '2026-02-20')] } },
       ...bankRevenue, ...common }, ...shares } }, 50, submissions);
-    // v59.98: terminal concept-coverage rows are rechecked once when the concept set version changes — by behaviour: an
+    // Terminal concept-coverage rows are rechecked once when the concept set version changes — by behaviour: an
     // older-set record is due, the record the recheck writes is not, and a terminal row of another reason stays skipped.
     const { secConceptSetChanged, secNoAnnualFailure, isSecTargetDue, SEC_CONCEPT_SET_REASON_CODES } = await import('./fetch-sec-fundamentals.mjs');
     const nowMs = Date.parse('2026-11-11T00:00:00Z');
@@ -1635,7 +1631,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1374 SEC normalizer covers bank revenue net of interest expense without overriding standard revenue', ok, detail.slice(0, 500));
 }
 {
-  // P1873 (v57.84, sec-annual-concepts.v5): regional banks (TFC, FITB, RF) tag no total revenue, or only an ASC 606 fee
+  // P1873 (sec-annual-concepts.v5): regional banks (TFC, FITB, RF) tag no total revenue, or only an ASC 606 fee
   // subtotal (MTB 1.66B, margin 172% withheld). Net interest income + noninterest income of ONE filing is their net
   // revenue and outranks the subtotal; a pair split across filings, or either operand alone, is never derived.
   // A failure recorded under an older concept set is rechecked before routine refreshes (it sat a month at the back).
@@ -1661,17 +1657,17 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     ok = bank?.revenueConcept === SEC_BANK_NET_REVENUE_CONCEPT && bank.revenue === 9e9 && bank.margin === 22.2 && bank.revGrowth === 12.5
       && healed?.revenue === 9e9 && !healed.revenueHealedFrom && pitConcepts.includes(SEC_BANK_NET_REVENUE_CONCEPT)
       && SEC_PRIMARY_REVENUE_CONCEPTS.includes(SEC_BANK_NET_REVENUE_CONCEPT)
-      // v7 (2026-10-19): an underived pair leaves revenue empty; the year is anchored on net income for ROE only
+      // v7: an underived pair leaves revenue empty; the year is anchored on net income for ROE only
       && split?.revenue === null && split.periodAnchor === 'net-income' && split.margin === undefined && split.revGrowth === undefined && split.roe === 10
       && alone?.revenue === null && alone.margin === undefined
-      && Number(String(SEC_CONCEPT_SET_VERSION).split('.v')[1]) >= 5 // v5 or later (P1875: v6)
+      && Number(String(SEC_CONCEPT_SET_VERSION).split('.v')[1]) >= 5 // v5 or later
       && /Number\(b\.conceptSetChanged\) - Number\(a\.conceptSetChanged\)/.test(secSource);
     detail = JSON.stringify({ bank: bank && { c: bank.revenueConcept, rev: bank.revenue, m: bank.margin, g: bank.revGrowth }, healed: healed && healed.revenue, pitConcepts, split: split && { r: split.revenue, a: split.periodAnchor, roe: split.roe, m: split.margin }, alone: alone && { r: alone.revenue, m: alone.margin }, v: SEC_CONCEPT_SET_VERSION });
   } catch (error) { detail = error.message; }
   check('P1873 SEC bank net revenue = net interest income + noninterest income of one filing, and stale concept-set failures are rechecked first', ok, detail.slice(0, 500));
 }
 {
-  // P1875 (v57.86, sec-annual-concepts.v6, owner decision 2026-10-16): IFRS and non-USD filers are read ratio-only. Every
+  // P1875 (sec-annual-concepts.v6, owner decision 2026-10-16): IFRS and non-USD filers are read ratio-only. Every
   // operand comes from one taxonomy and one currency; amounts are published in USD only (a TWD report keeps them in
   // reportedAmounts); price ratios are withheld for a non-USD report and for an IFRS 20-F share basis (ADS ratios 0.5-6).
   // An IFRS bank's IFRS 15 customer-contract revenue is fee income, not revenue. A revenue subtotal (margin above 100%)
@@ -1722,7 +1718,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1875 SEC IFRS and non-USD filers are read ratio-only on one basis; price ratios and non-USD amounts are withheld', ok, detail.slice(0, 600));
 }
 {
-  // P1910 (v57.99, 2026-10-17 SEC logic audit): (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
+  // P1910 (2026-10-17 SEC logic audit): (1) a US-GAAP 20-F that adds a USD convenience translation (BABA/JD/PDD in CNY) is read on its
   // statements' own currency, so USD growth no longer carries the exchange rate; (2) a 20-F share count (ordinary shares, ADS
   // ratio unknown) prices nothing — in the normalizer and in the publish-time heal of stored records; a 40-F keeps its count;
   // (3) P/E and P/B are priced only on the supplied close; (4) a 52/53-week year ending in early January is the prior FY;
@@ -1763,7 +1759,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1910 SEC audit: convenience-translated filers read on their own currency, 20-F counts price nothing, ratios use the supplied close', ok, detail.slice(0, 600));
 }
 {
-  // P1910 (v57.99, owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the
+  // P1910 (owner-approved audit recommendations D1/D2/D6/D7/D8): P/E is priced on the last four quarters when they end after the
   // fiscal year (a fourth quarter filed only in the 10-K is FY − Q1..Q3), on earnings available to common when every period tags them;
   // ROE is over average equity; a series keeps its latest concept; the company panel's statements come from the ESM parser.
   let ok = false;
@@ -1798,7 +1794,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('P1910 SEC audit (owner-approved D1/D2/D6/D7/D8): TTM and common-earnings P/E, average-equity ROE, one concept per series', ok, detail.slice(0, 700));
 }
 {
-  // v57.87: a successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
+  // A successor registrant (8-K12B holding reorganization, XOM CIK 2115436) has only its first 10-Q; the
   // predecessor's 10-K facts and filings are read with it, once per entry version, and the producer is wired to do so.
   let ok = false;
   let detail = '';
@@ -1821,7 +1817,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v57.87 an 8-K12B successor issuer reads its predecessor\'s annual facts and filings (XOM)', ok, detail.slice(0, 400));
 }
 {
-  // W09-B/P1148 (F02): a derived ratio cannot have been reproducible before its LATEST operand
+  // A derived ratio cannot have been reproducible before its LATEST operand
   // was public. Revenue filed 2024-02-01 with a later income/equity/shares restatement must move
   // the ratio availability to June — not keep the February revenue accession's provenance.
   let ok = false;
@@ -1935,7 +1931,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
     const ifrs = classifyIssuerCapability({ facts: { 'ifrs-full': {} } }, { filings: { recent: { form: ['20-F'] } } });
     const usGaap = classifyIssuerCapability({ facts: { 'us-gaap': {} } }, { filings: { recent: { form: ['10-K'] } } });
     const none = classifyIssuerCapability({ facts: { dei: {} } }, { filings: { recent: { form: ['20-F'] } } });
-    // P1875 (v57.86): IFRS filers are read on their own basis (ratio-only); a filer with neither taxonomy stays terminal.
+    // IFRS filers are read on their own basis (ratio-only); a filer with neither taxonomy stays terminal.
     ok = ifrs.status === 'SUPPORTED_IFRS' && ifrs.issuerTaxonomy === 'IFRS' && ifrs.reasonCode === null && usGaap.status === 'SUPPORTED_US_GAAP'
       && none.status === 'TERMINAL_UNSUPPORTED' && none.reasonCode === 'foreign-issuer-without-us-gaap-taxonomy';
     detail = JSON.stringify({ ifrs, usGaap, none });
@@ -1956,7 +1952,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('Treasury curve parser selects the latest complete dated row and derives only a same-date spread', ok, detail);
 }
 {
-  // v58.56 (re-audit #9): the same XML entry's 1개월·3개월·6개월·1년·3년·7년 ride along on the official cut; a blank one is
+  // The same XML entry's 1개월·3개월·6개월·1년·3년·7년 ride along on the official cut; a blank one is
   // absent (never filled), and only the five core tenors decide whether a row is complete.
   let ok = false;
   let detail = '';
@@ -2074,7 +2070,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('screener breadth calculation separates US/KR and computes MA/advance ratios', ok, detail.slice(0, 400));
 }
 {
-  // v59.88: after the Korean close and before the US one, each market is on its own latest session. The mixed `all`
+  // After the Korean close and before the US one, each market is on its own latest session. The mixed `all`
   // segment counts every row on its market's session (US Friday + KR Monday), not only the majority date's rows.
   let detail = '';
   let ok = false;
@@ -2145,7 +2141,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
       && noDates.status === 'BLOCKED'
       && noDates.readiness?.status === 'BLOCKED'
       && noDates.blockingReason === 'rebalance-calendar-required'
-      // v58.56 (#6): per-date spread arrays line up with spreadDates, average back to the means, and top − bottom = gross.
+      // per-date spread arrays line up with spreadDates, average back to the means, and top − bottom = gross.
       && Array.isArray(aligned.spreadDates) && aligned.spreadDates.length === aligned.rebalancesCounted
       && ['quantileSpreadByDate', 'quantileSpreadNetByDate', 'topQuintileMeanByDate', 'bottomQuintileMeanByDate', 'transactionCostByDate'].every((key) => Array.isArray(aligned[key]) && aligned[key].length === aligned.spreadDates.length && aligned[key].every(Number.isFinite))
       && aligned.spreadDates.every((date) => aligned.rebalanceDates.includes(date))
@@ -2157,7 +2153,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   } catch (error) { detail = error.message; }
   check('factor backtest aligns cross-sections by common dates and fails closed without dates', ok, detail.slice(0, 1400));
 }
-// v60.26: the production rebalance sample is every non-overlapping forward window the 2-year history supports, defined
+// The production rebalance sample is every non-overlapping forward window the 2-year history supports, defined
 // once in model-fingerprint.js; the factor library reads it instead of keeping a 1-year-era literal.
 {
   let detail = '';
@@ -2195,7 +2191,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v60.26 the backtest rebalance offsets are non-overlapping forward windows from one definition: the newest leaves a full forward window, the oldest the 12-1 lookback on a 500-session history, and factors.mjs keeps no second literal',
     ok, detail.slice(0, 900));
 }
-// v60.26: a backtest rebalance scores each price factor only when the symbol's history covers that factor's own window
+// A backtest rebalance scores each price factor only when the symbol's history covers that factor's own window
 // (price-factors.js PRICE_FACTOR_MIN_CLOSES). A symbol with 64-199 closes used to get a trend from the 50-day average
 // alone and a Kalman speed from fewer than 90 bars; the producer's series filter and the 10-year study's offsets read the
 // same shared constants instead of the retired 147-session offset and a fixed 63.
@@ -2229,14 +2225,14 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   check('v60.26 a backtest rebalance scores each price factor only over its own full lookback (trend 200 closes, Kalman 90, volatility 61, 12-1 momentum 253), and the producer filter and the 10-year offsets derive from the shared constants',
     ok, detail.slice(0, 900));
 }
-// P586/C2: backtest must self-disclose that it does not cover the live model's size/value/quality
+// Backtest must self-disclose that it does not cover the live model's size/value/quality
 // factors or its regime-adaptive weights, and the client panel must actually surface that disclosure
 // rather than implying the full live composite rank is validated.
 check('server backtest discloses its excluded factors and fixed weight regime', /excludedFactors/.test(fetchData) && /weightRegime:\s*'NEUTRAL'/.test(fetchData) && /excludedFactorsReason/.test(fetchData));
 check('server backtest accumulates an IC time series artifact', /updateBacktestHistory/.test(fetchData) && /public-data\/backtest-history\.json/.test(fetchData));
 check('client backtest panel surfaces the excluded-factors/weight-regime disclosure, not a blanket "validated" claim', /backtest\.excludedFactors/.test(screenerPage) && /backtest\.weightRegime/.test(screenerPage) && (/실시간 적응형 종합 랭크 검증 아님/.test(screenerPage) || /(?:레짐|국면) 틸트 후보는 검증·적용되지 않음/.test(screenerPage)) && !/종합 랭크가 검증 기반/.test(data + screenerPage));
 
-// P587/R265/C6: dividend-unadjusted close systematically understates momentum/trend for
+// dividend-unadjusted close systematically understates momentum/trend for
 // high-yield names (measured: KO 6m return understated by 1.56pp raw vs adjusted). Factor/backtest
 // math must consume the adjusted series; VCP stays on raw OHLC (price-structure pattern, not return).
 check('fetchHistory exposes adjusted close alongside raw OHLCV', /adjClose:/.test(fetchData) && /indicators\?\.adjclose\?\.\[0\]\?\.adjclose/.test(fetchData));
@@ -2246,14 +2242,14 @@ check('backtest cross-sectional scoring is adjusted-close-only and fail-closed',
 check('backtest publishes native liquidity/cost/rebalance disclosures', /transactionCostBps/.test(fetchData) && /executionModel/.test(fetchData) && /liquidityWindowDays/.test(fetchData) && /rebalanceDates/.test(fetchData) && /uncontrolled-current-membership-only/.test(fetchData));
   check('browser chart preserves raw OHLC and separate adjusted series', /adjustedCloses:/.test(data) && /adjustedCloseStatus/.test(data) && /backtestEligible/.test(data) && /sourceKind:\s*'T3_PUBLIC_DELAYED'/.test(data) && /research-history-raw-only/.test(data));
 
-// P584/R265/C1: server screener.json RSI and the client's own displayed RSI must agree —
+// Server screener.json RSI and the client's own displayed RSI must agree —
 // previously the server used Cutler's RSI (windowed simple average) while the client used
 // Wilder's RSI (recursively smoothed), same label, different numbers. Recompute both against
 // identical synthetic input rather than trusting that matching source comments mean matching math.
 let rsiParityDetail = '';
 const rsiParityOk = await (async () => {
   try {
-    // v59.59: the producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
+    // The producer's _rsi14 rounds technical/definitions.js rsiWilder; the parity runs the real module.
     const serverSrc = extractFunctionSource(fetchData, '_rsi14');
     // v59.88 (ADR-0003 S6): the client RSI is technical/definitions.js rsiWilder itself (the legacy _calcRSILast wrapper
     // moved into src/domain/technical/snapshot.js, which calls rsiWilder directly).
@@ -2325,7 +2321,7 @@ const vcpParityOk = (() => {
     // `N\s*=\s*4` match on whichever side's comment happens to still say the old value, hiding a
     // real drift in the code itself. Verified by deliberately mutating just the code declaration
     // (not the comment) and confirming a loose pattern missed it before tightening to these.
-    // v57.84 (owner decision): both sides delegate contractions and the pivot to technical/definitions.js detectContractions
+    // Both sides delegate contractions and the pivot to technical/definitions.js detectContractions
     // (the chart's detector); the old 65-bar / 4-bar-swing / 1-45% literals are gone from both, and must not come back.
     // v59.59 (logic refactor): the client no longer carries its own stage chain — it reads the producer's _calcVCPServer
     // through AIO_ARCH.vcpRead (src/app/bootstrap.js), so parity is delegation; the server's own literals stay pinned.
@@ -2359,7 +2355,7 @@ check('telegram digest separates the completed 24h lane from the rolling researc
 check('telegram ticker extraction expands through SCREENER_DB aliases', /loadScreenerAliases/.test(fetchTelegram) && /SCREENER_ALIASES/.test(fetchTelegram) && /screener alias load failed/.test(fetchTelegram));
 check('telegram digest registers four channels and fail-closed source catalog', /CHANNEL_CATALOG/.test(fetchTelegram) && /HANAchina/.test(fetchTelegram) && /sourceCatalog/.test(fetchTelegram) && /CHANNELS\.map\(slug/.test(fetchTelegram) && /collectionStatus:'failed'/.test(fetchTelegram));
 {
-  // v57.76: the 뉴스 데이터 출처 fold names as many Telegram channels as the digest catalog registers.
+  // The 뉴스 데이터 출처 fold names as many Telegram channels as the digest catalog registers.
   const catalogCount = (fetchTelegram.match(/\{\s*slug:'[^']+'/g) || []).length;
   const guideStart = html.indexOf('id="news-source-guide"');
   const guide = guideStart >= 0 ? html.slice(guideStart, html.indexOf('</ul>', html.indexOf('</ul>', guideStart) + 5)) : '';
@@ -2368,7 +2364,7 @@ check('telegram digest registers four channels and fail-closed source catalog', 
   check('v57.76 news source fold telegram count and channel list match the digest catalog', catalogCount === 4 && Number(countLine) === catalogCount && listLine.split(/[·,]/).map((name) => name.trim()).filter(Boolean).length === catalogCount);
 }
 {
-  // P1544: ticker symbols match case-sensitively; ordinary English words must not become tickers.
+  // Ticker symbols match case-sensitively; ordinary English words must not become tickers.
   const { matchTickers } = await import('./lib/telegram-tickers.mjs');
   const plain = matchTickers('To be or not to be: a cat, a mu, a meta lite plan, a coherent oracle of apple and azure gemini');
   check('P1544 ordinary English words (be/cat/mu/meta/lite/coherent/oracle/apple) are not tagged as tickers', plain.length === 0, plain.join(','));
@@ -2413,10 +2409,10 @@ check('telegram digest registers four channels and fail-closed source catalog', 
 
 check('app loads server data artifact', /artifactUrl\('data\.json'\)/.test(read('src/data/server-data.js')) && /async function _aioLoadServerData\(/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
-// 2026-10-17: the coverage/age gate lives in src/domain/market/breadth/screener-breadth.js, which every breadth reader asks.
+// The coverage/age gate lives in src/domain/market/breadth/screener-breadth.js, which every breadth reader asks.
 {
   const { readScreenerBreadth } = await import('../src/domain/market/breadth/screener-breadth.js');
-  // v59.70 (I8): a fixed Wednesday clock. On the wall clock the 97 h row read as current on Tuesdays 05-09Z (a pre-open
+  // A fixed Wednesday clock. On the wall clock the 97 h row read as current on Tuesdays 05-09Z (a pre-open
   // Friday observation counts as Friday's session, one behind Monday, inside the 12 h grace), so CI on 11-03 data
   // commits failed nine times in a row and held every later release UNATTESTED.
   const now = Date.parse('2026-10-14T23:00:00Z');
@@ -2426,7 +2422,7 @@ check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener 
     && readScreenerBreadth(us({ observedAt: new Date(now - 97 * 3600000).toISOString() }), now).us === null);
 }
 check('v57.78: quant readiness audit had no production caller and stays retired (research-only ranking contract is enforced by validate-screener-artifact)', !/getQuantReadinessAudit/.test(data)); // text-pin-ok: retirement absence
-check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && !/function _aioScreenerFactorBacktest/.test(data)); // v59.42: the legacy old-scale withholding left with its only reader (the deleted factor-backtest diagram); the producer writes log_pct_day (scripts/lib/factors.mjs)
+check('native screener only admits versioned log-scale Kalman fields and preserves stale backtest disclosure', /factor\.kalmanScale/.test(screenerProvider) && /kalmanVelConf/.test(screenerProvider) && /kalmanInnovZ/.test(screenerProvider) && /backtest:\s*artifact\.backtest/.test(screenerProvider) && !/function _aioScreenerFactorBacktest/.test(data)); // The legacy old-scale withholding left with its only reader (the deleted factor-backtest diagram); the producer writes log_pct_day (scripts/lib/factors.mjs)
 check('app exposes public-data operational meta', /window\._serverDataMeta/.test(data) && /fredHasKey/.test(data) && /marketAnalysisOk/.test(data) && /telegramMemoOverlay/.test(data));
 check('P1421 core data pipeline audit exposes publicData and shared AI availability', /getDataPipelineAudit/.test(core) && /publicData/.test(core) && /server FRED_API_KEY not configured/.test(core) && /if \(!serverPublicData\.marketAnalysisOk\)/.test(core) && /server AI market analysis unavailable; shared Worker configuration, budget or provider response needs verification/.test(core));
 check('v57.78: AIO.getOperationalHealth had no production caller and stays retired', !/getOperationalHealth/.test(core)); // text-pin-ok: retirement absence
@@ -2449,21 +2445,20 @@ check('P1391 market news title shows the original headline when no translation e
 check('P1753 market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /id="live-news-feed"/.test(read('index.html')));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
-check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /newsCycle:\s*cycleWindow/.test(data)); // v57.76: the legacy filterByKst0800NewsCycle left with the home news list
-// P1391: the developer timestamp bar was removed; the user-facing window wording lives in the subtitle and the important-news heading.
+check('all primary news surfaces use KST 08:00 completed 24h cycle', /home:\s*\{[\s\S]{0,260}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /market-news'[\s\S]{0,320}newsCyclePolicy:\s*'kst-0800-completed-24h'[\s\S]{0,120}windowHours:\s*24/.test(data) && /newsCycle:\s*cycleWindow/.test(data)); // The legacy filterByKst0800NewsCycle left with the home news list
 check('P1601 market-news labels derive completed 24h cycle rather than a stale today label', /id="news-important-title">중요 뉴스 <span class="briefing-h2-note aio-asof">24시간<\/span>/.test(marketNewsHtml) && /id="news-important-list"/.test(marketNewsHtml) && /최근 24시간, \$\{poolEnd\.date\}/.test(newsPage) && !/최근 48시간|48시간 이내|필터:\s*48시간/.test(marketNewsHtml));
 check('market-news empty state uses 24h completed-cycle wording', /08:00 KST까지 24시간/.test(newsPage) && !/완료 24h/.test(newsPage) && !/48.?\uC2DC\uAC04/.test(newsPage));
-// P1389/P1391: the briefing no longer carries a news list (moved to the news screen's important/full split);
+// The briefing no longer carries a news list (moved to the news screen's important/full split);
 // its native owner renders the connected read, and no surface writes the retired list.
 check('briefing primary feed has a native owner and no legacy primary DOM writer', /route === 'briefing'/.test(newsPage) && /renderBriefingRead/.test(newsPage) && /pickImportantNews/.test(newsPage) && !/briefing-live-news-list/.test(newsPage) && !/briefing-live-news-list/.test(core) && !/briefing-live-news-list/.test(data));
 check('macro primary quote/FRED surface has a native owner and legacy writers fence native elements', /renderLiveQuotes/.test(marketPage) && /renderSnapshotMetrics/.test(marketPage) && /aioMacroRenderer/.test(marketPage) && /_aioIsNativeMacroElement/.test(data) && /_aioIsNativeMacroElement\(el\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(data) && /closest\('#page-macro\[data-aio-architecture-renderer="native"\]'\)/.test(core));
 check('fxbond primary quote/MOVE surface has a native owner and legacy writers fence native elements', /renderFxbond/.test(marketPage) && /aioFxbondRenderer/.test(marketPage) && /function _aioIsNativeFxbondElement/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(data) && /page-fxbond\[data-aio-architecture-renderer="native"\]/.test(core) && !/function\s+updateRiskMonitor\s*\(/.test(pagesSource) /* v57.77: the aio-pages [data-snap] writer was retired, not fenced */);
-// P1395: the breadth page is the native trend-card board (breadth-board.js) over the dated history artifact.
+// The breadth page is the native trend-card board (breadth-board.js) over the dated history artifact.
 check('P827 v57.60 breadth primary current-metric surface has a native artifact owner and no legacy writer remains', /renderBreadthBoard\(\{ documentRef, root \}\)/.test(marketPage) && /aioBreadthRenderer/.test(marketPage) && /buildCloseSeries\(history, 'breadth50'\)|pctSeries\('breadth50'\)/.test(read('src/ui/components/breadth-board.js')) && !/_aioIsNativeBreadthElement|function updateBreadthBars/.test(data + read('js/aio-ui.js')) /* v57.60: legacy breadth writers retired */);
 check('news consumers do not directly reuse rolling 48h newsCache filters', !/filterByAge\(newsCache,\s*48\)/.test(data) && !/48시간 이내 한국 관련 뉴스|뉴스 피드 자동 추출[\s\S]{0,80}48시간/.test(html));
 check('chat consumes Korean news translation context', /_aioGetNewsTranslation/.test(chat) && /ko_rewrite/.test(chat) && /ko_market/.test(chat) && /ko_explain/.test(chat) && /ko_impact/.test(chat) && /ko_action/.test(chat));
 check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScreenerDb/.test(data) && /_telegramMemoOverlay/.test(data) && /memoOverlay/.test(data));
-// v57.81 (analysis audit 2026-10-15): the 000660.KS memo carried an unrelated "프리마켓 주요 종목 동향 GLND (+69.70%)" post and
+// The 000660.KS memo carried an unrelated "프리마켓 주요 종목 동향 GLND (+69.70%)" post and
 // 005930.KS an ASML call. A post reaches a memo only when its shown text names the ticker or the company; and a
 // category's focus is a post whose primary tag it is, so one post never stands for several categories.
 {
@@ -2495,12 +2490,12 @@ check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScre
 }
 check('Telegram runtime replaces stale static narrative with dynamic artifact fields', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /categories:\s*Array\.isArray\(raw\.categories\)/.test(data) && /pageMap:\s*raw\.pageMap/.test(data) && /window\.AIO\.getTelegramPageCoverageAudit = function/.test(read('js/aio-qa-audits.js')));
 check('client current Telegram feed uses only the digest current24h lane', /rawCurrent24hItems/.test(data) && /AIO_TELEGRAM_CURRENT_ITEMS/.test(data) && /_aioRenderTelegramFeedHtml/.test(data));
-check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && !/news-risk-count|news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage)); // P1672: sentiment/risk strip retired (P1391)
+check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && !/news-risk-count|news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage)); // sentiment/risk strip retired
 check('browser tests cover Telegram memo injection', /T831[\s\S]{0,2400}SCREENER_DB memo/.test(tests));
 
 // v51.94/Phase 2 [B6]: getScreenerSymbols() must read the JSON artifact, not regex-scrape
 // js/aio-data.js source text (the old "\n];" boundary search was a fragile string-search bound).
-// v57.81: the official US listing is produced by refresh-screener (the workflow that owns screener-universe), staged
+// The official US listing is produced by refresh-screener (the workflow that owns screener-universe), staged
 // with the other screener artifacts and validated in the same run; its producer contract is ci-us-listings-check.mjs.
 check('v57.81 us-listings producer runs, validates and is staged in refresh-screener',
   /node scripts\/build-us-listings\.mjs\n\s+node scripts\/ci-us-listings-check\.mjs/.test(screenerRefresh)
@@ -2517,7 +2512,7 @@ const shiftedClockEnv = (days) => days ? { ...process.env, AIO_CLOCK_OFFSET_MS: 
   const sync = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8' });
   check('public-data/screener-universe.json is in sync with js/aio-data.js SCREENER_DB', sync.status === 0, (sync.stdout + sync.stderr).trim().slice(0, 400));
   // The same rebuild a year from now must give the same file: a clock-derived field in the mirror made this check fail
-  // on day 31 after the last universe review (2026-11-12) with no change to the source, and every deploy stopped.
+  // on day 31 after the last universe review with no change to the source, and every deploy stopped.
   const future = spawnSync(process.execPath, [join(root, 'scripts/sync-screener-universe.mjs'), '--check'], { encoding: 'utf8', env: shiftedClockEnv(366) });
   check('v59.99 the screener-universe mirror does not change with the calendar', future.status === 0, (future.stdout + future.stderr).trim().slice(0, 400));
 }
@@ -2576,13 +2571,13 @@ const shiftedClockEnv = (days) => days ? { ...process.env, AIO_CLOCK_OFFSET_MS: 
   rmTmp(join(tmpRoot(), `aio-expiry-${process.pid}.txt`), { force: true });
 }
 // ── P1449: 종목 identity — SCREENER_DB/registry name vs the issuer's own SEC entity name. ──
-// A ticker must name one issuer everywhere (P1339/R95/R85). The 2026-10 review caught 'A' being
+// A ticker must name one issuer everywhere. The 2026-10 review caught 'A' being
 // labelled Avantor on themes/screener while the 재무 screen correctly showed Agilent (AVTR is a
 // different, absent ticker). Model names drift between vendor forms, so the comparison is a
 // normalized (corporation/INC suffix-insensitive, case/hyphen-insensitive) token-first-name match,
 // with the light fixture pinning the concrete incident and warnings for newly observed drifts.
 try {
-  // P1757: the full ledger is producer-only (data-store branch); the projection keeps entityName per row.
+  // The full ledger is producer-only (data-store branch); the projection keeps entityName per row.
   const secFund = JSON.parse(exists('public-data/sec-fundamentals.json') ? read('public-data/sec-fundamentals.json') : read('public-data/sec-fundamentals-summary.json'));
   const universeRows = JSON.parse(read('public-data/screener-universe.json')).universe || [];
   const normalizeIssuerName = (value) => String(value || '')
@@ -2637,7 +2632,7 @@ check('P1288/R638 legacy news aggregate and every action consumer require the sh
   && /MIN_NEWS_ANALYSIS_SAMPLE:\s*api\.MIN_NEWS_ANALYSIS_SAMPLE/.test(legacyNewsFacadeSource));
 check('workflow governance doc exists', exists('_context/WORKFLOW-GOVERNANCE.md'));
 
-// P1102: a producer whose artifact has no reader and no lineage policy is a
+// A producer whose artifact has no reader and no lineage policy is a
 // latent CI trap — the first bot commit of the artifact fails the data group,
 // which blocks attestation and therefore deployment. Keep the loop closed:
 // producer wired to a workflow, artifact read by a client path, policy declared.
@@ -2741,7 +2736,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     (runtimeReadersSource.match(/observedAtBasis/g) || []).length >= 2);
 }
 
-// P1731/P1732/P1733: official FOMC page, FRED-derived policy range and ISM rule dates (fixtures only, no network).
+// Official FOMC page, FRED-derived policy range and ISM rule dates (fixtures only, no network).
 {
   const row = (month, date) => `<div class="row fomc-meeting"><div class="fomc-meeting__month col-xs-5"><strong>${month}</strong></div><div class="fomc-meeting__date col-xs-4">${date}</div></div>`;
   const panel = (year, rows) => `<div class="panel"><div class="panel-heading"><h4><a id="${year}">${year} FOMC Meetings</a></h4></div>${rows.map(([m, d]) => row(m, d)).join('')}<div class="panel-footer">* Meeting associated with a Summary of Economic Projections.</div></div>`;
@@ -2815,10 +2810,10 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && fed({ _asOf_fedTargetLower: '2026-10-01', _asOf_fedTargetUpper: '2026-10-01' }).status === 'stale'
       && fed({ fedTargetLower: null }).status === 'stale');
   check('P1732 the producer publishes data.policyRates.fed from the merged macro block',
-    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)(?:, \{[^}]*\})?\) \}/.test(readProducerSource())); // v59.70 R7: + FOMC decision inputs
+    /policyRates: \{ fed: deriveFedPolicyRate\(macro, Date\.parse\(attemptedAt\)(?:, \{[^}]*\})?\) \}/.test(readProducerSource())); // + FOMC decision inputs
 }
 
-// P1757 (owner decision 2026-10-14): weekend cadence + producer-only SEC ledger.
+// Weekend cadence + producer-only SEC ledger.
 {
   const { decideRefreshCadence, marketQuietWindow, WEEKEND_NEWS_INTERVAL_MIN, WEEKEND_NEWS_DUE_MIN } = await import('./refresh-cadence.mjs');
   const cron = (iso, lastNewsAt = null) => decideRefreshCadence({ nowMs: Date.parse(iso), eventName: 'schedule', schedule: '17,47 * * * *', lastNewsAt });
@@ -2833,7 +2828,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && cron('2027-12-31T23:00:00Z').mode === 'full' && /calendar-unregistered/.test(cron('2027-12-31T23:00:00Z').reason));
   check('P1757 a weekday holiday is never quiet (futures, FX and the other market still print)',
     marketQuietWindow(Date.parse('2026-10-09T03:00:00Z')).quiet === false && marketQuietWindow(Date.parse('2026-11-26T15:00:00Z')).quiet === false);
-  // v57.54: weekend news hourly (was 2 hours) — weekend policy/geopolitical news lands while both markets are closed.
+  // Weekend news hourly (was 2 hours) — weekend policy/geopolitical news lands while both markets are closed.
   check('P1757 weekend news runs about every hour: skip below the due age, news at or past it or when the clock is unknown',
     cron('2026-10-17T12:00:00Z', '2026-10-17T11:30:00Z').mode === 'skip'
       && cron('2026-10-17T12:00:00Z', new Date(Date.parse('2026-10-17T12:00:00Z') - WEEKEND_NEWS_DUE_MIN * 60000).toISOString()).mode === 'news'
@@ -2869,7 +2864,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /SEC_FULL_REBUILD/.test(screenerRefresh)
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') > screenerRefresh.indexOf('node scripts/fetch-sec-fundamentals.mjs')
       && screenerRefresh.indexOf('sec-fundamentals-store.mjs guard') < screenerRefresh.indexOf('node scripts/build-sec-runtime-projection.mjs')
-      // v59.85: beforeCommit hooks run after staging and before the commit, so before any push (publish-data-commit.mjs).
+      // beforeCommit hooks run after staging and before the commit, so before any push (publish-data-commit.mjs).
       && DATA_PUBLISH_SETS['refresh-screener'].beforeCommit.includes('node scripts/sec-fundamentals-store.mjs publish')
       && !publishSetPaths('refresh-screener').includes('public-data/sec-fundamentals.json'));
   // v59.62: the one-line event-briefs.json put every change on the generatedAt line, and the diff-line grep that skipped
@@ -2878,7 +2873,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     const { sameExcept } = await import('./lib/json-same-except.mjs');
     const briefsWorkflow = read('.github/workflows/event-briefs.yml');
     check('v59.62 event-briefs skips a timestamp-only run by comparing parsed JSON without generatedAt, never by diff lines',
-      // v59.85: the rule is the event-briefs publish set's timestampOnly entry (the publisher compares parsed JSON).
+      // The rule is the event-briefs publish set's timestampOnly entry (the publisher compares parsed JSON).
       JSON.stringify(DATA_PUBLISH_SETS['event-briefs'].timestampOnly['public-data/event-briefs.json']) === '["generatedAt"]' && !/grep -v '"generatedAt"'/.test(briefsWorkflow)
         && sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1] }, ['generatedAt'])
         && !sameExcept({ generatedAt: 'a', briefs: [1] }, { generatedAt: 'b', briefs: [1, 2] }, ['generatedAt']));
@@ -2890,7 +2885,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('P1757 CI restores the ledger only when its digest matches the checkout manifest, and gates degrade with a labelled skip otherwise',
     /sec-fundamentals-store\.mjs restore --match-manifest/.test(ci)
       && ['scripts/ci-sec-runtime-projection-check.mjs', 'scripts/ci-professional-data-gap-check.mjs'].every((file) => /readSecLedger/.test(read(file)) && /secLedgerSkipNote\(.*, ledger\)\)/.test(read(file)))
-      // v57.65: a git-ignored local ledger whose digest differs from the manifest is stale and reads as absent.
+      // A git-ignored local ledger whose digest differs from the manifest is stale and reads as absent.
       && /digest !== expected\) return \{ present: false, stale: true/.test(read('scripts/lib/sec-ledger.mjs'))
       && /fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')) && /GITHUB_ACTIONS === 'true' && !fullRebuild/.test(read('scripts/fetch-sec-fundamentals.mjs')));
 }
@@ -2917,7 +2912,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
   check('v58.24 the two narrative feeds exist and each has a slot floor',
     ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
-  // v59.63: the market-day ledger is rebuilt every refresh after the scenario state, and committed. v59.70 (owner D6): its
+  // The market-day ledger is rebuilt every refresh after the scenario state, and committed. v59.70: its
   // one network step is headline translation through requestWorkersAiTranslation (the automation token in its env); no
   // direct fetch.
   check('v59.63 refresh-data builds market-day.json after scenario-state and stages it',
@@ -2940,7 +2935,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const post = (id, hoursAgo, summary, score = 60) => ({ id: `ch/${id}`, channel: 'ch', datetime: new Date(at - hoursAgo * 3600000).toISOString(), score, summary });
   const telegramDigest = { current24hItems: [post(1, 2, 'CoreWeave 채권 급락, 데이터센터 채권 전반 매도 (블룸버그)'), post(2, 5, '코어위브 파산설 확산…관계자에 따르면 구조조정 검토')],
     broadItems: [post(3, 30, 'CXMT 증산으로 D램 가격 우려'), post(4, 40, '앤트로픽 IPO 밸류에이션 하향 (로이터)'), post(5, 100, '호르무즈 유조선 피격 — 창 밖')] };
-  // v60.19: 급락 is the mover's own-volatility grade (move-size.js): -25% in five sessions on a 60% annual vol is large.
+  // 급락 is the mover's own-volatility grade (move-size.js): -25% in five sessions on a 60% annual vol is large.
   const screener = { data: { CRWV: { ret5d: -25, vol: 60, dollarVolume30d: 3e9, newsMemo: '[10-17] CoreWeave Stock Faces A Debt Funding Test', newsObservedAt: new Date(at - 20 * 3600000).toISOString() },
     MSFT: { ret5d: -2, newsMemo: '[10-17] Microsoft and OpenAI', newsObservedAt: new Date(at - 20 * 3600000).toISOString() } } };
   const narrative = nc.buildNarrativeContext({ telegramDigest, screener, nowMs: at });
@@ -2953,11 +2948,11 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && nc.buildNarrativeContext({ nowMs: at }).text === '');
   check('v58.24 the market-analysis prompt carries NARRATIVE_CONTEXT with attribution, rumour and no-number rules',
     /NARRATIVE_CONTEXT \(/.test(fetchData) && /readNarrativeContext\(\{ nowMs \}\)/.test(fetchData) && /"루머" 또는 "미확인"/.test(fetchData) && /METRIC_EVIDENCE가 아니므로 쓰지 않는다/.test(fetchData)
-      // v59.25: the reuse key is the narrative signature plus the after-hours key when one exists; v59.56 adds the earnings key
+      // The reuse key is the narrative signature plus the after-hours key when one exists; v59.56 adds the earnings key
       && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = \[narrativeContext\.signature[^\n]*ah:\$\{afterHoursKey\}[^\n]*er:\$\{earningsKey\}/.test(fetchData));
   check('v59.25 the market-analysis prompt carries US_AFTER_HOURS with 시간외 + ET time, and the validator context includes it',
     /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines, cashflowLines\]/.test(fetchData));
-  // v59.56: the SEC quarterly cash-flow lane (hyperscaler capex ÷ operating cash flow) reaches the prompt and the validator context.
+  // The SEC quarterly cash-flow lane (hyperscaler capex ÷ operating cash flow) reaches the prompt and the validator context.
   check('v59.56 the market-analysis prompt carries BIGTECH_CASHFLOW from public-data/bigtech-cashflow.json with the SEC basis named',
     /BIGTECH_CASHFLOW \(/.test(fetchData) && /cashflowContextLines\(bigtechCashflow === undefined \? readBigtechCashflow\(\) : bigtechCashflow/.test(fetchData) && /"SEC 공시 기준 최근 4분기"/.test(fetchData)
       && /node scripts\/fetch-bigtech-cashflow\.mjs/.test(readFileSync(join(root, '.github/workflows/refresh-screener.yml'), 'utf8')) && workflowPublishes('refresh-screener.yml', 'public-data/bigtech-cashflow.json'));
@@ -2965,7 +2960,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     /US_EARNINGS \(/.test(fetchData) && /earningsContextLines\(briefsInput, earningsCloseDate\)/.test(fetchData) && /"…보도에 따르면"으로 귀속/.test(fetchData));
 }
 
-// v59.56 (owner 11/01): Telegram attachments are recorded, a document's file name is classifier text, and coverage counts
+// Telegram attachments are recorded, a document's file name is classifier text, and coverage counts
 // the posts whose image or file body is not read.
 {
   const tm = await import('./lib/telegram-media.mjs');
@@ -2985,7 +2980,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     /const media = telegramMedia\(block\)/.test(digestSource) && /classifyPost\(classifyText\)/.test(digestSource) && /\.\.\.mediaCoverage\(observedItems\)/.test(digestSource));
 }
 
-// 2026-10-19 cadence (owner): the macro read keeps its 08:00 KST 24h cycle; micro slots end 06/12/18/24 KST, are sealed
+// 2026-10-19 cadence: the macro read keeps its 08:00 KST 24h cycle; micro slots end 06/12/18/24 KST, are sealed
 // once by the first refresh at or after the end, kept for two days, and a thin window is still sealed with what it has.
 {
   const mt = await import('./lib/market-timeline.mjs');
@@ -3125,7 +3120,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     credit: issuesOf(reading.replace('추세 부담 조건은 아직 빠져 있다', '신용은 안정적이다')),
     lead: issuesOf(reading.replace('시장 상태는 다소 부담이고', '반도체와 AI가 여전히 시장을 주도한다.'))
   };
-  // v60.24 (owner 2026-11-17): reasons for a reversal are interpretation — one attributed sentence is warned, not blocked.
+  // Reasons for a reversal are interpretation — one attributed sentence is warned, not blocked.
   const warningsOf = (text) => va.validateMarketAnalysisText(text, fx.data, fx.snapshot, opts).warnings;
   check('v60.24 a reversal-day reading with dated reasons for the fall and the rebound publishes; one attributed sentence is warned (reversal-drivers-missing), not blocked; a wrong core CPI, a wrong credit state or a bare "semis lead" still block',
     !issuesOf(reading).length && !warningsOf(reading).includes('reversal-drivers-missing') && !issuesOf(oneSided).includes('reversal-drivers-missing') && warningsOf(oneSided).includes('reversal-drivers-missing')
@@ -3150,7 +3145,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     run?.status !== 'verified' && published.marketAnalysis.sentence?.day === '2026-10-21' && published.marketAnalysis.sentence?.text === sentence && published.meta.marketSentenceReject === null,
     JSON.stringify({ status: run?.status, sentence: published.marketAnalysis.sentence, reject: published.meta.marketSentenceReject }));
   const prompt = prompts[0] || '';
-  // v60.18: the slots are ids (CLOSE_MOVE / LIVE_MOVE / NEXT_CHECK), never the Korean words the model copied ("압력은 …").
+  // The slots are ids (CLOSE_MOVE / LIVE_MOVE / NEXT_CHECK), never the Korean words the model copied ("압력은 …").
   check('v58.59 the prompt orders pressure -> current move -> confirm/deny with dated headlines and the next large-cap earnings',
     /^MARKET_DRIVERS /m.test(prompt) && /^- CLOSE_MOVE \([^)]*\): 코스피 10\/20 종가 -3\.73%/m.test(prompt) && /^- LIVE_MOVE \([^)]*\): 코스피 10\/20 종가 -3\.73% 뒤 장중 11:01 KST 기준 \+4\.48%/m.test(prompt)
       && !/^- (?:압력|지금|확인·반증):/m.test(prompt)
@@ -3215,7 +3210,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     JSON.stringify({ status: run?.status, issues: run?.semanticIssues, cross: prompt.match(/^CROSS_MARKET_INTRADAY[\s\S]{0,700}/m)?.[0] || 'no CROSS_MARKET_INTRADAY' }));
 }
 
-// v58.71 (owner 2026-10-23): research-channel numbers (analyst actions, quarters against estimates, economic releases,
+// research-channel numbers (analyst actions, quarters against estimates, economic releases,
 // retail net-buy lists) are extracted from the full post text, published as digest `signals`, and read by the market
 // reading's NARRATIVE_CONTEXT, the screener's 리서치 채널 conditions and the news screen's 채널 데이터 block.
 {
@@ -3261,7 +3256,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     [{ kind: 'pt', key: 'pt|B|x|2026-10-20', date: '2026-10-20', ptTo: 2 }], { sinceDate: '2026-10-09' });
   check('v58.71 signals merge by key inside the window (new wins, old and unknown kinds drop) and each kind is capped',
     merged.length === 1 && merged[0].ptTo === 2 && Object.values(ts.SIGNAL_LIMITS).every((n) => n > 0 && n <= 240), JSON.stringify(merged));
-  // v59.62: an announced deal is a signal with both tickers; talks and a broker's takeover scenario are not; relays add terms up.
+  // An announced deal is a signal with both tickers; talks and a broker's takeover scenario are not; relays add terms up.
   const dealA = ts.extractDeals('마벨(Marvell, $MRVL )이 루멘텀( $LITE )을 100% 주식교환 방식으로 인수하는 최종 계약 체결\n루멘텀 1주당 마벨 주식 4.5주 지급\n기업가치 약 1,150억 달러', { ...meta, postId: 'a/1' });
   const dealB = ts.extractDeals('$MRVL 의 $LITE 인수 발표, 23.9% 프리미엄', { ...meta, postId: 'a/2' });
   const dealMerged = ts.mergeSignals([], [...dealA, ...dealB]).filter((s) => s.kind === 'deal');
@@ -3328,7 +3323,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const chatCtx = await import('../src/ai/context/channel-signals.js');
   const chatNow = Date.parse('2026-10-23T03:00:00Z');
   const chatText = chatCtx.formatChannelSignalEvidence(digest.signals, { tickers: ['META'], market: true, nowMs: chatNow });
-  // v60.16: a release or retail reading older than the 72-hour narrative window is not offered as the channels' current word.
+  // A release or retail reading older than the 72-hour narrative window is not offered as the channels' current word.
   const agedMarket = chatCtx.formatChannelSignalEvidence([{ kind: 'macro', date: '2026-10-14', name: '미국 실업률', actual: 4.1, forecast: 4.2 }, { kind: 'macro', date: '2026-10-22', name: '미국 CPI', actual: 3, forecast: 3.1 },
     { kind: 'retail', side: 'buy', date: '2026-10-12', top10Share: 90, leveragedLongShare: 60 }], { market: true, nowMs: chatNow });
   check('v60.16 chat: the market channel lines keep the 72-hour narrative window (an older release or retail row is left out)',
@@ -3379,7 +3374,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v58.71 a newer public-CSV HY OAS date brings its own one-day and five-session deltas',
     merged._asOf_hyOAS === '2026-10-22' && merged.hyOASDelta === 0.1 && merged.hyOASDelta5 === 0.28, JSON.stringify({ d: merged.hyOASDelta, d5: merged.hyOASDelta5 }));
 
-  // v58.77 pipeline audit DATA-01/02: a newer official month brings its own change; a failed official read never takes
+  // Pipeline audit DATA-01/02: a newer official month brings its own change; a failed official read never takes
   // the field back to FRED's lagging month; FRED catching up takes the field back over.
   {
     const okBls = { status: 'ok', fetchedAt: '2026-10-24T00:00:00Z', values: { blsCpiYoY: 2.5 }, series: { cpi: { status: 'ok', observedAt: '2026-09-01' } } };
@@ -3391,9 +3386,9 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
         && held.cpi === 2.5 && held._asOf_cpi === '2026-09-01' && held._source_cpi === 'bls-official-primary' && held.cpiDelta === -0.4
         && caught._source_cpi === 'fred-official-primary', JSON.stringify({ promoted: [promoted.cpi, promoted.cpiDelta], held: [held.cpi, held._asOf_cpi, held._source_cpi] }));
   }
-  // v58.77 DATA-05: the extended shard is validated again against the rebased core before it is pushed.
+  // The extended shard is validated again against the rebased core before it is pushed.
   {
-    // v59.85: verifyCommit runs on the commit and again after every rebase (publish-data-commit.mjs).
+    // verifyCommit runs on the commit and again after every rebase (publish-data-commit.mjs).
     const extended = DATA_PUBLISH_SETS['refresh-screener-extended'];
     check('v58.77 DATA-05 extended push retry revalidates the rebased shard against the new core',
       extended.verifyCommit.includes('node scripts/validate-screener-extended.mjs public-data/screener-extended.json')
@@ -3413,7 +3408,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     { exchangeTimezoneName: 'America/New_York', gmtoffset: -14400, regularMarketTime: Date.parse('2026-10-23T20:59:59Z') / 1000 }, 'DX-Y.NYB');
   check('v58.80 a weekend reopen bar listed after the quote is not the quote session (DXY 10/23 vs 10/22)', dxyWeekend === 1, String(dxyWeekend));
 
-  // v58.80 (P2065): around a crude expiry the continuous quote is the next month while its bars are the expiring month.
+  // Around a crude expiry the continuous quote is the next month while its bars are the expiring month.
   // Real reads: WTI 10/20 (December 97.82; November bars 103.66 → 101.79), Brent 10/23 (January 111.70; December 113.17).
   {
     const { futuresContractCandidates, sameContractChange, ROLLING_FUTURES } = await import('./producer/quotes.mjs');
@@ -3449,7 +3444,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
 }
 
 {
-  // P2047: the previous-digest merge runs at load time; a TDZ throw inside it was caught as "non-fatal" and the next
+  // The previous-digest merge runs at load time; a TDZ throw inside it was caught as "non-fatal" and the next
   // refresh published only the ~100 posts fetched since the cursor. Offline run (fetch rejected) on a copy of the
   // committed digest: the merge must read it without that warning.
   const { mkdtempSync, copyFileSync, rmSync } = await import('node:fs');
@@ -3463,7 +3458,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
-// v59.42 coverage pass: a Telegram post reaches a stock memo when it names the ticker or the company. The English name
+// Coverage pass: a Telegram post reaches a stock memo when it names the ticker or the company. The English name
 // was a substring, so "Arm" matched "alarm" and "Meta" "metal"; it is a whole word now, Korean names stay substrings.
 {
   const tgNamesFnText = extractFunctionSource(read('js/aio-data.js'), '_aioTelegramTextNames');
@@ -3474,7 +3469,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const wrong = names ? cases.filter(([text, sym, name, expected]) => names(text, sym, name) !== expected).map(([text]) => text) : ['function missing'];
   check('v59.42 Telegram memo company names match whole words (no "Arm" in "alarm")', wrong.length === 0, wrong.join(' | '));
 }
-// v59.42 coverage pass: the Telegram feed card printed the channel name into HTML unescaped, and its header "N건" was
+// Coverage pass: the Telegram feed card printed the channel name into HTML unescaped, and its header "N건" was
 // the count after the per-page cap, so seven matching posts read as five.
 {
   const tgFeedFnText = extractFunctionSource(read('js/aio-data.js'), '_aioRenderTelegramFeedHtml');
@@ -3488,7 +3483,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('P2128 Telegram feed escapes the channel name and tag label and counts matching posts before the cap', !feedMarkup.includes('<b>x</b>') && !feedMarkup.includes('<i>tag</i>') && /5건 표시, 해당 7건/.test(feedMarkup), feedMarkup.slice(0, 300));
 }
 
-// v59.94: the degradation gate runs before the refresh commit on a depth-1 checkout, so it compares the working tree
+// The degradation gate runs before the refresh commit on a depth-1 checkout, so it compares the working tree
 // with HEAD (the last published data.json); after the commit it falls back to HEAD^, and with no parent it passes.
 {
   const { mkdtempSync, rmSync, writeFileSync, mkdirSync } = await import('node:fs');
@@ -3514,8 +3509,8 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     writeData({ fredFetchOk: false, fredHasKey: false, fredLkgUsed: true, fredLkgSource: 'x', symbolsOk: 90 });
     run = gate();
     check('v59.94 degradation gate passes an explicit FRED LKG boundary', run.status === 0, `${run.status} ${run.stdout}${run.stderr}`);
-    // v59.97: with the key present, one failed series makes fredFetchOk false and the producer labels the cycle as LKG.
-    // That labelled partial cycle publishes (P1189); a total loss, an unlabelled regression or a label without a source does not.
+    // With the key present, one failed series makes fredFetchOk false and the producer labels the cycle as LKG.
+    // That labelled partial cycle publishes; a total loss, an unlabelled regression or a label without a source does not.
     const fredNames = Array.from({ length: 23 }, (_, k) => `series${k}`);
     const lkgLabel = { fredHasKey: true, fredFetchOk: false, fredLkgUsed: true, fredLkgSource: 'previous-public-data-macro', fredExpectedSeriesCount: 23, symbolsOk: 90 };
     writeData({ ...lkgLabel, fredFailedSeries: ['cpi'], fredSuccessfulSeries: fredNames.slice(1) });
@@ -3649,7 +3644,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && subtotal?.margin === undefined && subtotal?.marginBasis === undefined && subtotal?.revGrowth === undefined
       && lagging?.marginBasis === 'fy' && lagging.margin === -5,
     JSON.stringify({ compact: compact && [compact.margin, compact.marginBasis], subtotal: subtotal && [subtotal.margin, subtotal.marginBasis], lagging: lagging && [lagging.margin, lagging.marginBasis] }));
-  // v60.30: the compact extended ledger keeps the quarter string (compactSecRecord quarterHistory), so an extended row reads the
+  // The compact extended ledger keeps the quarter string (compactSecRecord quarterHistory), so an extended row reads the
   // same four quarters as a core row instead of falling back to its fiscal year.
   {
     const { compactSecRecord } = await import('./fetch-sec-fundamentals.mjs');
@@ -3707,7 +3702,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v60.28 the validator refuses a dividend yield above 40% or facts that disagree, and the fields are conditional row fields',
     rowFactContractErrors({ ...paid, dividendYieldPct: 41 }).length === 1 && rowFactContractErrors({ ...paid, dividendTtm: 0 }).length >= 1 && rowFactContractErrors({ ...none, dividendLastExDate: '2026-01-01' }).length === 1
       && pf.DIVIDEND_FACT_FIELDS.every((field) => pf.CONDITIONAL_FACTOR_FIELDS.includes(field)));
-  // v60.43: ABR's trailing yield (55-62%) passed the producer and failed the validator, so the whole extended shard
+  // ABR's trailing yield (55-62%) passed the producer and failed the validator, so the whole extended shard
   // (3,885 rows) went unpublished from 2026-11-18. The producer now withholds that row's dividend facts.
   const collapsed = rowOf({ ...chart(true), indicators: { quote: [{ close: closes.map((_, i) => (i === n - 1 ? 5 : 100)), high: closes, low: closes, volume: closes.map(() => 1e6) }], adjclose: [{ adjclose: closes }] } }, true);
   const atLimit = pf.dividendFacts({ dates: ['2025-11-01', '2026-11-16'], closes: [10, 10], dividends: [{ date: '2026-06-01', amount: 4 }], dividendEventsRequested: true });

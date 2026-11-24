@@ -297,7 +297,7 @@ this._aioKeepRunningAnswer = function (from, to) { return !!(from && to && this.
   pass('SM-08 a kept-running answer keeps the send button off on every AI screen');
 }
 
-// SM-08b (v60.02, plan 050) — the same cut, with the real keep rule of src/ui/components/chat-sessions.js: the panel is a
+// SM-08b — the same cut, with the real keep rule of src/ui/components/chat-sessions.js: the panel is a
 // shell panel that stays mounted, so moving to a screen without an AI context keeps the running answer and its messages.
 {
   const { installChatSessions } = await import('../src/ui/components/chat-sessions.js');
@@ -374,7 +374,7 @@ getChatState = function () { return this.__shared; }.bind(this);`, Object.assign
   pass('SM-15 server-data loads run one at a time');
 }
 
-// v59.74 SM-04b (integration review): the demand is the page's fetchLiveQuotes only if nothing replaces it later. A v20
+// The demand is the page's fetchLiveQuotes only if nothing replaces it later. A v20
 // wrapper in js/aio-ui.js reassigned it at DOMContentLoaded, called it with no symbols and returned undefined.
 {
   const { readdirSync } = await import('node:fs');
@@ -384,7 +384,7 @@ getChatState = function () { return this.__shared; }.bind(this);`, Object.assign
   pass('SM-04b no legacy script replaces the quote demand seam');
 }
 
-// v60.43 SM-05: one interval per task for the hour. Before, no task read the market clock: quotes ran every 3 minutes
+// One interval per task for the hour. Before, no task read the market clock: quotes ran every 3 minutes
 // and the KR batch (261 codes) every 30 minutes through nights and weekends, and page entry re-ran both.
 {
   const { refreshIntervalMs, openSessions } = await import('../src/app/refresh-session-policy.js');

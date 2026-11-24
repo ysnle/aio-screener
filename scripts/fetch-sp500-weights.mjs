@@ -2,7 +2,7 @@
 // Source: the daily holdings file of the iShares Core S&P 500 ETF (IVV), which lists every index member with
 // its GICS sector and portfolio weight. Weight ≈ the member's float-adjusted share of the index, which is what
 // a market map sizes by. Only ticker, name, sector and weight are kept — no per-holding price, quantity or market
-// value is republished (P715: raw prices stay out of public artifacts). On any failure the previous file stays.
+// value is republished (raw prices stay out of public artifacts). On any failure the previous file stays.
 // Runs only in GitHub Actions (refresh-screener).
 import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
@@ -41,7 +41,7 @@ export function parseHoldings(text) {
   const header = parseCsvLine(lines[headerIndex]);
   const col = (name) => header.findIndex((item) => item.toLowerCase() === name.toLowerCase());
   const [iTicker, iName, iSector, iClass] = ['Ticker', 'Name', 'Sector', 'Asset Class'].map(col);
-  // v59.72: iShares renamed 'Weight (%)' to 'Market Weight' (still percent) around 10/27; either header is accepted.
+  // iShares renamed 'Weight (%)' to 'Market Weight' (still percent) around 10/27; either header is accepted.
   const iWeight = [col('Weight (%)'), col('Market Weight')].find((index) => index >= 0) ?? -1;
   if ([iTicker, iName, iSector, iClass, iWeight].some((index) => index < 0)) throw new Error(`holdings columns changed: ${header.join('|')}`);
   const rows = [];

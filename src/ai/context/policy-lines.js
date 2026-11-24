@@ -1,4 +1,4 @@
-// P1740: the policy rates, Korean official references and release calendar the screens already read (P1731–P1737),
+// The policy rates, Korean official references and release calendar the screens already read,
 // in the chat's domain block. Each value carries its own reference date; a held (expired) value is said to be held,
 // never filled. includeKorea adds the BOK rate, Korean CPI and the export flash.
 import { releaseAtMs } from '../../domain/briefing/schedule.js';
@@ -16,7 +16,7 @@ export function buildChatPolicyLines({ root = globalThis, includeKorea = false, 
     else if (fed?.held) out.push('• 연준 목표금리 범위: 확인 기한이 지나 보류 — 수치를 추정하지 마라');
   } catch {}
   if (includeKorea) {
-    // The expiry registry (P1736) decides whether a hand-kept or produced value may still be read as current.
+    // The expiry registry decides whether a hand-kept or produced value may still be read as current.
     let exportsHeld = false;
     try { exportsHeld = !!root.AIO?.getManualReferenceState?.('krExports')?.held; } catch {}
     const published = Date.parse(snap.krExportReference?.publishedAt || '');
@@ -37,7 +37,7 @@ export function buildChatPolicyLines({ root = globalThis, includeKorea = false, 
     const today = new Date(now).toISOString().slice(0, 10);
     const horizon = new Date(now + 21 * 86400000).toISOString().slice(0, 10);
     const upcoming = Object.entries(releases).map(([id, r]) => ({ id, name: r?.name || id, date: day(r?.nextRelease) }))
-      // v58.81: a release whose time has passed is not upcoming (the UTC date alone kept this morning's release listed).
+      // A release whose time has passed is not upcoming (the UTC date alone kept this morning's release listed).
       .filter((r) => r.date && (Number.isFinite(releaseAtMs(r.id, r.date)) ? releaseAtMs(r.id, r.date) > now : r.date >= today) && r.date <= horizon && r.id !== 'us-fed-rate' && (includeKorea || !/^kr-/.test(r.id)))
       .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
     if (upcoming.length) out.push(`• 다가오는 공식 일정(3주): ${upcoming.map((r) => `${r.date.slice(5)} ${r.name}`).join(' · ')}`);

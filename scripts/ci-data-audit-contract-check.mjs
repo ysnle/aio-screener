@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 data audit (2026-11-04, _artifacts/data-audit-20261104/REPORT.md): one offline gate for the pipeline
+// Data audit (2026-11-04, _artifacts/data-audit-20261104/REPORT.md): one offline gate for the pipeline
 // redistribution items R3/R4/R5/R7/R8/R9/R10/R12. Each check runs the producer function on fixtures, so it fails on the
 // code before the change (every series refetched each run, the backtest rebuilt every cycle, a stale record keeping
 // decision use, a hand-kept Fed decision, producers without the rotation input, the aux symbols in the core floor).
@@ -14,12 +14,12 @@ const read = (file) => fs.readFileSync(new URL(`../${file}`, import.meta.url), '
 // R3: a series is refetched by its frequency or a due release, never on every cycle.
 const macro = await import('./producer/macro-history.mjs');
 {
-  const nowMs = Date.parse('2026-11-10T13:00:00Z'); // 08:00 ET on a CPI day, before the 08:30 ET print (v60.46: was 09:00)
+  const nowMs = Date.parse('2026-11-10T13:00:00Z'); // 08:00 ET on a CPI day, before the 08:30 ET print (was 09:00)
   const fresh = (at) => ({ observations: [['2026-09-01', 1], ['2026-10-01', 2]], fetchedAt: at, stale: false });
   const schedules = { 'us-cpi': ['2026-11-10'] };
   check('v59.70 R3 a monthly series fetched an hour ago is not refetched', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:00:00Z'), { nowMs, schedules }) === false);
   check('v59.70 R3 a scheduled CPI release makes the CPI series due from the 08:30 ET print', macro.macroSeriesDue({ id: 'CPIAUCSL', frequency: 'monthly' }, fresh('2026-11-10T12:00:00Z'), { nowMs: Date.parse('2026-11-10T13:35:00Z'), schedules }) === true);
-  // v60.46: the release watch keeps a calendar series due on every run for 12 hours from the print, so a print FRED posts
+  // The release watch keeps a calendar series due on every run for 12 hours from the print, so a print FRED posts
   // after the first post-release fetch still arrives on the next run; a calendar the run could not read fails open.
   const cpi = { id: 'CPIAUCSL', frequency: 'monthly' };
   check('v60.46 a series fetched after the print stays due while the release watch is open', macro.macroSeriesDue(cpi, fresh('2026-11-10T14:10:00Z'), { nowMs: Date.parse('2026-11-10T14:40:00Z'), schedules }) === true);
@@ -211,7 +211,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 story moves read session-dated closes, not the value carried on the row date', ndx?.asOf === '2026-10-30' && Math.abs(ndx.pct - (400 / 20300) * 100) < 1e-9, JSON.stringify(ndx));
   const { interpretationFromArtifacts } = await import('./lib/market-interpretation-inputs.mjs');
   const pd = (file) => JSON.parse(read(`public-data/${file}`));
-  // The published history.json is history.v2 once the producer runs (v59.70); read it the way the producers do.
+  // The published history.json is history.v2 once the producer runs; read it the way the producers do.
   const { readHistoryRows } = await import('../src/domain/market/indices/history-rows.js');
   const out = interpretationFromArtifacts({ data: pd('data.json'), history: readHistoryRows(pd('history.json')), macroHistory: pd('macro-history.json'), screener: pd('screener.json'), nowMs: Date.parse('2026-11-03T14:00:00Z') });
   const regime = out.regime || out;
@@ -222,7 +222,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   check('v59.70 the watch rows stay outside the counts', counted <= (regime.axes || []).length && !(regime.axes || []).some((row) => row.id === 'sentiment' || row.id === 'leadership'), `${counted}/${regime.axes?.length}`);
 }
 
-// v59.70 (owner 11/4): the Cboe put/call is retired — Cboe's terms forbid copying, storing and redistributing its
+// The Cboe put/call is retired — Cboe's terms forbid copying, storing and redistributing its
 // statistics. Nothing may collect it again, history.json drops the stored 'pcr' column on its next write, and no score
 // reads it. Each check runs the producer or domain function, so the code before the removal fails it.
 {
@@ -616,7 +616,7 @@ const calendars = await import('./lib/official-calendars.mjs');
   const marked = zValue((row, index) => ({ ...shape(row, index), ...(index === 0 ? { _valuationPeLoss: true } : { _valuationPbDeficit: true }) }));
   check('v60.16 the value term scores a TTM loss and a book deficit 0 (the fiscal-year margin and a missing P/B no longer leave the term out)',
     [...plain, ...marked].every((z) => typeof z === 'number') && marked[0] < plain[0] && marked[1] < plain[1], JSON.stringify({ plain, marked }));
-  // v60.26: the value term is monotone in the multiple — a dearer P/E or P/B never reads cheaper. Row 0 carries P/B 1.42
+  // The value term is monotone in the multiple — a dearer P/E or P/B never reads cheaper. Row 0 carries P/B 1.42
   // (ICHR 2026-11-16) with P/E 150 / 359.7, row 1 P/E 20 with P/B 10 / 88.8 (MA). The former 200 / 50 bounds dropped the
   // term, so the dearer multiple scored on the other term alone and ranked cheaper (ICHR value 89).
   const multiples = (pe0, pb1) => zValue((row, index) => (index === 0 ? { ...row, pe: pe0, pb: 1.42, margin: 5, evEbitda: null } : { ...row, pe: 20, pb: pb1, evEbitda: null }));

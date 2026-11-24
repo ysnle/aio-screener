@@ -1,3 +1,8 @@
+// Review (beginner panel B1-01/B5-F15): terms the screens print that the glossary search did not find. Plain
+// definitions only — no thresholds or historical figures (those belong in js/aio-glossary.js with a source row).
+// Added at runtime when the legacy glossary has no entry of the same name.
+// v59.70 (post-boot budget): the entries term marks underline on the screens live in screen-term-marked.js (boot set);
+// this list keeps the original order and loads on real glossary use (src/ui/knowledge/glossary-bridge.js).
 import { SCREEN_TERM_MARKED } from './screen-term-marked.js';
 
 export const SCREEN_TERM_ADDITIONS = Object.freeze([
@@ -15,22 +20,27 @@ export const SCREEN_TERM_ADDITIONS = Object.freeze([
   { term: '기준금리 목표 범위', alias: '기준금리 상단 하단 연방기금금리', cat: '경제', def: '연준이 정하는 하루짜리 금리의 목표 구간입니다(예: 3.75~4.00%). 2년물이 이 범위보다 높으면 추가 인상 기대가 섞여 있다는 신호일 수 있지만, 국채 금리에는 기간 프리미엄과 수급도 들어 있어 그것만으로 확정하지 않고 연방기금 선물이 가리키는 경로로 확인합니다.' },
   SCREEN_TERM_MARKED[9], // 3개월물 (국채)
   SCREEN_TERM_MARKED[10], // 이동평균 (50일선 · 200일선)
+  // A crash morning sent readers to the glossary with 하락장·반대매매·MDD and found nothing.
   { term: '반대매매', alias: '반대매매 강제청산 담보부족 마진콜 margin call', cat: '한국시장', def: '빚을 내 산 주식의 담보 가치가 약정한 비율 아래로 떨어지고 추가 담보를 넣지 못하면, 증권사가 그 주식을 강제로 파는 것입니다. 급락 때 이 매도가 몰리면 하락이 더 깊어질 수 있습니다.' },
   { term: '신용융자 (신용거래융자)', alias: '신용융자 신용거래 빚투 신용잔고', cat: '한국시장', def: '증권사에서 돈을 빌려 주식을 사는 것입니다. 잔고가 많을수록 하락장에서 반대매매로 이어질 수 있는 물량이 많다는 뜻으로 읽습니다.' },
   { term: '최대 낙폭 (MDD)', alias: 'MDD maximum drawdown 최대낙폭 고점 대비 하락', cat: '기초', def: '어느 기간 안에서 앞선 고점 대비 가장 크게 떨어졌던 비율입니다. 기간 최고점 이후만 보는 것이 아니라, 모든 고점과 그 뒤 저점의 쌍 가운데 가장 큰 낙폭입니다. 같은 수익률이라도 이 값이 클수록 버티기 어려운 길이었다는 뜻입니다.' },
   { term: '약세장 (하락장)', alias: '약세장 하락장 bear market 베어마켓', cat: '기초', def: '주가가 넓게, 오래 내리는 국면을 가리키는 말입니다. 흔히 고점 대비 하락 폭으로 부르지만 기준은 관례일 뿐이고, 이 사이트는 하락 폭과 함께 시장 폭·신용·변동성을 나란히 봅니다.' },
+  // v57.73 (owner 2026-10-15 wording review): the scenario cards keep '기회비용' because no shorter word carries it; the term mark explains it.
   SCREEN_TERM_MARKED[11], // 기회비용
   { term: '관망', alias: '관망 기다림 현금 대기', cat: '기초', def: '새로 사거나 팔지 않고 상황을 지켜보는 것입니다. 가진 종목은 그대로 두고, 새 돈은 현금이나 단기채에 두는 경우가 많습니다. 기다리는 동안의 이자가 놓친 상승을 일부 메워 줍니다.' },
+  // v57.74 (owner 2026-10-15 crash-day note): the policy-floor and AI-cloud financing lessons use these words.
   { term: '정책 바닥 (정책 풋)', alias: '정책 바닥 정책 풋 policy put 연준 풋 Fed put', cat: '거시', def: '급락이 금융 불안으로 번질 때 정부·중앙은행이 대응해 하락의 연쇄를 막아 줄 것이라는 기대이고, 실제 주가의 바닥과는 다릅니다. 물가가 높으면 중앙은행의 여력이 줄어 이 바닥이 더 낮은 곳에 생기고, 바닥이 생겨도 주가 회복은 이익과 금리에 달려 있습니다.' },
   { term: '돌파 (브레이크아웃)', alias: '돌파 브레이크아웃 breakout 베이스 돌파 신고가 돌파', cat: '기술적분석', def: '주가가 최근 일정 기간의 최고가나 오래 머물던 가격대(베이스)를 넘어 마감하는 것입니다. 거래량이 함께 늘면 확인 조건으로 보지만, 돌파 뒤 다시 밀려 내려오는 경우도 흔해 지속을 보장하지 않습니다.' },
   { term: '눌림목 (풀백)', alias: '눌림목 풀백 pullback 이동평균 반등 MA bounce', cat: '기술적분석', def: '상승 추세 중 주가가 잠시 내려와 이동평균선이나 직전 돌파 지점 같은 지지 구간까지 되돌린 구간입니다. 그 부근에서 다시 오르는 모습이 자주 관찰되지만 항상 그렇지는 않고, 선을 깨고 내려가면 추세 변화를 의심합니다.' },
   { term: '반전 (리버설)', alias: '반전 리버설 reversal 1-2-3 반전 바닥 반전', cat: '기술적분석', def: '주가가 하락에서 상승으로, 또는 상승에서 하락으로 방향을 바꾸는 흐름입니다. 바닥 반전은 흔히 더 낮은 저점 → 반등 → 직전 반등 고점 돌파 순서로 확인하고(1-2-3 반전), 천장 반전은 그 반대 순서로 확인합니다. 갭 하락 뒤 전일 종가 위로 마감하는 하루도 바닥 반전 신호로 부릅니다.' },
   { term: '셰이크아웃', alias: '셰이크아웃 shakeout 흔들기 저점 이탈 후 회복', cat: '기술적분석', def: '주가가 직전 저점을 잠깐 깼다가 같은 날이나 며칠 안에 다시 위로 올라서는 움직임입니다. 약한 보유자를 털어낸다고 해석하지만, 누가 의도했는지는 가격만으로 확인할 수 없습니다.' },
   { term: '건전한 조정 / 추세 전환', alias: '건전한 조정 추세 전환 조정 하락 전환', cat: '기술적분석', def: '상승 중 하락이 이동평균선 위에서 거래량이 줄며 멈추고 저점이 높아지면 건전한 조정으로, 이동평균선을 거래량이 늘며 깨고 저점이 낮아지면 추세 전환 쪽으로 읽습니다. 둘 다 사후에 확인되는 구분입니다.' },
+  // v57.79 (UI review): 시장 상태 · 거시 labels print these abbreviations; the term marks and the glossary search explain them.
   SCREEN_TERM_MARKED[12], // TGA (재무부 일반계정)
   SCREEN_TERM_MARKED[13], // JOLTS (구인·이직 조사)
   SCREEN_TERM_MARKED[14], // CCC − B 등급 격차
   { term: '네오클라우드', alias: '네오클라우드 neocloud AI 클라우드 GPU 클라우드', cat: '배경지식', def: 'GPU를 사들여 AI 기업에 연산 능력을 빌려주는 신생 클라우드 기업입니다. 장비를 빚으로 사는 경우가 많아 금리와 회사채 시장에 민감하고, 이들의 조달이 막히면 데이터센터 투자와 그 아래 메모리 주문이 늦어질 수 있습니다.' },
+  // v57.91 (X bookmarks, knowledge items): terms the bookmarks used repeatedly that neither glossary defined.
   { term: '국채 입찰 (스톱스루 · 테일)', alias: '국채 입찰 스톱스루 테일 낙찰금리 응찰률 응찰 배율 auction stop-through tail', cat: '채권', def: '재무부가 새 국채를 파는 경매입니다. 낙찰금리가 입찰 직전 시장금리보다 낮으면 스톱스루(수요가 강함), 높으면 테일(더 높은 금리를 요구함)이라고 부릅니다. 응찰 배율, 간접 낙찰(해외 중앙은행 등 대리 응찰이 포함된 몫)과 딜러가 가져간 몫을 함께 보면 금리 변화가 수급에서 왔는지 가늠할 수 있습니다.' },
   { term: 'FOMC 의사록 수량 표현', alias: 'FOMC 의사록 minutes 수량어 all most many some several few a couple', cat: '경제', def: '의사록은 위원 수를 관례적인 단어로 적습니다. 공식 정의가 공개된 것은 아니어서 대략의 순서로 읽고, 흔히 all(전원) > almost all > most(과반) > many > some·several > few > a couple(둘) > one 순으로 봅니다. 기본 시나리오에 붙은 단어와 위험 쪽 의견에 붙은 단어를 비교하면 의견이 어느 쪽으로 기울었는지 읽을 수 있습니다.' },
   { term: '표결 분포 (반대표)', alias: '표결 분포 반대표 dissent 소수의견 금리 결정 분열', cat: '경제', def: '중앙은행 결정에서 몇 명이 찬성하고 누가 어느 방향으로 반대했는지입니다. 반대표 수만으로는 방향을 알 수 없어 누가 어느 쪽으로 반대했는지까지 봅니다. 같은 인상이라도 동결 쪽 반대가 여럿이면 시장은 덜 매파적으로 받아들이고, 양쪽 방향의 반대가 함께 나오면 다음 결정의 불확실성이 크다는 뜻입니다.' },
@@ -46,6 +56,7 @@ export const SCREEN_TERM_ADDITIONS = Object.freeze([
   { term: '애널리스트 투자의견 변경', alias: '투자의견 상향 하향 신규 개시 커버리지 개시 유지 목표가 변경 리레이팅 analyst rating', cat: '배경지식', def: '리포트의 행동은 평균적으로 정보량이 다릅니다. 의견 상향·하향이 가장 크고, 신규 개시·재개가 다음이며, 의견을 그대로 둔 목표가 변경은 대개 약합니다. 다만 시장 예상과의 차이와 변경 폭에 따라 이 순서는 바뀝니다. 같은 업종의 연쇄 하향이나 같은 테마의 동시 개시는 업종 신호로 읽고, 재평가는 목표가보다 회사를 다른 범주로 다시 보게 되는지에서 옵니다. AIO는 목표가 숫자를 쓰지 않습니다.' },
   { term: 'SOFR − IORB 스프레드', alias: 'SOFR IORB 준비금 이자율 레포 긴장 자금시장 스프레드', cat: '채권', def: '담보 익일물 금리(SOFR)에서 연준이 준비금에 주는 이자율(IORB)을 뺀 값입니다. 평소에는 0 아래에 있다가 위로 올라 며칠 이어지면 자금시장이 빠듯해지고 있다는 신호로 봅니다. 원인은 준비금 감소일 수도, 국채 담보 공급 증가나 딜러의 대차대조표 제약일 수도 있습니다. 분기말 하루의 튐만으로는 판단하지 않습니다.' },
   { term: '가격·미결제약정 조합 (선물)', alias: '가격 미결제약정 조합 선물 OI 동행 역행 숏 청산 롱 청산', cat: '기술적분석', def: '선물에서 가격과 미결제약정(OI)의 방향을 함께 읽는 틀입니다. 가격↑·OI↑는 새 돈이 들어온 추세, 가격↑·OI↓는 매도 포지션 청산, 가격↓·OI↑는 새 매도, 가격↓·OI↓는 매수 포지션 청산으로 흔히 해석합니다. 다만 OI 변화만으로는 누가 새로 들어오고 누가 청산했는지 확정할 수 없습니다. AIO는 선물 OI를 받지 않아 설명용입니다.' },
+  // Terms the briefing, macro, sentiment and theme screens print with no glossary entry.
   { term: 'ISM 제조업·서비스업 지수', alias: 'ISM PMI 구매관리자지수 제조업 서비스업 50', cat: '경제', def: '미국 공급관리협회(ISM)가 매달 첫 영업일 무렵 기업 구매 담당자 설문으로 내는 경기 지수입니다. 50보다 높으면 전달보다 확장했다고 답한 기업이 많다는 뜻이고, 신규 주문·고용·가격 같은 세부 항목을 함께 봅니다.' },
   { term: 'VIX3M (3개월 VIX)', alias: 'VIX3M 3개월 VIX 기간 구조 역전 term structure', cat: '기술적분석', def: 'S&P 500 옵션으로 계산한 앞으로 3개월의 기대 변동성입니다. 보통 30일 VIX보다 높아 VIX/VIX3M이 1 아래에 있고, 1을 넘으면(역전) 가까운 시기의 불안이 더 크게 가격에 들어갔다는 뜻입니다.' },
   { term: 'ASIC (맞춤형 칩)', alias: 'ASIC 주문형 반도체 커스텀 칩 TPU', cat: '배경지식', def: '한 가지 용도에 맞춰 설계한 반도체입니다. AI에서는 구글 TPU처럼 클라우드 기업이 자기 작업에 맞춰 만드는 칩을 가리키며, 범용 GPU보다 그 작업에서 전력 대비 효율이 높지만 다른 용도로 쓰기 어렵습니다.' },

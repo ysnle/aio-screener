@@ -1,4 +1,4 @@
-// v57.81: canned provider responses for the out-of-universe symbol gates (unit + browser). Shapes follow the live
+// Canned provider responses for the out-of-universe symbol gates (unit + browser). Shapes follow the live
 // Yahoo v8 chart, SEC companyfacts/submissions and the Nasdaq Trader listing artifact; values are fixtures, not data.
 const DAY = 86_400_000;
 
@@ -50,7 +50,7 @@ export function submissionsFixture({ cik, name, ticker, fy = 2025, sic = '3089',
       acceptanceDateTime: [`${fy + 1}-02-20T21:05:00.000Z`], form: ['10-K'], primaryDocument: [`${ticker.toLowerCase()}-${fy}1231.htm`], items: [''] } } };
 }
 
-// v57.81: the same columnar us-listings.v1 shape scripts/lib/us-listings.mjs publishes (src/data/us-listings.js reads only that).
+// The same columnar us-listings.v1 shape scripts/lib/us-listings.mjs publishes (src/data/us-listings.js reads only that).
 export function listingFixture(rows, { asOf = '2026-10-15' } = {}) {
   return { schemaVersion: 'us-listings.v1', generatedAt: `${asOf}T10:00:00Z`, asOf, source: 'fixture', count: rows.length,
     exchanges: { Q: 'Nasdaq', N: 'NYSE', A: 'NYSE American', P: 'NYSE Arca', Z: 'Cboe BZX', V: 'IEX' },

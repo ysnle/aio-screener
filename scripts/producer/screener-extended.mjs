@@ -11,7 +11,7 @@ import { LATEST_SESSION_VOLUME_BASIS } from '../../src/domain/screener/price-fac
 import { SCREENER_OUT, screenerAssetType, getScreenerUniverse, enrichSecFundamentals, _enrichPriceFactors, mergeSecIntoFactorRows } from './screener.mjs';
 
 // ── v57.81: extended universe shard (Russell 2000 + Nasdaq-listed common stocks outside the core) ──
-// Owner (2026-10-15): every Russell 2000 member and every Nasdaq-listed stock must be ranked with the same factors.
+// Owner: every Russell 2000 member and every Nasdaq-listed stock must be ranked with the same factors.
 // The core artifact (screener.json) keeps its size and contract; the extra rows go to screener-extended.json with the
 // same row schema, produced by the same _enrichPriceFactors / enrichSecFundamentals / mergeSecIntoFactorRows path.
 // It runs as its own job after the core refresh (refresh-screener.yml), so a failure here never touches the core.
@@ -30,7 +30,7 @@ export function extendedRefreshDue({ previousShard = null, coreScreener = null, 
   const previousSession = previousShard.factorSessionDateByMarket?.US || null;
   const coreSession = coreScreener?.factorSessionDateByMarket?.US || null;
   if (coreSession && (!previousSession || previousSession < coreSession)) return { due: true, reason: `core-session-advanced:${previousSession || 'none'}->${coreSession}` };
-  // v59.49: a core universe expansion (10-30 06:37Z, 1,142 -> 1,158) moved 16 shard symbols into the core within one
+  // A core universe expansion (10-30 06:37Z, 1,142 -> 1,158) moved 16 shard symbols into the core within one
   // session, so the shard kept them until a manual run an hour later and every gate in between failed on the overlap.
   const coreData = coreScreener?.data && typeof coreScreener.data === 'object' ? coreScreener.data : null;
   if (coreData && Object.keys(expandShardRows(previousShard)).some((sym) => Object.prototype.hasOwnProperty.call(coreData, sym))) return { due: true, reason: 'core-universe-overlap' };
@@ -52,7 +52,7 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
-    // v60.26: the newest session's volume is the provider's provisional figure at factorComputedAt (US).
+    // The newest session's volume is the provider's provisional figure at factorComputedAt (US).
     volumeBasis: LATEST_SESSION_VOLUME_BASIS,
     source: 'github-actions:yahoo-1y',
     universe: syms.length,
@@ -100,14 +100,14 @@ export function buildExtendedShardPayload({ data, syms, identityRows, membership
       allowedUse: 'research-reference-not-predictive-validation'
     },
     coreMembership: membership?.coreMembership && typeof membership.coreMembership === 'object' ? membership.coreMembership : {},
-    // 2026-10-17: SEC's description of each SIC code the identity rows carry, written once per code (the browser fills a
+    // SEC's description of each SIC code the identity rows carry, written once per code (the browser fills a
     // Nasdaq-only row's sector from its code and names the code and this description as the industry).
     sicDescriptions: sicDescriptionMap(identityRows.map((row) => secResult?.sicBySymbol?.[row.sym])),
     identity: identityRows.map((row) => ({
       sym: row.sym, name: row.name || row.sym, sector: row.sector || null, index: row.index || null,
       membership: Array.isArray(row.membership) ? row.membership : [], exchange: row.exchange || null,
       ...(row.nasdaqFinancialStatus ? { nasdaqFinancialStatus: row.nasdaqFinancialStatus } : {}),
-      // 2026-10-16: SEC SIC from the extended ledger; the ranker drops blank checks (6770) by this code, not the name.
+      // SEC SIC from the extended ledger; the ranker drops blank checks (6770) by this code, not the name.
       ...(/^\d{3,4}$/.test(String(secResult?.sicBySymbol?.[row.sym]?.sic || '')) ? { sic: String(secResult.sicBySymbol[row.sym].sic) } : {})
     })),
     ...encoded
@@ -145,7 +145,7 @@ export async function enrichScreenerExtended({ nowMs = Date.now() } = {}) {
   console.log(`[fetch-data] extended price factors ${ok}/${syms.length} in ${Math.round((Date.now() - startedAt) / 1000)}s (concurrency ${concurrency}, due: ${due.reason})`);
   const secResult = await enrichSecFundamentals(syms, data, results, assetType, { ledgerPath: SEC_EXTENDED_LEDGER_PATH });
   mergeSecIntoFactorRows(data, secResult.data);
-  // P715: no raw price is published. Ticker news is collected for the core only; the status says so per row.
+  // No raw price is published. Ticker news is collected for the core only; the status says so per row.
   for (const sym in data) {
     if (data[sym] && 'price' in data[sym]) delete data[sym].price;
     data[sym].newsStatus = 'not-covered';
@@ -160,5 +160,5 @@ export async function enrichScreenerExtended({ nowMs = Date.now() } = {}) {
   return { count: ok, universe: syms.length, asOf: payload.asOf };
 }
 
-// v57.81: SESSION_CLOSE_RULES, sessionSegmentOfSymbol, listingCurrencyOf and isSessionComplete live in
+// SESSION_CLOSE_RULES, sessionSegmentOfSymbol, listingCurrencyOf and isSessionComplete live in
 // src/domain/screener/price-factors.js (shared with the browser's out-of-universe read).

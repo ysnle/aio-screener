@@ -4,6 +4,17 @@
 // carry no listing venue, and a US symbol does not determine Nasdaq vs NYSE vs Arca, so an exchange
 // code here would be invented. Share-class (ADR/ordinary) and validity windows need a
 // corporate-action/membership source that is not collected yet. Entries are added incrementally.
+// Instrument registry adapter.
+//
+// The published universe carries sym/name/sector/index/memo and nothing else, so the required
+// instrument identity fields (MIC, assetType, share class, validity window) have no source in the
+// artifacts we collect. A name-substring heuristic is not a substitute — "Netflix" contains "etf"
+// and "Northern Trust" contains "trust", so a pattern match misclassifies common stock as a fund.
+//
+// This adapter therefore resolves identity only from declared entries that carry a source, keeps
+// the inference axes explicitly marked as inferred, and returns UNKNOWN rather than a guess. It
+// also decides per-type analysis eligibility so a fund is never fed into an issuer-ratio model.
+
 export const DECLARED_INSTRUMENT_ENTRIES = Object.freeze([
   Object.freeze({ symbol: 'SPY', market: 'US', assetType: 'ETF', currency: 'USD', source: 'public-data/screener-universe.json#name', evidence: Object.freeze({ basis: 'published-name', name: 'SPDR S&P 500 ETF' }), verifiedAt: '2026-09-22' }),
   Object.freeze({ symbol: 'QQQ', market: 'US', assetType: 'ETF', currency: 'USD', source: 'public-data/screener-universe.json#name', evidence: Object.freeze({ basis: 'published-name', name: 'Invesco QQQ Trust' }), verifiedAt: '2026-09-22' }),

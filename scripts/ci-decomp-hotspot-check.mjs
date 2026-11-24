@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// scripts/ci-decomp-hotspot-check.mjs — P895 (v53.96) → P1127/R620 (v55.08)
+// scripts/ci-decomp-hotspot-check.mjs — P895 → P1127/R620
 //
 // Decomposition pressure has to be a ratchet, not a wall.
 //
@@ -36,7 +36,7 @@ const config = JSON.parse(await readFile(CONFIG, 'utf8'));
 const files = config.measuredFiles || [];
 const ceiling = config.ceiling || {};
 const recorded = { ...(config.recordedLines || {}) };
-// v57.84: lines alone are gameable — merging declarations onto one long line keeps the count flat while logic grows
+// Lines alone are gameable — merging declarations onto one long line keeps the count flat while logic grows
 // (the v57.83 batch did exactly that to pass). Non-whitespace characters do not move when lines are merged, so they
 // ratchet too, with a small slack so a one-line correctness fix still passes without a recorded raise.
 const recordedChars = { ...(config.recordedNonWhitespaceChars || {}) };
@@ -74,7 +74,7 @@ for (const file of files) {
   }
 }
 
-// v59.70 (S12): a split page has a fixed bound per module (not a ratchet), so a facade split cannot drift back into
+// A split page has a fixed bound per module (not a ratchet), so a facade split cannot drift back into
 // one large file; the lifecycle file has its own smaller bound.
 const pageModules = config.pageModuleCeilings || {};
 const { readdir } = await import('node:fs/promises');

@@ -1,4 +1,4 @@
-// Price-factor, factor-backtest and VCP/setup-screen math split out of scripts/fetch-data.mjs (v57.62).
+// Price-factor, factor-backtest and VCP/setup-screen math split out of scripts/fetch-data.mjs.
 // Pure functions over arrays: unit-testable without importing the producer. fetch-data.mjs imports and
 // re-exports them, so existing importers (backtest-factors-longrun, data gates) keep working unchanged.
 import { percentileRank01, spearman } from './rank-statistics.mjs';
@@ -6,7 +6,7 @@ import { round } from './producer-math.mjs';
 import { computeFactorRanks, momentumRawOf } from '../../src/domain/screener/factor-ranks.js';
 import { MODEL_DEFAULT_WEIGHTS } from '../../src/domain/screener/factor-weights.js';
 import { BACKTEST_EXCLUDED_FACTOR_REASONS, BACKTEST_FWD_DAYS, BACKTEST_REBALANCE_OFFSETS, buildScreenerModelFingerprint } from '../../src/domain/screener/model-fingerprint.js';
-// v57.81: the per-symbol price-factor math lives in src/domain/screener/price-factors.js (shared with the browser's
+// The per-symbol price-factor math lives in src/domain/screener/price-factors.js (shared with the browser's
 // out-of-universe symbol read); re-exported here so fetch-data.mjs and the gates keep their imports.
 import { _mean, closesToFactors, withFullFactorLookback, PRICE_FACTOR_MIN_CLOSES } from '../../src/domain/screener/price-factors.js';
 export { _mean, closesToFactors, _calcVCPServer, dailyNotionalAverage, fxRateOnOrBefore, _calcSetupScreenFields } from '../../src/domain/screener/price-factors.js';
@@ -160,7 +160,7 @@ export function backtestFactors(stockData, opts) {
   //   them without solving those two problems first. Regime tilts are proposal-only and are not validated here.
   var sectorOf = opts && typeof opts.sectorOf === 'function' ? opts.sectorOf : function() { return null; };
   var liveActiveFactorsSeen = [];
-  // P1449: model identity — the canonical string the UI compares against its live model before
+  // Model identity — the canonical string the UI compares against its live model before
   // presenting stored rows as validation of the current ranking.
   var modelFingerprint = buildScreenerModelFingerprint({
     rebalanceOffsets: OFFSETS,
@@ -171,7 +171,7 @@ export function backtestFactors(stockData, opts) {
   var EXCLUDED_FACTORS_REASON = 'size needs historical shares-outstanding data this pipeline does not fetch; value/quality are today-only readings of SEC filings with no point-in-time series, so backtesting them would use look-ahead information';
   var IC_FACTORS = ['momentum','trend','lowvol','kalman','composite'];
   var icS = {}, icN = {};
-  // v52.50/WO-3: per-rebalance-date IC list (additive, existing icS/icN mean-only output unchanged) —
+  // per-rebalance-date IC list (additive, existing icS/icN mean-only output unchanged) —
   // needed to compute ICIR (mean IC / stddev IC across dates) and its t-stat/CI, which Codex's WO-3
   // gate asks for explicitly and which a single averaged IC number cannot support.
   var icByDate = {};
@@ -188,7 +188,7 @@ export function backtestFactors(stockData, opts) {
   // Entry one session after the ranking close: a rank known only at the close cannot be bought at that close.
   var lagIcComposite = [], lagSpreads = [];
   var spreadSum = 0, spreadNetSum = 0, costSum = 0, spreadN = 0, hit = 0, netHit = 0, hitN = 0;
-  // v58.56 (#6): the per-rebalance values behind the averaged spread, so 사후 검증 can draw one top-minus-bottom bar per
+  // The per-rebalance values behind the averaged spread, so 사후 검증 can draw one top-minus-bottom bar per
   // date instead of only the mean. Every array below has one entry per date in spreadDates (same order).
   var spreadDates = [], spreadByDate = [], spreadNetByDate = [], topMeanByDate = [], bottomMeanByDate = [], costByDate = [];
   var icCompositeDates = [];
@@ -235,7 +235,7 @@ export function backtestFactors(stockData, opts) {
       var fwd = (c[p] > 0) ? (c[forwardIndex] / c[p] - 1) : null; if (!isNum(fwd) || !forwardDate) return;
       // The live model's momentum definition (factor-ranks.js momentumRawOf) — one formula for the ranker and this IC.
       var mom = momentumRawOf(f);
-      // P1443: the same trend definition as the live model (50-day 60%, 200-day 40%).
+      // The same trend definition as the live model (50-day 60%, 200-day 40%).
       var trParts = [isNum(f.pctSma50) ? { v: f.pctSma50, w: 0.6 } : null, isNum(f.pctSma200) ? { v: f.pctSma200, w: 0.4 } : null].filter(Boolean);
       var trW = trParts.reduce(function(sum, p){ return sum + p.w; }, 0);
       var tr = trW > 0 ? trParts.reduce(function(sum, p){ return sum + p.v * p.w; }, 0) / trW : null;
@@ -329,7 +329,7 @@ export function backtestFactors(stockData, opts) {
     if (isNum(topM) && isNum(botM)) {
       var grossSpread = topM - botM;
       var positions = new Map();
-      // P1443: the spread (top mean − bottom mean) is the return of $1 long plus $1 short, so the
+      // The spread (top mean − bottom mean) is the return of $1 long plus $1 short, so the
       // positions — and therefore turnover and cost — use the same ±1 gross legs (was ±0.5).
       var longWeight = 1 / q, shortWeight = -1 / q;
       sorted.slice(-q).forEach(function(r){ if (r.sym) positions.set(r.sym, longWeight); });
@@ -457,7 +457,7 @@ export function backtestFactors(stockData, opts) {
     },
     quantileSpread: spreadN ? round(spreadSum / spreadN * 100, 2) : null,
     quantileSpreadNet: spreadN ? round(spreadNetSum / spreadN * 100, 2) : null,
-    // v58.56 (#6): per-date arrays aligned with spreadDates (percent; net = gross − modelled cost on that date's turnover).
+    // per-date arrays aligned with spreadDates (percent; net = gross − modelled cost on that date's turnover).
     spreadDates: spreadDates,
     quantileSpreadByDate: spreadByDate,
     quantileSpreadNetByDate: spreadNetByDate,
@@ -469,7 +469,7 @@ export function backtestFactors(stockData, opts) {
     transactionCostPct: spreadN ? round(costSum / spreadN * 100, 3) : null,
     hitRate: hitN ? round(hit / hitN * 100, 1) : null,
     netHitRate: hitN ? round(netHit / hitN * 100, 1) : null,
-    // P1443: what the two rates actually count — not a per-stock direction accuracy.
+    // What the two rates actually count — not a per-stock direction accuracy.
     hitRateMeaning: 'share of rebalances where the top-quintile mean forward return exceeded the bottom quintile (gross / net of cost)',
     rebalancesCounted: hitN,
     modelParity: {

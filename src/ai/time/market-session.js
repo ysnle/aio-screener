@@ -3,7 +3,6 @@ import {
   currentCalendarContext
 } from '../../domain/market/session/market-calendar.js';
 
-// P1533: the pure exchange calendar moved to the domain layer; these names stay importable from here.
 export {
   US_REGULAR_CALENDAR_2026,
   US_REGULAR_CALENDAR_2027,

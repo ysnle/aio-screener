@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v57.54: render-level UI hygiene on every route at desktop and phone width, against the local server (external
+// render-level UI hygiene on every route at desktop and phone width, against the local server (external
 // requests aborted, no paid AI):
 //   (a) target size — every visible button, <summary>, [role=button] and link in the sidebar, topbar, hub tabs and
 //       active page renders at least 24×24 CSS px (WCAG 2.2 SC 2.5.8). Inline targets inside a sentence (text links,
@@ -84,7 +84,7 @@ function collect(minTarget) {
 
 let server, browser;
 try {
-  server = await startLocalServer(port, { label: 'ui-render-hygiene/server' }); // v57.62 shared lifecycle (15 s ready-line timeout)
+  server = await startLocalServer(port, { label: 'ui-render-hygiene/server' }); // Shared lifecycle (15 s ready-line timeout)
   browser = await chromium.launch({ headless: true });
   const open = async (viewport) => {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, hasTouch: viewport.width < 700 });
@@ -135,11 +135,11 @@ try {
   const check = (ok, message) => { if (!ok) failures.push({ message, detail: top }); };
   check(top.docOverflow <= 2 && top.barOverflow <= 2, 'phone360: topbar overflows horizontally (v57.54)');
   check(top.version && top.help && top.ai, 'phone360: version (page foot since v58.56), help and AI buttons must stay visible (v57.54)');
-  // v58.56 (re-audit #13): the chip is the dot plus one short reading at every width ("10/20 종가 기준", "LIVE 14:32"); the
+  // The chip is the dot plus one short reading at every width ("10/20 종가 기준", "LIVE 14:32"); the
   // state word is no longer a second capsule, so "기준" fits again. No 서버 prefix and no quote count stay the rule.
   check(!top.compact || (top.after.includes(top.compact) && !/서버|시세 \d+종/.test(top.compact)), 'phone360: the quote chip is not its compact form (v57.54/v58.56)');
   check(top.tsCut === false, 'phone360: quote time is cut with an ellipsis (v57.54)');
-  // 2026-10-19: the live status depends on the data's age when CI runs ("57분 전", "10/19 21:58", the 지난 시세 chip), so
+  // The live status depends on the data's age when CI runs ("57분 전", "10/19 21:58", the 지난 시세 chip), so
   // the natural reading above passed or failed by the clock. Each worst-case pair is written into the bar and measured.
   const worstCases = [
     { label: '시세 확인 중', compact: '10/19 21:58', text: '서버 10/19 21:58 기준 · 시세 16종' },

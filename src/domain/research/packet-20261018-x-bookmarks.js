@@ -1,9 +1,16 @@
+// The owner's X bookmarks added after the 2026-10-16 full read. Every bookmark not already in
+// _artifacts/x-bookmarks-20261016/ledger.json was read in full — posts, author threads, long-form articles and the attached
+// charts and tables — then checked against what AIO already teaches. Material an existing note already carries (private
+// credit redemption, PPI trade margins, oil premium and duration, inference memory, competitor tech stages, backtest
+// rejection) was not repeated; the new recurring frameworks become analysis frames. Same reference-only shape as
+// packet-20261016-x-bookmarks.js: nothing here is a live value, a ranking input or a call.
 const check = (claim, state, basis) => Object.freeze({ claim, state, basis });
 const source = (handle, statusId, date, summary, checks = []) => Object.freeze({
   id: `${handle}-${statusId}`, author: handle, sourceUrl: `https://x.com/${handle}/status/${statusId}`, publishedAt: date, publishedAtKst: date,
   sourceKind: 'REFERENCE', status: 'DIRECT_READ', disposition: 'FRAMEWORK_EXTRACTED', summary, checks: Object.freeze(checks)
 });
 
+// What the 2026-10-18 read covered. 111 bookmarks were missing from the 10/16 ledger; 96 were investment material in scope.
 export const PACKET_20261018_AUDIT = Object.freeze({
   readOn: '2026-10-18', newSinceLedger: 111, inScope: 96, framesAdded: 12,
   // Already taught elsewhere — read, compared and left to the existing note instead of a second copy.

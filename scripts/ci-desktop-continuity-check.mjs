@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Offline renderer contracts, not browser/user-experience certification.
-// v59.48: the native pages are mounted through their exported factories against scripts/lib/fake-dom.mjs, instead of
+// The native pages are mounted through their exported factories against scripts/lib/fake-dom.mjs, instead of
 // slicing function bodies out of src/ui/pages/*.js into a vm (a helper moving behind an import broke every slice).
 import { readThemesPageSource } from './lib/themes-page-source.mjs';
 import assert from 'node:assert/strict';
-import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // v59.70 (S12): the page is split under src/ui/pages/screener/
+import { readScreenerPageSource } from './lib/screener-page-source.mjs'; // The page is split under src/ui/pages/screener/
 import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 import { ROUTE_IDS } from '../src/app/routes.js';
@@ -48,7 +48,7 @@ assert.equal(price.node.textContent, '—'); assert(!price.node.attrs.has('data-
 assert.equal(price.node.attrs.get('data-operational-use'), 'blocked');
 renderQuotes({ _liveData: { AAA: { price: 101, pct: 0, source: 'live:yahoo', observedAt: '2026-08-29' } } });
 assert.equal(pct.node.textContent, '0.00%', 'v58.74 a zero change carries no sign'); assert.equal(price.node.attrs.get('data-operational-use'), 'reference-only');
-// W03-B/P1145: display state follows the envelope's declared quality, not the source
+// Display state follows the envelope's declared quality, not the source
 // label. A "live" source carrying a stale envelope must never read as observed, and a
 // declared-current envelope must promote even a snapshot-labelled source.
 assert.equal(price.node.attrs.get('data-quote-state'), 'stale-reference');
@@ -71,15 +71,15 @@ assert(deriveQuotePresentation({ price: 5, quality: 'UNAVAILABLE' }).displayStat
 assert(deriveQuotePresentation({ price: 9, quoteEnvelope: { price: 5, quality: 'CURRENT' } }).displayState === 'disputed');
 for (const value of [null, '', undefined, false]) assert.equal(readNumber(value), null); // the page's finite is the shared reader
 assert(source.includes('renderMacro(documentRef, root, page)') && source.includes('renderMacroBoard({ documentRef, root })')); // P1425
-assert(!source.includes('renderMacroTransmissionLens')); // P1426: lens retired; macro-board.js renders through documentRef only
+assert(!source.includes('renderMacroTransmissionLens'));
 assert(!/\bdocument\.createElement/.test(read('src/ui/components/macro-board.js')));
-const themes = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
-assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes)); // v58.76: the AI-infrastructure lens is retired
+const themes = readThemesPageSource(); // The page is split under src/ui/pages/themes/
+assert(!/비중 유지|진입 후보|익절 검토|회피/.test(themes)); // The AI-infrastructure lens is retired
 assert(themes.includes('appendUnclassified()'));
 assert(read('src/ui/pages/principles.js').includes('principles-graph-node-list principles-sr-only'));
 assert(!read('src/app/bootstrap.js').includes('mountDesktopResearchFlow'));
 
-// P1010: user-visible ranks, totals and navigation must consume the same truth.
+// user-visible ranks, totals and navigation must consume the same truth.
 const rows = [
   { sym: 'UNKNOWN', rank: 100, screenStatus: 'unavailable', ret1m: null },
   { sym: 'B', rank: 60, screenStatus: 'passed', ret1m: -2 },
@@ -90,13 +90,13 @@ assert.equal(visibleRank(rows[0]), null);
 assert.equal(vcpStageLabel('near_pivot'), '피벗 근접');
 assert.equal(vcpStageLabel('not_stage2'), '이동평균 배열 미충족');
 assert.equal(vcpStageLabel('unknown'), '관측');
-// v57.81 (analysis audit 2026-10-15): 031980.KQ read "피벗 돌파" on a -12.5% day (rvol 1.65). A breakout needs a close
+// 031980.KQ read "피벗 돌파" on a -12.5% day (rvol 1.65). A breakout needs a close
 // through the pivot (a close at or below it in the last five sessions) on an up day; a heavy-volume down close above it
 // is 'pivot_down'.
 {
   const { _calcVCPServer } = await import('../src/domain/screener/price-factors.js');
   const { detectContractions } = await import('../src/domain/technical/definitions.js');
-  // v57.84 (owner decision): the producer's pivot is the chart detector's — the last high of a valid contraction run — so
+  // The producer's pivot is the chart detector's — the last high of a valid contraction run — so
   // the base is a real VCP (pullbacks 15% → 8% → 4% after an uptrend), not a flat plateau whose latest swing high was the
   // old pivot.
   const base = [];
@@ -138,15 +138,12 @@ assert.equal(zeroPresentation.components[0].contribution, 0, 'observed zero surv
 // One fake document for the home and ticker checks; every id exists on first use, as the slices' stub did.
 const documentRef = createFakeDocument();
 const nodes = documentRef.nodes;
-// P1392: the home card is the six-axis regime summary; without close history it waits instead of
+// The home card is the six-axis regime summary; without close history it waits instead of
 // inventing a state (the retired score summary asserted the same fail-closed behaviour).
 const { renderHomeRegime } = await import(new URL('../src/ui/components/home-regime.js', import.meta.url));
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
-// P1619: an unavailable Nasdaq-100 cannot borrow the Nasdaq Composite close.
-// v59.51 (content audit): the KPI strip's NQ fallback cell (home-kpi-nq-fallback) is retired; the 나스닥 100 close fallback
-// now lives in the index strip card (closeFallback(history, INDEX_STRIP[1])), which reads only the ndx series.
 const { closeFallback, INDEX_STRIP, oneStripBasis } = await import(new URL('../src/ui/components/home-index-strip.js', import.meta.url));
-// v60.18 (weekly audit S12): one strip, one basis — a partial intraday read draws every card on the published close.
+// One strip, one basis — a partial intraday read draws every card on the published close.
 {
   const at = (day) => ({ session: { month: 11, day }, open: false });
   assert.deepEqual(oneStripBasis([at(13), null, at(13), at(13)]), [null, null, null, null], 'v60.18 a strip with one card missing intraday draws all four on the published close');
@@ -161,7 +158,7 @@ assert.equal(ndxFallback?.value, 31000, 'v59.51 (content audit): P1619 NDX close
 assert.notEqual(ndxFallback?.value, 27366, 'v59.51 (content audit): P1619 Composite value never enters the 나스닥 100 card');
 renderHomeRegime({ documentRef, root: { _aioHistory: [], DATA_SNAPSHOT: {} } });
 assert.equal(nodes.get('home-hero-total').textContent, '판정 대기');
-// v59.68: the axis chips left 오늘 for 시장 상태; the verdict above is the fail-closed check that stays on this page.
+// The axis chips left 오늘 for 시장 상태; the verdict above is the fail-closed check that stays on this page.
 // The home Fear & Greed card: the mounted home page reads sentiment from the store and the completed close from history.
 const setState = (state, action) => (action.type === 'test:set' ? { ...state, ...action.patch } : state);
 const homeStore = createStore({ initialState: { sentiment: { values: {} } }, reducer: setState });
@@ -209,7 +206,7 @@ for (const route of ['screener', 'themes', 'portfolio', 'technical', 'fundamenta
 renderTickerNavigation('', undefined);
 assert.equal(nodes.get('ticker-fundamental-link').disabled, true);
 renderTickerNavigation('NVDA', 'javascript:bad');
-// P1599 (S01): an unknown or unsafe entry route never becomes a link target, and no fake origin is named — the back button hides.
+// An unknown or unsafe entry route never becomes a link target, and no fake origin is named — the back button hides.
 assert.notEqual(nodes.get('ticker-back-btn-main').getAttribute('data-arg'), 'javascript:bad');
 assert.equal(nodes.get('ticker-back-btn-main').hidden, true, 'no recorded entry route hides the back button');
 
@@ -256,13 +253,13 @@ screenerRoot._aioAddScreenerCompare('B');
 const compareList = screenerDoc.getElementById('scr-compare-list');
 const compareTable = compareList.children[0];
 assert.equal(compareTable.getAttribute('aria-label'), '선택 종목 비교');
-// P1599 (F08): a metric with no value for any compared stock is listed once under the table instead of as an empty row.
+// A metric with no value for any compared stock is listed once under the table instead of as an empty row.
 const prunedNote = compareList.children[1];
 const prunedCount = prunedNote ? String(prunedNote.textContent || '').split(':').pop().split(/, | · /).filter((item) => item.trim()).length : 0;
 assert(compareTable.children[1].children.length >= 1, 'comparison contains actual metric rows, not only ticker chips');
 assert.equal(compareTable.children[1].children.length + prunedCount, 8, 'every compared metric is either a row or named in the pruned note');
 assert(compareTable.textContent.includes('90') && compareTable.textContent.includes('60'));
-// The 저리스크 보기 shows 시총 (v59.70: 보기 sets the weights and the columns together); a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
+// The 저리스크 보기 shows 시총 (보기 sets the weights and the columns together); a KRW cap without a USD conversion keeps its basis note, a BLOCKED one shows nothing.
 pressAction('profile', 'lowrisk');
 const resultRows = screenerDoc.getElementById('screener-results-body').children;
 const rowFor = (symbol) => resultRows.find((tr) => tr.textContent.includes(symbol));

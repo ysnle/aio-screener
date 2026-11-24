@@ -4,7 +4,7 @@
 // preview says about a post's attachments without reading the attachment itself:
 //   - kind and count (photo / video / document; an album counts each photo),
 //   - a document's file name ("SK하이닉스_3Q26_Review.pdf" names the company, the quarter and that it is a report).
-// Image and PDF bodies stay unread (no OCR, no vision call — the AI Worker refuses image input as a cost guard, P1421);
+// Image and PDF bodies stay unread (no OCR, no vision call — the AI Worker refuses image input as a cost guard);
 // the counts make that gap measurable in coverage instead of hiding it.
 
 const decode = (value) => String(value || '')

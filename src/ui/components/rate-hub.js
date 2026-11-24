@@ -1,3 +1,7 @@
+// 금리와 환율 › 금리: the one driver the macro scenarios share (rateHub of the shared crossroads model), after the curve
+// card. (owner 2026-11-20, face never folded) the conditions for lower rates are the reading — one compact list on the face
+// (label, state, next release); how rates reach stocks, the proxy caveat and whether lower rates are always good are the
+// method fold; the auction rows are the raw-table fold. The scenarios themselves are 시장 상태 › 시나리오와 전망's.
 import { crossroadsForRoot } from './macro-crossroads.js';
 import { foldSummary, kindFold, markFold } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';

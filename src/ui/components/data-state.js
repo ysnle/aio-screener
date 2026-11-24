@@ -1,3 +1,7 @@
+// v59.70 (ui-states): one loading / empty / error look for every data card. A card hands its host element and one of
+// three states; the host gets aria-busy while loading and its children are replaced by a skeleton, one line, or one
+// line plus 다시 시도. The look lives in src/ui/styles/ui-states.css (.aio-state). A loading state that is still on screen
+// after `timeoutMs` (default 20 s, 0 = never) turns into the error state with the same retry.
 export const DATA_STATES = Object.freeze(['loading', 'empty', 'error']);
 
 const DEFAULT_TEXT = Object.freeze({ empty: '표시할 자료가 없습니다', error: '불러오지 못했습니다' });
@@ -83,6 +87,7 @@ const CORE_FILES = Object.freeze([
   { key: 'data', state: '__aioServerDataLoadState', failed: 'aio:serverDataFailed', loaded: 'aio:serverDataLoaded', label: '시세·지표 자료', object: '시세·지표 자료를', subject: '시세·지표 자료가', load: '_aioLoadServerData', arrived: (root) => !!root.__aioServerDataApplied },
 ]);
 
+// 60 s, not the card default: history.json is about 3 MB and took 40 s+ on slow 3G, still arriving.
 export const CORE_FILE_TIMEOUT_MS = 60000;
 export function installLoadFailureNotice(root, doc, { timeoutMs = CORE_FILE_TIMEOUT_MS } = {}) {
   if (!root?.addEventListener || !doc) return () => {};

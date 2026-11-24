@@ -25,7 +25,7 @@ check('overlapping forward returns cannot use pooled IID significance for promot
 const longSummary = summarizeTradingScoreBacktest({ n: 700, nEff: 140, rho: -0.1 }, { n: 700, nEff: 34, rho: -0.2 });
 check('v60.16 score backtest judges the sample floor on non-overlapping windows, not on overlapping rows', scoreSummary.nEff5d === 56 && scoreSummary.nEff21d === 13 && scoreSummary.sampleSizeSufficient === false
   && longSummary.nEff21d === 34 && longSummary.sampleSizeSufficient === true && longSummary.statisticallyMeaningful === false, JSON.stringify({ scoreSummary, longSummary }));
-// v60.46: a horizon below the floor says so on its own, and a correlation without counted windows has none (fails closed).
+// A horizon below the floor says so on its own, and a correlation without counted windows has none (fails closed).
 check('v60.46 each horizon carries its own sample verdict and an uncounted correlation is not sufficient', scoreSummary.sample5d === 'sufficient' && scoreSummary.sample21d === 'insufficient'
   && summarizeTradingScoreBacktest({ n: 700, rho: 0.1 }, { n: 700, rho: 0.1 }).sampleSizeSufficient === false, JSON.stringify(scoreSummary));
 check('v60.16 agreeing start phases are one finding: support needs the median phase interval to exclude zero', phaseResult.independentFindings === 1 && phaseResult.supportsPositive === false && phaseResult.medianPhase?.n === 4
@@ -51,7 +51,7 @@ check('point-in-time/survivorship limitation remains explicit', /survivorshipBia
     // windows, 268 rows of 21 are 13). Recounted here directly: a window starts at or after the close of the last one.
     // The rows with a forward return are consecutive sessions, so the greedy count is rows / horizon rounded up.
     const sessions = buildTradingDaySeries(readHistoryRows(JSON.parse(await readFile(new URL('../public-data/history.json', import.meta.url), 'utf8'))));
-    // v60.50: the `n21d % 21 !== 0` precondition read the live row count and failed one day in 21 on a code push; the
+    // The `n21d % 21 !== 0` precondition read the live row count and failed one day in 21 on a code push; the
     // counting rule below holds for every count.
     check('v60.46 the score backtest counts its non-overlapping windows from session positions', rebuilt.summary.nEff5d === Math.ceil(rebuilt.summary.n5d / 5) && rebuilt.summary.nEff21d === Math.ceil(rebuilt.summary.n21d / 21) && rebuilt.summary.sample21d === 'insufficient', JSON.stringify(rebuilt.summary));
     // v60.46 (Codex residual): past rows are recomputed on every run (2026-07-15 read 68, then 69), and the file says so.
@@ -60,7 +60,7 @@ check('point-in-time/survivorship limitation remains explicit', /survivorshipBia
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
 
-// R343: no HYG-price credit proxy and no neutral default for a missing input.
+// No HYG-price credit proxy and no neutral default for a missing input.
 {
   const base = { vix: 19, dxy: 104, tnx: 4.3, wti: 80, vvix: 100, spxPrice: 105, spx50ma: 100, spx200ma: 95, mode: 'default' };
   const plain = reconstructScore(base);

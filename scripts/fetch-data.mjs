@@ -75,10 +75,10 @@ async function main() {
   const aiUsage = createAiUsage();
   console.log(`[fetch-data] ${SYMBOLS.length} 심볼(핵심 ${CORE_SYMBOLS.length}) + FRED + F&G 수집 시작`);
 
-  // P1262: `previous` (the whole previous data.json) lives in main scope; the receipts read it outside the read block.
+  // `previous` (the whole previous data.json) lives in main scope; the receipts read it outside the read block.
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch (_) {}
-  // v59.70 (R11): the previous rotation series live in rotation-detail.json; retention checks need them back on the rows.
+  // The previous rotation series live in rotation-detail.json; retention checks need them back on the rows.
   if (previous?.rotationHistory) { try { previous.rotationHistory = mergeRotationDetail(previous.rotationHistory, JSON.parse(await readFile(ROTATION_DETAIL_OUT, 'utf8'))); } catch (_) {} }
   const prior = readPreviousPlanes(previous);
 
@@ -86,24 +86,24 @@ async function main() {
   const generatedAt = attemptedAt;
   // CPI/NFP release dates for the BLS cache bypass, read from the previous calendar artifact before this run rewrites it.
   const blsReleaseSchedules = await readFile(MACRO_CALENDAR_OUT, 'utf8').then((text) => JSON.parse(text)?.schedules || null).catch(() => null);
-  // v59.70 (R7): the published target-upper history dates the latest FOMC decision (policyRates.fed.decision).
+  // The published target-upper history dates the latest FOMC decision (policyRates.fed.decision).
   const fedUpperHistory = await readFile(MACRO_HISTORY_OUT, 'utf8').then((text) => JSON.parse(text)?.series?.fedTargetUpper?.observations || null).catch(() => null);
-  // P1358: collect bounded completed-session ETF research once per session.
+  // Collect bounded completed-session ETF research once per session.
   // This independent lane reuses the existing free delayed Yahoo path; it
   // publishes only derived rotation/returns, preserving P715 raw-price stripping.
   const rotationHistoryTask = collectRotationHistory({ fetchHistory, previous: previous?.rotationHistory, now: Date.parse(attemptedAt) });
-  // P1426: monthly/weekly/daily macro observations for the 거시 direction reads (independent lane).
+  // monthly/weekly/daily macro observations for the 거시 direction reads (independent lane).
   const macroHistoryTask = writeMacroHistory(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   const macroCalendarTask = writeMacroCalendar(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   // Every source plane runs concurrently under Promise.allSettled; a failed plane publishes its declared fallback.
   const { values: planes } = await collectSourcePlanes(sourcePlanes({ prior, attemptedAt, blsReleaseSchedules }));
   const { fred: macroRaw, fearGreed, news, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii, fredDexkous } = planes;
-  // P1720: only a fresh collection carries the intraday slot; a fallback to the previous bundle publishes none.
+  // Only a fresh collection carries the intraday slot; a fallback to the previous bundle publishes none.
   const newsIntraday = Array.isArray(news?.intraday) ? news.intraday : [];
   const marketSurveys = buildMarketSurveys(prior.marketSurveys, aaii);
   const macro = mergeMacroPlanes({ macroRaw, previousMacro: prior.macro, bls, bea, treasury, fredHyOas });
   const verifiedRun = await collectVerifiedQuotes(planes.quotes);
-  // v59.70 (R12): AUX_SYMBOLS reach history.json only (data.quotes is stripped before publishing); every count, receipt,
+  // AUX_SYMBOLS reach history.json only (data.quotes is stripped before publishing); every count, receipt,
   // coverage floor and the market snapshot read the core set, so those artifacts are unchanged by the research columns.
   const auxSymbolSet = new Set(AUX_SYMBOLS);
   const isCoreQuote = (q) => !auxSymbolSet.has(q?.symbol || q?.item);
@@ -121,7 +121,7 @@ async function main() {
     meta: await buildCollectionMeta({ t0, attemptedAt, generatedAt, previousMeta: prior.meta, quoteRun, domainReceipts, fred, macro, macroRaw, planes, news, newsIntraday, marketSurveys }),
     quotes: verifiedRun.quotes,
     macro,
-    // P1732: the FOMC target range derived from the FRED bounds above; 'stale' (with reason) unless both bounds
+    // The FOMC target range derived from the FRED bounds above; 'stale' (with reason) unless both bounds
     // share a recent observation date and are 25bp apart.
     policyRates: { fed: deriveFedPolicyRate(macro, Date.parse(attemptedAt), { upperHistory: fedUpperHistory, fomcDates: blsReleaseSchedules?.['us-fomc'] || null }) },
     fearGreed,
@@ -131,16 +131,14 @@ async function main() {
     // automation. Subscriber-only surveys remain preserved/blocked and no
     // missing percentage is synthesized.
     marketSurveys,
-    // P1737: the Korea export reference moved to public-data/official-references.json (verified by the P1734 lane);
-    // the operator snapshot in data.json is no longer carried forward.
     officialWebReferences: null,
     news,
-    // P1720: provisional post-08:00 slot (empty array when the news plane failed or nothing qualified).
+    // Provisional post-08:00 slot (empty array when the news plane failed or nothing qualified).
     newsIntraday,
   };
 
   if (fredHasKey && !fred.fetchOk) console.warn('[fetch-data] 경고: FRED 키 있으나 매크로 0건 — 키 유효성/레이트리밋 확인');
-  // P565/R256: a partial failure (e.g. 6 of 9 series succeed) used to pass silently — the exact mechanism that let
+  // A partial failure (e.g. 6 of 9 series succeed) used to pass silently — the exact mechanism that let
   // individual stale/broken series (Fed/BOJ/BOK/BOE rates) go unnoticed for weeks.
   if (fredHasKey && fred.failed.length > 0) console.warn(`[fetch-data] 경고: FRED 시리즈 ${fred.failed.length}건 실패 — ${fred.failed.join(', ')}`);
   if (!resolveSharedAiConfig()) console.warn('[fetch-data] 경고: 공유 AI Worker/자동화 인증 미설정 — AI 분석 보류. 검증된 관측치만 표시.');
@@ -171,7 +169,7 @@ async function main() {
   }
 
   // v50.48/Phase 4: 선택적 서버 LLM 분석문 (키 있을 때만; 실패해도 data.json 정상 — 클라 템플릿 폴백)
-  // P1093: this runs AFTER the canonical snapshot is resolved, because the narrative's
+  // This runs AFTER the canonical snapshot is resolved, because the narrative's
   // evidence must be sourced from the published snapshot (unit/metricId/evidenceId)
   // rather than from `data.quotes`, which toPublicPayload strips before publishing.
   // M01: append this cycle's completed close first, so the narrative's regime context reads the same session the
@@ -195,7 +193,7 @@ async function main() {
         ...(previous?.marketTimeline?.slots || []).flatMap((slot) => slot?.headlines || [])],
       request: aiUsage.shared('headline-translation'),
       translate: aiUsage.workersTranslate('headline-translation') });
-    // v59.70 (owner D6): translation is the producer's alone; a shown headline still without a clean Korean title is
+    // Translation is the producer's alone; a shown headline still without a clean Korean title is
     // marked titleKoFailed (the screen shows the original with that mark, or passes it over) and retried next run.
     let failedTitles = 0;
     for (const item of shownHeadlines) {
@@ -206,7 +204,7 @@ async function main() {
     aiUsage.note('headline-translation', headlineTranslation.provider ? 'translated' : headlineTranslation.pending ? (headlineTranslation.reason || 'unparsed') : 'nothing-new');
     console.log(`[fetch-data] headline translation: reused ${headlineTranslation.reused}, new ${headlineTranslation.translated}/${headlineTranslation.pending}${headlineTranslation.provider ? ` via ${headlineTranslation.provider}` : ''}${headlineTranslation.freeReason ? ` (free path: ${headlineTranslation.freeReason})` : ''}${headlineTranslation.reason ? ` (${headlineTranslation.reason})` : ''}`);
   } catch (error) { console.warn(`[fetch-data] headline translation skipped: ${error?.message || error}`); }
-  // v59.25: the after-close reporters' after-hours moves for the latest US session (the S&P 500 quote's own NY date).
+  // The after-close reporters' after-hours moves for the latest US session (the S&P 500 quote's own NY date).
   try {
     const spxAt = Date.parse((marketSnapshotForConsumers?.quotes || []).find((row) => row?.metricId === 'market.index.spx')?.observedAt || '');
     const earningsCalendar = JSON.parse(await readFile(EARNINGS_CALENDAR_OUT, 'utf8').catch(() => 'null'));
@@ -216,7 +214,7 @@ async function main() {
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null, request: aiUsage.shared('market-analysis') });
   applyMarketAnalysis(data, marketAnalysis, { previous: previous?.marketAnalysis || null });
   aiUsage.note('market-analysis', marketAnalysisOutcome(marketAnalysis, aiUsage.receipt().purposes['market-analysis']));
-  // v60.31 (owner 2026-11-18): one AI reading per screen, called only when that screen's fact packet changed; a screen
+  // One AI reading per screen, called only when that screen's fact packet changed; a screen
   // whose reading is missing or blocked shows its facts alone.
   try {
     const screenRun = await genScreenReadings({ data, history: timelineHistory, previous: previous?.screenReadings || null, request: aiUsage.shared('screen-reading') });
@@ -241,12 +239,12 @@ async function main() {
   // 중단한다 — quotes는 내부 파생(히스토리 append·분석 프롬프트·건강도 카운트)에만 사용하고
   // 발행 아티팩트에는 빈 배열로 담는다(소비자 배열 형태 계약 보존). meta.symbolsOk는
   // "수집 파이프라인 건강도" 의미로 유지되어 워치독 floor(<70) 계약이 그대로 동작한다.
-  // P719: OUT에 쓰는 모든 경로는 반드시 이 헬퍼를 거친다 — 첫 발행 후 meta 후기록 재기록(아래
+  // OUT에 쓰는 모든 경로는 반드시 이 헬퍼를 거친다 — 첫 발행 후 meta 후기록 재기록(아래
   // scrInfo 반영)이 스트립 안 된 원본 `data`를 그대로 써서 P715 계약을 덮어쓴 라이브 사고의 재발 방지.
-  // v59.70 (R5): a record that failed its latest read publishes at most reference use (degradePayloadAllowedUse).
+  // A record that failed its latest read publishes at most reference use (degradePayloadAllowedUse).
   const toPublicPayload = (d) => ({
     ...degradePayloadAllowedUse(d),
-    rotationHistory: splitRotationHistory(d.rotationHistory).summary, // v59.70 (R11): series go to rotation-detail.json
+    rotationHistory: splitRotationHistory(d.rotationHistory).summary, // Series go to rotation-detail.json
     quotes: [],
     meta: { ...d.meta, quotesPublished: false, quotePolicy: 'client-direct-fetch-only(P715)' }
   });
@@ -258,7 +256,7 @@ async function main() {
   console.log(`[fetch-data] macro calendar: ${JSON.stringify(macroCalendarInfo)}`);
   console.log(`[fetch-data] macro history: ${JSON.stringify(macroHistoryInfo)}`);
   // WO-7 (ops): 일별 히스토리 누적 (충분한 데이터일 때만 — 아래 <50% 가드와 별개로 핵심 심볼 존재 시)
-  // P1246: FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 확정 종가를 공식
+  // FX 교차검증 — 히스토리 레인이 기록한 **공식 관측일과 같은 날짜**의 확정 종가를 공식
   // DEXKOUS와 비교해 **상태만** 발행한다. 값 출처는 바뀌지 않는다(providerCrossChecks는 참조 면이다).
   // 히스토리 레인이 통째로 실패해도 판정 불가 레코드를 남긴다 — 교차검증의 부재를 성공으로 읽지 않는다.
   if (data.providerCrossChecks) {
@@ -350,7 +348,7 @@ async function main() {
 
 }
 
-// v52.50/WO-3: direct-run guard (같은 패턴을 이미 backtest-trading-score.mjs 등이 씀) — 이 파일은
+// direct-run guard (같은 패턴을 이미 backtest-trading-score.mjs 등이 씀) — 이 파일은
 // GitHub Actions에서 항상 `node scripts/fetch-data.mjs`로 직접 실행되므로 이 가드는 프로덕션 동작을
 // 전혀 바꾸지 않는다(그 경우 이 조건은 항상 참). 다만 이제 closesToFactors/backtestFactors/_mean이
 // export돼 있어, 이 가드가 없으면 다른 스크립트가 그 함수만 재사용하려고 import하는 순간 라이브

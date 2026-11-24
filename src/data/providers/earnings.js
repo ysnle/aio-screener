@@ -1,3 +1,4 @@
+// Shared calendar discovery stays within the artifact's actual date window.
 import { EARNINGS_CALENDAR } from '../artifact-registry.js';
 import { refreshSharedArtifact } from '../shared-artifacts.js';
 export function selectPublicEarnings(data, symbol, from, to) {

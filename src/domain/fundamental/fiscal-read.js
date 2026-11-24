@@ -1,9 +1,14 @@
+// P1436 (재무 공시 redesign): read the company's own annual filings as a trend — is revenue growing,
+// is the business getting more profitable, and does the stock's price move agree with it — instead of
+// one year's raw numbers. Inputs: the SEC FY series in the runtime summary (fiscalHistory) and the
+// screener row for price context (returns, P/E). A missing year or field drops its sentence.
 import { withObjectParticle } from '../content/korean-particle.js';
 import { finiteFact, isPriorAnnualPeriod, annualFilingStatus, fiscalYearLabel } from './period.js';
 import { signedText, usdKoreanText } from '../shared/number.js';
 import { isIsoDay, hasLeadingIsoDay } from '../shared/session-date.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { claim, say, sayJoin, NOTHING, periodId, periodOf } from '../shared/claim.js';
+// A change inside this many %p (margin) or % (revenue) reads as flat in the text, so its tone is neutral too.
 export const FISCAL_FLAT_BAND = 2;
 /** v60.50 (C): above this net income growth (%) a PEG is near zero whatever the price, so it is withheld. */
 export const PEG_MAX_GROWTH = 100;
@@ -25,6 +30,7 @@ export function filerClaim(symbol) {
 const fyOf = (year) => periodId('FY', year?.periodEnd);
 const point = (id, tone, title, said, more = {}) => ({ id, tone, title, text: said.text, claims: said.claims, ...more });
 
+// 2026-10-13 review S18: the sign precedes the currency. First-users F33: Korean units (shared/number.js usdKoreanText).
 export function formatUsdShort(value) {
   return usdKoreanText(value);
 }
@@ -46,6 +52,9 @@ export function parseFiscalHistory(text) {
     }));
 }
 
+// The compact history used to round every amount to a whole USD million.
+// Replace only the matching annual period with the issuer's precise filed facts;
+// never inject a later quarter, another issuer, or a cover-page share count into FY equity.
 export function reconcileFiscalHistory(history = [], fundamentals = null, symbol = '') {
   const rows = (Array.isArray(history) ? history : []).map((year) => ({ ...year })).sort((a, b) => String(a.periodEnd).localeCompare(String(b.periodEnd)));
   const latest = rows[rows.length - 1];
@@ -67,6 +76,8 @@ export function reconcileFiscalHistory(history = [], fundamentals = null, symbol
 export { trailingQuarters } from './trailing-year.js';
 import { trailingQuarters } from './trailing-year.js';
 
+// 2026-10-14 audit #21: year-over-year share counts that jump by a near-integer ratio (a split the cover-page count
+// was not adjusted for). Returns the periodEnd of each year that starts a new split basis.
 export function shareSplitBreaks(history = []) {
   const years = (Array.isArray(history) ? history : []).filter((year) => finite(year?.shares) > 0);
   const breaks = [];
@@ -80,6 +91,7 @@ export function shareSplitBreaks(history = []) {
 
 // debtBasis: the issuer's sec-fiscal-history.json debtBasis ('lease-inclusive' names finance leases in the debt figure).
 export function buildFiscalRead({ symbol, fundamentals = null, row = null, quarters = [], now = null, sic = null, debtBasis = null } = {}) {
+  // A previous issuer's transient receipt cannot become this issuer's one-year fallback.
   if (fundamentals?.symbol && String(fundamentals.symbol).toUpperCase() !== String(symbol).toUpperCase()) fundamentals = null;
   // Before the runtime summary carries fiscalHistory, the latest FY facts still give a one-year reading.
   const series = Array.isArray(fundamentals?.fiscalHistory) && fundamentals.fiscalHistory.length ? fundamentals.fiscalHistory
@@ -120,6 +132,10 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       // The two years and the change between them: a declared comparison of two fiscal years.
       const m = filed('marginChange', [fig(marginNow, 'share', 'margin', '순이익률', fyNow, { digits: 1 }), fig(marginThen, 'share', 'margin', '회계연도', fyThen, { digits: 1 }),
         fig(delta, 'pp', 'margin', '순이익률', fyNow, { against: fyThen })], { compare: { across: [fyNow, fyThen] } });
+      // This read sees revenue and net income only. It cannot split interest, tax or
+      // one-offs from operations, so attribution like "영업 레버리지" is withheld (P1441 family).
+      // The comparison year is three years back, so "돌아섰습니다" is said only when the adjacent year before
+      // the latest had the other sign; otherwise the sentence names the first year on the new side.
       const flipYear = (profit) => { const i = history.findLastIndex((year) => year.margin == null || (profit ? year.margin < 0 : year.margin > 0)); return history[i + 1] || null; };
       const turned = (profit) => annualPair && prevYear?.margin != null && (profit ? prevYear.margin < 0 : prevYear.margin > 0);
       const since = (profit) => { const year = flipYear(profit); const label = year ? fiscalYearLabel(year.periodEnd) : null; return label ? `${label.replace(/^FY/, '')} 회계연도` : '최근 회계연도'; };
@@ -135,9 +151,14 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     const niPrev = history[history.length - 2].netIncome;
     if (annualPair && niNow != null && niPrev != null && niPrev > 0) {
       const niGrowth = (niNow / niPrev - 1) * 100;
+      // Boundary contract: the PEG divides a calculable PER (screener readiness contract).
       const pe = readRowNumber(row, 'pe', 'calculation');
+      // C1: a PER priced on earnings available to common (preferred dividends deducted) is not market cap
+      // over net income, so it is neither rebuilt from net income nor divided by net-income growth, and it says so.
       const commonBasis = row?._valuationPeEarningsConcept === 'common';
       const peg = pe != null && pe > 0 && niGrowth > 0 && row?._valuationPeEarningsBasis !== 'ttm' && !commonBasis ? pe / niGrowth : null;
+      // 2026-10-13 review S06: the PER's earnings are the last filed fiscal year, which can be more than a year old.
+      // Name that year and how many months have passed since it closed.
       const earningsEnd = String(row?._fundamentalPeriodEnd || latest.periodEnd || '').slice(0, 10);
       const sessionEnd = String(row?.factorSessionDate || '').slice(0, 10);
       const monthsSince = isIsoDay(earningsEnd) && isIsoDay(sessionEnd)
@@ -146,6 +167,11 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const fyLabel = fiscalYearLabel(earningsEnd);
       const elapsed = monthsSince != null && monthsSince >= 0 ? say(', 경과 {elapsed}', { elapsed: filed('monthsSince', [fig(monthsSince, 'months', 'monthsSince', '경과', periodId('AT', sessionEnd))]) }) : NOTHING;
       const earningsBasis = fyLabel ? say('{fy} {concept} 기준, {end} 마감{elapsed}', { fy: fyLabel, concept: commonBasis ? '보통주 귀속 순이익' : '순이익', end: earningsEnd.slice(0, 7), elapsed }) : '공시 이익 기준';
+      // 2026-10-14 audit #2: the PER method is unchanged (the last fiscal year's net income). When four newer
+      // consecutive quarters are filed, the same price over their summed net income is shown beside it, labelled.
+      // Valid only when the PER's own year is the latest annual row (so PER × FY income recovers the same market value).
+      // A row already priced on the last four quarters carries that basis; its PER is the
+      // four-quarter figure itself and no fiscal-year PER is re-derived from it.
       const rowTtm = row?._valuationPeEarningsBasis === 'ttm' && hasLeadingIsoDay(String(row?._valuationPeEarningsThrough || ''));
       const ttm = pe != null && pe > 0 && (rowTtm || earningsEnd === String(latest.periodEnd || '').slice(0, 10)) ? trailingQuarters(quarters, 4) : null;
       const ttmIncome = ttm && ttm[ttm.length - 1].periodEnd > earningsEnd ? ttm.reduce((sum, q) => sum + q.netIncome, 0) : null;
@@ -154,6 +180,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       const priorIncome = prior ? prior.slice(0, 4).reduce((sum, q) => sum + q.netIncome, 0) : null;
       const ttmGrowth = priorIncome != null && priorIncome > 0 ? (ttmIncome / priorIncome - 1) * 100 : null;
       const pegTtm = !commonBasis && peTtm != null && ttmGrowth != null && ttmGrowth > 0 ? peTtm / ttmGrowth : null;
+      // The four-quarter figure is the more current one, so it leads when it exists; the fiscal-year
+      // PER (the screener's value factor basis) stays beside it, labelled.
       const ttmThrough = rowTtm ? String(row._valuationPeEarningsThrough).slice(0, 10) : ttm?.[ttm.length - 1]?.periodEnd;
       // A one-off gain inside the PER's earnings (sec-valuation-basis secEarningsOneOff) is named beside the multiple it lowers.
       const oneOffEnds = (Array.isArray(fundamentals?.earningsOneOff) ? fundamentals.earningsOneOff : []).filter((end) => isIsoDay(String(end)));
@@ -170,6 +198,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
           ? say(', PER 약 {ttm}(최근 4개 분기 합, {through} 분기까지{oneOff}), {fy} 기준 {pe}({basis})', { ttm: peOn(peTtm, ttmPeriod, 'peRepriced'), through: ttmThrough.slice(0, 7), oneOff, fy: fyLabel || '연간', pe: peOn(pe, fyEarnings), basis: earningsBasis })
           // A newer quarter is on file than the earnings this PER is priced on (sec-valuation-basis secPeEarningsLag).
           : say(', PER {pe}({basis}{oneOff}{later})', { pe: peOn(pe, fyEarnings), basis: earningsBasis, oneOff, later: laterQuarter ? `, ${laterQuarter.slice(0, 7)} 분기 공시는 미반영` : '' });
+      // v60.50 (C): past PEG_MAX_GROWTH the PEG runs toward zero (MU PEG 0.01 on +895%) and says nothing; it is withheld
+      // with that reason, the PER stays.
       const pegShown = (value, growth) => (value != null && growth <= PEG_MAX_GROWTH ? value : null);
       const pegFy = pegShown(peg, niGrowth);
       const pegTtmShown = pegShown(pegTtm, ttmGrowth);
@@ -182,6 +212,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
         : pegTtmClaim ? say(', PEG 약 {peg}(최근 4개 분기 PER ÷ 그 전 4개 분기 대비 순이익 성장률)', { peg: pegTtmClaim }) : NOTHING;
       const pegHeld = pegHeldOn ? say('. PEG는 적지 않습니다 — 순이익 성장({g})이 {g.threshold}를 넘으면 PEG가 0에 가까워져 뜻이 없습니다', { g: pegHeldOn }) : NOTHING;
       const income = filed('netIncome', [fig(niNow, 'usd', 'netIncome', '순이익', fyNow), fig(niGrowth, 'pct', 'netIncome', '순이익', fyNow, { against: fyPrev })]);
+      // A PEG from last year's income growth cannot say whether the price is a
+      // burden — that needs the growth ahead. The number is shown with its basis, without a verdict.
       points.push(point('earnings', niGrowth > FISCAL_FLAT_BAND ? 'favorable' : niGrowth < -FISCAL_FLAT_BAND ? 'burden' : 'neutral', '이익과 가격', /* v57.84: the same flat band as revenue and margin */
         say('순이익 {income}({income.1}){pe}{peg}{held}.{tail}', { income, pe: peText, peg: pegText, held: pegHeld, tail: pegText.text ? ' PEG는 지난 성장률로 계산한 값이라, 앞으로의 성장이 다르면 같은 숫자도 뜻이 달라집니다.' : '' }),
         peTtm != null ? { peTtm, ttmThrough } : {}));
@@ -194,10 +226,17 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       say('회계연도 {end} 매출 {single}{growth}{margin}. 여러 해 추이 그래프는 다음 재무 데이터 갱신 뒤 표시됩니다.', { end: latest.periodEnd || '최근', single,
         growth: growth != null ? say('(전년 대비 {single.1})', { single }) : NOTHING, margin: marginClaim ? say(', 순이익률 {margin}', { margin: marginClaim }) : NOTHING })));
   }
+  // ROE was net income ÷ year-end equity; with two year-ends it is now over the
+  // average equity, and the basis is named. A very high value is read with the buyback/leverage caveat.
   const avgEquity = annualPair && latest?.equity > 0 && prevYear?.equity > 0 ? (latest.equity + prevYear.equity) / 2 : null;
   const roeAvg = avgEquity && latest?.netIncome != null ? latest.netIncome / avgEquity * 100 : null;
   const alignedLatest = latest?.periodEnd && latest.periodEnd === fundamentals?.observedAt && (!fundamentals?.symbol || String(fundamentals.symbol).toUpperCase() === String(symbol).toUpperCase());
   const roe = roeAvg ?? (alignedLatest ? finite(fundamentals?.roe) : null);
+  // Codex browser audit H41: a bank's operating cash flow mixes deposit, loan and trading-asset swings, so the
+  // industrial "earnings → cash" reading does not apply; the bank questions are named instead.
+  // Visa read "은행·금융사는 순이자마진(NIM)…". Payment networks, exchanges, rating/data
+  // houses and asset managers sit in the Financials sector but take no deposits and make no loans; their cash flow is
+  // read like any other company's.
   const kind = financialKind(symbol, row?.sector, sic ?? row?.sic);
   const financial = kind === 'lending';
   const insurer = kind === 'insurer';
@@ -212,9 +251,13 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
       dupont: finite(latest?.totalAssets) > 0 ? '종목 개요의 듀폰 분해 카드가 세 요인을 나눠 보여 줍니다' : latest?.assetChain ? '총자산이 공시 수집본에 없어 그 분해는 하지 않습니다' : '총자산 수집이 끝나면 종목 개요의 듀폰 분해 카드에서 나눠 봅니다', equityNote }) : NOTHING;
     const verdict = roe < 0 ? (equityChange != null && equityChange < 0 ? '순손실로 자본이 줄어든 해' : latest?.equity > 0 && (equityChange > 0 || !(prevYear?.equity > 0)) ? '순손실을 냈지만 증자 등으로 자기자본은 늘어난 해' : '순손실을 낸 해') /* v58.74 (audit): BE/CRWV equity grew in the loss year */
       : roe >= 20 ? '자기자본 대비 높은 이익' : roe >= 10 ? '평균적인 자본 효율' : '자본 대비 이익이 낮은 편';
+    // Codex browser audit H37: the generic "buybacks or debt" explanation read as this company's cause. The reading
+    // now uses what is measured here (margin, equity change) and names what is not (assets, so no DuPont split).
+    // With total assets collected the split is the 종목 요약 DuPont card; until then it says it is pending.
     points.push(point('roe', roe >= 20 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', '자본 효율', /* v57.84: green only where the text says 높은 (≥20) */
       say('ROE {roe}({basis}) — {verdict}입니다.{high}', { roe: roeClaim, basis: roeBasis, verdict, high })));
   }
+  // The cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
   if (financial && history.length) {
@@ -236,12 +279,16 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     // A REIT buys buildings through investing cash flow, not PP&E capex, and depreciation depresses its net income.
     points.push(cashNote('리츠는 건물 매입이 설비투자가 아닌 투자활동으로 잡혀 잉여현금흐름을 계산하지 않습니다. 배당 여력은 FFO·AFFO로 확인합니다.'));
   } else if (cashPair) {
+    // The OCF/netIncome ratio only means "earnings arrive as cash" when BOTH numbers are
+    // positive. A net loss with an operating-cash outflow (or either sign flipped) divides to a
+    // positive ratio that means nothing of the sort — read the two facts separately there.
     const creditableConversion = latest.netIncome > 0 && ocf > 0;
     const conversion = creditableConversion ? ocf / latest.netIncome : null;
     const fcf = capex != null ? ocf - capex : null;
     const tone = creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral';
     if (!creditableConversion) {
       const reading = latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : latest.netIncome < 0 && ocf < 0 ? '순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다'
+        // v59.45 (P19-FISCAL-01): a zero is break-even / no cash movement, not a loss or an outflow.
         : `${latest.netIncome === 0 ? '순이익 0(손익분기)' : latest.netIncome < 0 ? '순손실' : '장부상 이익'}, ${ocf === 0 ? '영업현금흐름 0' : ocf < 0 ? '영업현금 유출' : '영업현금 유입'}입니다`;
       points.push(point('cash', tone, '현금 전환', say('영업현금흐름 {cash}, 순이익 {cash.1} — {reading}. {side} 순이익 대비 현금 비율은 쓰지 않습니다.', { cash: cashPair, reading, side: latest.netIncome === 0 || ocf === 0 ? '한쪽이 0이라' : '한쪽이 마이너스라' })));
     } else {
@@ -252,9 +299,13 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
         reading: conversion >= 0.8 ? (conversion >= 1 ? '이익이 현금으로 들어오고 있습니다' : '이익의 대부분이 현금으로 들어왔습니다') : '장부 이익보다 들어온 현금이 적어 운전자본·회계 이익을 확인할 지점입니다' })));
     }
   }
+  // Codex browser audit H36: say up front that the cash chain (OCF → capex → FCF → ROIC) is not available here,
+  // instead of letting a lesson link imply it can be checked on this screen.
   if (ocf == null && history.length) points.push({ id: 'cash', tone: 'neutral', title: '현금 전환', text: '이 회사의 공시 수집본에는 영업현금흐름·설비투자가 없어 잉여현금흐름과 ROIC(투하자본 대비 이익)는 이 화면에서 계산하지 않습니다. 10-K 현금흐름표에서 확인하며, 다른 출처의 FCF 값과 기간을 섞어 쓰지 않습니다.' });
   const debtNow = finite(latest?.longTermDebt);
   const debtPrev = finite(prevYear?.longTermDebt);
+  // A bank's or insurer's long-term debt sits beside deposits and policy liabilities, so it is not read on the
+  // industrial debt-to-equity scale (the 금융사·보험사 point above names what is read instead).
   if (annualPair && debtNow != null && debtPrev != null && debtPrev > 0 && !financial && !insurer) {
     const change = (debtNow / debtPrev - 1) * 100;
     const label = debtLabel(debtBasis);
@@ -284,6 +335,10 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
         reading: change <= -1 ? '남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림)' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주의 지분 비율이 줄었습니다' : '거의 변하지 않았습니다' })));
   }
 
+  // A 6-month price move set against a fiscal-year revenue change compares
+  // different periods (the fiscal year may have ended a year ago). Both are stated with their periods
+  // and no conclusion ("실적이 뒷받침") is drawn from the pair.
+  // Boundary contract: stated beside the fiscal year for reading, not compared.
   const ret6 = readRowNumber(row, 'ret6m', 'display');
   if (ret6 != null && lastGrowth != null) {
     const fy = String(latest.periodEnd || '').slice(0, 7);
@@ -292,6 +347,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     points.push(point('agree', 'neutral', '주가와 실적의 기간',
       say('주가는 최근 6개월 {price}, 매출은 {fy}회계연도에 {revenue.1}입니다. 두 숫자는 기간이 달라 직접 비교하지 않습니다 — 주가가 반영하는 것은 앞으로의 실적이고, 다음 분기 공시가 그 기대를 확인합니다.', { price, fy: fy ? `${fy}에 끝난 ` : '', revenue: growthClaim })));
   }
+  // The headline names its fiscal year, and flags a next annual filing past its longest deadline (as of the
+  // price session when the row carries one). A flag only — no newer figure is guessed.
   const filing = latest ? annualFilingStatus(latest.periodEnd, now ?? (row?.factorSessionDate || Date.now())) : null;
   const lead = !history.length ? null : sayJoin([filing ? say('{fy}', { fy: filing.fyLabel }) : NOTHING,
     sayJoin([growthClaim ? say('매출 {revenue.1}', { revenue: growthClaim }) : NOTHING, marginClaim ? say('순이익률 {margin}', { margin: marginClaim }) : NOTHING,

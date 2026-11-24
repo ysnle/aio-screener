@@ -1,3 +1,6 @@
+// v59.44 (owner 2026-10-29, news by weight): the official monthly releases that came out in the last two days — PCE,
+// CPI, the jobs report, retail sales — read from the same macro board 거시 shows (src/domain/macro/indicators.js), so
+// 오늘 can lead with them beside the FOMC brief. Observed values only; no consensus is compared (none is published here).
 import { buildMacroBoard, MACRO_GROUPS } from '../macro/indicators.js';
 
 const DAY = 86400000;
@@ -41,6 +44,8 @@ export function recentMacroReleases(input, { nowMs = Date.now(), days = 2 } = {}
     row.items.push({ label: item.label, valueText: item.valueText, deltaText: item.deltaText || null, targetText: item.targetText || null });
     byRelease.set(id, row);
   }
+  // A release the official calendar says is out (08:30 ET, taken as 13:45Z) but the board does not hold yet is still
+  // listed — 'pending' — so a release day is never silent while the producer catches up.
   for (const id of Object.keys(MACRO_RELEASE_TITLES)) {
     const due = (Array.isArray(input?.schedules?.[id]) ? input.schedules[id] : []).filter((date) => date >= earliest && date <= today && Date.parse(`${date}T13:45:00Z`) <= nowMs).sort().pop();
     if (!due || (byRelease.has(id) && byRelease.get(id).date >= due)) continue;

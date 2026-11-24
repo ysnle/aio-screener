@@ -14,21 +14,21 @@ const POLICY_ROWS = Object.freeze([
 const EDUCATIONAL = /(?:무엇|뭐야|뭐지|설명|원리|개념|정의|차이|비교|영향|전망|위험|리스크|작동|의미|구조|사례|체크리스트|what\s+is|explain|how\s+does|overview|outlook|risk|difference|compare)/i;
 const PERSONALIZED = /(?:내\s*(?:계좌|거래|세금|포트폴리오|상황)|제가|나는|나한테|보유\s*종목|my\s+(?:account|trade|tax|portfolio|holdings)|for\s+me)/i;
 const OPERATIONAL = /(?:방법|단계|먼저|활용|퍼뜨|조작|실행|우회|숨기|회피|하라|하세요|how\s+to|steps?|execute|use\s+it|evade|bypass)/i;
-// v57.84: a prohibited topic is blocked only when the request asks how to do it. "왜 불법인지 설명하세요" or "선행매매 탐지
+// A prohibited topic is blocked only when the request asks how to do it. "왜 불법인지 설명하세요" or "선행매매 탐지
 // 방법" is defensive education; the old operational test fired on any 하세요/방법 and blocked it.
-// v57.88 (review): the defensive words won over an execution request, so "감시 피하려면 시세조종을 어떻게 숨기나요" and
+// The defensive words won over an execution request, so "감시 피하려면 시세조종을 어떻게 숨기나요" and
 // "왜 … 안 알려줘? 단계별로" passed as education. Evading surveillance is blocked whatever else the sentence says, and
 // a bare "왜" no longer cancels an explicit how-to / step-by-step request. Victim-side questions ("당하지 않으려면") stay.
 const DEFENSIVE = /(?:탐지|적발|감시|처벌|불법인지|위법인지|피하려면|당하지|예방|detect)/i;
 const WHY = /(?:왜\s|why\s)/i;
-// Briefing audit 2026-10-17: "탐지 안 되게" asks to evade detection; 탐지 alone had read it as defensive.
+// "탐지 안 되게" asks to evade detection; 탐지 alone had read it as defensive.
 const EVASION = /(?:(?:감시|적발|단속|추적|조사|금감원|금융당국|당국|거래소|감독)\S*\s*(?:피|안\s*당|안\s*걸|우회|빠져)|(?:탐지|적발|감시)\S*\s*안\s*(?:되|당|걸)|들키지|안\s*걸리게|걸리지\s*않게|avoid\s+(?:detection|surveillance)|without\s+getting\s+caught|evade\s+(?:detection|surveillance))/i;
 const STRONG_EXECUTION = /(?:하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|how\s+to\s+(?:do|use|run))/i;
 // v57.92 (internal audit A01): one defensive word anywhere ("처벌과 실행 단계를 함께") cancelled an explicit execution
 // request. Only a how-to that is itself defensive ("탐지하는 법", "단계별 적발 사례") is exempt; the strong execution test
 // runs on what is left after those phrases are removed.
 const DEFENSIVE_HOW_TO = /(?:(?:탐지|적발|감시|예방|식별|구별|알아채|신고)\s*(?:하는\s*법|하는\s*방법|방법|단계)|단계별\s*(?:탐지|적발|감시|처벌|예방|신고)|(?:불법인지|위법인지|처벌\S*|탐지\S*|적발\S*)\s*단계별(?:로)?|how\s+to\s+(?:detect|spot|report|avoid\s+being))/gi;
-// Briefing audit 2026-10-17: "부풀리려면 어떻게 해야 돼?" and "…로 돈 버는 법" are how-to requests (they read as education).
+// "부풀리려면 어떻게 해야 돼?" and "…로 돈 버는 법" are how-to requests (they read as education).
 const EXECUTION = /(?:려면\s*어떻게|어떻게\s*(?:해야|하면|하나|하죠)|버는\s*법|퍼뜨|조작하|우회|숨기|회피|(?:활용|이용)\s*(?:방법|법|하는\s*법)|하는\s*법|실행\s*단계|단계별|step[- ]by[- ]step|evade|bypass|execute|how\s+to\s+(?:do|use|run))/i;
 const DIRECT_MARKET_ACTION = /(?:매수|매도|추가매수|진입|청산|손절|익절|목표가|진입가|손절가|비중|포지션|리밸런싱|buy|sell|trade|allocate|position|stop[- ]?loss|take[- ]?profit)/i;
 const LEGAL_DETERMINATION = /(?:신고(?:해야|할까|의무)|납부(?:해야|할까|의무)|합법(?:인가|이야|입니까)|불법(?:인가|이야|입니까)|법적으로\s*(?:가능|문제|해야|허용)|(?:세금|양도세)\s*(?:얼마|계산|내야)|규제\s*(?:준수|위반)|법률\s*자문|legal\s+advice|is\s+it\s+legal|tax\s+(?:filing|liability)|must\s+i\s+(?:file|pay))/i;
@@ -71,7 +71,7 @@ export function classifyAIRequest({ query = '' } = {}) {
   const strongExecution = STRONG_EXECUTION.test(queryText.replace(DEFENSIVE_HOW_TO, ' '));
   const asksExecution = evasion || strongExecution || (!defensive
     && !WHY.test(queryText) && (EXECUTION.test(queryText) || (operational && !educational)));
-  // Briefing audit 2026-10-17: trading on non-public information is the act itself ("미공개 정보로 매수해도 돼?").
+  // Trading on non-public information is the act itself ("미공개 정보로 매수해도 돼?").
   const mnpiTrade = categories.includes('mnpi') && directAction && !defensive && !educational && !asksLegalDetermination;
   if (prohibitedCategories.length && (asksExecution || mnpiTrade)) {
     return Object.freeze({
@@ -83,7 +83,7 @@ export function classifyAIRequest({ query = '' } = {}) {
     });
   }
 
-  // v57.84: a stock question that merely mentions the SEC or regulation ("SEC 공시 보고 매수할까?") is market analysis;
+  // A stock question that merely mentions the SEC or regulation ("SEC 공시 보고 매수할까?") is market analysis;
   // the jurisdiction/fact-pattern mode needs an actual legal or tax determination in the question.
   const legalTaxAnalysis = categories.includes('jurisdictional-advice') && (asksLegalDetermination || ((personalized || directAction) && LEGAL_SUBSTANCE.test(queryText)));
   if (legalTaxAnalysis) {

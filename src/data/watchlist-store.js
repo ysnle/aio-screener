@@ -1,7 +1,13 @@
+// One watchlist store. The screener star wrote its own 'aio_watchlist' array while 포트폴리오
+// 관심 종목 kept named lists in 'aio_watchlists', so a starred stock never showed in the lists ("리스트 0개"). The star now
+// reads every named list and adds to the chosen list (the first one, or a new "관심 종목" list); un-starring removes the
+// symbol from every list. The old array is folded into the lists once and removed.
 export const WATCHLISTS_KEY = 'aio_watchlists';
 export const ACTIVE_WATCHLIST_KEY = 'aio_watchlist_active';
 export const LEGACY_STAR_KEY = 'aio_watchlist';
 
+// v59.45 (PASS27 P27-WATCHLIST-01): one normalizer for every reader — a list whose tickers is not an array ({} from a
+// hand-edited file) threw in the legacy fold and the toggle before readWatchlists could repair it.
 function readLists(storage) {
   let lists = [];
   try { lists = JSON.parse(storage?.getItem(WATCHLISTS_KEY) || '[]'); } catch (_) { lists = []; }
@@ -51,6 +57,7 @@ function foldLegacyStars(storage, now) {
   if (legacy == null) return;
   let symbols = null;
   try { symbols = JSON.parse(legacy || '[]'); } catch (_) { symbols = null; }
+  // v59.45 (PASS27): an old star value that does not parse as a list is left where it is rather than deleted unread.
   if (!Array.isArray(symbols)) return;
   const lists = readLists(storage);
   const held = new Set(lists.flatMap((list) => list.tickers.map((t) => t?.sym)));
@@ -63,6 +70,9 @@ function foldLegacyStars(storage, now) {
   try { storage.removeItem(LEGACY_STAR_KEY); } catch (_) {}
 }
 
+// The 포트폴리오 관심 종목 lists (js/aio-workspace.js getWatchlists/saveWatchlists) read and write here too, so this
+// is the one writer. That copy hid a list with no tickers array and deleted it on its next save, and it never folded
+// the old star array; such a list is kept here with an empty tickers array.
 export function readWatchlists(storage, now = Date.now()) {
   foldLegacyStars(storage, now);
   return readLists(storage);

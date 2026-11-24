@@ -1,4 +1,4 @@
-// v57.84 (P1855/R711): one parser for the R ledger, shared by ci-ledger-integrity-check and ci-record-fix-check.
+// One parser for the R ledger, shared by ci-ledger-integrity-check and ci-record-fix-check.
 // Since the v59.48 class restructure every rule in RULES.md is a `## R<n>.` heading. The parser still reads the two older
 // shapes (`### R<n>.`, inline `**R<n> —` bodies) so a ledger from an older commit (git 46bad2f6) counts the same.
 export function ruleIdOccurrences(text) {

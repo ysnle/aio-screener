@@ -26,9 +26,9 @@ if (!/fetch-depth:\s*0/.test(workflow) || !/convergence-health\.json/.test(workf
   || !/branches\/main/.test(workflow) || !/latestMainSha/.test(workflow)
   || !/Recheck main head immediately before Worker mutation/.test(workflow) || !/steps\.latest-main\.outputs\.safe/.test(workflow)) fail('P1308/R653/QA-DATA-50 must compare latest main and live Worker SHA with full attested history');
 const rollbackFixtureVersion = 'a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';
-// P1335: Wrangler returns deployments oldest-first; the newest (by created_on) is the active one.
+// Wrangler returns deployments oldest-first; the newest (by created_on) is the active one.
 if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-07-27T00:00:00Z', versions: [{ percentage: 100, version_id: '11111111-1111-4111-8111-111111111111' }] }, { created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) throw new Error('rollback resolver must pick the newest deployment, not the first listed (P1335)');
-if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) { // P1351: even a single rollback target must carry a valid date.
+if (rollbackResolver.resolveActiveWorkerVersionId({ deployments: [{ created_on: '2026-09-20T00:00:00Z', versions: [{ percentage: 100, version_id: rollbackFixtureVersion }] }] }) !== rollbackFixtureVersion) { // Even a single rollback target must carry a valid date.
   fail('P1307/R652/QA-DATA-49 single active rollback target was not resolved');
 }
 let splitRollbackRefused = false;
@@ -79,7 +79,7 @@ const smokeEnv = new Proxy({ AIO_QUOTES_KV: kv, AIO_SOURCE_SHA: '1'.repeat(40) }
 const smokeResponse = await dataPlane.fetch(new Request('https://fast.example/health', { headers: { Origin: 'https://ysnle.github.io' } }), smokeEnv);
 const smokeBody = await smokeResponse.json();
 if (smokeResponse.status !== 200 || smokeBody.ok !== true || smokeBody.revision !== 'fixture:kv-only' || smokeBody.sourceSha !== '1'.repeat(40)) fail('KV-only /health smoke/exact-source identity failed');
-// P1578: /health states whether the refresh dispatcher is configured and never echoes the token.
+// /health states whether the refresh dispatcher is configured and never echoes the token.
 if (smokeBody.schedulerDispatch?.configured !== false) fail('P1578 /health must report schedulerDispatch.configured=false without a token');
 {
   // Public reads use the KV colo read cache (30 s); a wrong cron token is rejected by the digest compare.
@@ -95,7 +95,7 @@ if (smokeBody.schedulerDispatch?.configured !== false) fail('P1578 /health must 
   if (tokenBody.schedulerDispatch?.configured !== true || JSON.stringify(tokenBody).includes('github_pat_fixture_secret')) fail('P1578 /health must report a configured dispatcher without exposing the token');
 }
 
-// P1156: the read routes ran for ANY method, so `POST /quotes` skipped the CDN cache and hit the
+// The read routes ran for ANY method, so `POST /quotes` skipped the CDN cache and hit the
 // KV namespace on every request — an unauthenticated, unmetered read amplifier. Keep the read
 // surface GET/HEAD-only, and keep the token-gated write route working through the reorder.
 const postQuotes = await dataPlane.fetch(new Request('https://fast.example/quotes', { method: 'POST' }), smokeEnv);
@@ -112,8 +112,8 @@ if (FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit !== 1000
   || FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDay >= FAST_PLANE_WRITE_POLICY.warningDailyTarget
   || FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDayWorstCase >= FAST_PLANE_WRITE_POLICY.kvFreeTierDailyLimit
   || FAST_PLANE_WRITE_POLICY.heartbeatIntervalMs < 15 * 60 * 1000) fail('fast-plane write policy does not leave normal/worst-case KV free-tier safety margins');
-// v60.46: the README write bound is read from the policy, not pinned as a literal — the pinned '432'/'624' outlived
-// the receipt count's move from 48 to 54 (v60.14) and kept the stale prose passing.
+// The README write bound is read from the policy, not pinned as a literal — the pinned '432'/'624' outlived
+// the receipt count's move from 48 to 54 and kept the stale prose passing.
 for (const token of [`${FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDay} successful KV writes/day`, `${FAST_PLANE_WRITE_POLICY.dispatchReceiptsPerDay} scheduler receipts`, `${FAST_PLANE_WRITE_POLICY.maxSuccessfulKvWritesPerDayWorstCase}/day`]) {
   if (!workerReadme.includes(token)) fail(`v60.46 worker README write bound does not match FAST_PLANE_WRITE_POLICY: missing "${token}"`);
 }
@@ -139,7 +139,7 @@ const policyKv = {
   async put(key, value) { writes.push(key); values.set(key, String(value)); }
 };
 try {
-  // P1266: exercise the authenticated write route under the same deterministic
+  // Exercise the authenticated write route under the same deterministic
   // quote transport as scheduled publication; CI must not depend on live Yahoo.
   const adminWithToken = await dataPlane.fetch(new Request('https://fast.example/admin/run', { method: 'POST', headers: { 'X-AIO-Cron-Token': 'cron-fixture' } }), new Proxy({ ...smokeEnv, AIO_CRON_SECRET: 'cron-fixture' }, { get: (t, p) => (p === 'AIO_QUOTES_BUCKET' || p === 'AIO_QUOTES_R2_BUCKET') ? fail('KV smoke touched an R2 binding') : Reflect.get(t, p) }));
   if (adminWithToken.status !== 200) fail(`/admin/run with a valid cron token regressed: ${adminWithToken.status}`);
@@ -162,7 +162,7 @@ try {
   globalThis.fetch = originalFetch;
 }
 
-// P1377: the Worker cron dispatches refresh-data at :20/:50 only with a token, as trigger=scheduler,
+// The Worker cron dispatches refresh-data at :20/:50 only with a token, as trigger=scheduler,
 // and the workflow skips the operator-only full 13F chain for that trigger.
 {
   const { dispatchRefreshData, REFRESH_DISPATCH_POLICY } = await import('../worker/data-plane.js');
@@ -179,7 +179,7 @@ try {
   const refreshWorkflow = read('.github/workflows/refresh-data.yml');
   if (!/workflow_dispatch:\n\s+inputs:\n\s+trigger:/.test(refreshWorkflow) || !/inputs\.trigger != 'scheduler'/.test(refreshWorkflow)) fail('P1377 refresh-data must accept trigger=scheduler and keep the full 13F chain operator-only');
   if (!/dispatchRefreshData\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('P1377 scheduled() must dispatch refresh-data');
-  // P1718: Cloudflare Workers throw TypeError on redirect:'error' (Node accepts it, so fixtures passed while every live
+  // Cloudflare Workers throw TypeError on redirect:'error' (Node accepts it, so fixtures passed while every live
   // slot failed at status 0). Worker fetches use 'manual' and refuse 3xx themselves.
   if (!calls.every((call) => call.init?.redirect === 'manual')) fail(`P1718 dispatcher fetches must use redirect:'manual' (Workers reject 'error'): ${calls.map((call) => call.init?.redirect).join(',')}`);
   const workerSources = fs.readdirSync(path.join(root, 'worker')).filter((name) => /\.m?js$/.test(name) && !/\.test\.m?js$/.test(name));
@@ -187,7 +187,7 @@ try {
   if (offenders.length) fail(`P1718 Worker sources must not use redirect:'error' (TypeError on Workers): ${offenders.join(', ')}`);
 }
 
-// v59.81: event-briefs dispatch at :05/:25/:45 only, body {ref}, no KV receipt, skipped after a success within 15 min.
+// event-briefs dispatch at :05/:25/:45 only, body {ref}, no KV receipt, skipped after a success within 15 min.
 {
   const { dispatchEventBriefs, FAST_PLANE_WRITE_POLICY: policy } = await import('../worker/data-plane.js');
   const puts = [];
@@ -205,7 +205,7 @@ try {
   if (!/dispatchEventBriefs\(\{ env, scheduledTime/.test(worker)) fail('v59.81 the scheduled handler does not dispatch event briefs');
 }
 
-// Screener dispatch: refresh-screener at 07:25Z/22:25Z (backup after the 06:53/21:53 crons) plus two hourly retry slots each (v60.14), body {ref, inputs.trigger=scheduler}, own KV dedupe key.
+// Screener dispatch: refresh-screener at 07:25Z/22:25Z (backup after the 06:53/21:53 crons) plus two hourly retry slots each, body {ref, inputs.trigger=scheduler}, own KV dedupe key.
 {
   const { dispatchRefreshScreener, dispatchRefreshData, SCREENER_DISPATCH_POLICY } = await import('../worker/data-plane.js');
   const store = new Map();
@@ -234,7 +234,7 @@ try {
   store.clear();
   const cronMissed = await dispatchRefreshScreener({ env, scheduledTime: Date.parse('2026-10-01T22:25:00Z'), fetchImpl: runsAt('2026-10-01T18:40:00Z') });
   if (cronRan.dispatched || cronRan.reason !== 'recent-success' || !cronMissed.dispatched) fail(`screener backup dispatch must skip an on-time cron run and cover a missed one: ${JSON.stringify({ cronRan, cronMissed })}`);
-  // v60.14: a refused run is retried at the next two hourly slots; a run that succeeded at the cron or the backup is not repeated.
+  // A refused run is retried at the next two hourly slots; a run that succeeded at the cron or the backup is not repeated.
   const failedRun = async (url, init) => init.method === 'POST' ? new Response(null, { status: 204 })
     : Response.json({ workflow_runs: [{ id: 11, head_branch: 'main', status: 'completed', conclusion: 'failure', updated_at: '2026-10-01T07:40:00Z' }] });
   const retrySlots = [];
@@ -246,7 +246,7 @@ try {
   if (!retrySlots.every(row => row.dispatched) || !nextDayRetry.dispatched || !settled.every(row => !row.dispatched && row.reason === 'recent-success')) fail(`v60.14 screener retry slots must re-dispatch after a failed run and stay quiet after a successful one: ${JSON.stringify({ retrySlots, nextDayRetry, settled })}`);
   {
     const { dispatchWatchdog, WATCHDOG_DISPATCH_POLICY, FAST_PLANE_WRITE_POLICY: writes } = await import('../worker/data-plane.js');
-    // v60.14: every five-minute slot of a day, each with an empty store and no earlier run — the receipts the two
+    // Every five-minute slot of a day, each with an empty store and no earlier run — the receipts the two
     // receipt-keeping dispatchers write must equal the number the KV write budget is computed from.
     let receipts = 0;
     const kept = [...store];
@@ -284,7 +284,7 @@ try {
   if (!/dispatchRefreshScreener\(\{ env, scheduledTime: controller\?\.scheduledTime/.test(worker)) fail('scheduled() must dispatch refresh-screener');
 }
 
-// v59.85: a GitHub cron that stood down (scripts/cron-fallback-guard.mjs) ends 'success' with no work, so for the two workflows
+// A GitHub cron that stood down (scripts/cron-fallback-guard.mjs) ends 'success' with no work, so for the two workflows
 // whose cron is only the Worker's fallback it must not count as the recent success that skips the next slot; the screener's
 // crons still do the real work and keep counting.
 {
@@ -302,7 +302,7 @@ try {
   }
 }
 
-// v59.94: for fallback-cron workflows a run is this slot's recent success only when it started inside the window, so the
+// For fallback-cron workflows a run is this slot's recent success only when it started inside the window, so the
 // previous slot's run (started a full slot spacing earlier) never suppresses the next slot however late it completed.
 {
   const { dispatchRefreshData } = await import('../worker/data-plane.js');
@@ -337,7 +337,7 @@ try {
   if (!briefsNext.dispatched || briefsNext.reason !== 'accepted') fail(`v59.94 the previous event-briefs slot's run must not suppress the next slot: ${JSON.stringify(briefsNext)}`);
 }
 
-// P1595: fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
+// Fallback dispatch coalesces healthy work, persists safe receipts and bounds stalled bodies.
 {
   const { dispatchRefreshData } = await import('../worker/data-plane.js');
   const slot = Date.parse('2026-10-01T13:20:00Z');
@@ -380,7 +380,7 @@ try {
   if (health.schedulerDispatch?.lastObservation?.reason !== stalled.reason) fail('P1595 /health must expose the most recent dispatch observation');
 }
 
-// P1518: a provider can send headers and never finish its body. Both mirrors
+// A provider can send headers and never finish its body. Both mirrors
 // remain bounded, failure records a heartbeat, and existing good data survives.
 {
   const retained = kvValues.get('quotes:current');

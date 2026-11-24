@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v59.70 (integration review 89e8c881): CI's browser shards read the pinned snapshot (architecture/browser-data-fixture.json),
+// CI's browser shards read the pinned snapshot (architecture/browser-data-fixture.json),
 // and its history.json may still be the v1 array while refresh-data already writes history.v2 (field dictionary +
 // checkedAt, src/domain/market/indices/history-rows.js). This fixture keeps the page's v2 read path under CI instead of leaving
 // it to the watchdog: it serves the working tree's history compacted to history.v2 and checks the page loads the same

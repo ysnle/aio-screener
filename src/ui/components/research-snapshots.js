@@ -13,6 +13,8 @@ export function focusResearchMemo(panel, template = '') {
 const basisLabel = (basis) => ({ 'regular-session-close': '미국 정규장 종가', 'regular-close-delta': '직전 미국 정규장 종가 대비',
   'previous-regular-close': '직전 미국 정규장 종가 대비', 'provider-previous-value': '공급자가 제공한 직전 값 대비', 'daily-close-reference': '일별 종가 참고값',
   unknown: '가격 기준 미제공', unavailable: '가격 기준 미제공' })[basis] || (basis && !/^[a-z0-9-]+$/.test(basis) ? basis : '가격 기준 확인 필요');
+// `open`: the panel is a section on the face (종목 개요, 2026-11-19: folds there are only 원자료 표 · 계산 방법 · 데이터 출처),
+// not a fold, and each saved note is a plain entry.
 export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, collect, open = false }) {
   if (!host) return;
   let panel = host.querySelector(`[data-research-snapshots="${kind}"]`);
@@ -79,6 +81,7 @@ export function ensureResearchSnapshots({ documentRef: doc, root, host, kind, co
     else status.textContent = '저장 공간이 가득 차 되돌릴 수 없습니다. 저장본을 먼저 정리해 주세요.';
   });
   panel.append(title, note, save, status, undo, list);
+  // The page's 데이터 출처 fold stays the last block, so the saved-notes panel goes above it.
   const sources = host.querySelector(':scope > details.page-sources');
   if (sources) host.insertBefore(panel, sources); else host.appendChild(panel);
   draw();

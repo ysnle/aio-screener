@@ -1,4 +1,4 @@
-// P1740: the answer's shape follows the question instead of one template. Every answer used to be squeezed into
+// The answer's shape follows the question instead of one template. Every answer used to be squeezed into
 // "summary ≤2 sentences, ≤4 sections × ≤3 sentences" while earlier blocks also demanded a six-step stock memo, so a
 // definition, a macro question and a stock comparison all came back in the same short generic form.
 import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
@@ -10,12 +10,12 @@ export function chooseAnswerMode(policy) {
   const depth = intent.questionPlan?.requestedDepth || 'standard';
   if (policy?.isBroadRecommendation) return 'screen';
   if (policy?.asksDecision && policy.hasTicker) return 'decision';
-  if (policy?.asksDecision && intent.wantsAction) return 'outlook'; // P1742: a market/sector-level "buy now?" is a branch question
+  if (policy?.asksDecision && intent.wantsAction) return 'outlook'; // A market/sector-level "buy now?" is a branch question
   if (intent.wantsCompare && canonical.includes('COMPARISON')) return 'comparison';
   if (intent.wantsCompare && canonical.includes('SCREENING')) return 'screen';
   if (intents.includes('EXPLAIN_BEGINNER') && intents.length === 1) return depth === 'brief' ? 'quick' : 'explain';
   if (depth === 'brief') return 'quick';
-  // P1742: a forward or "what should I do" question about the market (no single company) is answered as branches.
+  // A forward or "what should I do" question about the market (no single company) is answered as branches.
   if (!policy?.hasTicker && (canonical.includes('OUTLOOK') || intent.wantsAction)) return 'outlook';
   if (policy?.needsTickerFactAnswer && canonical[0] === 'ENTITY_FACT' && !intent.wantsDeep) return 'quick';
   return 'analysis';

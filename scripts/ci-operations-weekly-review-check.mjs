@@ -1,4 +1,4 @@
-// v58.84: weekly operator review — token expiry, repository size and AI month status, offline.
+// Weekly operator review — token expiry, repository size and AI month status, offline.
 import assert from 'node:assert/strict';
 import { collectWeeklyReview, WEEKLY_REVIEW_MARKER } from './build-operations-weekly-review.mjs';
 import { evaluateWeeklyReview, parseGithubTokenExpiration, renderWeeklyReviewMarkdown } from './lib/operations-weekly-review.mjs';
@@ -77,7 +77,7 @@ assert.equal(parseGithubTokenExpiration('next tuesday'), null, 'v58.84 unparseab
 }
 
 {
-  // v59.27: with no AIO_OPERATOR_TOKEN the review reads the month with the automation token, sent only to the Worker.
+  // With no AIO_OPERATOR_TOKEN the review reads the month with the automation token, sent only to the Worker.
   const seen = [];
   const fetchImpl = async (url, init) => {
     seen.push({ url: String(url), headers: init.headers });

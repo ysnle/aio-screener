@@ -1,3 +1,6 @@
+// The AI supply chain on 오늘, before the release summaries — one bar per group for the
+// one-month median move with the last session beside it, a sentence of counts, and each group's members in a fold.
+// A lazy chunk like the release summaries; the rows and themes are the screener's and the 테마 screen's, already loaded.
 import { el } from './dom.js';
 import { signedText } from '../../domain/shared/number.js';
 import { signedBar } from './signed-bar.js';
@@ -58,6 +61,8 @@ export function paintThemesLeaderFalls(doc, root) {
   return falls;
 }
 
+// v59.56 (X-bookmark gap 2): Taiwan's monthly revenue under the US price medians — one sentence on the face, each
+// group's year-on-year change and its companies in the fold. Requested once per load; a new copy repaints the block.
 function twRevenue(doc, root, id, repaint) {
   (root.__aioTwRevenueRepaint ||= {})[id] = repaint; // home and 테마 each repaint their own block when a new copy lands
   if (!root.__aioTwRevenueRequested) {
@@ -81,6 +86,8 @@ function twRevenue(doc, root, id, repaint) {
   return { face, fold };
 }
 
+// v59.70 (X bookmarks 11/4 #7): each layer's median PER on last-four-quarter → next-four-quarter consensus EPS, one dot
+// pair per layer on a shared log axis. A layer under its coverage rule is left out and named in the hover.
 const PER_TICKS = Object.freeze([5, 10, 20, 50, 100, 200]);
 function layerPerFold(doc, root, repaint) {
   const consensus = root?.[CONSENSUS_KEY] || null;
@@ -160,6 +167,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
       day.dataset.direction = direction(group.ret1d);
       const name = el(doc, 'span', group.name, 'ai-chain__name');
       name.title = group.name;
+      // The shared two-sided bar — a falling group sits left of the zero line instead of right-anchored.
       li.append(name, signedBar(doc, Number(group.ret1m) || 0, scale), el(doc, 'span', signed(group.ret1m), 'ai-chain__month'), day);
       li.children[2].dataset.direction = direction(group.ret1m);
       chart.append(li);

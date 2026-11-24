@@ -1,3 +1,9 @@
+// P763/ARX-10 follow-up: the factor-weight regime/profile resolver is pure.
+// Storage/profile lookup remains at the compatibility boundary; this module owns only the
+// deterministic weight math so native and legacy screener consumers cannot diverge.
+//
+// Default: five equal axes (trend = price against averages 10% + trend speed 10%). The former default was 0.93
+// correlated with momentum alone; it stays on record as the candidate-archive shadow model. Size has no input: 0.
 export const FACTOR_WEIGHTS_MODEL_VERSION = 'factor-weights.v5';
 
 const NEUTRAL = Object.freeze({ momentum: 0.20, trend: 0.10, lowvol: 0.20, size: 0, value: 0.20, quality: 0.20, kalman: 0.10 });
@@ -75,6 +81,9 @@ export function deriveFactorWeights({ marketState = null, profile = null, promot
     }
   } catch (_) {}
   const normalizedProposal = normalizeWeights(proposedWeights);
+  // An adaptive proposal may change production ranks only after an explicit
+  // promotion record proves live/backtest definition parity and human review.
+  // The current repository intentionally has no such promoted record.
   const adaptiveApplied = promotion?.status === 'PROMOTED'
     && promotion?.liveBacktestParity === true
     && promotion?.reviewApproved === true;

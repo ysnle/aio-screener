@@ -47,7 +47,7 @@ assert.deepEqual(resolveNewsIssuers({ title: 'JP모건) 마벨 인베스터 데�
 assert.deepEqual(resolveNewsIssuers({ title: 'JPMorgan earnings beat estimates' }, [], banks), ['JPM'], 'N07: a bank reporting its own results stays the issuer');
 assert.deepEqual(resolveNewsIssuers({ title: '하이닉스 HBM 증설' }, [], { '000660.KS': { en: 'SK Hynix', kr: 'SK하이닉스', alt: ['hynix', '하이닉스'] } }), ['000660.KS'], 'N08: Korean registry alias longer than two characters');
 assert.deepEqual(resolveNewsIssuers({ title: '삼전 급락' }, [], { '005930.KS': { en: 'Samsung Electronics', kr: '삼성전자', alt: ['삼전'] } }), [], 'N08: two-character abbreviation stays out');
-// P1755: compiled matchers are cached per name/symbol and a substring prefilter skips texts that cannot
+// Compiled matchers are cached per name/symbol and a substring prefilter skips texts that cannot
 // match. The cache must not leak one text's answer into another, and the prefilter must keep every
 // case-insensitive Unicode match the regex finds (long s folds to "s", Kelvin sign to "k").
 {
@@ -61,7 +61,6 @@ assert.deepEqual(resolveNewsIssuers({ title: '삼전 급락' }, [], { '005930.KS
   assert.deepEqual(resolveNewsIssuers({ title: 'Watch $tslax into the close' }, [], tesla), [], 'P1755 explicit symbol boundary still enforced after the prefilter');
 }
 assert.equal(normalizeNews({ fetchedAt: '2026-10-10T00:00:00Z', items: [{ ...row, publishedAt: row.pubDate }] }).items[0].fetchedAt, '2026-10-10T00:00:00Z', 'P1601: collection distinct from publication');
-// v59.17: the legacy NewsStore moved to src/data/quality/validation-stores.js; the fixture runs the module itself.
 const { NewsStore: legacyNewsStore } = installValidationStores({});
 assert.equal(legacyNewsStore.filter([{ ...row }, { ...row, link: 'https://example.test/article?id=2' }, correction]).length, 3, 'P1601: legacy early boot retains query ids and changed versions');
 

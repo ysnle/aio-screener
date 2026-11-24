@@ -4,6 +4,9 @@
 // nothing for the rest.
 import { themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 
+// The old #theme-detail address (#theme-detail/<id>, ?theme=<id> or ?id=<id>) names a US THEME_MAP theme.
+// resolveInitialRoute ignored the id and fell back to the first theme, so every old link opened 방산. A retired or
+// unknown id opens the theme list (themeId null); other query keys (knowledgeNode) are not an id.
 const THEME_ID = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
 
 /** { themeId } for an old #theme-detail address, null for any other address. */

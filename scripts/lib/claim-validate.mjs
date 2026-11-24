@@ -18,7 +18,7 @@ const valueOf = (facts, subject, measure) => {
   return Number.isFinite(value) ? value : null;
 };
 
-// v60.49 a filer's figure (subject `filer:<symbol>`) is read over a period. Durations (years, months) and counts are not.
+// A filer's figure (subject `filer:<symbol>`) is read over a period. Durations (years, months) and counts are not.
 const FILER = /^filer:/;
 const PERIODLESS_UNITS = new Set(['years', 'months', 'count']);
 const DAY_MS = 86400000;

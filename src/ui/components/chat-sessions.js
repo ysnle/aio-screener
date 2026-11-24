@@ -1,4 +1,4 @@
-// Owner 2026-10-14: conversations in the AI panel — one conversation follows the reader across screens, a list of past
+// Conversations in the AI panel — one conversation follows the reader across screens, a list of past
 // conversations can be reopened and continued, and nothing is stored until the reader agrees on the first conversation.
 // The classic panel (src/ui/chat/panel.js) keeps its send/stream path; this module only (1) gives it one shared conversation
 // state instead of one per screen, (2) records each completed turn, (3) adds the header controls and the list.
@@ -75,7 +75,7 @@ export function installChatSessions(root = globalThis, doc = root.document, { st
   // (2) Record each completed turn; ask once, after the first answer, whether to keep conversations on this device.
   const pending = [];
   const originalSave = root.saveChatEntry;
-  // Codex audit F24 (2026-10-15): the message list is a plain div that only scrolls, so a screen-reader user heard
+  // Codex audit F24: the message list is a plain div that only scrolls, so a screen-reader user heard
   // nothing when an answer finished. Every completed turn (normal or gate-blocked) passes saveChatEntry, so one polite
   // status line announces the completion once — the streamed text itself is not re-read.
   const status = el(doc, 'p', '', 'sr-only');

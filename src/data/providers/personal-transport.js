@@ -1,5 +1,5 @@
-// P1423: native ownership of the browser fetch transport (timeout + caller abort relay).
-// v57.81: the P1422 FMP /api/v3 -> /stable rewrite (including the earnings-call transcript and ownership
+// Native ownership of the browser fetch transport (timeout + caller abort relay).
+// The P1422 FMP /api/v3 -> /stable rewrite (including the earnings-call transcript and ownership
 // mappings), its payload aliasing and quota counting, and the Twelve Data credit reservation were retired.
 // Personal data-provider keys left in v57.67 and their fetchers in v57.76, so no live caller produces those URLs.
 export function createPersonalProviderTransport({ fetch }) {

@@ -14,7 +14,6 @@ import { readProducerSource } from './lib/producer-source.mjs';
 // 2026-07-22/ARX-11: signal now consumes the extracted trading-score model; its score-to-action
 // envelope is covered below so the retired three-input toy cannot return as a parallel owner.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-// v59.05: the 포트폴리오 risk panel renderer moved from js/aio-workspace.js to src/ui/components/portfolio-risk-metrics.js.
 const workspaceWithPanels = () => readFileSync(path.join(root, 'js/aio-workspace.js'), 'utf8') + readFileSync(path.join(root, 'src/ui/components/portfolio-risk-metrics.js'), 'utf8');
 const fail = (message) => { throw new Error(`[esm-core-unit] ${message}`); };
 const load = (rel) => import(pathToFileURL(path.join(root, rel)));
@@ -81,14 +80,14 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   }
 }
 
-// P1359: original and translated text decode once at the normalization boundary.
+// Original and translated text decode once at the normalization boundary.
 {
   const { normalizeNews } = await load('src/data/normalize/news.js');
   const item = normalizeNews({ items: [{ title: '&#036;NBIS &amp;#036;DOUBLE', ko_title: '&#036;NBIS 한글 &amp;#036;DOUBLE', ko_summary: '&#60;script&#62;문자열' }] }).items[0];
   if (item.title !== '$NBIS &#036;DOUBLE' || item.ko_title !== '$NBIS 한글 &#036;DOUBLE' || item.ko_summary !== '<script>문자열') fail('P1359 translated/original text decoding boundary');
 }
 
-// v59.88: after the Korean close and before the US one, the won decomposition's KOSPI leg is the KOSPI's own 20-session
+// After the Korean close and before the US one, the won decomposition's KOSPI leg is the KOSPI's own 20-session
 // change to its latest close, the one number 매크로 and 시장 상태 print (it was clamped to the SPX date).
 {
   const { buildKrwDecomposition } = await load('src/domain/macro/krw-decomposition.js');
@@ -110,7 +109,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   const flatRows = rows.slice(0, 320).map((row) => ({ ...row }));
   flatRows.slice(-21).forEach((row, i) => { row.dxy = flatRows.at(-21).dxy * (1 + 0.0008 * i); row.usdkrw = flatRows.at(-21).usdkrw * (1 - 0.0002 * i); });
   const offset = buildKrwDecomposition(flatRows);
-  // v60.19: 보합권 is the move-size grade (move-size.js), not a fixed ±0.5%: this fixture's won moves about 0.1% a day, so
+  // 보합권 is the move-size grade (move-size.js), not a fixed ±0.5%: this fixture's won moves about 0.1% a day, so
   // its -0.4% over 20 sessions is an ordinary move with a side; a won that moves 0.5% a day makes the same -0.4% 보합권.
   const { moveGrade, closeMoveGrade } = await load('src/domain/market/session/move-size.js');
   const flatGrade = closeMoveGrade(flatRows, 'usdkrw', offset.krwMove, { sessions: 20, through: offset.to });
@@ -207,21 +206,21 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
     fail(`v60.16 the rates fold names the short-end path against the target midpoint and splits the 10-year move by term premium: ${JSON.stringify(ratesFold?.detail)}`);
   }
 }
-// P1358: durable derived rotation drives the native provider without exposing raw prices.
+// Durable derived rotation drives the native provider without exposing raw prices.
 {
   const { selectProducedRotation } = await load('src/domain/themes/produced-rotation.js');
   const { createThemesProvider } = await load('src/data/providers/themes.js');
   const now = Date.parse('2026-10-01T00:34:00Z');
   const artifact = { schemaVersion: 'rotation-history.v1', modelVersion: 'rrg.v3', benchmark: 'SPY', timeframe: '1d', priceBasis: 'adjusted-close', sourceKind: 'T3_PUBLIC_DELAYED', allowedUseCeiling: 'reference', decisionUse: false, latestCompletedSession: '2026-09-30', items: { XLK: { status: 'CURRENT', sessionDate: '2026-09-30', observedAt: '2026-09-30T20:00:00Z', fetchedAt: '2026-10-01T00:33:00Z', rsRatio: 101, rsMomentum: 102, quadrant: 'Leading', dailyPct: 1.2, weeklyPct: 3.5, alignedSessionCount: 60, performanceBasis: 'adjusted-close-total-return' } } };
   if (!selectProducedRotation(artifact, 'XLK', now)) fail('P1358 coherent producer rotation was lost');
-  // v59.87: the written-out quadrant rule of produced-rotation.js stays the rrgQuadrantOf of rrg.js (both sides of 100).
+  // The written-out quadrant rule of produced-rotation.js stays the rrgQuadrantOf of rrg.js (both sides of 100).
   const { rrgQuadrantOf } = await load('src/domain/themes/rrg.js');
   for (const [rs, mom] of [[101, 102], [101, 99], [99, 101], [99, 98], [100, 100], [100, 99.9], [99.9, 100]]) {
     const quadrant = rrgQuadrantOf(rs, mom);
     const item = { ...artifact.items.XLK, rsRatio: rs, rsMomentum: mom, quadrant };
     if (!selectProducedRotation({ ...artifact, items: { XLK: item } }, 'XLK', now)) fail(`v59.87 produced-rotation quadrant rule differs from rrgQuadrantOf at ${rs}/${mom} (${quadrant})`);
   }
-  // P1366: an absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
+  // An absent 1/5-session return keeps the valid coordinates; a non-numeric return does not.
   const partialReturn = selectProducedRotation({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null, weeklyPct: null } } }, 'XLK', now);
   if (!partialReturn || partialReturn.rsRatio !== 101 || partialReturn.dailyPct !== null) fail('P1366 missing optional return discarded valid RRG coordinates');
   const partialItem = createThemesProvider({ readRotationHistory: () => ({ ...artifact, items: { XLK: { ...artifact.items.XLK, dailyPct: null } } }), readDefinitions: () => ({ sectors: [{ sym: 'XLK', name: '기술' }] }), now: () => now }).readCurrent().items[0];
@@ -234,10 +233,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (item.rsRatio !== 101 || item.pct !== 1.2 || item.weeklyPct !== 3.5 || item.price !== null || item.changeBasis !== 'adjusted-close-total-return') fail('P1358 provider bypassed durable rotation or fabricated a raw price');
 }
 
-// P1357's reference-observation selector had no runtime caller and was deleted (v57.55 review cleanup, R675).
-// P1727: the briefing decision-summary model (no product consumer since the briefing read replaced it) was deleted.
-
-// P1353: refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
+// Refuse unsupported paid search before incrementing counters; personal-key cost stays separate.
 {
   const { preparePaidWebSearch } = await load('src/ai/policy/budget.js');
   const state = {};
@@ -248,7 +244,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (state._aioWebSearchStats.calls !== 1 || counters !== 0) fail('P1608 shared search diagnostics must not consume a personal allowance');
 }
 
-// P1352: the production legacy model describes inputs, not an inferred economic expansion/recession.
+// The production legacy model describes inputs, not an inferred economic expansion/recession.
 {
   const core = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const source = core.match(/window\.AIO\.getCycleFromMacro = function\(macro\) \{[\s\S]*?\n\};/)[0];
@@ -270,7 +266,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   }
 }
 
-// P1350: incomplete valuation evidence must not turn into 0% or -100% in AI context.
+// Incomplete valuation evidence must not turn into 0% or -100% in AI context.
 {
   const { redactPortfolioForAI } = await load('src/storage/financial-security.js');
   const now = Date.parse('2026-09-30T13:00:00Z');
@@ -292,8 +288,6 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (!round.ok || JSON.stringify(round.contents.watchlists) !== JSON.stringify(watchlists)) fail('P1350 actual watchlist object round trip loses metadata');
 }
 
-// RM-07 -> v57.79: the cross-route sentiment summary projection painted four ids no page creates (R705 dead-id
-// scan), so it was removed with its module; bootstrap's sentiment sync must not bring a projection writer back.
 {
   const bootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   if (/renderSentimentSummaryProjection|ui\/projections\/sentiment-summary/.test(bootstrapSource)) fail('v57.79 retired sentiment summary projection returned to bootstrap'); // text-pin-ok: retirement absence
@@ -323,7 +317,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'same-target-repeat' } }));
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'same-target-repeat' } }));
   if (calls !== 4) fail(`compatibility event adapter: same-target events were incorrectly deduplicated (${calls})`);
-  // P1408: document original → window mirror → document update (same detail, inside the window) delivers twice.
+  // Document original → window mirror → document update (same detail, inside the window) delivers twice.
   documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
   windowTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
   documentTarget.dispatchEvent(new CustomEvent('aio:refresh:done', { detail: { type: 'done', generatedAt: 'p1408' } }));
@@ -352,7 +346,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (resolveInitialRoute({ root: routeRoot }) !== 'themes' || routeRoot._aioOpenThemeDetailOnThemes !== 'theme-9') {
     fail('initial route: existing pending theme identity was overwritten');
   }
-  // v59.70: every US theme id survives each old address form (it used to open THEME_MAP[0] = 방산 for all of them), and a
+  // Every US theme id survives each old address form (it used to open THEME_MAP[0] = 방산 for all of them), and a
   // retired Korean id (UAM·우주·양자) opens the plain list.
   const { loadThemeMaps } = await import('./build-scenario-state.mjs');
   const { usThemes } = loadThemeMaps();
@@ -490,7 +484,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   }
 }
 
-// P1039: repeated canonical reads reuse a defensive frozen copy; new store
+// Repeated canonical reads reuse a defensive frozen copy; new store
 // references refresh it, while non-canonical/time-dependent reads stay fresh.
 {
   let native = { rows: [{ symbol: 'AAA', value: 1 }] };
@@ -513,7 +507,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (legacyRoot.AIO_ARCH.getState().rows[0].value !== 3) fail('facade cache: non-canonical mutable input cached');
 }
 
-// P1755: a dot-path state read snapshots only the selected branch. It stays frozen and isolated, is
+// A dot-path state read snapshots only the selected branch. It stays frozen and isolated, is
 // reused while that branch's reference is unchanged (even when unrelated slices change), refreshes when
 // the branch is replaced, and never disturbs the full-state snapshot cache.
 {
@@ -541,7 +535,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (plain.total !== 62 || !Object.isFrozen(plain) || plain === state.analysis.tradingScore) fail('P1755 facade path read: non-canonical path read not snapshotted');
 }
 
-// P1035: unrelated writes must not rebuild a mounted page; every dependency and
+// Unrelated writes must not rebuild a mounted page; every dependency and
 // disposal still has to work, including a single action replacing two slices.
 {
   const { subscribeToSlices } = await load('src/state/memoize.js');
@@ -620,7 +614,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
 }
 
 // ── lifecycle.js (createResourceBag) ────────────────────────────────────────────────────────
-// P1019/P1020: failure must not poison caches, requests or regime inputs.
+// Failure must not poison caches, requests or regime inputs.
 {
   const { createSelector } = await load('src/state/memoize.js');
   let throwing = false, calls = 0;
@@ -685,7 +679,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (timed?.error !== 'HTTP_TIMEOUT' || lateTimeout.ok) fail('http: ignored abort published late success or never settled');
   const bodyTimeout = await virtualTime(() => createHttpClient({ defaultTimeoutMs: 5, fetchImpl: async () => ({ ok: true, status: 200, json: () => new Promise(() => {}) }) }).requestJson('fixture'));
   if (bodyTimeout.error !== 'HTTP_TIMEOUT') fail('http: deadline excludes JSON body wait');
-  // P2072: on slow 3G a 397 KB body outlived the 8 s deadline and restarted forever. A streamed body that keeps
+  // On slow 3G a 397 KB body outlived the 8 s deadline and restarted forever. A streamed body that keeps
   // moving finishes past the request deadline; one that stops for bodyStallMs is still cut.
   const drip = (parts, gapMs) => new Response(new ReadableStream({ async start(c) { for (const part of parts) { await new Promise((r) => setTimeout(r, gapMs)); if (part == null) return; c.enqueue(new TextEncoder().encode(part)); } c.close(); } }));
   const moving = await virtualTime(() => createHttpClient({ defaultTimeoutMs: 30, bodyStallMs: 60, fetchImpl: async () => drip(['{"rows":', '[1,', '2,', '3]', '}'], 20) }).requestJson('fixture'));
@@ -698,12 +692,12 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
     return Promise.all([busyClient.requestJson('big'), busyClient.requestJson('small')]);
   });
   if (!big.ok || !starved.ok || starved.data?.ok !== 1) fail(`P2072 http: a starved body beside a moving one must not be cut (${starved.error})`);
-  // P1408: a 503 with an HTML body keeps its status; a 200 with an unparseable body is a parse failure.
+  // A 503 with an HTML body keeps its status; a 200 with an unparseable body is a parse failure.
   const htmlError = await createHttpClient({ fetchImpl: async () => ({ ok: false, status: 503, json: async () => { throw new SyntaxError('Unexpected token <'); } }) }).requestJson('fixture');
   const badBody = await createHttpClient({ fetchImpl: async () => ({ ok: true, status: 200, json: async () => { throw new SyntaxError('bad'); } }) }).requestJson('fixture');
   if (htmlError.status !== 503 || htmlError.error !== 'HTTP_503' || badBody.ok || badBody.status !== 200 || badBody.error !== 'HTTP_PARSE_FAILED') fail(`P1408 http status lost: ${JSON.stringify([htmlError.status, htmlError.error, badBody.error])}`);
-  // P1409's return-contract fixture went with src/domain/screener/return-contract.js (v58.51, no product caller).
-  // P1407: mixed-currency risk weights are valued in one base currency or held.
+  // P1409's return-contract fixture went with src/domain/screener/return-contract.js (no product caller).
+  // mixed-currency risk weights are valued in one base currency or held.
   const { assembleRiskEstimateInput } = await load('src/ui/panels/portfolio-risk-input.js');
   const riskDates = ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25', '2026-09-28', '2026-09-29'];
   const riskHist = (base) => Object.fromEntries(riskDates.map((d, i) => [d, base * (1 + 0.01 * Math.sin(i))]));
@@ -1084,7 +1078,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   const full = { vix: decision(18), vvix: decision(90), dxy: decision(100), tnx: decision(3.5), oilPrice: decision(80), fg: decision(50), spx200ma: decision(450), spx50ma: decision(480), spxPrice: decision(500), breadth200: decision(60), hyBp: decision(300) };
   const valid = computeTradingScoreModel({ decisionEvidence: full });
   if (valid.total == null || valid.decisionBlocked || valid.componentCoveragePct !== 100) fail(`truth-boundary: full decision evidence should produce a current score: ${JSON.stringify(valid)}`);
-  // P1388 / v59.70 (v6): the risk-appetite axis reads the HY spread; a reference-only value must not drive it.
+  // The risk-appetite axis reads the HY spread; a reference-only value must not drive it.
   const blocked = computeTradingScoreModel({ decisionEvidence: { ...full, hyBp: reference(300) } });
   if (blocked.total !== null || !blocked.decisionBlocked || !blocked.componentMissing.includes('momentum')) fail(`truth-boundary: a reference HY spread must not drive Trading Score: ${JSON.stringify(blocked)}`);
   const fgIgnored = computeTradingScoreModel({ decisionEvidence: { ...full, fg: decision(5) } });
@@ -1093,8 +1087,6 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (newsBypass.total !== valid.total || newsBypass.newsAdjustmentApplied) fail(`truth-boundary: raw news heuristic bypassed decision evidence: ${JSON.stringify(newsBypass)}`);
   const newsReference = computeTradingScoreModel({ decisionEvidence: { ...full, newsSentimentScore: reference(100), newsRiskSignals: reference([{ impact: 30 }]) }, newsSentimentScore: 100, newsRiskSignals: [{ impact: 30 }] });
   if (newsReference.total !== valid.total || newsReference.newsAdjustmentApplied) fail(`truth-boundary: reference-only news heuristic changed a decision score: ${JSON.stringify(newsReference)}`);
-  // v59.70 (trading-score.v6, owner 11/4): the Cboe put/call input is gone — a put/call value passed in changes nothing, the
-  // HY spread alone is a complete appetite axis, and no optional-input list names put/call.
   const withPcr = computeTradingScoreModel({ decisionEvidence: { ...full, pcr: decision(2) }, pcr: 2 });
   if (withPcr.total !== valid.total || withPcr.momScore !== valid.momScore || valid.partial !== false || valid.missingOptionalInputs.includes('pcr')) fail(`v59.70 trading score ignores put/call: ${JSON.stringify({ valid: valid.total, withPcr: withPcr.total, partial: valid.partial, optional: valid.missingOptionalInputs })}`);
 }
@@ -1144,7 +1136,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   }
 }
 
-// P1348: use the shipped compatibility registry, not a fixture alias map.
+// Use the shipped compatibility registry, not a fixture alias map.
 {
   const source = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const begin = source.indexOf('window.AIO_ROUTE_REGISTRY =');
@@ -1155,7 +1147,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   const aliasRoot = { AIO_ROUTE_REGISTRY: shipped.AIO_ROUTE_REGISTRY, showPage: () => true };
   const facade = createLegacyFacade(aliasRoot, new EventTarget());
   const navigation = facade.installNavigation({ transition: (route) => { committed.push(route); return true; } });
-  // Owner 2026-11-19: 'chart' and the retired 차트 tab id 'technical' both land on 기술적 분석.
+  // 'chart' and the retired 차트 tab id 'technical' both land on 기술적 분석.
   for (const alias of ['chart', 'technical', 'news', 'help', 'options']) aliasRoot.showPage(alias);
   navigation.restore();
   if (committed.join(',') !== 'charts,charts,market-news,guide,sentiment'
@@ -1285,7 +1277,7 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   if (classifyBreadthParticipation({ sma20: 120, sma50: -1 }).available !== false) fail('breadth: percentages outside 0..100 must fail closed');
 }
 
-// ── domain/market/health.js retired (legacy unification, audit 2026-10-17 follow-up) ──────────
+// ── domain/market/health.js retired ──────────
 // The 0-100 market-health grade (A+~F) had no surface after P1420 and only gated the ticker narrative; the gate reads
 // the 시장 상태 regime's sufficiency now, so the model may not return.
 if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired market-health model returned (src/domain/market/health.js)');
@@ -1332,11 +1324,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   const utc = formatAbsoluteTime('2026-09-19T11:57:00.000Z', 'UTC');
   if (!/11:57/.test(utc)) fail(`W09-C: the UTC timezone rendering drifted, got ${JSON.stringify(utc)}`);
-  // P1537 (audit H07): the article list follows the country/topic/type controls; the channel list below it never does.
+  // The article list follows the country/topic/type controls; the channel list below it never does.
   // Both scopes are stated, and the channel note is true for every control state (it used to be silent when only the
   // 텔레그램 type chip narrowed the articles).
   const { describeNewsScope } = await load('src/ui/pages/news.js');
-  // v57.77: the type tabs left — the 텔레그램 chip is countryFilter 'tg', and 기업 is the 'company' topic.
+  // The type tabs left — the 텔레그램 chip is countryFilter 'tg', and 기업 is the 'company' topic.
   const none = describeNewsScope({ countryFilter: 'all', topicFilter: 'all' });
   const country = describeNewsScope({ countryFilter: 'kr', topicFilter: 'all' });
   const topic = describeNewsScope({ countryFilter: 'all', topicFilter: 'company' });
@@ -1346,7 +1338,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (country.articles !== '필터 적용' || topic.articles !== '필터 적용' || channelChip.articles !== '필터 적용') fail('P1537 any country or topic control (including 텔레그램 and 기업) makes the article scope read 필터 적용');
   if (!/국가·주제 필터와 무관/.test(country.channel) || country.channel !== topic.channel || country.channel !== channelChip.channel) fail(`P1537 the channel note must state it ignores the country/topic filter whenever a control is active, got ${JSON.stringify([country.channel, topic.channel, channelChip.channel])}`);
   if (describeNewsScope(null).articles !== '필터 없음' || describeNewsScope(undefined).channel !== '') fail('P1537 missing controls read as no filter');
-  // v57.77: 뉴스 ends with 이어서 볼 곳 like every other screen — 브리핑 then 시장 상태; 한국 opens the Korea board.
+  // 뉴스 ends with 이어서 볼 곳 like every other screen — 브리핑 then 시장 상태; 한국 opens the Korea board.
   const { newsFlow } = await load('src/domain/market/story/page-flow.js');
   const plainNext = newsFlow().next;
   const krNext = newsFlow({ countryFilter: 'kr' }).next;
@@ -1362,7 +1354,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 {
   const { classifyRRG, computeRelativeRotation } = await load('src/domain/themes/rrg.js');
   if (classifyRRG(null, null).quadrant !== 'unknown') fail('rrg: missing values became a Lagging quadrant');
-  // P1591: fixtures follow RRG_MIN_SESSIONS (30) — the same minimum the themes copy states.
+  // Fixtures follow RRG_MIN_SESSIONS (30) — the same minimum the themes copy states.
   const invalidRotation = computeRelativeRotation({ history: Array(31).fill(NaN), benchmarkHistory: Array(31).fill(100), hasQuote: true, hasBenchmarkQuote: true });
   const alignedTail = computeRelativeRotation({ history: Array.from({ length: 31 }, (_, index) => 100 + index), benchmarkHistory: [...Array(20).fill(10), ...Array.from({ length: 31 }, (_, index) => 100 + index)], hasQuote: true, hasBenchmarkQuote: true });
   if (alignedTail.quadrant !== 'Leading' || Math.abs(alignedTail.rsRatio - 100) > 1e-9 || Math.abs(alignedTail.rsMom - 100) > 1e-9) fail(`rrg: unequal histories were not aligned on their common tail: ${JSON.stringify(alignedTail)}`);
@@ -1381,7 +1373,6 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { deriveSentimentSummary } = await load('src/domain/market/sentiment/metrics.js');
   const sentiment = deriveSentimentSummary({ fearGreed: 101, vix9d: -1, vix: 17, vix3m: 20, vix6m: 22 });
   if (!sentiment.blocked || !Object.isFrozen(sentiment.vixTermStructure.points)) fail('sentiment: out-of-domain inputs were promoted or mutable');
-  // P1426: the transmission lens was retired; the macro read's direction helpers are pure and checked here.
   const { sahmGap, annualised3m, yoySeries } = await load('src/domain/macro/macro-read.js');
   const months = (values) => values.map((value, index) => ({ date: new Date(Date.UTC(2025, index, 1)).toISOString().slice(0, 10), value }));
   const sahm = sahmGap(months([4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4.4, 4.6, 4.8]));
@@ -1438,9 +1429,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const newsBootstrapSource = readFileSync(path.join(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), 'src/app/bootstrap.js'), 'utf8');
   const legacyCoreNewsSource = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8');
   const legacyFacadeNewsSource = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
-  // v57.78: the loop audit (getAutonomousLoopAudit) moved to the on-demand QA bundle.
   const legacyQaAuditNewsSource = readFileSync(path.join(root, 'js/aio-qa-audits.js'), 'utf8');
-  // v59.41: the legacy news wrapper moved to src/app/score-entry-points.js (indented inside its installer).
   const scoreEntrySource = readFileSync(path.join(root, 'src/app/score-entry-points.js'), 'utf8');
   const legacyScoreFallback = scoreEntrySource.match(/function computeNewsSentimentScore\(items\) \{[\s\S]*?\n  \}/)?.[0] || '';
   if (!/if \(!_bucketScore \|\| _bucketScore\.sampleSufficient !== true \|\| Number\(_bucketScore\.total\) < _minNewsSample \|\| _bucketScore\.score == null\) continue/.test(legacyNewsSource)
@@ -1470,7 +1459,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1288/R638: the bootstrap minimum-news threshold did not cross the legacy AIO_ARCH facade used by aio-core');
   }
   const nativeNewsSource = readFileSync(path.join(root, 'src/ui/pages/news.js'), 'utf8');
-  // P1672: the keyword sentiment strip left with P1391, so the native news page shows no sentiment score at all.
+  // The keyword sentiment strip left with P1391, so the native news page shows no sentiment score at all.
   if (/news-sent-score|news-risk-label/.test(nativeNewsSource)) {
     fail('P1284/R633: the native news summary must not display a keyword sentiment score');
   }
@@ -1535,7 +1524,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (quoteStatus.LIVE !== 'ok' || quoteStatus.DECISION !== 'ok' || quoteStatus.UNLABELED !== 'ok') fail(`P1536 live, decision-grade and unlabeled positions keep their weights: ${JSON.stringify(quoteStatus)}`);
   if (quoteMix.totalValue !== 3000 || quoteMix.heldItems.length !== 3) fail(`P1536 withheld positions must stay out of the denominator and be listed as held: total ${quoteMix.totalValue}, held ${quoteMix.heldItems.length}`);
   if (quoteMix.items.filter((item) => item.status !== 'ok').some((item) => item.weightPct !== null || item.concentrationPenalty !== 0)) fail('P1536 a withheld position must publish neither a weight nor a penalty');
-  // P1561: weights over a denominator that leaves positions out are a partial result and say so; a complete or explicit-total set is current.
+  // Weights over a denominator that leaves positions out are a partial result and say so; a complete or explicit-total set is current.
   if (quoteMix.status !== 'partial' || !quoteMix.issues.includes('held-positions-excluded-from-denominator') || quoteMix.weightBasis !== 'priced-positions-only') fail(`P1561 withheld positions outside the denominator must make the result partial: ${JSON.stringify({ status: quoteMix.status, issues: quoteMix.issues, basis: quoteMix.weightBasis })}`);
   const allPriced = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'live-quote' }] });
   const heldWithTotal = deriveConcentrationRisk({ positions: [{ ticker: 'A', shares: 1, price: 100, quoteSourceKind: 'live-quote' }, { ticker: 'B', shares: 1, price: 100, quoteSourceKind: 'cached-close' }], totalValue: 400 });
@@ -1555,7 +1544,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (partial.status !== 'partial' || partial.displayScore !== '43*' || partial.tier !== 'reference-only' || partial.action !== 'NO_ACTION' || partial.decisionEligible !== false) fail(`signal: partial presentation must remain descriptive/fail-closed, got ${JSON.stringify(partial)}`);
   const blocked = deriveSignalDecisionFromTradingScore({ score: computeTradingScoreModel({}), inputVersion: 'unit.v1' });
   if (blocked.status !== 'blocked' || blocked.action !== 'NO_ACTION' || blocked.score !== null || blocked.decisionEligible !== false || blocked.presentation?.status !== 'blocked' || blocked.presentation?.action !== 'NO_ACTION' || blocked.presentation?.displayScore !== '—') fail(`signal: missing score inputs must fail closed, got ${JSON.stringify(blocked)}`);
-  // P1349: a reference score needs completed-close evidence, not real-time decision-grade inputs.
+  // A reference score needs completed-close evidence, not real-time decision-grade inputs.
   if (blocked.presentation?.decision !== '점수 보류 — 확정 종가 근거 부족' || !/확정 종가 기준의 필수 근거/.test(blocked.presentation?.description || '') || /실시간·검증된 입력/.test(blocked.presentation?.description || '')) fail(`P1349: blocked presentation contradicts the close-basis reference policy ${JSON.stringify(blocked.presentation)}`);
   // ── P1328/R670: the reference score is computed on the latest completed US regular close ──
   {
@@ -1567,7 +1556,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const verdict = (key, observedAt) => evaluateCloseBasisInput({ key, value: 1, observedAt, valueBasis: 'latest-completed-close', basis, nowMs: now }).ok;
     const expectations = [['spxPrice', '2026-09-28T20:00:00Z', true], ['tnx', '2026-09-28T18:59:52Z', true], ['dxy', '2026-09-29T01:48:32Z', false], ['spxPrice', '2026-09-28T15:00:00Z', false], ['fg', '2026-09-28T23:59:50Z', true], ['hyBp', '2026-09-25', true], ['hyBp', '2026-09-24', false], ['hyBp', null, false]];
     for (const [key, observedAt, expected] of expectations) if (verdict(key, observedAt) !== expected) fail(`close basis: ${key} @ ${observedAt} expected ${expected} (P1328)`);
-    // P1345: the next session and continuous-market post-close values are not the prior US close.
+    // The next session and continuous-market post-close values are not the prior US close.
     const intradayNow = Date.parse('2026-09-30T14:00:00Z');
     const priorBasis = resolveCloseBasis(intradayNow);
     if (evaluateCloseBasisInput({ key: 'spxPrice', value: 7777, observedAt: '2026-09-30T13:55:00Z', basis: priorBasis, nowMs: intradayNow }).ok
@@ -1620,7 +1609,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const provenanceRows = rows.map((row) => ({ ...row, fieldMeta: { spx: { observedAt: row.date, observationRelation: 'latest-completed-close' } } }));
     const proven = spxMovingAveragesFromHistory([...provenanceRows, { date: '2027-01-01', spx: 1e9, fieldMeta: { spx: { observationRelation: 'carried-forward' } } }]);
     if (proven?.[200] !== 125 || proven.asOf !== rows[199].date) fail('P1345: completed historical relation rejected or carried-forward bar counted');
-    // P1349: different collection buckets must not count the same observed session twice.
+    // Different collection buckets must not count the same observed session twice.
     const duplicateBucket = { ...provenanceRows[198], date: rows[199].date };
     if (spxMovingAveragesFromHistory([...provenanceRows.slice(0, 199), duplicateBucket]) !== null) fail('P1349: weekend collection inflated the number of MA sessions');
     const repeated = spxMovingAveragesFromHistory([...provenanceRows, { ...provenanceRows[198], date: '2026-09-20' }]);
@@ -1635,7 +1624,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (spxMovingAveragesFromHistory([{ date: '2025-12-31', spx: 100 }, ...provenanceRows, { ...provenanceRows[198], spx: 999 }]) !== null
       || spxMovingAveragesFromHistory([...provenanceRows.slice(0,199), { ...provenanceRows[199], fieldMeta: { spx: { observedAt: '2026-09-31T13:30:00Z', valueBasis: 'latest-completed-close' } } }]) !== null) fail('P1349: conflict/rollover gap was filled with an older observation');
   }
-  // P1345: current SPX cannot launder an undated/stale live-chart MA.
+  // Current SPX cannot launder an undated/stale live-chart MA.
   {
     const { createRuntimeReaders } = await load('src/data/runtime-readers.js');
     const nowMs = Date.parse('2026-09-30T02:00:00Z');
@@ -1649,21 +1638,21 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const proven = createRuntimeReaders({ root: { _liveData: { '^GSPC': { marketState: 'CLOSED', quoteEnvelope: { price: '500', observedAt: '2026-09-29T20:00:00Z', valueBasis: 'latest-completed-close' } } } }, now: () => nowMs }).readTradingScoreInputs();
     if (proven.spxPrice !== 500 || typeof proven.decisionEvidence.spxPrice.value !== 'number') fail('P1349: valid completed close did not normalize its numeric type');
   }
-  // P1346/QA-UX-11: the briefing decision-summary assertions retired with the module (P1727, zero product consumers).
+  // The briefing decision-summary assertions retired with the module (zero product consumers).
   {
     const completeBase = computeTradingScoreModel({ vix: 18, hyBp: 300, dxy: 100, tnx: 3.5, maCurrent: true, spxPrice: 500, spx50ma: 480, spx200ma: 450, breadthAvailable: true, breadth200: 60 });
     if (completeBase.componentCoveragePct !== 100 || completeBase.missingOptionalInputs.length !== 2
       || !/보조 입력 미수신/.test(deriveTradingScoreDecisionPresentation({ score: completeBase }).description)) fail('P1349: base-axis coverage hid missing optional risk observations');
   }
-  // v57.55 review (S2-F3): an earnings line attaches only to a results story about that company.
+  // An earnings line attaches only to a results story about that company.
   {
     const { earningsContextForHeadline } = await load('src/domain/news/earnings-context.js');
     const opts = { earnings: [{ symbol: 'BAC', date: '2026-10-14', hour: 'bmo', epsEstimate: 1.16 }, { symbol: 'MU', date: '2026-10-13', hour: 'amc', epsEstimate: 2, epsActual: 2.2 }], names: { BAC: 'Bank of America Corporation', MU: 'Micron Technology, Inc.' }, nowMs: Date.parse('2026-10-14T00:00:00Z') };
     const pick = (title) => earningsContextForHeadline(title, opts)?.symbol || null;
     if (pick('S&P 500 futures quiet as investors await big bank earnings') || pick('Bank of America raises Taiwan Semiconductor target price ahead of earnings') || pick('Micron beats on AI memory') !== 'MU' || pick('Bank of America earnings preview') !== 'BAC') fail('v57.55 review: earnings context must need the full name or ticker, a results word, and not an analyst action');
-    // v59.62: a headline naming two reporters carries both, in headline order (Palantir used to lose to the earlier calendar row).
+    // A headline naming two reporters carries both, in headline order (Palantir used to lose to the earlier calendar row).
     const both = earningsContextForHeadline('Micron and Bank of America shares slide after earnings', opts);
-    // v59.63: the market-day ledger — unusual by its own volatility, a stock tied to its own news or the price it runs on,
+    // The market-day ledger — unusual by its own volatility, a stock tied to its own news or the price it runs on,
     // a big move with neither kept as unexplained, a group tied through its leaders only, threads over subject/peer links.
     {
       const { buildMarketDay } = await load('src/domain/market/day/facts.js');
@@ -1700,7 +1689,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         if (!wti2 || !driven.length || !(own < Math.round(best * 0.8)) || wti2.materiality !== Math.round(best * 0.8) || wti2.explains?.own !== own || wti2.explains?.basis !== 'driver'
           || spx2?.explains || spx2?.materiality !== priceMateriality(spx2, 'spx')) fail(`v60.19 a driving price takes the driver share of the largest move it drives: ${JSON.stringify({ own, best, wti: wti2 && { m: wti2.materiality, explains: wti2.explains }, spx: spx2?.materiality })}`);
       }
-      // v59.94: an official release is upcoming only until its own release time (FOMC 14:00 ET, CPI 08:30 ET), not a
+      // An official release is upcoming only until its own release time (FOMC 14:00 ET, CPI 08:30 ET), not a
       // fixed 13:30 UTC clock plus 12 hours.
       {
         const macroCalendar = { schedules: { 'us-fomc': ['2026-12-09'], 'us-cpi': ['2026-12-10'] } };
@@ -1713,17 +1702,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           fail(`v59.94: a released official event stays upcoming past its release time ${JSON.stringify({ morningAfterFomc, morningAfterCpi, beforeFomc })}`);
         }
       }
-      // v59.64: a 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives); the 기술적 분석
+      // A 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives); the 기술적 분석
       // trend words follow where the close sits against the 50/200-day lines, and a stock gets the same words from its distances.
       const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
       const oilToday = buildMacroChapters({ history, day }).chapters.find((chapter) => chapter.id === 'oil')?.today;
       const { trendOf, coreStockRows } = await load('src/domain/technical/market-charts.js');
       const words = [[110, 100, 90], [95, 100, 90], [85, 100, 90], [95, 90, 100], [105, 90, 100], [85, 90, 100]].map(([close, ma50, ma200]) => trendOf({ close, ma50, ma200, ma50Before: null })).join(',');
       const stock = coreStockRows({ screener: { data: { NV: { pctSma50: -8.75, pctSma200: -1.03 } } }, indexWeights: [{ sym: 'NV', weight: 7 }] })[0];
-      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // v59.70: a stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
+      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // A stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
         fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
       }
-      // v60.30: a chapter report is about the field itself and shown in Korean — a crypto story that mentions inflation
+      // A chapter report is about the field itself and shown in Korean — a crypto story that mentions inflation
       // fears and an English-only title are not 물가 관련 보도.
       {
         const { chapterToday } = await load('src/domain/macro/macro-chapters.js');
@@ -1734,8 +1723,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         if (report([crypto]) !== null || report([english]) !== null || report([crypto, english, cpi]) !== '미국 10월 CPI 0.3% 상승')
           fail(`v60.30 물가 관련 보도 takes only a Korean headline about inflation itself: ${JSON.stringify({ crypto: report([crypto]), english: report([english]), all: report([crypto, english, cpi]) })}`);
       }
-      // v59.70 (owner D6): the reports carry the producer's Korean titles; the account cites only those.
-      // v59.65: 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
+      // The reports carry the producer's Korean titles; the account cites only those.
+      // 브리핑's 24-hour stories — same-family prices in one story, the theme speaks for its sector, a report that
       // points the other way is not evidence, a big move nothing explains is kept apart, the opening reads equal weight.
       const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
       const D = '2026-11-02';
@@ -1762,7 +1751,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || account.unexplained[0]?.sym !== 'MYST' || !/동일가중/.test(account.opening) || account.ahead[0]?.label !== '고용보고서') {
         fail(`v59.65: briefing day account broke ${JSON.stringify({ oilStory, told, unexplained: account.unexplained, opening: account.opening })}`);
       }
-      // v60.16: a report posted after the move's session closed is evidence only as a recap that states the move's
+      // A report posted after the move's session closed is evidence only as a recap that states the move's
       // direction; a new story or filing after the close is not the reason for a move that was already made.
       const late = (id, title, titleKo, at) => ({ id, kind: 'headline', title, titleKo, at, subjects: ['LT1'], rank: 'major', materiality: 40 });
       const lateTold = buildDayAccount({ generatedAt: 'z', sessions: { us: D }, facts: [
@@ -1772,7 +1761,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         late('h:filing', 'Late One director files stock sale', '레이트원 이사, 주식 처분 신고', `${D}T21:30:00Z`),
         late('h:night', 'Petition asks Late One board to act', '레이트원 이사회에 청원', '2026-11-03T04:00:00Z')] }).stories[0]?.evidence.map((report) => report.title) || [];
       if (lateTold.join('|') !== '레이트원 투자의견 하향|레이트원, 마진 부진에 하락') fail(`v60.16 after-close reports: only a recap naming the direction stays: ${JSON.stringify(lateTold)}`);
-      // v60.30: a group's named movers are its own leaders (the largest members' moves), not the few members big
+      // A group's named movers are its own leaders (the largest members' moves), not the few members big
       // enough to carry a stock-move fact — "중간값 -7.1%, 가장 많이 움직인 종목은 AVGO -3.9%" cannot be told.
       const groupLine = (leaders) => buildDayAccount({ generatedAt: 'g', sessions: { us: D }, facts: [
         { id: 'g:optics', kind: 'group-move', group: 'theme:optics', label: '광통신', members: ['BIG', 'S1', 'S2', 'S3'], change: -7.1, ...(leaders ? { leaders } : {}), rank: 'lead', materiality: 70 },
@@ -1782,7 +1771,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (!/가장 많이 내린 종목은 S1 -9\.5%, S2 -8\.8%, S3 -8\.5%/.test(ledLine) || /BIG/.test(ledLine) || /가장 많이/.test(bareLine) || !/BIG -3\.9%/.test(bareLine)) {
         fail(`v60.30 group movers: the named movers must be the group's largest, or be worded as its main names ${JSON.stringify({ ledLine, bareLine })}`);
       }
-      // v59.93: the equal-weight sentence follows the sign of both figures — an up day never reads "지수 하락", and a
+      // The equal-weight sentence follows the sign of both figures — an up day never reads "지수 하락", and a
       // rising equal-weight index never reads "덜 내렸습니다".
       const { indexLine } = await load('src/domain/briefing/day-account.js');
       const breadthOf = (spx, rsp) => indexLine([{ kind: 'price', asset: 'spx', label: 'S&P 500', change: spx }, { kind: 'price', asset: 'rsp', label: 'S&P 500 동일가중', change: rsp }]);
@@ -1791,7 +1780,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || !/지수 하락.*덜 내렸습니다/.test(breadthWords.downRestLess) || !/더 약했습니다/.test(breadthWords.restWeaker) || /동일가중 S&P 500은/.test(breadthWords.close)) {
         fail(`v59.93: the equal-weight sentence contradicts the printed index moves ${JSON.stringify(breadthWords)}`);
       }
-      // v59.70 (screen review #11): a deal fact (acquirer/target/terms, no label) is told as a story with a title and its
+      // A deal fact (acquirer/target/terms, no label) is told as a story with a title and its
       // terms; no seed kind reaches the list as a bare weight bar.
       const dealAccount = buildDayAccount({ generatedAt: 'y', sessions: { us: D }, facts: [
         { id: 'deal:AAA:BBB', kind: 'deal', subjects: ['AAA', 'BBB'], acquirer: 'AAA', target: 'BBB', payment: 'stock', valueUsd: 2.75e11, premiumPct: 23.9, rank: 'lead', materiality: 75 },
@@ -1802,11 +1791,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (!deal || !/AAA/.test(deal.title) || !/Bee Corp/.test(deal.title) || !/2,750억 달러/.test(deal.line) || !/23\.9%/.test(deal.line) || untitled.length) {
         fail(`v59.70: briefing deal story broke ${JSON.stringify({ deal, untitled })}`);
       }
-      // v59.70 (screen review #36): glossary group buttons and item tags name the screen 매크로, never 거시.
+      // Glossary group buttons and item tags name the screen 매크로, never 거시.
       const { GLOSSARY_GROUPS, glossaryTagLabel } = await load('src/ui/knowledge/glossary-modal.js');
       const shownGlossary = [...GLOSSARY_GROUPS.map(([group]) => group), ...GLOSSARY_GROUPS.flatMap(([, cats]) => cats.map(glossaryTagLabel))];
       if (shownGlossary.some((label) => /거시/.test(label))) fail(`v59.70: glossary label says 거시 ${JSON.stringify(shownGlossary.filter((label) => /거시/.test(label)))}`);
-      // v59.66: 시장 상태 reads indicators in pairs — an index under its 50-day line with most members above it is a narrow
+      // 시장 상태 reads indicators in pairs — an index under its 50-day line with most members above it is a narrow
       // pullback; extreme fear with a calm VIX is not a capitulation; falling yields with widening spreads is growth fear;
       // a day as large as a week is read on the day.
       const { crossReadings } = await load('src/domain/market/regime/cross-readings.js');
@@ -1817,10 +1806,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정과 맞는/.test(pairs['rates-credit'] || '') || /돈이|자금 이탈/.test(Object.values(pairs).join(' ')) || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
         fail(`v59.66: cross readings broke ${JSON.stringify(pairs)}`);
       }
-      // v59.70 (owner 11/07): each screen's lenses carry their basis and reach — a stalled input is named, a market with
+      // Each screen's lenses carry their basis and reach — a stalled input is named, a market with
       // no data says so, and every lens a screen lists exists with a question, data and a limit.
       const { pageLensReads, PAGE_LENSES, LENS_BY_ID } = await load('src/domain/narrative/lens-registry.js');
-      const staleFg = chist.map((row, i) => (i < 60 ? row : { ...row, fg: undefined })); // v59.71: put/call retired; a stalled survey is the late input
+      const staleFg = chist.map((row, i) => (i < 60 ? row : { ...row, fg: undefined }));
       const lensReads = pageLensReads('signal', { history: staleFg, macroHistory: chy, nowMs: Date.parse(`${cdays.at(-1)}T22:00:00Z`) });
       const sentimentLens = lensReads.find((lens) => lens.id === 'sentiment');
       const valuationLens = pageLensReads('screener', { screenerRows: [{ market: 'US', pe: 20 }, { market: 'US', pe: null }, { market: 'KR', pe: null }] }).find((lens) => lens.id === 'valuation');
@@ -1828,7 +1817,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (lensReads[0]?.id !== 'trend' || !/에 멈춤/.test(sentimentLens?.late || '') || valuationLens?.scope !== 'PER 미국 2종목 중 1종목, 한국 1종목 중 0종목' || valuationLens.late !== '한국 재무 없음' || unknown.length) {
         fail(`v59.70: page lenses broke ${JSON.stringify({ sentimentLens, valuationLens, unknown })}`);
       }
-      // v59.70 (owner 11/07): the stories the market relays reach the screen as counts tied to the scenario engine — no
+      // The stories the market relays reach the screen as counts tied to the scenario engine — no
       // post text is published, a story is never read as one direction (two linked branches are readings A and B), and a
       // much-relayed story whose branch is unmet says attention is not confirmation.
       {
@@ -1849,7 +1838,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || !/지표로 아직 확인되지 않습니다/.test(oilCard?.line || '') || !/많이 오가는 것과 맞는 것은 다릅니다/.test(oilCard?.line || '')) {
           fail(`v59.70: narratives broke ${JSON.stringify({ memory, mem: memCard?.line, oil: oilCard?.line })}`);
         }
-        // v60.16: a weekend is not a story cooling. Thursday and Friday carry six posts and the weekend none: read on
+        // A weekend is not a story cooling. Thursday and Friday carry six posts and the weekend none: read on
         // Sunday the trend is 'closed' (the card says 주말 구간, the home line no trend); the same silence on a Thursday is fading.
         {
           const quiet = (nowQ) => {
@@ -1936,18 +1925,18 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           fail(`v59.71: split-adjusted DCF / Sahm calendar months / sentiment percentile broke ${JSON.stringify({ splitDcf: splitDcf.marketValue, filedDcf: filedDcf.marketValue, sahm, sent: sent?.percentile })}`);
         }
       }
-      // v59.69: each pair is also a 2x2 map; the dot's cell must agree with the sentence (a narrow pullback sits in
+      // Each pair is also a 2x2 map; the dot's cell must agree with the sentence (a narrow pullback sits in
       // 좁은 조정, falling yields with widening spreads in 성장 걱정), and the day's lead story carries its direction.
       const cell = (map) => map && map.cells[(map.y >= 0.5 ? 2 : 0) + (map.x >= 0.5 ? 1 : 0)];
       const maps = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, cell(row.map)]));
       if (maps['trend-breadth'] !== '좁은 조정' || maps['rates-credit'] !== '성장 걱정' || oilStory.direction !== -1) {
         fail(`v59.69: cross maps / story direction broke ${JSON.stringify({ maps, direction: oilStory.direction })}`);
       }
-      // v59.69: why a stock moved after its report — a beat with a weak outlook reads as guidance (mixed numbers are not the
+      // Why a stock moved after its report — a beat with a weak outlook reads as guidance (mixed numbers are not the
       // cause), a move matched by its group is the market's, a +40% run-up into a beat that fell is priced in.
       const { reactionRead } = await load('src/domain/briefing/reaction-read.js');
       const rh = [{ date: '2026-10-29', soxx: 100, spx: 100 }, { date: '2026-10-30', soxx: 93, spx: 99.7 }];
-      // v59.70 step 2: a figure carries the reported value and the estimate it is compared with, as stored briefs do.
+      // Step 2: a figure carries the reported value and the estimate it is compared with, as stored briefs do.
       const fig = (metric, surprisePct, extra = {}) => ({ metric, label: metric === 'eps_diluted' && extra.actualBasis === 'adjusted' ? '조정 희석 EPS' : metric,
         value: metric === 'eps_diluted' ? `$${(100 * (1 + surprisePct / 100)).toFixed(2)}` : '$1 billion', estimate: { value: 100, surprisePct, basis: 'provider-consensus-reference', ...extra } });
       const reaction = (pct, latestDate = '2026-10-30') => ({ baseDate: '2026-10-29', firstDate: '2026-10-30', firstPct: pct, latestDate, latestPct: pct });
@@ -1957,7 +1946,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (intc?.kind !== 'guidance' || nvt?.kind !== 'with-market' || run?.kind !== 'priced-in' || run.steps.find((step) => step.id === 'run-up')?.value !== '발표 전 3개월 +40%') {
         fail(`v59.69: reaction reading broke ${JSON.stringify({ intc: intc?.kind, nvt: nvt?.kind, run: run && { kind: run.kind, steps: run.steps } })}`);
       }
-      // v59.70: SOXX (owner 11/04) is the group only for chip layers (an oil major reads against the S&P 500); a kept outlook is not weak;
+      // SOXX is the group only for chip layers (an oil major reads against the S&P 500); a kept outlook is not weak;
       // a company cut is 하향, a reported shortfall against the estimate 하회.
       const xom = reactionRead({ layer: 'power-energy', figures: [fig('revenue', 3), fig('eps_diluted', 4)], guidance: [], reasons: { points: [] }, reaction: reaction(-8.8) }, { history: rh });
       const kept = reactionRead({ layer: 'limited', figures: [], guidance: [], reasons: { points: [{ text: '연간 가이던스를 유지했다.' }] }, reaction: reaction(-5) }, { history: rh });
@@ -1967,7 +1956,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         fail(`v59.70: reaction benchmark/guidance labels broke ${JSON.stringify({ xom: xom?.steps, kept: kept?.steps, cut: cut?.steps, intc: intc?.steps })}`);
       }
       const tln = reactionRead({ layer: 'limited', figures: [fig('eps_diluted', -68)], guidance: [{ text: '2027년 전망 상향' }], reasons: { points: [] }, reaction: reaction(6) }, { history: rh });
-      // v59.70 step 1: a history row that repeats the previous close (11/03 carrying 11/02) is not that date's close — the
+      // Step 1: a history row that repeats the previous close (11/03 carrying 11/02) is not that date's close — the
       // reaction's market rung is unknown rather than 0.0%, and every surprise % is the one shared formula.
       const { closeMoveBetween } = await load('src/domain/market/session/close-series.js');
       const { surprisePct } = await load('src/domain/shared/number.js');
@@ -1979,7 +1968,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         fail(`v59.70: carried closes must not read as a flat move, surprise % must be the shared formula ${JSON.stringify(flat?.steps)}`);
       }
       if (tln?.kind !== 'guidance-up') fail(`v59.70: an up-move on a raised outlook with an EPS miss is not 호실적 반영, got ${tln?.kind}`);
-      // v59.70 step 2: one surprise per report. An annual revenue line is not compared with the quarter's estimate (AAPL
+      // Step 2: one surprise per report. An annual revenue line is not compared with the quarter's estimate (AAPL
       // $479B read +314.1%); the provider's same-basis actual (the number 오늘 prints) wins over the brief's GAAP line
       // (AAPL $2.10 +3.6% → $2.05 +1.1%); the reaction read and the briefing line read the same function.
       const { figureSurprise } = await load('src/domain/briefing/event-briefs.js');
@@ -1997,7 +1986,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || verdict.revenuePct !== -1 || verdict.epsPct !== 1.1 || verdict.eps !== 'beat') {
         fail(`v59.70: one surprise per report broke ${JSON.stringify({ annual, aaplEps, noProvider, verdict })}`);
       }
-      // v60.46: one period rule on every metric — a stored annual EPS (POWL 연간 $6.04 read +40.3%) or cumulative row
+      // One period rule on every metric — a stored annual EPS (POWL 연간 $6.04 read +40.3%) or cumulative row
       // (RGTI 첫 9개월 매출 read −60.7%) carries no surprise; a row naming no period, or 2026 회계연도 4분기, is the quarter.
       const { figurePeriod } = await load('src/domain/briefing/event-briefs.js');
       const est = (value, providerActual) => ({ value, surprisePct: 1, basis: 'provider-consensus-reference', providerActual });
@@ -2014,7 +2003,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (periods !== 'annual,cumulative,cumulative,annual,cumulative,quarter,' || JSON.stringify(reads) !== JSON.stringify([null, null, null, null, null, 40.3, -60.7])) {
         fail(`v60.46: annual and cumulative rows must not be compared with the quarter's estimate ${JSON.stringify({ periods, reads })}`);
       }
-      // v60.46: the consensus is the whole company's revenue — a part of it (APPN 전문 서비스 매출 −78.8%, CEVA 로열티 매출,
+      // The consensus is the whole company's revenue — a part of it (APPN 전문 서비스 매출 −78.8%, CEVA 로열티 매출,
       // 구독 매출) carries no surprise; total-revenue names with period words (3분기 순매출, 총매출, 매출 및 수익, Net sales) do.
       const scopeRows = ['3분기 전문 서비스 매출', '로열티 매출', '라이선싱 및 관련 매출', '클라우드 구독 매출', '구독 매출', '데이터센터 매출', 'Subscription revenue',
         '3분기 순매출', '총매출', '매출 및 수익', '2026년 3분기 매출', 'Net sales', '매출']
@@ -2022,7 +2011,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (JSON.stringify(scopeRows) !== JSON.stringify([null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1])) {
         fail(`v60.46: a revenue line that is a part of revenue must not be compared with the total-revenue consensus ${JSON.stringify(scopeRows)}`);
       }
-      // v59.70 step 4: 종목's four cells read the same comparison; "전망은 시장 기대보다 낮아" is 가이던스 하회, not 신중.
+      // Step 4: 종목's four cells read the same comparison; "전망은 시장 기대보다 낮아" is 가이던스 하회, not 신중.
       const { earningsCells } = await load('src/domain/briefing/reaction-read.js');
       const aaplBrief = { kind: 'earnings', figures: aaplFigures, guidance: [], reasons: { points: [{ text: '분기 실적은 예상치를 웃돌았지만, 연말 분기 매출총이익률 전망은 시장 기대보다 낮아 실적 호재를 상쇄했습니다.' }] },
         reaction: { firstDate: '2026-11-03', firstPct: -1.9, latestPct: -1.9, sessions: 1 } };
@@ -2031,7 +2020,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         || earningsCells({ kind: 'fomc' }) !== null || earningsCells({ kind: 'earnings', figures: [] }) !== null) {
         fail(`v59.70: earnings four cells broke ${JSON.stringify(four)}`);
       }
-      // v59.69: release bands — with core PCE above 2.5% a 25만 jobs report is a burden (cuts wait), near target it is
+      // Release bands — with core PCE above 2.5% a 25만 jobs report is a burden (cuts wait), near target it is
       // growth; core CPI 0.33% is 끈적함. v60.16: unemployment up 0.2%p is 급랭 only when payrolls are also under the
       // slow line (the two-condition trigger of macro-crossroads); with payrolls above it the band stays and the read notes it.
       const { releaseZones } = await load('src/domain/macro/release-zones.js');
@@ -2044,7 +2033,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       if (hot(true).tone !== 'burden' || hot(false).tone !== 'good' || sahm.label !== '급랭' || steady.label !== '완만' || !/실업률이 0\.2%p 올라/.test(steady.read) || cpi.label !== '끈적함') {
         fail(`v59.69: release zones broke ${JSON.stringify({ hotFirst: hot(true), hotNear: hot(false), sahm, steady, cpi })}`);
       }
-      // v59.67: 홈's movers — lead/major or a large index pull, ranked by rank then materiality, each symbol once.
+      // 홈's movers — lead/major or a large index pull, ranked by rank then materiality, each symbol once.
       const { keyStocks } = await load('src/ui/components/home-day.js');
       const movers = keyStocks({ facts: [
         { kind: 'stock-move', rank: 'minor', materiality: 9, subjects: ['SMALL'], change: 4 },
@@ -2056,7 +2045,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       ] }).map((row) => row.sym).join(',');
       if (movers !== 'NVDA,AMD,AAPL') fail(`v59.67: home movers must be NVDA,AMD,AAPL, got ${movers}`);
     }
-    // v59.62: chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
+    // Chart levels — 50-day line, closing high, six-month support, and a double top read at its neck (testing, broken).
     const { indexLevel, levelsRead } = await load('src/domain/market/indices/index-levels.js');
     const synth = (tail) => {
       const values = [...Array.from({ length: 40 }, (_, i) => 100 + i), ...Array.from({ length: 30 }, (_, i) => 139 - i), ...Array.from({ length: 30 }, (_, i) => 110 + i), ...tail];
@@ -2068,7 +2057,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const broken = indexLevel(synth(Array.from({ length: 34 }, (_, i) => 139 - i)), 'smh');
     if (testing?.doubleTop?.state !== 'testing' || broken?.doubleTop?.state !== 'broken' || !(broken.fromHighPct < -10) || !(broken.vsMa50Pct < 0)
       || !/쌍봉이 완성/.test(levelsRead([{ ...broken, label: '반도체(SMH)' }])) || !/쌍봉 완성 여부/.test(levelsRead([{ ...testing, label: '반도체(SMH)' }]))) fail('v59.62: chart levels must read a double top as testing at the neck and broken 1% under it');
-    // v59.62: a major dated event before the next macro release is named first, from the one registry both screens read.
+    // A major dated event before the next macro release is named first, from the one registry both screens read.
     const { buildMarketGuide } = await load('src/domain/guide/market-guide.js');
     const { SCHEDULED_EVENTS: storyEvents } = await load('src/domain/market/story/market-story.js');
     const nextRow = (iso) => buildMarketGuide({ regime: { available: true, overall: '혼조', counts: {} }, crossroads: { available: true, events: [], items: [], nextEvent: { id: 'us-nfp', name: '고용보고서', date: '2026-11-06', when: '11/6(금)' } }, nowMs: Date.parse(iso) }).situation.find((row) => row.id === 'next').text;
@@ -2078,7 +2067,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     // the AI-spending sentence only on a line with a mover (Moderna 0.1% read "대형 기술주 쏠림이 이어질지 가르는 실적").
     {
       const { buildMarketStory } = await load('src/domain/market/story/market-story.js');
-      // v59.71: the story window is one week (STORY_SESSIONS = MARKET_WINDOWS.week), so the fixture leads by 200 a session.
+      // The story window is one week (STORY_SESSIONS = MARKET_WINDOWS.week), so the fixture leads by 200 a session.
       const weekRows = []; let day = Date.parse('2026-09-01T00:00:00Z');
       while (weekRows.length < 40) { const at = new Date(day); if (at.getUTCDay() >= 1 && at.getUTCDay() <= 5) { const i = weekRows.length; weekRows.push({ date: at.toISOString().slice(0, 10), spx: 6000 + i * 5, ndx: 20000 + i * 200, soxx: 300 + i * 2, rsp: 180 - i * 0.5, iwm: 220 }); } day += 86400000; }
       const lastDay = weekRows.at(-1).date;
@@ -2101,7 +2090,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     }
     if (both?.symbols?.join(',') !== 'MU,BAC' || both.symbol !== 'MU' || !/Micron[\s\S]*Bank of America/.test(both.text)) fail('v59.62: a multi-company earnings headline must carry every named reporter in headline order');
   }
-  // v57.55 review (E1-03): a quarterly trend is named only when the last two steps agree.
+  // A quarterly trend is named only when the last two steps agree.
   {
     const { buildQuarterRead } = await load('src/domain/fundamental/quarter-read.js');
     const q = (end, revenue) => ({ periodEnd: end, revenue, netIncome: 1 });
@@ -2128,7 +2117,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const got = resolveRegisteredName(input, capEntries);
       if (got !== expected) fail(`v59.97 a typed all-capital ticker is never rewritten to another issuer's name: ${JSON.stringify(input)} expected ${expected}, got ${got}`);
     }
-    // v57.81: the portfolio box shares the ticker-route owner. A newly listed universe symbol (SPCX) is accepted by exact match;
+    // The portfolio box shares the ticker-route owner. A newly listed universe symbol (SPCX) is accepted by exact match;
     // a near-miss ticker is never rewritten; a nickname resolves only when the registry carries it.
     const { resolveHoldingInput } = await load('src/domain/instruments/resolve-name.js');
     const universe = [{ sym: 'SPCX' }, { sym: 'NVDA' }];
@@ -2167,7 +2156,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   const invalidScore = computeTradingScoreModel({ mode: 'swing', vix: -10, vvix: 0, dxy: 10, tnx: -1, oilPrice: -5, fg: 101, maCurrent: true, spx200ma: -1, spx50ma: 0, spxPrice: -10, breadthAvailable: true, breadth200: 150, hyBp: -2, newsSentimentScore: 101, newsRiskSignals: [{ impact: 'bad' }] });
   {
-    // v57.83 trading-score.v5 (R707): within ±1% of the 50-day line the trend component is 59 (between above 68 and
+    // trading-score.v5: within ±1% of the 50-day line the trend component is 59 (between above 68 and
     // below 50); 1% clear above is 68, 2% above 82.
     const trendAt = (gapPct) => computeTradingScoreModel({ mode: 'swing', maCurrent: true, spx50ma: 5000, spx200ma: 4800, spxPrice: 5000 * (1 + gapPct / 100) }).trendScore;
     const got = [0.15, -0.5, 1.0, 1.5, 2.5, -1.5].map(trendAt);
@@ -2176,7 +2165,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (invalidScore.total !== null || invalidScore.modelVersion !== 'trading-score.v6' || !Object.isFrozen(invalidScore) || !Object.isFrozen(invalidScore.componentMissing)) fail(`signal: out-of-domain inputs must fail closed in an immutable v4 result, got ${JSON.stringify(invalidScore)}`);
 }
 
-// ── E2/LC-26 (P1214): the signal score mode is one revision consumed by both readers ───────────
+// ── E2/LC-26: the signal score mode is one revision consumed by both readers ───────────
 // The mode used to be cosmetic: the legacy facade hardcoded 'swing', the native reader dropped the
 // mode entirely, and the UI copy promised a threshold the model never produced. This fixes the mode
 // as a real calculation input with a single owner and forbids a mode-dependent decision cutoff.
@@ -2207,12 +2196,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const readersSource = readFileSync(path.join(root, 'src/data/runtime-readers.js'), 'utf8');
   const facade = readFileSync(path.join(root, 'src/legacy/compatibility-facade.js'), 'utf8');
   if (!/input\.mode = normalizeSignalScoreMode\(/.test(readersSource)) fail('P1214 signal-mode: the native runtime reader must thread the declared mode into the score input');
-  // P1338: the facade's third score-input copy was deleted; the legacy wrapper reads the one native path.
-  // v59.41: the wrapper (computeTradingScore) moved to src/app/score-entry-points.js.
   const legacyCore = readFileSync(path.join(root, 'js/aio-core.js'), 'utf8') + readFileSync(path.join(root, 'src/app/score-entry-points.js'), 'utf8');
   if (/readTradingScoreInputs|runtimeEvidenceStatus/.test(facade) || !/_aioReadTradingScoreInputs/.test(legacyCore)) fail('P1214/P1338 signal-mode: the legacy score must read the shared native inputs (mode included), not its own copy');
 
-  // ── QA-SIG-27 (P1263): 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드 revision을
+  // ── QA-SIG-27: 체크리스트 3상 집계는 모드 독립이고, 집계 결과가 자기 모드 revision을
   // 실어 나른다. 보고되지 않은 조건(ok 없음)은 대기로 센다. 제품 결정: 모드별 판정 임계값 없음.
   const summarize = signalMode.summarizeEntryChecklist;
   const threeStates = [
@@ -2288,7 +2275,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       compat: shape(policy.resolveScreenerRows(syntheticRoot, policy.SCREENER_ROW_INTENT.BUNDLED_COMPAT))
     };
   });
-  // The owner decision (P1241): a published-but-empty native state is authoritative for BOTH intents,
+  // The owner decision: a published-but-empty native state is authoritative for BOTH intents,
   // so the old divergence on that case is gone. The only remaining differences are the two declared
   // pre-publication compatibility reads, where the evidence reader deliberately has no substitute.
   const expected = [
@@ -2368,7 +2355,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     ...(includeKalman ? { kalmanVelConf: seed / 10 } : {})
   });
 
-  // P1553: a percentile needs peers. Four fully-observed rows plus one row under the 80% evidence floor pass the input guard
+  // A percentile needs peers. Four fully-observed rows plus one row under the 80% evidence floor pass the input guard
   // (five rows with a return) but leave four rankable rows; they used to be spread over 0..100, now they keep a null rank.
   // Five comparable rows are still ranked.
   {
@@ -2468,7 +2455,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (tieA.rank !== tieB.rank) fail(`factor-ranks: equal composites must receive equal midranks, got ranks ${tieA.rank}/${tieB.rank}`);
   }
 
-  // W07-A/P1146 (M01): an explicit weight request must not degrade into a different model.
+  // An explicit weight request must not degrade into a different model.
   // quality has no fundamental lineage in baseRow, so a quality-only request is not computable.
   {
     const rows = [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => baseRow('W' + seed, 'Tech', seed));
@@ -2534,10 +2521,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 }
 
 // ── domain/portfolio/surface.js + domain/fundamental/sec-report.js ─────────────────────────────
-// P831/P832: deterministic native secondary projections must preserve null/unavailable inputs,
+// Deterministic native secondary projections must preserve null/unavailable inputs,
 // finite quote derivation, and official-SEC provenance rather than converting missing facts to 0.
 {
-    // v59.43: a 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
+    // A 5-session 10-year drop with HY OAS widening by the watch amount is a flight to safety, not a supportive rate move.
     const { defensiveYieldDrop } = await load('src/domain/market/regime/regime-radar.js');
     const ty = [{ date: '2026-10-20', value: 5.10 }, { date: '2026-10-27', value: 4.99 }];
     const wide = defensiveYieldDrop(ty, [{ date: '2026-10-20', value: 300 }, { date: '2026-10-27', value: 320 }], '2026-10-27', '2026-10-20');
@@ -2547,7 +2534,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 }
 {
 // ── domain/screener/setup-profile.js: reference-only setup labels fail closed ────────────────
-// v53.91: setup observations and TradingView evidence are research overlays only;
+// Setup observations and TradingView evidence are research overlays only;
 // missing volume/benchmark evidence must stay visible instead of becoming a trade signal.
 {
   const { deriveScreenerSetupProfile } = await load('src/domain/screener/setup-profile.js');
@@ -2610,13 +2597,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (/기준선 가까이에 있는 상태/.test(ext) || !/3\.8배/.test(ext)) fail(`S09 stock summary must not call 3.8x near the line, got ${ext}`);
   if (!/RSI 69\.9/.test(rsiText) || /과열도 과매도도 아닌/.test(rsiText)) fail(`S02 RSI 69.9 must be shown with its digit and not read as neutral, got ${rsiText}`);
   if (!/^1거래일 전 종가 기준\(10\/8\)/.test(summary.headline)) fail(`S07 lagging factor session must lead the headline, got ${summary.headline}`);
-  // v60.30 (2026-11-18): the 위치 tile read '부담' for 52주 범위 21% — a place in the range is a measurement, not a risk
+  // The 위치 tile read '부담' for 52주 범위 21% — a place in the range is a measurement, not a risk
   // verdict. The point names its zone (범위 하단·중간·상단) and carries no favourable/burden tone.
   for (const [low, high, zone] of [[15, -32.6, '범위 하단'], [50, -25, '범위 중간'], [80, -5, '범위 상단']]) {
     const range = buildStockRead({ symbol: 'X', row: { name: 'X', pctFrom52wLow: low, pctFrom52wHigh: high } }).points.find((point) => point.id === 'range');
     if (range?.zone !== zone || range?.tone !== 'neutral') fail(`v60.30 52-week range point must name its zone ${zone} with a neutral tone, got ${JSON.stringify(range && { zone: range.zone, tone: range.tone, text: range.text })}`);
   }
-  // v57.54: a rank outside its own denominator (KR "890/239") is a mixed row set and is not shown; Korean sector name in the handoff.
+  // A rank outside its own denominator (KR "890/239") is a mixed row set and is not shown; Korean sector name in the handoff.
   const mixedRank = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', overallRank: 890 }, universeSize: 239 });
   const inRange = buildStockRead({ symbol: '005930.KS', row: { name: 'KR fixture', sector: 'Technology', overallRank: 188 }, universeSize: 239 });
   // The stock summary's rank is the screener's overall rank; the active screen's own order (screenRank) is another list.
@@ -2629,7 +2616,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const benchHistory = ['2026-10-06', '2026-10-07', '2026-10-08', '2026-10-12'].map((date, index) => ({ date, kospi: 100 + index }));
   if (benchmarkRowFor('005930.KS', benchHistory, { through: '2026-10-08' }).asOf !== '2026-10-08' || benchmarkRowFor('005930.KS', benchHistory).asOf !== '2026-10-12') fail('S07 benchmark must cut at the factor session when asked');
   {
-    // v58.20 review C1: index windows count sessions, not rows. S&P +0.1% per session with 10 sessions missing inside the
+    // C1: index windows count sessions, not rows. S&P +0.1% per session with 10 sessions missing inside the
     // 63-session window: the true 63-session return is 6.50%; counting rows reached further back (7.57%).
     const { isCloseSessionDate: usSession } = await load('src/domain/briefing/market-read.js');
     const sessions = [];
@@ -2683,7 +2670,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const bearStack = stage.classifyMovingAverageStructure({ sma5: 400, sma10: 410, sma20: 420, sma50: 450, sma100: 480, sma200: 520, sma50Prior: 460, lastClose: 390 });
   if (pulled.trendState === 'UPTREND' || /정배열/.test(stage.MA_STRUCTURE_LABELS[pulled.stageEstimate] || '') || broken.trendState !== 'TREND_DAMAGED' || !/역배열/.test(stage.MA_STRUCTURE_LABELS[bearStack.stageEstimate] || '')
     || Object.values({ pulled, broken, bearStack }).some((s) => !stage.MA_STRUCTURE_LABELS[s.stageEstimate])) fail(`v57.81 MA stack must read the close first and every stage must have one label, got ${pulled.stageEstimate}/${broken.stageEstimate}/${bearStack.stageEstimate}`);
-  // Audit 2026-10-17 (owner D7): a close over a rising 50-day line that is over the 200-day line is 상승 추세 even when the
+  // A close over a rising 50-day line that is over the 200-day line is 상승 추세 even when the
   // 5·10·20 order is mixed after two quiet sessions; that order stays its own field.
   const quiet = stage.classifyMovingAverageStructure({ sma5: 584, sma10: 586, sma20: 580, sma50: 540, sma100: 500, sma200: 420, sma50Prior: 530, lastClose: 585 });
   if (quiet.trendState !== 'UPTREND' || quiet.shortMAState !== 'SHORT_MIXED' || !/상승 추세/.test(stage.MA_STRUCTURE_LABELS[quiet.stageEstimate])) fail(`D7 close > rising 50 > 200 with a mixed short order is 상승 추세, got ${quiet.trendState}/${quiet.shortMAState}`);
@@ -2728,7 +2715,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const peerRows = ['AAA', 'BBB', 'CCC'].map((sym, index) => ({ sym, name: sym, factorSessionDate: '2026-10-09', ret3m: 10 - index }));
   const company = buildCompanyAnalysis({ symbol: 'BBB', row: peerRows[1], rows: peerRows, nowMs: Date.parse('2026-10-13T12:00:00Z') });
   if (/번째/.test(company.headline || '')) fail(`S11 company headline must not carry a second rank, got ${company.headline}`);
-  // v57.54: a KR theme group whose only sub-theme carries its own name reads once ("반도체 / HBM, 반도체 / HBM").
+  // A KR theme group whose only sub-theme carries its own name reads once ("반도체 / HBM, 반도체 / HBM").
   const krThemed = buildCompanyAnalysis({ symbol: 'BBB', row: peerRows[1], rows: peerRows, nowMs: Date.parse('2026-10-13T12:00:00Z'), themes: [{ id: 'kr-hbm', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['BBB'] }] }, { id: 'kr-hbm', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['BBB'] }] }] });
   if (krThemed.associations.length !== 1 || krThemed.associations[0].subThemes.length) fail(`v57.54 duplicate theme chip, got ${JSON.stringify(krThemed.associations)}`);
 
@@ -2737,7 +2724,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (formatUsdShort(-147.8e9) !== '-1,478억 달러' || formatUsdShort(416.2e9) !== '4,162억 달러') fail(`S18/F33 signed Korean-unit USD format drifted: ${formatUsdShort(-147.8e9)}`);
   const per = buildFiscalRead({ symbol: 'AAPL', row: { pe: 45, factorSessionDate: '2026-10-12' }, fundamentals: { symbol: 'AAPL', fiscalHistory: [{ periodEnd: '2024-09-28', revenue: 391e9, netIncome: 93.7e9, equity: 57e9 }, { periodEnd: '2025-09-27', revenue: 416e9, netIncome: 112e9, equity: 74e9 }] } });
   {
-    // v58.20 review C1: a PER priced on earnings available to common (market cap 1600 / common 80 = 20) is not rebuilt
+    // C1: a PER priced on earnings available to common (market cap 1600 / common 80 = 20) is not rebuilt
     // from net income (1600/120 = 13.3 was shown as 16.7) nor divided by net-income growth, and its basis says common.
     const commonRow = { pe: 20, _valuationPeEarningsBasis: 'fy', _valuationPeEarningsConcept: 'common', _fundamentalPeriodEnd: '2025-12-31', factorSessionDate: '2026-06-01' };
     const commonRead = buildFiscalRead({ symbol: 'X', row: commonRow,
@@ -2795,7 +2782,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const byBench = Object.fromEntries(spyRows.map((row) => [row.sym, row.benchmarkRet]));
   if (byBench.AAA !== 3.75 || byBench.OLD !== null || byBench['005930.KS'] !== null || byBench.SPY !== null) fail(`S04 SPY benchmark must apply only to same-session US rows, got ${JSON.stringify(byBench)}`);
 
-  // v57.54: Forward PER — close over next-four-quarter consensus EPS; growth on the same adjusted basis; stale or
+  // Forward PER — close over next-four-quarter consensus EPS; growth on the same adjusted basis; stale or
   // missing consensus shows nothing; a big expected jump carries the cyclical-peak caution; never a score input.
   const consensus = await load('src/domain/fundamental/consensus-read.js');
   const consensusNow = Date.parse('2026-10-14T00:00:00Z');
@@ -2807,7 +2794,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || consensus.consensusView({}, consensusRow, { now: consensusNow }) !== null || consensus.consensusView({ valuationPrice: 10 }, { unavailable: true }, { now: consensusNow }) !== null) fail('v57.54 stale, priceless or unavailable consensus must read as nothing');
   const lossView = consensus.consensusView({ valuationPrice: 10, factorSessionDate: '2026-10-12' }, { ...consensusRow, fwd: { ...consensusRow.fwd, eps: -0.4 } }, { now: consensusNow });
   if (!lossView || lossView.fwdPe !== null) fail('v57.54 an expected loss has no forward PER');
-  // v57.83 codex audit F29: a stale close beside a fresh consensus builds no "current" Forward PER.
+  // Codex audit F29: a stale close beside a fresh consensus builds no "current" Forward PER.
   if (consensus.consensusView({ valuationPrice: 226.32, factorSessionDate: '2020-01-02' }, consensusRow, { now: consensusNow }) !== null
     || !consensus.consensusView({ valuationPrice: 226.32, factorSessionDate: '2026-10-12' }, consensusRow, { now: consensusNow })) fail('v57.83 the consensus view checks the close date as well as the estimate date');
   if (consensus.consensusView({ valuationPrice: 226.32 }, consensusRow, { now: consensusNow }) !== null) fail('v57.84 an undated close fails closed (no Forward PER without its close date)');
@@ -2819,7 +2806,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const builtRow = buildConsensusRow({ quarterlyForecast: { rows: ['Jul 2026', 'Oct 2026', 'Jan 2027', 'Apr 2027', 'Jul 2027'].map((fiscalEnd, i) => ({ fiscalEnd, consensusEPSForecast: 1 + i, highEPSForecast: 2 + i, lowEPSForecast: i, noOfEstimates: 5, up: 1, down: 0 })) } },
     { earningsSurpriseTable: { rows: ['Jul 2026', 'Apr 2026', 'Jan 2026', 'Oct 2025'].map((fiscalQtrEnd) => ({ fiscalQtrEnd, eps: 1, dateReported: '8/26/2026' })) } }, 'now');
   if (builtRow?.fwd?.from !== '2026-10' || builtRow.fwd.eps !== 14 || builtRow.trailing.eps !== 4 || builtRow.fwd.up4w !== 4) fail(`v57.54 a forecast row already reported is not "ahead", got ${JSON.stringify(builtRow)}`);
-  // 2026-10-14: never-fetched symbols go by index weight, then 30-session dollar volume, before older rows.
+  // never-fetched symbols go by index weight, then 30-session dollar volume, before older rows.
   const { pickBatch, consensusPriority } = await load('scripts/fetch-consensus-estimates.mjs');
   const consensusPriorityMap = consensusPriority({ indexWeights: { columns: ['sym', 'sector', 'weight', 'name'], rows: [['MSFT', 'IT', 6.1, 'Microsoft'], ['AAPL', 'IT', 6.5, 'Apple']] },
     data: { AAPL: { dollarVolume30d: 1e10, dollarVolumeCurrency: 'USD' }, ZZZ: { dollarVolume30d: 5e9, dollarVolumeCurrency: 'USD' }, AAA: { dollarVolume30d: 1e6, dollarVolumeCurrency: 'USD' } } });
@@ -2850,7 +2837,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { mergeSessions } = await load('scripts/build-market-temperature.mjs');
   const merged = mergeSessions([['2026-10-12', 6384.24], ['2026-10-13', null], ['2026-10-14', 6123.29]], [['2026-10-13', 6035.35]], 'kospi', Date.parse('2026-10-14T03:00:00Z'));
   if (JSON.stringify(merged.rows) !== JSON.stringify([['2026-10-12', 6384.24], ['2026-10-13', 6035.35]]) || merged.gaps.length) fail(`v57.54 the exchange close fills the empty provider session and today's intraday KOSPI print is not a close, got ${JSON.stringify(merged)}`);
-  // v58.52 (screen audit 2026-10-20): the portal daily series is the merged KRX + Nextrade last price, so it fills an
+  // The portal daily series is the merged KRX + Nextrade last price, so it fills an
   // empty KRX session but never replaces a provider KRX close (SK hynix 10/20 1,223,000 was rewritten to 1,190,000).
   const { reconcileKrExchangeCloses } = await load('scripts/producer/kr-exchange.mjs');
   const krRows = [{ date: '2026-10-16', close: 1272000, adjClose: 1272000, high: 1325000, low: 1247000 }, { date: '2026-10-19', close: 1277000, adjClose: 1277000, high: 1309000, low: 1208000 }, { date: '2026-10-21', close: 1250000, adjClose: 1250000, high: 1260000, low: 1240000 }];
@@ -2862,7 +2849,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || krOld.rows.find((row) => row.date === '2026-09-10')?.close !== 101 || krOld.report.filledSessions !== 1) fail(`v58.52 the portal series fills only a pre-Nextrade empty KRX session and never replaces a KRX close, got ${JSON.stringify({ krRec, krOld })}`);
   const gapped = mergeSessions([['2026-10-09', 69030.92], ['2026-10-13', null]], [], 'nikkei', Date.parse('2026-10-14T03:00:00Z'));
   if (gapped.rows.length !== 1 || gapped.gaps[0] !== '2026-10-13') fail(`v57.54 a session still empty after reconciliation is dropped and listed, got ${JSON.stringify(gapped)}`);
-  // v60.18 (weekly audit D11): 11/10 01:22Z Yahoo blanked the 11/9 Tokyo close while 11/10 traded; the merged series ended at
+  // 11/10 01:22Z Yahoo blanked the 11/9 Tokyo close while 11/10 traded; the merged series ended at
   // 11/6 and the published Nikkei basis stepped back (11-09 → 11-06, change1d -5.96%). An older basis keeps the published body.
   const { nextMarketBody } = await load('scripts/build-market-temperature.mjs');
   const tokyoMorning = mergeSessions([['2026-11-05', 50000], ['2026-11-06', 47020.0], ['2026-11-09', null], ['2026-11-10', null]], [], 'nikkei', Date.parse('2026-11-10T01:22:00Z'));
@@ -2871,7 +2858,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const advanced = nextMarketBody({ label: '닛케이 225', asOf: '2026-11-10', change1d: 0.4 }, publishedNikkei);
   if (tokyoMorning.rows.at(-1)[0] !== '2026-11-06' || !kept.retained || kept.body !== publishedNikkei || advanced.retained || advanced.body.asOf !== '2026-11-10' || nextMarketBody(null, null).body !== null)
     fail(`v60.18 D11 the temperature basis never steps back: ${JSON.stringify({ tokyoMorning: tokyoMorning.rows.at(-1), kept, advanced })}`);
-  // v60.18 (weekly audit D6/D8): the recent direction is the leg from the window's latest turn to today, with its points;
+  // The recent direction is the leg from the window's latest turn to today, with its points;
   // a turn of any age counts, and a leg under one typical day after it is a pause, never "… 중".
   const { recentDirection, directionPredicate, directionKey } = await load('src/domain/market/signal/recent-direction.js');
   const pts = (list) => list.map(([date, value]) => ({ date, value }));
@@ -2910,25 +2897,24 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (JSON.stringify(spans) !== JSON.stringify([{ start: '2026-01-01', end: '2026-01-02', tone: 'cold' }, { start: '2026-01-06', end: '2026-01-06', tone: 'hot' }])) fail(`v57.54 extreme spans group consecutive sessions by tone, got ${JSON.stringify(spans)}`);
   const evidence = tempUi.temperatureEvidence({ label: '코스피', from: '1999-01-05', state: 'cold', outcomes: { cold: { h63: { n: 39, mean: 5.6, se: 2.5, hitRate: 67, p10: -11.8 } }, all: { h63: { n: 6800, mean: 3.1, se: 1.25, hitRate: 60 } } } });
   if (!/1999년 이후 강한 냉각 구간이 시작된 첫날 중 서로 겹치지 않는 39번/.test(evidence) || !/두 범위가 겹쳐 평균 차이는 구별되지 않습니다/.test(evidence) || /예측은 아닙니다/.test(evidence)) fail(`v57.54/v57.84 the past-spell line (overlap verdict carries the caveat; the boilerplate 예측 sentence is gone) names n, the ± range and whether it clears the baseline, got ${evidence}`);
-  // v59.87 (S3): the currentness rule moved to the domain model beside the producer's formula.
   const tempModel = await load('src/domain/market/sentiment/market-temperature.js');
   const staleIds = tempModel.staleMarketIds({ retained: ['kosdaq'] }, [{ id: 'spx', asOf: '2026-10-13' }, { id: 'kosdaq', asOf: '2026-10-12' }, { id: 'nikkei', asOf: '2026-10-02' }, { id: 'kospi', asOf: '2026-10-09' }], Date.parse('2026-10-14T00:00:00Z'));
   if ([...staleIds].sort().join(',') !== 'kosdaq,nikkei') fail(`v57.54 a retained market behind its session or one more than a week behind is stale and leaves the "now" lead, got ${[...staleIds]}`);
-  // v60.30: a retained body that already holds its market's latest completed close is not stale — 11/17 01:52Z showed
+  // A retained body that already holds its market's latest completed close is not stale — 11/17 01:52Z showed
   // "닛케이 225 갱신 지연" beside "11/16 종가", the latest Nikkei close at that hour (Tokyo still trading).
   const heldClose = tempModel.staleMarketIds({ retained: ['nikkei', 'kospi'], generatedAt: '2026-11-17T01:52:00Z' },
     [{ id: 'spx', asOf: '2026-11-16' }, { id: 'kospi', asOf: '2026-11-16' }, { id: 'nikkei', asOf: '2026-11-16' }], Date.parse('2026-11-17T03:00:00Z'));
   const behindClose = tempModel.staleMarketIds({ retained: ['nikkei', 'kospi'], generatedAt: '2026-11-17T09:00:00Z' },
     [{ id: 'spx', asOf: '2026-11-16' }, { id: 'kospi', asOf: '2026-11-16' }, { id: 'nikkei', asOf: '2026-11-14' }], Date.parse('2026-11-17T10:00:00Z'));
   if (heldClose.size !== 0 || [...behindClose].sort().join(',') !== 'kospi,nikkei') fail(`v60.30 a retained market is stale only behind its latest session: ${[...heldClose]} / ${[...behindClose]}`);
-  // v58.77 pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
+  // Pipeline audit DATA-03: every market failing leaves them equally old; the artifact age and the calendar catch it.
   const allOld = tempModel.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
   const weekend = tempModel.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
   if (allOld.size !== 2 || weekend.size !== 0) fail(`v58.77 DATA-03 an unchanged artifact after a full outage is stale; a weekend is not, got ${[...allOld]} / ${[...weekend]}`);
-  // v57.83 codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
+  // Codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
   // every kept 63-session window starts at least 63 sessions after the previous one.
   const tempEv = (n) => tempUi.temperatureEvidence({ label: 'x', from: '2000', state: 'hot', outcomes: { hot: { h63: { n, mean: 1, se: 1, hitRate: 50, p10: -5 } }, all: { h63: { n: 4000, mean: 2, se: 1, hitRate: 60 } } } });
-  // v60.18: the 10-29 note is the shared evidence-strength one (사례 N개라 참고로만 봅니다).
+  // The 10-29 note is the shared evidence-strength one (사례 N개라 참고로만 봅니다).
   if (!/9번뿐/.test(tempEv(9)) || /평균 \+/.test(tempEv(9)) || !/사례 10개라 참고로만/.test(tempEv(10)) || !/사례 29개라 참고로만/.test(tempEv(29)) || /참고로만/.test(tempEv(30))) fail(`v57.83 the temperature evidence follows R706 at n 9/10/29/30, got ${[9, 10, 29, 30].map(tempEv).join(' | ')}`);
   {
     const spikes = tempDates.map((date, i) => [date, wave(i) * (i > 700 && i % 40 < 3 ? 0.9 : 1)]);
@@ -2936,19 +2922,19 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const h63 = spiky?.outcomes?.cold?.h63;
     if (!h63 || h63.nonOverlapping !== true || !(h63.spells >= h63.n)) fail(`v57.83 temperature outcomes keep only starts a full horizon apart, got ${JSON.stringify(h63)}`);
   }
-  // v57.54: the 2026-10-14 packet — three frames reach the lessons and the claim ledger; dated claims carry a verification state.
+  // The 2026-10-14 packet — three frames reach the lessons and the claim ledger; dated claims carry a verification state.
   const packet = await load('src/domain/research/packet-20261014.js');
   const learning = await load('src/domain/knowledge/learning-core.js');
   if (packet.PACKET_20261014_FRAMES.some((frame) => !learning.lessonById(frame.id)) || packet.PACKET_20261014_CLAIMS.length !== 3) fail('v57.54 packet frames must be lessons and claims');
   const checks = packet.PACKET_20261014_SOURCES.flatMap((row) => row.checks);
   if (packet.PACKET_20261014_SOURCES.length !== 16 || !checks.length || checks.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis)) fail('v57.54 every dated claim in the packet carries a verification state and its basis');
-  // v57.74: the 2026-10-15 crash-day note — three frames become lessons on a learning path; a misattributed figure stays UNVERIFIED.
+  // The 2026-10-15 crash-day note — three frames become lessons on a learning path; a misattributed figure stays UNVERIFIED.
   const packet15 = await load('src/domain/research/packet-20261015.js');
   const onPath = new Set(learning.PATHS.flatMap((path) => path.lessons));
   if (packet15.PACKET_20261015_FRAMES.some((frame) => !learning.lessonById(frame.id) || !onPath.has(frame.id)) || packet15.PACKET_20261015_CLAIMS.length !== 3) fail('v57.74 crash-day frames must be lessons on a path and claims');
   const checks15 = packet15.PACKET_20261015_SOURCES.flatMap((row) => row.checks);
   if (checks15.some((check) => !['VERIFIED', 'CONSISTENT', 'UNVERIFIED'].includes(check.state) || !check.basis) || checks15.find((check) => /Gartner/.test(check.claim))?.state !== 'UNVERIFIED') fail('v57.74 the crash-day drivers carry verification states; the misattributed Gartner figure stays unverified');
-  // v57.75: chat retrieval finds the crash-day frames from a Korean question with particles ("연준이", "거품이").
+  // Chat retrieval finds the crash-day frames from a Korean question with particles ("연준이", "거품이").
   {
     const retrieval = await load('src/ai/retrieval/knowledge.js');
     const supplied = await load('src/domain/research/supplied-materials.js');
@@ -2956,7 +2942,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const top = (query) => retrieval.retrieveAIKnowledge(index, query).matches[0]?.articleId;
     if (top('AI 거품이 터지면 연준이 돈을 풀어서 받쳐줄까?') !== 'supplied-material:claim-20261015-policy-floor-limits'
       || top('AI 투자 회수 언제 되나') !== 'supplied-material:claim-20261015-ai-capex-payback') fail('v57.75 chat retrieval must reach the crash-day frames through Korean particles and frame titles');
-    // v57.87: the full X-bookmark read — every frame is a lesson on a path and a claim; the audit adds up; chat reaches the new frames.
+    // The full X-bookmark read — every frame is a lesson on a path and a claim; the audit adds up; chat reaches the new frames.
     const packet16 = await load('src/domain/research/packet-20261016-x-bookmarks.js');
     const audit = packet16.PACKET_20261016_AUDIT;
     const ids16 = new Set(packet16.PACKET_20261016_SOURCES.map((row) => row.id));
@@ -2982,7 +2968,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet18.PACKET_20261018_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('x-bookmarks 2026-10-18 frames must be lessons on a path, cite unique listed sources, reach the claim ledger and stay out of rank/score');
     if (top('강제 매도인지 펀더멘털 하락인지 어떻게 구분해') !== 'supplied-material:claim-20261018-forced-seller-chain' || top('VIX로 하루 예상 변동폭 계산') !== 'supplied-material:claim-20261018-volatility-base-rates'
       || top('메모리 주가가 D램 가격보다 먼저 움직이나') !== 'supplied-material:claim-20261018-memory-cycle-lead') fail('x-bookmarks 2026-10-18 chat retrieval must reach the new frames');
-    // v59.43 x-bookmarks 2026-10-28: the same contract for the bookmarks added after the 10/18 read; the audit rows add up
+    // x-bookmarks 2026-10-28: the same contract for the bookmarks added after the 10/18 read; the audit rows add up
     // to the new bookmarks and no source repeats an earlier packet.
     const packet28 = await load('src/domain/research/packet-20261028-x-bookmarks.js');
     const ids28 = new Set(packet28.PACKET_20261028_SOURCES.map((row) => row.id));
@@ -2995,7 +2981,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet28.PACKET_20261028_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.43 x-bookmarks 2026-10-28 frames must be lessons on a path, cite unique listed sources, reach the claim ledger, add up and stay out of rank/score');
     if (top('풋콜 비율이 높으면 하락 대비 수요야') !== 'supplied-material:claim-20261028-put-flow-direction' || top('장기 공급 계약 기간이 PER 배수를 바꾸나') !== 'supplied-material:claim-20261028-contract-duration-multiple'
       || top('하이퍼스케일러 실적에서 설비투자 늘리면 왜 주가가 빠져') !== 'supplied-material:claim-20261028-hyperscaler-capex-grid') fail('v59.43 x-bookmarks 2026-10-28 chat retrieval must reach the new frames');
-    // v59.44 x-bookmarks 2026-10-30: the same contract, and every source carries its timeline and four grades (owner
+    // x-bookmarks 2026-10-30: the same contract, and every source carries its timeline and four grades (owner
     // 2026-10-30, "시간과 시계열 · 퀄리티 · 커버리지 · 로직 · 관점").
     const packet30 = await load('src/domain/research/packet-20261030-x-bookmarks.js');
     const ids28set = new Set(packet28.PACKET_20261028_SOURCES.map((row) => row.id));
@@ -3011,7 +2997,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet30.PACKET_20261030_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.44 x-bookmarks 2026-10-30 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('AI 수요 때문에 메모리 부족이 PC 휴대폰 비용이 되나') !== 'supplied-material:claim-20261030-ai-demand-cost-squeeze' || top('AI 검색 이용은 느는데 단위 수익이 줄면') !== 'supplied-material:claim-20261030-usage-up-yield-down'
       || top('연산 약정을 부채처럼 현재가치로') !== 'supplied-material:claim-20261030-commitment-present-value' || top('실적 급락 뒤 사흘 경로') !== 'supplied-material:claim-20261030-post-report-path') fail('v59.44 x-bookmarks 2026-10-30 chat retrieval must reach the new frames');
-    // v59.56 x-bookmarks 2026-11-01: the same contract (replies and quoted posts read, sources graded with a timeline).
+    // x-bookmarks 2026-11-01: the same contract (replies and quoted posts read, sources graded with a timeline).
     const packet01 = await load('src/domain/research/packet-20261101-x-bookmarks.js');
     const ids30set = new Set(packet30.PACKET_20261030_SOURCES.map((row) => row.id));
     const ids01 = new Set(packet01.PACKET_20261101_SOURCES.map((row) => row.id));
@@ -3025,7 +3011,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet01.PACKET_20261101_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.56 x-bookmarks 2026-11-01 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('이익 레버리지 신용 상장 네 계기판') !== 'supplied-material:claim-20261101-truth-leverage-gauges' || top('주도주 교체인지 강세장 끝인지 동일가중 하이일드 조건') !== 'supplied-material:claim-20261101-leadership-handoff-criteria'
       || top('병목 제품 증설 가동률 세 수혜층') !== 'supplied-material:claim-20261101-bottleneck-beneficiary-tiers') fail('v59.56 x-bookmarks 2026-11-01 chat retrieval must reach the new frames');
-    // v59.57 x-bookmarks 2026-11-02: the same contract.
+    // x-bookmarks 2026-11-02: the same contract.
     const packet02 = await load('src/domain/research/packet-20261102-x-bookmarks.js');
     const ids02 = new Set(packet02.PACKET_20261102_SOURCES.map((row) => row.id));
     const audit02 = packet02.PACKET_20261102_AUDIT;
@@ -3038,7 +3024,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet02.PACKET_20261102_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.57 x-bookmarks 2026-11-02 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('바닥 확인일 FTD 뒤 주도주 신고가') !== 'supplied-material:claim-20261102-follow-through-day-leaders' || top('횡보장 하락장 쉬는 규칙 신규 매수 잠금') !== 'supplied-material:claim-20261102-regime-fit-pause-rules'
       || top('매출 증가율 가속도 기저효과 반도체 고점') !== 'supplied-material:claim-20261102-growth-acceleration-peak') fail('v59.57 x-bookmarks 2026-11-02 chat retrieval must reach the new frames');
-    // v59.70 x-bookmarks 2026-11-04: the same contract.
+    // x-bookmarks 2026-11-04: the same contract.
     const packet04 = await load('src/domain/research/packet-20261104-x-bookmarks.js');
     const ids04 = new Set(packet04.PACKET_20261104_SOURCES.map((row) => row.id));
     const audit04 = packet04.PACKET_20261104_AUDIT;
@@ -3051,7 +3037,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet04.PACKET_20261104_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.70 x-bookmarks 2026-11-04 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('조정 기저율 몇 번 중 몇 번 약세장 닮은 사례') !== 'supplied-material:claim-20261104-correction-base-rates' || top('사이클 고점 가속도 시계 부호 시계 선행 PER') !== 'supplied-material:claim-20261104-cycle-top-two-clocks'
       || top('신용 스트레스 CCC 하이일드 투자등급 층') !== 'supplied-material:claim-20261104-credit-stress-tiers' || top('팔고 뭐 할 건데 매도 뒤 현금 숏 재진입') !== 'supplied-material:claim-20261104-sell-decision-alternatives') fail('v59.70 x-bookmarks 2026-11-04 chat retrieval must reach the new frames');
-    // v59.79 x-bookmarks 2026-11-08: the same contract; sources unique across every earlier packet.
+    // x-bookmarks 2026-11-08: the same contract; sources unique across every earlier packet.
     const packet08 = await load('src/domain/research/packet-20261108-x-bookmarks.js');
     const ids08 = new Set(packet08.PACKET_20261108_SOURCES.map((row) => row.id));
     const audit08 = packet08.PACKET_20261108_AUDIT;
@@ -3064,7 +3050,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       || packet08.PACKET_20261108_CLAIMS.some((claim) => !claim.blockedConsumers.includes('rank') || !claim.blockedConsumers.includes('score'))) fail('v59.79 x-bookmarks 2026-11-08 frames must be lessons on a path, cite unique graded sources with a timeline, reach the claim ledger, add up and stay out of rank/score');
     if (top('일정 지연 수요 감소 가동 연도 주문 취소') !== 'supplied-material:claim-20261108-delay-or-demand-loss' || top('보증 한도 정책 목표 LTV 기준일') !== 'supplied-material:claim-20261108-exposure-cap-policy-line'
       || top('사례 차트 사건일 실적 발표 시각 미래 정보') !== 'supplied-material:claim-20261108-case-chart-timing' || top('사업부 합 연결 매출 내부거래 FCF 정의') !== 'supplied-material:claim-20261108-segment-sum-consolidated') fail('v59.79 x-bookmarks 2026-11-08 chat retrieval must reach the new frames');
-    // v59.79: the FTD lesson states an observation, not who bought; the credit packet names the proxy as a yield gap, not OAS.
+    // The FTD lesson states an observation, not who bought; the credit packet names the proxy as a yield gap, not OAS.
     const ftdFrame = packet02.PACKET_20261102_FRAMES.find((frame) => frame.id === 'follow-through-day-leaders');
     if (/큰 자금이 (다시 사기 시작했다는|들어온) 흔적/.test(`${ftdFrame.answer} ${ftdFrame.mechanism.join(' ')}`)) fail('v59.79 the FTD lesson must not read price and total volume as proof of who bought');
     const creditSource = packet04.PACKET_20261104_SOURCES.find((row) => row.id === 'JunDo1050-2117559780537422297');
@@ -3077,10 +3063,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (fiscalUi.formatFiscalCompact(416161e6) !== '4,162억 달러' || fiscalUi.formatFiscalCompact(-7126000) !== '-713만 달러') fail('S20/F33 fiscal table must use 조·억·만 달러 units');
 }
 
-// ── domain/technical/follow-through.js (v57.87) ─────────────────────────────────────────────
+// ── domain/technical/follow-through.js ─────────────────────────────────────────────
 {
   const ft = await load('src/domain/technical/follow-through.js');
-  const conditions = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // v58.63 parser split
+  const conditions = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // Parser split
   const presentation = await load('src/domain/screener/row-presentation.js');
   // Pocket pivot: the last up close on more volume than any down close in the 10 sessions before it.
   const pcl = Array.from({ length: 30 }, (_, i) => 100 + (i % 2 ? -1 : 1));
@@ -3090,7 +3076,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (pocket.ago !== 0 || !(pocket.count >= 1) || ft.pocketPivotAgo(pcl.slice(0, 15), pvol.slice(0, 15)).ago !== null) fail(`v57.87 pocket pivot must read the last session and stay null on short history, got ${JSON.stringify(pocket)}`);
   pvol[29] = 90;
   if (ft.pocketPivotAgo(pcl, pvol).ago === 0) fail('v57.87 an up close on lighter volume than the largest down close is not a pocket pivot');
-  // Heavy down days (v57.88): a 1%+ lower close on volume above the stock's own 50-session average. Shallow drops
+  // Heavy down days: a 1%+ lower close on volume above the stock's own 50-session average. Shallow drops
   // and light-volume drops do not count; the index rule (0.2%, more than the prior session) was too loose for stocks.
   const hcl = [100];
   const hvol = [100];
@@ -3109,7 +3095,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   for (let i = 1; i <= 25; i += 1) series.push(160 - i * 0.6);
   const base = ft.baseCount(series);
   if (base?.count !== 2 || base.forming !== true || !(base.depthPct > 8) || ft.baseCount(series.slice(0, 100)) !== null) fail(`v57.87 base count must count completed and forming bases, got ${JSON.stringify(base)}`);
-  // v57.88: a close below the completed base's low (135) means the base failed — the count restarts.
+  // A close below the completed base's low (135) means the base failed — the count restarts.
   const failed = series.slice(0, -25);
   for (let i = 1; i <= 25; i += 1) failed.push(160 - i * 1.2);
   if (ft.baseCount(failed)?.count !== 0) fail(`v57.88 a close below the last completed base low must restart the base count, got ${JSON.stringify(ft.baseCount(failed))}`);
@@ -3160,7 +3146,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (judge('no-climax', { climaxSigns: [] }) !== true || judge('no-climax', { climaxSigns: ['stretch-200'] }) !== false || judge('no-climax', {}) !== null
     || judge('early-base', { baseCount: 0 }, 2) !== false || judge('early-base', { baseCount: 2 }, 2) !== true || judge('pocket-pivot', { pocketPivots10: 0 }) !== false
     || judge('not-extended', { pctSma50: 12, adrPct: 2 }, 4) !== false || judge('not-extended', { pctSma50: 6, adrPct: 2 }, 4) !== true || judge('down-day-hold', { downDayHoldPct: 65 }, 60) !== true) fail('v57.87 follow-through conditions misjudge a row');
-  // v57.88 (review): far below the 50-day line is not "before extension"; the sentence parser must not invert or misread.
+  // Far below the 50-day line is not "before extension"; the sentence parser must not invert or misread.
   if (judge('not-extended', { pctSma50: -25, adrPct: 2 }, 4) !== false || judge('not-extended', { pctSma50: -1.5, adrPct: 2 }, 4) !== true) fail('v57.88 not-extended must keep the 50-day 부근 floor');
   const parsedFollow = (text) => JSON.stringify(conditions.parseConditionText(text));
   if (parsedFollow('거래량 실린 하락일 3일 이하') !== '{"conditions":[{"id":"few-heavy-down","value":3}],"unknown":""}'
@@ -3201,7 +3187,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (failed.fundamentals !== null || requests !== 2 || retried.fundamentals?.revenue !== 100) {
     fail(`entity provider: transient empty response was cached instead of retried: ${JSON.stringify({ requests, failed: failed.fundamentals, retried: retried.fundamentals })}`);
   }
-  // v58.60: the projection drops availableAt where it equals acceptedAt (1 MiB bound); the provider restores it.
+  // The projection drops availableAt where it equals acceptedAt (1 MiB bound); the provider restores it.
   if (retried.fundamentals?.availableAt !== '2026-07-29T20:30:00.000Z') fail(`entity provider: availableAt not restored from acceptedAt: ${JSON.stringify(retried.fundamentals)}`);
   if (retried.fundamentalsWatchlist?.length !== 1 || retried.fundamentalsWatchlist[0]?.symbol !== 'MSFT'
     || retried.fundamentalsMeta?.model !== 'sec-fy-normalized-v2') {
@@ -3253,9 +3239,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       return { createMastersPage: () => ({ mount: () => { mastersMounts += 1; } }) };
     },
     factory: (module) => module.createMastersPage(),
-    retryDelaysMs: [] // the automatic retry (v57.55) is exercised below; this case checks the fail-closed state
+    retryDelaysMs: [] // the automatic retry is exercised below; this case checks the fail-closed state
   });
-  // v57.55 review: a transient import failure (429) is retried automatically before the route reads 'failed'.
+  // A transient import failure (429) is retried automatically before the route reads 'failed'.
   {
     let flakyLoads = 0;
     const flaky = createLazyPage({ route: 'breadth', loader: async () => { flakyLoads += 1; if (flakyLoads < 3) throw new Error('429'); return { page: { mount: () => () => {} } }; }, factory: (module) => module.page, retryDelaysMs: [1, 1] });
@@ -3319,8 +3305,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const krxSnap = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: '105560.KS', shares: 3, avgCost: 150000 }], cash: 0 }, liveData: { '105560.KS': krxQuote(20, 'snapshot:data.json') }, vix: null, now: quoteNow });
   const krxClose = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'XYZ', shares: 1, avgCost: 20 }], cash: 0 }, liveData: { XYZ: krxQuote(20) }, vix: null, now: quoteNow, closeOf: () => ({ price: 25, date: '2026-10-13' }) });
   if (krxOld.rows[0].value != null || krxSnap.rows[0].value != null || krxClose.rows[0].sourceKind !== 'completed-close') fail('v57.58: an old or snapshot quote must not value a holding, and a completed close keeps priority over a delayed quote');
-  // v57.58 custom screener conditions: sentence parsing, MA order from distances, missing data never passes.
-  const custom = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // v58.63 parser split
+  // Custom screener conditions: sentence parsing, MA order from distances, missing data never passes.
+  const custom = { ...await load('src/domain/screener/custom-conditions.js'), ...await load('src/domain/screener/condition-text-parser.js') }; // Parser split
   const parsedCustom = custom.parseConditionText('5/10/20 정배열이면서 신고가 종목, PER 20 이하 반도체');
   if (parsedCustom.conditions.map((item) => item.id).sort().join() !== 'ma-short,new-high,pe-max' || parsedCustom.unknown !== '반도체') fail(`v57.58: custom condition parser, got ${JSON.stringify(parsedCustom)}`);
   const screenWords = custom.parseConditionText('52주 신고가, 50일선 200일선 정배열');
@@ -3364,14 +3350,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const staleRuntime = derivePortfolioSurface({ state: { status: 'current', holdings: [{ symbol: 'ABC', shares: 2, avgCost: 10, price: 11 }], cash: 0 }, liveData: { ABC: { price: 99, observedAt: '2026-09-12T13:00:00Z', source: 'runtime-test-provider' } }, vix: { price: 40, observedAt: '2026-09-12T14:55:00Z', source: 'snapshot:last-known-good' }, now: quoteNow });
   if (staleRuntime.rows[0]?.price !== 11 || staleRuntime.sourceKind !== 'portfolio-state') throw new Error('portfolio surface must reject stale quotes and snapshot VIX as current runtime evidence');
   if (invalidPortfolio.positionValue !== null || invalidPortfolio.cash !== null ||invalidPortfolio.exposurePolicyStatus !== 'reference-only') fail(`portfolio-surface: invalid balances or VIX entered the portfolio projection, got ${JSON.stringify(invalidPortfolio)}`);
-  // W02/P1143: cash-only reads as total=cash, partial never sums unknown rows as zero.
+  // cash-only reads as total=cash, partial never sums unknown rows as zero.
   const cashOnly = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, holdings: [], cash: 10000, cashKnown: true }, liveData: {}, vix: null });
   if (cashOnly.modelVersion !== 'portfolio-surface.v3' || cashOnly.valuationState !== 'cash-only' || cashOnly.positionValue !== 0 || cashOnly.totalAssets !== 10000 || cashOnly.cashPct !== 100 || cashOnly.status !== 'current') fail(`W02/P1143 portfolio-surface: cash-only must read total=cash, got ${JSON.stringify(cashOnly)}`);
   const lockedCash = derivePortfolioSurface({ state: { readState: 'locked', holdings: [], cash: 10000 }, liveData: {}, vix: null });
   if (lockedCash.totalAssets === 0 || lockedCash.totalAssets === 10000 || lockedCash.valuationState !== 'unavailable') fail(`W02/P1143 portfolio-surface: locked/failed must never read as $0 or cash, got ${JSON.stringify(lockedCash)}`);
   const w02Partial = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 10 }, { symbol: 'BBB', shares: 1, avgCost: 10 }], cash: 100, cashKnown: true }, liveData: { AAA: currentQuote(12, { pct: 2 }) }, vix: currentQuote(22), now: quoteNow });
   if (w02Partial.valuationState !== 'partial' || w02Partial.totalAssets !== null || w02Partial.valuedHoldingCount !== 1) fail(`W02/P1143 portfolio-surface: partial must withhold totals with n/m state, got ${JSON.stringify(w02Partial)}`);
-  // W02/P1143: the provider read result is the only source. An explicitly empty Vault
+  // The provider read result is the only source. An explicitly empty Vault
   // read must stay empty instead of falling back to a stored copy, a real 0 cash must
   // survive, and locked/failed reads must reach the surface without a valuation.
   const { createPortfolioProvider } = await load('src/data/providers/portfolio.js');
@@ -3381,7 +3367,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const lockedSurface = derivePortfolioSurface({ state: lockedRead, liveData: {}, vix: null });
   if (lockedSurface.readState !== 'locked' || lockedSurface.totalAssets !== null) fail(`W02/P1143 portfolio-provider: locked read leaked a valuation, got ${JSON.stringify(lockedSurface)}`);
 
-  // P1175 (11 P11-02): 통화는 합산의 단위다. 100 USD와 70000 KRW를 환산 근거 없이 더해 complete라고
+  // 통화는 합산의 단위다. 100 USD와 70000 KRW를 환산 근거 없이 더해 complete라고
   // 말하지 않는다. 반대 방향(같은 통화)은 그대로 합산되어야 하므로 검사가 판별력을 갖는다.
   const mixedCurrency = derivePortfolioSurface({
     state: { readState: 'ready', holdingsKnown: true, status: 'current', cash: 0, cashKnown: true, holdings: [
@@ -3428,13 +3414,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`P1175/P11-02 portfolio-surface: a declared single currency must still total, got ${JSON.stringify(singleCurrency)}`);
   }
   const undeclaredCurrency = derivePortfolioSurface({ state: { readState: 'ready', holdingsKnown: true, status: 'current', holdings: [{ symbol: 'AAA', shares: 1, avgCost: 90, price: 100 }], cash: 0, cashKnown: true }, liveData: {}, vix: null });
-  // v59.53/v59.54: the valuation unit is known (USD from the listing) while the base currency stays undeclared (null).
+  // The valuation unit is known (USD from the listing) while the base currency stays undeclared (null).
   if (undeclaredCurrency.totalAssets !== 100 || undeclaredCurrency.currencyState !== 'undeclared-single-basis-assumed' || undeclaredCurrency.valuationCurrency !== 'USD' || undeclaredCurrency.baseCurrency !== null || undeclaredCurrency.declaredBaseCurrency !== null) {
     fail(`P1175/P11-02 portfolio-surface: an undeclared currency must keep single-basis behaviour and disclose the assumption, got ${JSON.stringify(undeclaredCurrency)}`);
   }
   const { normalizePortfolio } = await load('src/data/normalize/portfolio.js');
   {
-    // v59.87: the listing symbol the runtime reader resolves for a stored KR code survives the provider -> normalize ->
+    // The listing symbol the runtime reader resolves for a stored KR code survives the provider -> normalize ->
     // reducer -> surface chain. normalizePortfolio dropped it, so the page asked the quote providers for the bare code
     // (Yahoo chart/005930 -> 404) and read the quote under the wrong key ('시세 대기').
     const { createPortfolioProvider } = await load('src/data/providers/portfolio.js');
@@ -3811,7 +3797,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/\.\.\.positions\[existing\]/.test(workspaceSource)) {
     fail('P1187 the update path must preserve non-form fields instead of replacing the position object');
   }
-  // P1316: the import path now restores a full backup bundle; the positions write is `c.positions`.
+  // The import path now restores a full backup bundle; the positions write is `c.positions`.
   if (!/await savePortfolioData\((?:data|c\.positions)(?:, \{ replace: true \})?\)/.test(workspaceSource) || !/가져오기가 확정되지 않았습니다/.test(workspaceSource)) {
     fail('P1187/11 P11-01 the import path must gate completion on the durable acknowledgement');
   }
@@ -3894,7 +3880,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || scopeEstimate.publishedScope !== 'whole_account'
     || scopeEstimate.rf?.status !== 'not-supplied'
     || scopeEstimate.exposureHistoryMode !== 'current_composition_retrospective'
-    // P1197: `rebalancePolicy`는 **적용된** 값이다 — 회고 경로는 정책을 소비하지 않으므로 null이고,
+    // `rebalancePolicy`는 **적용된** 값이다 — 회고 경로는 정책을 소비하지 않으므로 null이고,
     // 선언은 `rebalancePolicyDeclared`로 따로 발행된다(소비되지 않는 선언이 정체성을 바꾸지 않는다).
     || scopeEstimate.rebalancePolicy !== null || scopeEstimate.rebalancePolicyDeclared !== 'daily'
     || scopeEstimate.rebalancePolicyApplied !== false) {
@@ -3963,7 +3949,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
 
   // 소스 계약 — 패널의 선언·표시가 코드에 실제로 존재한다.
-  // P1258: 위험 입력 조립(스냅샷·returnsMap·estimate 호출)이 src/ui/panels/portfolio-risk-input.js로
+  // 위험 입력 조립(스냅샷·returnsMap·estimate 호출)이 src/ui/panels/portfolio-risk-input.js로
   // 분해됐다 — 계약은 코드의 새 소유자를 따라간다: 선언 기본값·추정 호출은 모듈, lineage 문구는 셸.
   const e4WorkspaceSource = workspaceWithPanels();
   const e4RiskInputSource = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
@@ -3976,7 +3962,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail('P1182/22:PFR10 the panel must read weights through the frozen composition snapshot');
   }
   const e4HtmlSource = readFileSync(path.join(root, 'index.html'), 'utf8');
-  // v59.70 (S16): the chart is native (portfolio-value-trend.js) on adjusted closes at six fixed windows — no raw close, no
+  // The chart is native (portfolio-value-trend.js) on adjusted closes at six fixed windows — no raw close, no
   // interpolation — and discloses the held-fixed composition and the basis under the line.
   const e4TrendSource = readFileSync(path.join(root, 'src/ui/components/portfolio-value-trend.js'), 'utf8');
   if (!/지금 비중을 그대로 들고 있었다고 본 값이라 계좌 수익률과 다릅니다/.test(e4TrendSource) || !/수정 종가\(배당 포함\)/.test(e4TrendSource)) {
@@ -3985,7 +3971,6 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/TWR\/MWR/.test(e4HtmlSource) || !/원장/.test(e4HtmlSource)) {
     fail('P1182/account-performance the risk surface must state the ledger hold before any computation runs');
   }
-  // v57.77: the writerless Sharpe/Beta/MDD/drift example cards (and their "예시 기준" labels) were retired with #pf-risk-section.
   if (/id="pf-sharpe-val"|id="pf-mdd-val"|id="pf-drift-val"|id="pf-analysis-dashboard"/.test(e4HtmlSource)) { // text-pin-ok: retirement absence
     fail('P1182/22 v57.77 the writerless Sharpe/MDD/drift example cards must stay retired');
   }
@@ -4039,7 +4024,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (strategyHold.status !== 'ready' || Math.abs(strategyHold.investedSleeveReturns[0] - 0.5) > 1e-12 || Math.abs(strategyHold.investedSleeveReturns[1]) > 1e-12) {
     fail(`P1188/fixed-target-weight-strategy buy-and-hold must drift the weights, got ${JSON.stringify(strategyHold.investedSleeveReturns)}`);
   }
-  // P1200: 부분 목표비중은 이제 **현금 몫**이다(합 100% 미만 = 계좌 범위 선언). 무효는 초과 배분이다.
+  // 부분 목표비중은 이제 **현금 몫**이다(합 100% 미만 = 계좌 범위 선언). 무효는 초과 배분이다.
   const strategyPartialSum = deriveRiskEstimate({ ...strategyInput, targetWeights: { AAA: 0.5, BBB: 0.4 }, returnsMap: { AAA: [0.1, 0.1], BBB: [0, 0] } });
   const strategyOverSum = deriveRiskEstimate({ ...strategyInput, targetWeights: { AAA: 0.7, BBB: 0.5 }, returnsMap: { AAA: [0.1, 0.1], BBB: [0, 0] } });
   const strategyNoWindow = deriveRiskEstimate({ ...strategyInput, rebalancePolicy: 'monthly', sampleDates: undefined, returnsMap: { AAA: [0.1], BBB: [0] } });
@@ -4068,7 +4053,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || Math.abs(flowEnd.twr - flowStart.twr) < 1e-6) {
     fail(`P1188/account-performance the declared flow timing must change the TWR (deposit at a boundary), got ${JSON.stringify({ end: flowEnd.twr, start: flowStart.twr, mwr: flowEnd.mwr })}`);
   }
-  // v57.83 codex audit F04: MWR uses the TWR cash-flow window — a first-day deposit under start-of-period and a last-day
+  // Codex audit F04: MWR uses the TWR cash-flow window — a first-day deposit under start-of-period and a last-day
   // deposit under end-of-period both read TWR = MWR = 10% (it was TWR 10% / MWR 120%).
   {
     const oneYear = (flowTiming, date, from, to) => assessAccountPerformance({ ledger: { ...ledgerBase, flowTiming, transactions: [{ date, kind: 'deposit', amount: 100 }], valuations: [{ date: '2025-01-01', amount: from }, { date: '2026-01-01', amount: to }] } });
@@ -4093,9 +4078,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     }
   });
 
-  // 소스 계약 — writer/reader 두 끝이 실제로 존재하고 같은 키를 쓴다(R632).
+  // 소스 계약 — writer/reader 두 끝이 실제로 존재하고 같은 키를 쓴다.
   const p1188Index = readFileSync(path.join(root, 'index.html'), 'utf8');
-  // v57.81: the cash-currency field is retired — each cash balance carries its own currency (src/data/portfolio-cash.js).
+  // The cash-currency field is retired — each cash balance carries its own currency (src/data/portfolio-cash.js).
   if (p1188Index.includes('id="pf-cash-currency-input"')) fail('v57.81 the retired cash-currency declaration field came back'); // text-pin-ok: retirement absence
   ['pf-base-currency-input', 'pf-cash-return-input', 'pf-rf-input'].forEach((id) => {
     if (!p1188Index.includes(`id="${id}"`) || !/data-on-change="_aioSavePortfolioAssumption"/.test(p1188Index)) {
@@ -4106,10 +4091,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/function savePortfolioAssumption\(/.test(p1188Workspace) || !/readPortfolioAssumptionDeclarations\(\)/.test(p1188Workspace)) {
     fail('P1188/11 P11-02 the classic shell must own the assumption writer and read its own declarations');
   }
-  // P1258: 위험 입력 조립이 네이티브 모듈로 분해됐다 — 선언 전달 계약은 모듈이, 셸은 브리지 배선이 소유한다.
+  // 위험 입력 조립이 네이티브 모듈로 분해됐다 — 선언 전달 계약은 모듈이, 셸은 브리지 배선이 소유한다.
   const p1188RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
-  if (!/cash: \{ amount: cashAmount, currency: cashCurrency \}/.test(p1188RiskInput) // v57.81: cash converted into the base, or unresolved
-    || !/const baseCurrency = String\(decl0\.baseCurrency \|\| ''\)/.test(p1188RiskInput) // P1407: declared base wins, then the single shared price currency
+  if (!/cash: \{ amount: cashAmount, currency: cashCurrency \}/.test(p1188RiskInput) // Cash converted into the base, or unresolved
+    || !/const baseCurrency = String\(decl0\.baseCurrency \|\| ''\)/.test(p1188RiskInput) // Declared base wins, then the single shared price currency
     || !/cashReturn: decl\.cashReturn != null/.test(p1188RiskInput)
     || !/rfAnnual: decl\.riskFreeRate/.test(p1188RiskInput)) {
     fail('P1188/11 P11-02 the risk path must pass the declared currency/return/RF instead of nulls');
@@ -4117,7 +4102,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/cashValue: cashValue/.test(p1188Workspace) || !/declarations: declarations/.test(p1188Workspace)) {
     fail('P1188/11 P11-02 the shell must hand its declarations to the assembled risk input');
   }
-  const p1188Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8'); // v57.62: window.* bridge moved out of bootstrap
+  const p1188Bootstrap = readFileSync(path.join(root, 'src/app/compatibility-globals.js'), 'utf8');
   if (!/window\._pfPortfolioAssumptions = \{ keys: PORTFOLIO_ASSUMPTION_KEYS/.test(p1188Bootstrap)) {
     fail('P1188/11 P11-02 bootstrap must expose the shared assumption keys/normalizers to the writer');
   }
@@ -4135,7 +4120,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const stableSample = Array.from({ length: 120 }, (_, i) => 0.008 + Math.sin(i / 7) * 0.02 + ((i * 37) % 11 - 5) / 500);
   stableSample[40] = -0.12;
   stableSample[41] = -0.08;
-  // P1243: a time-ordered sample must declare (or be verified for) its order before the `recent-half`
+  // A time-ordered sample must declare (or be verified for) its order before the `recent-half`
   // variant is computed, so the fixture declares the chronological contract it is built with.
   const certified = deriveVarStability({ returns: stableSample, iterations: 400, order: 'chronological' });
   const certifiedReplay = deriveVarStability({ returns: stableSample, iterations: 400, order: 'chronological' });
@@ -4153,7 +4138,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !certified.sensitivity.variants.some((variant) => variant.id === 'nearest-rank')) {
     fail(`P1190/22:PFR05 a stable 120-observation sample must certify with a replayed bootstrap band and three sensitivity variants, got ${JSON.stringify({ status: certified.status, cert: certified.certification, band: certified.bootstrap?.band, relBand: certified.bootstrap?.relativeBand, sens: certified.sensitivity, reasons: certified.certificationReasons })}`);
   }
-  // P1243: the `recent-half` variant must not run on an unverified sample order. An undeclared order
+  // The `recent-half` variant must not run on an unverified sample order. An undeclared order
   // withholds the variant and holds certification; dated observations upgrade it to `verified`, and a
   // non-monotonic sample is `violated`.
   const undeclaredOrder = deriveVarStability({ returns: stableSample, iterations: 400 });
@@ -4256,7 +4241,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/data-action="_aioAddLedgerEntry"/.test(p1191Index) || !/data-action="_aioAddLedgerValuation"/.test(p1191Index) || !/data-on-change="_aioSaveLedgerConvention"/.test(p1191Index)) {
     fail('P1191/E4 the ledger surface must wire its add/valuation/convention handlers through the delegates');
   }
-  // P1199: 저장 *형태*(읽기 규칙·ack 분리)는 네이티브 모듈로 갔지만, 저장 *정책*은 셸이 계속 소유한다 —
+  // 저장 *형태*(읽기 규칙·ack 분리)는 네이티브 모듈로 갔지만, 저장 *정책*은 셸이 계속 소유한다 —
   // safeLS ack 경로와 Vault 동기 캐시를 주입하는 주체가 셸이어야 한다.
   if (!/function getPortfolioLedger\(/.test(p1191Workspace) || !/function savePortfolioLedger\(/.test(p1191Workspace)
     || !/function _pfDeclarations\(\)/.test(p1191Workspace) || !/function _pfVaultRuntime\(\)/.test(p1191Workspace)
@@ -4268,7 +4253,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !/function _pfLedgerApi\(\)/.test(p1191Workspace)) {
     fail('P1191/E4 the classic shell must own the ledger writer through the Vault path, delegate the contract, and expose every handler');
   }
-  if (!/root\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'))) { // v60.30: installed with the 포트폴리오 route
+  if (!/root\._pfPortfolioLedger = \{/.test(readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'))) { // Installed with the 포트폴리오 route
     fail('P1191/E4 bootstrap must expose the ledger contract to the shell');
   }
   if (!/ledger: accountLedger/.test(p1191Workspace) || !/status === 'ready'/.test(p1191Workspace)) {
@@ -4277,11 +4262,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/clone\(root\.getPortfolioLedger\(\)\)/.test(p1191Readers)) {
     fail('P1191/E4 runtime-readers must pass the declared ledger through');
   }
-  { // v59.03: the lab renderer lives in src/ui/components/portfolio-backtest-lab.js; probe what it renders.
+  { // The lab renderer lives in src/ui/components/portfolio-backtest-lab.js; probe what it renders.
     const lab = await import('../src/ui/components/portfolio-backtest-lab.js');
     const out = {}; const cert = { sampleN: 13, tailN: 1, certification: 'held', stability: { certificationReasons: ['sample-below-declared-minimum'], thresholds: { minSampleN: 41 } } };
     lab.renderPortfolioBacktestLab({ ok: true, performance: { varCertification: cert }, settings: {}, warnings: [] }, { root: {}, documentRef: { getElementById: () => out } });
-    // v60.30: a held estimate reads as a reference value with the reason and the fix in plain words, never the check's jargon.
+    // A held estimate reads as a reference value with the reason and the fix in plain words, never the check's jargon.
     if (lab.varCertLabel({ certification: 'certified' }) !== '확정' || !String(out.innerHTML).includes('VaR 참고값: 기간이 짧음, 시작 달을 앞당겨 기간을 늘리면 (41개월 이상) 확정값이 됩니다')
       || /인증|보류|sample-below/.test(String(out.innerHTML))) fail('P1190/E4 the lab must render the actual VaR check as a plain reason and fix instead of a hard-coded hold label');
   }
@@ -4307,7 +4292,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // 되지 않게), 셸은 포지션의 목표비중(%)이 합 100%일 때만 전략 경로로 넘긴다.
 {
   const { EXPOSURE_PATHS, REBALANCE_POLICIES, PORTFOLIO_ASSUMPTION_KEYS, normalizeExposurePath, normalizeRebalancePolicy, readPortfolioAssumptions } = await load('src/data/portfolio-assumptions.js');
-  // P1198: 열거형도 미선언·미인식은 null이고 기본값을 지어내지 않는다(P1193의 'fallback to default'를
+  // 열거형도 미선언·미인식은 null이고 기본값을 지어내지 않는다(P1193의 'fallback to default'를
   // 대체). 인식 불가 여부는 read가 `unrecognized`로 발행한다 — 미선언과 구분해 말할 수 있어야 한다.
   const assumptionRead = readPortfolioAssumptions({ getItem: (key) => (key === PORTFOLIO_ASSUMPTION_KEYS.rebalancePolicy ? 'weekly' : null) });
   if (normalizeExposurePath('fixed_target_weight_strategy') !== 'fixed_target_weight_strategy'
@@ -4325,7 +4310,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !/value="fixed_target_weight_strategy"/.test(p1193Index) || !/value="buy-and-hold"/.test(p1193Index)) {
     fail('P1193 the risk surface must expose the exposure path and rebalance policy declarations');
   }
-  // P1258: 조립이 네이티브 모듈로 분해됐다 — 경로/정책/목표비중 전달은 모듈이, lineage 표기는 셸이 소유한다.
+  // 조립이 네이티브 모듈로 분해됐다 — 경로/정책/목표비중 전달은 모듈이, lineage 표기는 셸이 소유한다.
   const p1193RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
   if (!/exposureHistoryMode: exposurePath/.test(p1193RiskInput) || !/rebalancePolicy,/.test(p1193RiskInput)
     || !/targetWeights: strategyTargetWeights/.test(p1193RiskInput) || !/declaredWeight \/ 100/.test(p1193RiskInput)
@@ -4402,7 +4387,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || !unrelatedSurface.conversion.held.some((entry) => entry.pair === 'KRW/USD' && entry.reason === 'rate-not-declared')) {
     fail(`P1194 a mixed total with an unrelated declared leg must stay held and publish the missing pair, got ${JSON.stringify({ state: unrelatedSurface.currencyState, total: unrelatedSurface.totalAssets, held: unrelatedSurface.conversion.held })}`);
   }
-  // v57.84 P1864: the app's own USD/KRW close fills a missing USD<->KRW leg (labelled app-close); a declared leg still
+  // The app's own USD/KRW close fills a missing USD<->KRW leg (labelled app-close); a declared leg still
   // wins, and a pair the app has no close for (JPY) stays held.
   const appFx = { rate: 1400, date: '2026-10-15', label: 'USD/KRW 10/15 종가' };
   const appSurface = derivePortfolioSurface({ state: mixedState, liveData: {}, now, cashFx: appFx });
@@ -4430,7 +4415,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
 }
 // ── P1195 — 선언 패널(원장·FX leg)의 마크업과 ack 문구는 네이티브가 소유한다 ──────────────
-// 이 블록은 ratchet에서 가장 빨리 자라던 부분이었다(P1191 +201, P1194 +65). 마크업·문구를 셸에
+// 이 블록은 ratchet에서 가장 빨리 자라던 부분이었다. 마크업·문구를 셸에
 // 두면 두 목록이 서로 어긋나고, 영구 저장 실패가 성공처럼 읽히는 것도 문구가 흩어져서였다.
 {
   const { applyFxPanel, applyLedgerPanel, declarationStatus, fxLegListMarkup, ledgerListMarkup, readDeclaredFields, showDeclarationStatus } = await load('src/ui/panels/portfolio-declarations.js');
@@ -4481,7 +4466,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const failedPanels = panelChecks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedPanels.length) fail(`P1195 declared-panel checks failed: ${failedPanels.join(' | ')}`);
   const p1195Workspace = workspaceWithPanels();
-  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // v60.30: installed with the 포트폴리오 route
+  const p1195Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // Installed with the 포트폴리오 route
   if (/data-action="_aioRemoveLedgerEntry"/.test(p1195Workspace) || /data-action="_aioRemoveFxLeg"/.test(p1195Workspace)
     || /function _pfVaultListPersist\(options\)/.test(p1195Workspace) === false
     || !/root\._pfDeclarationPanels = \{/.test(p1195Bootstrap)
@@ -4490,7 +4475,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
 }
 // ── E3/P1196 — 원가 통화 불일치도 선언된 leg로 환산하면 P&L이 성립한다 ─────────────────────
-// 값은 USD, 원가는 KRW인 보유는 환산 근거가 없으면 P&L을 만들 수 없다(P1181). 근거가 선언되면
+// 값은 USD, 원가는 KRW인 보유는 환산 근거가 없으면 P&L을 만들 수 없다. 근거가 선언되면
 // 두 축이 같은 기준 통화가 되어 P&L이 성립하고, 원가쌍만 없으면 **P&L만** 보류한다(합계는 유지).
 {
   const { derivePortfolioSurface } = await load('src/domain/portfolio/surface.js');
@@ -4693,7 +4678,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
   const p1200Workspace = workspaceWithPanels();
   const p1200RiskInput = readFileSync(path.join(root, 'src/ui/panels/portfolio-risk-input.js'), 'utf8');
-  // P1258: 합 검증은 조립 모듈이, 현금 몫 표기는 셸 패널이 소유한다.
+  // 합 검증은 조립 모듈이, 현금 몫 표기는 셸 패널이 소유한다.
   if (!/declaredWeightSum > 100 \+ 1e-6/.test(p1200RiskInput) || !/est\.strategy\.cashWeight > 0 \? ', 현금 '/.test(p1200Workspace)) {
     fail('P1200 the shell must accept a sub-100% target sum and the panel must publish the cash share');
   }
@@ -4762,7 +4747,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!p1258Ok || !p1258Holds || !p1258Over) {
     fail(`P1258 the assembled risk input must qualify, hold with codes, and refuse over-allocation, got ${JSON.stringify({ ok: { ok: p1258Happy.ok, minLen: p1258Happy.minLen, snap: p1258Happy.snapshot?.status, estimate: p1258Happy.estimate?.status, path: p1258Happy.exposurePath, weights: p1258Happy.strategyTargetWeights, replay: p1258Replay.snapshot?.compositionSnapshotId === p1258Happy.snapshot?.compositionSnapshotId }, missing: p1258Missing, noValue: p1258NoValue.code, short: p1258ShortGrid.code, over: p1258OverWeight.strategyTargetWeights })}`);
   }
-  // v60.16: a weight needs today's value, not a live tick. A holding without a decision-grade quote takes the value the
+  // A weight needs today's value, not a live tick. A holding without a decision-grade quote takes the value the
   // valuation screen shows (completed close or delayed quote, in the surface's currency); a stored price still holds.
   const closeSurface = (kind) => ({ currencyState: 'declared-single', baseCurrency: 'USD', rows: [
     { symbol: 'AAA', value: 400, sourceKind: 'completed-close', closeDate: '2026-09-23' }, { symbol: 'AAA', value: 600, sourceKind: 'completed-close', closeDate: '2026-09-24' },
@@ -4778,7 +4763,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || liveWins.referenceValued !== null || liveWins.snapshot?.compositionSnapshotId !== p1258Happy.snapshot?.compositionSnapshotId) {
     fail(`v60.16 risk weights must come from the valuation screen's close when no live quote exists, got ${JSON.stringify({ ok: closeValued.ok, code: closeValued.code, ref: closeValued.referenceValued, weights: closeMembers.map((m) => [m.ticker, m.resolvedWeight, m.priceSource]), stored: storedPrice.code, live: liveWins.referenceValued })}`);
   }
-  // v60.16: the risk read-out. A Korea+US book is measured on non-overlapping 5-session returns; CVaR is never below
+  // The risk read-out. A Korea+US book is measured on non-overlapping 5-session returns; CVaR is never below
   // VaR; risk contributions sum to 100%; a shifted (non-synchronous) pair reads its real co-movement on the 5-session basis.
   const { buildRiskReadout, blockReturns, riskContributions } = await load('src/domain/portfolio/risk-readout.js');
   const { _calcSharpe } = await load('src/domain/portfolio/return-stats.js');
@@ -4800,7 +4785,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || Math.abs(shares[0].contributionPct - 200 / 3) > 1e-9 || shares[0].ticker !== 'A') {
     fail(`v60.16 the risk read-out must measure a Korea+US book on 5-session returns with CVaR and contributions, got ${JSON.stringify({ mixed: [mixedRead.sessions, mixedRead.n, mixedRead.corr?.matrix[0][1], mixedRead.var95, mixedRead.cvar95], same: [sameRead.sessions, sameRead.n, sameRead.corr?.matrix[0][1]], blocks, shares })}`);
   }
-  // v60.16: 실질 분산 is the book's own concentration (effective number of holdings); the bond test is its own line,
+  // 실질 분산 is the book's own concentration (effective number of holdings); the bond test is its own line,
   // 채권 완충, and a book without bonds is not judged on it. A 30-stock equal-weight book used to read 기준 밖.
   const { portfolioCriteria } = await load('src/ui/components/portfolio-checklist.js');
   const criteria = (rows, types) => {
@@ -4813,7 +4798,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (even.spread?.ok !== true || even.cushion?.ok !== null || even.cushion?.held !== '채권 없음' || even.cushion?.label !== '채권 완충' || lumped.spread?.ok !== false || fund.spread?.ok !== null || fund.spread?.held !== 'ETF 구성 미확인') {
     fail(`v60.16 실질 분산 must read the book's concentration and leave a bond-less book unjudged on 채권 완충, got ${JSON.stringify({ even: [even.spread?.ok, even.cushion?.ok, even.cushion?.held], lumped: lumped.spread?.ok, fund: [fund.spread?.ok, fund.spread?.held] })}`);
   }
-  // v60.16: the backtest lab's start. The December before the start year is the base month (the start year has twelve
+  // The backtest lab's start. The December before the start year is the base month (the start year has twelve
   // months); the start weights use the traded close and the USD/KRW month-end of that month, not today's declared rate.
   const { buildPortfolioBacktestLab } = await load('src/domain/portfolio/backtest.js');
   const monthly = (growth, rawFactor = 1) => {
@@ -4842,7 +4827,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   }
 }
 // ── P1192 — 완료 컷 행의 previous-completed-close 경계 ──────────────────────────────────────
-// 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다(P1095). 값은 실제 확정 종가이므로 버리지 않고
+// 행의 완료 컷을 넘는 스탬프는 그 행에 실릴 수 없다. 값은 실제 확정 종가이므로 버리지 않고
 // 직전 bar 경계로 앉히고, 그마저 컷을 넘으면 값을 싣지 않는다 — 시각만 바꾸는 위장은 금지다.
 {
   const { boundPreviousCloseToCut } = await load('scripts/fetch-data.mjs');
@@ -4890,7 +4875,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (old.freshness.state !== 'historical' || old.freshness.ageDays == null || old.decisionEligible !== false) fail(`sec-report: historical filing must fail closed, got ${JSON.stringify(old)}`);
 }
 
-// P1345: a late canonical close must re-derive analysis with or without a bridge.
+// A late canonical close must re-derive analysis with or without a bridge.
 {
   const { createAIOArchitecture } = await load('src/app/bootstrap.js');
   const { createMarketSnapshot, validateMarketSnapshot, TIER_0_INSTRUMENTS } = await load('src/data/contracts/market-snapshot.js');
@@ -4932,9 +4917,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const loaded = await stop.ready;
       const after = architecture.getState().analysis.signal.score;
       const expected = computeTradingScoreModel(createRuntimeReaders({ root: runtimeRoot, now: () => now }).readTradingScoreInputs()).total;
-      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // P1357: stale legacy cache must not feed sentiment.
+      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // Stale legacy cache must not feed sentiment.
       if (createRuntimeReaders({ root: runtimeRoot, now: () => now }).readSentiment().tradingScoreTotal !== expected) fail('P1357 sentiment must derive the canonical current inputs before analysis sync');
-      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // P1357: stale legacy cache must not feed sentiment.
+      runtimeRoot.computeTradingScore = () => ({ total: 99 }); // Stale legacy cache must not feed sentiment.
       if (createRuntimeReaders({ root: runtimeRoot, now: () => now }).readSentiment().tradingScoreTotal !== expected) fail('P1357 sentiment must derive the canonical current inputs before analysis sync');
       if (before !== null || loaded.ok !== true || typeof after !== 'number' || !Number.isFinite(after) || after !== expected)
         fail(`P1345: late close left analysis stale ${JSON.stringify({ withBridge, before, after, expected, ok: loaded.ok })}`);
@@ -5024,7 +5009,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const ids = read.statements.map((row) => row.id);
   if (!read.available || !ids.includes('narrow-rally') || !ids.includes('fear-without-credit-stress')) fail(`P1389 briefing read missed cross-asset statements: ${ids}`);
   if (buildCloseSeries(rows, 'tnx').some((point) => point.value === 0)) fail('P1389 a zero yield is a producer gap, not a close');
-  // v58.74: a Saturday live F&G reading re-dated to Friday never replaces that Friday's historical-graph close.
+  // A Saturday live F&G reading re-dated to Friday never replaces that Friday's historical-graph close.
   const fgRows = [
     { date: '2026-10-16', fg: 22.07, fieldMeta: { fg: { observedAt: '2026-10-16T00:00:00.000Z', allowedUse: 'reference-history' } } },
     { date: '2026-10-17', fg: 18, fieldMeta: { fg: { observedAt: '2026-10-16T23:59:49.000Z', allowedUse: 'reference' } } }
@@ -5034,14 +5019,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (ids.some((id) => ['real-yield-led', 'breakeven-led', 'bear-steepening', 'bear-flattening', 'bull-steepening', 'bull-flattening'].includes(id))) fail('P1390 rate decomposition must stay silent without FRED inputs');
   const decomposed = buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf: last, realYield10Delta5: 0.14, breakeven10Delta5: 0.03, dgs2Delta5: -0.02, dgs10Delta5: 0.17 } }).statements.map((row) => row.id);
   if (!decomposed.includes('real-yield-led') || !decomposed.includes('bear-steepening')) fail(`P1390 rate decomposition rules did not fire: ${decomposed}`);
-  // v60.16: the real/breakeven split ends on the FRED date; a day behind the 10-year quote, the sentence names its own window.
+  // The real/breakeven split ends on the FRED date; a day behind the 10-year quote, the sentence names its own window.
   const splitText = (asOf) => buildMarketRead({ history: rows, credit: { hyBp: 308, hyAsOf: last, fg: 28, fgAsOf: last }, rates: { asOf, realYield10Delta5: 0.14, breakeven10Delta5: 0.03 } }).statements.find((row) => row.id === 'real-yield-led')?.text || '';
   const priorSession = buildCloseSeries(rows, 'tnx').at(-2).date;
   const dated = (date) => `10년물 ${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}까지 5거래일 변화 중`;
   if (!splitText(last).startsWith(dated(last)) || !splitText(priorSession).startsWith(dated(priorSession))) fail(`v60.16 a split a session behind names its window: ${splitText(last)} | ${splitText(priorSession)}`);
   const texts = [read.headline, ...read.points.map((row) => row.text), ...read.drivers.flatMap((row) => row.reads.map((statement) => statement.text))];
   if (!read.headline || new Set(texts).size !== texts.length) fail('P1389 a statement must appear once on the page');
-  // v57.77: a driver card for an asset the move chart draws carries only its level; the archived fact keeps the moves.
+  // A driver card for an asset the move chart draws carries only its level; the archived fact keeps the moves.
   const cardValues = Object.fromEntries(read.drivers.flatMap((row) => row.values));
   const chartedLabels = read.moves.map((row) => row.label);
   if (!chartedLabels.includes('S&P 500') || !chartedLabels.includes('미 10년물') || chartedLabels.some((label) => /1일|5일/.test(cardValues[label] || ''))) fail(`v57.77 driver cards must not repeat the chart's 1-day/5-day moves: ${JSON.stringify(cardValues)}`);
@@ -5050,12 +5035,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const archived = Object.fromEntries(read.facts.map((fact) => [fact.label, fact.value]));
   if (!/\(1일 .*, 5일 .*\)/.test(archived['S&P 500'] || '') || !/^[\d.]+% \(1일 [^)]*bp, 5일 [^)]*bp\)$/.test(archived['미 10년물'] || '')) fail(`v57.77 archived facts keep the level with its moves (bp for the 10-year): ${JSON.stringify(archived)}`);
 
-  // P1399: one basis, missing is not a reading, stale inputs are excluded, observation apart from interpretation.
+  // One basis, missing is not a reading, stale inputs are excluded, observation apart from interpretation.
   const { buildMarketRegime, alignInput } = await load('src/domain/briefing/market-read.js');
   const { buildSentimentModel, termRatioDistance, sentimentCounter } = await load('src/domain/market/sentiment/sentiment-model.js');
   const sparse = buildMarketRegime({ history: [{ date: '2026-09-30', spx: 6600, wti: 70 }] });
   if (sparse.overall !== '판정 보류' || sparse.axes.find((row) => row.id === 'commodities').state === 'favorable') fail(`P1399 one S&P and one WTI value produced a verdict: ${sparse.overall}`);
-  // v58.56 (re-audit #2): a held verdict has no hero sentence; a full one has one plain sentence without rule brackets.
+  // A held verdict has no hero sentence; a full one has one plain sentence without rule brackets.
   if (sparse.heroLine != null) fail(`v58.56 a held verdict must not carry a hero line: ${sparse.heroLine}`);
   {
     const fullRegime = buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } });
@@ -5063,7 +5048,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     if (!hero || hero.length > 45 || /[()]|\d/.test(hero) || (hero.match(/[.?!]/g) || []).length !== 1) fail(`v58.56 the 오늘 hero must be one plain sentence: ${hero}`);
   }
   if (!/^(양호|다소|중립|부담|방어|경계|혼조|대체로)/.test(buildMarketRegime({ history: rows, credit: { hyBp: 308, hyAsOf: last } }).overall)) fail('P1399 a full history must still produce a verdict');
-  // P1399 (v60.31: the synthesis sentence became the tally of state words): no input is no state, never a balanced or calm one.
+  // P1399 (the synthesis sentence became the tally of state words): no input is no state, never a balanced or calm one.
   { const empty = buildSentimentModel({}); if (empty.tally.length || empty.cards.some((card) => card.state)) fail(`P1399 no sentiment input must not read as balanced: ${JSON.stringify(empty.tally)}`); }
   {
     // v60.30 → v60.31: the VIX term distance follows its printed value — 1.00 is at the edge, not "near" it; below is the
@@ -5078,15 +5063,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!/VIX 22\.20 → S&P 500 하루 약 ±1\.4%/.test(buildSentimentModel({ history: vixRows }).cards.find((card) => card.id === 'term')?.change || '')
     || /하루 약/.test(buildSentimentModel({}).cards.find((card) => card.id === 'term')?.change || '')) fail('x-bookmarks 2026-10-18: the VIX term card must show the implied daily move only when VIX is measured');
   {
-    // P1399: F&G alone claims nothing about credit — the tally names only measured cards, and the counter line (v60.31)
+    // F&G alone claims nothing about credit — the tally names only measured cards, and the counter line
     // reads the credit axis only when the regime measured it.
     const alone = buildSentimentModel({ credit: { fg: 20, fgAsOf: '2026-09-30' }, history: [{ date: '2026-09-30', spx: 6600 }] });
     const fearRegime = { watchAxes: [{ id: 'sentiment', state: 'burden', evidence: [['판정 사유', '공포 쪽 쏠림 (4/4)']] }], axes: [{ id: 'credit', title: '신용', state: 'unknown', stateLabel: '확인 불가', evidence: [] }] };
     if (alone.tally.some((item) => /신용|스프레드/.test(item)) || sentimentCounter({ model: alone, regime: fearRegime }) !== null) fail(`P1399 F&G alone must not claim credit stress: ${JSON.stringify(alone.tally)}`);
   }
   {
-    // v57.77: 시장 폭 / 투자 심리 providers live in the page's 데이터 출처 fold (phones cannot hover), the card notes are one
-    // line with the edges in the fold (rules), the always-null aaiiNote is gone, and each breadth group names a lead chart.
     const { PAGE_SOURCES } = await load('src/ui/components/page-sources.js');
     const { BREADTH_GROUPS, buildBreadthCards } = await load('src/ui/components/breadth-board.js');
     if (!PAGE_SOURCES.breadth?.length || !PAGE_SOURCES.sentiment?.length) fail('v57.77 breadth and sentiment need a 데이터 출처 entry');
@@ -5105,14 +5088,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const intraday = [...rows, { date: day(260), breadth50: 80, fieldMeta: { breadth50: { observedAt: `${day(260)}T13:30:00.000Z` } } }];
   if (buildMarketRead({ history: intraday }).drivers[0].values.some(([label, value]) => label === '50일선 위 종목' && value === '80%')) fail('P1399 an observation after the S&P 500 close basis must be dropped');
   const staleHy = buildMarketRegime({ history: rows, credit: { hyBp: 300, hyAsOf: day(240), hyDelta5Bp: -3 } }).axes.find((row) => row.id === 'credit');
-  // v60.31: the exclusion is the 판정 사유 row (fixed vocabulary, with the observation it set aside), not a sentence.
+  // The exclusion is the 판정 사유 row (fixed vocabulary, with the observation it set aside), not a sentence.
   if (staleHy.state !== 'unknown' || !staleHy.evidence.some(([label, value]) => label === '판정 사유' && /^기준일과 다른 관측이라 판정 제외 \(최근 관측 /.test(value))) fail(`P1399 a stale HY reading must be excluded: ${staleHy.state} ${JSON.stringify(staleHy.evidence)}`);
   if (alignInput('2026-09-29', '2026-09-30').status !== 'lagged' || alignInput('2026-10-01T13:51:11Z', '2026-09-30').status !== 'ahead' || alignInput('2026-09-30T00:00:00.000Z', '2026-09-30').status !== 'aligned') fail('P1399 input alignment states wrong');
   const smallcap = buildMarketRead({ history: rows.map((row, i) => ({ ...row, rut: 2400 - i * 4 })), credit: { hyBp: 300, hyAsOf: last, hyDelta5Bp: -2 } }).statements.find((row) => row.id === 'smallcap-lags');
   if (!smallcap || /원인은/.test(smallcap.text) || !/그럴듯한 설명/.test(smallcap.reading || '')) fail('P1399 an interpretation must be worded as a hypothesis apart from the observation');
   const { isSessionComplete } = await import('./fetch-data.mjs');
   {
-    // v57.55 review: headlines are translated once in Actions — last run's translation reused, only new English titles
+    // Headlines are translated once in Actions — last run's translation reused, only new English titles
     // asked, a reply that is not a matching Korean list leaves titleKo unset.
     const { translateHeadlines } = await import('./fetch-data.mjs');
     const items = [{ title: 'Fed holds rates' }, { title: 'Oil jumps 5%' }, { title: '코스피 급반등' }];
@@ -5127,13 +5110,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const schedule = buildBriefingSchedule({ releases: { 'us-nfp': { nextRelease: '2026-10-02' }, 'us-cpi': { nextRelease: '2026-10-14' } }, snapshot: { nfp: 162, unemployment: 4.1 }, nowMs,
     earnings: [{ symbol: 'NKE', date: '2026-10-05', hour: 'amc', epsEstimate: 0.44 }, { symbol: 'TINY', date: '2026-10-05', hour: 'amc' }], names: { NKE: 'Nike' } });
   if (schedule.length !== 2 || schedule[0].when !== '10/2(금) 21:30 KST' || !/직전 \+16\.2만 명/.test(schedule[0].last) || schedule[1].label !== 'Nike (NKE) 실적') fail(`P1389 briefing schedule wrong: ${JSON.stringify(schedule)}`);
-  // P1501: rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
+  // rule-derived market-structure dates (FOMC minutes, KRX expiry, exchange holidays).
   const week = buildBriefingSchedule({ fomcDecisions: ['2026-09-16', '2026-10-28'], nowMs: Date.parse('2026-10-06T12:00:00+09:00'), days: 7 });
   const labels = week.map((row) => `${row.when} ${row.label}`);
   if (labels.join('|') !== '10/8(목) 03:00 KST FOMC 의사록 (9/16 회의)|10/8(목) 15:20 KST 한국 옵션 만기|10/9(금) 09:00 KST 한국 증시 휴장 (한글날)') fail(`P1501 structure events wrong: ${JSON.stringify(labels)}`);
   const december = buildBriefingSchedule({ fomcDecisions: [], nowMs: Date.parse('2026-12-07T00:00:00Z'), days: 14 }).map((row) => row.label);
   if (!december.includes('한국 선물·옵션 동시 만기') || !december.includes('미국 지수 선물·옵션 분기 만기')) fail(`P1501 quarterly expiry missing: ${JSON.stringify(december)}`);
-  // v58.52 (screen audit 2026-10-20): an earnings-season day keeps the largest index weights, listed by time.
+  // An earnings-season day keeps the largest index weights, listed by time.
   const small = ['EFX', 'GPC', 'HAS', 'KEY'].map((symbol) => ({ symbol, date: '2026-10-20', hour: 'bmo', indexWeight: 0.03 }));
   const big = [{ symbol: 'NFLX', date: '2026-10-20', hour: 'amc', indexWeight: 0.44 }, { symbol: 'META', date: '2026-10-21', hour: 'amc', indexWeight: 2.6 }];
   const names = Object.fromEntries([...small, ...big].map((row) => [row.symbol, row.symbol]));
@@ -5148,7 +5131,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!ko || ko.last !== 'EPS 예상 0.91, 매출 예상 133억 달러' || week2.filter((row) => row.kind === 'earnings').length !== 3) fail(`v58.75 per-day earnings and estimate line wrong: ${JSON.stringify(week2.map((row) => [row.label, row.last]))}`);
 }
 // v58.75 (persona review): a mover's headline names the company exactly (ticker word or proper name), never a guess; a
-// channel post needs the ticker in its extracted list; v59.55 (owner 11/1): it shows only the producer-extracted fact about
+// channel post needs the ticker in its extracted list; v59.55: it shows only the producer-extracted fact about
 // that ticker in the app's sentence (channel-lines.js), never the post's text, and a post without one is passed over.
 {
   const { headlineForCompany, companyMatcher, pickImportantNews } = await load('src/domain/briefing/news-picks.js');
@@ -5181,7 +5164,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || named('META', 'Meta Platforms', '메타버스 열풍') || named('META', 'Meta Platforms', 'A meta analysis of rates') || named('V', 'Visa', 'New visa rules for workers')
     || !named('005930.KS', 'Samsung Electronics', '삼성전자가 3% 올랐다', ['삼성전자']) || companyMatcher('', '') !== null)
     fail('v60.16 the mover matcher must follow the news issuer rule (letter case, Korean name, corporate cue), not a case-sensitive pattern');
-  // v60.16: the article reading (alias map) and the chat's stock-news filter read names by the same rule. A name is a
+  // The article reading (alias map) and the chat's stock-news filter read names by the same rule. A name is a
   // whole word with a particle or a source suffix, never a substring; a Latin alias is a proper noun; a symbol that is
   // also a glossed word is not read from "인공지능(AI)".
   const { articleTickers } = await load('src/domain/news/article-tickers.js');
@@ -5205,7 +5188,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { fixKoreanTerms } = await load('src/domain/briefing/headline-terms.js');
   const lead = { id: 'aibust', axes: ['growth', 'credit'], title: 'AI 투자 꺾임 — x', fit: '조건 충족 3/4', weaker: ['aicapex', 'growth', 'liquidity'], firmer: ['defensive'],
     conditions: [['a', true], ['일자리 둔화', false]], triggers: [{ id: 'us-nfp', when: '11/6 고용보고서', text: '일자리 5만~7.5만 명' }], checks: [] };
-  // v59.51 (content audit): event-guide reads scenarioLead(xr), which holds unless the model is available — match the real model shape.
+  // event-guide reads scenarioLead(xr), which holds unless the model is available — match the real model shape.
   const xr = { available: true, tiedIds: [], leadId: 'aibust', altId: null, items: [lead], events: [{ id: 'us-nfp', when: '11/6 고용보고서', name: '고용보고서', atMs: Date.parse('2026-11-06T13:30:00Z') }], rateHub: {} };
   const chain = newsImpactChain('Meta falls as AI spending fears rattle markets', xr);
   const none = newsImpactChain('OpenAI trains models offline after cyber incidents', xr);
@@ -5269,7 +5252,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const bars = Array.from({ length: 40 }, (_, i) => ({ date: `2026-08-${String(i + 1).padStart(2, '0')}`, close: 100 - (i % 3 === 0 ? i * 0.5 : 0), volume: 1000 + i * 10 }));
   const dist = distributionDaySeries(bars);
   if (dist[10].count !== null || !Number.isInteger(dist[39].count) || dist[39].count < 1) fail(`P1416 distribution count wrong: ${JSON.stringify(dist.slice(-2))}`);
-  // Audit 2026-10-17 (owner D8): a distribution day is retired once a later close is 5% above it.
+  // A distribution day is retired once a later close is 5% above it.
   const rally = Array.from({ length: 31 }, (_, i) => ({ date: `2026-09-${String(i + 1).padStart(2, '0')}`, close: i < 10 ? 100 : 99 + (i - 10) * 0.25, volume: i === 10 ? 2000 : 1000 + i }));
   const rallied = distributionDaySeries(rally);
   // Day 10 (-1% on heavier volume) is the one distribution day; day 29 closes at 103.75 (+4.8%), day 30 at 104 (+5.1%).
@@ -5279,7 +5262,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const rows = computeScreenerBreadthHistory(['AAA'], [{ sym: 'AAA', dates, closes, adjCloses: closes, highs, lows, volumes }], 252, Date.parse('2027-01-01T00:00:00Z'));
   const point = rows[rows.length - 1].us;
   if (point.breadthUp4 !== 1 || point.breadthNewHighs !== 1 || point.contributors.up4[0][0] !== 'AAA' || point.breadth40 == null) fail(`P1416 producer aggregation wrong: ${JSON.stringify({ up4: point.breadthUp4, nh: point.breadthNewHighs, b40: point.breadth40 })}`);
-  // v58.68 (owner 2026-10-23): recent closing lows. A close below every one of the prior 20 (63) closes counts; a gap in
+  // Recent closing lows. A close below every one of the prior 20 (63) closes counts; a gap in
   // the window is unknown, not "no low"; the +5% last session is no low; a close under the last 20 closes after a long rise is a 20-session
   // low but not a 63-session one while the window still holds the earlier trough.
   const dip = closes.slice(0, n - 1).concat([closes[n - 2] * 0.5]);
@@ -5306,12 +5289,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`v59.70 breadth above a rising 50-day line wrong: ${JSON.stringify({ b50: risingPoint.breadth50, rising: risingPoint.breadth50Rising, eligible: risingPoint.eligibleByWindow })}`);
 }
 
-// v58.68 (owner 2026-10-23): the leaders' verdict line — a 6% semiconductor session is named 급락일 beside the break state,
+// The leaders' verdict line — a 6% semiconductor session is named 급락일 beside the break state,
 // a missing previous session leaves the day out (no change across a gap), and the six-axis count is not its input.
 {
   const { buildLeadershipVerdict } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/leadership-verdict.js')).href);
   const leadership = { available: true, state: 'break', drop5: -4.1 };
-  // v59.70: the semiconductor line is SOXX, the leadership proxy (its 급락일 edge is 4.5%).
+  // The semiconductor line is SOXX, the leadership proxy (its 급락일 edge is 4.5%).
   const rows = [{ date: '2026-10-20', soxx: 400, ndx: 25000 }, { date: '2026-10-21', soxx: 400, ndx: 25000 }, { date: '2026-10-22', soxx: 376, ndx: 24350, breadthLow20: 189, fieldMeta: { breadthLow20: { eligible: 900 } } }];
   const day = buildLeadershipVerdict({ history: rows, leadership, basis: '2026-10-22' });
   const gapped = buildLeadershipVerdict({ history: rows.filter((row) => row.date !== '2026-10-21'), leadership, basis: '2026-10-22' });
@@ -5321,7 +5304,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`v58.68 leadership verdict wrong: ${JSON.stringify({ day: [day.label, day.semis1d, day.line], gapped: [gapped.label, gapped.semis1d, gapped.line], none: none.available })}`);
 }
 
-// v58.68 (owner 2026-10-23): the money-flow line — defensives up and growth down by 3pp+ is a move into defensives, nine
+// The money-flow line — defensives up and growth down by 3pp+ is a move into defensives, nine
 // sectors down is a market-wide fall, a 10-year change of another session is left out, and a sector whose sub-themes
 // moved apart (regulated utilities up, nuclear power down) is named as a split.
 {
@@ -5342,21 +5325,21 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     || broad.kind !== 'broadDown' || broad.tenYearBp !== null
     || split.splits[0]?.theme !== '유틸리티' || !/규제 유틸리티 \+2\.6%, 원전\/독립발전 -5\.7%/.test(split.splitLines[0]) || stale.available)
     fail(`v58.68 market flow wrong: ${JSON.stringify({ flow: [flow.kind, flow.line, flow.read], broad: [broad.kind, broad.tenYearBp], split: split.splitLines, stale: stale.available })}`);
-  // v58.74: the boot-set copy of the AI chain equals the AI capex layers (minus the broad industrials theme).
+  // The boot-set copy of the AI chain equals the AI capex layers (minus the broad industrials theme).
   const { AI_CAPEX_CHAIN_THEMES, AI_CAPEX_CHAIN_GROUPS } = await import(pathToFileURL(path.join(root, 'src/domain/market/regime/market-flow.js')).href);
   const { AI_CAPEX_FLOW } = await import(pathToFileURL(path.join(root, 'src/domain/themes/ai-capex-flow.js')).href);
   const capexThemes = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.themes || []).filter((id) => id !== 'industrials'))].sort();
   const capexGroups = [...new Set(AI_CAPEX_FLOW.layers.flatMap((layer) => layer.groups || []))].sort();
   if (JSON.stringify([...AI_CAPEX_CHAIN_THEMES].sort()) !== JSON.stringify(capexThemes) || JSON.stringify([...AI_CAPEX_CHAIN_GROUPS].sort()) !== JSON.stringify(capexGroups))
     fail(`v58.74 AI chain copy drifted from AI_CAPEX_FLOW: ${JSON.stringify({ capexThemes, capexGroups })}`);
-  // v58.74: a sub-theme whose members split (MU up, SNDK/WDC/STX down) is named, AI-chain sub-themes first.
+  // A sub-theme whose members split (MU up, SNDK/WDC/STX down) is named, AI-chain sub-themes first.
   const memberThemes = [{ id: 'semiconductor', nameKr: '반도체', subThemes: [{ name: '메모리/스토리지', tickers: ['MU', 'SNDK', 'WDC', 'STX'] }] },
     { id: 'financials', nameKr: '금융', subThemes: [{ name: '결제', tickers: ['P1', 'P2', 'P3'] }] }, ...themes.slice(1)];
   const memberRows = [...rows, ['MU', 2.46], ['SNDK', -1.82], ['WDC', -2.97], ['STX', -1.81], ['P1', 4], ['P2', -4], ['P3', 0]].map((row) => (Array.isArray(row) ? { sym: row[0], ret1d: row[1], factorSessionDate: session } : row));
   const members = buildThemeFlow({ themes: memberThemes, rows: memberRows, session });
   if (members.memberSplitLines?.[0] !== '메모리/스토리지: MU +2.5%, WDC -3.0% (상승 1, 하락 3)' || members.memberSplits[1]?.name !== '결제')
     fail(`v58.74 member split wrong: ${JSON.stringify(members.memberSplitLines)}`);
-  // v58.74: an intraday KOSPI crash headline carries the reversed close; a same-direction close or an after-close story does not.
+  // An intraday KOSPI crash headline carries the reversed close; a same-direction close or an after-close story does not.
   const { krIndexCloseNote } = await import(pathToFileURL(path.join(root, 'src/domain/news/kr-close-note.js')).href);
   const krHist = [{ date: '2026-10-22', kospi: 5533.7 }, { date: '2026-10-23', kospi: 5550.3 }];
   const crash = { title: "코스피 5,500선 붕괴에 반도체주 '와르르'", pubDate: '2026-10-23T00:19:00Z' };
@@ -5366,7 +5349,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { usWeekendClosed } = await import(pathToFileURL(path.join(root, 'src/ui/components/home-kpi-trend.js')).href);
   const weekendReads = ['2026-10-23T20:59:00Z', '2026-10-23T21:01:00Z', '2026-10-24T03:00:00Z', '2026-10-25T21:59:00Z', '2026-10-25T22:01:00Z'].map((at) => usWeekendClosed(Date.parse(at)));
   if (JSON.stringify(weekendReads) !== '[false,true,true,true,false]') fail(`v58.74 home weekend heading window wrong: ${JSON.stringify(weekendReads)}`);
-  // v58.74 (audit 10/24): a theme row pools its members — a 4-name group no longer sets a 10-name theme's numbers.
+  // A theme row pools its members — a 4-name group no longer sets a 10-name theme's numbers.
   const { buildThemePlaybook } = await import(pathToFileURL(path.join(root, 'src/domain/scenarios/theme-playbook.js')).href);
   const stat = (sym, ret, above) => ({ sym, ret1m: ret, ret3m: ret, ret6m: ret, ret5d: 0, vol: 30, pctSma50: above ? 5 : -5 });
   const pooledGroups = [
@@ -5385,16 +5368,16 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const weekLine = earningsLine({ earnings: [['KO', '2026-10-27', 'bmo', 0.56], ['V', '2026-10-27', 'amc', 1.07], ['MSFT', '2026-10-28', 'amc', 5.85], ['GOOGL', '2026-10-28', 'amc', 2.88], ['AMZN', '2026-10-29', 'amc', 3.9]].map(([symbol, date, hour, indexWeight]) => ({ symbol, date, hour, indexWeight }) ) }, '2026-10-23');
   if (!/^다음 대형주 실적\(10\/27, 미국 시각\): 장 전 KO \/ 장 마감 후 V \/ 이어서 비중이 큰 실적\(미국 시각\): 10\/28 장 마감 후 MSFT, 10\/28 장 마감 후 GOOGL, 10\/29 장 마감 후 AMZN$/.test(weekLine)) fail(`v58.74 the week's heaviest reports follow the next session: ${weekLine}`);
   const { priorSessionMoveLines } = await import('./fetch-data.mjs');
-  // v59.70: the semiconductor line is SOXX (the leadership proxy).
+  // The semiconductor line is SOXX (the leadership proxy).
   const us = priorSessionMoveLines([['2026-10-20', 546.36, 7712], ['2026-10-21', 557, 7757], ['2026-10-22', 523.35, 7663]].map(([date, soxx, spx]) => ({ date, soxx, spx })));
   const gapped = priorSessionMoveLines([['2026-10-20', 557], ['2026-10-22', 523.35]].map(([date, soxx]) => ({ date, soxx })));
   if (!/^직전 완료 세션의 큰 움직임: 반도체\(SOXX\) 10\/22 종가 -6\.04%/.test(us) || gapped)
     fail(`v58.68 US-first prior-session lines wrong: ${JSON.stringify({ us, gapped })}`);
-  // v59.24: WTI's last close (10/23) behind the latest S&P 500 close (10/26) is not the prior session's move
+  // WTI's last close (10/23) behind the latest S&P 500 close (10/26) is not the prior session's move
   const staleOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68], ['2026-10-26', null, 7676.77]].map(([date, wti, spx]) => ({ date, wti, spx })));
   const freshOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68]].map(([date, wti, spx]) => ({ date, wti, spx })));
   if (staleOil || !/WTI 10\/23 종가 \+3\.82%/.test(freshOil)) fail(`v59.24 a WTI close older than the latest US close must not lead: ${JSON.stringify({ staleOil, freshOil })}`);
-  // v59.25: after-hours lane — the day's amc reporters, the last 16:00-20:00 ET print against the regular close
+  // after-hours lane — the day's amc reporters, the last 16:00-20:00 ET print against the regular close
   const ah = await import('./producer/after-hours.mjs');
   const t = (iso) => Date.parse(iso) / 1000;
   const chart = (close, prints) => ({ chart: { result: [{ meta: { regularMarketPrice: close, regularMarketTime: t('2026-10-26T20:00:00Z') },
@@ -5431,10 +5414,10 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (first.name !== 'B' || first.ret3m !== 28 || first.vsBenchmark !== 26 || second.name !== 'A') fail(`P1417 ranking by median wrong: ${JSON.stringify(model.groups.map((g) => [g.name, g.ret3m]))}`);
   if (/score|rating|grade/i.test(Object.keys(first).join(','))) fail('P1417 group strength must not publish a composite rating');
   if (model.themes.t1.members !== 8) fail('P1417 theme-level summary must count each member once');
-  // P1620: all listed constituents remain visible even when a return is missing.
+  // All listed constituents remain visible even when a return is missing.
   const listed = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4', 'A1'] }] }], rows });
   if (listed.groups[0].constituents.length !== 4 || listed.groups[0].constituents[3].included || listed.groups[0].members !== 3) fail('P1620 missing returns must not hide listed members or enter the ranking denominator');
-  // P1622: intra-theme ranks depend on the selected window, preserve ties and missingness.
+  // intra-theme ranks depend on the selected window, preserve ties and missingness.
   const comparison = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }] }], rows: [row('A1', 10, 5), row('A2', 12, 5), row('A3', 8, 4)], benchmark: { ret3m: 2, asOf: '2026-10-09' } }).groups[0];
   if (comparison.rankedMembers.map((member) => member.rank).join(',') !== '1,1,3,' || comparison.rankedMembers[0].vsBenchmark !== 3) fail('P1622 tied leaders and a missing return must not receive arbitrary ranks');
   const shortWindow = buildGroupStrength({ themes: [{ ...themes[0], subThemes: [{ name: 'A', tickers: ['A1', 'A2', 'A3', 'A4'] }] }], rows, sortKey: 'ret1m' }).groups[0];
@@ -5454,13 +5437,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (power.themes.includes('energy') || !power.groups?.includes('industrials:전력장비/그리드')) fail('M10 the power layer must link utilities and the power-equipment sub-theme, not the energy theme');
   const capexSource = readFileSync(path.join(root, 'src/ui/components/theme-strength.js'), 'utf8');
   if (!AI_CAPEX_FLOW.asOf || !AI_BOTTLENECK_LEAD_TIMES.asOf || /el\(doc, 'p', `[^`]*\$\{AI_(CAPEX_FLOW|BOTTLENECK_LEAD_TIMES)\.source\}/.test(capexSource)) fail('M20 the capex body must show the date and keep the provider in the hover title');
-  // v57.79: the split is a dated, published reference (source kept in AI_CAPEX_FLOW.source), never labelled as an AIO estimate.
+  // The split is a dated, published reference (source kept in AI_CAPEX_FLOW.source), never labelled as an AIO estimate.
   if (!/\d{4}/.test(AI_CAPEX_FLOW.source) || /추정 배분/.test(capexSource)) fail('v57.79 the AI capex split must be a cited, dated reference'); // text-pin-ok: retirement absence
-  // v57.79: lineage metadata stays in data-aio-lineage; value-basis.js turns any `title` into a visible reader card.
+  // Lineage metadata stays in data-aio-lineage; value-basis.js turns any `title` into a visible reader card.
   if (/el\.title\s*=\s*sym\s*\+/.test(readFileSync(path.join(root, 'js/aio-core.js'), 'utf8'))) fail('v57.79 annotateLiveDataSinks must not write lineage into title'); // text-pin-ok: retirement absence
 }
 
-// P1620/P1621: same-session breadth facts, zero events and question-selected prompt parity.
+// same-session breadth facts, zero events and question-selected prompt parity.
 {
   const { buildBreadthSnapshot } = await load('src/domain/market/breadth/breadth-snapshot.js');
   const { buildMarketContentContext } = await load('src/ai/context/market-content.js');
@@ -5470,7 +5453,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (buildBreadthSnapshot([{ date: '2026-10-09', spx: 7800, breadthNewHighs: 0, breadthNewLows: 0 }]).cards[0]?.share !== null) fail('P1620 zero high/low events must not invent a percentage');
   if (buildBreadthSnapshot([]).cards.length) fail('P1620 missing breadth must remain absent');
   {
-    // v57.54: the screener lane lags the S&P 500 close by hours; the previous session shows, labelled, never mixed.
+    // The screener lane lags the S&P 500 close by hours; the previous session shows, labelled, never mixed.
     const lag = buildBreadthSnapshot([{ date: '2026-10-12', spx: 7807, breadth50: 35.7 }, { date: '2026-10-13', spx: 7805 }]);
     if (lag.asOf !== '2026-10-12' || lag.laggingFrom !== '2026-10-13' || !lag.cards.some((card) => card.id === 'breadth50')) fail('v57.54 lagging breadth must show the previous session with laggingFrom, got ' + JSON.stringify(lag));
     const stale = buildBreadthSnapshot([{ date: '2026-10-01', spx: 7700, breadth50: 40 }, { date: '2026-10-13', spx: 7805 }]);
@@ -5482,15 +5465,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { homeParticipationSeries } = await load('src/ui/components/home-kpi-trend.js');
   const low = [{ date: '2026-10-09', spx: 7800, breadth50: .5 }];
   if (homeParticipationSeries(low).b50[0]?.value !== .5 || buildBreadthSnapshot(low).cards[0]?.share !== .5) fail('P1623 sub-one percent breadth must retain the same percent unit in chart and snapshot');
-  // P1729: the AI scenario context reads the screen's inputs (credit, rates, macro history), not history alone.
+  // The AI scenario context reads the screen's inputs (credit, rates, macro history), not history alone.
   const { buildQuestionDomainContext } = await load('src/ai/context/market-content.js');
   const marketSource = readFileSync(path.join(root, 'src/ai/context/market-content.js'), 'utf8');
-  // v58.31: through the shared interpretation, whose browser adapter collects collectMarketInputs(root).
+  // Through the shared interpretation, whose browser adapter collects collectMarketInputs(root).
   if (!/renderMarketScenarioModel\(marketInterpretation\(root\)\.scenarios\)/.test(marketSource) || /renderMarketScenarioContext\(\{\s*history\s*:/.test(marketSource) || !/market: collectMarketInputs\(root(?:, \{ now: nowMs \})?\)/.test(readFileSync(path.join(root, 'src/data/selectors/interpretation.js'), 'utf8'))) fail('P1729 the AI scenario context must be built from collectMarketInputs(root)');
   if (typeof buildQuestionDomainContext !== 'function') fail('P1729 buildQuestionDomainContext export missing');
 }
 
-// P1728: a Korean quote's change comes from the verified previous KRX close (2026-10-13: the provider's previous close
+// A Korean quote's change comes from the verified previous KRX close (2026-10-13: the provider's previous close
 // was one session behind after the 10/9 holiday — ^KQ11 -6.19% against -1.43%, 005930 -6.59% against -5.58%).
 // A US index quote's change is measured from the history close before its own New York session (A1: ^VIX 30.88 printed
 // +8.58% against a close two sessions old). Both rules live in src/domain/market/session/quote-basis.js; the page side and
@@ -5583,15 +5566,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const retried = offline.AIO.quoteBasis.batch([vixQuote(28.44, 8.58)], 'o2')(vixQuote(28.44, 8.58), 30.88, 8.58, null);
   if (loads !== 2 || Math.abs(retried.pct + 13.96) > 0.01) fail(`A1 the retried load must verify the next batch: loads ${loads}, ${JSON.stringify(retried)}`);
   const held = { pct: 0.5, quote: vixQuote(30.73, 0.5) };
-  if (basis.batch([], 'r3')(vixQuote(28.44, 8.58), 30.88, 8.58, held).pct !== 0.5) fail('A1 a published close the quote may not replace keeps its change');  // v59.88 (S4): the technical block moved to src/ai/context/technical-lines.js; it reads the same verified KR change.
-  // v60.42: the chat's market header is gone (the short prompt carries the screen basis), so only the technical block is read.
+  if (basis.batch([], 'r3')(vixQuote(28.44, 8.58), 30.88, 8.58, held).pct !== 0.5) fail('A1 a published close the quote may not replace keeps its change');
   const technicalSource = readFileSync(path.join(root, 'src/ai/context/technical-lines.js'), 'utf8');
   if (!/krDayChange\(symbol, analysis\.asOf, analysis\.last\.close\)/.test(technicalSource)) fail('v60.42 P1728 the technical block must use the verified KR change');
 }
 
-// P2116: the news exclusion lists match English keywords as whole words — 'nfl' inside "inflation" dropped every
+// The news exclusion lists match English keywords as whole words — 'nfl' inside "inflation" dropped every
 // inflation headline (2 of 5 blocked items in the 2026-10-28 feed). Korean keywords stay substring matches.
-// v59.42: every news list uses one matcher (src/domain/news/keyword-match.js) — scoring, topics, exclusion, Telegram.
+// Every news list uses one matcher (src/domain/news/keyword-match.js) — scoring, topics, exclusion, Telegram.
 {
   const hit = (await load('src/domain/news/selection.js')).isBlacklistedNewsText;
   const kept = ['Stocks Rise Pre-Bell as Traders Await Fed Policy Decision, Inflation Report', 'Iran Seeks to Curb Inflation, Expand Food Subsidies', 'Updating guidance, Nvidia lifts outlook', 'Unbanked users drive fintech growth', '밈주식 열풍에 거래대금 급증'];
@@ -5612,7 +5594,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { installTelegramCollector } = await load('src/data/providers/telegram-direct.js');
   const tg = {};
   installTelegramCollector(tg);
-  // v59.42 coverage pass: the AI chat ranks Telegram posts for a question by shared keywords; '엔' matched inside
+  // Coverage pass: the AI chat ranks Telegram posts for a question by shared keywords; '엔' matched inside
   // '엔비디아' and 'ai' inside 'said', so an Nvidia question pulled yen posts. One keyword rule here too.
   const { telegramItemQueryRelevance } = await load('src/domain/news/selection.js');
   const tgRel = typeof telegramItemQueryRelevance === 'function' ? [
@@ -5622,11 +5604,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     telegramItemQueryRelevance({ text: 'NVDA beats', tickers: ['NVDA'] }, 'nvda 어때'),
   ] : null;
   if (!tgRel || tgRel.join() !== '0,1,0,4') fail(`v59.42 Telegram chat relevance uses the one keyword rule (엔비디아≠엔, said≠ai): ${JSON.stringify(tgRel)}`);
-  // v59.42 coverage pass: the 뉴스 page source label reads the audit's market-news eligibility, which counted through a
+  // Coverage pass: the 뉴스 page source label reads the audit's market-news eligibility, which counted through a
   // global that never existed and was always 0, so the page was held at SNAPSHOT however many articles it showed.
   const { installNewsSelection } = await load('src/app/news-selection-entry-points.js');
   const { briefingWindowKST } = await load('src/domain/news/scoring.js');
-  // v59.48: the audit ages rows against Date.now(), and the row sat 2 h before the completed cycle's end. At 06-08 KST
+  // The audit ages rows against Date.now(), and the row sat 2 h before the completed cycle's end. At 06-08 KST
   // (21-23Z) that end is the previous 08:00, so the row was ~25 h old and read stale (CI failed 10-29 22:39Z, 10-30 22:36Z).
   // The block runs on fixed clocks, so the wall-clock hour no longer decides the result. v59.49: the audit now ages rows
   // with the page's completed-cycle rule, so 07:00 KST (row ~25 h old, still the latest cycle) counts as current too.
@@ -5647,7 +5629,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!tg.isTelegramMsgRelevant('Lead time for chips shrinks as stock market earnings beat') || tg.isTelegramMsgRelevant('Join our ad channel for stock market tips')) fail('P2116 Telegram spam words match whole words: "lead " is kept, "ad " still drops');
 }
 
-// P1730: the provisional post-08:00 news slot — after the bundle end, not already in the bundle, newest first, at most six.
+// The provisional post-08:00 news slot — after the bundle end, not already in the bundle, newest first, at most six.
 {
   const { selectIntradayNews } = await load('src/domain/news/stories.js');
   const end = Date.parse('2026-10-12T23:00:00Z');
@@ -5673,7 +5655,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (result.excluded !== 1 || byId['single-holding'].status !== 'attention' || !/AAA 60\.0%/.test(byId['single-holding'].value)) fail(`P1418 single-holding check wrong: ${JSON.stringify(byId['single-holding'])}`);
   if (byId['single-currency'].status !== 'info' || byId.region.status !== 'info' || byId.fees.status !== 'unknown') fail('P1418 only rules with a published default may carry a verdict');
   if (derivePortfolioChecks({ surface: { ...surface, currencyState: 'mixed-without-conversion' } }).status !== 'unavailable') fail('P1418 an unconverted currency mix must hold the checks');
-  // v57.55 review (B4-F4/F5): entered cash is read from surface.cash, and a mostly-unpriced book holds the concentration verdict.
+  // Entered cash is read from surface.cash, and a mostly-unpriced book holds the concentration verdict.
   const sparse = derivePortfolioChecks({ surface: { currencyState: 'declared-single', baseCurrency: 'USD', totalAssets: null, positionValue: null, cash: 5000, rows: [{ symbol: 'QQQ', value: 900, currency: 'USD' }, { symbol: 'TSLA', value: null }, { symbol: '105560', value: null }] } });
   const sparseById = Object.fromEntries(sparse.checks.map((check) => [check.id, check]));
   if (sparseById['single-holding'].value !== '판정 보류' || sparseById['single-holding'].status !== 'unknown' || sparseById.cash.value !== '비중 보류') fail(`v57.55 review: unpriced holdings must hold the concentration verdict and entered cash must not read '미입력', got ${JSON.stringify([sparseById['single-holding'], sparseById.cash])}`);
@@ -5689,7 +5671,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const { summarizeValidation } = await load('src/ui/components/screener-validation.js');
   const sample = summarizeValidation([{ date: '2026-09-30', n: 800, dates: 6, quantileSpreadNet: 1.2, netHitRate: 66.7, transactionCostPct: 0.2, ic: { composite: 0.05 } }, { date: '2026-10-01', n: 845, dates: 6, quantileSpreadNet: -3.27, netHitRate: 33.3, transactionCostPct: 0.23, ic: { composite: -0.039 } }], { status: 'BLOCKED', predictiveValidation: 'not-established' });
   if (sample.wins !== 2 || sample.tone !== 'neutral' || sample.distinguishable !== false || !/아직 우연과 구별 안 됨\(표본 6회\)/.test(sample.undecided) || sample.series.length !== 2 || !/생존 편향/.test(sample.validation)) fail(`P1419/D11 a 6-rebalance record without |t|>=2 must read as undecided, not 뒤처짐: ${JSON.stringify(sample)}`);
-  // v58.63 (architecture audit A11): the verdict needs the spread's own per-rebalance t; an IC t alone no longer decides.
+  // The verdict needs the spread's own per-rebalance t; an IC t alone no longer decides.
   const decided = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, quantileSpreadNetByDate: [-3.1, -3.4, -2.9, -3.6, -3.0, -3.3, -3.2, -3.5, -2.8, -3.7, -3.3, -3.0], netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
   if (decided.tone !== 'burden' || decided.distinguishable !== true) fail(`D11 12 rebalances with a spread |t|>=2 keep the sign verdict: ${JSON.stringify(decided)}`);
   const icOnly = summarizeValidation([{ date: '2026-10-01', n: 845, dates: 12, quantileSpreadNet: -3.27, netHitRate: 25, transactionCostPct: 0.23, ic: { composite: -0.039, compositeT: -2.4 } }], null);
@@ -5755,14 +5737,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   if (!result.available || !['setup', 'none', 'extended', 'breakout', 'failed', 'downtrend'].includes(result.state) || /등급|grade/i.test(JSON.stringify(result.evidence))) fail(`P1397 chart analysis contract: ${result.state}`);
   if (!result.evidence.some(([label]) => label === '미너비니 템플릿(변형: 6개월 S&P 초과)') || !result.evidence.some(([label]) => label === '마지막 수축 저점') || result.evidence.some(([label]) => /무효화/.test(label))) fail('P1397/S14 evidence rows missing or carry instruction wording');
   if (analyzeChart(bars.slice(0, 40)).available) fail('P1397 fewer than 60 bars must not be analysed');
-  // v57.84 (owner decision): the screener producer finds the same contractions and the same pivot as the chart.
+  // The screener producer finds the same contractions and the same pivot as the chart.
   const { _calcVCPServer } = await load('src/domain/screener/price-factors.js');
   const server = _calcVCPServer(bars.map((bar) => bar.close), bars.map((bar) => bar.high), bars.map((bar) => bar.low), bars.map((bar) => bar.volume));
   if (server.pivotLevel !== result.pivot || server.contractionCount !== result.vcp.contractions.length || server.isShrinking !== result.vcp.valid) fail(`v57.84 producer VCP must equal the chart detector: ${JSON.stringify({ server: [server.pivotLevel, server.contractionCount, server.isShrinking], chart: [result.pivot, result.vcp.contractions.length, result.vcp.valid] })}`);
   const flat = bars.slice(0, 220);
   const flatServer = _calcVCPServer(flat.map((bar) => bar.close), flat.map((bar) => bar.high), flat.map((bar) => bar.low), flat.map((bar) => bar.volume));
   if (flatServer.pivotLevel !== null || ['near_pivot', 'breakout', 'pivot_down'].includes(flatServer.vcpStage)) fail(`v57.84 no valid contraction run, no pivot state: ${JSON.stringify(flatServer)}`);
-  // Technical audit 2026-10-17: two swing highs with no swing low between them (a shallow dip held on equal lows). The
+  // Two swing highs with no swing low between them (a shallow dip held on equal lows). The
   // pullback starts from the higher one (116), not the first (112) — otherwise the pivot sits under the real peak.
   const knots = [[0, 80], [10, 89], [20, 120], [30, 100], [38, 112], [41, 110], [44, 116], [52, 106], [57, 114]];
   const twinHighs = [];
@@ -5772,14 +5754,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const twin = detectContractions(twinBars);
   const lastTwin = twin.contractions.at(-1);
   if (twin.pivot !== 116 || lastTwin?.high !== 116 || !(Math.abs(lastTwin.depth - (116 - 105) / 116 * 100) < 1e-9)) fail(`audit 2026-10-17 a pullback must start from the highest swing high before the next swing low: ${JSON.stringify(twin.contractions)}`);
-  // Audit 2026-10-17 (owner D9): a tight last contraction (1.6%) stays in the run and sets the pivot (113, not the earlier 114).
+  // A tight last contraction (1.6%) stays in the run and sets the pivot (113, not the earlier 114).
   const tightKnots = [[0, 80], [10, 90], [20, 120], [30, 102], [40, 114], [48, 107], [56, 113], [62, 112.2], [68, 113.5]];
   const tightHighs = [];
   for (let k = 0; k < tightKnots.length - 1; k++) for (let i = tightKnots[k][0]; i < tightKnots[k + 1][0]; i++) tightHighs.push(tightKnots[k][1] + (tightKnots[k + 1][1] - tightKnots[k][1]) * (i - tightKnots[k][0]) / (tightKnots[k + 1][0] - tightKnots[k][0]));
   tightHighs.push(tightKnots.at(-1)[1]);
   const tight = detectContractions(tightHighs.map((high) => ({ high, low: high - 1, close: high - 0.5 })));
   if (tight.pivot !== 113 || !tight.valid || tight.contractions.length !== 3 || !(tight.contractions.at(-1).depth < 2)) fail(`D9 a tight last contraction sets the pivot: ${JSON.stringify(tight.contractions)}`);
-  // Audit 2026-10-17 (owner D6): one breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
+  // One breakout day — prior 50-session volume (the day excluded), up close, at most +5% over the pivot.
   const { isBreakoutDay } = await load('src/domain/technical/definitions.js');
   const flatVol = Array(60).fill(1000);
   const closesAt = (last) => [...Array(59).fill(99), last];
@@ -5791,7 +5773,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 
 console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router', 'evidence-store', 'compatibility-facade', 'orchestrators/screener', 'orchestrators/entity', 'domain/market/breadth', 'domain/technical/stage:deriveTechnicalStageFromOhlcv', 'domain/screener/factor-ranks:computeFactorRanks', 'domain/screener/setup-profile:deriveScreenerSetupProfile', 'domain/portfolio/surface', 'domain/fundamental/sec-report', 'bootstrap:stop-lifecycle'] }));
 
-// P1040: missing facts and mismatched fiscal periods remain distinct.
+// Missing facts and mismatched fiscal periods remain distinct.
 {
   const { finiteFact, sameFiscalPeriod } = await load('src/domain/fundamental/period.js');
   for (const value of [null, undefined, '', ' ', false, true, [], {}]) {
@@ -5805,16 +5787,16 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const result = selectSecFundamentalsAsOf(record,'2026-03-01');
   if (result.revenue !== 100 || result.netIncome !== null || result.equity !== null || result.margin != null || result.revGrowth != null) fail('SEC mismatched years created ratios or annual growth');
   if (deriveSecReport({coverage:['netIncome'],netIncome:-10}).status === 'quarantined') fail('SEC loss quarantined');
-  // P1402: Agilent FY2025 — the NCI-inclusive tag carried accumulated OCI (-$226M) beside $6,741M parent equity.
+  // Agilent FY2025 — the NCI-inclusive tag carried accumulated OCI (-$226M) beside $6,741M parent equity.
   const eqRow = (value, concept) => ({ field: 'equity', value, periodEnd: '2025-10-31', accession: 'acc-1', acceptedAt: '2025-12-19T23:00:46Z', concept });
   const agilent = { symbol: 'A', observedAt: '2025-10-31', accession: 'acc-1', revenue: 6948e6, netIncome: 1303e6, equity: -226e6, coverage: ['revenue', 'netIncome', 'equity'],
     pit: { observations: { revenue: [{ value: 6948e6, periodStart: '2024-11-01', periodEnd: '2025-10-31', acceptedAt: '2025-12-19T23:00:46Z' }], equity: [eqRow(-226e6, 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'), eqRow(6741e6, 'StockholdersEquity')] } } };
   const agReport = deriveSecReport(agilent);
   const agEquity = agReport.metrics.find((row) => row.key === 'equity')?.value;
-  // P1591/S07: the card no longer repeats an end-of-year ROE; the reconciled record still carries it.
+  // The card no longer repeats an end-of-year ROE; the reconciled record still carries it.
   if (agEquity !== 6741e6 || reconcileSecEquity(agilent).roe !== 19.3 || agReport.metrics.some((row) => row.key === 'roe')) fail(`P1402 parent equity must replace a conflicting NCI-inclusive tag: ${agEquity}`);
   if (selectSecFundamentalsAsOf(agilent, '2026-01-01').equity !== 6741e6) fail('P1402 point-in-time equity must prefer the parent concept');
-  // P1449: the shipped projection strips PIT observations, so the reconcile must have run on
+  // The shipped projection strips PIT observations, so the reconcile must have run on
   // the builder side; reconcile must be idempotent and must survive an observations-less shape.
   const shippedShape = { ...agilent, equity: 6741e6, equityConcept: 'StockholdersEquity', pit: { status: 'present', observationCount: 2, acceptedTimeCount: 2 } };
   const shippedReport = deriveSecReport(shippedShape);
@@ -5876,7 +5858,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const failedP1316 = p1316Checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (failedP1316.length) fail(`P1316 portfolio backup checks failed: ${failedP1316.join(' | ')}`);
   const p1316Workspace = workspaceWithPanels();
-  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // v60.30: installed with the 포트폴리오 route
+  const p1316Bootstrap = readFileSync(path.join(root, 'src/app/portfolio-screen-bridges.js'), 'utf8'); // Installed with the 포트폴리오 route
   if (!/root\._pfPortfolioBackup = \{/.test(p1316Bootstrap)
     || !/api\.build\(_pfBackupSnapshot\(\)/.test(p1316Workspace)
     || !/getPortfolioLedger\(\), fxLegs: getPortfolioFxLegs\(\)/.test(p1316Workspace)
@@ -5886,7 +5868,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     fail('P1316 the shell must export every personal section through the native bundle, refuse locked data and ack every restored section');
   }
 }
-// ── P1317~P1320 — 한국 종목 상세·참고 시총·셀별 stale 소음·툴팁 위치 (v56.78) ─────────────────────
+// ── P1317~P1320 — 한국 종목 상세·참고 시총·셀별 stale 소음·툴팁 위치 ─────────────────────
 {
   const { normalizeTickerInput, tickerDisplayName } = await load('src/domain/instruments/ticker-symbol.js');
   const krStockDb = { '005930': { name: '삼성전자' }, '000660': { name: 'SK하이닉스' }, '247540': { name: '에코프로비엠' }, '005935': { name: '삼성전자우' } };
@@ -5928,10 +5910,10 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   }
 }
 
-// P1527: the home KPI trend and 시장 상태 draw the same "20거래일" series; both stop at the S&P 500's last completed close.
+// The home KPI trend and 시장 상태 draw the same "20거래일" series; both stop at the S&P 500's last completed close.
 // Observed 2026-10-08: the home included a pre-market 10-year-yield row dated after the basis (+45bp, 09/09 to 10/08) while
 // 시장 상태 read +47bp (09/08 to 10/07).
-// v59.51 (content audit): the home KPI trend tiles (trendPoints) are retired; the home now draws the participation pair
+// The home KPI trend tiles (trendPoints) are retired; the home now draws the participation pair
 // (homeParticipationSeries: S&P 500 + breadth50). The same intent holds — one close-basis series shared with 시장 상태, and
 // no row dated after the S&P 500's last completed close.
 {
@@ -5958,7 +5940,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (JSON.stringify(home.b50) !== JSON.stringify(buildCloseSeries(history, 'breadth50', { through: basis }))) fail('v59.51 (content audit): P1527 the home participation breadth line must match the shared series');
 }
 
-// P1528 (audit H17): a real yield (TIPS) and a breakeven observed on different days must not be compared. The briefing holds
+// A real yield (TIPS) and a breakeven observed on different days must not be compared. The briefing holds
 // them apart; the macro transmission chain used to draw "1주 +Nbp" and a "실질금리 우위" sentence from both regardless.
 {
   const { buildMacroChain } = await load('src/domain/macro/macro-chain.js');
@@ -5982,7 +5964,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!/설명되지 않아/.test(goldRead({ pct: -3.4 }, { bp: -27 }, { pct: 0.05 }))) fail('v59.74 gold down while the real yield fell 27bp must read as unexplained by rates, not as the usual relation');
   if (!/평소 관계/.test(goldRead({ pct: -4 }, { bp: 20 }, { pct: 0 }))) fail('v59.74 gold down with a 20bp real-yield rise is the usual relation');
   if (!/달러/.test(goldRead({ pct: 3 }, { bp: 2 }, { pct: -2 }))) fail('v59.74 a gold rise with a 2% weaker dollar names the dollar');
-  // v60.19: the sentence names the cross-asset line instead of a size word (scripts/ci-move-size-word-check.mjs).
+  // The sentence names the cross-asset line instead of a size word (scripts/ci-move-size-word-check.mjs).
   if (!/기준\(±2%\) 안입니다/.test(goldRead({ pct: 1 }, { bp: -30 }, { pct: 0 })) || /실질금리/.test(goldRead({ pct: 1 }, { bp: -30 }, { pct: 0 }))) fail('v59.74 a gold move under 2% is not read against rates');
   const goldBig = goldRead({ pct: -7.1 }, { bp: 8 }, { pct: 1.5 });
   if (!/평소 관계/.test(goldBig) || !/설명되는 크기를 넘어/.test(goldBig) || /설명되는 크기를 넘어/.test(goldRead({ pct: -4 }, { bp: 20 }, { pct: 0 }))) fail(`v60.16 gold -7.1% beside a +1.5% dollar fits in direction but not in size: ${goldBig}`);
@@ -6022,7 +6004,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (empty?.status !== 'missing') fail('a history-only card without its series reads missing');
 }
 
-// P1529: the trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the
+// The trend chart labelled every month, so once a range grew the widest label ("26년 1월") sat on top of the
 // preceding "12월" (browser-viewport failed on the macro route at every width). Labels are now thinned by available spacing.
 {
   const { createTrendChart } = await load('src/ui/components/trend-chart.js');
@@ -6045,7 +6027,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     const januaryTicks = labels.filter((label) => /년 1월$/.test(label.text)).length;
     if (januaryTicks !== januaries) fail('P1529 internal: january count');
   }
-  // v59.55 (C1): the stock price line's 1개월 window had no month start inside the plot and drew no date at all; a window
+  // The stock price line's 1개월 window had no month start inside the plot and drew no date at all; a window
   // under two months labels three observation days. A won price widens the value column instead of running off the edge.
   const month = [];
   for (let day = 2; day <= 31; day += 1) month.push({ date: `2026-10-${String(day).padStart(2, '0')}`, value: 55000 + day * 300 });
@@ -6058,7 +6040,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (!(Number(grid.attrs.x1) > 48)) fail(`v59.55 a ₩ axis label widens the value column: x1=${grid?.attrs.x1}`);
 }
 
-// v59.70 (D6): the producer translates headlines; a failed translation (titleKoFailed) keeps the original with a '원문' mark.
+// The producer translates headlines; a failed translation (titleKoFailed) keeps the original with a '원문' mark.
 {
   const { untranslatedMark } = await load('src/ui/pages/news.js');
   const doc = { createElement: (tag) => ({ tag, className: '', textContent: '', title: '' }) };
@@ -6068,7 +6050,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (untranslatedMark(doc, { title: 'Fed holds rates' }) !== null) fail('v59.70 D6 no flag, no mark');
 }
 
-// v59.70 (D5): the 시장 상태 한국 board's 금리·물가·수출 card reads the settled snapshot; a held reference (null) is not 0.
+// The 시장 상태 한국 board's 금리·물가·수출 card reads the settled snapshot; a held reference (null) is not 0.
 {
   const { koreaPolicyCard } = await load('src/domain/market/korea/korea-policy.js');
   const card = koreaPolicyCard({ bokRate: 3, bokNext: '2026-11-26', _fieldTs: { bok_rate: '2026-08-27' }, krCpi: 2.4, krExportReference: { status: 'verified', periodLabel: '2026-10', exportsBillionUsd: 115.3, exportsYoyPct: 93.7 } });
@@ -6077,13 +6059,13 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (koreaPolicyCard({ bokRate: null, krCpi: 1.9 })?.value !== '기준금리 기한 지남') fail('v59.70 D5 a held rate says so instead of printing a number');
 }
 
-// P1586: self-computed sentiment composite — withholds below four components, ranks each against its own
+// self-computed sentiment composite — withholds below four components, ranks each against its own
 // trailing year, labels the stand-in junk-bond basis, and never borrows CNN's value.
 {
   const { computeCompositeFearGreed } = await import(pathToFileURL(path.join(root, 'src/domain/market/sentiment/composite-fear-greed.js')).href);
   const day = (i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10);
   const rising = Array.from({ length: 300 }, (_, i) => ({ date: day(i), spx: 5000 + i * 5, vix: 20 - i * 0.02, advanceRatio: 0.5 + Math.sin(i / 9) * 0.1 + i * 0.0004, fg: 99 }));
-  // P1644 (M03): the spread series must reach the price basis (within two sessions) to count as current.
+  // The spread series must reach the price basis (within two sessions) to count as current.
   const hy = { series: { hyOas: { observations: Array.from({ length: 300 }, (_, i) => [day(i), 4 - i * 0.004]) } } };
   const thin = computeCompositeFearGreed({ history: rising.slice(0, 80), macroHistory: null });
   if (thin.spread !== null || thin.status !== 'withheld') fail(`P1586 composite must withhold below four ready components: ${JSON.stringify({ spread: thin.spread, ready: thin.componentsReady })}`);
@@ -6092,17 +6074,17 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (full.componentsReady !== 4 || !(rank('volatility') >= 65) || !(rank('junkBond') >= 65)) fail(`P1586 falling VIX and spreads must rank on the greed side: ${JSON.stringify(full.components.map((c) => [c.id, c.score]))}`);
   if (!/대체/.test(full.components.find((c) => c.id === 'junkBond').basis)) fail('P1586 the HY-only junk-bond stand-in must say so');
   if (full.components.some((c) => c.raw === 99)) fail('P1586 composite must not read the CNN fg column');
-  // v57.50 D02: no averaged 0-100 score and no 공포~탐욕 band; the lowest and highest component are named instead.
+  // No averaged 0-100 score and no 공포~탐욕 band; the lowest and highest component are named instead.
   if ('score' in full || 'band' in full || !full.spread || full.spread.low.score > full.spread.high.score || full.spread.gap !== Math.round((full.spread.high.score - full.spread.low.score) * 10) / 10) fail(`v57.50 D02 composite must expose the component spread, not a score or band: ${JSON.stringify({ spread: full.spread, score: full.score, band: full.band })}`);
 }
-// P1592: Korean particles follow the spoken final syllable of an interpolated word (F72 '스프레드을 본다').
+// Korean particles follow the spoken final syllable of an interpolated word (F72 '스프레드을 본다').
 {
   const { withObjectParticle, withTopicParticle, withDirectionParticle } = await load('src/domain/content/korean-particle.js');
   const cases = [[withObjectParticle, '스프레드', '스프레드를'], [withObjectParticle, '전망 3.1%', '전망 3.1%를'], [withObjectParticle, '재고', '재고를'], [withObjectParticle, 'HBM', 'HBM을'], [withObjectParticle, '범위', '범위를'], [withObjectParticle, '웨이퍼당 비트', '웨이퍼당 비트를'], [withObjectParticle, '수율', '수율을'],
     [withTopicParticle, 'NVDA', 'NVDA는'], [withTopicParticle, 'Warren Buffett', 'Warren Buffett은'], [withTopicParticle, '최소 백분위', '최소 백분위는'], [withDirectionParticle, 'AI 가치사슬', 'AI 가치사슬로'], [withDirectionParticle, '반도체 공정', '반도체 공정으로'], [withDirectionParticle, '서울', '서울로']];
   for (const [fn, word, expected] of cases) if (fn(word) !== expected) fail(`P1592 particle: ${word} -> ${fn(word)} (expected ${expected})`);
 }
-// P1592 (F62): each column chapter links to its own existing analysis notes — not one shared list of four.
+// Each column chapter links to its own existing analysis notes — not one shared list of four.
 {
   const { COLUMN_FRAME_LINKS, lessonById } = await load('src/domain/knowledge/learning-core.js');
   const journey = JSON.parse((await import('node:fs')).readFileSync(path.join(root, 'public-data/principles/narrative-journey.json'), 'utf8'));
@@ -6112,7 +6094,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const signatures = new Set(Object.values(COLUMN_FRAME_LINKS).map((ids) => ids.join('|')));
   if (missing.length || dangling.length || signatures.size < chapterIds.length - 1) fail(`P1592 column note links must cover every chapter with existing, chapter-specific notes: ${JSON.stringify({ missing, dangling, distinct: signatures.size })}`);
 }
-// P1668: concurrent screener reads share one in-flight artifact fetch; a later refresh fetches again,
+// Concurrent screener reads share one in-flight artifact fetch; a later refresh fetches again,
 // and a read whose caller aborted is not reused by the next caller.
 {
   const { createScreenerProvider } = await load('src/data/providers/screener.js');
@@ -6141,7 +6123,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   await Promise.all([aborted, after]);
   if (calls !== 12) fail(`P1668 a read must not reuse a fetch whose caller aborted, saw ${calls} requests`);
 }
-// P1686: the normalizer keeps the one/five-session returns the map's 1일/1주 tabs read (it dropped them, so the
+// The normalizer keeps the one/five-session returns the map's 1일/1주 tabs read (it dropped them, so the
 // tabs stayed disabled on the deployed site even after the producer published ret1d/ret5d).
 {
   const { normalizeScreener } = await load('src/data/normalize/screener.js');
@@ -6149,7 +6131,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const row = (normalized.rows || [])[0] || {};
   if (row.ret1d !== 1.29 || row.ret5d !== 2.43) fail('P1686 normalizeScreener must keep ret1d/ret5d for the map tabs');
 }
-// P1679/P1681: S&P 500 map domain — tiles stay inside the canvas, the fallback names what is missing, a member on an
+// S&P 500 map domain — tiles stay inside the canvas, the fallback names what is missing, a member on an
 // older close is greyed and kept out of the averages, and a tab is enabled only by the members' own returns.
 {
   const { buildSectorMap, layoutSectorMap, squarify } = await load('src/domain/market/indices/sector-map.js');
@@ -6190,11 +6172,11 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (comm.count !== 2 || comm.withRet !== 1) fail('M21 the sector table denominator must be the members with a return');
   if (!/같은 비중을 두면 평균/.test(classMap.lead) || /끌었습니다/.test(classMap.lead)) fail(`M21 the concentration sentence must carry the equal-weight average: ${classMap.lead}`);
   // M07, v58.80 (owner-delegated 2026-10-26): the map follows the app-wide direction rule — rising red, falling blue,
-  // the Korean brokerage convention the candles already used (P1634) — and its guide says so.
+  // the Korean brokerage convention the candles already used — and its guide says so.
   const mapCss = readFileSync(path.join(root, 'src/ui/styles/regime-quality.css'), 'utf8');
   if (!/\.sector-map \.is-u3 \{ background: var\(--red-11\)/.test(mapCss) || !/\.sector-map \.is-d3 \{ background: var\(--blue-11\)/.test(mapCss) || !/오르면 빨강, 내리면 파랑/.test(readFileSync(path.join(root, 'src/ui/components/sector-map.js'), 'utf8'))) fail('M07 v58.80 the S&P 500 map must colour rises red and falls blue');
 }
-// P1518: shared request/event/router lifecycle ownership under adversarial scheduling.
+// Shared request/event/router lifecycle ownership under adversarial scheduling.
 // T01/T02/T05/T19/T04/T15 (expert review v57.48, 2026-10-13): the shared close series keeps one value per session of the
 // field's own market. A Sunday-evening FX/oil tick was a "close" (20 rows = ~16 sessions, basis chip 10/11(일), won 20일
 // -2.57% vs weekdays +0.13% -> 환율 축 '양호'); the credit axis ignored a 20-session HY widening.
@@ -6222,7 +6204,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (fx?.state !== 'neutral') fail(`T01 a flat weekday won must not read as 원화 강세·양호 (got ${fx?.state})`);
   // v57.75 (10/15 crash): a 20-day won strength that turned weak on the last session holds the verdict at neutral.
   {
-    // v57.81: the won must move across the window (the 20-session mean agrees), not only on the last two closes.
+    // The won must move across the window (the 20-session mean agrees), not only on the last two closes.
     const glide = sessions.slice(-20, -1);
     const withLast = (prev, last) => history.map((row) => glide.includes(row.date) ? { ...row, usdkrw: 1400 - (1400 - prev) * (glide.indexOf(row.date) + 1) / glide.length } : row.date === sessions.at(-1) ? { ...row, usdkrw: last } : row);
     const axisFor = (prev, last) => buildMarketRegime({ history: withLast(prev, last), now: Date.parse(`${sessions.at(-1)}T23:00:00Z`) }).axes.find((axis) => axis.id === 'korea');
@@ -6290,7 +6272,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   }
 }
 
-// v58.55 (owner 2026-10-20): 판단이 바뀌는 조건까지의 거리 — the search asks the axis rule itself where the state changes.
+// 판단이 바뀌는 조건까지의 거리 — the search asks the axis rule itself where the state changes.
 {
   const { flipDistanceSearch, typicalDailyMove } = await load('src/domain/briefing/market-read.js');
   const show = (to, current) => [to - current, '%p', 0];
@@ -6310,7 +6292,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const gatedUp = gated?.all?.find((item) => item.toward === 'favorable');
   if (!gatedUp?.needsMore || gatedUp.also[0]?.condition !== '50일선 상승 전환' || gated.primary.toward !== 'burden') fail(`v58.55 a condition no number measures is named and ranks after measured distances: ${JSON.stringify(gated)}`);
   if (typicalDailyMove([{ value: 1 }, { value: 3 }, { value: 2 }], 2) !== 1.5) fail('v58.55 the typical move is the mean absolute daily change');
-  // v59.68: 오늘's flip tile is retired (시장 상태's six axes carry each distance); the flipDistanceSearch checks above stay.
+  // 오늘's flip tile is retired (시장 상태's six axes carry each distance); the flipDistanceSearch checks above stay.
 }
 
 // v57.79 (UI review): the home 코스피 chip names its basis and never shows an unlabeled number that conflicts with the
@@ -6319,11 +6301,11 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const dailyLoop = await load('src/ui/components/daily-loop.js');
   const { koreaQuoteChip } = dailyLoop;
   {
-    // v57.83 codex audit F25/F26: more than eight names says the count and the way to the rest; an empty schedule says
+    // Codex audit F25/F26: more than eight names says the count and the way to the rest; an empty schedule says
     // "없습니다" only when the calendars were read.
     const dailySrc = readFileSync(path.join(root, 'src/ui/components/daily-loop.js'), 'utf8');
     if (!/전체 \$\{model\.names\.length\}개 중 8개 표시/.test(dailySrc) || !/scr-watchlist-only/.test(dailySrc)) fail('v57.83 the home name list names its total and links to the watchlist'); // text-pin-ok: renderDailyLoop needs a full document and store; the browser check exercises the button
-    // v59.51 (content audit): 다가오는 일정 and 지난 마감 이후 변화 left 오늘 (they repeated 브리핑); the not-received copy moved with them.
+    // 다가오는 일정 and 지난 마감 이후 변화 left 오늘 (they repeated 브리핑); the not-received copy moved with them.
     if (/home-schedule|home-daily-changes|renderSchedule\(/.test(dailySrc)) fail('v59.51 (content audit): the retired home schedule / close-change blocks must not come back to 오늘 (브리핑 owns the 7-day schedule)'); // text-pin-ok: retirement absence check on renderer source
   }
   const closes = [{ date: '2026-10-13', value: 6035 }, { date: '2026-10-14', value: 6008.81 }];
@@ -6335,11 +6317,11 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const disagree = koreaQuoteChip({ live: { ...session, regularMarketPreviousClose: 5500 }, closes });
   if (disagree?.basis !== 'close' || disagree.reason !== 'live-disagrees') fail(`v57.79 a quote whose previous close is >5% off the close series shows the close: ${JSON.stringify(disagree)}`);
   if (koreaQuoteChip({ live: null, closes: [] }) !== null) fail('v57.79 with neither a quote nor a close the 코스피 chip hides');
-  // v59.51 (content audit): the close-change tiles and their 지금 line (liveSinceClose) are retired with 지난 마감 이후 변화.
+  // The close-change tiles and their 지금 line (liveSinceClose) are retired with 지난 마감 이후 변화.
   if ('liveSinceClose' in dailyLoop) fail('v59.51 (content audit): liveSinceClose belonged to the retired home close tiles and must not be exported again');
 }
 
-// v57.81: history.json held one session under two row dates. Rows before v57.70 stamp a previous close with a bar
+// history.json held one session under two row dates. Rows before v57.70 stamp a previous close with a bar
 // boundary and no sessionDate; the 10/14 23:21Z run's WTI 94.14 (the 10/13 close) read as a 10/14 value beside the
 // 10/15 row's real 10/14 close 95.09, and the 10/12 DXY close sat on both 10/12 and 10/13.
 {
@@ -6366,7 +6348,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (spx.length !== 3 || spx.at(-1).date !== '2026-10-14') fail(`v57.81 a held (carried-forward) S&P 500 copy is not a session: ${JSON.stringify(spx)}`);
 }
 
-// v57.81 (owner 2026-10-15): cash is one balance per currency (원화·달러). A legacy single value migrates by a pure read,
+// Cash is one balance per currency (원화·달러). A legacy single value migrates by a pure read,
 // the legacy copy is dropped only after the new key reads back, totals convert with the app's published USD/KRW close
 // (or a declared rate) with its date, and with no rate the total is held — never estimated. Backups old and new round-trip.
 {
@@ -6420,7 +6402,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     || JSON.stringify(old.contents?.cashBalances) !== '[{"currency":"USD","amount":250000}]' || none.contents?.cashBalances !== null) fail(`v57.81 backup cash round-trip failed: ${JSON.stringify({ round: round.contents?.cashBalances, old: old.contents?.cashBalances, none: none.contents?.cashBalances })}`);
 }
 
-// v57.81 (owner 2026-10-15): a US listing outside the screener universe is read on demand with the producer's own
+// A US listing outside the screener universe is read on demand with the producer's own
 // functions and placed against the published universe by the same ranking model; missing inputs stay missing, an
 // unlisted symbol is never fetched, two symbols load at a time and a symbol is read once per session.
 {
@@ -6439,7 +6421,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   for (const [label, a, b] of [['deriveFactorQuality', producer.deriveFactorQuality, pf.deriveFactorQuality], ['isSessionComplete', producer.isSessionComplete, pf.isSessionComplete],
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
-  const producerText = readProducerSource(); // 2026-10-19: the screener lane lives in scripts/producer/screener.mjs
+  const producerText = readProducerSource(); // The screener lane lives in scripts/producer/screener.mjs
   for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
@@ -6473,7 +6455,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const ufpt = await reader.load('UFPT');
   if (ufpt?.status !== 'ready' || ufpt.secStatus !== 'ready' || !(ufpt.row.roe > 0) || ufpt.row.identitySource !== 'on-demand:us-listing') fail(`v57.81 a listed symbol with a CIK reads chart and SEC facts: ${JSON.stringify({ status: ufpt?.status, sec: ufpt?.secStatus })}`);
   if (!calls.json.every((url) => url.startsWith('https://data.sec.gov/'))) fail(`v57.81 SEC reads stay on the allowlisted data.sec.gov host: ${calls.json.join(' ')}`);
-  // v57.83 (owner 2026-10-16): the SEC SIC code (fixture 3089 Plastics Products) becomes the row's sector and industry,
+  // The SEC SIC code (fixture 3089 Plastics Products) becomes the row's sector and industry,
   // named as a classification; an unmapped or missing code stays null.
   {
     const sic = await load('src/domain/fundamental/sic-sector.js');
@@ -6508,7 +6490,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   if (typeof secFundamentalRowFields !== 'function') fail('v57.81 the SEC row-field builder is shared');
 }
 
-// v57.81: a 5-session move ranked 2nd lowest of 252 rounded to 0% and read as 최저 (KOSPI -18.4% on 10/15; 7/30 was -21.2%).
+// A 5-session move ranked 2nd lowest of 252 rounded to 0% and read as 최저 (KOSPI -18.4% on 10/15; 7/30 was -21.2%).
 {
   const { recordPercentile, recordSide } = await load('src/domain/briefing/market-read.js');
   const series = Array.from({ length: 252 }, (_, i) => ({ date: `d${i}`, value: i === 10 ? -21.2 : i === 251 ? -18.4 : (i % 17) - 5 }));
@@ -6543,7 +6525,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ms.oilDivergence({ ...base, brent20: -1, wti20: -8 }).kind !== 'unconfirmed') fail('v57.81 a WTI fall Brent does not follow by half is unconfirmed');
   if (ms.oilDivergence({ ...base, brent20: -6, wti20: -8 }).held || ms.oilDivergence({ ...base, basis: 'spot', brent20: 5, wti20: -8 }).held) fail('v57.81 a confirmed move, or a spot Brent, does not hold the WTI read');
   if (!ms.oilDivergence({ abnormal: true }).held) fail('v57.81 an abnormal same-day gap holds every oil read');
-  // Macro audit 2026-10-17: WTI lags Brent only below half of Brent's move — +10.1% beside +9.9% is not a divergence.
+  // WTI lags Brent only below half of Brent's move — +10.1% beside +9.9% is not a divergence.
   const ramp = (start, pctMove) => Array.from({ length: 30 }, (_, i) => ({ date: new Date(Date.UTC(2026, 0, 2) + i * 86400000).toISOString().slice(0, 10), value: start * (1 + (i < 9 ? 0 : pctMove / 100 * (i - 9) / 20)) }));
   if (ms.brentWtiFromSeries({ brent: ramp(70, 10.1), wti: ramp(66, 9.9) }).diverges) fail('macro audit 2026-10-17 Brent +10.1% beside WTI +9.9% is not "WTI만 덜 올라"');
   if (!ms.brentWtiFromSeries({ brent: ramp(70, 12), wti: ramp(66, 3) }).diverges) fail('macro audit 2026-10-17 Brent +12% beside WTI +3% still diverges');
@@ -6568,7 +6550,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const analogRows = Array.from({ length: 200 }, (_, i) => ({ date: `r${String(i).padStart(3, '0')}`, spx: 100 + i, ...(i >= 100 ? { wti: 50 } : {}) }));
   const analogFreq = an.analogOutcome(analogRows, an.BRANCH_ANALOGS.oilshock);
   if (!analogFreq || analogFreq.baseN !== 60) fail(`macro audit 2026-10-17 the base rate counts only sessions where the analog could be tested: ${JSON.stringify(analogFreq)}`);
-  // Audit D3/D5 (owner 2026-10-17): cuts priced while growth is a burden are not 양호; one negative payroll month is not a burden.
+  // Audit D3/D5: cuts priced while growth is a burden are not 양호; one negative payroll month is not a burden.
   const shrinking = { schemaVersion: 'macro-history.v1', series: { payrolls: { observations: Array.from({ length: 8 }, (_, i) => [`2026-0${i + 1}-01`, 159000 - i * 40]) } } };
   const cutBase = { fedTargetUpper: 4.5, fedTargetLower: 4.25, dgs2: 3.5, corePce: 2.4 };
   const recessionCut = mr.buildMacroRead({ macro: cutBase, macroHistory: shrinking });
@@ -6576,12 +6558,12 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (mr.buildMacroRead({ macro: cutBase }).axes.find((row) => row.id === 'policy').state !== 'favorable') fail('audit D3 the same pricing without a growth burden stays favorable');
   const oneMonth = mr.buildMacroRead({ macro: { nfp: -30 } }).axes.find((row) => row.id === 'growth');
   if (oneMonth.state !== 'neutral' || !/최근 1개월 일자리 감소/.test(macroReason(oneMonth))) fail(`audit D5 one negative payroll month is held at neutral: ${JSON.stringify({ state: oneMonth.state, reason: macroReason(oneMonth) })}`);
-  // Audit D6/D8 (owner 2026-10-17): the briefing's oil-and-rates line is the axes' line, and every large-move threshold lives in RULES.largeMove.
+  // Audit D6/D8: the briefing's oil-and-rates line is the axes' line, and every large-move threshold lives in RULES.largeMove.
   const { RULES: rules } = await load('src/domain/rules/thresholds.js');
   if ('oilRates20dPct' in rules.briefing || !/wti20 >= RULES\.oil\.rise20dPct && tnx20 >= RULES\.rates\.move20dBp/.test(readFileSync(path.join(root, 'src/domain/briefing/market-read.js'), 'utf8'))) fail('audit D6 the oil-and-rates sentence uses oil.rise20dPct and rates.move20dBp');
   const mav = await load('scripts/lib/market-analysis-validate.mjs');
   if (mav.LARGE_MOVE_ATTRIBUTION_PCT !== rules.largeMove.attributionUsPct || mav.KOREA_MOVE_MENTION_PCT !== rules.largeMove.attributionKospiPct) fail('audit D8 the validator reads RULES.largeMove');
-  // Audit D9 (owner 2026-10-17): macro evidence carries what the number measures.
+  // Audit D9: macro evidence carries what the number measures.
   const macroEvidence = mav.buildMarketAnalysisEvidence({ macro: { _source: 'fred', cpi: 3.7, _asOf_cpi: '2026-09-01', nfp: 120, _asOf_nfp: '2026-09-01' } });
   const cpiRow = macroEvidence.find((row) => row.metricId === 'macro.cpi'), nfpRow = macroEvidence.find((row) => row.metricId === 'macro.nfp-mom');
   if (!/전년 대비/.test(cpiRow?.basis || '') || !/전월 대비 증감, 천 명/.test(nfpRow?.basis || '')) fail(`audit D9 macro evidence names its basis: ${JSON.stringify({ cpiRow, nfpRow })}`);
@@ -6600,7 +6582,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (ms.sentimentRank(survey.slice(-10)).percentile !== null) fail('v57.81 fewer than 24 releases give no percentile');
 }
 {
-  // Legacy unification (2026-10-17): the chat's screener query engine is a pure module fed the canonical rows.
+  // Legacy unification: the chat's screener query engine is a pure module fed the canonical rows.
   const sq = await load('src/ai/context/screener-query.js');
   const sectors = ['Technology', 'Energy', 'Utilities', 'Healthcare', 'Financials', 'Industrials'];
   const rows = Array.from({ length: 24 }, (_, i) => ({ sym: `T${String.fromCharCode(65 + i)}X`, name: `Co ${i}`, sector: sectors[i % 6], rank: i + 1, score: 90 - i, mcap: 5e9 * (i + 1), rsi: 25 + i * 2, signal: i % 3 ? 'HOLD' : 'BUY' }));
@@ -6615,7 +6597,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (sq.buildScreenerAiContext('오늘 기분 어때', [], { rows }).prompt !== '') fail('screener-query: no match gives an empty prompt');
 }
 {
-  // Legacy unification follow-up (2026-10-17): a live-quote tick re-derives only the rows whose quote changed.
+  // Legacy unification follow-up: a live-quote tick re-derives only the rows whose quote changed.
   const { createScreenerProvider } = await load('src/data/providers/screener.js');
   const artifact = { asOf: '2026-10-16T21:00:00Z', factorObservedAt: '2026-10-16T20:00:00Z', data: { AAA: { ret3m: 4, rsi: 50, observedAt: '2026-10-16T20:00:00Z' }, BBB: { ret3m: 2, rsi: 40, observedAt: '2026-10-16T20:00:00Z' } } };
   const httpClient = { requestJson: async (url) => url.includes('screener.json') ? { ok: true, data: artifact } : { ok: false, error: 'HTTP_404' } };
@@ -6634,7 +6616,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (late.BBB === plain.BBB) fail('quote tick: rows re-derive once the reuse window has passed');
 }
 {
-  // Legacy unification (2026-10-17): one checked screener-breadth read replaces the projected breadth globals.
+  // Legacy unification: one checked screener-breadth read replaces the projected breadth globals.
   const { readScreenerBreadth } = await load('src/domain/market/breadth/screener-breadth.js');
   const now = Date.parse('2026-10-17T06:00:00Z');
   const seg = (extra) => ({ above5: 40, above20: 35, above50: 36, above200: 52, advanceRatio: 0.6, coveragePct: 97, eligible: 700, advances: 400, declines: 300, observedAt: '2026-10-16T20:00:00Z', ...extra });
@@ -6646,7 +6628,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (wrongSchema.us !== null || wrongSchema.kr !== null || wrongSchema.state.checks.schema !== false) fail('screener breadth: an unknown schema blocks both markets');
 }
 {
-  // Legacy unification (2026-10-17): per-screen completeness reads the screener artifact's state from the native slice.
+  // Legacy unification: per-screen completeness reads the screener artifact's state from the native slice.
   const { screenerLoadState, producerState } = await load('src/data/page-completeness.js');
   const cases = {
     pending: screenerLoadState({ status: 'unavailable', revision: null, updatedAt: null, metadata: {} }).status,
@@ -6665,7 +6647,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (breadth.status !== 'loaded' || breadth.coverage !== null || breadth.lastSuccessfulAt !== '2026-10-16T21:00:00Z') fail(`page completeness: a ready screener loads breadth: ${JSON.stringify(breadth)}`);
 }
 {
-  // Legacy unification (2026-10-17): the data.json loader's fetch and market-cycle gate.
+  // Legacy unification: the data.json loader's fetch and market-cycle gate.
   const { assessServerCycle, fetchServerData } = await load('src/data/server-data.js');
   const now = Date.parse('2026-10-17T12:00:00Z');
   const base = { generatedAt: '2026-10-17T11:00:00Z', cycleStatus: 'PUBLISHED', marketSnapshotPublished: true };
@@ -6683,7 +6665,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (failed.reason !== 'data.json HTTP 503' || invalid.reason !== 'invalid data.json payload' || brokenReconciliation.reconciliation.status !== 'unavailable' || brokenReconciliation.reconciliation.detail !== 'HTTP 404') fail(`server data: fetch failures: ${JSON.stringify({ failed, invalid, rec: brokenReconciliation.reconciliation })}`);
 }
 {
-  // Legacy unification (2026-10-17): the server macro projection.
+  // Legacy unification: the server macro projection.
   const { applyServerMacro } = await load('src/data/server-macro.js');
   const snapshot = { _fieldTs: {}, _dgs10Delta5: 0.3 };
   const evidence = {};
@@ -6733,7 +6715,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const staleEstimates = buildIndexEarnings({ rows, weights, consensus, realYield10: 2, now: Date.parse('2026-11-20T00:00:00Z') });
   const staleCloses = buildIndexEarnings({ rows: rows.map((row) => ({ ...row, factorSessionDate: '2020-01-02' })), weights, consensus, realYield10: 2, now: indexNow });
   if (staleEstimates.available !== false || staleCloses.forwardPe != null || staleCloses.breadth == null) fail(`v58.63 F-DELTA-01 index earnings must drop expired estimates and closes: ${JSON.stringify({ staleEstimates, pe: staleCloses.forwardPe, breadth: staleCloses.breadth })}`);
-  // v60.30: the revision-breadth gauge caption ("label, +25%") names the measure and window beside the bare percent.
+  // The revision-breadth gauge caption ("label, +25%") names the measure and window beside the bare percent.
   const { breadthGauge } = await load('src/ui/components/index-earnings.js');
   const breadthLabel = breadthGauge(0.25).label;
   if (!/4주/.test(breadthLabel) || !/수정 건수/.test(breadthLabel)) fail(`v60.30 the revision-breadth gauge must name its window and that it counts revisions: ${breadthLabel}`);
@@ -6813,7 +6795,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (card.tone !== 'favorable' || !/하이일드 회사채 5%/.test(card.text) || !/함께 내릴 수 있습니다/.test(card.text)) fail(`bond cushion card: ${JSON.stringify(card)}`);
   const short = bondCushion({ rows: [{ symbol: 'NVDA', value: 800 }, { symbol: 'TLT', value: 200 }], stressInput: { historyMap, commonDates: commonDates.slice(-60) } });
   if (short.correlation.available || short.correlation.reason !== 'weeks-insufficient') fail('bond cushion: fewer than 30 weeks prints no correlation');
-  // v58.55 review: a KRW book of a Korean stock + TLT reads TLT in won (USD/KRW on the same dates); a flat-dollar TLT whose
+  // A KRW book of a Korean stock + TLT reads TLT in won (USD/KRW on the same dates); a flat-dollar TLT whose
   // won value follows a USD/KRW that moves with the stock correlates positively, not 0/undefined.
   const krMap = { '005930.KS': {}, TLT: {} }; const fxHist = [];
   let k = 100; let fx = 1300;
@@ -6880,7 +6862,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (krwTranslationPct({ weights: { AAA: 0.5, '005930.KS': 0.5 }, baseCurrency: 'KRW', shockPct: 10 }) !== 5) fail('stress: a KRW book gains on USD holdings when the won weakens');
 }
 
-// ── v58.52 (owner 2026-10-20): the trade journal — FIFO results, the reader's own statistics and rule mirrors ──
+// ── v58.52: the trade journal — FIFO results, the reader's own statistics and rule mirrors ──
 {
   const { normalizeTrade, normalizeJournal, realizeTrades, journalStats, journalReview, rulesMirror } = await load('src/domain/portfolio/trade-journal.js');
   if (normalizeTrade({ symbol: 'NVDA', date: '2026-10-01', side: 'buy', qty: 0, price: 100 }).error !== 'qty') fail('journal: a zero quantity is rejected');
@@ -6904,7 +6886,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (mirror.map((row) => `${row.id}:${row.ok}`).join(',') !== 'max-position:false,min-cash:false,max-positions:false,stop-loss:false') fail(`journal: the rule mirror compares the declared rules with the book ${JSON.stringify(mirror)}`);
 }
 
-// ── v58.52 (screen audit 2026-10-20): the top pulse bar shows the 시장 상태 verdict, not the retired swing score ──
+// ── v58.52: the top pulse bar shows the 시장 상태 verdict, not the retired swing score ──
 {
   const { regimePulse } = await load('src/domain/briefing/regime-pulse.js');
   const burden = regimePulse({ available: true, overall: '부담 우세', counts: { burden: 4, favorable: 0 }, asOf: '2026-10-19' });
@@ -6971,7 +6953,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (macroHistoryUrl(MACRO_HISTORY_SERIES.dgs5, 'k', now).includes('observation_end') || !(MACRO_HISTORY_SERIES.dgs30?.limit >= 45)) fail('producer: curve tenors keep a bounded window covering 21 sessions');
 }
 
-// ── v58.56 (re-audit #9/#14): short/middle curve tenors on the official cut, and the SEP-dated r* default ──
+// ── v58.56: short/middle curve tenors on the official cut, and the SEP-dated r* default ──
 {
   const { MACRO_HISTORY_SERIES } = await import('./producer/macro-history.mjs');
   for (const [field, id] of [['dgs1mo', 'DGS1MO'], ['dgs3mo', 'DGS3MO'], ['dgs6mo', 'DGS6MO'], ['dgs1', 'DGS1'], ['dgs3', 'DGS3'], ['dgs7', 'DGS7'], ['sepLongRunFedFunds', 'FEDTARMDLR']]) {
@@ -7051,7 +7033,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.78 (owner 2026-10-25): 오늘 opens with the four index ETFs' last regular session — change from the previous close,
+  // 오늘 opens with the four index ETFs' last regular session — change from the previous close,
   // an open/closed flag from the trading period, and nothing drawn from an empty payload.
   const { sessionModel, INDEX_STRIP } = await load('src/ui/components/home-index-strip.js');
   if (INDEX_STRIP.map((row) => row.sym).join(',') !== 'SPY,QQQ,SOXX,IWM') fail('v59.70 index strip: SPY, QQQ, SOXX (one semiconductor gauge app-wide, the leadership proxy), IWM in that order');
@@ -7064,7 +7046,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!sessionModel(payload, start + 900).open) fail('v58.78 index strip: a session inside its regular period reads as open (and re-reads every five minutes)');
   if (sessionModel({ timestamps: [] }) !== null || sessionModel(null) !== null) fail('v58.78 index strip: an empty payload draws nothing');
   if (sessionModel({ ...payload, meta: {} }, start + 30000).change !== null) fail('v58.78 index strip: without a previous close the change stays empty, never guessed');
-  // v60.31 chart-scale: Yahoo sent the closed 11/18 SPY session with bars 14–77 null; each candle keeps its own time slot
+  // chart-scale: Yahoo sent the closed 11/18 SPY session with bars 14–77 null; each candle keeps its own time slot
   // (the 16:00 bar is slot 78 of 79) instead of its array position, and the gap is counted, never filled.
   const day = Array.from({ length: 79 }, (_, i) => start + i * 300);
   const gapped = (values) => values.map((value, i) => (i >= 14 && i <= 77 ? null : value));
@@ -7074,7 +7056,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // P2061: a soft-card reset in soft-ui.css set every S&P 500 map tile to the same faint ink with !important, so the
+  // A soft-card reset in soft-ui.css set every S&P 500 map tile to the same faint ink with !important, so the
   // return shades never showed and the biggest movers' dark labels vanished. No soft-ui rule may set a tile background.
   const softCss = readFileSync(path.join(root, 'src/ui/styles/soft-ui.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
   const rules = softCss.split('}').map((chunk) => chunk.split('{')).filter((parts) => parts.length === 2)
@@ -7084,7 +7066,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.78 (owner 2026-10-25): the theme ranking reads 1주·2주·1개월 — the 1주 tab ranks by the members' five-session
+  // The theme ranking reads 1주·2주·1개월 — the 1주 tab ranks by the members' five-session
   // median, 2주 is the ten-session median, and 6개월 stays a valid key for the other readers.
   const { buildGroupStrength, STRENGTH_TABS, GROUP_WINDOWS } = await load('src/domain/themes/group-strength.js');
   {
@@ -7157,12 +7139,12 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.78 (owner 2026-10-25): the stage table says the run in words, and the theme map keeps a readable scale.
+  // The stage table says the run in words, and the theme map keeps a readable scale.
   const { stageRun, robustSpan } = await load('src/ui/components/theme-playbook-view.js');
   const day = (date, state) => ({ date, state, ret1m: 1 });
   const run = stageRun([day('2026-10-14', 'leading'), day('2026-10-15', 'leading'), day('2026-10-16', 'fading'), day('2026-10-17', undefined), day('2026-10-20', 'fading'), day('2026-10-21', 'fading')]);
   if (!run || run.state !== 'fading' || run.sessions !== 3 || run.from?.state !== 'leading' || run.from?.date !== '2026-10-15' || run.atLeast) fail(`v58.78 stageRun wrong: ${JSON.stringify(run)}`);
-  // v59.49: '최근 3거래일' counts session positions; unrecorded days inside the window no longer reach an older change.
+  // '최근 3거래일' counts session positions; unrecorded days inside the window no longer reach an older change.
   const { recentStageChange } = await load('src/ui/components/theme-playbook-view.js');
   const gapped = [day('2026-10-01', 'leading'), day('2026-10-27', 'fading'), day('2026-10-28', undefined), day('2026-10-29', undefined), day('2026-10-30', 'fading')];
   const near = [day('2026-10-27', 'leading'), day('2026-10-28', undefined), day('2026-10-29', 'fading'), day('2026-10-30', 'fading')];
@@ -7207,7 +7189,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/sr-only/.test(frame.frameHead(doc, { title: '지수 하루 흐름', hiddenTitle: true }).children[0].className)) fail('v58.79 a hidden frame title stays for screen readers');
   const section = frame.frameSection(doc, { frame: 'home.test', title: 'T', titleId: 't', reading: '읽기' });
   if (section.dataset.frame !== 'home.test' || section.attrs['aria-labelledby'] !== 't' || section.children[1]?.className !== 'aio-frame-reading') fail('v58.79 frameSection: data-frame name, labelled by its title, reading after the head');
-  // v59.70 (S24): a story frame wraps its visual in .aio-frame-visual and names its contract; an unknown contract is ignored.
+  // A story frame wraps its visual in .aio-frame-visual and names its contract; an unknown contract is ignored.
   const story = frame.frameSection(doc, { frame: 'home.story', title: 'T', contract: 'story', visual: node('svg'), reading: '읽기' });
   if (story.dataset.frameContract !== 'story' || story.children[1]?.className !== 'aio-frame-visual' || story.children[1].children[0]?.tag !== 'svg' || story.children[2]?.className !== 'aio-frame-reading'
     || frame.frameSection(doc, { title: 'T', contract: 'poster' }).dataset.frameContract !== undefined || frame.FRAME_CONTRACTS.story.visuals !== 1)
@@ -7224,15 +7206,13 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
       if (routeId !== 'theme-detail' && booted !== routeId) bootMisses.push(`${hash} -> ${booted}`);
       const link = parseRouteDeepLink(hash);
       if (['ticker', 'fundamental'].includes(routeId) && hash !== `#${routeId}` && link?.entityId !== 'AAPL') bootMisses.push(`${hash} entity ${link?.entityId}`);
-      // Owner 2026-11-19: the retired 종목 › 차트 tab's address opens 기술적 분석 with the symbol in its analysis slot.
+      // The retired 종목 › 차트 tab's address opens 기술적 분석 with the symbol in its analysis slot.
       if (['technical', 'charts'].includes(routeId) && hash !== `#${routeId}` && (link?.routeId !== 'charts' || link?.chartSymbol !== 'AAPL' || link?.entityId !== null)) bootMisses.push(`${hash} chart ${link?.routeId}/${link?.chartSymbol}`);
     }
   }
   if (bootMisses.length) fail(`v59.70 every route boots on itself in bare, query and path form: ${bootMisses.join(', ')}`);
   const { headroom } = await import(pathToFileURL(path.join(root, 'scripts/ci-secondary-text-budget-check.mjs')).href);
   if (headroom(0) !== 40 || headroom(1000) !== 1140) fail('v58.79 budget headroom is 10% + 40 characters');
-  // v59.51 (content audit): the quote heading and its state chip (HOME_QUOTE_HEADINGS) are retired with the KPI strip; the
-  // quote state now lives in the cross-asset row, where a futures chip shows only with a live quote on an open CME week.
   const { syncHomeQuoteRow } = await load('src/ui/components/home-kpi-trend.js');
   const futuresChips = ['ES=F', 'NQ=F'].map((sym) => ({ dataset: { futures: sym }, hidden: false }));
   const quoteDoc = { getElementById: (id) => (id === 'home-cross-assets' ? { querySelectorAll: () => futuresChips } : null) };
@@ -7244,7 +7224,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.79 (owner 2026-10-25): the breadth headline is S&P 500 members; the AIO US universe is the fallback.
+  // The breadth headline is S&P 500 members; the AIO US universe is the fallback.
   const producer = await import(pathToFileURL(path.join(root, 'scripts/producer/screener-breadth.mjs')).href);
   const client = await load('src/domain/market/breadth/screener-breadth.js');
   if (producer.SP500_SCOPE !== client.SP500_BREADTH_SCOPE) fail('v58.79 producer and client name the S&P 500 breadth scope the same');
@@ -7265,7 +7245,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.79 (owner 2026-10-25): the theme-stage record before 10/12 is recomputed from closes with the live rule.
+  // The theme-stage record before 10/12 is recomputed from closes with the live rule.
   const { mergeThemeHistory, loadThemeMaps } = await import(pathToFileURL(path.join(root, 'scripts/build-scenario-state.mjs')).href);
   const { buildThemeStageBackfill, THEME_STAGE_HISTORY_SCHEMA } = await import(pathToFileURL(path.join(root, 'scripts/producer/theme-stage-backfill.mjs')).href);
   const { THEME_STAGE_RULE } = await load('src/domain/scenarios/analogs.js');
@@ -7313,7 +7293,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.79 (owner 2026-10-25): theme <-> research-library links; every id must resolve and every copied title must match.
+  // Theme <-> research-library links; every id must resolve and every copied title must match.
   const links = await load('src/domain/knowledge/theme-research-links.js');
   const { lessonById } = await load('src/domain/knowledge/learning-core.js');
   const { loadThemeMaps } = await import(pathToFileURL(path.join(root, 'scripts/build-scenario-state.mjs')).href);
@@ -7333,7 +7313,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
 }
 
 {
-  // v58.79 (owner 2026-10-25): rule drawings — a trendline through two confirmed swing points no close has broken since,
+  // Rule drawings — a trendline through two confirmed swing points no close has broken since,
   // anchored VWAP from dated events, and the user's lines read against the level map.
   const draw = await load('src/domain/technical/chart-drawings.js');
   // A rising zigzag: swing lows every 20 bars climbing by 2, highs in between; the last close sits above the support.
@@ -7424,7 +7404,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (failed?.state !== 'failed' || /미확정/.test(failed.text) || loading?.state !== 'loading' || !/불러오는 중/.test(loading.text)) fail(`v58.80 a missing calendar is not "미확정": ${JSON.stringify({ failed, loading })}`);
 }
 
-// v59.94: the earnings calendar snapshot and the AI earnings reader read the registry's one shared copy, so a session
+// The earnings calendar snapshot and the AI earnings reader read the registry's one shared copy, so a session
 // downloads the 400 KB file once per max age; a failed first load is null and a failed refresh keeps the last good copy.
 {
   const { fetchEarningsCalendarSnapshot } = await load('src/data/earnings-calendar-snapshot.js');
@@ -7473,7 +7453,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/^달러 현금은 0 이상/.test(readNumericInput('-1', spec).reason)) fail('v58.80 refusal names its field with the right particle');
 }
 
-// v58.80 (first-users F23): one slot for the floating layers — opening a second popover closes the first, and the
+// One slot for the floating layers — opening a second popover closes the first, and the
 // body class that moves 맨 위로 aside follows the slot.
 {
   const { claimPopover, releasePopover, openPopoverCount, placePopover } = await load('src/ui/components/popover.js');
@@ -7493,7 +7473,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   { const at = placePopover({ left: 312, right: 334, top: 259, bottom: 279, width: 22, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 312 || at.top !== 285) fail(`v59.70 (screen review #27) the popover starts at its term, not centred back over the sidebar: ${JSON.stringify(at)}`); }
   { const at = placePopover({ left: 1400, right: 1430, top: 259, bottom: 279, width: 30, height: 20 }, { width: 320, height: 90 }, { width: 1440, height: 900 }); if (at.left !== 1440 - 320 - 8) fail(`v59.70 the popover stays inside the right edge: ${JSON.stringify(at)}`); }
   {
-    // v60.05: shared behaviours. Escape closes the top layer only; a segmented group moves by arrow keys and wraps.
+    // Shared behaviours. Escape closes the top layer only; a segmented group moves by arrow keys and wraps.
     const { openLayer, openLayerCount } = await load('src/ui/behaviors/layers.js');
     const { rovingTarget } = await load('src/ui/behaviors/roving.js');
     const listeners = [];
@@ -7529,7 +7509,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     if (nextOptionIndex('ArrowDown', -1, 4) !== 0 || nextOptionIndex('ArrowUp', -1, 4) !== 3) fail('v60.05 the first arrow enters the option list at its near end');
     if (nextOptionIndex('ArrowDown', 3, 4) !== 0 || nextOptionIndex('ArrowUp', 0, 4) !== 3) fail('v60.05 the option highlight wraps');
     if (nextOptionIndex('ArrowDown', -1, 0) !== -1) fail('v60.05 an empty option list has no highlight');
-    // v60.06 review: a popover claimed twice by the same closer keeps one layer, so Escape is free again after release.
+    // A popover claimed twice by the same closer keeps one layer, so Escape is free again after release.
     {
       const { claimPopover, releasePopover } = await load('src/ui/components/popover.js');
       const keys = [];
@@ -7614,8 +7594,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (hoverSuppressed(win)) fail('v58.80 a real pointer move lifts the navigation hover suppression');
 }
 
-// v59.52: company selection keeps its session subject without writing the retired recent-search store.
-// v58.80: the sentence parser names only the refusal that applied; the stock watch line names its benchmark.
+// Company selection keeps its session subject without writing the retired recent-search store.
+// The sentence parser names only the refusal that applied; the stock watch line names its benchmark.
 {
   const { readSavedStockSubject } = await load('src/data/stock-subject-store.js');
   const { setStockSubject } = await load('src/ui/navigation/route-hubs.js');
@@ -7642,7 +7622,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (signedText(0.04, 1) !== '0.0' || directionOf(0.04, 1) !== null) fail('v58.80 an unsigned "0.0" carries no direction colour');
 }
 
-// v58.80 (first-users F01): the critical-data gate holds screener work until data.json and history arrive (or the
+// The critical-data gate holds screener work until data.json and history arrive (or the
 // fallback fires), runs it at once for a rows-first screen, and the <head> prefetch is taken once and never when stale.
 {
   const { createCriticalDataGate, ROWS_FIRST_ROUTES } = await load('src/app/critical-data-gate.js');
@@ -7658,7 +7638,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const late = createCriticalDataGate({ isReady: () => false, subscribe: () => null, schedule: (fn) => { fallback = fn; } });
   const lateRan = []; late.run(() => lateRan.push(1)); fallback();
   if (lateRan.length !== 1 || !ROWS_FIRST_ROUTES.has('screener') || ROWS_FIRST_ROUTES.has('home')) fail('v58.80 the fallback releases the gate; 오늘 is not a rows-first screen');
-  // v59.70: a failed core read settles the gate, so the held screener read starts at once instead of after the 20 s
+  // A failed core read settles the gate, so the held screener read starts at once instead of after the 20 s
   // fallback (history+data refused: old code made no screener request in 12 s, new code at ~2.9 s).
   {
     const gateModule = await load('src/app/critical-data-gate.js');
@@ -7689,7 +7669,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (takeBootPrefetch(stale, 'data', { now: 6 * 60 * 1000 }) !== null) fail('v58.80 a prefetch older than five minutes is not used');
 }
 
-// v58.80 (first-users F34): RSI and period-return sentences become conditions; a bare number is reported, never guessed.
+// RSI and period-return sentences become conditions; a bare number is reported, never guessed.
 {
   const { parseConditionText } = await load('src/domain/screener/condition-text-parser.js');
   const { evaluateCondition } = await load('src/domain/screener/custom-conditions.js');
@@ -7720,7 +7700,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (evaluateCondition({ id: 'fcf-margin-min', value: 10 }, read, pick) !== true || evaluateCondition({ id: 'capex-intensity-max', value: 15 }, read, pick) !== false) fail('v59.44 cash conditions judge the read');
 }
 
-// v58.80 (first-users F07): the cost-comparison words have one owner, read by the screens and the AI prompts alike.
+// The cost-comparison words have one owner, read by the screens and the AI prompts alike.
 {
   const { CHOICE_WORDS } = await load('src/domain/content/choice-words.js');
   const walk = (dir) => readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walk(`${dir}/${entry.name}`) : entry.name.endsWith('.js') ? [`${dir}/${entry.name}`] : []);
@@ -7728,7 +7708,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (CHOICE_WORDS.favored !== '비용이 작은 쪽' || literal.length) fail(`v58.80 choice words are written only in choice-words.js: ${literal.join(', ')}`);
 }
 
-// v58.80 (first-users F06/F25): the holding form is read in src; the first refused field takes focus and is marked.
+// The holding form is read in src; the first refused field takes focus and is marked.
 {
   const { readHoldingInputs } = await load('src/ui/components/input-check.js');
   const fakeForm = (values) => {
@@ -7750,7 +7730,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (huge.ok || !/매수 단가는 1,000,000,000 이하/.test(huge.reason) || blank.ok || !/종목/.test(blank.reason)) fail(`v58.80 holding refusals: ${JSON.stringify({ huge, blank })}`);
 }
 
-// v59.92: the cash box says who owns it (data-cash-entry). The render paints only a box nobody owns; a refused box keeps
+// The cash box says who owns it (data-cash-entry). The render paints only a box nobody owns; a refused box keeps
 // the typed text and its note until it is checked again, a written one goes back to the render, a focused one is left alone.
 {
   const { paintCashBox, checkCashEntry } = await load('src/ui/panels/portfolio-cash-entry.js');
@@ -7772,7 +7752,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v59.92 an accepted cash amount hands the box back to the render, and a focused box is left alone: ${JSON.stringify({ accepted, repainted, typing, value: box.value })}`);
 }
 
-// v58.80 (first-users F29): the screener star and 포트폴리오 관심 종목 share one store; the old star array is folded in once.
+// The screener star and 포트폴리오 관심 종목 share one store; the old star array is folded in once.
 {
   const { readWatchlistSymbols, toggleWatchlistSymbol, LEGACY_STAR_KEY, WATCHLISTS_KEY } = await load('src/data/watchlist-store.js');
   const mem = new Map([[LEGACY_STAR_KEY, JSON.stringify(['NVDA'])], [WATCHLISTS_KEY, JSON.stringify([{ id: 'a', name: '반도체', tickers: [{ sym: 'MU' }] }])]]);
@@ -7785,7 +7765,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const empty = new Map();
   const bare = { getItem: (k) => (empty.has(k) ? empty.get(k) : null), setItem: (k, v) => empty.set(k, String(v)), removeItem: (k) => empty.delete(k) };
   if (toggleWatchlistSymbol(bare, 'MSFT', 4).listName !== '관심 종목') fail('v58.80 star with no list makes "관심 종목"');
-  // v59.42: the portfolio list CRUD shares this store; a list with no tickers array is repaired, not dropped (and so deleted).
+  // The portfolio list CRUD shares this store; a list with no tickers array is repaired, not dropped (and so deleted).
   const { readWatchlists, writeWatchlists } = await load('src/data/watchlist-store.js');
   const kept = new Map([[WATCHLISTS_KEY, JSON.stringify([{ id: 'a', name: 'x', tickers: [{ sym: 'MU' }] }, { id: 'b', name: 'old' }, null])], [LEGACY_STAR_KEY, JSON.stringify(['NVDA'])]]);
   const keptStore = { getItem: (k) => (kept.has(k) ? kept.get(k) : null), setItem: (k, v) => kept.set(k, String(v)), removeItem: (k) => kept.delete(k) };
@@ -7793,7 +7773,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (lists.map((l) => l.id + ':' + l.tickers.map((t) => t.sym).join('/')).join() !== 'a:MU/NVDA,b:' || !writeWatchlists(keptStore, lists) || JSON.parse(kept.get(WATCHLISTS_KEY)).length !== 2) fail(`v59.42 one watchlist store keeps a list without tickers: ${JSON.stringify(lists)}`);
 }
 
-// v59.42: the AI question cues match English words whole (no 'per' in "operating", 'now' in "know", 'hold' in
+// The AI question cues match English words whole (no 'per' in "operating", 'now' in "know", 'hold' in
 // "threshold") and Korean cues as substrings, as before.
 {
   const c = await load('src/ai/intent/question-cues.js');
@@ -7813,7 +7793,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (todayVerdictFrom({ available: false, overall: '판정 대기' }, 'x') !== null) fail('v58.80 F01 no verdict record without an available regime');
   const record = todayVerdictFrom({ available: true, overall: '다소 부담', asOf: '2026-10-23', heroLine: '한 줄', holdReason: null, counts: { burden: 3 }, axes: [1] }, '2026-10-26T00:00:00Z');
   if (record?.overall !== '다소 부담' || record.asOf !== '2026-10-23' || 'axes' in record || record.schemaVersion !== 'today-verdict.v1') fail(`v58.80 F01 verdict record fields: ${JSON.stringify(record)}`);
-  // v60.18 (weekly audit D7): the record names the model that wrote it; a record from other code is stale-model (named),
+  // The record names the model that wrote it; a record from other code is stale-model (named),
   // the same model with another verdict is a mismatch (a defect), never silent.
   const { verdictModelFingerprint, verdictRecordStatus, verdictModelFiles } = await import(new URL('./lib/verdict-model.mjs', import.meta.url));
   const liveModel = verdictModelFingerprint();
@@ -7867,29 +7847,29 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const fx = describeOtherFx({ 'EURUSD=X': { price: 1.08, observedAt: '2026-10-26T15:30:00Z' } });
   if (!/10\/27 00:30 관측/.test(fx.text)) fail(`v58.82 FX observation label is KST regardless of the browser zone: ${fx.text}`);
   // v59.75 (macro audit 11/7): with no live quote the fold reads the last completed close of each currency, named as a close.
-  // v60.50: each currency shows its own last close with that close's date (USD/CNY's 11/5), and a close over ten days old is no fallback.
+  // Each currency shows its own last close with that close's date (USD/CNY's 11/5), and a close over ten days old is no fallback.
   const fxHistory = [{ date: '2026-11-05', eurusd: 1.1512, usdcny: 7.1234 }, { date: '2026-11-06', eurusd: 1.1544 }];
   const fxNow = Date.parse('2026-11-08T00:00:00Z');
   const fxFallback = describeOtherFx({}, fxHistory, fxNow);
   if (fxFallback.text !== '11/6 종가' || !fxFallback.reference || fxFallback.closes['EURUSD=X']?.value !== 1.1544 || fxFallback.closes['CNY=X']?.date !== '2026-11-05' || fxFallback.closes['GBPUSD=X']
     || describeOtherFx({}, [], fxNow).text !== '시세 대기' || describeOtherFx({}, fxHistory, Date.parse('2026-11-20T00:00:00Z')).text !== '시세 대기') fail(`v59.75 other-currency fold falls back to the label day's completed closes: ${JSON.stringify(fxFallback)}`);
-  // v59.75 (review): the fold currencies keep four places from the provider bar and file a summer 23:00Z bar on its London day.
+  // The fold currencies keep four places from the provider bar and file a summer 23:00Z bar on its London day.
   const { dailyRowsFromYahooChart } = await load('src/domain/screener/price-factors.js');
   const fxBar = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15437], open: [1.15], high: [1.16], low: [1.14], volume: [0] }] }, meta: {} };
   const { barSessionDateForField } = await load('src/domain/market/session/history-session.js');
   if (dailyRowsFromYahooChart(fxBar, { closeDigits: 4 })[0]?.close !== 1.1544 || dailyRowsFromYahooChart(fxBar, { closeDigits: 2 })[0]?.close !== 1.15
     || barSessionDateForField('eurusd', '2026-07-12T23:00:00Z') !== '2026-07-13') fail('v59.75 fold currency history keeps four places and its London session day');
-  // v59.94: high, low and adjusted close keep the close's digits, so a four-place FX bar never reads a high below its close.
+  // High, low and adjusted close keep the close's digits, so a four-place FX bar never reads a high below its close.
   const fxBar4 = { timestamp: [1783897200], indicators: { quote: [{ close: [1.15444], open: [1.15], high: [1.15991], low: [1.15012], volume: [0] }], adjclose: [{ adjclose: [1.15444] }] }, meta: {} };
   const fxRow4 = dailyRowsFromYahooChart(fxBar4, { closeDigits: 4 })[0];
   const fxRow2 = dailyRowsFromYahooChart(fxBar4, { closeDigits: 2 })[0];
-  // v60.13: without closeDigits a price under 10 keeps four places (a $0.18 listing read whole-number % returns), the rest two.
+  // Without closeDigits a price under 10 keeps four places (a $0.18 listing read whole-number % returns), the rest two.
   const pennyBar = { timestamp: [1783897200, 1783983600], indicators: { quote: [{ close: [0.18449, 152.337], high: [0.19, 153], low: [0.18, 151], volume: [1, 1] }] }, meta: {} };
   const pennyRows = dailyRowsFromYahooChart(pennyBar);
   if (pennyRows[0]?.close !== 0.1845 || pennyRows[1]?.close !== 152.34) fail(`v60.13 default bar digits follow the price: ${JSON.stringify(pennyRows.map((row) => row.close))}`);
   if (fxRow4?.close !== 1.1544 || fxRow4.high !== 1.1599 || fxRow4.low !== 1.1501 || fxRow4.adjClose !== 1.1544 || !(fxRow4.high >= fxRow4.close && fxRow4.close >= fxRow4.low)
     || fxRow2?.close !== 1.15 || fxRow2.high !== 1.16 || fxRow2.low !== 1.15 || fxRow2.adjClose !== 1.15) fail(`v59.94 daily bar high/low/adjClose keep the close digits: ${JSON.stringify({ fxRow4, fxRow2 })}`);
-  // v59.94: repeated stale snapshot applies keep one waiting listener pair and one fallback timer for the stale banner.
+  // Repeated stale snapshot applies keep one waiting listener pair and one fallback timer for the stale banner.
   {
     const { installDataStatusSurface } = await load('src/ui/components/data-status-surface.js');
     const listeners = new Map();
@@ -7926,7 +7906,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
       globalThis.clearTimeout = realClearTimeout;
     }
   }
-  // v59.75: the US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
+  // The US–Japan / US–Korea rate differential on one OECD monthly basis, read against the currency's move between the same month-ends.
   const { rateDifferential } = await load('src/domain/macro/rates-fx.js');
   const months = ['2026-03', '2026-04', '2026-05', '2026-06', '2026-07', '2026-08', '2026-09'];
   const oecd = (values) => ({ observations: months.map((month, index) => [`${month}-01`, values[index]]) });
@@ -7936,7 +7916,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const krDiff = rateDifferential(rdMacro, rdHistory, 'usdkrw');
   if (jpDiff?.value !== 3.1 || jpDiff.change !== 0.6 || !/미·일 10년 금리차 3\.10%p\(2026년 9월 월평균\), 6개월 \+0\.60%p\. 같은 기간 엔\/달러 \+4\.8%로 금리차가 벌어진 만큼 달러가 강해진 쪽/.test(jpDiff.text)
     || krDiff?.value !== 1 || krDiff.change !== 0 || !/거의 그대로/.test(krDiff.text) || rateDifferential({}, rdHistory, 'usdjpy') !== null) fail(`v59.75 rate differential read: ${JSON.stringify({ jpDiff, krDiff })}`);
-  // v59.75: BB/B join the credit ladder only when their record starts with the other tiers'.
+  // BB/B join the credit ladder only when their record starts with the other tiers'.
   const { creditRanges } = await load('src/domain/macro/macro-chapters.js');
   const day = (index) => new Date(Date.UTC(2024, 0, 1) + index * 86400000).toISOString().slice(0, 10);
   const tier = (from, count, base) => ({ observations: Array.from({ length: count }, (_, index) => [day(from + index), base + (index % 10) / 100]) });
@@ -7961,7 +7941,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (outcomes.join() !== 'failed,limit,failed' || await sendFeedback({ fetchImpl: async () => { throw new Error('offline'); }, workerUrl: 'w', text: 't' }) !== 'failed') fail(`v59.10 feedback outcomes: ${outcomes}`);
 }
 
-// v58.81 (owner 2026-10-26): the market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
+// The market clock and Korea↔US link check — Monday 22:13 KST is the US pre-market with the
 // open 17 minutes away; a KOSDAQ fall far larger than every outside cue is named Korea-led; old futures are flagged.
 {
   const { buildSessionBridge, koreaLinks, marketClock } = await load('src/domain/market/session/session-bridge.js');
@@ -7988,14 +7968,14 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (nextDayFx.links.some((link) => link.id === 'fx')) fail('v58.81 a next-day FX reading is not a cause of the previous Korean session');
   if (morning.links.some((link) => link.id === 'us') || morning.next !== null || sat.next !== null || sat.futuresStale || !/주말 휴장/.test(friNight.us.label))
     fail(`v58.81 bridge review cases: ${JSON.stringify({ links: morning.links.map((l) => l.id), next: [morning.next, sat.next], stale: sat.futuresStale, fri: friNight.us.label })}`);
-  // P2127 (owner audit 2026-10-28): the KOSDAQ gap follows the day's direction — on 10/28 the KOSPI rose 6.6% and the
+  // The KOSDAQ gap follows the day's direction — on 10/28 the KOSPI rose 6.6% and the
   // KOSDAQ 3.7%, so the KOSDAQ rose less; it did not "fall more". Down days and an opposite-direction KOSDAQ as well.
   const gapLine = (kospi, kosdaq) => koreaLinks({ kospi: { change: kospi, observedAt: '2026-10-28T06:35:00Z' }, kosdaq: { change: kosdaq, observedAt: '2026-10-28T06:35:00Z' }, nikkei: { change: 0.9, observedAt: '2026-10-28T06:30:00Z' } }).find((link) => link.id === 'local')?.text || '';
   const upLess = gapLine(6.6, 3.7), upMore = gapLine(2, 4), downLess = gapLine(-4, -1.5), downMore = gapLine(-1.5, -3.3), split = gapLine(3, -0.5);
   if (/빠져/.test(upLess) || !/덜 올라/.test(upLess) || !/대형주/.test(upLess) || !/더 올라/.test(upMore) || !/중소형/.test(upMore)
     || !/덜 빠져/.test(downLess) || !/더 빠져/.test(downMore) || !/반대/.test(split) || /더 (올라|빠져)|덜 (올라|빠져)/.test(split))
     fail(`P2127 KOSDAQ gap wording follows the day's direction: ${JSON.stringify({ upLess, upMore, downLess, downMore, split })}`);
-  // v59.42 (owner audit 2026-10-28): the 한국 고유 요인 line names the contributors (weight × same-session return) and each
+  // The 한국 고유 요인 line names the contributors (weight × same-session return) and each
   // one's dated item — the filing brief first; a market wrap that tags many symbols is not this name's news.
   const { indexContributors, contributorsSentence, datedItemFor } = await load('src/domain/market/regime/move-attribution.js');
   const rows = [{ sym: '000660.KS', name: 'SK하이닉스', ret1d: 10.89, factorSessionDate: '2026-10-28' }, { sym: '005930.KS', name: '삼성전자', ret1d: 9, factorSessionDate: '2026-10-28' },
@@ -8014,13 +7994,13 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v59.42 Korea contributors and dated items: ${JSON.stringify({ leaders, leaderLine })}`);
 }
 
-// v58.81 (owner 2026-10-26): the probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the
+// The probabilistic lean — a frequency votes only beyond its sampling noise on 30+ cases, the
 // condition count votes at a two-axis gap, opposite votes read 엇갈림, and the base rate is always stated.
 {
   const { buildMarketLean: buildLean, frequencyEvidence } = await load('src/domain/market/regime/market-lean.js');
   // The rule's labels are read under a verdict that passed both directions; without one the card shows the counts
-  // (v60.19, scripts/ci-market-lean-validation-check.mjs).
-  // v60.19: a direction is spoken only when the verdict also holds that key's past frequency (leanSpoken), so the
+  // (scripts/ci-market-lean-validation-check.mjs).
+  // A direction is spoken only when the verdict also holds that key's past frequency (leanSpoken), so the
   // passing verdict carries one for each directional key these scenes reach.
   const freq = { rate: 60, base: 64, n: 40 };
   const passed = { marketLean: { ruleVersion: 'market-lean.v1', horizon: 21, status: 'PASS', directions: { buy: true, defend: true }, frequencies: { 2: freq, 1: freq, [-1]: freq, [-2]: freq } } };
@@ -8044,7 +8024,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const none = buildMarketLean({ regime: regime(1, 2), stress, vix: 19.2 });
   const small = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 20 });
   const tiny = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 9.4 });
-  // v60.19: one sample rule with the stress card (evidence-strength.js, rounded once) — the VIX 40+ row at nEff 9.9 is
+  // One sample rule with the stress card (evidence-strength.js, rounded once) — the VIX 40+ row at nEff 9.9 is
   // 참고 here exactly as it is on the card, not hidden on one surface and shown on the other.
   const { evidenceStrength: strength } = await load('src/domain/shared/evidence-strength.js');
   const edge = frequencyEvidence({ id: 'x', label: 'x', condition: 'x', rate: 90, base: 60, n: 9.9 });
@@ -8070,7 +8050,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     || !published.open || !/-11\.9%/.test(published.text) || at(95).open || !/7% 조정 전입니다/.test(at(95).text) || renewed.open || !/조정 전입니다/.test(renewed.text))
     fail(`v60.16 a -5% close after a -10% close is still inside the correction until a new record close: ${JSON.stringify({ rebound: rebound.text, published: published.text, before: at(95).text, renewed: renewed.text })}`);
   const { buildMarketLean: buildLean, renderMarketLeanContext } = await load('src/domain/market/regime/market-lean.js');
-  // v60.19: a spoken direction needs the verdict's past frequency for that key (leanSpoken).
+  // A spoken direction needs the verdict's past frequency for that key (leanSpoken).
   const held = { rate: 60, base: 64, n: 40 };
   const buildMarketLean = (input) => buildLean({ validation: { marketLean: { ruleVersion: 'market-lean.v1', horizon: 21, status: 'PASS', directions: { buy: true, defend: true }, frequencies: { 2: held, 1: held, [-1]: held, [-2]: held } } }, ...input });
   const body = (hitRate) => ({ state: 'cold', asOf: '2026-10-23', outcomes: { cold: { h21: { n: 60, hitRate } }, all: { h21: { hitRate: 64 } } } });
@@ -8102,7 +8082,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v60.16 the depth row carries rate speed, concentration, the credit ladder and volatility structure as reference lines: ${JSON.stringify(row.more)}`);
 }
 
-// v60.16 (logic review): correlated readings are one vote — two index temperatures in the lean, the price legs of the
+// Correlated readings are one vote — two index temperatures in the lean, the price legs of the
 // temperature itself — and a rank states the sample it was taken over.
 {
   const { buildMarketLean } = await load('src/domain/market/regime/market-lean.js');
@@ -8136,8 +8116,6 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     fail(`v60.16 a composite rank carries its sample (a 125-day ratio on a 290-session record ranks over ~166, not a year): ${JSON.stringify({ momentum, volatility })}`);
   const { sentimentReadOf } = await load('src/domain/briefing/market-read.js');
   if (!sentimentReadOf(rows).composite.components.every((row) => row.status !== 'ok' || Number.isFinite(row.sample))) fail('v60.16 the sentiment read sees each rank sample');
-  // v60.50: the week card's credit clause (creditLead, v60.16) moved to the opening read's diagnosis, which names the
-  // spread level against the credit axis's stress line and the five-session speed (scripts/ci-market-story-check.mjs).
   const storyModule = await load('src/domain/market/story/market-story.js');
   if ('creditLead' in storyModule || typeof storyModule.diagnoseFall !== 'function') fail('v60.50 the story credit clause lives in the opening diagnosis (diagnoseFall), not a second creditLead');
   // Depth read-outs (reference only): a Zweig thrust on the advancing share, credit against equity, the stock–bond
@@ -8179,7 +8157,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/단기 불안이 큰 상태/.test(edge(20, 20, 50)) || /과열/.test(edge(15, 18, 75)) || !/과열/.test(edge(15, 18, 76))) fail(`v60.16 cross readings use RULES.volatility / RULES.fearGreed edges: ${edge(20, 20, 50)} | ${edge(15, 18, 75)}`);
 }
 
-// v58.84: the portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
+// The portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
 {
   const { backupReminder, BACKUP_REMINDER_DAYS } = await load('src/data/portfolio-backup.js');
   const now = Date.parse('2026-11-02T00:00:00Z');
@@ -8191,7 +8169,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (BACKUP_REMINDER_DAYS !== 30 || due?.days !== 32 || !due.text.includes('32일')) fail(`v58.84 a 32-day-old backup reminds with its age: ${JSON.stringify(due)}`);
 }
 
-// v59.30: the AioVault cryptography (src/storage/vault-crypto.js) round-trips a value, reads a v1 envelope, and refuses
+// The AioVault cryptography (src/storage/vault-crypto.js) round-trips a value, reads a v1 envelope, and refuses
 // a wrong key.
 {
   const { deriveVaultKey, encryptVaultBytes, packVaultEnvelope, parseVaultEnvelope, decryptVaultBytes } = await load('src/storage/vault-crypto.js');
@@ -8208,7 +8186,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (v1Parts.isV2 || await decryptVaultBytes(key, v1Parts.iv, v1Parts.ciphertext) !== 'v1 value') fail('v59.30 a v1 vault envelope is read as v1');
 }
 
-// v59.40: the screener trader profiles (src/domain/screener/trader-profiles.js) keep the weight vectors they had in
+// The screener trader profiles (src/domain/screener/trader-profiles.js) keep the weight vectors they had in
 // js/aio-data.js, and deriveFactorWeights treats each as an explicit user profile. A change here is a model change.
 {
   const { TRADER_PROFILES } = await load('src/domain/screener/trader-profiles.js');
@@ -8227,7 +8205,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   }
 }
 
-// v59.41: AIO.diagnoseBreadthConsensus moved to src/domain/market/breadth/breadth-consensus.js unchanged; the registry is passed
+// AIO.diagnoseBreadthConsensus moved to src/domain/market/breadth/breadth-consensus.js unchanged; the registry is passed
 // in. The weights (5SMA .10 · 20SMA .20 · 50SMA .30 · McClellan .20 · Weinstein .10 · golden cross .10), the band scores
 // and the verdict cut-offs are pinned here. A change here is a model change.
 {
@@ -8248,7 +8226,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!(ids.indexOf('screener') >= 0 && ids.indexOf('screener') < ids.indexOf('stock'))) fail(`v59.55 hub order must put screener before stock: ${ids}`);
   const { buildTickerStart, chipLabel } = await load('src/ui/components/ticker-start.js');
   if (chipLabel('LYFT', 'Lyft') !== 'LYFT Lyft' || chipLabel('MU', 'Micron Technology') !== 'MU Micron Technology' || chipLabel('XYZ', 'XYZ') !== 'XYZ') fail(`v60.18 a chip names the company unless the name is the symbol: ${chipLabel('LYFT', 'Lyft')}`);
-  // v60.50: the gate reads the 200-day distance and the five-session move in daily ranges; EEE (under its 200-day line)
+  // The gate reads the 200-day distance and the five-session move in daily ranges; EEE (under its 200-day line)
   // outranks both but is not offered.
   const trend = { pctSma200: 8, ret5d: 1, adrPct: 2 };
   const rows = [
@@ -8280,7 +8258,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!days[3].events[0]?.major || days.reduce((n, day) => n + day.events.length, 0) !== 2) fail('v59.55 week strip keeps major marks and skips rows without a time');
 }
 
-// v59.55 (C3): one two-sided bar for the five signed comparisons (briefing moves, 종목 and screener vs the index, the
+// One two-sided bar for the five signed comparisons (briefing moves, 종목 and screener vs the index, the
 // validation spread, the portfolio's gap). A negative fill ends at the zero line, a positive one starts there, the scale
 // keeps its floor, and the colour follows the printed sign (0.0 is grey, never falling).
 {
@@ -8297,7 +8275,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/is-burden/.test(signedBar(doc, -0.3, 1, { tone: 'verdict', trackClass: 'x' }).children[0].className)) fail('v59.55 the verdict tone marks a negative spread 부담');
 }
 
-// v59.76 (screen review 11/8): the HY 20-session latch let go on a one-day base spike while HY widened +16bp in five
+// The HY 20-session latch let go on a one-day base spike while HY widened +16bp in five
 // sessions (the axis read 부담 → 중립 beside '5일 +22bp'); the 20-session USD/KRW move gets one reading in every chapter.
 {
   const { hyWidening20Record, isCloseSessionDate } = await load('src/domain/briefing/market-read.js');
@@ -8310,7 +8288,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const spikeBase = hyWidening20Record(h, days[330]);
   if (easing?.stress !== false) fail(`v59.76 the HY latch lets go when the 20-session change is under 25bp and five sessions narrowed: ${JSON.stringify(easing)}`);
   if (!(spikeBase?.value < 25) || spikeBase.stress !== true) fail(`v59.76 the HY latch holds while HY widened 16bp in five sessions, even when a spiked base pulls the 20-session change under 25bp: ${JSON.stringify(spikeBase)}`);
-  // v59.97: the latch's state reaches every reader — the credit judgement and the 시장 상태 axis say 부담 in the hold
+  // The latch's state reaches every reader — the credit judgement and the 시장 상태 axis say 부담 in the hold
   // window (20-session change back under +25bp, five sessions still +15bp or more) and let go with the latch.
   {
     const { creditJudgement } = await load('src/domain/briefing/credit-reading.js');
@@ -8330,7 +8308,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const released = readersAt(325);
     if (released.judgement?.state === 'burden' || released.axis?.state === 'burden') fail(`v59.97 once both release legs clear neither reader says 부담: ${released.judgement?.state} ${released.axis?.state}`);
   }
-  // v59.77: the latch start is judged on each session's own record line, so it no longer moves when today's line rises.
+  // The latch start is judged on each session's own record line, so it no longer moves when today's line rises.
   const macroFile = JSON.parse(readFileSync(path.join(root, "public-data/macro-history.json"), "utf8"));
   if ((macroFile.series?.hyOas?.observations || []).some(([date, value]) => date === '2026-10-30' && value === 3.44)) {
     const starts = ['2026-11-02', '2026-11-05'].map((date) => hyWidening20Record(macroFile, date)?.since);
@@ -8338,7 +8316,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   }
   const { wonMoveSentence } = await load('src/domain/macro/rates-fx.js');
   if (!/조금 약해졌습니다/.test(wonMoveSentence(1.5)) || /안정/.test(wonMoveSentence(1.5))) fail(`v59.76 a +1.5% 20-session won move is a mild weakening, never '안정적': ${wonMoveSentence(1.5)}`);
-  // v60.19: 보합권 follows the caller's move-size grade (the won's own volatility), not a fixed ±0.5%.
+  // 보합권 follows the caller's move-size grade (the won's own volatility), not a fixed ±0.5%.
   if (!/보합권/.test(wonMoveSentence(0.3, { grade: 'small' })) || /보합권/.test(wonMoveSentence(0.3, { grade: 'ordinary' })) || !/환차손/.test(wonMoveSentence(2.4)) || !/강해졌습니다/.test(wonMoveSentence(-2.1))) fail('v59.76 the won sentence follows the 환율 axis edges (0.5% flat, 2% move)');
   // v59.85 (macro/AI review 11/8): one owner per macro read, shared by the chapters, the chain, the tiles, the release
   // bands and the AI blocks.
@@ -8358,7 +8336,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     const upDay = verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.3, 100)], ['나스닥 100', stat(101.4, 100)]] });
     if (!/^11\/6 지수는 올랐지만/.test(upDay?.text || '') || !/20거래일/.test(upDay.text) || !/나스닥 100 \+1\.4%/.test(upDay.detail)) fail(`v59.85 a burden verdict beside an up session names its horizon: ${JSON.stringify(upDay)}`);
     if (verdictHorizonLine({ overall: '혼조', indexes: [['S&P 500', stat(102, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(101, 100)], ['러셀 2000', stat(99, 100)]] }) || verdictHorizonLine({ overall: '다소 부담', indexes: [['S&P 500', stat(100.2, 100)]] })) fail('v59.85 the horizon line stays silent on 혼조, a split day, or a small move');
-    // Missing and stale inputs (Codex review #167): a month-over-month change needs the calendar month before; a direction
+    // Missing and stale inputs: a month-over-month change needs the calendar month before; a direction
     // from one published measure names that measure only; a stale core PCE series publishes no derived rows.
     const { monthChangeAt } = await load('src/domain/macro/macro-read.js');
     if (monthChangeAt([{ date: '2025-09-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11') !== null || Math.abs(monthChangeAt([{ date: '2025-10-01', value: 100 }, { date: '2025-11-01', value: 101 }], '2025-11-15') - 1) > 1e-9) fail('v59.85 a month-over-month change spans exactly one calendar month');
@@ -8395,7 +8373,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     // core CPI still counts toward the direction; with the 13- and 11-month bases missing too there is no yoy.
     const exactYoy = coreInflationRead({ mh: { series: { corePceIndex: { observations: pceObs }, coreCpiIndex: { observations: pceObs } } } }).coreCpiYoy;
     // v60.19 (Codex numbers audit): the derived 13-month rate carries its own name and basis — never '전년 대비'/'1년치'.
-    // v60.30: the basis is a ", …" clause inside the reader's own parentheses — it names the missing month, and no
+    // The basis is a ", …" clause inside the reader's own parentheses — it names the missing month, and no
     // macro text nests a second pair of parentheses ('3.7% (10월, 13개월 연율 2.6% (25년 9월 대비, …))').
     const { maxParenDepth } = await load('scripts/ci-sentence-join-check.mjs');
     if (!gapRead.coreCpiYoy || gapRead.coreCpiYoy.label !== '13개월 연율' || gapRead.coreCpiYoy.note !== ', 25년 10월 지수가 없어 25년 9월 대비' || Math.abs(gapRead.coreCpiYoy.value - exactYoy.value) > 0.5 || exactYoy.note !== '' || exactYoy.label !== '전년 대비'

@@ -48,6 +48,9 @@ function quoteValue(root, symbol) {
     quality: quote.quality || envelope.quality || null,
     session: quote.marketState || envelope.marketState || null,
     revision: envelope.revision || quote.revision || null,
+    // freshness/display state is derived from the envelope's declared
+    // quality, not from the source label. One value carries observation time,
+    // receipt time, source, revision, allowed use and display role together.
     presentation: deriveQuotePresentation(quote, { symbol })
   };
 }
@@ -83,6 +86,7 @@ function quoteLineage(node, value) {
   if (node) node.setAttribute('data-quote-state', presentation?.displayState || 'missing');
   const observedAt = value.observedAt ? String(value.observedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '관측시각 미수신';
   const fetchedAt = value.fetchedAt ? String(value.fetchedAt).replace('T', ' ').replace(/\.000Z$|Z$/, ' UTC') : '수신시각 미수신';
+  // The tooltip states source and times in reader words; the internal basis and display-state enums stay in the data attributes.
   node.setAttribute('title', `${source}, 관측 ${observedAt}, 수신 ${fetchedAt}`);
 }
 
@@ -117,6 +121,7 @@ function renderLiveQuotes(root, page) {
   page.querySelectorAll('[data-live-price]').forEach((node) => {
     const symbol = node.getAttribute('data-live-price');
     const value = quoteValue(root, symbol);
+    // An exactly-zero price is a provider placeholder (VIX showed 0.00), not an observation.
     if (!value || value.price == null || value.price === 0) {
       clearRenderedValue(node, `${symbol || '종목'} 현재 관측값 미수신`);
       return;
@@ -132,6 +137,8 @@ function renderLiveQuotes(root, page) {
       return;
     }
     writeText(node, `${signedText(value.pct, 2)}%`);
+    // up/down colour is a signal; it is given only to a current or delayed observation whose
+    // change basis is known. A stale or basis-unknown change stays readable but neutral.
     const signalled = ['current', 'delayed'].includes(value.presentation?.displayState) && value.presentation?.changeCoherent === true;
     const direction = directionOf(value.pct, 2);
     node.classList?.toggle('pos', signalled && direction === 'up');
@@ -209,9 +216,13 @@ function readSnapshotMetric(root, key) {
     if (finite(series.value) != null) return { value: finite(series.value), source: `FRED:${FRED_SERIES[key]}` };
   }
   if (key === 'fed-target') {
+    // The policy-rate comparison shows the FOMC target range (FRED DFEDTARL/U, daily), not the
+    // FEDFUNDS monthly average; until the producer has published it, the official decision registry.
     const lower = finite(root?.DATA_SNAPSHOT?.fedTargetLower);
     const upper = finite(root?.DATA_SNAPSHOT?.fedTargetUpper);
     if (lower != null && upper != null) return { value: `${lower.toFixed(2)}–${upper.toFixed(2)}%`, source: 'FRED:DFEDTARL/DFEDTARU', formatted: true };
+    // Then the producer range (policyRates.fed), then the manual decision within its window; an expired manual
+    // value reads '기한 지남' instead of passing as the current range.
     const fed = typeof root?.AIO?.getFedPolicyRange === 'function' ? root.AIO.getFedPolicyRange() : null;
     if (fed?.range) return { value: fed.range.replace('-', '–'), source: fed.origin === 'manual' ? `FOMC 결정 ${fed.asOf || ''}`.trim() : `FRED:DFEDTARL/DFEDTARU ${fed.asOf || ''}`.trim(), formatted: true };
     if (fed?.held) return { value: '기한 지남', source: `FOMC 결정 ${fed.asOf || ''}, 기한 지남`.trim(), formatted: true };
@@ -266,10 +277,15 @@ function renderSnapshotMetrics(root, page) {
   });
 }
 
+// The 거시 hub renders two native boards (../components/macro-board.js). The previous
+// renderers painted fixed-threshold verdicts (2s10s bands, DXY/10Y risk pill, 4-axis bull/bear count,
+// a 2Y colour scale) and a USD/JPY chart that read a 'jpy' history field that does not exist.
 function renderMacro(documentRef, root, page) {
   renderLiveQuotes(root, page);
   renderSnapshotMetrics(root, page);
   renderMacroBoard({ documentRef, root });
+  // v59.44 (owner 2026-10-30, "each screen too"): the latest PCE·CPI·jobs·retail release as cards above the board (a lazy
+  // chunk shared with 오늘's release summaries), so 거시 opens with what came out and when the next one is.
   import('../components/event-briefs.js').then(({ paintMacroReleaseCards }) => paintMacroReleaseCards(documentRef, page, macroReleasesFor(root, { days: 35 }))).catch(() => {});
 }
 
@@ -278,6 +294,7 @@ function renderFxbond(documentRef, root, page) {
   renderRatesFxBoard({ documentRef, root });
 }
 
+// The breadth page is rendered by ../components/breadth-board.js (trend cards per measure).
 export function createMarketSlicePage({ root = globalThis, documentRef, store, route } = {}) {
   return {
     route,
@@ -314,11 +331,17 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (route === 'macro' || route === 'breadth') renderScreenReading({ documentRef, root, screen: route }); // the AI reading under the first verdict
       };
       renderNow();
+      // What a research document sent the reader here to check. Every entry to this route mounts again; a
+      // same-route arrival is re-evaluated by the component's aio:knowledgeRouteContext sync.
       renderKnowledgeArrival({ documentRef, root, routeId: route });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: route }));
+      // P1426: the 거시 direction reads use the FRED observation artifact (published by refresh-data).
+      // M02: reloads when the copy is past its TTL or the server data was regenerated after it was loaded.
       let alive = true;
       bag.add(() => { alive = false; });
       if (route === 'macro' || route === 'fxbond') refreshSharedArtifact(root, MACRO_HISTORY).then(({ changed }) => { if (alive && changed) renderNow(); });
+      // The breadth drilldown (which stocks made each count) is a separate small artifact.
+      // Codex browser audit H10: both v1 and v2 contributor shapes render. A03: the drilldown reloads with the counts.
       if (route === 'breadth') refreshSharedArtifact(root, BREADTH_CONTRIBUTORS).then(({ changed }) => { if (alive && changed) renderNow(); });
       const unsubscribe = store && subscribeToSlices(store, ['market', 'marketSnapshot', 'screener'], renderNow);
       if (unsubscribe) bag.add(unsubscribe);
@@ -332,6 +355,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         root.addEventListener(eventName, renderNow);
         bag.add(() => root.removeEventListener?.(eventName, renderNow));
       });
+        // history.json announces itself on window (js/aio-data.js), not on document.
         const windowTarget = root && root !== eventTarget ? root : null;
         if (windowTarget?.addEventListener) {
           windowTarget.addEventListener('aio:historyLoaded', renderNow);

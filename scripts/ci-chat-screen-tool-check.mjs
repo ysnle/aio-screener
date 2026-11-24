@@ -1,4 +1,4 @@
-// v60.41: the chat's screen tool filters with the screener screen's own condition engine. Its structured spec (market, size
+// The chat's screen tool filters with the screener screen's own condition engine. Its structured spec (market, size
 // bucket, sector/theme/index, CUSTOM_CONDITIONS ids, sort, limit) runs on the committed public-data/screener.json through
 // the browser's row construction (the screener provider, then normalizeScreener), with the same condition reader the
 // screener table uses. The old tool passed a sentence to a keyword reader that read every size as 0 rows (row.mcap is
@@ -66,7 +66,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: whether the committed screener carries the rows and the fields the offered conditions read is a data section
+// Whether the committed screener carries the rows and the fields the offered conditions read is a data section
 // (it also runs in a data run); the tool's behaviour on those rows is a code test that borrows them as realistic input.
 await runSections('chat-screen-tool', [
 ['committed-screener', async () => {
@@ -149,7 +149,7 @@ await check('v60.42 named stocks read their screener rows from both markets, wit
   assert.ok(!/50일선 대비/.test(plain.text), 'v60.42 a condition screen keeps its compact rows');
 });
 
-// v60.42: the prompt of every turn, which always carries the tools. On the live site (v60.41) a two-stock comparison was sent 60K
+// The prompt of every turn, which always carries the tools. On the live site a two-stock comparison was sent 60K
 // characters of instructions, most of it reference material the question did not need.
 await check('v60.42 a tool turn is sent the short prompt: the named stocks\' rows, no reference packets, under 9K characters', async () => {
   const { composeLeanPrompt } = await import('../src/ai/prompt/lean-prompt.js');
@@ -204,7 +204,7 @@ await check('v60.42 the prompt injects no sentence screen; a broad ask keeps the
   assert.match(broad.prompt, /종목 비교 표본/, 'v60.41 broad.prompt');
 });
 
-// v60.41: money_flow, the 테마 screen's sector bars and theme stages for the chat. The root is the browser's: the committed
+// money_flow, the 테마 screen's sector bars and theme stages for the chat. The root is the browser's: the committed
 // screener rows above, the themes slice from the themes provider (rotation artifact in data.json, RRG_SECTORS and THEME_MAP
 // from js/aio-pages.js), and the shared interpretation's inputs from the committed history and scenario artifacts. The
 // expected values are the screen's selectors on that root; without the tool every block below fails.
@@ -231,7 +231,7 @@ const pctText = (value, digits = 1) => `${signedText(value, digits)}%`;
 const stageWord = (state) => (THEME_STATES[state] ? THEME_STATES[state].split(' (')[0] : '판정 보류');
 const lineOf = (text, head) => text.split('\n').find((line) => line.startsWith(head)) || '';
 
-// v60.51: a market whose themes carry no stage is a legitimate state when, and only when, the playbook says why: its
+// A market whose themes carry no stage is a legitimate state when, and only when, the playbook says why: its
 // benchmark's latest close is a session behind the theme basis (the screener landed before the index close, as on 11/23
 // when RSP's 11/23 close arrived after the screener's). Two refresh-screener runs were blocked on that state. Malformed
 // rows, an unexplained empty market or a hold the history does not back still fail.

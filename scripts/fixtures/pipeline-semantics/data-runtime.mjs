@@ -17,7 +17,7 @@ async function scheduler(load) {
 export const cases = [
   { id: 'R2-01', name: 'an all-rejected allSettled refresh is a failure without a success time', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.krDynamic; // v60.43: krDynamic is the remaining allSettled task (v60.46: Naver quotes alone)
+      const cfg = win.REFRESH_SCHEDULE.krDynamic; // krDynamic is the remaining allSettled task (Naver quotes alone)
       cfg.fn = () => Promise.allSettled([Promise.reject(new Error('a')), Promise.reject(new Error('b'))]);
       const out = await win._runScheduledTask('krDynamic', cfg, false, {});
       assert.equal(out.ok, false);
@@ -34,7 +34,7 @@ export const cases = [
   } },
   { id: 'R2-01', name: 'a task that returns null (unavailable or retired) stays missing', run: async ({ load }) => {
       const win = await scheduler(load);
-      const cfg = win.REFRESH_SCHEDULE.marketSnapshot; // v60.43: null when bootstrap has not installed the snapshot reload
+      const cfg = win.REFRESH_SCHEDULE.marketSnapshot; // Null when bootstrap has not installed the snapshot reload
       cfg.fn = async () => null;
       const out = await win._runScheduledTask('marketSnapshot', cfg, false, {});
       assert.equal(out.ok, false);

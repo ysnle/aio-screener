@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // P1152 / R627 — fast quote plane consumer gate.
 //
-// v60.50: public-config.json marketData.fastQuotes.enabled is the operator's promotion decision, committed with code
+// public-config.json marketData.fastQuotes.enabled is the operator's promotion decision, committed with code
 // (the producer no longer rewrites it). This gate holds that decision to the release-scoped record behind it —
 // architecture/worker-endpoints.json names the same endpoint and paths, and records the rights review and the soak rule —
 // and pins the client side: the plane is tried first but can never replace the durable snapshot with something
@@ -78,7 +78,7 @@ check('P1152 a non-HTTPS fast plane endpoint is refused', badUrlSources.length =
   const tamperResult = await tamperLoader.load();
   check('P1152 a tampered fast-plane payload never replaces the last good snapshot', tamperResult.ok === true && tamperResult.source === 'durable-snapshot', { ok: tamperResult.ok, source: tamperResult.source });
 
-  // P1532: a fast-plane snapshot whose quotes are all STALE/UNAVAILABLE is "published" (the Worker gates coverage, not
+  // A fast-plane snapshot whose quotes are all STALE/UNAVAILABLE is "published" (the Worker gates coverage, not
   // quality), but it is not fresher than the durable snapshot. The loader contract says a stale fast plane degrades to the
   // previous behaviour, so it must fall through; a snapshot with at least one usable quote stays on the fast plane and the
   // stale rows degrade per quote.
@@ -105,7 +105,7 @@ check('P1152 a non-HTTPS fast plane endpoint is refused', badUrlSources.length =
     check('P1532 one usable quote keeps the fast plane (stale rows degrade per quote, not the whole snapshot)', mixed.result.ok === true && mixed.result.source === 'fast-plane' && mixed.calls.length === 1, { source: mixed.result.source, calls: mixed.calls.length });
     const current = await loadWith(withQualities(() => 'CLOSED_CURRENT'));
     check('P1532 an all-usable fast-plane snapshot is still preferred over the durable one', current.result.source === 'fast-plane', current.result.source);
-    // P1563: labels frozen at publish time must not outlive the Worker. Same CURRENT labels, different age of the snapshot itself.
+    // Labels frozen at publish time must not outlive the Worker. Same CURRENT labels, different age of the snapshot itself.
     const currentLabels = withQualities(() => 'CURRENT');
     loadWith.ageMs = 10 * 60 * 1000;
     const fresh = await loadWith(currentLabels);

@@ -13,21 +13,21 @@ const { default: assert } = await import('node:assert/strict');
 const { readFileSync } = await import('node:fs');
 const { default: vm } = await import('node:vm');
 const { buildMarketRegime, movingAverageStructure, AXIS_REASON_LABEL } = await import('../src/domain/briefing/market-read.js');
-// v60.31: an axis says why it holds its state in the 판정 사유 row (fixed vocabulary); it carries no sentence.
+// An axis says why it holds its state in the 판정 사유 row (fixed vocabulary); it carries no sentence.
 const reasonOf = (axis) => axis?.evidence?.find(([label]) => label === AXIS_REASON_LABEL)?.[1] || '';
 const evidenceOf = (axis, label) => axis?.evidence?.find(([name]) => name === label)?.[1] || '';
 const { buildMarketScenarios } = await import('../src/domain/market/regime/regime-scenarios.js');
 const { buildScenarioOutlook, renderScenarioOutlookContext } = await import('../src/domain/market/regime/scenario-outlook.js');
 const { CHART_INTERVALS, intervalBars, intervalSpec, intervalStructure } = await import('../src/ui/components/stock-chart.js');
 const { buildMarketAnalysisRegimeContext } = await import('./fetch-data.mjs');
-const { readProducerSource } = await import('./lib/producer-source.mjs'); // v57.62: fetch-data.mjs + the lib modules split out of it
+const { readProducerSource } = await import('./lib/producer-source.mjs'); // fetch-data.mjs + the lib modules split out of it
 const { liveCurrentObservations } = await import('../src/ui/knowledge/current-observations.js');
 
-// P1633: short (close>5>10>20) and long (20>50>100>200) moving-average order.
+// Short (close>5>10>20) and long (20>50>100>200) moving-average order.
 assert.equal(movingAverageStructure({ value: 110, ma5: 108, ma10: 106, ma20: 104, ma50: 100, ma100: 96, ma200: 90 }).shortLabel, '정배열');
 assert.equal(movingAverageStructure({ value: 80, ma5: 84, ma10: 88, ma20: 92, ma50: 96, ma100: 100, ma200: 104 }).longLabel, '역배열');
 
-const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
+const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // The one reader; never the stored shape's .rows
 const input = { history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} };
 const regime = buildMarketRegime(input);
 assert.ok(regime.available, 'P1633: regime builds from the published history');
@@ -36,7 +36,7 @@ assert.ok(breadth.evidence.some(([label]) => /20일선 위 종목/.test(label)),
 const trend = regime.axes.find((axis) => axis.id === 'trend');
 assert.ok(trend.evidence.some(([label]) => /단기 추세/.test(label)) && trend.evidence.some(([label]) => /장기 추세/.test(label)), 'P1633: trend shows short and long order');
 
-// P1633: each path carries a likelihood from met conditions, posture, opportunity, check/caution/ignore.
+// Each path carries a likelihood from met conditions, posture, opportunity, check/caution/ignore.
 const scenarios = buildMarketScenarios(input, { regime });
 const outlook = buildScenarioOutlook({ scenarios, regime, sectors: [{ symbol: 'XLK', label: '기술', quadrant: 'Leading' }, { symbol: 'XLV', label: '헬스케어', quadrant: 'Improving' }], themes: [{ name: '광통신', ret3m: 40 }] });
 assert.ok(outlook.available && outlook.items.length === 3);
@@ -52,7 +52,7 @@ for (const item of outlook.items) {
 assert.doesNotMatch(outlook.headline, /개연성/, 'T06 headline drops the likelihood grade');
 assert.match(renderScenarioOutlookContext(outlook), /매매 지시/, 'AI context restates the no-instruction boundary');
 
-// P1634: eight intervals; 4-hour bars combine at most four 1-hour bars of one exchange day.
+// Eight intervals; 4-hour bars combine at most four 1-hour bars of one exchange day.
 assert.deepEqual(CHART_INTERVALS.map((spec) => spec.id), ['5m', '15m', '30m', '1h', '4h', '1d', '1wk', '1mo']);
 assert.ok(CHART_INTERVALS.every((spec) => spec.interval !== '60m'), 'P1634: the relay rejects 60m; 1h is used');
 const start = Date.UTC(2026, 9, 5, 13, 30) / 1000;
@@ -67,13 +67,13 @@ const hourly = intervalBars(payload, intervalSpec('1h'));
 assert.equal(new Date(hourly[0].time * 1000).toISOString().slice(11, 16), '09:30', 'P1634: intraday time is exchange-local wall time');
 assert.equal(intervalStructure(hourly).long, null, 'P1634: too few bars leaves the long order uncomputed');
 
-// P1635: the server narrative receives the same regime and scenario reading as the screen.
+// The server narrative receives the same regime and scenario reading as the screen.
 const data = { macro: { hyOAS: 3.15, hyOASDelta5: -0.09 }, fearGreed: { score: 45 } };
 const context = buildMarketAnalysisRegimeContext(data, rows);
 assert.match(context, /종합:/, 'P1635: regime summary present');
 assert.match(context, /현재 조건 충족/, 'P1635/T06: scenario condition count present');
 
-// P1636: research-page observations that the site refreshes are replaced by the latest values.
+// research-page observations that the site refreshes are replaced by the latest values.
 const artifact = { observations: [
   { id: 'market-spx-20260814', label: 'S&P 500 종가', value: 1, displayValue: '1', unit: 'index', observedAt: '2026-08-14', sourceId: 'x', sourceKind: 'PUBLIC_INFORMATION_SERVICE', allowedUse: 'reference-only', pageTargets: ['principles'] },
   { id: 'sndk-target', label: 'target', value: 50, displayValue: '50%', unit: 'percent', observedAt: '2026-08-13', sourceId: 'y', sourceKind: 'COMPANY_IR_FORWARD_LOOKING', allowedUse: 'reference-only', pageTargets: ['principles'] }
@@ -82,7 +82,7 @@ const live = liveCurrentObservations(artifact, { _aioHistory: [{ date: '2026-10-
 assert.equal(live.observations[0].value, 7811.54, 'P1636: market rows follow the latest close');
 assert.equal(live.observations[0].live, true);
 assert.equal(live.observations[1].value, 50, 'P1636: dated company targets stay dated references');
-// v58.77 pipeline audit KNOW-01: a last-known-good CPI (the server marks it reference-only) is not promoted to an
+// Pipeline audit KNOW-01: a last-known-good CPI (the server marks it reference-only) is not promoted to an
 // auto-updated current value; a fresh official CPI is.
 {
   const cpiArtifact = { observations: [{ id: 'bls-cpi-2025', label: 'CPI', value: 1, displayValue: '1', unit: 'percent', observedAt: '2025-01', sourceId: 'bls-cpi', sourceKind: 'OFFICIAL_STATISTICS', allowedUse: 'reference-only', pageTargets: ['principles'] }] };
@@ -94,7 +94,7 @@ assert.equal(live.observations[1].value, 50, 'P1636: dated company targets stay 
 
 console.log('scenario guidance fixture: PASS');
 
-// P1637: regime radar — one-year positions, today vs 5/20 sessions, no composite.
+// Regime radar — one-year positions, today vs 5/20 sessions, no composite.
 const { buildRegimeRadar } = await import('../src/domain/market/regime/regime-radar.js');
 const macroHistory = JSON.parse(readFileSync(new URL('../public-data/macro-history.json', import.meta.url), 'utf8'));
 const radar = buildRegimeRadar({ history: rows }, { macroHistory });
@@ -103,7 +103,7 @@ assert.ok(radar.axes.every((axis) => axis.now == null || (axis.now >= 0 && axis.
 assert.equal(radar.dates.length, 3, 'P1637: today, 5 and 20 sessions ago');
 assert.ok(!('composite' in radar) && !('score' in radar), 'P1637: no composite score');
 
-// P1638: CCC minus B gap from rating-tier OAS.
+// CCC minus B gap from rating-tier OAS.
 const { buildRegimeAxisHistory } = await import('../src/domain/market/regime/regime-scenarios.js');
 const tierMacro = { series: { cccOas: { observations: rows.slice(-130).map((row) => [row.date, 12]) }, bOas: { observations: rows.slice(-130).map((row) => [row.date, 3]) } } };
 const tiers = buildRegimeAxisHistory({ history: rows, credit: {}, rates: {} }, { macroHistory: tierMacro });
@@ -111,7 +111,7 @@ const gap = tiers.axes.credit.find((item) => item.id === 'ccc-b');
 assert.ok(gap && gap.series.every((point) => point.value === 900), 'P1638: CCC-B gap in bp');
 assert.match(readProducerSource(), /cccOas:\s+\x7b id: 'BAMLH0A3HYC'/, 'P1638: producer requests the CCC series');
 
-// P1639: chart evidence adds ATR extension, distance from the 52-week low and the 5/20 EMA order.
+// Chart evidence adds ATR extension, distance from the 52-week low and the 5/20 EMA order.
 const { analyzeChart } = await import('../src/domain/technical/chart-analysis.js');
 let level = 100; const daily = [];
 for (let i = 0; i < 300; i += 1) { const open = level; level *= 1 + Math.sin(i / 9) * 0.01 + 0.002; daily.push({ time: new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10), open, high: Math.max(open, level) * 1.01, low: Math.min(open, level) * 0.99, close: level, volume: 1e6 }); }
@@ -119,10 +119,10 @@ const labels = analyzeChart(daily).evidence.map(([label]) => label);
 for (const label of ['50일선 대비 일평균 변동폭 배수', '5일·20일 EMA']) assert.ok(labels.includes(label), `P1639: ${label}`);
 assert.ok(labels.some((label) => /저점 대비/.test(label)), 'P1639: distance from the low');
 
-// P1641: sector moves come only from current produced rotation rows.
+// Sector moves come only from current produced rotation rows.
 const { sectorMoves } = await import('../src/ui/components/sector-moves.js');
 const rotation = { latestCompletedSession: '2026-10-09', items: { XLK: { status: 'CURRENT', symbol: 'XLK', sessionDate: '2026-10-09', dailyPct: 0.5, quadrant: 'Leading' }, XLU: { status: 'CURRENT', symbol: 'XLU', sessionDate: '2026-10-09', dailyPct: -1.2, quadrant: 'Lagging' } } };
-// M13 (Codex review): the old fixture's rows failed the strict selector and an empty result passed. Use a
+// M13: the old fixture's rows failed the strict selector and an empty result passed. Use a
 // schema-valid artifact and assert the exact rows, then a stale row that must be left out.
 const { latestCompletedUsSession } = await import('../src/domain/market/session/market-calendar.js');
 const fixtureNow = Date.parse('2026-10-10T12:00:00Z');
@@ -147,7 +147,7 @@ assert.equal(sectorMoves(rotation, fixtureNow).rows.length, 0, 'M13: a non-schem
 
 console.log('scenario guidance fixture (radar, credit tiers, chart evidence, sectors): PASS');
 
-// P1643: the basis card dates every explained number; a date-only basis reads as that session's close.
+// The basis card dates every explained number; a date-only basis reads as that session's close.
 const { basisAge } = await import('../src/ui/components/value-basis.js');
 const age = basisAge('2026-10-09', Date.parse('2026-10-12T06:00:00Z'));
 assert.equal(age.label, '2026-10-09 기준');
@@ -156,7 +156,7 @@ assert.equal(basisAge('2026-10-05', Date.parse('2026-10-12T06:00:00Z')).stale, t
 assert.equal(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).age, '3시간 전');
 assert.match(basisAge('2026-10-12T03:00:00Z', Date.parse('2026-10-12T06:30:00Z')).label, /KST/, 'U03: timestamps carry their zone');
 assert.equal(basisAge('', 0), null);
-// v57.83 codex audit F16: freshness follows the source's cadence — an undeclared old timestamp claims neither fresh nor
+// Codex audit F16: freshness follows the source's cadence — an undeclared old timestamp claims neither fresh nor
 // late, a declared intraday one is late after a day, a fiscal-year-end date is judged on the annual cadence, and a
 // consumer's own freshness verdict wins.
 {
@@ -172,7 +172,7 @@ const bootstrapSource = readFileSync(new URL('../src/app/bootstrap.js', import.m
 assert.match(bootstrapSource, /installValueBasis\(documentRef/, 'P1643: the basis card is installed at boot');
 console.log('scenario guidance fixture (basis card): PASS');
 
-// P1742/P1743 (owner 2026-10-13): forward branches as a registry — chain, dated triggers, three likelihood lines, choices
+// Forward branches as a registry — chain, dated triggers, three likelihood lines, choices
 // with opportunity cost — plus every theme by one rule, scored releases and the automated transition log.
 {
   const { buildMacroCrossroads, upcomingMacroEvents, renderMacroCrossroadsContext, releaseActuals, scoreRelease, BRANCHES, CHOICES, BRANCH_NOTES } = await import('../src/domain/market/regime/macro-crossroads.js');
@@ -245,7 +245,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.ok(item.chain.length >= 4, `P1742 ${item.id}: cause→effect chain`);
     assert.ok(item.favored.length && item.favored.every((key) => CHOICES[key]) && item.favoredWhy, `P1742 ${item.id}: names the relatively favoured choice and why`);
     assert.ok(['same', 'against', 'neutral', 'unknown'].includes(item.pricing.tone), `P1742 ${item.id}: market-pricing line`);
-    // Audit 3: the 2-year proxy caveat (P1449) is said once in the rate hub; each branch keeps one short line.
+    // Audit 3: the 2-year proxy caveat is said once in the rate hub; each branch keeps one short line.
     if (['reheat', 'softland', 'slowdown', 'dollarsurge'].includes(item.id) && item.pricing.tone !== 'unknown') {
       assert.match(model.rateHub.pricingNote, /프리미엄/, `P1742 ${item.id}: the 2-year proxy states its premium caveat in the hub (P1449)`);
       assert.match(item.pricing.text, /^2년물−기준금리 [+−±]\d+\.\d{2}%p \(금리 (상단|하단) 쪽|^2년물−기준금리 [+−±]\d+\.\d{2}%p \(동결 부근/, `v57.54 audit 3 ${item.id}: one short market-price line`);
@@ -286,18 +286,16 @@ console.log('scenario guidance fixture (basis card): PASS');
   // Audit 1: branches level on met conditions are named as a tie, and the next release is what separates them.
   if (model.tiedIds.length >= 2) assert.match(model.headline, /조건 충족이 같은.*시나리오가 (둘|셋|넷|다섯|여섯|일곱|여덟)/, 'audit 1: a tie is said as a tie');
   else if (!model.held) assert.match(model.headline, /가장 많이 맞는 시나리오/);
-  // v57.69: a tie keeps the previous refresh's lead; 물가 둔화 needs core PCE and core CPI both at or below their 1-year pace.
+  // A tie keeps the previous refresh's lead; 물가 둔화 needs core PCE and core CPI both at or below their 1-year pace.
   if (model.tiedIds.length >= 2) assert.equal(buildMacroCrossroads({ read, macroHistory, history: rows, events, previousLeadId: model.tiedIds[1] }).leadId, model.tiedIds[1], 'v57.69 a tied lead does not flip away from the previous one');
   const easing = BRANCHES.find((branch) => branch.id === 'softland').conditions[0][1];
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: 3.6, coreCpiYoy: 2.6 }), false, 'v57.69 a hot core CPI pace is not disinflation');
   assert.equal(easing({ corePace: 2.5, coreYoy: 3, coreCpiPace: null, coreCpiYoy: null }), true, 'v57.69 PCE alone still counts when CPI is unavailable');
-  // P1928 (v58.26) · v59.70 (owner 11/4): the AI 투자 꺾임 gate opens on SOXX lagging the S&P 500 by 10pp over 20 sessions
-  // (SMH's 8pp scaled by SOXX's 1.3x relative swing); the Nasdaq-100 arm is gone.
   const aiLag = BRANCHES.find((branch) => branch.id === 'aibust').conditions[0][1];
   assert.equal(aiLag({ soxxRel20: -10.5 }), true, 'v59.70 SOXX 10.5pp behind the S&P 500 over 20 sessions opens the AI 투자 꺾임 gate');
   assert.equal(aiLag({ soxxRel20: -9, ndxRel20: -4, smhRel20: -9 }), false, 'v59.70 a 9pp SOXX lag keeps it closed, whatever the Nasdaq-100 and SMH did');
   assert.equal(aiLag({ soxxRel20: null }), null, 'P1928 without the SOXX series the gate is 확인 불가');
-  // Screen audit 2026-10-19: the regime's leadership break opens it too, so the scenario card cannot lead with oil (2/4)
+  // The regime's leadership break opens it too, so the scenario card cannot lead with oil (2/4)
   // while 오늘 and 브리핑 name the AI-leader correction (10/16: SOXX -7.6pp over 20 sessions, under the 10pp lag).
   assert.equal(aiLag({ soxxRel20: -7.6, leadershipBreak: true }), true, '2026-10-19 the regime leadership break opens the AI 투자 꺾임 gate');
   assert.equal(aiLag({ soxxRel20: -7.6, leadershipBreak: false }), false, 'v59.70 2026-10-19 no break and a small SOXX lag keep it closed');
@@ -310,12 +308,12 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(!thin.pastBridge && !/비슷한 때 \d+%/.test(thin.past?.text || ''), 'v57.79 fewer than 10 cases make no "mostly" claim and no hit-rate percentage');
   assert.match(bridged.pastBridge, /^과거 표본과 어긋남 — 비슷한 때 이후 20거래일 주가가 오른 비율이 같은 기록 전체 거래일보다 높았습니다\. 이 시나리오의 결론\(관망·방어 전환\)은 '금리가 더 오르는 시나리오'가 실제로 이어질 때의 비용 기준이며, 표본이 작습니다\.$/, 'v57.84 (audit 4, v57.79 small-sample note): the conflict bridge sentence');
   assert.ok(bridged.pastConflict?.lean === 'defensive', 'v57.84 favored wait/defend with 95% up against a 64% base (n 20) is a past-sample conflict');
-  // Audit D1 (owner 2026-10-17): two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
+  // Audit D1: two standard errors, shared with frequencyText — 10/12 against 64% is sampling noise now.
   const noisy = buildMacroCrossroads({ read, macroHistory, history: rows, events, outcomes: { fingerprints: liveOutcomeStamps, sourceLabel: '장기 일봉 기록', branches: { reheat: { n: 12, up: 10, median: 1.2, from: '1990-01-02', to: '2026-10-09', horizon: 20, baseUpPct: 64 } } } }).items.find((item) => item.id === 'reheat');
   // v58.3x (macro audit D2/D7, owner 2026-10-19): within 2 SE the line gives the counts and the base, no share or median to anchor on.
   assert.ok(!noisy.pastConflict && !noisy.pastBridge && /표본 오차 안에서 구별되지 않았습니다/.test(noisy.past.text) && !/비슷한 때 \d+%|중앙값/.test(noisy.past.text) && /비슷한 시장 움직임으로 고른 비교/.test(readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8')), 'audit D1/D2 (v58.74: the market-move basis is said once in the section lead): within 2 SE the frequency line says sampling noise');
   {
-    // v57.84 (owner 2026-10-16): favored stays; audit D1 (owner 2026-10-17): a conflict needs the up-share past the base rate by two binomial standard errors.
+    // Favored stays; audit D1: a conflict needs the up-share past the base rate by two binomial standard errors.
     const { pastConflict } = await import('../src/domain/market/regime/macro-crossroads.js');
     const branch = (favored) => ({ favored, title: 'x — y' });
     assert.equal(pastConflict(branch(['defend', 'wait']), { n: 94, up: 61, baseUpPct: 64 }), null, 'v57.84 65% against a 64% base is the base rate, not a conflict');
@@ -333,7 +331,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const wtiDown = /WTI 20거래일 -/.test(model.rateHub.pathsDown.find((path) => path.id === 'oil').evidence);
   const split = buildMacroCrossroads({ read: { ...read, oil: { brent20: wtiDown ? 0.9 : -0.9, basis: 'futures', abnormal: false } }, macroHistory, history: rows, events }).rateHub.pathsDown.find((path) => path.id === 'oil');
   if (/WTI 20거래일 [+-]/.test(split.evidence)) assert.ok(split.stateText === '혼재' && split.ok == null && /브렌트 [+-]0\.9%/.test(split.evidence), 'audit 6: the WTI/Brent split is labelled 혼재 with both moves');
-  // Audit D4 (owner 2026-10-17): the rate hub's "유가 하락" path uses the chain's -5% line, not any decline below zero.
+  // Audit D4: the rate hub's "유가 하락" path uses the chain's -5% line, not any decline below zero.
   {
     const withWti = (pct) => { const out = rows.map((row) => ({ ...row })); const idx = out.map((row, i) => (Number(row.wti) > 0 ? i : -1)).filter((i) => i >= 0); const tail = idx.slice(-21); idx.forEach((i) => { out[i].wti = 70; }); tail.forEach((i, k) => { out[i].wti = 70 * (1 + pct / 100 * k / 20); }); return out; };
     const oilPath = (pct) => buildMacroCrossroads({ read: { ...read, oil: { brent20: pct, basis: 'futures', abnormal: false } }, macroHistory, history: withWti(pct), events }).rateHub.pathsDown.find((path) => path.id === 'oil');
@@ -359,7 +357,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(themeStateOf(20, -5), 'pullback'); assert.equal(themeStateOf(-10, 4), 'rebound'); assert.equal(themeStateOf(null, 3), null);
   assert.equal(windFor(['growth', 'aicapex'], { firmer: ['growth'], weaker: [] }), 'tail');
   assert.equal(windFor(['energy'], { firmer: ['growth'], weaker: ['energy'] }), 'head');
-  // v59.51 (content audit): the playbook reads scenarioLead(crossroads), which holds unless the model is available — match the real model shape.
+  // The playbook reads scenarioLead(crossroads), which holds unless the model is available — match the real model shape.
   const fakeCross = { available: true, tiedIds: [], leadId: 'softland', altId: 'reheat', items: [{ id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }, { id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth'] }] };
   const groups = [
     { themeId: 'semiconductor', themeName: '반도체', name: 'A', ret1m: -8, ret3m: 5, ret6m: 30, above50Pct: 40, basis: '2026-10-12', current: true },
@@ -369,7 +367,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     { themeId: 'stale', themeName: '옛것', name: 'E', ret1m: 50, ret3m: 50, ret6m: 50, basis: '2026-10-01', current: false }
   ];
   const krThemes = [{ id: 'semiconductor', label: '반도체', covered: 5, ret1m: 3, ret3m: 20, above50Pct: 60 }, { id: 'shipbuilding', label: '조선', covered: 2, ret1m: -20, ret3m: -5 }];
-  // v57.84 (owner decision 3-2): a stage needs the index on the theme's date — a flat index keeps these cases on their own returns.
+  // A stage needs the index on the theme's date — a flat index keeps these cases on their own returns.
   const flatBench = (asOf) => ({ asOf, ret5d: 0, ret1m: 0, ret3m: 0, ret6m: 0, from: {} });
   const playbook = buildThemePlaybook({ usGroups: groups, krThemes, crossroads: fakeCross, credit: 'favorable', benchmarks: { US: flatBench('2026-10-12') }, labels: { semiconductor: '반도체', software: '소프트웨어', energy: '에너지' } });
   assert.ok(buildThemePlaybook({ usGroups: groups, crossroads: fakeCross }).themes.every((row) => row.state === null && /^판정 보류 \(S&P 500 동일가중 종가가 테마 기준일과 맞지 않음\)$/.test(row.stateLabel)), 'v57.84 no index close on the theme date withholds the stage (no absolute fallback)');
@@ -401,7 +399,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   {
     const mk = (market, id, ret1m) => ({ market, id, label: id, ret1m, tags: ['growth'] });
     const krHeavy = rotationOf([mk('KR', 'a', 12), mk('KR', 'b', 10), mk('KR', 'c', 9), mk('US', 'd', 8), mk('KR', 'e', -9), mk('KR', 'f', -10), mk('KR', 'g', -11), mk('KR', 'h', -12)].map((row, i) => ({ ...row, tags: [i < 4 ? 'growth' : 'energy'] })));
-    // v57.54: one US theme is too thin for a US read, so the sentence mixes markets and every name carries its market word.
+    // One US theme is too thin for a US read, so the sentence mixes markets and every name carries its market word.
     assert.match(krHeavy.text, /미국·한국 테마는/, 'v57.54: a thin US set falls back to all themes and says so');
     assert.match(krHeavy.text, /가장 오른 곳이 한국 a\(\+12\.0%\)/, 'audit 15: in a mixed sentence every named theme carries its market');
     assert.doesNotMatch(krHeavy.text, /국내/, "v57.54: the market word is '한국', not the ambiguous '국내'");
@@ -438,7 +436,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.deepEqual(themeRotationRead({ artifact: sameVersion }).pullbacks.map((row) => row.id), ['b'], 'v58.75: a same-version artifact stands in before the live read exists');
     assert.equal(themeRotationRead({ artifact: { ...sameVersion, playbookVersion: undefined } }).source, null, 'v58.75: an artifact without the current version is not printed');
     const published = JSON.parse(readFileSync(new URL('../public-data/scenario-state.json', import.meta.url), 'utf8'));
-    // v60.46: the same inputs means the same close and the same screener.json. The screener lane rewrites screener.json
+    // The same inputs means the same close and the same screener.json. The screener lane rewrites screener.json
     // between market refreshes; comparing a state built on the previous file failed 16 screener runs 11/20-22 (P2630 class).
     assert.equal(state1.basis.screenerComputedAt, screener.factorComputedAt || null, 'v60.46 the state names the screener.json its theme rows were built from');
     if (published.playbookVersion === THEME_PLAYBOOK_VERSION && published.basis?.themeAsOfByMarket?.US && published.basis.themeAsOfByMarket.US === state1.basis.themeAsOfByMarket?.US
@@ -458,7 +456,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // was none and the gate failed on the market, so the baseline gives the first theme a stage when none has one.
   const baseline = JSON.parse(JSON.stringify(state1));
   assert.ok(baseline.themes.length > 0, 'P1743: the state carries theme rows');
-  // v59.52: move between two single leaders; reordering the same tied set is intentionally not a transition.
+  // Move between two single leaders; reordering the same tied set is intentionally not a transition.
   baseline.crossroads.tiedIds = [];
   baseline.crossroads.leadId ||= baseline.crossroads.items[0].id;
   if (!baseline.themes.some((row) => row.state)) baseline.themes[0].state = 'leading';
@@ -482,9 +480,9 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(chooseAnswerMode({ intent: { canonical: ['OUTLOOK'] } }), 'outlook', 'P1742: a market outlook question is answered as branches');
   assert.equal(chooseAnswerMode({ asksDecision: true, hasTicker: true, intent: { canonical: ['OUTLOOK'] } }), 'decision', 'P1742: a single-company decision stays a decision');
   const component = readFileSync(new URL('../src/ui/components/macro-crossroads.js', import.meta.url), 'utf8');
-  // v59.68: the compact block (and its two path cards) is retired; 시장 상태 shows the full map, every branch listed.
+  // The compact block (and its two path cards) is retired; 시장 상태 shows the full map, every branch listed.
   assert.match(component, /refreshScenarioArtifacts/, 'P1743: screens load the long-history outcomes and the per-refresh state');
-  const themesPage = readThemesPageSource(); // v59.70: the page is split under src/ui/pages/themes/
+  const themesPage = readThemesPageSource(); // The page is split under src/ui/pages/themes/
   assert.match(themesPage, /renderThemePlaybook\(/, 'P1743: 테마 renders the theme playbook');
   const marketContent = readFileSync(new URL('../src/ai/context/market-content.js', import.meta.url), 'utf8');
   assert.match(marketContent, /renderThemePlaybookContext/, 'P1743: the chat gets the theme playbook');
@@ -501,7 +499,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   console.log('scenario guidance fixture (macro crossroads + theme playbook + scenario producers): PASS');
 }
 
-// v57.81 (owner 2026-10-15): "지금 추세가 양호가 맞아? 이번주는 반도체와 러셀이 같이 떨어지는데" — the trend axis needs a 1%
+// "지금 추세가 양호가 맞아? 이번주는 반도체와 러셀이 같이 떨어지는데" — the trend axis needs a 1%
 // buffer over a rising 50-day line, the Nasdaq-100 / Russell 2000 cap it at 중립 when they break together, and 소수 종목 주도
 // needs the leaders to be holding (leadershipBreak). Synthetic closes shaped like 10/14 (S&P 500 +0.15% over its 50-day
 // line, Nasdaq-100 -3.9% in five sessions, Russell 2000 under its 200-day line, new lows 40 > new highs 28, 39% advancing,
@@ -551,7 +549,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(oct14.trend.evidence.find(([label]) => label === '러셀 2000')[1], /50일선 -\d+\.\d%, 200일선 -\d+\.\d%, 1년 고점 대비 -\d+\.\d%/, 'v57.81 the Russell 2000 row shows its 50/200-day and one-year-high distances');
   assert.equal(oct14.regime.leadershipBreak, true, 'v57.81 leaders -3.9% with four market-wide confirmations is a leadership break');
   assert.equal(oct14.regime.leadership.met, 4);
-  { // P1927 (v58.23): the briefing reads the same leadership-break verdict as 시장 상태 and leads with it.
+  { // The briefing reads the same leadership-break verdict as 시장 상태 and leads with it.
     const { buildMarketRead } = await import('../src/domain/briefing/market-read.js');
     const read = buildMarketRead(oct14.input);
     const ids = [...(read.lead || []), ...(read.statements || []), ...(read.drivers || [])].map((row) => row.id);
@@ -559,7 +557,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   }
   assert.equal(oct14.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, false, 'v57.81 소수 종목 주도 is not confirmed during a leadership break');
   assert.notEqual(oct14.outlook.leadId, 'concentration', 'v57.81 소수 종목 주도 is not the selected flow on 10/14 numbers');
-  // Audit 2026-10-17 (owner D2): after weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
+  // After weeks above +1%, a close +0.5% over the rising 50-day line holds 양호; under the line it is 중립.
   const calmShape = { soxxDrop5: 1, rutBelow200: false, breadth50: 62, breadth200: 64, adv: 0.55, highs: 40, lows: 10, dist: 2 };
   const held = run(make({ ...calmShape, spxGap: 0.5 }));
   assert.equal(held.trend.state, 'favorable', `v60.31 D2 +0.5% after a +1% run holds 양호 (${reasonOf(held.trend)})`);
@@ -605,7 +603,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const oneWeek = run(make({ spxGap: 3, soxxDrop5: -7, rutBelow200: false, breadth50: 34, breadth200: 38, adv: 0.5, highs: 40, lows: 12, dist: 3 }));
   assert.ok(oneWeek.regime.leadership.proxyWeak && !oneWeek.regime.leadershipBreak, 'v57.81 the leaders falling alone (0 of 4 confirmations) is not a leadership break');
   assert.equal(leadershipBreakOf({}, asOf).state, 'unknown', 'v57.81 a missing proxy is 확인 불가, never holding');
-  // v57.83 crash replay (2026-07-28: Nasdaq-100 -9.5% from its high read 'holding'): weak leaders without the confirmations
+  // Crash replay (2026-07-28: Nasdaq-100 -9.5% from its high read 'holding'): weak leaders without the confirmations
   // are 'weak', which the scenario cards, the AI packet and the claim validator all treat as not holding.
   assert.equal(oneWeek.regime.leadership.state, 'weak', 'v57.83 the leaders falling alone read 주도주 약세, not 유지');
   assert.ok(oneWeek.regime.conflicts.some((text) => /^주도주 약세 — SOXX 5거래일 -7\.0%/.test(text)), 'v57.83 the weak leaders are named among the conflicts');
@@ -613,7 +611,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.match(weakContext, /주도 영역 이탈\(leadershipBreak\): 확산 미확인/, 'v57.83 the AI scenario context does not say 아니오 for weak leaders');
   assert.deepEqual(leadershipClaimIssues('반도체가 시장을 주도했습니다.', { context: weakContext }), ['leadership-claim-during-break'], 'v57.83 "semis lead" is rejected while the leaders are weak');
   assert.notEqual(oneWeek.scenarios.scenarios.find((item) => item.id === 'concentration').confirmed, true, 'v57.83 소수 종목 주도 is not confirmed with weak leaders');
-  // R707: "under the 50-day line" needs the buffer (2026-08-06 read a break at -0.0% in a +4.5% week); SOXX's is 2%.
+  // "under the 50-day line" needs the buffer (2026-08-06 read a break at -0.0% in a +4.5% week); SOXX's is 2%.
   const atLine = { soxx: { value: 98.5, ma50: 100, d5: 95, yearMax: 104, date: asOf } };
   assert.ok(!leadershipBreakOf(atLine, asOf).belowMa50 && leadershipBreakOf(atLine, asOf).state === 'holding', 'v59.70 1.5% under the 50-day line is inside the SOXX buffer');
   const under = { soxx: { value: 95, ma50: 100, d5: 96, yearMax: 105, date: asOf } };
@@ -652,7 +650,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40 }), 'neutral', 'v57.81 without the record flag a +40bp month stays 중립 (the record decides)');
   assert.equal(creditState({ hyBp: 316, hy5: 13, hy20: 40, hy20Stress: true }), 'burden');
   {
-    // v57.83 codex audit F06: the macro chain and gauge name the 20-session record as the cause, never "수준이 부담".
+    // Codex audit F06: the macro chain and gauge name the 20-session record as the cause, never "수준이 부담".
     const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
     const { buildMacroChain } = await import('../src/domain/macro/macro-chain.js');
     const mh = { schemaVersion: 'macro-history.v1', series: { hyOas: { observations: hyObs(rise) } } };
@@ -663,7 +661,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     // The level is the observation the axis read (its `observation`), never a snapshot beside another observation's change.
     const levelAxis = { id: 'credit', state: 'burden', observation: { level: 480, change5: 2, change20: null, asOf: days.at(-1), source: 'snapshot' } };
     assert.match(buildMacroChain({ macroHistory: mh, regime: { axes: [levelAxis] } }).branches.find((b) => b.id === 'credit').effect, /스프레드 수준\(480bp\)이 부담 구간/, 'v57.83 a level burden still says the level');
-    // v60.30: a 중립 names the 양호 condition it misses with its value, and never calls a -19bp week small.
+    // A 중립 names the 양호 condition it misses with its value, and never calls a -19bp week small.
     const quiet = Array.from({ length: 70 }, (_, i) => [`2026-${String(8 + Math.floor(i / 28)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`, 3.2]);
     const cccWide = quiet.map(([day], i) => [day, 6 + i * 0.05]);
     const neutralMh = { schemaVersion: 'macro-history.v1', series: { hyOas: { observations: quiet }, cccOas: { observations: cccWide } } };
@@ -715,7 +713,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   // F&G: 44 -> 30 on the last session is named even when the 20-session change is small.
   const fgHist = build((i) => ({ fg: i === n - 1 ? 30 : i === n - 2 ? 44 : 27 }));
   const mood = buildSentimentModel({ history: fgHist });
-  // v60.31: the synthesis sentence left the screen; the move is the F&G row's change line, measured between shown whole numbers.
+  // The synthesis sentence left the screen; the move is the F&G row's change line, measured between shown whole numbers.
   const fgCard = mood.cards.find((card) => card.id === 'fg');
   assert.ok(/^전일 대비 -14\b/.test(fgCard?.change || ''), `v57.81 a -14 F&G day is named (${fgCard?.change})`);
 
@@ -772,11 +770,11 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.deepEqual(rateIssues('미국 10년물 금리가 2.4% 상승했습니다.'), ['rate-change-not-bp:market.us10y'], 'v59.99 a rate change in percent is still blocked');
   }
   {
-    // v59.99 (plan 044, owner 2026-11-12): judgement and likelihood in words are allowed with their ground in the same or
+    // Judgement and likelihood in words are allowed with their ground in the same or
     // the previous sentence; a likelihood standing alone, a numeric probability and an order are still blocked.
-    // v60.21: the ground is one of the kinds the prompt names (src/domain/content/likelihood-grounds.js); a met-condition
+    // The ground is one of the kinds the prompt names (src/domain/content/likelihood-grounds.js); a met-condition
     // count, an axis state, a signed move or a bare condition describes the present and no longer grounds a likelihood.
-    // v60.24 (owner 2026-11-17): an ungrounded likelihood is measured as a warning and never blocks; a numeric probability
+    // An ungrounded likelihood is measured as a warning and never blocks; a numeric probability
     // and an order still block.
     const { validateAnalysisAdmission, softenReaderDuty, analysisInterpretationWarnings } = await import('./lib/market-analysis-validate.mjs');
     const axes = 'trend: favorable — x\nbreadth: favorable — x\nvolatility: neutral — x\ncredit: favorable — x\nrates: neutral — x';
@@ -808,7 +806,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const { dollarRiseBurden } = await import('../src/domain/briefing/market-read.js');
   assert.ok(dollarRiseBurden(2.23) === false && dollarRiseBurden(2.6) === true && dollarRiseBurden(2.23, 0.9) === true && dollarRiseBurden(null) === null, 'v57.81 the shared dollar rule: +2.23% mid-range is not 부담');
   {
-    // v57.84 R713 (threshold consolidation): the 달러 gauge band starts on the axis rule, and its falling band is favourable only
+    // R713 (threshold consolidation): the 달러 gauge band starts on the axis rule, and its falling band is favourable only
     // when the axis is — a neutral axis never pins a gauge band of another tone.
     const { buildMacroRead } = await import('../src/domain/macro/macro-read.js');
     const bandAt = (read, value) => read.sharedGauges.commodities.gauge.bands.find((band) => value >= band.from && value < band.to)?.tone;
@@ -864,12 +862,12 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(m14.items.filter((item) => item.id === m14.altId || m14.tiedIds.includes(item.id)).every((item) => item.gate.met === true), 'v57.81 the alternative and tied branches pass their gate too');
 
   // Three branches level at 3/4 read "셋" (home and 거시 share COUNT_WORDS and tiedIds).
-  // v57.81: 달러 급등 uses the 시장 axis's buffered dollar rule — DXY +2.23% (0.23pp past the line) no longer counts, +2.6% does.
+  // 달러 급등 uses the 시장 axis's buffered dollar rule — DXY +2.23% (0.23pp past the line) no longer counts, +2.6% does.
   const surge = buildMacroCrossroads({ signals: oct14 }).items.find((item) => item.id === 'dollarsurge');
   assert.ok(/달러 지수 20거래일 \+2\.5% 이상 미충족/.test(surge.basis.join(' · ')), `v57.81 DXY +2.23% does not meet 달러 급등's dollar condition (${surge.basis.join(' · ')})`);
   const three = buildMacroCrossroads({ signals: { ...oct14, oilSurging: true, wtiPosition: 0.9, tnx20: 0.3, dxy20: 2.6 } });
   assert.ok(three.tiedIds.length === 3 && /시나리오가 셋입니다/.test(three.headline) && COUNT_WORDS[three.tiedIds.length] === '셋', `v57.81 three tied branches read "셋" (${three.headline})`);
-  // v59.68: the compact tie line is retired with the compact block; the full map's headline (above) carries the count.
+  // The compact tie line is retired with the compact block; the full map's headline (above) carries the count.
 
   // Clean oil shock from series: WTI +15% in 20 sessions, breakevens +20bp → '유가 충격' ranks first.
   const wave = (i, amp, period) => amp * Math.sin(i / period);
@@ -891,7 +889,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   const inflRead = buildMacroRead({ macro: { corePce: 3.0076 }, macroHistory: inflMh });
   const inflAxis = inflRead.axes.find((axis) => axis.id === 'inflation');
   assert.ok(inflAxis.detail.direction.state === 'mixed' && inflRead.regime.held.inflation === '엇갈림' && !inflRead.regime.inflationDir, `v57.81 PCE slowing plus CPI re-accelerating gives 엇갈림 (${inflRead.regime.verdict})`);
-  // v60.50: the held paragraph (reading) left; the verdict line carries the split.
+  // The held paragraph (reading) left; the verdict line carries the split.
   assert.ok(/속도 엇갈림\(근원 PCE 8월 둔화, 근원 CPI 9월 재가속\)/.test(inflRead.regime.verdict) && !/속도 둔화/.test(inflRead.regime.verdict), `v57.81 (v60.50 verdict line) the held quadrant names each series with its month, never a settled disinflation (${inflRead.regime.verdict})`);
   const inflModel = buildMacroCrossroads({ read: inflRead, macroHistory: inflMh });
   const condition = (id) => inflModel.items.find((item) => item.id === id).conditions[0][1];
@@ -922,7 +920,7 @@ console.log('scenario guidance fixture (basis card): PASS');
 
   const splitOil = buildMacroCrossroads({ read: oilRead, history: oilHistory, signals: { oil20: 6, brent20: 1, oilHeld: true } });
   assert.equal(splitOil.items.find((item) => item.id === 'softland').conditions[2][1], null, 'v57.86 a held pair whose moves answer 유가 안정 differently stays 확인 불가');
-  // v57.86: the credit-stress gate is the level — a fast widening at 325bp (axis 부담, level below 350bp, NFCI < 0) cannot lead.
+  // The credit-stress gate is the level — a fast widening at 325bp (axis 부담, level below 350bp, NFCI < 0) cannot lead.
   const fastWiden = buildMacroCrossroads({ read: oilRead, history: oilHistory, signals: { credit: 'burden', hyBp: 325, nfci: -0.5 } }).items.find((item) => item.id === 'creditstress');
   assert.ok(fastWiden.gate.met === false && /핵심 조건 미충족/.test(fastWiden.status), `v57.86 credit-stress gate is the spread level (${fastWiden.status})`);
 
@@ -955,7 +953,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })
   ];
   const krThemes = [{ id: 'semi', label: '반도체', covered: 12, ret1m: 3.0, ret3m: 20.0, ret5d: -23.9, vol: 60, above50Pct: 13, basis: '2026-10-15' }];
-  // v59.51 (content audit): available/tiedIds as the real crossroads model carries them (scenarioLead holds otherwise).
+  // available/tiedIds as the real crossroads model carries them (scenarioLead holds otherwise).
   const cross = { available: true, tiedIds: [], leadId: 'reheat', altId: 'softland', items: [{ id: 'reheat', title: '물가 재가속 — x', firmer: ['energy'], weaker: ['growth', 'aicapex'] }, { id: 'softland', title: '물가 둔화 — x', firmer: ['growth', 'aicapex'], weaker: ['energy'] }] };
   const pb = buildThemePlaybook({ usGroups, krThemes, crossroads: cross, credit: 'neutral', benchmarks: { US: spx, KR: kospi }, labels: { semiconductor: '반도체', ai_infra: 'AI 인프라/데이터센터', industrials: '산업재/물류', staples: '필수소비재', software: '소프트웨어/클라우드' } });
   const row = (id, market = 'US') => pb.themes.find((item) => item.id === id && item.market === market);
@@ -969,7 +967,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.ok(!pb.highlights.headwindLeaders.some((item) => ['semiconductor', 'ai_infra'].includes(item.id)), 'v57.81 headwindLeaders only list themes that pass the corrected stage');
   assert.notEqual(row('industrials').state, 'leading', 'v57.81 산업재 6m +4.7% against the S&P 500 +9.9% is not 주도');
   assert.notEqual(row('staples').state, 'leading', 'v57.81 필수소비재 6m +3.0% against +9.9% is not 주도');
-  // v57.84: a group row is read on the same index-relative, banded rule as its theme (it used the bare sign).
+  // A group row is read on the same index-relative, banded rule as its theme (it used the bare sign).
   assert.notEqual(row('staples').groups[0].state, 'leading', 'v57.84 group P1 (6m +3.0% vs +9.9%) is not 주도 inside a theme that is not');
   assert.equal(row('software').groups[0].state, 'leading', 'v57.84 a confirmed group reads the same stage as its one-group theme');
   {
@@ -996,7 +994,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.equal(outcomesOf(etf, { benchmark: gspc }).basis, 'relative-banded', 'v57.84 proxy outcomes with ^GSPC use the live relative rule');
     assert.equal(outcomesOf(etf).basis, 'absolute', 'v57.84 without the index the outcome basis says absolute');
     {
-      // v60.16: a stage read against the index is scored against it — the proxy rises every session here but trails the
+      // A stage read against the index is scored against it — the proxy rises every session here but trails the
       // index, so no case is "up" and the base rate is 0; without the index the own return is the outcome.
       const { frequencyText, summarise, THEME_STATES } = await import('../src/domain/scenarios/analogs.js');
       const lag = outcomesOf(etf, { benchmark: gspc, horizon: 20 });
@@ -1006,11 +1004,11 @@ console.log('scenario guidance fixture (basis card): PASS');
       assert.ok(Object.keys(THEME_STATES).map((state) => own[state]).filter((row) => row.n > 0).every((row) => row.outcome === undefined && row.up === row.n), 'v60.16 without a benchmark the outcome stays the own return');
       const text = frequencyText({ n: 20, up: 15, median: 2.1, p25: -1, p75: 4, horizon: 63, baseUpPct: 50, from: '2000-01-03', to: '2026-10-30', outcome: 'excess', subject: 'SMH', versus: 'S&P 500 동일가중' }, '대표 ETF');
       assert.ok(/SMH가 S&P 500 동일가중보다 더 올랐습니다 \(초과 수익 중앙값 \+2\.1%p/.test(text) && /50%가 지수를 앞서/.test(text), `v60.16 an excess outcome is worded against the index (${text})`);
-      // v60.16: an even count takes the mean of the two middle cases (it took the lower one: -4 for [-4, 6]).
+      // An even count takes the mean of the two middle cases (it took the lower one: -4 for [-4, 6]).
       assert.equal(summarise([-4, 6], {}).median, 1, 'v60.16 the median of an even count interpolates');
       assert.equal(summarise([1, 2, 30], {}).median, 2, 'v60.16 an odd count keeps the middle case');
       assert.equal(summarise([0, 10, 20, 30, 40], {}).p25, 10, 'v60.16 quartiles on exact positions are unchanged');
-      // v60.16: the real yield is the 10-year less the breakeven — the fiscalsteep gate already tests that gap, so its
+      // The real yield is the 10-year less the breakeven — the fiscalsteep gate already tests that gap, so its
       // pricing line is not independent confirmation.
       const { BRANCHES: branchList } = await import('../src/domain/market/regime/macro-crossroads.js');
       assert.equal(branchList.find((branch) => branch.id === 'fiscalsteep').pricingInConditions, true, 'v60.16 fiscalsteep pricing (real yield) restates its own gate condition');
@@ -1018,7 +1016,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     const absPast = buildThemePlaybook({ usGroups: [g('software', 'W1', { ret1m: 6.0, ret3m: 9.0, ret6m: 24.0, ret5d: 1.0, above50Pct: 65 })], crossroads: cross, credit: 'neutral', benchmarks: { US: spx },
       outcomes: { themes: { software: { symbol: 'IGV', basis: 'absolute', leading: { n: 20, up: 12, median: 3, horizon: 63 } } } } }).themes[0];
     assert.match(absPast.past, /다른 기준\(절대 수익률이거나/, 'v57.84 an absolute-basis proxy record is not compared with the relative stage');
-    // Audit 2026-10-17 (owner D5): with RSP on record the US stage reads against the equal-weight S&P 500 and names the
+    // With RSP on record the US stage reads against the equal-weight S&P 500 and names the
     // cap-weighted index beside it; without RSP on the theme's date it stays on the S&P 500.
     {
       const sessions = [];
@@ -1028,7 +1026,7 @@ console.log('scenario guidance fixture (basis card): PASS');
       const ew = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist }).themes[0];
       assert.equal(ew.relative?.field, 'rsp', `D5 the US stage reads against RSP when it has the theme's date (${ew.stateLabel})`);
       assert.match(ew.stateLabel, /S&P 500 동일가중 대비, 참고: S&P 500 대비 6개월 [+-]\d+\.\d%p/, `D5 the cap-weighted index is named beside it (${ew.stateLabel})`);
-      // v60.18 (weekly audit 2026-11-15 D5): the benchmark never switches. Without RSP the stage is withheld (it used to
+      // The benchmark never switches. Without RSP the stage is withheld (it used to
       // fall back to the S&P 500); with RSP a session behind the theme it is withheld as a benchmark lag, which the
       // per-refresh producer carries over (heldThemeRow).
       const capOnly = buildThemePlaybook({ usGroups: theme, crossroads: cross, credit: 'neutral', history: hist.map(({ rsp, ...row }) => row) }).themes[0];
@@ -1100,7 +1098,7 @@ console.log('scenario guidance fixture (basis card): PASS');
     assert.ok(criteria.items.every((item) => typeof item.label === 'string' && typeof item.value === 'string' && typeof item.principle === 'string' && [true, false, null].includes(item.met)), 'v58.75 criteria item shape');
     assert.deepEqual(criteria.items.map((item) => item.met), [true, true, true, null, true, false], 'v58.75 criteria results (calendar missing = null)');
     assert.match(criteria.headline, /^6개 중 4개 충족\(가능성 아님\), 확인 가능 5개 — 미충족: 시황·선두 시나리오 적합$/, 'v58.75 criteria headline is a met count, never a likelihood');
-    // v60.28: the table's short count names the unchecked criterion, and a sort ranks fully checked rows first.
+    // The table's short count names the unchecked criterion, and a sort ranks fully checked rows first.
     const { criteriaCellText, compareCriteria } = await import('../src/domain/scenarios/theme-criteria.js');
     assert.equal(typeof criteriaCellText, 'function', 'v60.28 criteriaCellText exported');
     assert.equal(criteriaCellText(criteria), '4/6, 미확인 1', 'v60.28 a count with an unchecked criterion says so (was "4/6")');
@@ -1147,21 +1145,21 @@ console.log('scenario guidance fixture (basis card): PASS');
   console.log('scenario guidance fixture (v57.81 packet theme lines with window and 5-session move): PASS');
 }
 
-// v57.83 codex audit F09 + R706: a frequency sentence carries the small-sample note for 10-29 cases, shows no rate
+// Codex audit F09 + R706: a frequency sentence carries the small-sample note for 10-29 cases, shows no rate
 // below 10, and drops the note from 30 cases.
 {
   const { frequencyText } = await import('../src/domain/scenarios/analogs.js');
   // v58.3x: a share is stated only beyond the base rate, so the note checks use a share that is (95% against 57%).
   const line = (n, share = 0.95) => frequencyText({ n, up: Math.round(n * share), median: 1.2, p25: -2, p75: 3, horizon: 63, from: '2015-01-02', to: '2026-10-14', baseUpPct: 57 }, '조건');
   for (const n of [10, 29, 30]) assert.ok(!/비슷한 때 \d+%|중앙값/.test(line(n, 0.6)) && /구별되지 않았습니다/.test(line(n, 0.6)), `v58.3x ${n} cases at 60% against 57%: no share, the base rate says it`);
-  // v60.18: the notes are the shared evidence-strength ones; below 10 the median is withheld too (counts only).
+  // The notes are the shared evidence-strength ones; below 10 the median is withheld too (counts only).
   assert.ok(!/비슷한 때|중앙값/.test(line(9)) && /사례 9개라 비율·평균으로 말하지 않습니다/.test(line(9)), `v57.83/v60.18 below 10 cases: counts only (${line(9)})`);
   for (const n of [10, 29]) assert.ok(/비슷한 때/.test(line(n)) && new RegExp(`사례 ${n}개라 참고로만 봅니다`).test(line(n)), `v57.83/v60.18 ${n} cases carry the 참고 note`);
   assert.ok(/비슷한 때/.test(line(30)) && !/참고로만|비율·평균으로 말하지/.test(line(30)), 'v57.83 30 cases need no small-sample note');
   console.log('scenario guidance fixture (v57.83 R706 small-sample note at n 9/10/29/30): PASS');
 }
 
-// v57.83 codex audit F07: a release later today is still next; once its release time passes it is not, and an
+// Codex audit F07: a release later today is still next; once its release time passes it is not, and an
 // indicator card whose value came from that release points at the following date. Legacy clocks mirror the ESM ones.
 {
   const { upcomingMacroEvents } = await import('../src/domain/market/regime/macro-crossroads.js');
@@ -1172,7 +1170,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(at('2026-10-15T12:31:00Z'), '2026-11-17', 'v57.83 after 08:30 ET the next release moves on');
   assert.equal(at('2026-03-09T12:31:00Z') ?? null, null, 'v57.83 (DST week) no retail date in range is not invented');
   const core = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'utf8');
-  // P1844: the legacy calendar, run with the native clock the compatibility layer installs, moves on after 08:30 ET.
+  // The legacy calendar, run with the native clock the compatibility layer installs, moves on after 08:30 ET.
   const { releaseAtMs } = await import('../src/domain/briefing/schedule.js');
   const { runInNewContext } = await import('node:vm');
   const start = core.indexOf('window.AIO.refreshMacroCalendarFromOfficialSchedule = function(now) {');
@@ -1194,8 +1192,8 @@ console.log('scenario guidance fixture (basis card): PASS');
   console.log('scenario guidance fixture (v57.83 release clock decides "다음 발표"): PASS');
 }
 
-// v57.83 codex audit F10: fixed market-reading copy states what to check, not an unbacked qualitative probability
-// ("가능성이 높습니다/커집니다/큽니다") — a probability needs its non-overlapping sample (R706).
+// Codex audit F10: fixed market-reading copy states what to check, not an unbacked qualitative probability
+// ("가능성이 높습니다/커집니다/큽니다") — a probability needs its non-overlapping sample.
 {
   const { readdirSync } = await import('node:fs');
   const dirs = ['src/domain/market', 'src/domain/briefing', 'src/domain/macro'];
@@ -1205,7 +1203,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   console.log('scenario guidance fixture (v57.83 no unbacked probability in market copy): PASS');
 }
 
-// v58.80 (owner 2026-10-25): the 거시 asset card reads cross-asset relations on the same 20 sessions. On the 10/23 close
+// The 거시 asset card reads cross-asset relations on the same 20 sessions. On the 10/23 close
 // (10Y −19bp, S&P 500 −1.5%, SMH −13.1%, TLT +2.5%, WTI up, gold down) the reading names the semiconductor lead, the bond
 // flight, gold falling, falling rates not lifting stocks and rising oil with falling rates — in story order, at most three.
 {
@@ -1267,7 +1265,7 @@ assert.match(d.costIfWrong[0].text, /w:wait/, `${label}: the opportunity cost qu
 assert.equal(buildDirection([], []).robust, null, `${label}: no live branch means no tally winner`);
 
 // End to end on the published artifacts: a guide is built, its lessons belong to today's state, the AI block holds the boundary.
-const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // v59.70: the one reader; never the stored shape's .rows
+const rows = readHistoryRows(JSON.parse(readFileSync(new URL('../public-data/history.json', import.meta.url), 'utf8'))); // The one reader; never the stored shape's .rows
 const { buildMarketRegime } = await import('../src/domain/briefing/market-read.js');
 const regime = buildMarketRegime({ history: rows, credit: { hyBp: 315, hyDelta5Bp: -9 }, rates: {} });
 const guide = buildMarketGuide({ regime, outlook: null, crossroads: null, nowMs: Date.now() });
@@ -1341,7 +1339,7 @@ assert.equal(pastEvidence({ n: 40, up: 22, baseUpPct: 55 }).method, ANALOG_METHO
 
 console.log(`market guide fixture OK: ${BRANCHES.length} branches tagged, ${ALL_LESSONS.length} lessons linked, ${guide.lessons.length} selected today`);
 }, 'code'],
-// ── section market-analysis-salvage (v60.02, plan 046) ──
+// ── section market-analysis-salvage ──
 // A reading blocked on its retry loses its bad line (at most two), not the whole text; the validator stays the judge.
 ['market-analysis-salvage', async () => {
 const { default: assert } = await import('node:assert/strict');
@@ -1406,7 +1404,7 @@ assert.ok(logs.some((line) => line === '[fetch-data] marketAnalysis salvaged: re
 assert.equal(marketAnalysisOutcome(run, { requests: 2 }), 'salvaged', 'v60.02 the run meta counts a salvaged reading');
 console.log('market analysis salvage OK');
 }, 'code'],
-// ── section theme-outcomes (v60.18, weekly audit 2026-11-15: one stage benchmark, definition stamps, evidence strength) ──
+// ── section theme-outcomes (weekly audit 2026-11-15: one stage benchmark, definition stamps, evidence strength) ──
 ['theme-outcomes', async () => {
 const { default: assert } = await import('node:assert/strict');
 const { readFileSync, existsSync, mkdtempSync, rmSync } = await import('node:fs');

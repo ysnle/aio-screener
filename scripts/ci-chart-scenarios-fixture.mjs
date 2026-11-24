@@ -1,4 +1,4 @@
-// P1626: observed conditional levels, daily-volume conservation and no invented coverage.
+// Observed conditional levels, daily-volume conservation and no invented coverage.
 import assert from 'node:assert/strict';
 import { buildVolumeByPrice, buildChartScenarios } from '../src/domain/technical/chart-scenarios.js';
 import { analyzeChart, chartReading } from '../src/domain/technical/chart-analysis.js';
@@ -7,7 +7,7 @@ const bars = Array.from({ length: 130 }, (_, index) => ({ time: new Date(Date.UT
 const profile = buildVolumeByPrice(bars);
 assert.equal(profile.available, true, 'P1626 observed daily volume has a declared approximate distribution');
 assert.ok(Math.abs(profile.bins.reduce((sum, bin) => sum + bin.volume, 0) - profile.totalVolume) < 1e-7, 'P1626 price bins conserve daily total volume');
-// v59.85: one profile for the chart and the table — a bar without volume is left out (never counted as zero, P1626), and
+// One profile for the chart and the table — a bar without volume is left out (never counted as zero), and
 // the profile needs 90% of the window to carry volume.
 {
   const oneMissing = buildVolumeByPrice(bars.map((bar, index) => index === 50 ? { ...bar, volume: null } : bar));
@@ -16,7 +16,7 @@ assert.ok(Math.abs(profile.bins.reduce((sum, bin) => sum + bin.volume, 0) - prof
   assert.equal(buildVolumeByPrice(bars.map((bar, index) => index % 5 ? bar : { ...bar, volume: null })).available, false, 'v59.85 P1626 under 90% volume coverage there is no profile (nothing invented)');
 }
 assert.equal(buildVolumeByPrice(bars.slice(0, 10)).available, false, 'P1626 short coverage holds the volume profile');
-// v59.85: the point of control and the 70% value area (CBOT rule: grow from the POC by the heavier pair of neighbours).
+// The point of control and the 70% value area (CBOT rule: grow from the POC by the heavier pair of neighbours).
 {
   const { valueArea, profilePosition, VALUE_AREA_SHARE } = await import('../src/domain/technical/chart-scenarios.js');
   const rows = [1, 2, 3, 10, 30, 12, 4, 20, 2, 1].map((volume, index) => ({ low: index, high: index + 1, volume }));
@@ -71,7 +71,7 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
   assert.equal(shortSetup.pctFrom52wHigh, null, 'v57.84 producer: 220 sessions publish no 52-week high distance');
   assert.equal(shortSetup.pctFrom52wLow, null, 'v57.84 producer: 220 sessions publish no 52-week low distance');
   assert.equal(closesToFactors(col(year.slice(-239), 'close')).pctFromCloseHigh52w, null, 'v57.86 producer: 239 closes are not a 52-week closing high');
-  // v57.86: one calendar year is 251 US / 245 KR sessions and the producer fetches exactly one year; a 252 floor nulled every row.
+  // One calendar year is 251 US / 245 KR sessions and the producer fetches exactly one year; a 252 floor nulled every row.
   for (const n of [251, 245, 240]) {
     assert.notEqual(closesToFactors(col(year.slice(-n), 'close')).pctFromCloseHigh52w, null, `v57.86 producer: ${n} closes (one calendar year) give a 52-week closing high`);
     const yr = year.slice(-n);
@@ -92,14 +92,14 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
   assert.equal(defs.weinsteinStage([...Array.from({ length: 60 }, (_, i) => 100 + i * 1.5), ...Array.from({ length: 26 }, (_, i) => 188 + (i % 2 ? 2 : -2))]).stage, 3, 'v60.15 a line that rose and then flattened is stage 3');
   assert.ok(chart.evidence.some(([label, text]) => label === '50일선 대비 일평균 변동폭 배수' && text.includes(`ADR${RULES.technical.adrPeriod}`)), 'v57.84 the chart row names its unit');
   {
-    // v60.16: the crossing is part of the breakout day — a heavy up close ten sessions after the cross is not one, on the
+    // The crossing is part of the breakout day — a heavy up close ten sessions after the cross is not one, on the
     // chart or in the screener.
     const flat = Array.from({ length: 70 }, () => 100), vols = Array.from({ length: 70 }, () => 1000);
     const cross = [...flat, 102], late = [...flat, ...Array.from({ length: 10 }, () => 102), 104];
     assert.equal(defs.isBreakoutDay({ closes: cross, volumes: [...vols, 2000], i: 70, pivot: 101 }), true, 'v60.16 a heavy up close through the pivot is a breakout day');
     assert.equal(defs.isBreakoutDay({ closes: late, volumes: [...vols, ...Array.from({ length: 10 }, () => 1000), 2000], i: 80, pivot: 101 }), false, 'v60.16 a heavy up close with no close at or below the pivot in the prior crossSessions is not a breakout day');
     assert.equal(RULES.technical.breakout.crossSessions, VCP_BREAKOUT_LOOKBACK, 'v60.16 the screener lookback is the RULES crossing window');
-    // v60.16: today's volume is measured against the 50 sessions before it, not an average that contains it.
+    // today's volume is measured against the 50 sessions before it, not an average that contains it.
     const prior = year.slice(-51, -1).map((bar) => bar.volume);
     assert.ok(Math.abs(chart.volRatio - year.at(-1).volume / (prior.reduce((a, b) => a + b, 0) / prior.length)) < 1e-9, 'v60.16 chart volume ratio excludes today from its own average');
     assert.ok(chart.evidence.some(([label]) => label === '거래량 (직전 50일 평균 대비)'), 'v60.16 the volume row names the prior-50 basis');
@@ -115,7 +115,7 @@ assert.match(buildQuestionDomainContext({ ctxId: 'technical', query: 'RSI와 매
   assert.equal(rrgRecentReading({ rsRatio: 104, rsMomentum: 103 }, series).opposed, false, 'v57.84 a quiet week does not oppose the quadrant');
   const fell = [...series.slice(0, 55), 99, 97, 95, 93, 90];
   assert.equal(rrgRecentReading({ rsRatio: 104, rsMomentum: 103 }, fell).opposed, true, 'v57.84 a five-session break beyond twice the usual move opposes 선도');
-  // v57.84 (owner decision 3-3): own-noise band and hysteresis from the produced trail.
+  // own-noise band and hysteresis from the produced trail.
   const { rrgNoiseBands, rrgSettledQuadrant, RRG_BAND_MIN, RRG_BAND_MAX } = await import('../src/domain/themes/recent-check.js');
   const trailOf = (pairs) => pairs.map(([r, m], i) => ({ sessionDate: `2026-09-${String(10 + i).padStart(2, '0')}`, rsRatio: r, rsMomentum: m }));
   const held = trailOf([...Array.from({ length: 14 }, (_, i) => [104 + (i % 2) * 0.4, 103 + (i % 3) * 0.5]), [101, 102], [100.2, 101.4], [99.6, 101.2], [99.8, 101.5], [99.7, 101.3], [99.6, 101.4]]);

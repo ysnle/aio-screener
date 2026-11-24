@@ -1,3 +1,13 @@
+// v59.70 (data audit R2): the one reader and writer of public-data/history.json's shape. 93% of the file (4.4 of 4.7 MB)
+// was per-field provenance repeated on every row. history.v2 keeps one field dictionary for the values a field shares
+// on every row (source, sourceKind, allowedUse, rule, universe, marketSession — not freshness metadata) and one
+// `checkedAt` per field in place of fetchedAt + lastSuccessfulAt (the same instant on every row so far; both stay when
+// they differ). The freshness rule (aio-freshness.v1, actions-reliability): observedAt is the value's own observation
+// time and stays on the row; sessionDate is the row's basisSession and keeps its name; checkedAt maps to fetchedAt and
+// lastSuccessfulAt. Workflow-level freshness lives in public-data/freshness/<workflow>.json and is not repeated here.
+//
+// Every reader expands through readHistoryRows(), which returns the v1 rows exactly (an array payload is v1 already),
+// so no consumer reads the stored shape. scripts/ci-history-access-check.mjs fails a reader that parses the file itself.
 export const HISTORY_SCHEMA_V2 = 'history.v2';
 export const HISTORY_DICTIONARY_KEYS = Object.freeze(['source', 'sourceKind', 'allowedUse', 'rule', 'universe', 'marketSession']);
 const ABSENT = '-'; // a dictionary key this row's meta does not carry

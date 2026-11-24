@@ -1,3 +1,5 @@
+// A release on its bands — good / neutral / burden / bad segments at their numeric edges and a pin at the latest
+// value (release-zones.js owns the cut points and what each band means; the meaning stays on the hover).
 import { el } from './dom.js';
 import { releaseZones, RELEASE_ZONE_IDS } from '../../domain/macro/release-zones.js';
 import { signedText } from '../../domain/shared/number.js';
@@ -43,10 +45,15 @@ export function releaseZoneBar(doc, zone, { compact = false } = {}) {
   return box;
 }
 
+// The bar's width is only known on screen. A band label that does not fit is dropped (the band
+// keeps it as its hover title) instead of being cut to '조금 높…', and an edge number that would touch its neighbour
+// ('5만7.5만') drops to a second line.
 export function fitZoneBar(box) {
   const labels = [...box.querySelectorAll('.zone-bar__label')];
   labels.forEach((label) => { label.hidden = false; label.style.transform = ''; }); // measured shown, so a bar that widened gets its labels back
   labels.forEach((label) => { label.hidden = label.scrollWidth > label.clientWidth + 1; });
+  // v59.70 (re-review #21): the pin's notches run through the band, so a label the value line falls on ('+0.32%' over
+  // '끈적함') steps aside inside its own band, or is dropped (the band keeps it as its title) when it has no room.
   const pin = box.querySelector('.zone-bar__pin');
   if (pin) {
     const pinRect = pin.getBoundingClientRect();

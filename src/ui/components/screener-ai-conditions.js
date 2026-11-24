@@ -1,3 +1,8 @@
+// The AI panel is the one place a reader makes screener conditions. An answer that ends
+// with a '스크리너 조건:' line (the screener context asks the model for it, in the parser's words) — or, when the model
+// wrote none, a question that asks for a screen — becomes a card under the answer: the conditions the app read, what it
+// could not read and why, and 스크리너에 적용. Applying writes #scr-custom-conditions (the same JSON the + 조건 panel
+// keeps), opens 스크리너 and reports the table's count — including 0 — back on the card. The parser loads lazily.
 import { conditionLabel, normalizeConditions } from '../../domain/screener/custom-conditions.js';
 
 export const ANSWER_CONDITION_LINE = /스크리너\s*조건\s*[:：]\s*([^\n]+)/;

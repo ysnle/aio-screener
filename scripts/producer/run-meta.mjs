@@ -6,7 +6,7 @@ import { MINIMUM_CURRENT_NEWS, NEWS_FEEDS, NEWS_RANKING_RULE, mergeNewsFeedHealt
 import { REPO_ROOT } from './paths.mjs';
 import { planeFresh } from './source-planes.mjs';
 
-// P1737: announces public-data/official-references.json (written by the P1734 lane later in the same workflow) so the
+// Announces public-data/official-references.json (written by the P1734 lane later in the same workflow) so the
 // browser fetches it only once it exists; the value is that artifact's own checkedAt.
 export function readOfficialReferencesCheckedAt() {
   return readFile(`${REPO_ROOT}/public-data/official-references.json`, 'utf8')
@@ -28,14 +28,14 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     symbolsOk: quoteRun.quotes.length,
     symbolsFail: quoteRun.failed.length,
     failedSymbols: quoteRun.failed,
-    // P1256: per-domain collection receipts — "fresh collection" vs "previous value kept" is decided here.
+    // per-domain collection receipts — "fresh collection" vs "previous value kept" is decided here.
     domainReceipts,
     verifyStats: quoteRun.verifyStats,
     tdHasKey: quoteRun.twelveData.hasKey,
     tdFallbackEligible: quoteRun.twelveData.eligible,
     tdFallbackRecovered: quoteRun.twelveData.recovered,
     fearGreedOk,
-    // v50.24/WO-1: F&G·FRED failures are exposed in meta (they used to pass silently); v50.78 splits key vs fetch.
+    // F&G·FRED failures are exposed in meta (they used to pass silently); v50.78 splits key vs fetch.
     fredHasKey: fred.hasKey,
     fredFetchOk: fred.fetchOk,
     fredOk: fred.fetchOk, // backward compatible alias
@@ -75,10 +75,10 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     newsOk: Array.isArray(news) && news.length > 0,
     newsCount: Array.isArray(news) ? news.length : 0,
     // `newsSourceCount` used to publish NEWS_FEEDS.length (the number of search feeds) under a name that reads as the
-    // number of publishers, while the retained items carry ~29 distinct outlets (P1097). Both numbers are published
+    // number of publishers, while the retained items carry ~29 distinct outlets. Both numbers are published
     // under names that say which population they count.
     newsFeedCount: NEWS_FEEDS.length,
-    newsFeedHealth: news?.feedHealth ? mergeNewsFeedHealth(previousMeta?.newsFeedHealth, news.feedHealth, attemptedAt) : (previousMeta?.newsFeedHealth || undefined), // 2026-10-19: per-feed counts + streak (watchdog)
+    newsFeedHealth: news?.feedHealth ? mergeNewsFeedHealth(previousMeta?.newsFeedHealth, news.feedHealth, attemptedAt) : (previousMeta?.newsFeedHealth || undefined), // per-feed counts + streak (watchdog)
     newsPublisherCount: new Set((Array.isArray(news) ? news : []).map(item => item && item.source).filter(Boolean)).size,
     newsCyclePolicy: newsCycle.policy,
     newsCycleStart: newsCycle.start,
@@ -90,7 +90,7 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     newsIntradayCount: newsIntraday.length,
     newsIntradayMax: NEWS_INTRADAY_MAX,
     serverNewsScored: true,
-    newsRankingRule: NEWS_RANKING_RULE, // v60.18: which scoring/order the bundle was cut with (scripts/ci-news-ranking-check.mjs)
+    newsRankingRule: NEWS_RANKING_RULE, // Which scoring/order the bundle was cut with (scripts/ci-news-ranking-check.mjs)
     newsScoreMin: newsScores.length ? Math.min(...newsScores) : null,
     newsScoreMax: newsScores.length ? Math.max(...newsScores) : null,
     marketSurveysStatus: marketSurveys ? 'web-research-captured-reference' : null,

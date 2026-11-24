@@ -14,7 +14,7 @@ import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 
 const ROOT = join(fileURLToPath(new URL('..', import.meta.url)));
 const DATA_DIR = join(ROOT, 'public-data');
-// P1283/R634: the production audit always uses the wall clock. Deterministic
+// The production audit always uses the wall clock. Deterministic
 // fixtures inject `now` into evaluateArtifact; ambient environment values must
 // never let a caller move the live freshness reference time backwards.
 function createAuditTime(wallClock = Date.now) {
@@ -95,40 +95,40 @@ function failuresOf(data) {
 }
 
 const POLICIES = {
-  'breadth-contributors.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // P1416: stocks behind each breadth count (refresh-screener)
-  'theme-stage-history.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // v58.79: recomputed theme-stage record (refresh-screener -> build-scenario-state)
+  'breadth-contributors.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // Stocks behind each breadth count (refresh-screener)
+  'theme-stage-history.json': { kind: 'research-drilldown', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // Recomputed theme-stage record (refresh-screener -> build-scenario-state)
   'backtest-history.json': { kind: 'research-history', custom: 'backtest-history-latest', maxAgeHours: 24 * 14 },
   'data.json': { kind: 'live-core', timestamp: ['meta.generatedAt'], maxAgeHours: 12 },
   // Weekly calendar reference rebuilt by refresh-screener. It owns a bounded
   // Mon~Fri window, so a stale artifact is a WARN (the client falls back to the
-  // explicit key-required state), never a silent success (P1102).
+  // explicit key-required state), never a silent success.
   'earnings-calendar.json': { kind: 'weekly-calendar-reference', timestamp: ['generatedAt'], custom: 'earnings-week', maxAgeHours: 24 * 8 },
   'consensus-estimates.json': { kind: 'rotating-consensus-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 },
-  // v59.42: event-driven briefs (event-briefs.yml); committed only when a brief changes, so quiet weeks between earnings
+  // event-driven briefs (event-briefs.yml); committed only when a brief changes, so quiet weeks between earnings
   // seasons are expected — the bound is one quarter.
   'event-briefs.json': { kind: 'event-brief-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 100 },
-  'kr-index-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // v59.42: KOSPI/KOSDAQ weight proxies after each KRX close (event-briefs.yml; + holiday tolerance)
-  // v59.70: promoted by hand from research-backtest.yml (manual dispatch, no commit); it had no bound at all (2026-07-10).
+  'kr-index-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // KOSPI/KOSDAQ weight proxies after each KRX close (event-briefs.yml; + holiday tolerance)
+  // Promoted by hand from research-backtest.yml (manual dispatch, no commit); it had no bound at all.
   'factor-backtest-longrun.json': { kind: 'research-horizon', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 120 },
   'history.json': { kind: 'daily-history', custom: 'history-date', maxAgeHours: 24 * 3 },
-  'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1426: FRED observations behind the 거시 direction reads (refresh-data)
-  'rotation-detail.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.70 (R11): rotationHistory series beside data.json (refresh-data; recomputed after each US close)
-  'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // P1654: FRED release dates (refresh-data)
-  'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // 2026-10-13: IVV holdings weights for the S&P 500 sector map (refresh-screener)
-  'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.81: Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)
-  'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1661: VIX-band forward outcomes (refresh-data operator slot, weekly)
-  'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1743: long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
-  'index-longrun.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // v60.50: long-run index drawdowns and tail moves (refresh-data daily lane, weekly)
-  'market-temperature.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v57.54: per-market price temperature (refresh-data, 4-hour throttle)
-  'scenario-state.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // P1743: recomputed every refresh from published artifacts (no network)
-  'market-day.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v59.63: the last day's moves and events, linked (build-market-day, every refresh, no network)
-  'today-verdict.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // v58.80 F01: the 오늘 verdict the static shell paints first (build-scenario-state)
-  'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // P1734: page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
-  'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // P1654: OpenDART annual accounts; v59.70 owner 2026-11-04: not collected (no key), the producer writes no 0-company file
-  'bigtech-cashflow.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.56: SEC companyfacts quarterly cash flow, 9 big-tech issuers (refresh-screener, 6-hourly)
-  'treasury-auctions.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v59.57: TreasuryDirect note/bond auction results (refresh-screener, 6-hourly)
-  'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // v58.55 투자자별 순매수; v59.70 Naver Finance (refresh-screener, 6-hourly, no key)
-  'tw-monthly-revenue.json': { kind: 'official-filing-monthly', timestamp: ['generatedAt'], maxAgeHours: 24 * 62 }, // v59.56: TWSE 대만 AI 공급망 월매출 (refresh-screener; rewritten only when the month's numbers change)
+  'macro-history.json': { kind: 'official-macro-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // FRED observations behind the 거시 direction reads (refresh-data)
+  'rotation-detail.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // rotationHistory series beside data.json (refresh-data; recomputed after each US close)
+  'macro-calendar.json': { kind: 'official-calendar-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // FRED release dates (refresh-data)
+  'sp500-weights.json': { kind: 'index-weight-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // IVV holdings weights for the S&P 500 sector map (refresh-screener)
+  'us-listings.json': { kind: 'exchange-listing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // Nasdaq Trader symbol directory, daily in refresh-screener (+ weekend/holiday tolerance)
+  'stress-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // VIX-band forward outcomes (refresh-data operator slot, weekly)
+  'scenario-outcomes.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // long-history branch/theme-stage outcomes (refresh-data operator slot, weekly)
+  'index-longrun.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // long-run index drawdowns and tail moves (refresh-data daily lane, weekly)
+  'market-temperature.json': { kind: 'research-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // per-market price temperature (refresh-data, 4-hour throttle)
+  'scenario-state.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // Recomputed every refresh from published artifacts (no network)
+  'market-day.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // The last day's moves and events, linked (build-market-day, every refresh, no network)
+  'today-verdict.json': { kind: 'derived-state', timestamp: ['generatedAt'], maxAgeHours: 48 }, // The 오늘 verdict the static shell paints first (build-scenario-state)
+  'official-references.json': { kind: 'official-web-reference', timestamp: ['checkedAt'], maxAgeHours: 48 }, // page-verified KR references (NAAIM retired) (refresh-data, 12h heartbeat)
+  'kr-fundamentals.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 14 }, // OpenDART annual accounts; v59.70 owner 2026-11-04: not collected (no key), the producer writes no 0-company file
+  'bigtech-cashflow.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // SEC companyfacts quarterly cash flow, 9 big-tech issuers (refresh-screener, 6-hourly)
+  'treasury-auctions.json': { kind: 'filing-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // TreasuryDirect note/bond auction results (refresh-screener, 6-hourly)
+  'kr-investor-flows.json': { kind: 'official-market-flow', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 }, // 투자자별 순매수; v59.70 Naver Finance (refresh-screener, 6-hourly, no key)
+  'tw-monthly-revenue.json': { kind: 'official-filing-monthly', timestamp: ['generatedAt'], maxAgeHours: 24 * 62 }, // TWSE 대만 AI 공급망 월매출 (refresh-screener; rewritten only when the month's numbers change)
   'market-snapshot.json': { kind: 'live-core', timestamp: ['generatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'market-snapshot-status.json': { kind: 'operational-status', timestamp: ['updatedAt', 'lastSuccessfulAt', 'attemptedAt'], maxAgeHours: 24 },
   'operator-note.json': { kind: 'editorial-reference', custom: 'operator-updated', maxAgeHours: 24 * 30 },
@@ -140,20 +140,20 @@ const POLICIES = {
   'screener-universe.json': { kind: 'universe-reference', custom: 'universe-bulk-update' },
   'screener.json': { kind: 'research-screener', timestamp: ['asOf', 'meta.asOf'], maxAgeHours: 48 },
   'screener-validation-gate.json': { kind: 'research-validation-gate', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
-  // v57.81: extended universe (Russell 2000 + Nasdaq common stocks beyond the core), refresh-screener extended job.
+  // Extended universe (Russell 2000 + Nasdaq common stocks beyond the core), refresh-screener extended job.
   'screener-extended.json': { kind: 'research-screener', timestamp: ['asOf'], maxAgeHours: 72 },
   'screener-extended-universe.json': { kind: 'universe-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 },
   'sec-fundamentals-extended.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt'], maxAgeHours: 24 * 4 },
-  'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 }, // P1757: producer-only (data-store branch); audited when a local or restored copy exists
+  'sec-fundamentals.json': { kind: 'incremental-official-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 }, // producer-only (data-store branch); audited when a local or restored copy exists
   'sec-fundamentals-summary.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
   'sec-fundamentals-summary.manifest.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 48 },
-  // P1436: compact SEC fiscal-year series for the 재무 공시 page, written with the summary.
-  'screener-candidate-archive.json': { kind: 'research-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // P1465: forward candidate record (refresh-screener)
+  // Compact SEC fiscal-year series for the 재무 공시 page, written with the summary.
+  'screener-candidate-archive.json': { kind: 'research-history', timestamp: ['generatedAt'], maxAgeHours: 24 * 8 }, // Forward candidate record (refresh-screener)
   'sec-fiscal-history.json': { kind: 'bounded-runtime-projection', timestamp: ['generatedAt'], maxAgeHours: 48 },
   'telegram-digest.json': { kind: 'reference-digest', timestamp: ['generatedAt', 'lastSuccessfulAt', 'meta.generatedAt'], maxAgeHours: 12 },
-  'telegram-observed.json': { kind: 'producer-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 3 }, // P1683: lineage rows behind telegram-digest count (refresh-data)
+  'telegram-observed.json': { kind: 'producer-state', timestamp: ['generatedAt'], maxAgeHours: 24 * 3 }, // Lineage rows behind telegram-digest count (refresh-data)
   'telegram-reference-window.json': { kind: 'research-reference', timestamp: ['reviewedAt', 'generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
-  // v60.18: the AI reading's last rejected attempts (operator-side, not on Pages); written only when an attempt is rejected, so no age window
+  // The AI reading's last rejected attempts (operator-side, not on Pages); written only when an attempt is rejected, so no age window
   'user-research-digest.json': { kind: 'research-reference', timestamp: ['generatedAt', 'meta.generatedAt'], maxAgeHours: 24 * 90 },
   'model-validation-status.json': { kind: 'research-horizon', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 * 90 },
   // The two market-lean studies behind marketLean / marketLean.risk: research-backtest uploads them, a reviewed promotion commits them.
@@ -165,7 +165,7 @@ const POLICIES = {
 
 function extractTimestamp(data, policy) {
   if (policy.custom === 'history-date') {
-    const rows = readHistoryRows(data); // v59.70 R2: v1 or history.v2
+    const rows = readHistoryRows(data); // v1 or history.v2
     const dated = rows.map(row => row?.date).filter(Boolean).sort();
     return dated.length ? { path: 'last row.date', value: dated.at(-1) } : { path: null, value: null };
   }
@@ -246,7 +246,7 @@ function evaluateArtifact(name, data, { now = NOW, ledgerRow = FRESHNESS_ROWS[na
     }
   }
 
-  // P1757: the full ledger is producer-only (data-store branch) and usually absent from a checkout; the projection
+  // The full ledger is producer-only (data-store branch) and usually absent from a checkout; the projection
   // carries the same eligible/stored counters, so the 80% coverage reading moves to it instead of disappearing.
   if (name === 'sec-fundamentals.json' || (name === 'sec-fundamentals-summary.json' && !existsSync(join(DATA_DIR, 'sec-fundamentals.json')))) {
     const stored = Number(data.meta?.stored ?? data.stored ?? 0);
@@ -297,7 +297,7 @@ function runContractSelfTests() {
   const backtest = extractTimestamp([{ asOf: '2026-07-14T00:00:00Z' }, { asOf: '2026-07-15T00:00:00Z' }], POLICIES['backtest-history.json']);
   if (backtest.value !== '2026-07-15T00:00:00Z') throw new Error('self-test: backtest last asOf selector drifted');
 
-  // P1283/R634: lineage has no runtime flag that can downgrade strict live-core freshness.
+  // Lineage has no runtime flag that can downgrade strict live-core freshness.
   const fixtureClock = Date.parse('2026-09-08T14:00:00Z');
   if (createAuditTime(() => fixtureClock).getTime() !== fixtureClock) {
     throw new Error('P1283/R634 self-test: deterministic freshness fixtures must inject a clock directly, not through ambient environment');
@@ -307,7 +307,7 @@ function runContractSelfTests() {
   }
   const staleAt = new Date(weekendNow.getTime() - 13 * 3600000).toISOString();
   const staleData = { meta: { generatedAt: staleAt, cycleStatus: 'PUBLISHED' } };
-  // P1287/R637: a stale live-core artifact fails at a closed-market reference time as well.
+  // A stale live-core artifact fails at a closed-market reference time as well.
   const strictStaleData = evaluateArtifact('data.json', staleData, {
     now: weekendNow
   });
@@ -353,7 +353,7 @@ const report = {
 // Nested artifact families were outside this audit entirely: `readdirSync` is
 // non-recursive, so `public-data/knowledge|atlas|principles|masters` held 1,372
 // files (~464 MB) with no freshness surface at all — including the index
-// artifacts whose own `counts` a consumer trusts (P1110). Measure their
+// artifacts whose own `counts` a consumer trusts. Measure their
 // top-level members here. Severity stays WARN: this pass establishes the
 // surface, and promoting any family to FAIL requires its owner to confirm an SLA
 // first. It never loosens a top-level verdict.

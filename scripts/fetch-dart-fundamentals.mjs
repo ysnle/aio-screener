@@ -63,7 +63,7 @@ export function pickAccounts(list = []) {
 
 const getJson = (url) => fetchJsonWithDeadline(url, { timeoutMs: 20000, init: { headers: { 'User-Agent': 'AIO-Screener research (GitHub Actions)' } } });
 
-// v58.82: OpenDART answers a spent daily quota (020), a bad or blocked key (010-012) or a system check (800/901) with
+// OpenDART answers a spent daily quota (020), a bad or blocked key (010-012) or a system check (800/901) with
 // HTTP 200, and every later call fails the same way, so the run stops there instead of logging hundreds of failures.
 const DART_FATAL_STATUS = new Set(['010', '011', '012', '020', '800', '901']);
 
@@ -77,7 +77,7 @@ export function dartReportOutcome(payload) {
   return DART_FATAL_STATUS.has(status) ? 'fatal' : 'failed';
 }
 
-// v58.82: a symbol that failed for a transient reason (HTTP error, timeout, fatal status) keeps the previous run's filing,
+// A symbol that failed for a transient reason (HTTP error, timeout, fatal status) keeps the previous run's filing,
 // marked with when it was read; a symbol whose report is absent is not resurrected. A result that still holds less than
 // half of the previous companies is not published — the previous artifact stays.
 export function mergeWithPrevious(companies, failed, previous) {
@@ -98,7 +98,7 @@ async function main() {
   if (!key) { console.log('[dart] DART_API_KEY not configured — skipping (artifact unchanged)'); return; }
   let previous = null;
   try { previous = JSON.parse(await readFile(OUT, 'utf8')); } catch { /* first run */ }
-  // v58.82: a file holding carried-forward companies is retried on the next run instead of waiting out the 6-day skip.
+  // A file holding carried-forward companies is retried on the next run instead of waiting out the 6-day skip.
   const carried = Object.values(previous?.companies || {}).some((row) => row?.carriedFrom);
   if (previous?.count > 0 && !carried && previous?.generatedAt && Date.now() - Date.parse(previous.generatedAt) < REFRESH_AFTER_MS && process.env.DART_FORCE !== '1') {
     console.log(`[dart] fresh (${previous.generatedAt}) — skipping`); return;
@@ -109,7 +109,7 @@ async function main() {
     .catch((error) => { throw error?.status ? new Error(`corpCode ${error.message}`) : error; });
   const corps = parseCorpCodes(unzipFirstEntry(zip).toString('utf8'));
   const now = new Date();
-  // An annual report for fiscal year Y is due by the end of March of Y+1. 2026-10-17 (logic audit): before April the last
+  // An annual report for fiscal year Y is due by the end of March of Y+1. Before April the last
   // year's report is still tried first — most large filers publish it in early-to-mid March, and starting at Y-2 kept their
   // previous year for weeks. A report not filed yet answers with no list and the year before is read.
   const latestYear = now.getUTCFullYear() - 1;

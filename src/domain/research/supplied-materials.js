@@ -1,3 +1,6 @@
+// Durable bridges extracted from the 2026-08-29 supplied research packet.
+// This module is deliberately reference-only: it contains no current values,
+// issuer rankings, prices, targets, or investment recommendations.
 import { NATHAN_PREVIOUS_THREADS_REFERENCE } from './nathan-previous-threads.js';
 import { PACKET_20261011_SOURCES, PACKET_20261011_CLAIMS } from './packet-20261011.js';
 import { PACKET_20261014_SOURCES, PACKET_20261014_IMAGES, PACKET_20261014_CLAIMS } from './packet-20261014.js';
@@ -108,16 +111,25 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     'https://raw.githubusercontent.com/KoNananachan/Neuberg/main/LICENSE',
     'https://raw.githubusercontent.com/LuxAlgo/edge-stats/main/LICENSE'
   ]),
+  // What each 2026-10-13 source contributed. Market commentary stays reference-only; only the
+  // library layout became product behaviour.
+  // What each 2026-10-14 source contributed, with the verification state of its dated claims.
   packet20261014Observations: Object.freeze([...PACKET_20261014_SOURCES, ...PACKET_20261014_IMAGES]),
+  // The 2026-10-15 owner crash-day note and policy-floor hypothesis, with each driver's verification state.
   packet20261015Observations: PACKET_20261015_SOURCES,
+  // The owner's X bookmarks read in full on 2026-10-16 — the sources the frames cite, and the audit of the whole read.
   packet20261016Observations: PACKET_20261016_SOURCES,
   packet20261016Audit: PACKET_20261016_AUDIT,
+  // The bookmarks added after the 10/16 ledger, read on 2026-10-18 — the sources the new frames cite and what was left to existing notes.
   packet20261018Observations: PACKET_20261018_SOURCES,
   packet20261018Audit: PACKET_20261018_AUDIT,
+  // The bookmarks added after the 10/18 read, read on 2026-10-28 with every attached image.
   packet20261028Observations: PACKET_20261028_SOURCES,
   packet20261028Audit: PACKET_20261028_AUDIT,
+  // The bookmarks added after the 10/28 read, read on 2026-10-30 with a timeline and grades per source.
   packet20261030Observations: PACKET_20261030_SOURCES,
   packet20261030Audit: PACKET_20261030_AUDIT,
+  // The bookmarks added after the 10/30 read, read on 2026-11-01 with replies and quoted posts, compared with the pipeline.
   packet20261101Observations: PACKET_20261101_SOURCES,
   packet20261101Audit: PACKET_20261101_AUDIT,
   packet20261102Observations: PACKET_20261102_SOURCES,
@@ -148,6 +160,7 @@ export const SUPPLIED_MATERIALS_REFERENCE = Object.freeze({
     Object.freeze({ id: 'GONOGO_Korea-2107802988979122650', author: 'GONOGO', sourceUrl: 'https://x.com/GONOGO_Korea/status/2107802988979122650', publishedAt: '2026-10-07T11:59:28.000Z', publishedAtKst: '2026-10-07T20:59:28+09:00', sourceKind: 'REFERENCE', status: 'DIRECT_READ', summary: '구독자 게시물 캡처: BMO 30년물 6% 전망, 아폴로 실질 임대료 재가속, 오라클·파라마운트 차입, 영국 고용 24개월 감소, 골드만 S&P 선물 포지셔닝(9/22~29 비딜러 105억 달러 순매도, 77백분위). 포지셔닝 화면은 P1507에서 만들었다가 P1628에서 제거, 나머지는 2차 인용.' }),
   ]),
   sourceObservations: Object.freeze([
+    // The 2026-10-14 sources a claim cites (the rest stay in packet20261014Observations with their disposition).
     ...PACKET_20261028_SOURCES,
     ...PACKET_20261030_SOURCES,
     ...PACKET_20261101_SOURCES.filter((row) => PACKET_20261101_CLAIMS.some((claim) => claim.sourceRefs.includes(row.id))),

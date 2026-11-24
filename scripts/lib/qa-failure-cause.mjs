@@ -1,4 +1,4 @@
-// v57.54: pure helper for scripts/qa-runner.mjs (kept apart so it can be tested without starting a QA run).
+// Pure helper for scripts/qa-runner.mjs (kept apart so it can be tested without starting a QA run).
 // The lines that say why a gate failed (assertion/FAIL/Error rows), at most five, each clipped, duplicates dropped.
 export function failureCauseLines(text, { max = 5, width = 240 } = {}) {
   const seen = new Set();

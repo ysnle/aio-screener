@@ -49,7 +49,7 @@ export function decideReleaseSource({ chain, sourceSha, pushRuns }) {
   if (!sourceSha || sourceSha === refreshSha || sourceIndex < 0) {
     return { mode: 'refuse', codeSha: null, testedOn: null, reason: `reduced-scope CI cannot attest ${refreshSha}: it changes files outside the refresh-generated paths` };
   }
-  // P1952: every first-parent commit from the refresh commit (exclusive) down to sourceSha holds the same code tree.
+  // Every first-parent commit from the refresh commit (exclusive) down to sourceSha holds the same code tree.
   const treesame = chain.slice(1, sourceIndex + 1);
   for (const candidate of treesame) {
     if (pushRuns(candidate).some((run) => run.status === 'completed' && run.conclusion === 'success')) {

@@ -15,7 +15,7 @@ function tokens(value) {
   return [...new Set(normalized.split(/\s+/).filter((token) => token.length > 1 && !STOP_WORDS.has(token)))];
 }
 
-// v57.75: Korean questions attach particles and endings ("연준이", "거품이", "터지면"), and the exact-substring match
+// Korean questions attach particles and endings ("연준이", "거품이", "터지면"), and the exact-substring match
 // missed the article that says "연준" or "거품". A token also matches through its stem with one trailing ending removed.
 const KOREAN_ENDING = /(?:으로|에서|에게|까지|부터|처럼|이라|이면|하면|이나|줄까|할까|일까|인가|이다|들이|들은|들을|이|가|은|는|을|를|에|의|도|로|면|까|과|와)$/;
 function tokenForms(token) {

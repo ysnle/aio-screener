@@ -1,3 +1,7 @@
+// 리서치 라이브러리 · 분석 노트. A note reads like a feature: the scene that raises the issue, the
+// story of how it works (numbers woven in), the numbers traced once more in a small table, the case
+// where things run the other way, and where to look next. Source checking is done by us in the data
+// and gates, not shown to the reader (owner direction 2026-10-05).
 import { PATHS, LESSONS, FRAME_VARIABLES, FRAME_EXTRA_SOURCES } from '../../domain/knowledge/learning-core.js';
 import { applySafeExternalLink } from './safe-external-link.js';
 import { CONCEPT_CORE } from '../../domain/knowledge/concept-core.js';
@@ -132,6 +136,8 @@ function figure(doc, spec) {
     }
     return wrap;
   }
+  // Opposing forces summed into one result: a single arrow chain hid the
+  // counter-case inside the reverse paragraph; the forces put it in the mechanism itself.
   if (spec.kind === 'forces') {
     const wrap = el(doc, 'div');
     const grid = el(doc, 'div', 'af-forces');
@@ -145,6 +151,8 @@ function figure(doc, spec) {
     wrap.append(grid, el(doc, 'p', 'af-force-sum', `${spec.sum} → ${spec.effect}`));
     return wrap;
   }
+  // One shock reaching several parties at once. A single arrow chain read as 'producer revenue causes
+  // refinery cost causes chemical cost'; the fan-out draws parallel paths that meet only in the net result.
   if (spec.kind === 'fanout') {
     const wrap = el(doc, 'div', 'af-fanout');
     wrap.appendChild(el(doc, 'p', 'af-fanout-source', spec.source));
@@ -158,6 +166,8 @@ function figure(doc, spec) {
     wrap.append(paths, el(doc, 'p', 'af-force-sum', spec.merge));
     return wrap;
   }
+  // Codex browser audit H65: alternative outcomes drawn as one arrow chain read as a fixed sequence of
+  // events. Branches state the condition, the path and the indicator that would show it is not happening.
   if (spec.kind === 'branches') {
     const wrap = el(doc, 'div', 'af-branches');
     for (const branch of spec.branches) {
@@ -190,6 +200,8 @@ function figure(doc, spec) {
   return null;
 }
 
+// The worked-number block shared by analysis notes and principles lessons: premises → steps →
+// result, plus the limit of the calculation when the document states one.
 export function renderWorkedCalc(doc, example) {
   const calc = el(doc, 'div', 'af-calc');
   const dl = el(doc, 'dl');
@@ -227,6 +239,9 @@ export function renderFrameArticle(doc, lesson) {
   return article;
 }
 
+// One folded place at the end of a document for the evidence behind it:
+// the original sources, what each supports, and which numbers are illustrative. Kept off the reading
+// surface until opened.
 export function renderBasis(doc, { sources = [], assumptions = [], asOf = null } = {}) {
   const items = sources.filter((source) => source?.url || source?.label);
   if (!items.length && !assumptions.length && !asOf) return null;

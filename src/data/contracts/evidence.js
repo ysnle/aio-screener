@@ -69,6 +69,9 @@ export function hasObservedPast(evidence, now = Date.now()) {
 const INVALID_RIGHTS_IDS = new Set(['', 'UNKNOWN', 'UNSPECIFIED', 'NULL', 'NONE']);
 const DECISION_QUALITY_STATUSES = new Set(['CURRENT', 'FRESH', 'LIVE', 'VERIFIED_CURRENT', 'verified_current']);
 
+// isValidRightsId says a rights id is present and well formed; DENIED / BLOCKED / REVOKED /
+// REVIEW_REQUIRED are valid ids that grant nothing. The decision checks in the runtime readers and the screener live
+// overlay used the presence test as eligibility; every decision gate now reads this one helper.
 const INELIGIBLE_RIGHTS = ['REVIEW_REQUIRED', 'DENIED', 'BLOCKED', 'REVOKED'];
 export function isDecisionEligibleRightsId(value) {
   return isValidRightsId(value) && !INELIGIBLE_RIGHTS.includes(String(value).trim().toUpperCase());
@@ -109,7 +112,16 @@ export function allowedUseForStatus(status) {
 
 const ALLOWED_USE_RANK = Object.freeze({ none: 0, reference: 1, decision: 2 });
 
+// v59.70 (data audit R5): one producer-side rule for a published record that failed its latest read. A record whose
+// status says the value was not refreshed (stale, retained after a failure, blocked, unavailable) cannot keep a
+// decision-grade allowedUse: Cboe put/call stayed 'decision-with-daily-delay' for 13 days of HTTP 403. The declared
+// use is lowered to 'reference-only' and the original is kept beside it. Current statuses ('ok', 'CURRENT',
+// 'observed', 'cached-fresh', 'current-reference') are left alone; so is any use that is already reference or none.
 export const DEGRADED_RECORD_STATUS_RE = /\b(?:stale|retain(?:ed)?|fail(?:ed|ure)?|error|block(?:ed)?|unavailable|missing|not-collected|expired)\b/i;
+// v59.70 (actions-reliability): one freshness model. A record is judged by its own `status`; a record without one follows
+// its file's aio-freshness.v1 `state` (public-data/freshness/<workflow>.json, passed in as `fileState`). The ceiling is
+// recomputed on every run from the declared use: a record carried from the previous artifact (allowedUseDeclared set)
+// starts again from what its producer declared, so a recovered source returns to decision use.
 export function degradeAllowedUseOnStatus(record, { fileState = null } = {}) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) return record;
   const { allowedUseDeclared, allowedUseDegradedBy, ...rest } = record;

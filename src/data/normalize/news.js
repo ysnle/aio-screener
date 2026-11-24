@@ -32,6 +32,7 @@ export function normalizeNews(raw = {}) {
     headline: decodeNewsText(item?.headline || item?.title),
     desc: decodeNewsText(item?.desc || item?.summary || item?.description),
     summary: decodeNewsText(item?.summary || item?.desc || item?.description),
+    // Translated fields cross the same single decoding boundary as originals.
     ko_title: decodeNewsText(item?.ko_title),
     ko_summary: decodeNewsText(item?.ko_summary),
     source: item?.source || item?.feed || 'unknown',
@@ -40,12 +41,17 @@ export function normalizeNews(raw = {}) {
     publishedAt: item?.publishedAt || item?.pubDate || item?.date || null,
     fetchedAt: item?.fetchedAt || raw.fetchedAt || null,
     country: item?.country || 'all',
+    // LC-31: the producer copies the feed QUERY's topic onto every article, so a rail-services story
+    // could be labelled 반도체/AI(semi). Keep the feed topic as its own field; an article topic is only
+    // trusted when the producer declares a per-article basis, otherwise it stays flagged for review.
     topic: item?.articleTopic || item?.topic || 'general',
     feedTopic: item?.feedTopic || item?.feedQuery || item?.topic || null,
     topicSource: item?.articleTopic ? 'article' : 'feed-query',
     topicReviewRequired: !item?.articleTopic,
     score: finite(item?.score),
     tier: finite(item?.tier),
+    // Producers mark a Telegram item with its channel slug (telegram-direct, aio-data); `=== true`
+    // turned the slug into false, so channel posts passed the briefing TG exclusion and tier-4 demotion as articles.
     _tgChannel: typeof item?._tgChannel === 'string' && item._tgChannel.trim() ? item._tgChannel.trim() : item?._tgChannel === true
   })) : [];
   return Object.freeze({

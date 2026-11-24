@@ -11,7 +11,7 @@ import { telegramMedia, mediaClassifierText, mediaCoverage } from './lib/telegra
 import { buildUniverseIndex, extractPostSignals, mergeSignals } from './lib/telegram-signals.mjs';
 import { activeTelegramChannels, telegramSourceCatalog, telegramCollectionStatus, channelFailingSince } from './lib/telegram-channels.mjs';
 
-// v60.18: a channel whose public preview is gone is retired with the date and the reason (scripts/lib/telegram-channels.mjs);
+// A channel whose public preview is gone is retired with the date and the reason (scripts/lib/telegram-channels.mjs);
 // it is not fetched and does not count toward the run's expected channels. Delete `retired` to re-enable it.
 const CHANNEL_CATALOG = [
   { slug:'aetherjapanresearch', role:'asia-semi-flow', region:'jp-us', evidence:'secondary-public-mirror',
@@ -48,7 +48,7 @@ const PAGE_TOPIC_MAP = {
   sentiment:['macro','credit','kr-market','equity','geo','crypto','flows','insider'],
   briefing:['macro','market-note','credit','geo','semi','equity','kr-market','ai-policy','power','optical','earnings','healthcare','japan','flows','insider'],
   technical:['semi','equity','power','optical','flows','earnings'],
-  charts:['semi','equity','power','optical','flows','earnings','macro'], // v59.64 기술적 분석
+  charts:['semi','equity','power','optical','flows','earnings','macro'], // 기술적 분석
   macro:['macro','credit','geo','ai-policy','power','japan'],
   fxbond:['macro','credit','geo','power','flows','japan'],
   fundamental:['equity','semi','credit','power','optical','ai-policy','kr-market','earnings','healthcare','insider'],
@@ -100,15 +100,15 @@ function getCompletedKst0800Cycle(date) {
 }
 const marketCycle = getCompletedKst0800Cycle(now);
 
-// P571/R262: this used to re-walk the full PAGE_LIMIT횞3-channel횞14-day window from scratch on
+// This used to re-walk the full PAGE_LIMIT횞3-channel횞14-day window from scratch on
 // every run (every 30 min via refresh-data.yml ??48x/day), with no cursor/state persisted
 // between runs, unlike enrichScreener's 6h self-throttle. The digest we write only keeps a
 // per-channel summary (count/pages), not the full item list, so we persist a lightweight
 // `lastPostId` cursor per channel and use it to stop pagination as soon as a page's newest
 // post ID is already <= what the previous run last saw, instead of always walking the
 // entire 14-day window every cycle.
-// P2047: the previous-digest merge below re-tags carried posts with classifyPost at load time, so the constants it
-// reads are declared before it; declared further down (v58.75) they were still in the TDZ, the merge threw, and the
+// The previous-digest merge below re-tags carried posts with classifyPost at load time, so the constants it
+// reads are declared before it; declared further down they were still in the TDZ, the merge threw, and the
 // digest dropped from ~2,400 posts to the ~100 fetched since the last cursor.
 const TAG_PRIORITY = Object.freeze(['insider', 'geo', 'macro', 'earnings', 'semi', 'optical', 'power', 'healthcare', 'ai-policy', 'crypto', 'credit', 'japan', 'kr-market', 'flows', 'equity', 'market-note']);
 const TAG_LIMIT = 4;
@@ -123,7 +123,7 @@ let previousDigest = null;
 let lineageStatus = 'complete';
 let legacyReportedCount = null;
 let lineageCompleteAfter = null;
-// P1683: the whole-window observed lineage (~2,200 rows, ~650KB of the digest) is producer state that no
+// The whole-window observed lineage (~2,200 rows, ~650KB of the digest) is producer state that no
 // screen reads, so it lives in its own artifact next to the digest; the digest keeps the counts. The first
 // run after the split still reads the lineage from the previous digest.
 const observedPath = outPath ? join(dirname(outPath), 'telegram-observed.json') : null;
@@ -138,7 +138,7 @@ if (outPath && existsSync(outPath)) {
       for (const ch of (prev.channels || [])) {
         if (ch.channel && Number.isFinite(ch.lastPostId)) previousLastPostId.set(ch.channel, ch.lastPostId);
       }
-      // v58.71: signals are read from full text, which carried posts no longer have; the first run with signals walks
+      // Signals are read from full text, which carried posts no longer have; the first run with signals walks
       // the whole window once so the 14-day signal set starts complete instead of filling in over two weeks.
       if (!Array.isArray(prev.signals)) previousLastPostId.clear();
       const prevObservedIds = new Set((prev.observedItems || []).map(x => x && x.id).filter(Boolean));
@@ -146,11 +146,11 @@ if (outPath && existsSync(outPath)) {
       for (const it of [...(prev.topItems || []), ...(prev.broadItems || [])]) {
         if (it && it.id && !prevSeen.has(it.id)) {
           prevSeen.add(it.id);
-          // P715: published items now carry `summary` instead of full `text` — treat the summary
+          // Published items now carry `summary` instead of full `text` — treat the summary
           // as the internal text-equivalent so incremental merges keep classification/selection working.
           // Codex browser audit H06: retained posts are re-tagged with the current rules instead of carrying tags
           // from an older classifier for the whole 14-day window. (Tickers are re-derived later in the run.)
-          // N17 (2026-10-13 audit): summaries published before P1683 still carry "&#036;"; numeric references are
+          // N17: summaries published before P1683 still carry "&#036;"; numeric references are
           // decoded again when a retained post is carried forward.
           const fixed = { ...it, ...(it.summary ? { summary: redecodeNumericEntities(it.summary) } : {}), ...(it.text ? { text: redecodeNumericEntities(it.text) } : {}) };
           const keptText = fixed.text || fixed.summary || '';
@@ -175,7 +175,7 @@ if (outPath && existsSync(outPath)) {
       }
     }
   } catch (e) {
-    // P2047: the warning promised a full re-scan, but cursors read before the throw stayed and only posts newer than
+    // The warning promised a full re-scan, but cursors read before the throw stayed and only posts newer than
     // them were fetched; a failed merge now really walks the whole window again.
     previousLastPostId.clear();
     previousMergePool = [];
@@ -195,7 +195,7 @@ function decodeEntities(s) {
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&nbsp;/g, ' ')
-    // P1683: Telegram's web preview writes "$" as &#036; — numeric references decode here, once, before &amp;
+    // Telegram's web preview writes "$" as &#036; — numeric references decode here, once, before &amp;
     // (so a literal "&amp;#036;" stays one level of text, as in the RSS/news contract).
     .replace(/&#(\d{1,7});/g, (m, code) => { const n = Number(code); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; })
     .replace(/&#x([0-9a-f]{1,6});/gi, (m, hex) => { const n = parseInt(hex, 16); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; })
@@ -214,9 +214,9 @@ function redecodeNumericEntities(s) {
     .replace(/&#x([0-9a-f]{1,6});/gi, (m, hex) => { const n = parseInt(hex, 16); return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m; });
 }
 
-// P1503: short Latin keywords match whole words only (FedEx, soil, metal, buyback, software were tagged
+// Short Latin keywords match whole words only (FedEx, soil, metal, buyback, software were tagged
 // macro/equity/geo); a primary tag for display is chosen by specificity in the renderer.
-// Codex browser audit H06 (2026-10-07): a BOJ rate remark was tagged 반도체 ("memory" in "recent memory"), a JPM
+// Codex browser audit H06: a BOJ rate remark was tagged 반도체 ("memory" in "recent memory"), a JPM
 // AI-risk post 전력 ("the power of AI"), and a link to blog.naver.com tagged NAVER. Links are removed before any
 // tag or company match, and the bare words memory/power/선물 no longer stand for an industry by themselves.
 function stripLinks(text) { return String(text || '').replace(/https?:\/\/\S+|\b[\w.-]+\.(?:com|net|co\.kr|kr|io|me)\/\S*/gi, ' '); }
@@ -253,8 +253,8 @@ function classifyRules(raw) {
   if (/\bcpo\b|\bnpo\b|optical|laser|\beml\b|cw laser|coherent corp|\bcohr\b|lumentum|aaoi|mtsi|\bsivers\b|photonics/i.test(raw)) add('optical');
   if (/power (?:grid|demand|supply|plants?|generation|capacity|prices?|utilit(?:y|ies)|equipment)|data center power|sofc|bloom energy|transformer|\bgrid\b|\bgw\b|800v|fuel cell|electricity|hvdc|전력|데이터센터|변압기|송전|전력망|연료전지/i.test(raw)) add('power');
   if (/anthropic|openai|gpt-|chatgpt|gemini|llama|claude|sovereign ai|export control|ai policy|ai model|소버린|수출통제|AI\s*모델/i.test(raw)) add('ai-policy');
-  // P1722: a bare 기관 is any agency; KR_INSTITUTIONAL_FLOW (lib/telegram-tickers.mjs) is the investor-group reading.
-  // v58.74: a bare 국장 is also a title ("신베트 국장" put a Netanyahu statement under 한국장); 한국장 stays.
+  // A bare 기관 is any agency; KR_INSTITUTIONAL_FLOW (lib/telegram-tickers.mjs) is the investor-group reading.
+  // A bare 국장 is also a title ("신베트 국장" put a Netanyahu statement under 한국장); 한국장 stays.
   if (/kospi|kosdaq|korea|krx|samsung|hynix|naver|kakao|외국인|코스피|코스닥|한국장|코스피\s*선물|환율/i.test(raw) || KR_INSTITUTIONAL_FLOW.test(raw)) add('kr-market');
   if (/spacex|prime day|amazon|adobe|\bsmci\b|\bmeta\b|murata|\bipo\b|\bbuy\b|upgrade|downgrade|price target|pt\s*\$|earnings|valuation/i.test(raw)) add('equity');
   if (/crypto|bitcoin|ethereum|coinbase/i.test(raw)) add('crypto');
@@ -316,7 +316,7 @@ function carriedTickerRoles(it) {
 }
 
 // 채널 공지/일정/단순 안내 여부 감지 (저점수 패널티용)
-// v57.55 review (B5-F4/S2-F6): a campaign post ("…왜 그에게 투표하겠는가? … 트럼프") and personal chatter ("프로요금제인데
+// A campaign post ("…왜 그에게 투표하겠는가? … 트럼프") and personal chatter ("프로요금제인데
 // 제미니4 … 쓸 수 있네요") reached the news screen. Both are dropped unless they also name a market subject.
 const MARKET_SUBJECT = /market|stock|shares|index|rate|yield|bond|oil|crude|tariff|economy|inflation|earnings|fed\b|증시|주가|주식|지수|금리|국채|채권|유가|관세|경제|물가|실적|연준|코스피|나스닥|환율/i;
 function isLowSignalPost(text) {
@@ -330,7 +330,7 @@ function isLowSignalPost(text) {
   return false;
 }
 
-// v58.71: a post carrying extracted data (target-price change, reported quarter against estimates, economic release
+// A post carrying extracted data (target-price change, reported quarter against estimates, economic release
 // against forecast, retail net-buy list) is kept in the reading lists even when its wording scores low.
 const DATA_POST_BONUS = 20;
 function scoreItem(text, tags, tickers, dataPost = false) {
@@ -373,7 +373,7 @@ function parsePage(html, channel) {
     const textMatch = block.match(/<div class="tgme_widget_message_text js-message_text"[^>]*>([\s\S]*?)<\/div>/);
     const text = decodeEntities(textMatch ? textMatch[1] : '');
     const date = new Date(tm[1]);
-    // v59.56: attachments are recorded (kind, counts, document file names); a document's name joins the classifier text
+    // Attachments are recorded (kind, counts, document file names); a document's name joins the classifier text
     // so a captionless broker PDF is tagged by its company and quarter instead of falling to 'media-only'.
     const media = telegramMedia(block);
     const docText = mediaClassifierText(media);
@@ -389,7 +389,7 @@ function parsePage(html, channel) {
       url: `https://t.me/${post}`,
       datetime: date.toISOString(),
       localDateKst: kstDate(date),
-      tags: classified ? classified.tags : tags, // v58.75: the published tags, lead first and capped
+      tags: classified ? classified.tags : tags, // The published tags, lead first and capped
       ...(classified?.lead ? { lead: classified.lead } : {}),
       tickers,
       ...(roles.relatedTickers.length ? { relatedTickers: roles.relatedTickers } : {}),
@@ -439,7 +439,7 @@ async function scrapeChannel(channel) {
       reachedOlder = true;
       break;
     }
-    // P571/R262: once every post on this page is already <= what the previous run last saw,
+    // Once every post on this page is already <= what the previous run last saw,
     // every earlier page (further back in time) is guaranteed to be already-known too ??
     // stop here instead of continuing to walk the full window every single cycle.
     if (Number.isFinite(cursor) && Math.max(...nums) <= cursor) {
@@ -461,7 +461,7 @@ for (const ch of CHANNELS) {
   }
 }
 
-// P571/R262: union freshly-scraped items with the carried-forward merge pool (dedup by id,
+// Union freshly-scraped items with the carried-forward merge pool (dedup by id,
 // re-applying the since/until window) so an early-stopped scrapeChannel run does not silently
 // shrink topItems/broadItems down to only what was re-fetched this cycle.
 const freshItems = channels.flatMap(c => c.items);
@@ -487,10 +487,10 @@ for (const it of [...previousObservedPool, ...freshItems]) {
     tickers:roles.tickers,
     ...(roles.relatedTickers ? { relatedTickers:roles.relatedTickers } : {}),
     ...(roles.listTickers ? { listTickers:roles.listTickers } : {}),
-    // P1503: carried-over lineage rows have no text field by design (P715); keep their recorded hasText instead of
+    // carried-over lineage rows have no text field by design; keep their recorded hasText instead of
     // re-deriving it from an absent body, which turned every carried post into 'media only' run after run.
     hasText: typeof it.text === 'string' || typeof it.summary === 'string' ? !!String(it.text || it.summary || '').trim() : it.hasText === true,
-    // v59.56: lineage keeps the attachment kind and counts (document names stay on the summary payload only).
+    // Lineage keeps the attachment kind and counts (document names stay on the summary payload only).
     ...(it.media?.kind ? { media: { kind: it.media.kind, photoCount: Number(it.media.photoCount) || 0, videoCount: Number(it.media.videoCount) || 0, documentCount: Array.isArray(it.media.documents) ? it.media.documents.length : Number(it.media.documentCount) || 0 } } : {})
   });
 }
@@ -554,7 +554,7 @@ function toSummaryItem(it) {
   return { ...rest, summary: previewText(text, 120) };
 }
 
-// v57.81 (analysis audit 2026-10-15): one premarket briefing was the focus of macro, geo, semi and power at once, because
+// One premarket briefing was the focus of macro, geo, semi and power at once, because
 // any post carrying the tag qualified. A category's focus is now a post whose PRIMARY tag (the first classify() rule it
 // matched) is that category, so no post stands for two categories; a category without one says so.
 function bestTextForTag(tag) {
@@ -608,7 +608,7 @@ const broadItems = (function() {
   }
   return out;
 })();
-// v58.71: structured numbers from the research channels (see lib/telegram-signals.mjs), merged with the previous run's
+// Structured numbers from the research channels (see lib/telegram-signals.mjs), merged with the previous run's
 // by key inside the same window. A signal is a reported observation, not this app's measurement.
 const signals = mergeSignals(previousDigest?.signals, freshItems.flatMap(it => it.signals || []), { sinceDate: kstDate(since) });
 const signalCounts = signals.reduce((acc, signal) => { acc[signal.kind] = (acc[signal.kind] || 0) + 1; return acc; }, {});
@@ -617,7 +617,7 @@ const selectedRawIds = new Set([...topItems, ...broadItems].map(it => it.id));
 const eligibleTextCount = observedItems.filter(it => it.hasText).length;
 // The selection is drawn from every observed post, while the text-eligible
 // window is a subset, so a ratio of the two exceeded 100% (280.5% published).
-// Restrict the numerator to the same population as the denominator (P1098).
+// Restrict the numerator to the same population as the denominator.
 const eligibleTextIds = new Set(observedItems.filter(it => it.hasText).map(it => it.id));
 const selectedEligibleRawIds = new Set([...selectedRawIds].filter(id => eligibleTextIds.has(id)));
 const current24hChannelCounts = {};
@@ -655,7 +655,7 @@ const digest = {
   }).concat(retiredChannelRows()),
   count: observedItems.length,
   retainedItemCount: items.length,
-  observedLineageArtifact: 'public-data/telegram-observed.json', // P1683: the rows behind `count` (producer state)
+  observedLineageArtifact: 'public-data/telegram-observed.json', // The rows behind `count` (producer state)
   coverage: {
     lineageStatus,
     legacyReportedCount,
@@ -663,7 +663,7 @@ const digest = {
     observedCount:observedItems.length,
     eligibleTextCount,
     mediaOnlyCount:observedItems.length - eligibleTextCount,
-    // v59.56: attachment counts — image and PDF bodies are not read (no OCR/vision), so this is the unread visual share.
+    // Attachment counts — image and PDF bodies are not read (no OCR/vision), so this is the unread visual share.
     ...mediaCoverage(observedItems),
     highSignalCount:observedItems.filter(it => it.score >= 65).length,
     broadSignalCount:observedItems.filter(it => it.score >= 50).length,
@@ -681,16 +681,16 @@ const digest = {
   pageMap:dynamicNarrative.pageMap,
   pipelineNote:'Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).',
   // topItems: score>=65, 梨꾨꼸??理쒕? 20媛? ?꾩껜 理쒕? 45媛? score ?대┝李⑥닚
-  topItems: topItems.map(toSummaryItem), // P715: summary-only
+  topItems: topItems.map(toSummaryItem), // summary-only
   // broadItems: score>=50, 梨꾨꼸??理쒕? 120媛? ?꾩껜 理쒕? 400媛? datetime ?대┝李⑥닚 (?댁뒪?쇰뱶)
-  broadItems: broadItems.map(toSummaryItem), // P715: summary-only
+  broadItems: broadItems.map(toSummaryItem), // summary-only
   current24hItems: current24hItems.map(toSummaryItem),
   signalsNote:'Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.',
   signalCounts,
   signals,
   // Phase 3 [A1/B3] P598: `items` (the full merged/deduped set, ~1.04MB / 46% of this file's
   // pre-fix size) used to be included here too, even though the "previousMergePool" logic just
-  // above (P571/R262) already documents "the digest we write never persists the full raw item
+  // above already documents "the digest we write never persists the full raw item
   // list (only capped topItems/broadItems)" ??that was the design intent, but this literal never
   // actually matched it. Confirmed via full-codebase grep that no runtime consumer reads `items`/
   // `rawItems` from the served JSON in the normal path (only a since-removed items.slice(0,80)
@@ -717,7 +717,7 @@ const outputDigest = collectionStatus === 'failed' && previousDigest && Number(p
       }).concat(retiredChannelRows())
     })
   : digest;
-// P1683: a failed run re-publishes the previous digest, whose lineage now arrives through `prev.observedItems`;
+// A failed run re-publishes the previous digest, whose lineage now arrives through `prev.observedItems`;
 // it never goes back into the served digest.
 const { observedItems: _observedState, ...servedDigest } = outputDigest;
 const lineageRows = collectionStatus === 'failed' && previousDigest && Number(previousDigest.count || 0) > 0 ? (_observedState || []) : observedItems;

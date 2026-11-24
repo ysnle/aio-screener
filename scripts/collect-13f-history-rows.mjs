@@ -90,7 +90,7 @@ function baseFromPeriod(period) {
   return period.indexUrl.slice(0, period.indexUrl.lastIndexOf('/') + 1);
 }
 
-// P1449: 분기의 전체 제출 목록(원본+정정)을 행 수집기가 쓸 수 있는 형태로 만든다. index v3는
+// 분기의 전체 제출 목록(원본+정정)을 행 수집기가 쓸 수 있는 형태로 만든다. index v3는
 // submissions 목록을 저장하고, 이전 스키마의 index(v2)라면 대표 1편의 제출로 폴백한다.
 function buildSubmissions(manager, period) {
   if (Array.isArray(period.submissions) && period.submissions.length) {
@@ -164,7 +164,7 @@ function valueUnitNormalizationOf(units) {
 }
 
 const indexAccessions = (manager, period) => buildSubmissions(manager, period).map((submission) => submission.accession).filter(Boolean);
-// P1449: periodsImported는 "이번에 새로 수집한 편수"가 아니라 결과 아티팩트에 남아 있는 관측
+// periodsImported는 "이번에 새로 수집한 편수"가 아니라 결과 아티팩트에 남아 있는 관측
 // 분기 수(담당 매니저·분기 distinct)로 정의한다 — 게이트가 아티팩트 자체와 검산할 수 있게.
 const periodKeyCount = () => new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`)).size;
 let importedPeriods = periodKeyCount();
@@ -172,7 +172,7 @@ const writeCheckpoint = async () => {
   await atomicWriteFile(partialRowsPath, `${JSON.stringify({ importedPeriods, periodComposition, rows: historicalRows }, null, 2)}\n`, 'utf8');
 };
 
-// P1449: 같은 분기의 모든 제출(원본+정정)을 R499/P948 정책으로 합성한다. 이미 행이 있는 분기도
+// 같은 분기의 모든 제출(원본+정정)을 R499/P948 정책으로 합성한다. 이미 행이 있는 분기도
 // (1) 저장 행에 filingRole이 없는 구형(v1) 행이거나 (2) index가 2개 이상 제출을 보존하면 다시
 // 합성한다. 그 외에 행이 있는 분기는 저장 행에서만 총계를 다시 계산한다.
 const knownKeys = new Set(historicalRows.map((row) => `${row.managerId}|${row.reportPeriod}`));
@@ -180,7 +180,7 @@ const needsRecomposition = (periodKey, accessions = []) => {
   if (!knownKeys.has(periodKey)) return true;
   const rowSample = historicalRows.find((row) => `${row.managerId}|${row.reportPeriod}` === periodKey);
   if (rowSample && !rowSample.filingRole) return true;
-  // v58.71: a submission the index lists that the stored composition did not use (a later amendment) recomposes the
+  // A submission the index lists that the stored composition did not use (a later amendment) recomposes the
   // period; a multi-submission period composed before this record existed is recomposed once to record it.
   const recorded = periodComposition[periodKey]?.submissions;
   if (Array.isArray(recorded)) return accessions.some((accession) => !recorded.includes(accession));
@@ -202,7 +202,7 @@ for (const manager of history.managers) {
       period.coverEntryTotal = isCurrent ? verification?.cover?.tableEntryTotal : null;
       period.coverValueTotal = isCurrent ? verification?.cover?.tableValueTotal : null;
       period.countReconciled = isCurrent ? verification?.countReconciled : verification?.priorCountReconciled;
-      // P1462: current/prior rows come from the reference lane, which composes the same-period
+      // current/prior rows come from the reference lane, which composes the same-period
       // submissions with the shared policy; its chain is carried here so every imported period
       // states how it was assembled. No chain → the reference lane did not say, so none is claimed.
       const semantics = isCurrent ? verification?.amendmentSemantics : verification?.priorAmendmentSemantics;
@@ -221,7 +221,7 @@ for (const manager of history.managers) {
     const periodKey = `${manager.managerId}|${period.periodOfReport}`;
     const accessions = indexAccessions(manager, period);
     if (knownKeys.has(periodKey) && !needsRecomposition(periodKey, accessions)) {
-      // v58.71: a single-submission period stored before its cover totals were recorded reads its cover once.
+      // A single-submission period stored before its cover totals were recorded reads its cover once.
       if (!periodComposition[periodKey] && accessions.length === 1) {
         const [submission] = buildSubmissions(manager, period);
         try {
@@ -264,7 +264,7 @@ for (const manager of history.managers) {
       period.countReconciled = existingRows.every((row) => row.filingRole)
         ? (period.coverEntryTotal == null ? null : period.coverEntryTotal === existingRows.length)
         : false;
-      // P1615: 빠른 재사용 경로도 구성 근거를 상태로 유지한다 — 신규 index 빌더는 체인을 쓰지 않고,
+      // 빠른 재사용 경로도 구성 근거를 상태로 유지한다 — 신규 index 빌더는 체인을 쓰지 않고,
       // 저장 행만 재사용할 때 체인을 복원하지 않으면 구성 근거 없이 게이트에 도달한다(로컬 아티팩트에는
       // 최초 합성 런의 체인이 남아 있어 격차가 숨었다). 행의 accession·filingRole이 곧 증거다.
       if (!Array.isArray(period.amendmentChain) || !period.amendmentChain.length) {

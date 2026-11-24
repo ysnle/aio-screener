@@ -1,4 +1,4 @@
-// Which market moves the AI market reading must open with (v60.18, weekly audit 2026-11-15 D3/D4/D6). Pure: no I/O.
+// Which market moves the AI market reading must open with. Pure: no I/O.
 //
 // Before v60.18 the producer kept two hand-picked lists: the completed-close lines named S&P 500, 나스닥 100, SOXX, KOSPI and
 // WTI by a fixed 1-day / 5-day edge, and the in-session line admitted WTI at ±2% only. The week of 11/10 the reading
@@ -79,7 +79,7 @@ export function completedSessionMove(history, entry) {
  */
 export function completedSessionMoves(history = [], { max = COMPLETED_MOVE_LINES_MAX, ledger = null } = {}) {
   const explained = new Map((Array.isArray(ledger?.facts) ? ledger.facts : []).filter((fact) => fact?.kind === 'price' && fact.explains && Number.isFinite(fact.materiality)).map((fact) => [fact.id, fact.materiality]));
-  // v59.24: a US line whose last close is older than the latest S&P 500 close is not the 직전 완료 세션 (CL=F kept
+  // A US line whose last close is older than the latest S&P 500 close is not the 직전 완료 세션 (CL=F kept
   // Friday's settle on Monday morning).
   const usLatest = closesOf(history, 'spx').at(-1)?.date || null;
   return MARKET_MOVE_METRICS.map((entry) => completedSessionMove(history, entry))

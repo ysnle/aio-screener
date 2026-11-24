@@ -1,4 +1,4 @@
-// v57.48 expert review #7 (2026-10-13): the AI saw the screen's close-basis readings only as prompt prose, and the
+// Expert review #7: the AI saw the screen's close-basis readings only as prompt prose, and the
 // one typed VIX/^TNX evidence it had (the live decision bundle) was `stale` after the bell, so every current number
 // in an answer was dropped and the reply opened with "최신 수치의 근거를 확인하지 못했습니다". The completed closes the
 // screen reads are published here as typed reference evidence: fixed metric ids, the real close date as `asOf`, one
@@ -27,7 +27,7 @@ const METRICS = Object.freeze([
   { field: 'wti', metric: 'close.wti', entity: 'WTI', label: 'WTI 종가', unit: 'usd_per_barrel', digits: 2, change: null, chg20: 'pct', symbols: ['CL=F', 'WTI'] },
   { field: 'gold', metric: 'close.gold', entity: 'GOLD', label: '금 종가', unit: 'usd_per_ounce', digits: 1, change: null, chg20: 'pct', symbols: ['GC=F'] },
   { field: 'kospi', metric: 'close.kospi', entity: 'KOSPI', label: '코스피 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KS11', 'KOSPI'] },
-  // v57.81 (analysis audit 2026-10-15): KOSDAQ fell 7.65% on 10/15 and the AI had no typed row for it. It is read from its
+  // KOSDAQ fell 7.65% on 10/15 and the AI had no typed row for it. It is read from its
   // own KRX close series on the same rule as the KOSPI (completed KRX session, at most two sessions behind).
   { field: 'kosdaq', metric: 'close.kosdaq', entity: 'KOSDAQ', label: '코스닥 종가', unit: 'index', digits: 2, change: 'pct', symbols: ['^KQ11', 'KOSDAQ'], kr: true },
   { field: 'usdkrw', metric: 'close.usdkrw', entity: 'USDKRW', label: '원/달러 종가', unit: 'krw_per_usd', digits: 2, change: null, chg20: 'pct', symbols: ['KRW=X', 'USDKRW'] }
@@ -64,7 +64,7 @@ export function buildCloseBasisEvidence(input = {}) {
   try { aligned = alignMarketInputs(input); } catch (_) { return []; }
   const { basis, s, c, alignments } = aligned;
   if (!basis || !s?.spx) return [];
-  // M05 parity (P1688 review): the regime board holds its verdict when the basis is more than two sessions behind the
+  // M05 parity: the regime board holds its verdict when the basis is more than two sessions behind the
   // latest completed US session; the AI must not publish that same old close as confirmed evidence.
   const nowMs = Number(input.now);
   const latest = Number.isFinite(nowMs) ? latestCompletedUsSession(nowMs, { requirePrevious: false })?.date || null : null;
@@ -82,7 +82,7 @@ export function buildCloseBasisEvidence(input = {}) {
     } else if (def.change === 'bp' && finite(stat.d1)) {
       out.push(row({ ...shared, metric: `${def.metric}.chg1d`, label: `${def.label.replace(/ 종가$/, '')} 1거래일 변화`, value: round((stat.value - stat.d1) * 100, 1), unit: 'bp' }));
     }
-    // v57.55 review (6b): rate questions were answered with "최신 수치 확인 안 됨" although the screen shows the 20-session
+    // Review (6b): rate questions were answered with "최신 수치 확인 안 됨" although the screen shows the 20-session
     // move ("20거래일 +22bp"). The same value is published as typed evidence so the answer can cite it.
     // the 매크로 dollar/oil/gold chapters judge on the 20-session % move, and the chat was told to
     // judge the dollar "on the 20-session change" without being given one. The same move is published as evidence.

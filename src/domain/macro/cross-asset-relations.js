@@ -1,3 +1,8 @@
+// "평소 관계와 어긋난 곳". Oil, rates, stocks, long bonds, gold and the dollar are tied together;
+// the 거시 asset card read their 60-session stock–bond correlation and a fixed paragraph, so a month where yields fell while
+// stocks fell, oil rose and gold fell (10/23: 10Y −19bp, S&P 500 −1.5%, SMH −13.1%, TLT +2.5%, WTI +9.2%, gold −6.7%) was
+// never told as one story. Each usual relation is tested on the same 20 sessions; only pairs whose two legs both pass their
+// line and move against the usual direction are named, with the leg that led the move. Tendencies, not laws or forecasts.
 import { buildCloseSeries, sessionPointBack } from '../market/session/close-series.js';
 import { RULES } from '../rules/thresholds.js';
 import { signedText } from '../shared/number.js';
@@ -26,6 +31,8 @@ const CLEAR_NAMES = [['wti', '유가'], ['tnx', '금리'], ['spx', '주식'], ['
 
 export function buildCrossAssetRelations(history = [], options = {}) {
   const raw = crossAssetMoves(history, options);
+  // v59.45 (P18-RELATIONS-01): a relation compares the same 20 sessions — a move whose window ends on another session than
+  // the S&P 500's (an asset whose record stopped earlier) is left out, not compared with it.
   const anchor = raw.spx?.to || null;
   const m = Object.fromEntries(Object.entries(raw).map(([key, move]) => [key, key === 'window' || move == null || move.to === anchor ? move : null]));
   const v = (key) => m[key]?.value ?? null;

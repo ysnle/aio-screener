@@ -24,7 +24,7 @@ for (const manager of filings.managers.filter((item) => item.cik && item.latestF
     periodOfReport: recent.filings.recent.reportDate[index],
     primaryDocument: recent.filings.recent.primaryDocument[index]
   })).filter((item) => /^13F-HR(?:\/A)?$/.test(item.form) && item.periodOfReport);
-  // P1449: 같은 분기의 모든 13F-HR / HR-A 제출을 하나의 그룹으로 수집한다. EDGAR recent 목록은
+  // 같은 분기의 모든 13F-HR / HR-A 제출을 하나의 그룹으로 수집한다. EDGAR recent 목록은
   // 새로 filed된 것이 먼저 나오므로, 이전 구현처럼 같은 분기에서 첫 번째 항목만 대표로 삼으면
   // 부분 행 추가형 정정(HR/A)이 원본 전체를 대체해 버린다(러셀헤이저 2025Q1=4행 $11억, 2023Q4=1행
   // $45억 사례). 원본 여부와 정정행 수를 함꼐 기록해 행 수집기가 R499/P948 정책으로 합성하게 한다.

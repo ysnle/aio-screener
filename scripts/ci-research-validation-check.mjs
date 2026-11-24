@@ -1,4 +1,4 @@
-// v58.83: deterministic checks for the long-run factor backtest's HAC inference and the external
+// Deterministic checks for the long-run factor backtest's HAC inference and the external
 // momentum benchmark (scripts/lib/research-validation.mjs). Offline fixtures only — the real run is
 // .github/workflows/research-backtest.yml.
 import { deflateRawSync } from 'node:zlib';
@@ -18,7 +18,7 @@ const report = () => {
   process.exit(1);
 };
 
-// v60.50: the statistics run on fixtures (code); whether the committed screener carries enough US rows for the long-run
+// The statistics run on fixtures (code); whether the committed screener carries enough US rows for the long-run
 // job is a data section that also runs in a data run.
 await runSections('research-validation', [
 ['statistics', async () => {

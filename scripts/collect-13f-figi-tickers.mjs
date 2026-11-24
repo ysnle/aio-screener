@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v58.56 (re-audit #4): CUSIP → ticker for the 13F rows the Masters page shows, from OpenFIGI's free mapping API.
+// CUSIP → ticker for the 13F rows the Masters page shows, from OpenFIGI's free mapping API.
 // Runs only inside the refresh-data 13F chain (GitHub Actions, run_full_13f); never run locally.
 //
 //   POST https://api.openfigi.com/v3/mapping  [{ idType: 'ID_CUSIP', idValue, exchCode: 'US' }, …]

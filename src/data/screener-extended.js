@@ -1,3 +1,8 @@
+// The extended screener universe — every Russell 2000 member and every Nasdaq-listed common stock that the
+// core universe (public-data/screener-universe.json) does not already hold. The core artifact (screener.json) keeps
+// its size and contract; the extra rows ship in one separate shard (public-data/screener-extended.json) with the same
+// row schema, read only when a reader picks 확장 on the screener. This module is shared by the producer
+// (scripts/fetch-data.mjs), the gates and the browser provider, so the row encoding and the scope rule live once.
 import { artifactUrl } from './artifact-registry.js';
 
 export const EXTENDED_SHARD_SCHEMA = 'screener-extended.v1';
@@ -167,6 +172,9 @@ export function expandShardRows(shard) {
   return out;
 }
 
+// screener.json carries its rows in the same row-defaults encoding (3.5 MB -> ~1.8 MB raw). The producer
+// writes encodeScreenerArtifact(payload); every reader of the file goes through expandScreenerArtifact, which returns
+// the plain shape ({ ...meta, data: { sym: fullRow } }) and passes an unencoded artifact (fixtures, older files) through.
 const ENCODING_KEYS = ['rowEncoding', 'rowDefaults', 'rowDefaultsWhen'];
 
 export function encodeScreenerArtifact(payload = {}, { groups = CORE_DEFAULT_GROUPS } = {}) {

@@ -20,7 +20,7 @@ const read = (file) => readFileSync(join(root, file), 'utf8');
 const manifest = JSON.parse(read('architecture/qa-pipeline.json'));
 const errors = [];
 const check = (label, ok, detail = '') => { if (!ok) errors.push(`${label}${detail ? `: ${detail}` : ''}`); };
-// v59.70 (integration review 89e8c881): workspace is a source-push contract shard too (browser-data-pin-drift); producers
+// Workspace is a source-push contract shard too (browser-data-pin-drift); producers
 // never run it, so a live-data gate there blocks only locally and in its watchdog twin.
 const CONTRACT_GROUPS = ['core', 'data', 'knowledge', 'workspace'];
 
@@ -46,7 +46,7 @@ for (const id of ['workflow-yaml', 'syntax', 'generated-state', 'qa-pipeline-con
   const gate = gates.find((item) => item.id === id);
   check(`v59.70 source-defect gate ${id} stays blocking in CI`, gate && failureBlocks(gate, CI_ORIGIN) === true, gate ? '' : 'missing');
 }
-// v60.50: the document-age rule warns everywhere, so knowledge-lint has no watchdog twin left to block on it.
+// The document-age rule warns everywhere, so knowledge-lint has no watchdog twin left to block on it.
 check('v60.50 knowledge-lint has no watchdog twin (its date rule warns everywhere)', !watchdogScripts.has('scripts/ci-knowledge-lint-check.mjs'));
 
 // 2. The failure ledger (gh run list/view). Every row resolved.
@@ -152,7 +152,7 @@ for (const [where, run] of [['outside CI', lintSource], ['in a CI shard', lintCi
     /Knowledge lint warnings:[\s\S]*P1125 stale documents/.test(run.out) && !/Knowledge lint check failed:[\s\S]*P1125/.test(run.out), run.out.slice(-400));
 }
 
-// 6. v59.70 (integration review 89e8c881): the reconciliation 24h window is the same class. A clock 300 days after the
+// 6. v59.70: the reconciliation 24h window is the same class. A clock 300 days after the
 // artifact fails it outside CI (watchdog-reconciliation, producers, local) and warns in a CI shard; an hour after passes.
 const reconciliation = (origin, offsetMs) => {
   const generatedAt = JSON.parse(read('public-data/reconciliation-status.json')).generatedAt;

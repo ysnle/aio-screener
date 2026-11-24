@@ -3,8 +3,17 @@ import { artifactUrl } from './artifact-registry.js';
 
 const DURABLE_SNAPSHOT_URL = artifactUrl('market-snapshot.json');
 
+// The Worker publishes when Tier-0 coverage is complete and labels each quote's quality, but it does not refuse a
+// snapshot whose quotes are all stale (for example a provider returning old observations). Such a snapshot is no fresher
+// than the durable one, so the fast plane is skipped when none of its quotes is usable; a snapshot with at least one
+// usable quote stays and the stale rows degrade per quote downstream.
 const USABLE_FAST_QUALITIES = new Set(['CURRENT', 'CLOSED_CURRENT', 'DELAYED']);
 
+// The quality labels are written when the Worker publishes and never recomputed. If the Worker stops (cron, quota or
+// provider outage) the last snapshot keeps its CURRENT labels for as long as it is served, and a three-day-old snapshot would
+// win over a fresh durable one. The Worker publishes every five minutes while a US or KRX session is open and every 30 minutes
+// otherwise, so its attemptedAt is a liveness signal; a fast-plane
+// snapshot older than this is no fresher than the durable one and the loader falls through to it.
 export const FAST_PLANE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 // Between two missed Worker crons and that limit the fast plane may already be behind the durable snapshot
 // (refreshed every 30 minutes), so the loader reads both and keeps the later one.

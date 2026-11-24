@@ -40,7 +40,7 @@ for (const [market, year, calendar] of [
   }
 }
 {
-  // v58.82: the legacy KRX special-session copy ([open, close] minutes) equals the registry's specialSessions.
+  // The legacy KRX special-session copy ([open, close] minutes) equals the registry's specialSessions.
   const body = legacyCore.match(/var KR_SPECIAL_SESSIONS = \{([^}]+)\}/)?.[1] || '';
   const legacy = Object.fromEntries([...body.matchAll(/'(\d{4}-\d{2}-\d{2})':\s*\[(\d+),\s*(\d+)\]/g)].map((m) => [m[1], [Number(m[2]), Number(m[3])]]));
   const minutes = (text) => Number(text.slice(0, 2)) * 60 + Number(text.slice(3, 5));
@@ -132,14 +132,14 @@ check('temporal evidence separates event/observed/collected/published', temporal
     for (const entry of readdirSync(dir)) {
       const full = path.join(dir, entry);
       if (statSync(full).isDirectory()) walk(full);
-      // v59.87: the specifier is resolved, so src/domain/ai (reached as '../ai/' from a sibling folder) is not src/ai.
+      // The specifier is resolved, so src/domain/ai (reached as '../ai/' from a sibling folder) is not src/ai.
       else if (/\.m?js$/.test(entry) && [...readFileSync(full, 'utf8').matchAll(/^\s*(?:import|export)\b[^\n]*from\s+['"](\.[^'"]+)['"]/gm)].some((m) => path.resolve(path.dirname(full), m[1]).startsWith(srcAi))) offenders.push(path.relative(fileURLToPath(new URL('..', import.meta.url)), full));
     }
   })(fileURLToPath(new URL('../src/domain', import.meta.url)));
   check('P1533 src/domain must not import from src/ai (the domain layer sits below it)', offenders.length === 0, offenders);
 }
 
-// P1735: one holiday table. The briefing schedule derives its holiday rows from the registry (it kept a 2026-only copy);
+// One holiday table. The briefing schedule derives its holiday rows from the registry (it kept a 2026-only copy);
 // the classic DATE_ENGINE copy is held equal above (it runs before any module loads, so it cannot import the registry).
 {
   const scheduleSource = readFileSync(new URL('../src/domain/briefing/schedule.js', import.meta.url), 'utf8');
@@ -156,10 +156,10 @@ check('temporal evidence separates event/observed/collected/published', temporal
   const chuseok2027 = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2027-09-12T00:00:00Z'), days: 5 }).filter((row) => row.id.startsWith('krx-holiday-')).map((row) => row.id);
   const politics = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-24T02:00:00Z'), days: 7 }).map((row) => row.id);
   const afterVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T00:00:00Z'), days: 7 }).map((row) => row.id);
-  // v59.62: the expired Knesset row is removed (the registry check asked for it); the midterm carries the same three states.
+  // The expired Knesset row is removed (the registry check asked for it); the midterm carries the same three states.
   const pastVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-11-04T07:00:00Z'), days: 7 }).map((row) => row.id);
   check('v58.74 a scheduled election enters the schedule at its lead window and leaves it once the polls have closed', !politics.includes('us-midterm-2026') && afterVote.includes('us-midterm-2026') && !pastVote.includes('us-midterm-2026'), { politics, afterVote, pastVote });
-  // v59.42 (owner audit 2026-10-28): the home schedule's 3-day window still lists the 11/3 midterm through its lead window;
+  // The home schedule's 3-day window still lists the 11/3 midterm through its lead window;
   // an entry past its expiry is dropped and reported, and every entry carries its source and review date.
   const { scheduledEventProblems, activeScheduledEvents } = await import('../src/domain/briefing/scheduled-events.js');
   const homeWindow = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T13:00:00Z'), days: 3 }).filter((row) => row.id === 'us-midterm-2026');
@@ -168,7 +168,7 @@ check('temporal evidence separates event/observed/collected/published', temporal
     && !scheduledEventProblems({ nowMs: Date.parse('2026-10-29T00:00:00Z') }).some((problem) => problem.level === 'error')
     && scheduledEventProblems({ nowMs: Date.parse('2026-11-11T00:00:00Z') }).some((problem) => problem.id === 'us-midterm-2026' && problem.level === 'warn'), { homeWindow, expired });
   for (const problem of scheduledEventProblems()) if (problem.level === 'warn') console.warn(`[scheduled-events] ${problem.id}: ${problem.reason}`);
-  // v59.50 (recurrence audit): the shared clock functions against an Intl-based schedule oracle every 10 minutes from
+  // The shared clock functions against an Intl-based schedule oracle every 10 minutes from
   // 10/24 to 11/30 (US DST end 11/1, KRX exam-day 10:00-16:30 on 11/19, Thanksgiving and its 13:00 close). Two broken
   // copies — a fixed EDT offset and a KR close without the 30-minute grace — must be caught, or the oracle proves nothing.
   {

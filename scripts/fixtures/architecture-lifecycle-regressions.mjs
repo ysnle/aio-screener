@@ -1,4 +1,4 @@
-// P1518: adversarial schedules exercise ownership rather than renderer details.
+// Adversarial schedules exercise ownership rather than renderer details.
 import assert from 'node:assert/strict';
 import { createLifecycleRouter, createRouteRegistry, createLazyPage } from '../../src/app/router.js';
 import { createCompatibilityEventAdapter } from '../../src/app/compatibility-events.js';
@@ -65,7 +65,7 @@ for (const mode of ['cleanup-navigation', 'mount-throw', 'mount-dispose']) {
 }
 
 {
-  // P1526: a listener removed during a dispatch is not called, as with a native EventTarget.
+  // A listener removed during a dispatch is not called, as with a native EventTarget.
   const root = new EventTarget();
   const calls = [];
   const events = createCompatibilityEventAdapter({ root });
@@ -80,7 +80,7 @@ for (const mode of ['cleanup-navigation', 'mount-throw', 'mount-dispose']) {
 }
 
 {
-  // P1526: details that differ only in Date, Map or Set values are different logical events; a plain duplicate still collapses.
+  // Details that differ only in Date, Map or Set values are different logical events; a plain duplicate still collapses.
   const windowTarget = new EventTarget();
   const documentTarget = new EventTarget();
   const count = (detailForWindow, detailForDocument) => {

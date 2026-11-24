@@ -1,3 +1,6 @@
+// v59.56 (handoff item 3): 금리와 환율's analysis block — why the won moved, split into the dollar's share and Korea's share
+// (domain/macro/krw-decomposition.js). One picture (three two-sided bars on one scale), a short read, one fold with the
+// method and how well the dollar relation fit. It sits at the head of the 달러 · 원화 · 엔화 section, above the charts.
 import { buildKrwDecomposition } from '../../domain/macro/krw-decomposition.js';
 import { signedBar, signedScale } from './signed-bar.js';
 import { el } from './dom.js';

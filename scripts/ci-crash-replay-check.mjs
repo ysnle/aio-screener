@@ -1,4 +1,4 @@
-// v57.83 (owner 2026-10-16): replay past crash windows through the judgement modules and check that every day's reading
+// Replay past crash windows through the judgement modules and check that every day's reading
 // makes sense at that time — the check that would have caught "S&P 500 0.15% above the 50-day line reads 양호" before a
 // new rule shipped. Windows: the 2022 bear market, the August 2024 carry unwind, the April 2025 tariff shock, and the real
 // 2026 windows (February-March, July, and the week of 10/12-15) from public-data/history.json + macro-history.json.
@@ -140,7 +140,7 @@ for (const [w, window] of WINDOWS.entries()) {
     const { row, states, ma50, ma200, score } = read;
     const where = `${window.id} ${row.date}`;
     // Day-by-day invariants: the published rules hold on every replayed session, not only on the checked dates.
-    // Audit 2026-10-17 (owner D2): 양호 is entered at +bufferPct and held down to the 50-day line (+holdAbovePct).
+    // 양호 is entered at +bufferPct and held down to the 50-day line (+holdAbovePct).
     if (states.trend === 'favorable') check(row.spx >= ma50 * (1 + RULES.trend.holdAbovePct / 100) && ma50 > ma200, `${where}: 추세 양호인데 50일선 위·50>200 조건이 아님`);
     if (states.trend === 'favorable' && lastTrend !== 'favorable') check(row.spx >= ma50 * (1 + RULES.trend.bufferPct / 100), `${where}: 50일선+${RULES.trend.bufferPct}% 아래에서 추세 양호로 진입`);
     lastTrend = states.trend;
@@ -222,10 +222,10 @@ for (const [w, window] of WINDOWS.entries()) {
       const where = `${label} ${date}`;
       if (Number.isFinite(row.vix) && row.vix >= RULES.volatility.stressAt && states.volatility !== 'unknown') check(states.volatility === 'burden', `${where}: VIX ${row.vix}인데 변동성 ${states.volatility}`);
       if (credit.hyBp >= RULES.credit.stressAtBp && states.credit !== 'unknown') check(states.credit === 'burden', `${where}: HY ${credit.hyBp.toFixed(0)}bp인데 신용 ${states.credit}`);
-      // A leadership proxy clearly under its 50-day line is never 'holding' (v57.83).
+      // A leadership proxy clearly under its 50-day line is never 'holding'.
       if (leadership.belowMa50) check(leadership.state !== 'holding', `v59.70 ${where}: SOXX가 50일선 아래(${leadership.summary})인데 주도 영역 유지`);
       if (leadership.state === 'break') check(leadership.proxyWeak === true, `${where}: 주도주 약세 없이 이탈 판정`);
-      // v57.94: a break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
+      // A break holds while the proxy stays weak (7/23 이탈 -> 7/24 약세 -> 7/29 이탈 was single-session counts).
       if (previous?.break && leadership.proxyWeak) check(leadership.break, `v59.70 ${where}: 전날 이탈·SOXX 약세 지속인데 ${leadership.state} (${leadership.summary})`);
       previous = leadership;
     }
@@ -245,17 +245,17 @@ for (const [w, window] of WINDOWS.entries()) {
     if (!read) continue;
     check(read.leadership.state === 'weak' || read.leadership.state === 'break', `v59.70 ${date}: SOXX 1년 고점 대비 ${read.leadership.offHigh?.toFixed(1)}%인데 주도 영역 ${read.leadership.state}`);
     check(read.regime.conflicts.some((text) => /^주도주 약세 —|^주도 영역 이탈 —/.test(text)), `${date}: 엇갈리는 신호에 주도주 약세가 없음`);
-    // v58.56 (re-audit #2): the 오늘 hero is one plain sentence — no rule brackets, no counts, at most ~45 characters; the
+    // The 오늘 hero is one plain sentence — no rule brackets, no counts, at most ~45 characters; the
     // numbers stay in conflicts (the 6개 축 근거 fold).
     const hero = read.regime.heroLine || '';
     check(hero && hero.length <= 45 && !/[()]|\d/.test(hero) && (hero.match(/[.?!]/g) || []).length === 1, `${date}: 오늘 한 줄이 한 문장이 아님 (${hero})`);
     if (date === '2026-07-29') check(read.states.trend !== 'favorable', `${date}: S&P 500 50일선 -2.0%인데 추세 양호`);
-    // v59.44 (owner 2026-10-30): with the leaders weak or broken the headline is never favourable.
+    // With the leaders weak or broken the headline is never favourable.
     check(!['양호 우세', '다소 양호'].includes(read.regime.overall) && (!read.regime.leadershipCap || read.regime.overall === '혼조'), `v59.44 ${date}: 주도주 약세인데 전체 판정 ${read.regime.overall}`);
     summary.push(line(read, ` soxx/high:${read.leadership.offHigh?.toFixed(1)}%`));
   }
-  // v57.94: with the 5-session confirmation window the July break read from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
-  // 종목 32% that day and 분배일 6 on 7/13). Audit 2026-10-17 (owner D1): the advance confirmation is the 5-session mean, so
+  // With the 5-session confirmation window the July break read from 7/17 (Nasdaq-100 -4.1% in five sessions, 상승
+  // 종목 32% that day and 분배일 6 on 7/13). The advance confirmation is the 5-session mean, so
   // one weak session no longer confirms; the break reads from 7/23 and holds through 8/3; 8/4 regains the 50-day line.
   for (const date of sessions('2026-07-23', '2026-08-03')) {
     const read = realAt(date);

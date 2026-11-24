@@ -1,6 +1,14 @@
+// The stock chart reads its own evidence onto the price — VCP
+// contractions, the pivot, prior-day pivots and the 52-week high — and states a setup state
+// instead of a letter grade (owner decision: no composite grade without predictive evidence).
+// Methods are the published ones: Minervini's volatility contraction pattern and trend template,
+// O'Neil's pivot/breakout-on-volume, Wilder's ADX, relative strength versus the S&P 500, and
+// Raschke's prior-day high/low pivots. Nothing here is a buy or sell instruction.
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { signalHistory, signalHistoryText } from './signal-history.js';
+// Moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
+// definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, fromYearHigh, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 const TECH = RULES.technical;
@@ -37,8 +45,11 @@ export function adx(bars, period = 14) {
   return { adx: value, plusDI: lastT ? (pS[pS.length - 1] / lastT) * 100 : null, minusDI: lastT ? (mS[mS.length - 1] / lastT) * 100 : null };
 }
 
+// The contraction detector lives in technical/definitions.js so the screener producer and the
+// legacy snapshot find the same contractions and the same pivot as this chart.
 export { detectContractions };
 
+// The 8th check differs from the published RS-rating rule, so the name says 변형.
 export const TEMPLATE_LABEL = '미너비니 템플릿(변형: 6개월 S&P 초과)';
 const EXTENSION_NOTE = Object.freeze({ extended: `, 50일선에서 확장된 구간(${EXTENSION_BANDS.extended}배 이상)`, stretched: `, 50일선에서 크게 확장된 구간(${EXTENSION_BANDS.stretched}배 이상)` });
 
@@ -51,6 +62,8 @@ const STATE_LABELS = Object.freeze({
  * @param {Array<{time:string,open:number,high:number,low:number,close:number,volume:number}>} input
  * @param {{ benchmark?: Array<{date:string,value:number}> }} [options]
  */
+// The comparison index for a chart, or null for an index or a fund that tracks it (SPY read
+// "S&P 500보다 0.0%p 높음").
 export function benchmarkFieldFor(symbol) {
   const sym = String(symbol || '').toUpperCase();
   if (/^(\^GSPC|SPY|VOO|IVV|SPLG|\^KS11|\^KQ11)$/.test(sym)) return null;
@@ -74,8 +87,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const last = bars[n];
   const prev = bars[n - 1];
   const vcp = detectContractions(bars);
+  // Fewer than 252 sessions is not a 52-week range; the label says how long it is.
   const range = rangeExtremesOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low));
-  if (!range) return { available: false, reason: 'range-unavailable', bars };
+  if (!range) return { available: false, reason: 'range-unavailable', bars }; // No positive high/low — not a TypeError
   const fullYear = range.fullYear;
   const rangeLabel = fullYear ? '52주' : `최근 ${range.sessions}거래일`;
   const high52 = range.high;
@@ -86,9 +100,15 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const volRatio = prior50 && volumes[n] != null ? volumes[n] / prior50 : null;
   const dryUp = vol50[n] && vol10[n] ? vol10[n] / vol50[n] : null;
   const aligned = ema21[n] != null && sma50[n] != null && sma200[n] != null && last.close > ema21[n] && ema21[n] > sma50[n] && sma50[n] > sma200[n];
+  // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
   const events = [];
   const from = Math.max(1, n - 80);
+  // v59.59 (logic refactor): the power gap's "2× volume" is against the 50 sessions before the gap day (the breakout
+  // rule's basis, priorVolumeAverage) — the 50-day average including the gap day itself raised its own bar.
   const avg50 = (i) => priorVolumeAverage(volumes, i, 50) || null;
+  // (a) 8-day EMA lost / reclaimed — the short-term trend line most swing traders watch.
+  // Events (a)–(c) are found over the whole history so their past outcomes can be read
+  // (signal-history.js); the chart still marks only the last ~80 sessions.
   for (let i = 9; i <= n; i++) {
     if (ema8[i] == null || ema8[i - 1] == null) continue;
     if (closes[i - 1] >= ema8[i - 1] && closes[i] < ema8[i]) events.push({ index: i, kind: 'ema8-lost', text: '8일 EMA 이탈', position: 'aboveBar', tone: 'burden' });
@@ -110,6 +130,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     if (isLow && !squeezeOn) events.push({ index: i, kind: 'squeeze', text: '변동성 압축', position: 'belowBar', tone: 'neutral' });
     squeezeOn = isLow;
   }
+  // (d) extension above the 8-day EMA (overheating) — the latest stretch of >= RULES.technical.ema8.overheatPct, or of
+  // >= overheatAdr average daily ranges (expertise review 2026-10-19: +10% is routine for a 7%-ADR stock and extreme for a 2% one).
   const extension = ema8[n] ? (closes[n] / ema8[n] - 1) * 100 : null;
   const adrNow = adrPctOf(bars.map((bar) => bar.high), bars.map((bar) => bar.low), closes);
   // Past markers use today's ADR too — an approximation for older bars; the latest bar, which the reading uses, is exact.
@@ -121,9 +143,12 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const byKind = new Map();
   for (const event of events.filter((item) => item.index >= from).sort((a, b) => b.index - a.index)) { const list = byKind.get(event.kind) || []; if (list.length < 2) list.push(event); byKind.set(event.kind, list); }
   const chartEvents = [...byKind.values()].flat().sort((a, b) => a.index - b.index);
+  // Minervini trend template (8 published criteria). v57.50 D23: the published 8th criterion is an RS rating of 70+;
+  // here it is replaced by "6-month return above the S&P 500", so the template is labelled as a variant wherever shown.
   const low52 = range.low;
   const sma200Then = sma200[n - 21];
   const templateChecks = [
+    // A check whose moving average is not yet computable is unknown (null), never 'unmet'.
     ['종가 > 150·200일선', sma150[n] == null || sma200[n] == null ? null : last.close > sma150[n] && last.close > sma200[n]],
     ['150일선 > 200일선', sma150[n] == null || sma200[n] == null ? null : sma150[n] > sma200[n]],
     ['200일선 1개월 이상 상승', sma200[n] == null || sma200Then == null ? null : sma200[n] > sma200Then],
@@ -141,8 +166,14 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const wCloses = weeklyCloses(bars).map((row) => row.close);
   const w10 = sma(wCloses, 10); const w30 = sma(wCloses, 30);
   const wn = wCloses.length - 1;
+  // Weinstein stage on this stock's own weekly closes (30-week average and its 4-week slope),
+  // replacing the page's old SPY-only stage block.
+  // definitions.weinsteinStage (RULES.technical.weinstein: 30-week line, 4-week slope, ±1% flat, 26 weeks back).
   const weinstein = weinsteinStage(wCloses);
   const weeklyTrend = w10[wn] == null || w30[wn] == null ? null : wCloses[wn] > w10[wn] && w10[wn] > w30[wn] ? '정배열' : wCloses[wn] < w10[wn] && w10[wn] < w30[wn] ? '역배열' : '혼조';
+  // Relative strength: 6-month return minus the S&P 500's over the same dates.
+  // Each end of the comparison uses the benchmark close on or just before the stock's date (≤ 3 days);
+  // a missing date is no comparison, not the benchmark's latest value.
   const benchRows = (benchmark || []).filter((point) => point?.date && Number.isFinite(point.value)).sort((a, b) => a.date.localeCompare(b.date));
   const benchAt = (date) => { let hit = null; for (const point of benchRows) { if (point.date <= date) hit = point; else break; } return hit && (Date.parse(date) - Date.parse(hit.date)) <= 3 * 86400000 ? hit.value : null; };
   const ago = bars[Math.max(0, n - 126)];
@@ -151,6 +182,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rs = ret6 != null && b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
   const strength = adx(bars);
   templateChecks[7][1] = rs == null ? null : rs > 0;
+  // The relative-strength line (close ÷ benchmark on the same date). A line at its own high
+  // while price is still under its high is the classic leadership tell (O'Neil/Minervini: RS leads price).
   const rsLine = benchRows.length ? bars.map((bar) => { const b = benchAt(bar.time); return b ? bar.close / b : null; }) : [];
   const rsWindow = rsLine.slice(-TECH.rangeSessions).filter((value) => value != null);
   const rsNow = rsLine[n] ?? null;
@@ -158,6 +191,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rsFromHigh = rsNow != null && rsHigh ? (rsNow / rsHigh - 1) * 100 : null;
   const rsAtHigh = rsFromHigh != null && rsFromHigh >= -0.5;
   const rsLeadsPrice = rsAtHigh && fromHigh <= -TECH.nearHighPct;
+  // v58.75 (persona review): the sessions where the RS line set a one-year high — at or above every value of the trailing
+  // 252 sessions, counted only once the window holds a full year (240+ values); the chart marks them.
   const rsNewHighs = [];
   for (let i = 0; i <= n; i++) {
     if (rsLine[i] == null) continue;
@@ -171,16 +206,30 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   let state = 'none';
   const recent = bars.slice(-10);
   const pivot = vcp.pivot;
+  // 'failed' needs a breakout that counted — a volume-confirmed close above the pivot — and every pivot
+  // state needs a valid contraction run; a pivot from an invalid pattern is only the latest swing high.
+  // The shared breakout day — volume against the prior 50 sessions, the day excluded.
   const heavyUpAbove = (i, ceiling = false) => isBreakoutDay({ closes, volumes, i, pivot, ceiling });
   const ceilingPct = 1 + TECH.breakout.maxAbovePct / 100;
   const brokeOut = pivot != null && vcp.valid && Array.from({ length: 10 }, (_, k) => n - 9 + k).some((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * ceilingPct);
+  // v58.75 (teach-and-check D1): the latest counted breakout day of the last 10 sessions, for the setup life-cycle band.
   const breakoutIndex = brokeOut ? Array.from({ length: 10 }, (_, k) => n - k).find((i) => i > 0 && heavyUpAbove(i) && bars[i - 1].close <= pivot * ceilingPct) ?? null : null;
   if (sma200[n] != null && (last.close < sma200[n] || (sma50[n] < sma200[n] && last.close < sma50[n]))) state = 'downtrend';
   else if (pivot != null && brokeOut && last.close < pivot) state = 'failed';
+  // The heavy-volume day must itself close up and above the pivot — a heavy sell-off
+  // below the pivot two days earlier is not breakout volume.
   else if (vcp.valid && pivot != null && last.close > pivot && last.close <= pivot * ceilingPct && [n - 2, n - 1, n].some((i) => heavyUpAbove(i, true))) state = 'breakout';
   else if (vcp.valid && pivot != null && last.close > pivot * ceilingPct) state = 'extended';
   else if (vcp.valid && pivot != null && last.close >= pivot * 0.92 && last.close <= pivot) state = 'setup';
+  // The higher timeframe filters the lower — a daily setup or breakout against a weekly
+  // downtrend (10<30-week order, or Weinstein stage 4) is flagged, not hidden.
   const timeframeConflict = ['setup', 'breakout'].includes(state) && (weeklyTrend === '역배열' || weinstein?.stage === 4);
+  // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
+  // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
+  // whether a decline has stopped. Descriptive facts, not entries.
+  // The 50-day distance is in average daily ranges — the screener's adrPct and the summary's multiple, against the
+  // same 2/4/7 bands. The chart used (close − 50-day) ÷ a 14-session simple ATR, a different unit on the same bands, so one
+  // stock could read 확장 on the chart and 보통 in the screener. ATR stays as Wilder's (the published definition).
   const atr14 = atrWilder(bars);
   const adrPct = adrNow;
   const pctFrom50 = sma50[n] ? (last.close / sma50[n] - 1) * 100 : null;
@@ -205,6 +254,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['거래량 (직전 50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? `, 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
     [`${rangeLabel} 고점 대비`, signed(fromHigh)],
     [TEMPLATE_LABEL, `${templatePass}/8 충족${templateChecks.some(([, ok]) => ok === false) ? `, 미충족: ${templateChecks.filter(([, ok]) => ok === false).map(([label]) => label).join(', ')}` : ''}${templateChecks.some(([, ok]) => ok == null) ? `, 확인 불가 ${templateChecks.filter(([, ok]) => ok == null).length}개(기록 부족)` : ''}`],
+    // One set of bands (setup-profile EXTENSION_BANDS 2/4/7) for the chart, the screener and the summary.
     ['50일선 대비 일평균 변동폭 배수', adrFrom50 == null ? '—' : `${signedText(adrFrom50, 1)}배 (ADR${TECH.adrPeriod} ${fmt(adrPct)}%)${EXTENSION_NOTE[extensionStateFor(adrFrom50)] || (adrFrom50 <= -TECH.nearLineAdr ? ', 50일선 아래(부근 범위 밖)' : '')}`],
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? `, ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
@@ -212,6 +262,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['기준 고점(피벗, 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
+    // 2026-10-13 review S14: an observed level, not an instruction ('무효화 가격' read as a stop to act on).
     ['마지막 수축 저점', lastContraction ? `${fmt(lastContraction.low)} (현재가 대비 ${signed((lastContraction.low / last.close - 1) * 100)})` : '—'],
     ['전일 고가 / 저가', `${fmt(prev.high)} / ${fmt(prev.low)}`],
     ['이 종목의 지난 신호 뒤 21거래일', signalHistoryText(signals, benchmarkLabel)]
@@ -261,6 +312,8 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   };
 }
 
+// One connected reading of the chart — what state, why, what would change it, and how the market
+// around it agrees — so the evidence list underneath is support, not the message.
 export function chartReading(analysis, regime = null) {
   if (!analysis?.available) return null;
   const pct = (value, digits = 1) => signedText(value, digits, '%');
@@ -278,11 +331,15 @@ export function chartReading(analysis, regime = null) {
     extended: `피벗에서 이미 ${analysis.pivot ? pct((analysis.last.close / analysis.pivot - 1) * 100) : '—'} 올라 기준점에서 멀어진 구간입니다 — 새 수축(쉬어 가기)이 생기는지 관찰할 자리입니다`,
     failed: '돌파 뒤 피벗 아래로 되돌아왔습니다 — 돌파한 가격 위에서 유지되지 못한 상태입니다',
     downtrend: '종가가 200일선 아래라 VCP 셋업 조건이 성립하지 않습니다',
+    // Codex browser audit H33: "상승 추세 · 템플릿 8/8 · 셋업 없음" read as a contradiction. Trend and setup answer
+    // different questions; the sentence says which condition is missing and that no setup is not a negative.
+    // A valid contraction run with price more than 8% under the pivot is not 'no contraction'.
     none: analysis.vcp?.valid && analysis.pivot ? `변동성 수축은 확인되지만 가격이 피벗보다 ${((1 - analysis.last.close / analysis.pivot) * 100).toFixed(1)}% 아래라 아직 셋업 자리는 아닙니다`
       : analysis.templatePass >= 6
       ? `장기 추세는 상승(추세 조건 8개 중 ${analysis.templatePass}개 충족)이지만, 최근 변동성이 차례로 줄어드는 수축${analysis.dryUp != null && analysis.dryUp >= 0.8 ? '과 거래량 감소가' : '이'} 확인되지 않아 VCP 셋업은 성립하지 않습니다 — 셋업이 없다는 것이 악재라는 뜻은 아닙니다${vcp ? ` (${vcp})` : ''}`
       : `뚜렷한 셋업은 없습니다${vcp ? ` (${vcp})` : ''}`
   }[analysis.state];
+  // No unsourced "weak markets fail more setups" claim — the market state is stated, not interpreted.
   const market = regime?.available ? `시장 상태: ${regime.overall}` : null;
   const conflict = analysis.timeframeConflict ? ` — 다만 주봉은 ${w?.stage === 4 ? 'Weinstein 4단계(하락)' : '10·30주 역배열'}이라 상위 시간대와 방향이 어긋납니다` : '';
   return { headline: `${state}${conflict}`, why, market, flip: analysis.flip };

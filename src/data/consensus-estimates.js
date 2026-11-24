@@ -1,4 +1,4 @@
-// v57.54: one owner for the consensus estimates artifact, shared by the stock page and the screener column.
+// One owner for the consensus estimates artifact, shared by the stock page and the screener column.
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { CONSENSUS_ESTIMATES } from './artifact-registry.js';
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1004: deterministic source-to-screen identity, timeframe and evidence checks.
+// Deterministic source-to-screen identity, timeframe and evidence checks.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -49,9 +49,8 @@ const weekly = await y.root._aioFetchYahooChartData('NVDA', '2y', '1wk');
 check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inline Yahoo helper preserves timeframe contract');
 
 const invalid = context({ _currentTickerId: 'NVDA', _currentTickerName: 'NVIDIA', _fundAnalysisData: { ticker: 'NVDA' }, AIO: { state: {} } });
-// v59.12: the 재무 공시 search moved from src/ui/chat/panel.js to src/ui/components/fundamental-search.js.
 const { createFundamentalSearch } = await import('../src/ui/components/fundamental-search.js');
-// v59.51: the 재무 search box left; a non-ticker request is never stored, selected or announced (P566/R257).
+// The 재무 search box left; a non-ticker request is never stored, selected or announced.
 let invalidDispatches = 0;
 invalid.root.document.dispatchEvent = () => { invalidDispatches += 1; };
 createFundamentalSearch({ documentRef: invalid.root.document, root: invalid.root })('<invalid>');

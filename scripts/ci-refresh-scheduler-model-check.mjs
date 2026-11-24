@@ -6,7 +6,7 @@
 // portfolio/screener retry, the AI ensure-fresh and the manual button all call it, and the retries can fire while
 // the tab is hidden), 응답 (the oldest pending fetch resolves), 타이머 (the earliest virtual timer fires; the virtual
 // clock, which Date.now reads, moves to its due time).
-// Clocks (v60.43, src/app/refresh-session-policy.js): every sequence is replayed from two starts — '휴장' (Saturday
+// Clocks (src/app/refresh-session-policy.js): every sequence is replayed from two starts — '휴장' (Saturday
 // 12:00 KST: no US or KR session for the whole bounded run) and '장중' (Tuesday 10:00 KST: the KR session is open).
 // Invariants (checked after every event, once its microtasks settle):
 //   R1 visible tab is not paused — while the tab is visible the scheduler's pause flag is off.

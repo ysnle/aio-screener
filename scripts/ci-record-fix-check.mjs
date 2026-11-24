@@ -29,7 +29,7 @@ const FILES = [
   '_artifacts/full-audit-20260927/EXECUTION-STATUS.md',
 ];
 const LEDGER_GATE = 'scripts/ci-ledger-integrity-check.mjs';
-const LEDGER_LIB = 'scripts/lib/rule-ids.mjs'; // v57.84: the ledger gate imports the shared R parser
+const LEDGER_LIB = 'scripts/lib/rule-ids.mjs'; // The ledger gate imports the shared R parser
 
 const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 const hashReal = () => Object.fromEntries([...FILES, LEDGER_GATE, 'scripts/record-fix.mjs'].filter((f) => existsSync(join(repo, f))).map((f) => [f, sha(readFileSync(join(repo, f)))]));
@@ -130,7 +130,7 @@ try {
 
   const pBlock = pm.slice(pm.indexOf(`## ${P} `));
   check('P entry heading matches `## P<n> - <version> - <title> (<date>)` (QA-OPS-REC-02)', new RegExp(`^## ${P} - v99\\.1 - fixture defect for the record-fix gate \\(2026-10-01\\)$`, 'm').test(pm));
-  // v59.84 (S3): the seventh bullet names the changed files (scripts/prior-fixes.mjs reads it).
+  // The seventh bullet names the changed files (scripts/prior-fixes.mjs reads it).
   const pOrder = ['symptom/reproduction', 'root_cause', 'fix', 'violated_rule', 'prevention', 'verification/residual', 'files'];
   const pLines = pBlock.split('\n').slice(0, 11);
   check('P entry has a blank line then the seven ordered bullets and a trailing blank (QA-OPS-REC-02)', pLines[1] === '' && pOrder.every((key, i) => pLines[2 + i].startsWith(`- ${key}: `)) && pLines[9] === '' && pBlock.split('\n')[10].startsWith('## P'), JSON.stringify(pLines));
@@ -213,7 +213,7 @@ try {
     check(`${label}: no ledger file changed (QA-OPS-REC-13)`, JSON.stringify(snapshot(d)) === JSON.stringify(snap));
   };
   rejected('duplicate QA id', (e, d) => { const existing = /^- \[[ x]\] (QA-[^:]+):/m.exec(read(d, FILES[2]))[1]; e.qa[0].id = existing; }, /already exist/);
-  // P1347: an explicit update closes one existing item, without creating duplicates.
+  // An explicit update closes one existing item, without creating duplicates.
   {
     const d = makeRoot();
     const id = /^- \[[ x]\] (QA-[^:]+):/m.exec(read(d, FILES[2]))[1];
@@ -238,7 +238,7 @@ try {
   rejected('{R} used while r is null', (e) => { e.r = null; }, /\{R\}/);
   rejected('control character in text', (e) => { e.p.fix = 'bad \u0080 char'; }, /control/);
   rejected('missing p field', (e) => { delete e.p.root_cause; }, /p\.root_cause/);
-  // v59.84 (S3): a defect entry names the files it changed; an entry without them, or with an absolute path, is refused.
+  // A defect entry names the files it changed; an entry without them, or with an absolute path, is refused.
   rejected('missing p.files', (e) => { delete e.p.files; }, /p\.files is required/);
   rejected('absolute p.files', (e) => { e.p.files = ['C:/Projects/AIO/src/x.js']; }, /p\.files is required/);
 
@@ -291,7 +291,7 @@ try {
     };
     changeOnlyRejected('entry with a rule', { ...changeOnly(), r: { title: 't', rule: 'r', validation: 'v' } }, /r requires p/);
     changeOnlyRejected('entry using {P}', { ...changeOnly(), changelog: ['**Lead ({P}):** text.'] }, /change-only entry/);
-    // v58.63 (architecture audit A27): bump-version writes a ".00" release as the major alone ("v99"); record-fix must
+    // bump-version writes a ".00" release as the major alone ("v99"); record-fix must
     // accept the same canonical form, and still refuse a malformed one.
     const dMajor = makeRoot({ mutate: (root) => {
       const vj = JSON.parse(readFileSync(join(root, 'version.json'), 'utf8'));
@@ -332,7 +332,7 @@ try {
     const r = run(d, baseEntry());
     check('a UTF-8 BOM on a ledger file is preserved (QA-OPS-REC-16)', r.code === 0 && readFileSync(join(d, 'CHANGELOG.md')).slice(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf])), r.err);
   }
-  // v59.56 deferred records for parallel threads: two threads' entries get consecutive ids in one dry run, and the
+  // Deferred records for parallel threads: two threads' entries get consecutive ids in one dry run, and the
   // real ledgers stay untouched (covered by the byte-identity check below).
   {
     const pending = mkdtempSync(join(tmpdir(), 'aio-pending-check-'));
@@ -349,7 +349,7 @@ try {
     const ids = [...dry.stdout.matchAll(/ok .* P(\d+)/g)].map((m) => Number(m[1]));
     check('v59.56 two threads\' pending entries get consecutive P ids in one dry run', dry.status === 0 && ids.length === 2 && ids[1] === ids[0] + 1, `${dry.stdout}${dry.stderr}`);
   }
-  // v59.70 (2026-11-04 incident): `apply-pending-records.mjs --help` ignored the unknown flag and applied — v59.70 bump,
+  // `apply-pending-records.mjs --help` ignored the unknown flag and applied — v59.70 bump,
   // every thread's entries recorded, pending files deleted. Each writer runs here from a sandbox copy (its root is the
   // sandbox, so an old script that still writes cannot touch this repository): --help prints the usage and exits 0, an
   // unknown flag exits non-zero, apply-pending-records without --dry-run/--apply refuses, and nothing in the sandbox changes.

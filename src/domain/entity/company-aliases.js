@@ -1,3 +1,8 @@
+// v59.74 (owner 2026-11-07 '돈과 기술이 어떻게/어디서 흐르는지'): the names the researched stories use for one another.
+// The company graph (company-graph.js) links two stories only when a supplier, customer, rival or money-flow line names
+// the other company by one of these exact spellings (case-sensitive, whole word; the longest name wins, so 'Samsung SDI'
+// is never read as 'Samsung'). A name not listed stays plain text: nothing is inferred from a ticker-shaped word.
+// Three unlisted AI labs that sit at the end of many money flows are kept as named nodes without a ticker.
 export const COMPANY_ALIASES = Object.freeze({
   '000660.KS': ['SK hynix', 'SK Hynix', 'SK하이닉스'], '005380.KS': ['Hyundai Motor', '현대자동차', '현대차'],
   '005930.KS': ['Samsung Electronics', 'Samsung Foundry', '삼성전자', 'Samsung'], '006400.KS': ['Samsung SDI', '삼성SDI'],
@@ -42,6 +47,9 @@ export const COMPANY_ALIASES = Object.freeze({
   UMC: ['UMC'], UNH: ['UnitedHealth'], V: ['Visa'], VIAV: ['Viavi'], VLO: ['Valero'], VRT: ['Vertiv'], VSH: ['Vishay'], VZ: ['Verizon'],
   WDAY: ['Workday'], WDC: ['Western Digital'], WFC: ['Wells Fargo'], WMT: ['Walmart'], WULF: ['TeraWulf'], XOM: ['ExxonMobil', 'Exxon Mobil'],
   ZS: ['Zscaler'],
+  // Expansion (owner 2026-11-07: US leaders and retail-popular names first). Bare words that also read as plain
+  // English or as another company's text ('Block', 'Square', 'Hims', 'Vertex', 'Constellation', 'Progressive',
+  // 'Intuitive', 'Snap', 'Celsius') are left out on purpose.
   ABNB: ['Airbnb'], ABT: ['Abbott Laboratories', 'Abbott'], AFRM: ['Affirm Holdings', 'Affirm'], ASTS: ['AST SpaceMobile'],
   AVAV: ['AeroVironment'], AXP: ['American Express', 'Amex'], BABA: ['Alibaba Group', 'Alibaba Cloud', 'Alibaba'], BLK: ['BlackRock'],
   BMY: ['Bristol Myers Squibb', 'Bristol-Myers Squibb'], CCJ: ['Cameco'], CEG: ['Constellation Energy'], CELH: ['Celsius Holdings'],

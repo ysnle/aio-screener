@@ -1,3 +1,6 @@
+// v58.74 (text audit): the Korean sector names as a leaf module. The 재무 peer card printed the raw universe value
+// ("Technology 153곳"); importing the label from screener-read pulled that whole module (26KB) into the boot set.
+// The alias table and its normaliser moved here from entity/stock-read.js, which re-exports them.
 export const SECTOR_KEY_ALIAS = Object.freeze({
   'Consumer Cyclical': 'Consumer', 'Consumer Discretionary': 'Consumer', 'Financial Services': 'Financials',
   'Basic Materials': 'Materials', 'Health Care': 'Healthcare', 'Information Technology': 'Technology',

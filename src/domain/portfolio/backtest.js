@@ -38,6 +38,8 @@ function _aioBtMonthDiff(a, b) {
   return (Number(bp[0]) - Number(ap[0])) * 12 + (Number(bp[1]) - Number(ap[1]));
 }
 
+// v59.45 (PASS23 P23-CUT-01): `cutMs` drops observations after the as-of instant (a past cut kept every later month), and
+// each month keeps its latest timestamp rather than the last array row, so a reversed series still ends on the month end.
 function _aioBtMonthEnds(series, cutMs) {
   var out = {};
   var ts = series && series.timestamps || [];
@@ -73,6 +75,12 @@ function _aioBtSortino(returns, rfAnnual) {
   var excess = clean.map(function(r) { return r - rfMonthly; });
   var downside = excess.filter(function(r) { return r < 0; });
   if (downside.length < 2) return null;  // 하방 관측이 최소 2개는 있어야 의미
+  // Downside deviation 의 분모를 "하방 관측 수(n_neg-1)" 가 아니라
+  //   "전체 관측 수(N)" 로 사용한다 — Sortino & Price(1994) 및 Portfolio Visualizer 표준.
+  //   기존 분모(n_neg-1)는 하방편차를 과대평가해 Sortino 를 표준 대비 ~46% 과소평가시켰다
+  //   (실측: 동일 24개월 시계열에서 0.83 vs 표준 1.54). 이 랩의 지표는 Portfolio Visualizer 의
+  //   정의를 따르므로 Sortino 도 그 정의와 일치해야 한다. 분자는 하방 관측만
+  //   제곱합(=Σ min(0, excess)^2)으로 이미 동일하고, 분모만 excess.length(=N)로 정정.
   var dd = Math.sqrt(downside.reduce(function(s, r) { return s + r * r; }, 0) / excess.length);
   if (dd < 1e-10) return null;
   return (_statMean(excess) / dd) * Math.sqrt(12);
@@ -134,6 +142,10 @@ function _aioBtShouldRebalance(type, monthKey) {
   return false;
 }
 
+// ── P1259 (QA-FX-SERIES): 기준 통화 수익률 — 월말 관측 FX 시계열 ─────────────────────────────────
+// 현지 통화 수익률과는 **다른 결과**다. 월말 정렬 계약: 월 키(YYYY-MM)의 마지막 관측이 그 달의
+// 월말 관측이고, 관측이 없는 달 경계는 미관측이다. 미관측·미보유 통화쌍은 추정하지 않고 해당 월을
+// 보류한다(0 채우기·보간·삼각 환산 금지 — P1194/P1247과 같은 규칙).
 function _aioBtFxMonthEndSeries(fxSeries) {
   var raw = fxSeries && fxSeries.usdkrw;
   if (!raw) return null;
@@ -186,6 +198,10 @@ function _aioBtBaseCurrencyMonthlyReturns(input) {
   var fxByMonth = _aioBtFxMonthEndSeries(input.fxSeries);
   if (!fxByMonth) return build('held', 'fx-series-missing');
   var months = [];
+  // Expertise review 2026-10-19 (macro audit §6-2): row.realizedWeights drift with local-currency returns, so a month
+  // after a won move weighted a KRW holding as if the won had not moved. Here the weights drift with each holding's
+  // base-currency return and reset to the row's (target) weights only at the start and after a rebalance. A held month
+  // leaves the drift unknown, so the months up to the next rebalance are held too.
   var baseWeights = null;
   var driftLost = false;
   monthlyRows.forEach(function(row, idx) {
@@ -204,6 +220,7 @@ function _aioBtBaseCurrencyMonthlyReturns(input) {
       var w = baseWeights ? (baseWeights[t] || 0) : (row.realizedWeights && typeof row.realizedWeights[t] === 'number' ? row.realizedWeights[t] : 0);
       var entry = currencyByTicker[t] || {};
       var pc = entry.price || entry.cost || null;
+      // An undeclared currency is not the base currency (P1252 BT-02); the month is held, not converted at rate 1.
       if (!pc) { held = 'member-currency-undeclared:' + t; return; }
       if (pc === baseCurrency) { weighted += w * rLocal; baseReturns[t] = rLocal; return; }
       var isKrwUsd = (pc === 'KRW' && baseCurrency === 'USD') || (pc === 'USD' && baseCurrency === 'KRW');
@@ -238,6 +255,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var rfInvalid = rfProvided && rfAnnual == null;
   var benchmarkSymbol = String(options.benchmarkSymbol || 'SPY').trim().toUpperCase() || 'SPY';
   var rebalanceType = String(options.rebalanceType || 'annual').toLowerCase();
+  // v59.45 (PASS23): an unrecognised policy ran silently as no rebalancing. The form offers exactly these four.
   if (['annual', 'quarterly', 'monthly', 'none'].indexOf(rebalanceType) === -1) {
     return {
       ok: false, status: 'PARTIAL', allowedUse: 'reference-only', decisionUse: false, decisionEligible: false, promotionEligible: false,
@@ -249,13 +267,20 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     ? Number(options.maxAlignmentGapDays) : 3;
   var startYear = Number(options.startYear) || 2017;
   var endYear = Number(options.endYear) || 2099;
+  // P1252 (BT-01): 원가(cost) 필터 제거 — 원가는 이 경로의 어떤 계산에도 쓰이지 않으므로 멤버
+  // 집합을 가를 자격이 없다. qty>0·cost 미신고 보유(증여·스핀오프·이전 롯)를 조용히 빼고 비중을
+  // 재분배하는 것은 22:PFR08의 "누락 데이터 = 커버리지 공백, 제외 아님" 계약을 우회한다.
+  // 미신고 원가는 결과의 공개 필드(missingCostMembers)로만 남는다.
   var raw = (positions || []).filter(function(p) {
     return p && p.ticker && Number(p.qty) > 0;
   }).map(function(p) {
     return {
       ticker: String(p.ticker).trim().toUpperCase(), qty: Number(p.qty),
       targetWeight: typeof p.targetWeight === 'number' && isFinite(p.targetWeight) && p.targetWeight >= 0 ? p.targetWeight : null,
+      // P1252 (BT-01): 원가 선언 여부는 공개용 — 계산 입력이 아니다.
       costDeclared: Number(p.cost) > 0,
+      // E3/P1181 + E4/P1247: 원가 통화와 시세 통화는 다른 축이다. 랩은 두 축을 각각 환산해야 하므로
+      // 표시용 이름 하나로 뭉개지 않고 둘 다 보존한다(surface.js가 같은 구분을 쓴다).
       costCurrency: _cleanCurrencyCode(p.costCurrency),
       priceCurrency: _cleanCurrencyCode(p.currency || p.priceCurrency)
     };
@@ -264,6 +289,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var byTickerQty = {};
   var byTickerTargetWeight = {};
   raw.forEach(function(p) {
+    // 멤버 집합만 필요하다. 종전에는 `qty × cost`를 여기서 통화 구분 없이 누적했지만, 그 합계는
+    // KRW 금액과 USD 금액을 1:1로 더한 값이라 실행 여부 판단에도 쓸 수 없다 — 그 용도는 아래에서
+    // 기준 통화로 환산된 시작 시점 시장가치가 맡는다.
     byTicker[p.ticker] = true;
     byTickerQty[p.ticker] = (byTickerQty[p.ticker] || 0) + p.qty;
     if (p.targetWeight != null) byTickerTargetWeight[p.ticker] = (byTickerTargetWeight[p.ticker] || 0) + p.targetWeight;
@@ -273,6 +301,7 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // exclusion. Dropping it above silently renormalized every remaining member (AAA 100% from a
   // 2-member intent), converting a provider miss into the user's exclusion decision.
   var intendedTickers = Object.keys(byTicker);
+  // P1252 (BT-01): 미신고 원가 멤버는 제외하지 않고 공개만 한다.
   var missingCostMembers = intendedTickers.filter(function(t) {
     return !raw.some(function(p) { return p.ticker === t && p.costDeclared; });
   });
@@ -293,6 +322,11 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   }
   if (!tickers.length) return { ok: false, reason: 'no valid portfolio price series', warnings: ['가격 기록이 있는 보유 종목이 없어 실행하지 않았습니다 — 보유 종목의 가격 기록이 들어오면 실행됩니다.'] };
 
+  // ── P1247 (E3/E4): 통화축 ───────────────────────────────────────────────────────────────────
+  // 구성은 환산 주장이다. `qty × 시작가`는 각 멤버의 **자기 통화**로 표시된 시장가치이므로 통화가 다르면
+  // 1:1로 더할 수 없다 — 평가 화면(surface.js)이 이미 거부하는 "통화 없는 합산"이고, KRW와 USD 금액을
+  // 그대로 더하면 원/달러 규모 차가 비중을 지배한다. 평가 경로와 **같은** `convertWithDeclaredRates`
+  // 계약(선언된 관측 leg·컷 이후 관측·선언 창)만 쓰고, 환산할 수 없으면 추정하지 않고 보류한다.
   var baseCurrency = _cleanCurrencyCode(options.baseCurrency);
   var fxLegs = Array.isArray(options.fxLegs) ? options.fxLegs : [];
   var asOfMs = Number.isFinite(Number(options.asOfMs)) ? Number(options.asOfMs) : Date.now();
@@ -323,6 +357,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var toBaseCurrency = function(amount, currency, axisLabel) {
     if (amount == null) return amount;
     if (!needsConversion) return amount;
+    // P1252 (BT-02): 미선언 통화를 `currency || baseCurrency`로 눕히지 않는다 — rate 1 암묵 통과는
+    // "미확인 통화는 기준 통화라는 뜻이 아니다"라는 이 모듈의 불변식을 깬다. 추정하지 않고 보류한다.
     if (!currency) {
       if (!currencyAxis.held.some(function(entry) { return entry.reason === 'member-currency-undeclared' && entry.axis === axisLabel; })) {
         currencyAxis.held.push({ axis: axisLabel, currency: null, reason: 'member-currency-undeclared', pair: (baseCurrency || '?') + '(base)/?' });
@@ -425,8 +461,11 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
           && Math.abs(point.tsMs - benchmarkPoint.tsMs) <= maxAlignmentGapDays * 24 * 60 * 60 * 1000;
       });
   }).sort();
+  // Expertise review 2026-10-19 (macro audit §6-2): the month that contains asOf is still running; its month-to-date move
+  // counted as a full month in CAGR, volatility and VaR. It is left out until the month closes.
   var partialMonth = _aioBtMonthKeyFromTs(asOfMs);
   if (common.length && common[common.length - 1] === partialMonth) common = common.slice(0, -1);
+  // With the cut, a month-end observed after asOf is already gone; the running month is still reported as left out.
   else if (!_aioBtMonthEnds(priceMap[benchmarkSymbol])[partialMonth]) partialMonth = null;
   if (common.length < 14) {
     return {
@@ -439,6 +478,11 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     };
   }
 
+  // A monthly performance model is only defined on a contiguous monthly
+  // grid. Splicing a later month onto an earlier one as a single "month" return compresses two
+  // months into one sample and inflates CAGR/anualization. Detect gaps and either fall back to
+  // the longest contiguous window (recording what was excluded) or withhold monthly performance
+  // entirely — never fill a gap or treat a multi-month change as one month.
   var monthOrdinal = function(key) { return Number(key.slice(0, 4)) * 12 + (Number(key.slice(5, 7)) - 1); };
   var gridGaps = [];
   for (var gapIndex = 1; gapIndex < common.length; gapIndex++) {
@@ -488,12 +532,16 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var targetWeightBasis = 'start-date-adjusted-close-market-value';
   // Which close priced the start weights: the traded close, or the adjusted one when a series carries no traded close.
   var startWeightPriceBasis = 'raw-close';
+  // P1252 (BT-03): 원가 통화로 시세 값을 환산한 멤버 공개(명시 비중 경로에서는 비어 있다).
   var priceCurrencyInferredMembers = [];
   var specifiedTickers = tickers.filter(function(t) { return byTickerTargetWeight[t] != null; });
   var targetWeightDenominator = 0;
   if (!specifiedTickers.length) {
     var conversionRefusal = refuseCompositionConversion();
     if (conversionRefusal) return conversionRefusal;
+    // P1252 (BT-02): 환산이 필요한데 멤버의 통화가 선언되지 않았으면(시세·원가 통화 모두 없음)
+    // `currency || baseCurrency`의 rate 1 암묵 통과로 기준 통화로 눕히지 않는다 — 미확인 통화는
+    // 기준 통화(USD 등)라는 뜻이 아니다. 추정 없이 시작 배분 전체를 보류한다.
     var undeclaredCurrencyMembers = needsConversion ? tickers.filter(function(t) {
       var entry = currencyByTicker[t] || {};
       return !entry.price && !entry.cost;
@@ -572,12 +620,16 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       allocationWarnings = ['목표 비중이 비어 있는 종목(' + unspecifiedTickers.join(', ') + ')이 있어 실행하지 않았습니다 — 빈 몫을 다른 종목에 나누지 않으며, 모든 종목에 합 100%로 넣거나 모두 비우면 지금 보유 수량으로 실행됩니다.'];
     } else if (!(targetWeightDenominator > 0)) {
       allocationBlocked = { code: 'explicit-zero-allocation', members: tickers.slice(), sum: targetWeightDenominator };
+      // P1252 (BT-08): 이 엔진은 전액투자 전략만 지원한다 — 목표비중 합계가 100%여야 하고 현금
+      // 배분 모드는 없다. 존재하지 않는 "현금 100% 모드"를 안내하지 않는다.
       allocationWarnings = ['목표 비중이 모두 0이라 실행하지 않았습니다 — 0은 그 종목을 빼라는 뜻으로 읽고 현금 몫은 계산하지 않으며, 합이 100%가 되게 넣으면 실행됩니다.'];
     } else if (targetWeightDenominator > 100 + 1e-9) {
       allocationBlocked = { code: 'invalid-allocation-sum', members: tickers.slice(), sum: targetWeightDenominator };
       allocationWarnings = ['목표 비중 합계가 ' + Math.round(targetWeightDenominator * 100) / 100 + '%라 실행하지 않았습니다 — 비율로 줄여 맞추지 않으며, 합이 100%가 되면 실행됩니다.'];
     } else if (targetWeightDenominator < 100 - 1e-9) {
       allocationBlocked = { code: 'partial-allocation-unresolved', specified: specifiedTickers.slice(), unspecified: [], sum: targetWeightDenominator };
+      // P1252 (BT-08): "현금 비중을 명시하세요"는 존재하지 않는 입력을 안내한다 — 이 엔진은
+      // 전액투자 전략만 지원한다(목표비중 합계 100%, 현금 배분 모드 없음).
       allocationWarnings = ['목표 비중 합계가 ' + Math.round(targetWeightDenominator * 100) / 100 + '%라 실행하지 않았습니다 — 남는 몫을 다른 종목이나 현금에 나누지 않으며, 합이 100%가 되면 실행됩니다.'];
     } else {
       targetWeightBasis = 'explicit-target-weight';
@@ -664,6 +716,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     years[y].benchmarkBalance = r.benchmarkBalance;
   });
   var annualRows = Object.keys(years).sort().map(function(y) {
+    // P1252 (BT-06): 연도 행의 복리 수익률은 그 해에 관측된 월 수만큼의 수익률이다. 창이 연중에
+    // 시작/끝나면 그 해는 부분 연도다 — 개월 수를 발행하고 라벨에 병기하며, 전체 연도와 같은
+    // 표에서 부분 연도임을 표시한다.
     var months = years[y].returns.length;
     var partialYear = months !== 12;
     return {
@@ -697,6 +752,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var trackingError = _statStdDev(activeMonthly) * Math.sqrt(12);
   var infoRatio = trackingError > 1e-10 ? (_statMean(activeMonthly) / _statStdDev(activeMonthly)) * Math.sqrt(12) : null;
   var benchmarkVariance = Math.pow(_statStdDev(benchmarkReturns), 2);
+  // v59.45 (PASS22 P22-STATS-01): a flat series has no correlation — _pearsonCorr returns 0 for it (its legacy contract,
+  // js/aio-tests.js T34), which read as "uncorrelated". The lab publishes null instead.
   var corr = benchmarkVariance > 1e-12 && _statStdDev(monthlyReturns) > 1e-6 ? _pearsonCorr(monthlyReturns, benchmarkReturns) : null;
   var beta = benchmarkVariance > 1e-12 ? _aioBtCovariance(monthlyReturns, benchmarkReturns) / benchmarkVariance : null;
   var benchmarkExcessMonthly = rfMonthly == null ? null : benchmarkReturns.map(function(r) { return r - rfMonthly; });
@@ -704,6 +761,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   // beta and annualized by 12; it is not a CAGR-minus-CAGR hybrid.
   var alpha = rfMonthly != null && beta != null
     ? (_statMean(excessMonthly) - beta * _statMean(benchmarkExcessMonthly)) * 12 : null;
+  // P1252 (BT-06): 최고/최저 연도는 **전체 연도만** 후보로 삼는다 — 연중 시작한 창의 2개월 부분
+  // 연도가 "최악의 해"로 발행되는 것을 막는다. 전체 연도가 없으면 best/worst는 null이다.
   var annualReturns = annualRows.filter(function(r) { return !r.partialYear; }).map(function(r) { return r.return; });
   // The benchmark column of the same summary — best/worst full year and the deepest drawdown of its own
   // month-end balances, on the same months and the same full-year rule.
@@ -712,6 +771,15 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
   var var5 = cleanMonthly.length ? Math.max(0, -_quantileR7(cleanMonthly, 0.05)) : null;
   var tail = cleanMonthly.filter(function(r) { return r <= _quantileR7(cleanMonthly, 0.05); });
   var cvar5 = tail.length ? Math.max(0, -_statMean(tail)) : null;
+  // 22:PFR05 (E4): publish the sample facts behind VaR/CVaR and certify only the
+  // sample that survives the declared stability/sensitivity thresholds. A CVaR
+  // averaged over a single tail observation is one loss printed as a risk
+  // estimate, and an estimate that moves with the estimator is not one either.
+  // `deriveVarStability`의 `recent-half` 변형은 **시간 순서**를 가정한다 — 정렬된 표본을 넘기면
+  // 그 변형이 '최근 절반'이 아니라 '상위 절반'이 되어 VaR가 0, 민감도 1이 되고, 현실적인(중앙값이 양수인)
+  // 표본은 영원히 인증될 수 없었다. 꼬리·근사 순위 계산은 함수 안에서 정렬하므로 순서를 넘겨도 안전하다.
+  // `monthlyReturns`는 월 버킷 순서(시간순)이므로 계약을 선언한다. 순서를 검증할 수 있는
+  // 관측시각이 있으면 `observedAt`으로 올려 `verified`가 된다.
   var varStability = deriveVarStability({ returns: monthlyReturns, quantile: 0.05, order: 'chronological' });
   var varCertification = {
     confidence: 0.95,
@@ -722,6 +790,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     certification: varStability.certification === 'certified' ? 'certified' : 'held',
     certificationReasons: (tail.length < 2 ? ['tail-sample-single-observation'] : [])
       .concat(varStability.certification === 'certified' ? [] : varStability.certificationReasons),
+    // The warning below reads these two fields; they lived only under .stability, so a certified
+    // CVaR always printed "CVaR 인증 보류()".
     cvarCertification: varStability.cvarCertification || 'held',
     cvarCertificationReasons: varStability.cvarCertificationReasons || [],
     stability: varStability
@@ -731,6 +801,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     if (br >= 0) { upBench.push(br); upPf.push(monthlyReturns[idx]); }
     else { downBench.push(br); downPf.push(monthlyReturns[idx]); }
   });
+  // v59.71 (quant review): capture is the geometric mean return over the up (down) months, as Morningstar and Portfolio
+  // Visualizer define it — the arithmetic mean overstated capture for a volatile book.
   var geoMean = function(list) {
     if (!list.length) return null;
     var log = 0;
@@ -757,6 +829,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     return {
       ticker: t, weight: targetWeights[t], targetWeight: targetWeights[t], averageRealizedWeight: averageRealizedWeight,
       standaloneReturn: standalone, returnContribution: contribution,
+      // P1252 (BT-07): netGain ≤ 0(손실 구간)에서 contribution/netGain은 부호 의미를 뒤집는다 —
+      // 손실 기여자가 양수 %로 발행된다. 달러 기여액과 Σ기여액 = netGain 항등식은 그대로 두고
+      // 비율만 보류한다(사유 병기).
       returnContributionPct: netGain > 0 ? contribution / netGain : null,
       returnContributionPctReason: netGain > 0 ? null : 'loss-period-pct-withheld',
       contributionBasis: 'arithmetic-period-start-dollar',
@@ -765,6 +840,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     };
   }).sort(function(a, b) { return Math.abs(b.riskContribution || 0) - Math.abs(a.riskContribution || 0); });
 
+  // 기준 통화 수익률(월말 FX 정렬) — 현지 통화 결과와 **다른 결과**로 함께
+  // 발행한다. FX 시계열이 없으면 보류하고 추정하지 않는다.
   var baseCurrencyReturns = _aioBtBaseCurrencyMonthlyReturns({
     monthlyRows: monthlyRows,
     currencyByTicker: currencyByTicker,
@@ -793,6 +870,9 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
     model: 'AIO_PORTFOLIO_BACKTEST_LAB_MONTHLY_V2',
     priceBasis: 'adjusted-close',
     compositionDisclosure: 'current-composition-retrospective',
+    // 통화축. 비중은 선언된 leg로 기준 통화로 환산했지만, 월별 수익률은 각 자산의
+    // **현지 통화** 가격 경로에서 계산된다 — 기준 통화 수익률은 관측 FX **시계열**이 있어야 하고,
+    // 그건 이 결과가 아니다. 두 가지를 같은 것으로 읽지 않도록 축과 수익 기준을 함께 발행한다.
     currencyAxis: currencyAxis,
     returnCurrencyBasis: needsConversion ? 'local-currency-weighted' : 'single-currency',
     fxTranslation: needsConversion ? 'excluded-requires-fx-series' : 'not-applicable',
@@ -809,10 +889,13 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       turnoverBasis: 'half-sum-absolute-target-minus-realized-end-weight-at-rebalance',
       targetWeightBasis: targetWeightBasis,
       startWeightPriceBasis: targetWeightBasis === 'explicit-target-weight' ? null : startWeightPriceBasis,
+      // State the grid the monthly statistics were actually computed on.
       gridGaps: gridGaps, excludedMonths: excludedMonths, partialMonthExcluded: partialMonth,
       monthlyGridBasis: gridGaps.length ? 'longest-contiguous-window' : 'contiguous'
     },
     tickers: tickers,
+    // P1252 (BT-01): 의도 멤버 전체와 원가 공개 — 원가 미신고 멤버는 제외되지 않았고, 원가는
+    // 어떤 계산에도 쓰이지 않았다(공개 필드 전용).
     intendedTickers: intendedTickers.slice(),
     costBasis: 'cost-not-used-for-allocation',
     missingCostMembers: missingCostMembers.slice(),
@@ -863,6 +946,8 @@ export function buildPortfolioBacktestLab(priceMap, positions, options) {
       '종목 사이 월말 날짜가 ' + maxAlignmentGapDays + '일 넘게 어긋난 달은 뺐습니다.',
       rfInvalid ? '무위험 수익률 입력을 읽지 못해 샤프·소르티노·알파를 계산하지 않았습니다.' : rfAnnual == null ? '무위험 수익률을 입력하지 않아 샤프·소르티노·알파를 계산하지 않았습니다.' : ('무위험 수익률은 입력한 연 ' + (rfAnnual * 100).toFixed(2) + '%를 전 기간에 같게 썼습니다.'),
       '모든 종목과 벤치마크의 월말 가격이 함께 있는 첫 달(' + common[0] + ')부터 계산합니다 — 가장 늦게 상장한 종목이 시작 시점을 정합니다.',
+      // P1252 (BT-03): 원가 통화로 시세 값을 환산한 근거 추정은 공개한다 — 시세 통화 선언이
+      // 원가 통화와 다르면 비중이 왜곡될 수 있다.
       priceCurrencyInferredMembers.length ? ('시세 통화를 입력하지 않은 종목(' + priceCurrencyInferredMembers.join(', ') + ')은 매수 단가 통화를 시세 통화로 썼습니다 — 둘이 다르면 시작 비중이 틀어집니다.') : null,
       targetWeightBasis !== 'explicit-target-weight' && startWeightPriceBasis === 'adjusted-close' ? '실제 거래 종가가 없는 종목이 있어 시작 비중을 배당 조정 종가로 계산했습니다 — 배당이 큰 종목은 시작 비중이 실제보다 작게 잡힙니다.' : null,
       needsConversion && currencyAxis.compositionFx && currencyAxis.compositionFx.basis === 'declared-rate-as-of-run' && targetWeightBasis !== 'explicit-target-weight' ? '시작 달(' + common[0] + ')의 원/달러 월말 값이 없어 시작 비중을 지금 선언된 환율로 환산했습니다 — 그 사이 환율이 움직인 만큼 시작 비중이 실제와 다릅니다.' : null,

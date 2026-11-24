@@ -1,7 +1,7 @@
-// scripts/ci-doc-currency-check.mjs — WO-8 (P669): _context/CODE-MAP.md currency check.
+// scripts/ci-doc-currency-check.mjs — WO-8: _context/CODE-MAP.md currency check.
 //
 // 왜: CODE-MAP.md는 "작업 전 이 파일에서 담당 파일과 범위를 찾고..."라는 자기 목적을 갖는
-// 탐색 지도인데, 자기 frontmatter의 target_version(v51.90)과 파일 크기 표가 실제 코드
+// 탐색 지도인데, 자기 frontmatter의 target_version 과 파일 크기 표가 실제 코드
 // 대비 계속 낡아가도(이번 조사 실측: 32,025→32,220, 24,117→24,482, 17,535→17,894,
 // 6,877→6,955, 7,312→7,796줄 드리프트) 이를 감지하는 자동 장치가 전혀 없었다(WO-8/F-08
 // 성격 — "운영 사실과 문서 drift를 CI가 검출"). 이 스크립트는 CODE-MAP.md의 파일 크기

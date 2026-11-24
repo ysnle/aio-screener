@@ -1,4 +1,4 @@
-// v59.70: the themes page is split into src/ui/pages/themes/*.js behind the src/ui/pages/themes.js facade (lifecycle).
+// The themes page is split into src/ui/pages/themes/*.js behind the src/ui/pages/themes.js facade (lifecycle).
 // Source contracts that read "the themes page" read every file of it as one text, in a fixed order.
 import fs from 'node:fs';
 import path from 'node:path';

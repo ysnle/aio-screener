@@ -293,7 +293,7 @@ const reachableScriptsForProfile = (profileName, candidateManifest = manifest) =
   )
 );
 
-// v59.85: a workflow's commit step runs `scripts/publish-data-commit.mjs --set <id>`, which stages the set's paths and
+// A workflow's commit step runs `scripts/publish-data-commit.mjs --set <id>`, which stages the set's paths and
 // runs its hook commands (scripts/lib/data-publish-sets.mjs). Those paths and commands are part of what the workflow
 // executes, so reachability and required tokens are checked against the workflow text plus the sets it invokes.
 function effectiveWorkflowSource(workflowPath) {
@@ -322,7 +322,7 @@ function validateWorkflowContract(contract, source, candidateManifest = manifest
     const group = candidateManifest.groups?.[contract.group];
     if (!contract.group || !group) contractErrors.push(`group missing: ${contract.group || 'undefined'}`);
     const invokesGroup = runsQaGroup(source, contract.group);
-    // v60.46: a `--data-run` invocation does not reach the group's code gates.
+    // A `--data-run` invocation does not reach the group's code gates.
     const dataRunInvocation = new RegExp(`qa-runner\\.mjs\\s+--group\\s+${String(contract.group || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+--data-run\\b`).test(source);
     const reachable = new Set(invokesGroup ? (group?.gates || []).filter((gate) => !dataRunInvocation || runsInDataRun(gate)).map((gate) => gate.script) : []);
     for (const script of requiredScripts) {
@@ -383,7 +383,7 @@ for (const [groupName, group] of Object.entries(manifest.groups || {})) {
     ids.push(gate.id);
     check(`${groupName}/${gate.id} script exists`, existsSync(gate.script));
     // v60.46 (static-dynamic audit rec. 8): every gate says whether its verdict depends on the data a producer writes.
-    // v60.50: the class is `code` or `data`; `mixed` and an undeclared gate are refused (a script holding both kinds
+    // The class is `code` or `data`; `mixed` and an undeclared gate are refused (a script holding both kinds
     // splits them into sections, scripts/lib/gate-sections.mjs, and is declared `data`).
     check(`v60.50 ${groupName}/${gate.id} declares inputClass code or data (${GATE_INPUT_CLASSES.join('|')}), never mixed`, GATE_INPUT_CLASSES.includes(gate.inputClass) && gate.inputClass !== 'mixed');
     // Optional `remedy`: a one-line next action printed by qa-runner on FAIL (never part of the fingerprint).
@@ -431,7 +431,7 @@ const gateInputContracts = [
     inputs: ['public-data/masters/**', 'public-data/objects/masters/**', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml'],
     impactPaths: ['public-data/masters/index.json', 'public-data/objects/masters/fixture.json', 'scripts/lib/13f-semantic-hash.mjs', 'scripts/lib/13f-discovery.mjs', 'scripts/ci-13f-semantic-hash-check.mjs', 'scripts/collect-13f-discovery.mjs', 'scripts/collect-13f-reference.mjs', 'scripts/collect-13f-history-index.mjs', 'scripts/collect-13f-history-rows.mjs', 'scripts/build-13f-issuer-aggregates.mjs', 'scripts/build-13f-reference-ticker-index.mjs', 'scripts/reconcile-13f-prior-from-history.mjs', 'scripts/build-masters-runtime-artifacts.mjs', '.github/workflows/refresh-data.yml']
   },
-  // v58.86: the release-manifest gate retired (ci-version-check owns the revision fields, release-revision regenerates the manifests).
+  // The release-manifest gate retired (ci-version-check owns the revision fields, release-revision regenerates the manifests).
   {
     id: 'deployment-convergence',
     group: 'core',
@@ -536,13 +536,13 @@ check('CI does not rerun for data workflow completion', !/workflow_run:/.test(ci
 check('workflow syntax gate includes untracked newly-created workflows', /readdirSync\(join\(root, '\.github', 'workflows'\)\)/.test(workflowSyntaxSource) && !/git ls-files \.github\/workflows/.test(workflowSyntaxSource));
 check('CI does not deploy Pages', !/deploy-pages/.test(ciSource));
 check('CI has cheap preflight job', /preflight:[\s\S]*?qa-runner\.mjs --group preflight \$DATA_RUN_FLAG --no-cache/.test(ciSource));
-// v60.46: CI skips code gates only on a reduced-scope (data-only) commit, whose code resolve-release-source.mjs proved green.
+// CI skips code gates only on a reduced-scope (data-only) commit, whose code resolve-release-source.mjs proved green.
 check('v60.46 CI passes --data-run exactly when the scope is reduced',
   (ciSource.match(/DATA_RUN_FLAG: \$\{\{ (?:steps\.scope|needs\.preflight)\.outputs\.reduced_scope == 'true' && '--data-run' \|\| '' \}\}/g) || []).length === 2
   && (ciSource.match(/\$DATA_RUN_FLAG/g) || []).length === 2
   && /qa-runner\.mjs --group \$\{\{ matrix\.group \}\} \$DATA_RUN_FLAG --no-cache/.test(ciSource));
 check('contract matrix waits for preflight', /contracts:[\s\S]*?needs:\s*preflight/.test(ciSource));
-// P1664: the browser matrix starts beside the contract matrix after the cheap preflight (public repo, free minutes;
+// The browser matrix starts beside the contract matrix after the cheap preflight (public repo, free minutes;
 // the attest job still requires both), which removes the contracts wait from every push's wall time.
 check('P1664 browser matrix waits for preflight', /browser:[\s\S]*?needs:\s*preflight/.test(ciSource));
 check('contract matrix aggregates shard failures', /contracts:[\s\S]*?fail-fast:\s*false/.test(ciSource));
@@ -562,7 +562,7 @@ const workflowStepBlock = (jobSource, stepName) => {
   const next = lines.findIndex((line, index) => index > start && /^      - name:/.test(line));
   return lines.slice(start, next < 0 ? lines.length : next).join('\n');
 };
-// v57.54: require an immutable full-SHA pin that is the same in every job, instead of one hard-coded SHA.
+// Require an immutable full-SHA pin that is the same in every job, instead of one hard-coded SHA.
 // The literal SHA made every Dependabot github-actions bump PR fail this gate (3 of 28 CI failures in the
 // last 100 runs) although the bump itself is what the PR review covers.
 const qaFailureUploadPins = [...new Set([...ciSource.matchAll(/uses:\s*actions\/upload-artifact@([0-9a-f]{40})\b/g)].map((match) => match[1]))];
@@ -578,7 +578,7 @@ for (const jobName of ['preflight', 'contracts', 'browser']) {
     : new RegExp(`aio-qa-failure-output-${jobName}-\\$\\{\\{ matrix\\.group \\}\\}-\\$\\{\\{ github\\.run_attempt \\}\\}`);
   check(`P1286 CI ${jobName} job uses the shared runner-temp QA cache`,
     /AIO_QA_CACHE_DIR:\s*\$\{\{\s*runner\.temp\s*\}\}\/aio-qa/.test(qaRunStep)
-    && /run:\s*(?:\|\s*)?node scripts\/qa-runner\.mjs/.test(qaRunStep)); // v59.72: the browser shard's block scalar (rerun once)
+    && /run:\s*(?:\|\s*)?node scripts\/qa-runner\.mjs/.test(qaRunStep)); // The browser shard's block scalar (rerun once)
   check(`P1286 CI ${jobName} uploads only redacted run-scoped QA failures after failure`,
     /^        if: failure\(\)\s*$/m.test(uploadStep)
     && new RegExp(`^        uses: actions/upload-artifact@${qaFailureUploadSha.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:\\s+#.*)?\\s*$`, 'm').test(uploadStep)
@@ -590,7 +590,7 @@ for (const jobName of ['preflight', 'contracts', 'browser']) {
 }
 
 check('Pages waits only for CI attestation', /workflows:\s*\['CI'\]/.test(pagesSource) && !/Refresh market data|Refresh screener and SEC fundamentals/.test(pagesSource));
-// R606: GITHUB_TOKEN-dispatched CI runs emit no workflow_run event, so the
+// GITHUB_TOKEN-dispatched CI runs emit no workflow_run event, so the
 // producer hands the exact run id over explicitly. The hand-over must not become
 // a bypass, so the deploy workflow re-asserts the same conditions and keeps
 // validating the attestation artifact.
@@ -599,7 +599,7 @@ check('Pages explicit hand-over re-asserts attestation conditions',
   && /workflow_dispatch:[\s\S]*?expected_sha/.test(pagesSource)
   && /actions\/runs\/\$run_id/.test(pagesSource)
   && /aio-release-attestation\.v1/.test(pagesSource)
-  // v60.19: the attested-SHA comparison is one delimited block; v60.21: deployment-provenance.mjs runs it under bash
+  // The attested-SHA comparison is one delimited block; v60.21: deployment-provenance.mjs runs it under bash
   // for both scripts/ci-deployment-convergence-check.mjs (push and dispatch scenes) and the watchdog's CI trust check.
   // Here only that the block exists and that both consumers execute it through that module.
   && /# attested-release-rule:begin[\s\S]*?# attested-release-rule:end/.test(pagesSource)
@@ -612,14 +612,13 @@ check('convergence driver cannot bypass attestation or mutate repository state',
   && !/deploy-pages@/.test(convergenceSource)
   && !/writeFileSync\([^)]*'\.\//.test(convergenceSource)
   && !/git\s+push/.test(convergenceSource));
-// v57.92 (audit W06): both convergence branches turn a settled CI failure red.
+// Both convergence branches turn a settled CI failure red.
 check('v57.92 W06 default convergence branch propagates a settled CI failure',
   /finish\('UNATTESTED_REVISION', settledFailure \? 1 : 0\)/.test(convergenceSource) && /ciFailed \? 1 : 0/.test(convergenceSource));
 {
-  // v58.20 review B2: a refresh-dispatched run tests fewer groups, but its commit contains every human commit underneath.
+  // B2: a refresh-dispatched run tests fewer groups, but its commit contains every human commit underneath.
   const attestJob = ciSource.slice(ciSource.indexOf('\n  attest:'));
   const guardAt = attestJob.indexOf('Reduced-scope release sits on a fully tested source commit');
-  // v59.78: the first-parent lookup and the push-CI query moved into resolve-release-source.mjs (ci-release-source-check.mjs).
   const resolver = read('scripts/resolve-release-source.mjs');
   check('v58.20 reduced-scope refresh CI attests only on top of a source commit with a successful full push CI',
     guardAt > 0 && guardAt < attestJob.indexOf('Build immutable release attestation')
@@ -629,12 +628,12 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
       && /permissions:\s*\n\s*contents: read\s*\n\s*actions: read/.test(attestJob));
 }
 {
-  // v58.70 (owner 2026-10-23): refresh commits are attested by the data/core/knowledge contracts; the browser shards
+  // Refresh commits are attested by the data/core/knowledge contracts; the browser shards
   // (apt mirror) run only for source pushes, and attest accepts a skipped browser job only for a refresh origin.
-  // v59.49: event-briefs is a refresh origin too (it commits public-data/event-briefs.json only).
+  // event-briefs is a refresh origin too (it commits public-data/event-briefs.json only).
   const browserJob = ciSource.slice(ciSource.indexOf('\n  browser:'), ciSource.indexOf('\n  attest:'));
   const attestHead = ciSource.slice(ciSource.indexOf('\n  attest:'), ciSource.indexOf('    steps:', ciSource.indexOf('\n  attest:')));
-  // v59.59: the refresh origins are named once, in the preflight scope step; every job reads its reduced_scope output.
+  // The refresh origins are named once, in the preflight scope step; every job reads its reduced_scope output.
   const scopeStep = ciSource.match(/- name: Resolve validation scope([\s\S]*?)(?=\n      - name:)/)?.[1] || '';
   check('v58.70 refresh-origin CI skips the browser shards and attest accepts that skip only for a refresh origin',
     /refresh-data\) reduced=true; groups='\["core","data","knowledge"\]'/.test(scopeStep)
@@ -647,7 +646,7 @@ check('v57.92 W06 default convergence branch propagates a settled CI failure',
       && /needs\.preflight\.result == 'success' && needs\.contracts\.result == 'success'/.test(attestHead)
       && /needs\.browser\.result == 'success' \|\| \(needs\.browser\.result == 'skipped' && needs\.preflight\.outputs\.reduced_scope == 'true'\)/.test(attestHead)
       && /github\.event_name != 'pull_request' && github\.ref_name == 'main'/.test(attestHead));
-  // v60.14: a producer runs, before its push, the groups this scope step will run on that commit. The map is declared
+  // A producer runs, before its push, the groups this scope step will run on that commit. The map is declared
   // once (originScopes) and must equal the scope step; each producer must call the profile for its own origin.
   const scopes = manifest.originScopes || {};
   const ciGroups = (origin) => {
@@ -691,7 +690,7 @@ check('P1308/R653/QA-DATA-50 Worker deployments reconcile cancelled or replaced 
     && /getWorkerChangesBetween\(liveSha, process\.env\.EXPECTED_SHA\)/.test(source)
     && /shouldDeployWorker/.test(source)
     && /steps\.convergence\.outputs\.should_deploy/.test(source)));
-// v59.85: the exact-SHA dispatch is the publisher's (after a push, `gh workflow run ci.yml -f release_sha=<pushed HEAD>`).
+// The exact-SHA dispatch is the publisher's (after a push, `gh workflow run ci.yml -f release_sha=<pushed HEAD>`).
 const publisherSource = read('scripts/publish-data-commit.mjs');
 check('refresh workflows dispatch exact produced SHA', ['refresh-data', 'refresh-screener', 'refresh-screener-extended', 'event-briefs'].every((id) => DATA_PUBLISH_SETS[id].ciOrigin
   && read(`.github/workflows/${DATA_PUBLISH_SETS[id].workflow}`).includes(`scripts/publish-data-commit.mjs --set ${id}`))
@@ -699,7 +698,7 @@ check('refresh workflows dispatch exact produced SHA', ['refresh-data', 'refresh
 const refreshSources = [['refresh-data.yml', refreshDataSource], ['refresh-screener.yml', refreshScreenerSource]];
 check('refresh workflows converge the live revision through the attested hand-over',
   refreshSources.every(([, source]) => /ensure-live-convergence\.mjs/.test(source) && /--await-sha/.test(source)));
-// P1085: a single unavailable quote plane used to skip the Telegram, 13F and
+// A single unavailable quote plane used to skip the Telegram, 13F and
 // release-manifest lanes plus every gate, so one provider outage looked like a
 // total pipeline outage. Lanes are isolated now, but publication must stay
 // fail-closed — this pins both halves so neither can drift alone.
@@ -733,7 +732,7 @@ check('refresh-screener runs SEC producer, projection, screener producer, then v
   return position >= 0 && (index === 0 || position > refreshScreenerSource.indexOf(`name: ${steps[index - 1]}`));
 }));
 for (const [name, source] of refreshSources) {
-  // v59.85: the commit, push, rebase and post-rebase checks run inside the publisher, in the order its source fixes
+  // The commit, push, rebase and post-rebase checks run inside the publisher, in the order its source fixes
   // (stage → afterStage → commit → verifyCommit → push; rebase → verifyCommit), driven by ci-publish-data-commit-check.mjs.
   const setId = name.replace(/\.yml$/, '');
   const set = DATA_PUBLISH_SETS[setId];
@@ -746,7 +745,7 @@ for (const [name, source] of refreshSources) {
     .map((token) => publisherSource.indexOf(token));
   const publisherOrdered = publisherOrder.every((at, index) => at > 0 && (index === 0 || at > publisherOrder[index - 1]));
   const lastProducerAt = source.indexOf(name === 'refresh-data.yml' ? 'name: Write the freshness ledger' : 'name: Refresh screener independently');
-  // P1270/P1289: strict producer checks run before recording the exact candidate; the extra
+  // Strict producer checks run before recording the exact candidate; the extra
   // data-audit invocation only captures bounded diagnostics and cannot replace that producer gate.
   // Promotion re-hashes the candidate after all assembly writes. Repeating heavy checks there only masks drift/cost.
   // Counts are taken over `node scripts/<gate>` invocations, never over comments that name a gate.
@@ -797,12 +796,12 @@ check('watchdog uses aggregate watchdog profile', /qa-runner\.mjs watchdog --no-
 check('watchdog preserves failure while uploading rolling SLO evidence', /continue-on-error:\s*true/.test(watchdogSource) && /build-operations-slo-window\.mjs/.test(watchdogSource) && /retention-days:\s*90/.test(watchdogSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
 check('watchdog captures failed gate ids and details before final failure', /AIO_QA_CACHE_DIR:\s*\$\{\{ runner\.temp \}\}\/aio-qa/.test(watchdogSource) && /report-qa-failures\.mjs/.test(watchdogSource) && /Summarize failed watchdog gates/.test(watchdogSource) && /Failed gates:/.test(reportQaFailuresSource) && /Failed gate details:/.test(reportQaFailuresSource) && /steps\.qa\.outcome != 'success'/.test(watchdogSource));
 
-// P1083: the summarize step used to inline a JS template literal into `node -e`,
+// The summarize step used to inline a JS template literal into `node -e`,
 // so bash expanded `${...}` first and every run published an empty summary. Keep
 // the shell-expansion-hostile form out of workflows entirely.
 check('no workflow inlines a JS template literal through node -e', !/\$\{.*\.map\(/.test(watchdogSource));
 
-// R607: GitHub's default job ceiling is 360 minutes, and refresh-data /
+// GitHub's default job ceiling is 360 minutes, and refresh-data /
 // refresh-screener share a non-cancelling concurrency group — one hung job would
 // block every later scheduled cycle behind it and silently freeze live data.
 const unboundedJobs = [];
@@ -827,7 +826,7 @@ check('headless registry stays ordered until group isolation is proven',
 check('failed headless groups have an independent rerun lifecycle',
   headlessSource.includes('AIO_FAILED_GROUPS=')
   && runnerSource.includes('`--groups=${failedGroups}`'));
-// v58.89: the rest of the retired headless-group-lifecycle gate — the group registry and exact group selection.
+// The rest of the retired headless-group-lifecycle gate — the group registry and exact group selection.
 const testsSource = read('js/aio-tests.js');
 const headlessGroupIds = [...testsSource.matchAll(/\{ id:'(G\d{3})', name:/g)].map((match) => match[1]);
 check(`QA-GOV-RETIRE-01 headless group registry has 100+ unique G### ids (total=${headlessGroupIds.length})`, headlessGroupIds.length >= 100 && new Set(headlessGroupIds).size === headlessGroupIds.length);
@@ -848,7 +847,7 @@ check('headless failures keep exact test details in stdout and a local report',
   && headlessSource.includes('groupResults'));
 check('runner streams long-gate progress and terminates Windows child trees', /\[qa-progress\]/.test(runnerSource) && /taskkill\.exe/.test(runnerSource) && /['"]\/T['"]/.test(runnerSource));
 
-// P1518/R690: direct literal reads must participate in the content cache key.
+// Direct literal reads must participate in the content cache key.
 // This is a lower bound, not a complete JS dependency parser; dynamic reads and
 // transitive imports still need explicit manifest inputs and review.
 const inputMatches = (file, patterns) => patterns.some(pattern => {
@@ -871,7 +870,7 @@ for (const group of Object.values(manifest.groups)) {
 //     of its data commit runs) are all declared `data`, and every lane selects at least one.
 // (b) Dynamic, through the real runner: a sectioned fixture gate run as a data run executes its data section and not its
 //     code section, and says how many it skipped; the same gate outside a data run executes both.
-// (c) Negative control (P2749): the pre-fix ci-ai-intelligence-contract-check.mjs failed on every Monday (UTC) in the
+// (c) Negative control: the pre-fix ci-ai-intelligence-contract-check.mjs failed on every Monday (UTC) in the
 //     refresh lanes; its gate is `code` now, so no lane's data run selects it.
 {
   const { spawnSync } = await import('node:child_process');

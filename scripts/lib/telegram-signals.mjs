@@ -3,7 +3,6 @@
 // changes, reported quarters against estimates, economic releases against forecasts, and the daily list of what
 // Korean retail investors bought in US stocks. These pure extractors read the full text of freshly fetched posts once
 // and keep only the numbers, so the screener and the market reading can use them without redistributing the text.
-//
 import { matchTickers } from './telegram-tickers.mjs';
 
 // A ticker is kept only when the post writes it ($NVDA, (NVDA), [028050], 089890/KQ, 000660.KS) and, for the bracket
@@ -193,7 +192,7 @@ export function extractAnalystActions(text, { universe, date, postId } = {}) {
     const ratingChange = line.match(RATING_CHANGE);
     const ratingAction = ratingChange ? (/상향|upgrade/i.test(ratingChange[0]) ? 'upgrade' : 'downgrade') : null;
     const broker = brokerOf(line) || contextBroker;
-    // v59.45 (R3-03): without a broker the target prices tell two same-day actions apart (200→250 and 180→220 were
+    // Without a broker the target prices tell two same-day actions apart (200→250 and 180→220 were
     // folded into one); a relay of the same prices still collapses in mergeSignals.
     const key = broker ? `pt|${ticker}|${broker}|${date || ''}` : `pt|${ticker}|-|${date || ''}|${change.ptFrom ?? '-'}>${change.ptTo ?? '-'}`;
     if (seen.has(key)) return;
@@ -295,7 +294,7 @@ export function extractRetailFlows(text, { postId } = {}) {
   return [{ kind: 'retail', key: `retail|${head[4]}|${sessionDate}`, side: head[4] === '순매수' ? 'buy' : 'sell', date: sessionDate, top: rows.slice(0, 10), leveragedLongShare: share((row) => row.leveraged), inverseShare: share((row) => row.inverse), top10Share: share((row) => row.rank <= 10), post: postId || null }];
 }
 
-// v59.62 (owner 2026-11-03): the Marvell-Lumentum all-stock deal (11/2) was in seven channel posts and on no screen,
+// The Marvell-Lumentum all-stock deal (11/2) was in seven channel posts and on no screen,
 // because no signal kind held a corporate action. A deal is kept only once announced (a definitive agreement), with its
 // two written tickers; a report that talks are "임박"/"협상 중" or a broker's "인수 가능성" is not one.
 const DEAL_WORD = /인수|합병|acquir|merger/i;
@@ -341,7 +340,7 @@ export function mergeSignals(previous = [], fresh = [], { sinceDate } = {}) {
   for (const signal of [...(Array.isArray(previous) ? previous : []), ...fresh]) {
     if (!signal?.key || !SIGNAL_LIMITS[signal.kind]) continue;
     if (sinceDate && String(signal.date || '') < sinceDate) continue;
-    // v59.84: a deal read before the one-line rule (no `rule`) may pair two items of a roundup; it is not carried forward.
+    // A deal read before the one-line rule (no `rule`) may pair two items of a roundup; it is not carried forward.
     if (signal.kind === 'deal' && signal.rule !== DEAL_RULE) continue;
     // One deal is told across several posts (terms in one, the premium in another): the terms add up, the first date stays.
     const before = signal.kind === 'deal' ? byKey.get(signal.key) : null;

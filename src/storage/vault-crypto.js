@@ -1,3 +1,8 @@
+// v59.30 (roadmap 11, vault): the AioVault cryptography as pure functions — PBKDF2-SHA256 key derivation, AES-GCM
+// encryption and decryption of one value, and the stored envelope ('aio_enc::' + base64 of v2 [magic4|iv12|salt16|ct]
+// or v1 [iv12|salt16|ct]). The vault object itself stays the lexical `const _AioVault` in js/aio-core.js (P1350: it is
+// not a window property); its methods call these through window._aioVaultCrypto and keep their generation checks.
+// The KDF version, iteration counts and magic stay declared in js/aio-core.js and are passed in.
 export async function deriveVaultKey(pin, salt, iterations) {
   const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(

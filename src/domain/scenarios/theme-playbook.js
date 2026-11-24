@@ -1,4 +1,4 @@
-import { median } from '../themes/theme-medians.js';
+import { median } from '../themes/theme-medians.js'; // v59.70 (R9)
 import { creditStable } from '../market/interpretation/concepts.js';
 import { withSubjectParticle, withDirectionParticle } from '../content/korean-particle.js';
 import { EXPOSURE_TAGS, WIND_LABELS, themeProfile, windFor } from './exposures.js';
@@ -7,15 +7,26 @@ import { scenarioLead } from '../market/regime/scenario-lead.js';
 import { marketWindowReturns, recentMove, recentMoveText, relativeBand, weeklyNoiseFromVol, NOISE_MULTIPLE, WINDOW_LABELS } from '../themes/recent-check.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
+// The playbook version lives in theme-stage.js, re-exported here for every existing import.
 import { THEME_PLAYBOOK_VERSION, SCENARIO_STATE_CURRENT, scenarioBasisCurrent } from './theme-stage.js';
 export { THEME_PLAYBOOK_VERSION };
 const pct = (value) => value == null ? '—' : `${signedText(value, 1)}%`;
 const marketWord = (row) => (row.market === 'KR' ? '한국' : '미국');
 const shortDay = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 /** The index each market's themes are measured against (history field, reader name). */
+// A theme's stage is an equal-weight median, so the US stage reads against the equal-weight
+// S&P 500 (RSP) — against the cap-weighted index a few mega-caps leading put almost every theme behind at once. The
+// cap-weighted S&P 500 is shown beside it as a reference only.
+// The stage never switches benchmark: a cap-weighted stand-in while RSP had no close on the theme's date (every evening
+// between the screener refresh at 22:31Z and the 23:00Z cut) flipped eight US stages for 30 minutes and logged each flip
+// twice. With the benchmark a session behind the theme the stage is withheld for that read (row.held), and the
+// per-refresh producer keeps the previous stage (build-scenario-state.mjs heldThemeRow).
 export const THEME_BENCHMARKS = Object.freeze({ US: { field: THEME_OUTCOME_BENCHMARK, name: 'S&P 500 동일가중', reference: { field: 'spx', name: 'S&P 500' } }, KR: { field: 'kospi', name: '코스피' } });
 const BENCHMARK_NAMES = Object.freeze({ rsp: 'S&P 500 동일가중', spx: 'S&P 500', kospi: '코스피' });
+// A leading trend needs the 50-day share condition or at least this many met conditions to stay 주도 지속.
 export const LEAD_CONFIRM_MET = 3;
+// One line with leadingStageText (50%) and R708 — at 30% the stage read 주도 지속 while its own sentence
+// said "50일선 위 종목이 30%뿐이라 추세가 넓게 받쳐 주지 않습니다".
 export const ABOVE50_FLOOR = 50;
 // The shared credit rule lives with the other shared concepts (src/domain/market/interpretation/concepts.js).
 export { creditStable };
@@ -26,6 +37,7 @@ const FAVOURED = {
   pullback: { tail: ['stage'], head: ['wait'], mixed: ['stage', 'wait'], none: ['stage', 'wait'] },
   rebound: { tail: ['stage'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
   weak: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
+  // 상대 방어 is not leadership and 동행 has no edge of its own over the index.
   defensive: { tail: ['wait'], head: ['wait'], mixed: ['wait'], none: ['wait'] },
   inline: { tail: ['hold'], head: ['wait'], mixed: ['wait'], none: ['wait'] }
 };
@@ -47,6 +59,7 @@ const WHY = {
   inline: { tail: '매크로 수혜 성격이지만 가격은 아직 지수와 비슷하게 움직여, 보유의 득실은 지수 보유와 비슷합니다. 이 테마만의 우위는 긴 추세가 지수보다 앞서기 시작하는지로 갈립니다.',
     other: '지수와 비슷한 폭으로 움직여 이 테마만의 우위가 확인되지 않습니다. 새로 들어가는 판단은 긴 추세가 지수보다 앞서기 시작한 뒤가 비용이 작습니다.' }
 };
+// v58.74 (text audit): the stage fold prints these once; a card repeats a line only when its own text differs.
 export const stageChoiceText = (state) => ({ ...(CHOICE_TEXT[state] || {}) });
 const CHOICE_TEXT = {
   leading: { wait: '기다리는 동안 추세가 이어지면 놓친 상승이 기회비용이 됩니다.', hold: '추세가 살아 있는 동안 보유를 이어 가는 비용은 작습니다.', defend: '추세가 강할 때의 방어 전환은 남은 상승을 포기하는 기회비용이 큽니다.' },
@@ -57,6 +70,7 @@ const CHOICE_TEXT = {
   defensive: { wait: '지수 하락이 멈추고 긴 추세가 돌아설 때까지 기다리면 반등 초입 일부를 놓칠 수 있습니다.', stage: '덜 빠진 테마에 나눠 들어가도 지수가 더 내리면 함께 내려갑니다 — 지수보다 앞선다는 것이 플러스 수익을 뜻하지는 않습니다.', hold: '보유는 지수보다 덜 빠지는 흐름이 유지되는지와 긴 추세가 0 위로 돌아서는지 확인하며 유지합니다.', defend: '하락장이 이어지면 방어 쪽이 손실을 줄이지만, 지수가 반등하면 회복을 늦게 탑니다.' },
   inline: { wait: '지수와 같이 움직이는 동안 기다리는 비용은 지수를 갖고 있지 않은 비용과 비슷합니다.', stage: '나눠 들어가면 사실상 지수 노출을 사는 것과 비슷합니다 — 긴 추세가 지수보다 앞서기 시작하는지가 기준입니다.', hold: '보유는 지수 판단과 같이 갑니다. 긴 추세가 지수보다 뒤처지기 시작하면 다시 봅니다.', defend: '이 테마만 따로 방어로 돌릴 근거는 약합니다 — 지수 전체 판단의 문제입니다.' }
 };
+// "이미 벌어진 50일선과의 거리를 감수합니다" was printed while only 22.5% of the members sat above the line.
 function leadingStageText(above50) {
   if (above50 == null) return '새로 나눠 들어가면 이미 오른 가격을 감수합니다 — 50일선 위 종목 비율을 확인할 수 없어 쉬어 가는 구간을 기다리는 편이 비용이 작을 수 있습니다.';
   return above50 >= 50
@@ -75,6 +89,7 @@ function midNote(state, ret6m, ret3m) {
 
 function depthOk(trend, ret1m, { relative = false } = {}) {
   if (trend == null || ret1m == null || ret1m >= 0) return null;
+  // Against the index the lead is additive — the excess up to the month is trend − month.
   const before = relative ? trend - ret1m : ((1 + trend / 100) / (1 + ret1m / 100) - 1) * 100; // gain up to the start of the month
   return before > 0 ? -ret1m <= before / 2 : false;
 }
@@ -83,6 +98,11 @@ function depthOk(trend, ret1m, { relative = false } = {}) {
 // way hold that month's verdict.
 const UP_CLAIM = new Set(['leading', 'fading', 'rebound']);
 
+// Stage relative to the market's index over the same windows, with a ± band; absolute only when the index has
+// no close on the theme's own date (then the label says so). v57.84: one rule for a theme row and its group rows — the
+// groups were read on the bare sign of their own returns, so a group could be 주도 inside a theme that was not.
+// With no index close on the theme's date the stage is withheld (판정 보류) instead of read on
+// absolute returns — two bases never share one set of names. The theme's own long return decides 상대 방어.
 function relativeStage({ ret1m, ret3m, ret6m, basis, benchmark }) {
   const trendKey = ret6m != null ? 'ret6m' : 'ret3m';
   const trend = ret6m ?? ret3m;
@@ -118,6 +138,9 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
   const reference = bench?.reference && finite(bench.reference[trendKey]) != null && trend != null
     ? { name: bench.reference.name || BENCHMARK_NAMES[bench.reference.field] || '지수', trend: trend - bench.reference[trendKey], recent: ret1m == null || finite(bench.reference.ret1m) == null ? null : ret1m - bench.reference.ret1m } : null;
   let state = stage.state;
+  // A Korean theme's equal-weight median beat the cap-weighted KOSPI only because its two largest
+  // names led the index down (반도체 1개월 -4.5% vs 삼성 -16% · 하이닉스 -30%, KOSPI -15.6%). When the largest-traded members'
+  // 1-month median trails the index by more than the 1-month band, an ahead-of-index stage is withheld with that line.
   const heavyMid = heavyweights?.length ? median(heavyweights.map((member) => member.ret1m)) : null;
   const heavyHeld = market === 'KR' && bench && heavyMid != null && finite(bench.ret1m) != null && heavyMid < bench.ret1m - recentBand
     && ['leading', 'defensive', 'inline', 'pullback'].includes(state);
@@ -136,28 +159,38 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     [bench ? `긴 추세 앞섬 (${WINDOW_LABELS[trendKey]} 중앙값이 ${benchName}보다 ${band}%p 넘게 높음)` : `긴 추세 유지 (${WINDOW_LABELS[trendKey]} 중앙값 플러스)`, trendX == null ? null : trendX > band],
     [`조정이 무너지지 않음 (50일선 위 종목 ${ABOVE50_FLOOR}% 이상)`, above50Ok],
     [`중심 시나리오에서 수혜 또는 중립${lead ? ` (${leadNames}${scenario.state === 'tie' ? ', 동률이라 모두에서' : ''})` : ''}`, lead ? leadWinds.every((w) => w !== 'head') : null],
+    // One credit rule with 시장 상태 — neutral or widening credit is not "stable".
     ['신용 안정 (신용 지표 양호)', creditStable(credit)],
     // A drop that has taken back more than half of the gain before it is no longer a pause inside the trend.
     ...(state === 'pullback' ? [['조정 깊이 (1개월 지수 대비 낙폭이 그 전까지 앞선 폭의 절반 이하)', depthOk(trendX, recentX, { relative: true })]] : [])
   ] : [];
   const known = conditions.filter(([, ok]) => ok != null);
   const met = known.filter(([, ok]) => ok).length;
+  // 주도 지속 needs the 50-day share or most conditions, and no sharp five-session break; otherwise 추세 약화 확인 중.
   const fadeReasons = [];
   if (state === 'leading') {
     if (above50Ok !== true && met < LEAD_CONFIRM_MET) fadeReasons.push(`${above50 != null ? `50일선 위 ${above50}%` : '50일선 위 비율 확인 불가'}, 조건 ${met}/${conditions.length}`);
     if (recent?.broken || fadeReasons.length) state = 'fading';
   }
   const deep = state === 'pullback' && depthOk(trendX, recentX, { relative: true }) === false;
+  // 동행 claims a direction only through its drift; 상대 방어 claims none.
   const upClaim = UP_CLAIM.has(state) || drift === 'up';
   const downClaim = state === 'pullback' || state === 'weak' || drift === 'down';
   const contradicted = !!recent && (upClaim ? recent.broken : downClaim ? recent.surged : false);
+  // A 추세 속 조정 whose last five sessions broke (US AI infra -12% in five sessions) or whose own long
+  // return is 0 or below (KR 원전 3개월 -1.0%, 1개월 -29.5%) put 분할 first; the highlights already dropped broken pullbacks.
   const shakyPullback = !deep && state === 'pullback' && (recent?.broken || (trend != null && trend <= 0));
   const favored = deep || shakyPullback ? ['wait'] : state === 'leading' ? (met >= LEAD_CONFIRM_MET ? ['hold'] : ['hold', 'wait']) : state ? FAVOURED[state][wind.lead] : [];
   const why = deep ? '1개월 낙폭이 그 전까지 오른 폭의 절반을 넘어, 쉬어 가기보다 추세가 꺾이는 신호일 수 있습니다. 낙폭이 멈추고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.'
     : shakyPullback ? (recent?.broken ? `최근 5거래일 ${ownBreak(recent, weeklyNoise, 'down') ? '낙폭이 평소 1주 움직임의 2배를 넘어' : `${benchName}보다 평소 1주 차이의 2배 넘게 뒤처져`}, 조정이 멈췄는지 확인하기 전에 나눠 들어가면 하락을 함께 떠안을 수 있습니다. 5거래일 흐름이 안정되고 50일선 위 종목 비율이 회복되는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`
       : `${WINDOW_LABELS[trendKey]} 자체 수익률이 0 이하라 지수보다 덜 빠졌을 뿐 오르는 추세는 아닙니다. 1개월 낙폭이 멈추는지 확인하기 전까지 기다리는 쪽의 비용이 작습니다.`)
+    // v58.74 (text audit): 추세 약화 named all three reasons even when only one failed; it names the ones that did.
     : state === 'fading' ? `긴 추세는 지수보다 앞서 있지만 ${withSubjectParticle([fadeReasons.length ? '50일선 위 종목 비율과 충족 조건 수' : null, recent?.broken ? '최근 5거래일 흐름' : null].filter(Boolean).join(', ') || '확인 조건')} 받쳐 주지 않습니다. 회복되는지 확인하기 전까지는 기다리는 쪽의 비용이 작습니다.`
     : state ? (WHY[state][wind.lead] || WHY[state].other) : '';
+  // The proxy's past stages count only when they were classified on the live rule.
+  // And on the same bands and benchmark (an artifact without a rule stamp predates both).
+  // And only when the record's definition stamp (rule, bands, horizon, benchmark, outcome basis and the scoring code) is
+  // the live one. The weekly producer builds US proxies only, so a Korean theme with the same id never reads a US ETF's record.
   const proxyOutcome = market === 'US' ? outcomes?.themes?.[id] : null;
   const proxyRelative = themeOutcomeCurrent(proxyOutcome, bench?.field || THEME_BENCHMARKS[market]?.field);
   const proxy = state && state !== 'fading' && proxyRelative ? proxyOutcome[state] : null;
@@ -178,7 +211,7 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
     relative: bench ? { name: benchName, field: bench.field || null, trendKey, trend: trendX, recent: recentX, band, recentBand, reference } : null,
     // Withheld only because the benchmark's close is a session behind — the per-refresh state keeps the last stage.
     held: stage.lag ? { reason: 'benchmark-lag', benchmark: benchmark?.field || null, benchmarkAsOf: stage.lag } : null,
-    wind,
+    wind, // v59.56 (text pass): a tie names its branches once and says 'both' when their wind is the same.
     windText: scenario.state === 'tie' ? `중심 시나리오 ${withSubjectParticle(leadNames)} 동률이며 ${new Set(leadWinds).size === 1 ? `${leadWinds.length === 2 ? '두' : '모든'} 경우 모두 ${WIND_LABELS[leadWinds[0]]}` : leads.map((item, index) => `${scenario.names[index]}에서는 ${WIND_LABELS[leadWinds[index]]}`).join(', ')}`
       : lead ? `중심 시나리오 ${scenario.names[0]}에서 ${WIND_LABELS[wind.lead]}${alt ? `, 대안 시나리오 '${alt.title.split(' — ')[0]}'에서 ${WIND_LABELS[wind.alt]}` : ''}` : '시나리오 판단 보류',
     favored, favoredWhy: why, choices,
@@ -209,6 +242,9 @@ function themeRow({ market, id, label, ret1m, ret3m, ret6m, ret5d = null, vol = 
  */
 export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = null, credit = null, outcomes = null, labels = {}, history = null, benchmarks: given = null } = {}) {
   const byTheme = new Map();
+  // v59.70 (theme-sector): groups on the newest basis among them are read even before the latest session lands
+  // (group.current false only for that lag) and the playbook says so (lagging.US). Dropping them left 미국 0 every
+  // evening between the US close and the screener refresh. A group behind its peers is still left out.
   const newestUs = usGroups.map((group) => (group?.themeId ? group.basis : null)).filter(Boolean).sort().at(-1) || null;
   const usLagging = usGroups.some((group) => group?.themeId && group.basis === newestUs && group.current === false);
   for (const group of usGroups) {
@@ -231,6 +267,8 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   const benchmarks = { US: given?.US ?? benchFor('US', usBasis), KR: given?.KR ?? benchFor('KR', krBasis) };
   const rows = [];
   for (const [id, groups] of byTheme) {
+    // Members pooled once across the theme's groups (a ticker in two groups counts once); group medians only
+    // when the groups carry no member rows.
     const pooled = [...new Map(groups.flatMap((g) => g.memberStats || []).map((m) => [m.sym, m])).values()];
     const pick = (key, groupKey = key) => (pooled.length ? median(pooled.map((m) => m[key])) : median(groups.map((g) => g[groupKey])));
     const measured50 = pooled.filter((m) => finite(m.pctSma50) != null);
@@ -268,9 +306,11 @@ export function buildThemePlaybook({ usGroups = [], krThemes = [], crossroads = 
   const highlights = {
     // Only well-supported pullbacks (most known conditions met, including the depth check) are surfaced.
     structuralPullbacks: rows.filter((row) => row.state === 'pullback' && row.wind.lead !== 'head' && row.known >= 3 && row.met / row.known >= 0.75 && !row.recent?.broken).sort((a, b) => b.met - a.met || b.ret1m - a.ret1m),
+    // Only themes that pass the corrected stage (index-relative, confirmed, no five-session break) count as leading.
     headwindLeaders: rows.filter((row) => row.state === 'leading' && row.wind.lead === 'head'),
     tailwindLaggards: rows.filter((row) => row.state === 'weak' && row.wind.lead === 'tail')
   };
+  // P1681 parity: on a lagging US basis the rows stay as a dated reference, but no US theme is named as leading now.
   if (usLagging) for (const key of Object.keys(highlights)) highlights[key] = highlights[key].filter((row) => row.market !== 'US');
   const asOfByMarket = { US: usBasis, KR: krBasis };
   return { available: rows.length > 0, version: THEME_PLAYBOOK_VERSION, themes: rows, rotation, highlights, benchmarks,
@@ -286,6 +326,8 @@ export function themeRotationRead({ live = null, artifact = null, nowMs = Date.n
   if (live?.available && live.rotation?.text) {
     return { text: live.rotation.text, pullbacks: (live.highlights?.structuralPullbacks || []).map(({ market, id, label, ret1m }) => ({ market, id, label, ret1m })), source: 'live' };
   }
+  // v59.45 (P10-STATE-01): the stand-in also needs a current publication (a stamped status other than 'current' is not)
+  // and a US basis within the session lag; it carries that basis so the line can date itself.
   const asOf = artifact?.basis?.themeAsOfByMarket?.US || null;
   if (artifact?.playbookVersion === THEME_PLAYBOOK_VERSION && artifact.rotation?.text && (artifact.status == null || artifact.status === SCENARIO_STATE_CURRENT) && scenarioBasisCurrent(asOf, 'US', nowMs)) {
     const byKey = new Map((artifact.themes || []).map((row) => [`${row.market}:${row.id}`, row]));
@@ -300,6 +342,8 @@ export function basisText(asOfByMarket = {}) {
   return parts.length ? `${parts.join(', ')} 확정 종가` : '기준일 미확인';
 }
 
+// A tag-level "힘이 옮겨 갔습니다" needs at least this many themes on each end; thinner tags are read as
+// named themes only, so two or three themes cannot make a market-wide rotation claim.
 export const ROTATION_TAG_MIN_THEMES = 5;
 
 function tagMedians(rows, benchRet5d = null) {
@@ -328,6 +372,7 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   const usTags = tagMedians(us, benchRet5d);
   const usFirst = usTags.length >= 2;
   const tags = usFirst ? usTags : tagMedians(rows);
+  // With no US rows (screener not read yet) the read is Korea-only and says so, not '미국·한국'.
   const scope = usFirst ? '미국' : us.length ? '미국·한국' : '한국';
   const ends = (list, k) => { const sorted = [...list].sort((a, b) => b.ret1m - a.ret1m); return { up: sorted.slice(0, k), down: sorted.slice(-k).reverse().filter((row) => !sorted.slice(0, k).includes(row)) }; };
   const main = ends(usFirst ? us : rows, 3);
@@ -336,6 +381,7 @@ export function rotationOf(rows, { period = null, benchRet5d = null } = {}) {
   const spread = top && bottom ? top.ret1m - bottom.ret1m : null;
   const week = (row) => (row.recent?.broken || row.recent?.surged) && row.ret5d != null ? `, 5거래일 ${pct(row.ret5d)}` : '';
   const named = (row) => `${scope === '미국·한국' ? `${marketWord(row)} ` : ''}${row.label}(${pct(row.ret1m)}${week(row)})`;
+  // v59.56 (text pass): '상위 바이오(-0.4%)' called a falling theme 상위; the words follow the sign of the end rows.
   const upWord = (list) => (list[0]?.ret1m > 0 ? '가장 오른 곳이' : '가장 덜 내린 곳이'), downWord = (list) => (list.at(-1)?.ret1m < 0 ? '가장 내린 곳이' : '가장 덜 오른 곳이');
   const krLine = sub ? ` 한국은 ${upWord(sub.up)} ${sub.up.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}이고, ${downWord(sub.down)} ${sub.down.map((row) => `${row.label}(${pct(row.ret1m)}${week(row)})`).join(', ')}입니다.` : '';
   const span = period?.from && period?.to ? `(${shortDay(period.from)}~${shortDay(period.to)})` : '';

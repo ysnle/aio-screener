@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// v60.28: sentence joins that print ".," or ".." on screen. The 시장 상태 outlook printed "주도 섹터·테마는 테마 화면에서
+// Sentence joins that print ".," or ".." on screen. The 시장 상태 outlook printed "주도 섹터·테마는 테마 화면에서
 // 확인합니다., 상대강도는 몇 주 늦게 반영" and "…확인합니다.. 선도였지만": a sentence that ends with its own period was
 // joined to the next part by ", " or by a part that starts with ". ". The text is built in many places, so this reads the
 // Korean string literals of product code (src/**, js/*) and follows the joins a static read can see:

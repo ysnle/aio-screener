@@ -28,7 +28,7 @@ function findRoot(start) {
 const root = findRoot(input.cwd || process.cwd());
 const toolInput = input.tool_input && typeof input.tool_input === 'object' ? input.tool_input : {};
 const command = String(toolInput.command || '');
-// P1084: this hook used to read only `tool_input.command`. That is the Codex
+// This hook used to read only `tool_input.command`. That is the Codex
 // apply_patch shape; Claude Code's Edit/Write tools pass `file_path` (and
 // NotebookEdit passes `notebook_path`) with no `command` key at all, so
 // guard-edit and post-edit were evaluated against an empty string and were
@@ -56,7 +56,7 @@ if (mode === 'guard-command') {
   const GIT = String.raw`\bgit(?:\s+(?:-[Cc]\s+\S+|--?[\w-]+(?:=\S+)?))*\s+`;
   const gitBlocked = [
     [new RegExp(`${GIT}reset\\b.*\\s--hard\\b`, 'i'), 'git reset --hard can destroy uncommitted work.'],
-    // P1340: the shared working tree belongs to the user; whole-tree discards are as destructive as reset --hard.
+    // The shared working tree belongs to the user; whole-tree discards are as destructive as reset --hard.
     // A restore of the index only (--staged/-S without --worktree/-W, short flags may be clustered) just unstages.
     [new RegExp(`${GIT}(?:checkout|restore)\\b(?:\\s+-{1,2}[a-z-]+(?:=\\S+)?(?:\\s+\\S+)?)*\\s+(?:--\\s+)?\\.(?:\\s|$)`, 'i'), 'Discarding the whole working tree can destroy uncommitted work.',
       (segment) => /\brestore\b/.test(segment) && /\s(?:--staged|-[A-Za-z]*S[A-Za-z]*)(?:\s|$)/.test(segment) && !/\s(?:--worktree|-[A-Za-z]*W[A-Za-z]*)(?:\s|$)/.test(segment)],
@@ -72,7 +72,7 @@ if (mode === 'guard-command') {
   ];
   const match = gitBlocked.find(([pattern, , exempt]) => segments.some((segment) => pattern.test(segment) && !(exempt && exempt(segment)))) || blocked.find(([pattern]) => pattern.test(normalized));
   if (match) deny(match[1]);
-  // v57.82 pushed conflict markers: the push ran after a failed step because `;` and `|` do not stop on failure.
+  // Pushed conflict markers: the push ran after a failed step because `;` and `|` do not stop on failure.
   // A push is its own command, or follows `&&`.
   if (new RegExp(String.raw`[;|][^&]*${GIT}push\b`, 'i').test(command.replace(/"[^"]*"|'[^']*'/g, '""').replace(/\|\|/g, '&&'))) {
     deny('git push after ";" or "|" runs even when the step before it failed. Run the push as its own command, or after "&&".');
@@ -106,7 +106,7 @@ function latestHandoffs(limit = 3) {
     }
   };
   visit(base, 0);
-  // v59.56: a fresh clone (every cloud session) stamps all files with the clone time, so mtime ordering picked an
+  // A fresh clone (every cloud session) stamps all files with the clone time, so mtime ordering picked an
   // arbitrary handoff. Order by the last commit that touched each file; mtime stays for files not yet committed.
   const committed = new Map();
   try {
@@ -122,7 +122,7 @@ function latestHandoffs(limit = 3) {
     .map((item) => `${item.path} (${new Date(item.mtime).toISOString().slice(0, 10)})`);
 }
 
-// v59.56: a cloud container starts without node_modules and with a Chromium revision that can lag the pinned
+// A cloud container starts without node_modules and with a Chromium revision that can lag the pinned
 // Playwright; say so up front instead of letting the first browser gate fail with "Executable doesn't exist".
 function cloudSetupNote() {
   if (process.env.CLAUDE_CODE_REMOTE !== 'true') return '';
@@ -174,8 +174,8 @@ if (mode === 'post-edit') {
   const relativeTargets = targets.map((target) => relative(root, resolve(editCwd, target)).replace(/\\/g, '/'));
   const touchesWorkspace = relativeTargets.some((file) => /^(?:AGENTS\.md$|CLAUDE\.md$|(?:_context|\.claude|\.codex|\.agents|\.github\/workflows)\/|scripts\/(?:ci-|generate-workspace|sync-agent|agent-hook))/.test(file));
   const touchesVersion = relativeTargets.some((file) => /^(?:index\.html|version\.json|sw\.js|js\/aio-core\.js|CHANGELOG\.md)$/.test(file));
-  // v59.70 (owner 2026-11-04): advisory only — a control character in the edited file is reported, never blocked. A
-  // heredoc ate `\b` into U+0008 in reaction-read.js (v59.69) and CI preflight held every release until it was found.
+  // Advisory only — a control character in the edited file is reported, never blocked. A
+  // heredoc ate `\b` into U+0008 in reaction-read.js and CI preflight held every release until it was found.
   const controlWarnings = [];
   const { controlCharSites } = await import('./lib/control-chars.mjs');
   for (const target of editTargets.split('\n').filter(Boolean)) {
@@ -187,7 +187,7 @@ if (mode === 'post-edit') {
       if (sites.length) controlWarnings.push(`${shown && !shown.startsWith('..') ? shown : file}:${sites.map((site) => `line ${site.line} ${site.code}`).join(', ')}`);
     } catch { /* unreadable target: nothing to report */ }
   }
-  // v59.84 (recurrence analysis S3): the first edit of a code file in a session shows the ledger entries that fixed it
+  // The first edit of a code file in a session shows the ledger entries that fixed it
   // before (scripts/prior-fixes.mjs), so a change starts from the earlier fixes instead of adding one more branch.
   let priorNote = '';
   try {

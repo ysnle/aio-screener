@@ -1,4 +1,4 @@
-// Expect cases for the portfolio rotation sentence (P2115): what 포트폴리오 prints for a sector held in the RRG band or
+// Expect cases for the portfolio rotation sentence: what 포트폴리오 prints for a sector held in the RRG band or
 // reversing against its quadrant. The reversal clause from recent-check.js starts with ', ', so a strip that only knew
 // ' · ' left "사분면이지만 , 최근 5거래일 …" on screen.
 export const suite = { name: 'portfolio-rotation', source: 'src/domain/portfolio/portfolio-read.js' };

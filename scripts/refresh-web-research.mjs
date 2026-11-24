@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// P1734: automated official-reference lane, run by refresh-data.yml every cycle.
+// Automated official-reference lane, run by refresh-data.yml every cycle.
 // It replaced the operator-captured WebSearch snapshot (CHECKED_AT 2026-08-21) that wrote frozen
 // NAAIM / Korea-export values into data.json and could only be refreshed by a person. The lane now
 // writes public-data/official-references.json only; data.json marketSurveys (AAII) stays owned by

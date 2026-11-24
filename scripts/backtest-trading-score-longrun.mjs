@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────
-// scripts/backtest-trading-score-longrun.mjs — WO-2 reduced-scope validation (P665)
+// scripts/backtest-trading-score-longrun.mjs — WO-2 reduced-scope validation
 //
 // 왜: CODEX-COMPREHENSIVE-DIAGNOSIS-2026-07-10.md WO-2("Trading Score를 의사결정 도구로 검증")의
 //     완료 게이트는 "최소 수년·다중 regime, walk-forward, ablation, calibration"을 요구하지만,
@@ -49,7 +49,7 @@ const RANGE = argValue('range', '10y');
 const OUT_PATH = argValue('out', `${__dir}/../public-data/score-backtest-longrun.json`);
 
 const YAHOO_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
-// No credit series: the model's credit input is the FRED HY OAS (R343) and no free multi-year history of it is fetched
+// No credit series: the model's credit input is the FRED HY OAS and no free multi-year history of it is fetched
 // here. The former HYG-price proxy is gone, so the risk-appetite axis is missing in both baseline and relative scores.
 const SYMBOLS = { spx: '^GSPC', vix: '^VIX', vvix: '^VVIX', tnx: '^TNX', dxy: 'DX-Y.NYB', wti: 'CL=F' };
 export const SCORE_LONGRUN_CREDIT_INPUT = 'none';
@@ -139,13 +139,13 @@ export { spearmanWithCI };
 
 // ── A-1 (2026-07-17, REMAINING-WORK §A1): percentile/레짐 상대화 변형 "relative-v1" ──
 // 왜: WO-2 원결과(21일 rho=-0.165, 63일 -0.255)의 유력 가설이 "dxy>107/tnx>4.5 같은 절대
-//     임계값이 10년 금리 레짐 구조 이동에 대응 못 함"(R298)이었다. 이 변형은 절대 임계값을
+//     임계값이 10년 금리 레짐 구조 이동에 대응 못 함" 이었다. 이 변형은 절대 임계값을
 //     trailing 롤링 percentile(최대 2520거래일=10y, 최소 252일 warm-up)로 치환해 같은 데이터·
 //     같은 밴드 구조·같은 가중치로 재백테스트한다.
 // 정직성 메모: percentile 밴드 경계([0.20,0.40,0.60,0.80,0.95] 등)는 데이터에 fit한 값이 아니라
 //     원 절대 밴드의 서수 구조를 보존한 손-지정 상수다(5밴드→5밴드). trailing-only라 look-ahead
 //     없음. HYG 달러가격 신용 판정·hyBp 변환은 라이브가 P713/P714에서 듀레이션 오염으로 이미
-//     제거했으므로 baseline·변형 어디에도 넣지 않는다(R343).
+//     제거했으므로 baseline·변형 어디에도 넣지 않는다.
 const REL_WINDOW = 2520;   // 최대 10y trailing
 const REL_MIN_OBS = 252;   // 최소 1y 확보 전엔 판정 보류(null)
 
@@ -164,7 +164,7 @@ export function rollingPercentile(values, idx, window = REL_WINDOW, minObs = REL
   return le / n;
 }
 
-// v59.46 P9-BT-01 (owner 2026-10-31, "현행 모델로 다시"): relative-v2 changes ONLY the threshold units of the current
+// P9-BT-01 (owner 2026-10-31, "현행 모델로 다시"): relative-v2 changes ONLY the threshold units of the current
 // model. Each input's trailing percentile picks the band it falls in (the a-priori edges below keep the ordinal structure
 // of the absolute bands), and a representative level inside the matching absolute band of trading-score.js v5 goes into
 // the same reconstructScore() the baseline uses — same trend rule, same missing risk-appetite axis (no PCR, no credit
@@ -297,7 +297,7 @@ export function classifyRegime(record, series, idx) {
 }
 
 export async function runLongrunBacktest(range, outPath) {
-  // v59.46: the relative-v1 (2026-07) result is kept as a summary before this run overwrites the file.
+  // The relative-v1 (2026-07) result is kept as a summary before this run overwrites the file.
   let previousExperiment = null;
   try {
     const prev = JSON.parse(await readFile(outPath, 'utf8'));
@@ -361,7 +361,7 @@ export function analyzeLongrunSeries(series, { fetchCounts = null, previousExper
 
   const horizons = ['fwd1d', 'fwd5d', 'fwd21d', 'fwd63d'];
   const subScores = ['composite', 'vol', 'trend', 'macro', 'compositeRel', 'volRel', 'macroRel'];
-  // Every interval below is on the count of non-overlapping forward windows (R1247); the session index rides along so
+  // Every interval below is on the count of non-overlapping forward windows; the session index rides along so
   // subsets with gaps (regimes) count their own non-overlapping windows.
   const corr = (rows, scoreField, returnField) => spearmanWithEffectiveCI(rows.map((r) => [r[scoreField], r[returnField], r.idx]), horizonOf(returnField));
 
@@ -425,9 +425,9 @@ export function analyzeLongrunSeries(series, { fetchCounts = null, previousExper
     generatedAt,
     methodology: {
       scope: 'PARTIAL validation of computeTradingScore() — covers only volScore(VIX)+trendScore(SPX vs 50/200MA)+macroScore(DXY/TNX/VVIX/oil) inputs, which are the ones with freely obtainable multi-year PIT history.',
-      // Credit is judged only on the FRED HY OAS (R343). A file without this field was built with the HYG-price proxy.
+      // Credit is judged only on the FRED HY OAS. A file without this field was built with the HYG-price proxy.
       creditInput: SCORE_LONGRUN_CREDIT_INPUT,
-      // v59.46 P9-BT-01: described against the current model (trading-score v5), which the baseline path calls.
+      // P9-BT-01: described against the current model (trading-score v5), which the baseline path calls.
       excludedInputs: ['risk appetite — put/call and the FRED HY OAS have no free multi-year history here, so the 25% risk-appetite axis is missing (dropped from the denominator); no HYG-price proxy stands in for it', 'breadth — no free multi-year history; the current model drops the missing breadth axis from the denominator (weights re-normalised), it is not held at a constant', 'Fear&Greed — not a composite input since P1388 (v4); the value passed is ignored', 'news sentiment correction — omitted, no historical news corpus'],
       missingInputPolicy: 'a session without VVIX, DXY, the 10-year yield or WTI scores without that input; no neutral default is substituted',
       inference: 'Every ci95 is a Fisher interval on nEff = the count of non-overlapping forward windows (rows / horizon; by session index inside regimes). hac is a Newey-West interval of the same rho at lag >= horizon - 1. ci95NaiveIid is the row-count interval kept for comparison only; it is too narrow and decides nothing.',

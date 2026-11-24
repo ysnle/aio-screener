@@ -58,7 +58,7 @@ async function observeOnce() {
   result.warnings = [];
   result.observedAt = new Date().toISOString();
   const pageNames = ['version', 'deployment', 'config', 'data', 'screener', 'telegram', 'snapshot', 'operations', 'reconciliation'];
-  // P1596: one missing artifact must not hide every other plane's diagnostics.
+  // One missing artifact must not hide every other plane's diagnostics.
   const pagesPromise = Promise.allSettled([
     fetchJson(`${pagesBase}/version.json`),
     fetchJson(`${pagesBase}/deployment.json`),
@@ -85,12 +85,12 @@ async function observeOnce() {
   const githubPromise = Promise.allSettled(Object.entries(githubWorkflows).map(async ([id, file]) => {
     const response = await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/workflows/${file}/runs?branch=main&per_page=100`, { headers: githubHeaders });
     const runs = response.body?.workflow_runs || [];
-    // P1340: main only (a PR or Dependabot CI failure is not a production verdict), and deploy workflows skip
+    // Main only (a PR or Dependabot CI failure is not a production verdict), and deploy workflows skip
     // data-refresh commits by design, so a skipped run is not a deployment verdict either.
-    // v57.88: a run cancelled by concurrency (cancel-in-progress on a newer push) is superseded, not a verdict — the same rule as P1598.
+    // A run cancelled by concurrency (cancel-in-progress on a newer push) is superseded, not a verdict — the same rule as P1598.
     return [id, { latest: runs[0] || null, completed: runs.find((run) => run.status === 'completed' && run.conclusion !== 'skipped' && run.conclusion !== 'cancelled') || null, runs }];
   }));
-  // v59.70: the single watch path. Every artifact a screen reads has a row in its workflow's live freshness ledger; the
+  // The single watch path. Every artifact a screen reads has a row in its workflow's live freshness ledger; the
   // screens grade the same row with the same freshnessState(), so the watchdog and the badge cannot disagree.
   const ledgerWorkflows = [...new Set(Object.values(ARTIFACT_FRESHNESS).filter((entry) => entry.ledger !== false).map((entry) => entry.workflow))];
   const freshnessPromise = Promise.allSettled(ledgerWorkflows.map((workflow) => fetchJson(`${pagesBase}/${freshnessLedgerPath(workflow)}`)));
@@ -117,7 +117,7 @@ async function observeOnce() {
       const describe = (rows) => rows.map(([file, state, row]) => `${file}=${state} checkedAt=${row?.checkedAt || 'none'} producer=${row?.producer || ARTIFACT_FRESHNESS[file].producer}`).join('; ');
       check(`freshness-${workflow} (v59.70)`, stale.length === 0, stale.length ? describe(stale) : `${graded.length} artifacts inside staleAfterMinutes`, mode === 'release' ? 'warning' : 'error');
       if (late.length) check(`freshness-${workflow}-late (v59.70)`, false, describe(late), 'warning');
-      // v59.85: a row whose declared clock or basis path no longer resolves cannot be graded on its content.
+      // A row whose declared clock or basis path no longer resolves cannot be graded on its content.
       const drifted = graded.filter(([, , row]) => Array.isArray(row?.contractDrift) && row.contractDrift.length);
       if (drifted.length) check(`freshness-${workflow}-contract (v59.85)`, false, drifted.map(([file, , row]) => `${file}: ${row.contractDrift.join(', ')} unresolved (src/data/contracts/artifact-freshness.js)`).join('; '), mode === 'release' ? 'warning' : 'error');
     });
@@ -136,12 +136,12 @@ async function observeOnce() {
     check('pages-deployment-identity', deployment?.schemaVersion === 'aio-deployment.v1' && /^[0-9a-f]{40}$/.test(deployment?.sourceSha || '') && deployment?.appRevision === version?.version && Number.isInteger(deployment?.attestationRunId) && Number.isInteger(deployment?.deploymentRunId), JSON.stringify(result.pages));
     if (mode === 'release') check('pages-exact-expected-sha', !!process.env.AIO_EXPECTED_SHA && deployment?.sourceSha === process.env.AIO_EXPECTED_SHA, `live=${deployment?.sourceSha || 'missing'} expected=${process.env.AIO_EXPECTED_SHA || 'missing'}`);
     check('pages-version-config', version?.version && config?.appRevision === version.version, `version=${version?.version || 'missing'} config=${config?.appRevision || 'missing'}`);
-    // v59.78: a data-overlay release keeps the data current on the last code that passed full push CI; the newer code is
+    // A data-overlay release keeps the data current on the last code that passed full push CI; the newer code is
     // still unreleased, so this stays an error and names why.
     const overlayNote = deployment?.releaseMode === 'data-overlay' ? ` (data overlay on code ${String(deployment.codeSha || '').slice(0, 12)}: the newest code commit has no successful full push CI)` : '';
     check('pages-repository-revision', version?.version === localVersion, `live=${version?.version || 'missing'} local=${localVersion}${overlayNote}`);
     if (mode !== 'refresh-deploy') {
-      // v59.70: a source release ships the data of its attested SHA; whether the producers have kept that data current is
+      // A source release ships the data of its attested SHA; whether the producers have kept that data current is
       // the watchdog's verdict. As release errors, a stalled producer also failed every code deploy (11/01~11/03: 13 of 14
       // red Pages runs), and the failed deploy run then failed the watchdog's provenance check as well.
       const dataPlaneSeverity = mode === 'release' ? 'warning' : 'error';
@@ -152,10 +152,10 @@ async function observeOnce() {
       check('pages-market-snapshot', snapshot?.status === 'published' && snapshot?.coverage?.tier0Required === 16 && snapshot?.coverage?.tier0Observed === 16, `status=${snapshot?.status} coverage=${snapshot?.coverage?.tier0Observed}/${snapshot?.coverage?.tier0Required}`);
       check('pages-operations', !!operations?.generatedAt && !!operations?.planes?.durable?.status && operations?.reconciliation?.categoryCount === 22, `overall=${operations?.overall || 'missing'}`);
       check('pages-reconciliation', reconciliation?.categories?.length === 22 && !!reconciliation?.revision, `categories=${reconciliation?.categories?.length || 0}`);
-      // 2026-10-26: one public channel's preview stopped parsing (aetherjapanresearch, "first page parsed no posts"
+      // One public channel's preview stopped parsing (aetherjapanresearch, "first page parsed no posts"
       // from 20:52Z) and this error check failed every release verification while the other three channels and the
       // digest were healthy. Coverage tolerates one failing expected channel; any failing channel stays visible as a warning.
-      // v60.18: a retired channel's row is published for lineage but not fetched; only expected channels count.
+      // A retired channel's row is published for lineage but not fetched; only expected channels count.
       const telegramChannels = telegramDigestBoundary(telegram).activeRows;
       const telegramFailing = telegramChannels.filter((channel) => channel.error || !Number.isFinite(Number(channel.lastPostId)));
       check('pages-telegram-coverage', Number(telegram?.count) >= WATCHDOG_THRESHOLDS.minTelegramCount && telegramChannels.length > telegramFailing.length && telegramFailing.length <= WATCHDOG_THRESHOLDS.maxFailingTelegramChannels, `count=${telegram?.count || 0} channels=${telegramChannels.length} healthy=${telegramChannels.length - telegramFailing.length}`);
@@ -163,7 +163,7 @@ async function observeOnce() {
       if (!data?.meta?.fearGreedOk) result.warnings.push('live Fear & Greed provider is degraded; static fallback is active');
       if (!data?.meta?.fredHasKey || !data?.meta?.fredFetchOk) result.warnings.push('live FRED enrichment is unavailable or degraded');
       if (!data?.meta?.marketAnalysisOk) result.warnings.push(`live LLM market analysis blocked: ${marketAnalysisDiagnostic(data)}; typed fallback is active`);
-      // v60.18: a provider that refuses the shared account (HTTP 401/402/403/429: exhausted credit, revoked key) is an
+      // A provider that refuses the shared account (HTTP 401/402/403/429: exhausted credit, revoked key) is an
       // operator action, not a lane that heals itself. On 11/10 the analysis was blocked for 11 h on provider-http-429
       // (credit_balance_exhausted) and only this warning said so; the one alert came from an unrelated deploy's smoke.
       // A validator block (retained or salvaged reading) stays a warning.
@@ -196,7 +196,7 @@ async function observeOnce() {
       result.fast = { revision: health?.revision || null, sourceSha: health?.sourceSha || null, coverage: `${observed}/${required}` };
       check('fast-plane-health', health?.ok === true && required === 16 && observed === required, JSON.stringify(result.fast));
       check('fast-plane-exact-source-identity', /^[0-9a-f]{40}$/.test(health?.sourceSha || ''), `sourceSha=${health?.sourceSha || 'missing'}`);
-      // P1578: warning only — without the dispatcher the 30-minute refresh rides GitHub's best-effort
+      // Warning only — without the dispatcher the 30-minute refresh rides GitHub's best-effort
       // schedule (observed ~10% of slots). A Worker older than P1578 reports nothing; that is not a pass.
       check('fast-plane-refresh-dispatcher (P1578)', health?.schedulerDispatch?.configured === true, `schedulerDispatch=${JSON.stringify(health?.schedulerDispatch ?? null)} (set repository secret AIO_REFRESH_DISPATCH_TOKEN)`, 'warning');
       if (health?.schedulerDispatch?.configured) {
@@ -232,12 +232,12 @@ async function observeOnce() {
           check(`github-${id}-cadence (P1596)`, cadence.ok, JSON.stringify(cadence), 'warning');
         }
         const isCurrentReleaseRun = mode === 'release' && id === 'pages' && ['in_progress', 'queued'].includes(latest?.status) && (!process.env.GITHUB_RUN_ID || String(latest.id) === String(process.env.GITHUB_RUN_ID));
-        // P1665: the watchdog cannot certify itself — treating its own previous failure as an error latched every
+        // The watchdog cannot certify itself — treating its own previous failure as an error latched every
         // later run red after one upstream failure (observed 6 consecutive failures, 2026-10-11~12).
         const selfObservation = mode === 'watchdog' && id === 'watchdog';
         // Release mode: only the attested CI run stays an error. A previous cancelled/failed Pages run must
         // not fail a successful deploy; pages-exact-expected-sha and provenance checks stay errors below.
-        // v59.48: every other watched workflow owns its own failure issue (operations-alert.yml: reopen, recovery, escalation
+        // Every other watched workflow owns its own failure issue (operations-alert.yml: reopen, recovery, escalation
         // threshold). As errors here they made the watchdog repeat those failures: 322 of 349 red watchdog runs in 8 days
         // (10-23~31). The watchdog still names them, and stays red for what only it sees: the live site, deploy and Workers.
         const ownedElsewhere = mode === 'watchdog' && id !== 'watchdog';
@@ -245,7 +245,7 @@ async function observeOnce() {
         check(`github-${id}-latest-completed`, run?.conclusion === 'success' || isCurrentReleaseRun, run ? `conclusion=${run.conclusion} run=${run.html_url}${latest?.status === 'in_progress' ? ` active=${latest.html_url}` : ''}` : (isCurrentReleaseRun ? `current release=${latest.html_url}` : 'no completed workflow run'), severity);
       });
       if (result.pages?.sourceSha && result.pages?.attestationRunId) {
-        // P1351: exact run IDs remain verifiable even when the discovery list is stale/truncated.
+        // Exact run IDs remain verifiable even when the discovery list is stale/truncated.
         const readExact = async (runId) => (await fetchJson(`https://api.github.com/repos/ysnle/aio-screener/actions/runs/${runId}`, { headers: githubHeaders })).body;
         // The CI run is trusted by the deploy's own rule on its attestation artifact (deployment-provenance.mjs ciReleaseTrust):
         // a dispatched run's head_sha is the branch head at dispatch, not the commit it tested and Pages deployed.
@@ -266,7 +266,7 @@ async function observeOnce() {
             const run = await resolveProvenanceRun(runs, id, readExact);
             const currentRelease = name === 'Deploy GitHub Pages' && mode === 'release'
               && String(id) === String(process.env.GITHUB_RUN_ID || '');
-            // v59.70: deployment.json goes live when the deploy step ends, minutes before that run finishes verifying it.
+            // deployment.json goes live when the deploy step ends, minutes before that run finishes verifying it.
             // A watchdog woken in that window saw status=in_progress and went red (22 of 163 red runs 10/28~11/04); the
             // identity checks stay, and a run that then fails its verification is caught as completed=failure next time.
             const deployInFlight = name === 'Deploy GitHub Pages' && mode === 'watchdog';
@@ -288,9 +288,9 @@ async function observeOnce() {
     } else result.warnings.push(`GitHub CI observation unavailable: ${ciEntry?.reason?.message || String(ciEntry?.reason || 'unknown')}`);
   }
 
-  // v57.60: a watchdog run that lands while the Pages deploy of a new version is still running sees the old live
+  // A watchdog run that lands while the Pages deploy of a new version is still running sees the old live
   // version; that is a deploy in flight (warning), not a stale release. A finished deploy keeps the error.
-  // v57.79: Pages runs only after CI attests the pushed SHA, so a watchdog landing while that CI run is still active
+  // Pages runs only after CI attests the pushed SHA, so a watchdog landing while that CI run is still active
   // is the same deploy in flight (observed: three red watchdog runs, each 1-3 minutes after a push, 2026-10-15).
   const activeStates = ['queued', 'in_progress', 'waiting', 'pending', 'requested'];
   const pagesActive = activeStates.includes(result.github?.pages?.latest?.status);
@@ -317,7 +317,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
 writeFileSync(reportPath, `${JSON.stringify(result, null, 2)}\n`);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, operationalSummary(result));
 console.log(JSON.stringify(result, null, 2));
-// v60.18: the qa runner and the Actions annotation keep only the last lines of this output, which were the tail of the
+// The qa runner and the Actions annotation keep only the last lines of this output, which were the tail of the
 // GitHub block above; 20 red watchdog runs (11/09-11/15) named no failed check, and the report lived only in an artifact.
 // The failed error checks are therefore the last lines printed, one per check.
 for (const item of failures) console.log(`[external-pipeline] FAIL ${item.id}: ${String(item.detail || '').replace(/\s+/g, ' ').slice(0, 240)}`);
