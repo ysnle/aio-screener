@@ -14,7 +14,8 @@ export function renderTickerContext(doc, host, { root, store, symbol, name = '',
   const move = Number(row?.ret1d);
   if (sym && session && Number.isFinite(move)) {
     const list = moveNewsList(doc, root, [companyMoveRow(root, store, { symbol: sym, name, move, session })],
-      { listClass: 'ticker-context__move', timeClass: 'ticker-context__when', titleClass: 'ticker-context__title' });
+      // The move prints with or without a report; a report shows only when it is about the move.
+      { showMissing: true, listClass: 'ticker-context__move', timeClass: 'ticker-context__when', titleClass: 'ticker-context__title' });
     if (list) nodes.push(list);
   }
   const themes = sym ? stockThemes(themeCatalogFor(sym, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }), sym).slice(0, 3) : [];

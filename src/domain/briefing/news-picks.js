@@ -7,7 +7,8 @@ import { issuerNameMentioned } from '../news/stories.js';
 import { COMPANY_NICKNAMES } from '../instruments/nicknames.js';
 import { marketOfSymbol } from '../market/session/session-time.js';
 import { resolveMarketCalendarSession } from '../market/session/market-calendar.js';
-import { afterClose, agrees } from './day-account.js';
+import { afterClose } from './day-account.js';
+import { UP_WORDS, DOWN_WORDS } from '../news/direction-words.js';
 
 // The important list — the highest-scored story per topic inside the window (moved here
 // from the news page so 오늘's 밤사이 핵심 reads the same picks as the news screen).
@@ -146,28 +147,53 @@ export function sessionNewsWindow(session, market = 'US') {
 }
 
 /**
- * The headline that names `symbol` for the `session` move, or null. A news title must carry the ticker or the company's
- * own name (never a guess from the topic) and must not point the other way from `move`; a channel post counts only when
- * its producer-extracted tickers list the symbol. The earliest report before the close wins; with none, the earliest
- * report after the close whose own words state the move's direction (a recap). News outranks a channel post.
+ * The one rule for "the report for a move": whether `report` ({ title, titleKo, at }) is evidence for the `session`
+ * move of a `market` by `change` (%; null when unknown). It is when it was published inside that session's news window
+ * (sessionNewsWindow: previous close to next open) and its own words state the move's direction — an up word for a
+ * rise, a down word for a fall, never both; with the move unknown, either one, before the close only. Being reached by
+ * the move's own name (the company, a group's leader, the thread's lead stock) is the caller's link. Returns null, or
+ * { recap } — true for a report after the close (a recap; one before the close is preferred as the cause).
+ */
+export function reportAboutMove(report, { session, market = 'US', change = null } = {}) {
+  const span = sessionNewsWindow(session, market);
+  const ms = Date.parse(report?.at || '');
+  if (!span || !Number.isFinite(ms) || ms <= span.start || ms > span.end) return null;
+  const text = `${report.title || ''} ${report.titleKo || ''}`;
+  const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text);
+  if (up === down) return null;
+  const recap = afterClose(report, { date: String(session).slice(0, 10), subjects: [market === 'KR' ? '005930.KS' : 'SPY'] });
+  const sign = Math.sign(finite(change) ?? 0);
+  if (sign ? (sign > 0) !== up : recap) return null;
+  return { recap };
+}
+
+/**
+ * The report that names `symbol` for the `session` move, or null: a news title that carries the ticker or the company's
+ * own name (never a guess from the topic) and is about the move (reportAboutMove), in the ledger's report order
+ * (day-account byReportOrder): the publisher tier, the feed score, a report before the close ahead of a recap, the
+ * earliest. With no such news, a channel post whose
+ * producer-extracted tickers list the symbol, shown only as the fact the producer extracted.
  */
 export function headlineForCompany({ symbol, name = '', move = null, aliases = [] }, { news = [], telegram = [], signals = [], session = null } = {}) {
   const matcher = companyMatcher(symbol, name, { aliases });
   const sym = String(symbol || '').toUpperCase();
-  const span = matcher ? sessionNewsWindow(session, marketOfSymbol(sym)) : null;
+  const market = marketOfSymbol(sym);
+  const span = matcher ? sessionNewsWindow(session, market) : null;
   if (!span) return null;
   const seed = { date: String(session).slice(0, 10), subjects: [sym] };
   const inside = (ms) => Number.isFinite(ms) && ms > span.start && ms <= span.end;
   const change = finite(move);
+  const rank = (hit) => [Number.isFinite(finite(hit.row?.tier)) ? finite(hit.row.tier) : 9, -(finite(hit.row?.score) || 0), Number(hit.recap), hit.publishedMs];
+  const before = (a, b) => { const x = rank(a); const y = rank(b); const i = x.findIndex((value, k) => value !== y[k]); return i >= 0 && x[i] < y[i]; };
   let best = null;
   for (const row of Array.isArray(news) ? news : []) {
     const ms = stampOf(row);
     const titleKo = row?.titleKo || row?.ko_title || '';
-    if (!inside(ms) || !matcher.test([row?.title, titleKo].filter(Boolean).join(' ‖ '))) continue;
-    const fact = { title: row?.title, titleKo, at: new Date(ms).toISOString() };
-    const recap = afterClose(fact, seed);
-    if ((recap && change === null) || !agrees(fact, change ?? NaN, seed)) continue;
-    if (!best || Number(recap) < Number(best.recap) || (recap === best.recap && ms < best.publishedMs)) best = { kind: 'news', row, publishedMs: ms, recap };
+    if (!Number.isFinite(ms) || !matcher.test([row?.title, titleKo].filter(Boolean).join(' ‖ '))) continue;
+    const about = reportAboutMove({ title: row?.title, titleKo, at: new Date(ms).toISOString() }, { session, market, change });
+    if (!about) continue;
+    const hit = { kind: 'news', row, publishedMs: ms, recap: about.recap };
+    if (!best || before(hit, best)) best = hit;
   }
   if (best) return best;
   for (const row of Array.isArray(telegram) ? telegram : []) {
