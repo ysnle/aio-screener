@@ -57,7 +57,7 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'market-day.json': auto('refresh-data.yml', 'scripts/build-market-day.mjs', 30, 48 * 60, { ...DERIVED, basis: [['US', 'sessions.us'], ['KR', 'sessions.kr']] }),
   'stress-outcomes.json': auto('refresh-data.yml', 'scripts/build-stress-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
   'scenario-outcomes.json': auto('refresh-data.yml', 'scripts/build-scenario-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
-  'index-longrun.json': auto('refresh-data.yml', 'scripts/build-index-longrun.mjs', 24 * 60, 14 * 24 * 60, { ...DERIVED, blockedBy: 'first refresh-data daily-lane run after the producer ships (remove once published)' }),
+  'index-longrun.json': auto('refresh-data.yml', 'scripts/build-index-longrun.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
   'reconciliation-status.json': auto('refresh-data.yml', 'scripts/build-reconciliation-status.mjs', 30, 24 * 60),
   'operations-status.json': auto('refresh-data.yml', 'scripts/build-operations-status.mjs', 30, 24 * 60),
 
