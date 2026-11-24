@@ -2411,7 +2411,7 @@ check('telegram digest registers four channels and fail-closed source catalog', 
   check('P1710 N13 promise-of-wealth headlines are clickbait', fd.scoreServerNewsItem({ title: 'Adding Nvidia During The Current Uncertainty is How Fortunes Are Made', source: 'Reuters' }).selectionReason === 'clickbait-filter');
 }
 
-check('app loads server data artifact', /public-data\/data\.json/.test(data) && /_aioLoadServerData/.test(data));
+check('app loads server data artifact', /artifactUrl\('data\.json'\)/.test(read('src/data/server-data.js')) && /async function _aioLoadServerData\(/.test(data));
 check('app applies quotes, macro, F&G, news, telegram, LLM, and native screener metadata', /applyLiveQuotes\(d\.quotes\)/.test(data) && /DATA_SNAPSHOT/.test(data) && /_applyFearGreedScore/.test(data) && /_aioApplyNewsBackstop/.test(data) && /_aioLoadServerTelegramDigest/.test(data) && /_serverMarketAnalysis/.test(data) && /_aioApplyNativeScreenerState/.test(data) && /aio:nativeScreenerReady/.test(data));
 // 2026-10-17: the coverage/age gate lives in src/domain/market/breadth/screener-breadth.js, which every breadth reader asks.
 {
@@ -2437,7 +2437,15 @@ check('news Korean translation and local insight fallback are wired', /_aioBuild
 // the renderer trio and slot were retired. The per-item ko_rewrite/ko_section/ko_market fields stay.
 check('P1753 news Korean rewrite fields stay on items and the uncalled rewrite brief stays retired', /ko_rewrite/.test(data) && /ko_section/.test(data) && /ko_market/.test(data) && !/_aioBuildNewsKoreanRewriteBrief|_aioRenderNewsKoreanRewriteBrief/.test(data) && !/news-korean-rewrite-brief/.test(read('index.html')));
 // P1391: an untranslated headline is shown as written; no generated category sentence and no [EN]/[번역 중] prefixes.
-check('P1391 market news title shows the original headline when no translation exists', !/_aioBuildNewsVisibleFallbackTitle/.test(data) && /P1391: no translation → the original headline/.test(data) && !/\[EN\]\s*'\s*\+/.test(data) && !/\[번역 중\]\s*'\s*\+\s*\(item\.title/.test(data));
+const displayTitle = (() => {
+  const sandbox = { isKoreanText: (text) => /[가-힣]/.test(String(text || '')), _translationCache: new Map(), _tcKey: (text) => text, window: {} };
+  runInNewContext(data.slice(data.indexOf('function _aioTitleWithoutSource('), data.indexOf('function _aioDescRepeatsTitle(')), sandbox);
+  return sandbox.getDisplayTitle;
+})();
+check('P1391 market news title shows the original headline when no translation exists', !/_aioBuildNewsVisibleFallbackTitle/.test(data)
+  && displayTitle({ title: 'Fed holds rates steady - Reuters', source: 'Reuters' }) === 'Fed holds rates steady'
+  && displayTitle({ title: 'Fed holds rates steady', titleKoFailed: true }) === 'Fed holds rates steady'
+  && displayTitle({ title: 'Fed holds rates steady', titleKo: '연준 금리 동결' }) === '연준 금리 동결' && !/\[EN\]\s*'\s*\+/.test(data) && !/\[번역 중\]\s*'\s*\+\s*\(item\.title/.test(data));
 check('P1753 market news native surface consumes normalized server/RSS items before Telegram fallback', /buildNewsSurfaceModel/.test(newsPage) && /selectNewsItems/.test(newsPage) && /_aioApplyNewsBackstop/.test(data) && /_aioApplyTelegramDigestToScreenerDb/.test(data) && /id="live-news-feed"/.test(read('index.html')));
 check('news selection audit exposes score criteria and surface eligibility', /getNewsSelectionAudit/.test(data) && /scoreBuckets/.test(data) && /scoreReasons/.test(data) && /homeEligible/.test(data) && /marketNewsEligible/.test(data) && /unverified=-8/.test(data));
 check('server news backstop preserves score tier and news-cycle metadata', /newsCycleStart/.test(data) && /newsCycleEnd/.test(data) && /serverCycleTrusted/.test(data) && /isFinite\(Number\(n\.score\)\)/.test(data));
@@ -2485,7 +2493,7 @@ check('Telegram digest reaches SCREENER_DB memo', /_aioApplyTelegramDigestToScre
   check('v57.81 a category focus comes from its primary-tag posts, with no reuse across categories', /프리마켓 브리핑/.test(focus.macro || '') && /호르무즈/.test(focus.geo || '') && /HBM4/.test(focus.semi || ''), JSON.stringify(focus));
   check('v57.81 the producer picks a category focus by primary tag', /function bestTextForTag\(tag\) \{\s*const hit = items\.filter\(it => Array\.isArray\(it\.tags\) && it\.tags\[0\] === tag && it\.text\)/.test(fetchTelegram));
 }
-check('Telegram runtime replaces stale static narrative with dynamic artifact fields', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /categories:\s*Array\.isArray\(raw\.categories\)/.test(data) && /pageMap:\s*raw\.pageMap/.test(data) && /getTelegramPageCoverageAudit/.test(data));
+check('Telegram runtime replaces stale static narrative with dynamic artifact fields', /themes:\s*Array\.isArray\(raw\.themes\)/.test(data) && /categories:\s*Array\.isArray\(raw\.categories\)/.test(data) && /pageMap:\s*raw\.pageMap/.test(data) && /window\.AIO\.getTelegramPageCoverageAudit = function/.test(read('js/aio-qa-audits.js')));
 check('client current Telegram feed uses only the digest current24h lane', /rawCurrent24hItems/.test(data) && /AIO_TELEGRAM_CURRENT_ITEMS/.test(data) && /_aioRenderTelegramFeedHtml/.test(data));
 check('news native summary projects count, source, risk, sentiment, and shared-cut status', /renderNewsSummary/.test(newsPage) && /news-24h-count/.test(newsPage) && !/news-risk-count|news-sent-score/.test(newsPage) && /last-fetch-time/.test(newsPage)); // P1672: sentiment/risk strip retired (P1391)
 check('browser tests cover Telegram memo injection', /T831[\s\S]{0,2400}SCREENER_DB memo/.test(tests));

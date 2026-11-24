@@ -123,14 +123,14 @@ const { default: assert } = await import('node:assert/strict');
 
 const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8'); // v59.15: the request/response pipeline moved to its module
 const start = source.indexOf('async function callSharedAi(');
-const end = source.indexOf('// ── 스크리너 질의', start);
+const end = source.indexOf('function _aioResolveChatTickers(', start);
 assert(start >= 0 && end > start);
 // P1245 (05 A05): callSharedAi records native citations and research tool errors in the per-request
 // stream store, so this isolated transport context must execute the real store rather than a stub
 // that can drift from it. The fixture passes no requestId, so the store returns no record and the
 // transport assertions below are unchanged.
 const storeStart = source.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT');
-const storeEnd = source.indexOf('// P897: the ESM evidence module', storeStart);
+const storeEnd = source.indexOf('function _aioEvaluateAIResearchGate(', storeStart);
 assert(storeStart >= 0 && storeEnd > storeStart);
 const encode = value => new TextEncoder().encode(value);
 const event = value => 'data: ' + JSON.stringify(value) + '\n\n';
@@ -237,8 +237,8 @@ const { createRunProgress, progressHook } = await import('../src/ai/session/run-
 const { AI_WORKER_CONTRACT } = await import('../src/domain/ai/worker-contract.js');
 const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
 const source = readFileSync(new URL('../src/ui/chat/panel.js', import.meta.url), 'utf8') + '\n' + readFileSync(new URL('../src/ai/response/request-pipeline.js', import.meta.url), 'utf8');
-const start = source.indexOf('async function callSharedAi('), end = source.indexOf('// ── 스크리너 질의', start);
-const storeStart = source.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), storeEnd = source.indexOf('// P897: the ESM evidence module', storeStart);
+const start = source.indexOf('async function callSharedAi('), end = source.indexOf('function _aioResolveChatTickers(', start);
+const storeStart = source.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), storeEnd = source.indexOf('function _aioEvaluateAIResearchGate(', storeStart);
 assert(start >= 0 && end > start && storeStart >= 0 && storeEnd > storeStart);
 const encode = (value) => new TextEncoder().encode(value);
 const sse = (events) => events.map((value) => 'data: ' + JSON.stringify(value) + '\n\n').join('');
@@ -474,9 +474,9 @@ vm.createContext(root);
 const { installSharedRoute } = await import('../src/data/providers/shared-ai-transport.js');
 const transport = installSharedRoute({});
 for (const name of ['_aioChatAbortError', '_aioThrowIfChatAborted', '_aioRunChatTask', '_aioLinkChatAbortSignal']) root[name] = transport[name];
-vm.runInContext(section('function _aioBeginChatRequest(', '// ── Text processing helpers'), root);
-vm.runInContext(section('function _aioCanonicalResearchUrl(', '/** 검색 출처 → UI HTML */'), root);
-vm.runInContext(section('function _aioResearchFailureForUser(', '// ── Send message'), root);
+vm.runInContext(section('function _aioBeginChatRequest(', 'function stripChips('), root);
+vm.runInContext(section('function _aioCanonicalResearchUrl(', 'function _searchCitationsHTML('), root);
+vm.runInContext(section('function _aioResearchFailureForUser(', 'function _buildUserProfileContext('), root);
 vm.runInContext(section('function _shouldUseClaudeWebSearch(', 'function _aioCanonicalResearchUrl('), root);
 vm.runInContext(section('function _searchCitationsHTML(', 'function _aioResearchFailureForUser('), root);
 const first=root._aioBeginChatRequest('home','old'), second=root._aioBeginChatRequest('home','new');
@@ -558,7 +558,7 @@ for(const marker of ['var _uniOnChunk = function(fullText) {','var _uniOnDone = 
 }
 // P1740: the uncalled per-page chatClear (no .acp-clear button exists) was removed; any clear entry point must cancel first.
 assert(!/function chatClear\(/.test(source) || source.includes("_aioCancelChatRequest(ctxId, 'history-cleared')"));
-vm.runInContext(section('window._aioChatFreshnessInfo = function()', '// ── Click a suggestion chip'), root);
+vm.runInContext(section('window._aioChatFreshnessInfo = function()', 'function chatFromChip('), root);
 root._liveData={AAA:{price:100,observedAt:new Date(Date.now()-60000).toISOString()}};
 assert(!root._aioChatFreshnessInfo().liveStatus.includes('인용 자체 금지'));
 root._liveData={AAA:{price:100}}; root._quoteTimestamps={AAA:Date.now()};
@@ -587,7 +587,7 @@ const quotaUi=ui.slice(ui.indexOf('function updateQuotaBadge()'),ui.indexOf('fun
 assert(quotaUi.includes('if (!route.ready)') && !quotaUi.includes('isOn') && !quotaUi.includes("'AI OFF'"), 'v57.77 quota badge gates on route readiness only');
 const toggleUi=ui.slice(ui.indexOf('function toggleLLM()'),ui.indexOf('function consumeLLMQuery()'));
 assert(toggleUi.includes('updateQuotaBadge()') && !toggleUi.includes('classList'), 'v57.77 toggleLLM only refreshes the readout');
-const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf('// Init on load'));
+const consumeUi=ui.slice(ui.indexOf('function consumeLLMQuery()'),ui.indexOf("document.addEventListener('DOMContentLoaded'",ui.indexOf('function consumeLLMQuery()')));
 assert(consumeUi.indexOf('if (!route.ready)') >= 0 && consumeUi.indexOf('return false') > consumeUi.indexOf('if (!route.ready)') && consumeUi.indexOf('return false') < consumeUi.indexOf('getQuota()'), 'v57.77 a missing route fails closed before any quota accounting');
 assert(!consumeUi.includes('getLLMState'), 'v57.77 no OFF/unlimited quota shortcut'); // text-pin-ok: retirement absence
 assert(consumeUi.includes('saveQuota(quota)') && !consumeUi.includes('showConfirmModal') && !/dailyQueryLimit|calcDailyLimit/.test(ui), 'v59.42 the browser keeps no daily AI limit of its own and never asks to go over one; the Worker owns the cap');

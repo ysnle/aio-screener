@@ -49,7 +49,7 @@ if (!/x-cache-time/.test(source) || !/x-cache-ttl/.test(source)) fail('cache ent
 // offline behaviour and needs its own browser evidence.
 const routingTables = [
   source.slice(source.indexOf('const DATA_URL_PATTERNS'), source.indexOf('const REFERENCE_URL_PATTERNS')),
-  source.slice(source.indexOf('const REFERENCE_URL_PATTERNS'), source.indexOf('// 민감 URL 패턴'))
+  source.slice(source.indexOf('const REFERENCE_URL_PATTERNS'), source.indexOf('const SENSITIVE_QUERY_RE'))
 ].join('\n');
 const publishedPaths = new Set();
 const collect = (dir) => {
@@ -93,7 +93,7 @@ if (orphanRoutes.length) fail(`cache routing names artifacts no client fetches: 
 // directions are asserted: routed artifacts have consumers, and consumed core data has
 // a route.
 const CORE_DATA_ARTIFACTS = ['data', 'history', 'screener', 'screener-universe', 'model-validation-status', 'telegram-digest'];
-const coreTable = source.slice(source.indexOf('const CORE_DATA_URL_PATTERNS'), source.indexOf('// 교육·원문 reference artifact'));
+const coreTable = source.slice(source.indexOf('const CORE_DATA_URL_PATTERNS'), source.indexOf('const REFERENCE_URL_PATTERNS'));
 if (!coreTable.includes('CORE_DATA_URL_PATTERNS')) fail('core data routing table not found');
 // The patterns are written with escaped slashes, so compare against a flattened copy.
 const coreTableFlat = coreTable.replace(/\\/g, '');

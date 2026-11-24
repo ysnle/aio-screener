@@ -44,7 +44,7 @@ check(calls.map((args) => args[2]).join(',') === '1mo,1wk,1d', 'OHLCV Yahoo inte
 
 let requestedUrl = '';
 const y = context({ T: { FETCH_TIMEOUT: 100 }, fetchViaProxy: async (url) => { requestedUrl = url; return { chart: { result: [{ meta: { symbol: 'NVDA', dataGranularity: '1wk' }, timestamp: [1787918400], indicators: { quote: [{ close: [100] }] } }] } }; } });
-vm.runInContext(section(data, 'async function _aioFetchYahooChartData(', '// 모듈 스코프'), y.root);
+vm.runInContext(section(data, 'async function _aioFetchYahooChartData(', 'var _fetchYahooChartData = window._fetchYahooChartData;'), y.root);
 const weekly = await y.root._aioFetchYahooChartData('NVDA', '2y', '1wk');
 check(requestedUrl.includes('interval=1wk') && weekly.interval === '1wk', 'inline Yahoo helper preserves timeframe contract');
 

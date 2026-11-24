@@ -133,7 +133,7 @@ const source=readProducerSource();
 assert.match(source,/collectRotationHistory\(\{ fetchHistory, previous: previous\?\.rotationHistory/,'P1358 production collector consumes durable previous evidence');
 assert.match(source,/data\.rotationHistory = await rotationHistoryTask;[\s\S]{0,120}atomicWriteFile\(OUT/,'P1358 derived evidence is connected to actual public producer write');
 const definitions=await readFile(new URL('../js/aio-pages.js',import.meta.url),'utf8');
-const definitionBlock=definitions.slice(definitions.indexOf('var RRG_SECTORS'),definitions.indexOf('// ── 종합 테마 맵'));
+const definitionBlock=definitions.slice(definitions.indexOf('var RRG_SECTORS'),definitions.indexOf('var THEME_MEMBERSHIP_POLICY'));
 const actualSymbols=[...definitionBlock.matchAll(/sym:\s*'([^']+)'/g)].map(match=>match[1]);
 assert.deepEqual([...ROTATION_SYMBOLS].sort(),actualSymbols.sort(),'P1358 producer coverage follows actual configured sector and subsector ETF set');
 // v59.70 (data audit R11): data.json keeps the coordinates and rotation-detail.json the series. Through every reader

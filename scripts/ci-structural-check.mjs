@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -118,12 +118,23 @@ for (const [file, src] of Object.entries(RUNTIME_SCRIPT_FILES)) {
 const shadowed = [...fnOwners.entries()].filter(([name, files]) => files.length > 1 && !KNOWN_SHADOW_ALLOWLIST.has(name));
 
 // A named function that occurs only at its own declaration cannot be called, exported, or reached
-// by a data-action string. Counting identifiers across comments and strings is deliberately
-// conservative: those references can hide a candidate, but they cannot create a false dead-code
-// failure. This gate prevents retired compatibility stubs and superseded helpers from accumulating.
-const runtimeSource = Object.values(RUNTIME_SCRIPT_FILES).join('\n');
+// by a data-action string. References are counted across the runtime scripts and the ESM modules under
+// src/ that call the classic globals (window.X / root.X / typeof X), with whole-line comments removed:
+// a comment naming a helper does not keep it alive. A trailing comment after code is still counted,
+// which can only hide a candidate, never invent one. This gate prevents retired compatibility stubs and
+// superseded helpers from accumulating.
+const withoutComments = (source, file) => (file.endsWith('.html')
+  ? source
+  : source.replace(/^[ \t]*\/\*[\s\S]*?\*\/[ \t]*$/gm, '').replace(/^[ \t]*\/\/.*$/gm, ''));
+const listModules = (dir) => readdirSync(join(root, dir), { withFileTypes: true }).flatMap((entry) => (entry.isDirectory()
+  ? listModules(`${dir}/${entry.name}`)
+  : /\.m?js$/.test(entry.name) ? [`${dir}/${entry.name}`] : []));
+const referenceSources = [
+  ...Object.entries(RUNTIME_SCRIPT_FILES).map(([file, src]) => withoutComments(src, file)),
+  ...listModules('src').filter((file) => !(file in RUNTIME_SCRIPT_FILES)).map((file) => withoutComments(read(file), file)),
+];
 const identifierCounts = new Map();
-for (const match of runtimeSource.matchAll(/[A-Za-z_$][\w$]*/g)) {
+for (const match of referenceSources.join('\n').matchAll(/[A-Za-z_$][\w$]*/g)) {
   identifierCounts.set(match[0], (identifierCounts.get(match[0]) || 0) + 1);
 }
 const declarationOnlyFunctions = new Set();

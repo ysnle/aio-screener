@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildDomainReceipt } from './fetch-sec-fundamentals.mjs';
-import { reconcileSecEquity, reconcileSecRevenueShares } from '../src/domain/fundamental/sec-report.js';
+import { reconcileSecEquity, reconcileSecRecord, reconcileSecRevenueShares } from '../src/domain/fundamental/sec-report.js';
 import { readSecLedger, secLedgerSkipNote } from './lib/sec-ledger.mjs';
 import { expandSecRecords } from '../src/data/contracts/sec-projection.js';
 
@@ -54,8 +54,13 @@ for (const symbol of sourceSymbols) {
 // here. A projection that copied a pre-fix record verbatim ships the NCI/AOCI mis-tag that the
 // runtime catch cannot repair — the page-side reconcile needs the observations that are stripped.
 const projectionSource = read('scripts/build-sec-runtime-projection.mjs');
-for (const token of ['reconcileSecEquity', "from '../src/domain/fundamental/sec-report.js'"]) {
+for (const token of ['reconcileSecRecord(record)', "from '../src/domain/fundamental/sec-report.js'"]) {
   if (!projectionSource.includes(token)) fail(`the runtime projection builder must reconcile parent equity itself (${token} missing)`);
+}
+{
+  // The builder's reconcileSecRecord carries the parent-equity repair: a same-filing StockholdersEquity row replaces the total.
+  const record = { equity: 100, observedAt: '2026-06-30', accession: 'a', pit: { observations: { equity: [{ periodEnd: '2026-06-30', accession: 'a', concept: 'StockholdersEquity', value: 80 }] } } };
+  if (reconcileSecRecord(structuredClone(record))?.equity !== 80 || reconcileSecEquity(structuredClone(record))?.equity !== 80) fail('reconcileSecRecord must apply the parent-equity repair (reconcileSecEquity)');
 }
 for (const symbol of sourceSymbols) {
   const canonical = source.data[symbol];

@@ -114,7 +114,7 @@ const core1758 = readFileSync(new URL('../js/aio-core.js', import.meta.url), 'ut
 const quotes1758 = section(source, 'async function _aioFetchLiveQuotesOnce(', 'function scheduleQuoteCrossSourceValidation(');
 check(/v7\/finance\/spark\?symbols=/.test(quotes1758) && /i \+= 20\)/.test(quotes1758) && !/yahoo\.com\/v7\/finance\/quote/.test(quotes1758) && /function _yfQuoteFromMeta\(/.test(quotes1758), 'P1758 quote polling batches 20 symbols per spark request through the relay chain (v7/quote needs a crumb and 401s)');
 check(quotes1758.indexOf('const _PRICE_RULES') < quotes1758.indexOf('await _yfBatchFetch('), 'P1758 the batch runs after the price rules it validates against are initialised');
-check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', '// 한국 종목: siseJson 폴백')) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
+check(!/codetabs\.com|allorigins\.win|corsproxy\.io|proxy\.cors\.sh|Promise\.any/.test(section(krData1758, 'async function dynamicTickerLookup(', "if (ticker.endsWith('.KS') || ticker.endsWith('.KQ')) {")) && !/corsproxy\.io\/\?'|allorigins\.win\/raw\?url='/.test(core1758), 'P1758 ticker lookup and SEC submissions use the relay chain, not a public-relay race or list');
 
 // v60.48: a host that sends no cross-origin header can only be read through the relay. "Try the host directly, fall back
 // to the relay" made two failed requests (and two console errors) per symbol before the relay was asked. The pattern is
@@ -167,7 +167,7 @@ const fresh = vm.createContext({ Date, isFinite, window:{}, DATA_APIS:{ finnhub:
 vm.runInContext(section(source, 'function _aioServerNewsFresh()', 'async function fetchAllNews('), fresh);
 const freshAt = (ms) => { fresh.window._serverNewsBackstop=[{title:'x'}]; fresh.window._serverDataMeta={generatedAt:new Date(Date.now()-ms).toISOString()}; return fresh._aioServerNewsFresh(); };
 check(freshAt(30*60000) && !freshAt(3*3600000) && (fresh.window._serverNewsBackstop=[], !fresh._aioServerNewsFresh()), 'P1756 server news is fresh only when present and generated under 2 hours ago');
-const fetchAll = section(source, 'async function fetchAllNews(', '// P1601: retain distinct articles');
+const fetchAll = section(source, 'async function fetchAllNews(', 'allItems = allItems.filter(');
 // v57.76: the personal Finnhub/NewsData merge was removed, so a fresh server bundle always ends the run at the top.
 check(/if \(_serverNewsFresh\) \{[\s\S]{0,480}return;/.test(fetchAll) && /if \(forceRefresh && typeof showToast === 'function'\) showToast\('뉴스는 서버가 /.test(fetchAll) && !/_aioPersonalNewsKeys|fetchFinnhubNewsFormatted|fetchNewsDataIO/.test(fetchAll), 'P1756 fetchAllNews skips the feed fan-out while server news is fresh; v57.76 no personal-key news merge remains');
 const pagesSource = readFileSync(new URL('../js/aio-pages.js', import.meta.url), 'utf8');
@@ -178,7 +178,7 @@ check(/var _aioFetchYahooChartDataDirect = _aioFetchYahooChartData;/.test(source
 check(!/financialmodelingprep\.com|data-logo-fallback/.test(pagesSource), 'v57.81 the earnings card hotlinks no third-party logo image'); // text-pin-ok: retirement absence
 
 const canonical=harness({fetcher:async()=>new Response(JSON.stringify(chart('NVDA','1wk')))});
-vm.runInContext(section(source,'async function _aioFetchYahooChartData(', '// 모듈 스코프'),canonical.context);
+vm.runInContext(section(source,'async function _aioFetchYahooChartData(', 'var _fetchYahooChartData = window._fetchYahooChartData;'),canonical.context);
 // P1132/R619: the inline delegation wrapper from index.html's block F was deleted (it was always
 // shadowed by aio-data.js's window assignment). The canonical producer above is the only transport.
 const weekly=await canonical.root._aioFetchYahooChartData('NVDA','2y','1wk');
@@ -195,7 +195,7 @@ const oldQuote={...q,_source:'live:yahoo-v7-batch',regularMarketTime:1787918000}
 const newQuote={...q,_source:'live:yahoo-proxy',regularMarketTime:1787918400,regularMarketPrice:102};
 check(observations._aioSelectAtomicQuotes([oldQuote,newQuote],Date.now())[0].regularMarketPrice===102, 'newer observation wins over preferred older provider');
 check(observations._aioSelectAtomicQuotes([newQuote,{...q,fetchedAt:new Date().toISOString()}],Date.now())[0].regularMarketPrice===102, 'collection time cannot displace a real observation');
-vm.runInContext(section(source, 'function _aioPlanQuoteGroups(', '// The provider fetch behind fetchLiveQuotes.'), observations);
+vm.runInContext(section(source, 'function _aioPlanQuoteGroups(', 'async function _aioFetchLiveQuotesOnce('), observations);
 const groups=observations._aioPlanQuoteGroups(['NVDA','NVDA','BRK-B','<bad>'],['^GSPC','KRW=X']);
 check(groups.flat().join(',')==='NVDA,BRK-B,^GSPC,KRW=X' && groups.every(group=>group.length<=5), 'request-owned quote scope deduplicates and validates symbols without hidden catalogue fanout');
 observations.window=observations;

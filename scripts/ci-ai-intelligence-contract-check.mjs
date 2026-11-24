@@ -421,7 +421,7 @@ check('P1245 the chat citation collector stamps its own stream request id, not a
   && !/window\._aioLastClaudeResearchError/.test(chatSource),
   'the collector must stamp the request id the stream was started with and no shared slot may remain');
 const streamContext = vm.createContext({ window: {}, Date, String, Array, Object, Number, JSON });
-vm.runInContext(chatSource.slice(chatSource.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), chatSource.indexOf('// P897: the ESM evidence module')), streamContext);
+vm.runInContext(chatSource.slice(chatSource.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'), chatSource.indexOf('function _aioEvaluateAIResearchGate(', chatSource.indexOf('var _AIO_AI_REQUEST_STREAM_LIMIT'))), streamContext);
 // 회귀(헬퍼 부재)는 크래시가 아니라 실패한 검사로 보고돼야 한다.
 const streamHelpersReady = typeof streamContext._aioAIRequestStream === 'function'
   && typeof streamContext._aioAIRequestCitations === 'function';

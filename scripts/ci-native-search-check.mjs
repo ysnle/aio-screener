@@ -68,7 +68,7 @@ const optional = { requirement: 'OPTIONAL', currentSensitive: false };
 assert.equal(select({ decision: optional, questionPlan: { ...plan, query: 'NVDA 재무 요약' }, mode: 'analysis' }), true, 'v60.02 a company question with injected financials is offered search; the model decides whether it needs it');
 assert.equal(searchMustRun(optional), false, 'v60.02 an optional non-current question is never forced to search');
 const start = chat.indexOf('async function callSharedAi(');
-const end = chat.indexOf('\n// ── 스크리너 질의', start);
+const end = chat.indexOf('function _aioResolveChatTickers(', start);
 assert.ok(start >= 0 && end > start, 'P1608 production adapter extraction exists');
 let sent, done, error;
 const stream = { citations: [], researchError: null };

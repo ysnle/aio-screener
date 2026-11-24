@@ -1,4 +1,4 @@
-// Canonical route registry generator (P1137/R623).
+// Canonical route registry generator.
 //
 // WHY THIS EXISTS: the same 19 route ids were hand-listed in five places, in five different
 // orders — `js/aio-core.js ROUTE_PAGE_IDS`, `src/app/routes.js ROUTE_IDS`,
@@ -98,7 +98,7 @@ const chunk = (list, per) => {
   return lines.join(',\n');
 };
 const routesJs = [
-  '// GENERATED FILE — do not edit by hand (P1137/R623).',
+  '// GENERATED FILE — do not edit by hand.',
   '// Source of truth: `var ROUTE_PAGE_IDS` in js/aio-core.js.',
   '// Regenerate: node scripts/generate-route-registry.mjs --write',
   '// Verify:     node scripts/generate-route-registry.mjs --check',
