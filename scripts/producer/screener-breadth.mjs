@@ -10,6 +10,7 @@ import { isSessionComplete, sessionSegmentOfSymbol } from '../../src/domain/scre
 import { REPO_ROOT, HIST } from './paths.mjs';
 import { normalizeHistoryRows, keepCheckTimes } from './history.mjs';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/indices/history-rows.js';
+import { RALLY_COUNT_MODEL, RALLY_COUNT_RULE } from '../../src/domain/market/regime/rally-attempt.js';
 
 // Reconstruct daily breadth from the same dated adjusted-close rows used by
 // the screener. Date alignment is explicit; array position is never used to
@@ -297,8 +298,10 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
     };
     distributionRows += 1;
   }
-  // Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count from the lowest close,
-  // and the follow-through session flag — the counterpart of the distribution-day count (src/domain/market/regime/rally-attempt.js).
+  // Nasdaq Composite rally attempt (phase 0 none · 1 attempt · 2 confirmed), its day count (the lowest close is day 0,
+  // the next session day 1), and the follow-through session flag — the counterpart of the distribution-day count
+  // (src/domain/market/regime/rally-attempt.js). Every warmed row of the one-year window is rewritten each run (no
+  // freeze), so a count-definition change (RALLY_COUNT_MODEL, which the reader checks) migrates in one run.
   let rallyRows = 0;
   for (const point of Array.isArray(rally?.series) ? rally.series : []) {
     // A cold-start state (the 63-session high window not yet full) never overwrites a row an earlier, longer run wrote.
@@ -313,7 +316,7 @@ export async function updateScreenerBreadthHistory(rows, nowMs = Date.now(), dis
       observedAt: `${point.date}T20:00:00.000Z`, fetchedAt, lastSuccessfulAt: fetchedAt,
       source: 'Yahoo chart ^IXIC daily bars', sourceKind: 'derived-research', allowedUse: 'research-history',
       observationRelation: 'latest-completed-close', observedAtSource: 'derived-from-index-daily-bars',
-      rule: 'day 1 = lowest close after a 6% drawdown from the 63-session closing high; follow-through = day 4+ close up 1.25% on volume above the prior session; a close under day 1 fails it'
+      model: RALLY_COUNT_MODEL, rule: RALLY_COUNT_RULE
     };
     target.fieldMeta.rallyPhase = meta;
     if (point.day != null) target.fieldMeta.rallyDay = meta; else delete target.fieldMeta.rallyDay;

@@ -5208,17 +5208,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // ── v59.57: Nasdaq rally attempt / follow-through day and Treasury auction comparison ────
 {
   const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/regime/rally-attempt.js');
-  // 30 flat sessions at 100, a slide to 90 (day 1 = the lowest close), three quiet sessions, then +2% on rising volume.
+  // 30 flat sessions at 100, a slide to 90 (the lowest close is day 0 since v60.52), three quiet sessions, then +2% on rising volume.
   const closes = [...Array(30).fill(100), 97, 94, 92, 90, 90.5, 90.8, 91, 92.82, 93, 89];
   const bars = closes.map((close, i) => ({ date: `2026-0${i < 20 ? 7 : 8}-${String((i % 20) + 1).padStart(2, '0')}`, close, volume: i === 37 ? 2000 : 1000 }));
   const series = rallyAttemptSeries(bars);
   const day1 = series[33], ftd = series[37], failed = series[39];
-  if (day1.phase !== 1 || day1.day !== 1 || ftd.phase !== 2 || !ftd.followThrough || ftd.day !== 5 || !failed.failed || failed.phase !== 1 || failed.day !== 1
+  if (day1.phase !== 1 || day1.day !== 0 || ftd.phase !== 2 || !ftd.followThrough || ftd.day !== 4 || !failed.failed || failed.phase !== 1 || failed.day !== 0
     || series[36].followThrough || rallyAttemptSeries(bars.map((bar) => ({ ...bar, volume: 1000 })))[37].followThrough) fail(`v59.57 rally attempt series wrong: ${JSON.stringify([day1, ftd, failed])}`);
   const history = series.map((point, i) => ({ date: bars[i].date, nasdaq: bars[i].close, rallyPhase: point.phase, rallyDay: point.day, followThroughDay: point.followThrough ? 1 : 0, breadthNewHighs: 10 + i }));
   const atFtd = rallyAttemptRead(history, { through: bars[38].date });
   const attempt = rallyAttemptRead(history, { through: bars[34].date });
-  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 2 || !/1일째는 .* 저점\(종가 90\)입니다/.test(attempt.plain)
+  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 1 || !/저점 8\/14\(종가 90\) 다음 거래일을 1일째로 세어/.test(attempt.rule)
     || rallyAttemptRead(history, { through: bars[10].date }) !== null) fail(`v59.57 rally attempt read wrong: ${JSON.stringify({ atFtd, attempt })}`);
   const { buildTreasuryAuctions, auctionTenor } = await load('src/domain/macro/treasury-auctions.js');
   const fixture = JSON.parse(readFileSync(path.join(root, 'scripts/fixtures/treasury-auctions/ta-ws-20261102.json'), 'utf8'));

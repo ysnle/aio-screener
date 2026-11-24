@@ -6,6 +6,8 @@ import { el } from './dom.js';
 import { markFold } from './indicator-face.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { rallyAttemptRead } from '../../domain/market/regime/rally-attempt.js';
+import { FOLLOW_THROUGH_WORDS } from '../../domain/content/rebound-words.js';
+import { hasFinalConsonant } from '../../domain/content/korean-particle.js';
 
 // v58.75 (persona review): the 25-session distribution-day count over its last 25 sessions, always on the face of 시장 상태
 // (it was only an evidence row) — bars at or above the leadership confirmation line (RULES.leadership) take the burden tone.
@@ -93,17 +95,30 @@ export function distributionStrip(doc, history, through) {
 }
 
 // v59.57 (X bookmarks 11/02, damipov): the other half of the distribution-day method — after a correction, is the Nasdaq
-// counting a rally attempt, has a follow-through day come, and are new highs following it. Same chunk and placement as
-// the distribution strip (trend axis detail); absent outside an episode.
-export function rallyAttemptStrip(doc, history, through) {
+// Composite counting toward a follow-through day, has one come, and are new highs following it. Same chunk and placement
+// as the distribution strip (trend axis detail); absent outside an episode.
+// v60.52: named by what it counts (FOLLOW_THROUGH_WORDS), never the story's 반등 시도; the base low and the rule on the
+// face; with the story's rebound present, one line saying which index each reads; an early close in the volume test said.
+export function rallyAttemptStrip(doc, history, through, { rebound = null } = {}) {
   const read = rallyAttemptRead(history || [], { through: through || null });
   if (!read) return null;
   const part = el(doc, 'div', null, 'leaders-line__part leaders-line__dist leaders-line__rally');
   const head = el(doc, 'div', null, 'leaders-line__head');
-  head.append(el(doc, 'span', '나스닥 반등 시도·FTD', 'leaders-line__label'),
+  head.append(el(doc, 'span', FOLLOW_THROUGH_WORDS.label, 'leaders-line__label'),
     el(doc, 'span', read.state, 'leaders-line__state'),
+    el(doc, 'span', read.rule, 'leaders-line__read leaders-line__rule'),
     el(doc, 'span', read.plain, 'leaders-line__read'));
+  const short = read.shortSession ? `${shortDate(read.shortSession)} 조기 폐장 — 거래량 비교가 짧은 거래일 기준입니다.` : '';
+  if (short) head.append(el(doc, 'span', short, 'leaders-line__read leaders-line__short'));
+  const relation = reboundRelation(read, rebound);
+  if (relation) head.append(el(doc, 'span', relation, 'leaders-line__read leaders-line__relation'));
   part.append(head);
-  part.title = '윌리엄 오닐의 바닥 확인일(follow-through day) 규칙을 나스닥 종합지수 일봉으로 계산합니다. 근거로만 쓰며 추세 판정과 시나리오 조건은 바꾸지 않습니다.';
+  part.title = '윌리엄 오닐의 follow-through day 규칙을 나스닥 종합지수 일봉으로 계산합니다. 근거로만 쓰며 추세 판정과 시나리오 조건은 바꾸지 않습니다.';
   return part;
+}
+
+/** The one line tying the signal to the market story's rebound when both are present: which index and base each reads. */
+export function reboundRelation(read, rebound) {
+  if (!read || !rebound?.word || !rebound.low?.date) return '';
+  return `시장 해석의 '${rebound.word}'${hasFinalConsonant(rebound.word) ? '은' : '는'} 나스닥 100 ${shortDate(rebound.low.date)} 저점 기준, 이 신호는 ${FOLLOW_THROUGH_WORDS.index} ${read.day === 0 ? `${shortDate(read.lowDate)} 새 저점에서 다시 셈` : `저점(${shortDate(read.lowDate)}) 뒤 ${read.day}일째`} — 지수와 규칙이 달라 엇갈릴 수 있습니다.`;
 }

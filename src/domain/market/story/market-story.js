@@ -14,6 +14,7 @@ import { readIndexLongrun, risesInFalls, LONGRUN_DEFINITION } from '../indices/l
 import { fallFrame, stageOf } from './fall-frame.js';
 import { episodeOf, reboundOf, reboundStanceSaid } from './rebound.js';
 import { rallyAttemptRead } from '../regime/rally-attempt.js';
+import { FOLLOW_THROUGH_WORDS } from '../../content/rebound-words.js';
 import { sessionPointBack } from '../session/close-series.js';
 import { sessionStep } from '../session/move-size.js';
 import { shortDate, shortDateAgainst } from '../../content/date-labels.js';
@@ -677,7 +678,7 @@ function reboundLedeSaid(leaders, { spx, ndx }, rebound) {
  */
 function followThroughSaid(rebound, history, asOf) {
   const rally = rebound.state === 'failed' ? null : rallyAttemptRead(history, { through: asOf });
-  return rally?.phase === 'confirmed' && rally.ftdDate >= rebound.low.date ? say('{d} 바닥 확인일이 나왔습니다.', { d: shortDate(rally.ftdDate) }) : NOTHING;
+  return rally?.phase === 'confirmed' && rally.ftdDate >= rebound.low.date ? say(`{d} ${FOLLOW_THROUGH_WORDS.index} ${FOLLOW_THROUGH_WORDS.name}가 나왔습니다.`, { d: shortDate(rally.ftdDate) }) : NOTHING;
 }
 
 /**
@@ -866,10 +867,11 @@ export function openingFactLines(opening) {
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
     d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',
-    // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite).
-    said('watch') ? `반등: ${opening.rebound.word} — ${said('watch')}` : '',
-    opening.rebound ? `반등 상태어(규칙으로 정함, 바꾸지 말 것): ${opening.rebound.word}` : '',
-    ...(opening.rebound?.checks?.said || []).map((piece) => `반등 확인 조건: ${piece.text}`),
+    // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite). v60.52:
+    // each line names the index and rule, so the model cannot merge it with the Composite's 반등 확인 신호(FTD).
+    said('watch') ? `반등(나스닥 100 종가, 저점 대비 +${RULES.story.reboundPct}% 규칙): ${opening.rebound.word} — ${said('watch')}` : '',
+    opening.rebound ? `반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): ${opening.rebound.word}` : '',
+    ...(opening.rebound?.checks?.said || []).map((piece) => `반등 가격 조건(나스닥 100·S&P 500): ${piece.text}`),
     opening.rebound ? `반등 대응(조건부, 지시 아님): ${opening.rebound.stance.text}` : '',
     opening.korea?.text ? `한국: ${opening.korea.text}` : '',
     ...opening.standings.map((piece) => `기록 비교: ${piece.text}`),
