@@ -598,7 +598,7 @@ export function ratesNextSteps({ read = null, carry = null } = {}) {
   return next;
 }
 
-export function buildMacroRead({ macro = null, macroHistory = null, regime = null, rateFx = null, history = null } = {}) {
+export function buildMacroRead({ macro = null, macroHistory = null, regime = null, rateFx = null, history = null, nowMs = Date.now() } = {}) {
   if (!rateFx && Array.isArray(history)) rateFx = closeChanges(history);
   const m = macro && typeof macro === 'object' ? macro : {};
   const mh = macroHistory?.schemaVersion === 'macro-history.v1' ? macroHistory : null;
@@ -606,7 +606,7 @@ export function buildMacroRead({ macro = null, macroHistory = null, regime = nul
   const oil = brentWtiCheck(macroHistory, Array.isArray(history) ? history : []);
   const growth = growthAxis({ macro: m, mh });
   const inflation = inflationAxis({ macro: m, mh });
-  const sep = mh ? sepNeutral(mh) : null;
+  const sep = mh ? sepNeutral(mh, nowMs) : null;
   const policy = policyAxis({ macro: m, inflationState: inflation.state, growthState: growth.state, neutralReal: sep && !sep.old && !sep.stale ? sep.rStar : P.neutralRealPct });
   const axes = [
     growth, inflation, policy,

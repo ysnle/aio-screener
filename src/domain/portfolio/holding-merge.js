@@ -52,7 +52,7 @@ function sumWeights(values) {
  * An import's positions with each ticker once. Returns the merged list (first-seen order) and one note per merged
  * ticker: how many rows it had and whether the price could be averaged.
  */
-export function mergeDuplicatePositions(positions) {
+export function mergeDuplicatePositions(positions, { now = Date.now() } = {}) {
   const order = [];
   const groups = new Map();
   for (const position of Array.isArray(positions) ? positions : []) {
@@ -69,7 +69,7 @@ export function mergeDuplicatePositions(positions) {
     let row = { ...rows[0] };
     let priced = true;
     for (const next of rows.slice(1)) {
-      const result = priced ? mergeHoldingPair(row, next) : { ok: false };
+      const result = priced ? mergeHoldingPair(row, next, { now }) : { ok: false };
       if (result.ok) { row = result.position; continue; }
       // The quantity still adds (the shares were bought); the price is unknown rather than a mixed-unit average.
       priced = false;

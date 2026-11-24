@@ -61,7 +61,7 @@ export function buildCompanyAnalysis({ symbol, row = null, summary = null, profi
   const matchedFundamentals = fundamentals && sym(fundamentals.symbol) === id && isCompany && market !== 'KR' ? fundamentals : null;
   const filingAt = matchedFundamentals?.acceptedAt || matchedFundamentals?.filedAt;
   const filingMs = Date.parse(filingAt || '');
-  const report = matchedFundamentals ? deriveSecReport(matchedFundamentals) : null;
+  const report = matchedFundamentals ? deriveSecReport(matchedFundamentals, nowMs) : null;
   const officialFiling = matchedFundamentals?.sourceTier === 'official-regulator' || matchedFundamentals?.sourceKind === 'T1_OFFICIAL';
   const usableFundamentals = matchedFundamentals && officialFiling && matchedFundamentals.periodType === 'FY' && validDate(matchedFundamentals.observedAt)
     && Date.parse(matchedFundamentals.observedAt) <= nowMs && Number.isFinite(filingMs) && filingMs <= nowMs && report?.status === 'current' ? matchedFundamentals : null;

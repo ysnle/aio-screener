@@ -191,5 +191,79 @@ check('temporal evidence separates event/observed/collected/published', temporal
   check('P1735 2027 KRX holidays come from the registry (Chuseok 9/14-16)', JSON.stringify(chuseok2027) === JSON.stringify(['krx-holiday-2027-09-14', 'krx-holiday-2027-09-15', 'krx-holiday-2027-09-16']), chuseok2027);
 }
 
+// Domain code takes the time from its caller, so a check can move every domain answer to any date. A clock read is allowed
+// only as a parameter default of an exported function, or as the fallback when the caller's now/nowMs/asOfMs is missing.
+{
+  const { readdirSync, statSync } = await import('node:fs');
+  const path = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const repo = fileURLToPath(new URL('..', import.meta.url));
+  const SKIPPED = {
+    'src/domain/briefing/macro-releases.js': 'the root wrapper passes { nowMs: Date.now(), ...options }; the briefing files belong to another change'
+  };
+  const blankCode = (source) => {
+    let out = '';
+    let prev = '';
+    for (let i = 0; i < source.length;) {
+      const c = source[i];
+      const two = source.slice(i, i + 2);
+      const blankTo = (end) => { out += source.slice(i, end).replace(/[^\n]/g, ' '); i = end; };
+      if (two === '//') { const end = source.indexOf('\n', i); blankTo(end < 0 ? source.length : end); continue; }
+      if (two === '/*') { const end = source.indexOf('*/', i + 2); blankTo(end < 0 ? source.length : end + 2); continue; }
+      if (c === '\'' || c === '"' || (c === '/' && /^$|[(,=:[!&|?{};]/.test(prev))) {
+        let j = i + 1;
+        let cls = false;
+        while (j < source.length && source[j] !== '\n') {
+          if (source[j] === '\\') { j += 2; continue; }
+          if (c === '/' && source[j] === '[') cls = true;
+          else if (c === '/' && source[j] === ']') cls = false;
+          else if (source[j] === c && !cls) break;
+          j += 1;
+        }
+        blankTo(j + 1);
+        prev = c;
+        continue;
+      }
+      out += c;
+      if (!/\s/.test(c)) prev = c;
+      i += 1;
+    }
+    return out;
+  };
+  const clockReads = (source) => {
+    const code = blankCode(source);
+    const found = [];
+    for (const match of code.matchAll(/\bDate\.now\(\)|\bnew Date\(\)/g)) {
+      const before = code.slice(0, match.index);
+      const line = before.slice(before.lastIndexOf('\n') + 1);
+      if (/\b(?:now|nowMs|asOfMs)\b/.test(line) && (/(?:\?\?|\|\|)\s*\(?\s*$/.test(line) || (/:\s*$/.test(line) && line.replace(/\?\?|\?\./g, '').includes('?')))) continue;
+      const fn = [...before.matchAll(/(\bexport\s+)?\bfunction\s*[\w$]*\s*\(/g)].at(-1);
+      let depth = 0;
+      let inParams = !!fn;
+      if (fn) for (const ch of before.slice(fn.index + fn[0].length - 1)) {
+        depth += ch === '(' ? 1 : ch === ')' ? -1 : 0;
+        if (depth === 0) { inParams = false; break; }
+      }
+      if (fn?.[1] && inParams) continue;
+      found.push(`${before.split('\n').length}: ${source.split('\n')[before.split('\n').length - 1].trim().slice(0, 120)}`);
+    }
+    return found;
+  };
+  check('v60.51 domain clock rule: the scanner tells a helper\'s own read from an entry default and a caller fallback',
+    clockReads('export function a({ now = Date.now() } = {}) { return b(now); }\nfunction b(now) { return now ?? Date.now(); }\nexport function c(x, nowMs = Date.now()) { return x; }').length === 0
+      && clockReads('export function a() { return b(); }\nfunction b(now = Date.now()) { return now; }').length === 1
+      && clockReads('export function a(x) { const t = Date.now(); // Date.now()\n  return { at: new Date().toISOString(), re: /Date.now()/, age: Math.round((Date.now() - x)) }; }').length === 3);
+  const offenders = [];
+  (function walk(dir) {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      const rel = path.relative(repo, full).replaceAll('\\', '/');
+      if (statSync(full).isDirectory()) walk(full);
+      else if (/\.m?js$/.test(entry) && !Object.keys(SKIPPED).some((prefix) => rel.startsWith(prefix))) offenders.push(...clockReads(readFileSync(full, 'utf8')).map((hit) => `${rel}:${hit}`));
+    }
+  })(path.join(repo, 'src/domain'));
+  check('v60.51 domain clock rule: no src/domain function reads the clock except as an exported entry default or a missing-now fallback', offenders.length === 0, offenders);
+}
+
 if (errors.length) { errors.forEach(error => console.error(' - ' + error)); process.exit(1); }
 console.log('Market session contract check OK: NYSE/KRX adapters, DST/holiday/half-day/weekend fixtures, and unknown fail-closed state passed.');

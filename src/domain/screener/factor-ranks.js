@@ -431,7 +431,7 @@ function emptyResult({ inputVersion, regimeLabel, weights, reason = 'fewer than 
  */
 function computeFactorRanksForPopulation({
   rows = [], weights = null, regimeLabel = null, fundamentalCoveragePct = 0, fmpOk = false,
-  now = Date.now(), inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
+  now, inputVersion = 'unknown', previousRanks = null, previousRegimeLabel = null, previousWeights = null,
   topPct = 20, weightsPolicy = null, momentumDefinition = MODEL_DEFAULT_DEFINITIONS.momentum, valueDefinition = MODEL_DEFAULT_DEFINITIONS.value, qualityDefinition = MODEL_DEFAULT_DEFINITIONS.quality
 } = {}) {
   const inputRows = Array.isArray(rows) ? rows : [];
@@ -840,7 +840,7 @@ export function rankingPopulationExclusion(row) {
   return null;
 }
 
-export function computeFactorRanks(input = {}) {
+export function computeFactorRanks({ now = Date.now(), ...input } = {}) {
   const isIntl = (row) => listingMarket(row || {}) === 'INTL';
   const excludedRows = [];
   const populationExclusions = { fund: 0, spac: 0, illiquid: 0, pinned: 0, foreign: 0 };
@@ -855,12 +855,12 @@ export function computeFactorRanks(input = {}) {
   const exclusionSummary = Object.freeze({ ...populationExclusions, extendedMinDollarVolume30d: EXTENDED_MIN_DOLLAR_VOLUME_30D, pinnedVolAtMost: PINNED.volAtMost, pinnedAdrPctAtMost: PINNED.adrPctAtMost });
   const markets = [...new Set(rows.map(screenerMarket).filter(Boolean))];
   if (markets.length <= 1) {
-    const result = computeFactorRanksForPopulation({ ...input, rows });
+    const result = computeFactorRanksForPopulation({ ...input, now, rows });
     const market = markets[0] || 'US';
     return Object.freeze({ ...result, populationPolicy: MARKET_POPULATION_POLICY, populationMarket: market, populationExclusions: exclusionSummary, byMarket: Object.freeze({ [market]: result }), rows: Object.freeze([...result.rows, ...excludedRows]) });
   }
   const byMarket = Object.fromEntries(markets.map(market => {
-    const result = computeFactorRanksForPopulation({ ...input, rows: rows.filter(row => screenerMarket(row) === market), previousRanks: Array.isArray(input.previousRanks) ? input.previousRanks.filter(row => screenerMarket(row) === market) : null });
+    const result = computeFactorRanksForPopulation({ ...input, now, rows: rows.filter(row => screenerMarket(row) === market), previousRanks: Array.isArray(input.previousRanks) ? input.previousRanks.filter(row => screenerMarket(row) === market) : null });
     return [market, result];
   }));
   const primary = byMarket.US || Object.values(byMarket)[0];

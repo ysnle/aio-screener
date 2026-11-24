@@ -19,7 +19,7 @@ const METRIC_DEFINITIONS = Object.freeze([
   ['pb', 'P/B', 'multiple']
 ]);
 
-function classifyFreshness(observedAt, now = Date.now()) {
+function classifyFreshness(observedAt, now) {
   const observedMs = observedAt ? Date.parse(String(observedAt)) : NaN;
   if (!Number.isFinite(observedMs)) return Object.freeze({ state: 'unknown', ageDays: null, decisionEligible: false });
   const ageDays = Math.floor((now - observedMs) / 86400000);
@@ -304,7 +304,7 @@ export function secFilingUrl(cik, accession) {
   return `https://www.sec.gov/Archives/edgar/data/${Number(company)}/${filing.replaceAll('-', '')}/${filing}-index.html`;
 }
 
-export function deriveSecReport(fundamentals = null) {
+export function deriveSecReport(fundamentals = null, now = Date.now()) {
   const input = reconcileSecRecord(fundamentals && typeof fundamentals === 'object' ? fundamentals : {});
   const knownMetrics = new Set(METRIC_DEFINITIONS.map(([key]) => key));
   const coverage = Array.isArray(input.coverage) ? input.coverage.filter((field) => typeof field === 'string' && knownMetrics.has(field)) : [];
@@ -316,7 +316,7 @@ export function deriveSecReport(fundamentals = null) {
   const classification = notApplicable ? 'not-applicable' : metrics.length > 0 ? 'current' : 'missing';
   const status = notApplicable ? 'not-applicable' : anomalies.length ? 'quarantined' : metrics.length > 0 ? 'current' : 'unavailable';
   const observedAt = input.observedAt || null;
-  const freshness = classifyFreshness(observedAt);
+  const freshness = classifyFreshness(observedAt, now);
   const pit = input?.pit && typeof input.pit === 'object' ? input.pit : null;
   return Object.freeze({
     modelVersion: SEC_REPORT_MODEL_VERSION,

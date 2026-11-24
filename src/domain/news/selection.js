@@ -790,7 +790,7 @@ export function newsSelectionAudit(items, env = {}) {
   const sourceItems = Array.isArray(items) ? items : [];
   const nowMs = typeof env.now === 'function' ? env.now() : Date.now();
   const audit = {
-    generatedAt: new Date().toISOString(),
+    generatedAt: new Date(nowMs).toISOString(),
     checked: sourceItems.length,
     scoreBuckets: { gte90: 0, gte70: 0, gte50: 0, gte30: 0, lt30: 0 },
     topics: {},
