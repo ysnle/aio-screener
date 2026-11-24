@@ -162,12 +162,16 @@ function openingLine(doc, line) {
 }
 
 /** The face into `host`: the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
-export function paintOpening(doc, host, opening) {
+// With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
+export function paintOpening(doc, host, opening, tail = null) {
   if (!host || !opening?.available || !opening.lines?.length) return false;
   const [lede, ...rest] = opening.lines;
-  host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`), ...rest.map((line) => openingLine(doc, line)));
+  const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
+  host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
+    ...rest.filter((line) => !after.includes(line)).map((line) => openingLine(doc, line)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
+  if (tail) { tail.replaceChildren(...after.map((line) => openingLine(doc, line))); tail.hidden = false; }
   return true;
 }
 
@@ -206,14 +210,16 @@ export function renderSignalOpening({ documentRef: doc, root, interpretation, on
   if (!host) return;
   const opening = readMarketOpening(root, interpretation, () => renderSignalOpening({ documentRef: doc, root, interpretation, onWatch }));
   onWatch?.(opening?.available ? opening.rebound || null : null);
-  const painted = paintOpening(doc, host, opening);
+  const tail = doc.getElementById('regime-opening-more');
+  const painted = paintOpening(doc, host, opening, tail);
+  if (!painted && tail) tail.hidden = true;
   host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
   if (painted) {
     const wasOpen = [...host.parentElement.querySelectorAll(':scope > .mk-opening__more, :scope > .mk-opening__method')].map((fold) => fold.open);
     host.parentElement.querySelectorAll(':scope > .mk-opening__more, :scope > .mk-opening__method').forEach((fold) => fold.remove());
     const folds = openingFolds(doc, opening);
     folds.forEach((fold, i) => { if (wasOpen[i]) fold.open = true; });
-    host.after(...folds);
+    (tail || host).after(...folds);
   }
   const board = doc.getElementById('regime-board-kr');
   if (board && opening?.korea?.text) {
