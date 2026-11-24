@@ -13,7 +13,7 @@ import { debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { reconcileFiscalHistory, financialKind, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
-import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, REVERSE_DCF_DEFAULTS } from '../../domain/fundamental/analysis-read.js';
+import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, reverseDcfAssumptions } from '../../domain/fundamental/analysis-read.js';
 import { consensusView, peakEarningsCaution } from '../../domain/fundamental/consensus-read.js';
 import { lensIdFor, buildLensRead, buildPeerStrengths, peerBasisText, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
@@ -79,7 +79,7 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const financial = financialKind(sym, row?.sector, sicCode);
   const close = Number(row?._valuationPrice ?? row?.valuationPrice) > 0 && hasLeadingIsoDay(String(row?.factorSessionDate || '')) ? { value: Number(row._valuationPrice ?? row.valuationPrice), date: String(row.factorSessionDate).slice(0, 10), shares: Number(row?._valuationSharesOutstanding) > 0 ? Number(row._valuationSharesOutstanding) : null, sharesObservedAt: row?._valuationSharesObservedAt || null } : null;
   const inputs = history.length ? reverseDcfInputs({ history, fundamentals: own, close, financial }) : null;
-  const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, discountRate: REVERSE_DCF_DEFAULTS.discountRate, terminalGrowth: REVERSE_DCF_DEFAULTS.terminalGrowth }) : inputs ? { state: inputs.state } : null;
+  const implied = inputs?.state === 'ready' ? impliedGrowth({ fcf: inputs.fcf, marketValue: inputs.marketValue, ...reverseDcfAssumptions(root?._aioReverseDcfAssumptions) }) : inputs ? { state: inputs.state } : null;
   const peakEarnings = peakEarningsCaution(consensus ? consensusView(row, consensus) : null);
   const strengths = peers ? buildPeerStrengths(peers.rows, { peakEarnings }) : null;
   const pe = strengths?.facts?.find((fact) => fact.id === 'fwdPe');

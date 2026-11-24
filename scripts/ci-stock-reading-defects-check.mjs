@@ -43,7 +43,7 @@ const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text
   check(frame.conditions[0].includes('1.8% 감소보다 빠르게 줄지 않는다'), `v60.50 B26: thesis condition is not "does not shrink faster" (${frame.conditions[0]})`);
   check(frame.breaks[0].includes('1.8%보다 빠르게 줄어드는'), `v60.50 B26: break signal is not "shrinks faster" (${frame.breaks[0]})`);
   const up = buildThesisFrame({ implied: { state: 'ready', growth: 0.052 } });
-  check(up.priced.includes('연 5.2% 늘어난다고 가정합니다') && up.conditions[0].includes('5.2% 이상으로 이어진다'), `v60.50 B26: positive implied growth wording changed (${up.priced})`);
+  check(up.priced.includes('연 5.2% 늘어나야 설명됩니다') && up.conditions[0].includes('5.2% 이상으로 이어진다'), `v60.50 B26: positive implied growth wording changed (${up.priced})`);
 }
 
 // 2. B27: "돌아섰습니다" only when the adjacent prior year had the other sign.
