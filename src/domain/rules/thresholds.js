@@ -62,6 +62,13 @@ export const RULES = Object.freeze({
     tiers: Object.freeze({ lead: 60, major: 35, minor: 15 }),
     coreGauges: Object.freeze(['spx', 'ndx', 'soxx', 'kospi', 'tnx', 'dxy', 'wti', 'gold', 'hyOas', 'vix']) }),
   marketReading: Object.freeze({ inSessionZ: 0.75, inSessionWtiPct: 2, retainHours: 12, retainDriftOtherPct: 3 }),
+  // The market investigation (scripts/producer/market-investigation.mjs). A lead is a ledger move at the ledger's own lead
+  // tier (moveMateriality.tiers.lead, sized against its own volatility) or a rule word that changed since the previous
+  // session; at most maxLeads per kind group and in all. One investigation per lead set: at most maxRounds tool rounds,
+  // maxFunctionCalls data calls and maxRequests requests (repair included). monthlyBudgetUsd is a hard stop for this
+  // lane; runReserveUsd is what one run may spend at worst, so a run that could pass the budget does not start.
+  investigation: Object.freeze({ maxLeads: 5, maxPriceLeads: 3, maxStockLeads: 2, maxGroupLeads: 1, maxRounds: 4, maxFunctionCalls: 10,
+    maxRequests: 6, monthlyBudgetUsd: 6, runReserveUsd: 0.3, providerAttempts: 3 }),
   portfolio: Object.freeze({ holdingPct: Object.freeze([10, 15, 25]),
     sectorNear: 25, sectorOver: 40, top3Over: 60, corrOver: 0.7, currencyMax: 0.5 }),
   fearGreed: Object.freeze({ extremeFearBelow: 25, fearBelow: 45, greedAbove: 55, extremeGreedAbove: 75 }),

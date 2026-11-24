@@ -24,6 +24,7 @@ import { collectRotationHistory } from './lib/rotation-history.mjs';
 import { resolveSharedAiConfig } from './lib/ai-shared-analysis.mjs';
 import { createAiUsage, marketAnalysisOutcome } from './producer/ai-usage.mjs';
 import { genScreenReadings, screenReadingsOutcome } from './producer/screen-readings.mjs';
+import { genMarketInvestigation } from './producer/market-investigation.mjs';
 import { sealMarketTimeline, summarizeMarketTimeline } from './lib/market-timeline.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { compareUsdKrwCrossCheck } from './lib/macro-sources.mjs';
@@ -225,6 +226,18 @@ async function main() {
     if (previous?.screenReadings) data.screenReadings = previous.screenReadings;
     aiUsage.note('screen-reading', 'error');
     console.warn(`[fetch-data] screen readings kept previous: ${error?.message || error}`);
+  }
+  // The market investigation: the session's unusual moves and changed rule words, followed with the refresh's own data
+  // and a bounded search; called only when the lead set changed (scripts/producer/market-investigation.mjs).
+  try {
+    const investigation = await genMarketInvestigation({ data, history: timelineHistory, previous: previous?.marketInvestigation || null, request: aiUsage.sharedResponse('market-investigation') });
+    if (investigation.result) data.marketInvestigation = investigation.result;
+    aiUsage.note('market-investigation', investigation.outcome);
+    console.log(`[fetch-data] market investigation: ${investigation.outcome} (${investigation.requests} requests, ${investigation.result?.leads?.length ?? 0} leads)`);
+  } catch (error) {
+    if (previous?.marketInvestigation) data.marketInvestigation = previous.marketInvestigation;
+    aiUsage.note('market-investigation', 'error');
+    console.warn(`[fetch-data] market investigation kept previous: ${error?.message || error}`);
   }
   data.meta.marketTimelineSealed = timelineRun.sealed;
   data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: aiUsage.shared('slot-summary') })

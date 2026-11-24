@@ -3,7 +3,7 @@
 // fallback) and the six-hour slot summary — and each step published only its own outcome field, so a run's request
 // count and why a step called, reused or skipped were not visible in one place. Every requester the producer hands to
 // those steps is wrapped here; meta.aiUsage publishes counts and short reason codes only (never prompt or model text).
-import { requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig } from '../lib/ai-shared-analysis.mjs';
+import { SHARED_AI_TIMEOUT_MS, postSharedAi, requestSharedAnalysis, requestWorkersAiTranslation, resolveSharedAiConfig, sharedAiUsage } from '../lib/ai-shared-analysis.mjs';
 
 export const AI_USAGE_SCHEMA = 'aio-pipeline-ai-usage.v1';
 const REASON = /^[a-z0-9:-]{1,64}$/;
@@ -30,6 +30,13 @@ export function createAiUsage({ env = process.env, fetchImpl = undefined } = {})
     count(purpose, !!result?.text, result?.reason, result?.usage || null);
     return result;
   } : null);
+  // A whole Responses payload (the investigation's tool rounds read function calls and citations from it).
+  const sharedResponse = (purpose) => (configured ? async (body) => {
+    const result = await postSharedAi(body, { env, purpose, timeoutMs: SHARED_AI_TIMEOUT_MS.search, ...(fetchImpl ? { fetchImpl } : {}) });
+    const usage = result.payload ? sharedAiUsage(result.payload) : null;
+    count(purpose, !!result.payload, result.reason, usage);
+    return { ...result, usage };
+  } : null);
   const workersTranslate = (purpose) => (configured ? async (titles) => {
     const result = await requestWorkersAiTranslation(titles, { env });
     count(`${purpose}:workers-ai`, Array.isArray(result?.translations), result?.reason);
@@ -45,7 +52,7 @@ export function createAiUsage({ env = process.env, fetchImpl = undefined } = {})
     const outputTokens = Object.values(purposes).reduce((sum, row) => sum + (row.outputTokens || 0), 0);
     return { schemaVersion: AI_USAGE_SCHEMA, configured, sharedRequests, workersAiRequests, inputTokens, outputTokens, purposes };
   };
-  return { configured, shared, workersTranslate, note, receipt };
+  return { configured, shared, sharedResponse, workersTranslate, note, receipt };
 }
 
 // What the market-reading step did this run, from its result and its request count.

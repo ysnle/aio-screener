@@ -3189,6 +3189,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <!-- The hero's second column: 다음 일정, 시장 상태's dated week items (home-ahead.js). -->
     <aside id="home-ahead" class="home-ahead" aria-label="다음 일정" hidden></aside>
   </section>
+  <section class="screen-reading" id="home-investigation" aria-label="AI 조사" hidden></section>
   <!-- Owner 2026-10-25: the four index ETFs' last regular session (5-minute candles), the page's market picture. -->
   <section id="home-index-strip" class="home-index-strip" aria-label="지수 하루 흐름"></section>
   <!-- v59.51: one quote row (the KPI tiles, the "지금 시세" heading, gold and BTC left). A futures chip shows only a live
@@ -3251,6 +3252,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <div id="regime-leaders" class="leaders-line" hidden></div>
   </section>
   <section class="screen-reading" id="signal-screen-reading" aria-label="AI 읽기" hidden></section>
+  <section class="screen-reading" id="signal-investigation" aria-label="AI 조사" hidden></section>
   <!-- F01: the produced verdict (build-scenario-state, same interpretation as the screen) paints both verdicts before the
        bundles run; each screen's own render (market-regime.js) replaces every field it sets. v59.51 (run-6 #19): it runs after
        this hero is parsed — inside the 오늘 hero it resolved before #regime-overall existed, so 시장 상태 read '판정 대기'. -->
