@@ -5148,7 +5148,8 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     fail(`v58.75 move headlines must match the company exactly: ${JSON.stringify({ credo: credo?.row?.title, wdc: wdc?.text })}`);
   // A session's move is explained by what was reported before that market closed; the next morning's headline is not it.
   const { sessionNewsWindow } = await load('src/domain/briefing/news-picks.js');
-  const nvda = [{ title: 'Nvidia shares slip as chip stocks retreat', pubDate: '2026-11-12T18:00:00Z' }, { title: 'Nvidia beats estimates, raises guidance after the bell', pubDate: '2026-11-12T21:25:00Z' },
+  // v60.51: a mover's report states the move in its own words (reportAboutMove), so the session's report says "fall".
+  const nvda = [{ title: 'Nvidia shares fall as chip stocks retreat', pubDate: '2026-11-12T18:00:00Z' }, { title: 'Nvidia beats estimates, raises guidance after the bell', pubDate: '2026-11-12T21:25:00Z' },
     { title: 'Nvidia jumps premarket on blowout forecast', pubDate: '2026-11-13T11:30:00Z' }];
   const pick = (move, list = nvda) => headlineForCompany({ symbol: 'NVDA', name: 'NVIDIA', move }, { news: list, session: '2026-11-12' })?.row?.title || null;
   const us = sessionNewsWindow('2026-11-12', 'US'), kr = sessionNewsWindow('2026-11-12', 'KR'), friday = sessionNewsWindow('2026-11-13', 'US');

@@ -62,9 +62,9 @@ export function renderMoveNews(doc, root, store, flow) {
   }
   const head = el(doc, 'h3', `움직인 이유, 종목·테마 ${rows.length}곳 `, 'briefing-move-news-title');
   // Date chip; what the list compares is its hover.
-  head.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마. 보도는 같은 날 나왔다는 사실이며 원인을 확정하지는 않습니다.'));
+  head.append(asOfChip(doc, `${shortDate(flow.session)} 종가`, '미국 종가, 같은 업종·테마 안에서 갈린 종목과 테마. 보도는 그 세션 안에 나와 움직임의 방향을 말한 기사이며 원인을 확정하지는 않습니다.'));
   const missing = rows.filter((row) => !row.headline);
-  const rest = missing.length ? el(doc, 'p', `같은 날 관련 보도 없음: ${missing.map((row) => `${row.label} ${signedText(row.move, 1, '%')}`).join(', ')}`, 'briefing-read-reading') : null;
+  const rest = missing.length ? el(doc, 'p', `움직임을 다룬 보도 없음: ${missing.map((row) => `${row.label} ${signedText(row.move, 1, '%')}`).join(', ')}`, 'briefing-read-reading') : null;
   block.replaceChildren(head, ...[moveNewsList(doc, root, rows, { max: 5 }), rest].filter(Boolean));
   block.hidden = false;
 }

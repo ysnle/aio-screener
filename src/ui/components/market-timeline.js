@@ -50,8 +50,11 @@ const kstStamp = (ms) => {
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
 };
 
-/** One list of mover rows; `showMissing` keeps a mover without a headline as '관련 보도 없음'. Returns the list or null. */
-export function moveNewsList(doc, root, rows, { showMissing = false, missingText = '같은 날 관련 보도 없음', max = 8, listClass = 'market-slot-news', timeClass = 'market-slot-news-time', titleClass = 'market-slot-news-title' } = {}) {
+/**
+ * One list of mover rows; `showMissing` keeps a mover without a report about its move (reportAboutMove), followed by
+ * `missingText` when one is given. Returns the list or null.
+ */
+export function moveNewsList(doc, root, rows, { showMissing = false, missingText = '', max = 8, listClass = 'market-slot-news', timeClass = 'market-slot-news-time', titleClass = 'market-slot-news-title' } = {}) {
   const shown = rows.filter((row) => showMissing || row.headline).slice(0, max);
   if (!shown.length) return null;
   const list = el(doc, 'ul', null, listClass);

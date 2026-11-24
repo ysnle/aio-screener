@@ -17,7 +17,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import { buildDayAccount, byReportOrder } from '../src/domain/briefing/day-account.js';
-import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../src/domain/briefing/news-picks.js';
+import { leadLinkedNews, pickImportantNews, reportAboutMove, rollingNewsPool } from '../src/domain/briefing/news-picks.js';
+import { renderTickerContext } from '../src/ui/components/ticker-context.js';
 import { eventPreviews } from '../src/domain/briefing/event-guide.js';
 import { isBlacklistedNewsText } from '../src/domain/news/selection.js';
 import { renderHomeDay } from '../src/ui/components/home-day.js';
@@ -152,6 +153,28 @@ check('v60.51 C3 a stored translation is reused under the cleaned title without 
   const run = await translateHeadlines(items, { previous: [{ title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap', titleKo: HUANG }] });
   assert.equal(run.reused, 1, 'v60.51 C3 reused');
   assert.equal(items[0].titleKo, '황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등', 'v60.51 C3 reused translation');
+});
+
+// ── 2b. One rule for the report of a move: the 종목 header uses the same one as 오늘·브리핑.
+check('v60.51 the 종목 header shows a report only when it is about the move, and the move either way', () => {
+  const rows = [
+    { title: 'Bessent says US is demanding answers on Nvidia chip sales to China', titleKo: '베선트, 미국이 Nvidia의 중국 칩 판매와 관련해 답변을 요구하고 있다고 밝혀', pubDate: '2026-11-22T17:53:00Z', tier: 1, score: 90, link: 'https://fixture.invalid/bessent' },
+    { title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets', titleKo: '황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등', pubDate: '2026-11-23T21:11:01Z', tier: 1, score: 81, link: 'https://fixture.invalid/huang' },
+    { title: 'Micron sets date for its quarterly report', titleKo: '마이크론, 분기 실적 발표일 공개', pubDate: '2026-11-23T13:00:00Z', tier: 1, score: 70, link: 'https://fixture.invalid/mu' }
+  ];
+  const header = (symbol, name, ret1d) => {
+    const doc = fakeDocument([]);
+    const host = doc.createElement('div');
+    renderTickerContext(doc, host, { root: { _serverNewsIntraday: rows }, store: null, symbol, name, row: { factorSessionDate: D, ret1d } });
+    return host.textContent.replace(/\s+/g, ' ').trim();
+  };
+  const nv = header('NVDA', 'NVIDIA', 31.48);
+  assert.match(nv, /11\/23 \+31\.5%/, 'v60.51 NVDA move');
+  assert.match(nv, /황의 엔비디아 복귀가 AI 베팅에 불을 지피며 주가 급등/, 'v60.51 NVDA report about the move');
+  assert.equal(/베선트/.test(nv), false, 'v60.51 a report that states no move is not the move\'s report');
+  assert.equal(header('MU', 'Micron Technology', 19.04), '11/23 +19.0%', 'v60.51 MU: the move prints, no report line');
+  assert.equal(reportAboutMove({ title: 'Nvidia shares fall', at: '2026-11-23T18:00:00Z' }, { session: D, change: null })?.recap, false, 'v60.51 unknown move, before the close');
+  assert.equal(reportAboutMove({ title: 'Nvidia shares fall', at: '2026-11-23T22:00:00Z' }, { session: D, change: null }), null, 'v60.51 unknown move, after the close');
 });
 
 // ── 3. Market-impact order and the blacklist.

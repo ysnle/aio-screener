@@ -12,7 +12,7 @@ import { readNumber } from '../shared/number.js';
 import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { readIndexLongrun } from '../market/indices/long-run.js';
-import { sessionNewsWindow } from './news-picks.js';
+import { reportAboutMove } from './news-picks.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -112,24 +112,15 @@ const reportTier = (fact) => (Number.isFinite(fact?.tier) ? fact.tier : 9);
 export const byReportOrder = (a, b) => reportTier(a) - reportTier(b) || (Number(b.score) || 0) - (Number(a.score) || 0) || byMateriality(a, b);
 const evidenceOf = (fact) => ({ title: fact.titleKo || fact.title, original: fact.titleKo ? fact.title : null, at: fact.at || null, date: fact.date || null });
 /**
- * The report a lead move shows on its face, or null. A report is evidence for a move only when it is about that move:
- * published inside the session's news window (news-picks sessionNewsWindow: previous close to next open), its own words
- * stating the move's direction (an up word for a rise, a down word for a fall, not both), and reached through the move's
- * own link — `reports` arrive in link order (a stock's own name; a group's leaders or its thread's lead stock), then
- * byReportOrder. A wrong evidence line is worse than none, so with no such report there is no line.
+ * The report a lead move shows on its face, or null: the first of `reports` that is about the move (news-picks
+ * reportAboutMove, the one rule the 종목 header and the movers lists use too). `reports` arrive in link order (a stock's
+ * own name; a group's leaders or its thread's lead stock), then byReportOrder. A wrong evidence line is worse than none,
+ * so with no such report there is no line.
  */
 function faceReport(seed, reports) {
-  const sign = Math.sign(Number(seed?.change) || 0);
-  if (!sign || !seed.date) return null;
+  if (!Math.sign(Number(seed?.change) || 0) || !seed.date) return null;
   const kr = seed.kind === 'price' ? FAMILY_OF.get(seed.asset)?.id === 'kr' : marketOfSymbol(seed.subjects?.[0] || seed.members?.[0] || '') === 'KR';
-  const span = sessionNewsWindow(seed.date, kr ? 'KR' : 'US');
-  const about = (fact) => {
-    const ms = Date.parse(fact.at || '');
-    const text = `${fact.title || ''} ${fact.titleKo || ''}`;
-    const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text);
-    return !!span && ms > span.start && ms <= span.end && up !== down && (sign > 0 ? up : down);
-  };
-  const fact = reports.find(about);
+  const fact = reports.find((row) => reportAboutMove(row, { session: seed.date, market: kr ? 'KR' : 'US', change: seed.change }));
   return fact ? evidenceOf(fact) : null;
 }
 // A story cites a report by its Korean title; an English one the producer could not translate
