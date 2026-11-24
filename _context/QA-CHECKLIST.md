@@ -22,6 +22,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-CONSENSUS-SPLIT-BASIS-01: v60.51 분할 전 기준으로 발행된 컨센서스 EPS는 스크리너 행의 분할 사건으로 종가 기준에 맞춰지고, EPS가 종가 이상인 행은 발행 전에 표시된다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
 - [x] QA-HISTORY-HELD-COPY-01: v60.51 history.json의 보류 사본은 그 세션 주인 행의 값을 싣고, 세션 계산은 주말 행을 읽지 않는다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
 - [x] QA-THEME-EMPTY-FRAME-01: v60.51 네 다리가 모두 원천 없는 판단 틀은 그리지 않고, 테마 카드의 단계 조건 수는 세는 조건을 모두 적는다. verify_by: node scripts/ci-stock-producer-leftovers-check.mjs
+- [x] QA-DAY-CAUSE-03: 종목 머리의 움직임 줄은 그 움직임을 다룬 보도(세션 창 안, 방향 낱말, 회사 이름)만 붙이고, 없으면 움직임만 보인다; 브리핑의 남는 목록은 '움직임을 다룬 보도 없음'으로 적는다. (v60.51) verify_by: node scripts/ci-day-cause-check.mjs && node scripts/ci-esm-core-unit-check.mjs
 
 ## v60.50 재무 공시 기간 규칙 (2026-11-24)
 
