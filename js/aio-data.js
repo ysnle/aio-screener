@@ -5681,8 +5681,62 @@ function _aioVerifyKrQuoteChange(q, price, providerPct) {
   }
   return out;
 }
+// v60.51 (whole audit A1): a US index quote's change is measured from the completed close before the quote's own New
+// York session. On Monday 11/23 before the open ^VIX read 30.88 (Cboe extended hours, a 11/23 print) against the
+// provider's previous close 28.44 — the 11/19 close; the 11/20 close in history is 35.89 — so the row printed 30.88 and
+// +8.58%: a value and a change from different sessions (the right change was -13.96%). The provider's previous close is
+// checked against the history; a disagreement is recomputed from the history close, and with no history basis (the
+// history has not reached the previous trading day, or is old) the provider's pair stays as published.
+var _AIO_US_INDEX_FIELD = { '^VIX': 'vix', '^GSPC': 'spx', '^IXIC': 'nasdaq', '^NDX': 'ndx', '^DJI': 'dow', '^RUT': 'rut' };
+function _aioNySessionDate(value) {
+  var ms = typeof value === 'number' ? (value > 0 && value < 1e12 ? value * 1000 : value) : Date.parse(value || '');
+  if (!isFinite(ms) || ms <= 0) return null;
+  try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms)); } catch (_) { return null; }
+}
+// Latest completed close of `field` in a session before `sessionDate`, when every day between them is a weekend day (a
+// holiday in between, or a history that has not reached the previous trading day, gives no basis).
+function _aioUsIndexHistoryBasis(field, sessionDate, history) {
+  var rows = Array.isArray(history) ? history : [];
+  if (!field || !/^\d{4}-\d{2}-\d{2}$/.test(String(sessionDate || ''))) return null;
+  var best = null;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var value = row && Number(row[field]);
+    if (!(value > 0)) continue;
+    var meta = (row.fieldMeta && row.fieldMeta[field]) || {};
+    if (meta.observationRelation === 'carried-forward' || meta.observationRelation === 'current-session' || meta.valueBasis === 'current-session') continue;
+    var session = /^\d{4}-\d{2}-\d{2}$/.test(String(meta.sessionDate || '')) ? meta.sessionDate : _aioNySessionDate(meta.observedAt);
+    if (!session || session >= sessionDate) continue;
+    if (!best || session > best.date) best = { date: session, close: value };
+  }
+  if (!best) return null;
+  for (var day = Date.parse(best.date + 'T12:00:00Z') + 86400000; day < Date.parse(sessionDate + 'T12:00:00Z'); day += 86400000) {
+    var weekday = new Date(day).getUTCDay();
+    if (weekday !== 0 && weekday !== 6) return null;
+  }
+  var loadedAt = typeof window !== 'undefined' && history === window._aioHistory && window._aioHistoryMeta ? Number(window._aioHistoryMeta.loadedAt) : null;
+  if (loadedAt != null && Number.isFinite(loadedAt) && Date.now() - loadedAt > 6 * 3600000) return null;
+  return best;
+}
+// One quote: null for a symbol without a history field or without a basis, otherwise the change to publish and its basis.
+function _aioVerifyUsQuoteChange(q, price, providerPct, history) {
+  var sym = String(q && q.symbol || '').toUpperCase();
+  var field = _AIO_US_INDEX_FIELD[sym];
+  if (!field || !(Number(price) > 0)) return null;
+  var session = _aioNySessionDate(q._atomicObservedAt || q.observedAt || q.regularMarketTime);
+  var basis = session ? _aioUsIndexHistoryBasis(field, session, history !== undefined ? history : (typeof window !== 'undefined' ? window._aioHistory : null)) : null;
+  if (!basis) return null;
+  var providerPrev = Number(q.regularMarketPreviousClose || q.chartPreviousClose);
+  if (!(providerPrev > 0)) providerPrev = null;
+  var agrees = providerPrev != null && Math.abs(providerPrev / basis.close - 1) <= 0.0005;
+  var hasProviderPct = typeof providerPct === 'number' && isFinite(providerPct);
+  return { symbol: sym, session: session, basisDate: basis.date, providerPrev: providerPrev, providerPct: hasProviderPct ? providerPct : null,
+    status: agrees ? 'agree' : 'corrected', basis: 'history-previous-close',
+    prevClose: agrees ? providerPrev : basis.close, pct: agrees && hasProviderPct ? providerPct : (Number(price) / basis.close - 1) * 100 };
+}
 // Offline harnesses evaluate this file section without a window; the browser gets the shared readers.
 if (typeof window !== 'undefined') {
+  window._aioVerifyUsQuoteChange = _aioVerifyUsQuoteChange;
   window._aioKrIndexCloseRead = _aioKrIndexCloseRead;
   window._aioKrVerifiedDayChange = _aioKrVerifiedDayChange;
   window._aioVerifyKrQuoteChange = _aioVerifyKrQuoteChange;
@@ -5784,6 +5838,14 @@ function applyLiveQuotes(quotes) {
     }
     var _held = !_krCheck && window.PriceStore && window.PriceStore.heldCloseQuote ? window.PriceStore.heldCloseQuote(q, price) : null;
     if (_held) { pct = _held.pct; hasPct = true; q = _held.quote; }
+    // v60.51 (A1): a US index quote's change on the history close before its own session (value and change on one basis).
+    var _usCheck = !_krCheck && !_held ? _aioVerifyUsQuoteChange(q, price, pct) : null;
+    if (_usCheck && _usCheck.status === 'corrected') {
+      pct = _usCheck.pct; hasPct = true;
+      q = Object.assign({}, q, { regularMarketPreviousClose: _usCheck.prevClose, chartPreviousClose: _usCheck.prevClose, regularMarketChange: price - _usCheck.prevClose, regularMarketChangePercent: pct, changeBasis: _usCheck.basis });
+      var _usWarned = (window._aioPrevCloseWarned = window._aioPrevCloseWarned || {}), _usWarnKey = q.symbol + '|' + _usCheck.basisDate + '|' + _usCheck.providerPrev;
+      if (!_usWarned[_usWarnKey]) { _usWarned[_usWarnKey] = 1; _aioLog('warn', 'data', q.symbol + ' 전일종가 불일치 — 제공처 ' + _usCheck.providerPrev + ' 대신 ' + _usCheck.basisDate + ' 종가 ' + _usCheck.prevClose + '로 등락률 재계산'); }
+    }
 
     // v31.8: PriceStore 검증 레이어 경유 (타입/범위/급변 전부 Store에서 처리)
     // KR 지수는 서버 Yahoo 배치와 브라우저 Naver가 합쳐진다. 프록시 캐시가 옛 값을

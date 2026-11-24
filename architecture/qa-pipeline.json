@@ -1133,6 +1133,12 @@
           "inputs": ["src/**", "scripts/**", "public-data/sec-fiscal-history.json", "public-data/sec-fundamentals-summary.json", "public-data/screener*.json", "public-data/consensus-estimates.json"]
         },
         {
+          "id": "stock-producer-leftovers",
+          "inputClass": "code",
+          "script": "scripts/ci-stock-producer-leftovers-check.mjs",
+          "inputs": ["src/**", "scripts/**", "js/aio-data.js"]
+        },
+        {
           "id": "market-reading-defects",
           "inputClass": "code",
           "script": "scripts/ci-market-reading-defects-check.mjs",

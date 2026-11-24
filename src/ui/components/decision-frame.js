@@ -6,6 +6,12 @@ import { el } from './dom.js';
 import { kindFold, rawTable } from './indicator-face.js';
 import { decisionFrameText } from '../../domain/scenarios/decision-frame.js';
 
+// A theme without a stage record and without the cash rate drew four '없음' lines ("가능성: 과거
+// 기록 없음 · 이익·손실 폭: 없음 · 기회비용: 없음 · 과거 하락 폭: 없음"). A frame none of whose legs has a source is not drawn;
+// the card says why it has no record in its own line (the stage's past text) and keeps its favoured side.
+const SOURCED_LEGS = Object.freeze(['likelihood', 'payoff', 'opportunity', 'wrong']);
+export const frameHasNoLegs = (frame) => SOURCED_LEGS.every((leg) => frame?.missing?.includes(leg));
+
 /** The favoured side and its reason (ground kind on hover), for cards that print it after their own choice table. */
 export function favouredLine(doc, frame) {
   const text = decisionFrameText(frame);
@@ -25,7 +31,7 @@ export function favouredLine(doc, frame) {
  */
 export function decisionFrameBlock(doc, frame, { method = '', side = true } = {}) {
   const text = decisionFrameText(frame);
-  if (!text) return null;
+  if (!text || frameHasNoLegs(frame)) return null;
   const box = el(doc, 'div', null, 'df-frame');
   box.dataset.ground = frame.favoured.ground;
   for (const line of text.face) box.append(el(doc, 'p', line, 'df-line'));

@@ -4,6 +4,7 @@ import { amountScale, moneyText, storyFreshness, CASH_USE_LABEL, POSITION_LABEL 
 import { sectorLabel } from '../../domain/screener/sector-label.js';
 import { readNumber, signedText } from '../../domain/shared/number.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
+import { datedStory } from '../../domain/fundamental/research-text.js';
 
 const has = (value) => value != null && value !== '' && !(Array.isArray(value) && !value.length);
 const mdOf = (date) => (hasLeadingIsoDay(date) ? `${Number(String(date).slice(5, 7))}/${Number(String(date).slice(8, 10))}` : String(date || ''));
@@ -360,7 +361,9 @@ function outlookLink(doc, story, openOutlook) {
  */
 export function renderCompanyOverview(doc, host, ctx) {
   if (!doc || !host) return null;
-  const { story = null, earnings = [], briefs = [], quarters = '', outlookHost = null } = ctx;
+  const { earnings = [], briefs = [], quarters = '', outlookHost = null } = ctx;
+  // Researched text speaks from its research day, never as "현재" (research-text.js); the live figures are the tables'.
+  const story = datedStory(ctx.story || null);
   const freshness = story ? storyFreshness(story, earnings, undefined, { briefs, quarters }) : null;
   const outlook = outlookSection(doc, { story });
   if (outlookHost) {
@@ -386,8 +389,9 @@ export function renderCompanyOverview(doc, host, ctx) {
  * figures, where its cash went, what the market expects, what each report is read on and the dated events ahead.
  * Hidden for a company without a researched story.
  */
-export function renderCompanyReport(doc, host, { story = null, today = new Date().toISOString().slice(0, 10) } = {}) {
+export function renderCompanyReport(doc, host, { story: stored = null, today = new Date().toISOString().slice(0, 10) } = {}) {
   if (!doc || !host) return;
+  const story = datedStory(stored);
   const box = section(doc, 'report', '실적과 현금');
   const e = story?.earnings || {}, w = story?.watch || {}, t = story?.trading || {};
   if (has(e.text)) box.append(block(doc, `회사가 발표한 실적${e.period ? `, ${String(e.period).replace(/\s*\(.*$/, '')}` : ''}`, el(doc, 'p', e.text, 'co-text')));
