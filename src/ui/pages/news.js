@@ -81,8 +81,6 @@ function renderNewsSummary(documentRef, root, model, status) {
   if (olderCycle && Number.isFinite(cycleStart)) set('news-window-label', `직전 수집본, ${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사 — 이번 ${fmt(newsWindow.end)} 수집본은 아직 없습니다`);
   else if (hasModelWindow) set('news-window-label', `${fmt(cycleStart)} ~ ${fmt(cycleEnd)} KST 기사`);
   else if (newsWindow.start != null) set('news-window-label', `${fmt(newsWindow.start)} ~ ${fmt(newsWindow.end)} KST 기사`);
-  const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
-  if (importantNote) Object.assign(importantNote, { textContent: `${fmt(olderCycle ? cycleEnd : newsWindow.end)}까지`, title: `주제별 핵심, ${fmt(olderCycle ? cycleEnd : newsWindow.end)} KST까지 24시간` });
   const heldNews = (root?._serverDataMeta?.laneQuarantine || []).find((lane) => lane?.lane === 'news');
   const heldStamp = heldNews?.previousGeneratedAt ? compactKstTime(heldNews.previousGeneratedAt) : null;
   if (heldNews) set('last-fetch-time', `뉴스 갱신 보류, 마지막 수집 ${heldStamp ? `${heldStamp.date} ${heldStamp.time}` : '확인 필요'}`);
@@ -631,9 +629,13 @@ function render({ documentRef, root, store, route }) {
   const later = laterNews(root, items, nowMs);
   // Importance rolls to the newest article and puts the stories the day's lead moves are
   // tied to first (the same pool and pick as 오늘's 주요 뉴스).
-  const important = pickImportantNews(groupNewsStories(rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], tickerFocus || mineOnly ? [] : later)),
-    5, { linked: root?.[MARKET_DAY.key] ? leadLinkedNews(root[MARKET_DAY.key]) : null });
+  const pool = rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], tickerFocus || mineOnly ? [] : later);
+  const important = pickImportantNews(groupNewsStories(pool), 5, { linked: root?.[MARKET_DAY.key] ? leadLinkedNews(root[MARKET_DAY.key]) : null });
   const importantKeys = new Set(important.flatMap((story) => (story.storyArticles || [story]).map(newsKey)));
+  // The pool's own end: the newest article it ranked over, not the 08:00 cut.
+  const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
+  const poolEnd = compactKstTime(new Date(Math.max(0, ...pool.map((row) => Date.parse(row.pubDate || row.publishedAt || '')).filter(Number.isFinite))).toISOString());
+  if (importantNote && important.length && poolEnd) Object.assign(importantNote, { textContent: `최근 24시간, ${poolEnd.date} ${poolEnd.time}까지`, title: '주제별 핵심, 가장 새 기사까지 24시간' });
   const intraday = renderIntradayNews(documentRef, root, later, importantKeys, nowMs);
   const intradayCount = intraday.length;
   const kstMinutes = ((new Date(nowMs).getUTCHours() + 9) % 24) * 60 + new Date(nowMs).getUTCMinutes();

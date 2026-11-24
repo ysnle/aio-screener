@@ -21,14 +21,21 @@ function storyItem(doc, story) {
   const head = el(doc, 'div', null, 'briefing-day-story__head');
   head.append(el(doc, 'h3', story.title, 'briefing-day-story__title'), storyWeight(doc, story));
   item.append(head, el(doc, 'p', [story.line, ...story.why].filter(Boolean).join(' '), 'briefing-day-story__line'));
-  if (story.evidence.length) {
+  // A lead story's top linked report stands on the face under the move, as written; the rest stay folded.
+  if (story.report) {
+    const line = el(doc, 'p', `관련 보도: ${story.report.title}`, 'briefing-day-story__report');
+    if (story.report.original) line.title = story.report.original;
+    item.append(line);
+  }
+  const folded = story.report ? story.evidence.slice(1) : story.evidence;
+  if (folded.length) {
     const list = el(doc, 'ul', null, 'briefing-day-evidence');
-    for (const report of story.evidence) {
+    for (const report of folded) {
       const row = el(doc, 'li', report.title);
       if (report.original) row.title = report.original;
       list.append(row);
     }
-    item.append(fold(doc, `관련 보도 ${story.evidence.length}건`, [list], 'briefing-day-evidence-fold'));
+    item.append(fold(doc, `${story.report ? '다른 보도' : '관련 보도'} ${folded.length}건`, [list], 'briefing-day-evidence-fold'));
   }
   return item;
 }

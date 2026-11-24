@@ -12,6 +12,13 @@ import { MARKET_DAY } from '../../data/artifact-registry.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
+/** A lead story's top linked report, as written (the original title on hover). */
+export function reportLine(doc, report, className) {
+  const line = el(doc, 'span', `관련 보도: ${report.title}`, className);
+  if (report.original) line.title = report.original;
+  return line;
+}
+
 /** The day's material stock moves, ledger order, each once. */
 export function keyStocks(day, limit = 8) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
@@ -77,6 +84,7 @@ export function renderHomeDay({ documentRef: doc, root, store = null, shownElsew
     const head = el(doc, 'span', null, 'home-day__story-head');
     head.append(el(doc, 'b', story.title, 'home-day__title'), storyWeight(doc, story));
     item.append(head, el(doc, 'span', story.line, 'home-day__line'));
+    if (story.report) item.append(reportLine(doc, story.report, 'home-day__report'));
     list.append(item);
   }
   const parts = [head, list];
