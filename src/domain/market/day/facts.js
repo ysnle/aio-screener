@@ -444,7 +444,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   const matchers = matchersOf(universe);
   const candidates = [
     ...priceFacts(history), ...macroFacts(macroHistory), ...stockFacts(screener, universe, themesBySymbol, weights), ...groupFacts(screener, universe, themes),
-    ...briefFacts(briefs, nowMs), ...signalFacts(signals, nowMs, channels),...scheduleFacts(macroCalendar, nowMs), ...headlineFacts(news, matchers, nowMs)
+    ...briefFacts(briefs, nowMs), ...signalFacts(signals, nowMs, channels), ...scheduleFacts(macroCalendar, nowMs), ...headlineFacts(news, matchers, nowMs)
   ];
   const moved = new Set(candidates.filter((fact) => fact.kind === 'stock-move').flatMap((fact) => fact.subjects)
     .concat(candidates.filter((fact) => fact.kind === 'group-move').flatMap((fact) => fact.leaders.map((lead) => lead.sym))));
