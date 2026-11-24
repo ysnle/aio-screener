@@ -1,20 +1,27 @@
-// The rebound inside a fall (owner 2026-11-24). On 11/23, the session after the 11/20 crash, the S&P 500 rose
-// 4.7%, the Nasdaq-100 6.9% and the SOX 14.0%, and the opening still read "…쏠림이 되돌려지는 하락입니다". The state is
-// decided on the Nasdaq-100's closes (the centre index, as in the diagnosis) inside its fall from the closing high, with
-// the S&P 500 for the trend lines. A rebound is a close RULES.story.reboundPct or more over the lowest close so far; then
-//   반등 시도  while that low holds (the lowest close since the high is still the one the rebound rose from);
-//   추세 회복  from the first session after that low on which the S&P 500 and the Nasdaq-100 both close over their 50- and
-//            200-session averages, while both stay over the 200-session one (a dip under the 50-day line does not undo it);
-//   반등 실패  on the session that closes under the low the rebound rose from (only that session: the fall's lede says the rest).
-// Only inside a fall whose deepest close reached the correction line; nothing outside one, nothing before a rebound.
+// The rebound inside a fall, decided on the Nasdaq-100's closes (the centre index, as in the diagnosis) with the S&P 500
+// for the trend lines, only inside a fall whose deepest close reached the correction line. A rebound is a close
+// RULES.story.reboundPct over the lowest close so far; then
+//   반등 시도  while that low holds;
+//   추세 회복  from the first session after the low on which both indexes close over their 50- and 200-session averages,
+//            while both stay over the 200-session one (a dip under the 50-day line does not undo it, so the word holds);
+//   반등 실패  on the session that closes under the low the rebound rose from (after it the fall's own read applies).
 import { RULES } from '../../rules/thresholds.js';
+import { say } from '../../shared/claim.js';
+import { shortDate } from '../../content/date-labels.js';
 
 export const REBOUND_WORDS = Object.freeze({ attempt: '반등 시도', recovered: '추세 회복', failed: '반등 실패' });
 
+// What each stance costs in each state, conditionally (no order, no share of a portfolio). {d}: the low's date.
+export const REBOUND_STANCE = Object.freeze({
+  attempt: '200일선 회복을 기다리면 반등의 앞부분을 놓치고, 지금 따라가면 {d} 종가를 다시 깨는 실패한 반등에 걸릴 수 있습니다. 조건이 하나씩 확인될 때마다 나눠 접근하면 두 비용을 함께 줄일 수 있습니다.',
+  recovered: '추세 회복이 확인된 뒤에도 기다리면 오르는 구간을 더 놓치고, S&P 500이나 나스닥 100이 200일선 아래로 다시 마감하면 이 판단은 거둡니다.',
+  failed: '{d} 종가 아래로 마감해 반등 판단은 거둡니다. 지금은 하락 구간의 단계와 진단이 기준입니다.'
+});
+
 /**
  * An index's fall on its closes from `highDate`: the lowest close, the close's bounce off it (%), the low the last
- * rebound rose from (`from`), the 50- and 200-session averages at the close, and from the low on each session's place
- * against them (`lines`: date → { over50, over200 }).
+ * rebound rose from (`from`), the 50- and 200-session averages at the close, and each session's place against them
+ * (`lines`: date → { over50, over200 }; every session, so the S&P 500's are read over the Nasdaq-100's fall).
  * @param {Array<{date:string, value:number}>} series ascending closes
  */
 export function episodeOf(series, highDate) {
@@ -27,7 +34,6 @@ export function episodeOf(series, highDate) {
   const sums = [0];
   for (const point of series) sums.push(sums.at(-1) + point.value);
   const average = (i, n) => (i + 1 >= n ? (sums[i + 1] - sums[i + 1 - n]) / n : null);
-  // Every session's place (not only this index's own fall): the S&P 500's lines are read over the Nasdaq-100's fall.
   const lines = new Map();
   for (let i = 49; i < series.length; i += 1) {
     const a50 = average(i, 50), a200 = average(i, 200);
@@ -51,3 +57,6 @@ export function reboundOf({ ndx, spx }) {
   const state = recovered ? 'recovered' : 'attempt';
   return { state, word: REBOUND_WORDS[state], low: e.low };
 }
+
+/** The state's stance sentence (the guide and 시장 상태 print it). */
+export const reboundStanceSaid = (rebound) => say(REBOUND_STANCE[rebound.state], { d: shortDate(rebound.low.date) });

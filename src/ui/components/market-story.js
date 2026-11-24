@@ -183,21 +183,21 @@ function openingFolds(doc, opening) {
   method.append(foldSummary(doc, 'method', '단계·진단·반등을 정하는 규칙'),
     el(doc, 'p', `단계: 종가 고점 대비 -${S.correctionPct}% 이하 조정, -${S.bearPct}% 이하 약세장, -${S.bearPct}%까지 ${S.bearEdgePp}%p 안이면 약세장 문턱, -${S.correctionPct}%보다 얕으면 조정 전. 첫 문장의 '시장 전체'는 S&P 500의 단계입니다. 막대는 같은 눈금이고 점선이 -${S.correctionPct}%와 -${S.bearPct}%입니다. 반도체는 필라델피아 반도체 지수(SOX), 고점은 ${opening.longrun ? '장기 기록의 종가 고점' : '이 화면 기록(2025-09-30 이후)의 종가 고점'}입니다.`, 'mk-story__read'),
     el(doc, 'p', `진단: 하이일드 스프레드 ${C.stressAtBp}bp 이상이면 금융 불안형. 실업률 3개월 평균이 1년 저점보다 ${G.sahmRecessionAt}%p 이상 높거나 실업수당 청구가 1년 저점보다 ${G.claimsRiseAbovePct}% 이상 많고, 나스닥 100과 동일가중의 고점 대비 낙폭 차이가 ${S.unwindGapPp}%p 미만이거나 50일선 위 종목이 ${S.broadBelowPct}% 미만이면 침체형. 나스닥 100이 동일가중보다 ${S.unwindGapPp}%p 이상 더 내렸으면 쏠림 되돌림, 그 밖에는 판단 보류. 신용 스프레드(하이일드)가 5거래일 +${C.widen5dBp}bp 이상 벌어지면 '빠르게 확대 중'을 덧붙입니다. 나스닥 100이나 동일가중이 고점 뒤 -${S.correctionPct}%에 닿은 적이 없으면 진단하지 않습니다.`, 'mk-story__read'),
-    el(doc, 'p', `반등: 나스닥 100이 고점 뒤 -${S.correctionPct}%에 닿은 하락 안에서, 가장 낮은 종가보다 ${S.reboundPct}% 이상 높게 마감하면 반등 시도이고 그 저점이 지켜지는 동안 이어집니다. 그 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감하면 추세 회복이며, 둘 다 200일선 위에 있는 동안 이어집니다. 반등이 시작된 저점 아래로 마감한 날은 반등 실패입니다. 50일선·200일선은 최근 50·200거래일 종가의 평균입니다.`, 'mk-story__read'),
+    el(doc, 'p', `반등: 나스닥 100이 고점 뒤 -${S.correctionPct}%에 닿은 하락 안에서, 가장 낮은 종가보다 ${S.reboundPct}% 이상 높게 마감하면 반등 시도이고 그 저점이 지켜지는 동안 이어집니다. 그 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감하면 추세 회복이며, 둘 다 200일선 위에 있는 동안 이어집니다. 반등이 시작된 저점 아래로 마감한 날은 반등 실패입니다. 바닥 확인일은 나스닥 종합의 종가와 거래량으로 셉니다(저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 하루 ${RULES.rallyAttempt.gainPct}% 이상 오르며 거래량이 전날보다 많은 날). 50일선·200일선은 최근 50·200거래일 종가의 평균입니다.`, 'mk-story__read'),
     el(doc, 'p', '이 기준들은 시장에서 흔히 쓰는 관행이며, 과거 자료로 검증한 예측 규칙이 아닙니다.', 'mk-story__read'));
   return [raw, method];
 }
 
 /**
  * 시장 상태: the opening under the page head (지금 view), its table and rules folded; 한국 gets the KOSPI line. The
- * rebound's conditions are not a face line here: the view's 다음에 확인할 가격 조건 list leads with them (`onWatch`,
- * market-regime.js), so they are said once.
+ * rebound's conditions are not a face line here: `onWatch` hands the rebound to market-regime.js, whose 다음에 확인할 가격
+ * 조건 list leads with its rows and whose guide takes its stance, so they are said once.
  */
 export function renderSignalOpening({ documentRef: doc, root, interpretation, onWatch = null }) {
   const host = doc?.getElementById('regime-opening');
   if (!host) return;
   const opening = readMarketOpening(root, interpretation, () => renderSignalOpening({ documentRef: doc, root, interpretation, onWatch }));
-  onWatch?.(opening?.available ? opening.rebound?.checks?.texts || [] : []);
+  onWatch?.(opening?.available ? opening.rebound || null : null);
   const painted = paintOpening(doc, host, opening, { omit: ['watch'] });
   host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
   if (painted) {

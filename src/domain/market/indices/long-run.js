@@ -253,3 +253,18 @@ export function readIndexLongrun(artifact, { index, horizon, recent = [] } = {})
   }
   return result;
 }
+
+/**
+ * The one-session rises of `minPct`% or more in an index's table, and how many came inside a drawdown episode (from its
+ * peak until the close regained it). The one-session tail keeps every move past its cut (declustering drops nothing at
+ * one session), so the count is exact when the cut is at or under `minPct`; null otherwise rather than a short count.
+ * @returns {{from:string, through:string, minPct:number, total:number, inside:number}|null}
+ */
+export function risesInFalls(artifact, index, minPct) {
+  const body = artifact?.indexes?.[index];
+  const table = body?.moves?.['1'];
+  if (!table || !Array.isArray(table.rises) || !(table.cutRise <= minPct)) return null;
+  const rises = table.rises.filter(([, value]) => value >= minPct);
+  const inside = rises.filter(([date]) => (body.drawdowns || []).some((e) => e.peak <= date && (!e.regained || date < e.regained)));
+  return { from: body.from, through: body.through, minPct, total: rises.length, inside: inside.length };
+}
