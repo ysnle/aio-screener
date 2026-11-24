@@ -37,7 +37,10 @@ export const RULES = Object.freeze({
   // from hot 과열. A single print is noisier than the 3-month average, so these are not the growth lines above
   // (payrollSolidK, payrollStallK), which read the average.
   payrollPrintK: Object.freeze({ cold: 50, slow: 75, hot: 200 }),
-  story: Object.freeze({ correctionPct: 10, bearPct: 20, bearEdgePp: 1, unwindGapPp: 5, broadBelowPct: 30, halfOffPct: 50 }),
+  // reboundPct (the opening's rebound read, rebound.js): the Nasdaq-100 close this far over its lowest close since the high is
+  // a rebound inside the fall — half the correction line. Since 1985, 76 of the Nasdaq-100's 79 one-day gains of 5%+ came
+  // inside a fall of 10%+ (the long-run producer's tables), so a bounce this size belongs to falls, not to trends.
+  story: Object.freeze({ correctionPct: 10, bearPct: 20, bearEdgePp: 1, unwindGapPp: 5, broadBelowPct: 30, halfOffPct: 50, reboundPct: 5 }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,

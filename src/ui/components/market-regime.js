@@ -248,9 +248,15 @@ function comboAndWatch(doc, root, regime, interpretation) {
     setFoldBody(raw, rawTable(doc, detailed.map(([head, ...rest]) => [head, rest.join(' — ')]), '엇갈리는 조합의 근거'));
     raw.hidden = !detailed.length;
   }
+  watchList(doc, root, interpretation);
+}
+
+// 다음에 확인할 가격 조건: the opening's rebound conditions first when there is a rebound (`lead`, market-story.js
+// renderSignalOpening, painted once the opening loads), then the axes' checks (market-read.js), then the next release.
+function watchList(doc, root, interpretation, lead = []) {
   const watch = doc.getElementById('regime-watch');
   if (!watch) return;
-  const items = [...(interpretation.marketRead?.checks || [])];
+  const items = [...lead, ...(interpretation.marketRead?.checks || [])];
   const next = interpretation.crossroads?.nextEvent;
   const release = next?.name && next?.date ? `${next.when || shortDate(next.date)} ${next.name}` : '';
   const rows = items.map((title, index) => {
@@ -353,7 +359,7 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   paintLeadershipLine(doc, 'regime-leaders', regime.available ? regime.leadershipVerdict : null, interpretation.flow, { flowOnFace: true });
   (sessionLean ||= import('./session-lean.js')).then((mod) => mod.paintMarketLean(doc, root, regime.available ? regime : null, doc.getElementById('regime-leaders'), () => renderRegimePage({ documentRef: doc, root, store }))).catch(() => { sessionLean = null; });
   heroSide(doc, regime, previous);
-  if (regime.available) import('./market-story.js').then(({ renderMarketStory, renderSignalOpening }) => { renderSignalOpening({ documentRef: doc, root, interpretation }); renderMarketStory({ documentRef: doc, root, interpretation }); })
+  if (regime.available) import('./market-story.js').then(({ renderMarketStory, renderSignalOpening }) => { renderSignalOpening({ documentRef: doc, root, interpretation, onWatch: (lead) => watchList(doc, root, interpretation, lead) }); renderMarketStory({ documentRef: doc, root, interpretation }); })
     .then(() => import('./market-narratives.js')).then(({ renderMarketNarratives }) => renderMarketNarratives({ documentRef: doc, root, interpretation })).catch(() => {});
   comboAndWatch(doc, root, regime, interpretation);
   const board = doc.getElementById('regime-board');

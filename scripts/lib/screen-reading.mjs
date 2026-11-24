@@ -17,6 +17,7 @@ import { isIsoDay } from '../../src/domain/shared/session-date.js';
 import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { buildSentimentModel } from '../../src/domain/market/sentiment/sentiment-model.js';
 import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src/domain/market/story/market-story.js';
+import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
 
 export const SCREEN_READING_SCHEMA = 'screen-readings.v1';
 export const SCREEN_READING_MAX_CHARS = 400; // the face's paragraph (3–5 sentences, about 130–230 characters asked)
@@ -57,6 +58,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
     guide: [
       '- 첫 문장은 종합 판정 낱말("시장 상태는 … 부담 우세입니다")로 열지 말고 시장 이야기로 엽니다: 주도주가 얼마나 내렸고, 시장 전체는 얼마나 덜 내렸고, 그 차이가 말하는 진단.',
       '- 진단 상태어(쏠림 되돌림·침체형·금융 불안형·판단 보류)는 묶음에 적힌 것만 쓰고, 바뀌는 조건도 묶음의 것을 씁니다.',
+      '- 묶음에 반등 상태어(반등 시도·추세 회복·반등 실패)가 있으면 그것만 쓰고, 반등 폭과 남은 낙폭을 함께, 200일선 위치와 반등 실패 기준(저점)을 묶음의 수치로 씁니다. 하루 반등을 추세 전환으로 단정하지 않습니다.',
       '- 지금 가격이 무엇을 반영하는지 묶음의 수치로 한 문장 씁니다. "싸다·매력적"은 조건으로만 씁니다("이익 추정치가 유지되면 …", "꺾이면 …"). 단정하지 않습니다.'
     ].join('\n'),
     facts(interpretation, { longrun = null } = {}) {
@@ -66,6 +68,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       const opening = buildMarketOpening({ history: interpretation?.inputs?.history || [], macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through: regime.asOf });
       return {
         basis: regime.asOf, axes, diagnosis: opening.available && opening.diagnosis?.state !== 'none' ? opening.diagnosis?.word || null : null,
+        rebound: opening.available ? opening.rebound?.word || null : null,
         lines: [`기준일: ${md(regime.asOf)} 미국 종가`, ...openingFactLines(opening).map((line) => `시장 이야기 ${line}`), `종합 판정: ${regime.overall} (${countsLine(regime.counts, axes.length)})`,
           LEADERSHIP_STATE[regime.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '', ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
@@ -131,7 +134,7 @@ export function buildScreenPacket(screen, interpretation, context = {}) {
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
   const lines = facts.lines.map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
-  return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null };
+  return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null, rebound: facts.rebound || null };
 }
 
 // ---- prompt ----------------------------------------------------------------------------------------------------------------
@@ -294,6 +297,9 @@ export function validateScreenReading(text, packet) {
     const other = Object.values(DIAGNOSIS_WORDS).filter((word) => word !== packet.diagnosis);
     if (body.split(/(?<=[.?!。])\s+/).some((sentence) => !CONDITIONAL.test(sentence) && other.some((word) => sentence.includes(word)))) warnings.push('diagnosis-word');
   }
+  // The rebound word the same way: another state word outside a conditional clause warns ("…로 마감하면 반등 실패" is a condition).
+  const reboundOthers = Object.values(REBOUND_WORDS).filter((word) => word !== packet?.rebound);
+  if (packet?.screen === 'signal' && body.split(/(?<=[.?!。])\s+/).some((sentence) => !CONDITIONAL.test(sentence) && reboundOthers.some((word) => sentence.includes(word)))) warnings.push('rebound-word');
   if (body.split(/(?<=[.?!。])\s+/).some((sentence) => /(?:싸|저렴|매력적)/.test(sentence) && !CONDITIONAL.test(sentence))) warnings.push('cheap-asserted');
   if (/^[^.。]*(?:판정|시장 상태)[^.。]*(?:부담 우세|양호 우세|혼조|판정 보류)/.test(body)) warnings.push('tally-opening');
   return { issues: [...new Set(issues)], warnings: [...new Set(warnings)] };

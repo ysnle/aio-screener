@@ -136,7 +136,7 @@ await runSections('market-story', [
   const opening = buildMarketOpening({ history: fixtureHistory(), macroHistory: credit(3.2) });
   check('v60.50 the bars: 반도체, 나스닥 100, S&P 500, 다우, 동일가중 on one scale with the 조정 and 약세장 lines, each value the table\'s fall', () => {
     const { bars, scale, marks } = opening.bars;
-    assert.deepEqual(bars.map((bar) => bar.label), ['반도체', '나스닥 100', 'S&P 500', '다우', '동일가중'], 'v60.50 bars-and-one-nasdaq');
+    assert.deepEqual(bars.map((bar) => bar.label), ['반도체(SOX)', '나스닥 100', 'S&P 500', '다우', '동일가중'], 'v60.51 bars-and-one-nasdaq: the SOX bar names its index (the index card is the SOXX fund)');
     assert.deepEqual(marks.map((mark) => [mark.at, mark.word]), [[10, '조정'], [20, '약세장']], 'v60.50 bars-and-one-nasdaq');
     assert.ok(scale % 5 === 0 && scale >= Math.max(...bars.map((bar) => -bar.value)) && scale >= 25, `v60.50 scale ${scale}`);
     for (const bar of bars) assert.ok(opening.table.find((row) => row.id === bar.id).said.text.endsWith(`대비 ${bar.valueText}`), `v60.50 ${bar.id}`);
@@ -400,6 +400,106 @@ await runSections('market-story', [
   });
   report('story-screens');
 }, 'code'],
+['rebound', async () => {
+  // v60.51 (owner 2026-11-24): the rebound inside a fall (rebound.js), on fixture closes built here. The crash fixture ends
+  // at its low on 11/20; the sessions after it are the 11/23 shape (SOX +14%, NDX +6.9%, S&P 500 +4.7%) and what follows.
+  const S = RULES.story;
+  const base = fixtureHistory();
+  const after = (rows, date, m, extra = {}) => { const last = rows.at(-1); return [...rows, { date, ...Object.fromEntries(['sox', 'ndx', 'spx', 'rsp', 'dow'].map((f) => [f, +(last[f] * (m[f] ?? 1)).toFixed(2)])), breadth50: 45, ...extra }]; };
+  const day1 = after(base.map((row, i, all) => (i === all.length - 1 ? { ...row, rallyPhase: 1, rallyDay: 1, followThroughDay: 0 } : row)), '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
+  const build = (history) => buildMarketOpening({ history, macroHistory: credit(3.2) });
+  const rebound = build(day1);
+  const facts = openingFacts(day1, credit(3.2));
+  const cleanSaid = (piece) => { assert.deepEqual(unclaimedFigures(piece), [], `v60.51 figures without a claim: ${piece.text}`); assert.deepEqual(saidIssues(piece, facts).filter(isClaimError), [], `v60.51 claim errors: ${piece.text}`); };
+  check('v60.51 RULES.story.reboundPct is 5 (half the correction line)', () => assert.equal(S.reboundPct, S.correctionPct / 2, 'v60.51 rebound'));
+  check('v60.51 the 11/23 shape: 반등 시도, the lede says the bounce and the fall (two numbers), then the 200-day lines', () => {
+    assert.equal(rebound.rebound?.state, 'attempt', 'v60.51 rebound');
+    assert.equal(said(rebound, 'lede').text, '반도체는 하루 14% 반등했지만 고점 대비로는 아직 35% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 rebound');
+    assert.doesNotMatch(said(rebound, 'lede').text, /하락입니다/, 'v60.51 a rebound day is not read as a fall');
+    assert.ok((said(rebound, 'lede').text.replace(/나스닥 100|S&P 500|\d+일선/g, '').match(/\d+(?:\.\d+)?/g) || []).length <= 2, 'v60.51 at most two numbers in the lede');
+    assert.deepEqual(rebound.lines.map((line) => line.id), ['lede', 'diagnosis', 'watch', 'records'], 'v60.51 the diagnosis line stays; the conditions line follows it');
+    for (const id of ['lede', 'watch']) cleanSaid(said(rebound, id));
+  });
+  check('v60.51 the conditions line: the low that withdraws the read and each 200-day line with its distance from the close', () => {
+    const line = rebound.lines.find((item) => item.id === 'watch');
+    assert.equal(line.label, '반등 시도', 'v60.51 rebound');
+    assert.match(line.said.text, /^나스닥 100이 11\/20 종가\(20,000\) 아래로 마감하면 반등 실패입니다\. 200일선은 S&P 500 [\d,]+\(종가 대비 \+[\d.]+%\), 나스닥 100 [\d,]+\(\+[\d.]+%\)입니다\.$/, 'v60.51 rebound');
+    const ndx = rebound.rows.ndx.episode;
+    assert.ok(line.said.text.includes(`나스닥 100 ${Math.round(ndx.ma200).toLocaleString('en-US')}(+${((ndx.ma200 / ndx.close - 1) * 100).toFixed(1)}%)`), `v60.51 ${line.said.text}`);
+  });
+  check('v60.51 시장 상태\'s 다음에 확인할 가격 조건 items: the low, the 200- and 50-day lines, the follow-through day as the rally read counts it', () => {
+    const [low, lines, ftd] = rebound.rebound.checks.texts;
+    assert.match(low, /^나스닥 100이 11\/20 종가 20,000 위를 지키는지\(종가 대비 -6\.5%\) — 아래로 마감하면 반등 실패$/, 'v60.51 rebound');
+    assert.match(lines, /^S&P 500과 나스닥 100이 200일선\([\d,]+ · [\d,]+\) 위로 마감하는지\(종가 대비 \+[\d.]+% · \+[\d.]+%\) — 50일선\([\d,]+ · [\d,]+\)까지 되찾으면 추세 회복$/, 'v60.51 rebound');
+    assert.equal(ftd, `바닥 확인일(나스닥 종합 기준) — 저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 거래량이 늘며 하루 ${RULES.rallyAttempt.gainPct}% 이상 오르는 날, 지금 2일째`, 'v60.51 rebound');
+    rebound.rebound.checks.said.forEach(cleanSaid);
+    assert.equal(build(day1.map(({ rallyPhase, rallyDay, followThroughDay, ...row }) => row)).rebound.checks.texts.length, 2, 'v60.51 without the rally fields no follow-through item (volume is not in history.json)');
+  });
+  check('v60.51 the record line places the rebound day as it places a fall: the largest one-day rise of the record', () => {
+    assert.match(said(rebound, 'records').text, /^반도체 하루 \+14\.0%는 기록\(2026-01-02 이후\) 중 가장 큰 하루 상승입니다\./, 'v60.51 rebound');
+    cleanSaid(said(rebound, 'records'));
+  });
+  check('v60.51 the AI facts carry the state word and its conditions, and still name one Nasdaq', () => {
+    const lines = openingFactLines(rebound);
+    assert.ok(lines.includes('반등 상태어(규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.51 rebound');
+    assert.ok(lines.some((line) => line.startsWith('반등: 반등 시도 — 나스닥 100이 11/20 종가')), 'v60.51 rebound');
+    assert.equal(lines.filter((line) => line.startsWith('반등 확인 조건: ')).length, 2, 'v60.51 rebound');
+    assert.doesNotMatch(`${texts(rebound)}\n${lines.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
+  });
+  const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 });
+  check('v60.51 the next session: the low holds, so 반등 시도 stays and the bounce is counted from the low', () => {
+    const next = build(day2);
+    assert.equal(next.rebound?.state, 'attempt', 'v60.51 rebound');
+    assert.match(said(next, 'lede').text, /^반도체는 저점에서 15% 반등했지만 고점 대비로는 아직 34% 아래, 약세장입니다\./, 'v60.51 rebound');
+  });
+  check('v60.51 a close under the low the rebound rose from: 반등 실패 on that session, the fall\'s lede back, then nothing', () => {
+    const broke = after(day2, '2026-11-25', { sox: 0.82, ndx: 0.9, spx: 0.93, rsp: 0.96, dow: 0.94 });
+    const failed = build(broke);
+    assert.equal(failed.rebound?.state, 'failed', 'v60.51 rebound');
+    assert.match(said(failed, 'lede').text, /하락입니다\.$/, 'v60.51 rebound');
+    assert.equal(failed.lines.find((line) => line.id === 'watch').label, '반등 실패', 'v60.51 rebound');
+    assert.equal(said(failed, 'watch').text, '나스닥 100이 반등이 시작된 11/20 종가(20,000) 아래로 마감했습니다.', 'v60.51 rebound');
+    assert.equal(build(after(broke, '2026-11-27', { ndx: 0.99, spx: 0.99, sox: 0.99 })).rebound, null, 'v60.51 rebound');
+  });
+  check('v60.51 no rebound read under the rule\'s line, or outside a fall that reached the correction line', () => {
+    assert.equal(build(after(base, '2026-11-23', { ndx: 1.045, spx: 1.03, sox: 1.08 })).rebound, null, 'v60.51 a 4.5% bounce is not a rebound');
+    const shallow = fixtureHistory({ soxEnd: 0.95, ndxEnd: 0.93, spxEnd: 0.97, rspEnd: 0.98, dowEnd: 0.97 });
+    assert.equal(build(after(shallow, '2026-11-23', { ndx: 1.06, spx: 1.05, sox: 1.1 })).rebound, null, 'v60.51 a -7% fall has no rebound read');
+  });
+  // A rising year, a 12% dip and a recovery to just under the high: both indexes back over their 50- and 200-day lines.
+  const n = SESSIONS.length;
+  const shape = (i) => (i <= n - 21 ? 80 + 20 * (i / (n - 21)) : i <= n - 11 ? 100 - 12 * ((i - (n - 21)) / 10) : 88 + 11 * ((i - (n - 11)) / 10));
+  const recoveredHistory = SESSIONS.map((date, i) => ({ date, sox: +(shape(i) * 100).toFixed(2), ndx: +(shape(i) * 250).toFixed(2), spx: +(shape(i) * 70).toFixed(2), rsp: +(shape(i) * 2).toFixed(2), dow: +(shape(i) * 450).toFixed(2), breadth50: 55 }));
+  check('v60.51 추세 회복: the S&P 500 and the Nasdaq-100 both over their 50- and 200-day lines after the low', () => {
+    const recovered = build(recoveredHistory);
+    assert.equal(recovered.rebound?.state, 'recovered', 'v60.51 rebound');
+    assert.equal(said(recovered, 'lede').text, '나스닥 100은 저점에서 13% 올라 고점 대비 1% 아래까지 왔고, S&P 500과 나스닥 100은 50일선과 200일선을 모두 되찾았습니다.', 'v60.51 rebound');
+    assert.equal(recovered.lines.find((line) => line.id === 'watch').label, '추세 회복', 'v60.51 rebound');
+    assert.match(said(recovered, 'watch').text, /^200일선은 S&P 500 [\d,]+\(종가 대비 -[\d.]+%\), 나스닥 100 [\d,]+\(-[\d.]+%\)이고, 그 아래로 다시 마감하면 다시 판단합니다\.$/, 'v60.51 rebound');
+  });
+  check('v60.51 추세 회복 holds through a dip under the 50-day line while both stay over the 200-day line, and ends under it', () => {
+    const { ma50, ma200 } = build(recoveredHistory).rows.ndx.episode;
+    const dip = (ma50 + ma200) / 2 / recoveredHistory.at(-1).ndx;
+    const dipped = build(after(recoveredHistory, '2026-11-23', { sox: dip, ndx: dip, spx: dip, rsp: dip, dow: dip }));
+    assert.equal(dipped.rebound?.state, 'recovered', 'v60.51 rebound');
+    assert.match(said(dipped, 'lede').text, /S&P 500과 나스닥 100은 200일선 위를 지키고 있습니다\.$/, 'v60.51 rebound');
+    const under = (ma200 * 0.985) / recoveredHistory.at(-1).ndx;
+    assert.ok(ma200 * 0.985 > 88 * 250, 'v60.51 the fixture stays over its low');
+    assert.equal(build(after(recoveredHistory, '2026-11-23', { sox: under, ndx: under, spx: under, rsp: under, dow: under })).rebound?.state, 'attempt', 'v60.51 rebound');
+  });
+  check('v60.51 the produced record and the static shell carry the conditions line', () => {
+    const regime = { available: true, overall: '부담 우세', asOf: '2026-11-23', heroLine: 'x', counts: { favorable: 0, neutral: 2, burden: 4, unknown: 0 } };
+    const record = todayVerdictFrom(regime, 'now', 'm', rebound);
+    assert.deepEqual(record.story.lines.map((line) => [line.id, line.label]), [['lede', ''], ['diagnosis', '쏠림 되돌림'], ['watch', '반등 시도'], ['records', '']], 'v60.51 rebound');
+    assert.equal(record.schemaVersion, 'today-verdict.v1', 'v60.51 rebound');
+  });
+  check('v60.51 no instruction and no size word on the rebound lines', () => {
+    const all = [...rebound.lines.map((line) => line.said.text), ...rebound.rebound.checks.texts].join('\n');
+    assert.doesNotMatch(all, /사세요|파세요|매수하|매도하/, 'v60.51 rebound');
+    assert.doesNotMatch(all, SIZE_WORDS, 'v60.51 rebound');
+  });
+  report('rebound');
+}, 'code'],
 ['crash-11-20', async () => {
   // The published closes (borrowed as realistic input): the 11/20 crash.
   const history = readHistoryRows(JSON.parse(readFileSync(resolve(root, 'public-data/history.json'), 'utf8'))).filter((row) => row.date <= '2026-11-20');
@@ -411,7 +511,9 @@ await runSections('market-story', [
     assert.equal(opening.diagnosis.state, 'unwind', 'v60.50 crash-11-20');
     // The credit figure is whatever the published series holds for that close (it arrives a session late and is not pinned here).
     assert.match(said(opening, 'diagnosis').text, /^나스닥 100이 동일가중보다 12\.7%p 더 내렸고 신용 스프레드는 \d+bp(?:.\d+\/\d+.)?, 5거래일 \+\d+bp로 빠르게 확대 중\. 450bp를 넘으면 금융 불안형\.$/, 'v60.50 crash-11-20');
-    assert.deepEqual(opening.bars.bars.map((bar) => `${bar.label} ${bar.valueText}`), ['반도체 -42.5%', '나스닥 100 -19.8%', 'S&P 500 -11.6%', '다우 -11.4%', '동일가중 -7.1%'], 'v60.50 crash-11-20');
+    assert.equal(opening.rebound, null, 'v60.51 crash-11-20: no rebound read on the crash close');
+    assert.deepEqual(opening.lines.map((line) => line.id), ['lede', 'diagnosis', 'records'], 'v60.51 crash-11-20: the 11/20 face keeps its three lines');
+    assert.deepEqual(opening.bars.bars.map((bar) => `${bar.label} ${bar.valueText}`), ['반도체(SOX) -42.5%', '나스닥 100 -19.8%', 'S&P 500 -11.6%', '다우 -11.4%', '동일가중 -7.1%'], 'v60.50 crash-11-20');
   });
   report('crash-11-20');
 }, 'code']
