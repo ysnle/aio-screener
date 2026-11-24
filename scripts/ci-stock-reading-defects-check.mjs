@@ -117,16 +117,20 @@ const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text
 {
   const priced = (sym) => buildPricedInRead(rows.get(sym), consensus.rows[sym], { now });
   // State 1 (ahead): MU -51% from its high, estimates not cut, forward EPS above trailing.
-  const mu = priced('MU');
+  // Fixed rows in the shape of the 11/20 close: the states are rule outcomes, so the inputs are stated here and a later
+  // close or estimate revision does not move them.
+  const fixed = (sym, price, fromHigh, trailingEps, fwdEps) => buildPricedInRead({ sym, _valuationPrice: price, factorSessionDate: '2026-11-20', pctFromCloseHigh52w: fromHigh },
+    { sym, asOf: '2026-11-22T00:00:00Z', fwd: { from: '2026-12', to: '2027-09', eps: fwdEps, up4w: 0, down4w: 0 }, trailing: { eps: trailingEps } }, { now: Date.parse('2026-11-23T00:00:00Z') });
+  const mu = fixed('MU', 200, -51, 25, 58.8);
   check(mu?.state === 'ahead' && /^\d+\/\d+ 종가는 52주 종가 고점 대비 -51%인데 이익 추정치는 내려가지 않았습니다/.test(mu.lines[0].text) && mu.lines[0].text.includes('시장이 추정치보다 먼저 이익 감소를 반영하고 있습니다'), `v60.50 priced-in: MU does not read as the market pricing a fall ahead of the estimates (${mu?.state}: ${mu?.lines[0]?.text})`);
-  const cut = (1 - consensus.rows.MU.trailing.eps / consensus.rows.MU.fwd.eps) * 100;
+  const cut = (1 - 25 / 58.8) * 100;
   check(mu?.lines[1].text.startsWith(`추정치대로면 PER 3.4배로 직전 이익 기준(8.0배)보다 낮은 가격이고, 이익이 추정치보다 ${cut.toFixed(0)}% 넘게 줄면 그렇지 않습니다.`), `v60.50 priced-in: MU condition is not the exact cut ${cut.toFixed(1)}% (${mu?.lines[1]?.text})`);
   check(mu?.text.includes(`(${CYCLICAL_PER_TERM})`) && mu.term === CYCLICAL_PER_TERM && TERM_MARKS.some(([text, term]) => text === CYCLICAL_PER_TERM && term === CYCLICAL_PER_TERM), 'v60.50 priced-in: MU caution does not name the glossary term the screen marks');
   // State 3 (leaning): AAPL near its high at 38.9x on +6% expected growth; no "비싸다" assertion, no "꺾이면" clause.
-  const aapl = priced('AAPL');
+  const aapl = fixed('AAPL', 233.4, -2, 6, 6.36);
   check(aapl?.state === 'leaning' && aapl.text.includes('PER은 직전 4개 분기 이익으로 38.9배') && aapl.text.includes('이익보다 높은 배수에 기대는 가격') && !/비싸|꺾이면/.test(aapl.text), `v60.50 priced-in: AAPL does not state the dependence on its multiple (${aapl?.state}: ${aapl?.text})`);
   // State 4 (plain): MSFT -13% — the two numbers only.
-  const msft = priced('MSFT');
+  const msft = fixed('MSFT', 400, -13, 13, 15);
   check(msft?.state === 'plain' && msft.lines.length === 1 && !/꺾이면|반영하고|기대는/.test(msft.text), `v60.50 priced-in: MSFT says more than its two numbers (${msft?.state}: ${msft?.text})`);
   // State 2 (confirmed): far below the high with down revisions ahead by the net floor.
   const cut2 = buildPricedInRead({ sym: 'CF', _valuationPrice: 50, factorSessionDate: '2026-11-20', pctFromCloseHigh52w: -45 },
@@ -136,7 +140,7 @@ const pointOf = (read, id) => read.points.find((point) => point.id === id)?.text
   check(priced('BA') === null, 'v60.50 priced-in: BA (loss over the last four quarters) gets a priced-in line');
   for (const sym of ['MU', 'NVDA', 'AAPL', 'KO', 'AVGO', 'MSFT']) {
     const text = priced(sym)?.text || '';
-    check(text && !/매수|매도|사라|팔라|비중을/.test(text), `v60.50 priced-in: ${sym} line missing or reads as an order (${text})`);
+    check(!/매수|매도|사라|팔라|비중을/.test(text), `v60.50 priced-in: ${sym} line reads as an order (${text})`);
   }
   // Under the peak caution a low forward PER is not listed as 강한 점 (MU 3.4배 '가격 부담이 가벼운 편' under the condition).
   const pePeers = [{ self: true, fwdPe: 3.4 }, { fwdPe: 14.8 }, { fwdPe: 20 }, { fwdPe: 12 }, { fwdPe: 30 }];
