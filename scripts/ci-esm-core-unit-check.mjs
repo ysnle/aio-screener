@@ -63,6 +63,9 @@ const { createKnowledgeCapabilityBatchLoader } = await load('src/ui/knowledge/ca
   const krBlock = technicalBlock({ symbol: '005930.KS', bars });
   if (!/차트 화면과 같은 완료 봉 기준/.test(block) || !/• 차트 카드: 추세 /.test(block) || !/이동평균: 5일 \$/.test(block) || /calcTechnicalSnapshot|소진주의|추세 훼손/.test(block)
     || !/전일 대비 미확인/.test(krBlock) || !/기술 데이터 수신 대기/.test(technicalBlock({ symbol: 'X', bars: bars.slice(0, 10) }))) fail('v59.88 the AI technical block quotes the chart fact sheet (same bars, same words, KR day change only from the verified close)');
+  const olderRow = technicalBlock({ symbol: 'NVDA', bars, row: { rsi: 88.8, factorSessionDate: bars.at(-2).time } });
+  const sameRow = technicalBlock({ symbol: 'NVDA', bars, row: { rsi: 88.8, factorSessionDate: bars.at(-1).time } });
+  if (/88\.8|스크리너 값/.test(olderRow) || !new RegExp(`${bars.at(-1).time} 종가, 차트 일봉`).test(olderRow) || !/RSI\(14\) 88\.8 \([^)]*스크리너 값\)/.test(sameRow)) fail(`v60.52 the AI block states the screener RSI only when its session is the chart's last bar: ${olderRow.split('\n')[1]} | ${sameRow.split('\n')[1]}`);
 }
 
 // P1355: generated version alignment never restamps market data or live Worker observations.
@@ -1968,6 +1971,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         fail(`v59.70: carried closes must not read as a flat move, surprise % must be the shared formula ${JSON.stringify(flat?.steps)}`);
       }
       if (tln?.kind !== 'guidance-up') fail(`v59.70: an up-move on a raised outlook with an EPS miss is not 호실적 반영, got ${tln?.kind}`);
+      const gapBrief = { layer: 'limited', figures: [], guidance: [], reasons: { points: [] }, reaction: { baseDate: '2026-11-27', firstDate: '2026-11-30', firstPct: 10, latestDate: '2026-11-30', latestPct: 10 } };
+      const fullIndex = [{ date: '2026-11-25', spx: 100 }, { date: '2026-11-27', spx: 120 }, { date: '2026-11-30', spx: 110 }];
+      const gapRead = reactionRead(gapBrief, { history: fullIndex.filter((row) => row.date !== '2026-11-27') });
+      if (reactionRead(gapBrief, { history: fullIndex })?.kind !== 'unexplained' || gapRead?.kind === 'with-market' || gapRead?.bench !== null) fail(`v60.52 reaction: an index bar missing on the base date leaves the market rung empty, not 11/25→11/30 (${gapRead?.kind} ${gapRead?.bench})`);
+      const cellsOf = await load('src/domain/briefing/reaction-read.js');
+      const missedCell = cellsOf.earningsCellLines(cellsOf.earningsCells({ kind: 'earnings', figures: [], guidance: [], reaction: { basis: 'close', baseDate: '2026-11-25', firstMissing: '2026-11-27', latestDate: '2026-11-30', latestPct: 10, sessions: 1 } }))?.at(-1);
+      if (missedCell?.lines.join(' / ') !== '첫 거래일 종가 없음 / 11/30까지 +10.0%') fail(`v60.52 reaction cell: an unconfirmed first session names the dated move, not 없음 (${JSON.stringify(missedCell)})`);
       // Step 2: one surprise per report. An annual revenue line is not compared with the quarter's estimate (AAPL
       // $479B read +314.1%); the provider's same-basis actual (the number 오늘 prints) wins over the brief's GAAP line
       // (AAPL $2.10 +3.6% → $2.05 +1.1%); the reaction read and the briefing line read the same function.
@@ -5208,17 +5218,17 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
 // ── v59.57: Nasdaq rally attempt / follow-through day and Treasury auction comparison ────
 {
   const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/regime/rally-attempt.js');
-  // 30 flat sessions at 100, a slide to 90 (day 1 = the lowest close), three quiet sessions, then +2% on rising volume.
+  // 30 flat sessions at 100, a slide to 90 (the lowest close is day 0 since v60.52), three quiet sessions, then +2% on rising volume.
   const closes = [...Array(30).fill(100), 97, 94, 92, 90, 90.5, 90.8, 91, 92.82, 93, 89];
   const bars = closes.map((close, i) => ({ date: `2026-0${i < 20 ? 7 : 8}-${String((i % 20) + 1).padStart(2, '0')}`, close, volume: i === 37 ? 2000 : 1000 }));
   const series = rallyAttemptSeries(bars);
   const day1 = series[33], ftd = series[37], failed = series[39];
-  if (day1.phase !== 1 || day1.day !== 1 || ftd.phase !== 2 || !ftd.followThrough || ftd.day !== 5 || !failed.failed || failed.phase !== 1 || failed.day !== 1
+  if (day1.phase !== 1 || day1.day !== 0 || ftd.phase !== 2 || !ftd.followThrough || ftd.day !== 4 || !failed.failed || failed.phase !== 1 || failed.day !== 0
     || series[36].followThrough || rallyAttemptSeries(bars.map((bar) => ({ ...bar, volume: 1000 })))[37].followThrough) fail(`v59.57 rally attempt series wrong: ${JSON.stringify([day1, ftd, failed])}`);
   const history = series.map((point, i) => ({ date: bars[i].date, nasdaq: bars[i].close, rallyPhase: point.phase, rallyDay: point.day, followThroughDay: point.followThrough ? 1 : 0, breadthNewHighs: 10 + i }));
   const atFtd = rallyAttemptRead(history, { through: bars[38].date });
   const attempt = rallyAttemptRead(history, { through: bars[34].date });
-  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 2 || !/1일째는 .* 저점\(종가 90\)입니다/.test(attempt.plain)
+  if (atFtd?.phase !== 'confirmed' || !/\+2\.00%/.test(atFtd.state) || attempt?.phase !== 'attempt' || attempt.day !== 1 || !/저점 8\/14\(종가 90\) 다음 거래일을 1일째로 세어/.test(attempt.rule)
     || rallyAttemptRead(history, { through: bars[10].date }) !== null) fail(`v59.57 rally attempt read wrong: ${JSON.stringify({ atFtd, attempt })}`);
   const { buildTreasuryAuctions, auctionTenor } = await load('src/domain/macro/treasury-auctions.js');
   const fixture = JSON.parse(readFileSync(path.join(root, 'scripts/fixtures/treasury-auctions/ta-ws-20261102.json'), 'utf8'));
@@ -6734,6 +6744,15 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!chart.rsAtHigh || !chart.rsLeadsPrice || !chartReading(chart).why.includes('상대강도선')) fail(`chart: an RS line at its high while price is under its high must read as leading: ${chart.rsFromHigh} ${chart.fromHigh}`);
   const conflict = chartReading({ ...chart, state: 'breakout', timeframeConflict: true, weinstein: { ...chart.weinstein, stage: 4 } });
   if (!/상위 시간대/.test(conflict.headline)) fail('chart: a breakout against a weekly downtrend must say so');
+  // The benchmark a session behind the stock: RS ends on the last common close and names it, never yesterday's index vs today's stock.
+  const flatBars = Array.from({ length: 200 }, (_, i) => ({ time: day(i), open: 100, high: 101, low: 99, close: i === 199 ? 110 : 100, volume: 1e6 }));
+  const lagBench = flatBars.slice(0, 199).map((bar) => ({ date: bar.time, value: 100 }));
+  const lagChart = analyzeChart(flatBars, { benchmark: lagBench });
+  const lagRow = lagChart.evidence.find(([label]) => /대비 6개월/.test(label))?.[1] || '';
+  if (Math.abs(lagChart.rs) > 1e-9 || lagChart.rsAsOf !== day(198) || lagChart.rsLine.at(-1) != null || !lagRow.includes(`${Number(day(198).slice(5, 7))}/${Number(day(198).slice(8))} 지수 종가까지`)) fail(`v60.52 chart RS with the benchmark a session behind must end on the common close: ${lagChart.rs} ${lagChart.rsAsOf} ${lagRow}`);
+  const fullChart = analyzeChart(flatBars, { benchmark: [...lagBench, { date: day(199), value: 120 }] });
+  if (Math.abs(fullChart.rs + 10) > 1e-9 || fullChart.rsAsOf !== day(199) || /지수 종가까지/.test(chartReading(fullChart).why)) fail(`v60.52 chart RS on a shared last close reads both ends on that date: ${fullChart.rs} ${fullChart.rsAsOf}`);
+  if (analyzeChart(flatBars, { benchmark: flatBars.slice(0, 60).map((bar) => ({ date: bar.time, value: 100 })) }).rs !== null) fail('v60.52 chart RS with no common close inside the 6-month window is empty');
 }
 
 // ── v58.XX expertise review: past outcomes of the chart's own signals on the stock's history ──

@@ -136,7 +136,7 @@ const axisOf = (regime, id) => regime?.axes?.find((row) => row.id === id) || nul
 
   // The alternative: the next branch by fit, tagged when its core condition is not met (v60.49 skipped it for a gated 1/4).
   const oct14 = { oil20: 15, oilVsYear: 21, oilSurging: true, oilHeld: false, wtiPosition: 0.9, breakeven20: 0.02, sentimentRank: { value: 51.7, date: '2026-08-01', month: '8월', percentile: 13 },
-    commodities: 'burden', dxy20: 2.23, krw20: -1.6, lean: 'hike', pricing: 0.95, tnx20: 0.18, termPremium20: 0.2, curve2s10s20: 0.15, realYield20: 0.26,
+    commodities: 'burden', dxy20: 2.23, krw20: -1.6, lean: 'hike', pricing: 0.95, tnx20: 0.18, tnxOverBreakeven20: 0.16, termPremium20: 0.2, curve2s10s20: 0.15, realYield20: 0.26,
     policy: { upper: 4, change: 0.25, changeDate: '2026-09-17', bill: null }, hy20: 40, cccGap20: 1.5, nfci4: 0.051, credit: 'neutral',
     bands: { breakeven20: 0.5 * 0.079, tnx20: 0.1, termPremium20: 0.05, curve2s10s20: 0.07, realYield20: 0.06, hy20: 12, cccGap20: 0.5, nfci4: 0.015 } };
   const model = attempt('buildMacroCrossroads', () => crossroadsModule.buildMacroCrossroads({ signals: oct14 }));

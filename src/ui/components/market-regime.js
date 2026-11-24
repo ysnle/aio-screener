@@ -433,8 +433,10 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
       if (raw.open) fill();
       else if (!raw.__aioCorrectionWait) { raw.__aioCorrectionWait = true; raw.addEventListener('toggle', () => { if (raw.open) renderRegimePage({ documentRef: doc, root, store }); }); }
       // The distribution-day strip and the follow-through reading (a lazy chunk) are trend evidence.
-      if (regime.available) import('./distribution-strip.js').then(({ distributionStrip, rallyAttemptStrip }) => {
-        const rally = rallyAttemptStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
+      // The story's rebound (memoised opening, market-story.js) so the follow-through strip can say which index each reads.
+      if (regime.available) Promise.all([import('./distribution-strip.js'), import('./market-story.js')]).then(([{ distributionStrip, rallyAttemptStrip }, { readMarketOpening }]) => {
+        const opening = readMarketOpening(root, interpretation, () => renderRegimePage({ documentRef: doc, root, store }));
+        const rally = rallyAttemptStrip(doc, inputs?.history || root._aioHistory, regime.asOf, { rebound: opening?.available ? opening.rebound || null : null });
         const strip = distributionStrip(doc, inputs?.history || root._aioHistory, regime.asOf);
         for (const part of [strip, rally].filter(Boolean)) slot.insertAdjacentElement('beforebegin', part);
       }).catch(() => {});

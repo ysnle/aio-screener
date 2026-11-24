@@ -11,6 +11,10 @@ import { signalHistory, signalHistoryText } from './signal-history.js';
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, fromYearHigh, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
+import { shortDate } from '../content/date-labels.js';
+
+// RS read through an earlier common close names that date beside the number.
+const rsThrough = (asOf, latest) => (asOf && latest && asOf !== latest ? `, ${shortDate(asOf)} 지수 종가까지` : '');
 const TECH = RULES.technical;
 
 function coveredAverage(values, period, minShare = 0.8) {
@@ -172,21 +176,28 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const weinstein = weinsteinStage(wCloses);
   const weeklyTrend = w10[wn] == null || w30[wn] == null ? null : wCloses[wn] > w10[wn] && w10[wn] > w30[wn] ? '정배열' : wCloses[wn] < w10[wn] && w10[wn] < w30[wn] ? '역배열' : '혼조';
   // Relative strength: 6-month return minus the S&P 500's over the same dates.
-  // Each end of the comparison uses the benchmark close on or just before the stock's date (≤ 3 days);
-  // a missing date is no comparison, not the benchmark's latest value.
+  // Earlier points use the benchmark close on or just before the stock's date (≤ 3 days, holidays differ); the latest end
+  // is the last bar the benchmark closed on too — a benchmark a session behind is not set against today's stock close.
   const benchRows = (benchmark || []).filter((point) => point?.date && Number.isFinite(point.value)).sort((a, b) => a.date.localeCompare(b.date));
   const benchAt = (date) => { let hit = null; for (const point of benchRows) { if (point.date <= date) hit = point; else break; } return hit && (Date.parse(date) - Date.parse(hit.date)) <= 3 * 86400000 ? hit.value : null; };
+  const benchDates = new Set(benchRows.map((point) => point.date));
+  let lineEnd = -1;
+  for (let i = n; i >= 0; i -= 1) if (benchDates.has(bars[i].time)) { lineEnd = i; break; }
+  const rsEnd = lineEnd >= 126 && lineEnd > n - 126 ? lineEnd : null;
   const ago = bars[Math.max(0, n - 126)];
   const ret6 = bars.length >= 127 ? (last.close / ago.close - 1) * 100 : null;
-  const b0 = benchAt(ago.time); const b1 = benchAt(last.time);
-  const rs = ret6 != null && b0 && b1 ? ret6 - (b1 / b0 - 1) * 100 : null;
+  const rsStart = rsEnd == null ? null : bars[rsEnd - 126];
+  const rsRet6 = rsEnd == null ? null : (bars[rsEnd].close / rsStart.close - 1) * 100;
+  const b0 = rsStart ? benchAt(rsStart.time) : null; const b1 = rsEnd == null ? null : benchAt(bars[rsEnd].time);
+  const rs = rsRet6 != null && b0 && b1 ? rsRet6 - (b1 / b0 - 1) * 100 : null;
+  const rsAsOf = rs == null ? null : bars[rsEnd].time;
   const strength = adx(bars);
   templateChecks[7][1] = rs == null ? null : rs > 0;
   // The relative-strength line (close ÷ benchmark on the same date). A line at its own high
   // while price is still under its high is the classic leadership tell (O'Neil/Minervini: RS leads price).
-  const rsLine = benchRows.length ? bars.map((bar) => { const b = benchAt(bar.time); return b ? bar.close / b : null; }) : [];
-  const rsWindow = rsLine.slice(-TECH.rangeSessions).filter((value) => value != null);
-  const rsNow = rsLine[n] ?? null;
+  const rsLine = benchRows.length ? bars.map((bar, i) => { const b = i <= lineEnd ? benchAt(bar.time) : null; return b ? bar.close / b : null; }) : [];
+  const rsWindow = rsEnd == null ? [] : rsLine.slice(0, rsEnd + 1).slice(-TECH.rangeSessions).filter((value) => value != null);
+  const rsNow = rsEnd == null ? null : rsLine[rsEnd] ?? null;
   const rsHigh = rsWindow.length >= 60 ? Math.max(...rsWindow) : null;
   const rsFromHigh = rsNow != null && rsHigh ? (rsNow / rsHigh - 1) * 100 : null;
   const rsAtHigh = rsFromHigh != null && rsFromHigh >= -0.5;
@@ -248,7 +259,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     ['일봉 이동평균', aligned ? '정배열 (종가 > 21일 EMA > 50일 > 200일)' : ema21[n] && sma50[n] ? `혼조 (종가 ${last.close > sma50[n] ? '50일선 위' : '50일선 아래'})` : '기록 부족'],
     ['주봉 추세 (10·30주)', weeklyTrend || '기록 부족'],
     ['Weinstein 단계 (30주선)', weinstein ? `${weinstein.stage}단계${weinstein.pullback ? '(30주선 아래 눌림)' : ''}, 30주선 4주 ${signedText(weinstein.slope, 1)}%` : '기록 부족'],
-    [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(ret6)})`],
+    [`${benchmarkLabel} 대비 6개월`, rs == null ? '—' : `${signed(rs)}p (종목 ${signed(rsRet6)}${rsThrough(rsAsOf, last.time)})`],
     ['상대강도선 (종목 ÷ 지수)', rsFromHigh == null ? '—' : rsAtHigh ? (rsLeadsPrice ? `신고가 — 가격(고점 대비 ${signed(fromHigh)})보다 먼저` : '신고가 (가격도 고점권)') : `자체 고점 대비 ${signed(rsFromHigh)} (${rsWindow.length >= TECH.fullYearSessions ? '1년' : `${rsWindow.length}거래일`} 기준)`],
     ['추세 강도 ADX', strength ? `${fmt(strength.adx, 0)} ${strength.adx >= 25 ? '(추세 뚜렷)' : strength.adx < 20 ? '(추세 약함)' : '(보통)'}` : '—'],
     ['거래량 (직전 50일 평균 대비)', volRatio == null ? '—' : `${fmt(volRatio * 100, 0)}%${dryUp != null ? `, 10일 평균 ${fmt(dryUp * 100, 0)}%${dryUp < 0.8 ? ' (거래 감소)' : ''}` : ''}`],
@@ -279,6 +290,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     weinstein,
     weeklyTrend,
     rs,
+    rsAsOf,
     rsFromHigh,
     rsAtHigh,
     rsLeadsPrice,
@@ -321,7 +333,7 @@ export function chartReading(analysis, regime = null) {
   const w = analysis.weinstein;
   if (w) parts.push(`주봉으로는 Weinstein ${w.stage}단계(${w.text.split(' — ')[0]})`);
   parts.push(`${TEMPLATE_LABEL} ${analysis.templatePass}/8`);
-  if (analysis.rs != null) parts.push(`6개월 수익률이 ${analysis.benchmarkLabel || 'S&P 500'}보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}`);
+  if (analysis.rs != null) parts.push(`6개월 수익률이 ${analysis.benchmarkLabel || 'S&P 500'}보다 ${Math.abs(analysis.rs).toFixed(1)}%p ${analysis.rs >= 0 ? '높음' : '낮음'}${rsThrough(analysis.rsAsOf, analysis.asOf)}`);
   if (analysis.rsLeadsPrice) parts.push('상대강도선이 가격보다 먼저 신고가');
   const why = parts.join(', ');
   const vcp = analysis.vcp?.contractions?.length ? `변동성 수축 ${analysis.vcp.contractions.map((row) => `-${row.depth.toFixed(0)}%`).join('→')}${analysis.dryUp != null && analysis.dryUp < 0.8 ? ', 거래량도 줄어드는 중' : ''}` : null;

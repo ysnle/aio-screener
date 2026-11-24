@@ -5,7 +5,9 @@ import { chatTechnicalBlock } from '../context/technical-lines.js';
 import { chatStockTrendLine, screenRowFor } from '../context/stock-trend-line.js';
 import { companyProfileEntry, companyStoryFor, requestCompanyStory } from '../../data/company-profiles.js';
 import { consensusRowFor, requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
-import { COMPANY_PROFILE_INDEX } from '../../data/artifact-registry.js';
+import { COMPANY_PROFILE_INDEX, EARNINGS_CALENDAR, EVENT_BRIEFS, loadArtifact } from '../../data/artifact-registry.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { storyFreshness } from '../../domain/entity/company-story.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { buildPricedInRead } from '../../domain/fundamental/priced-in.js';
 import { formatScreenerPrice } from '../../domain/screener/market-scope.js';
@@ -103,7 +105,7 @@ const companyStory = {
   description: '한 종목의 조사된 기업 분석(사업 구조·경쟁·논쟁점)을 종목 화면과 같은 글로 돌려준다. 조사된 종목만 있다.',
   parameters: objectSchema({ symbol: SYMBOL }),
   label: (args, root) => `${symbolLabel(root, resolveToolSymbol(root, args?.symbol) || args?.symbol)} 기업 분석`,
-  async run({ symbol }, { root }) {
+  async run({ symbol }, { root, now }) {
     const sym = resolveToolSymbol(root, symbol);
     if (!sym) return { error: unknownSymbolText(symbol) };
     if (!companyStoryFor(root, sym) && !(root?.[COMPANY_PROFILE_INDEX.key] && !companyProfileEntry(root, sym))) {
@@ -113,9 +115,29 @@ const companyStory = {
     const text = String(root?.__aioCompanyStories?.context?.[sym] || '').trim();
     const researched = day(story?.researchedAt);
     if (!story || !text || !researched) return { error: `${sym}의 조사된 기업 분석이 없습니다.` };
-    return { text, asOf: `조사 ${researched}`, entities: [sym] };
+    // v60.52: the 종목 screen warns when a report or quarter filing came after the research day; the tool states the same
+    // fact from the same storyFreshness and the same three records, so the AI never serves older segment numbers as current.
+    const freshness = await storyFreshnessFor(root, story, sym, now);
+    if (freshness.state !== 'stale') return { text, asOf: `조사 ${researched}`, entities: [sym] };
+    const when = freshness.newReport ? `${freshness.newReport} 새 실적 발표` : `${freshness.newQuarterEnd}에 끝난 분기 공시`;
+    const stale = `${when} 이전 조사입니다. 아래 사업부 숫자는 그 전 보고서 기준이고, 새 숫자는 fundamentals·consensus 도구에 있습니다.`;
+    return { text: `${stale}\n${text}`, asOf: `조사 ${researched} · ${freshness.newReport ? `새 실적 ${freshness.newReport}` : `분기 종료 ${freshness.newQuarterEnd}`}`, entities: [sym] };
   }
 };
+
+// The three records the 종목 screen hands storyFreshness (src/ui/pages/entity.js): the earnings calendar, the earnings
+// briefs and the SEC quarter string for this symbol, loaded through the same shared artifacts. A record that does not
+// load leaves the state 'unknown', and the tool then says nothing about freshness, as the screen does.
+async function storyFreshnessFor(root, story, sym, now) {
+  let quarters = root?._aioSecQuarterHistory?.[sym] || '';
+  await waitFor((done) => Promise.all([
+    refreshSharedArtifact(root, EARNINGS_CALENDAR).catch(() => null),
+    refreshSharedArtifact(root, EVENT_BRIEFS).catch(() => null),
+    quarters ? null : loadArtifact(root, 'sec-fiscal-history.json').then((artifact) => { quarters = String(artifact?.quarters?.[sym] || ''); }).catch(() => null)
+  ]).then(done, done), 5000);
+  const today = new Date(Number.isFinite(now) ? now : Date.now()).toISOString().slice(0, 10);
+  return storyFreshness(story, root?.[EARNINGS_CALENDAR.key]?.earnings || [], today, { briefs: root?.[EVENT_BRIEFS.key]?.briefs || [], quarters });
+}
 
 // The next scheduled earnings release within 60 days ('' when the calendar has none or cannot be read).
 async function nextEarningsLine(root, sym, now) {

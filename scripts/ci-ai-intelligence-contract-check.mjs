@@ -2465,6 +2465,54 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const screenLine = datedStory(story).oneLine;
   check(`v60.51 company_story gives the AI the screen's dated story text (${result.text.slice(0, 160)})`, result.ok === true && screenLine !== story.oneLine
     && result.text.includes(screenLine) && !result.text.includes(story.oneLine) && result.text.includes(`조사 ${researchedAt}`));
+  // v60.52 (Codex review 1C): the 종목 screen warns when a report or quarter filing came after the research day; the tool
+  // served the same story with only "조사 <date>". It now reads the same three records into the same storyFreshness.
+  const { storyFreshness } = await import('../src/domain/entity/company-story.js');
+  const nowMs = Date.now();
+  const today = new Date(nowMs).toISOString().slice(0, 10);
+  const reported = new Date(nowMs - 10 * 86400000).toISOString().slice(0, 10);
+  const rootWith = (files) => ({ _aioNormalizeTickerInput: root._aioNormalizeTickerInput, _aioIsKnownTicker: root._aioIsKnownTicker, fetch: async (url) => { const name = String(url).split('?')[0].split('/').pop(); const body = { ...served, ...files }[name];
+    return body ? new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } }) : new Response('', { status: 404 }); } });
+  const calendar = { schemaVersion: 'earnings-calendar.v1', generatedAt: `${today}T00:00:00Z`, earnings: [{ symbol: 'SMTC', date: reported, epsActual: 0.41 }] };
+  const reportRun = await registry.runTool('company_story', JSON.stringify({ symbol: 'SMTC' }), { root: rootWith({ 'earnings-calendar.json': calendar }), now: nowMs });
+  const screenSays = storyFreshness(story, calendar.earnings, today, { briefs: [], quarters: '' });
+  check(`v60.52 company_story opens with the screen's stale fact when a report came after the research day (${reportRun.text?.slice(0, 120)} | ${reportRun.asOf})`,
+    screenSays.state === 'stale' && screenSays.newReport === reported && reportRun.ok === true
+      && reportRun.text.startsWith(`${reported} 새 실적 발표 이전 조사입니다. 아래 사업부 숫자는 그 전 보고서 기준이고, 새 숫자는 fundamentals·consensus 도구에 있습니다.\n`)
+      && reportRun.text.includes(screenLine) && reportRun.asOf === `조사 ${researchedAt} · 새 실적 ${reported}`);
+  const annual = { ...story, earnings: { period: 'FY2026', periodEnd: '2026-01-25' } };
+  const quarters = `2026-01-25:1:1:d;${new Date(nowMs - 40 * 86400000).toISOString().slice(0, 10)}:2:2:r`;
+  const quarterRun = await registry.runTool('company_story', JSON.stringify({ symbol: 'SMTC' }), { root: rootWith({ 'SMTC.json': annual, 'sec-fiscal-history.json': { quarters: { SMTC: quarters } } }), now: nowMs });
+  const quarterSays = storyFreshness(annual, [], today, { quarters });
+  check(`v60.52 company_story names the newer SEC quarter end the screen names, from the same function (${quarterRun.text?.slice(0, 120)} | ${quarterRun.asOf})`,
+    quarterSays.state === 'stale' && quarterRun.ok === true && quarterRun.text.startsWith(`${quarterSays.newQuarterEnd}에 끝난 분기 공시 이전 조사입니다.`)
+      && quarterRun.asOf === `조사 ${researchedAt} · 분기 종료 ${quarterSays.newQuarterEnd}`);
+}
+
+// v60.52 (Codex review 1C): a conditional ending exempted every number in the sentence, so an invented forecast
+// probability survived behind "…하면" while the same figure without it was withheld. Through the page's request pipeline:
+// the consequent's probability, likelihood or expected-return figure needs the material; the condition's threshold, a
+// frequency the material carries and a conditional without a forecast figure stay.
+{
+  const ctx = pipelineContext(Date.parse('2026-11-24T03:00:00Z'));
+  const request = { requestId: 'fixture-v6052', entrypoint: 'chat', pipelineVersion: 'fixture', validatorVersion: 'fixture', blockPolicyVersion: 'fixture' };
+  const referenceText = '[VIX 이력] VIX 종가가 30을 넘은 날 73번 중 41번(56%) 한 달 뒤 S&P 500이 올랐습니다 (2000-01-01~2026-11-21 종가)';
+  const lead = '변동성 국면에서는 지수 방향보다 확인 신호를 먼저 봅니다.';
+  const run = (sentence) => ctx._aioRunAIResponsePipeline(`${lead} ${sentence}`, { request, questionPlan: { currentSensitive: true }, currentSensitive: true, evidence: [], record: false, streamPhase: 'complete', stripChips: false, referenceText, entities: [] });
+  const withheld = ['다음 달 S&P 500이 오를 확률은 83%입니다.', '연준이 25bp를 인하하면 다음 달 S&P 500 상승 확률은 83%입니다.', 'If the Fed cuts by 25bp, there is a 70% chance the S&P 500 rises next month.',
+    'VIX가 30 이상이면 반등 가능성은 70%입니다.', '금리가 5%를 웃돌면 S&P 500은 10% 하락할 가능성이 큽니다.', '10년물이 5%를 웃돌면 밸류에이션 부담이 커지고 기대 수익률은 4%로 낮아집니다.'];
+  const kept = ['VIX가 30을 넘으면 과거 73번 중 41번, 즉 56% 확률로 한 달 뒤 반등했습니다.', 'VIX가 30을 넘으면 한 달 뒤 반등 확률은 56%입니다.', 'VIX가 30을 넘으면 변동성 부담으로 읽습니다.',
+    'VIX가 30 이상이면 경계 구간으로 봅니다.', '인하 확률이 70%를 넘으면 단기 반등을 기대할 수 있습니다.'];
+  const lost = withheld.filter((sentence) => { const out = run(sentence); return out.text.includes(sentence) || !out.text.includes(lead); });
+  const stripped = kept.filter((sentence) => !run(sentence).text.includes(sentence));
+  check(`v60.52 an unsupported forecast figure in a conditional's consequent is withheld; the explanation around it stays (${JSON.stringify(lost)})`, lost.length === 0);
+  check(`v60.52 a threshold-only conditional and a frequency the material carries survive (${JSON.stringify(stripped)})`, stripped.length === 0);
+  const pub = answerPublication;
+  check('v60.52 the condition clause keeps its threshold exempt: only consequent forecast figures are read', typeof pub.conditionalForecastFigures === 'function'
+    && JSON.stringify(pub.conditionalForecastFigures('인하 확률이 70%를 넘으면 단기 반등을 기대할 수 있습니다.')) === '[]'
+      && JSON.stringify(pub.conditionalForecastFigures('연준이 25bp를 인하하면 다음 달 S&P 500 상승 확률은 83%입니다.')) === '["확률은 83%"]'
+      && pub.numericClaimKind('VIX가 20을 넘으면 경계한다.') === 'conditional' && pub.numericClaimKind('VIX가 30 이상이면 반등 가능성은 70%입니다.') === 'forecast');
+  check('v60.52 a withheld forecast sentence is named 확률 for the notice line', pub.withheldTopic('연준이 25bp를 인하하면 다음 달 S&P 500 상승 확률은 83%입니다.') === '확률');
 }
 
 if (failures.length) {

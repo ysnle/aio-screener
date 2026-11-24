@@ -1,7 +1,7 @@
 // v58.55 (개편 v2 3d/5g): the analysis cards v58.53 left out — 듀폰 분해 and 역 DCF on 종목 요약, R&D 비율 on 재무 공시.
 // Readings come from src/domain/fundamental/analysis-read.js; this file only draws them. A card whose inputs are not yet
 // collected says "수집 대기 · 다음 SEC 갱신 후 표시"; a filer that does not tag an item says so — never a zero.
-import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers, RETURNED_LABEL } from '../../domain/fundamental/analysis-read.js';
+import { buildDupontRead, buildRdRead, impliedGrowth, dcfValue, reverseDcfInputs, reverseDcfAssumptions, REVERSE_DCF_DEFAULTS, buildTrailingYearRead, buildEarningsSchedule, buildSurpriseRead, buildMarginCashRead, buildThemePeers, RETURNED_LABEL } from '../../domain/fundamental/analysis-read.js';
 import { formatUsdShort, reconcileFiscalHistory, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { fiscalYearShortLabel, quarterLabel } from '../../domain/fundamental/period.js';
 import { el } from './dom.js';
@@ -111,11 +111,6 @@ export function dupontCard(doc, history, { financial = false, fundamentals = nul
 
 // ── 역 DCF (calculator) ──────────────────────────────────────────────────────────────────────────────────────────────
 const RANGE = Object.freeze({ discountRate: { min: 6, max: 14, step: 0.5 }, terminalGrowth: { min: 0, max: 4, step: 0.5 } });
-function assumptionsOf(root) {
-  const saved = root?._aioReverseDcfAssumptions;
-  const pick = (key) => (Number.isFinite(saved?.[key]) ? saved[key] : REVERSE_DCF_DEFAULTS[key]);
-  return { discountRate: pick('discountRate'), terminalGrowth: pick('terminalGrowth') };
-}
 
 export function growthSentence(result, years = 10) {
   if (result.state === 'ready') {
@@ -138,7 +133,7 @@ export function reverseDcfCard(doc, root, { history, fundamentals, close, financ
   card.setAttribute('aria-label', '가격이 말하는 기대, 역 DCF');
   card.append(cardHead(doc, '가격이 말하는 기대, 역 DCF', inputs.state === 'ready' ? `${inputs.label} 잉여현금흐름, ${inputs.priceDate} 종가` : null, { text: '가정에 따라 달라지는 계산', className: 'sx-chip--neutral' }));
   if (inputs.state !== 'ready') { card.append(unavailable(doc, inputs.reason)); return card; }
-  const assumptions = assumptionsOf(root);
+  const assumptions = reverseDcfAssumptions(root?._aioReverseDcfAssumptions);
   const facts = el(doc, 'div', null, 'v2-rdcf-facts');
   const fact = (name, value, detail) => { const tile = el(doc, 'div', null, 'v2-rdcf-fact'); tile.append(el(doc, 'span', name, 'v2-rdcf-fact__name'), el(doc, 'b', value, 'v2-rdcf-fact__value'), el(doc, 'span', detail, 'v2-rdcf-fact__detail')); facts.append(tile); };
   fact('잉여현금흐름', formatUsdShort(inputs.fcf), `${inputs.label} 영업현금흐름 ${formatUsdShort(inputs.ocf)} − 설비투자 ${formatUsdShort(inputs.capex)}`);

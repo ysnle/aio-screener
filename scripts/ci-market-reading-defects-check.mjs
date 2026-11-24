@@ -134,11 +134,30 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
   check('v60.50 B19: 기술적 분석 names the movers\' session', typeof marketCharts.stockGroupLabels === 'function' && marketCharts.stockGroupLabels(movers).mover === '11/20 크게 움직인 종목', String(marketCharts.stockGroupLabels?.(movers)?.mover));
 }
 
-// B22 — the session that set the low is day 1 and says so; no rebound is implied.
+// B22 — the session that set the low says so; no rebound is implied. v60.52 (owner 2026-11-24): the low is day 0, the
+// count starts the next session.
 {
   const rally = rallyAttemptRead(at1120);
-  check('v60.50 B22: 11/20 (new closing low) is not "반등 시도 1일째"', rally?.day === 1 && !/반등 시도 1일째/.test(rally?.state || ''), rally?.state);
-  check('v60.50 B22: day 1 says the low was set that day', /11\/20 새 저점/.test(rally?.state || '') && /반등은 아직 없습니다/.test(rally?.plain || ''), `${rally?.state} / ${rally?.plain}`);
+  check('v60.50 B22: 11/20 (new closing low) is not "반등 시도 1일째"', rally?.day === 0 && !/반등 시도 1일째/.test(rally?.state || ''), rally?.state);
+  check('v60.50 B22: the low day says the low was set that day', /^11\/20 새 저점 — 반등 일수는 다음 거래일부터$/.test(rally?.state || '') && /반등은 아직 없습니다/.test(rally?.plain || ''), `${rally?.state} / ${rally?.plain}`);
+}
+
+// v60.52 rally count (owner 2026-11-24): day 1 is the session after the low. Low close 11/20, 11/26 holiday: 11/23 day 1,
+// 11/24 day 2, 11/25 day 3, 11/27 day 4 — the earliest follow-through. The v1 count reached day 4 on 11/25.
+{
+  const { rallyAttemptSeries, RALLY_COUNT_MODEL } = await import('../src/domain/market/regime/rally-attempt.js');
+  const warm = Array.from({ length: 70 }, (_, i) => ({ date: new Date(Date.UTC(2026, 6, 1 + i)).toISOString().slice(0, 10), close: 100, volume: 1000 }));
+  const tail = [['2026-11-18', 96, 1000], ['2026-11-19', 94, 1000], ['2026-11-20', 90, 1000], ['2026-11-23', 91, 1000], ['2026-11-24', 91.5, 1000], ['2026-11-25', 93.4, 2000], ['2026-11-27', 95.3, 3000]]
+    .map(([date, close, volume]) => ({ date, close, volume }));
+  const series = rallyAttemptSeries([...warm, ...tail]);
+  const on = (date) => series.find((point) => point.date === date);
+  check('v60.52 rally count: 11/20 low is day 0, 11/23 day 1, 11/27 day 4', [on('2026-11-20')?.day, on('2026-11-23')?.day, on('2026-11-25')?.day, on('2026-11-27')?.day].join() === '0,1,3,4', JSON.stringify(tail.map((bar) => on(bar.date)?.day)));
+  check('v60.52 rally count: +2.08% on rising volume on 11/25 (day 3) is not a follow-through; 11/27 (day 4) is',
+    on('2026-11-25')?.followThrough === false && on('2026-11-27')?.followThrough === true, JSON.stringify([on('2026-11-25'), on('2026-11-27')]));
+  const stamped = (model) => through('2026-11-23').map((row) => (row.rallyPhase == null ? row : { ...row, fieldMeta: { ...(row.fieldMeta || {}), rallyPhase: { ...(row.fieldMeta?.rallyPhase || {}), model } } }));
+  check('v60.52 rally count: rows counted under another definition are withheld until the producer rewrites them',
+    rallyAttemptRead(stamped(undefined)) === null && rallyAttemptRead(stamped('rally-attempt.v1')) === null && rallyAttemptRead(stamped(RALLY_COUNT_MODEL))?.day === 1,
+    JSON.stringify(rallyAttemptRead(stamped(RALLY_COUNT_MODEL))?.state));
 }
 
 // B18 — one word for the stock–bond correlation on both screens.
@@ -170,6 +189,42 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
   check('v60.50 themes: "11개 섹터가 대부분 내렸고" becomes 모두 when all 11 fell', /11개 섹터가 모두 내렸고/.test(allDown), allDown);
   const mostlyDown = hero([0, ...Array.from({ length: 10 }, (_, i) => -1 - i * 0.3)]);
   check('v60.50 themes: 대부분 stays when one sector was flat', /11개 섹터가 대부분 내렸고/.test(mostlyDown), mostlyDown);
+}
+
+// v60.52 rebound terms — on 11/23 the story (나스닥 100, +5% off the low) and the follow-through count (나스닥 종합)
+// both read "반등 시도". The count is named by what it counts, states its base low and rule on the face, names the story's
+// index beside it when both are present, and says when its volume test compared an early-close session.
+{
+  const strip = await import('../src/ui/components/distribution-strip.js');
+  const words = await import('../src/domain/content/rebound-words.js').catch(() => ({}));
+  const rally = rallyAttemptRead(through('2026-11-23'));
+  const faceOf = (rebound) => { const doc = createFakeDocument(); const part = strip.rallyAttemptStrip(doc, through('2026-11-23'), '2026-11-23', { rebound }); return part?.textContent || ''; };
+  const story = { word: '반등 시도', low: { date: '2026-11-20', value: 25029 } };
+  const withStory = faceOf(story), alone = faceOf(null);
+  check('v60.52 rebound terms: the follow-through count never says 반등 시도', rally && !/반등 시도/.test(`${rally.state} ${rally.plain} ${rally.rule}`) && !/반등 시도/.test(alone), `${rally?.state} / ${alone}`);
+  check('v60.52 rebound terms: label names the signal and the index', alone.startsWith('반등 확인 신호(FTD) · 나스닥 종합') && words.FOLLOW_THROUGH_WORDS?.label === '반등 확인 신호(FTD) · 나스닥 종합', alone);
+  check('v60.52 rebound terms: 11/23 state counts from the session after the low', rally?.state === '저점(11/20) 뒤 1일째, 확인 전', rally?.state);
+  check('v60.52 rebound terms: the face states the base low and the rule in one line',
+    /저점 11\/20\(종가 22,617\.73\) 다음 거래일을 1일째로 세어 4일째부터 하루 \+1\.25% 이상·거래량 전일보다 많으면 확인/.test(alone), alone);
+  check('v60.52 rebound terms: with the story present, one line names both indexes and that they can disagree',
+    /시장 해석의 '반등 시도'는 나스닥 100 11\/20 저점 기준, 이 신호는 나스닥 종합 저점\(11\/20\) 뒤 1일째 — 지수와 규칙이 달라 엇갈릴 수 있습니다\./.test(withStory), withStory);
+  check('v60.52 rebound terms: no relation line without the story', !/시장 해석의/.test(alone), alone);
+  // Early close (NYSE half day 11/27): the tested session or the one before it.
+  const row = (date, day, phase = 1) => ({ date, nasdaq: 100 + day, rallyPhase: phase, rallyDay: day, followThroughDay: 0 });
+  const rows = [row('2026-11-19', 0), row('2026-11-20', 1), row('2026-11-23', 2), row('2026-11-24', 3), row('2026-11-25', 4), row('2026-11-27', 5), row('2026-11-30', 6)];
+  const at = (date) => rallyAttemptRead(rows, { through: date });
+  check('v60.52 rebound terms: an early-close session in the volume test is flagged (tested 11/27, or 11/30 against 11/27), not 11/25',
+    at('2026-11-27')?.shortSession === '2026-11-27' && at('2026-11-30')?.shortSession === '2026-11-27' && at('2026-11-25')?.shortSession === null,
+    JSON.stringify([at('2026-11-27')?.shortSession, at('2026-11-30')?.shortSession, at('2026-11-25')?.shortSession]));
+  const shortFace = strip.rallyAttemptStrip(createFakeDocument(), rows, '2026-11-27')?.textContent || '';
+  check('v60.52 rebound terms: the strip says the comparison is against a shortened session', /11\/27 조기 폐장 — 거래량 비교가 짧은 거래일 기준입니다\./.test(shortFace), shortFace);
+  const chart = marketCharts.indexVolumeRead(through('2026-11-23'), 'ndx')?.text || '';
+  check('v60.52 rebound terms: 기술적 분석 volume line uses the same words', chart === '거래량: 반등 확인 신호(FTD) · 나스닥 종합 저점(11/20) 뒤 1일째, 확인 전', chart);
+  // "바닥 확인" promised a confirmed bottom; no screen or AI line builder says it any more (research notes and glossary aliases aside).
+  const said = ['src/domain/market/regime/rally-attempt.js', 'src/ui/components/distribution-strip.js', 'src/domain/market/story/market-story.js', 'src/ui/components/market-story.js',
+    'src/domain/technical/market-charts.js', 'src/domain/briefing/market-read.js', 'src/ui/components/sentiment-board.js', 'src/domain/guide/lessons.js']
+    .filter((file) => /바닥 확인/.test(read(file).split('\n').filter((line) => !/^\s*(\/\/|\*)/.test(line)).join('\n')));
+  check('v60.52 rebound terms: no 바닥 확인 in the rebound and bottom-watch text builders', said.length === 0, said.join(', '));
 }
 
 if (failures.length) {

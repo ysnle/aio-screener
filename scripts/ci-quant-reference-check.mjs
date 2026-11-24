@@ -63,12 +63,12 @@ function check(name, ok, detail) {
   const { rallyAttemptSeries, rallyAttemptRead } = await load('src/domain/market/regime/rally-attempt.js');
   const date = (i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10);
   const bar = (close, i, volume = 1000) => ({ date: date(i), close, volume });
-  // 70 flat sessions (window warm), slide to 90, FTD on day 5, rally to a new high (success), a second correction.
+  // 70 flat sessions (window warm), slide to 90, FTD on day 4 (v60.52 count), rally to a new high (success), a second correction.
   const path1 = [...Array(70).fill(100), 97, 94, 92, 90, 90.5, 90.8, 91, 92.82, 95, 98, 101, 102, 99, 96, 95.5, 95, 95.4];
   const bars = path1.map((close, i) => bar(close, i, i === 77 ? 2000 : 1000));
   const series = rallyAttemptSeries(bars);
   check('v59.59 warm-up rows are marked', series[10].warmedUp === false && series[62].warmedUp === true, [series[10].warmedUp, series[62].warmedUp]);
-  check('v59.59 FTD on day 5 at +2% on rising volume', series[77].followThrough && series[77].day === 5, series[77]);
+  check('v60.52 FTD on day 4 (the low is day 0) at +2% on rising volume', series[77].followThrough && series[77].day === 4, series[77]);
   check('v59.59 new closing high ends the episode', series[80].phase === 0, series[80]);
   const history = series.map((point, i) => ({ date: bars[i].date, nasdaq: bars[i].close, rallyPhase: point.phase, rallyDay: point.day, followThroughDay: point.followThrough ? 1 : 0 }));
   const later = rallyAttemptRead(history);

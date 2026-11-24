@@ -5,6 +5,7 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { latestCompletedSession } from '../market/session/market-calendar.js';
 import { finiteNumber as finite } from '../shared/number.js';
 import { fiscalYearLabel } from '../fundamental/period.js';
+import { RULES } from '../rules/thresholds.js';
 
 export const FACTOR_LABELS = Object.freeze({
   momentum: { label: '모멘텀', color: 'var(--color-text-success)', description: '최근 1개월을 뺀 12개월 수익률(12-1)' },
@@ -110,13 +111,15 @@ export function sessionHoldLine(market, { rankedCount = 0, factorSessionDate = n
 }
 
 // Why a row is outside the ranked population (factor-ranks populationExclusion): a short label for the counts and the
-// sentence for the rank cell's hover. 'pinned' — a price held by a pending acquisition.
+// sentence for the rank cell's hover. 'pinned' states only what the rule observes — 60-day annualized volatility and the
+// average daily range at or under RULES.rankingPopulation.pinned — never a cause (a deal is the usual one, not observed).
+const PINNED = RULES.rankingPopulation.pinned;
 export const POPULATION_EXCLUSION_TEXT = Object.freeze({
   fund: Object.freeze({ short: 'ETF·펀드', long: 'ETF·펀드는 기업 주식과 같은 기준으로 비교하지 않아 순위에서 뺐습니다.' }),
   spac: Object.freeze({ short: 'SPAC', long: '기업인수목적회사(SPAC)는 신탁 현금이라 주가가 거의 움직이지 않아 순위에서 뺐습니다.' }),
   illiquid: Object.freeze({ short: '하루 거래대금 100만 달러 미만', long: '하루 평균 거래대금이 100만 달러 미만이라 확장 순위에서 뺐습니다.' }),
   foreign: Object.freeze({ short: '해외 상장', long: '도쿄·대만 상장 종목은 거래일과 통화가 달라 미국 종목과 같은 순위로 비교하지 않습니다.' }),
-  pinned: Object.freeze({ short: '가격 고정', long: '인수 진행 등으로 가격이 고정돼 순위에서 제외' })
+  pinned: Object.freeze({ short: '가격 정체', long: `60일 연 변동성 ${PINNED.volAtMost}% 이하·하루 평균 폭 ${PINNED.adrPctAtMost}% 이하로 가격이 거의 움직이지 않아 순위에서 뺐습니다.` })
 });
 
 export function describeRankingHold(hold, { factorSessionDate = null, market = 'US', now = Date.now() } = {}) {

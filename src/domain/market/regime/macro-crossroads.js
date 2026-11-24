@@ -32,6 +32,16 @@ const last = (series) => series.length ? series[series.length - 1] : null;
 // in the record made WTI read -7.2% here and -11.4% there on the same day.
 const changeOver = (series, n) => { const back = sessionPointBack(series, n); return back ? series[series.length - 1].value - back.value : null; };
 const pctOver = (series, n) => { const back = sessionPointBack(series, n); return back?.value ? (series[series.length - 1].value / back.value - 1) * 100 : null; };
+// A − B over 20 sessions on date-paired closes ({ date, a, b }); the pair must end on `endDate`, else held with both dates.
+function pairedGap(pairs, endDate, kind) {
+  const end = last(pairs);
+  if (!end || !endDate) return { value: null, held: null };
+  if (end.date !== endDate) return { value: null, held: { date: end.date, basis: endDate } };
+  const back = sessionPointBack(pairs, 20);
+  if (!back || (kind === 'pct' && !(back.a && back.b))) return { value: null, held: null };
+  const value = kind === 'pct' ? (end.a / back.a - end.b / back.b) * 100 : (end.a - back.a) - (end.b - back.b);
+  return { value, held: null };
+}
 const fmt = (value, digits = 1) => value == null ? '—' : value.toFixed(digits);
 const signed = (value, digits = 1, unit = '') => signedText(value, digits, unit);
 // A change in a yield or a yield spread is written in bp everywhere (briefing already did: 10년물 +28bp).
@@ -143,7 +153,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   // the AI-leadership measure (it was the Nasdaq-100, with SMH beside it).
   const d2ByDate = new Map(mh('dgs2').map((row) => [row.date, row.value]));
   const curve2s10s = mh('dgs10').filter((row) => d2ByDate.has(row.date)).map((row) => ({ date: row.date, value: row.value - d2ByDate.get(row.date) }));
-  const spx20 = pctOver(spx, 20), soxx20 = pctOver(soxx, 20);
+  const spx20 = pctOver(spx, 20);
   // Brent beside WTI (buildMacroRead().oil → brentWtiCheck): an abnormal same-day gap is never compared.
   const oilCheck = read?.oil && !read.oil.abnormal ? read.oil : null;
   // One Brent/WTI rule for every oil read — a held pair makes every WTI-based condition 확인 불가.
@@ -154,6 +164,11 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
   // A "rose / widened" condition counts only past 0.5 sd of that series' own n-period changes.
   const spxByDate = new Map(spx.map((row) => [row.date, row.value]));
   const soxxRatio = soxx.filter((row) => spxByDate.get(row.date)).map((row) => ({ date: row.date, value: row.value / spxByDate.get(row.date) }));
+  // A difference of two moves is read on one set of dates ending at the S&P 500's (or 10y's) last close — a side a session
+  // behind is withheld, not compared against the other side's newer close.
+  const soxxRel = pairedGap(soxx.filter((row) => spxByDate.get(row.date)).map((row) => ({ date: row.date, a: row.value, b: spxByDate.get(row.date) })), last(spx)?.date, 'pct');
+  const beByDate = new Map(mh('breakeven10').map((row) => [row.date, row.value]));
+  const tnxOverBreakeven = pairedGap(tnx.filter((row) => beByDate.has(row.date)).map((row) => ({ date: row.date, a: row.value, b: beByDate.get(row.date) })), last(tnx)?.date, 'level');
   const bands = {
     breakeven20: changeBand(mh('breakeven10'), 20)?.band, termPremium20: changeBand(mh('termPremium10'), 20)?.band,
     curve20: changeBand(mh('t10y3m'), 20)?.band, curve2s10s20: changeBand(curve2s10s, 20)?.band, realYield20: changeBand(mh('realYield10'), 20)?.band,
@@ -177,7 +192,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
     // v57.86 (live review): a held pair still answers a test both 20-session moves pass — only a split answer is 확인 불가.
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
-    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: all(soxx20, spx20) ? soxx20 - spx20 : null, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
+    tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: soxxRel.value, soxxRelHeld: soxxRel.held, tnxOverBreakeven20: tnxOverBreakeven.value, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
     pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
@@ -361,7 +376,7 @@ export const BRANCHES = Object.freeze([
     chain: ['AI 설비투자 기대 후퇴', '반도체·데이터센터 이익 하향', '투자·고용 둔화', '금리 인하 압력 + 신용 스프레드 확대', '정책 대응은 연쇄를 막아도 이익 전망은 못 바꿈'],
     firmer: ['defensive'], weaker: ['aicapex', 'growth', 'liquidity', 'cyclical'], mixed: ['yield'],
     triggers: [['us-nfp', `일자리 ${JOB.cold / 10}만~${JOB.slow / 10}만 명 (채용 둔화)`, (a) => a.payroll >= JOB.cold && a.payroll < JOB.slow]],
-    pricing: deltaPricing('soxxRel20', 'SOXX − S&P 500 20거래일', '%p', 1, false), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
+    pricing: (s) => s.soxxRelHeld ? { tone: 'unknown', text: `SOXX 종가가 ${md(s.soxxRelHeld.date)}로 S&P 500(${md(s.soxxRelHeld.basis)})보다 늦어 SOXX − S&P 500 20거래일 비교를 보류합니다.` } : deltaPricing('soxxRel20', 'SOXX − S&P 500 20거래일', '%p', 1, false)(s), pricingInConditions: true, /* v57.84: the pricing series is one of the conditions, so it is not independent confirmation */
     choices: { wait: 'AI 투자 기대가 꺾이는 동안 기다리는 비용은 작습니다. 이익 하향은 몇 분기에 걸쳐 확인되는 경향이 있어 서둘러 놓치는 것이 적습니다.', stage: '분할 접근의 비용은 하이일드 스프레드 확대가 멈추고 빅테크 설비투자 지침이 확인되기 전에 큽니다. 그 전의 "싸 보임"은 이익이 더 내려갈 수 있다는 점을 놓칩니다.', hold: '보유는 AI 설비투자에 매출이 직접 걸린 반도체·데이터센터·광통신 비중부터 점검합니다.', defend: '방어 업종이 상대적으로 버팁니다. 다만 금리 민감 배당주는 장기 금리가 함께 오르면 기대만큼 지켜 주지 못합니다.' },
     favored: ['wait', 'defend'], favoredWhy: 'AI 투자 꺾임은 이익 하향이 늦게 끝나는 경향이 있어, 확인 전 진입은 하향이 이어질 때의 하락을 떠안고 기다림의 비용(현금 이자로 일부 상쇄)은 작습니다.',
     costly: ['stage'],
@@ -370,7 +385,7 @@ export const BRANCHES = Object.freeze([
   // the 10-year rising on term premium and real yield, not on inflation expectations, with the 2s10s widening.
   { id: 'fiscalsteep', shape: 'weakness', axes: ['rates', 'policy'], title: '장기 금리 상승 — 정책이 받쳐도 할인율이 오르는 시나리오',
     // "10년물 상승" uses the 시장 상태 rates threshold (RULES.rates, 25bp) — +18bp read 충족 here and 중립 there.
-    gate: [0], conditions: [[`10년물 20거래일 +${RULES.rates.move20dBp}bp 이상(시장 상태 금리 기준), 기대인플레이션 변화보다 10bp 이상 더 오름`, (s) => all(s.tnx20, s.breakeven20) ? s.tnx20 >= RATES_RISE && s.tnx20 - s.breakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'termPremium20')], ['10년-2년 금리차 20회 관측 확대 (장기 쪽이 더 오름, 평소 변동 범위 밖)', (s) => rose(s, 'curve2s10s20')], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
+    gate: [0], conditions: [[`10년물 20거래일 +${RULES.rates.move20dBp}bp 이상(시장 상태 금리 기준), 기대인플레이션 변화보다 10bp 이상 더 오름`, (s) => all(s.tnx20, s.tnxOverBreakeven20) ? s.tnx20 >= RATES_RISE && s.tnxOverBreakeven20 >= 0.10 : null], ['10년 기간 프리미엄 20회 관측 상승 (평소 변동 범위 밖)', (s) => rose(s, 'termPremium20')], ['10년-2년 금리차 20회 관측 확대 (장기 쪽이 더 오름, 평소 변동 범위 밖)', (s) => rose(s, 'curve2s10s20')], ['정책금리는 오르지 않음 (마지막 변경이 인하·동결이거나 시장 가격이 인하 쪽)', (s) => s.policy ? s.policy.change <= 0 || s.lean === 'cut' : null]],
     chain: ['경기 대응 재정 지출, 국채 발행 증가', '기간 프리미엄 상승', '정책금리는 그대로거나 내려도 10년물 상승', '할인율 상승 → 이익이 그대로여도 가치 하락', '고PER 성장주·배당주 부담'],
     firmer: [], weaker: ['growth', 'yield', 'liquidity', 'consumer'], mixed: ['financials', 'dollar'],
     triggers: [['us-fed-rate', '기준금리 인하 (장기 금리도 함께 내리는지 확인)', (a) => a.upperDelta < 0]],
