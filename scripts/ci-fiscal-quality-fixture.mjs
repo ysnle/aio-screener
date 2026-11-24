@@ -473,6 +473,19 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   const frameText = JSON.stringify(frame);
   assert.ok(!/매수가|손절|목표가|비중|확률|%\s*가능성/.test(frameText), 'v58.75 the thesis frame carries no price instruction or probability');
   assert.ok(frameText.includes('보장이 아님'), 'v58.75 price levels are framed as observation, not a guarantee');
+  // v60.52: the implied rate moves with the discount rate (8%·9%·12% on one cash flow), so the summary states the
+  // assumptions impliedGrowth solved under, and the summary and the 역 DCF card pick them from one function.
+  const { impliedGrowth: solveAt, dcfValue: valueAt, reverseDcfAssumptions, REVERSE_DCF_DEFAULTS: rdcf } = await import('../src/domain/fundamental/analysis-read.js');
+  const value = valueAt(1e9, 0.057, 0.09, 0.025);
+  const at = (discountRate) => lens.buildThesisFrame({ implied: solveAt({ fcf: 1e9, marketValue: value, discountRate, terminalGrowth: 0.025 }) }).priced;
+  for (const [rate, growth] of [[8, '3.5'], [9, '5.7'], [12, '11.5']]) {
+    assert.ok(at(rate / 100).startsWith(`할인율 ${rate}%·영구 성장률 2.5% 가정에서 `) && at(rate / 100).includes(`연 ${growth}% 늘어나야`), `v60.52 the reverse DCF summary states the assumptions its rate was solved under: ${at(rate / 100)}`);
+  }
+  assert.deepEqual(reverseDcfAssumptions(undefined), { discountRate: rdcf.discountRate, terminalGrowth: rdcf.terminalGrowth }, 'v60.52 no reader values → the reverse DCF defaults');
+  assert.deepEqual(reverseDcfAssumptions({ discountRate: 0.12, terminalGrowth: 0.03 }), { discountRate: 0.12, terminalGrowth: 0.03 }, 'v60.52 the reader\'s slider values win over the defaults');
+  for (const file of ['../src/ui/components/stock-lens-cards.js', '../src/ui/components/fundamental-analysis-cards.js']) {
+    assert.ok(/reverseDcfAssumptions\(root\?\._aioReverseDcfAssumptions\)/.test(readFileSync(new URL(file, import.meta.url), 'utf8')), `v60.52 ${file} solves the reverse DCF under reverseDcfAssumptions (one source for default vs reader values)`);
+  }
   const bare = lens.buildThesisFrame({});
   assert.ok(bare.priced == null && bare.conditions.length === 0 && bare.checks.length === 1, 'v58.75 without data the thesis invents nothing and points to the chart level map');
 

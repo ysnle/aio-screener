@@ -30,6 +30,7 @@ import { createScreenerProvider, snapshotIdentityRows } from '../src/data/provid
 import { createPublicationPolicy, evaluatePublicationSet } from '../src/data/providers/publication-set.js';
 import { evaluateQuoteContract } from '../src/data/providers/quote-contract.js';
 import { filterRows, liveRow, sortRows, extensionMultiple, forwardPe, capFilterValue, visibleRank } from '../src/ui/pages/screener.js';
+import { conditionMargins, conditionMarginText } from '../src/ui/pages/screener/model.js';
 import { EXTENDED_MIN_DOLLAR_VOLUME_30D, computeFactorRanks, rankingPopulationExclusion } from '../src/domain/screener/factor-ranks.js';
 import { FUNDAMENTAL_MAX_PERIOD_AGE_DAYS } from '../src/domain/fundamental/period.js';
 import { RULES } from '../src/domain/rules/thresholds.js';
@@ -206,6 +207,30 @@ async function run() {
   let tamperRejected = false;
   try { replayScreenRun({ ...reloaded, rows: [{ ...reloaded.rows[0], ret3m: -999 }] }); } catch (_) { tamperRejected = true; }
   assert(tamperRejected, 'G-SCR-REPLAY: modified inputs cannot reuse a recorded result');
+  {
+    // v60.52: the Why text reads the engine's own verdicts (explainAdmission), so every node type is worded and a row's
+    // reason never contradicts its pass/unknown/rejected state. `exists price.rsi14` used to read "별도 조건 없이" for both rows.
+    const reasonOf = (filtersAST, row, extra = {}) => {
+      const custom = createScreenDefinition({ screenId: 'custom-reason', name: 'custom', objective: 'contract-test', filtersAST, ranking: { field: 'rank', direction: 'desc' }, ...extra });
+      return { status: runScreen({ definition: custom, rows: [row] }).rows[0].screenStatus, text: conditionMarginText(conditionMargins(custom, row)) };
+    };
+    const have = { sym: 'HAS', rsi: 55, rank: 80, ret3m: 5, vcpStage: 'near_pivot' };
+    const lack = { sym: 'NONE', rsi: null, rank: 70, ret3m: -3, vcpStage: 'base' };
+    const exists = { type: 'exists', field: 'price.rsi14' };
+    const passed = reasonOf(exists, have);
+    const unknown = reasonOf(exists, lack);
+    assert(passed.status === 'passed' && passed.text.startsWith('통과한 조건: RSI(14) 값 있음'), 'v60.52 a custom exists condition names the passed field', passed);
+    assert(unknown.status === 'unavailable' && unknown.text.includes('판정 못 한 조건: RSI(14)(값 없음)'), 'v60.52 a custom exists condition names the missing field on an unknown row', unknown);
+    const trees = [exists, { type: 'range', field: 'price.ret3m', min: 0 }, { type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'pass' }, { type: 'enum', field: 'technical.vcpStage', values: ['near_pivot'] },
+      { type: 'not', child: exists }, { type: 'or', children: [{ type: 'range', field: 'price.ret3m', min: 0 }, exists] }, { type: 'and', children: [{ type: 'not', child: { type: 'range', field: 'price.ret3m', max: 0 } }, exists] }];
+    for (const tree of trees) for (const row of [have, lack, { sym: 'BARE', rank: 50 }]) {
+      const { status, text } = reasonOf(tree, row);
+      const says = { passed: /통과한 조건/, rejected: /못 넘은 조건/, unavailable: /판정 못 한 조건/ }[status];
+      assert(!text.includes('별도 조건 없이') && says.test(text),`v60.52 the stated reason agrees with the engine state (${status}) for ${JSON.stringify(tree)} on ${row.sym}`, text);
+    }
+    const required = reasonOf({ type: 'and', children: [] }, lack, { requiredFields: ['price.rsi14'] });
+    assert(required.status === 'unavailable' && required.text.includes('RSI(14)(값 없음)'), 'v60.52 a missing required field is named, never "별도 조건 없이" on an unknown row', required);
+  }
   for (const malformed of [{ hardGates: 'invalid' }, { requiredFields: {} }, { filtersAST: { type: 'and', children: {} } }, { ranking: { fields: ['price.volatility', 'rank'], direction: 'desc' } }]) {
     assert(!validateScreenDefinition({ ...definition, ...malformed }).ok, 'G-SCR-DEFINITION: malformed shapes and mixed ranking units are rejected', malformed);
   }

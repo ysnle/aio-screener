@@ -202,11 +202,12 @@ check('v60.26 a pinned exclusion is named on the rank cell and in the 순위 밖
   pinnedDoc.getElementById('scr-text-search').value = pinnedRows[0].sym;
   createScreenerPage({ documentRef: pinnedDoc, store: createStore({ initialState: { screener: { status: 'ready', rows: pinnedRows, metadata: published.metadata } } }), root: { fetch: () => Promise.reject(new Error('offline')), _liveData: {} }, readLiveData: () => ({}), workbench: { run: async () => null, getDefaultScreens: () => [] } }).mount();
   const note = String(pinnedDoc.getElementById('scr-population-excluded')?.querySelector('p')?.textContent || '');
-  assert.match(note, /가격 고정 1/, `v60.26 the 순위 밖 note counts the pinned row: '${note}'`);
+  assert.match(note, /가격 정체 1/, `v60.26 the 순위 밖 note counts the pinned row: '${note}'`);
   const titles = [];
   const walk = (node) => { if (node?.title) titles.push(String(node.title)); (node?.children || []).forEach(walk); };
   walk(pinnedDoc.getElementById('screener-results-body'));
-  assert.ok(titles.some((title) => title.includes('인수 진행 등으로 가격이 고정돼 순위에서 제외')), 'v60.26 the rank cell hover names the pinned price');
+  assert.ok(titles.some((title) => title.includes('60일 연 변동성 8% 이하·하루 평균 폭 1% 이하로 가격이 거의 움직이지 않아')), 'v60.52 the rank cell hover states the pinned rule\'s observed thresholds');
+  assert.ok(!titles.some((title) => /인수/.test(title)), 'v60.52 the pinned hover names no cause the rule never observes (no acquisition)');
 });
 
 check('v60.26 sessionClose fills the price when no live quote or valuation close exists, dated by the factor session', () => {

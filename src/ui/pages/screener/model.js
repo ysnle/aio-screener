@@ -3,6 +3,7 @@ import { measureFactorOverlap } from '../../../domain/screener/factor-overlap.js
 import { SCREENER_FIELD_REGISTRY, fieldValueForPurpose, readRowNumber } from '../../../data/contracts/screener.js';
 import { capFilterValue, numberText, visibleRank, rankGrade, vcpStageLabel, describeStaleDates, profileComputability, factorSessionLag, describeRankingHold } from '../../../domain/screener/row-presentation.js';
 import { screenerMarket, marketRows } from '../../../domain/screener/market-scope.js';
+import { explainAdmission } from '../../../domain/screener/screen-engine.js';
 import { bufferedTrend, trendHeldWithMargin } from '../../../domain/technical/bands.js';
 import { RULES } from '../../../domain/rules/thresholds.js';
 import { consensusView } from '../../../domain/fundamental/consensus-read.js';
@@ -407,53 +408,42 @@ export function rowThemeStages(row) {
   const ids = themeMembership(screenerRuntime.themeStageRoot, screenerRuntime.themeStageRows).get(String(row?.sym || row?.symbol || '').toUpperCase());
   return ids ? themeStagesFor(screenerRuntime.themeStageRoot, { symbol: row.sym || row.symbol, themeIds: [...ids] }) : [];
 }
-// v58.75 (teach-and-check D7): the chosen screen's own conditions against one row — each range/enum condition with the
-// row's value, and the ones whose value sits within a field-sized margin of the threshold ('아슬아슬'), so the Why panel
-// says not only that a stock passed but how close it was to dropping out (or getting in).
+// v58.75 (teach-and-check D7): the chosen screen's own conditions against one row, with the row's value and the ones
+// within a field-sized margin of the threshold ('아슬아슬'). The verdicts are the engine's own (explainAdmission: gates,
+// filters of every node type, required fields), so a stated reason cannot contradict the row's pass/unknown state.
 const NEAR_MARGIN_BY_UNIT = Object.freeze({ percent: 2, score: 5, ratio: 0.15, multiple: 1, USD: 0, USD_bn: 1 });
+const fieldLabel = (id) => (id === 'rank' ? '팩터 백분위' : SCREENER_FIELD_REGISTRY.get(id)?.label || id);
 export function conditionMargins(definition, row) {
-  const out = [];
-  const walk = (node, negated = false) => {
-    if (!node || typeof node !== 'object') return;
-    if (node.type === 'and' || node.type === 'or') { (node.children || []).forEach((child) => walk(child, negated)); return; }
-    if (node.type === 'not') { walk(node.child, !negated); return; }
-    // The market/listing scope is the table's own selection, not a screening condition worth a margin.
-    if ((node.type !== 'range' && node.type !== 'enum') || String(node.field || '').startsWith('identity.')) return;
-    const field = SCREENER_FIELD_REGISTRY.get(node.field);
-    const label = node.field === 'rank' ? '팩터 백분위' : field?.label || node.field;
-    const raw = node.field === 'rank' ? finite(row?.rank) : field ? (row?.fieldReadiness ? fieldValueForPurpose(row, node.field, 'calculation') : row?.[field.rowKey]) : null;
-    if (node.type === 'enum') {
-      const value = raw == null ? null : String(raw);
-      const shown = node.field === 'technical.vcpStage' ? (value ? vcpStageLabel(value) : null) : value;
-      const wanted = node.values.map((item) => (node.field === 'technical.vcpStage' ? vcpStageLabel(item) : item)).join('·');
-      out.push({ label, rule: `${wanted}${negated ? ' 아님' : ''}`, value: shown, pass: value == null ? null : node.values.map(String).includes(value) !== negated, near: false, distance: null });
-      return;
-    }
+  if (!definition?.filtersAST) return [];
+  const { conditions, missingFields } = explainAdmission(definition, row);
+  // The market/listing scope is the table's own selection, not a screening condition worth a margin.
+  const out = conditions.filter(({ node }) => !String(node.field || '').startsWith('identity.')).map(({ node, negated, value: raw, pass }) => {
+    const label = fieldLabel(node.field);
+    const not = negated ? ' 아님' : '';
+    if (node.type === 'exists') return { label, rule: `값 있음${not}`, value: raw === '' ? null : raw, pass };
+    const vcp = node.field === 'technical.vcpStage' ? vcpStageLabel : String;
+    if (node.type === 'enum') return { label, rule: node.values.map(vcp).join('·') + not, value: raw == null ? null : vcp(raw), pass };
     const value = finite(raw);
-    const unit = node.field === 'rank' ? 'score' : field?.unit;
-    const margin = NEAR_MARGIN_BY_UNIT[unit] ?? 0;
-    const bounds = [node.min != null ? ['min', node.min] : null, node.max != null ? ['max', node.max] : null].filter(Boolean);
-    const rule = bounds.map(([side, bound]) => `${bound}${side === 'min' ? ' 이상' : ' 이하'}`).join(', ');
-    const pass = value == null ? null : bounds.every(([side, bound]) => (side === 'min' ? value >= bound : value <= bound)) !== negated;
+    const unit = node.field === 'rank' ? 'score' : SCREENER_FIELD_REGISTRY.get(node.field)?.unit;
+    const bounds = [node.min != null ? [' 이상', node.min] : null, node.max != null ? [' 이하', node.max] : null].filter(Boolean);
     const distance = value == null || !bounds.length ? null : Math.min(...bounds.map(([, bound]) => Math.abs(value - bound)));
-    out.push({ label, rule: `${rule}${negated ? ' 아님' : ''}`, value, unit, pass, near: distance != null && margin > 0 && distance <= margin, distance });
-  };
-  walk(definition?.filtersAST);
+    return { label, rule: bounds.map(([side, bound]) => `${bound}${side}`).join(', ') + not, value, unit, pass, near: distance != null && (NEAR_MARGIN_BY_UNIT[unit] ?? 0) > 0 && distance <= NEAR_MARGIN_BY_UNIT[unit], distance };
+  });
+  for (const id of missingFields) if (!out.some((item) => item.label === fieldLabel(id))) out.push({ label: fieldLabel(id), rule: '필수 값', value: null, pass: null });
   return out;
 }
 export function conditionMarginText(items) {
   if (!items.length) return '이 화면은 별도 조건 없이 순위만 매깁니다.';
-  const show = (item) => (item.value == null ? '값 없음' : typeof item.value === 'number' ? (item.unit === 'percent' ? returnText(item.value) : numberText(item.value, item.unit === 'ratio' ? 2 : 1)) : item.value);
-  const line = (item) => `${item.label} ${item.rule}(현재 ${show(item)}${item.distance != null ? `, 경계까지 ${numberText(item.distance, item.unit === 'ratio' ? 2 : 1)}` : ''})`;
-  const passed = items.filter((item) => item.pass === true);
-  const failed = items.filter((item) => item.pass === false);
-  const unknown = items.filter((item) => item.pass == null);
+  const digits = (item) => (item.unit === 'ratio' ? 2 : 1);
+  const show = (item) => (item.value == null ? '값 없음' : typeof item.value === 'number' ? (item.unit === 'percent' ? returnText(item.value) : numberText(item.value, digits(item))) : item.value);
+  const line = (item) => `${item.label} ${item.rule}(현재 ${show(item)}${item.distance != null ? `, 경계까지 ${numberText(item.distance, digits(item))}` : ''})`;
+  const [passed, failed, unknown] = [true, false, null].map((pass) => items.filter((item) => item.pass === pass));
   const near = items.filter((item) => item.near);
   return [
     passed.length ? `통과한 조건: ${passed.map(line).join(', ')}.` : null,
     failed.length ? `못 넘은 조건: ${failed.map(line).join(', ')}.` : null,
-    unknown.length ? `값이 없어 판정 못 한 조건: ${unknown.map((item) => item.label).join(', ')}.` : null,
-    near.length ? `경계에 가까운 조건(아슬아슬): ${near.map((item) => `${item.label}(경계까지 ${numberText(item.distance, item.unit === 'ratio' ? 2 : 1)})`).join(', ')} — 다음 갱신에서 결과가 바뀔 수 있습니다.` : '경계에 아슬아슬하게 걸친 조건은 없습니다.'
+    unknown.length ? `판정 못 한 조건: ${unknown.map((item) => `${item.label}(${item.value == null ? '값 없음' : '값 미확정'})`).join(', ')}.` : null,
+    near.length ? `경계에 가까운 조건(아슬아슬): ${near.map((item) => `${item.label}(경계까지 ${numberText(item.distance, digits(item))})`).join(', ')} — 다음 갱신에서 결과가 바뀔 수 있습니다.` : '경계에 아슬아슬하게 걸친 조건은 없습니다.'
   ].filter(Boolean).join(' ');
 }
 
