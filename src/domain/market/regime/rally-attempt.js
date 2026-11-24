@@ -1,8 +1,8 @@
 // v59.57 (X bookmarks 11/02 — damipov "바닥 신호 FTD", shmath8218 "쉬는 것도 매매다", laylaperfume's two scenarios): the
 // index follow-through day. AIO counted O'Neil's distribution days (selling under volume) but not the other half of the
 // same method: after a correction, the lowest close starts a rally attempt and the first session after it is day 1 (the
-// low itself is day 0; v60.52, owner 2026-11-24 — the source and IBD convention; v59.57–v60.51 counted the low as day 1,
-// one session early); the count runs while no later close undercuts the low; from day 4 a session up 1.25% or more on
+// low itself is day 0, as in the source and the IBD convention; counting the low as day 1 would start one session
+// early); the count runs while no later close undercuts the low; from day 4 a session up 1.25% or more on
 // volume above the prior session is the follow-through day (the method reads it as institutions buying again; price and
 // total volume cannot show who bought); a later close below the low fails it. The bookmarked read added the part that
 // decides whether it matters — leaders breaking out to new highs within days to three weeks after it — which the screen

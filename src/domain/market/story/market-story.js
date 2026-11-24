@@ -863,13 +863,15 @@ export function openingFactLines(opening) {
   if (!opening?.available) return [];
   const d = opening.diagnosis;
   const said = (id) => opening.lines.find((line) => line.id === id)?.said.text || '';
+  const reboundRule = say('나스닥 100 종가, 저점 대비 {p} 규칙', { p: claim({ subject: 'story-rule', measure: 'reboundPct', asOf: opening.asOf,
+    figures: [{ value: RULES.story.reboundPct, unit: 'pct', digits: 0, basis: 'reboundPct', label: '반등 기준' }] }) });
   return [
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
     d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',
-    // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite). v60.52:
+    // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite):
     // each line names the index and rule, so the model cannot merge it with the Composite's 반등 확인 신호(FTD).
-    said('watch') ? `반등(나스닥 100 종가, 저점 대비 +${RULES.story.reboundPct}% 규칙): ${opening.rebound.word} — ${said('watch')}` : '',
+    said('watch') ? `반등(${reboundRule.text}): ${opening.rebound.word} — ${said('watch')}` : '',
     opening.rebound ? `반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): ${opening.rebound.word}` : '',
     ...(opening.rebound?.checks?.said || []).map((piece) => `반등 가격 조건(나스닥 100·S&P 500): ${piece.text}`),
     opening.rebound ? `반등 대응(조건부, 지시 아님): ${opening.rebound.stance.text}` : '',

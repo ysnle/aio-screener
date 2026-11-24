@@ -989,7 +989,7 @@ export const MIN_KNOWN_AXES = 4; // of the six US axes, before an overall label 
 // held on any of the last RULES.leadership.confirmWindowSessions sessions, and a break holds while the proxy stays weak
 // (hysteresis, R707); without the history (fixtures) the reading is the single session's. An SMH proxy on the Nasdaq-100's
 // 3% / 1% edges read 이탈 through the +8% rebound week of 8/5~8/10; SOXX uses its own volatility-scaled edges (RULES).
-// Owner 2026-10-18: the bottom watch (v60.52 label 매도 소진·회복 조건, BOTTOM_WATCH_WORDS) — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
+// Owner 2026-10-18: the bottom watch (labelled 매도 소진·회복 조건, BOTTOM_WATCH_WORDS) — exhaustion (extreme fear, volatility capitulation, new lows shrinking after an
 // extreme, short-term participation rebounding) and confirmation (the Nasdaq-100 and SOXX back over their
 // 50-day lines, an up-thrust session, credit widening paused). Each item is null when its input is missing.
 /**

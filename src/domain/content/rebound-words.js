@@ -1,4 +1,4 @@
-// v60.52 (X bookmarks 11/22 review): the two rebound readings' fixed words, in one place for the screens and the AI lines.
+// The two rebound readings' fixed words, in one place for the screens and the AI lines.
 // On the 11/23 close both read "반등 시도" — the market story on the Nasdaq-100 (+RULES.story.reboundPct off the low) and
 // the follow-through count on the Nasdaq Composite (rally-attempt.js) — same words, different index, rule and base date.
 // The story keeps the rebound words; the follow-through count is named by what it counts and never says 반등 시도.

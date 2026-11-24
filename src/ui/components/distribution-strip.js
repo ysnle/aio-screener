@@ -97,7 +97,7 @@ export function distributionStrip(doc, history, through) {
 // v59.57 (X bookmarks 11/02, damipov): the other half of the distribution-day method — after a correction, is the Nasdaq
 // Composite counting toward a follow-through day, has one come, and are new highs following it. Same chunk and placement
 // as the distribution strip (trend axis detail); absent outside an episode.
-// v60.52: named by what it counts (FOLLOW_THROUGH_WORDS), never the story's 반등 시도; the base low and the rule on the
+// Named by what it counts (FOLLOW_THROUGH_WORDS), never the story's 반등 시도; the base low and the rule on the
 // face; with the story's rebound present, one line saying which index each reads; an early close in the volume test said.
 export function rallyAttemptStrip(doc, history, through, { rebound = null } = {}) {
   const read = rallyAttemptRead(history || [], { through: through || null });

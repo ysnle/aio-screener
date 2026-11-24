@@ -339,8 +339,8 @@ export function isConditionalNumericSentence(sentence) {
   return !/\b(?:19|20)\d{2}-\d{2}-\d{2}\b|\b(?:19|20)\d{2}년\s*\d{1,2}월/.test(text);
 }
 
-// v60.52 (Codex review 1C): the conditional ending exempted every number in the sentence, so "연준이 25bp를 인하하면 다음
-// 달 S&P 500 상승 확률은 83%입니다" published a probability no material supports, while the same figure without "면" was
+// A conditional ending does not exempt every number in the sentence: "연준이 25bp를 인하하면 다음 달 S&P 500 상승
+// 확률은 83%입니다" would otherwise publish a probability no material supports, while the same figure without "면" is
 // withheld. The threshold in the condition clause stays a rule; a probability, likelihood or expected-return figure in the
 // consequent ("확률은 83%", "56% 확률로", "10% 하락할", "a 70% chance") is a forecast and needs evidence like a current figure.
 // FORECAST_FIGURE_SOURCE is defined above WITHHELD_TOPICS, which names such a sentence 확률.

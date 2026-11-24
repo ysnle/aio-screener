@@ -7,8 +7,8 @@ import { kindFold, rawTable } from './indicator-face.js';
 import { decisionFrameText } from '../../domain/scenarios/decision-frame.js';
 
 // A frame with no past record is not drawn; the card says why in its own line and keeps its favoured side. Today's cash
-// over the window is the same on every card, so it alone does not make a frame (v60.52: the window now comes from the
-// scenario when the record has none, so record-less frames carry a cash return).
+// over the window is the same on every card, so it alone does not make a frame (the window comes from the scenario
+// when the record has none, so record-less frames carry a cash return).
 const RECORD_LEGS = Object.freeze(['likelihood', 'payoff', 'wrong']);
 export const frameHasNoLegs = (frame) => RECORD_LEGS.every((leg) => frame?.missing?.includes(leg)) && frame?.opportunity?.pastCashMedian == null;
 

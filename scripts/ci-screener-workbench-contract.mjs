@@ -219,17 +219,17 @@ async function run() {
     const exists = { type: 'exists', field: 'price.rsi14' };
     const passed = reasonOf(exists, have);
     const unknown = reasonOf(exists, lack);
-    assert(passed.status === 'passed' && passed.text.startsWith('통과한 조건: RSI(14) 값 있음'), 'v60.52 a custom exists condition names the passed field', passed);
-    assert(unknown.status === 'unavailable' && unknown.text.includes('판정 못 한 조건: RSI(14)(값 없음)'), 'v60.52 a custom exists condition names the missing field on an unknown row', unknown);
+    assert(passed.status === 'passed' && passed.text.startsWith('통과한 조건: RSI(14) 값 있음'), `v60.52 a custom exists condition names the passed field, so a passing row's reason is never blank: ${JSON.stringify(passed)}`);
+    assert(unknown.status === 'unavailable' && unknown.text.includes('판정 못 한 조건: RSI(14)(값 없음)'), `v60.52 a custom exists condition names the missing field on an unknown row, so "unknown" is never worded as passed: ${JSON.stringify(unknown)}`);
     const trees = [exists, { type: 'range', field: 'price.ret3m', min: 0 }, { type: 'range', field: 'price.ret3m', min: 0, nullPolicy: 'pass' }, { type: 'enum', field: 'technical.vcpStage', values: ['near_pivot'] },
       { type: 'not', child: exists }, { type: 'or', children: [{ type: 'range', field: 'price.ret3m', min: 0 }, exists] }, { type: 'and', children: [{ type: 'not', child: { type: 'range', field: 'price.ret3m', max: 0 } }, exists] }];
     for (const tree of trees) for (const row of [have, lack, { sym: 'BARE', rank: 50 }]) {
       const { status, text } = reasonOf(tree, row);
       const says = { passed: /통과한 조건/, rejected: /못 넘은 조건/, unavailable: /판정 못 한 조건/ }[status];
-      assert(!text.includes('별도 조건 없이') && says.test(text),`v60.52 the stated reason agrees with the engine state (${status}) for ${JSON.stringify(tree)} on ${row.sym}`, text);
+      assert(!text.includes('별도 조건 없이') && says.test(text), `v60.52 the stated reason agrees with the engine state (${status}) for ${JSON.stringify(tree)} on ${row.sym}, never "별도 조건 없이": ${text}`);
     }
     const required = reasonOf({ type: 'and', children: [] }, lack, { requiredFields: ['price.rsi14'] });
-    assert(required.status === 'unavailable' && required.text.includes('RSI(14)(값 없음)'), 'v60.52 a missing required field is named, never "별도 조건 없이" on an unknown row', required);
+    assert(required.status === 'unavailable' && required.text.includes('RSI(14)(값 없음)'), `v60.52 a missing required field is named, never "별도 조건 없이" on an unknown row: ${JSON.stringify(required)}`);
   }
   for (const malformed of [{ hardGates: 'invalid' }, { requiredFields: {} }, { filtersAST: { type: 'and', children: {} } }, { ranking: { fields: ['price.volatility', 'rank'], direction: 'desc' } }]) {
     assert(!validateScreenDefinition({ ...definition, ...malformed }).ok, 'G-SCR-DEFINITION: malformed shapes and mixed ranking units are rejected', malformed);

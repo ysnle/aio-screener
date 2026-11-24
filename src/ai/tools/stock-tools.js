@@ -115,7 +115,7 @@ const companyStory = {
     const text = String(root?.__aioCompanyStories?.context?.[sym] || '').trim();
     const researched = day(story?.researchedAt);
     if (!story || !text || !researched) return { error: `${sym}의 조사된 기업 분석이 없습니다.` };
-    // v60.52: the 종목 screen warns when a report or quarter filing came after the research day; the tool states the same
+    // The 종목 screen warns when a report or quarter filing came after the research day; the tool states the same
     // fact from the same storyFreshness and the same three records, so the AI never serves older segment numbers as current.
     const freshness = await storyFreshnessFor(root, story, sym, now);
     if (freshness.state !== 'stale') return { text, asOf: `조사 ${researched}`, entities: [sym] };

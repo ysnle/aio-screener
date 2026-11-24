@@ -34,7 +34,7 @@ const MACRO_TOPICS = Object.freeze({ macro: '미국 매크로', 'kr-macro': '한
 // page's lazy UI chunk builds from the SEC fiscal history (root._aioScreenerCash); this tool cannot build them, so they
 // apply only when the page has already built them and are otherwise reported as not applied. Forward PER loads the
 // consensus file when asked for; the research-channel conditions read the digest signals the page already holds.
-// v60.52 (Codex review 1C): the tool said "same as the screen" and dropped the cash conditions silently. Its result now
+// The tool does not claim "same as the screen" while dropping the cash conditions silently: its result
 // names the conditions applied by id and every requested one it could not evaluate, with the reason.
 const SCREEN_CONDITION_IDS = CUSTOM_CONDITIONS.map((item) => item.id);
 const CASH_CONDITION_IDS = CUSTOM_CONDITIONS.filter((item) => item.source === 'sec-fiscal-history').map((item) => item.id);
