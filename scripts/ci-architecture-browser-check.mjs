@@ -280,9 +280,7 @@ try {
   await page.waitForFunction(() => document.getElementById('page-macro')?.dataset.aioArchitectureRoute === 'macro');
   // 거시 경제 is one native indicator board; the storyline, regime pill, curve canvas and 2Y/2s10s sinks are retired.
   // A group's cards are built when it first opens, so the reader's tap on 물가 comes first.
-  await page.evaluate(() => { const fold = document.querySelector('#macro-board [data-group="inflation"] details.macro-group-fold'); if (fold) fold.open = true; });
-  await page.waitForFunction(() => [...document.querySelectorAll('#macro-board [data-group="inflation"] .macro-stat-label')].some((node) => /^CPI/.test(node.textContent || '')));
-  const macroRoute = await page.evaluate(() => ({
+  const readMacroRoute = () => page.evaluate(() => { const fold = document.querySelector('#macro-board [data-group="inflation"] details.macro-group-fold'); if (fold) fold.open = true; return {
     pageExists: !!document.getElementById('page-macro'),
     renderer: document.getElementById('page-macro')?.dataset.aioArchitectureRenderer || null,
     macroRenderer: document.getElementById('page-macro')?.dataset.aioMacroRenderer || null,
@@ -294,7 +292,10 @@ try {
     rawLiveSinkCount: document.querySelectorAll('#page-macro [data-live-price], #page-macro [data-live-chg]').length,
     nativeLiveSinkCount: document.querySelectorAll('#page-macro[data-aio-architecture-renderer="native"] [data-live-price], #page-macro[data-aio-architecture-renderer="native"] [data-live-chg]').length,
     retired: ['macro-storyline', 'macro-regime-pill', 'yieldCurveChart', 'macro-2y-value', 'macro-spread-value', 'thermometer-fill', 'macro-scenario-sum'].filter((id) => document.getElementById(id))
-  }));
+  }; });
+  // A data refresh repaints the board and closes the group, so the tap and the read are one step, repeated until the card is there.
+  let macroRoute = await readMacroRoute();
+  for (let tries = 0; !macroRoute.cpiCard && tries < 40; tries += 1) { await page.waitForTimeout(250); macroRoute = await readMacroRoute(); }
   if (macroRoute.boardRenderer !== 'native' || !/3\.1%/.test(macroRoute.cpiCard) || !/12월분/.test(macroRoute.cpiCard) /* v60.11: the snapshot month is later than any pinned history month, so the card reads the snapshot (a newer history month wins since v60.10) */ || !/연준 목표 2% 대비 \+0\.9%p, \+0\.8%p/.test(macroRoute.inflationFact) || macroRoute.impactAxes.join(',') !== 'growth,inflation,policy,rates,commodities,credit' || !macroRoute.regimeLabel.trim() || macroRoute.retired.length || macroRoute.rawLiveSinkCount !== macroRoute.nativeLiveSinkCount) throw new Error(`P1425/P1426 거시 경제 board failed: ${JSON.stringify(macroRoute)}`);
 
   // QA-CRED-05/P1264: 공유 Worker만 있는 환경에서 (a) 매크로의 FRED 계열 값은 출처 라벨과 함께
