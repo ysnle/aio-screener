@@ -9,5 +9,6 @@ export const SCREEN_STORY = Object.freeze({
   sentiment: lines('session', 'volatility'),
   fxbond: lines('rates', 'dollar'),
   themes: lines('session', 'gathered', 'spread', 'split'),
-  korea: lines('session', 'spread')
+  korea: lines('session', 'spread'),
+  charts: lines('session', 'spread')
 });

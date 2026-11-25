@@ -23,7 +23,7 @@ export const FOLLOW_THROUGH_WORDS = Object.freeze({
  */
 export const REBOUND_QUALITY_WORDS = Object.freeze({
   label: '다른 시장 확인',
-  confirmed: '다른 시장도 확인',
+  confirmed: '뒷받침됨',
   mixed: '엇갈림',
   weak: '확인 부족',
   'index-only': '지수만 반등',

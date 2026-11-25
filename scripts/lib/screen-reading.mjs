@@ -221,6 +221,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // and follow-through, and the Nasdaq 100 / S&P 500 rebound with its cross-market checks (market-story.js).
   charts: Object.freeze({
     name: '기술적 분석',
+    story: SCREEN_STORY.charts,
+    storyGuide: '- "시장 이야기" 줄이 있으면 최근 세션이 반등 저점 뒤 오른 폭을 얼마나 되돌렸는지와 반등 뒤 갈린 곳을 차트의 자리(저점 종가, 이동평균)와 이어 씁니다.',
     guide: '- 차트가 지금 어떤 자리인지로 엽니다: 지수들이 같은 추세 낱말에 모여 있는지 갈라져 있는지, 가장 약한 지수가 무엇을 말하는지. 거래량(분배일), 반등 확인 신호, 반등의 다른 시장 확인을 이어서 지금 반등을 믿을 근거가 쌓였는지 판단합니다. 추세 낱말과 반등 상태어는 묶음의 것만 씁니다.',
     facts(interpretation, { longrun = null } = {}) {
       const regime = interpretation?.regime;

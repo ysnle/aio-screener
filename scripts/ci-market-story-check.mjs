@@ -577,11 +577,11 @@ await runSections('market-story', [
       assert.doesNotMatch(piece.text, /사세요|파세요|매수하|매도하|숏커버링입니다|숏커버링이었|숏커버링 때문/, `v60.53 rebound quality: no order, no asserted cause: ${piece.text}`);
     }
   };
-  check('v60.53 rebound quality: all four checks confirm — 4/4, 다른 시장도 확인, both ends dated, no index-only note', () => {
+  check('v60.53 rebound quality: all four checks confirm — 4/4, 뒷받침됨, both ends dated, no index-only note', () => {
     const { history, macroHistory, opening } = crossMarket({ ends: CONFIRMING });
     const q = qualityOf(opening);
     assert.ok(q, 'v60.53 rebound quality: an attempt carries the cross-market read');
-    assert.deepEqual([q.state, q.word, q.met, q.known, q.from, q.through], ['confirmed', '다른 시장도 확인', 4, 4, LOW, NOW], 'v60.53 rebound quality: all confirm');
+    assert.deepEqual([q.state, q.word, q.met, q.known, q.from, q.through], ['confirmed', '뒷받침됨', 4, 4, LOW, NOW], 'v60.53 rebound quality: all confirm');
     assert.equal(q.said.text, '다른 시장 확인 4/4, 11/20 저점부터 11/23 종가까지.', 'v60.53 rebound quality: the verdict line');
     assert.deepEqual(q.items.map((item) => item.text), [
       '신용 확인 — 하이일드 스프레드 376bp(11/20) → 350bp(11/23)',
@@ -592,7 +592,7 @@ await runSections('market-story', [
     assert.doesNotMatch(q.said.text, /숏커버링/, 'v60.53 rebound quality: the note is the index-only state\'s alone');
     cleanQuality(q, history, macroHistory);
     const lines = openingFactLines(opening);
-    assert.ok(lines.includes(`반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): 다른 시장도 확인 — ${q.said.text}`), 'v60.53 rebound quality: the AI gets the screen\'s verdict');
+    assert.ok(lines.includes(`반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): 뒷받침됨 — ${q.said.text}`), 'v60.53 rebound quality: the AI gets the screen\'s verdict');
     assert.equal(lines.filter((line) => line.startsWith('반등의 다른 시장 항목: ')).length, 4, 'v60.53 rebound quality: and every row');
   });
   check('v60.53 rebound quality: one of four confirms — 확인 부족, not 지수만 반등, and no short-covering note', () => {
@@ -610,7 +610,7 @@ await runSections('market-story', [
     assert.equal(q.checks[3].met, false, 'v60.53 rebound quality: the equal weight up does not carry participation alone');
     cleanQuality(q, history, macroHistory);
   });
-  check('v60.53 rebound quality: a missing series shrinks the denominator and is named (3/3 still reads 다른 시장도 확인)', () => {
+  check('v60.53 rebound quality: a missing series shrinks the denominator and is named (3/3 still reads 뒷받침됨)', () => {
     const { history, macroHistory, opening } = crossMarket({ ends: { ...CONFIRMING, dxy: [null, null] } });
     const q = qualityOf(opening);
     assert.deepEqual([q.state, q.met, q.known, q.total], ['confirmed', 3, 3, 4], 'v60.53 rebound quality: missing series');
@@ -691,7 +691,7 @@ await runSections('market-story', [
   const gave = build(day2, { day: ledger('2026-11-24'), afterHours: prints('2026-11-24'), briefs, regularMoves: { DELL: -11.8 } });
   check('v60.55 the session leads: its moves, what the signs say together, and the share of the rebound given back', () => {
     assert.deepEqual(gave.lines.map((line) => line.id).slice(0, 5), ['session', 'gathered', 'split', 'after-hours', 'lede'], 'v60.55 session-read');
-    assert.equal(said(gave, 'session').text, '11/24 반도체 -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체 65%, 나스닥 100 31%를 되돌렸습니다.', 'v60.55 session-read');
+    assert.equal(said(gave, 'session').text, '11/24 반도체 -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체 +14.0% 중 65%, 나스닥 100 +6.9% 중 31%를 되돌렸습니다.', 'v60.55 session-read');
     assert.deepEqual(unclaimedFigures(said(gave, 'session')), [], 'v60.55 session-read: every figure is a claim');
   });
   check('v60.55 where it gathered: theme groups and the most material stocks on the index side, one group against it; no sector, no minor group, no other session', () => {
@@ -775,12 +775,12 @@ await runSections('market-story', [
   });
   check('v60.55 cross-market: each row is its figures with their own dates, the rebound mark, then the fixed clause', () => {
     const text = (key) => crossLines(cross).find((line) => line.key === key).said.text;
-    assert.equal(text('credit'), '하이일드 스프레드 363bp(11/23), 5거래일 +43bp, 20거래일 +43bp · 저점 뒤 미확인 — 기업이 돈 빌리는 값이 높거나 빠르게 오르는 중이라, 주식 하락이 자금 걱정으로 번지는지 보는 자리', 'v60.55 cross-market: the spread is the credit axis\'s observation, dated');
+    assert.equal(text('credit'), '하이일드 스프레드 363bp(11/23), 5거래일 +43bp, 20거래일 +43bp · 저점 뒤 미확인 — 기업이 돈 빌리는 값이 높거나 빠르게 오르는 중이라, 주식 하락이 자금 걱정으로 번질 수 있는 상태', 'v60.55 cross-market: the spread is the credit axis\'s observation, dated');
     assert.equal(text('dollar'), '달러 지수 103.00, 20거래일 +3.0% · 저점 뒤 미확인 — 달러가 빠르게 강해지는 중이라 세계 돈줄이 조여 위험자산에 부담이 되는 쪽', 'v60.55 cross-market');
     assert.match(text('volatility'), /^VIX 26\.00, 5거래일 \+30\.0%, 3개월 VIX 25\.00 · 저점 뒤 (확인|미확인|자료 없음) — 옵션 시장이 큰 흔들림을 예상하지 않는 상태$/, 'v60.55 cross-market: the clause follows the axis state');
     assert.match(text('breadth'), /^50일선 위 종목 56%\(5거래일 전 45%\), 200일선 위 55% · 저점 뒤 /, 'v60.55 cross-market');
-    assert.equal(text('rates'), '10년 4.30%, 5거래일 -20bp, 20거래일 -20bp — 10년 금리가 주식에 큰 부담을 더하지 않는 자리', 'v60.55 cross-market: no rebound check for rates');
-    assert.equal(text('rates-path'), '2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp · 다음 물가 발표 11/26 PCE (연준 기준 물가) — 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있는 자리', 'v60.55 cross-market: the gap a month back, and the first CPI or PCE after the session (not one on it, not another release)');
+    assert.equal(text('rates'), '10년 4.30%, 5거래일 -20bp, 20거래일 -20bp — 10년 금리가 주식에 큰 부담을 더하지 않는 상태', 'v60.55 cross-market: no rebound check for rates');
+    assert.equal(text('rates-path'), '2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp · 다음 물가 발표 11/26 PCE (연준 기준 물가) — 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있음', 'v60.55 cross-market: the gap a month back, and the first CPI or PCE after the session (not one on it, not another release)');
   });
   check('v60.55 cross-market: every printed figure is a claim and no claim errs; no order, no source name, no textbook wording, no emoji', () => {
     for (const line of [...crossLines(cross), cross.lines.find((item) => item.id === 'cross-head')]) {
@@ -814,7 +814,7 @@ await runSections('market-story', [
     const at = (prefix) => lines.findIndex((line) => line.startsWith(prefix));
     assert.ok(at('최근 세션: ') < at('다른 시장 신용(') && at('다른 시장 금리 다음 확인') < at('요약: '), 'v60.55 cross-market: order');
     assert.ok(lines.includes('다른 시장 변동성(상태어는 규칙으로 정함, 바꾸지 말 것): 양호 — ' + cross.cross.find((row) => row.id === 'volatility').said.text + ` · 반등 저점 뒤 ${cross.cross.find((row) => row.id === 'volatility').since.mark} — 지금 뜻: 옵션 시장이 큰 흔들림을 예상하지 않는 상태`), 'v60.55 cross-market');
-    assert.ok(lines.includes('다른 시장 금리 경로(2년물로 어림한 값이라 기간·위험 프리미엄이 섞임, 인상·인하 횟수 아님): 인상 반영 — 2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp — 지금 뜻: 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있는 자리'), 'v60.55 cross-market');
+    assert.ok(lines.includes('다른 시장 금리 경로(2년물로 어림한 값이라 기간·위험 프리미엄이 섞임, 인상·인하 횟수 아님): 인상 반영 — 2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp — 지금 뜻: 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있음'), 'v60.55 cross-market');
     assert.ok(lines.includes('다른 시장 금리 다음 확인(수집된 발표 일정): 다음 물가 발표 11/26 PCE (연준 기준 물가)'), 'v60.55 cross-market');
   });
   check('v60.55 cross-market: the produced record carries the rows for the static shell, in the face\'s order, as plain label and text', () => {
@@ -840,7 +840,7 @@ await runSections('market-story', [
     for (const row of rows) assert.ok(all(row).some((item) => item.className === 'opening-cross__meaning' && item.textContent) && all(row).some((item) => item.className === 'opening-cross__figures' && /\d/.test(item.textContent)), 'v60.55 cross-market: clause and figures');
   });
   check('v60.55 a screen tie picks the opening lines its screen declares, and nothing when the opening has none', () => {
-    assert.deepEqual(Object.keys(SCREEN_STORY).sort(), ['breadth', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.55 story-tie: the screens with a tie');
+    assert.deepEqual(Object.keys(SCREEN_STORY).sort(), ['breadth', 'charts', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.55 story-tie: the screens with a tie');
     const pick = (screen) => tieLines(gave.lines, SCREEN_STORY[screen]);
     assert.deepEqual(pick('themes').own.map((line) => line.id), ['session', 'gathered', 'split'], 'v60.55 story-tie: 테마 reads the session, where it gathered and the index split');
     assert.deepEqual(pick('breadth').own.map((line) => line.id), ['session', 'split'], 'v60.55 story-tie: 시장 폭 reads the session and the index split');

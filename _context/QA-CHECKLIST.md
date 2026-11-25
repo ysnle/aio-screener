@@ -32,6 +32,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-CROSS-MARKET-05: v60.55 시장 상태 AI 글은 세션 → 몰린 곳 → 확산 → 다른 시장 확인(각각의 뜻) → 반등이 이어질 조건(금리 경로, 다음 물가 발표, 실적)으로 잇고, 이 화면만 블록 3개·760자까지 허용한다(다른 화면은 2개·520자); 수치·상태어·지시 금지 검증은 그대로다. verify_by: node scripts/ci-screen-reading-check.mjs
 - [ ] QA-CROSS-MARKET-LIVE-01: v60.55 push 뒤 실서비스 오늘·시장 상태 머리말에 다른 시장 여섯 줄이 보이고(휴대폰 폭에서 한 열), 다음 시장 상태 AI 글이 세 블록으로 다른 시장의 뜻을 잇는다. verify_by: push 뒤 실서비스 화면과 data.json screenReadings.signal
 - [x] QA-STORY-TIE-01: v60.55 시장 폭·매크로·투자 심리·금리와 환율·테마·한국 화면은 AI 글 바로 위에 머리말(오늘·시장 상태)과 같은 시장 이야기 줄을 고정 문장으로 보이고, 어느 줄을 읽는지는 화면과 AI 글 묶음이 같은 목록(screen-story.js)에서 읽는다; 머리말에 그 줄이 없으면 자리를 비운다. verify_by: node scripts/ci-market-story-check.mjs; node scripts/ci-screen-reading-check.mjs
+- [x] QA-STORY-TIE-02: v60.55 기술적 분석 화면도 AI 글 위에 시장 이야기 줄(최근 세션, 반등 뒤 갈린 곳)을 보이고 AI 글 묶음이 같은 줄을 받는다; 세션 문장은 반등 저점 뒤 오른 폭(저점→이후 최고 종가)을 되돌린 비율 앞에 함께 말한다. verify_by: node scripts/ci-market-story-check.mjs; node scripts/ci-screen-reading-check.mjs
 
 ## v60.54 AI 답변과 화면의 같은 사실 (2026-11-25)
 

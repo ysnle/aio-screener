@@ -39,14 +39,14 @@ function movesSaid(rows, asOf) {
 function givenBack(row) {
   const e = row?.episode;
   if (!e?.peak || !e.low || e.peak.date === row.asOf || !(e.peak.value > e.low.value) || !(row.moves?.[1] < 0)) return null;
-  return { share: (e.peak.value - e.close) / (e.peak.value - e.low.value) * 100, peak: e.peak };
+  return { share: (e.peak.value - e.close) / (e.peak.value - e.low.value) * 100, rise: (e.peak.value / e.low.value - 1) * 100, peak: e.peak };
 }
 function giveBackSaid(rows, rebound) {
   if (!rebound || rebound.state === 'failed') return NOTHING;
   const read = [rows.sox, rows.ndx].filter(Boolean).map((row) => ({ row, back: givenBack(row) }))
     .filter((item) => item.back && item.back.share >= R.giveBackMinShare);
   if (!read.length || !read.some((item) => item.back.share >= R.giveBackShare) || !read.some((item) => item.row.moves[1] <= -R.movePct)) return NOTHING;
-  const piece = ({ row, back }) => say('{lab} {s}', { lab: row.label, s: claim({ subject: row.id, measure: 'reboundGivenBack', asOf: row.asOf,
+  const piece = ({ row, back }) => say('{lab} {rise} 중 {s}', { lab: row.label, rise: pctClaim(row.id, 'reboundRise', back.rise, row.asOf, row.label), s: claim({ subject: row.id, measure: 'reboundGivenBack', asOf: row.asOf,
     figures: [{ value: back.share, unit: 'share', digits: 0, basis: 'reboundGivenBack', label: row.label }] }) });
   return say('{d} 저점 뒤 오른 폭 가운데 {list}를 되돌렸습니다.', { d: shortDate(rebound.low.date), list: sayJoin(read.map(piece), ', ') });
 }

@@ -685,8 +685,8 @@ function macroThroughLine(read, crossroads, path = null) {
   const next = first ? ` 다음 주요 발표는 ${label(first)}입니다.${decider ? ` 지금 맞서는 시나리오를 가를 발표는 ${label(decider)}입니다.` : ''}` : '';
   // What the bond market prices for the policy path leads: it is the link from these indicators to stocks (the same row
   // the 오늘 opening shows, cross-market.js policyPathOf), and the tally follows as its ground.
-  // The gap's figures stay on the 통화정책 factor below; the header says only where the price leans and what that means.
-  const priced = path?.word ? `금리 경로 ${path.word} — ${path.meaning}입니다. ` : '';
+  // The header says only where the price leans; what that means and its figures are the 금리 경로 row right below (story-tie.js).
+  const priced = path?.word ? `금리 경로 ${path.word}. ` : '';
   return `${priced}${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${next}`;
 }
 
