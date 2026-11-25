@@ -63,5 +63,6 @@ button.co-chip:focus-visible, .co-sources a:focus-visible { outline:2px solid va
 .ticker-context__move li { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; font-size:14px; line-height:1.5; }
 .ticker-context__when { flex:0 0 auto; color:var(--color-text-secondary); font-variant-numeric:tabular-nums; }
 .ticker-context__title { color:var(--color-text-primary); overflow-wrap:anywhere; min-width:0; }
+.ticker-context__tie { margin:0; font-size:14px; line-height:1.55; color:var(--color-text-primary); overflow-wrap:anywhere; }
 .ticker-context__themes { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; margin:0; font-size:12px; }
 .ticker-context__label { color:var(--color-text-secondary); }

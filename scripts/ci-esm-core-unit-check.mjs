@@ -1911,6 +1911,67 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           { kind: 'event', date: '2026-11-14', when: '11/14(토)', title: '넷째' }
         ]);
         if (ahead.length !== 3 || ahead.some((row) => row.kind === 'daily') || ahead[1].title !== 'CSCO · AMAT 실적' || ahead[0].when !== '11/10(화) 22:30 KST' || ahead[2].why !== '' || homeAheadItems(null).length) fail(`v59.85: home next-event items broke ${JSON.stringify(ahead)}`);
+        // v60.56: the leading names' next reports inside ten US sessions join 다음 일정 beside the releases — from the
+        // market-mover list only, a reported or passed report left out, the calendar's `upcoming` map read past its week,
+        // a name the week already lists not repeated, nothing without rows.
+        const { leaderEarnings, leaderAheadItems, leaderEarningsFactLines, LEADER_EARNINGS_PREFIX } = await load('src/domain/briefing/leader-earnings.js');
+        const leadNow = Date.parse('2026-11-25T07:00:00Z');
+        const leadCal = {
+          earnings: [{ symbol: 'NVDA', date: '2026-11-19', hour: 'amc', epsActual: 1.3 }, { symbol: 'DE', date: '2026-11-25', hour: 'bmo', indexWeight: 0.25 }],
+          upcoming: { AVGO: '2026-12-09|amc', ORCL: '2026-12-14|', MRVL: '2026-12-01|amc', MU: '2026-12-17|amc', NOW: '2026-11-25|amc' }
+        };
+        const leadRows = leaderEarnings(leadCal, { nowMs: leadNow });
+        const leadItems = leaderAheadItems(leadCal, { nowMs: leadNow });
+        const leadFacts = leaderEarningsFactLines(leadCal, { nowMs: leadNow });
+        const leadAfter = leaderEarnings(leadCal, { nowMs: Date.parse('2026-11-25T21:30:00Z') });
+        if (leadRows.map((row) => `${row.symbol}:${row.date}`).join(',') !== 'NOW:2026-11-25,AVGO:2026-12-09'
+          || leadAfter.map((row) => row.symbol).join(',') !== 'AVGO'
+          || leadItems[1]?.when !== '12/9(수) 장 마감 후' || leadItems[1]?.title !== '브로드컴 실적'
+          || leadFacts.length !== 1 || leadFacts[0] !== `${LEADER_EARNINGS_PREFIX}서비스나우(NOW) 11/25(수) 장 마감 후 · 브로드컴(AVGO) 12/9(수) 장 마감 후`
+          || leaderEarnings(null, { nowMs: leadNow }).length || leaderEarnings({ earnings: [], upcoming: {} }, { nowMs: leadNow }).length || leaderEarningsFactLines({}, { nowMs: leadNow }).length) {
+          fail(`v60.56: leader earnings broke ${JSON.stringify({ leadRows, leadAfter, leadItems, leadFacts })}`);
+        }
+        const macroWeek = [
+          { kind: 'macro', date: '2026-11-25', when: '11/25(수) 22:30 KST', title: 'PCE', why: 'a' },
+          { kind: 'macro', date: '2026-12-01', when: '12/1(화)', title: 'ISM 제조업', why: 'b' },
+          { kind: 'macro', date: '2026-12-04', when: '12/4(금)', title: '고용보고서', why: 'c' },
+          { kind: 'earnings', date: '2026-12-05', when: '12/5(토)', names: '서비스나우', title: '서비스나우 실적 (S&P 500 비중 0.4%)', why: 'd' }
+        ];
+        const withLeaders = homeAheadItems(macroWeek, 3, leadItems);
+        const leadersNamed = homeAheadItems(macroWeek.slice(3), 3, leadItems);
+        if (withLeaders.map((row) => row.title).join('|') !== 'PCE|서비스나우 실적|ISM 제조업|브로드컴 실적'
+          || leadersNamed.map((row) => row.title).join('|') !== '서비스나우 실적|브로드컴 실적'
+          || homeAheadItems(macroWeek, 3, []).map((row) => row.title).join('|') !== 'PCE|ISM 제조업|고용보고서') {
+          fail(`v60.56: 다음 일정 with leader reports broke ${JSON.stringify({ withLeaders, leadersNamed })}`);
+        }
+        // v60.56: 종목 머리's market tie — the move against its primary theme's same-session median and its market's index
+        // of the same session, and the rebound from the opening's low on the stock's own closes; a value of another session
+        // is never compared, a missing part is left out.
+        const { stockSessionTie } = await load('src/domain/entity/stock-session-tie.js');
+        const tieSession = '2026-11-24';
+        const tieTheme = [{ id: 'semiconductor', nameKr: '반도체', leaders: ['NVDA', 'AMD', 'MU', 'AVGO', 'SNDK'] }];
+        const tieRows = [['NVDA', -5.86], ['AMD', -8.86], ['MU', -11.01], ['AVGO', -7.9], ['SNDK', -2.72, '2026-11-19']]
+          .map(([sym, ret1d, date]) => ({ sym, ret1d, factorSessionDate: date || tieSession }));
+        const tieHistory = [{ date: '2026-11-20', ndx: 25028.98, kospi: 4800 }, { date: '2026-11-21', ndx: 25600, kospi: 4750 }, { date: '2026-11-23', ndx: 26746.1, kospi: 4708.54 }, { date: '2026-11-24', ndx: 26214.17, kospi: 5006.03 }];
+        const tieBars = [['2026-11-19', 150], ['2026-11-20', 100], ['2026-11-21', 110], ['2026-11-23', 123.8], ['2026-11-24', 113.6]].map(([time, close]) => ({ time, close }));
+        const tieRow = { factorSessionDate: tieSession, ret1d: -5.86 };
+        const tie = stockSessionTie({ symbol: 'NVDA', row: tieRow, themes: tieTheme, themeId: 'semiconductor', rows: tieRows, history: tieHistory, low: { date: '2026-11-20' }, bars: tieBars });
+        const tieNoRebound = stockSessionTie({ symbol: 'NVDA', row: tieRow, themes: tieTheme, themeId: 'semiconductor', rows: tieRows, history: tieHistory, low: null, bars: tieBars });
+        const tieNoTheme = stockSessionTie({ symbol: 'NVDA', row: tieRow, themes: [], themeId: null, rows: tieRows, history: tieHistory });
+        const tieOtherSession = stockSessionTie({ symbol: 'NVDA', row: { factorSessionDate: '2026-11-25', ret1d: -1 }, themes: tieTheme, themeId: 'semiconductor', rows: tieRows, history: tieHistory });
+        const tieHigh = stockSessionTie({ symbol: 'NVDA', row: tieRow, history: tieHistory, low: { date: '2026-11-20' }, bars: [...tieBars.slice(0, 4), { time: tieSession, close: 130 }] });
+        const tieKr = stockSessionTie({ symbol: '000660.KS', row: { factorSessionDate: tieSession, ret1d: 6.73 }, themes: [{ id: 'semi', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['000660.KS', '005930.KS', '042700.KS'] }] }], themeId: 'semi',
+          rows: [['000660.KS', 6.73], ['005930.KS', 6.7], ['042700.KS', 7.1]].map(([sym, ret1d]) => ({ sym, ret1d, factorSessionDate: tieSession })), history: tieHistory });
+        if (tie?.text !== '11/24 -5.9% — 반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +23.8% 올랐다가 그 가운데 43%를 되돌렸습니다.'
+          || tie.parts.theme.count !== 4 || !tie.claims.length
+          || tieNoRebound?.text !== '11/24 -5.9% — 반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다.'
+          || tieNoTheme?.text !== '11/24 -5.9% — 나스닥 100 -2.0%보다 더 내렸습니다.'
+          || tieOtherSession !== null
+          || tieHigh?.text !== '11/24 -5.9% — 나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +30.0% 올라 그 뒤 가장 높은 종가로 마감했습니다.'
+          || tieKr?.text !== '11/24 +6.7% — 반도체 / HBM 테마 +6.7%와 같은 폭으로 움직였고 코스피 +6.3%보다 더 올랐습니다.'
+          || stockSessionTie({ symbol: 'NVDA', row: tieRow }) !== null) {
+          fail(`v60.56: 종목 market tie broke ${JSON.stringify({ tie: tie?.text, tieNoRebound: tieNoRebound?.text, tieNoTheme: tieNoTheme?.text, tieOtherSession, tieHigh: tieHigh?.text, tieKr: tieKr?.text })}`);
+        }
         // v59.71 (quant review): the reverse DCF prices the close on the same row's split-adjusted count; the Sahm windows are
         // calendar months that tolerate one skipped release; sentiment ranks with the shared percentile convention.
         const { reverseDcfInputs } = await load('src/domain/fundamental/analysis-read.js');
