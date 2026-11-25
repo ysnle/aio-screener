@@ -128,7 +128,7 @@ await section('investigation conclusion', async () => {
   const packetWith = (investigation) => buildScreenPacket('signal', FIXTURE, { data: { marketInvestigation: investigation } });
   const asserted = `${GOOD} 11/18 하락은 임금 지표 충격 때문입니다.`;
   const attributed = `${GOOD} 11/18 Reuters 보도에 따르면 임금 지표 충격이 거론됐습니다.`;
-  const issuesOf = (text, packet) => validateScreenReading(text, packet).issues.filter((issue) => issue.startsWith('investigation-'));
+  const issuesOf = (text, packet) => validateScreenReading(text, packet).warnings.filter((issue) => issue.startsWith('investigation-')); // a cause is interpretation: it warns
   check('v60.56 investigation absent, blocked or of another session: no lines, the same key, and no cause issue',
     !base.lines.some((line) => line.startsWith('조사 결론')) && packetWith(null).key === base.key && packetWith({ ...unconfirmed, status: 'blocked' }).key === base.key
       && packetWith({ ...unconfirmed, session: { us: '2026-11-17' } }).key === base.key && issuesOf(asserted, base).length === 0);
@@ -136,9 +136,8 @@ await section('investigation conclusion', async () => {
   check('v60.56 the 시장 상태 packet carries the investigation of its close: the rule head, the inference and what it could not confirm',
     open.key !== base.key && open.lines.some((line) => line.startsWith('조사 결론 기준: 11/18 미국 세션')) && open.lines.includes('조사 결론 추론(보도로 확인 안 됨): 반도체 쏠림 되돌림이 유력한 설명이라는 추론이다')
       && open.lines.includes('조사 결론 미확인: 11/18 반도체 하락의 직접 촉매'), open.lines.filter((line) => line.startsWith('조사')).join('\n'));
-  check('v60.56 investigation unconfirmed: a cause stated as fact for the session is flagged with a repair; the same cause attributed to a report passes',
-    issuesOf(asserted, open).join() === 'investigation-cause-unconfirmed' && issuesOf(attributed, open).length === 0
-      && buildScreenReadingRetryPrompt('p', validateScreenReading(asserted, open)).includes('"조사 결론"은 그 세션의 원인을 보도로 확인하지 못했습니다'), JSON.stringify(validateScreenReading(asserted, open)));
+  check('v60.56 investigation unconfirmed: a cause stated as fact for the session is recorded as a warning (never blocking); the same cause attributed to a report passes',
+    issuesOf(asserted, open).join() === 'investigation-cause-unconfirmed' && issuesOf(attributed, open).length === 0, JSON.stringify(validateScreenReading(asserted, open)));
   const found = packetWith(confirmed);
   check('v60.56 investigation confirmed: the reading may cite the confirmed cause; saying the cause was not found is flagged',
     found.lines.includes('조사 결론 확인(보도 11/18 Reuters): 임금 지표가 예상보다 강해 금리 인상 우려가 커졌다')

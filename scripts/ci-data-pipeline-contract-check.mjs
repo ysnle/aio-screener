@@ -3237,7 +3237,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   const open = { status: 'verified', session: { us: '2026-10-20' }, causes: [{ claim: 'AI 인프라 자금 조달 우려가 반도체 매도로 이어졌다는 추론이다', kind: 'inference', outlet: null, date: null, url: null }], unknowns: ['10/20 코스피 하락의 직접 촉매'] };
   const found = { status: 'verified', session: { us: '2026-10-20' }, causes: [{ claim: '코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다', kind: 'news', outlet: 'Bloomberg', date: '2026-10-20', url: 'https://www.bloomberg.com/x' }], unknowns: [] };
   const ivIssues = (text, investigation) => va.validateMarketAnalysisText(text, fx.data, fx.snapshot, { history: fx.history,
-    context: [fx.context, ...investigationFactLines(investigation, { session: '2026-10-20' })].join('\n') }).issues.filter((issue) => issue.startsWith('investigation-'));
+    context: [fx.context, ...investigationFactLines(investigation, { session: '2026-10-20' })].join('\n') }).warnings.filter((issue) => issue.startsWith('investigation-')); // a cause is interpretation: it warns
   const asserted = '코스피는 10/20 종가 -3.73%로 밀렸고, 이는 코어위브 채권 급락 때문입니다.';
   const attributed = '코스피는 10/20 종가 -3.73%로 밀렸고, 10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 배경으로 거론됐습니다.';
   check('v60.56 investigation absent or of another session: no lines and no cause issue (the reading is checked as before)',

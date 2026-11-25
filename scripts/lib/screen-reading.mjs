@@ -21,6 +21,7 @@ import { buildSentimentModel } from '../../src/domain/market/sentiment/sentiment
 import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src/domain/market/story/market-story.js';
 import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
 import { SCREEN_STORY } from '../../src/domain/market/story/screen-story.js';
+import { leaderEarningsFactLines } from '../../src/domain/briefing/leader-earnings.js';
 import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src/domain/technical/market-charts.js';
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
@@ -301,13 +302,16 @@ export const SCREEN_READING_SCREENS = Object.freeze({
 export const SCREEN_READING_IDS = Object.freeze(Object.keys(SCREEN_READING_SCREENS));
 
 /** { screen, basis, lines, key, axisStates, axes } — `key` is the first 16 hex of the lines' sha1 (same lines, same key). */
+const CATALYST_SCREENS = Object.freeze(['signal', 'charts', 'themes']);
 export function buildScreenPacket(screen, interpretation, context = {}) {
   const spec = SCREEN_READING_SCREENS[screen];
   if (!spec) return null;
   let facts = null;
   try { facts = spec.facts(interpretation, context); } catch (_) { facts = null; }
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
-  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context)].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
+  // The leaders' next reports (a catalyst a rebound can turn on) join the screens that judge the rebound.
+  const catalysts = CATALYST_SCREENS.includes(screen) && context.calendar ? leaderEarningsFactLines(context.calendar, { nowMs: Date.parse(`${facts.basis}T21:00:00Z`) }) : [];
+  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context), ...catalysts].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
   return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null, rebound: facts.rebound || null };
 }
@@ -370,7 +374,7 @@ export function validateScreenReading(text, packet) {
   // An index move under the session's date is that session's own (market-analysis-validate.mjs sessionMoveIssues).
   issues.push(...sessionMoveIssues(body, { context: (packet?.lines || []).join('\n') }));
   // A cause stated past the investigation's conclusion, when the packet carries it (investigation-conclusion.mjs).
-  issues.push(...investigationCauseIssues(body, { context: (packet?.lines || []).join('\n') }));
+  warnings.push(...investigationCauseIssues(body, { context: (packet?.lines || []).join('\n') }));
   warnings.push(...analysisInterpretationWarnings(body), ...coreReadingWarnings(body));
   // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause and an opening on the
   // tally word are recorded, never blocking.

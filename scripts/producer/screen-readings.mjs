@@ -73,7 +73,8 @@ export async function genScreenReadings({ data = null, history = [], previous = 
   // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences, and this run's
   // data.json for the boards that read it directly (금리와 환율: macro), and the channels' relayed releases (매크로).
   const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data, telegram: telegram !== undefined ? telegram : readPublished('telegram-digest.json'),
-    day: day !== undefined ? day : readPublished('market-day.json'), briefs: briefs !== undefined ? briefs : readPublished('event-briefs.json') };
+    day: day !== undefined ? day : readPublished('market-day.json'), briefs: briefs !== undefined ? briefs : readPublished('event-briefs.json'),
+    calendar: readPublished('earnings-calendar.json') };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;

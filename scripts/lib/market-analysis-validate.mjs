@@ -815,8 +815,9 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
   issues.push(...sessionMoveIssues(body, { context }));
-  // The cause follows the investigation's conclusion when the context carries it (investigation-conclusion.mjs).
-  issues.push(...investigationCauseIssues(body, { context }));
+  // The cause follows the investigation's conclusion when the context carries it (investigation-conclusion.mjs). A cause
+  // is interpretation: recorded as a warning beside the other causal-attribution warnings, never blocking.
+  warnings.push(...investigationCauseIssues(body, { context }));
   issues.push(...moveSizeWordIssues(body, { grades: moveSizeGrades(history) }));
   issues.push(...publishedTextIssues(body));
   issues.push(...noLeadIssues(body, { context }));

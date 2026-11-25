@@ -51,6 +51,7 @@ export function appendMarketAnalysisRejections(attempts, run, path = marketAnaly
 import { MACRO_HISTORY_OUT, MACRO_CALENDAR_OUT } from './macro-history.mjs';
 import { coreInflationRead } from '../../src/domain/macro/macro-read.js';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { leaderEarningsFactLines } from '../../src/domain/briefing/leader-earnings.js';
 import { readHistoryRows as expandHistoryRows } from '../../src/domain/market/indices/history-rows.js';
 
 // Plain Korean values with their session ("10/14 종가"), never "SPX=… (ISO)"; the last verified reading rides along
@@ -147,7 +148,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     const published = (file) => { try { return JSON.parse(readFileSync(`${REPO_ROOT}/public-data/${file}`, 'utf8')); } catch (_) { return null; } };
     const opening = buildMarketOpening({ history: input.history, macroHistory: input.macroHistory || null, longrun, through: regime.asOf,
       day: published('market-day.json'), briefs: published('event-briefs.json'), afterHours: published('data.json')?.afterHours || null, regime, events: interpretation.events || [] });
-    const story = openingFactLines(opening).map((line) => `시장 이야기 ${line}`);
+    const story = [...openingFactLines(opening), ...leaderEarningsFactLines(published('earnings-calendar.json'), { nowMs: Date.parse(`${regime.asOf}T21:00:00Z`) })].map((line) => `시장 이야기 ${line}`);
     return [...story, `종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
       renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
   } catch (error) {
