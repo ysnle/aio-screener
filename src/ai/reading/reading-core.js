@@ -161,7 +161,10 @@ const ISSUE_TEXT = Object.freeze({
   'language-not-korean': () => '한국어로 쓰세요.',
   'prompt-label-leak': () => '지시문의 표시를 옮겨 적었습니다. 블록만 쓰세요.',
   'emoji': () => '이모지를 빼세요.',
-  'published-text-malformed': () => '괄호나 문장 끝이 깨졌습니다. 완결된 문장으로 쓰세요.'
+  'published-text-malformed': () => '괄호나 문장 끝이 깨졌습니다. 완결된 문장으로 쓰세요.',
+  // The producer's check against the investigation's conclusion (scripts/lib/investigation-conclusion.mjs).
+  'investigation-cause-unconfirmed': () => '"조사 결론"은 그 세션의 원인을 보도로 확인하지 못했습니다. 원인을 사실처럼 쓰지 말고 "…보도에 따르면 …이 거론됐습니다"처럼 귀속하거나 추정으로 쓰세요.',
+  'investigation-cause-contradicted': () => '"조사 결론"은 보도로 원인을 확인했습니다. "원인이 확인되지 않았다"고 쓰지 말고 확인된 원인을 매체·날짜와 함께 쓰세요.'
 });
 /** The retry: the same prompt with the blocking reasons (codes and the offending figures only, never the rejected text). */
 export function buildReadingRetryPrompt(prompt, verdict) {

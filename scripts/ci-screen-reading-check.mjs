@@ -120,6 +120,32 @@ await section('validator', async () => {
     retry.includes('[다시 쓰기]') && retry.includes('26.1') && !retry.includes('S&P 500은 50일선보다'), retry.slice(-400));
 });
 
+// The market investigation's conclusion on the same close reaches the 시장 상태 packet, and the reading names causes as it does.
+await section('investigation conclusion', async () => {
+  const unconfirmed = { status: 'verified', session: { us: '2026-11-18' }, causes: [{ claim: '반도체 쏠림 되돌림이 유력한 설명이라는 추론이다', kind: 'inference', outlet: null, date: null, url: null }], unknowns: ['11/18 반도체 하락의 직접 촉매'] };
+  const confirmed = { status: 'verified', session: { us: '2026-11-18' }, causes: [{ claim: '임금 지표가 예상보다 강해 금리 인상 우려가 커졌다', kind: 'news', outlet: 'Reuters', date: '2026-11-18', url: 'https://www.reuters.com/x' }], unknowns: [] };
+  const base = buildScreenPacket('signal', FIXTURE);
+  const packetWith = (investigation) => buildScreenPacket('signal', FIXTURE, { data: { marketInvestigation: investigation } });
+  const asserted = `${GOOD} 11/18 하락은 임금 지표 충격 때문입니다.`;
+  const attributed = `${GOOD} 11/18 Reuters 보도에 따르면 임금 지표 충격이 거론됐습니다.`;
+  const issuesOf = (text, packet) => validateScreenReading(text, packet).issues.filter((issue) => issue.startsWith('investigation-'));
+  check('v60.56 investigation absent, blocked or of another session: no lines, the same key, and no cause issue',
+    !base.lines.some((line) => line.startsWith('조사 결론')) && packetWith(null).key === base.key && packetWith({ ...unconfirmed, status: 'blocked' }).key === base.key
+      && packetWith({ ...unconfirmed, session: { us: '2026-11-17' } }).key === base.key && issuesOf(asserted, base).length === 0);
+  const open = packetWith(unconfirmed);
+  check('v60.56 the 시장 상태 packet carries the investigation of its close: the rule head, the inference and what it could not confirm',
+    open.key !== base.key && open.lines.some((line) => line.startsWith('조사 결론 기준: 11/18 미국 세션')) && open.lines.includes('조사 결론 추론(보도로 확인 안 됨): 반도체 쏠림 되돌림이 유력한 설명이라는 추론이다')
+      && open.lines.includes('조사 결론 미확인: 11/18 반도체 하락의 직접 촉매'), open.lines.filter((line) => line.startsWith('조사')).join('\n'));
+  check('v60.56 investigation unconfirmed: a cause stated as fact for the session is flagged with a repair; the same cause attributed to a report passes',
+    issuesOf(asserted, open).join() === 'investigation-cause-unconfirmed' && issuesOf(attributed, open).length === 0
+      && buildScreenReadingRetryPrompt('p', validateScreenReading(asserted, open)).includes('"조사 결론"은 그 세션의 원인을 보도로 확인하지 못했습니다'), JSON.stringify(validateScreenReading(asserted, open)));
+  const found = packetWith(confirmed);
+  check('v60.56 investigation confirmed: the reading may cite the confirmed cause; saying the cause was not found is flagged',
+    found.lines.includes('조사 결론 확인(보도 11/18 Reuters): 임금 지표가 예상보다 강해 금리 인상 우려가 커졌다')
+      && issuesOf(`${GOOD} 11/18 Reuters 보도에 따르면 임금 지표가 예상보다 강해 금리 인상 우려가 커졌습니다.`, found).length === 0
+      && issuesOf(`${GOOD} 11/18 하락의 원인은 아직 확인되지 않았습니다.`, found).join() === 'investigation-cause-contradicted', found.lines.filter((line) => line.startsWith('조사')).join('\n'));
+});
+
 await section('producer', async () => {
   const one = stub([answer(GOOD)]);
   const verified = await run({ request: one.request });

@@ -2967,7 +2967,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       // The reuse key is the narrative signature plus the after-hours key when one exists; v59.56 adds the earnings key
       && /narrativeSignature: inputSignature/.test(fetchData) && /inputSignature = \[narrativeContext\.signature[^\n]*ah:\$\{afterHoursKey\}[^\n]*er:\$\{earningsKey\}/.test(fetchData));
   check('v59.25 the market-analysis prompt carries US_AFTER_HOURS with 시간외 + ET time, and the validator context includes it',
-    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines, cashflowLines\]/.test(fetchData));
+    /US_AFTER_HOURS \(/.test(fetchData) && /시간외·ET 시각·잠정을 같은 문장에/.test(fetchData) && /context: \[regimeContext, afterHoursLines, earningsLines, cashflowLines(?:, \.\.\.investigationLines)?\]/.test(fetchData));
   // The SEC quarterly cash-flow lane (hyperscaler capex ÷ operating cash flow) reaches the prompt and the validator context.
   check('v59.56 the market-analysis prompt carries BIGTECH_CASHFLOW from public-data/bigtech-cashflow.json with the SEC basis named',
     /BIGTECH_CASHFLOW \(/.test(fetchData) && /cashflowContextLines\(bigtechCashflow === undefined \? readBigtechCashflow\(\) : bigtechCashflow/.test(fetchData) && /"SEC 공시 기준 최근 4분기"/.test(fetchData)
@@ -3224,6 +3224,45 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
       && /- market\.index\.nikkei225:\w+ Nikkei=64789\.89 index change=\+1\.1\d% vs previous close 장중 11:10 KST/.test(prompt)
       && !(run?.semanticIssues || []).some((issue) => /market\.(?:semis|nasdaq100-futures|nikkei|hangseng)/.test(issue)),
     JSON.stringify({ status: run?.status, issues: run?.semanticIssues, cross: prompt.match(/^CROSS_MARKET_INTRADAY[\s\S]{0,700}/m)?.[0] || 'no CROSS_MARKET_INTRADAY' }));
+}
+
+{
+  // The market reading carries the market investigation's conclusion on the same close (investigation-conclusion.mjs): live
+  // 2026-11-25 the 오늘 AI 조사 said the 11/24 catalyst was not confirmed while the 브리핑 AI 해설 named a cause of its own.
+  // Fixture: the 10/21 run (US close 10/20); no model call.
+  const fx = JSON.parse(readFileSync(join(root, 'scripts/fixtures/market-analysis-20261021.json'), 'utf8'));
+  const va = await import('./lib/market-analysis-validate.mjs');
+  const { investigationFactLines } = await import('./lib/investigation-conclusion.mjs');
+  const { genMarketAnalysis } = await import('./producer/market-narrative.mjs');
+  const open = { status: 'verified', session: { us: '2026-10-20' }, causes: [{ claim: 'AI 인프라 자금 조달 우려가 반도체 매도로 이어졌다는 추론이다', kind: 'inference', outlet: null, date: null, url: null }], unknowns: ['10/20 코스피 하락의 직접 촉매'] };
+  const found = { status: 'verified', session: { us: '2026-10-20' }, causes: [{ claim: '코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다', kind: 'news', outlet: 'Bloomberg', date: '2026-10-20', url: 'https://www.bloomberg.com/x' }], unknowns: [] };
+  const ivIssues = (text, investigation) => va.validateMarketAnalysisText(text, fx.data, fx.snapshot, { history: fx.history,
+    context: [fx.context, ...investigationFactLines(investigation, { session: '2026-10-20' })].join('\n') }).issues.filter((issue) => issue.startsWith('investigation-'));
+  const asserted = '코스피는 10/20 종가 -3.73%로 밀렸고, 이는 코어위브 채권 급락 때문입니다.';
+  const attributed = '코스피는 10/20 종가 -3.73%로 밀렸고, 10/20 블룸버그 보도에 따르면 코어위브 채권 급락이 배경으로 거론됐습니다.';
+  check('v60.56 investigation absent or of another session: no lines and no cause issue (the reading is checked as before)',
+    investigationFactLines(null, { session: '2026-10-20' }).length === 0 && investigationFactLines({ ...open, session: { us: '2026-10-17' } }, { session: '2026-10-20' }).length === 0
+      && investigationFactLines({ ...open, status: 'blocked' }, { session: '2026-10-20' }).length === 0 && ivIssues(asserted, null).length === 0);
+  check('v60.56 investigation unconfirmed: a cause the reading states as fact for the session is flagged with repair guidance; the headline attributed passes',
+    ivIssues(asserted, open).join() === 'investigation-cause-unconfirmed' && ivIssues(attributed, open).length === 0
+      && va.describeMarketAnalysisIssues(asserted, ['investigation-cause-unconfirmed']).includes('INVESTIGATION found no report'), JSON.stringify([ivIssues(asserted, open), ivIssues(attributed, open)]));
+  check('v60.56 investigation confirmed: the reading may cite the confirmed cause; saying the cause was not found contradicts it',
+    ivIssues(attributed, found).length === 0 && ivIssues('코스피 10/20 하락의 원인은 아직 확인되지 않았습니다.', found).join() === 'investigation-cause-contradicted'
+      && ivIssues('코스피 10/20 하락의 원인은 아직 확인되지 않았습니다.', open).length === 0);
+  const promptOf = async (investigation) => {
+    const prompts = [];
+    const stub = async (prompt) => { prompts.push(prompt); return { text: `${attributed}\n${va.MARKET_SENTENCE_LABEL} 오늘의 반등은 AI 투자 기대의 복귀와 하락 뒤 숨 고르기 사이에 있다.` }; };
+    const warn = console.warn; const log = console.log; console.warn = () => {}; console.log = () => {};
+    let run;
+    try { run = await genMarketAnalysis({ ...fx.data, marketInvestigation: investigation }, fx.snapshot, { previous: null, request: stub, nowMs: Date.parse(fx.nowMs), history: fx.history, narrative: { text: '', signature: 'fixture', themes: [] }, earnings: fx.earnings, recordRejections: null }); } finally { console.warn = warn; console.log = log; }
+    return { prompt: prompts[0] || '', run };
+  };
+  const withIv = await promptOf(found);
+  const stale = await promptOf({ ...found, session: { us: '2026-10-17' } });
+  check('v60.56 the market-reading prompt carries the INVESTIGATION section with the confirmed cause and the rule; another session\'s investigation adds nothing and keeps the reuse key',
+    /^INVESTIGATION \(이 사이트 AI 원인 조사의 결론[^\n]*\n조사 결론 기준: 10\/20 미국 세션/m.test(withIv.prompt) && withIv.prompt.includes('조사 결론 확인(보도 10/20 Bloomberg): 코어위브 채권 급락이 AI 인프라 자금 조달 우려로 번졌다')
+      && !/^INVESTIGATION \(/m.test(stale.prompt) && /\|?iv:[0-9a-f]{12}/.test(String(withIv.run?.narrativeSignature || withIv.run?.blockedAttemptKey || ''))
+      && !/iv:/.test(String(stale.run?.narrativeSignature || '')), JSON.stringify({ sig: withIv.run?.narrativeSignature, staleSig: stale.run?.narrativeSignature, status: withIv.run?.status }));
 }
 
 // research-channel numbers (analyst actions, quarters against estimates, economic releases,
