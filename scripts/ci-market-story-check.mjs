@@ -851,6 +851,96 @@ await runSections('market-story', [
     assert.match(readFileSync(resolve(root, 'scripts/lib/screen-reading.mjs'), 'utf8'), /story: SCREEN_STORY\.themes/, 'v60.55 story-tie: the AI packet reads the same registry');
   });
   report('session-read');
+}, 'code'],
+// ---- each screen's own sentence under its story tie (src/domain/market/story/screen-tie.js) ------------------------------
+['screen-tie', async () => {
+  const { screenTieOf, sessionShapeOf, SCREEN_TIE_IDS, SCREEN_TIE_STATES } = await import('../src/domain/market/story/screen-tie.js');
+  const { SCREEN_TIE_SHAPES, SCREEN_TIE_WORDS } = await import('../src/domain/content/screen-tie-words.js');
+  const D = SESSIONS.at(-1);
+  const SHAPES = ['leaders-down', 'leaders-more-down', 'broad-down', 'leaders-up', 'leaders-more-up', 'broad-up'];
+  // The leaders' and the equal weight's one-session moves that give each shape (RULES.sessionRead: movePct 1, leadGapPp 1).
+  const MOVES = { 'leaders-down': [-2, 0.5], 'leaders-more-down': [-2.5, -0.8], 'broad-down': [-1.5, -1.2], 'leaders-up': [2, -0.3], 'leaders-more-up': [2.5, 0.8], 'broad-up': [1.5, 1.3] };
+  const openingOf = (ndx, rsp, asOf = D) => ({ available: true, asOf, rows: { ndx: { moves: [null, ndx] }, ...(rsp == null ? {} : { rsp: { moves: [null, rsp] } }) } });
+  const regimeOf = (axes = [], watchAxes = []) => ({ available: true, asOf: D, axes, watchAxes });
+  const tnxHistory = (from, to) => SESSIONS.slice(-30).map((date, i, list) => ({ date, spx: 6000, tnx: +(from + (to - from) * (i / (list.length - 1))).toFixed(3), breadth50: 55 }));
+  const macroHistory = (then, now) => ({ series: { dgs2: { observations: [[SESSIONS.at(-25), then], [D, now]] },
+    fedTargetLower: { observations: [[SESSIONS.at(-60), 3.75]] }, fedTargetUpper: { observations: [[SESSIONS.at(-60), 4]] } } });
+  const playbookOf = (market, states, basis = D, lagging = false) => ({ available: true, asOfByMarket: { [market]: basis }, lagging: { [market]: lagging }, themes: states.map((state, i) => ({ market, id: `t${i}`, state })) });
+  const sentimentRead = (state, fear, greed, overheated = false) => ({ state, overheated, ready: Array.from({ length: 6 }, (_, i) => i), fear: Array.from({ length: fear }), greed: Array.from({ length: greed }) });
+  // One input per (screen, state): the screen's own verdict as the existing reader hands it.
+  const INPUTS = {
+    breadth: (state) => ({ regime: regimeOf([{ id: 'breadth', state }]), history: tnxHistory(4, 4) }),
+    sentiment: (state) => {
+      const axis = state === 'fear' ? 'burden' : 'neutral';
+      return { regime: regimeOf([], [{ id: 'sentiment', state: axis }]), sentiment: sentimentRead(axis, state === 'fear' ? 4 : 1, state === 'greed' ? 4 : 0, state === 'greed') };
+    },
+    macro: (state) => ({ macroHistory: macroHistory(3.9, { down: 3.7, flat: 3.85, up: 4.1 }[state]) }),
+    fxbond: (state) => ({ regime: regimeOf([{ id: 'rates', state: state === 'growthScare' ? 'neutral' : state, growthScare: state === 'growthScare' }]),
+      history: tnxHistory(4.3, { favorable: 4.0, neutral: 4.35, growthScare: 4.05, burden: 4.6 }[state]) }),
+    themes: (state) => ({ playbook: playbookOf('US', state === 'lead' ? ['leading', 'weak', 'inline'] : ['weak', 'inline']) }),
+    korea: (state) => ({ playbook: playbookOf('KR', state === 'lead' ? ['leading', 'weak'] : ['weak'], '2026-12-01') }),
+    charts: (state) => ({ readings: [{ field: 'ndx', asOf: D, trend: { above: 'up', near: 'near50', pullback: 'pullback', under: 'down' }[state], s50: -1.2, s200: 3.4 }] })
+  };
+  const keysOf = (screen) => [...new Set(Object.values(SCREEN_TIE_SHAPES[screen]))].flatMap((shapeClass) => SCREEN_TIE_STATES[screen].map((state) => `${shapeClass}:${state}`));
+  check('v60.56 screen-tie: the session shape is the session read\'s, and a quiet or half-read session has none', () => {
+    for (const shape of SHAPES) assert.equal(sessionShapeOf(openingOf(...MOVES[shape])), shape, `v60.56 screen-tie: ${shape}`);
+    assert.equal(sessionShapeOf(openingOf(-0.6, 0.4)), null, 'v60.56 screen-tie: a Nasdaq-100 move under 1% has no shape');
+    assert.equal(sessionShapeOf(openingOf(-2, null)), null, 'v60.56 screen-tie: no equal weight, no shape');
+    assert.deepEqual(SCREEN_TIE_IDS.slice().sort(), ['breadth', 'charts', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.56 screen-tie: seven screens');
+  });
+  check('v60.56 screen-tie: every key of each table (shape class × the screen\'s states) is reached by its reader, and the table has no other key', () => {
+    for (const screen of SCREEN_TIE_IDS) {
+      assert.deepEqual(Object.keys(SCREEN_TIE_WORDS[screen]).sort(), keysOf(screen).sort(), `v60.56 screen-tie: ${screen} table keys`);
+      const reached = new Set();
+      for (const shape of SHAPES) for (const state of SCREEN_TIE_STATES[screen]) {
+        const tie = screenTieOf(screen, { opening: openingOf(...MOVES[shape]), ...INPUTS[screen](state) });
+        assert.ok(tie, `v60.56 screen-tie: ${screen} ${shape} ${state} gives a sentence`);
+        assert.equal(tie.key, `${SCREEN_TIE_SHAPES[screen][shape]}:${state}`, `v60.56 screen-tie: ${screen} ${shape} ${state}`);
+        reached.add(tie.key);
+      }
+      assert.deepEqual([...reached].sort(), keysOf(screen).sort(), `v60.56 screen-tie: ${screen} reaches every key`);
+    }
+  });
+  check('v60.56 screen-tie: every figure is a claim, no sentence passes 70 characters, and no ending repeats more than twice in a screen', () => {
+    for (const screen of SCREEN_TIE_IDS) {
+      for (const state of SCREEN_TIE_STATES[screen]) for (const shape of SHAPES) {
+        const { said } = screenTieOf(screen, { opening: openingOf(...MOVES[shape]), ...INPUTS[screen](state) });
+        assert.deepEqual(unclaimedFigures(said), [], `v60.56 screen-tie: ${screen} ${state}: ${said.text}`);
+        assert.ok(said.text.length <= 70, `v60.56 screen-tie: ${screen} ${state} length ${said.text.length}: ${said.text}`);
+        assert.doesNotMatch(said.text, /뜻합니다|읽습니다|자리/, `v60.56 screen-tie: ${screen} no lecture: ${said.text}`);
+      }
+      const ends = Object.values(SCREEN_TIE_WORDS[screen]).map((text) => text.trim().split(/\s+/).at(-1));
+      for (const end of new Set(ends)) assert.ok(ends.filter((item) => item === end).length <= 2, `v60.56 screen-tie: ${screen} ends "${end}" more than twice`);
+    }
+  });
+  check('v60.56 screen-tie: a missing shape, state, figure or session gives no sentence', () => {
+    const down = openingOf(...MOVES['leaders-down']);
+    const none = (screen, input, label) => assert.equal(screenTieOf(screen, input), null, `v60.56 screen-tie: ${screen} ${label}`);
+    for (const screen of SCREEN_TIE_IDS) {
+      none(screen, { opening: openingOf(0.4, 0.2), ...INPUTS[screen](SCREEN_TIE_STATES[screen][0]) }, 'quiet session');
+      none(screen, { opening: { available: false }, ...INPUTS[screen](SCREEN_TIE_STATES[screen][0]) }, 'no opening');
+      none(screen, { opening: down }, 'no state input');
+    }
+    none('breadth', { opening: down, regime: { ...regimeOf([{ id: 'breadth', state: 'burden' }]), asOf: SESSIONS.at(-2) }, history: tnxHistory(4, 4) }, 'regime of another session');
+    none('breadth', { opening: down, regime: regimeOf([{ id: 'breadth', state: 'unknown' }]), history: tnxHistory(4, 4) }, 'unknown axis');
+    none('breadth', { opening: down, regime: regimeOf([{ id: 'breadth', state: 'burden' }]), history: tnxHistory(4, 4).map((row) => ({ ...row, breadth50: row.date === D ? null : 50 })) }, 'no breadth on the session');
+    none('sentiment', { opening: down, regime: regimeOf([], [{ id: 'sentiment', state: 'burden' }]), sentiment: sentimentRead('neutral', 1, 0) }, 'a read that disagrees with the row');
+    none('macro', { opening: down, macroHistory: { series: { dgs2: { observations: [[D, 3.7]] }, fedTargetLower: { observations: [[D, 3.75]] }, fedTargetUpper: { observations: [[D, 4]] } } } }, 'no month-earlier 2-year');
+    none('fxbond', { opening: down, regime: regimeOf([{ id: 'rates', state: 'neutral' }]), history: tnxHistory(4, 4).slice(-5) }, 'no 20-session change');
+    none('themes', { opening: down, playbook: playbookOf('US', ['leading'], SESSIONS.at(-2)) }, 'stages of another session');
+    none('themes', { opening: down, playbook: playbookOf('US', ['leading'], D, true) }, 'lagging stages');
+    none('korea', { opening: down, playbook: playbookOf('KR', ['leading'], D) }, 'a Korean session not after the US one');
+    none('charts', { opening: down, readings: [{ field: 'ndx', asOf: SESSIONS.at(-2), trend: 'up', s50: 1, s200: 2 }] }, 'a card on another close');
+    none('charts', { opening: down, readings: [{ field: 'spx', asOf: D, trend: 'up', s50: 1, s200: 2 }] }, 'no 나스닥100 card');
+  });
+  check('v60.56 screen-tie: the tie paints the screen\'s sentence first, and 테마·한국·기술적 분석 hand it what only the page holds', () => {
+    const tie = readFileSync(resolve(root, 'src/ui/components/story-tie.js'), 'utf8');
+    assert.match(tie, /replaceChildren\(\.\.\.\(tie \? \[openingLine\(doc, \{ id: 'tie'/, 'v60.56 screen-tie: the own sentence leads the tie');
+    assert.match(readFileSync(resolve(root, 'src/ui/pages/themes.js'), 'utf8'), /renderStoryTie\(\{ documentRef, root, screen, context: \{ playbook \} \}\)/, 'v60.56 screen-tie: 테마·한국 pass the playbook');
+    assert.match(readFileSync(resolve(root, 'src/ui/pages/charts.js'), 'utf8'), /renderStoryTie\(\{ documentRef, root, screen: 'charts', context: \{ readings: list \} \}\)/, 'v60.56 screen-tie: 기술적 분석 passes its drawn cards');
+    assert.match(readFileSync(resolve(root, 'src/ui/styles/v2-market.css'), 'utf8'), /\.story-tie \.opening-line\[data-part="tie"\] \{ font-size: 14px; font-weight: 600;/, 'v60.56 screen-tie: primary 14px weight 600');
+  });
+  report('screen-tie');
 }, 'code']
 ]);
 console.log('market-story: all checks passed');
