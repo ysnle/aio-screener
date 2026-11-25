@@ -7217,7 +7217,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
     || expandedRows.A.rets === expandedRows.B.rets) fail(`v60.55 rets stays on each row: ${JSON.stringify(encoded.rowDefaults)}`);
   // Normalizer: passes a well-formed array, null otherwise.
   const norm = normalizeScreener({ rows: [{ sym: 'A', rets: plain }, { sym: 'B', rets: plain.slice(1) }, { sym: 'C' }] }).rows;
-  if (JSON.stringify(norm[0].rets) !== JSON.stringify(plain) || norm[1].rets !== null || norm[2].rets !== null) fail('v60.55 the normalizer passes rets of 20 values and nulls anything else');
+  // The browser reads the returns it can name from the ledger (market-day.json recent); the screener rows it keeps in memory do not carry 1,100 arrays.
+  if (norm.some((row) => 'rets' in row)) fail('v60.55 the browser screener rows do not carry rets');
   // Validator rules.
   if (rr.recentReturnsRowErrors({}).length || rr.recentReturnsRowErrors({ rets: plain }).length || !rr.recentReturnsRowErrors({ rets: plain.slice(1) }).length || !rr.recentReturnsRowErrors({ rets: [...plain.slice(1), 'x'] }).length) fail('v60.55 the validator accepts absent or 20 finite-or-null rets only');
   if (rr.recentReturnDatesErrors(undefined).length || rr.recentReturnDatesErrors({ US: calendar.slice(0, 20) }).length || !rr.recentReturnDatesErrors({ US: [...calendar.slice(0, 19), day(0)] }).length) fail('v60.55 retDatesByMarket must be 20 ascending dates per market');

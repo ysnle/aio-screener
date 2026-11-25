@@ -1,5 +1,4 @@
 import { finiteNumber as finite } from '../../domain/shared/number.js';
-import { readRecentReturns } from '../../domain/market/day/recent-returns.js';
 // A caller-held WeakMap returns the copy already made for a provider row object (a quotes-only read reuses rows).
 function cachedRow(rowCache, row, build) {
   if (!rowCache || !row || typeof row !== 'object') return build();
@@ -76,7 +75,6 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     ret6m: finite(row?.ret6m),
     ret12m: finite(row?.ret12m),
     // The last 20 sessions' daily returns, dated by factorSessionDate (null before the producer publishes them).
-    rets: readRecentReturns(row?.rets),
     vol: finite(row?.vol),
     rvol20: finite(row?.rvol20 ?? row?.rvol),
     benchmarkRet: finite(row?.benchmarkRet),
