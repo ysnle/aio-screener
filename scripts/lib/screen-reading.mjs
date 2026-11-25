@@ -16,7 +16,7 @@
 import { createHash } from 'node:crypto';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
 import { readNumber as finite, signedText } from '../../src/domain/shared/number.js';
-import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
+import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, sessionMoveIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { buildSentimentModel } from '../../src/domain/market/sentiment/sentiment-model.js';
 import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src/domain/market/story/market-story.js';
 import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
@@ -76,6 +76,23 @@ const byRet1m = (list) => [...list].filter((theme) => finite(theme.ret1m) != nul
 const CHANNEL_RELEASE_DAYS = 7;
 const daysBefore = (isoDay, days) => new Date(Date.parse(`${isoDay}T00:00:00Z`) - days * 86400000).toISOString().slice(0, 10);
 
+// ---- the market story every screen reads beside its own facts ------------------------------------------------------------
+// A screen's own indicators say little alone: the breadth figures need the session they belong to, the policy axis needs
+// where the 2-year prices the path, a theme ranking needs where the latest move gathered. Each screen declares which
+// lines of the opening (market-story.js openingFactLines) it reads (`story`), and one sentence on how to tie them to its
+// own question (`storyGuide`). The lines are the same ones 시장 상태 reads, so two screens cannot tell different days.
+const STORY_LINE = Object.freeze({
+  session: /^최근 세션: /, gathered: /^최근 세션에 /, spread: /^반등 저점 뒤 갈린 곳: /, split: /^최근 세션 S&P 500 업종별 기여: /,
+  credit: /^다른 시장 신용/, dollar: /^다른 시장 달러/, volatility: /^다른 시장 변동성/, rates: /^다른 시장 금리/
+});
+function storyLinesOf(spec, interpretation, context = {}) {
+  const asOf = interpretation?.regime?.asOf;
+  if (!spec?.story?.length || !isIsoDay(asOf)) return [];
+  const opening = openingOf(interpretation, context.longrun || null, asOf, { day: context.day || null, afterHours: context.data?.afterHours || null, briefs: context.briefs || null });
+  if (!opening.available) return [];
+  return openingFactLines(opening).filter((line) => spec.story.some((id) => STORY_LINE[id].test(line))).map((line) => `시장 이야기 ${line}`);
+}
+
 // ---- the registry: screen id → { name (as the screen is called), guide, facts(interpretation, context) } -----------------
 // facts() returns { basis, lines, axes } or null when the screen has nothing to read today. `axes` (id, state, title,
 // stateLabel) feed the state-word check; they are not part of the key. `context` carries what the producer reads beside
@@ -111,6 +128,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   }),
   breadth: Object.freeze({
     name: '시장 폭',
+    story: Object.freeze(['session', 'split']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 최근 세션에서 지수와 종목이 왜 다르게 움직였는지를 업종별 기여로 설명합니다: 어느 업종이 지수를 끌었고 나머지는 어느 쪽이었는지.',
     guide: '- 지수와 종목 다수가 같은 방향인지가 이 화면의 질문입니다. 폭이 지수 움직임을 받치는지, 일부 대형주만 끌고 가는지로 판단을 엽니다.',
     facts(interpretation) {
       const regime = interpretation?.regime;
@@ -124,6 +143,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   }),
   macro: Object.freeze({
     name: '매크로',
+    story: Object.freeze(['session', 'rates']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 시장이 금리 경로를 어디에 두고 있는지(인상 반영·동결 부근·인하 반영)와 다음 물가 발표가 그것을 어느 쪽으로 바꿀 수 있는지를 주식과 이어서 씁니다.',
     guide: '- 성장·물가 국면이 증시에 어느 쪽으로 작용하는지로 엽니다. 발표 기준월이 종가보다 오래된 지표는 그 시차를 짧게 밝히고, 다음 발표가 무엇을 바꿀 수 있는지로 맺습니다.',
     facts(interpretation, { telegram = null } = {}) {
       const regime = interpretation?.regime;
@@ -147,6 +168,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // AAII included), and the two 시장 상태 axes the screen sets beside them (credit, volatility).
   sentiment: Object.freeze({
     name: '투자 심리',
+    story: Object.freeze(['session']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 심리 지표가 최근 세션의 움직임과 같은 말을 하는지(공포가 그날 하락과 같은 곳을 가리키는지) 한 문장으로 잇습니다.',
     guide: '- 심리가 가격보다 앞서 있는지 뒤처져 있는지로 엽니다. 공포나 탐욕 쪽 쏠림은 그 자체로 방향이 아니라 이미 가격에 들어간 정도로 읽고, 신용·변동성이 그 읽기를 받치는지 짚습니다.',
     facts(interpretation) {
       const regime = interpretation?.regime;
@@ -166,6 +189,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // carry rule) and the two 시장 상태 axes the tab sets beside them (rates, and the won/yen axis).
   fxbond: Object.freeze({
     name: '금리와 환율',
+    story: Object.freeze(['rates', 'dollar']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 금리 경로 줄의 뜻(인상 반영·동결 부근·인하 반영)을 밸류에이션 판단에 이어 씁니다.',
     guide: '- 금리와 환율이 지금 주식의 밸류에이션과 한국 투자자에게 어느 쪽으로 작용하는지로 엽니다. 곡선의 움직임(어느 쪽 금리가 움직였나)이 성장 기대인지 물가·재정 부담인지를 묶음의 상태어로만 말하고, 원·엔의 움직임은 달러와 함께 짚습니다.',
     facts(interpretation, { data = null } = {}) {
       const regime = interpretation?.regime;
@@ -220,6 +245,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // ranked, and the leadership state.
   themes: Object.freeze({
     name: '테마와 섹터',
+    story: Object.freeze(['session', 'gathered', 'spread', 'split']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 최근 세션에 움직임이 몰린 테마와, 같은 테마 안에서도 반등 뒤 갈린 곳(되찾은 쪽과 뒤처진 쪽)을 짚습니다. 한 테마를 한 덩어리로 말하지 않습니다.',
     guide: '- 돈이 어디로 가고 어디서 빠지는지로 엽니다. 강한 테마와 약한 테마가 같은 바람(금리·경기·AI 투자)을 공유하는지, 단계 낱말이 1개월 수익률과 같은 쪽인지 짚고, 단계가 바뀌는 조건으로 맺습니다. 단계 낱말은 묶음의 것만 씁니다.',
     facts(interpretation) {
       const playbook = interpretation?.playbook;
@@ -246,6 +273,8 @@ export const SCREEN_READING_SCREENS = Object.freeze({
   // buildMarketInterpretation) on the Korean close, and the won/yen axis of 시장 상태.
   korea: Object.freeze({
     name: '한국',
+    story: Object.freeze(['session', 'spread']),
+    storyGuide: '- "시장 이야기" 줄이 있으면 미국 주도 영역의 최근 세션과 반등 뒤 한국 메모리 종목의 움직임을 나란히 놓고, 한국이 미국 반등을 따라갔는지 못 따라갔는지 말합니다.',
     guide: '- 한국 테마 중 어디가 버티고 어디가 밀리는지로 엽니다. 미국 주도 영역과 같은 방향인지, 원화 움직임이 그 흐름에 보태는지 덜어내는지 짚습니다. 한국 자료가 얇으면 얇다고 말합니다.',
     facts(interpretation) {
       const playbook = interpretation?.playbook;
@@ -272,7 +301,7 @@ export function buildScreenPacket(screen, interpretation, context = {}) {
   let facts = null;
   try { facts = spec.facts(interpretation, context); } catch (_) { facts = null; }
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
-  const lines = facts.lines.map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context)].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
   return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null, rebound: facts.rebound || null };
 }
@@ -284,7 +313,8 @@ export const SCREEN_READING_RULES = READING_RULES;
 
 export function buildScreenReadingPrompt(packet) {
   const spec = SCREEN_READING_SCREENS[packet?.screen];
-  return buildReadingPrompt({ name: spec?.name || '', guide: spec?.guide || '', lines: packet?.lines || [] });
+  const tied = spec?.storyGuide && (packet?.lines || []).some((line) => line.startsWith('시장 이야기 ')) ? spec.storyGuide : '';
+  return buildReadingPrompt({ name: spec?.name || '', guide: [spec?.guide, tied].filter(Boolean).join('\n'), lines: packet?.lines || [] });
 }
 export const buildScreenReadingRetryPrompt = buildReadingRetryPrompt;
 
@@ -331,6 +361,8 @@ export function validateScreenReading(text, packet) {
   issues.push(...titledStateIssues(body, packet?.axes || []));
   issues.push(...validateAnalysisAdmission(body.replace(/\n\s*\n/g, ' '), { context: (packet?.lines || []).join('\n') }).filter((issue) => issue.startsWith('condition-count')));
   issues.push(...publishedTextIssues(body.replace(/\n\s*\n/g, ' ')));
+  // An index move under the session's date is that session's own (market-analysis-validate.mjs sessionMoveIssues).
+  issues.push(...sessionMoveIssues(body, { context: (packet?.lines || []).join('\n') }));
   warnings.push(...analysisInterpretationWarnings(body), ...coreReadingWarnings(body));
   // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause and an opening on the
   // tally word are recorded, never blocking.

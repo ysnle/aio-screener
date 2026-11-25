@@ -332,6 +332,17 @@ await section('repository data', async () => {
   const build = () => interpretationFromArtifacts({ data: json('public-data/data.json'), history, macroHistory: json('public-data/macro-history.json'), calendar: json('public-data/macro-calendar.json'), nowMs: Date.parse(`${history.at(-1)?.date}T23:30:00Z`) });
   const interpretation = build();
   const packet = buildScreenPacket('signal', interpretation);
+  {
+    const ctx = { data: json('public-data/data.json') };
+    const story = (screen) => (buildScreenPacket(screen, interpretation, ctx)?.lines || []).filter((line) => line.startsWith('시장 이야기 '));
+    const has = (screen, head) => story(screen).some((line) => line.startsWith(`시장 이야기 ${head}`));
+    check('v60.55 ⑨ every screen reads the market story beside its own facts: the session on 시장 폭 · 매크로 · 투자 심리, the rate path on 매크로 and 금리와 환율, and its guide ties them only when the lines are there',
+      has('breadth', '최근 세션: ') && has('macro', '최근 세션: ') && has('macro', '다른 시장 금리 경로') && has('sentiment', '최근 세션: ') && has('fxbond', '다른 시장 금리 경로')
+        && story('signal').length > story('breadth').length
+        && buildScreenReadingPrompt(buildScreenPacket('macro', interpretation)).includes('시장이 금리 경로를 어디에 두고 있는지')
+        && !buildScreenReadingPrompt({ screen: 'macro', lines: ['기준일: 11/24 미국 종가'] }).includes('시장이 금리 경로를 어디에 두고 있는지'),
+      JSON.stringify(Object.fromEntries(['breadth', 'macro', 'sentiment', 'fxbond'].map((screen) => [screen, story(screen).map((line) => line.slice(0, 40))]))));
+  }
   const axes = packet?.axes || [];
   const axisLines = (packet?.lines || []).filter((line) => axes.some((row) => line.startsWith(`${row.title}: ${row.stateLabel}`)));
   check('v60.31 ⑨ the repository history.json builds the 시장 상태 packet: six axes, each with its state label and figures',

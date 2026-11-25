@@ -42,6 +42,7 @@ import { correlationFlatBand, stockBondCorrelationWord } from '../../domain/mark
 import { dodgeSvgLabels } from './svg-label-dodge.js';
 import { MARKET_WINDOWS } from '../../domain/market/session/market-windows.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { policyPathOf } from '../../domain/market/story/cross-market.js';
 import { MACRO_SIGNAL_RULES } from '../../domain/macro/macro-signals.js';
 import { volatilityChapter } from '../../domain/macro/volatility.js';
 import { renderIndexEarnings } from './index-earnings.js';
@@ -667,7 +668,7 @@ function renderCommodities(doc, root) {
 
 // v58.74 (text audit C1): the page opens with its through-line — which factors weigh, whether the quadrant is set, which
 // branch fits best and the release that decides next — so the sections below read as steps of one argument.
-function macroThroughLine(read, crossroads) {
+function macroThroughLine(read, crossroads, path = null) {
   const axes = read?.axes || [];
   if (!axes.length) return null;
   const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title);
@@ -682,7 +683,10 @@ function macroThroughLine(read, crossroads) {
   const first = crossroads?.nextEvent || null;
   const decider = crossroads?.decidingEvent || null;
   const next = first ? ` 다음 주요 발표는 ${label(first)}입니다.${decider ? ` 지금 맞서는 시나리오를 가를 발표는 ${label(decider)}입니다.` : ''}` : '';
-  return `${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${next}`;
+  // What the bond market prices for the policy path leads: it is the link from these indicators to stocks (the same row
+  // the 오늘 opening shows, cross-market.js policyPathOf), and the tally follows as its ground.
+  const priced = path?.said?.text ? `금리 경로 ${path.word} — ${path.said.text}. ${path.meaning}입니다. ` : '';
+  return `${priced}${weigh}${burden.length ? '이고' : ''}, ${quadrant}입니다.${next}`;
 }
 
 export function renderMacroBoard({ documentRef: doc, root }) {
@@ -696,7 +700,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   const { regime, macroRead: read, crossroads } = interpretation;
   const basis = doc.getElementById('macro-board-basis');
   if (basis) {
-    basis.textContent = board.available ? macroThroughLine(read, crossroads) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
+    basis.textContent = board.available ? macroThroughLine(read, crossroads, policyPathOf(macroHistory, regime?.asOf || null)) || '공식 발표와 미국 종가 기준' : serverDataWaitText(root);
     basis.title = '공식 발표와 미국 종가 기준';
   }
   // The forward branches are on 시장 상태 (market-regime.js renders them into its scenario fold).
