@@ -6,6 +6,32 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.55 화면 문장과 계산 근거 (2026-11-25)
+
+- [x] QA-RECENT-RETURNS-01: v60.55 스크리너 코어 행은 최근 20거래일 일간 수익률(rets, %, 오래된 것부터, 마지막 값은 그 행의 factorSessionDate)을 ret1d와 같은 조정 계열로 싣고, 시장 기준 지수 달력에 없는 세션·공급자 종가 결측 세션과 그 다음 세션은 null이다; 확장 샤드와 종가·가격 값은 싣지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-lookahead-check.mjs
+- [x] QA-RECENT-RETURNS-02: v60.55 screener.json은 시장별 rets 날짜 목록(retDatesByMarket, 20개 오름차순, 시장 세션일로 끝남)을 싣고, 행 기본값 인코딩은 rets를 기본값으로 올리지 않으며, 검증기는 rets가 없을 때 통과하고 있으면 20개 유한값 또는 null만 받는다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/validate-screener-artifact.mjs
+- [x] QA-RECENT-RETURNS-03: v60.55 시장 원장(market-day.json)은 미국 테마 주도주·하위 테마 종목과 한국 반도체 종목의 rets를 시장 날짜에 맞춘 recent 블록으로 싣고(한 세션 늦은 보존 행은 날짜만큼 밀어 맞춤), 스크리너에 rets가 없으면 블록을 뺀다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-RECENT-RETURNS-04: v60.55 returnBetween은 시작일 다음 세션부터 끝 날짜까지 일간 수익률을 복리로 묶고, 결측·창 밖 날짜·빈 구간이면 null이다; 미국 날짜 기준 한국 종목은 그 미국 종가 뒤 첫 한국 세션을 기준점으로 삼고 쓴 두 날짜를 돌려준다; medianBetween은 값이 있는 종목 3개 이상일 때만 중앙값을 낸다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-RECENT-RETURNS-LIVE-01: v60.55 push 뒤 다음 스크리너 수집에서 public-data/screener.json 행에 rets가, 최상위에 retDatesByMarket(US·KR)가 실리고, 이어지는 원장 빌드에서 market-day.json에 recent 블록이 실린다. verify_by: push 뒤 public-data/screener.json, market-day.json
+- [x] QA-SESSION-MOVE-BIND-01: v60.55 AI 시황 글에서 최근 세션 날짜 아래 지수 등락률은 그 세션의 값이어야 하고, 5거래일·고점 대비처럼 자기 기간을 밝힌 수치와 SOXX는 대상이 아니다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-SESSION-MOVE-BIND-LIVE-01: v60.55 push 뒤 실서비스 marketAnalysis 첫 문단의 동일가중 하루 등락이 history.json rsp 하루 등락과 같다. verify_by: push 뒤 public-data/data.json marketAnalysis.full 과 history.json
+- [x] QA-SESSION-READ-01: v60.55 오늘·시장 상태 머리말은 최근 세션 문장(지수별 하루 등락, 주도주·시장 전체 부호 판정, 반등분 되돌림 비율)으로 시작하고, 내린(오른) 테마·종목과 장 마감 뒤 실적 발표 종목의 시간외·정규장 등락을 그 세션 자료가 있을 때만 싣는다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절)
+- [x] QA-SESSION-READ-02: v60.55 반등의 신용 확인은 저점 뒤 가장 최근에 발표된 하이일드 스프레드를 그 관측일과 함께 쓰고, 저점 뒤 발표가 없으면 자료 없음이다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절)
+- [x] QA-SESSION-READ-03: v60.55 움직인 테마는 하위 테마별 중앙값(parts)을 싣고, 머리말은 테마보다 1%p 이상 더 같은 방향으로 간 하위 테마를 괄호로 덧붙인다; 반등분 되돌림은 그 세션에 내린 지수에 대해서만 말한다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절)
+- [x] QA-SESSION-READ-04: v60.55 시간외 수집은 마지막 값과 함께 그 시간외 구간의 고점·저점(정규장 종가 대비 %)을 저장하고, 머리말은 3% 이상 갔다가 마지막 값이 2%p 이상 벗어난 극값을 '한때'로 덧붙인다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-market-story-check.mjs (session-read 절)
+- [ ] QA-SESSION-READ-LIVE-02: v60.55 push 뒤 다음 수집에서 data.json afterHours.rows에 highPct·lowPct가, market-day.json 테마 group-move에 parts가 실린다. verify_by: push 뒤 public-data/data.json, market-day.json
+- [x] QA-SESSION-READ-05: v60.55 시장 원장은 S&P 500 하루 등락의 업종별 기여(indexSplit)를 싣고, 머리말은 가장 크게 끌고 간 업종·나머지 업종 합계·반대로 간 업종을 말한다; 원장 세션이 다르거나 합계가 지수 등락과 0.2%p 넘게 어긋나면 말하지 않는다. 장 마감 뒤 실적 줄은 공시 요약의 EPS 예상 대비를 시간외 등락 앞에 붙인다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절); node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-SESSION-READ-06: v60.55 반등 저점 뒤 갈린 곳: 원장의 종목별 일별 등락(recent)으로 주도 테마의 하위 테마 가운데 가장 많이 되찾은 곳과 가장 뒤처진 곳, 큰 종목, 한국 메모리 두 종목(한국 거래일 기준 날짜 표기)을 말하고, 자료가 없으면 줄이 없다. verify_by: node scripts/ci-market-story-check.mjs; push 뒤 수집분에서 화면 확인
+- [x] QA-STORY-ALL-SCREENS-01: v60.55 시장 폭·매크로·투자 심리·금리와 환율·테마·한국 AI 글의 사실 묶음은 시장 상태와 같은 시장 이야기 줄(세션, 업종 기여, 금리 경로, 몰린 곳, 갈린 곳)을 화면별로 받아 자기 지표와 잇고, 세션 날짜 아래 지수 등락은 그 세션 값이어야 한다. verify_by: node scripts/ci-screen-reading-check.mjs
+- [x] QA-MACRO-LEAD-01: v60.55 매크로 화면 머리말은 채권 시장이 금리 경로를 어디에 두는지(인상 반영·동결 부근·인하 반영)와 그 뜻으로 시작하고 요인 집계가 뒤따른다. verify_by: 로컬 화면 #macro 머리말 (2026-11-25 확인)
+- [ ] QA-SESSION-READ-LIVE-01: v60.55 push 뒤 실서비스 오늘 화면 첫 문장과 시장 상태 AI 글이 최근 세션 사실(되돌림·내린 곳·시간외)을 싣는다. verify_by: push 뒤 실서비스 화면과 data.json screenReadings.signal
+- [x] QA-CROSS-MARKET-01: v60.55 오늘·시장 상태 머리말은 세션 줄 뒤, 요약 앞에 신용·달러·변동성·시장 폭·금리 한 줄씩(수준과 최근 변화, 상태어, 고정된 뜻 한 구절)을 싣는다; 신용·변동성·시장 폭·금리의 상태어는 같은 세션의 시장 상태 지표 판정 그대로이고(다른 세션의 판정은 쓰지 않음), 달러는 유가와 달러 지표의 달러 기준(dollarRiseBurden)과 매크로 연결 고리의 하락 선이다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절 cross-market)
+- [x] QA-CROSS-MARKET-02: v60.55 금리 줄 아래 금리 경로 줄은 2년물 − 기준금리 중간값(bp, 그날 관측일)과 약 30일 전 값을 싣고 통화정책 지표의 ±0.25%p 선으로 인상 반영·동결 부근·인하 반영을 붙이며, 다음 물가 발표는 수집된 발표 일정에서 세션 뒤 첫 CPI·PCE만 쓴다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절 cross-market); node scripts/ci-screen-reading-check.mjs (repository data 절)
+- [x] QA-CROSS-MARKET-03: v60.55 반등 중에는 '다른 시장 확인' 집계가 다른 시장 줄의 머리에 한 번만 나오고 각 줄에 그 시장의 저점 뒤 표시가 붙는다; 반등 줄 아래 같은 항목 목록은 더 그리지 않는다. verify_by: node scripts/ci-market-story-check.mjs (session-read 절 cross-market, 화면 그리기)
+- [x] QA-CROSS-MARKET-04: v60.55 다른 시장 줄의 모든 수치는 claim이고, 저장된 모든 세션에서 종가·FRED 관측과 맞는지 다시 읽는다(달러·VIX·3개월 VIX·10년·50/200일선 비율·하이일드·2년물 격차) verify_by: node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-CROSS-MARKET-05: v60.55 시장 상태 AI 글은 세션 → 몰린 곳 → 확산 → 다른 시장 확인(각각의 뜻) → 반등이 이어질 조건(금리 경로, 다음 물가 발표, 실적)으로 잇고, 이 화면만 블록 3개·760자까지 허용한다(다른 화면은 2개·520자); 수치·상태어·지시 금지 검증은 그대로다. verify_by: node scripts/ci-screen-reading-check.mjs
+- [ ] QA-CROSS-MARKET-LIVE-01: v60.55 push 뒤 실서비스 오늘·시장 상태 머리말에 다른 시장 여섯 줄이 보이고(휴대폰 폭에서 한 열), 다음 시장 상태 AI 글이 세 블록으로 다른 시장의 뜻을 잇는다. verify_by: push 뒤 실서비스 화면과 data.json screenReadings.signal
+
 ## v60.54 AI 답변과 화면의 같은 사실 (2026-11-25)
 
 - [x] QA-AI-CHANNEL-CLAIM-01: v60.54 시장 조사의 ledger 도구와 단서 메시지는 텔레그램 채널에서 추린 사실(인수합병·경제지표·목표주가 건수)을 '[채널 주장 · 미확인 · 채널 종류 · M/D]' 표시로만 싣고 게시물 원문은 싣지 않으며, 채널 주장 수치만 기댄 price 원인은 막는다. verify_by: node scripts/ci-market-investigation-check.mjs (v60.54 라벨)

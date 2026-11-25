@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-24
+last_verified: 2026-11-25
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2767 - v60.55 - AI 시황 글이 동일가중의 5거래일 등락(-0.8%)을 11/24 하루 등락으로 씀 (실제 +0.5%) (2026-11-25)
+
+- symptom/reproduction: 공개된 AI 시황 글 첫 문장이 '나스닥100은 11/24 -2.0%로 동일가중 -0.8%보다 더 내렸고'라고 씀. 동일가중은 그날 +0.5%였고 -0.8%는 5거래일 등락
+- root_cause: 수치 검증이 숫자가 사실 묶음에 있는지만 보고 어느 지수의 어느 기간 값인지는 보지 않아, 같은 지수의 다른 기간 수치가 세션 날짜 아래에 붙어도 통과함
+- fix: 세션 날짜 아래 지수 등락률을 그 세션 값에 묶어 검사하는 sessionMoveIssues를 시황 글과 화면별 AI 글 검증에 추가
+- violated_rule: R3 (화면에 나간 수치는 그 대상과 기간의 값이어야 한다)
+- prevention: 사실 묶음의 최근 세션 줄을 기준으로, 그 날짜를 말하는 문장에서 지수 이름 바로 뒤 등락률이 세션 값과 다르면 차단(session-move-mismatch). 시황 글과 화면별 AI 글 검증 양쪽에 적용. 자기 기간(5거래일·고점 대비)을 밝힌 수치와 다른 상품(SOXX)은 대상 아님
+- verification/residual: node scripts/ci-data-pipeline-contract-check.mjs (v60.55 session-move 검사: 실제 문장 재현 포함)
+- files: scripts/lib/market-analysis-validate.mjs, scripts/lib/screen-reading.mjs, scripts/ci-data-pipeline-contract-check.mjs
 
 ## P2766 - v60.52 - A 대 B 비교 다섯 곳이 두 쪽 끝 세션이 다를 때 한쪽의 이전 값을 그대로 썼다 (2026-11-24)
 
