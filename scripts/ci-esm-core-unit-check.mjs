@@ -6445,7 +6445,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
   const producerText = readProducerSource(); // The screener lane lives in scripts/producer/screener.mjs
-  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
+  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, sessionCalendars })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
   // The on-demand raw row equals the producer path run on the same chart.
@@ -7168,6 +7168,81 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const closes = Array.from({ length: 60 }, (_, i) => 100 + i);
   const factors = closesToFactors ? closesToFactors(closes) : null;
   if (!factors || Math.abs(factors.ret10d - (159 / 149 - 1) * 100) > 0.01) fail(`v58.78 ret10d must be the ten-session return on the same closes: ${factors.ret10d}`);
+}
+
+{
+  // Per-stock daily returns between two recent sessions: producer `rets`, its date lists, the row encoding, the
+  // validator rules, the ledger block and the reader.
+  const pf = await load('src/domain/screener/price-factors.js');
+  const rr = await load('src/domain/market/day/recent-returns.js');
+  const { retDatesByMarketOf } = await load('scripts/producer/screener.mjs');
+  const { encodeShardRows, expandShardRows } = await load('src/data/screener-extended.js');
+  const { normalizeScreener } = await load('src/data/normalize/screener.js');
+  const { buildMarketDay } = await load('src/domain/market/day/facts.js');
+  const day = (i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10);
+  const calendar = Array.from({ length: 61 }, (_, i) => day(i));
+  const closes = calendar.map((_, i) => 100 + i);
+  const ret = (i) => Number(((closes[i] / closes[i - 1] - 1) * 100).toFixed(2));
+  const plain = pf.recentSessionReturns({ dates: calendar, series: closes, calendar });
+  if (!plain || plain.length !== 20 || plain[19] !== ret(60) || plain[0] !== ret(41)) fail(`v60.55 rets are the last 20 daily returns, oldest first: ${JSON.stringify(plain)}`);
+  // A provider gap on calendar day 55: that session and the one after it have no one-session return.
+  const gapDates = calendar.filter((_, i) => i !== 55);
+  const gapCloses = closes.filter((_, i) => i !== 55);
+  const gapped = pf.recentSessionReturns({ dates: gapDates, series: gapCloses, gaps: [day(55)], calendar });
+  if (gapped[14] !== null || gapped[15] !== null || gapped[13] !== ret(54) || gapped[16] !== ret(57)) fail(`v60.55 a session with an empty provider close and the one after it are null: ${JSON.stringify(gapped)}`);
+  if (JSON.stringify(pf.recentSessionReturns({ dates: gapDates, series: gapCloses, calendar })) !== JSON.stringify(gapped)) fail('v60.55 a calendar session the stock skipped is null even without a provider gap entry');
+  // The index calendar lacks day 50, the stock had an empty close there: the 49→51 step is two sessions, not one.
+  const thinCalendar = calendar.filter((_, i) => i !== 50);
+  const thin = pf.recentSessionReturns({ dates: calendar.filter((_, i) => i !== 50), series: closes.filter((_, i) => i !== 50), gaps: [day(50)], calendar: thinCalendar });
+  if (thin[thinCalendar.indexOf(day(51)) - (thinCalendar.length - 20)] !== null) fail(`v60.55 a provider gap between two calendar sessions makes that return null: ${JSON.stringify(thin)}`);
+  if (pf.recentSessionReturns({ dates: calendar.slice(0, 60), series: closes, calendar: calendar.slice(30, 50) }) !== null) fail('v60.55 a calendar that does not hold the row\'s last date gives no rets');
+  // priceFactorRow: rets from the adjusted series ret1d reads, only with the market's calendar.
+  const history = { sym: 'RR', closes: closes.map((v) => v * 2), adjCloses: closes, highs: closes, lows: closes, volumes: closes.map(() => 1000), dates: calendar,
+    adjustedCloseStatus: 'complete', observedAt: `${day(60)}T14:30:00.000Z`, nullCloseDates: [] };
+  const withRets = pf.priceFactorRow(history, { computedAt: `${day(61)}T00:00:00.000Z`, sessionCalendars: new Map([['US', calendar]]) });
+  const noRets = pf.priceFactorRow(history, { computedAt: `${day(61)}T00:00:00.000Z` });
+  if (withRets.rets?.length !== 20 || withRets.rets[19] !== withRets.ret1d || 'rets' in noRets) fail(`v60.55 priceFactorRow publishes rets on the ret1d series only with a calendar: ${JSON.stringify([withRets.rets, withRets.ret1d, noRets.rets])}`);
+  if (pf.priceFactorRow({ ...history, sym: '005930.KS' }, { computedAt: `${day(61)}T00:00:00.000Z`, sessionCalendars: new Map([['US', calendar]]) }).rets !== undefined) fail('v60.55 a Korean row is not dated on the US calendar');
+  const producerSource = readFileSync(path.join(root, 'scripts/producer/screener.mjs'), 'utf8');
+  const extendedSource = readFileSync(path.join(root, 'scripts/producer/screener-extended.mjs'), 'utf8');
+  if (!producerSource.includes('_enrichPriceFactors(syms, { recentReturns: true })') || !extendedSource.includes('_enrichPriceFactors(syms, { concurrency })')) fail('v60.55 only the core screener asks for rets; the extended shard keeps its call without them');
+  // retDatesByMarket ends on the market's published session date.
+  const byMarket = retDatesByMarketOf(new Map([['US', calendar], ['KR', calendar.slice(0, 10)]]), { US: day(58), KR: day(9) });
+  if (byMarket.US?.length !== 20 || byMarket.US[19] !== day(58) || 'KR' in byMarket) fail(`v60.55 retDatesByMarket holds 20 dates ending on the session date, none for a short calendar: ${JSON.stringify(byMarket)}`);
+  // Row encoding: an array most rows share is never a row default, and the encoding stays lossless.
+  const sameRets = Array(20).fill(null);
+  const encoded = encodeShardRows({ A: { rets: sameRets, x: 1 }, B: { rets: [...sameRets], x: 1 }, C: { rets: [...sameRets], x: 1 } });
+  const expandedRows = expandShardRows(encoded);
+  if ('rets' in encoded.rowDefaults || !Array.isArray(encoded.data.A.rets) || ['A', 'B', 'C'].some((sym) => expandedRows[sym].x !== 1 || JSON.stringify(expandedRows[sym].rets) !== JSON.stringify(sameRets))
+    || expandedRows.A.rets === expandedRows.B.rets) fail(`v60.55 rets stays on each row: ${JSON.stringify(encoded.rowDefaults)}`);
+  // Normalizer: passes a well-formed array, null otherwise.
+  const norm = normalizeScreener({ rows: [{ sym: 'A', rets: plain }, { sym: 'B', rets: plain.slice(1) }, { sym: 'C' }] }).rows;
+  if (JSON.stringify(norm[0].rets) !== JSON.stringify(plain) || norm[1].rets !== null || norm[2].rets !== null) fail('v60.55 the normalizer passes rets of 20 values and nulls anything else');
+  // Validator rules.
+  if (rr.recentReturnsRowErrors({}).length || rr.recentReturnsRowErrors({ rets: plain }).length || !rr.recentReturnsRowErrors({ rets: plain.slice(1) }).length || !rr.recentReturnsRowErrors({ rets: [...plain.slice(1), 'x'] }).length) fail('v60.55 the validator accepts absent or 20 finite-or-null rets only');
+  if (rr.recentReturnDatesErrors(undefined).length || rr.recentReturnDatesErrors({ US: calendar.slice(0, 20) }).length || !rr.recentReturnDatesErrors({ US: [...calendar.slice(0, 19), day(0)] }).length) fail('v60.55 retDatesByMarket must be 20 ascending dates per market');
+  // Ledger + reader on a US frame: US low on Fri, Korea answers it the next Korean session.
+  const usDates = ['2026-10-28', '2026-10-29', '2026-10-30', '2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-16', '2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23', '2026-11-24'];
+  const flat = (tail) => [...Array(20 - tail.length).fill(-1), ...tail];
+  const screener = { factorSessionDateByMarket: { US: '2026-11-24', KR: '2026-11-24' }, retDatesByMarket: { US: usDates, KR: usDates },
+    data: { NVDA: { rets: flat([2, 3]), factorSessionDate: '2026-11-24' }, MU: { rets: flat([6, 3]), factorSessionDate: '2026-11-24' }, WDC: { rets: flat([5, 2]), factorSessionDate: '2026-11-24' },
+      STX: { rets: flat([4, null]), factorSessionDate: '2026-11-24' }, AMD: { rets: flat([9, 4]), factorSessionDate: '2026-11-23' }, ZZZ: { rets: flat([1, 1]), factorSessionDate: '2026-11-24' },
+      '000660.KS': { rets: flat([-2, 7, 2]), factorSessionDate: '2026-11-24' } } };
+  const themes = [{ id: 'semi', nameKr: '반도체', leaders: ['NVDA', 'AMD'], subThemes: [{ name: '메모리', tickers: ['MU', 'WDC', 'STX'] }] }];
+  const ledger = buildMarketDay({ screener, themes, krThemeMap: { semi: [{ code: '000660' }, { code: '999999' }] }, nowMs: Date.parse('2026-11-25T03:00:00Z') });
+  const recent = ledger.recent;
+  if (!recent || Object.keys(recent.rows).sort().join(',') !== '000660.KS,AMD,MU,NVDA,STX,WDC' || recent.dates.US.length !== 20) fail(`v60.55 the ledger's recent block holds theme leaders, sub-theme tickers and the Korean chip names only: ${JSON.stringify(recent && Object.keys(recent.rows))}`);
+  if (recent.rows.AMD[18] !== 4 || recent.rows.AMD[19] !== null) fail(`v60.55 a row a session behind is shifted onto the market's dates: ${JSON.stringify(recent.rows.AMD)}`);
+  if ('recent' in buildMarketDay({ screener: { ...screener, retDatesByMarket: undefined }, themes, nowMs: Date.parse('2026-11-25T03:00:00Z') })) fail('v60.55 the ledger omits recent when the screener has no rets');
+  const nv = rr.returnBetween(recent, 'NVDA', 'US', '2026-11-20', '2026-11-24');
+  if (nv?.value !== Number(((1.02 * 1.03 - 1) * 100).toFixed(2)) || nv.from !== '2026-11-20' || nv.to !== '2026-11-24' || nv.sessions !== 2) fail(`v60.55 returnBetween compounds the sessions after fromDate through toDate: ${JSON.stringify(nv)}`);
+  if (rr.returnBetween(recent, 'STX', 'US', '2026-11-20', '2026-11-24') !== null || rr.returnBetween(recent, 'NVDA', 'US', '2026-10-01', '2026-11-24') !== null || rr.returnBetween(recent, 'NVDA', 'US', '2026-11-24', '2026-11-20') !== null) fail('v60.55 returnBetween is null on a missing return, a date outside the window or an empty span');
+  const hynix = rr.returnBetween(recent, '000660.KS', 'US', '2026-11-20', '2026-11-24');
+  if (hynix?.from !== '2026-11-23' || hynix.to !== '2026-11-24' || hynix.value !== 2 || hynix.endsBefore !== true) fail(`v60.55 a Korean name against a US low starts after the first Korean session following the US close: ${JSON.stringify(hynix)}`);
+  if (rr.answeringSession(usDates, 'US', 'KR', '2026-11-20') !== '2026-11-20' || rr.answeringSession(usDates, 'KR', 'US', '2026-11-20') !== '2026-11-23' || rr.answeringSession(usDates, 'KR', 'US', '2026-10-01') !== null) fail('v60.55 answeringSession: KR→US same date or later, US→KR strictly later, nothing before the window');
+  const memory = rr.medianBetween(recent, ['MU', 'WDC', 'STX'], 'US', '2026-11-20', '2026-11-23');
+  if (memory?.value !== 5 || memory.count !== 3 || memory.from !== '2026-11-20' || memory.to !== '2026-11-23') fail(`v60.55 medianBetween is the members' median with shared dates: ${JSON.stringify(memory)}`);
+  if (rr.medianBetween(recent, ['MU', 'WDC', 'STX'], 'US', '2026-11-20', '2026-11-24') !== null) fail('v60.55 medianBetween needs 3 members with a value');
 }
 
 {

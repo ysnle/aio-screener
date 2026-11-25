@@ -1,0 +1,17 @@
+{
+  "version": "v60.55",
+  "date": "2026-11-25",
+  "qa": [
+    { "id": "QA-RECENT-RETURNS-01", "text": "v60.55 스크리너 코어 행은 최근 20거래일 일간 수익률(rets, %, 오래된 것부터, 마지막 값은 그 행의 factorSessionDate)을 ret1d와 같은 조정 계열로 싣고, 시장 기준 지수 달력에 없는 세션·공급자 종가 결측 세션과 그 다음 세션은 null이다; 확장 샤드와 종가·가격 값은 싣지 않는다", "verify_by": "node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-lookahead-check.mjs", "done": true },
+    { "id": "QA-RECENT-RETURNS-02", "text": "v60.55 screener.json은 시장별 rets 날짜 목록(retDatesByMarket, 20개 오름차순, 시장 세션일로 끝남)을 싣고, 행 기본값 인코딩은 rets를 기본값으로 올리지 않으며, 검증기는 rets가 없을 때 통과하고 있으면 20개 유한값 또는 null만 받는다", "verify_by": "node scripts/ci-esm-core-unit-check.mjs; node scripts/validate-screener-artifact.mjs", "done": true },
+    { "id": "QA-RECENT-RETURNS-03", "text": "v60.55 시장 원장(market-day.json)은 미국 테마 주도주·하위 테마 종목과 한국 반도체 종목의 rets를 시장 날짜에 맞춘 recent 블록으로 싣고(한 세션 늦은 보존 행은 날짜만큼 밀어 맞춤), 스크리너에 rets가 없으면 블록을 뺀다", "verify_by": "node scripts/ci-esm-core-unit-check.mjs", "done": true },
+    { "id": "QA-RECENT-RETURNS-04", "text": "v60.55 returnBetween은 시작일 다음 세션부터 끝 날짜까지 일간 수익률을 복리로 묶고, 결측·창 밖 날짜·빈 구간이면 null이다; 미국 날짜 기준 한국 종목은 그 미국 종가 뒤 첫 한국 세션을 기준점으로 삼고 쓴 두 날짜를 돌려준다; medianBetween은 값이 있는 종목 3개 이상일 때만 중앙값을 낸다", "verify_by": "node scripts/ci-esm-core-unit-check.mjs", "done": true },
+    { "id": "QA-RECENT-RETURNS-LIVE-01", "text": "v60.55 push 뒤 다음 스크리너 수집에서 public-data/screener.json 행에 rets가, 최상위에 retDatesByMarket(US·KR)가 실리고, 이어지는 원장 빌드에서 market-day.json에 recent 블록이 실린다", "verify_by": "push 뒤 public-data/screener.json, market-day.json", "done": false }
+  ],
+  "qa_section": "화면 문장과 계산 근거",
+  "changelog": [
+    "종목과 하위 테마가 두 최근 세션 사이에 얼마나 반등하거나 되돌렸는지 말할 수 있도록, 스크리너가 종목별 최근 20거래일 일간 수익률을 싣고(종가는 싣지 않음) 시장 원장이 테마 종목과 한국 반도체 종목의 수익률을 함께 보관함",
+    "한국 종목을 미국 저점과 비교할 때는 그 미국 종가 뒤 첫 한국 세션부터 세도록 규칙을 정해, 한국이 전날 미국장에 반응한 몫이 섞이지 않게 함"
+  ],
+  "note": "리드 결정 2026-11-25: 11/20 저점 이후 NVDA·AMD·MU/WDC/STX, SK하이닉스·삼성전자와 미국 반도체를 비교할 자료 경로; 화면 문장은 다른 스레드가 이어서 쓴다"
+}

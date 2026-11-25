@@ -110,11 +110,15 @@ function strip(row, defaults) {
   return out;
 }
 
+// A per-row series is never a default: a session where most rows share one value array (every return null on a gap
+// day) would hand that one array object to every expanded row.
+export const ROW_SERIES_KEYS = Object.freeze(['rets']);
+
 // Lossless: expandShardRows(encodeShardRows(data)) deep-equals data.
 export function encodeShardRows(data = {}, { groups = EXTENDED_DEFAULT_GROUPS } = {}) {
   const symbols = Object.keys(data);
   const rows = symbols.map((sym) => data[sym]);
-  const allKeys = [...new Set(rows.flatMap((row) => Object.keys(row)))];
+  const allKeys = [...new Set(rows.flatMap((row) => Object.keys(row)))].filter((key) => !ROW_SERIES_KEYS.includes(key));
   // A group's switch key stays on every row that has it, or expansion could not tell which rows take the group.
   const rowDefaults = commonValues(rows, allKeys.filter((key) => !groups.includes(key)));
   const rowDefaultsWhen = [];

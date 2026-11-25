@@ -3,6 +3,7 @@ import { expandScreenerArtifact } from '../src/data/screener-extended.js'; // Co
 import { readNumber } from '../src/domain/shared/number.js';
 import { LATEST_SESSION_VOLUME_BASIS } from '../src/domain/screener/price-factors.js';
 import { rowFactContractErrors } from '../src/domain/screener/row-facts-contract.js';
+import { recentReturnDatesErrors, recentReturnsRowErrors } from '../src/domain/market/day/recent-returns.js';
 
 const path = process.argv[2] || 'public-data/screener.json';
 const payload = expandScreenerArtifact(JSON.parse(await readFile(path, 'utf8')));
@@ -91,9 +92,12 @@ for (let i = 0; i < rows.length; i++) {
   if (!row || (readNumber(row.ret1m) == null && readNumber(row.rsi) == null)) { errors.push(`row ${i} has no derived factors`); break; }
   if (!row.observedAt || !Number.isFinite(new Date(row.observedAt).getTime())) { errors.push(`row ${i} has invalid observedAt`); break; }
 }
+// The per-stock daily returns and their date lists (src/domain/market/day/recent-returns.js); a file before them has neither.
+// They are returns only: the raw-price check above still covers every row.
+errors.push(...recentReturnDatesErrors(payload.retDatesByMarket));
 // The margin/revenue-growth basis and the dividend facts (src/domain/screener/row-facts-contract.js).
 for (const [sym, row] of Object.entries(payload.data || {})) {
-  const problems = rowFactContractErrors(row || {});
+  const problems = [...rowFactContractErrors(row || {}), ...recentReturnsRowErrors(row || {})];
   if (problems.length) { errors.push(`row ${sym}: ${problems.join('; ')}`); break; }
 }
 

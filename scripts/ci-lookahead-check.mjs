@@ -14,6 +14,7 @@ import { buildRegimeRadar } from '../src/domain/market/regime/regime-radar.js';
 import { buildThemeStageBackfill } from './producer/theme-stage-backfill.mjs';
 import { loadThemeMaps } from './build-scenario-state.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
+import { recentSessionReturns } from '../src/domain/screener/price-factors.js';
 
 const readJson = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const historyFile = readJson('../public-data/history.json');
@@ -128,6 +129,27 @@ let backfillChecked = 0;
   }
 }
 
+// 2b. Per-stock daily returns (`rets`): the returns dated on or before D are the same when the series stops at D and when
+// every close after D is rewritten — each one reads its own session's close and the one before, never a later close.
+let retsChecked = 0;
+{
+  const spx = buildCloseSeries(rows, 'spx');
+  const calendar = spx.map((point) => point.date);
+  const closes = spx.map((point) => point.close);
+  let seed = 11;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  for (const date of checkDates.slice(-10)) {
+    const at = calendar.indexOf(date);
+    const cut = recentSessionReturns({ dates: calendar.slice(0, at + 1), series: closes.slice(0, at + 1), calendar });
+    const perturbed = closes.map((value, i) => (i > at ? value * (0.5 + rand()) : value));
+    const later = recentSessionReturns({ dates: calendar, series: perturbed, calendar });
+    if (!cut || !later) continue;
+    const shift = calendar.length - 1 - at;
+    if (!same(cut.slice(shift), later.slice(0, later.length - shift))) fail(`rets dated through ${date} change when the closes after it change`);
+    retsChecked += 1;
+  }
+}
+
 // 3. Warm-up sufficiency: today's market reading must not depend on history buckets older than the documented need — a
 // 200-session average plus the 60-session latch and a 20-session slope, about 280 sessions, so 330 buckets with margin.
 const WARMUP_ROWS = 330;
@@ -150,4 +172,4 @@ if (failures.length) {
   for (const message of failures) console.error(`  - ${message}`);
   process.exit(1);
 }
-console.log(`ci-lookahead-check: PASS — ${checkDates.length} sessions as-of invariant (credit evaluated on ${creditEvaluated}), ${backfillChecked} backfill sessions future-blind, warm-up ${WARMUP_ROWS} buckets sufficient`);
+console.log(`ci-lookahead-check: PASS — ${checkDates.length} sessions as-of invariant (credit evaluated on ${creditEvaluated}), ${backfillChecked} backfill sessions future-blind, ${retsChecked} rets windows future-blind, warm-up ${WARMUP_ROWS} buckets sufficient`);

@@ -146,6 +146,32 @@ export function closesToFactors(closes) {
   };
 }
 
+export const RECENT_RETURN_SESSIONS = RULES.recentReturns.sessions;
+/**
+ * The daily returns (%, 2 decimals, oldest first) of the last RECENT_RETURN_SESSIONS sessions of `calendar` that end on
+ * the row's own last date, so every row of a market lines up with one published date list. `calendar` is the market's
+ * reference session dates (an index series); a session counts only when it and the calendar session before it are
+ * consecutive rows of this history with no empty provider close between them. A session the stock did not print, a
+ * provider gap or a calendar date the stock skipped is null rather than a two-session move under one date.
+ * Null when the calendar does not hold the row's last date or is too short.
+ */
+export function recentSessionReturns({ dates = [], series = [], gaps = [], calendar = [], sessions = RECENT_RETURN_SESSIONS } = {}) {
+  const last = dates[dates.length - 1];
+  const end = Array.isArray(calendar) ? calendar.lastIndexOf(last) : -1;
+  if (!last || end < sessions) return null;
+  const rowAt = new Map(dates.map((date, index) => [date, index]));
+  const valid = (value) => typeof value === 'number' && Number.isFinite(value) && value > 0;
+  const out = [];
+  for (let k = end - sessions + 1; k <= end; k += 1) {
+    const prev = rowAt.get(calendar[k - 1]);
+    const cur = rowAt.get(calendar[k]);
+    const ok = prev != null && cur === prev + 1 && valid(series[prev]) && valid(series[cur])
+      && !gaps.some((date) => date > calendar[k - 1] && date < calendar[k]);
+    out.push(ok ? round((series[cur] / series[prev] - 1) * 100, 2) : null);
+  }
+  return out;
+}
+
 // Sessions back in which a close at or below the pivot makes today's close above it a breakout.
 export const VCP_BREAKOUT_LOOKBACK = RULES.technical.breakout.crossSessions;
 // VCP (Volatility Contraction Pattern) 서버 사이드 계산 — aio-core.js _calcVCP 대응
@@ -497,7 +523,9 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
 // the down-day resilience field; a listing whose market has no index series leaves it null.
 // `benchmarks` (optional): Map of the same keys → { symbol, closeByDate: Map(date → index close) }; a row whose first
 // and last sessions of the 3-month window both have an index close gets benchmarkRet over the same dates.
-export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null, benchmarks = null } = {}) {
+// `sessionCalendars` (optional): Map of listing market ('US' | 'KR') → that market's reference session dates, ascending;
+// a row of a market with a calendar gets `rets` (recentSessionReturns) dated by the row's own factorSessionDate.
+export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null, benchmarks = null, sessionCalendars = null } = {}) {
   if (!r || r.__error || !r.closes) return null;
   const quoteCurrencyOf = (item) => listingCurrencyOf(item?.sym, item?.providerMeta);
   const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
@@ -591,6 +619,14 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     const sessionZone = timeZoneForMarket(r.providerMeta?.exchangeTimezoneName || timeZoneForSymbol(r.sym));
     f.factorSessionDate = sessionDateInMarket(r.observedAt, sessionZone);
     f.factorSessionTimezone = sessionZone;
+    {
+      // Same series as ret1d. A row whose last history date is not its session date cannot be placed on the
+      // market's date list, so it publishes none.
+      const calendar = sessionCalendars instanceof Map ? sessionCalendars.get(f.listingMarket) : null;
+      const rets = calendar && dates[dates.length - 1] === f.factorSessionDate
+        ? recentSessionReturns({ dates, series: factorPriceSeries, gaps, calendar }) : null;
+      if (rets) f.rets = rets;
+    }
     if (r.closeReconciliation) f.closeReconciliation = r.closeReconciliation;
     else if (Array.isArray(r.nullCloseDates) && r.nullCloseDates.length) f.providerMissingSessions = r.nullCloseDates;
     f.factorTimeBasis = 'bar-start';

@@ -9,6 +9,7 @@ import { readNumber, surprisePct } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 import { sessionCloses } from '../indices/index-levels.js';
 import { median as medianOf } from '../../themes/theme-medians.js';
+import { recentReturnsLedger } from './recent-returns.js';
 import { closeSessionMarket } from '../session/close-series.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { companyMatcher } from '../../briefing/news-picks.js';
@@ -457,10 +458,11 @@ function scoreMateriality(facts, links, nowMs) {
  * @param {object} input.macroHistory macro-history.json
  * @param {object} input.macroCalendar macro-calendar.json
  * @param {object[]} input.themes the theme map ({ id, nameKr, leaders })
+ * @param {object} input.krThemeMap js/aio-kr-data.js KR_THEME_MAP ({ id: [{ code }] }) — the Korean names `recent` holds
  * @param {object[]} input.indexWeights sp500-weights.json rows ({ sym, weight in % })
  */
 export function buildMarketDay({ history = [], screener = null, universe = [], news = [], signals = [], channels = [], calendar = null, briefs = null, macroHistory = null,
-  macroCalendar = null, themes = [], indexWeights = [], nowMs = Date.now() } = {}) {
+  macroCalendar = null, themes = [], krThemeMap = {}, indexWeights = [], nowMs = Date.now() } = {}) {
   const themesBySymbol = new Map();
   for (const theme of themes) for (const sym of theme.leaders || []) themesBySymbol.set(sym, [...(themesBySymbol.get(sym) || []), theme.id]);
   const namesBySymbol = new Map(universe.map((item) => [item.sym, item.name || item.sym]));
@@ -504,6 +506,8 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   }
   for (const fact of facts) { if (fact.kind === 'price') { fact.unusual = Math.abs(fact.z ?? 0) >= MOVE.unusualZ; fact.sizedBy = priceMoveSize(fact).leg; } fact.weight = fact.materiality; }
   facts.sort((a, b) => b.materiality - a.materiality);
+  // The last 20 sessions' daily returns of the names the story can compare "since the low" (recent-returns.js).
+  const recent = recentReturnsLedger(screener, { themes, krThemeMap });
   return {
     schemaVersion: MARKET_DAY_VERSION, generatedAt: new Date(nowMs).toISOString(),
     sessions: { us: screener?.factorSessionDateByMarket?.US || null, kr: screener?.factorSessionDateByMarket?.KR || null },
@@ -511,6 +515,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
     counts: Object.fromEntries([...new Set(facts.map((fact) => fact.kind))].map((kind) => [kind, facts.filter((fact) => fact.kind === kind).length])),
     dropped: { noise: noise.length },
     indexSplit: indexSplitOf(screener, indexWeights),
+    ...(recent ? { recent } : {}),
     facts, links, threads: threadsOf(facts, links)
   };
 }

@@ -17,7 +17,7 @@ import { round } from '../lib/producer-math.mjs';
 import { encodeScreenerArtifact, expandScreenerArtifact } from '../../src/data/screener-extended.js';
 import { _mean, backtestFactors } from '../lib/factors.mjs';
 import { BACKTEST_MIN_SERIES_CLOSES } from '../../src/domain/screener/model-fingerprint.js';
-import { isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, priceHistoryFromRows, priceFactorRow, LATEST_SESSION_VOLUME_BASIS } from '../../src/domain/screener/price-factors.js';
+import { isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, priceHistoryFromRows, priceFactorRow, LATEST_SESSION_VOLUME_BASIS, RECENT_RETURN_SESSIONS } from '../../src/domain/screener/price-factors.js';
 import { indexReturnsByDate } from '../../src/domain/technical/follow-through.js';
 import { fetchJSON } from '../lib/producer-http.mjs';
 import { TICKER_NEWS_MAX_AGE_MS, deriveTickerNewsLineage, fetchTickerNewsItems, planTickerNewsTargets, selectTickerNewsMemo } from '../lib/news-selection.mjs';
@@ -301,7 +301,9 @@ export async function enrichSecFundamentals(syms, priceData, priceResults = null
 // no longer leaves the 52-week fields null.
 export const FACTOR_HISTORY_RANGE = '2y';
 
-export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
+// `recentReturns`: the core artifact asks for the per-stock `rets`; the extended shard (~4,200 rows read only under 확장)
+// does not carry them.
+export async function _enrichPriceFactors(syms, { concurrency = 5, recentReturns = false } = {}) {
   const computedAt = new Date().toISOString();
   const fetchOne = async (sym) => {
     // Factors are labelled "세션 종가 기준", but a refresh 22 minutes after the
@@ -356,11 +358,15 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   // relative strength is not US-only.
   const indexReturns = new Map();
   const benchmarks = new Map();
-  for (const [key, symbol, segment] of [['us', '^GSPC', 'us'], ['kr', '^KS11', 'kr'], ['kq', '^KQ11', 'kr']]) {
+  // The S&P 500 and KOSPI session dates are each market's calendar for the per-stock daily returns (`rets`); KOSDAQ
+  // listings trade the same exchange days, so they share the KOSPI calendar.
+  const sessionCalendars = new Map();
+  for (const [key, symbol, segment, calendarOf] of [['us', '^GSPC', 'us', 'US'], ['kr', '^KS11', 'kr', 'KR'], ['kq', '^KQ11', 'kr', null]]) {
     try {
       const bars = (await fetchHistory(symbol, '1y') || []).filter((bar) => bar && bar.close > 0 && bar.date && isSessionComplete(bar.date, segment));
       if (bars.length > 60) indexReturns.set(key, indexReturnsByDate({ dates: bars.map((bar) => bar.date), closes: bars.map((bar) => bar.close) }));
       if (bars.length > 60 && segment === 'kr') benchmarks.set(key, { symbol, closeByDate: new Map(bars.map((bar) => [bar.date, bar.close])) });
+      if (recentReturns && calendarOf && bars.length > RECENT_RETURN_SESSIONS) sessionCalendars.set(calendarOf, [...new Set(bars.map((bar) => bar.date))].sort());
     } catch { /* resilience stays unavailable for this market */ }
   }
   const data = {};
@@ -368,12 +374,27 @@ export async function _enrichPriceFactors(syms, { concurrency = 5 } = {}) {
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
     // Shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks });
+    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, sessionCalendars });
     if (f) {
       data[r.sym] = f; ok++;
     }
   }
-  return { data, results, ok, computedAt };
+  return { data, results, ok, computedAt, sessionCalendars };
+}
+
+/**
+ * The dates of the per-stock `rets` arrays, one list per market: the RECENT_RETURN_SESSIONS calendar sessions that end on
+ * the market's published session date. A row's last return is dated by its own factorSessionDate, so a row on that
+ * date reads the list as is and an older (carried) row lines up by its date. A market whose calendar does not hold
+ * its session date is left out, and its rows' returns have no dates to be read against.
+ */
+export function retDatesByMarketOf(sessionCalendars, sessionDateByMarket) {
+  const out = {};
+  for (const [market, calendar] of sessionCalendars instanceof Map ? sessionCalendars : []) {
+    const end = Array.isArray(calendar) ? calendar.lastIndexOf(sessionDateByMarket?.[market]) : -1;
+    if (end + 1 >= RECENT_RETURN_SESSIONS) out[market] = calendar.slice(end + 1 - RECENT_RETURN_SESSIONS, end + 1);
+  }
+  return out;
 }
 
 // Daily market breadth from the same price history used by the screener factors.
@@ -662,7 +683,7 @@ export async function enrichScreener() {
   };
 
   // 1단계: 가격 팩터 계산
-  const { data, results, ok, computedAt } = await _enrichPriceFactors(syms);
+  const { data, results, ok, computedAt, sessionCalendars } = await _enrichPriceFactors(syms, { recentReturns: true });
   // v58.71 (pipeline audit): runs near 00:xx UTC and 17:xx UTC read daily charts that briefly lacked the newest
   // session and published US 10/20 over a 10/21 artifact (and replaced the candidate archive day). A market whose
   // session would move backwards keeps the last publish; the next run picks the session up again.
@@ -780,6 +801,8 @@ export async function enrichScreener() {
     // factorObservedAt은 그 세션 일봉의 **바 시작**이며 종가 기반 팩터의 관측시각이 아니다.
     factorTimeBasis: 'bar-start',
     factorSessionDateByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate])),
+    // The dates of every row's `rets` (daily returns only — no close is published).
+    retDatesByMarket: retDatesByMarketOf(sessionCalendars, Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.sessionDate]))),
     factorBarStartByMarket: Object.fromEntries(Object.entries(factorScopes).map(([market, scope]) => [market, scope.barStart])),
     factorComputedAt: computedAt,
     // The newest session's volume is the provider's provisional figure at factorComputedAt (US).
