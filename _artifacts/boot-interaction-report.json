@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-25T14:53:47.057Z",
+  "observedAt": "2026-11-25T15:36:41.008Z",
   "appRevision": "v60.57",
-  "gitHead": "b7fbadfa7be97e121d7080bbf92f267fcd9fdc68",
+  "gitHead": "db957a57b15ec1dc470b0e211d1a7fd44975d8a9",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,19 +16,18 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 328 > 200",
     "decoded same-origin JS 2.6MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 260,
-    "dclMs": 310,
-    "loadMs": 319,
-    "maxLongTaskMs": 328,
-    "totalLongTaskMs": 954,
-    "longTaskCount": 7,
+    "fcpMs": 264,
+    "dclMs": 308,
+    "loadMs": 320,
+    "maxLongTaskMs": 162,
+    "totalLongTaskMs": 850,
+    "longTaskCount": 9,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3911,
-    "activeRouteDomNodes": 1711,
+    "domNodes": 3910,
+    "activeRouteDomNodes": 1716,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
@@ -48,42 +47,42 @@
       {
         "path": "src/chunks/chunk-LKFWY2OQ.js",
         "bytes": 68040,
-        "startMs": 531
+        "startMs": 601
       },
       {
         "path": "src/chunks/market-regime-JACXBGMU.js",
         "bytes": 42401,
-        "startMs": 963
+        "startMs": 825
       },
       {
         "path": "src/chunks/legacy-screen-bridges-WFESDC2H.js",
         "bytes": 27273,
-        "startMs": 276
+        "startMs": 275
       },
       {
         "path": "src/chunks/chunk-AF3IKFI2.js",
         "bytes": 23409,
-        "startMs": 703
+        "startMs": 602
       },
       {
         "path": "src/chunks/analysis-TR6D5E5I.js",
         "bytes": 20260,
-        "startMs": 299
+        "startMs": 297
       },
       {
         "path": "src/chunks/session-lean-5MRG5MT2.js",
         "bytes": 18534,
-        "startMs": 385
+        "startMs": 435
       },
       {
         "path": "src/chunks/chunk-2L3A44RV.js",
         "bytes": 17050,
-        "startMs": 531
+        "startMs": 601
       },
       {
         "path": "src/chunks/chunk-ADAIQOQJ.js",
         "bytes": 16041,
-        "startMs": 704
+        "startMs": 603
       }
     ],
     "measuredBundle": "deploy",
@@ -94,13 +93,13 @@
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 18,
+    "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 226,
-    "wallMs": 7918,
+    "routeMs": 143,
+    "wallMs": 7819,
     "totalExternalRequests": 33,
     "quoteRequests": 24,
-    "initialExternalRequests": 7,
+    "initialExternalRequests": 8,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
