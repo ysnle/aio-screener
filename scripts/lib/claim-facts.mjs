@@ -28,6 +28,8 @@ function closeSeriesFacts(history, field, through) {
     values[`change${n}d`] = sessionStep(unit, back.value, last.value);
     sd[`change${n}d`] = { sd: spanStepSd(series, n, unit), sessions: n };
     if (n === 20) asOfBy.base20d = back.date;
+    // The level five sessions back, as the session reads it (the opening's breadth row prints it beside today's).
+    if (n === 5) values.before5d = back.value;
   }
   const year = series.filter((point) => Date.parse(point.date) >= Date.parse(last.date) - 365 * DAY_MS).map((point) => point.value);
   if (year.length) values.fromYearHigh = (last.value / Math.max(...year) - 1) * 100;
@@ -58,7 +60,29 @@ function creditFacts(macroHistory, through) {
   const last = series.at(-1);
   if (!last) return null;
   const back = sessionPointBack(series, 5, 'US');
-  return { asOf: last.date, values: { level: last.value * 100, ...(back ? { change5d: (last.value - back.value) * 100 } : {}) } };
+  const month = sessionPointBack(series, 20, 'US');
+  return { asOf: last.date, values: { level: last.value * 100, ...(back ? { change5d: (last.value - back.value) * 100 } : {}), ...(month ? { change20d: (last.value - month.value) * 100 } : {}) } };
+}
+
+/**
+ * The 2-year's gap to the target-range midpoint (bp) on its last observation through `through`, and on the last one at least
+ * `days` calendar days before that (the opening's policy-path line), each with its own date. Both bounds of one day.
+ */
+function policyPathFacts(macroHistory, through, days) {
+  const rows = (id) => (macroHistory?.series?.[id]?.observations || []).filter(([, value]) => Number.isFinite(value));
+  const upTo = (id, date) => rows(id).filter(([day]) => day <= date).at(-1) || null;
+  const gapAt = (date) => {
+    const two = upTo('dgs2', date);
+    if (!two) return null;
+    const lo = upTo('fedTargetLower', two[0]), hi = upTo('fedTargetUpper', two[0]);
+    return lo && hi && lo[0] === hi[0] ? { date: two[0], bp: (two[1] - (lo[1] + hi[1]) / 2) * 100 } : null;
+  };
+  const now = gapAt(through);
+  if (!now) return null;
+  const then = gapAt(new Date(Date.parse(`${now.date}T00:00:00Z`) - days * DAY_MS).toISOString().slice(0, 10));
+  const before = then && then.date < now.date ? then : null;
+  return { asOf: now.date, asOfBy: { twoYearOverMid: now.date, ...(before ? { twoYearOverMidBefore: before.date } : {}) },
+    values: { twoYearOverMid: now.bp, ...(before ? { twoYearOverMidBefore: before.bp } : {}) } };
 }
 
 /** Facts for the market read at the S&P 500 close basis of `history`. */
@@ -77,13 +101,17 @@ export function closeFacts(history, macroHistory, fields = ['spx', 'nasdaq', 'ru
  * session, the HY spread, and the leader gap — the equal weight's fall from its record high less the Nasdaq-100's — read
  * from the closes here, not from the opening.
  */
-export const OPENING_FACT_FIELDS = Object.freeze(['sox', 'ndx', 'spx', 'dow', 'rsp', 'breadth50']);
+// With the cross-market rows' series (VIX and its 3-month, the 10-year, the dollar index, the 200-day breadth).
+export const OPENING_FACT_FIELDS = Object.freeze(['sox', 'ndx', 'spx', 'dow', 'rsp', 'breadth50', 'breadth200', 'vix', 'vix3m', 'tnx', 'dxy']);
 export function openingFacts(history, macroHistory) {
   const facts = closeFacts(history, macroHistory, OPENING_FACT_FIELDS);
   const kospi = closeSeriesFacts(history, 'kospi', null);
   if (kospi) facts.kospi = kospi;
   const ndx = facts.ndx?.values?.fromRecordHigh, rsp = facts.rsp?.values?.fromRecordHigh;
   if (Number.isFinite(ndx) && Number.isFinite(rsp)) facts['leader-gap'] = { asOf: facts.ndx.asOf, values: { gapPp: rsp - ndx } };
+  const through = closeBasis(history);
+  const path = through ? policyPathFacts(macroHistory, through, RULES.crossMarket.pathLookbackDays) : null;
+  if (path) facts['policy-path'] = path;
   return facts;
 }
 

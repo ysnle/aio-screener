@@ -11,7 +11,7 @@ import { CHOICE_WORDS } from '../../content/choice-words.js';
 import { dollarRiseBurden } from '../../briefing/market-read.js';
 import { buildCloseSeries, sessionPointBack } from '../session/close-series.js';
 import { releaseAtMs, formatKstWhen } from '../../briefing/schedule.js';
-import { seriesOf, yoySeries, annualised3m, realYoyLatest } from '../../macro/macro-read.js';
+import { seriesOf, yoySeries, annualised3m, realYoyLatest, policyLean } from '../../macro/macro-read.js';
 import { RULES } from '../../rules/thresholds.js';
 import { changeBand, bandDirection, changeOverDays, inflationDirection, oilDivergence, sentimentRank, MACRO_SIGNAL_RULES } from '../../macro/macro-signals.js';
 import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE, pastEvidence } from '../../scenarios/analogs.js';
@@ -25,7 +25,6 @@ export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
 
 const G = RULES.growth;
 const JOB = RULES.payrollPrintK; // one month's print lines, shared with the release bands (macro/release-zones.js)
-const P = RULES.policy;
 const L = RULES.leadership;
 const last = (series) => series.length ? series[series.length - 1] : null;
 // "20거래일" counts open sessions like 시장 상태 and 매크로 (sessionPointBack), not array slots — a gap
@@ -194,7 +193,7 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
     tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: soxxRel.value, soxxRelHeld: soxxRel.held, tnxOverBreakeven20: tnxOverBreakeven.value, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),
     vix: vixLast?.value ?? null, vixRatio: vixLast && vix3mLast && vixLast.date === vix3mLast.date && vix3mLast.value ? vixLast.value / vix3mLast.value : null,
-    pricing, mid: finite(policy.mid), lean: pricing == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold',
+    pricing, mid: finite(policy.mid), lean: policyLean(pricing),
     credit: axis('credit')?.state || 'unknown', growthState: axis('growth')?.state || 'unknown',
     // The policy path — last target change and the 3-month bill (10y − (10y-3m)) against the range.
     policy: (() => {

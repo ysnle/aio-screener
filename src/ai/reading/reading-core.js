@@ -5,10 +5,11 @@
 //
 // Browser-safe and pure: no node: imports, no DOM, no clock.
 import { printedValueAgrees, signAgrees } from '../../domain/shared/figure-agreement.js';
+import { READING_LIMITS, readingLimitsOf } from './reading-limits.js';
 
-export const READING_MAX_CHARS = 520; // two blocks of 130–230 characters with room for a long proper name
+export const READING_MAX_CHARS = READING_LIMITS.chars; // two blocks of 130–230 characters with room for a long proper name
 export const READING_MIN_CHARS = 60;
-export const READING_MAX_BLOCKS = 2;
+export const READING_MAX_BLOCKS = READING_LIMITS.blocks;
 export const READING_SECTIONS = Object.freeze({ rules: '[규칙]', facts: '[사실 묶음]', retry: '[다시 쓰기]' });
 export const PROMPT_LABEL = /\[(?:규칙|사실\s?묶음|다시\s?쓰기)\]/;
 
@@ -37,7 +38,7 @@ export function buildReadingPrompt({ name = '', guide = '', lines = [] } = {}) {
   return `${READING_RULES}${guide ? `\n${guide}` : ''}\n\n${READING_SECTIONS.facts}\n화면: ${name}\n${lines.map((line) => `- ${line}`).join('\n')}`;
 }
 
-/** The model's answer as at most two blocks: surrounding quotes removed, each block one line, blocks split by a blank line. */
+/** The model's answer as blocks (reading-limits.js caps how many): surrounding quotes removed, each block one line, blocks split by a blank line. */
 export function normalizeReading(text) {
   const body = String(text ?? '').replace(/^\s*["“'‘]|["”'’]\s*$/g, '').trim();
   return body.split(/\n\s*\n/).map((block) => block.replace(/\s*\n+\s*/g, ' ').replace(/\s{2,}/g, ' ').trim()).filter(Boolean).join('\n\n');
@@ -116,9 +117,11 @@ export function coreReadingIssues(text, packet) {
   if (!body) return ['empty'];
   const issues = [];
   const prose = body.replace(/\n\s*\n/g, ' ');
-  if (prose.length > READING_MAX_CHARS) issues.push('too-long');
+  // A screen packet names its screen (the 시장 상태 reading takes a third block); a subject packet takes the shared limits.
+  const limits = readingLimitsOf(packet?.screen);
+  if (prose.length > limits.chars) issues.push('too-long');
   if (prose.length < READING_MIN_CHARS) issues.push('too-short');
-  if (readingBlocks(body).length > READING_MAX_BLOCKS) issues.push('too-many-blocks');
+  if (readingBlocks(body).length > limits.blocks) issues.push('too-many-blocks');
   if (PROMPT_LABEL.test(body) || /사실\s?묶음/.test(body)) issues.push('prompt-label-leak');
   if (EMOJI.test(body)) issues.push('emoji');
   const plain = prose.replace(LATIN_TERMS, ' ');
@@ -152,9 +155,9 @@ const ISSUE_TEXT = Object.freeze({
   'state-contradiction': (detail) => `지표의 상태를 묶음과 다르게 썼습니다${detail ? `(${detail})` : ''}. 묶음의 상태 낱말을 쓰세요.`,
   'trade-instruction': () => '매수·매도 지시가 있습니다. 조건을 단 설명으로 바꾸세요.',
   'probability-claim': () => '% 확률을 썼습니다. 확률 수치 없이 쓰세요.',
-  'too-long': () => `너무 깁니다. 블록마다 230자 안, 합쳐 ${READING_MAX_CHARS}자 안으로 줄이세요.`,
+  'too-long': () => '너무 깁니다. 블록마다 230자 안으로, 이 화면의 블록 수 안에서 줄이세요.',
   'too-short': () => '너무 짧습니다. 3~5문장으로 쓰세요.',
-  'too-many-blocks': () => '블록은 두 개까지입니다.',
+  'too-many-blocks': () => '블록이 이 화면에 허용된 수보다 많습니다. 안내에 적힌 블록 수로 쓰세요.',
   'language-not-korean': () => '한국어로 쓰세요.',
   'prompt-label-leak': () => '지시문의 표시를 옮겨 적었습니다. 블록만 쓰세요.',
   'emoji': () => '이모지를 빼세요.',

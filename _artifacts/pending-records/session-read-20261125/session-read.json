@@ -8,7 +8,13 @@
     { "id": "QA-SESSION-READ-04", "text": "v60.55 시간외 수집은 마지막 값과 함께 그 시간외 구간의 고점·저점(정규장 종가 대비 %)을 저장하고, 머리말은 3% 이상 갔다가 마지막 값이 2%p 이상 벗어난 극값을 '한때'로 덧붙인다", "verify_by": "node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-market-story-check.mjs (session-read 절)", "done": true },
     { "id": "QA-SESSION-READ-LIVE-02", "text": "v60.55 push 뒤 다음 수집에서 data.json afterHours.rows에 highPct·lowPct가, market-day.json 테마 group-move에 parts가 실린다", "verify_by": "push 뒤 public-data/data.json, market-day.json", "done": false },
     { "id": "QA-SESSION-READ-05", "text": "v60.55 시장 원장은 S&P 500 하루 등락의 업종별 기여(indexSplit)를 싣고, 머리말은 가장 크게 끌고 간 업종·나머지 업종 합계·반대로 간 업종을 말한다; 원장 세션이 다르거나 합계가 지수 등락과 0.2%p 넘게 어긋나면 말하지 않는다. 장 마감 뒤 실적 줄은 공시 요약의 EPS 예상 대비를 시간외 등락 앞에 붙인다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절); node scripts/ci-esm-core-unit-check.mjs", "done": true },
-    { "id": "QA-SESSION-READ-LIVE-01", "text": "v60.55 push 뒤 실서비스 오늘 화면 첫 문장과 시장 상태 AI 글이 최근 세션 사실(되돌림·내린 곳·시간외)을 싣는다", "verify_by": "push 뒤 실서비스 화면과 data.json screenReadings.signal", "done": false }
+    { "id": "QA-SESSION-READ-LIVE-01", "text": "v60.55 push 뒤 실서비스 오늘 화면 첫 문장과 시장 상태 AI 글이 최근 세션 사실(되돌림·내린 곳·시간외)을 싣는다", "verify_by": "push 뒤 실서비스 화면과 data.json screenReadings.signal", "done": false },
+    { "id": "QA-CROSS-MARKET-01", "text": "v60.55 오늘·시장 상태 머리말은 세션 줄 뒤, 요약 앞에 신용·달러·변동성·시장 폭·금리 한 줄씩(수준과 최근 변화, 상태어, 고정된 뜻 한 구절)을 싣는다; 신용·변동성·시장 폭·금리의 상태어는 같은 세션의 시장 상태 지표 판정 그대로이고(다른 세션의 판정은 쓰지 않음), 달러는 유가와 달러 지표의 달러 기준(dollarRiseBurden)과 매크로 연결 고리의 하락 선이다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절 cross-market)", "done": true },
+    { "id": "QA-CROSS-MARKET-02", "text": "v60.55 금리 줄 아래 금리 경로 줄은 2년물 − 기준금리 중간값(bp, 그날 관측일)과 약 30일 전 값을 싣고 통화정책 지표의 ±0.25%p 선으로 인상 반영·동결 부근·인하 반영을 붙이며, 다음 물가 발표는 수집된 발표 일정에서 세션 뒤 첫 CPI·PCE만 쓴다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절 cross-market); node scripts/ci-screen-reading-check.mjs (repository data 절)", "done": true },
+    { "id": "QA-CROSS-MARKET-03", "text": "v60.55 반등 중에는 '다른 시장 확인' 집계가 다른 시장 줄의 머리에 한 번만 나오고 각 줄에 그 시장의 저점 뒤 표시가 붙는다; 반등 줄 아래 같은 항목 목록은 더 그리지 않는다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절 cross-market, 화면 그리기)", "done": true },
+    { "id": "QA-CROSS-MARKET-04", "text": "v60.55 다른 시장 줄의 모든 수치는 claim이고, 저장된 모든 세션에서 종가·FRED 관측과 맞는지 다시 읽는다(달러·VIX·3개월 VIX·10년·50/200일선 비율·하이일드·2년물 격차)", "verify_by": "node scripts/ci-sentence-claim-replay-check.mjs", "done": true },
+    { "id": "QA-CROSS-MARKET-05", "text": "v60.55 시장 상태 AI 글은 세션 → 몰린 곳 → 확산 → 다른 시장 확인(각각의 뜻) → 반등이 이어질 조건(금리 경로, 다음 물가 발표, 실적)으로 잇고, 이 화면만 블록 3개·760자까지 허용한다(다른 화면은 2개·520자); 수치·상태어·지시 금지 검증은 그대로다", "verify_by": "node scripts/ci-screen-reading-check.mjs", "done": true },
+    { "id": "QA-CROSS-MARKET-LIVE-01", "text": "v60.55 push 뒤 실서비스 오늘·시장 상태 머리말에 다른 시장 여섯 줄이 보이고(휴대폰 폭에서 한 열), 다음 시장 상태 AI 글이 세 블록으로 다른 시장의 뜻을 잇는다", "verify_by": "push 뒤 실서비스 화면과 data.json screenReadings.signal", "done": false }
   ],
   "qa_section": "화면 문장과 계산 근거",
   "changelog": [
@@ -16,7 +22,8 @@
     "수집만 하고 화면에 쓰지 않던 시간외 자료(afterHours)를 머리말과 AI 글·채팅의 사실로 연결",
     "움직인 테마 안에서 더 크게 움직인 하위 테마(예: 메모리/스토리지)를 함께 말하고, 시간외에서 크게 올랐다가 되돌린 종목은 '한때 +N%'를 덧붙임(새 수집분부터)",
     "S&P 500·동일가중·다우가 왜 덜 내렸는지를 업종별 기여로 설명(예: 기술 업종이 1.0%p 끌어내리고 나머지는 합쳐 0.5%p 끌어올림)하고, 장 마감 뒤 실적 종목은 EPS 예상 대비를 주가 반응 앞에 붙임",
-    "반등의 '다른 시장 확인'에서 신용 스프레드가 하루 늦게 발표된다는 이유로 자료 없음이 되던 것을, 가장 최근 발표값을 그 날짜와 함께 쓰도록 고침"
+    "반등의 '다른 시장 확인'에서 신용 스프레드가 하루 늦게 발표된다는 이유로 자료 없음이 되던 것을, 가장 최근 발표값을 그 날짜와 함께 쓰도록 고침",
+    "머리말에 신용·달러·변동성·시장 폭·금리가 지금 주식에 무슨 뜻인지 한 줄씩 붙임(상태어는 시장 상태 지표 판정 그대로), 금리 줄에는 2년물로 본 금리 경로(인상 반영·동결 부근·인하 반영과 한 달 전 비교)와 다음 물가 발표를 붙이고, 반등의 다른 시장 확인은 그 줄들의 머리로 합침; 시장 상태 AI 글은 이 흐름을 세 블록까지 이어 씀"
   ],
   "note": "소유자 2026-11-25: 오늘 화면이 어제 미국장 상황을 대표하지 못함"
 }

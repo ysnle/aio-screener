@@ -43,6 +43,10 @@ export const RULES = Object.freeze({
   // The rebound's cross-market checks (rebound-quality.js): the share of known checks met that reads 다른 시장도 확인
   // (3 of 4) or 엇갈림 (2 of 4), below it 지수만 반등; under minKnown known checks no word is given.
   reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
+  // The opening's cross-market rows (cross-market.js): each level beside its change over shortSessions (longSessions for the
+  // dollar, whose rule reads 20 sessions); the 2-year's gap to the target midpoint is compared with the observation
+  // pathLookbackDays calendar days earlier and reads as moving once it changed pathMoveBp.
+  crossMarket: Object.freeze({ shortSessions: 5, longSessions: 20, pathLookbackDays: 30, pathMoveBp: 10 }),
   // The session read (session-read.js): a Nasdaq-100 session of movePct names where it gathered; leaders leadGapPp past the
   // equal weight read as leading; a rebound's give-back is said from giveBackMinShare once one index gave back giveBackShare
   // (% of the gain from the low to the highest close since); an after-hours extreme of afterHoursSwingPct that the last print left by afterHoursFadePp is said beside it; a theme's sub-theme is named when its median went partGapPp further the same way; the S&P 500 sector split is said when splitCoverage% of the index had a return and its sum is within splitGapPp of the index's move, naming up to splitAgainstMax sectors of splitAgainstWeight% weight that went splitAgainstPct the other way; list sizes and the

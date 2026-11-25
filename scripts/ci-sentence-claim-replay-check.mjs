@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { claim, say } from '../src/domain/shared/claim.js';
-import { buildMarketRead } from '../src/domain/briefing/market-read.js';
+import { buildMarketRead, buildMarketRegime } from '../src/domain/briefing/market-read.js';
 import { buildDayAccount } from '../src/domain/briefing/day-account.js';
 import { buildMarketDay, MACRO_SERIES } from '../src/domain/market/day/facts.js';
 import { oneSessionDay } from '../src/domain/market/day/one-session.js';
@@ -62,6 +62,8 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
   'src/domain/fundamental/earnings-quality.js': 0, 'src/domain/fundamental/peer-read.js': 0,
   // market-story: the opening read is printed from claims; the 10 are the week card's older sentences (11 before).
   'src/domain/market/story/market-story.js': 10,
+  // cross-market: the opening's other-market rows, printed from claims from the start.
+  'src/domain/market/story/cross-market.js': 0,
   // consensus-read: peMultipleText, the multiple formatter its unconverted consumers (screener table, company analysis, AI context) share.
   'src/domain/fundamental/consensus-read.js': 1 });
 
@@ -180,14 +182,17 @@ for (const [tag, set, dates] of [['history', rows, rows.map((row) => row.date)],
 // index table — the bars print the table's fall claims) at each
 // stored session, held against the closes and the HY spread (claim-facts.mjs openingFacts). Without the long-run tables,
 // which this replay never reads, every fall is from the record's closing high.
-let openings = 0, openingClaims = 0;
+// With that session's regime, so the cross-market rows (cross-market.js) are replayed on every session too.
+let openings = 0, openingClaims = 0, crossRows = 0;
 for (const row of rows) {
   const input = marketInputsAt(rows, macroHistory, row.date);
-  const opening = buildMarketOpening({ history: input.history, macroHistory, through: row.date });
+  const opening = buildMarketOpening({ history: input.history, macroHistory, through: row.date, regime: buildMarketRegime(input) });
   if (!opening.available) continue;
   openings += 1;
+  crossRows += opening.lines.filter((line) => line.id === 'cross').length;
   const facts = openingFacts(input.history, macroHistory);
-  for (const part of [...opening.lines.map((line) => [line.id, line.said]), ['korea', opening.korea], ...opening.table.map((item) => [`table-${item.id}`, item.said])]) {
+  // The cross-market head is the rebound's tally (a count of checks, no stored fact; ci-market-story holds it).
+  for (const part of [...opening.lines.filter((line) => line.id !== 'cross-head').map((line) => [line.id, line.said]), ['korea', opening.korea], ...opening.table.map((item) => [`table-${item.id}`, item.said])]) {
     const [id, said] = part;
     if (!said?.text) continue;
     if (PRINTS_FIGURE_ANY.test(said.text) && !said.claims.length) failures.push(`v60.50 opening ${row.date} ${id}: prints a figure without claims (${said.text})`);
@@ -303,6 +308,7 @@ for (const [file, baseline] of Object.entries(RATCHET)) {
   else if (hits < baseline) failures.push(`ratchet: ${file} is down to ${hits} (baseline ${baseline}); lower RATCHET in this script`);
 }
 
+if (!crossRows) failures.push('v60.55 opening: no stored session built a cross-market row (the regime did not reach the opening)');
 if (issuesSeen.length) failures.push(...issuesSeen.slice(0, 60), ...(issuesSeen.length > 60 ? [`… ${issuesSeen.length - 60} more claim issues`] : []));
 const ms = Date.now() - started;
 const tally = CLAIM_CHECKS.map((check) => `${check} ${counts[check]}`).join(', ');
@@ -313,4 +319,4 @@ if (failures.length) {
   console.error(`[sentence-claim-replay] FAIL (${failures.length}) — v60.30 a converted sentence must hold against its facts\n- ${failures.join('\n- ')}\nissues by check: ${tally}`);
   process.exit(1);
 }
-console.log(`[sentence-claim-replay] OK: ${readSessions} market-read sessions (${readClaims} claims), ${openings} opening reads (${openingClaims} claims), ${accounts} day accounts (${accountClaims} claims), ${filers} filers (${filerSentences} fundamental sentences, ${filerClaims} claims), 0 fact errors, ${unlinkedSeen.length} not compared (${tally}); ${CONVERTED_STATEMENTS.length} statement ids converted; ${ms} ms`);
+console.log(`[sentence-claim-replay] OK: ${readSessions} market-read sessions (${readClaims} claims), ${openings} opening reads (${openingClaims} claims, ${crossRows} cross-market rows), ${accounts} day accounts (${accountClaims} claims), ${filers} filers (${filerSentences} fundamental sentences, ${filerClaims} claims), 0 fact errors, ${unlinkedSeen.length} not compared (${tally}); ${CONVERTED_STATEMENTS.length} statement ids converted; ${ms} ms`);

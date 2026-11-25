@@ -31,6 +31,7 @@ import { leaderFalls } from '../src/domain/briefing/ai-chain-flow.js';
 import { indexSaid } from '../src/domain/briefing/day-account.js';
 import { openingFacts } from './lib/claim-facts.mjs';
 import { todayVerdictFrom } from './build-scenario-state.mjs';
+import { paintOpening } from '../src/ui/components/market-story.js';
 import { LONGRUN_INDEXES } from './build-index-longrun.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -733,6 +734,108 @@ await runSections('market-story', [
     const none = buildMarketOpening({ history: day2, macroHistory: { series: { hyOas: { observations: SESSIONS.map((date) => [date, 3.76]) } } } }).rebound.quality.checks.find((item) => item.id === 'credit');
     assert.equal(none.met, null, 'v60.55 session-read');
     assert.match(none.said.text, /^신용 자료 없음 — 하이일드 스프레드 376bp\(11\/20\) → 11\/24 값 없음$/, 'v60.55 session-read');
+  });
+
+  // The cross-market rows (cross-market.js) on the same 11/24 fixture: the other markets' closes beside the indexes, a regime
+  // of that session whose axis states the rows take, the 2-year and the target range, and a release calendar.
+  const LAST = '2026-11-24';
+  const markets = (rows, { drop = [] } = {}) => rows.map((row, i) => {
+    const last = row.date === LAST;
+    const next = { ...row, dxy: last ? 103 : 100, vix: last ? 26 : 20, vix3m: 25, breadth50: last ? 56 : 45, breadth200: 55, tnx: last ? 4.3 : 4.5 + i * 0 };
+    if (last) for (const field of drop) delete next[field];
+    return next;
+  });
+  const pathHistory = () => {
+    const mh = credit(3.2);
+    const days = [...SESSIONS, '2026-11-23', '2026-11-24'];
+    mh.series.fedTargetLower = { observations: days.map((date) => [date, 3.75]) };
+    mh.series.fedTargetUpper = { observations: days.map((date) => [date, 4]) };
+    mh.series.dgs2 = { observations: [['2026-10-23', 4.875], ['2026-11-23', 4.675]] };
+    // The spread a session late, as published: 11/23 is the newest observation on 11/24.
+    mh.series.hyOas.observations.push(['2026-11-23', 3.63]);
+    return mh;
+  };
+  const regimeOf = (asOf = LAST, states = {}) => ({ available: true, asOf, axes: [
+    { id: 'credit', state: states.credit || 'burden', observation: { level: 363, change5: 43, change20: 43, asOf: '2026-11-23' } },
+    // VIX 26 would read 부담 on the axis's own rule: the row must take the axis's word, not judge it again.
+    { id: 'volatility', state: states.volatility || 'favorable' }, { id: 'breadth', state: 'neutral' },
+    { id: 'rates', state: states.rates || 'neutral', growthScare: states.growthScare || null }, { id: 'commodities', state: 'burden', decidedBy: { dxyPosition: states.dxyPosition ?? 1 } }] });
+  const EVENTS = [{ id: 'us-cpi', name: 'CPI (소비자물가)', date: '2026-11-24' }, { id: 'us-nfp', name: '고용보고서', date: '2026-11-25' },
+    { id: 'us-pce', name: 'PCE (연준 기준 물가)', date: '2026-11-26' }, { id: 'us-cpi', name: 'CPI (소비자물가)', date: '2026-12-10' }];
+  const crossBuild = (more = {}) => buildMarketOpening({ history: markets(day2, more), macroHistory: pathHistory(), regime: regimeOf(), events: EVENTS, ...more.opening });
+  const cross = crossBuild();
+  const crossLines = (opening) => opening.lines.filter((line) => line.id === 'cross');
+  check('v60.55 cross-market: five rows and the policy path sit after the session lines and before the lede, headed by the rebound\'s tally', () => {
+    const ids = cross.lines.map((line) => line.id);
+    assert.deepEqual(ids.slice(0, ids.indexOf('lede') + 1), ['session', 'cross-head', 'cross', 'cross', 'cross', 'cross', 'cross', 'cross', 'lede'], 'v60.55 cross-market');
+    assert.deepEqual(crossLines(cross).map((line) => [line.key, line.label]), [['credit', '신용 부담'], ['dollar', '달러 부담'], ['volatility', '변동성 양호'], ['breadth', '시장 폭 중립'], ['rates', '금리 중립'], ['rates-path', '금리 경로 인상 반영']], 'v60.55 cross-market: each state is the axis\'s (the dollar: its leg of the 유가와 달러 axis)');
+    assert.equal(cross.lines.find((line) => line.id === 'cross-head').label, cross.rebound.quality.word, 'v60.55 cross-market: the head is the rebound\'s own tally word');
+  });
+  check('v60.55 cross-market: each row is its figures with their own dates, the rebound mark, then the fixed clause', () => {
+    const text = (key) => crossLines(cross).find((line) => line.key === key).said.text;
+    assert.equal(text('credit'), '하이일드 스프레드 363bp(11/23), 5거래일 +43bp, 20거래일 +43bp · 저점 뒤 미확인 — 기업이 돈 빌리는 값이 높거나 빠르게 오르는 중이라, 주식 하락이 자금 걱정으로 번지는지 보는 자리', 'v60.55 cross-market: the spread is the credit axis\'s observation, dated');
+    assert.equal(text('dollar'), '달러 지수 103.00, 20거래일 +3.0% · 저점 뒤 미확인 — 달러가 빠르게 강해지는 중이라 세계 돈줄이 조여 위험자산에 부담이 되는 쪽', 'v60.55 cross-market');
+    assert.match(text('volatility'), /^VIX 26\.00, 5거래일 \+30\.0%, 3개월 VIX 25\.00 · 저점 뒤 (확인|미확인|자료 없음) — 옵션 시장이 큰 흔들림을 예상하지 않는 상태$/, 'v60.55 cross-market: the clause follows the axis state');
+    assert.match(text('breadth'), /^50일선 위 종목 56%\(5거래일 전 45%\), 200일선 위 55% · 저점 뒤 /, 'v60.55 cross-market');
+    assert.equal(text('rates'), '10년 4.30%, 5거래일 -20bp, 20거래일 -20bp — 10년 금리가 주식에 큰 부담을 더하지 않는 자리', 'v60.55 cross-market: no rebound check for rates');
+    assert.equal(text('rates-path'), '2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp · 다음 물가 발표 11/26 PCE (연준 기준 물가) — 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있는 자리', 'v60.55 cross-market: the gap a month back, and the first CPI or PCE after the session (not one on it, not another release)');
+  });
+  check('v60.55 cross-market: every printed figure is a claim and no claim errs; no order, no source name, no textbook wording, no emoji', () => {
+    for (const line of [...crossLines(cross), cross.lines.find((item) => item.id === 'cross-head')]) {
+      assert.deepEqual(unclaimedFigures(line.said), [], `v60.55 cross-market: figures without a claim: ${line.said.text}`);
+      assert.deepEqual(saidIssues(line.said, openingFacts(markets(day2), pathHistory())).filter(isClaimError), [], `v60.55 cross-market: claim errors: ${line.said.text}`);
+      assert.doesNotMatch(line.said.text, /사세요|파세요|매수하|매도하|FRED|ICE|Cboe|란 |하는 법|\p{Extended_Pictographic}/u, `v60.55 cross-market: ${line.said.text}`);
+    }
+  });
+  check('v60.55 cross-market: the dollar leg — burden past the line (at the top of its range from +2%), favorable at -2%, neutral between', () => {
+    const dollar = (dxy, position) => crossLines(buildMarketOpening({ history: markets(day2).map((row) => (row.date === LAST ? { ...row, dxy } : row)), macroHistory: pathHistory(), regime: regimeOf(LAST, { dxyPosition: position }), events: EVENTS }))
+      .find((line) => line.key === 'dollar').state;
+    assert.deepEqual([dollar(102.2, 1), dollar(102.2, 0.5), dollar(102.6, 0.5), dollar(97.9, 0.5), dollar(99, 0.5)], ['burden', 'neutral', 'burden', 'favorable', 'neutral'], 'v60.55 cross-market');
+  });
+  check('v60.55 cross-market: a regime of another session, or none, gives no rows (no state is borrowed); a growth-scare 중립 takes its own clause', () => {
+    assert.equal(crossLines(buildMarketOpening({ history: markets(day2), macroHistory: pathHistory(), regime: regimeOf('2026-11-23'), events: EVENTS })).length, 0, 'v60.55 cross-market');
+    const none = buildMarketOpening({ history: markets(day2), macroHistory: pathHistory(), events: EVENTS });
+    assert.ok(!none.lines.some((line) => line.id.startsWith('cross')) && !openingFactLines(none).some((line) => line.startsWith('다른 시장')), 'v60.55 cross-market');
+    const scare = buildMarketOpening({ history: markets(day2), macroHistory: pathHistory(), regime: regimeOf(LAST, { growthScare: { spx20: -5 } }), events: EVENTS });
+    assert.match(crossLines(scare).find((line) => line.key === 'rates').said.text, / — 10년 금리는 내렸지만 주가도 함께 빠져, 할인율 안도보다 성장 걱정 쪽$/, 'v60.55 cross-market');
+  });
+  check('v60.55 cross-market: a series with no close on the session says its own date, and one with none at all says 값 없음', () => {
+    const stale = crossLines(buildMarketOpening({ history: markets(day2, { drop: ['breadth50', 'breadth200', 'vix', 'vix3m', 'dxy', 'tnx'] }), macroHistory: pathHistory(), regime: regimeOf(), events: EVENTS }));
+    assert.match(stale.find((line) => line.key === 'breadth').said.text, /^50일선 위 종목 45%\(11\/23\)/, 'v60.55 cross-market: the 11/23 share is said as 11/23\'s');
+    assert.match(stale.find((line) => line.key === 'volatility').said.text, /^VIX 20\.00\(11\/23\)/, 'v60.55 cross-market');
+    const bare = crossLines(buildMarketOpening({ history: day2, macroHistory: credit(3.2), regime: { ...regimeOf(), axes: regimeOf().axes.map((row) => (row.id === 'credit' ? { ...row, state: 'unknown', observation: null } : row)) }, events: [] }));
+    assert.deepEqual(bare.map((line) => line.said.text.split(' — ')[0].split(' · ')[0]), ['하이일드 스프레드 값 없음', '달러 지수 값 없음', 'VIX 값 없음', '50일선 위 종목 45%(5거래일 전 45%)', '10년 금리 값 없음'], 'v60.55 cross-market: no path without a 2-year, nothing filled');
+    assert.equal(bare.find((line) => line.key === 'credit').label, '신용 확인 불가', 'v60.55 cross-market');
+  });
+  check('v60.55 cross-market: the AI fact lines carry each row with its rule-decided word, the path with its proxy caveat and the next release, after the session and before the standing', () => {
+    const lines = openingFactLines(cross);
+    const at = (prefix) => lines.findIndex((line) => line.startsWith(prefix));
+    assert.ok(at('최근 세션: ') < at('다른 시장 신용(') && at('다른 시장 금리 다음 확인') < at('요약: '), 'v60.55 cross-market: order');
+    assert.ok(lines.includes('다른 시장 변동성(상태어는 규칙으로 정함, 바꾸지 말 것): 양호 — ' + cross.cross.find((row) => row.id === 'volatility').said.text + ` · 반등 저점 뒤 ${cross.cross.find((row) => row.id === 'volatility').since.mark} — 지금 뜻: 옵션 시장이 큰 흔들림을 예상하지 않는 상태`), 'v60.55 cross-market');
+    assert.ok(lines.includes('다른 시장 금리 경로(2년물로 어림한 값이라 기간·위험 프리미엄이 섞임, 인상·인하 횟수 아님): 인상 반영 — 2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp — 지금 뜻: 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있는 자리'), 'v60.55 cross-market');
+    assert.ok(lines.includes('다른 시장 금리 다음 확인(수집된 발표 일정): 다음 물가 발표 11/26 PCE (연준 기준 물가)'), 'v60.55 cross-market');
+  });
+  check('v60.55 cross-market: the produced record carries the rows for the static shell, in the face\'s order, as plain label and text', () => {
+    const record = todayVerdictFrom({ available: true, overall: '부담 우세', asOf: LAST, heroLine: 'x', counts: { favorable: 0, neutral: 2, burden: 4, unknown: 0 } }, 'now', 'm', cross);
+    const rows = record.story.lines.filter((line) => line.id === 'cross');
+    assert.deepEqual(rows.map((line) => line.label), ['신용 부담', '달러 부담', '변동성 양호', '시장 폭 중립', '금리 중립', '금리 경로 인상 반영'], 'v60.55 cross-market');
+    assert.ok(rows.every((line) => typeof line.text === 'string' && line.text.includes(' — ')), 'v60.55 cross-market');
+  });
+  check('v60.55 cross-market: the face paints the rows as one compact block before the lede and the rebound tally once, as its head (no second list under the rebound line)', () => {
+    const node = (tag) => ({ tag, className: '', textContent: '', dataset: {}, style: {}, hidden: false, children: [], append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; }, setAttribute() {} });
+    const doc = { createElement: node, createTextNode: (text) => ({ tag: '#text', textContent: text, children: [], dataset: {} }) };
+    const host = node('div');
+    assert.ok(paintOpening(doc, host, cross), 'v60.55 cross-market: painted');
+    const all = (item) => [item, ...item.children.flatMap(all)];
+    const textOf = (item) => all(item).map((part) => part.textContent).join('');
+    assert.deepEqual(host.children.slice(0, 3).map((child) => child.dataset.part || child.className), ['session', 'cross', 'lede'], 'v60.55 cross-market: session, the other markets, then the lede');
+    const rows = all(host).filter((item) => item.className === 'opening-cross__row');
+    assert.deepEqual(rows.map((row) => row.dataset.check), ['credit', 'dollar', 'volatility', 'breadth', 'rates', 'rates-path'], 'v60.55 cross-market: one row per market');
+    assert.deepEqual(rows.map((row) => all(row).find((item) => item.className === 'opening-cross__state').dataset.state), ['burden', 'burden', 'favorable', 'neutral', 'neutral', 'hike'], 'v60.55 cross-market: the state tag');
+    assert.ok(!all(host).some((item) => item.className === 'opening-checks'), 'v60.55 cross-market: the rebound checks are not listed a second time');
+    const tally = cross.rebound.quality.said.text;
+    assert.equal(textOf(host).split(tally).length - 1, 1, 'v60.55 cross-market: the tally is said once, as the head of the rows');
+    for (const row of rows) assert.ok(all(row).some((item) => item.className === 'opening-cross__meaning' && item.textContent) && all(row).some((item) => item.className === 'opening-cross__figures' && /\d/.test(item.textContent)), 'v60.55 cross-market: clause and figures');
   });
   report('session-read');
 }, 'code']

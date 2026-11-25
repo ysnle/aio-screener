@@ -31,7 +31,7 @@ import {
 
 export { packetFigures, unsupportedFigures };
 export const SCREEN_READING_SCHEMA = 'screen-readings.v1';
-export const SCREEN_READING_MAX_CHARS = READING_MAX_CHARS; // at most two blocks of 130–230 characters
+export const SCREEN_READING_MAX_CHARS = READING_MAX_CHARS; // at most two blocks of 130–230 characters (시장 상태: three, reading-limits.js)
 export const SCREEN_READING_MIN_CHARS = READING_MIN_CHARS;
 
 const md = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
@@ -60,8 +60,9 @@ const statesOf = (axes) => Object.fromEntries(axes.filter((axis) => axis?.id && 
 const titledStates = (axes) => axes.filter((axis) => axis?.title && axis.stateLabel).map((axis) => ({ id: axis.id, title: axis.title, stateLabel: axis.stateLabel }));
 const historyOf = (interpretation) => (Array.isArray(interpretation?.inputs?.history) ? interpretation.inputs.history : []);
 // `session`: the latest session's ledger, after-close prints and filing summaries ({ day, afterHours, briefs }), when the producer read them.
+// The regime and the release calendar give the cross-market rows their axis states and the next inflation release.
 const openingOf = (interpretation, longrun, through, session = {}) => buildMarketOpening({ history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through,
-  day: session.day || null, afterHours: session.afterHours || null, briefs: session.briefs || null });
+  day: session.day || null, afterHours: session.afterHours || null, briefs: session.briefs || null, regime: interpretation?.regime || null, events: interpretation?.events || [] });
 const leadershipLine = (regime) => (LEADERSHIP_STATE[regime?.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '');
 // A theme's state label carries its window in parentheses; the head is the state word, the rest the basis.
 const stateHead = (theme) => String(theme.stateLabel || theme.state || '').split(/[,(]/)[0].trim();
@@ -84,8 +85,13 @@ export const SCREEN_READING_SCREENS = Object.freeze({
     name: '시장 상태',
     // The screen opens with the story (주도주 · 시장 전체 · 진단, market-story.js); the reading
     // continues it and says what the price reflects. `guide` is this screen's own instruction, after the shared rules.
+    // The chain the owner asked for: the session, where it gathered, whether it spread, whether the other
+    // markets confirm it (each with what it means here), what would keep a rebound going. It needs a third block.
     guide: [
-      '- 첫 문장은 종합 판정 낱말("시장 상태는 … 부담 우세입니다")로 열지 말고 시장 이야기로 엽니다: 주도주가 얼마나 내렸고, 시장 전체는 얼마나 덜 내렸고, 그 차이가 말하는 진단.',
+      '- 이 화면은 블록을 3개까지 씁니다(블록마다 3~5문장 130~230자). 한 줄기로 잇습니다: 무슨 일이 있었나(최근 세션) → 어디에 몰렸나(테마·큰 종목) → 시장 전체로 번졌나(업종별 기여·시장 폭) → 다른 시장이 확인하나(신용·달러·변동성·금리를 하나씩, 각각 지금 이 움직임에서 무슨 뜻인지 한 마디로) → 무엇이 나와야 반등이 이어지나(금리 경로 가격, 다음 물가 발표, 실적).',
+      '- 첫째 블록은 세션과 쏠림·확산, 둘째 블록은 다른 시장의 확인, 셋째 블록은 이어지려면 무엇이 나와야 하고 무엇이 나오면 바뀌는지를 맡습니다.',
+      '- 첫 문장은 종합 판정 낱말("시장 상태는 … 부담 우세입니다")로 열지 말고 최근 세션 이야기로 엽니다: 주도주가 얼마나 움직였고, 시장 전체는 얼마나 덜 움직였고, 그 차이가 말하는 진단.',
+      '- "다른 시장" 줄의 상태어(양호·중립·부담·확인 불가)와 금리 경로 낱말(인상 반영·동결 부근·인하 반영)은 묶음의 것만 씁니다. 금리 경로는 2년물로 어림한 값이라 인상·인하 횟수나 확률로 쓰지 않습니다. 줄의 "지금 뜻"은 그대로 옮기지 말고 앞뒤 사실과 이어 풀어 씁니다.',
       '- 진단 상태어(쏠림 되돌림·침체형·금융 불안형·판단 보류)는 묶음에 적힌 것만 쓰고, 바뀌는 조건도 묶음의 것을 씁니다.',
       '- 묶음에 반등 상태어(반등 시도·추세 회복·반등 실패)가 있으면 그것만 쓰고, 반등 폭과 남은 낙폭을 함께, 200일선 위치와 반등 실패 기준(저점)을 묶음의 수치로 씁니다. 하루 반등을 추세 전환으로 단정하지 않습니다.',
       '- 지금 가격이 무엇을 반영하는지 묶음의 수치로 한 문장 씁니다. "싸다·매력적"은 조건으로만 씁니다("이익 추정치가 유지되면 …", "꺾이면 …"). 단정하지 않습니다.'

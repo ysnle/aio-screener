@@ -58,7 +58,22 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .opening-line[data-part="records"] { font-size: 12px; color: var(--color-text-secondary); }
 .mk-opening-kr { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
 .opening-line__label { font-weight: 700; color: var(--color-text-primary); }
-.opening-checks { margin: -4px 0 0; padding-left: 1.1em; font-size: 12px; line-height: 1.55; color: var(--color-text-secondary); }
+/* The other markets under the session lines: name and state | the clause (14px) over its figures (12px). */
+.opening-cross { display: flex; flex-direction: column; gap: 6px; }
+.opening-cross__head { margin: 0; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); }
+.opening-cross__head b { font-weight: 700; color: var(--color-text-primary); }
+.opening-cross__rows { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.opening-cross__row { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 0 10px; align-items: baseline; }
+.opening-cross__name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; font-size: 14px; line-height: 1.5; }
+.opening-cross__name b { font-weight: 700; color: var(--color-text-primary); }
+.opening-cross__state { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; }
+/* 부담 (and hikes priced, the policy axis's 부담 side) amber like the axis capsules; 양호 green; the rest secondary. */
+.opening-cross__state[data-state="burden"], .opening-cross__state[data-state="hike"] { color: var(--color-text-warning); }
+.opening-cross__state[data-state="favorable"] { color: var(--green-11); }
+.opening-cross__body { display: flex; flex-direction: column; min-width: 0; }
+.opening-cross__meaning { font-size: 14px; line-height: 1.5; color: var(--color-text-primary); }
+.opening-cross__figures { font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .opening-cross__row { grid-template-columns: minmax(0, 1fr); } }
 .fall-bars { --fall-name: 9.5em; --fall-room: 52px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
 .fall-bars__foot, .fall-bars__row { display: grid; grid-template-columns: var(--fall-name) minmax(0, 1fr); align-items: center; gap: 0 8px; }
 .fall-bars__caption { color: var(--color-text-secondary); }

@@ -13,6 +13,7 @@ import { estimateAiCostUsd } from '../src/domain/briefing/event-briefs.js';
 import { interpretationFromArtifacts } from './lib/market-interpretation-inputs.mjs';
 import { readHistoryRows } from '../src/domain/market/indices/history-rows.js';
 import { serverScreenReading } from '../src/data/server-screen-readings.js';
+import { readingLimitsOf } from '../src/ai/reading/reading-limits.js';
 import { renderScreenReading } from '../src/ui/components/screen-reading.js';
 import { SUBJECT_READING_KINDS, buildSubjectPacket, buildSubjectPrompt, validateSubjectReading } from '../src/ai/reading/subject-reading.js';
 import { writeSubjectReading } from '../src/ui/components/subject-reading.js';
@@ -112,7 +113,7 @@ await section('validator', async () => {
   const thin = validateScreenReading(GOOD.replace('읽기가 달라집니다.', '반등 가능성이 더 높아 보입니다.'), packet);
   check('v60.31 ④ an interpretation without a named ground passes with a warning only (owner 2026-11-17)', thin.issues.length === 0 && thin.warnings.includes('likelihood-qualitative'), JSON.stringify(thin));
   check('v60.31 the face size, Korean, prompt labels and emoji are blocking',
-    validateScreenReading(GOOD.repeat(3), packet).issues.includes('too-long') && validateScreenReading('The market is weak today because volatility rose and credit spreads widened across the board.', packet).issues.includes('language-not-korean')
+    validateScreenReading(GOOD.repeat(4), packet).issues.includes('too-long') && validateScreenReading('The market is weak today because volatility rose and credit spreads widened across the board.', packet).issues.includes('language-not-korean')
       && validateScreenReading(`[사실 묶음] ${GOOD}`, packet).issues.includes('prompt-label-leak') && validateScreenReading(`${GOOD} 📉`, packet).issues.includes('emoji'));
   const retry = buildScreenReadingRetryPrompt(buildScreenReadingPrompt(packet), wrong);
   check('v60.31 the retry carries the blocking reasons and the offending figures, never the rejected paragraph',
@@ -244,12 +245,23 @@ await section('lane A: the other screens', async () => {
     ['첫 문장은 판단', '이미 무엇을 반영', '무엇이 확인되면', '"다만"', '나눠 접근', '% 확률', '블록 1~2개'].every((part) => SCREEN_READING_RULES.includes(part)));
   const TWO = `${GOOD}\n\n다만 하이일드 스프레드 343bp는 아직 350bp 아래라 신용은 중립이고, 미 10년물도 5.07%에서 중립에 머물러 있습니다. S&P 500이 50일선(7,649) 위로 마감하면 추세부터 읽기가 달라지고, 그 전까지는 서두를 이유가 적습니다. VIX가 24.56에서 내려오고 단기 불안 비율 1.01의 역전이 풀리는지가 다음 확인점이며, 그때까지는 조건이 확인될 때마다 나눠 접근하는 쪽이 비용이 작습니다.`;
   const packet = buildScreenPacket('signal', FIXTURE);
-  check('v60.54 a reading of two blocks within 520 characters passes the producer validator; a third block is blocked',
-    validateScreenReading(TWO, packet).issues.length === 0 && TWO.length > 400 && validateScreenReading(`${TWO}\n\n${GOOD}`, packet).issues.includes('too-many-blocks'), JSON.stringify(validateScreenReading(TWO, packet)));
-  const twoBlock = { schemaVersion: SCREEN_READING_SCHEMA, readings: { signal: { status: 'verified', text: TWO, basis: '2026-11-18' }, macro: { status: 'verified', text: `${TWO}\n\n${GOOD}`, basis: '2026-11-18' } } };
+  const other = buildScreenPacket('breadth', FIXTURE);
+  check('v60.54 a reading of two blocks within 520 characters passes the producer validator; a third block is blocked (v60.55: on every screen but 시장 상태)',
+    validateScreenReading(TWO, packet).issues.length === 0 && TWO.length > 400 && validateScreenReading(`${TWO}\n\n${GOOD}`, other).issues.includes('too-many-blocks'), JSON.stringify(validateScreenReading(TWO, packet)));
+  const THREE = `${TWO}\n\n${GOOD}`;
+  check('v60.55 시장 상태 alone takes a third block within its 760 characters; a fourth block or a longer reading is blocked, and every other check still runs on it',
+    validateScreenReading(THREE, packet).issues.length === 0 && THREE.replace(/\n\s*\n/g, ' ').length > 520
+      && validateScreenReading(`${THREE}\n\n${GOOD}`, packet).issues.includes('too-many-blocks') && validateScreenReading(`${THREE} ${GOOD}`, packet).issues.includes('too-long')
+      && validateScreenReading(THREE.replace('24.56', '26.1'), packet).issues.some((issue) => issue.startsWith('figure-unsupported')) && validateScreenReading(`${THREE} 지금은 분할 매수하세요.`, packet).issues.includes('trade-instruction'),
+    JSON.stringify(validateScreenReading(THREE, packet)));
+  check('v60.55 the producer validator and the screen gate read one limits table (reading-limits.js): 시장 상태 3 blocks, every other screen 2',
+    readingLimitsOf('signal').blocks === 3 && readingLimitsOf('macro').blocks === 2 && readingLimitsOf(undefined).chars === 520 && read('src/data/server-screen-readings.js').includes("from '../ai/reading/reading-limits.js'"));
+  const twoBlock = { schemaVersion: SCREEN_READING_SCHEMA, readings: { signal: { status: 'verified', text: TWO, basis: '2026-11-18' }, macro: { status: 'verified', text: THREE, basis: '2026-11-18' } } };
   const admitted = serverScreenReading({ _aioScreenReadings: twoBlock }, 'signal');
-  check('v60.54 the screen admits a two-block reading over the old 400-character face and paints each block as its own paragraph; three blocks are not admitted',
+  check('v60.54 the screen admits a two-block reading over the old 400-character face and paints each block as its own paragraph; three blocks are not admitted (v60.55: outside 시장 상태)',
     admitted?.blocks?.length === 2 && serverScreenReading({ _aioScreenReadings: twoBlock }, 'macro') === null, JSON.stringify(admitted));
+  const threeBlock = { schemaVersion: SCREEN_READING_SCHEMA, readings: { signal: { status: 'verified', text: THREE, basis: '2026-11-18' } } };
+  check('v60.55 the 시장 상태 gate admits its three-block reading', serverScreenReading({ _aioScreenReadings: threeBlock }, 'signal')?.blocks?.length === 3);
   const node = (tag) => ({ tag, className: '', textContent: '', hidden: false, children: [], append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; } });
   const host = node('section');
   renderScreenReading({ documentRef: { getElementById: (id) => (id === 'signal-screen-reading' ? host : null), createElement: node }, root: { _aioScreenReadings: twoBlock }, screen: 'signal', shownBasis: '2026-11-18' });
@@ -326,6 +338,25 @@ await section('repository data', async () => {
     !!packet && /^\d{4}-\d{2}-\d{2}$/.test(packet.basis) && axes.length === 6 && axisLines.length === 6 && axisLines.every((line) => /\d/.test(line))
       && axes.every((row) => ['양호', '중립', '부담', '확인 불가'].includes(row.stateLabel)), JSON.stringify(packet?.lines || null));
   check('v60.31 ⑨ the same history builds the same key twice (no clock or random input in the packet)', buildScreenPacket('signal', build())?.key === packet?.key);
+  {
+    // The cross-market rows reach the 시장 상태 packet with the axis's own state word, after the session and before the standing.
+    const lines = packet?.lines || [];
+    const word = (title) => (interpretation.regime.axes || []).find((row) => row.title === title)?.stateLabel;
+    const crossAt = (label) => lines.findIndex((line) => line.startsWith(`시장 이야기 다른 시장 ${label}(상태어는 규칙으로 정함, 바꾸지 말 것): `));
+    const stateOf = (label) => lines[crossAt(label)]?.split('): ')[1]?.split(' — ')[0];
+    const sessionAt = lines.findIndex((line) => line.startsWith('시장 이야기 최근 세션: ')), ledeAt = lines.findIndex((line) => line.startsWith('시장 이야기 요약: '));
+    check('v60.55 ⑨ the repository 시장 상태 packet carries the five cross-market rows between the session and the standing, credit, volatility, breadth and rates with their axis\'s state word',
+      ['신용', '달러', '변동성', '시장 폭', '금리'].every((label) => crossAt(label) > sessionAt && crossAt(label) < ledeAt)
+        && ['신용', '변동성', '시장 폭', '금리'].every((label) => stateOf(label) === word(label)), JSON.stringify(lines.filter((line) => line.includes('다른 시장'))));
+    check('v60.55 ⑨ the rates row says where the 2-year prices the policy path (a fixed lean word) with its proxy caveat',
+      lines.some((line) => /^시장 이야기 다른 시장 금리 경로\(2년물로 어림한 값이라 기간·위험 프리미엄이 섞임, 인상·인하 횟수 아님\): (인상 반영|동결 부근|인하 반영) — 2년물 − 기준금리 중간값 [+-]\d+bp/.test(line)), JSON.stringify(lines.filter((line) => line.includes('금리 경로'))));
+    const events = (interpretation.events || []).filter((event) => /\b(?:cpi|pce)\b/.test(event.id) && event.date > packet.basis).sort((a, b) => a.date.localeCompare(b.date));
+    check('v60.55 ⑨ the next inflation release is the calendar\'s own (none without one, never invented)',
+      events.length ? lines.some((line) => line.startsWith('시장 이야기 다른 시장 금리 다음 확인(수집된 발표 일정): 다음 물가 발표 ') && line.includes(events[0].name)) : !lines.some((line) => line.includes('다음 물가 발표')), JSON.stringify(events[0] || null));
+  }
+  check('v60.55 the 시장 상태 guide chains the session, where it gathered, whether it spread, whether the other markets confirm (each with its meaning) and what keeps a rebound going, in up to three blocks',
+    ['무슨 일이 있었나', '어디에 몰렸나', '시장 전체로 번졌나', '다른 시장이 확인하나', '무엇이 나와야 반등이 이어지나', '금리 경로 가격', '다음 물가 발표', '블록을 3개까지'].every((part) => buildScreenReadingPrompt({ screen: 'signal', lines: [] }).includes(part))
+      && !buildScreenReadingPrompt({ screen: 'breadth', lines: [] }).includes('블록을 3개까지'));
   const data = json('public-data/data.json');
   const aaii = data?.marketSurveys?.aaii;
   const mood = buildScreenPacket('sentiment', interpretation);

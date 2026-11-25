@@ -18,7 +18,7 @@ import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
-import { interpretationStore, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
+import { interpretationStore, latestMarketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -156,8 +156,12 @@ function regularMovesOf(root, afterHours) {
 }
 export function readMarketOpening(root, interpretation, rerender) {
   const longrun = ensure(root, INDEX_LONGRUN, rerender);
-  const history = interpretation?.inputs?.history || root?._aioHistory || [];
-  const macroHistory = interpretation?.inputs?.macroHistory || root?._aioMacroHistory || null;
+  // A caller without the interpretation (기술적 분석's standings) reads the last one built, so the memo stays one opening.
+  const shared = interpretation || latestMarketInterpretation(root);
+  const regime = shared?.regime || null;
+  const events = Array.isArray(shared?.events) ? shared.events : [];
+  const history = shared?.inputs?.history || root?._aioHistory || [];
+  const macroHistory = shared?.inputs?.macroHistory || root?._aioMacroHistory || null;
   // The session's ledger and after-close reports (market-day.json, event-briefs.json, data.json afterHours) join when loaded.
   const day = ensure(root, MARKET_DAY, rerender);
   const briefs = ensure(root, EVENT_BRIEFS, rerender);
@@ -169,8 +173,9 @@ export function readMarketOpening(root, interpretation, rerender) {
     awaitingRows = true;
     const stop = store.subscribe(() => { if (Object.keys(regularMovesOf(root, afterHours) || {}).length) { stop(); awaitingRows = false; rerender(); } });
   }
-  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || ''].join('|');
-  if (openingMemo?.key !== key || openingMemo.history !== history) openingMemo = { key, history, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves }) };
+  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || '',
+    events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
+  if (openingMemo?.key !== key || openingMemo.history !== history || openingMemo.regime !== regime) openingMemo = { key, history, regime, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves, regime, events }) };
   return openingMemo.opening;
 }
 
@@ -184,29 +189,52 @@ function openingLine(doc, line) {
   return p;
 }
 
-/** Under the rebound line: whether other markets confirm it (its word first, then one row per check). */
-function reboundQualityBlock(doc, quality) {
-  const p = openingLine(doc, { id: 'rebound-quality', label: quality.word, said: quality.said });
-  const list = el(doc, 'ul', null, 'opening-checks');
-  for (const item of quality.items) list.append(el(doc, 'li', item.text));
-  return [p, list];
+const CROSS_LINES = Object.freeze(['cross-head', 'cross']);
+/**
+ * Whether the other markets confirm the session, between the session lines and the lede: a small head (on a rebound, the
+ * rebound's tally word and line), then one compact row per market — its name and state, the figures (12px), the clause.
+ */
+function crossBlock(doc, lines) {
+  const rows = lines.filter((line) => line.id === 'cross');
+  if (!rows.length) return [];
+  const box = el(doc, 'div', null, 'opening-cross');
+  box.dataset.part = 'cross';
+  const head = lines.find((line) => line.id === 'cross-head');
+  const title = el(doc, 'p', null, 'opening-cross__head');
+  title.append(el(doc, 'b', head ? head.label : '다른 시장'), ...(head ? [doc.createTextNode(` — ${head.said.text}`)] : []));
+  const list = el(doc, 'ul', null, 'opening-cross__rows');
+  for (const line of rows) {
+    const item = el(doc, 'li', null, 'opening-cross__row');
+    item.dataset.check = line.key;
+    const tag = el(doc, 'span', line.tag, 'opening-cross__state');
+    tag.dataset.state = line.state;
+    const name = el(doc, 'span', null, 'opening-cross__name');
+    name.append(el(doc, 'b', line.name), doc.createTextNode(' '), tag);
+    // The clause reads at the face's size; the figures behind it small, under it.
+    const body = el(doc, 'span', null, 'opening-cross__body');
+    body.append(el(doc, 'span', line.meaning, 'opening-cross__meaning'), el(doc, 'span', line.figures.text, 'opening-cross__figures'));
+    item.append(name, body);
+    list.append(item);
+  }
+  box.append(title, list);
+  return [box];
 }
-/** A face line and, after the rebound's, its cross-market checks. */
-const openingNodes = (doc, line, opening) => [openingLine(doc, line), ...(line.id === 'watch' && opening.rebound?.quality ? reboundQualityBlock(doc, opening.rebound.quality) : [])];
 
-/** The face into `host`: the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
+/** The face into `host`: the session lines, the other markets, the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
 // With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
 export function paintOpening(doc, host, opening, tail = null) {
   if (!host || !opening?.available || !opening.lines?.length) return false;
-  // The latest session leads (its sentence, where it gathered, the after-close reports); then where the fall stands.
+  // The latest session leads (its sentence, where it gathered, the after-close reports), the other markets say whether
+  // they confirm it; then where the fall stands.
   const session = opening.lines.filter((line) => SESSION_LINES.includes(line.id));
-  const [lede, ...rest] = opening.lines.filter((line) => !session.includes(line));
+  const cross = opening.lines.filter((line) => CROSS_LINES.includes(line.id));
+  const [lede, ...rest] = opening.lines.filter((line) => !session.includes(line) && !cross.includes(line));
   const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
-  host.replaceChildren(...session.map((line) => openingLine(doc, line)), openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
-    ...rest.filter((line) => !after.includes(line)).flatMap((line) => openingNodes(doc, line, opening)));
+  host.replaceChildren(...session.map((line) => openingLine(doc, line)), ...crossBlock(doc, cross), openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
+    ...rest.filter((line) => !after.includes(line)).map((line) => openingLine(doc, line)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
-  if (tail) { tail.replaceChildren(...after.flatMap((line) => openingNodes(doc, line, opening))); tail.hidden = false; }
+  if (tail) { tail.replaceChildren(...after.map((line) => openingLine(doc, line))); tail.hidden = false; }
   return true;
 }
 
@@ -225,12 +253,13 @@ function openingFolds(doc, opening) {
   const list = el(doc, 'ul', null, 'mk-opening__table');
   for (const row of opening.table) list.append(el(doc, 'li', row.said.text));
   raw.append(list);
-  const S = RULES.story, C = RULES.credit, G = RULES.growth;
+  const S = RULES.story, C = RULES.credit, G = RULES.growth, D = RULES.dollar, P = RULES.policy, X = RULES.crossMarket;
   const method = markFold(el(doc, 'details', null, 'mk-opening__method'), 'method');
-  method.append(foldSummary(doc, 'method', '단계·진단·반등을 정하는 규칙'),
+  method.append(foldSummary(doc, 'method', '단계·진단·반등·다른 시장을 정하는 규칙'),
     el(doc, 'p', `단계: 종가 고점 대비 -${S.correctionPct}% 이하 조정, -${S.bearPct}% 이하 약세장, -${S.bearPct}%까지 ${S.bearEdgePp}%p 안이면 약세장 문턱, -${S.correctionPct}%보다 얕으면 조정 전. 첫 문장의 '시장 전체'는 S&P 500의 단계입니다. 막대는 같은 눈금이고 점선이 -${S.correctionPct}%와 -${S.bearPct}%입니다. 반도체는 필라델피아 반도체 지수(SOX), 고점은 ${opening.longrun ? '장기 기록의 종가 고점' : '이 화면 기록(2025-09-30 이후)의 종가 고점'}입니다.`, 'mk-story__read'),
     el(doc, 'p', `진단: 하이일드 스프레드 ${C.stressAtBp}bp 이상이면 금융 불안형. 실업률 3개월 평균이 1년 저점보다 ${G.sahmRecessionAt}%p 이상 높거나 실업수당 청구가 1년 저점보다 ${G.claimsRiseAbovePct}% 이상 많고, 나스닥 100과 동일가중의 고점 대비 낙폭 차이가 ${S.unwindGapPp}%p 미만이거나 50일선 위 종목이 ${S.broadBelowPct}% 미만이면 침체형. 나스닥 100이 동일가중보다 ${S.unwindGapPp}%p 이상 더 내렸으면 쏠림 되돌림, 그 밖에는 판단 보류. 신용 스프레드(하이일드)가 5거래일 +${C.widen5dBp}bp 이상 벌어지면 '빠르게 확대 중'을 덧붙입니다. 나스닥 100이나 동일가중이 고점 뒤 -${S.correctionPct}%에 닿은 적이 없으면 진단하지 않습니다.`, 'mk-story__read'),
     el(doc, 'p', `반등: 나스닥 100이 고점 뒤 -${S.correctionPct}%에 닿은 하락 안에서, 가장 낮은 종가보다 ${S.reboundPct}% 이상 높게 마감하면 반등 시도이고 그 저점이 지켜지는 동안 이어집니다. 그 뒤 S&P 500과 나스닥 100이 함께 50일선과 200일선 위로 마감하면 추세 회복이며, 둘 다 200일선 위에 있는 동안 이어집니다. 반등이 시작된 저점 아래로 마감한 날은 반등 실패입니다. ${FOLLOW_THROUGH_WORDS.name}는 다른 지수인 나스닥 종합의 종가와 거래량으로 셉니다(저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 하루 ${RULES.rallyAttempt.gainPct}% 이상 오르며 거래량이 전날보다 많은 날). 50일선·200일선은 최근 50·200거래일 종가의 평균입니다.`, 'mk-story__read'),
+    el(doc, 'p', `다른 시장: 신용·변동성·시장 폭·금리의 상태는 이 화면의 지표 판정과 같은 규칙입니다. 달러는 달러 지수 20거래일 +${D.rise20dPct + D.bufferPct}% 이상(1년 범위 ${D.rangeHighAt * 100}% 이상이면 +${D.rise20dPct}% 이상)이면 부담, ${D.fall20dPct}% 이하면 양호입니다. 금리 경로는 2년물과 기준금리 중간값의 차이가 +${P.pricedMovePp}%p 이상이면 인상 반영, -${P.pricedMovePp}%p 이하면 인하 반영, 그 사이는 동결 부근이고, 약 ${X.pathLookbackDays}일 전 관측보다 ${X.pathMoveBp}bp 이상 달라졌을 때 그 방향으로 움직인 것으로 봅니다. 2년물에는 기간·위험 프리미엄이 섞여 있어 인상·인하 횟수가 아닙니다.`, 'mk-story__read'),
     el(doc, 'p', '이 기준들은 시장에서 흔히 쓰는 관행이며, 과거 자료로 검증한 예측 규칙이 아닙니다.', 'mk-story__read'));
   return [raw, method];
 }

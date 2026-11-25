@@ -371,6 +371,8 @@ export function policyPricing(macro) {
   const twoYear = finite(macro.dgs2);
   return { upper, lower, mid, twoYear, pricing: mid != null && twoYear != null ? twoYear - mid : null };
 }
+/** Which way that gap (%p) leans on the policy axis's line: 'hike', 'cut', 'hold', or 'unknown' without a gap. */
+export const policyLean = (pricing) => (finite(pricing) == null ? 'unknown' : pricing >= P.pricedMovePp ? 'hike' : pricing <= -P.pricedMovePp ? 'cut' : 'hold');
 
 const fmtNeutral = (value) => Number(value.toFixed(2)).toString();
 

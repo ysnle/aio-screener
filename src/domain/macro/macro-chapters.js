@@ -13,7 +13,7 @@ import { withTopicParticle } from '../content/korean-particle.js';
 import { oasDelta20Bp, oilCheckOf } from '../briefing/market-read.js';
 import { creditJudgement, creditReading, creditFlip, cccTailLine } from '../briefing/credit-reading.js';
 import { dollarRiseBurden } from '../briefing/market-read.js';
-import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, sahmGap, yoySeries } from './macro-read.js';
+import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, policyLean, sahmGap, yoySeries } from './macro-read.js';
 import { policyCycle } from './macro-signals.js';
 import { fedTargetRange } from './fed-target-range.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
@@ -206,9 +206,9 @@ function rates(macroHistory, events, history = []) {
   const mid = fedTargetRange(lower?.value, upper?.value, lower?.date, upper?.date)?.mid ?? null; // both bounds of one date
   const legs = mid == null ? [] : [['6개월', latest('dgs6mo')], ['1년', latest('dgs1')], ['2년', latest('dgs2')]].filter(([, row]) => row).map(([name, row]) => [name, (row.value - mid) * 100]);
   const gap2 = legs.find(([name]) => name === '2년')?.[1] ?? null;
-  const pathLine = RULES.policy.pricedMovePp * 100;
+  const lean = policyLean(gap2 == null ? null : gap2 / 100);
   const path = legs.length < 2 || gap2 == null ? null
-    : `${legs.map(([name, gap]) => `${name} ${bp(gap)}`).join(' · ')} — ${gap2 >= pathLine ? '추가 인상을 반영한 쪽' : gap2 <= -pathLine ? '인하를 반영한 쪽' : '동결 부근'}`;
+    : `${legs.map(([name, gap]) => `${name} ${bp(gap)}`).join(' · ')} — ${lean === 'hike' ? '추가 인상을 반영한 쪽' : lean === 'cut' ? '인하를 반영한 쪽' : '동결 부근'}`;
   // How much of the 10-year move was term premium: both cut on the term premium's own (older) dates.
   const tenTerm = term ? macroChange(macroHistory, 'dgs10', term.date) : null;
   const termSplit = tenTerm && tenTerm.date === term.date && tenTerm.fromDate === term.fromDate
