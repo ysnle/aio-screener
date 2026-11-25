@@ -115,7 +115,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // The AI readings of 요약 (US theme stages) and 한국 (Korean theme stages), each on the close its stages are read on.
         const paintScreenReadings = () => {
           const { playbook } = themePlaybookForRoot(root, store);
-          for (const screen of ['themes', 'korea']) renderStoryTie({ documentRef, root, screen });
+          for (const screen of ['themes', 'korea']) renderStoryTie({ documentRef, root, screen, context: { playbook } });
           renderScreenReading({ documentRef, root, screen: 'themes', shownBasis: playbook.asOfByMarket?.US || null });
           renderScreenReading({ documentRef, root, screen: 'korea', shownBasis: playbook.asOfByMarket?.KR || null });
         };

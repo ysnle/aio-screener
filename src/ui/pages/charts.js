@@ -154,7 +154,7 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       const onIndexReadings = (list, asOf) => {
         const node = documentRef.getElementById('charts-conclusion');
         if (node) node.textContent = chartsConclusion(list);
-        renderStoryTie({ documentRef, root, screen: 'charts' });
+        renderStoryTie({ documentRef, root, screen: 'charts', context: { readings: list } });
         renderScreenReading({ documentRef, root, screen: 'charts', shownBasis: asOf || null }); // the AI reading on the cards' close
         renderBasis(documentRef, root, asOf);
         if (asOf === basis) return;

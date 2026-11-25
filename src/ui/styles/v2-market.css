@@ -400,6 +400,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .story-tie { display: grid; gap: 6px; margin: 0 0 12px; padding: 0 var(--sx-card-pad-x); }
 .story-tie[hidden] { display: none; }
 .story-tie .opening-line[data-part="session"] { font-size: 14px; line-height: 1.6; letter-spacing: 0; }
+/* The screen's own sentence leads; the copied session lines under it read as support. */
+.story-tie .opening-line[data-part="tie"] { font-size: 14px; font-weight: 600; line-height: 1.6; }
+.story-tie .opening-line[data-part="tie"] ~ .opening-line { font-size: 12px; font-weight: 400; color: var(--color-text-secondary); }
 .screen-reading__head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); }
 .screen-reading__tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a07); font-weight: 600; }
 .screen-reading__text { margin: 0; max-width: 46em; font-size: 14px; line-height: 1.7; color: var(--color-text-primary); text-wrap: pretty; overflow-wrap: anywhere; }
