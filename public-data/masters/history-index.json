@@ -1,7 +1,7 @@
 {
   "schemaVersion": "masters-13f-history-index.v3",
-  "revision": "2026-11-18-v60.30",
-  "reviewedAt": "2026-11-18",
+  "revision": "2026-11-25-v60.57",
+  "reviewedAt": "2026-11-25",
   "status": "FILING_HISTORY_ROWS_CONNECTED",
   "publication": "EDUCATIONAL_REFERENCE_ONLY",
   "boundary": "SEC filing metadata와 정보표 원문 행·보고가치·보유수량을 연결한다. 각 분기는 원본+정정 제출을 같은 합성 정책(scripts/lib/13f-compose.mjs)으로 합성하고, 분류되지 않은 정정은 REVIEW_REQUIRED로 닫는다. ticker·sector·issuer aggregate·corporate action은 verified security master가 확인되기 전 공개하지 않는다.",
@@ -123,6 +123,26 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001193125-26-226661",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 91.63999982858147,
+                "sampleRows": 90
+              }
+            ]
+          },
+          "coverEntryTotal": 90,
+          "coverValueTotal": 263095703570,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.html",
+          "rowCount": 90,
+          "reportedValueTotal": 263095703570,
+          "reportedSharesTotal": 2429461184,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0001193125-26-226661",
@@ -137,15 +157,7 @@
             "roles": [
               "ORIGINAL"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526226661/53405.html",
-          "coverEntryTotal": 90,
-          "coverValueTotal": 263095703570,
-          "countReconciled": true,
-          "rowCount": 90,
-          "reportedValueTotal": 263095703570,
-          "reportedSharesTotal": 2429461184
+          }
         },
         {
           "form": "13F-HR",
@@ -167,6 +179,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001193125-26-054580",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 96.81500030777349,
+                "sampleRows": 110
+              }
+            ]
+          },
           "coverEntryTotal": 110,
           "coverValueTotal": 274160086701,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526054580/50240.xml",
@@ -211,6 +235,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001193125-25-282901",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 119.98999889490551,
+                "sampleRows": 115
+              }
+            ]
+          },
           "coverEntryTotal": 115,
           "coverValueTotal": 267334501955,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000119312525282901/46994.xml",
@@ -255,6 +291,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-25-008343",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 104.8750014681613,
+                "sampleRows": 114
+              }
+            ]
+          },
           "coverEntryTotal": 114,
           "coverValueTotal": 257521776925,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325008343/43977.xml",
@@ -305,6 +353,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-25-005701",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 90.009999202679,
+                "sampleRows": 110
+              },
+              {
+                "accession": "0000950123-25-008361",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 117.55999992380535,
+                "sampleRows": 4
+              }
+            ]
+          },
           "coverEntryTotal": 114,
           "coverValueTotal": 259807694872,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325005701/form13fInfoTable.xml",
@@ -356,6 +422,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-25-002701",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 74.39499977686427,
+                "sampleRows": 112
+              }
+            ]
+          },
           "coverEntryTotal": 112,
           "coverValueTotal": 267175474249,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012325002701/39042.xml",
@@ -400,6 +478,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-24-011775",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 71.86,
+                "sampleRows": 121
+              }
+            ]
+          },
           "coverEntryTotal": 121,
           "coverValueTotal": 266378900503,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324011775/36917.xml",
@@ -444,6 +534,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-24-008740",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 63.65,
+                "sampleRows": 129
+              }
+            ]
+          },
           "coverEntryTotal": 129,
           "coverValueTotal": 279969062343,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324008740/34725.xml",
@@ -488,6 +590,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-24-005622",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 63.24,
+                "sampleRows": 133
+              }
+            ]
+          },
           "coverEntryTotal": 133,
           "coverValueTotal": 331680406332,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324005622/32398.xml",
@@ -538,6 +652,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000950123-24-002518",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 58.93,
+                "sampleRows": 138
+              },
+              {
+                "accession": "0000950123-24-005664",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 226,
+                "sampleRows": 1
+              }
+            ]
+          },
           "coverEntryTotal": 139,
           "coverValueTotal": 351900674461,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1067983/000095012324002518/30197.xml",
@@ -601,9 +733,9 @@
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000011/form13f_20260930.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000011/form13f_20260930.html",
           "rowCount": 65,
-          "reportedValueTotal": 4470867,
+          "reportedValueTotal": 4470867000,
           "coverEntryTotal": 65,
-          "coverValueTotal": 4470866,
+          "coverValueTotal": 4470866000,
           "countReconciled": true,
           "amendmentChain": [
             {
@@ -645,7 +777,7 @@
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000006/form13f_20260630.html",
           "rowCount": 95,
-          "reportedValueTotal": 5210856,
+          "reportedValueTotal": 5210856000,
           "coverEntryTotal": null,
           "coverValueTotal": null,
           "countReconciled": true,
@@ -686,6 +818,26 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-26-000004",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.09207032514905046,
+                "sampleRows": 65
+              }
+            ]
+          },
+          "coverEntryTotal": 70,
+          "coverValueTotal": 3376827000,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.html",
+          "rowCount": 70,
+          "reportedValueTotal": 3376828000,
+          "reportedSharesTotal": 59622310,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0001536411-26-000004",
@@ -700,15 +852,7 @@
             "roles": [
               "ORIGINAL"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000004/form13f_20260331.html",
-          "coverEntryTotal": 70,
-          "coverValueTotal": 3376827,
-          "countReconciled": true,
-          "rowCount": 70,
-          "reportedValueTotal": 3376828,
-          "reportedSharesTotal": 59622310
+          }
         },
         {
           "form": "13F-HR",
@@ -730,12 +874,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-26-000002",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.06822522852553797,
+                "sampleRows": 58
+              }
+            ]
+          },
           "coverEntryTotal": 62,
-          "coverValueTotal": 4494450,
+          "coverValueTotal": 4494450000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641126000002/form13f_20251231.html",
           "rowCount": 62,
-          "reportedValueTotal": 4494450,
+          "reportedValueTotal": 4494450000,
           "reportedSharesTotal": 70686339,
           "countReconciled": true,
           "amendmentChain": [
@@ -774,12 +930,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-25-000017",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.08822472507638889,
+                "sampleRows": 62
+              }
+            ]
+          },
           "coverEntryTotal": 65,
-          "coverValueTotal": 4062007,
+          "coverValueTotal": 4062007000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000017/form13f_20250930.html",
           "rowCount": 65,
-          "reportedValueTotal": 4062003,
+          "reportedValueTotal": 4062003000,
           "reportedSharesTotal": 68965844,
           "countReconciled": true,
           "amendmentChain": [
@@ -818,12 +986,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-25-000011",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.07962982605006363,
+                "sampleRows": 65
+              }
+            ]
+          },
           "coverEntryTotal": 69,
-          "coverValueTotal": 4071254,
+          "coverValueTotal": 4071254000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000011/form13f_20250630.html",
           "rowCount": 69,
-          "reportedValueTotal": 4071255,
+          "reportedValueTotal": 4071255000,
           "reportedSharesTotal": 71863091,
           "countReconciled": true,
           "amendmentChain": [
@@ -862,12 +1042,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-25-000008",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.0634899409228804,
+                "sampleRows": 49
+              }
+            ]
+          },
           "coverEntryTotal": 52,
-          "coverValueTotal": 3060048,
+          "coverValueTotal": 3060048000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000008/form13f_20250331.html",
           "rowCount": 52,
-          "reportedValueTotal": 3060048,
+          "reportedValueTotal": 3060048000,
           "reportedSharesTotal": 69139390,
           "countReconciled": true,
           "amendmentChain": [
@@ -906,12 +1098,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-25-000006",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.06244607295134974,
+                "sampleRows": 74
+              }
+            ]
+          },
           "coverEntryTotal": 78,
-          "coverValueTotal": 3722948,
+          "coverValueTotal": 3722948000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641125000006/form13f_20241231.html",
           "rowCount": 78,
-          "reportedValueTotal": 3722951,
+          "reportedValueTotal": 3722951000,
           "reportedSharesTotal": 75766289,
           "countReconciled": true,
           "amendmentChain": [
@@ -950,12 +1154,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-24-000009",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.059494785275873784,
+                "sampleRows": 72
+              }
+            ]
+          },
           "coverEntryTotal": 75,
-          "coverValueTotal": 2952103,
+          "coverValueTotal": 2952103000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000009/form13f_20240930.html",
           "rowCount": 75,
-          "reportedValueTotal": 2952104,
+          "reportedValueTotal": 2952104000,
           "reportedSharesTotal": 55862426,
           "countReconciled": true,
           "amendmentChain": [
@@ -994,12 +1210,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-24-000007",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.04478964401294498,
+                "sampleRows": 63
+              }
+            ]
+          },
           "coverEntryTotal": 64,
-          "coverValueTotal": 2917218,
+          "coverValueTotal": 2917218000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000007/form13f_20240630.html",
           "rowCount": 64,
-          "reportedValueTotal": 2917218,
+          "reportedValueTotal": 2917218000,
           "reportedSharesTotal": 62643920,
           "countReconciled": true,
           "amendmentChain": [
@@ -1038,12 +1266,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-24-000005",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.0469146386221355,
+                "sampleRows": 72
+              }
+            ]
+          },
           "coverEntryTotal": 73,
-          "coverValueTotal": 4387664,
+          "coverValueTotal": 4387664000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000005/form13f_20240331.html",
           "rowCount": 73,
-          "reportedValueTotal": 4387664,
+          "reportedValueTotal": 4387664000,
           "reportedSharesTotal": 84396628,
           "countReconciled": true,
           "amendmentChain": [
@@ -1082,12 +1322,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001536411-24-000002",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.051670031574120825,
+                "sampleRows": 50
+              }
+            ]
+          },
           "coverEntryTotal": 51,
-          "coverValueTotal": 3351824,
+          "coverValueTotal": 3351824000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1536411/000153641124000002/form13f_20231231.html",
           "rowCount": 51,
-          "reportedValueTotal": 3351823,
+          "reportedValueTotal": 3351823000,
           "reportedSharesTotal": 64408818,
           "countReconciled": true,
           "amendmentChain": [
@@ -1223,6 +1475,26 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-26-000002",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 146.14000006918653,
+                "sampleRows": 31
+              }
+            ]
+          },
+          "coverEntryTotal": 31,
+          "coverValueTotal": 5933477986,
+          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.xml",
+          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.html",
+          "rowCount": 31,
+          "reportedValueTotal": 5933477986,
+          "reportedSharesTotal": 41990758,
+          "countReconciled": true,
           "amendmentChain": [
             {
               "accession": "0001656456-26-000002",
@@ -1237,15 +1509,7 @@
             "roles": [
               "ORIGINAL"
             ]
-          },
-          "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.xml",
-          "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000002/Form13FInfoTable.html",
-          "coverEntryTotal": 31,
-          "coverValueTotal": 5933477986,
-          "countReconciled": true,
-          "rowCount": 31,
-          "reportedValueTotal": 5933477986,
-          "reportedSharesTotal": 41990758
+          }
         },
         {
           "form": "13F-HR",
@@ -1267,6 +1531,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-26-000001",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 122.025,
+                "sampleRows": 38
+              }
+            ]
+          },
           "coverEntryTotal": 39,
           "coverValueTotal": 6925020650,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645626000001/Form13FInfoTable.xml",
@@ -1311,6 +1587,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-25-000007",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 128.92,
+                "sampleRows": 45
+              }
+            ]
+          },
           "coverEntryTotal": 45,
           "coverValueTotal": 7383589018,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645625000007/Form13FInfoTable.xml",
@@ -1355,6 +1643,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-25-000006",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 103.04000067645777,
+                "sampleRows": 38
+              }
+            ]
+          },
           "coverEntryTotal": 38,
           "coverValueTotal": 6448959614,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645625000006/Form13FInfoTable.xml",
@@ -1399,6 +1699,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-25-000005",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 95.46,
+                "sampleRows": 35
+              }
+            ]
+          },
           "coverEntryTotal": 38,
           "coverValueTotal": 8382766354,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645625000005/Form13FInfoTable.xml",
@@ -1443,6 +1755,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-25-000001",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 85.52,
+                "sampleRows": 37
+              }
+            ]
+          },
           "coverEntryTotal": 37,
           "coverValueTotal": 6463901899,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645625000001/Form13FInfoTable.xml",
@@ -1487,6 +1811,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-24-000004",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 99.79499999999999,
+                "sampleRows": 38
+              }
+            ]
+          },
           "coverEntryTotal": 38,
           "coverValueTotal": 6731933575,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645624000004/Form13FInfoTable.xml",
@@ -1531,6 +1867,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-24-000003",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 86.48,
+                "sampleRows": 37
+              }
+            ]
+          },
           "coverEntryTotal": 37,
           "coverValueTotal": 6175369744,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645624000003/Form13FInfoTable.xml",
@@ -1575,6 +1923,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-24-000002",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 110.765,
+                "sampleRows": 38
+              }
+            ]
+          },
           "coverEntryTotal": 39,
           "coverValueTotal": 6754832658,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645624000002/Form13FInfoTable.xml",
@@ -1619,6 +1979,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001656456-24-000001",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 104,
+                "sampleRows": 39
+              }
+            ]
+          },
           "coverEntryTotal": 40,
           "coverValueTotal": 5790984844,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1656456/000165645624000001/Form13FInfoTable.xml",
@@ -1760,6 +2132,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-25-005039",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 82.17000000636536,
+                "sampleRows": 11
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 14643293767,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125005039/infotable.xml",
@@ -1804,6 +2188,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-25-003509",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 67.5,
+                "sampleRows": 11
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 13729120533,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125003509/infotable.xml",
@@ -1848,6 +2244,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-25-002315",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 70.20999998918904,
+                "sampleRows": 11
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 11930893008,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125002315/infotable.xml",
@@ -1898,6 +2306,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-25-001119",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 74.02000000916412,
+                "sampleRows": 10
+              },
+              {
+                "accession": "0001172661-25-001497",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 3.6600000330345464,
+                "sampleRows": 1
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 12661093451,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266125001119/infotable.xml",
@@ -1949,6 +2375,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-24-005218",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 77.4300000254614,
+                "sampleRows": 11
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 12916077581,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266124005218/infotable.xml",
@@ -1993,6 +2431,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-24-003511",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 75.3700000526293,
+                "sampleRows": 9
+              }
+            ]
+          },
           "coverEntryTotal": 9,
           "coverValueTotal": 10411823523,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266124003511/infotable.xml",
@@ -2037,6 +2487,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-24-002519",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 150.92999992651826,
+                "sampleRows": 7
+              }
+            ]
+          },
           "coverEntryTotal": 7,
           "coverValueTotal": 10761092093,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266124002519/infotable.xml",
@@ -2081,6 +2543,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-24-001556",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 140.3100000318564,
+                "sampleRows": 8
+              }
+            ]
+          },
           "coverEntryTotal": 8,
           "coverValueTotal": 10396017618,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266124001556/infotable.xml",
@@ -2125,6 +2599,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-23-004016",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 131.35500005466366,
+                "sampleRows": 8
+              }
+            ]
+          },
           "coverEntryTotal": 8,
           "coverValueTotal": 10494117169,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266123004016/infotable.xml",
@@ -2169,6 +2655,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001172661-23-003137",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 120.33499999200188,
+                "sampleRows": 8
+              }
+            ]
+          },
           "coverEntryTotal": 8,
           "coverValueTotal": 10816723106,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1336528/000117266123003137/infotable.xml",
@@ -2225,9 +2723,9 @@
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000015/baupost13fq32026.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000015/baupost13fq32026.html",
           "rowCount": 21,
-          "reportedValueTotal": 5045853,
+          "reportedValueTotal": 5045853000,
           "coverEntryTotal": 21,
-          "coverValueTotal": 5045853,
+          "coverValueTotal": 5045853000,
           "countReconciled": true,
           "amendmentChain": [
             {
@@ -2269,7 +2767,7 @@
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000010/BGLLCQ22026.html",
           "rowCount": 23,
-          "reportedValueTotal": 5415853,
+          "reportedValueTotal": 5415853000,
           "coverEntryTotal": null,
           "coverValueTotal": null,
           "countReconciled": true,
@@ -2310,12 +2808,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-26-000007",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.12645495278030386,
+                "sampleRows": 22
+              }
+            ]
+          },
           "coverEntryTotal": 22,
-          "coverValueTotal": 5115380,
+          "coverValueTotal": 5115380000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000007/BGLLCQ12026.html",
           "rowCount": 22,
-          "reportedValueTotal": 5115380,
+          "reportedValueTotal": 5115380000,
           "reportedSharesTotal": 71468536,
           "countReconciled": true,
           "amendmentChain": [
@@ -2354,12 +2864,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-26-000005",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.12387985632838278,
+                "sampleRows": 22
+              }
+            ]
+          },
           "coverEntryTotal": 22,
-          "coverValueTotal": 5278590,
+          "coverValueTotal": 5278590000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176826000005/bgllcq42025.html",
           "rowCount": 22,
-          "reportedValueTotal": 5278590,
+          "reportedValueTotal": 5278590000,
           "reportedSharesTotal": 75092612,
           "countReconciled": true,
           "amendmentChain": [
@@ -2398,12 +2920,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-25-000007",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.11162505956639845,
+                "sampleRows": 20
+              }
+            ]
+          },
           "coverEntryTotal": 22,
-          "coverValueTotal": 4790804,
+          "coverValueTotal": 4790804000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000007/bgllcq32025.html",
           "rowCount": 22,
-          "reportedValueTotal": 4790804,
+          "reportedValueTotal": 4790804000,
           "reportedSharesTotal": 105387785,
           "countReconciled": true,
           "amendmentChain": [
@@ -2442,12 +2976,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-25-000005",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.09484176482767478,
+                "sampleRows": 22
+              }
+            ]
+          },
           "coverEntryTotal": 23,
-          "coverValueTotal": 4130042,
+          "coverValueTotal": 4130042000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000005/bgllcq22025.html",
           "rowCount": 23,
-          "reportedValueTotal": 4130042,
+          "reportedValueTotal": 4130042000,
           "reportedSharesTotal": 100599666,
           "countReconciled": true,
           "amendmentChain": [
@@ -2486,12 +3032,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-25-000003",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.08054370942506783,
+                "sampleRows": 22
+              }
+            ]
+          },
           "coverEntryTotal": 23,
-          "coverValueTotal": 3496062,
+          "coverValueTotal": 3496062000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000003/bgllcq12025.html",
           "rowCount": 23,
-          "reportedValueTotal": 3496062,
+          "reportedValueTotal": 3496062000,
           "reportedSharesTotal": 102668895,
           "countReconciled": true,
           "amendmentChain": [
@@ -2530,12 +3088,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-25-000002",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.07433862433862434,
+                "sampleRows": 21
+              }
+            ]
+          },
           "coverEntryTotal": 22,
-          "coverValueTotal": 3434526,
+          "coverValueTotal": 3434526000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176825000002/bgllcq42024.html",
           "rowCount": 22,
-          "reportedValueTotal": 3434526,
+          "reportedValueTotal": 3434526000,
           "reportedSharesTotal": 141400995,
           "countReconciled": true,
           "amendmentChain": [
@@ -2574,12 +3144,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001061768-24-000005",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.07449364346321298,
+                "sampleRows": 20
+              }
+            ]
+          },
           "coverEntryTotal": 21,
-          "coverValueTotal": 3516299,
+          "coverValueTotal": 3516299000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000106176824000005/BGLLCQ32024.html",
           "rowCount": 21,
-          "reportedValueTotal": 3516299,
+          "reportedValueTotal": 3516299000,
           "reportedSharesTotal": 143319064,
           "countReconciled": true,
           "amendmentChain": [
@@ -2618,12 +3200,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001567619-24-000363",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.03764008097165992,
+                "sampleRows": 23
+              }
+            ]
+          },
           "coverEntryTotal": 24,
-          "coverValueTotal": 3634101,
+          "coverValueTotal": 3634101000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000363/form13fInfoTable.html",
           "rowCount": 24,
-          "reportedValueTotal": 3634101,
+          "reportedValueTotal": 3634101000,
           "reportedSharesTotal": 257755379,
           "countReconciled": true,
           "amendmentChain": [
@@ -2662,12 +3256,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001567619-24-000317",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.02969985688975731,
+                "sampleRows": 21
+              }
+            ]
+          },
           "coverEntryTotal": 22,
-          "coverValueTotal": 3650776,
+          "coverValueTotal": 3650776000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000317/form13fInfoTable.html",
           "rowCount": 22,
-          "reportedValueTotal": 3650776,
+          "reportedValueTotal": 3650776000,
           "reportedSharesTotal": 256135295,
           "countReconciled": true,
           "amendmentChain": [
@@ -2706,12 +3312,24 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": true,
+            "filings": [
+              {
+                "accession": "0001567619-24-000192",
+                "reportedUnit": "USD_THOUSANDS",
+                "medianImpliedPrice": 0.028740020367694605,
+                "sampleRows": 23
+              }
+            ]
+          },
           "coverEntryTotal": 23,
-          "coverValueTotal": 4585037,
+          "coverValueTotal": 4585037000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.xml",
           "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/1061768/000156761924000192/form13fInfoTable.html",
           "rowCount": 23,
-          "reportedValueTotal": 4585037,
+          "reportedValueTotal": 4585037000,
           "reportedSharesTotal": 182269312,
           "countReconciled": true,
           "amendmentChain": [
@@ -2847,6 +3465,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001879202-25-000025",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 66,
+                "sampleRows": 1
+              }
+            ]
+          },
           "coverEntryTotal": 7,
           "coverValueTotal": 199225000,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000025/infotable.xml",
@@ -2891,6 +3521,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0001879202-25-000012",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 58.62,
+                "sampleRows": 13
+              }
+            ]
+          },
           "coverEntryTotal": 13,
           "coverValueTotal": 77435131,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000187920225000012/infotable.xml",
@@ -2935,6 +3577,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-24-003106",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 64.3,
+                "sampleRows": 8
+              }
+            ]
+          },
           "coverEntryTotal": 11,
           "coverValueTotal": 129753375,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824003106/informationtable.xml",
@@ -2979,6 +3633,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-24-002196",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 18.195000793991078,
+                "sampleRows": 10
+              }
+            ]
+          },
           "coverEntryTotal": 10,
           "coverValueTotal": 52487171,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824002196/informationtable.xml",
@@ -3023,6 +3689,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-24-001390",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 57.89,
+                "sampleRows": 16
+              }
+            ]
+          },
           "coverEntryTotal": 16,
           "coverValueTotal": 103486463,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824001390/informationtable.xml",
@@ -3073,6 +3751,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-24-000751",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 51.44,
+                "sampleRows": 25
+              }
+            ]
+          },
           "coverEntryTotal": 25,
           "coverValueTotal": 94591240,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514824000751/informationtable.xml",
@@ -3117,6 +3807,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-23-001400",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 19.13,
+                "sampleRows": 11
+              }
+            ]
+          },
           "coverEntryTotal": 13,
           "coverValueTotal": 98976144,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514823001400/informationtable.xml",
@@ -3161,6 +3863,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-23-000689",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 17.54,
+                "sampleRows": 31
+              }
+            ]
+          },
           "coverEntryTotal": 33,
           "coverValueTotal": 1736760059,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000689/informationtable.xml",
@@ -3205,6 +3919,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-23-000408",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 35.54,
+                "sampleRows": 21
+              }
+            ]
+          },
           "coverEntryTotal": 21,
           "coverValueTotal": 106935614,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000408/informationtable.xml",
@@ -3249,6 +3975,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000905148-23-000213",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 33.53,
+                "sampleRows": 9
+              }
+            ]
+          },
           "coverEntryTotal": 9,
           "coverValueTotal": 46536925,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/1649339/000090514823000213/informationtable.xml",
@@ -3390,6 +4128,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-26-000004",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 79.44279193049624,
+                "sampleRows": 1015
+              }
+            ]
+          },
           "coverEntryTotal": 1016,
           "coverValueTotal": 294892645875,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000004/2026Q113F1.xml",
@@ -3434,6 +4184,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-26-000002",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 80.40930507096843,
+                "sampleRows": 1016
+              }
+            ]
+          },
           "coverEntryTotal": 1017,
           "coverValueTotal": 292994292134,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052926000002/2025Q413F1.xml",
@@ -3478,6 +4240,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-25-000011",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 78.2764306237629,
+                "sampleRows": 1014
+              }
+            ]
+          },
           "coverEntryTotal": 1014,
           "coverValueTotal": 276288374576,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052925000011/2025Q313F.xml",
@@ -3522,6 +4296,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-25-000005",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 74.05857497823496,
+                "sampleRows": 986
+              }
+            ]
+          },
           "coverEntryTotal": 986,
           "coverValueTotal": 251889373564,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052925000005/2025Q213F.xml",
@@ -3566,6 +4352,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-25-000003",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 68.56004091353566,
+                "sampleRows": 999
+              }
+            ]
+          },
           "coverEntryTotal": 999,
           "coverValueTotal": 230997481218,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052925000003/2025Q113F.xml",
@@ -3610,6 +4408,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-25-000002",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 73.87999275263849,
+                "sampleRows": 975
+              }
+            ]
+          },
           "coverEntryTotal": 975,
           "coverValueTotal": 251327283058,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052925000002/2024Q413F.xml",
@@ -3654,6 +4464,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-24-000012",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 75.92999601917947,
+                "sampleRows": 918
+              }
+            ]
+          },
           "coverEntryTotal": 919,
           "coverValueTotal": 244023936959,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000012/2024Q313F.xml",
@@ -3698,6 +4520,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-24-000009",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 69.73005538534056,
+                "sampleRows": 985
+              }
+            ]
+          },
           "coverEntryTotal": 986,
           "coverValueTotal": 229851765575,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000009/2024Q213F.xml",
@@ -3742,6 +4576,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-24-000007",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 69.06015580925094,
+                "sampleRows": 963
+              }
+            ]
+          },
           "coverEntryTotal": 964,
           "coverValueTotal": 214110154901,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000007/2024Q113F.xml",
@@ -3792,6 +4638,18 @@
           "rowImportStatus": "IMPORTED_HISTORICAL",
           "shareHistoryStatus": "CONNECTED_TO_HISTORY_ROWS",
           "sourceKind": "SEC_EDGAR",
+          "valueUnitNormalization": {
+            "publishedUnit": "USD",
+            "corrected": false,
+            "filings": [
+              {
+                "accession": "0000850529-24-000006",
+                "reportedUnit": "USD",
+                "medianImpliedPrice": 68.08593685153659,
+                "sampleRows": 980
+              }
+            ]
+          },
           "coverEntryTotal": 981,
           "coverValueTotal": 189126873810,
           "informationTableXml": "https://www.sec.gov/Archives/edgar/data/850529/000085052924000006/2023Q413Famendment.xml",

@@ -2,8 +2,8 @@
   "schemaVersion": "masters-13f.v1",
   "sourceKind": "REFERENCE",
   "status": "REFERENCE_ROWS_CONNECTED",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "latestAvailablePeriod": "2026-09-30",
   "metadataStatus": "REFERENCE_METADATA_CONNECTED",
   "metadataArtifact": "public-data/masters/filings.json",
@@ -23,10 +23,10 @@
   "holdingsArtifact": "public-data/masters/holdings.json",
   "verifiedFilerMetadata": 37,
   "holdingRowsPublished": 365,
-  "fullRowsAvailable": 198132,
+  "fullRowsAvailable": 198271,
   "reconciledManagers": 37,
   "comparisonRowsPublished": 365,
-  "fullComparisonRowsAvailable": 91424,
+  "fullComparisonRowsAvailable": 91463,
   "reconciledComparisons": 37,
   "historyIndexArtifact": "public-data/masters/history-index.json",
   "historyHoldingsArtifact": "public-data/masters/history-holdings.json",
@@ -42,7 +42,7 @@
   "issuerAggregateStatus": "RAW_CUSIP_MULTI_QUARTER_CONNECTED",
   "issuerAggregateRecords": 2641,
   "issuerAggregateReviewQueue": 322,
-  "issuerAggregateReviewedAt": "2026-11-18",
+  "issuerAggregateReviewedAt": "2026-11-25",
   "policy": "SEC EDGAR filing and information-table XML are the canonical source for 13F profiles. Method-only educators such as Mark Minervini are visibly separated and never receive filer, CIK, accession, holdings, or reported-value rows. Do not publish holdings before filer, CIK, accession, report period, and summary reconciliation pass.",
   "managers": [
     {
@@ -284,12 +284,12 @@
     "scion-asset-management"
   ],
   "runtimeHoldingsArtifact": "public-data/masters/holdings-summary.json",
-  "runtimeHoldingsBytes": 263385,
+  "runtimeHoldingsBytes": 284645,
   "managerShardCount": 37,
   "historyManagerShardCount": 7,
   "tickerIndexArtifact": "public-data/masters/ticker-index-reference.json",
   "tickerIndexStatus": "REFERENCE_ONLY",
   "tickerIndexReferenceCount": 48,
   "tickerIndexMatchedRows": 137,
-  "tickerIndexGeneratedAt": "2026-11-18T16:42:54.566Z"
+  "tickerIndexGeneratedAt": "2026-11-25T16:25:10.584Z"
 }
