@@ -55,9 +55,11 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'scenario-state.json': auto('refresh-data.yml', 'scripts/build-scenario-state.mjs', 30, 48 * 60, { ...DERIVED, basis: [['US', 'basis.themeAsOfByMarket.US'], ['KR', 'basis.themeAsOfByMarket.KR']] }),
   'today-verdict.json': auto('refresh-data.yml', 'scripts/build-scenario-state.mjs', 30, 48 * 60, { ...DERIVED, basis: [['US', 'asOf']] }),
   'market-day.json': auto('refresh-data.yml', 'scripts/build-market-day.mjs', 30, 48 * 60, { ...DERIVED, basis: [['US', 'sessions.us'], ['KR', 'sessions.kr']] }),
-  'stress-outcomes.json': auto('refresh-data.yml', 'scripts/build-stress-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
-  'scenario-outcomes.json': auto('refresh-data.yml', 'scripts/build-scenario-outcomes.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
-  'index-longrun.json': auto('refresh-data.yml', 'scripts/build-index-longrun.mjs', 24 * 60, 14 * 24 * 60, DERIVED),
+  // Weekly producers offered a run on the daily lane: each exits before writing while its file is under seven days old,
+  // so the row's clock moves weekly and a daily expectation graded them late five days in seven.
+  'stress-outcomes.json': auto('refresh-data.yml', 'scripts/build-stress-outcomes.mjs', 7 * 24 * 60, 14 * 24 * 60, DERIVED),
+  'scenario-outcomes.json': auto('refresh-data.yml', 'scripts/build-scenario-outcomes.mjs', 7 * 24 * 60, 14 * 24 * 60, DERIVED),
+  'index-longrun.json': auto('refresh-data.yml', 'scripts/build-index-longrun.mjs', 7 * 24 * 60, 14 * 24 * 60, DERIVED),
   'reconciliation-status.json': auto('refresh-data.yml', 'scripts/build-reconciliation-status.mjs', 30, 24 * 60),
   'operations-status.json': auto('refresh-data.yml', 'scripts/build-operations-status.mjs', 30, 24 * 60),
 
@@ -74,7 +76,9 @@ export const ARTIFACT_FRESHNESS = Object.freeze({
   'treasury-auctions.json': auto('refresh-screener.yml', 'scripts/fetch-treasury-auctions.mjs', 6 * 60, 4 * 24 * 60, DERIVED),
   'sp500-weights.json': auto('refresh-screener.yml', 'scripts/fetch-sp500-weights.mjs', 24 * 60, 8 * 24 * 60, DERIVED),
   'us-listings.json': auto('refresh-screener.yml', 'scripts/build-us-listings.mjs', 24 * 60, 4 * 24 * 60),
-  'tw-monthly-revenue.json': auto('refresh-screener.yml', 'scripts/fetch-tw-monthly-revenue.mjs', 6 * 60, 62 * 24 * 60),
+  // Monthly numbers fetched every run: the producer writes on every successful fetch and the publisher keeps the bytes
+  // when only the clock moved, so the row's checkedAt says the fetch worked (a producer-side skip left it late for weeks).
+  'tw-monthly-revenue.json': auto('refresh-screener.yml', 'scripts/fetch-tw-monthly-revenue.mjs', 6 * 60, 62 * 24 * 60, DERIVED),
   // blockedBy: the refresh path exists but waits on a secret the owner has not added (or decided against); the watchdog
   // names it as a warning instead of failing every run, and the screen shows it as not collected.
   'kr-investor-flows.json': auto('refresh-screener.yml', 'scripts/fetch-kr-investor-flows.mjs', 6 * 60, 4 * 24 * 60, DERIVED),
@@ -214,4 +218,27 @@ export function freshnessState(row, now = Date.now()) {
   if (liveness === 'unknown') return 'unknown';
   const content = sessionLagState(row, now)?.state || 'current';
   return RANK[content] > RANK[liveness] ? content : liveness;
+}
+
+/**
+ * The grade of one public-data file from its workflow's ledger payload: freshnessState of its row, 'blocked' when the
+ * refresh path waits on a missing secret, 'unknown' without a row. The browser reader and the producers grade through this.
+ */
+export function ledgerFileState(file, ledger, now = Date.now()) {
+  const spec = ARTIFACT_FRESHNESS[file];
+  const row = spec && spec.ledger !== false ? ledger?.artifacts?.[file] || null : null;
+  const graded = row ? freshnessState(row, now) : 'unknown';
+  return spec?.blockedBy && graded !== 'current' ? 'blocked' : graded;
+}
+
+/**
+ * Whether a file whose published bytes are kept while its content is unchanged may be read. Its own clock is when the
+ * content last changed, not when the producer last ran, so the ledger grade decides; the own clock is the fallback only
+ * while that grade is unknown.
+ */
+export function unchangedArtifactUsable(state, ownClock, now, ownClockMaxAgeMs) {
+  if (state === 'stale' || state === 'blocked') return false;
+  if (state !== 'unknown') return true;
+  const age = now - Date.parse(ownClock || '');
+  return age >= 0 && age <= ownClockMaxAgeMs;
 }

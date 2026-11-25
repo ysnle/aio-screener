@@ -4,6 +4,7 @@
 // (temperatureMethodNodes). D02: no average score and no band.
 // Hidden until the producer (scripts/build-market-temperature.mjs) has published.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { readArtifactFreshness } from '../../data/freshness.js';
 import { TEMPERATURE_COMPONENTS, TEMPERATURE_MARKETS, TEMPERATURE_PATHS, TEMPERATURE_RULES, staleMarketIds } from '../../domain/market/sentiment/market-temperature.js';
 import { createTrendChart } from './trend-chart.js';
 import { el } from './dom.js';
@@ -134,7 +135,7 @@ export function renderMarketTemperature({ documentRef: doc, root, anchor }) {
     const market = markets.find((item) => item.id === selected);
 
     // The tiles already carry each market's state; the lead names only the markets in an extreme spell (US first).
-    const stale = staleMarketIds(payload, markets);
+    const stale = staleMarketIds(payload, markets, Date.now(), { producer: readArtifactFreshness('market-temperature.json', { root }).state });
     const current = markets.filter((item) => !stale.has(item.id));
     const extreme = current.filter((item) => item.state !== 'none').map((item) => `${item.label}(${STATE_LABEL[item.state]} ${item.streak}거래일째)`);
     // The face is the state line and the tiles; what the table measures opens with the detail fold.

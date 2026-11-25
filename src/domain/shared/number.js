@@ -42,6 +42,12 @@ export function peopleText(thousands, { sign = false } = {}) {
   return `${prefix}${body}`;
 }
 
+/** 억원 as Korean market news prints it, signed by the printed amount: +1,234억, -5,678억, -1.8조, 0억. */
+export function eokText(value) {
+  const abs = Math.abs(value), shown = Math.round(value), sign = shown > 0 ? '+' : shown < 0 ? '-' : '';
+  return abs >= 1e4 ? `${sign}${(abs / 1e4).toFixed(abs >= 1e5 ? 0 : 1)}조` : `${sign}${Math.round(abs).toLocaleString('en-US')}억`;
+}
+
 export function usdKoreanText(value, { precise = false } = {}) {
   const number = typeof value === 'number' ? value : value == null || value === '' ? NaN : Number(value);
   if (!Number.isFinite(number)) return '—';

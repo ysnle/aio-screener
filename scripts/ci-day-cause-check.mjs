@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import { buildDayAccount, byReportOrder } from '../src/domain/briefing/day-account.js';
 import { leadLinkedNews, pickImportantNews, reportAboutMove, rollingNewsPool } from '../src/domain/briefing/news-picks.js';
+import { newsStoryLinks } from '../src/domain/briefing/news-story-link.js';
 import { renderTickerContext } from '../src/ui/components/ticker-context.js';
 import { eventPreviews } from '../src/domain/briefing/event-guide.js';
 import { isBlacklistedNewsText } from '../src/domain/news/selection.js';
@@ -221,6 +222,43 @@ check('v60.51 C6 a macro preview does not say the consensus is not collected', (
 check('v60.51 C2 오늘\'s stock row is titled for its material moves, not "크게 움직인"', () => {
   const home = source('src/ui/components/home-day.js');
   assert.equal(/'크게 움직인 종목'/.test(home) || !/'주요 종목', 'home-day__stocks-label'/.test(home), false, 'v60.51 C2 home-day.js label');
+});
+
+// ── 6. A card's tie to the day's story (뉴스): the moves its headline is linked to.
+check('v60.57 news-story-link a subject link names the move; a topic-only link names none', () => {
+  const links = newsStoryLinks(ledger(true));
+  const huang = { title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap', link: 'https://fixture.invalid/huang' };
+  assert.deepEqual(links(huang)?.moves.map((move) => move.said.text), ['NVIDIA +31.5%'], 'v60.57 news-story-link subject link');
+  assert.equal(links(huang).moves[0].said.claims[0].asOf, D, 'v60.57 news-story-link the move is dated to its session');
+  const topical = ledger(true, [{ id: 'headline:chips', kind: 'headline', date: D, title: 'Chip stocks in focus', src: { kind: 'news', link: 'https://fixture.invalid/chips' } }]);
+  topical.links.push({ from: 'headline:chips', to: `group:theme:semiconductor:${D}`, basis: 'topic' });
+  assert.equal(newsStoryLinks(topical)({ title: 'Chip stocks in focus', link: 'https://fixture.invalid/chips' }), null, 'v60.57 news-story-link topic-only link');
+});
+check('v60.57 news-story-link two moves in materiality order, at most two', () => {
+  const day = ledger(true);
+  day.links.push(...[`price:soxx:${D}`, `group:theme:semiconductor:${D}`, `stock:AAPL:${D}`].map((to) => ({ from: 'headline:huang', to, basis: 'member' })));
+  const moves = newsStoryLinks(day)({ title: 'x', link: 'https://fixture.invalid/huang' }).moves;
+  assert.deepEqual(moves.map((move) => move.id), [`stock:NVDA:${D}`, `group:theme:semiconductor:${D}`], 'v60.57 news-story-link order and cap');
+  assert.equal(moves[1].said.text, '반도체 +13.5%', 'v60.57 news-story-link group median');
+  const errors = moves.flatMap((move) => saidIssues(move.said, ledgerFacts(day)).filter(isClaimError).map((issue) => `${issue.check}: ${issue.message}`));
+  assert.deepEqual(errors, [], 'v60.57 news-story-link every move figure holds against the ledger');
+  const rate = { id: `price:dgs10:${D}`, kind: 'price', asset: 'dgs10', label: '미 10년물', date: D, change: -7.4, unit: 'bp', changeUnit: 'bp', rank: 'major', materiality: 40 };
+  const withRate = ledger(true, [rate]);
+  withRate.links.push({ from: 'headline:yonhap', to: rate.id, basis: 'subject' });
+  assert.deepEqual(newsStoryLinks(withRate)({ title: '뉴욕증시, 젠슨 황 엔비디아 CEO 재임명에 상승 출발' }).moves.map((move) => move.said.text), ['NVIDIA +31.5%', '미 10년물 -7bp'], 'v60.57 news-story-link a rate moves in bp');
+});
+check('v60.57 news-story-link no ledger, no tie', () => {
+  const any = { title: 'Micron jumps as HBM prices climb', link: 'https://fixture.invalid/mu' };
+  assert.equal(newsStoryLinks(null)(any), null, 'v60.57 news-story-link no day');
+  assert.equal(newsStoryLinks(ledger(false))(any), null, 'v60.57 news-story-link an article the ledger does not link');
+});
+check('v60.57 news-story-link leadLinkedNews keeps its behaviour on the shared matcher', () => {
+  const linked = leadLinkedNews(ledger(true));
+  assert.equal(linked({ title: 'x', link: 'https://fixture.invalid/huang?utm=1' }), true, 'v60.57 news-story-link link match ignores the query');
+  assert.equal(linked({ title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets: Markets Wrap' }), true, 'v60.57 news-story-link title match');
+  assert.equal(linked({ storyArticles: [{ title: 'other' }, { link: 'https://fixture.invalid/yonhap' }] }), true, 'v60.57 news-story-link any grouped article');
+  assert.equal(linked({ title: 'Intel, Meta among AI stocks hedge funds are buying - Goldman' }), false, 'v60.57 news-story-link an unlinked headline');
+  assert.equal(leadLinkedNews(ledger(false))({ title: '', link: '' }), false, 'v60.57 news-story-link no keys');
 });
 
 await Promise.all(pending);

@@ -6,6 +6,18 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.57 이익·주문·수급·기사를 시장 이야기에 연결 (2026-11-25)
+
+- [x] QA-EARNINGS-READ-01: v60.57 오늘과 시장 상태의 머리말은 진단 줄 아래에 S&P 500 고점 대비 하락과 최근 4주 이익 전망 수정(상향·하향 건수, 기술 업종, 선행 PER)을 한 줄로 놓고, 하락 여부와 수정 방향으로 뜻을 정한다(하락인데 상향 우세면 값이 내린 하락, 수정이 하향으로 돌면 성격이 달라짐); 지수 비중이 모자라 수정 방향을 낼 수 없으면 줄이 없다. AI 읽기에도 같은 줄('이익 대 주가')이 들어간다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-AI-DEMAND-READ-01: v60.57 AI 공급망 흐름 블록은 대만 월매출과 빅테크 설비투자(주문)를 묶음별 한 달 주가와 한 문장으로 맞대고, 주문이 늘었는데 주가만 내렸는지·주문도 줄기 시작했는지를 말한다; 설비투자가 영업현금흐름의 80% 이상이면 자금 여력을 다음 쟁점으로 덧붙인다. 주문 숫자가 하나도 없으면 줄이 없다. 테마 AI 읽기에 같은 줄이 들어간다. verify_by: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- [x] QA-KOREA-LINK-01: v60.57 한국 탭의 시장 이야기는 직전 미국 반도체 세션과 그 뒤 코스피 세션(같은 방향·반대·거의 안 움직임, 아직 한국 장에 반영 전이면 그렇게), 외국인의 코스피 최근 세션·5거래일·20거래일 순매수와 그 뜻을 보인다; 수급 날짜가 코스피 세션과 다르면 자기 날짜를 쓰고, 수급이 없으면 짝 줄만 남는다. 한국 AI 읽기에 같은 두 줄이 들어간다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-STOCK-EARNINGS-TIE-01: v60.57 종목 머리는 시장 속 위치 줄 아래에 최근 4주 추정치 수정(상향·하향 건수), 향후 4개 분기 EPS 예상 변화, 한 달 주가와 수정 방향이 같은지 엇갈리는지, 다음 실적일을 한 줄로 보인다; 없는 항목은 빼고, 추정치가 오래됐거나 없는 종목(한국 상장 포함)은 줄이 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NEWS-STORY-LINK-01: v60.57 뉴스 카드(주요 뉴스와 전체 목록)는 시장 기록이 종목·구성 종목으로 연결한 움직임을 '관련 움직임' 한 줄로 보인다(중요도 순 최대 2개, 금리는 bp); 주제만 겹치는 연결은 쓰지 않고, 연결이 없으면 줄이 없다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-CASHFLOW-READER-01: v60.57 빅테크 현금흐름 문장은 파일 내용이 오래 같아도 신선도 원장이 수집을 확인한 동안 보이고, 원장 기준 수집이 멈추면(stale) 숨는다; 원장이 없을 때만 파일 자체 시각 10일을 쓴다. verify_by: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- [x] QA-TEMPERATURE-LIVENESS-01: v60.57 지수별 가격 온도는 주말처럼 새 종가가 없어 파일이 50시간 그대로여도 원장이 수집을 확인한 동안 모든 지수를 현재로 읽고, 원장 등급이 stale·blocked일 때만 전체를 오래된 자료로 본다; 원장을 모를 때만 자체 시각 4일을 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CASHFLOW-LIVENESS-01: v60.57 AI 시황·화면별 AI 입력의 빅테크 현금흐름 문장은 마지막 공시 변화가 열흘을 넘어도 원장이 수집을 확인한 동안 남고, 수집이 멈추면 빠진다. verify_by: node scripts/ci-event-briefs-check.mjs
+- [x] QA-OWN-CLOCK-READERS-01: v60.57 파일 자체 시각(generatedAt)을 파싱하는 src·scripts/lib·scripts/producer 파일은 검사의 목록에 용도와 함께 있어야 하고, 목록 밖 파일이 생기면 실패한다; 대만 월매출은 발행 단계가 '변화 없음'을 판단한다. verify_by: node scripts/ci-artifact-refresh-path-check.mjs
+
 ## v60.56 AI 글의 원인 한 이야기 (2026-11-25)
 
 - [x] QA-CAUSE-UNIFY-01: v60.56 최근 세션이 직전 반등을 되돌린 날이면(시장 상태 묶음의 '저점 뒤 오른 폭 가운데 …를 되돌렸습니다' 줄) 시장 원인 조사의 첫 메시지에 그 앞 두 세션의 지수별 하루 종가 변화([직전 세션 흐름])가 실리고 그 저점이 조사 키에 들어가며, 단서 기간에 여러 매체가 되풀이한 보도 묶음([반복 보도 묶음], 제목만)이 함께 실린다. verify_by: node scripts/ci-market-investigation-check.mjs

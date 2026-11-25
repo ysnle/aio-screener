@@ -9,6 +9,7 @@
 // provider failure is retried on later runs, at most SCREEN_READING_PROVIDER_ATTEMPTS times per key. Without a requester
 // (Worker not configured) nothing is called and the previous readings stay as they were.
 import { readFileSync } from 'node:fs';
+import { usableBigtechCashflow } from './earnings-context.mjs';
 import { estimateAiCostUsd } from '../../src/domain/briefing/event-briefs.js'; // the Worker's rate card, one copy
 import { SHARED_AI_MODEL } from '../lib/ai-shared-analysis.mjs';
 import { softenReaderDuty } from '../lib/market-analysis-validate.mjs';
@@ -74,7 +75,8 @@ export async function genScreenReadings({ data = null, history = [], previous = 
   // data.json for the boards that read it directly (금리와 환율: macro), and the channels' relayed releases (매크로).
   const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data, telegram: telegram !== undefined ? telegram : readPublished('telegram-digest.json'),
     day: day !== undefined ? day : readPublished('market-day.json'), briefs: briefs !== undefined ? briefs : readPublished('event-briefs.json'),
-    calendar: readPublished('earnings-calendar.json') };
+    calendar: readPublished('earnings-calendar.json'), krFlows: readPublished('kr-investor-flows.json'),
+    twRevenue: readPublished('tw-monthly-revenue.json'), bigtech: usableBigtechCashflow(readPublished('bigtech-cashflow.json'), { nowMs }) };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;

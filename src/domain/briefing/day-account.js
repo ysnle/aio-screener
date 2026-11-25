@@ -22,7 +22,7 @@ const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 const subjectOf = (fact) => (fact.kind === 'price' ? fact.asset : fact.kind === 'group-move' ? fact.group : fact.subjects?.[0]) || fact.id;
 const unitOf = (fact) => ((fact.changeUnit || fact.unit) === 'bp' ? 'bp' : 'pct');
 /** A fact's one-session change (a group's median member), printed under `label`. */
-const changeClaim = (fact, { word = null, label = fact.label, unit = unitOf(fact), compare = null, basis = fact.kind === 'group-move' ? 'median' : 'change1d' } = {}) =>
+export const changeClaim = (fact, { word = null, label = fact.label, unit = unitOf(fact), compare = null, basis = fact.kind === 'group-move' ? 'median' : 'change1d' } = {}) =>
   claim({ subject: subjectOf(fact), measure: 'change1d', word, asOf: fact.date, compare, figures: [{ value: fact.change, unit, basis, label }] });
 /** A one-figure claim on another measure of the fact (a surprise, a size multiple, a pull on the index). */
 const figureClaim = (fact, measure, value, unit, label) => claim({ subject: subjectOf(fact), measure, asOf: fact.date, figures: [{ value, unit, basis: measure, label }] });

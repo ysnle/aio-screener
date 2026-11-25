@@ -197,17 +197,22 @@ export function buildMarketTemperature(rows = [], { rules = TEMPERATURE_RULES } 
 // A market whose fetch failed keeps yesterday's body in the artifact (payload.retained), so the
 // "now" lead must not name it. A body more than a week behind the newest market is treated the same way.
 // When every fetch fails the artifact is left unchanged, so the markets agree with each
-// other and the comparison above flags none of them. An artifact not rewritten for two days (the producer runs every
-// refresh, weekends included), or a body more than ten calendar days old (past the longest Korean and Japanese holiday
-// breaks), is stale too. A retained body is stale only when it is behind the session its market had completed when the
+// other and the comparison above flags none of them. The file's own clock cannot tell that outage from a quiet weekend:
+// the publisher keeps the published bytes when no close changed, so the clock stands still either way (an ordinary
+// weekend left it 50 hours old and every market was called stale on a healthy file). Whether the producer is alive is
+// the freshness ledger's grade, passed in as `producer`; the own clock is only the fallback while that grade is
+// unknown, with a limit past a three-day weekend. A body more than ten calendar days old (past the longest Korean and
+// Japanese holiday breaks) is stale too. A retained body is stale only when it is behind the session its market had completed when the
 // artifact was written (the registered US/KRX calendars; a market without one is held against the newest other close):
 // a failed Nikkei fetch at 10:52 Tokyo time still holds the latest Nikkei close.
 const CALENDAR_MARKET = Object.freeze({ us: 'US', kr: 'KR' });
-export function staleMarketIds(payload, markets, nowMs = Date.now()) {
+export const TEMPERATURE_OWN_CLOCK_MAX_AGE_MS = 4 * 86400000;
+export function staleMarketIds(payload, markets, nowMs = Date.now(), { producer = 'unknown' } = {}) {
   const newest = Math.max(...markets.map((item) => Date.parse(item.asOf)).filter(Number.isFinite));
   const retained = new Set(Array.isArray(payload?.retained) ? payload.retained : []);
   const generated = Date.parse(payload?.generatedAt || '');
-  const artifactStale = Number.isFinite(generated) && nowMs - generated > 2 * 86400000;
+  const artifactStale = producer === 'stale' || producer === 'blocked'
+    || (producer === 'unknown' && Number.isFinite(generated) && nowMs - generated > TEMPERATURE_OWN_CLOCK_MAX_AGE_MS);
   const writtenAt = Number.isFinite(generated) ? generated : nowMs;
   const behindItsSession = (item) => {
     const calendar = CALENDAR_MARKET[item.region || TEMPERATURE_MARKETS.find((def) => def.id === item.id)?.region];

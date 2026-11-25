@@ -57,12 +57,13 @@ button.co-chip:focus-visible, .co-sources a:focus-visible { outline:2px solid va
   .co-bar .co-bar__track { grid-column:1 / -1; grid-row:2; }
   button.co-chip { min-height:44px; }
 }
-/* 종목 머리 아래: the last session's move with its report, and the themes that list the stock. */
+/* 종목 머리 아래: the last session's move with its report, its market tie and earnings outlook, and the themes that list the stock. */
 .ticker-context { display:flex; flex-direction:column; gap:4px; margin:8px 0 0; min-width:0; }
 .ticker-context__move { list-style:none; margin:0; padding:0; }
 .ticker-context__move li { display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; font-size:14px; line-height:1.5; }
 .ticker-context__when { flex:0 0 auto; color:var(--color-text-secondary); font-variant-numeric:tabular-nums; }
 .ticker-context__title { color:var(--color-text-primary); overflow-wrap:anywhere; min-width:0; }
 .ticker-context__tie { margin:0; font-size:14px; line-height:1.55; color:var(--color-text-primary); overflow-wrap:anywhere; }
+.ticker-context__earn { margin:0; font-size:14px; line-height:1.55; color:var(--color-text-secondary); overflow-wrap:anywhere; }
 .ticker-context__themes { display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; margin:0; font-size:12px; }
 .ticker-context__label { color:var(--color-text-secondary); }

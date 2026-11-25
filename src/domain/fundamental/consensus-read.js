@@ -6,10 +6,9 @@ import { readNumber as finite } from '../shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
 
-export const CONSENSUS_MAX_AGE_DAYS = 21;
+import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from './consensus-limits.js';
+export { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS };
 export const CONSENSUS_THIN_ESTIMATES = 3;
-/** A close more than 10 calendar days old (about a week of sessions plus a holiday weekend) is not the current price. */
-export const CONSENSUS_PRICE_MAX_AGE_DAYS = 10;
 /** Net 4-week revisions (up − down) needed before the tone leans either way. */
 export const CONSENSUS_NET_REVISION_FLOOR = 2;
 /** A one-month move this large either way is a price direction for the revisions comparison. */
@@ -78,6 +77,23 @@ export function consensusView(row, estimate, { now = Date.now() } = {}) {
   };
 }
 
+/**
+ * The price's one-month direction beside the four-week revisions' net direction — the one rule every reader of "did the
+ * price move with its earnings outlook" uses. `month` is the screener row's calculable ret1m (the revisions' four
+ * weeks); each direction is 'up', 'down' or null below its floor (CONSENSUS_PRICE_MOVE_PCT, CONSENSUS_NET_REVISION_FLOOR).
+ * @param {object} row the screener row
+ * @param {{up4w:number, down4w:number}} view consensusView's result
+ * @returns {{ month: number|null, revDir: 'up'|'down'|null, priceDir: 'up'|'down'|null }}
+ */
+export function priceVersusRevisions(row, view) {
+  // Boundary contract: the price direction is judged on a calculable screener value.
+  const month = readRowNumber(row, 'ret1m', 'calculation');
+  const netRev = (view?.up4w || 0) - (view?.down4w || 0);
+  const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
+  const priceDir = month == null ? null : month >= CONSENSUS_PRICE_MOVE_PCT ? 'up' : month <= -CONSENSUS_PRICE_MOVE_PCT ? 'down' : null;
+  return { month, revDir, priceDir };
+}
+
 /** The reading for the stock page's 재무 흐름 list (same shape as buildFiscalRead points). */
 export function buildConsensusPoint(row, estimate, options = {}) {
   const view = consensusView(row, estimate, options);
@@ -128,11 +144,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   // stock 20% under its high and up 20% this month read "반대 방향" beside upward revisions. The price direction is the
   // last month's move (the revisions' four weeks); the high stays as context.
   const fromHigh = finite(row?.pctFrom52wHigh);
-  // Boundary contract: the price direction and the PER gap are judged on calculable screener values.
-  const month = readRowNumber(row, 'ret1m', 'calculation');
-  const netRev = view.up4w - view.down4w;
-  const revDir = Math.abs(netRev) >= CONSENSUS_NET_REVISION_FLOOR ? (netRev > 0 ? 'up' : 'down') : null;
-  const priceDir = month == null ? null : month >= CONSENSUS_PRICE_MOVE_PCT ? 'up' : month <= -CONSENSUS_PRICE_MOVE_PCT ? 'down' : null;
+  const { month, revDir, priceDir } = priceVersusRevisions(row, view);
   const versus = revDir && priceDir ? say('주가는 최근 1개월 {move}{high}이고 최근 4주 추정치는 {dir}이 많습니다 — 가격과 이익 전망이 {same} 방향입니다', {
     move: on('ret1m', [{ value: month, unit: 'pct', digits: 0, basis: 'ret1m', label: '최근 1개월' }]),
     high: fromHigh != null ? say('(52주 고점 대비 {high})', { high: on('pctFrom52wHigh', [{ value: fromHigh, unit: 'pct', digits: 0, basis: 'pctFrom52wHigh', label: '52주 고점 대비' }]) }) : '',
@@ -143,9 +155,7 @@ export function buildConsensusPoint(row, estimate, options = {}) {
   const said = say('{lead} — {body}. 예상치는 계속 바뀌는 참고값이라 점수에는 쓰지 않습니다({asOf} 수집).', { lead, asOf: view.asOf,
     body: sayJoin([basis, say('애널리스트 최소 {n}명, {revisions}', { n: String(view.minEstimates ?? '?'), revisions }), versus, gaapGap, ...cautions], '. ') });
   const text = said.text;
-  // One revision either way is not a direction — the net count (up − down) must reach the floor.
-  const net = view.up4w - view.down4w;
-  const clears = Math.abs(net) >= CONSENSUS_NET_REVISION_FLOOR;
-  const tone = !clears ? 'neutral' : net > 0 ? 'favorable' : 'burden';
+  // One revision either way is not a direction — the net count (up − down) must reach the floor (revDir).
+  const tone = !revDir ? 'neutral' : revDir === 'up' ? 'favorable' : 'burden';
   return { id: 'consensus', tone, title: '시장 기대(컨센서스)', text, claims: said.claims, ...view };
 }

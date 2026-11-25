@@ -309,6 +309,8 @@
 /* A multi-article story's timeline links kept the browser's default blue/purple (1.85:1 on the dark card). */
 #page-market-news a.aio-inline-target, #page-market-news a.aio-inline-target:visited { color: var(--color-accent); text-decoration: underline; text-underline-offset: 2px; }
 #page-market-news .news-item-chain { margin: 2px 0 0; font-size: var(--fs-reading); line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+/* The card's place in the day's story (src/ui/pages/news.js storyTieLine): the linked moves, then the relayed story as a quiet chip. */
+#page-market-news .news-item-story { margin: 2px 0 0; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
 /* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
 #page-home .home-index-strip { margin: 0 0 16px; }
 /* First-users run-5 (phone, CLS): the strip is filled when the modules run (~35 s on slow 3G) and pushed the verdict the

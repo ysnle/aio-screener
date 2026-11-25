@@ -3,11 +3,10 @@ import { koreaMoveRecord } from '../../domain/briefing/market-read.js';
 import { heavyweightLine } from '../../domain/themes/group-strength.js';
 import { el } from './dom.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
-import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { buildKrInvestorFlowView, formatEok } from '../../domain/market/korea/kr-investor-flows.js';
+import { requestKrInvestorFlows, krInvestorFlowView } from '../../data/kr-investor-flows.js';
+import { formatEok } from '../../domain/market/korea/kr-investor-flows.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { dataState } from './data-state.js';
-import { KR_INVESTOR_FLOWS } from '../../data/artifact-registry.js';
 // Perf: an optional `store` supplies the native screener rows in place (same rule as scenario-outlook: a
 // non-empty native set wins, an empty one defers to the bridge, which owns the pre-publication fallback).
 function participationRows(root,store){
@@ -109,18 +108,8 @@ export function renderKrInvestorFlows({ documentRef: doc, root, before = null, n
     host.setAttribute('aria-labelledby', 'regime-kr-flows-title');
     if (before) before.before(host); else board.after(host);
   }
-  if (!root.__aioKrFlowsRequested) {
-    root.__aioKrFlowsRequested = true;
-    // A failed fetch is its own state (불러오지 못함), never read as 수집 전.
-    const done = (payload, changed) => {
-      root.__aioKrFlowsRequested = false;
-      const before = root.__aioKrFlowsLoad;
-      root.__aioKrFlowsLoad = payload ? 'loaded' : 'failed';
-      if (changed || before !== root.__aioKrFlowsLoad) renderKrInvestorFlows({ documentRef: doc, root });
-    };
-    refreshSharedArtifact(root, KR_INVESTOR_FLOWS).then(({ payload, changed }) => done(payload, changed)).catch(() => done(root[KR_INVESTOR_FLOWS.key] || null, false));
-  }
-  const view = buildKrInvestorFlowView(root[KR_INVESTOR_FLOWS.key] || null, { nowMs, loadState: root.__aioKrFlowsLoad || 'loading' });
+  requestKrInvestorFlows(root, () => renderKrInvestorFlows({ documentRef: doc, root }));
+  const view = krInvestorFlowView(root, nowMs);
   root.__aioKrInvestorFlowView = view;
   // v59.70 (ui-states): before the first collection the block is not drawn at all (no '수집 전' cell); the shared artifact
   // is asked on every render, so the first published flows bring it back by themselves.

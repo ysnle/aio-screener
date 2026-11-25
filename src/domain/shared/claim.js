@@ -7,7 +7,7 @@
 // session on disk instead of by a reader on the screen.
 //
 // Only this file ships: the vocabulary, the claim constructor and the composer. Nothing here judges a claim.
-import { signedText, usdKoreanText, usdPerShareText } from './number.js';
+import { signedText, usdKoreanText, usdPerShareText, eokText } from './number.js';
 import { shortDate } from '../content/date-labels.js';
 import { isIsoDay, hasLeadingIsoDay } from './session-date.js';
 
@@ -57,7 +57,7 @@ export const CLAIM_WORDS = Object.freeze({
 });
 
 // How a figure prints, by unit: a signed change (pct, bp), a size multiple (x), a share or a yield level (share, rate),
-// a plain level (level), a count (count), a dollar amount (usd), dollars per share (perShare), an unscaled ratio (ratio: a PEG), a change in percentage
+// a plain level (level), a count (count), a dollar amount (usd), a signed 억원 amount (eok), dollars per share (perShare), an unscaled ratio (ratio: a PEG), a change in percentage
 // points (pp, its size: the word carries the direction), a duration (years, months).
 const grouped = (value, digits) => value.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const UNITS = Object.freeze({
@@ -70,6 +70,7 @@ const UNITS = Object.freeze({
   level: { digits: 2, text: (value, digits) => grouped(value, digits) },
   count: { digits: 0, text: (value, digits) => `${grouped(value, digits)}개` },
   usd: { digits: 0, text: (value) => usdKoreanText(value) },
+  eok: { digits: 0, text: eokText },
   perShare: { digits: 2, text: (value, digits) => usdPerShareText(value, digits) },
   ratio: { digits: 2, text: (value, digits) => value.toFixed(digits) },
   pp: { digits: 1, text: (value, digits) => `${Math.abs(value).toFixed(digits)}%p` },

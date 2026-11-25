@@ -130,6 +130,21 @@
       "problems": []
     },
     {
+      "route": "ticker",
+      "tab": "쟁점과 전망",
+      "sym": "NVDA",
+      "form": "query",
+      "view": "outlook",
+      "hash": "#ticker?sym=NVDA&view=outlook",
+      "state": {
+        "active": "page-ticker",
+        "tab": "쟁점과 전망",
+        "subject": "",
+        "hash": "#ticker?sym=NVDA&view=outlook"
+      },
+      "problems": []
+    },
+    {
       "route": "charts",
       "form": "chart address",
       "sym": "AAPL",
@@ -137,7 +152,7 @@
       "state": {
         "active": "page-charts",
         "entity": "AAPL",
-        "hash": "#charts?sym=AAPL"
+        "hash": "#charts?sym=AAPL&view=analysis"
       },
       "problems": []
     },
@@ -149,7 +164,7 @@
       "state": {
         "active": "page-charts",
         "entity": "MSFT",
-        "hash": "#charts?sym=MSFT"
+        "hash": "#charts?sym=MSFT&view=analysis"
       },
       "problems": []
     },
@@ -161,7 +176,7 @@
       "state": {
         "active": "page-charts",
         "entity": "NVDA",
-        "hash": "#charts?sym=NVDA"
+        "hash": "#charts?sym=NVDA&view=analysis"
       },
       "problems": []
     },

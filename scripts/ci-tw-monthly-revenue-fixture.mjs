@@ -3,9 +3,13 @@
 // ROC months, thousand-NT$ amounts), history seeding and merge, the unchanged-data no-rewrite rule, and the read model.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { buildTwMonthlyRevenue, mergeHistory, parseRevenueRow, pendingTwMonthlyRevenue, rocMonth, sameRevenueData, shiftMonth, TW_AI_CHAIN } from './fetch-tw-monthly-revenue.mjs';
+import { buildTwMonthlyRevenue, mergeHistory, parseRevenueRow, pendingTwMonthlyRevenue, rocMonth, shiftMonth, TW_AI_CHAIN } from './fetch-tw-monthly-revenue.mjs';
+import { ARTIFACT_FRESHNESS, sameExceptVolatile } from '../src/data/contracts/artifact-freshness.js';
+const sameRevenueData = (a, b) => sameExceptVolatile(a, b, ARTIFACT_FRESHNESS['tw-monthly-revenue.json'].volatileKeys);
 import { buildTwRevenueView } from '../src/domain/briefing/tw-monthly-revenue.js';
 import { runSections } from './lib/gate-sections.mjs';
+import { aiDemandRead, aiDemandFactLine, CAPEX_STRETCH_PCT } from '../src/domain/briefing/ai-demand-read.js';
+import { bigtechGroupFor } from '../src/data/bigtech-cashflow.js';
 
 const row = (code, name, cur, prev, ago, month = '11509') => ({ '出表日期': '1151017', '資料年月': month, '公司代號': code, '公司名稱': name, '產業別': '半導體業',
   '營業收入-當月營收': String(cur), '營業收入-上月營收': String(prev), '營業收入-去年當月營收': String(ago), '營業收入-上月比較增減(%)': '0', '營業收入-去年同月增減(%)': '0',
@@ -43,6 +47,7 @@ assert.deepEqual(artifact.renamed, ['2382:別名'], 'v59.56 a source name that n
 const listed = TW_AI_CHAIN.reduce((n, g) => n + g.members.length, 0);
 assert.equal(artifact.companies.length + artifact.missing.length, listed, 'v59.56 every listed code is either collected or missing');
 assert.ok(sameRevenueData(artifact, { ...artifact, generatedAt: 'later' }), 'v59.56 only generatedAt differs → unchanged');
+assert.ok(ARTIFACT_FRESHNESS['tw-monthly-revenue.json'].skipUnchanged, 'v60.57 tw-liveness: the publisher, not the producer, keeps an unchanged file (the row then records that the fetch ran)');
 assert.ok(!sameRevenueData(artifact, { ...artifact, latestMonth: '2026-10' }), 'v59.56 a new month is a data change');
 
 const view = buildTwRevenueView(artifact, { nowMs: Date.parse('2026-10-20T00:00:00Z') });
@@ -96,6 +101,37 @@ assert.equal(backAgain.companies.find((c) => c.code === '2454').history.length, 
 const allCarried = buildTwMonthlyRevenue({ rows: [row('9999', '他社', 1, 1, 1)], previous: carriedRun, generatedAt: '2026-11-04T00:00:00Z' });
 assert.equal(allCarried.status, 'no-companies', 'v59.94 a run with no parsed company leaves the artifact unchanged');
 
+}, 'code'],
+// Orders against prices: Taiwan's revenue and the hyperscalers' spending set beside the US chain's one-month prices.
+['demand-read', async () => {
+const flow = (down, total = 4) => ({ groups: Array.from({ length: total }, (_, i) => ({ name: `g${i}` })), down1m: down });
+const tw = (yoy) => ({ state: 'ok', month: '2026-10', totalYoy: yoy });
+const capex = (yoy, ratio, was = 64) => ({ complete: true, members: ['A', 'B', 'C', 'D', 'E'], capexYoyPct: yoy, capexToOcfPct: ratio, yearAgo: { capexToOcfPct: was }, endRange: ['2026-08-31', '2026-09-30'] });
+const fell = aiDemandRead({ flow: flow(4), tw: tw(62.3), capex: capex(93.5, 95.5), session: '2026-11-24' });
+assert.equal(fell.side, 'priceOnly', 'v60.57 demand-read: orders up, prices down');
+assert.equal(fell.said.text, '주문 쪽은 대만 공급망 10월 매출 1년 전보다 +62.3%, 빅테크 5개사 설비투자 1년 전보다 +93.5%이고, 주가는 묶음 모두 한 달 새 내렸습니다. 주문이 줄었다는 숫자는 아직 없고, 내린 것은 주가입니다. 다만 설비투자가 영업현금흐름의 95.5%까지 올라와(1년 전 64%), 이 속도를 이어갈 돈이 남는지가 다음 쟁점입니다.', 'v60.57 demand-read: the sentence');
+assert.ok(fell.said.claims.length >= 4 && fell.said.claims.every((item) => item.figures.length), 'v60.57 demand-read: every figure is a claim');
+const partly = aiDemandRead({ flow: flow(3), tw: tw(10), capex: capex(20, CAPEX_STRETCH_PCT - 1) });
+assert.match(partly.said.text, /주가는 4개 묶음 중 3개가 한 달 새 내렸습니다/, 'v60.57 demand-read: a partial fall keeps the count');
+assert.equal(partly.stretched, false, 'v60.57 demand-read: spending under the line has no funding clause');
+assert.doesNotMatch(partly.said.text, /다만/, 'v60.57 demand-read: no funding clause under the line');
+assert.equal(aiDemandRead({ flow: flow(1), tw: tw(10), capex: capex(20, 50) }).side, 'together', 'v60.57 demand-read: orders and prices the same way');
+assert.equal(aiDemandRead({ flow: flow(4), tw: tw(-3), capex: capex(20, 50) }).side, 'ordersTurn', 'v60.57 demand-read: a falling order figure turns the reading');
+const twOnly = aiDemandRead({ flow: flow(4), tw: tw(62.3), capex: { ...capex(93.5, 95.5), complete: false } });
+assert.doesNotMatch(twOnly.said.text, /빅테크|다만/, 'v60.57 demand-read: an incomplete group total is left out');
+assert.equal(aiDemandRead({ flow: flow(4), tw: { state: 'loading' }, capex: null }), null, 'v60.57 demand-read: no order figure, no line');
+assert.equal(aiDemandRead({ flow: { groups: [] }, tw: tw(1), capex: capex(1, 1) }), null, 'v60.57 demand-read: no price side, no line');
+assert.match(aiDemandFactLine(fell), /^AI 공급망 주문 대 주가\(.*원인 단정 아님\): 주문 쪽은/, 'v60.57 demand-read: the AI fact line');
+assert.equal(aiDemandFactLine(null), '', 'v60.57 demand-read: no read, no fact line');
+// The group total is read on the ledger's liveness, not on the content clock a quiet quarter leaves weeks old.
+const now = Date.parse('2026-11-25T12:00:00Z');
+const payload = { generatedAt: '2026-11-15T07:16:51.919Z', hyperscalers: capex(93.5, 95.5) };
+const ledger = (checkedAt) => ({ _aioBigtechCashflow: payload, _aioFreshness_refresh_screener_yml: { artifacts: { 'bigtech-cashflow.json': { producedAt: payload.generatedAt, checkedAt, expectedEveryMinutes: 360, staleAfterMinutes: 5760 } } } });
+assert.equal(bigtechGroupFor(ledger('2026-11-25T09:17:00Z'), { now }), payload.hyperscalers, 'v60.57 cashflow-reader: content ten days old, confirmed this morning, is shown');
+assert.equal(bigtechGroupFor(ledger('2026-11-10T09:17:00Z'), { now }), null, 'v60.57 cashflow-reader: a producer silent past the stale line hides it');
+assert.equal(bigtechGroupFor({ _aioBigtechCashflow: payload }, { now }), null, 'v60.57 cashflow-reader: without a ledger the own clock decides (past ten days)');
+assert.equal(bigtechGroupFor({ _aioBigtechCashflow: payload }, { now: Date.parse('2026-11-20T00:00:00Z') }), payload.hyperscalers, 'v60.57 cashflow-reader: without a ledger a recent own clock passes');
+assert.equal(bigtechGroupFor({}, { now }), null, 'v60.57 cashflow-reader: no file');
 }, 'code'],
 // The committed artifact always parses as the schema (the 수집 전 marker until the first Actions run).
 ['committed-artifact', async () => {

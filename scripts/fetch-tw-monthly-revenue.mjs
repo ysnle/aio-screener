@@ -127,12 +127,6 @@ export function pendingTwMonthlyRevenue(reason = 'awaiting-first-collection', ge
     latestMonth: null, tableDate: null, groups: TW_AI_CHAIN.map((g) => ({ id: g.id, name: g.name, codes: g.members.map(([code]) => code) })), companies: [], missing: [], renamed: [] };
 }
 
-/** True when the two artifacts carry the same companies and numbers (generatedAt aside). */
-export function sameRevenueData(a, b) {
-  const strip = (x) => JSON.stringify({ ...(x || {}), generatedAt: null });
-  return !!a && !!b && strip(a) === strip(b);
-}
-
 async function main() {
   let previous = null;
   try { previous = JSON.parse(await readFile(TW_REVENUE_OUT, 'utf8')); } catch { /* first run */ }
@@ -144,7 +138,6 @@ async function main() {
     return;
   }
   if (payload.renamed.length) console.log(`::warning::[tw-revenue] source name changed: ${payload.renamed.join(', ')}`);
-  if (sameRevenueData(payload, previous)) { console.log(`[tw-revenue] unchanged (${payload.latestMonth}) — not rewritten`); return; }
   await atomicWriteFile(TW_REVENUE_OUT, JSON.stringify(payload));
   console.log(`[tw-revenue] ok ${payload.latestMonth} · ${payload.companies.length} companies · missing ${payload.missing.join(',') || 'none'}`);
 }

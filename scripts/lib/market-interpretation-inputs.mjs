@@ -41,7 +41,7 @@ function screenerRowsOf(screener) {
 export function interpretationFromArtifacts({ data = null, history = [], macroHistory = null, calendar = null, outcomes = null, previous = null, screener = null, themeMaps = null, consensus = null, nowMs = Date.now() } = {}) {
   const screenerRows = screener ? screenerRowsOf(screener) : null;
   const weights = screener?.indexWeights || null;
-  return buildMarketInterpretation(interpretationInput({
+  const interpretation = buildMarketInterpretation(interpretationInput({
     market: marketAnalysisRegimeInput(data, history, macroHistory, { screener, nowMs }),
     macro: data?.macro || null,
     calendar: { schedules: calendar?.schedules || {} },
@@ -50,4 +50,7 @@ export function interpretationFromArtifacts({ data = null, history = [], macroHi
     indexEarnings: weights ? indexEarningsInput({ weights, consensus, macro: data?.macro || null }) : null,
     nowMs
   }));
+  // The rows and theme map it was built from, for a producer that reads them beside it (not serialised with it).
+  Object.defineProperty(interpretation, 'artifacts', { value: { screenerRows, usThemes: themeMaps?.usThemes || [] }, enumerable: false });
+  return interpretation;
 }

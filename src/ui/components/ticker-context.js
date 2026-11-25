@@ -1,6 +1,7 @@
 // 종목 머리 아래: the last session's move with the report that named the company that day (the same pick 오늘 and
 // 브리핑 use), the line that places that move in the market's session (stock-session-tie.js), and the themes that list
-// the stock, each opening its theme. Nothing is drawn for a line without data.
+// the stock, each opening its theme, and the earnings outlook beside the move (stock-earnings-tie.js). Nothing is drawn
+// for a line without data.
 import { el } from './dom.js';
 import { companyMoveRow, moveNewsList } from './market-timeline.js';
 import { stockThemes, themeCatalogFor } from '../../domain/entity/primary-theme.js';
@@ -10,6 +11,10 @@ import { themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { latestMarketInterpretation } from '../../data/selectors/interpretation.js';
 import { loadCompletedDailyBars } from '../../data/daily-chart-bars.js';
 import { readMarketOpening } from './market-story.js';
+import { stockEarningsTie } from '../../domain/entity/stock-earnings-tie.js';
+import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { EARNINGS_CALENDAR } from '../../data/artifact-registry.js';
 
 // The completed bars of the symbols the tie line read, so a repaint finds them without a second request (one per symbol
 // while the page lives; the loader itself shares the request with the year line).
@@ -43,6 +48,17 @@ function tieLine(doc, root, { sym, row, catalog, themeId, rows, repaint }) {
   return tie ? el(doc, 'p', tie.text, 'ticker-context__tie') : null;
 }
 
+// Both artifacts load lazily and repaint on arrival; a listing without a consensus row (a KRX one) draws nothing.
+function earnLine(doc, root, { sym, row, repaint }) {
+  if (themeMarketOf(sym) === 'KR') return null;
+  requestConsensusEstimates(root, repaint);
+  const estimate = consensusRowFor(root, sym);
+  if (!estimate) return null;
+  refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed } = {}) => { if (changed) repaint?.(); }).catch(() => {});
+  const line = stockEarningsTie({ symbol: sym, row, estimate, calendar: root?.[EARNINGS_CALENDAR.key] || null });
+  return line ? el(doc, 'p', line.text, 'ticker-context__earn') : null;
+}
+
 /** `repaint`: the page's own repaint, called when the bars or an artifact the tie line reads arrive. */
 export function renderTickerContext(doc, host, { root, store, symbol, name = '', row = null, rows = [], repaint = null } = {}) {
   if (!doc || !host) return;
@@ -62,6 +78,8 @@ export function renderTickerContext(doc, host, { root, store, symbol, name = '',
     const tie = tieLine(doc, root, { sym, row, catalog, themeId: themes[0]?.id || null, rows, repaint });
     if (tie) nodes.push(tie);
   }
+  const earn = sym ? earnLine(doc, root, { sym, row, repaint }) : null;
+  if (earn) nodes.push(earn);
   const canOpen = typeof (themeMarketOf(sym) === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function';
   if (themes.length && canOpen) {
     const line = el(doc, 'p', null, 'ticker-context__themes');

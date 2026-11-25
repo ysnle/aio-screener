@@ -31,6 +31,7 @@ import { vixBand } from '../sentiment/narrative.js';
 import { sessionReadOf } from './session-read.js';
 import { crossMarketRows, crossMarketLines, crossMarketSynthesis } from './cross-market.js';
 import { reboundTrackOf, REBOUND_TRACK_INDEXES } from './rebound-track.js';
+import { earningsReadOf } from './earnings-read.js';
 
 // One week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
 // sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
@@ -826,7 +827,7 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  *   since its low (rebound-track.js; null without a rebound). `crossSummary`: the rows as 오늘's one sentence
  *   (cross-market.js crossMarketSynthesis; null without rows).
  */
-export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null, day = null, afterHours = null, briefs = null, regularMoves = null, regime = null, events = [] } = {}) {
+export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null, day = null, afterHours = null, briefs = null, regularMoves = null, regime = null, events = [], earnings = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
   if (!asOf) return { available: false };
   const rows = {};
@@ -861,6 +862,8 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const ftd = rebound ? followThroughSaid(rebound, history, asOf) : NOTHING;
   // The rebound followed session by session since its low (시장 상태 and 기술적 분석 print it; 오늘 does not).
   const track = reboundTrackOf({ history, rows, rebound, asOf, ftd, indexes: OPENING_INDEXES.filter((spec) => REBOUND_TRACK_INDEXES.includes(spec.id)) });
+  // Under the diagnosis: whether the earnings the price rests on moved (the interpretation's index-earnings stage).
+  const earningsRead = earningsReadOf({ earnings, spx: rows.spx, diagnosis, fallSaid: (row) => fallSaid(row, asOf) });
   const lines = [
     { id: 'session', label: '', said: session?.said || NOTHING },
     { id: 'gathered', label: session?.gathered?.label || '', said: session?.gathered?.said || NOTHING },
@@ -871,6 +874,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     ...crossMarketLines(cross).map((line) => ({ id: 'cross', ...line })),
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
+    { id: 'earnings', label: earningsRead?.word || '', said: earningsRead?.said || NOTHING },
     { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, ftd, rebound.stance) : NOTHING },
     { id: 'records', label: '', said: records }
   ].filter((line) => line.said.text);
@@ -883,7 +887,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
     return { id: spec.id, part: spec.part, said: say('{lab}, {d}: {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
   });
-  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, session, cross, crossSummary: crossMarketSynthesis(cross), track, korea, table, standings, longrun: !!longrun };
+  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, session, cross, crossSummary: crossMarketSynthesis(cross), track, earnings: earningsRead, korea, table, standings, longrun: !!longrun };
 }
 
 /** The opening as typed fact lines for an AI reading or the chat (the text the screens print, and the rule word). */
@@ -909,6 +913,8 @@ export function openingFactLines(opening) {
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
     d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',
+    // Revision counts trail the price, so the packet says what they are before the model reads them as a forecast.
+    opening.earnings ? `이익 대 주가(S&P 500 구성 종목의 4주 추정치 수정 건수, 주가보다 늦게 움직임; 상태어는 규칙으로 정함): ${opening.earnings.word} — ${opening.earnings.said.text}` : '',
     // The rebound state, its line and its conditions (not the follow-through day: it is counted on the Composite):
     // each line names the index and rule, so the model cannot merge it with the Composite's 반등 확인 신호(FTD).
     said('watch') ? `반등(${reboundRule.text}): ${opening.rebound.word} — ${said('watch')}` : '',

@@ -1007,11 +1007,93 @@ await runSections('market-story', [
   check('v60.56 screen-tie: the tie paints the screen\'s sentence first, and 테마·한국·기술적 분석 hand it what only the page holds', () => {
     const tie = readFileSync(resolve(root, 'src/ui/components/story-tie.js'), 'utf8');
     assert.match(tie, /replaceChildren\(\.\.\.\(tie \? \[openingLine\(doc, \{ id: 'tie'/, 'v60.56 screen-tie: the own sentence leads the tie');
-    assert.match(readFileSync(resolve(root, 'src/ui/pages/themes.js'), 'utf8'), /renderStoryTie\(\{ documentRef, root, screen, context: \{ playbook \} \}\)/, 'v60.56 screen-tie: 테마·한국 pass the playbook');
+    const themesPage = readFileSync(resolve(root, 'src/ui/pages/themes.js'), 'utf8');
+    assert.match(themesPage, /renderStoryTie\(\{ documentRef, root, screen: 'themes', context: \{ playbook \} \}\)/, 'v60.56 screen-tie: 테마 passes the playbook');
+    assert.match(themesPage, /renderStoryTie\(\{ documentRef, root, screen: 'korea', context: \{ playbook, extra \} \}\)/, 'v60.57 korea-link: 한국 passes the playbook and its link lines');
     assert.match(readFileSync(resolve(root, 'src/ui/pages/charts.js'), 'utf8'), /renderStoryTie\(\{ documentRef, root, screen: 'charts', context: \{ readings: list \} \}\)/, 'v60.56 screen-tie: 기술적 분석 passes its drawn cards');
     assert.match(readFileSync(resolve(root, 'src/ui/styles/v2-market.css'), 'utf8'), /\.story-tie \.opening-line\[data-part="tie"\] \{ font-size: 14px; font-weight: 600;/, 'v60.56 screen-tie: primary 14px weight 600');
   });
   report('screen-tie');
+}, 'code'],
+['korea-link', async () => {
+  const { koreaSessionLink } = await import('../src/domain/market/korea/korea-session-link.js');
+  const { KOREA_LINK_WORDS: W } = await import('../src/domain/content/korea-link-words.js');
+  const sessionsOf = (market, through) => {
+    const out = [];
+    for (let t = Date.parse('2026-08-03T12:00:00Z'); ; t += 86400000) {
+      const date = new Date(t).toISOString().slice(0, 10);
+      if (date > through) break;
+      if (resolveMarketCalendarSession({ market, date }).status === 'open') out.push(date);
+    }
+    return out;
+  };
+  // Flat closes, then `moves` (percent) on the last sessions.
+  const closesWith = (dates, moves) => { let value = 100; const start = dates.length - moves.length; return dates.map((_, i) => (i >= start ? (value *= 1 + moves[i - start] / 100) : value)); };
+  const linkHistory = ({ usMoves = [1], krMoves = [1], usThrough = '2026-11-19', krThrough = '2026-11-20' } = {}) => {
+    const rows = new Map();
+    const put = (dates, field, values) => dates.forEach((date, i) => rows.set(date, { ...(rows.get(date) || { date }), [field]: values[i] }));
+    const us = sessionsOf('US', usThrough); const kr = sessionsOf('KR', krThrough);
+    put(us, 'sox', closesWith(us, usMoves)); put(kr, 'kospi', closesWith(kr, krMoves));
+    return [...rows.values()].sort((a, b) => a.date.localeCompare(b.date));
+  };
+  const flowsOf = (date, value, sum5, sum20) => ({ state: 'ok', markets: [{ id: 'kospi', label: '코스피', date,
+    rows: [{ id: 'foreign', label: '외국인', value, date }], trends: [{ id: 'foreign', label: '외국인', points: [], sum5, sum20, sessions: 20 }] }] });
+  const lineOf = (link, id) => link?.lines.find((line) => line.id === id)?.said || null;
+  const unclaimed = (link) => link.lines.flatMap((line) => unclaimedFigures(line.said));
+  check('v60.57 korea-link: a KOSPI session follows the latest US session before it; pending while the US session is not before the KOSPI one', () => {
+    const reflected = koreaSessionLink({ history: linkHistory({ usMoves: [-3], krMoves: [-2] }) });
+    assert.equal(reflected.state, 'reflected', 'v60.57 korea-link: US 11/19 then KOSPI 11/20 is reflected');
+    assert.deepEqual([reflected.us.date, reflected.kr.date], ['2026-11-19', '2026-11-20'], 'v60.57 korea-link: the dates');
+    assert.equal(lineOf(reflected, 'korea-pending'), null, 'v60.57 korea-link: no pending line once reflected');
+    assert.equal(lineOf(reflected, 'korea-pair').text, '11/19 미국 반도체 -3.0% 뒤 11/20 코스피는 -2.0%로 같은 방향이었습니다.', 'v60.57 korea-link: the pair line');
+    const pending = koreaSessionLink({ history: linkHistory({ usMoves: [-3, 2], krMoves: [-2], usThrough: '2026-11-20' }) });
+    assert.equal(pending.state, 'pending', 'v60.57 korea-link: US 11/20 with KOSPI 11/20 is pending');
+    assert.deepEqual(pending.lines.map((line) => line.id), ['korea-pending', 'korea-pair'], 'v60.57 korea-link: pending leads');
+    assert.equal(lineOf(pending, 'korea-pending').text, '11/20 미국 반도체 +2.0%는 아직 한국 장에 반영되지 않았습니다.', 'v60.57 korea-link: the pending line');
+    assert.match(lineOf(pending, 'korea-pair').text, /^11\/19 미국 반도체 -3\.0% 뒤 11\/20 코스피는/, 'v60.57 korea-link: KOSPI 11/20 pairs with US 11/19, not 11/20');
+    assert.deepEqual(unclaimed(pending), [], 'v60.57 korea-link: every figure printed from a claim');
+    assert.equal(koreaSessionLink({ history: linkHistory().map(({ kospi, ...row }) => row) }), null, 'v60.57 korea-link: no KOSPI, no link');
+    assert.equal(koreaSessionLink({ history: linkHistory().map(({ sox, ...row }) => row) }), null, 'v60.57 korea-link: no semis, no link');
+  });
+  check('v60.57 korea-link: same direction, opposite, and a KOSPI move too small to have a direction', () => {
+    const pair = (krMove) => lineOf(koreaSessionLink({ history: linkHistory({ usMoves: [2], krMoves: [krMove] }) }), 'korea-pair').text;
+    assert.equal(pair(1.5), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 +1.5%로 같은 방향이었습니다.', 'v60.57 korea-link: same');
+    assert.equal(pair(-1.5), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 -1.5%로 반대로 움직였습니다.', 'v60.57 korea-link: opposite');
+    assert.equal(pair(-0.2), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 -0.2%로 거의 움직이지 않았습니다.', 'v60.57 korea-link: flat');
+  });
+  check('v60.57 korea-link: the foreign-flow line and its meaning by the day, the 5- and 20-session sums and the KOSPI move', () => {
+    const flows = (krMove, value, sum5, sum20) => lineOf(koreaSessionLink({ history: linkHistory({ krMoves: [krMove] }), flows: flowsOf('2026-11-20', value, sum5, sum20) }), 'korea-flows')?.text || '';
+    assert.equal(flows(1, 8130, -12877, -147073), `외국인은 코스피에서 11/20 +8,130억, 5거래일 합 -1.3조, 20거래일 합 -15조입니다. ${W.meaning['buy-early']}`, 'v60.57 korea-link: buy day inside a 20-session sell');
+    assert.ok(flows(1, 8130, 3000, -147073).endsWith(W.meaning['buy-turning']), 'v60.57 korea-link: the 5-session sum turned');
+    assert.ok(flows(1, -5000, -9000, -40000).endsWith(W.meaning['sell-up']), 'v60.57 korea-link: KOSPI up without foreign buying');
+    assert.ok(flows(-1, -5000, -9000, -40000).endsWith(W.meaning['sell-down']), 'v60.57 korea-link: foreign selling with the fall');
+    assert.ok(flows(1, 5000, 9000, 40000).endsWith(W.meaning['buy-ongoing']), 'v60.57 korea-link: buying on a 20-session buy');
+    assert.ok(flows(-1, -5000, 9000, 40000).endsWith(W.meaning['sell-holding']), 'v60.57 korea-link: a sell day inside a 20-session buy');
+    assert.equal(flows(1, 8130, -12877, null), '외국인은 코스피에서 11/20 +8,130억, 5거래일 합 -1.3조입니다.', 'v60.57 korea-link: no 20-session sum, no meaning and no sum printed');
+    assert.equal(flows(1, 8130, null, -147073), '외국인은 코스피에서 11/20 +8,130억, 20거래일 합 -15조입니다.', 'v60.57 korea-link: a missing 5-session sum is omitted');
+    const link = koreaSessionLink({ history: linkHistory({ krMoves: [1] }), flows: flowsOf('2026-11-20', 8130, -12877, -147073) });
+    assert.deepEqual(unclaimed(link), [], 'v60.57 korea-link: the amounts are claims');
+    assert.deepEqual(link.factLines.map((line) => line.split(': ')[0]), ['미국장과 한국장', '외국인 수급'], 'v60.57 korea-link: AI fact prefixes');
+  });
+  check('v60.57 korea-link: flows of another day keep their own date and are read against that day\'s KOSPI move', () => {
+    // KOSPI 11/19 rose, 11/20 fell; the flows are 11/19's.
+    const link = koreaSessionLink({ history: linkHistory({ krMoves: [1, -2] }), flows: flowsOf('2026-11-19', -5000, -9000, -40000) });
+    const text = lineOf(link, 'korea-flows').text;
+    assert.match(text, /^외국인은 코스피에서 11\/19 -5,000억/, 'v60.57 korea-link: the flow line states 11/19');
+    assert.ok(text.endsWith(W.meaning['sell-up']), 'v60.57 korea-link: read against KOSPI 11/19 (up), not 11/20 (down)');
+    const gap = koreaSessionLink({ history: linkHistory({ krMoves: [1, -2] }).map(({ kospi, ...row }) => (row.date === '2026-11-18' ? row : { ...row, kospi })), flows: flowsOf('2026-11-19', -5000, -9000, -40000) });
+    assert.equal(lineOf(gap, 'korea-flows').text, '외국인은 코스피에서 11/19 -5,000억, 5거래일 합 -9,000억, 20거래일 합 -4.0조입니다.', 'v60.57 korea-link: no KOSPI move that day, no sign-dependent meaning');
+  });
+  check('v60.57 korea-link: without flows (missing, loading, or no current foreign value) only the session lines remain', () => {
+    for (const flows of [null, { state: 'loading' }, flowsOf('2026-11-20', null, null, null)]) {
+      const link = koreaSessionLink({ history: linkHistory(), flows });
+      assert.deepEqual(link.lines.map((line) => line.id), ['korea-pair'], `v60.57 korea-link: ${JSON.stringify(flows)?.slice(0, 40)}`);
+    }
+  });
+  check('v60.57 korea-link: 한국 does not take the opening\'s split line (S&P 500 sector contributions name no Korean stock)', () => {
+    assert.ok(!SCREEN_STORY.korea.includes('split'), 'v60.57 korea-link: SCREEN_STORY.korea');
+  });
+  report('korea-link');
 }, 'code']
 ]);
 console.log('market-story: all checks passed');

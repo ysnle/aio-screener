@@ -2,9 +2,9 @@
 // cut), the forward multiple and the equity risk premium against the 10-year real yield — with a per-sector revision line.
 // Data owner: src/domain/market/indices/index-earnings.js, built once as the interpretation pipeline's indexEarnings stage so the
 // lessons and the AI read the same revision breadth. Conclusion first, then the evidence, then what it means.
-import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS } from '../../domain/market/indices/index-earnings.js';
+import { INDEX_EARNINGS_MIN_WEIGHT_PCT, SECTOR_MIN_MEMBERS, revisionTiltOf } from '../../domain/market/indices/index-earnings.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
-import { GICS_KO } from '../../domain/market/indices/sector-map.js';
+import { GICS_KO } from '../../domain/content/sector-words.js';
 import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
@@ -17,7 +17,7 @@ const shortDate = (date) => (date ? `${Number(date.slice(5, 7))}/${Number(date.s
 
 function headline(model) {
   if (model.breadth == null) return '지수 전체를 말할 만큼 컨센서스가 모이지 않았습니다.';
-  const tilt = model.breadth >= 0.1 ? '올리는 쪽이 우세합니다' : model.breadth <= -0.1 ? '내리는 쪽이 우세합니다' : '올림과 내림이 비슷합니다';
+  const tilt = { up: '올리는 쪽이 우세합니다', down: '내리는 쪽이 우세합니다', even: '올림과 내림이 비슷합니다' }[revisionTiltOf(model.breadth)];
   return `최근 4주 애널리스트들은 S&P 500 기업의 앞으로 1년 이익 전망을 ${tilt}.`;
 }
 

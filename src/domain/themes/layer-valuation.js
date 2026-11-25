@@ -3,7 +3,7 @@
 // — a member enters only with a positive trailing and forward EPS and a current close — so the line between the two
 // points is the layer's expected earnings change, not a change of basis. SEC-filed PER is never mixed in.
 import { LEADER_THEMES } from '../briefing/ai-chain-flow.js';
-import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../fundamental/consensus-read.js';
+import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../fundamental/consensus-limits.js';
 import { median } from './theme-medians.js';
 import { readNumber as finite } from '../shared/number.js';
 

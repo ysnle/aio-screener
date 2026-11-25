@@ -3,6 +3,7 @@
 // and reading out. Market value = valuation close × shares outstanding, both already published per row for P/E
 // (no raw current price is republished — P715). A member without shares or a return is counted, not drawn.
 import { sectorLabel } from '../../screener/screener-read.js';
+import { GICS_KO } from '../../content/sector-words.js';
 import { signedText, readNumber as finite } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
 
@@ -89,10 +90,6 @@ export function squarify(items, rect) {
  * @param {string} [input.period] one of SECTOR_MAP_PERIODS
  * @param {string|null} [input.expectedSession] latest completed US session (YYYY-MM-DD); a different basis is a dated reference
  */
-// GICS sector names as the holdings file writes them → the labels the rest of AIO uses.
-export const GICS_KO = Object.freeze({ 'Information Technology': '기술', Communication: '통신', 'Communication Services': '통신', 'Consumer Discretionary': '경기소비재',
-  'Consumer Staples': '필수소비재', 'Health Care': '헬스케어', Financials: '금융', Industrials: '산업재', Energy: '에너지', Utilities: '유틸리티', Materials: '소재', 'Real Estate': '부동산' });
-
 export function buildSectorMap({ rows = [], weights = null, period = 'ret1d', expectedSession = null } = {}) {
   const key = SECTOR_MAP_PERIODS[period] ? period : 'ret1m';
   const spec = SECTOR_MAP_PERIODS[key];

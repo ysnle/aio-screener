@@ -12,7 +12,7 @@
     "fxbond": 219,
     "fundamental": 34,
     "themes": 77,
-    "theme-detail": 33,
+    "theme-detail": 540,
     "portfolio": 29,
     "ticker": 15,
     "market-news": 299,
@@ -28,8 +28,8 @@
   "failures": [],
   "routes": {
     "home": {
-      "total": 554,
-      "secondary": 136,
+      "total": 970,
+      "secondary": 157,
       "lines": [
         {
           "chars": 53,
@@ -50,6 +50,11 @@
           "chars": 26,
           "classes": "home-ahead__why home-ahead__item home-ahead__list",
           "text": "결과에 따라 지금 시나리오가 바뀔 수 있습니다."
+        },
+        {
+          "chars": 21,
+          "classes": "fall-bars__caption fall-bars sx-lede home-hero-lede",
+          "text": "종가 고점 대비 하락, 10/30 기준"
         }
       ],
       "frames": [
@@ -72,13 +77,18 @@
       ]
     },
     "signal": {
-      "total": 2402,
-      "secondary": 111,
+      "total": 3303,
+      "secondary": 140,
       "lines": [
         {
-          "chars": 21,
+          "chars": 27,
           "classes": "page-subtitle  page-head",
-          "text": "10/30 미국 종가 기준, 6개 지표"
+          "text": "10/30 미국 종가 기준, 지표 6개 판정 혼조"
+        },
+        {
+          "chars": 21,
+          "classes": "fall-bars__caption fall-bars mk-opening",
+          "text": "종가 고점 대비 하락, 10/30 기준"
         },
         {
           "chars": 14,
@@ -97,23 +107,23 @@
         },
         {
           "chars": 13,
-          "classes": "is-burden mk-tally__legend mk-tally",
-          "text": "부담 1(달러와 원자재)"
-        },
-        {
-          "chars": 11,
-          "classes": "basis-chip is-off ind-row__head ind-row",
-          "text": "10/29~10/30"
-        },
-        {
-          "chars": 11,
-          "classes": "basis-chip is-off ind-row__head ind-row",
-          "text": "10/29~10/30"
-        },
-        {
-          "chars": 10,
           "classes": "regime-radar-legend",
-          "text": "오늘 (10/30)"
+          "text": "최근 종가 (10/30)"
+        },
+        {
+          "chars": 12,
+          "classes": "is-burden mk-tally__legend mk-tally",
+          "text": "부담 1(유가와 달러)"
+        },
+        {
+          "chars": 11,
+          "classes": "basis-chip is-off ind-row__head ind-row",
+          "text": "10/29~10/30"
+        },
+        {
+          "chars": 11,
+          "classes": "basis-chip is-off ind-row__head ind-row",
+          "text": "10/29~10/30"
         },
         {
           "chars": 4,
@@ -124,19 +134,33 @@
       "frames": []
     },
     "breadth": {
-      "total": 1041,
-      "secondary": 31,
+      "total": 1805,
+      "secondary": 53,
       "lines": [
         {
           "chars": 31,
           "classes": "page-subtitle  page-head",
           "text": "10/30 미국 종가 기준, S&P 500 499개 종목"
+        },
+        {
+          "chars": 22,
+          "classes": "fall-bars__caption fall-bars mk-sub-hero__falls",
+          "text": "52주 종가 고점 대비 · 863개 종목"
         }
       ],
-      "frames": []
+      "frames": [
+        {
+          "frame": "breadth.structure",
+          "contract": null,
+          "hasHead": false,
+          "asof": "",
+          "readings": [],
+          "problems": []
+        }
+      ]
     },
     "sentiment": {
-      "total": 1167,
+      "total": 1358,
       "secondary": 179,
       "lines": [
         {
@@ -203,13 +227,13 @@
       "frames": []
     },
     "briefing": {
-      "total": 1224,
-      "secondary": 45,
+      "total": 3038,
+      "secondary": 54,
       "lines": [
         {
-          "chars": 23,
-          "classes": "briefing-h2-note sx-card__meta home-sector-head sx-card__head sector-moves-content",
-          "text": "10/30 종가, 미국 섹터 ETF 11개"
+          "chars": 32,
+          "classes": "ai-analysis-scope basis-chip  briefing-ai",
+          "text": "생성 10/31 19:22 KST, 코스피 10/30 종가"
         },
         {
           "chars": 17,
@@ -225,7 +249,7 @@
       "frames": []
     },
     "charts": {
-      "total": 878,
+      "total": 835,
       "secondary": 128,
       "lines": [
         {
@@ -262,13 +286,13 @@
       "frames": []
     },
     "macro": {
-      "total": 1923,
-      "secondary": 186,
+      "total": 2263,
+      "secondary": 226,
       "lines": [
         {
-          "chars": 149,
+          "chars": 189,
           "classes": "page-subtitle  page-head",
-          "text": "매크로 6요인 중 부담은 3개(물가, 통화정책, 유가·달러)이고, 성장·물가 국면은 방향 보류입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다. 지금 맞서는 시나리오를 가를 발표는 11/10(화) 22:30 KST CPI (소비자물가)입니다."
+          "text": "금리 경로 인상 반영. 매크로 6요인 중 부담은 3개(물가, 통화정책, 유가와 달러)이고, 성장·물가는 '물가 목표 위 · 속도 보류, 성장 경계, 연준 인상 국면'입니다. 다음 주요 발표는 11/6(금) 22:30 KST 고용보고서입니다. 지금 맞서는 시나리오를 가를 발표는 11/10"
         },
         {
           "chars": 24,
@@ -284,7 +308,7 @@
       "frames": []
     },
     "fxbond": {
-      "total": 1104,
+      "total": 2188,
       "secondary": 98,
       "lines": [
         {
@@ -347,9 +371,14 @@
       "frames": []
     },
     "themes": {
-      "total": 888,
-      "secondary": 16,
+      "total": 1157,
+      "secondary": 47,
       "lines": [
+        {
+          "chars": 31,
+          "classes": "fall-bars__caption fall-bars themes-leader-falls",
+          "text": "52주 종가 고점 대비 평균 하락, 10/30 종가 기준"
+        },
         {
           "chars": 16,
           "classes": "sx-row__meta sx-row sx-card sx-card--flush v2-themes-top",
@@ -368,18 +397,68 @@
       ]
     },
     "theme-detail": {
-      "total": 1470,
-      "secondary": 27,
+      "total": 3524,
+      "secondary": 537,
       "lines": [
+        {
+          "chars": 119,
+          "classes": "thp-why-list theme-detail-native-section thp-why",
+          "text": "최근 20거래일 거시 축: 10년물 금리 -0.31 (물가 둔화 + 고용 완만 쪽 움직임, 이 테마에 부담). 성격(정책, 지정학 수요, 경기 방어)과 시나리오를 잇는 사전 기준이며, 인과를 측정한 값은 아닙니다."
+        },
+        {
+          "chars": 91,
+          "classes": "xr-caveat theme-detail-native-section tp-detail thp-expert",
+          "text": "구성 종목의 43%가 50일선 위에 있습니다 — 이 비율이 50% 이상이면 테마 흐름이 여러 종목에 퍼져 있다는 뜻이고, 낮으면 소수 종목이 끌고 있다는 뜻입니다."
+        },
+        {
+          "chars": 68,
+          "classes": "thp-why-list theme-detail-native-section thp-why",
+          "text": "이익 전망: 최근 4주 구성 종목 상향 57건, 하향 50건(21/23종목) — 가격 움직임에 전망 상향이 같이 있습니다."
+        },
+        {
+          "chars": 49,
+          "classes": "theme-strength-basis thp-summary-provenance thp-expert",
+          "text": "AIO 참고 테마 분류, 구성 기준 2026-11-04(분류 검토일, 가격 기준일 아님)"
+        },
+        {
+          "chars": 46,
+          "classes": "xr-basis theme-detail-native-section tp-detail thp-expert",
+          "text": "5거래일 +4.0%, 1개월 +0.1%, 6개월 -6.5%, 단계 조건 1/4 충족"
+        },
+        {
+          "chars": 44,
+          "classes": "thp-why-list theme-detail-native-section thp-why",
+          "text": "선두 시나리오 '유가 충격'(조건 충족 2/4)에서 이 테마는 영향 작음입니다."
+        },
+        {
+          "chars": 43,
+          "classes": "thp-why-list theme-detail-native-section thp-why",
+          "text": "섹터 회전: 대표 ITA가 10거래일 전과 같은 '개선' 자리(SPY 대비)."
+        },
+        {
+          "chars": 37,
+          "classes": "xr-basis tp-detail-strip theme-detail-native-section tp-detail thp-expert",
+          "text": "단계 흐름: 지금 '약세 지속', 49거래일째('반등 시도'에서)."
+        },
         {
           "chars": 22,
           "classes": "thp-perf-basis theme-detail-native-section",
           "text": "10/30 종가 기준 전체 23종목 보기"
         },
         {
+          "chars": 8,
+          "classes": "thp-detail-heading theme-detail-native-section thp-why thp-expert",
+          "text": "이 흐름의 이유"
+        },
+        {
           "chars": 5,
           "classes": "thp-summary-meta thp-summary-title thp-summary-header",
           "text": ", ITA"
+        },
+        {
+          "chars": 3,
+          "classes": "aio-term  thp-why-list",
+          "text": "ETF"
         }
       ],
       "frames": []
@@ -391,14 +470,14 @@
       "frames": []
     },
     "ticker": {
-      "total": 167,
+      "total": 179,
       "secondary": 0,
       "lines": [],
       "frames": []
     },
     "market-news": {
-      "total": 1200,
-      "secondary": 133,
+      "total": 1185,
+      "secondary": 98,
       "lines": [
         {
           "chars": 32,
@@ -406,19 +485,9 @@
           "text": "10/30 08:00 ~ 10/31 08:00 KST 기사"
         },
         {
-          "chars": 21,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "EnergyNow.com, 11시간 전"
-        },
-        {
-          "chars": 17,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Bloomberg, 12시간 전"
-        },
-        {
-          "chars": 15,
-          "classes": "news-item-meta news-item-body news-item-card",
-          "text": "Reuters, 11시간 전"
+          "chars": 22,
+          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card",
+          "text": "최근 24시간, 10/31 19:05까지"
         },
         {
           "chars": 14,
@@ -426,19 +495,29 @@
           "text": "10/31 08:00 이후"
         },
         {
-          "chars": 13,
-          "classes": "briefing-h2-note aio-asof briefing-h2 aio-section briefing-block sx-card news-card",
-          "text": "10/31 08:00까지"
+          "chars": 6,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "11시간 전"
         },
         {
-          "chars": 11,
+          "chars": 6,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "WSJ, 12시간 전"
+          "text": "12시간 전"
         },
         {
-          "chars": 10,
+          "chars": 6,
           "classes": "news-item-meta news-item-body news-item-card",
-          "text": "필드뉴스, 1일 전"
+          "text": "12시간 전"
+        },
+        {
+          "chars": 6,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "11시간 전"
+        },
+        {
+          "chars": 6,
+          "classes": "news-item-meta news-item-body news-item-card",
+          "text": "14시간 전"
         }
       ],
       "frames": []
@@ -450,7 +529,7 @@
       "frames": []
     },
     "masters": {
-      "total": 1708,
+      "total": 1652,
       "secondary": 217,
       "lines": [
         {
@@ -551,8 +630,8 @@
       "frames": []
     },
     "screener": {
-      "total": 1323,
-      "secondary": 654,
+      "total": 1272,
+      "secondary": 612,
       "lines": [
         {
           "chars": 88,
@@ -563,16 +642,6 @@
           "chars": 53,
           "classes": "sx-meta scr-excess-legend  scr-why-section",
           "text": "색 막대 = 종목, 옅은 막대 = S&P 500( ), 오른쪽 = 차이, 둘 다 10/30 종가"
-        },
-        {
-          "chars": 40,
-          "classes": "scr-status-full scr-table-status-text scr-table-status sx-meta",
-          "text": "균형 상대 순위 조건 통과 329종목 · 자료 부족 103, 시총 큰 순"
-        },
-        {
-          "chars": 40,
-          "classes": "sx-btn sx-btn--primary scr-why-actions scr-why-drawer sx-inspector",
-          "text": "종목 분석 열기 차트·가격 레벨·내 계획 점검 관심 종목 추가 비교 추가"
         },
         {
           "chars": 36,
@@ -613,12 +682,22 @@
           "chars": 17,
           "classes": "sx-meta scr-why-head-end scr-why-head",
           "text": "순위 매긴 813종목 중 35위"
+        },
+        {
+          "chars": 17,
+          "classes": "scr-why-status sx-meta scr-why-drawer sx-inspector scr-split",
+          "text": "조건 통과 · 자료 74% 확보"
+        },
+        {
+          "chars": 16,
+          "classes": "scr-act-full sx-btn scr-why-actions",
+          "text": "차트·가격 레벨·내 계획 점검"
         }
       ],
       "frames": []
     },
     "technical": {
-      "total": 878,
+      "total": 835,
       "secondary": 128,
       "lines": [
         {

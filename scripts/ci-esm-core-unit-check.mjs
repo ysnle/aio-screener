@@ -1972,6 +1972,42 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || stockSessionTie({ symbol: 'NVDA', row: tieRow }) !== null) {
           fail(`v60.56: 종목 market tie broke ${JSON.stringify({ tie: tie?.text, tieNoRebound: tieNoRebound?.text, tieNoTheme: tieNoTheme?.text, tieOtherSession, tieHigh: tieHigh?.text, tieKr: tieKr?.text })}`);
         }
+        // 종목 머리's earnings line: the four-week revisions, the expected EPS change and the next report beside the month's
+        // price move, with the 재무 흐름 point's own price-against-revisions rule choosing the meaning; a missing part is left
+        // out, a stale estimate or no estimate gives no line.
+        const { stockEarningsTie } = await load('src/domain/entity/stock-earnings-tie.js');
+        const earnNow = Date.parse('2026-11-25T07:00:00Z');
+        const earnRow = (ret1m) => ({ factorSessionDate: '2026-11-24', valuationPrice: 150, ret1m });
+        const earnEst = (up4w, down4w, more = {}) => ({ asOf: '2026-11-25T06:00:00Z', fwd: { from: '2027-01', to: '2027-10', eps: 12, minEstimates: 10, up4w, down4w }, trailing: { eps: 10 }, ...more });
+        const earnCal = { earnings: [], upcoming: { NVDA: '2026-12-17|amc' } };
+        const earn = (ret1m, up, down, calendar = earnCal, more) => stockEarningsTie({ symbol: 'NVDA', row: earnRow(ret1m), estimate: earnEst(up, down, more), calendar, nowMs: earnNow })?.text ?? null;
+        const earnHead = '이익 전망: 최근 4주 상향 {u}건·하향 {d}건, 향후 4개 분기 EPS 예상은 직전 4개 분기보다 +20%.';
+        const earnHeadOf = (u, d) => earnHead.replace('{u}', u).replace('{d}', d);
+        const earnDate = ' 다음 실적 12/17(목) 장 마감 후.';
+        const earnCases = {
+          downUp: [earn(-12, 9, 1), `${earnHeadOf(9, 1)} 주가는 내렸지만 전망은 올라가는 중이라, 내린 것은 이익이 아니라 주가에 붙는 값입니다.${earnDate}`],
+          downDown: [earn(-12, 1, 6), `${earnHeadOf(1, 6)} 주가와 이익 전망이 함께 내려가는 중입니다.${earnDate}`],
+          upDown: [earn(8, 0, 3), `${earnHeadOf(0, 3)} 주가는 올랐는데 전망은 내려가는 중이라, 값 부담이 커지는 쪽입니다.${earnDate}`],
+          upUp: [earn(8, 5, 0), `${earnHeadOf(5, 0)} 주가와 이익 전망이 함께 올라가는 중입니다.${earnDate}`],
+          // Under either floor (a 3% month, a net of one revision) there is no direction and no meaning sentence.
+          flatPrice: [earn(3, 9, 1), `${earnHeadOf(9, 1)}${earnDate}`],
+          thinNet: [earn(-12, 2, 1), `${earnHeadOf(2, 1)}${earnDate}`],
+          noRevisions: [earn(-12, 0, 0), `이익 전망: 최근 4주 추정치 수정 없음, 향후 4개 분기 EPS 예상은 직전 4개 분기보다 +20%.${earnDate}`],
+          revisionsUnknown: [earn(-12, null, null), `이익 전망: 향후 4개 분기 EPS 예상은 직전 4개 분기보다 +20%.${earnDate}`],
+          // A forward sum 30% or more under the trailing one is not compared (consensusView basisGap): no growth clause.
+          noGrowth: [earn(-12, 9, 1, earnCal, { trailing: { eps: 20 } }), `이익 전망: 최근 4주 상향 9건·하향 1건. 주가는 내렸지만 전망은 올라가는 중이라, 내린 것은 이익이 아니라 주가에 붙는 값입니다.${earnDate}`],
+          noDate: [earn(-12, 1, 6, null), `${earnHeadOf(1, 6)} 주가와 이익 전망이 함께 내려가는 중입니다.`],
+          pastDate: [earn(-12, 1, 6, { earnings: [{ symbol: 'NVDA', date: '2026-11-19', hour: 'amc', epsActual: 1.3 }], upcoming: {} }), `${earnHeadOf(1, 6)} 주가와 이익 전망이 함께 내려가는 중입니다.`],
+          dateOnly: [earn(-12, null, null, earnCal, { trailing: { eps: 20 } }), '다음 실적 12/17(목) 장 마감 후.'],
+          nothing: [earn(-12, null, null, null, { trailing: { eps: 20 } }), null],
+          stale: [earn(-12, 9, 1, earnCal, { asOf: '2026-10-01T00:00:00Z' }), null]
+        };
+        const earnClaims = stockEarningsTie({ symbol: 'NVDA', row: earnRow(-12), estimate: earnEst(9, 1), calendar: earnCal, nowMs: earnNow })?.claims || [];
+        const earnBroken = Object.entries(earnCases).filter(([, [got, want]]) => got !== want);
+        if (earnBroken.length || earnClaims.length !== 3
+          || stockEarningsTie({ symbol: '000660.KS', row: earnRow(-12), estimate: null, calendar: earnCal, nowMs: earnNow }) !== null) {
+          fail(`v60.57 stock-earnings: 종목 earnings line broke ${JSON.stringify(Object.fromEntries(earnBroken))} claims=${earnClaims.length}`);
+        }
         // v59.71 (quant review): the reverse DCF prices the close on the same row's split-adjusted count; the Sahm windows are
         // calendar months that tolerate one skipped release; sentiment ranks with the shared percentile convention.
         const { reverseDcfInputs } = await load('src/domain/fundamental/analysis-read.js');
@@ -2982,6 +3018,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const allOld = tempModel.staleMarketIds({ retained: [], generatedAt: '2025-01-02T00:00:00Z' }, [{ id: 'spx', asOf: '2025-01-01' }, { id: 'kospi', asOf: '2025-01-01' }], Date.parse('2026-10-14T00:00:00Z'));
   const weekend = tempModel.staleMarketIds({ retained: [], generatedAt: '2026-10-18T20:00:00Z' }, [{ id: 'spx', asOf: '2026-10-16' }, { id: 'kospi', asOf: '2026-10-16' }], Date.parse('2026-10-18T22:00:00Z'));
   if (allOld.size !== 2 || weekend.size !== 0) fail(`v58.77 DATA-03 an unchanged artifact after a full outage is stale; a weekend is not, got ${[...allOld]} / ${[...weekend]}`);
+  // The file's clock stands still over a weekend with no new close (the published bytes are kept): 50 hours after the
+  // Saturday write the producer is alive and every market is current. A dead producer is the ledger's grade.
+  const quietMarkets = [{ id: 'spx', asOf: '2026-11-06' }, { id: 'kospi', asOf: '2026-11-06' }];
+  const quietAt = Date.parse('2026-11-09T07:00:00Z');
+  const quietFile = { retained: [], generatedAt: '2026-11-07T05:23:39Z' };
+  const quietSizes = ['unknown', 'current', 'late', 'stale', 'blocked'].map((producer) => tempModel.staleMarketIds(quietFile, quietMarkets, quietAt, { producer }).size);
+  const ownClockPast = tempModel.staleMarketIds(quietFile, quietMarkets, Date.parse('2026-11-11T06:00:00Z'), { producer: 'unknown' }).size;
+  if (quietSizes.join(',') !== '0,0,0,2,2' || ownClockPast !== 2) fail(`v60.57 temperature-liveness: an unchanged weekend file is current while its producer is alive, got ${quietSizes} / ${ownClockPast}`);
   // Codex audit F05 + R706: under 10 non-overlapping windows no average; 10-29 carries the small-sample note;
   // every kept 63-session window starts at least 63 sessions after the previous one.
   const tempEv = (n) => tempUi.temperatureEvidence({ label: 'x', from: '2000', state: 'hot', outcomes: { hot: { h63: { n, mean: 1, se: 1, hitRate: 50, p10: -5 } }, all: { h63: { n: 4000, mean: 2, se: 1, hitRate: 60 } } } });
@@ -6803,6 +6847,28 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { breadthGauge } = await load('src/ui/components/index-earnings.js');
   const breadthLabel = breadthGauge(0.25).label;
   if (!/4주/.test(breadthLabel) || !/수정 건수/.test(breadthLabel)) fail(`v60.30 the revision-breadth gauge must name its window and that it counts revisions: ${breadthLabel}`);
+  // The opening's earnings line: the index's price side (a diagnosed fall or not) beside the revision tilt.
+  {
+    const { earningsReadOf } = await load('src/domain/market/story/earnings-read.js');
+    const { revisionTiltOf, REVISION_TILT } = await load('src/domain/market/indices/index-earnings.js');
+    const { claim: makeClaim, say: sayIt } = await load('src/domain/shared/claim.js');
+    if (revisionTiltOf(REVISION_TILT) !== 'up' || revisionTiltOf(-REVISION_TILT) !== 'down' || revisionTiltOf(0.05) !== 'even' || revisionTiltOf(null) !== null) fail('v60.57 earnings-read: the tilt classes share one line with the 매크로 headline');
+    const spx = { claims: { fall: makeClaim({ subject: 'spx', measure: 'fall', asOf: '2026-11-24', figures: [{ value: -7.9, unit: 'pct', basis: 'fall', label: 'S&P 500' }] }) } };
+    const fallSaid = (row) => sayIt('고점(10/6) 대비 {fall}', { fall: row.claims.fall });
+    const model = (up, down, more = {}) => ({ available: true, asOf: '2026-11-25', up, down, breadth: (up - down) / (up + down), forwardPe: 17.63,
+      sectors: [{ sector: 'Information Technology', up: 787, down: 209 }], ...more });
+    const read = (earnings, state) => earningsReadOf({ earnings, spx, diagnosis: state ? { state } : null, fallSaid });
+    const fallUp = read(model(2930, 1739), 'unwind');
+    const expected = 'S&P 500 고점(10/6) 대비 -7.9%, 최근 4주 이익 전망 수정은 상향 2,930건·하향 1,739건(기술 상향 787건·하향 209건), 선행 PER 17.6배. 이익 전망이 꺾여서 내린 하락이 아니라, 같은 이익에 매기는 값이 내려간 하락입니다. 수정이 하향 우세로 돌면 하락의 성격이 달라집니다.';
+    if (fallUp?.word !== '이익 전망 상향 우세' || fallUp.said.text !== expected) fail(`v60.57 earnings-read: a fall with estimates rising is a fall of the multiple: ${fallUp?.said.text}`);
+    if (!fallUp.said.claims.some((item) => item.measure === 'revisionsUp4w' && item.figures[0].value === 2930)) fail('v60.57 earnings-read: the revision counts are claims');
+    if (!/함께 내려가는 중/.test(read(model(100, 300), 'unwind').said.text)) fail('v60.57 earnings-read: a fall with estimates cut says both fell');
+    if (!/이익에서 찾기는 어렵습니다/.test(read(model(100, 105), 'hold').said.text)) fail('v60.57 earnings-read: an even tilt in a fall');
+    if (!/주가를 받치는 쪽/.test(read(model(300, 100), 'none').said.text) || read(model(300, 100), 'none').side !== 'hold') fail('v60.57 earnings-read: no diagnosed fall is the hold side');
+    if (!/값 부담이 커지는 쪽/.test(read(model(100, 300), null).said.text)) fail('v60.57 earnings-read: price holding while estimates fall');
+    if (/선행 PER|기술/.test(read(model(300, 100, { forwardPe: null, sectors: [] }), 'unwind').said.text)) fail('v60.57 earnings-read: a withheld multiple and a thin sector are left out');
+    if (read(model(300, 100, { breadth: null }), 'unwind') !== null || read({ available: false }, 'unwind') !== null || earningsReadOf({ earnings: model(3, 1), spx: {}, fallSaid }) !== null) fail('v60.57 earnings-read: no breadth, no model or no fall claim gives no line');
+  }
 
   const { analyzeChart, chartReading } = await load('src/domain/technical/chart-analysis.js');
   const bars = []; const bench = []; let price = 100; let index2 = 100;

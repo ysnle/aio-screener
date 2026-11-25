@@ -10,6 +10,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
+import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
@@ -169,11 +170,8 @@ export function openCrossroadsBranch(doc, root, branchId) {
   retry([80, 300, 900]);
 }
 
-const CASHFLOW_MAX_AGE_MS = 10 * 86400000;
 function bigtechCashflowText(root) {
-  const payload = root?.[BIGTECH_CASHFLOW.key];
-  const age = Date.now() - Date.parse(payload?.generatedAt || '');
-  const sentence = age >= 0 && age <= CASHFLOW_MAX_AGE_MS ? groupCashflowSentence(payload?.hyperscalers) : '';
+  const sentence = groupCashflowSentence(bigtechGroupFor(root));
   return sentence ? `투자 자금 여력(SEC 분기 공시 기준, 조건에 넣지 않는 참고값): ${sentence}` : '';
 }
 

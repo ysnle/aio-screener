@@ -8,6 +8,8 @@ import { renderThemePlaybook, renderThemeDetailPlaybook, pickTheme } from '../co
 import { renderSectorMap } from '../components/sector-map.js';
 import { renderScreenReading } from '../components/screen-reading.js';
 import { renderStoryTie } from '../components/story-tie.js';
+import { koreaSessionLink } from '../../domain/market/korea/korea-session-link.js';
+import { requestKrInvestorFlows, krInvestorFlowView } from '../../data/kr-investor-flows.js';
 import { themePlaybookForRoot } from '../components/theme-playbook.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applyLegacyThemeDetailAddress } from '../navigation/theme-detail.js';
@@ -113,9 +115,17 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           pendingFrame = null;
         };
         // The AI readings of 요약 (US theme stages) and 한국 (Korean theme stages), each on the close its stages are read on.
+        // 한국 opens on the US semiconductor session, the KOSPI session after it and foreign net buying; the flows file is
+        // lazy, so its arrival repaints that tie.
+        const paintKoreaTie = (playbook) => {
+          requestKrInvestorFlows(root, () => { try { paintKoreaTie(themePlaybookForRoot(root, store).playbook); } catch (_) { /* a tie never takes the themes route down */ } });
+          const extra = koreaSessionLink({ history: root._aioHistory || [], flows: krInvestorFlowView(root) })?.lines || [];
+          renderStoryTie({ documentRef, root, screen: 'korea', context: { playbook, extra } });
+        };
         const paintScreenReadings = () => {
           const { playbook } = themePlaybookForRoot(root, store);
-          for (const screen of ['themes', 'korea']) renderStoryTie({ documentRef, root, screen, context: { playbook } });
+          renderStoryTie({ documentRef, root, screen: 'themes', context: { playbook } });
+          paintKoreaTie(playbook);
           renderScreenReading({ documentRef, root, screen: 'themes', shownBasis: playbook.asOfByMarket?.US || null });
           renderScreenReading({ documentRef, root, screen: 'korea', shownBasis: playbook.asOfByMarket?.KR || null });
         };

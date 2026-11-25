@@ -39,6 +39,25 @@ export function pickImportantNews(items = [], limit = 5, { linked = null } = {})
 
 const articleKeyOf = (value) => String(value || '').replace(/[?#].*$/, '').replace(/\/$/, '').trim().toLowerCase();
 /**
+ * The market-day ledger's headline facts a news story is: `(story) => headline facts`, matching any of the story's
+ * articles by link or title. The one rule both the important-list order and a card's tie read, so the two never
+ * disagree on which article the ledger holds.
+ */
+export function ledgerHeadlinesOf(day) {
+  const byKey = new Map();
+  for (const fact of Array.isArray(day?.facts) ? day.facts : []) {
+    if (fact?.kind !== 'headline') continue;
+    for (const key of new Set([fact.src?.link, fact.title].map(articleKeyOf))) if (key) byKey.set(key, [...(byKey.get(key) || []), fact]);
+  }
+  return (story) => {
+    const found = new Set();
+    for (const row of story?.storyArticles || [story]) {
+      for (const key of [articleKeyOf(row?.link || row?.url), articleKeyOf(row?.originalTitle || row?.title)]) for (const fact of byKey.get(key) || []) found.add(fact);
+    }
+    return [...found];
+  };
+}
+/**
  * Whether a news story is one the market-day ledger ties to a lead move — a headline fact linked
  * to it by subject or member (the report names the moved stock or a group's leader). Topic links are too broad to count.
  * Returns `(story) => boolean`, matching a story's articles by link or title.
@@ -47,8 +66,8 @@ export function leadLinkedNews(day) {
   const facts = Array.isArray(day?.facts) ? day.facts : [];
   const lead = new Set(facts.filter((fact) => fact.rank === 'lead' && ['price', 'stock-move', 'group-move'].includes(fact.kind)).map((fact) => fact.id));
   const causes = new Set((Array.isArray(day?.links) ? day.links : []).filter((link) => lead.has(link.to) && (link.basis === 'subject' || link.basis === 'member')).map((link) => link.from));
-  const keys = new Set(facts.filter((fact) => fact.kind === 'headline' && causes.has(fact.id)).flatMap((fact) => [fact.src?.link, fact.title]).map(articleKeyOf).filter(Boolean));
-  return (story) => !!keys.size && (story?.storyArticles || [story]).some((row) => keys.has(articleKeyOf(row?.link || row?.url)) || keys.has(articleKeyOf(row?.originalTitle || row?.title)));
+  const headlinesOf = ledgerHeadlinesOf(day);
+  return (story) => headlinesOf(story).some((fact) => causes.has(fact.id));
 }
 
 /**

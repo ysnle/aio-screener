@@ -221,7 +221,7 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
   // The record carries the opening read's lines (market-story.js buildMarketOpening) for the static shell to paint.
   const opening = buildMarketOpening({ history: interpretation.inputs?.history || history, macroHistory, longrun, through: interpretation.regime?.asOf || null,
-    day: marketDay, briefs, afterHours: data?.afterHours || null, regime: interpretation.regime || null, events: interpretation.events || [] });
+    day: marketDay, briefs, afterHours: data?.afterHours || null, regime: interpretation.regime || null, events: interpretation.events || [], earnings: interpretation.indexEarnings || null });
   Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint(), opening), enumerable: false });
   return payload;
 }

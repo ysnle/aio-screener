@@ -20,6 +20,7 @@ import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 import { interpretationStore, latestMarketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
+import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -168,15 +169,18 @@ export function readMarketOpening(root, interpretation, rerender) {
   const briefs = ensure(root, EVENT_BRIEFS, rerender);
   const afterHours = root?._aioAfterHours || null;
   const regularMoves = regularMovesOf(root, afterHours);
+  // The earnings line reads the interpretation's index-earnings stage, which needs the consensus file (asked once, lazily).
+  if (!root?.[CONSENSUS_KEY]) requestConsensusEstimates(root, rerender);
+  const earnings = shared?.indexEarnings || null;
   // The screener rows arrive after the first paint: one repaint when they do, so the reporters' regular-session moves join.
   const store = interpretationStore(root);
   if (afterHours?.rows?.length && !Object.keys(regularMoves || {}).length && !awaitingRows && typeof store?.subscribe === 'function') {
     awaitingRows = true;
     const stop = store.subscribe(() => { if (Object.keys(regularMovesOf(root, afterHours) || {}).length) { stop(); awaitingRows = false; rerender(); } });
   }
-  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || '',
+  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || '', earnings?.available ? `${earnings.asOf}:${earnings.up}:${earnings.down}` : '',
     events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
-  if (openingMemo?.key !== key || openingMemo.history !== history || openingMemo.regime !== regime) openingMemo = { key, history, regime, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves, regime, events }) };
+  if (openingMemo?.key !== key || openingMemo.history !== history || openingMemo.regime !== regime) openingMemo = { key, history, regime, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves, regime, events, earnings }) };
   return openingMemo.opening;
 }
 

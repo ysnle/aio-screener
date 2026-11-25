@@ -100,7 +100,8 @@ const temp = [];
 for (let t = Date.parse('2026-11-19T00:00:00Z'); t < Date.parse('2026-12-02T00:00:00Z'); t += 6 * H) temp.push([t, [...temperature.staleMarketIds(tempPayload, tempMarkets, t)].sort()]);
 temp.push(['no-gen', [...temperature.staleMarketIds({}, tempMarkets, Date.parse('2026-11-20T00:00:00Z'))].sort()]);
 // A retained body holding its market's latest close (jp at the newest date) is no longer stale; the pin moved once.
-check('v59.87 staleMarketIds (moved to domain/market/sentiment/market-temperature.js) is unchanged', hash(temp) === '10de95daa54afb28083460babbb1819b55e2e6deb7e92f575aa93481de45d4c7', hash(temp));
+// It moved again when the file's own clock stopped standing in for the producer's liveness (two days became the four-day fallback).
+check('v60.57 staleMarketIds without a ledger grade is unchanged', hash(temp) === '941bdd163e941dafca5fd5689687e4bfc5289ddd7f9df867f105832881109976', hash(temp));
 
 // The grade itself, case by case.
 const grade = (lagN, sinceMs, policy) => cal.sessionLagGrade({ lag: lagN, sinceLatestCloseMs: sinceMs }, policy);

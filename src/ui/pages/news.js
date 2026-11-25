@@ -13,7 +13,9 @@ import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
 import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
 import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../../domain/briefing/news-picks.js';
+import { newsStoryLinks } from '../../domain/briefing/news-story-link.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
 import { renderMarketTimeline, symbolNames } from '../components/market-timeline.js';
@@ -233,7 +235,18 @@ function liveScenarioFor(root, item, shownTitle = '') {
   return newsImpactChain(`${item?.title || ''} ${shownTitle || ''}`, scenarioMemo.xr, { axes });
 }
 
-function createNewsCard(documentRef, root, item, index) {
+// The part of the day's market story a card belongs to: the moves the ledger links it to.
+// `storyLinks` is built once per render (newsStoryLinks); a card without a tie draws nothing.
+function storyTieLine(documentRef, item, storyLinks) {
+  const tie = typeof storyLinks === 'function' ? storyLinks(item) : null;
+  if (!tie) return null;
+  const line = documentRef.createElement('div');
+  line.className = 'news-item-story';
+  line.textContent = `관련 움직임 ${tie.moves.map((move) => move.said.text).join(' · ')}`;
+  return line;
+}
+
+function createNewsCard(documentRef, root, item, index, storyLinks = null) {
   const card = documentRef.createElement('div');
   const tone = articleStatus(item);
   const link = safeUrl(item?.link);
@@ -330,6 +343,8 @@ function createNewsCard(documentRef, root, item, index) {
   const untranslated = untranslatedMark(documentRef, item);
   if (untranslated) headline.appendChild(untranslated);
   body.appendChild(headline);
+  const tie = storyTieLine(documentRef, item, storyLinks);
+  if (tie) body.appendChild(tie);
   const headlineOnly = isNewsHeadlineOnly(item);
   // LC-32: a headline-only card has no article body, so no causal summary is shown (P1391: and no
   // boundary sentence either — the absence is the boundary).
@@ -614,7 +629,7 @@ function renderIntradayNews(documentRef, root, later, important = new Set(), now
   return picked;
 }
 
-function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set()) {
+function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set(), storyLinks = null) {
   const eligible = groupNewsStories(Array.isArray(model?.eligibleItems) ? model.eligibleItems : model?.items || []).filter((item) => !exclude.has(newsKey(item)));
   const displayed = eligible.slice(0, visibleLimit);
   container.replaceChildren();
@@ -645,7 +660,7 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
   } else {
     // The 카테고리별 grouped view left with the type tabs — each card already names its topic, and the topic
     // chips narrow the list to one group.
-    displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index)));
+    displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index, storyLinks)));
   }
 
   const count = documentRef.getElementById('market-news-count');
@@ -720,7 +735,13 @@ function render({ documentRef, root, store, route }) {
   // Importance rolls to the newest article and puts the stories the day's lead moves are
   // tied to first (the same pool and pick as 오늘's 주요 뉴스).
   const pool = rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], tickerFocus || mineOnly ? [] : later);
-  const important = pickImportantNews(groupNewsStories(pool), 5, { linked: root?.[MARKET_DAY.key] ? leadLinkedNews(root[MARKET_DAY.key]) : null });
+  const day = root?.[MARKET_DAY.key] || null;
+  // A direct visit to 뉴스 had no ledger unless another screen had loaded it, so neither the lead-move order nor the
+  // card ties showed; the page asks for it and repaints once it arrives.
+  if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) documentRef?.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-market-day-ready' } })); }).catch(() => {});
+  const important = pickImportantNews(groupNewsStories(pool), 5, { linked: day ? leadLinkedNews(day) : null });
+  // One lookup per render for every card's tie to the day's moves and relayed stories.
+  const storyLinks = day ? newsStoryLinks(day) : null;
   const importantKeys = new Set(important.flatMap((story) => (story.storyArticles || [story]).map(newsKey)));
   // The pool's own end: the newest article it ranked over, not the 08:00 cut.
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
@@ -748,7 +769,7 @@ function render({ documentRef, root, store, route }) {
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
     importantList.replaceChildren(...(important.length
-      ? important.map((item, index) => createNewsCard(documentRef, root, item, index))
+      ? important.map((item, index) => createNewsCard(documentRef, root, item, index, storyLinks))
       : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '표시 기간과 선택한 조건에 맞는 중요 뉴스가 없습니다.' })]));
   }
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
@@ -760,7 +781,7 @@ function render({ documentRef, root, store, route }) {
       }
     }).catch(() => {});
   }
-  appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)));
+  appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)), storyLinks);
   renderMarketTimeline({ documentRef, root, nowMs }); // The six-hour slots moved here from 브리핑 (a closed fold)
   renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';

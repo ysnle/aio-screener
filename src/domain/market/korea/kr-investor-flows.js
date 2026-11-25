@@ -1,4 +1,5 @@
 import { isoDay } from '../../shared/session-date.js';
+import { eokText } from '../../shared/number.js';
 // 개편 v2 (5n) 투자자별 순매수: the read model of public-data/kr-investor-flows.json (scripts/fetch-kr-investor-flows.mjs;
 // Naver Finance investor trend, KRX figures — ECOS published the foreign investors only). Each market reads the latest session's net purchase per investor type that the source
 // publishes, plus the last 20 sessions of each series with 5- and 20-session sums. An investor type the source does not
@@ -62,11 +63,5 @@ export function buildKrInvestorFlowView(artifact, { nowMs = Date.now(), loadStat
   };
 }
 
-/** 1,234억 / -5,678억 / 1.2조 — the size word Korean market news uses. */
-export function formatEok(value) {
-  if (!Number.isFinite(value)) return '—';
-  const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-  const abs = Math.abs(value);
-  if (abs >= 10000) return `${sign}${(abs / 10000).toFixed(abs >= 100000 ? 0 : 1)}조`;
-  return `${sign}${Math.round(abs).toLocaleString('en-US')}억`;
-}
+/** The card's amount: the claim unit's text (number.js eokText), a dash when the value is missing. */
+export const formatEok = (value) => (Number.isFinite(value) ? eokText(value) : '—');

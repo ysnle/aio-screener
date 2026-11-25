@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-20T14:05:40.836Z",
-  "appRevision": "v60.34",
-  "gitHead": "2cb160921f2e147655e0d0a5d95f9683d0ea6176",
+  "observedAt": "2026-11-25T14:53:47.057Z",
+  "appRevision": "v60.57",
+  "gitHead": "b7fbadfa7be97e121d7080bbf92f267fcd9fdc68",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,91 +16,89 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 230 > 200",
-    "decoded same-origin JS 2.56MB > 1.5MB"
+    "max long task 328 > 200",
+    "decoded same-origin JS 2.6MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 252,
-    "dclMs": 288,
-    "loadMs": 300,
-    "maxLongTaskMs": 230,
-    "totalLongTaskMs": 911,
+    "fcpMs": 260,
+    "dclMs": 310,
+    "loadMs": 319,
+    "maxLongTaskMs": 328,
+    "totalLongTaskMs": 954,
     "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 4185,
-    "activeRouteDomNodes": 2111,
+    "domNodes": 3911,
+    "activeRouteDomNodes": 1711,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2682195,
-    "sameOriginScripts": 145,
+    "decodedJsBytes": 2726605,
+    "sameOriginScripts": 159,
     "crossOriginScripts": 1,
-    "resourceEntries": 218,
+    "resourceEntries": 223,
     "jsByKind": {
-      "esmBoot": 1346474,
-      "classicBoot": 1000798,
+      "esmBoot": 1347573,
+      "classicBoot": 965668,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 334923
+      "postBootLazy": 413364
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/market-regime-ME6B62U4.js",
-        "bytes": 44791,
-        "startMs": 888
+        "path": "src/chunks/chunk-LKFWY2OQ.js",
+        "bytes": 68040,
+        "startMs": 531
       },
       {
-        "path": "src/chunks/session-lean-AG7LXMMU.js",
-        "bytes": 34166,
-        "startMs": 404
+        "path": "src/chunks/market-regime-JACXBGMU.js",
+        "bytes": 42401,
+        "startMs": 963
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-ZLQRV6OL.js",
-        "bytes": 27155,
-        "startMs": 255
-      },
-      {
-        "path": "src/chunks/chunk-526UGZAR.js",
-        "bytes": 22799,
-        "startMs": 636
-      },
-      {
-        "path": "src/chunks/analysis-XQJE7SUH.js",
-        "bytes": 22022,
+        "path": "src/chunks/legacy-screen-bridges-WFESDC2H.js",
+        "bytes": 27273,
         "startMs": 276
       },
       {
-        "path": "src/chunks/cross-readings-ICAXJGRK.js",
-        "bytes": 15476,
-        "startMs": 2005
+        "path": "src/chunks/chunk-AF3IKFI2.js",
+        "bytes": 23409,
+        "startMs": 703
       },
       {
-        "path": "src/chunks/chunk-KJA2TZBV.js",
-        "bytes": 15448,
-        "startMs": 1914
+        "path": "src/chunks/analysis-TR6D5E5I.js",
+        "bytes": 20260,
+        "startMs": 299
       },
       {
-        "path": "src/chunks/chunk-3ABLKUGA.js",
-        "bytes": 13818,
-        "startMs": 1914
+        "path": "src/chunks/session-lean-5MRG5MT2.js",
+        "bytes": 18534,
+        "startMs": 385
+      },
+      {
+        "path": "src/chunks/chunk-2L3A44RV.js",
+        "bytes": 17050,
+        "startMs": 531
+      },
+      {
+        "path": "src/chunks/chunk-ADAIQOQJ.js",
+        "bytes": 16041,
+        "startMs": 704
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
-      "js/aio-chat.js",
-      "src/chunks/ai-profile-JDZM4GOZ.js",
-      "src/chunks/chat-globals-ZE477LGL.js",
-      "src/chunks/question-cues-4LSRCT6W.js",
-      "src/chunks/request-pipeline-MXW2TTNP.js",
+      "src/chunks/ai-profile-6E2TQZJC.js",
+      "src/chunks/panel-LJDXAODI.js",
+      "src/chunks/request-pipeline-3HGKXAVM.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 17,
+    "termMarksBeforeGlossary": 18,
     "glossaryOnTermHover": true,
-    "routeMs": 38,
-    "wallMs": 7838,
-    "totalExternalRequests": 43,
+    "routeMs": 226,
+    "wallMs": 7918,
+    "totalExternalRequests": 33,
     "quoteRequests": 24,
     "initialExternalRequests": 7,
     "initialQuoteRequests": 3,
@@ -121,8 +119,14 @@
       "direct": "story",
       "crossRoute": "story",
       "unvisited": true,
-      "macroOwnsMap": 0
+      "macroOwnsMap": 0,
+      "branchName": "물가 둔화 + 고용 완만",
+      "opened": {
+        "pick": "softland",
+        "card": "softland",
+        "name": "물가 둔화 + 고용 완만"
+      }
     },
-    "decodedJsMb": 2.56
+    "decodedJsMb": 2.6
   }
 }

@@ -602,13 +602,17 @@ check('v59.56 cash-flow lane in the reading: the group line always, an issuer li
   const nowMs = Date.parse('2026-10-31T00:00:00Z');
   const cashflow = buildBigtechCashflow({ factsBySymbol: Object.fromEntries(HYPERSCALERS.map((symbol) => [symbol, companyFacts(ocfQ, capexQ)])), nowMs });
   const briefs = { briefs: [{ kind: 'earnings', symbol: 'AMZN', nameKo: '아마존', eventDate: '2026-10-29', reaction: { basis: 'close', firstDate: '2026-10-30', latestDate: '2026-10-30', latestPct: -1.4, sessions: 1 } }] };
-  const lines = cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs }).split('\n');
+  const lines = cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs, producer: 'unknown' }).split('\n');
   eq(lines.length, 2);
   like(lines[0], /^- 빅테크 5개사/);
   like(lines[1], /^- AMZN\(아마존\) 2026\.09 분기까지 최근 4분기 영업현금흐름 \$74\.0B · 설비투자 \$46\.0B · 잉여현금흐름 \$28\.0B/);
-  eq(cashflowContextLines(cashflow, { briefs: [] }, '2026-10-30', { nowMs }).split('\n').length, 1);
-  eq(cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs: nowMs + 11 * 86400000 }), '');
-  eq(cashflowContextLines(null, briefs, '2026-10-30', { nowMs }), '');
+  eq(cashflowContextLines(cashflow, { briefs: [] }, '2026-10-30', { nowMs, producer: 'unknown' }).split('\n').length, 1);
+  // The file's clock is its last filing change: eleven days on, the lines go only without a ledger grade or under a dead producer.
+  const later = nowMs + 11 * 86400000;
+  eq(cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs: later, producer: 'unknown' }), '');
+  eq(cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs: later, producer: 'stale' }), '');
+  eq(cashflowContextLines(cashflow, briefs, '2026-10-30', { nowMs: later, producer: 'current' }).split('\n').length, 2, 'v60.57 cashflow-liveness: an alive producer keeps the filing lines between filings');
+  eq(cashflowContextLines(null, briefs, '2026-10-30', { nowMs, producer: 'current' }), '');
 });
 
 // v59.59 (feature audit 2026-11-02, CCJ): a foreign issuer's home-currency release is not compared with the USD consensus.

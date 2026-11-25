@@ -37,7 +37,7 @@ function marketOpeningContext(root) {
     // The last interpretation the page built gives the cross-market rows their axis states and the release calendar.
     const shared = latestMarketInterpretation(root);
     const lines = openingFactLines(buildMarketOpening({ history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, longrun: root[INDEX_LONGRUN.key] || null,
-      day: root[MARKET_DAY.key] || null, briefs: root[EVENT_BRIEFS.key] || null, afterHours: root._aioAfterHours || null, regime: shared?.regime || null, events: shared?.events || [] }));
+      day: root[MARKET_DAY.key] || null, briefs: root[EVENT_BRIEFS.key] || null, afterHours: root._aioAfterHours || null, regime: shared?.regime || null, events: shared?.events || [], earnings: shared?.indexEarnings || null }));
     return lines.length ? `시장 이야기 (화면 머리말과 같은 사실 — 진단 상태어는 바꾸지 말 것):\n${lines.map((line) => `- ${line}`).join('\n')}` : '';
   } catch (_) { return ''; }
 }

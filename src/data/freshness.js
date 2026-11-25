@@ -1,7 +1,7 @@
 // The screens' reader for the producer freshness ledgers (schema: src/data/contracts/artifact-freshness.js).
 // A freshness badge draws from readArtifactFreshness(file) and nothing else, so the screen and the watchdog
 // (scripts/ci-external-pipeline-check.mjs, the same freshnessState) grade an artifact the same way.
-import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, freshnessState } from './contracts/artifact-freshness.js';
+import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, ledgerFileState } from './contracts/artifact-freshness.js';
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { artifactFamilyUrl } from './artifact-registry.js';
 
@@ -30,10 +30,10 @@ export function loadFreshnessLedgers(root = globalThis) {
 export function readArtifactFreshness(file, { root = globalThis, now = Date.now() } = {}) {
   const spec = ARTIFACT_FRESHNESS[file];
   if (!spec) return { state: 'unknown', producedAt: null, checkedAt: null, basisSession: null, workflow: null, producer: null, blockedBy: null };
-  const row = spec.ledger === false ? null : root?.[ledgerSpec(spec.workflow).key]?.artifacts?.[file] || null;
-  const graded = row ? freshnessState(row, now) : 'unknown';
+  const ledger = spec.ledger === false ? null : root?.[ledgerSpec(spec.workflow).key] || null;
+  const row = ledger?.artifacts?.[file] || null;
   return {
-    state: spec.blockedBy && graded !== 'current' ? 'blocked' : graded,
+    state: ledgerFileState(file, ledger, now),
     producedAt: row?.producedAt || null,
     checkedAt: row?.checkedAt || null,
     basisSession: row?.basisSession || null,

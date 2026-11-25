@@ -7,6 +7,8 @@
 import { readFileSync } from 'node:fs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { figureSurprise } from '../../src/domain/briefing/event-briefs.js';
+import { unchangedArtifactUsable } from '../../src/data/contracts/artifact-freshness.js';
+import { publishedFileState } from '../lib/published-freshness.mjs';
 import { BIGTECH_CASHFLOW_SCHEMA, groupCashflowSentence, issuerCashflowSentence } from '../../src/domain/fundamental/quarterly-cashflow.js';
 
 export const EARNINGS_CONTEXT_MAX = 5;
@@ -73,15 +75,21 @@ export function earningsContextSignature(eventBriefs, usCloseDate) {
 // v59.56 (X bookmarks 11/01 follow-up 1): the cash side of the same reports — SEC quarterly operating cash flow and
 // capex (public-data/bigtech-cashflow.json, scripts/fetch-bigtech-cashflow.mjs). The hyperscaler total is one line; an
 // issuer gets its own line only when its report is in the earnings lane above (its cash flow is the night's news).
+// The file keeps its published bytes between filings, so its own clock is the last filing change; whether the producer
+// is alive is the screener workflow's ledger (publishedFileState), and the own clock only stands in without a ledger row.
 export const BIGTECH_CASHFLOW_MAX_AGE_DAYS = 10;
 export function readBigtechCashflow(path = 'public-data/bigtech-cashflow.json') {
   try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; }
 }
+/** The published file when it may be read at `nowMs` (alive producer, or its own clock without a ledger row), else null. */
+export function usableBigtechCashflow(cashflow, { nowMs = Date.now(), producer = publishedFileState('bigtech-cashflow.json', { now: nowMs }) } = {}) {
+  if (cashflow?.schemaVersion !== BIGTECH_CASHFLOW_SCHEMA) return null;
+  return unchangedArtifactUsable(producer, cashflow.generatedAt, nowMs, BIGTECH_CASHFLOW_MAX_AGE_DAYS * 86400000) ? cashflow : null;
+}
 
-export function cashflowContextLines(cashflow, eventBriefs, usCloseDate, { nowMs = Date.now() } = {}) {
-  if (cashflow?.schemaVersion !== BIGTECH_CASHFLOW_SCHEMA) return '';
-  const age = nowMs - Date.parse(cashflow.generatedAt || '');
-  if (!(age >= 0 && age <= BIGTECH_CASHFLOW_MAX_AGE_DAYS * 86400000)) return '';
+export function cashflowContextLines(cashflow, eventBriefs, usCloseDate, { nowMs = Date.now(), producer = undefined } = {}) {
+  cashflow = usableBigtechCashflow(cashflow, producer === undefined ? { nowMs } : { nowMs, producer });
+  if (!cashflow) return '';
   const reporters = new Set(earningsContextRows(eventBriefs, usCloseDate).map((brief) => brief.symbol === 'GOOG' ? 'GOOGL' : brief.symbol));
   const lines = [];
   const group = groupCashflowSentence(cashflow.hyperscalers);

@@ -175,6 +175,41 @@ check('v59.70 readArtifactFreshness reads the workflow ledger the watchdog reads
   check('v59.85 a market without an observation in the last history row is not contract drift', JSON.stringify(artifactContractDrift('history.json', { rows: [{ date: '2026-08-17', spx: 6400, kospi: null, fieldMeta: { spx: { sessionDate: '2026-08-14' } } }] })) === '[]');
 }
 
+// An artifact's own clock says when its content last changed, not that its producer is alive: a file kept between
+// filings or over a weekend was dropped as stale by readers that aged it off that clock. Liveness is the ledger's grade
+// (ledgerFileState, unchangedArtifactUsable); a file that parses an artifact clock is listed here with what it reads it for.
+{
+  const OWN_CLOCK_READERS = new Map([
+    ['scripts/lib/market-analysis-validate.mjs', 'the AI candidate written in this run'],
+    ['scripts/lib/market-timeline.mjs', 'data.json, rewritten every run'],
+    ['scripts/lib/verdict-model.mjs', 'orders the record against its inputs, no age limit'],
+    ['scripts/producer/history.mjs', 'data.json, rewritten every run'],
+    ['scripts/producer/macro-history.mjs', 'its own previous write'],
+    ['scripts/producer/market-narrative.mjs', 'the AI reading written by this producer'],
+    ['src/app/bootstrap.js', 'orders two snapshots, no age limit'],
+    ['src/data/contracts/operations.js', 'validity of the field'],
+    ['src/data/contracts/reconciliation.js', 'validity of the field'],
+    ['src/data/market-snapshot-loader.js', 'market-snapshot.json, rewritten every run'],
+    ['src/data/public-readiness.js', 'data.json, rewritten every run'],
+    ['src/domain/market/sentiment/market-temperature.js', 'fallback only while the ledger grade is unknown'],
+    ['src/domain/screener/validation-records.js', 'a hand-kept study dated by its own expiry'],
+    ['src/ui/pages/news.js', 'the page model built in the browser'],
+  ]);
+  const clockFiles = [];
+  const walkAll = (dir) => {
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
+      const rel = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) walkAll(rel);
+      else if (/\.m?js$/.test(entry.name) && /Date\.parse\([^)]*generatedAt/.test(read(rel))) clockFiles.push(rel);
+    }
+  };
+  for (const dir of ['src', 'scripts/lib', 'scripts/producer']) walkAll(dir);
+  const unlisted = clockFiles.filter((file) => !OWN_CLOCK_READERS.has(file));
+  const gone = [...OWN_CLOCK_READERS.keys()].filter((file) => !clockFiles.includes(file));
+  check('v60.57 own-clock: a reader ages an artifact off its own clock only where listed (use the ledger grade)', !unlisted.length, unlisted.join(', '));
+  check('v60.57 own-clock: a listed reader no longer parses an artifact clock (drop it from the list)', !gone.length, gone.join(', '));
+}
+
 if (errors.length) {
   console.error('Artifact refresh path check failed:');
   for (const error of errors) console.error(` - ${error}`);

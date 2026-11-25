@@ -60,6 +60,26 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2769 - v60.57 - 내용이 그대로인 파일을 죽은 파일로 읽음: 지수별 가격 온도가 주말 뒤 '자료 없음'으로 꺼지고, AI 시황 글이 빅테크 현금흐름 문장을 잃음 (2026-11-25)
+
+- symptom/reproduction: 11/9(월) 14:23~16:24 KST 두 시간 동안 시장 상태의 지수별 가격 온도가 모든 지수를 오래된 자료로 보고 '최신 종가 자료가 없어 현재 냉각·과열 여부를 판단하지 않습니다'를 냈다(파일은 정상, 11/7 05:23Z 이후 새 종가가 없어 내용이 50시간 같았을 뿐). 11/25 07:16Z부터 AI 시황 글 입력에서 빅테크 영업현금흐름·설비투자 문장이 빠졌다(마지막 공시 변화 11/15에서 열흘). 신선도 원장에서는 대만 월매출이 수집이 매번 성공하는데도 계속 '지연', 주간 결과표 두 개가 일주일에 닷새 '지연'으로 찍혀 감시 경고가 매 실행 떴다.
+- root_cause: 발행 단계는 내용이 같으면 올라가 있는 바이트를 그대로 두므로(skipUnchanged) 파일 자체 시각 generatedAt은 '내용이 마지막으로 바뀐 때'다. 온도 판정(staleMarketIds)과 AI 입력(cashflowContextLines)은 그 시각으로 '생산기가 살아 있는가'를 판단했다. 대만 월매출 생산기는 숫자가 같으면 스스로 쓰지 않아 원장이 실행 확인(checkedAt)을 남기지 못했고, 주간 생산기 셋은 계약에 일간 주기로 적혀 있었다. P2768에서 화면 한 곳만 고치고 같은 읽기 방식을 전수 확인하지 않았다.
+- fix: 생존 판단을 원장 등급 하나로 모았다: 계약에 ledgerFileState(파일 등급)와 unchangedArtifactUsable(원장 등급 우선, 등급을 모를 때만 자체 시각)을 두고, 브라우저 판독기와 새 생산기용 판독기(scripts/lib/published-freshness.mjs)가 같이 쓴다. 온도 판정은 원장 등급을 인자로 받고 자체 시각은 4일 폴백으로만 남겼다. AI 시황·화면별 AI 입력의 빅테크 현금흐름은 usableBigtechCashflow 한 곳을 거친다. 대만 월매출 생산기는 수집에 성공하면 항상 쓰고 '변화 없음' 판단은 발행 단계가 한다. 주간 생산기 셋의 예상 주기를 7일로 고쳤다.
+- violated_rule: 결함을 고치면 같은 종류를 전수 확인하고 옛 코드에서 실패하는 검사로 닫는다
+- prevention: ci-artifact-refresh-path-check가 파일 자체 시각을 파싱하는 모든 파일을 목록과 대조한다(목록 밖이면 실패, 원장 등급을 쓰라는 안내). 주말 50시간 실제 사례와 11일 지난 공시 사례를 단위 검사로 고정했다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-event-briefs-check.mjs; node scripts/ci-tw-monthly-revenue-fixture.mjs; node scripts/ci-artifact-refresh-path-check.mjs; node scripts/ci-data-boundary-fixture.mjs — 통과. 대만 월매출·주간 생산기 원장 등급은 다음 정기 실행 뒤 확인.
+- files: src/data/contracts/artifact-freshness.js, src/data/freshness.js, src/data/bigtech-cashflow.js, src/domain/market/sentiment/market-temperature.js, src/ui/components/market-temperature.js, scripts/lib/published-freshness.mjs, scripts/producer/earnings-context.mjs, scripts/producer/screen-readings.mjs, scripts/fetch-tw-monthly-revenue.mjs, scripts/ci-artifact-refresh-path-check.mjs
+
+## P2768 - v60.57 - 매크로 AI 과잉투자 갈림길의 빅테크 설비투자 문장이 마지막 공시 변화 열흘 뒤 사라짐 (2026-11-25)
+
+- symptom/reproduction: 매크로 갈림길 카드의 '투자 자금 여력' 문장(빅테크 5개사 설비투자 ÷ 영업현금흐름)이 11/25부터 보이지 않았다. 수집은 6시간마다 정상으로 돌고 있었다.
+- root_cause: 화면이 파일의 generatedAt이 10일 넘으면 숨겼는데, 이 파일은 분기 공시라 내용이 몇 주씩 같고 게시 단계가 시각만 바뀐 실행은 기존 바이트를 유지한다(skipUnchanged). generatedAt은 내용이 마지막으로 바뀐 시각이지 수집이 살아 있는지가 아니다.
+- fix: 빅테크 현금흐름 묶음 값을 읽는 한 곳(src/data/bigtech-cashflow.js)을 두고, 수집이 살아 있는지는 신선도 원장(checkedAt)으로 판단한다. 원장이 아직 없을 때만 파일 자체 시각을 쓴다. 매크로 갈림길과 AI 공급망 주문 줄이 같은 판독기를 쓴다.
+- violated_rule: 신선도는 producedAt(내용)과 checkedAt(수집) 두 시계로 본다(artifact-freshness 계약)
+- prevention: skipUnchanged 산출물의 화면 쪽 나이 판단은 readArtifactFreshness를 거친다; 내용 시각 10일이 지났어도 오늘 확인된 파일은 보이고, 수집이 멈춘 파일은 숨는 것을 단위 검사로 고정
+- verification/residual: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- files: src/data/bigtech-cashflow.js, src/ui/components/macro-crossroads.js
+
 ## P2767 - v60.55 - AI 시황 글이 동일가중의 5거래일 등락(-0.8%)을 11/24 하루 등락으로 씀 (실제 +0.5%) (2026-11-25)
 
 - symptom/reproduction: 공개된 AI 시황 글 첫 문장이 '나스닥100은 11/24 -2.0%로 동일가중 -0.8%보다 더 내렸고'라고 씀. 동일가중은 그날 +0.5%였고 -0.8%는 5거래일 등락

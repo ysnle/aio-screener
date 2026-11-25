@@ -6,7 +6,7 @@
 // next-four-quarter consensus EPS with 4-week up/down revision counts (consensus-estimates.json), each member's completed
 // close (screener row valuationPrice) and FRED DFII10. Nothing here is a forecast or a grade.
 import { dataStateText } from '../../content/data-state.js';
-import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../../fundamental/consensus-read.js';
+import { CONSENSUS_MAX_AGE_DAYS, CONSENSUS_PRICE_MAX_AGE_DAYS } from '../../fundamental/consensus-limits.js';
 import { readNumber as finite } from '../../shared/number.js';
 
 // A whole-index figure needs most of the index behind it; below this share of index weight it is withheld.
@@ -14,6 +14,10 @@ const DAY_MS = 86400000;
 export const INDEX_EARNINGS_MIN_WEIGHT_PCT = 80;
 // A sector line needs enough members that one company cannot set its sign.
 export const SECTOR_MIN_MEMBERS = 8;
+// Net revisions past this share of all revisions read as tilted one way; inside it, raised and cut are about even.
+export const REVISION_TILT = 0.1;
+/** 'up' · 'down' · 'even', or null without a breadth. */
+export const revisionTiltOf = (breadth) => (breadth == null ? null : breadth >= REVISION_TILT ? 'up' : breadth <= -REVISION_TILT ? 'down' : 'even');
 // Dual share classes are one issuer: their weights add, their estimate revisions are counted once.
 const SHARE_CLASS_OF = Object.freeze({ GOOG: 'GOOGL', FOX: 'FOXA', NWS: 'NWSA' });
 

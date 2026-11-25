@@ -12,7 +12,9 @@ import { buildTwRevenueView, signedPct } from '../../domain/briefing/tw-monthly-
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
 import { layerValuation, LAYER_PER_MIN_COVERAGE, LAYER_PER_MIN_MEASURED } from '../../domain/themes/layer-valuation.js';
-import { TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
+import { BIGTECH_CASHFLOW, TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
+import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
+import { aiDemandRead } from '../../domain/briefing/ai-demand-read.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { aiMapRouteParams } from '../../domain/knowledge/ai-map.js';
 
@@ -83,7 +85,7 @@ function twRevenue(doc, root, id, repaint) {
     fold.push(el(doc, 'p', `${group.name} ${signedPct(group.yoyPct)} — ${group.members.map((m) => `${m.name} ${signedPct(m.yoyPct)}(지난달 대비 ${signedPct(m.momPct)})`).join(', ')}`, 'ai-chain__member-list'));
   }
   fold.push(el(doc, 'p', '대만 상장사는 매달 10일까지 전월 매출을 공시합니다. 미국 분기 실적보다 먼저 나오는 수요 신호이고, 묶음 값은 회사별 금액을 더해 계산합니다.', 'ai-chain__member-list'));
-  return { face, fold };
+  return { face, fold, view };
 }
 
 // v59.70 (X bookmarks 11/4 #7): each layer's median PER on last-four-quarter → next-four-quarter consensus EPS, one dot
@@ -199,6 +201,10 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, mapLink, valuation });
   const tw = twRevenue(doc, root, id, repaint);
   if (tw) fold.append(...tw.fold);
+  // Orders against prices, under the two blocks it reads (the cash-flow file arrives lazily and repaints once).
+  refreshSharedArtifact(root, BIGTECH_CASHFLOW).then(({ changed } = {}) => { if (changed) repaint(); }).catch(() => {});
+  const demand = aiDemandRead({ flow, tw: tw?.view || null, capex: bigtechGroupFor(root), session });
+  const demandLine = demand ? el(doc, 'p', demand.said.text, 'ai-chain__reading ai-chain__demand') : null;
   const perFold = valuation ? layerPerFold(doc, root, repaint) : null;
   if (perFold) perFold.open = !!host.querySelector(':scope > details.ai-chain-per')?.open;
   if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
@@ -213,7 +219,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // 테마 › AI 공급망: the whole map of the build-out (layers, data-center chain, capital flows) is 산업 지도's AI 지도.
   const atlasMap = mapLink ? el(doc, 'button', 'AI 지도 보기 → 산업 지도', 'flow-next-link daily-card-more ai-chain__map-link') : null;
   if (atlasMap) { atlasMap.type = 'button'; atlasMap.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams() })); }
-  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
+  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), ...(demandLine ? [demandLine] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
   host.hidden = false;
   return flow;
 }

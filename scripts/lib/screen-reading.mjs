@@ -26,6 +26,11 @@ import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
 import { channelClaimLines } from '../../src/domain/news/channel-claims.js';
+import { koreaSessionLink } from '../../src/domain/market/korea/korea-session-link.js';
+import { aiChainFlow } from '../../src/domain/briefing/ai-chain-flow.js';
+import { aiDemandRead, aiDemandFactLine } from '../../src/domain/briefing/ai-demand-read.js';
+import { buildTwRevenueView } from '../../src/domain/briefing/tw-monthly-revenue.js';
+import { buildKrInvestorFlowView } from '../../src/domain/market/korea/kr-investor-flows.js';
 import { investigationCauseIssues, investigationFactLines } from './investigation-conclusion.mjs';
 import {
   READING_CONDITIONAL, READING_MAX_CHARS, READING_MIN_CHARS, READING_RULES, READING_SECTIONS, buildReadingPrompt, buildReadingRetryPrompt,
@@ -65,7 +70,7 @@ const historyOf = (interpretation) => (Array.isArray(interpretation?.inputs?.his
 // `session`: the latest session's ledger, after-close prints and filing summaries ({ day, afterHours, briefs }), when the producer read them.
 // The regime and the release calendar give the cross-market rows their axis states and the next inflation release.
 const openingOf = (interpretation, longrun, through, session = {}) => buildMarketOpening({ history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through,
-  day: session.day || null, afterHours: session.afterHours || null, briefs: session.briefs || null, regime: interpretation?.regime || null, events: interpretation?.events || [] });
+  day: session.day || null, afterHours: session.afterHours || null, briefs: session.briefs || null, regime: interpretation?.regime || null, events: interpretation?.events || [], earnings: interpretation?.indexEarnings || null });
 const leadershipLine = (regime) => (LEADERSHIP_STATE[regime?.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '');
 // A theme's state label carries its window in parentheses; the head is the state word, the rest the basis.
 const stateHead = (theme) => String(theme.stateLabel || theme.state || '').split(/[,(]/)[0].trim();
@@ -282,10 +287,12 @@ export const SCREEN_READING_SCREENS = Object.freeze({
     name: '한국',
     story: SCREEN_STORY.korea,
     storyGuide: '- "시장 이야기" 줄이 있으면 미국 주도 영역의 최근 세션과 반등 뒤 한국 메모리 종목의 움직임을 나란히 놓고, 한국이 미국 반등을 따라갔는지 못 따라갔는지 말합니다.',
-    guide: '- 한국 테마 중 어디가 버티고 어디가 밀리는지로 엽니다. 미국 주도 영역과 같은 방향인지, 원화 움직임이 그 흐름에 보태는지 덜어내는지 짚습니다. 한국 자료가 얇으면 얇다고 말합니다.',
-    facts(interpretation) {
+    guide: '- 한국 테마 중 어디가 버티고 어디가 밀리는지로 엽니다. 미국 주도 영역과 같은 방향인지, 원화 움직임이 그 흐름에 보태는지 덜어내는지 짚습니다. "미국장과 한국장"·"외국인 수급" 줄이 있으면 미국 반도체, 그 뒤 코스피, 외국인 누적 순매수를 한 흐름으로 잇고 각 숫자는 그 줄의 날짜로 씁니다. 한국 자료가 얇으면 얇다고 말합니다.',
+    facts(interpretation, context = {}) {
       const playbook = interpretation?.playbook;
       const kr = (playbook?.themes || []).filter((theme) => theme.market === 'KR' && finite(theme.ret1m) != null);
+      // The tab's tie: the US semiconductor session, the KOSPI session after it, foreign net buying (same lines as the face).
+      const link = koreaSessionLink({ history: historyOf(interpretation), flows: context.krFlows ? buildKrInvestorFlowView(context.krFlows) : null });
       const basis = playbook?.asOfByMarket?.KR || null;
       if (!playbook?.available || !kr.length || !isIsoDay(basis)) return null;
       const ranked = byRet1m(kr);
@@ -294,7 +301,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       return {
         basis, axes: axis ? [axis] : [],
         lines: [`기준일: ${md(basis)} 한국 종가`, `한국 테마 ${kr.length}개 (1개월 수익률 높은 순과 낮은 순)`, ...shown.map((theme) => `한국 테마 ${themeLine(theme)}`),
-          leadershipLine(interpretation?.regime) ? `미국 ${leadershipLine(interpretation.regime)}` : '', axis ? axisLine(axis, interpretation.regime.asOf) : ''].filter(Boolean)
+          leadershipLine(interpretation?.regime) ? `미국 ${leadershipLine(interpretation.regime)}` : '', axis ? axisLine(axis, interpretation.regime.asOf) : '', ...(link?.factLines || [])].filter(Boolean)
       };
     }
   })
@@ -303,6 +310,13 @@ export const SCREEN_READING_IDS = Object.freeze(Object.keys(SCREEN_READING_SCREE
 
 /** { screen, basis, lines, key, axisStates, axes } — `key` is the first 16 hex of the lines' sha1 (same lines, same key). */
 const CATALYST_SCREENS = Object.freeze(['signal', 'charts', 'themes']);
+// 테마: the AI chain's orders (Taiwan revenue, hyperscaler spending) beside its one-month prices, as the screen prints it.
+function demandLine(interpretation, context, basis) {
+  const source = interpretation?.artifacts || {};
+  const flow = aiChainFlow({ themes: source.usThemes || [], rows: source.screenerRows || [], session: basis });
+  const tw = context.twRevenue ? buildTwRevenueView(context.twRevenue, { nowMs: Date.parse(`${basis}T21:00:00Z`), loadState: 'failed' }) : null;
+  return aiDemandFactLine(aiDemandRead({ flow, tw, capex: context.bigtech?.hyperscalers || null, session: basis }));
+}
 export function buildScreenPacket(screen, interpretation, context = {}) {
   const spec = SCREEN_READING_SCREENS[screen];
   if (!spec) return null;
@@ -311,7 +325,8 @@ export function buildScreenPacket(screen, interpretation, context = {}) {
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
   // The leaders' next reports (a catalyst a rebound can turn on) join the screens that judge the rebound.
   const catalysts = CATALYST_SCREENS.includes(screen) && context.calendar ? leaderEarningsFactLines(context.calendar, { nowMs: Date.parse(`${facts.basis}T21:00:00Z`) }) : [];
-  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context), ...catalysts].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const demand = screen === 'themes' ? demandLine(interpretation, context, facts.basis) : '';
+  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context), demand, ...catalysts].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
   return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null, rebound: facts.rebound || null };
 }
