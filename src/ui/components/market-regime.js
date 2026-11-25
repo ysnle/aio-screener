@@ -370,7 +370,10 @@ export function renderRegimePage({ documentRef: doc, root, store = null }) {
   const history = buildRegimeAxisHistory(inputs, { regime, macroHistory: root._aioMacroHistory || null });
   const previous = previousRegime({ ...inputs, macroHistory: inputs?.macroHistory || root._aioMacroHistory || null }, regime);
   const set = (id, text) => { const node = doc.getElementById(id); if (node) node.textContent = text; return node; };
-  set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 판정 지표 6개` : historyWaitText(root));
+  // The opening's session lines fill the first screen, so the tally word a reader looks for first stands in the header,
+  // set apart as the one emphasised word of that line.
+  const basisNode = set('regime-basis', regime.available ? `${shortDate(regime.asOf)} 미국 종가 기준, 지표 6개 판정 ` : historyWaitText(root));
+  if (basisNode && regime.available) basisNode.append(el(doc, 'b', regime.overall));
   // F01: before the closes load, a verdict the static shell painted from today-verdict.json stays (not '판정 대기').
   const overall = regime.available || !doc.getElementById('home-hero-total')?.dataset?.firstPaint ? set('regime-overall', regime.available ? regime.overall : '판정 대기') : doc.getElementById('regime-overall');
   if (overall) { overall.dataset.overall = regime.overall || ''; overall.setAttribute('aria-label', `미국 시장 판정: ${regime.available ? regime.overall : '판정 대기'}`); } // v57.77 (a11y 2.4.6)
