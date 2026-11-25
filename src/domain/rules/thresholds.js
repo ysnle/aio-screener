@@ -43,6 +43,8 @@ export const RULES = Object.freeze({
   // The rebound's cross-market checks (rebound-quality.js): the share of known checks met that reads 뒷받침됨
   // (3 of 4) or 엇갈림 (2 of 4), below it 지수만 반등; under minKnown known checks no word is given.
   reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
+  // The rebound tracker (rebound-track.js): the last sessionsMax sessions after the low, one row each.
+  reboundTrack: Object.freeze({ sessionsMax: 6 }),
   // The opening's cross-market rows (cross-market.js): each level beside its change over shortSessions (longSessions for the
   // dollar, whose rule reads 20 sessions); the 2-year's gap to the target midpoint is compared with the observation
   // pathLookbackDays calendar days earlier and reads as moving once it changed pathMoveBp.

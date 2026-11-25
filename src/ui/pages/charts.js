@@ -14,7 +14,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { installStockChart, showChartSubject } from '../components/stock-chart.js';
 import { createChartCards } from '../components/market-candles.js';
 import { el } from '../components/dom.js';
-import { renderIndexStandings } from '../components/market-story.js';
+import { renderIndexStandings, renderReboundTrack } from '../components/market-story.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { historyWaitText, renderDataState } from '../components/data-state.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
@@ -99,10 +99,14 @@ function render(documentRef, root, store, page, cards, stockCards, basis) {
   } else if (grid) delete grid.dataset.state;
   // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it.
   cards.update(history);
-  // Under the index cards, this fall among each index's past falls (the long-run tables; hidden without them).
+  // Under the index cards, the rebound since its low (hidden without one), then this fall among each index's past falls
+  // (the long-run tables; hidden without them).
   if (grid) {
     let standings = documentRef.getElementById('charts-fall-standings');
     if (!standings) { standings = el(documentRef, 'div', null, 'charts-standings'); standings.id = 'charts-fall-standings'; standings.hidden = true; grid.after(standings); }
+    let track = documentRef.getElementById('charts-rebound-track');
+    if (!track) { track = el(documentRef, 'div', null, 'charts-rebound'); track.id = 'charts-rebound-track'; track.hidden = true; grid.after(track); }
+    renderReboundTrack({ documentRef, root, host: track });
     renderIndexStandings({ documentRef, root, host: standings });
   }
   const asOf = basis();

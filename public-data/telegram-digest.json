@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-25T05:22:21.408Z",
-  "attemptedAt": "2026-11-25T05:22:21.408Z",
-  "lastSuccessfulAt": "2026-11-25T05:22:21.408Z",
+  "generatedAt": "2026-11-25T06:52:24.087Z",
+  "attemptedAt": "2026-11-25T06:52:24.087Z",
+  "lastSuccessfulAt": "2026-11-25T06:52:24.087Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-11T05:22:16.867Z",
-  "until": "2026-11-25T05:22:16.867Z",
+  "since": "2026-11-11T06:52:20.448Z",
+  "until": "2026-11-25T06:52:20.448Z",
   "current24hWindow": {
     "start": "2026-11-23T23:00:00.000Z",
     "end": "2026-11-24T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1094,
-      "freshCount": 38,
-      "eligibleTextCount": 1035,
+      "count": 1088,
+      "freshCount": 19,
+      "eligibleTextCount": 1032,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70188
+      "lastPostId": 70190
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 726,
-      "freshCount": 37,
-      "eligibleTextCount": 725,
+      "count": 722,
+      "freshCount": 17,
+      "eligibleTextCount": 721,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72745
+      "lastPostId": 72746
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,30 +137,31 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1981,
-  "retainedItemCount": 414,
+  "count": 1971,
+  "retainedItemCount": 393,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1981,
-    "eligibleTextCount": 1921,
-    "mediaOnlyCount": 60,
-    "mediaAttachedCount": 782,
-    "photoPostCount": 666,
+    "observedCount": 1971,
+    "eligibleTextCount": 1914,
+    "mediaOnlyCount": 57,
+    "mediaAttachedCount": 779,
+    "photoPostCount": 663,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
     "highSignalCount": 325,
     "broadSignalCount": 830,
     "selectedRawCount": 363,
     "selectedEligibleCount": 363,
-    "selectedRawCoveragePct": 18.9,
-    "selectedOfObservedPct": 18.3,
+    "selectedRawCoveragePct": 19,
+    "selectedOfObservedPct": 18.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 698,
+    "crypto": 1,
+    "market-note": 693,
     "macro": 274,
     "geo": 231,
     "semi": 645,
@@ -169,13 +170,13 @@
     "ai-policy": 147,
     "earnings": 243,
     "credit": 62,
-    "optical": 27,
+    "optical": 26,
     "flows": 66,
-    "japan": 47,
+    "japan": 46,
     "equity": 120,
-    "healthcare": 52,
+    "healthcare": 51,
     "insider": 6,
-    "media-only": 59
+    "media-only": 56
   },
   "tickerCounts": {
     "NVDA": 429,
@@ -228,7 +229,7 @@
     "IBN": 2,
     "GOOGL": 2,
     "329180.KS": 1,
-    "BABA": 5,
+    "BABA": 4,
     "INTU": 2,
     "017670.KS": 1,
     "WMT": 2,
@@ -267,7 +268,7 @@
     "SNOW": 1
   },
   "themes": [
-    "Market Notes (698 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:...",
+    "Market Notes (693 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:...",
     "Semiconductors/Memory (645 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
     "Macro/Rates (274 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80 (-0.68%) • 나스닥100: 25,911.10 (-1.16%) • 러셀2000: 2,672.50...",
     "Earnings/Corporate (243 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
@@ -381,8 +382,8 @@
       "topics": [
         "optical"
       ],
-      "count": 27,
-      "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도 완화되고 리드타임이 긴 테스터도 납품 계획을 짜놓았음. 하지만 인건비 등 고정비 상승으로 인한 마진 압박..."
+      "count": 26,
+      "focus": "코히런트(COHR) 이사 스티븐 G. 팔리우카가 11월 20일 자사주 8만2,000주 매수. 평균 매수가는 주당 185.59달러로, 총 매수 규모 약 1,521만8,684달러."
     },
     {
       "id": "power",
@@ -426,8 +427,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 0,
-      "focus": "No retained full-text sample; 0 observed posts in the 14-day research window."
+      "count": 1,
+      "focus": ">>비트코인 ETF, 이달 자금 순유출 50억 달러에 육박…상장 이후 최악의 기록 전망 •세계 최대 암호화폐 비트코인이 지속적으로 매도되면서 투자자들이 자금을 잇따라 회수하고 있어 2024년 출시 이후 월간 기준 최대 자금 순유출 규모를 기록. 데이터에 따르면 11월 들어 미국에 상장된 비트코인 ETF에서..."
     },
     {
       "id": "earnings",
@@ -444,8 +445,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 52,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company · Biogen · Chemed · Gilead Sciences · Glaukos · Guardian..."
+      "count": 51,
+      "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
     },
     {
       "id": "japan",
@@ -453,8 +454,8 @@
       "topics": [
         "japan"
       ],
-      "count": 47,
-      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인 강세 추세에 진입할 가능성은 낮다”고 평가. 달러/엔 환율은 155~165엔 범위에서 움직일 것으로 전망,..."
+      "count": 46,
+      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
     },
     {
       "id": "flows",
@@ -480,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 698,
+      "count": 693,
       "focus": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
     }
   ],
@@ -1857,14 +1858,13 @@
       "datetime": "2026-11-25T01:04:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
-        "macro"
+        "power"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 수요로 미국 철강 가격 급등, 4년래 최고치 •“AI 데이터센터 건설 붐으로 철강 수요가 급증하면서 미국 열연코일 가격이 톤당 1,300달러를 돌파함. Nucor는 고시가격을 1,330달러까지..."
+      "summary": ">>데이터센터 수요로 미국 철강 가격 급등, 4년래 최고치 •“AI 데이터센터 건설 붐으로 철강 수요가 급증하면서 미국 열연코일 가격이 톤당 1,300달러를 돌파함. Nucor는 고시가격을 1,330달러까지...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70174",
@@ -1889,14 +1889,13 @@
       "datetime": "2026-11-25T00:54:53.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "japan",
-        "kr-market"
+        "japan"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
+      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21277",
@@ -1990,17 +1989,15 @@
       "datetime": "2026-11-25T00:00:20.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "델 테크놀로지스(DELL) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 매출·EPS. 3분기 매출은 549억달러로 전년 대비 103% 증가. 비GAAP 희석 EPS는 9.45달러로 265% 급증하며...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "델 테크놀로지스(DELL) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 매출·EPS. 3분기 매출은 549억달러로 전년 대비 103% 증가. 비GAAP 희석 EPS는 9.45달러로 265% 급증하며..."
+      ]
     },
     {
       "id": "bornlupin/21274",
@@ -2030,10 +2027,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는..."
+      ]
     },
     {
       "id": "insidertracking/70167",
@@ -2042,10 +2039,7 @@
       "datetime": "2026-11-24T23:45:46.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "insider",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
@@ -2055,10 +2049,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "앤트로픽, 상장 나흘 만에 공모가 하회…12월 보호예수 해제·지수 편입 가능성에 주목 상장 첫날 115달러 돌파 후 나흘째 81.91달러로 마감 앤트로픽은 24일 미국 증시가 전반적으로 조정받는 가운데 전일...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "앤트로픽, 상장 나흘 만에 공모가 하회…12월 보호예수 해제·지수 편입 가능성에 주목 상장 첫날 115달러 돌파 후 나흘째 81.91달러로 마감 앤트로픽은 24일 미국 증시가 전반적으로 조정받는 가운데 전일..."
+      ]
     },
     {
       "id": "bornlupin/21273",
@@ -2087,14 +2081,13 @@
       "datetime": "2026-11-24T23:27:18.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "earnings",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출..."
+      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21272",
@@ -2119,14 +2112,14 @@
       "datetime": "2026-11-24T23:24:32.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 필요할 경우 젠슨 황을 사면할 의향이 있다고 밝힘. 다만 사면을 받지 않더라도 젠슨 황에게 문제가 없을 것으로 본다며, 다음 주 의회 증언에서 “진실을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 필요할 경우 젠슨 황을 사면할 의향이 있다고 밝힘. 다만 사면을 받지 않더라도 젠슨 황에게 문제가 없을 것으로 본다며, 다음 주 의회 증언에서 “진실을..."
+      ]
     },
     {
       "id": "insidertracking/70165",
@@ -2135,7 +2128,6 @@
       "datetime": "2026-11-24T23:23:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "optical",
         "healthcare"
       ],
       "score": 60,
@@ -2146,10 +2138,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도...",
       "tickers": [
         "AAOI"
-      ],
-      "summary": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
+      ]
     },
     {
       "id": "bornlupin/21271",
@@ -2178,16 +2170,15 @@
       "datetime": "2026-11-24T23:18:20.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
         "equity"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로...",
       "tickers": [
         "GOOG",
         "TSM"
-      ],
-      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로..."
+      ]
     },
     {
       "id": "insidertracking/70164",
@@ -2200,10 +2191,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프, 필요하다면 젠슨 황을 용서할 의향이 있다고 발언, 미국 정부가 엔비디아 지분을 인수할 기회는 아직 늦지 않았다고 언급 - 뉴욕 포스트 보도",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프, 필요하다면 젠슨 황을 용서할 의향이 있다고 발언, 미국 정부가 엔비디아 지분을 인수할 기회는 아직 늦지 않았다고 언급 - 뉴욕 포스트 보도"
+      ]
     },
     {
       "id": "bornlupin/21270",
@@ -2231,13 +2222,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고..."
+      ]
     },
     {
       "id": "HANAchina/72711",
@@ -2246,16 +2237,15 @@
       "datetime": "2026-11-24T21:57:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는..."
+      ]
     },
     {
       "id": "HANAchina/72709",
@@ -2264,12 +2254,12 @@
       "datetime": "2026-11-24T21:55:36.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%..."
+      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70161",
@@ -2278,7 +2268,7 @@
       "datetime": "2026-11-24T21:22:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -2288,8 +2278,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고..."
+      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70160",
@@ -2300,7 +2290,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2309,8 +2298,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사..."
+      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70155",
@@ -2319,11 +2309,8 @@
       "datetime": "2026-11-24T21:18:23.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo",
-        "kr-market",
-        "flows"
+        "geo"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
       "media": {
@@ -2332,8 +2319,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란 리알화가 수주간의 상대적 안정세 이후 다시 급락하며 사상 최저치 기록. 암시장에서 미국 달러당 283만 리알(28만3,000토만)까지 상승. 이번 리알화 급락은 미국이 제재 회피를 지원한 혐의를 받는..."
+      "summary": "이란 리알화가 수주간의 상대적 안정세 이후 다시 급락하며 사상 최저치 기록. 암시장에서 미국 달러당 283만 리알(28만3,000토만)까지 상승. 이번 리알화 급락은 미국이 제재 회피를 지원한 혐의를 받는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70151",
@@ -2344,7 +2332,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2353,10 +2340,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽, 델",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽, 델"
+      ]
     },
     {
       "id": "bornlupin/21266",
@@ -2381,13 +2368,13 @@
       "datetime": "2026-11-24T21:13:10.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "아날로그 디바이시스(ADI) Q4 2026 어닝콜 요약 긍정 요인: • 사상 최대 연간 실적. FY26 매출 152억달러로 38% 증가. 매출총이익률 72.9%, 영업이익률 49.5%로 각각 360bp,..."
+      "summary": "아날로그 디바이시스(ADI) Q4 2026 어닝콜 요약 긍정 요인: • 사상 최대 연간 실적. FY26 매출 152억달러로 38% 증가. 매출총이익률 72.9%, 영업이익률 49.5%로 각각 360bp,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70149",
@@ -2400,6 +2387,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·...",
       "tickers": [],
       "listTickers": [
         "GILD",
@@ -2414,8 +2402,7 @@
         "SN",
         "AHR",
         "APPN"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
+      ]
     },
     {
       "id": "insidertracking/70148",
@@ -2426,7 +2413,6 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
       "media": {
@@ -2435,10 +2421,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Dell Technologies 2027 회계연도 3분기 실적 요약 실적 • 매출 $549억, YoY +103%, 예상 $493.2억 상회 • 조정 EPS $9.45, YoY +265%, 예상 $6.59 상회...",
       "tickers": [
         "DELL"
-      ],
-      "summary": "Dell Technologies 2027 회계연도 3분기 실적 요약 실적 • 매출 $549억, YoY +103%, 예상 $493.2억 상회 • 조정 EPS $9.45, YoY +265%, 예상 $6.59 상회..."
+      ]
     },
     {
       "id": "insidertracking/70147",
@@ -2582,10 +2568,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이..."
+      ]
     },
     {
       "id": "HANAchina/72703",
@@ -2594,7 +2581,7 @@
       "datetime": "2026-11-24T13:11:08.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2604,8 +2591,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">BTIG : “고점에서 비중 줄이고, 젠슨 황의 숏스퀴즈 장세를 추격 매수하지 말 것” •BTIG는 1985년 이후 현재와 유사한 12차례의 숏스퀴즈성 반등을 분석한 결과, 11차례가 이후 3거래일 내..."
+      "summary": ">BTIG : “고점에서 비중 줄이고, 젠슨 황의 숏스퀴즈 장세를 추격 매수하지 말 것” •BTIG는 1985년 이후 현재와 유사한 12차례의 숏스퀴즈성 반등을 분석한 결과, 11차례가 이후 3거래일 내...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72702",
@@ -8366,13 +8353,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고..."
+      ]
     },
     {
       "id": "HANAchina/72711",
@@ -8381,16 +8368,15 @@
       "datetime": "2026-11-24T21:57:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는..."
+      ]
     },
     {
       "id": "HANAchina/72709",
@@ -8399,12 +8385,12 @@
       "datetime": "2026-11-24T21:55:36.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%..."
+      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70161",
@@ -8413,7 +8399,7 @@
       "datetime": "2026-11-24T21:22:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -8423,8 +8409,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고..."
+      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70160",
@@ -8435,7 +8421,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8444,8 +8429,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사..."
+      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70155",
@@ -8454,11 +8440,8 @@
       "datetime": "2026-11-24T21:18:23.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo",
-        "kr-market",
-        "flows"
+        "geo"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
       "media": {
@@ -8467,8 +8450,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "이란 리알화가 수주간의 상대적 안정세 이후 다시 급락하며 사상 최저치 기록. 암시장에서 미국 달러당 283만 리알(28만3,000토만)까지 상승. 이번 리알화 급락은 미국이 제재 회피를 지원한 혐의를 받는..."
+      "summary": "이란 리알화가 수주간의 상대적 안정세 이후 다시 급락하며 사상 최저치 기록. 암시장에서 미국 달러당 283만 리알(28만3,000토만)까지 상승. 이번 리알화 급락은 미국이 제재 회피를 지원한 혐의를 받는...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70151",
@@ -8479,7 +8463,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -8488,10 +8471,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽, 델",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽, 델"
+      ]
     },
     {
       "id": "bornlupin/21266",
@@ -8516,13 +8499,13 @@
       "datetime": "2026-11-24T21:13:10.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
         "earnings"
       ],
       "score": 61,
       "hasText": true,
-      "tickers": [],
-      "summary": "아날로그 디바이시스(ADI) Q4 2026 어닝콜 요약 긍정 요인: • 사상 최대 연간 실적. FY26 매출 152억달러로 38% 증가. 매출총이익률 72.9%, 영업이익률 49.5%로 각각 360bp,..."
+      "summary": "아날로그 디바이시스(ADI) Q4 2026 어닝콜 요약 긍정 요인: • 사상 최대 연간 실적. FY26 매출 152억달러로 38% 증가. 매출총이익률 72.9%, 영업이익률 49.5%로 각각 360bp,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70149",
@@ -8535,6 +8518,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·...",
       "tickers": [],
       "listTickers": [
         "GILD",
@@ -8549,8 +8533,7 @@
         "SN",
         "AHR",
         "APPN"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
+      ]
     },
     {
       "id": "insidertracking/70148",
@@ -8561,7 +8544,6 @@
       "tags": [
         "earnings"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
       "media": {
@@ -8570,10 +8552,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "Dell Technologies 2027 회계연도 3분기 실적 요약 실적 • 매출 $549억, YoY +103%, 예상 $493.2억 상회 • 조정 EPS $9.45, YoY +265%, 예상 $6.59 상회...",
       "tickers": [
         "DELL"
-      ],
-      "summary": "Dell Technologies 2027 회계연도 3분기 실적 요약 실적 • 매출 $549억, YoY +103%, 예상 $493.2억 상회 • 조정 EPS $9.45, YoY +265%, 예상 $6.59 상회..."
+      ]
     },
     {
       "id": "insidertracking/70147",
@@ -8717,10 +8699,11 @@
       ],
       "score": 56,
       "hasText": true,
+      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이..."
+      ]
     },
     {
       "id": "HANAchina/72703",
@@ -8729,7 +8712,7 @@
       "datetime": "2026-11-24T13:11:08.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -8739,8 +8722,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">BTIG : “고점에서 비중 줄이고, 젠슨 황의 숏스퀴즈 장세를 추격 매수하지 말 것” •BTIG는 1985년 이후 현재와 유사한 12차례의 숏스퀴즈성 반등을 분석한 결과, 11차례가 이후 3거래일 내..."
+      "summary": ">BTIG : “고점에서 비중 줄이고, 젠슨 황의 숏스퀴즈 장세를 추격 매수하지 말 것” •BTIG는 1985년 이후 현재와 유사한 12차례의 숏스퀴즈성 반등을 분석한 결과, 11차례가 이후 3거래일 내...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72702",

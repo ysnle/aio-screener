@@ -13,6 +13,7 @@ import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { FOLLOW_THROUGH_WORDS } from '../../domain/content/rebound-words.js';
 import { el } from './dom.js';
+import { reboundTrackBlock } from './rebound-track.js';
 import { readNumber } from '../../domain/shared/number.js';
 import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
@@ -220,17 +221,30 @@ export function crossBlock(doc, lines) {
   return [box];
 }
 
-/** The face into `host`: the session lines, the other markets, the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line. */
-// With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
-export function paintOpening(doc, host, opening, tail = null) {
+/** 오늘's other markets: the rows' one synthesis sentence (cross-market.js crossMarketSynthesis) in place of the rows. */
+function crossSummaryLine(doc, summary) {
+  if (!summary?.said?.text) return [];
+  const p = openingLine(doc, { id: 'cross', label: summary.label, said: summary.said });
+  p.className = 'opening-line opening-cross__summary';
+  return [p];
+}
+
+/**
+ * The face into `host`: the session lines, the rebound tracker (`track`), the other markets (as rows, or with `summary`
+ * as one sentence), the lede, the bars, the diagnosis line, the rebound's paragraph and the small record line.
+ * With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
+ */
+export function paintOpening(doc, host, opening, tail = null, { track = false, summary = false } = {}) {
   if (!host || !opening?.available || !opening.lines?.length) return false;
-  // The latest session leads (its sentence, where it gathered, the after-close reports), the other markets say whether
-  // they confirm it; then where the fall stands.
+  // The latest session leads (its sentence, where it gathered, the after-close reports), the rebound since its low, the
+  // other markets say whether they confirm it; then where the fall stands.
   const session = opening.lines.filter((line) => SESSION_LINES.includes(line.id));
   const cross = opening.lines.filter((line) => CROSS_LINES.includes(line.id));
   const [lede, ...rest] = opening.lines.filter((line) => !session.includes(line) && !cross.includes(line));
   const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
-  host.replaceChildren(...session.map((line) => openingLine(doc, line)), ...crossBlock(doc, cross), openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
+  const tracker = track ? reboundTrackBlock(doc, opening.track) : null;
+  const others = summary ? crossSummaryLine(doc, opening.crossSummary) : crossBlock(doc, cross);
+  host.replaceChildren(...session.map((line) => openingLine(doc, line)), ...(tracker ? [tracker] : []), ...others, openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
     ...rest.filter((line) => !after.includes(line)).map((line) => openingLine(doc, line)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;
@@ -244,7 +258,8 @@ export function renderHomeOpening({ documentRef: doc, root, interpretation, regi
   const host = doc?.getElementById('home-hero-desc');
   if (!host || !regime?.available) return;
   const opening = readMarketOpening(root, interpretation, () => renderHomeOpening({ documentRef: doc, root, interpretation, regime }));
-  if (!paintOpening(doc, host, opening)) host.textContent = regime.heroLine || '';
+  // 오늘 says the other markets in one sentence and leaves the rebound tracker to 시장 상태.
+  if (!paintOpening(doc, host, opening, null, { summary: true })) host.textContent = regime.heroLine || '';
 }
 
 function openingFolds(doc, opening) {
@@ -277,7 +292,7 @@ export function renderSignalOpening({ documentRef: doc, root, interpretation, on
   let tail = doc.getElementById('regime-opening-more');
   const verdictEnd = doc.getElementById('regime-previous');
   if (!tail && verdictEnd) { tail = el(doc, 'div', null, 'mk-opening'); tail.id = 'regime-opening-more'; tail.hidden = true; verdictEnd.after(tail); }
-  const painted = paintOpening(doc, host, opening, tail);
+  const painted = paintOpening(doc, host, opening, tail, { track: true });
   if (!painted && tail) tail.hidden = true;
   host.closest?.('.mk-hero')?.classList.toggle('has-opening', painted);
   if (painted) {
@@ -293,6 +308,15 @@ export function renderSignalOpening({ documentRef: doc, root, interpretation, on
     if (!line) { line = el(doc, 'p', null, 'opening-line mk-opening-kr'); line.id = 'regime-opening-kr'; board.before(line); }
     line.replaceChildren(el(doc, 'b', '한국', 'opening-line__label'), doc.createTextNode(` ${opening.korea.text}`));
   }
+}
+
+/** 기술적 분석 › 시장 지수: the rebound tracker 시장 상태 owns, under the index cards; hidden without a rebound. */
+export function renderReboundTrack({ documentRef: doc, root, host }) {
+  if (!host) return;
+  const opening = readMarketOpening(root, null, () => renderReboundTrack({ documentRef: doc, root, host }));
+  const block = opening?.available ? reboundTrackBlock(doc, opening.track) : null;
+  host.hidden = !block;
+  host.replaceChildren(...(block ? [block] : []));
 }
 
 /**
