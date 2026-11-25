@@ -13,6 +13,7 @@ import { openRouteSection } from './page-flow.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { FOLLOW_THROUGH_WORDS } from '../../domain/content/rebound-words.js';
 import { el } from './dom.js';
+import { readNumber } from '../../domain/shared/number.js';
 import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
@@ -151,7 +152,7 @@ function regularMovesOf(root, afterHours) {
   const screener = interpretationStore(root)?.getState?.()?.screener;
   if (!afterHours?.sessionDate || screener?.metadata?.factorSessionDateByMarket?.US !== afterHours.sessionDate) return null;
   const wanted = new Set((afterHours.rows || []).map((row) => row?.symbol));
-  return Object.fromEntries(screenerRowsForRoot(root).filter((row) => wanted.has(row?.sym) && row.ret1d != null && Number.isFinite(Number(row.ret1d))).map((row) => [row.sym, Number(row.ret1d)]));
+  return Object.fromEntries(screenerRowsForRoot(root).filter((row) => wanted.has(row?.sym) && readNumber(row.ret1d) != null).map((row) => [row.sym, readNumber(row.ret1d)]));
 }
 export function readMarketOpening(root, interpretation, rerender) {
   const longrun = ensure(root, INDEX_LONGRUN, rerender);
@@ -173,7 +174,7 @@ export function readMarketOpening(root, interpretation, rerender) {
   return openingMemo.opening;
 }
 
-const SESSION_LINES = Object.freeze(['session', 'gathered', 'after-hours']);
+const SESSION_LINES = Object.freeze(['session', 'gathered', 'split', 'after-hours']);
 /** One face line: the lede, the diagnosis (its state word first) or the small record line. */
 function openingLine(doc, line) {
   const p = el(doc, 'p', null, 'opening-line');

@@ -848,6 +848,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const lines = [
     { id: 'session', label: '', said: session?.said || NOTHING },
     { id: 'gathered', label: session?.gathered?.label || '', said: session?.gathered?.said || NOTHING },
+    { id: 'split', label: session?.split?.label || '', said: session?.split?.said || NOTHING },
     { id: 'after-hours', label: session?.afterHours?.label || '', said: session?.afterHours?.said || NOTHING },
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
@@ -874,8 +875,9 @@ export function openingFactLines(opening) {
   const reboundRule = say('나스닥 100 종가, 저점 대비 {p} 규칙', { p: claim({ subject: 'story-rule', measure: 'reboundPct', asOf: opening.asOf,
     figures: [{ value: RULES.story.reboundPct, unit: 'pct', digits: 0, basis: 'reboundPct', label: '반등 기준' }] }) });
   return [
-    said('session') ? `최근 세션(${shortDate(opening.asOf)}): ${said('session')}` : '',
+    said('session') ? `최근 세션: ${said('session')}` : '',
     said('gathered') ? `최근 세션에 ${opening.session.gathered.label}: ${said('gathered')}` : '',
+    said('split') ? `최근 세션 S&P 500 업종별 기여: ${said('split')}` : '',
     said('after-hours') ? `최근 세션 ${opening.session.afterHours.label}(시간외 잠정값): ${said('after-hours')}` : '',
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',

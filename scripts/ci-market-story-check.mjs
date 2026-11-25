@@ -669,9 +669,12 @@ await runSections('market-story', [
   const after = (rows, date, m) => { const last = rows.at(-1); return [...rows, { date, ...Object.fromEntries(['sox', 'ndx', 'spx', 'rsp', 'dow'].map((f) => [f, +(last[f] * (m[f] ?? 1)).toFixed(2)])), breadth50: 45 }]; };
   const day1 = after(base, '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 });
   const day2 = after(day1, '2026-11-24', { sox: 0.92, ndx: 0.98, spx: 0.995, rsp: 1.005, dow: 0.995 });
-  const ledger = (us) => ({ sessions: { us }, facts: [
+  const split = { index: 'spx', date: '2026-11-24', coverage: 99.7, total: -0.5, sectors: [{ sector: 'Information Technology', weight: 35.5, contribution: -0.97, change: -2.74 },
+    { sector: 'Industrials', weight: 8.3, contribution: -0.04, change: -0.51 }, { sector: 'Real Estate', weight: 1.9, contribution: 0.02, change: 1.17 },
+    { sector: 'Financials', weight: 12.5, contribution: 0.11, change: 0.88 }, { sector: 'Health Care', weight: 10.4, contribution: 0.3, change: 2.87 }, { sector: 'Consumer Discretionary', weight: 9.6, contribution: 0.08, change: 0.11 }] };
+  const ledger = (us) => ({ sessions: { us }, indexSplit: { ...split, date: us }, facts: [
     { id: 'group:theme:photonics:2026-11-24', kind: 'group-move', label: '광통신', date: '2026-11-24', change: -9.3, rank: 'lead', materiality: 93 },
-    { id: 'group:theme:semis:2026-11-24', kind: 'group-move', label: '반도체', date: '2026-11-24', change: -8.4, rank: 'lead', materiality: 84 },
+    { id: 'group:theme:semis:2026-11-24', kind: 'group-move', label: '반도체', date: '2026-11-24', change: -8.4, rank: 'lead', materiality: 84, parts: [{ name: '메모리', change: -11.2 }, { name: '장비', change: -9.0 }, { name: '파운드리', change: -6.9 }] },
     { id: 'group:theme:health:2026-11-24', kind: 'group-move', label: '헬스케어', date: '2026-11-24', change: 2.8, rank: 'major', materiality: 40 },
     { id: 'group:theme:quiet:2026-11-24', kind: 'group-move', label: '조용한 테마', date: '2026-11-24', change: -2.1, rank: 'minor', materiality: 99 },
     { id: 'group:sector:Technology:2026-11-24', kind: 'group-move', label: 'Technology', date: '2026-11-24', change: -5, rank: 'lead', materiality: 98 },
@@ -679,21 +682,31 @@ await runSections('market-story', [
     { id: 'stock:NVDA:2026-11-24', kind: 'stock-move', subjects: ['NVDA'], date: '2026-11-24', change: -5.9, materiality: 100 },
     { id: 'stock:AAPL:2026-11-24', kind: 'stock-move', subjects: ['AAPL'], date: '2026-11-24', change: 1.4, materiality: 90 },
     { id: 'stock:OLD:2026-11-23', kind: 'stock-move', subjects: ['OLD'], date: '2026-11-23', change: -30, materiality: 100 }] });
-  const prints = (sessionDate) => ({ sessionDate, rows: [{ symbol: 'SMALL', changePct: -7.2, indexWeight: 0.06 }, { symbol: 'DELL', changePct: 0.9, indexWeight: 0.16 }, { symbol: 'NOPRINT', changePct: null, indexWeight: 0.5 }] });
-  const briefs = { briefs: [{ symbol: 'DELL', nameKo: '델테크놀로지스' }] };
+  const prints = (sessionDate) => ({ sessionDate, rows: [{ symbol: 'SMALL', changePct: -7.2, highPct: 1.1, lowPct: -8.0, indexWeight: 0.06 }, { symbol: 'DELL', changePct: 0.9, highPct: 12.4, lowPct: -0.4, indexWeight: 0.16 }, { symbol: 'NOPRINT', changePct: null, indexWeight: 0.5 }] });
+  const briefs = { briefs: [{ symbol: 'DELL', nameKo: '델테크놀로지스', kind: 'earnings', eventDate: '2026-11-24', figures: [{ label: 'EPS' }, { label: '비GAAP EPS', estimate: { surprisePct: 40.1 } }] }] };
   const build = (history, more = {}) => buildMarketOpening({ history, macroHistory: credit(3.2), ...more });
   const gave = build(day2, { day: ledger('2026-11-24'), afterHours: prints('2026-11-24'), briefs, regularMoves: { DELL: -11.8 } });
   check('v60.55 the session leads: its moves, what the signs say together, and the share of the rebound given back', () => {
-    assert.deepEqual(gave.lines.map((line) => line.id).slice(0, 4), ['session', 'gathered', 'after-hours', 'lede'], 'v60.55 session-read');
+    assert.deepEqual(gave.lines.map((line) => line.id).slice(0, 5), ['session', 'gathered', 'split', 'after-hours', 'lede'], 'v60.55 session-read');
     assert.equal(said(gave, 'session').text, '11/24 반도체 -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체 65%, 나스닥 100 31%를 되돌렸습니다.', 'v60.55 session-read');
     assert.deepEqual(unclaimedFigures(said(gave, 'session')), [], 'v60.55 session-read: every figure is a claim');
   });
   check('v60.55 where it gathered: theme groups and the most material stocks on the index side, one group against it; no sector, no minor group, no other session', () => {
     assert.equal(gave.lines.find((line) => line.id === 'gathered').label, '내린 곳', 'v60.55 session-read');
-    assert.equal(said(gave, 'gathered').text, '테마로는 광통신 -9.3%, 반도체 -8.4%. 큰 종목으로는 NVDA -5.9%, MU -11.0%. 반대로 헬스케어 +2.8%.', 'v60.55 session-read');
+    assert.equal(said(gave, 'gathered').text, '테마로는 광통신 -9.3%, 반도체 -8.4%(메모리 -11.2%). 큰 종목으로는 NVDA -5.9%, MU -11.0%. 반대로 헬스케어 +2.8%.', 'v60.55 session-read');
   });
   check('v60.55 after-close reporters by index weight with the regular session beside the extended print; a row without a print is left out', () => {
-    assert.equal(said(gave, 'after-hours').text, '델테크놀로지스(DELL) 시간외 +0.9%(정규장 -11.8%), SMALL 시간외 -7.2%. 시간외 가격은 잠정값입니다.', 'v60.55 session-read');
+    assert.equal(said(gave, 'after-hours').text, '델테크놀로지스(DELL) EPS 예상 대비 +40.1%에 시간외 +0.9%, 한때 +12.4%(정규장 -11.8%), SMALL 시간외 -7.2%. 시간외 가격은 잠정값입니다.', 'v60.55 session-read: an extreme the last print left is said; one it stayed near is not');
+  });
+  check('v60.55 why the S&P 500 moved less: the heaviest sector, the rest summed, the sectors that went the other way; silent when the split is another session or does not add up to the index', () => {
+    assert.equal(said(gave, 'split').text, 'S&P 500 -0.5% 가운데 기술(비중 36%)이 1.0%p 끌어내렸고, 나머지 업종은 합쳐 0.5%p 끌어올렸습니다. 헬스케어 +2.9%, 금융 +0.9%가 올랐습니다. 동일가중과 다우는 기술 비중이 작아 그만큼 덜 움직였습니다.', 'v60.55 session-read: a sector under the weight or the move floor is not named');
+    assert.deepEqual(unclaimedFigures(said(gave, 'split')), [], 'v60.55 session-read');
+    const off = build(day2, { day: { ...ledger('2026-11-24'), indexSplit: { ...split, total: -1.4 } } });
+    assert.equal(said(off, 'split').text, '', 'v60.55 session-read');
+  });
+  check('v60.55 a share given back is said only of an index that fell this session', () => {
+    const up = build(after(day2, '2026-11-25', { sox: 1.004, ndx: 0.994, spx: 0.996, rsp: 0.995 }));
+    assert.doesNotMatch(said(up, 'session').text, /되돌렸습니다/, 'v60.55 session-read');
   });
   check('v60.55 a ledger or after-hours file of another session says nothing; the moves still lead', () => {
     const stale = build(day2, { day: ledger('2026-11-23'), afterHours: prints('2026-11-23'), briefs });
@@ -708,9 +721,10 @@ await runSections('market-story', [
   });
   check('v60.55 the AI fact lines carry the same three session lines, ahead of the standing', () => {
     const lines = openingFactLines(gave);
-    assert.equal(lines[0], `최근 세션(11/24): ${said(gave, 'session').text}`, 'v60.55 session-read');
+    assert.equal(lines[0], `최근 세션: ${said(gave, 'session').text}`, 'v60.55 session-read');
     assert.equal(lines[1], `최근 세션에 내린 곳: ${said(gave, 'gathered').text}`, 'v60.55 session-read');
-    assert.match(lines[2], /^최근 세션 장 마감 뒤 실적\(시간외 잠정값\): 델테크놀로지스/, 'v60.55 session-read');
+    assert.match(lines[2], /^최근 세션 S&P 500 업종별 기여: S&P 500 -0\.5% 가운데 기술/, 'v60.55 session-read');
+    assert.match(lines[3], /^최근 세션 장 마감 뒤 실적\(시간외 잠정값\): 델테크놀로지스/, 'v60.55 session-read');
   });
   check('v60.55 the credit check reads the newest published spread after the low with its own date, and 자료 없음 when none is published yet', () => {
     const lagging = { series: { hyOas: { observations: [...SESSIONS.map((date) => [date, 3.76]), ['2026-11-23', 3.63]] } } };

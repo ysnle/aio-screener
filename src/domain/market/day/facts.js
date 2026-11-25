@@ -151,12 +151,13 @@ function stockFacts(screener, universe, themesBySymbol, indexWeights) {
 }
 
 // A group (a theme of the app's map, or a GICS-style sector) moved when the median member moved 2% or more and at least
-// 70% of its members with a 1-day return moved the same way.
+// 70% of its members with a 1-day return moved the same way. A moved theme carries `parts`: each of its sub-themes with
+// three or more returns, as { name, change (median), members } — where inside the theme the move was largest.
 function groupFacts(screener, universe, themes) {
   const session = screener?.factorSessionDateByMarket?.US || null;
   const retOf = (sym) => readRowNumber(screener?.data?.[sym], 'ret1d');
   const groups = [
-    ...themes.map((theme) => ({ id: `theme:${theme.id}`, label: theme.nameKr, members: theme.leaders || [] })),
+    ...themes.map((theme) => ({ id: `theme:${theme.id}`, label: theme.nameKr, members: theme.leaders || [], subThemes: theme.subThemes || [] })),
     ...[...new Set(universe.map((item) => item.sector).filter(Boolean))].map((sector) => ({ id: `sector:${sector}`, label: sector, members: universe.filter((item) => item.sector === sector && !/\.K[SQ]$/.test(item.sym)).map((item) => item.sym) }))
   ];
   const out = [];
@@ -167,10 +168,33 @@ function groupFacts(screener, universe, themes) {
     const same = moves.filter(([, ret]) => Math.sign(ret) === Math.sign(median)).length / moves.length;
     if (Math.abs(median) < 2 || same < 0.7) continue;
     const lead = [...moves].sort((a, b) => Math.sign(median) * (b[1] - a[1])).slice(0, 3);
+    const parts = (group.subThemes || []).map((sub) => ({ name: sub.name, rets: (sub.tickers || []).map((sym) => [sym, retOf(sym)]).filter(([, ret]) => ret !== null) }))
+      .filter((sub) => sub.name && sub.rets.length >= 3).map((sub) => ({ name: sub.name, change: round(medianOf(sub.rets.map(([, ret]) => ret))), members: sub.rets.map(([sym]) => sym) }));
     out.push({ id: `group:${group.id}:${session}`, kind: 'group-move', group: group.id, label: group.label, date: session, change: round(median), share: round(same * 100, 0),
-      members: moves.map(([sym]) => sym), leaders: lead.map(([sym, ret]) => ({ sym, change: round(ret) })), subjects: [], topics: [], weight: Math.abs(median) / 2 });
+      members: moves.map(([sym]) => sym), leaders: lead.map(([sym, ret]) => ({ sym, change: round(ret) })), ...(parts.length ? { parts } : {}), subjects: [], topics: [], weight: Math.abs(median) / 2 });
   }
   return out.sort((a, b) => b.weight - a.weight).slice(0, 16);
+}
+
+/**
+ * The S&P 500's one-session move split by sector: each sector's index weight, its contribution in percentage points
+ * (weight x member return) and its weighted average return. `coverage` is the index weight that had a return.
+ * @returns {{index: 'spx', date: string, coverage: number, total: number, sectors: {sector: string, weight: number, contribution: number, change: number}[]}|null}
+ */
+export function indexSplitOf(screener, indexWeights) {
+  const date = screener?.factorSessionDateByMarket?.US || null;
+  const bySector = new Map();
+  for (const row of Array.isArray(indexWeights) ? indexWeights : []) {
+    const weight = readNumber(row?.weight), ret = readRowNumber(screener?.data?.[String(row?.sym || '').replace('.', '-')], 'ret1d');
+    if (!(weight > 0) || ret === null || !row.sector) continue;
+    const sum = bySector.get(row.sector) || { weight: 0, points: 0 };
+    sum.weight += weight; sum.points += weight * ret / 100;
+    bySector.set(row.sector, sum);
+  }
+  const sectors = [...bySector].map(([sector, sum]) => ({ sector, weight: round(sum.weight, 1), contribution: round(sum.points), change: round(sum.points / sum.weight * 100) }))
+    .sort((a, b) => a.contribution - b.contribution);
+  if (!date || !sectors.length) return null;
+  return { index: 'spx', date, coverage: round(sectors.reduce((sum, row) => sum + row.weight, 0), 1), total: round([...bySector.values()].reduce((sum, row) => sum + row.points, 0)), sectors };
 }
 
 function earningsFacts(calendar, nowMs, namesBySymbol) {
@@ -486,6 +510,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
     rules: 'materiality 0-100 (lead>=60, major>=35, minor>=15); price z = last step / sd of the 60 before, or the 5-session change / (sd x sqrt 5) while the last step goes the same way (the larger counts); stock move |1d|>=4% and >=1.5x ADR on $200M+ volume, or >=5bp of the S&P 500; group median >=2% with 70% same sign; headlines 36h; machine-written stock-page items dropped',
     counts: Object.fromEntries([...new Set(facts.map((fact) => fact.kind))].map((kind) => [kind, facts.filter((fact) => fact.kind === kind).length])),
     dropped: { noise: noise.length },
+    indexSplit: indexSplitOf(screener, indexWeights),
     facts, links, threads: threadsOf(facts, links)
   };
 }

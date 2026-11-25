@@ -45,8 +45,9 @@ export const RULES = Object.freeze({
   reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
   // The session read (session-read.js): a Nasdaq-100 session of movePct names where it gathered; leaders leadGapPp past the
   // equal weight read as leading; a rebound's give-back is said from giveBackMinShare once one index gave back giveBackShare
-  // (% of the gain from the low to the highest close since); list sizes and the ledger ranks a theme group needs.
-  sessionRead: Object.freeze({ movePct: 1, leadGapPp: 1, giveBackShare: 50, giveBackMinShare: 25, groupsMax: 3, namesMax: 4, afterHoursMax: 3, ranks: Object.freeze(['lead', 'major']) }),
+  // (% of the gain from the low to the highest close since); an after-hours extreme of afterHoursSwingPct that the last print left by afterHoursFadePp is said beside it; a theme's sub-theme is named when its median went partGapPp further the same way; the S&P 500 sector split is said when splitCoverage% of the index had a return and its sum is within splitGapPp of the index's move, naming up to splitAgainstMax sectors of splitAgainstWeight% weight that went splitAgainstPct the other way; list sizes and the
+  // ledger ranks a theme group needs.
+  sessionRead: Object.freeze({ movePct: 1, leadGapPp: 1, giveBackShare: 50, giveBackMinShare: 25, groupsMax: 3, namesMax: 4, afterHoursMax: 3, afterHoursSwingPct: 3, afterHoursFadePp: 2, partGapPp: 1, splitCoverage: 95, splitGapPp: 0.2, splitAgainstPct: 0.5, splitAgainstWeight: 2, splitAgainstMax: 3, ranks: Object.freeze(['lead', 'major']) }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,

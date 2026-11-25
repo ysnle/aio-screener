@@ -53,7 +53,7 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .mk-opening[hidden] { display: none; }
 .opening-line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
 .opening-line[data-part="session"] { font-size: 18px; font-weight: 600; line-height: 1.45; letter-spacing: -0.01em; }
-.opening-line[data-part="lede"] { font-size: 15px; font-weight: 600; line-height: 1.5; }
+.opening-line[data-part="lede"] { font-size: 14px; font-weight: 600; line-height: 1.5; }
 .opening-line[data-part="session"] ~ .opening-line[data-part="lede"] { margin-top: 4px; }
 .opening-line[data-part="records"] { font-size: 12px; color: var(--color-text-secondary); }
 .mk-opening-kr { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }

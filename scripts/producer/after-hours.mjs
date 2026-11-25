@@ -24,28 +24,40 @@ export function afterHoursCandidates(calendar, sessionDate, { max = AFTER_HOURS_
     .slice(0, max);
 }
 
-// One chart response → the session's regular close and last after-hours print, or null when the chart is not that session.
+// One chart response → the session's regular close, the last after-hours print and the highest and lowest prints of that
+// after-hours session (each 5-minute bar's own high and low, its close when the bar has none), or null when the chart is
+// not that session. The extremes say whether a first reaction held: a rise to +12% that ends at +1% is not a +1% evening.
+const pctOff = (value, base) => Math.round((value / base - 1) * 10000) / 100;
 export function afterHoursMoveFromChart(chart, sessionDate) {
   const result = chart?.chart?.result?.[0];
   const meta = result?.meta || {};
   const stamps = Array.isArray(result?.timestamp) ? result.timestamp : [];
   const closes = result?.indicators?.quote?.[0]?.close || [];
+  const highs = result?.indicators?.quote?.[0]?.high || [];
+  const lows = result?.indicators?.quote?.[0]?.low || [];
   const regularClose = Number(meta.regularMarketPrice);
   const regularAt = Number(meta.regularMarketTime) * 1000;
   if (!(regularClose > 0) || !Number.isFinite(regularAt) || nyParts(regularAt).date !== sessionDate) return null;
-  let last = null;
+  let last = null, high = null, low = null;
   for (let i = 0; i < stamps.length; i += 1) {
     const value = Number(closes[i]);
     if (!(value > 0)) continue;
     const at = stamps[i] * 1000;
     const { date, minutes } = nyParts(at);
-    if (date === sessionDate && minutes >= 16 * 60 && minutes < 20 * 60) last = { value, at };
+    if (!(date === sessionDate && minutes >= 16 * 60 && minutes < 20 * 60)) continue;
+    last = { value, at };
+    const top = Number(highs[i]) > 0 ? Number(highs[i]) : value;
+    const bottom = Number(lows[i]) > 0 ? Number(lows[i]) : value;
+    if (!high || top > high.value) high = { value: top, at };
+    if (!low || bottom < low.value) low = { value: bottom, at };
   }
   if (!last) return null;
   return {
     regularClose: Math.round(regularClose * 100) / 100,
     last: Math.round(last.value * 100) / 100,
-    changePct: Math.round((last.value / regularClose - 1) * 10000) / 100,
+    changePct: pctOff(last.value, regularClose),
+    highPct: pctOff(high.value, regularClose), highAt: new Date(high.at).toISOString(),
+    lowPct: pctOff(low.value, regularClose), lowAt: new Date(low.at).toISOString(),
     observedAt: new Date(last.at).toISOString(),
   };
 }
@@ -88,7 +100,7 @@ export async function collectAfterHours({ calendar, sessionDate, previous = null
   return {
     schemaVersion: 'after-hours.v1', sessionDate, fetchedAt: new Date(nowMs).toISOString(),
     source: 'Yahoo chart (5m, includePrePost)', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'reference-only', provisional: true,
-    basis: 'last 16:00-20:00 ET print vs regular-session close; earnings-calendar.json amc reporters',
+    basis: 'last, highest and lowest 16:00-20:00 ET prints vs regular-session close; earnings-calendar.json amc reporters',
     rows,
   };
 }

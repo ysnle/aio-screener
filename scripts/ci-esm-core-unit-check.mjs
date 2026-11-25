@@ -5388,6 +5388,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const staleOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68], ['2026-10-26', null, 7676.77]].map(([date, wti, spx]) => ({ date, wti, spx })));
   const freshOil = priorSessionMoveLines([['2026-10-22', 99.47, 7650], ['2026-10-23', 103.27, 7623.68]].map(([date, wti, spx]) => ({ date, wti, spx })));
   if (staleOil || !/WTI 10\/23 종가 \+3\.82%/.test(freshOil)) fail(`v59.24 a WTI close older than the latest US close must not lead: ${JSON.stringify({ staleOil, freshOil })}`);
+  // the S&P 500's session move split by sector: weight x member return, summed per sector
+  { const { indexSplitOf } = await import('../src/domain/market/day/facts.js');
+    const got = indexSplitOf({ factorSessionDateByMarket: { US: '2026-11-24' }, data: { AAA: { ret1d: -4 }, 'BBB-B': { ret1d: -2 }, CCC: { ret1d: 3 }, DDD: {} } },
+      [{ sym: 'AAA', sector: 'Information Technology', weight: 20 }, { sym: 'BBB.B', sector: 'Information Technology', weight: 10 }, { sym: 'CCC', sector: 'Health Care', weight: 10 }, { sym: 'DDD', sector: 'Energy', weight: 5 }]);
+    const want = { index: 'spx', date: '2026-11-24', coverage: 40, total: -0.7, sectors: [{ sector: 'Information Technology', weight: 30, contribution: -1, change: -3.33 }, { sector: 'Health Care', weight: 10, contribution: 0.3, change: 3 }] };
+    if (JSON.stringify(got) !== JSON.stringify(want)) fail(`v60.55 index split by sector wrong: ${JSON.stringify(got)}`); }
   // after-hours lane — the day's amc reporters, the last 16:00-20:00 ET print against the regular close
   const ah = await import('./producer/after-hours.mjs');
   const t = (iso) => Date.parse(iso) / 1000;
@@ -5395,6 +5401,12 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     timestamp: prints.map(([iso]) => t(iso)), indicators: { quote: [{ close: prints.map(([, v]) => v) }] } }] } });
   const whr = chart(80, [['2026-10-26T19:55:00Z', 80.1], ['2026-10-26T20:30:00Z', 75], ['2026-10-26T23:55:00Z', 73.2], ['2026-10-27T00:05:00Z', 70]]);
   const whrMove = ah.afterHoursMoveFromChart(whr, '2026-10-26');
+  // the highest and lowest prints of that after-hours session, from each bar's own high and low when the chart has them
+  const swung = chart(80, [['2026-10-26T20:30:00Z', 88], ['2026-10-26T23:55:00Z', 81]]);
+  swung.chart.result[0].indicators.quote[0].high = [90, 82]; swung.chart.result[0].indicators.quote[0].low = [86, 79.2];
+  const swungMove = ah.afterHoursMoveFromChart(swung, '2026-10-26');
+  if (whrMove?.highPct !== -6.25 || whrMove?.lowPct !== -8.5 || swungMove?.changePct !== 1.25 || swungMove?.highPct !== 12.5 || swungMove?.lowPct !== -1 || swungMove?.highAt !== '2026-10-26T20:30:00.000Z')
+    fail(`v60.55 after-hours extremes wrong: ${JSON.stringify({ whrMove, swungMove })}`);
   const cal = { earnings: [['WHR', 'amc', null, -0.21, 0.8], ['CDNS', 'amc', 0.13, 2.11, 2.09], ['KO', 'bmo', 0.56], ['ARE', 'amc', 0.01]].map(([symbol, hour, indexWeight, epsActual, epsEstimate]) => ({ symbol, date: '2026-10-26', hour, indexWeight, epsActual, epsEstimate })) };
   const picked = ah.afterHoursCandidates(cal, '2026-10-26').map((row) => row.symbol);
   const collected = await ah.collectAfterHours({ calendar: cal, sessionDate: '2026-10-26', nowMs: Date.parse('2026-10-26T23:20:00Z'),
