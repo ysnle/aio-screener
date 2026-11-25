@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-25T05:52:44.360Z",
-  "attemptedAt": "2026-11-25T05:52:44.360Z",
-  "lastSuccessfulAt": "2026-11-25T05:52:44.360Z",
+  "generatedAt": "2026-11-25T06:22:20.219Z",
+  "attemptedAt": "2026-11-25T06:22:20.219Z",
+  "lastSuccessfulAt": "2026-11-25T06:22:20.219Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-11T05:52:39.909Z",
-  "until": "2026-11-25T05:52:39.909Z",
+  "since": "2026-11-11T06:22:15.318Z",
+  "until": "2026-11-25T06:22:15.318Z",
   "current24hWindow": {
     "start": "2026-11-23T23:00:00.000Z",
     "end": "2026-11-24T23:00:00.000Z",
@@ -91,7 +91,7 @@
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70189
+      "lastPostId": 70190
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 723,
-      "freshCount": 17,
+      "freshCount": 37,
       "eligibleTextCount": 722,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72745
+      "lastPostId": 72746
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 1973,
-  "retainedItemCount": 400,
+  "retainedItemCount": 413,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -147,8 +147,8 @@
     "observedCount": 1973,
     "eligibleTextCount": 1916,
     "mediaOnlyCount": 57,
-    "mediaAttachedCount": 781,
-    "photoPostCount": 665,
+    "mediaAttachedCount": 779,
+    "photoPostCount": 663,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
     "highSignalCount": 325,
@@ -160,6 +160,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "crypto": 1,
     "market-note": 695,
     "macro": 274,
     "geo": 231,
@@ -173,7 +174,7 @@
     "flows": 66,
     "japan": 46,
     "equity": 120,
-    "healthcare": 52,
+    "healthcare": 51,
     "insider": 6,
     "media-only": 56
   },
@@ -426,8 +427,8 @@
       "topics": [
         "crypto"
       ],
-      "count": 0,
-      "focus": "No retained full-text sample; 0 observed posts in the 14-day research window."
+      "count": 1,
+      "focus": ">>비트코인 ETF, 이달 자금 순유출 50억 달러에 육박…상장 이후 최악의 기록 전망 •세계 최대 암호화폐 비트코인이 지속적으로 매도되면서 투자자들이 자금을 잇따라 회수하고 있어 2024년 출시 이후 월간 기준 최대 자금 순유출 규모를 기록. 데이터에 따르면 11월 들어 미국에 상장된 비트코인 ETF에서..."
     },
     {
       "id": "earnings",
@@ -444,8 +445,8 @@
       "topics": [
         "healthcare"
       ],
-      "count": 52,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company · Biogen · Chemed · Gilead Sciences · Glaukos · Guardian..."
+      "count": 51,
+      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
     },
     {
       "id": "japan",
@@ -454,7 +455,7 @@
         "japan"
       ],
       "count": 46,
-      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
+      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인 강세 추세에 진입할 가능성은 낮다”고 평가. 달러/엔 환율은 155~165엔 범위에서 움직일 것으로 전망,..."
     },
     {
       "id": "flows",
@@ -1889,13 +1890,14 @@
       "datetime": "2026-11-25T00:54:53.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "japan"
+        "japan",
+        "kr-market"
       ],
+      "lead": 1,
       "score": 53,
       "hasText": true,
-      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
     },
     {
       "id": "bornlupin/21277",
@@ -2029,10 +2031,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는..."
     },
     {
       "id": "insidertracking/70167",
@@ -2086,13 +2088,14 @@
       "datetime": "2026-11-24T23:27:18.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "earnings"
+        "earnings",
+        "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출..."
     },
     {
       "id": "bornlupin/21272",
@@ -2176,15 +2179,16 @@
       "datetime": "2026-11-24T23:18:20.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
+        "semi",
         "equity"
       ],
       "score": 60,
       "hasText": true,
-      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로...",
       "tickers": [
         "GOOG",
         "TSM"
-      ]
+      ],
+      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로..."
     },
     {
       "id": "insidertracking/70164",
@@ -2228,13 +2232,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고..."
     },
     {
       "id": "HANAchina/72711",
@@ -2243,15 +2247,16 @@
       "datetime": "2026-11-24T21:57:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는..."
     },
     {
       "id": "HANAchina/72709",
@@ -2260,12 +2265,12 @@
       "datetime": "2026-11-24T21:55:36.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%..."
     },
     {
       "id": "insidertracking/70161",
@@ -2396,6 +2401,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·...",
       "tickers": [],
       "listTickers": [
         "GILD",
@@ -2410,8 +2416,7 @@
         "SN",
         "AHR",
         "APPN"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
+      ]
     },
     {
       "id": "insidertracking/70148",
@@ -2577,11 +2582,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이..."
     },
     {
       "id": "HANAchina/72703",
@@ -8362,13 +8366,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>젠슨 황, 전 직원 회의에서 엔비디아 직원들에게 사과 •엔비디아 CEO 젠슨 황은 자신이 잠시 해임되는 결과를 초래한 행동에 대해 직원들에게 사과. 화요일 전 직원 회의에서 자신이 모두를 실망시켰다고..."
     },
     {
       "id": "HANAchina/72711",
@@ -8377,15 +8381,16 @@
       "datetime": "2026-11-24T21:57:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>미국, 엔비디아에 대한 압박 지속: 공화당 의원, 젠슨 황에 ‘감시역’ 필요 주장…민주당 지도부는 의혹 수위 높여 •공화당 상원의원 크레이머는 더 엄격한 안전장치를 마련해야 하며, 젠슨 황 주변에 감독하는..."
     },
     {
       "id": "HANAchina/72709",
@@ -8394,12 +8399,12 @@
       "datetime": "2026-11-24T21:55:36.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>구리 가격, AI 사이클에 대한 신뢰를 되돌려주다…4% 넘게 급락하며 월요일 상승분 전부 반납 •젠슨 황의 재임명으로 구리 가격이 하루 만에 2.7% 상승했지만, 24시간도 지나지 않아 화요일 4.3%..."
     },
     {
       "id": "insidertracking/70161",
@@ -8530,6 +8535,7 @@
       ],
       "score": 60,
       "hasText": true,
+      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·...",
       "tickers": [],
       "listTickers": [
         "GILD",
@@ -8544,8 +8550,7 @@
         "SN",
         "AHR",
         "APPN"
-      ],
-      "summary": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
+      ]
     },
     {
       "id": "insidertracking/70148",
@@ -8711,11 +8716,10 @@
       ],
       "score": 56,
       "hasText": true,
-      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>골드만삭스: 젠슨 황 복귀해도 AI 투자 논리는 바뀌지 않아, 진짜 시험대는 수조달러 규모 자본지출의 수익화 여부 •골드만삭스는 엔비디아 경영진 교체가 AI 투자 논리의 핵심을 바꾸지 못하며, 기업들이..."
     },
     {
       "id": "HANAchina/72703",
