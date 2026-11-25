@@ -6,6 +6,17 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.56 AI 글의 원인 한 이야기 (2026-11-25)
+
+- [x] QA-CAUSE-UNIFY-01: v60.56 최근 세션이 직전 반등을 되돌린 날이면(시장 상태 묶음의 '저점 뒤 오른 폭 가운데 …를 되돌렸습니다' 줄) 시장 원인 조사의 첫 메시지에 그 앞 두 세션의 지수별 하루 종가 변화([직전 세션 흐름])가 실리고 그 저점이 조사 키에 들어가며, 단서 기간에 여러 매체가 되풀이한 보도 묶음([반복 보도 묶음], 제목만)이 함께 실린다. verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-CAUSE-UNIFY-02: v60.56 같은 미국 종가의 검증된 시장 원인 조사가 있으면 브리핑 AI 해설 프롬프트(INVESTIGATION)와 시장 상태 사실 묶음에 '조사 결론' 줄(확인 원인과 출처, 추론, 미확인)이 실리고, 조사가 보도로 원인을 확인하지 못한 세션의 원인을 사실로 단정하면 investigation-cause-unconfirmed, 보도로 확인했는데 원인이 확인되지 않았다고 쓰면 investigation-cause-contradicted로 다시 쓰기를 요청한다; 조사가 없거나 다른 세션이면 줄도 검사도 없다. verify_by: node scripts/ci-screen-reading-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-INTEGRATION-6056-01: v60.56 원인 조사 결론과 어긋난 원인 서술은 막지 않고 경고로 기록한다(해석은 막지 않는다); 주도주 다음 실적 줄은 시장 상태·기술적 분석·테마 AI 글 묶음과 브리핑 AI 해설에 들어간다; 테마 중앙값은 그 세션의 행만 센다. verify_by: node scripts/ci-screen-reading-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs; node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-REBOUND-TRACK-01: v60.56 반등 시도·추세 회복·반등 실패인 날 시장 상태(머리말 최근 세션 줄 아래)와 기술적 분석 시장 지수 탭은 저점 뒤 몇 번째 세션인지, 저점 뒤 최근 6세션의 반도체·나스닥 100·S&P 500·동일가중 저점 종가 대비 등락(오래된 세션부터), 확인 조건(나스닥 종합 반등 확인 신호 규칙)과 실패 조건(나스닥 100 저점 종가)을 한 블록으로 보인다; 반등이 없으면 블록도 AI 줄도 없고, 빠진 종가는 자료 없음으로 쓴다. 오늘에는 블록이 없다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-HOME-CROSS-SYNTHESIS-01: v60.56 오늘의 다른 시장은 여섯 줄 대신 같은 줄에서 만든 한 문장(부담·중립·양호·자료 없음별 시장 이름, 금리 경로와 다음 물가 발표)으로 보이고, 정적 첫 화면 기록도 같은 한 줄이다; 시장 상태와 화면별 시장 이야기 줄은 여섯 줄을 그대로 둔다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-SCREEN-TIE-01: v60.56 시장 폭·투자 심리·매크로·금리와 환율·테마와 섹터·한국·기술적 분석 화면의 시장 이야기 줄은 그 화면의 판정(시장 폭·금리 축, 심리 참고 행, 금리 경로, 테마 단계, 나스닥100 추세)과 최근 세션의 모양(주도주 쪽·시장 전체, 하락·상승)을 함께 말하는 고정 문장 하나로 시작하고, 숫자는 모두 claim이며, 세션 모양·판정·수치가 없거나 다른 세션 것이면 문장을 비운다; 오늘 화면과 같은 세션 줄은 그 아래 작은 보조 줄로 남는다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-STOCK-SESSION-TIE-01: v60.56 종목 머리는 하루 등락 아래에 그 세션의 주 테마 중앙값(같은 세션 수익률 3개 이상)과 시장 지수(미국 나스닥 100, 한국 코스피, history.json 같은 날짜 종가)에 견준 고정 한 줄을 보이고, 반등이 이어지는 동안에는 반등 저점 날 종가에서 그 뒤 가장 높은 종가까지 오른 폭과 되돌린 몫(또는 새 종가 고점)을 종목 일봉으로 붙인다; 다른 세션의 값은 견주지 않고 빠진 부분은 빼고 말한다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-day-cause-check.mjs; node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-LEADER-EARNINGS-01: v60.56 오늘의 다음 일정은 주도주 목록(market-movers.js) 회사의 앞으로 10거래일 안 미국 실적을 발표 일정 곁에 최대 두 줄 더하고(주간 목록이 이미 그 회사를 보이면 빼고), leaderEarningsFactLines는 같은 행을 '다음 주도주 실적: ' 한 줄로 돌려준다; 실적 달력에 그런 행이 없으면 아무것도 보이지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v60.55 화면 문장과 계산 근거 (2026-11-25)
 
 - [x] QA-RECENT-RETURNS-01: v60.55 스크리너 코어 행은 최근 20거래일 일간 수익률(rets, %, 오래된 것부터, 마지막 값은 그 행의 factorSessionDate)을 ret1d와 같은 조정 계열로 싣고, 시장 기준 지수 달력에 없는 세션·공급자 종가 결측 세션과 그 다음 세션은 null이다; 확장 샤드와 종가·가격 값은 싣지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-lookahead-check.mjs
