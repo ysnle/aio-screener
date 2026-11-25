@@ -189,7 +189,23 @@ const REPAIR_TEXT = Object.freeze({
 
 // ---- publication check ------------------------------------------------------------------------------------------------
 const EMOJI = /\p{Extended_Pictographic}/u;
-const URL_TEXT = /https?:\/\/|www\.|[a-z0-9-]\.(?:\bcom\b|\borg\b|\bgov\b|\bnet\b|\bco\.kr\b)/i;
+// A searching model attaches its sources inline ("… ([reuters.com](https://…))"). The source lives in `causes`, so the
+// link form is removed before the body is judged or published: a markdown link keeps its words unless they are the
+// address itself, a parenthesised address and a bare address go. A site name written into a sentence still blocks.
+const LINK_HOST = '(?:https?:\\/\\/)?(?:[a-z0-9-]+\\.)+[a-z]{2,}(?:\\/[^\\s)\\]]*)?';
+const MARKDOWN_LINK = /\[([^\]]*)\]\(\s*https?:\/\/[^)\s]*\s*\)/gi;
+const PAREN_ADDRESS = new RegExp(`\\(\\s*(?:${LINK_HOST}\\s*[,;·]?\\s*)+\\)`, 'gi');
+const BARE_ADDRESS = /https?:\/\/[^\s)\]]+/gi;
+const ADDRESS_ONLY = new RegExp(`^\\s*${LINK_HOST}\\s*$`, 'i');
+/** Raised when a blocking check changes, so a key the earlier checks held is asked again (producer key). */
+export const INVESTIGATION_CHECK_REVISION = 2;
+export function stripCitationMarkup(text) {
+  return String(text || '')
+    .replace(MARKDOWN_LINK, (_, words) => (ADDRESS_ONLY.test(words) ? '' : words))
+    .replace(PAREN_ADDRESS, '').replace(BARE_ADDRESS, '').replace(/\(\s*\)/g, '')
+    .replace(/\s+/g, ' ').replace(/\s+([.,!?])/g, '$1').trim();
+}
+const URL_TEXT =/https?:\/\/|www\.|[a-z0-9-]\.(?:\bcom\b|\borg\b|\bgov\b|\bnet\b|\bco\.kr\b)/i;
 const DAY_MS = 86400000;
 const LATIN_TERMS = /S&P|\b[A-Z]{2,}(?:\s?\d+)?\b/g;
 
@@ -208,8 +224,8 @@ export function validateInvestigation(answer, { corpus = [], session = {}, cited
   const issues = [];
   const warnings = [];
   const L = INVESTIGATION_LIMITS;
-  const verdict = String(answer?.verdict || '').trim();
-  const paragraphs = (Array.isArray(answer?.paragraphs) ? answer.paragraphs : []).map((text) => String(text || '').replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const verdict = stripCitationMarkup(answer?.verdict);
+  const paragraphs = (Array.isArray(answer?.paragraphs) ? answer.paragraphs : []).map(stripCitationMarkup).filter(Boolean);
   const causes = (Array.isArray(answer?.causes) ? answer.causes : []).slice(0, L.causesMax);
   const unknowns = (Array.isArray(answer?.unknowns) ? answer.unknowns : []).map((text) => String(text || '').trim()).filter(Boolean).slice(0, L.unknownsMax);
   if (!verdict || verdict.length > L.verdictMax || !paragraphs.length || paragraphs.length > L.paragraphsMax || paragraphs.some((text) => text.length < L.paragraphMin || text.length > L.paragraphMax) || !causes.length) issues.push('shape');

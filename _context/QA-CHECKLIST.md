@@ -15,6 +15,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-SCREEN-AI-01: 화면 AI 읽기가 금리와 환율(buildRatesFx), 기술적 분석 시장 지수(indexChartReadings·분배일·반등 확인 신호·반등의 다른 시장 확인), 테마와 섹터(playbook 미국 테마 단계), 한국(playbook 한국 테마 단계, 한국 종가)까지 화면이 그리는 같은 도메인 함수로 사실 묶음을 만들고, 금리 주도 하락일과 조용한 날, AI 주도와 방어주 주도, 얇은 한국 자료에서 서로 다른 묶음을 낸다; 자기 사실이 없으면 묶음을 만들지 않는다. (v60.54) verify_by: node scripts/ci-screen-reading-check.mjs
 - [x] QA-SCREEN-AI-02: 공통 지시문(src/ai/reading/reading-core.js)이 판단 먼저 → 무엇이 있었나 → 왜 중요한가 → 가격이 반영한 것 → 확인·전환 조건의 한 줄기 추론, 맞지 않는 사실 하나, 조건부 안내를 요구하고 날짜·연도·티커·지수 수준을 담지 않는다; 블록 2개·520자까지 통과하고 셋째 블록·묶음에 없는 수치·지시·목표가·% 확률은 막는다; 화면은 두 블록을 두 문단으로 그린다. (v60.54) verify_by: node scripts/ci-screen-reading-check.mjs
 - [x] QA-SCREEN-AI-03: 종목·차트·포트폴리오 AI 분석이 브라우저에서 화면이 이미 계산한 사실(회사 모델·밸류에이션 줄·종목 렌즈, 차트 분석과 시나리오, 포트폴리오 AI 행)로 묶음을 만들고 같은 지시문과 검사를 거친다; 키는 종목·종가·사실 해시이며, 포트폴리오 묶음은 기호·업종·비중·수익률만 담고 저장소에 남지 않는다; 한 번 묻고 이유를 실어 한 번 다시 묻고, 실패·예산 소진이면 이유 한 줄만 남긴다. (v60.54) verify_by: node scripts/ci-screen-reading-check.mjs
+- [x] QA-AI-INVESTIGATION-CITATION-01: v60.54 시장 조사 답의 본문에 붙은 인라인 출처 링크(마크다운 링크·괄호 속 주소·맨 주소)는 판정·게시 전에 지우고, 검사가 바뀌면 이전 검사가 막아 둔 같은 단서를 다시 묻는다. verify_by: node scripts/ci-market-investigation-check.mjs (v60.54 인라인 링크 라벨)
 
 ## v60.53 시장 조사 (2026-11-25)
 

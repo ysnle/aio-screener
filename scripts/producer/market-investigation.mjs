@@ -16,7 +16,7 @@ import { nextStateRecord, selectLeads } from '../../src/domain/market/investigat
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL } from '../lib/ai-shared-analysis.mjs';
 import { createInvestigationRunner } from '../lib/investigation-tools.mjs';
-import { INVESTIGATION_SCHEMA_VERSION, buildLeadMessage, linkedHeadlines, repairInvestigation, runInvestigation, validateInvestigation } from '../lib/market-investigation.mjs';
+import { INVESTIGATION_CHECK_REVISION, INVESTIGATION_SCHEMA_VERSION, buildLeadMessage, linkedHeadlines, repairInvestigation, runInvestigation, validateInvestigation } from '../lib/market-investigation.mjs';
 import { buildScreenPacket } from '../lib/screen-reading.mjs';
 
 const LIMIT = RULES.investigation;
@@ -85,7 +85,8 @@ export async function genMarketInvestigation({ data = null, history = [], previo
   const session = { us: ledgerDay.sessions?.us || null, kr: ledgerDay.sessions?.kr || null };
   const state = nextStateRecord(prior?.state, session.us, investigationWords(shared, signal));
   const selection = selectLeads({ day: ledgerDay, state });
-  const key = createHash('sha1').update(selection.keySource).digest('hex').slice(0, 16);
+  // The checks' revision is part of the key: an answer the old checks blocked is asked again under the new ones.
+  const key = createHash('sha1').update(`${selection.keySource}|checks:${INVESTIGATION_CHECK_REVISION}`).digest('hex').slice(0, 16);
   const base = { schemaVersion: INVESTIGATION_SCHEMA_VERSION, generatedAt, session, key, leads: selection.leads, state, ledger };
   const sameKey = prior?.key === key;
   const retainOr = (reason, extra = {}) => (prior?.status === 'verified' && prior.session?.us === session.us

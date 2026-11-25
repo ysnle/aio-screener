@@ -135,6 +135,9 @@ await section('publication check', async () => {
     thin.issues.length === 0 && thin.warnings.includes('inference-only') && thin.warnings.includes('likelihood-qualitative'), JSON.stringify(thin));
   const url = validateInvestigation({ ...GOOD, paragraphs: [`${GOOD.paragraphs[0]} reuters.com 참고.`, GOOD.paragraphs[1]] }, { corpus, session: { us: US }, cited: new Set([CITED]), nowMs: NOW });
   check(`v60.53 investigation: a URL on the face blocks (it belongs in the fold)`, url.issues.includes('url-in-body'));
+  const linked = validateInvestigation({ ...GOOD, verdict: `${GOOD.verdict} ([reuters.com](${CITED}))`, paragraphs: [`${GOOD.paragraphs[0]} ([Reuters](${CITED})) (reuters.com)`, `${GOOD.paragraphs[1]} ${CITED}`] }, { corpus, session: { us: US }, cited: new Set([CITED]), nowMs: NOW });
+  check(`v60.54 investigation: inline citation links are removed before the body is judged — the answer publishes without them`,
+    linked.issues.length === 0 && linked.published.verdict === GOOD.verdict && !/https?:|reuters\.com/.test(linked.published.paragraphs.join(' ')) && linked.published.paragraphs[0].startsWith(GOOD.paragraphs[0].slice(0, 20)), JSON.stringify([linked.issues, linked.published.verdict, linked.published.paragraphs]));
 });
 
 await section('producer', async () => {
