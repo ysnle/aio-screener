@@ -1388,6 +1388,21 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && priorSessionMoveIssues('코스피 장중 13:05 KST 기준 +3.2% 반등', { context: ctx }).includes('prior-session-move-omitted')
         && ranked[0].title === crashTitle && /ko-index-move\+14/.test(scoreServerNewsItem({ title: crashTitle, source: '연합뉴스', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason),
       JSON.stringify({ line: ctx.match(/직전 완료 세션[^\n]*/)?.[0] || null, ranked: ranked.map((row) => row.title) }));
+    {
+      const { sessionMoveIssues } = await import('./lib/market-analysis-validate.mjs');
+      const sessionCtx = '시장 이야기 최근 세션: 11/24 반도체 -7.9%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다.';
+      const read = (text) => sessionMoveIssues(text, { context: sessionCtx }).join(',');
+      const got = {
+        fiveDayAsOneDay: read('나스닥100은 11/24 -2.0%로 동일가중 -0.8%보다 더 내렸고 쏠림 되돌림 상태입니다.'),
+        right: read('나스닥100은 11/24 -2.0%로 동일가중 +0.5%와 반대로 움직였습니다.'),
+        ownWindow: read('11/24까지 5거래일 동일가중 -0.8%, 나스닥 100은 하루 -2.0%였습니다.'),
+        fund: read('금 11/24 종가 -2.45%, 반도체(SOXX) 11/24 종가 -8.27%였습니다.'),
+        sinceHigh: read('11/24 기준 반도체는 고점 대비 -39.6%, S&P 500 -7.9%입니다.'),
+        noLine: sessionMoveIssues('11/24 S&P 500은 -1.9% 내렸습니다.', { context: '' }).join(',')
+      };
+      check('v60.55 an index move printed under the latest session date is that session\'s own move; a figure under its own window or another instrument is not read',
+        got.fiveDayAsOneDay === 'session-move-mismatch' && !got.right && !got.ownWindow && !got.fund && !got.sinceHigh && !got.noLine, JSON.stringify(got));
+    }
     // v57.87 (market-screen re-check): a WTI close carries its own dated line; a reading that names a lead flow while the
     // screen says none qualifies is blocked; one won-dollar headline per Korean slot topic; a quote page is not an article.
     const { noLeadIssues } = await import('./lib/market-analysis-validate.mjs');

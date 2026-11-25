@@ -1,0 +1,19 @@
+{
+  "version": "v60.55",
+  "date": "2026-11-25",
+  "p": {
+    "title": "AI 시황 글이 동일가중의 5거래일 등락(-0.8%)을 11/24 하루 등락으로 씀 (실제 +0.5%)",
+    "cause": "수치 검증이 '묶음에 있는 숫자인가'만 보고 그 숫자가 어느 지수의 어느 기간 값인지는 보지 않아, 같은 지수의 다른 기간 수치가 세션 날짜 아래에 붙어도 통과함",
+    "fix": "묶음의 최근 세션 줄을 기준으로, 그 날짜를 말하는 문장에서 지수 이름 바로 뒤에 붙은 등락률이 그 세션 값과 다르면 차단(session-move-mismatch); 자기 기간(5거래일·고점 대비)을 밝힌 수치와 다른 상품(SOXX)은 읽지 않음",
+    "lesson": "AI 문장의 수치는 존재 여부가 아니라 대상·기간에 묶어 검사한다"
+  },
+  "qa": [
+    { "id": "QA-SESSION-MOVE-BIND-01", "text": "v60.55 AI 시황 글에서 최근 세션 날짜 아래 지수 등락률은 그 세션의 값이어야 하고, 5거래일·고점 대비처럼 자기 기간을 밝힌 수치와 SOXX는 대상이 아니다", "verify_by": "node scripts/ci-data-pipeline-contract-check.mjs", "done": true },
+    { "id": "QA-SESSION-MOVE-BIND-LIVE-01", "text": "v60.55 push 뒤 실서비스 marketAnalysis 첫 문단의 동일가중 하루 등락이 history.json rsp 하루 등락과 같다", "verify_by": "push 뒤 public-data/data.json marketAnalysis.full 과 history.json", "done": false }
+  ],
+  "qa_section": "화면 문장과 계산 근거",
+  "changelog": [
+    "AI 시황 글이 지수의 5거래일 등락을 하루 등락처럼 쓰는 오류를 차단(11/24 동일가중 -0.8%로 잘못 표기, 실제 +0.5%)"
+  ],
+  "note": "소유자 지시로 전 화면 직접 검증 중 발견 (2026-11-25)"
+}

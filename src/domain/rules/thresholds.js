@@ -50,6 +50,8 @@ export const RULES = Object.freeze({
   // Per-stock daily returns the screener publishes (`rets`, oldest first) and the members a sub-theme median needs
   // before a "since the low" comparison names the group (src/domain/market/day/recent-returns.js).
   recentReturns: Object.freeze({ sessions: 20, groupMinMembers: 3 }),
+  // Since a rebound's low: a theme's best and worst sub-themes are named when gapPp apart; namesMax of its most material stocks.
+  reboundSpread: Object.freeze({ gapPp: 3, namesMax: 4 }),
   sessionRead: Object.freeze({ movePct: 1, leadGapPp: 1, giveBackShare: 50, giveBackMinShare: 25, groupsMax: 3, namesMax: 4, afterHoursMax: 3, afterHoursSwingPct: 3, afterHoursFadePp: 2, partGapPp: 1, splitCoverage: 95, splitGapPp: 0.2, splitAgainstPct: 0.5, splitAgainstWeight: 2, splitAgainstMax: 3, ranks: Object.freeze(['lead', 'major']) }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),

@@ -813,6 +813,7 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
   if (metricEvidence.some((row) => row.metricId === 'market.kospi' && Math.abs(changes.get(row.evidenceId)) >= KOREA_MOVE_MENTION_PCT)
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
+  issues.push(...sessionMoveIssues(body, { context }));
   issues.push(...moveSizeWordIssues(body, { grades: moveSizeGrades(history) }));
   issues.push(...publishedTextIssues(body));
   issues.push(...noLeadIssues(body, { context }));
@@ -1142,6 +1143,36 @@ export function priorSessionMoveIssues(body, { context = '' } = {}) {
   return metric.name.test(opening) && dated ? [] : ['prior-session-move-omitted'];
 }
 
+// A one-session move printed under the session's date must be that session's move. Live 2026-11-25: "나스닥100은 11/24
+// -2.0%로 동일가중 -0.8%보다 더 내렸고" — the equal weight rose 0.5% that day; -0.8% was its five-session change, a figure
+// that is in the packet and so passed the figure check. The packet's session line (시장 이야기 최근 세션: M/D 지수 등락, …)
+// is the reference: in a sentence that names that date, an index named there and followed at once by a percentage carries
+// the session's value. A figure introduced by its own window (5거래일, 고점 대비 …) or a different instrument
+// (반도체(SOXX), the fund beside the SOX index) is not a session move and is not read.
+const SESSION_MOVE_LINE = /^시장 이야기 최근 세션: (\d{1,2})\/(\d{1,2}) ([^\n]*?%)\.(?:\s|$)/m;
+const OTHER_WINDOW = /거래일|주간|한 주|개월|고점|저점|연초|이후|누적/;
+export function sessionMoveIssues(body, { context = '' } = {}) {
+  const line = SESSION_MOVE_LINE.exec(String(context || ''));
+  if (!line) return [];
+  const moves = line[3].split(', ').map((part) => /^(.+) ([+\-−]?\d+(?:\.\d+)?)%$/.exec(part.trim())).filter(Boolean)
+    .map((match) => ({ label: match[1], value: Number(match[2].replace('−', '-')) }));
+  const dated = new RegExp(String.raw`(?<![\d/])${line[1]}\/${line[2]}(?!\d)|${line[1]}월\s?${line[2]}일`);
+  const issues = [];
+  for (const sentence of String(body || '').replace(/\[[^\]\n]*\]/g, ' ').split(/(?<=[.!?。])\s+|\n+/)) {
+    if (!dated.test(sentence)) continue;
+    for (const move of moves) {
+      const name = move.label.replace(/\s+/g, String.raw`\s?`).replace(/[&]/g, String.raw`\&`);
+      const found = new RegExp(String.raw`${name}(?!\s?\()([^\d%+\-−]{0,8})([+\-−]?\d+(?:\.\d+)?)\s?%(?!p)`, 'g');
+      for (const match of sentence.matchAll(found)) {
+        const before = sentence.slice(Math.max(0, match.index - 14), match.index);
+        if (OTHER_WINDOW.test(match[1]) || OTHER_WINDOW.test(before)) continue;
+        if (Math.abs(Number(match[2].replace('−', '-')) - move.value) > 0.1) { issues.push('session-move-mismatch'); break; }
+      }
+    }
+  }
+  return [...new Set(issues)];
+}
+
 // The screen said no flow and no central scenario qualified ("보기 이릅니다", "중심 시나리오를
 // 정하지 않습니다") while the reading named 「소수 종목 주도」 as the closest flow and a favoured choice. When the context holds
 // that verdict, the reading carries it in its own words. v57.88: phrase-level — a bare 이르 also matched 이르면 / 이른바.
@@ -1178,7 +1209,8 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'inflation-direction-contradicts-evidence': 'CPI or core CPI rose in the latest release; do not describe inflation as easing — describe the rate move without an inflation-easing claim',
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
-  'prior-session-move-omitted': 'REGIME_CONTEXT lists the completed-close moves by size (직전 완료 세션의 큰 움직임); open the reading with the first one — its name, close date (M/D) and change in one of the first two lines, separately from any in-session move',
+  'session-move-mismatch': 'a percentage printed for an index under the latest session date must be that session\'s own move from the line "시장 이야기 최근 세션"; a five-session or since-the-high figure must be introduced as such (5거래일 …, 고점 대비 …)',
+  'prior-session-move-omitted':'REGIME_CONTEXT lists the completed-close moves by size (직전 완료 세션의 큰 움직임); open the reading with the first one — its name, close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'direction-sign-contradiction': 'a direction word contradicts the sign of the move it describes; a positive change is a rise (상승·반등), a negative one a fall (하락·약세) — and do not open a sentence with a slot name such as 압력',
   'prompt-label-leak': 'a prompt section or slot name (METRIC_EVIDENCE, MARKET_DRIVERS, CLOSE_MOVE, LIVE_MOVE, NEXT_CHECK …) was left in the text; write the content without the label',
   'published-text-malformed': 'citations are deleted before publication and the remaining text was broken (empty brackets, a word fused to 입니다, a dangling 이며/지만); put [id; id] only after a sentence period, ids only, never inside a sentence or inside ( )',
