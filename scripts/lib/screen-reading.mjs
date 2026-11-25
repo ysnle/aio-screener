@@ -59,7 +59,9 @@ const usAxes = (regime) => (regime?.axes || []).filter((axis) => axis && axis.id
 const statesOf = (axes) => Object.fromEntries(axes.filter((axis) => axis?.id && axis.state).map((axis) => [axis.id, axis.state]));
 const titledStates = (axes) => axes.filter((axis) => axis?.title && axis.stateLabel).map((axis) => ({ id: axis.id, title: axis.title, stateLabel: axis.stateLabel }));
 const historyOf = (interpretation) => (Array.isArray(interpretation?.inputs?.history) ? interpretation.inputs.history : []);
-const openingOf = (interpretation, longrun, through) => buildMarketOpening({ history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through });
+// `session`: the latest session's ledger, after-close prints and filing summaries ({ day, afterHours, briefs }), when the producer read them.
+const openingOf = (interpretation, longrun, through, session = {}) => buildMarketOpening({ history: historyOf(interpretation), macroHistory: interpretation?.inputs?.macroHistory || null, longrun, through,
+  day: session.day || null, afterHours: session.afterHours || null, briefs: session.briefs || null });
 const leadershipLine = (regime) => (LEADERSHIP_STATE[regime?.leadership?.state] ? `주도주 흐름: ${LEADERSHIP_STATE[regime.leadership.state]}` : '');
 // A theme's state label carries its window in parentheses; the head is the state word, the rest the basis.
 const stateHead = (theme) => String(theme.stateLabel || theme.state || '').split(/[,(]/)[0].trim();
@@ -76,7 +78,7 @@ const daysBefore = (isoDay, days) => new Date(Date.parse(`${isoDay}T00:00:00Z`) 
 // ---- the registry: screen id → { name (as the screen is called), guide, facts(interpretation, context) } -----------------
 // facts() returns { basis, lines, axes } or null when the screen has nothing to read today. `axes` (id, state, title,
 // stateLabel) feed the state-word check; they are not part of the key. `context` carries what the producer reads beside
-// the interpretation: { longrun (index-longrun.json), data (data.json), telegram (telegram-digest.json) }.
+// the interpretation: { longrun (index-longrun.json), data (data.json), telegram (telegram-digest.json), day (market-day.json), briefs (event-briefs.json) }.
 export const SCREEN_READING_SCREENS = Object.freeze({
   signal: Object.freeze({
     name: '시장 상태',
@@ -88,11 +90,11 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       '- 묶음에 반등 상태어(반등 시도·추세 회복·반등 실패)가 있으면 그것만 쓰고, 반등 폭과 남은 낙폭을 함께, 200일선 위치와 반등 실패 기준(저점)을 묶음의 수치로 씁니다. 하루 반등을 추세 전환으로 단정하지 않습니다.',
       '- 지금 가격이 무엇을 반영하는지 묶음의 수치로 한 문장 씁니다. "싸다·매력적"은 조건으로만 씁니다("이익 추정치가 유지되면 …", "꺾이면 …"). 단정하지 않습니다.'
     ].join('\n'),
-    facts(interpretation, { longrun = null } = {}) {
+    facts(interpretation, { longrun = null, day = null, data = null, briefs = null } = {}) {
       const regime = interpretation?.regime;
       if (!regime?.available || !regime.asOf) return null;
       const axes = usAxes(regime);
-      const opening = openingOf(interpretation, longrun, regime.asOf);
+      const opening = openingOf(interpretation, longrun, regime.asOf, { day, afterHours: data?.afterHours || null, briefs });
       return {
         basis: regime.asOf, axes, diagnosis: opening.available && opening.diagnosis?.state !== 'none' ? opening.diagnosis?.word || null : null,
         rebound: opening.available ? opening.rebound?.word || null : null,

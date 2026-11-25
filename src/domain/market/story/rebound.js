@@ -21,7 +21,7 @@ export const REBOUND_STANCE = Object.freeze({
 
 /**
  * An index's fall on its closes from `highDate`: the lowest close, the close's bounce off it (%), the low the last
- * rebound rose from (`from`), the 50- and 200-session averages at the close, and each session's place against them
+ * rebound rose from (`from`), the highest close since the low (`peak`), the 50- and 200-session averages at the close, and each session's place against them
  * (`lines`: date → { over50, over200 }; every session, so the S&P 500's are read over the Nasdaq-100's fall).
  * @param {Array<{date:string, value:number}>} series ascending closes
  */
@@ -41,7 +41,8 @@ export function episodeOf(series, highDate) {
     lines.set(series[i].date, { over50: a50 != null && series[i].value > a50, over200: a200 != null && series[i].value > a200 });
   }
   const last = series.length - 1;
-  return { low, from, close: series[last].value, prev: series[last - 1]?.value ?? null, bounce: low ? (series[last].value / low.value - 1) * 100 : null,
+  const peak = low ? series.filter((point) => point.date >= low.date).reduce((best, point) => (point.value > best.value ? point : best), low) : null;
+  return { low, from, peak, close: series[last].value, prev: series[last - 1]?.value ?? null, bounce: low ? (series[last].value / low.value - 1) * 100 : null,
     ma50: average(last, 50), ma200: average(last, 200), lines };
 }
 

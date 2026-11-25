@@ -43,6 +43,10 @@ export const RULES = Object.freeze({
   // The rebound's cross-market checks (rebound-quality.js): the share of known checks met that reads 다른 시장도 확인
   // (3 of 4) or 엇갈림 (2 of 4), below it 지수만 반등; under minKnown known checks no word is given.
   reboundQuality: Object.freeze({ confirmShare: 0.75, mixedShare: 0.5, minKnown: 3 }),
+  // The session read (session-read.js): a Nasdaq-100 session of movePct names where it gathered; leaders leadGapPp past the
+  // equal weight read as leading; a rebound's give-back is said from giveBackMinShare once one index gave back giveBackShare
+  // (% of the gain from the low to the highest close since); list sizes and the ledger ranks a theme group needs.
+  sessionRead: Object.freeze({ movePct: 1, leadGapPp: 1, giveBackShare: 50, giveBackMinShare: 25, groupsMax: 3, namesMax: 4, afterHoursMax: 3, ranks: Object.freeze(['lead', 'major']) }),
   inflation: Object.freeze({ targetPct: 2, nearTargetPct: 2.5, missPct: 3, reaccelPp: 0.5, holdPp: 0.25, latchMonths: 6, edgePp: 0.1 }),
   policy: Object.freeze({ pricedMovePp: 0.25, neutralRealPct: 1, restrictiveRealPct: 2 }),
   briefing: Object.freeze({ rateMove5dBp: 8, stocksDown5dPct: 1, yearExtremeAt: 0.95, curveMove5dBp: 8, dollarSoft5dPct: 0.3,

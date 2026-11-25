@@ -2,7 +2,8 @@
 // low to the latest close: credit (high-yield spread lower), the dollar (DXY lower), volatility (VIX lower and under the
 // 3-month VIX) and participation (more members over their 50-day line and the equal weight up). Each end is that series'
 // own close on that very session; a series with no close on the low's day or the latest day is 자료 없음 for its check,
-// never filled from a neighbouring session. Unknown checks leave the denominator and are named. The tally's word comes
+// never filled from a neighbouring session. The high-yield spread is published a session late, so its latest end is its
+// newest observation after the low, printed with that observation's own date (the same value the diagnosis line prints). Unknown checks leave the denominator and are named. The tally's word comes
 // from RULES.reboundQuality; no cause is asserted (an index-only rebound gets one conditional note).
 import { RULES } from '../../rules/thresholds.js';
 import { claim, say, sayJoin, NOTHING } from '../../shared/claim.js';
@@ -15,6 +16,11 @@ import { REBOUND_QUALITY_WORDS as W } from '../../content/rebound-words.js';
 const closeOn = (history, field, date, through) => buildCloseSeries(history, field, { through }).find((point) => point.date === date)?.value ?? null;
 /** The HY spread (bp) observed on exactly `date`, through the one reader every credit surface uses. */
 const hyOn = (macroHistory, date) => { const obs = hyObservation({ macroHistory, through: date }); return obs?.asOf === date ? obs.level : null; };
+/** The newest HY observation after `from` and no later than `through`, as { date, value }; value null when there is none yet. */
+function hyLatest(macroHistory, from, through) {
+  const obs = hyObservation({ macroHistory, through });
+  return obs?.asOf > from ? { date: obs.asOf, value: obs.level } : { date: through, value: null };
+}
 
 // "{label} {low}({date}) → {latest}({date})", a missing end said as "{date} 값 없음".
 function pairSaid(id, label, unit, digits, low, now) {
@@ -42,7 +48,7 @@ export function reboundQualityOf(rebound, { history = [], macroHistory = null, t
   if (!rebound || (rebound.state !== 'attempt' && rebound.state !== 'recovered') || !rebound.low?.date || !through || through <= rebound.low.date) return null;
   const from = rebound.low.date;
   const at = (field) => [{ date: from, value: closeOn(history, field, from, through) }, { date: through, value: closeOn(history, field, through, through) }];
-  const [hyLow, hyNow] = [{ date: from, value: hyOn(macroHistory, from) }, { date: through, value: hyOn(macroHistory, through) }];
+  const [hyLow, hyNow] = [{ date: from, value: hyOn(macroHistory, from) }, hyLatest(macroHistory, from, through)];
   const [dxyLow, dxyNow] = at('dxy');
   const [vixLow, vixNow] = at('vix');
   const vix3m = { date: through, value: closeOn(history, 'vix3m', through, through) };

@@ -27,13 +27,14 @@ import { companyMatcher } from '../domain/briefing/news-picks.js';
 import { decideQuoteBasis, quoteBasisLine } from '../ai/time/quote-basis.js'; // close vs intraday price basis
 import { composeLeanPrompt } from '../ai/prompt/lean-prompt.js'; // the system prompt of a turn that offers the tools
 import { buildMarketOpening, openingFactLines } from '../domain/market/story/market-story.js';
-import { INDEX_LONGRUN } from '../data/artifact-registry.js';
+import { EVENT_BRIEFS, INDEX_LONGRUN, MARKET_DAY } from '../data/artifact-registry.js';
 import { investigationContext } from '../ai/context/investigation-context.js';
 
 /** The opening read as context lines (market-story.js), from the closes, FRED history and long-run tables the page holds. */
 function marketOpeningContext(root) {
   try {
-    const lines = openingFactLines(buildMarketOpening({ history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, longrun: root[INDEX_LONGRUN.key] || null }));
+    const lines = openingFactLines(buildMarketOpening({ history: root._aioHistory || [], macroHistory: root._aioMacroHistory || null, longrun: root[INDEX_LONGRUN.key] || null,
+      day: root[MARKET_DAY.key] || null, briefs: root[EVENT_BRIEFS.key] || null, afterHours: root._aioAfterHours || null }));
     return lines.length ? `시장 이야기 (화면 머리말과 같은 사실 — 진단 상태어는 바꾸지 말 것):\n${lines.map((line) => `- ${line}`).join('\n')}` : '';
   } catch (_) { return ''; }
 }

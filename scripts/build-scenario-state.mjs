@@ -169,7 +169,7 @@ export function scoreNewReleases(macroHistory, lastScored = {}, at) {
   return { scored, lastScored: next };
 }
 
-export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, longrun = null, nowMs = Date.now() } = {}) {
+export function buildScenarioState({ data = null, history = [], macroHistory = null, calendar = null, screener = null, themeMaps = null, consensus = null, outcomes = null, previous = null, themeBackfill = null, longrun = null, marketDay = null, briefs = null, nowMs = Date.now() } = {}) {
   const at = new Date(nowMs).toISOString();
   // The shared interpretation (the same stages the screens, the AI and the narrative read).
   // The shared input builder also carries the sector rotation (data.json) and the index-earnings input, so
@@ -220,7 +220,8 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   };
   // Not part of scenario-state.json (non-enumerable): main() writes it as its own 1 KB artifact.
   // The record carries the opening read's lines (market-story.js buildMarketOpening) for the static shell to paint.
-  const opening = buildMarketOpening({ history: interpretation.inputs?.history || history, macroHistory, longrun, through: interpretation.regime?.asOf || null });
+  const opening = buildMarketOpening({ history: interpretation.inputs?.history || history, macroHistory, longrun, through: interpretation.regime?.asOf || null,
+    day: marketDay, briefs, afterHours: data?.afterHours || null });
   Object.defineProperty(payload, 'todayVerdict', { value: todayVerdictFrom(interpretation.regime, at, verdictModelFingerprint(), opening), enumerable: false });
   return payload;
 }
@@ -251,7 +252,7 @@ async function main() {
   const history = readHistoryRows(historyRaw);
   const payload = buildScenarioState({
     data: readJson(PD('data.json')), history, macroHistory: readJson(PD('macro-history.json')), calendar: readJson(PD('macro-calendar.json')),
-    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), consensus: readJson(PD('consensus-estimates.json')), themeBackfill: readJson(PD('theme-stage-history.json')), longrun: readJson(PD('index-longrun.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
+    screener: readJson(PD('screener.json')), themeMaps: loadThemeMaps(ROOT), consensus: readJson(PD('consensus-estimates.json')), themeBackfill: readJson(PD('theme-stage-history.json')), longrun: readJson(PD('index-longrun.json')), marketDay: readJson(PD('market-day.json')), briefs: readJson(PD('event-briefs.json')), outcomes: ((out) => (out?.status === 'current' ? out : null))(readJson(PD('scenario-outcomes.json'))), previous: ((prev) => (prev?.status === 'current' ? prev : null))(readJson(PD('scenario-state.json'))) // a pending placeholder is not a previous state
   });
   if (!payload.crossroads.items.length) { console.warn('[scenario-state] no branches computed — artifact unchanged'); return; }
   await atomicWriteFile(PD('scenario-state.json'), JSON.stringify(payload));

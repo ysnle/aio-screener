@@ -126,7 +126,7 @@ await runSections('market-story', [
   const opening = buildMarketOpening({ history: fixtureHistory(), macroHistory: credit(3.2) });
   check('v60.50 the crash shape reads "반도체는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 …"', () => {
     assert.equal(said(opening, 'lede').text, '반도체는 고점에서 43% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.50 lede-variants');
-    assert.deepEqual(opening.lines.map((line) => line.id).slice(0, 2), ['lede', 'diagnosis'], 'v60.50 lede-variants');
+    assert.deepEqual(opening.lines.map((line) => line.id).slice(0, 3), ['session', 'lede', 'diagnosis'], 'v60.50 lede-variants');
   });
   const quiet = buildMarketOpening({ history: fixtureHistory({ soxEnd: 0.95, ndxEnd: 0.97, spxEnd: 0.98, rspEnd: 0.98, dowEnd: 0.98 }), macroHistory: credit(3.2) });
   check('v60.50 with no diagnosis the lede is the stages alone and no diagnosis line is drawn', () => {
@@ -288,7 +288,7 @@ await runSections('market-story', [
     assert.equal('story' in todayVerdictFrom(regime, 'now', 'm'), false, 'v60.50 verdict-record-shapes');
     const opening = buildMarketOpening({ history: fixtureHistory(), macroHistory: credit(3.2) });
     const record = todayVerdictFrom(regime, 'now', 'm', opening);
-    assert.deepEqual(record.story.lines.map((line) => [line.id, line.label]).slice(0, 2), [['lede', ''], ['diagnosis', '쏠림 되돌림']], 'v60.50 verdict-record-shapes');
+    assert.deepEqual(record.story.lines.map((line) => [line.id, line.label]).slice(0, 3), [['session', ''], ['lede', ''], ['diagnosis', '쏠림 되돌림']], 'v60.50 verdict-record-shapes');
     assert.equal(record.schemaVersion, 'today-verdict.v1', 'v60.50 verdict-record-shapes');
     assert.equal('story' in todayVerdictFrom({ ...regime, asOf: '2026-11-19' }, 'now', 'm', opening), false, 'v60.50 verdict-record-shapes');
   });
@@ -420,7 +420,7 @@ await runSections('market-story', [
     assert.equal(said(rebound, 'lede').text, '반도체는 하루 14% 반등했지만 고점 대비로는 아직 35% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 rebound');
     assert.doesNotMatch(said(rebound, 'lede').text, /하락입니다/, 'v60.51 a rebound day is not read as a fall');
     assert.ok((said(rebound, 'lede').text.replace(/나스닥 100|S&P 500|\d+일선/g, '').match(/\d+(?:\.\d+)?/g) || []).length <= 2, 'v60.51 at most two numbers in the lede');
-    assert.deepEqual(rebound.lines.map((line) => line.id), ['lede', 'diagnosis', 'watch', 'records'], 'v60.51 the diagnosis line stays; the conditions line follows it');
+    assert.deepEqual(rebound.lines.map((line) => line.id), ['session', 'lede', 'diagnosis', 'watch', 'records'], 'v60.51 the diagnosis line stays; the conditions line follows it');
     for (const id of ['lede', 'watch']) cleanSaid(said(rebound, id));
   });
   check('v60.51 the rebound paragraph, right after the diagnosis line on both screens: the low, the 200-day levels, then the stance', () => {
@@ -540,7 +540,7 @@ await runSections('market-story', [
   check('v60.51 the produced record and the static shell carry the conditions line', () => {
     const regime = { available: true, overall: '부담 우세', asOf: '2026-11-23', heroLine: 'x', counts: { favorable: 0, neutral: 2, burden: 4, unknown: 0 } };
     const record = todayVerdictFrom(regime, 'now', 'm', rebound);
-    assert.deepEqual(record.story.lines.map((line) => [line.id, line.label]), [['lede', ''], ['diagnosis', '쏠림 되돌림'], ['watch', '반등 시도'], ['records', '']], 'v60.51 rebound');
+    assert.deepEqual(record.story.lines.map((line) => [line.id, line.label]), [['session', ''], ['lede', ''], ['diagnosis', '쏠림 되돌림'], ['watch', '반등 시도'], ['records', '']], 'v60.51 rebound');
     assert.equal(record.schemaVersion, 'today-verdict.v1', 'v60.51 rebound');
   });
   check('v60.51 no instruction and no size word on the rebound lines', () => {
@@ -657,10 +657,70 @@ await runSections('market-story', [
     // The credit figure is whatever the published series holds for that close (it arrives a session late and is not pinned here).
     assert.match(said(opening, 'diagnosis').text, /^나스닥 100이 동일가중보다 12\.7%p 더 내렸고 신용 스프레드는 \d+bp(?:.\d+\/\d+.)?, 5거래일 \+\d+bp로 빠르게 확대 중\. 450bp를 넘으면 금융 불안형\.$/, 'v60.50 crash-11-20');
     assert.equal(opening.rebound, null, 'v60.51 crash-11-20: no rebound read on the crash close');
-    assert.deepEqual(opening.lines.map((line) => line.id), ['lede', 'diagnosis', 'records'], 'v60.51 crash-11-20: the 11/20 face keeps its three lines');
+    assert.deepEqual(opening.lines.map((line) => line.id), ['session', 'lede', 'diagnosis', 'records'], 'v60.51 crash-11-20: the 11/20 face keeps its three lines');
     assert.deepEqual(opening.bars.bars.map((bar) => `${bar.label} ${bar.valueText}`), ['반도체(SOX) -42.5%', '나스닥 100 -19.8%', 'S&P 500 -11.6%', '다우 -11.4%', '동일가중 -7.1%'], 'v60.50 crash-11-20');
   });
   report('crash-11-20');
+}, 'code'],
+['session-read', async () => {
+  // The latest session's own sentence ahead of the fall's standing (session-read.js), on fixture closes: the crash low on
+  // 11/20, the 11/23 rebound, then an 11/24 that gives most of it back in the leaders while the equal weight rises.
+  const base = fixtureHistory();
+  const after = (rows, date, m) => { const last = rows.at(-1); return [...rows, { date, ...Object.fromEntries(['sox', 'ndx', 'spx', 'rsp', 'dow'].map((f) => [f, +(last[f] * (m[f] ?? 1)).toFixed(2)])), breadth50: 45 }]; };
+  const day1 = after(base, '2026-11-23', { sox: 1.14, ndx: 1.069, spx: 1.047, rsp: 1.026, dow: 1.04 });
+  const day2 = after(day1, '2026-11-24', { sox: 0.92, ndx: 0.98, spx: 0.995, rsp: 1.005, dow: 0.995 });
+  const ledger = (us) => ({ sessions: { us }, facts: [
+    { id: 'group:theme:photonics:2026-11-24', kind: 'group-move', label: '광통신', date: '2026-11-24', change: -9.3, rank: 'lead', materiality: 93 },
+    { id: 'group:theme:semis:2026-11-24', kind: 'group-move', label: '반도체', date: '2026-11-24', change: -8.4, rank: 'lead', materiality: 84 },
+    { id: 'group:theme:health:2026-11-24', kind: 'group-move', label: '헬스케어', date: '2026-11-24', change: 2.8, rank: 'major', materiality: 40 },
+    { id: 'group:theme:quiet:2026-11-24', kind: 'group-move', label: '조용한 테마', date: '2026-11-24', change: -2.1, rank: 'minor', materiality: 99 },
+    { id: 'group:sector:Technology:2026-11-24', kind: 'group-move', label: 'Technology', date: '2026-11-24', change: -5, rank: 'lead', materiality: 98 },
+    { id: 'stock:MU:2026-11-24', kind: 'stock-move', subjects: ['MU'], date: '2026-11-24', change: -11.0, materiality: 42 },
+    { id: 'stock:NVDA:2026-11-24', kind: 'stock-move', subjects: ['NVDA'], date: '2026-11-24', change: -5.9, materiality: 100 },
+    { id: 'stock:AAPL:2026-11-24', kind: 'stock-move', subjects: ['AAPL'], date: '2026-11-24', change: 1.4, materiality: 90 },
+    { id: 'stock:OLD:2026-11-23', kind: 'stock-move', subjects: ['OLD'], date: '2026-11-23', change: -30, materiality: 100 }] });
+  const prints = (sessionDate) => ({ sessionDate, rows: [{ symbol: 'SMALL', changePct: -7.2, indexWeight: 0.06 }, { symbol: 'DELL', changePct: 0.9, indexWeight: 0.16 }, { symbol: 'NOPRINT', changePct: null, indexWeight: 0.5 }] });
+  const briefs = { briefs: [{ symbol: 'DELL', nameKo: '델테크놀로지스' }] };
+  const build = (history, more = {}) => buildMarketOpening({ history, macroHistory: credit(3.2), ...more });
+  const gave = build(day2, { day: ledger('2026-11-24'), afterHours: prints('2026-11-24'), briefs, regularMoves: { DELL: -11.8 } });
+  check('v60.55 the session leads: its moves, what the signs say together, and the share of the rebound given back', () => {
+    assert.deepEqual(gave.lines.map((line) => line.id).slice(0, 4), ['session', 'gathered', 'after-hours', 'lede'], 'v60.55 session-read');
+    assert.equal(said(gave, 'session').text, '11/24 반도체 -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체 65%, 나스닥 100 31%를 되돌렸습니다.', 'v60.55 session-read');
+    assert.deepEqual(unclaimedFigures(said(gave, 'session')), [], 'v60.55 session-read: every figure is a claim');
+  });
+  check('v60.55 where it gathered: theme groups and the most material stocks on the index side, one group against it; no sector, no minor group, no other session', () => {
+    assert.equal(gave.lines.find((line) => line.id === 'gathered').label, '내린 곳', 'v60.55 session-read');
+    assert.equal(said(gave, 'gathered').text, '테마로는 광통신 -9.3%, 반도체 -8.4%. 큰 종목으로는 NVDA -5.9%, MU -11.0%. 반대로 헬스케어 +2.8%.', 'v60.55 session-read');
+  });
+  check('v60.55 after-close reporters by index weight with the regular session beside the extended print; a row without a print is left out', () => {
+    assert.equal(said(gave, 'after-hours').text, '델테크놀로지스(DELL) 시간외 +0.9%(정규장 -11.8%), SMALL 시간외 -7.2%. 시간외 가격은 잠정값입니다.', 'v60.55 session-read');
+  });
+  check('v60.55 a ledger or after-hours file of another session says nothing; the moves still lead', () => {
+    const stale = build(day2, { day: ledger('2026-11-23'), afterHours: prints('2026-11-23'), briefs });
+    assert.deepEqual(stale.lines.map((line) => line.id).slice(0, 2), ['session', 'lede'], 'v60.55 session-read');
+  });
+  check('v60.55 the rebound day itself gives nothing back, and a quiet session names no place', () => {
+    assert.doesNotMatch(said(build(day1), 'session').text, /되돌렸습니다/, 'v60.55 session-read');
+    assert.match(said(build(day1), 'session').text, /^11\/23 반도체 \+14\.0%, 나스닥 100 \+6\.9%, S&P 500 \+4\.7%, 동일가중 \+2\.6%\. 주도주가 시장 전체보다 더 올랐습니다\.$/, 'v60.55 session-read');
+    const quiet = build(after(day1, '2026-11-24', { sox: 1.003, ndx: 1.002, spx: 1.001, rsp: 1.001 }), { day: ledger('2026-11-24') });
+    assert.equal(said(quiet, 'session').text, '11/24 반도체 +0.3%, 나스닥 100 +0.2%, S&P 500 +0.1%, 동일가중 +0.1%.', 'v60.55 session-read');
+    assert.equal(said(quiet, 'gathered').text, '', 'v60.55 session-read');
+  });
+  check('v60.55 the AI fact lines carry the same three session lines, ahead of the standing', () => {
+    const lines = openingFactLines(gave);
+    assert.equal(lines[0], `최근 세션(11/24): ${said(gave, 'session').text}`, 'v60.55 session-read');
+    assert.equal(lines[1], `최근 세션에 내린 곳: ${said(gave, 'gathered').text}`, 'v60.55 session-read');
+    assert.match(lines[2], /^최근 세션 장 마감 뒤 실적\(시간외 잠정값\): 델테크놀로지스/, 'v60.55 session-read');
+  });
+  check('v60.55 the credit check reads the newest published spread after the low with its own date, and 자료 없음 when none is published yet', () => {
+    const lagging = { series: { hyOas: { observations: [...SESSIONS.map((date) => [date, 3.76]), ['2026-11-23', 3.63]] } } };
+    const row = buildMarketOpening({ history: day2, macroHistory: lagging }).rebound.quality.checks.find((item) => item.id === 'credit');
+    assert.equal(row.said.text, '신용 확인 — 하이일드 스프레드 376bp(11/20) → 363bp(11/23)', 'v60.55 session-read');
+    const none = buildMarketOpening({ history: day2, macroHistory: { series: { hyOas: { observations: SESSIONS.map((date) => [date, 3.76]) } } } }).rebound.quality.checks.find((item) => item.id === 'credit');
+    assert.equal(none.met, null, 'v60.55 session-read');
+    assert.match(none.said.text, /^신용 자료 없음 — 하이일드 스프레드 376bp\(11\/20\) → 11\/24 값 없음$/, 'v60.55 session-read');
+  });
+  report('session-read');
 }, 'code']
 ]);
 console.log('market-story: all checks passed');

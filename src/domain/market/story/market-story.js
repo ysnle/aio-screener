@@ -28,6 +28,7 @@ import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { oasDelta20Bp } from '../../briefing/market-read.js';
 import { creditJudgement, creditReading, cccTailLine } from '../../briefing/credit-reading.js';
 import { vixBand } from '../sentiment/narrative.js';
+import { sessionReadOf } from './session-read.js';
 
 // One week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
 // sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
@@ -816,7 +817,7 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  *   다음에 확인할 가격 조건; `rebound.stance`: what each stance costs in this state (the face's paragraph and the guide);
  *   `rebound.quality`: whether other markets confirm it from its low (rebound-quality.js; printed under the rebound line).
  */
-export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null } = {}) {
+export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null, day = null, afterHours = null, briefs = null, regularMoves = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
   if (!asOf) return { available: false };
   const rows = {};
@@ -842,7 +843,12 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const frequency = rebound && rebound.state !== 'failed' ? riseFrequencySaid(longrun, rows.ndx) : NOTHING;
   const records = sayJoin([leaderRecord, standingSaid(rows.spx, { prefer: 'week' }), frequency], ' ');
   if (rebound) Object.assign(rebound, { checks: reboundChecks(rebound, rows), stance: reboundStanceSaid(rebound), quality: reboundQualityOf(rebound, { history, macroHistory, through: asOf }) });
+  // The latest session first (session-read.js), then where the fall stands.
+  const session = sessionReadOf({ rows, asOf, rebound, day, afterHours, briefs, regularMoves });
   const lines = [
+    { id: 'session', label: '', said: session?.said || NOTHING },
+    { id: 'gathered', label: session?.gathered?.label || '', said: session?.gathered?.said || NOTHING },
+    { id: 'after-hours', label: session?.afterHours?.label || '', said: session?.afterHours?.said || NOTHING },
     { id: 'lede', label: '', said: lede },
     { id: 'diagnosis', label: diagnosis && diagnosis.state !== 'none' ? diagnosis.word : '', said: diagnosisLineSaid(diagnosis, { ndx: rows.ndx, asOf, breadth }) },
     { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, followThroughSaid(rebound, history, asOf), rebound.stance) : NOTHING },
@@ -857,7 +863,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
     return { id: spec.id, part: spec.part, said: say('{lab}, {d}: {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
   });
-  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, korea, table, standings, longrun: !!longrun };
+  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, session, korea, table, standings, longrun: !!longrun };
 }
 
 /** The opening as typed fact lines for an AI reading or the chat (the text the screens print, and the rule word). */
@@ -868,6 +874,9 @@ export function openingFactLines(opening) {
   const reboundRule = say('나스닥 100 종가, 저점 대비 {p} 규칙', { p: claim({ subject: 'story-rule', measure: 'reboundPct', asOf: opening.asOf,
     figures: [{ value: RULES.story.reboundPct, unit: 'pct', digits: 0, basis: 'reboundPct', label: '반등 기준' }] }) });
   return [
+    said('session') ? `최근 세션(${shortDate(opening.asOf)}): ${said('session')}` : '',
+    said('gathered') ? `최근 세션에 ${opening.session.gathered.label}: ${said('gathered')}` : '',
+    said('after-hours') ? `최근 세션 ${opening.session.afterHours.label}(시간외 잠정값): ${said('after-hours')}` : '',
     said('lede') ? `요약: ${said('lede')}` : '',
     said('diagnosis') ? `진단: ${d.word} — ${said('diagnosis')}` : '',
     d && d.state !== 'none' ? `진단 상태어(규칙으로 정함, 바꾸지 말 것): ${d.word}` : '',

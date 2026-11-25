@@ -17,6 +17,7 @@ import { askRow } from './ask-row.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
+import { interpretationStore, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -144,15 +145,35 @@ export function readMarketStory(root, interpretation, rerender) {
 // The domain (buildMarketOpening) owns every sentence; this paints its lines. The long-run tables (index-longrun.json,
 // weekly) join when published; without them the sentences fall back to the record history.json holds.
 let openingMemo = null;
+let awaitingRows = false;
+// The after-close reporters' regular-session moves, from the screener rows when they are of that same session.
+function regularMovesOf(root, afterHours) {
+  const screener = interpretationStore(root)?.getState?.()?.screener;
+  if (!afterHours?.sessionDate || screener?.metadata?.factorSessionDateByMarket?.US !== afterHours.sessionDate) return null;
+  const wanted = new Set((afterHours.rows || []).map((row) => row?.symbol));
+  return Object.fromEntries(screenerRowsForRoot(root).filter((row) => wanted.has(row?.sym) && row.ret1d != null && Number.isFinite(Number(row.ret1d))).map((row) => [row.sym, Number(row.ret1d)]));
+}
 export function readMarketOpening(root, interpretation, rerender) {
   const longrun = ensure(root, INDEX_LONGRUN, rerender);
   const history = interpretation?.inputs?.history || root?._aioHistory || [];
   const macroHistory = interpretation?.inputs?.macroHistory || root?._aioMacroHistory || null;
-  const key = [history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || ''].join('|');
-  if (openingMemo?.key !== key || openingMemo.history !== history) openingMemo = { key, history, opening: buildMarketOpening({ history, macroHistory, longrun }) };
+  // The session's ledger and after-close reports (market-day.json, event-briefs.json, data.json afterHours) join when loaded.
+  const day = ensure(root, MARKET_DAY, rerender);
+  const briefs = ensure(root, EVENT_BRIEFS, rerender);
+  const afterHours = root?._aioAfterHours || null;
+  const regularMoves = regularMovesOf(root, afterHours);
+  // The screener rows arrive after the first paint: one repaint when they do, so the reporters' regular-session moves join.
+  const store = interpretationStore(root);
+  if (afterHours?.rows?.length && !Object.keys(regularMoves || {}).length && !awaitingRows && typeof store?.subscribe === 'function') {
+    awaitingRows = true;
+    const stop = store.subscribe(() => { if (Object.keys(regularMovesOf(root, afterHours) || {}).length) { stop(); awaitingRows = false; rerender(); } });
+  }
+  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || ''].join('|');
+  if (openingMemo?.key !== key || openingMemo.history !== history) openingMemo = { key, history, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves }) };
   return openingMemo.opening;
 }
 
+const SESSION_LINES = Object.freeze(['session', 'gathered', 'after-hours']);
 /** One face line: the lede, the diagnosis (its state word first) or the small record line. */
 function openingLine(doc, line) {
   const p = el(doc, 'p', null, 'opening-line');
@@ -176,9 +197,11 @@ const openingNodes = (doc, line, opening) => [openingLine(doc, line), ...(line.i
 // With `tail` (시장 상태, where the verdict follows the diagnosis) the lines after the diagnosis go there instead.
 export function paintOpening(doc, host, opening, tail = null) {
   if (!host || !opening?.available || !opening.lines?.length) return false;
-  const [lede, ...rest] = opening.lines;
+  // The latest session leads (its sentence, where it gathered, the after-close reports); then where the fall stands.
+  const session = opening.lines.filter((line) => SESSION_LINES.includes(line.id));
+  const [lede, ...rest] = opening.lines.filter((line) => !session.includes(line));
   const after = tail ? rest.filter((line) => line.id !== 'diagnosis') : [];
-  host.replaceChildren(openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
+  host.replaceChildren(...session.map((line) => openingLine(doc, line)), openingLine(doc, lede), fallBars(doc, opening.bars, `종가 고점 대비 하락, ${shortDate(opening.asOf)} 기준`),
     ...rest.filter((line) => !after.includes(line)).flatMap((line) => openingNodes(doc, line, opening)));
   host.dataset.asOf = opening.asOf;
   host.hidden = false;

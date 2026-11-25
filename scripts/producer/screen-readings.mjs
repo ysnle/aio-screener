@@ -41,7 +41,7 @@ function carryLedger(previous) {
  * @param {object} [options.interpretation] the shared interpretation (fixture seam; production builds it from the published artifacts)
  * @param {string[]} [options.screens]
  */
-export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS, longrun = undefined, telegram = undefined } = {}) {
+export async function genScreenReadings({ data = null, history = [], previous = null, request = null, nowMs = Date.now(), interpretation = undefined, screens = SCREEN_READING_IDS, longrun = undefined, telegram = undefined, day = undefined, briefs = undefined } = {}) {
   const generatedAt = new Date(nowMs).toISOString();
   const held = previous?.schemaVersion === SCREEN_READING_SCHEMA && previous.readings && typeof previous.readings === 'object' ? previous.readings : {};
   const ledger = carryLedger(previous?.schemaVersion === SCREEN_READING_SCHEMA ? previous : null);
@@ -72,7 +72,8 @@ export async function genScreenReadings({ data = null, history = [], previous = 
   };
   // The long-run index tables (weekly, index-longrun.json) for the 시장 상태 opening's standing sentences, and this run's
   // data.json for the boards that read it directly (금리와 환율: macro), and the channels' relayed releases (매크로).
-  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data, telegram: telegram !== undefined ? telegram : readPublished('telegram-digest.json') };
+  const context = { longrun: longrun !== undefined ? longrun : readPublishedLongrun(), data, telegram: telegram !== undefined ? telegram : readPublished('telegram-digest.json'),
+    day: day !== undefined ? day : readPublished('market-day.json'), briefs: briefs !== undefined ? briefs : readPublished('event-briefs.json') };
   for (const screen of screens) {
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;

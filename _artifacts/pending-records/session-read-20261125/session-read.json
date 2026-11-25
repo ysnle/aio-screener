@@ -1,0 +1,16 @@
+{
+  "version": "v60.55",
+  "date": "2026-11-25",
+  "qa": [
+    { "id": "QA-SESSION-READ-01", "text": "v60.55 오늘·시장 상태 머리말은 최근 세션 문장(지수별 하루 등락, 주도주·시장 전체 부호 판정, 반등분 되돌림 비율)으로 시작하고, 내린(오른) 테마·종목과 장 마감 뒤 실적 발표 종목의 시간외·정규장 등락을 그 세션 자료가 있을 때만 싣는다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절)", "done": true },
+    { "id": "QA-SESSION-READ-02", "text": "v60.55 반등의 신용 확인은 저점 뒤 가장 최근에 발표된 하이일드 스프레드를 그 관측일과 함께 쓰고, 저점 뒤 발표가 없으면 자료 없음이다", "verify_by": "node scripts/ci-market-story-check.mjs (session-read 절)", "done": true },
+    { "id": "QA-SESSION-READ-LIVE-01", "text": "v60.55 push 뒤 실서비스 오늘 화면 첫 문장과 시장 상태 AI 글이 최근 세션 사실(되돌림·내린 곳·시간외)을 싣는다", "verify_by": "push 뒤 실서비스 화면과 data.json screenReadings.signal", "done": false }
+  ],
+  "qa_section": "화면 문장과 계산 근거",
+  "changelog": [
+    "오늘·시장 상태 첫 문장이 최근 미국장에서 무슨 일이 있었는지부터 말함: 지수별 등락, 하락이 주도주에 몰렸는지, 반등분을 얼마나 되돌렸는지, 내린 테마와 종목, 장 마감 뒤 실적 종목의 시간외 등락",
+    "수집만 하고 화면에 쓰지 않던 시간외 자료(afterHours)를 머리말과 AI 글·채팅의 사실로 연결",
+    "반등의 '다른 시장 확인'에서 신용 스프레드가 하루 늦게 발표된다는 이유로 자료 없음이 되던 것을, 가장 최근 발표값을 그 날짜와 함께 쓰도록 고침"
+  ],
+  "note": "소유자 2026-11-25: 오늘 화면이 어제 미국장 상황을 대표하지 못함"
+}

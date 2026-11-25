@@ -142,7 +142,10 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     // lines ahead of the tally, so the reading tells the same story in the same order.
     let longrun = null;
     try { longrun = JSON.parse(readFileSync(`${REPO_ROOT}/public-data/index-longrun.json`, 'utf8')); } catch (_) { longrun = null; }
-    const opening = buildMarketOpening({ history: input.history, macroHistory: input.macroHistory || null, longrun, through: regime.asOf });
+    // The latest session's ledger, filing summaries and after-close prints as published (each is used only on its own session).
+    const published = (file) => { try { return JSON.parse(readFileSync(`${REPO_ROOT}/public-data/${file}`, 'utf8')); } catch (_) { return null; } };
+    const opening = buildMarketOpening({ history: input.history, macroHistory: input.macroHistory || null, longrun, through: regime.asOf,
+      day: published('market-day.json'), briefs: published('event-briefs.json'), afterHours: published('data.json')?.afterHours || null });
     const story = openingFactLines(opening).map((line) => `시장 이야기 ${line}`);
     return [...story, `종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
       renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
