@@ -121,8 +121,7 @@ export function stockSessionTie({ symbol, row, themes = [], themeId = null, rows
   const pieces = [theme ? compareSaid(change, { ...theme, label: `${theme.label} 테마` }, `theme:${theme.id}`, 'groupChange1d', session) : null,
     index ? compareSaid(change, index, index.id, 'change1d', session) : null].filter(Boolean);
   if (!pieces.length && !rebound) return null;
-  const move = pctClaim(`stock:${sym}`, 'change1d', change, session, sym);
-  const head = pieces.length ? say('{d} {m} — {list}습니다.', { d: shortDate(session), m: move, list: sayJoin(pieces, '고 ') }) : NOTHING;
+  const head = pieces.length ? say('{list}습니다.', { list: sayJoin(pieces, '고 ') }) : NOTHING;
   const said = sayJoin([head, reboundSaid(rebound, sym)], ' ');
   return said.text ? { ...said, parts: { theme, index, rebound } } : null;
 }

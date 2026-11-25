@@ -156,7 +156,8 @@ function stockFacts(screener, universe, themesBySymbol, indexWeights) {
 // three or more returns, as { name, change (median), members } — where inside the theme the move was largest.
 function groupFacts(screener, universe, themes) {
   const session = screener?.factorSessionDateByMarket?.US || null;
-  const retOf = (sym) => readRowNumber(screener?.data?.[sym], 'ret1d');
+  // A row kept from an earlier session (its factorSessionDate differs) has no return for this one.
+  const retOf = (sym) => { const row = screener?.data?.[sym]; return row?.factorSessionDate && session && row.factorSessionDate !== session ? null : readRowNumber(row, 'ret1d'); };
   const groups = [
     ...themes.map((theme) => ({ id: `theme:${theme.id}`, label: theme.nameKr, members: theme.leaders || [], subThemes: theme.subThemes || [] })),
     ...[...new Set(universe.map((item) => item.sector).filter(Boolean))].map((sector) => ({ id: `sector:${sector}`, label: sector, members: universe.filter((item) => item.sector === sector && !/\.K[SQ]$/.test(item.sym)).map((item) => item.sym) }))

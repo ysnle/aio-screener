@@ -1962,13 +1962,13 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         const tieHigh = stockSessionTie({ symbol: 'NVDA', row: tieRow, history: tieHistory, low: { date: '2026-11-20' }, bars: [...tieBars.slice(0, 4), { time: tieSession, close: 130 }] });
         const tieKr = stockSessionTie({ symbol: '000660.KS', row: { factorSessionDate: tieSession, ret1d: 6.73 }, themes: [{ id: 'semi', nameKr: '반도체 / HBM', subThemes: [{ name: '반도체 / HBM', tickers: ['000660.KS', '005930.KS', '042700.KS'] }] }], themeId: 'semi',
           rows: [['000660.KS', 6.73], ['005930.KS', 6.7], ['042700.KS', 7.1]].map(([sym, ret1d]) => ({ sym, ret1d, factorSessionDate: tieSession })), history: tieHistory });
-        if (tie?.text !== '11/24 -5.9% — 반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +23.8% 올랐다가 그 가운데 43%를 되돌렸습니다.'
+        if (tie?.text !== '반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +23.8% 올랐다가 그 가운데 43%를 되돌렸습니다.'
           || tie.parts.theme.count !== 4 || !tie.claims.length
-          || tieNoRebound?.text !== '11/24 -5.9% — 반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다.'
-          || tieNoTheme?.text !== '11/24 -5.9% — 나스닥 100 -2.0%보다 더 내렸습니다.'
+          || tieNoRebound?.text !== '반도체 테마 -8.4%보다 덜 내렸고 나스닥 100 -2.0%보다 더 내렸습니다.'
+          || tieNoTheme?.text !== '나스닥 100 -2.0%보다 더 내렸습니다.'
           || tieOtherSession !== null
-          || tieHigh?.text !== '11/24 -5.9% — 나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +30.0% 올라 그 뒤 가장 높은 종가로 마감했습니다.'
-          || tieKr?.text !== '11/24 +6.7% — 반도체 / HBM 테마 +6.7%와 같은 폭으로 움직였고 코스피 +6.3%보다 더 올랐습니다.'
+          || tieHigh?.text !== '나스닥 100 -2.0%보다 더 내렸습니다. 11/20 저점 뒤 +30.0% 올라 그 뒤 가장 높은 종가로 마감했습니다.'
+          || tieKr?.text !== '반도체 / HBM 테마 +6.7%와 같은 폭으로 움직였고 코스피 +6.3%보다 더 올랐습니다.'
           || stockSessionTie({ symbol: 'NVDA', row: tieRow }) !== null) {
           fail(`v60.56: 종목 market tie broke ${JSON.stringify({ tie: tie?.text, tieNoRebound: tieNoRebound?.text, tieNoTheme: tieNoTheme?.text, tieOtherSession, tieHigh: tieHigh?.text, tieKr: tieKr?.text })}`);
         }
