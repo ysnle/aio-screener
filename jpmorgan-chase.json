@@ -1,0 +1,110 @@
+{
+  "schema": "masters-13f-manager-rows-index.v1",
+  "sourceKind": "SEC_EDGAR",
+  "reviewedAt": "2026-11-18",
+  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "managerId": "jpmorgan-chase",
+  "cik": "0000019617",
+  "latestFiling": {
+    "form": "13F-HR",
+    "baseForm": "13F-HR",
+    "isAmendment": false,
+    "accession": "0000019617-26-000404",
+    "filedAt": "2026-11-12",
+    "acceptedAt": "2026-11-12T13:25:09.000Z",
+    "periodOfReport": "2026-09-30",
+    "primaryDocument": "xslForm13F_X02/primary_doc.xml",
+    "primaryDocDescription": null,
+    "indexUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000404/0000019617-26-000404-index.html",
+    "primaryDocumentUrl": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000404/xslForm13F_X02/primary_doc.xml",
+    "primaryDocumentXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000404/xslForm13F_X02/primary_doc.xml",
+    "informationTableXml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000404/Information_Table_09.30.2026.xml",
+    "informationTableHtml": "https://www.sec.gov/Archives/edgar/data/19617/000001961726000404/Information_Table_09.30.2026.html"
+  },
+  "priorFiling": null,
+  "verification": {
+    "reportPeriod": "2026-09-30",
+    "cover": {
+      "reportCalendarOrQuarter": "09-30-2026",
+      "tableEntryTotal": 35990,
+      "tableValueTotal": 1842872896476,
+      "isAmendment": false,
+      "amendmentType": null,
+      "amendmentNumber": null,
+      "filingManager": "JPMORGAN CHASE &amp; CO"
+    },
+    "fullRowCount": 35990,
+    "parsedValueTotal": 1842872896476,
+    "reportedPositionCount": 8235,
+    "top5ConcentrationPct": 19.006182821548784,
+    "top10ConcentrationPct": 27.890399684148466,
+    "turnoverProxyPct": 12.659302987915744,
+    "turnoverProxyPolicy": "ONE_HALF_SUM_ABSOLUTE_REPORTED_VALUE_WEIGHT_CHANGE",
+    "valueDelta": 0,
+    "valueReconciliationStatus": "EXACT",
+    "countReconciled": true,
+    "priorReportPeriod": "2026-06-30",
+    "priorFullRowCount": 34064,
+    "priorParsedValueTotal": 1807041234839,
+    "priorCountReconciled": true,
+    "comparisonRowCount": 8842,
+    "comparisonActionCounts": {
+      "INCREASED": 3762,
+      "REDUCED": 2692,
+      "NEW": 1122,
+      "UNCHANGED": 659,
+      "EXITED": 607
+    },
+    "corporateActionReviewStatus": "REVIEW_REQUIRED",
+    "amendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0000019617-26-000404",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 35990
+        }
+      ]
+    },
+    "priorAmendmentSemantics": {
+      "status": "ORIGINAL",
+      "type": null,
+      "number": null,
+      "policy": "ORIGINAL_ROWS",
+      "chain": [
+        {
+          "accession": "0000019617-26-000325",
+          "type": "ORIGINAL",
+          "role": "ORIGINAL",
+          "rows": 34064
+        }
+      ]
+    },
+    "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
+    "valueUnit": "USD as reported by Form 13F information table",
+    "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
+  },
+  "rowSchema": "masters-13f-manager-rows.v1",
+  "holdingsCount": 35990,
+  "comparisonsCount": 8842,
+  "parts": [
+    {
+      "path": "jpmorgan-chase.part-1.json",
+      "holdings": 30134,
+      "comparisons": 0,
+      "bytes": 33487632,
+      "sha256": "f754b51d0b084592169d05a68e836edd4a4adef9f499970b01563373865fabe2"
+    },
+    {
+      "path": "jpmorgan-chase.part-2.json",
+      "holdings": 5856,
+      "comparisons": 8842,
+      "bytes": 14746095,
+      "sha256": "06940c33ca1c8ebfa79f13db61260d0f89e831a3561b9ac928016dbd2ecc837e"
+    }
+  ]
+}
