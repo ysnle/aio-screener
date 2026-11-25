@@ -1,12 +1,50 @@
-// 종목 머리 아래 두 줄: the last session's move with the report that named the company that day (the same pick 오늘 and
-// 브리핑 use), and the themes that list the stock, each opening its theme. Nothing is drawn for a line without data.
+// 종목 머리 아래: the last session's move with the report that named the company that day (the same pick 오늘 and
+// 브리핑 use), the line that places that move in the market's session (stock-session-tie.js), and the themes that list
+// the stock, each opening its theme. Nothing is drawn for a line without data.
 import { el } from './dom.js';
 import { companyMoveRow, moveNewsList } from './market-timeline.js';
 import { stockThemes, themeCatalogFor } from '../../domain/entity/primary-theme.js';
+import { stockSessionTie } from '../../domain/entity/stock-session-tie.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';
 import { themeMarketOf } from '../../domain/scenarios/theme-stage.js';
+import { latestMarketInterpretation } from '../../data/selectors/interpretation.js';
+import { loadCompletedDailyBars } from '../../data/daily-chart-bars.js';
+import { readMarketOpening } from './market-story.js';
 
-export function renderTickerContext(doc, host, { root, store, symbol, name = '', row = null, rows = [] } = {}) {
+// The completed bars of the symbols the tie line read, so a repaint finds them without a second request (one per symbol
+// while the page lives; the loader itself shares the request with the year line).
+const barsHeld = new Map(); // symbol → bars | null while loading
+const BARS_HELD_MAX = 4;
+
+// The rebound low the opening reads, while the rebound holds (a failed rebound has no low to measure from).
+function activeReboundLow(root, history, repaint) {
+  if (!history.length) return null;
+  const rebound = readMarketOpening(root, null, repaint)?.rebound;
+  return rebound && rebound.state !== 'failed' ? rebound.low : null;
+}
+
+function heldBars(root, sym, repaint) {
+  if (barsHeld.has(sym)) return barsHeld.get(sym);
+  barsHeld.set(sym, null);
+  while (barsHeld.size > BARS_HELD_MAX) barsHeld.delete(barsHeld.keys().next().value);
+  loadCompletedDailyBars(root, sym).catch(() => ({ bars: [] })).then(({ bars }) => {
+    if (!Array.isArray(bars) || !bars.length) { barsHeld.delete(sym); return; }
+    barsHeld.set(sym, bars);
+    repaint?.();
+  });
+  return null;
+}
+
+function tieLine(doc, root, { sym, row, catalog, themeId, rows, repaint }) {
+  const history = latestMarketInterpretation(root)?.inputs?.history || root?._aioHistory || [];
+  if (!Array.isArray(history) || !history.length) return null;
+  const low = activeReboundLow(root, history, repaint);
+  const tie = stockSessionTie({ symbol: sym, row, themes: catalog, themeId, rows, history, low, bars: low ? heldBars(root, sym, repaint) : null });
+  return tie ? el(doc, 'p', tie.text, 'ticker-context__tie') : null;
+}
+
+/** `repaint`: the page's own repaint, called when the bars or an artifact the tie line reads arrive. */
+export function renderTickerContext(doc, host, { root, store, symbol, name = '', row = null, rows = [], repaint = null } = {}) {
   if (!doc || !host) return;
   const sym = String(symbol || '').toUpperCase();
   const nodes = [];
@@ -18,7 +56,12 @@ export function renderTickerContext(doc, host, { root, store, symbol, name = '',
       { showMissing: true, listClass: 'ticker-context__move', timeClass: 'ticker-context__when', titleClass: 'ticker-context__title' });
     if (list) nodes.push(list);
   }
-  const themes = sym ? stockThemes(themeCatalogFor(sym, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }), sym).slice(0, 3) : [];
+  const catalog = sym ? themeCatalogFor(sym, { themeMap: root?.THEME_MAP, krThemeMap: root?.KR_THEME_MAP, rows }) : [];
+  const themes = sym ? stockThemes(catalog, sym).slice(0, 3) : [];
+  if (sym && session && Number.isFinite(move)) {
+    const tie = tieLine(doc, root, { sym, row, catalog, themeId: themes[0]?.id || null, rows, repaint });
+    if (tie) nodes.push(tie);
+  }
   const canOpen = typeof (themeMarketOf(sym) === 'KR' ? root?.openKrThemeDetail : root?.showThemeDetail) === 'function';
   if (themes.length && canOpen) {
     const line = el(doc, 'p', null, 'ticker-context__themes');

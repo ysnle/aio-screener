@@ -64,6 +64,8 @@ const RATCHET = Object.freeze({ 'src/domain/briefing/day-account.js': 0, 'src/do
   'src/domain/market/story/market-story.js': 10,
   // cross-market: the opening's other-market rows, printed from claims from the start.
   'src/domain/market/story/cross-market.js': 0,
+  // stock-session-tie: 종목 머리's market tie; leader-earnings: the leaders' next reports (names and dates only).
+  'src/domain/entity/stock-session-tie.js': 0, 'src/domain/briefing/leader-earnings.js': 0,
   // consensus-read: peMultipleText, the multiple formatter its unconverted consumers (screener table, company analysis, AI context) share.
   'src/domain/fundamental/consensus-read.js': 1 });
 

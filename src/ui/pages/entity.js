@@ -279,7 +279,7 @@ function renderOverview(documentRef, root, state, store = null) {
   const what = story?.oneLine || profile.description || [profile.kind, profile.sector ? sectorLabel(profile.sector) : null, profile.industry].filter(Boolean).join(', ');
   if (line) { if (line.textContent !== what) line.textContent = what || ''; line.hidden = !what; }
   yearLine(id);
-  renderTickerContext(documentRef, documentRef.getElementById('ticker-hero-context'), { root, store, symbol: id, name: profile.name, row: listingRow, rows });
+  renderTickerContext(documentRef, documentRef.getElementById('ticker-hero-context'), { root, store, symbol: id, name: profile.name, row: listingRow, rows, repaint: again });
   const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
   const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
   const watched = (root?._aioWatchlistGet?.() || []).includes(id);
