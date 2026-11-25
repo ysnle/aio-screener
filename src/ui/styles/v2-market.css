@@ -380,6 +380,9 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 /* v60.31: the screen's AI reading — one open paragraph under the first verdict (src/ui/components/screen-reading.js). */
 .screen-reading { margin: 0 0 16px; padding: 16px var(--sx-card-pad-x); border-radius: var(--radius-container); background: var(--color-background-card); box-shadow: inset 3px 0 0 var(--color-border-muted); }
 .screen-reading[hidden] { display: none; }
+.story-tie { display: grid; gap: 6px; margin: 0 0 12px; padding: 0 var(--sx-card-pad-x); }
+.story-tie[hidden] { display: none; }
+.story-tie .opening-line[data-part="session"] { font-size: 14px; line-height: 1.6; letter-spacing: 0; }
 .screen-reading__head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 6px; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); }
 .screen-reading__tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a07); font-weight: 600; }
 .screen-reading__text { margin: 0; max-width: 46em; font-size: 14px; line-height: 1.7; color: var(--color-text-primary); text-wrap: pretty; overflow-wrap: anywhere; }

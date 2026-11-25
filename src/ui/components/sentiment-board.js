@@ -23,6 +23,7 @@ import { BOTTOM_WATCH_WORDS } from '../../domain/content/rebound-words.js';
 import { historyWaitText } from './data-state.js';
 import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { renderScreenReading } from './screen-reading.js';
+import { renderStoryTie } from './story-tie.js';
 import { temperatureMethodNodes } from './market-temperature.js';
 
 const CHIP_TONE = Object.freeze({ favorable: 'good', burden: 'warn', neutral: 'neutral', unknown: 'neutral' });
@@ -130,6 +131,7 @@ export function renderSentimentBoard({ documentRef: doc, root }) {
   set('sentiment-synthesis', model.tally.length ? model.tally.join(' · ') : '기준일에 맞는 심리 지표 관측 없음');
   paintCounter(doc, sentimentCounter({ model, regime }));
   renderFearGreedGauge(doc, model.cards.find((card) => card.id === 'fg'));
+  renderStoryTie({ documentRef: doc, root, screen: 'sentiment' });
   renderScreenReading({ documentRef: doc, root, screen: 'sentiment', shownBasis: model.asOf || null });
   renderNextSteps(doc, doc.getElementById('sentiment-next'));
   const board = doc.getElementById('sentiment-card-grid');

@@ -1,0 +1,13 @@
+{
+  "version": "v60.55",
+  "date": "2026-11-25",
+  "qa_section": "화면별 시장 이야기 줄",
+  "qa": [
+    { "id": "QA-STORY-TIE-01", "text": "v60.55 시장 폭·매크로·투자 심리·금리와 환율·테마·한국 화면은 AI 글 바로 위에 머리말(오늘·시장 상태)과 같은 시장 이야기 줄을 고정 문장으로 보이고, 어느 줄을 읽는지는 화면과 AI 글 묶음이 같은 목록(screen-story.js)에서 읽는다; 머리말에 그 줄이 없으면 자리를 비운다.", "verify_by": "node scripts/ci-market-story-check.mjs; node scripts/ci-screen-reading-check.mjs", "done": true }
+  ],
+  "changelog": [
+    "시장 폭·매크로·투자 심리·금리와 환율·테마·한국 화면 위쪽에 오늘 화면과 같은 시장 이야기 줄을 고정 문장으로 붙임(최근 세션, 몰린 곳, 업종별 기여, 반등 뒤 갈린 곳, 변동성·달러·금리 경로의 뜻). 지표와 수치만 있던 화면이 그날 시황과 이어지고, AI 글과 같은 줄을 읽음"
+  ],
+  "note": "화면별 시장 이야기 줄",
+  "status": null
+}

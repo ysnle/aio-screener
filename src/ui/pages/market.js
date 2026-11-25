@@ -2,6 +2,7 @@ import { createResourceBag, createChartRegistry } from '../../app/lifecycle.js';
 import { renderBreadthBoard } from '../components/breadth-board.js';
 import { renderMacroBoard, renderRatesFxBoard } from '../components/macro-board.js';
 import { renderScreenReading } from '../components/screen-reading.js';
+import { renderStoryTie } from '../components/story-tie.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { deriveQuotePresentation, quoteDisplayKind } from '../../domain/market/session/quote-presentation.js';
@@ -328,7 +329,7 @@ export function createMarketSlicePage({ root = globalThis, documentRef, store, r
         if (route === 'macro') renderMacro(documentRef, root, page);
         if (route === 'fxbond') renderFxbond(documentRef, root, page);
         if (route === 'breadth') renderBreadthBoard({ documentRef, root });
-        if (route === 'macro' || route === 'breadth' || route === 'fxbond') renderScreenReading({ documentRef, root, screen: route }); // the AI reading under the first verdict
+        if (route === 'macro' || route === 'breadth' || route === 'fxbond') { renderStoryTie({ documentRef, root, screen: route }); renderScreenReading({ documentRef, root, screen: route }); } // the AI reading under the first verdict
       };
       renderNow();
       // What a research document sent the reader here to check. Every entry to this route mounts again; a

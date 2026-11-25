@@ -7,6 +7,7 @@ import { renderThemeStrength } from '../components/theme-strength.js';
 import { renderThemePlaybook, renderThemeDetailPlaybook, pickTheme } from '../components/theme-playbook-view.js';
 import { renderSectorMap } from '../components/sector-map.js';
 import { renderScreenReading } from '../components/screen-reading.js';
+import { renderStoryTie } from '../components/story-tie.js';
 import { themePlaybookForRoot } from '../components/theme-playbook.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
 import { applyLegacyThemeDetailAddress } from '../navigation/theme-detail.js';
@@ -114,6 +115,7 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         // The AI readings of 요약 (US theme stages) and 한국 (Korean theme stages), each on the close its stages are read on.
         const paintScreenReadings = () => {
           const { playbook } = themePlaybookForRoot(root, store);
+          for (const screen of ['themes', 'korea']) renderStoryTie({ documentRef, root, screen });
           renderScreenReading({ documentRef, root, screen: 'themes', shownBasis: playbook.asOfByMarket?.US || null });
           renderScreenReading({ documentRef, root, screen: 'korea', shownBasis: playbook.asOfByMarket?.KR || null });
         };

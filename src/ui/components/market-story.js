@@ -181,7 +181,7 @@ export function readMarketOpening(root, interpretation, rerender) {
 
 const SESSION_LINES = Object.freeze(['session', 'gathered', 'spread', 'split', 'after-hours']);
 /** One face line: the lede, the diagnosis (its state word first) or the small record line. */
-function openingLine(doc, line) {
+export function openingLine(doc, line) {
   const p = el(doc, 'p', null, 'opening-line');
   p.dataset.part = line.id;
   if (line.label) p.append(el(doc, 'b', line.label, 'opening-line__label'), doc.createTextNode(' — '));
@@ -194,7 +194,7 @@ const CROSS_LINES = Object.freeze(['cross-head', 'cross']);
  * Whether the other markets confirm the session, between the session lines and the lede: a small head (on a rebound, the
  * rebound's tally word and line), then one compact row per market — its name and state, the figures (12px), the clause.
  */
-function crossBlock(doc, lines) {
+export function crossBlock(doc, lines) {
   const rows = lines.filter((line) => line.id === 'cross');
   if (!rows.length) return [];
   const box = el(doc, 'div', null, 'opening-cross');

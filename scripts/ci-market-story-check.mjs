@@ -32,6 +32,8 @@ import { indexSaid } from '../src/domain/briefing/day-account.js';
 import { openingFacts } from './lib/claim-facts.mjs';
 import { todayVerdictFrom } from './build-scenario-state.mjs';
 import { paintOpening } from '../src/ui/components/market-story.js';
+import { SCREEN_STORY } from '../src/domain/market/story/screen-story.js';
+import { tieLines } from '../src/ui/components/story-tie.js';
 import { LONGRUN_INDEXES } from './build-index-longrun.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -836,6 +838,17 @@ await runSections('market-story', [
     const tally = cross.rebound.quality.said.text;
     assert.equal(textOf(host).split(tally).length - 1, 1, 'v60.55 cross-market: the tally is said once, as the head of the rows');
     for (const row of rows) assert.ok(all(row).some((item) => item.className === 'opening-cross__meaning' && item.textContent) && all(row).some((item) => item.className === 'opening-cross__figures' && /\d/.test(item.textContent)), 'v60.55 cross-market: clause and figures');
+  });
+  check('v60.55 a screen tie picks the opening lines its screen declares, and nothing when the opening has none', () => {
+    assert.deepEqual(Object.keys(SCREEN_STORY).sort(), ['breadth', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.55 story-tie: the screens with a tie');
+    const pick = (screen) => tieLines(gave.lines, SCREEN_STORY[screen]);
+    assert.deepEqual(pick('themes').own.map((line) => line.id), ['session', 'gathered', 'split'], 'v60.55 story-tie: 테마 reads the session, where it gathered and the index split');
+    assert.deepEqual(pick('breadth').own.map((line) => line.id), ['session', 'split'], 'v60.55 story-tie: 시장 폭 reads the session and the index split');
+    assert.deepEqual(pick('fxbond').own, [], 'v60.55 story-tie: 금리와 환율 reads no session line');
+    assert.ok(pick('fxbond').cross.every((line) => ['dollar', 'rates', 'rates-path'].includes(line.key)), 'v60.55 story-tie: 금리와 환율 reads the dollar and rates rows only');
+    assert.deepEqual(tieLines([], SCREEN_STORY.themes), { own: [], cross: [] }, 'v60.55 story-tie: no opening, no line');
+    for (const file of ['src/ui/components/sentiment-board.js', 'src/ui/pages/market.js', 'src/ui/pages/themes.js']) assert.match(readFileSync(resolve(root, file), 'utf8'), /renderStoryTie\(/, `v60.55 story-tie: ${file} paints it`);
+    assert.match(readFileSync(resolve(root, 'scripts/lib/screen-reading.mjs'), 'utf8'), /story: SCREEN_STORY\.themes/, 'v60.55 story-tie: the AI packet reads the same registry');
   });
   report('session-read');
 }, 'code']
