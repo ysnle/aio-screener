@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-25T09:25:17.768Z",
-  "attemptedAt": "2026-11-25T09:25:17.768Z",
-  "lastSuccessfulAt": "2026-11-25T09:25:17.768Z",
+  "generatedAt": "2026-11-25T09:51:52.884Z",
+  "attemptedAt": "2026-11-25T09:51:52.884Z",
+  "lastSuccessfulAt": "2026-11-25T09:51:52.884Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-11T09:25:13.843Z",
-  "until": "2026-11-25T09:25:13.843Z",
+  "since": "2026-11-11T09:51:48.844Z",
+  "until": "2026-11-25T09:51:48.844Z",
   "current24hWindow": {
     "start": "2026-11-23T23:00:00.000Z",
     "end": "2026-11-24T23:00:00.000Z",
@@ -82,11 +82,11 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1083,
-      "freshCount": 38,
+      "freshCount": 19,
       "eligibleTextCount": 1027,
       "selectedCount": 124,
       "error": null,
@@ -108,12 +108,12 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 722,
-      "freshCount": 37,
-      "eligibleTextCount": 721,
+      "count": 721,
+      "freshCount": 19,
+      "eligibleTextCount": 720,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,38 +137,38 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1963,
-  "retainedItemCount": 417,
+  "count": 1962,
+  "retainedItemCount": 395,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1963,
-    "eligibleTextCount": 1906,
+    "observedCount": 1962,
+    "eligibleTextCount": 1905,
     "mediaOnlyCount": 57,
     "mediaAttachedCount": 774,
     "photoPostCount": 658,
     "documentPostCount": 3,
     "imageOnlyCount": 6,
-    "highSignalCount": 324,
-    "broadSignalCount": 828,
+    "highSignalCount": 323,
+    "broadSignalCount": 827,
     "selectedRawCount": 364,
     "selectedEligibleCount": 364,
     "selectedRawCoveragePct": 19.1,
-    "selectedOfObservedPct": 18.5,
+    "selectedOfObservedPct": 18.6,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
     "earnings": 239,
     "market-note": 692,
     "kr-market": 99,
-    "macro": 275,
+    "macro": 274,
     "semi": 643,
     "healthcare": 51,
     "equity": 121,
     "crypto": 1,
-    "geo": 231,
+    "geo": 230,
     "power": 178,
     "ai-policy": 145,
     "credit": 61,
@@ -270,9 +270,9 @@
   "themes": [
     "Market Notes (692 posts in 14-day research window): 🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:...",
     "Semiconductors/Memory (643 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (275 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80 (-0.68%) • 나스닥100: 25,911.10 (-1.16%) • 러셀2000: 2,672.50...",
+    "Macro/Rates (274 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80 (-0.68%) • 나스닥100: 25,911.10 (-1.16%) • 러셀2000: 2,672.50...",
     "Earnings/Corporate (239 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (231 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Geopolitics (230 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (178 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
     "AI Policy/Export Controls (145 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (121 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 275,
+      "count": 274,
       "focus": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80 (-0.68%) • 나스닥100: 25,911.10 (-1.16%) • 러셀2000: 2,672.50..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "geo"
       ],
-      "count": 231,
+      "count": 230,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -383,7 +383,7 @@
         "optical"
       ],
       "count": 25,
-      "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도 완화되고 리드타임이 긴 테스터도 납품 계획을 짜놓았음. 하지만 인건비 등 고정비 상승으로 인한 마진 압박..."
+      "focus": "코히런트(COHR) 이사 스티븐 G. 팔리우카가 11월 20일 자사주 8만2,000주 매수. 평균 매수가는 주당 185.59달러로, 총 매수 규모 약 1,521만8,684달러."
     },
     {
       "id": "power",
@@ -446,7 +446,7 @@
         "healthcare"
       ],
       "count": 51,
-      "focus": "52주 신고가 (시총 $1B 이상) 헬스케어 · Agilent Technologies · Amneal Pharmaceuticals · Axogen · Becton, Dickinson and Company ·..."
+      "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
     },
     {
       "id": "japan",
@@ -455,7 +455,7 @@
         "japan"
       ],
       "count": 45,
-      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인 강세 추세에 진입할 가능성은 낮다”고 평가. 달러/엔 환율은 155~165엔 범위에서 움직일 것으로 전망,..."
+      "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
     },
     {
       "id": "flows",
@@ -1620,8 +1620,8 @@
       ],
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>연말 시장에 먹구름! JPMorgan: 이란 군사적 긴장 고조·연준 긴축·정부 셧다운·관세 인상·반도체 규제가 한꺼번에 몰려 •JPMorgan은 12월 9-11일 전후가 이란의 군사적 긴장이 고조될 수..."
+      "summary": ">>연말 시장에 먹구름! JPMorgan: 이란 군사적 긴장 고조·연준 긴축·정부 셧다운·관세 인상·반도체 규제가 한꺼번에 몰려 •JPMorgan은 12월 9-11일 전후가 이란의 군사적 긴장이 고조될 수...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72601",
@@ -1924,10 +1924,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 오버나잇"
+      ]
     },
     {
       "id": "HANAchina/72731",
@@ -1942,8 +1942,8 @@
       ],
       "score": 89,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>연말 시장에 먹구름! JPMorgan: 이란 군사적 긴장 고조·연준 긴축·정부 셧다운·관세 인상·반도체 규제가 한꺼번에 몰려 •JPMorgan은 12월 9-11일 전후가 이란의 군사적 긴장이 고조될 수..."
+      "summary": ">>연말 시장에 먹구름! JPMorgan: 이란 군사적 긴장 고조·연준 긴축·정부 셧다운·관세 인상·반도체 규제가 한꺼번에 몰려 •JPMorgan은 12월 9-11일 전후가 이란의 군사적 긴장이 고조될 수...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72726",
@@ -1952,14 +1952,13 @@
       "datetime": "2026-11-25T01:04:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
-        "macro"
+        "power"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>데이터센터 수요로 미국 철강 가격 급등, 4년래 최고치 •“AI 데이터센터 건설 붐으로 철강 수요가 급증하면서 미국 열연코일 가격이 톤당 1,300달러를 돌파함. Nucor는 고시가격을 1,330달러까지..."
+      "summary": ">>데이터센터 수요로 미국 철강 가격 급등, 4년래 최고치 •“AI 데이터센터 건설 붐으로 철강 수요가 급증하면서 미국 열연코일 가격이 톤당 1,300달러를 돌파함. Nucor는 고시가격을 1,330달러까지...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70174",
@@ -1968,14 +1967,13 @@
       "datetime": "2026-11-25T01:03:36.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo",
-        "macro"
+        "geo"
       ],
-      "lead": 1,
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 이란에 대한 군사작전을 내년 1월까지 유지할 충분한 자금을 확보하고 있다고 밝힘. 트럼프 대통령은 민주당이 내년 1월 의회를 장악하면 군사작전 선택지가..."
+      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 이란에 대한 군사작전을 내년 1월까지 유지할 충분한 자금을 확보하고 있다고 밝힘. 트럼프 대통령은 민주당이 내년 1월 의회를 장악하면 군사작전 선택지가...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72725",
@@ -1984,14 +1982,13 @@
       "datetime": "2026-11-25T00:54:53.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "japan",
-        "kr-market"
+        "japan"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
+      "summary": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21277",
@@ -2070,13 +2067,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 56,
       "hasText": true,
+      "summary": "마이크론이 외부 위협 환경 고조를 이유로 산제이 메흐로트라 CEO의 보안 비용을 전년 대비 2,000% 이상 확대. CEO 보안 비용은 3만5,636달러에서 76만4,748달러로 급증. 마이크론은 수밋 사다나...",
+      "lead": 1,
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론이 외부 위협 환경 고조를 이유로 산제이 메흐로트라 CEO의 보안 비용을 전년 대비 2,000% 이상 확대. CEO 보안 비용은 3만5,636달러에서 76만4,748달러로 급증. 마이크론은 수밋 사다나..."
+      ]
     },
     {
       "id": "insidertracking/70169",
@@ -2085,17 +2082,15 @@
       "datetime": "2026-11-25T00:00:20.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "power",
-        "earnings",
-        "healthcare"
+        "earnings"
       ],
       "score": 69,
       "hasText": true,
+      "summary": "델 테크놀로지스(DELL) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 매출·EPS. 3분기 매출은 549억달러로 전년 대비 103% 증가. 비GAAP 희석 EPS는 9.45달러로 265% 급증하며...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "델 테크놀로지스(DELL) Q3 2027 어닝콜 요약 긍정 요인: • 사상 최대 매출·EPS. 3분기 매출은 549억달러로 전년 대비 103% 증가. 비GAAP 희석 EPS는 9.45달러로 265% 급증하며..."
+      ]
     },
     {
       "id": "bornlupin/21274",
@@ -2125,10 +2120,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "•트럼프 : 필요하다면 젠슨 황을 사면할 의향 있음 •젠슨 황은 의회에서 진실을 말해야 함. •젠슨 황은 사면이 필요하지 않더라도 아무 일 없이 넘어갈 수도 있음. •미국 정부가 엔비디아 지분을 보유하는..."
+      ]
     },
     {
       "id": "insidertracking/70167",
@@ -2137,10 +2132,7 @@
       "datetime": "2026-11-24T23:45:46.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "insider",
-        "earnings",
-        "flows"
+        "market-note"
       ],
       "score": 61,
       "hasText": true,
@@ -2150,10 +2142,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "앤트로픽, 상장 나흘 만에 공모가 하회…12월 보호예수 해제·지수 편입 가능성에 주목 상장 첫날 115달러 돌파 후 나흘째 81.91달러로 마감 앤트로픽은 24일 미국 증시가 전반적으로 조정받는 가운데 전일...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "앤트로픽, 상장 나흘 만에 공모가 하회…12월 보호예수 해제·지수 편입 가능성에 주목 상장 첫날 115달러 돌파 후 나흘째 81.91달러로 마감 앤트로픽은 24일 미국 증시가 전반적으로 조정받는 가운데 전일..."
+      ]
     },
     {
       "id": "bornlupin/21273",
@@ -2182,14 +2174,13 @@
       "datetime": "2026-11-24T23:27:18.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "earnings",
-        "semi"
+        "earnings"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출..."
+      "summary": "• 대만 금융감독관리위원회(금관회)에 따르면, 올해 1~3분기 대만 상장사(TWSE)와 상장외(TPEx) 기업의 누적 매출과 세전순이익이 모두 최근 10년 내 동기 기준 최고치를 경신 • 상장사 : 누적 매출...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21272",
@@ -2214,14 +2205,14 @@
       "datetime": "2026-11-24T23:24:32.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 필요할 경우 젠슨 황을 사면할 의향이 있다고 밝힘. 다만 사면을 받지 않더라도 젠슨 황에게 문제가 없을 것으로 본다며, 다음 주 의회 증언에서 “진실을...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "뉴욕포스트를 인용해 보도한 내용에 따르면 트럼프 대통령은 필요할 경우 젠슨 황을 사면할 의향이 있다고 밝힘. 다만 사면을 받지 않더라도 젠슨 황에게 문제가 없을 것으로 본다며, 다음 주 의회 증언에서 “진실을..."
+      ]
     },
     {
       "id": "insidertracking/70165",
@@ -2230,7 +2221,6 @@
       "datetime": "2026-11-24T23:23:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "optical",
         "healthcare"
       ],
       "score": 60,
@@ -2241,10 +2231,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도...",
       "tickers": [
         "AAOI"
-      ],
-      "summary": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
+      ]
     },
     {
       "id": "bornlupin/21271",
@@ -2273,16 +2263,15 @@
       "datetime": "2026-11-24T23:18:20.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
         "equity"
       ],
       "score": 60,
       "hasText": true,
+      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로...",
       "tickers": [
         "GOOG",
         "TSM"
-      ],
-      "summary": "• 글로벌 AI 안경 출하량은 2026년 1,500만~1,750만 대에서 2030년 5,000만 대 이상으로 급성장할 전망 . 현재는 메타(Meta)가 에실로룩소티카와의 협업을 통해 점유율 70% 이상으로..."
+      ]
     },
     {
       "id": "insidertracking/70164",
@@ -2295,10 +2284,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프, 필요하다면 젠슨 황을 용서할 의향이 있다고 발언, 미국 정부가 엔비디아 지분을 인수할 기회는 아직 늦지 않았다고 언급 - 뉴욕 포스트 보도",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프, 필요하다면 젠슨 황을 용서할 의향이 있다고 발언, 미국 정부가 엔비디아 지분을 인수할 기회는 아직 늦지 않았다고 언급 - 뉴욕 포스트 보도"
+      ]
     },
     {
       "id": "bornlupin/21270",
@@ -2372,7 +2361,7 @@
       "datetime": "2026-11-24T21:22:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -2382,8 +2371,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고..."
+      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70160",
@@ -2394,7 +2383,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2403,8 +2391,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사..."
+      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70155",
@@ -8401,7 +8390,7 @@
       "datetime": "2026-11-24T21:22:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "geo"
+        "market-note"
       ],
       "score": 50,
       "hasText": true,
@@ -8411,8 +8400,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고..."
+      "summary": "블룸버그 인터뷰에서 볼로디미르 젤렌스키 우크라이나 대통령은 트럼프 대통령의 특사인 휘터커와 쿠슈너가 러시아와의 신속한 평화협정 체결을 요구하고 있으며, 가급적 2027년 1월 이전에 합의를 마무리하려 한다고...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70160",
@@ -8423,7 +8412,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8432,8 +8420,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사..."
+      "summary": "포린어페어스는 우크라이나 전쟁에서 러시아가 우위를 점하고 있는 만큼 미국이 이를 인정하고 전쟁 종식을 위해 모스크바에 양보안을 제시해야 한다는 주장을 게재. 기고자는 서방의 제재와 수년간의 우크라이나 군사...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70155",
