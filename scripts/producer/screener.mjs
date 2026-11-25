@@ -21,6 +21,7 @@ import { isSessionComplete, sessionSegmentOfSymbol, listingCurrencyOf, priceHist
 import { indexReturnsByDate } from '../../src/domain/technical/follow-through.js';
 import { fetchJSON } from '../lib/producer-http.mjs';
 import { TICKER_NEWS_MAX_AGE_MS, deriveTickerNewsLineage, fetchTickerNewsItems, planTickerNewsTargets, selectTickerNewsMemo } from '../lib/news-selection.mjs';
+import { notableStockMove } from '../../src/domain/market/day/facts.js';
 import { REPO_ROOT, SEC_FUNDAMENTALS_OUT } from './paths.mjs';
 import { mapLimit, fetchHistory } from './quotes.mjs';
 import { reconcileKrExchangeCloses, summarizeKrCloseReconciliation, fetchKrExchangeDaily } from './kr-exchange.mjs';
@@ -570,13 +571,15 @@ async function _enrichTickerNews(prioSyms, data) {
   let previous = {};
   try { previous = expandScreenerArtifact(JSON.parse(await readFile(SCREENER_OUT, 'utf8'))).data || {}; } catch (_) { previous = {}; }
   const nowMs = Date.now();
-  const plan = planTickerNewsTargets(eligible, nowMs);
+  // This run's own rows carry the session's one-day moves: the notable ones are fetched now, largest for the stock first.
+  const movers = eligible.map((sym) => [sym, notableStockMove(data[sym])]).filter(([, move]) => move).sort((a, b) => Math.abs(b[1].z) - Math.abs(a[1].z)).map(([sym]) => sym);
+  const plan = planTickerNewsTargets(eligible, nowMs, { movers });
   const tickerNewsResults = await mapLimit(plan.targets, 3, async (sym) => {
     const fetched = await fetchTickerNewsItems(sym, names[sym], 3);
     return { sym, items: fetched.items, error: fetched.error, fetchedAt: new Date().toISOString() };
   });
   const counts = applyTickerNewsResults(data, { eligible, targets: plan.targets, results: tickerNewsResults, previous, names, nowMs });
-  console.log(`[fetch-data] ticker news rotation: ${plan.targets.length}/${eligible.length} targets (offset ${plan.offset}, ${plan.cycleRuns} runs/cycle) · ${JSON.stringify(counts)}`);
+  console.log(`[fetch-data] ticker news rotation: ${plan.targets.length}/${eligible.length} targets (offset ${plan.offset}, ${plan.cycleRuns} runs/cycle, ${plan.movers} movers) · ${JSON.stringify(counts)}`);
   return counts.collected + counts.retained;
 }
 

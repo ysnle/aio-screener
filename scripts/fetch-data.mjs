@@ -97,7 +97,9 @@ async function main() {
   const macroHistoryTask = writeMacroHistory(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   const macroCalendarTask = writeMacroCalendar(process.env.FRED_API_KEY).catch((error) => ({ written: false, reason: error?.message || String(error) }));
   // Every source plane runs concurrently under Promise.allSettled; a failed plane publishes its declared fallback.
-  const { values: planes } = await collectSourcePlanes(sourcePlanes({ prior, attemptedAt, blsReleaseSchedules }));
+  // The day ledger published by the previous run names the session's largest stock moves for the news plane's company searches.
+  const marketDay = await readFile(`${REPO_ROOT}/public-data/market-day.json`, 'utf8').then((text) => JSON.parse(text)).catch(() => null);
+  const { values: planes } = await collectSourcePlanes(sourcePlanes({ prior, attemptedAt, blsReleaseSchedules, marketDay }));
   const { fred: macroRaw, fearGreed, news, bls, bea, treasury, fredHyOas, cryptoCrossCheck, aaii, fredDexkous } = planes;
   // Only a fresh collection carries the intraday slot; a fallback to the previous bundle publishes none.
   const newsIntraday = Array.isArray(news?.intraday) ? news.intraday : [];

@@ -532,6 +532,32 @@ export function newsDisplayTopic(title, topic) {
 // P1373 floors by feed topic; owner 2026-10-18 adds the two narrative feeds by feed name (their topics reuse the news
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
 export const NEWS_TIER3_CAP = 12; // of the 40-slot bundle; see selectNewsBundle
+export const NEWS_BUNDLE_SIZE = 40;
+// The feeds above are fixed questions, so the day's story about one company reached the bundle only when a fixed query
+// happened to return it: of 38 large stock moves across eight sessions (11/12-11/24) a headline named 15, and Micron's
+// -13.9% and +19.0% days, Marvell's +18.4% and TSMC's +14.1% had none. The day's largest stock moves (the published
+// market-day ledger's lead and major stock moves) are searched by company name, a headline is kept only when it names
+// that company, and each company with one holds a seat on top of the forty (at most NEWS_MOVER_SEATS, one per company).
+export const NEWS_MOVER_FEED = 'Google News - Movers';
+export const NEWS_MOVER_QUERIES = 6;
+export const NEWS_MOVER_SEATS = 4;
+/** [{ sym, name }] — the latest US session's lead and major stock moves, largest first. */
+export function newsMoversOf(day, { max = NEWS_MOVER_QUERIES } = {}) {
+  const session = day?.sessions?.us;
+  if (!session || !Array.isArray(day?.facts)) return [];
+  return day.facts
+    .filter((fact) => fact?.kind === 'stock-move' && fact.date === session && (fact.rank === 'lead' || fact.rank === 'major') && fact.subjects?.[0] && fact.label)
+    .sort((a, b) => (b.materiality || 0) - (a.materiality || 0) || String(a.subjects[0]).localeCompare(String(b.subjects[0])))
+    .slice(0, max).map((fact) => ({ sym: String(fact.subjects[0]), name: String(fact.label) }));
+}
+const moverFeeds = (movers) => (Array.isArray(movers) ? movers : []).filter((mover) => mover?.sym && mover?.name).slice(0, NEWS_MOVER_QUERIES)
+  .map((mover) => ({ source: NEWS_MOVER_FEED, topic: 'equity', country: 'us', tier: 2, mover,
+    url: _googleNewsSearchUrl(`"${tickerNewsCoreName(mover.name)}" stock when:2d`, 'en-US', 'US', 'US:en') }));
+// A headline that names the day's mover is about a market subject even when no topic rule knows the company.
+function countMoverSubject(item) {
+  if (item.mover && item.score > 0 && !(item.topicHits > 0)) { item.topicHits = 1; item.subjectHits = 1; item.selectionReason = `${item.selectionReason} | mover-subject`; }
+  return item;
+}
 export const NEWS_FEED_FLOORS = Object.freeze([['fxbond', 3], ['credit', 2], ['Google News - AI narrative/Memory', 3], ['Google News - Positioning/Sovereign/Politics', 2],
   ['energy', 1], ['crypto', 1], ['healthcare', 1], ['Google News - Japan/China/Europe', 2],
   ['Google News - Deals/M&A', 1], ['Google News - Election sectors', 1]]); // Coverage seats; v59.62 deal and election-sector seats
@@ -587,7 +613,7 @@ export function carriedNewsCandidates(carry, cycle) {
       sourceArticleId: row.sourceArticleId || null, fetchedAt: row.fetchedAt, evidenceKind: row.evidenceKind,
       pubDate: row.pubDate, ts, topic: row.topic, country: row.country, feedTier: row.tier, feedSource: row.feedSource,
       scoringNowMs: cycle.endMs, newsCyclePolicy: cycle.policy, newsCycleStart: cycle.start, newsCycleEnd: cycle.end,
-      newsCycleLabel: cycle.label, carried: true,
+      newsCycleLabel: cycle.label, carried: true, ...(row.mover ? { mover: row.mover } : {}),
     });
   }
   return out;
@@ -666,6 +692,7 @@ export function selectNewsBundle(items, krItems) {
       pubDate: it.pubDate, topic: newsDisplayTopic(cleanTitle(it), it.topic), country: it.country,
       tier: it.tier, score: it.score, selectionReason: it.selectionReason,
       feedSource: it.feedSource,
+      ...(it.mover ? { mover: it.mover } : {}),
       ...(it.verification ? { verification: it.verification } : {}),
       ...(it.correctionOf ? { correctionOf: it.correctionOf } : {}), ...(it.retractionOf ? { retractionOf: it.retractionOf } : {}),
       ...(it.revisionType ? { revisionType: it.revisionType } : isNewsRevisionRow(it) ? { revisionType: /retract/i.test(it.title) || /철회/.test(it.title) ? 'retraction' : 'correction' } : {}),
@@ -705,14 +732,20 @@ export function selectNewsBundle(items, krItems) {
   // lower-scored picks used the per-source and same-entity caps first: on 11/09 the gold/crude floor rows filled `oil`, so
   // "Wall St jumps as oil slide cools inflation worries" and AP's "US stocks rally …" were capped out at seat 22 of 40.
   // Now the score order runs first and only holds back as many seats as the floors still need; the floors then take theirs.
-  const floorLeft = new Map(NEWS_FEED_FLOORS);
+  // The movers' seats sit on top of the forty: one per company that has a headline naming it.
+  const moverSeats = Math.min(NEWS_MOVER_SEATS, new Set(items.filter((it) => it.mover).map((it) => it.mover)).size);
+  const limit = NEWS_BUNDLE_SIZE + moverSeats;
+  const moverTaken = new Set();
+  const floorLeft = new Map([...NEWS_FEED_FLOORS, ...(moverSeats ? [[NEWS_MOVER_FEED, moverSeats]] : [])]);
   const floorOf = (it) => [it.feedSource, it.topic].find((key) => (floorLeft.get(key) || 0) > 0) || null;
   const floorDemand = () => [...floorLeft.values()].reduce((sum, left) => sum + left, 0);
   const admit = (it) => {
     if (sourceFull(it) || topicFull(it) || tier3Blocked(it)) return false;
+    if (it.mover && moverTaken.has(it.mover)) return false;
     const k = newsArticleKey(it);
     if (seen.has(k) || sameEvent(it)) return false;
     seen.add(k);
+    if (it.mover) moverTaken.add(it.mover);
     pushItem(it);
     const floor = floorOf(it);
     if (floor) floorLeft.set(floor, floorLeft.get(floor) - 1);
@@ -720,20 +753,21 @@ export function selectNewsBundle(items, krItems) {
   };
   const passed = new Set();
   for (const it of items) {
-    if (out.length >= 40) break;
-    if (!floorOf(it) && 40 - out.length <= floorDemand()) { passed.add(it); continue; }
+    if (out.length >= limit) break;
+    if (!floorOf(it) && limit - out.length <= floorDemand()) { passed.add(it); continue; }
     admit(it);
   }
-  for (const [topic] of NEWS_FEED_FLOORS) {
+  for (const topic of [...floorLeft.keys()]) {
     for (const it of items) {
-      if (!(floorLeft.get(topic) > 0) || out.length >= 40) break;
+      if (!(floorLeft.get(topic) > 0) || out.length >= limit) break;
       if (it.topic !== topic && it.feedSource !== topic) continue;
       admit(it);
     }
   }
   // 나머지 슬롯을 US/글로벌 뉴스로 채움 (seats a floor held back but could not fill)
+  // A mover seat no headline could take stays empty; it is not handed to another topic.
   for (const it of items) {
-    if (out.length >= 40) break;
+    if (out.length >= limit - (floorLeft.get(NEWS_MOVER_FEED) || 0)) break;
     if (passed.has(it)) admit(it);
   }
   // Reserved Korean seats and topic floors decide which articles get in, not where they stand. The bundle was
@@ -744,19 +778,20 @@ export function selectNewsBundle(items, krItems) {
 
 // The caller passes the run's attempt time so the collected cycle and meta.newsCycleEnd are one cut even when a
 // run straddles 08:00 KST (23:00Z); otherwise newsIntraday is picked against the previous cut and fails the gate.
-export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntraday = null, schedules = null } = {}) {
+export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntraday = null, schedules = null, movers = [] } = {}) {
   const cycle = getKst0800NewsCycle(nowMs);
   const items = [];    // US/글로벌 피드
   const krItems = [];  // 한국 전용 (reserved slot)
   const intradayCandidates = []; // Published after cycle.endMs (08:00 KST)
   const feedHealth = [];
   const slotPool = []; // market timeline: every dated candidate of the last 30 h, cut per 6 h KST slot later
-  for (const feed of NEWS_FEEDS) {
+  for (const feed of [...NEWS_FEEDS, ...moverFeeds(movers)]) {
     const isKr = feed.country === 'kr';
     // 2026-10-19 pipeline redesign: `dropped` counts why in-window articles missed the floor and `lowQualitySources`
     // names the publishers behind 'low-quality-source', so a feed that parses 40 and keeps 0 says why.
-    const health = { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0, dropped: {}, lowQualitySources: {} };
-    feedHealth.push(health);
+    // The mover searches share one health row (the feed is the day's movers, whichever companies they are).
+    const health = (feed.mover && feedHealth.find((row) => row.source === feed.source)) || { source: feed.source, status: 'ok', parsed: 0, inWindow: 0, kept: 0, selected: 0, dropped: {}, lowQualitySources: {} };
+    if (!feedHealth.includes(health)) feedHealth.push(health);
     try {
       const feedUrls = [feed.url, feed.url.replace(/when%3A2d/i, 'when%3A7d')];
       let parsed = [];
@@ -769,9 +804,13 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
         });
         if (hasCurrent || feedUrl === feedUrls[feedUrls.length - 1]) break;
       }
-      health.parsed = parsed.length;
+      health.parsed += parsed.length;
       for (const p of parsed) {
         const t = p.ts;
+        if (feed.mover && !tickerNewsHeadlineNamesIssuer(cleanNewsTitle(p.title, p.source, p._sourceRaw), feed.mover.sym, feed.mover.name)) {
+          health.dropped['other-company'] = (health.dropped['other-company'] || 0) + 1;
+          continue;
+        }
         if (isFinite(t) && t >= nowMs - 30 * 3600000 && p.title && p.link) {
           slotPool.push({ title: p.title, link: p.link, source: p.source || feed.source, _sourceRaw: p._sourceRaw, guid: p.guid,
             sourceArticleId: p.sourceArticleId, ts: t, topic: isKr ? 'kr' : feed.topic, country: feed.country, feedTier: feed.tier, feedSource: feed.source });
@@ -800,8 +839,9 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
           newsCycleStart: cycle.start,
           newsCycleEnd: cycle.end,
           newsCycleLabel: cycle.label,
+          ...(feed.mover ? { mover: feed.mover.sym } : {}),
         };
-        Object.assign(item, scoreServerNewsItem(item));
+        countMoverSubject(Object.assign(item, scoreServerNewsItem(item)));
         // Selection floor — off-topic headlines (a lacrosse team surfaced through a "Red Sea" query) and
         // low-quality sources are dropped before ranking instead of filling empty slots.
         if (!(item.topicHits > 0) || item.tier >= 4 || !(item.score > 0)) {
@@ -813,8 +853,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
         health.kept += 1;
         if (isKr) { krItems.push(item); } else { items.push(item); }
       }
-      if (!health.parsed) health.status = 'empty';
-      else if (!health.inWindow) health.status = 'no-current';
+      health.status = !health.parsed ? 'empty' : !health.inWindow ? 'no-current' : 'ok';
     } catch (e) { health.status = 'error'; health.error = String(e?.message || e).slice(0, 120); /* 피드별 실패 무시 */ }
   }
   // 2026-10-19 data audit: the window is closed, but every refresh re-searched it from scratch and Google's `when:2d`
@@ -823,7 +862,7 @@ export async function fetchNews(nowMs = Date.now(), { carry = null, carryIntrada
   // under the current rules, so a tightened filter still drops them); fresh results only add to the pool.
   for (const row of [...carriedNewsCandidates(carry, cycle), ...carriedIntradayCandidates(carryIntraday, cycle)]) {
     row.scheduleDates = schedules;
-    Object.assign(row, scoreServerNewsItem(row));
+    countMoverSubject(Object.assign(row, scoreServerNewsItem(row)));
     if (!(row.topicHits > 0) || row.tier >= 4 || !(row.score > 0)) continue;
     (row.topic === 'kr' ? krItems : items).push(row);
   }
@@ -970,15 +1009,21 @@ export async function fetchTickerNewsItems(sym, name, days) {
 export const TICKER_NEWS_RUN_CAP = 90;
 export const TICKER_NEWS_FIXED_HEAD = 10;
 export const TICKER_NEWS_ROTATION_SLOT_MS = 6 * 3600000;
-export function planTickerNewsTargets(eligible, nowMs = Date.now(), { cap = TICKER_NEWS_RUN_CAP, head = TICKER_NEWS_FIXED_HEAD, slotMs = TICKER_NEWS_ROTATION_SLOT_MS } = {}) {
+// The rotation reaches a stock once in about ten runs whatever it did that day, so a stock that fell 14% waited its
+// turn for a memo. The session's notable movers are fetched in the run that publishes their move, on top of the cap.
+export const TICKER_NEWS_MOVER_MAX = 30;
+export function planTickerNewsTargets(eligible, nowMs = Date.now(), { cap = TICKER_NEWS_RUN_CAP, head = TICKER_NEWS_FIXED_HEAD, slotMs = TICKER_NEWS_ROTATION_SLOT_MS, movers = [] } = {}) {
   const list = [...new Set(Array.isArray(eligible) ? eligible : [])];
-  if (list.length <= cap) return { targets: list, fixed: list.length, perRun: 0, cycleRuns: 1, offset: 0 };
+  if (list.length <= cap) return { targets: list, fixed: list.length, perRun: 0, cycleRuns: 1, offset: 0, movers: 0 };
   const fixed = list.slice(0, Math.min(head, cap));
   const rest = list.slice(fixed.length);
   const perRun = cap - fixed.length;
   const cycleRuns = Math.ceil(rest.length / perRun);
   const offset = (Math.floor(nowMs / slotMs) % cycleRuns) * perRun;
-  return { targets: [...fixed, ...rest.slice(offset, offset + perRun)], fixed: fixed.length, perRun, cycleRuns, offset };
+  const rotation = [...fixed, ...rest.slice(offset, offset + perRun)];
+  const inRotation = new Set(rotation); const known = new Set(list);
+  const extra = [...new Set(Array.isArray(movers) ? movers : [])].filter((sym) => known.has(sym) && !inRotation.has(sym)).slice(0, TICKER_NEWS_MOVER_MAX);
+  return { targets: [...rotation, ...extra], fixed: fixed.length, perRun, cycleRuns, offset, movers: extra.length };
 }
 
 function _tickerNewsTimestampMs(value) {

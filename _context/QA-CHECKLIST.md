@@ -1,6 +1,6 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-25
+last_verified: 2026-11-26
 confidence: medium
 ---
 
@@ -17,6 +17,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-TEMPERATURE-LIVENESS-01: v60.57 지수별 가격 온도는 주말처럼 새 종가가 없어 파일이 50시간 그대로여도 원장이 수집을 확인한 동안 모든 지수를 현재로 읽고, 원장 등급이 stale·blocked일 때만 전체를 오래된 자료로 본다; 원장을 모를 때만 자체 시각 4일을 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-CASHFLOW-LIVENESS-01: v60.57 AI 시황·화면별 AI 입력의 빅테크 현금흐름 문장은 마지막 공시 변화가 열흘을 넘어도 원장이 수집을 확인한 동안 남고, 수집이 멈추면 빠진다. verify_by: node scripts/ci-event-briefs-check.mjs
 - [x] QA-OWN-CLOCK-READERS-01: v60.57 파일 자체 시각(generatedAt)을 파싱하는 src·scripts/lib·scripts/producer 파일은 검사의 목록에 용도와 함께 있어야 하고, 목록 밖 파일이 생기면 실패한다; 대만 월매출은 발행 단계가 '변화 없음'을 판단한다. verify_by: node scripts/ci-artifact-refresh-path-check.mjs
+- [x] QA-NEWS-MOVERS-01: v60.57 그날 주도·주요 종목 움직임은 회사 이름으로 검색되어 그 회사를 짚은 기사만, 회사당 한 건, 40건 위 최대 4석으로 실린다; 움직인 종목이 없으면 40건 그대로이고 다른 주제 좌석은 줄지 않는다. 종목 뉴스 메모는 순환 밖의 크게 움직인 종목을 같은 실행에서 받는다. verify_by: node scripts/ci-news-ranking-check.mjs
 
 ## v60.56 AI 글의 원인 한 이야기 (2026-11-25)
 

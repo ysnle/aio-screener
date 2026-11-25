@@ -79,6 +79,34 @@ check('v60.18 the bundle is published in rank order', () => {
   assert.deepEqual(out.map((r) => r.score), [78, 64], 'v60.18 the floors keep their scores');
 });
 
+// 5b. The day's large stock moves are searched by company and seated on top of the forty, one headline per company.
+check('v60.57 movers: a headline naming the day\'s mover takes a seat beyond the forty, one per company', () => {
+  const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'macro', country: 'us',
+    ts: at('2026-11-20T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-20T20:00:00Z') - i * 60000).toISOString(), ...extra });
+  // Forty-five unrelated headlines (no shared word, so no two read as one event or one topic).
+  const word = (n) => [...n.toString(26)].map((c) => String.fromCharCode(97 + parseInt(c, 26))).join('');
+  const general = Array.from({ length: 45 }, (_, i) => row([0, 1, 2, 3, 4].map((k) => `q${word(20000 + i * 5 + k)}`).join(' '), i));
+  const mover = (title, sym, i) => row(title, 100 + i, { score: 30, topicHits: 1, subjectHits: 1, topic: 'equity', feedSource: ns.NEWS_MOVER_FEED, mover: sym });
+  const movers = [mover('Micron plunges fourteen percent as memory prices crack', 'MU', 1), mover('Micron shares sink again on DRAM contract cuts', 'MU', 2), mover('Analog Devices tumbles after weak industrial orders', 'ADI', 3)];
+  const base = ns.selectNewsBundle(general.map((item) => ({ ...item })), []).out;
+  const { out } = ns.selectNewsBundle([...general.map((item) => ({ ...item })), ...movers], []);
+  assert.equal(base.length, ns.NEWS_BUNDLE_SIZE, `v60.57 movers: without movers the bundle is the forty (${base.length})`);
+  assert.equal(out.length, ns.NEWS_BUNDLE_SIZE + 2, `v60.57 movers: two companies, two seats on top (${out.length})`);
+  assert.deepEqual(out.filter((r) => r.mover).map((r) => r.mover).sort(), ['ADI', 'MU'], 'v60.57 movers: one headline per company, tagged with it');
+  assert.equal(out.filter((r) => !r.mover).length, ns.NEWS_BUNDLE_SIZE, 'v60.57 movers: no other topic loses a seat');
+  const day = { sessions: { us: '2026-11-20' }, facts: [
+    { kind: 'stock-move', date: '2026-11-20', rank: 'major', materiality: 70, subjects: ['MU'], label: 'Micron Technology' },
+    { kind: 'stock-move', date: '2026-11-20', rank: 'lead', materiality: 95, subjects: ['NVDA'], label: 'NVIDIA' },
+    { kind: 'stock-move', date: '2026-11-20', rank: 'minor', materiality: 20, subjects: ['XYZ'], label: 'Small Co' },
+    { kind: 'stock-move', date: '2026-11-19', rank: 'lead', materiality: 99, subjects: ['OLD'], label: 'Yesterday Inc' },
+    { kind: 'group-move', date: '2026-11-20', rank: 'lead', materiality: 90, label: '반도체' }] };
+  assert.deepEqual(ns.newsMoversOf(day).map((m) => m.sym), ['NVDA', 'MU'], 'v60.57 movers: the latest session\'s lead and major stock moves, largest first');
+  assert.deepEqual(ns.newsMoversOf(null), [], 'v60.57 movers: no ledger, no searches');
+  const eligible = Array.from({ length: 768 }, (_, i) => `S${i}`);
+  const plan = ns.planTickerNewsTargets(eligible, 0, { movers: ['S700', 'S3', 'S701', 'NOT-LISTED'] });
+  assert.deepEqual([plan.targets.length, plan.movers, plan.targets.slice(-2)], [ns.TICKER_NEWS_RUN_CAP + 2, 2, ['S700', 'S701']], 'v60.57 movers: a mover outside this run\'s rotation is fetched now, on top of the cap');
+});
+
 // 6. The intraday slot's rows are candidates of the bundle that closes over them (11/09 22:24Z 9b0d25ee4 → 23:24Z 7564d42d6).
 check('v60.18 the closed intraday slot is carried into the next 08:00 bundle', () => {
   assert.equal(typeof ns.carriedIntradayCandidates, 'function', 'v60.18 the intraday carry is exported');

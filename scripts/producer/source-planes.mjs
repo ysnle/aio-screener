@@ -5,7 +5,7 @@
 // status (AAII 'current-reference', 10/19) was reported as a failed collection on every run. Consumers now ask
 // planeFresh() instead of listing statuses.
 import { FRED_SERIES, fetchAaiiSentiment, fetchBeaPce, fetchBlsSeries, fetchFearGreed, fetchFredDexkousPublic, fetchFredHyOasPublic, fetchTreasuryYieldCurve } from '../lib/macro-sources.mjs';
-import { fetchNews } from '../lib/news-selection.mjs';
+import { fetchNews, newsMoversOf } from '../lib/news-selection.mjs';
 import { SYMBOLS, fetchQuote, mapLimit, fetchCoinGeckoCrossCheck } from './quotes.mjs';
 import { fetchFred } from './fred.mjs';
 
@@ -46,7 +46,7 @@ export function readPreviousPlanes(previous) {
 
 // Keep each source plane independently observable. A single unexpected provider exception must not abort the other
 // free-source collectors or turn a complete cycle into an unlabelled empty artifact.
-export function sourcePlanes({ prior, attemptedAt, env = process.env, blsReleaseSchedules = null }) {
+export function sourcePlanes({ prior, attemptedAt, env = process.env, blsReleaseSchedules = null, marketDay = null }) {
   const unavailable = { attemptedAt, fetchedAt: null };
   return [
     { id: 'quotes', label: 'quote', run: () => mapLimit(SYMBOLS, 6, fetchQuote),
@@ -63,7 +63,8 @@ export function sourcePlanes({ prior, attemptedAt, env = process.env, blsRelease
       }) },
     // same-cycle articles stay candidates (carriedNewsCandidates).
     // The macro calendar's release dates let a headline naming the day's scheduled release rank as the day's story.
-    { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news, carryIntraday: prior.newsIntraday, schedules: blsReleaseSchedules }),
+    // The published day ledger names the session's largest stock moves; each is searched by company name.
+    { id: 'news', label: 'news', run: () => fetchNews(Date.parse(attemptedAt), { carry: prior.news, carryIntraday: prior.newsIntraday, schedules: blsReleaseSchedules, movers: newsMoversOf(marketDay) }),
       fallback: () => (prior.news && prior.news.length ? prior.news : []) },
     // The Cboe put/call plane is deleted (owner 11/4: Cboe terms forbid storing and redistributing its statistics).
     { id: 'bls', label: 'BLS', run: () => fetchBlsSeries(prior.bls, { releaseSchedules: blsReleaseSchedules }),

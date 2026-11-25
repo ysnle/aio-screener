@@ -133,17 +133,24 @@ function macroFacts(macroHistory) {
 // A stock move is kept when it is large for the stock itself (|1-day| at least 4% and 1.5 times its average daily range)
 // on a name liquid enough to matter, or when it moved the S&P 500 by 5bp or more (index weight % x return %): NVDA -3% is
 // -23bp of the index and matters more than a small cap's -20%. The 30 by materiality.
+/** { ret, z, indexBp, dollarVolume } when the row's one-day move passes the rule above, else null. `indexWeight` in %. */
+export function notableStockMove(row, indexWeight = 0) {
+  const ret = readRowNumber(row, 'ret1d'); const adr = readRowNumber(row, 'adrPct'); const dollarVolume = readRowNumber(row, 'dollarVolume30d');
+  if (ret === null || !(adr > 0) || !(dollarVolume >= 2e8)) return null;
+  const z = ret / adr;
+  const indexBp = indexWeight * ret; // weight in %, return in % -> basis points of the index
+  return (Math.abs(ret) >= 4 && Math.abs(z) >= 1.5) || Math.abs(indexBp) >= 5 ? { ret, z, indexBp, dollarVolume } : null;
+}
 function stockFacts(screener, universe, themesBySymbol, indexWeights) {
   const rows = [];
   const session = screener?.factorSessionDateByMarket?.US || null;
   for (const item of universe) {
     const row = screener?.data?.[item.sym];
-    const ret = readRowNumber(row, 'ret1d'); const adr = readRowNumber(row, 'adrPct'); const dv = readRowNumber(row, 'dollarVolume30d');
-    if (ret === null || !(adr > 0) || !(dv >= 2e8) || /\.K[SQ]$/.test(item.sym) || item.sector === 'ETF') continue; // an ETF is a price, not a company
-    const z = ret / adr;
+    if (/\.K[SQ]$/.test(item.sym) || item.sector === 'ETF') continue; // an ETF is a price, not a company
     const indexWeight = indexWeights.get(item.sym) || 0;
-    const indexBp = indexWeight * ret; // weight in %, return in % -> basis points of the index
-    if (!((Math.abs(ret) >= 4 && Math.abs(z) >= 1.5) || Math.abs(indexBp) >= 5)) continue;
+    const move = notableStockMove(row, indexWeight);
+    if (!move) continue;
+    const { ret, z, indexBp, dollarVolume: dv } = move;
     rows.push({ id: `stock:${item.sym}:${session}`, kind: 'stock-move', subjects: [item.sym], label: item.name || item.sym, sector: item.sector || null,
       themes: themesBySymbol.get(item.sym) || [], date: session, change: round(ret), week: round(readRowNumber(row, 'ret5d')), z: round(z), rvol: round(readRowNumber(row, 'rvol20')),
       indexWeight: indexWeight || null, indexBp: indexWeight ? round(indexBp, 1) : null, dollarVolume30d: dv, topics: [], weight: Math.abs(z) });
