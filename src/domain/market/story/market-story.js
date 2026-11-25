@@ -858,6 +858,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   const lines = [
     { id: 'session', label: '', said: session?.said || NOTHING },
     { id: 'gathered', label: session?.gathered?.label || '', said: session?.gathered?.said || NOTHING },
+    { id: 'spread', label: session?.spread?.label || '', said: session?.spread?.said || NOTHING },
     { id: 'split', label: session?.split?.label || '', said: session?.split?.said || NOTHING },
     { id: 'after-hours', label: session?.afterHours?.label || '', said: session?.afterHours?.said || NOTHING },
     { id: 'cross-head', label: cross.length && quality ? quality.word : '', said: cross.length && quality ? quality.said : NOTHING },
@@ -889,6 +890,7 @@ export function openingFactLines(opening) {
   return [
     said('session') ? `최근 세션: ${said('session')}` : '',
     said('gathered') ? `최근 세션에 ${opening.session.gathered.label}: ${said('gathered')}` : '',
+    said('spread') ? `반등 저점 뒤 갈린 곳: ${said('spread')}` : '',
     said('split') ? `최근 세션 S&P 500 업종별 기여: ${said('split')}` : '',
     said('after-hours') ? `최근 세션 ${opening.session.afterHours.label}(시간외 잠정값): ${said('after-hours')}` : '',
     // The cross-market rows: the state word is rule-decided (the 시장 상태 axis, the dollar leg), the clause a fixed word.

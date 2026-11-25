@@ -179,7 +179,7 @@ export function readMarketOpening(root, interpretation, rerender) {
   return openingMemo.opening;
 }
 
-const SESSION_LINES = Object.freeze(['session', 'gathered', 'split', 'after-hours']);
+const SESSION_LINES = Object.freeze(['session', 'gathered', 'spread', 'split', 'after-hours']);
 /** One face line: the lede, the diagnosis (its state word first) or the small record line. */
 function openingLine(doc, line) {
   const p = el(doc, 'p', null, 'opening-line');

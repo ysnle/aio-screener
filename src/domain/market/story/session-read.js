@@ -9,6 +9,7 @@ import { claim, say, sayJoin, NOTHING } from '../../shared/claim.js';
 import { shortDate } from '../../content/date-labels.js';
 import { readNumber } from '../../shared/number.js';
 import { sectorLabel } from '../../screener/sector-label.js';
+import { reboundSpreadOf } from './rebound-spread.js';
 
 const R = RULES.sessionRead;
 const dayClaim = (row) => row?.claims?.[1] || null;
@@ -171,6 +172,7 @@ export function sessionReadOf({ rows, asOf, rebound = null, day = null, afterHou
     said: sayJoin([moves, giveBackSaid(rows, rebound)], ' '),
     gathered: direction ? gatheredOf(day, asOf, direction) : null,
     split: direction ? splitOf(day, asOf, rows.spx) : null,
+    spread: reboundSpreadOf({ day, asOf, rebound, index: rows.sox }),
     afterHours: afterHoursOf(afterHours, briefs, day, asOf, regularMoves)
   };
 }

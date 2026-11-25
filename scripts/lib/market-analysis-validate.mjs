@@ -1161,12 +1161,14 @@ export function sessionMoveIssues(body, { context = '' } = {}) {
   for (const sentence of String(body || '').replace(/\[[^\]\n]*\]/g, ' ').split(/(?<=[.!?。])\s+|\n+/)) {
     if (!dated.test(sentence)) continue;
     for (const move of moves) {
-      const name = move.label.replace(/\s+/g, String.raw`\s?`).replace(/[&]/g, String.raw`\&`);
-      const found = new RegExp(String.raw`${name}(?!\s?\()([^\d%+\-−]{0,8})([+\-−]?\d+(?:\.\d+)?)\s?%(?!p)`, 'g');
+      // "반도체(SOX)": the name is read without its index tag; a mention tagged as another instrument is skipped below.
+      const [, base, tag = ''] = /^(.*?)(?:\(([^)]+)\))?$/.exec(move.label);
+      const name = base.trim().replace(/\s+/g, String.raw`\s?`).replace(/[&]/g, String.raw`\&`);
+      const found = new RegExp(String.raw`${name}(?:\s?\(([^)]+)\))?([^\d%+\-−(]{0,8})([+\-−]?\d+(?:\.\d+)?)\s?%(?!p)`, 'g');
       for (const match of sentence.matchAll(found)) {
         const before = sentence.slice(Math.max(0, match.index - 14), match.index);
-        if (OTHER_WINDOW.test(match[1]) || OTHER_WINDOW.test(before)) continue;
-        if (Math.abs(Number(match[2].replace('−', '-')) - move.value) > 0.1) { issues.push('session-move-mismatch'); break; }
+        if ((match[1] && match[1] !== tag) || OTHER_WINDOW.test(match[2]) || OTHER_WINDOW.test(before)) continue;
+        if (Math.abs(Number(match[3].replace('−', '-')) - move.value) > 0.1) { issues.push('session-move-mismatch'); break; }
       }
     }
   }
