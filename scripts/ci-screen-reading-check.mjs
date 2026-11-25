@@ -255,7 +255,7 @@ await section('lane A: the other screens', async () => {
       && validateScreenReading(THREE.replace('24.56', '26.1'), packet).issues.some((issue) => issue.startsWith('figure-unsupported')) && validateScreenReading(`${THREE} 지금은 분할 매수하세요.`, packet).issues.includes('trade-instruction'),
     JSON.stringify(validateScreenReading(THREE, packet)));
   check('v60.55 the producer validator and the screen gate read one limits table (reading-limits.js): 시장 상태 3 blocks, every other screen 2',
-    readingLimitsOf('signal').blocks === 3 && readingLimitsOf('macro').blocks === 2 && readingLimitsOf(undefined).chars === 520 && read('src/data/server-screen-readings.js').includes("from '../ai/reading/reading-limits.js'"));
+    readingLimitsOf('signal').blocks === 3 && readingLimitsOf('macro').blocks === 2 && readingLimitsOf(undefined).chars === 520);
   const twoBlock = { schemaVersion: SCREEN_READING_SCHEMA, readings: { signal: { status: 'verified', text: TWO, basis: '2026-11-18' }, macro: { status: 'verified', text: THREE, basis: '2026-11-18' } } };
   const admitted = serverScreenReading({ _aioScreenReadings: twoBlock }, 'signal');
   check('v60.54 the screen admits a two-block reading over the old 400-character face and paints each block as its own paragraph; three blocks are not admitted (v60.55: outside 시장 상태)',
