@@ -43,7 +43,7 @@ export function inflationDirectionLine(macroNow = {}, { direction = null } = {})
  */
 export function marketAnalysisPromptSections({ inflationLine = '', regimeContext = '', evidenceLines = '', koreaIntradayLines = '', intradayLines = '', usCloseAt = null,
   afterHoursLines = '', earningsLines = '', cashflowLines = '', crossMarketIntradayLines = '', newsLines = '', headlineLines = '', driversContext = '',
-  narrativeText = '', largeMove = false, largeMoveDirection = null, moveSizeText = '' } = {}) {
+  narrativeText = '', largeMove = false, largeMoveDirection = null, moveSizeText = '', investigationLines = '' } = {}) {
   return [
   ['task', '아래 근거로 시장 해석을 반드시 한국어로만 작성하라(영어 문장 금지). 제목·마크다운 헤더 없이 7~9줄 평문으로 쓴다. Write the whole answer in Korean.'],
   ['order', '순서: (1) MARKET_DRIVERS의 CLOSE_MOVE·LIVE_MOVE 두 칸(칸 이름은 쓰지 않는다) — 첫 줄은 CLOSE_MOVE 맨 앞의 가장 큰 움직임으로 열고, 무엇이 얼마나 바뀌었고(완료 종가는 날짜 M/D와 METRIC_EVIDENCE·REGIME_CONTEXT의 change 값, 장중 값은 "장중 HH:MM KST") 그 움직임마다 보도된 이유가 무엇인가(이유마다 헤드라인 날짜·출처) (2) 그 변화가 REGIME_CONTEXT의 어느 축·흐름과 맞물리는가 (3) 지금 조건에 가장 가까운 흐름 — 반드시 흐름·시나리오 이름과 함께("「이름」 — 조건 충족 n/m"), 숫자만 단독으로 쓰지 않는다. 단 REGIME_CONTEXT의 판정 문장이 "어느 흐름이라고 보기 이릅니다"·"중심 시나리오를 정하지 않습니다"라고 하면(시나리오 설명 속 "…라고 보기 이릅니다"는 판정이 아니다) 그 판정을 먼저 그대로 쓰고, 가장 많이 맞는 흐름은 "핵심 조건 미충족"과 함께만 언급하며 그 흐름을 결론처럼 쓰지 않는다 (4) 향후 시나리오: REGIME_CONTEXT의 【향후 시나리오】에서 다음 발표(날짜)과 조건이 가장 많이 맞는 시나리오, 시장 가격이 같은 방향인지, 금리 괴리가 있으면 그 뜻 — 인과(무엇이 무엇을 거쳐 주가에 닿는지)를 한 문장으로 (5) 그 시나리오라면 선택지(관망·분할 접근·보유 유지·방어 전환)별 기회비용과 상대적으로 유리한 쪽(중심 시나리오가 없으면 "유리한 쪽"을 정하지 말고 각 시나리오로 갈 때 무엇이 바뀌는지만), 반대 시나리오로 가면 무엇이 바뀌는지, 【테마 시나리오】가 있으면 그 시나리오에서 수혜·부담인 테마와 추세 속 조정 테마를 한 문장으로 (6) MARKET_DRIVERS의 NEXT_CHECK 칸: 다음에 확인할 것(일정 포함)과 이 해석이 틀렸다고 볼 반증 조건. 지표를 나열만 하거나 "두 지표는 서로 다르다"처럼 정보가 없는 문장은 쓰지 마라.'],
@@ -85,6 +85,9 @@ export function marketAnalysisPromptSections({ inflationLine = '', regimeContext
   // v60.19 (one materiality vocabulary): the ledger's size grade per metric; the validator blocks a size word against it
   // (market-analysis-validate.mjs moveSizeWordIssues). Per-run, so it sits after the cached prefix.
   ['moveSize', moveSizeText || null],
+  // The site's own cause investigation of the same close (scripts/lib/investigation-conclusion.mjs). The 오늘 screen shows
+  // it; the reading tells the same account. The validator flags a cause stated past it (investigationCauseIssues).
+  ['investigation', investigationLines ? 'INVESTIGATION (이 사이트 AI 원인 조사의 결론 — 오늘 화면의 AI 조사와 같은 것이다. 원인을 말할 때 이 결론과 한 이야기가 되게 쓴다: (a) "확인(보도 …)"·"확인(공식 발표 …)" 줄의 원인은 매체·날짜와 함께 원인으로 써도 된다 (b) "추론" 줄은 "…로 보입니다"처럼 해석으로만 쓴다 (c) 보도로 확인된 원인이 없으면 그 세션의 원인을 사실로 쓰지 않는다 — 헤드라인을 들 때는 "M/D 매체 보도에 따르면 …이 거론됐습니다"로 귀속한다 (d) 보도로 확인된 원인이 있고 "미확인" 줄에 원인이 남아 있지 않으면 "원인이 확인되지 않았다"고 쓰지 않는다 (e) 최근 세션이 직전 반등을 되돌린 날이면 반등을 만든 세션의 원인과 되돌린 세션의 원인을 나눠 쓴다):\n' + investigationLines : null],
   // The stories the 08:00 bundle missed (AI funding, memory, deleveraging …) from AIO's own Telegram
   // digest and mover headlines, with the analysis note that says how to read each. Weighting, not evidence.
   ['narrative', narrativeText ? 'NARRATIVE_CONTEXT (지난 72시간 2차 자료: 리서치 텔레그램 채널 중계와 5거래일 ±10% 넘게 움직인 종목의 헤드라인. 사실 확정이 아니라 지금 시장이 어떤 이야기에 무게를 두는지 보여 주는 참고다. 쓰는 법: (a) 오늘의 긴장과 (2)~(6)의 주제를 고를 때 HEADLINE_CONTEXT의 건수만 보지 말고 REGIME_CONTEXT의 움직임 크기와 여기의 언급 비중을 함께 본다 (b) 인용하면 "리서치 채널 중계에 따르면"·"…보도에 따르면"으로 귀속하고 한 가지 해석으로 제시한다 (c) [루머]·[미확인·익명 소식통] 항목은 같은 문장에 "루머" 또는 "미확인"을 쓰고 원인으로 단정하지 않는다 (d) 여기의 숫자·종목명·티커는 METRIC_EVIDENCE가 아니므로 쓰지 않는다 (e) 같은 주제에 강세 측 반론이 있으면 함께 적어 한쪽으로 기울지 않는다 (f) "읽는 틀"은 그 주제를 확인하는 순서다 — 다음에 확인할 것(6)에 활용한다):\n' + narrativeText : null],

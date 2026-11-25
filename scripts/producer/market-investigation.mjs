@@ -1,6 +1,7 @@
 // The market investigation, published as data.json `marketInvestigation`: what the latest completed session did that was
 // unusual, why (as far as the model could find out with the refresh's own data and a bounded search), what does not fit
-// that cause and what would confirm or refute it next. Run by scripts/fetch-data.mjs after the per-screen readings.
+// that cause and what would confirm or refute it next. Run by scripts/fetch-data.mjs before the market reading and the
+// per-screen readings, which carry its conclusion (scripts/lib/investigation-conclusion.mjs).
 //
 // Per refresh: the leads (src/domain/market/investigation/leads.js) are read from the market-day ledger this run builds in
 // memory from the artifacts on disk and this run's data.json payload (the same inputs scripts/build-market-day.mjs uses, so
@@ -15,11 +16,12 @@ import { buildMarketDay } from '../../src/domain/market/day/facts.js';
 import { nextStateRecord, selectLeads } from '../../src/domain/market/investigation/leads.js';
 import { RULES } from '../../src/domain/rules/thresholds.js';
 import { SHARED_AI_MODEL } from '../lib/ai-shared-analysis.mjs';
-import { createInvestigationRunner } from '../lib/investigation-tools.mjs';
-import { INVESTIGATION_CHECK_REVISION, INVESTIGATION_SCHEMA_VERSION, buildLeadMessage, linkedHeadlines, repairInvestigation, runInvestigation, validateInvestigation } from '../lib/market-investigation.mjs';
+import { createInvestigationRunner, headlineClusterLines } from '../lib/investigation-tools.mjs';
+import { INVESTIGATION_CHECK_REVISION, INVESTIGATION_SCHEMA_VERSION, buildLeadMessage, linkedHeadlines, reboundSequence, repairInvestigation, runInvestigation, validateInvestigation } from '../lib/market-investigation.mjs';
 import { buildScreenPacket } from '../lib/screen-reading.mjs';
 
 const LIMIT = RULES.investigation;
+const INVESTIGATION_CLUSTERS = 5; // the window's most-repeated stories in the first message
 const REASON = /^[a-z0-9:-]{1,64}$/;
 const reasonCode = (reason, fallback) => (REASON.test(String(reason || '')) ? reason : fallback);
 const monthOf = (iso) => String(iso || '').slice(0, 7);
@@ -85,8 +87,11 @@ export async function genMarketInvestigation({ data = null, history = [], previo
   const session = { us: ledgerDay.sessions?.us || null, kr: ledgerDay.sessions?.kr || null };
   const state = nextStateRecord(prior?.state, session.us, investigationWords(shared, signal));
   const selection = selectLeads({ day: ledgerDay, state });
+  // A session that gave back a rebound is asked as a sequence with the sessions before it; the give-back's low joins the
+  // key, so the same leads read without that sequence are asked once again with it.
+  const sequence = reboundSequence({ signalLines: signal?.lines, history: Array.isArray(shared?.inputs?.history) ? shared.inputs.history : history, session: session.us });
   // The checks' revision is part of the key: an answer the old checks blocked is asked again under the new ones.
-  const key = createHash('sha1').update(`${selection.keySource}|checks:${INVESTIGATION_CHECK_REVISION}`).digest('hex').slice(0, 16);
+  const key = createHash('sha1').update(`${selection.keySource}${sequence ? `|seq:${sequence.low}` : ''}|checks:${INVESTIGATION_CHECK_REVISION}`).digest('hex').slice(0, 16);
   const base = { schemaVersion: INVESTIGATION_SCHEMA_VERSION, generatedAt, session, key, leads: selection.leads, state, ledger };
   const sameKey = prior?.key === key;
   const retainOr = (reason, extra = {}) => (prior?.status === 'verified' && prior.session?.us === session.us
@@ -108,7 +113,7 @@ export async function genMarketInvestigation({ data = null, history = [], previo
   const runner = createInvestigationRunner({ day: ledgerDay, screenFacts: (screen) => buildScreenPacket(screen, shared, context), nowMs,
     artifacts: artifacts !== undefined ? artifacts : investigationArtifacts(readPublic) });
   const linked = linkedHeadlines(ledgerDay, selection.leads);
-  const message = buildLeadMessage({ session, leads: selection.leads, linked });
+  const message = buildLeadMessage({ session, leads: selection.leads, linked, sequence, clusters: headlineClusterLines(ledgerDay.facts, { max: INVESTIGATION_CLUSTERS }) });
   const run = await runInvestigation({ request, runTool: runner, message, corpus: [message] });
   const usage = { ...run.usage };
   let requests = run.requests;

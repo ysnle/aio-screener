@@ -15,6 +15,7 @@ import { moveMetricByLabel, moveSizeGrades, MOVE_SIZE_HEAD } from './market-anal
 import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
 import { likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
 import { READING_PROBABILITY, READING_TRADE_INSTRUCTION } from '../../src/ai/reading/reading-core.js';
+import { investigationCauseIssues } from './investigation-conclusion.mjs';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -814,6 +815,8 @@ export function validateMarketAnalysisText(text, data, snapshot = null, { contex
     && !/코스피|코스닥|KOSPI|KOSDAQ/i.test(body)) issues.push('korea-move-unaddressed');
   issues.push(...priorSessionMoveIssues(body, { context }));
   issues.push(...sessionMoveIssues(body, { context }));
+  // The cause follows the investigation's conclusion when the context carries it (investigation-conclusion.mjs).
+  issues.push(...investigationCauseIssues(body, { context }));
   issues.push(...moveSizeWordIssues(body, { grades: moveSizeGrades(history) }));
   issues.push(...publishedTextIssues(body));
   issues.push(...noLeadIssues(body, { context }));
@@ -1212,6 +1215,8 @@ const MARKET_ANALYSIS_ISSUE_HELP = Object.freeze({
   'korea-move-unaddressed': 'KOSPI moved 3% or more; add one line on it with its change (장중이면 "장중 HH:MM KST 기준")',
   'no-lead-overstated': 'REGIME_CONTEXT says no flow or central scenario qualifies yet; say so first ("아직 중심 흐름·시나리오를 정하기 이르다"), mention the best-matching one only with "핵심 조건 미충족", and do not name a favoured choice',
   'session-move-mismatch': 'a percentage printed for an index under the latest session date must be that session\'s own move from the line "시장 이야기 최근 세션"; a five-session or since-the-high figure must be introduced as such (5거래일 …, 고점 대비 …)',
+  'investigation-cause-unconfirmed': 'INVESTIGATION found no report confirming the cause of that session; do not state a cause as fact — attribute it to the headline ("M/D 매체 보도에 따르면 …이 거론됐습니다") or mark it as an inference',
+  'investigation-cause-contradicted': 'INVESTIGATION confirmed the cause from a report; do not write that the cause was not found — cite the confirmed cause with its outlet and date',
   'prior-session-move-omitted':'REGIME_CONTEXT lists the completed-close moves by size (직전 완료 세션의 큰 움직임); open the reading with the first one — its name, close date (M/D) and change in one of the first two lines, separately from any in-session move',
   'direction-sign-contradiction': 'a direction word contradicts the sign of the move it describes; a positive change is a rise (상승·반등), a negative one a fall (하락·약세) — and do not open a sentence with a slot name such as 압력',
   'prompt-label-leak': 'a prompt section or slot name (METRIC_EVIDENCE, MARKET_DRIVERS, CLOSE_MOVE, LIVE_MOVE, NEXT_CHECK …) was left in the text; write the content without the label',

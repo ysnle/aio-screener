@@ -25,6 +25,7 @@ import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
 import { channelClaimLines } from '../../src/domain/news/channel-claims.js';
+import { investigationCauseIssues, investigationFactLines } from './investigation-conclusion.mjs';
 import {
   READING_CONDITIONAL, READING_MAX_CHARS, READING_MIN_CHARS, READING_RULES, READING_SECTIONS, buildReadingPrompt, buildReadingRetryPrompt,
   coreReadingIssues, coreReadingWarnings, normalizeReading, packetFigures, unsupportedFigures
@@ -123,7 +124,9 @@ export const SCREEN_READING_SCREENS = Object.freeze({
         basis: regime.asOf, axes, diagnosis: opening.available && opening.diagnosis?.state !== 'none' ? opening.diagnosis?.word || null : null,
         rebound: opening.available ? opening.rebound?.word || null : null,
         lines: [`기준일: ${md(regime.asOf)} 미국 종가`, ...openingFactLines(opening).map((line) => `시장 이야기 ${line}`), `종합 판정: ${regime.overall} (${countsLine(regime.counts, axes.length)})`,
-          leadershipLine(regime), ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+          leadershipLine(regime), ...axes.map((axis) => axisLine(axis, regime.asOf)),
+          // The investigation's conclusion on this close, so the reading names causes as the 오늘 screen's AI 조사 does.
+          ...investigationFactLines(data?.marketInvestigation, { session: regime.asOf })].filter(Boolean)
       };
     }
   }),
@@ -364,6 +367,8 @@ export function validateScreenReading(text, packet) {
   issues.push(...publishedTextIssues(body.replace(/\n\s*\n/g, ' ')));
   // An index move under the session's date is that session's own (market-analysis-validate.mjs sessionMoveIssues).
   issues.push(...sessionMoveIssues(body, { context: (packet?.lines || []).join('\n') }));
+  // A cause stated past the investigation's conclusion, when the packet carries it (investigation-conclusion.mjs).
+  issues.push(...investigationCauseIssues(body, { context: (packet?.lines || []).join('\n') }));
   warnings.push(...analysisInterpretationWarnings(body), ...coreReadingWarnings(body));
   // Interpretation warns. A diagnosis word other than the packet's outside a conditional clause and an opening on the
   // tally word are recorded, never blocking.

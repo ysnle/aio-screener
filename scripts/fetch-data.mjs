@@ -212,6 +212,20 @@ async function main() {
     data.afterHours = await collectAfterHours({ calendar: earningsCalendar, sessionDate: Number.isFinite(spxAt) ? afterHoursNyParts(spxAt).date : null, previous: previous?.afterHours || null });
     console.log(`[fetch-data] after-hours: ${data.afterHours ? `${data.afterHours.rows.length} rows for ${data.afterHours.sessionDate}` : 'none'}`);
   } catch (error) { data.afterHours = null; console.warn(`[fetch-data] after-hours skipped: ${error?.message || error}`); }
+  // The market investigation: the session's unusual moves and changed rule words, followed with the refresh's own data
+  // and a bounded search; called only when the lead set changed (scripts/producer/market-investigation.mjs). It runs
+  // before the market reading and the screen readings, which carry its conclusion on the same close
+  // (scripts/lib/investigation-conclusion.mjs), so the texts of one refresh tell one account of the cause.
+  try {
+    const investigation = await genMarketInvestigation({ data, history: timelineHistory, previous: previous?.marketInvestigation || null, request: aiUsage.sharedResponse('market-investigation') });
+    if (investigation.result) data.marketInvestigation = investigation.result;
+    aiUsage.note('market-investigation', investigation.outcome);
+    console.log(`[fetch-data] market investigation: ${investigation.outcome} (${investigation.requests} requests, ${investigation.result?.leads?.length ?? 0} leads)`);
+  } catch (error) {
+    if (previous?.marketInvestigation) data.marketInvestigation = previous.marketInvestigation;
+    aiUsage.note('market-investigation', 'error');
+    console.warn(`[fetch-data] market investigation kept previous: ${error?.message || error}`);
+  }
   const marketAnalysis = await genMarketAnalysis(data, marketSnapshotForConsumers, { previous: previous?.marketAnalysis || null, request: aiUsage.shared('market-analysis') });
   applyMarketAnalysis(data, marketAnalysis, { previous: previous?.marketAnalysis || null });
   aiUsage.note('market-analysis', marketAnalysisOutcome(marketAnalysis, aiUsage.receipt().purposes['market-analysis']));
@@ -226,18 +240,6 @@ async function main() {
     if (previous?.screenReadings) data.screenReadings = previous.screenReadings;
     aiUsage.note('screen-reading', 'error');
     console.warn(`[fetch-data] screen readings kept previous: ${error?.message || error}`);
-  }
-  // The market investigation: the session's unusual moves and changed rule words, followed with the refresh's own data
-  // and a bounded search; called only when the lead set changed (scripts/producer/market-investigation.mjs).
-  try {
-    const investigation = await genMarketInvestigation({ data, history: timelineHistory, previous: previous?.marketInvestigation || null, request: aiUsage.sharedResponse('market-investigation') });
-    if (investigation.result) data.marketInvestigation = investigation.result;
-    aiUsage.note('market-investigation', investigation.outcome);
-    console.log(`[fetch-data] market investigation: ${investigation.outcome} (${investigation.requests} requests, ${investigation.result?.leads?.length ?? 0} leads)`);
-  } catch (error) {
-    if (previous?.marketInvestigation) data.marketInvestigation = previous.marketInvestigation;
-    aiUsage.note('market-investigation', 'error');
-    console.warn(`[fetch-data] market investigation kept previous: ${error?.message || error}`);
   }
   data.meta.marketTimelineSealed = timelineRun.sealed;
   data.meta.marketTimelineSummary = await summarizeMarketTimeline(data.marketTimeline || null, { request: aiUsage.shared('slot-summary') })

@@ -66,6 +66,66 @@ export function factLine(fact) {
   return '';
 }
 
+// ---- the window's repeated stories ---------------------------------------------------------------------------------------
+// The story several outlets kept telling (11/23–24: "Huang's Return Revives AI Trade", "젠슨 황 복귀에 9% 급등", "AMD … After
+// Huang's Dramatic Return") is a catalyst candidate even when the ledger links none of its headlines to a lead. A cluster
+// is a salient word that two or more of the ledger's headlines share (titles only); a word whose headlines mostly repeat a
+// cluster already taken names that cluster instead of opening another.
+const CLUSTER_STOP = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'after', 'amid', 'over', 'under', 'about', 'what', 'this', 'that', 'than', 'says',
+  'said', 'could', 'would', 'will', 'new', 'its', 'their', 'how', 'why', 'you', 'your', 'need', 'know', 'today', 'stock', 'share', 'market', 'price', 'news',
+  'report', 'analyst', 'investor', 'trade', 'trading', 'wall', 'street', 'rally', 'fall', 'falls', 'rise', 'rises', 'slide', 'lower', 'higher', 'gain', 'loss',
+  'drop', 'sink', 'sinks', 'week', 'year', 'more', 'just', 'here', 'next', 'see', 'sees', 'key', 'data', 'focus', 'ai', 'us', 'u.s', 'inc', 'corp', 'etf',
+  'end', 'set', 'big', 'top', 'has', 'have', 'are', 'was', 'were', 'not', 'but', 'all', 'out', 'off', 'still', 'stall', 'can', 'may', 'one', 'two',
+  'despite', 'ahead', 'before', 'while', 'below', 'above', 'record', 'earning', 'earnings', 'profit', 'revenue', 'quarter', 'outlook', 'forecast', 'target', 'rating', 'upgrade', 'downgrade',
+  '하락', '상승', '급락', '급등', '종합', '장중', '마감', '출발', '속보', '증시', '주가', '지수', '시장']);
+const KO_PARTICLE = /(?:에서|으로|에게|까지|부터|에|의|로|은|는|이|가|을|를|도|와|과)$/;
+function titleTokens(title) {
+  const out = new Map();
+  // Latin words of three letters and more, or an all-capital name (TSMC, HPE); Hangul words without their particle.
+  for (const raw of String(title || '').replace(/[’']s\b/g, '').match(/[A-Za-z][A-Za-z0-9&.-]*[A-Za-z0-9]|[가-힣]{2,}/g) || []) {
+    if (/^[A-Za-z]/.test(raw) && raw.length < 3 && raw !== raw.toUpperCase()) continue;
+    let key = /[가-힣]/.test(raw) ? raw.replace(KO_PARTICLE, '') : raw.toLowerCase().replace(/\.$/, '');
+    if (!/[가-힣]/.test(key) && key.length > 4 && key.endsWith('s') && !key.endsWith('ss')) key = key.slice(0, -1);
+    if (key.length < 2 || CLUSTER_STOP.has(key)) continue;
+    if (!out.has(key)) out.set(key, raw.replace(KO_PARTICLE, ''));
+  }
+  return out;
+}
+
+/** The ledger's headline facts grouped by the salient words they repeat, most-repeated first: [{ label, count, headlines }]. */
+export function headlineClusters(facts = [], { max = 4, perCluster = 3, minTitles = 2 } = {}) {
+  const seen = new Set();
+  const heads = (Array.isArray(facts) ? facts : []).filter((fact) => fact?.kind === 'headline' && fact.title && !seen.has(fact.title) && seen.add(fact.title));
+  const tokens = heads.map((fact) => titleTokens(fact.title));
+  const words = new Map();
+  heads.forEach((fact, index) => {
+    for (const [key, form] of tokens[index]) {
+      const row = words.get(key) || { key, form, titles: new Set(), sources: new Set() };
+      row.titles.add(index); row.sources.add(fact.src?.source || `?${index}`);
+      words.set(key, row);
+    }
+  });
+  const ranked = [...words.values()].filter((row) => row.titles.size >= minTitles && row.sources.size >= 2)
+    .sort((a, b) => b.titles.size - a.titles.size || b.sources.size - a.sources.size || a.form.localeCompare(b.form));
+  const clusters = [];
+  for (const row of ranked) {
+    const home = clusters.find((cluster) => [...row.titles].filter((index) => cluster.titles.has(index)).length >= Math.min(cluster.titles.size, row.titles.size) * 0.5);
+    if (home) { if (home.labels.length < 2) { home.labels.push(row.form); home.keys.push(row.key); } continue; }
+    if (clusters.length < max) clusters.push({ labels: [row.form], keys: [row.key], titles: row.titles });
+  }
+  // The headlines that carry more of the cluster's words tell its story best; then the ledger's materiality.
+  const shared = (cluster, index) => cluster.keys.filter((key) => tokens[index].has(key)).length;
+  return clusters.map((cluster) => ({ label: cluster.labels.join(' · '), count: cluster.titles.size,
+    headlines: [...cluster.titles].sort((a, b) => shared(cluster, b) - shared(cluster, a) || Number(heads[b].materiality || 0) - Number(heads[a].materiality || 0))
+      .slice(0, perCluster).map((index) => heads[index]) }));
+}
+
+/** The clusters as lines: label and count, then each headline with its date and outlet (titles only). */
+export function headlineClusterLines(facts = [], options = {}) {
+  return headlineClusters(facts, options).flatMap((cluster) => [`「${cluster.label}」 보도 ${cluster.count}건`,
+    ...cluster.headlines.map((fact) => `   - ${md(fact.date)} ${fact.src?.source || '출처 미상'}: ${fact.titleKo || fact.title}${fact.titleKo && fact.titleKo !== fact.title ? ` / 원문: ${fact.title}` : ''}`)]);
+}
+
 export const INVESTIGATION_FUNCTIONS = Object.freeze([
   Object.freeze({
     name: 'session_moves',

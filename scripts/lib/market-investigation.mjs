@@ -16,13 +16,15 @@ import { isChannelClaimLine } from '../../src/domain/news/channel-claims.js';
 import { analysisInterpretationWarnings, PROMPT_SECTION_LABEL, publishedTextIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
 import { unsupportedFigures } from './screen-reading.mjs';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
+import { buildCloseSeries } from '../../src/domain/market/session/close-series.js';
+import { signedText } from '../../src/domain/shared/number.js';
 
 export const INVESTIGATION_SCHEMA_VERSION = 'market-investigation.v1';
 export const OFFICIAL_DOMAINS = Object.freeze(['federalreserve.gov', 'bls.gov', 'bea.gov', 'treasury.gov', 'sec.gov']);
 export const INVESTIGATION_DOMAINS = Object.freeze([...new Set([...REACTION_REPORT_DOMAINS, ...NEWS_REPORT_DOMAINS, ...OFFICIAL_DOMAINS])].slice(0, 20));
 export const CAUSE_KINDS = Object.freeze(['price', 'official', 'news', 'inference']);
 export const INVESTIGATION_LIMITS = Object.freeze({ verdictMax: 160, paragraphMin: 60, paragraphMax: 400, paragraphsMax: 4, causesMax: 6, unknownsMax: 4 });
-const SECTION = Object.freeze({ leads: '[단서]', retry: '[다시 쓰기]' });
+const SECTION = Object.freeze({ leads: '[단서]', sequence: '[직전 세션 흐름]', clusters: '[반복 보도 묶음]', retry: '[다시 쓰기]' });
 
 const nullable = (type) => ({ type: [type, 'null'] });
 export const INVESTIGATION_ANSWER_SCHEMA = Object.freeze({
@@ -44,6 +46,8 @@ export const INVESTIGATION_INSTRUCTIONS = [
   '- [채널 주장 · 미확인 …] 줄은 리서치 채널이 전한 수치를 앱이 추린 미확인 단서다. 채널 주장만으로 원인을 정하지 않는다: 가격 자료, 공식 문서, 검색한 보도로 확인되면 그 근거의 kind로, 확인하지 못하면 inference로 적고, 본문에는 "채널 주장(미확인)"으로 밝힌다.',
   '- 원인은 웹검색으로 확인한다. 단서 하나에 초점을 둔 질의로 그 세션 날짜 전후의 보도와 공식 발표를 찾는다. 넓은 검색 여러 번보다 분명한 검색 한 번이 낫다.',
   '- 찾은 원인이 다른 자산과 맞는지 session_moves로 대조한다: 신용 스프레드, 달러, 금리, 시장 폭(동일가중 지수·러셀 2000), 변동성, 유가. 맞지 않는 것은 맞지 않는다고 쓴다.',
+  '- [직전 세션 흐름]이 있으면 최근 세션은 그 앞 반등을 되돌린 날이다. 되돌린 세션만 보지 말고 반등을 만든 세션(그 줄의 날짜)의 원인도 같은 방식으로 찾아, 두 세션을 한 흐름으로 설명한다: 반등을 무엇이 만들었고 다음 세션에 그 기대가 왜 되돌려졌는지. 반등의 원인을 찾았으면 그 보도의 발행일로 causes에 적는다.',
+  '- [반복 보도 묶음]은 단서 기간에 여러 매체가 되풀이한 이야기(제목만)다. 원인 후보로 먼저 확인한다. 묶음의 이야기를 원인으로 쓰지 않으면 그 이유(날짜가 맞지 않음, 가격과 맞지 않음 등)를 쓴다.',
   '- 확인하지 못한 것은 확인하지 못했다고 쓴다. 원인을 지어내지 않는다.',
   '쓰기 (JSON 하나로 답한다):',
   '- verdict: 그날 무슨 일이 있었고 가장 근거가 많은 원인이 무엇인지 한 문장, 80자 안팎.',
@@ -58,14 +62,47 @@ export const INVESTIGATION_INSTRUCTIONS = [
 
 const md = (iso) => { const [, m, d] = String(iso || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 
-/** The first input message: the sessions, the leads and the headlines the ledger already linked to each lead. */
-export function buildLeadMessage({ session = {}, leads = [], linked = {} } = {}) {
+/**
+ * The first input message: the sessions, the leads and the headlines the ledger already linked to each lead; then, when
+ * present, the sessions before a give-back (`sequence`, reboundSequence) and the window's repeated stories (`clusters`,
+ * investigation-tools.mjs headlineClusterLines).
+ */
+export function buildLeadMessage({ session = {}, leads = [], linked = {}, sequence = null, clusters = [] } = {}) {
   const head = `${SECTION.leads} 미국 기준 세션 ${session.us || '미확인'}${session.kr ? ` · 한국 세션 ${session.kr}` : ''}`;
   const rows = leads.map((lead, index) => {
     const news = (linked[lead.id] || []).slice(0, 5).map((line) => `   - ${line}`);
     return [`${index + 1}. ${lead.text}`, ...(news.length ? ['   함께 걸린 보도 제목·채널 주장(원인의 후보, 확정 아님):', ...news] : [])].join('\n');
   });
-  return [head, ...rows].join('\n');
+  const before = sequence?.lines?.length ? [`${SECTION.sequence} ${sequence.head}`, ...sequence.lines.map((line) => `- ${line}`)] : [];
+  const stories = clusters.length ? [`${SECTION.clusters} 보도 제목만, 원인의 후보이며 확정 아님`, ...clusters] : [];
+  return [head, ...rows, ...before, ...stories].join('\n');
+}
+
+// The session line of the 시장 상태 packet (market-story.js openingFactLines, session-read.js giveBackSaid) names the share
+// of a rebound the latest session gave back and the rebound's low: "… 11/20 저점 뒤 오른 폭 가운데 반도체 64%, …를 되돌렸습니다."
+const GIVE_BACK_LINE = /^시장 이야기 최근 세션: (\d{1,2})\/(\d{1,2}) .*?(\d{1,2})\/(\d{1,2}) 저점 뒤 오른 폭 가운데 .+?를 되돌렸습니다\./;
+const SEQUENCE_INDEXES = Object.freeze([['sox', '반도체(SOX)'], ['ndx', '나스닥 100'], ['spx', 'S&P 500'], ['rsp', '동일가중']]);
+export const SEQUENCE_SESSIONS = 2;
+
+/**
+ * When the latest session gave back a rebound, the two sessions before it with each index's one-session move, from the
+ * same closes the packet reads ({ head, lines, low }); null otherwise. A session line without the give-back sentence, a
+ * history that does not end on `session`, or too few closes gives null, and the message is as before.
+ */
+export function reboundSequence({ signalLines = [], history = [], session = null } = {}) {
+  const match = (Array.isArray(signalLines) ? signalLines : []).map((line) => GIVE_BACK_LINE.exec(line)).find(Boolean);
+  if (!match || !isIsoDay(session) || md(session) !== `${match[1]}/${match[2]}`) return null;
+  const closes = Object.fromEntries(SEQUENCE_INDEXES.map(([id]) => [id, new Map(buildCloseSeries(history, id, { through: session, market: 'US' })
+    .filter((point) => Number(point.value) > 0).map((point, index, all) => [point.date, index ? (Number(point.value) / Number(all[index - 1].value) - 1) * 100 : null]))]));
+  const dates = [...closes.spx.keys()];
+  if (dates.at(-1) !== session || dates.length < SEQUENCE_SESSIONS + 2) return null;
+  const lines = dates.slice(-(SEQUENCE_SESSIONS + 1), -1).reverse().map((date) => {
+    const moves = SEQUENCE_INDEXES.map(([id, label]) => [label, closes[id].get(date)]).filter(([, value]) => Number.isFinite(value));
+    return moves.length ? `${md(date)} ${moves.map(([label, value]) => `${label} ${signedText(value, 1, '%')}`).join(', ')}` : '';
+  }).filter(Boolean);
+  if (!lines.length) return null;
+  const low = `${match[3]}/${match[4]}`;
+  return { low, lines, head: `최근 세션(${md(session)})은 ${low} 저점 뒤 반등을 되돌린 날이다. 그 앞 두 세션(최근 것부터)의 하루 종가 변화:` };
 }
 
 /**

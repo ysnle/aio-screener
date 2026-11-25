@@ -275,8 +275,49 @@ await section('channel claims and artifacts', async () => {
     INVESTIGATION_FUNCTIONS.some((fn) => fn.name === 'company') && INVESTIGATION_FUNCTIONS.find((fn) => fn.name === 'market_data')?.parameters.properties.set.enum.join() === 'treasury-auctions,korea-flows,channel-releases');
 });
 
+// ---- a give-back read with the rebound before it, and the window's repeated stories ---------------------------------------
+await section('give-back sequence and repeated stories', async () => {
+  const { reboundSequence } = await import('./lib/market-investigation.mjs');
+  const { headlineClusters } = await import('./lib/investigation-tools.mjs');
+  const { buildScreenPacket } = await import('./lib/screen-reading.mjs');
+  // A fall of more than 10% from the high, a rebound off the low, a surge the session before and a give-back on the last.
+  const dates = [];
+  for (let ms = Date.parse('2030-03-01T00:00:00Z'); dates.length < 262; ms += 86400000) { const d = new Date(ms); if (d.getUTCDay() % 6) dates.push(d.toISOString().slice(0, 10)); }
+  const path = (i) => (i <= 220 ? 100 + i * 0.09 : i <= 245 ? 119.8 - (i - 220) * 0.6 : i <= 259 ? 104.8 + (i - 245) * 0.4 : i === 260 ? 113 : 108.3);
+  const history = dates.map((date, i) => ({ date, ndx: path(i), spx: 50 + path(i) * 0.3, sox: path(i) * 1.5 - 30, rsp: 40 + path(i) * 0.1 }));
+  const asOf = dates.at(-1), surge = dates.at(-2);
+  const shared = { regime: { available: true, asOf, overall: '부담 우세', axes: [], counts: {} }, inputs: { history } };
+  const signal = buildScreenPacket('signal', shared, {});
+  const seq = reboundSequence({ signalLines: signal?.lines, history, session: asOf });
+  const mdOf = (iso) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
+  check(`v60.56 investigation: a session that gave back a rebound carries the two sessions before it, the surge first, with each index's one-session move`,
+    seq?.lines.length === 2 && seq.lines[0].startsWith(`${mdOf(surge)} 반도체(SOX) +`) && seq.lines[0].includes('나스닥 100 +2.4%') && seq.head.includes('저점 뒤 반등을 되돌린 날'), JSON.stringify([signal?.lines?.[1], seq]));
+  const plain = (signal?.lines || []).map((line) => line.replace(/ \d{1,2}\/\d{1,2} 저점 뒤 오른 폭 가운데 .+?를 되돌렸습니다\./, ''));
+  check(`v60.56 investigation: a session line without a give-back, or another session, gives no sequence`,
+    reboundSequence({ signalLines: plain, history, session: asOf }) === null && reboundSequence({ signalLines: signal?.lines, history, session: surge }) === null && reboundSequence({}) === null);
+  // The repeated story the ledger linked to no lead (three outlets on one return), beside two unrelated single headlines.
+  const story = [['h1', 'Emerging Market Stocks Rally as Huang’s Return Revives AI Trade', 'Bloomberg'], ['h2', 'AMD Stock Shows the Market Has Stopped Making Sense After Huang’s Dramatic Return', 'Investing.com'],
+    ['h3', 'Jensen Huang’s Nvidia return shows the race is about more than chips', 'CNBC'], ['h4', 'Gold falls on hawkish Fed bets', 'Reuters'], ['h5', 'Oil edges lower as supply grows', 'WSJ']]
+    .map(([id, title, source]) => ({ id: `headline:${id}`, kind: 'headline', title, date: surge, src: { kind: 'news', source }, materiality: 50, topics: [], subjects: [] }));
+  const clusters = headlineClusters(story);
+  check(`v60.56 investigation: the most-repeated story of the window is one cluster named by its shared words; a single headline is no cluster`,
+    clusters.length === 1 && /Huang/.test(clusters[0].label) && clusters[0].count === 3 && clusters[0].headlines.length === 3, JSON.stringify(clusters.map((c) => [c.label, c.count])));
+  const seqDay = { schemaVersion: 'market-day.v1', sessions: { us: asOf, kr: asOf }, threads: [], links: [],
+    facts: [price('ndx', '나스닥100', -4.16, -3.1, 80, { date: asOf, id: `price:ndx:${asOf}` }), ...story] };
+  const asked = stub([answerPayload(GOOD)]);
+  const run = await gen({ day: seqDay, interpretation: shared, request: asked.request });
+  const first = String(asked.bodies[0]?.input?.[0]?.content || '');
+  check(`v60.56 investigation: the first message carries the sessions before the give-back and the repeated stories (titles only), after the leads`,
+    first.includes('[직전 세션 흐름]') && first.includes(seq?.lines?.[0]) && first.includes('[반복 보도 묶음]') && first.includes('Huang’s Return Revives AI Trade')
+      && first.indexOf('[단서]') < first.indexOf('[직전 세션 흐름]'), first);
+  const noSeq = await gen({ day: seqDay, interpretation: { ...shared, inputs: { history: [] } }, history: [], request: stub([answerPayload(GOOD)]).request });
+  check(`v60.56 investigation: the give-back joins the key, so the same leads read without the sequence are asked again with it`, run.result.key !== noSeq.result.key);
+  check(`v60.56 investigation: the instructions ask for the rebound session's cause and for each repeated story to be checked or set aside with a reason`,
+    INVESTIGATION_INSTRUCTIONS.includes('[직전 세션 흐름]') && INVESTIGATION_INSTRUCTIONS.includes('반등을 만든 세션') && INVESTIGATION_INSTRUCTIONS.includes('[반복 보도 묶음]'));
+});
+
 if (failures.length) {
   console.error(`[market-investigation] FAIL (${failures.length})\n - ${failures.join('\n - ')}`);
   process.exit(1);
 }
-console.log('[market-investigation] OK: leads from the ledger and rule words (rates-led, quiet, single-stock days), Worker-admitted tool rounds, cited causes, figure/order blocks with interpretation warnings, key reuse, held keys, repair, round and monthly caps, screen gate, 오늘/시장 상태 renderers and chat context');
+console.log('[market-investigation] OK: leads from the ledger and rule words (rates-led, quiet, single-stock days), Worker-admitted tool rounds, cited causes, figure/order blocks with interpretation warnings, key reuse, held keys, repair, round and monthly caps, screen gate, 오늘/시장 상태 renderers and chat context, the give-back sequence and the repeated stories');

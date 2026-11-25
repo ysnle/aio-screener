@@ -9,6 +9,9 @@
 // The earnings-reaction key (v59.56, `er:` in the reuse signature) and the big-tech cash-flow validator context (v59.56)
 // are pinned empty through their fixture seams: the model's inputs move only through the snapshot version, so a run
 // never reads public-data/event-briefs.json or bigtech-cashflow.json from the working tree (maintenance 2026-11-02).
+// The investigation key (`iv:` in the reuse signature) and its validator context lines are empty too: the model's data
+// carries no `marketInvestigation`, and a run with one adds no outcome, status or reuse path — only another input that,
+// like the narrative signature, re-opens the reading when it changes.
 //
 // Invariants:
 //   N1 verified   — a published reading marked verified passed the semantic gate and is at most 12 h old.

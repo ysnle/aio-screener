@@ -16,6 +16,7 @@ import { HEADLINE_GLOSSARY_PAIRS } from '../../src/domain/briefing/headline-term
 import { expandScreenerArtifact } from '../../src/data/screener-extended.js';
 import { loadThemeMaps } from '../build-scenario-state.mjs';
 import { readNarrativeContext } from '../lib/narrative-context.mjs';
+import { investigationFactLines, investigationSignature } from '../lib/investigation-conclusion.mjs';
 import { renderMarketScenarioModel } from '../../src/domain/market/regime/regime-scenarios.js';
 import { renderScenarioOutlookContext } from '../../src/domain/market/regime/scenario-outlook.js';
 import { renderMacroCrossroadsContext } from '../../src/domain/market/regime/macro-crossroads.js';
@@ -431,7 +432,11 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
   const historyEarly = history || await readHistoryRows();
   const earningsCloseDate = buildCloseSeries(historyEarly, 'spx').at(-1)?.date || null;
   const earningsKey = earningsContextSignature(briefsInput, earningsCloseDate);
-  const inputSignature = [narrativeContext.signature || '', afterHoursKey ? `ah:${afterHoursKey}` : '', earningsKey ? `er:${earningsKey}` : ''].filter(Boolean).join('|') || narrativeContext.signature;
+  // The market investigation's conclusion on the same US close (this run's, data.marketInvestigation): the reading names
+  // causes as the investigation does. Another session's or a missing investigation gives no lines and changes nothing.
+  const investigationLines = investigationFactLines(data?.marketInvestigation, { session: earningsCloseDate });
+  const investigationKey = investigationSignature(investigationLines);
+  const inputSignature = [narrativeContext.signature || '', afterHoursKey ? `ah:${afterHoursKey}` : '', earningsKey ? `er:${earningsKey}` : '', investigationKey].filter(Boolean).join('|') || narrativeContext.signature;
   const reused = sentenceDayOpen ? null : reusableMarketAnalysis(previous, { metricEvidence, newsEvidence, headlineContext, narrativeSignature: inputSignature, nowMs });
   if (reused) {
     console.log(`[fetch-data] marketAnalysis evidence and headlines unchanged — reusing verified analysis from ${reused.generatedAt} (no AI call)`);
@@ -490,7 +495,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // SEC quarterly cash flow (hyperscaler total + the night's big-tech reporters); `bigtechCashflow` is a fixture seam.
     const cashflowLines = cashflowContextLines(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, briefsInput, earningsCloseDate, { nowMs });
     const inflationDirection = marketAnalysisInflationDirection(data); // The screen's core-inflation direction, one read for prompt and gates
-    const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
+    const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines, ...investigationLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
     // A large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // Computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -518,7 +523,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const sizeGrades = moveSizeGrades(historyRows);
     const prompt = buildMarketAnalysisPrompt({ inflationLine, regimeContext, evidenceLines, koreaIntradayLines, intradayLines, usCloseAt, afterHoursLines, earningsLines,
       cashflowLines, crossMarketIntradayLines, newsLines, headlineLines, driversContext, narrativeText: narrativeContext.text, largeMove, largeMoveDirection,
-      moveSizeText: moveSizeLine(sizeGrades) }); // The ledger's size grades; the validator reads the same
+      moveSizeText: moveSizeLine(sizeGrades), investigationLines: investigationLines.join('\n') }); // The ledger's size grades; the validator reads the same
     // The retained text is re-checked against this run's data — on 10/15 a reading verified before the crash
     // ("원화 강세", easing inflation) would otherwise be re-served for 12 h after the evidence turned.
     // The full result goes back so a value quoted for an observation that has since moved a little is not fatal
