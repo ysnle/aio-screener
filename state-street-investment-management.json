@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "managerId": "state-street-investment-management",
   "cik": "0000093751",
   "latestFiling": {
@@ -91,7 +91,43 @@
       ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
-    "valueUnit": "USD as reported by Form 13F information table",
+    "valueUnit": "USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs",
+    "valueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0000093751-26-000747",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 24.609999560728994,
+          "sampleRows": 4120
+        }
+      ]
+    },
+    "priorValueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0000093751-26-000507",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 27.34000009911338,
+          "sampleRows": 4031
+        },
+        {
+          "accession": "0000093751-26-000583",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 26.982951302626947,
+          "sampleRows": 4092
+        }
+      ]
+    },
     "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
   },
   "holdings": [

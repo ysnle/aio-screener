@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows-index.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "managerId": "jpmorgan-chase",
   "cik": "0000019617",
   "latestFiling": {
@@ -85,7 +85,35 @@
       ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
-    "valueUnit": "USD as reported by Form 13F information table",
+    "valueUnit": "USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs",
+    "valueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0000019617-26-000404",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 56.94006609903463,
+          "sampleRows": 34356
+        }
+      ]
+    },
+    "priorValueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0000019617-26-000325",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 62.180004325295464,
+          "sampleRows": 32540
+        }
+      ]
+    },
     "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
   },
   "rowSchema": "masters-13f-manager-rows.v1",

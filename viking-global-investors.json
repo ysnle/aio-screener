@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "managerId": "viking-global-investors",
   "cik": "0001103804",
   "latestFiling": {
@@ -85,7 +85,35 @@
       ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
-    "valueUnit": "USD as reported by Form 13F information table",
+    "valueUnit": "USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs",
+    "valueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001103804-26-000010",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 117.74000000339822,
+          "sampleRows": 79
+        }
+      ]
+    },
+    "priorValueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001103804-26-000006",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 97.95500079871519,
+          "sampleRows": 90
+        }
+      ]
+    },
     "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
   },
   "holdings": [

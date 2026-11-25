@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "managerId": "ark-investment-management",
   "cik": "0001697748",
   "latestFiling": {
@@ -85,7 +85,35 @@
       ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
-    "valueUnit": "USD as reported by Form 13F information table",
+    "valueUnit": "USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs",
+    "valueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001104659-26-126785",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 52.300007269819346,
+          "sampleRows": 181
+        }
+      ]
+    },
+    "priorValueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001104659-26-096910",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 58.73000861081095,
+          "sampleRows": 189
+        }
+      ]
+    },
     "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
   },
   "holdings": [

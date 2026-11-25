@@ -1,8 +1,8 @@
 {
   "schema": "masters-13f-manager-rows.v1",
   "sourceKind": "SEC_EDGAR",
-  "reviewedAt": "2026-11-18",
-  "generatedAt": "2026-11-18T16:42:54.566Z",
+  "reviewedAt": "2026-11-25",
+  "generatedAt": "2026-11-25T16:25:10.584Z",
   "managerId": "citadel-advisors",
   "cik": "0001423053",
   "latestFiling": {
@@ -91,7 +91,43 @@
       ]
     },
     "comparisonKeyPolicy": "NORMALIZED_CUSIP+PUT_CALL+SHARE_TYPE",
-    "valueUnit": "USD as reported by Form 13F information table",
+    "valueUnit": "USD; filings reported in thousands are scaled by scripts/lib/13f-value-unit.mjs",
+    "valueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001104659-26-128228",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 30.599991543457197,
+          "sampleRows": 8630
+        }
+      ]
+    },
+    "priorValueUnitNormalization": {
+      "publishedUnit": "USD",
+      "corrected": false,
+      "filings": [
+        {
+          "accession": "0001104659-26-097200",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 31.254990388880675,
+          "sampleRows": 8439
+        },
+        {
+          "accession": "0001104659-26-104387",
+          "reportedUnit": "USD",
+          "multiplier": 1,
+          "basis": "MEDIAN_IMPLIED_PRICE_OF_SHARE_ROWS",
+          "medianImpliedPrice": 31.280003319391888,
+          "sampleRows": 8434
+        }
+      ]
+    },
     "displayPolicy": "TOP_10_BY_REPORTED_VALUE"
   },
   "holdings": [
