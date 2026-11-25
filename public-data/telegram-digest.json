@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-25T19:52:00.897Z",
-  "attemptedAt": "2026-11-25T19:52:00.897Z",
-  "lastSuccessfulAt": "2026-11-25T19:52:00.897Z",
+  "generatedAt": "2026-11-25T20:21:47.817Z",
+  "attemptedAt": "2026-11-25T20:21:47.817Z",
+  "lastSuccessfulAt": "2026-11-25T20:21:47.817Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-11T19:51:56.213Z",
-  "until": "2026-11-25T19:51:56.213Z",
+  "since": "2026-11-11T20:21:44.519Z",
+  "until": "2026-11-25T20:21:44.519Z",
   "current24hWindow": {
     "start": "2026-11-23T23:00:00.000Z",
     "end": "2026-11-24T23:00:00.000Z",
@@ -111,9 +111,9 @@
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 719,
+      "count": 715,
       "freshCount": 16,
-      "eligibleTextCount": 718,
+      "eligibleTextCount": 714,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1962,
+  "count": 1958,
   "retainedItemCount": 392,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1962,
-    "eligibleTextCount": 1906,
+    "observedCount": 1958,
+    "eligibleTextCount": 1902,
     "mediaOnlyCount": 56,
     "mediaAttachedCount": 772,
     "photoPostCount": 657,
     "documentPostCount": 3,
     "imageOnlyCount": 5,
     "highSignalCount": 322,
-    "broadSignalCount": 830,
+    "broadSignalCount": 827,
     "selectedRawCount": 368,
     "selectedEligibleCount": 368,
     "selectedRawCoveragePct": 19.3,
@@ -160,7 +160,7 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "semi": 638,
+    "semi": 636,
     "macro": 286,
     "market-note": 686,
     "kr-market": 99,
@@ -168,13 +168,13 @@
     "healthcare": 55,
     "japan": 46,
     "equity": 123,
-    "geo": 229,
-    "power": 177,
+    "geo": 227,
+    "power": 175,
     "credit": 61,
     "crypto": 1,
     "ai-policy": 143,
     "optical": 23,
-    "flows": 65,
+    "flows": 64,
     "insider": 6,
     "media-only": 55
   },
@@ -271,11 +271,11 @@
   },
   "themes": [
     "Market Notes (686 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80...",
-    "Semiconductors/Memory (638 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
+    "Semiconductors/Memory (636 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
     "Macro/Rates (286 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 25일 🇺🇸 아메리카 • 트럼프 행정부는 중국, EU 및 기타 14개 경제권을 대상으로 새로운 관세 부과를 추진 중이라고 WSJ와 블룸버그가 보도. 무역법...",
     "Earnings/Corporate (235 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (229 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (177 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
+    "Geopolitics (227 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "AI Power/Grid (175 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
     "AI Policy/Export Controls (143 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (123 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
   ],
@@ -357,7 +357,7 @@
       "topics": [
         "geo"
       ],
-      "count": 229,
+      "count": 227,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 638,
+      "count": 636,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지..."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 177,
+      "count": 175,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
     },
     {
@@ -465,7 +465,7 @@
       "topics": [
         "flows"
       ],
-      "count": 65,
+      "count": 64,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/20 (11월 누적) 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF..."
     },
     {
