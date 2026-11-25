@@ -74,6 +74,23 @@ body.dark-theme { --mk-neutral-bar: rgba(var(--ink-rgb), 0.22); }
 .opening-cross__meaning { font-size: 14px; line-height: 1.5; color: var(--color-text-primary); }
 .opening-cross__figures { font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .opening-cross__row { grid-template-columns: minmax(0, 1fr); } }
+/* The rebound tracker (rebound-track.js): head, one row per session since the low (12px figures), the two conditions. */
+.rebound-track { display: flex; flex-direction: column; gap: 6px; }
+.rebound-track__head { margin: 0; font-size: 14px; line-height: 1.5; color: var(--color-text-primary); }
+.rebound-track__state { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; }
+.rebound-track__state[data-state="failed"] { color: var(--color-text-warning); }
+.rebound-track__scroll { overflow-x: auto; }
+.rebound-track__table { border-collapse: collapse; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.rebound-track__caption { caption-side: top; text-align: left; color: var(--color-text-secondary); }
+.rebound-track__table th, .rebound-track__table td { padding: 2px 10px 2px 0; text-align: right; white-space: nowrap; }
+.rebound-track__table th:first-child { text-align: left; font-weight: 600; color: var(--color-text-secondary); }
+.rebound-track__table thead th { font-weight: 600; color: var(--color-text-secondary); }
+.rebound-track__table td.is-up { color: var(--color-data-up); }
+.rebound-track__table td.is-down { color: var(--color-data-down); }
+.rebound-track__table td.is-missing { color: var(--color-text-secondary); }
+.rebound-track__conds { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 14px; line-height: 1.5; color: var(--color-text-primary); }
+.rebound-track__cond[data-cond="fail"][data-met="true"] b { color: var(--color-text-warning); }
+.charts-rebound { margin-top: 12px; }
 .fall-bars { --fall-name: 9.5em; --fall-room: 52px; display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
 .fall-bars__foot, .fall-bars__row { display: grid; grid-template-columns: var(--fall-name) minmax(0, 1fr); align-items: center; gap: 0 8px; }
 .fall-bars__caption { color: var(--color-text-secondary); }

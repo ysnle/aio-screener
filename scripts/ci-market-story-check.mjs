@@ -464,8 +464,10 @@ await runSections('market-story', [
     assert.ok(lines.includes('반등 상태어(나스닥 100 규칙으로 정함, 바꾸지 말 것): 반등 시도'), 'v60.52 rebound terms');
     assert.ok(lines.some((line) => line.startsWith(`반등(나스닥 100 종가, 저점 대비 +${S.reboundPct}% 규칙): 반등 시도 — 나스닥 100이 11/20 종가`)), 'v60.52 rebound terms');
     assert.equal(lines.filter((line) => line.startsWith('반등 가격 조건(나스닥 100·S&P 500): ')).length, 2, 'v60.52 rebound terms');
-    assert.ok(lines.every((line) => !/반등 확인|바닥 확인/.test(line)), 'v60.52 the story lines never use the follow-through words');
-    assert.doesNotMatch(`${texts(rebound)}\n${lines.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
+    // The tracker's confirm clause is the follow-through count itself, named with its own index and word.
+    const story = lines.filter((line) => !line.startsWith('반등 추적: '));
+    assert.ok(story.every((line) => !/반등 확인|바닥 확인/.test(line)), 'v60.52 the story lines never use the follow-through words');
+    assert.doesNotMatch(`${texts(rebound)}\n${story.join('\n')}`, /나스닥 종합|나스닥(?! 100)/, 'v60.51 rebound');
   });
   const day2 = after(day1, '2026-11-24', { sox: 1.01, ndx: 1.005, spx: 1.003, rsp: 1.002, dow: 1.003 }, { rallyPhase: 1, rallyDay: 2, followThroughDay: 0 });
   // Five sessions after the bounce: a down day, then a follow-through day (the producer's rally fields, v60.52 count: the
@@ -498,6 +500,49 @@ await runSections('market-story', [
     assert.equal(failed.rebound.stance.text, said(failed, 'watch').text, 'v60.51 rebound');
     cleanSaid(said(failed, 'watch'), broke);
     assert.equal(build(after(broke, '2026-11-27', { ndx: 0.99, spx: 0.99, sox: 0.99 })).rebound, null, 'v60.51 rebound');
+  });
+  check('v60.56 rebound-track: the rebound as a process — N일째, each session\'s move since the low\'s close, the follow-through condition and the low\'s check', () => {
+    const track = build(day2).track;
+    assert.equal(track.head.text, '11/20 저점 뒤 2일째', 'v60.56 rebound-track');
+    assert.deepEqual(track.columns.map((column) => column.label), ['반도체', '나스닥 100', 'S&P 500', '동일가중'], 'v60.56 rebound-track: leaders first');
+    assert.deepEqual(track.rows.map((row) => [row.date, row.day, row.cells.map((cell) => cell.said.text)]),
+      [['2026-11-23', 1, ['+14.0%', '+6.9%', '+4.7%', '+2.6%']], ['2026-11-24', 2, ['+15.1%', '+7.4%', '+5.0%', '+2.8%']]], 'v60.56 rebound-track: each close against the 11/20 close, oldest first');
+    assert.equal(track.confirm.met, false, 'v60.56 rebound-track');
+    assert.equal(track.confirm.said.text, `나스닥 종합이 저점 뒤 ${RULES.rallyAttempt.minDay}일째부터 하루 +${RULES.rallyAttempt.gainPct}% 이상 오르고 거래량이 전날보다 많으면 반등 확인 신호(FTD)`, 'v60.56 rebound-track: the follow-through count\'s own rule and words');
+    assert.equal(track.fail.said.text, build(day2).rebound.checks.texts[0], 'v60.56 rebound-track: the fail condition is the low\'s own check, not a second rule');
+    for (const piece of [track.said, ...track.rows.map((row) => row.said)]) cleanSaid(piece, day2);
+    const line = openingFactLines(build(day2)).find((item) => item.startsWith('반등 추적: '));
+    assert.equal(line, `반등 추적: ${track.said.text}`, 'v60.56 rebound-track');
+    assert.match(line, /^반등 추적: 11\/20 저점 뒤 2일째\(반등 시도\)\. 11\/23\(1일째\) 반도체 \+14\.0%, .*; 11\/24\(2일째\) .* 확인 조건: 나스닥 종합이 .* 실패 조건: 나스닥 100이 11\/20 종가 20,000 위를 지키는지/, 'v60.56 rebound-track');
+  });
+  check('v60.56 rebound-track: at most the last six sessions, numbered from the low; the follow-through, once it happened, is the confirm condition met', () => {
+    const day7 = after(day6, '2026-12-02', { sox: 1.01, ndx: 1.01, spx: 1.01, rsp: 1.01, dow: 1.01 }, { rallyPhase: 2, rallyDay: 7, followThroughDay: 0 });
+    const track = build(day7).track;
+    assert.equal(track.day, 7, 'v60.56 rebound-track');
+    assert.deepEqual(track.rows.map((row) => `${row.date}:${row.day}`), ['2026-11-24:2', '2026-11-25:3', '2026-11-27:4', '2026-11-30:5', '2026-12-01:6', '2026-12-02:7'], `v60.56 rebound-track: ${RULES.reboundTrack.sessionsMax} rows, oldest first`);
+    assert.deepEqual({ met: track.confirm.met, text: track.confirm.said.text }, { met: true, text: '11/27 나스닥 종합 반등 확인 신호(FTD)가 나왔습니다.' }, 'v60.56 rebound-track');
+  });
+  check('v60.56 rebound-track: a close missing on a session is 자료 없음 in its cell, never the neighbouring close', () => {
+    const gap = day2.map((row) => (row.date === '2026-11-23' ? (({ rsp, ...rest }) => rest)(row) : row));
+    const track = build(gap).track;
+    assert.deepEqual(track.rows[0].cells.map((cell) => cell.said.text), ['+14.0%', '+6.9%', '+4.7%', '자료 없음'], 'v60.56 rebound-track');
+    assert.equal(track.rows[0].cells[3].value, null, 'v60.56 rebound-track');
+    assert.match(track.rows[1].cells[3].said.text, /^\+/, 'v60.56 rebound-track: the next session reads its own close');
+  });
+  check('v60.56 rebound-track: a failed rebound shows its sessions through the break with the fail condition met and no confirm; no rebound, no tracker and no line', () => {
+    const broke = after(day2, '2026-11-25', { sox: 0.82, ndx: 0.9, spx: 0.93, rsp: 0.96, dow: 0.94 });
+    const failed = build(broke).track;
+    assert.equal(failed.state, 'failed', 'v60.56 rebound-track');
+    assert.equal(failed.confirm, null, 'v60.56 rebound-track');
+    assert.deepEqual({ met: failed.fail.met, text: failed.fail.said.text }, { met: true, text: '나스닥 100이 11/20 종가 20,000 아래로 마감해 반등 실패' }, 'v60.56 rebound-track');
+    assert.deepEqual(failed.rows.map((row) => row.day), [1, 2, 3], 'v60.56 rebound-track');
+    assert.ok(failed.rows[2].cells[1].value < 0, 'v60.56 rebound-track: the break session reads under the low');
+    cleanSaid(failed.said, broke);
+    for (const history of [base, after(broke, '2026-11-27', { ndx: 0.99, spx: 0.99, sox: 0.99 }), after(base, '2026-11-23', { ndx: 1.045, spx: 1.03, sox: 1.08 })]) {
+      const opening = build(history);
+      assert.equal(opening.track, null, 'v60.56 rebound-track: no rebound, no tracker');
+      assert.ok(!openingFactLines(opening).some((item) => item.startsWith('반등 추적')), 'v60.56 rebound-track: and no line');
+    }
   });
   check('v60.51 no rebound read under the rule\'s line, or outside a fall that reached the correction line', () => {
     assert.equal(build(after(base, '2026-11-23', { ndx: 1.045, spx: 1.03, sox: 1.08 })).rebound, null, 'v60.51 a 4.5% bounce is not a rebound');
@@ -725,9 +770,10 @@ await runSections('market-story', [
   check('v60.55 the AI fact lines carry the same three session lines, ahead of the standing', () => {
     const lines = openingFactLines(gave);
     assert.equal(lines[0], `최근 세션: ${said(gave, 'session').text}`, 'v60.55 session-read');
-    assert.equal(lines[1], `최근 세션에 내린 곳: ${said(gave, 'gathered').text}`, 'v60.55 session-read');
-    assert.match(lines[2], /^최근 세션 S&P 500 업종별 기여: S&P 500 -0\.5% 가운데 기술/, 'v60.55 session-read');
-    assert.match(lines[3], /^최근 세션 장 마감 뒤 실적\(시간외 잠정값\): 델테크놀로지스/, 'v60.55 session-read');
+    assert.equal(lines[1], `반등 추적: ${gave.track.said.text}`, 'v60.56 rebound-track: the tracker line right after the session line');
+    assert.equal(lines[2], `최근 세션에 내린 곳: ${said(gave, 'gathered').text}`, 'v60.55 session-read');
+    assert.match(lines[3], /^최근 세션 S&P 500 업종별 기여: S&P 500 -0\.5% 가운데 기술/, 'v60.55 session-read');
+    assert.match(lines[4], /^최근 세션 장 마감 뒤 실적\(시간외 잠정값\): 델테크놀로지스/, 'v60.55 session-read');
   });
   check('v60.55 the credit check reads the newest published spread after the low with its own date, and 자료 없음 when none is published yet', () => {
     const lagging = { series: { hyOas: { observations: [...SESSIONS.map((date) => [date, 3.76]), ['2026-11-23', 3.63]] } } };
@@ -817,11 +863,36 @@ await runSections('market-story', [
     assert.ok(lines.includes('다른 시장 금리 경로(2년물로 어림한 값이라 기간·위험 프리미엄이 섞임, 인상·인하 횟수 아님): 인상 반영 — 2년물 − 기준금리 중간값 +80bp(11/23), 10/23에는 +100bp — 지금 뜻: 인상 반영이 줄어드는 중이라, 물가가 식는 발표가 이어지면 인상 가격이 빠지고 인하 기대로 넘어갈 수 있는 자리'), 'v60.55 cross-market');
     assert.ok(lines.includes('다른 시장 금리 다음 확인(수집된 발표 일정): 다음 물가 발표 11/26 PCE (연준 기준 물가)'), 'v60.55 cross-market');
   });
-  check('v60.55 cross-market: the produced record carries the rows for the static shell, in the face\'s order, as plain label and text', () => {
+  check('v60.56 cross-market: the produced record (오늘\'s static shell) carries the one synthesis line where the rows were, no head and no rows', () => {
     const record = todayVerdictFrom({ available: true, overall: '부담 우세', asOf: LAST, heroLine: 'x', counts: { favorable: 0, neutral: 2, burden: 4, unknown: 0 } }, 'now', 'm', cross);
-    const rows = record.story.lines.filter((line) => line.id === 'cross');
-    assert.deepEqual(rows.map((line) => line.label), ['신용 부담', '달러 부담', '변동성 양호', '시장 폭 중립', '금리 중립', '금리 경로 인상 반영'], 'v60.55 cross-market');
-    assert.ok(rows.every((line) => typeof line.text === 'string' && line.text.includes(' — ')), 'v60.55 cross-market');
+    const ids = record.story.lines.map((line) => line.id);
+    assert.deepEqual(ids.slice(0, ids.indexOf('lede') + 1), ['session', 'cross', 'lede'], 'v60.56 home-synthesis');
+    assert.deepEqual(record.story.lines.find((line) => line.id === 'cross'), { id: 'cross', label: '다른 시장', text: cross.crossSummary.said.text }, 'v60.56 home-synthesis');
+  });
+  check('v60.56 home-synthesis: one sentence from the same rows — each state\'s markets (부담, 중립, 양호, 자료 없음), then the rate path and the next inflation release', () => {
+    assert.equal(cross.crossSummary.said.text, '부담: 신용·달러. 중립: 시장 폭·금리. 양호: 변동성. 금리 경로 인상 반영, 다음 물가 발표 11/26 PCE (연준 기준 물가).', 'v60.56 home-synthesis');
+    for (const bucket of cross.crossSummary.buckets) for (const name of bucket.names) assert.ok(cross.cross.some((row) => row.label === name && (row.state === bucket.state)), `v60.56 home-synthesis: ${name} is in its row's own state`);
+    assert.equal(cross.crossSummary.buckets.flatMap((bucket) => bucket.names).length, cross.cross.length, 'v60.56 home-synthesis: every row once');
+    const bare = buildMarketOpening({ history: day2, macroHistory: credit(3.2), regime: { ...regimeOf(), axes: regimeOf().axes.map((row) => (row.id === 'credit' ? { ...row, state: 'unknown', observation: null } : row)) }, events: [] });
+    assert.equal(bare.crossSummary.said.text, '중립: 시장 폭·금리. 양호: 변동성. 자료 없음: 신용·달러. 금리 경로 자료 없음.','v60.56 home-synthesis: a row without a state and a missing path are said as 자료 없음, never dropped');
+    assert.equal(buildMarketOpening({ history: markets(day2), macroHistory: pathHistory(), events: EVENTS }).crossSummary, null, 'v60.56 home-synthesis: no rows, no sentence');
+    assert.deepEqual(unclaimedFigures(cross.crossSummary.said), [], 'v60.56 home-synthesis');
+    assert.doesNotMatch(cross.crossSummary.said.text, /사세요|파세요|매수하|매도하|뜻합니다|\p{Extended_Pictographic}/u, 'v60.56 home-synthesis');
+  });
+  check('v60.56 home-synthesis: 오늘 paints the one sentence in place of the rows; 시장 상태 keeps the rows and adds the tracker under the session lines', () => {
+    const node = (tag) => ({ tag, className: '', textContent: '', dataset: {}, style: {}, hidden: false, children: [], attrs: {}, append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; }, setAttribute(k, v) { this.attrs[k] = v; } });
+    const doc = { createElement: node, createTextNode: (text) => ({ tag: '#text', textContent: text, children: [], dataset: {} }) };
+    const all = (item) => [item, ...item.children.flatMap(all)];
+    const home = node('div');
+    assert.ok(paintOpening(doc, home, cross, null, { summary: true }), 'v60.56 home-synthesis');
+    assert.deepEqual(home.children.slice(0, 3).map((child) => child.dataset.part), ['session', 'cross', 'lede'], 'v60.56 home-synthesis: session, the one sentence, the lede');
+    assert.equal(all(home).map((part) => part.textContent).join('').includes(`다른 시장 — ${cross.crossSummary.said.text}`), true, 'v60.56 home-synthesis');
+    assert.ok(!all(home).some((item) => item.className === 'opening-cross__row' || item.className === 'rebound-track'), 'v60.56 home-synthesis: no rows and no tracker on 오늘');
+    const signal = node('div');
+    assert.ok(paintOpening(doc, signal, cross, node('div'), { track: true }), 'v60.56 rebound-track');
+    assert.deepEqual(signal.children.slice(0, 3).map((child) => child.dataset.part || child.className), ['session', 'track', 'cross'], 'v60.56 rebound-track: the tracker under the session lines, the rows after it');
+    const rows = all(signal).filter((item) => item.tag === 'tr' && item.dataset.date);
+    assert.deepEqual(rows.map((row) => row.dataset.date), ['2026-11-23', '2026-11-24'], 'v60.56 rebound-track: one row per session, oldest first');
   });
   check('v60.55 cross-market: the face paints the rows as one compact block before the lede and the rebound tally once, as its head (no second list under the rebound line)', () => {
     const node = (tag) => ({ tag, className: '', textContent: '', dataset: {}, style: {}, hidden: false, children: [], append(...kids) { this.children.push(...kids); }, replaceChildren(...kids) { this.children = kids; }, setAttribute() {} });

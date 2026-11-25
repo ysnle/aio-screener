@@ -155,6 +155,27 @@ export function crossMarketRows({ history = [], macroHistory = null, regime = nu
   return rows.map(({ meaningKey, ...row }) => ({ ...row, label: LABEL[row.id], word: STATE_LABELS[row.state], meaning: MEANING[row.id][meaningKey || row.state], since: sinceOf(row.id) }));
 }
 
+// The synthesis's state buckets in the order said; a row without a state is said as 자료 없음, never left out.
+const SYNTHESIS_ORDER = Object.freeze(['burden', 'neutral', 'favorable', 'unknown']);
+
+/**
+ * 오늘's one sentence for the rows: "다른 시장 — 부담: 신용·변동성. 중립: 달러·시장 폭·금리. 금리 경로 인상 반영, 다음 물가
+ * 발표 11/25 PCE." — each state's markets, then the rates row's policy path and next inflation release. Built from the
+ * same rows 시장 상태 prints, so the two never differ; null without rows.
+ */
+export function crossMarketSynthesis(rows) {
+  if (!rows?.length) return null;
+  const word = (state) => (state === 'unknown' ? REBOUND_QUALITY_WORDS.marks.unknown : STATE_LABELS[state]);
+  const buckets = SYNTHESIS_ORDER.map((state) => ({ state, names: rows.filter((row) => (STATE_LABELS[row.state] ? row.state : 'unknown') === state).map((row) => row.label) }))
+    .filter((bucket) => bucket.names.length);
+  const rates = rows.find((row) => row.id === 'rates');
+  const path = !rates ? NOTHING : rates.path
+    ? say('{lab} {w}{next}.', { lab: CROSS_MARKET_PATH_LABEL, w: rates.path.word, next: rates.next ? say(', {n}', { n: rates.next.said }) : NOTHING })
+    : say('{lab} {w}.', { lab: CROSS_MARKET_PATH_LABEL, w: REBOUND_QUALITY_WORDS.marks.unknown });
+  const said = sayJoin([...buckets.map((bucket) => say('{w}: {names}.', { w: word(bucket.state), names: bucket.names.join('·') })), path], ' ');
+  return { label: '다른 시장', said, buckets };
+}
+
 /**
  * The rows as face lines: each row's figures and its rebound mark, then its clause; the rates row is followed by its policy
  * path with the next inflation release (key 'rates-path', its tag the lean word). `label` and `said` are the plain line

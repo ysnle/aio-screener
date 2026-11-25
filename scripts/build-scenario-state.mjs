@@ -226,11 +226,17 @@ export function buildScenarioState({ data = null, history = [], macroHistory = n
   return payload;
 }
 
-/** The record's `story`: the opening's lines as { id, label, text } on its own close (null without one). */
+/**
+ * The record's `story`: the opening's lines as { id, label, text } on its own close (null without one), as 오늘 paints
+ * them — the other markets as their one synthesis line (id 'cross') in place of the head and the rows.
+ */
 export function openingStory(opening, asOf) {
   if (!opening?.available || opening.asOf !== asOf || !opening.lines?.length) return null;
-  return { asOf: opening.asOf, diagnosis: opening.diagnosis?.state && opening.diagnosis.state !== 'none' ? opening.diagnosis.word : null,
-    lines: opening.lines.map((line) => ({ id: line.id, label: line.label, text: line.said.text })) };
+  const summary = opening.crossSummary?.said?.text ? { id: 'cross', label: opening.crossSummary.label, text: opening.crossSummary.said.text } : null;
+  const first = opening.lines.findIndex((line) => line.id === 'cross');
+  const lines = opening.lines.flatMap((line, i) => (line.id === 'cross-head' || (line.id === 'cross' && i !== first) ? []
+    : line.id === 'cross' ? (summary ? [summary] : []) : [{ id: line.id, label: line.label, text: line.said.text }]));
+  return { asOf: opening.asOf, diagnosis: opening.diagnosis?.state && opening.diagnosis.state !== 'none' ? opening.diagnosis.word : null, lines };
 }
 
 // First-users F01 (run-5 phone): on slow 3G the 오늘 verdict waited ~40 s for 1.9 MB of scripts and history. The static
