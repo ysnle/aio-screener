@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T23:20:38.594Z",
-  "attemptedAt": "2026-11-26T23:20:38.594Z",
-  "lastSuccessfulAt": "2026-11-26T23:20:38.594Z",
+  "generatedAt": "2026-11-26T23:52:19.815Z",
+  "attemptedAt": "2026-11-26T23:52:19.815Z",
+  "lastSuccessfulAt": "2026-11-26T23:52:19.815Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T23:20:33.980Z",
-  "until": "2026-11-26T23:20:33.980Z",
+  "since": "2026-11-12T23:52:14.496Z",
+  "until": "2026-11-26T23:52:14.496Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -91,33 +91,33 @@
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70305
+      "lastPostId": 70307
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 162,
+      "count": 164,
       "freshCount": 40,
-      "eligibleTextCount": 162,
-      "selectedCount": 118,
+      "eligibleTextCount": 164,
+      "selectedCount": 119,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21305
+      "lastPostId": 21309
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 735,
+      "count": 737,
       "freshCount": 40,
-      "eligibleTextCount": 734,
+      "eligibleTextCount": 736,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72859
+      "lastPostId": 72861
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,41 +137,41 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1924,
-  "retainedItemCount": 439,
+  "count": 1928,
+  "retainedItemCount": 432,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1924,
-    "eligibleTextCount": 1871,
+    "observedCount": 1928,
+    "eligibleTextCount": 1875,
     "mediaOnlyCount": 53,
     "mediaAttachedCount": 738,
     "photoPostCount": 629,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
-    "highSignalCount": 319,
-    "broadSignalCount": 804,
-    "selectedRawCount": 371,
-    "selectedEligibleCount": 371,
+    "highSignalCount": 320,
+    "broadSignalCount": 806,
+    "selectedRawCount": 372,
+    "selectedEligibleCount": 372,
     "selectedRawCoveragePct": 19.8,
     "selectedOfObservedPct": 19.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 687,
+    "power": 169,
+    "equity": 122,
+    "earnings": 218,
+    "japan": 47,
+    "ai-policy": 129,
+    "market-note": 688,
+    "macro": 299,
     "semi": 605,
-    "japan": 45,
-    "macro": 298,
-    "power": 167,
-    "kr-market": 100,
-    "earnings": 217,
-    "ai-policy": 128,
+    "healthcare": 57,
+    "kr-market": 99,
     "geo": 222,
     "credit": 66,
-    "healthcare": 56,
-    "equity": 118,
     "flows": 69,
     "optical": 24,
     "media-only": 53,
@@ -179,18 +179,19 @@
     "crypto": 1
   },
   "tickerCounts": {
+    "MSFT": 41,
+    "GOOG": 42,
+    "AMZN": 42,
+    "DELL": 2,
     "TSM": 59,
-    "NVDA": 393,
+    "NVDA": 392,
     "INTC": 2,
     "TER": 1,
     "PLTR": 9,
     "MU": 27,
     "005930.KS": 30,
     "000660.KS": 27,
-    "MSFT": 40,
-    "GOOG": 41,
     "META": 8,
-    "AMZN": 41,
     "2454.TW": 8,
     "SMCI": 5,
     "028260.KS": 1,
@@ -214,7 +215,6 @@
     "214150.KQ": 1,
     "AMBA": 1,
     "AAOI": 1,
-    "DELL": 1,
     "BA": 2,
     "ADI": 1,
     "ASX": 2,
@@ -266,19 +266,19 @@
     "MOD": 2
   },
   "themes": [
-    "Market Notes (687 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Market Notes (688 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
     "Semiconductors/Memory (605 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (298 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
+    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
     "Geopolitics (222 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "Earnings/Corporate (217 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (167 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
-    "AI Policy/Export Controls (128 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (118 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+    "Earnings/Corporate (218 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "AI Power/Grid (169 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
+    "AI Policy/Export Controls (129 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (122 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 393,
+      "count": 392,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
@@ -293,17 +293,17 @@
     },
     {
       "key": "GOOG",
-      "count": 41,
+      "count": 42,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
       "key": "AMZN",
-      "count": 41,
+      "count": 42,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     },
     {
       "key": "MSFT",
-      "count": 40,
+      "count": 41,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
@@ -344,7 +344,7 @@
       "topics": [
         "macro"
       ],
-      "count": 298,
+      "count": 299,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
@@ -381,7 +381,7 @@
         "optical"
       ],
       "count": 24,
-      "focus": "코히런트(COHR), 이사회 멤버 1,522만 달러 규모 주식 매수 - SEC 공시 코히런트(Coherent)의 이사회 멤버인 스티븐 파글리우카(Stephen G. Pagliuca)가 관련 투자법인을 통해 약 1,522만 달러 규모의 코히런트 주식을 장내 매수 매수 주식 수: 82,000주 평균 매수 단가:..."
+      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -389,7 +389,7 @@
       "topics": [
         "power"
       ],
-      "count": 167,
+      "count": 169,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
     },
     {
@@ -398,7 +398,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 128,
+      "count": 129,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -407,7 +407,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 100,
+      "count": 99,
       "focus": "[하나증권 유통/화장품 박종대] 화장품(Overweight): 바닥 잡기 3선(26.11.25) 환율 영향 제거하면 매우 준수한 실적 - 에이피알, 환율 영향 제거시 준수한 실적, 유럽 매출 1,778억원(YoY 783%), 예상치(1,570억원) 10% 이상 상회 - 달바글로벌 영업이익률 21.5%(YoY..."
     },
     {
@@ -416,7 +416,7 @@
       "topics": [
         "equity"
       ],
-      "count": 118,
+      "count": 122,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
@@ -434,7 +434,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 217,
+      "count": 218,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -443,7 +443,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 56,
+      "count": 57,
       "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
     },
     {
@@ -452,7 +452,7 @@
       "topics": [
         "japan"
       ],
-      "count": 45,
+      "count": 47,
       "focus": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월 연속 증가세를 이어갔음. 월간 수주액은 1988년 통계 작성 이후 역대 두 번째로 높은 수준 •해외 수주액은..."
     },
     {
@@ -479,7 +479,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 687,
+      "count": 688,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -1642,6 +1642,84 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21309",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21309",
+      "datetime": "2026-11-26T23:47:22.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "power",
+        "equity"
+      ],
+      "lead": 1,
+      "score": 53,
+      "hasText": true,
+      "tickers": [],
+      "summary": "민주당 주정부 출범을 앞두고 텍사스, 데이터센터 인허가 재개 - FT 1. 텍사스 데이터센터 인허가 중단 해제 2026년 9월 21일부터 중단됐던 데이터센터 관련 환경 인허가가 약 두 달 만에 재개...."
+    },
+    {
+      "id": "bornlupin/21307",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21307",
+      "datetime": "2026-11-26T23:32:27.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "power",
+        "japan",
+        "ai-policy",
+        "equity"
+      ],
+      "lead": 2,
+      "score": 74,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN",
+        "DELL"
+      ],
+      "summary": "일본 JERA, 데이터센터 구축 위해 앤트로픽·메타 등과 협상 돌입 (닛케이 보도) 미국 빅테크와 데이터센터 구축 논의: 일본 최대 발전사인 JERA가 도쿄 인근 발전소 부근에 데이터센터를 건설하기 위해..."
+    },
+    {
+      "id": "bornlupin/21306",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21306",
+      "datetime": "2026-11-26T23:25:09.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "equity",
+        "macro",
+        "semi",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 69,
+      "hasText": true,
+      "tickers": [],
+      "summary": "[심텍(222800) | BUY(유지) | TP 17만원(유지) | 다올투자증권 전기전자 김연미] ★ 영구 CB·BW 3,000억원 발행 관련 Comment SOCAMM·고다층 MSAP 증설에 3,000억원..."
+    },
+    {
+      "id": "insidertracking/70306",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70306",
+      "datetime": "2026-11-26T23:23:31.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "power",
+        "japan",
+        "healthcare"
+      ],
+      "lead": 2,
+      "score": 55,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "GOOG",
+        "AMZN"
+      ],
+      "summary": "일본 최대 발전업체 제라(JERA)가 도쿄 인근 발전소 주변에 AI 데이터센터를 구축하기 위해 앤트로픽 및 메타와 협의 중. 제라는 아마존, 마이크로소프트, 구글과도 관련 논의를 진행 중. 도쿄 일대 신규..."
+    },
+    {
       "id": "HANAchina/72859",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72859",
@@ -2220,14 +2298,12 @@
       "datetime": "2026-11-26T07:28:00.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan, AI주 2개월 내 반등 전망…‘투항성 매도’ 신호 나타나 •JPMorgan은 투자자들의 보유 수준이 낮아지고 개인투자자들의 매수가 지속되는 가운데, AI주가 향후 2개월 내 반등할 것으로..."
+      "summary": ">>JPMorgan, AI주 2개월 내 반등 전망…‘투항성 매도’ 신호 나타나 •JPMorgan은 투자자들의 보유 수준이 낮아지고 개인투자자들의 매수가 지속되는 가운데, AI주가 향후 2개월 내 반등할 것으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72819",
@@ -4178,14 +4254,12 @@
       "datetime": "2026-11-24T21:14:09.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "earnings",
-        "power"
+        "earnings"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "DELL 테크놀로지스 FY27 3분기 실적 매출: 549억 달러 (예상치 493.2억 달러); 전년 대비 +103% 조정 EPS: 9.45달러 (예상치 6.59달러); 전년 대비 +265% AI 수주액:..."
+      "summary": "DELL 테크놀로지스 FY27 3분기 실적 매출: 549억 달러 (예상치 493.2억 달러); 전년 대비 +103% 조정 EPS: 9.45달러 (예상치 6.59달러); 전년 대비 +265% AI 수주액:...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70150",
@@ -6992,23 +7066,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69968",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69968",
-      "datetime": "2026-11-22T21:47:04.000Z",
-      "localDateKst": "2026-11-23",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "베센트 미국 재무장관이 엔비디아의 중국 대상 반도체 판매와 관련해 미국 당국이 여전히 명확한 답변을 확보하지 못했다고 밝힘. 당국은 엔비디아 내부에서 규정 준수 감독 책임자가 누구였는지 확인해야 하며, 중국...",
-      "lead": 1,
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21236",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21236",
@@ -8251,44 +8308,6 @@
         "005930.KS",
         "MOD"
       ]
-    },
-    {
-      "id": "bornlupin/21142",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21142",
-      "datetime": "2026-11-12T23:46:42.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "earnings"
-      ],
-      "score": 61,
-      "hasText": true,
-      "summary": "[NH/백준기] 스몰캡 - 지엔씨에너지 [NH/스몰캡(목진원)] [지엔씨에너지] ★수주잔고 7,264억원, 실적은 어차피 따라온다 3Q26 Review: 매출은 최대, 이익은 일회성·시차 요인에 발목 3분기...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/21141",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21141",
-      "datetime": "2026-11-12T23:42:38.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 72,
-      "hasText": true,
-      "summary": "엔비디아 독점 약화, TPU·ASIC 부상 가능성 젠슨 황이 없는 엔비디아는 향후 GPU 개발 속도와 산업 기술 표준을 주도하는 영향력에 변화가 발생할 수 있습니다. - 엔비디아는 GPU 성능, CUDA...",
-      "lead": 1,
-      "tickers": [
-        "NVDA",
-        "MSFT",
-        "GOOG",
-        "AMZN"
-      ],
-      "relatedTickers": [
-        "AVGO"
-      ]
     }
   ],
   "current24hItems": [
@@ -8854,14 +8873,12 @@
       "datetime": "2026-11-26T07:28:00.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro",
-        "kr-market",
-        "flows"
+        "market-note"
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>JPMorgan, AI주 2개월 내 반등 전망…‘투항성 매도’ 신호 나타나 •JPMorgan은 투자자들의 보유 수준이 낮아지고 개인투자자들의 매수가 지속되는 가운데, AI주가 향후 2개월 내 반등할 것으로..."
+      "summary": ">>JPMorgan, AI주 2개월 내 반등 전망…‘투항성 매도’ 신호 나타나 •JPMorgan은 투자자들의 보유 수준이 낮아지고 개인투자자들의 매수가 지속되는 가운데, AI주가 향후 2개월 내 반등할 것으로...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72819",
