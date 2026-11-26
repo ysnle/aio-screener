@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T12:21:58.808Z",
-  "attemptedAt": "2026-11-26T12:21:58.808Z",
-  "lastSuccessfulAt": "2026-11-26T12:21:58.808Z",
+  "generatedAt": "2026-11-26T12:52:04.025Z",
+  "attemptedAt": "2026-11-26T12:52:04.025Z",
+  "lastSuccessfulAt": "2026-11-26T12:52:04.025Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T12:21:53.463Z",
-  "until": "2026-11-26T12:21:53.463Z",
+  "since": "2026-11-12T12:51:58.465Z",
+  "until": "2026-11-26T12:51:58.465Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -85,23 +85,23 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1050,
-      "freshCount": 39,
-      "eligibleTextCount": 998,
-      "selectedCount": 127,
+      "count": 1051,
+      "freshCount": 38,
+      "eligibleTextCount": 999,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70281
+      "lastPostId": 70283
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 169,
+      "count": 168,
       "freshCount": 20,
-      "eligibleTextCount": 169,
-      "selectedCount": 121,
+      "eligibleTextCount": 168,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
       "lastPostId": 21301
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 732,
+      "count": 734,
       "freshCount": 36,
-      "eligibleTextCount": 731,
+      "eligibleTextCount": 733,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72841
+      "lastPostId": 72843
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,57 +137,57 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1951,
+  "count": 1953,
   "retainedItemCount": 427,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1951,
-    "eligibleTextCount": 1898,
+    "observedCount": 1953,
+    "eligibleTextCount": 1900,
     "mediaOnlyCount": 53,
     "mediaAttachedCount": 750,
-    "photoPostCount": 637,
+    "photoPostCount": 638,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
     "highSignalCount": 329,
-    "broadSignalCount": 825,
-    "selectedRawCount": 373,
-    "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 19.7,
-    "selectedOfObservedPct": 19.1,
+    "broadSignalCount": 826,
+    "selectedRawCount": 371,
+    "selectedEligibleCount": 371,
+    "selectedRawCoveragePct": 19.5,
+    "selectedOfObservedPct": 19,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "kr-market": 100,
     "credit": 68,
-    "macro": 298,
-    "geo": 223,
+    "macro": 300,
+    "geo": 224,
     "semi": 621,
-    "flows": 69,
     "market-note": 685,
-    "earnings": 232,
+    "flows": 69,
+    "earnings": 231,
     "ai-policy": 135,
     "healthcare": 57,
-    "kr-market": 99,
     "optical": 24,
     "japan": 43,
-    "power": 176,
+    "power": 175,
     "media-only": 53,
     "equity": 124,
     "insider": 8,
     "crypto": 1
   },
   "tickerCounts": {
+    "NVDA": 408,
+    "005930.KS": 29,
     "MSFT": 43,
     "AMZN": 40,
-    "NVDA": 407,
     "TSM": 58,
     "2454.TW": 8,
     "SMCI": 6,
     "028260.KS": 1,
     "PLTR": 8,
-    "005930.KS": 28,
     "000660.KS": 26,
     "BE": 8,
     "MU": 26,
@@ -273,18 +273,18 @@
   "themes": [
     "Market Notes (685 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
     "Semiconductors/Memory (621 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (298 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-    "Earnings/Corporate (232 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (176 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+    "Macro/Rates (300 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
+    "Earnings/Corporate (231 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Geopolitics (224 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "AI Power/Grid (175 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (135 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 407,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을 발동하는 방안까지 논의했다고 보도. • 국제신용평가사 무디스는 젠슨 황의 CEO 복귀로 엔비디아의 전략적..."
+      "count": 408,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "TSM",
@@ -313,8 +313,8 @@
     },
     {
       "key": "005930.KS",
-      "count": 28,
-      "text": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
+      "count": 29,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "TSLA",
@@ -349,7 +349,7 @@
       "topics": [
         "macro"
       ],
-      "count": 298,
+      "count": 300,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "geo"
       ],
-      "count": 223,
+      "count": 224,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -368,7 +368,7 @@
         "credit"
       ],
       "count": 68,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을 발동하는 방안까지 논의했다고 보도. • 국제신용평가사 무디스는 젠슨 황의 CEO 복귀로 엔비디아의 전략적..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "id": "semi",
@@ -394,7 +394,7 @@
       "topics": [
         "power"
       ],
-      "count": 176,
+      "count": 175,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
     },
     {
@@ -412,7 +412,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 99,
+      "count": 100,
       "focus": "[하나증권 유통/화장품 박종대] 화장품(Overweight): 바닥 잡기 3선(26.11.25) 환율 영향 제거하면 매우 준수한 실적 - 에이피알, 환율 영향 제거시 준수한 실적, 유럽 매출..."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 232,
+      "count": 231,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -737,6 +737,26 @@
   },
   "pipelineNote": "Automated Telegram public-mirror digest. Counts describe lightweight observed whole-window posts; item payloads carry short summaries only (full source text is not redistributed - P715).",
   "topItems": [
+    {
+      "id": "insidertracking/70282",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70282",
+      "datetime": "2026-11-26T12:50:24.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "005930.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+    },
     {
       "id": "insidertracking/70269",
       "channel": "insidertracking",
@@ -1205,25 +1225,6 @@
       ]
     },
     {
-      "id": "insidertracking/69826",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69826",
-      "datetime": "2026-11-20T04:59:44.000Z",
-      "localDateKst": "2026-11-20",
-      "tags": [
-        "geo"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 대통령은 푸틴 러시아 대통령이 우크라이나 전쟁의 평화를 원하고 있다고 주장. 미국은 최근 외교...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "000660.KS",
-        "329180.KS"
-      ]
-    },
-    {
       "id": "bornlupin/21207",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21207",
@@ -1304,29 +1305,6 @@
       "hasText": true,
       "summary": "네비우스(NBIS) 2026년 3분기 어닝콜 Q&A 중 질문: 최근 채권시장 여건이 좋지 않은데, 추가 자금이 필요할 경우 고객 선급금을 더 받을 수 있습니까? 경영진 답변: 가능합니다. 고객 선급금은 자금...",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/21130",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21130",
-      "datetime": "2026-11-12T12:32:29.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "earnings"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "네비우스( $NBIS ) 2026년 3분기 실적 1. 3분기 실적: 매출·EBITDA 예상 상회 • 매출 $980.8M (예상 $908M) → 8.0% 상회, YoY +571%, QoQ +68% • 조정...",
-      "lead": 1,
-      "tickers": [],
-      "listTickers": [
-        "NVDA",
-        "MSFT",
-        "BE",
-        "PLTR",
-        "DDOG",
-        "SNOW"
-      ]
     },
     {
       "id": "bornlupin/21238",
@@ -1639,9 +1617,61 @@
       "summary": ">>“연준의 금리 인상을 막는 가장 빠른 방법: 미국 증시가 ‘죽기로 맞서기’” •BofA의 Hartnett는 연준의 추가 금리 인상을 막는 가장 빠른 방법은 S&P500이 2026년 상승분을 모두 반납하는...",
       "lead": 1,
       "tickers": []
+    },
+    {
+      "id": "bornlupin/21227",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21227",
+      "datetime": "2026-11-22T04:54:42.000Z",
+      "localDateKst": "2026-11-22",
+      "tags": [
+        "market-note"
+      ],
+      "score": 89,
+      "hasText": true,
+      "summary": "증시 폭락 관련 대만 증시 핵심 변곡점 1. 정부의 긴급 대응: 이번 무차별 투매로 개인투자자뿐 아니라 월가 대형 기관투자자들도 큰 타격을 입었다. 시장 공포가 확산되자 대만 정부는 국안기금(국가금융안정기금)...",
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "TSM"
+      ]
     }
   ],
   "broadItems": [
+    {
+      "id": "insidertracking/70282",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70282",
+      "datetime": "2026-11-26T12:50:24.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "credit",
+        "macro",
+        "geo",
+        "semi"
+      ],
+      "score": 100,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "005930.KS"
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+    },
+    {
+      "id": "HANAchina/72842",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72842",
+      "datetime": "2026-11-26T12:40:17.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "market-note"
+      ],
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>JPMorgan, 마오타이 투자의견 ‘중립’에서 ‘비중확대’로 상향…목표가 1,800위안 제시 •JPMorgan은 구이저우마오타이의 투자의견을 기존 ‘중립’에서 ‘비중확대’로 상향했으며, 목표주가를..."
+    },
     {
       "id": "HANAchina/72841",
       "channel": "HANAchina",
@@ -2076,11 +2106,11 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심..."
+      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/72802",
@@ -2089,7 +2119,6 @@
       "datetime": "2026-11-26T03:50:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
         "power"
       ],
       "score": 60,
@@ -2100,8 +2129,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률..."
+      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70260",
@@ -2590,8 +2619,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70227",
@@ -7070,22 +7099,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69940",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69940",
-      "datetime": "2026-11-22T01:04:26.000Z",
-      "localDateKst": "2026-11-22",
-      "tags": [
-        "market-note"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "파이낸셜타임스(FT)에 따르면 메가스피드 전 임원 앨리스 황이 클라우드 협력업체, 게임업계 거물, 인신매매 연루 의혹을 받는 캄보디아 관계자, 수백 개의 페이퍼컴퍼니로 구성된 네트워크와 연결돼 있었으며, 이...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/72523",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72523",
@@ -7165,27 +7178,6 @@
       "relatedTickers": [
         "AVGO"
       ]
-    },
-    {
-      "id": "HANAchina/72513",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72513",
-      "datetime": "2026-11-21T06:38:01.000Z",
-      "localDateKst": "2026-11-21",
-      "tags": [
-        "semi"
-      ],
-      "score": 74,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>AI 컴퓨팅 시장, 위험한 악순환: 돈을 빌리기 어려울수록 GPU 임대료는 오히려 상승 •대출기관이 네오클라우드 기업에 대한 자금 조달을 축소하면서 대출 담보인정비율(LTV)을 기존 80%에서...",
-      "lead": 1,
-      "tickers": []
     },
     {
       "id": "bornlupin/21221",
@@ -8416,8 +8408,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "tickers": [],
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70227",
