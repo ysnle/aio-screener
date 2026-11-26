@@ -8,7 +8,7 @@
   ],
   "version": "v60.59",
   "sourceHashes": {
-    "index.html": "3e7d9735d517c4a99807400bc05fdc54357f5ee7529b7538cc15ec606e2303e9",
+    "index.html": "0bd04c62b4321d622721853046a29d840fbb80d0bba0b017c41bd90bf762be16",
     "src/ui/pages/entity.js": "00fbd9a1789994770889e671091a6900e625c81cdb14950f019aa3d430574a65",
     "src/ui/pages/screener.js": "667d6bd98c8a4eb5cc3ba65c71026a34e7f769c2b3ac17e9f4e6b961aac98a74",
     "src/ui/pages/analysis.js": "0cf3dbc6de9d9c1984c5b2874145fbaea95a180d2831db64681904736bcbda49",
@@ -63,32 +63,6 @@
   ],
   "observations": [
     {
-      "label": "phone-light",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
-        "name": "Aehr Test Systems",
-        "business": "사업분류미국 상장 기업섹터기술사업 설명 자료 없음",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "sections": [
-          "business",
-          "place",
-          "money"
-        ],
-        "chart": false,
-        "active": "page-ticker"
-      },
-      "fixtureRequests": 2
-    },
-    {
-      "label": "phone-light/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "tablet-light",
       "summary": {
         "price": "$84.64",
@@ -122,6 +96,24 @@
       }
     },
     {
+      "label": "phone-light",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
+        "name": "Aehr Test Systems",
+        "business": "사업분류미국 상장 기업섹터기술사업 설명 자료 없음",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "sections": [
+          "business",
+          "place",
+          "money"
+        ],
+        "chart": false,
+        "active": "page-ticker"
+      },
+      "fixtureRequests": 2
+    },
+    {
       "label": "phone-dark",
       "summary": {
         "price": "$84.64",
@@ -152,6 +144,14 @@
       "companyFoldRerender": {
         "open": true,
         "focus": true
+      }
+    },
+    {
+      "label": "phone-light/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
       }
     },
     {
@@ -226,7 +226,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "tablet-light",
@@ -377,7 +377,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "phone-dark",
@@ -444,7 +444,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "phone-light",
@@ -1014,7 +1014,7 @@
         "chart": false,
         "active": "page-ticker"
       },
-      "fixtureRequests": 3
+      "fixtureRequests": 2
     },
     {
       "label": "desktop-light/summary",
@@ -1022,6 +1022,39 @@
         "route": "page-ticker",
         "overflow": 0,
         "clipped": []
+      }
+    },
+    {
+      "label": "tablet-dark",
+      "summary": {
+        "price": "$84.64",
+        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
+        "name": "Aehr Test Systems",
+        "business": "사업분류미국 상장 기업섹터기술사업 설명 자료 없음",
+        "source": "https://finance.yahoo.com/quote/AEHR/history/",
+        "sections": [
+          "business",
+          "place",
+          "money"
+        ],
+        "chart": false,
+        "active": "page-ticker"
+      },
+      "fixtureRequests": 3
+    },
+    {
+      "label": "tablet-dark/summary",
+      "layout": {
+        "route": "page-ticker",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-light",
+      "companyFoldRerender": {
+        "open": true,
+        "focus": true
       }
     },
     {
@@ -1052,39 +1085,6 @@
     },
     {
       "label": "tablet-dark",
-      "summary": {
-        "price": "$84.64",
-        "basis": "정규장 관측가, 2026-10-10 05:00 한국 시간",
-        "name": "Aehr Test Systems",
-        "business": "사업분류미국 상장 기업섹터기술사업 설명 자료 없음",
-        "source": "https://finance.yahoo.com/quote/AEHR/history/",
-        "sections": [
-          "business",
-          "place",
-          "money"
-        ],
-        "chart": false,
-        "active": "page-ticker"
-      },
-      "fixtureRequests": 2
-    },
-    {
-      "label": "tablet-dark/summary",
-      "layout": {
-        "route": "page-ticker",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
-      "label": "desktop-light",
-      "companyFoldRerender": {
-        "open": true,
-        "focus": true
-      }
-    },
-    {
-      "label": "tablet-dark",
       "companyFoldRerender": {
         "open": true,
         "focus": true
@@ -1162,7 +1162,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "tablet-dark",
@@ -1229,7 +1229,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "desktop-dark",
@@ -1296,7 +1296,7 @@
           "ret3m": 20.6
         }
       ],
-      "note": "미국 순위 계산 818종목(기본 종목 범위), 표시 331개"
+      "note": "미국 순위 계산 817종목(기본 종목 범위), 표시 331개"
     },
     {
       "label": "desktop-light",
@@ -1467,90 +1467,6 @@
       }
     },
     {
-      "label": "desktop-dark",
-      "market": "KR",
-      "listing": [
-        {
-          "symbol": "180640.KS",
-          "price": "—",
-          "ret3m": 102.5
-        },
-        {
-          "symbol": "328130.KQ",
-          "price": "—",
-          "ret3m": 78.5
-        },
-        {
-          "symbol": "036540.KQ",
-          "price": "—",
-          "ret3m": 55.7
-        },
-        {
-          "symbol": "041510.KQ",
-          "price": "—",
-          "ret3m": 33.9
-        },
-        {
-          "symbol": "028050.KS",
-          "price": "—",
-          "ret3m": 32.6
-        },
-        {
-          "symbol": "000500.KS",
-          "price": "—",
-          "ret3m": 29.2
-        },
-        {
-          "symbol": "032500.KQ",
-          "price": "—",
-          "ret3m": 29
-        },
-        {
-          "symbol": "003490.KS",
-          "price": "—",
-          "ret3m": 21.7
-        },
-        {
-          "symbol": "043260.KQ",
-          "price": "—",
-          "ret3m": 21
-        },
-        {
-          "symbol": "122870.KQ",
-          "price": "—",
-          "ret3m": 19.4
-        },
-        {
-          "symbol": "020560.KS",
-          "price": "—",
-          "ret3m": 19.4
-        },
-        {
-          "symbol": "108490.KQ",
-          "price": "—",
-          "ret3m": 16.6
-        }
-      ],
-      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
-    },
-    {
-      "label": "desktop-dark",
-      "currencyFormat": {
-        "usd": "$84.64",
-        "krw": "₩73,000",
-        "missing": "—"
-      },
-      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
-    },
-    {
-      "label": "desktop-dark/screener",
-      "layout": {
-        "route": "page-screener",
-        "overflow": 0,
-        "clipped": []
-      }
-    },
-    {
       "label": "desktop-light",
       "fiscal": {
         "rows": 19,
@@ -1644,6 +1560,90 @@
       "label": "desktop-light/fiscal",
       "layout": {
         "route": "page-fundamental",
+        "overflow": 0,
+        "clipped": []
+      }
+    },
+    {
+      "label": "desktop-dark",
+      "market": "KR",
+      "listing": [
+        {
+          "symbol": "180640.KS",
+          "price": "—",
+          "ret3m": 102.5
+        },
+        {
+          "symbol": "328130.KQ",
+          "price": "—",
+          "ret3m": 78.5
+        },
+        {
+          "symbol": "036540.KQ",
+          "price": "—",
+          "ret3m": 55.7
+        },
+        {
+          "symbol": "041510.KQ",
+          "price": "—",
+          "ret3m": 33.9
+        },
+        {
+          "symbol": "028050.KS",
+          "price": "—",
+          "ret3m": 32.6
+        },
+        {
+          "symbol": "000500.KS",
+          "price": "—",
+          "ret3m": 29.2
+        },
+        {
+          "symbol": "032500.KQ",
+          "price": "—",
+          "ret3m": 29
+        },
+        {
+          "symbol": "003490.KS",
+          "price": "—",
+          "ret3m": 21.7
+        },
+        {
+          "symbol": "043260.KQ",
+          "price": "—",
+          "ret3m": 21
+        },
+        {
+          "symbol": "122870.KQ",
+          "price": "—",
+          "ret3m": 19.4
+        },
+        {
+          "symbol": "020560.KS",
+          "price": "—",
+          "ret3m": 19.4
+        },
+        {
+          "symbol": "108490.KQ",
+          "price": "—",
+          "ret3m": 16.6
+        }
+      ],
+      "note": "한국 순위 계산 239종목(기본 종목 범위), 표시 97개"
+    },
+    {
+      "label": "desktop-dark",
+      "currencyFormat": {
+        "usd": "$84.64",
+        "krw": "₩73,000",
+        "missing": "—"
+      },
+      "priceBoundary": "Unreceived public quotes remain unavailable; no published price is promoted into a current quote."
+    },
+    {
+      "label": "desktop-dark/screener",
+      "layout": {
+        "route": "page-screener",
         "overflow": 0,
         "clipped": []
       }

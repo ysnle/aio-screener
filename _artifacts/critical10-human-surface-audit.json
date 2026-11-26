@@ -31,7 +31,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:54.682Z"
+          "generatedAt": "2026-11-26T05:11:56.012Z"
         },
         "accessibility": {
           "status": "ok",
@@ -54,9 +54,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:54.698Z"
+          "generatedAt": "2026-11-26T05:11:56.029Z"
         },
-        "generatedAt": "2026-11-26T04:16:54.698Z"
+        "generatedAt": "2026-11-26T05:11:56.029Z"
       },
       "tabSequence": [
         {
@@ -104,7 +104,7 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "WTI84.10+0.42 (+0.50%)",
+          "name": "WTI84.38+0.70 (+0.84%)",
           "tabindex": "0"
         },
         {
@@ -122,13 +122,13 @@
         {
           "tag": "SPAN",
           "id": "",
-          "name": "달러 지수103.79+0.11%",
+          "name": "달러 지수103.83+0.15%",
           "tabindex": "0"
         },
         {
           "tag": "SPAN",
           "id": "home-kospi-chip",
-          "name": "코스피 11/26 12:01 지연4,727.47+0.64%",
+          "name": "코스피 11/26 12:37 지연4,749.66+1.11%",
           "tabindex": "0"
         },
         {
@@ -231,7 +231,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:55.990Z"
+          "generatedAt": "2026-11-26T05:11:57.286Z"
         },
         "accessibility": {
           "status": "ok",
@@ -254,9 +254,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:55.996Z"
+          "generatedAt": "2026-11-26T05:11:57.293Z"
         },
-        "generatedAt": "2026-11-26T04:16:55.996Z"
+        "generatedAt": "2026-11-26T05:11:57.293Z"
       },
       "tabSequence": [
         {
@@ -408,7 +408,7 @@
     {
       "routeId": "breadth",
       "status": "ok",
-      "focusableCount": 9,
+      "focusableCount": 4,
       "pageTitle": "시장 폭",
       "audit": {
         "status": "ok",
@@ -431,7 +431,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:56.469Z"
+          "generatedAt": "2026-11-26T05:11:58.026Z"
         },
         "accessibility": {
           "status": "ok",
@@ -454,9 +454,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:56.470Z"
+          "generatedAt": "2026-11-26T05:11:58.028Z"
         },
-        "generatedAt": "2026-11-26T04:16:56.470Z"
+        "generatedAt": "2026-11-26T05:11:58.028Z"
       },
       "tabSequence": [
         {
@@ -608,7 +608,7 @@
     {
       "routeId": "sentiment",
       "status": "warn",
-      "focusableCount": 16,
+      "focusableCount": 8,
       "pageTitle": "투자 심리",
       "audit": {
         "status": "warn",
@@ -631,7 +631,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:56.993Z"
+          "generatedAt": "2026-11-26T05:11:58.575Z"
         },
         "accessibility": {
           "status": "warn",
@@ -640,7 +640,7 @@
           "warningCount": 1,
           "blockers": [],
           "warnings": [
-            "small-targets:3"
+            "small-targets:1"
           ],
           "pages": [
             {
@@ -649,24 +649,12 @@
               "active": true,
               "blockers": [],
               "warnings": [
-                "small-targets:3"
+                "small-targets:1"
               ],
               "nameless": [],
               "unfocusable": [],
               "positiveTabindex": [],
               "smallTargets": [
-                {
-                  "id": "",
-                  "selector": "#page-sentiment section.sx-card.sx-card--hero > div.mk-senti-hero__main > p.mk-sub-hero__tally > span.aio-term",
-                  "width": 20,
-                  "height": 28
-                },
-                {
-                  "id": "",
-                  "selector": "#page-sentiment section.screen-reading > p.screen-reading__text > span.aio-term",
-                  "width": 16,
-                  "height": 28
-                },
                 {
                   "id": "",
                   "selector": "#page-sentiment section.briefing-block.market-temperature > button.aio-basis-btn",
@@ -677,52 +665,16 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:56.996Z"
+          "generatedAt": "2026-11-26T05:11:58.577Z"
         },
-        "generatedAt": "2026-11-26T04:16:56.996Z"
+        "generatedAt": "2026-11-26T05:11:58.577Z"
       },
       "tabSequence": [
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "VIX",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "공포·탐욕",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "%p",
-          "tabindex": "0"
-        },
         {
           "tag": "BUTTON",
           "id": "",
           "name": "오늘에서 보기",
           "tabindex": ""
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "하이일드 스프레드",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "bp",
-          "tabindex": "0"
-        },
-        {
-          "tag": "SPAN",
-          "id": "",
-          "name": "모멘텀",
-          "tabindex": "0"
         },
         {
           "tag": "SUMMARY",
@@ -825,6 +777,42 @@
           "id": "",
           "name": "종목 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "리서치 라이브러리 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "다크 모드로 전환",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-kbd-btn",
+          "name": "단축키 보기 (?)",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "topbar-search-btn",
+          "name": "검색",
+          "tabindex": ""
         }
       ]
     },
@@ -854,7 +842,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:57.749Z"
+          "generatedAt": "2026-11-26T05:11:59.354Z"
         },
         "accessibility": {
           "status": "ok",
@@ -877,27 +865,15 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:57.751Z"
+          "generatedAt": "2026-11-26T05:11:59.356Z"
         },
-        "generatedAt": "2026-11-26T04:16:57.751Z"
+        "generatedAt": "2026-11-26T05:11:59.356Z"
       },
       "tabSequence": [
         {
           "tag": "SUMMARY",
           "id": "",
           "name": "해설 범위",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "테마와 섹터에서 보기",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "매크로에서 보기",
           "tabindex": ""
         },
         {
@@ -910,72 +886,6 @@
           "tag": "SUMMARY",
           "id": "briefing-schedule-title",
           "name": "날짜별 일정, 한국 시간",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "날짜별 실적 발표, 큰 기업 순",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "방산/항공우주 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "필수소비재 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "헬스케어 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "한국 K-푸드·통신 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "방산/항공우주 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "필수소비재 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "헬스케어 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "유틸리티 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "BUTTON",
-          "id": "",
-          "name": "한국 K-푸드·통신 →",
-          "tabindex": ""
-        },
-        {
-          "tag": "SUMMARY",
-          "id": "",
-          "name": "브리핑 저장본, 날짜별 확인",
           "tabindex": ""
         },
         {
@@ -1025,6 +935,84 @@
           "id": "",
           "name": "기술적 분석 페이지",
           "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "테마와 섹터 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "스크리너 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "종목 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "포트폴리오 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "리서치 라이브러리 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "name": "용어 사전 페이지",
+          "tabindex": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-theme-btn",
+          "name": "다크 모드로 전환",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sidebar-kbd-btn",
+          "name": "단축키 보기 (?)",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "topbar-search-btn",
+          "name": "검색",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "topbar-help-btn",
+          "name": "도움말, 화면 안내와 판정 기준",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "topbar-ai-btn",
+          "name": "AI 도우미 열기/닫기",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "확인했습니다",
+          "tabindex": ""
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "name": "브리핑",
+          "tabindex": "0"
         }
       ]
     },
@@ -1054,7 +1042,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.186Z"
+          "generatedAt": "2026-11-26T05:12:00.852Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1077,9 +1065,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.195Z"
+          "generatedAt": "2026-11-26T05:12:00.858Z"
         },
-        "generatedAt": "2026-11-26T04:16:59.195Z"
+        "generatedAt": "2026-11-26T05:12:00.858Z"
       },
       "tabSequence": [
         {
@@ -1254,7 +1242,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.576Z"
+          "generatedAt": "2026-11-26T05:12:01.229Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1277,9 +1265,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.585Z"
+          "generatedAt": "2026-11-26T05:12:01.236Z"
         },
-        "generatedAt": "2026-11-26T04:16:59.585Z"
+        "generatedAt": "2026-11-26T05:12:01.236Z"
       },
       "tabSequence": [
         {
@@ -1454,7 +1442,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.993Z"
+          "generatedAt": "2026-11-26T05:12:01.645Z"
         },
         "accessibility": {
           "status": "warn",
@@ -1512,9 +1500,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:16:59.995Z"
+          "generatedAt": "2026-11-26T05:12:01.647Z"
         },
-        "generatedAt": "2026-11-26T04:16:59.995Z"
+        "generatedAt": "2026-11-26T05:12:01.647Z"
       },
       "tabSequence": [
         {
@@ -1689,7 +1677,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:17:00.457Z"
+          "generatedAt": "2026-11-26T05:12:02.009Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1712,9 +1700,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:17:00.462Z"
+          "generatedAt": "2026-11-26T05:12:02.015Z"
         },
-        "generatedAt": "2026-11-26T04:17:00.462Z"
+        "generatedAt": "2026-11-26T05:12:02.015Z"
       },
       "tabSequence": [
         {
@@ -1889,7 +1877,7 @@
               "warnings": []
             }
           ],
-          "generatedAt": "2026-11-26T04:17:01.046Z"
+          "generatedAt": "2026-11-26T05:12:02.406Z"
         },
         "accessibility": {
           "status": "ok",
@@ -1912,9 +1900,9 @@
               "chartIssues": []
             }
           ],
-          "generatedAt": "2026-11-26T04:17:01.062Z"
+          "generatedAt": "2026-11-26T05:12:02.424Z"
         },
-        "generatedAt": "2026-11-26T04:17:01.062Z"
+        "generatedAt": "2026-11-26T05:12:02.424Z"
       },
       "tabSequence": [
         {
@@ -1950,7 +1938,7 @@
         {
           "tag": "BUTTON",
           "id": "",
-          "name": "반도체",
+          "name": "AI 인프라/데이터센터",
           "tabindex": ""
         },
         {
@@ -2065,6 +2053,6 @@
     }
   ],
   "consoleErrors": [],
-  "generatedAt": "2026-11-26T04:16:53.470Z",
+  "generatedAt": "2026-11-26T05:11:54.792Z",
   "status": "pass"
 }

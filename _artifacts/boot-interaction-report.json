@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-26T04:35:51.493Z",
+  "observedAt": "2026-11-26T05:04:48.972Z",
   "appRevision": "v60.59",
-  "gitHead": "0db1d169706833e686b5ae99ab4118f6bd948dd0",
+  "gitHead": "d8b8baa1969ef57b16d6274fcbd9bfd9190a2318",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,19 +16,20 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 281 > 200",
+    "max long task 317 > 200",
+    "total long task 1097 > 1000",
     "decoded same-origin JS 2.63MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 1656,
-    "dclMs": 341,
-    "loadMs": 355,
-    "maxLongTaskMs": 281,
-    "totalLongTaskMs": 913,
-    "longTaskCount": 7,
+    "fcpMs": 1452,
+    "dclMs": 339,
+    "loadMs": 352,
+    "maxLongTaskMs": 317,
+    "totalLongTaskMs": 1097,
+    "longTaskCount": 9,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3963,
-    "activeRouteDomNodes": 1721,
+    "domNodes": 3964,
+    "activeRouteDomNodes": 1722,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
@@ -48,42 +49,42 @@
       {
         "path": "src/chunks/chunk-UBMSX2VM.js",
         "bytes": 76635,
-        "startMs": 779
+        "startMs": 766
       },
       {
         "path": "src/chunks/market-regime-QDEBSGDH.js",
         "bytes": 42513,
-        "startMs": 2516
+        "startMs": 2755
       },
       {
         "path": "src/chunks/legacy-screen-bridges-NTXXOL6G.js",
         "bytes": 25890,
-        "startMs": 228
+        "startMs": 225
       },
       {
         "path": "src/chunks/chunk-VGQ23PWY.js",
         "bytes": 23461,
-        "startMs": 780
+        "startMs": 766
       },
       {
         "path": "src/chunks/analysis-TNFOCR5D.js",
         "bytes": 20406,
-        "startMs": 331
+        "startMs": 328
       },
       {
         "path": "src/chunks/session-lean-XDGIM2AA.js",
         "bytes": 18534,
-        "startMs": 458
+        "startMs": 478
       },
       {
         "path": "src/chunks/chunk-EH4SSBVL.js",
         "bytes": 17285,
-        "startMs": 778
+        "startMs": 765
       },
       {
         "path": "src/chunks/chunk-7T4C5KEB.js",
         "bytes": 16049,
-        "startMs": 779
+        "startMs": 765
       }
     ],
     "measuredBundle": "deploy",
@@ -94,10 +95,10 @@
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 18,
+    "termMarksBeforeGlossary": 19,
     "glossaryOnTermHover": true,
-    "routeMs": 19,
-    "wallMs": 9699,
+    "routeMs": 123,
+    "wallMs": 9940,
     "totalExternalRequests": 33,
     "quoteRequests": 24,
     "initialExternalRequests": 8,
