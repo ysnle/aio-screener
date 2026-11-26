@@ -6,6 +6,12 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.58 v60.58 장중 등락·세션 시차·휴장 공지 (2026-11-26)
+
+- [x] QA-KOSPI-CHIP-NULL-01: v60.58 등락이 없는 장중 코스피 시세는 직전 확정 종가 대비 등락으로 보이고, 종가 기록도 없으면 등락을 비운다(0.00%로 보이지 않는다). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SESSION-BEHIND-01: v60.58 미국 세션보다 하루 뒤진 선물·달러 종가는 자기 날짜를 단 채 하루 원장의 주요 항목 아래에 머물고, 제 세션 날에는 크기대로 순위가 매겨진다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SESSION-NOTICE-01: v60.58 앞으로 나흘 안의 거래소 휴장과 조기 마감은 오늘 화면 날짜 줄에, 조기 마감은 브리핑 일정에 그 세션 날짜와 끝나는 한국 시간으로 나온다; 해당 없는 주에는 문장이 없다. verify_by: node scripts/ci-market-session-contract-check.mjs
+
 ## v60.57 이익·주문·수급·기사를 시장 이야기에 연결 (2026-11-25)
 
 - [x] QA-EARNINGS-READ-01: v60.57 오늘과 시장 상태의 머리말은 진단 줄 아래에 S&P 500 고점 대비 하락과 최근 4주 이익 전망 수정(상향·하향 건수, 기술 업종, 선행 PER)을 한 줄로 놓고, 하락 여부와 수정 방향으로 뜻을 정한다(하락인데 상향 우세면 값이 내린 하락, 수정이 하향으로 돌면 성격이 달라짐); 지수 비중이 모자라 수정 방향을 낼 수 없으면 줄이 없다. AI 읽기에도 같은 줄('이익 대 주가')이 들어간다. verify_by: node scripts/ci-esm-core-unit-check.mjs

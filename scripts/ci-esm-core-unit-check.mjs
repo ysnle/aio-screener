@@ -1662,6 +1662,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const days = []; for (let d = Date.parse('2026-08-03T12:00:00Z'); days.length < 70; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) days.push(day.toISOString().slice(0, 10)); }
       const history = days.map((date, i) => ({ date, wti: i === 69 ? 100 * 0.92 : 100 + (i % 2 ? 0.5 : -0.5), spx: 5000 + (i % 2 ? 10 : -10), fieldMeta: { wti: { sessionDate: date }, spx: { sessionDate: date } } }));
       const nowMs = Date.parse(`${days[69]}T22:00:00Z`);
+      {
+        // The morning after session D: the stock close is in, oil's last settled close is still D-1 (an -8% day).
+        const behind = history.slice(0, 69).concat([{ date: days[69], spx: 5010, fieldMeta: { spx: { sessionDate: days[69] } } }]);
+        behind[68] = { ...behind[68], wti: 92 };
+        const late = buildMarketDay({ history: behind, screener: { factorSessionDateByMarket: { US: days[69] }, data: {} }, nowMs }).facts.find((fact) => fact.id === `price:wti:${days[68]}`);
+        const onTime = buildMarketDay({ history: behind, screener: { factorSessionDateByMarket: { US: days[68] }, data: {} }, nowMs }).facts.find((fact) => fact.id === `price:wti:${days[68]}`);
+        if (!late || late.sessionBehind !== days[69] || !['minor', 'context'].includes(late.rank)) fail(`v60.58 a futures close one US session behind keeps its own date and stays below the day's leads: ${JSON.stringify(late)}`);
+        if (!onTime || onTime.sessionBehind || !['lead', 'major'].includes(onTime.rank)) fail(`v60.58 the same move on its own session day ranks by its size: ${JSON.stringify(onTime)}`);
+      }
       const row = (ret1d, extra = {}) => ({ ret1d, adrPct: 2, dollarVolume30d: 1e9, ...extra });
       const screener = { factorSessionDateByMarket: { US: days[69] }, data: { OIL1: row(-6), OIL2: row(-5.5), OIL3: row(-5), OIL4: row(-4.8), ACQ: row(-9, { newsMemo: '[11-03] Acquirer to buy Targetco for $10 billion', newsTs: new Date(nowMs - 3600000).toISOString() }), TGT: row(12), MYST: row(8), MEGA: row(-2), OLDN: row(7, { newsMemo: '[10-01] Old story', newsTs: '2026-10-01T00:00:00Z' }) } };
       const universe = ['OIL1', 'OIL2', 'OIL3', 'OIL4'].map((sym) => ({ sym, name: sym, sector: 'Energy' })).concat([{ sym: 'ACQ', name: 'Acquirer Corp', sector: 'Technology' }, { sym: 'TGT', name: 'Targetco', sector: 'Technology' }, { sym: 'MYST', name: 'Mystery Inc', sector: 'Industrials' }, { sym: 'OLDN', name: 'Oldnews Inc', sector: 'Industrials' }, { sym: 'MEGA', name: 'Megacap Inc', sector: 'Technology' }]);
@@ -6445,6 +6454,11 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const disagree = koreaQuoteChip({ live: { ...session, regularMarketPreviousClose: 5500 }, closes });
   if (disagree?.basis !== 'close' || disagree.reason !== 'live-disagrees') fail(`v57.79 a quote whose previous close is >5% off the close series shows the close: ${JSON.stringify(disagree)}`);
   if (koreaQuoteChip({ live: null, closes: [] }) !== null) fail('v57.79 with neither a quote nor a close the 코스피 chip hides');
+  // The published mid-session quote carries no change and no previous close.
+  const bare = koreaQuoteChip({ live: { price: 6150, pct: null, regularMarketPreviousClose: null, observedAt: '2026-10-15T00:31:00.000Z', marketState: 'DELAYED_IN_SESSION' }, closes });
+  if (bare?.basis !== 'live' || !(Math.abs(bare.pct - (6150 / 6008.81 - 1) * 100) < 1e-9)) fail(`v60.58 a live KRX quote without its own change is measured from the last completed close, never shown as 0.00%: ${JSON.stringify(bare)}`);
+  const alone = koreaQuoteChip({ live: { price: 6150, pct: null, observedAt: '2026-10-15T00:31:00.000Z' }, closes: [] });
+  if (alone?.basis !== 'live' || alone.pct !== null) fail(`v60.58 a live KRX quote with no change and no close series shows no change: ${JSON.stringify(alone)}`);
   // The close-change tiles and their 지금 line (liveSinceClose) are retired with 지난 마감 이후 변화.
   if ('liveSinceClose' in dailyLoop) fail('v59.51 (content audit): liveSinceClose belonged to the retired home close tiles and must not be exported again');
 }

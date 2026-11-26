@@ -7,6 +7,7 @@ import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { refreshSharedArtifact, sharedArtifactIsStale } from '../../data/shared-artifacts.js';
 import { buildKoreaIndexSeries } from '../../domain/market/regime/regime-scenarios.js';
 import { shortDate } from '../../domain/content/date-labels.js';
+import { sessionNoticeText, sessionNotices } from '../../domain/market/session/session-notice.js';
 import { signedText } from '../../domain/shared/number.js';
 import { historyWaitText } from './data-state.js';
 import { MACRO_HISTORY } from '../../data/artifact-registry.js';
@@ -86,7 +87,8 @@ export function renderHomeRegime({ documentRef: doc, root, store = null }) {
   if (kicker) {
     let today = '';
     try { today = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date()); } catch (_) { today = ''; }
-    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : ''].filter(Boolean).join(', ');
+    // A closure or short session in the next few days is said here: it is why the basis close stays where it is.
+    const text = [today, regime.available && regime.asOf ? `${shortDate(regime.asOf)} 미국 종가 기준` : '', sessionNoticeText(sessionNotices())].filter(Boolean).join(', ');
     if (text) kicker.textContent = text;
   }
   if (!held) set('home-hero-total', regime.available ? regime.overall : '판정 대기');

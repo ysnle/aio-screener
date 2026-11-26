@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-25
+last_verified: 2026-11-26
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2770 - v60.58 - 한국장 개장 뒤 코스피 등락이 0.00%로 표시, 전날 금·달러 움직임이 오늘의 핵심으로 표시, 조기 마감 공지 없음 (2026-11-26)
+
+- symptom/reproduction: 11/26 09:51 KST 오늘 화면의 코스피 칸이 4,804.38에 등락 0.00%를 냈다(직전 종가 4,697.51 대비 실제 +2.28%). 같은 화면 '오늘의 핵심'과 브리핑 '지난 24시간'은 11/25 마감이라는 제목 아래 '11/24 종가 금 -2.5%, 은 -5.5%'와 '11/24 종가 달러지수 -0.5%'를 주요 항목으로 올렸다. 11/27 미국 증시 13:00 조기 마감은 어느 화면에도 미리 나오지 않았고, 11/26 휴장은 브리핑 일정에만 있고 오늘 화면에는 없었다.
+- root_cause: 개장 뒤 약 두 시간 동안 시세 제공처의 직전 일봉 종가가 비어 스냅샷의 등락이 null로 발행되는데, 코스피 칸이 Number(null)을 0으로 읽었다. 선물과 달러지수는 정산 일봉이 미국 주식 마감 3.4~5.4시간 뒤(한국 시간 10:25~12:55)에야 나와, 그 전까지 하루 원장의 최신 값이 한 세션 전인데 원장은 그 날짜를 미국 세션 날짜와 비교하지 않고 크기만으로 순위를 매겼다. 일정은 거래소 달력의 휴장만 읽고 조기 마감(halfDays)은 읽지 않았고, 오늘 화면의 다음 일정은 달력을 읽지 않는 다른 목록이었다.
+- fix: 코스피 칸은 등락이 없는 시세를 직전 확정 종가 대비로 계산하고, 종가도 없으면 등락을 비운다. 하루 원장은 미국 세션보다 하루 뒤진 선물·달러 종가에 sessionBehind를 붙이고 주요 항목 아래(minor)로 내린다(날짜 표기는 그대로). 거래소 달력에서 앞으로 나흘의 휴장·조기 마감을 읽는 session-notice 모듈을 만들어 오늘 화면 날짜 줄에 싣고, 브리핑 일정에 조기 마감 행(그 세션 날짜, 끝나는 한국 시간)을 추가했다.
+- violated_rule: 없는 값은 없다고 말한다; 기준일이 다른 값을 같은 날의 이야기로 내세우지 않는다
+- prevention: 코스피 칸의 null 등락, 한 세션 뒤진 선물 종가의 순위, 추수감사절 주간의 휴장·조기 마감 문장을 단위 검사로 고정했다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-market-session-contract-check.mjs
+- files: src/ui/components/daily-loop.js, src/domain/market/day/facts.js, src/domain/market/session/session-notice.js, src/domain/briefing/schedule.js, src/ui/components/home-regime.js
 
 ## P2769 - v60.57 - 내용이 그대로인 파일을 죽은 파일로 읽음: 지수별 가격 온도가 주말 뒤 '자료 없음'으로 꺼지고, AI 시황 글이 빅테크 현금흐름 문장을 잃음 (2026-11-25)
 

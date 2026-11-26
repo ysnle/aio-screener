@@ -101,7 +101,7 @@ export function priceMateriality(move, asset) {
   return clamp(priceMoveSize(move).size * MOVE.pointsPerSd * (MOVE.coreGauges.includes(asset) ? 1 : MOVE.secondaryShare));
 }
 
-function priceFacts(history) {
+function priceFacts(history, usSession = null) {
   const out = [];
   for (const asset of ASSETS) {
     const series = sessionCloses(history, asset.field);
@@ -112,7 +112,10 @@ function priceFacts(history) {
     // and the step over the gap (WTI 10/30→11/3, 나스닥100 the same) read as that day's -7.7% / -0.7%; no fact then.
     if (countOpenSessionsBetween(series.at(-2).date, last.date, closeSessionMarket(asset.field) || 'US') !== 1) continue;
     out.push({ id: `price:${asset.field}:${last.date}`, kind: 'price', asset: asset.field, label: asset.label, assetKind: asset.kind, date: last.date,
-      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: priceMoveSize(move).size });
+      value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: priceMoveSize(move).size,
+      // Futures and the dollar index settle hours after the stock close, so on the morning after session D their last
+      // close is still D-1. That move belongs to the previous day's account: it stays listed with its own date, below the day's leads.
+      ...(usSession && closeSessionMarket(asset.field) === 'US' && last.date < usSession ? { sessionBehind: usSession } : {}) });
   }
   return out;
 }
@@ -450,7 +453,10 @@ function scoreMateriality(facts, links, nowMs) {
     cause.materiality = raised;
     if (cause.kind === 'price') cause.explains = { id: move.id, basis: link.basis, points: own.get(move.id), own: own.get(cause.id) };
   }
-  for (const fact of facts) fact.rank = materialityRank(fact.materiality);
+  for (const fact of facts) {
+    if (fact.sessionBehind) fact.materiality = Math.min(fact.materiality, MOVE.tiers.major - 1);
+    fact.rank = materialityRank(fact.materiality);
+  }
 }
 
 /**
@@ -477,7 +483,7 @@ export function buildMarketDay({ history = [], screener = null, universe = [], n
   const weights = new Map((Array.isArray(indexWeights) ? indexWeights : []).map((row) => [String(row.sym || '').replace('.', '-'), readNumber(row.weight) || 0]));
   const matchers = matchersOf(universe);
   const candidates = [
-    ...priceFacts(history), ...macroFacts(macroHistory), ...stockFacts(screener, universe, themesBySymbol, weights), ...groupFacts(screener, universe, themes),
+    ...priceFacts(history, screener?.factorSessionDateByMarket?.US || null), ...macroFacts(macroHistory), ...stockFacts(screener, universe, themesBySymbol, weights), ...groupFacts(screener, universe, themes),
     ...briefFacts(briefs, nowMs), ...signalFacts(signals, nowMs, channels), ...scheduleFacts(macroCalendar, nowMs), ...headlineFacts(news, matchers, nowMs)
   ];
   const moved = new Set(candidates.filter((fact) => fact.kind === 'stock-move').flatMap((fact) => fact.subjects)

@@ -122,7 +122,8 @@ export function formatKstWhen(ms) {
 //   src/domain/market/session/market-calendar.js — this file kept a 2026-only copy that would have shown no 2027 holiday).
 const QUARTER_MONTHS = new Set([3, 6, 9, 12]);
 const registeredHolidays = (calendarKey) => Object.values(MARKET_CALENDAR_REGISTRY[calendarKey] || {}).flatMap((calendar) => calendar.holidays);
-const isKrxHoliday = (iso) => (MARKET_CALENDAR_REGISTRY.KRX?.[iso.slice(0, 4)]?.holidays || []).includes(iso);
+const registeredHalfDays = (calendarKey) => Object.values(MARKET_CALENDAR_REGISTRY[calendarKey] || {}).flatMap((calendar) => Object.entries(calendar.halfDays));
+const isKrxHoliday =(iso) => (MARKET_CALENDAR_REGISTRY.KRX?.[iso.slice(0, 4)]?.holidays || []).includes(iso);
 const holidayLabel = (prefix, calendarKey, date) => (MARKET_HOLIDAY_NAMES[calendarKey]?.[date] ? `${prefix} (${MARKET_HOLIDAY_NAMES[calendarKey][date]})` : prefix);
 
 function isoDate(y, m, d) { return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
@@ -181,6 +182,12 @@ export function marketStructureEvents({ fomcDecisions = [], nowMs = Date.now(), 
   for (const date of registeredHolidays('KRX')) push(`krx-holiday-${date}`, Date.parse(`${date}T09:00:00+09:00`), holidayLabel('한국 증시 휴장', 'KRX', date), '한국 거래가 없는 날 — 해외 시장 변화는 다음 거래일에 한꺼번에 반영');
   for (const event of activeScheduledEvents({ nowMs, days })) push(event.id, Date.parse(event.atKst), event.label, event.why, event);
   for (const date of registeredHolidays('NYSE')) push(`nyse-holiday-${date}`, etWallClockToMs(date, [9, 30]), holidayLabel('미국 증시 휴장', 'NYSE', date), '미국 거래가 없는 날 — 다음 거래일 갭에 유의');
+  // The row sits at the open like any session; the label carries the early close in Korean time (a 13:00 ET close is
+  // 03:00 KST the next day, which as the row's own time filed a Friday session under Saturday).
+  for (const [date, close] of registeredHalfDays('NYSE')) {
+    const closeKst = formatKstWhen(etWallClockToMs(date, close.split(':').map(Number))).label;
+    push(`nyse-early-close-${date}`, etWallClockToMs(date, [9, 30]), `미국 증시 조기 마감, ${closeKst} KST에 끝남`, '거래 시간이 짧고 거래량이 얇은 날 — 작은 주문에도 가격이 평소보다 크게 움직일 수 있음');
+  }
   return rows;
 }
 

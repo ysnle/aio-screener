@@ -33,11 +33,14 @@ export function koreaQuoteChip({ live = null, closes = [] } = {}) {
   const when = kstParts(at);
   if (last && when.date < last.date) return closeChip('live-older');
   if (last && when.date === last.date) return closeChip('session-closed');
-  const pct = Number(live?.pct);
+  // A quote published mid-session carries no change (null): Number(null) is 0, which read as "unchanged" on a +2% morning.
+  const pct = live?.pct == null ? NaN : Number(live.pct);
   const livePrev = Number(live?.regularMarketPreviousClose) > 0 ? Number(live.regularMarketPreviousClose) : Number.isFinite(pct) ? price / (1 + pct / 100) : null;
   const off = (a, b) => Math.abs(a / b - 1) * 100 > KR_CHIP_GUARD_PCT;
   if (last && (livePrev ? off(livePrev, last.value) : off(price, last.value))) return closeChip('live-disagrees');
-  return { basis: 'live', reason: 'live', date: when.date, time: when.time, value: price, pct: Number.isFinite(pct) ? pct : null, delayed: /DELAYED/i.test(String(live?.marketState || live?.session || '')) };
+  // The live quote is newer than `last`, so `last` is the close the change is measured from.
+  const shown = Number.isFinite(pct) ? pct : last?.value > 0 ? (price / last.value - 1) * 100 : null;
+  return { basis: 'live', reason: 'live', date: when.date, time: when.time, value: price, pct: shown, delayed: /DELAYED/i.test(String(live?.marketState || live?.session || '')) };
 }
 
 // The chip shows only a live KOSPI quote — the completed KRX close is the hero's Korea line, so a close chip was the

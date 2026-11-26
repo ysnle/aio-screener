@@ -153,6 +153,18 @@ check('temporal evidence separates event/observed/collected/published', temporal
   }
   const yearTurn = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-12-29T00:00:00Z'), days: 7 }).map((row) => `${row.id}|${row.label}`);
   check('P1735 the briefing schedule shows the 2027 closures across the year turn (KRX and NYSE)', yearTurn.includes('krx-holiday-2026-12-31|한국 증시 휴장 (연말 휴장)') && yearTurn.includes('krx-holiday-2027-01-01|한국 증시 휴장 (신정)') && yearTurn.includes('nyse-holiday-2027-01-01|미국 증시 휴장 (신정)'), yearTurn);
+  {
+    // Thanksgiving week seen from the Korean morning of 11/26: the closure and the next day's 13:00 ET close are both told.
+    const at = Date.parse('2026-11-26T01:00:00Z');
+    const week = marketStructureEvents({ fomcDecisions: [], nowMs: at, days: 7 }).map((row) => `${row.id}|${row.label}|${new Date(row.atMs).toISOString()}`);
+    check('v60.58 an NYSE early close is a schedule row on its own session day, with the close in Korean time', week.includes('nyse-early-close-2026-11-27|미국 증시 조기 마감, 11/28(토) 03:00 KST에 끝남|2026-11-27T14:30:00.000Z') && week.some((row) => row.startsWith('nyse-holiday-2026-11-26|')), week);
+    const { sessionNotices, sessionNoticeText } = await import('../src/domain/market/session/session-notice.js');
+    const said = sessionNoticeText(sessionNotices(at));
+    check('v60.58 the session notice names the closure and the early close ahead of them', said === '미국 11/26 휴장(추수감사절)·11/27 조기 마감(현지 13:00)', said);
+    check('v60.58 an ordinary week has no session notice', sessionNoticeText(sessionNotices(Date.parse('2026-11-10T01:00:00Z'))) === '', sessionNoticeText(sessionNotices(Date.parse('2026-11-10T01:00:00Z'))));
+    const yearEnd = sessionNoticeText(sessionNotices(Date.parse('2026-12-24T01:00:00Z')));
+    check('v60.58 both markets are named when both have one', yearEnd === '미국 12/24 조기 마감(현지 13:00)·12/25 휴장(성탄절), 한국 12/25 휴장(성탄절)', yearEnd);
+  }
   const chuseok2027 = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2027-09-12T00:00:00Z'), days: 5 }).filter((row) => row.id.startsWith('krx-holiday-')).map((row) => row.id);
   const politics = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-24T02:00:00Z'), days: 7 }).map((row) => row.id);
   const afterVote = marketStructureEvents({ fomcDecisions: [], nowMs: Date.parse('2026-10-29T00:00:00Z'), days: 7 }).map((row) => row.id);
