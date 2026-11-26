@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T01:52:06.628Z",
-  "attemptedAt": "2026-11-26T01:52:06.628Z",
-  "lastSuccessfulAt": "2026-11-26T01:52:06.628Z",
+  "generatedAt": "2026-11-26T02:22:04.680Z",
+  "attemptedAt": "2026-11-26T02:22:04.680Z",
+  "lastSuccessfulAt": "2026-11-26T02:22:04.680Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T01:52:02.413Z",
-  "until": "2026-11-26T01:52:02.413Z",
+  "since": "2026-11-12T02:21:59.311Z",
+  "until": "2026-11-26T02:21:59.311Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1066,
-      "freshCount": 20,
-      "eligibleTextCount": 1014,
+      "count": 1065,
+      "freshCount": 40,
+      "eligibleTextCount": 1013,
       "selectedCount": 128,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70258
+      "lastPostId": 70259
     },
     {
       "channel": "bornlupin",
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 723,
+      "count": 721,
       "freshCount": 36,
-      "eligibleTextCount": 722,
-      "selectedCount": 125,
+      "eligibleTextCount": 720,
+      "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72798
+      "lastPostId": 72800
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,44 +137,44 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1953,
-  "retainedItemCount": 408,
+  "count": 1950,
+  "retainedItemCount": 419,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1953,
-    "eligibleTextCount": 1900,
+    "observedCount": 1950,
+    "eligibleTextCount": 1897,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 761,
-    "photoPostCount": 646,
+    "mediaAttachedCount": 760,
+    "photoPostCount": 645,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
-    "highSignalCount": 329,
-    "broadSignalCount": 829,
-    "selectedRawCount": 373,
-    "selectedEligibleCount": 373,
+    "highSignalCount": 328,
+    "broadSignalCount": 825,
+    "selectedRawCount": 372,
+    "selectedEligibleCount": 372,
     "selectedRawCoveragePct": 19.6,
     "selectedOfObservedPct": 19.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "insider": 8,
+    "market-note": 684,
     "earnings": 236,
-    "macro": 294,
-    "market-note": 683,
-    "semi": 630,
-    "equity": 126,
-    "ai-policy": 139,
+    "macro": 293,
+    "semi": 627,
+    "equity": 125,
+    "ai-policy": 136,
     "kr-market": 101,
-    "power": 180,
+    "power": 179,
     "credit": 62,
     "flows": 66,
     "healthcare": 56,
     "geo": 223,
     "media-only": 52,
     "japan": 44,
-    "insider": 7,
     "optical": 24,
     "crypto": 1
   },
@@ -182,9 +182,9 @@
     "005930.KS": 28,
     "000660.KS": 27,
     "BE": 9,
-    "NVDA": 419,
+    "NVDA": 416,
     "MU": 26,
-    "GOOG": 45,
+    "GOOG": 44,
     "TSM": 59,
     "GS": 2,
     "COHR": 4,
@@ -194,7 +194,7 @@
     "META": 7,
     "AMD": 48,
     "MSFT": 44,
-    "AVGO": 15,
+    "AVGO": 14,
     "TSLA": 28,
     "AMZN": 42,
     "BMY": 1,
@@ -270,20 +270,20 @@
     "SNOW": 1
   },
   "themes": [
-    "Market Notes (683 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (630 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (294 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
+    "Market Notes (684 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80...",
+    "Semiconductors/Memory (627 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
+    "Macro/Rates (293 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를...",
     "Earnings/Corporate (236 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (180 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
-    "AI Policy/Export Controls (139 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (126 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+    "AI Power/Grid (179 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
+    "AI Policy/Export Controls (136 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (125 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 419,
-      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
+      "count": 416,
+      "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를..."
     },
     {
       "key": "TSM",
@@ -297,13 +297,13 @@
     },
     {
       "key": "GOOG",
-      "count": 45,
+      "count": 44,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
       "key": "MSFT",
       "count": 44,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%, 한국·대만·인도·태국·말레이시아·인도네시아·캄보디아 25%, 일본·싱가포르·방글라데시·스위스·EU 20%, 브라질..."
     },
     {
       "key": "AMZN",
@@ -332,8 +332,8 @@
     },
     {
       "key": "AVGO",
-      "count": 15,
-      "text": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자..."
+      "count": 14,
+      "text": "블룸버그: 젠슨 황 복귀에도 엔비디아 주가 부진 지속, AI 투자수익성 의문 및 규제 압박 심화 블룸버그에 따르면 엔비디아 주가는 최근 9거래일 중 8거래일 하락했으며, 현재 10월 6일 기록한 사상 최고치..."
     },
     {
       "key": "BE",
@@ -348,8 +348,8 @@
       "topics": [
         "macro"
       ],
-      "count": 294,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
+      "count": 293,
+      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를..."
     },
     {
       "id": "geo",
@@ -367,7 +367,7 @@
         "credit"
       ],
       "count": 62,
-      "focus": ">>미국 자금조달 환경 빠르게 긴축되고 있음 •지난 몇 개월간 연준의 금리인상, AI 기업들의 채권 발행 급증 등의 영향으로 미국 금융시장이 빠르게 ‘긴축’되고 있으며, 골드만삭스 미국 금융여건지수도 가파르게 상승하고 있음 •자금조달 환경의 긴축은 차입 의존도가 매우 높은 미국 소비자와 AI 데이터센터에 큰..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%, 한국·대만·인도·태국·말레이시아·인도네시아·캄보디아 25%, 일본·싱가포르·방글라데시·스위스·EU 20%, 브라질..."
     },
     {
       "id": "semi",
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 630,
+      "count": 627,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지..."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 180,
+      "count": 179,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
     },
     {
@@ -402,7 +402,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 139,
+      "count": 136,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -420,8 +420,8 @@
       "topics": [
         "equity"
       ],
-      "count": 126,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+      "count": 125,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
     },
     {
       "id": "crypto",
@@ -474,7 +474,7 @@
       "topics": [
         "insider"
       ],
-      "count": 7,
+      "count": 8,
       "focus": "코히런트(COHR) 이사회 멤버 스티븐 파글리우카, 3,465만 달러 규모 추가 장내 매수- SEC 공식 공시(Form 4) 11월 26일 신규 공시 매수 수량: 169,910주 총 매수 금액: $34,652,890 평균 매수 단가: $203.95 공시상 거래별 가중평균 매수 단가:..."
     },
     {
@@ -483,8 +483,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 683,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
+      "count": 684,
+      "focus": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
     }
   ],
   "pageMap": {
@@ -743,7 +743,10 @@
       "datetime": "2026-11-25T21:09:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -753,10 +756,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     },
     {
       "id": "insidertracking/70217",
@@ -765,16 +768,18 @@
       "datetime": "2026-11-25T21:08:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "id": "insidertracking/70186",
@@ -1334,24 +1339,6 @@
       ]
     },
     {
-      "id": "HANAchina/72002",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72002",
-      "datetime": "2026-11-12T02:17:44.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "market-note"
-      ],
-      "score": 99,
-      "hasText": true,
-      "summary": ">>인터넷 버블 ‘주역’의 경험자 - 전 Cisco 임원이 비교한 인터넷 대규모 인프라 투자 vs AI 대규모 인프라 투자 (중국언론) •전 Cisco 고위 임원 Mike Volpi는 현재 AI 인프라 투자...",
-      "tickers": [
-        "NVDA",
-        "GOOG",
-        "AVGO"
-      ]
-    },
-    {
       "id": "bornlupin/21238",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21238",
@@ -1639,6 +1626,23 @@
         "AMD",
         "TSM"
       ]
+    },
+    {
+      "id": "bornlupin/21192",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21192",
+      "datetime": "2026-11-18T23:45:25.000Z",
+      "localDateKst": "2026-11-19",
+      "tags": [
+        "semi"
+      ],
+      "score": 88,
+      "hasText": true,
+      "summary": "일론 머스크 - 뉴욕타임스 DealBook Summit 인터뷰 - 261118 1. 젠슨 황 관련, 영입 의향 일론 머스크는 젠슨 황이 엔비디아에서 축출된 것을 연승 행진 중인 시카고 불스에서 마이클 조던을...",
+      "tickers": [
+        "NVDA",
+        "TSLA"
+      ]
     }
   ],
   "broadItems": [
@@ -1656,7 +1660,7 @@
       "score": 52,
       "hasText": true,
       "tickers": [],
-      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치. 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,..."
+      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치 . 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,..."
     },
     {
       "id": "bornlupin/21292",
@@ -2130,6 +2134,8 @@
       "datetime": "2026-11-25T21:22:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 65,
@@ -2140,9 +2146,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업..."
     },
     {
       "id": "insidertracking/70226",
@@ -2153,6 +2158,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2161,10 +2167,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중"
     },
     {
       "id": "insidertracking/70225",
@@ -2173,11 +2179,11 @@
       "datetime": "2026-11-25T21:18:48.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "power",
+        "healthcare"
       ],
       "score": 68,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·...",
       "tickers": [],
       "listTickers": [
         "PG",
@@ -2200,7 +2206,8 @@
         "COKE",
         "SN",
         "RGA"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·..."
     },
     {
       "id": "insidertracking/70224",
@@ -2209,6 +2216,9 @@
       "datetime": "2026-11-25T21:17:42.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "credit",
+        "semi",
+        "power",
         "equity"
       ],
       "score": 95,
@@ -2219,11 +2229,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만...",
       "tickers": [
         "NVDA",
         "META"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
       "id": "bornlupin/21281",
@@ -2248,7 +2258,9 @@
       "datetime": "2026-11-25T21:15:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -2258,12 +2270,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:...",
       "tickers": [
         "NVDA",
         "AMD",
         "MU"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:..."
     },
     {
       "id": "insidertracking/70220",
@@ -2272,7 +2284,7 @@
       "datetime": "2026-11-25T21:12:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2282,8 +2294,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 26일 미장 마감 S&P 500 - 7,182.78 -0.25% 다우 30 - 50,182.95 +0.33% 나스닥 - 23,585.80 -0.62% 러셀 2000 - 2,706.80...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 26일 미장 마감 S&P 500 - 7,182.78 -0.25% 다우 30 - 50,182.95 +0.33% 나스닥 - 23,585.80 -0.62% 러셀 2000 - 2,706.80..."
     },
     {
       "id": "insidertracking/70218",
@@ -2292,7 +2304,10 @@
       "datetime": "2026-11-25T21:09:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -2302,10 +2317,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     },
     {
       "id": "insidertracking/70217",
@@ -2314,16 +2329,18 @@
       "datetime": "2026-11-25T21:08:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "id": "bornlupin/21280",
@@ -2619,12 +2636,12 @@
       "datetime": "2026-11-25T10:27:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>10조원대 증시안정펀드로 부족, 한국 증시안정펀드 확대 검토 (중국언론) •한국산업은행이 증권사들을 대상으로 추가 출자 여력을 긴급 점검하면서 10조7,600억원 규모 증시안정펀드 확대가 검토되고 있음...."
+      "summary": ">>10조원대 증시안정펀드로 부족, 한국 증시안정펀드 확대 검토 (중국언론) •한국산업은행이 증권사들을 대상으로 추가 출자 여력을 긴급 점검하면서 10조7,600억원 규모 증시안정펀드 확대가 검토되고 있음....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70193",
@@ -8477,6 +8494,8 @@
       "datetime": "2026-11-25T21:22:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 65,
@@ -8487,9 +8506,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업..."
     },
     {
       "id": "insidertracking/70226",
@@ -8500,6 +8518,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -8508,10 +8527,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중"
     },
     {
       "id": "insidertracking/70225",
@@ -8520,11 +8539,11 @@
       "datetime": "2026-11-25T21:18:48.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "power",
+        "healthcare"
       ],
       "score": 68,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·...",
       "tickers": [],
       "listTickers": [
         "PG",
@@ -8547,7 +8566,8 @@
         "COKE",
         "SN",
         "RGA"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·..."
     },
     {
       "id": "insidertracking/70224",
@@ -8556,6 +8576,9 @@
       "datetime": "2026-11-25T21:17:42.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "credit",
+        "semi",
+        "power",
         "equity"
       ],
       "score": 95,
@@ -8566,11 +8589,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만...",
       "tickers": [
         "NVDA",
         "META"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
       "id": "bornlupin/21281",
@@ -8595,7 +8618,9 @@
       "datetime": "2026-11-25T21:15:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -8605,12 +8630,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:...",
       "tickers": [
         "NVDA",
         "AMD",
         "MU"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:..."
     },
     {
       "id": "insidertracking/70220",
@@ -8619,7 +8644,7 @@
       "datetime": "2026-11-25T21:12:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -8629,8 +8654,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 26일 미장 마감 S&P 500 - 7,182.78 -0.25% 다우 30 - 50,182.95 +0.33% 나스닥 - 23,585.80 -0.62% 러셀 2000 - 2,706.80...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 26일 미장 마감 S&P 500 - 7,182.78 -0.25% 다우 30 - 50,182.95 +0.33% 나스닥 - 23,585.80 -0.62% 러셀 2000 - 2,706.80..."
     },
     {
       "id": "insidertracking/70218",
@@ -8639,7 +8664,10 @@
       "datetime": "2026-11-25T21:09:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
@@ -8649,10 +8677,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     },
     {
       "id": "insidertracking/70217",
@@ -8661,16 +8689,18 @@
       "datetime": "2026-11-25T21:08:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "MSFT"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "id": "bornlupin/21280",
@@ -8966,12 +8996,12 @@
       "datetime": "2026-11-25T10:27:44.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>10조원대 증시안정펀드로 부족, 한국 증시안정펀드 확대 검토 (중국언론) •한국산업은행이 증권사들을 대상으로 추가 출자 여력을 긴급 점검하면서 10조7,600억원 규모 증시안정펀드 확대가 검토되고 있음...."
+      "summary": ">>10조원대 증시안정펀드로 부족, 한국 증시안정펀드 확대 검토 (중국언론) •한국산업은행이 증권사들을 대상으로 추가 출자 여력을 긴급 점검하면서 10조7,600억원 규모 증시안정펀드 확대가 검토되고 있음....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70193",
