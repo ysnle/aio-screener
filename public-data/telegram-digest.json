@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T10:21:40.265Z",
-  "attemptedAt": "2026-11-26T10:21:40.265Z",
-  "lastSuccessfulAt": "2026-11-26T10:21:40.265Z",
+  "generatedAt": "2026-11-26T10:51:33.389Z",
+  "attemptedAt": "2026-11-26T10:51:33.389Z",
+  "lastSuccessfulAt": "2026-11-26T10:51:33.389Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T10:21:36.936Z",
-  "until": "2026-11-26T10:21:36.936Z",
+  "since": "2026-11-12T10:51:28.568Z",
+  "until": "2026-11-26T10:51:28.568Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1053,
-      "freshCount": 18,
-      "eligibleTextCount": 1001,
+      "count": 1055,
+      "freshCount": 38,
+      "eligibleTextCount": 1003,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70276
+      "lastPostId": 70278
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 727,
-      "freshCount": 20,
-      "eligibleTextCount": 726,
+      "count": 729,
+      "freshCount": 36,
+      "eligibleTextCount": 728,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72836
+      "lastPostId": 72838
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,36 +137,36 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1949,
-  "retainedItemCount": 401,
+  "count": 1953,
+  "retainedItemCount": 426,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1949,
-    "eligibleTextCount": 1896,
+    "observedCount": 1953,
+    "eligibleTextCount": 1900,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 753,
-    "photoPostCount": 640,
+    "mediaAttachedCount": 754,
+    "photoPostCount": 641,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
     "highSignalCount": 330,
     "broadSignalCount": 829,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 19.7,
+    "selectedRawCoveragePct": 19.6,
     "selectedOfObservedPct": 19.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "market-note": 684,
+    "geo": 223,
     "macro": 299,
     "semi": 623,
-    "geo": 222,
     "earnings": 234,
     "ai-policy": 135,
     "credit": 68,
-    "market-note": 681,
     "healthcare": 57,
     "kr-market": 100,
     "optical": 24,
@@ -271,11 +271,11 @@
     "SNOW": 1
   },
   "themes": [
-    "Market Notes (681 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Market Notes (684 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
     "Semiconductors/Memory (623 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
     "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
     "Earnings/Corporate (234 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (222 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (178 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (135 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
@@ -358,7 +358,7 @@
       "topics": [
         "geo"
       ],
-      "count": 222,
+      "count": 223,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -484,7 +484,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 681,
+      "count": 684,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -1932,12 +1932,13 @@
       "datetime": "2026-11-26T05:52:34.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "power"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>ED Yardeni : AI 거래는 살아 있지만 이미 ‘절름발이’ 상태, 연말 V자 반등 기대하지 말아야 •Ed Yardeni는 AI 거래가 끝난 것은 아니지만 이미 ‘절름발이’ 상태라고 평가했음. 지난...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>ED Yardeni : AI 거래는 살아 있지만 이미 ‘절름발이’ 상태, 연말 V자 반등 기대하지 말아야 •Ed Yardeni는 AI 거래가 끝난 것은 아니지만 이미 ‘절름발이’ 상태라고 평가했음. 지난..."
     },
     {
       "id": "HANAchina/72812",
@@ -1948,14 +1949,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "SMCI"
-      ]
+      ],
+      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro..."
     },
     {
       "id": "HANAchina/72807",
@@ -1965,8 +1966,11 @@
       "localDateKst": "2026-11-26",
       "tags": [
         "semi",
-        "power"
+        "macro",
+        "power",
+        "flows"
       ],
+      "lead": 1,
       "score": 86,
       "hasText": true,
       "media": {
@@ -1975,11 +1979,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의..."
     },
     {
       "id": "HANAchina/72806",
@@ -1988,12 +1991,12 @@
       "datetime": "2026-11-26T04:48:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을..."
     },
     {
       "id": "insidertracking/70269",
@@ -2058,11 +2061,11 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 2,
       "score": 62,
       "hasText": true,
-      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심..."
     },
     {
       "id": "HANAchina/72802",
@@ -2071,6 +2074,7 @@
       "datetime": "2026-11-26T03:50:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "semi",
         "power"
       ],
       "score": 60,
@@ -2081,8 +2085,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률..."
     },
     {
       "id": "insidertracking/70260",
@@ -2212,10 +2216,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "[1보] 한은, 기준금리 연 3.25%로 0.25%p 인상 주식소리통",
-      "tickers": []
+      "tickers": [],
+      "summary": "[1보] 한은, 기준금리 연 3.25%로 0.25%p 인상 주식소리통"
     },
     {
       "id": "bornlupin/21290",
@@ -2300,6 +2305,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2308,11 +2314,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "속보: 마이클 버리, 엔비디아 주가가 주당 200달러로 돌아갈 거라고 생각 그는: 1. 금요일에 매수한 깊이 외가격 $NVDA 콜옵션을 여전히 보유 중이며, 이미 2배 상승 2. 시장이 낙관적으로 변하면 주당...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "속보: 마이클 버리, 엔비디아 주가가 주당 200달러로 돌아갈 거라고 생각 그는: 1. 금요일에 매수한 깊이 외가격 $NVDA 콜옵션을 여전히 보유 중이며, 이미 2배 상승 2. 시장이 낙관적으로 변하면 주당..."
     },
     {
       "id": "bornlupin/21287",
@@ -2341,14 +2346,16 @@
       "datetime": "2026-11-25T23:33:26.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi"
+        "semi",
+        "geo"
       ],
+      "lead": 1,
       "score": 66,
       "hasText": true,
-      "summary": "워싱턴포스트 보도에 따르면, 사안에 정통한 관계자 3명은 트럼프 행정부 고위 당국자들이 지난 주말 논란에 휩싸인 엔비디아 문제를 논의하는 과정에서 미 국방부 지도부가 냉전 시대에 제정된...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "워싱턴포스트 보도에 따르면, 사안에 정통한 관계자 3명은 트럼프 행정부 고위 당국자들이 지난 주말 논란에 휩싸인 엔비디아 문제를 논의하는 과정에서 미 국방부 지도부가 냉전 시대에 제정된..."
     },
     {
       "id": "HANAchina/72786",
@@ -2375,14 +2382,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
-      "summary": "수요일 코어위브와 엔비디아의 신용위험 지표가 사상 최고치를 경신했으며, 시장의 우려 수준을 나타내는 지표도 지난 3월 이후 최고 수준으로 상승. 기술기업들이 AI 투자 자금을 조달하기 위해 사상 최대 규모의...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG"
-      ]
+      ],
+      "summary": "수요일 코어위브와 엔비디아의 신용위험 지표가 사상 최고치를 경신했으며, 시장의 우려 수준을 나타내는 지표도 지난 3월 이후 최고 수준으로 상승. 기술기업들이 AI 투자 자금을 조달하기 위해 사상 최대 규모의..."
     },
     {
       "id": "bornlupin/21286",
@@ -2568,8 +2575,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
     },
     {
       "id": "insidertracking/70227",
@@ -8408,8 +8415,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
     },
     {
       "id": "insidertracking/70227",
