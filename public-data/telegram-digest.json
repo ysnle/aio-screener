@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T09:51:38.953Z",
-  "attemptedAt": "2026-11-26T09:51:38.953Z",
-  "lastSuccessfulAt": "2026-11-26T09:51:38.953Z",
+  "generatedAt": "2026-11-26T10:21:40.265Z",
+  "attemptedAt": "2026-11-26T10:21:40.265Z",
+  "lastSuccessfulAt": "2026-11-26T10:21:40.265Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T09:51:35.442Z",
-  "until": "2026-11-26T09:51:35.442Z",
+  "since": "2026-11-12T10:21:36.936Z",
+  "until": "2026-11-26T10:21:36.936Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 727,
-      "freshCount": 36,
+      "freshCount": 20,
       "eligibleTextCount": 726,
       "selectedCount": 125,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 1949,
-  "retainedItemCount": 412,
+  "retainedItemCount": 401,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -1932,13 +1932,12 @@
       "datetime": "2026-11-26T05:52:34.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro",
-        "power"
+        "market-note"
       ],
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>ED Yardeni : AI 거래는 살아 있지만 이미 ‘절름발이’ 상태, 연말 V자 반등 기대하지 말아야 •Ed Yardeni는 AI 거래가 끝난 것은 아니지만 이미 ‘절름발이’ 상태라고 평가했음. 지난..."
+      "summary": ">>ED Yardeni : AI 거래는 살아 있지만 이미 ‘절름발이’ 상태, 연말 V자 반등 기대하지 말아야 •Ed Yardeni는 AI 거래가 끝난 것은 아니지만 이미 ‘절름발이’ 상태라고 평가했음. 지난...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72812",
@@ -1949,14 +1948,14 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro...",
+      "lead": 1,
       "tickers": [
         "NVDA",
         "SMCI"
-      ],
-      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro..."
+      ]
     },
     {
       "id": "HANAchina/72807",
@@ -1966,11 +1965,8 @@
       "localDateKst": "2026-11-26",
       "tags": [
         "semi",
-        "macro",
-        "power",
-        "flows"
+        "power"
       ],
-      "lead": 1,
       "score": 86,
       "hasText": true,
       "media": {
@@ -1979,10 +1975,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의..."
+      ]
     },
     {
       "id": "HANAchina/72806",
@@ -1991,12 +1988,12 @@
       "datetime": "2026-11-26T04:48:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을..."
+      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70269",
@@ -2061,11 +2058,11 @@
         "semi",
         "ai-policy"
       ],
-      "lead": 2,
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심..."
+      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "HANAchina/72802",
@@ -2074,7 +2071,6 @@
       "datetime": "2026-11-26T03:50:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
         "power"
       ],
       "score": 60,
@@ -2085,8 +2081,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률..."
+      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70260",
@@ -2113,11 +2109,11 @@
         "earnings",
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치 . 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,..."
+      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치 . 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21292",
