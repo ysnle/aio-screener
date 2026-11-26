@@ -52,6 +52,9 @@
 .research-ref__value { color: var(--color-text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
 .research-ref__change, .research-ref__date { font-variant-numeric: tabular-nums; }
 .research-ref__tag { font-size: var(--fs-min); padding: 0 6px; border-radius: var(--radius-full); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); white-space: nowrap; }
+/* Source links share the fold-link shape of the other source lists (masters, atlas): a 24px target, ink colour, underline. */
+.research-ref__source-list a { display: inline-flex; align-items: center; min-height: 24px; color: var(--color-text-primary); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.research-ref__source-list a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 .research-ref__line { margin: 6px 0 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
 
 /* The AI funding chain (components/ai-funding-chain.js): seven numbered links down one thin connector, no boxes. */

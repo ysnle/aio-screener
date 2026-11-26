@@ -30,9 +30,13 @@ try {
     // N5: the rates chapter bar labels fit their column.
     await page.evaluate(() => { window.showPage('macro'); document.getElementById('page-macro').dataset.view = 'all'; }); // every view of the page
     await page.waitForFunction(() => document.querySelectorAll('#page-macro .mx-ch__x').length > 0, null, { timeout: 30000 }).catch(() => {});
-    await page.evaluate(() => document.querySelectorAll('#page-macro .mx-ch').forEach((node) => { node.hidden = false; })); // every topic, not only the picked one
-    const labels = await page.evaluate(() => [...document.querySelectorAll('#page-macro .mx-ch__x')].filter((node) => node.offsetParent)
-      .map((node) => ({ text: node.textContent, cut: node.scrollWidth > node.clientWidth + 1 })));
+    // v60.59: the section redraws (topic re-picked) when a late artifact lands — history, the researched rows, the funding
+    // chain — so every topic is shown and read in one task; a redraw between two evaluates left only the picked topic.
+    const labels = await page.evaluate(() => {
+      document.querySelectorAll('#page-macro .mx-ch').forEach((node) => { node.hidden = false; }); // every topic, not only the picked one
+      return [...document.querySelectorAll('#page-macro .mx-ch__x')].filter((node) => node.offsetParent)
+        .map((node) => ({ text: node.textContent, cut: node.scrollWidth > node.clientWidth + 1 }));
+    });
     check(labels.length > 0, `v59.70 re-review N5 ${viewport.name}: 매크로 draws chapter bar labels to check`);
     check(labels.some((label) => label.text === '기대인플레'), `v59.70 re-review N5 ${viewport.name}: the rates chapter draws its 기대인플레 bar`, labels.map((label) => label.text).join(', '));
     const cut = labels.filter((label) => label.cut).map((label) => label.text);

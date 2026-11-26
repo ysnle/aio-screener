@@ -49,6 +49,9 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-SETUP-02: v60.59 셋업 사다리: 돌파 대기(템플릿 통과 + 유효 베이스 + 피벗 5% 이내 아래 + 손절폭 8% 이하) ⊂ 베이스 완성 ⊂ 템플릿 통과 ⊂ n/8, 미충족 이유 낱말, ETF 제외 미국 종목 집계, 업종별 템플릿·베이스 수(방어 업종 표시), 테마 200일선 구간 타일. 판정된 행이 없으면 집계는 0이 아니라 비어 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [ ] QA-SETUP-03: v60.59 producer가 pctSma150, sma200Rise21Pct, rsBenchmarkRet6m(미국 S&P 500·KOSPI·KOSDAQ, 차트와 같은 비교 지수), vcpDepths, vcpVolumeRatio를 발행하고 provider·normalizer가 통과시킨다. 다음 refresh-screener 실행 뒤 screener.json 행에 다섯 필드가 있고 시장 폭 템플릿 타일·업종 막대·후보 상태 칸이 켜지는지 확인. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-SETUP-04: v60.59 시장 폭 첫머리 '오늘의 요점'(신고가·신저가, 템플릿·베이스 수와 가장 많은 업종, 돌파 대기 수, AI 인프라 200일선 위치, 후보의 실적 D-N)은 입력이 없는 줄을 빼고 그리며 매수·매도 지시가 없다. 테마 순위 보기의 테마 200일선 타일은 8종목 이상 테마를 고를 수 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-BROWSER-FIXES-6059-01: v60.59 뉴스 검색창(#news-filter-query)은 aria-label로 이름을 갖고, 조사 출처 링크(.research-ref__source-list a)는 24px 이상 터치 영역과 테마 색을 쓴다(투자 심리·매크로·테마·종목·AI 자금 고리 접힘). verify_by: node scripts/ci-viewport-matrix-check.mjs; node scripts/ci-touch-ergonomics-browser-check.mjs; node scripts/ci-accessibility-matrix-check.mjs; node scripts/ci-contrast-focus-browser-check.mjs
+- [x] QA-BROWSER-FIXES-6059-02: v60.59 DATA_SNAPSHOT.bokNext는 발표 시각 기준으로 푼 kr-bok 일정(MACRO_CALENDAR)만 읽는다 — 금통위 당일 10:00 KST 이후에는 그 회의를 다음 회의로 적지 않는다; T822는 퇴역한 주제 버튼 대신 뉴스 패널 주제 칩 행을 검사한다. verify_by: node scripts/ci-headless-tests.mjs --groups=G080,G085
+- [x] QA-BROWSER-FIXES-6059-03: v60.59 매크로 주제 막대 검사는 늦은 산출물 도착으로 다시 그려지는 사이에 끊기지 않게 모든 주제를 한 번에 펼쳐 읽는다. verify_by: node scripts/ci-screen-rereview-browser-check.mjs
 
 ## v60.58 v60.58 장중 등락·세션 시차·휴장 공지 (2026-11-26)
 

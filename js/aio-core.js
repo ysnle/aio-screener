@@ -10565,16 +10565,6 @@ const AIO_MANUAL_REFERENCE = Object.freeze({
 
 // 수동 편집 금지: 변동 데이터는 data.json에서 자동 파생하고 런타임 공급자로 보강한다.
 // 공식 일정·정책처럼 수동 검증이 필요한 값만 AIO_MANUAL_REFERENCE에 출처와 기준일을 함께 둔다.
-function _aioFutureReferenceDate(value) {
-  var text = String(value || '').trim();
-  var date = text.slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  var parsed = Date.parse(date + 'T00:00:00Z');
-  if (!Number.isFinite(parsed)) return null;
-  var today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  return parsed >= today.getTime() ? date : null;
-}
 const DATA_SNAPSHOT = {
   _updated: null,
   _snapshotDate: null,
@@ -10819,7 +10809,9 @@ window.AIO.applyManualReferenceState = function(now) {
     S._fieldTs.bok_rate = bok.asOf;
   } else if (held('bokPolicy')) { S.bokRate = null; S.bokStatus = null; }
   else { S.bokRate = M.bokPolicy.value; S.bokStatus = M.bokPolicy.status; S._fieldTs.bok_rate = M.bokPolicy.asOf; }
-  S.bokNext = (releases['kr-bok'] && releases['kr-bok'].nextRelease) || (bok && _aioFutureReferenceDate(bok.next)) || _aioFutureReferenceDate(M.bokPolicy.next);
+  // The kr-bok row already holds the produced next meeting and is resolved on the release clock (10:00 KST); a
+  // date-only fallback kept naming the meeting as next for the rest of its own day, after the decision was out.
+  S.bokNext = (releases['kr-bok'] && releases['kr-bok'].nextRelease) || null;
   var cpi = P.krInflation && P.krInflation.status === 'verified' ? P.krInflation : null;
   if (cpi) {
     S.krCpi = cpi.headline;

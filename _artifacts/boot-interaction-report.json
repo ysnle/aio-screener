@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-26T02:26:06.675Z",
-  "appRevision": "v60.58",
-  "gitHead": "2cc6a90fbae79c81db578f43c4f76897b9f3be56",
+  "observedAt": "2026-11-26T04:35:51.493Z",
+  "appRevision": "v60.59",
+  "gitHead": "0db1d169706833e686b5ae99ab4118f6bd948dd0",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,92 +16,91 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 400 > 200",
-    "total long task 1042 > 1000",
-    "decoded same-origin JS 2.6MB > 1.5MB"
+    "max long task 281 > 200",
+    "decoded same-origin JS 2.63MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 976,
-    "dclMs": 331,
-    "loadMs": 338,
-    "maxLongTaskMs": 400,
-    "totalLongTaskMs": 1042,
-    "longTaskCount": 6,
+    "fcpMs": 1656,
+    "dclMs": 341,
+    "loadMs": 355,
+    "maxLongTaskMs": 281,
+    "totalLongTaskMs": 913,
+    "longTaskCount": 7,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3886,
-    "activeRouteDomNodes": 1719,
+    "domNodes": 3963,
+    "activeRouteDomNodes": 1721,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2728110,
-    "sameOriginScripts": 159,
+    "decodedJsBytes": 2757094,
+    "sameOriginScripts": 164,
     "crossOriginScripts": 1,
-    "resourceEntries": 223,
+    "resourceEntries": 227,
     "jsByKind": {
-      "esmBoot": 1347930,
-      "classicBoot": 965668,
+      "esmBoot": 1349993,
+      "classicBoot": 965268,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 414512
+      "postBootLazy": 441833
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
-        "path": "src/chunks/chunk-G6NLGMZK.js",
-        "bytes": 68017,
-        "startMs": 517
+        "path": "src/chunks/chunk-UBMSX2VM.js",
+        "bytes": 76635,
+        "startMs": 779
       },
       {
-        "path": "src/chunks/market-regime-OEWWLRG5.js",
-        "bytes": 42401,
-        "startMs": 2318
+        "path": "src/chunks/market-regime-QDEBSGDH.js",
+        "bytes": 42513,
+        "startMs": 2516
       },
       {
-        "path": "src/chunks/legacy-screen-bridges-WFESDC2H.js",
-        "bytes": 27273,
-        "startMs": 219
+        "path": "src/chunks/legacy-screen-bridges-NTXXOL6G.js",
+        "bytes": 25890,
+        "startMs": 228
       },
       {
-        "path": "src/chunks/chunk-AF3IKFI2.js",
-        "bytes": 23409,
-        "startMs": 518
+        "path": "src/chunks/chunk-VGQ23PWY.js",
+        "bytes": 23461,
+        "startMs": 780
       },
       {
-        "path": "src/chunks/analysis-OKV4CFY5.js",
-        "bytes": 20322,
-        "startMs": 319
+        "path": "src/chunks/analysis-TNFOCR5D.js",
+        "bytes": 20406,
+        "startMs": 331
       },
       {
-        "path": "src/chunks/session-lean-5MRG5MT2.js",
+        "path": "src/chunks/session-lean-XDGIM2AA.js",
         "bytes": 18534,
-        "startMs": 391
+        "startMs": 458
       },
       {
-        "path": "src/chunks/chunk-2TOY4FBU.js",
-        "bytes": 17050,
-        "startMs": 517
+        "path": "src/chunks/chunk-EH4SSBVL.js",
+        "bytes": 17285,
+        "startMs": 778
       },
       {
-        "path": "src/chunks/chunk-ADAIQOQJ.js",
-        "bytes": 16041,
-        "startMs": 518
+        "path": "src/chunks/chunk-7T4C5KEB.js",
+        "bytes": 16049,
+        "startMs": 779
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "src/chunks/ai-profile-6E2TQZJC.js",
-      "src/chunks/panel-HTU3ZA3V.js",
+      "src/chunks/panel-YN2KP2BP.js",
       "src/chunks/request-pipeline-3HGKXAVM.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
-    "termMarksBeforeGlossary": 17,
+    "termMarksBeforeGlossary": 18,
     "glossaryOnTermHover": true,
-    "routeMs": 120,
-    "wallMs": 9486,
+    "routeMs": 19,
+    "wallMs": 9699,
     "totalExternalRequests": 33,
     "quoteRequests": 24,
-    "initialExternalRequests": 7,
+    "initialExternalRequests": 8,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {
@@ -128,6 +127,6 @@
         "name": "물가 둔화 + 고용 완만"
       }
     },
-    "decodedJsMb": 2.6
+    "decodedJsMb": 2.63
   }
 }

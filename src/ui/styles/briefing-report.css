@@ -101,7 +101,8 @@
 #page-briefing .br-week__bar { --signed-h: 6px; }
 #page-briefing .br-week__bar.is-empty { display: block; height: 6px; }
 #page-briefing .br-week__move { text-align: right; font-family: var(--font-report-serif); font-size: 18px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-#page-briefing .br-week__note { grid-column: 3 / -1; margin: 0; font-size: 12px; font-style: italic; line-height: 1.6; color: var(--color-text-secondary); }
+/* The day's reading is the row's content, so it prints at body size and colour. */
+#page-briefing .br-week__read { grid-column: 3 / -1; margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
 #page-briefing .br-week__row.is-ahead .br-week__day, #page-briefing .br-week__row.is-closed .br-week__day { color: var(--color-text-secondary); }
 #page-briefing .br-points { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 #page-briefing .br-points > li { font-size: 14px; line-height: 1.7; color: var(--color-text-primary); }

@@ -106,7 +106,7 @@ function paintSequence(doc, sequence) {
     li.append(el(doc, 'span', point.tnx == null ? W.missing : `${point.tnx.toFixed(2)}%`, 'br-seq__value'), el(doc, 'span', dayName(point.date), 'br-seq__date'));
     row.append(li);
   }
-  const caption = el(doc, 'figcaption', `S&P 500 종가, 아래 줄은 미 10년 금리. 5거래일 S&P 500 ${signedText(sequence.change, 1, '%')}${sequence.tnxChange == null ? '' : `, 미 10년 ${signedText(sequence.tnxChange, 0, 'bp')}`}.`, 'br-caption');
+  const caption = el(doc, 'figcaption', `선 S&P 500, 숫자 미 10년 금리 · 5거래일 ${signedText(sequence.change, 1, '%')}${sequence.tnxChange == null ? '' : `, ${signedText(sequence.tnxChange, 0, 'bp')}`}`, 'br-caption');
   doc.getElementById('briefing-sequence-figure').replaceChildren(sequencePlot(doc, points), row, caption);
 }
 
@@ -115,7 +115,7 @@ function paintWeek(doc, week) {
   const section = doc.getElementById('briefing-week-section');
   if (!list || !section) return;
   if (!week) { list.replaceChildren(); return; }
-  doc.getElementById('briefing-week-note').textContent = `${shortDate(week.rows[0].date)}~${shortDate(week.rows.at(-1).date)}, 미국`;
+  doc.getElementById('briefing-week-note').textContent = '미국'; // each row carries its own date
   list.replaceChildren(...week.rows.map((row) => {
     const li = el(doc, 'li', null, `br-week__row is-${row.kind}`);
     li.dataset.date = row.date;
@@ -127,7 +127,7 @@ function paintWeek(doc, week) {
     const note = row.kind === 'ahead'
       ? [...row.events, row.reports ? `주요 실적 ${row.reports}곳` : ''].filter(Boolean).join(', ')
       : row.note?.text || '';
-    if (note) li.append(el(doc, 'p', note, 'br-week__note'));
+    if (note) li.append(el(doc, 'p', note, 'br-week__read'));
     return li;
   }));
 }
