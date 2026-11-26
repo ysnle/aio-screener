@@ -1803,7 +1803,7 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
   const { prepareOpenAiBudget } = await import('../worker/openai-budget.mjs');
   const { normalizeTickerInput } = await import('../src/domain/instruments/ticker-symbol.js');
   const { resolveRegisteredName, isKnownSymbol } = await import('../src/domain/instruments/resolve-name.js');
-  const { SCENARIO_OUTCOMES } = await import('../src/data/artifact-registry.js');
+  const { SCENARIO_OUTCOMES, RESEARCH_REFERENCE, BIGTECH_CASHFLOW, MACRO_HISTORY } = await import('../src/data/artifact-registry.js');
   const { formatSecResearchEvidence } = await import('../src/ai/context/sec-fundamentals.js');
   const DAY = 86400000;
   const nowMs = Date.now();
@@ -1872,6 +1872,25 @@ const promptKit = await (await import('./fixtures/chat-prompt-assembly.mjs')).lo
     // The integrated research the short prompt no longer carries, asked for by topic.
     reference: await registry.runTool('reference', JSON.stringify({ query: '신용 스프레드 확대가 주식에 전달되는 경로' }), { root: { AIO: { buildAIRetrievalContext: (ask) => `[통합 리서치] ${ask}: 하이일드 스프레드 프레임` } }, now: nowMs })
   };
+  // The funding chain's researched rows, dated from the clock so the per-row ageing never drops them from the fixture.
+  const researchFixture = { schemaVersion: 'research-reference.v1', checkedAt: iso(1), method: 'fixture', groups: [
+    { id: 'credit-single-name', title: '개별 기업 신용', items: [
+      { id: 'orcl-cds-5y', label: '오라클 5년 CDS', entity: 'ORCL', value: 356, unit: 'bp', asOf: iso(1), note: '부도 대비 보험료가 오름', sourceName: 'fixture', sourceUrl: 'https://example.com/a' },
+      { id: 'crwv-cds-5y', label: '코어위브 5년 CDS', entity: 'CRWV', value: 1314, unit: 'bp', asOf: iso(2), note: '부도 대비 보험료가 오름', sourceName: 'fixture', sourceUrl: 'https://example.com/b' }] },
+    { id: 'fund-flows', title: '자금 흐름', items: [{ id: 'equity-flow', label: '주식형 펀드 주간 순유입', value: 12, unit: 'usdBn', asOf: iso(3), note: '주간 집계', sourceName: 'fixture', sourceUrl: 'https://example.com/c' }] }] };
+  const fundingRoot = (extra = {}) => {
+    const withResearch = fixtureRoot({ [RESEARCH_REFERENCE.key]: researchFixture, ...extra });
+    for (const artifact of [RESEARCH_REFERENCE, BIGTECH_CASHFLOW, MACRO_HISTORY]) withResearch.__aioSharedArtifacts[artifact.key] = { loadedAt: nowMs, failedAt: 0, inFlight: null };
+    return withResearch;
+  };
+  {
+    const chain = await registry.runTool('macro', '{"topic":"ai-funding"}', { root: fundingRoot(), now: nowMs });
+    const aged = await registry.runTool('macro', '{"topic":"ai-funding"}', { root: fundingRoot(), now: nowMs + 60 * DAY });
+    const none = await registry.runTool('macro', '{"topic":"ai-funding"}', { root: fundingRoot({ [RESEARCH_REFERENCE.key]: null }), now: nowMs });
+    check('v60.60 the macro tool ai-funding topic returns the researched chain rows, each with its own date, and the fund-flow rows the chain does not carry',
+      chain.ok === true && chain.text.includes('356') && chain.text.includes('1,314') && chain.text.includes(`기준일 ${iso(3)}`) && chain.text.endsWith('실시간 시세가 아니다)'), chain.text);
+    check('v60.60 the ai-funding topic drops researched rows past their age limit and fails plainly with no dated row', aged.ok === false && none.ok === false && /받지 못했습니다/.test(none.text), `${aged.text} / ${none.text}`);
+  }
   check('v60.42 reference returns the integrated research for the asked topic and fails plainly when none matches', good.reference.text.includes('하이일드 스프레드 프레임')
     && (await registry.runTool('reference', '{"query":"없는 주제"}', { root: {}, now: nowMs })).ok === false);
   check('v60.02 every registered tool has a fixture case', Object.keys(good).sort().join() === registry.CHAT_TOOLS.map((t) => t.name).sort().join());

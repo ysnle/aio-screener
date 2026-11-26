@@ -2,7 +2,7 @@
 // 테마와 섹터's sector bars and theme 200-day tiles, and the 스크리너's state cells and 돌파 대기 cards. Every piece
 // renders only from computed inputs; a host with nothing computed stays hidden.
 import { el } from './dom.js';
-import { buildSetupBoard, setupOf, setupCandidates, themeTiles, themeMembers, earningsAhead, setupBoardPoints } from '../../domain/technical/setup-board.js';
+import { buildSetupBoard, setupOf, setupText, setupCandidates, themeTiles, themeMembers, earningsAhead, setupBoardPoints } from '../../domain/technical/setup-board.js';
 import { SETUP_STATE_WORDS, SETUP_REASON_WORDS, SETUP_BAND_WORDS, SETUP_BOARD_WORDS as W } from '../../domain/content/setup-board-words.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { EARNINGS_CALENDAR } from '../../data/artifact-registry.js';
@@ -153,7 +153,7 @@ export const SETUP_COLUMN_KEYS = new Set(['setupState', 'contractions', 'setupRe
 function statePill(doc, setup) {
   const word = SETUP_STATE_WORDS[setup.state] || `${setup.met}/8`;
   const node = el(doc, 'span', word, `setup-pill is-${setup.state}`);
-  node.title = `${W.templateLabel} ${setup.met}/8 충족${setup.reasons.length ? ` — ${setup.reasons.map((id) => SETUP_REASON_WORDS[id]).join(', ')}` : ''}`;
+  node.title = setupText(setup);
   return node;
 }
 

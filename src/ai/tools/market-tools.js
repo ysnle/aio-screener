@@ -24,10 +24,26 @@ import { readRowNumber } from '../../data/contracts/screener.js';
 import { capReading } from '../../domain/screener/row-presentation.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { signedText } from '../../domain/shared/number.js';
+import { fundingChainInputs, loadFundingChainInputs } from '../../data/funding-chain.js';
+import { marketReadingFundingLines } from '../../domain/themes/ai-funding-chain.js';
 
 const objectSchema = (properties) => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
 const latest = (values) => values.map(day).filter(Boolean).sort().at(-1) || null;
-const MACRO_TOPICS = Object.freeze({ macro: '미국 매크로', 'kr-macro': '한국 매크로', fxbond: '환율·채권' });
+const FUNDING_TOPIC = 'ai-funding';
+const MACRO_TOPICS = Object.freeze({ macro: '미국 매크로', 'kr-macro': '한국 매크로', fxbond: '환율·채권', [FUNDING_TOPIC]: 'AI 자금 조달 사슬' });
+
+// The AI funding chain (테마와 섹터) with the hand-researched rows behind it: capex against cash flow, bond yields and
+// spreads, and the figures no machine source publishes (single-name CDS, private credit, compute and memory prices, fund
+// flows). The same lines the AI market reading is given. A researched row is a dated reference value read from a source
+// page, never a live quote; each line says which kind it is and its own date.
+async function fundingTopic(root, now) {
+  await loadFundingChainInputs(root);
+  const lines = marketReadingFundingLines(fundingChainInputs(root, { nowMs: now }));
+  // Every line states its own date after the same word; the newest of them dates the whole result.
+  const asOf = latest(lines.flatMap((line) => line.split('기준일 ').slice(1).map((part) => part.slice(0, 10))));
+  if (!asOf) return { error: 'AI 자금 조달 사슬 자료를 받지 못했습니다. 없는 값은 추정하지 않는다.' };
+  return { text: lines.join('\n'), asOf: `가장 최근 기준일 ${asOf}, 항목별 기준일은 각 줄 — 조사 자료는 그날 확인한 참고 값이며 실시간 시세가 아니다`, entities: [] };
+}
 
 // The screen tool runs the screener screen's own conditions (custom-conditions.js) through the chat's screener engine, all
 // joined by AND as the screen joins them. The cash conditions (FCF margin, capex ÷ revenue) read metrics the screener
@@ -214,11 +230,13 @@ const moneyFlow = {
 
 const macro = {
   name: 'macro',
-  description: '매크로 화면과 같은 확정 종가·공식 발표 수치를 돌려준다. topic: macro(미국 물가·고용·금리·VIX·정책금리), kr-macro(한국 정책 포함), fxbond(달러·환율·국채·크레딧).',
+  description: '매크로 화면과 같은 확정 종가·공식 발표 수치를 돌려준다. topic: macro(미국 물가·고용·금리·VIX·정책금리), kr-macro(한국 정책 포함), fxbond(달러·환율·국채·크레딧), ai-funding(AI 설비투자 자금 조달 사슬: 빅테크 설비투자·현금흐름, 회사채 금리·스프레드, 손으로 조사한 개별 기업 CDS·사모 신용·GPU 임대료·메모리 가격·펀드 자금 흐름).',
+  maxChars: 6000,
   parameters: objectSchema({ topic: { type: 'string', enum: Object.keys(MACRO_TOPICS), description: '자료 묶음' } }),
-  label: (args) => `${MACRO_TOPICS[args?.topic] || '매크로'} 지표`,
+  label: (args) => (args?.topic === FUNDING_TOPIC ? MACRO_TOPICS[FUNDING_TOPIC] : `${MACRO_TOPICS[args?.topic] || '매크로'} 지표`),
   async run({ topic }, { root, now }) {
     if (!MACRO_TOPICS[topic]) return { error: `topic은 ${Object.keys(MACRO_TOPICS).join(', ')} 중 하나입니다.` };
+    if (topic === FUNDING_TOPIC) return fundingTopic(root, now);
     const lines = buildChatMacroLines({ ctxId: topic, root, timeLabel: kstStamp(now) });
     let rows = [];
     try { rows = typeof root?._aioScreenBasisEvidence === 'function' ? root._aioScreenBasisEvidence() || [] : []; } catch (_) { rows = []; }

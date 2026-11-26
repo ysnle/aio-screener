@@ -7,10 +7,7 @@ import { kindFold, rawTable } from './indicator-face.js';
 import { aiFundingChain } from '../../domain/themes/ai-funding-chain.js';
 import { FUNDING_CHAIN_WORDS as W } from '../../domain/content/funding-chain-words.js';
 import { RESEARCH_WORDS } from '../../domain/research/words.js';
-import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
-import { BIGTECH_CASHFLOW, MACRO_HISTORY, RESEARCH_REFERENCE } from '../../data/artifact-registry.js';
-import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
-import { requestResearchReference } from '../../data/research-reference.js';
+import { fundingChainInputs, requestFundingChainInputs } from '../../data/funding-chain.js';
 
 const AUTO_SOURCES = Object.freeze([
   'SEC EDGAR 현금흐름표(10-Q·10-K): 설비투자, 영업현금흐름, 잉여현금흐름',
@@ -18,18 +15,12 @@ const AUTO_SOURCES = Object.freeze([
 ]);
 
 /** Asks for the chain's three artifacts (joined with any request in flight); onChange runs when a new copy lands. */
-export function requestFundingChain(root, onChange) {
-  requestResearchReference(root, onChange);
-  for (const artifact of [BIGTECH_CASHFLOW, MACRO_HISTORY]) refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) onChange?.(); }).catch(() => {});
-}
+export const requestFundingChain = requestFundingChainInputs;
 
 /** The chain from the copies in hand; `request` also asks for the artifacts and repaints on arrival. */
 export function fundingChainFor(root, { request = null, nowMs = Date.now() } = {}) {
   if (request) requestFundingChain(root, request);
-  // The cash-flow file only while its reader judges it usable (a dead producer's quarters are not today's figures).
-  const cashflow = bigtechGroupFor(root, { now: nowMs }) ? root[BIGTECH_CASHFLOW.key] : null;
-  return aiFundingChain({ cashflow, macroHistory: root?.[MACRO_HISTORY.key] || null, research: root?.[RESEARCH_REFERENCE.key] || null, nowMs,
-    researchLoadState: sharedArtifactState(root, RESEARCH_REFERENCE.key) === 'failed' ? 'failed' : 'loading' });
+  return aiFundingChain(fundingChainInputs(root, { nowMs }));
 }
 
 function rowNode(doc, row) {

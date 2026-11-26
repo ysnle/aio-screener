@@ -12,7 +12,7 @@ import { normalizeSectorKey, sectorLabel } from '../screener/sector-label.js';
 import { nextEarnings } from '../briefing/leader-earnings.js';
 import { dateInTimezone } from '../market/session/market-calendar.js';
 import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
-import { SETUP_STATE_WORDS } from '../content/setup-board-words.js';
+import { SETUP_STATE_WORDS, SETUP_REASON_WORDS, SETUP_BOARD_WORDS } from '../content/setup-board-words.js';
 import { withSubjectParticle } from '../content/korean-particle.js';
 
 // 돌파 대기: within pivotWithinPct below the pivot and a stop width (the last pullback, pivot to its low) of at most
@@ -89,6 +89,12 @@ export function setupOf(row) {
   if (!row || typeof row !== 'object') return rowSetup(row);
   if (!rowSetups.has(row)) rowSetups.set(row, rowSetup(row));
   return rowSetups.get(row);
+}
+/** One row's setup in words: checks met, its rung when it has one, what it falls short on. null while a check is unknown. */
+export function setupText(setup) {
+  if (!setup?.state) return null;
+  const rung = SETUP_STATE_WORDS[setup.state];
+  return `${SETUP_BOARD_WORDS.templateLabel} ${setup.met}/${setup.checks.length} 충족${rung ? ` · ${rung}` : ''}${setup.reasons.length ? ` — ${setup.reasons.map((id) => SETUP_REASON_WORDS[id]).join(', ')}` : ''}`;
 }
 /** A sort value for the ladder: higher rungs first, then more checks met; null without a state. */
 export function setupSortValue(row) {

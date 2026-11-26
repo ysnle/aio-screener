@@ -347,6 +347,17 @@ await check('v60.41 an unknown theme is an error that lists the valid names', as
   assert.ok(out.text.includes(`(${themeOf('US').id})`) && out.text.includes(`(${themeOf('KR').id})`), `v60.41 the error lists valid ids: ${out.text.slice(0, 200)}`);
 });
 
+await check('v60.60 a screen row carries the setup board\'s trend-template line only when every template check is known', () => {
+  const base = { sym: 'AAA', name: 'A', sector: 'Technology', mcap: 100, factorSessionDate: '2026-11-25', pe: 20, ret1m: 1, ret3m: 2, rsi: 50, pctFrom52wHigh: -5 };
+  const pass = { ...base, sym: 'BBB', pctSma50: 3, pctSma150: 8, pctSma200: 12, sma200Rise21Pct: 1, pctFrom52wLow: 60, ret6m: 30, rsBenchmarkRet6m: 5 };
+  const short = { ...pass, sym: 'CCC', pctSma50: -3 };
+  const result = screenerQuery.runScreen({ market: 'US', symbols: ['AAA', 'BBB', 'CCC'], limit: 5 }, { rows: [base, pass, short] });
+  const line = (sym) => screenerQuery.formatScreenResult(result).split('\n').find((text) => text.includes(`${sym} (`)) || '';
+  assert.ok(!line('AAA').includes('템플릿'), `v60.60 a row with unpublished template fields says nothing about the template: ${line('AAA')}`);
+  assert.match(line('BBB'), /추세 템플릿\(변형\) 8\/8 충족 · 템플릿 통과/, 'v60.60 a passing row names its rung');
+  assert.match(line('CCC'), /추세 템플릿\(변형\) 7\/8 충족 — 50일선 아래/, 'v60.60 a short row names the unmet check');
+});
+
 report();
 }, 'code'],
 ]);

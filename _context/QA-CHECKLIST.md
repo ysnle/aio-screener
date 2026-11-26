@@ -6,6 +6,12 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.60 v60.60 AI 채팅 — 자금 조달 사슬·조사 자료·추세 템플릿 (2026-11-26)
+
+- [x] QA-CHAT-FUND-01: v60.60 채팅 macro 도구의 ai-funding 주제가 사슬의 조사 자료 줄과 사슬 밖 조사 자료(펀드 자금)를 줄마다 기준일과 함께 돌려주고, 기한이 지난 조사 줄은 빼며, 날짜 있는 줄이 없으면 실패로 답한다. verify_by: node scripts/ci-ai-intelligence-contract-check.mjs
+- [x] QA-CHAT-FUND-02: v60.60 채팅 스크리너 결과가 추세 템플릿 조건이 모두 확인된 종목에만 충족 수·단계·못 미친 조건을 붙인다. verify_by: node scripts/ci-chat-screen-tool-check.mjs
+- [x] QA-CHAT-FUND-03: v60.60 실제 데이터 화면에서 채팅 도구를 직접 실행해 오라클·코어위브 CDS, 펀드 자금 줄과 기준일이 나오는지 확인하고, 테마 화면의 AI 자금 조달 사슬이 그대로 그려지는지 본다. verify_by: 브라우저에서 직접 확인
+
 ## v60.59 AI 자금 조달 사슬(투자 → 현금 → 조달 → 신용 가격 → 대출 여건 → 장비 가격 → 금리·유동성) (2026-11-26)
 
 - [x] QA-AI-FUNDING-01: v60.59 테마와 섹터 AI 공급망 흐름의 설비투자 문장 아래 'AI 자금 조달 사슬'이 번호 붙은 일곱 고리를 가는 연결선 하나로 세로로 잇는다(휴대폰도 같은 세로 목록). 고리마다 제목, 상태어 꼬리표, 숫자 행 1~3개(값 · 변화 · 날짜, 조사 행은 '조사' 표시), 확인된 자료가 없는 고리는 '확인된 자료 없음'. 접힘은 원자료 표·계산 방법·데이터 출처뿐이고, 이 화면에서 조사 행(메모리·개별 기업 신용)은 사슬에만 한 번 나온다. verify_by: node scripts/ci-research-reference-check.mjs; node scripts/ci-fold-kind-check.mjs

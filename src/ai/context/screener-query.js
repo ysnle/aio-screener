@@ -18,6 +18,7 @@ import { mergeThemeAliases } from '../../domain/screener/theme-aliases.js';
 import { consensusView } from '../../domain/fundamental/consensus-read.js';
 import { consensusRowFor } from '../../data/consensus-estimates.js';
 import { readNumber, signedText } from '../../domain/shared/number.js';
+import { setupOf, setupText } from '../../domain/technical/setup-board.js';
 
 // v59.45 (pipeline review P13-SCREEN-01): a row copied quote.price and dropped its currency, and the prompt put "$" on every
 // price, so Samsung read "가격 $70000.00". A quote keeps its own currency (the listing's when the quote declares none; an
@@ -258,6 +259,8 @@ function screenRowFacts(row, conditions, read, live, detail = false) {
     cap: capReading(row), capBucket: capBucketOf(row), ...facts, rank: visibleRank(row), factorSessionDate: row.factorSessionDate || null,
     reference: reference.map(([key, value, status]) => ({ key, value, status })), conditionValues,
     detail: detail ? Object.fromEntries(Object.keys(DETAIL_KEYS).map((key) => [key, read(row, key)]).filter(([, value]) => readNumber(value) != null)) : null,
+    // The same ladder the setup board shows; null until the template's fields are published for this row.
+    setup: setupText(setupOf(row)),
     ...quoteFields(row.sym, quote), pct: readNumber(quote.pct),
     // 2026-10-13 news audit N02: only a memo whose headline names this issuer (producer newsMemoVerified) reaches the AI as
     // this stock's news; an unverified memo was another company's story about 1 time in 5.
@@ -350,6 +353,7 @@ export function formatScreenResult(result) {
     const parts = [`${i + 1}. ${fact.sym} (${fact.name})`, fact.sector || '섹터 미확인', `시총 ${capText(fact)}`, `PER ${fixed(fact.pe)}`, `1개월 ${signed(fact.ret1m)}`, `3개월 ${signed(fact.ret3m)}`,
       `RSI ${fixed(fact.rsi, 0)}`, `배당수익률 ${fact.dividendYieldPct == null ? '미확인' : `${fixed(fact.dividendYieldPct, 2)}%`}`, `52주 고점 대비 ${signed(fact.pctFrom52wHigh)}`];
     if (fact.rank != null) parts.push(`백분위 ${fact.rank}`);
+    if (fact.setup) parts.push(fact.setup);
     if (live) parts.push(`가격 ${formatScreenerPrice(live.price, fact.currency || null)}${live.observedAt ? ` (관측 ${live.observedAt})` : ''}${fact.pct != null ? ` ${signed(fact.pct, 2)}` : ''}`);
     if (fact.detail) for (const [key, value] of Object.entries(fact.detail)) parts.push(`${DETAIL_KEYS[key]} ${DETAIL_PERCENT.has(key) ? `${fixed(value)}%` : key === 'pb' ? fixed(value) : signed(value)}`);
     parts.push(`팩터 기준일 ${fact.factorSessionDate || '미확인'}`);
