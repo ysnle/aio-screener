@@ -3,7 +3,8 @@ import { dirname } from 'node:path';
 import { createMarketSnapshot, EVIDENCE_TIER_INSTRUMENTS, TIER_0_INSTRUMENTS, tier0Coverage, validateMarketSnapshot } from '../src/data/contracts/market-snapshot.js';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
 import { isLatestUsRegularClose, latestCompletedKrSession, latestCompletedUsSession, nyParts } from '../src/ai/time/market-session.js';
-import { dateInTimezone, resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
+import { countOpenSessionsBetween, dateInTimezone, resolveMarketCalendarSession } from '../src/domain/market/session/market-calendar.js';
+import { buildCloseSeries } from '../src/domain/market/session/close-series.js';
 
 export const MARKET_SNAPSHOT_OUT = new URL('../public-data/market-snapshot.json', import.meta.url);
 export const MARKET_SNAPSHOT_STATUS_OUT = new URL('../public-data/market-snapshot-status.json', import.meta.url);
@@ -262,7 +263,21 @@ function quoteQuality(raw, nowMs, session = null) {
   return 'STALE';
 }
 
-export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toISOString(), source = 'github-actions', now = Date.now() } = {}) {
+// For about two hours after the Seoul open the provider's previous daily bar has no close, so the live KOSPI and KOSDAQ
+// carried no change (the Korea line left the page and the reading said no session was running). The published history
+// already holds that completed close; it is the previous value when it is the session right before the observation.
+export const COMPLETED_CLOSE_FIELDS = Object.freeze({ '^KS11': 'kospi', '^KQ11': 'kosdaq' });
+/** { '^KS11': { date, value } } — the last completed close of each field in history rows. */
+export function completedClosesFrom(historyRows = []) {
+  const out = {};
+  for (const [instrumentId, field] of Object.entries(COMPLETED_CLOSE_FIELDS)) {
+    const last = buildCloseSeries(historyRows, field).at(-1);
+    if (last?.date && last.value > 0) out[instrumentId] = { date: last.date, value: last.value };
+  }
+  return out;
+}
+
+export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toISOString(), source = 'github-actions', now = Date.now(), completedCloses = null } = {}) {
   const bySymbol = new Map((Array.isArray(quotes) ? quotes : []).map((quote) => [String(quote?.symbol || quote?.instrumentId || ''), quote]));
   const toRow = (instrument) => {
     const raw = bySymbol.get(instrument.instrumentId);
@@ -285,6 +300,9 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
     const present = (value) => (value == null || value === '' ? NaN : Number(value));
     const providerPreviousValue = present(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
+    const own = !hasProviderPreviousValue && ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? completedCloses?.[instrument.instrumentId] : null;
+    const ownPreviousValue = own?.value > 0 && countOpenSessionsBetween(own.date, dateInTimezone(Date.parse(observedAt), 'Asia/Seoul'), 'KR') === 1 ? own.value : null;
+    const providerChange = present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct);
     return {
       evidenceId: `${instrument.metricId}:${stableHash({ value, observedAt, source })}`,
       metricId: instrument.metricId,
@@ -292,10 +310,8 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       value,
       previousValue: hasProviderPreviousValue
         ? providerPreviousValue
-        : null,
-      changePct: Number.isFinite(present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct))
-        ? present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct)
-        : null,
+        : ownPreviousValue,
+      changePct: Number.isFinite(providerChange) ? providerChange : ownPreviousValue ? (value / ownPreviousValue - 1) * 100 : null,
       unit: instrument.unit,
       // Identity fields come from the registry the validator checks
       // against — valueKind travels with metricId/unit instead of being re-derived

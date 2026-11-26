@@ -1,6 +1,7 @@
 // Market reading lane: regime/scenario context for the prompt, headline translation and the verified market analysis.
 // Split out of scripts/fetch-data.mjs (pipeline redesign, 2026-10-19); fetch-data.mjs keeps the run order and re-exports
 // every name it exported before.
+import { sessionNoticeText, sessionNotices } from '../../src/domain/market/session/session-notice.js';
 import { readFile } from 'node:fs/promises';
 import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -227,6 +228,12 @@ export function upcomingPoliticalLine(nowMs = Date.now(), days = 7) {
   const rows = POLITICAL_EVENTS.map((event) => ({ ...event, atMs: Date.parse(event.atKst) }))
     .filter((event) => Number.isFinite(event.atMs) && event.atMs >= nowMs && event.atMs <= nowMs + days * 86400000);
   return rows.length ? `정치 일정: ${rows.map((event) => `${mdOf(event.atKst.slice(0, 10))} KST ${event.label}`).join(' / ')}` : '';
+}
+// The reading named the next confirmation ("11/27 확정 종가") without knowing 11/26 was a US closure and 11/27 a 13:00 ET
+// session. The exchange calendar's next few days are stated as schedule, in the same line as the other dated events.
+export function sessionScheduleLine(nowMs = Date.now()) {
+  const said = sessionNoticeText(sessionNotices(nowMs));
+  return said ? `거래소 일정: ${said}` : '';
 }
 // The reading said nothing about where the indexes sit on their charts (Nasdaq-100 more than
 // 10% off its high, semiconductors 11% under the 50-day line, the July low as support). Rules over the closes only
@@ -518,7 +525,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const intradayRows = inSessionMoves(metricEvidence, changeOf, historyRows, { closedSessions: MARKET_ANALYSIS_CLOSED_SESSIONS });
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
-    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: upcomingPoliticalLine(), levelsLine: chartLevelsLine(historyRows) });
+    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: [upcomingPoliticalLine(), sessionScheduleLine()].filter(Boolean).join(' / '), levelsLine: chartLevelsLine(historyRows) });
     const inflationLine = inflationDirectionLine(data?.macro || {}, { direction: inflationDirection }); // INFLATION_DIRECTION on the screen's direction
     const model = SHARED_AI_MODEL;
     const sizeGrades = moveSizeGrades(historyRows);

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createMarketSnapshot, TIER_0_INSTRUMENTS, validateInstrumentRegistry, validateMarketSnapshot, tier0Coverage } from '../src/data/contracts/market-snapshot.js';
 import { createMarketSnapshotLoader } from '../src/data/market-snapshot-loader.js';
-import { buildMarketSnapshot, deriveMarketSession } from './build-market-snapshot.mjs';
+import { buildMarketSnapshot, completedClosesFrom, deriveMarketSession } from './build-market-snapshot.mjs';
 import { isLatestUsRegularClose } from '../src/ai/time/market-session.js';
 import { sweepMarketSessions } from './lib/market-session-sweep.mjs';
 
@@ -118,6 +118,19 @@ const fixture = buildMarketSnapshot({ quotes: fixtureQuotes, attemptedAt, source
 if (!fixture.complete || !validateMarketSnapshot(fixture.snapshot).ok) fail('complete fixture did not publish');
 if (fixture.snapshot.quotes[0].sourceKind !== 'public-api-plan') fail('provider source kind was overwritten by the snapshot builder');
 if (fixture.snapshot.quotes.some((row) => row.valueBasis !== 'provider-current-value')) fail('current quote value was mislabeled as its previous-value change basis');
+{
+  // The Seoul morning of 11/26: KOSPI trades at 09:31 KST and the provider has no previous close yet.
+  const at = '2026-11-26T00:51:00.000Z';
+  const liveKospi = { symbol: '^KS11', regularMarketPrice: 4804.38, regularMarketPreviousClose: null, regularMarketChangePercent: null, observedAt: '2026-11-26T00:31:00.000Z', fetchedAt: at, marketState: 'REGULAR' };
+  const history = [{ date: '2026-11-24', kospi: 5006.03, fieldMeta: { kospi: { sessionDate: '2026-11-24' } } }, { date: '2026-11-25', kospi: 4697.51, fieldMeta: { kospi: { sessionDate: '2026-11-25' } } }];
+  const rowOf = (completedCloses) => buildMarketSnapshot({ quotes: [liveKospi], attemptedAt: at, source: 'fixture', now: Date.parse(at), completedCloses }).snapshot.quotes.find((row) => row.instrumentId === '^KS11');
+  const filled = rowOf(completedClosesFrom(history));
+  if (filled?.previousValue !== 4697.51 || !(Math.abs(filled.changePct - (4804.38 / 4697.51 - 1) * 100) < 1e-9) || filled.changeBasis !== 'completed-daily-close') fail(`v60.58 a live Seoul index without a provider previous close takes the published completed close of the session before: ${JSON.stringify(filled)}`);
+  const gap = rowOf(completedClosesFrom(history.slice(0, 1)));
+  if (gap?.previousValue !== null || gap.changePct !== null) fail(`v60.58 a completed close that is not the session right before stays unused: ${JSON.stringify(gap)}`);
+  const none = rowOf(null);
+  if (none?.previousValue !== null || none.changePct !== null) fail('v60.58 without a completed close the change stays missing');
+}
 const incomplete = buildMarketSnapshot({ quotes: fixtureQuotes.slice(1), attemptedAt, source: 'fixture', now: Date.parse(attemptedAt) });
 if (incomplete.complete || incomplete.snapshot.status !== 'failed') fail('incomplete fixture was not fail-closed');
 const staleAttemptedAt = '2026-07-28T12:00:00.000Z';

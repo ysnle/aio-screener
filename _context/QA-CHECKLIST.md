@@ -11,6 +11,8 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-KOSPI-CHIP-NULL-01: v60.58 등락이 없는 장중 코스피 시세는 직전 확정 종가 대비 등락으로 보이고, 종가 기록도 없으면 등락을 비운다(0.00%로 보이지 않는다). verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-SESSION-BEHIND-01: v60.58 미국 세션보다 하루 뒤진 선물·달러 종가는 자기 날짜를 단 채 하루 원장의 주요 항목 아래에 머물고, 제 세션 날에는 크기대로 순위가 매겨진다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 - [x] QA-SESSION-NOTICE-01: v60.58 앞으로 나흘 안의 거래소 휴장과 조기 마감은 오늘 화면 날짜 줄에, 조기 마감은 브리핑 일정에 그 세션 날짜와 끝나는 한국 시간으로 나온다; 해당 없는 주에는 문장이 없다. verify_by: node scripts/ci-market-session-contract-check.mjs
+- [x] QA-SNAPSHOT-KR-PREV-01: v60.58 제공처 전일 종가가 없는 장중 코스피·코스닥 스냅샷 행은 발행된 직전 세션 확정 종가로 전일 값과 등락을 채우고, 그 종가가 바로 앞 세션이 아니거나 없으면 비워 둔다. verify_by: node scripts/ci-market-snapshot-contract-check.mjs
+- [x] QA-READING-SESSION-SCHEDULE-01: v60.58 앞으로 나흘 안의 거래소 휴장·조기 마감은 AI 시황 입력의 확인·반증 줄에 '거래소 일정'으로 들어가고, 해당 없는 주에는 줄이 없다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
 
 ## v60.57 이익·주문·수급·기사를 시장 이야기에 연결 (2026-11-25)
 

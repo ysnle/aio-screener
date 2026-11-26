@@ -15,7 +15,7 @@
 import { readFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { runBacktest as runTradingScoreBacktest } from './backtest-trading-score.mjs';
-import { publishMarketSnapshot } from './build-market-snapshot.mjs';
+import { completedClosesFrom, publishMarketSnapshot } from './build-market-snapshot.mjs';
 import { writeOperationsStatus } from './build-operations-status.mjs';
 import { writeReconciliationStatus } from './build-reconciliation-status.mjs';
 import { atomicWriteFile } from './lib/atomic-write.mjs';
@@ -158,6 +158,7 @@ async function main() {
   // snapshot and records the failed attempt in its status sidecar.
   const marketSnapshotInfo = await publishMarketSnapshot({
     quotes,
+    completedCloses: completedClosesFrom(await readFile(HIST, 'utf8').then((text) => readHistoryRows(JSON.parse(text))).catch(() => [])),
     attemptedAt: data.meta.generatedAt,
     source: 'github-actions:fetch-data'
   });

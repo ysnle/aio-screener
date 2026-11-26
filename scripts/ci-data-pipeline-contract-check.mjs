@@ -1422,6 +1422,12 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
         && scoreServerNewsItem({ title: 'UAL Stock Quote Price and Forecast | CNN', source: 'CNN', ts: Date.parse('2026-10-15T06:00:00.000Z'), scoringNowMs: Date.parse('2026-10-15T06:30:00.000Z') }).selectionReason === 'not-article-filter',
       priorSessionMoveLines(oilHistory));
     const { marketDriversContext, upcomingPoliticalLine } = await import('./producer/market-narrative.mjs');
+    {
+      const { sessionScheduleLine } = await import('./producer/market-narrative.mjs');
+      const thanksgiving = marketDriversContext({ history: oilHistory, eventsLine: sessionScheduleLine(Date.parse('2026-11-26T01:00:00Z')) });
+      check('v60.58 an exchange closure and an early close in the next days reach the reading\'s confirm/deny row; an ordinary week adds nothing',
+        /- NEXT_CHECK \(확인·반증\):[^\n]*거래소 일정: 미국 11\/26 휴장\(추수감사절\)·11\/27 조기 마감\(현지 13:00\)/.test(thanksgiving) && sessionScheduleLine(Date.parse('2026-11-10T01:00:00Z')) === '', thanksgiving.match(/- NEXT_CHECK[^\n]*/)?.[0] || '');
+    }
     const electionWeek = marketDriversContext({ history: oilHistory, eventsLine: upcomingPoliticalLine(Date.parse('2026-10-29T02:00:00Z')) }); // The midterm row (Knesset row expired)
     check('v58.74 an election inside the next week reaches the confirm/deny row; none after it',
       /- NEXT_CHECK \(확인·반증\):[^\n]*정치 일정: 11\/4 KST 미국 중간선거/.test(electionWeek) && upcomingPoliticalLine(Date.parse('2026-11-10T00:00:00Z')) === '', electionWeek.match(/- NEXT_CHECK[^\n]*/)?.[0] || '');
