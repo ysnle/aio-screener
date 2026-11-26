@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T00:51:46.034Z",
-  "attemptedAt": "2026-11-26T00:51:46.034Z",
-  "lastSuccessfulAt": "2026-11-26T00:51:46.034Z",
+  "generatedAt": "2026-11-26T01:22:03.673Z",
+  "attemptedAt": "2026-11-26T01:22:03.673Z",
+  "lastSuccessfulAt": "2026-11-26T01:22:03.673Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T00:51:40.829Z",
-  "until": "2026-11-26T00:51:40.829Z",
+  "since": "2026-11-12T01:21:59.052Z",
+  "until": "2026-11-26T01:21:59.052Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1068,
+      "count": 1067,
       "freshCount": 40,
-      "eligibleTextCount": 1013,
-      "selectedCount": 127,
+      "eligibleTextCount": 1014,
+      "selectedCount": 128,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70254
+      "lastPostId": 70258
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 162,
+      "count": 164,
       "freshCount": 40,
-      "eligibleTextCount": 162,
-      "selectedCount": 118,
+      "eligibleTextCount": 164,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21289
+      "lastPostId": 21292
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 721,
-      "freshCount": 38,
-      "eligibleTextCount": 720,
+      "count": 725,
+      "freshCount": 36,
+      "eligibleTextCount": 724,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72792
+      "lastPostId": 72797
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,50 +137,52 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1951,
-  "retainedItemCount": 427,
+  "count": 1956,
+  "retainedItemCount": 429,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1951,
-    "eligibleTextCount": 1895,
-    "mediaOnlyCount": 56,
+    "observedCount": 1956,
+    "eligibleTextCount": 1902,
+    "mediaOnlyCount": 54,
     "mediaAttachedCount": 763,
     "photoPostCount": 648,
     "documentPostCount": 4,
     "imageOnlyCount": 5,
-    "highSignalCount": 328,
-    "broadSignalCount": 824,
-    "selectedRawCount": 370,
-    "selectedEligibleCount": 370,
-    "selectedRawCoveragePct": 19.5,
-    "selectedOfObservedPct": 19,
+    "highSignalCount": 330,
+    "broadSignalCount": 829,
+    "selectedRawCount": 373,
+    "selectedEligibleCount": 373,
+    "selectedRawCoveragePct": 19.6,
+    "selectedOfObservedPct": 19.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "power": 179,
-    "market-note": 683,
+    "market-note": 685,
+    "semi": 631,
+    "earnings": 236,
+    "equity": 127,
+    "ai-policy": 140,
+    "macro": 293,
+    "kr-market": 101,
+    "power": 180,
     "credit": 62,
-    "macro": 289,
     "flows": 66,
     "healthcare": 56,
-    "semi": 628,
     "geo": 223,
-    "earnings": 235,
-    "media-only": 55,
+    "media-only": 53,
     "japan": 44,
-    "equity": 124,
     "insider": 7,
     "optical": 24,
-    "kr-market": 100,
-    "crypto": 1,
-    "ai-policy": 139
+    "crypto": 1
   },
   "tickerCounts": {
+    "005930.KS": 28,
+    "000660.KS": 27,
     "BE": 9,
-    "NVDA": 422,
+    "NVDA": 420,
     "MU": 26,
     "GOOG": 45,
     "TSM": 59,
@@ -192,8 +194,6 @@
     "META": 7,
     "AMD": 48,
     "MSFT": 44,
-    "005930.KS": 27,
-    "000660.KS": 26,
     "AVGO": 15,
     "TSLA": 28,
     "AMZN": 42,
@@ -270,19 +270,19 @@
     "SNOW": 1
   },
   "themes": [
-    "Market Notes (683 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80...",
-    "Semiconductors/Memory (628 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
-    "Macro/Rates (289 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를...",
-    "Earnings/Corporate (235 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Market Notes (685 posts in 14-day research window): 🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80...",
+    "Semiconductors/Memory (631 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가....",
+    "Macro/Rates (293 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를...",
+    "Earnings/Corporate (236 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (179 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
-    "AI Policy/Export Controls (139 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
+    "AI Power/Grid (180 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
+    "AI Policy/Export Controls (140 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (127 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 422,
+      "count": 420,
       "text": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를..."
     },
     {
@@ -311,12 +311,17 @@
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     },
     {
+      "key": "005930.KS",
+      "count": 28,
+      "text": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
+    },
+    {
       "key": "TSLA",
       "count": 28,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 25일 > 오후 2시~오후 9시 기준 🇺🇸 아메리카 • 파이낸셜타임스는 미국 정부가 트럼프 행정부와 기존 무역협정을 체결한 국가들에 대해 합의된 관세율을 초과하지..."
     },
     {
-      "key": "005930.KS",
+      "key": "000660.KS",
       "count": 27,
       "text": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
     },
@@ -324,11 +329,6 @@
       "key": "MU",
       "count": 26,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
-    },
-    {
-      "key": "000660.KS",
-      "count": 26,
-      "text": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
     },
     {
       "key": "AVGO",
@@ -348,7 +348,7 @@
       "topics": [
         "macro"
       ],
-      "count": 289,
+      "count": 293,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며 증시와 401(k)가 강세였을 것이라고 주장 관세·무역 정책 · 미국, 한국·대만·일본에 MFN 관세를..."
     },
     {
@@ -375,7 +375,7 @@
       "topics": [
         "semi"
       ],
-      "count": 628,
+      "count": 631,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지 애널리스트: Atif Malik 젠슨 황의 복귀로 CEO 교체 과정에서 발생한 핵심 불확실성이 제거됐다고 평가...."
     },
     {
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 179,
+      "count": 180,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
     },
     {
@@ -402,7 +402,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 139,
+      "count": 140,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -411,7 +411,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 100,
+      "count": 101,
       "focus": "[하나증권 유통/화장품 박종대] 화장품(Overweight): 바닥 잡기 3선(26.11.25) 환율 영향 제거하면 매우 준수한 실적 - 에이피알, 환율 영향 제거시 준수한 실적, 유럽 매출 1,778억원(YoY 783%), 예상치(1,570억원) 10% 이상 상회 - 달바글로벌 영업이익률 21.5%(YoY..."
     },
     {
@@ -420,7 +420,7 @@
       "topics": [
         "equity"
       ],
-      "count": 124,
+      "count": 127,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
     },
     {
@@ -438,7 +438,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 235,
+      "count": 236,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -483,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 683,
+      "count": 685,
       "focus": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
     }
   ],
@@ -1650,6 +1650,127 @@
   ],
   "broadItems": [
     {
+      "id": "bornlupin/21292",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21292",
+      "datetime": "2026-11-26T01:17:03.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "semi",
+        "earnings"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [],
+      "summary": "신영증권, 심텍, 목표주가 160,000원, 신규 커버리지 개시 SOCAMM과 시스템 IC, 두 개의 성장 엔진 1. SOCAMM 성장 본격화 SOCAMM 모듈 PCB와 LPDDR용 MCP 패키지 기판을..."
+    },
+    {
+      "id": "bornlupin/21291",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21291",
+      "datetime": "2026-11-26T01:13:11.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "semi",
+        "equity",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 65,
+      "hasText": true,
+      "tickers": [
+        "005930.KS",
+        "000660.KS"
+      ],
+      "summary": "[유안타증권 반도체 백길현] 원익QnC (074600) : 부족한 CAPA, PER 6배 4Q26 예상 영업이익 332억원, 성과급 반영으로 일시 둔화 - 4Q26 연결기준 예상 매출액과 영업이익은 각각..."
+    },
+    {
+      "id": "HANAchina/72796",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72796",
+      "datetime": "2026-11-26T01:01:02.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "semi",
+        "equity",
+        "ai-policy"
+      ],
+      "lead": 2,
+      "score": 67,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>컴퓨팅 능력 ‘악재 매물’ : 기업 토큰 사용 증가세 둔화설에 이어 SpaceX가 Blackwell GPU 가격을 ‘최대 1/3’ 인하 (중국언론) •SpaceX가 Blackwell 소규모 클러스터 현물..."
+    },
+    {
+      "id": "HANAchina/72795",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72795",
+      "datetime": "2026-11-26T00:59:29.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>한국은행, 예상대로 금리 인상 •한국은행이 기준금리를 3.00%에서 3.25%로 0.25%p 인상. 시장 예상치 3.25% 부합 •2026년 GDP 성장률 3.9% 전망, 2027년 GDP 성장률..."
+    },
+    {
+      "id": "HANAchina/72794",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72794",
+      "datetime": "2026-11-26T00:57:45.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "macro",
+        "semi"
+      ],
+      "lead": 2,
+      "score": 59,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "•中반도체 과창50 vs 중•미 금리차 •최근 1개월 중•미 금리차 반등(미 금리 하락)이 신뢰를 얻을 경우 중국 반도체 단기 되돌림 시도 예상 •다만, 1월 이전 미중 협상 내용이 차리 관건이 될것"
+    },
+    {
+      "id": "insidertracking/70256",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70256",
+      "datetime": "2026-11-26T00:56:34.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "macro"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "[1보] 한은, 기준금리 연 3.25%로 0.25%p 인상 주식소리통"
+    },
+    {
+      "id": "bornlupin/21290",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21290",
+      "datetime": "2026-11-26T00:52:47.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "macro",
+        "semi",
+        "kr-market"
+      ],
+      "lead": 1,
+      "score": 77,
+      "hasText": true,
+      "tickers": [],
+      "summary": "[속보]한은, 기준금리 연 3.0%→연 3.25% 인상 26일 한국은행 금융통화위원회는 통화정책방향 회의에서 기준금리를 연 3.0%에서 연 3.25%로 0.25%포인트 인상했다. 지난 7, 8월 연속 금리..."
+    },
+    {
       "id": "HANAchina/72791",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72791",
@@ -2530,12 +2651,12 @@
       "datetime": "2026-11-25T08:46:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미 증시 반등은 함정? S&P500 5,500까지 하락 가능성 (중국언론) •유명 경제학자 데이비드 로젠버그는 10월 6일이 S&P500의 사이클 고점이었을 가능성을 제기. 현재 반등은 약세장 중간의..."
+      "summary": ">>미 증시 반등은 함정? S&P500 5,500까지 하락 가능성 (중국언론) •유명 경제학자 데이비드 로젠버그는 10월 6일이 S&P500의 사이클 고점이었을 가능성을 제기. 현재 반등은 약세장 중간의...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72751",
@@ -2545,8 +2666,7 @@
       "localDateKst": "2026-11-25",
       "tags": [
         "macro",
-        "semi",
-        "healthcare"
+        "semi"
       ],
       "score": 73,
       "hasText": true,
@@ -2556,10 +2676,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.25, 수) 🇨🇳 중국 본토 증시는 간밤 미 증시 반도체 급락과 미국의 301조 과잉생산 신규 관세 부과 예고, 탄산리튬 선물 7%대 급락 악재가 겹치며 4,900여 개...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.25, 수) 🇨🇳 중국 본토 증시는 간밤 미 증시 반도체 급락과 미국의 301조 과잉생산 신규 관세 부과 예고, 탄산리튬 선물 7%대 급락 악재가 겹치며 4,900여 개..."
+      ]
     },
     {
       "id": "HANAchina/72749",
@@ -2571,7 +2691,6 @@
         "semi",
         "equity"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2580,10 +2699,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>마스크, 엔비디아 본사 방문해 젠슨 황 복귀 축하 •11월 24일, 젠슨 황의 엔비디아 복귀 다음 날 일론 머스크가 두 자녀와 SpaceX 직원들을 데리고 엔비디아 본사를 방문해 젠슨 황의 복귀를...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>마스크, 엔비디아 본사 방문해 젠슨 황 복귀 축하 •11월 24일, 젠슨 황의 엔비디아 복귀 다음 날 일론 머스크가 두 자녀와 SpaceX 직원들을 데리고 엔비디아 본사를 방문해 젠슨 황의 복귀를..."
+      ]
     },
     {
       "id": "HANAchina/72748",
@@ -4879,16 +4999,15 @@
       "datetime": "2026-11-23T15:00:10.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi",
-        "equity"
+        "semi"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
+      "summary": "멜리우스, 엔비디아 $NVDA 투자의견 '매수'로 상향: \"젠슨이 돌아왔다 — 우리도 돌아왔다\" 멜리우스 리서치(Melius Research)의 벤 라이츠(Ben Reitzes) 애널리스트는 젠슨 황의 깜짝...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "멜리우스, 엔비디아 $NVDA 투자의견 '매수'로 상향: \"젠슨이 돌아왔다 — 우리도 돌아왔다\" 멜리우스 리서치(Melius Research)의 벤 라이츠(Ben Reitzes) 애널리스트는 젠슨 황의 깜짝..."
+      ]
     },
     {
       "id": "HANAchina/72634",
@@ -4935,6 +5054,7 @@
       ],
       "score": 80,
       "hasText": true,
+      "summary": "미장 프리장 엔비디아 +34% 블룸에너지 +24.7% SK하이닉스 ADR +22% TSMC +21% 마이크론 +17.8% COHR +23.7% 네비우스 +35% 코어위브 +31%",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -4943,8 +5063,7 @@
         "COHR",
         "BE",
         "000660.KS"
-      ],
-      "summary": "미장 프리장 엔비디아 +34% 블룸에너지 +24.7% SK하이닉스 ADR +22% TSMC +21% 마이크론 +17.8% COHR +23.7% 네비우스 +35% 코어위브 +31%"
+      ]
     },
     {
       "id": "bornlupin/21249",
@@ -6675,22 +6794,6 @@
       ]
     },
     {
-      "id": "insidertracking/69901",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69901",
-      "datetime": "2026-11-21T08:59:24.000Z",
-      "localDateKst": "2026-11-21",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 21일 > 오전 6시~오후 6시 기준 🇺🇸 아메리카 • 미국 농무부가 해킹 공격을 받았다고 NBC뉴스가 보도. CNN은 FBI의 전국범죄정보센터(NCIC)...",
-      "tickers": [
-        "000660.KS"
-      ]
-    },
-    {
       "id": "HANAchina/72516",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72516",
@@ -7192,40 +7295,6 @@
       ]
     },
     {
-      "id": "HANAchina/72469",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72469",
-      "datetime": "2026-11-20T04:50:47.000Z",
-      "localDateKst": "2026-11-20",
-      "tags": [
-        "market-note"
-      ],
-      "score": 69,
-      "hasText": true,
-      "summary": "하나증권 중국/신흥국전략 김경환(T.02-3771-7616) *텔레그램 채널 : [김경환의 China Weekly] 2027년 빈집 공략 : 중국 소비주 반전 7부 능선 자료: • 중국 소비주 4분기 시장...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72467",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72467",
-      "datetime": "2026-11-20T04:24:09.000Z",
-      "localDateKst": "2026-11-20",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 62,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": ">>달러, 4주 연속 상승 •달러가 4주 연속 상승할 것으로 예상되며, 연초 이후 3% 넘게 상승. Anthropic의 나스닥 상장 첫날 주가가 17% 상승, 해외 청약 규모가 약 100억-150억달러에...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21215",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21215",
@@ -7258,23 +7327,6 @@
         "AMD",
         "MSFT",
         "META"
-      ]
-    },
-    {
-      "id": "HANAchina/72461",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72461",
-      "datetime": "2026-11-20T01:58:08.000Z",
-      "localDateKst": "2026-11-20",
-      "tags": [
-        "earnings"
-      ],
-      "score": 54,
-      "hasText": true,
-      "summary": ">>Citi, Alibaba 목표주가 하향…클라우드 매출 성장률 둔화 전망 •Alibaba가 20일 실적 발표에서 클라우드 서비스 매출 성장률이 현재 53%에서 내년 30~45%로 둔화될 것으로 전망,...",
-      "lead": 1,
-      "tickers": [
-        "BABA"
       ]
     },
     {
@@ -8337,23 +8389,6 @@
         "DDOG",
         "SNOW"
       ]
-    },
-    {
-      "id": "bornlupin/21126",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21126",
-      "datetime": "2026-11-12T06:37:56.000Z",
-      "localDateKst": "2026-11-12",
-      "tags": [
-        "semi",
-        "earnings"
-      ],
-      "score": 81,
-      "hasText": true,
-      "summary": "폭스콘(Hon Hai) 2026년 3분기 실적 견조한 AI 서버 수요에 힘입어 2026년 3분기 매출, 영업이익, 순이익 모두 시장 예상치를 크게 상회 엔비디아의 최대 서버 제조사이자 애플의 최대 아이폰...",
-      "tickers": [
-        "NVDA"
-      ]
     }
   ],
   "current24hItems": [
@@ -9010,12 +9045,12 @@
       "datetime": "2026-11-25T08:46:35.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>미 증시 반등은 함정? S&P500 5,500까지 하락 가능성 (중국언론) •유명 경제학자 데이비드 로젠버그는 10월 6일이 S&P500의 사이클 고점이었을 가능성을 제기. 현재 반등은 약세장 중간의..."
+      "summary": ">>미 증시 반등은 함정? S&P500 5,500까지 하락 가능성 (중국언론) •유명 경제학자 데이비드 로젠버그는 10월 6일이 S&P500의 사이클 고점이었을 가능성을 제기. 현재 반등은 약세장 중간의...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72751",
@@ -9025,8 +9060,7 @@
       "localDateKst": "2026-11-25",
       "tags": [
         "macro",
-        "semi",
-        "healthcare"
+        "semi"
       ],
       "score": 73,
       "hasText": true,
@@ -9036,10 +9070,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.25, 수) 🇨🇳 중국 본토 증시는 간밤 미 증시 반도체 급락과 미국의 301조 과잉생산 신규 관세 부과 예고, 탄산리튬 선물 7%대 급락 악재가 겹치며 4,900여 개...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "중화권 마감 시황 (26.11.25, 수) 🇨🇳 중국 본토 증시는 간밤 미 증시 반도체 급락과 미국의 301조 과잉생산 신규 관세 부과 예고, 탄산리튬 선물 7%대 급락 악재가 겹치며 4,900여 개..."
+      ]
     },
     {
       "id": "HANAchina/72749",
@@ -9051,7 +9085,6 @@
         "semi",
         "equity"
       ],
-      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -9060,10 +9093,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": ">>마스크, 엔비디아 본사 방문해 젠슨 황 복귀 축하 •11월 24일, 젠슨 황의 엔비디아 복귀 다음 날 일론 머스크가 두 자녀와 SpaceX 직원들을 데리고 엔비디아 본사를 방문해 젠슨 황의 복귀를...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>마스크, 엔비디아 본사 방문해 젠슨 황 복귀 축하 •11월 24일, 젠슨 황의 엔비디아 복귀 다음 날 일론 머스크가 두 자녀와 SpaceX 직원들을 데리고 엔비디아 본사를 방문해 젠슨 황의 복귀를..."
+      ]
     },
     {
       "id": "HANAchina/72748",
