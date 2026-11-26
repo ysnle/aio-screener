@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T09:21:55.926Z",
-  "attemptedAt": "2026-11-26T09:21:55.926Z",
-  "lastSuccessfulAt": "2026-11-26T09:21:55.926Z",
+  "generatedAt": "2026-11-26T09:51:38.953Z",
+  "attemptedAt": "2026-11-26T09:51:38.953Z",
+  "lastSuccessfulAt": "2026-11-26T09:51:38.953Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T09:21:52.969Z",
-  "until": "2026-11-26T09:21:52.969Z",
+  "since": "2026-11-12T09:51:35.442Z",
+  "until": "2026-11-26T09:51:35.442Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 724,
-      "freshCount": 20,
-      "eligibleTextCount": 723,
+      "count": 727,
+      "freshCount": 36,
+      "eligibleTextCount": 726,
       "selectedCount": 125,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72833
+      "lastPostId": 72836
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,35 +137,36 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1946,
-  "retainedItemCount": 402,
+  "count": 1949,
+  "retainedItemCount": 412,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1946,
-    "eligibleTextCount": 1893,
+    "observedCount": 1949,
+    "eligibleTextCount": 1896,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 752,
-    "photoPostCount": 639,
+    "mediaAttachedCount": 753,
+    "photoPostCount": 640,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
-    "highSignalCount": 329,
-    "broadSignalCount": 827,
+    "highSignalCount": 330,
+    "broadSignalCount": 829,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 19.7,
-    "selectedOfObservedPct": 19.2,
+    "selectedOfObservedPct": 19.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "macro": 299,
+    "semi": 623,
+    "geo": 222,
+    "earnings": 234,
     "ai-policy": 135,
     "credit": 68,
-    "semi": 622,
     "market-note": 681,
-    "macro": 298,
-    "geo": 221,
     "healthcare": 57,
     "kr-market": 100,
     "optical": 24,
@@ -173,12 +174,13 @@
     "power": 178,
     "flows": 68,
     "media-only": 53,
-    "earnings": 233,
     "equity": 124,
     "insider": 8,
     "crypto": 1
   },
   "tickerCounts": {
+    "MSFT": 44,
+    "AMZN": 42,
     "NVDA": 408,
     "TSM": 59,
     "2454.TW": 8,
@@ -196,10 +198,8 @@
     "CRWV": 6,
     "META": 7,
     "AMD": 47,
-    "MSFT": 43,
     "AVGO": 13,
     "TSLA": 28,
-    "AMZN": 41,
     "BMY": 1,
     "DB": 1,
     "BCS": 2,
@@ -272,10 +272,10 @@
   },
   "themes": [
     "Market Notes (681 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (622 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (298 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-    "Earnings/Corporate (233 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "Geopolitics (221 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Semiconductors/Memory (623 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
+    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
+    "Earnings/Corporate (234 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Geopolitics (222 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "AI Power/Grid (178 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (135 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (124 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
@@ -298,18 +298,18 @@
     },
     {
       "key": "MSFT",
-      "count": 43,
+      "count": 44,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
+    },
+    {
+      "key": "AMZN",
+      "count": 42,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     },
     {
       "key": "GOOG",
       "count": 42,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
-    },
-    {
-      "key": "AMZN",
-      "count": 41,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     },
     {
       "key": "005930.KS",
@@ -349,7 +349,7 @@
       "topics": [
         "macro"
       ],
-      "count": 298,
+      "count": 299,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
@@ -358,7 +358,7 @@
       "topics": [
         "geo"
       ],
-      "count": 221,
+      "count": 222,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -376,7 +376,7 @@
       "topics": [
         "semi"
       ],
-      "count": 622,
+      "count": 623,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지..."
     },
     {
@@ -439,7 +439,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 233,
+      "count": 234,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -1643,6 +1643,39 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72836",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72836",
+      "datetime": "2026-11-26T09:43:59.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "macro"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": ">>AI 거래 급락 후, HSBC: 기술주 이미 ‘최악의 시나리오’ 반영…2027년 ‘현금흐름 반전’ 가능성 •HSBC는 2026년 글로벌 증시, 특히 AI 관련주의 급락으로 밸류에이션이 이미 ‘최악의..."
+    },
+    {
+      "id": "HANAchina/72835",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72835",
+      "datetime": "2026-11-26T09:40:08.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "semi",
+        "geo"
+      ],
+      "lead": 1,
+      "score": 65,
+      "hasText": true,
+      "tickers": [
+        "MSFT",
+        "AMZN"
+      ],
+      "summary": ">>메모리 반도체 부족, 미국 연말 쇼핑 시즌 강타…애플·마이크로소프트 가격 일제히 인상 •글로벌 메모리 반도체 부족으로 소비자 전자제품 가격이 상승중. 일부 반도체 가격은 1년 만에 기존 가격의 10배까지..."
+    },
+    {
       "id": "HANAchina/72833",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72833",
@@ -1916,14 +1949,14 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 55,
       "hasText": true,
-      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "SMCI"
-      ]
+      ],
+      "summary": ">>보도: Nvidia, 파트너사에 동남아향 서버 출하 중단 통보 (중국SINA) •보도에 따르면 Nvidia가 파트너사에 동남아시아로의 서버 출하를 중단하라고 통보. Dell과 Super Micro..."
     },
     {
       "id": "HANAchina/72807",
@@ -1933,8 +1966,11 @@
       "localDateKst": "2026-11-26",
       "tags": [
         "semi",
-        "power"
+        "macro",
+        "power",
+        "flows"
       ],
+      "lead": 1,
       "score": 86,
       "hasText": true,
       "media": {
@@ -1943,11 +1979,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": ">>JPMorgan : 대형 모델 사용량 79% 급증했지만 가격은 급락, 메모리는 DRAM만 상승 (중국언론) •JPMorgan의 최신 ‘데이터센터 관찰’ 월간 추적 보고서에 따르면, 저가 오픈소스 모델의..."
     },
     {
       "id": "HANAchina/72806",
@@ -1956,12 +1991,12 @@
       "datetime": "2026-11-26T04:48:13.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국 디벨로퍼 완커(VANKE) 다음 달 만기 예정인 위안화 채권의 재차 만기 연장 추진 •매체가 소식통을 인용해 보도한 바에 따르면, 완커가 다음 달 만기 예정인 한 위안화 채권의 재차 만기 연장을..."
     },
     {
       "id": "insidertracking/70269",
@@ -2026,11 +2061,11 @@
         "semi",
         "ai-policy"
       ],
+      "lead": 2,
       "score": 62,
       "hasText": true,
-      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심...",
-      "lead": 2,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>Anthropic, AI로 자체 핵심 시스템 재구축 : CPU 사용량 70% 급감, 메모리 사용량 80% 감소, 응답 속도 급상승 •트래픽 급증에 대응하기 위해 Anthropic은 자체 AI를 활용해 핵심..."
     },
     {
       "id": "HANAchina/72802",
@@ -2039,6 +2074,7 @@
       "datetime": "2026-11-26T03:50:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "semi",
         "power"
       ],
       "score": 60,
@@ -2049,8 +2085,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률..."
     },
     {
       "id": "insidertracking/70260",
@@ -2077,11 +2113,11 @@
         "earnings",
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치 . 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•한국은행 6개월 선행 가이던스, 다수 점도표 3.50%에 위치 . 향후 6개월 정책금리에 대한 21개 점도표 중 3.75% 7개, 3.50% 8개, 3.25% 6개 •금일 금리 결정은 만장일치가 아니였으며,..."
     },
     {
       "id": "bornlupin/21292",
@@ -7148,21 +7184,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/72510",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72510",
-      "datetime": "2026-11-21T05:29:07.000Z",
-      "localDateKst": "2026-11-21",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>2018년 말의 시나리오: 연준의 지속적인 금리 인상, 미 증시 9월 고점 대비 20% 급락 후 연준 1월 ‘전환’ •골드만삭스 트레이딩 책임자는 현재 미 증시가 2018년 말 통화 긴축과 증시 압박이...",
-      "lead": 1,
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21221",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21221",
@@ -7188,23 +7209,6 @@
       "score": 51,
       "hasText": true,
       "summary": "[단독] 소프트뱅크 손정의, SK하이닉스 1조 달러 규모의 초대형 인수 추진 검토 소프트뱅크의 손정의 회장이 메모리 반도체 대기업 SK하이닉스를 인수하기 위해 1조 달러(약 1,470조 원) 규모의 자금 조달...",
-      "tickers": [
-        "000660.KS"
-      ]
-    },
-    {
-      "id": "HANAchina/72508",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72508",
-      "datetime": "2026-11-21T02:47:55.000Z",
-      "localDateKst": "2026-11-21",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "•소프트뱅크 CEO 손정의는 최근 월가 금융기관들과 접촉해 SK하이닉스를 1조달러에 인수할 가능성에 대비한 자금 조달 방안을 논의했음. 다만 소프트뱅크 대변인은 손정의가 더 이상 해당 거래를 적극적으로...",
-      "lead": 1,
       "tickers": [
         "000660.KS"
       ]
