@@ -12,9 +12,9 @@
 // The investigation key (`iv:` in the reuse signature) and its validator context lines are empty too: the model's data
 // carries no `marketInvestigation`, and a run with one adds no outcome, status or reuse path — only another input that,
 // like the narrative signature, re-opens the reading when it changes.
-// The AI funding-chain lines and the Korea investor-flow view are read from the published files in the working tree
-// (macro-history, research-reference, kr-investor-flows): they add prompt and validator-context text only — no outcome,
-// status or reuse key — and the stub answers quote none of their figures, so the explored states do not depend on them.
+// The AI funding-chain lines (macro-history, research-reference) are pinned empty through `fundingInputs: null`, the
+// same way: they add prompt and validator-context text only — no outcome, status or reuse key. The Korea investor-flow
+// view feeds the opening story's facts, which this model's data does not carry.
 //
 // Invariants:
 //   N1 verified   — a published reading marked verified passed the semantic gate and is at most 12 h old.
@@ -161,7 +161,7 @@ async function explore({ genMarketAnalysis, applyMarketAnalysis, applyLaneQuaran
     clockMs = nowMs;
     const data = { meta: { generatedAt: new RealDate(nowMs).toISOString() }, news: [], macro: {} };
     const out = await genMarketAnalysis(data, snapshotFor(version), { previous: state.published, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null,
-      eventBriefs: null, bigtechCashflow: null, recordRejections: null });
+      eventBriefs: null, bigtechCashflow: null, fundingInputs: null, recordRejections: null });
     applyMarketAnalysis(data, out, { previous: state.published, nowMs });
     return { nowMs, version, published: data.marketAnalysis, meta: data.meta, calls };
   }

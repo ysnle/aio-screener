@@ -19,7 +19,7 @@ import { isNonMetricNumber } from './lib/market-analysis-numbers.mjs';
 import { marketAnalysisLargeMove } from './lib/market-analysis-validate.mjs';
 import { discreteQuarterSeries } from '../src/domain/fundamental/sec-earnings.js';
 import { dataSourceWarnings, deadNewsFeeds } from './lib/operational-health.mjs';
-import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified, selectNewsBundle, NEWS_FEED_FLOORS } from './lib/news-selection.mjs';
+import { mergeNewsFeedHealth, carriedNewsCandidates, createNewsTopicCap, getKst0800NewsCycle, newsFloorDropReason, newsHeadlineUnverified, selectNewsBundle, NEWS_FEED_FLOORS, NEWS_TIER3_CAP } from './lib/news-selection.mjs';
 import { narrativeVerification } from './lib/narrative-context.mjs';
 import { reportVerification } from '../src/domain/news/report-verification.js';
 import { buildDomainReceipts } from './producer/receipts.mjs';
@@ -226,12 +226,15 @@ assert.ok(!ruleLabels('US midterm elections: Trump approval rating falls to new 
 assert.ok(ruleLabels('KeyBanc downgrades Carpenter Technology stock rating').includes('analyst-action'), 'P2123 a stock rating stays an analyst action');
 assert.ok(!ruleLabels("Citadel says AI trade has little margin for error").includes('earnings-guidance'), 'P2123 margin for error is not a margin');
 assert.ok(ruleLabels('Bernstein raises Bloom Energy price target on margin strength').includes('earnings-guidance'), 'P2123 a margin stays an earnings word');
-// Coverage pass: tier 3 held 18 of 40 slots on 10/27; at most 12 per bundle, and a tier-3 row needs two topic hits.
+// Coverage pass: tier 3 held 18 of 40 slots on 10/27; at most NEWS_TIER3_CAP per bundle, and a tier-3 row needs two
+// topic hits. The pool offers four more two-hit tier-3 rows than the cap (each a different story), so the cap binds.
 const W = ['amber','birch','cobalt','delta','ember','fjord','garnet','harbor','indigo','juniper','krypton','lumen','meadow','nickel','onyx','prairie','quartz','raven','sierra','tundra','umber','violet','willow','xenon','yarrow','zephyr','acorn','basalt','cedar','dune'];
-const poolRow = (k, tier, score, topicHits) => ({ title: `${W[k]} ${W[(k + 7) % 30]}works lifts ${W[(k + 13) % 30]}ville output`, link: `https://e.test/${k}`, source: `Pub${k}`, tier, score, topicHits, topic: 'macro', ts: now - k * 60000 });
-const pool = [...Array.from({ length: 16 }, (_, k) => poolRow(k, 3, 90 - k, k < 14 ? 2 : 1)), ...Array.from({ length: 14 }, (_, k) => poolRow(16 + k, 1, 60 - k, 1))];
+const poolRow = (k, tier, score, topicHits) => ({ title: `${W[k % 30]} ${W[(7 * k + 3) % 30]} ${W[(11 * k + 5) % 30]} output`, link: `https://e.test/${k}`, source: `Pub${k}`, tier, score, topicHits, topic: 'macro', ts: now - k * 60000 });
+const tier3Offered = NEWS_TIER3_CAP + 4;
+const pool = [...Array.from({ length: tier3Offered + 2 }, (_, k) => poolRow(k, 3, 200 - k, k < tier3Offered ? 2 : 1)),
+  ...Array.from({ length: 14 }, (_, k) => ({ ...poolRow(tier3Offered + 2 + k, 1, 60 - k, 1), title: `${W[k]} ${W[k + 14]} port volumes` }))];
 const bundle = selectNewsBundle(pool, []).out;
-assert.equal(bundle.filter((row) => row.tier === 3).length, 12, 'v59.42 tier 3 holds at most 12 slots');
+assert.equal(bundle.filter((row) => row.tier === 3).length, NEWS_TIER3_CAP, `v60.59 tier 3 holds at most NEWS_TIER3_CAP (${NEWS_TIER3_CAP}) slots`);
 assert.equal(bundle.filter((row) => row.tier === 1).length, 14, 'v59.42 tier 1 fills the rest');
 // Question headlines (3.6% of published rows) and buy-list listicles (1.1%) rank below the same topic stated as news.
 assert.ok(ruleLabels('Is the AI trade over as Nvidia slides?').includes('question-headline'), 'v59.42 a question headline is down-ranked');

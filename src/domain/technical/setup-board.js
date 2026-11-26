@@ -6,6 +6,7 @@
 // A row whose template inputs are not all published has no state: unknown is never counted as unmet.
 import { trendTemplateFromDistances } from './trend-template.js';
 import { readNumber as finite } from '../shared/number.js';
+import { readRowNumber } from '../../data/contracts/screener.js';
 import { screenerMarket } from '../screener/market-scope.js';
 import { normalizeSectorKey, sectorLabel } from '../screener/sector-label.js';
 import { nextEarnings } from '../briefing/leader-earnings.js';
@@ -46,11 +47,14 @@ const benchmarkLabelOf = (row) => (/\.KQ$/i.test(String(row?.sym || row?.symbol 
  * SETUP_REASON_WORDS), pivotPct, stopPct, depths, volumeRatio, pctSma200 }.
  */
 export function rowSetup(row) {
-  const ret6m = finite(row?.ret6m);
-  const bench = finite(row?.rsBenchmarkRet6m);
+  // Registered fields go through their readiness: a value the producer marked unusable is unknown here, not a check.
+  const value = (key) => readRowNumber(row, key, 'calculation');
+  const ret6m = value('ret6m');
+  const bench = value('rsBenchmarkRet6m');
+  const pctSma200 = value('pctSma200');
   const checks = trendTemplateFromDistances({
-    pctSma50: finite(row?.pctSma50), pctSma150: finite(row?.pctSma150), pctSma200: finite(row?.pctSma200),
-    sma200Rise21Pct: finite(row?.sma200Rise21Pct), pctFrom52wLow: finite(row?.pctFrom52wLow), pctFrom52wHigh: finite(row?.pctFrom52wHigh),
+    pctSma50: value('pctSma50'), pctSma150: value('pctSma150'), pctSma200,
+    sma200Rise21Pct: value('sma200Rise21Pct'), pctFrom52wLow: value('pctFrom52wLow'), pctFrom52wHigh: value('pctFrom52wHigh'),
     rs6m: ret6m != null && bench != null ? ret6m - bench : null
   }, { benchmarkLabel: benchmarkLabelOf(row) });
   const met = checks.filter((check) => check.ok === true).length;
@@ -59,7 +63,7 @@ export function rowSetup(row) {
   const stopPct = depths?.length ? depths[depths.length - 1] : null;
   const volumeRatio = finite(row?.vcpVolumeRatio);
   const pivotPct = pivotDistancePct(row);
-  const base = { symbol: String(row?.sym || row?.symbol || '').toUpperCase(), met, unknown, checks, pivotPct, stopPct, depths, volumeRatio, pctSma200: finite(row?.pctSma200) };
+  const base = { symbol: String(row?.sym || row?.symbol || '').toUpperCase(), met, unknown, checks, pivotPct, stopPct, depths, volumeRatio, pctSma200 };
   if (unknown) return Object.freeze({ ...base, state: null, reasons: Object.freeze(checks.filter((check) => check.ok === false).map((check) => check.id)) });
   const reasons = checks.filter((check) => check.ok === false).map((check) => check.id);
   let state = 'partial';

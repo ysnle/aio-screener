@@ -9,6 +9,7 @@
 // field the schema requires, is not shown at all (the gate fails it before it ships).
 import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { isFiniteNumber } from '../shared/number.js';
 import { RESEARCH_WORDS } from './words.js';
 
 export const RESEARCH_REFERENCE_SCHEMA = 'research-reference.v1';
@@ -41,15 +42,15 @@ const UNIT_SPEC = Object.freeze({
 });
 export const RESEARCH_UNITS = Object.freeze(Object.keys(UNIT_SPEC));
 
-const finite = (value) => typeof value === 'number' && Number.isFinite(value);
-const isRange = (range) => Array.isArray(range) && range.length === 2 && range.every(finite) && range[0] <= range[1];
+// isFiniteNumber accepts only real numbers: a numeric string in the artifact is a schema problem, not a value.
+const isRange = (range) => Array.isArray(range) && range.length === 2 && range.every((v) => isFiniteNumber(v)) && range[0] <= range[1];
 const hasValue = (node) => node != null && Object.prototype.hasOwnProperty.call(node, 'value') && node.value != null;
 const hasRange = (node) => node != null && Object.prototype.hasOwnProperty.call(node, 'range') && node.range != null;
 /** Exactly one of value (a number) or range ([lo, hi], lo <= hi). */
-const oneMeasure = (node) => (hasValue(node) !== hasRange(node)) && (hasValue(node) ? finite(node.value) : isRange(node.range));
+const oneMeasure = (node) => (hasValue(node) !== hasRange(node)) && (hasValue(node) ? isFiniteNumber(node.value) : isRange(node.range));
 
 /** The Korean calendar day of `nowMs` (the reader's day; asOf dates are written in it). */
-export const kstDay = (nowMs = Date.now()) => new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
+const kstDay = (nowMs) => new Date(nowMs + 9 * 3600000).toISOString().slice(0, 10);
 const daysBetween = (from, to) => Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86400000);
 
 /**

@@ -56,7 +56,7 @@ await section('D2 outage', async () => {
   // The producer: a 429 answer and a thrown timeout both keep it; the fallback says the provider did not answer. The runs
   // get no history, so the producer builds no packet context from the working tree's public-data (hermetic); the
   // completed-close rules are checked above with the history.
-  const run = (request, prev = previous) => quiet(() => genMarketAnalysis(data, snapshot, { previous: prev, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, recordRejections: null }));
+  const run = (request, prev = previous) => quiet(() => genMarketAnalysis(data, snapshot, { previous: prev, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null, recordRejections: null }));
   const answered429 = await run(async () => ({ text: null, reason: 'provider-http-429' }));
   const timedOut = await run(async () => { const error = new Error('timeout'); error.name = 'AbortError'; throw error; });
   const noReading = await run(async () => ({ text: null, reason: 'provider-http-429' }), null);
@@ -194,7 +194,7 @@ await section('validator throws', async () => {
   let out = null, thrown = null;
   try {
     out = await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: '반도체(SOXX)는 11/9 종가 +7.49%였습니다.' }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] },
-      earnings: null, eventBriefs: null, bigtechCashflow: null, recordRejections: null, validator }));
+      earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null, recordRejections: null, validator }));
   } catch (error) { thrown = error; }
   const { marketAnalysisBlockCause } = va;
   const { pipelineNotices } = await import('../src/data/pipeline-notices.js');
@@ -212,7 +212,7 @@ await section('rejection log', async () => {
   const logged = [];
   const target = join(root, 'public-data', 'market-analysis-rejections.json');
   const before = existsSync(target) ? readFileSync(target, 'utf8') : null;
-  await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null,
+  await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null,
     recordRejections: (attempts, run) => logged.push({ attempts, run }) }));
   // Review v60.19 B2: production passes `request` too, so the default writer runs whenever no option turns it off — the
   // run below is production's call shape (a request, no recordRejections) and writes under $RUNNER_TEMP; an explicit
@@ -221,9 +221,9 @@ await section('rejection log', async () => {
   const savedRunnerTemp = process.env.RUNNER_TEMP;
   process.env.RUNNER_TEMP = runnerTemp;
   try {
-    await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, recordRejections: null }));
+    await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null, recordRejections: null }));
     const silent = !existsSync(join(runnerTemp, 'market-analysis-rejections.json'));
-    await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null }));
+    await quiet(() => genMarketAnalysis(data, snapshot, { previous, request: async () => ({ text: bad }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null }));
     const written = join(runnerTemp, 'market-analysis-rejections.json');
     const log = existsSync(written) ? JSON.parse(readFileSync(written, 'utf8')) : null;
     check('review v60.19 production\'s call shape (a request, no option) writes the rejection log under $RUNNER_TEMP; recordRejections: null writes nothing',
@@ -341,7 +341,7 @@ await section('v60.21 likelihood ground', async () => {
   check('v60.24 the published 11/10 reading has no ungrounded likelihood; the copy with one adds only a warning on re-check and is kept with its own time',
     !base.warnings.includes('likelihood-qualitative') && recheck.warnings.includes('likelihood-qualitative') && recheck.issues.join() === base.issues.join() && !va.retainedReadingIssues(oldHabit, recheck).length
       && kept?.status === 'verified' && kept.retained?.from === previous.generatedAt, JSON.stringify({ base: base.issues, recheck: [recheck.issues, recheck.warnings], kept: kept?.retained }));
-  const run = (request) => quiet(() => genMarketAnalysis(data, snapshot, { previous: oldHabit, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, recordRejections: null }));
+  const run = (request) => quiet(() => genMarketAnalysis(data, snapshot, { previous: oldHabit, request, nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null, recordRejections: null }));
   const blockedTwice = await run(async () => ({ text: '반등 확률은 70%입니다.' }));
   const noAnswer = await run(async () => ({ text: null, reason: 'provider-http-429' }));
   check('v60.24 a retry blocked by an invented probability and a provider outage keep the reading as the 직전 검증본, not the plain fallback',
@@ -351,7 +351,7 @@ await section('v60.21 likelihood ground', async () => {
   // data), never the ungrounded likelihood, and the published reading carries that as a warning. The one-call publish of
   // a reading whose only finding is the likelihood is N8 in ci-narrative-lifecycle-model-check.
   const rejectedIssues = [];
-  const fresh = await quiet(() => genMarketAnalysis(data, snapshot, { previous: null, request: async () => ({ text: oldHabit.full }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null,
+  const fresh = await quiet(() => genMarketAnalysis(data, snapshot, { previous: null, request: async () => ({ text: oldHabit.full }), nowMs, history: [], narrative: { text: '', signature: 'fixture', themes: [] }, earnings: null, eventBriefs: null, bigtechCashflow: null, fundingInputs: null,
     recordRejections: (rows) => rejectedIssues.push(...rows.flatMap((row) => row.issues)) }));
   check('v60.24 an ungrounded likelihood is never a rejection reason and rides on the published reading as a warning',
     fresh?.status === 'verified' && rejectedIssues.length > 0 && !rejectedIssues.some((issue) => ['likelihood-qualitative', 'frequency-without-sample', 'causal-attribution-missing'].includes(issue))

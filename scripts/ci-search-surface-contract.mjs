@@ -20,7 +20,9 @@ const failures = [];
 const check = (label, ok, detail = '') => { if (!ok) failures.push(`${label}${detail ? `: ${detail}` : ''}`); };
 
 // 1. Search inputs in the static shell: type=search, a search role or a search-labelled text box.
-const ALLOWED = ['aio-command-input', 'scr-text-search'];
+// The news filter panel's text query (#news-filter-query) is an in-page filter of the loaded articles, the same class as
+// the screener table filter; neither looks anything up outside its own list.
+const ALLOWED = ['aio-command-input', 'scr-text-search', 'news-filter-query'];
 const RETIRED = ['ticker-direct-search', 'guide-search-input', 'glossary-search', 'ticker-suggest', 'guide-search-result'];
 const searchInputs = [];
 for (const match of (html + dialogMarkup).matchAll(/<input\b[^>]*>/gi)) {
@@ -29,7 +31,7 @@ for (const match of (html + dialogMarkup).matchAll(/<input\b[^>]*>/gi)) {
   const label = `${attr('aria-label')} ${attr('placeholder')}`;
   if (/^search$/i.test(attr('type')) || /search/i.test(attr('role')) || /search/i.test(attr('id')) || /검색/.test(label)) searchInputs.push(attr('id') || tag.slice(0, 60));
 }
-check('v59.70 the shell (static markup and the command dialog) has exactly the command search and the screener table filter as search inputs', searchInputs.length === ALLOWED.length && ALLOWED.every((id) => searchInputs.includes(id)), `found ${searchInputs.length}: ${searchInputs.join(', ')}`);
+check('v60.59 the shell (static markup and the command dialog) has exactly the command search and two in-page list filters (screener table, news panel) as search inputs', searchInputs.length === ALLOWED.length && ALLOWED.every((id) => searchInputs.includes(id)), `found ${searchInputs.length}: ${searchInputs.join(', ')}`);
 for (const id of RETIRED) check(`v59.70 retired search element #${id} stays out of the shell`, !new RegExp(`id="${id}"`).test(html));
 {
   // Build the dialog on a minimal document and read what the module made (behaviour, not source text).

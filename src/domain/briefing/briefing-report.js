@@ -11,6 +11,7 @@ import { vixBand } from '../market/sentiment/narrative.js';
 import { hyObservation } from './market-read.js';
 import { CLAIM_WORDS, claim, say, sayJoin } from '../shared/claim.js';
 import { directionOf, signedText } from '../shared/number.js';
+import { isIsoDay } from '../shared/session-date.js';
 import { shortDate } from '../content/date-labels.js';
 import { BRIEFING_REPORT_WORDS as W } from '../content/briefing-report-words.js';
 
@@ -20,7 +21,7 @@ const weekdayOf = (iso) => new Date(`${iso}T12:00:00Z`).getUTCDay();
 export const dayName = (iso) => (iso ? `${shortDate(iso)}(${WEEKDAY[weekdayOf(iso)]})` : '');
 const mondayOf = (iso) => addDays(iso, 1 - (weekdayOf(iso) || 7));
 /** The Friday of the week that holds `asOf` (null without a date): where the report's 이번 주 rows end. */
-export const weekFriday = (asOf) => (/^\d{4}-\d{2}-\d{2}$/.test(String(asOf || '')) ? addDays(mondayOf(asOf), 4) : null);
+export const weekFriday = (asOf) => (isIsoDay(asOf) ? addDays(mondayOf(asOf), 4) : null);
 
 /** The state word of a one-session move: its direction, and its size when graded on the series' own volatility. */
 export function dayWord(history, field, change, through) {

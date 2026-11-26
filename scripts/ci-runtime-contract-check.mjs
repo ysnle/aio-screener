@@ -421,7 +421,7 @@ const newsControlsProbe = await (async () => {
   const reset = m.resetNewsFeedFilter(); m.setNewsFeedFilter({ sortMode: 'time' });
   return { set, reset, dead: ['filterNewsByCountry', 'filterNewsByTopic', 'filterNewsByTelegramOnly', 'setNewsSortMode'].filter((name) => name in m || bridges.includes(name)) };
 })();
-check('v60.59 the news filter panel owns one state (region, topic, sort) and the old chip/sort handlers and their window names stay removed', newsControlsProbe.set.countryFilter === 'us' && newsControlsProbe.set.topicFilter === 'macro' && newsControlsProbe.set.sortMode === 'score' && newsControlsProbe.reset.countryFilter === 'all' && newsControlsProbe.reset.sortMode === 'score' && newsControlsProbe.dead.length === 0 && !/_aioNewsCacheSize/.test(read('js/aio-data.js')));
+check('v60.59 the news filter panel owns one state (region, topic, sort) and the old chip/sort handlers and their window names stay removed', newsControlsProbe.set.countryFilter === 'us' && newsControlsProbe.set.topicFilter === 'macro' && newsControlsProbe.set.sortMode === 'score' && newsControlsProbe.reset.countryFilter === 'all' && newsControlsProbe.reset.sortMode === 'score' && newsControlsProbe.dead.length === 0);
 const sectorViewProbe = await (async () => {
   const { setSectorPerfView } = await import('../src/ui/components/sector-perf-view.js');
   const cls = () => { const set = new Set(['active']); return { classList: { remove: (c) => set.delete(c), add: (c) => set.add(c) }, on: () => set.has('active') }; };

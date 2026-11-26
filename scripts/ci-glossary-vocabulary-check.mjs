@@ -30,12 +30,15 @@ export const COLUMN_TERMS = Object.freeze({
   'vs 50MA': '이동평균 (50일선 · 200일선)',
   '50일선 거리(변동폭 배수)': '이동평균 (50일선 · 200일선)',
   '수축 구조(VCP)·충족도': 'VCP 패턴',
+  '수축': 'VCP 패턴',
+  // The ladder 돌파 대기 ⊂ 베이스 완성 ⊂ 템플릿 통과 stands on the 8-check trend template, defined under SEPA.
+  '후보 상태': 'SEPA (Specific Entry Point Analysis)',
   '피벗 대비': '피벗 (피벗 가격)',
   '밸류': '팩터',
   '퀄리티': '팩터'
 });
 // Plain words and app controls: the column hint says what they are; they name no measure to look up.
-export const PLAIN_COLUMN_LABELS = Object.freeze(['관심', '순서', '상위', '1주', '1개월', '6M', '순이익률', '매출 성장', '일평균 변동폭', '거래대금(30일)', '상대 상태', '테마 단계', '최신뉴스·근거']);
+export const PLAIN_COLUMN_LABELS = Object.freeze(['관심', '순서', '상위', '1주', '1개월', '6M', '순이익률', '매출 성장', '일평균 변동폭', '거래대금(30일)', '상대 상태', '테마 단계', '최신뉴스·근거', '미충족 이유', '다음 실적']);
 
 const norm = (text) => String(text || '').toLowerCase().replace(/[\s·,()（）\-−_/]/g, '');
 

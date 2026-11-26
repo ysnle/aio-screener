@@ -5,6 +5,7 @@
 import { round } from './producer-math.mjs';
 import { UA, fetchJSON, _fetchRss } from './producer-http.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
+import { hasLeadingIsoDay } from '../../src/domain/shared/session-date.js';
 
 // FRED 시리즈 (YoY 또는 레벨). PAYEMS는 MoM 차이(천명) = NFP.
 // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 추가 — 세 시리즈 ID(HOUST/RSAFS/
@@ -202,7 +203,7 @@ export async function fetchFredDexkousPublic(previous = null) {
 // (11/26 holding the 11/25 close) is dated by that session. sessionDate first, then the observation time's UTC day (the
 // FX close boundary is 22:00-23:00Z of its own day), then the row date when nothing else is known.
 const observationDate = (record) => {
-  const day = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
+  const day = (value) => (hasLeadingIsoDay(value) ? String(value).slice(0, 10) : null);
   return day(record?.sessionDate) || day(record?.observedAt) || day(record?.date) || null;
 };
 

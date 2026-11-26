@@ -56,11 +56,11 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Judgement allowed (2026-11-12, R697/R698):** screens and AI may say which side the evidence favours for the market or a stock, weigh scenarios and say likelihood in words; thin ground is named, never withheld (2026-11-17: only wrong figures, data contradictions, orders and invented % odds block; ground kinds sit in folds).
 - Branch evidence: market-implied direction and past frequency in our history with sample size; met-condition counts describe the present only.
 - Past frequencies count non-overlapping cases with only data available at each case date; below 10 cases counts only, 10–29 a small-sample note, a rate always beside its base rate.
-- **Freshness (2026-10-12; cadence-relative 2026-10-15):** data, readings and AI text follow the latest artifacts; a value is stale once a newer publication should exist (intraday: minutes in session; daily closes: next session; macro: next scheduled release; 13F: the next 45-day filing deadline, quarter-end date always shown).
+- **Freshness (2026-10-15):** data, readings and AI text follow the latest artifacts; a value is stale once a newer publication should exist (intraday: minutes in session; daily closes: next session; macro: next scheduled release; 13F: the next 45-day filing deadline, quarter-end date always shown).
 - A stale value shows its date, never as current. New features state producer and cadence.
-- **No ticker guessing:** names resolve only by exact registry match; a ticker-shaped input is never rewritten to another issuer (P1339).
+- **No ticker guessing:** names resolve only by exact registry match; a ticker-shaped input is never rewritten to another issuer.
 - **Producers** — scripts that fetch external data or write `public-data/` artifacts (`fetch-*`, the data `build-*`/`refresh-*`, `sync-screener-universe`) — run only in GitHub Actions; locally, read artifacts and run gates.
-- Workspace generators (`generate-workspace-state`, `sync-agent-*`, `bump-version`, `record-fix`) are not producers and run locally (v57.84).
+- Workspace generators (`generate-workspace-state`, `sync-agent-*`, `bump-version`, `record-fix`) run locally.
 - **Markets:** US first; Korean themes and Korean-market content are real user features, labelled '한국' and secondary.
 - **Batches:** implement several items, Fable reviews the batch diff with cstack per `REVIEW.md`, then verify and record once.
 - **Information architecture (8 screens 2026-11-20):** 오늘(home, briefing, market-news), 시장과 매크로(signal, breadth, sentiment, macro, fxbond), 기술적 분석, 테마와 섹터, 스크리너, 종목(ticker+fundamental), 포트폴리오, 리서치 라이브러리; 용어 사전 is a modal.
@@ -73,16 +73,14 @@ Owner decisions applied without re-asking; changed only by the user.
 - **Honesty without clutter:** one status per card (최신/지연/참고/없음), details on demand, one global disclaimer.
 - Remove widgets with no designed source; a designed source that failed stays visible as 없음 with its last date, never hidden.
 - Remove uncalibrated grades/scores; a reference score always shows its basis.
-- **Slow data is static:** 13F, knowledge base, principles and glossary are versioned static JSON, updated on source change; content-addressed artifacts hash content only (P1370).
-- 13D/G keeps its light daily poll (P1309/R654).
+- **Slow data is static:** 13F, knowledge base, principles and glossary are versioned static JSON, updated on source change; content-addressed artifacts hash content only; 13D/G keeps its light daily poll (P1309/R654); figures with no machine source are hand-researched weekly into `research-reference.json`, dated, never scored (owner 2026-11-26).
 - **Filling gaps (2026-10-11):** existing artifacts and official free sources first (FRED, Treasury, BLS, BEA, SEC, BOK/ECOS, KOSIS, KRX); cited OpenAI web search when they cannot answer or to corroborate.
 - Search never feeds numbers to scores, tables or charts; citations don't certify freshness; collection time never replaces publication time.
-- **Researched reference figures (owner 2026-11-26):** figures with no free machine source (single-name credit such as bond yields and CDS, fund flows, memory contract prices) are researched once or twice a week and kept in `public-data/research-reference.json`, each with its own date and source. They are shown as dated reference rows beside the automated data they explain and given to the AI reading as dated facts; they never feed a score, a rank or a chart series. A series an official source publishes daily goes to a producer instead.
 - **AI (2026-10-11/12):** generation uses OpenAI `gpt-6-luna` via the shared Worker; `OPENAI_API_KEY` stays in Worker Secrets.
 - Headline translation tries the Worker's free Workers AI binding first, then `gpt-6-luna` (2026-10-14).
 - Chat, translation, Actions analysis and web search share one atomic UTC-month ledger, $20 target (R681 v59.27); personal keys or other paid providers never bypass it.
 - No per-user search allowance. Hosted search ≤ 2 calls/response.
-- Completed responses settle validated usage plus one fee per web_search_call (v57.62); incomplete ones keep the reservation.
+- Completed responses settle validated usage plus one fee per web_search_call; incomplete ones keep the reservation.
 - AI is always on, search automatic, one top AI panel. Daily/request counts are runaway backstops, not billing caps.
 
 ## Task routing
@@ -113,10 +111,10 @@ Owner decisions applied without re-asking; changed only by the user.
 - Change flow (2026-09-30): work on `main`; local QA (`qa-runner affected`; `qa:full` certifies releases) → commit → push per the authority above. No PR for routine work.
 - CI on main is the release gate (Pages/Workers deploy only the CI-attested SHA).
 - Before pushing: `git fetch origin` + `git merge origin/main`; generated-manifest conflicts → `node scripts/resolve-generated-conflicts.mjs` and its gates.
-- Push only once `git diff --name-only --diff-filter=U` is empty with no conflict markers, as its own command, never at the end of a `;`/pipe chain (v57.82).
+- Push only once `git diff --name-only --diff-filter=U` is empty with no conflict markers, as its own command, never at the end of a `;`/pipe chain.
 - Branches for parallel threads (routine since 2026-10-26) or risky experiments: disjoint files; no bump or record-fix on the branch — entries go to `_artifacts/pending-records/<thread>/` for `apply-pending-records.mjs` at merge.
 - LF line endings (`.gitattributes`, P1344) except `*.cmd`/`*.ps1`.
 
 ## Closeout
 
-Run `node scripts/qa-runner.mjs affected --session <task-id>` (pipeline `architecture/qa-pipeline.json`; without a baseline use `--files <a,b>`), fix the whole failure batch, then `rerun-failed`. `full --no-cache` certifies a release/shared shell (one at a time — they share `_artifacts/`), `external --no-cache` deployed claims. Workspace changes add `--group preflight`, `--group workspace` (v57.61) and `git diff --check`; add the gates the touched surface selects. Final reports separate verified, blocked and unverified work and say whether commit/deploy occurred.
+Run `node scripts/qa-runner.mjs affected --session <task-id>` (pipeline `architecture/qa-pipeline.json`; no baseline: `--files <a,b>`), fix the whole failure batch, then `rerun-failed`. `full --no-cache` certifies a release/shared shell (one at a time — they share `_artifacts/`), `external --no-cache` deployed claims. Workspace changes add `--group preflight`, `--group workspace` and `git diff --check`; add the gates the touched surface selects. Final reports separate verified, blocked and unverified work and state commit/deploy.

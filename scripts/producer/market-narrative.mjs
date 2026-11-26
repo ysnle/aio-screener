@@ -423,7 +423,7 @@ function readEarningsCalendar() {
   try { return JSON.parse(readFileSync(EARNINGS_CALENDAR_OUT, 'utf8')); } catch (_) { return null; }
 }
 
-export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined, bigtechCashflow = undefined, recordRejections = appendMarketAnalysisRejections, validator = validateMarketAnalysisText } = {}) {
+export async function genMarketAnalysis(data, snapshot = null, { previous = null, request = null, nowMs = Date.now(), history = null, narrative = null, earnings = undefined, eventBriefs = undefined, bigtechCashflow = undefined, fundingInputs = undefined, recordRejections = appendMarketAnalysisRejections, validator = validateMarketAnalysisText } = {}) {
   const metricEvidence = buildMarketAnalysisEvidence(data, { snapshot });
   const newsEvidence = buildMarketAnalysisNewsEvidence(data);
   const keep = { previous, nowMs }; // Every fallback carries the last verified reading forward
@@ -507,8 +507,10 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const inflationDirection = marketAnalysisInflationDirection(data); // The screen's core-inflation direction, one read for prompt and gates
     // The AI funding chain (automated links + researched rows, each dated) and the other researched rows, given beside the
     // session schedule; the validator sees the same lines so a quoted CDS or yield is a known figure.
-    const fundingLines = marketReadingFundingLines({ cashflow: usableBigtechCashflow(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, { nowMs }),
-      macroHistory: readPublishedMacroHistory(), research: readJsonOnce(`${REPO_ROOT}/public-data/research-reference.json`), nowMs }).join(' / ');
+    // fundingInputs: undefined reads the published files; null pins the lane empty (fixtures and the model check).
+    const funding = fundingInputs === undefined ? { macroHistory: readPublishedMacroHistory(), research: readJsonOnce(`${REPO_ROOT}/public-data/research-reference.json`) } : fundingInputs;
+    const fundingLines = funding ? marketReadingFundingLines({ cashflow: usableBigtechCashflow(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, { nowMs }),
+      macroHistory: funding.macroHistory || null, research: funding.research || null, nowMs }).join(' / ') : '';
     const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines, fundingLines, ...investigationLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
     // A large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // Computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks

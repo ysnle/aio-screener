@@ -63,7 +63,7 @@ export function moveStrip(doc, items = [], { digits = 1, name = '' } = {}) {
     // The name starts at its tick and runs toward the middle, so it never leaves the strip at either end.
     const tag = el(doc, 'span', said(item), `br-strip__label is-${side}`);
     const at = left(item.value);
-    if (at <= 50) tag.style.left = `${at.toFixed(2)}%`; else tag.style.right = `${(100 - at).toFixed(2)}%`;
+    if (item.value <= 0) tag.style.left = `${at.toFixed(2)}%`; else tag.style.right = `${(100 - at).toFixed(2)}%`;
     strip.append(tag);
   }
   return strip;

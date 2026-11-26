@@ -98,10 +98,10 @@ function sectorBars(doc, board) {
 
 function tileGrid(doc, model) {
   const grid = el(doc, 'div', null, 'setup-grid');
-  for (const item of model.tiles) {
-    const cell = el(doc, 'div', null, `setup-grid__tile is-${item.band}`);
-    cell.append(el(doc, 'span', item.symbol, 'setup-grid__sym'), el(doc, 'span', pct(item.pctSma200), 'setup-grid__pct'));
-    cell.title = `${item.symbol} 200일선 대비 ${pct(item.pctSma200)} · ${SETUP_BAND_WORDS[item.band]}`;
+  for (const tile of model.tiles) {
+    const cell = el(doc, 'div', null, `setup-grid__tile is-${tile.band}`);
+    cell.append(el(doc, 'span', tile.symbol, 'setup-grid__sym'), el(doc, 'span', pct(tile.pctSma200), 'setup-grid__pct'));
+    cell.title = `${tile.symbol} 200일선 대비 ${pct(tile.pctSma200)} · ${SETUP_BAND_WORDS[tile.band]}`;
     grid.append(cell);
   }
   return grid;
