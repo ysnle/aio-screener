@@ -89,9 +89,24 @@ const latest = history[history.length - 1];
 if (latest?.seriesMode !== 'completed-market-cut' || !latest?.cycleEnd || !latest?.marketSnapshotRevision) {
   errors.push(`latest row ${latest?.date || 'missing'}: completed-market-cut metadata missing`);
 }
+// A provisional close (the 17:00 ET halt print of futures and the dollar index before the settle, scripts/producer/history.mjs)
+// is typed by its own relation, kept to its five fields, and stamped at or before its session's halt; a held copy of one
+// keeps the provisional valueBasis.
+const { PROVISIONAL_CLOSE_RELATION, PROVISIONAL_CLOSE_FIELDS } = await import('./producer/history.mjs');
+const provisionalMeta = (meta) => meta?.valueBasis === PROVISIONAL_CLOSE_RELATION || meta?.observationRelation === PROVISIONAL_CLOSE_RELATION;
+for (const row of history) for (const field of Object.keys(row.fieldMeta || {})) {
+  const meta = row.fieldMeta[field];
+  if (!provisionalMeta(meta) || !Number.isFinite(row[field])) continue;
+  if (!PROVISIONAL_CLOSE_FIELDS.includes(field)) errors.push(`row ${row.date} field ${field}: provisional close outside ${PROVISIONAL_CLOSE_FIELDS.join('/')}`);
+  const halt = meta.sessionDate ? Date.parse(`${meta.sessionDate}T23:00:00Z`) : NaN; // 17:00 ET is 21:00Z or 22:00Z
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(meta.sessionDate || '')) || !(Date.parse(meta.observedAt) <= halt) || meta.allowedUse === 'completed-market-series') {
+    errors.push(`row ${row.date} field ${field}: provisional close must name its session, be stamped by its halt and never be a completed series value`);
+  }
+}
 for (const field of fields) {
   if (!Number.isFinite(latest?.[field])) continue;
   const meta = latest.fieldMeta?.[field] || {};
+  if (provisionalMeta(meta)) continue; // checked above; the snapshot still prices the previous settle, so no comparison
   if (meta.marketSession !== 'COMPLETED' || !['previous-completed-close','latest-completed-close'].includes(meta.valueBasis)) {
     errors.push(`latest row ${latest.date} field ${field}: session/valueBasis is not a completed close`);
   }
@@ -109,7 +124,7 @@ const fieldSymbols = {
 };
 for (const [field, symbol] of Object.entries(fieldSymbols)) {
   const quote = snapshotMap.get(symbol);
-  if (!quote || !Number.isFinite(latest?.[field])) continue;
+  if (!quote || !Number.isFinite(latest?.[field]) || provisionalMeta(latest.fieldMeta?.[field])) continue;
   // A snapshot quote stamped on a day its market has no session (Yahoo's weekend restamp of the won: 1337.8 on Sunday
   // 11/22 against Friday's 1346.13) is not a completed close. The history producer keeps such a read out of the row
   // (dropSessionlessReads) and holds the last session, so the two artifacts differ by design and there is nothing to compare.
@@ -339,6 +354,13 @@ const fxLagging = compareUsdKrwCrossCheck({ provider: fxProvider(1358.96, '2026-
 if (fxLagging.status !== 'not-comparable' || fxLagging.comparable !== false || fxLagging.dayGap !== 4 || fxLagging.latestProviderValue !== 1358.96) {
   fail(`FX cross-check must not call a publication-lagged official series divergent: ${JSON.stringify(fxLagging)}`);
 }
+// The 11/26 row carried the 11/25 close (observed 11/25 22:00Z): the latest provider value is dated by its observation.
+const fxCarried = compareUsdKrwCrossCheck({ provider: fxProvider(1358.96, '2026-09-25'), official: dexkousFixture, latestProvider: { value: 1343.66, date: '2026-11-26', observedAt: '2026-11-25T22:00:00.000Z' } });
+const fxSession = compareUsdKrwCrossCheck({ provider: null, official: dexkousFixture, latestProvider: { value: 1343.66, date: '2026-11-26', sessionDate: '2026-11-25', observedAt: '2026-11-26T00:00:00.000Z' } });
+const fxBare = compareUsdKrwCrossCheck({ provider: null, official: dexkousFixture, latestProvider: { value: 1343.66, date: '2026-11-26' } });
+if (fxCarried.latestProviderDate !== '2026-11-25' || fxSession.latestProviderDate !== '2026-11-25' || fxBare.latestProviderDate !== '2026-11-26') {
+  fail(`v60.59 FX cross-check latestProviderDate is the day of the observation it used, not the carrying row: ${JSON.stringify([fxCarried.latestProviderDate, fxSession.latestProviderDate, fxBare.latestProviderDate])}`);
+}
 if (compareUsdKrwCrossCheck({ provider: null, official: dexkousFixture }).status !== 'unavailable'
   || compareUsdKrwCrossCheck({ provider: fxProvider(1391.05, '2026-09-21'), official: null }).status !== 'unavailable'
   || compareUsdKrwCrossCheck({}).status !== 'unavailable') {
@@ -370,6 +392,65 @@ if (!/const officialDate = String\(officialFx\?\.observedAt/.test(fetchDataSourc
   mergeBackfillBars(hist, { '2026-10-21': bar('2026-10-21', 7757.17), '2026-10-22': bar('2026-10-22', 7663.4) }, ['spx']);
   if (hist[0].spx !== 7757.17 || hist[0].fieldMeta.spx.sessionDate !== '2026-10-21') fail(`v58.68 a backfill bar must replace a value from another session: ${JSON.stringify(hist[0])}`);
   if (hist[1].spx !== 7663.43 || hist[1].fieldMeta.spx.valueBasis !== 'provider-current-value') fail('P1656/v58.68 a completed record of the same session as the bar must not be overwritten');
+}
+
+// The provisional close of futures and the dollar index (17:00 ET halt print, settle pending) on a Wednesday 11/18 and
+// the Thursday after it.
+{
+  const { provisionalCloseTargets, withProvisionalCloses, holdRepeatedSessions: hold, mergeBackfillBars: mergeBars } = await import('./producer/history.mjs');
+  const prev = (session, value, at) => ({ value, meta: { observedAt: `${session}T05:00:00.000Z`, fetchedAt: at, lastSuccessfulAt: at, source: 'Yahoo chart', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'completed-market-series', marketSession: 'COMPLETED', valueBasis: 'previous-completed-close', observationRelation: 'previous-completed-close', observedAtSource: 'provider-previous-close', sessionDate: session } });
+  const spxClose = (session, at) => ({ observedAt: `${session}T21:00:00.000Z`, fetchedAt: at, lastSuccessfulAt: at, source: 'Yahoo chart', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'completed-market-series', marketSession: 'COMPLETED', valueBasis: 'latest-completed-close', observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: session });
+  const rowOf = (date, wti, at) => { const read = prev(wti[0], wti[1], at); return { date, wti: read.value, spx: 7000, fieldMeta: { wti: read.meta, spx: spxClose(date, at) } }; };
+  // 60m bars (open stamps): 15:00, 16:00 and the 18:00 ET reopen of 11/18 and 11/19.
+  const bars = { wti: { timestamp: ['2026-11-18T20:00:00Z', '2026-11-18T21:00:00Z', '2026-11-18T23:00:00Z', '2026-11-19T20:00:00Z', '2026-11-19T21:00:00Z'].map((at) => Date.parse(at) / 1000), close: [60, 70.123, 50, 61, 71] } };
+  const recAt = (date, wti, at) => { const row = rowOf(date, wti, at); return { ...row, fieldMeta: { ...row.fieldMeta } }; };
+  const hist = [rowOf('2026-11-17', ['2026-11-17', 80], '2026-11-18T01:51:00Z')];
+  if (provisionalCloseTargets(hist, recAt('2026-11-18', ['2026-11-17', 80], '2026-11-18T21:51:00Z'), Date.parse('2026-11-18T21:51:00Z')).length) fail('v60.59 no provisional close before the 17:00 ET halt');
+  const at = '2026-11-18T23:51:00Z';
+  const rec = recAt('2026-11-18', ['2026-11-17', 80], at);
+  const targets = provisionalCloseTargets(hist, rec, Date.parse(at));
+  const written = withProvisionalCloses(hist, rec, targets, bars, { fetchedAt: at });
+  const meta = rec.fieldMeta.wti;
+  if (!targets.some((t) => t.field === 'wti' && t.session === '2026-11-18') || targets.some((t) => t.field === 'spx')
+    || written.length !== 1 || rec.wti !== 70.12 || meta.observationRelation !== PROVISIONAL_CLOSE_RELATION || meta.sessionDate !== '2026-11-18' || meta.observedAt !== '2026-11-18T22:00:00.000Z'
+    || rec.spx !== 7000 || rec.fieldMeta.spx.observationRelation !== 'latest-completed-close') {
+    fail(`v60.59 the 11/18 17:00 ET print is written as the session's provisional close, fields beyond the five untouched: ${JSON.stringify({ targets, written, wti: rec.wti, meta })}`);
+  }
+  hist.push(rec);
+  // Until the settle, only a reader that asks for it sees the print: charts, changes and scenarios read settled closes.
+  {
+    const { buildCloseSeries } = await import('../src/domain/market/session/close-series.js');
+    const settled = buildCloseSeries(hist, 'wti').map((point) => point.value);
+    const withPrint = buildCloseSeries(hist, 'wti', { includeProvisional: true }).map((point) => point.value);
+    if (settled.includes(70.12) || !withPrint.includes(70.12)) fail(`v60.59 a provisional close is read only with includeProvisional: ${JSON.stringify({ settled, withPrint })}`);
+  }
+  // The settle arrives as the 11/19 row's previous close: it replaces the provisional value and relation in the 11/18 row.
+  hist.push(rowOf('2026-11-19', ['2026-11-18', 82], '2026-11-19T01:51:00Z'));
+  hold(hist, { at: '2026-11-19T01:51:00Z', fields: ['wti'] });
+  const owner = hist[1].fieldMeta.wti;
+  if (hist[1].wti !== 82 || owner.observationRelation !== 'previous-completed-close' || owner.revisions?.at(-1)?.relation !== PROVISIONAL_CLOSE_RELATION || owner.revisions.at(-1).value !== 70.12 || hist[2].fieldMeta.wti.observationRelation !== 'carried-forward') {
+    fail(`v60.59 the settle replaces the provisional close whole and keeps the print as a revision: ${JSON.stringify(hist.slice(1).map((row) => [row.date, row.wti, row.fieldMeta.wti]))}`);
+  }
+  if (provisionalCloseTargets(hist, recAt('2026-11-19', ['2026-11-17', 80], '2026-11-19T03:21:00Z'), Date.parse('2026-11-19T03:21:00Z'), ['wti']).length) fail('v60.59 a settle on record keeps a stale read from bringing the provisional close back');
+  // Thursday evening: the provisional close is Thursday's own print, never Wednesday's carried into it.
+  const thu = recAt('2026-11-19', ['2026-11-18', 82], '2026-11-19T23:51:00Z');
+  withProvisionalCloses(hist, thu, provisionalCloseTargets(hist, thu, Date.parse('2026-11-19T23:51:00Z'), ['wti']), bars, { fetchedAt: '2026-11-19T23:51:00Z' });
+  const onlyWed = recAt('2026-11-19', ['2026-11-18', 82], '2026-11-19T23:51:00Z');
+  const wedBars = { wti: { timestamp: bars.wti.timestamp.slice(0, 3), close: bars.wti.close.slice(0, 3) } };
+  withProvisionalCloses(hist, onlyWed, provisionalCloseTargets(hist, onlyWed, Date.parse('2026-11-19T23:51:00Z'), ['wti']), wedBars, { fetchedAt: '2026-11-19T23:51:00Z' });
+  if (thu.wti !== 71 || thu.fieldMeta.wti.sessionDate !== '2026-11-19' || onlyWed.wti !== 82 || onlyWed.fieldMeta.wti.observationRelation !== 'previous-completed-close') {
+    fail(`v60.59 a provisional close is never carried into the next session: ${JSON.stringify([thu.wti, thu.fieldMeta.wti, onlyWed.wti])}`);
+  }
+  // Thanksgiving and the weekend add no session: a run on 11/26 or Saturday 11/21 only fills a missing settle of the last open session.
+  const tg = provisionalCloseTargets([], { date: '2026-11-26', fieldMeta: {} }, Date.parse('2026-11-26T23:51:00Z'), ['wti']);
+  const settledFri = [rowOf('2026-11-20', ['2026-11-20', 83], '2026-11-21T01:51:00Z')];
+  if (tg.length !== 1 || tg[0].session !== '2026-11-25' || provisionalCloseTargets(settledFri, recAt('2026-11-21', ['2026-11-20', 83], '2026-11-21T17:00:00Z'), Date.parse('2026-11-21T17:00:00Z'), ['wti']).length) {
+    fail(`v60.59 a holiday or weekend run writes no provisional close of its own day: ${JSON.stringify(tg)}`);
+  }
+  // A backfill bar of the session replaces its provisional close.
+  const barred = [{ date: '2026-11-18', wti: 70.12, fieldMeta: { wti: meta } }];
+  mergeBars(barred, { '2026-11-18': { date: '2026-11-18', wti: 82, fieldMeta: { wti: { observedAt: '2026-11-18T05:00:00.000Z', observationRelation: 'latest-completed-close', observedAtSource: 'provider-current', sessionDate: '2026-11-18' } } } }, ['wti']);
+  if (barred[0].wti !== 82 || barred[0].fieldMeta.wti.observationRelation !== 'latest-completed-close') fail('v60.59 a backfill bar replaces a provisional close of its session');
 }
 
 console.log(JSON.stringify({

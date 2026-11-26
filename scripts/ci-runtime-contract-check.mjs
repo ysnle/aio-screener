@@ -416,24 +416,12 @@ check('v59.51 the 거시 next release is the board header crossroads.nextEvent; 
 check('P1425 the legacy yield-curve renderer stays retired with its canvas', !/function renderYieldCurve/.test(macroTech) && !/id="yieldCurveChart"/.test(html));
 const newsControlsProbe = await (async () => {
   const m = await import('../src/ui/components/news-controls.js');
-  const chip = () => { const attrs = {}; return { style: {}, attrs, setAttribute: (k, v) => { attrs[k] = v; } }; };
-  const chips = { 'news-country-chips': [chip(), chip()], 'news-topic-chips': [chip()] };
-  const cls = () => { const set = new Set(); return { classList: { toggle: (c, on) => (on ? set.add(c) : set.delete(c)) }, has: (c) => set.has(c) }; };
-  const buttons = { 'sort-time-btn': cls(), 'sort-score-btn': cls() };
-  const documentRef = { querySelectorAll: (sel) => chips[/#([\w-]+)/.exec(sel)[1]] || [], getElementById: (id) => buttons[id] || null };
-  const reasons = []; let fetches = 0; let size = 0;
-  const root = { _aioNewsCacheSize: () => size, _aioNotifyNewsSurfaceInvalidated: (r) => reasons.push(r), fetchAllNews: () => { fetches += 1; } };
-  const at = { documentRef, root };
-  m.filterNewsByCountry('us', chips['news-country-chips'][1], at);
-  size = 3;
-  m.filterNewsByTopic('macro', null, at);
-  m.setNewsSortMode('score', null, at);
-  const after = m.getNewsSurfaceControls();
-  const picked = chips['news-country-chips'][1].attrs['aria-pressed']; const cleared = chips['news-country-chips'][0].attrs['aria-pressed']; const inline = Object.keys(chips['news-country-chips'][1].style).length;
-  m.filterNewsByTelegramOnly(null, at);
-  return { inline, after, tg: m.getNewsSurfaceControls().countryFilter, reasons, fetches, picked, cleared, score: buttons['sort-score-btn'].has('active'), time: buttons['sort-time-btn'].has('active') };
+  const bridges = read('src/app/legacy-screen-bridges.js');
+  const set = m.setNewsFeedFilter({ countryFilter: 'us', topicFilter: 'macro', sortMode: 'score' });
+  const reset = m.resetNewsFeedFilter(); m.setNewsFeedFilter({ sortMode: 'time' });
+  return { set, reset, dead: ['filterNewsByCountry', 'filterNewsByTopic', 'filterNewsByTelegramOnly', 'setNewsSortMode'].filter((name) => name in m || bridges.includes(name)) };
 })();
-check('v58.92 news filter chips and sort buttons keep their state, pressed chip (v59.90: aria-pressed, no inline colour) and repaint reasons outside the legacy news pipeline', newsControlsProbe.after.countryFilter === 'us' && newsControlsProbe.after.topicFilter === 'macro' && newsControlsProbe.after.sortMode === 'score' && newsControlsProbe.tg === 'tg' && newsControlsProbe.fetches === 1 && newsControlsProbe.reasons.join() === 'news-topic-filter,news-sort,news-country-telegram' && newsControlsProbe.picked === 'true' && newsControlsProbe.cleared === 'false' && newsControlsProbe.inline === 0 && newsControlsProbe.score && !newsControlsProbe.time); // v58.92
+check('v60.59 the news filter panel owns one state (region, topic, sort) and the old chip/sort handlers and their window names stay removed', newsControlsProbe.set.countryFilter === 'us' && newsControlsProbe.set.topicFilter === 'macro' && newsControlsProbe.set.sortMode === 'score' && newsControlsProbe.reset.countryFilter === 'all' && newsControlsProbe.reset.sortMode === 'score' && newsControlsProbe.dead.length === 0 && !/_aioNewsCacheSize/.test(read('js/aio-data.js')));
 const sectorViewProbe = await (async () => {
   const { setSectorPerfView } = await import('../src/ui/components/sector-perf-view.js');
   const cls = () => { const set = new Set(['active']); return { classList: { remove: (c) => set.delete(c), add: (c) => set.add(c) }, on: () => set.has('active') }; };

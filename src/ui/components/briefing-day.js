@@ -1,14 +1,14 @@
-// v59.65 (owner 2026-11-03, phase 3): 브리핑's 지난 24시간 section. The face carries the opening line (both markets, with the
-// equal-weight index read against the index) and the lead/major stories, each one sentence of what moved and one of why;
-// the largest of the smaller stories follow on the face; the reports behind a story and the big moves nothing explains
-// open in folds.
+// 브리핑's 움직인 것 section: the last session's stories as a timeline. The face carries the opening line (both markets,
+// with the equal-weight index read against the index) and the lead/major stories — the rank and weight on the left, the
+// title, what moved in small type and why on an indented line; the largest of the smaller stories follow, smaller, under
+// 그 밖에 움직인 것; the reports behind a story and the after-report moves open in folds.
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { buildDayAccount } from '../../domain/briefing/day-account.js';
 import { oneSessionDay } from '../../domain/market/day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
-import { asOfChip } from './section-frame.js';
+import { BRIEFING_REPORT_WORDS as W } from '../../domain/content/briefing-report-words.js';
 import { EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 
 const MORE_ON_FACE = 3;
@@ -20,16 +20,20 @@ function fold(doc, summary, children, className = 'sx-disclosure briefing-day-fo
 }
 
 function storyItem(doc, story) {
-  const item = el(doc, 'li', null, `briefing-day-story is-${story.rank}`);
+  const item = el(doc, 'li', null, `br-timeline__item is-${story.rank}`);
   item.dataset.story = story.id;
-  const head = el(doc, 'div', null, 'briefing-day-story__head');
-  head.append(el(doc, 'h3', story.title, 'briefing-day-story__title'), storyWeight(doc, story));
-  item.append(head, el(doc, 'p', [story.line, ...story.why].filter(Boolean).join(' '), 'briefing-day-story__line'));
+  const when = el(doc, 'div', null, 'br-timeline__when');
+  when.append(el(doc, 'span', W.rank[story.rank] || '', 'br-timeline__rank'), storyWeight(doc, story));
+  const body = el(doc, 'div', null, 'br-timeline__body');
+  body.append(el(doc, 'h3', story.title, 'br-timeline__title'));
+  if (story.line) body.append(el(doc, 'p', story.line, 'br-timeline__context'));
+  if (story.why.length) body.append(el(doc, 'p', `→ ${story.why.join(' ')}`, 'br-timeline__why'));
+  item.append(when, body);
   // A lead story's top linked report stands on the face under the move, as written; the rest stay folded.
   if (story.report) {
-    const line = el(doc, 'p', `관련 보도: ${story.report.title}`, 'briefing-day-story__report');
+    const line = el(doc, 'p', `관련 보도: ${story.report.title}`, 'br-timeline__report');
     if (story.report.original) line.title = story.report.original;
-    item.append(line);
+    body.append(line);
   }
   const folded = story.report ? story.evidence.slice(1) : story.evidence;
   if (folded.length) {
@@ -39,7 +43,7 @@ function storyItem(doc, story) {
       if (report.original) row.title = report.original;
       list.append(row);
     }
-    item.append(fold(doc, `${story.report ? '다른 보도' : '관련 보도'} ${folded.length}건`, [list], 'briefing-day-evidence-fold'));
+    body.append(fold(doc, `${story.report ? '다른 보도' : '관련 보도'} ${folded.length}건`, [list], 'briefing-day-evidence-fold'));
   }
   return item;
 }
@@ -62,11 +66,11 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (section.dataset.renderKey === key) return;
   section.dataset.renderKey = key;
   // the section carries its own session — the same label 오늘's 오늘의 핵심 prints (buildDayAccount
-  // asOf) — since the page subtitle names the index close, which can be a session later than these movers.
+  // asOf) — since the kicker names the index close, which can be a session later than these movers.
   const title = doc.getElementById('briefing-day-title');
-  let chip = section.querySelector(':scope > .aio-asof');
+  let chip = section.querySelector('.br-section__note');
   if (account.asOf && title) {
-    if (!chip) { chip = asOfChip(doc, account.asOf); title.after(chip); }
+    if (!chip) { chip = el(doc, 'span', null, 'br-section__note'); title.after(chip); }
     chip.textContent = account.asOf;
   } else chip?.remove();
   const opening = doc.getElementById('briefing-day-opening');
@@ -80,12 +84,12 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   const others = [...account.more.slice(0, MORE_ON_FACE).map((story) => `${story.title}: ${[story.line, ...story.why].filter(Boolean).join(' ')}`),
     ...account.unexplained.map((row) => `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.rvol != null ? `, 거래량 ${row.rvol.toFixed(1)}배` : ''}`)];
   if (others.length) {
-    const list = el(doc, 'ul', null, 'briefing-day-more');
+    const list = el(doc, 'ul', null, 'br-day__more-list');
     for (const text of others) list.append(el(doc, 'li', text));
-    folds.push(el(doc, 'h3', '그 밖에 움직인 것', 'briefing-day-more-title'), list);
+    folds.push(el(doc, 'h3', W.sections.more, 'br-day__more-title'), list);
   }
   if (account.reported.length) {
-    const list = el(doc, 'ul', null, 'briefing-day-more');
+    const list = el(doc, 'ul', null, 'br-day__more-list');
     for (const row of account.reported) list.append(el(doc, 'li', `${nameOf(row)} ${signedText(row.change, 1, '%')}${row.headline ? `, ${row.headline}` : ''}`));
     folds.push(fold(doc, `실적 발표 뒤 움직임 ${account.reported.length}건`, [list]));
   }

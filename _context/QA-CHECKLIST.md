@@ -6,6 +6,50 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.59 AI 자금 조달 사슬(투자 → 현금 → 조달 → 신용 가격 → 대출 여건 → 장비 가격 → 금리·유동성) (2026-11-26)
+
+- [x] QA-AI-FUNDING-01: v60.59 테마와 섹터 AI 공급망 흐름의 설비투자 문장 아래 'AI 자금 조달 사슬'이 번호 붙은 일곱 고리를 가는 연결선 하나로 세로로 잇는다(휴대폰도 같은 세로 목록). 고리마다 제목, 상태어 꼬리표, 숫자 행 1~3개(값 · 변화 · 날짜, 조사 행은 '조사' 표시), 확인된 자료가 없는 고리는 '확인된 자료 없음'. 접힘은 원자료 표·계산 방법·데이터 출처뿐이고, 이 화면에서 조사 행(메모리·개별 기업 신용)은 사슬에만 한 번 나온다. verify_by: node scripts/ci-research-reference-check.mjs; node scripts/ci-fold-kind-check.mjs
+- [x] QA-AI-FUNDING-02: v60.59 고리 상태어(부담 커짐 · 변화 없음 · 완화 · 엇갈림)는 자동 행으로만 정한다: ① 설비투자 4분기 합계 1년 전 대비 ±10%, ② 설비투자 ÷ 영업현금흐름 1년 전 대비 ±5%p, ④ 하이일드 스프레드 20거래일 ±25bp(신용 축 선), ⑦ 10년 국채 20거래일 ±10bp와 순유동성 4주 ±1,000억 달러. 조사 행만 있는 고리(조달·대출 여건·장비 가격)는 상태어가 없고, 사슬 한 줄은 '자동 집계 고리 N개 중 M개 부담 커짐'만 말한다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-AI-FUNDING-03: v60.59 코어위브(CRWV, CIK 1769628)는 현금흐름 생산자의 neocloud 발행사로, 빅테크 5개사 합계에 들지 않고 현금 고리에 따로 한 행으로 선다(공개 파일에 들어온 뒤부터). verify_by: node scripts/ci-research-reference-check.mjs; node scripts/ci-event-briefs-check.mjs
+- [x] QA-AI-FUNDING-04: v60.59 범위는 부호와 단위를 한 번만 쓴다(+8~13%, -0~5%, 7.00~8.65%), 자금 흐름(usdBn)은 부호가 붙고(+592억 달러) 발행 금액(amountUsdBn)은 붙지 않는다 — claim 층(figureRangeText, usdChange 단위)에서 만들고 문장 검사기도 범위를 claim이 실은 값으로 센다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-AI-FUNDING-05: v60.59 매크로 신용 챕터의 금리(수익률) 칸은 macro-history hyYield·cccYield·igYield에서 채우고 시리즈가 공개되기 전에는 비어 있다. 신용 챕터와 AI 과잉투자 시나리오 근거는 사슬의 판정 한 줄과 테마와 섹터로 가는 버튼 하나만 둔다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-AI-FUNDING-06: v60.59 AI 시장 읽기 입력(market-narrative.mjs)은 사슬 사실 줄(고리·종류·기준일)과 사슬이 싣지 않는 조사 묶음(자금 흐름)을 세션 일정 줄 곁에 받고, 검증기 맥락에도 같은 줄이 들어간다. 같은 조사 행은 두 번 들어가지 않는다. verify_by: node scripts/ci-research-reference-check.mjs
+- [ ] QA-AI-FUNDING-07: v60.59 실제 데이터 화면(테마와 섹터, 매크로 신용 챕터, 시장 상태 AI 과잉투자 시나리오)을 휴대폰·데스크톱, 아이보리·다크로 처음 온 사용자처럼 읽고 사슬이 먼저 읽히는지, 연결선·번호·상태어 대비를 확인한다. verify_by: manual browser review
+- [x] QA-BRIEF-RPT-01: v60.59 브리핑은 모든 화면 폭에서 최대 720px 가운데 한 단이고, 위에서부터 머리줄(기준 종가 · 미국 장 상태 · 휴장·조기 마감 안내) → S&P 500 기준 세션 등락(없으면 머리 수치 자체가 없음, 0을 쓰지 않음)과 상태어 · 나스닥 100 · 반도체(SOX) · 미 10년(bp) → 표제(시장 이야기 lede, 주장 낱말 강조) → 해설 한 문단 → 세 줄 → 구획들 순이다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-BRIEF-RPT-02: v60.59 AI 해설이 보이면 규칙 해설은 숨고, 막히거나 없으면 규칙 해설이 같은 자리에 선다(둘이 겹쳐 서지 않음). verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-BRIEF-RPT-03: v60.59 이번 주는 기준 세션이 든 주의 월~금 한 줄씩: 지난 세션은 S&P 500 등락 막대(공통 축)와 그날 종가로 만든 세션 읽기(지수 등락과 모양 문장), 그날 일일 장부의 핵심·주요 종목일 때만 실적 첫 반응, 휴장일은 휴일 이름, 기준 세션 뒤의 날은 그날 미국 날짜 일정만. 7일 띠는 이 주 다음 날부터. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-BRIEF-RPT-04: v60.59 세부 수치 8개(미 10년 · 달러지수 · WTI · 금 · VIX · 하이일드 스프레드 · 원/달러 · 비트코인)는 2열, 값이 없으면 '—'와 '값 없음', 기준 세션과 날짜가 다르면 그 날짜를 붙인다. 휴대폰 340px에서도 2열. 고정 상태어가 있는 값(VIX 구간, 하이일드·달러의 교차 시장 판정어, 미 10년 세션 낱말)은 그 낱말 뒤에 변화를 쓴다. verify_by: node scripts/ci-day-cause-check.mjs
+- [ ] QA-BRIEF-RPT-05: v60.59 실제 데이터 화면에서 휴대폰·아이패드·데스크톱, 아이보리·다크 테마로 보고서를 처음 온 사용자처럼 읽고, 세리프 머리 수치·표제·구획 제목, 강조색 대비, 타임라인 왼쪽 칸, 5거래일 선 아래 금리 줄 정렬을 확인한다. verify_by: manual browser review
+- [x] QA-BRIEF-RPT-06: v60.59 5거래일 흐름은 세션마다 같은 간격(서수 축)이라 각 점이 아래 금리 줄의 칸 위에 서고 축 날짜는 없다. 섹터와 자산은 섹터·자산마다 0선 주위 눈금 하나, 가장 약한·강한 것의 이름과 등락을 단다. 조용한 세션(나스닥 100 ±1% 미만)에는 일일 장부의 첫 이야기가 '주도한 것' 줄이 된다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-CARRYOVER-01: v60.59 포트폴리오: 보유 종목이 원장(market-day.json)의 기준 세션 종목 움직임에 있고 그 움직임에 대한 보도가 있으면(종목 머리와 같은 규칙, move-news.js) 행 아래 '움직인 이유' 한 줄(날짜·등락·보도 시각·제목). 보도가 없거나 보유 종목이 없으면 그리지 않고, 보유 내역은 어디에도 기록·저장되지 않는다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-CARRYOVER-02: v60.59 종목 재무 한눈에: company-aliases가 이름으로 잇는 대만 회사(TSM→TSMC, ASX→ASE)는 tw-monthly-revenue.json의 최신 월·매출(억 대만달러)·전월 대비·1년 전 대비를 한 줄로, 없는 값은 빼고 쓴다. 이름이 이어지지 않는 종목은 줄이 없다. verify_by: node scripts/ci-tw-monthly-revenue-fixture.mjs
+- [x] QA-CARRYOVER-03: v60.59 blockedBy가 걸린 산출물(kr-fundamentals)은 신선도 원장에 생산된 사본(producedAt)이 없으면 요청하지 않고, 원장에 사본이 생기면 그대로 읽는다. verify_by: node scripts/ci-artifact-refresh-path-check.mjs
+- [ ] QA-CARRYOVER-04: v60.59 market-snapshot 시세의 전일값: 시간봉 대체 종가(previousCloseApproximate)는 전일값·등락률로 쓰지 않고, history가 기록하는 지수(코스피·코스닥·S&P 500·나스닥·나스닥100·다우·러셀2000)는 그 거래소 달력의 직전 세션 확정 종가로 채운다. 기록이 없는 지수(닛케이 등)는 비워 둔다. verify_by: node scripts/ci-market-snapshot-contract-check.mjs
+- [ ] QA-CARRYOVER-05: v60.59 providerCrossChecks.fx.latestProviderDate는 그 값이 관측된 날(sessionDate, 없으면 관측 시각의 날짜)이고 그 값을 이어 받은 행의 날짜가 아니다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-CARRYOVER-06: v60.59 AI 시황·화면 읽기의 '…에 따르면'·'(CNBC)' 출처 귀속에서 발행사 이름을 빼고 'publisher-named' 경고만 남긴다. 읽기를 막지 않는다. verify_by: node scripts/ci-screen-reading-check.mjs
+- [x] QA-DAY-EXPLAIN-01: v60.59 오늘·시장 상태 이야기 면의 세션 줄 바로 아래 '촉매' 줄: 원장(market-day.json)이 그 세션 움직임에 링크로 잇고 자체 등급 major 이상이며 한국어 제목이 있는 헤드라인을 원장 materiality 순으로 최대 3개, 날짜와 함께 인용한다. 해당 없으면 줄이 없다. AI 사실 줄에도 같은 줄이 '촉매(…원인 단정 아님)'로 들어간다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-DAY-EXPLAIN-02: v60.59 엇갈림 규칙 4개(뜨거운 물가 발표+10년 -3bp 이하, S&P 500 -1% 이하+하이일드 +1bp 이하, 달러 -0.3% 이하+금 -1% 이하, WTI +2% 이상+에너지 업종 -0.5% 이하)는 두 수치가 같은 세션 날짜에 있을 때만 '엇갈림' AI 사실 줄을 낸다. 이유는 쓰지 않고 면에는 그리지 않는다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-DAY-EXPLAIN-03: v60.59 코스피가 하루 3% 이상 움직인 세션의 한국 줄은 앞선 미국 반도체(SOX) 세션, 그날 외국인·기관 순매수, 원/달러를 한 문장에 붙이고 없는 조각은 뺀다. verify_by: node scripts/ci-market-story-check.mjs; node scripts/ci-sentence-claim-replay-check.mjs
+- [x] QA-DAY-EXPLAIN-04: v60.59 시장 폭·매크로·투자 심리·금리와 환율·테마·한국·기술적 분석의 이야기 묶음은 세션 문단을 그리지 않고 화면 질문에 맞는 한 줄(화면 문장, 테마는 쏠린 곳)만, 없으면 세션 요약 한 줄과 '오늘에서 보기' 버튼을 그린다. verify_by: node scripts/ci-market-story-check.mjs
+- [x] QA-DAY-EXPLAIN-05: v60.59 미국·한국 밖 현지 시장의 가격 보도(MCX 금 시세, 닛케이·항셍·유럽 지수 마감 등)는 원장에서 세계 자산 움직임과 주제 링크를 맺지 않아 그 움직임의 몫으로 등급이 오르지 않는다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-PROVISIONAL-READ-01: v60.59 buildCloseSeries는 includeProvisional을 주지 않으면 잠정 종가(provisional-session-close) 값을 건너뛰고, 하루 원장의 가격 사실만 includeProvisional: true로 읽는다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-RESEARCH-VALIDITY-01: v60.59 조사 자료의 validDays는 22~120일 정수만 통과하고, 그 행은 유효 기간 안에서 '갱신 전' 꼬리표 없이 남으며 기간이 지나면 빠진다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-NEWS-FEED-01: v60.59 뉴스 주요·전체 뉴스 보기의 본문(접힘 없음)에 기사 N · 사실 추출 M / N · 수치 K 타일과 지역·주제·종목·키워드 세 줄 칩이 있고, 칩마다 그 칩을 누르면 보일 기사 수(다른 줄의 선택은 유지)를 이름에 담는다. 0건 칩은 숨기되 눌린 칩은 0이어도 남는다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-FEED-02: v60.59 칩·토글은 aria-pressed 버튼이고 줄마다 이름 붙은 group이라 화살표 키로 이동한다(src/ui/behaviors/roving.js). 누른 칩은 다시 그려도 초점을 잃지 않는다. 휴대폰(480px 미만)에서 세 줄을 넘는 칩 줄은 옆으로 넘긴다. verify_by: manual browser review
+- [x] QA-NEWS-FEED-03: v60.59 카드의 사실 한 줄은 이미 추출된 사실과의 연결에서만 나온다: 같은 회사 발표 요약(event-briefs, 36시간 안, 수치 있으면 수치·없으면 보도) → 실적 달력 예상·실제 줄 → 시장 하루 원장의 종목·묶음 움직임(수치) → 다음 10거래일 안 실적 발표(일정). 연결이 없으면 줄이 없다(제목에서 만들지 않음). verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-FEED-04: v60.59 재무 공시에서 넘어온 종목은 그 종목 칩을 눌린 상태로 연다. 다음 일반 방문은 넘겨받아 눌린 칩만 푼다. 매크로·시장 상태의 '뉴스, 에너지/지정학/한국' 연결은 해당 주제·지역 칩을 눌린 상태로 연다. verify_by: manual browser review
+- [ ] QA-NEWS-FEED-05: v60.59 서버 뉴스 묶음은 80건(3등급 매체 최대 24건)이다. 첫 수집 뒤 data.json 크기(현재 약 330KB, news 약 66KB)와 번역 상한(회당 30건) 아래 titleKo 비율을 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [x] QA-PROVISIONAL-01: v60.59 history.json: 방금 끝난 미국 세션 D의 17:00 ET가 지났고 D의 정산 읽기가 아직 없으면 달러지수·WTI·브렌트·금·은은 16:00 ET 시간봉 종가를 D의 잠정 종가(observationRelation·valueBasis 'provisional-session-close', sessionDate D, 관측 17:00 ET)로 기록한다. 17:00 ET 전·정산이 이미 있는 경우·주말·휴장일 자기 날짜에는 쓰지 않고, 다섯 필드 밖은 손대지 않는다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-PROVISIONAL-02: v60.59 잠정 종가는 첫 정산 읽기(전일 종가·일봉 백필)가 값과 관계를 함께 대체하고 잠정 값은 revisions에 남는다. 잠정 읽기는 확정 값을 고치지 않고, 다음 세션으로 이어지지 않으며, 정산이 기록된 뒤 오래된 전일 종가 읽기가 잠정 값을 되살리지 않는다(history-session 모형 H5·P1~P4, 변형 6개). verify_by: node scripts/ci-history-session-model-check.mjs
+- [x] QA-PROVISIONAL-03: v60.59 시장 원장 가격 사실: 마지막 종가가 잠정이면 provisional: true, 등급은 major 아래, 브리핑 가격 이야기는 수치 옆에 '(잠정)'. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-PROVISIONAL-04: v60.59 발행 확인: 한국 아침 refresh-data 실행 뒤 history.json 최신 미국 세션 행의 dxy·wti·brent·gold·silver가 전 세션 값이 아니라 잠정 종가이고, 정산 뒤(KST 10:30~13:00) 실행에서 previous-completed-close로 바뀐다. verify_by: node scripts/ci-history-field-time-contract-check.mjs
+- [x] QA-RESEARCH-REFERENCE-01: v60.59 public-data/research-reference.json은 수기 조사 자료다: 행마다 asOf·https sourceUrl·단위와 숫자 value 또는 [lo, hi] range 중 정확히 하나를 가지고, 오늘보다 뒤 날짜는 실패한다; 빈 묶음은 통과하고 화면에 아무것도 그리지 않는다. 행은 자기 기준일로 늙어 10일을 넘으면 날짜와 '갱신 전', 21일을 넘으면 본문에서 빠지고, 기간 합계·분기 전망처럼 validDays(22~120일)를 가진 행은 그 기간 동안 꼬리표 없이 남는다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-RESEARCH-REFERENCE-02: v60.59 조사 자료는 '조사 자료 · 기준일 각 행' 머리와 함께 자동 자료 곁에만 놓인다: 매크로 신용 챕터(개별 기업 신용·신용 시장), 테마 AI 자금 조달 사슬(조달·신용 가격·대출 여건·장비 가격·금리 고리), 투자 심리 '자금 흐름과 포지션', 종목 개요(그 티커 행). 출처는 데이터 출처 접힘에만 있고, 점수·순위·차트 계열 모듈은 이 읽기 모델을 들이지 않는다. verify_by: node scripts/ci-research-reference-check.mjs; node scripts/ci-architecture-contract-check.mjs; node scripts/ci-fold-kind-check.mjs
+- [x] QA-SETUP-01: v60.59 추세 템플릿(변형) 8개 조건은 technical/trend-template.js 한 곳에서 정의되고, 종목 차트(chart-analysis.js)와 스크리너 행(setup-board.js, 발행된 거리값)이 같은 판정을 읽는다. 발행되지 않은 입력이 있는 조건은 미충족이 아니라 확인 불가이고, 그런 행은 상태가 없다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SETUP-02: v60.59 셋업 사다리: 돌파 대기(템플릿 통과 + 유효 베이스 + 피벗 5% 이내 아래 + 손절폭 8% 이하) ⊂ 베이스 완성 ⊂ 템플릿 통과 ⊂ n/8, 미충족 이유 낱말, ETF 제외 미국 종목 집계, 업종별 템플릿·베이스 수(방어 업종 표시), 테마 200일선 구간 타일. 판정된 행이 없으면 집계는 0이 아니라 비어 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [ ] QA-SETUP-03: v60.59 producer가 pctSma150, sma200Rise21Pct, rsBenchmarkRet6m(미국 S&P 500·KOSPI·KOSDAQ, 차트와 같은 비교 지수), vcpDepths, vcpVolumeRatio를 발행하고 provider·normalizer가 통과시킨다. 다음 refresh-screener 실행 뒤 screener.json 행에 다섯 필드가 있고 시장 폭 템플릿 타일·업종 막대·후보 상태 칸이 켜지는지 확인. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-SETUP-04: v60.59 시장 폭 첫머리 '오늘의 요점'(신고가·신저가, 템플릿·베이스 수와 가장 많은 업종, 돌파 대기 수, AI 인프라 200일선 위치, 후보의 실적 D-N)은 입력이 없는 줄을 빼고 그리며 매수·매도 지시가 없다. 테마 순위 보기의 테마 200일선 타일은 8종목 이상 테마를 고를 수 있다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+
 ## v60.58 v60.58 장중 등락·세션 시차·휴장 공지 (2026-11-26)
 
 - [x] QA-KOSPI-CHIP-NULL-01: v60.58 등락이 없는 장중 코스피 시세는 직전 확정 종가 대비 등락으로 보이고, 종가 기록도 없으면 등락을 비운다(0.00%로 보이지 않는다). verify_by: node scripts/ci-esm-core-unit-check.mjs
@@ -13,6 +57,7 @@ v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목
 - [x] QA-SESSION-NOTICE-01: v60.58 앞으로 나흘 안의 거래소 휴장과 조기 마감은 오늘 화면 날짜 줄에, 조기 마감은 브리핑 일정에 그 세션 날짜와 끝나는 한국 시간으로 나온다; 해당 없는 주에는 문장이 없다. verify_by: node scripts/ci-market-session-contract-check.mjs
 - [x] QA-SNAPSHOT-KR-PREV-01: v60.58 제공처 전일 종가가 없는 장중 코스피·코스닥 스냅샷 행은 발행된 직전 세션 확정 종가로 전일 값과 등락을 채우고, 그 종가가 바로 앞 세션이 아니거나 없으면 비워 둔다. verify_by: node scripts/ci-market-snapshot-contract-check.mjs
 - [x] QA-READING-SESSION-SCHEDULE-01: v60.58 앞으로 나흘 안의 거래소 휴장·조기 마감은 AI 시황 입력의 확인·반증 줄에 '거래소 일정'으로 들어가고, 해당 없는 주에는 줄이 없다. verify_by: node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-SOX-LABEL-01: v60.58 필라델피아 반도체 지수를 가리키는 문장은 첫 문장을 포함해 어디서나 "반도체(SOX)"로 적는다. verify_by: node scripts/ci-market-story-check.mjs
 
 ## v60.57 이익·주문·수급·기사를 시장 이야기에 연결 (2026-11-25)
 

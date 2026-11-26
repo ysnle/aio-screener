@@ -77,6 +77,11 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   bbOas:          { id: 'BAMLH0A1HYBB',  frequency: 'daily',   limit: 800, unit: 'percent', label: 'BB 등급 스프레드' },
   bOas:           { id: 'BAMLH0A2HYB',   frequency: 'daily',   limit: 800, unit: 'percent', label: 'B 등급 스프레드' },
   cccOas:         { id: 'BAMLH0A3HYC',   frequency: 'daily',   limit: 800, unit: 'percent', label: 'CCC 이하 스프레드' },
+  // The yield a borrower actually pays (Treasury yield + spread). A spread can sit still while the yield rises with
+  // Treasuries, so refinancing cost is read from these, not from the OAS rows.
+  hyYield:        { id: 'BAMLH0A0HYM2EY', frequency: 'daily',  limit: 800, unit: 'percent', label: '하이일드 채권 금리' },
+  cccYield:       { id: 'BAMLH0A3HYCEY', frequency: 'daily',   limit: 800, unit: 'percent', label: 'CCC 이하 채권 금리' },
+  igYield:        { id: 'BAMLC0A0CMEY',  frequency: 'daily',   limit: 800, unit: 'percent', label: '투자등급 채권 금리' },
   // P1654 (owner 2026-10-12: fill free official data gaps): liquidity, growth and wider commodity/FX context from the
   // same operator FRED key. Raw observations only; readings are derived in src/domain/macro.
   fedBalanceSheet:{ id: 'WALCL',         frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '연준 총자산' },

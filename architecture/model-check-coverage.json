@@ -2,22 +2,27 @@
   "schemaVersion": "aio-model-check-coverage.v1",
   "gates": {
     "history-session-model": {
-      "syncedAt": "b11b8198d",
+      "syncedAt": "2cc6a90fb",
       "covers": [
         {
           "module": "scripts/producer/history.mjs",
           "name": "holdRepeatedSessions",
-          "fingerprint": "b1a33d107a6999d4"
+          "fingerprint": "3a382d1da61b4b13"
         },
         {
           "module": "scripts/producer/history.mjs",
           "name": "mergeBackfillBars",
-          "fingerprint": "81fb1c12548a3864"
+          "fingerprint": "deacb3350a8482af"
         },
         {
           "module": "scripts/producer/history.mjs",
           "name": "keepDisplacedSessions",
-          "fingerprint": "2b399b8e436d7067"
+          "fingerprint": "e5eb6d2f81525a84"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "keepInSessionRow",
+          "fingerprint": "f7d9de1518986cc2"
         },
         {
           "module": "scripts/producer/history.mjs",
@@ -28,6 +33,21 @@
           "module": "scripts/producer/history.mjs",
           "name": "withHistorySession",
           "fingerprint": "c4420004165ef2ab"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "provisionalCloseTargets",
+          "fingerprint": "ba3f9a77565a31b4"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "provisionalCloseBar",
+          "fingerprint": "96ee504881973eb7"
+        },
+        {
+          "module": "scripts/producer/history.mjs",
+          "name": "withProvisionalCloses",
+          "fingerprint": "e6844e9c70f24e84"
         },
         {
           "module": "src/domain/market/session/history-session.js",
@@ -47,12 +67,12 @@
       ]
     },
     "narrative-lifecycle-model": {
-      "syncedAt": "419fa497f",
+      "syncedAt": "2cc6a90fb",
       "covers": [
         {
           "module": "scripts/producer/market-narrative.mjs",
           "name": "genMarketAnalysis",
-          "fingerprint": "097c5acfc6634760"
+          "fingerprint": "d4a08e147b87da9d"
         },
         {
           "module": "scripts/producer/market-narrative.mjs",

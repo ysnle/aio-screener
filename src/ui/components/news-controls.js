@@ -1,59 +1,33 @@
-// Legacy unification (2026-10-26, roadmap item 11, screen 오늘 · 뉴스): the 뉴스 page's country/topic/telegram chips,
-// the 최신순/중요도순 sort buttons and the state they set moved here from js/aio-data.js (filterNewsByCountry,
-// filterNewsByTopic, filterNewsByTelegramOnly, setNewsSortMode, window.AIO.getNewsSurfaceControls and the
-// currentCountryFilter/currentTopicFilter/_newsSortMode lets). Output is unchanged. The news cache and fetch stay in
-// aio-data.js and are reached through window._aioNewsCacheSize / window.fetchAllNews, so this module imports nothing.
-const state = { countryFilter: 'all', topicFilter: 'all', sortMode: 'time' };
+// The 뉴스 filter panel's choices (one owner for the page's filter state): region and topic-group rows, the entity chip,
+// the 수치 있음 and 내 종목 toggles, the search text and the sort. They last for the session; nothing goes into the
+// address or storage. news.js paints the panel and repaints after each change; window.AIO.getNewsSurfaceControls
+// (legacy-screen-bridges.js) lets the news selection entry points read the same state.
+const DEFAULTS = Object.freeze({ countryFilter: 'all', topicFilter: 'all', sortMode: 'time', entityFilter: 'all', figureOnly: false, mineOnly: false, query: '' });
+const state = { ...DEFAULTS };
 
 export function getNewsSurfaceControls() {
   return {
     countryFilter: state.countryFilter || 'all',
     topicFilter: state.topicFilter || 'all',
-    sortMode: state.sortMode || 'time'
+    sortMode: state.sortMode || 'time',
+    entityFilter: state.entityFilter || 'all',
+    figureOnly: !!state.figureOnly,
+    mineOnly: !!state.mineOnly,
+    query: state.query || ''
   };
 }
 
-function hasNews(root) {
-  return typeof root._aioNewsCacheSize === 'function' && root._aioNewsCacheSize() > 0;
+/** Sets some of the panel's choices; keys outside the state and values of another type are ignored. The caller repaints. */
+export function setNewsFeedFilter(patch = {}) {
+  for (const [key, value] of Object.entries(patch || {})) {
+    if (Object.hasOwn(DEFAULTS, key) && typeof value === typeof DEFAULTS[key]) state[key] = value;
+  }
+  return getNewsSurfaceControls();
 }
 
-function notify(root, reason) {
-  if (typeof root._aioNotifyNewsSurfaceInvalidated === 'function') root._aioNotifyNewsSurfaceInvalidated(reason);
-}
-
-// A pick sets aria-pressed only; the look is the #news-filter-row aria-pressed rule in responsive.css, and news.js
-// re-syncs the same attribute on every render. No inline colours, so that rule needs no !important.
-function markChip(documentRef, group, el) {
-  documentRef?.querySelectorAll?.(`#${group} .chip`).forEach((c) => c.setAttribute?.('aria-pressed', String(c === el)));
-}
-
-// The telegram chip is the country filter 'tg', so every filter path renders through the same feed.
-export function filterNewsByTelegramOnly(el, { documentRef = globalThis.document, root = globalThis } = {}) {
-  state.countryFilter = 'tg';
-  markChip(documentRef, 'news-country-chips', el);
-  if (hasNews(root)) notify(root, 'news-country-telegram');
-  else root.fetchAllNews?.();
-}
-
-export function filterNewsByCountry(filter, el, { documentRef = globalThis.document, root = globalThis } = {}) {
-  state.countryFilter = filter;
-  markChip(documentRef, 'news-country-chips', el);
-  if (hasNews(root)) notify(root, 'news-country-filter');
-  else root.fetchAllNews?.();
-}
-
-export function filterNewsByTopic(filter, el, { documentRef = globalThis.document, root = globalThis } = {}) {
-  state.topicFilter = filter;
-  markChip(documentRef, 'news-topic-chips', el);
-  if (hasNews(root)) notify(root, 'news-topic-filter');
-}
-
-// v21: 'time' (최신순) or 'score' (중요도순).
-export function setNewsSortMode(mode, el, { documentRef = globalThis.document, root = globalThis } = {}) {
-  state.sortMode = mode;
-  const timeBtn = documentRef?.getElementById?.('sort-time-btn');
-  const scoreBtn = documentRef?.getElementById?.('sort-score-btn');
-  if (timeBtn) timeBtn.classList.toggle('active', mode === 'time');
-  if (scoreBtn) scoreBtn.classList.toggle('active', mode === 'score');
-  if (hasNews(root)) notify(root, 'news-sort');
+/** Every filter back to its default; the sort stays, since it orders the list rather than narrowing it. */
+export function resetNewsFeedFilter() {
+  const { sortMode } = state;
+  Object.assign(state, DEFAULTS, { sortMode });
+  return getNewsSurfaceControls();
 }

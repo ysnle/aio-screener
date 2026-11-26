@@ -1,0 +1,190 @@
+/* 브리핑 as one report (owner 2026-11-26): a single centred reading column on every viewport, sections split by hairlines,
+   nothing boxed. A serif display face only for this report's hero figure, headline, section titles and large values;
+   labels stay in the app's sans. Colours are the app's role tokens, so the ivory and dark themes both apply.
+   Markup: index.html #page-briefing; renderers: briefing-report.js, briefing-read.js, briefing-day.js, sector-moves.js. */
+#page-briefing {
+  /* System serif only, no web-font download: Myeongjo where installed, then the platform serif. */
+  --font-report-serif: ui-serif, 'Noto Serif KR', 'Nanum Myeongjo', AppleMyungjo, Batang, Georgia, serif;
+  /* The one accent: the warning text role, which already clears AA on the page and card surfaces in both themes. */
+  --br-accent: var(--color-text-warning);
+  --br-rule: var(--color-border-muted);
+}
+#page-briefing .briefing-report { max-width: 720px; margin: 0 auto; padding: 4px 0 56px; }
+#page-briefing .briefing-report [hidden] { display: none; }
+/* What the shell appends after the report (the 데이터 출처 fold, saved research snapshots) keeps the same column. */
+#page-briefing > :not(.briefing-report, script) { max-width: 720px; margin-inline: auto; }
+
+/* Masthead: the title and the quiet kicker line (basis close · US session now · exchange notice). */
+#page-briefing .br-masthead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; border-bottom: 0; padding: 0; margin: 0 0 28px; }
+#page-briefing .br-masthead__title { margin: 0; }
+#page-briefing .br-kicker { margin: 0; font-size: 12px; letter-spacing: 0.02em; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+
+/* Hero: the S&P 500's session move as the one large figure, its state word and the leaders beside it. */
+#page-briefing .br-hero { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 28px; margin: 0 0 22px; }
+#page-briefing .br-hero__figure { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+#page-briefing .br-hero__label { font-size: 12px; letter-spacing: 0.02em; color: var(--color-text-secondary); }
+#page-briefing .br-hero__number { font-family: var(--font-report-serif); font-size: clamp(56px, 15vw, 96px); font-weight: 400; line-height: 1; letter-spacing: -0.02em; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+#page-briefing .br-hero__side { padding-bottom: 8px; min-width: 0; }
+#page-briefing .br-hero__state { margin: 0 0 6px; font-family: var(--font-report-serif); font-size: 18px; color: var(--color-text-primary); }
+#page-briefing .br-hero__state.is-up { color: var(--color-data-up); }
+#page-briefing .br-hero__state.is-down { color: var(--color-data-down); }
+#page-briefing .br-hero__subs { margin: 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+#page-briefing .br-hero__subs b { font-weight: 600; color: var(--color-text-primary); }
+
+/* Headline (the opening's lede, its judgement word set apart) and the reading paragraph. */
+#page-briefing .br-headline { margin: 0 0 20px; font-family: var(--font-report-serif); font-size: clamp(20px, 4.4vw, 28px); font-weight: 400; line-height: 1.45; color: var(--color-text-primary); }
+#page-briefing .br-accent { font-style: italic; color: var(--br-accent); }
+#page-briefing .br-prose { margin: 0 0 24px; font-size: var(--fs-reading); line-height: 1.85; color: var(--color-text-primary); }
+#page-briefing .br-prose__ai { font-size: var(--fs-reading); line-height: 1.85; color: var(--color-text-primary); }
+/* The AI reading and the rule-built reading are never stacked: a shown AI paragraph takes the place. */
+#page-briefing .br-prose:has(> .br-prose__ai:not([hidden])) > .br-prose__rule { display: none; }
+#page-briefing .br-prose__text { margin: 0; }
+#page-briefing .br-prose__reading { margin: 6px 0 0; color: var(--color-text-secondary); }
+#page-briefing .br-prose__reading:empty { display: none; }
+
+/* Three short lines: keyword in bold, verdict after it; the one that decides the read is tinted. */
+#page-briefing .br-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#page-briefing .br-line { display: grid; grid-template-columns: minmax(84px, max-content) minmax(0, 1fr); gap: 2px 14px; align-items: baseline; padding: 10px 16px; border: 0.5px solid var(--br-rule); border-radius: var(--radius-container); }
+#page-briefing .br-line.is-tint { border-color: transparent; background: var(--color-background-emphasized); }
+#page-briefing .br-line__key { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .br-line__text { font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing .br-line.is-tint .br-line__text { color: var(--color-text-primary); } /* step-11 ink on the step-3 tint is not sure to clear AA */
+
+/* Sections: a hairline, the serif title left and the tiny basis note right. */
+#page-briefing .br-section { margin: 36px 0 0; padding: 28px 0 0; border-top: 0.5px solid var(--br-rule); }
+#page-briefing .br-section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+#page-briefing .br-section__title { margin: 0; font-family: var(--font-report-serif); font-size: 18px; font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .br-section__note { font-size: 12px; letter-spacing: 0.02em; color: var(--color-text-secondary); text-align: right; font-variant-numeric: tabular-nums; }
+#page-briefing .br-caption { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+
+/* 5거래일 흐름: one equal step per session — the line and its labelled points sit over the columns of the row beneath. */
+#page-briefing .br-seq { margin: 0; }
+#page-briefing .br-seq__plot { position: relative; height: 150px; }
+#page-briefing .br-seq__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#page-briefing .br-seq__line { fill: none; stroke: var(--color-text-primary); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+#page-briefing .br-seq__dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: var(--radius-full); background: var(--color-text-primary); box-shadow: 0 0 0 2px var(--color-background-body); }
+#page-briefing .br-seq__label { position: absolute; transform: translate(-50%, calc(-100% - 8px)); font-size: 12px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#page-briefing .br-seq__label.is-below { transform: translate(-50%, 8px); }
+#page-briefing .br-seq__row { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 0.5px solid var(--br-rule); padding-top: 8px; }
+#page-briefing .br-seq__cell { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
+#page-briefing .br-seq__value { color: var(--color-text-primary); }
+#page-briefing .br-seq__date { color: var(--color-text-secondary); }
+
+/* 움직인 것: a timeline — rank and weight on the left, a dot on the line, title, context, the indented why. */
+#page-briefing .br-day__opening { margin: 0 0 20px; font-size: var(--fs-reading); line-height: 1.75; color: var(--color-text-primary); }
+#page-briefing .br-timeline { list-style: none; margin: 0; padding: 0; }
+#page-briefing .br-timeline__item { position: relative; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 0 22px; padding: 0 0 22px; }
+#page-briefing .br-timeline__item::before { content: ''; position: absolute; left: 83px; top: 8px; bottom: 0; width: 1px; background: var(--br-rule); }
+#page-briefing .br-timeline__item:last-child::before { display: none; }
+#page-briefing .br-timeline__item::after { content: ''; position: absolute; left: 79px; top: 5px; width: 9px; height: 9px; border-radius: var(--radius-full); background: var(--color-text-secondary); }
+#page-briefing .br-timeline__item.is-lead::after { background: var(--br-accent); }
+#page-briefing .br-timeline__when { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 1px; font-size: 12px; color: var(--color-text-secondary); }
+#page-briefing .br-timeline__rank { font-weight: 600; }
+#page-briefing .br-timeline__body { min-width: 0; }
+#page-briefing .br-timeline__title { margin: 0; font-family: var(--font-report-serif); font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--color-text-primary); }
+#page-briefing .br-timeline__context { margin: 4px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing .br-timeline__why { margin: 6px 0 0 14px; font-size: 14px; font-style: italic; line-height: 1.65; color: var(--color-text-primary); }
+#page-briefing .br-timeline__report { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing .briefing-day-evidence { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing :is(.briefing-day-evidence-fold, .briefing-day-fold) > summary { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; }
+#page-briefing .br-day__more-title { margin: 8px 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: var(--color-text-secondary); }
+#page-briefing .br-day__more-list { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); }
+
+/* 이번 주: one row per weekday — day, state word, the move on one two-sided scale, the move, a note under it. */
+#page-briefing .br-week { list-style: none; margin: 0; padding: 0; }
+#page-briefing .br-week__row { display: grid; grid-template-columns: 72px 64px minmax(0, 1fr) 64px; align-items: center; gap: 4px 12px; padding: 10px 0; border-top: 0.5px solid var(--br-rule); }
+#page-briefing .br-week__row:first-child { border-top: 0; }
+#page-briefing .br-week__day { font-size: 14px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+#page-briefing .br-week__word { font-size: 12px; color: var(--color-text-secondary); }
+#page-briefing .br-week__word.is-up { color: var(--color-data-up); }
+#page-briefing .br-week__word.is-down { color: var(--color-data-down); }
+#page-briefing .br-week__bar { --signed-h: 6px; }
+#page-briefing .br-week__bar.is-empty { display: block; height: 6px; }
+#page-briefing .br-week__move { text-align: right; font-family: var(--font-report-serif); font-size: 18px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+#page-briefing .br-week__note { grid-column: 3 / -1; margin: 0; font-size: 12px; font-style: italic; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing .br-week__row.is-ahead .br-week__day, #page-briefing .br-week__row.is-closed .br-week__day { color: var(--color-text-secondary); }
+#page-briefing .br-points { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+#page-briefing .br-points > li { font-size: 14px; line-height: 1.7; color: var(--color-text-primary); }
+#page-briefing .br-points__reading { display: block; margin-top: 2px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+
+/* 섹터와 자산: one row each — label, one tick per sector or asset around the zero line (weakest and strongest named),
+   then the line; the numbers stay in the raw-table fold. */
+#page-briefing .br-rows { display: flex; flex-direction: column; }
+#page-briefing .br-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: start; gap: 6px 16px; padding: 10px 0; }
+#page-briefing #briefing-drivers .br-row { border-top: 0.5px solid var(--br-rule); }
+#page-briefing .br-row__label { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+#page-briefing .br-row__text { grid-column: 1 / -1; margin: 0; font-size: 14px; line-height: 1.65; color: var(--color-text-primary); }
+#page-briefing .br-strip { position: relative; height: 54px; min-width: 0; }
+#page-briefing .br-strip::before { content: ''; position: absolute; left: 4%; right: 4%; top: 8px; height: 1px; background: var(--br-rule); }
+#page-briefing .br-strip::after { content: ''; position: absolute; left: 50%; top: 0; height: 17px; width: 1px; background: var(--color-text-secondary); }
+#page-briefing .br-strip__tick { position: absolute; top: 2px; width: 2px; height: 13px; margin-left: -1px; background: var(--color-text-secondary); }
+#page-briefing .br-strip__tick.is-up { background: var(--color-data-up); }
+#page-briefing .br-strip__tick.is-down { background: var(--color-data-down); }
+#page-briefing .br-strip__label { position: absolute; font-size: 12px; line-height: 16px; color: var(--color-text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#page-briefing .br-strip__label.is-low { top: 20px; }
+#page-briefing .br-strip__label.is-high { top: 36px; }
+#page-briefing .briefing-move-news { padding: 4px 0 10px; }
+#page-briefing .briefing-move-news-title { margin: 8px 0 6px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+#page-briefing .briefing-drivers-fold { margin-top: 6px; }
+#page-briefing .briefing-drivers-fold > summary { font-size: 12px; color: var(--color-text-secondary); }
+
+/* 세부 수치: two columns of quiet label, large serif value and one gloss; a missing value prints the missing mark. */
+#page-briefing .br-fine { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; margin: 0; }
+#page-briefing .br-fine__item { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 14px 0; border-top: 0.5px solid var(--br-rule); }
+#page-briefing .br-fine__label { font-size: 12px; letter-spacing: 0.02em; color: var(--color-text-secondary); }
+#page-briefing .br-fine__value { margin: 0; font-family: var(--font-report-serif); font-size: 28px; line-height: 1.15; color: var(--color-text-primary); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+#page-briefing .br-fine__gloss { margin: 0; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); }
+#page-briefing .br-fine__item.is-missing .br-fine__value { color: var(--color-text-secondary); }
+
+/* 다음 확인 포인트: the checks, the next release as a fork, the days after this week, the previews and the folds. */
+#page-briefing .br-checks { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#page-briefing .br-checks > li { position: relative; padding-left: 18px; font-size: 14px; line-height: 1.65; color: var(--color-text-primary); }
+#page-briefing .br-checks > li::before { content: '›'; position: absolute; left: 2px; top: 0; color: var(--color-text-secondary); }
+#page-briefing .br-checks > li.briefing-check-fork { padding-left: 0; margin-top: 4px; }
+#page-briefing .br-checks > li.briefing-check-fork::before { content: none; }
+#page-briefing .briefing-check-fork__node { display: inline-flex; align-items: baseline; gap: 8px; }
+#page-briefing .briefing-check-fork__when { font-size: 12px; font-weight: 600; color: var(--br-accent); font-variant-numeric: tabular-nums; }
+#page-briefing .briefing-check-fork__name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .briefing-check-fork__branches { list-style: none; margin: 6px 0 0 4px; padding: 0 0 0 14px; border-left: 0.5px solid var(--br-rule); }
+#page-briefing .briefing-check-fork__branch { padding: 4px 0; font-size: 14px; line-height: 1.6; color: var(--color-text-secondary); }
+#page-briefing .briefing-check-fork__branch strong { font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .briefing-week { list-style: none; margin: 4px 0 16px; padding: 0; display: flex; flex-direction: column; }
+#page-briefing .briefing-week-day { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 0; border-top: 0.5px solid var(--br-rule); }
+#page-briefing .briefing-week-date { flex: 0 0 72px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+#page-briefing .briefing-week-day.is-today .briefing-week-date { color: var(--br-accent); }
+#page-briefing .briefing-week-event { font-size: 12px; line-height: 1.5; color: var(--color-text-primary); overflow-wrap: anywhere; }
+#page-briefing .briefing-week-event.is-major { font-weight: 600; }
+#page-briefing :is(.briefing-week-event.is-passed, .briefing-week-earnings, .briefing-week-none) { font-size: 12px; color: var(--color-text-secondary); }
+#page-briefing .briefing-events-title { margin: 20px 0 6px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+#page-briefing .briefing-event-preview { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 0.5px solid var(--br-rule); }
+#page-briefing .briefing-event-preview-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .briefing-event-preview-line { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+#page-briefing .briefing-event-preview-line.is-branch { color: var(--color-text-primary); }
+#page-briefing .briefing-xr-themes { margin-top: 12px; }
+#page-briefing .briefing-schedule-fold > summary, #page-briefing .briefing-earnings-fold > summary { font-size: 12px; color: var(--color-text-secondary); }
+#page-briefing #briefing-schedule-rows > .briefing-event-meta { padding: 8px 0 0; }
+#page-briefing .briefing-earnings-week { margin-top: 12px; }
+#page-briefing .briefing-earnings-lead { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+#page-briefing .briefing-earnings-day { margin: 14px 0 4px; font-size: 14px; font-weight: 600; }
+#page-briefing .briefing-earnings-session { margin: 0 0 8px; }
+#page-briefing .briefing-earnings-session-head { margin: 0 0 2px; font-size: 12px; color: var(--color-text-secondary); }
+#page-briefing .briefing-earnings-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+#page-briefing .briefing-earnings-row { display: flex; gap: 8px; align-items: baseline; font-size: 12px; line-height: 1.6; }
+#page-briefing .briefing-earnings-sym { flex: 0 0 56px; font-variant-numeric: tabular-nums; }
+#page-briefing .briefing-earnings-row.is-mine .briefing-earnings-sym { color: var(--br-accent); }
+#page-briefing .briefing-earnings-facts { min-width: 0; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+#page-briefing .briefing-earnings-tag { margin-left: auto; flex: none; font-size: 12px; font-weight: 600; color: var(--br-accent); }
+
+@media (max-width: 743px) {
+  #page-briefing .br-masthead { margin-bottom: 22px; }
+  #page-briefing .br-line { grid-template-columns: minmax(0, 1fr); }
+  #page-briefing .br-section { margin-top: 28px; padding-top: 22px; }
+  #page-briefing .br-timeline__item { grid-template-columns: 52px minmax(0, 1fr); gap: 0 16px; }
+  #page-briefing .br-timeline__item::before { left: 59px; }
+  #page-briefing .br-timeline__item::after { left: 55px; }
+  #page-briefing .br-week__row { grid-template-columns: 60px 52px minmax(0, 1fr) 52px; gap: 4px 8px; }
+  #page-briefing .br-week__move { font-size: 14px; }
+  #page-briefing .br-fine { gap: 0 16px; }
+  #page-briefing .br-fine__value { font-size: clamp(20px, 6vw, 28px); }
+  #page-briefing .briefing-event { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}

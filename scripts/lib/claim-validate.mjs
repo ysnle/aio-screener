@@ -6,7 +6,7 @@
 //
 // facts: { [subject]: { asOf, asOfBy?: { [measure]: day }, values: { [measure]: number }, members?: { [id]: number },
 //          sd?: { [measure]: { sd, sessions } } } }
-import { CLAIM_WORDS, figureDigits, figureText, periodOf, printedValue as printed, thresholdText } from '../../src/domain/shared/claim.js';
+import { CLAIM_WORDS, figureDigits, figureRangeText, figureText, periodOf, printedValue as printed, thresholdText } from '../../src/domain/shared/claim.js';
 import { moveGrade } from '../../src/domain/market/session/move-size.js';
 import { printedValueAgrees, signAgrees, directionAgrees, sizeWordAgrees, numericFieldsMissing } from '../../src/domain/shared/figure-agreement.js';
 
@@ -170,7 +170,7 @@ const PRINTED_FIGURE = /[+\-−]\d[\d,.]*|\d[\d,.]*(?:%p?|(?<=\d)bps?(?![A-Za-z]
 /** (e) the composed text prints only figures its claims carry. */
 export function unclaimedFigures({ text, claims }) {
   let rest = String(text || '');
-  const shown = claims.flatMap((claim) => [...claim.figures.map(figureText), ...(Number.isFinite(claim.compare?.threshold) && claim.figures[0] ? [thresholdText(claim)] : [])]);
+  const shown = claims.flatMap((claim) => [...claim.figures.map(figureText), ...(claim.figures.length === 2 ? [figureRangeText(claim.figures[0], claim.figures[1])] : []), ...(Number.isFinite(claim.compare?.threshold) && claim.figures[0] ? [thresholdText(claim)] : [])]);
   for (const piece of shown.sort((a, b) => b.length - a.length)) rest = rest.split(piece).join(' ');
   // A day or a year-month (a filer's period label: "2026-07 분기까지") is a date, not a signed figure.
   return rest.replace(/\b\d{4}-\d{2}(?:-\d{2})?\b/g, ' ').match(PRINTED_FIGURE) || [];

@@ -1,6 +1,6 @@
 import { countOpenSessionsBetween, resolveMarketCalendarSession } from './market-calendar.js';
 import { shortDate } from '../../content/date-labels.js';
-import { historyFieldSessionDate } from './history-session.js';
+import { historyFieldSessionDate, isProvisionalHistoryValue } from './history-session.js';
 import { readNumber as finite } from '../../shared/number.js';
 import { isoDay, stampDay } from '../../shared/session-date.js';
 import { percentileOf } from '../../shared/percentile.js';
@@ -64,22 +64,24 @@ const settleRank = (minute, close) => minute <= close ? close - minute : 10000 +
 
 const CLOSE_SERIES_MEMO = new WeakMap();
 const copyPoints = (points) => points.map((point) => ({ ...point }));
-export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false, market = closeSessionMarket(field) } = {}) {
-  if (!Array.isArray(history)) return computeCloseSeries(history, field, { through, includeProvenance, market });
+// A provisional close (the 17:00 ET print the producer writes before the settle) is left out unless the caller asks:
+// charts, changes and scores read settled closes only, and the day ledger asks for it and marks the figure 잠정.
+export function buildCloseSeries(history = [], field, { through = null, includeProvenance = false, includeProvisional = false, market = closeSessionMarket(field) } = {}) {
+  if (!Array.isArray(history)) return computeCloseSeries(history, field, { through, includeProvenance, includeProvisional, market });
   let memo = CLOSE_SERIES_MEMO.get(history);
   if (!memo || memo.length !== history.length) {
     memo = { length: history.length, series: new Map() };
     CLOSE_SERIES_MEMO.set(history, memo);
   }
-  const key = JSON.stringify([field, through ?? null, !!includeProvenance, market ?? null]);
+  const key = JSON.stringify([field, through ?? null, !!includeProvenance, market ?? null, !!includeProvisional]);
   let series = memo.series.get(key);
   if (!series) {
-    series = computeCloseSeries(history, field, { through, includeProvenance, market });
+    series = computeCloseSeries(history, field, { through, includeProvenance, includeProvisional, market });
     memo.series.set(key, series);
   }
   return copyPoints(series);
 }
-function computeCloseSeries(history, field, { through, includeProvenance, market }) {
+function computeCloseSeries(history, field, { through, includeProvenance, includeProvisional, market }) {
   const byDate = new Map();
   const rankOf = new Map();
   const historyOf = new Map();
@@ -90,6 +92,7 @@ function computeCloseSeries(history, field, { through, includeProvenance, market
     if (value == null || (value <= 0 && !/^(breadth|advance|distribution)/.test(field))) continue; // a 0 yield/price is a producer gap, not a close (a 0 count is real)
     const meta = historyFieldMeta(row, field);
     if (meta?.observationRelation === 'carried-forward') continue;
+    if (isProvisionalHistoryValue(meta) && !includeProvisional) continue;
     const sessionDate = historyFieldSessionDate(meta, field);
     const sessionDated = !!sessionDate;
     const date = sessionDated ? sessionDate : meta?.observedAt ? nyDate(meta.observedAt) : row.date;

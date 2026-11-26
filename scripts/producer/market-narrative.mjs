@@ -26,11 +26,13 @@ import { renderMarketGuideContext } from '../../src/domain/guide/market-guide.js
 import { POLITICAL_EVENTS } from '../../src/domain/briefing/schedule.js';
 import { indexLevels, levelValue, levelsRead } from '../../src/domain/market/indices/index-levels.js';
 import { buildMarketOpening, openingFactLines } from '../../src/domain/market/story/market-story.js';
+import { buildKrInvestorFlowView } from '../../src/domain/market/korea/kr-investor-flows.js';
 import { interpretationFromArtifacts, marketAnalysisRegimeInput as regimeInputFromArtifacts } from '../lib/market-interpretation-inputs.mjs'; // One interpretation pipeline
 import { NEWS_INTRADAY_MAX, stripColumnLabel, stripTranslatedColumnLabel } from '../lib/news-selection.mjs';
 import { buildMarketAnalysisPrompt, buildMarketAnalysisRetryPrompt, inflationDirectionLine } from '../lib/market-analysis-prompt.mjs';
 import { afterHoursContextLines, afterHoursSignature } from './after-hours.mjs';
-import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow } from './earnings-context.mjs';
+import { earningsContextLines, earningsContextSignature, readEventBriefs, cashflowContextLines, readBigtechCashflow, usableBigtechCashflow } from './earnings-context.mjs';
+import { marketReadingFundingLines } from '../../src/domain/themes/ai-funding-chain.js';
 import { softenReaderDuty, salvageMarketAnalysis, inflationEasingContradicts, inflationReaccelContradicts, EVIDENCE_TIER_METRIC_IDS, KOREA_MOVE_MENTION_PCT, MARKET_ANALYSIS_CLOSED_SESSIONS, snapshotEvidenceRows, buildCompletedCloseBasis, marketAnalysisReversal, marketAnalysisLargeMove, marketAnalysisLargeMoveDirection, marketSentenceDay, marketSentenceRejectReason, dailyMarketSentence, MARKET_SENTENCE_LABEL, splitMarketSentence, buildMarketAnalysisEvidence, buildMarketAnalysisHeadlineContext, buildMarketAnalysisNewsEvidence, buildStructuredMarketAnalysis, describeMarketAnalysisIssues, marketAnalysisBlockCause, retainVerifiedMarketAnalysis, reusableMarketAnalysis, validateMarketAnalysisText, lastVerifiedMarketAnalysis, plainMarketFallbackSummary, MARKET_DRIVER_SLOTS } from '../lib/market-analysis-validate.mjs';
 import { HIST, SCENARIO_STATE_OUT, SCENARIO_OUTCOMES_OUT, EARNINGS_CALENDAR_OUT, REPO_ROOT } from './paths.mjs';
 const SCREENER_OUT = `${REPO_ROOT}/public-data/screener.json`;
@@ -148,7 +150,7 @@ export function buildMarketAnalysisRegimeContext(data, history = []) {
     // The latest session's ledger, filing summaries and after-close prints as published (each is used only on its own session).
     const published = (file) => { try { return JSON.parse(readFileSync(`${REPO_ROOT}/public-data/${file}`, 'utf8')); } catch (_) { return null; } };
     const opening = buildMarketOpening({ history: input.history, macroHistory: input.macroHistory || null, longrun, through: regime.asOf,
-      day: published('market-day.json'), briefs: published('event-briefs.json'), afterHours: published('data.json')?.afterHours || null, regime, events: interpretation.events || [], earnings: interpretation.indexEarnings || null });
+      day: published('market-day.json'), briefs: published('event-briefs.json'), afterHours: published('data.json')?.afterHours || null, flows: buildKrInvestorFlowView(published('kr-investor-flows.json'), { loadState: 'ok' }), regime, events: interpretation.events || [], earnings: interpretation.indexEarnings || null });
     const story = [...openingFactLines(opening), ...leaderEarningsFactLines(published('earnings-calendar.json'), { nowMs: Date.parse(`${regime.asOf}T21:00:00Z`) })].map((line) => `시장 이야기 ${line}`);
     return [...story, `종합: ${regime.overall} (양호 ${regime.counts?.favorable ?? '-'} · 부담 ${regime.counts?.burden ?? '-'})`, sessions, priorSessionMoveLines(input.history), trendLine, leadershipLine, semisLine, marketFlowContext(data, input.history, input.now), conflicts, axes,
       renderMarketScenarioModel(scenarios), renderScenarioOutlookContext(outlook), marketAnalysisCrossroadsContext(interpretation, state)].filter(Boolean).join('\n');
@@ -503,7 +505,11 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     // SEC quarterly cash flow (hyperscaler total + the night's big-tech reporters); `bigtechCashflow` is a fixture seam.
     const cashflowLines = cashflowContextLines(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, briefsInput, earningsCloseDate, { nowMs });
     const inflationDirection = marketAnalysisInflationDirection(data); // The screen's core-inflation direction, one read for prompt and gates
-    const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines, ...investigationLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
+    // The AI funding chain (automated links + researched rows, each dated) and the other researched rows, given beside the
+    // session schedule; the validator sees the same lines so a quoted CDS or yield is a known figure.
+    const fundingLines = marketReadingFundingLines({ cashflow: usableBigtechCashflow(bigtechCashflow === undefined ? readBigtechCashflow() : bigtechCashflow, { nowMs }),
+      macroHistory: readPublishedMacroHistory(), research: readJsonOnce(`${REPO_ROOT}/public-data/research-reference.json`), nowMs }).join(' / ');
+    const validate = (body) => validator(body, data, snapshot, { context: [regimeContext, afterHoursLines, earningsLines, cashflowLines, fundingLines, ...investigationLines].filter(Boolean).join('\n'), history: historyRows, inflationDirection });
     // A large equity move (KOSPI 3% / S&P 500 1%) lets the day's sentence be replaced once (dailyMarketSentence).
     // Computed before the prompt so the first attempt is told a cause must be attributed (the validator blocks
     // an unattributed reading on such a day; before, only the retry was told and both 10/15 05:55Z/07:52Z attempts failed).
@@ -525,7 +531,7 @@ export async function genMarketAnalysis(data, snapshot = null, { previous = null
     const intradayRows = inSessionMoves(metricEvidence, changeOf, historyRows, { closedSessions: MARKET_ANALYSIS_CLOSED_SESSIONS });
     const usCloseDate = buildCloseSeries(historyRows, 'spx').at(-1)?.date || null;
     const usCloseAt = usCloseDate ? `${mdOf(usCloseDate)} 16:00 ET` : null;
-    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: [upcomingPoliticalLine(), sessionScheduleLine()].filter(Boolean).join(' / '), levelsLine: chartLevelsLine(historyRows) });
+    const driversContext = marketDriversContext({ history: historyRows, reversal, intradayRows, earningsLine: nextEarningsLine(earnings === undefined ? readEarningsCalendar() : earnings, usCloseDate), eventsLine: [upcomingPoliticalLine(), sessionScheduleLine(), fundingLines].filter(Boolean).join(' / '), levelsLine: chartLevelsLine(historyRows) });
     const inflationLine = inflationDirectionLine(data?.macro || {}, { direction: inflationDirection }); // INFLATION_DIRECTION on the screen's direction
     const model = SHARED_AI_MODEL;
     const sizeGrades = moveSizeGrades(historyRows);

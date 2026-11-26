@@ -41,3 +41,36 @@
 .rates-asset-bars > div:last-child { width: min(100%, 640px); }
 .fig-parts--ends .fig-parts__seg.is-part-2, .fig-parts--ends .fig-parts__item.is-part-2::before { background: rgba(var(--ink-rgb), 0.16); }
 .fig-parts--ends .fig-parts__seg.is-part-3, .fig-parts--ends .fig-parts__item.is-part-3::before { background: rgba(var(--ink-rgb), 0.55); }
+
+/* Researched reference rows (components/research-reference.js): a quiet dated list beside the automated figures. */
+.research-ref { margin: 12px 0 0; }
+.research-ref__kicker { margin: 0 0 4px; }
+.research-ref__group { margin: 8px 0 2px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+.research-ref__rows, .research-ref__source-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.research-ref__row { font-size: var(--fs-sm); color: var(--color-text-secondary); line-height: 1.5; }
+.research-ref__label { color: var(--color-text-primary); }
+.research-ref__value { color: var(--color-text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+.research-ref__change, .research-ref__date { font-variant-numeric: tabular-nums; }
+.research-ref__tag { font-size: var(--fs-min); padding: 0 6px; border-radius: var(--radius-full); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); white-space: nowrap; }
+.research-ref__line { margin: 6px 0 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+
+/* The AI funding chain (components/ai-funding-chain.js): seven numbered links down one thin connector, no boxes. */
+.funding-chain { margin: 16px 0 8px; }
+.funding-chain__title { margin: 0 0 4px; font-size: var(--fs-xl); font-weight: 600; color: var(--color-text-primary); }
+.funding-chain__links { list-style: none; margin: 8px 0 0; padding: 0; position: relative; }
+.funding-chain__links::before { content: ''; position: absolute; left: 11px; top: 12px; bottom: 12px; width: 1px; background: var(--color-border); }
+.funding-chain__link { position: relative; padding: 0 0 12px 32px; min-width: 0; }
+.funding-chain__head { margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.funding-chain__n { position: absolute; left: 0; top: 0; width: 23px; height: 23px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-full); border: 1px solid var(--color-border-emphasized); background: var(--color-background-card); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
+.funding-chain__name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); line-height: 23px; }
+.funding-chain__state { font-size: var(--fs-min); padding: 0 6px; border-radius: var(--radius-full); border: 0.5px solid var(--color-border); color: var(--color-text-secondary); white-space: nowrap; }
+.funding-chain__link[data-state="tighter"] .funding-chain__state { color: var(--color-text-warning); border-color: currentColor; }
+.funding-chain__link[data-state="easier"] .funding-chain__state { color: var(--color-text-success); border-color: currentColor; }
+.funding-chain__rows { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 2px; }
+.funding-chain__row { font-size: var(--fs-sm); line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.funding-chain__label { color: var(--color-text-primary); }
+.funding-chain__value { color: var(--color-text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+.funding-chain__change, .funding-chain__date { font-variant-numeric: tabular-nums; }
+.funding-chain__mark { font-size: var(--fs-min); color: var(--color-text-secondary); border-bottom: 0.5px dotted currentColor; white-space: nowrap; }
+.funding-chain__none { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--color-text-secondary); }
+.funding-chain__pointer { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }

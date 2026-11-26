@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { buildTwMonthlyRevenue, mergeHistory, parseRevenueRow, pendingTwMonthlyRevenue, rocMonth, shiftMonth, TW_AI_CHAIN } from './fetch-tw-monthly-revenue.mjs';
 import { ARTIFACT_FRESHNESS, sameExceptVolatile } from '../src/data/contracts/artifact-freshness.js';
 const sameRevenueData = (a, b) => sameExceptVolatile(a, b, ARTIFACT_FRESHNESS['tw-monthly-revenue.json'].volatileKeys);
-import { buildTwRevenueView } from '../src/domain/briefing/tw-monthly-revenue.js';
+import { buildTwRevenueView, twRevenueLine } from '../src/domain/briefing/tw-monthly-revenue.js';
 import { runSections } from './lib/gate-sections.mjs';
 import { aiDemandRead, aiDemandFactLine, CAPEX_STRETCH_PCT } from '../src/domain/briefing/ai-demand-read.js';
 import { bigtechGroupFor } from '../src/data/bigtech-cashflow.js';
@@ -132,6 +132,19 @@ assert.equal(bigtechGroupFor(ledger('2026-11-10T09:17:00Z'), { now }), null, 'v6
 assert.equal(bigtechGroupFor({ _aioBigtechCashflow: payload }, { now }), null, 'v60.57 cashflow-reader: without a ledger the own clock decides (past ten days)');
 assert.equal(bigtechGroupFor({ _aioBigtechCashflow: payload }, { now: Date.parse('2026-11-20T00:00:00Z') }), payload.hyperscalers, 'v60.57 cashflow-reader: without a ledger a recent own clock passes');
 assert.equal(bigtechGroupFor({}, { now }), null, 'v60.57 cashflow-reader: no file');
+}, 'code'],
+// 종목: a US listing reads its Taiwan company's month only through a name both files hold (company-aliases TSM → TSMC).
+['stock-line', async () => {
+const company = (code, nameKo, extra = {}) => ({ code, nameKo, month: '2026-10', revenue: 586890319, prevMonth: 511857399, yearAgo: 367473051, momPct: 14.7, yoyPct: 59.7, group: 'foundry-design', ...extra });
+const file = { schemaVersion: 'tw-monthly-revenue.v1', status: 'ok', latestMonth: '2026-10', tableDate: '2026-11-17', companies: [company('2330', 'TSMC'), company('3711', 'ASE', { momPct: null })] };
+assert.equal(twRevenueLine(file, 'TSM')?.text, '대만 월 매출 2026년 10월 5,869억 대만달러, 전월 대비 +14.7%, 1년 전 대비 +59.7%', 'v60.59 tw-stock-line TSM reads TSMC with its month');
+assert.equal(twRevenueLine(file, 'tsm')?.code, '2330', 'v60.59 tw-stock-line symbol case');
+assert.equal(twRevenueLine(file, 'ASX')?.text, '대만 월 매출 2026년 10월 5,869억 대만달러, 1년 전 대비 +59.7%', 'v60.59 tw-stock-line a missing change is left out, never 0');
+assert.equal(twRevenueLine(file, 'NVDA'), null, 'v60.59 tw-stock-line a listing with no Taiwan company has no line');
+assert.equal(twRevenueLine({ ...file, status: 'not-collected' }, 'TSM'), null, 'v60.59 tw-stock-line the 수집 전 marker has no line');
+assert.equal(twRevenueLine(null, 'TSM'), null, 'v60.59 tw-stock-line no file');
+const entity = await readFile(new URL('../src/ui/pages/entity.js', import.meta.url), 'utf8');
+assert.match(entity, /twRevenueLine\(/, 'v60.59 tw-stock-line the 종목 overview reads the line');
 }, 'code'],
 // The committed artifact always parses as the schema (the 수집 전 marker until the first Actions run).
 ['committed-artifact', async () => {

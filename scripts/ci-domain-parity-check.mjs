@@ -410,6 +410,22 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
     for (const key of keys) { const d = diff(a[key], b[key], `${at}.${key}`); if (d) return d; }
     return null;
   };
+  // The legacy engine had no base volume ratio; the shared VCP definition (_calcVCPServer) now returns the number its
+  // volumeDrying verdict already used. Every vcp read (also the ones nested in a holding's snapshot) is pinned to that
+  // verdict and the ratio left out of the legacy comparison.
+  const legacyShape = (value, at) => {
+    if (!value || typeof value !== 'object') return value;
+    for (const [key, child] of Object.entries(value)) {
+      if (key === 'vcp' && child && typeof child === 'object' && 'volumeRatio' in child) {
+        const { volumeRatio, volumeDrying } = child;
+        const agrees = volumeRatio === null ? !volumeDrying : (volumeDrying ? volumeRatio <= 0.85 : volumeRatio >= 0.85);
+        if (!agrees) fail(`TECHNICAL_SNAPSHOT_PARITY_MISMATCH:${at}.vcp.volumeRatio ${volumeRatio} disagrees with volumeDrying ${volumeDrying}`);
+        delete child.volumeRatio;
+      }
+      legacyShape(child, `${at}.${key}`);
+    }
+    return value;
+  };
   if (technicalGolden.fixtures.length !== TECHNICAL_SNAPSHOT_SCENARIOS.length || technicalGolden.positions.length !== POSITION_RISK_SCENARIOS.length) fail('technical-snapshot golden fixture does not match the scenario list — re-run scripts/dump-technical-snapshot-fixtures.mjs');
   const NEAR_LINE_SELL_PRESSURE = { zero_volume_70: { score: 46, action: 'TRIM_25_33', flags: ['CLOSE_BELOW_21EMA_REDUCE_SWING_LOT', 'CLOSE_BELOW_50SMA_SWING_THESIS_DAMAGED'] } };
   TECHNICAL_SNAPSHOT_SCENARIOS.forEach(({ name, ohlcv }, i) => {
@@ -419,7 +435,7 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
     // near-line band (RULES.technical.nearLineAdr × ADR, the band the trend read uses) is no longer one, so the one
     // scenario that sits inside the band of its 10EMA declares its read here instead of the legacy one.
     const declared = NEAR_LINE_SELL_PRESSURE[name];
-    const d = diff(strip(snapshot), golden.snapshot, `${name}.snapshot`) || diff(strip(extensionHeat(snapshot), true), golden.extensionHeat, `${name}.extensionHeat`)
+    const d = diff(legacyShape(strip(snapshot), `${name}.snapshot`), golden.snapshot, `${name}.snapshot`) || diff(strip(extensionHeat(snapshot), true), golden.extensionHeat, `${name}.extensionHeat`)
       || diff(strip(sellPressure(snapshot, {}), true), declared || golden.sellPressure, `${name}.sellPressure`);
     if (d) fail(`TECHNICAL_SNAPSHOT_PARITY_MISMATCH:${d}`);
   });
@@ -432,7 +448,7 @@ const technicalGolden = JSON.parse(readFileSync(path.join(root, 'architecture/fi
     const book = { ...strip(portfolioTechnicalRisk(positions, items, context), true), items: undefined, coveragePct: undefined };
     const legacyBook = { ...golden.portfolio };
     if (golden.portfolio.heatScore != null) for (const key of ['state', 'heatScore', 'action', 'avgSellPressure', 'maxSellPressure']) { delete book[key]; delete legacyBook[key]; }
-    const d = diff(items.map((item) => strip(item, true)), golden.items, `${name}.items`) || diff(book, legacyBook, `${name}.portfolio`);
+    const d = diff(items.map((item, k) => legacyShape(strip(item, true), `${name}.items.${k}`)), golden.items, `${name}.items`) || diff(book, legacyBook, `${name}.portfolio`);
     if (d) fail(`POSITION_TECHNICAL_RISK_PARITY_MISMATCH:${d}`);
   });
   {

@@ -583,6 +583,9 @@ export function createScreenerProvider({
           vcpStage: factor.vcpStage || null,
           vcpPivot: finite(factor.vcpPivot),
           vcpContractions: finite(factor.vcpContractions), vcpShrinking: typeof factor.vcpShrinking === 'boolean' ? factor.vcpShrinking : null, // 2026-10-14 custom conditions
+          // Trend-template and setup-board inputs (technical/trend-template.js, setup-board.js); absent until the producer publishes them.
+          pctSma150: finite(factor.pctSma150), sma200Rise21Pct: finite(factor.sma200Rise21Pct), rsBenchmarkRet6m: finite(factor.rsBenchmarkRet6m),
+          vcpDepths: Array.isArray(factor.vcpDepths) ? factor.vcpDepths.map(finite).filter((depth) => depth != null) : null, vcpVolumeRatio: finite(factor.vcpVolumeRatio),
           // follow-through evidence (technical/follow-through.js)
           pocketPivotAgo: finite(factor.pocketPivotAgo), pocketPivots10: finite(factor.pocketPivots10), heavyDownDays25: finite(factor.heavyDownDays25),
           baseCount: finite(factor.baseCount), baseForming: typeof factor.baseForming === 'boolean' ? factor.baseForming : null, baseDepthPct: finite(factor.baseDepthPct),

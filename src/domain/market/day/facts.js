@@ -7,10 +7,10 @@
 // or a shared topic. A move with no subject link is kept and marked unexplained instead of being given a guessed cause.
 import { readNumber, surprisePct } from '../../shared/number.js';
 import { readRowNumber } from '../../../data/contracts/screener.js';
-import { sessionCloses } from '../indices/index-levels.js';
 import { median as medianOf } from '../../themes/theme-medians.js';
 import { recentReturnsLedger } from './recent-returns.js';
-import { closeSessionMarket } from '../session/close-series.js';
+import { buildCloseSeries, closeSessionMarket } from '../session/close-series.js';
+import { historyFieldMeta } from '../indices/history-meta.js';
 import { countOpenSessionsBetween } from '../session/market-calendar.js';
 import { companyMatcher } from '../../briefing/news-picks.js';
 import { SCHEDULED_EVENTS } from '../../briefing/scheduled-events.js';
@@ -101,10 +101,16 @@ export function priceMateriality(move, asset) {
   return clamp(priceMoveSize(move).size * MOVE.pointsPerSd * (MOVE.coreGauges.includes(asset) ? 1 : MOVE.secondaryShare));
 }
 
+// The producer's provisional close (scripts/producer/history.mjs): the 17:00 ET halt print written before the settle.
+const PROVISIONAL_CLOSE = 'provisional-session-close';
+const provisionalCloseOn = (history, field, date) => history.some((row) => typeof row?.[field] === 'number'
+  && historyFieldMeta(row, field)?.observationRelation === PROVISIONAL_CLOSE && historyFieldMeta(row, field).sessionDate === date);
+
 function priceFacts(history, usSession = null) {
   const out = [];
+  const rows = Array.isArray(history) ? history : [];
   for (const asset of ASSETS) {
-    const series = sessionCloses(history, asset.field);
+    const series = buildCloseSeries(rows, asset.field, { includeProvisional: true });
     const move = priceMove(series, asset.unit);
     if (!move) continue;
     const last = series.at(-1);
@@ -115,7 +121,10 @@ function priceFacts(history, usSession = null) {
       value: round(last.value, asset.unit === 'bp' ? 3 : 2), unit: asset.unit, valueUnit: asset.unit === 'bp' ? '%' : 'level', changeUnit: asset.unit, ...move, topics: asset.topics, subjects: [], weight: priceMoveSize(move).size,
       // Futures and the dollar index settle hours after the stock close, so on the morning after session D their last
       // close is still D-1. That move belongs to the previous day's account: it stays listed with its own date, below the day's leads.
-      ...(usSession && closeSessionMarket(asset.field) === 'US' && last.date < usSession ? { sessionBehind: usSession } : {}) });
+      ...(usSession && closeSessionMarket(asset.field) === 'US' && last.date < usSession ? { sessionBehind: usSession } : {}),
+      // Before the settle the producer may record the halt print instead (0.2-0.7% off the settle): the same day's move,
+      // marked provisional and kept below the day's leads like a session-behind close.
+      ...(provisionalCloseOn(rows, asset.field, last.date) ? { provisional: true } : {}) });
   }
   return out;
 }
@@ -337,6 +346,13 @@ export const GROUP_DRIVERS = Object.freeze({ 'theme:energy': 'wti', 'sector:Ener
 const MOVE_KINDS = new Set(['price', 'stock-move', 'group-move']);
 const CAUSE_KINDS = new Set(['headline', 'earnings', 'brief', 'deal', 'analyst', 'release', 'event']);
 
+// A price report from a local market outside the US and Korea — an Indian exchange's gold rate (MCX), a Tokyo, Hong Kong,
+// Shanghai, Sydney or European index close — is that market's own reading of a move, not a cause of a global asset's.
+// It keeps a link through a company it names, never a topic link: "MCX gold drops 1.29%" shares only the metals topic
+// with gold's own move and was raised to that move's share of the day.
+export const LOCAL_VENUE_REPORT = /\b(?:mcx|ncdex|nse|bse|sensex|nifty(?: 50)?|nikkei(?: 225)?|topix|hang seng|shanghai composite|csi 300|asx(?: 200)?|ftse(?: 100)?|dax|cac 40|stoxx(?: 600)?|shanghai gold exchange)\b|\b(?:gold|silver) rates?\b/i;
+const topicCause = (cause) => cause.kind !== 'analyst' && !(cause.kind === 'headline' && LOCAL_VENUE_REPORT.test(cause.title || ''));
+
 /**
  * Links, each { from: cause id, to: move id, basis }:
  *  - subject: the cause names the moved stock;
@@ -356,7 +372,7 @@ function linkFacts(facts) {
       // hundreds of members: a sector of 300 names would otherwise absorb every report of the day.
       const named = cause.subjects?.some((sym) => (move.kind === 'group-move' ? move.leaders.some((lead) => lead.sym === sym) : own.includes(sym)));
       if (named) { hits.push({ from: cause.id, to: move.id, basis: move.kind === 'stock-move' ? 'subject' : 'member', w: cause.weight + 2 }); continue; }
-      if (move.kind === 'price' && cause.kind !== 'analyst' && cause.topics?.some((topic) => move.topics.includes(topic))) hits.push({ from: cause.id, to: move.id, basis: 'topic', w: cause.weight });
+      if (move.kind === 'price' && topicCause(cause) && cause.topics?.some((topic) => move.topics.includes(topic))) hits.push({ from: cause.id, to: move.id, basis: 'topic', w: cause.weight });
     }
     links.push(...hits.sort((a, b) => b.w - a.w).slice(0, 5).map(({ w, ...link }) => link));
   }
@@ -454,7 +470,7 @@ function scoreMateriality(facts, links, nowMs) {
     if (cause.kind === 'price') cause.explains = { id: move.id, basis: link.basis, points: own.get(move.id), own: own.get(cause.id) };
   }
   for (const fact of facts) {
-    if (fact.sessionBehind) fact.materiality = Math.min(fact.materiality, MOVE.tiers.major - 1);
+    if (fact.sessionBehind || fact.provisional) fact.materiality = Math.min(fact.materiality, MOVE.tiers.major - 1);
     fact.rank = materialityRank(fact.materiality);
   }
 }

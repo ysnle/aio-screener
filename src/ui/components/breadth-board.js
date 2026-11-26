@@ -311,6 +311,12 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
       if (next) next.insertAdjacentElement('beforebegin', method); else page.append(method);
     }
     renderNextSteps(doc, doc.getElementById('breadth-next'));
+    // The opening points and the trend-template counts (setup-board-view.js), a chunk of their own so 매크로 and 금리와
+    // 환율, which share this page module, do not load it.
+    const lastHl = (field) => buildCloseSeries(inputs.history, field, { through: basis }).at(-1) || null;
+    const highs = lastHl('breadthNewHighs'); const lows = lastHl('breadthNewLows');
+    const highsLows = highs && lows && highs.date === lows.date ? { newHighs: highs.value, newLows: lows.value, asOf: highs.date } : null;
+    import('./setup-board-view.js').then(({ renderBreadthSetup }) => renderBreadthSetup({ documentRef: doc, root, rows: screenerRows(root), highsLows })).catch(() => {});
     for (const [metric, date] of opened) {
       const details = grid.querySelector(`[data-metric="${metric}"] details.breadth-drill`);
       if (!details) continue;

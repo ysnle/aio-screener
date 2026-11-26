@@ -37,9 +37,13 @@ import { latestCompletedKrSession } from '../../domain/market/session/market-cal
 import { krIndexCloseOn, verifyKrQuoteOn } from '../../data/quote-basis.js';
 import { installStockLensGlobal, stockLensContext, peerLine } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
-import { EARNINGS_CALENDAR, EVENT_BRIEFS } from '../../data/artifact-registry.js';
+import { EARNINGS_CALENDAR, EVENT_BRIEFS, TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
+import { twRevenueLine } from '../../domain/briefing/tw-monthly-revenue.js';
+import { COMPANY_ALIASES } from '../../domain/entity/company-aliases.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { buildPricedInRead } from '../../domain/fundamental/priced-in.js';
+import { requestResearchReference, researchReferenceView } from '../../data/research-reference.js';
+import { researchReferenceBlock, researchSignature } from '../components/research-reference.js';
 
 // The official US listing name for a symbol none of AIO's registries name; cached per symbol, written once it arrives.
 // 2026-10-13 review S21: observation times read in Korean time, not "… 20:00:00 UTC".
@@ -253,6 +257,9 @@ function renderOverview(documentRef, root, state, store = null) {
   const story = companyStoryFor(root, id);
   requestFiscalHistory(root, again, 'overview');
   refreshSharedArtifact(root, EVENT_BRIEFS).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+  // Researched figures about this company (its bond yield, CDS), each dated; one line under 재무 한눈에.
+  requestResearchReference(root, again);
+  const research = researchReferenceView(root, { entity: id });
   const graph = companySideArtifact(root, 'graph', again);
   const capital = companySideArtifact(root, 'capital', again);
   const etf = listingRow.sector === 'ETF' || listingRow.index === 'ETF' || /ETF/.test(profile.kind);
@@ -274,6 +281,9 @@ function renderOverview(documentRef, root, state, store = null) {
   // 이 주가가 반영하는 것 — the US listing's price against its consensus (repaints when the estimates land).
   if (!etf && !kr) requestConsensusEstimates(root, again);
   const priced = etf || kr ? null : buildPricedInRead(listingRow, consensusRowFor(root, id));
+  // A Taiwan company's monthly revenue (TSM → TSMC): the file loads only for a listing with a company name to match by.
+  if (!kr && !etf && COMPANY_ALIASES[id] && !root?.[TW_MONTHLY_REVENUE.key]) refreshSharedArtifact(root, TW_MONTHLY_REVENUE).then(({ changed }) => { if (changed) again(); }).catch(() => {});
+  const monthly = kr || etf ? null : twRevenueLine(root?.[TW_MONTHLY_REVENUE.key] || null, id);
   const place = companyPlace({ symbol: id, story, graph, capital });
   // One line of what the company is: the story's own line, else the listing's sourced description, else its classification.
   const what = story?.oneLine || profile.description || [profile.kind, profile.sector ? sectorLabel(profile.sector) : null, profile.industry].filter(Boolean).join(', ');
@@ -283,8 +293,8 @@ function renderOverview(documentRef, root, state, store = null) {
   const earnings = root?.[EARNINGS_CALENDAR.key]?.earnings || [];
   const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
   const watched = (root?._aioWatchlistGet?.() || []).includes(id);
-  const signature = JSON.stringify([id, story?.researchedAt || null, profile.name, profile.description, profile.sourceUrl, profile.sector, profile.industry, profile.kind, !!graph, !!capital, place.inMap, place.capital.length, money.rows.map((item) => item.value), moneyEmpty, peer?.strength || null, peer?.weakness || null, priced?.text || null,
-    earnings.filter((item) => String(item?.symbol || '').toUpperCase() === id).map((item) => `${item.date}:${item.epsActual ?? item.revenueActual ?? ''}`), briefs.map((brief) => brief.eventDate), String(quarterText || '').split(';').at(-1), watched]);
+  const signature = JSON.stringify([id, story?.researchedAt || null, profile.name, profile.description, profile.sourceUrl, profile.sector, profile.industry, profile.kind, !!graph, !!capital, place.inMap, place.capital.length, money.rows.map((item) => item.value), moneyEmpty, monthly?.text || null, peer?.strength || null, peer?.weakness || null, priced?.text || null,
+    earnings.filter((item) => String(item?.symbol || '').toUpperCase() === id).map((item) => `${item.date}:${item.epsActual ?? item.revenueActual ?? ''}`), briefs.map((brief) => brief.eventDate), String(quarterText || '').split(';').at(-1), watched, researchSignature(research)]);
   if (host.dataset.signature !== signature) {
     // A repaint keeps the folds the reader opened (matched by their summary text).
     const folds = (selector) => [host, outlookHost].flatMap((node) => [...(node?.querySelectorAll(selector) || [])]);
@@ -301,7 +311,8 @@ function renderOverview(documentRef, root, state, store = null) {
       actions.push(watch);
     }
     actions.push(companyAskButton(documentRef, root, id, { fund: etf }));
-    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, peer, priced, earnings, briefs, quarters: String(quarterText || ''), actions, outlookHost,
+    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, monthly, peer, priced, earnings, briefs, quarters: String(quarterText || ''), actions, outlookHost,
+      research: researchReferenceBlock(documentRef, research, { id: 'ticker-research-reference', titles: false }),
       openOutlook: () => showStockView({ root, documentRef, view: 'outlook' }),
       openTicker: (symbol) => root?.showTicker?.(symbol),
       industry: story ? industryFor(story) : null,

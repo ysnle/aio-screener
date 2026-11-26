@@ -13,12 +13,15 @@ import { renderNextSteps } from '../components/page-flow.js';
 import { renderChannelData } from '../components/channel-data.js';
 import { krIndexCloseNote } from '../../domain/news/kr-close-note.js';
 import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../../domain/briefing/news-picks.js';
-import { newsStoryLinks } from '../../domain/briefing/news-story-link.js';
-import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY } from '../../data/artifact-registry.js';
+import { getNewsSurfaceControls, resetNewsFeedFilter, setNewsFeedFilter } from '../components/news-controls.js';
+import { applyFeedFilter, describeFeedRows, feedEntitiesOf, feedFacets, feedTiles, FEED_REGIONS, isFeedFiltered, tickerEntityKey, topicGroupFor, topicGroupLabel, topicGroupOf } from '../../domain/news/feed-filter.js';
+import { articleFactReader } from '../../domain/news/article-facts.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { newsImpactChain } from '../../domain/briefing/event-guide.js';
 import { fixKoreanTerms } from '../../domain/briefing/headline-terms.js';
-import { renderMarketTimeline, symbolNames } from '../components/market-timeline.js';
+import { renderMarketTimeline } from '../components/market-timeline.js';
+import { symbolNames } from '../components/move-news.js';
 import { macroReleasesFor } from '../../domain/briefing/macro-releases.js';
 import { channelLineFor } from '../../domain/news/channel-lines.js';
 
@@ -41,11 +44,12 @@ const NEWS_EMPTY_REASON_COPY = Object.freeze({
   'native-model-unavailable': '뉴스 분류를 불러오지 못했습니다.'
 });
 
-// The article list follows the country/topic controls; the channel (Telegram) list below it is classified
-// on its own and never follows them. Both scopes are written out so a count is never read as covering the other list.
-// The type tabs left (기업 is a topic chip now), so only country and topic count as filters.
+// The article list follows the filter panel; the channel (Telegram) list below it is classified on its own and never
+// follows it (내 종목 swaps it, which the page says separately). Both scopes are written out so a count is never read
+// as covering the other list. A stray retired key (typeTab) is not a filter.
 export function describeNewsScope(controls) {
-  const active = !!controls && ['countryFilter', 'topicFilter'].some((key) => controls[key] && controls[key] !== 'all');
+  const active = !!controls && (['countryFilter', 'topicFilter', 'entityFilter'].some((key) => controls[key] && controls[key] !== 'all')
+    || !!controls.figureOnly || !!controls.mineOnly || !!String(controls.query || '').trim());
   return { articles: active ? '필터 적용' : '필터 없음', channel: active ? '시장 신호는 국가·주제 필터와 무관하게 자체 분류로 표시됩니다.' : '' };
 }
 
@@ -209,8 +213,6 @@ function realTitle(root, item) {
   return typeof root?._aioStripPictographs === 'function' ? root._aioStripPictographs(fixed) : fixed; // P1500
 }
 
-const TOPIC_LABELS = Object.freeze({ macro: '매크로', semi: '반도체·AI', geo: '지정학', energy: '에너지', metals: '원자재', fxbond: '금리·외환', bond: '금리', fx: '외환', credit: '신용', crypto: '크립토', equity: '주식', earnings: '실적', kr: '한국' });
-
 // v58.74 (text audit 오늘 C6): a headline names a live scenario (the lead or the alternative) only when its topic feeds one of
 // that scenario's axes; the old fixed topic → scenario names did not exist among the live branches. The model is
 // computed once a minute, not per card.
@@ -235,18 +237,53 @@ function liveScenarioFor(root, item, shownTitle = '') {
   return newsImpactChain(`${item?.title || ''} ${shownTitle || ''}`, scenarioMemo.xr, { axes });
 }
 
-// The part of the day's market story a card belongs to: the moves the ledger links it to.
-// `storyLinks` is built once per render (newsStoryLinks); a card without a tie draws nothing.
-function storyTieLine(documentRef, item, storyLinks) {
-  const tie = typeof storyLinks === 'function' ? storyLinks(item) : null;
-  if (!tie) return null;
+// One reading of an article per render, shared by the filter rows and the card so a chip's count and the card it counts
+// never disagree: the shown title, the original, the issuers (the same resolver the badges always used), the
+// earnings-calendar line and the one extracted fact (article-facts.js).
+function createArticleReader(root, factOf) {
+  const memo = new Map();
+  return (item) => {
+    const key = newsArticleKey(item);
+    if (memo.has(key)) return memo.get(key);
+    // The free translator's known misreadings (earnings → 수익) are corrected against the shared glossary.
+    const title = fixKoreanTerms(item?.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item));
+    const original = typeof root?._aioTitleWithoutSource === 'function' ? root._aioTitleWithoutSource(item) : String(item?.title || '');
+    // Earnings headlines carry the structured estimate/actual line. It is resolved first so an earnings story is tagged
+    // with the reporting company only — a mentioned analyst's firm (Morgan Stanley on a Nike story) is not its subject.
+    let earnings = null;
+    try {
+      if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: symbolNames(root) });
+    } catch (_) { earnings = null; }
+    const extracted = displayValue(root, 'getDisplayTickers', item, []);
+    const tickers = earnings?.symbols?.length ? [...earnings.symbols] : earnings?.symbol ? [earnings.symbol] : extracted;
+    // One badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
+    const entries = root?.AIO_TICKER_NAME_REGISTRY?.entries || {};
+    const issuers = resolveNewsIssuers(item, tickers, entries);
+    const names = Object.fromEntries(issuers.filter((symbol) => entries[symbol]?.kr).map((symbol) => [symbol, entries[symbol].kr]));
+    const read = { title, original, issuers, names, earnings, fact: null };
+    read.fact = typeof factOf === 'function' ? factOf(item, { issuers, earningsText: earnings?.text || '' }) : null;
+    memo.set(key, read);
+    return read;
+  };
+}
+
+function factLine(documentRef, fact) {
+  if (!fact?.text) return null;
   const line = documentRef.createElement('div');
-  line.className = 'news-item-story';
-  line.textContent = `관련 움직임 ${tie.moves.map((move) => move.said.text).join(' · ')}`;
+  line.className = 'news-item-fact';
+  line.dataset.factSource = fact.source || '';
+  const tag = documentRef.createElement('span');
+  tag.className = 'news-fact-kind';
+  tag.dataset.kind = fact.kind;
+  tag.textContent = fact.kind;
+  const said = documentRef.createElement('span');
+  said.className = 'news-fact-text';
+  said.textContent = fact.text;
+  line.append(tag, said);
   return line;
 }
 
-function createNewsCard(documentRef, root, item, index, storyLinks = null) {
+function createNewsCard(documentRef, root, item, index, readArticle) {
   const card = documentRef.createElement('div');
   const tone = articleStatus(item);
   const link = safeUrl(item?.link);
@@ -255,12 +292,12 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
   // formatter supplies the absolute, timezone-aware timestamp instead of ''.
   const absTime = displayValue(root, 'getAbsoluteTime', item, '') || formatAbsoluteTime(publishedIso);
   const timeAgo = item?.pubDate ? displayValue(root, 'getTimeAgo', new Date(item.pubDate), '') : '';
-  // The free translator's known misreadings (earnings → 수익) are corrected against the shared glossary.
-  const title = fixKoreanTerms(item?.title, displayValue(root, 'getDisplayTitle', item, '') || realTitle(root, item));
+  const read = (typeof readArticle === 'function' ? readArticle : createArticleReader(root, null))(item);
+  const { title, earnings } = read;
   const summary = displayValue(root, 'getDisplaySummary', item, item?.summary || item?.desc || '');
-  const extractedTickers = displayValue(root, 'getDisplayTickers', item, []);
 
   card.className = 'news-item-card';
+  card.dataset.tone = tone.tone;
   card.dataset.newsId = item?.newsId || item?.id || `news-${index}`;
   card.dataset.articleKey = newsArticleKey(item);
   card.dataset.newsIdx = String(index);
@@ -292,31 +329,39 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
 
   const body = documentRef.createElement('div');
   body.className = 'news-item-body';
+  // The card reads top to bottom: topic and time, the headline (the original under a translated one), the one
+  // extracted fact, then the companies and keywords it names.
+  const meta = documentRef.createElement('div');
+  meta.className = 'news-item-meta';
+  // Developer markers (selection score, headline-only boundary, feed-review flag) are not
+  // user content. LC-31 still holds — a feed-query topic is shown only as a plain label, never as a verified sector
+  // assignment elsewhere. The label is the filter panel's topic group, so the chip and the card name it alike.
+  const shownTopic = newsTopicOf(item, title);
+  const topicLabel = topicGroupLabel(topicGroupOf(item, title));
+  if (topicLabel) {
+    const chip = documentRef.createElement('span');
+    chip.className = 'sx-chip sx-chip--sm news-topic-chip';
+    chip.textContent = topicLabel;
+    // LC-31: a feed-query topic says how it was classified, on the chip's hover.
+    if (isNewsTopicReviewRequired(item)) chip.title = `${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전`;
+    meta.append(chip);
+  }
+  // A rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
+  const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
+  // The evidence kind (공시, 기업 발표…) and a correction or retraction are facts about the article, so they sit
+  // on the meta line beside the time; '기사' is every row's kind and says nothing.
+  const facts = newsEvidence(item);
+  const metaText = [timeAgo, facts.kind === '기사' ? '' : facts.kind, facts.revision, verificationLabel].filter(Boolean).join(', ');
+  if (metaText) meta.append(documentRef.createTextNode(metaText));
+  const headlineOnly = isNewsHeadlineOnly(item);
+  const stance = documentRef.createElement('span');
+  stance.textContent = headlineOnly ? '' : tone.label;
+  stance.className = 'nws-stance';
+  stance.dataset.tone = tone.tone;
+  meta.append(stance);
+  body.appendChild(meta);
   const headline = documentRef.createElement('div');
   headline.className = 'news-item-headline';
-  // Earnings headlines carry the structured estimate/actual line on the news screen too.
-  // It is resolved first so an earnings story is tagged with the reporting company only — a
-  // mentioned analyst's firm (Morgan Stanley on a Nike story) is not the article's subject.
-  let earnings = null;
-  try {
-    if (root?._aioEarningsSnapshot && typeof root._aioEarningsContext === 'function') earnings = root._aioEarningsContext(item?.title, { earnings: root._aioEarningsSnapshot.earnings, names: symbolNames(root) });
-  } catch (_) { earnings = null; }
-  const tickers = earnings?.symbols?.length ? [...earnings.symbols] : earnings?.symbol ? [earnings.symbol] : extractedTickers;
-  // One badge per company — '$$삼성전자' and '$삼성전자' were the same symbol with a doubled marker.
-  const uniqueTickers = resolveNewsIssuers(item, tickers, root?.AIO_TICKER_NAME_REGISTRY?.entries);
-  // Registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge.
-  // v58.75 (persona review): the badges ran into each other and into the title ("$NVDA$AAPL애플은"); they sit on their own
-  // line above the title, separated by spaces.
-  const badges = uniqueTickers.filter((ticker) => !String(ticker).includes('_')).slice(0, 4);
-  if (badges.length) {
-    const row = documentRef.createElement('div');
-    row.className = 'news-item-tickers';
-    badges.forEach((ticker, at) => {
-      if (at) row.appendChild(documentRef.createTextNode(' '));
-      row.appendChild(createTickerBadge(documentRef, `$${ticker}`, ticker === item?.issuerSymbol));
-    });
-    headline.appendChild(row);
-  }
   // A Cyrillic/CJK feed name is shown as '외신' instead of leaking untranslated.
   const rawSource = typeof root?._aioSafeSourceLabel === 'function' ? root._aioSafeSourceLabel(item?.source || '') : item?.source || '';
   const source = item?._tgChannel ? `TG, ${rawSource}` : rawSource;
@@ -343,9 +388,39 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
   const untranslated = untranslatedMark(documentRef, item);
   if (untranslated) headline.appendChild(untranslated);
   body.appendChild(headline);
-  const tie = storyTieLine(documentRef, item, storyLinks);
-  if (tie) body.appendChild(tie);
-  const headlineOnly = isNewsHeadlineOnly(item);
+  // The original headline under a translated one, small; the same words twice are said once.
+  const original = String(read.original || '').trim();
+  if (original && /[가-힣]/.test(title || '') && original !== title && !/[가-힣]/.test(original)) {
+    const originalNode = documentRef.createElement('div');
+    originalNode.className = 'news-item-original';
+    originalNode.lang = 'en';
+    originalNode.textContent = original;
+    body.appendChild(originalNode);
+  }
+  const fact = factLine(documentRef, read.fact);
+  if (fact) {
+    if (read.fact.source === 'earnings' && earnings?.source) fact.title = earnings.source;
+    body.appendChild(fact);
+  }
+  // The entity tags: the resolved companies as ticker badges (they open the company), then the keywords as plain tags.
+  // Registry topic keys (GE_VRN, TSLA_AUTOPILOT) are not symbols and never become a badge (feedEntitiesOf).
+  const entities = feedEntitiesOf(item, read);
+  const badges = entities.filter((entity) => entity.kind === 'ticker').slice(0, 4);
+  const words = entities.filter((entity) => entity.kind === 'keyword').slice(0, 3);
+  if (badges.length || words.length) {
+    const row = documentRef.createElement('div');
+    row.className = 'news-item-tickers';
+    badges.forEach((entity, at) => {
+      if (at) row.appendChild(documentRef.createTextNode(' '));
+      const symbol = entity.key.slice(2);
+      row.appendChild(createTickerBadge(documentRef, `$${symbol}`, symbol === String(item?.issuerSymbol || '').toUpperCase()));
+    });
+    for (const entity of words) {
+      if (row.childNodes.length) row.appendChild(documentRef.createTextNode(' '));
+      row.appendChild(Object.assign(documentRef.createElement('span'), { className: 'news-entity-tag', textContent: entity.label }));
+    }
+    body.appendChild(row);
+  }
   // LC-32: a headline-only card has no article body, so no causal summary is shown (P1391: and no
   // boundary sentence either — the absence is the boundary).
   if (summary && !headlineOnly) {
@@ -353,13 +428,6 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
     summaryNode.className = 'news-item-summary';
     summaryNode.textContent = summary;
     body.appendChild(summaryNode);
-  }
-  if (earnings?.text) {
-    const earningsNode = documentRef.createElement('div');
-    earningsNode.className = 'news-item-summary';
-    earningsNode.textContent = earnings.text;
-    earningsNode.title = earnings.source || '';
-    body.appendChild(earningsNode);
   }
   // An intraday KOSPI/KOSDAQ crash or surge headline carries the session's close when the close reversed it.
   const closeNote = krIndexCloseNote(item, root?._aioHistory || []);
@@ -369,22 +437,6 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
     closeNode.textContent = closeNote;
     body.appendChild(closeNode);
   }
-  const meta = documentRef.createElement('div');
-  meta.className = 'news-item-meta';
-  // Developer markers (selection score, headline-only boundary, feed-review flag) are not
-  // user content. LC-31 still holds — a feed-query topic is shown only as a plain label, never as a verified sector
-  // assignment elsewhere.
-  const shownTopic = newsTopicOf(item);
-  const topicLabel = TOPIC_LABELS[shownTopic] || '';
-  // A rumour or anonymous-source headline is labelled where the reader sees it, not only scored down.
-  const verificationLabel = item?.verification === 'unconfirmed' ? '미확인 보도(루머·익명 소식통)' : '';
-  // The evidence kind (공시, 기업 발표…) and a correction or retraction are facts about the article, so they sit
-  // on the meta line beside the time; '기사' is every row's kind and says nothing.
-  const facts = newsEvidence(item);
-  meta.textContent = [facts.kind === '기사' ? '' : facts.kind, facts.revision, verificationLabel, timeAgo]
-    .filter(Boolean)
-    .join(', ');
-  body.appendChild(meta);
   // The face is never folded: the scenario chain — axis → branch → burdened/helped exposures →
   // what to check — is one line on the face; how the link is made is its hover.
   const chain = liveScenarioFor(root, item, title);
@@ -427,91 +479,157 @@ function createNewsCard(documentRef, root, item, index, storyLinks = null) {
     body.appendChild(evidence);
   }
 
-  const stance = documentRef.createElement('span');
-  stance.textContent = headlineOnly ? '' : tone.label;
-  stance.className = 'nws-stance';
-  stance.dataset.tone = tone.tone;
-  const side = documentRef.createElement('div');
-  side.className = 'news-item-side';
-  if (topicLabel) {
-    const chip = documentRef.createElement('span');
-    chip.className = 'sx-chip sx-chip--sm news-topic-chip';
-    chip.textContent = topicLabel;
-    // LC-31: a feed-query topic says how it was classified, on the chip's hover.
-    if (isNewsTopicReviewRequired(item)) chip.title = `${shownTopic !== (item?.topic || item?.feedTopic) ? '제목 기준 분류' : '출처 기준 분류'}, 기사 본문으로 확인 전`;
-    side.append(chip);
-  }
-  side.append(stance);
-  card.append(timeColumn, body, side);
+  card.append(timeColumn, body);
   return card;
 }
 
 const newsKey = (item) => newsArticleKey(item);
+// The entity chip a 재무 공시 hand-off pressed, so a later plain visit can release it without touching the reader's own.
+let handoffEntity = null;
 
-// 재무 공시 → 뉴스 arrives with one ticker. The feed is narrowed to stories whose issuer resolves to that
-// ticker (the same resolver the card badges use), until the reader clears it.
-function newsTickerFocus(root) {
-  const value = String(root?._aioNewsTickerFocus || '').trim().toUpperCase();
-  return /^[A-Z0-9][A-Z0-9.^=-]{0,11}$/.test(value) ? value : null;
-}
-function mentionsTicker(root, item, ticker) {
-  if (String(item?.issuerSymbol || '').toUpperCase() === ticker) return true;
-  const issuers = resolveNewsIssuers(item, displayValue(root, 'getDisplayTickers', item, []), root?.AIO_TICKER_NAME_REGISTRY?.entries || {});
-  return issuers.some((symbol) => String(symbol).toUpperCase() === ticker);
-}
 function narrowModel(model, test) {
   const keep = (list) => (Array.isArray(list) ? list.filter(test) : list);
   const eligibleItems = keep(model.eligibleItems);
   const eligibleCount = Array.isArray(eligibleItems) ? eligibleItems.length : model.eligibleCount;
   return { ...model, items: keep(model.items), eligibleItems, eligibleCount, ...(eligibleCount === 0 ? { emptyReason: 'filters-removed-all-eligible-news' } : {}) };
 }
-function focusModel(root, model, ticker) {
-  if (!ticker || !model) return model;
-  return narrowModel(model, (item) => mentionsTicker(root, item, ticker));
-}
 
-// v58.75 (persona review): a '내 종목' chip narrows the articles to stories about a watched or held company (the same issuer
+// v58.75 (persona review): '내 종목' narrows the articles to stories about a watched or held company (the same issuer
 // resolver as the badges) and swaps the channel feed for the channel posts whose extracted tickers name one. With no
-// watched or held company the chip is disabled and says why.
+// watched or held company the toggle is disabled and says why.
 function myNewsSymbols(root, store) {
   const watched = displayValue(root, '_aioWatchlistGet', undefined, []);
   const holdings = store?.getState?.()?.portfolio?.holdings;
   return new Set([...(Array.isArray(watched) ? watched : []), ...(Array.isArray(holdings) ? holdings.map((row) => row?.symbol || row?.sym) : [])]
     .map((symbol) => String(symbol || '').trim().toUpperCase()).filter(Boolean));
 }
-function mineModel(root, model, symbols) {
-  if (!model || !symbols.size) return model;
-  return narrowModel(model, (item) => [...symbols].some((symbol) => mentionsTicker(root, item, symbol)));
+
+// The panel's choices as the pure filter reads them (feed-filter.js); 내 종목 with no watched or held name is off.
+function feedFilterOf(controls, mine) {
+  return { region: controls.countryFilter, topic: controls.topicFilter, entity: controls.entityFilter, figure: controls.figureOnly, mine: controls.mineOnly && mine.size > 0, query: controls.query };
 }
-function syncMineChip(documentRef, root, symbols, active) {
-  const topics = documentRef?.getElementById('news-topic-chips');
-  if (!topics) return;
-  let group = documentRef.getElementById('news-mine-chips');
-  let chip = group?.querySelector('button');
-  if (!group) {
-    group = documentRef.createElement('div');
-    group.id = 'news-mine-chips';
-    group.className = 'sh-wrap-row';
-    group.setAttribute('role', 'group');
-    group.setAttribute('aria-label', '내 종목');
-    chip = documentRef.createElement('button');
-    chip.type = 'button';
-    chip.className = 'chip sh-soft-chip';
-    chip.textContent = '내 종목';
-    chip.addEventListener('click', () => {
-      // first-users run-3 N#23: a disabled chip gave no reason on touch (a title never shows); a tap now says what to do.
-      if (chip.getAttribute('aria-disabled') === 'true') { root.showToast?.(chip.title); return; }
-      root._aioNewsMineOnly = !root._aioNewsMineOnly;
-      documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-mine-filter' } }));
-    });
-    group.append(chip);
-    topics.insertAdjacentElement('afterend', group);
+const FILTER_FIELDS = Object.freeze({ region: 'countryFilter', topic: 'topicFilter', entity: 'entityFilter' });
+
+// Chips are kept by value across renders, so the chip a reader just pressed keeps focus while its count changes.
+function syncChips(documentRef, row, chips, field) {
+  if (!row) return;
+  const existing = new Map([...row.children].map((node) => [node.dataset.feedValue, node]));
+  const active = documentRef.activeElement;
+  const next = chips.map((chip) => {
+    let node = existing.get(chip.key);
+    if (!node) {
+      node = documentRef.createElement('button');
+      node.type = 'button';
+      node.className = 'news-feed-chip';
+      node.dataset.feedField = field;
+      node.dataset.feedValue = chip.key;
+    }
+    paintChip(documentRef, node, chip);
+    return node;
+  });
+  if (next.length !== row.children.length || next.some((node, at) => row.children[at] !== node)) row.replaceChildren(...next);
+  if (active && next.includes(active) && documentRef.activeElement !== active) active.focus?.({ preventScroll: true });
+}
+function paintChip(documentRef, node, chip) {
+  node.setAttribute('aria-pressed', String(!!chip.pressed));
+  if (chip.kind) node.dataset.kind = chip.kind;
+  const parts = [];
+  if (chip.kind) parts.push(Object.assign(documentRef.createElement('span'), { className: 'news-feed-chip-dot' }));
+  parts.push(documentRef.createTextNode(chip.label));
+  parts.push(Object.assign(documentRef.createElement('span'), { className: 'news-feed-chip-count', textContent: String(chip.count) }));
+  node.replaceChildren(...parts);
+  node.setAttribute('aria-label', `${chip.label} ${chip.count}건`);
+}
+
+// A chip row that would wrap past three lines on a phone scrolls sideways instead (data-overflow, v2-today.css).
+function fitChipRows(documentRef, rows) {
+  const narrow = !!documentRef?.defaultView?.matchMedia?.('(max-width: 479px)')?.matches;
+  for (const row of rows) {
+    if (!row) continue;
+    delete row.dataset.overflow;
+    const first = row.firstElementChild;
+    const last = row.lastElementChild;
+    if (!narrow || !first || first === last) continue;
+    if (last.offsetTop - first.offsetTop > first.offsetHeight * 2.5) row.dataset.overflow = 'scroll';
   }
-  chip.setAttribute('aria-disabled', String(!symbols.size));
-  chip.setAttribute('aria-pressed', String(active));
-  chip.title = symbols.size ? `관심·보유 ${symbols.size}개(${[...symbols].slice(0, 5).join(', ')}${symbols.size > 5 ? ' 등' : ''}) 관련 기사와 채널 글만 보기` : '관심·보유 종목이 없어 쓸 수 없습니다. 스크리너에서 관심 종목을 추가하면 켜집니다.';
-  // The selected look is the filter row's aria-pressed rule (responsive.css #news-filter-row .chip); disabled is dimmed.
-  chip.style.opacity = symbols.size ? '' : '0.5';
+}
+
+function renderFeedPanel(documentRef, { facets, tiles, controls, mine }) {
+  const tileBox = documentRef?.getElementById('news-feed-tiles');
+  if (tileBox) {
+    const tile = (label, value, note = '') => {
+      const box = documentRef.createElement('div');
+      box.className = 'sx-tile news-feed-tile';
+      const valueNode = Object.assign(documentRef.createElement('b'), { className: 'news-feed-tile-value', textContent: value });
+      if (note) valueNode.append(Object.assign(documentRef.createElement('span'), { className: 'news-feed-tile-note', textContent: note }));
+      box.append(Object.assign(documentRef.createElement('span'), { className: 'sx-kicker', textContent: label }), valueNode);
+      return box;
+    };
+    tileBox.replaceChildren(tile('기사', String(tiles.articles)), tile('사실 추출', String(tiles.withFact), ` / ${tiles.articles}`), tile('수치', String(tiles.withFigure)));
+  }
+  const rows = ['region', 'topic', 'entity'].map((name) => documentRef?.getElementById(`news-filter-${name}`));
+  rows.forEach((row, at) => syncChips(documentRef, row, facets[['region', 'topic', 'entity'][at]], FILTER_FIELDS[['region', 'topic', 'entity'][at]]));
+  const toggles = documentRef?.getElementById('news-filter-toggles');
+  if (toggles) {
+    const mineTitle = mine.size ? `관심·보유 ${mine.size}개(${[...mine].slice(0, 5).join(', ')}${mine.size > 5 ? ' 등' : ''}) 관련 기사와 채널 글만 보기` : '관심·보유 종목이 없어 쓸 수 없습니다. 스크리너에서 관심 종목을 추가하면 켜집니다.';
+    syncChips(documentRef, toggles, [
+      { key: 'figure', label: '수치 있음', count: facets.figure.count, pressed: facets.figure.pressed },
+      { key: 'mine', label: '내 종목', count: facets.mine.count, pressed: facets.mine.pressed && mine.size > 0 }
+    ], 'toggle');
+    const mineChip = toggles.querySelector('[data-feed-value="mine"]');
+    if (mineChip) {
+      mineChip.setAttribute('aria-disabled', String(!mine.size));
+      mineChip.title = mineTitle;
+    }
+  }
+  const query = documentRef?.getElementById('news-filter-query');
+  if (query && documentRef.activeElement !== query && query.value !== controls.query) query.value = controls.query;
+  const sort = documentRef?.getElementById('news-filter-sort');
+  if (sort && sort.value !== controls.sortMode) sort.value = controls.sortMode;
+  fitChipRows(documentRef, [...rows, toggles]);
+}
+
+// The panel's controls are static in index.html; one delegated listener set per mount, released with the page.
+function bindFeedPanel(documentRef, root) {
+  const panel = documentRef?.getElementById('news-feed-panel');
+  if (!panel) return () => {};
+  const repaint = () => documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-feed-filter' } }));
+  const onClick = (event) => {
+    const chip = event.target?.closest?.('button[data-feed-field]');
+    if (!chip || !panel.contains(chip)) return;
+    // first-users run-3 N#23: a disabled chip gave no reason on touch (a title never shows); a tap now says what to do.
+    if (chip.getAttribute('aria-disabled') === 'true') { root?.showToast?.(chip.title); return; }
+    const controls = getNewsSurfaceControls();
+    const { feedField: field, feedValue: value } = chip.dataset;
+    if (field === 'toggle') setNewsFeedFilter(value === 'figure' ? { figureOnly: !controls.figureOnly } : { mineOnly: !controls.mineOnly });
+    else if (Object.values(FILTER_FIELDS).includes(field)) setNewsFeedFilter({ [field]: value === 'all' || controls[field] === value ? 'all' : value });
+    else return;
+    repaint();
+  };
+  const query = documentRef.getElementById('news-filter-query');
+  let timer = null;
+  const onQuery = (event) => {
+    root?.clearTimeout?.(timer);
+    const apply = () => { setNewsFeedFilter({ query: String(query.value || '').slice(0, 80) }); repaint(); };
+    if (event.type === 'search') apply(); else timer = root?.setTimeout ? root.setTimeout(apply, 250) : apply();
+  };
+  const sort = documentRef.getElementById('news-filter-sort');
+  const onSort = () => { setNewsFeedFilter({ sortMode: sort.value === 'score' ? 'score' : 'time' }); repaint(); };
+  const media = documentRef.defaultView?.matchMedia?.('(max-width: 479px)');
+  const onMedia = () => fitChipRows(documentRef, ['region', 'topic', 'entity', 'toggles'].map((name) => documentRef.getElementById(`news-filter-${name}`)));
+  panel.addEventListener('click', onClick);
+  query?.addEventListener('input', onQuery);
+  query?.addEventListener('search', onQuery);
+  sort?.addEventListener('change', onSort);
+  media?.addEventListener?.('change', onMedia);
+  return () => {
+    root?.clearTimeout?.(timer);
+    panel.removeEventListener('click', onClick);
+    query?.removeEventListener('input', onQuery);
+    query?.removeEventListener('search', onQuery);
+    sort?.removeEventListener('change', onSort);
+    media?.removeEventListener?.('change', onMedia);
+  };
 }
 function renderMineChannelPosts(documentRef, card, root, symbols, active) {
   const feed = documentRef?.getElementById('tg-feed-market-news');
@@ -552,24 +670,6 @@ function renderMineChannelPosts(documentRef, card, root, symbols, active) {
   }
   box.replaceChildren(list);
 }
-function renderTickerFocusNote(documentRef, root, container, ticker, count) {
-  let note = documentRef.getElementById('news-ticker-focus');
-  if (!ticker) { note?.remove?.(); return; }
-  if (!note) {
-    note = documentRef.createElement('p');
-    note.id = 'news-ticker-focus';
-    note.className = 'theme-strength-basis';
-    container.insertAdjacentElement?.('beforebegin', note);
-  }
-  const clear = documentRef.createElement('button');
-  clear.type = 'button'; clear.className = 'aio-btn-table'; clear.textContent = '전체 뉴스 보기';
-  clear.addEventListener('click', () => {
-    root._aioNewsTickerFocus = null;
-    documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-ticker-focus' } }));
-  });
-  note.replaceChildren(documentRef.createTextNode(`${ticker} 관련 기사 ${count}건만 표시 중, `), clear);
-}
-
 // The scored articles published after the 08:00 cut: they join the 중요 뉴스 pool (rollingNewsPool), and the ones it
 // does not pick stay in this provisional list.
 const laterNews = (root, canonicalItems, nowMs) => selectIntradayNews(root?._serverNewsIntraday, { cycleEndMs: Date.parse(root?._serverDataMeta?.newsCycleEnd || ''), canonical: canonicalItems, nowMs });
@@ -629,7 +729,7 @@ function renderIntradayNews(documentRef, root, later, important = new Set(), now
   return picked;
 }
 
-function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set(), storyLinks = null) {
+function appendMarketNews(documentRef, root, container, model, status, visibleLimit, controls, exclude = new Set(), readArticle = null) {
   const eligible = groupNewsStories(Array.isArray(model?.eligibleItems) ? model.eligibleItems : model?.items || []).filter((item) => !exclude.has(newsKey(item)));
   const displayed = eligible.slice(0, visibleLimit);
   container.replaceChildren();
@@ -651,16 +751,15 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
       const reset = documentRef.createElement('button');
       reset.type = 'button'; reset.textContent = '필터 초기화';
       reset.addEventListener('click', () => {
-        const all = (group) => documentRef.querySelector?.(`#${group} [data-arg="all"]`) || null;
-        root?.filterNewsByCountry?.('all', all('news-country-chips'));
-        root?.filterNewsByTopic?.('all', all('news-topic-chips'));
+        resetNewsFeedFilter();
+        documentRef.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-feed-filter' } }));
       });
       empty.append(documentRef.createElement('br'), reset);
     }
   } else {
     // The 카테고리별 grouped view left with the type tabs — each card already names its topic, and the topic
     // chips narrow the list to one group.
-    displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index, storyLinks)));
+    displayed.forEach((item, index) => container.appendChild(createNewsCard(documentRef, root, item, index, readArticle)));
   }
 
   const count = documentRef.getElementById('market-news-count');
@@ -678,23 +777,6 @@ function appendMarketNews(documentRef, root, container, model, status, visibleLi
     const moreButton = more.querySelector('[data-action="_aioNewsLoadMore"]');
     if (moreButton) moreButton.textContent = `${Math.min(12, Math.max(0, poolSize - displayed.length))}개 더 보기`;
   }
-}
-
-// The selected country/topic is carried in the accessibility tree, not only in inline
-// colour — chips are toggle buttons with aria-pressed.
-function syncNewsControlState(documentRef, controls) {
-  const mark = (selector, current) => {
-    documentRef?.querySelectorAll?.(selector).forEach((node) => {
-      if (node.tagName !== 'BUTTON') {
-        node.setAttribute('role', 'button');
-        if (!node.hasAttribute('tabindex')) node.tabIndex = 0;
-      }
-      const value = node.dataset.arg || (node.dataset.action === 'filterNewsByTelegramOnly' ? 'tg' : 'all');
-      node.setAttribute('aria-pressed', String(value === current));
-    });
-  };
-  mark('#news-country-chips [data-action]', controls?.countryFilter || 'all');
-  mark('#news-topic-chips [data-action="filterNewsByTopic"]', controls?.topicFilter || 'all');
 }
 
 function render({ documentRef, root, store, route }) {
@@ -717,31 +799,43 @@ function render({ documentRef, root, store, route }) {
   }
   if (route !== 'market-news') return;
 
-  const controls = root?.AIO?.getNewsSurfaceControls?.() || { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode: 'time' };
-  const tickerFocus = newsTickerFocus(root);
+  const controls = getNewsSurfaceControls();
   const mine = myNewsSymbols(root, store);
-  const mineOnly = !!root?._aioNewsMineOnly && mine.size > 0;
-  syncMineChip(documentRef, root, mine, mineOnly);
-  const model = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { ...controls, nowMs: Date.now() }) || { items: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' }, tickerFocus), mineOnly ? mine : new Set());
+  const filter = feedFilterOf(controls, mine);
+  const mineOnly = filter.mine;
   const container = documentRef?.getElementById('live-news-feed');
   if (!container) return;
+  const nowMs = Date.now();
+  // The panel cuts one unfiltered window: the model is built with every chip at 전체 and the panel's choices are applied
+  // to its rows (feed-filter.js), so each chip can count what pressing it would show.
+  const build = (sortMode) => root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: 'all', topicFilter: 'all', typeTab: 'all', sortMode, nowMs }) || null;
+  const baseModel = build(controls.sortMode) || { items: [], eligibleItems: [], eligibleCount: 0, emptyReason: 'native-model-unavailable' };
+  const day = root?.[MARKET_DAY.key] || null;
+  const briefs = root?.[EVENT_BRIEFS.key] || null;
+  // A direct visit to 뉴스 had no ledger unless another screen had loaded it, so neither the lead-move order nor the
+  // fact lines showed; the page asks for the ledger and the release briefs and repaints once they arrive.
+  const repaintWhenReady = (descriptor, reason) => refreshSharedArtifact(root, descriptor).then(({ changed }) => { if (changed) documentRef?.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason } })); }).catch(() => {});
+  if (root && !day) repaintWhenReady(MARKET_DAY, 'news-market-day-ready');
+  if (root && !briefs) repaintWhenReady(EVENT_BRIEFS, 'news-briefs-ready');
+  // One reading per article for this render: the rows the chips count and the cards read the same issuers and fact.
+  const readArticle = createArticleReader(root, articleFactReader({ day, briefs, calendar: root?.[EARNINGS_CALENDAR.key] || null, nowMs }));
+  const rows = describeFeedRows(baseModel.eligibleItems || baseModel.items || [], { read: readArticle, mine, keyOf: newsKey });
+  const shownKeys = new Set(applyFeedFilter(rows, filter).map((row) => row.key));
+  const filtered = isFeedFiltered(filter);
+  const narrow = (model) => (filtered && model ? narrowModel(model, (item) => shownKeys.has(newsKey(item))) : model);
+  const model = narrow(baseModel);
+  renderFeedPanel(documentRef, { facets: feedFacets(rows, filter), tiles: feedTiles(rows.filter((row) => shownKeys.has(row.key))), controls: { ...controls, query: controls.query || '' }, mine });
   const configuredLimit = Number(root?._aioNewsVisibleLimit);
   const visibleLimit = Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : 12;
-  renderNewsSummary(documentRef, root, model, selectNewsStatus(state));
+  // The 데이터 출처 fold counts the collection, not the reader's cut of it.
+  renderNewsSummary(documentRef, root, baseModel, selectNewsStatus(state));
   // After the Korean close (15:30 KST) until the next 08:00 bundle, the header says where the session's articles are.
-  const nowMs = Date.now();
-  const importantModel = mineModel(root, focusModel(root, root?.AIO?.buildNewsSurfaceModel?.('market-news', items, { countryFilter: controls.countryFilter || 'all', topicFilter: controls.topicFilter || 'all', typeTab: 'all', sortMode: 'score', nowMs }), tickerFocus), mineOnly ? mine : new Set());
+  const importantModel = narrow(build('score'));
   const later = laterNews(root, items, nowMs);
   // Importance rolls to the newest article and puts the stories the day's lead moves are
-  // tied to first (the same pool and pick as 오늘's 주요 뉴스).
-  const pool = rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], tickerFocus || mineOnly ? [] : later);
-  const day = root?.[MARKET_DAY.key] || null;
-  // A direct visit to 뉴스 had no ledger unless another screen had loaded it, so neither the lead-move order nor the
-  // card ties showed; the page asks for it and repaints once it arrives.
-  if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) documentRef?.dispatchEvent?.(new CustomEvent('aio:newsSurfaceInvalidated', { detail: { reason: 'news-market-day-ready' } })); }).catch(() => {});
+  // tied to first (the same pool and pick as 오늘's 주요 뉴스). A filtered view keeps to the articles the panel counted.
+  const pool = rollingNewsPool(importantModel?.eligibleItems || importantModel?.items || [], filtered ? [] : later);
   const important = pickImportantNews(groupNewsStories(pool), 5, { linked: day ? leadLinkedNews(day) : null });
-  // One lookup per render for every card's tie to the day's moves and relayed stories.
-  const storyLinks = day ? newsStoryLinks(day) : null;
   const importantKeys = new Set(important.flatMap((story) => (story.storyArticles || [story]).map(newsKey)));
   // The pool's own end: the newest article it ranked over, not the 08:00 cut.
   const importantNote = documentRef?.querySelector('#news-important-title .briefing-h2-note');
@@ -754,14 +848,12 @@ function render({ documentRef, root, store, route }) {
   if (intradayCount && windowLabel && (kstMinutes >= 15 * 60 + 30 || kstMinutes < 8 * 60)) {
     windowLabel.title = '한국장 시간대 기사는 속보 칸에, 정식 묶음은 다음 08:00 수집본'; // The window stays, the routing rule is its hover
   }
-  syncNewsControlState(documentRef, controls);
   // v59.44 (owner 2026-10-30, "each screen too"): the release summaries in the same tiers as 오늘 (a lazy chunk), with the
   // monthly releases of the last week, ahead of 중요 뉴스 — what came out and why the price moved, then the coverage.
   import('../components/event-briefs.js').then(({ paintNewsBriefs }) => {
     const repaint = () => { if (documentRef.getElementById('page-market-news')?.classList?.contains('active')) paintNewsBriefs(documentRef, root, null, macroReleasesFor(root, { days: 7 })); };
     paintNewsBriefs(documentRef, root, repaint, macroReleasesFor(root, { days: 7 }));
   }).catch(() => {});
-  renderTickerFocusNote(documentRef, root, container, tickerFocus, Array.isArray(model?.eligibleItems) ? model.eligibleItems.length : (model?.items || []).length);
   const tgScope = documentRef?.getElementById('news-tg-scope');
   if (tgScope) tgScope.textContent = mineOnly ? '내 종목 필터: 채널 글 중 관심·보유 종목을 다룬 글만 표시합니다.' : describeNewsScope(controls).channel;
   renderChannelData(documentRef, documentRef?.getElementById('news-tg-card'), root?.AIO_TELEGRAM_SIGNALS); // v58.71
@@ -769,7 +861,7 @@ function render({ documentRef, root, store, route }) {
   const importantList = documentRef?.getElementById('news-important-list');
   if (importantList) {
     importantList.replaceChildren(...(important.length
-      ? important.map((item, index) => createNewsCard(documentRef, root, item, index, storyLinks))
+      ? important.map((item, index) => createNewsCard(documentRef, root, item, index, readArticle))
       : [Object.assign(documentRef.createElement('div'), { className: 'briefing-empty', textContent: '표시 기간과 선택한 조건에 맞는 중요 뉴스가 없습니다.' })]));
   }
   if (!root._aioEarningsSnapshot && typeof root._fetchEarningsCalendarSnapshot === 'function' && !root._aioNewsEarningsRequested) {
@@ -781,7 +873,7 @@ function render({ documentRef, root, store, route }) {
       }
     }).catch(() => {});
   }
-  appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)), storyLinks);
+  appendMarketNews(documentRef, root, container, model, selectNewsStatus(state), visibleLimit, controls, new Set(important.map(newsKey)), readArticle);
   renderMarketTimeline({ documentRef, root, nowMs }); // The six-hour slots moved here from 브리핑 (a closed fold)
   renderNextSteps(documentRef, documentRef.getElementById('news-next'), newsFlow({ countryFilter: controls.countryFilter }).next); // v57.77
   container.dataset.aioNewsRenderer = 'native';
@@ -809,9 +901,9 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
       const renderNow = (force = false) => {
         const rows = selectNewsItems(store?.getState?.() || {});
         const keys = new Set(rows.map(newsArticleKey));
-        const controls = JSON.stringify([root?.AIO?.getNewsSurfaceControls?.() || {}, root?._aioNewsVisibleLimit, root?._aioNewsTickerFocus || null, !!root?._aioNewsMineOnly]);
+        const controls = JSON.stringify([getNewsSurfaceControls(), root?._aioNewsVisibleLimit]);
         const changed = renderedKeys && (keys.size !== renderedKeys.size || [...keys].some((key) => !renderedKeys.has(key)));
-        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter', 'news-mine-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
+        const explicit = force === true || (force?.type === 'aio:newsSurfaceInvalidated' && ['news-sort', 'news-load-more', 'news-country-telegram', 'news-country-filter', 'news-topic-filter', 'news-feed-filter'].includes(force?.detail?.reason)) || controls !== renderedControls;
         if (updates && renderedKeys?.size > 0 && changed && !explicit) {
           const arriving = [...keys].filter((key) => !renderedKeys.has(key)).length;
           updates.textContent = arriving ? `새 뉴스·변경 ${arriving}건 보기` : '갱신된 뉴스 보기';
@@ -842,26 +934,24 @@ export function createNewsPage({ root = globalThis, documentRef, store, route = 
         page.appendChild(suppliedMaterialBridge);
         bag.add(() => suppliedMaterialBridge.remove());
       }
-      // A ticker handed over from 재무 공시 opens 기업 뉴스 narrowed to it; a plain visit shows everything.
-      // 기업 뉴스 is the 기업 topic chip (the type tabs left).
+      // A ticker handed over from 재무 공시 opens the feed with that company's entity chip pressed; a later plain visit
+      // releases a chip a hand-off pressed, while the reader's own choices last for the session.
+      // P1730 (R2 next-step links): a link that names a topic or country opens the list with that chip pressed.
       if (route === 'market-news') {
+        bag.add(bindFeedPanel(documentRef, root));
         const handoffContext = consumeResearchHandoff({ root, routeId: 'market-news' })?.context || {};
         const focus = String(handoffContext.ticker || '').trim().toUpperCase();
-        root._aioNewsTickerFocus = focus || null;
-        // P1730 (R2 next-step links): a briefing link that names a topic or country opens the list already filtered,
-        // through the same filter functions and chips the reader would press.
-        const chip = (group, value) => [...(documentRef.querySelectorAll?.(`#${group} [data-arg]`) || [])].find((node) => node.dataset.arg === value) || null;
-        if (focus && typeof root?.filterNewsByTopic === 'function') {
-          try { root.filterNewsByTopic('company', chip('news-topic-chips', 'company')); } catch (_) {}
+        if (/^[A-Z0-9][A-Z0-9.^=-]{0,11}$/.test(focus)) {
+          handoffEntity = tickerEntityKey(focus);
+          setNewsFeedFilter({ entityFilter: handoffEntity });
+        } else if (handoffEntity && getNewsSurfaceControls().entityFilter === handoffEntity) {
+          setNewsFeedFilter({ entityFilter: 'all' });
+          handoffEntity = null;
         }
-        const topic = String(handoffContext.topic || '').trim();
-        const country = String(handoffContext.country || '').trim();
-        if (topic && chip('news-topic-chips', topic) && typeof root?.filterNewsByTopic === 'function') {
-          try { root.filterNewsByTopic(topic, chip('news-topic-chips', topic)); } catch (_) {}
-        }
-        if (country && chip('news-country-chips', country) && typeof root?.filterNewsByCountry === 'function') {
-          try { root.filterNewsByCountry(country, chip('news-country-chips', country)); } catch (_) {}
-        }
+        const topic = topicGroupFor(handoffContext.topic);
+        const country = String(handoffContext.country || '').trim().toLowerCase();
+        if (topic) setNewsFeedFilter({ topicFilter: topic });
+        if (FEED_REGIONS.some((region) => region.key === country)) setNewsFeedFilter({ countryFilter: country });
       }
       // A render that throws during mount releases what this page already attached; the
       // router disposes only its own scope.

@@ -20,6 +20,8 @@ import { buildDayAccount, byReportOrder } from '../src/domain/briefing/day-accou
 import { leadLinkedNews, pickImportantNews, reportAboutMove, rollingNewsPool } from '../src/domain/briefing/news-picks.js';
 import { newsStoryLinks } from '../src/domain/briefing/news-story-link.js';
 import { renderTickerContext } from '../src/ui/components/ticker-context.js';
+import { holdingCauseRow } from '../src/ui/components/portfolio-move-cause.js';
+import { holdingMoveFacts } from '../src/domain/portfolio/holding-moves.js';
 import { eventPreviews } from '../src/domain/briefing/event-guide.js';
 import { isBlacklistedNewsText } from '../src/domain/news/selection.js';
 import { renderHomeDay } from '../src/ui/components/home-day.js';
@@ -178,6 +180,26 @@ check('v60.51 the 종목 header shows a report only when it is about the move, a
   assert.equal(reportAboutMove({ title: 'Nvidia shares fall', at: '2026-11-23T22:00:00Z' }, { session: D, change: null }), null, 'v60.51 unknown move, after the close');
 });
 
+check('v60.59 포트폴리오 a held stock\'s ledger move carries the report about it as 움직인 이유, by the 종목 header\'s rule', () => {
+  const rows = [{ title: 'Stocks Soar as Huang’s Nvidia Return Fuels AI Bets', titleKo: HUANG, pubDate: '2026-11-23T21:11:01Z', tier: 1, score: 81, link: 'https://fixture.invalid/huang' }];
+  const day = ledger(true);
+  const held = ['NVDA', 'AAPL', 'MSFT']; // fixture holdings, never real ones
+  const moves = holdingMoveFacts(day, held);
+  assert.deepEqual([...moves.keys()], ['NVDA', 'AAPL'], 'v60.59 holding moves only for holdings the ledger moved');
+  const doc = fakeDocument([]);
+  const line = holdingCauseRow(doc, { _serverNewsIntraday: rows }, null, { symbol: 'NVDA', move: moves.get('NVDA'), colSpan: 10 });
+  assert.ok(line, 'v60.59 holding cause row drawn');
+  const text = line.textContent.replace(/\s+/g, ' ').trim();
+  assert.match(text, /^움직인 이유 11\/23 \+31\.5% 11\/24 06:11 황의 엔비디아 복귀가/, 'v60.59 holding cause line: label, move, dated report');
+  assert.equal(holdingCauseRow(doc, { _serverNewsIntraday: rows }, null, { symbol: 'AAPL', move: moves.get('AAPL'), colSpan: 10 }), null, 'v60.59 holding cause no report about the move, no line');
+  assert.equal(holdingMoveFacts(day, []).size, 0, 'v60.59 holding cause no holding, nothing');
+  assert.equal(holdingMoveFacts({ ...day, sessions: { us: '2026-11-24' } }, held).size, 0, 'v60.59 holding cause another session\'s move is not the basis session\'s');
+  // One definition: the cause-line helpers live in move-news.js only.
+  assert.equal(/export function (?:moveNewsList|companyMoveRow|symbolNames)\b/.test(source('src/ui/components/market-timeline.js')), false, 'v60.59 move-news helpers left market-timeline.js');
+  assert.match(source('src/ui/pages/portfolio.js'), /holdingCauseRow\(/, 'v60.59 포트폴리오 draws holdingCauseRow');
+  assert.equal(/console\.|localStorage|sessionStorage/.test(source('src/ui/components/portfolio-move-cause.js') + source('src/domain/portfolio/holding-moves.js')), false, 'v60.59 holding cause writes nothing about holdings');
+});
+
 // ── 3. Market-impact order and the blacklist.
 check('v60.51 C7 a story tied to a lead move outranks a higher-scored unrelated one', () => {
   const unrelated = { title: 'Korean bond yields fall', titleKo: '국고채 금리 일제히 하락', link: 'https://fixture.invalid/kr', topic: 'kr', score: 75 };
@@ -259,6 +281,77 @@ check('v60.57 news-story-link leadLinkedNews keeps its behaviour on the shared m
   assert.equal(linked({ storyArticles: [{ title: 'other' }, { link: 'https://fixture.invalid/yonhap' }] }), true, 'v60.57 news-story-link any grouped article');
   assert.equal(linked({ title: 'Intel, Meta among AI stocks hedge funds are buying - Goldman' }), false, 'v60.57 news-story-link an unlinked headline');
   assert.equal(leadLinkedNews(ledger(false))({ title: '', link: '' }), false, 'v60.57 news-story-link no keys');
+});
+
+check('v60.59 local-venue: a local market\'s price report (MCX gold rate, Nikkei close) takes no topic link to a global asset\'s move; a global gold headline still does', async () => {
+  const { buildMarketDay, LOCAL_VENUE_REPORT } = await import('../src/domain/market/day/facts.js');
+  const days = []; for (let d = Date.parse('2026-08-03T12:00:00Z'); days.length < 70; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) days.push(day.toISOString().slice(0, 10)); }
+  const history = days.map((date, i) => ({ date, gold: i === 69 ? 4000 * 0.95 : 4000 + (i % 2 ? 5 : -5), fieldMeta: { gold: { sessionDate: date } } }));
+  const nowMs = Date.parse(`${days[69]}T22:00:00Z`);
+  const at = new Date(nowMs - 3600000).toISOString();
+  const day = buildMarketDay({ history, screener: { factorSessionDateByMarket: { US: days[69] }, data: {} }, nowMs, news: [
+    { title: 'Gold rate outlook for tomorrow: MCX gold drops 1.29%; will prices fall further?', pubDate: at, topic: 'fxbond', score: 40, tier: 3, link: 'mcx' },
+    { title: 'Nikkei Rises 1.3%, Led by Chip, Metals Stocks', pubDate: at, topic: 'macro', score: 40, tier: 1, link: 'nikkei' },
+    { title: 'Gold slides as dollar steadies after Fed minutes', pubDate: at, topic: 'macro', score: 40, tier: 1, link: 'global' }] });
+  const gold = day.facts.find((fact) => fact.id === `price:gold:${days[69]}`);
+  const headline = (link) => day.facts.find((fact) => fact.kind === 'headline' && fact.src?.link === link);
+  const linkedTo = (fact) => day.links.filter((link) => link.from === fact?.id).map((link) => link.to);
+  assert.ok(gold && ['lead', 'major'].includes(gold.rank), 'v60.59 local-venue: the fixture gold move is material');
+  assert.deepEqual(linkedTo(headline('mcx')), [], 'v60.59 local-venue: the MCX gold-rate report is not a cause of gold\'s move');
+  assert.deepEqual(linkedTo(headline('nikkei')), [], 'v60.59 local-venue: a Tokyo index report is not either');
+  assert.ok(linkedTo(headline('global')).includes(gold.id), 'v60.59 local-venue: a global gold headline keeps its topic link');
+  assert.ok(headline('mcx').materiality < headline('global').materiality && headline('mcx').rank === 'context', 'v60.59 local-venue: the local report is not raised to the move\'s share');
+  assert.ok(!LOCAL_VENUE_REPORT.test('Asian Stocks Set for Gains After Late US Rebound') && !LOCAL_VENUE_REPORT.test('Fed worries driving market selloff, not AI'), 'v60.59 local-venue: a market-wide headline is not a local report');
+});
+
+// ── 브리핑 as one report (owner 2026-11-26): the timeline face, the assembled figures and the one-paragraph rule.
+check('v60.59 briefing-report: 움직인 것 is a timeline — rank on the left, why on its own indented line, the lead report on the face', () => {
+  const brief = fakeDocument(['briefing-day', 'briefing-day-title', 'briefing-day-opening', 'briefing-day-stories', 'briefing-day-folds']);
+  renderBriefingDay({ documentRef: brief, root: { [MARKET_DAY.key]: ledger(true), [EVENT_BRIEFS.key]: { briefs: [] }, [INDEX_LONGRUN.key]: {} } });
+  const items = brief.byId['briefing-day-stories'].children;
+  assert.ok(items.length > 0 && items.every((item) => /br-timeline__item/.test(item.className)), 'v60.59 briefing-report timeline items');
+  const lead = items.find((item) => /is-lead/.test(item.className));
+  assert.match(lead.children[0].textContent, /핵심/, 'v60.59 briefing-report the lead story names its rank on the left');
+  const why = lead.children[1].children.find((node) => node.className === 'br-timeline__why');
+  assert.ok(!why || /^→ /.test(why._text), 'v60.59 briefing-report the why line is its own indented line');
+});
+check('v60.59 briefing-report: the hero is the S&P 500 move or nothing; the headline marks the claim\'s own word; absent lines are left out', async () => {
+  const { reportHero, reportHeadline, reportLines, finePrint, weekRows, weekFriday } = await import('../src/domain/briefing/briefing-report.js');
+  const { claim, say } = await import('../src/domain/shared/claim.js');
+  assert.equal(reportHero({ available: true, rows: { spx: { asOf: D, label: 'S&P 500', moves: {} } } }, []), null, 'v60.59 briefing-report no S&P move, no hero (never 0)');
+  const hero = reportHero({ available: true, rows: { spx: { asOf: D, label: 'S&P 500', moves: { 1: 4.73 } }, ndx: { asOf: '2026-11-20', label: '나스닥 100', moves: { 1: 6 } } } }, []);
+  assert.equal(hero.text, '+4.7%', 'v60.59 briefing-report hero figure');
+  assert.deepEqual(hero.subs, [], 'v60.59 briefing-report a leader of another session is not a sub-figure');
+  const stage = claim({ subject: 'spx', measure: 'fromRecordHigh', word: 'correction', asOf: D, figures: [{ value: -12, unit: 'pct', basis: 'fromRecordHigh', label: '시장 전체' }] });
+  const lede = say('시장 전체는 {st.word}에 그쳐, 쏠림이 되돌려지는 하락입니다.', { st: stage });
+  const headline = reportHeadline({ available: true, lines: [{ id: 'lede', label: '', said: lede }] });
+  assert.equal(headline.text.slice(...headline.accent), '조정', 'v60.59 briefing-report the accent is the claim word');
+  assert.equal(reportHeadline({ available: false }), null, 'v60.59 briefing-report no opening, no headline');
+  const lines = reportLines({ opening: { available: true, lines: [{ id: 'diagnosis', label: '쏠림 되돌림', said: { text: '격차가 줄면 다시 판단.', claims: [] } }] }, nextEvent: null, checks: [] });
+  assert.deepEqual(lines.map((line) => [line.id, line.key, !!line.tint]), [['flip', '쏠림 되돌림', true]], 'v60.59 briefing-report only the lines with data');
+  const tiles = finePrint({ history: [], asOf: D });
+  assert.equal(tiles.length, 8, 'v60.59 briefing-report eight fine-print figures');
+  assert.ok(tiles.every((tile) => tile.value === null), 'v60.59 briefing-report a missing figure is null, printed as the missing mark');
+  const week = weekRows({ history: [], schedule: [{ kind: 'macro', label: 'PCE', atMs: Date.parse('2026-11-26T13:30:00Z') }], asOf: '2026-11-25' });
+  assert.deepEqual(week.rows.map((row) => [row.date, row.kind]), [['2026-11-23', 'session'], ['2026-11-24', 'session'], ['2026-11-25', 'session'], ['2026-11-26', 'closed'], ['2026-11-27', 'ahead']], 'v60.59 briefing-report Monday to Friday of the basis week, the holiday named');
+  assert.ok(week.rows.slice(0, 3).every((row) => row.move === null), 'v60.59 briefing-report a session without closes has no move');
+  assert.equal(weekFriday('2026-11-25'), '2026-11-27', 'v60.59 briefing-report the week ends on its Friday');
+  const quiet = reportLines({ opening: { available: true, lines: [] }, lead: { title: 'NVIDIA -3.9%', line: 'S&P 500을 0.24%p 끌어내렸습니다.' } });
+  assert.deepEqual(quiet.map((line) => [line.id, line.key]), [['led', '주도한 것']], 'v60.59 briefing-report a quiet session takes the ledger lead story');
+  const glossed = finePrint({ history: [{ date: '2026-11-24', vix: 20 }, { date: '2026-11-25', vix: 28.3 }], asOf: '2026-11-25', cross: [{ id: 'credit', word: '부담' }] });
+  assert.match(glossed.find((tile) => tile.id === 'vix').gloss, /^변동성 경계 구간, 1일 \+8\.3pt$/, 'v60.59 briefing-report the VIX band word leads its gloss');
+  assert.ok(!/구간|부담/.test(glossed.find((tile) => tile.id === 'wti').gloss || ''), 'v60.59 briefing-report a figure without a fixed word keeps only its change');
+});
+check('v60.59 briefing-report: one centred column; the AI paragraph and the rule-built reading are never stacked; the gated ids stay', () => {
+  const css = source('src/ui/styles/briefing-report.css');
+  const html = source('index.html');
+  assert.match(css, /#page-briefing \.briefing-report \{ max-width: 720px; margin: 0 auto;/, 'v60.59 briefing-report one centred column');
+  assert.match(css, /\.br-prose:has\(> \.br-prose__ai:not\(\[hidden\]\)\) > \.br-prose__rule \{ display: none; \}/, 'v60.59 briefing-report not both stacked');
+  assert.match(source('src/ui/styles/responsive.css'), /@import url\('\.\/briefing-report\.css'\)/, 'v60.59 briefing-report stylesheet loaded');
+  for (const id of ['briefing-read', 'briefing-read-headline', 'briefing-ai-analysis', 'briefing-day', 'briefing-day-stories', 'briefing-sector-moves', 'briefing-drivers', 'briefing-driver-rows', 'briefing-check-list', 'briefing-schedule', 'briefing-schedule-rows', 'briefing-next']) {
+    assert.ok(html.includes(`id="${id}"`), `v60.59 briefing-report keeps #${id}`);
+  }
+  assert.ok(html.indexOf('id="briefing-read"') < html.indexOf('id="briefing-schedule"'), 'v60.59 briefing-report the reading precedes the schedule');
 });
 
 await Promise.all(pending);

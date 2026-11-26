@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.58 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.59 — 올인원 투자 터미널</title>
   <meta name="description" content="미국 시장과 주요 뉴스를 살피고, 조건에 맞는 종목을 찾고, 투자 근거와 거래 기록을 돌아보세요.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -862,12 +862,6 @@ body {
 .briefing-event-label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
 .briefing-event-meta { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
 .briefing-read-headline { font-size: 14px; font-weight: 600; line-height: 1.7; color: var(--color-text-primary); margin: 0 0 10px; max-width: 920px; }
-.briefing-read-points { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; max-width: 920px; }
-.briefing-read-points li, .briefing-check-list li { font-size: 14px; line-height: 1.75; color: var(--color-text-secondary); }
-.briefing-ai { margin-top: 12px; padding: 12px 16px;  background: var(--color-background-card); max-width: 920px; }
-.briefing-ai:has(> [hidden]) { display: none; }
-.briefing-ai-label { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 4px; }
-.briefing-ai > div:last-child { font-size: 14px; line-height: 1.8; color: var(--color-text-secondary); }
 .briefing-driver-grid { display: block; columns: 300px 3; column-gap: 32px; } /* layout review 2026-10-18: five groups of uneven height flow into balanced columns instead of a grid row with an empty third cell */ .briefing-driver-grid > * { break-inside: avoid; }
 /* P1599 (F101): 1d/5d move bars from a zero line; % and bp blocks never share a scale. */
 .briefing-move-head { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
@@ -892,7 +886,6 @@ body {
 .briefing-driver-key { color: var(--color-text-secondary); display: inline-block; min-width: 92px; }
 .briefing-driver-context { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
 .briefing-driver-read { font-size: var(--fs-reading); line-height: 1.7; color: var(--color-text-secondary); margin: 6px 0 0; }
-.briefing-check-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .briefing-footnote { font-size: 12px; color: var(--color-text-secondary); margin: 14px 0 0; }
 .briefing-footnote a { color: var(--color-text-secondary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; } /* layout review 2026-10-18: was the browser's default blue link */
 .briefing-empty { font-size: 12px; color: var(--color-text-secondary); padding: 6px 0; }
@@ -904,8 +897,6 @@ body {
 .trend-card-tags .basis-chip { margin-bottom: 0; }
 .briefing-read-reading { font-size: 14px; line-height: 1.7; color: var(--color-text-secondary); margin: -4px 0 10px; max-width: 920px; }
 .briefing-hypothesis-tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing:0; color: var(--color-text-secondary); border: 0.5px solid var(--color-border-muted, currentColor); border-radius: var(--radius-inner); padding: 0 5px; margin-right: 2px; vertical-align: 1px; }
-.briefing-hypothesis { color: var(--color-text-secondary); }
-.briefing-hypothesis.is-line { display: block; margin-top: 2px; font-size: var(--fs-reading); }
 .regime-axis-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 0; }
 .regime-state { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: var(--radius-full); border: 0.5px solid currentColor; }
 .regime-state.is-favorable { color: var(--color-text-success); }
@@ -3317,8 +3308,10 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <p class="mk-hero__counter mk-sub-hero__counter" id="breadth-counter" hidden></p>
     <p class="regime-flip mk-sub-hero__flip" id="breadth-flip"></p>
   </section>
+  <section class="setup-points" id="breadth-points" aria-label="오늘의 요점" hidden></section>
   <section class="screen-reading" id="breadth-screen-reading" aria-label="AI 읽기" hidden></section>
   <div class="trend-grid" id="breadth-chart-grid"></div>
+  <section class="bb-group setup-board" id="breadth-setup" aria-label="추세 템플릿 통과 종목 수" hidden></section>
   <nav class="flow-next" id="breadth-next" aria-label="이어서 볼 곳" data-fold hidden></nav>
   <!-- v58.79: the population note became the subtitle's hover (breadth-board.js names S&P 500 members or the AIO universe). -->
 </div><!-- fix: page-breadth outer close -->
@@ -3352,19 +3345,13 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   </div><!-- fix: page-sentiment outer close -->
     <!-- ═══════════════ PAGE: BRIEFING (데일리 브리핑) ═══════════════ -->
   <div class="page" id="page-briefing" data-page-purpose="briefing">
-  <!-- v50.32 구조 개편: 브리핑 상단 4중 중복(5대 관전 정적문구 + Action Item 카드 + insight-box + 디제스트) →
-       단일 "오늘의 브리핑" 카드로 통합(P1411: 이후 다이제스트도 퇴역 — 본론은 native connected read).
-       제거: 5대 관전(정적 교육·JS 미채움) / Action Item 카드(디제스트 '행동' 줄과 ACTION_RULES 동일출처 중복) /
-       insight-box(빈 머리말). -->
-
-  <!-- ═══ v48.46: 브리핑 심층 해설 ═══ -->
-    <!-- 헤더 -->
-    <div class="aio-section">
-    <div class="page-head page-head--stack">
-      <div class="sh-briefing-row">
-        <div>
-          <h1 class="page-title">브리핑</h1>
-          <div class="page-subtitle" id="briefing-date-line"></div>
+  <!-- Owner 2026-11-26: 브리핑 is one report read top to bottom in a single centred column — kicker, the session's figure,
+       the headline, the reading, three short lines, then sections split by hairlines (src/ui/components/briefing-report.js
+       over src/domain/briefing/briefing-report.js; the stories, schedule and checks keep their own renderers). -->
+  <article class="briefing-report" id="briefing-report" aria-labelledby="briefing-page-title">
+    <header class="aio-section page-head page-head--stack br-masthead">
+          <h1 class="page-title br-masthead__title" id="briefing-page-title">브리핑</h1>
+          <p class="page-subtitle br-kicker"><span id="briefing-date-line"></span><span id="briefing-kicker-note"></span></p>
           <script>
           // v52.40 (P655/EF-04): 자정~08:00 KST 구간은 "오늘 08:00 브리핑"이 아직 생성되지 않은
           // 미래 시각이다 — 가장 최근 실제 생성분(어제 08:00 기준)으로 라벨링해 미래 시각 표기를 금지한다.
@@ -3387,51 +3374,58 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
           };
           window._aioRenderBriefingDateLine();
           </script>
-        </div>
+    </header>
+    <section class="br-hero" id="briefing-hero" aria-label="기준 세션 S&amp;P 500" hidden></section>
+    <p class="br-headline" id="briefing-headline" hidden></p>
+    <!-- The AI reading is the paragraph; while it is absent or blocked the rule-built reading stands in its place (CSS). -->
+    <section class="br-prose" id="briefing-read" aria-label="오늘의 해설">
+      <div class="br-prose__ai" id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div>
+      <div class="br-prose__rule"><p class="br-prose__text" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p><p class="br-prose__reading" id="briefing-read-reading"></p></div>
+    </section>
+    <ul class="br-lines" id="briefing-lines" hidden></ul>
+    <section class="br-section" id="briefing-sequence" aria-labelledby="briefing-sequence-title" hidden>
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-sequence-title">5거래일 흐름</h2><span class="br-section__note" id="briefing-sequence-note"></span></div>
+      <figure class="br-seq" id="briefing-sequence-figure"></figure>
+    </section>
+    <!-- The last session's stories from market-day.json in materiality order (src/ui/components/briefing-day.js). -->
+    <section class="br-section briefing-day" id="briefing-day" aria-labelledby="briefing-day-title" hidden>
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-day-title">움직인 것</h2></div>
+      <p class="br-day__opening" id="briefing-day-opening"></p>
+      <ol class="br-timeline" id="briefing-day-stories"></ol>
+      <div class="br-day__more" id="briefing-day-folds"></div>
+    </section>
+    <section class="br-section" id="briefing-week-section" aria-labelledby="briefing-week-title">
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-week-title">이번 주</h2><span class="br-section__note" id="briefing-week-note"></span></div>
+      <ol class="br-week" id="briefing-week-rows"></ol>
+      <ul class="br-points" id="briefing-read-points"></ul>
+    </section>
+    <section class="br-section" id="briefing-assets" aria-labelledby="briefing-assets-title">
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-assets-title">섹터와 자산</h2></div>
+      <div class="br-rows sector-moves" id="briefing-sector-moves" hidden></div>
+      <div class="br-rows" id="briefing-drivers">
+        <div class="br-row" id="briefing-drivers-line" hidden></div>
+        <details class="sx-disclosure briefing-drivers-fold" id="briefing-drivers-fold" data-fold-kind="raw-table">
+          <summary>지수, 금리, 원자재, 심리, 한국 — 수치</summary>
+          <div class="briefing-driver-grid" id="briefing-driver-rows"></div>
+        </details>
       </div>
-    </div>
-
-    </div><!-- /aio-section 브리핑헤더 -->
-
-    <!-- P1389 (owner review 2026-10-02): 일정 → 오늘의 해석 → 자산별 흐름 → 다음 확인. 같은 수치를 반복하던
-         시장 바·6개 지표 요약·확인 목록·시장 분석·8월 자료 대조·과거 참고·주요 뉴스(→ 뉴스 화면)를 이 흐름으로 대체. -->
-    <!-- v59.65 (owner 2026-11-03, phase 3): the last 24 hours as linked stories (v59.68: it opens the page; the five-session read follows) from market-day.json, in materiality order
-         (src/domain/briefing/day-account.js, src/ui/components/briefing-day.js). -->
-    <section class="aio-section briefing-block briefing-day sx-card sx-card--hero" id="briefing-day" aria-labelledby="briefing-day-title" hidden>
-      <h2 class="briefing-h2" id="briefing-day-title">지난 24시간</h2>
-      <p class="briefing-day-opening" id="briefing-day-opening"></p>
-      <ol class="briefing-day-stories" id="briefing-day-stories"></ol>
-      <div id="briefing-day-folds"></div>
     </section>
-    <section class="aio-section briefing-block briefing-read" id="briefing-read" aria-labelledby="briefing-read-title">
-      <h2 class="briefing-h2" id="briefing-read-title">한 주 흐름</h2>
-      <p class="briefing-read-headline" id="briefing-read-headline">종가 기록을 불러오는 중입니다.</p>
-      <p class="briefing-read-reading" id="briefing-read-reading"></p>
-      <ul class="briefing-read-points" id="briefing-read-points"></ul><div class="briefing-ai" id="briefing-ai-wrap"><div class="briefing-ai-label">AI 해설</div><div id="briefing-ai-analysis" data-market-analysis-sink="full" data-analysis-server-only hidden></div></div>
+    <section class="br-section" id="briefing-fine" aria-labelledby="briefing-fine-title">
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-fine-title">세부 수치</h2><span class="br-section__note">각 값의 마지막 종가</span></div>
+      <dl class="br-fine" id="briefing-fine-grid"></dl>
     </section>
-    <!-- v60.35: the sector bars repeated 테마와 섹터 › 요약 — one line and a link (sector-moves.js); 움직인 이유 is on the face. -->
-    <section class="aio-section briefing-block sector-moves" id="briefing-sector-moves" hidden></section>
-    <!-- v60.35: the asset bars repeated the price rows of 오늘 and 매크로 — one line and a link; the numbers are the raw table. -->
-    <section class="aio-section briefing-block" id="briefing-drivers" aria-labelledby="briefing-drivers-title">
-      <h2 class="briefing-h2" id="briefing-drivers-title">자산별 흐름</h2>
-      <p class="briefing-read-reading" id="briefing-drivers-line"></p>
-      <details class="sx-disclosure briefing-drivers-fold" id="briefing-drivers-fold" data-fold-kind="raw-table">
-        <summary>지수, 금리, 원자재, 심리, 한국 — 수치</summary>
-        <div class="briefing-driver-grid" id="briefing-driver-rows"></div>
-      </details>
-    </section>
-    <section class="aio-section briefing-block" id="briefing-checks" aria-labelledby="briefing-checks-title">
-      <h2 class="briefing-h2" id="briefing-checks-title">다음 확인 포인트</h2>
-      <ul class="briefing-check-list" id="briefing-check-list"></ul>
-      <!-- P1431 → v59.55 (flow 7): the 7-day strip (briefing-read.js, after the list) is the schedule's face; the rows by time and
-           the week's earnings open in this one fold under it instead of a second card. -->
+    <section class="br-section" id="briefing-checks" aria-labelledby="briefing-checks-title">
+      <div class="br-section__head"><h2 class="br-section__title" id="briefing-checks-title">다음 확인 포인트</h2></div>
+      <ul class="br-checks briefing-check-list" id="briefing-check-list"></ul>
+      <!-- The 7-day strip (briefing-read.js, after the list) carries the days after this week's rows; the rows by time and the
+           week's earnings open in this one fold. -->
       <details class="sx-disclosure briefing-schedule-fold" id="briefing-schedule" aria-labelledby="briefing-schedule-title" data-fold-kind="raw-table">
         <summary id="briefing-schedule-title">날짜별 일정, 한국 시간</summary>
         <div id="briefing-schedule-rows"><div class="briefing-empty">일정 확인 중</div></div>
       </details>
     </section>
-    <!-- v57.50: the briefing's "이어서 볼 곳" slot (filled by the briefing read via renderNextSteps; hidden while empty). -->
-    <nav class="flow-next" id="briefing-next" aria-label="이어서 볼 곳" hidden></nav>
+    <nav class="flow-next br-section" id="briefing-next" aria-label="이어서 볼 곳" hidden></nav>
+  </article>
 
   </div>
     <!-- ═══════════════ PAGE: TECHNICAL (기술적 분석) ═══════════════ -->
@@ -3745,6 +3739,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
     <section class="aio-section" id="themes-day-splits" aria-label="테마 안에서 갈린 곳" hidden></section>
   </details>
   <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
+  <section class="aio-section setup-board" id="themes-setup-board" aria-label="업종별 템플릿 통과와 테마 200일선 위치" hidden></section>
   <section class="aio-section ai-chain" id="themes-ai-chain" aria-labelledby="themes-ai-chain-title" hidden></section>
   <details class="sx-disclosure sh-fold-mt16" id="ai-capex-fold" data-view-open open>
     <summary>AI 설비투자 100달러의 흐름과 병목 납기</summary>
@@ -4413,33 +4408,20 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <div class="sx-seg page-views" role="tablist" aria-label="뉴스 보기"><button type="button" role="tab" aria-selected="true" class="is-active" data-view="main">주요</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="releases" data-view-alias="signals">발표</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="timeline">시황</button><button type="button" role="tab" aria-selected="false" tabindex="-1" data-view="feed">전체 뉴스</button></div>
   <!-- v60.35: the collection counts and the last collection time moved to the 데이터 출처 fold; the story count stays. -->
   <div class="news-status-strip" id="news-status-strip"><span id="market-news-count" class="sh-news-count-text"></span></div>
-  <!-- v58.75 (persona review): the country/topic/내 종목 filters sit right under the summary pills — they narrow the important
-       list and the full feed alike, and below the important list they were out of the first screen. -->
-  <!-- v57.77: country and topic share one compact wrapping row; the 전체/시장/기업/카테고리 type tabs left —
-         their one distinct filter (기업: a named company is the subject) is the 기업 topic chip. -->
-    <details class="news-filter-fold" id="news-filter-fold"><summary>필터, 국가 · 주제 · 내 종목</summary>
-    <div id="news-filter-row" class="news-filter-row" role="group" aria-label="뉴스 필터">
-        <div class="sh-wrap-row" id="news-country-chips" role="group" aria-label="국가">
-          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByCountry" data-arg="all" data-pass-el="1">전체 국가</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="us" data-pass-el="1">미국</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="kr" data-pass-el="1">한국</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="asia" data-pass-el="1">아시아</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByCountry" data-arg="eu" data-pass-el="1">유럽</span>
-        </div>
-        <div class="sh-wrap-row" id="news-topic-chips" role="group" aria-label="주제">
-          <span class="chip sh-news-country-chips-chip" data-action="filterNewsByTopic" data-arg="all" data-pass-el="1">전체 주제</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="company" data-pass-el="1" title="특정 기업이 기사의 당사자인 뉴스(실적·애널리스트 의견 포함)">기업</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="macro" data-pass-el="1">매크로</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="equity" data-pass-el="1">주식</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="semi" data-news-topic="semi" data-pass-el="1">반도체·AI</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="geo" data-news-topic="geo" data-pass-el="1">지정학</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="energy" data-pass-el="1">에너지</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="bond" data-news-topic="bond" data-pass-el="1">채권·금리</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="fx" data-news-topic="fx" data-pass-el="1">외환</span>
-          <span class="chip sh-soft-chip" data-action="filterNewsByTopic" data-arg="crypto" data-pass-el="1">크립토</span>
-        </div>
-    </div>
-    </details>
+  <!-- The filter panel sits on the face under the status line and narrows the important list and the full feed alike:
+       count tiles, three chip rows with live counts (src/ui/pages/news.js renderFeedPanel over src/domain/news/feed-filter.js),
+       the 수치 있음 / 내 종목 toggles, search and sort. The chips are drawn by the renderer; the rows, search and sort are static. -->
+    <section class="news-feed-panel" id="news-feed-panel" aria-label="뉴스 거르기">
+      <div class="news-feed-tiles" id="news-feed-tiles"></div>
+      <div class="news-feed-filter-row"><span class="news-feed-filter-label" id="news-filter-region-label">지역</span><div class="news-feed-chips" id="news-filter-region" role="group" aria-labelledby="news-filter-region-label"></div></div>
+      <div class="news-feed-filter-row"><span class="news-feed-filter-label" id="news-filter-topic-label">주제</span><div class="news-feed-chips" id="news-filter-topic" role="group" aria-labelledby="news-filter-topic-label"></div></div>
+      <div class="news-feed-filter-row"><span class="news-feed-filter-label" id="news-filter-entity-label">종목·키워드</span><div class="news-feed-chips" id="news-filter-entity" role="group" aria-labelledby="news-filter-entity-label"></div></div>
+      <div class="news-feed-filter-row news-feed-tools">
+        <div class="news-feed-chips" id="news-filter-toggles" role="group" aria-label="조건"></div>
+        <label class="news-feed-search"><span class="sr-only">기사 검색</span><input type="search" id="news-filter-query" placeholder="제목·매체·종목 검색" autocomplete="off" maxlength="80"></label>
+        <label class="news-feed-sort"><span class="news-feed-filter-label">정렬</span><select id="news-filter-sort"><option value="score">중요도</option><option value="time" selected>최신</option></select></label>
+      </div>
+    </section>
 
     <!-- ═══ v48.46: 시장 뉴스 심층 해설 ═══ -->
 
@@ -4459,14 +4441,6 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
     <details class="aio-section sx-card news-card news-feed-card" id="news-feed-card" data-view-open open>
     <summary class="aio-section-hd"><span class="aio-section-label">전체 뉴스</span></summary>
-
-    <!-- 정렬 옵션 -->
-    <div class="news-sort-row">
-      <span class="sh-news-note">정렬:</span>
-      <button class="news-sort-btn active" id="sort-time-btn" data-action="setNewsSortMode" data-arg="time" data-pass-el="1"> 최신순</button>
-      <button class="news-sort-btn" id="sort-score-btn" data-action="setNewsSortMode" data-arg="score" data-pass-el="1"> 중요도순</button>
-      <span class="sh-news-box"></span>
-    </div>
 
     <!-- 로딩 프로그레스 바 -->
     <div id="news-progress-wrap" style="display:none;margin-bottom:8px;">
@@ -4599,6 +4573,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       </div>
     </div>
     <!-- v58.56 (#3): what the table holds and how it is ordered, with the large caps the chosen screen left out. -->
+    <section class="setup-board" id="scr-setup-cards" aria-label="돌파 대기 후보" hidden></section>
     <div id="scr-table-status" class="scr-table-status sx-meta"></div>
     <!-- 결과 테이블 + 오른쪽 인스펙터(데스크톱 400px · iPad 가로 360px; 1023px 이하에서는 바텀 시트) -->
     <div class="scr-split">
@@ -5134,12 +5109,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.58" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.58" defer></script>
-  <script src="./js/aio-pages.js?v=60.58" defer></script>
-  <script src="./js/aio-core.js?v=60.58" defer></script>
-  <script src="./js/aio-data.js?v=60.58" defer></script>
-  <script src="./js/aio-ui.js?v=60.58" defer></script>
+  <script src="./js/aio-workspace.js?v=60.59" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.59" defer></script>
+  <script src="./js/aio-pages.js?v=60.59" defer></script>
+  <script src="./js/aio-core.js?v=60.59" defer></script>
+  <script src="./js/aio-data.js?v=60.59" defer></script>
+  <script src="./js/aio-ui.js?v=60.59" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5197,7 +5172,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.58</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.59</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

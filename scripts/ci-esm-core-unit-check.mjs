@@ -1670,6 +1670,15 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
         const onTime = buildMarketDay({ history: behind, screener: { factorSessionDateByMarket: { US: days[68] }, data: {} }, nowMs }).facts.find((fact) => fact.id === `price:wti:${days[68]}`);
         if (!late || late.sessionBehind !== days[69] || !['minor', 'context'].includes(late.rank)) fail(`v60.58 a futures close one US session behind keeps its own date and stays below the day's leads: ${JSON.stringify(late)}`);
         if (!onTime || onTime.sessionBehind || !['lead', 'major'].includes(onTime.rank)) fail(`v60.58 the same move on its own session day ranks by its size: ${JSON.stringify(onTime)}`);
+        // The same -8% day recorded as the producer's provisional close (17:00 ET print before the settle).
+        const halted = behind.map((row, i) => (i === 68 ? { ...row, fieldMeta: { ...row.fieldMeta, wti: { sessionDate: days[68], observationRelation: 'provisional-session-close', valueBasis: 'provisional-session-close' } } } : row));
+        const early = buildMarketDay({ history: halted, screener: { factorSessionDateByMarket: { US: days[68] }, data: {} }, nowMs });
+        const pending = early.facts.find((fact) => fact.id === `price:wti:${days[68]}`);
+        const { buildDayAccount: account } = await load('src/domain/briefing/day-account.js');
+        const told = account(early);
+        const line = [...told.stories, ...told.more].find((story) => story.kind === 'price' && /WTI/.test(story.line || ''))?.line || '';
+        if (!pending || pending.provisional !== true || pending.sessionBehind || !['minor', 'context'].includes(pending.rank) || onTime.provisional
+          || (pending.rank === 'minor' && !/WTI 유가 [-+]?[\d.]+%\(잠정\)/.test(line))) fail(`v60.59 a provisional futures close is tagged, kept below the day's leads and printed with 잠정: ${JSON.stringify({ pending, line })}`);
       }
       const row = (ret1d, extra = {}) => ({ ret1d, adrPct: 2, dollarVolume30d: 1e9, ...extra });
       const screener = { factorSessionDateByMarket: { US: days[69] }, data: { OIL1: row(-6), OIL2: row(-5.5), OIL3: row(-5), OIL4: row(-4.8), ACQ: row(-9, { newsMemo: '[11-03] Acquirer to buy Targetco for $10 billion', newsTs: new Date(nowMs - 3600000).toISOString() }), TGT: row(12), MYST: row(8), MEGA: row(-2), OLDN: row(7, { newsMemo: '[10-01] Old story', newsTs: '2026-10-01T00:00:00Z' }) } };
@@ -6391,7 +6400,8 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     const at = html.indexOf(`id="page-${id}"`);
     if (at < 0) return null;
     const end = html.indexOf('<div class="page"', at + 1);
-    return /<h1 class="page-title"[^>]*>([^<]+)<\/h1>/.exec(html.slice(at, end < 0 ? undefined : end))?.[1]?.trim() ?? null;
+    // The shell finds the title by the page-title class, so extra classes on the h1 (the briefing masthead) still count.
+    return /<h1 class="page-title(?:\s[^"]*)?"[^>]*>([^<]+)<\/h1>/.exec(html.slice(at, end < 0 ? undefined : end))?.[1]?.trim() ?? null;
   };
   for (const hub of ROUTE_HUBS) {
     const tabs = hub.routes.filter((route) => route.tab !== false);
@@ -6564,7 +6574,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
     ['closesToFactors', factorsLib.closesToFactors, pf.closesToFactors], ['_calcVCPServer', factorsLib._calcVCPServer, pf._calcVCPServer], ['round', producerMath.round, pf.round],
     ['normalizeSecCompanyFacts', secProducer.normalizeSecCompanyFacts, secNorm.normalizeSecCompanyFacts]]) if (!a || a !== b) fail(`v57.81 producer ${label} must be the shared src function`);
   const producerText = readProducerSource(); // The screener lane lives in scripts/producer/screener.mjs
-  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, sessionCalendars })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
+  for (const call of ['dailyRowsFromYahooChart(res', 'priceHistoryFromRows(sym, fetched', 'priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, rsBenchmarks, sessionCalendars })', 'secFundamentalRowFields(row,']) if (!producerText.includes(call)) fail(`v57.81 the producer must build rows through ${call}`);
   const nowMs = Date.parse('2026-10-15T12:00:00Z');
   const computedAt = new Date(nowMs).toISOString();
   // The on-demand raw row equals the producer path run on the same chart.
@@ -9099,4 +9109,69 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const refusedCurrency = await addWith({ 'pf-add-ticker': 'AAPL', 'pf-add-cost-currency': '12' });
   const refusedTarget = await addWith({ 'pf-add-ticker': 'AAPL', 'pf-add-target': '-1' });
   if (refusedTicker !== 'pf-add-ticker:ticker' || refusedCurrency !== 'pf-add-cost-currency:currency' || refusedTarget !== 'pf-add-target:target') fail(`v60.46 the legacy holding form refuses ticker, currency and target through the one refusal path: ${[refusedTicker, refusedCurrency, refusedTarget].join(' | ')}`);
+}
+// The setup board: one trend-template definition for the chart and the screener rows, the ladder, its reasons and the
+// aggregates on a small fixture of rows; the producer publishes the template's remaining inputs.
+{
+  const tt = await import('../src/domain/technical/trend-template.js');
+  const sb = await import('../src/domain/technical/setup-board.js');
+  const { analyzeChart } = await import('../src/domain/technical/chart-analysis.js');
+  // Levels and the same levels as distances read the same eight checks.
+  const levels = { close: 110, sma50: 104, sma150: 99, sma200: 95, sma200Then: 93, low52: 60, high52: 120, fullYear: true, rs: 4 };
+  const fromLevels = tt.trendTemplateChecks(levels).map((check) => check.ok);
+  const fromDistances = tt.trendTemplateFromDistances({ pctSma50: (110 / 104 - 1) * 100, pctSma150: (110 / 99 - 1) * 100, pctSma200: (110 / 95 - 1) * 100, sma200Rise21Pct: (95 / 93 - 1) * 100, pctFrom52wLow: (110 / 60 - 1) * 100, pctFrom52wHigh: (110 / 120 - 1) * 100, rs6m: 4 }).map((check) => check.ok);
+  if (JSON.stringify(fromLevels) !== JSON.stringify(fromDistances) || !fromLevels.every((ok) => ok === true)) fail(`v60.59 the trend template reads the same from levels and from row distances: ${fromLevels} vs ${fromDistances}`);
+  if (tt.trendTemplateFromDistances({ pctSma50: 5 }).filter((check) => check.ok == null).length !== 7) fail('v60.59 a template input that is not published is unknown, never unmet');
+  // The chart reads the shared checks (labels and order), not a copy of its own.
+  const bars = Array.from({ length: 300 }, (_, i) => { const close = 50 + i * 0.3; return { time: new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10), open: close, high: close * 1.01, low: close * 0.99, close, volume: 1e6 }; });
+  const chart = analyzeChart(bars);
+  if (JSON.stringify(chart.templateChecks.map(([label]) => label)) !== JSON.stringify(tt.trendTemplateChecks({ close: 1 }).map((check) => check.label))) fail('v60.59 the chart template is the shared trend-template definition');
+  if (readFileSync(path.join(root, 'src/domain/technical/chart-analysis.js'), 'utf8').includes("['종가 > 150·200일선'")) fail('v60.59 chart-analysis keeps no copy of the template checks');
+  // Fixture rows: close = dollarVolume ÷ lastVolume (USD), pivot 100.
+  const passing = { pctSma50: 5, pctSma150: 10, pctSma200: 15, sma200Rise21Pct: 2, pctFrom52wLow: 60, pctFrom52wHigh: -5, ret6m: 20, rsBenchmarkRet6m: 5, currency: 'USD', lastVolume: 1000, factorSessionDate: '2026-11-25' };
+  const row = (sym, sector, extra) => ({ sym, symbol: sym, sector, ...passing, ...extra });
+  const rows = [
+    row('RDY', 'Healthcare', { vcpPivot: 100, dollarVolume: 97000, vcpDepths: [20, 10, 6], vcpVolumeRatio: 0.7 }),
+    row('FAR', 'Healthcare', { vcpPivot: 100, dollarVolume: 90000, vcpDepths: [25, 12], vcpVolumeRatio: 0.9 }),
+    row('TPL', 'Technology', { dollarVolume: 50000 }),
+    row('PRT', 'Technology', { pctSma50: -3, rsBenchmarkRet6m: 30, dollarVolume: 50000 }),
+    row('UNK', 'Technology', { pctSma150: null, dollarVolume: 50000 }),
+    row('SPYX', 'ETF', { dollarVolume: 50000 })
+  ];
+  const states = Object.fromEntries(rows.map((r) => [r.sym, sb.rowSetup(r)]));
+  if (states.RDY.state !== 'ready' || states.RDY.stopPct !== 6 || Math.abs(states.RDY.pivotPct + 3) > 1e-9) fail(`v60.59 a template row within 5% of the pivot with a 6% stop is 돌파 대기: ${JSON.stringify(states.RDY)}`);
+  if (states.FAR.state !== 'base' || states.FAR.reasons.join() !== 'farFromPivot,stopWide,volumeNotDry') fail(`v60.59 a base 10% under the pivot with a 12% stop is 베이스 완성 with its reasons: ${states.FAR.reasons}`);
+  if (states.TPL.state !== 'template' || states.TPL.reasons.join() !== 'noBase') fail('v60.59 a template row without a valid pivot is 템플릿 통과, reason 베이스 없음');
+  if (states.PRT.state !== 'partial' || states.PRT.met !== 6 || states.PRT.reasons.join() !== 'above50,relativeStrength') fail(`v60.59 a row short of the template counts n/8 and names each unmet check: ${states.PRT.met} ${states.PRT.reasons}`);
+  if (states.UNK.state !== null) fail('v60.59 a row with an unpublished template input has no state');
+  const board = sb.buildSetupBoard(rows);
+  if (sb.buildSetupBoard(rows) !== board) fail('v60.59 the board is built once per rows array');
+  if (board.listed !== 5 || board.judged !== 4 || JSON.stringify(board.counts) !== JSON.stringify({ template: 3, base: 2, ready: 1 })) fail(`v60.59 the universe counts leave out ETFs and unjudged rows: ${JSON.stringify([board.listed, board.judged, board.counts])}`);
+  const health = board.sectors[0];
+  if (health.sector !== 'Healthcare' || health.template !== 2 || health.base !== 2 || !health.defensive) fail(`v60.59 the sector bars count template and base per sector and tag defensives: ${JSON.stringify(board.sectors)}`);
+  if (sb.buildSetupBoard([row('X', 'Technology', { pctSma150: null })]).counts !== null) fail('v60.59 no judged row gives no counts (not zeros)');
+  const tiles = sb.themeTiles(board, ['PRT', 'TPL', 'RDY', 'UNK', 'NONE']);
+  if (tiles.listed !== 5 || tiles.measured !== 4 || tiles.tiles[0].band !== 'template' || tiles.template !== 2) fail(`v60.59 theme tiles put template rows first and count only measured members: ${JSON.stringify(tiles)}`);
+  const near = sb.themeTiles(sb.buildSetupBoard([row('N1', 'Technology', { pctSma200: -4, pctSma150: null }), row('N2', 'Technology', { pctSma200: -40, pctSma150: null })]), ['N1', 'N2']);
+  if (near.tiles.map((t) => t.band).join() !== 'near,far' || near.template !== null || near.recovering.map((t) => t.symbol).join() !== 'N1') fail(`v60.59 200-day bands without a template verdict and the nearest recovery: ${JSON.stringify(near)}`);
+  const points = sb.setupBoardPoints({ highsLows: { newHighs: 11, newLows: 144, asOf: '2026-11-25' }, board });
+  if (points[0]?.text !== '52주 신고가 11개, 신저가 144개' || !points.some((point) => point.text.startsWith('추세 템플릿 통과 3개, 그중 베이스 완성 2개 — 헬스케어가 2개로')) || !points.some((point) => point.text.startsWith('돌파 대기 1개'))) fail(`v60.59 the 요점 lines are computed: ${points.map((p) => p.text).join(' | ')}`);
+  if (sb.setupBoardPoints({ highsLows: { newHighs: null, newLows: 3 } }).length !== 0) fail('v60.59 a 요점 line whose inputs are missing is dropped');
+  if (/매수|매도/.test(points.map((point) => point.text).join(''))) fail('v60.59 the 요점 lines give no order');
+  // The producer's new inputs, and the normaliser keeps them.
+  const pf = await import('../src/domain/screener/price-factors.js');
+  const n = 260;
+  const dates = Array.from({ length: n }, (_, i) => new Date(Date.UTC(2025, 0, 1) + i * 86400000).toISOString().slice(0, 10));
+  const closes = dates.map((_, i) => 100 + i);
+  const history = { sym: 'TT', closes, adjCloses: closes, highs: closes.map((c) => c * 1.01), lows: closes.map((c) => c * 0.99), volumes: closes.map(() => 1e6), dates, adjustedCloseStatus: 'complete', observedAt: `${dates[n - 1]}T14:30:00.000Z`, nullCloseDates: [] };
+  const index = new Map(dates.map((date, i) => [date, 1000 + i]));
+  const factors = pf.priceFactorRow(history, { computedAt: `${dates[n - 1]}T22:00:00.000Z`, rsBenchmarks: new Map([['us', { symbol: '^GSPC', closeByDate: index }]]) });
+  const mean = (list) => list.reduce((a, b) => a + b, 0) / list.length;
+  const rise = Math.round((mean(closes.slice(-200)) / mean(closes.slice(-221, -21)) - 1) * 10000) / 100;
+  if (factors.pctSma150 !== Math.round((closes[n - 1] / mean(closes.slice(-150)) - 1) * 10000) / 100 || factors.sma200Rise21Pct !== rise) fail(`v60.59 the producer publishes the 150-day distance and the 200-day rise: ${factors.pctSma150} ${factors.sma200Rise21Pct}`);
+  if (factors.rsBenchmarkRet6m !== Math.round(((1000 + n - 1) / (1000 + n - 127) - 1) * 10000) / 100) fail(`v60.59 the producer publishes the benchmark 6-month return over the row's own sessions: ${factors.rsBenchmarkRet6m}`);
+  if ('rsBenchmarkRet6m' in pf.priceFactorRow(history, { computedAt: `${dates[n - 1]}T22:00:00.000Z` })) fail('v60.59 no benchmark, no rsBenchmarkRet6m');
+  const { normalizeScreener } = await import('../src/data/normalize/screener.js');
+  const normalized = normalizeScreener({ rows: [{ symbol: 'TT', pctSma150: 1.5, sma200Rise21Pct: 0.4, rsBenchmarkRet6m: 3, vcpDepths: [12, 'x', 5], vcpVolumeRatio: 0.8 }] }).rows[0];
+  if (normalized.pctSma150 !== 1.5 || normalized.sma200Rise21Pct !== 0.4 || normalized.rsBenchmarkRet6m !== 3 || normalized.vcpDepths.join() !== '12,5' || normalized.vcpVolumeRatio !== 0.8) fail('v60.59 the normaliser keeps the setup-board inputs');
 }

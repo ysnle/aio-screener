@@ -1,4 +1,6 @@
 import { signedText } from '../shared/number.js';
+import { COMPANY_ALIASES } from '../entity/company-aliases.js';
+import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
 // v59.56 (X-bookmark gap 2, 2026-11-01): the read model of public-data/tw-monthly-revenue.json
 // (scripts/fetch-tw-monthly-revenue.mjs, TWSE OpenAPI t187ap05_L). Taiwan's listed AI supply chain reports each month's
 // revenue by the 10th, a month or more before the US quarterly results it feeds; the AI 공급망 흐름 block sets it under
@@ -54,4 +56,31 @@ export function buildTwRevenueView(artifact, { nowMs = Date.now(), loadState = '
     + (strongest && strongest.yoyPct > 0 ? ` 가장 크게 늘어난 묶음은 ${strongest.name} ${signedPct(strongest.yoyPct)}입니다.` : '')
     + (late ? ` ${monthLabel(month)}이 최신이라 지연된 상태입니다.` : '');
   return { state: 'ok', month, tableDate: tableDateOf(artifact), generatedAt: artifact.generatedAt || null, reported: current.length, listed, up, totalYoy, late, groups, reading, source: artifact.source || null };
+}
+
+// A US listing reads a Taiwan company's line only through a name both sides already hold: the file's own Korean name for
+// the company (nameKo, scripts/fetch-tw-monthly-revenue.mjs) is one of the listing's company aliases (company-aliases.js,
+// TSM → TSMC). No code or ticker is matched by shape.
+const usableArtifact = (artifact) => artifact?.schemaVersion === TW_MONTHLY_REVENUE_SCHEMA && artifact.status === 'ok' && Array.isArray(artifact.companies);
+export function twCompanyFor(artifact, symbol) {
+  const names = COMPANY_ALIASES[String(symbol || '').toUpperCase()];
+  if (!usableArtifact(artifact) || !Array.isArray(names)) return null;
+  return artifact.companies.find((company) => company?.nameKo && names.includes(company.nameKo)) || null;
+}
+
+/** 종목's one monthly line for a listing whose company reports to TWSE ({text, claims, month, code}), or null. */
+export function twRevenueLine(artifact, symbol) {
+  const company = twCompanyFor(artifact, symbol);
+  const month = String(company?.month || '');
+  if (!company || !/^\d{4}-\d{2}$/.test(month) || !Number.isFinite(company.revenue) || company.revenue <= 0) return null;
+  const subject = `tw:${company.code}`;
+  const asOf = tableDateOf(artifact) || tableDateOf(company) || null;
+  // The source amount is in thousand NT$; 억 대만달러 is the amount / 1e5.
+  const revenue = claim({ subject, measure: 'monthRevenue', asOf, figures: [{ value: company.revenue / 1e5, unit: 'level', digits: 0, basis: 'monthRevenue', label: '월 매출' }] });
+  const change = (value, label, basis) => (Number.isFinite(value) ? say(`${label} {c}`, { c: claim({ subject, measure: basis, asOf, figures: [{ value, unit: 'pct', basis, label }] }) }) : NOTHING);
+  const said = say('대만 월 매출 {month} {revenue}억 대만달러{changes}', {
+    month: `${month.slice(0, 4)}년 ${Number(month.slice(5, 7))}월`, revenue,
+    changes: (() => { const parts = sayJoin([change(company.momPct, '전월 대비', 'mom'), change(company.yoyPct, '1년 전 대비', 'yoy')], ', '); return parts.text ? say(', {parts}', { parts }) : NOTHING; })()
+  });
+  return { text: said.text, claims: said.claims, month, code: company.code };
 }

@@ -7,6 +7,29 @@ import { markFrame } from './section-frame.js';
 import { el } from './dom.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { researchReferenceView } from '../../data/research-reference.js';
+import { researchReferenceBlock, researchSignature } from './research-reference.js';
+import { fundingChainFor, fundingChainPointer, requestFundingChain } from './ai-funding-chain.js';
+
+// The researched groups each chapter carries beside its automated numbers (credit: single names and the credit market).
+const CHAPTER_RESEARCH = Object.freeze({ credit: ['credit-single-name', 'credit-market'] });
+
+// The credit chapter's 금리(수익률) rows (automated) above the researched rows that explain them.
+function chapterResearch(doc, chapter, research, funding = null) {
+  const nodes = [];
+  if (chapter.yields?.length) {
+    const rows = el(doc, 'dl', null, 'mx-ch__detail mx-ch__yields');
+    rows.setAttribute('aria-label', '금리(수익률)');
+    for (const { label, value } of chapter.yields) rows.append(el(doc, 'dt', label), el(doc, 'dd', value));
+    nodes.push(el(doc, 'h4', '금리(수익률)', 'mx-ch__more-title'), rows);
+  }
+  const block = research ? researchReferenceBlock(doc, research, { id: `mx-ch-research-${chapter.id}` }) : null;
+  if (block) nodes.push(block);
+  // Credit is one link of the AI funding chain (테마와 섹터); the chapter keeps its own rows and points there in one line.
+  const pointer = chapter.id === 'credit' ? fundingChainPointer(doc, funding) : null;
+  if (pointer) nodes.push(pointer);
+  return nodes;
+}
 
 function miniBars(doc, viz) {
   const box = el(doc, 'figure', null, 'mx-ch__viz');
@@ -53,7 +76,7 @@ function rangeBands(doc, model) {
   return box;
 }
 
-function chapterCard(doc, chapter) {
+function chapterCard(doc, chapter, research = null, funding = null) {
   const card = el(doc, 'article', null, 'mx-ch');
   card.dataset.chapter = chapter.id;
   const head = el(doc, 'div', null, 'mx-ch__head');
@@ -79,7 +102,7 @@ function chapterCard(doc, chapter) {
   if (chapter.today?.report) rows.append(el(doc, 'dt', '관련 보도'), el(doc, 'dd', `${chapter.today.report.title} (${chapter.today.report.date.slice(5).replace('-', '/')})`));
   fold.append(el(doc, 'h4', '숫자', 'mx-ch__more-title'));
   if (chapter.ranges) fold.append(el(doc, 'p', chapter.ranges.line, 'mx-ch__range-line'), rangeBands(doc, chapter.ranges));
-  fold.append(rows);
+  fold.append(rows, ...chapterResearch(doc, chapter, research, funding));
   card.append(head, body, next, fold);
   return card;
 }
@@ -95,7 +118,12 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
   if (root && !day) refreshSharedArtifact(root, MARKET_DAY).then(({ changed }) => { if (changed) renderMacroChapters({ documentRef: doc, root, events }); }).catch(() => {});
   const model = buildMacroChapters({ macroHistory: root?._aioMacroHistory || null, history: root?._aioHistory || [], events, day });
   if (!model.available) { section?.remove(); return null; }
-  const key = [root?._aioMacroHistory?.generatedAt, day?.generatedAt, (root?._aioHistory || []).at?.(-1)?.date, events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
+  // The funding chain's request covers the researched rows too (one joined request per artifact).
+  if (root) requestFundingChain(root, () => renderMacroChapters({ documentRef: doc, root, events }));
+  const funding = root ? fundingChainFor(root) : null;
+  const research = Object.fromEntries(Object.entries(CHAPTER_RESEARCH).map(([id, groups]) => [id, researchReferenceView(root, { groups })]));
+  const key = [root?._aioMacroHistory?.generatedAt, day?.generatedAt, (root?._aioHistory || []).at?.(-1)?.date, events.map((event) => `${event.id}:${event.date}`).join(','),
+    ...Object.values(research).map(researchSignature), funding?.said?.text || ''].join('|');
   if (section?.dataset.signature === key) return section;
   if (!section) {
     section = el(doc, 'section', null, 'briefing-block macro-section mx-chapters');
@@ -120,7 +148,7 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
     });
   };
   model.chapters.forEach((chapter, index) => {
-    const card = chapterCard(doc, chapter);
+    const card = chapterCard(doc, chapter, research[chapter.id] || null, funding);
     const tab = el(doc, 'button', names[index]);
     tab.type = 'button';
     tab.setAttribute('role', 'tab');

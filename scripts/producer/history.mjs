@@ -11,6 +11,7 @@ import { isSessionComplete } from '../../src/domain/screener/price-factors.js';
 import { compareUsdKrwCrossCheck } from '../lib/macro-sources.mjs';
 import { HIST } from './paths.mjs';
 import { mapLimit, fetchHistory, fetchHourlySessionClose, FOUR_PLACE_QUOTES } from './quotes.mjs';
+import { fetchJSON } from '../lib/producer-http.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { isoDay } from '../../src/domain/shared/session-date.js';
 import { readHistoryRows, compactHistoryRows } from '../../src/domain/market/indices/history-rows.js';
@@ -161,7 +162,11 @@ export function heldUsSessionFields(hist, nowMs = Date.now(), lookbackDays = 10,
     if (resolveMarketCalendarSession({ market: 'US', date })?.status !== 'open') continue;
     for (const field of fields) {
       const meta = row.fieldMeta?.[field];
-      if (typeof row[field] !== 'number' || meta?.observationRelation !== 'carried-forward') continue;
+      if (typeof row[field] !== 'number') continue;
+      // A provisional close whose settle never arrived as a previous-close read (the next session settled first) is
+      // repaired by the same backfill; the session that just closed keeps its provisional value until its settle.
+      if (isProvisionalClose(meta) && meta.sessionDate < basis.date) { out.push({ date, field, session: meta.sessionDate, provisional: true }); continue; }
+      if (meta?.observationRelation !== 'carried-forward') continue;
       const session = historyFieldSessionDate(meta, field) || meta.sessionDate || null;
       if (session && session < date) out.push({ date, field, session });
     }
@@ -282,7 +287,9 @@ export function mergeBackfillBars(hist, byDate, fields = HIST_FIELDS) {
         // A value whose day names no session (a weekend restamp of Friday's price) is no bar's completed record either.
         const offSession = meta && !carried && !ownSession && historyHeldSessionDate(meta, f) != null;
         const barSession = byDate[date].fieldMeta?.[f]?.sessionDate || date;
-        if (!carried && !offSession && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
+        // A provisional close (the 17:00 ET print) is not its session's completed record; the bar replaces it.
+        const provisional = isProvisionalClose(meta);
+        if (!carried && !offSession && !provisional && readNumber(existing[f]) != null && meta?.valueBasis && (!ownSession || ownSession === barSession)) continue;
         // The same bar read again (same value, same observation) keeps the stamp it was first checked at. Every
         // cycle used to restamp ~250 old rows' check time while 0-3 values changed, so each commit rewrote the whole file.
         if (existing[f] === byDate[date][f] && sameObservation(meta, byDate[date].fieldMeta?.[f])) continue;
@@ -385,7 +392,17 @@ export function holdRepeatedSessions(hist, { at = new Date().toISOString(), fiel
       // The first settled read of a session wins even over a value a previous-close read had displaced.
       const firstSettled = !wasSettled && meta.observationRelation === 'latest-completed-close';
       const replacedBefore = !firstSettled && Array.isArray(ownerMeta.revisions) && ownerMeta.revisions.some((entry) => entry?.value === value);
-      if (owner[field] !== value && !settledOwner && !replacedBefore) {
+      // A provisional close yields to the first other read of its session, value and relation together (the replaced
+      // print stays in `revisions`), and a provisional read never revises an owner that is not provisional.
+      const provisionalOwner = isProvisionalClose(ownerMeta) && !isProvisionalClose(meta);
+      const provisionalRead = isProvisionalClose(meta) && !isProvisionalClose(ownerMeta);
+      if (provisionalOwner) {
+        const { revisions: _readRevisions, ...read } = meta;
+        owner.fieldMeta[field] = { ...read, sessionDate: session, revisions: [...(Array.isArray(ownerMeta.revisions) ? ownerMeta.revisions : []),
+          { value: owner[field], observedAt: ownerMeta.observedAt || null, fetchedAt: ownerMeta.fetchedAt || null, relation: PROVISIONAL_CLOSE_RELATION, revisedAt: at, revisedFromRow: row.date }].slice(-5) };
+        revised.push({ date: owner.date, field, session, from: owner[field], to: value, by: row.date });
+        owner[field] = value;
+      } else if (owner[field] !== value && !provisionalRead && !settledOwner && !replacedBefore) {
         if (!dated(ownerMeta) || !dated(meta)) continue;
         ownerMeta.revisions = [...(Array.isArray(ownerMeta.revisions) ? ownerMeta.revisions : []),
           { value: owner[field], observedAt: ownerMeta.observedAt || null, fetchedAt: ownerMeta.fetchedAt || null, revisedAt: at, revisedFromRow: row.date }].slice(-5);
@@ -452,33 +469,47 @@ export function keepDisplacedSessions(hist, today, rec, { fields = HIST_MARKET_F
   const rows = Array.isArray(hist) ? hist : [];
   const current = rows.find((row) => row?.date === today);
   if (!current) return [];
-  const sessionOf = (meta, field) => (meta?.observedAt ? historyObservationSession(meta, field) : null);
   const kept = [];
   for (const field of fields) {
     const value = current[field];
     const meta = current.fieldMeta?.[field];
     if (typeof value !== 'number' || !Number.isFinite(value) || !meta || meta.observationRelation === 'carried-forward') continue;
-    const session = sessionOf(meta, field);
-    const incoming = sessionOf(rec?.fieldMeta?.[field], field);
-    if (!session || !incoming || incoming === session || !/^\d{4}-\d{2}-\d{2}$/.test(session) || session >= today) continue;
-    // The time contract (ci-history-field-time-contract-check) refuses a row holding a value observed after its UTC day,
-    // so a close stamped after its session's row ended is not moved there (that session's daily bar, when the backfill
-    // runs, is the row's record).
-    if (!(Date.parse(meta.observedAt) <= Date.parse(`${session}T23:59:59.999Z`))) continue;
-    const owned = rows.some((row) => row !== current && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && sessionOf(row.fieldMeta?.[field], field) === session);
-    if (owned) continue;
-    let target = rows.find((row) => row?.date === session);
-    // A value carried forward from an earlier session is a placeholder, not this session's close — it is
-    // replaced (the 11/4 row held the 11/3 WTI close, so the 11/4 close displaced from the 11/5 row was dropped).
-    const targetMeta = target?.fieldMeta?.[field];
-    const placeholder = targetMeta?.observationRelation === 'carried-forward' && (historyFieldSessionDate(targetMeta, field) || targetMeta.sessionDate || session) !== session;
-    if (target && typeof target[field] === 'number' && Number.isFinite(target[field]) && !placeholder) continue;
-    if (!target) { target = { date: session, fieldMeta: {} }; rows.push(target); }
-    target[field] = value;
-    target.fieldMeta = { ...(target.fieldMeta || {}), [field]: { ...meta, sessionDate: session, keptFromRow: today, ...(placeholder ? { replacedCarriedFrom: targetMeta.carriedFrom || null } : {}) } };
-    kept.push({ field, session, value, ...(placeholder ? { replacedPlaceholder: true } : {}) });
+    const session = readSession(meta, field);
+    const incoming = readSession(rec?.fieldMeta?.[field], field);
+    if (!session || !incoming || incoming === session) continue;
+    const entry = keepInSessionRow(rows, field, value, meta, today);
+    if (entry) kept.push(entry);
   }
   return kept;
+}
+
+const readSession = (meta, field) => (meta?.observedAt ? historyObservationSession(meta, field) : null);
+/**
+ * Writes a read of an earlier session than `fromDate` into the row of that session, unless another row already holds
+ * a settled read of it or that row holds its own value for it. Returns what it kept, else null.
+ */
+export function keepInSessionRow(rows, field, value, meta, fromDate) {
+  const session = readSession(meta, field);
+  if (!session || !/^\d{4}-\d{2}-\d{2}$/.test(session) || session >= fromDate) return null;
+  // The time contract (ci-history-field-time-contract-check) refuses a row holding a value observed after its UTC day,
+  // so a close stamped after its session's row ended is not moved there (that session's daily bar, when the backfill
+  // runs, is the row's record).
+  if (!(Date.parse(meta.observedAt) <= Date.parse(`${session}T23:59:59.999Z`))) return null;
+  // A provisional close owns its session only until a settled read of it exists, so it neither keeps the settle out
+  // nor survives as the target row's value.
+  const owned = rows.some((row) => row?.date !== fromDate && typeof row?.[field] === 'number' && row.fieldMeta?.[field]?.observationRelation !== 'carried-forward' && !isProvisionalClose(row.fieldMeta?.[field]) && readSession(row.fieldMeta?.[field], field) === session);
+  if (owned) return null;
+  let target = rows.find((row) => row?.date === session);
+  // A value carried forward from an earlier session is a placeholder, not this session's close — it is
+  // replaced (the 11/4 row held the 11/3 WTI close, so the 11/4 close displaced from the 11/5 row was dropped).
+  const targetMeta = target?.fieldMeta?.[field];
+  const placeholder = (targetMeta?.observationRelation === 'carried-forward' && (historyFieldSessionDate(targetMeta, field) || targetMeta.sessionDate || session) !== session)
+    || (isProvisionalClose(targetMeta) && !isProvisionalClose(meta));
+  if (target && typeof target[field] === 'number' && Number.isFinite(target[field]) && !placeholder) return null;
+  if (!target) { target = { date: session, fieldMeta: {} }; rows.push(target); }
+  target[field] = value;
+  target.fieldMeta = { ...(target.fieldMeta || {}), [field]: { ...meta, sessionDate: session, keptFromRow: fromDate, ...(placeholder ? { replacedCarriedFrom: targetMeta.carriedFrom || null } : {}) } };
+  return { field, session, value, ...(placeholder ? { replacedPlaceholder: true } : {}) };
 }
 
 // A read that names no session (withHistorySession left none: a weekend or holiday restamp of the last close) is not an
@@ -508,6 +539,111 @@ export function withHistorySession(meta, field) {
   if (!meta || meta.sessionDate) return meta;
   const session = historyObservationSession(meta, field);
   return session ? { ...meta, sessionDate: session } : meta;
+}
+
+// Futures and the dollar index settle 3.4-5.4 hours after their 17:00 ET halt, so until then the provider's previous
+// close is still the session before (live 2026-11-26: the 11/25 row held the 11/24 DXY, WTI, Brent, gold and silver all
+// Korean morning). For those fields the last hourly bar ending at or before 17:00 ET of the US session that just closed
+// is written as that session's provisional close: typed by its own relation, never a settled close (the 17:00 print is
+// 0.2-0.7% off the settle), and replaced whole by the first read of the settle (holdRepeatedSessions, mergeBackfillBars).
+export const PROVISIONAL_CLOSE_RELATION = 'provisional-session-close';
+export const PROVISIONAL_CLOSE_FIELDS = Object.freeze(['dxy', 'wti', 'brent', 'gold', 'silver']);
+const PROVISIONAL_CUT_MINUTE = 17 * 60;
+const PROVISIONAL_BAR_WINDOW_MS = 2 * 3600000; // a bar older than the hour before the halt is not the halt print
+function isProvisionalClose(meta) {
+  return meta?.observationRelation === PROVISIONAL_CLOSE_RELATION;
+}
+
+/** True when a read of `session` other than a provisional one is on record for the field (live, or held as a copy). */
+function settledReadOnRecord(hist, field, session) {
+  return (Array.isArray(hist) ? hist : []).some((row) => {
+    const meta = row?.fieldMeta?.[field];
+    if (typeof row?.[field] !== 'number' || !Number.isFinite(row[field]) || !meta?.observedAt) return false;
+    if (meta.observationRelation === 'carried-forward') return meta.sessionDate === session && !!meta.heldRelation && meta.heldRelation !== PROVISIONAL_CLOSE_RELATION;
+    return !isProvisionalClose(meta) && historyObservationSession(meta, field) === session;
+  });
+}
+
+/**
+ * The fields whose read in `rec` names a session before the US session that just closed, while no settled read of that
+ * session is on record, once its 17:00 ET halt has passed. A day without a US session adds no session of its own (the
+ * target stays the last open one), so a weekend or holiday run only ever fills a settle that is still missing.
+ */
+export function provisionalCloseTargets(hist, rec, nowMs, fields = PROVISIONAL_CLOSE_FIELDS) {
+  const basis = latestCompletedUsSession(nowMs);
+  if (!basis?.date || !Number.isFinite(basis.closeMs)) return [];
+  const cutMs = basis.closeMs + (PROVISIONAL_CUT_MINUTE - nyParts(basis.closeMs).minute) * 60000;
+  if (!(nowMs >= cutMs)) return [];
+  const targets = [];
+  for (const field of fields) {
+    const read = rec?.fieldMeta?.[field];
+    const readSession = typeof rec?.[field] === 'number' && read ? historyObservationSession(read, field) : null;
+    if (readSession && readSession >= basis.date) continue;
+    if (settledReadOnRecord(hist, field, basis.date)) continue;
+    targets.push({ field, session: basis.date, cutMs });
+  }
+  return targets;
+}
+
+/** The last hourly bar (open stamps in seconds) ending at or before the cut, and within the hour before it; else null. */
+export function provisionalCloseBar(bars, cutMs) {
+  const stamps = Array.isArray(bars?.timestamp) ? bars.timestamp : [];
+  const closes = Array.isArray(bars?.close) ? bars.close : [];
+  let best = null;
+  for (let i = 0; i < stamps.length; i += 1) {
+    const openMs = Number(stamps[i]) * 1000;
+    const close = closes[i] == null ? NaN : Number(closes[i]);
+    if (!Number.isFinite(openMs) || !Number.isFinite(close) || close <= 0) continue;
+    if (openMs + 3600000 > cutMs || openMs < cutMs - PROVISIONAL_BAR_WINDOW_MS) continue;
+    if (!best || openMs > best.openMs) best = { openMs, close };
+  }
+  return best ? { close: best.close, observedAt: new Date(best.openMs + 3600000).toISOString() } : null;
+}
+
+/**
+ * Writes each target's provisional close into `rec` (value and fieldMeta) from its hourly bars; returns what it wrote.
+ * The read it replaces is an earlier session's; when that session has no settled read on record (its settle first
+ * arrived in this run) it is kept in its own session's row, so the provisional close never costs a settle.
+ */
+export function withProvisionalCloses(hist, rec, targets, barsByField, { fetchedAt = new Date().toISOString() } = {}) {
+  const written = [];
+  for (const { field, session, cutMs } of Array.isArray(targets) ? targets : []) {
+    const bar = provisionalCloseBar(barsByField?.[field], cutMs);
+    const value = bar ? round(bar.close, 2) : null;
+    if (value == null || !histValueWithinPlausibility(field, value)) continue;
+    const replaced = rec.fieldMeta?.[field];
+    if (Array.isArray(hist) && typeof rec[field] === 'number' && replaced) keepInSessionRow(hist, field, rec[field], replaced, rec.date);
+    rec[field] = value;
+    rec.fieldMeta = rec.fieldMeta || {};
+    rec.fieldMeta[field] = {
+      observedAt: bar.observedAt, fetchedAt, lastSuccessfulAt: fetchedAt,
+      source: 'Yahoo chart (60m)', sourceKind: 'T3_PUBLIC_DELAYED', allowedUse: 'provisional-reference',
+      marketSession: 'COMPLETED', observedMarketSession: null,
+      valueBasis: PROVISIONAL_CLOSE_RELATION, observationRelation: PROVISIONAL_CLOSE_RELATION, observedAtSource: 'provider-current',
+      sessionDate: session,
+    };
+    written.push({ field, session, value });
+  }
+  return written;
+}
+
+const YAHOO_CHART_HOSTS = ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com'];
+// A rolling crude contract is read on the contract the quote priced (quotes.mjs alignRollingFuturesQuote), so the
+// provisional close and the settle that replaces it are one contract's.
+async function fetchProvisionalBars(targets, quotes = []) {
+  const bySymbol = new Map((Array.isArray(quotes) ? quotes : []).map((q) => [q?.symbol, q]));
+  const out = {};
+  await mapLimit(targets, 4, async ({ field }) => {
+    const symbol = Object.keys(HIST_SYMBOLS).find((sym) => HIST_SYMBOLS[sym] === field);
+    const chartSymbol = bySymbol.get(symbol)?.contract || symbol;
+    for (const host of YAHOO_CHART_HOSTS) {
+      try {
+        const res = (await fetchJSON(`${host}/v8/finance/chart/${encodeURIComponent(chartSymbol)}?interval=60m&range=5d`, {}, 1))?.chart?.result?.[0];
+        if (res) { out[field] = { timestamp: res.timestamp || [], close: res.indicators?.quote?.[0]?.close || [] }; return; }
+      } catch (_) { /* the other host */ }
+    }
+  });
+  return out;
 }
 
 export function usPreOpenIndexPrint(symbol, observedAt) {
@@ -725,6 +861,11 @@ export async function updateHistory(data, marketSnapshot = null, officialFx = nu
       try { const bf = await backfillHistory(hist, thinAux); hist = bf.hist; backfilled = bf.added; console.log(`[fetch-data] aux history backfill ${thinAux.join(',')}: +${bf.added}`); } catch (e) { console.warn('[fetch-data] aux backfill 실패(무시):', e && e.message || e); }
     }
     hist = carryForwardHistoryEvidence(hist);
+    const provisionalTargets = provisionalCloseTargets(hist, rec, Date.parse(fetchedAt) || Date.now());
+    if (provisionalTargets.length) {
+      const provisional = withProvisionalCloses(hist, rec, provisionalTargets, await fetchProvisionalBars(provisionalTargets, data.quotes), { fetchedAt });
+      console.log(`[fetch-data] history: provisional ${provisionalTargets[0].session} close (17:00 ET print, settle pending) ${provisional.map((row) => `${row.field} ${row.value}`).join(', ') || 'none — hourly bars unavailable'}`);
+    }
     const sessionless = dropSessionlessReads(hist, today, rec);
     if (sessionless.length) console.log(`[fetch-data] history: ${sessionless.length} read(s) stamped on a day without a session kept out of today's row (${sessionless.join(', ')})`);
     const displaced = keepDisplacedSessions(hist, today, rec);

@@ -141,6 +141,8 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
           // The AI supply chain by group (a lazy chunk). v59.51: it paints into its static slot
           // after #themes-verdict; creating the host here raced aio-core's 2.3 s verdict-after-header reorder.
           // The same chunk opens the summary card with the leaders against the rest (paintThemesLeaderFalls).
+          // The sector template bars and the theme 200-day tiles (a lazy chunk, technical/setup-board.js).
+          if (route === 'themes') import('../components/setup-board-view.js').then(({ renderThemesSetup }) => renderThemesSetup({ documentRef, root, rows: store?.getState?.()?.screener?.rows || [] })).catch(() => {});
           if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain, paintThemesLeaderFalls }) => { paintThemesAiChain(documentRef, root); paintThemesLeaderFalls(documentRef, root); }).catch(() => {});
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
            try { paintScreenReadings(); } catch (_) { /* a reading never takes the themes route down */ }

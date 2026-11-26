@@ -28,7 +28,9 @@ export const changeClaim = (fact, { word = null, label = fact.label, unit = unit
 const figureClaim = (fact, measure, value, unit, label) => claim({ subject: subjectOf(fact), measure, asOf: fact.date, figures: [{ value, unit, basis: measure, label }] });
 // v59.71 (owner 11/07 '거래량'): a stock move on at least twice its 20-session turnover says so beside the price.
 const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? say('(거래량 {v})', { v: figureClaim(fact, 'rvol20', fact.rvol, 'x', '거래량') }) : NOTHING);
-const named = (fact, word = null) => say('{name} {move}', { name: fact.label, move: changeClaim(fact, { word }) });
+// A price the ledger marks provisional (the 17:00 ET print before the futures settle) says so beside its figure.
+const provisionalTag = (fact) => (fact?.provisional ? say('(잠정)') : NOTHING);
+const named = (fact, word = null) => say('{name} {move}{tag}', { name: fact.label, move: changeClaim(fact, { word }), tag: provisionalTag(fact) });
 /** The five-session leg and its size against the usual five-session move. */
 const weekClaim = (fact) => claim({ subject: subjectOf(fact), measure: 'week5d', asOf: fact.date, figures: [{ value: fact.week, unit: unitOf(fact), basis: 'week5d', label: '5거래일' },
   { value: Math.abs(fact.zWeek), unit: 'x', basis: 'zWeek', label: '평소 5거래일 변동' }] });

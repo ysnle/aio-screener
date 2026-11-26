@@ -7,6 +7,7 @@
 import { EXTENSION_BANDS } from '../screener/setup-profile.js';
 import { RULES } from '../rules/thresholds.js';
 import { signalHistory, signalHistoryText } from './signal-history.js';
+import { trendTemplateChecks } from './trend-template.js';
 // Moving averages, ATR, ADR, the 52-week range, the 50-day extension and the Weinstein stage come from the one
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, fromYearHigh, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
@@ -147,21 +148,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const byKind = new Map();
   for (const event of events.filter((item) => item.index >= from).sort((a, b) => b.index - a.index)) { const list = byKind.get(event.kind) || []; if (list.length < 2) list.push(event); byKind.set(event.kind, list); }
   const chartEvents = [...byKind.values()].flat().sort((a, b) => a.index - b.index);
-  // Minervini trend template (8 published criteria). v57.50 D23: the published 8th criterion is an RS rating of 70+;
-  // here it is replaced by "6-month return above the S&P 500", so the template is labelled as a variant wherever shown.
   const low52 = range.low;
-  const sma200Then = sma200[n - 21];
-  const templateChecks = [
-    // A check whose moving average is not yet computable is unknown (null), never 'unmet'.
-    ['종가 > 150·200일선', sma150[n] == null || sma200[n] == null ? null : last.close > sma150[n] && last.close > sma200[n]],
-    ['150일선 > 200일선', sma150[n] == null || sma200[n] == null ? null : sma150[n] > sma200[n]],
-    ['200일선 1개월 이상 상승', sma200[n] == null || sma200Then == null ? null : sma200[n] > sma200Then],
-    ['50일선 > 150·200일선', sma50[n] == null || sma150[n] == null || sma200[n] == null ? null : sma50[n] > sma150[n] && sma50[n] > sma200[n]],
-    ['종가 > 50일선', sma50[n] == null ? null : last.close > sma50[n]],
-    [`52주 저점 대비 +${TECH.template.aboveLowPct}% 이상`, fullYear ? last.close >= low52 * (1 + TECH.template.aboveLowPct / 100) : null],
-    [`52주 고점 대비 -${TECH.template.nearHighPct}% 이내`, fullYear ? last.close >= high52 * (1 - TECH.template.nearHighPct / 100) : null],
-    [`상대강도 (${benchmarkLabel} 대비 6개월 우위)`, null]
-  ];
   // Buy/sell pressure: volume on up days versus down days over 20 sessions.
   let upVol = 0; let downVol = 0; let seen = 0;
   for (let i = n - 19; i <= n; i++) { if (volumes[i] == null) continue; seen += 1; if (closes[i] > closes[i - 1]) upVol += volumes[i]; else if (closes[i] < closes[i - 1]) downVol += volumes[i]; }
@@ -192,7 +179,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rs = rsRet6 != null && b0 && b1 ? rsRet6 - (b1 / b0 - 1) * 100 : null;
   const rsAsOf = rs == null ? null : bars[rsEnd].time;
   const strength = adx(bars);
-  templateChecks[7][1] = rs == null ? null : rs > 0;
+  // The trend template is the one shared definition (trend-template.js), as [label, ok] pairs for this file's readers.
+  const templateChecks = trendTemplateChecks({ close: last.close, sma50: sma50[n], sma150: sma150[n], sma200: sma200[n], sma200Then: sma200[n - 21], low52, high52, fullYear, rs }, { benchmarkLabel })
+    .map(({ label, ok }) => [label, ok]);
   // The relative-strength line (close ÷ benchmark on the same date). A line at its own high
   // while price is still under its high is the classic leadership tell (O'Neil/Minervini: RS leads price).
   const rsLine = benchRows.length ? bars.map((bar, i) => { const b = i <= lineEnd ? benchAt(bar.time) : null; return b ? bar.close / b : null; }) : [];

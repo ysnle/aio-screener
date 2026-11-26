@@ -1,19 +1,15 @@
 {
   "schemaVersion": "aio-inline-style-baseline.v1",
-  "generatedBy": "scripts/ci-inline-style-ratchet-check.mjs",
+  "generatedBy": "scripts\\ci-inline-style-ratchet-check.mjs",
   "note": "Per-file inline style and sub-12px font-size counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "inline": 91,
-    "belowFloor": 19
+    "inline": 84,
+    "belowFloor": 18
   },
   "counts": {
     "index.html": {
-      "inline": 62,
+      "inline": 61,
       "belowFloor": 1
-    },
-    "src/ui/chat/panel.js": {
-      "inline": 5,
-      "belowFloor": 0
     },
     "js/aio-core.js": {
       "inline": 3,
@@ -28,7 +24,7 @@
       "belowFloor": 0
     },
     "js/aio-ui.js": {
-      "inline": 2,
+      "inline": 1,
       "belowFloor": 0
     },
     "js/aio-workspace.js": {
@@ -41,7 +37,7 @@
     },
     "src/ui/styles/responsive.css": {
       "inline": 0,
-      "belowFloor": 6
+      "belowFloor": 5
     }
   }
 }

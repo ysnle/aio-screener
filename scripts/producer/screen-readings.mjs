@@ -101,7 +101,7 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     }
     const estimatedUsd = estimateAiCostUsd(usage);
     if (answer.text && verdict && !verdict.issues.length) {
-      readings[screen] = { status: 'verified', text: answer.text, basis: packet.basis, key: packet.key, generatedAt, model: SHARED_AI_MODEL, warnings: verdict.warnings, usage, estimatedUsd };
+      readings[screen] = { status: 'verified', text: verdict.text || answer.text, basis: packet.basis, key: packet.key, generatedAt, model: SHARED_AI_MODEL, warnings: verdict.warnings, usage, estimatedUsd };
       outcomes[screen] = retried ? 'verified-after-retry' : 'verified';
       continue;
     }

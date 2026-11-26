@@ -3,7 +3,7 @@
 // the stock, each opening its theme, and the earnings outlook beside the move (stock-earnings-tie.js). Nothing is drawn
 // for a line without data.
 import { el } from './dom.js';
-import { companyMoveRow, moveNewsList } from './market-timeline.js';
+import { companyMoveRow, moveNewsList } from './move-news.js';
 import { stockThemes, themeCatalogFor } from '../../domain/entity/primary-theme.js';
 import { stockSessionTie } from '../../domain/entity/stock-session-tie.js';
 import { openThemeDetail } from '../navigation/theme-detail.js';

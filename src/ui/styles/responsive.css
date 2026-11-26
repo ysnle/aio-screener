@@ -31,12 +31,14 @@
 @import url('./legacy-important-files.css'); /* v59.90: important-flagged declarations of legacy-*.css and shell-static.css, unlayered */
 @import url('./soft-ui.css'); /* v58.53 개편 v2: soft shell + sx-* component library (design_handoff_aio_redesign_v2 3a) */
 @import url('./v2-today.css'); /* v58.53 개편 v2: 오늘 */
+@import url('./briefing-report.css'); /* 2026-11-26: 브리핑 as one report column */
 @import url('./v2-market.css'); /* v58.53 개편 v2: 시장 상태 · 거시 · 금리 */
 @import url('./v2-stock.css'); /* v58.53 개편 v2: 종목 · 테마 · 섹터 */
 @import url('./v2-screener.css'); /* v58.53 개편 v2: 스크리너 · 포트폴리오 */
 @import url('./v2-research.css'); /* v58.53 개편 v2: 리서치 · 용어 사전 · 한국 */
 @import url('./ai-map.css'); /* 산업 지도 › AI 지도 and the shared node graph (node-graph.js) */
 @import url('./page-views.css'); /* v60.08: views of one route, list beside a detail pane */
+@import url('./setup-board.css'); /* setup board on 시장 폭, 테마와 섹터 and 스크리너 (components/setup-board-view.js) */
 @import url('./ui-states.css'); /* v59.70: shared button, field, data-card and transition states — last so one rule covers every screen */
 /* UI review 2026-10-18: one page header for every screen. The screens had three hand-written variants
    (thin rule 8px, strong rule 20px, no rule — the subtitle then touched the first section's rule), and a
@@ -438,13 +440,6 @@ body.aio-popover-open #scroll-top-btn { display: none !important; }
 /* v57.91 (desktop audit): the empty-portfolio storage notice ran as one ~850px grey line; its lines stop at 60ch, centred. */
 #page-portfolio .pf-empty-state td > div { max-width: 60ch; margin-inline: auto; }
 /* 2026-10-18 UI review (visual pass 2) */
-/* News country/topic filters join the one toggle style; the grey box around them goes. Selection reads from aria-pressed,
-   which src/ui/components/news-controls.js sets on a pick and src/ui/pages/news.js keeps in sync (v59.90: no inline colours). */
-#news-filter-row { background: transparent; border: 0; padding: 0; gap: 8px 18px; }
-#news-filter-row .chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 12px; font-size: 12px; border: 0.5px solid var(--color-border-emphasized); border-radius: var(--radius-full); background: transparent; color: var(--color-text-secondary); }
-@media (hover: hover) { #news-filter-row .chip:not([aria-pressed="true"]):hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); } } /* v59.90: hover skips the pressed chip, which is ink-filled */
-#news-filter-row .chip[aria-pressed="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-background-card); }
-#news-filter-row .chip:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 /* Trend charts drawn narrower than ~380px (the 한국 시장 trio, phones) scaled their 13-unit axis text to ~8px. */
 .trend-chart-wrap { container-type: inline-size; }
 @container (max-width: 380px) { .page .trend-chart-wrap .trend-chart:not(.is-actual-size) .trend-chart-axis { font-size: 17px; } }
@@ -537,8 +532,6 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #aio-first-visit-disclaimer.is-inline { border: 0; background: var(--color-background-card); padding: 8px var(--sx-card-pad-x); }
 
 /* v59.55 (alignment pass, round 2). */
-/* 브리핑 header reads like every screen: basis line, hub kicker, title (the date line sat under the title). */
-#page-briefing .sh-briefing-row > div:has(> .page-title) { display: flex; flex-direction: column-reverse; gap: 4px; }
 /* Small inline folds (설명, 숫자와 집계 기준) read as captions with no marker; a small chevron after the words says they open. */
 .aio-note-fold > summary { list-style: none; gap: 6px; }
 .aio-note-fold > summary::-webkit-details-marker { display: none; }
@@ -551,14 +544,14 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-ticker > .aio-section > .aio-section-hd, #page-ticker .ticker-start-title { padding-left: var(--sx-card-pad-x); }
 .page > details.sx-disclosure.sh-fold-mt16 > :not(summary) { padding: 0 var(--sx-card-pad-x) 16px; }
 /* Bare page-level folds: the native ▶ put their words 13px in; they take the text column and the drawn chevron. */
-#news-filter-fold > summary, #scr-data-status > summary {
+#scr-data-status > summary {
   list-style: none; display: flex; align-items: center; gap: 8px; padding-left: var(--sx-card-pad-x); cursor: pointer;
 }
-#news-filter-fold > summary::-webkit-details-marker, #scr-data-status > summary::-webkit-details-marker { display: none; }
-#news-filter-fold > summary::after, #scr-data-status > summary::after {
+#scr-data-status > summary::-webkit-details-marker { display: none; }
+#scr-data-status > summary::after {
   content: ''; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg);
 }
-#news-filter-fold[open] > summary::after, #scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+#scr-data-status[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
 /* The screener's data-status notes were the last 4px-radius outlined boxes; they take the soft tile like other notes. */
 .page :is(.sh-screener-data-status-panel, .sh-screener-readiness-note-panel) { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 10px var(--sx-card-pad-x); }
 #pf-holdings-table-section .sh-portfolio-holdings-table-row { padding-left: 0; padding-right: 0; }
@@ -680,19 +673,6 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-charts .charts-table th:first-child, #page-charts .charts-table td:first-child, #page-charts .charts-table td:nth-child(2), #page-charts .charts-table th:nth-child(2) { text-align: left; }
 #page-charts .charts-stock-name { margin-left: 8px; color: var(--color-text-secondary); }
 #page-charts .charts-group__label { padding: 12px 8px 4px; text-align: left; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); border-bottom: 1px solid rgba(var(--ink-rgb), 0.12); }
-/* v59.65 브리핑 지난 24시간: stories as a quiet numbered list; the lead ones carry the accent rule. */
-#page-briefing .briefing-day-opening { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: var(--color-text-primary); }
-#page-briefing .briefing-day-stories { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-#page-briefing .briefing-day-story { padding: 8px 12px; border-left: 3px solid rgba(var(--ink-rgb), 0.18); }
-#page-briefing .briefing-day-story.is-lead { border-left-color: var(--color-accent); }
-#page-briefing .briefing-day-story__title { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
-#page-briefing .briefing-day-story__line { margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
-#page-briefing .briefing-day-story__report { margin: 4px 0 0; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-#page-briefing .briefing-day-evidence {margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
-#page-briefing .briefing-day-evidence-fold summary, #page-briefing .briefing-day-fold summary { font-size: 12px; cursor: pointer; color: var(--color-text-secondary); }
-#page-briefing .briefing-day-more-title { margin: 14px 0 0; font-size: var(--fs-sm); font-weight: 600; color: var(--color-text-secondary); }
-#page-briefing .briefing-day-more { margin: 6px 0 0; padding-left: 18px; font-size: 12px; line-height: 1.7; }
-#page-briefing .briefing-day-note, #page-briefing .briefing-day-coverage { margin: 8px 0 0; font-size: 12px; color: var(--color-text-secondary); }
 /* v59.66 시장 상태 지표를 같이 놓고 보면: two columns on wide screens, one on phones. */
 #page-signal .mk-cross__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 @media (min-width: 1024px) { #page-signal .mk-cross__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -725,7 +705,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 .story-weight__bar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w, 0%); border-radius: 3px; background: rgba(var(--ink-rgb), 0.45); }
 .story-weight.is-lead .story-weight__bar::after { background: var(--color-accent); }
 .story-weight__dir { font-size: var(--fs-min); line-height: 1; color: var(--color-text-secondary); }
-#page-briefing .briefing-day-story__head, #page-home .home-day__story-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#page-home .home-day__story-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 #page-home .home-day__story-head { margin-bottom: 2px; }
 #page-home .home-day__story { display: grid; }
 /* v59.68 시장 상태 pairs as 2×2 maps (market-regime.js crossMap). */

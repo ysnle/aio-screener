@@ -6,6 +6,8 @@ import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/kno
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { renderMarketTemperature } from '../components/market-temperature.js';
 import { MACRO_HISTORY } from '../../data/artifact-registry.js';
+import { requestResearchReference } from '../../data/research-reference.js';
+import { paintResearchSection } from '../components/research-reference.js';
 
 // The page is the sentiment board (../components/sentiment-board.js): the shared 심리 verdict, indicator rows and charts.
 // P1412 (Codex structural review): the board's inputs come from one adapter, collectMarketInputs
@@ -51,6 +53,14 @@ export function createSentimentPage({ documentRef, evidenceStore, store } = {}) 
       // per-market price temperature (KOSPI·KOSDAQ·S&P·Nasdaq·Nikkei) under the US sentiment charts.
       renderMarketTemperature({ documentRef, root: documentRef?.defaultView || globalThis, anchor: documentRef?.getElementById('sentiment-chart-grid')?.closest('section') || null });
       bag.add(() => documentRef?.getElementById('sentiment-temperature')?.remove());
+      // Researched fund flows and positioning (weekly, hand-checked, each row dated) under the price temperature: who is
+      // putting money in or taking it out, beside the survey and price readings of mood. Never part of the 심리 verdict.
+      let flows = null;
+      const paintFlows = () => { flows = paintResearchSection(documentRef, documentRef?.defaultView || globalThis, { id: 'sentiment-research-flows', title: '자금 흐름과 포지션', groups: ['fund-flows'],
+        anchor: documentRef?.getElementById('sentiment-temperature') || documentRef?.getElementById('sentiment-chart-grid')?.closest('section') || null }); };
+      paintFlows();
+      requestResearchReference(documentRef?.defaultView || globalThis, () => { if (active) paintFlows(); });
+      bag.add(() => flows?.remove());
       // Research documents (N chapter, formerly the options route) land here with what to check.
       renderKnowledgeArrival({ documentRef, root: documentRef?.defaultView || globalThis, routeId: 'sentiment' });
       bag.add(() => clearKnowledgeArrival({ documentRef, routeId: 'sentiment' }));

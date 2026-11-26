@@ -65,7 +65,7 @@ const LIVE_ROWS = [
 ];
 
 function latestClose(history, field) {
-  const rows = (Array.isArray(history) ? history : []).filter((row) => typeof row?.[field] === 'number' && row[field] > 0 && historyFieldMeta(row, field)?.observationRelation !== 'carried-forward');
+  const rows = (Array.isArray(history) ? history : []).filter((row) => typeof row?.[field] === 'number' && row[field] > 0 && historyFieldMeta(row, field)?.observationRelation !== 'carried-forward' && historyFieldMeta(row, field)?.observationRelation !== 'provisional-session-close');
   const row = rows.sort((a, b) => String(a.date).localeCompare(String(b.date))).at(-1);
   return row ? { value: row[field], date: String(historyFieldMeta(row, field)?.observedAt || row.date).slice(0, 10) } : null;
 }

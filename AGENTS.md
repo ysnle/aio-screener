@@ -77,6 +77,7 @@ Owner decisions applied without re-asking; changed only by the user.
 - 13D/G keeps its light daily poll (P1309/R654).
 - **Filling gaps (2026-10-11):** existing artifacts and official free sources first (FRED, Treasury, BLS, BEA, SEC, BOK/ECOS, KOSIS, KRX); cited OpenAI web search when they cannot answer or to corroborate.
 - Search never feeds numbers to scores, tables or charts; citations don't certify freshness; collection time never replaces publication time.
+- **Researched reference figures (owner 2026-11-26):** figures with no free machine source (single-name credit such as bond yields and CDS, fund flows, memory contract prices) are researched once or twice a week and kept in `public-data/research-reference.json`, each with its own date and source. They are shown as dated reference rows beside the automated data they explain and given to the AI reading as dated facts; they never feed a score, a rank or a chart series. A series an official source publishes daily goes to a producer instead.
 - **AI (2026-10-11/12):** generation uses OpenAI `gpt-6-luna` via the shared Worker; `OPENAI_API_KEY` stays in Worker Secrets.
 - Headline translation tries the Worker's free Workers AI binding first, then `gpt-6-luna` (2026-10-14).
 - Chat, translation, Actions analysis and web search share one atomic UTC-month ledger, $20 target (R681 v59.27); personal keys or other paid providers never bypass it.

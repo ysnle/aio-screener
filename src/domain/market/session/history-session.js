@@ -197,3 +197,8 @@ export function historyHeldSessionDate(meta, field) {
 export function isHeldHistoryValue(meta) {
   return meta?.observationRelation === 'carried-forward';
 }
+
+/** True when the value is the producer's 17:00 ET print written before the settle; settled-close readers skip it. */
+export function isProvisionalHistoryValue(meta) {
+  return meta?.observationRelation === 'provisional-session-close';
+}

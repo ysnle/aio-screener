@@ -445,6 +445,15 @@ export function creditRanges(macroHistory) {
   return { ranges, since, line: `${lead.label} ${lead.now.toFixed(2)}%, ${since} 기록의 ${lead.pct}% 위치${others.length ? ` — ${restText}` : ''}.` };
 }
 
+const CREDIT_YIELDS = Object.freeze([['hyYield', '하이일드'], ['cccYield', 'CCC'], ['igYield', '투자등급']]);
+/** [{ label, value }] for each effective yield with a 20-session reading; [] while the series are not published. */
+export function creditYields(macroHistory) {
+  return CREDIT_YIELDS.map(([id, label]) => {
+    const read = oasDelta20Bp(macroHistory, id);
+    return read ? { label, value: `${read.level.toFixed(2)}% (20거래일 ${bp(read.value)})` } : null;
+  }).filter(Boolean);
+}
+
 // v59.70 (X bookmarks #3, owner 11/4): the chapter reads the credit axis's own rule (RULES.credit through creditState) and
 // its one 20-session reading (oasDelta20Bp) — '+40bp or 4.5%' and a '3.5% 돌파' flip here said 위기 where 시장 상태 said 중립.
 function credit(macroHistory) {
@@ -471,6 +480,9 @@ function credit(macroHistory) {
     next: '매일',
     flip,
     ranges: creditRanges(macroHistory),
+    // The automated 금리(수익률) rows (ICE BofA effective yields from the macro-history producer), printed above the
+    // researched single-name rows: what a borrower pays, where the spreads above say only the premium. Empty until published.
+    yields: creditYields(macroHistory),
     detail: [['하이일드', `${hy.to.toFixed(2)}%`], ...(bb20 ? [['BB', `${bb20.level.toFixed(2)}%`]] : []), ...(b20 ? [['B', `${b20.level.toFixed(2)}%`]] : []), ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'], ['금융여건 지수', fci ? fci.value.toFixed(2) : '—']]
   };
 }

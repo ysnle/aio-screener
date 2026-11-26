@@ -32,8 +32,9 @@ import { indexSaid } from '../src/domain/briefing/day-account.js';
 import { openingFacts } from './lib/claim-facts.mjs';
 import { todayVerdictFrom } from './build-scenario-state.mjs';
 import { paintOpening } from '../src/ui/components/market-story.js';
-import { SCREEN_STORY } from '../src/domain/market/story/screen-story.js';
-import { tieLines } from '../src/ui/components/story-tie.js';
+import { SCREEN_STORY, SCREEN_FACE, screenFaceLine } from '../src/domain/market/story/screen-story.js';
+import { sessionDivergences, DIVERGENCE_RULES } from '../src/domain/market/day/divergence.js';
+import { koreaBigMoveSaid, KOREA_BIG_MOVE_PCT } from '../src/domain/market/korea/korea-session-link.js';
 import { LONGRUN_INDEXES } from './build-index-longrun.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -109,7 +110,7 @@ await runSections('market-story', [
       seen.add(`${rows.sox.stage?.word || 'none'}/${rows.ndx.stage?.word || 'none'}/${rows.spx.stage?.word || 'none'}/${state}`);
       const bare = lede.text.replace(/나스닥 100|S&P 500/g, '');
       if ((bare.match(/\d+(?:\.\d+)?/g) || []).length > 1) problems.push(`more than one number: ${lede.text}`);
-      if (!lede.text.startsWith(`반도체는 `) || !lede.text.includes('나스닥 100')) problems.push(`leaders not first: ${lede.text}`);
+      if (!lede.text.startsWith(`반도체(SOX)는 `) || !lede.text.includes('나스닥 100')) problems.push(`leaders not first: ${lede.text}`);
       for (const row of [rows.sox, rows.ndx, rows.spx]) if (!lede.text.includes(stageText(row))) problems.push(`${row.id} stage "${stageText(row)}" missing: ${lede.text}`);
       if (state === 'none' ? Object.values(PLAIN).some((plain) => lede.text.includes(plain)) : !lede.text.includes(PLAIN[state])) problems.push(`${state} phrase: ${lede.text}`);
       if (Object.values(DIAGNOSIS_WORDS).some((word) => lede.text.includes(word))) problems.push(`state word in the lede (it is the diagnosis line's): ${lede.text}`);
@@ -127,13 +128,13 @@ await runSections('market-story', [
     for (const word of ['bear', 'correction', 'none']) assert.ok(parts.some(([, , c]) => c === word), `v60.50 broad stage ${word}`);
   });
   const opening = buildMarketOpening({ history: fixtureHistory(), macroHistory: credit(3.2) });
-  check('v60.50 the crash shape reads "반도체는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 …"', () => {
-    assert.equal(said(opening, 'lede').text, '반도체는 고점에서 43% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.50 lede-variants');
+  check('v60.50 the crash shape reads "반도체(SOX)는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 …"', () => {
+    assert.equal(said(opening, 'lede').text, '반도체(SOX)는 고점에서 43% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.50 lede-variants');
     assert.deepEqual(opening.lines.map((line) => line.id).slice(0, 3), ['session', 'lede', 'diagnosis'], 'v60.50 lede-variants');
   });
   const quiet = buildMarketOpening({ history: fixtureHistory({ soxEnd: 0.95, ndxEnd: 0.97, spxEnd: 0.98, rspEnd: 0.98, dowEnd: 0.98 }), macroHistory: credit(3.2) });
   check('v60.50 with no diagnosis the lede is the stages alone and no diagnosis line is drawn', () => {
-    assert.equal(said(quiet, 'lede').text, '반도체는 아직 조정 전이고 나스닥 100도 아직 조정 전입니다. 시장 전체도 아직 조정 전입니다.', 'v60.50 lede-variants');
+    assert.equal(said(quiet, 'lede').text, '반도체(SOX)는 아직 조정 전이고 나스닥 100도 아직 조정 전입니다. 시장 전체도 아직 조정 전입니다.', 'v60.50 lede-variants');
     assert.equal(said(quiet, 'diagnosis').text, '', 'v60.50 lede-variants');
   });
   report('lede-variants');
@@ -156,10 +157,10 @@ await runSections('market-story', [
     assert.equal(LONGRUN_INDEXES.ndx?.symbol, '^NDX', 'v60.50 bars-and-one-nasdaq');
     assert.equal('nasdaq' in LONGRUN_INDEXES, false, 'v60.50 bars-and-one-nasdaq');
   });
-  check('v60.50 반도체 on the face is the SOX index, named in full in the table (not the SOXX fund of the index card)', () => {
-    assert.doesNotMatch(opening.lines.map((line) => line.said.text).join(' '), /SOX/, 'v60.50 bars-and-one-nasdaq');
+  check('v60.58 반도체(SOX) on the face names the SOX index, in full in the table (not the SOXX fund of the index card)', () => {
+    assert.match(said(opening, 'lede').text, /^반도체\(SOX\)는 /, 'v60.58 the lede names the index it measures');
     const soxRow = opening.table.find((row) => row.id === 'sox').said.text;
-    assert.ok(soxRow.startsWith('필라델피아 반도체 지수(SOX), '), `v60.50 the SOX row is named in full: ${soxRow}`);
+    assert.ok(soxRow.startsWith('반도체(SOX) 필라델피아 지수, '), `v60.50 the SOX row is named in full: ${soxRow}`);
   });
   report('bars-and-one-nasdaq');
 }, 'code'],
@@ -197,15 +198,15 @@ await runSections('market-story', [
   const troughMonth = `${body.drawdowns[0].trough.slice(0, 4)}년 ${Number(body.drawdowns[0].trough.slice(5, 7))}월`;
   check('v60.50 with a long-run artifact the lede carries the since instead of the number, never both, and the record line does not repeat it', () => {
     assert.equal(body.drawdowns[0].depth, -47, 'v60.50 since-with-longrun');
-    assert.ok(said(opening, 'lede').text.startsWith(`반도체는 ${troughMonth} 이후 가장 깊은 하락으로 약세장이고`), `v60.50 ${said(opening, 'lede').text}`);
+    assert.ok(said(opening, 'lede').text.startsWith(`반도체(SOX)는 ${troughMonth} 이후 가장 깊은 하락으로 약세장이고`), `v60.50 ${said(opening, 'lede').text}`);
     assert.doesNotMatch(said(opening, 'lede').text, /고점에서 \d/, 'v60.50 since-with-longrun');
     assert.doesNotMatch(said(opening, 'records').text, /이후 가장 깊습니다/, 'v60.50 since-with-longrun');
-    assert.ok(openingFactLines(opening).some((line) => line.includes(`반도체 고점 대비 하락은 ${troughMonth} 저점(-47.0%) 이후 가장 깊습니다.`)), 'v60.50 the AI facts keep the since with its depth');
+    assert.ok(openingFactLines(opening).some((line) => line.includes(`반도체(SOX) 고점 대비 하락은 ${troughMonth} 저점(-47.0%) 이후 가장 깊습니다.`)), 'v60.50 the AI facts keep the since with its depth');
     assert.doesNotMatch(texts(opening), SIZE_WORDS, 'v60.50 since-with-longrun');
   });
   check('v60.50 a long-run table newer than the session read is not that day\'s standing', () => {
     const replay = buildMarketOpening({ history: history.slice(0, -3), macroHistory: credit(3.2), longrun: artifact });
-    assert.match(said(replay, 'lede').text, /^반도체는 고점에서 \d+% 내린/, 'v60.50 since-with-longrun');
+    assert.match(said(replay, 'lede').text, /^반도체\(SOX\)는 고점에서 \d+% 내린/, 'v60.50 since-with-longrun');
   });
   report('since-with-longrun');
 }, 'code'],
@@ -420,7 +421,7 @@ await runSections('market-story', [
   check('v60.51 RULES.story.reboundPct is 5 (half the correction line)', () => assert.equal(S.reboundPct, S.correctionPct / 2, 'v60.51 rebound'));
   check('v60.51 the 11/23 shape: 반등 시도, the lede says the bounce and the fall (two numbers), then the 200-day lines', () => {
     assert.equal(rebound.rebound?.state, 'attempt', 'v60.51 rebound');
-    assert.equal(said(rebound, 'lede').text, '반도체는 하루 14% 반등했지만 고점 대비로는 아직 35% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 rebound');
+    assert.equal(said(rebound, 'lede').text, '반도체(SOX)는 하루 14% 반등했지만 고점 대비로는 아직 35% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 rebound');
     assert.doesNotMatch(said(rebound, 'lede').text, /하락입니다/, 'v60.51 a rebound day is not read as a fall');
     assert.ok((said(rebound, 'lede').text.replace(/나스닥 100|S&P 500|\d+일선/g, '').match(/\d+(?:\.\d+)?/g) || []).length <= 2, 'v60.51 at most two numbers in the lede');
     assert.deepEqual(rebound.lines.map((line) => line.id), ['session', 'lede', 'diagnosis', 'watch', 'records'], 'v60.51 the diagnosis line stays; the conditions line follows it');
@@ -456,7 +457,7 @@ await runSections('market-story', [
     assert.equal(withRebound({ available: true }, null).rebound, undefined, 'v60.51 rebound');
   });
   check('v60.51 the record line places the rebound day as it places a fall: the largest one-day rise of the record', () => {
-    assert.match(said(rebound, 'records').text, /^반도체 하루 \+14\.0%는 기록\(2026-01-02 이후\) 중 가장 큰 하루 상승입니다\./, 'v60.51 rebound');
+    assert.match(said(rebound, 'records').text, /^반도체\(SOX\) 하루 \+14\.0%는 기록\(2026-01-02 이후\) 중 가장 큰 하루 상승입니다\./, 'v60.51 rebound');
     cleanSaid(said(rebound, 'records'));
   });
   check('v60.52 the AI facts carry the state word and its conditions, each naming the index and rule (never merged with the Composite FTD)', () => {
@@ -478,10 +479,10 @@ await runSections('market-story', [
   check('v60.51 after the bounce day the lede counts from the dated low, not "하루": +1 and +5 sessions', () => {
     const next = build(day2);
     assert.equal(next.rebound?.state, 'attempt', 'v60.51 rebound');
-    assert.equal(said(next, 'lede').text, '반도체는 저점(11/20)에서 15% 올라왔지만 고점 대비로는 아직 34% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +1 session');
+    assert.equal(said(next, 'lede').text, '반도체(SOX)는 저점(11/20)에서 15% 올라왔지만 고점 대비로는 아직 34% 아래, 약세장입니다. S&P 500과 나스닥 100이 모두 200일선 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +1 session');
     const later = build(day6);
     assert.equal(later.asOf, '2026-12-01', 'v60.51 rebound');
-    assert.equal(said(later, 'lede').text, '반도체는 저점(11/20)에서 17% 올라왔지만 고점 대비로는 아직 33% 아래, 약세장입니다. S&P 500은 200일선 위지만 나스닥 100은 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +5 sessions');
+    assert.equal(said(later, 'lede').text, '반도체(SOX)는 저점(11/20)에서 17% 올라왔지만 고점 대비로는 아직 33% 아래, 약세장입니다. S&P 500은 200일선 위지만 나스닥 100은 아래라 추세 전환은 아직 확인 전입니다.', 'v60.51 +5 sessions');
     for (const [opening, history] of [[next, day2], [later, day6]]) { assert.doesNotMatch(said(opening, 'lede').text, /하루/, 'v60.51 rebound'); cleanSaid(said(opening, 'lede'), history); }
   });
   check('v60.52 the follow-through day, once it happened, is a fact of the state line (not a row), naming its own index and word', () => {
@@ -494,7 +495,7 @@ await runSections('market-story', [
     const broke = after(day2, '2026-11-25', { sox: 0.82, ndx: 0.9, spx: 0.93, rsp: 0.96, dow: 0.94 });
     const failed = build(broke);
     assert.equal(failed.rebound?.state, 'failed', 'v60.51 rebound');
-    assert.equal(said(failed, 'lede').text, '반도체는 고점에서 46% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.51 rebound');
+    assert.equal(said(failed, 'lede').text, '반도체(SOX)는 고점에서 46% 내린 약세장이고 나스닥 100도 약세장입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.51 rebound');
     assert.equal(failed.lines.find((line) => line.id === 'watch').label, '반등 실패', 'v60.51 rebound');
     assert.equal(said(failed, 'watch').text, '11/20 종가 아래로 마감해 반등 판단은 거둡니다. 지금은 하락 구간의 단계와 진단이 기준입니다.', 'v60.51 the stance alone: it names the broken low');
     assert.equal(failed.rebound.stance.text, said(failed, 'watch').text, 'v60.51 rebound');
@@ -504,7 +505,7 @@ await runSections('market-story', [
   check('v60.56 rebound-track: the rebound as a process — N일째, each session\'s move since the low\'s close, the follow-through condition and the low\'s check', () => {
     const track = build(day2).track;
     assert.equal(track.head.text, '11/20 저점 뒤 2일째', 'v60.56 rebound-track');
-    assert.deepEqual(track.columns.map((column) => column.label), ['반도체', '나스닥 100', 'S&P 500', '동일가중'], 'v60.56 rebound-track: leaders first');
+    assert.deepEqual(track.columns.map((column) => column.label), ['반도체(SOX)', '나스닥 100', 'S&P 500', '동일가중'], 'v60.56 rebound-track: leaders first');
     assert.deepEqual(track.rows.map((row) => [row.date, row.day, row.cells.map((cell) => cell.said.text)]),
       [['2026-11-23', 1, ['+14.0%', '+6.9%', '+4.7%', '+2.6%']], ['2026-11-24', 2, ['+15.1%', '+7.4%', '+5.0%', '+2.8%']]], 'v60.56 rebound-track: each close against the 11/20 close, oldest first');
     assert.equal(track.confirm.met, false, 'v60.56 rebound-track');
@@ -513,7 +514,7 @@ await runSections('market-story', [
     for (const piece of [track.said, ...track.rows.map((row) => row.said)]) cleanSaid(piece, day2);
     const line = openingFactLines(build(day2)).find((item) => item.startsWith('반등 추적: '));
     assert.equal(line, `반등 추적: ${track.said.text}`, 'v60.56 rebound-track');
-    assert.match(line, /^반등 추적: 11\/20 저점 뒤 2일째\(반등 시도\)\. 11\/23\(1일째\) 반도체 \+14\.0%, .*; 11\/24\(2일째\) .* 확인 조건: 나스닥 종합이 .* 실패 조건: 나스닥 100이 11\/20 종가 20,000 위를 지키는지/, 'v60.56 rebound-track');
+    assert.match(line, /^반등 추적: 11\/20 저점 뒤 2일째\(반등 시도\)\. 11\/23\(1일째\) 반도체\(SOX\) \+14\.0%, .*; 11\/24\(2일째\) .* 확인 조건: 나스닥 종합이 .* 실패 조건: 나스닥 100이 11\/20 종가 20,000 위를 지키는지/, 'v60.56 rebound-track');
   });
   check('v60.56 rebound-track: at most the last six sessions, numbered from the low; the follow-through, once it happened, is the confirm condition met', () => {
     const day7 = after(day6, '2026-12-02', { sox: 1.01, ndx: 1.01, spx: 1.01, rsp: 1.01, dow: 1.01 }, { rallyPhase: 2, rallyDay: 7, followThroughDay: 0 });
@@ -700,7 +701,7 @@ await runSections('market-story', [
   const macroHistory = JSON.parse(readFileSync(resolve(root, 'public-data/macro-history.json'), 'utf8'));
   const opening = buildMarketOpening({ history, macroHistory, through: '2026-11-20' });
   check('v60.50 11/20: the lede, 쏠림 되돌림 with the fast widening and the 450bp line', () => {
-    assert.equal(said(opening, 'lede').text, '반도체는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장 문턱입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.50 crash-11-20');
+    assert.equal(said(opening, 'lede').text, '반도체(SOX)는 고점에서 43% 내린 약세장이고 나스닥 100은 약세장 문턱입니다. 시장 전체는 조정에 그쳐, 쏠림이 되돌려지는 하락입니다.', 'v60.50 crash-11-20');
     assert.equal(opening.diagnosis.state, 'unwind', 'v60.50 crash-11-20');
     // The credit figure is whatever the published series holds for that close (it arrives a session late and is not pinned here).
     assert.match(said(opening, 'diagnosis').text, /^나스닥 100이 동일가중보다 12\.7%p 더 내렸고 신용 스프레드는 \d+bp(?:.\d+\/\d+.)?, 5거래일 \+\d+bp로 빠르게 확대 중\. 450bp를 넘으면 금융 불안형\.$/, 'v60.50 crash-11-20');
@@ -736,7 +737,7 @@ await runSections('market-story', [
   const gave = build(day2, { day: ledger('2026-11-24'), afterHours: prints('2026-11-24'), briefs, regularMoves: { DELL: -11.8 } });
   check('v60.55 the session leads: its moves, what the signs say together, and the share of the rebound given back', () => {
     assert.deepEqual(gave.lines.map((line) => line.id).slice(0, 5), ['session', 'gathered', 'split', 'after-hours', 'lede'], 'v60.55 session-read');
-    assert.equal(said(gave, 'session').text, '11/24 반도체 -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체 +14.0% 중 65%, 나스닥 100 +6.9% 중 31%를 되돌렸습니다.', 'v60.55 session-read');
+    assert.equal(said(gave, 'session').text, '11/24 반도체(SOX) -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다. 11/20 저점 뒤 오른 폭 가운데 반도체(SOX) +14.0% 중 65%, 나스닥 100 +6.9% 중 31%를 되돌렸습니다.', 'v60.55 session-read');
     assert.deepEqual(unclaimedFigures(said(gave, 'session')), [], 'v60.55 session-read: every figure is a claim');
   });
   check('v60.55 where it gathered: theme groups and the most material stocks on the index side, one group against it; no sector, no minor group, no other session', () => {
@@ -762,9 +763,9 @@ await runSections('market-story', [
   });
   check('v60.55 the rebound day itself gives nothing back, and a quiet session names no place', () => {
     assert.doesNotMatch(said(build(day1), 'session').text, /되돌렸습니다/, 'v60.55 session-read');
-    assert.match(said(build(day1), 'session').text, /^11\/23 반도체 \+14\.0%, 나스닥 100 \+6\.9%, S&P 500 \+4\.7%, 동일가중 \+2\.6%\. 주도주가 시장 전체보다 더 올랐습니다\.$/, 'v60.55 session-read');
+    assert.match(said(build(day1), 'session').text, /^11\/23 반도체\(SOX\) \+14\.0%, 나스닥 100 \+6\.9%, S&P 500 \+4\.7%, 동일가중 \+2\.6%\. 주도주가 시장 전체보다 더 올랐습니다\.$/, 'v60.55 session-read');
     const quiet = build(after(day1, '2026-11-24', { sox: 1.003, ndx: 1.002, spx: 1.001, rsp: 1.001 }), { day: ledger('2026-11-24') });
-    assert.equal(said(quiet, 'session').text, '11/24 반도체 +0.3%, 나스닥 100 +0.2%, S&P 500 +0.1%, 동일가중 +0.1%.', 'v60.55 session-read');
+    assert.equal(said(quiet, 'session').text, '11/24 반도체(SOX) +0.3%, 나스닥 100 +0.2%, S&P 500 +0.1%, 동일가중 +0.1%.', 'v60.55 session-read');
     assert.equal(said(quiet, 'gathered').text, '', 'v60.55 session-read');
   });
   check('v60.55 the AI fact lines carry the same three session lines, ahead of the standing', () => {
@@ -910,16 +911,64 @@ await runSections('market-story', [
     assert.equal(textOf(host).split(tally).length - 1, 1, 'v60.55 cross-market: the tally is said once, as the head of the rows');
     for (const row of rows) assert.ok(all(row).some((item) => item.className === 'opening-cross__meaning' && item.textContent) && all(row).some((item) => item.className === 'opening-cross__figures' && /\d/.test(item.textContent)), 'v60.55 cross-market: clause and figures');
   });
-  check('v60.55 a screen tie picks the opening lines its screen declares, and nothing when the opening has none', () => {
-    assert.deepEqual(Object.keys(SCREEN_STORY).sort(), ['breadth', 'charts', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.55 story-tie: the screens with a tie');
-    const pick = (screen) => tieLines(gave.lines, SCREEN_STORY[screen]);
-    assert.deepEqual(pick('themes').own.map((line) => line.id), ['session', 'gathered', 'split'], 'v60.55 story-tie: 테마 reads the session, where it gathered and the index split');
-    assert.deepEqual(pick('breadth').own.map((line) => line.id), ['session', 'split'], 'v60.55 story-tie: 시장 폭 reads the session and the index split');
-    assert.deepEqual(pick('fxbond').own, [], 'v60.55 story-tie: 금리와 환율 reads no session line');
-    assert.ok(pick('fxbond').cross.every((line) => ['dollar', 'rates', 'rates-path'].includes(line.key)), 'v60.55 story-tie: 금리와 환율 reads the dollar and rates rows only');
-    assert.deepEqual(tieLines([], SCREEN_STORY.themes), { own: [], cross: [] }, 'v60.55 story-tie: no opening, no line');
+  check('v60.59 story-tie: each screen shows ONE line of its own (its sentence, or 테마\'s gathered line), else the session summary with a link; never the session paragraph', () => {
+    assert.deepEqual(Object.keys(SCREEN_STORY).sort(), ['breadth', 'charts', 'fxbond', 'korea', 'macro', 'sentiment', 'themes'], 'v60.55 story-tie: the screens the AI packet ties');
+    assert.deepEqual(Object.keys(SCREEN_FACE).sort(), Object.keys(SCREEN_STORY).sort(), 'v60.59 story-tie: every tied screen has a face rule');
+    for (const ids of Object.values(SCREEN_FACE)) assert.ok(!ids.includes('session'), 'v60.59 story-tie: no screen but 오늘 and 시장 상태 shows the session paragraph');
+    const tie = { said: { text: '스크린의 한 문장', claims: [] } };
+    assert.equal(screenFaceLine('themes', { opening: gave, tie }).line.id, 'gathered', 'v60.59 story-tie: 테마 shows where the move gathered');
+    assert.equal(screenFaceLine('breadth', { opening: gave, tie }).line.id, 'tie', 'v60.59 story-tie: 시장 폭 shows its own sentence');
+    const summary = screenFaceLine('charts', { opening: gave, tie: null });
+    assert.equal(summary.summary, true, 'v60.59 story-tie: no own line, the summary');
+    assert.equal(summary.line.said.text, '11/24 반도체(SOX) -8.0%, 나스닥 100 -2.0%, S&P 500 -0.5%, 동일가중 +0.5%. 하락이 주도주에 몰린 날입니다.', 'v60.59 story-tie: the summary is the moves sentence alone, not the give-back');
+    assert.equal(screenFaceLine('themes', { opening: { available: false }, tie }), null, 'v60.59 story-tie: no opening, no line');
+    const painted = readFileSync(resolve(root, 'src/ui/components/story-tie.js'), 'utf8');
+    assert.match(painted, /screenFaceLine\(screen, \{ opening, tie \}\)/, 'v60.59 story-tie: the tie paints the face rule');
+    assert.match(painted, /dataset\.arg = 'home'/, 'v60.59 story-tie: the summary links to 오늘');
+    assert.doesNotMatch(painted, /crossBlock|SCREEN_STORY/, 'v60.59 story-tie: no opening rows or packet lines on the face');
     for (const file of ['src/ui/components/sentiment-board.js', 'src/ui/pages/market.js', 'src/ui/pages/themes.js']) assert.match(readFileSync(resolve(root, file), 'utf8'), /renderStoryTie\(/, `v60.55 story-tie: ${file} paints it`);
-    assert.match(readFileSync(resolve(root, 'scripts/lib/screen-reading.mjs'), 'utf8'), /story: SCREEN_STORY\.themes/, 'v60.55 story-tie: the AI packet reads the same registry');
+    assert.match(readFileSync(resolve(root, 'scripts/lib/screen-reading.mjs'), 'utf8'), /story: SCREEN_STORY\.themes/, 'v60.55 story-tie: the AI packet reads the registry');
+  });
+  check('v60.59 catalysts: the ledger\'s major+ headlines linked to a move of the session, by materiality, at most three, under the session line and in the AI facts', () => {
+    const base = ledger('2026-11-24');
+    const head = (id, materiality, rank, more = {}) => ({ id, kind: 'headline', title: id, titleKo: `제목 ${id}`, date: '2026-11-24', rank, materiality, ...more });
+    const withHeads = { ...base, facts: [...base.facts, head('h-a', 57, 'major'), head('h-b', 70, 'lead'), head('h-c', 40, 'major'), head('h-d', 36, 'major'),
+      head('h-minor', 30, 'minor'), head('h-unlinked', 80, 'lead'), head('h-old', 90, 'lead', { date: '2026-11-23' }), head('h-failed', 85, 'lead', { titleKoFailed: true })],
+    links: ['h-a', 'h-b', 'h-c', 'h-d', 'h-minor', 'h-old', 'h-failed'].map((from) => ({ from, to: 'stock:NVDA:2026-11-24', basis: 'subject' })).concat([{ from: 'h-unlinked', to: 'stock:OLD:2026-11-23', basis: 'subject' }]) };
+    const opening = build(day2, { day: withHeads });
+    assert.deepEqual(opening.catalysts.map((item) => item.id), ['h-b', 'h-a', 'h-c'], 'v60.59 catalysts: major+, linked to this session, Korean title, by materiality, three');
+    assert.deepEqual(opening.lines.map((line) => line.id).slice(0, 2), ['session', 'catalysts'], 'v60.59 catalysts: directly under the session line');
+    assert.equal(said(opening, 'catalysts').text, '11/24 “제목 h-b” · 11/24 “제목 h-a” · 11/24 “제목 h-c”', 'v60.59 catalysts: each with its date');
+    assert.equal(opening.lines.find((line) => line.id === 'catalysts').label, '촉매', 'v60.59 catalysts');
+    assert.ok(openingFactLines(opening).some((line) => line.startsWith('촉매(') && line.endsWith(said(opening, 'catalysts').text)), 'v60.59 catalysts: in the AI facts');
+    assert.equal(said(build(day2, { day: base }), 'catalysts').text, '', 'v60.59 catalysts: none qualify, no line');
+    assert.ok(readFileSync(resolve(root, 'src/ui/components/market-story.js'), 'utf8').includes("'session', 'catalysts'"), 'v60.59 catalysts: the face paints it with the session lines');
+  });
+  check('v60.59 divergence: each rule fires on two figures of the same session past their lines, and only then', () => {
+    const D = '2026-11-24';
+    const px = (asset, change, unit = 'pct', date = D) => ({ id: `price:${asset}:${date}`, kind: 'price', asset, date, change, unit, changeUnit: unit });
+    const dayOf = (facts, indexSplit = null) => ({ sessions: { us: D }, facts, ...(indexSplit ? { indexSplit } : {}) });
+    const energy = (change, date = D) => ({ date, sectors: [{ sector: 'Energy', change }] });
+    const hot = { id: 'release:pce', kind: 'release', label: 'PCE', date: D, actual: 0.4, forecast: 0.3, unit: '%', topics: ['macro', 'inflation'] };
+    const cases = {
+      'hot-inflation-yields-down': [dayOf([hot, px('tnx', -5, 'bp')]), dayOf([{ ...hot, actual: 0.2 }, px('tnx', -5, 'bp')]), dayOf([hot, px('tnx', -5, 'bp', '2026-11-23')]), '11/24 PCE 0.4%(예상 0.3%), 미국 10년 금리 -5bp'],
+      'stocks-down-credit-calm': [dayOf([px('spx', -1.4), px('hyOas', 0, 'bp')]), dayOf([px('spx', -1.4), px('hyOas', 6, 'bp')]), dayOf([px('spx', -1.4), px('hyOas', 0, 'bp', '2026-11-23')]), '11/24 S&P 500 -1.4%, 하이일드 스프레드 0bp'],
+      'dollar-down-gold-down': [dayOf([px('dxy', -0.5), px('gold', -2.4)]), dayOf([px('dxy', 0.5), px('gold', -2.4)]), dayOf([px('dxy', -0.5)]), '11/24 달러지수 -0.5%, 금 -2.4%'],
+      'oil-up-energy-down': [dayOf([px('wti', 2.5)], energy(-0.8)), dayOf([px('wti', 2.5)], energy(0.6)), dayOf([px('wti', 2.5)], energy(-0.8, '2026-11-23')), '11/24 WTI 유가 +2.5%, 에너지 업종 -0.8%']
+    };
+    assert.deepEqual(DIVERGENCE_RULES.map((rule) => rule.id), Object.keys(cases), 'v60.59 divergence: four table rows, each with a case');
+    for (const [id, [fires, quiet, otherDate, text]] of Object.entries(cases)) {
+      const hit = sessionDivergences(fires, D);
+      assert.deepEqual(hit.map((row) => row.id), [id], `v60.59 divergence: ${id} fires`);
+      assert.equal(hit[0].said.text, text, `v60.59 divergence: ${id} states both figures`);
+      assert.deepEqual(unclaimedFigures(hit[0].said), [], `v60.59 divergence: ${id} figures are claims`);
+      assert.deepEqual(sessionDivergences(quiet, D), [], `v60.59 divergence: ${id} under its line`);
+      assert.deepEqual(sessionDivergences(otherDate, D), [], `v60.59 divergence: ${id} needs both figures on the same session date`);
+    }
+    assert.deepEqual(sessionDivergences({ ...cases['dollar-down-gold-down'][0], sessions: { us: '2026-11-23' } }, D), [], 'v60.59 divergence: a ledger of another session says nothing');
+    const opening = build(day2, { day: { ...ledger(D), facts: [...ledger(D).facts, px('dxy', -0.5), px('gold', -2.4)] } });
+    assert.ok(openingFactLines(opening).includes('엇갈림(두 수치가 흔히 보는 방향과 다르게 움직임, 이유는 정하지 않음): 11/24 달러지수 -0.5%, 금 -2.4%'), 'v60.59 divergence: the AI facts carry the line');
+    assert.ok(!opening.lines.some((line) => line.id === 'divergence'), 'v60.59 divergence: not a face line (the reason is the reading\'s)');
   });
   report('session-read');
 }, 'code'],
@@ -1006,7 +1055,7 @@ await runSections('market-story', [
   });
   check('v60.56 screen-tie: the tie paints the screen\'s sentence first, and 테마·한국·기술적 분석 hand it what only the page holds', () => {
     const tie = readFileSync(resolve(root, 'src/ui/components/story-tie.js'), 'utf8');
-    assert.match(tie, /replaceChildren\(\.\.\.\(tie \? \[openingLine\(doc, \{ id: 'tie'/, 'v60.56 screen-tie: the own sentence leads the tie');
+    assert.match(tie, /replaceChildren\(\.\.\.\(first \? \[first\] : \[\]\), \.\.\.\(context\.extra/, 'v60.59 story-tie: the one face line leads, the page\'s own lines after it');
     const themesPage = readFileSync(resolve(root, 'src/ui/pages/themes.js'), 'utf8');
     assert.match(themesPage, /renderStoryTie\(\{ documentRef, root, screen: 'themes', context: \{ playbook \} \}\)/, 'v60.56 screen-tie: 테마 passes the playbook');
     assert.match(themesPage, /renderStoryTie\(\{ documentRef, root, screen: 'korea', context: \{ playbook, extra \} \}\)/, 'v60.57 korea-link: 한국 passes the playbook and its link lines');
@@ -1045,21 +1094,21 @@ await runSections('market-story', [
     assert.equal(reflected.state, 'reflected', 'v60.57 korea-link: US 11/19 then KOSPI 11/20 is reflected');
     assert.deepEqual([reflected.us.date, reflected.kr.date], ['2026-11-19', '2026-11-20'], 'v60.57 korea-link: the dates');
     assert.equal(lineOf(reflected, 'korea-pending'), null, 'v60.57 korea-link: no pending line once reflected');
-    assert.equal(lineOf(reflected, 'korea-pair').text, '11/19 미국 반도체 -3.0% 뒤 11/20 코스피는 -2.0%로 같은 방향이었습니다.', 'v60.57 korea-link: the pair line');
+    assert.equal(lineOf(reflected, 'korea-pair').text, '11/19 미국 반도체(SOX) -3.0% 뒤 11/20 코스피는 -2.0%로 같은 방향이었습니다.', 'v60.57 korea-link: the pair line');
     const pending = koreaSessionLink({ history: linkHistory({ usMoves: [-3, 2], krMoves: [-2], usThrough: '2026-11-20' }) });
     assert.equal(pending.state, 'pending', 'v60.57 korea-link: US 11/20 with KOSPI 11/20 is pending');
     assert.deepEqual(pending.lines.map((line) => line.id), ['korea-pending', 'korea-pair'], 'v60.57 korea-link: pending leads');
-    assert.equal(lineOf(pending, 'korea-pending').text, '11/20 미국 반도체 +2.0%는 아직 한국 장에 반영되지 않았습니다.', 'v60.57 korea-link: the pending line');
-    assert.match(lineOf(pending, 'korea-pair').text, /^11\/19 미국 반도체 -3\.0% 뒤 11\/20 코스피는/, 'v60.57 korea-link: KOSPI 11/20 pairs with US 11/19, not 11/20');
+    assert.equal(lineOf(pending, 'korea-pending').text, '11/20 미국 반도체(SOX) +2.0%는 아직 한국 장에 반영되지 않았습니다.', 'v60.57 korea-link: the pending line');
+    assert.match(lineOf(pending, 'korea-pair').text, /^11\/19 미국 반도체\(SOX\) -3\.0% 뒤 11\/20 코스피는/, 'v60.57 korea-link: KOSPI 11/20 pairs with US 11/19, not 11/20');
     assert.deepEqual(unclaimed(pending), [], 'v60.57 korea-link: every figure printed from a claim');
     assert.equal(koreaSessionLink({ history: linkHistory().map(({ kospi, ...row }) => row) }), null, 'v60.57 korea-link: no KOSPI, no link');
     assert.equal(koreaSessionLink({ history: linkHistory().map(({ sox, ...row }) => row) }), null, 'v60.57 korea-link: no semis, no link');
   });
   check('v60.57 korea-link: same direction, opposite, and a KOSPI move too small to have a direction', () => {
     const pair = (krMove) => lineOf(koreaSessionLink({ history: linkHistory({ usMoves: [2], krMoves: [krMove] }) }), 'korea-pair').text;
-    assert.equal(pair(1.5), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 +1.5%로 같은 방향이었습니다.', 'v60.57 korea-link: same');
-    assert.equal(pair(-1.5), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 -1.5%로 반대로 움직였습니다.', 'v60.57 korea-link: opposite');
-    assert.equal(pair(-0.2), '11/19 미국 반도체 +2.0% 뒤 11/20 코스피는 -0.2%로 거의 움직이지 않았습니다.', 'v60.57 korea-link: flat');
+    assert.equal(pair(1.5), '11/19 미국 반도체(SOX) +2.0% 뒤 11/20 코스피는 +1.5%로 같은 방향이었습니다.', 'v60.57 korea-link: same');
+    assert.equal(pair(-1.5), '11/19 미국 반도체(SOX) +2.0% 뒤 11/20 코스피는 -1.5%로 반대로 움직였습니다.', 'v60.57 korea-link: opposite');
+    assert.equal(pair(-0.2), '11/19 미국 반도체(SOX) +2.0% 뒤 11/20 코스피는 -0.2%로 거의 움직이지 않았습니다.', 'v60.57 korea-link: flat');
   });
   check('v60.57 korea-link: the foreign-flow line and its meaning by the day, the 5- and 20-session sums and the KOSPI move', () => {
     const flows = (krMove, value, sum5, sum20) => lineOf(koreaSessionLink({ history: linkHistory({ krMoves: [krMove] }), flows: flowsOf('2026-11-20', value, sum5, sum20) }), 'korea-flows')?.text || '';
@@ -1089,6 +1138,18 @@ await runSections('market-story', [
       const link = koreaSessionLink({ history: linkHistory(), flows });
       assert.deepEqual(link.lines.map((line) => line.id), ['korea-pair'], `v60.57 korea-link: ${JSON.stringify(flows)?.slice(0, 40)}`);
     }
+  });
+  check('v60.59 korea-big-move: a KOSPI session of 3% or more carries the SOX session before it, that day\'s foreign and institutional net purchases and the won, each left out when missing', () => {
+    assert.equal(KOREA_BIG_MOVE_PCT, 3, 'v60.59 korea-big-move: the line');
+    const history = linkHistory({ usMoves: [-4], krMoves: [-6] }).map((row) => ({ ...row, ...(row.date === '2026-11-19' ? { usdkrw: 1400 } : row.date === '2026-11-20' ? { usdkrw: 1414 } : {}) }));
+    const flows = { state: 'ok', markets: [{ id: 'kospi', date: '2026-11-20', rows: [{ id: 'foreign', value: -18193 }, { id: 'institution', value: 39 }], trends: [] }] };
+    const kr = { date: '2026-11-20', move: -6 };
+    const full = koreaBigMoveSaid({ history, flows, kr });
+    assert.equal(full.text, '앞선 11/19 반도체(SOX) -4.0%, 11/20 순매수 외국인 -1.8조·기관 +39억, 원/달러 +1.0%.', 'v60.59 korea-big-move: three claims in one sentence');
+    assert.deepEqual(unclaimedFigures(full), [], 'v60.59 korea-big-move: every figure a claim');
+    assert.equal(koreaBigMoveSaid({ history, flows: { ...flows, markets: [{ ...flows.markets[0], date: '2026-11-19' }] }, kr }).text, '앞선 11/19 반도체(SOX) -4.0%, 원/달러 +1.0%.', 'v60.59 korea-big-move: flows of another day are left out');
+    assert.equal(koreaBigMoveSaid({ history: history.map(({ usdkrw, ...row }) => row), flows: null, kr }).text, '앞선 11/19 반도체(SOX) -4.0%.', 'v60.59 korea-big-move: no won, no flows');
+    assert.equal(koreaBigMoveSaid({ history, flows, kr: { ...kr, move: -2.9 } }).text, '', 'v60.59 korea-big-move: a smaller session says nothing more');
   });
   check('v60.57 korea-link: 한국 does not take the opening\'s split line (S&P 500 sector contributions name no Korean stock)', () => {
     assert.ok(!SCREEN_STORY.korea.includes('split'), 'v60.57 korea-link: SCREEN_STORY.korea');

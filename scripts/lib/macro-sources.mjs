@@ -198,6 +198,14 @@ export async function fetchFredDexkousPublic(previous = null) {
 // 오표기하는 것이므로, 날짜가 다르면 판정하지 않고 not-comparable로 남긴다.
 // 실측: DEXKOUS 최신 관측은 7일 전이고 그 사이 스팟이 2.09% 움직였다 — 지연을 무시한
 // 비교는 정상 계열을 매일 'divergent'로 신고했을 것이다.
+// The day of the observation a value is, not the history row it sits in: a row that carries the previous session's close
+// (11/26 holding the 11/25 close) is dated by that session. sessionDate first, then the observation time's UTC day (the
+// FX close boundary is 22:00-23:00Z of its own day), then the row date when nothing else is known.
+const observationDate = (record) => {
+  const day = (value) => (/^\d{4}-\d{2}-\d{2}/.test(String(value || '')) ? String(value).slice(0, 10) : null);
+  return day(record?.sessionDate) || day(record?.observedAt) || day(record?.date) || null;
+};
+
 export function compareUsdKrwCrossCheck({ provider = null, official = null, latestProvider = null, tolerancePct = 5, attemptedAt = new Date().toISOString() } = {}) {
   const providerDate = String(provider?.date || (provider?.observedAt ? String(provider.observedAt).slice(0, 10) : '') || '').slice(0, 10) || null;
   const officialDate = String(official?.observedAt || '').slice(0, 10) || null;
@@ -210,7 +218,7 @@ export function compareUsdKrwCrossCheck({ provider = null, official = null, late
     providerDate,
     // 최신값은 맥락으로만 싣는다. 비교는 같은 날짜끼리 한다.
     latestProviderValue: latestProvider?.value ?? null,
-    latestProviderDate: latestProvider?.date || null,
+    latestProviderDate: observationDate(latestProvider),
     officialValue: official?.value ?? null,
     officialDate,
     // 공식 계열의 원본 레코드를 통째로 보존한다 — 상태·출처·실패 사유·수집 시각의 단일 표기이고,

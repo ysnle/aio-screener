@@ -263,14 +263,22 @@ function quoteQuality(raw, nowMs, session = null) {
   return 'STALE';
 }
 
-// For about two hours after the Seoul open the provider's previous daily bar has no close, so the live KOSPI and KOSDAQ
-// carried no change (the Korea line left the page and the reading said no session was running). The published history
-// already holds that completed close; it is the previous value when it is the session right before the observation.
-export const COMPLETED_CLOSE_FIELDS = Object.freeze({ '^KS11': 'kospi', '^KQ11': 'kosdaq' });
+// The previous value of a quote is the venue's previous regular close. For a while after an exchange opens the
+// provider's previous daily bar has no close: quotes.mjs then stands in the last hourly close (previousCloseApproximate),
+// which misses the closing auction (^N225 11/26 read 57117.11 against the 57011.62 close), or sends none (KOSPI and
+// KOSDAQ carried no change, the Korea line left the page). Neither is that close. The published history holds the
+// completed close of every index it records; it is the previous value when it is the session right before the
+// observation on the venue's own calendar. An index history does not record keeps its change missing in that window.
+export const COMPLETED_CLOSE_FIELDS = Object.freeze({
+  '^KS11': { field: 'kospi', market: 'KR', timeZone: 'Asia/Seoul' }, '^KQ11': { field: 'kosdaq', market: 'KR', timeZone: 'Asia/Seoul' },
+  '^GSPC': { field: 'spx', market: 'US', timeZone: 'America/New_York' }, '^IXIC': { field: 'nasdaq', market: 'US', timeZone: 'America/New_York' },
+  '^NDX': { field: 'ndx', market: 'US', timeZone: 'America/New_York' }, '^DJI': { field: 'dow', market: 'US', timeZone: 'America/New_York' },
+  '^RUT': { field: 'rut', market: 'US', timeZone: 'America/New_York' }
+});
 /** { '^KS11': { date, value } } — the last completed close of each field in history rows. */
 export function completedClosesFrom(historyRows = []) {
   const out = {};
-  for (const [instrumentId, field] of Object.entries(COMPLETED_CLOSE_FIELDS)) {
+  for (const [instrumentId, { field }] of Object.entries(COMPLETED_CLOSE_FIELDS)) {
     const last = buildCloseSeries(historyRows, field).at(-1);
     if (last?.date && last.value > 0) out[instrumentId] = { date: last.date, value: last.value };
   }
@@ -298,11 +306,14 @@ export function buildMarketSnapshot({ quotes = [], attemptedAt = new Date().toIS
       ? 'CLOSED_CURRENT' : quoteQuality({ ...raw, observedAt }, now, session);
     // A provider field sent as null is missing, not zero (Number(null) === 0 published previousValue 0).
     const present = (value) => (value == null || value === '' ? NaN : Number(value));
-    const providerPreviousValue = present(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
+    // An hourly stand-in is not the previous close, and the change the provider row computed from it is not either.
+    const approximate = raw.previousCloseApproximate === true;
+    const providerPreviousValue = approximate ? NaN : present(raw.regularMarketPreviousClose ?? raw.chartPreviousClose ?? raw.previousValue);
     const hasProviderPreviousValue = Number.isFinite(providerPreviousValue);
-    const own = !hasProviderPreviousValue && ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? completedCloses?.[instrument.instrumentId] : null;
-    const ownPreviousValue = own?.value > 0 && countOpenSessionsBetween(own.date, dateInTimezone(Date.parse(observedAt), 'Asia/Seoul'), 'KR') === 1 ? own.value : null;
-    const providerChange = present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct);
+    const venue = COMPLETED_CLOSE_FIELDS[instrument.instrumentId];
+    const own = !hasProviderPreviousValue && venue && ['CURRENT_SESSION', 'DELAYED_IN_SESSION'].includes(session) ? completedCloses?.[instrument.instrumentId] : null;
+    const ownPreviousValue = own?.value > 0 && countOpenSessionsBetween(own.date, dateInTimezone(Date.parse(observedAt), venue.timeZone), venue.market) === 1 ? own.value : null;
+    const providerChange = approximate ? NaN : present(raw.regularMarketChangePercent ?? raw.changePct ?? raw.pct);
     return {
       evidenceId: `${instrument.metricId}:${stableHash({ value, observedAt, source })}`,
       metricId: instrument.metricId,

@@ -38,6 +38,13 @@
 #pf-positions-tbody .pfp-upside { font-size: var(--fs-xs); font-weight: 600; }
 #pf-positions-tbody td.pfp-manage { text-align: center; padding: 8px 6px; white-space: nowrap; }
 #pf-positions-tbody .pfp-manage-btn { background: none; border: none; cursor: pointer; font-size: 12px; padding: 2px 4px; }
+/* A held stock's 움직인 이유 sits under its row, on the face, one line that wraps. */
+#pf-positions-tbody > tr.pfp-cause > td { padding: 0 10px 8px; font-size: var(--fs-sm); line-height: 1.6; color: var(--color-text-secondary); }
+#pf-positions-tbody .pfp-cause-label { margin-right: 6px; font-weight: 600; color: var(--color-text-primary); }
+#pf-positions-tbody .pfp-cause-list { display: inline; margin: 0; padding: 0; list-style: none; }
+#pf-positions-tbody .pfp-cause-list > li { display: inline; overflow-wrap: anywhere; }
+#pf-positions-tbody .pfp-cause-move { margin-right: 6px; font-family: var(--font-mono); }
+#pf-positions-tbody .pfp-cause-title { color: inherit; }
 
 /* Declared ledger coverage, ledger and FX-leg rows (src/ui/panels/portfolio-declarations.js) */
 #page-portfolio .pfp-decl-head { font-size: var(--fs-sm); color: var(--color-text-secondary); font-weight: 600; margin-bottom: 4px; }

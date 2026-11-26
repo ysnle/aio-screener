@@ -79,18 +79,18 @@ check('v60.18 the bundle is published in rank order', () => {
   assert.deepEqual(out.map((r) => r.score), [78, 64], 'v60.18 the floors keep their scores');
 });
 
-// 5b. The day's large stock moves are searched by company and seated on top of the forty, one headline per company.
-check('v60.57 movers: a headline naming the day\'s mover takes a seat beyond the forty, one per company', () => {
+// 5b. The day's large stock moves are searched by company and seated on top of the bundle, one headline per company.
+check('v60.57 movers: a headline naming the day\'s mover takes a seat beyond the bundle, one per company', () => {
   const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'macro', country: 'us',
     ts: at('2026-11-20T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-20T20:00:00Z') - i * 60000).toISOString(), ...extra });
-  // Forty-five unrelated headlines (no shared word, so no two read as one event or one topic).
+  // Five more unrelated headlines than the bundle holds (no shared word, so no two read as one event or one topic).
   const word = (n) => [...n.toString(26)].map((c) => String.fromCharCode(97 + parseInt(c, 26))).join('');
-  const general = Array.from({ length: 45 }, (_, i) => row([0, 1, 2, 3, 4].map((k) => `q${word(20000 + i * 5 + k)}`).join(' '), i));
-  const mover = (title, sym, i) => row(title, 100 + i, { score: 30, topicHits: 1, subjectHits: 1, topic: 'equity', feedSource: ns.NEWS_MOVER_FEED, mover: sym });
+  const general = Array.from({ length: ns.NEWS_BUNDLE_SIZE + 5 }, (_, i) => row([0, 1, 2, 3, 4].map((k) => `q${word(20000 + i * 5 + k)}`).join(' '), i));
+  const mover = (title, sym, i) => row(title, 200 + i, { score: 30, topicHits: 1, subjectHits: 1, topic: 'equity', feedSource: ns.NEWS_MOVER_FEED, mover: sym });
   const movers = [mover('Micron plunges fourteen percent as memory prices crack', 'MU', 1), mover('Micron shares sink again on DRAM contract cuts', 'MU', 2), mover('Analog Devices tumbles after weak industrial orders', 'ADI', 3)];
   const base = ns.selectNewsBundle(general.map((item) => ({ ...item })), []).out;
   const { out } = ns.selectNewsBundle([...general.map((item) => ({ ...item })), ...movers], []);
-  assert.equal(base.length, ns.NEWS_BUNDLE_SIZE, `v60.57 movers: without movers the bundle is the forty (${base.length})`);
+  assert.equal(base.length, ns.NEWS_BUNDLE_SIZE, `v60.57 movers: without movers the bundle is full (${base.length})`);
   assert.equal(out.length, ns.NEWS_BUNDLE_SIZE + 2, `v60.57 movers: two companies, two seats on top (${out.length})`);
   assert.deepEqual(out.filter((r) => r.mover).map((r) => r.mover).sort(), ['ADI', 'MU'], 'v60.57 movers: one headline per company, tagged with it');
   assert.equal(out.filter((r) => !r.mover).length, ns.NEWS_BUNDLE_SIZE, 'v60.57 movers: no other topic loses a seat');
@@ -123,6 +123,89 @@ check('v60.18 the closed intraday slot is carried into the next 08:00 bundle', (
 
 report();
 console.log('[news-ranking] ok: subject-based score, session recency, scheduled releases, reserved floors and the carried intraday slot');
+}, 'code'],
+// 8. The 뉴스 filter panel (src/domain/news/feed-filter.js) and the card's one extracted fact (article-facts.js).
+['feed-filter', async () => {
+const ff = await import('../src/domain/news/feed-filter.js');
+const af = await import('../src/domain/news/article-facts.js');
+const controls = await import('../src/ui/components/news-controls.js');
+const article = (id, extra = {}) => ({ newsId: id, link: `https://e.test/${id}`, title: `Headline ${id}`, source: 'Reuters', country: 'us', topic: 'macro', pubDate: '2026-11-25T20:00:00Z', ...extra });
+const items = [
+  article('a1', { title: 'Nvidia slides as memory prices fall', topic: 'semi', issuers: ['NVDA'] }),
+  article('a2', { title: 'Fed holds rates, Powell signals patience', issuers: [] }),
+  article('a3', { title: '삼성전자 HBM 공급 확대', country: 'kr', topic: 'kr', issuers: ['005930'] }),
+  article('a4', { title: 'Oil climbs on OPEC supply cut', country: 'global', topic: 'energy', issuers: [] }),
+  article('a5', { title: 'Nvidia results beat estimates', topic: 'earnings', issuers: ['NVDA'], fact: { kind: '수치', text: 'x' } }),
+  article('a6', { title: 'Unclassified line', country: 'xx', topic: 'general', issuers: [] })
+];
+const rows = ff.describeFeedRows(items, { read: (item) => ({ title: item.title, issuers: item.issuers, fact: item.fact || null }), mine: new Set(['005930']), keyOf: (item) => item.newsId });
+check('v60.59 feed rows read region, topic group and entities from the article and the page\'s issuer reading', () => {
+  assert.deepEqual(rows.map((row) => row.region), ['us', 'us', 'kr', 'global', 'us', ''], 'v60.59 regions');
+  assert.deepEqual(rows.map((row) => row.topic), ['semi', 'macro', 'equity', 'energy', 'earnings', ''], 'v60.59 topic groups (general belongs to none)');
+  assert.ok(rows[0].entityKeys.has('T:NVDA') && rows[0].entityKeys.has('K:memory'), 'v60.59 a ticker and a keyword entity');
+  assert.ok(rows[1].entityKeys.has('K:fed') && !rows[1].entityKeys.has('K:ai'), 'v60.59 keywords go through the whole-word rule ("said" is not AI)');
+  assert.equal(rows[2].mine, true, 'v60.59 a held symbol marks the row as 내 종목');
+  assert.equal(ff.topicGroupFor('geo'), 'policy', 'v60.59 a handed-over row topic opens its group');
+  assert.equal(ff.topicGroupFor('nope'), '', 'v60.59 an unknown topic opens nothing');
+});
+check('v60.59 every chip counts what pressing it would show; a row adds up to its 전체 chip; empty chips are hidden', () => {
+  const facets = ff.feedFacets(rows, { topic: 'semi' });
+  const region = Object.fromEntries(facets.region.map((chip) => [chip.key, chip.count]));
+  assert.equal(region.all, 1, 'v60.59 with 반도체·AI pressed, the region row counts one article');
+  assert.ok(!('kr' in region) && !('asia' in region), 'v60.59 a region with no article under the other choices is hidden');
+  const topic = Object.fromEntries(ff.feedFacets(rows, {}).topic.map((chip) => [chip.key, chip.count]));
+  assert.equal(topic.all, 6, 'v60.59 topic 전체 is every row');
+  assert.equal(topic.semi + topic.macro + topic.equity + topic.energy + topic.earnings, 5, 'v60.59 the groups add up to 전체 less the unclassified row');
+  const pressedEmpty = ff.feedFacets(rows, { region: 'eu' }).region.find((chip) => chip.key === 'eu');
+  assert.ok(pressedEmpty && pressedEmpty.pressed && pressedEmpty.count === 0, 'v60.59 a pressed chip stays at 0 so it can be released');
+  const entity = ff.feedFacets(rows, {}).entity;
+  assert.equal(entity[1].key, 'T:NVDA', 'v60.59 the most-named entity leads the entity row');
+  assert.equal(entity[1].count, 2, 'v60.59 NVDA is named by two articles');
+  assert.ok(ff.feedFacets(rows, {}, { entityLimit: 2 }).entity.length === 3, 'v60.59 the entity row keeps the top N plus 전체');
+});
+check('v60.59 the filter narrows by every row at once; search reads title, source and entity; 수치 있음 keeps figure facts', () => {
+  assert.deepEqual(ff.applyFeedFilter(rows, { entity: 'T:NVDA' }).map((row) => row.key), ['a1', 'a5'], 'v60.59 entity');
+  assert.deepEqual(ff.applyFeedFilter(rows, { entity: 'T:NVDA', topic: 'earnings' }).map((row) => row.key), ['a5'], 'v60.59 entity and topic');
+  assert.deepEqual(ff.applyFeedFilter(rows, { figure: true }).map((row) => row.key), ['a5'], 'v60.59 수치 있음');
+  assert.deepEqual(ff.applyFeedFilter(rows, { query: 'opec' }).map((row) => row.key), ['a4'], 'v60.59 search by title word');
+  assert.equal(ff.applyFeedFilter(rows, { query: 'reuters nvda' }).length, 2, 'v60.59 search words all match (source and entity)');
+  assert.deepEqual(ff.applyFeedFilter(rows, { mine: true }).map((row) => row.key), ['a3'], 'v60.59 내 종목');
+  assert.equal(ff.applyFeedFilter(rows, { region: 7, topic: null }).length, 6, 'v60.59 a malformed choice reads as no filter');
+  assert.deepEqual(ff.feedTiles(rows), { articles: 6, withFact: 1, withFigure: 1 }, 'v60.59 tiles: articles, joined facts, figures');
+});
+check('v60.59 a card\'s fact is joined from published extractions only: brief, ledger move, next report; no join, no line', () => {
+  const nowMs = at('2026-11-26T00:00:00Z');
+  const briefs = { schemaVersion: 'event-briefs.v1', briefs: [
+    { id: 'b1', symbol: 'DE', status: 'complete', publishedAt: '2026-11-25T11:00:00Z', headline: '디어 4분기 순이익 10억5100만 달러', figures: [{ label: 'EPS', value: '$ 3.89' }] },
+    { id: 'b2', symbol: 'AMD', status: 'complete', publishedAt: '2026-11-25T11:00:00Z', headline: 'AMD 3분기 사상 최대 매출', figures: [] },
+    { id: 'b3', symbol: 'MU', status: 'complete', publishedAt: '2026-11-20T11:00:00Z', headline: '마이크론 실적', figures: [{ label: 'EPS', value: '$1' }] }
+  ] };
+  const day = { facts: [
+    { id: 'stock:NVDA:2026-11-25', kind: 'stock-move', label: 'NVIDIA', change: -3.91, materiality: 70, date: '2026-11-25', subjects: ['NVDA'] },
+    { id: 'headline:h1', kind: 'headline', title: 'Nvidia slides', src: { link: 'https://e.test/n1' } }
+  ], links: [{ from: 'headline:h1', to: 'stock:NVDA:2026-11-25', basis: 'subject' }] };
+  const calendar = { earnings: [], upcoming: { CRM: '2026-12-02|amc' } };
+  const read = af.articleFactReader({ day, briefs, calendar, nowMs });
+  const pub = '2026-11-25T14:00:00Z';
+  assert.equal(read(article('d1', { pubDate: pub }), { issuers: ['DE'] })?.kind, '수치', 'v60.59 a release brief with figures is 수치');
+  assert.equal(read(article('d2', { pubDate: pub }), { issuers: ['AMD'] })?.kind, '보도', 'v60.59 a brief that kept only its headline is 보도');
+  assert.equal(read(article('d3', { pubDate: pub }), { issuers: ['MU'] }), null, 'v60.59 a brief five days before the article is not its fact');
+  const move = read(article('n1', { title: 'Nvidia slides', pubDate: pub }), { issuers: ['NVDA'] });
+  assert.ok(move?.kind === '수치' && move.text.startsWith('관련 움직임 NVIDIA'), `v60.59 a ledger-linked move is 수치 (${move?.text})`);
+  const next = read(article('c1', { pubDate: pub }), { issuers: ['CRM'] });
+  assert.ok(next?.kind === '일정' && next.text.startsWith('CRM 실적 발표 12/2'), `v60.59 the issuer's next report is 일정 (${next?.text})`);
+  assert.equal(read(article('z1', { pubDate: pub }), { issuers: [] }), null, 'v60.59 no join, no fact line');
+});
+check('v60.59 the panel state keeps known keys of the right type, and a reset leaves the sort', () => {
+  controls.setNewsFeedFilter({ entityFilter: 'T:NVDA', figureOnly: true, query: 'fed', sortMode: 'score', bogus: 1, mineOnly: 'yes' });
+  const set = controls.getNewsSurfaceControls();
+  assert.ok(set.entityFilter === 'T:NVDA' && set.figureOnly === true && set.query === 'fed' && set.mineOnly === false && !('bogus' in set), 'v60.59 set');
+  const reset = controls.resetNewsFeedFilter();
+  assert.ok(reset.entityFilter === 'all' && reset.figureOnly === false && reset.query === '' && reset.sortMode === 'score', 'v60.59 reset keeps the sort');
+  controls.setNewsFeedFilter({ sortMode: 'time' });
+});
+report();
+console.log('[news-ranking] ok: feed filter counts, narrowing and joined facts');
 }, 'code'],
 // 7. The committed bundle, once cut under this rule: rank order, and no tier-3 row on one subject outside the Korean seats.
 ['published-bundle', async () => {

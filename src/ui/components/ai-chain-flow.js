@@ -17,6 +17,7 @@ import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
 import { aiDemandRead } from '../../domain/briefing/ai-demand-read.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { aiMapRouteParams } from '../../domain/knowledge/ai-map.js';
+import { fundingChainBlock, fundingChainFor, openFolds } from './ai-funding-chain.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -33,7 +34,7 @@ function sessionLabel(root) {
 export function paintThemesAiChain(doc, root) {
   const page = doc?.getElementById('page-themes');
   if (!page) return null;
-  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, valuation: true, mapLink: true, place: (host) => {
+  return paintAiChain(doc, root, { id: 'themes-ai-chain', frame: 'themes.ai-chain', className: 'aio-section ai-chain', more: false, valuation: true, mapLink: true, funding: true, place: (host) => {
     host.id = 'themes-ai-chain';
     const head = page.querySelector(':scope > .page-head');
     if (head) head.insertAdjacentElement('afterend', host); else page.prepend(host);
@@ -144,7 +145,7 @@ function layerPerFold(doc, root, repaint) {
   return fold;
 }
 
-function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false, mapLink = false }) {
+function paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit = Infinity, valuation = false, mapLink = false, funding = false }) {
   const rows = root?.AIO_ARCH?.getScreenerState?.('rows') || [];
   const session = root?.AIO_ARCH?.getScreenerState?.('metadata.factorSessionDateByMarket')?.US || null;
   const flow = aiChainFlow({ themes: root?.THEME_MAP || [], rows, session });
@@ -198,13 +199,18 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // Taiwan's monthly revenue opens the member lists: a short block, read before the long US lists.
   // One repaint for every late arrival (Taiwan revenue, consensus): it carries every option of this paint. The Taiwan
   // callback dropped `valuation`, so revenue landing after the PER fold removed the fold and its rows.
-  const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, mapLink, valuation });
+  const repaint = () => paintAiChain(doc, root, { id, frame, className, more: withLink, place, limit, mapLink, funding, valuation });
   const tw = twRevenue(doc, root, id, repaint);
   if (tw) fold.append(...tw.fold);
   // Orders against prices, under the two blocks it reads (the cash-flow file arrives lazily and repaints once).
   refreshSharedArtifact(root, BIGTECH_CASHFLOW).then(({ changed } = {}) => { if (changed) repaint(); }).catch(() => {});
   const demand = aiDemandRead({ flow, tw: tw?.view || null, capex: bigtechGroupFor(root), session });
   const demandLine = demand ? el(doc, 'p', demand.said.text, 'ai-chain__reading ai-chain__demand') : null;
+  // 테마: the capex read ends on whether the spending can keep being paid for; the funding chain under it answers in
+  // order (cash, borrowing, the debt market's price, lenders, hardware, rates). It owns the researched credit and
+  // memory rows on this screen, so they are not repeated anywhere else in the block.
+  const fundingId = `${id}-funding`;
+  const chain = funding ? fundingChainBlock(doc, fundingChainFor(root, { request: repaint }), { id: fundingId, open: openFolds(host.querySelector(`#${fundingId}`)) }) : null;
   const perFold = valuation ? layerPerFold(doc, root, repaint) : null;
   if (perFold) perFold.open = !!host.querySelector(':scope > details.ai-chain-per')?.open;
   if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
@@ -219,7 +225,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // 테마 › AI 공급망: the whole map of the build-out (layers, data-center chain, capital flows) is 산업 지도's AI 지도.
   const atlasMap = mapLink ? el(doc, 'button', 'AI 지도 보기 → 산업 지도', 'flow-next-link daily-card-more ai-chain__map-link') : null;
   if (atlasMap) { atlasMap.type = 'button'; atlasMap.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams() })); }
-  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), ...(demandLine ? [demandLine] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
+  host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), ...(demandLine ? [demandLine] : []), ...(chain ? [chain] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
   host.hidden = false;
   return flow;
 }

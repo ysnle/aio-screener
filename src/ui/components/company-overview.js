@@ -293,7 +293,7 @@ function cashBars(doc, useOfCash) {
   return box;
 }
 
-function moneySection(doc, { money, emptyText, peer, priced, openFundamental }) {
+function moneySection(doc, { money, emptyText, monthly, peer, priced, openFundamental }) {
   const box = section(doc, 'money', '재무 한눈에');
   if (!money?.rows?.length) box.append(el(doc, 'p', emptyText || '재무 자료 없음', 'co-empty'));
   else {
@@ -301,6 +301,8 @@ function moneySection(doc, { money, emptyText, peer, priced, openFundamental }) 
     for (const row of money.rows) list.append(indicatorRow(doc, { title: row.title, stateLabel: row.state, tone: row.tone, value: row.value, lines: row.lines, level: 'h3' }));
     box.append(list);
   }
+  // A company that reports monthly (Taiwan's TWSE filers) adds its latest month under the yearly and quarterly rows.
+  if (monthly?.text) box.append(el(doc, 'p', monthly.text, 'co-text co-monthly'));
   // What the price already discounts (src/domain/fundamental/priced-in.js); absent when the inputs are not readable.
   if (priced?.lines?.length) {
     const read = block(doc, `이 주가가 반영하는 것${priced.state === 'plain' ? '' : `: ${priced.label}`}`, ...priced.lines.map((line) => el(doc, 'p', line.text, 'co-text')),
@@ -371,8 +373,8 @@ function outlookLink(doc, story, openOutlook) {
 
 /**
  * Paints the overview into `host` and 쟁점과 전망 into `ctx.outlookHost` (children replaced). ctx: { symbol, story, profile,
- * place, money, moneyEmpty, peer, priced, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
- * openIndustry, openFundamental, openOutlook, actions }.
+ * place, money, moneyEmpty, monthly, peer, priced, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
+ * openIndustry, openFundamental, openOutlook, actions, research (a node or null) }.
  */
 export function renderCompanyOverview(doc, host, ctx) {
   if (!doc || !host) return null;
@@ -388,7 +390,9 @@ export function renderCompanyOverview(doc, host, ctx) {
   const nodes = [
     businessSection(doc, { story, profile: ctx.profile, freshness, inMap: !!ctx.place?.inMap }),
     placeSection(doc, { place: ctx.place, story, industry: ctx.industry, openTicker: ctx.openTicker, openMap: ctx.openMap, openIndustry: ctx.openIndustry }),
-    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, peer: ctx.peer, priced: ctx.priced, openFundamental: ctx.openFundamental }),
+    moneySection(doc, { money: ctx.money, emptyText: ctx.moneyEmpty, monthly: ctx.monthly, peer: ctx.peer, priced: ctx.priced, openFundamental: ctx.openFundamental }),
+    // The company's researched credit figures (built by the caller from research-reference.json), under its own money.
+    ctx.research || null,
     outlook && typeof ctx.openOutlook === 'function' ? outlookLink(doc, story, ctx.openOutlook) : null
   ].filter(Boolean);
   if (ctx.actions?.length) { const row = el(doc, 'div', null, 'co-actions'); row.append(...ctx.actions); nodes.push(row); }

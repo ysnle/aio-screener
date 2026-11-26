@@ -1,6 +1,6 @@
-// One native owner for the briefing page — 일정 → 오늘의 해석 → 섹터와 움직인 이유 → 자산별 흐름 → 다음 확인.
-// Replaces the six-axis summary, the market strip, the checklist, the legacy analysis block, the
-// August research bridge and the news list (news now lives on the news screen).
+// The briefing page's native owner. It fills the report's rule-built slots — the reading that stands in for the AI
+// paragraph, the five-session points, 섹터와 자산 and 다음 확인 포인트 with the schedule — and hands the report's figures
+// (hero, headline, lines, sequence, week, fine print) to the lazily loaded briefing-report.js.
 import { releaseZoneBar } from './release-zone-bar.js';
 import { releaseZones } from '../../domain/macro/release-zones.js';
 import { alignInput } from '../../domain/briefing/market-read.js';
@@ -12,7 +12,7 @@ import { renderNextSteps } from './page-flow.js';
 import { crossroadsForRoot, themeLinkRow } from './macro-crossroads.js';
 import { el } from './dom.js';
 import { asOfChip } from './section-frame.js';
-import { moveNewsList, moveNewsRows, symbolNames } from './market-timeline.js';
+import { moveNewsList, moveNewsRows, symbolNames } from './move-news.js';
 import { renderSectorMoves } from './sector-moves.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 export { collectMarketInputs } from '../../data/selectors/market-inputs.js';
@@ -20,9 +20,9 @@ import { marketInterpretation, screenerRowsForRoot } from '../../data/selectors/
 import { buildEarningsWeek, eventPreviews } from '../../domain/briefing/event-guide.js';
 import { historyWaitText } from './data-state.js';
 import { MACRO_HISTORY } from '../../data/artifact-registry.js';
-import { createTrendChart } from './trend-chart.js';
-import { buildCloseSeries } from '../../domain/market/session/close-series.js';
 import { signedText } from '../../domain/shared/number.js';
+import { moveStrip } from './sector-moves.js';
+import { weekFriday } from '../../domain/briefing/briefing-report.js';
 
 // Only S&P 500 members: the weekly calendar lists hundreds of micro-caps.
 function universeNames(root) {
@@ -41,7 +41,7 @@ function statementNode(doc, tag, { text, reading }, className) {
   node.append(doc.createTextNode(text));
   // The observation stays on the first line and its reading sits under it in the secondary colour; one
   // '해석' tag on the headline labels the convention instead of a tag on every line.
-  if (reading) node.append(el(doc, 'span', `→ ${reading}`, 'briefing-hypothesis is-line'));
+  if (reading) node.append(el(doc, 'span', `→ ${reading}`, 'br-points__reading'));
   return node;
 }
 
@@ -88,7 +88,8 @@ export function weekStripDays(schedule = [], nowMs = Date.now(), days = 7) {
   });
 }
 
-function renderWeekStrip(doc, schedule, nowMs) {
+// `after`: the last date the report's 이번 주 rows already carry; the strip starts after it, so no day is listed twice.
+function renderWeekStrip(doc, schedule, nowMs, after = '') {
   const anchor = doc.getElementById('briefing-check-list');
   if (!anchor) return;
   let strip = doc.getElementById('briefing-week');
@@ -99,7 +100,7 @@ function renderWeekStrip(doc, schedule, nowMs) {
     anchor.insertAdjacentElement('afterend', strip);
   }
   // A Saturday or Sunday with no release and no report was a blank '—' column; it is left out.
-  const days = weekStripDays(schedule, nowMs).filter((day) => !((day.weekday === 0 || day.weekday === 6) && !day.today && !day.events.length && !day.earnings));
+  const days = weekStripDays(schedule, nowMs).filter((day) => day.date > after && !((day.weekday === 0 || day.weekday === 6) && !day.today && !day.events.length && !day.earnings));
   strip.hidden = !days.some((day) => day.events.length || day.earnings);
   strip.replaceChildren(...days.map((day) => {
     const li = el(doc, 'li', null, `briefing-week-day${day.today ? ' is-today' : ''}${day.weekday === 0 || day.weekday === 6 ? ' is-weekend' : ''}`);
@@ -226,25 +227,6 @@ function forkNode(doc, split) {
   return li;
 }
 
-// The week sentence compares the 10-year yield with the S&P 500; the two paths it compares sit under it.
-const WEEK_FIGURE_SESSIONS = 21;
-function renderWeekFigure(doc, root, anchor, read) {
-  if (!anchor) return;
-  let host = doc.getElementById('briefing-read-figure');
-  const panels = !read.available ? [] : [['S&P 500', 'spx', (value) => value.toLocaleString('en-US', { maximumFractionDigits: 0 }), (to, from) => signedText((to / from - 1) * 100, 1, '%')], ['미 10년물 금리', 'tnx', (value) => `${value.toFixed(2)}%`, (to, from) => signedText((to - from) * 100, 0, 'bp')]]
-    .map(([title, field, format, change]) => ({ title, format, change, series: buildCloseSeries(root._aioHistory || [], field, { through: read.asOf || null }).slice(-WEEK_FIGURE_SESSIONS) }))
-    .filter((panel) => panel.series.length >= 5);
-  if (panels.length < 2) { host?.remove(); return; }
-  if (!host) { host = el(doc, 'div', null, 'fig-group briefing-read-figure'); host.id = 'briefing-read-figure'; anchor.after(host); }
-  host.replaceChildren(...panels.map((panel) => {
-    const figure = el(doc, 'figure', null, 'fig');
-    // The sentence above is about the last 5 sessions; the caption gives that change on the month the chart draws.
-    const last = panel.series.at(-1), weekAgo = panel.series.at(-6);
-    figure.append(el(doc, 'figcaption', `${panel.title} ${panel.format(last.value)}, 최근 5거래일 ${weekAgo ? panel.change(last.value, weekAgo.value) : '—'} (그림은 ${panel.series.length}거래일)`, 'fig__title'), createTrendChart(doc, { series: panel.series, format: panel.format, label: panel.title }));
-    return figure;
-  }));
-}
-
 export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs = Date.now() }) {
   const page = doc?.getElementById('page-briefing');
   if (!page) return;
@@ -290,7 +272,9 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
     nowMs,
     perDay: 2 // v58.75 (persona review): each US date keeps its two heaviest reports (home's KO was missing here)
   });
-  renderWeekStrip(doc, schedule, nowMs);
+  // The strip starts the day after this week's rows end (their Friday, plus the Korean Saturday an evening release lands on).
+  const friday = weekFriday(read.asOf);
+  renderWeekStrip(doc, schedule, nowMs, friday ? new Date(Date.parse(`${friday}T12:00:00Z`) + 86400000).toISOString().slice(0, 10) : '');
   const scheduleRows = doc.getElementById('briefing-schedule-rows');
   if (scheduleRows) {
     scheduleRows.replaceChildren(...(schedule.length ? schedule.map((row) => {
@@ -311,12 +295,12 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   }
   renderEarningsWeek(doc, root, store, root._aioEarningsSnapshot);
 
-  // 2. Read
+  // 2. The rule-built reading: the paragraph while the AI reading is absent or blocked (the CSS hides it beside a shown
+  // AI paragraph); the remaining five-session statements sit under 이번 주.
   const headline = doc.getElementById('briefing-read-headline');
   if (headline) headline.textContent = read.available ? (read.headline || '눈에 띄는 신호가 없는 평범한 하루입니다.') : historyWaitText(root);
   const headlineReading = doc.getElementById('briefing-read-reading');
   if (headlineReading) headlineReading.replaceChildren(...(read.headlineReading ? [el(doc, 'span', '해석', 'briefing-hypothesis-tag'), doc.createTextNode(` ${read.headlineReading}`)] : []));
-  renderWeekFigure(doc, root, headlineReading, read);
   const points = doc.getElementById('briefing-read-points');
   if (points) points.replaceChildren(...(read.points || []).map((row) => statementNode(doc, 'li', row)));
 
@@ -390,6 +374,9 @@ export function renderBriefingRead({ documentRef: doc, root, store = null, nowMs
   // I21: the checks and asset groups continue to the screens that explain them (#briefing-next, hidden while empty).
   renderNextSteps(doc, doc.getElementById('briefing-next'), briefingFlow({ read }).next);
   page.dataset.aioBriefingRenderer = 'native-read';
+  // The report's figures load with their own chunk (the opening read and the chart), so the news screen does not carry them.
+  const rerender = () => { if (page.classList?.contains('active')) renderBriefingRead({ documentRef: doc, root, store }); };
+  import('./briefing-report.js').then(({ renderBriefingReport }) => renderBriefingReport({ documentRef: doc, root, interpretation, read, schedule, nowMs, rerender })).catch(() => {});
   if (typeof root._aioRenderMarketAnalysisSinks === 'function') {
     try { root._aioRenderMarketAnalysisSinks(); } catch (_) {}
   }
@@ -409,6 +396,7 @@ export function movesLine(moves = []) {
   return parts.length ? `${base ? `${shortDate(base)} 종가` : '최근 종가'} 1일, ${parts.join(', ')}.` : '';
 }
 
+// One row: the label, one tick per priced asset on one scale (weakest and strongest named), the line and its link.
 function renderMovesLine(doc, node, moves) {
   if (!node) return;
   const text = movesLine(moves);
@@ -418,7 +406,10 @@ function renderMovesLine(doc, node, moves) {
   link.type = 'button';
   link.dataset.action = 'showPage';
   link.dataset.arg = 'macro';
-  node.replaceChildren(doc.createTextNode(`${text} `), link);
+  const line = el(doc, 'p', `${text} `, 'br-row__text');
+  line.append(link);
+  const priced = moves.filter((row) => row.unit === '%' && !row.neutral && Number.isFinite(row.d1)).map((row) => ({ label: row.label, value: row.d1 }));
+  node.replaceChildren(el(doc, 'span', '자산', 'br-row__label'), moveStrip(doc, priced, { name: '자산' }), line);
 }
 
 function fmtMove(value, unit) {

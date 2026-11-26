@@ -111,31 +111,7 @@
 .page .empty-state .empty-state-action { margin-top: 8px; height: 36px; min-height: 36px; padding: 0 16px !important; font-size: 12px; } /* soft-ui pads .aio-btn-table with !important */
 #page-home #home-daily-loop .empty-state { margin: 4px 16px 12px; flex-direction: column; align-items: flex-start; }
 
-/* ═══ 7. 브리핑 (5a) ═══════════════════════════════════════════════════════ */
-#page-briefing > .briefing-block {
-  background: var(--color-background-card); border: 0; border-radius: var(--radius-container); box-shadow:none; padding: 20px 22px; margin: 0 0 16px;
-}
-#page-briefing > .briefing-block[hidden] { display: none; }
-#page-briefing .briefing-h2 { font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: 0; margin: 0 0 12px; }
-#page-briefing .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--color-text-secondary); }
-/* Hero: "오늘의 시장 해석" — kicker, the headline, its reading, then the numbered points (오늘의 세 줄). */
-#page-briefing > #briefing-read.sx-card--hero { padding: 26px var(--sx-card-pad-x); border-radius: var(--radius-container); }
-#page-briefing #briefing-read .briefing-h2 { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin: 0 0 10px; }
-#page-briefing .briefing-read-headline { font-size: 18px; font-weight: 600; line-height: 1.5; letter-spacing: -0.015em; max-width: 62ch; margin: 0 0 8px; }
-#page-briefing .briefing-read-reading { font-size: 14px; line-height: 1.7; margin: 0 0 14px; color: var(--color-text-secondary); max-width: 70ch; }
-#page-briefing .briefing-hypothesis-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: var(--radius-full); background: var(--sx-ink-a07); font-size: 12px; font-weight: 600; color: var(--color-text-secondary); vertical-align: 1px; }
-#page-briefing .briefing-read-points { counter-reset: brief; list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 14px; max-width: none; }
-#page-briefing .briefing-read-points > li { counter-increment: brief; position: relative; padding-left: 44px; min-height: 28px; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
-#page-briefing .briefing-read-points > li::before {
-  content: counter(brief); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: var(--radius-element);
-  display: flex; align-items: center; justify-content: center; background: var(--sx-ink-a06); font-size: 12px; font-weight: 600; color: var(--color-text-primary);
-}
-#page-briefing .briefing-hypothesis.is-line { display: block; margin-top: 2px; font-size: var(--fs-reading); line-height: 1.6; color: var(--color-text-secondary); }
-#page-briefing .briefing-ai { border: 0; border-radius: var(--radius-container); background: var(--sx-ink-a03); padding: 14px 18px; }
-#page-briefing .briefing-ai:not(:has(#briefing-ai-analysis:not([hidden]))) { display: none; }
-#page-briefing .briefing-ai-label { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
-
-
+/* ═══ 7. 브리핑: briefing-report.css ═══ */
 /* 시간대별 시황 slots (moved from the injected <style> in market-timeline.js; 12px floor). */
 :is(#page-briefing, #page-market-news) .market-slot { border-top: 0.5px solid rgba(var(--ink-rgb), 0.06); padding: 8px 0; }
 :is(#page-briefing, #page-market-news) .market-slot.is-current { border: 0; border-radius: var(--radius-container); padding: 12px 14px; margin-bottom: 8px; background: var(--sx-ink-a03); }
@@ -164,51 +140,6 @@
 :is(#page-briefing, #page-market-news) .market-slot-foot { font-size: 12px; color: var(--color-text-secondary); margin: 6px 0 0; }
 :is(#page-briefing, #page-market-news) .market-slot-overdue { font-size: 12px; font-weight: 600; color: var(--color-text-warning); margin: 4px 0; }
 
-/* 섹터와 움직인 이유, 다음 이벤트: h3 blocks on the face. 자산별 흐름: one line, the per-asset numbers in one fold. */
-#page-briefing :is(.briefing-move-news-title, .briefing-events-title) { margin: 16px 0 6px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-briefing .briefing-drivers-fold > summary { grid-template-columns: minmax(0, 1fr) auto; font-size: 14px; font-weight: 600; min-height: 44px; box-sizing: border-box; }
-#page-briefing .briefing-drivers-fold .briefing-driver-grid { padding: 0 16px 16px; }
-#page-briefing .briefing-driver { border: 0; border-radius: var(--radius-container); background: var(--color-background-card); padding: 14px 16px; }
-/* 다음 확인 포인트 + 7일 일정 */
-#page-briefing .briefing-check-list { list-style: none; padding: 0; margin: 0 0 10px; display: flex; flex-direction: column; gap: 8px; }
-#page-briefing .briefing-check-list > li { position: relative; padding-left: 22px; font-size: 14px; line-height: 1.65; color: var(--color-text-primary); }
-#page-briefing .briefing-check-list > li::before { content: '›'; position: absolute; left: 6px; top: 0; color: var(--color-text-secondary); font-weight: 600; }
-/* v59.69: the next release as a fork — the release node, then one branch per leading scenario */
-#page-briefing .briefing-check-list > li.briefing-check-fork { padding-left: 0; margin-top: 4px; }
-#page-briefing .briefing-check-list > li.briefing-check-fork::before { content: none; }
-#page-briefing .briefing-check-fork__node { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: var(--radius-element); background: var(--sx-ink-a03); }
-#page-briefing .briefing-check-fork__when { font-size: 12px; font-weight: 600; color: var(--color-accent); font-variant-numeric: tabular-nums; }
-#page-briefing .briefing-check-fork__name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-briefing .briefing-check-fork__branches { list-style: none; margin: 0 0 0 18px; padding: 0; border-left: 2px solid var(--color-border); }
-#page-briefing .briefing-check-fork__branch { position: relative; padding: 8px 0 0 18px; color: var(--color-text-secondary); }
-#page-briefing .briefing-check-fork__branch::before { content: ''; position: absolute; left: 0; top: 19px; width: 12px; border-top: 2px solid var(--color-border); }
-#page-briefing .briefing-check-fork__branch strong { color: var(--color-text-primary); font-weight: 600; }
-#page-briefing .briefing-footnote { font-size: 12px; color: var(--color-text-secondary); margin: 8px 0 0; }
-#page-briefing .briefing-event { grid-template-columns: 210px minmax(0, 1fr); padding: 10px 12px; border: 0; border-radius: var(--radius-container);  }
-@media (hover: hover) { #page-briefing .briefing-event:hover { background: var(--sx-ink-a03); } }
-#page-briefing .briefing-event.is-today { background: var(--sx-warn-bg); }
-#page-briefing .briefing-event-when { font-size: 12px; }
-#page-briefing #briefing-schedule-rows > .briefing-event-meta { padding: 8px 12px 0; }
-/* v59.55 (visual review): the 7-day strip — seven equal columns, a hairline between days, today on a warm ground. */
-#page-briefing .briefing-week { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); /* v59.56: as many columns as days shown (empty weekend days are left out) */ border: 0.5px solid var(--color-border); border-radius: var(--radius-container); overflow: hidden; }
-#page-briefing .briefing-week[hidden] { display: none; }
-#page-briefing .briefing-week-day { display: flex; flex-direction: column; gap: 6px; min-height: 96px; padding: 10px 10px 12px; border-left: 0.5px solid var(--color-border); min-width: 0; }
-#page-briefing .briefing-week-day:first-child { border-left: 0; }
-#page-briefing .briefing-week-day.is-today { background: var(--sx-warn-bg); }
-#page-briefing .briefing-week-day.is-weekend { background: var(--sx-ink-a03); }
-#page-briefing .briefing-week-date { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-#page-briefing .briefing-week-event { font-size: 12px; line-height: 1.45; color: var(--color-text-primary); overflow-wrap: anywhere; }
-#page-briefing .briefing-week-event.is-major { font-weight: 600; }
-#page-briefing .briefing-week-event.is-passed { color: var(--color-text-secondary); }
-#page-briefing .briefing-week-earnings { margin-top: auto; font-size: 12px; color: var(--color-text-secondary); }
-#page-briefing .briefing-week-none { font-size: 12px; color: var(--color-text-secondary); }
-@media (max-width: 743px) {
-  #page-briefing .briefing-week { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); }
-  #page-briefing .briefing-week-day { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; border-left: 0; border-top: 0.5px solid var(--color-border); }
-  #page-briefing .briefing-week-day:first-child { border-top: 0; }
-  #page-briefing .briefing-week-date { flex: 0 0 72px; }
-  #page-briefing .briefing-week-earnings { margin-top: 0; }
-}
 
 /* ═══ 8. 뉴스 (5b) ═══════════════════════════════════════════════════════ */
 #page-market-news .news-status-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 16px; }
@@ -228,15 +159,48 @@
 #page-market-news .news-card .aio-section-hd { border: 0; display: flex; align-items: baseline; gap: 10px; }
 #page-market-news .news-card .briefing-h2-note { font-size: 12px; font-weight: 400; color: var(--color-text-secondary); }
 #page-market-news .news-list { display: flex; flex-direction: column; gap: 0; }
-#page-market-news .news-sort-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 10px; margin: 0 0 10px; }
-#page-market-news .news-filter-row { display: flex; flex-wrap: wrap; align-items: center; padding: 0 10px; margin: 0 0 8px; } /* responsive.css resets padding with !important */
+/* The filter panel (src/ui/pages/news.js renderFeedPanel): count tiles, labelled chip rows with live counts, toggles,
+   search and sort. A pressed chip is ink-filled, the one toggle look of the page. */
+#page-market-news .news-feed-panel { display: flex; flex-direction: column; gap: 8px; padding: 0 10px; margin: 0 0 14px; }
+#page-market-news .news-feed-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+#page-market-news .news-feed-tile { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; }
+#page-market-news .news-feed-tile-value { font-size: var(--fs-xl); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
+#page-market-news .news-feed-tile-note { font-size: 12px; font-weight: 400; color: var(--color-text-secondary); }
+#page-market-news .news-feed-filter-row { display: flex; align-items: baseline; gap: 6px 12px; min-width: 0; }
+#page-market-news .news-feed-filter-label { flex: 0 0 72px; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
+#page-market-news .news-feed-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; flex: 1 1 auto; }
+#page-market-news .news-feed-chips[data-overflow="scroll"] { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+#page-market-news .news-feed-chip {
+  appearance: none; display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; min-height: 30px; padding: 0 10px; font: inherit; font-size: 12px;
+  border: 0.5px solid var(--color-border-emphasized); border-radius: var(--radius-full); background: transparent; color: var(--color-text-secondary); cursor: pointer; white-space: nowrap;
+}
+@media (hover: hover) { #page-market-news .news-feed-chip:not([aria-pressed="true"], [aria-disabled="true"]):hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); } }
+#page-market-news .news-feed-chip[aria-pressed="true"] { background: var(--color-text-primary); border-color: var(--color-text-primary); color: var(--color-background-card); }
+#page-market-news .news-feed-chip[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+#page-market-news .news-feed-chip:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+#page-market-news .news-feed-chip-count { font-variant-numeric: tabular-nums; font-weight: 600; opacity: 0.8; }
+#page-market-news .news-feed-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-text-secondary); }
+#page-market-news .news-feed-chip[data-kind="ticker"] .news-feed-chip-dot { background: var(--color-accent); }
+#page-market-news .news-feed-chip[aria-pressed="true"] .news-feed-chip-dot { background: currentColor; }
+#page-market-news .news-feed-tools { flex-wrap: wrap; align-items: center; }
+#page-market-news .news-feed-tools > .news-feed-chips { flex: 0 1 auto; }
+#page-market-news .news-feed-search { flex: 1 1 180px; min-width: 0; }
+#page-market-news .news-feed-search input { width: 100%; min-height: 32px; box-sizing: border-box; padding: 0 10px; font: inherit; font-size: 12px; border: 0.5px solid var(--color-border-emphasized); border-radius: var(--radius-element); background: var(--color-background-card); color: var(--color-text-primary); }
+#page-market-news .news-feed-sort { display: inline-flex; align-items: center; gap: 6px; }
+#page-market-news .news-feed-sort .news-feed-filter-label { flex: none; }
+#page-market-news .news-feed-sort select { min-height: 32px; font: inherit; font-size: 12px; border: 0.5px solid var(--color-border-emphasized); border-radius: var(--radius-element); background: var(--color-background-card); color: var(--color-text-primary); padding: 0 8px; }
+@media (max-width: 743px) {
+  #page-market-news .news-feed-filter-row:not(.news-feed-tools) { flex-direction: column; align-items: stretch; gap: 4px; }
+  #page-market-news .news-feed-filter-label { flex: none; }
+  #page-market-news :is(.news-feed-chip, .news-feed-search input, .news-feed-sort select) { min-height: 44px; }
+}
 #page-market-news .news-intraday-list { padding: 0 10px 8px; }
 #page-market-news #news-load-more-wrap:not([hidden]) { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 10px; }
 #page-market-news #tg-feed-market-news { padding: 0 10px 10px; }
 
 /* One story = one row: time column · headline, summary, meta · topic capsule. Rows separate with a hairline. */
 #page-market-news .news-item-card {
-  display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 4px 16px; align-items: start;
+  display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 16px; align-items: start;
   padding: 16px 10px; border: 0; border-radius: var(--radius-container); cursor: pointer; 
 }
 #page-market-news .news-item-card + .news-item-card { box-shadow:none; }
@@ -248,10 +212,16 @@
 #page-market-news .news-item-headline { font-size: 14px; font-weight: 600; line-height: 1.5; letter-spacing: 0; margin: 0 0 4px; }
 #page-market-news .news-item-link { min-height: 24px; }
 #page-market-news .news-item-summary { font-size: var(--fs-reading); line-height: 1.65; color: var(--color-text-secondary); margin: 0 0 4px; }
-#page-market-news .news-item-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; } /* index.html L2322 pins 11px with !important */
+#page-market-news .news-item-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px; } /* index.html L2322 pins 11px with !important */
+#page-market-news .news-item-original { margin: -2px 0 4px; font-size: 12px; line-height: 1.45; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+/* The one extracted fact (src/domain/news/article-facts.js): a kind tag, then the fact. */
+#page-market-news .news-item-fact { display: flex; align-items: baseline; gap: 6px; margin: 2px 0 4px; font-size: var(--fs-reading); line-height: 1.5; color: var(--color-text-primary); overflow-wrap: anywhere; }
+#page-market-news .news-fact-kind { flex: none; padding: 0 6px; border-radius: var(--radius-inner); background: var(--sx-ink-a06); font-size: var(--fs-min); font-weight: 600; line-height: 18px; color: var(--color-text-secondary); }
+#page-market-news .news-fact-kind[data-kind="수치"] { background: var(--data-cyan-soft); color: var(--color-text-primary); }
+#page-market-news .news-fact-kind[data-kind="일정"] { background: var(--sx-warn-bg); color: var(--amber-12); }
+#page-market-news .news-entity-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 6px; border-radius: var(--radius-element); font-size: 12px; color: var(--color-text-secondary); box-shadow: inset 0 0 0 0.5px var(--color-border-emphasized); }
 #page-market-news .news-evidence { font-size: 12px; }
 #page-market-news .news-evidence > summary { display: inline-flex; align-items: center; min-height: 24px; color: var(--color-text-secondary); }
-#page-market-news .news-item-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-top: 2px; }
 #page-market-news .news-topic-chip { background: var(--sx-ink-a06); color: var(--color-text-primary); }
 #page-market-news .nws-stance { font-size: 12px; font-weight: 600; white-space: nowrap; }
 #page-market-news .nws-stance[data-tone="pending"] { color: var(--color-text-warning); }
@@ -267,7 +237,6 @@
   /* 5o: the hero is one column; KPI tiles 2×2; the two daily cards stay side by side. */
   #page-home > #home-score-hero.home-hero { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 22px var(--sx-card-pad-x) !important; } /* responsive.css ≤700 sets 16px 0 !important */
   #page-home #home-daily-loop.daily-loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #page-briefing .briefing-event { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 @media (max-width: 743px) {
   /* iPhone: one column, 44px touch targets. */
@@ -278,39 +247,17 @@
   #page-home #home-daily-loop .daily-name-price { display: none; }
   #page-home #home-daily-loop .daily-name-symbol, #page-home #home-daily-loop .flow-next-link { min-height: 44px; }
   #page-home #home-cross-assets > span:not([hidden]) { min-height: 36px; }
-  #page-briefing > .briefing-block { padding: 18px 16px; border-radius: var(--radius-container); }
-  #page-briefing > #briefing-read.sx-card--hero { padding: 20px var(--sx-card-pad-x); border-radius: var(--radius-container); }
-  #page-briefing .briefing-read-headline { font-size: 18px; }
   #page-market-news .news-card { padding: 16px 6px 8px; border-radius: var(--radius-container); }
-  #page-market-news .news-item-card { grid-template-columns: minmax(0, 1fr) auto; padding: 14px 10px; }
+  #page-market-news .news-item-card { grid-template-columns: minmax(0, 1fr); padding: 14px 10px; }
   #page-market-news .news-time-col { grid-column: 1 / -1; flex-direction: row; gap: 6px; }
   #page-market-news .news-item-headline { font-size: 14px; }
 }
 
 /* ═══ v58.75 (persona review, '고르는 법' E): 밤사이 핵심 · 오늘 확인할 3가지 · 판단 거리 · 실적 주간 · 이벤트 미리보기 · 사건 사슬 ═══ */
-#page-briefing .briefing-earnings-week { margin-top: 12px; }
-#page-briefing .briefing-earnings-lead { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-briefing .briefing-earnings-fold > summary { min-height: 24px; font-size: 12px; color: var(--color-text-secondary); }
-#page-briefing .briefing-earnings-day { margin: 14px 0 4px; font-size: 14px; font-weight: 600; }
-#page-briefing .briefing-earnings-session { margin: 0 0 8px; }
-#page-briefing .briefing-earnings-session-head { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 2px; }
-#page-briefing .briefing-earnings-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-#page-briefing .briefing-earnings-row { display: flex; gap: 8px; align-items: baseline; font-size: 12px; line-height: 1.6; padding: 1px 6px; border-radius: 6px; }
-#page-briefing .briefing-earnings-row.is-mine { background: var(--sx-warn-bg); }
-#page-briefing .briefing-earnings-sym { flex: 0 0 56px; font-variant-numeric: tabular-nums; }
-#page-briefing .briefing-earnings-facts { color: var(--color-text-secondary); overflow-wrap: anywhere; min-width: 0; }
-#page-briefing .briefing-earnings-tag { margin-left: auto; flex: none; font-size: 12px; font-weight: 600; color: var(--amber-12); }
-#page-briefing .briefing-events-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 10px; margin: 0 0 10px; }
-#page-briefing .briefing-event-preview { padding: 12px; border-radius: var(--radius-container); background: var(--sx-ink-a03); display: flex; flex-direction: column; gap: 4px; }
-#page-briefing .briefing-event-preview-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
-#page-briefing .briefing-event-preview-line { font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); overflow-wrap: anywhere; }
-#page-briefing .briefing-event-preview-line.is-branch { color: var(--color-text-primary); }
-#page-market-news .news-item-tickers { margin: 0 0 2px; }
+#page-market-news .news-item-tickers { margin: 0 0 2px; display: flex; flex-wrap: wrap; gap: 4px; }
 /* A multi-article story's timeline links kept the browser's default blue/purple (1.85:1 on the dark card). */
 #page-market-news a.aio-inline-target, #page-market-news a.aio-inline-target:visited { color: var(--color-accent); text-decoration: underline; text-underline-offset: 2px; }
 #page-market-news .news-item-chain { margin: 2px 0 0; font-size: var(--fs-reading); line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
-/* The card's place in the day's story (src/ui/pages/news.js storyTieLine): the linked moves, then the relayed story as a quiet chip. */
-#page-market-news .news-item-story { margin: 2px 0 0; font-size: 12px; line-height: 1.5; color: var(--color-text-secondary); overflow-wrap: anywhere; }
 /* Owner 2026-10-25: the four index ETFs' last regular session opens 오늘 (src/ui/components/home-index-strip.js). */
 #page-home .home-index-strip { margin: 0 0 16px; }
 /* First-users run-5 (phone, CLS): the strip is filled when the modules run (~35 s on slow 3G) and pushed the verdict the

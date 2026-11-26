@@ -160,7 +160,9 @@ const POLICIES = {
   'market-lean-backtest.json': { kind: 'research-horizon', timestamp: ['generatedAt'], maxAgeHours: 24 * 120 },
   'market-lean-risk.json': { kind: 'research-horizon', timestamp: ['generatedAt'], maxAgeHours: 24 * 120 },
   'operations-slo-window.json': { kind: 'operational-status', timestamp: ['observedAt', 'generatedAt'], maxAgeHours: 24 },
-  'structural-data-research.json': { kind: 'research-reference', timestamp: ['checkedAt', 'generatedAt'], maxAgeHours: 24 * 14 }
+  'structural-data-research.json': { kind: 'research-reference', timestamp: ['checkedAt', 'generatedAt'], maxAgeHours: 24 * 14 },
+  // Hand-researched market figures (credit, memory prices, fund flows); rows age on their own asOf, this warns on the file's last check.
+  'research-reference.json': { kind: 'research-reference', timestamp: ['checkedAt'], maxAgeHours: 24 * 10 }
 };
 
 function extractTimestamp(data, policy) {

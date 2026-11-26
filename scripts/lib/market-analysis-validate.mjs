@@ -16,6 +16,7 @@ import { moveSizeWord } from '../../src/domain/market/session/move-size.js';
 import { likelihoodGroundOf } from '../../src/domain/content/likelihood-grounds.js';
 import { READING_PROBABILITY, READING_TRADE_INSTRUCTION } from '../../src/ai/reading/reading-core.js';
 import { investigationCauseIssues } from './investigation-conclusion.mjs';
+import { stripPublisherAttribution } from '../../src/domain/content/publisher-attribution.js';
 
 const MARKET_ANALYSIS_QUOTE_DEFS = [
   { symbol: '^GSPC', metricId: 'market.spx', label: 'SPX', unit: 'index', aliases: ['S&P 500'] },
@@ -1013,7 +1014,10 @@ export const plainReading = (text) => String(text || '').split(/\n/).map((line) 
 
 export function buildStructuredMarketAnalysis({ data, text, model, status, reason, metricEvidence, newsEvidence, semantic }) {
   const evidenceIds = [...metricEvidence, ...newsEvidence].map(row => row.evidenceId);
-  const cited = _marketAnalysisSummary(text);
+  // A publisher named in an attribution is taken out here, the one door every published reading passes; it is recorded
+  // as a warning and never withholds the reading.
+  const repaired = stripPublisherAttribution(text);
+  const cited = _marketAnalysisSummary(repaired.text);
   const sentences = citedSentences(cited);
   const summary = plainReading(cited);
   const oneLine = _marketAnalysisOneLine(summary);
@@ -1047,7 +1051,7 @@ export function buildStructuredMarketAnalysis({ data, text, model, status, reaso
     newsEvidence,
     headlineContext: buildMarketAnalysisHeadlineContext(data),
     causalEvidenceCount: semantic?.causalEvidenceCount || 0,
-    semanticWarnings: semantic?.warnings || [],
+    semanticWarnings: [...new Set([...(semantic?.warnings || []), ...(repaired.named ? ['publisher-named'] : [])])],
     newsContentPolicy: MARKET_ANALYSIS_NEWS_CONTENT_POLICY,
     // The narrative is published, but the reader is told what it may and may not
     // rest on and who owns the decision.

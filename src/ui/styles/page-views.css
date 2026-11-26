@@ -17,7 +17,7 @@
 /* 테마와 섹터: 요약 / 지도 / 테마 순위 / 시나리오 / AI 공급망 / 한국 */
 #page-themes:not([data-view="summary"], [data-view="all"]) > :is(#themes-verdict, #sector-map-fold),
 #page-themes:not([data-view="map"], [data-view="all"]) > #sector-map,
-#page-themes:not([data-view="rank"], [data-view="all"]) > #theme-strength-board,
+#page-themes:not([data-view="rank"], [data-view="all"]) > :is(#theme-strength-board, #themes-setup-board),
 #page-themes:not([data-view="scenario"], [data-view="all"]) > .tp-section,
 #page-themes:not([data-view="ai"], [data-view="all"]) > :is(#themes-ai-chain, #ai-capex-fold),
 #page-themes:not([data-view="korea"], [data-view="all"]) > #kr-integrated-themes,
@@ -26,7 +26,7 @@
 #page-market-news:not([data-view="releases"], [data-view="all"]) > :is(#news-event-briefs, #news-tg-card),
 #page-market-news:not([data-view="timeline"], [data-view="all"]) > #news-timeline,
 #page-market-news:not([data-view="feed"], [data-view="all"]) > #news-feed-card,
-#page-market-news:is([data-view="releases"], [data-view="timeline"]) > #news-filter-fold,
+#page-market-news:is([data-view="releases"], [data-view="timeline"]) > #news-feed-panel,
 #page-market-news:is([data-view="releases"], [data-view="timeline"]) #market-news-count,
 /* 기술적 분석: 시장 지수 / 대표 종목 / 종목 분석 (the search shows in every view; a pick opens 종목 분석) */
 #page-charts:not([data-view="indexes"], [data-view="all"]) > #charts-indexes,

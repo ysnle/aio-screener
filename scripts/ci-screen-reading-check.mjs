@@ -102,6 +102,18 @@ await section('validator', async () => {
   check('v60.31 a sign against the packet is blocked (-40% for +40%), a date the packet lacks is blocked (11/19)',
     validateScreenReading(GOOD.replace('+40%', '-40%'), packet).issues.some((issue) => issue.startsWith('figure-unsupported'))
       && validateScreenReading(GOOD.replace('11/18', '11/19'), packet).issues.some((issue) => issue.includes('11/19')));
+  {
+    // Sources stay off the face: a publisher in an attribution is taken out and warned about, never blocking.
+    const named = validateScreenReading(`연합뉴스에 따르면, ${GOOD.replace('부담 우세입니다.', '부담 우세입니다(CNBC).')}`, packet);
+    check('v60.59 publisher-named a reading naming its publishers passes with the names taken out and a warning',
+      named.issues.length === 0 && named.warnings.includes('publisher-named') && !/연합뉴스|CNBC/.test(named.text) && named.text.includes('부담 우세입니다.'), JSON.stringify(named));
+    check('v60.59 publisher-named a reading without one is unchanged', ok.text === GOOD.trim() && !ok.warnings.includes('publisher-named'));
+    check('v60.59 publisher-named the producer publishes the repaired text', /text: verdict\.text \|\| answer\.text/.test(read('scripts/producer/screen-readings.mjs')));
+    const { buildStructuredMarketAnalysis } = await import('./lib/market-analysis-validate.mjs');
+    const market = buildStructuredMarketAnalysis({ data: {}, text: 'CNBC 보도에 따르면 S&P 500은 1.2% 올랐습니다. 로이터에 따르면 유가는 내렸습니다.', model: 'fixture', status: 'verified', metricEvidence: [], newsEvidence: [], semantic: { ok: true, warnings: [] } });
+    check('v60.59 publisher-named the market reading publishes without the publishers and records the warning',
+      !/CNBC|로이터/.test(market.summary) && market.summary.includes('보도에 따르면 S&P 500은') && market.semanticWarnings.includes('publisher-named') && market.status === 'verified', JSON.stringify(market.summary));
+  }
   check('v60.31 a computed figure (a difference the packet does not print) is blocked', unsupportedFigures('VIX는 기준선 20보다 4.56 높습니다.', packet).includes('4.56'));
   check('v60.31 ③ an order is blocked', validateScreenReading(`${GOOD} 지금은 분할 매수하세요.`, packet).issues.includes('trade-instruction'));
   check('v60.31 ③ a percentage probability is blocked', validateScreenReading(GOOD.replace('부담 우세입니다.', '부담 우세이고 반등 확률은 70%입니다.'), packet).issues.includes('probability-claim'));

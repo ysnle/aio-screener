@@ -21,6 +21,8 @@ import { signedText, directionOf } from '../../domain/shared/number.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 import { interpretationStore, latestMarketInterpretation, screenerRowsForRoot } from '../../data/selectors/interpretation.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
+import { requestKrInvestorFlows, krInvestorFlowView } from '../../data/kr-investor-flows.js';
+import { KOREA_BIG_MOVE_PCT } from '../../domain/market/korea/korea-session-link.js';
 
 function ensure(root, artifact, rerender) {
   refreshSharedArtifact(root, artifact).then(({ changed } = {}) => { if (changed) rerender(); }).catch(() => {});
@@ -178,13 +180,17 @@ export function readMarketOpening(root, interpretation, rerender) {
     awaitingRows = true;
     const stop = store.subscribe(() => { if (Object.keys(regularMovesOf(root, afterHours) || {}).length) { stop(); awaitingRows = false; rerender(); } });
   }
-  const key = [Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || '', earnings?.available ? `${earnings.asOf}:${earnings.up}:${earnings.down}` : '',
+  // The KOSPI investor flows join the 한국 line only on a large KOSPI session, so they are asked for only then (below).
+  const flows = krInvestorFlowView(root);
+  const key = [flows.state === 'ok' ? flows.markets.map((market) => market.date).join(',') : flows.state, Object.keys(regularMoves || {}).length, history.at?.(-1)?.date, history.length, macroHistory?.generatedAt || (macroHistory ? 'loaded' : ''), longrun?.generatedAt || '', day?.generatedAt || '', briefs?.generatedAt || '', afterHours?.fetchedAt || '', earnings?.available ? `${earnings.asOf}:${earnings.up}:${earnings.down}` : '',
     events.map((event) => `${event.id}:${event.date}`).join(',')].join('|');
-  if (openingMemo?.key !== key || openingMemo.history !== history || openingMemo.regime !== regime) openingMemo = { key, history, regime, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves, regime, events, earnings }) };
+  if (openingMemo?.key !== key || openingMemo.history !== history || openingMemo.regime !== regime) openingMemo = { key, history, regime, opening: buildMarketOpening({ history, macroHistory, longrun, day, afterHours, briefs, regularMoves, regime, events, earnings, flows }) };
+  const kospi = openingMemo.opening?.rows?.kospi?.moves?.[1];
+  if (flows.state === 'loading' && Math.abs(kospi) >= KOREA_BIG_MOVE_PCT) requestKrInvestorFlows(root, rerender);
   return openingMemo.opening;
 }
 
-const SESSION_LINES = Object.freeze(['session', 'gathered', 'spread', 'split', 'after-hours']);
+const SESSION_LINES = Object.freeze(['session', 'catalysts', 'gathered', 'spread', 'split', 'after-hours']);
 /** One face line: the lede, the diagnosis (its state word first) or the small record line. */
 export function openingLine(doc, line) {
   const p = el(doc, 'p', null, 'opening-line');

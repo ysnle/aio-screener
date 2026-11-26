@@ -663,9 +663,6 @@ function renderCommodities(doc, root) {
   grid.replaceChildren(card('wti', 'WTI 원유', 2), card('gold', '금', 0));
 }
 
-// Expert review M11: the 한국 시장 fold's 1-year range and 3-month move of the won, from the completed-close history.
-// renderKoreaWon left with the 한국 매크로 fold; the 시장 상태 한국 board draws 원/달러.
-
 // v58.74 (text audit C1): the page opens with its through-line — which factors weigh, whether the quadrant is set, which
 // branch fits best and the release that decides next — so the sections below read as steps of one argument.
 function macroThroughLine(read, crossroads, path = null) {
@@ -674,11 +671,9 @@ function macroThroughLine(read, crossroads, path = null) {
   const burden = axes.filter((row) => row.state === 'burden').map((row) => row.title);
   const weigh = burden.length ? `매크로 6요인 중 부담은 ${burden.length}개(${burden.join(', ')})` : '매크로 6요인 중 부담 요인은 없고';
   const quadrant = `성장·물가는 '${read.regime.verdict}'`;
-  // v59.55 (owner 11/1, alignment pass): the scenario sentence left the lede — the 향후 시나리오 card right below opens with
-  // the same lead (scenarioLead), so the header said it twice.
-  // The header's single next-release answer (crossroads.nextEvent); the separate "다음 주요 발표" line left.
-  // v59.74 (weekly outlook review 11/7): the header read "다음 주요 발표는 11/17 소매판매" above a card saying "다음 발표
-  // 11/10 CPI". nextEvent is now the next release; the one that settles the branches in play follows when it differs.
+  // No scenario sentence here: the 향후 시나리오 card right below opens with it (scenarioLead). The header names the next
+  // release (crossroads.nextEvent) so it agrees with the cards, and the release that settles the branches in play only
+  // when it is a different one.
   const label = (event) => `${event.when || event.date} ${event.name}`;
   const first = crossroads?.nextEvent || null;
   const decider = crossroads?.decidingEvent || null;

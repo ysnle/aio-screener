@@ -4,7 +4,7 @@ import { alignMarketInputs, buildMarketRegime, usdKrwWindow } from '../../briefi
 import { alignInput, buildCloseSeries } from '../session/close-series.js';
 import { RULES } from '../../rules/thresholds.js';
 import { latestCompletedKrSession, resolveMarketCalendarSession, countOpenSessionsBetween } from '../session/market-calendar.js';
-import { historyFieldSessionDate, isHeldHistoryValue } from '../session/history-session.js';
+import { historyFieldSessionDate, isHeldHistoryValue, isProvisionalHistoryValue } from '../session/history-session.js';
 import { krIndexMoveRecord, krIndexMoveText, KR_MONTH_SESSIONS } from '../korea/kr-index-record.js';
 import { signedText, finiteNumber as finite } from '../../shared/number.js';
 import { isoDay } from '../../shared/session-date.js';
@@ -202,7 +202,7 @@ function computeKoreaIndexSeries(history, field, completed) {
   for (const row of Array.isArray(history) ? history : []) {
     const value = finite(row?.[field]);
     const meta = historyFieldMeta(row, field);
-    if (!(value > 0) || meta?.observationRelation === 'current-session' || meta?.valueBasis === 'current-session') continue;
+    if (!(value > 0) || meta?.observationRelation === 'current-session' || meta?.valueBasis === 'current-session' || isProvisionalHistoryValue(meta)) continue;
     // A held copy is not a session; a session-dated (or previous-close) value is dated by its own session.
     if (isHeldHistoryValue(meta)) continue;
     const stamp = String(meta?.observedAt || row?.date || '');

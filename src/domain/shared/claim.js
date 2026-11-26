@@ -70,6 +70,8 @@ const UNITS = Object.freeze({
   level: { digits: 2, text: (value, digits) => grouped(value, digits) },
   count: { digits: 0, text: (value, digits) => `${grouped(value, digits)}개` },
   usd: { digits: 0, text: (value) => usdKoreanText(value) },
+  // A signed dollar amount: a flow into or out of something, or a change of a dollar level ("+592억 달러").
+  usdChange: { digits: 0, text: (value) => { const body = usdKoreanText(value); return `${value > 0 && body !== '0달러' ? '+' : ''}${body}`; } },
   eok: { digits: 0, text: eokText },
   perShare: { digits: 2, text: (value, digits) => usdPerShareText(value, digits) },
   ratio: { digits: 2, text: (value, digits) => value.toFixed(digits) },
@@ -102,6 +104,23 @@ export const figureDigits = (figure) => (Number.isInteger(figure?.digits) ? figu
 export const figureText = (figure) => UNITS[figure.unit].text(figure.value, figureDigits(figure));
 /** The number a reader sees: the figure's value rounded as printed. */
 export const printedValue = (figure) => Number(Number(figure.value).toFixed(figureDigits(figure)));
+// A range prints its unit once, and its sign once when both ends share it: "+8~13%", "-0~5%", "7.00~8.65%", "-2~+3%".
+// Units whose printed form is not number + suffix (dollar amounts) print both ends whole.
+const RANGE_SUFFIX = Object.freeze({ pct: '%', bp: 'bp', share: '%', rate: '%', spread: 'bp', level: '', pp: '%p', x: '배', count: '개', years: '년', months: '개월' });
+const SIGNED_RANGE = new Set(['pct', 'bp']);
+/** Two figures of one unit as one range, low end first. */
+export function figureRangeText(lo, hi) {
+  const suffix = RANGE_SUFFIX[lo?.unit];
+  if (!hi || lo.unit !== hi.unit || suffix == null) return `${figureText(lo)}~${hi ? figureText(hi) : ''}`;
+  const a = printedValue(lo), b = printedValue(hi);
+  const bare = (figure, value) => grouped(Math.abs(value), figureDigits(figure));
+  if (!SIGNED_RANGE.has(lo.unit)) return `${a < 0 ? '-' : ''}${bare(lo, a)}~${b < 0 ? '-' : ''}${bare(hi, b)}${suffix}`;
+  // a and b are the printed (rounded) values, so a range that prints as 0~0 carries no sign.
+  if (a >= 0 && b >= 0) return `${b === 0 ? '' : '+'}${bare(lo, a)}~${bare(hi, b)}${suffix}`;
+  // Both at or under zero: the end nearer zero first, the way a forecast of a fall is written ("-0~5%").
+  if (a <= 0 && b <= 0) return `-${bare(hi, b)}~${bare(lo, a)}${suffix}`;
+  return `-${bare(lo, a)}~+${bare(hi, b)}${suffix}`;
+}
 /** A claim's compare line printed in its first figure's unit (at compare.digits, else the unit's own decimals). */
 export const thresholdText = (claimed) => figureText({ unit: claimed.figures[0].unit, value: claimed.compare.threshold, digits: claimed.compare.digits });
 /**
@@ -150,6 +169,7 @@ function slotText(name, path, value) {
     if (!figure) throw new Error(`say: {${name}} has no figure ${index}`);
     if (part === 'label') return { text: figure.label, claims: [value] };
     if (part === 'threshold') return { text: thresholdText(value), claims: [value] };
+    if (part === 'range') return { text: figureRangeText(value.figures[0], value.figures[1]), claims: [value] };
     if (part !== 'value') throw new Error(`say: {${name}.${part}} is not a figure part`);
     return { text: figureText(figure), claims: [value] };
   }
@@ -162,7 +182,7 @@ function slotText(name, path, value) {
 /**
  * Text from claims: `pattern` holds the fixed words and `{slot}` places, each filled from `slots[name]` — a claim
  * (`{name}` its first figure, `{name.1}` the second, `{name.label}`, `{name.threshold}` its compare line in the
- * figure's unit, `{name.word}`, `{name.date}` its asOf as M/D), composed text from another say(), or a plain name
+ * figure's unit, `{name.range}` its first two figures as one range, `{name.word}`, `{name.date}` its asOf as M/D), composed text from another say(), or a plain name
  * (never a number: a figure is printed only from a claim).
  * @returns {{text:string, claims:object[]}}
  */

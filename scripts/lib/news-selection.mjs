@@ -531,13 +531,15 @@ export function newsDisplayTopic(title, topic) {
 
 // P1373 floors by feed topic; owner 2026-10-18 adds the two narrative feeds by feed name (their topics reuse the news
 // screen's labels, semi/credit, so the floor cannot key on topic alone).
-export const NEWS_TIER3_CAP = 12; // of the 40-slot bundle; see selectNewsBundle
-export const NEWS_BUNDLE_SIZE = 40;
+// The 뉴스 filter panel cuts the bundle by region, topic and company, so the bundle holds eighty: forty left most chips
+// with one or two articles. The tier-3 share stays three in ten; the score floors and per-row rules are unchanged.
+export const NEWS_BUNDLE_SIZE = 80;
+export const NEWS_TIER3_CAP = 24; // of the bundle; see selectNewsBundle
 // The feeds above are fixed questions, so the day's story about one company reached the bundle only when a fixed query
 // happened to return it: of 38 large stock moves across eight sessions (11/12-11/24) a headline named 15, and Micron's
 // -13.9% and +19.0% days, Marvell's +18.4% and TSMC's +14.1% had none. The day's largest stock moves (the published
 // market-day ledger's lead and major stock moves) are searched by company name, a headline is kept only when it names
-// that company, and each company with one holds a seat on top of the forty (at most NEWS_MOVER_SEATS, one per company).
+// that company, and each company with one holds a seat on top of the bundle (at most NEWS_MOVER_SEATS, one per company).
 export const NEWS_MOVER_FEED = 'Google News - Movers';
 export const NEWS_MOVER_QUERIES = 6;
 export const NEWS_MOVER_SEATS = 4;
@@ -651,7 +653,7 @@ export function selectNewsBundle(items, krItems) {
   krItems.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.ts || 0) - (a.ts || 0));
   const seen = new Set();
   const out = [];
-  // One source may hold at most three of the forty slots (AD HOC NEWS held five).
+  // One source may hold at most three slots (AD HOC NEWS held five of forty).
   const perSource = new Map();
   const SOURCE_CAP = 3;
   const sourceKey = (it) => String(it.source || it.feedSource || '').trim().toLowerCase();
@@ -732,7 +734,7 @@ export function selectNewsBundle(items, krItems) {
   // lower-scored picks used the per-source and same-entity caps first: on 11/09 the gold/crude floor rows filled `oil`, so
   // "Wall St jumps as oil slide cools inflation worries" and AP's "US stocks rally …" were capped out at seat 22 of 40.
   // Now the score order runs first and only holds back as many seats as the floors still need; the floors then take theirs.
-  // The movers' seats sit on top of the forty: one per company that has a headline naming it.
+  // The movers' seats sit on top of the bundle: one per company that has a headline naming it.
   const moverSeats = Math.min(NEWS_MOVER_SEATS, new Set(items.filter((it) => it.mover).map((it) => it.mover)).size);
   const limit = NEWS_BUNDLE_SIZE + moverSeats;
   const moverTaken = new Set();

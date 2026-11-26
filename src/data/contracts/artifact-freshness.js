@@ -26,6 +26,8 @@ export const FRESHNESS_SCHEMA = 'aio-freshness.v1';
 
 /** Ledger file for a workflow file name: refresh-data.yml -> public-data/freshness/refresh-data.json. */
 export const freshnessLedgerPath = (workflow) => `public-data/freshness/${String(workflow).replace(/\.ya?ml$/, '')}.json`;
+/** The root key a workflow's loaded ledger is held under (src/data/freshness.js loads it). */
+export const freshnessLedgerKey = (workflow) => `_aioFreshness_${String(workflow).replace(/\W+/g, '_')}`;
 
 const auto = (workflow, producer, expectedEveryMinutes, staleAfterMinutes, extra = {}) =>
   Object.freeze({ refresh: 'auto', workflow, producer, expectedEveryMinutes, staleAfterMinutes, timestamp: ['generatedAt'], basis: [], volatileKeys: [], ledger: true, ...extra });
@@ -106,6 +108,9 @@ export const MANUAL_ARTIFACTS = Object.freeze({
   'factor-backtest-longrun.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (generatedAt, 120 days)' },
   // Operator-captured snapshot (checkedAt 2026-08-21); refresh-web-research.mjs leaves it untouched.
   'structural-data-research.json': { refresh: 'manual', expiryGate: 'scripts/ci-data-lineage-audit.mjs (checkedAt, 14 days)' },
+  // Researched once or twice a week by hand (owner 2026-11-26: slow market figures are not producer work). Each row ages
+  // on its own asOf: 갱신 전 after 10 days, off the face after 21 (src/domain/research/reference.js).
+  'research-reference.json': { refresh: 'manual', expiryGate: 'scripts/ci-research-reference-check.mjs (row asOf, 10/21 days) + scripts/ci-data-lineage-audit.mjs (checkedAt, 10 days)' },
 });
 
 function readPath(value, path) {

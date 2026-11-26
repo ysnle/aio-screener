@@ -1,6 +1,6 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { screenerRowsState, refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { MACRO_HISTORY } from '../../data/artifact-registry.js';
+import { MACRO_HISTORY, MARKET_DAY } from '../../data/artifact-registry.js';
 import { selectPortfolioState } from '../../state/selectors/portfolio.js';
 import { subscribeToSlices } from '../../state/memoize.js';
 import { derivePortfolioSurface } from '../../domain/portfolio/surface.js';
@@ -21,6 +21,8 @@ import { paintRiskFreeFill } from '../panels/portfolio-rf-fill.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { signedText, signMark, directionColor, readNumber as finite } from '../../domain/shared/number.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
+import { holdingMoveFacts } from '../../domain/portfolio/holding-moves.js';
+import { holdingCauseRow } from '../components/portfolio-move-cause.js';
 
 // RM-01: this module used to fully repaint pf-total-value/pf-total-pnl/etc. and
 // replaceChildren() the pf-positions-tbody table with a 5-column row, while legacy
@@ -418,7 +420,7 @@ function holdingDetailRow(documentRef, { symbol, holding, items, detailId, expan
   return row;
 }
 
-function renderPortfolioTable(documentRef, page, state, surface, { preview = false, root = null } = {}) {
+function renderPortfolioTable(documentRef, page, state, surface, { preview = false, root = null, store = null } = {}) {
   const tbody = page?.querySelector?.('#pf-positions-tbody');
   if (!tbody) return;
   const holdings = Array.isArray(state?.holdings) ? state.holdings : [];
@@ -432,6 +434,7 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     return { ...item, holding, costValue, pnl, pnlPct };
   });
   const totalValue = surface.positionValue;
+  const moves = holdingMoveFacts(root?.[MARKET_DAY.key] || null, rows.map((item) => item.listingSymbol || item.symbol));
   tbody.replaceChildren();
   tbody.dataset.aioPortfolioTableRenderer = 'native';
   tbody.setAttribute('data-source-kind', rows.length ? 'portfolio-state' : 'unavailable');
@@ -619,6 +622,9 @@ function renderPortfolioTable(documentRef, page, state, surface, { preview = fal
     });
     row.appendChild(manageCell);
     tbody.appendChild(row);
+    const listing = String(rowData.listingSymbol || symbol).toUpperCase();
+    const cause = holdingCauseRow(documentRef, root, store, { symbol: listing, move: moves.get(listing), colSpan: PORTFOLIO_TABLE_COLUMNS });
+    if (cause) tbody.appendChild(cause);
     tbody.appendChild(holdingDetailRow(documentRef, {
       symbol, holding, detailId, expanded,
       items: [
@@ -687,7 +693,9 @@ function render({ root, documentRef, store }) {
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface, { pricesLoading: screenerRowsState(root) === 'loading' });
-  renderPortfolioTable(documentRef, page, state, surface, { root });
+  // The day ledger loads on first view; its arrival repaints the table's 움직인 이유 lines.
+  if (root && !root[MARKET_DAY.key] && surface.rows.length) refreshSharedArtifact(root, MARKET_DAY).then(({ changed } = {}) => { if (changed) rerenderPortfolio?.(); }).catch(() => {});
+  renderPortfolioTable(documentRef, page, state, surface, { root, store });
   const checks = renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438

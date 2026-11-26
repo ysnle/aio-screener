@@ -15,6 +15,7 @@ import { themeStagesFor, scenarioStateCurrent } from '../../../domain/scenarios/
 import { koreanThemeGroups } from '../../../domain/market/korea/korea-participation.js';
 import { signedText, directionOf, finiteNumber as finite } from '../../../domain/shared/number.js';
 import { dateInTimezone, nyParts, resolveMarketCalendarSession } from '../../../domain/market/session/market-calendar.js';
+import { pivotDistancePct, setupSortValue } from '../../../domain/technical/setup-board.js';
 // Row arrays from the store and the workbench are replaced, never edited in place, so one market's slice is cut once
 // per array. Handing renderBacktest the same slice also lets the factor-overlap cache below hit (a fresh filter result
 // every render re-measured the overlap on each keystroke).
@@ -138,6 +139,12 @@ export const SCREENER_COLUMN_REGISTRY = Object.freeze([
   { key: 'vcpScore', label: '수축 구조(VCP)·충족도', hint: 'VCP(변동성 수축 패턴): 조정 폭이 차례로 줄며 바닥을 다지는 가격 구조 — 충족도는 그 조건을 얼마나 채웠는지', sortable: true, align: 'right', width: 96, group: 'setup', researchOnly: true },
   // v58.75 (persona review): where the last close sits against the pivot — the number a breakout watch list is sorted by.
   { key: 'pivotDist', label: '피벗 대비', hint: '마지막 확정 종가 ÷ 피벗(마지막 수축 구간의 고점) − 1 — 음수는 피벗 아래, 양수는 위. 피벗이 계산되지 않은 종목은 비움', sortable: true, align: 'right', width: 84, group: 'setup' },
+  // The setup board's ladder (technical/setup-board.js): state, the pullback depths, the short reasons it falls short and
+  // the next report — the 후보 상태 columns of the 모멘텀 view.
+  { key: 'setupState', label: '후보 상태', hint: '추세 템플릿(변형) 8개 조건과 베이스(VCP) — 돌파 대기 · 베이스 완성 · 템플릿 통과 · 충족 개수. 관찰 위치이며 매수 지점이 아닙니다', sortable: true, align: 'left', width: 96, group: 'setup' },
+  { key: 'contractions', label: '수축', hint: '베이스 안 눌림 폭(오래된 순) — 마지막 값이 피벗에서의 손절폭', sortable: false, align: 'right', width: 96, group: 'setup' },
+  { key: 'setupReasons', label: '미충족 이유', sortable: false, align: 'left', width: 150, group: 'setup' },
+  { key: 'earningsAhead', label: '다음 실적', hint: '실적 일정 자료의 다음 발표일과 남은 날 — 14일 이내는 강조', sortable: false, align: 'right', width: 88, group: 'evidence' },
   { key: 'mcap', label: '시총', sortable: true, align: 'right', width: 82, group: 'market' },
   { key: 'entry', label: '상대 상태', sortable: false, align: 'center', width: 118, group: 'setup', researchOnly: true },
   // Base number, pocket pivot, index down-day resilience, heavy down days and climax signs (technical/follow-through.js).
@@ -161,7 +168,8 @@ export const COLUMN_PRESETS = Object.freeze({
   // v58.75 (persona review): the chart-trader views lead with pivot distance, the volume multiple, a one-week move and
   // market-wide RS (RSI, 1-month and the research-only 추세 속도 move to 전체/직접 고른 컬럼); the fundamental view shows the
   // filing figures themselves; 위험 adds the daily range and liquidity; 이벤트 adds the theme stage.
-  discovery: ['watchlist', 'rank', 'sym', 'price', 'pivotDist', 'rvol20', 'pctFrom52wHigh', 'ret5d', 'ret3m', 'rs6m', 'extension', 'vcpScore', 'followThrough'],
+  // The 모멘텀 view leads with the setup board's state; the VCP 충족도 score it replaces stays under 전체.
+  discovery: ['watchlist', 'rank', 'sym', 'setupState', 'pivotDist', 'contractions', 'rs6m', 'setupReasons', 'earningsAhead', 'price', 'rvol20', 'pctFrom52wHigh', 'ret3m', 'extension', 'followThrough'],
   fundamentals: ['watchlist', 'rank', 'sym', 'value', 'quality', 'pe', 'pb', 'roe', 'margin', 'revGrowth', 'fwdPe', 'price', 'pctFrom52wHigh', 'news'],
   trend: ['watchlist', 'rank', 'sym', 'momentum', 'trend', 'rs6m', 'rs12m', 'ret1m', 'ret3m', 'pctSma50', 'extension', 'rvol20', 'dollarVolume30d', 'followThrough', 'entry'],
   risk: ['watchlist', 'rank', 'sym', 'lowvol', 'adrPct', 'dollarVolume30d', 'rsi', 'pctSma50', 'mcap', 'entry', 'news'],
@@ -327,22 +335,8 @@ export function extensionMultiple(row) {
   return pct != null && adr != null && adr > 0 ? pct / adr : null;
 }
 
-// v58.75 (persona review): the last completed close on the VCP pivot's own series. dollarVolume ÷ lastVolume is that raw
-// close (both come from the same bar in price-factors); a non-USD listing falls back to the valuation close in its own
-// currency. Only the percentage is shown — no price is republished.
-function lastCloseOf(row) {
-  const currency = String(row?.instrumentRef?.currency || row?.currency || '').trim().toUpperCase();
-  const dollarVolume = finite(row?.dollarVolume);
-  const lastVolume = finite(row?.lastVolume);
-  if (currency === 'USD' && !row?.dollarVolumeFx && dollarVolume > 0 && lastVolume > 0) return dollarVolume / lastVolume;
-  const valuation = finite(row?._valuationPePrice ?? row?._valuationPbPrice ?? row?._valuationPrice ?? row?.valuationPrice);
-  return valuation > 0 ? valuation : null;
-}
-export function pivotDistancePct(row) {
-  const pivot = finite(row?.vcpPivot);
-  const close = lastCloseOf(row);
-  return pivot > 0 && close > 0 ? (close / pivot - 1) * 100 : null;
-}
+// The pivot distance is the setup board's (one definition for the column, the state pill and the 돌파 대기 cards).
+export { pivotDistancePct };
 
 // v58.75 (persona review): market-wide return percentiles over every row of the same market handed to render (before the
 // display filters). Rows the ranking excludes (funds, SPACs, thin or foreign listings) are left out; a stale return
@@ -539,6 +533,7 @@ function sortKey(row, sortColumn, readLiveData) {
   if (FACTOR_SORT_COLUMNS.has(sortColumn)) return displayValue(row, 'factorScores')?.[sortColumn];
   // v58.75 (persona review): the computed fact columns sort by the value their cell shows.
   if (sortColumn === 'pivotDist') return pivotDistancePct(row);
+  if (sortColumn === 'setupState') return setupSortValue(row);
   if (sortColumn === 'rs6m' || sortColumn === 'rs12m') return screenerRuntime.currentRsPercentiles.get(row.sym || row.symbol)?.[sortColumn];
   if (sortColumn === 'dollarVolume30d') return displayValue(row, 'dollarVolume30d') ?? finite(row.tradedValue30d);
   return displayValue(row, sortColumn);

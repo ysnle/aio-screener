@@ -32,6 +32,10 @@ import { sessionReadOf } from './session-read.js';
 import { crossMarketRows, crossMarketLines, crossMarketSynthesis } from './cross-market.js';
 import { reboundTrackOf, REBOUND_TRACK_INDEXES } from './rebound-track.js';
 import { earningsReadOf } from './earnings-read.js';
+import { sessionCatalysts } from '../day/catalysts.js';
+import { sessionDivergences } from '../day/divergence.js';
+import { koreaBigMoveSaid } from '../korea/korea-session-link.js';
+import { DAY_READ_WORDS } from '../../content/day-read-words.js';
 
 // One week, the same window as the verdict table's 5거래일 전 / 5일 변화 columns. The bars, the lead
 // sentence and every badge below read STORY_SESSIONS; the move thresholds are sized to that window (they were set for 15).
@@ -449,7 +453,7 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
 // weight — how much less), 진단 (a rule-decided state word from the gap between the two and from credit, with what would
 // flip it). What the price reflects is the AI reading's (PRODUCT.md principle 5), fed openingFactLines(). Every figure is a
 // claim (shared/claim.js); a size word ("가장 큰", "이후 가장 깊은") appears only when the record or the long-run tables
-// (indices/long-run.js, public-data/index-longrun.json) make it true. '반도체' is the Philadelphia Semiconductor index (SOX,
+// (indices/long-run.js, public-data/index-longrun.json) make it true. '반도체(SOX)' is the Philadelphia Semiconductor index (SOX,
 // the long-run table's index; `full` names it in the folds), not the SOXX fund the verdict's leadership axis and the 오늘
 // index card read. One Nasdaq on the face: the Nasdaq-100 (the diagnosis's index, and the long-run table's).
 //
@@ -458,8 +462,8 @@ export function buildMarketStory({ history = [], macroHistory = null, briefs = n
 // with the 조정 and 약세장 lines; the diagnosis line — the state word, its one reason and what flips it. The record
 // sentences are one small line under it; every figure behind them is in the table fold and the AI facts.
 export const OPENING_INDEXES = Object.freeze([
-  // `bar`: the bar's name, so the index (SOX) reads apart from the fund on 기술적 분석's index card (반도체(SOXX)).
-  Object.freeze({ id: 'sox', label: '반도체', bar: '반도체(SOX)', full: '필라델피아 반도체 지수(SOX)', topic: '는', part: 'leaders', longrun: 'sox' }),
+  // The label carries the index name, so SOX reads apart from the fund on 기술적 분석's index card (반도체(SOXX)).
+  Object.freeze({ id: 'sox', label: '반도체(SOX)', full: '반도체(SOX) 필라델피아 지수', topic: '는', part: 'leaders', longrun: 'sox' }),
   Object.freeze({ id: 'ndx', label: '나스닥 100', topic: '은', part: 'leaders', longrun: 'ndx' }),
   Object.freeze({ id: 'spx', label: 'S&P 500', topic: '은', part: 'broad', longrun: 'spx' }),
   Object.freeze({ id: 'dow', label: '다우', topic: '는', part: 'broad', longrun: null }),
@@ -772,7 +776,7 @@ const BAR_INDEXES = Object.freeze(['sox', 'ndx', 'spx', 'dow', 'rsp']);
 function barsOf(rows) {
   return fallFrame(BAR_INDEXES.filter((id) => rows[id]).map((id) => {
     const row = rows[id];
-    return { id, label: row.bar || row.label, part: row.part, value: row.fall.value, high: row.fall.high, valueText: say('{f}', { f: row.claims.fall }).text,
+    return { id, label: row.label, part: row.part, value: row.fall.value, high: row.fall.high, valueText: say('{f}', { f: row.claims.fall }).text,
       stage: row.stage ? say('{f.word}', { f: row.claims.fall }).text : null };
   }));
 }
@@ -815,9 +819,12 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  * @param {{history?: object[], macroHistory?: object|null, longrun?: object|null, through?: string|null, regime?: object|null, events?: object[]}} input
  *   `regime`: the 시장 상태 regime (interpretation.regime) whose axis states the cross-market rows take, read only when it is
  *   of the same session; `events`: the collected release calendar (interpretation.events) the rates row names the next
- *   inflation release from.
+ *   inflation release from; `day`: market-day.json (the session's gathered moves, catalysts and divergences); `flows`: the
+ *   KOSPI investor flows (kr-investor-flows.js buildKrInvestorFlowView), read only on a large KOSPI session's line.
  * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:string, label:string, said:{text:string, claims:object[]}}>,
  *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, rebound?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean, cross?: object[]}}
+ *   `catalysts`: the ledger's headlines linked to this session (day/catalysts.js; their line sits under the session line);
+ *   `divergences`: the session's cross-asset divergences (day/divergence.js; AI facts only).
  *   `lines`: the face's text — the session lines, the cross-market head (the rebound's tally, only on a rebound) and one
  *   'cross' line per row, the lede, the diagnosis line (its label the state word), the rebound's conditions line (its label
  *   the rebound word; it ends with the stance), the one small record line. `cross`: the rows themselves (cross-market.js).
@@ -827,7 +834,7 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  *   since its low (rebound-track.js; null without a rebound). `crossSummary`: the rows as 오늘's one sentence
  *   (cross-market.js crossMarketSynthesis; null without rows).
  */
-export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null, day = null, afterHours = null, briefs = null, regularMoves = null, regime = null, events = [], earnings = null } = {}) {
+export function buildMarketOpening({ history = [], macroHistory = null, longrun = null, through = null, day = null, afterHours = null, briefs = null, regularMoves = null, regime = null, events = [], earnings = null, flows = null } = {}) {
   const asOf = through || usSessions(history).at(-1)?.date || null;
   if (!asOf) return { available: false };
   const rows = {};
@@ -863,9 +870,13 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
   // The rebound followed session by session since its low (시장 상태 and 기술적 분석 print it; 오늘 does not).
   const track = reboundTrackOf({ history, rows, rebound, asOf, ftd, indexes: OPENING_INDEXES.filter((spec) => REBOUND_TRACK_INDEXES.includes(spec.id)) });
   // Under the diagnosis: whether the earnings the price rests on moved (the interpretation's index-earnings stage).
+  // The headlines the ledger linked to this session's moves, under the session line; the divergences go to the AI facts.
+  const catalysts = sessionCatalysts(day, asOf);
+  const divergences = sessionDivergences(day, asOf);
   const earningsRead = earningsReadOf({ earnings, spx: rows.spx, diagnosis, fallSaid: (row) => fallSaid(row, asOf) });
   const lines = [
     { id: 'session', label: '', said: session?.said || NOTHING },
+    { id: 'catalysts', label: DAY_READ_WORDS.catalysts.label, said: catalysts.said },
     { id: 'gathered', label: session?.gathered?.label || '', said: session?.gathered?.said || NOTHING },
     { id: 'spread', label: session?.spread?.label || '', said: session?.spread?.said || NOTHING },
     { id: 'split', label: session?.split?.label || '', said: session?.split?.said || NOTHING },
@@ -878,7 +889,8 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     { id: 'watch', label: rebound?.word || '', said: rebound ? reboundLineSaid(rebound, rows, ftd, rebound.stance) : NOTHING },
     { id: 'records', label: '', said: records }
   ].filter((line) => line.said.text);
-  const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi)], ' ') : NOTHING;
+  const korea = rows.kospi ? sayJoin([indexSentence(rows.kospi), standingSaid(rows.kospi),
+    koreaBigMoveSaid({ history, flows, kr: { date: rows.kospi.asOf, move: rows.kospi.moves[1] } })], ' ') : NOTHING;
   // Every standing an index earns (the face shows at most one per group; the AI facts carry all of them).
   const standings = ['sox', 'ndx', 'spx', 'dow', 'rsp'].map((id) => standingSaid(rows[id], { prefer: id === 'spx' ? 'week' : 'fall' })).filter((piece) => piece.text);
   // The full grid for the raw-table fold and the AI facts: every index's 1/2/5-session moves and fall from the high.
@@ -887,7 +899,7 @@ export function buildMarketOpening({ history = [], macroHistory = null, longrun 
     const cells = OPENING_MOVES.filter((n) => row.claims[n]).map((n) => say(n === 1 ? '하루 {m}' : '{n}거래일 {m}', { n: String(n), m: row.claims[n] }));
     return { id: spec.id, part: spec.part, said: say('{lab}, {d}: {cells}, {fall}', { lab: spec.full || row.label, d: shortDate(row.asOf), cells: sayJoin(cells, ', '), fall: fallSaid(row, row.asOf) }) };
   });
-  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, session, cross, crossSummary: crossMarketSynthesis(cross), track, earnings: earningsRead, korea, table, standings, longrun: !!longrun };
+  return { available: true, asOf, rows, lines, bars: barsOf(rows), diagnosis, rebound, session, catalysts: catalysts.items, divergences, cross, crossSummary: crossMarketSynthesis(cross), track, earnings: earningsRead, korea, table, standings, longrun: !!longrun };
 }
 
 /** The opening as typed fact lines for an AI reading or the chat (the text the screens print, and the rule word). */
@@ -899,6 +911,8 @@ export function openingFactLines(opening) {
     figures: [{ value: RULES.story.reboundPct, unit: 'pct', digits: 0, basis: 'reboundPct', label: '반등 기준' }] }) });
   return [
     said('session') ? `최근 세션: ${said('session')}` : '',
+    said('catalysts') ? `${DAY_READ_WORDS.catalysts.fact}: ${said('catalysts')}` : '',
+    ...(opening.divergences || []).map((row) => `${DAY_READ_WORDS.divergence.fact}: ${row.said.text}`),
     opening.track ? `반등 추적: ${opening.track.said.text}` : '',
     said('gathered') ? `최근 세션에 ${opening.session.gathered.label}: ${said('gathered')}` : '',
     said('spread') ? `반등 저점 뒤 갈린 곳: ${said('spread')}` : '',

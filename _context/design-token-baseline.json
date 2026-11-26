@@ -3,9 +3,9 @@
   "generatedBy": "scripts\\ci-design-token-ratchet-check.mjs",
   "note": "Per-stylesheet literal radius, off-scale font-size and !important counts. Shrink only; never raise a count or add a file.",
   "totals": {
-    "radiusLiteral": 28,
-    "offScale": 33,
-    "important": 427
+    "radiusLiteral": 26,
+    "offScale": 31,
+    "important": 422
   },
   "counts": {
     "index.html": {
@@ -36,12 +36,12 @@
     "src/ui/styles/legacy-important-files.css": {
       "radiusLiteral": 0,
       "offScale": 0,
-      "important": 3
+      "important": 2
     },
     "src/ui/styles/legacy-important-shell.css": {
       "radiusLiteral": 0,
       "offScale": 2,
-      "important": 107
+      "important": 106
     },
     "src/ui/styles/legacy-kr.css": {
       "radiusLiteral": 0,
@@ -74,9 +74,9 @@
       "important": 1
     },
     "src/ui/styles/responsive.css": {
-      "radiusLiteral": 9,
-      "offScale": 16,
-      "important": 33
+      "radiusLiteral": 8,
+      "offScale": 14,
+      "important": 32
     },
     "src/ui/styles/screener-quality.css": {
       "radiusLiteral": 0,
@@ -126,12 +126,12 @@
     "src/ui/styles/v2-stock.css": {
       "radiusLiteral": 2,
       "offScale": 1,
-      "important": 19
+      "important": 18
     },
     "src/ui/styles/v2-today.css": {
-      "radiusLiteral": 2,
+      "radiusLiteral": 1,
       "offScale": 2,
-      "important": 23
+      "important": 22
     }
   }
 }

@@ -160,8 +160,8 @@ function afterHoursOf(afterHours, briefs, day, asOf, regularMoves) {
 /**
  * The session read of the opening's rows.
  * @param {{rows: object, asOf: string, rebound?: object|null, day?: object|null, afterHours?: object|null, briefs?: object|null, regularMoves?: object|null}} input
- * @returns {{said: object, gathered: object|null, split: object|null, afterHours: object|null}|null} `said`: the session's own
- *   sentence(s); `gathered`, `split` and `afterHours`: { label, said } face lines, each null without its data.
+ * @returns {{said: object, moves: object, gathered: object|null, split: object|null, afterHours: object|null}|null} `said`: the session's own
+ *   sentence(s); `moves`: its first sentence only (the indexes' moves and their shape); `gathered`, `split` and `afterHours`: { label, said } face lines, each null without its data.
  */
 export function sessionReadOf({ rows, asOf, rebound = null, day = null, afterHours = null, briefs = null, regularMoves = null } = {}) {
   if (!rows?.ndx || !Number.isFinite(rows.ndx.moves?.[1])) return null;
@@ -170,6 +170,8 @@ export function sessionReadOf({ rows, asOf, rebound = null, day = null, afterHou
   const direction = Math.abs(rows.ndx.moves[1]) >= R.movePct ? Math.sign(rows.ndx.moves[1]) : 0;
   return {
     said: sayJoin([moves, giveBackSaid(rows, rebound)], ' '),
+    // The moves alone: the one-line summary a screen without its own story line shows beside a link to 오늘.
+    moves,
     gathered: direction ? gatheredOf(day, asOf, direction) : null,
     split: direction ? splitOf(day, asOf, rows.spx) : null,
     spread: reboundSpreadOf({ day, asOf, rebound, index: rows.sox }),

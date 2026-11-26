@@ -20,6 +20,7 @@ import { usdKoreanText, finiteNumber as finite } from '../../../domain/shared/nu
 import { isoDay, stampDay } from '../../../domain/shared/session-date.js';
 import { shortDate } from '../../../domain/content/date-labels.js';
 import { renderDataState } from '../../components/data-state.js';
+import { SETUP_COLUMN_KEYS, setupColumnContent, renderSetupCards, requestSetupCalendar } from '../../components/setup-board-view.js';
 import { filterRows, passedOnlyApplied, renderFilterChips, renderFunnel, screenBoundsText, screenConditions, screenFieldLabel, screenFieldUnit, screenFieldWord, syncScreenerControlAvailability, syncUniverseScopeControl } from './filters.js';
 import { COLUMN_PRESETS, conditionSourceStates, requestConditionSources, sourcedConditionIdsFor, FIELD_BY_COLUMN, SCREENER_COLUMN_REGISTRY, SECTOR_RELATIVE_PRICE_FACTORS, cell, customRead, entryTiming, extensionMultiple, factorScoreColor, liveRow, marketReturnPercentiles, pivotDistancePct, range52Position, returnColor, returnText, rowThemeStages, scopedRows, screenerRuntime, selectedValue, sortRows, text } from './model.js';
 import { renderBacktest, renderConditionalEvidence, renderFactorTab, renderStaleNote, renderValidationState } from './validation-tab.js';
@@ -81,6 +82,7 @@ export function createColumnContent(documentRef, row, key, { readLiveData, readW
   const live = liveRow(row, readLiveData);
   row = live;
   const inWatchlist = (readWatchlist?.() || []).includes(row.sym);
+  if (SETUP_COLUMN_KEYS.has(key)) return setupColumnContent(documentRef, row, key, { root: screenerRuntime.consensusRoot });
   if (key === 'watchlist') {
     const wrap = documentRef.createElement('div');
     wrap.className = 'scr-row-actions';
@@ -842,6 +844,9 @@ export function render({ documentRef, root = globalThis, store, readLiveData, re
   }
   if (visibleColumns.some((column) => column.key === 'fwdPe') || sortState.column === 'fwdPe') requestConsensusEstimates(root, onDataChange);
   requestConditionSources(root, custom, onDataChange);
+  if (visibleColumns.some((column) => column.key === 'earningsAhead')) requestSetupCalendar(root, onDataChange);
+  // The 돌파 대기 cards over the table read the whole loaded universe, not the filtered rows.
+  renderSetupCards({ documentRef, root, rows: currentState.rows || rows, rsPercentiles: screenerRuntime.currentRsPercentiles });
   const table = documentRef.getElementById('screener-results-table');
   renderTableHeader(documentRef, table, visibleColumns, sortState);
   // v58.56 (4b): the phone's one-line rows apply to the default columns only (screener-quality.css).

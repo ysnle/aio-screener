@@ -18,7 +18,10 @@ export const BIGTECH_ISSUERS = Object.freeze([
   Object.freeze({ symbol: 'AAPL', cik: 320193, nameKo: '애플', group: 'other' }),
   Object.freeze({ symbol: 'NVDA', cik: 1045810, nameKo: '엔비디아', group: 'other' }),
   Object.freeze({ symbol: 'AVGO', cik: 1730168, nameKo: '브로드컴', group: 'other' }),
-  Object.freeze({ symbol: 'TSLA', cik: 1318605, nameKo: '테슬라', group: 'other' })
+  Object.freeze({ symbol: 'TSLA', cik: 1318605, nameKo: '테슬라', group: 'other' }),
+  // A GPU cloud that borrows against its contracts: its cash flow is read beside the spenders', never summed with them
+  // (CIK as the SEC fundamentals producer resolved it, public-data/sec-fundamentals-summary.json).
+  Object.freeze({ symbol: 'CRWV', cik: 1769628, nameKo: '코어위브', group: 'neocloud' })
 ]);
 export const HYPERSCALERS = Object.freeze(BIGTECH_ISSUERS.filter((row) => row.group === 'hyperscaler').map((row) => row.symbol));
 

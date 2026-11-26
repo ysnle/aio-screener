@@ -92,6 +92,9 @@ export function normalizeScreener(raw = {}, { rowCache = null } = {}) {
     vcpStage: row?.vcpStage || null,
     vcpPivot: finite(row?.vcpPivot),
     vcpContractions: finite(row?.vcpContractions), vcpShrinking: typeof row?.vcpShrinking === 'boolean' ? row.vcpShrinking : null, // 2026-10-14 custom conditions
+    // Trend-template and setup-board inputs (technical/trend-template.js, setup-board.js).
+    pctSma150: finite(row?.pctSma150), sma200Rise21Pct: finite(row?.sma200Rise21Pct), rsBenchmarkRet6m: finite(row?.rsBenchmarkRet6m),
+    vcpDepths: Array.isArray(row?.vcpDepths) ? row.vcpDepths.map(finite).filter((depth) => depth != null) : null, vcpVolumeRatio: finite(row?.vcpVolumeRatio),
     // follow-through evidence (technical/follow-through.js)
     pocketPivotAgo: finite(row?.pocketPivotAgo), pocketPivots10: finite(row?.pocketPivots10), heavyDownDays25: finite(row?.heavyDownDays25),
     baseCount: finite(row?.baseCount), baseForming: typeof row?.baseForming === 'boolean' ? row?.baseForming : null, baseDepthPct: finite(row?.baseDepthPct),

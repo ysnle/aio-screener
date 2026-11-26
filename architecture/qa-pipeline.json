@@ -1259,6 +1259,16 @@
           "script": "scripts/ci-tw-monthly-revenue-fixture.mjs"
         },
         {
+          "id": "research-reference",
+          "inputClass": "data",
+          "script": "scripts/ci-research-reference-check.mjs",
+          "inputs": [
+            "src/**",
+            "scripts/**",
+            "public-data/research-reference.json"
+          ]
+        },
+        {
           "id": "13f-figi-ticker-fixture",
           "inputClass": "code",
           "script": "scripts/ci-13f-figi-ticker-fixture.mjs"

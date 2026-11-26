@@ -3985,7 +3985,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
       lineRange: 'index.html #page-market-news',
       subSections: [
         // No section displays the NewsImpactVector any more (calcNewsImpactVector only feeds each card's reading); that entry is pruned.
-        { id: 'mn-filter-bar',  order: 1, topic: '뉴스 정렬 + 국가·주제 필터 (#news-filter-row, v57.78 갱신)', lines: 'index.html #news-filter-row' },
+        { id: 'mn-filter-bar',  order: 1, topic: '뉴스 필터 패널: 지역·주제·종목 칩, 조건·검색·정렬 (#news-filter-region … #news-filter-sort)', lines: 'src/ui/pages/news.js renderFeedPanel' },
         { id: 'mn-news-list',   order: 2, topic: '중요 뉴스 (#news-important) + 전체 뉴스 피드 (#live-news-feed, v57.78 갱신)', lines: 'src/ui/pages/news.js' }
       ],
       auditStatus: { '최신성':'ok', '정확성':'ok', '정합성':'ok', '로직성':'ok', '직관성':'ok', '핵심성':'ok' },

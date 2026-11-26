@@ -157,6 +157,24 @@ check('v59.70 readArtifactFreshness reads the workflow ledger the watchdog reads
   && readArtifactFreshness('kr-investor-flows.json', { root: fakeRoot, now }).blockedBy === null
   && readArtifactFreshness('event-briefs.json', { root: fakeRoot, now }).state === 'unknown'
   && readArtifactFreshness('not-registered.json', { root: fakeRoot, now }).state === 'unknown');
+// A file absent by design (kr-fundamentals: its producer waits on a secret) is not fetched per stock view, with no ledger
+// or a ledger that never saw a copy; once the ledger records a produced copy it is read as before.
+{
+  const { refreshSharedArtifact } = await import('../src/data/shared-artifacts.js');
+  const { KR_FUNDAMENTALS } = await import('../src/data/artifact-registry.js');
+  const fetches = async (extra) => {
+    let calls = 0;
+    const page = { ...extra, fetch: async () => { calls += 1; return new Response('{}', { status: 404 }); } };
+    await refreshSharedArtifact(page, KR_FUNDAMENTALS);
+    return calls;
+  };
+  const ledgerWith = (row) => ({ _aioFreshness_refresh_screener_yml: { artifacts: { 'kr-fundamentals.json': row } } });
+  const none = await fetches({});
+  const blocked = await fetches(ledgerWith({ checkedAt: null, producedAt: null, lastAttempt: { status: 'blocked' } }));
+  const produced = await fetches(ledgerWith({ producedAt: '2026-11-26T00:00:00Z', checkedAt: '2026-11-26T00:00:00Z' }));
+  check('v60.59 a blocked artifact is not fetched while the ledger has no produced copy', none === 0 && blocked === 0, `none=${none} blocked=${blocked}`);
+  check('v60.59 a blocked artifact is fetched once its ledger records a produced copy', produced > 0, `produced=${produced}`);
+}
 
 // 5. v59.85: content currency. The grade is the worse of liveness (checkedAt) and session lag (basisSession), so a file
 // the pipeline rewrites every cycle with a two-sessions-old basis is not 'current'.

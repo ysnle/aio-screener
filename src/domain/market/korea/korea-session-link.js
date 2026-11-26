@@ -5,7 +5,7 @@
 // market-story.js OPENING_INDEXES), read through the same session-keyed close series and one-session step.
 // A flow figure keeps its own date: on a day the flows lag the KOSPI session, the line says so by its date and its
 // meaning is read against the KOSPI move of that same day, never the session's.
-import { buildCloseSeries, sessionPointBack } from '../session/close-series.js';
+import { buildCloseSeries, sessionPointBack, closeSessionMarket } from '../session/close-series.js';
 import { sessionStep } from '../session/move-size.js';
 import { BRIDGE_RULES } from '../session/session-bridge.js';
 import { claim, say, sayJoin, NOTHING, printedValue } from '../../shared/claim.js';
@@ -30,7 +30,7 @@ const moveClaim = (subject, label, at) => claim({ subject, measure: 'change1d', 
 const printedSign = (figureClaim) => Math.sign(printedValue(figureClaim.figures[0]));
 
 function pairSaid(us, kr) {
-  const m = moveClaim(SEMIS, '반도체', us); const k = moveClaim(KOSPI, '코스피', kr);
+  const m = moveClaim(SEMIS, '반도체(SOX)', us); const k = moveClaim(KOSPI, '코스피', kr);
   const usSign = printedSign(m);
   const kind = Math.abs(printedValue(k.figures[0])) < BRIDGE_RULES.movePct ? 'flat' : !usSign ? null : printedSign(k) === usSign ? 'same' : 'opposite';
   return kind ? say(W.pair[kind], { usDay: shortDate(us.date), krDay: shortDate(kr.date), m, k }) : NOTHING;
@@ -62,6 +62,41 @@ function flowsSaid(flows, kospi) {
   return meaning ? sayJoin([figure, say(W.meaning[meaning])], ' ') : figure;
 }
 
+// A KOSPI session this large carries what the data already has around it on the index line.
+export const KOREA_BIG_MOVE_PCT = 3;
+const WON = 'usdkrw';
+const INVESTORS = Object.freeze([['foreign', '외국인'], ['institution', '기관']]);
+
+/**
+ * One sentence for a KOSPI session that moved at least KOREA_BIG_MOVE_PCT: the US semiconductor session before it, the
+ * foreign and institutional net purchases of that same KOSPI day, and the won's move of that day — up to three claims,
+ * each left out when its figure is missing or of another day. NOTHING for a smaller session.
+ * @param {{history?: object[], flows?: object|null, kr: {date: string, move: number}|null}} input `kr`: the KOSPI session
+ *   (the opening's row: its asOf and one-session move); `flows`: buildKrInvestorFlowView.
+ */
+export function koreaBigMoveSaid({ history = [], flows = null, kr = null } = {}) {
+  if (!kr?.date || !Number.isFinite(kr.move) || Math.abs(kr.move) < KOREA_BIG_MOVE_PCT) return NOTHING;
+  const B = W.bigMove;
+  const semis = closes(history, SEMIS, 'US');
+  let before = -1;
+  for (let index = 0; index < semis.length; index += 1) if (semis[index].date < kr.date) before = index;
+  const us = before >= 0 ? moveAt(semis, before, 'US') : null;
+  // Its own subject: the opening's 'sox' claims are of the US session the opening reads, this one of the session before KOSPI's.
+  const semisSaid = us ? say(B.semis, { usDay: shortDate(us.date), m: moveClaim(`${SEMIS}:before-kr`, '반도체(SOX)', us) }) : NOTHING;
+  const market = flows?.state === 'ok' ? flows.markets.find((item) => item.id === 'kospi' && item.date === kr.date) : null;
+  const flowParts = INVESTORS.map(([id, who]) => {
+    const row = market?.rows.find((item) => item.id === id);
+    return row && Number.isFinite(row.value) ? say(B.flowPart, { who, v: claim({ subject: `kr-flows:kospi:${id}`, measure: 'netPurchase', asOf: market.date, figures: [{ value: row.value, unit: 'eok', basis: 'netPurchase', label: who }] }) }) : NOTHING;
+  });
+  const flowSaid = flowParts.some((piece) => piece.text) ? say(B.flows, { day: shortDate(kr.date), parts: sayJoin(flowParts, '·') }) : NOTHING;
+  const wonSeries = closes(history, WON, closeSessionMarket(WON) || 'US');
+  const wonIndex = wonSeries.findIndex((point) => point.date === kr.date);
+  const won = wonIndex >= 0 ? moveAt(wonSeries, wonIndex, closeSessionMarket(WON) || 'US') : null;
+  const wonSaid = won ? say(B.won, { w: moveClaim(WON, '원/달러', won) }) : NOTHING;
+  const parts = sayJoin([semisSaid, flowSaid, wonSaid], ', ');
+  return parts.text ? say(B.said, { parts }) : NOTHING;
+}
+
 /**
  * @param {{history: object[], flows: object|null}} input `history`: history.json rows; `flows`: buildKrInvestorFlowView.
  * @returns {{state: 'pending'|'reflected', us: {date, move}, kr: {date, move}, lines: Array<{id, label, said}>, factLines: string[]}|null}
@@ -78,7 +113,7 @@ export function koreaSessionLink({ history = [], flows = null } = {}) {
   let before = -1;
   for (let index = 0; index < semis.length; index += 1) if (semis[index].date < krLast.date) before = index;
   const usBefore = before >= 0 ? moveAt(semis, before, 'US') : null;
-  const pending = state === 'pending' ? say(W.pending, { usDay: shortDate(usLast.date), m: moveClaim(SEMIS, '반도체', usLast) }) : NOTHING;
+  const pending = state === 'pending' ? say(W.pending, { usDay: shortDate(usLast.date), m: moveClaim(SEMIS, '반도체(SOX)', usLast) }) : NOTHING;
   const lines = [
     { id: 'korea-pending', label: W.label.session, said: pending },
     { id: 'korea-pair', label: W.label.session, said: usBefore ? pairSaid(usBefore, krLast) : NOTHING },

@@ -116,6 +116,14 @@ export function priceLevelFactors(closes) {
     pctSma50: distance(PRICE_FACTOR_WINDOWS.sma50),
     pctSma200: distance(PRICE_FACTOR_WINDOWS.sma200),
     pctSma5: distance(5), pctSma10: distance(10), pctSma20: distance(20),
+    // The trend template's remaining inputs (technical/trend-template.js): the 150-day distance and the 200-day
+    // average against itself 21 sessions earlier, as the chart reads them.
+    pctSma150: distance(150),
+    sma200Rise21Pct: closes.length >= PRICE_FACTOR_WINDOWS.sma200 + 21 ? (() => {
+      const now = _mean(closes.slice(-PRICE_FACTOR_WINDOWS.sma200));
+      const then = _mean(closes.slice(-PRICE_FACTOR_WINDOWS.sma200 - 21, -21));
+      return now > 0 && then > 0 ? round((now / then - 1) * 100, 2) : null;
+    })() : null,
     // A 52-week closing high reads the 252-session window and needs RULES fullYearSessions (240) closes.
     pctFromCloseHigh52w: closes.length >= RULES.technical.fullYearSessions ? (() => { const high = Math.max(...closes.slice(-RULES.technical.rangeSessions)); return high > 0 ? round((price / high - 1) * 100, 2) : null; })() : null,
   };
@@ -199,12 +207,14 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   const bLen = Math.min(65, n - 10);
   const bV = volumes.slice(n - bLen);
   let volDry = false;
+  let volumeRatio = null; // the base's later half volume ÷ its earlier half — under 0.85 is 'dry'
   if (bV.length >= 20) {
     const half = Math.floor(bV.length / 2);
     const fv = bV.slice(0, half).filter(v => v > 0);
     const sv = bV.slice(half).filter(v => v > 0);
     const fa = avg(fv), sa = avg(sv);
     volDry = fa > 0 && sa > 0 && sa < fa * 0.85;
+    if (fa > 0 && sa > 0) volumeRatio = Math.round(sa / fa * 100) / 100;
   }
   const pivot = detected.valid ? detected.pivot : null;
   const nearPivot = !!(pivot && price >= pivot * 0.97 && price <= pivot * 1.03);
@@ -233,7 +243,7 @@ export function _calcVCPServer(closes, highs, lows, volumes) {
   const latestShrinking = cnt >= 2 ? detected.contractions[cnt - 1].depth < detected.contractions[cnt - 2].depth : null;
   // stage2 · depths · nearPivot · breakout too, so the legacy snapshot (aio-core _calcVCP) reads this one result.
   return { vcpScore: score, vcpStage, pivotLevel: pivot, stage2, contractionDepths: ctrs.map((row) => row.depth), nearPivot, breakout: brk,
-           contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry,
+           contractionCount: cnt, isShrinking: shrink, latestShrinking, volumeDrying: volDry, volumeRatio,
            pctFrom52wHigh: pct52 !== null ? Math.round(pct52 * 10) / 10 : null };
 }
 
@@ -525,7 +535,8 @@ export function priceHistoryFromRows(sym, fetched, { providerMeta = null, nullCl
 // and last sessions of the 3-month window both have an index close gets benchmarkRet over the same dates.
 // `sessionCalendars` (optional): Map of listing market ('US' | 'KR') → that market's reference session dates, ascending;
 // a row of a market with a calendar gets `rets` (recentSessionReturns) dated by the row's own factorSessionDate.
-export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null, benchmarks = null, sessionCalendars = null } = {}) {
+// `rsBenchmarks` (optional): the same shape for every market, the trend template's 6-month benchmark (rsBenchmarkRet6m).
+export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSeries = new Map(), indexReturns = null, benchmarks = null, rsBenchmarks = null, sessionCalendars = null } = {}) {
   if (!r || r.__error || !r.closes) return null;
   const quoteCurrencyOf = (item) => listingCurrencyOf(item?.sym, item?.providerMeta);
   const hasCompleteAdjusted = r.adjustedCloseStatus === 'complete'
@@ -553,6 +564,9 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
     if (r.closes.length >= 60 && r.highs && r.lows && r.volumes) {
       const vcp = _calcVCPServer(r.closes, r.highs, r.lows, r.volumes);
       if (vcp) { f.vcpScore = vcp.vcpScore; f.vcpStage = vcp.vcpStage; f.vcpPivot = vcp.pivotLevel; f.vcpContractions = vcp.contractionCount; f.vcpShrinking = vcp.latestShrinking; }
+      // The pullback depths (oldest first; the last is the stop width from the pivot) and the base's volume ratio, for
+      // the setup board's 수축 sequence and 거래량 reason. Published only with a valid pattern, where a pivot exists.
+      if (vcp?.pivotLevel != null) { f.vcpDepths = vcp.contractionDepths; f.vcpVolumeRatio = vcp.volumeRatio; }
       f.breakoutAgo = breakoutAgoOf(r.closes, r.highs, r.lows, r.volumes, vcp);
     }
     const setupFields = _calcSetupScreenFields(
@@ -572,6 +586,14 @@ export function priceFactorRow(r, { computedAt = new Date().toISOString(), fxSer
       const from = benchmark.closeByDate.get(dates[dates.length - 64]);
       const to = benchmark.closeByDate.get(dates[dates.length - 1]);
       if (from > 0 && to > 0) { f.benchmarkRet = round((to / from - 1) * 100, 2); f.benchmarkSymbol = benchmark.symbol; }
+    }
+    // The trend template's relative-strength check: the benchmark's 6-month return over the row's own 126 sessions, on
+    // the chart's index (S&P 500, KOSPI or KOSDAQ). Separate from benchmarkRet so the ranked 3-month RS keeps its basis.
+    const rsBenchmark = rsBenchmarks instanceof Map ? rsBenchmarks.get(indexKey) : null;
+    if (rsBenchmark && f.ret6m != null && dates.length > 126) {
+      const from = rsBenchmark.closeByDate.get(dates[dates.length - 127]);
+      const to = rsBenchmark.closeByDate.get(dates[dates.length - 1]);
+      if (from > 0 && to > 0) f.rsBenchmarkRet6m = round((to / from - 1) * 100, 2);
     }
     // Yahoo's KR suffix is part of the upstream instrument identifier. Persist
     // the quote currency with the derived price/liquidity fields so consumers

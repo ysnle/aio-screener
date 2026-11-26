@@ -9,8 +9,6 @@ import { CHOICE_WORDS } from '../../domain/content/choice-words.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { foldSummary, markFold } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
-import { groupCashflowSentence } from '../../domain/fundamental/quarterly-cashflow.js';
-import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
 import { themesForBranch } from '../../domain/scenarios/exposures.js';
 import { krThemeLabel } from '../../domain/themes/kr-themes.js';
 import { el } from './dom.js';
@@ -19,7 +17,8 @@ import { branchDecisionFrame } from '../../domain/scenarios/decision-frame.js';
 import { withDirectionParticle } from '../../domain/content/korean-particle.js';
 import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import { pickList } from './pick-list.js';
-import { BIGTECH_CASHFLOW, SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { SCENARIO_OUTCOMES, SCENARIO_STATE } from '../../data/artifact-registry.js';
+import { fundingChainFor, fundingChainPointer, requestFundingChain } from './ai-funding-chain.js';
 
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 const TONE = { same: '시장 가격 같은 방향', against: '시장 가격 반대 방향', neutral: '시장 가격 중립', unknown: '시장 가격 확인 불가' };
@@ -35,7 +34,7 @@ export function crossroadsForRoot(root, { nowMs = Date.now() } = {}) {
 
 /** P1743: load the weekly long-history outcomes and the per-refresh state once; repaint when either arrives. */
 export function refreshScenarioArtifacts(root, repaint) {
-  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE, BIGTECH_CASHFLOW]) {
+  for (const spec of [SCENARIO_OUTCOMES, SCENARIO_STATE]) {
     refreshSharedArtifact(root, spec).then(({ changed }) => { if (changed) repaint?.(); }).catch(() => {});
   }
 }
@@ -170,11 +169,6 @@ export function openCrossroadsBranch(doc, root, branchId) {
   retry([80, 300, 900]);
 }
 
-function bigtechCashflowText(root) {
-  const sentence = groupCashflowSentence(bigtechGroupFor(root));
-  return sentence ? `투자 자금 여력(SEC 분기 공시 기준, 조건에 넣지 않는 참고값): ${sentence}` : '';
-}
-
 // One scenario on the face: name, met-condition dots, status, the price direction and favoured choice, then its body.
 function scenarioCard(doc, root, item, frame = null) {
   const card = el(doc, 'article', null, 'xr-branch');
@@ -205,9 +199,10 @@ function scenarioCard(doc, root, item, frame = null) {
   for (const text of item.basis) conditionList.append(el(doc, 'li', text));
   conditionItem.append(conditionList);
   evidence.append(conditionItem, el(doc, 'li', `시장 가격: ${item.pricing.text}`));
-  // v59.56 (X bookmarks 11/01): the AI-capex funding gauge the authors read, from SEC quarterly filings — reference, not a condition.
-  const cashflow = item.id === 'aibust' ? bigtechCashflowText(root) : '';
-  if (cashflow) evidence.append(el(doc, 'li', cashflow));
+  // The AI-capex branch's funding question is the funding chain's (테마와 섹터): one line of its rule-decided count and the
+  // way there — reference beside the conditions, never one of them.
+  const funding = item.id === 'aibust' ? fundingChainPointer(doc, fundingChainFor(root)) : null;
+  if (funding) { const li = el(doc, 'li'); li.append(funding); evidence.append(li); }
   body.append(evidence);
   // The past frequency is the frame's 가능성 line; the full sentence (span, definition, bridge) sits in its fold.
   const frameBlock = decisionFrameBlock(doc, frame, { method: `${item.past.text}${item.pastBridge ? ` ${item.pastBridge}` : ''}`, side: false });
@@ -275,7 +270,12 @@ export function renderMacroCrossroads({ documentRef: doc, root, regime = null, h
   if (!target) return null;
   const model = crossroadsForRoot(root, { regime });
   root.__aioMacroCrossroads = model;
-  if (!target.dataset.aioScenarioLoad) { target.dataset.aioScenarioLoad = 'on'; refreshScenarioArtifacts(root, () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target, leadAside })); }
+  if (!target.dataset.aioScenarioLoad) {
+    target.dataset.aioScenarioLoad = 'on';
+    const again = () => renderMacroCrossroads({ documentRef: doc, root, regime, host: target, leadAside });
+    refreshScenarioArtifacts(root, again);
+    requestFundingChain(root, again); // the AI-capex branch's funding-chain line
+  }
   const picked = target.querySelector('.xr-map')?.dataset.picked || null;
   const focused = target.contains?.(doc.activeElement) ? doc.activeElement?.closest?.('[data-branch]')?.dataset.branch : null;
   const changesOpen = !!target.querySelector('details.xr-changes')?.open;

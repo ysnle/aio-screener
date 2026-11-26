@@ -359,6 +359,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5, recentReturns
   // relative strength is not US-only.
   const indexReturns = new Map();
   const benchmarks = new Map();
+  const rsBenchmarks = new Map();
   // The S&P 500 and KOSPI session dates are each market's calendar for the per-stock daily returns (`rets`); KOSDAQ
   // listings trade the same exchange days, so they share the KOSPI calendar.
   const sessionCalendars = new Map();
@@ -367,6 +368,8 @@ export async function _enrichPriceFactors(syms, { concurrency = 5, recentReturns
       const bars = (await fetchHistory(symbol, '1y') || []).filter((bar) => bar && bar.close > 0 && bar.date && isSessionComplete(bar.date, segment));
       if (bars.length > 60) indexReturns.set(key, indexReturnsByDate({ dates: bars.map((bar) => bar.date), closes: bars.map((bar) => bar.close) }));
       if (bars.length > 60 && segment === 'kr') benchmarks.set(key, { symbol, closeByDate: new Map(bars.map((bar) => [bar.date, bar.close])) });
+      // Every market's index, for the trend template's 6-month relative strength (the chart's comparison index).
+      if (bars.length > 126) rsBenchmarks.set(key, { symbol, closeByDate: new Map(bars.map((bar) => [bar.date, bar.close])) });
       if (recentReturns && calendarOf && bars.length > RECENT_RETURN_SESSIONS) sessionCalendars.set(calendarOf, [...new Set(bars.map((bar) => bar.date))].sort());
     } catch { /* resilience stays unavailable for this market */ }
   }
@@ -375,7 +378,7 @@ export async function _enrichPriceFactors(syms, { concurrency = 5, recentReturns
   for (const r of results) {
     if (!r || r.__error || !r.closes) continue;
     // Shared with the browser's out-of-universe read (src/domain/screener/price-factors.js).
-    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, sessionCalendars });
+    const f = priceFactorRow(r, { computedAt, fxSeries, indexReturns, benchmarks, rsBenchmarks, sessionCalendars });
     if (f) {
       data[r.sym] = f; ok++;
     }

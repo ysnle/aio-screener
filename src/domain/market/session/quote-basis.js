@@ -5,6 +5,7 @@
 import { isoDay } from '../../shared/session-date.js';
 import { readNumber } from '../../shared/number.js';
 import { sessionDateInMarket } from './session-time.js';
+import { isProvisionalHistoryValue } from './history-session.js';
 
 export const KR_INDEX_HISTORY_FIELD = Object.freeze({ '^KS11': 'kospi', '^KQ11': 'kosdaq' });
 export const US_INDEX_HISTORY_FIELD = Object.freeze({ '^VIX': 'vix', '^GSPC': 'spx', '^IXIC': 'nasdaq', '^NDX': 'ndx', '^DJI': 'dow', '^RUT': 'rut' });
@@ -122,7 +123,7 @@ export function usHistoryBasis(field, session, history) {
     const value = Number(row?.[field]);
     if (!(value > 0)) continue;
     const meta = metaOf(row, field);
-    if (meta.observationRelation === 'carried-forward' || isCurrentSession(meta)) continue;
+    if (meta.observationRelation === 'carried-forward' || isCurrentSession(meta) || isProvisionalHistoryValue(meta)) continue;
     const day = isoDay(meta.sessionDate) || marketDay(meta.observedAt, 'US');
     if (day && day < session && (!best || day > best.date)) best = { date: day, close: value };
   }

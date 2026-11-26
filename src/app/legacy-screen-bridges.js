@@ -1,6 +1,6 @@
 import { renderHomeVix } from '../ui/components/home-vix.js';
 import { renderNewsProgress } from '../ui/components/news-progress.js';
-import * as newsControls from '../ui/components/news-controls.js';
+import { getNewsSurfaceControls } from '../ui/components/news-controls.js';
 import { setSectorPerfView } from '../ui/components/sector-perf-view.js';
 import { setRRGView } from '../ui/components/rrg-view.js';
 import { ensureKrThemeProgressive } from '../ui/components/kr-theme-progressive.js';
@@ -21,13 +21,9 @@ export function installLegacyScreenBridges(root, documentRef) {
   // 뉴스: collection progress; the last step fetchAllNews reported is painted now.
   root._aioRenderNewsProgress = (state, d) => renderNewsProgress({ documentRef: d || documentRef, state });
   root._aioRenderNewsProgress(root._aioNewsProgressState);
-  // 뉴스: country/topic/telegram chips and the sort buttons.
+  // 뉴스: the filter panel's state, read by the news selection entry points (news.js sets it).
   root.AIO = root.AIO || {};
-  root.AIO.getNewsSurfaceControls = newsControls.getNewsSurfaceControls;
-  root.filterNewsByCountry = (filter, el) => newsControls.filterNewsByCountry(filter, el, at);
-  root.filterNewsByTopic = (filter, el) => newsControls.filterNewsByTopic(filter, el, at);
-  root.filterNewsByTelegramOnly = (el) => newsControls.filterNewsByTelegramOnly(el, at);
-  root.setNewsSortMode = (mode, el) => newsControls.setNewsSortMode(mode, el, at);
+  root.AIO.getNewsSurfaceControls = getNewsSurfaceControls;
   // 테마 · 섹터: the 11섹터 / +세부 업종 toggle (themes.js draws the bars).
   root.setSectorPerfView = (view, el) => setSectorPerfView(view, el, at);
   // 테마 · 섹터: the RRG view pills (themes.js draws the scatter).

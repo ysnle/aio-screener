@@ -4,9 +4,16 @@
 // when to reload: no copy yet, the copy is older than its TTL, or the server data was regenerated after the copy
 // was loaded. Concurrent callers share one request; a failed load keeps the last good copy and may retry later.
 import { loadJsonArtifact, stableFetcher } from './artifact-cache.js';
-import { ARTIFACT_FRESHNESS } from './contracts/artifact-freshness.js';
+import { ARTIFACT_FRESHNESS, freshnessLedgerKey } from './contracts/artifact-freshness.js';
 
 const stateOf = (root) => (root.__aioSharedArtifacts ||= {});
+// An artifact absent by design (blockedBy: its producer waits on a secret) is not requested, since the 404 would be
+// the only outcome, until its workflow's loaded ledger says a copy was produced: from the first published copy on it
+// is read like any other file, before the registry's blockedBy line is removed.
+export function absentByDesign(root, file) {
+  const spec = ARTIFACT_FRESHNESS[file];
+  return !!spec?.blockedBy && !root?.[freshnessLedgerKey(spec.workflow)]?.artifacts?.[file]?.producedAt;
+}
 const serverGeneration = (root) => root?._serverDataMeta?.generatedAt || null;
 
 export function sharedArtifactIsStale(root, key, { maxAgeMs, now = Date.now() } = {}) {
@@ -31,8 +38,7 @@ export const screenerRowsState = (root) => root?.__aioScreenerLoadState || 'load
 
 /** Resolves to { payload, changed }. `changed` is true when a new copy replaced the old one. */
 export function refreshSharedArtifact(root, { key, url, schemas, maxAgeMs = 60 * 60 * 1000, maxBytes = 2 * 1024 * 1024, now = Date.now() } = {}) {
-  // An artifact absent by design (blockedBy) is not requested: the 404 would be the only outcome.
-  if (!root || ARTIFACT_FRESHNESS[url.split('/').pop()]?.blockedBy) return Promise.resolve({ payload: null, changed: false });
+  if (!root || absentByDesign(root, String(url).split('?')[0].split('/').pop())) return Promise.resolve({ payload: null, changed: false });
   const state = stateOf(root);
   const entry = (state[key] ||= { loadedAt: 0, failedAt: 0, inFlight: null });
   if (!sharedArtifactIsStale(root, key, { maxAgeMs, now })) return Promise.resolve({ payload: root[key], changed: false });

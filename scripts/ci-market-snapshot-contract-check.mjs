@@ -130,6 +130,18 @@ if (fixture.snapshot.quotes.some((row) => row.valueBasis !== 'provider-current-v
   if (gap?.previousValue !== null || gap.changePct !== null) fail(`v60.58 a completed close that is not the session right before stays unused: ${JSON.stringify(gap)}`);
   const none = rowOf(null);
   if (none?.previousValue !== null || none.changePct !== null) fail('v60.58 without a completed close the change stays missing');
+  // Tokyo 11/26 10:06 JST: the provider's 11/25 daily bar had no close yet and quotes.mjs stood in the last hourly close
+  // (57117.11), not the 57011.62 close. An hourly stand-in is not a previous close; an index history records is filled
+  // from its completed close, the same rule for every venue it holds (here the S&P 500 at the US open).
+  const nikkei = { symbol: '^N225', regularMarketPrice: 57997.61, regularMarketPreviousClose: 57117.109375, chartPreviousClose: 57117.109375, regularMarketChangePercent: 1.5416, previousCloseApproximate: true, observedAt: '2026-11-26T01:06:00.000Z', fetchedAt: '2026-11-26T01:21:02.779Z', marketState: 'REGULAR' };
+  const tokyo = buildMarketSnapshot({ quotes: [nikkei], attemptedAt: '2026-11-26T01:21:02.779Z', source: 'fixture', now: Date.parse('2026-11-26T01:21:02.779Z') }).snapshot.evidenceQuotes.find((row) => row.instrumentId === '^N225');
+  if (!tokyo || (tokyo.previousValue !== null || tokyo.changePct !== null)) fail(`v60.59 an hourly stand-in for the previous close is not published as the previous value: ${JSON.stringify(tokyo)}`);
+  const precise = buildMarketSnapshot({ quotes: [{ ...nikkei, previousCloseApproximate: false, regularMarketPreviousClose: 57011.62, chartPreviousClose: 57011.62, regularMarketChangePercent: (57997.61 / 57011.62 - 1) * 100 }], attemptedAt: '2026-11-26T01:21:02.779Z', source: 'fixture', now: Date.parse('2026-11-26T01:21:02.779Z') }).snapshot.evidenceQuotes.find((row) => row.instrumentId === '^N225');
+  if (!precise || precise.previousValue !== 57011.62) fail(`v60.59 the provider's daily previous close stays the previous value: ${JSON.stringify(precise)}`);
+  const usAt = '2026-11-25T15:00:00.000Z';
+  const spxLive = { symbol: '^GSPC', regularMarketPrice: 6700, regularMarketPreviousClose: 6650.5, regularMarketChangePercent: 0.74, previousCloseApproximate: true, observedAt: '2026-11-25T14:59:00.000Z', fetchedAt: usAt, marketState: 'REGULAR' };
+  const spxRow = buildMarketSnapshot({ quotes: [spxLive], attemptedAt: usAt, source: 'fixture', now: Date.parse(usAt), completedCloses: completedClosesFrom([{ date: '2026-11-24', spx: 6640.25, fieldMeta: { spx: { sessionDate: '2026-11-24' } } }]) }).snapshot.quotes.find((row) => row.instrumentId === '^GSPC');
+  if (spxRow?.previousValue !== 6640.25 || spxRow.changeBasis !== 'completed-daily-close') fail(`v60.59 a US index's hourly stand-in gives way to the published completed close of the session before: ${JSON.stringify(spxRow)}`);
 }
 const incomplete = buildMarketSnapshot({ quotes: fixtureQuotes.slice(1), attemptedAt, source: 'fixture', now: Date.parse(attemptedAt) });
 if (incomplete.complete || incomplete.snapshot.status !== 'failed') fail('incomplete fixture was not fail-closed');

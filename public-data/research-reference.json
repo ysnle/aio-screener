@@ -1,0 +1,369 @@
+{
+  "schemaVersion": "research-reference.v1",
+  "checkedAt": "2026-11-26",
+  "method": "자동 수집이 어려운 시장 조사 수치(개별 기업 신용, 메모리 계약가, 자금 흐름)를 주 1~2회 공개 자료에서 직접 확인해 기록합니다. 각 행은 자기 기준일을 가지며, 점수·순위·차트 계열에는 들어가지 않습니다. 기준일이 10일을 넘으면 갱신 전으로 표시하고 21일을 넘으면 본문에서 뺍니다.",
+  "groups": [
+    {
+      "id": "credit-single-name",
+      "title": "개별 기업 신용",
+      "items": [
+        {
+          "id": "orcl-cds-5y",
+          "label": "오라클 5년 CDS",
+          "entity": "ORCL",
+          "value": 356,
+          "unit": "bp",
+          "asOf": "2026-11-25",
+          "record": "사상 최고",
+          "note": "부도 대비 보험료가 사상 최고, 1년 전보다 네 배 넘게 오름",
+          "sourceName": "S&P Global Market Intelligence (BigGo Finance 보도)",
+          "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b"
+        },
+        {
+          "id": "crwv-cds-5y",
+          "label": "코어위브 5년 CDS",
+          "entity": "CRWV",
+          "value": 1314,
+          "unit": "bp",
+          "asOf": "2026-11-25",
+          "record": "사상 최고",
+          "note": "부도 대비 보험료가 사상 최고, 시장이 본 5년 부도 확률 68%",
+          "sourceName": "S&P Global Market Intelligence (BigGo Finance 보도)",
+          "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b",
+          "prior": {
+            "value": 1167,
+            "asOf": "2026-10-25"
+          }
+        },
+        {
+          "id": "crwv-notes-2031-yield",
+          "label": "코어위브 2031년 만기 채권 금리",
+          "entity": "CRWV",
+          "value": 17.91,
+          "unit": "pct",
+          "asOf": "2026-11-25",
+          "note": "채권 가격이 액면의 4분의 3 수준까지 내려감",
+          "sourceName": "Reuters (roic.ai 보도)",
+          "sourceUrl": "https://roic.ai/news/coreweave-bonds-plunge-as-ai-financing-fears-mount-11-25-2026"
+        },
+        {
+          "id": "orcl-bond-2056-yield",
+          "label": "오라클 2056년 만기 채권 금리",
+          "entity": "ORCL",
+          "value": 9.01,
+          "unit": "pct",
+          "asOf": "2026-11-24",
+          "note": "장기채 가격이 액면보다 크게 낮음",
+          "sourceName": "Bloomberg 화면 (ZeroHedge 게시)",
+          "sourceUrl": "https://x.com/zerohedge/status/2125274377549930864"
+        },
+        {
+          "id": "orcl-bond-2056-gspread",
+          "label": "오라클 2056년 만기 채권 국채 대비 가산 금리",
+          "entity": "ORCL",
+          "value": 373,
+          "unit": "bp",
+          "asOf": "2026-11-24",
+          "record": "사상 최고",
+          "note": "국채보다 더 얹어 주는 금리가 사상 최고",
+          "sourceName": "Bloomberg 화면 (ZeroHedge 게시)",
+          "sourceUrl": "https://x.com/zerohedge/status/2125274377549930864"
+        },
+        {
+          "id": "softbank-cds-5y",
+          "label": "소프트뱅크 5년 CDS",
+          "value": 501,
+          "unit": "bp",
+          "asOf": "2026-11-25",
+          "record": "2022년 10월 이후 최고",
+          "note": "부도 대비 보험료가 3년여 만에 최고",
+          "sourceName": "S&P Global Market Intelligence (BigGo Finance 보도)",
+          "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b"
+        }
+      ]
+    },
+    {
+      "id": "credit-market",
+      "title": "신용 시장",
+      "items": []
+    },
+    {
+      "id": "ai-financing",
+      "title": "자금 조달",
+      "items": [
+        {
+          "id": "orcl-bond-deal-nov",
+          "label": "오라클 회사채 추가 발행",
+          "entity": "ORCL",
+          "value": 10,
+          "unit": "amountUsdBn",
+          "period": "11월",
+          "asOf": "2026-11-25",
+          "note": "설비투자 자금을 회사채로 더 빌림",
+          "sourceName": "BigGo Finance",
+          "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b"
+        },
+        {
+          "id": "orcl-bond-deal-nov-coupon",
+          "label": "오라클 신규 회사채 쿠폰",
+          "entity": "ORCL",
+          "range": [
+            7,
+            8.65
+          ],
+          "unit": "pct",
+          "period": "11월 발행분",
+          "asOf": "2026-11-25",
+          "note": "새로 빌리는 돈의 금리",
+          "sourceName": "BigGo Finance",
+          "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b"
+        },
+        {
+          "id": "hyperscaler-bonds-2026-goldman",
+          "label": "빅테크 회사채 발행 누계(골드만삭스 집계)",
+          "entity": null,
+          "value": 296,
+          "unit": "amountUsdBn",
+          "asOf": "2026-11-20",
+          "period": "2026년 들어",
+          "validDays": 60,
+          "prior": null,
+          "record": null,
+          "note": "연간 전망 2,500억 달러를 이미 넘어섬",
+          "sourceName": "Goldman Sachs (Korea JoongAng Daily 보도)",
+          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
+        },
+        {
+          "id": "datacenter-abs-issuance-3m",
+          "label": "미국 데이터센터 ABS·CMBS 발행, 최근 3개월 전년 대비",
+          "entity": null,
+          "value": -19.9,
+          "unit": "pct",
+          "asOf": "2026-11-06",
+          "period": "11/6까지 3개월",
+          "validDays": 45,
+          "prior": null,
+          "record": null,
+          "note": "데이터센터 담보 증권 발행이 줄어듦",
+          "sourceName": "CRE Finance Council (Korea JoongAng Daily 보도)",
+          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
+        }
+      ]
+    },
+    {
+      "id": "bank-lending",
+      "title": "대출 여건",
+      "items": [
+        {
+          "id": "datacenter-abs-cost",
+          "label": "데이터센터 ABS 조달 비용 상승폭(최소)",
+          "entity": null,
+          "value": 100,
+          "unit": "bp",
+          "asOf": "2026-11-09",
+          "period": "올해 들어",
+          "validDays": 45,
+          "prior": null,
+          "record": null,
+          "note": "데이터센터를 담보로 빌리는 금리가 올해 1%p 넘게 오름",
+          "sourceName": "Morgan Stanley·CRE Finance Council (Korea JoongAng Daily 보도)",
+          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
+        },
+        {
+          "id": "hyperscaler-10y-spread-widening",
+          "label": "빅테크 10년 회사채 가산 금리 상승폭",
+          "entity": null,
+          "value": 50,
+          "unit": "bp",
+          "asOf": "2026-11-20",
+          "period": "올해 들어",
+          "validDays": 45,
+          "prior": null,
+          "record": null,
+          "note": "AI와 무관한 우량 제조 기업(약 20bp)의 두 배 반",
+          "sourceName": "Bank of America (Korea JoongAng Daily 보도)",
+          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
+        }
+      ]
+    },
+    {
+      "id": "compute-price",
+      "title": "AI 연산 가격",
+      "items": [
+        {
+          "id": "h100-rent-median",
+          "label": "H100 시간당 임대료 중앙값(온디맨드)",
+          "value": 4.12,
+          "unit": "usd",
+          "asOf": "2026-11-23",
+          "note": "임대료는 오르는 중, 4주·12개월 모두 상승",
+          "sourceName": "getdeploying GPU 가격 추이",
+          "sourceUrl": "https://getdeploying.com/gpu-price-trends"
+        },
+        {
+          "id": "b300-lead-time",
+          "label": "엔비디아 B300 신규 주문 리드타임(주)",
+          "entity": "NVDA",
+          "range": [
+            26,
+            40
+          ],
+          "unit": "count",
+          "asOf": "2026-11-25",
+          "prior": null,
+          "record": null,
+          "note": "리드타임은 늘어남, 직전 세대 GB300은 14~26주",
+          "sourceName": "Commercial Times (TrendForce News 보도)",
+          "sourceUrl": "https://www.trendforce.com/news/2026/11/25/news-nvidia-b300-lead-times-reportedly-hit-40-weeks-rtx-60-may-face-delays-as-memory-supply-tightens/"
+        }
+      ]
+    },
+    {
+      "id": "memory-price",
+      "title": "메모리 가격",
+      "items": [
+        {
+          "id": "nand-contract-q1",
+          "label": "낸드 계약가 전분기 대비",
+          "kind": "forecast",
+          "range": [
+            -5,
+            0
+          ],
+          "unit": "qoqPct",
+          "period": "2027년 1분기",
+          "asOf": "2026-11-19",
+          "note": "보합에서 하락 전망",
+          "sourceName": "TrendForce (XenoSpectrum 보도)",
+          "sourceUrl": "https://xenospectrum.com/en/nand-contract-price-forecast-cut/",
+          "validDays": 60
+        },
+        {
+          "id": "nand-contract-q4",
+          "label": "낸드 계약가 전분기 대비",
+          "kind": "forecast",
+          "range": [
+            8,
+            13
+          ],
+          "unit": "qoqPct",
+          "period": "2026년 4분기",
+          "asOf": "2026-11-19",
+          "prior": {
+            "range": [
+              15,
+              20
+            ],
+            "asOf": "2026-09-30"
+          },
+          "note": "상승 전망은 낮아졌지만 여전히 상승",
+          "sourceName": "TrendForce (XenoSpectrum 보도)",
+          "sourceUrl": "https://xenospectrum.com/en/nand-contract-price-forecast-cut/",
+          "validDays": 60
+        },
+        {
+          "id": "dram-pc-contract-q4",
+          "label": "PC D램 계약가 전분기 대비",
+          "kind": "forecast",
+          "range": [
+            13,
+            18
+          ],
+          "unit": "qoqPct",
+          "period": "2026년 4분기",
+          "asOf": "2026-11-11",
+          "note": "계약가 상승 전망",
+          "sourceName": "TrendForce (shattered.io 보도)",
+          "sourceUrl": "https://shattered.io/dram-prices-pc-contract-13-18-percent-power-semiconductors-allocation-nov-25/",
+          "validDays": 60
+        }
+      ]
+    },
+    {
+      "id": "fund-flows",
+      "title": "자금 흐름과 포지션",
+      "items": [
+        {
+          "id": "flow-global-equity",
+          "label": "글로벌 주식형 펀드 주간 자금",
+          "value": 59.23,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "record": "9주 연속 유입",
+          "note": "주식형 펀드로 돈이 계속 들어옴, 6월 중순 이후 최대",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        },
+        {
+          "id": "flow-us-equity",
+          "label": "미국 주식형 펀드 주간 자금",
+          "value": 45.71,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "note": "유입의 대부분이 미국 주식형",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        },
+        {
+          "id": "flow-asia-equity",
+          "label": "아시아 주식형 펀드 주간 자금",
+          "value": -2.78,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "note": "아시아 주식형은 유출",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        },
+        {
+          "id": "flow-global-mmf",
+          "label": "글로벌 머니마켓펀드 주간 자금",
+          "value": -13.89,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "note": "현금성 펀드에서 빠짐",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        },
+        {
+          "id": "flow-bond-funds",
+          "label": "채권형 펀드 주간 자금",
+          "value": -3.2,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "note": "채권형 펀드에서 빠짐",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        },
+        {
+          "id": "flow-hy-bond-funds",
+          "label": "하이일드 채권형 펀드 주간 자금",
+          "value": -1.36,
+          "unit": "usdBn",
+          "asOf": "2026-11-18",
+          "note": "하이일드 채권형에서도 빠짐",
+          "sourceName": "LSEG Lipper (CEO Economy 보도)",
+          "sourceUrl": "https://ceoeconomy.com/article/global-equity-funds-ninth-week-inflows-lipper"
+        }
+      ]
+    },
+    {
+      "id": "rates-policy",
+      "title": "금리 정책 경로",
+      "items": [
+        {
+          "id": "fomc-dec-priced-move",
+          "label": "12/9 FOMC에 금리 선물이 반영한 인상폭",
+          "entity": null,
+          "value": 25,
+          "unit": "bp",
+          "asOf": "2026-11-25",
+          "prior": null,
+          "record": null,
+          "note": "9월 인상, 10월 동결 뒤 12월 추가 인상이 반영됨",
+          "sourceName": "TokenPost",
+          "sourceUrl": "https://www.tokenpost.com/news/investing/60397"
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 // The screens' reader for the producer freshness ledgers (schema: src/data/contracts/artifact-freshness.js).
 // A freshness badge draws from readArtifactFreshness(file) and nothing else, so the screen and the watchdog
 // (scripts/ci-external-pipeline-check.mjs, the same freshnessState) grade an artifact the same way.
-import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerPath, ledgerFileState } from './contracts/artifact-freshness.js';
+import { ARTIFACT_FRESHNESS, FRESHNESS_SCHEMA, freshnessLedgerKey, freshnessLedgerPath, ledgerFileState } from './contracts/artifact-freshness.js';
 import { refreshSharedArtifact } from './shared-artifacts.js';
 import { artifactFamilyUrl } from './artifact-registry.js';
 
@@ -9,7 +9,7 @@ const LEDGER_WORKFLOWS = Object.freeze([...new Set(Object.values(ARTIFACT_FRESHN
   .filter((entry) => entry.ledger !== false).map((entry) => entry.workflow))]);
 
 const ledgerSpec = (workflow) => ({
-  key: `_aioFreshness_${workflow.replace(/\W+/g, '_')}`,
+  key: freshnessLedgerKey(workflow),
   url: artifactFamilyUrl('ledger', freshnessLedgerPath(workflow)),
   schemas: [FRESHNESS_SCHEMA],
   maxAgeMs: 15 * 60 * 1000,

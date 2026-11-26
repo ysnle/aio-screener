@@ -3831,8 +3831,6 @@ function _aioNewsProgress(state) {
   window._aioNewsProgressState = state;
   if (typeof window._aioRenderNewsProgress === 'function') window._aioRenderNewsProgress(state);
 }
-// window.AIO.getNewsSurfaceControls and the chip/sort handlers are installed by src/app/compatibility-globals.js.
-window._aioNewsCacheSize = function() { return newsCache.length; };
 
 // ── RSS 파싱 ─────────────────────────────────────────────────────
 

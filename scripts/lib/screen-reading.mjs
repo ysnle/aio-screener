@@ -14,6 +14,7 @@
 // state label that contradicts the packet's, an order, an invented percentage probability, a leaked prompt label,
 // non-Korean text and a reading longer than the face allows; thin grounds and possibility words are warnings only.
 import { createHash } from 'node:crypto';
+import { stripPublisherAttribution } from '../../src/domain/content/publisher-attribution.js';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
 import { readNumber as finite, signedText } from '../../src/domain/shared/number.js';
 import { analysisInterpretationWarnings, axisStateClaimIssues, PROMPT_SECTION_LABEL, publishedTextIssues, sessionMoveIssues, validateAnalysisAdmission } from './market-analysis-validate.mjs';
@@ -374,12 +375,17 @@ function titledStateIssues(text, axes = []) {
 // ---- the validator ---------------------------------------------------------------------------------------------------------
 const SENTENCES = (body) => body.split(/(?<=[.?!。])\s+/);
 
-/** { issues, warnings } for one reading against its packet. Issues block publication; warnings are recorded with it. */
+/**
+ * { issues, warnings, text } for one reading against its packet. Issues block publication; warnings are recorded with it.
+ * `text` is the reading to publish: a publisher named in an attribution is taken out first (publisher-attribution.js), so
+ * the checks read what the face will show; that repair is a warning, never an issue.
+ */
 export function validateScreenReading(text, packet) {
-  const body = String(text || '').trim();
+  const repaired = stripPublisherAttribution(String(text || '').trim());
+  const body = repaired.text.trim();
   const issues = coreReadingIssues(body, packet);
-  const warnings = [];
-  if (issues[0] === 'empty') return { issues, warnings };
+  const warnings = repaired.named ? ['publisher-named'] : [];
+  if (issues[0] === 'empty') return { issues, warnings, text: body };
   if (PROMPT_SECTION_LABEL.test(body)) issues.push('prompt-label-leak');
   const context = Object.entries(packet?.axisStates || {}).map(([id, state]) => `${id}: ${state}`).join('\n');
   for (const issue of axisStateClaimIssues(body, { context })) issues.push(`state-contradiction:${issue.split(':')[1] || ''}`);
@@ -401,7 +407,7 @@ export function validateScreenReading(text, packet) {
   const reboundOthers = Object.values(REBOUND_WORDS).filter((word) => word !== packet?.rebound);
   if ((packet?.screen === 'signal' || packet?.screen === 'charts') && SENTENCES(body).some((sentence) => !READING_CONDITIONAL.test(sentence) && reboundOthers.some((word) => sentence.includes(word)))) warnings.push('rebound-word');
   if (/^[^.。]*(?:판정|시장 상태)[^.。]*(?:부담 우세|양호 우세|혼조|판정 보류)/.test(body)) warnings.push('tally-opening');
-  return { issues: [...new Set(issues)], warnings: [...new Set(warnings)] };
+  return { issues: [...new Set(issues)], warnings: [...new Set(warnings)], text: body };
 }
 
 /** The model's answer as at most two blocks (reading-core.js normalizeReading). */
