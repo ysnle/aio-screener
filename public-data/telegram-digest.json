@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T03:21:42.172Z",
-  "attemptedAt": "2026-11-26T03:21:42.172Z",
-  "lastSuccessfulAt": "2026-11-26T03:21:42.172Z",
+  "generatedAt": "2026-11-26T03:58:30.797Z",
+  "attemptedAt": "2026-11-26T03:58:30.797Z",
+  "lastSuccessfulAt": "2026-11-26T03:58:30.797Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T03:21:37.920Z",
-  "until": "2026-11-26T03:21:37.920Z",
+  "since": "2026-11-12T03:58:24.346Z",
+  "until": "2026-11-26T03:58:24.346Z",
   "current24hWindow": {
     "start": "2026-11-24T23:00:00.000Z",
     "end": "2026-11-25T23:00:00.000Z",
@@ -82,42 +82,42 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1065,
-      "freshCount": 18,
-      "eligibleTextCount": 1013,
+      "freshCount": 38,
+      "eligibleTextCount": 1014,
       "selectedCount": 128,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70261
+      "lastPostId": 70265
     },
     {
       "channel": "bornlupin",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 164,
-      "freshCount": 20,
-      "eligibleTextCount": 164,
+      "count": 168,
+      "freshCount": 40,
+      "eligibleTextCount": 168,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21292
+      "lastPostId": 21296
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 719,
-      "freshCount": 20,
-      "eligibleTextCount": 718,
+      "count": 720,
+      "freshCount": 38,
+      "eligibleTextCount": 719,
       "selectedCount": 124,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72801
+      "lastPostId": 72802
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,48 +137,49 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1948,
-  "retainedItemCount": 398,
+  "count": 1953,
+  "retainedItemCount": 430,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1948,
-    "eligibleTextCount": 1895,
-    "mediaOnlyCount": 53,
-    "mediaAttachedCount": 758,
-    "photoPostCount": 642,
-    "documentPostCount": 4,
+    "observedCount": 1953,
+    "eligibleTextCount": 1901,
+    "mediaOnlyCount": 52,
+    "mediaAttachedCount": 761,
+    "photoPostCount": 646,
+    "documentPostCount": 3,
     "imageOnlyCount": 4,
     "highSignalCount": 328,
-    "broadSignalCount": 824,
+    "broadSignalCount": 825,
     "selectedRawCount": 372,
     "selectedEligibleCount": 372,
     "selectedRawCoveragePct": 19.6,
-    "selectedOfObservedPct": 19.1,
+    "selectedOfObservedPct": 19,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "equity": 126,
+    "market-note": 685,
+    "semi": 625,
+    "power": 180,
+    "japan": 45,
     "kr-market": 102,
     "flows": 67,
-    "market-note": 682,
     "macro": 294,
     "insider": 8,
     "earnings": 236,
-    "semi": 625,
-    "equity": 125,
     "ai-policy": 136,
-    "power": 179,
     "credit": 62,
     "healthcare": 56,
     "geo": 223,
     "media-only": 52,
-    "japan": 44,
     "optical": 24,
     "crypto": 1
   },
   "tickerCounts": {
+    "PLTR": 8,
     "005930.KS": 28,
     "000660.KS": 27,
     "BE": 9,
@@ -190,7 +191,6 @@
     "COHR": 4,
     "ORCL": 7,
     "CRWV": 6,
-    "PLTR": 7,
     "META": 7,
     "AMD": 48,
     "MSFT": 44,
@@ -270,14 +270,14 @@
     "SNOW": 1
   },
   "themes": [
-    "Market Notes (682 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Market Notes (685 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
     "Semiconductors/Memory (625 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
     "Macro/Rates (294 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
     "Earnings/Corporate (236 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "AI Power/Grid (179 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
+    "AI Power/Grid (180 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
     "AI Policy/Export Controls (136 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (125 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+    "Equity/Analyst (126 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
   ],
   "catalysts": [
     {
@@ -367,7 +367,7 @@
         "credit"
       ],
       "count": 62,
-      "focus": ">>미국 자금조달 환경 빠르게 긴축되고 있음 •지난 몇 개월간 연준의 금리인상, AI 기업들의 채권 발행 급증 등의 영향으로 미국 금융시장이 빠르게 ‘긴축’되고 있으며, 골드만삭스 미국 금융여건지수도 가파르게 상승하고 있음 •자금조달 환경의 긴축은 차입 의존도가 매우 높은 미국 소비자와 AI 데이터센터에 큰..."
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만 주, 1월 19일과 2월 2일 각각 최대 3억5,300만 주가 추가로 거래 가능해질 예정. 전체 잠재적..."
     },
     {
       "id": "semi",
@@ -385,7 +385,7 @@
         "optical"
       ],
       "count": 24,
-      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
+      "focus": "코히런트(COHR), 이사회 멤버 1,522만 달러 규모 주식 매수 - SEC 공시 코히런트(Coherent)의 이사회 멤버인 스티븐 파글리우카(Stephen G. Pagliuca)가 관련 투자법인을 통해 약 1,522만 달러 규모의 코히런트 주식을 장내 매수 매수 주식 수: 82,000주 평균 매수 단가:..."
     },
     {
       "id": "power",
@@ -393,7 +393,7 @@
       "topics": [
         "power"
       ],
-      "count": 179,
+      "count": 180,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
     },
     {
@@ -420,8 +420,8 @@
       "topics": [
         "equity"
       ],
-      "count": 125,
-      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+      "count": 126,
+      "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 메타 플랫폼스 (META) — 개인 AI 에이전트 Muse를 인스타그램 DM에 직접 도입했으며, 애플의..."
     },
     {
       "id": "crypto",
@@ -456,7 +456,7 @@
       "topics": [
         "japan"
       ],
-      "count": 44,
+      "count": 45,
       "focus": ">>JPMorgan: 펀더멘털 개선에도 엔화는 2027년에도 약세 압력 지속 전망 •JPMorgan은 펀더멘털이 개선되더라도 엔화가 2027년에도 압력을 받을 것으로 전망, “엔화가 전면적으로 반전해 지속적인..."
     },
     {
@@ -483,7 +483,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 682,
+      "count": 685,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -1642,6 +1642,27 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72802",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72802",
+      "datetime": "2026-11-26T03:50:53.000Z",
+      "localDateKst": "2026-11-26",
+      "tags": [
+        "semi",
+        "power"
+      ],
+      "score": 60,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": ">>AI 사이클은 얼마나 지속될까? •골드만삭스의 Eric Sheridan은 AI 사이클의 3대 종료 신호로 최종 수요 위축, 자본 공급 중단, 전력 부족을 제시했음. 초대형 클라우드 업체의 15% 수익률..."
+    },
+    {
       "id": "insidertracking/70260",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/70260",
@@ -2046,18 +2067,19 @@
       "datetime": "2026-11-25T22:42:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi"
+        "semi",
+        "equity"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": ">>AI 부채 리스크 심화 - CoreWeave·엔비디아 신용부도 위험지표 동반 사상 최고치 •수요일 CoreWeave의 5년물 부채 부도 보호 비용이 한때 2.09%p 상승해 사상 최대 일일 상승폭을 기록,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG",
         "ORCL",
         "CRWV"
-      ]
+      ],
+      "summary": ">>AI 부채 리스크 심화 - CoreWeave·엔비디아 신용부도 위험지표 동반 사상 최고치 •수요일 CoreWeave의 5년물 부채 부도 보호 비용이 한때 2.09%p 상승해 사상 최대 일일 상승폭을 기록,..."
     },
     {
       "id": "HANAchina/72776",
@@ -2069,14 +2091,14 @@
         "semi",
         "flows"
       ],
+      "lead": 2,
       "score": 55,
       "hasText": true,
-      "summary": ">>Michael Burry, 나스닥 풋옵션 전량 청산하고 순매수 포지션으로 전환…엔비디아 콜옵션은 계속 보유 •Michael Burry는 수요일 “내 포트폴리오는 지난 기간보다 훨씬 더 강한 매수...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": ">>Michael Burry, 나스닥 풋옵션 전량 청산하고 순매수 포지션으로 전환…엔비디아 콜옵션은 계속 보유 •Michael Burry는 수요일 “내 포트폴리오는 지난 기간보다 훨씬 더 강한 매수..."
     },
     {
       "id": "bornlupin/21283",
@@ -2133,8 +2155,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
     },
     {
       "id": "insidertracking/70227",
@@ -2143,6 +2165,8 @@
       "datetime": "2026-11-25T21:22:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 65,
@@ -2153,9 +2177,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업..."
     },
     {
       "id": "insidertracking/70226",
@@ -2166,6 +2189,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -2174,10 +2198,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중"
     },
     {
       "id": "insidertracking/70225",
@@ -2186,11 +2210,11 @@
       "datetime": "2026-11-25T21:18:48.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "power",
+        "healthcare"
       ],
       "score": 68,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·...",
       "tickers": [],
       "listTickers": [
         "PG",
@@ -2213,7 +2237,8 @@
         "COKE",
         "SN",
         "RGA"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·..."
     },
     {
       "id": "insidertracking/70224",
@@ -2222,6 +2247,9 @@
       "datetime": "2026-11-25T21:17:42.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "credit",
+        "semi",
+        "power",
         "equity"
       ],
       "score": 95,
@@ -2232,11 +2260,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만...",
       "tickers": [
         "NVDA",
         "META"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
       "id": "bornlupin/21281",
@@ -2261,7 +2289,9 @@
       "datetime": "2026-11-25T21:15:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -2271,12 +2301,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:...",
       "tickers": [
         "NVDA",
         "AMD",
         "MU"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:..."
     },
     {
       "id": "insidertracking/70220",
@@ -2363,6 +2393,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
       "media": {
@@ -2371,12 +2402,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>한국 증시, ‘무차별 매도’에 빠져…삼성전자와 SK하이닉스 모두 데드크로스, 골드만삭스 “밸류에이션에 이익 70% 폭락 반영” •골드만삭스는 한국 반도체주의 밸류에이션에 향후 이익 전망이 70% 하향...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>한국 증시, ‘무차별 매도’에 빠져…삼성전자와 SK하이닉스 모두 데드크로스, 골드만삭스 “밸류에이션에 이익 70% 폭락 반영” •골드만삭스는 한국 반도체주의 밸류에이션에 향후 이익 전망이 70% 하향..."
     },
     {
       "id": "HANAchina/72768",
@@ -2387,11 +2417,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>미국 10월 PCE 데이터 속보 •인플레이션이 가계 예산을 지속적으로 압박하면서 미국의 10월 소비지출이 정체됨. 데이터에 따르면 인플레이션을 조정한 개인지출은 전월과 거의 같은 수준을 유지함. 연준이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 10월 PCE 데이터 속보 •인플레이션이 가계 예산을 지속적으로 압박하면서 미국의 10월 소비지출이 정체됨. 데이터에 따르면 인플레이션을 조정한 개인지출은 전월과 거의 같은 수준을 유지함. 연준이..."
     },
     {
       "id": "insidertracking/70211",
@@ -2510,12 +2540,12 @@
       "datetime": "2026-11-25T12:31:33.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "market-note"
+        "healthcare"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>AI 신약개발, 마침내 시간을 단축하기 시작 (JPMorgan) •초기 신약 발굴 기간이 기존 3~4년에서 2.5년 이내로 단축됐으며, 임상연구 보고서의 90%를 AI가 초안 작성하면서 검토 시간도 25%...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 신약개발, 마침내 시간을 단축하기 시작 (JPMorgan) •초기 신약 발굴 기간이 기존 3~4년에서 2.5년 이내로 단축됐으며, 임상연구 보고서의 90%를 AI가 초안 작성하면서 검토 시간도 25%..."
     },
     {
       "id": "HANAchina/72765",
@@ -2526,11 +2556,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>골드만삭스: 시장이 이미 연준의 ‘4차례 금리인상’을 반영했지만, 워시는 12월에도 계속 금리인상 •골드만삭스는 미국의 금융여건이 올해 들어 104.1bp 긴축됐으며, 이는 연준의 4차례 금리인상에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>골드만삭스: 시장이 이미 연준의 ‘4차례 금리인상’을 반영했지만, 워시는 12월에도 계속 금리인상 •골드만삭스는 미국의 금융여건이 올해 들어 104.1bp 긴축됐으며, 이는 연준의 4차례 금리인상에..."
     },
     {
       "id": "HANAchina/72764",
@@ -2541,11 +2571,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>미 언론: 미 정부, 이란 고위층을 타격 대상으로 지정하는 방안 재검토 (신화사) •미국 언론은 24일 소식통 인용, 미국 정부 내부에서 군사 작전 중 이란 정권의 고위 지도자를 타격 대상으로 삼는 방안에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미 언론: 미 정부, 이란 고위층을 타격 대상으로 지정하는 방안 재검토 (신화사) •미국 언론은 24일 소식통 인용, 미국 정부 내부에서 군사 작전 중 이란 정권의 고위 지도자를 타격 대상으로 삼는 방안에..."
     },
     {
       "id": "insidertracking/70198",
@@ -2591,14 +2621,15 @@
       "datetime": "2026-11-25T12:05:24.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
+        "macro",
         "earnings"
       ],
       "score": 51,
       "hasText": true,
-      "summary": ">>월가 최강 낙관론 중 하나! Deutsche Bank : 실적 성장과 경기 회복으로 S&P500 2027년 말 9,000선 전망 •최근 AI 관련주 매도로 미 증시 변동성이 크게 확대됐지만,...",
       "tickers": [
         "DB"
-      ]
+      ],
+      "summary": ">>월가 최강 낙관론 중 하나! Deutsche Bank : 실적 성장과 경기 회복으로 S&P500 2027년 말 9,000선 전망 •최근 AI 관련주 매도로 미 증시 변동성이 크게 확대됐지만,..."
     },
     {
       "id": "HANAchina/72759",
@@ -2607,7 +2638,9 @@
       "datetime": "2026-11-25T12:01:31.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "credit"
+        "credit",
+        "power",
+        "healthcare"
       ],
       "score": 74,
       "hasText": true,
@@ -2617,10 +2650,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>서브프라임 위기의 냄새? Oracle CDS 스프레드, 2008년 Bear Stearns를 넘어 •AI 인프라 금융에서 신용에 균열이 나타나고 있음. Oracle 5년물 CDS 스프레드는 316bp까지...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": ">>서브프라임 위기의 냄새? Oracle CDS 스프레드, 2008년 Bear Stearns를 넘어 •AI 인프라 금융에서 신용에 균열이 나타나고 있음. Oracle 5년물 CDS 스프레드는 316bp까지..."
     },
     {
       "id": "HANAchina/72758",
@@ -3153,13 +3186,14 @@
       "datetime": "2026-11-24T23:25:37.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을..."
     },
     {
       "id": "insidertracking/70166",
@@ -3206,15 +3240,18 @@
       "datetime": "2026-11-24T23:20:48.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "macro",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가..."
     },
     {
       "id": "HANAchina/72717",
@@ -3258,12 +3295,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음..."
     },
     {
       "id": "HANAchina/72713",
@@ -3404,12 +3442,14 @@
       "datetime": "2026-11-24T21:14:09.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "earnings"
+        "earnings",
+        "power"
       ],
+      "lead": 1,
       "score": 53,
       "hasText": true,
-      "summary": "DELL 테크놀로지스 FY27 3분기 실적 매출: 549억 달러 (예상치 493.2억 달러); 전년 대비 +103% 조정 EPS: 9.45달러 (예상치 6.59달러); 전년 대비 +265% AI 수주액:...",
-      "tickers": []
+      "tickers": [],
+      "summary": "DELL 테크놀로지스 FY27 3분기 실적 매출: 549억 달러 (예상치 493.2억 달러); 전년 대비 +103% 조정 EPS: 9.45달러 (예상치 6.59달러); 전년 대비 +265% AI 수주액:..."
     },
     {
       "id": "insidertracking/70150",
@@ -3669,14 +3709,16 @@
       "localDateKst": "2026-11-24",
       "tags": [
         "semi",
-        "equity"
+        "equity",
+        "earnings"
       ],
+      "lead": 2,
       "score": 76,
       "hasText": true,
-      "summary": "레이먼드 제임스(Raymond James), 엔비디아( $NVDA ) 투자의견 강력 매수(Strong Buy) 및 목표주가 350달러 “젠슨 황이 엔비디아의 경영 일선으로 복귀한 것을 긍정적으로 평가합니다....",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "레이먼드 제임스(Raymond James), 엔비디아( $NVDA ) 투자의견 강력 매수(Strong Buy) 및 목표주가 350달러 “젠슨 황이 엔비디아의 경영 일선으로 복귀한 것을 긍정적으로 평가합니다...."
     },
     {
       "id": "bornlupin/21264",
@@ -3688,13 +3730,13 @@
         "semi",
         "equity"
       ],
+      "lead": 2,
       "score": 86,
       "hasText": true,
-      "summary": "BofA, 엔비디아( $NVDA ) 투자의견 매수(Buy) 및 목표주가 280달러 유지 “젠슨 황의 CEO 복귀를 당국의 조사와 감시가 종료됐다는 의미로 해석해서는 안 됩니다. 이사회의 독립적인 조사는 여전히...",
-      "lead": 2,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "BofA, 엔비디아( $NVDA ) 투자의견 매수(Buy) 및 목표주가 280달러 유지 “젠슨 황의 CEO 복귀를 당국의 조사와 감시가 종료됐다는 의미로 해석해서는 안 됩니다. 이사회의 독립적인 조사는 여전히..."
     },
     {
       "id": "insidertracking/70138",
@@ -4051,16 +4093,17 @@
       "datetime": "2026-11-24T07:12:53.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi"
+        "semi",
+        "optical",
+        "earnings"
       ],
       "score": 76,
       "hasText": true,
-      "summary": "젠슨 황 복직의 산업적 의미 - 공급망 업그레이드 주도: 젠슨 황이 AI 산업에 미치는 영향력은 엔비디아 자체를 넘어선다. 선제적인 기술 로드맵 제시를 통해 글로벌 반도체 및 AI 인프라 공급망 전체의 동반...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "젠슨 황 복직의 산업적 의미 - 공급망 업그레이드 주도: 젠슨 황이 AI 산업에 미치는 영향력은 엔비디아 자체를 넘어선다. 선제적인 기술 로드맵 제시를 통해 글로벌 반도체 및 AI 인프라 공급망 전체의 동반..."
     },
     {
       "id": "HANAchina/72677",
@@ -4218,7 +4261,10 @@
       "datetime": "2026-11-24T02:00:18.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "market-note"
+        "semi",
+        "kr-market",
+        "earnings",
+        "flows"
       ],
       "score": 77,
       "hasText": true,
@@ -4228,12 +4274,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "오늘 바람이 정말 차갑습니다. 최근 로보틱스 업종 강세와 관련해서는 아래 보고서 참고하시기 바랍니다. 건강 유의하시고 평온한 하루 보내시기 바랍니다. 감사합니다...",
       "tickers": [
         "TSLA",
         "005930.KS",
         "277810.KQ"
-      ]
+      ],
+      "summary": "오늘 바람이 정말 차갑습니다. 최근 로보틱스 업종 강세와 관련해서는 아래 보고서 참고하시기 바랍니다. 건강 유의하시고 평온한 하루 보내시기 바랍니다. 감사합니다..."
     },
     {
       "id": "HANAchina/72661",
@@ -4281,12 +4327,12 @@
       "datetime": "2026-11-24T01:37:33.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "애플, 내년 1분기 신형 보급형 노트북 출시 전망… A19 Pro 탑재 애플의 보급형 노트북 맥북 네오(MacBook Neo)가 폭발적인 판매 호조를 보이는 가운데, 애플이 2027년 3월 2세대 제품을...",
-      "tickers": []
+      "tickers": [],
+      "summary": "애플, 내년 1분기 신형 보급형 노트북 출시 전망… A19 Pro 탑재 애플의 보급형 노트북 맥북 네오(MacBook Neo)가 폭발적인 판매 호조를 보이는 가운데, 애플이 2027년 3월 2세대 제품을..."
     },
     {
       "id": "insidertracking/70104",
@@ -4413,16 +4459,17 @@
       "datetime": "2026-11-24T00:11:17.000Z",
       "localDateKst": "2026-11-24",
       "tags": [
-        "semi"
+        "semi",
+        "ai-policy"
       ],
+      "lead": 1,
       "score": 70,
       "hasText": true,
-      "summary": "젠슨 황의 엔비디아 CEO 복귀 이후 벌어질 일들 1. 젠슨 황의 엔비디아 지배력 강화 엔비디아 이사회는 젠슨 황을 Arm CEO 르네 하스(Rene Haas)로 교체하려 했던 이사들을 조용히 퇴출시키고,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "TSM"
-      ]
+      ],
+      "summary": "젠슨 황의 엔비디아 CEO 복귀 이후 벌어질 일들 1. 젠슨 황의 엔비디아 지배력 강화 엔비디아 이사회는 젠슨 황을 Arm CEO 르네 하스(Rene Haas)로 교체하려 했던 이사들을 조용히 퇴출시키고,..."
     },
     {
       "id": "HANAchina/72650",
@@ -4448,6 +4495,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -4456,11 +4504,10 @@
         "videoCount": 1,
         "documents": []
       },
-      "summary": "젠슨 황 엔비디아 CEO: 감사합니다. 오늘은 제 첫 출근날입니다. 컴퓨터가 없어서 IT 부서에서 새 PC를 지급해 줄 예정입니다. 여러분 모두에게 감사드리고 싶습니다. 감사합니다. 정말 모든 분께...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "젠슨 황 엔비디아 CEO: 감사합니다. 오늘은 제 첫 출근날입니다. 컴퓨터가 없어서 IT 부서에서 새 PC를 지급해 줄 예정입니다. 여러분 모두에게 감사드리고 싶습니다. 감사합니다. 정말 모든 분께..."
     },
     {
       "id": "insidertracking/70094",
@@ -7208,26 +7255,6 @@
       ]
     },
     {
-      "id": "HANAchina/72474",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72474",
-      "datetime": "2026-11-20T06:52:51.000Z",
-      "localDateKst": "2026-11-20",
-      "tags": [
-        "ai-policy"
-      ],
-      "score": 50,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "• 대만 가권지수 금주 18% 급락, 1991년 이후 최악의 주간 성적. 금융당국의 두 차례 공매도 규제 강화도 하락세를 막지 못함. • 글로벌 기술주 동반 투매 속에서 앤스로픽(Anthropic)의 대규모...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21216",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21216",
@@ -8367,18 +8394,19 @@
       "datetime": "2026-11-25T22:42:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi"
+        "semi",
+        "equity"
       ],
+      "lead": 1,
       "score": 68,
       "hasText": true,
-      "summary": ">>AI 부채 리스크 심화 - CoreWeave·엔비디아 신용부도 위험지표 동반 사상 최고치 •수요일 CoreWeave의 5년물 부채 부도 보호 비용이 한때 2.09%p 상승해 사상 최대 일일 상승폭을 기록,...",
-      "lead": 1,
       "tickers": [
         "NVDA",
         "GOOG",
         "ORCL",
         "CRWV"
-      ]
+      ],
+      "summary": ">>AI 부채 리스크 심화 - CoreWeave·엔비디아 신용부도 위험지표 동반 사상 최고치 •수요일 CoreWeave의 5년물 부채 부도 보호 비용이 한때 2.09%p 상승해 사상 최대 일일 상승폭을 기록,..."
     },
     {
       "id": "HANAchina/72776",
@@ -8390,14 +8418,14 @@
         "semi",
         "flows"
       ],
+      "lead": 2,
       "score": 55,
       "hasText": true,
-      "summary": ">>Michael Burry, 나스닥 풋옵션 전량 청산하고 순매수 포지션으로 전환…엔비디아 콜옵션은 계속 보유 •Michael Burry는 수요일 “내 포트폴리오는 지난 기간보다 훨씬 더 강한 매수...",
-      "lead": 2,
       "tickers": [
         "NVDA",
         "PLTR"
-      ]
+      ],
+      "summary": ">>Michael Burry, 나스닥 풋옵션 전량 청산하고 순매수 포지션으로 전환…엔비디아 콜옵션은 계속 보유 •Michael Burry는 수요일 “내 포트폴리오는 지난 기간보다 훨씬 더 강한 매수..."
     },
     {
       "id": "bornlupin/21283",
@@ -8454,8 +8482,8 @@
       ],
       "score": 70,
       "hasText": true,
-      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "JP모건은 2027년 AI 자본지출(CapEx)이 약 두 배 증가한 1조 4,000억 달러에 달한 뒤 2028년부터 안정화될 것으로 전망. • 부채 조달: AI 관련 기업들의 투자등급 회사채 발행 규모는..."
     },
     {
       "id": "insidertracking/70227",
@@ -8464,6 +8492,8 @@
       "datetime": "2026-11-25T21:22:06.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "macro",
+        "kr-market",
         "earnings"
       ],
       "score": 65,
@@ -8474,9 +8504,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "디어(DE) Q4 2026 어닝콜 요약 긍정 요인: • 견조한 연간 실적. FY26 순매출은 477억달러로 4% 증가, 장비 사업 매출은 413억달러로 6% 증가. 순이익은 48억6,000만달러, 장비 사업..."
     },
     {
       "id": "insidertracking/70226",
@@ -8487,6 +8516,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
       "media": {
@@ -8495,10 +8525,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 엔비디아, 앤트로픽 그리고 나스닥 집중"
     },
     {
       "id": "insidertracking/70225",
@@ -8507,11 +8537,11 @@
       "datetime": "2026-11-25T21:18:48.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "power",
+        "healthcare"
       ],
       "score": 68,
       "hasText": true,
-      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·...",
       "tickers": [],
       "listTickers": [
         "PG",
@@ -8534,7 +8564,8 @@
         "COKE",
         "SN",
         "RGA"
-      ]
+      ],
+      "summary": "52주 신고가 (시총 $1B 이상) 금융 · Accelerant Holdings · American Financial Group · Arthur J. Gallagher & Co. · Assurant ·..."
     },
     {
       "id": "insidertracking/70224",
@@ -8543,6 +8574,9 @@
       "datetime": "2026-11-25T21:17:42.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
+        "credit",
+        "semi",
+        "power",
         "equity"
       ],
       "score": 95,
@@ -8553,11 +8587,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만...",
       "tickers": [
         "NVDA",
         "META"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
       "id": "bornlupin/21281",
@@ -8582,7 +8616,9 @@
       "datetime": "2026-11-25T21:15:16.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -8592,12 +8628,12 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:...",
       "tickers": [
         "NVDA",
         "AMD",
         "MU"
-      ]
+      ],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,182.95 (+0.33%) S&P 500: 7,182.78 (-0.25%) 나스닥:..."
     },
     {
       "id": "insidertracking/70220",
@@ -8684,6 +8720,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 60,
       "hasText": true,
       "media": {
@@ -8692,12 +8729,11 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>한국 증시, ‘무차별 매도’에 빠져…삼성전자와 SK하이닉스 모두 데드크로스, 골드만삭스 “밸류에이션에 이익 70% 폭락 반영” •골드만삭스는 한국 반도체주의 밸류에이션에 향후 이익 전망이 70% 하향...",
-      "lead": 1,
       "tickers": [
         "005930.KS",
         "000660.KS"
-      ]
+      ],
+      "summary": ">>한국 증시, ‘무차별 매도’에 빠져…삼성전자와 SK하이닉스 모두 데드크로스, 골드만삭스 “밸류에이션에 이익 70% 폭락 반영” •골드만삭스는 한국 반도체주의 밸류에이션에 향후 이익 전망이 70% 하향..."
     },
     {
       "id": "HANAchina/72768",
@@ -8708,11 +8744,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>미국 10월 PCE 데이터 속보 •인플레이션이 가계 예산을 지속적으로 압박하면서 미국의 10월 소비지출이 정체됨. 데이터에 따르면 인플레이션을 조정한 개인지출은 전월과 거의 같은 수준을 유지함. 연준이...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미국 10월 PCE 데이터 속보 •인플레이션이 가계 예산을 지속적으로 압박하면서 미국의 10월 소비지출이 정체됨. 데이터에 따르면 인플레이션을 조정한 개인지출은 전월과 거의 같은 수준을 유지함. 연준이..."
     },
     {
       "id": "insidertracking/70211",
@@ -8831,12 +8867,12 @@
       "datetime": "2026-11-25T12:31:33.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "market-note"
+        "healthcare"
       ],
       "score": 50,
       "hasText": true,
-      "summary": ">>AI 신약개발, 마침내 시간을 단축하기 시작 (JPMorgan) •초기 신약 발굴 기간이 기존 3~4년에서 2.5년 이내로 단축됐으며, 임상연구 보고서의 90%를 AI가 초안 작성하면서 검토 시간도 25%...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>AI 신약개발, 마침내 시간을 단축하기 시작 (JPMorgan) •초기 신약 발굴 기간이 기존 3~4년에서 2.5년 이내로 단축됐으며, 임상연구 보고서의 90%를 AI가 초안 작성하면서 검토 시간도 25%..."
     },
     {
       "id": "HANAchina/72765",
@@ -8847,11 +8883,11 @@
       "tags": [
         "macro"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": ">>골드만삭스: 시장이 이미 연준의 ‘4차례 금리인상’을 반영했지만, 워시는 12월에도 계속 금리인상 •골드만삭스는 미국의 금융여건이 올해 들어 104.1bp 긴축됐으며, 이는 연준의 4차례 금리인상에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>골드만삭스: 시장이 이미 연준의 ‘4차례 금리인상’을 반영했지만, 워시는 12월에도 계속 금리인상 •골드만삭스는 미국의 금융여건이 올해 들어 104.1bp 긴축됐으며, 이는 연준의 4차례 금리인상에..."
     },
     {
       "id": "HANAchina/72764",
@@ -8862,11 +8898,11 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
-      "summary": ">>미 언론: 미 정부, 이란 고위층을 타격 대상으로 지정하는 방안 재검토 (신화사) •미국 언론은 24일 소식통 인용, 미국 정부 내부에서 군사 작전 중 이란 정권의 고위 지도자를 타격 대상으로 삼는 방안에...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>미 언론: 미 정부, 이란 고위층을 타격 대상으로 지정하는 방안 재검토 (신화사) •미국 언론은 24일 소식통 인용, 미국 정부 내부에서 군사 작전 중 이란 정권의 고위 지도자를 타격 대상으로 삼는 방안에..."
     },
     {
       "id": "insidertracking/70198",
@@ -8912,14 +8948,15 @@
       "datetime": "2026-11-25T12:05:24.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
+        "macro",
         "earnings"
       ],
       "score": 51,
       "hasText": true,
-      "summary": ">>월가 최강 낙관론 중 하나! Deutsche Bank : 실적 성장과 경기 회복으로 S&P500 2027년 말 9,000선 전망 •최근 AI 관련주 매도로 미 증시 변동성이 크게 확대됐지만,...",
       "tickers": [
         "DB"
-      ]
+      ],
+      "summary": ">>월가 최강 낙관론 중 하나! Deutsche Bank : 실적 성장과 경기 회복으로 S&P500 2027년 말 9,000선 전망 •최근 AI 관련주 매도로 미 증시 변동성이 크게 확대됐지만,..."
     },
     {
       "id": "HANAchina/72759",
@@ -8928,7 +8965,9 @@
       "datetime": "2026-11-25T12:01:31.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "credit"
+        "credit",
+        "power",
+        "healthcare"
       ],
       "score": 74,
       "hasText": true,
@@ -8938,10 +8977,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>서브프라임 위기의 냄새? Oracle CDS 스프레드, 2008년 Bear Stearns를 넘어 •AI 인프라 금융에서 신용에 균열이 나타나고 있음. Oracle 5년물 CDS 스프레드는 316bp까지...",
       "tickers": [
         "ORCL"
-      ]
+      ],
+      "summary": ">>서브프라임 위기의 냄새? Oracle CDS 스프레드, 2008년 Bear Stearns를 넘어 •AI 인프라 금융에서 신용에 균열이 나타나고 있음. Oracle 5년물 CDS 스프레드는 316bp까지..."
     },
     {
       "id": "HANAchina/72758",
@@ -9474,13 +9513,14 @@
       "datetime": "2026-11-24T23:25:37.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "healthcare"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을..."
     },
     {
       "id": "insidertracking/70166",
@@ -9527,15 +9567,18 @@
       "datetime": "2026-11-24T23:20:48.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi"
+        "semi",
+        "macro",
+        "power",
+        "earnings"
       ],
+      "lead": 1,
       "score": 81,
       "hasText": true,
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가..."
     },
     {
       "id": "HANAchina/72717",
@@ -9579,12 +9622,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 61,
       "hasText": true,
-      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음..."
     }
   ],
   "signalsNote": "Numbers the channels reported (analyst target-price and rating actions, quarters against estimates, economic releases against forecasts, retail net-buy lists). Secondary observations for context and screener conditions; never a measurement of this app.",
