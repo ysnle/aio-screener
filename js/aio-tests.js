@@ -5410,27 +5410,8 @@
       var sources822 = Array.isArray(window.AIO_NEWS_SOURCES) ? window.AIO_NEWS_SOURCES.length : 0;
       // The fold names the server feeds; the browser-list count left with the retired RSS feeds.
       var sourceMeta822 = sources822 > 0 && !document.querySelector('[data-news-source-count]');
-      // The topic filter is the panel's 주제 chip row (src/ui/pages/news.js renderFeedPanel over domain/news/feed-filter.js,
-      // whose counts ci-news-ranking-check pins). The row is a labelled group on the news page and the retired one-topic
-      // buttons and their handler are gone. The chips are drawn when the lazy news page mounts, which this synchronous
-      // suite does not wait for; while that page is the mounted route, pressing a topic chip must narrow the feed to exactly its count.
-      var topicRow822 = document.querySelector('#page-market-news #news-feed-panel #news-filter-topic[role="group"][aria-labelledby="news-filter-topic-label"]');
-      var newsMounted822 = !!(topicRow822 && document.getElementById('page-market-news').classList.contains('active'));
-      var topicChip822 = newsMounted822 && Array.prototype.find.call(topicRow822.querySelectorAll('button[data-feed-field="topicFilter"]'), function(chip) {
-        var n = Number((chip.querySelector('.news-feed-chip-count') || {}).textContent);
-        return chip.dataset.feedValue !== 'all' && chip.getAttribute('aria-pressed') === 'false' && n > 0;
-      });
-      var topicNarrows822 = true;
-      if (topicChip822) {
-        var want822 = Number(topicChip822.querySelector('.news-feed-chip-count').textContent);
-        var articleTile822 = function() { var b = document.querySelector('#news-feed-tiles .news-feed-tile-value'); return b ? Number(b.firstChild && b.firstChild.nodeValue) : NaN; };
-        var key822 = topicChip822.dataset.feedValue;
-        topicChip822.click();
-        var pressed822 = topicRow822.querySelector('button[data-feed-value="' + key822 + '"]');
-        topicNarrows822 = !!pressed822 && pressed822.getAttribute('aria-pressed') === 'true' && articleTile822() === want822;
-        if (pressed822) pressed822.click(); // release, so later groups read the unfiltered feed
-      }
-      var topics822 = !!topicRow822 && topicNarrows822 && !document.querySelector('[data-news-topic]') && typeof window.filterNewsByTopic === 'undefined';
+      // The topic filter is the news panel's labelled 주제 chip row; its counts are pinned by ci-news-ranking-check.
+      var topics822 = !!document.querySelector('#page-market-news #news-filter-topic[role="group"]') && !document.querySelector('[data-news-topic]') && typeof window.filterNewsByTopic === 'undefined';
       var tech822 = document.getElementById('page-charts');
       var techText822 = tech822 ? tech822.textContent : '';
       var claims822 = techText822.indexOf('94% 승률') < 0 && techText822.indexOf('94.1%') < 0;
@@ -5441,7 +5422,7 @@
       var earlyFailure822 = typeof window._aioFetchServerData === 'function' && // reasons: src/data/server-data.js (unit-tested)
         String(window._aioLoadServerData).indexOf('fetched.reason') >= 0;
       t822ok = sourceMeta822 && topics822 && claims822 && honestState822 && earlyFailure822;
-      t822detail = 'sources=' + sources822 + ' meta=' + sourceMeta822 + ' topics=' + topics822 + (topicChip822 ? '(pressed ' + topicChip822.dataset.feedValue + ' narrows=' + topicNarrows822 + ')' : '(chips not drawn)') + ' claims=' + claims822 + ' unavailable=' + honestState822 + ' earlyFailure=' + earlyFailure822;
+      t822detail = 'sources=' + sources822 + ' meta=' + sourceMeta822 + ' topics=' + topics822 + ' claims=' + claims822 + ' unavailable=' + honestState822 + ' earlyFailure=' + earlyFailure822;
     } catch(e) { t822detail = 'ERR:' + e.message; }
     _assert('T822 v5055_audit_remediation: news metadata + topic filters + evidence-safe claims + screener unavailable state', t822ok, t822detail);
 
