@@ -3,7 +3,7 @@
   "sourceSchemaVersion": "2.0",
   "artifactRole": "BOUNDED_PAGE_PROJECTION",
   "projectionPolicy": "Latest normalized annual facts reconciled for parent-company equity (P1402/P1449) plus PIT coverage counters; append-only PIT observations remain producer-side and are not shipped on the interactive path. Per-record uniform source/model restated by this header are trimmed; data serializes compactly (1 MiB bound headroom, P1470).",
-  "generatedAt": "2026-11-26T03:48:09.933Z",
+  "generatedAt": "2026-11-26T08:57:11.695Z",
   "source": "SEC EDGAR companyfacts",
   "sourceUrl": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
   "licenseClass": "US federal public disclosure; SEC fair-access policy applies",
@@ -14,24 +14,24 @@
   "domainReceipt": {
     "schemaVersion": "domain-receipt.v1",
     "domain": "sec-fundamentals",
-    "runId": "gha:45751170148",
-    "attemptedAt": "2026-11-26T03:48:03.604Z",
+    "runId": "gha:45787456920",
+    "attemptedAt": "2026-11-26T08:57:10.262Z",
     "sourceRevision": "sec-company-tickers:a4549a73d027584e90490c5b8ff207de3e6a607768c7de416144ef52e6474c84",
     "inputWatermarks": {
       "universe": null,
-      "screener": "2026-11-25T22:06:17.666Z",
-      "previousArtifact": "2026-11-25T22:00:06.760Z"
+      "screener": "2026-11-26T07:32:51.012Z",
+      "previousArtifact": "2026-11-26T07:26:19.804Z"
     },
     "batchLimit": 24,
     "counts": {
       "eligible": 856,
-      "attempted": 4,
-      "updated": 4,
-      "retained": 842,
+      "attempted": 0,
+      "updated": 0,
+      "retained": 846,
       "pendingEligible": 10
     },
     "thisBatch": {
-      "updated": 4,
+      "updated": 0,
       "terminalUnsupported": 0,
       "transientFailed": 0,
       "recorded": 0
@@ -44,8 +44,8 @@
     },
     "lastSuccessfulObservation": "2026-11-26T03:48:03.604Z",
     "publication": {
-      "status": "SUCCESS",
-      "reason": "every attempted target was updated",
+      "status": "NOT_ATTEMPTED",
+      "reason": "no target was due in this batch",
       "allowsPartial": true,
       "basis": "per-symbol independent collection; retained eligible rows stay published while rows that lose their period requirements are excluded from analysis",
       "terminalExcludedFromBatchFailures": true,
