@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-26T23:52:19.815Z",
-  "attemptedAt": "2026-11-26T23:52:19.815Z",
-  "lastSuccessfulAt": "2026-11-26T23:52:19.815Z",
+  "generatedAt": "2026-11-27T00:22:21.061Z",
+  "attemptedAt": "2026-11-27T00:22:21.061Z",
+  "lastSuccessfulAt": "2026-11-27T00:22:21.061Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-12T23:52:14.496Z",
-  "until": "2026-11-26T23:52:14.496Z",
+  "since": "2026-11-13T00:22:17.068Z",
+  "until": "2026-11-27T00:22:17.068Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -85,39 +85,39 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1027,
+      "count": 1026,
       "freshCount": 38,
-      "eligibleTextCount": 975,
+      "eligibleTextCount": 974,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70307
+      "lastPostId": 70309
     },
     {
       "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 164,
+      "count": 167,
       "freshCount": 40,
-      "eligibleTextCount": 164,
-      "selectedCount": 119,
+      "eligibleTextCount": 167,
+      "selectedCount": 120,
       "error": null,
       "failingSince": null,
-      "lastPostId": 21309
+      "lastPostId": 21313
     },
     {
       "channel": "HANAchina",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 737,
+      "count": 735,
       "freshCount": 40,
-      "eligibleTextCount": 736,
+      "eligibleTextCount": 734,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72861
+      "lastPostId": 72862
     },
     {
       "channel": "aetherjapanresearch",
@@ -138,7 +138,7 @@
     }
   ],
   "count": 1928,
-  "retainedItemCount": 432,
+  "retainedItemCount": 436,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -147,30 +147,30 @@
     "observedCount": 1928,
     "eligibleTextCount": 1875,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 738,
-    "photoPostCount": 629,
+    "mediaAttachedCount": 740,
+    "photoPostCount": 630,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
-    "highSignalCount": 320,
-    "broadSignalCount": 806,
-    "selectedRawCount": 372,
-    "selectedEligibleCount": 372,
-    "selectedRawCoveragePct": 19.8,
+    "highSignalCount": 318,
+    "broadSignalCount": 805,
+    "selectedRawCount": 373,
+    "selectedEligibleCount": 373,
+    "selectedRawCoveragePct": 19.9,
     "selectedOfObservedPct": 19.3,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "power": 169,
-    "equity": 122,
+    "semi": 604,
+    "power": 166,
     "earnings": 218,
+    "geo": 223,
+    "market-note": 687,
+    "macro": 300,
+    "equity": 122,
     "japan": 47,
-    "ai-policy": 129,
-    "market-note": 688,
-    "macro": 299,
-    "semi": 605,
+    "ai-policy": 128,
     "healthcare": 57,
-    "kr-market": 99,
-    "geo": 222,
+    "kr-market": 98,
     "credit": 66,
     "flows": 69,
     "optical": 24,
@@ -179,17 +179,18 @@
     "crypto": 1
   },
   "tickerCounts": {
-    "MSFT": 41,
+    "NVDA": 393,
+    "AMD": 45,
+    "AMZN": 43,
+    "MU": 29,
+    "MSFT": 40,
     "GOOG": 42,
-    "AMZN": 42,
     "DELL": 2,
     "TSM": 59,
-    "NVDA": 392,
     "INTC": 2,
     "TER": 1,
     "PLTR": 9,
-    "MU": 27,
-    "005930.KS": 30,
+    "005930.KS": 27,
     "000660.KS": 27,
     "META": 8,
     "2454.TW": 8,
@@ -200,7 +201,6 @@
     "COHR": 4,
     "ORCL": 7,
     "CRWV": 6,
-    "AMD": 45,
     "AVGO": 13,
     "TSLA": 23,
     "BMY": 1,
@@ -261,24 +261,22 @@
     "SPGI": 1,
     "CAT": 1,
     "ARM": 1,
-    "319660.KQ": 1,
-    "066570.KS": 1,
-    "MOD": 2
+    "319660.KQ": 1
   },
   "themes": [
-    "Market Notes (688 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (605 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
-    "Macro/Rates (299 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
-    "Geopolitics (222 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Market Notes (687 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Semiconductors/Memory (604 posts in 14-day research window): 젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지...",
+    "Macro/Rates (300 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
+    "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "Earnings/Corporate (218 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (169 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간...",
-    "AI Policy/Export Controls (129 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "AI Power/Grid (166 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+    "AI Policy/Export Controls (128 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (122 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 392,
+      "count": 393,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
@@ -292,29 +290,29 @@
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
     },
     {
+      "key": "AMZN",
+      "count": 43,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
+    },
+    {
       "key": "GOOG",
       "count": 42,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 20일 > 오후 2시~오후 8시 30분 기준 🇺🇸 아메리카 • 미국 상원은 트럼프 대통령의 이란 공격 권한을 제한하려는 결의안을 부결. 트럼프 대통령은 이란에 대한..."
     },
     {
-      "key": "AMZN",
-      "count": 42,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
-    },
-    {
       "key": "MSFT",
-      "count": 41,
+      "count": 40,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
-      "key": "005930.KS",
-      "count": 30,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
+      "key": "MU",
+      "count": 29,
+      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
     },
     {
-      "key": "MU",
+      "key": "005930.KS",
       "count": 27,
-      "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "000660.KS",
@@ -344,7 +342,7 @@
       "topics": [
         "macro"
       ],
-      "count": 299,
+      "count": 300,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
@@ -353,7 +351,7 @@
       "topics": [
         "geo"
       ],
-      "count": 222,
+      "count": 223,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -371,7 +369,7 @@
       "topics": [
         "semi"
       ],
-      "count": 605,
+      "count": 604,
       "focus": "젠슨 황 CEO 복귀 이후 엔비디아 (NVDA) 월가 증권사 목표주가 및 투자의견 1. 씨티그룹(Citi) 목표주가: $225 → $240 (+6.7%) 상승여력: +45.4% 투자의견: Buy 유지..."
     },
     {
@@ -389,8 +387,8 @@
       "topics": [
         "power"
       ],
-      "count": 169,
-      "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는 계속 증가하고 있으며, 어떠한 둔화도 관찰되지 않고 있다. • 2027년에는 2026년보다 수요와 공급 간..."
+      "count": 166,
+      "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
     },
     {
       "id": "ai-policy",
@@ -398,7 +396,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 129,
+      "count": 128,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -407,7 +405,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 99,
+      "count": 98,
       "focus": "[하나증권 유통/화장품 박종대] 화장품(Overweight): 바닥 잡기 3선(26.11.25) 환율 영향 제거하면 매우 준수한 실적 - 에이피알, 환율 영향 제거시 준수한 실적, 유럽 매출 1,778억원(YoY 783%), 예상치(1,570억원) 10% 이상 상회 - 달바글로벌 영업이익률 21.5%(YoY..."
     },
     {
@@ -479,7 +477,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 688,
+      "count": 687,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -843,18 +841,15 @@
       "datetime": "2026-11-24T23:37:37.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
-        "credit",
-        "semi",
-        "ai-policy"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
+      ]
     },
     {
       "id": "insidertracking/70146",
@@ -1641,6 +1636,80 @@
     }
   ],
   "broadItems": [
+    {
+      "id": "bornlupin/21313",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21313",
+      "datetime": "2026-11-27T00:21:04.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi",
+        "power",
+        "earnings"
+      ],
+      "score": 86,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "AMD",
+        "AMZN",
+        "MU"
+      ],
+      "summary": "다음주 테크 주요 일정 11/30(월) 엔비디아 GTC 워싱턴 D.C. 개막 AWS re:Invent 2026 개막 12/1(화) 23:35 엔비디아 UBS 콘퍼런스 젠슨 황 미 하원 비공개 면담(미국 현지)..."
+    },
+    {
+      "id": "bornlupin/21312",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21312",
+      "datetime": "2026-11-27T00:09:45.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 61,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [
+        "MU"
+      ],
+      "summary": "마이크론 - UBS 글로벌 테크놀로지 & AI 콘퍼런스 2026 미국 동부시간 12월 1일 오전 10시 15분 (한국 시간 12월 2일 수요일 오전 00:15)"
+    },
+    {
+      "id": "bornlupin/21311",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21311",
+      "datetime": "2026-11-26T23:59:05.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi"
+      ],
+      "score": 51,
+      "hasText": true,
+      "tickers": [
+        "NVDA"
+      ],
+      "summary": "트럼프: 아마도 조만간 엔비디아의 젠슨 황과 이야기를 나눌 것"
+    },
+    {
+      "id": "bornlupin/21310",
+      "channel": "bornlupin",
+      "url": "https://t.me/bornlupin/21310",
+      "datetime": "2026-11-26T23:54:57.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "네덜란드, 미국의 ASML 추가 규제안 도입에 맞서기로 네덜란드 정부는 ASML 홀딩(ASML Holding NV)의 대중국 판매를 추가로 제한하려는 미국의 계획에 저항하겠다고 밝혔다. 네덜란드는 이 규제안을..."
+    },
     {
       "id": "bornlupin/21309",
       "channel": "bornlupin",
@@ -2432,14 +2501,13 @@
       "datetime": "2026-11-26T04:22:15.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "시장조사업체 트렌드포스는 최신 보고서를 통해 메모리 반도체인 DRAM과 NAND 시장의 전망이 뚜렷하게 엇갈릴 것으로 분석. DRAM은 공급이 수요를 충족하지 못하는 상황이 지속될 전망인 반면, NAND..."
+      "summary": "시장조사업체 트렌드포스는 최신 보고서를 통해 메모리 반도체인 DRAM과 NAND 시장의 전망이 뚜렷하게 엇갈릴 것으로 분석. DRAM은 공급이 수요를 충족하지 못하는 상황이 지속될 전망인 반면, NAND...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70267",
@@ -2450,13 +2518,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "미국 정부가 엔비디아 지분 인수를 적극적으로 검토하고 있다는 관측이 제기. 추수감사절 연휴를 앞두고 트럼프 대통령의 이례적인 발언으로 엔비디아 지분 인수 관련 관측이 확산. 트럼프 대통령은 11월 24일...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 정부가 엔비디아 지분 인수를 적극적으로 검토하고 있다는 관측이 제기. 추수감사절 연휴를 앞두고 트럼프 대통령의 이례적인 발언으로 엔비디아 지분 인수 관련 관측이 확산. 트럼프 대통령은 11월 24일..."
+      ]
     },
     {
       "id": "HANAchina/72803",
@@ -3963,18 +4031,15 @@
       "datetime": "2026-11-24T23:37:37.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "power",
-        "credit",
-        "semi",
-        "ai-policy"
+        "power"
       ],
-      "lead": 1,
       "score": 100,
       "hasText": true,
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
+      ]
     },
     {
       "id": "HANAchina/72719",
@@ -3998,14 +4063,13 @@
       "datetime": "2026-11-24T23:25:37.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을..."
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 현재 공급 상황과 향후 전망을 살펴보면 기업용 NAND와 서버용 DRAM 가격이 하락할 것이라는 어떠한 징후도 없다. 해당 메모리 제품의 수요는 공급을...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70166",
@@ -4052,18 +4116,15 @@
       "datetime": "2026-11-24T23:20:48.000Z",
       "localDateKst": "2026-11-25",
       "tags": [
-        "semi",
-        "macro",
-        "power",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 81,
       "hasText": true,
+      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "델( $DELL ) FY27 3Q 어닝콜 중 메모리 관련 2027년 서버용 DRAM·기업용 NAND 가격 하락 징후 없다. HBM 생산 확대에 따른 공급 부족과 에이전틱 AI 확산에 따른 구조적 수요 증가..."
+      ]
     },
     {
       "id": "HANAchina/72717",
@@ -4107,13 +4168,12 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 대통령, 필요시 엔비디아 젠슨 황 CEO 사면 의향 사면 및 의회 증언: 트럼프 대통령은 엔비디아 CEO로 복귀한 젠슨 황에 대해 필요하다면 사면할 의향이 있지만, 그럴 필요까지는 없을 것이라며 다음..."
+      ]
     },
     {
       "id": "HANAchina/72713",
@@ -8255,59 +8315,6 @@
       },
       "summary": "미국 10월 PPI Core PPI MoM: 0.3% (예상 0.3%, 이전 0.7%) Core PPI YoY: 5.0% (예상 5.0%, 이전 5.0%) PPI MoM: 0.3% (예상 0.4%, 이전...",
       "tickers": []
-    },
-    {
-      "id": "bornlupin/21147",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21147",
-      "datetime": "2026-11-13T13:19:51.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "market-note"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": "골드만삭스, 2027년 S&P 500 지수 8,700 돌파 전망 골드만삭스는 S&P 500 지수가 향후 12개월 내에 8,700에 도달할 것으로 전망했습니다. 이는 현재 지수인 7,619 대비 14%의 상승...",
-      "tickers": []
-    },
-    {
-      "id": "bornlupin/21146",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21146",
-      "datetime": "2026-11-13T13:12:07.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi"
-      ],
-      "score": 82,
-      "hasText": true,
-      "summary": "엔비디아(NVDA)의 불확실성이 커지는 가운데, 브로드컴(AVGO)과 AMD가 AI 반도체 시장에서 점유율을 확대할 가능성에 주목 ① 제이 골드버그 – Seaport Research 브로드컴은 빅테크 기업들의...",
-      "tickers": [
-        "NVDA",
-        "AMD",
-        "GOOG",
-        "AVGO",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "bornlupin/21143",
-      "channel": "bornlupin",
-      "url": "https://t.me/bornlupin/21143",
-      "datetime": "2026-11-13T00:14:41.000Z",
-      "localDateKst": "2026-11-13",
-      "tags": [
-        "semi",
-        "power",
-        "kr-market"
-      ],
-      "score": 71,
-      "hasText": true,
-      "summary": "삼성전자, 데이터센터 냉각 전문기업 모딘(Modine) 인수 협상 중 삼성전자(Samsung Electronics Co.)가 데이터센터 냉각 시스템 제조업체인 모딘 매뉴팩처링(Modine...",
-      "tickers": [
-        "005930.KS",
-        "MOD"
-      ]
     }
   ],
   "current24hItems": [
@@ -9007,14 +9014,13 @@
       "datetime": "2026-11-26T04:22:15.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
-        "earnings"
+        "semi"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "시장조사업체 트렌드포스는 최신 보고서를 통해 메모리 반도체인 DRAM과 NAND 시장의 전망이 뚜렷하게 엇갈릴 것으로 분석. DRAM은 공급이 수요를 충족하지 못하는 상황이 지속될 전망인 반면, NAND..."
+      "summary": "시장조사업체 트렌드포스는 최신 보고서를 통해 메모리 반도체인 DRAM과 NAND 시장의 전망이 뚜렷하게 엇갈릴 것으로 분석. DRAM은 공급이 수요를 충족하지 못하는 상황이 지속될 전망인 반면, NAND...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70267",
@@ -9025,13 +9031,13 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
+      "summary": "미국 정부가 엔비디아 지분 인수를 적극적으로 검토하고 있다는 관측이 제기. 추수감사절 연휴를 앞두고 트럼프 대통령의 이례적인 발언으로 엔비디아 지분 인수 관련 관측이 확산. 트럼프 대통령은 11월 24일...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 정부가 엔비디아 지분 인수를 적극적으로 검토하고 있다는 관측이 제기. 추수감사절 연휴를 앞두고 트럼프 대통령의 이례적인 발언으로 엔비디아 지분 인수 관련 관측이 확산. 트럼프 대통령은 11월 24일..."
+      ]
     },
     {
       "id": "HANAchina/72803",
