@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-27T02:52:44.012Z",
-  "attemptedAt": "2026-11-27T02:52:44.012Z",
-  "lastSuccessfulAt": "2026-11-27T02:52:44.012Z",
+  "generatedAt": "2026-11-27T03:21:44.174Z",
+  "attemptedAt": "2026-11-27T03:21:44.174Z",
+  "lastSuccessfulAt": "2026-11-27T03:21:44.174Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-13T02:52:39.277Z",
-  "until": "2026-11-27T02:52:39.277Z",
+  "since": "2026-11-13T03:21:39.081Z",
+  "until": "2026-11-27T03:21:39.081Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1028,
-      "freshCount": 20,
-      "eligibleTextCount": 977,
+      "count": 1030,
+      "freshCount": 38,
+      "eligibleTextCount": 979,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70317
+      "lastPostId": 70319
     },
     {
       "channel": "bornlupin",
@@ -117,7 +117,7 @@
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72874
+      "lastPostId": 72875
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1928,
-  "retainedItemCount": 420,
+  "count": 1930,
+  "retainedItemCount": 431,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1928,
-    "eligibleTextCount": 1876,
+    "observedCount": 1930,
+    "eligibleTextCount": 1878,
     "mediaOnlyCount": 52,
-    "mediaAttachedCount": 745,
-    "photoPostCount": 636,
+    "mediaAttachedCount": 746,
+    "photoPostCount": 637,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
     "highSignalCount": 320,
-    "broadSignalCount": 806,
+    "broadSignalCount": 807,
     "selectedRawCount": 374,
     "selectedEligibleCount": 374,
     "selectedRawCoveragePct": 19.9,
@@ -160,17 +160,17 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "semi": 603,
+    "power": 167,
+    "kr-market": 100,
     "macro": 303,
-    "kr-market": 99,
-    "semi": 602,
     "market-note": 686,
     "earnings": 216,
     "credit": 67,
     "japan": 48,
-    "power": 166,
     "geo": 223,
     "equity": 120,
-    "ai-policy": 126,
+    "ai-policy": 125,
     "healthcare": 57,
     "flows": 66,
     "optical": 24,
@@ -268,19 +268,19 @@
   },
   "themes": [
     "Market Notes (686 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (602 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
-    "Macro/Rates (303 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
+    "Semiconductors/Memory (603 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
+    "Macro/Rates (303 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
     "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "Earnings/Corporate (216 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (166 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
-    "AI Policy/Export Controls (126 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "AI Power/Grid (167 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+    "AI Policy/Export Controls (125 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (120 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
       "count": 389,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "TSM",
@@ -320,7 +320,7 @@
     {
       "key": "005930.KS",
       "count": 27,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "TSLA",
@@ -346,7 +346,7 @@
         "macro"
       ],
       "count": 303,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "id": "geo",
@@ -364,7 +364,7 @@
         "credit"
       ],
       "count": 67,
-      "focus": ">>BofA 2027년 7대 트레이딩 구상 1. 상반기 달러 강세 : 3개월물 AUD/USD 하락 ERKO 풋옵션 매수. 행사가 0.6600, 배리어 0.6425, 진입비용 0.26%. 2. 미 국채 매도·유럽 금리 매수 : 미국 2년물 국채 매도, 유로 2년1년 OIS 수취, 호주 1년 선도 3s10s 스티프닝...."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "id": "semi",
@@ -372,7 +372,7 @@
       "topics": [
         "semi"
       ],
-      "count": 602,
+      "count": 603,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을..."
     },
     {
@@ -390,7 +390,7 @@
       "topics": [
         "power"
       ],
-      "count": 166,
+      "count": 167,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
     },
     {
@@ -399,7 +399,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 126,
+      "count": 125,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -408,7 +408,7 @@
       "topics": [
         "kr-market"
       ],
-      "count": 99,
+      "count": 100,
       "focus": "[하나증권 유통/화장품 박종대] 화장품(Overweight): 바닥 잡기 3선(26.11.25) 환율 영향 제거하면 매우 준수한 실적 - 에이피알, 환율 영향 제거시 준수한 실적, 유럽 매출..."
     },
     {
@@ -740,15 +740,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "insidertracking/70269",
@@ -1627,6 +1630,27 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72875",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72875",
+      "datetime": "2026-11-27T03:19:25.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi"
+      ],
+      "lead": 1,
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "•중국증시 오전 반도체 상승폭 확대 •HBM, 후공정, 반도체 장비, 파운드리 관련주 5-7%대 급등세 •홍콩 AI 칩, LLM 등 컴퓨팅 관련주 반등 •네덜란드 MATCH 법 반대 움직임, 중국 정부 컴퓨팅..."
+    },
+    {
       "id": "HANAchina/72874",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72874",
@@ -2065,6 +2089,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2073,9 +2098,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "오늘 이란 마슈하드에서 열린 ‘우주·항공’ 전시회에서 장거리 자폭 드론 샤헤드-136B의 개량형 공개. 해당 드론은 유럽 내륙 깊숙한 지역까지 도달할 수 있도록 설계. • 사거리 및 목적: 공개된 최대...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "오늘 이란 마슈하드에서 열린 ‘우주·항공’ 전시회에서 장거리 자폭 드론 샤헤드-136B의 개량형 공개. 해당 드론은 유럽 내륙 깊숙한 지역까지 도달할 수 있도록 설계. • 사거리 및 목적: 공개된 최대..."
     },
     {
       "id": "insidertracking/70290",
@@ -2084,14 +2108,16 @@
       "datetime": "2026-11-26T21:36:17.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 27일 트럼프·러시아·우크라이나 · 트럼프와 NATO 뤼터 사무총장, 러시아·우크라이나 전쟁과 이란 분쟁 논의 · 트럼프, 러시아·우크라이나 전쟁을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 27일 트럼프·러시아·우크라이나 · 트럼프와 NATO 뤼터 사무총장, 러시아·우크라이나 전쟁과 이란 분쟁 논의 · 트럼프, 러시아·우크라이나 전쟁을..."
     },
     {
       "id": "insidertracking/70289",
@@ -2100,15 +2126,17 @@
       "datetime": "2026-11-26T21:35:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "japan"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는..."
     },
     {
       "id": "HANAchina/72845",
@@ -2143,8 +2171,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이..."
     },
     {
       "id": "insidertracking/70285",
@@ -2157,10 +2185,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력."
     },
     {
       "id": "bornlupin/21304",
@@ -2240,15 +2268,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "HANAchina/72842",
@@ -2300,17 +2331,16 @@
       "datetime": "2026-11-26T09:40:08.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
-        "geo"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": ">>메모리 반도체 부족, 미국 연말 쇼핑 시즌 강타…애플·마이크로소프트 가격 일제히 인상 •글로벌 메모리 반도체 부족으로 소비자 전자제품 가격이 상승중. 일부 반도체 가격은 1년 만에 기존 가격의 10배까지...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "AMZN"
-      ],
-      "summary": ">>메모리 반도체 부족, 미국 연말 쇼핑 시즌 강타…애플·마이크로소프트 가격 일제히 인상 •글로벌 메모리 반도체 부족으로 소비자 전자제품 가격이 상승중. 일부 반도체 가격은 1년 만에 기존 가격의 10배까지..."
+      ]
     },
     {
       "id": "HANAchina/72833",
@@ -7224,24 +7254,6 @@
       "tickers": []
     },
     {
-      "id": "HANAchina/72557",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72557",
-      "datetime": "2026-11-22T12:39:39.000Z",
-      "localDateKst": "2026-11-22",
-      "tags": [
-        "semi",
-        "equity"
-      ],
-      "score": 73,
-      "hasText": true,
-      "summary": ">>머스크의 GPU 구매 자금 조달 지원한 골드만삭스, ‘묘수’ 선보여 •골드만삭스가 Apollo Global Management와 손잡고 머스크가 이끄는 SpaceX의 약 320억달러 규모 채권 발행을...",
-      "lead": 2,
-      "tickers": [
-        "APO"
-      ]
-    },
-    {
       "id": "bornlupin/21230",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21230",
@@ -8386,6 +8398,7 @@
       "tags": [
         "geo"
       ],
+      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8394,9 +8407,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "오늘 이란 마슈하드에서 열린 ‘우주·항공’ 전시회에서 장거리 자폭 드론 샤헤드-136B의 개량형 공개. 해당 드론은 유럽 내륙 깊숙한 지역까지 도달할 수 있도록 설계. • 사거리 및 목적: 공개된 최대...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "오늘 이란 마슈하드에서 열린 ‘우주·항공’ 전시회에서 장거리 자폭 드론 샤헤드-136B의 개량형 공개. 해당 드론은 유럽 내륙 깊숙한 지역까지 도달할 수 있도록 설계. • 사거리 및 목적: 공개된 최대..."
     },
     {
       "id": "insidertracking/70290",
@@ -8405,14 +8417,16 @@
       "datetime": "2026-11-26T21:36:17.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 27일 트럼프·러시아·우크라이나 · 트럼프와 NATO 뤼터 사무총장, 러시아·우크라이나 전쟁과 이란 분쟁 논의 · 트럼프, 러시아·우크라이나 전쟁을...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 27일 트럼프·러시아·우크라이나 · 트럼프와 NATO 뤼터 사무총장, 러시아·우크라이나 전쟁과 이란 분쟁 논의 · 트럼프, 러시아·우크라이나 전쟁을..."
     },
     {
       "id": "insidertracking/70289",
@@ -8421,15 +8435,17 @@
       "datetime": "2026-11-26T21:35:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "japan"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는..."
     },
     {
       "id": "HANAchina/72845",
@@ -8464,8 +8480,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이..."
     },
     {
       "id": "insidertracking/70285",
@@ -8478,10 +8494,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력."
     },
     {
       "id": "bornlupin/21304",
@@ -8561,15 +8577,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "HANAchina/72842",
@@ -8621,17 +8640,16 @@
       "datetime": "2026-11-26T09:40:08.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
-        "geo"
+        "semi"
       ],
-      "lead": 1,
       "score": 65,
       "hasText": true,
+      "summary": ">>메모리 반도체 부족, 미국 연말 쇼핑 시즌 강타…애플·마이크로소프트 가격 일제히 인상 •글로벌 메모리 반도체 부족으로 소비자 전자제품 가격이 상승중. 일부 반도체 가격은 1년 만에 기존 가격의 10배까지...",
+      "lead": 1,
       "tickers": [
         "MSFT",
         "AMZN"
-      ],
-      "summary": ">>메모리 반도체 부족, 미국 연말 쇼핑 시즌 강타…애플·마이크로소프트 가격 일제히 인상 •글로벌 메모리 반도체 부족으로 소비자 전자제품 가격이 상승중. 일부 반도체 가격은 1년 만에 기존 가격의 10배까지..."
+      ]
     },
     {
       "id": "HANAchina/72833",
