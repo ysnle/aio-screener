@@ -27,6 +27,9 @@ import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
 import { channelClaimLines } from '../../src/domain/news/channel-claims.js';
+import { FEED_TOPICS } from '../../src/domain/news/feed-filter.js';
+import { say } from '../../src/domain/shared/claim.js';
+import { changeClaim } from '../../src/domain/briefing/day-account.js';
 import { koreaSessionLink } from '../../src/domain/market/korea/korea-session-link.js';
 import { aiChainFlow } from '../../src/domain/briefing/ai-chain-flow.js';
 import { aiDemandRead, aiDemandFactLine } from '../../src/domain/briefing/ai-demand-read.js';
@@ -83,6 +86,8 @@ const byRet1m = (list) => [...list].filter((theme) => finite(theme.ret1m) != nul
 // The channels' economic releases against forecast (telegram-digest.json signals) the 매크로 packet carries: the last week's,
 // each behind the channel-claim tag (src/domain/news/channel-claims.js), never post text.
 const CHANNEL_RELEASE_DAYS = 7;
+// 뉴스: the four busiest topic groups, their three highest-scored headlines each, and the eight most material priced moves.
+const NEWS_READING = Object.freeze({ minRows: 20, groups: 4, perGroup: 3, moves: 8, moveKinds: Object.freeze(['price', 'stock-move', 'group-move']) });
 const daysBefore = (isoDay, days) => new Date(Date.parse(`${isoDay}T00:00:00Z`) - days * 86400000).toISOString().slice(0, 10);
 
 // ---- the market story every screen reads beside its own facts ------------------------------------------------------------
@@ -303,6 +308,33 @@ export const SCREEN_READING_SCREENS = Object.freeze({
         basis, axes: axis ? [axis] : [],
         lines: [`기준일: ${md(basis)} 한국 종가`, `한국 테마 ${kr.length}개 (1개월 수익률 높은 순과 낮은 순)`, ...shown.map((theme) => `한국 테마 ${themeLine(theme)}`),
           leadershipLine(interpretation?.regime) ? `미국 ${leadershipLine(interpretation.regime)}` : '', axis ? axisLine(axis, interpretation.regime.asOf) : '', ...(link?.factLines || [])].filter(Boolean)
+      };
+    }
+  }),
+  // 뉴스: what the closed 24-hour bundle reported, by the screen's own topic groups, beside the moves the market-day ledger
+  // priced. The facts are headlines (no article body is collected), so the reading says what was reported and whether the
+  // priced move agrees; it does not say a report moved a price. A closed bundle is read once (`once`): later runs of the
+  // same cycle reorder a few rows, which is not a new day to read.
+  news: Object.freeze({
+    name: '뉴스',
+    once: true,
+    guide: '- 지난 24시간 보도가 어느 주제에 몰렸는지로 엽니다. "보도" 줄이 많은 주제 두세 개를 골라 주제마다 무엇이 보도됐는지 한 문장으로 묶고, 주제끼리 이어지는 지점이 있으면 잇습니다. "가격" 줄에 같은 대상의 움직임이 있으면 보도와 가격이 같은 방향인지 날짜와 함께 짚습니다. 보도가 가격을 움직였다고 단정하지 않습니다. 제목에 없는 내용은 보태지 않고, 매체 이름과 건수는 쓰지 않습니다.',
+    facts(_interpretation, context = {}) {
+      const rows = (Array.isArray(context.data?.news) ? context.data.news : []).filter((row) => row?.title && row.newsCycleEnd);
+      const cycleEnd = Date.parse(rows[0]?.newsCycleEnd || '');
+      if (rows.length < NEWS_READING.minRows || !Number.isFinite(cycleEnd)) return null;
+      const basis = new Date(cycleEnd + 9 * 3600000).toISOString().slice(0, 10); // the cut's date in Korea
+      const groups = FEED_TOPICS.map((group) => ({ label: group.label, rows: rows.filter((row) => group.topics.includes(row.topic)).sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0)) }))
+        .filter((group) => group.rows.length).sort((a, b) => b.rows.length - a.rows.length).slice(0, NEWS_READING.groups);
+      const said = (row) => `${row.titleKo || row.title}${row.also?.length ? ` (다른 매체 ${row.also.length}곳도 보도)` : ''}`;
+      const moves = (Array.isArray(context.day?.facts) ? context.day.facts : [])
+        .filter((fact) => NEWS_READING.moveKinds.includes(fact?.kind) && fact.label && isIsoDay(fact.date) && finite(fact.change) != null)
+        .sort((a, b) => (Number(b.materiality) || 0) - (Number(a.materiality) || 0)).slice(0, NEWS_READING.moves);
+      return {
+        basis, axes: [],
+        lines: [`기준: ${md(basis)} 08:00(한국시간)까지 24시간 보도`, `보도가 많은 주제 순: ${groups.map((group) => group.label).join(', ')}`,
+          ...groups.flatMap((group) => group.rows.slice(0, NEWS_READING.perGroup).map((row) => `보도 [${group.label}] ${said(row)}`)),
+          ...moves.map((fact) => `가격 ${md(fact.date)} ${say('{label} {change}', { label: fact.label, change: changeClaim(fact) }).text}`)]
       };
     }
   })

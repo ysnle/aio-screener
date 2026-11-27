@@ -1497,7 +1497,7 @@ check('HY OAS has a keyless official FRED public-download adapter with LKG and t
   ], { cycleEndMs: end, nowMs: now, max: 6, canonical: [{ title: 'Gold hits record as investors seek safety', link: 'x', source: 'FT' }] });
   const titles = picked.map((item) => item.title);
   check('P1720 intraday slot: after the cut, tier 1-2, filters, one per event (bundle included), <=2 per publisher, Korean first, max 6',
-    NEWS_INTRADAY_MAX === 12 && picked.length === 6 && picked.filter((item) => item.market === 'kr').length === 2
+    NEWS_INTRADAY_MAX === 30 && picked.length === 6 && picked.filter((item) => item.market === 'kr').length === 2
       && picked.every((item) => item.tier <= 2 && Date.parse(item.publishedAt) >= end && item.provisional === true && item.source && item.topic && item.market)
       && !titles.some((t) => /next Nvidia|Old bundle|Gold hits|1,340원대/.test(t)) && titles.filter((t) => /코스피 5% 급락/.test(t)).length === 1
       && picked.filter((item) => item.source === 'CNBC').length <= 2

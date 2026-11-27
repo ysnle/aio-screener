@@ -1,6 +1,7 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { renderBriefingRead } from '../components/briefing-read.js';
+import { renderScreenReading } from '../components/screen-reading.js';
 import { crossroadsForRoot } from '../components/macro-crossroads.js';
 import { closeBasis } from '../../domain/briefing/market-read.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
@@ -478,6 +479,34 @@ function createNewsCard(documentRef, root, item, index, readArticle) {
     evidence.appendChild(timeline);
     body.appendChild(evidence);
   }
+  // The other outlets that reported this event (the producer keeps them on the row that holds the event's seat): one
+  // card, and its sources fold lists each outlet's own headline as a link.
+  const others = (Array.isArray(item?.also) ? item.also : []).filter((other) => other?.source && other?.title);
+  if (others.length) {
+    const outlets = documentRef.createElement('details');
+    outlets.className = 'news-evidence news-also';
+    outlets.dataset.foldKind = 'sources';
+    outlets.addEventListener('click', (event) => event.stopPropagation());
+    const outletsTitle = documentRef.createElement('summary');
+    outletsTitle.textContent = `다른 매체 ${others.length}곳도 보도`;
+    outletsTitle.setAttribute('aria-label', `${outletsTitle.textContent} — ${String(title || '').slice(0, 80)}`);
+    outlets.appendChild(outletsTitle);
+    const list = documentRef.createElement('ul');
+    for (const other of others) {
+      const row = documentRef.createElement('li');
+      const label = `${other.source}, ${other.title}`;
+      const url = safeUrl(other.link);
+      if (url) {
+        const anchor = documentRef.createElement('a');
+        anchor.href = url; anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; anchor.textContent = label;
+        anchor.classList.add('aio-inline-target');
+        row.appendChild(anchor);
+      } else row.textContent = label;
+      list.appendChild(row);
+    }
+    outlets.appendChild(list);
+    body.appendChild(outlets);
+  }
 
   card.append(timeColumn, body);
   return card;
@@ -788,6 +817,11 @@ function render({ documentRef, root, store, route }) {
     page.dataset.aioArchitectureSlice = 'news';
     const newsStatus = selectNewsStatus(state);
     page.dataset.aioArchitectureState = newsStatus === 'current' && items.length ? 'observed' : newsStatus === 'stale' && items.length ? 'stale' : 'blocked';
+  }
+  // The AI reading of the closed bundle, while the cut on screen is the one it read (its date in Korea).
+  if (route === 'market-news') {
+    const cut = Date.parse(root?._serverDataMeta?.newsCycleEnd || '');
+    renderScreenReading({ documentRef, root, screen: 'news', shownBasis: Number.isFinite(cut) ? new Date(cut + 9 * 3600000).toISOString().slice(0, 10) : null, basisLabel: '08:00까지 24시간 보도 기준' });
   }
   if (route === 'briefing') {
     renderBriefingRead({ documentRef, root, store });

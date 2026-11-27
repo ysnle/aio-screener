@@ -43,8 +43,10 @@ export function articleFactReader({ day = null, briefs = null, calendar = null, 
     if (tie?.moves?.length) {
       // The moves are a session's closes, the article may be a day later: the line carries the session when the moves share one.
       const sessions = [...new Set(tie.moves.map((move) => move.said.claims?.[0]?.asOf).filter(Boolean))];
+      // One shared session leads the line; moves of different sessions (a US close and the Korean one after it) each carry theirs.
       const when = sessions.length === 1 ? `${shortDate(sessions[0])} ` : '';
-      return { kind: ARTICLE_FACT_KINDS.figure, text: `관련 움직임 ${when}${tie.moves.map((move) => move.said.text).join(' · ')}`, source: 'ledger' };
+      const dated = (move) => (sessions.length > 1 && move.said.claims?.[0]?.asOf ? `${shortDate(move.said.claims[0].asOf)} ${move.said.text}` : move.said.text);
+      return { kind: ARTICLE_FACT_KINDS.figure, text: `관련 움직임 ${when}${tie.moves.map(dated).join(' · ')}`, source: 'ledger' };
     }
     if (calendar) {
       for (const symbol of symbols) {

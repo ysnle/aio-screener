@@ -283,6 +283,18 @@ check('v60.61 news-story-link an unlinked article with one resolved issuer ties 
   const huang = { title: 'x', link: 'https://fixture.invalid/huang' };
   assert.deepEqual(newsStoryLinks(ledger(true))(huang, { issuers: ['AAPL'] })?.moves.map((move) => move.said.text), ['NVIDIA +31.5%'], 'v60.61 news-story-link the ledger link wins over the card issuer');
 });
+check('v60.65 news-story-link a headline that reports a priced asset\'s move ties to that asset, for the session the ledger priced', () => {
+  const links = newsStoryLinks(ledger(false));
+  const at = (hours) => new Date(Date.parse(`${D}T00:00:00Z`) + hours * 3600000).toISOString();
+  const texts = (story) => links(story)?.moves.map((move) => move.said.text) || null;
+  assert.deepEqual(texts({ title: 'Wall Street rallies as chip stocks surge', pubDate: at(22) }), ['S&P 500 +4.7%', '반도체(SOXX) +13.6%'], 'v60.65 an index wrap names the index and the chip index');
+  assert.equal(texts({ title: 'Wall Street bank names new chief', pubDate: at(22) }), null, 'v60.65 a headline that reports no price move names no asset');
+  assert.equal(texts({ title: 'Wall Street falls as tariffs bite', pubDate: at(22) }), null, 'v60.65 a fall is not the report of a session priced as a rise');
+  assert.equal(texts({ title: 'Wall Street rallies as chip stocks surge', pubDate: at(40) }), null, 'v60.65 an article after the next open reports a later session');
+  assert.equal(texts({ title: 'Wall Street rallies as chip stocks surge' }), null, 'v60.65 an undated article names no session');
+  assert.equal(texts({ title: 'Apple supplier (NASDAQ:AAPL) shares rise', pubDate: at(22) }), null, 'v60.65 an exchange tag is not the Nasdaq index');
+});
+
 check('v60.57 news-story-link leadLinkedNews keeps its behaviour on the shared matcher', () => {
   const linked = leadLinkedNews(ledger(true));
   assert.equal(linked({ title: 'x', link: 'https://fixture.invalid/huang?utm=1' }), true, 'v60.57 news-story-link link match ignores the query');

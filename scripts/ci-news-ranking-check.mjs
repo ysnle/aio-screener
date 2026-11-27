@@ -148,6 +148,67 @@ check('v60.63 a wire row is filed under what its headline is about, and opinion 
   assert.ok(wires.length >= 6 && wires.every((feed) => feed.topic === 'macro' && feed.tier === 1 && feed.limit === 100 && /site%3Areuters\.com/.test(feed.url)), 'v60.63 the subject wire feeds are general, publisher-restricted and read in full');
 });
 
+// 5a3. Filing by subject, the bundle-wide entity cap and the Korean feeds' depth.
+check('v60.65 a central bank is macro, a bank is financials, one entity holds a bounded share of the bundle', () => {
+  const nowMs = at('2026-11-27T00:00:00Z');
+  const item = (title, source = 'Reuters') => scored({ title, source, at: '2026-11-26T20:00:00Z', country: 'us', topic: 'macro', scoringNowMs: nowMs });
+  const topicOf = (title) => ns.newsHeadlineTopic(item(title));
+  assert.equal(topicOf("South Korea's central bank raises rates, upgrades 2027 growth outlook"), 'macro', 'v60.65 a central bank decision is macro, not 실적');
+  assert.equal(topicOf('Mexico Central Bank Lifts Growth Outlook in Boost to Sheinbaum'), 'macro', 'v60.65 a growth outlook is macro');
+  assert.notEqual(topicOf('Britain signs £8 billion deal to upgrade submarine facilities'), 'analyst', 'v60.65 "to upgrade" is not an analyst action');
+  assert.equal(topicOf('HP stock rating downgraded by HSBC on weak guidance'), 'earnings', 'v60.65 a guidance downgrade still reads as company news');
+  assert.equal(topicOf("Banks' earnings edge up through Sept. on rise in interest income"), 'financials', 'v60.65 bank results are financials');
+  assert.equal(topicOf('Bank of England to cut capital requirements for UK-focused lenders'), 'financials', 'v60.65 lenders are financials');
+  assert.equal(topicOf('Goldman Sachs says oil prices will fall next year'), 'geo', 'v60.65 a bank quoted as the author of a call is not the subject');
+  assert.equal(ns.NEWS_FEEDS.find((feed) => feed.source === 'Google News - Banks/Financials').topic, 'macro', 'v60.65 the banks query is a general feed (filed by headline)');
+  assert.equal(item('Fleeing Stocks at 63, She Parks $700,000 of Her 401(k) in a Corporate Bond Fund', 'Yahoo Finance').selectionReason, 'not-article-filter', 'v60.65 a personal-finance column is not market news');
+  assert.equal(scored({ title: '[표] 은행간 단기금리 기준-코리보(27일)', source: '연합인포맥스', at: '2026-11-26T20:00:00Z', country: 'kr', topic: 'kr', scoringNowMs: nowMs }).selectionReason, 'not-article-filter', 'v60.65 a rate table is not an article');
+  assert.match(item("Buyer beware? Nvidia's volatile swings expose risks of single-stock ETFs", 'CNBC').selectionReason, /question-headline-6/, 'v60.65 a question that opens the headline ranks below news');
+  assert.equal(item('Nikkei 225 Outlook: Nvidia Breathes Life into Japan Battered AI Trade', 'StoneX').tier, 4, 'v60.65 a broker marketing desk is a low-quality source');
+  // One entity across lanes: twelve oil headlines filed under four topics, no two alike.
+  const word = (n) => [...n.toString(26)].map((c) => String.fromCharCode(97 + parseInt(c, 26))).join('');
+  const oil = Array.from({ length: 12 }, (_, i) => ({ title: `oil ${[0, 1, 2, 3].map((k) => `v${word(50000 + i * 4 + k)}`).join(' ')}`, link: `https://e.test/o${i}`, source: `Pub${i}`, tier: 1, score: 70 - i,
+    topicHits: 2, subjectHits: 2, topic: ['macro', 'geo', 'fxbond', 'equity'][i % 4], country: 'us', ts: at('2026-11-26T20:00:00Z') - i * 60000 }));
+  const { out, laneHealth } = ns.selectNewsBundle(oil, []);
+  assert.equal(out.length, ns.NEWS_ENTITY_BUNDLE_CAP, `v60.65 one entity holds at most ${ns.NEWS_ENTITY_BUNDLE_CAP} seats of the bundle`);
+  assert.equal(laneHealth.reduce((sum, h) => sum + (h.passed['entity-cap-bundle'] || 0), 0), 12 - ns.NEWS_ENTITY_BUNDLE_CAP, 'v60.65 the receipt counts the bundle-wide entity cap');
+  const ecb = oil.map((row, i) => ({ ...row, title: row.title.replace(/^oil/, 'ECB'), link: `https://e.test/e${i}` }));
+  assert.equal(ns.selectNewsBundle(ecb, []).out.length, 4, 'v60.65 a central bank outside the US holds four seats of the bundle');
+  const kospi = Array.from({ length: 4 }, (_, i) => ({ title: `코스피 ${[0, 1, 2, 3].map((k) => `가${word(60000 + i * 4 + k)}`).join(' ')}`, link: `https://e.test/k${i}`, source: `한국${i}`, tier: 2, score: 60 - i,
+    topicHits: 2, subjectHits: 2, topic: 'kr', country: 'kr', ts: at('2026-11-26T20:00:00Z') - i * 60000 }));
+  const wraps = Array.from({ length: 12 }, (_, i) => ({ ...oil[i], title: oil[i].title.replace(/^oil/, 'Wall Street'), link: `https://e.test/w${i}` }));
+  assert.equal(ns.selectNewsBundle(wraps, kospi).out.filter((r) => r.lane === ns.NEWS_KOREA_LANE).length, 3, 'v60.65 Korean index rows keep their own lane cap, whatever the US rows hold');
+  // The post-08:00 slot: thirty seats, a publisher at most a sixth of them, numeric entities in a feed's title decoded.
+  const late = Array.from({ length: 50 }, (_, i) => ({ title: `earnings ${[0, 1, 2, 3].map((k) => `u${word(70000 + i * 4 + k)}`).join(' ')}`, link: `https://e.test/s${i}`, source: i >= 30 ? 'Reuters' : `Bloomberg ${word(900 + i)}`, // the newest twenty are one publisher's
+    ts: at('2026-11-27T01:00:00Z') + i * 60000, topic: 'macro', country: 'us', feedTier: 1, tier: 1 }));
+  const slot = ns.selectNewsIntraday(late, { cycleEndMs: at('2026-11-26T23:00:00Z'), nowMs: at('2026-11-27T03:00:00Z') });
+  assert.deepEqual([ns.NEWS_INTRADAY_MAX, slot.length, slot.filter((r) => r.source === 'Reuters').length], [30, 30, 5], 'v60.65 the post-08:00 slot holds thirty headlines, five from one publisher');
+  const [parsed] = ns._parseRssXml('<rss><item><title>Key Labor Data in Focus Ahead of Fed&#x2019;s December Meeting &#8212; WSJ</title><link>https://e.test/w</link><pubDate>Fri, 27 Nov 2026 12:51:00 GMT</pubDate></item></rss>', { limit: 5 });
+  assert.equal(parsed.title, 'Key Labor Data in Focus Ahead of Fed’s December Meeting — WSJ', 'v60.65 numeric entities in a feed title are decoded');
+  // The Korean wire and daily feeds are read deep enough to still list the closed cycle in the evening.
+  for (const source of ['연합뉴스', '조선비즈']) assert.ok(ns.NEWS_FEEDS.find((feed) => feed.source === source && feed.country === 'kr')?.limit >= 100, `v60.65 the ${source} feed is read to at least 100 items`);
+});
+
+// 5a4. One event, one card: the other outlets stay on the row that holds the event's seat.
+check('v60.65 the other outlets of an event are kept on its row (distinct publishers, capped, no loose match), and carried', () => {
+  const stamp = at('2026-11-26T20:00:00Z');
+  const row = (title, source, i, extra = {}) => ({ title, link: `https://e.test/a${i}`, source, tier: 1, score: 90 - i, topicHits: 2, subjectHits: 2, topic: 'macro', country: 'us', ts: stamp - i * 60000, ...extra });
+  const event = 'Spain De Cos named ECB president succeeding Lagarde';
+  const rows = [row(event, 'Reuters', 0), row(`${event} in Frankfurt`, 'Financial Times', 1), row(`${event} today`, 'Reuters', 2), row(`${event} officially`, 'Blog', 3, { tier: 4 }),
+    ...Array.from({ length: 6 }, (_, i) => row(`${event} report${i}x`, `Wire${i}`, 4 + i)),
+    row('Jensen Huang returns to China for Nvidia supplier talks', 'CNBC', 20), row('Jensen Huang weighs Nvidia lending dilemma as customers borrow', 'Bloomberg', 21)];
+  const { out } = ns.selectNewsBundle(rows, []);
+  const holder = out.find((r) => r.title === event);
+  assert.equal(out.filter((r) => r.title.startsWith(event)).length, 1, 'v60.65 one event holds one seat');
+  assert.deepEqual(holder.also.map((r) => r.source), ['Financial Times', 'Wire0', 'Wire1', 'Wire2', 'Wire3'], `v60.65 at most ${ns.NEWS_ALSO_MAX} other outlets, one per publisher, never the holder's own or a low-quality one`);
+  assert.ok(holder.also.every((r) => r.title && r.link && r.publishedAt && !('score' in r)), 'v60.65 an other-outlet entry is its headline, link, tier and time');
+  const huang = out.filter((r) => r.title.startsWith('Jensen Huang'));
+  assert.ok(huang.length >= 1 && huang.every((r) => !r.also), 'v60.65 two stories about one person are not shown as one event reported twice');
+  const cycle = { start: '2026-11-25T23:00:00.000Z', end: '2026-11-26T23:00:00.000Z', startMs: at('2026-11-25T23:00:00Z'), endMs: at('2026-11-26T23:00:00Z'), policy: 'kst-0800-completed-24h', label: 'x' };
+  const carried = ns.carriedNewsCandidates([{ ...holder, eventTime: new Date(stamp).toISOString(), newsCycleEnd: cycle.end }], cycle);
+  assert.deepEqual(carried.map((r) => r.source), ['Reuters', 'Financial Times', 'Wire0', 'Wire1', 'Wire2', 'Wire3'], 'v60.65 a carried row brings its other outlets back as candidates');
+});
+
 // 5b. The day's large stock moves are searched by company and lead their lane, one headline per company (v60.62 lanes).
 check('v60.62 movers: a headline naming the day\'s mover is seated first in its lane, one per company', () => {
   const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'equity', country: 'us',
@@ -265,6 +326,9 @@ check('v60.59 a card\'s fact is joined from published extractions only: brief, l
   const next = read(article('c1', { pubDate: pub }), { issuers: ['CRM'] });
   assert.ok(next?.kind === '일정' && next.text.startsWith('CRM 실적 발표 12/2'), `v60.59 the issuer's next report is 일정 (${next?.text})`);
   assert.equal(read(article('z1', { pubDate: pub }), { issuers: [] }), null, 'v60.59 no join, no fact line');
+  // v60.65: moves of different sessions each carry their date (a US close and the Korean close after it).
+  const two = af.articleFactReader({ day: { facts: [...day.facts, { id: 'price:kosdaq:2026-11-27', kind: 'price', asset: 'kosdaq', label: '코스닥', change: 8.13, materiality: 50, date: '2026-11-27' }], links: day.links }, nowMs: at('2026-11-27T12:00:00Z') });
+  assert.equal(two({ title: 'Nvidia slides', originalTitle: '코스닥 급등 마감', link: 'https://e.test/n1', pubDate: '2026-11-27T07:30:00Z' }, { issuers: [] })?.text, '관련 움직임 11/25 NVIDIA -3.9% · 11/27 코스닥 +8.1%', 'v60.65 two sessions, two dates');
 });
 check('v60.59 the panel state keeps known keys of the right type, and a reset leaves the sort', () => {
   controls.setNewsFeedFilter({ entityFilter: 'T:NVDA', figureOnly: true, query: 'fed', sortMode: 'score', bogus: 1, mineOnly: 'yes' });

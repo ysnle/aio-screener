@@ -21,8 +21,9 @@ export function newsArticleKey(row) {
 // A headline that a newer bundle absorbs leaves the slot because its time falls before that bundle's end.
 // Six slots covered the whole day after the 08:00 cut (Korean session, US pre-market and session);
 // at 22:00 KST the rebound's US-Iran and SpaceX coverage competed with gold and French bonds for them. One limit for the
-// producer, the page and the AI context.
-export const NEWS_INTRADAY_MAX = 12;
+// producer, the page and the AI context. Thirty: the bundle grew from 40 to about 150 rows, and a slot of 12 was full
+// 14 hours after the 11/27 cut with ten hours of the day still to come.
+export const NEWS_INTRADAY_MAX = 30;
 export function selectIntradayNews(rows = [], { cycleEndMs = null, canonical = [], max = NEWS_INTRADAY_MAX, nowMs = Date.now() } = {}) {
   if (!Number.isFinite(cycleEndMs)) return [];
   const linkOf = (row) => value(row?.link || row?.url).replace(/[?#].*$/, '').replace(/\/$/, '').toLowerCase();

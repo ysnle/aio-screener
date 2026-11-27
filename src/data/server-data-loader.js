@@ -281,7 +281,7 @@ export function installServerDataLoader(window = globalThis) {
           try { _aioApplyNewsBackstop(false); } catch(_) {}
         }
         // post-08:00 provisional headlines (producer P1720) — a separate slot, never merged into the 08:00 bundle.
-        window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday.slice(0, 12) : []; // NEWS_INTRADAY_MAX (src/domain/news/stories.js)
+        window._serverNewsIntraday = Array.isArray(d.newsIntraday) ? d.newsIntraday : []; // the producer caps the slot (NEWS_INTRADAY_MAX); each reader takes what it shows
         try {
           if (typeof _aioLoadServerTelegramDigest === 'function') {
             window._aioTelegramDigestReady = _aioLoadServerTelegramDigest().then(function(ok) {

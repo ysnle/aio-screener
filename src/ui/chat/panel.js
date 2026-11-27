@@ -1099,7 +1099,7 @@ window._aioChatCloseMarketBasis = _aioChatCloseMarketBasis;
 //   native screener state + identity/memo boundary → _aioBuildScreenerAiContext (screen 도구와 같은 엔진)
 //
 // _CTX_TOPIC_MAP: 페이지ID → topic 배열. _buildNewsContext가 newsCache를 topic 필터로 선별.
-//   topic 값은 aio-data.js fetchNews의 item.topics 배열과 일치해야 함(계약 지점).
+//   topic 값은 화면 분류기(src/domain/news/selection.js classifyTopic, TOPIC_KEYWORDS의 키)가 붙인 값이다 — 생산기의 fxbond가 아니라 bond·fx·credit.
 //   새 페이지 추가 시 이 맵에도 등록 필요.
 var _CTX_TOPIC_MAP = {
   // ── 미국 시장 ──
@@ -1109,12 +1109,12 @@ var _CTX_TOPIC_MAP = {
   'sentiment':   ['macro','equity','geo','energy'],
   'briefing':    ['macro','geo','energy','semi','earnings','equity','financials','healthcare','defense','space','quantum'],
   'technical':   ['macro','equity','semi'],
-  'macro':       ['macro','geo','energy','bond','fx'],
+  'macro':       ['macro','geo','energy','bond','fx','credit'],
   'fundamental': ['earnings','equity','semi','energy','financials','healthcare'],
   'themes':      ['semi','energy','crypto','defense','equity','healthcare','shipbuilding','space','quantum'],
   'screener':    ['earnings','equity','semi','energy','financials','healthcare','defense','shipbuilding'],
   'portfolio':   ['macro','equity','semi','earnings','energy','geo','financials','healthcare','defense'],
-  'fxbond':      ['fx','bond','macro','geo','energy'],
+  'fxbond':      ['fx','bond','credit','macro','geo','energy'],
   'mentor':      ['macro','equity','semi','earnings','healthcare']
 };
 

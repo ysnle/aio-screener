@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-boot-performance-evidence.v1",
-  "observedAt": "2026-11-27T02:29:32.470Z",
-  "appRevision": "v60.64",
-  "gitHead": "554189e650b15f149878f6b4b0e92d18e026b2b4",
+  "observedAt": "2026-11-27T14:15:17.169Z",
+  "appRevision": "v60.65",
+  "gitHead": "c92e33ee2418786ddebb1057182550d146492f98",
   "gitClean": false,
   "environment": {
     "browser": "chromium",
@@ -16,91 +16,92 @@
   "targetStatus": "TARGET_MISS",
   "targetPolicy": "report-not-blocking",
   "targetFailures": [
-    "max long task 277 > 200",
+    "max long task 656 > 200",
+    "total long task 1154 > 1000",
     "decoded same-origin JS 2.63MB > 1.5MB"
   ],
   "metrics": {
-    "fcpMs": 828,
-    "dclMs": 322,
-    "loadMs": 328,
-    "maxLongTaskMs": 277,
-    "totalLongTaskMs": 941,
-    "longTaskCount": 8,
+    "fcpMs": 892,
+    "dclMs": 345,
+    "loadMs": 355,
+    "maxLongTaskMs": 656,
+    "totalLongTaskMs": 1154,
+    "longTaskCount": 5,
     "longTaskObservationWindowMs": 2000,
-    "domNodes": 3918,
-    "activeRouteDomNodes": 1713,
+    "domNodes": 3950,
+    "activeRouteDomNodes": 1711,
     "scenarioDepthDeferred": true,
     "scenarioStateLoaded": true,
     "activePage": "page-signal",
     "bootStatusPresent": false,
-    "decodedJsBytes": 2758486,
+    "decodedJsBytes": 2758530,
     "sameOriginScripts": 165,
     "crossOriginScripts": 1,
     "resourceEntries": 228,
     "jsByKind": {
-      "esmBoot": 1350063,
-      "classicBoot": 965268,
+      "esmBoot": 1350051,
+      "classicBoot": 965309,
       "aiPanelBeforeUse": 0,
-      "postBootLazy": 443155
+      "postBootLazy": 443170
     },
     "aiPanelRequestsBeforeUse": [],
     "largestLazyFiles": [
       {
         "path": "src/chunks/chunk-5OX5Q7CG.js",
         "bytes": 76635,
-        "startMs": 766
+        "startMs": 631
       },
       {
         "path": "src/chunks/market-regime-4LF77IZK.js",
         "bytes": 42541,
-        "startMs": 2276
+        "startMs": 2759
       },
       {
         "path": "src/chunks/legacy-screen-bridges-NTXXOL6G.js",
         "bytes": 25890,
-        "startMs": 215
+        "startMs": 219
       },
       {
-        "path": "src/chunks/chunk-VGQ23PWY.js",
+        "path": "src/chunks/chunk-L6XGN7HH.js",
         "bytes": 23461,
-        "startMs": 767
+        "startMs": 638
       },
       {
-        "path": "src/chunks/analysis-2GUYZPET.js",
+        "path": "src/chunks/analysis-6RA3ZDGC.js",
         "bytes": 20406,
-        "startMs": 311
+        "startMs": 329
       },
       {
         "path": "src/chunks/session-lean-YGFTRZSJ.js",
         "bytes": 18534,
-        "startMs": 441
+        "startMs": 472
       },
       {
         "path": "src/chunks/chunk-3JFD55SE.js",
         "bytes": 17285,
-        "startMs": 766
+        "startMs": 631
       },
       {
         "path": "src/chunks/chunk-FUT6VMZD.js",
         "bytes": 16049,
-        "startMs": 766
+        "startMs": 631
       }
     ],
     "measuredBundle": "deploy",
     "aiPanelOnHover": [
       "src/chunks/ai-profile-6E2TQZJC.js",
-      "src/chunks/panel-5Q23NF7W.js",
+      "src/chunks/panel-VCRM4KTE.js",
       "src/chunks/request-pipeline-3HGKXAVM.js",
       "src/chunks/supplied-materials-IDFFOHN4.js"
     ],
     "glossaryBeforeUse": false,
     "termMarksBeforeGlossary": 17,
     "glossaryOnTermHover": true,
-    "routeMs": 112,
-    "wallMs": 9440,
+    "routeMs": 298,
+    "wallMs": 9898,
     "totalExternalRequests": 33,
     "quoteRequests": 24,
-    "initialExternalRequests": 8,
+    "initialExternalRequests": 7,
     "initialQuoteRequests": 3,
     "bootObservationWindowMs": 2000,
     "onDemandChartLibrary": {

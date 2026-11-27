@@ -6,6 +6,16 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.65 v60.65 뉴스 남은 약점 (2026-11-27)
+
+- [x] QA-NEWS-WEAK-6065-01: v60.65 중앙은행 결정과 성장 전망은 매크로, 은행·보험 기사는 금융으로 분류된다(은행이 전망의 발신자일 때는 아님). 'outlook'·'to upgrade'만으로 실적·애널리스트가 되지 않는다. 은행 검색 피드는 제목으로 분류하는 일반 피드다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [x] QA-NEWS-WEAK-6065-02: v60.65 한 주제(유가·금·관세 등)는 묶음 전체에서 8건, 미국 밖 중앙은행(ECB·일본은행)은 4건까지다. 한국 차선은 자기 상한만 쓴다. 개인 재테크 칼럼·금리 표·사설·인터뷰는 기사가 아니고, 물음표가 든 제목은 감점, 중개사 홍보 데스크는 저품질 원천이다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-WEAK-6065-03: v60.65 연합뉴스 시장 피드와 조선비즈 증권 피드를 100건 이상 읽어, 저녁에도 닫힌 08:00 주기의 한국 기사가 후보에 남는다. push 뒤 첫 실행에서 한국 차선 채움과 두 피드의 kept를 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
+- [x] QA-NEWS-WEAK-6065-04: v60.65 제목이 가격 자산(금·유가·금리·환율·지수)의 움직임을 전하면 뉴스 카드가 그 자산의 원장 움직임을 잇는다: 원장이 값을 매긴 세션의 기사만, 방향이 어긋나면 잇지 않고, 보합(±0.05 미만)과 거래소 표기는 제외. 세션이 다른 두 움직임은 각각 날짜를 단다. verify_by: node scripts/ci-day-cause-check.mjs; node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-WEAK-6065-05: v60.65 08:00 이후 장중 속보 칸은 30건이다(매체당 최대 5건, 주제 상한 유지). 화면 적재기는 건수를 따로 자르지 않고, 피드 제목의 숫자 문자 참조(&#x2019; 등)는 풀어서 싣는다. push 뒤 저녁 실행에서 속보 건수와 시장 해설 응답을 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
+- [ ] QA-NEWS-WEAK-6065-06: v60.65 같은 사건을 보도한 다른 매체는 그 사건의 자리를 가진 행의 also에 남는다(매체당 한 건, 최대 5건, 낮은 등급 매체 제외, 같은 인물의 다른 기사처럼 느슨한 일치는 붙이지 않음). 이월 행은 also의 매체를 다시 후보로 올린다. 카드는 '다른 매체 N곳도 보도' 접힘으로 각 매체 제목을 원문 링크로 보인다. push 뒤 첫 실행에서 묶인 건수와 잘못 묶인 사례를 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-WEAK-6065-07: v60.65 뉴스 화면 AI 읽기: 닫힌 24시간 묶음의 주제 상위 네 묶음 제목 세 건씩과 시장 원장의 가격 움직임 여덟 건이 사실 묶음이고, 컷 날짜가 기준일이다. 한 컷은 한 번만 읽는다(같은 컷의 뒤 실행은 호출 없이 유지). 화면은 검증된 읽기가 지금 컷의 것일 때만 '08:00까지 24시간 보도 기준'으로 보이고, 아니면 자리를 비운다. push 뒤 첫 실행의 글과 검증 결과를 확인한다. verify_by: node scripts/ci-screen-reading-check.mjs
+
 ## v60.64 v60.64 뉴스 차선 리뷰 반영 (2026-11-27)
 
 - [x] QA-NEWS-REVIEW-6064-01: v60.64 차선은 좌석과 상한만 따로 갖고, 후보는 전체 점수순 한 번으로 앉힌다: 같은 사건을 두 차선의 매체가 썼으면 점수 높은 쪽이 남는다. 급등락 종목은 회사마다 한 건이고, 차선 집계(newsLaneHealth)는 실제로 떨어진 후보만 사유별로 센다. verify_by: node scripts/ci-news-ranking-check.mjs

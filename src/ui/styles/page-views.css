@@ -26,7 +26,7 @@
 #page-themes:not([data-view="ai"], [data-view="all"]) > :is(#themes-ai-chain, #ai-capex-fold),
 #page-themes:not([data-view="korea"], [data-view="all"]) > #kr-integrated-themes,
 /* 뉴스: 주요 / 발표 / 시황 / 전체 뉴스 — 시장 신호 closes 발표; the filter and its count stay with the lists it filters */
-#page-market-news:not([data-view="main"], [data-view="all"]) > :is(#news-important, #news-intraday),
+#page-market-news:not([data-view="main"], [data-view="all"]) > :is(#news-screen-reading, #news-important, #news-intraday),
 #page-market-news:not([data-view="releases"], [data-view="all"]) > :is(#news-event-briefs, #news-tg-card),
 #page-market-news:not([data-view="timeline"], [data-view="all"]) > #news-timeline,
 #page-market-news:not([data-view="feed"], [data-view="all"]) > #news-feed-card,

@@ -13,7 +13,7 @@ import { usableBigtechCashflow } from './earnings-context.mjs';
 import { estimateAiCostUsd } from '../../src/domain/briefing/event-briefs.js'; // the Worker's rate card, one copy
 import { SHARED_AI_MODEL } from '../lib/ai-shared-analysis.mjs';
 import { softenReaderDuty } from '../lib/market-analysis-validate.mjs';
-import { SCREEN_READING_IDS, SCREEN_READING_SCHEMA, buildScreenPacket, buildScreenReadingPrompt, buildScreenReadingRetryPrompt, normalizeScreenReading, validateScreenReading } from '../lib/screen-reading.mjs';
+import { SCREEN_READING_IDS, SCREEN_READING_SCHEMA, SCREEN_READING_SCREENS, buildScreenPacket, buildScreenReadingPrompt, buildScreenReadingRetryPrompt, normalizeScreenReading, validateScreenReading } from '../lib/screen-reading.mjs';
 
 export const SCREEN_READING_PROVIDER_ATTEMPTS = 3;
 // The published long-run tables, read once per run; absent (before the first weekly run) the opening falls back to the record.
@@ -81,7 +81,9 @@ export async function genScreenReadings({ data = null, history = [], previous = 
     const packet = buildScreenPacket(screen, shared, context);
     const prior = held[screen] || null;
     if (!packet) { readings[screen] = { status: 'blocked', reason: 'packet-unavailable', text: null, basis: null, key: null, generatedAt }; outcomes[screen] = 'packet-unavailable'; continue; }
-    if (prior?.status === 'verified' && prior.key === packet.key && prior.text) { readings[screen] = prior; outcomes[screen] = 'reused'; continue; }
+    // A screen read once per basis (뉴스: one closed bundle) keeps its verified reading while the basis stands.
+    const sameRead = prior?.key === packet.key || (SCREEN_READING_SCREENS[screen]?.once && prior?.basis === packet.basis);
+    if (prior?.status === 'verified' && sameRead && prior.text) { readings[screen] = prior; outcomes[screen] = 'reused'; continue; }
     if (prior?.status === 'blocked' && prior.key === packet.key && (prior.reason === 'validation-failed' || (Number(prior.attempts) || 0) >= SCREEN_READING_PROVIDER_ATTEMPTS)) {
       readings[screen] = prior; outcomes[screen] = 'blocked-key-held'; continue;
     }

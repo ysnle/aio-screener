@@ -2953,7 +2953,7 @@ function _aioApplyNewsBackstop(force) {
         topic: n.topic || '',
         sentiment: n.sentiment || '',
         tier: n.tier,
-        score: n.score,
+        score: n.score, also: Array.isArray(n.also) ? n.also : undefined, // also: the other outlets of this event (news-selection.mjs)
         _scoreReasons: Array.isArray(n._scoreReasons) ? n._scoreReasons.slice() : (Array.isArray(n.scoreReasons) ? n.scoreReasons.slice() : []),
         newsCyclePolicy: n.newsCyclePolicy || serverMeta.newsCyclePolicy || 'kst-0800-completed-24h',
         newsCycleStart: n.newsCycleStart || serverMeta.newsCycleStart || null,

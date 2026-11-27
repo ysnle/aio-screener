@@ -81,7 +81,7 @@ await section('packet', async () => {
   const prompts = SCREEN_READING_IDS.map((screen) => buildScreenReadingPrompt(buildScreenPacket(screen, FIXTURE)));
   check('v60.31 every screen\'s prompt opens with the same static rules (the cacheable prefix) and ends with its facts', prompts.every((prompt) => prompt.startsWith(SCREEN_READING_RULES) && prompt.includes('[사실 묶음]')));
   check('v60.54 the registry holds the four market screens and 금리와 환율, 기술적 분석, 테마와 섹터 and 한국; 매크로 reads its own six-factor read and quadrant inputs',
-    SCREEN_READING_IDS.join(',') === 'signal,breadth,macro,sentiment,fxbond,charts,themes,korea' && buildScreenPacket('macro', FIXTURE)?.lines.some((line) => line.includes('국면 판정 보류')) && buildScreenPacket('breadth', FIXTURE)?.axes.length === 1);
+    SCREEN_READING_IDS.join(',') === 'signal,breadth,macro,sentiment,fxbond,charts,themes,korea,news' && buildScreenPacket('macro', FIXTURE)?.lines.some((line) => line.includes('국면 판정 보류')) && buildScreenPacket('breadth', FIXTURE)?.axes.length === 1);
   const mood = buildScreenPacket('sentiment', FIXTURE);
   check('v60.31 the 투자 심리 packet carries the shared 심리 verdict, the F&G, VIX ÷ 3개월 VIX and AAII cards with their state words, and the credit and volatility axes; no assembled sentence',
     mood?.basis === '2026-11-18' && mood.lines.some((line) => line.startsWith('심리: 부담') && line.includes('공포 쪽 쏠림')) && mood.lines.some((line) => line.startsWith('공포·탐욕 지수 (F&G): 25 (공포)'))
@@ -201,6 +201,38 @@ await section('producer', async () => {
   const all = stub([answer(GOOD.replace('24.56', '26.1'))]);
   const capped = await genScreenReadings({ interpretation: FIXTURE, nowMs: Date.parse('2026-11-19T00:30:00Z'), request: all.request });
   check('v60.31 one run asks at most twice per screen', all.prompts.length <= SCREEN_READING_IDS.length * 2 && capped.requests === all.prompts.length, String(all.prompts.length));
+  // 뉴스: the closed bundle's headlines by the screen's topic groups beside the ledger's priced moves, read once per cut.
+  const cycle = { newsCycleEnd: '2026-11-26T23:00:00.000Z' };
+  const newsRows = [
+    ...Array.from({ length: 12 }, (_, i) => ({ ...cycle, title: `Fed official ${i} signals patience`, titleKo: i === 0 ? '연준 인사, 인내 시사' : undefined, topic: 'macro', score: 90 - i, ...(i === 0 ? { also: [{ source: 'B', title: 'x' }, { source: 'C', title: 'y' }] } : {}) })),
+    ...Array.from({ length: 8 }, (_, i) => ({ ...cycle, title: `Chip maker ${i} ships more`, topic: 'semi', score: 80 - i })),
+    ...Array.from({ length: 3 }, (_, i) => ({ ...cycle, title: `Oil report ${i}`, topic: 'energy', score: 70 - i }))
+  ];
+  const ledgerDay = { facts: [
+    { id: 'stock:NVDA:2026-11-25', kind: 'stock-move', label: 'NVIDIA', date: '2026-11-25', change: -3.91, materiality: 68 },
+    { id: 'price:tnx:2026-11-25', kind: 'price', asset: 'tnx', label: '미국 10년 금리', date: '2026-11-25', change: -5, changeUnit: 'bp', unit: 'bp', materiality: 40 },
+    { id: 'headline:1', kind: 'headline', label: 'a headline', date: '2026-11-25', change: 1, materiality: 99 }
+  ] };
+  const newsPacket = buildScreenPacket('news', null, { data: { news: newsRows }, day: ledgerDay });
+  check('v60.65 the 뉴스 packet is the closed bundle by the topic groups of the screen (busiest first, three headlines each, the translated title, other outlets counted) beside the priced moves of the ledger in their own units; its basis is the date of the cut in Korea',
+    newsPacket?.basis === '2026-11-27' && newsPacket.lines[0] === '기준: 11/27 08:00(한국시간)까지 24시간 보도' && newsPacket.lines[1] === '보도가 많은 주제 순: 매크로, 반도체·AI, 에너지'
+      && newsPacket.lines[2] === '보도 [매크로] 연준 인사, 인내 시사 (다른 매체 2곳도 보도)' && newsPacket.lines.filter((line) => line.startsWith('보도 [매크로]')).length === 3
+      && newsPacket.lines.includes('가격 11/25 NVIDIA -3.9%') && newsPacket.lines.includes('가격 11/25 미국 10년 금리 -5bp') && !newsPacket.lines.some((line) => line.includes('a headline')),
+    JSON.stringify(newsPacket?.lines || null));
+  check('v60.65 a thin bundle or one without its cycle has no 뉴스 reading', buildScreenPacket('news', null, { data: { news: newsRows.slice(0, 10) } }) === null && buildScreenPacket('news', null, { data: { news: newsRows.map(({ newsCycleEnd, ...row }) => row) } }) === null);
+  const NEWS_GOOD = '지난 24시간 보도는 매크로와 반도체에 몰렸습니다. 매크로에서는 연준 인사가 인내를 시사했다는 보도가 여러 매체에서 이어졌고, 반도체에서는 출하가 늘었다는 보도가 나왔습니다. 11/25 NVIDIA는 -3.9%로 밀려 출하 보도와 가격의 방향이 엇갈렸습니다. 같은 날 미국 10년 금리는 -5bp로 내려 인내 시사 보도와 같은 방향이었습니다.';
+  check('v60.65 a 뉴스 reading passes on the figures of the packet and is blocked on a figure the packet does not carry',
+    validateScreenReading(NEWS_GOOD, newsPacket).issues.length === 0 && validateScreenReading(NEWS_GOOD.replace('-3.9%', '-7.2%'), newsPacket).issues.some((issue) => issue.startsWith('figure-unsupported')), JSON.stringify(validateScreenReading(NEWS_GOOD, newsPacket)));
+  const newsOptions = { interpretation: null, screens: ['news'], day: ledgerDay, nowMs: Date.parse('2026-11-27T00:30:00Z') };
+  const firstNews = stub([answer(NEWS_GOOD)]);
+  const readNews = await genScreenReadings({ ...newsOptions, data: { news: newsRows }, request: firstNews.request });
+  const laterNews = stub([answer(NEWS_GOOD)]);
+  const sameCut = await genScreenReadings({ ...newsOptions, data: { news: [...newsRows].reverse().map((row, i) => ({ ...row, score: i })) }, previous: readNews.result, request: laterNews.request });
+  const nextCut = await genScreenReadings({ ...newsOptions, data: { news: newsRows.map((row) => ({ ...row, newsCycleEnd: '2026-11-27T23:00:00.000Z' })) }, previous: readNews.result, request: laterNews.request });
+  check('v60.65 a closed bundle is read once: a later run of the same cut that reorders its rows keeps the verified reading without a call; the next cut is read again',
+    readNews.result.readings.news?.status === 'verified' && readNews.result.readings.news.basis === '2026-11-27' && sameCut.requests === 0 && sameCut.outcomes.news === 'reused'
+      && sameCut.result.readings.news === readNews.result.readings.news && nextCut.requests === 1 && nextCut.result.readings.news.basis === '2026-11-28',
+    JSON.stringify([readNews.outcomes, sameCut.outcomes, nextCut.outcomes]));
   check('v60.31 the run outcome is one reason code for meta.aiUsage', /^[a-z0-9:-]{1,64}$/.test(screenReadingsOutcome(verified)) && screenReadingsOutcome(reused) === 'reused');
 });
 
