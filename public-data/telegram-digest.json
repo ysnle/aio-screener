@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-27T00:51:40.864Z",
-  "attemptedAt": "2026-11-27T00:51:40.864Z",
-  "lastSuccessfulAt": "2026-11-27T00:51:40.864Z",
+  "generatedAt": "2026-11-27T01:21:36.138Z",
+  "attemptedAt": "2026-11-27T01:21:36.138Z",
+  "lastSuccessfulAt": "2026-11-27T01:21:36.138Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-13T00:51:37.883Z",
-  "until": "2026-11-27T00:51:37.883Z",
+  "since": "2026-11-13T01:21:31.059Z",
+  "until": "2026-11-27T01:21:31.059Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1026,
-      "freshCount": 18,
-      "eligibleTextCount": 974,
+      "count": 1025,
+      "freshCount": 38,
+      "eligibleTextCount": 973,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70309
+      "lastPostId": 70311
     },
     {
       "channel": "bornlupin",
@@ -114,10 +114,10 @@
       "count": 733,
       "freshCount": 40,
       "eligibleTextCount": 732,
-      "selectedCount": 126,
+      "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72863
+      "lastPostId": 72867
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,41 +137,41 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1926,
-  "retainedItemCount": 418,
+  "count": 1925,
+  "retainedItemCount": 433,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1926,
-    "eligibleTextCount": 1873,
+    "observedCount": 1925,
+    "eligibleTextCount": 1872,
     "mediaOnlyCount": 53,
-    "mediaAttachedCount": 738,
+    "mediaAttachedCount": 737,
     "photoPostCount": 628,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
-    "highSignalCount": 318,
-    "broadSignalCount": 803,
-    "selectedRawCount": 373,
-    "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 19.9,
+    "highSignalCount": 319,
+    "broadSignalCount": 804,
+    "selectedRawCount": 374,
+    "selectedEligibleCount": 374,
+    "selectedRawCoveragePct": 20,
     "selectedOfObservedPct": 19.4,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 688,
-    "semi": 601,
+    "macro": 301,
+    "credit": 67,
+    "earnings": 216,
+    "market-note": 687,
+    "japan": 48,
+    "semi": 599,
     "power": 166,
-    "earnings": 217,
     "geo": 223,
-    "macro": 300,
     "equity": 122,
-    "japan": 47,
     "ai-policy": 128,
     "healthcare": 57,
     "kr-market": 98,
-    "credit": 66,
     "flows": 68,
     "optical": 24,
     "media-only": 53,
@@ -179,7 +179,12 @@
     "crypto": 1
   },
   "tickerCounts": {
-    "NVDA": 391,
+    "DB": 2,
+    "PG": 1,
+    "KO": 1,
+    "KDP": 1,
+    "285A.T": 3,
+    "NVDA": 390,
     "AMD": 45,
     "AMZN": 43,
     "MU": 29,
@@ -204,7 +209,6 @@
     "AVGO": 13,
     "TSLA": 23,
     "BMY": 1,
-    "DB": 1,
     "BCS": 2,
     "192820.KS": 1,
     "161890.KS": 1,
@@ -225,7 +229,6 @@
     "DGX": 1,
     "APLD": 3,
     "AAPL": 2,
-    "285A.T": 2,
     "LITE": 1,
     "APO": 1,
     "IT": 1,
@@ -264,11 +267,11 @@
     "319660.KQ": 1
   },
   "themes": [
-    "Market Notes (688 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (601 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
-    "Macro/Rates (300 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
+    "Market Notes (687 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Semiconductors/Memory (599 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
+    "Macro/Rates (301 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,...",
     "Geopolitics (223 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "Earnings/Corporate (217 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Earnings/Corporate (216 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (166 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (128 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (122 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
@@ -276,8 +279,8 @@
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 391,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "count": 390,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "TSM",
@@ -312,7 +315,7 @@
     {
       "key": "005930.KS",
       "count": 27,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "key": "000660.KS",
@@ -342,8 +345,8 @@
       "topics": [
         "macro"
       ],
-      "count": 300,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+      "count": 301,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "id": "geo",
@@ -360,8 +363,8 @@
       "topics": [
         "credit"
       ],
-      "count": 66,
-      "focus": ">>BofA 2027년 7대 트레이딩 구상 1. 상반기 달러 강세 : 3개월물 AUD/USD 하락 ERKO 풋옵션 매수. 행사가 0.6600, 배리어 0.6425, 진입비용 0.26%. 2. 미 국채 매도·유럽 금리 매수 : 미국 2년물 국채 매도, 유로 2년1년 OIS 수취, 호주 1년 선도 3s10s 스티프닝...."
+      "count": 67,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의 두 배에 가까운 수준을 기록했다고 밝혀. • 파이낸셜타임스(FT)는 미국의 반도체 수출통제 강화에 따라..."
     },
     {
       "id": "semi",
@@ -369,7 +372,7 @@
       "topics": [
         "semi"
       ],
-      "count": 601,
+      "count": 599,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을..."
     },
     {
@@ -432,7 +435,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 217,
+      "count": 216,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -450,8 +453,8 @@
       "topics": [
         "japan"
       ],
-      "count": 47,
-      "focus": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월 연속 증가세를 이어갔음. 월간 수주액은 1988년 통계 작성 이후 역대 두 번째로 높은 수준 •해외 수주액은..."
+      "count": 48,
+      "focus": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월..."
     },
     {
       "id": "flows",
@@ -477,7 +480,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 688,
+      "count": 687,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -737,15 +740,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "insidertracking/70269",
@@ -1629,6 +1635,63 @@
   ],
   "broadItems": [
     {
+      "id": "HANAchina/72867",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72867",
+      "datetime": "2026-11-27T01:15:36.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "macro",
+        "credit",
+        "earnings"
+      ],
+      "lead": 1,
+      "score": 78,
+      "hasText": true,
+      "tickers": [
+        "DB"
+      ],
+      "summary": ">>Deutsche Bank, 2027년 세 차례 금리 인상과 S&P500 9,000pt 전망…배경에는 같은 동력 •Deutsche Bank는 AI 자본지출이 기업 실적을 뒷받침하면서 S&P500지수가..."
+    },
+    {
+      "id": "HANAchina/72865",
+      "channel": "HANAchina",
+      "url": "https://t.me/HANAchina/72865",
+      "datetime": "2026-11-27T01:06:36.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "market-note"
+      ],
+      "score": 57,
+      "hasText": true,
+      "tickers": [
+        "PG",
+        "KO",
+        "KDP"
+      ],
+      "summary": ">>UBS 트레이더 : 필수소비재 안전자산 거래 둔화가 AI주 바닥 신호일 수 있지만, 방어주는 아직 전반적으로 되돌림 나타나지 않아 •UBS 주식 트레이더 Mark Paski는 수요일, 몰려 있는 필수소비재..."
+    },
+    {
+      "id": "insidertracking/70310",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70310",
+      "datetime": "2026-11-27T01:00:21.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "semi"
+      ],
+      "score": 52,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "summary": "국정원 휴민트 사건 요약 > 1. 대기업 반도체, 이온주입 기술자 A씨가 중국 창신메모리(CXMT)로 이직 2. 중국 창신메모리(CXMT)에서 근무 중이던 A씨가 한국의 반도체 기술이 다양한 경로로 중국에..."
+    },
+    {
       "id": "bornlupin/21313",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21313",
@@ -1932,15 +1995,17 @@
       "datetime": "2026-11-26T21:35:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "japan"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는..."
     },
     {
       "id": "HANAchina/72845",
@@ -1975,8 +2040,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이..."
     },
     {
       "id": "insidertracking/70285",
@@ -1989,10 +2054,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력."
     },
     {
       "id": "bornlupin/21304",
@@ -2072,15 +2137,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "HANAchina/72842",
@@ -2185,13 +2253,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아의 또 다른 고위 임원이 중국으로의 반도체 밀수 사건에 연루된 기업의 임원과 연인 관계였다는 보도. 엔비디아의 전 영업총괄 제이 푸리는 양사가 거래 관계를 유지하는 동안...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아의 또 다른 고위 임원이 중국으로의 반도체 밀수 사건에 연루된 기업의 임원과 연인 관계였다는 보도. 엔비디아의 전 영업총괄 제이 푸리는 양사가 거래 관계를 유지하는 동안..."
     },
     {
       "id": "insidertracking/70272",
@@ -2200,12 +2268,13 @@
       "datetime": "2026-11-26T08:30:09.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "credit",
+        "ai-policy"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "11월 26일 기술 투자 대기업 소프트뱅크그룹의 채무불이행 위험에 대한 보험 비용이 2거래일 연속 상승. AI 투자가 채무 상환에 필요한 충분한 수익을 적시에 창출할 수 있을지에 대한 시장의 우려가 확대되는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "11월 26일 기술 투자 대기업 소프트뱅크그룹의 채무불이행 위험에 대한 보험 비용이 2거래일 연속 상승. AI 투자가 채무 상환에 필요한 충분한 수익을 적시에 창출할 수 있을지에 대한 시장의 우려가 확대되는..."
     },
     {
       "id": "insidertracking/70271",
@@ -2218,10 +2287,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "CBS에 따르면 엔비디아가 미국 캘리포니아에 본사를 둔 최소 2곳의 중국계 기업에 자사의 최첨단 AI 반도체를 판매했다는 보도.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "CBS에 따르면 엔비디아가 미국 캘리포니아에 본사를 둔 최소 2곳의 중국계 기업에 자사의 최첨단 AI 반도체를 판매했다는 보도."
     },
     {
       "id": "HANAchina/72831",
@@ -2271,15 +2340,13 @@
       "datetime": "2026-11-26T07:59:26.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "japan",
-        "semi",
-        "power"
+        "japan"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월..."
+      "summary": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72824",
@@ -2298,8 +2365,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 오후 첨단페키징 관련주만 최상위 •기타 반도체 과창50 -1.7% 급락, 반도체 밸류체인 전반 주가 급락 마감"
+      "summary": "•중국 오후 첨단페키징 관련주만 최상위 •기타 반도체 과창50 -1.7% 급락, 반도체 밸류체인 전반 주가 급락 마감",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21300",
@@ -7073,26 +7141,6 @@
       "tickers": []
     },
     {
-      "id": "insidertracking/69971",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69971",
-      "datetime": "2026-11-22T21:49:06.000Z",
-      "localDateKst": "2026-11-23",
-      "tags": [
-        "market-note"
-      ],
-      "score": 62,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "모두가 기억하겠지만, 나는 11월 3일 중간선거와 관련해 두 가지를 예측했다. 첫째, 민주당이 승리하면 주식시장이 크게 하락할 것이라고 예측했고, 실제로 그렇게 됐다. 둘째, 오늘 기준으로 시위대 8만...",
-      "tickers": []
-    },
-    {
       "id": "bornlupin/21236",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21236",
@@ -7202,37 +7250,6 @@
       "summary": ">>젠슨 황 사건 이후 미국의 대중국 AI 연산력 규제는 어디로 향하나? (중국언론) •젠슨 황 퇴진의 의미 : 젠슨 황의 퇴진은 단순한 경영진 교체를 넘어 미국의 대중국 AI 연산력 정책에서 산업계의 핵심...",
       "tickers": [
         "NVDA"
-      ]
-    },
-    {
-      "id": "HANAchina/72548",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72548",
-      "datetime": "2026-11-22T08:46:06.000Z",
-      "localDateKst": "2026-11-22",
-      "tags": [
-        "macro"
-      ],
-      "score": 52,
-      "hasText": true,
-      "summary": ">>트레이더들, 미국산 구리를 중국으로 보내기 시작…무역 흐름 역전 •현재 LME와 CME 창고의 구리 재고 가운데 약 94%가 미국에 위치해 있음. 2년 전에는 이 비중이 20%에 불과. 관세 우려가...",
-      "tickers": []
-    },
-    {
-      "id": "HANAchina/72544",
-      "channel": "HANAchina",
-      "url": "https://t.me/HANAchina/72544",
-      "datetime": "2026-11-22T07:41:55.000Z",
-      "localDateKst": "2026-11-22",
-      "tags": [
-        "semi"
-      ],
-      "score": 100,
-      "hasText": true,
-      "summary": ">>AI 버블 붕괴와 금융시장 위기 가능성 (중국언론) •AI 버블 붕괴 여부를 판단하는 핵심 신호 중 하나로 GPU 중고시장 가격이 거론 . 최근 고점 대비 AI 관련주가 크게 하락했으며, 나스닥 종합지수도...",
-      "lead": 1,
-      "tickers": [
-        "CRWV"
       ]
     },
     {
@@ -8420,15 +8437,17 @@
       "datetime": "2026-11-26T21:35:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "geo"
+        "macro",
+        "geo",
+        "semi",
+        "japan"
       ],
       "score": 83,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 🇺🇸 아메리카 • 트럼프 미국 대통령은 NATO 뤼터 사무총장과 러시아·우크라이나 전쟁 및 이란 분쟁에 대해 논의. 러시아와 우크라이나가 전쟁을 확대하는..."
     },
     {
       "id": "HANAchina/72845",
@@ -8463,8 +8482,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이...",
-      "tickers": []
+      "tickers": [],
+      "summary": "트럼프 대통령과 뤼터 사무총장은 수요일 저녁, 흔히 ‘남부 백악관’이라 불리는 마러라고에서 매우 훌륭한 회담을 가졌다. 이번 회담은 매우 의미 있는 자리였으며, 러시아와 우크라이나 간의 전쟁 및 이란 분쟁이..."
     },
     {
       "id": "insidertracking/70285",
@@ -8477,10 +8496,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "네비우스, 엔비디아 블랙웰 기반의 AI 인프라 구축을 위해 힉스필드 AI와 협력."
     },
     {
       "id": "bornlupin/21304",
@@ -8560,15 +8579,18 @@
       "datetime": "2026-11-26T12:50:24.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의...",
       "tickers": [
         "NVDA",
         "005930.KS"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
     },
     {
       "id": "HANAchina/72842",
@@ -8673,13 +8695,13 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 51,
       "hasText": true,
-      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아의 또 다른 고위 임원이 중국으로의 반도체 밀수 사건에 연루된 기업의 임원과 연인 관계였다는 보도. 엔비디아의 전 영업총괄 제이 푸리는 양사가 거래 관계를 유지하는 동안...",
-      "lead": 1,
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "월스트리트저널(WSJ)에 따르면 엔비디아의 또 다른 고위 임원이 중국으로의 반도체 밀수 사건에 연루된 기업의 임원과 연인 관계였다는 보도. 엔비디아의 전 영업총괄 제이 푸리는 양사가 거래 관계를 유지하는 동안..."
     },
     {
       "id": "insidertracking/70272",
@@ -8688,12 +8710,13 @@
       "datetime": "2026-11-26T08:30:09.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "market-note"
+        "credit",
+        "ai-policy"
       ],
       "score": 62,
       "hasText": true,
-      "summary": "11월 26일 기술 투자 대기업 소프트뱅크그룹의 채무불이행 위험에 대한 보험 비용이 2거래일 연속 상승. AI 투자가 채무 상환에 필요한 충분한 수익을 적시에 창출할 수 있을지에 대한 시장의 우려가 확대되는...",
-      "tickers": []
+      "tickers": [],
+      "summary": "11월 26일 기술 투자 대기업 소프트뱅크그룹의 채무불이행 위험에 대한 보험 비용이 2거래일 연속 상승. AI 투자가 채무 상환에 필요한 충분한 수익을 적시에 창출할 수 있을지에 대한 시장의 우려가 확대되는..."
     },
     {
       "id": "insidertracking/70271",
@@ -8706,10 +8729,10 @@
       ],
       "score": 51,
       "hasText": true,
-      "summary": "CBS에 따르면 엔비디아가 미국 캘리포니아에 본사를 둔 최소 2곳의 중국계 기업에 자사의 최첨단 AI 반도체를 판매했다는 보도.",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "CBS에 따르면 엔비디아가 미국 캘리포니아에 본사를 둔 최소 2곳의 중국계 기업에 자사의 최첨단 AI 반도체를 판매했다는 보도."
     },
     {
       "id": "HANAchina/72831",
@@ -8759,15 +8782,13 @@
       "datetime": "2026-11-26T07:59:26.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "japan",
-        "semi",
-        "power"
+        "japan"
       ],
-      "lead": 1,
       "score": 60,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월..."
+      "summary": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72824",
@@ -8786,8 +8807,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "•중국 오후 첨단페키징 관련주만 최상위 •기타 반도체 과창50 -1.7% 급락, 반도체 밸류체인 전반 주가 급락 마감"
+      "summary": "•중국 오후 첨단페키징 관련주만 최상위 •기타 반도체 과창50 -1.7% 급락, 반도체 밸류체인 전반 주가 급락 마감",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21300",
