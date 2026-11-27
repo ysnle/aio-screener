@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-27T06:22:04.408Z",
-  "attemptedAt": "2026-11-27T06:22:04.408Z",
-  "lastSuccessfulAt": "2026-11-27T06:22:04.408Z",
+  "generatedAt": "2026-11-27T06:52:47.110Z",
+  "attemptedAt": "2026-11-27T06:52:47.110Z",
+  "lastSuccessfulAt": "2026-11-27T06:52:47.110Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-13T06:21:58.899Z",
-  "until": "2026-11-27T06:21:58.899Z",
+  "since": "2026-11-13T06:52:43.322Z",
+  "until": "2026-11-27T06:52:43.322Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -82,11 +82,11 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 1037,
-      "freshCount": 39,
+      "freshCount": 19,
       "eligibleTextCount": 986,
       "selectedCount": 126,
       "error": null,
@@ -108,11 +108,11 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
       "count": 733,
-      "freshCount": 38,
+      "freshCount": 18,
       "eligibleTextCount": 732,
       "selectedCount": 127,
       "error": null,
@@ -138,7 +138,7 @@
     }
   ],
   "count": 1939,
-  "retainedItemCount": 433,
+  "retainedItemCount": 404,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
@@ -1852,10 +1852,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 레딧 관심도 현황 엔비디아, 앤드로픽",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "미국 레딧 관심도 현황 엔비디아, 앤드로픽"
+      ]
     },
     {
       "id": "insidertracking/70313",
@@ -1874,10 +1874,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 오버나잇"
+      ]
     },
     {
       "id": "HANAchina/72869",
@@ -1944,12 +1944,12 @@
       ],
       "score": 57,
       "hasText": true,
+      "summary": ">>UBS 트레이더 : 필수소비재 안전자산 거래 둔화가 AI주 바닥 신호일 수 있지만, 방어주는 아직 전반적으로 되돌림 나타나지 않아 •UBS 주식 트레이더 Mark Paski는 수요일, 몰려 있는 필수소비재...",
       "tickers": [
         "PG",
         "KO",
         "KDP"
-      ],
-      "summary": ">>UBS 트레이더 : 필수소비재 안전자산 거래 둔화가 AI주 바닥 신호일 수 있지만, 방어주는 아직 전반적으로 되돌림 나타나지 않아 •UBS 주식 트레이더 Mark Paski는 수요일, 몰려 있는 필수소비재..."
+      ]
     },
     {
       "id": "insidertracking/70310",
@@ -1968,8 +1968,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "국정원 휴민트 사건 요약 > 1. 대기업 반도체, 이온주입 기술자 A씨가 중국 창신메모리(CXMT)로 이직 2. 중국 창신메모리(CXMT)에서 근무 중이던 A씨가 한국의 반도체 기술이 다양한 경로로 중국에..."
+      "summary": "국정원 휴민트 사건 요약 > 1. 대기업 반도체, 이온주입 기술자 A씨가 중국 창신메모리(CXMT)로 이직 2. 중국 창신메모리(CXMT)에서 근무 중이던 A씨가 한국의 반도체 기술이 다양한 경로로 중국에...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21313",
@@ -2110,18 +2110,17 @@
       "localDateKst": "2026-11-27",
       "tags": [
         "power",
-        "japan",
-        "healthcare"
+        "japan"
       ],
-      "lead": 2,
       "score": 55,
       "hasText": true,
+      "summary": "일본 최대 발전업체 제라(JERA)가 도쿄 인근 발전소 주변에 AI 데이터센터를 구축하기 위해 앤트로픽 및 메타와 협의 중. 제라는 아마존, 마이크로소프트, 구글과도 관련 논의를 진행 중. 도쿄 일대 신규...",
+      "lead": 2,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ],
-      "summary": "일본 최대 발전업체 제라(JERA)가 도쿄 인근 발전소 주변에 AI 데이터센터를 구축하기 위해 앤트로픽 및 메타와 협의 중. 제라는 아마존, 마이크로소프트, 구글과도 관련 논의를 진행 중. 도쿄 일대 신규..."
+      ]
     },
     {
       "id": "HANAchina/72859",
@@ -2130,15 +2129,14 @@
       "datetime": "2026-11-26T23:02:28.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi",
-        "japan"
+        "market-note"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "• 아이폰 듀오(256GB 기준 출고가 1,999달러)의 총 부품 수는 2,644개(아이폰 18 프로 대비 7% 증가)이며, 부품 원가는 1,281달러로 출고가의 64%를 차지해 역대 아이폰 중 최고 수준을...",
       "tickers": [
         "TSM"
-      ],
-      "summary": "• 아이폰 듀오(256GB 기준 출고가 1,999달러)의 총 부품 수는 2,644개(아이폰 18 프로 대비 7% 증가)이며, 부품 원가는 1,281달러로 출고가의 64%를 차지해 역대 아이폰 중 최고 수준을..."
+      ]
     },
     {
       "id": "HANAchina/72857",
@@ -2147,12 +2145,12 @@
       "datetime": "2026-11-26T22:52:42.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를..."
+      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72851",
@@ -2161,17 +2159,15 @@
       "datetime": "2026-11-26T22:05:43.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "earnings"
+        "macro"
       ],
       "score": 81,
       "hasText": true,
+      "summary": ">>대만 증시, ‘추수감사절 랠리’…기관, 최악의 상황은 지났다는 판단 (대만경제일보) •미국 관세 충격이 예상보다 작아지면서 대만 증시와 대만달러가 ‘추수감사절 랠리’를 보였음. 대만 가권지수는 26일...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>대만 증시, ‘추수감사절 랠리’…기관, 최악의 상황은 지났다는 판단 (대만경제일보) •미국 관세 충격이 예상보다 작아지면서 대만 증시와 대만달러가 ‘추수감사절 랠리’를 보였음. 대만 가권지수는 26일..."
+      ]
     },
     {
       "id": "HANAchina/72850",
@@ -2183,15 +2179,15 @@
         "macro",
         "semi"
       ],
-      "lead": 2,
       "score": 81,
       "hasText": true,
+      "summary": ">>대만 반도체 업계, 301조 관세 일단 회피…다음 관문은 232조 (대만경제일보) •트럼프 정부의 신규 관세안에서 AI 서버, 스마트폰, PC, 칩 및 대부분의 반도체 장비가 면제 대상에 포함됐음. 반면...",
+      "lead": 2,
       "tickers": [
         "TSM",
         "INTC",
         "TER"
-      ],
-      "summary": ">>대만 반도체 업계, 301조 관세 일단 회피…다음 관문은 232조 (대만경제일보) •트럼프 정부의 신규 관세안에서 AI 서버, 스마트폰, PC, 칩 및 대부분의 반도체 장비가 면제 대상에 포함됐음. 반면..."
+      ]
     },
     {
       "id": "HANAchina/72848",
@@ -2202,11 +2198,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유럽중앙은행 10월 회의록 : 인플레이션 전망 악화, 향후 추가 금리 인상 가능성 •유럽중앙은행 10월 회의록에 따르면, 당시 정책위원들은 금리를 인상하지 않았지만 일부 위원들은 인플레이션이 2% 목표..."
+      "summary": ">>유럽중앙은행 10월 회의록 : 인플레이션 전망 악화, 향후 추가 금리 인상 가능성 •유럽중앙은행 10월 회의록에 따르면, 당시 정책위원들은 금리를 인상하지 않았지만 일부 위원들은 인플레이션이 2% 목표...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70301",
@@ -2217,7 +2213,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -2226,8 +2221,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "합동해양정보센터(JMIC), 중동 해역 안보 관련 제117차 상황 보고서 공개. • 보고 기간: 2026년 3월 1일~11월 26일 • 대상 지역: 중동 해역 • 지역 위협 수준: 심각(SEVERE) 직전..."
+      "summary": "합동해양정보센터(JMIC), 중동 해역 안보 관련 제117차 상황 보고서 공개. • 보고 기간: 2026년 3월 1일~11월 26일 • 대상 지역: 중동 해역 • 지역 위협 수준: 심각(SEVERE) 직전...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70294",
@@ -8325,12 +8321,12 @@
       "datetime": "2026-11-26T22:52:42.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를..."
+      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72851",
@@ -8339,17 +8335,15 @@
       "datetime": "2026-11-26T22:05:43.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "semi",
-        "kr-market",
-        "earnings"
+        "macro"
       ],
       "score": 81,
       "hasText": true,
+      "summary": ">>대만 증시, ‘추수감사절 랠리’…기관, 최악의 상황은 지났다는 판단 (대만경제일보) •미국 관세 충격이 예상보다 작아지면서 대만 증시와 대만달러가 ‘추수감사절 랠리’를 보였음. 대만 가권지수는 26일...",
+      "lead": 1,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>대만 증시, ‘추수감사절 랠리’…기관, 최악의 상황은 지났다는 판단 (대만경제일보) •미국 관세 충격이 예상보다 작아지면서 대만 증시와 대만달러가 ‘추수감사절 랠리’를 보였음. 대만 가권지수는 26일..."
+      ]
     },
     {
       "id": "HANAchina/72850",
@@ -8361,15 +8355,15 @@
         "macro",
         "semi"
       ],
-      "lead": 2,
       "score": 81,
       "hasText": true,
+      "summary": ">>대만 반도체 업계, 301조 관세 일단 회피…다음 관문은 232조 (대만경제일보) •트럼프 정부의 신규 관세안에서 AI 서버, 스마트폰, PC, 칩 및 대부분의 반도체 장비가 면제 대상에 포함됐음. 반면...",
+      "lead": 2,
       "tickers": [
         "TSM",
         "INTC",
         "TER"
-      ],
-      "summary": ">>대만 반도체 업계, 301조 관세 일단 회피…다음 관문은 232조 (대만경제일보) •트럼프 정부의 신규 관세안에서 AI 서버, 스마트폰, PC, 칩 및 대부분의 반도체 장비가 면제 대상에 포함됐음. 반면..."
+      ]
     },
     {
       "id": "HANAchina/72848",
@@ -8380,11 +8374,11 @@
       "tags": [
         "macro"
       ],
-      "lead": 1,
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>유럽중앙은행 10월 회의록 : 인플레이션 전망 악화, 향후 추가 금리 인상 가능성 •유럽중앙은행 10월 회의록에 따르면, 당시 정책위원들은 금리를 인상하지 않았지만 일부 위원들은 인플레이션이 2% 목표..."
+      "summary": ">>유럽중앙은행 10월 회의록 : 인플레이션 전망 악화, 향후 추가 금리 인상 가능성 •유럽중앙은행 10월 회의록에 따르면, 당시 정책위원들은 금리를 인상하지 않았지만 일부 위원들은 인플레이션이 2% 목표...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70301",
@@ -8395,7 +8389,6 @@
       "tags": [
         "geo"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
       "media": {
@@ -8404,8 +8397,9 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "합동해양정보센터(JMIC), 중동 해역 안보 관련 제117차 상황 보고서 공개. • 보고 기간: 2026년 3월 1일~11월 26일 • 대상 지역: 중동 해역 • 지역 위협 수준: 심각(SEVERE) 직전..."
+      "summary": "합동해양정보센터(JMIC), 중동 해역 안보 관련 제117차 상황 보고서 공개. • 보고 기간: 2026년 3월 1일~11월 26일 • 대상 지역: 중동 해역 • 지역 위협 수준: 심각(SEVERE) 직전...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70294",
