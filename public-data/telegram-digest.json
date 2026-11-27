@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-27T08:51:56.662Z",
-  "attemptedAt": "2026-11-27T08:51:56.662Z",
-  "lastSuccessfulAt": "2026-11-27T08:51:56.662Z",
+  "generatedAt": "2026-11-27T09:22:25.396Z",
+  "attemptedAt": "2026-11-27T09:22:25.396Z",
+  "lastSuccessfulAt": "2026-11-27T09:22:25.396Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-13T08:51:53.882Z",
-  "until": "2026-11-27T08:51:53.882Z",
+  "since": "2026-11-13T09:22:20.424Z",
+  "until": "2026-11-27T09:22:20.424Z",
   "current24hWindow": {
     "start": "2026-11-25T23:00:00.000Z",
     "end": "2026-11-26T23:00:00.000Z",
@@ -82,16 +82,16 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1034,
-      "freshCount": 19,
-      "eligibleTextCount": 983,
+      "count": 1037,
+      "freshCount": 40,
+      "eligibleTextCount": 986,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70337
+      "lastPostId": 70343
     },
     {
       "channel": "bornlupin",
@@ -108,16 +108,16 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 1,
+      "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 734,
-      "freshCount": 18,
-      "eligibleTextCount": 733,
+      "count": 735,
+      "freshCount": 36,
+      "eligibleTextCount": 734,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72896
+      "lastPostId": 72897
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,42 +137,42 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1937,
-  "retainedItemCount": 404,
+  "count": 1941,
+  "retainedItemCount": 431,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1937,
-    "eligibleTextCount": 1885,
+    "observedCount": 1941,
+    "eligibleTextCount": 1889,
     "mediaOnlyCount": 52,
-    "mediaAttachedCount": 755,
-    "photoPostCount": 646,
+    "mediaAttachedCount": 756,
+    "photoPostCount": 645,
     "documentPostCount": 4,
     "imageOnlyCount": 4,
     "highSignalCount": 319,
-    "broadSignalCount": 802,
+    "broadSignalCount": 803,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
-    "selectedRawCoveragePct": 19.8,
-    "selectedOfObservedPct": 19.3,
+    "selectedRawCoveragePct": 19.7,
+    "selectedOfObservedPct": 19.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
+    "geo": 225,
+    "market-note": 700,
+    "kr-market": 101,
+    "earnings": 213,
     "ai-policy": 126,
-    "market-note": 697,
     "semi": 597,
     "power": 168,
-    "earnings": 212,
-    "geo": 225,
     "media-only": 52,
     "credit": 68,
     "macro": 302,
     "optical": 23,
     "flows": 66,
     "equity": 120,
-    "kr-market": 101,
     "japan": 46,
     "healthcare": 57,
     "insider": 8,
@@ -267,11 +267,11 @@
     "ARM": 1
   },
   "themes": [
-    "Market Notes (697 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Market Notes (700 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
     "Semiconductors/Memory (597 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
     "Macro/Rates (302 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오전 7시~오후 2시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 추수감사절 메시지를 통해 미국 GDP 성장률이 기존 3.4%에서 4.3%로 상향 조정된 것과 관련해 선거 이전에 발표된 경제지표에 중대한 오류가 있었다고 주장하며 즉각적인 조사를 요구. 불법...",
     "Geopolitics (225 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "Earnings/Corporate (212 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Earnings/Corporate (213 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (168 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (126 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (120 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
@@ -435,7 +435,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 212,
+      "count": 213,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -480,7 +480,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 697,
+      "count": 700,
       "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
@@ -1635,6 +1635,21 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/70343",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70343",
+      "datetime": "2026-11-27T09:14:41.000Z",
+      "localDateKst": "2026-11-27",
+      "tags": [
+        "geo"
+      ],
+      "lead": 1,
+      "score": 50,
+      "hasText": true,
+      "tickers": [],
+      "summary": "이란 해군 사령관 “호르무즈 해협 봉쇄 상태 유지할 것” 중국 CCTV에 따르면 11월 27일 샤흐람 이라니 이란 해군 사령관은 미국이 이란 국민을 살해한 대가를 치르게 될 것이며, 이란은 반드시 보복할..."
+    },
+    {
       "id": "HANAchina/72896",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72896",
@@ -1879,6 +1894,7 @@
       "tags": [
         "semi"
       ],
+      "lead": 1,
       "score": 52,
       "hasText": true,
       "media": {
@@ -1887,9 +1903,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "•중국•홍콩 오전 반도체 상승폭 확대 •HBM, 후공정, 반도체 장비, 파운드리 관련주 5-7%대 급등세 •화웨이 어센트 칩 관련주 급등 •홍콩 AI 칩, LLM 등 컴퓨팅 관련주 반등 •화웨이 HBM 기술...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": "•중국•홍콩 오전 반도체 상승폭 확대 •HBM, 후공정, 반도체 장비, 파운드리 관련주 5-7%대 급등세 •화웨이 어센트 칩 관련주 급등 •홍콩 AI 칩, LLM 등 컴퓨팅 관련주 반등 •화웨이 HBM 기술..."
     },
     {
       "id": "HANAchina/72874",
@@ -1898,13 +1913,13 @@
       "datetime": "2026-11-27T02:32:42.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
+        "macro",
         "kr-market"
       ],
       "score": 60,
       "hasText": true,
-      "summary": ">>유로화, 올해 11% 하락…위안화 대비 20년 만에 최대 연간 낙폭 전망 •11월 27일 기준 유로·위안 환율은 7.30위안 부근으로 2023년 저점에 근접, 연초 이후 11% 하락. 2005년 이후 최대...",
-      "lead": 1,
-      "tickers": []
+      "tickers": [],
+      "summary": ">>유로화, 올해 11% 하락…위안화 대비 20년 만에 최대 연간 낙폭 전망 •11월 27일 기준 유로·위안 환율은 7.30위안 부근으로 2023년 저점에 근접, 연초 이후 11% 하락. 2005년 이후 최대..."
     },
     {
       "id": "HANAchina/72871",
@@ -1913,7 +1928,8 @@
       "datetime": "2026-11-27T02:28:48.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "macro",
+        "semi"
       ],
       "score": 74,
       "hasText": true,
@@ -1923,8 +1939,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": ">>BofA Hartnett 2027년 미국 증시 : 전면적 버블 8888, 연착륙 7777, 경착륙 6666 •Hartnett는 2027년 S&P500에 세 가지 시나리오를 설정. 연착륙 7777이 기본...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>BofA Hartnett 2027년 미국 증시 : 전면적 버블 8888, 연착륙 7777, 경착륙 6666 •Hartnett는 2027년 S&P500에 세 가지 시나리오를 설정. 연착륙 7777이 기본..."
     },
     {
       "id": "insidertracking/70315",
@@ -1943,10 +1959,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 레딧 관심도 현황 엔비디아, 앤드로픽",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "미국 레딧 관심도 현황 엔비디아, 앤드로픽"
     },
     {
       "id": "insidertracking/70313",
@@ -1965,10 +1981,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "엔비디아 오버나잇",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "엔비디아 오버나잇"
     },
     {
       "id": "HANAchina/72869",
@@ -1977,12 +1993,12 @@
       "datetime": "2026-11-27T01:44:10.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": "• 네덜란드 외교통상개발협력부 장관 스헤르츠마(Schölzma)는 26일 미국 의회에서 심의 중인 '하드웨어 기술 통제 다자 조정 법안(Multilateral Coordination on Hardware...",
-      "tickers": []
+      "tickers": [],
+      "summary": "• 네덜란드 외교통상개발협력부 장관 스헤르츠마(Schölzma)는 26일 미국 의회에서 심의 중인 '하드웨어 기술 통제 다자 조정 법안(Multilateral Coordination on Hardware..."
     },
     {
       "id": "bornlupin/21314",
@@ -2013,15 +2029,16 @@
       "localDateKst": "2026-11-27",
       "tags": [
         "macro",
+        "credit",
         "earnings"
       ],
+      "lead": 1,
       "score": 78,
       "hasText": true,
-      "summary": ">>Deutsche Bank, 2027년 세 차례 금리 인상과 S&P500 9,000pt 전망…배경에는 같은 동력 •Deutsche Bank는 AI 자본지출이 기업 실적을 뒷받침하면서 S&P500지수가...",
-      "lead": 2,
       "tickers": [
         "DB"
-      ]
+      ],
+      "summary": ">>Deutsche Bank, 2027년 세 차례 금리 인상과 S&P500 9,000pt 전망…배경에는 같은 동력 •Deutsche Bank는 AI 자본지출이 기업 실적을 뒷받침하면서 S&P500지수가..."
     },
     {
       "id": "HANAchina/72865",
@@ -2034,12 +2051,12 @@
       ],
       "score": 57,
       "hasText": true,
-      "summary": ">>UBS 트레이더 : 필수소비재 안전자산 거래 둔화가 AI주 바닥 신호일 수 있지만, 방어주는 아직 전반적으로 되돌림 나타나지 않아 •UBS 주식 트레이더 Mark Paski는 수요일, 몰려 있는 필수소비재...",
       "tickers": [
         "PG",
         "KO",
         "KDP"
-      ]
+      ],
+      "summary": ">>UBS 트레이더 : 필수소비재 안전자산 거래 둔화가 AI주 바닥 신호일 수 있지만, 방어주는 아직 전반적으로 되돌림 나타나지 않아 •UBS 주식 트레이더 Mark Paski는 수요일, 몰려 있는 필수소비재..."
     },
     {
       "id": "insidertracking/70310",
@@ -2058,8 +2075,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "국정원 휴민트 사건 요약 > 1. 대기업 반도체, 이온주입 기술자 A씨가 중국 창신메모리(CXMT)로 이직 2. 중국 창신메모리(CXMT)에서 근무 중이던 A씨가 한국의 반도체 기술이 다양한 경로로 중국에...",
-      "tickers": []
+      "tickers": [],
+      "summary": "국정원 휴민트 사건 요약 > 1. 대기업 반도체, 이온주입 기술자 A씨가 중국 창신메모리(CXMT)로 이직 2. 중국 창신메모리(CXMT)에서 근무 중이던 A씨가 한국의 반도체 기술이 다양한 경로로 중국에..."
     },
     {
       "id": "bornlupin/21313",
@@ -2200,17 +2217,18 @@
       "localDateKst": "2026-11-27",
       "tags": [
         "power",
-        "japan"
+        "japan",
+        "healthcare"
       ],
+      "lead": 2,
       "score": 55,
       "hasText": true,
-      "summary": "일본 최대 발전업체 제라(JERA)가 도쿄 인근 발전소 주변에 AI 데이터센터를 구축하기 위해 앤트로픽 및 메타와 협의 중. 제라는 아마존, 마이크로소프트, 구글과도 관련 논의를 진행 중. 도쿄 일대 신규...",
-      "lead": 2,
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN"
-      ]
+      ],
+      "summary": "일본 최대 발전업체 제라(JERA)가 도쿄 인근 발전소 주변에 AI 데이터센터를 구축하기 위해 앤트로픽 및 메타와 협의 중. 제라는 아마존, 마이크로소프트, 구글과도 관련 논의를 진행 중. 도쿄 일대 신규..."
     },
     {
       "id": "HANAchina/72859",
@@ -2219,14 +2237,15 @@
       "datetime": "2026-11-26T23:02:28.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "semi",
+        "japan"
       ],
       "score": 56,
       "hasText": true,
-      "summary": "• 아이폰 듀오(256GB 기준 출고가 1,999달러)의 총 부품 수는 2,644개(아이폰 18 프로 대비 7% 증가)이며, 부품 원가는 1,281달러로 출고가의 64%를 차지해 역대 아이폰 중 최고 수준을...",
       "tickers": [
         "TSM"
-      ]
+      ],
+      "summary": "• 아이폰 듀오(256GB 기준 출고가 1,999달러)의 총 부품 수는 2,644개(아이폰 18 프로 대비 7% 증가)이며, 부품 원가는 1,281달러로 출고가의 64%를 차지해 역대 아이폰 중 최고 수준을..."
     },
     {
       "id": "HANAchina/72857",
@@ -2235,12 +2254,12 @@
       "datetime": "2026-11-26T22:52:42.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를..."
     },
     {
       "id": "HANAchina/72851",
@@ -7166,22 +7185,6 @@
       ]
     },
     {
-      "id": "insidertracking/69996",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/69996",
-      "datetime": "2026-11-23T00:38:25.000Z",
-      "localDateKst": "2026-11-23",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "summary": "미국 정보당국 보고서에 정통한 관계자들에 따르면 앨리스 황은 2025년 봄부터 2026년 가을까지 중국 국가안전부 관계자와 연락을 유지했으며, 해당 기간은 엔비디아 CEO 젠슨 황과의 관계 기간과 겹치는...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21241",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21241",
@@ -8315,12 +8318,12 @@
       "datetime": "2026-11-26T22:52:42.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "semi"
       ],
       "score": 52,
       "hasText": true,
-      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를...",
-      "tickers": []
+      "tickers": [],
+      "summary": ">>중국증시 ETF로 유입되는 자금, 7월 이후 순유입 1조위안 넘어 •최근 A주 시장이 지속적으로 등락하는 가운데 많은 자금이 “하락할수록 매수”. 11월 25일에는 370억 위안이 넘는 자금이 ETF를..."
     },
     {
       "id": "HANAchina/72851",
