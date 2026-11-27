@@ -1653,6 +1653,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const opts = { earnings: [{ symbol: 'BAC', date: '2026-10-14', hour: 'bmo', epsEstimate: 1.16 }, { symbol: 'MU', date: '2026-10-13', hour: 'amc', epsEstimate: 2, epsActual: 2.2 }], names: { BAC: 'Bank of America Corporation', MU: 'Micron Technology, Inc.' }, nowMs: Date.parse('2026-10-14T00:00:00Z') };
     const pick = (title) => earningsContextForHeadline(title, opts)?.symbol || null;
     if (pick('S&P 500 futures quiet as investors await big bank earnings') || pick('Bank of America raises Taiwan Semiconductor target price ahead of earnings') || pick('Micron beats on AI memory') !== 'MU' || pick('Bank of America earnings preview') !== 'BAC') fail('v57.55 review: earnings context must need the full name or ticker, a results word, and not an analyst action');
+    // v60.61: a currency word is not a company's short name ("Gold Outlook: Dollar fatigue …" carried Dollar Tree's results).
+    const dollar = { earnings: [{ symbol: 'DLTR', date: '2026-10-13', hour: 'bmo', epsEstimate: 1.1, epsActual: 1.2 }], names: { DLTR: 'Dollar Tree, Inc.' }, nowMs: opts.nowMs };
+    if (earningsContextForHeadline('Gold Outlook: Dollar fatigue opens the door to a squeeze', dollar) || earningsContextForHeadline('Dollar Tree beats on earnings', dollar)?.symbol !== 'DLTR') fail('v60.61: "Dollar" alone must not name Dollar Tree; the full name still does');
     // A headline naming two reporters carries both, in headline order (Palantir used to lose to the earlier calendar row).
     const both = earningsContextForHeadline('Micron and Bank of America shares slide after earnings', opts);
     // The market-day ledger — unusual by its own volatility, a stock tied to its own news or the price it runs on,

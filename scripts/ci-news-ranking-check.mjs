@@ -79,21 +79,91 @@ check('v60.18 the bundle is published in rank order', () => {
   assert.deepEqual(out.map((r) => r.score), [78, 64], 'v60.18 the floors keep their scores');
 });
 
-// 5b. The day's large stock moves are searched by company and seated on top of the bundle, one headline per company.
-check('v60.57 movers: a headline naming the day\'s mover takes a seat beyond the bundle, one per company', () => {
-  const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'macro', country: 'us',
-    ts: at('2026-11-20T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-20T20:00:00Z') - i * 60000).toISOString(), ...extra });
-  // Five more unrelated headlines than the bundle holds (no shared word, so no two read as one event or one topic).
+// 5a. Lanes: every feed competes in a lane, a wire holds up to a quarter of a lane, any other publisher three seats in
+// the whole bundle, and a lane's empty seats are not handed to another lane.
+check('v60.62 lanes: every feed has a lane; publisher seats are per lane for wires and bundle-wide for the rest', () => {
+  for (const feed of ns.NEWS_FEEDS) assert.ok(feed.country === 'kr' || ns.newsLaneOf({ feedSource: feed.source, topic: feed.topic }), `v60.62 lanes: ${feed.source} competes in a lane`);
+  assert.equal(ns.NEWS_BUNDLE_SIZE, ns.NEWS_LANES.reduce((sum, lane) => sum + lane.seats, 0), 'v60.62 lanes: the bundle size is the sum of the seats');
   const word = (n) => [...n.toString(26)].map((c) => String.fromCharCode(97 + parseInt(c, 26))).join('');
-  const general = Array.from({ length: ns.NEWS_BUNDLE_SIZE + 5 }, (_, i) => row([0, 1, 2, 3, 4].map((k) => `q${word(20000 + i * 5 + k)}`).join(' '), i));
+  const row = (i, source, tier, topic) => ({ title: [0, 1, 2, 3, 4].map((k) => `z${word(30000 + i * 5 + k)}`).join(' '), link: `https://e.test/l${i}`, source, tier, score: 90 - i * 0.1, topicHits: 2, subjectHits: 2, topic, country: 'us',
+    ts: at('2026-11-26T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-26T20:00:00Z') - i * 60000).toISOString() });
+  const macro = ns.newsLaneOf({ topic: 'macro' });
+  const pool = [...Array.from({ length: 12 }, (_, i) => row(i, 'Reuters', 1, 'macro')), ...Array.from({ length: 6 }, (_, i) => row(20 + i, 'Yahoo Finance', 2, 'macro')), ...Array.from({ length: 6 }, (_, i) => row(40 + i, 'Yahoo Finance', 2, 'equity'))];
+  const { out, laneHealth } = ns.selectNewsBundle(pool, []);
+  assert.equal(out.filter((r) => r.source === 'Reuters').length, ns.newsLaneSourceCap(macro), `v60.62 lanes: a wire holds a quarter of the macro lane (${ns.newsLaneSourceCap(macro)})`);
+  assert.equal(out.filter((r) => r.source === 'Yahoo Finance').length, ns.NEWS_SOURCE_CAP, 'v60.62 lanes: another publisher holds three seats in the whole bundle');
+  assert.ok(out.length < macro.seats, 'v60.62 lanes: seats left empty stay empty');
+  assert.equal(laneHealth.find((h) => h.lane === 'macro').passed['publisher-cap'], 12 - ns.newsLaneSourceCap(macro) + 3, 'v60.62 lanes: the run counts why candidates were passed over');
+});
+
+// 5a1. One score order across the lanes, one headline per mover company, an honest receipt, and what the screen holds.
+const newsClient = { ...(await import('../src/domain/news/selection.js')), ...(await import('../src/domain/news/feed-filter.js')) };
+check('v60.63 lanes: the higher-scored outlet holds an event across lanes; movers one headline each; the client knows the bundle', () => {
+  const row = (title, i, extra = {}) => ({ title, link: `https://e.test/x${i}`, source: `Pub${i}`, tier: 1, score: 60, topicHits: 2, subjectHits: 2, topic: 'macro', country: 'us',
+    ts: at('2026-11-26T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-26T20:00:00Z') - i * 60000).toISOString(), ...extra });
+  const boj = ns.selectNewsBundle([
+    row('Bank of Japan board member seeks quick rate hikes on inflation', 1, { source: 'Some Blog', tier: 3, score: 49, feedSource: 'Google News - Japan/China/Europe' }),
+    row('Bank of Japan board member seeks quick rate hikes on inflation, yen firms', 2, { source: 'Reuters', score: 63, topic: 'fxbond' }),
+  ], []).out;
+  assert.deepEqual(boj.map((r) => [r.source, r.lane]), [['Reuters', 'rates-credit']], 'v60.63 the wire in a later lane holds the event, not the tier-3 row in an earlier one');
+  const companies = ['Micron', 'Adobe', 'Oracle', 'Intel', 'Cisco'];
+  const blob = (n) => [0, 1, 2, 3].map((k) => `w${[...(40000 + n * 4 + k).toString(26)].map((ch) => String.fromCharCode(97 + parseInt(ch, 26))).join('')}`).join(' ');
+  const movers = companies.flatMap((name, c) => [0, 1, 2].map((k) =>
+    row(`${name} ${blob(c * 3 + k)}`, 100 + c * 3 + k, { tier: 2, score: 70 - k, topic: 'equity', feedSource: ns.NEWS_MOVER_FEED, mover: name.slice(0, 3).toUpperCase() })));
+  const { out, laneHealth } = ns.selectNewsBundle(movers, []);
+  assert.deepEqual(out.map((r) => r.mover).sort(), companies.map((name) => name.slice(0, 3).toUpperCase()).sort(), 'v60.63 five mover companies, one headline each');
+  assert.deepEqual(laneHealth.find((h) => h.lane === 'companies').passed, { 'mover-second-headline': 10 }, 'v60.63 the receipt counts only candidates that lost, by the reason they lost');
+  // One story, two wordings: three shared specific words are one event; shared market vocabulary alone is not.
+  const same = (a, b) => ns.newsSameEvent(ns.newsHeadlineSignature(a), ns.newsHeadlineSignature(b));
+  assert.ok(same("Spain's De Cos to take over as ECB president from Lagarde", "Spain's de Cos to become ECB's next president, FT reports"), 'v60.63 two wires on one appointment are one event');
+  assert.ok(same('Nvidia Tells Partners to Pause Shipments to Southeast Asia', 'Nvidia Halts Server Shipments to Southeast Asia, Says Report'), 'v60.63 two outlets on one shipment halt are one event');
+  assert.ok(!same('ECB Saw Need for Another Rate Hike Unless Inflation Outlook Improved', 'Hawkish Bank of Japan Member Seeks Quick Rate Hikes On Inflation'), 'v60.63 two central banks are two events');
+  assert.ok(!same('Gold drifts lower as Fed rate-hike fears loom', 'Oil prices rise as traders weigh Middle East supply risks'), 'v60.63 gold and oil are two events');
+  // The intraday slot files a general-feed row under the topic the next bundle gives it, and keeps its feed.
+  const [slot] = ns.selectNewsIntraday([{ title: 'Nvidia shares slide as chip export curbs widen', link: 'https://e.test/i1', source: 'Reuters', ts: at('2026-11-27T01:00:00Z'), topic: 'macro', country: 'us', feedTier: 1, tier: 1, feedSource: 'Google News - Wires: Chips/AI' }],
+    { cycleEndMs: at('2026-11-26T23:00:00Z'), nowMs: at('2026-11-27T02:00:00Z') });
+  assert.deepEqual([slot?.topic, slot?.feedSource], ['semi', 'Google News - Wires: Chips/AI'], 'v60.63 an intraday chip story is filed under semis and keeps its feed');
+  // The client: the screen holds every seat, and knows the banks topic on the chip row, the label table and the chat map.
+  const { NEWS_SURFACE_CONTRACTS, isCompanyNews, topicGroupOf, FEED_TOPICS } = newsClient;
+  assert.ok(NEWS_SURFACE_CONTRACTS['market-news'].maxItems >= ns.NEWS_BUNDLE_SIZE + ns.NEWS_INTRADAY_MAX, `v60.63 the 뉴스 screen holds the whole bundle (${NEWS_SURFACE_CONTRACTS['market-news'].maxItems} >= ${ns.NEWS_BUNDLE_SIZE} + ${ns.NEWS_INTRADAY_MAX})`);
+  for (const lane of ns.NEWS_LANES) for (const topic of lane.topics || []) assert.ok(FEED_TOPICS.some((group) => group.topics.includes(topic)), `v60.63 the 뉴스 topic chips know '${topic}' (${lane.id} lane)`);
+  assert.equal(topicGroupOf({ topic: 'financials', title: 'Regional lenders report results' }), 'sector', 'v60.62 a banks article sits under the 업종 chip');
+  assert.equal(isCompanyNews({ topic: 'financials', tickers: ['JPM'] }), true, 'v60.62 a banks article with a ticker is company news');
+});
+
+// 5a2. A general feed's row takes the topic of its headline's leading subject; a topical feed's row keeps the feed's.
+check('v60.63 a wire row is filed under what its headline is about, and opinion and segment titles are not articles', () => {
+  const nowMs = at('2026-11-27T00:00:00Z');
+  const topicOf = (title, topic = 'macro', extra = {}) => { const item = scored({ title, source: 'Reuters', at: '2026-11-26T20:00:00Z', country: 'us', topic, scoringNowMs: nowMs, ...extra }); return ns.newsHeadlineTopic(item); };
+  assert.equal(topicOf('OPEC+ considers sticking with current quotas, delegates say'), 'geo', 'v60.63 an OPEC story from a general feed is energy and geopolitics');
+  assert.equal(topicOf('Nvidia tells partners to pause shipments to Southeast Asia'), 'semi', 'v60.63 a chip story is filed under semis');
+  assert.equal(topicOf('Bitcoin tops $60,000 as risk assets rise in holiday trading'), 'crypto', 'v60.63 a bitcoin story is crypto');
+  assert.equal(topicOf('Hawkish Fed poised to raise rates despite stock market turmoil'), 'macro', 'v60.63 a Fed story stays macro');
+  assert.equal(topicOf('Nvidia tells partners to pause shipments to Southeast Asia', 'credit'), 'credit', 'v60.63 a topical feed keeps its topic');
+  assert.equal(topicOf('Nvidia tells partners to pause shipments to Southeast Asia', 'macro', { mover: 'NVDA' }), 'macro', 'v60.63 a mover row keeps its feed topic');
+  for (const title of ['Opinion | Does Nvidia Really Need Its Founder?', 'Basic Materials Roundup: Market Talk', 'Prediction: these 2 bank stocks will grow 40% in a year', 'Final Trade: HD, XLI, GOOGL, SLB']) {
+    assert.equal(scored({ title, source: 'WSJ', at: '2026-11-26T20:00:00Z', country: 'us', topic: 'macro', scoringNowMs: nowMs }).selectionReason, 'not-article-filter', `v60.63 not an article: ${title}`);
+  }
+  const wires = ns.NEWS_FEEDS.filter((feed) => /^Google News - Wires: /.test(feed.source));
+  assert.ok(wires.length >= 6 && wires.every((feed) => feed.topic === 'macro' && feed.tier === 1 && feed.limit === 100 && /site%3Areuters\.com/.test(feed.url)), 'v60.63 the subject wire feeds are general, publisher-restricted and read in full');
+});
+
+// 5b. The day's large stock moves are searched by company and lead their lane, one headline per company (v60.62 lanes).
+check('v60.62 movers: a headline naming the day\'s mover is seated first in its lane, one per company', () => {
+  const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'equity', country: 'us',
+    ts: at('2026-11-20T20:00:00Z') - i * 60000, eventTime: new Date(at('2026-11-20T20:00:00Z') - i * 60000).toISOString(), ...extra });
+  // Five more unrelated headlines than the companies lane holds (no shared word, so no two read as one event or one topic).
+  const seats = ns.newsLaneOf({ topic: 'equity' }).seats;
+  const word = (n) => [...n.toString(26)].map((c) => String.fromCharCode(97 + parseInt(c, 26))).join('');
+  const general = Array.from({ length: seats + 5 }, (_, i) => row([0, 1, 2, 3, 4].map((k) => `q${word(20000 + i * 5 + k)}`).join(' '), i));
   const mover = (title, sym, i) => row(title, 200 + i, { score: 30, topicHits: 1, subjectHits: 1, topic: 'equity', feedSource: ns.NEWS_MOVER_FEED, mover: sym });
   const movers = [mover('Micron plunges fourteen percent as memory prices crack', 'MU', 1), mover('Micron shares sink again on DRAM contract cuts', 'MU', 2), mover('Analog Devices tumbles after weak industrial orders', 'ADI', 3)];
   const base = ns.selectNewsBundle(general.map((item) => ({ ...item })), []).out;
   const { out } = ns.selectNewsBundle([...general.map((item) => ({ ...item })), ...movers], []);
-  assert.equal(base.length, ns.NEWS_BUNDLE_SIZE, `v60.57 movers: without movers the bundle is full (${base.length})`);
-  assert.equal(out.length, ns.NEWS_BUNDLE_SIZE + 2, `v60.57 movers: two companies, two seats on top (${out.length})`);
+  assert.equal(base.length, seats, `v60.62 movers: without movers the lane is full (${base.length})`);
+  assert.equal(out.length, seats, `v60.62 movers: the lane holds its seats, movers included (${out.length})`);
   assert.deepEqual(out.filter((r) => r.mover).map((r) => r.mover).sort(), ['ADI', 'MU'], 'v60.57 movers: one headline per company, tagged with it');
-  assert.equal(out.filter((r) => !r.mover).length, ns.NEWS_BUNDLE_SIZE, 'v60.57 movers: no other topic loses a seat');
+  assert.ok(out.every((r) => r.lane === 'companies'), 'v60.62 movers: every published row names its lane');
   const day = { sessions: { us: '2026-11-20' }, facts: [
     { kind: 'stock-move', date: '2026-11-20', rank: 'major', materiality: 70, subjects: ['MU'], label: 'Micron Technology' },
     { kind: 'stock-move', date: '2026-11-20', rank: 'lead', materiality: 95, subjects: ['NVDA'], label: 'NVIDIA' },
@@ -191,7 +261,7 @@ check('v60.59 a card\'s fact is joined from published extractions only: brief, l
   assert.equal(read(article('d2', { pubDate: pub }), { issuers: ['AMD'] })?.kind, '보도', 'v60.59 a brief that kept only its headline is 보도');
   assert.equal(read(article('d3', { pubDate: pub }), { issuers: ['MU'] }), null, 'v60.59 a brief five days before the article is not its fact');
   const move = read(article('n1', { title: 'Nvidia slides', pubDate: pub }), { issuers: ['NVDA'] });
-  assert.ok(move?.kind === '수치' && move.text.startsWith('관련 움직임 NVIDIA'), `v60.59 a ledger-linked move is 수치 (${move?.text})`);
+  assert.ok(move?.kind === '수치' && move.text.startsWith('관련 움직임 11/25 NVIDIA'), `v60.61 a ledger-linked move is 수치 and carries its session (${move?.text})`);
   const next = read(article('c1', { pubDate: pub }), { issuers: ['CRM'] });
   assert.ok(next?.kind === '일정' && next.text.startsWith('CRM 실적 발표 12/2'), `v60.59 the issuer's next report is 일정 (${next?.text})`);
   assert.equal(read(article('z1', { pubDate: pub }), { issuers: [] }), null, 'v60.59 no join, no fact line');

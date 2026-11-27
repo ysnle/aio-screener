@@ -274,6 +274,15 @@ check('v60.57 news-story-link no ledger, no tie', () => {
   assert.equal(newsStoryLinks(null)(any), null, 'v60.57 news-story-link no day');
   assert.equal(newsStoryLinks(ledger(false))(any), null, 'v60.57 news-story-link an article the ledger does not link');
 });
+check('v60.61 news-story-link an unlinked article with one resolved issuer ties to that issuer\'s own move', () => {
+  const links = newsStoryLinks(ledger(false));
+  const any = { title: 'Apple supplier talks continue', link: 'https://fixture.invalid/aapl' };
+  assert.deepEqual(links(any, { issuers: ['AAPL'] })?.moves.map((move) => move.said.text), ['Apple +1.9%'], 'v60.61 news-story-link one issuer');
+  assert.equal(links(any, { issuers: ['AAPL', 'NVDA'] }), null, 'v60.61 news-story-link two issuers name no single subject');
+  assert.equal(links(any, { issuers: ['MSFT'] }), null, 'v60.61 news-story-link an issuer without a move');
+  const huang = { title: 'x', link: 'https://fixture.invalid/huang' };
+  assert.deepEqual(newsStoryLinks(ledger(true))(huang, { issuers: ['AAPL'] })?.moves.map((move) => move.said.text), ['NVIDIA +31.5%'], 'v60.61 news-story-link the ledger link wins over the card issuer');
+});
 check('v60.57 news-story-link leadLinkedNews keeps its behaviour on the shared matcher', () => {
   const linked = leadLinkedNews(ledger(true));
   assert.equal(linked({ title: 'x', link: 'https://fixture.invalid/huang?utm=1' }), true, 'v60.57 news-story-link link match ignores the query');

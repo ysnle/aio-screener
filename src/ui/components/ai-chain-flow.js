@@ -7,7 +7,7 @@ import { signedBar } from './signed-bar.js';
 import { frameHead, markFrame } from './section-frame.js';
 import { aiChainFlow, defensiveContrast, leaderFalls } from '../../domain/briefing/ai-chain-flow.js';
 import { fallBars } from './fall-bars.js';
-import { foldSummary, markFold } from './indicator-face.js';
+import { foldSummary, keepOpenFolds, markFold } from './indicator-face.js';
 import { buildTwRevenueView, signedPct } from '../../domain/briefing/tw-monthly-revenue.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { CONSENSUS_KEY, requestConsensusEstimates } from '../../data/consensus-estimates.js';
@@ -17,7 +17,7 @@ import { bigtechGroupFor } from '../../data/bigtech-cashflow.js';
 import { aiDemandRead } from '../../domain/briefing/ai-demand-read.js';
 import { navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { aiMapRouteParams } from '../../domain/knowledge/ai-map.js';
-import { fundingChainBlock, fundingChainFor, openFolds } from './ai-funding-chain.js';
+import { fundingChainBlock, fundingChainFor } from './ai-funding-chain.js';
 
 // Rounded first, so a move under 0.05% reads 0.0% and is flat, never "+0.0%" or "-0.0%".
 const tenth = (value) => (value == null ? null : Math.round(value * 10) / 10 || 0);
@@ -55,12 +55,12 @@ export function paintThemesLeaderFalls(doc, root) {
   if (!host) { host = el(doc, 'div', null, 'themes-leader-falls'); host.id = 'themes-leader-falls'; read.before(host); }
   host.hidden = !falls;
   if (!falls) { host.replaceChildren(); return null; }
-  const wasOpen = host.querySelector('details')?.open;
+  const reopen = keepOpenFolds(host);
   const fold = markFold(el(doc, 'details', null, 'themes-leader-falls__more'), 'method');
   fold.append(foldSummary(doc, 'method', '두 묶음에 든 종목'),
     el(doc, 'p', `주도 테마는 반도체·AI 인프라·광통신 테마의 세부 묶음에 든 미국 종목(${falls.leaders.listed}개 중 고점 기록이 있는 ${falls.leaders.measured}개), 나머지 테마는 다른 테마에만 든 미국 종목(${falls.rest.listed}개 중 ${falls.rest.measured}개)입니다. 각 종목의 52주 종가 고점 대비 하락을 단순 평균했습니다. 포트폴리오 화면의 주도 영역과 같은 종목 묶음입니다.`, 'mk-story__read'));
-  if (wasOpen) fold.open = true;
   host.replaceChildren(el(doc, 'p', falls.said.text, 'briefing-read-headline v2-stock-lede'), fallBars(doc, falls.bars, `52주 종가 고점 대비 평균 하락, ${sessionLabel(root)}`), fold);
+  reopen();
   return falls;
 }
 
@@ -187,9 +187,9 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const fullReading = contrast ? `${flow.reading} ${contrast}` : flow.reading;
   // Face: the reading's first sentence (the count of groups that fell); the full reading leads the fold.
   const faceReading = Number.isFinite(limit) ? (String(flow.reading).match(/^.*?다\.(?=\s|$)/)?.[0] || flow.reading) : fullReading;
-  const wasOpen = !!host.querySelector(':scope > details:not(.ai-chain-per)')?.open;
+  const reopen = keepOpenFolds(host);
   const fold = el(doc, 'details', null, 'ai-chain__members');
-  fold.open = wasOpen || !Number.isFinite(limit); // on 테마 the members are the AI 공급망 view's content
+  fold.open = !Number.isFinite(limit); // on 테마 the members are the AI 공급망 view's content
   if (!Number.isFinite(limit)) fold.dataset.viewOpen = '';
   fold.append(el(doc, 'summary', Number.isFinite(limit) ? `전체 ${flow.groups.length}개 묶음과 종목` : '묶음별 종목 보기'));
   if (Number.isFinite(limit)) {
@@ -210,9 +210,8 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   // order (cash, borrowing, the debt market's price, lenders, hardware, rates). It owns the researched credit and
   // memory rows on this screen, so they are not repeated anywhere else in the block.
   const fundingId = `${id}-funding`;
-  const chain = funding ? fundingChainBlock(doc, fundingChainFor(root, { request: repaint }), { id: fundingId, open: openFolds(host.querySelector(`#${fundingId}`)) }) : null;
+  const chain = funding ? fundingChainBlock(doc, fundingChainFor(root, { request: repaint }), { id: fundingId }) : null;
   const perFold = valuation ? layerPerFold(doc, root, repaint) : null;
-  if (perFold) perFold.open = !!host.querySelector(':scope > details.ai-chain-per')?.open;
   if (!Number.isFinite(limit)) fold.append(el(doc, 'p', '종목 옆 숫자는 한 달 수익률, 괄호 안은 지난 거래일입니다.', 'ai-chain__member-list'));
   for (const group of flow.groups) {
     fold.append(el(doc, 'p', group.name, 'event-brief__sub'),
@@ -226,6 +225,7 @@ function paintAiChain(doc, root, { id, frame, className, more: withLink, place, 
   const atlasMap = mapLink ? el(doc, 'button', 'AI 지도 보기 → 산업 지도', 'flow-next-link daily-card-more ai-chain__map-link') : null;
   if (atlasMap) { atlasMap.type = 'button'; atlasMap.addEventListener('click', () => navigateKnowledgeRoute({ root, page: 'atlas', params: aiMapRouteParams() })); }
   host.replaceChildren(head, el(doc, 'p', faceReading, 'ai-chain__reading'), legend, chart, ...(tw ? [tw.face] : []), ...(demandLine ? [demandLine] : []), ...(chain ? [chain] : []), fold, ...(perFold ? [perFold] : []), ...(withLink ? [more] : []), ...(atlasMap ? [atlasMap] : []));
+  reopen();
   host.hidden = false;
   return flow;
 }

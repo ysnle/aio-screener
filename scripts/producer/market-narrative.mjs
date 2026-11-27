@@ -312,7 +312,11 @@ async function readHistoryRows() {
 // rate limit fell back to machine translation ("금 회사 - Kitco AM 보고서"). Headlines are translated once here: titles
 // already translated last run are reused, only new English titles go in one bounded request, and anything that does not
 // come back as a Korean line keeps no titleKo (the browser then translates as before). A failure never blocks the cycle.
-export const HEADLINE_TRANSLATION_MAX = 30;
+export const HEADLINE_TRANSLATION_MAX = 30; // titles a request
+// The 08:00 bundle went from about 50 new English titles to about 130 (v60.62 lanes, v60.63 wires); at one request a run
+// the last of them stayed English for three hours of the Korean morning. A run keeps asking the free model, a request at
+// a time, up to this many titles; the shared (paid) model is still asked for the first request only.
+export const HEADLINE_TRANSLATION_RUN_MAX = 150;
 const hasHangul = (text) => /[가-힣]/.test(String(text || ''));
 // The free model returned Korean lines with Thai, Hanja or Kana mixed in, and any one Hangul syllable
 // passed. A translation is kept only when it carries no other script and at least two Hangul syllables; a cached
@@ -375,6 +379,19 @@ export const isFaithfulKoreanTitle = (title, ko) => {
 // ' : Section : Outlet' / ' | Outlet' segments are the feed's labels, not the headline, and are not sent for translation.
 export const headlineForTranslation = (title) => stripColumnLabel(title).replace(/(?:\s+[:|]\s+[A-Z][\w.&'-]*(?:\s[A-Z][\w.&'-]*){0,2}){1,3}$/, '').trim().slice(0, 300);
 export async function translateHeadlines(items, { previous = [], request = null, translate = null } = {}) {
+  const first = await translateHeadlineBatch(items, { previous, request, translate });
+  const total = { ...first };
+  let last = first;
+  while (last.provider === 'workers-ai' && last.translated > 0 && total.pending + HEADLINE_TRANSLATION_MAX <= HEADLINE_TRANSLATION_RUN_MAX) {
+    last = await translateHeadlineBatch(items, { translate });
+    if (!last.pending) break;
+    total.translated += last.translated;
+    total.pending += last.pending;
+    if (last.provider !== 'workers-ai') total.freeReason = last.freeReason || last.reason;
+  }
+  return total;
+}
+async function translateHeadlineBatch(items, { previous = [], request = null, translate = null } = {}) {
   const list = (Array.isArray(items) ? items : []).filter((item) => item && typeof item.title === 'string' && item.title.trim());
   // A stored translation is reused under the cleaned title, without the column label its original carried.
   const known = new Map((Array.isArray(previous) ? previous : []).filter((item) => item?.title && isFaithfulKoreanTitle(item.title, item.titleKo))

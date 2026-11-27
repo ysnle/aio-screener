@@ -669,13 +669,15 @@ function render({ root, documentRef, store }) {
   const empty = surface.readState === 'ready' && surface.valuationState === 'empty';
   if (!empty && root) root.__aioPortfolioPreview = false;
   const preview = empty && root?.__aioPortfolioPreview === true;
+  // The day ledger loads on first view, for the example as for real holdings; its arrival repaints the table's 움직인 이유 lines.
+  if (root && !root[MARKET_DAY.key] && (preview || surface.rows.length)) refreshSharedArtifact(root, MARKET_DAY).then(({ changed } = {}) => { if (changed) rerenderPortfolio?.(); }).catch(() => {});
   if (preview) {
     const shownState = previewPortfolioState();
     const shown = derivePortfolioSurface({ state: shownState, liveData: {}, vix: liveData?.['^VIX'] || null, sectorOf: screenerSectorOf(bySymbol), closeOf: screenerCloseOf(root, bySymbol), cashFx });
     renderPortfolioSurface(documentRef, page, shown);
     renderPortfolioHero(documentRef, shown);
     renderPortfolioStatus(documentRef, shownState, shown, { pricesLoading: screenerRowsState(root) === 'loading' });
-    renderPortfolioTable(documentRef, page, shownState, shown, { preview: true, root });
+    renderPortfolioTable(documentRef, page, shownState, shown, { preview: true, root, store });
     const shownChecks = renderPortfolioChecks(documentRef, root, shown);
     renderPortfolioLens({ documentRef, root, surface: shown, checks: shownChecks, sectorLabel: portfolioSectorLabel });
     renderPortfolioRead({ documentRef, root, surface: shown });
@@ -693,8 +695,6 @@ function render({ root, documentRef, store }) {
   renderPortfolioSurface(documentRef, page, surface);
   renderPortfolioHero(documentRef, surface);
   renderPortfolioStatus(documentRef, state, surface, { pricesLoading: screenerRowsState(root) === 'loading' });
-  // The day ledger loads on first view; its arrival repaints the table's 움직인 이유 lines.
-  if (root && !root[MARKET_DAY.key] && surface.rows.length) refreshSharedArtifact(root, MARKET_DAY).then(({ changed } = {}) => { if (changed) rerenderPortfolio?.(); }).catch(() => {});
   renderPortfolioTable(documentRef, page, state, surface, { root, store });
   const checks = renderPortfolioChecks(documentRef, root, surface);
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)

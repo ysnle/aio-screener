@@ -23,7 +23,7 @@ function vsLine(label, actual, estimate, format) {
 }
 
 const LEGAL_SUFFIX = /\b(?:Inc|Incorporated|Corp|Corporation|Co|Company|Ltd|Limited|plc|Holdings|Group|N\.?V|S\.?A|AG|SE)\b\.?/gi;
-const GENERIC_FIRST = /^(?:bank|first|general|american|united|international|global|national|new|digital|energy|health|capital|financial|technology|technologies|systems|industries|motors|group|royal|china|south|north|west|east)$/i;
+const GENERIC_FIRST = /^(?:bank|first|general|american|united|international|global|national|new|digital|energy|health|capital|financial|technology|technologies|systems|industries|motors|group|royal|china|south|north|west|east|dollar)$/i;
 const EARNINGS_WORDS = /earnings|results|quarter|beats?|miss(?:es)?|revenue|profit|EPS|guidance|outlook|실적|분기|매출|순이익|영업이익|가이던스/i;
 const ANALYST_ACTION = /\b(?:raises?|lifts?|cuts?|lowers?|upgrades?|downgrades?|reiterates?|initiates?|boosts?|trims?)\b[^.]*\b(?:target|rating|price objective|outlook on)\b|목표\s?(?:주)?가/i;
 export function earningsContextForHeadline(title, { earnings = [], names = {}, nowMs = Date.now(), windowDays = 3 } = {}) {

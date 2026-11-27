@@ -438,6 +438,7 @@ export const NEWS_TOPIC_GROUP_ORDER = [
   { key:'fx',        label:'외환·통화',         icon:'' },
   { key:'crypto',    label:'암호화폐',          icon:'' },
   { key:'defense',   label:'방산·우주',         icon:'' },
+  { key:'financials',label:'은행·금융',         icon:'' },
   { key:'healthcare',label:'헬스케어·바이오',   icon:'' },
   { key:'shipbuilding',label:'조선·해운',       icon:'' },
   { key:'quantum',   label:'양자컴퓨팅',        icon:'' },
@@ -477,7 +478,7 @@ export const NEWS_SURFACE_CONTRACTS = {
     newsCyclePolicy: 'kst-0800-completed-24h',
     anchor: '08:00 KST',
     windowHours: 24,
-    maxItems: 150,
+    maxItems: 200, // above the producer's seats (NEWS_BUNDLE_SIZE) plus the intraday slot; ci-news-ranking-check holds the two together
     minScore: 30,
     allowFilters: true,
     sortMode: 'ui'
@@ -536,7 +537,7 @@ export function isNewsBlacklisted(item, env = {}) {
 
 /** Company news: a ticker and a company topic (v46.9 covers every TOPIC_KEYWORDS topic). */
 export function isCompanyNews(item, env = {}) {
-  const companyTopics = ['equity','earnings','semi','analyst','defense','healthcare','shipbuilding','space','quantum','crypto'];
+  const companyTopics = ['equity','earnings','semi','analyst','defense','financials','healthcare','shipbuilding','space','quantum','crypto'];
   const marketOnlyTopics = ['macro','geo','bond','fx']; // 시장 전용 토픽 (티커 있어도 기업 뉴스 아님)
   const tickers = env.displayTickers ? env.displayTickers(item) : (item.tickers || []);
   if (marketOnlyTopics.indexOf(item.topic) !== -1) return false;

@@ -1,10 +1,39 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-26
+last_verified: 2026-11-27
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.64 v60.64 뉴스 차선 리뷰 반영 (2026-11-27)
+
+- [x] QA-NEWS-REVIEW-6064-01: v60.64 차선은 좌석과 상한만 따로 갖고, 후보는 전체 점수순 한 번으로 앉힌다: 같은 사건을 두 차선의 매체가 썼으면 점수 높은 쪽이 남는다. 급등락 종목은 회사마다 한 건이고, 차선 집계(newsLaneHealth)는 실제로 떨어진 후보만 사유별로 센다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [x] QA-NEWS-REVIEW-6064-02: v60.64 영어 제목 둘이 구체적인 낱말 세 개를 공유하면 같은 사건이다(시장 공통 낱말 제외, 한국어 제목 제외). ECB 총재 지명 두 통신사 기사는 한 사건, ECB와 일본은행의 금리 기사는 두 사건. verify_by: node scripts/ci-news-ranking-check.mjs; node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-NEWS-REVIEW-6064-03: v60.64 08:00 이후 장중 속보도 제목의 주제로 분류되고 피드 이름을 지닌다. 뉴스 화면 상한(200)은 발행 좌석과 장중 자리 합보다 크고, 주제 칩·이름표·채팅 뉴스 맥락이 은행·금융을 안다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-REVIEW-6064-04: v60.64 제목 번역은 한 실행에서 무료 모델에 30건씩 여러 번 물어 150건까지 옮긴다(유료 모델은 첫 요청에만). push 뒤 08:00 KST 직후 실행에서 번역 대기 건수와 Workers AI 응답을 확인한다. verify_by: node scripts/ci-headline-translation-check.mjs; node scripts/ci-data-pipeline-contract-check.mjs
+
+## v60.63 v60.63 뉴스 통신사 주제 검색 (2026-11-27)
+
+- [x] QA-NEWS-WIRES-6063-01: v60.63 통신사·주요 매체만 묻는 주제별 검색 일곱 개(반도체·AI, 기업, 에너지·원자재, 은행, 신용·채권, 경제·정책, 크립토)와 WSJ 시장 피드가 있다. 모두 일반 피드(topic macro, 1등급)이고 검색 결과 100건을 끝까지 읽는다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [x] QA-NEWS-WIRES-6063-02: v60.63 일반 피드에서 온 기사는 제목의 대표 주제(점수 규칙이 매긴 첫 주제)로 분류된다: OPEC 기사는 지정학·에너지, 엔비디아 기사는 반도체, 비트코인 기사는 크립토. 주제 피드·한국 기사·급등락 종목 기사는 피드 주제를 지킨다. 'Opinion |', 'Roundup: Market Talk', 'Prediction:', 'Final Trade:' 제목은 기사로 치지 않는다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-WIRES-6063-03: v60.63 차선 좌석은 매크로 36, 에너지·지정학 20, 해외 증시 10으로 합계 168석. 11/27 실측 발행 133건(통신사·주요 매체 97건). 로컬 화면에 새 묶음을 넣어 기사 128건과 주제 칩 분포 확인. push 뒤 첫 refresh-data 실행에서 발행 건수, 실행 시간, 제목 번역이 무료 한도 안인지 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs; node scripts/ci-codex-structure-regression-fixture.mjs
+
+## v60.62 v60.62 뉴스 차선(주제별 좌석) (2026-11-27)
+
+- [x] QA-NEWS-LANES-6062-01: v60.62 08:00 뉴스 묶음은 차선 표(NEWS_LANES, 10개 차선 152석)로 고른다. 모든 피드가 차선 하나에서 경쟁하고, 통신사·주요 매체는 차선마다 좌석의 4분의 1까지, 그 밖의 매체는 묶음 전체에서 3석, 3등급은 차선 좌석의 30%까지다. 빈 좌석은 다른 차선으로 넘기지 않고, 발행 행은 차선(lane)을 적는다. verify_by: node scripts/ci-news-ranking-check.mjs; node scripts/ci-codex-structure-regression-fixture.mjs
+- [x] QA-NEWS-LANES-6062-02: v60.62 기업 실적·실적 반응·은행/금융 피드가 있고 각자 차선에 속한다. 화면 주제 칩 '업종'과 주제 이름표가 financials(은행·금융)를 안다. 로컬 화면에 새 묶음을 넣어 기사 80건·주제 칩 분포를 확인. verify_by: node scripts/ci-news-ranking-check.mjs
+- [ ] QA-NEWS-LANES-6062-03: v60.62 수집 실행마다 차선별 후보 수·채운 좌석·탈락 사유 집계(newsLaneHealth)가 실행 메타에 남는다. push 뒤 첫 refresh-data 실행에서 발행 건수와 차선별 집계를 확인한다. verify_by: node scripts/ci-news-ranking-check.mjs
+
+## v60.61 v60.61 뉴스 사실 줄 (2026-11-27)
+
+- [x] QA-NEWS-FACT-6061-01: v60.61 통화 낱말(Dollar)만 있는 제목에는 Dollar Tree 실적 줄이 붙지 않고, 전체 이름이 있는 실적 제목에는 붙는다(P2771). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-NEWS-FACT-6061-02: v60.61 원장이 잇지 않은 기사라도 카드가 발행사를 정확히 하나로 잡았으면 그 종목의 움직임을 잇는다. 발행사가 둘이거나 움직임이 없으면 줄이 없고, 원장 연결이 있으면 그것이 먼저다. 주제(topic) 연결은 계속 잇지 않는다. verify_by: node scripts/ci-day-cause-check.mjs
+- [x] QA-NEWS-FACT-6061-03: v60.61 '관련 움직임' 줄은 움직임들이 한 거래일이면 그 날짜(11/25)를 낱말 앞에 적는다. verify_by: node scripts/ci-news-ranking-check.mjs
+- [x] QA-RESEARCH-6061-01: v60.61 research-reference.json 25행(연준 금융안정보고서 2026년 11월호 Box 2.2의 첨단 연산 인프라 관련 부채 발행 6,800억 달러 포함)이 스키마·기준일 규칙을 통과한다. verify_by: node scripts/ci-research-reference-check.mjs
+- [x] QA-VIEWS-6061-01: v60.61 보기 전환 줄(.page-views)은 375px와 데스크톱에서 스크롤 중 상단 막대 바로 아래에 붙고, 화면 폭 전체의 불투명 띠 아래로 본문이 지나간다(줄 옆·위로 글이 비치지 않는다). 매크로·테마에서 화면으로 확인. verify_by: node scripts/ci-screen-rereview-browser-check.mjs
+- [x] QA-FOLDS-6061-01: v60.61 매크로(수십 년 속 위치, 조사 출처, 이익 전망 원자료)와 테마 AI 공급망·재무 공시의 접힘은 자료 도착으로 다시 그려져도 열어 둔 상태를 유지한다(keepOpenFolds 한 곳). 검사는 다시 그린 뒤 열려 있던 접힘만 열려 있는지 본다(매크로 지표 묶음은 원래 한 번에 하나만 열린다). verify_by: node scripts/ci-fold-kind-check.mjs
+- [x] QA-PORTFOLIO-6061-01: v60.61 포트폴리오로 바로 들어와 예시 미리 보기를 열어도 장 원장을 불러와 보유 종목 행 아래 '움직인 이유'가 그려지고, 휴대폰에서는 그 종목 카드의 마지막 줄로 카드 폭 전체에 붙는다. 로컬 화면 확인(NVDA). verify_by: node scripts/ci-screen-rereview-browser-check.mjs
 
 ## v60.60 v60.60 AI 채팅 — 자금 조달 사슬·조사 자료·추세 템플릿 (2026-11-26)
 

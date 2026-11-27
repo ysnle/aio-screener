@@ -4375,7 +4375,7 @@
     _assert('T749 v502_news_surface_contracts: home/briefing/market-news policies exist',
       newsContracts.home && newsContracts.home.windowHours === 24 && newsContracts.home.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.home.maxItems === 4 &&
         newsContracts.briefing && newsContracts.briefing.windowHours === 24 && newsContracts.briefing.newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts.briefing.aiPolicy === 'verified-current-only' &&
-        newsContracts['market-news'] && newsContracts['market-news'].windowHours === 24 && newsContracts['market-news'].newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts['market-news'].maxItems === 150,
+        newsContracts['market-news'] && newsContracts['market-news'].windowHours === 24 && newsContracts['market-news'].newsCyclePolicy === 'kst-0800-completed-24h' && newsContracts['market-news'].maxItems === 200,
       JSON.stringify(newsContracts));
 
     var nowT750 = Date.now();
@@ -4393,7 +4393,7 @@
     var briefingModel = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('briefing', sampleNews, { nowMs: nowT750, windowStart: bwT750.start, windowEnd: bwT750.end, anchorDate: bwT750.anchorDate.toISOString().slice(0, 10) }) : null;
     var marketModel = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('market-news', sampleNews, { nowMs: nowT750, countryFilter:'all', topicFilter:'all', typeTab:'all', sortMode:'score' }) : null;
     _assert('T750 v502_build_news_surface_model: same input produces role-specific surfaces',
-      homeModel && briefingModel && marketModel && homeModel.items.length <= 3 && briefingModel.contract.anchor === '08:00 KST' && marketModel.contract.maxItems === 150,
+      homeModel && briefingModel && marketModel && homeModel.items.length <= 3 && briefingModel.contract.anchor === '08:00 KST' && marketModel.contract.maxItems === 200,
       JSON.stringify({ home:homeModel && homeModel.visibleCount, briefing:briefingModel && briefingModel.visibleCount, market:marketModel && marketModel.visibleCount }));
 
     var expiredHome = window.AIO && window.AIO.buildNewsSurfaceModel ? window.AIO.buildNewsSurfaceModel('home', [], { nowMs: nowT750 }) : null;

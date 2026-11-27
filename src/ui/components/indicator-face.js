@@ -61,6 +61,18 @@ export function kindFold(doc, kind, what, body = []) {
   return fold;
 }
 
+/**
+ * The folds a reader opened under `host`, for a repaint that builds them again: call before the repaint, then call the
+ * returned function once the new nodes are in. A fold is the same one when its summary reads the same.
+ */
+export function keepOpenFolds(host) {
+  const open = new Set([...(host?.querySelectorAll?.('details[open] > summary') || [])].map((summary) => summary.textContent));
+  return (painted = host) => {
+    if (!open.size) return;
+    for (const summary of painted?.querySelectorAll?.('details:not([open]) > summary') || []) if (open.has(summary.textContent)) summary.parentElement.open = true;
+  };
+}
+
 /** Replaces a fold's body (everything after its summary), keeping the summary and the reader's open state. */
 export function setFoldBody(fold, nodes) {
   for (const child of [...(fold?.children || [])]) if (child.tagName?.toLowerCase?.() !== 'summary') child.remove();

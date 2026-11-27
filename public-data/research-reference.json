@@ -1,7 +1,7 @@
 {
   "schemaVersion": "research-reference.v1",
-  "checkedAt": "2026-11-26",
-  "method": "자동 수집이 어려운 시장 조사 수치(개별 기업 신용, 메모리 계약가, 자금 흐름)를 주 1~2회 공개 자료에서 직접 확인해 기록합니다. 각 행은 자기 기준일을 가지며, 점수·순위·차트 계열에는 들어가지 않습니다. 기준일이 10일을 넘으면 갱신 전으로 표시하고 21일을 넘으면 본문에서 뺍니다.",
+  "checkedAt": "2026-11-27",
+  "method": "자동 수집이 어려운 시장 조사 수치(개별 기업 신용, 메모리 계약가, 자금 흐름)를 주 1~2회 공개 자료에서 직접 확인해 기록합니다. 각 행은 자기 기준일을 가지며, 점수·순위·차트 계열에는 들어가지 않습니다. 기준일이 10일을 넘으면 갱신 전으로 표시하고 21일을 넘으면 본문에서 뺍니다. 기간 누계처럼 유효 기간을 따로 적은 행은 그 기간 동안 표시 없이 둡니다.",
   "groups": [
     {
       "id": "credit-single-name",
@@ -92,6 +92,36 @@
       "title": "자금 조달",
       "items": [
         {
+          "id": "ai-compute-debt-issuance-fed",
+          "label": "첨단 연산 인프라 관련 부채 발행(연준 집계)",
+          "entity": null,
+          "value": 680,
+          "unit": "amountUsdBn",
+          "asOf": "2026-11-13",
+          "period": "2026년 들어 10월까지",
+          "validDays": 60,
+          "prior": null,
+          "record": null,
+          "note": "2023년 한 해 1,300억 달러의 약 다섯 배",
+          "sourceName": "Federal Reserve 금융안정보고서(2026년 11월)",
+          "sourceUrl": "https://www.federalreserve.gov/publications/files/financial-stability-report-20261113.pdf"
+        },
+        {
+          "id": "hyperscaler-bonds-2026-goldman",
+          "label": "빅테크 회사채 발행 누계(골드만삭스 집계)",
+          "entity": null,
+          "value": 296,
+          "unit": "amountUsdBn",
+          "asOf": "2026-11-20",
+          "period": "2026년 들어",
+          "validDays": 60,
+          "prior": null,
+          "record": null,
+          "note": "연간 전망 2,500억 달러를 이미 넘어섬",
+          "sourceName": "Goldman Sachs (Korea JoongAng Daily 보도)",
+          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
+        },
+        {
           "id": "orcl-bond-deal-nov",
           "label": "오라클 회사채 추가 발행",
           "entity": "ORCL",
@@ -117,21 +147,6 @@
           "note": "새로 빌리는 돈의 금리",
           "sourceName": "BigGo Finance",
           "sourceUrl": "https://finance.biggo.com/news/327572f9-1422-43d5-98bb-b93416d5648b"
-        },
-        {
-          "id": "hyperscaler-bonds-2026-goldman",
-          "label": "빅테크 회사채 발행 누계(골드만삭스 집계)",
-          "entity": null,
-          "value": 296,
-          "unit": "amountUsdBn",
-          "asOf": "2026-11-20",
-          "period": "2026년 들어",
-          "validDays": 60,
-          "prior": null,
-          "record": null,
-          "note": "연간 전망 2,500억 달러를 이미 넘어섬",
-          "sourceName": "Goldman Sachs (Korea JoongAng Daily 보도)",
-          "sourceUrl": "https://www.koreajoongangdaily.com/business/ai-bubble-fears-push-lenders-that-bankrolled-boom-to-pull-back/12972392"
         },
         {
           "id": "datacenter-abs-issuance-3m",

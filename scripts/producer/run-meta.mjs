@@ -78,6 +78,7 @@ export async function buildCollectionMeta({ t0, attemptedAt, generatedAt, previo
     // number of publishers, while the retained items carry ~29 distinct outlets. Both numbers are published
     // under names that say which population they count.
     newsFeedCount: NEWS_FEEDS.length,
+    newsLaneHealth: news?.laneHealth || undefined, // this run's seats per lane and why candidates were passed over (absent when the run collected no news)
     newsFeedHealth: news?.feedHealth ? mergeNewsFeedHealth(previousMeta?.newsFeedHealth, news.feedHealth, attemptedAt) : (previousMeta?.newsFeedHealth || undefined), // per-feed counts + streak (watchdog)
     newsPublisherCount: new Set((Array.isArray(news) ? news : []).map(item => item && item.source).filter(Boolean)).size,
     newsCyclePolicy: newsCycle.policy,

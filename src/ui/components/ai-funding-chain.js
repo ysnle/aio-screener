@@ -53,8 +53,8 @@ function linkNode(doc, link) {
   return li;
 }
 
-/** The block, or null when no link has a row yet (nothing loaded). `open` keeps each fold's open state across repaints. */
-export function fundingChainBlock(doc, chain, { id = null, open = {} } = {}) {
+/** The block, or null when no link has a row yet (nothing loaded). */
+export function fundingChainBlock(doc, chain, { id = null } = {}) {
   if (!doc || !chain?.links?.some((link) => !link.empty)) return null;
   const box = el(doc, 'div', null, 'funding-chain');
   if (id) box.id = id;
@@ -87,12 +87,9 @@ export function fundingChainBlock(doc, chain, { id = null, open = {} } = {}) {
       })() : null
     ])
   ];
-  for (const fold of folds) { if (open[fold.dataset.foldKind]) fold.open = true; box.append(fold); }
+  box.append(...folds);
   return box;
 }
-
-/** Which folds of a painted block are open, so a repaint keeps them. */
-export const openFolds = (box) => Object.fromEntries([...(box?.querySelectorAll?.('details[data-fold-kind]') || [])].map((fold) => [fold.dataset.foldKind, !!fold.open]));
 
 /**
  * One line of the chain for another screen (매크로's credit chapter, the AI-capex scenario): the rule-decided count and a

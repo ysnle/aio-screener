@@ -591,7 +591,7 @@ check('fetch-data ranks backstop news by market-impact score', /scoreServerNewsI
 check('fetch-data has first-class credit/funding news backstop', /Google News - Credit\/Funding/.test(fetchData) && /topic:\s*'credit'/.test(fetchData) && /credit-funding/.test(fetchData) && /capex funding/.test(fetchData) && /data center financing/.test(fetchData));
 check('fetch-data ranks news by actual article source tier, not Google feed tier', /getServerNewsSourceTier/.test(fetchData) && /SERVER_NEWS_LOW_QUALITY_SOURCE_RE/.test(fetchData) && /source-tier/.test(fetchData) && /low-quality-source-8/.test(fetchData) && /feedTier/.test(fetchData));
 check('telegram classifier routes credit and capex funding risk', /add\('credit'\)/.test(fetchTelegram) && /lqd|LQD/.test(fetchTelegram) && /project finance|프로젝트/.test(fetchTelegram) && /capex funding|자금조달/.test(fetchTelegram));
-check('P1373 fetch-data queries the Korean edition in Korean and reserves fxbond/credit floors', /코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스/.test(fetchData) && /[['fxbond', 3], ['credit', 2]]/.test(fetchData));
+check('P1373 fetch-data queries the Korean edition in Korean and gives fxbond/credit their own lane (v60.62)', /코스피 OR 코스닥 OR 삼성전자 OR SK하이닉스/.test(fetchData) && /topics: \[[^\]]*'fxbond'/.test(fetchData) && /topics: \[[^\]]*'credit'/.test(fetchData));
 check('fetch-data enforces KST 08:00 completed 24h news cycle', /NEWS_CYCLE_POLICY\s*=\s*'kst-0800-completed-24h'/.test(fetchData) && /getKst0800NewsCycle/.test(fetchData) && /newsCycleStart/.test(fetchData) && /newsCycleEnd/.test(fetchData) && /newsCycleLabel/.test(fetchData));
 check('BEA PCE adapter is keyless official-primary evidence with observation/release/fetch separation', /parseBeaPceHtml/.test(fetchData) && /fetchBeaPce/.test(fetchData) && /www\.bea\.gov\/news\/current-releases/.test(fetchData) && /bea-official-primary/.test(fetchData) && /nextReleaseAt/.test(fetchData));
 check('history stores completed closes and carries the shared market-cut revision', /completed-market-cut/.test(fetchData) && /previous-completed-close/.test(fetchData) && /deriveMarketSession/.test(fetchData) && /marketSnapshotRevision/.test(fetchData));
@@ -2932,8 +2932,8 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
   check('v58.24 quote pages and prediction pages are not articles',
     score('Treasury Yield 30 Years (^TYX) charts, data and news', 'Yahoo Finance UK').selectionReason === 'not-article-filter'
       && score('Gold Price Prediction for Tomorrow: 3 Cues and Key Levels', 'Univest').selectionReason === 'not-article-filter');
-  check('v58.24 the two narrative feeds exist and each has a slot floor',
-    ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 2)));
+  check('v58.24 the two narrative feeds exist and each competes in a lane with seats (v60.62 lanes)',
+    ['Google News - AI narrative/Memory', 'Google News - Positioning/Sovereign/Politics'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name && ns.newsLaneOf({ feedSource: feed.source, topic: feed.topic })?.seats >= 2)));
   // The market-day ledger is rebuilt every refresh after the scenario state, and committed. v59.70: its
   // one network step is headline translation through requestWorkersAiTranslation (the automation token in its env); no
   // direct fetch.
@@ -2941,7 +2941,7 @@ for (const token of ['factorBarStart', 'factorSessionDate', 'factorSessionTimezo
     /id: market-day[\s\S]{0,700}AIO_AUTOMATION_TOKEN[\s\S]{0,120}run: node scripts\/build-market-day\.mjs/.test(refresh) && refresh.indexOf('build-scenario-state.mjs') < refresh.indexOf('build-market-day.mjs')
       && workflowPublishes('refresh-data.yml', 'public-data/market-day.json') && !/fetch\(|https?:\/\//.test(readFileSync(new URL('./build-market-day.mjs', import.meta.url), 'utf8')));
   check('v59.62 the deal and election-sector feeds exist with a seat, and a deal headline scores as a corporate action',
-    ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name) && ns.NEWS_FEED_FLOORS.some(([key, floor]) => key === name && floor >= 1))
+    ['Google News - Deals/M&A', 'Google News - Election sectors'].every((name) => ns.NEWS_FEEDS.some((feed) => feed.source === name && ns.newsLaneOf({ feedSource: feed.source, topic: feed.topic })?.seats >= 1))
       && /corporate-action/.test(score('Marvell to acquire Lumentum in $115 billion all-stock deal').selectionReason));
   const va = await import('./lib/market-analysis-validate.mjs');
   const row = (i, topic, feedSource, extra = {}) => ({ title: `headline ${i}`, source: `S${i}`, link: `https://x/${i}`, pubDate: '2026-10-17T20:00:00.000Z', score: 100 - i, topic, feedSource, ...extra });

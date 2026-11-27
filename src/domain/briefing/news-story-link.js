@@ -16,6 +16,8 @@ const moveSaid = (fact) => say('{label} {change}', { label: fact.label, change: 
 /**
  * `(story) => { moves: [{ id, said }] } | null` over one market-day ledger: the stock, group and price facts a matched
  * headline is linked to by subject or member (a topic link is too broad to name), most material first, at most two.
+ * A story the ledger did not link (it keeps fifty headlines) still names its company: when the card resolved exactly
+ * one issuer, that issuer's own stock move is the tie — the same subject basis, read from the card instead of the ledger.
  */
 export function newsStoryLinks(day) {
   if (!day || typeof day !== 'object') return () => null;
@@ -26,10 +28,13 @@ export function newsStoryLinks(day) {
     if ((link?.basis !== 'subject' && link?.basis !== 'member') || !moves.has(link.to)) continue;
     movesOf.set(link.from, [...(movesOf.get(link.from) || []), moves.get(link.to)]);
   }
+  const stockMoveOf = new Map([...moves.values()].filter((fact) => fact.kind === 'stock-move' && fact.subjects?.length === 1).map((fact) => [fact.subjects[0], fact]));
   const headlinesOf = ledgerHeadlinesOf(day);
-  return (story) => {
+  return (story, { issuers = [] } = {}) => {
     if (!story) return null;
-    const linked = [...new Set(headlinesOf(story).flatMap((fact) => movesOf.get(fact.id) || []))]
+    const byLedger = headlinesOf(story).flatMap((fact) => movesOf.get(fact.id) || []);
+    const own = !byLedger.length && issuers.length === 1 ? stockMoveOf.get(issuers[0]) : null;
+    const linked = [...new Set(own ? [own] : byLedger)]
       .sort((a, b) => (Number(b.materiality) || 0) - (Number(a.materiality) || 0))
       .slice(0, MAX_MOVES)
       .map((fact) => ({ id: fact.id, said: moveSaid(fact) }));

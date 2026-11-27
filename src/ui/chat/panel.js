@@ -1103,17 +1103,17 @@ window._aioChatCloseMarketBasis = _aioChatCloseMarketBasis;
 //   새 페이지 추가 시 이 맵에도 등록 필요.
 var _CTX_TOPIC_MAP = {
   // ── 미국 시장 ──
-  'home':        ['macro','geo','energy','semi','earnings','equity','healthcare','defense'],
+  'home':        ['macro','geo','energy','semi','earnings','equity','financials','healthcare','defense'],
   'signal':      ['macro','equity','semi','earnings','healthcare'],
   'breadth':     ['macro','equity'],
   'sentiment':   ['macro','equity','geo','energy'],
-  'briefing':    ['macro','geo','energy','semi','earnings','equity','healthcare','defense','space','quantum'],
+  'briefing':    ['macro','geo','energy','semi','earnings','equity','financials','healthcare','defense','space','quantum'],
   'technical':   ['macro','equity','semi'],
   'macro':       ['macro','geo','energy','bond','fx'],
-  'fundamental': ['earnings','equity','semi','energy','healthcare'],
+  'fundamental': ['earnings','equity','semi','energy','financials','healthcare'],
   'themes':      ['semi','energy','crypto','defense','equity','healthcare','shipbuilding','space','quantum'],
-  'screener':    ['earnings','equity','semi','energy','healthcare','defense','shipbuilding'],
-  'portfolio':   ['macro','equity','semi','earnings','energy','geo','healthcare','defense'],
+  'screener':    ['earnings','equity','semi','energy','financials','healthcare','defense','shipbuilding'],
+  'portfolio':   ['macro','equity','semi','earnings','energy','geo','financials','healthcare','defense'],
   'fxbond':      ['fx','bond','macro','geo','energy'],
   'mentor':      ['macro','equity','semi','earnings','healthcare']
 };

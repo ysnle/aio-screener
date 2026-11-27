@@ -123,6 +123,10 @@ input[aria-invalid="true"] { border-color: var(--color-text-error); }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-ticker"], .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { grid-column: 1 / -1; }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] { flex-direction: row; flex-wrap: wrap; gap: 8px; }
   .page .sh-portfolio-holdings-table tbody td[headers="pf-th-manage"] button { min-height: 44px; min-width: 44px; }
+  /* 움직인 이유 is its stock's last line: the two rows draw as one card, the reason across the card's full width. */
+  .page .sh-portfolio-holdings-table tbody tr:has(+ tr.pfp-cause) { margin-bottom: 0; border-bottom: 0; border-end-start-radius: 0; border-end-end-radius: 0; }
+  .page .sh-portfolio-holdings-table tbody tr.pfp-cause { display: block; padding-top: 0; border-top: 0; border-start-start-radius: 0; border-start-end-radius: 0; }
+  .page .sh-portfolio-holdings-table tbody tr.pfp-cause > td { display: block; }
 }
 
 /* v58.80 (first-users bundle 5): the add form's 80–110px fields cut their examples ("예: AAPL, 애플", "비우면 자동") on a

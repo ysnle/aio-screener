@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-26
+last_verified: 2026-11-27
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2771 - v60.61 - 뉴스 카드 사실 줄이 금 전망 기사에 Dollar Tree 실적을 붙임 (2026-11-27)
+
+- symptom/reproduction: "Gold Outlook: Dollar fatigue opens the door to a squeeze" 카드에 Dollar Tree(DLTR) 실적 줄(EPS·매출)이 수치로 붙었다. 사실 줄이 붙은 4건 중 1건이 틀린 연결이었다.
+- root_cause: earnings-context.js가 회사 이름의 첫 낱말만으로도 회사를 찾는데("Micron beats"), 통화 낱말 Dollar가 일반 낱말 목록(GENERIC_FIRST)에 없었고 outlook이 실적 낱말이라 두 조건이 함께 통과했다.
+- fix: GENERIC_FIRST에 dollar를 넣어 첫 낱말만으로는 Dollar Tree·Dollar General을 가리키지 않게 했다. 전체 이름("Dollar Tree beats")과 티커는 그대로 잡는다.
+- violated_rule: 티커 추정 금지(AGENTS.md 제품 결정)
+- prevention: ci-esm-core-unit-check에 금 전망 제목은 줄이 없고 전체 이름 제목은 DLTR로 잡히는 사례를 넣었다.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs 통과; 로컬 뉴스 화면에서 해당 카드에 실적 줄이 없음을 확인.
+- files: src/domain/news/earnings-context.js, scripts/ci-esm-core-unit-check.mjs
 
 ## P2770 - v60.58 - 한국장 개장 뒤 코스피 등락이 0.00%로 표시, 전날 금·달러 움직임이 오늘의 핵심으로 표시, 조기 마감 공지 없음 (2026-11-26)
 

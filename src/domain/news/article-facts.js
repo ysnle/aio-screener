@@ -3,12 +3,14 @@
 //   1. the company's own release brief (event-briefs.json) for an issuer the card names, published within a day and a
 //      half of the article — 수치 when the brief kept figures, 보도 when it kept only its headline;
 //   2. the earnings calendar's estimate/actual line the page matched to the headline — 수치;
-//   3. the moves the market-day ledger links the article to by subject or member (news-story-link.js) — 수치;
+//   3. the moves the market-day ledger links the article to by subject or member, or the stock move of the one issuer
+//      the card names (news-story-link.js) — 수치;
 //   4. the issuer's next report inside the next ten US sessions (earnings-calendar.json) — 일정.
 // No join, no line.
 import { newsStoryLinks } from '../briefing/news-story-link.js';
 import { koreanReleaseText, latestBriefFor, provisionalWaiting } from '../briefing/event-briefs.js';
 import { LEADER_EARNINGS_SESSIONS, nextEarnings, whenText } from '../briefing/leader-earnings.js';
+import { shortDate } from '../content/date-labels.js';
 
 export const ARTICLE_FACT_KINDS = Object.freeze({ report: '보도', figure: '수치', schedule: '일정' });
 const HOUR = 3600000;
@@ -37,8 +39,13 @@ export function articleFactReader({ day = null, briefs = null, calendar = null, 
       }
     }
     if (earningsText) return { kind: ARTICLE_FACT_KINDS.figure, text: String(earningsText), source: 'earnings' };
-    const tie = movesOf(item);
-    if (tie?.moves?.length) return { kind: ARTICLE_FACT_KINDS.figure, text: `관련 움직임 ${tie.moves.map((move) => move.said.text).join(' · ')}`, source: 'ledger' };
+    const tie = movesOf(item, { issuers: symbols });
+    if (tie?.moves?.length) {
+      // The moves are a session's closes, the article may be a day later: the line carries the session when the moves share one.
+      const sessions = [...new Set(tie.moves.map((move) => move.said.claims?.[0]?.asOf).filter(Boolean))];
+      const when = sessions.length === 1 ? `${shortDate(sessions[0])} ` : '';
+      return { kind: ARTICLE_FACT_KINDS.figure, text: `관련 움직임 ${when}${tie.moves.map((move) => move.said.text).join(' · ')}`, source: 'ledger' };
+    }
     if (calendar) {
       for (const symbol of symbols) {
         const next = nextEarnings(calendar, symbol, { nowMs, sessions: LEADER_EARNINGS_SESSIONS });

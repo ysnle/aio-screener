@@ -5,6 +5,7 @@ import { signedText } from '../../domain/shared/number.js';
 import { buildMacroChapters } from '../../domain/macro/macro-chapters.js';
 import { markFrame } from './section-frame.js';
 import { el } from './dom.js';
+import { keepOpenFolds } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
 import { researchReferenceView } from '../../data/research-reference.js';
@@ -170,7 +171,9 @@ export function renderMacroChapters({ documentRef: doc, root, events = [] }) {
   });
   const title = el(doc, 'h2', '주제별로 보기', 'briefing-h2');
   title.id = 'macro-chapters-title';
+  const reopen = keepOpenFolds(section);
   section.replaceChildren(title, picker, grid);
+  reopen();
   pick(model.chapters.some((chapter) => chapter.id === root.__aioMacroTopic) ? root.__aioMacroTopic : model.chapters[0].id);
   markFrame(section, 'macro.chapters');
   section.dataset.signature = key;

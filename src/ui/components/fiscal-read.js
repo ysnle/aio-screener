@@ -12,7 +12,7 @@ import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
-import { kindFold } from './indicator-face.js';
+import { keepOpenFolds, kindFold } from './indicator-face.js';
 import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
 import { signedText, usdKoreanText } from '../../domain/shared/number.js';
@@ -428,7 +428,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   }
   const consensusPoint = buildConsensusPoint(row, consensusRowFor(root, symbol));
   // Quote ticks re-render the page; the folds the reader opened stay open (matched by their summary text).
-  const openFolds = sameSymbol ? new Set([...host.querySelectorAll('details[open] > summary')].map((node) => node.textContent)) : new Set();
+  const reopen = sameSymbol ? keepOpenFolds(host) : () => {};
   // The raw SEC report fold (index.html, written by entity.js renderFundamentalReport) lives in section ③; kept across repaints.
   const rawReport = doc.getElementById('fund-native-sec-report');
   host.replaceChildren(el(doc, 'h2', '재무 흐름', 'briefing-h2'));
@@ -564,7 +564,7 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
   }
   // Without a reading (loading, KRX, no record) the raw report fold goes back under the host, where index.html put it.
   if (rawReport && rawReport.parentElement !== host && !host.contains?.(rawReport)) host.after(rawReport);
-  host.querySelectorAll('details > summary').forEach((summary) => { if (openFolds.has(summary.textContent)) summary.parentElement.open = true; });
+  reopen();
   // The 요약 · 차트 tabs sit above the page; the next links name only other screens.
   renderNextSteps(doc, next, [
     // The news screen opens on 기업 뉴스 narrowed to this ticker.

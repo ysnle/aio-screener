@@ -3,9 +3,13 @@
    content a renderer adds later is never lost — it only needs a line here to belong to one view. */
 .sx-seg.page-views {
   align-self: flex-start; max-width: 100%; overflow-x: auto; scrollbar-width: none; flex: 0 0 auto;
-  /* Stays in reach on a long view; the opaque backing keeps the text under it from showing through the tint. */
-  position: sticky; top: 0; z-index: 3;
+  /* Stays in reach on a long view, flush under the top bar (the scroller's top padding is cancelled). The row is
+     narrower than the page, so its backing is a band across the whole scroller (the shadow, cut to the row's height):
+     text scrolls under one edge instead of showing beside and above a floating pill. */
+  position: sticky; top: calc(4px - var(--content-pad-top, 0px)); z-index: 3;
   background: linear-gradient(var(--sx-ink-a06), var(--sx-ink-a06)), var(--color-background-body);
+  box-shadow: 0 0 0 100vmax var(--color-background-body);
+  clip-path: inset(-4px -100vmax -6px);
 }
 .page-views > [data-view] { white-space: nowrap; }
 

@@ -9,7 +9,7 @@ import { requestConsensusEstimates, CONSENSUS_KEY } from '../../data/consensus-e
 import { el } from './dom.js';
 import { gaugeBar } from './gauge-bar.js';
 import { asOfChip } from './section-frame.js';
-import { kindFold } from './indicator-face.js';
+import { keepOpenFolds, kindFold } from './indicator-face.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const pct = (value, digits = 0) => (value == null ? '—' : signedText(value * 100, digits, '%'));
@@ -61,7 +61,9 @@ export function renderIndexEarnings({ documentRef: doc, root, store }) {
     for (const row of model.sectors) list.append(el(doc, 'li', `${GICS_KO[row.sector] || row.sector} ${pct(row.revision)} — 상향 ${row.up}, 하향 ${row.down} (${row.members}개 기업)`));
     detail.append(list);
   }
+  const reopen = keepOpenFolds(host);
   host.replaceChildren(...[head, lead, model.breadth != null ? gaugeBar(doc, breadthGauge(model.breadth)) : null, detail].filter(Boolean));
+  reopen();
   return model;
 }
 

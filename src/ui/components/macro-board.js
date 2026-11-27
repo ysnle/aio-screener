@@ -26,7 +26,7 @@ import { createTrendChart } from './trend-chart.js';
 import { buildLiquidityGrowthGroups } from '../../domain/macro/liquidity-growth.js';
 import { INDICATOR_NOTES } from '../../domain/content/indicator-notes.js';
 import { principleLink } from './principle-link.js';
-import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
+import { indicatorRow, keepOpenFolds, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { openSignalAxis } from '../navigation/open-signal-axis.js';
 import { INDEX_EARNINGS_METHOD } from './index-earnings.js';
 import { openCrossroadsBranch } from './macro-crossroads.js';
@@ -719,6 +719,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   // real yield it is measured against is judged; the component owns its host (#index-earnings in the 매크로 shell).
   try { renderIndexEarnings({ documentRef: doc, root }); } catch (_) { /* the index earnings read never takes 매크로 down */ }
   const defs = [];
+  const reopen = keepOpenFolds(host);
   host.replaceChildren(...board.groups.map((group) => {
     const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
       node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.deltaText, item.targetText, item.trendText], meta: item.meta, status: item.status, staleText: item.held?.chip || null, series: item.series, direction: item.direction, unit: item.unit, format: item.people ? (value) => peopleText(value, { sign: true }) : null })));
@@ -755,6 +756,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     section.append(frameHead(doc, { title: '수십 년 속 지금 위치', level: 'h3', titleClass: 'macro-group-title', asOf: '지난달 월평균', asOfDetail: '위 카드(최신 발표값)나 금리 카드(최근 종가)와 시점이 달라 같은 지표도 숫자가 다를 수 있습니다.' }), fold);
     host.append(section);
   }
+  reopen();
   renderCommodities(doc, root);
   defs.push(['유가, 금', COMMODITY_DEFS.map((row) => [...row])]);
   // The six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.

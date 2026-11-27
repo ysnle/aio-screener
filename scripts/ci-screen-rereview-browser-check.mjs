@@ -41,7 +41,40 @@ try {
     check(labels.some((label) => label.text === '기대인플레'), `v59.70 re-review N5 ${viewport.name}: the rates chapter draws its 기대인플레 bar`, labels.map((label) => label.text).join(', '));
     const cut = labels.filter((label) => label.cut).map((label) => label.text);
     check(!cut.length, `v59.70 re-review N5 ${viewport.name}: no chapter bar label is cut`, cut.join(', '));
+    // v60.61: the view row sticks just under the top of the scroller with an opaque full-width band behind it (a narrow
+    // pill floated over the text and the text showed beside and above it).
+    const row = await page.evaluate(() => {
+      const scroller = document.getElementById('main-content');
+      const views = [...document.querySelectorAll('#page-macro .page-views')].find((node) => node.getClientRects().length);
+      if (!scroller || !views || scroller.scrollHeight - scroller.clientHeight < 600) return null;
+      scroller.scrollTop = 500;
+      const style = getComputedStyle(views);
+      return { position: style.position, band: style.boxShadow !== 'none' && style.clipPath !== 'none', gap: Math.round(views.getBoundingClientRect().top - scroller.getBoundingClientRect().top) };
+    });
+    check(row, `v60.61 view row ${viewport.name}: 매크로 has a view row and a scrolled page to check`);
+    check(row && row.position === 'sticky' && row.band && row.gap >= 0 && row.gap <= 8, `v60.61 view row ${viewport.name}: sticks under the top of the scroller with its band`, JSON.stringify(row));
     await page.close();
+    // v60.61: entering 포트폴리오 directly and opening the sample preview requests the market-day ledger (the cause line
+    // was drawn only when another screen had loaded it first); on the phone the cause row is the last line of its card.
+    const direct = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+    await direct.route('**/*', (route) => (route.request().url().startsWith(base) || route.request().url().startsWith('data:') ? route.continue() : route.abort()));
+    await direct.goto(`${base}/index.html#portfolio`, { waitUntil: 'domcontentloaded' });
+    const preview = direct.locator('#page-portfolio button', { hasText: '예시로 미리 보기' }).first();
+    await preview.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+    check(await preview.count() > 0, `v60.61 portfolio ${viewport.name}: an empty portfolio offers the sample preview`);
+    if (await preview.count()) {
+      const ledger = direct.waitForResponse((response) => /market-day\.json/.test(response.url()), { timeout: 15000 }).then(() => true, () => false);
+      await preview.click();
+      check(await ledger, `v60.61 portfolio ${viewport.name}: the sample preview requests the market-day ledger`);
+      await direct.waitForSelector('#page-portfolio tr.pfp-cause', { timeout: 5000 }).catch(() => {});
+      const detached = await direct.evaluate(() => [...document.querySelectorAll('#page-portfolio tr.pfp-cause')].filter((cause) => {
+        const card = cause.previousElementSibling?.getBoundingClientRect();
+        const own = cause.getBoundingClientRect();
+        return !card || Math.abs(own.top - card.bottom) > 1 || Math.abs(own.left - card.left) > 1 || Math.abs(own.width - card.width) > 1;
+      }).map((cause) => cause.dataset.causeFor));
+      if (viewport.name === 'phone') check(!detached.length, 'v60.61 portfolio phone: a cause row is joined to its stock card', detached.join(', '));
+    }
+    await direct.close();
   }
 } finally {
   await closeAll({ browser, server });

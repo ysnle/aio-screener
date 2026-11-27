@@ -25,7 +25,7 @@ export const FEED_TOPICS = Object.freeze([
   { key: 'equity', label: '주식', topics: ['equity', 'kr'] },
   { key: 'metals', label: '원자재', topics: ['metals', 'materials'] },
   { key: 'crypto', label: '크립토', topics: ['crypto'] },
-  { key: 'sector', label: '업종', topics: ['healthcare', 'shipbuilding', 'space', 'quantum'] }
+  { key: 'sector', label: '업종', topics: ['financials', 'healthcare', 'shipbuilding', 'space', 'quantum'] }
 ]);
 const GROUP_OF_TOPIC = new Map(FEED_TOPICS.flatMap((group) => group.topics.map((topic) => [topic, group])));
 

@@ -165,6 +165,23 @@ for (const [screen, spec] of Object.entries(SCREENS)) {
   counts[screen] = `${spec.modules.length} modules${spec.html === false ? '' : ' + index.html section'}`;
 }
 
+// v60.61: a section that repaints when a late artifact lands keeps the folds the reader opened (keepOpenFolds). The
+// repaint builds new <details>, so the open ones are found again by their summary text; a fold that was closed stays closed.
+{
+  const { keepOpenFolds } = await import('../src/ui/components/indicator-face.js');
+  const fold = (text, open) => { const details = { open }; details.summary = { textContent: text, parentElement: details }; return details; };
+  const host = (folds) => ({ querySelectorAll: (selector) => folds.filter((details) => details.open === selector.startsWith('details[open]')).map((details) => details.summary) });
+  const before = [fold('데이터 출처', true), fold('방법', false), fold('원자료', true)];
+  const reopen = keepOpenFolds(host(before));
+  const after = [fold('데이터 출처', false), fold('방법', false), fold('원자료', false), fold('새 접힘', false)];
+  reopen(host(after));
+  const state = after.map((details) => details.open).join(',');
+  if (state !== 'true,false,true,false') failures.push(`keepOpenFolds: a repaint keeps exactly the folds that were open (got ${state})`);
+  const untouched = [fold('방법', false)];
+  keepOpenFolds(host([fold('방법', false)]))(host(untouched));
+  if (untouched[0].open) failures.push('keepOpenFolds: nothing open before the repaint, nothing opened after it');
+}
+
 if (failures.length) {
   console.error(`[fold-kind] FAIL ${failures.length}:\n  ${failures.join('\n  ')}`);
   process.exit(1);
