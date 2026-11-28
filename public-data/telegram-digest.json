@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-28T04:22:33.119Z",
-  "attemptedAt": "2026-11-28T04:22:33.119Z",
-  "lastSuccessfulAt": "2026-11-28T04:22:33.119Z",
+  "generatedAt": "2026-11-28T05:22:01.218Z",
+  "attemptedAt": "2026-11-28T05:22:01.218Z",
+  "lastSuccessfulAt": "2026-11-28T05:22:01.218Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-14T04:22:29.633Z",
-  "until": "2026-11-28T04:22:29.633Z",
+  "since": "2026-11-14T05:21:58.284Z",
+  "until": "2026-11-28T05:21:58.284Z",
   "current24hWindow": {
     "start": "2026-11-26T23:00:00.000Z",
     "end": "2026-11-27T23:00:00.000Z",
@@ -82,12 +82,12 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1042,
-      "freshCount": 39,
-      "eligibleTextCount": 991,
+      "count": 1041,
+      "freshCount": 20,
+      "eligibleTextCount": 990,
       "selectedCount": 126,
       "error": null,
       "failingSince": null,
@@ -108,12 +108,12 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 737,
-      "freshCount": 36,
-      "eligibleTextCount": 736,
+      "count": 735,
+      "freshCount": 18,
+      "eligibleTextCount": 734,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
@@ -137,32 +137,32 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1949,
-  "retainedItemCount": 419,
+  "count": 1946,
+  "retainedItemCount": 400,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1949,
-    "eligibleTextCount": 1897,
+    "observedCount": 1946,
+    "eligibleTextCount": 1894,
     "mediaOnlyCount": 52,
-    "mediaAttachedCount": 762,
+    "mediaAttachedCount": 761,
     "photoPostCount": 649,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
-    "highSignalCount": 323,
-    "broadSignalCount": 805,
+    "highSignalCount": 322,
+    "broadSignalCount": 804,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 19.7,
-    "selectedOfObservedPct": 19.1,
+    "selectedOfObservedPct": 19.2,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 700,
-    "semi": 596,
-    "macro": 303,
+    "market-note": 699,
+    "semi": 595,
+    "macro": 302,
     "power": 175,
     "ai-policy": 130,
     "earnings": 215,
@@ -246,7 +246,7 @@
     "WMT": 2,
     "GSAT": 1,
     "NTES": 1,
-    "MS": 3,
+    "MS": 2,
     "QCOM": 1,
     "PANW": 1,
     "DIS": 1,
@@ -268,9 +268,9 @@
     "ARM": 1
   },
   "themes": [
-    "Market Notes (700 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
-    "Semiconductors/Memory (596 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
-    "Macro/Rates (303 posts in 14-day research window): >>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후...",
+    "Market Notes (699 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
+    "Semiconductors/Memory (595 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
+    "Macro/Rates (302 posts in 14-day research window): >>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후...",
     "Geopolitics (227 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "Earnings/Corporate (215 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (175 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
@@ -326,7 +326,7 @@
     {
       "key": "TSLA",
       "count": 25,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을 진행 중. 반도체 · 데이터센터 · 메모리 • 알파벳 (GOOGL) — 업계 소식통에 따르면 구글이 10세대..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
     },
     {
       "key": "2454.TW",
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 303,
+      "count": 302,
       "focus": ">>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후..."
     },
     {
@@ -365,7 +365,7 @@
         "credit"
       ],
       "count": 71,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%, 수출은 3.2% 증가했으며 무역적자 확대가 4분기 경제성장률에 부담으로 작용할 가능성 제기. • 뉴욕..."
+      "focus": ">>서브프라임 위기의 냄새? Oracle CDS 스프레드, 2008년 Bear Stearns를 넘어 •AI 인프라 금융에서 신용에 균열이 나타나고 있음. Oracle 5년물 CDS 스프레드는 316bp까지..."
     },
     {
       "id": "semi",
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 596,
+      "count": 595,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을..."
     },
     {
@@ -383,7 +383,7 @@
         "optical"
       ],
       "count": 24,
-      "focus": "**CXMT가 예상대로 과창50(Star50)지수에 편입되었습니다. 12월 11일 장마감 적용이며 과창50 추종 ETF 규모가 시장내 3번째로 큽니다. 금일 +13% 마감 ••••••••••••••••••••••••••••••••• >>과창50 구성 종목 5개 조정, CXMT, Hua Hong Measurement..."
+      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -481,8 +481,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 700,
-      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
+      "count": 699,
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
     }
   ],
   "pageMap": {
@@ -807,17 +807,14 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
+      ]
     },
     {
       "id": "insidertracking/70364",
@@ -826,13 +823,11 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -841,8 +836,7 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
+      ]
     },
     {
       "id": "insidertracking/70326",
@@ -2183,10 +2177,7 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 97,
       "hasText": true,
@@ -2196,8 +2187,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70373",
@@ -2206,7 +2197,7 @@
       "datetime": "2026-11-27T22:04:10.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -2216,8 +2207,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30..."
+      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70371",
@@ -2226,10 +2217,7 @@
       "datetime": "2026-11-27T22:01:58.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -2239,10 +2227,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무..."
+      ]
     },
     {
       "id": "insidertracking/70370",
@@ -2251,17 +2239,14 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
+      ]
     },
     {
       "id": "HANAchina/72909",
@@ -2270,12 +2255,12 @@
       "datetime": "2026-11-27T14:47:52.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함...."
+      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70365",
@@ -2284,13 +2269,11 @@
       "datetime": "2026-11-27T13:11:19.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "insider"
+        "ai-policy"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을...",
       "tickers": [
         "NVDA",
         "TSLA",
@@ -2299,8 +2282,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
+      ]
     },
     {
       "id": "insidertracking/70364",
@@ -2309,13 +2291,11 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2324,8 +2304,7 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
+      ]
     },
     {
       "id": "insidertracking/70362",
@@ -2334,15 +2313,14 @@
       "datetime": "2026-11-27T12:39:57.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "소비자 재정 부담에도 블랙프라이데이 지출 증가 전망 – 월마트·코스트코·아마존 블룸버그에 따르면 PwC는 2026년 미국 연말 쇼핑 시즌 소비 지출이 5.4% 증가할 것으로 전망. 다만 인플레이션을 반영한...",
       "tickers": [
         "AMZN"
-      ],
-      "summary": "소비자 재정 부담에도 블랙프라이데이 지출 증가 전망 – 월마트·코스트코·아마존 블룸버그에 따르면 PwC는 2026년 미국 연말 쇼핑 시즌 소비 지출이 5.4% 증가할 것으로 전망. 다만 인플레이션을 반영한..."
+      ]
     },
     {
       "id": "HANAchina/72903",
@@ -2351,14 +2329,12 @@
       "datetime": "2026-11-27T12:35:08.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "credit",
-        "macro",
-        "kr-market"
+        "market-note"
       ],
       "score": 82,
       "hasText": true,
-      "tickers": [],
-      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한..."
+      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70361",
@@ -2370,13 +2346,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 59,
       "hasText": true,
+      "summary": "중국 기업 2곳, 앨리스 황과 연계된 데이터센터에 엔비디아 블랙웰 서버 설치. 블룸버그가 검토한 문서에 따르면 중국 기업 2곳이 앨리스 황과 연계된 상하이 데이터센터에 엔비디아 블랙웰 기반 GB300...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "중국 기업 2곳, 앨리스 황과 연계된 데이터센터에 엔비디아 블랙웰 서버 설치. 블룸버그가 검토한 문서에 따르면 중국 기업 2곳이 앨리스 황과 연계된 상하이 데이터센터에 엔비디아 블랙웰 기반 GB300..."
+      ]
     },
     {
       "id": "HANAchina/72901",
@@ -2387,16 +2363,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU...",
+      "lead": 1,
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU..."
+      ]
     },
     {
       "id": "insidertracking/70359",
@@ -2409,10 +2385,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아 상승분 거의 반납",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 상승분 거의 반납"
+      ]
     },
     {
       "id": "insidertracking/70357",
@@ -2425,10 +2401,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아(Nvidia)의 블랙웰(Blackwell) AI 칩이 중국의 메가스피드(Megaspeed)와 관련된 한 장소에서 발견되었다는 보고.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아(Nvidia)의 블랙웰(Blackwell) AI 칩이 중국의 메가스피드(Megaspeed)와 관련된 한 장소에서 발견되었다는 보고."
+      ]
     },
     {
       "id": "insidertracking/70355",
@@ -2461,8 +2437,9 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,..."
+      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70350",
@@ -2521,11 +2498,11 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>코드의 대이동: Anthropic은 어떻게 Agent로 소프트웨어 생산 프로세스를 개조했나 •Anthropic이 ‘AI가 AI를 만드는’ 혁명을 일으키고 있음. Claude가 코드의 80%를 담당하고, 단..."
+      "summary": ">>코드의 대이동: Anthropic은 어떻게 Agent로 소프트웨어 생산 프로세스를 개조했나 •Anthropic이 ‘AI가 AI를 만드는’ 혁명을 일으키고 있음. Claude가 코드의 80%를 담당하고, 단...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72893",
@@ -2537,13 +2514,13 @@
         "semi",
         "power"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>TrendForce : 수요 가시성 낮아지고 공급망 보수화, 2028년 DRAM 계약가격 하락 위험 확대 •TrendForce, 2026년 4분기 초부터 공급망은 미국 정책 환경 변화가 향후 데이터센터...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>TrendForce : 수요 가시성 낮아지고 공급망 보수화, 2028년 DRAM 계약가격 하락 위험 확대 •TrendForce, 2026년 4분기 초부터 공급망은 미국 정책 환경 변화가 향후 데이터센터..."
+      ]
     },
     {
       "id": "HANAchina/72892",
@@ -2552,14 +2529,12 @@
       "datetime": "2026-11-27T07:58:21.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>이번 AI 대폭락, 왜 중국 자금이 가장 먼저 위험을 감지했고 이후 아시아, 마지막으로 월가와 실리콘밸리가 감지했나? •싱가포르 조사기관 Funda의 현장 조사에 따르면, 기업들의 2027년 AI 지출..."
+      "summary": ">>이번 AI 대폭락, 왜 중국 자금이 가장 먼저 위험을 감지했고 이후 아시아, 마지막으로 월가와 실리콘밸리가 감지했나? •싱가포르 조사기관 Funda의 현장 조사에 따르면, 기업들의 2027년 AI 지출...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72890",
@@ -2568,7 +2543,7 @@
       "datetime": "2026-11-27T07:54:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
@@ -2578,11 +2553,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.27, 금) 🇨🇳 중국 본토 증시는 정오 무렵 발표된 국무원 상무회의의 파격적인 증시 부양 천명에 힘입어 폭발적인 대폭등장을 연출. 상하이종합지수는 3.73% 급등하며...",
       "tickers": [
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.27, 금) 🇨🇳 중국 본토 증시는 정오 무렵 발표된 국무원 상무회의의 파격적인 증시 부양 천명에 힘입어 폭발적인 대폭등장을 연출. 상하이종합지수는 3.73% 급등하며..."
+      ]
     },
     {
       "id": "HANAchina/72886",
@@ -8559,10 +8534,7 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 97,
       "hasText": true,
@@ -8572,8 +8544,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70373",
@@ -8582,7 +8554,7 @@
       "datetime": "2026-11-27T22:04:10.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
@@ -8592,8 +8564,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30..."
+      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70371",
@@ -8602,10 +8574,7 @@
       "datetime": "2026-11-27T22:01:58.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "semi"
       ],
       "score": 91,
       "hasText": true,
@@ -8615,10 +8584,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무..."
+      ]
     },
     {
       "id": "insidertracking/70370",
@@ -8627,17 +8596,14 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit",
-        "macro",
-        "geo",
-        "semi"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
+      ]
     },
     {
       "id": "HANAchina/72909",
@@ -8646,12 +8612,12 @@
       "datetime": "2026-11-27T14:47:52.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함...."
+      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70365",
@@ -8660,13 +8626,11 @@
       "datetime": "2026-11-27T13:11:19.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi",
-        "power",
-        "ai-policy",
-        "insider"
+        "ai-policy"
       ],
       "score": 95,
       "hasText": true,
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을...",
       "tickers": [
         "NVDA",
         "TSLA",
@@ -8675,8 +8639,7 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
+      ]
     },
     {
       "id": "insidertracking/70364",
@@ -8685,13 +8648,11 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "power"
+        "market-note"
       ],
       "score": 100,
       "hasText": true,
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8700,8 +8661,7 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ],
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
+      ]
     },
     {
       "id": "insidertracking/70362",
@@ -8710,15 +8670,14 @@
       "datetime": "2026-11-27T12:39:57.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro",
-        "earnings"
+        "macro"
       ],
       "score": 56,
       "hasText": true,
+      "summary": "소비자 재정 부담에도 블랙프라이데이 지출 증가 전망 – 월마트·코스트코·아마존 블룸버그에 따르면 PwC는 2026년 미국 연말 쇼핑 시즌 소비 지출이 5.4% 증가할 것으로 전망. 다만 인플레이션을 반영한...",
       "tickers": [
         "AMZN"
-      ],
-      "summary": "소비자 재정 부담에도 블랙프라이데이 지출 증가 전망 – 월마트·코스트코·아마존 블룸버그에 따르면 PwC는 2026년 미국 연말 쇼핑 시즌 소비 지출이 5.4% 증가할 것으로 전망. 다만 인플레이션을 반영한..."
+      ]
     },
     {
       "id": "HANAchina/72903",
@@ -8727,14 +8686,12 @@
       "datetime": "2026-11-27T12:35:08.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "credit",
-        "macro",
-        "kr-market"
+        "market-note"
       ],
       "score": 82,
       "hasText": true,
-      "tickers": [],
-      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한..."
+      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70361",
@@ -8746,13 +8703,13 @@
         "semi",
         "power"
       ],
-      "lead": 2,
       "score": 59,
       "hasText": true,
+      "summary": "중국 기업 2곳, 앨리스 황과 연계된 데이터센터에 엔비디아 블랙웰 서버 설치. 블룸버그가 검토한 문서에 따르면 중국 기업 2곳이 앨리스 황과 연계된 상하이 데이터센터에 엔비디아 블랙웰 기반 GB300...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": "중국 기업 2곳, 앨리스 황과 연계된 데이터센터에 엔비디아 블랙웰 서버 설치. 블룸버그가 검토한 문서에 따르면 중국 기업 2곳이 앨리스 황과 연계된 상하이 데이터센터에 엔비디아 블랙웰 기반 GB300..."
+      ]
     },
     {
       "id": "HANAchina/72901",
@@ -8763,16 +8720,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU...",
+      "lead": 1,
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU..."
+      ]
     },
     {
       "id": "insidertracking/70359",
@@ -8785,10 +8742,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아 상승분 거의 반납",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아 상승분 거의 반납"
+      ]
     },
     {
       "id": "insidertracking/70357",
@@ -8801,10 +8758,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "엔비디아(Nvidia)의 블랙웰(Blackwell) AI 칩이 중국의 메가스피드(Megaspeed)와 관련된 한 장소에서 발견되었다는 보고.",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "엔비디아(Nvidia)의 블랙웰(Blackwell) AI 칩이 중국의 메가스피드(Megaspeed)와 관련된 한 장소에서 발견되었다는 보고."
+      ]
     },
     {
       "id": "insidertracking/70355",
@@ -8837,8 +8794,9 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,..."
+      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70350",
@@ -8897,11 +8855,11 @@
       "tags": [
         "ai-policy"
       ],
-      "lead": 1,
       "score": 50,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>코드의 대이동: Anthropic은 어떻게 Agent로 소프트웨어 생산 프로세스를 개조했나 •Anthropic이 ‘AI가 AI를 만드는’ 혁명을 일으키고 있음. Claude가 코드의 80%를 담당하고, 단..."
+      "summary": ">>코드의 대이동: Anthropic은 어떻게 Agent로 소프트웨어 생산 프로세스를 개조했나 •Anthropic이 ‘AI가 AI를 만드는’ 혁명을 일으키고 있음. Claude가 코드의 80%를 담당하고, 단...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72893",
@@ -8913,13 +8871,13 @@
         "semi",
         "power"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": ">>TrendForce : 수요 가시성 낮아지고 공급망 보수화, 2028년 DRAM 계약가격 하락 위험 확대 •TrendForce, 2026년 4분기 초부터 공급망은 미국 정책 환경 변화가 향후 데이터센터...",
+      "lead": 2,
       "tickers": [
         "NVDA"
-      ],
-      "summary": ">>TrendForce : 수요 가시성 낮아지고 공급망 보수화, 2028년 DRAM 계약가격 하락 위험 확대 •TrendForce, 2026년 4분기 초부터 공급망은 미국 정책 환경 변화가 향후 데이터센터..."
+      ]
     },
     {
       "id": "HANAchina/72892",
@@ -8928,14 +8886,12 @@
       "datetime": "2026-11-27T07:58:21.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi",
-        "power",
-        "earnings"
+        "market-note"
       ],
       "score": 55,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>이번 AI 대폭락, 왜 중국 자금이 가장 먼저 위험을 감지했고 이후 아시아, 마지막으로 월가와 실리콘밸리가 감지했나? •싱가포르 조사기관 Funda의 현장 조사에 따르면, 기업들의 2027년 AI 지출..."
+      "summary": ">>이번 AI 대폭락, 왜 중국 자금이 가장 먼저 위험을 감지했고 이후 아시아, 마지막으로 월가와 실리콘밸리가 감지했나? •싱가포르 조사기관 Funda의 현장 조사에 따르면, 기업들의 2027년 AI 지출...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72890",
@@ -8944,7 +8900,7 @@
       "datetime": "2026-11-27T07:54:29.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 65,
       "hasText": true,
@@ -8954,11 +8910,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "중화권 마감 시황 (26.11.27, 금) 🇨🇳 중국 본토 증시는 정오 무렵 발표된 국무원 상무회의의 파격적인 증시 부양 천명에 힘입어 폭발적인 대폭등장을 연출. 상하이종합지수는 3.73% 급등하며...",
       "tickers": [
         "TSM",
         "2454.TW"
-      ],
-      "summary": "중화권 마감 시황 (26.11.27, 금) 🇨🇳 중국 본토 증시는 정오 무렵 발표된 국무원 상무회의의 파격적인 증시 부양 천명에 힘입어 폭발적인 대폭등장을 연출. 상하이종합지수는 3.73% 급등하며..."
+      ]
     },
     {
       "id": "HANAchina/72886",
