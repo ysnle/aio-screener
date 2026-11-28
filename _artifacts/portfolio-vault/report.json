@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-portfolio-vault-evidence.v1",
-  "observedAt": "2026-11-28T13:25:33.819Z",
+  "observedAt": "2026-11-28T13:53:06.955Z",
   "appRevision": "v60.69",
-  "gitHead": "503360b48c1260430a075b66e7d131605de5a39f",
+  "gitHead": "0d8ed7e47663480b268df3aa9b9ff82018487252",
   "checks": [
     {
       "id": "P1277 evidence revision bound",
@@ -137,7 +137,7 @@
     {
       "id": "PFE2-18 strategy_path_and_currency_holds_render (P1193/P1181)",
       "ok": true,
-      "detail": "{\"strategyHtml\":\"<div class=\\\"wsl-rk-decl\\\" data-exposure-path=\\\"fixed_target_weight_strategy\\\" data-risk-scope=\\\"invested_sleeve\\\" data-path-lineage=\\\"fixed-target-weight-strategy\\\">목표 비중 유지 전략, 분모 주식 부분, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 목표 AAA 50.0%/BBB 50.0%<br>목표 비중 유지 방식은 현금 몫을 정하지 않아 주식 부분만 계산했습니다. 계산 방식을 지금 구성 그대로로 바꾸고 현금 연수익률을 넣으면 계좌 전체로 계산합니다.<details><summary>계산 식별자</summary>path fixed_target_weight_strategy, rebalance monthly, scope invested_sleeve, lineage fixed-target-weight-strategy, snapshot pfcomp-8353ccebb1093e85 @ 2026-11-28T13:25:40.212Z, account-hold strategy-account-scope-not-declared\",\"mixedNote\":\"통화 혼합(USD/JPY) — 환산 없어 합계 보류, 원가/시세 불일치 — P&L 보류\",\"declaredPath\":\"current_composition_retrospective\"}"
+      "detail": "{\"strategyHtml\":\"<div class=\\\"wsl-rk-decl\\\" data-exposure-path=\\\"fixed_target_weight_strategy\\\" data-risk-scope=\\\"invested_sleeve\\\" data-path-lineage=\\\"fixed-target-weight-strategy\\\">목표 비중 유지 전략, 분모 주식 부분, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 목표 AAA 50.0%/BBB 50.0%<br>목표 비중 유지 방식은 현금 몫을 정하지 않아 주식 부분만 계산했습니다. 계산 방식을 지금 구성 그대로로 바꾸고 현금 연수익률을 넣으면 계좌 전체로 계산합니다.<details><summary>계산 식별자</summary>path fixed_target_weight_strategy, rebalance monthly, scope invested_sleeve, lineage fixed-target-weight-strategy, snapshot pfcomp-ba1ead873618a9bd @ 2026-11-28T13:53:14.917Z, account-hold strategy-account-scope-not-declared\",\"mixedNote\":\"통화 혼합(USD/JPY) — 환산 없어 합계 보류, 원가/시세 불일치 — P&L 보류\",\"declaredPath\":\"current_composition_retrospective\"}"
     },
     {
       "id": "PFE2-19 declared_fx_leg_converts_and_reverts (P1194)",
@@ -152,12 +152,12 @@
     {
       "id": "PFE2-21 undeclared_policy_is_never_invented (P1198)",
       "ok": true,
-      "detail": "{\"retrospective\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 실제 계좌 이력 아님, 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective, rebalance monthly(미사용), scope whole_account, lineage legacy-risk-path, snapshot pfcomp-aaf0654d6d88d6c7 @ 2026-11-28T13:25:44.09\",\"undeclared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 방식인데 리밸런싱 주기가 정해지지 않아 위험 지표를 계산하지 않았습니다 — 주기를 가정하지 않으며, 리밸런싱 주기를 고르면 계산합니다.계산 식별자hold rebalance-policy-required\\n      \\n      실제 계좌 성과 TWR(기간 누적, 근사) +10.00%, MWR(연율) +8.01% — USD, 입출금 기간 끝 반영, 1기간 2026-01-01~2027-01-01, 입출금 1건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간\",\"declared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 전략, 분모 주식 부분, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 목표 AAA 50.0%/BBB 50.0%목표 비중 유지 방식은 현금 몫을 정하지 않아 주식 부분만 계산했습니다. 계산 방식을 지금 구성 그대로로 바꾸고 현금 연수익률을 넣으면 계좌 전체로 계산합니다.계산 식별자path fixed_target_weight_strategy, rebalance monthly, scope invested_sleeve, \"}"
+      "detail": "{\"retrospective\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      현재 구성을 표본 기간에 그대로 적용한 소급 계산, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 실제 계좌 이력 아님, 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective, rebalance monthly(미사용), scope whole_account, lineage legacy-risk-path, snapshot pfcomp-411a1190b099f3d2 @ 2026-11-28T13:53:19.00\",\"undeclared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 방식인데 리밸런싱 주기가 정해지지 않아 위험 지표를 계산하지 않았습니다 — 주기를 가정하지 않으며, 리밸런싱 주기를 고르면 계산합니다.계산 식별자hold rebalance-policy-required\\n      \\n      실제 계좌 성과 TWR(기간 누적, 근사) +10.00%, MWR(연율) +8.01% — USD, 입출금 기간 끝 반영, 1기간 2026-01-01~2027-01-01, 입출금 1건의 날짜에 평가액이 없어 TWR은 그 입출금을 기간\",\"declared\":\"\\n      \\n        \\n          위험 계산 (예상 최대 손실·종목끼리 함께 움직이는 정도)\\n          위험 대비 수익(Sharpe), 최대 낙폭(MDD) 포함\\n        \\n        ⟳ 계산\\n      \\n      목표 비중 유지 전략, 분모 주식 부분, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 목표 AAA 50.0%/BBB 50.0%목표 비중 유지 방식은 현금 몫을 정하지 않아 주식 부분만 계산했습니다. 계산 방식을 지금 구성 그대로로 바꾸고 현금 연수익률을 넣으면 계좌 전체로 계산합니다.계산 식별자path fixed_target_weight_strategy, rebalance monthly, scope invested_sleeve, \"}"
     },
     {
       "id": "PFE2-22 strategy_cash_share_and_inert_policy_ux (P1200/P1201)",
       "ok": true,
-      "detail": "{\"partial\":\"목표 비중 유지 전략, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 현금 20.0%, 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy, rebalance monthly, scope whole_account, lineage fixed-target-weight-strategy, snapshot pfcomp-1451092287c37d18 @ 2026-11-28T13:25:45.219Z1일 VaR (95%), 계좌 전체, \",\"over\":\"목표 비중 유지 방식인데 목표 비중이 비었거나 합이 100%를 넘어 위험 지표를 계산하지 않았습니다 — 종목마다 목표 비중을 합 100% 이하로 넣으면 남는 몫을 현금으로 두고 계산합니다.계산 식별자hold strategy-target-weights-invalid\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 실제 계좌 이력 아님, 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective, rebalance monthly(미사용), scope whole_account, lineage legacy-risk-\",\"disabled\":true}}"
+      "detail": "{\"partial\":\"목표 비중 유지 전략, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 목표 비중 유지 전략, 실제 계좌 이력 아님, 현금 20.0%, 목표 AAA 40.0%/BBB 40.0%계산 식별자path fixed_target_weight_strategy, rebalance monthly, scope whole_account, lineage fixed-target-weight-strategy, snapshot pfcomp-1da15f66d9a41d0c @ 2026-11-28T13:53:20.110Z1일 VaR (95%), 계좌 전체, \",\"over\":\"목표 비중 유지 방식인데 목표 비중이 비었거나 합이 100%를 넘어 위험 지표를 계산하지 않았습니다 — 종목마다 목표 비중을 합 100% 이하로 넣으면 남는 몫을 현금으로 두고 계산합니다.계산 식별자hold strategy-target-weights-invalid\",\"retrospective\":{\"panel\":\"현재 구성을 표본 기간에 그대로 적용한 소급 계산, 분모 계좌 전체, 무위험 수익률 입력, 표본 39일, 실제 계좌 이력 아님, 선언 정책 monthly 미사용계산 식별자path current_composition_retrospective, rebalance monthly(미사용), scope whole_account, lineage legacy-risk-\",\"disabled\":true}}"
     },
     {
       "id": "PFE2-23 var_certification_render_states (P1203)",
