@@ -1,8 +1,8 @@
 {
   "schemaVersion": "aio-accessibility-evidence.v2",
-  "observedAt": "2026-11-28T12:37:04.448Z",
+  "observedAt": "2026-11-28T13:28:19.033Z",
   "appRevision": "v60.69",
-  "gitHead": "e959d517f86f507d4b79fd8af94786439ee9e3f8",
+  "gitHead": "503360b48c1260430a075b66e7d131605de5a39f",
   "scope": "desktop-and-responsive",
   "viewport": {
     "name": "desktop1440",
@@ -440,8 +440,16 @@
       "fontUnder10": [],
       "smallTargetViolationCount": 0,
       "smallTargetViolations": [],
-      "smallTargetExceptionCount": 0,
-      "smallTargetExceptions": [],
+      "smallTargetExceptionCount": 1,
+      "smallTargetExceptions": [
+        {
+          "id": "",
+          "text": "VIX",
+          "width": 21,
+          "height": 28,
+          "exception": "wcag-inline-text"
+        }
+      ],
       "skipLink": true,
       "modalContracts": []
     }
