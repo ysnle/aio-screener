@@ -288,7 +288,7 @@ const SERVER_NEWS_POLITICS_MARKET_RE = /\b(stocks?|markets?|investors?|wall stre
 //   11/14 through "dollar" + "market" and took a 거시 floor seat.
 // - A headline whose subject is the market as a whole moving (index, the market, yields) or that names a release scheduled
 //   for its day (the macro calendar) is what explains the session, and ranks above a single-name note.
-export const NEWS_RANKING_RULE = 'subject-session-v1'; // published as meta.newsRankingRule
+export const NEWS_RANKING_RULE = 'subject-session-v2'; // published as meta.newsRankingRule; v2: the subject rules changed (outlook alone is no earnings subject, financials is one), so a bundle cut under v1 is not held to them
 const CONTEXT_RULES = new Set(['market-general']);
 const CROSS_SUBJECT_POINTS = 4;
 const MARKET_SCOPE_POINTS = 10;
