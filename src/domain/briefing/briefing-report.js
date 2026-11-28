@@ -92,14 +92,15 @@ export function reportLines({ opening = null, nextEvent = null, checks = [], lea
 }
 
 /**
- * The last `sessions` S&P 500 closes up to `asOf`, each with the ten-year's close of the same date (null when that
- * session has none), and the span's change of both.
+ * The S&P 500 closes of the last `sessions` sessions up to `asOf` with the close they start from (sessions + 1 points:
+ * the drawn span is the span the change is measured over), each with the ten-year's close of the same date (null when
+ * that session has none), and the span's change of both.
  */
 export function sessionSequence(history = [], asOf = null, sessions = MARKET_WINDOWS.week) {
   const all = buildCloseSeries(history, 'spx', { through: asOf || null });
   if (all.length < sessions + 1) return null;
-  const points = all.slice(-sessions);
-  const base = all.at(-1 - sessions);
+  const points = all.slice(-sessions - 1);
+  const base = points[0];
   const yields = new Map(buildCloseSeries(history, 'tnx', { through: asOf || null }).map((point) => [point.date, point.value]));
   const tnxBase = yields.get(base.date), tnxLast = yields.get(points.at(-1).date);
   return {

@@ -120,7 +120,8 @@ const boards = new WeakMap();
 /**
  * The board for the US rows of one screener load, on the session most rows carry: { asOf, carried (rows of an earlier
  * session, left out), bySymbol: Map(symbol → setup), judged, counts: { template,
- * base, ready } (null when no row could be judged), sectors: [{ sector, label, judged, template, base, defensive }] }.
+ * base, ready } (null when no row could be judged), sectors: [{ sector, label, judged, template, base, defensive }],
+ * breakouts: { asOf, breakouts, judged } (null when no row carries vcpStage) }.
  * ETFs and rows the ranking excludes are left out.
  */
 export function buildSetupBoard(rows) {
@@ -153,7 +154,11 @@ export function buildSetupBoard(rows) {
   const sectors = [...bySector.entries()].map(([sector, list]) => Object.freeze({
     sector, label: sectorLabel(sector), judged: list.length, template: count(list, 'template'), base: count(list, 'base'), defensive: DEFENSIVE_SECTORS.includes(sector)
   })).sort((a, b) => b.template - a.template || b.base - a.base || a.label.localeCompare(b.label));
-  const board = Object.freeze({ asOf, bySymbol, listed: listed.length, carried: eligible.length - listed.length, judged: judged.length, counts, sectors: Object.freeze(sectors) });
+  // The rows on a breakout day this session (the producer's vcpStage, the one breakout-day rule), of the rows the
+  // producer staged: the count the follow-through's leader check reads.
+  const staged = listed.filter((item) => typeof item.row.vcpStage === 'string');
+  const breakouts = staged.length ? Object.freeze({ asOf, breakouts: staged.filter((item) => item.row.vcpStage === 'breakout').length, judged: staged.length }) : null;
+  const board = Object.freeze({ asOf, bySymbol, listed: listed.length, carried: eligible.length - listed.length, judged: judged.length, counts, sectors: Object.freeze(sectors), breakouts });
   boards.set(rows, board);
   return board;
 }

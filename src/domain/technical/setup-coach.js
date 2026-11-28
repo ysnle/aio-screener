@@ -5,10 +5,35 @@
 // chart analysis (chart-analysis.js analyzeChart) and values the caller reads from existing models.
 import { RULES } from '../rules/thresholds.js';
 import { detectContractions, isBreakoutDay } from './definitions.js';
+import { boundaryState } from './index-read.js';
 import { signedText } from '../shared/number.js';
 
 const TECH = RULES.technical;
 const pct = (value, digits = 1) => signedText(value, digits, '%');
+// Ten-day volume under 80% of the 50-day average: the base's volume drying (chart-analysis dryUp).
+export const DRY_UP_RATIO = 0.8;
+
+/**
+ * The facts the life cycle, the checklist and the style lenses all read, counted once from the chart analysis: the
+ * template's checks, volume drying, the 50-day extension in daily ranges, the relative-strength line against its high,
+ * and the pivot (a valid contraction run only) with the close's state against it (index-read.js boundaryState, the line
+ * the index cards read too). Each fact is null where the analysis has no value.
+ */
+export function setupFacts(analysis) {
+  if (!analysis?.available) return null;
+  const checks = analysis.templateChecks || [];
+  const multiple = Number.isFinite(analysis.adrFrom50) ? analysis.adrFrom50 : null;
+  const pivot = analysis.vcp?.valid === true && analysis.pivot > 0 ? analysis.pivot : null;
+  const dry = analysis.dryUp ?? null;
+  const rsFromHigh = analysis.rsFromHigh ?? null;
+  return Object.freeze({
+    template: Object.freeze({ met: checks.filter(([, ok]) => ok === true).length, failed: checks.filter(([, ok]) => ok === false).map(([label]) => label), unknown: checks.filter(([, ok]) => ok == null).length, total: checks.length }),
+    dryUp: Object.freeze({ ratio: dry, dry: dry == null ? null : dry < DRY_UP_RATIO }),
+    extension: Object.freeze({ multiple, extended: multiple == null ? null : multiple >= TECH.extension.extended }),
+    rs: Object.freeze({ fromHigh: rsFromHigh, atHigh: rsFromHigh == null ? null : !!analysis.rsAtHigh, leadsPrice: !!analysis.rsLeadsPrice }),
+    pivot: Object.freeze({ price: pivot, boundary: pivot ? boundaryState((analysis.bars || []).map((bar) => bar.close), pivot) : null })
+  });
+}
 
 export const SETUP_STAGES = Object.freeze([
   { id: 'base', label: '베이스 형성', check: '조정 폭이 차례로 얕아지는지(수축), 하락일 거래량이 줄어드는지 봅니다.' },
@@ -19,18 +44,22 @@ export const SETUP_STAGES = Object.freeze([
 ]);
 
 /** The life-cycle stage, or an off-band state (downtrend / failed breakout / no structure). */
-export function setupLifecycle(analysis) {
+export function setupLifecycle(analysis, facts = setupFacts(analysis)) {
   if (!analysis?.available) return null;
   const close = analysis.last.close;
   const pivot = analysis.pivot;
   const ceiling = pivot != null ? pivot * (1 + TECH.breakout.maxAbovePct / 100) : null;
-  const extendedFrom50 = Number.isFinite(analysis.adrFrom50) && analysis.adrFrom50 >= TECH.extension.extended;
+  // A breakout is followed through once the close has pulled back and held over the pivot (boundaryState 'accepted'),
+  // or once the breakout day has left the last three sessions with the close still in range.
+  const boundary = facts?.pivot.boundary || null;
+  const inRange = analysis.brokeOut && pivot != null && close > pivot && close <= ceiling;
   let stage = null, off = null;
   if (analysis.state === 'downtrend') off = 'downtrend';
   else if (analysis.state === 'failed') off = 'failed';
-  else if (analysis.state === 'extended' || (extendedFrom50 && analysis.brokeOut)) stage = 'extended';
+  else if (analysis.state === 'extended' || (facts?.extension.extended && analysis.brokeOut)) stage = 'extended';
+  else if (inRange && boundary?.state === 'accepted') stage = 'follow';
   else if (analysis.state === 'breakout') stage = 'breakout';
-  else if (analysis.brokeOut && pivot != null && close > pivot && close <= ceiling) stage = 'follow';
+  else if (inRange) stage = 'follow';
   else if (analysis.state === 'setup') stage = 'approach';
   else if (analysis.vcp?.contractions?.length) stage = 'base';
   else off = 'none';
@@ -44,29 +73,28 @@ export function setupLifecycle(analysis) {
   const headline = current
     ? `셋업 생애 주기: 지금은 '${current.label}' 단계${stage === 'follow' && sessionsSinceBreakout != null ? `(돌파 ${sessionsSinceBreakout}거래일 뒤)` : ''}입니다.`
     : OFF_TEXT[off];
-  return { stage, off, headline, check: current?.check || null, sessionsSinceBreakout };
+  return { stage, off, headline, check: current?.check || null, sessionsSinceBreakout, boundary };
 }
 
 /**
  * Pre-breakout checklist. `regime` is the shared market-regime read (market-regime.js readMarketRegime); `earnings` is
  * buildEarningsSchedule's result (analysis-read.js) or null. Each item: met true / false / null (unknown).
  */
-export function breakoutChecklist(analysis, { regime = null, earnings = null } = {}) {
+export function breakoutChecklist(analysis, { regime = null, earnings = null, facts = setupFacts(analysis) } = {}) {
   if (!analysis?.available) return null;
   const items = [];
   const add = (id, label, principle, met, value) => items.push({ id, label, principle, met, value });
-  const unknownTemplate = analysis.templateChecks.filter(([, ok]) => ok == null).length;
-  const failedTemplate = analysis.templateChecks.filter(([, ok]) => ok === false).map(([label]) => label);
+  const { template, dryUp, rs, extension } = facts;
   add('template', '추세 템플릿', '오래 오르는 종목은 대개 장기 이동평균이 정배열이고 52주 고점 가까이에 있습니다 — 돌파는 상승 추세 안에서 나올 때 이어지기 쉽다는 원리입니다.',
-    // P24-EARNINGS-01 (template): 7 met + 1 unknown read 충족; an unchecked rule leaves the item unknown.
-    failedTemplate.length ? false : unknownTemplate ? null : true,
-    `8개 중 ${analysis.templatePass}개 충족${failedTemplate.length ? `(미충족: ${failedTemplate.join(', ')})` : ''}${unknownTemplate ? `, 확인 불가 ${unknownTemplate}개` : ''}`);
+    // An unchecked rule leaves the item unknown (7 met + 1 unknown is not 충족).
+    template.failed.length ? false : template.unknown ? null : true,
+    `${template.total}개 중 ${template.met}개 충족${template.failed.length ? `(미충족: ${template.failed.join(', ')})` : ''}${template.unknown ? `, 확인 불가 ${template.unknown}개` : ''}`);
   add('dryup', '거래 마름', '돌파 직전에는 팔 사람이 줄어 거래량이 평소보다 마릅니다 — 매물이 소화됐다는 흔적입니다.',
-    analysis.dryUp == null ? null : analysis.dryUp < 0.8,
-    analysis.dryUp == null ? '거래량 기록 부족' : `최근 10일 평균 거래량이 50일 평균의 ${Math.round(analysis.dryUp * 100)}% (80% 미만이면 충족)`);
+    dryUp.dry,
+    dryUp.ratio == null ? '거래량 기록 부족' : `최근 10일 평균 거래량이 50일 평균의 ${Math.round(dryUp.ratio * 100)}% (${DRY_UP_RATIO * 100}% 미만이면 충족)`);
   add('rs', '상대강도선 신고가 선행', '지수 대비 강세(상대강도선)가 가격보다 먼저 신고가를 쓰면 기관 수요가 앞서 있다는 신호로 읽습니다.',
-    analysis.rsFromHigh == null ? null : analysis.rsAtHigh,
-    analysis.rsFromHigh == null ? '지수 비교 기록 부족' : analysis.rsAtHigh ? (analysis.rsLeadsPrice ? '상대강도선이 신고가 — 가격보다 먼저' : '상대강도선이 신고가(가격도 고점권)') : `상대강도선이 자체 고점보다 ${pct(analysis.rsFromHigh)}`);
+    rs.atHigh,
+    rs.fromHigh == null ? '지수 비교 기록 부족' : rs.atHigh ? (rs.leadsPrice ? '상대강도선이 신고가 — 가격보다 먼저' : '상대강도선이 신고가(가격도 고점권)') : `상대강도선이 자체 고점보다 ${pct(rs.fromHigh)}`);
   const overall = regime?.available ? regime.overall : null;
   add('market', '시장 상태', '돌파의 다수는 시장 전체가 받쳐 줄 때 이어집니다 — 지표 대부분이 부담일 때는 좋은 셋업도 실패가 잦다고 보는 관점입니다.',
     !overall || overall === '판정 보류' ? null : ['양호 우세', '다소 양호'].includes(overall),
@@ -78,10 +106,9 @@ export function breakoutChecklist(analysis, { regime = null, earnings = null } =
     // "not 'no report'"), so it is not evidence of a report after the window — the item stays unknown.
     sessions != null ? sessions > 10 : null,
     sessions != null ? `${earnings.text} (10거래일 넘게 남으면 충족)` : windowDays != null && windowDays >= 0 ? `실적 일정 목록(${earnings.windowEnd}까지)에 날짜 없음 — 발표 일정 미확인` : earnings?.text || '실적 일정 미확인');
-  const multiple = analysis.adrFrom50;
   add('extension', '50일선 대비 과열 아님', '50일선에서 멀리 오른 뒤의 돌파는 되돌림 폭이 커서, 기준선 가까이에서 나온 돌파를 더 낫게 봅니다.',
-    Number.isFinite(multiple) ? multiple < TECH.extension.extended : null,
-    Number.isFinite(multiple) ? `50일선 대비 일평균 변동폭의 ${signedText(multiple, 1)}배 (${TECH.extension.extended}배 미만이면 충족)` : '기록 부족');
+    extension.extended == null ? null : !extension.extended,
+    extension.multiple != null ? `50일선 대비 일평균 변동폭의 ${signedText(extension.multiple, 1)}배 (${TECH.extension.extended}배 미만이면 충족)` : '기록 부족');
   const met = items.filter((item) => item.met === true).length;
   const known = items.filter((item) => item.met != null).length;
   const pivot = analysis.pivot;

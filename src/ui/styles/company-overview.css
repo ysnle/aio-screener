@@ -48,6 +48,25 @@ button.co-chip { cursor:pointer; border:1px solid var(--chart-grid); background:
 .co-peer li.is-burden > b { color: var(--color-text-warning); }
 .co-rows { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:12px; }
 .co-link { align-self:flex-start; }
+/* 쟁점과 전망's one table: what holds the story, what breaks it, what decides it; the number-rule rows under the researched ones. */
+.co-verdicts { min-width:0; }
+.co-verdicts__table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:14px; }
+.co-verdicts__table th, .co-verdicts__table td { padding:10px 12px; vertical-align:top; text-align:left; border-top:1px solid var(--chart-grid); overflow-wrap:anywhere; }
+.co-verdicts__table thead th { border-top:0; font-size:12px; font-weight:600; color:var(--color-text-secondary); }
+.co-verdicts__table thead th:first-child, .co-verdicts__table tbody th { width:8em; }
+.co-verdicts__table tbody th { font-size:12px; font-weight:600; color:var(--color-text-secondary); }
+.co-verdicts__table td.is-breaks { background:var(--sx-ink-a03); }
+.co-verdicts__table tr.is-rule th, .co-verdicts__table tr.is-rule td { font-size:12px; }
+.co-verdicts__table .co-text { max-width:none; }
+@media (max-width: 600px) {
+  .co-verdicts__table thead { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .co-verdicts__table, .co-verdicts__table tbody, .co-verdicts__table tr, .co-verdicts__table th, .co-verdicts__table td { display:block; width:auto; }
+  .co-verdicts__table thead th:first-child, .co-verdicts__table tbody th { width:auto; }
+  .co-verdicts__table tr { border-top:1px solid var(--chart-grid); padding:8px 0; }
+  .co-verdicts__table th, .co-verdicts__table td { border-top:0; padding:4px 0; }
+  .co-verdicts__table td.is-breaks { padding:6px 8px; border-radius:var(--radius-element); }
+  .co-verdicts__table td::before { content:attr(data-label); display:block; font-size:12px; font-weight:600; color:var(--color-text-secondary); }
+}
 .co-actions { display:flex; flex-wrap:wrap; gap:8px; }
 .co-sources { margin:0; padding-left:18px; font-size:12px; line-height:1.7; }
 .co-sources a { color:var(--color-accent); overflow-wrap:anywhere; }

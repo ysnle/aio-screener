@@ -1,10 +1,12 @@
 // 이익의 질 (재무 공시 ② 현금흐름과 발생액): operating cash flow against net income for each filed year, the Sloan (1996)
-// accrual ratio (analysis-read buildAccrualRead, passed in), the latest free-cash-flow margin and the one-year share count
-// change. Every printed figure is a claim on the filer (src/domain/shared/claim.js); the card renders these texts only.
+// accrual ratio (analysis-read buildAccrualRead, passed in), then the rest of the cash chain (cash-chain.js): free cash flow
+// and its change, dilution against growth, and the cash runway of a filer burning cash. Every printed figure is a claim on
+// the filer (src/domain/shared/claim.js); the card renders these texts only.
 import { say, sayJoin, NOTHING, periodId } from '../shared/claim.js';
 import { readNumber } from '../shared/number.js';
 import { fiscalYearLabel } from './period.js';
-import { filerClaim, shareSplitBreaks } from './fiscal-read.js';
+import { filerClaim } from './fiscal-read.js';
+import { fcfBridge, dilutionRead, runwayRead } from './cash-chain.js';
 
 const fig = (value, unit, basis, label, period, more = {}) => ({ value, unit, basis, label, period, ...more });
 /** Operating cash flow ÷ net income when both are positive; otherwise the ratio does not read as earnings quality. */
@@ -45,18 +47,22 @@ export function buildEarningsQuality({ symbol, history = [], accrual = { state: 
       hover: say('(순이익 − 영업현금흐름) ÷ {basis} 총자산 (Sloan 1996). {years}', { basis: accrualLatest.basis === 'average' ? '평균' : '기말',
         years: sayJoin(accrual.years.map((year) => say('{label} {accrual}{end}', { label: year.label, accrual: accrualClaim(year, year.label), end: year.basis === 'average' ? '' : '(기말)' })), ', ') }) });
   }
+  // The rest of the chain (cash-chain.js): free cash and where its change came from, the share count against revenue per
+  // share, and for a loss-making filer burning cash, the years its cash covers.
   const capex = readNumber(latest.capex);
   if (capex != null && latest.revenue > 0) {
     rows.push({ id: 'fcf-margin', name: '잉여현금흐름 마진', detail: '매출 중 설비투자까지 쓰고 남은 현금의 비율',
       value: say('{margin}', { margin: filed('fcfMargin', [fig((latest.operatingCashFlow - capex) / latest.revenue * 100, 'share', 'fcfMargin', '잉여현금흐름 마진', fy(latest), { digits: 1 })]) }) });
   }
-  const prev = history.at(-2);
-  if (readNumber(latest.shares) > 0 && readNumber(prev?.shares) > 0) {
-    const split = shareSplitBreaks(history).includes(latest.periodEnd);
-    const change = (latest.shares / prev.shares - 1) * 100;
-    rows.push({ id: 'shares', name: '주식 수 변화 (1년)', detail: split ? '주식 분할 해 — 분할 전후라 비교 보류' : change <= -0.5 ? '자사주 매입이 보상 주식 발행보다 많음' : change >= 0.5 ? '신주·보상 주식으로 주식 수 증가' : '거의 변하지 않음',
-      value: split ? say('분할') : say('{shares}', { shares: filed('shares', [fig(change, 'pct', 'shares', '주식 수', fy(latest), { against: fy(prev) })]) }) });
-  }
+  const bridge = fcfBridge(history, symbol);
+  if (bridge) rows.push({ id: 'fcf-bridge', name: '잉여현금흐름 변화', detail: bridge.label, tone: bridge.tone, bridge,
+    value: say('{b}(전년 {b.1}), 영업현금흐름 {b.2}, 설비투자 {b.3}', { b: bridge.claim }) });
+  const dilution = dilutionRead(history, symbol);
+  if (dilution) rows.push({ id: 'shares', name: '희석과 성장', detail: `${dilution.label}${dilution.splitSeen ? '(주식 분할로 보이는 변화는 제외)' : ''}`, tone: dilution.tone, dilution,
+    value: say('{s} 동안 발행 주식 수 {s.1}({s.2.label} {s.2}), 주당 매출 연 {s.3}', { s: dilution.claim }) });
+  const runway = runwayRead(history, symbol);
+  if (runway) rows.push({ id: 'runway', name: '현금이 버티는 기간', detail: runway.label, tone: 'burden', runway,
+    value: say('{r.label} {r} ÷ {r.1.label} {r.1} = {r.2.label} {r.2}', { r: runway.claim }) });
   // The two signals can disagree (cash 0.86 of income, yet accruals +10.9% of assets): both are said, with what to check.
   const reconcile = ratio != null && ratio >= 0.8 && accrualLatest && accrualLatest.ratio >= 0.05 && latest.netIncome > latest.operatingCashFlow
     ? say('이익의 {cash}는 현금으로 들어왔지만, 현금이 아닌 이익({cash.1})이 자산 대비 큽니다(발생액 비율 {accrual}). 매출이 빠르게 늘 때는 매출채권·재고가 함께 느는 경우가 많아, 다음 분기 현금 전환을 확인합니다.', {

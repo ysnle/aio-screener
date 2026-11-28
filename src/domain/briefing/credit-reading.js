@@ -3,7 +3,8 @@
 import { RULES } from '../rules/thresholds.js';
 import { readNumber, signedText } from '../shared/number.js';
 import { STATE_LABELS } from '../market/interpretation/concepts.js';
-import { hyObservation, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion, RECORD_FULL_YEAR } from './market-read.js';
+import { hyObservation, hyWidening20Record, creditState, creditCause, creditReleaseText, creditDispersion, oasDelta20Bp, RECORD_FULL_YEAR } from './market-read.js';
+import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 
 /**
  * The credit judgement from the published OAS history alone — the same
@@ -26,11 +27,34 @@ export function creditJudgement(macroHistory, through = null) {
  * `window`-observation changes over the last year, never under `floor` (the floor alone while the record is short).
  * A flat +50bp over 20 observations was 28% of CCC's last year.
  */
-export function cccTailLine(macroHistory, window, floor, through = null) {
+export function tierTailLine(macroHistory, id, window, floor, through = null) {
   const C = RULES.credit;
-  const rows = (macroHistory?.series?.cccOas?.observations || []).filter(([day, value]) => day && readNumber(value) !== null && (!through || String(day).slice(0, 10) <= through));
+  const rows = (macroHistory?.series?.[id]?.observations || []).filter(([day, value]) => day && readNumber(value) !== null && (!through || String(day).slice(0, 10) <= through));
   const changes = rows.slice(window).map((row, index) => (Number(row[1]) - Number(rows[index][1])) * 100).slice(-RECORD_FULL_YEAR).sort((a, b) => a - b);
   return Math.max(floor, changes.length >= C.recordMin ? changes[Math.floor((C.stress20dPct / 100) * (changes.length - 1))] : 0);
+}
+export const cccTailLine = (macroHistory, window, floor, through = null) => tierTailLine(macroHistory, 'cccOas', window, floor, through);
+
+/**
+ * How far credit stress has spread down the rating ladder over one 20-session span (2108953697267208335): CCC widening
+ * faster than usual for CCC while B and BB do not follow is 선별 (the weakest borrowers first); B and BB both widening
+ * faster than usual for each is 전염; investment grade joining them is 시장 전체 (2116235808109986188). Every tier is
+ * read on the same start and end dates, or there is no state. Each tier is measured against its own record
+ * (tierTailLine), so no fixed spread line is borrowed from indexes defined differently.
+ */
+export const CONTAGION_WORDS = Object.freeze({ quiet: '조용', selective: '선별', contagion: '전염', broad: '시장 전체' });
+const LADDER_TIERS = Object.freeze({ ig: 'igOas', bb: 'bbOas', b: 'bOas', ccc: 'cccOas' });
+export function creditContagion(macroHistory, through = null) {
+  const C = RULES.credit;
+  const legs = Object.fromEntries(Object.entries(LADDER_TIERS).map(([key, id]) => [key, oasDelta20Bp(macroHistory, id, through)]));
+  const all = Object.values(legs);
+  if (all.some((leg) => !leg) || new Set(all.map((leg) => `${leg.from}|${leg.date}`)).size !== 1) return null;
+  // CCC keeps the credit chapter's floor (2 × the axis's 20-session widening line); the other tiers only need to widen.
+  const floor = (key) => (key === 'ccc' ? C.stress20dMultiple * C.widen20dBp : 0);
+  const widening = Object.fromEntries(Object.entries(LADDER_TIERS).map(([key, id]) => [key, legs[key].value > 0 && legs[key].value >= tierTailLine(macroHistory, id, MARKET_WINDOWS.rule, floor(key), through)]));
+  const contagion = widening.b && widening.bb;
+  const state = contagion ? (widening.ig ? 'broad' : 'contagion') : widening.ccc ? 'selective' : 'quiet';
+  return { state, label: CONTAGION_WORDS[state], from: legs.ccc.from, date: legs.ccc.date, bp: Object.fromEntries(Object.entries(legs).map(([key, leg]) => [key, leg.value])), widening };
 }
 
 /**

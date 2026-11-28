@@ -14,6 +14,8 @@ export const TRADE_REASONS = Object.freeze({
 export const TRADE_MOODS = Object.freeze({ plan: '계획대로', fomo: '놓칠까 봐', fear: '불안·공포', revenge: '만회하려고', bored: '습관·지루함' });
 // Fewer closed trades than this and a rate is shown as a count, not as a tendency.
 export const MIN_SAMPLE = 10;
+// A buy's note is the holding's record of why it was bought and what would break it; the 종목 thesis template fits in it.
+export const TRADE_NOTE_MAX = 1000;
 const DAY_MS = 86400000;
 
 // v59.45 (PASS27 P27-IMPORT-01 class): Date.parse rolls 2026-02-30 over to 3/2, so the shape check alone kept a day that
@@ -56,7 +58,7 @@ export function normalizeTrade(input = {}, { idOf = () => `t${Date.now().toStrin
     reason: Object.hasOwn(TRADE_REASONS, input.reason) ? input.reason : 'other',
     mood: Object.hasOwn(TRADE_MOODS, input.mood) ? input.mood : null,
     stop: stop > 0 ? stop : null, target: target > 0 ? target : null,
-    note: String(input.note || '').slice(0, 500)
+    note: String(input.note || '').slice(0, TRADE_NOTE_MAX)
   };
 }
 
@@ -194,7 +196,7 @@ export function rulesMirror(rules = {}, { weights = [], cashPct = null, losses =
   if (r.maxPositions != null) { const count = holdingCount ?? weights.length; rows.push({ id: 'max-positions', label: `보유 종목 최대 ${r.maxPositions}개`, ok: count <= r.maxPositions, text: `지금 ${count}개` }); }
   if (r.stopLossPct != null) {
     const deep = losses.filter((row) => row.pnlPct <= -r.stopLossPct);
-    rows.push({ id: 'stop-loss', label: `손절 -${r.stopLossPct}%`, ok: losses.length ? deep.length === 0 : null,
+    rows.push({ id: 'stop-loss', label: `내 손절 비율 -${r.stopLossPct}%`, ok: losses.length ? deep.length === 0 : null,
       text: !losses.length ? '평가 손익이 있는 보유 종목이 없습니다' : deep.length ? `원칙보다 깊은 평가 손실 ${deep.map((row) => `${row.symbol} ${row.pnlPct.toFixed(1)}%`).join(', ')}` : '원칙보다 깊은 평가 손실 없음' });
   }
   return rows;

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-11-27
+last_verified: 2026-11-28
 confidence: medium
 derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/version
 ---
@@ -59,6 +59,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 | 자기평가 오류 ("이미 됐다" 무검증 주장) | P631 P687 P688 | "기존 확인 기록 재검증 없이 신뢰 금지" (memory/feedback) |
 
 ---
+
+## P2773 - v60.68 - 조기 마감일(11/27) 뒤 화면마다 다른 날 값이 같은 종가인 것처럼 나감: 종목 일봉 11/25 정지, VIX 등락 -11.2%, 6개월 저점 오기, 기준일 섞인 금리 문장 (2026-11-28)
+
+- symptom/reproduction: 11/27 미국 조기 마감과 한국 마감 뒤 실서비스를 화면별로 읽은 결과. 기술적 분석과 종목 화면의 미국 종목·ETF 일봉이 11/25에서 멈춰 NVDA가 위에는 $150.49(+0.8%), 차트 설명에는 '11/25 종가 $149.30'으로 나왔다. 오늘 화면 VIX 타일은 -11.16%, 브리핑은 -15.8%. 시장 상태는 '최근 6개월 가장 낮은 종가는 11/5 26,630'이라 했는데 11/20 종가가 25,029였다. 브리핑은 '11/27 종가 … 미국 2년 금리 -2bp, 10년 실질금리 -6bp'(11/25 관측값)를 날짜 없이 묶었고, 5거래일 흐름 그림은 11/20부터 그리면서 설명은 11/19부터의 변화(+1.7%)였다. 금리와 환율 AI 읽기의 하이일드 5거래일 +25bp는 화면의 +30bp와 달랐다. 한국 탭은 코스닥 +8.1%인 날 '지수 하락이 종목 전반으로 퍼지는지'라고 썼고, 뉴스 중요 5건에 한국 급등 보도가 없었다. 매크로 지표 탭은 브렌트 91.80달러(11/24 현물)를 날짜 없이 보였다.
+- root_cause: 값을 정하는 자리가 화면마다 따로였다. (1) 일봉: 야후가 조기 마감일 최신 일봉의 종가를 비워 보내면 barsFromYahoo가 그 봉을 버렸다. (2) 전일 대비: 발행 스냅샷과 그 값을 붙드는 경로가 제공처의 전일값을 그대로 썼고, 종가 기록으로 고치는 검사는 휴장일이 사이에 있으면 물러났다. (3) 저점: 최근 10거래일을 뺀 구간의 최저를 '최근 6개월 최저'라 불렀다. (4) 묶음 문장: 가족 구성원의 관측일을 보지 않고 대표 사실의 날짜 하나를 앞에 붙였다. (5) 그림: 그리는 구간(5개 종가)과 변화를 재는 구간(6개 종가)이 달랐다. (6) 프로듀서의 5거래일 변화는 휴장일 관측을 한 세션으로 셌다. (7) 한국 탭 후속 문장은 그날이 아니라 20거래일 방향을 따랐다. (8) 지수는 종목 기호가 없어 그 마감 보도가 원장의 움직임에 묶이지 못했다.
+- fix: 일봉 정규화 한곳(chart-bars.js)에서 종가가 빈 최신 봉을 같은 세션의 정규장 마지막 가격으로 채운다. 미국 지수의 전일 대비는 발행 스냅샷을 화면에 옮길 때와 실시간 시세를 붙들 때 모두 종가 기록을 기준으로 하고(거래소 달력으로 직전 세션 판정), 기록이 늦게 도착하면 스냅샷을 한 번 더 적용한다. 홈 지수 띠는 마감 뒤 정규장 종가를 쓴다. 6개월 저점은 최신 세션 직전까지의 최저이고 거리는 종가에서 아래로 잰다. 묶음 문장에서 다른 날 관측된 구성원은 자기 날짜를 단다. 5거래일 흐름은 변화의 출발 종가부터 그린다. 프로듀서의 일별 변화는 미국 세션만 센다. 한국 탭 후속 문장은 그날 등락을 따른다. 원장이 주요 이상으로 매긴 지수 움직임은 제목에 그 지수를 쓴 보도와 묶어 중요 뉴스 순위에 반영한다. 매크로 묶음 줄의 일별 값은 날짜를 단다. 인용한 기사 제목 줄은 한 부품(reportLine)이 그리고 source-headline으로 표시한다.
+- violated_rule: 한 사실은 한 기준일과 한 계산으로 말한다(P2772와 같은 계열).
+- prevention: 단위 검사가 여덟 경우를 고정한다: 빈 종가 봉 채움과 다른 세션 시세 거부, 휴장일을 건넌 전일 종가 기준, 최근 2주 안의 6개월 저점, 다른 날 구성원의 날짜 표시, 그림과 변화의 같은 구간, 지수 이름 보도의 순위 반영, 세션만 세는 5거래일 변화.
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs
+- files: src/data/chart-bars.js, src/domain/market/session/quote-basis.js, src/data/quote-basis.js, src/legacy/market-snapshot-bridge.js, src/ui/components/home-index-strip.js, src/domain/market/indices/index-levels.js, src/domain/briefing/day-account.js, src/domain/briefing/briefing-report.js, src/domain/briefing/news-picks.js, src/domain/market/regime/regime-scenarios.js, src/domain/market/story/screen-tie.js, src/ui/components/macro-board.js, src/ui/components/home-day.js, src/ui/components/briefing-day.js, scripts/lib/macro-sources.mjs, scripts/producer/fred.mjs
 
 ## P2772 - v60.66 - 같은 사실을 화면·채팅·카드가 서로 다른 기준일과 분모로 읽은 일곱 곳 (X 북마크 재검토의 재현 반례) (2026-11-27)
 

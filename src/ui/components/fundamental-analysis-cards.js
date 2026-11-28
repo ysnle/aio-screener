@@ -14,7 +14,7 @@ import { hasLeadingIsoDay } from '../../domain/shared/session-date.js';
 import { shortDate } from '../../domain/content/date-labels.js';
 import { parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
 import { peerBasisText } from '../../domain/fundamental/stock-lens.js';
-import { stockLensContext, lensCard, thesisCard, peerStandingCard, situationCard } from './stock-lens-cards.js';
+import { stockLensContext, lensCard, peerStandingCard, situationCard } from './stock-lens-cards.js';
 
 export const COLLECTION_PENDING_LABEL = '수집 대기, 다음 SEC 갱신 후 표시';
 const pct = (value, digits = 1) => `${(value * 100).toFixed(digits)}%`;
@@ -439,7 +439,7 @@ export function themePeerCard(doc, read, { onOpen = null } = {}) {
 
 // Everything 재무 공시 adds for this pass, built here so fiscal-read.js stays small. hero = lines under the annual
 // headline; cards = the business lens, margin/cash (only with a fiscal series) and the EPS surprise; themePeers = the
-// table; thesis, peerStanding and situation = the stock lens cards.
+// table; peerStanding and situation = the stock lens cards.
 export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, calendar, calendarState = null, rows, fundamentals, series = false, financial = false }) {
   const hero = [];
   const recent = trailingYearLine(buildTrailingYearRead(quarters));
@@ -454,10 +454,10 @@ export function fiscalExtras(doc, { root, symbol, quarters, history, consensus, 
     seriesFor: (sym) => (fiscal[sym] ? reconcileFiscalHistory(parseFiscalHistory(fiscal[sym]), sym === symbol ? fundamentals : null, sym) : null),
     quartersFor: (sym) => (quarterText?.[sym] ? parseQuarterHistory(quarterText[sym]) : null) }),
   { onOpen: typeof root?.showTicker === 'function' ? (sym) => root.showTicker(sym) : null }) : null;
-  // The stock lens readings: the business lens leads the analysis cards; the thesis conditions, the
-  // peer standing and the favourable/unfavourable situations go where fiscal-read.js places them.
+  // The stock lens readings: the business lens leads the analysis cards; the peer standing and the
+  // favourable/unfavourable situations go where fiscal-read.js places them (the thesis conditions are 쟁점과 전망's table).
   const lensCtx = series ? stockLensContext(root, symbol, { fundamentals, bars: root?._aioEntitySummaries?.[symbol]?.history || null }) : null;
   const lens = lensCtx ? lensCard(doc, lensCtx.lensRead) : null;
   if (lens) cards.unshift(lens);
-  return { hero, cards, themePeers, thesis: lensCtx ? thesisCard(doc, root, lensCtx) : null, peerStanding: lensCtx ? peerStandingCard(doc, lensCtx) : null, situation: lensCtx ? situationCard(doc, lensCtx) : null };
+  return { hero, cards, themePeers, peerStanding: lensCtx ? peerStandingCard(doc, lensCtx) : null, situation: lensCtx ? situationCard(doc, lensCtx) : null };
 }

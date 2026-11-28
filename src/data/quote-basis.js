@@ -22,6 +22,13 @@ export function quoteBasisContext(root, now = Date.now()) {
     health: root?._aioKrPrevCloseHealth || null, screenerChange: (symbol) => screenerChange(root, symbol) };
 }
 
+/** A published snapshot quote's day change on the history close before its session, when that is a US index whose
+ *  provider pair disagrees with it (a holiday before the session left Yahoo's previous close off the 11/25 VIX close);
+ *  null keeps the published pair. */
+export function publishedUsChangeOn(root, quote, now = Date.now()) {
+  const us = verifyUsQuoteChange({ symbol: quote?.instrumentId, observedAt: quote?.observedAt, regularMarketPreviousClose: quote?.previousValue }, quote?.value, quote?.changePct, quoteBasisContext(root, now));
+  return us?.status === 'corrected' ? { pct: us.pct, previousClose: us.prevClose, basis: us.basis } : null;
+}
 export const verifyKrQuoteOn = (root, q, price, pct, now) => verifyKrQuoteChange(q, price, pct, quoteBasisContext(root, now));
 export const krDayChangeOn = (root, now) => (symbol, session, close) => krVerifiedDayChange(symbol, session, close, quoteBasisContext(root, now));
 export const krIndexCloseOn = (root, field, now = Date.now()) => krIndexCloseRead(field, root?._aioHistory, { loadedAt: root?._aioHistoryMeta?.loadedAt ?? null, now });
@@ -87,10 +94,12 @@ export function installQuoteBasis(root, { now = () => Date.now() } = {}) {
       .map((entry) => entry.quote);
     root[PENDING] = {};
     if (redo.length) root.applyLiveQuotes?.(redo);
+    // The published snapshot is read on the close history too (publishedUsChangeOn), once the history is here.
+    if (root._aioHistory?.length > 0) root._aioReapplyBridgedSnapshot?.();
   }
 
   root.AIO = root.AIO || {};
-  root.AIO.quoteBasis = { batch, verifyKr: (q, price, pct) => verifyKrQuoteOn(root, q, price, pct, now()) };
+  root.AIO.quoteBasis = { batch, published: (quote) => publishedUsChangeOn(root, quote, now()), verifyKr: (q, price, pct) => verifyKrQuoteOn(root, q, price, pct, now()) };
   root.addEventListener?.('aio:historyLoaded', reverify);
   root.document?.addEventListener?.('aio:nativeScreenerReady', reverify);
   reverify();

@@ -2,9 +2,12 @@
 // F4 '포트폴리오 점검 기준' — five criteria an allocator checks, each with its one-line principle, the reader's current value
 // and whether it is met (against the reader's own rule where one is written, else the app's published internal band). The
 // header counts how many are met: a count, not a score or a grade.
-// F5 '보유 종목 논지 점검' — per holding: is a thesis memo written, and which break signals are on now (below the 50-day
-// line, theme stage weak, estimate revisions turned down over 4 weeks, earnings within two weeks). No instruction.
+// F5 '보유 종목 상태' — per holding: trend, thesis on estimates and the buy plan (holding-state.js, one definition each),
+// the condition written at the buy, and the other signals on now (theme stage weak, earnings within two weeks). No instruction.
 import { el } from './dom.js';
+import { holdingTrendState, TREND_LABEL, TREND_BREAK_STATES, holdingThesis, THESIS_BASIS, holdingPlan, PLAN_STATES, PLAN_GAP_NOTE } from '../../domain/portfolio/holding-state.js';
+import { signedBar, signedScale } from './signed-bar.js';
+import { signedText } from '../../domain/shared/number.js';
 import { portfolioLens, leadScenarioExposures, loadedSp500Weights } from './portfolio-read.js';
 import { readJournal } from '../panels/portfolio-trade-journal.js';
 import { normalizeRules } from '../../domain/portfolio/trade-journal.js';
@@ -17,7 +20,7 @@ import { holdingListingKey } from '../../domain/portfolio/fx.js';
 import { holdingBand, sectorBand, HOLDING_LINE_PCT, SECTOR_LINE_PCT, EFFECTIVE_N_LINE, HOLDING_REFERENCE_PCT } from '../../domain/portfolio/concentration-bands.js';
 
 const EARNINGS_SOON_DAYS = 14;
-const THESIS_CHECKS = 4; // 50일선 · 테마 단계 · 이익 전망 · 실적일
+const THESIS_CHECKS = 4; // 추세 · 테마 단계 · 이익 전망 · 실적일
 
 function hostAfter(doc, id, anchorId, label) {
   let host = doc.getElementById(id);
@@ -127,14 +130,16 @@ function nextEarnings(root, key, todayIso) {
   return rows.filter((row) => row?.symbol === key && row.date >= todayIso).map((row) => row.date).sort()[0] || null;
 }
 
-export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(), nowMs = Date.now() }) {
+// One row per holding: its trend, thesis and plan states (holding-state.js) and the condition the reader wrote at the buy
+// (the newest open buy lot's note in the trade journal; the holding's own memo stands in only when no lot note exists).
+// `openLots` are the journal's open buy lots (realizeTrades().open); the sample preview passes none.
+export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(), closeOf = () => null, openLots = [], nowMs = Date.now() }) {
   const memoOf = new Map((holdings || []).map((holding) => [String(holding?.symbol || holding?.ticker || '').toUpperCase(), String(holding?.memo || '').trim()]));
   const themeMap = Array.isArray(root?.THEME_MAP) ? root.THEME_MAP : [];
   const todayIso = new Date(nowMs).toISOString().slice(0, 10);
   const soonIso = new Date(nowMs + EARNINGS_SOON_DAYS * 86400000).toISOString().slice(0, 10);
-  // v59.45 (PASS10 P10-PF-02): each of the four checks is either looked at or unknown. With no price row, theme states,
-  // estimates or calendar, signals stayed [] and the row read '신호 없음' — the same words as four clean checks. `checked`
-  // counts the checks that had data and `unknown` names the rest, so the row can say what was not looked at.
+  // Each of the four checks is either looked at or unknown: `checked` counts the checks that had data and `unknown` names
+  // the rest, so a row with no data never reads like four clean checks.
   const calendarKnown = !!root?.[EARNINGS_CALENDAR.key];
   // The theme stage comes from the shared reader (theme-stage.js themeStagesFor), which refuses a pending or out-of-date
   // scenario state; reading the raw rows kept a stale 'weak' stage on as a live signal.
@@ -144,28 +149,52 @@ export function thesisRows({ surface, root, holdings = [], bySymbol = new Map(),
     const key = holdingListingKey(row);
     const signals = [];
     const unknown = [];
-    const sma = bySymbol.get(key)?.pctSma50;
-    const s50 = sma == null || sma === '' ? NaN : Number(sma);
-    if (!Number.isFinite(s50)) unknown.push('50일선');
-    else if (s50 < 0) signals.push(`50일선 아래(${s50.toFixed(1)}%)`);
+    const data = bySymbol.get(key) || null;
+    const trendState = data ? holdingTrendState(data) : null;
+    const trend = trendState ? { state: trendState, label: TREND_LABEL[trendState] } : null;
+    if (!trend) unknown.push('추세');
+    else if (TREND_BREAK_STATES.includes(trendState)) signals.push(trend.label);
     const themes = themeMap.filter((theme) => (theme.leaders || []).includes(key) || (theme.subThemes || []).some((sub) => (sub.tickers || []).includes(key)));
     // Not in any theme is a checked fact (no theme signal can apply); a theme without a published stage is unknown.
     const stages = themes.length ? themeStagesFor(root, { market: 'US', themeIds: themes.map((theme) => theme.id) }) : [];
     if (!themeMap.length || (themes.length && !stages.length)) unknown.push('테마 단계');
     const weak = stages.filter((state) => ['weak', 'fading'].includes(state.state));
     if (weak.length) signals.push(`테마 단계 약함(${weak.map((state) => state.label).join(', ')})`);
-    const fwd = consensusRowFor(root, key)?.fwd;
-    if (!(fwd && Number.isFinite(fwd.up4w) && Number.isFinite(fwd.down4w))) unknown.push('이익 전망');
-    else if (fwd.down4w > fwd.up4w) signals.push(`이익 전망 4주 하향 우위(상향 ${fwd.up4w}, 하향 ${fwd.down4w})`);
+    const estimate = consensusRowFor(root, key);
+    const thesis = data && estimate ? holdingThesis({ ...data, sym: key }, { ...estimate, sym: key }, { now: nowMs }) : null;
+    if (!thesis) unknown.push('이익 전망');
+    else if (thesis.state === 'damaged') signals.push(`${thesis.label}(${THESIS_BASIS})`);
     if (!calendarKnown) unknown.push('실적일');
     const earnings = nextEarnings(root, key, todayIso);
     if (earnings && earnings <= soonIso) signals.push(`실적 발표 ${shortDate(earnings)}`);
-    return { symbol, memo: memoOf.get(symbol) || '', signals, checked: THESIS_CHECKS - unknown.length, unknown };
+    const close = closeOf(key);
+    const plan = holdingPlan(openLots.filter((lot) => lot.symbol === key || lot.symbol === symbol),
+      close ? { ...close, currency: row.currency || row.listingCurrency || null } : null);
+    if (plan?.state === 'void') signals.push(PLAN_STATES.void);
+    const memo = memoOf.get(symbol) || '';
+    const condition = plan?.condition || (memo ? { text: memo, date: null } : null);
+    return { symbol, memo, condition, trend, thesis, plan, signals, checked: THESIS_CHECKS - unknown.length, unknown };
   });
 }
 
-export function renderThesisCheck({ documentRef: doc, root, surface, holdings = [], bySymbol = new Map(), rerender = null }) {
-  const host = hostAfter(doc, 'pf-thesis', 'pf-checks', '보유 종목 논지 점검');
+const planCell = (doc, plan) => {
+  const cell = el(doc, 'td');
+  if (!plan) { cell.textContent = '매수 기록 없음'; return cell; }
+  for (const lot of plan.lots) {
+    const line = el(doc, 'div');
+    const head = el(doc, 'span', PLAN_STATES[lot.state], 'pf-trade-mirror-state');
+    line.append(head);
+    if (lot.r != null) line.append(signedBar(doc, lot.r, signedScale([lot.r], 1), { tone: 'verdict' }), doc.createTextNode(` ${signedText(lot.r, 1, 'R')}`));
+    const price = (value) => value.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    const facts = [`${shortDate(lot.date)} 진입 ${price(lot.entry)}`, lot.stop != null ? `손절 ${price(lot.stop)}` : null, lot.close != null ? `${lot.closeDate ? `${shortDate(lot.closeDate)} ` : ''}종가 ${price(lot.close)}` : null].filter(Boolean);
+    line.append(el(doc, 'span', ` ${facts.join(', ')}`, 'sh-muted-note'));
+    cell.append(line);
+  }
+  return cell;
+};
+
+export function renderThesisCheck({ documentRef: doc, root, surface, holdings = [], bySymbol = new Map(), closeOf = () => null, openLots = [], rerender = null }) {
+  const host = hostAfter(doc, 'pf-thesis', 'pf-checks', '보유 종목 상태');
   if (!host) return null;
   if (rerender && !root.__aioThesisRequested) {
     root.__aioThesisRequested = true;
@@ -174,23 +203,38 @@ export function renderThesisCheck({ documentRef: doc, root, surface, holdings = 
     refreshSharedArtifact(root, SCENARIO_STATE).then(({ changed }) => { if (changed) again(); }).catch(() => {});
     refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed }) => { if (changed) again(); }).catch(() => {});
   }
-  const rows = thesisRows({ surface, root, holdings, bySymbol });
+  const rows = thesisRows({ surface, root, holdings, bySymbol, closeOf, openLots });
   if (!rows.length) { host.hidden = true; host.replaceChildren(); return rows; }
   host.hidden = false;
-  const noMemo = rows.filter((row) => !row.memo).length;
-  const head = el(doc, 'h2', '보유 종목 논지 점검', 'briefing-h2');
-  head.append(el(doc, 'span', `${rows.length}종목, 메모 없음 ${noMemo}, 신호가 켜진 종목 ${rows.filter((row) => row.signals.length).length}`, 'briefing-h2-note'));
-  const list = el(doc, 'ul', null, 'pf-trade-mirror');
+  const noCondition = rows.filter((row) => !row.condition).length;
+  const head = el(doc, 'h2', '보유 종목 상태', 'briefing-h2');
+  head.append(el(doc, 'span', `${rows.length}종목, 조건 미기록 ${noCondition}, 신호가 켜진 종목 ${rows.filter((row) => row.signals.length).length}`, 'briefing-h2-note'));
+  const table = el(doc, 'table', null, 'aio-table');
+  const headRow = el(doc, 'tr');
+  for (const label of ['종목', '추세', `논지(${THESIS_BASIS})`, '계획(적어 둔 손절 가격 대비 종가)', '근거와 깨지는 조건']) headRow.append(el(doc, 'th', label));
+  const thead = el(doc, 'thead');
+  thead.append(headRow);
+  const tbody = el(doc, 'tbody');
   for (const row of rows) {
-    const li = el(doc, 'li', null, `pf-trade-mirror-row is-${row.signals.length ? 'burden' : 'unknown'}`);
-    // v59.45 (P10-PF-02): 'no signal' only for checks that had data; with none, the row says it could not be checked.
+    const tr = el(doc, 'tr', null, `is-${row.signals.length ? 'burden' : 'unknown'}`);
+    // 'no signal' only for checks that had data; with none, the row says it could not be checked.
     const state = row.signals.length ? `신호 ${row.signals.length}` : row.checked === 0 ? '확인 불가' : row.unknown?.length ? `신호 없음(${row.checked}/${THESIS_CHECKS} 확인)` : '신호 없음';
-    li.append(el(doc, 'span', state, 'pf-trade-mirror-state'), el(doc, 'strong', row.symbol),
-      el(doc, 'span', ` — ${row.memo ? `메모: ${row.memo.length > 60 ? `${row.memo.slice(0, 60)}…` : row.memo}` : '메모 없음'}${row.signals.length ? `. 켜진 신호: ${row.signals.join(', ')}` : ''}${row.unknown?.length ? `. 자료 없음: ${row.unknown.join(', ')}` : ''}`));
-    list.append(li);
+    const name = el(doc, 'td');
+    name.append(el(doc, 'strong', row.symbol), el(doc, 'div', state, 'pf-trade-mirror-state'));
+    const other = row.signals.filter((signal) => signal.startsWith('테마') || signal.startsWith('실적'));
+    if (other.length || row.unknown?.length) name.append(el(doc, 'div', [other.join(', '), row.unknown?.length ? `자료 없음: ${row.unknown.join(', ')}` : ''].filter(Boolean).join('. '), 'sh-muted-note'));
+    const thesis = !row.thesis ? '자료 없음' : row.thesis.label || '해당 없음';
+    const condition = row.condition ? `${row.condition.text.length > 80 ? `${row.condition.text.slice(0, 80)}…` : row.condition.text}${row.condition.date ? ` (${shortDate(row.condition.date)} 매수 기록)` : ' (보유 메모)'}` : '조건 미기록';
+    tr.append(name, el(doc, 'td', row.trend?.label || '자료 없음'), el(doc, 'td', thesis), planCell(doc, row.plan), el(doc, 'td', condition));
+    tbody.append(tr);
   }
-  // What the four signals are is the list's hover, not a paragraph under it.
-  list.title = '신호: 50일선 아래, 속한 테마의 단계 약함, 최근 4주 이익 전망 하향 우세, 2주 안의 실적 발표';
-  host.replaceChildren(head, list);
+  table.append(thead, tbody);
+  const scroll = el(doc, 'div', null, 'aio-table-scroll');
+  scroll.append(table);
+  // What the signals are is the table's hover, not a paragraph under it.
+  table.title = '신호: 50일선 아래 하락 추세나 추세 속 조정, 추정치 하향이 따르는 하락, 손절 가격 아래 종가, 속한 테마의 단계 약함, 2주 안의 실적 발표';
+  const parts = [head, scroll];
+  if (rows.some((row) => row.plan?.lots.some((lot) => lot.r != null))) parts.push(el(doc, 'p', PLAN_GAP_NOTE, 'theme-strength-basis'));
+  host.replaceChildren(...parts);
   return rows;
 }

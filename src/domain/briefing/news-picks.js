@@ -57,9 +57,14 @@ export function ledgerHeadlinesOf(day) {
     return [...found];
   };
 }
+// An index has no ticker for a headline to carry, so its report is tied by the index's name in the title. The Korean
+// close is the second session the site reads: a day the ledger ranks its index move lead or major, the report of that
+// close is a market-impact story like a lead stock's (US index reports are every day's and are not raised this way).
+const NAMED_INDEX = Object.freeze({ kospi: /코스피|\bKOSPI\b/i, kosdaq: /코스닥|\bKOSDAQ\b/i });
 /**
  * Whether a news story is one the market-day ledger ties to a lead move — a headline fact linked
- * to it by subject or member (the report names the moved stock or a group's leader). Topic links are too broad to count.
+ * to it by subject or member (the report names the moved stock or a group's leader), or a title naming an index whose
+ * move the ledger ranks lead or major. Topic links are too broad to count.
  * Returns `(story) => boolean`, matching a story's articles by link or title.
  */
 export function leadLinkedNews(day) {
@@ -67,7 +72,9 @@ export function leadLinkedNews(day) {
   const lead = new Set(facts.filter((fact) => fact.rank === 'lead' && ['price', 'stock-move', 'group-move'].includes(fact.kind)).map((fact) => fact.id));
   const causes = new Set((Array.isArray(day?.links) ? day.links : []).filter((link) => lead.has(link.to) && (link.basis === 'subject' || link.basis === 'member')).map((link) => link.from));
   const headlinesOf = ledgerHeadlinesOf(day);
-  return (story) => headlinesOf(story).some((fact) => causes.has(fact.id));
+  const indexes = facts.filter((fact) => fact.kind === 'price' && NAMED_INDEX[fact.asset] && ['lead', 'major'].includes(fact.rank)).map((fact) => NAMED_INDEX[fact.asset]);
+  const namesIndex = (story) => indexes.length > 0 && (story?.storyArticles || [story]).some((row) => indexes.some((name) => name.test(String(row?.title || '')) || name.test(String(row?.originalTitle || ''))));
+  return (story) => headlinesOf(story).some((fact) => causes.has(fact.id)) || namesIndex(story);
 }
 
 /**

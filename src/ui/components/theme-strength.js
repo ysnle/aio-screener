@@ -1,11 +1,10 @@
 // The 테마 screen's daily "what changed" — sub-theme relative strength from the published
-// screener returns (no live quotes needed), and the AI capital-spending flow linked to those themes.
+// screener returns (no live quotes needed). The AI capex split is 산업 지도's (pages/atlas.js), not this screen's.
 import { themeStrengthLead } from '../../domain/market/story/page-flow.js';
 import { sectionLead } from './page-flow.js';
 import { buildCloseSeries, closeBasis } from '../../domain/briefing/market-read.js';
 import { buildGroupStrength, directionLabel, GROUP_WINDOWS, STRENGTH_TABS } from '../../domain/themes/group-strength.js';
 import { latestCompletedUsSession } from '../../domain/market/session/market-calendar.js';
-import { AI_CAPEX_FLOW, AI_BOTTLENECK_LEAD_TIMES } from '../../domain/themes/ai-capex-flow.js';
 import { el } from './dom.js';
 import { sessionChipText } from './session-lag.js';
 import { asOfChip, closeChipText, markFrame } from './section-frame.js';
@@ -326,112 +325,9 @@ function renderTopSubthemes(doc, host, model, basis) {
   host.append(more);
 }
 
-// A whole theme's value. v58.74: the playbook pools the members of every sub-theme (src/domain/scenarios/theme-playbook.js),
-// so its own number is read first — the same theme showed -6.0% here and -7.7% in 테마 시나리오 on one page. Before the
-// playbook has rendered, the median of the sub-theme medians stands in and the caption says so.
-function themeGroupValues(model, themeId, root = null) {
-  const pooled = root?.__aioThemePlaybook?.themes?.find((row) => row.market === 'US' && row.id === themeId);
-  if (pooled && Number.isFinite(pooled[model.sortKey])) return { value: pooled[model.sortKey], count: pooled.memberCount ?? pooled.members ?? null, pooled: true };
-  const values = (model.groups || []).filter((group) => group.themeId === themeId && group.current !== false && Number.isFinite(group[model.sortKey])).map((group) => group[model.sortKey]).sort((a, b) => a - b);
-  if (!values.length) return { value: null, count: 0 };
-  const mid = Math.floor(values.length / 2);
-  return { value: values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2, count: values.length };
-}
-
-function renderCapexFlow(doc, root, host, model) {
-  host.replaceChildren();
-  // Section frame: the dated, cited basis is the head's chip (its hover keeps the full sentence and the source).
-  markFrame(host, 'themes.capex-flow');
-  const capexHead = el(doc, 'div', null, 'sx-card__head aio-frame-head capex-flow-head');
-  capexHead.append(el(doc, 'h2', AI_CAPEX_FLOW.title, 'briefing-h2'));
-  host.append(capexHead);
-  // Expert review M20: the provider names sit in the hover title (and the page's folded 데이터 출처), the body keeps the date.
-  // The split is a published, dated research estimate (see ai-capex-flow.js `source`), so it is labelled as a
-  // cited reference with its date — never as an AIO estimate.
-  capexHead.append(asOfChip(doc, `${AI_CAPEX_FLOW.asOf} 인용 자료`, `${AI_CAPEX_FLOW.asOf} 공개 리서치 인용 배분, 참고 자료(현재 신호 아님), 각 층의 관련 테마 수익률은 위 순위와 같은 ${model.windowLabel} 기준, 테마 값은 테마 시나리오와 같은 구성 종목 전체 중앙값. 출처: ${AI_CAPEX_FLOW.source}`));
-  const bar = el(doc, 'div', null, 'capex-flow-bar');
-  bar.setAttribute('role', 'img');
-  bar.setAttribute('aria-label', AI_CAPEX_FLOW.layers.map((layer) => `${layer.label} ${layer.share}`).join(', '));
-  // '네트워크 15', '냉각 7.5' were cut inside 7.5%-wide segments. The bar carries short labels only
-  // (hidden on a phone), and the values sit in one legend line under it.
-  const key = el(doc, 'p', null, 'capex-flow-legend');
-  for (const layer of AI_CAPEX_FLOW.layers) {
-    const seg = el(doc, 'div', null, `capex-flow-seg is-${layer.id}`);
-    if (layer.share >= 10) seg.append(el(doc, 'span', layer.label, 'capex-flow-seg-label'));
-    seg.style.flexBasis = `${layer.share}%`;
-    bar.append(seg);
-    const item = el(doc, 'span', null, 'capex-flow-key');
-    item.append(el(doc, 'span', null, `capex-flow-swatch is-${layer.id}`), doc.createTextNode(`${layer.label} $${layer.share}`));
-    key.append(item);
-  }
-  host.append(bar, key);
-  const grid = el(doc, 'div', null, 'capex-flow-grid');
-  // One shared week axis for every card, derived from the data and stated on screen.
-  const maxWeeks = Math.max(1, ...AI_BOTTLENECK_LEAD_TIMES.rows.map((row) => Number(row.weeks?.[1]) || 0));
-  for (const layer of AI_CAPEX_FLOW.layers) {
-    const card = el(doc, 'section', null, 'capex-flow-card');
-    card.dataset.layer = layer.id;
-    const head = el(doc, 'div', null, 'trend-card-head');
-    // The number is a share of a hypothetical 100달러 of AI capex (an estimate), not a spend or a
-    // growth rate — the value and the note both say so.
-    const value = el(doc, 'span', `$${layer.share} / $100`, 'trend-card-value');
-    value.title = `AI 설비투자 100달러 중 ${layer.label}에 가는 몫 (${AI_CAPEX_FLOW.asOf} 공개 리서치 인용)`;
-    head.append(el(doc, 'h3', layer.label, 'trend-card-title'), value);
-    card.append(head, el(doc, 'p', layer.parts, 'trend-card-note'));
-    const links = el(doc, 'div', null, 'capex-flow-themes');
-    for (const themeId of layer.themes) {
-      const theme = model.themes?.[themeId];
-      if (!theme) continue;
-      // Audit 16: one method with the 테마 시나리오 cards — the median of the sub-theme medians on the latest session.
-      const subs = themeGroupValues(model, themeId, root);
-      const button = el(doc, 'button', `${theme.name} ${subs.value == null ? '비교 보류' : pct(subs.value)}`, 'capex-flow-theme');
-      button.type = 'button';
-      button.title = subs.value == null ? '같은 종가 기준일의 세부 테마 중앙값이 없어 비교를 보류합니다' : subs.pooled ? `구성 종목${subs.count ? ` ${subs.count}개` : ''}의 중앙값(테마 시나리오 카드와 같은 값)` : `세부 테마 ${subs.count}개 중앙값의 중앙값(테마 시나리오가 아직 계산되지 않아 대신 씀)`;
-      button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(themeId); });
-      links.append(button);
-    }
-    // M10: a layer can name one sub-theme (전력장비/그리드) instead of a whole theme.
-    for (const groupId of layer.groups || []) {
-      const group = model.groups?.find((row) => row.id === groupId);
-      if (!group) continue;
-      const button = el(doc, 'button', `${group.name} ${group[model.sortKey] == null ? '비교 보류' : pct(group[model.sortKey])}`, 'capex-flow-theme');
-      button.type = 'button';
-      if (group[model.sortKey] == null) button.title = '구성 종목의 종가 기준일이 달라 중앙값 비교를 보류합니다';
-      button.addEventListener('click', () => { if (typeof root?.showThemeDetail === 'function') root.showThemeDetail(group.themeId); });
-      links.append(button);
-    }
-    card.append(links);
-    const waits = AI_BOTTLENECK_LEAD_TIMES.rows.filter((row) => row.layer === layer.id);
-    if (waits.length) {
-      const list = el(doc, 'ul', null, 'capex-flow-waits');
-      for (const row of waits) {
-        const li = el(doc, 'li', null, row.balanced ? 'is-balanced' : '');
-        const meter = el(doc, 'span', null, 'capex-flow-meter');
-        const fill = el(doc, 'span', null, 'capex-flow-meter-fill');
-        fill.style.left = `${row.weeks[0] / maxWeeks * 100}%`;
-        fill.style.width = `${Math.max(2, (row.weeks[1] - row.weeks[0]) / maxWeeks * 100)}%`;
-        meter.title = `${row.item} 납기 ${row.weeks[0]}~${row.weeks[1]}주 (공통 축 0~${maxWeeks}주)`;
-        meter.append(fill);
-        li.append(el(doc, 'span', row.item, 'capex-flow-item'), meter, el(doc, 'span', `${row.weeks[0]}~${row.weeks[1]}주${row.balanced ? ', 원활' : ''}`, 'capex-flow-weeks'));
-        list.append(li);
-      }
-      card.append(list);
-    }
-    grid.append(card);
-  }
-  // The shared week axis is the grid's hover instead of a sentence above it.
-  grid.title = `각 카드 아래 막대는 관련 부품·장비의 납기 범위(최소~최대), 모든 카드가 같은 0~${maxWeeks}주 축`;
-  host.append(grid);
-  // The bottleneck sentence is the section's reading; the date and supplier scope are its hover.
-  const leadLine = el(doc, 'p', AI_BOTTLENECK_LEAD_TIMES.note.replace(/\s*공급사는 원 자료에 나온 곳만 표시합니다\.?$/, ''), 'aio-frame-reading');
-  leadLine.title = `납기 ${AI_BOTTLENECK_LEAD_TIMES.asOf} 기준, 공급사는 원 자료에 나온 곳만 표시, 출처: ${AI_BOTTLENECK_LEAD_TIMES.source}`;
-  host.append(leadLine);
-}
-
 export function renderThemeStrength({ documentRef: doc, root, store }) {
   const strengthHost = doc?.getElementById('theme-strength-board');
-  const flowHost = doc?.getElementById('ai-capex-flow');
-  if (!strengthHost && !flowHost) return null;
+  if (!strengthHost) return null;
   const rows = store?.getState?.()?.screener?.rows || [];
   const focusedGroup = strengthHost?.contains(doc.activeElement) ? doc.activeElement?.dataset?.compareGroup : null;
   // v59.70 (owner: a week over 15 sessions): 1주 leads, the same window as the sector bars and the hero; 1개월 stands in
@@ -441,13 +337,10 @@ export function renderThemeStrength({ documentRef: doc, root, store }) {
   let model = build(chosen || 'ret5d');
   if (!chosen && !model.groups.some((group) => group.ret5d != null)) model = build('ret1m');
   const rerender = () => renderThemeStrength({ documentRef: doc, root, store });
-  if (strengthHost) {
-    renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); }, (value) => { root._aioThemeStrengthOrder = value; rerender(); });
-    strengthHost.dataset.aioThemeStrengthRenderer = 'native';
-    const topHost = doc.getElementById('themes-top-subthemes');
-    if (topHost) renderTopSubthemes(doc, topHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []));
-    if(focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find(button=>button.dataset.compareGroup===focusedGroup)?.focus({preventScroll:true}); // P1622 preserve comparison focus across async data repaint too.
-  }
-  if (flowHost) { renderCapexFlow(doc, root, flowHost, model); flowHost.dataset.aioCapexFlowRenderer = 'native'; }
+  renderStrength(doc, root, strengthHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []), (key) => { root._aioThemeStrengthSort = key; rerender(); }, !!root._aioThemeStrengthExpanded, () => { root._aioThemeStrengthExpanded = !root._aioThemeStrengthExpanded; rerender(); }, (id) => { root._aioThemeMemberGroup = root._aioThemeMemberGroup === id ? null : id; rerender(); [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === id)?.focus(); }, (value) => { root._aioThemeStrengthOrder = value; rerender(); });
+  strengthHost.dataset.aioThemeStrengthRenderer = 'native';
+  const topHost = doc.getElementById('themes-top-subthemes');
+  if (topHost) renderTopSubthemes(doc, topHost, model, basisOf(rows, store?.getState?.()?.screener?.metadata || null, root?._aioHistory || []));
+  if (focusedGroup) [...strengthHost.querySelectorAll('[data-compare-group]')].find((button) => button.dataset.compareGroup === focusedGroup)?.focus({ preventScroll: true }); // preserve comparison focus across an async data repaint
   return model;
 }

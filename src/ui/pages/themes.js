@@ -138,10 +138,10 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
            renderKrThemeArtifact({ documentRef, root, store });
           renderDetail();
            renderThemeStrength({ documentRef, root, store }); // P1417
-          // The AI supply chain by group (a lazy chunk). v59.51: it paints into its static slot
-          // after #themes-verdict; creating the host here raced aio-core's 2.3 s verdict-after-header reorder.
-          // The same chunk opens the summary card with the leaders against the rest (paintThemesLeaderFalls).
           // The sector template bars and the theme 200-day tiles (a lazy chunk, technical/setup-board.js).
+          // The AI supply chain card (a lazy chunk) paints into its static #themes-ai-chain slot; creating the host here
+          // raced aio-core's verdict-after-header reorder. The same chunk puts the leaders-against-the-rest line and its
+          // bars at the top of the 요약 tab, just before #rrg-rotation-read (paintThemesLeaderFalls).
           if (route === 'themes') import('../components/setup-board-view.js').then(({ renderThemesSetup }) => renderThemesSetup({ documentRef, root, rows: store?.getState?.()?.screener?.rows || [] })).catch(() => {});
           if (route === 'themes') import('../components/ai-chain-flow.js').then(({ paintThemesAiChain, paintThemesLeaderFalls }) => { paintThemesAiChain(documentRef, root); paintThemesLeaderFalls(documentRef, root); }).catch(() => {});
            try { renderThemePlaybook({ documentRef, root, store }); renderThemeDetailPlaybook({ documentRef, root }); if (detailPanel?.style.display === 'block') renderThemeDetailTeach({ documentRef, root, store }); } catch (_) { /* the forward read never takes the themes route down */ } // P1743; v58.75 the teach block reads the playbook just built
@@ -294,13 +294,13 @@ export function createThemesPage({ root = globalThis, documentRef, store, route 
         let detailTriggerId = '';
         let deepLinkHint = null;
         const currentDetailTrigger = () => detailTrigger && documentRef.contains(detailTrigger) ? detailTrigger
-          : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme') || [])]
+          : [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id]') || [])]
             .find((node) => !detailPanel?.contains?.(node) && JSON.stringify([node.dataset.action, node.dataset.arg, node.dataset.themeId, node.getAttribute('aria-label')]) === detailTriggerKey)
           // A re-render may refresh the label (numbers in it); the theme id alone still names the same trigger.
           || (detailTriggerId ? [...(page?.querySelectorAll?.('[data-action="showThemeDetail"], [data-theme-id]') || [])]
             .find((node) => !detailPanel?.contains?.(node) && (node.dataset.arg || node.dataset.themeId) === detailTriggerId) : null);
         const onThemeTriggerClick = (event) => {
-          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id], .capex-flow-theme');
+          const trigger = event?.target?.closest?.('[data-action="showThemeDetail"], [data-theme-id]');
           if (!trigger || !page?.contains?.(trigger) || detailPanel?.contains?.(trigger)) return;
           detailTrigger = trigger;
           detailTriggerKey = JSON.stringify([trigger.dataset.action, trigger.dataset.arg, trigger.dataset.themeId, trigger.getAttribute('aria-label')]);

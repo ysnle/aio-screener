@@ -2,6 +2,7 @@
 // and the connected reading (growth → profitability → earnings vs price → price vs results).
 import { buildFiscalRead, reconcileFiscalHistory, shareSplitBreaks, financialKind, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
 import { buildEarningsQuality } from '../../domain/fundamental/earnings-quality.js';
+import { cashChainMethod } from '../../domain/fundamental/cash-chain.js';
 import { figureText } from '../../domain/shared/claim.js';
 import { buildPeerRead } from '../../domain/fundamental/peer-read.js';
 import { buildQuarterRead, buildWorkingCapitalRead, parseQuarterHistory } from '../../domain/fundamental/quarter-read.js';
@@ -12,6 +13,7 @@ import { secFilingUrl } from '../../domain/fundamental/sec-report.js';
 import { buildConsensusPoint } from '../../domain/fundamental/consensus-read.js';
 import { requestConsensusEstimates, consensusRowFor } from '../../data/consensus-estimates.js';
 import { el } from './dom.js';
+import { signedBar, signedScale } from './signed-bar.js';
 import { keepOpenFolds, kindFold } from './indicator-face.js';
 import { fiscalYearLabel, fiscalYearShortLabel } from '../../domain/fundamental/period.js';
 import { loadFundamentalAnalysis } from './fundamental-analysis-lazy.js';
@@ -226,6 +228,20 @@ function peerSection(doc, root, symbol, row, rows, fundamentals) {
   return box;
 }
 
+// A cash-chain row's parts on one signed scale (the figures are the row's printed value; the bars show size and side).
+function chainBars(doc, label, parts) {
+  const box = el(doc, 'div', null, 'v2-fiscal-chain');
+  box.setAttribute('role', 'img');
+  box.setAttribute('aria-label', `${label}: ${parts.map(([name, value]) => `${name} ${value > 0 ? '늘림' : value < 0 ? '줄임' : '변화 없음'}`).join(', ')}`);
+  const max = signedScale(parts.map(([, value]) => value), 1e-9);
+  for (const [name, value, tone] of parts) {
+    const line = el(doc, 'div', null, 'v2-fiscal-chain__row');
+    line.append(el(doc, 'span', name, 'v2-fiscal-chain__name'), signedBar(doc, value, max, { tone }));
+    box.append(line);
+  }
+  return box;
+}
+
 // 개편 v2 (5g): 이익의 질 — operating cash flow ÷ net income for each filed year (the trend is only the years in
 // sec-fiscal-history; no year is estimated), the latest free-cash-flow margin and the one-year share count change.
 // Banks are skipped: their operating cash flow mixes deposits and loans, so the ratio does not read as earnings quality.
@@ -266,10 +282,16 @@ function earningsQualityCard(doc, read, analysis) {
     }
   }
   // The Sloan (1996) accrual ratio on its original denominator (average total assets), now that assets are collected.
+  // The free-cash change carries its two parts as bars, the dilution row the share pace beside revenue per share's.
   for (const item of quality.rows) {
-    const line = row(item.name, item.pending ? analysis?.COLLECTION_PENDING_LABEL || '' : item.detail, item.value.text, item.id === 'cash-ratio' ? trend : null);
+    const extra = item.id === 'cash-ratio' ? trend
+      : item.bridge ? chainBars(doc, `${item.name}, 전년 대비 막대`, [['영업현금흐름', item.bridge.ocfChange, 'verdict'], ['설비투자 몫', -item.bridge.capexChange, 'verdict'], ['잉여현금흐름', item.bridge.fcfChange, 'verdict']])
+        : item.dilution ? chainBars(doc, `${item.name}, 연 변화 막대`, [['주식 수', item.dilution.sharesCagr, 'flat'], ['주당 매출', item.dilution.perShareCagr, 'verdict']]) : null;
+    const line = row(item.name, item.pending ? analysis?.COLLECTION_PENDING_LABEL || '' : item.detail, item.value.text, extra);
     if (item.hover) line.title = item.hover.text;
-    if (item.burden) line.classList.add('is-burden');
+    if (item.burden || item.tone === 'burden') line.classList.add('is-burden');
+    // The cash-chain rows print several figures: the value takes its own line under the state word.
+    if (['fcf-bridge', 'shares', 'runway'].includes(item.id)) line.classList.add('v2-fiscal-row--stack');
   }
   card.append(rows);
   // v58.74 (text audit 종목 C4): the two signals can disagree; the expert says how both are true and what to check next.
@@ -280,6 +302,7 @@ function earningsQualityCard(doc, read, analysis) {
   body.append(
     box('원리', '회계 이익은 발생주의라 현금보다 먼저 잡힐 수 있습니다. 영업현금흐름 ÷ 순이익이 1 근처면 이익이 현금으로 뒷받침되고, 발생액(순이익 − 영업현금흐름)이 큰 기업은 이후 수익률이 낮은 경향이 관측됐습니다.'),
     box('지금 읽기', quality.reading.text),
+    box('현금 사슬의 상태어', cashChainMethod().join(' ')),
     box('한계, 함께 볼 것', `${quality.accrualState === 'pending' ? '발생액을 평균 총자산으로 나눈 비율(원 연구의 정의)은 총자산 수집이 끝나면 표시됩니다. ' : '발생액 비율의 5% 구간은 이 화면의 읽기 기준이며 원 연구의 분위 경계가 아닙니다. '}운전자본이 크게 변한 해나 대규모 일회성 항목은 10-K 현금흐름표에서 확인합니다.`));
   body.append(el(doc, 'p', '근거, Sloan(1996) 발생액 이상 현상, 데이터, 미국 증권거래위원회 연간 공시(10-K)', 'sx-evidence'));
   card.append(kindFold(doc, 'method', '이익의 질의 원리와 한계', [body]));
@@ -336,8 +359,8 @@ function workingCapitalCard(doc, quarters, symbol) {
   return card;
 }
 
-// The page is ① revenue and margin trend (the business lens leads its cards), ② cash flow, accruals and
-// the thesis conditions, ③ what the filing says with the peer standing, ④ the market environments. Each visual section
+// The page is ① revenue and margin trend (the business lens leads its cards), ② the cash chain, accruals and
+// the reverse DCF, ③ what the filing says with the peer standing, ④ the market environments. Each visual section
 // carries its chart; only raw tables, methods and sources fold.
 function fiscalSection(doc, id, title) {
   const box = el(doc, 'section', null, 'fiscal-section');
@@ -532,10 +555,8 @@ export function renderFiscalRead({ documentRef: doc, root, state, close }) {
     // The reverse DCF ('가격이 가정한 성장') and the DuPont split of ROE close the cash section.
     const pairNode = analysisPair(doc, root, host, analysis, { symbol, fundamentals: state?.fundamentals || null, close, sector: row?.sector || null, series });
     if (pairNode) cash.append(el(doc, 'h4', '가격이 가정한 성장과 수익성 구조', 'fiscal-section__sub'), pairNode);
-    // The thesis conditions quote that growth, so they follow it.
-    const thesis = extra?.thesis || null;
-    if (thesis) cash.append(thesis);
-    if (cashCards.length || pairNode || thesis) host.append(cash);
+    // The thesis conditions that quote that growth are 쟁점과 전망's table, beside the researched readings.
+    if (cashCards.length || pairNode) host.append(cash);
     // ③ The filing read as one row per finding (the 판정 사유), the same-theme and sector peers, and the raw filing fields
     // (#fund-native-sec-report, written by entity.js) as the section's 원자료 표.
     const sec = fiscalSection(doc, 'sec', '공시가 말하는 것');

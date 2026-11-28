@@ -2,12 +2,58 @@
 // card. (owner 2026-11-20, face never folded) the conditions for lower rates are the reading — one compact list on the face
 // (label, state, next release); how rates reach stocks, the proxy caveat and whether lower rates are always good are the
 // method fold; the auction rows are the raw-table fold. The scenarios themselves are 시장 상태 › 시나리오와 전망's.
-import { crossroadsForRoot } from './macro-crossroads.js';
 import { foldSummary, kindFold, markFold } from './indicator-face.js';
 import { refreshSharedArtifact } from '../../data/shared-artifacts.js';
+import { marketInterpretation } from '../../data/selectors/interpretation.js';
 import { auctionLine, latestByTenor, AUCTION_METHOD } from '../../domain/macro/treasury-auctions.js';
+import { crossAssetVerdicts } from '../../domain/macro/cross-asset-relations.js';
+import { signedText } from '../../domain/shared/number.js';
 import { TREASURY_AUCTIONS } from '../../data/artifact-registry.js';
 import { el } from './dom.js';
+
+// Rates against the other assets on the same 20 sessions: one row per cross-asset verdict, its fixed state word and the
+// legs it read with their dates. The verdicts are cross-asset-relations'; this only draws them.
+const LEG_NAMES = { spx: 'S&P 500', gold: '금', tlt: '장기채(TLT)', dxy: '달러 지수', realYield10: '10년 실질금리', tnx: '10년물', rut: '러셀 2000', rsp: '동일가중 S&P 500', vix: 'VIX', hyOas: '하이일드 스프레드', usdjpy: '엔/달러', eurusd: '유로/달러', eurjpy: '유로/엔', audjpy: '호주달러/엔', audusd: '호주달러/달러' };
+const BP_LEGS = new Set(['realYield10', 'hyOas']);
+const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
+function legsText(legs) {
+  const groups = new Map();
+  for (const [key, leg] of Object.entries(legs)) {
+    if (!leg) continue;
+    const span = `${md(leg.from)}→${md(leg.to)}`;
+    const figure = key === 'tnx' ? signedText(Math.round(leg.value * 100), 0, 'bp') : BP_LEGS.has(key) ? signedText(leg.value, 0, 'bp') : signedText(leg.value, 1, '%');
+    groups.set(span, [...(groups.get(span) || []), `${LEG_NAMES[key]} ${figure}`]);
+  }
+  return [...groups].map(([span, figures]) => `${figures.join(', ')} (${span})`).join('; ');
+}
+/** The four rows as data: { id, label, state, named, evidence }. */
+export function crossAssetRows(v) {
+  if (!v?.asOf) return [];
+  const c = v.cashOrRealRate, y = v.yen;
+  return [
+    { label: '주식·금·장기채·달러', item: c, idle: c.bundle ? '실질금리 자료 대기' : '묶음 아님' },
+    { label: '금리와 달러', item: v.ratesDollar, idle: '이름 붙은 유형 아님' },
+    { label: '금리 하락의 종류', item: v.rateFall, idle: '10년물 하락 아님' },
+    { label: '엔/달러 하락의 출처', item: y, idle: y.legs.usdjpy?.value < 0 ? '하락 폭 기준 아래' : '엔/달러 하락 아님', note: y.state && y.riskFxWeak ?'호주달러 약세 동반' : '' },
+  ].map(({ label, item, idle, note }) => ({ id: item.id, label, named: !!item.state, state: `${item.label || idle}${note ? ` · ${note}` : ''}`, evidence: legsText(item.legs) }));
+}
+function crossAssetBlock(doc, verdicts) {
+  const rows = crossAssetRows(verdicts);
+  if (!rows.length) return [];
+  // A named relation is a card with its figures; the rows with none share one muted line, so a quiet month is one line.
+  const list = el(doc, 'ul', null, 'xr-paths');
+  for (const item of rows.filter((row) => row.named)) {
+    const row = el(doc, 'li', null, 'xr-path is-met');
+    row.dataset.crossAsset = item.id;
+    row.append(el(doc, 'b', item.label, 'xr-path-label'), el(doc, 'span', ` ${item.state}`, 'xr-path-state'));
+    if (item.evidence) row.append(el(doc, 'p', item.evidence, 'xr-path-evidence'));
+    list.append(row);
+  }
+  const idle = rows.filter((row) => !row.named);
+  const quiet = idle.length ? el(doc, 'p', `${idle.length === rows.length ? '이름 붙은 관계 없음' : '해당 없음'} — ${idle.map((row) => `${row.label}: ${row.state}`).join(' · ')}`, 'xr-path-evidence') : null;
+  if (quiet) quiet.dataset.crossAssetIdle = String(idle.length);
+  return [el(doc, 'h3', `금리와 다른 자산 — ${verdicts.window}거래일`, 'xr-h4'), ...(list.children.length ? [list] : []), ...(quiet ? [quiet] : [])];
+}
 
 // Who is buying the new supply. The latest note and bond auction of each tenor
 // against its own previous six, one line on the face and the per-tenor rows one fold down; a reference, never a condition.
@@ -40,7 +86,8 @@ export function renderRateHub({ documentRef: doc, root }) {
     curve.insertAdjacentElement('afterend', hub);
     refreshSharedArtifact(root, TREASURY_AUCTIONS).then(({ changed }) => { if (changed) renderRateHub({ documentRef: doc, root }); }).catch(() => {});
   }
-  const model = crossroadsForRoot(root);
+  const interpretation = marketInterpretation(root);
+  const model = interpretation?.crossroads;
   const rate = model?.rateHub;
   hub.hidden = !model?.available || !rate;
   if (hub.hidden) { hub.replaceChildren(); return null; }
@@ -63,6 +110,7 @@ export function renderRateHub({ documentRef: doc, root }) {
     paths.append(row);
   }
   parts.push(paths);
+  parts.push(...crossAssetBlock(doc, crossAssetVerdicts(interpretation.inputs?.history || [], interpretation.inputs?.macroHistory || null)));
   const auctions = auctionBlock(doc, root, auctionsOpen);
   if (auctions) parts.push(auctions);
   const method = [rate.whyHigherHurts, rate.pricingNote, rate.caveat].filter(Boolean);

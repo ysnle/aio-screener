@@ -1,7 +1,6 @@
-// v59.70 (X bookmarks 11/4 packet §4 #2): how many of each sector's S&P 500 members close within 5% of their 52-week
-// closing high — a breadth reading per sector, beside the sector ETF's own return. The population is the index
-// membership (screener metadata.indexWeights, GICS sectors); the value is the screener row's pctFromCloseHigh52w on the
-// US factor session the bars print. A member without that session's value is not measured, never counted as far.
+// Per-sector member counts of the S&P 500 (screener metadata.indexWeights, GICS sectors) on one US factor session: the
+// population every sector-breadth figure on 테마와 섹터 shares. A member without that session's value is not measured,
+// never counted as far from the line or the extreme.
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { GICS_KO } from '../content/sector-words.js';
 
@@ -15,32 +14,45 @@ export const SECTOR_ETF_GICS = Object.freeze({
   XLF: 'Financials', XLE: 'Energy', XLI: 'Industrials', XLU: 'Utilities', XLB: 'Materials', XLRE: 'Real Estate'
 });
 const sameSector = (a, b) => a === b || (a === 'Communication Services' && b === 'Communication') || (b === 'Communication Services' && a === 'Communication');
+/** The indexWeights spelling of a GICS sector name ('Communication Services' → 'Communication'). */
+export const gicsKeyOf = (sector) => Object.values(SECTOR_ETF_GICS).find((name) => sameSector(name, sector)) || sector;
 
-/**
- * { bySector: { [gics]: { sector, label, listed, measured, near, share } }, total } — share is the percent of measured
- * members within NEAR_HIGH_PCT of the 52-week closing high, null below NEAR_HIGH_MIN_MEASURED.
- */
-export function sectorNearHigh({ weights = null, rows = [], session = null } = {}) {
-  const members = (Array.isArray(weights?.rows) ? weights.rows : [])
-    .map((row) => (Array.isArray(row) ? { sym: row[0], sector: row[1] } : row))
-    .filter((row) => row?.sym && row.sector);
+/** { [gics]: { sector, label, rows } } — each listed member's screener row when it is on `session`, else null. */
+export function sectorMembers({ weights = null, rows = [], session = null } = {}) {
   const bySym = new Map((Array.isArray(rows) ? rows : []).filter((row) => row?.sym).map((row) => [String(row.sym).toUpperCase(), row]));
-  const bySector = {};
-  const total = { listed: 0, measured: 0, near: 0, share: null };
-  for (const member of members) {
-    const key = Object.values(SECTOR_ETF_GICS).find((name) => sameSector(name, member.sector)) || member.sector;
-    const bucket = bySector[key] ||= { sector: key, label: GICS_KO[key] || key, listed: 0, measured: 0, near: 0, share: null };
-    const row = bySym.get(String(member.sym).toUpperCase());
-    const value = row && (!session || row.factorSessionDate === session) ? readRowNumber(row, 'pctFromCloseHigh52w', 'calculation') : null;
-    for (const target of [bucket, total]) {
-      target.listed += 1;
-      if (value == null) continue;
-      target.measured += 1;
-      if (value >= -NEAR_HIGH_PCT) target.near += 1;
-    }
+  const out = {};
+  for (const member of Array.isArray(weights?.rows) ? weights.rows : []) {
+    const { sym, sector } = Array.isArray(member) ? { sym: member[0], sector: member[1] } : member || {};
+    if (!sym || !sector) continue;
+    const key = gicsKeyOf(sector);
+    const row = bySym.get(String(sym).toUpperCase());
+    (out[key] ||= { sector: key, label: GICS_KO[key] || key, rows: [] }).rows.push(row && (!session || row.factorSessionDate === session) ? row : null);
   }
-  for (const target of [...Object.values(bySector), total]) {
-    target.share = target.measured >= NEAR_HIGH_MIN_MEASURED ? Math.round(target.near / target.measured * 100) : null;
-  }
-  return { bySector, total };
+  return out;
+}
+
+/** { measured, hit, share }: members with `field` on the session, how many pass `test`, the percent (null below the floor). */
+export function memberShare(rows, field, test) {
+  const values = rows.map((row) => (row ? readRowNumber(row, field, 'calculation') : null)).filter((value) => value != null);
+  const hit = values.filter(test).length;
+  return { measured: values.length, hit, share: values.length >= NEAR_HIGH_MIN_MEASURED ? Math.round(hit / values.length * 100) : null };
+}
+
+// Both ends of the 52-week range on one denominator (members with a 52-week closing high). Near the high = within
+// NEAR_HIGH_PCT of the closing high; near the low = within NEAR_HIGH_PCT above the 52-week low (the producer's low is
+// the intraday low). A member near both (a range narrower than 10%) counts only on the high side, so the sets never overlap.
+function extremesOf(rows) {
+  const high = (row) => readRowNumber(row, 'pctFromCloseHigh52w', 'calculation');
+  const measured = rows.filter((row) => row && high(row) != null);
+  const near = measured.filter((row) => high(row) >= -NEAR_HIGH_PCT).length;
+  const low = measured.filter((row) => high(row) < -NEAR_HIGH_PCT && (readRowNumber(row, 'pctFrom52wLow', 'calculation') ?? Infinity) <= NEAR_HIGH_PCT).length;
+  const enough = measured.length >= NEAR_HIGH_MIN_MEASURED;
+  return { listed: rows.length, measured: measured.length, near, low, share: enough ? Math.round(near / measured.length * 100) : null, lowShare: enough ? Math.round(low / measured.length * 100) : null };
+}
+
+/** { bySector: { [gics]: { sector, label, listed, measured, near, low, share, lowShare } }, total } on one session. */
+export function sectorNearHigh({ weights = null, rows = [], session = null } = {}) {
+  const groups = sectorMembers({ weights, rows, session });
+  const bySector = Object.fromEntries(Object.entries(groups).map(([key, group]) => [key, { sector: group.sector, label: group.label, ...extremesOf(group.rows) }]));
+  return { bySector, total: extremesOf(Object.values(groups).flatMap((group) => group.rows)) };
 }

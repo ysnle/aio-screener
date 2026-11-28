@@ -49,7 +49,8 @@ function shell(doc, spec) {
   const close = el(doc, 'span', '', 'charts-candle-close');
   head.append(title, source, verdict, close);
   const facts = el(doc, 'p', '', 'charts-card-conclusion');
-  const volume = el(doc, 'p', '', 'charts-card-volume');
+  // The verdict cells every card shares (market-charts cardVerdict), then its state tags.
+  const volume = el(doc, 'div', null, 'charts-card-volume');
   const chips = el(doc, 'div', null, 'stock-chart-layer-read charts-candle-chips');
   const chart = el(doc, 'div', null, 'charts-index-chart');
   chart.style.minHeight = `${CARD_PRICE_PX}px`;
@@ -75,6 +76,7 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
   if (!host) return { update: () => {}, setSpecs: () => {}, dispose: () => {} };
   let alive = true;
   let history = [];
+  let context = {};
   let asOf = null;
   let cards = [];
   // A grid gets a box when its view is shown; the observer hears that change (and the first measure).
@@ -85,9 +87,25 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
   const readingOf = (card) => {
     const { key, label, symbol, closes } = card.spec;
     const breadth = closes === 'spx' ? latestBreadth(history) : null;
-    if (card.state === 'bars') return barsChartReading({ bars: card.bars, field: closes || key, label, symbol, positionOnly: false, history: closes ? history : [], breadth, money: priceOf(symbol) });
-    if (card.state === 'closes') return indexChartReading(history, closes, label, { breadth });
+    const leaders = closes === 'ndx' ? context.leaders || null : null;
+    if (card.state === 'bars') return barsChartReading({ bars: card.bars, field: closes || key, label, symbol, positionOnly: false, history: closes ? history : [], breadth, leaders, money: priceOf(symbol) });
+    if (card.state === 'closes') return indexChartReading(history, closes, label, { breadth, leaders });
     return null;
+  };
+
+  const paintVerdict = (host, reading) => {
+    const nodes = [];
+    if (reading?.tags?.length) {
+      const tags = el(doc, 'p', null, 'charts-card-tags');
+      reading.tags.forEach((tag) => tags.append(el(doc, 'span', tag, 'charts-trend is-tone-neutral')));
+      nodes.push(tags);
+    }
+    if (reading?.cells?.length) {
+      const list = el(doc, 'dl', null, 'regime-evidence charts-card-cells');
+      for (const [label, value] of reading.cells) list.append(el(doc, 'dt', label), el(doc, 'dd', value));
+      nodes.push(list);
+    }
+    host.replaceChildren(...nodes);
   };
 
   const paintCloses = (card, reading) => {
@@ -111,7 +129,7 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
     parts.verdict.className = `charts-trend${reading ? ` is-${reading.trend} is-tone-${reading.tone}` : ''}`;
     parts.card.dataset.trend = reading?.trend || '';
     parts.facts.textContent = reading ? `${reading.facts}${reading.asOf && asOf && reading.asOf !== asOf ? ` · ${shortDate(reading.asOf)} 종가` : ''}` : '';
-    parts.volume.textContent = reading?.volume?.text || '';
+    paintVerdict(parts.volume, reading);
     if (card.state === 'bars') {
       const last = card.bars.at(-1), prev = card.bars.at(-2);
       const change = (last.close / prev.close - 1) * 100;
@@ -217,8 +235,9 @@ export function createChartCards({ documentRef: doc, root, host, specs = INDEX_C
   doc.addEventListener?.('aio:colorThemeChanged', recolor);
 
   return {
-    update(nextHistory, pageAsOf) {
+    update(nextHistory, pageAsOf, nextContext = {}) {
       history = Array.isArray(nextHistory) ? nextHistory : [];
+      context = nextContext || {};
       if (!basisOf) asOf = pageAsOf || null;
       cards.forEach(paint);
       report();

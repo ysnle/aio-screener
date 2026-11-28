@@ -8,6 +8,8 @@ import { oneSessionDay } from '../../domain/market/day/one-session.js';
 import { signedText } from '../../domain/shared/number.js';
 import { el } from './dom.js';
 import { storyWeight } from './story-weight.js';
+import { reportLine, causeRow } from './home-day.js';
+import { dayCause, CAUSE_WORDS } from '../../domain/market/day/day-cause.js';
 import { BRIEFING_REPORT_WORDS as W } from '../../domain/content/briefing-report-words.js';
 import { EVENT_BRIEFS, MARKET_DAY, INDEX_LONGRUN } from '../../data/artifact-registry.js';
 
@@ -30,11 +32,7 @@ function storyItem(doc, story) {
   if (story.why.length) body.append(el(doc, 'p', `→ ${story.why.join(' ')}`, 'br-timeline__why'));
   item.append(when, body);
   // A lead story's top linked report stands on the face under the move, as written; the rest stay folded.
-  if (story.report) {
-    const line = el(doc, 'p', `관련 보도: ${story.report.title}`, 'br-timeline__report');
-    if (story.report.original) line.title = story.report.original;
-    body.append(line);
-  }
+  if (story.report) body.append(reportLine(doc, story.report, 'br-timeline__report', 'p'));
   const folded = story.report ? story.evidence.slice(1) : story.evidence;
   if (folded.length) {
     const list = el(doc, 'ul', null, 'briefing-day-evidence');
@@ -59,7 +57,8 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   // The closes and the long-run tables rank the leading index's move in the opening line (day-account rankSaid).
   const longrun = root?.[INDEX_LONGRUN.key] || null;
   if (root && !longrun) refreshSharedArtifact(root, INDEX_LONGRUN).then(({ changed }) => { if (changed) renderBriefingDay({ documentRef: doc, root }); }).catch(() => {});
-  const account = buildDayAccount(oneSessionDay(day, root?._aioHistory), { briefs, history: root?._aioHistory || null, longrun }); // v59.70 (re-review 7·8)
+  const sessionDay = oneSessionDay(day, root?._aioHistory);
+  const account = buildDayAccount(sessionDay, { briefs, history: root?._aioHistory || null, longrun }); // v59.70 (re-review 7·8)
   section.hidden = !account.available;
   if (!account.available) return;
   const key = `${day.generatedAt}|${briefs?.generatedAt || ''}|${longrun?.generatedAt || ''}|${root?._aioHistory?.at?.(-1)?.date || ''}`;
@@ -77,6 +76,14 @@ export function renderBriefingDay({ documentRef: doc, root }) {
   if (opening) opening.textContent = account.opening;
   doc.getElementById('briefing-day-stories')?.replaceChildren(...account.stories.map((story) => storyItem(doc, story)));
   const folds = [];
+  // The cause verdicts the stories do not already show: each release with the yields, a theme that was one sub-theme's
+  // move, and the headlines held or excluded as causes (with why).
+  const causes = dayCause(sessionDay).candidates.filter((row) => row.kind === 'release' || row.reason === 'part-only' || (row.kind === 'headline' && row.result !== 'attributed' && row.title));
+  if (causes.length) {
+    const list = el(doc, 'ul', null, 'br-day__more-list');
+    list.append(...causes.map((row) => causeRow(doc, row)));
+    folds.push(el(doc, 'h3', CAUSE_WORDS.label, 'br-day__more-title'), list);
+  }
   const nameOf = (row) => (String(row.label || '').includes('(') ? `${row.label} ${row.sym}` : `${row.label}(${row.sym})`);
   // Analysis, so on the face: the largest few of the smaller stories (account.more is in materiality order), then the
   // large moves no report or price explains, told as moves. The ledger's bookkeeping ("이유가

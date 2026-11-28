@@ -54,7 +54,7 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   // The stock lens readings sit on the face: the business lens leads ①, the thesis conditions follow the reverse DCF in ②.
   const onFace = (node, id) => { const card = find(node, (item) => item?.dataset?.analysis === id); let up = card?.parentElement; while (up && up !== host) { if (tag(up) === 'details') return false; up = up.parentElement; } return !!card; };
   check('v60.31 ① 매출과 이익률 추세 leads with the business lens on the face', onFace(trend, 'lens'));
-  check('v60.31 ② 현금흐름과 발생액 carries the thesis conditions on the face', onFace(cash, 'thesis') && /맞으려면/.test(find(cash, (item) => item?.dataset?.analysis === 'thesis')?.textContent || ''));
+  check('v60.69 재무 공시 carries no second thesis card under 현금흐름과 발생액', !find(cash, (item) => item?.dataset?.analysis === 'thesis'));
 }
 
 // ── 종목 개요: 사업 · 밸류체인 안의 자리 · 재무 한눈에, and the 쟁점과 전망 view (renderCompanyOverview on NVDA's story) ──
@@ -81,8 +81,9 @@ const visualIn = (node) => !!find(node, (item) => ['svg', 'canvas'].includes(tag
   // The company analysis the story carries sits on the face of its section (folds hold only tables, methods, sources).
   const unfolded = (item, node) => { let up = item.parentElement; while (up && up !== node) { if (tag(up) === 'details') return false; up = up.parentElement; } return true; };
   const faceText = (node) => all(node, (item) => ['h3', 'h4'].includes(tag(item)) && unfolded(item, node)).map((item) => item.textContent).join('|');
+  check('v60.69 쟁점과 전망 holds the thesis conditions as one table', !!find(outlook, (item) => String(item?.className || '').includes('co-verdicts__table')));
   check('v60.31 사업 carries 경쟁 and AI on the face', /경쟁/.test(faceText(business)) && /지금 이기는 이유/.test(faceText(business)) && /AI가 실적에 닿는 길/.test(faceText(business)), faceText(business));
-  check('v60.34 쟁점과 전망 leads with 핵심 쟁점 and carries the outlook and the signals', ['핵심 쟁점', '판가름할 것', '잘 안 보이는 구조', '회사가 밝힌 전망과 계획', '맞아가고 있다는 신호'].every((title) => faceText(outlook).includes(title)) && faceText(outlook).indexOf('핵심 쟁점') < faceText(outlook).indexOf('회사가 밝힌 전망과 계획'), faceText(outlook));
+  check('v60.34 쟁점과 전망 leads with 핵심 쟁점 and carries the outlook and the signals', ['핵심 쟁점', '잘 안 보이는 구조', '회사가 밝힌 전망과 계획'].every((title) => faceText(outlook).includes(title)) && ['이야기가 유지된다는 읽기', '판가름할 것', '회사가 내는 신호'].every((title) => outlook.textContent.includes(title)) && faceText(outlook).indexOf('핵심 쟁점') < faceText(outlook).indexOf('회사가 밝힌 전망과 계획'), faceText(outlook));
   // 실적과 현금 belongs to 재무 공시: the same story, drawn there with its cash bars, and absent from the overview.
   const reportHost = doc.createElement('div');
   renderCompanyReport(doc, reportHost, { story, today: '2026-11-19' });

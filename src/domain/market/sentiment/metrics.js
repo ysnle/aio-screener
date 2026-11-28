@@ -13,17 +13,26 @@ export function fearGreedBand(value) {
   return Object.freeze({ score, label: '극단 탐욕', blocked: false });
 }
 
+/**
+ * The one VIX term-structure judgement (volatility-state.js reads it for every screen). `state`: 'inverted' (VIX at or over
+ * the 3-month VIX), 'front' (under it, the 9-day VIX over VIX), 'flat' (VIX ÷ 3-month at or over the calm line) or
+ * 'normal'. Without a 9-day close the front leg is unknown (frontInverted null) and the ratio still decides.
+ */
 export function vixTermStructure(values = {}) {
   const short = finite(values.vix9d);
   const spot = finite(values.vix);
   const medium = finite(values.vix3m);
   const long = finite(values.vix6m);
-  if ([short, spot, medium].some((value) => value == null || value < 0) || (long != null && long < 0)) {
-    return Object.freeze({ regime: '판정 보류', inverted: null, blocked: true, points: Object.freeze({ short, spot, medium, long }) });
+  const points = Object.freeze({ short, spot, medium, long });
+  if ([spot, medium].some((value) => value == null || value < 0) || [short, long].some((value) => value != null && value < 0)) {
+    return Object.freeze({ regime: '판정 보류', state: null, ratio: null, inverted: null, blocked: true, points });
   }
-  const full = medium > 0 ? spot / medium >= RULES.volatility.invertedRatioAt : spot > 0;
-  const front = !full && short > spot;
-  return Object.freeze({ regime: full ? '백워데이션' : front ? '앞쪽 역전(9일물 > 30일물)' : '콘탱고', inverted: full || front, frontInverted: front, blocked: false, points: Object.freeze({ short, spot, medium, long }) });
+  const V = RULES.volatility;
+  const ratio = medium > 0 ? spot / medium : null;
+  const full = ratio != null ? ratio >= V.invertedRatioAt : spot > 0;
+  const front = full || short == null ? (full ? false : null) : short > spot;
+  const state = full ? 'inverted' : front ? 'front' : ratio != null && ratio >= V.calmRatioBelow ? 'flat' : 'normal';
+  return Object.freeze({ regime: full ? '백워데이션' : front ? '앞쪽 역전(9일물 > 30일물)' : '콘탱고', state, ratio, inverted: full || !!front, frontInverted: front, blocked: false, points });
 }
 
 export function deriveSentimentSummary({ fearGreed, vix9d, vix, vix3m, vix6m } = {}) {

@@ -1,4 +1,4 @@
-// The fixed words of the session's catalysts and divergences (domain/market/day/catalysts.js, divergence.js). Labels and
+// The fixed words of the session's catalysts and divergences (domain/market/day/day-cause.js). Labels and
 // clause templates only; every figure is a claim slot, every headline is the ledger's own Korean title. Neither line
 // says why: the catalysts are what the ledger linked to the session's moves, the divergence names two figures that
 // went the unexpected way, and the reason is the AI reading's.

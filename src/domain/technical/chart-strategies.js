@@ -6,6 +6,7 @@
 // map (v59.46 P24-PRODUCT-01).
 import { swingPoints } from './price-levels.js';
 import { priorVolumeAverage } from './definitions.js';
+import { setupFacts, DRY_UP_RATIO } from './setup-coach.js';
 import { RULES } from '../rules/thresholds.js';
 import { signedText, finiteNumber as finite } from '../shared/number.js';
 
@@ -62,7 +63,9 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
   const ema21 = at(analysis.lines?.ema21), sma50 = at(analysis.lines?.sma50), sma200 = at(analysis.lines?.sma200), sma200Then = at(analysis.lines?.sma200, 20);
   const adr = analysis.adrPct > 0 ? close * analysis.adrPct / 100 : null;
   const near = (price, multiple = 1.5) => (price > 0 && adr ? Math.abs(close - price) <= adr * multiple : null);
-  const templateMet = (analysis.templateChecks || []).filter(([, ok]) => ok === true).length;
+  // The template count, volume drying, the RS line and the pivot are the facts the checklist and the life cycle read.
+  const facts = setupFacts(analysis);
+  const templateMet = facts.template.met;
   const stage = analysis.weinstein?.stage ?? null;
   // The chart read's own volume basis (definitions priorVolumeAverage): a missing volume stays missing, and the
   // 50-session base ends before the five sessions it is compared with.
@@ -76,16 +79,15 @@ export function strategyLenses(analysis, levels = null, { rsi = null } = {}) {
     const known = conditions.filter(([, ok]) => ok != null);
     return { ...style, conditions, met: known.filter(([, ok]) => ok).length, known: known.length, total: conditions.length, ...rules };
   };
-  // A pivot exists for any swing high; chart-analysis gates every breakout state on a valid
-  // contraction run, so the lens counts the pivot only when the VCP is valid (else it is just the latest swing high).
-  const pivot = analysis.vcp?.valid === true ? analysis.pivot : null;
+  // The pivot counts only on a valid contraction run (else it is just the latest swing high) — setupFacts.pivot.
+  const pivot = facts.pivot.price;
   return [
     pack(STRATEGY_STYLES[0], [
       [`추세 템플릿 8개 중 7개 이상 (지금 ${templateMet}개)`, templateMet >= 7],
       ['유효한 변동성 수축과 피벗', pivot > 0],
       [`피벗까지 5% 이내 또는 막 돌파${pivot > 0 ? ` (피벗 ${fmt(pivot)})` : ''}`, pivot > 0 ? close >= pivot * 0.95 && close <= pivot * 1.05 : null],
-      ['최근 10일 거래량이 50일 평균의 80% 미만(마름)', analysis.dryUp == null ? null : analysis.dryUp < 0.8],
-      ['상대강도선이 1년 고점 근처(-5% 이내)', analysis.rsFromHigh == null ? null : analysis.rsFromHigh >= -5]
+      [`최근 10일 거래량이 50일 평균의 ${DRY_UP_RATIO * 100}% 미만(마름)`, facts.dryUp.dry],
+      ['상대강도선이 1년 고점 근처(-5% 이내)', facts.rs.fromHigh == null ? null : facts.rs.fromHigh >= -5]
     ], {
       stop: '피벗 아래로 다시 들어오거나 마지막 수축 저점 아래 종가 — 이 방식은 보통 진입가의 5~8% 안에 둡니다',
       target: '베이스 깊이만큼의 측정 이동폭, 또는 감수한 위험 폭의 2~3배 구간에서 이익 일부를 확정하는 것이 이 방식의 규칙입니다',

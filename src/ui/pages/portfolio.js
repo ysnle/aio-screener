@@ -12,7 +12,8 @@ import { renderPortfolioCriteria, renderThesisCheck } from '../components/portfo
 import { portfolioRowsForAI, portfolioSectorLabel } from '../../domain/portfolio/portfolio-read.js';
 import { clearKnowledgeArrival, renderKnowledgeArrival } from '../components/knowledge-arrival.js';
 import { createSuppliedMaterialBridge } from '../knowledge/supplied-material-bridge.js';
-import { renderTradeJournal, installTradeJournal } from '../panels/portfolio-trade-journal.js';
+import { renderTradeJournal, installTradeJournal, readJournal } from '../panels/portfolio-trade-journal.js';
+import { realizeTrades } from '../../domain/portfolio/trade-journal.js';
 import { renderPortfolioValueTrend } from '../components/portfolio-value-trend.js';
 import { renderPortfolioExposureBar } from '../components/portfolio-exposure-bar.js';
 import { installPlanCheck } from '../components/portfolio-plan-check.js';
@@ -700,9 +701,10 @@ function render({ root, documentRef, store }) {
   renderPortfolioLens({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel }); // 개편 v2 (3g)
   renderPortfolioRead({ documentRef, root, surface }); // P1438
   renderFirstScreen(documentRef, root, surface, bySymbol);
-  // v58.75 (persona review, spec F4·F5): criteria met (a count, not a score) and the per-holding thesis check, facts only.
+  // Criteria met (a count, not a score) and the per-holding state (trend, thesis, plan against the journal's open buys).
   renderPortfolioCriteria({ documentRef, root, surface, checks, sectorLabel: portfolioSectorLabel });
-  renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, rerender: () => rerenderPortfolio?.() });
+  renderThesisCheck({ documentRef, root, surface: empty ? null : surface, holdings: state?.holdings || [], bySymbol, closeOf: screenerCloseOf(root, bySymbol, onDemand),
+    openLots: realizeTrades(readJournal(root).trades).open, rerender: () => rerenderPortfolio?.() });
   renderTradeJournal({ documentRef, root, surface }); // v58.52
   renderRiskFreeFill(documentRef, root);
   syncEmptyState(documentRef, root, page, { empty, preview: false });

@@ -93,8 +93,8 @@
 .aio-table-scroll { max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; }
 .theme-strength-constituents { display: flex; flex-wrap: wrap; gap: 6px; min-width: 150px; max-width: 260px; white-space: normal; }
 .theme-strength-table .theme-member-detail { white-space: normal; background: var(--surface-2); padding: 16px; }
-.theme-member-table { width: 100%; font-size: 12px; }
-.theme-member-table th, .theme-member-table td { white-space: nowrap; }
+.theme-member-table, .ai-chain__layers { width: 100%; font-size: 12px; }
+.theme-member-table th, .theme-member-table td, .ai-chain__layers th, .ai-chain__layers td { white-space: nowrap; }
 /* v57.77: 시장 폭 groups show one lead chart (capped so a lone card does not stretch to a 500px-tall chart) and fold the rest. */
 #breadth-chart-grid > .breadth-lead { grid-column: 1 / -1; width: 100%; max-width: 760px; }
 /* 시장 상태 한국 참고: label and value sit close together instead of at the two ends of the page. */
@@ -588,6 +588,7 @@ details.news-card > summary::after { margin-left: auto; height: 7px; background:
 #page-macro .mx-ch__head { display: flex; flex-direction: column; gap: 2px; }
 #page-macro .mx-ch__title { margin: 0; font-size: 16px; font-weight: 600; color: var(--color-text-primary); }
 #page-macro .mx-ch__q { font-size: 12px; color: var(--color-text-secondary); }
+#page-macro .mx-ch__verdicts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 #page-macro .mx-ch__body { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; align-items: start; }
 #page-macro .mx-ch__viz { margin: 0; display: flex; flex-direction: column; gap: 4px; }
 #page-macro .mx-ch__plot { display: flex; gap: 4px; height: 96px; }

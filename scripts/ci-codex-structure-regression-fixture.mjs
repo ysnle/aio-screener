@@ -487,11 +487,12 @@ assert.ok((watchdogWf.on || watchdogWf[true]).workflow_run?.workflows?.includes(
   assert.equal(items.realGdp.period, '26년 2분기', 'M04/M13: a 2026-04-01 GDP observation is 26년 2분기, not 4/1');
   assert.equal(items.jobOpenings.period, '2월분', 'M13: a monthly card names its month');
   assert.match(items.jobOpenings.format(9368), /^937만 건$/, 'M16 (v57.91 만 단위): the JOLTS range keeps the 만 건 unit');
-  assert.match(items.netLiquidity.reading, /뚜렷한 방향이 없습니다/, 'M05: a 4-week change inside ±1,000억 달러 has no direction');
-  assert.match(items.netLiquidity.format(5986.7), /조 달러$/, 'M16: the net-liquidity range keeps 조 달러');
-  assert.match(items.sofr.changeText, /목표 범위 3\.75–4\.00% 안/, 'M22: SOFR shows the target range');
-  assert.match(items.sofr.changeText, /안, 하단 \+12bp$/, 'v60.16: SOFR inside the target range says how far above the lower bound it sits');
-  assert.equal(items.sofr.stale, false, 'M14: a 2-day-old daily series is current');
+  // The liquidity cards are the 자금 배관 chapter's rows (macro-chapters.js): net liquidity with its 4-week change, SOFR against the target range of its own date.
+  const { buildMacroChapters } = await import('../src/domain/macro/macro-chapters.js');
+  const plumbingRows = new Map(buildMacroChapters({ macroHistory: mh, history }).chapters.find((chapter) => chapter.id === 'plumbing').detail);
+  assert.ok(!('netLiquidity' in items) && !('sofr' in items), 'v60.69: the liquidity cards are not drawn a second time beside the 자금 배관 chapter');
+  assert.match([...plumbingRows].find(([name]) => name.startsWith('순유동성'))[1], /조 달러, 4주 [+-]?[0-9.,]+억 달러$/, 'v60.69 M05/M16: net liquidity keeps 조 달러 and states its 4-week change');
+  assert.match(plumbingRows.get('목표 범위 3.75–4.00% 대비 SOFR'), /^범위 안, 상단 −13bp$/, 'M22/v60.16: SOFR inside the target range says how far under the upper bound it sits');
   assert.equal(buildLiquidityGrowthGroups(mh, { history, referenceMs: referenceMs + 6 * 86400000 }).flatMap((g) => g.items).find((i) => i.id === 'brent').stale, true, 'M14: a daily series 8 days old is stale');
   assert.ok(/ 현물 기준$/.test(items.brent.period) && items.brent.basis === 'spot' && /선물 종가와 숫자가 다를 수/.test(items.brent.reading)
     && Object.values(items).filter((i) => / 현물 기준$/.test(i.period || '')).length === 1, 'v57.81: the spot Brent card names its basis and date on its face, and only that card');

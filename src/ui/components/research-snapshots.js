@@ -1,15 +1,5 @@
 import { researchSnapshotStore } from '../../data/research-snapshots.js';
 
-/** Brings the memo into view and focuses it; an empty draft starts from `template` (the 재무 공시 thesis conditions). */
-export function focusResearchMemo(panel, template = '') {
-  const note = panel?.querySelector('textarea');
-  if (!note) return;
-  if (panel.tagName === 'DETAILS') panel.open = true;
-  if (!note.value && template) note.value = template.slice(0, note.maxLength);
-  panel.scrollIntoView({ block: 'center' });
-  note.focus({ preventScroll: true });
-}
-
 const basisLabel = (basis) => ({ 'regular-session-close': '미국 정규장 종가', 'regular-close-delta': '직전 미국 정규장 종가 대비',
   'previous-regular-close': '직전 미국 정규장 종가 대비', 'provider-previous-value': '공급자가 제공한 직전 값 대비', 'daily-close-reference': '일별 종가 참고값',
   unknown: '가격 기준 미제공', unavailable: '가격 기준 미제공' })[basis] || (basis && !/^[a-z0-9-]+$/.test(basis) ? basis : '가격 기준 확인 필요');

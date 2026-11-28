@@ -2,7 +2,8 @@
 // portfolio vault path (root._aioPortfolioTrades: same PIN encryption and backup as holdings and the account ledger);
 // the numbers come from src/domain/portfolio/trade-journal.js. The form is built once per page mount so a live-quote
 // re-render never wipes what the reader is typing; only the summary, mirrors and list are redrawn.
-import { TRADE_REASONS, TRADE_MOODS, normalizeJournal, normalizeTrade, normalizeRules, realizeTrades, journalReview, rulesMirror } from '../../domain/portfolio/trade-journal.js';
+import { consumeResearchHandoff } from '../../app/research-handoff.js';
+import { TRADE_REASONS, TRADE_MOODS, TRADE_NOTE_MAX, normalizeJournal, normalizeTrade, normalizeRules, realizeTrades, journalReview, rulesMirror } from '../../domain/portfolio/trade-journal.js';
 import { signedText } from '../../domain/shared/number.js';
 
 const FIELD_ERRORS = Object.freeze({ symbol: '종목 코드를 확인하세요', date: '날짜를 확인하세요', side: '매수·매도를 고르세요', qty: '수량은 0보다 커야 합니다', price: '가격은 0보다 커야 합니다', fee: '수수료는 0 이상이어야 합니다' });
@@ -61,19 +62,19 @@ function buildSkeleton(doc, host, root) {
     field(doc, '수수료·세금', input(doc, 'pf-trade-fee', { type: 'number', min: '0', step: 'any', placeholder: '0' })),
     field(doc, '이유', select(doc, 'pf-trade-reason', [['other', TRADE_REASONS.other], ...Object.entries(TRADE_REASONS).filter(([key]) => key !== 'other')])),
     field(doc, '그때 마음', select(doc, 'pf-trade-mood', [['', '적지 않음'], ...Object.entries(TRADE_MOODS)])),
-    field(doc, '손절 가격(매수 시)', input(doc, 'pf-trade-stop', { type: 'number', min: '0', step: 'any' })),
+    field(doc, '적어 둔 손절 가격(매수 시)', input(doc, 'pf-trade-stop', { type: 'number', min: '0', step: 'any' })),
     field(doc, '목표 가격(매수 시)', input(doc, 'pf-trade-target', { type: 'number', min: '0', step: 'any' }))
   );
   const note = el(doc, 'textarea');
-  note.id = 'pf-trade-note'; note.maxLength = 500; note.rows = 2; note.placeholder = '근거, 확인한 것, 놓친 것';
-  note.setAttribute('aria-label', '거래 메모');
+  note.id = 'pf-trade-note'; note.maxLength = TRADE_NOTE_MAX; note.rows = 3; note.placeholder = '왜 사는가, 무엇이 깨지면 다시 보는가';
+  note.setAttribute('aria-label', '근거와 깨지는 조건');
   const actions = el(doc, 'div', null, 'pf-trade-actions');
   const add = el(doc, 'button', '기록', 'aio-btn-table primary');
   add.type = 'button'; add.dataset.tradeAction = 'add';
   const status = el(doc, 'span', '기록은 보유 종목과 같은 방식(PIN 설정 시 암호화)으로 이 브라우저에만 저장됩니다.', 'sh-muted-note');
   status.id = 'pf-trade-status'; status.setAttribute('role', 'status');
   actions.append(add, status);
-  form.append(grid, field(doc, '메모', note), actions);
+  form.append(grid, field(doc, '근거와 깨지는 조건', note), actions);
 
   const rules = el(doc, 'details', null, 'pf-trade-rules');
   rules.id = 'pf-trade-rules';
@@ -83,7 +84,7 @@ function buildSkeleton(doc, host, root) {
   rulesGrid.append(
     field(doc, '한 종목 최대 비중(%)', input(doc, 'pf-rule-max-position', { type: 'number', min: '1', step: 'any', value: r.maxPositionPct ?? '' })),
     field(doc, '현금 최소 비중(%)', input(doc, 'pf-rule-min-cash', { type: 'number', min: '1', step: 'any', value: r.minCashPct ?? '' })),
-    field(doc, '손절 기준(-%)', input(doc, 'pf-rule-stop', { type: 'number', min: '1', step: 'any', value: r.stopLossPct ?? '' })),
+    field(doc, '내 손절 비율(-%)', input(doc, 'pf-rule-stop', { type: 'number', min: '1', step: 'any', value: r.stopLossPct ?? '' })),
     field(doc, '보유 종목 최대 개수', input(doc, 'pf-rule-max-positions', { type: 'number', min: '1', step: '1', value: r.maxPositions ?? '' }))
   );
   const saveRules = el(doc, 'button', '원칙 저장', 'aio-btn-table');
@@ -195,8 +196,11 @@ function renderDynamic(doc, root, host, surface) {
       fold.append(list);
       summary.append(fold);
     }
-    summary.append(el(doc, 'p', `비중을 다시 맞추는 방법은 두 갈래입니다. 정해 둔 날짜마다 맞추는 정기 방식은 단순하지만 그 사이 쏠림을 놔두고, 정해 둔 범위를 벗어날 때만 맞추는 밴드 방식은 거래가 적지만 범위를 스스로 정해야 합니다. 어느 쪽이든 내 원칙에 적어 두면 위 '내 원칙과 지금 상태'에서 비교됩니다.`, 'theme-strength-basis'));
   }
+  // Open buys are read against the close in the 보유 종목 상태 table; a lot whose symbol is not in the holdings is counted.
+  const held = new Set((surface?.rows || []).flatMap((row) => [row.symbol, row.listingSymbol].filter(Boolean).map((symbol) => String(symbol).toUpperCase())));
+  const unheld = open.filter((lot) => !held.has(lot.symbol));
+  if (surface && unheld.length) summary.append(el(doc, 'p', `보유 목록에 없는 열린 매수 기록 ${unheld.length}건(${[...new Set(unheld.map((lot) => lot.symbol))].join(', ')})은 종가와 비교하지 않았습니다.`, 'theme-strength-basis'));
   parts.push(summary);
   if (journal.trades.length) {
     const fold = el(doc, 'details', null, 'pf-trade-fold');
@@ -228,6 +232,21 @@ export function renderTradeJournal({ documentRef: doc, root, surface }) {
   host.hidden = false;
   if (host.dataset.aioTradeJournal !== 'built') buildSkeleton(doc, host, root);
   renderDynamic(doc, root, host, surface);
+  startBuyFromHandoff(doc, root);
+}
+
+// 종목's thesis conditions arrive as a buy draft: the condition is written on the buy record, the holding's one place for it.
+function startBuyFromHandoff(doc, root) {
+  const context = consumeResearchHandoff({ root, routeId: 'portfolio' })?.context;
+  if (!context?.memoTemplate) return;
+  const form = doc.getElementById('pf-trade-form');
+  const at = (id) => doc.getElementById(id);
+  const set = (id, value) => { const control = at(id); if (control) control.value = value; };
+  set('pf-trade-side', 'buy');
+  if (context.symbol) set('pf-trade-symbol', context.symbol);
+  set('pf-trade-note', String(context.memoTemplate).slice(0, TRADE_NOTE_MAX));
+  if (form) { form.open = true; form.dataset.touched = '1'; }
+  at('pf-trade-qty')?.focus?.();
 }
 
 /** One delegated click handler per mount; returns its disposer. */

@@ -151,8 +151,8 @@ export const cases = [
       const flat = buildFiscalRead({ symbol: 'TEST', fundamentals: { symbol: 'TEST', fiscalHistory: [{ periodEnd: '2024-12-31', revenue: 100, netIncome: 0, equity: 100, operatingCashFlow: 0 }, { periodEnd: '2025-12-31', revenue: 100, netIncome: 0, equity: 100, operatingCashFlow: 0 }] }, now: NOW });
       assert.doesNotMatch(flat.points.find((point) => point.id === 'growth').text, /줄었습니다/);
       assert.doesNotMatch(flat.points.find((point) => point.id === 'cash').text, /순손실|유출/);
-      const shares = buildFiscalRead({ symbol: 'TEST', fundamentals: { symbol: 'TEST', fiscalHistory: [{ periodEnd: '2021-12-31', revenue: 100, shares: 100 }, { periodEnd: '2025-12-31', revenue: 110, shares: 90 }] }, now: NOW });
-      assert.match(shares.points.find((point) => point.id === 'shares').text, /^4년 동안/, 'years are the span of the dates, not the row count');
+      const { dilutionRead } = await load('src/domain/fundamental/cash-chain.js');
+      assert.equal(dilutionRead([{ periodEnd: '2021-12-31', revenue: 100, shares: 100 }, { periodEnd: '2025-12-31', revenue: 110, shares: 90 }], 'TEST').span, 4, 'years are the span of the dates, not the row count');
   } },
   { id: 'P19-CONSENSUS-01', name: '고점 대비 위치만으로 가격 방향을 정하지 않고, 미래 날짜 종가는 현재 가격이 아니다', run: async ({ load }) => {
       const { buildConsensusPoint, consensusView } = await load('src/domain/fundamental/consensus-read.js');

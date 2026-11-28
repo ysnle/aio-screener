@@ -5,17 +5,19 @@
 import { RULES } from '../../rules/thresholds.js';
 import { signedText } from '../../shared/number.js';
 import { BREADTH_SPEED_WORDS } from '../../briefing/market-read.js';
+import { MOVER_RULES } from './movers.js';
 
 const B = RULES.breadth;
 const DD_AT = RULES.leadership.distributionDaysAt;
 
 // How each measure is read against its lines: 'share' (the axis's 40 / 60% lines), 'extreme' (20 / 80%), 'half' (50%),
-// 'sign' (above or below zero), 'count' (distribution days against the 시장 상태 count) and 'direction' (A/D line: its
+// 'sign' (above or below zero), 'ratio' (4% risers over fallers against 0.5 / 1 / 2), 'count' (distribution days against
+// the 시장 상태 count) and 'direction' (A/D line: its
 // 20-session direction; its level depends on the record's first day).
 export const MEASURE_READS = Object.freeze({
   b20: 'share', b50: 'share', b200: 'share', b40: 'extreme', adv: 'half', ad: 'direction',
   hl: Object.freeze({ kind: 'sign', up: '신고가 많음', down: '신저가 많음' }),
-  mv: Object.freeze({ kind: 'sign', up: '상승 많음', down: '하락 많음' }),
+  mv: Object.freeze({ kind: 'ratio', lines: MOVER_RULES.refLines }),
   dd: 'count'
 });
 
@@ -45,6 +47,13 @@ export function measureFace(id, value, { change20 = null } = {}) {
     return { band, side: null, distance: near ? `${near.line}%까지 ${pp(near.gap)}` : '' };
   }
   if (kind === 'half') return { band: value >= 50 ? '50% 이상' : '50% 미만', side: null, distance: `50%까지 ${pp(50 - value)}` };
+  if (kind === 'ratio') {
+    // A risers-over-fallers ratio against its 0.5 / 1 / 2 lines: the side is which count is larger.
+    const [low, even, high] = read.lines;
+    const band = value < low ? `${low} 미만` : value >= high ? `${high} 이상` : value >= even ? `${even}~${high}` : `${low}~${even}`;
+    const near = read.lines.map((line) => ({ line, gap: line - value })).sort((a, b) => Math.abs(a.gap) - Math.abs(b.gap))[0];
+    return { band, side: value > even ? 'up' : value < even ? 'down' : null, distance: `${near.line}까지 ${signedText(near.gap, 2, '')}` };
+  }
   if (kind === 'sign') {
     const shown = Math.round(value);
     return { band: shown > 0 ? read.up : shown < 0 ? read.down : '같음', side: shown > 0 ? 'up' : shown < 0 ? 'down' : null, distance: shown ? `0까지 ${signedText(-shown, 0)}` : '' };

@@ -8,9 +8,11 @@
 import { createResourceBag } from '../../app/lifecycle.js';
 import { refreshSharedArtifact, screenerRowsState } from '../../data/shared-artifacts.js';
 import { subscribeToSlices } from '../../state/memoize.js';
-import { chartsConclusion, chartsHeaderBasis, coreStockRows, indexChartReadings, stockGroupLabels, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
+import { chartsConclusion, chartsHeaderBasis, confirmationLine, coreStockRows, indexChartReadings, stockGroupLabels, stockTableSessionBehind } from '../../domain/technical/market-charts.js';
+import { crossConfirmation } from '../../domain/technical/index-read.js';
+import { buildSetupBoard } from '../../domain/technical/setup-board.js';
 import { sessionChipText } from '../components/session-lag.js';
-import { signedText } from '../../domain/shared/number.js';
+import { levelText, signedText } from '../../domain/shared/number.js';
 import { installStockChart, showChartSubject } from '../components/stock-chart.js';
 import { createChartCards } from '../components/market-candles.js';
 import { el } from '../components/dom.js';
@@ -79,6 +81,25 @@ function stockTable(doc, rows, asOf, open, current, GROUPS) {
   return table;
 }
 
+// The cross-confirmation table under the opening line: one row per index, the side of its prior swing high and low.
+function confirmationTable(doc, confirmation) {
+  const table = el(doc, 'table', null, 'charts-table charts-confirm');
+  const head = el(doc, 'tr');
+  for (const name of ['지수', '직전 스윙 고점', '직전 스윙 저점', '50일선']) head.append(el(doc, 'th', name));
+  table.append(el(doc, 'thead'), el(doc, 'tbody'));
+  table.tHead.append(head);
+  const swing = (point, past, word, held) => (point ? `${past ? word : held} · ${levelText(point.value)} (${shortDate(point.date)})` : '—');
+  for (const row of confirmation.rows) {
+    const line = el(doc, 'tr');
+    // A row closed on another session than the line's date says its own.
+    line.append(el(doc, 'th', `${row.label}${row.asOf !== confirmation.asOf ? ` (${shortDate(row.asOf)})` : ''}`),
+      el(doc, 'td', swing(row.swingHigh, row.aboveHigh, '넘음', '못 넘음')), el(doc, 'td', swing(row.swingLow, row.belowLow, '깨짐', '지킴')),
+      el(doc, 'td', `${row.s50 == null ? '—' : `${signedText(row.s50, 1)}%`}${row.weakest ? ' · 가장 약함' : ''}`));
+    table.tBodies[0].append(line);
+  }
+  return table;
+}
+
 const STOCK_GROUPS = Object.freeze(['weight', 'mover']);
 // The view that holds the analysis slot (page-views.css); stock-chart.js opens it by the slot itself (showViewOf).
 const SLOT_VIEW = 'analysis';
@@ -97,8 +118,15 @@ function render(documentRef, root, store, page, cards, stockCards, basis) {
     grid.dataset.state = 'failed';
     set('charts-conclusion', historyWaitText(root));
   } else if (grid) delete grid.dataset.state;
-  // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it.
-  cards.update(history);
+  // The opening line and the table under it read the five US indexes against one another (crossConfirmation).
+  const confirmation = crossConfirmation(history);
+  let table = documentRef.getElementById('charts-confirm');
+  if (!table && grid) { table = el(documentRef, 'div', null, 'charts-confirm-host aio-table-scroll'); table.id = 'charts-confirm'; documentRef.getElementById('charts-conclusion')?.after(table); }
+  if (table) { table.hidden = !confirmation; table.replaceChildren(...(confirmation ? [confirmationTable(documentRef, confirmation)] : [])); }
+  const screened = screenerOf(root, store);
+  // The index grid dates itself (basisOf) and reports the date to the header before the stock parts read it. The Nasdaq
+  // card's leader check reads the screener's breakout count of its session.
+  cards.update(history, null, { leaders: buildSetupBoard(screened.universe).breakouts });
   // Under the index cards, the rebound since its low (hidden without one), then this fall among each index's past falls
   // (the long-run tables; hidden without them).
   if (grid) {
@@ -111,7 +139,7 @@ function render(documentRef, root, store, page, cards, stockCards, basis) {
   }
   const asOf = basis();
   const day = root?.[MARKET_DAY.key] || null;
-  const rows = coreStockRows({ ...screenerOf(root, store), day });
+  const rows = coreStockRows({ ...screened, day });
   const labels = stockGroupLabels(day);
   for (const group of STOCK_GROUPS) {
     const list = rows.filter((row) => row.group === group);
@@ -153,7 +181,7 @@ export function createChartsPage({ root = globalThis, documentRef, store, route 
       let basis = null, rendering = false, ready = false;
       const onIndexReadings = (list, asOf) => {
         const node = documentRef.getElementById('charts-conclusion');
-        if (node) node.textContent = chartsConclusion(list);
+        if (node) node.textContent = confirmationLine(crossConfirmation(root?._aioHistory || [])) || chartsConclusion(list);
         renderStoryTie({ documentRef, root, screen: 'charts', context: { readings: list } });
         renderScreenReading({ documentRef, root, screen: 'charts', shownBasis: asOf || null }); // the AI reading on the cards' close
         renderBasis(documentRef, root, asOf);

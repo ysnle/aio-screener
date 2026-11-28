@@ -12,11 +12,14 @@ import { trendTemplateChecks } from './trend-template.js';
 // definitions module the screener producer and the summary also use.
 import { smaSeries, emaSeries, atrWilder, adrPctOf, rangeExtremesOf, fromYearHigh, extensionMultiple, extensionStateFor, weeklyCloses, weinsteinStage, detectContractions, isBreakoutDay, priorVolumeAverage } from './definitions.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
+import { INDEX_READ_RULES } from './index-read.js';
 import { shortDate } from '../content/date-labels.js';
 
 // RS read through an earlier common close names that date beside the number.
 const rsThrough = (asOf, latest) => (asOf && latest && asOf !== latest ? `, ${shortDate(asOf)} 지수 종가까지` : '');
 const TECH = RULES.technical;
+// The up/down-day volume bands the index cards read too (index-read.js).
+const PRESSURE = INDEX_READ_RULES.pressure;
 
 function coveredAverage(values, period, minShare = 0.8) {
   return values.map((_, index) => {
@@ -105,7 +108,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const volRatio = prior50 && volumes[n] != null ? volumes[n] / prior50 : null;
   const dryUp = vol50[n] && vol10[n] ? vol10[n] / vol50[n] : null;
   const aligned = ema21[n] != null && sma50[n] != null && sma200[n] != null && last.close > ema21[n] && ema21[n] > sma50[n] && sma50[n] > sma200[n];
-  // P1397 events (owner-supplied chart material 2026-10-03): descriptive chart events, not orders.
+  // Chart events: descriptive, not orders.
   const events = [];
   const from = Math.max(1, n - 80);
   // v59.59 (logic refactor): the power gap's "2× volume" is against the 50 sessions before the gap day (the breakout
@@ -226,9 +229,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   // The higher timeframe filters the lower — a daily setup or breakout against a weekly
   // downtrend (10<30-week order, or Weinstein stage 4) is flagged, not hidden.
   const timeframeConflict = ['setup', 'breakout'].includes(state) && (weeklyTrend === '역배열' || weinstein?.stage === 4);
-  // P1639 (owner materials 2026-10-12): how far price has run from the 50-day line in units of its own
-  // daily range (ATR 14), where it sits above the 52-week low, and the 5/20-day EMA order used to judge
-  // whether a decline has stopped. Descriptive facts, not entries.
+  // How far price has run from the 50-day line in units of its own average daily range (ADR, RULES.technical.adrPeriod
+  // sessions), where it sits above the 52-week low, and the 5/20-day EMA order used to judge whether a decline has
+  // stopped. Descriptive facts, not entries.
   // The 50-day distance is in average daily ranges — the screener's adrPct and the summary's multiple, against the
   // same 2/4/7 bands. The chart used (close − 50-day) ÷ a 14-session simple ATR, a different unit on the same bands, so one
   // stock could read 확장 on the chart and 보통 in the screener. ATR stays as Wilder's (the published definition).
@@ -261,7 +264,7 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
     [`${rangeLabel} 저점 대비`, `${signed(fromLow)}${fromLow < 5 ? ' (저점 5% 이내 — 바닥 다지기 전)' : ''}`],
     ['5일·20일 EMA', fiveAbove == null ? '기록 부족' : `5일 EMA가 20일 EMA ${fiveAbove ? '위' : '아래'}${crossAgo != null ? `, ${crossAgo}거래일 전 ${fiveAbove ? '상향' : '하향'} 교차` : ''}`],
     ['8일 EMA 대비 거리', extension == null ? '—' : `${signed(extension)}${adrNow > 0 ? `, 일평균 변동폭 ${(extension / adrNow).toFixed(1)}배` : ''}${overheated(extension) ? ' (과열권)' : extension <= -TECH.ema8.breakBelowPct ? ' (8일선 아래 이탈)' : ''}`],
-    ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= 1.3 ? '(상승일 거래량 우위)' : pressure <= 0.77 ? '(하락일 거래량 우위)' : '(비슷함)'}`],
+    ['상승일·하락일 거래량 (20일)', pressure == null ? '—' : `상승일/하락일 거래량 ${pressure.toFixed(2)}배 ${pressure >= PRESSURE.upAt ? '(상승일 거래량 우위)' : pressure <= PRESSURE.downAt ? '(하락일 거래량 우위)' : '(비슷함)'}`],
     ['변동성 수축 (VCP)', vcp.contractions.length ? `${vcp.contractions.map((row) => `-${row.depth.toFixed(1)}%`).join(' → ')}${vcp.valid ? '' : ' (수축 순서 불충분)'}` : '수축 구간 없음'],
     ['기준 고점(피벗, 마지막 조정의 고점)', pivot == null ? '—' : `${fmt(pivot)} (현재가 대비 ${signed((pivot / last.close - 1) * 100)})`],
     // 2026-10-13 review S14: an observed level, not an instruction ('무효화 가격' read as a stop to act on).

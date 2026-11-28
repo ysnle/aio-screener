@@ -1,7 +1,7 @@
 // v59.62 (owner 2026-11-03: "QQQ 고점 대비 10% 이상 … SOXX 50일선 … 쌍봉 … 660을 지켜줘야"): where each index sits on
 // its own chart, from the published closes (history.json) only. Every number is a rule over closes: the 50- and 200-session
-// averages, the 252-session closing high, the lowest close of the last six months before the latest two weeks (the
-// support the reading names), and a double top — two closing highs within 6% of each other at least 20 sessions apart
+// averages, the 252-session closing high, the lowest close of the last six months before the latest session (the
+// support the reading names; leaving the latest two weeks out named an older low as the lowest while a newer, lower one stood), and a double top — two closing highs within 6% of each other at least 20 sessions apart
 // with the close now at (within 3%) or below the lowest close between them (the neck). No level is written by hand and no ETF price is inferred from
 // an index.
 import { signedText } from '../../shared/number.js';
@@ -50,7 +50,7 @@ export function indexLevel(history, field) {
   const ma50 = avg(50); const ma200 = avg(200);
   const year = closes.slice(-252);
   const high = year.reduce((best, row) => (row.value > best.value ? row : best));
-  const halfYear = closes.slice(-126, -10);
+  const halfYear = closes.slice(-126, -1);
   const support = halfYear.length ? halfYear.reduce((low, row) => (row.value < low.value ? row : low)) : null;
   return {
     field, asOf: last.date, close: last.value, ma50, ma200,
@@ -81,7 +81,7 @@ export function levelsRead(levels) {
   const phase = lead.fromHighPct <= -20 ? '약세장 기준(고점 대비 -20%)에 닿았습니다.'
     : lead.fromHighPct <= -10 ? '고점 대비 10% 넘게 내려 조정 구간입니다.'
       : lead.vsMa50Pct != null && lead.vsMa50Pct < 0 ? '50일선 아래로 내려와 단기 추세가 꺾였습니다.' : '고점 가까이에서 추세를 유지하고 있습니다.';
-  const support = lead.support ? ` 최근 6개월 가장 낮은 종가는 ${md(lead.support.date)} ${Math.round(lead.support.value).toLocaleString('en-US')}로 지금보다 ${Math.abs(lead.support.abovePct).toFixed(1)}% 아래입니다. 그 아래로 내려가면 저점이 낮아지는 흐름이 됩니다.` : '';
+  const support = lead.support ? ` 최근 6개월 가장 낮은 종가는 ${md(lead.support.date)} ${Math.round(lead.support.value).toLocaleString('en-US')}로 지금보다 ${((1 - lead.support.value / lead.close) * 100).toFixed(1)}% 아래입니다. 그 아래로 내려가면 저점이 낮아지는 흐름이 됩니다.` : '';
   // The pattern line prefers a broken top, then the semiconductor index (the owner's question), then the others; a neck
   // that is the lead's own support is said once.
   const order = (level) => (level.doubleTop?.state === 'broken' ? 0 : level.field === 'soxx' ? 1 : 2);

@@ -288,14 +288,18 @@ export function paintNewsBriefs(doc, root, rerender, macro = []) {
 function flowsNode(doc, root, lead, briefs) {
   const history = root?._aioHistory || [];
   const label = lead?.kind === 'fomc' ? 'FOMC' : lead?.nameKo ? `${lead.nameKo} 실적` : '';
-  const flow = lead ? eventAftermath(history, { publishedAt: lead.publishedAt, dateOnly: lead.publishedDateOnly, label }) : null;
+  const flow = lead ? eventAftermath(history, { publishedAt: lead.publishedAt, dateOnly: lead.publishedDateOnly, label }, { macroHistory: root?._aioMacroHistory || null }) : null;
   const beats = beatButFell(briefs);
   if (!flow && !beats) return null;
   const box = el(doc, 'section', null, 'event-briefs__flows');
   box.dataset.eventFlows = '';
   box.append(el(doc, 'h3', flow ? '발표 뒤 돈의 방향' : '실적 뒤 반응', 'event-briefs__flows-title'));
   if (flow) {
-    box.append(el(doc, 'p', flow.text, 'event-briefs__flows-text'));
+    const text = el(doc, 'p', null, 'event-briefs__flows-text');
+    // The bond, credit and dollar response over the same closes, as its rule state word (none when no shape matched).
+    if (flow.rates?.label) text.append(el(doc, 'span', flow.rates.label, `reaction-read__tag is-rates-${flow.rates.state}`));
+    text.append(doc.createTextNode(flow.text));
+    box.append(text);
     const scale = signedScale(flow.groups.map((group) => group.relPp), 1);
     const list = el(doc, 'div', null, 'event-briefs__flows-bars');
     list.setAttribute('role', 'list');

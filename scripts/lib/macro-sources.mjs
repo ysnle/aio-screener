@@ -6,6 +6,7 @@ import { round } from './producer-math.mjs';
 import { UA, fetchJSON, _fetchRss } from './producer-http.mjs';
 import { readNumber } from '../../src/domain/shared/number.js';
 import { hasLeadingIsoDay } from '../../src/domain/shared/session-date.js';
+import { isCloseSessionDate } from '../../src/domain/market/session/close-series.js';
 
 // FRED 시리즈 (YoY 또는 레벨). PAYEMS는 MoM 차이(천명) = NFP.
 // v51.97/Phase 2 [B2]: housingStarts/retailSales/usWageGrowth 추가 — 세 시리즈 ID(HOUST/RSAFS/
@@ -90,7 +91,9 @@ export function parseFredHyOasCsv(csv, fetchedAt = new Date().toISOString()) {
     return /^\d{4}-\d{2}-\d{2}$/.test(String(observedAt || '').trim()) && Number.isFinite(value)
       ? { observedAt: observedAt.trim(), value }
       : null;
-  }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
+  // US sessions only, as the screens read the series (market-read.js): the index is also printed on exchange holidays, and a
+  // holiday row inside the window made this five-session change one session short of the screen's (+25bp beside +30bp).
+  }).filter((row) => row && isCloseSessionDate(row.observedAt, 'US')).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
   const latest = observations[0] || null;
   if (!latest) return null;
   return {
@@ -152,7 +155,9 @@ export function parseFredDexkousCsv(csv, fetchedAt = new Date().toISOString()) {
     return /^\d{4}-\d{2}-\d{2}$/.test(String(observedAt || '').trim()) && Number.isFinite(value)
       ? { observedAt: observedAt.trim(), value }
       : null;
-  }).filter(Boolean).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
+  // US sessions only, as the screens read the series (market-read.js): the index is also printed on exchange holidays, and a
+  // holiday row inside the window made this five-session change one session short of the screen's (+25bp beside +30bp).
+  }).filter((row) => row && isCloseSessionDate(row.observedAt, 'US')).sort((a, b) => b.observedAt.localeCompare(a.observedAt));
   const latest = observations[0] || null;
   if (!latest) return null;
   return {

@@ -7,6 +7,9 @@
 // total volume cannot show who bought); a later close below the low fails it. The bookmarked read added the part that
 // decides whether it matters — leaders breaking out to new highs within days to three weeks after it — which the screen
 // pairs with the S&P 500 new-high count AIO already records. Thresholds: RULES.rallyAttempt. Pure.
+// The +1.25% day is 2116905196479451413's (Nasdaq Composite); 2124875682576531796 writes +1%, so the rule names its gain
+// and its index on the face. Whether a follow-through mattered is leaderConfirmation below: the sessions after it counted
+// in screener breakouts (2116905196479451413, 2118550351158854003), never the new-high count alone.
 // RALLY_COUNT_MODEL stamps the rows the producer writes (fieldMeta.rallyPhase.model); the reader withholds rows counted
 // under another model, and the producer rewrites every warmed row of its one-year window on each run.
 import { RULES } from '../../rules/thresholds.js';
@@ -60,6 +63,29 @@ export function rallyAttemptSeries(bars = [], rules = RULES.rallyAttempt) {
   return out;
 }
 
+export const RALLY_INDEX_LABEL = '나스닥 종합';
+export const LEADER_CONFIRMATION_WORDS = Object.freeze({ leaders: '주도주 돌파 확인', pending: '주도주 확인 대기', weak: '약한 FTD', waiting: '세션별 돌파 기록 없음' });
+
+/**
+ * After a follow-through day, whether leaders followed: the screener breakouts (vcpStage 'breakout', the one breakout-day
+ * rule) counted per session since it, from history.json `setupBreakouts` / `setupBreakoutsFailed` (back under the pivot).
+ * Any breakout in the leader window confirms; none once the window has passed is a weak follow-through; none yet inside it
+ * is pending. Sessions without the columns are not zero: with none recorded the state is `waiting`. `today` is the
+ * screener's own count on its session ({ asOf, breakouts, judged }). null outside a confirmed follow-through.
+ */
+export function leaderConfirmation(rally, { history = [], today = null, rules = RULES.rallyAttempt } = {}) {
+  if (rally?.phase !== 'confirmed' || !rally.ftdDate) return null;
+  const sessions = (history || []).filter((row) => row && String(row.date) >= rally.ftdDate && readNumber(row.rallyPhase) != null)
+    .map((row) => ({ date: row.date, breakouts: readNumber(row.setupBreakouts), failed: readNumber(row.setupBreakoutsFailed) }));
+  const recorded = sessions.filter((row) => row.breakouts != null);
+  const breakouts = recorded.length ? recorded.reduce((sum, row) => sum + row.breakouts, 0) : null;
+  const failed = recorded.some((row) => row.failed != null) ? recorded.reduce((sum, row) => sum + (row.failed || 0), 0) : null;
+  const inWindow = rally.since != null && rally.since <= rules.leaderWindowSessions;
+  const state = breakouts == null ? 'waiting' : breakouts > 0 ? 'leaders' : inWindow ? 'pending' : 'weak';
+  return Object.freeze({ state, word: LEADER_CONFIRMATION_WORDS[state], ftdDate: rally.ftdDate, since: rally.since, window: rules.leaderWindowSessions,
+    sessions: Object.freeze(sessions), breakouts, failed, today: today && finite(today.breakouts) != null ? today : null });
+}
+
 const md = (date) => { const [, m, d] = String(date || '').split('-').map(Number); return m && d ? `${m}/${d}` : ''; };
 const fmt = (value) => Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 });
 const halfDay = (date) => !!date && resolveMarketCalendarSession({ market: 'US', date }).halfDay === true;
@@ -100,7 +126,7 @@ export function rallyAttemptRead(history = [], { through = null, rules = RULES.r
   const failedEarlier = lastFtd >= 0 && before.slice(lastFtd).every((row) => Number(row.rallyPhase) !== RALLY_PHASE.none);
   // The base low and the rule on one line (the face states both; the story's rebound reads another index and rule).
   // The session after the low is day 1 (the low is day 0), and the face says where the count starts.
-  const test = `저점 ${md(lowDate)}${lowClose != null ? `(종가 ${fmt(lowClose)})` : ''} 다음 거래일을 1일째로 세어 ${rules.minDay}일째부터 하루 +${rules.gainPct}% 이상·거래량 전일보다 많으면 ${W.confirmed}`;
+  const test = `${RALLY_INDEX_LABEL} 저점 ${md(lowDate)}${lowClose != null ? `(종가 ${fmt(lowClose)})` : ''} 다음 거래일을 1일째로 세어 ${rules.minDay}일째부터 하루 +${rules.gainPct}% 이상·거래량 전일보다 많으면 ${W.confirmed}`;
   // An early close in the volume test: the tested session (index i of rows) or the session before it.
   const shortAt = (i) => (i < 0 ? null : halfDay(rows[i]?.date) ? rows[i].date : halfDay(rows[i - 1]?.date) ? rows[i - 1].date : null);
   if (phase === RALLY_PHASE.attempt) {

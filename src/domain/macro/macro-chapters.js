@@ -11,11 +11,17 @@ import { rateDifferential, sessionPointBack, wonMoveSentence } from './rates-fx.
 import { RULES } from '../rules/thresholds.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { oasDelta20Bp, oilCheckOf } from '../briefing/market-read.js';
-import { creditJudgement, creditReading, creditFlip, cccTailLine } from '../briefing/credit-reading.js';
+import { creditJudgement, creditReading, creditFlip, cccTailLine, creditContagion } from '../briefing/credit-reading.js';
 import { dollarRiseBurden } from '../briefing/market-read.js';
-import { claimsTrend, coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, policyLean, sahmGap, yoySeries } from './macro-read.js';
+import { coreInflationRead, monthChangeAt, monthIndex, monthOverMonth, policyLean, yoySeries } from './macro-read.js';
+import { changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
+import { NET_LIQUIDITY_FLAT_BN, netLiquiditySeries } from './liquidity-growth.js';
+import { PLUMBING_RULES, plumbingRead } from './funding-plumbing.js';
+import { laborLadder, unemploymentSplit } from './labor-ladder.js';
+import { ANCHOR_RULES, expectationsAnchor } from './expectations-anchor.js';
 import { policyCycle } from './macro-signals.js';
 import { fedTargetRange } from './fed-target-range.js';
+import { crossAssetVerdicts } from './cross-asset-relations.js';
 import { formatKstWhen, releaseAtMs } from '../briefing/schedule.js';
 import { volatilityChapter } from './volatility.js';
 import { closeMoveGrade } from '../market/session/move-size.js';
@@ -104,14 +110,22 @@ function inflation(macroHistory, events) {
     : three >= I.missPct ? '연준 목표 2%보다 한참 빠른 속도라 금리 인하 여지가 좁습니다' : three >= I.nearTargetPct ? '목표보다 조금 빨라 인하는 천천히 갈 쪽입니다' : '목표 근처라 연준이 금리를 내릴 여지가 있습니다';
   const service = shelter && supercore && shelter.value >= 0.3 && supercore.value >= 0.3 ? ' 주거비와 주거비 제외 서비스가 함께 올라 서비스 물가가 다시 붙었습니다.' : '';
   const next = nextOf(events, ['us-cpi', 'us-pce']);
+  // Expectations: a market leg (5y5y, 10-year breakeven) and the survey leg (Michigan 5-10 years) — expectations-anchor.js.
+  const anchor = expectationsAnchor(macroHistory);
+  const preYears = `${ANCHOR_RULES.prePandemicFrom.slice(0, 4)}~${ANCHOR_RULES.prePandemicTo.slice(0, 4)}`;
+  const marketRow = (leg, name) => [name, `${leg.level.toFixed(2)}% (${shortDay(leg.date)}, 20거래일 ${bp(leg.bp)})`];
+  const expectRows = [...anchor.markets.map((leg) => marketRow(leg, leg.id === 'fiveYearForward' ? '5년 뒤 5년 기대인플레 (5y5y)' : '10년 기대인플레 (BEI)')),
+    ['미시간 5~10년 기대인플레', anchor.survey ? `${anchor.survey.level.toFixed(1)}% (${monthName(anchor.survey.date)}, 전월비 ${signed(anchor.survey.change, 1, '%p')}${anchor.survey.top == null ? '' : `, ${preYears} 최고 ${anchor.survey.top.toFixed(1)}%`})` : '자료 없음'],
+    ...(anchor.oneYear ? [['미시간 1년 기대인플레', `${anchor.oneYear.value.toFixed(1)}% (${monthName(anchor.oneYear.date)})`]] : [])];
   return {
     id: 'inflation', title: `${AXIS_LABELS.inflation} — PCE · CPI`, question: hiking ? '연준의 추가 인상과 동결 사이' : '연준의 금리 인하 여지',
+    verdicts: [{ id: 'expectations', name: '기대인플레', label: anchor.label, tone: anchor.state === 'watch' ? 'warn' : anchor.state === 'anchored' ? 'good' : 'neutral' }],
     viz: { caption: '근원 PCE 전월비 (%)', unit: '%', points: mom.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === mom.length - 1 })) },
     now: `${monthName(last.date)} 근원 PCE ${signed(last.value)} · 3개월 연율 ${three.toFixed(1)}% · 전년비 ${yoy.toFixed(1)}%`,
     mean: `${turn}. ${hot}.${service}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
-    flip: `근원 PCE·CPI의 3개월 연율이 함께 1년치보다 ${I.reaccelPp}%p 이상 빨라지면 재가속, 함께 그만큼 느려지면 둔화로 정해집니다 — 월 +0.2% 이하가 이어지면 3개월 연율은 약 2.4% 아래로 내려옵니다.`,
-    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거비 제외 서비스', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, ${core.coreCpiYoy.derived ? core.coreCpiYoy.label : '1년치'} ${core.coreCpiYoy.value.toFixed(1)}%${core.coreCpiYoy.note}` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—']]
+    flip: `근원 PCE·CPI의 3개월 연율이 함께 1년치보다 ${I.reaccelPp}%p 이상 빨라지면 재가속, 함께 그만큼 느려지면 둔화로 정해집니다 — 월 +0.2% 이하가 이어지면 3개월 연율은 약 2.4% 아래로 내려옵니다. 5y5y나 10년 기대인플레가 20거래일 +${RULES.crossAsset.rate20dBp}bp 이상 오르고 미시간 5~10년 기대가 전월보다 올라 ${preYears} 최고치를 넘으면 탈앵커링 감시입니다.`,
+    detail: [['근원 CPI 전월비', cpiMom ? `${signed(cpiMom.value)} (${monthName(cpiMom.date)})` : '—'], ['주거비 CPI', shelter ? signed(shelter.value) : '—'], ['주거비 제외 서비스', supercore ? signed(supercore.value) : '—'], ['근원 CPI 3개월 연율', core.coreCpiPace ? `${core.coreCpiPace.value.toFixed(1)}% (${monthName(core.coreCpiPace.date)}${core.coreCpiYoy ? `, ${core.coreCpiYoy.derived ? core.coreCpiYoy.label : '1년치'} ${core.coreCpiYoy.value.toFixed(1)}%${core.coreCpiYoy.note}` : ', 같은 달 1년치 없음'})` : '—'], [core.directionLabel || '물가 방향 (PCE·CPI)', d.label || '—'], ...expectRows]
   };
 }
 
@@ -124,35 +138,45 @@ function labor(macroHistory, events) {
   if (changes.length < 3) return null;
   const avg3 = changes.slice(-3).reduce((sum, row) => sum + row.value, 0) / 3;
   const rate = unemployment.at(-1);
-  // the growth axis's own Sahm reading (3-month average against the low of the prior 12 months'
-  // 3-month averages) and its claims trend (4-week average against its 1-year low). The chapter compared one month with a
-  // 13-row minimum and one week of claims with a fixed 250k — a 4.6% print would have read '경기 침체 경보' beside
-  // 'Sahm 0.17%p · 양호' on the same screen.
+  // The slowdown ladder (labor-ladder.js) decides the stage; the growth axis's Sahm reading and claims trend are its last
+  // rung (해고 급증), so the chapter and the axis read one rule.
   const G = RULES.growth;
-  const sahm = sahmGap(unemployment);
-  const claims = claimsTrend(series(macroHistory, 'initialClaims'));
+  const ladder = laborLadder(macroHistory);
+  const split = unemploymentSplit(macroHistory);
+  const { sahm, claims } = ladder;
   const natural = series(macroHistory, 'naturalUnemployment').at(-1);
-  const wageYoy = yoySeries(series(macroHistory, 'hourlyEarnings')).at(-1)?.value ?? null;
-  const recession = sahm && sahm.value >= G.sahmRecessionAt;
-  const layoffs = claims && claims.aboveLow >= G.claimsRiseAbovePct;
-  const watch = (sahm && sahm.value >= G.sahmWatchAt) || (claims && claims.aboveLow >= G.claimsWatchAbovePct);
-  const shape = recession ? `실업률 3개월 평균이 1년 저점보다 ${sahm.value.toFixed(2)}%p 높아 Sahm 경기침체 신호(${G.sahmRecessionAt}%p)를 넘었습니다`
-    : layoffs ? `실업수당 청구(4주 평균)가 1년 저점보다 ${Math.round(claims.aboveLow)}% 늘어 해고가 늘고 있습니다. 둔화가 침체 쪽으로 옮겨 가는지 봐야 합니다`
-      : watch ? `실업률이나 실업수당 청구가 1년 저점에서 올라오기 시작해 주의 구간입니다(Sahm ${sahm ? sahm.value.toFixed(2) : '—'}%p, 침체 신호 ${G.sahmRecessionAt}%p 전)`
-        : avg3 < G.payrollSolidK ? `일자리 증가가 3개월 평균 ${G.payrollSolidK / 10}만 명 아래로 줄었지만 해고는 늘지 않았습니다. "덜 뽑는 둔화"이지 "자르는 침체"는 아직 아닙니다` : '고용이 꾸준히 늘어 경기 걱정은 크지 않습니다';
-  // below the natural-rate estimate the market is still tight — the reason strong jobs keep rates high, not only growth.
-  const tight = natural && rate.value < natural.value && !recession && !layoffs ? ` 실업률(${rate.value.toFixed(1)}%)이 자연실업률 추정(${natural.value.toFixed(1)}%)보다 낮아 노동시장은 아직 빠듯한 쪽입니다.` : '';
   const next = nextOf(events, ['us-nfp']);
   const sahmLine = sahm ? (sahm.low + G.sahmRecessionAt).toFixed(2) : null;
   const claimsLine = claims ? claims.low * (1 + G.claimsRiseAbovePct / 100) : null;
+  const pp = (value) => signed(value, 2, '%p');
+  const tenK = (value) => `${(value / 10).toFixed(0)}만`; // thousands → 만
+  const yearText = (t, fmt) => (t ? `${fmt(t.now)} (1년 전 ${fmt(t.then)}, ${monthName(t.date)}까지 3개월 평균)` : '자료 없음');
+  const rungText = (rung) => {
+    const met = rung.met === true ? '해당' : rung.met === false ? '아님' : '자료 없음';
+    const f = rung.facts;
+    const facts = rung.id === 'openings' ? [`구인 ${yearText(f.openings, tenK)}`, f.hours ? `주당 근로시간 ${yearText(f.hours, (v) => `${v.toFixed(1)}시간`)}` : null]
+      : rung.id === 'hiring' ? [`채용 ${yearText(f.hires, tenK)}`, `해고 ${yearText(f.layoffs, tenK)}`]
+        : rung.id === 'wages' ? [f.wageNow && f.wageThen ? `전년비 ${f.wageNow.value.toFixed(1)}% (1년 전 ${f.wageThen.value.toFixed(1)}%, ${monthName(f.wageNow.date)})` : '자료 없음']
+          : rung.id === 'reentry' ? [`재진입 실업자 ${yearText(f.reentry, tenK)}`]
+            : [f.layoffs ? `JOLTS 해고 ${f.layoffs.dir === 'up' ? '증가' : '증가 아님'}` : null, f.claims ? `실업수당 청구 4주 평균 1년 저점 대비 ${signed(f.claims.aboveLow, 0)}` : null, f.sahm ? `Sahm ${f.sahm.value.toFixed(2)}%p` : null];
+    return `${met} — ${facts.filter(Boolean).join(' · ')}`;
+  };
+  const stageTone = ladder.stage >= 5 ? 'warn' : ladder.stage === 0 && ladder.known ? 'good' : 'neutral';
   return {
-    id: 'labor', title: '고용 — 냉각과 꺾임의 구분', question: '경기 침체 위험',
-    viz: { caption: '비농업 고용 증감 (천 명)', unit: '', points: changes.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === changes.length - 1 })) },
-    now: `${monthName(changes.at(-1).date)} ${signedText(changes.at(-1).value / 10, 1)}만 · 3개월 평균 ${signedText(avg3 / 10, 1)}만 · 실업률 ${rate.value.toFixed(1)}%${claims ? ` · 실업수당 청구 4주 평균 ${(claims.avg4 / 10000).toFixed(1)}만` : ''}`,
-    mean: `${shape}.${tight}${wageYoy !== null ? ` 임금은 1년 전보다 ${wageYoy.toFixed(1)}% 올라 ${wageYoy >= 4 ? '물가를 다시 밀어 올릴 수 있는 속도입니다' : '물가를 밀어 올릴 정도는 아닙니다'}.` : ''}`,
+    id: 'labor', title: '고용 — 둔화 단계', question: '노동 둔화가 어느 단계에 와 있는지',
+    verdicts: [{ id: 'labor-stage', name: '노동', label: ladder.label, tone: stageTone },
+      split ? { id: 'unemployment-split', name: `${monthName(split.date)} 실업률`, label: split.label, tone: ['loss', 'exit'].includes(split.kind) ? 'warn' : 'neutral' } : null].filter(Boolean),
+    ladder: { stage: ladder.stage, rungs: ladder.rungs.map(({ id, short, label, met }) => ({ id, short, label, met })) },
+    // The split of the latest unemployment-rate change when both legs are published; the payroll months otherwise.
+    viz: split
+      ? { caption: `${monthName(split.from)}→${monthName(split.date)} 실업률 변화 나누기 (%p)`, unit: '%p', points: [{ x: '실업자', value: split.numeratorPp, hot: true }, { x: '경제활동인구', value: split.denominatorPp }, { x: '합', value: split.changePp }] }
+      : { caption: '비농업 고용 증감 (천 명)', unit: '', points: changes.map((row, index) => ({ x: monthName(row.date), value: row.value, hot: index === changes.length - 1 })) },
+    now: `${monthName(changes.at(-1).date)} 고용 ${signedText(changes.at(-1).value / 10, 1)}만 · 3개월 평균 ${signedText(avg3 / 10, 1)}만 · 실업률 ${rate.value.toFixed(1)}% (${monthName(rate.date)})${claims ? ` · 실업수당 청구 4주 평균 ${(claims.avg4 / 10000).toFixed(1)}만 (${shortDay(claims.date)})` : ''}`,
     next: whenOf(next) || '발표 일정을 확인하지 못했습니다',
-    flip: `${sahmLine ? `실업률 3개월 평균이 ${sahmLine}% 이상(Sahm ${G.sahmRecessionAt}%p)` : `Sahm 지표 ${G.sahmRecessionAt}%p 이상`}이 되거나 실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsRiseAbovePct}% 이상${claimsLine ? `(${(claimsLine / 10000).toFixed(1)}만 건)` : ''} 늘면 침체 쪽으로 읽습니다.`,
-    detail: [['Sahm 지표', sahm ? `${sahm.value.toFixed(2)}%p (3개월 평균 ${sahm.avg3.toFixed(2)}%, 1년 저점 ${sahm.low.toFixed(2)}%)` : '—'], ['실업수당 청구 4주 평균', claims ? `${(claims.avg4 / 10000).toFixed(1)}만 (1년 저점 대비 ${signed(claims.aboveLow, 0)})` : '—'], ['자연실업률 추정', natural ? `${natural.value.toFixed(2)}%` : '—'], ['임금 상승률(전년비)', wageYoy !== null ? `${wageYoy.toFixed(1)}%` : '—'], ['3개월 평균 고용', `${(avg3 / 10).toFixed(1)}만`]]
+    flip: `JOLTS 해고가 1년 전보다 늘거나, 실업수당 청구 4주 평균이 1년 저점보다 ${G.claimsRiseAbovePct}% 이상${claimsLine ? `(${(claimsLine / 10000).toFixed(1)}만 건)` : ''} 늘거나, ${sahmLine ? `실업률 3개월 평균이 ${sahmLine}% 이상(Sahm ${G.sahmRecessionAt}%p)` : `Sahm 지표 ${G.sahmRecessionAt}%p 이상`}이 되면 5단계(해고 급증)입니다.`,
+    detail: [...ladder.rungs.map((rung, index) => [`${index + 1}. ${rung.label}`, rungText(rung)]),
+      ...(split ? [[`실업률 변화 나누기 (${monthName(split.from)}→${monthName(split.date)})`, `실업자 ${pp(split.numeratorPp)} + 경제활동인구 ${pp(split.denominatorPp)} = ${pp(split.changePp)}${split.publishedPp == null ? '' : ` (공표 ${signed(split.publishedPp, 1, '%p')})`}${split.u6Pp == null ? '' : ` · U-6 ${signed(split.u6Pp, 1, '%p')}`}`]] : []),
+      ['자연실업률 추정', natural ? `${natural.value.toFixed(2)}%` : '—'], ['3개월 평균 고용', `${(avg3 / 10).toFixed(1)}만`]]
   };
 }
 
@@ -180,16 +204,11 @@ function rates(macroHistory, events, history = []) {
   const kind = Math.abs(moved) < 10 ? (ratesLegsOffset(real, be) ? 'offset' : 'flat')
     : Math.abs(ten.bp) < 10 || Math.sign(ten.bp) !== Math.sign(moved) ? 'undivided'
       : share >= 0.6 ? (moved < 0 ? 'growth' : 'tight') : be.bp / ten.bp >= 0.6 ? (moved < 0 ? 'relief' : 'fear') : 'mixed';
-  // a real-yield-led fall is a growth scare only when stocks fell with it (the 금리 axis's
-  // growthScareSpx20dPct); with stocks up it is the opposite — a retreat of tightening expectations.
-  // the stock leg is cut on the same date as the rate split, so '같은 기간 S&P 500' is the split's own span.
+  // Which kind of real-yield-led fall (피난·성장 우려·완화) is the one cross-asset verdict, cut on the rate split's date.
   const spxThrough = [ten.date, closeBasis(history)].filter(Boolean).sort()[0] || null;
-  const spx = closeChange(history, 'spx', WINDOW, { through: spxThrough });
-  const growthRead = spx && spx.pct <= RULES.rates.growthScareSpx20dPct
-    ? `하락이 거의 실질금리에서 나왔고 같은 기간 S&P 500이 ${signed(spx.pct, 1)} 빠졌습니다. 물가 기대가 내려서가 아니라 성장 걱정으로 주식에서 채권으로 옮긴 움직임입니다.`
-    : spx && spx.pct >= RULES.crossAsset.stock20dPct
-      ? `하락이 거의 실질금리에서 나왔고 S&P 500은 ${signed(spx.pct, 1)} 올랐습니다. 긴축 기대가 물러나 할인율 부담이 줄어든 쪽입니다.`
-      : '하락이 거의 실질금리에서 나왔습니다. 주가가 크게 움직이지 않아 성장 걱정인지 긴축 기대 후퇴인지는 아직 가르지 않습니다.';
+  const fall = crossAssetVerdicts(history, macroHistory, { through: spxThrough }).rateFall;
+  const growthRead = fall.state && fall.state !== 'mixed' ? `하락이 거의 실질금리에서 나왔습니다 · ${fall.label}`
+    : '하락이 거의 실질금리에서 나왔습니다. 성장 걱정인지 긴축 기대 후퇴인지는 아직 가르지 않습니다.';
   const offsetRead = `10년 금리는 거의 그대로지만 속은 움직였습니다 — 실질금리 ${bp(real.bp)}를 기대인플레 ${bp(be.bp)}가 상쇄했습니다. ${real.bp > 0
     ? '물가 기대는 내렸는데 실질금리가 올라, 성장주 할인율 부담은 커진 쪽입니다.' : '할인율 부담은 줄었지만 물가 기대가 올라, 물가 발표에 더 민감해지는 조합입니다.'}`;
   const read = { flat: '20거래일 동안 큰 변화가 없습니다.', offset: offsetRead, growth: growthRead,
@@ -233,6 +252,17 @@ function rates(macroHistory, events, history = []) {
 
 // v59.64 (owner 2026-11-03: "금&은/유가/금리/신용 스프레드 등등 … 각각 분석해서 시장 상황들이랑 연결"): oil, metals and the
 // dollar are chapters of their own (oil and gold shared one card, and silver had no reading at all).
+// Oil and the 10-year rising together (2094855932027023670): core inflation re-accelerating or the 10-year breakeven moving
+// up past the 20-session rate line is 물가 확산; neither, with the labour ladder showing a slowdown, is 공급 충격 (a tax on
+// incomes that hits growth first); neither and no slowdown is not split. Null when the two do not rise together.
+export const OIL_SHOCK_WORDS = Object.freeze({ supply: '공급 충격', spread: '물가 확산', undecided: '가르지 않음' });
+export function oilShockKind({ oil20 = null, ten20Bp = null, be20Bp = null, coreUp = false, laborStage = 0 } = {}) {
+  const C = RULES.crossAsset;
+  if (oil20 == null || ten20Bp == null || oil20 < C.oil20dPct || ten20Bp < C.rate20dBp) return null;
+  if (coreUp || (be20Bp != null && be20Bp >= C.rate20dBp)) return 'spread';
+  return be20Bp != null && laborStage >= 1 ? 'supply' : 'undecided';
+}
+
 function oil(history, macroHistory) {
   const wti = historySpan(history, 'wti');
   if (!wti) return null;
@@ -242,30 +272,15 @@ function oil(history, macroHistory) {
   const brent = check && check.brent20 != null && check.wti20 != null ? { pct: check.brent20, wtiPct: check.wti20, to: check.brent, spread: check.spread, date: check.date } : null;
   const wtiDate = buildCloseSeries(history, 'wti', { through: closeBasis(history) }).at(-1)?.date || null;
   const be = macroChange(macroHistory, 'breakeven10', splitThrough(macroHistory));
-  const C = RULES.crossAsset; const O = RULES.oil;
-  // one set of lines for one move — the 시장 상태 axis's (+10% / -5%) for a move that changes the
-  // read, the cross-asset 5% for 'moved at all' — and the shared Brent/WTI rule decides which benchmark speaks. The chapter
-  // used ±10% for the headline and 5% for 'moved', so WTI -7.3% read '움직이지 않았습니다' and '유가를 물가에 반영' together,
-  // and Brent -6.1% beside WTI -1.1% was ignored.
+  const C = RULES.crossAsset;
+  // The shared Brent/WTI rule decides which benchmark speaks (Brent -6.1% beside WTI -1.1% is Brent's move).
   const div = brent ? { held: !!check.held, kind: check.kind, text: check.text } : { held: false, kind: null, text: null };
   const lead = !div.held ? { name: 'WTI', pct: wti.pct, grade: wti.grade } : ['brent-led', 'brent-rise'].includes(div.kind)
     ? { name: '브렌트', pct: brent.pct, grade: closeMoveGrade(history, 'brent', brent.pct, { sessions: WINDOW, through: brent.date }) } : null;
-  const read = !lead ? `두 유가가 엇갈려 한쪽으로 읽지 않습니다 — ${String(div.text || '').replace(/^20거래일 /, '').replace(/\.$/, '')}`
-    : lead.pct >= O.rise20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 ${lead.grade === 'large' ? '크게 ' : ''}올라 다음 달 헤드라인 물가를 밀어 올리고 소비 여력은 줄입니다`
-      : lead.pct <= O.fall20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 내려 물가 부담은 줄지만, 공급이 아니라 수요가 줄어서라면 경기 둔화 신호입니다`
-        : lead.pct >= C.oil20dPct ? `유가(${lead.name} ${signed(lead.pct, 1)})가 올랐지만 물가 경로를 바꿀 폭(+${O.rise20dPct}%)에는 못 미칩니다`
-          : '유가는 물가 경로를 바꿀 만큼 움직이지 않았습니다';
-  const oilMoved = !!lead && Math.abs(lead.pct) >= C.oil20dPct;
-  // A 20-session breakeven move is judged on the 20-session cross-asset rate line (10bp), not the chain's 5-session 5bp.
-  const beMoved = be && Math.abs(be.bp) >= C.rate20dBp;
-  const sameWay = be && lead && Math.sign(be.bp) === Math.sign(lead.pct);
-  const inflation = !be || !lead ? ''
-    // The gauge is the 10-year breakeven (no 5-year series is collected); it reacts less to oil than shorter ones, so a
-    // quiet reading says only that oil has not reached long-run expectations.
-    : !oilMoved ? (beMoved ? ` 10년 기대인플레는 ${bp(be.bp)} 움직였지만 유가 때문은 아닙니다 — 물가 발표나 성장 걱정 쪽에서 원인을 찾습니다.` : '')
-      : !beMoved ? ` 10년 기대인플레는 ${bp(be.bp)}로 판정 기준(${C.rate20dBp}bp) 안입니다 — 유가가 장기 물가 기대까지 옮겨 가지는 않았습니다.`
-        : sameWay ? ` 10년 기대인플레도 ${bp(be.bp)} 같은 쪽으로 움직여 채권시장이 유가를 물가에 반영하고 있습니다.`
-          : ` 10년 기대인플레는 반대로 ${bp(be.bp)} 움직여, 채권시장은 유가보다 다른 요인(성장 걱정 등)을 더 크게 봅니다.`;
+  // Oil and the 10-year rising together: a supply shock or spreading inflation (oilShockKind).
+  const tnx = closeChange(history, 'tnx', WINDOW, { through: closeBasis(history) });
+  const shock = oilShockKind({ oil20: lead?.pct ?? null, ten20Bp: tnx ? (tnx.to.value - tnx.from.value) * 100 : null, be20Bp: be?.bp ?? null,
+    coreUp: coreInflationRead({ mh: macroHistory }).direction?.state === 'up', laborStage: laborLadder(macroHistory).stage });
   // Brent carries the seaborne/Middle East premium WTI does not; the two drifting apart says which supply story moved.
   // Both legs on the common close; when that is older than WTI's own last close, the comparison says which day it is.
   const gap = brent ? brent.pct - brent.wtiPct : null;
@@ -275,12 +290,14 @@ function oil(history, macroHistory) {
       : ` ${asOf}브렌트(${signed(brent.pct, 1)})가 WTI(${signed(brent.wtiPct, 1)})보다 더 올라, 중동·해상 운송 같은 해외 공급 위험의 값이 붙었습니다.`;
   return {
     id: 'oil', title: '유가 — 물가와 경기 사이', question: '유가가 보내는 물가 신호와 경기 신호',
+    verdicts: shock ? [{ id: 'oil-shock', name: '유가·금리 동반 상승', label: OIL_SHOCK_WORDS[shock], tone: shock === 'spread' ? 'warn' : 'neutral' }] : [],
     viz: { caption: '20거래일 등락 (%)', unit: '%', points: [{ x: 'WTI', value: wti.pct, hot: !lead || lead.name === 'WTI' }, brent ? { x: '브렌트', value: brent.pct, hot: lead?.name === '브렌트' } : null].filter(Boolean) },
     now: `WTI $${wti.to.toFixed(1)} (${signed(wti.pct, 1)})${brent ? ` · 브렌트 $${brent.to.toFixed(1)} (${signed(brent.pct, 1)}${asOf ? `, ${asOf.trim()}` : ''})` : ''}`,
-    mean: `${read}.${inflation}${spread} 에너지 기업 이익은 유가를 따라가서, 유가가 크게 움직인 날은 에너지 업종이 같이 움직입니다.`,
+    mean: spread.trim(),
     next: '매일 · 산유국 회의, 중동 정세, 미국 원유 재고(매주 수요일)',
-    flip: `유가가 20거래일 +${O.rise20dPct}% 넘게 오르면서 기대인플레가 같이 오르면 물가 시나리오가, ${O.fall20dPct}% 넘게 내리면서 금리도 같이 내리면 경기 둔화 시나리오가 힘을 얻습니다.`,
-    detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['브렌트 − WTI (같은 날)', brent ? `$${brent.spread.toFixed(1)}${asOf ? ` (${asOf.replace(' 종가 기준 ', '')})` : ''}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${bp(be.bp)})` : '—']]
+    flip: `유가(20거래일 +${C.oil20dPct}% 이상)와 10년 금리(+${C.rate20dBp}bp 이상)가 함께 오를 때 근원 물가가 다시 빨라지거나 10년 기대인플레가 +${C.rate20dBp}bp 이상 오르면 물가 확산, 둘 다 아니고 고용 둔화 단계가 1단계 이상이면 공급 충격입니다.`,
+    detail: [['WTI 20거래일 전', `$${wti.from.toFixed(1)}`], ['브렌트', brent ? `$${brent.to.toFixed(1)}` : '—'], ['브렌트 − WTI (같은 날)', brent ? `$${brent.spread.toFixed(1)}${asOf ? ` (${asOf.replace(' 종가 기준 ', '')})` : ''}` : '—'], ['10년 기대인플레', be ? `${be.to.toFixed(2)}% (${shortDay(be.date)}, 20거래일 ${bp(be.bp)})` : '—'],
+      ['10년 금리 20거래일', tnx ? `${bp((tnx.to.value - tnx.from.value) * 100)} (${shortDay(tnx.from.date)}→${shortDay(tnx.to.date)})` : '—']]
   };
 }
 
@@ -472,8 +489,13 @@ function credit(macroHistory) {
   const tail = !!(ccc && ccc.bp >= cccTailLine(macroHistory, WINDOW, C.stress20dMultiple * C.widen20dBp));
   const mean = creditReading(judgement, { cccTail: tail, ccc20: ccc?.bp ?? null, ig20: ig?.bp ?? null });
   const flip = creditFlip(judgement);
+  const reach = creditContagion(macroHistory);
+  // The financial-conditions index (moved here from the liquidity cards): its level and its 4-week change (the span the credit-stress condition reads).
+  const fciRows = series(macroHistory, 'financialConditions');
+  const fci4 = changeOverDays(fciRows, MACRO_SIGNAL_RULES.nfciWindowDays);
   return {
     id: 'credit', title: `${AXIS_LABELS.credit} — 위기 신호 점검`, question: '주가 조정이 신용 위기로 번질 위험', state,
+    verdicts: reach ? [{ id: 'credit-reach', name: '등급별 번짐', label: reach.label, tone: reach.state === 'quiet' ? 'good' : reach.state === 'selective' ? 'neutral' : 'warn' }] : [],
     viz: { caption: '스프레드 20거래일 변화 (bp)', unit: 'bp', points: [ig ? { x: '투자등급', value: ig.bp } : null, { x: '하이일드', value: hy.bp }, bb20 ? { x: 'BB', value: bb20.value } : null, b20 ? { x: 'B', value: b20.value } : null, ccc ? { x: 'CCC', value: ccc.bp, hot: true } : null].filter(Boolean) },
     now: `하이일드 ${hy.from.toFixed(2)} → ${hy.to.toFixed(2)}% (${bp(hy.bp)})${ccc ? ` · CCC ${bp(ccc.bp)}` : ''}`,
     mean: `${mean}${fci ? ` 금융여건 지수는 ${fci.value.toFixed(2)}${'013678'.includes(fci.value.toFixed(2).slice(-1)) ? '으로' : '로'} ${fci.value < 0 ? '아직 완화 쪽' : '긴축 쪽'}입니다.` : ''}`,
@@ -483,7 +505,53 @@ function credit(macroHistory) {
     // The automated 금리(수익률) rows (ICE BofA effective yields from the macro-history producer), printed above the
     // researched single-name rows: what a borrower pays, where the spreads above say only the premium. Empty until published.
     yields: creditYields(macroHistory),
-    detail: [['하이일드', `${hy.to.toFixed(2)}%`], ...(bb20 ? [['BB', `${bb20.level.toFixed(2)}%`]] : []), ...(b20 ? [['B', `${b20.level.toFixed(2)}%`]] : []), ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'], ['금융여건 지수', fci ? fci.value.toFixed(2) : '—']]
+    detail: [['하이일드', `${hy.to.toFixed(2)}%`], ...(bb20 ? [['BB', `${bb20.level.toFixed(2)}%`]] : []), ...(b20 ? [['B', `${b20.level.toFixed(2)}%`]] : []), ['CCC', ccc ? `${ccc.to.toFixed(2)}%` : '—'], ['투자등급', ig ? `${ig.to.toFixed(2)}%` : '—'],
+      ...(reach ? [[`등급별 20거래일 (${shortDay(reach.from)}→${shortDay(reach.date)})`, `투자등급 ${bp(reach.bp.ig)} · BB ${bp(reach.bp.bb)} · B ${bp(reach.bp.b)} · CCC ${bp(reach.bp.ccc)}`]] : []),
+      ['금융여건 지수', fci ? `${fci.value.toFixed(2)} (${shortDay(fci.date)}${fci4 ? `, 4주 ${signed(fci4.last.value - fci4.then.value, 2, '')}` : ''})` : '—']]
+  };
+}
+
+// 자금 배관 (funding-plumbing.js): the SOFR − IORB gauge decides 안정·긴장·스트레스; the reverse repo, the Treasury account
+// and reserves are the tanks behind it, each with its own date.
+const BN = (value) => (Math.abs(value) >= 1000 ? `${(value / 1000).toFixed(2)}조 달러`
+  : `${(value * 10).toLocaleString('en-US', { maximumFractionDigits: Math.abs(value) < 10 ? 1 : 0 })}억 달러`);
+const signedBn = (value) => `${value > 0 ? '+' : value < 0 ? '-' : ''}${BN(Math.abs(value))}`;
+function plumbing(macroHistory) {
+  const read = plumbingRead(macroHistory);
+  if (!read) return null;
+  const R = PLUMBING_RULES;
+  const { spread, rrp, tga, tgaWeek, reserves, source, sofr } = read;
+  // The target range on SOFR's own date (both bounds of one date), beside the IORB gauge.
+  const upper = sofr ? series(macroHistory, 'fedTargetUpper').filter((row) => row.date <= sofr.date).at(-1) : null;
+  const lower = sofr ? series(macroHistory, 'fedTargetLower').filter((row) => row.date <= sofr.date).at(-1) : null;
+  const range = fedTargetRange(lower?.value, upper?.value, lower?.date, upper?.date);
+  const where = !range || !sofr ? null : sofr.value > range.upper ? `상단 위 ${((sofr.value - range.upper) * 100).toFixed(0)}bp` : sofr.value < range.lower ? `하단 아래 ${((range.lower - sofr.value) * 100).toFixed(0)}bp` : `범위 안, 상단 −${((range.upper - sofr.value) * 100).toFixed(0)}bp`;
+  const net = netLiquiditySeries(macroHistory);
+  const netEnd = net.at(-1);
+  const netStart = netEnd ? net.filter((row) => row.date <= new Date(Date.parse(netEnd.date) - R.sourceDays * 86400000).toISOString().slice(0, 10)).at(-1) : null;
+  const tone = { calm: 'good', tension: 'warn', stress: 'warn', unknown: 'neutral' }[read.state];
+  return {
+    id: 'plumbing', title: '자금 배관 — 단기자금 압력', question: '단기자금 시장이 막히는지',
+    verdicts: [{ id: 'plumbing', name: 'SOFR − IORB', label: read.label, tone },
+      read.riskWeek ? { id: 'risk-week', name: `${shortDay(tgaWeek.date)} 주`, label: '역레포 고갈 중 TGA 급증', tone: 'warn' } : null,
+      source?.label ? { id: 'tga-source', name: `TGA 4주 ${signedBn(source.tgaBn)}`, label: source.label, tone: source.kind === 'absorb' ? 'warn' : 'neutral' } : null].filter(Boolean),
+    // The gauge itself when IORB is published (0bp is the line); the four-week Treasury-account split otherwise.
+    viz: read.recent.length
+      ? { caption: 'SOFR − IORB (bp)', unit: 'bp', points: read.recent.map((row) => ({ x: shortDay(row.date), value: row.bp, hot: row.bp > R.tensionAboveBp })) }
+      : { caption: source ? `${shortDay(source.from)}→${shortDay(source.to)} 4주 변화 (억 달러)` : '4주 변화 (억 달러)', unit: '',
+        points: source ? [{ x: 'TGA', value: source.tgaBn * 10, hot: true }, source.rrpBn != null ? { x: '역레포', value: source.rrpBn * 10 } : null, source.reservesBn != null ? { x: '준비금', value: source.reservesBn * 10 } : null].filter(Boolean) : [] },
+    now: [spread ? `SOFR − IORB ${signedText(spread.bp, 0, 'bp')} (${shortDay(spread.date)})` : sofr ? `SOFR ${sofr.value.toFixed(2)}% (${shortDay(sofr.date)})` : null,
+      rrp ? `역레포 ${BN(rrp.value)} (${shortDay(rrp.date)})` : null, tgaWeek ? `TGA 1주 ${signedBn(tgaWeek.changeBn)} (${shortDay(tgaWeek.date)})` : null,
+      reserves ? `준비금 ${BN(reserves.value)} (${shortDay(reserves.date)})` : null].filter(Boolean).join(' · '),
+    next: '매일 SOFR · 매주 목요일 연준 대차대조표(TGA·준비금)',
+    flip: `SOFR − IORB가 ${R.tensionAboveBp}bp를 넘는 날이 ${R.heldObservations}관측 이어지면 긴장, ${R.stressAtBp}bp 이상이 ${R.heldObservations}관측 이어지면 스트레스입니다. 역레포가 ${BN(R.rrpDepletedBn)} 아래인 주에 TGA가 ${BN(R.tgaWeekSurgeBn)} 넘게 늘면 위험이 겹친 주입니다. TGA가 4주 ${BN(NET_LIQUIDITY_FLAT_BN)} 넘게 늘 때 준비금이 역레포보다 더 줄면 흡수, 역레포가 더 줄면 자리바꿈입니다.`,
+    detail: [['SOFR', sofr ? `${sofr.value.toFixed(2)}% (${shortDay(sofr.date)})` : '—'], ['IORB', spread ? `${spread.iorb.toFixed(2)}% (${shortDay(spread.date)})` : '자료 없음'],
+      ['SOFR − IORB 0bp 초과 연속', spread ? `${read.heldAbove}관측` : '—'],
+      ...(where && range ? [[`목표 범위 ${range.lower.toFixed(2)}–${range.upper.toFixed(2)}% 대비 SOFR`, where]] : []),
+      ['역레포', rrp ? `${BN(rrp.value)} (${shortDay(rrp.date)})` : '—'], ['TGA', tga ? `${BN(tga.value)} (${shortDay(tga.date)}${tgaWeek ? `, 1주 ${signedBn(tgaWeek.changeBn)}` : ''})` : '—'],
+      ['준비금', reserves ? `${BN(reserves.value)} (${shortDay(reserves.date)})` : '자료 없음'],
+      ...(source ? [[`TGA 4주 변화 나누기 (${shortDay(source.from)}→${shortDay(source.to)})`, `TGA ${signedBn(source.tgaBn)} · 역레포 ${source.rrpBn == null ? '—' : signedBn(source.rrpBn)} · 준비금 ${source.reservesBn == null ? '자료 없음' : signedBn(source.reservesBn)}${source.otherBn == null ? '' : ` · 그 밖 ${signedBn(source.otherBn)}`}`]] : []),
+      ...(netEnd && netStart ? [[`순유동성 (${shortDay(netStart.date)}→${shortDay(netEnd.date)})`, `${BN(netEnd.value)}, 4주 ${signedBn(netEnd.value - netStart.value)}`]] : [])]
   };
 }
 
@@ -524,9 +592,9 @@ function growthKorea(macroHistory, history, events) {
   };
 }
 
-/** The chapters (v59.64: eight; v59.74: nine with 변동성); a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
+/** The chapters; a chapter whose series are missing is left out. `day` is market-day.json, when loaded. */
 export function buildMacroChapters({ macroHistory = null, history = [], events = [], day = null } = {}) {
-  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), oil(history, macroHistory),
+  const chapters = [inflation(macroHistory, events), labor(macroHistory, events), rates(macroHistory, events, history), credit(macroHistory), plumbing(macroHistory), oil(history, macroHistory),
     metals(history, macroHistory), dollarChapter(history, macroHistory), volatilityChapter(history, events), growthKorea(macroHistory, history, events)].filter(Boolean)
     .map((chapter) => ({ ...chapter, today: chapterToday(oneSessionDay(day, history), chapter.id) }));
   return { available: chapters.length > 0, chapters };

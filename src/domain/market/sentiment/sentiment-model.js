@@ -10,6 +10,7 @@ import { alignInput, alignMarketInputs, alignmentLabel, buildCloseSeries, isUsab
 import { RULES } from '../../rules/thresholds.js';
 import { fearGreedBand as publishedFearGreedBand } from './metrics.js';
 import { computeCompositeFearGreed, shortRankSample } from './composite-fear-greed.js';
+import { VOLATILITY_STATE_RULES, volatilityState } from './volatility-state.js';
 import { signedText, readNumber as finite } from '../../shared/number.js';
 import { shortDate } from '../../content/date-labels.js';
 
@@ -105,21 +106,21 @@ function compositeCard(composite) {
 export function buildSentimentModel({ history = [], credit = {}, rates = {}, macroHistory = null, aaii = null, now = undefined } = {}) {
   const { basis, c, alignments, fgSeries: fgAll } = alignMarketInputs({ history, credit, rates, macroHistory, ...(now === undefined ? {} : { now }) });
   const fgSeries = fgAll.slice(-126);
-  const vix = buildCloseSeries(history, 'vix', { through: basis });
-  const vix3m = new Map(buildCloseSeries(history, 'vix3m', { through: basis }).map((point) => [point.date, point.value]));
-  const ratioSeries = vix.filter((point) => vix3m.get(point.date)).map((point) => ({ date: point.date, value: point.value / vix3m.get(point.date) })).slice(-126);
-  const ratioLast = ratioSeries[ratioSeries.length - 1] || null;
-  const ratioAlign = alignInput(ratioLast?.date, basis);
-  // VIX is a 30-day annualised implied volatility, so VIX ÷ √252 is the S&P 500's implied one-standard-deviation daily
-  // move — a yardstick for the day's change, not a forecast.
-  const vixAtRatio = ratioLast ? vix.find((point) => point.date === ratioLast.date)?.value ?? null : null;
-  const impliedDaily = vixAtRatio == null ? '' : `VIX ${vixAtRatio.toFixed(2)} → S&P 500 하루 약 ±${(vixAtRatio / Math.sqrt(252)).toFixed(1)}% (1표준편차·정규 가정)`;
+  // The volatility state of the last VIX close on the basis (one reader for every screen), allowed to lag like any card.
+  const vixDate = buildCloseSeries(history, 'vix', { through: basis }).at(-1)?.date || null;
+  const vol = vixDate ? volatilityState(history, { through: vixDate }) : null;
+  const ratioSeries = (vol?.ratioSeries || []).slice(-126);
+  const ratioAlign = alignInput(vol?.term?.date, basis);
+  // VIX ÷ √252 is the S&P 500's implied one-standard-deviation session move — the range for the next session, and the last
+  // session's move set against the range the session before it implied.
+  const impliedDaily = vol?.term ? `VIX ${vol.level.value.toFixed(2)} → S&P 500 하루 약 ±${(vol.level.value / Math.sqrt(VOLATILITY_STATE_RULES.tradingDays)).toFixed(1)}% (1표준편차·정규 가정)` : '';
+  const range = vol?.range ? `${shortDate(vol.range.date)} S&P 500 ${signedText(vol.range.move, 1, '%')} — ${shortDate(vol.range.priorDate)} VIX ${vol.range.priorVix.toFixed(2)} 기준 ±${vol.range.sd.toFixed(1)}% ${vol.range.label}` : '';
   const aaiiAsOf = credit.aaiiAsOf || aaii?.observedAt || null;
   const aaiiAlign = alignInput(aaiiAsOf, basis, 7); // weekly survey
   // Display values (shown even when excluded) and judged values (usable only).
   const shown = {
     fg: fgSeries.length ? fgSeries[fgSeries.length - 1].value : finite(credit.fg),
-    ratio: ratioLast?.value ?? null,
+    ratio: vol?.term?.ratio ?? null,
     bear: finite(aaii?.bearish), bull: finite(aaii?.bullish)
   };
   const fg = c.fg;
@@ -134,6 +135,7 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, mac
   const { calmRatioBelow, invertedRatioAt } = RULES.volatility;
   const { extremeFearBelow, fearBelow, greedAbove, extremeGreedAbove } = RULES.fearGreed;
   const ratio5 = pointChange(ratioSeries, 5, '', 2);
+  const termWord = vol?.term ? { label: vol.term.label, tone: vol.term.tone } : null;
   const cards = [
     { id: 'fg', title: '공포·탐욕 지수 (F&G)', value: shown.fg == null ? '—' : String(Math.round(shown.fg)), basis: alignmentLabel(alignments.fg), basisStatus: alignments.fg.status,
       state: shown.fg == null ? null : judged(fg, fgBand), series: fgSeries, refLines: [25, 50, 75], domain: [0, 100], format: (value) => value.toFixed(0),
@@ -142,11 +144,12 @@ export function buildSentimentModel({ history = [], credit = {}, rates = {}, mac
       flip: `${extremeFearBelow} 미만 극단 공포, ${fearBelow} 미만 공포, ${greedAbove} 초과 탐욕, ${extremeGreedAbove} 초과 극단 탐욕`,
       note: 'VIX·정크본드 수요·시장 폭·모멘텀 등 7개 지표를 합친 지수 — 다른 지표와 겹치므로 단독 판단에 쓰지 않음' },
     { id: 'term', title: '단기 불안 비율 (VIX ÷ 3개월 VIX)', value: shown.ratio == null ? '—' : shown.ratio.toFixed(2), basis: alignmentLabel(ratioAlign), basisStatus: ratioAlign.status,
-      state: shown.ratio == null ? null : judged(ratio, ratio >= invertedRatioAt ? { label: '역전, 단기 불안', tone: 'burden' } : ratio >= calmRatioBelow ? { label: '평탄', tone: 'neutral' } : { label: '정상', tone: 'favorable' }),
+      state: shown.ratio == null ? null : judged(ratio, termWord),
       series: ratioSeries, refLines: [invertedRatioAt], format: (value) => value.toFixed(2),
       distance: shown.ratio == null ? '' : termRatioDistance(shown.ratio),
-      change: [ratio5 ? `5일 ${ratio5}` : '', impliedDaily].filter(Boolean).join(', '),
-      flip: `${calmRatioBelow.toFixed(2)} 미만 정상, ${calmRatioBelow.toFixed(2)}~${invertedRatioAt.toFixed(2)} 평탄, ${invertedRatioAt.toFixed(2)} 이상 역전`,
+      change: [ratio5 ? `5일 ${ratio5}` : '', impliedDaily, range].filter(Boolean).join(', '),
+      range: vol?.range || null, spike: vol?.spike || null, retest: vol?.retest || null,
+      flip: `${calmRatioBelow.toFixed(2)} 미만 정상, ${calmRatioBelow.toFixed(2)}~${invertedRatioAt.toFixed(2)} 평탄, ${invertedRatioAt.toFixed(2)} 이상 역전, 1 미만이어도 9일 VIX가 VIX보다 높으면 앞쪽 역전`,
       note: '1 미만이면 단기 공포가 중기보다 작은 정상 상태, 1을 넘으면 당장의 충격을 크게 반영하는 역전' },
     // The high-yield spread is read on the 시장 상태 credit axis (one copy of the number and its verdict); the put/call card
     // left because Cboe's terms allow neither automated collection nor republication.

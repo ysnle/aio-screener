@@ -1726,15 +1726,14 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           fail(`v59.94: a released official event stays upcoming past its release time ${JSON.stringify({ morningAfterFomc, morningAfterCpi, beforeFomc })}`);
         }
       }
-      // A 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives); the 기술적 분석
-      // trend words follow where the close sits against the 50/200-day lines, and a stock gets the same words from its distances.
+      // A 매크로 chapter says what moved today in its own field (the lead gauge and the group it drives), and a stock gets
+      // its trend words from its 50/200-day distances.
       const { buildMacroChapters } = await load('src/domain/macro/macro-chapters.js');
       const oilToday = buildMacroChapters({ history, day }).chapters.find((chapter) => chapter.id === 'oil')?.today;
-      const { trendOf, coreStockRows } = await load('src/domain/technical/market-charts.js');
-      const words = [[110, 100, 90], [95, 100, 90], [85, 100, 90], [95, 90, 100], [105, 90, 100], [85, 90, 100]].map(([close, ma50, ma200]) => trendOf({ close, ma50, ma200, ma50Before: null })).join(',');
+      const { coreStockRows } = await load('src/domain/technical/market-charts.js');
       const stock = coreStockRows({ screener: { data: { NV: { pctSma50: -8.75, pctSma200: -1.03 } } }, indexWeights: [{ sym: 'NV', weight: 7 }] })[0];
-      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || words !== 'up,pullback,breakdown,rebound,recovery,down' || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // A stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
-        fail(`v59.64: macro today line / chart trend words broke ${JSON.stringify({ oilToday, words, stock: stock?.trend })}`);
+      if (oilToday?.rank !== 'lead' || !/에너지/.test(oilToday.text) || stock?.trend !== 'breakdown' || stock.trendWord !== '추세 이탈') { // A stock row reads the 종목 page's buffered trend; v59.85: NV −8.8%/−1.0% (50-day still over the 200-day) is 추세 이탈 on every screen
+        fail(`v59.64: macro today line / stock trend words broke ${JSON.stringify({ oilToday, stock: stock?.trend })}`);
       }
       // A chapter report is about the field itself and shown in Korean — a crypto story that mentions inflation
       // fears and an English-only title are not 물가 관련 보도.
@@ -1827,7 +1826,7 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
       const chist = cdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, rsp: 100 + i * 0.2, breadth50: 68, vix: 21, vix3m: 22, fg: 19, tnx: 4.9 - i * 0.02, kospi: i < 79 ? 5000 : 4800, usdkrw: i < 79 ? 1400 : 1410 }));
       const chy = { series: { hyOas: { observations: cdays.map((date, i) => [date, 3 + i * 0.02]) } } };
       const pairs = Object.fromEntries(crossReadings({ history: chist, macroHistory: chy, day: null }).map((row) => [row.id, row.text]));
-      if (!/68%는 아직 50일선 위/.test(pairs['trend-breadth'] || '') || !/투매는 아닌/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정과 맞는/.test(pairs['rates-credit'] || '') || /돈이|자금 이탈/.test(Object.values(pairs).join(' ')) || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
+      if (!/50일선 위 종목 68% — 좁은 조정\(/.test(pairs['trend-breadth'] || '') || !/겁만 난 상태/.test(pairs['volatility-sentiment'] || '') || !/성장 걱정과 맞는/.test(pairs['rates-credit'] || '') || /돈이|자금 이탈/.test(Object.values(pairs).join(' ')) || !/코스피 하루 -4\.0%/.test(pairs['korea-won'] || '')) {
         fail(`v59.66: cross readings broke ${JSON.stringify(pairs)}`);
       }
       // Each screen's lenses carry their basis and reach — a stalled input is named, a market with
@@ -2191,6 +2190,33 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
     const broken = indexLevel(synth(Array.from({ length: 34 }, (_, i) => 139 - i)), 'smh');
     if (testing?.doubleTop?.state !== 'testing' || broken?.doubleTop?.state !== 'broken' || !(broken.fromHighPct < -10) || !(broken.vsMa50Pct < 0)
       || !/쌍봉이 완성/.test(levelsRead([{ ...broken, label: '반도체(SMH)' }])) || !/쌍봉 완성 여부/.test(levelsRead([{ ...testing, label: '반도체(SMH)' }]))) fail('v59.62: chart levels must read a double top as testing at the neck and broken 1% under it');
+    // v60.68 (live audit of the 11/27 early close): the support is the lowest close of six months before the latest
+    // session — leaving two weeks out named 11/5 as the lowest while 11/20 stood 6% under it.
+    const lowLate = indexLevel(synth([...Array.from({ length: 20 }, (_, i) => 139 - i), 90, 95, 100]), 'smh');
+    if (lowLate?.support?.value !== 90 || !/로 지금보다 10\.0% 아래입니다/.test(levelsRead([{ ...lowLate, label: '반도체(SMH)' }]))) fail(`v60.68: the six-month low includes the latest two weeks and its distance is measured down from the close: ${JSON.stringify(lowLate?.support)}`);
+    {
+      const { barsFromYahoo } = await load('src/data/chart-bars.js');
+      const t0 = Date.parse('2026-11-25T14:30:00Z') / 1000, t1 = Date.parse('2026-11-27T14:30:00Z') / 1000;
+      const payload = (quoteAt) => ({ timestamps: [t0, t1], opens: [10, 11], highs: [12, 13], lows: [9, 10], closes: [11, null], volumes: [1, 1], meta: { exchangeTimezoneName: 'America/New_York', regularMarketPrice: 12.5, regularMarketTime: quoteAt } });
+      const filled = barsFromYahoo(payload(Date.parse('2026-11-27T18:00:00Z') / 1000));
+      if (filled.length !== 2 || filled[1].time !== '2026-11-27' || filled[1].close !== 12.5) fail(`v60.68: a latest daily bar without a close takes the same session's regular price: ${JSON.stringify(filled.at(-1))}`);
+      if (barsFromYahoo(payload(Date.parse('2026-11-25T21:00:00Z') / 1000)).length !== 1) fail('v60.68: a quote of another session never closes the bar');
+      const { sessionSequence } = await load('src/domain/briefing/briefing-report.js');
+      const seqRows = ['2026-11-18', '2026-11-19', '2026-11-20', '2026-11-23', '2026-11-24', '2026-11-25', '2026-11-27'].map((date, i) => ({ date, spx: 100 + i * i, tnx: 4 + i / 100, fieldMeta: { spx: { sessionDate: date }, tnx: { sessionDate: date } } }));
+      const seq = sessionSequence(seqRows, '2026-11-27');
+      if (seq.points.length !== 6 || seq.from !== '2026-11-19' || Math.abs(seq.change - (seq.points.at(-1).value / seq.points[0].value - 1) * 100) > 1e-9) fail(`v60.68: the five-session sequence draws the close its change starts from: ${JSON.stringify([seq.points.length, seq.from, seq.change])}`);
+      const { buildDayAccount } = await load('src/domain/briefing/day-account.js');
+      const rate = (asset, label, date, change, rank) => ({ id: `price:${asset}:${date}`, kind: 'price', asset, label, assetKind: 'macro', date, value: 4, unit: 'bp', valueUnit: '%', changeUnit: 'bp', change, z: 1.6, rank, materiality: rank === 'major' ? 60 : 30, topics: ['rates'], subjects: [], weight: 30, sizedBy: 'day' });
+      const ratesLine = buildDayAccount({ session: { us: '2026-11-27' }, facts: [rate('tnx', '미국 10년 금리', '2026-11-27', 9, 'major'), rate('dgs2', '미국 2년 금리', '2026-11-25', -2, 'minor')], links: [] }).stories[0].line;
+      if (!ratesLine.startsWith('11/27 종가 미국 10년 금리 +9bp, 미국 2년 금리 -2bp(11/25).')) fail(`v60.68: a family member observed on another day carries its own date in the line: ${ratesLine}`);
+      const { leadLinkedNews } = await load('src/domain/briefing/news-picks.js');
+      const krDay = (rank) => ({ facts: [{ id: 'price:kosdaq:2026-11-27', kind: 'price', asset: 'kosdaq', rank }], links: [] });
+      const krStory = { title: '코스피·코스닥, 급등 마감(종합)' };
+      if (!leadLinkedNews(krDay('major'))(krStory) || leadLinkedNews(krDay('minor'))(krStory) || leadLinkedNews(krDay('major'))({ title: '미 국채 금리 혼조' })) fail('v60.68: a report naming an index is a market-impact story on the day the ledger ranks that index move lead or major, and only then');
+      const { parseFredHyOasCsv } = await load('scripts/lib/macro-sources.mjs');
+      const oas = parseFredHyOasCsv('observation_date,BAMLH0A0HYM2\n2026-11-17,3.43\n2026-11-18,3.47\n2026-11-19,3.52\n2026-11-20,3.76\n2026-11-23,3.63\n2026-11-24,3.72\n2026-11-25,3.77\n2026-11-26,3.77\n');
+      if (oas.observedAt !== '2026-11-25' || oas.delta5 !== 0.3) fail(`v60.68: the HY spread's five-session change counts US sessions, not the holiday print: ${JSON.stringify([oas.observedAt, oas.delta5])}`);
+    }
     // A major dated event before the next macro release is named first, from the one registry both screens read.
     const { buildMarketGuide } = await load('src/domain/guide/market-guide.js');
     const { SCHEDULED_EVENTS: storyEvents } = await load('src/domain/market/story/market-story.js');
@@ -5675,7 +5701,11 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
   const stalePair = verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, usCtx);
   if (!stalePair || stalePair.status !== 'corrected' || stalePair.prevClose !== 35.89 || stalePair.basisDate !== '2026-11-20' || Math.abs(stalePair.pct + 13.96) > 0.01) fail(`A1 a pair against an older close must be replaced from the history close: ${JSON.stringify(stalePair)}`);
   const holiday = [vixRow('2026-11-25', 24.1, '2026-11-25T21:15:01.000Z')];
-  if (verifyUsQuoteChange(vixQuote(24.1, 1, '2026-11-27T15:00:00.000Z'), 24.3, 0.83, { history: holiday, now: Date.parse('2026-11-27T16:00:00.000Z') }) !== null) fail('A1 a holiday between the history close and the quote session keeps the provider pair');
+  // v60.68: an exchange holiday is no missed session — the close before it is the basis (11/27 the provider's pair read
+  // VIX -11.2% against 26.80 while the 11/25 close was 28.29, -15.8%); a history that lacks an open session still is none.
+  const overHoliday = verifyUsQuoteChange(vixQuote(22.6, 7.5, '2026-11-27T15:00:00.000Z'), 24.3, 7.5, { history: holiday, now: Date.parse('2026-11-27T16:00:00.000Z') });
+  if (overHoliday?.status !== 'corrected' || overHoliday.basisDate !== '2026-11-25' || Math.abs(overHoliday.pct - (24.3 / 24.1 - 1) * 100) > 1e-9) fail(`v60.68 A1 the close before an exchange holiday is the quote's basis: ${JSON.stringify(overHoliday)}`);
+  if (verifyUsQuoteChange(vixQuote(22.6, 7.5, '2026-11-27T15:00:00.000Z'), 24.3, 7.5, { history: [vixRow('2026-11-24', 24.1, '2026-11-24T21:15:01.000Z')], now: Date.parse('2026-11-27T16:00:00.000Z') }) !== null) fail('v60.68 A1 a history one open session short keeps the provider pair');
   if (verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, { history: [], now: usNow }) !== null) fail('A1 a missing history keeps the provider pair');
   if (verifyUsQuoteChange(vixQuote(28.44, 8.58), 30.88, 8.58, { ...usCtx, loadedAt: usNow - 7 * 3600000 }) !== null) fail('A1 a history loaded more than six hours ago keeps the provider pair');
 
@@ -6127,7 +6157,7 @@ console.log(JSON.stringify({ ok: true, modules: ['store', 'lifecycle', 'router',
   const days = Array.from({ length: 200 }, (_, i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10)).filter((d) => ![0, 6].includes(new Date(`${d}T12:00:00Z`).getUTCDay()));
   const rows = days.map((date, i) => ({ date, spx: 6000 + i, vix: i === days.length - 1 ? 30 : 15 + (i % 5), vix3m: i === days.length - 1 ? 27 : 18, vvix: 90 + (i % 10), move: i === days.length - 1 ? 140 : 80 + (i % 10) }));
   const vol = volatilityChapter(rows, []);
-  if (!vol || !/기간 구조가 역전/.test(vol.mean)) fail('v59.74 the volatility chapter must name an inverted VIX term structure (VIX 30 over VIX3M 27)');
+  if (!vol || !/기간 구조 역전, 단기 불안/.test(vol.mean)) fail('v59.74 the volatility chapter must name an inverted VIX term structure (VIX 30 over VIX3M 27)');
   if (!vol.bond || vol.bond.pct < 99) fail('v59.74 MOVE at a record high must sit at the top of its own record');
   if (volatilityChapter([], []) !== null) fail('v59.74 the volatility chapter is left out without a VIX close');
 }
@@ -8423,7 +8453,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (!/\{ broadAbovePct, narrowBelowPct \} = RULES\.breadthCross/.test(chartsSource) || /above50 (?:<|>=) \d/.test(chartsSource)) fail('v60.16 market-charts reads breadth lines from RULES.breadthCross');
   // The pair lines are the axis's own constants: VIX equal to its 3-month is inverted (ratio ≥ 1), F&G 75 is not yet 과열.
   const edge = (vix, vix3m, fg) => crossReadings({ history: sessions.slice(0, 80).map((date) => ({ date, spx: 5000, vix, vix3m, fg })) }).find((item) => item.id === 'volatility-sentiment').text;
-  if (!/단기 불안이 큰 상태/.test(edge(20, 20, 50)) || /과열/.test(edge(15, 18, 75)) || !/과열/.test(edge(15, 18, 76))) fail(`v60.16 cross readings use RULES.volatility / RULES.fearGreed edges: ${edge(20, 20, 50)} | ${edge(15, 18, 75)}`);
+  if (!/기간 구조 역전/.test(edge(20, 20, 50)) || /과열/.test(edge(15, 18, 75)) || !/과열/.test(edge(15, 18, 76))) fail(`v60.16 cross readings use RULES.volatility / RULES.fearGreed edges: ${edge(20, 20, 50)} | ${edge(15, 18, 75)}`);
 }
 
 // The portfolio backup reminder appears only when there is something to lose and no backup in 30 days.
@@ -8922,9 +8952,9 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const xdays = []; for (let d = Date.parse('2026-06-01T12:00:00Z'); xdays.length < 80; d += 86400000) { const day = new Date(d); if (![0, 6].includes(day.getUTCDay())) xdays.push(day.toISOString().slice(0, 10)); }
   const pairOf = (b50, fg) => Object.fromEntries(crossReadings({ history: xdays.map((date, i) => ({ date, spx: i < 79 ? 5000 : 4800, breadth50: b50, vix: 15, vix3m: 18, fg })), day: null }).map((row) => [row.id, row.text]));
   const mid = pairOf(48, 50)['trend-breadth'] || '', wide = pairOf(44, 50)['trend-breadth'] || '', held = pairOf(60, 50)['trend-breadth'] || '';
-  if (!/중간입니다/.test(mid) || !/하락이 넓게 퍼져/.test(wide) || !/이 비율이 45% 아래로 내려가면/.test(held)) fail(`v59.97 the breadth pair flips at the 45% edge it names: ${JSON.stringify({ mid, wide, held })}`);
+  if (!/폭 방향 미정/.test(mid) || !/넓은 하락/.test(wide) || !/좁은 조정/.test(held) || !/45% 미만이면/.test(held)) fail(`v59.97 the breadth pair flips at the 45% edge it names: ${JSON.stringify({ mid, wide, held })}`);
   const fearAt = (fg) => pairOf(60, fg)['volatility-sentiment'] || '';
-  if (/극단 공포 쪽/.test(fearAt(25)) || /극단 공포 쪽/.test(fearAt(24.6)) || !/극단 공포 쪽/.test(fearAt(24))) fail(`v59.97 the sentiment pair calls extreme fear only where the gauge does (24 yes; 25 and 24.6 no): ${[25, 24.6, 24].map(fearAt).join(' | ')}`);
+  if (/겁만 난 상태/.test(fearAt(25)) || /겁만 난 상태/.test(fearAt(24.6)) || !/겁만 난 상태/.test(fearAt(24))) fail(`v59.97 the sentiment pair calls extreme fear only where the gauge does (24 yes; 25 and 24.6 no): ${[25, 24.6, 24].map(fearAt).join(' | ')}`);
 
   // Sector counts follow the printed one-decimal move.
   const { buildMarketFlow } = await load('src/domain/market/regime/market-flow.js');
@@ -9186,4 +9216,10 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const { normalizeScreener } = await import('../src/data/normalize/screener.js');
   const normalized = normalizeScreener({ rows: [{ symbol: 'TT', pctSma150: 1.5, sma200Rise21Pct: 0.4, rsBenchmarkRet6m: 3, vcpDepths: [12, 'x', 5], vcpVolumeRatio: 0.8 }] }).rows[0];
   if (normalized.pctSma150 !== 1.5 || normalized.sma200Rise21Pct !== 0.4 || normalized.rsBenchmarkRet6m !== 3 || normalized.vcpDepths.join() !== '12,5' || normalized.vcpVolumeRatio !== 0.8) fail('v60.59 the normaliser keeps the setup-board inputs');
+}
+
+// Case files under scripts/unit-cases/ each own one module group's facts and verdicts.
+for (const file of readdirSync(path.join(root, 'scripts/unit-cases')).filter((name) => name.endsWith('.mjs')).sort()) {
+  const { default: run } = await load(`scripts/unit-cases/${file}`);
+  await run({ root, load, fail });
 }

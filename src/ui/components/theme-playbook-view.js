@@ -514,8 +514,8 @@ export function renderThemePlaybook({ documentRef: doc, root, store } = {}) {
   if (!doc) return null;
   let host = doc.getElementById('theme-playbook');
   if (!host) {
-    // The scenarios follow the largest theme (after the AI capex fold); without it, before the ranking as before.
-    const after = doc.getElementById('ai-capex-fold');
+    // The scenarios follow the largest theme (after the AI supply chain card); without it, before the ranking.
+    const after = doc.getElementById('themes-ai-chain');
     const before = doc.getElementById('theme-strength-board');
     if (!after && !before) return null;
     const section = el(doc, 'section', null, 'aio-section tp-section');

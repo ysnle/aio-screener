@@ -31,6 +31,8 @@ import { isIsoDay } from '../shared/session-date.js';
 import { closeMoveGrade } from '../market/session/move-size.js';
 import { computeCompositeFearGreed } from '../market/sentiment/composite-fear-greed.js';
 import { fearGreedBand } from '../market/sentiment/metrics.js'; // v58.69: F&G 20 is 극단 공포 (CNN bands), not 공포
+import { volatilityState, termStateOf } from '../market/sentiment/volatility-state.js';
+import { moverRatios } from '../market/breadth/movers.js';
 import { recentDirection, directionKey, directionPredicate, directionFacts } from '../market/signal/recent-direction.js';
 export { closeSessionMarket, isCloseSessionDate, buildCloseSeries, closeBasis, alignInput, isUsable, alignmentLabel, sessionPointBack, RECORD_FULL_YEAR, recordPercentile };
 
@@ -1001,8 +1003,9 @@ export const priceChecks = (statements, lead = []) => [...lead.slice(0, 2), ...n
 export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {}) {
   const W = RULES.bottomWatch, V = RULES.volatility;
   const on = (stat) => stat && (!basis || stat.date === basis) ? stat : null;
-  const vix = on(s.vix), vix3m = on(s.vix3m), fg = c.fg;
-  const ratio = vix && vix3m ? vix.value / vix3m.value : null;
+  const vix = on(s.vix), fg = c.fg;
+  const term = vix ? volatilityState(input.history, { through: vix.date })?.term || null : null;
+  const ratio = term?.ratio ?? null;
   const lowsSeries = buildCloseSeries(input.history, 'breadthNewLows', { through: basis }).slice(-W.newLowsWindow);
   const highsByDate = new Map(buildCloseSeries(input.history, 'breadthNewHighs', { through: basis }).map((point) => [point.date, point.value]));
   const peak = lowsSeries.slice(0, -1).reduce((best, point) => (!best || point.value > best.value ? point : best), null);
@@ -1012,12 +1015,12 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   const b20Now = b20Series.at(-1)?.date === basis ? b20Series.at(-1).value : null;
   const b20LowPoint = b20Series.length > W.b20Window / 2 ? b20Series.reduce((low, point) => (!low || point.value < low.value ? point : low), null) : null;
   const b20Low = b20LowPoint ? b20LowPoint.value : null; // screen audit 2026-10-20: the low is dated like the new-low peak
-  const up4 = on(s.breadthUp4), down4 = on(s.breadthDown4);
+  const movers = basis ? moverRatios(input.history, { through: basis }) : null;
   const above50 = (stat) => stat?.ma50 != null ? stat.value >= stat.ma50 : null;
   const item = (label, ok, value) => ({ label, ok, value });
   const exhaustion = [
     item(`공포·탐욕 ${W.fearAtMost} 이하`, fg == null ? null : fg <= W.fearAtMost, fg == null ? null : `공포·탐욕 ${fmt(fg, 0)}`),
-    item(`VIX ${V.highAt} 이상 또는 기간 구조 역전`, vix == null ? null : vix.value >= V.highAt || (ratio != null && ratio >= V.invertedRatioAt), vix == null ? null : `VIX ${fmt(vix.value)}${ratio != null ? `, 3개월 대비 ${fmt(ratio)}` : ''}`),
+    item(`VIX ${V.highAt} 이상 또는 기간 구조 역전`, vix == null ? null : vix.value >= V.highAt || term?.state === 'inverted', vix == null ? null : `VIX ${fmt(vix.value)}${ratio != null ? `, 3개월 대비 ${fmt(ratio)}` : ''}`),
     item(`신저가가 최근 ${W.newLowsWindow}거래일 최고치의 ${W.newLowsShrinkShare * 100}% 이하로 줄어듦`, !peak || !lowsNow ? null : !!extreme && lowsNow.value <= peak.value * W.newLowsShrinkShare,
       !peak || !lowsNow ? null : `신저가 ${shortDate(peak.date)} ${fmt(peak.value, 0)} → ${fmt(lowsNow.value, 0)}`),
     item(`20일선 위 종목 비율이 ${W.b20Window}거래일 저점보다 +${W.b20ReboundPp}%p 이상`, b20Now == null || b20Low == null ? null : b20Now - b20Low >= W.b20ReboundPp,
@@ -1026,7 +1029,7 @@ export function bottomWatchOf({ s = {}, c = {}, input = {}, basis = null } = {})
   const confirmation = [
     item('나스닥 100이 50일선 위', above50(on(s.ndx)), s.ndx?.ma50 != null ? `나스닥 100 50일선 ${signed(pct(s.ndx.value, s.ndx.ma50))}` : null),
     item('SOXX가 50일선 위', above50(on(s.soxx)), s.soxx?.ma50 != null ? `SOXX 50일선 ${signed(pct(s.soxx.value, s.soxx.ma50))}` : null),
-    item(`마감일 거래량 늘며 4% 이상 오른 종목이 내린 종목의 ${W.thrustRatio}배 이상`, up4 && down4 ? up4.value > 0 && up4.value >= down4.value * W.thrustRatio : null, up4 && down4 ? `4% 상승 ${fmt(up4.value, 0)} / 하락 ${fmt(down4.value, 0)}` : null),
+    item(`마감일 거래량 늘며 4% 이상 오른 종목이 내린 종목의 ${W.thrustRatio}배 이상`, movers ? movers.state === 'thrust' : null, movers ? `4% 상승 ${fmt(movers.day.up, 0)} / 하락 ${fmt(movers.day.down, 0)}` : null),
     item('하이일드 스프레드 5일 확대 멈춤', c.hy5 == null ? null : c.hy5 <= 0, c.hy5 == null ? null : `하이일드 5일 ${signed(c.hy5, 0, 'bp')}`)
   ];
   const tally = (list) => ({ met: list.filter((row) => row.ok === true).length, known: list.filter((row) => row.ok != null).length, total: list.length });
@@ -1584,7 +1587,7 @@ export function buildMarketRegime(input = {}) {
           : `VIX ${V.calmBelow - V.calmBufferPt} 미만(또는 ${V.calmBelow} 미만에서 5일 하락)이고 5일 상승이 +${V.rise5dWatchPct}% 미만, VIX/3개월 VIX ${V.calmRatioBelow} 미만이면 양호. VIX ${V.stressAt} 이상, VIX/3개월 VIX ${V.invertedRatioAt} 이상(역전), 5일 +${V.spike5dPct}% 급등(VIX ${V.spikeFloor} 이상) 중 하나면 부담`;
     axes.push(axis('volatility', state, [
       ['VIX', vix ? `${fmt(vix.value)} (5일 ${signed(vix5, 0)})` : null],
-      ['단기 불안 비율', ratio == null ? null : `${fmt(ratio)} ${ratio >= V.invertedRatioAt ? '(역전)' : ratio >= V.calmRatioBelow ? '(평탄)' : '(정상)'}`],
+      ['단기 불안 비율', ratio == null ? null : `${fmt(ratio)} (${volatilityState(input.history, { through: vix.date })?.term?.label || termStateOf({ vix: vix.value, vix3m: s.vix3m.value }).label})`],
       directionRow(state === 'unknown' ? null : vixMove, { digits: 0 }),
       reasonRow(volatilityReason)
     ], flip, alignments.vix));

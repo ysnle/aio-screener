@@ -3,7 +3,7 @@
 // experts set stops and targets, the user's own plan check). Split from stock-chart.js and loaded with the first daily
 // chart: stock-chart.js is reachable from bootstrap (openMarketChart), so these stay out of the boot module set.
 import { buildPriceLevels, checkPricePlan } from '../../domain/technical/price-levels.js';
-import { SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText } from '../../domain/technical/setup-coach.js';
+import { SETUP_STAGES, setupFacts, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText } from '../../domain/technical/setup-coach.js';
 import { buildEarningsSchedule } from '../../domain/fundamental/analysis-read.js';
 import { refreshSharedArtifact, sharedArtifactState } from '../../data/shared-artifacts.js';
 import { marketInterpretation } from '../../data/selectors/interpretation.js';
@@ -18,7 +18,7 @@ import { createStorageGateway } from '../../platform/storage.js';
 import { EARNINGS_CALENDAR } from '../../data/artifact-registry.js';
 
 // The domain functions the sections use, passed as one object so stock-chart.js reads them through this lazy module.
-export const tools = Object.freeze({ buildPriceLevels, checkPricePlan, SETUP_STAGES, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText, buildEarningsSchedule });
+export const tools = Object.freeze({ buildPriceLevels, checkPricePlan, SETUP_STAGES, setupFacts, setupLifecycle, breakoutChecklist, timeframeAlignment, pastBreakouts, pastBreakoutsText, buildEarningsSchedule });
 
 // v58.75 (teach-and-check D1–D4, D6): '셋업 읽기' — the life-cycle band, the pre-breakout checklist (a count, with each
 // principle and current value), the weekly/daily agreement and this stock's own past breakouts, then the next steps.
@@ -49,9 +49,9 @@ function marketContextLine(root, regime) {
   return `${state}${lead?.face ? ` ${lead.face}` : ''}`;
 }
 
-function checklistBlock(doc, root, sym, analysis, regime, tools) {
+function checklistBlock(doc, root, sym, analysis, regime, tools, facts) {
   const earnings = /\.(KS|KQ)$/.test(sym) ? null : tools.buildEarningsSchedule({ symbol: sym, calendar: root?.[EARNINGS_CALENDAR.key] || null, calendarState: sharedArtifactState(root, EARNINGS_CALENDAR.key) });
-  const list = tools.breakoutChecklist(analysis, { regime, earnings });
+  const list = tools.breakoutChecklist(analysis, { regime, earnings, facts });
   if (root.__aioSetupCoach?.symbol === sym) root.__aioSetupCoach.checklist = list;
   const box = el(doc, 'div', null, 'chart-breakout-check');
   box.id = 'chart-breakout-check';
@@ -92,13 +92,16 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   let leadDetail = [];
   try { leadDetail = scenarioLead(marketInterpretation(root)?.crossroads).detail || []; } catch (_) { leadDetail = []; }
   if (leadDetail.length) { const list = el(doc, 'ul', null, 'chart-lead-detail theme-strength-basis'); leadDetail.forEach((line) => list.append(el(doc, 'li', line))); section.append(list); }
-  const life = tools.setupLifecycle(analysis);
+  // One fact table for the life cycle and the checklist (the style lenses read the same setupFacts).
+  const facts = tools.setupFacts(analysis);
+  const life = tools.setupLifecycle(analysis, facts);
   // The AI panel reads the same life-cycle stage, checklist and timeframe reading the screen shows (null for another symbol).
   root.__aioSetupCoach = { symbol: sym, asOf: analysis.asOf, lifecycle: life, checklist: null, alignment: tools.timeframeAlignment(analysis), pastBreakouts: tools.pastBreakoutsText(tools.pastBreakouts(analysis)), market: marketContextLine(root, regime) };
   root._aioSetupCoachFor = (symbolArg) => { const want = String(symbolArg || '').trim().toUpperCase(); const current = root.__aioSetupCoach; return current && (!want || want === current.symbol) ? current : null; };
   if (life) {
     const box = el(doc, 'div', null, 'chart-life');
     box.append(el(doc, 'p', life.headline, 'xr-reading'), lifecycleBand(doc, life));
+    if (life.boundary) box.append(el(doc, 'p', `피벗 경계선: ${life.boundary.word} (교차 뒤 ${life.boundary.sessions}거래일)`, 'theme-strength-basis'));
     if (life.check) box.append(el(doc, 'p', `이 단계에서 전문가가 확인하는 것: ${life.check}`, 'theme-strength-basis'));
     const stages = el(doc, 'details', null, 'chart-life-stages');
     stages.dataset.foldKind = 'method';
@@ -107,7 +110,7 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
     box.append(stages);
     section.append(box);
   }
-  section.append(checklistBlock(doc, root, sym, analysis, regime, tools));
+  section.append(checklistBlock(doc, root, sym, analysis, regime, tools, facts));
   const align = root.__aioSetupCoach.alignment;
   if (align) {
     const box = el(doc, 'div', null, 'chart-timeframe');
@@ -130,7 +133,7 @@ export function setupCoachSection(doc, root, sym, analysis, regime, tools, hasLe
   // The earnings calendar is a shared artifact; when it arrives the checklist is redrawn in place.
   if (!/\.(KS|KQ)$/.test(sym)) refreshSharedArtifact(root, EARNINGS_CALENDAR).then(({ changed } = {}) => {
     const current = doc.getElementById('chart-breakout-check');
-    if (changed && current && current.dataset.symbol === sym) current.replaceWith(checklistBlock(doc, root, sym, analysis, regime, tools));
+    if (changed && current && current.dataset.symbol === sym) current.replaceWith(checklistBlock(doc, root, sym, analysis, regime, tools, facts));
   }).catch(() => {});
   return section;
 }

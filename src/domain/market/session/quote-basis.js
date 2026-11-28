@@ -5,6 +5,7 @@
 import { isoDay } from '../../shared/session-date.js';
 import { readNumber } from '../../shared/number.js';
 import { sessionDateInMarket } from './session-time.js';
+import { countOpenSessionsBetween } from './market-calendar.js';
 import { isProvisionalHistoryValue } from './history-session.js';
 
 export const KR_INDEX_HISTORY_FIELD = Object.freeze({ '^KS11': 'kospi', '^KQ11': 'kosdaq' });
@@ -114,8 +115,8 @@ export function verifyKrQuoteChange(q, price, providerPct, ctx = {}) {
   return out;
 }
 
-/** Latest completed close of a US `field` before `session` when only weekend days lie between them, else null (a holiday
- *  in between, or a history that has not reached the previous trading day). */
+/** Latest completed close of a US `field` before `session` when no open session lies between them, else null (a history
+ *  that has not reached the previous trading day). */
 export function usHistoryBasis(field, session, history) {
   if (!field || !isoDay(session)) return null;
   let best = null;
@@ -128,11 +129,8 @@ export function usHistoryBasis(field, session, history) {
     if (day && day < session && (!best || day > best.date)) best = { date: day, close: value };
   }
   if (!best) return null;
-  for (let at = Date.parse(`${best.date}T12:00:00Z`) + DAY_MS; at < Date.parse(`${session}T12:00:00Z`); at += DAY_MS) {
-    const weekday = new Date(at).getUTCDay();
-    if (weekday !== 0 && weekday !== 6) return null;
-  }
-  return best;
+  // The session right after it on the exchange calendar: a weekend or a holiday between them is no missed session.
+  return countOpenSessionsBetween(best.date, session, 'US') === 1 ? best : null;
 }
 
 /** One US index quote: null without a history field or a basis (the provider's pair stays), else the change to publish

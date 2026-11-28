@@ -18,7 +18,7 @@ import { BRANCH_ANALOGS, analogOutcome, frequencyText, BASE_RATE_SE, pastEvidenc
 import { EXPOSURE_TAGS } from '../../scenarios/exposures.js';
 import { currentScenarioOutcomes } from '../../scenarios/outcome-fingerprints.js';
 import { signedText, finiteNumber as finite } from '../../shared/number.js';
-import { buildCrossAssetRelations } from '../../macro/cross-asset-relations.js';
+import { buildCrossAssetRelations, crossAssetVerdicts } from '../../macro/cross-asset-relations.js';
 import { isoDay } from '../../shared/session-date.js';
 
 export const MACRO_CROSSROADS_VERSION = 'macro-crossroads.v2';
@@ -265,11 +265,12 @@ export const BRANCH_NOTES = Object.freeze({
     invalidation: ['장기 기대인플레가 안정되고 유가가 빠르게 되돌림', '설비투자발 가격 상승이 서비스·임금으로 번지지 않음(공급 효과 우세)'] },
   softland: { checks: ['설비투자의 공급 효과(생산성·공급능력)가 물가 둔화로 확인되는지', 'AI 생산성 이득이 서비스 가격 하락으로 전달돼 실질소득이 오르는지'],
     invalidation: ['생산성이 확인되기 전 인하로 기대인플레가 다시 오름', '고용 둔화가 해고 증가로 바뀜(완만에서 급랭으로)'] },
-  slowdown: { checks: ['노동 둔화 단계 — 구인·근로시간 축소, 채용·해고 감소, 임금 둔화, 재진입자 증가, 해고 급증 중 어디인지', '실업률 상승이 해고 때문인지 재진입자·경제활동인구 증가 때문인지', '채용도 해고도 적은 시장에서는 일자리 둔화를 바로 침체로 읽지 않고 해고율·계속 실업수당과 함께 봄', '연준이 물가 위험을 먼저 보며 대응이 늦어지는지(해고는 후행 신호)'],
+  // The slowdown stage and the unemployment-rate split are 매크로 고용 장's rules now (labor-ladder.js).
+  slowdown: { checks: ['채용도 해고도 적은 시장에서는 일자리 둔화를 바로 침체로 읽지 않고 해고율·계속 실업수당과 함께 봄', '연준이 물가 위험을 먼저 보며 대응이 늦어지는지(해고는 후행 신호)'],
     invalidation: ['실업률 상승이 노동 공급 회복으로 설명되고 해고는 늘지 않음', '해고 증가 없이 채용이 다시 늘어남'] },
   oilshock: { checks: ['해협 통과 선박 수·전쟁보험료·실제 선적량 — 헤드라인보다 물량', '현물-근월 선물 괴리와 대서양-아시아 벤치마크 차이가 평시로 돌아오는지', '고유가가 몇 주 이상 이어지는지 — 차질 전 선적분이 소진된 뒤의 재고 부족', '생산자물가에서 소비자물가로 전가되는지(2~3개월 시차), 디젤 마진이 원유보다 크게 오르는 정제 병목형인지', '장기금리·유가·지수 낙폭이 정책 후퇴 압력이 커지는 수준에 가까워지는지', '저장이 안 되는 LNG의 차질과 화물 회항', '레짐 순서 — 금리 경로 걱정, 인플레이션, 연준 대응, 침체 확인(연준 고금리와 물가 둔화가 함께) — 침체라는 이름만으로 다음 단계를 앞당기지 않음'],
     invalidation: ['통항 회복과 보험료·운임 안정이 확인됨(꼬리 위험 축소)', '유가 상승과 장기채 강세가 같이 가며 우려가 성장 쪽으로 옮겨 감 — 이때는 고용 급랭 시나리오와 함께 읽음'] },
-  creditstress: { checks: ['만기 도래 물량의 차환 — 알려진 악재도 재조달이 막힐 때 가격 충격이 됨', 'BDC 배당 삭감·신규 채권 스프레드 확대·사모 펀드 환매 제한이 같은 시기에 겹치는지', '금·은 급락과 달러만 강세, 하이일드 스프레드 확대가 함께 오는 현금 확보 묶음', '등급 하향 건수의 가속', '투자등급 장기 조달금리(테크 기업 조달 맥박)'],
+  creditstress: { checks: ['만기 도래 물량의 차환 — 알려진 악재도 재조달이 막힐 때 가격 충격이 됨', 'BDC 배당 삭감·신규 채권 스프레드 확대·사모 펀드 환매 제한이 같은 시기에 겹치는지', '등급 하향 건수의 가속', '투자등급 장기 조달금리(테크 기업 조달 맥박)'],
     invalidation: ['환매 제한이 개별 펀드에 그치고 스프레드가 안정됨', '중앙은행 스왑라인·담보 대출 창구가 일찍 나와 차환을 받침'] },
   dollarsurge: { checks: ['위기 때 달러와 주식이 함께 빠지면 해외 투자자의 환헤지 확대로 달러가 더 약해질 수 있음', '일본 금리가 오르는데도 엔이 약한지(값싼 자금 축소 경로)'],
     invalidation: ['금리는 오르는데 달러가 약해지는 조합이 이어짐 — 달러 급등이 아니라 달러 신뢰 의심 국면'] },
@@ -558,14 +559,14 @@ export function buildMacroCrossroads({ read = null, macroHistory = null, history
   };
   // When the conditions for lower rates and the actual move in long rates disagree, that gap is the story.
   const relations = buildCrossAssetRelations(history);
+  const verdicts = crossAssetVerdicts(history, macroHistory);
+  rateHub.rateFall = { state: verdicts.rateFall.state, label: verdicts.rateFall.label };
   const downPaths = rateHub.pathsDown.filter((path) => path.ok).length;
   if (downPaths >= 2 && s.tnx20 != null && s.tnx20 >= RATES_RISE) {
     rateHub.tension = `금리를 낮출 조건 ${downPaths}개가 보이는데도${p?.change > 0 ? ` 연준은 ${md(p.changeDate)}에 올렸고` : ''} 10년물은 20거래일 ${bpChange(s.tnx20)} 올랐습니다${s.termPremium20 != null ? ` (10년 기간 프리미엄 ${bpChange(s.termPremium20)}, ${md(last(s.termPremium).date)})` : ''}. 물가·경기 밖의 요인(국채 공급, 기간 프리미엄, 해외 금리)이 금리를 올리고 있을 수 있어, ${nextEvent ? `${nextEvent.when} ${nextEvent.name} 발표가` : '다음 물가 발표가'} 이 괴리를 어느 쪽으로 푸는지가 핵심입니다.`;
   } else if (downPaths === 0 && s.tnx20 != null && s.tnx20 <= -RATES_RISE) {
-    // The same 20 sessions on stocks and long bonds say whether the fall was a flight to bonds.
-    rateHub.tension = relations.flow
-      ? `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 같은 기간 S&P 500 ${signed(relations.moves.spx.value, 1, '%')}, 장기채 ${signed(relations.moves.tlt.value, 1, '%')}로 위험 회피 때 국채에 돈이 몰린 모양입니다${relations.driver && relations.moves.soxx ? `. 주식 하락은 반도체(${signed(relations.moves.soxx.value, 1, '%')})가 이끌었습니다` : ''}.`
-      : `금리를 낮출 조건이 뚜렷하지 않은데 10년물은 20거래일 ${bpChange(s.tnx20)} 내렸습니다. 안전자산 선호나 해외 요인일 수 있어, 위험 회피가 원인인지 신용·변동성 축과 함께 확인합니다.`;
+    // Which kind of fall it was (피난·성장 우려·완화) is the cross-asset rule's verdict on the same 20 sessions.
+    rateHub.tension = `금리를 낮출 조건 없이 10년물 20거래일 ${bpChange(s.tnx20)}${rateHub.rateFall.label ? ` · ${rateHub.rateFall.label}` : ''}`;
   }
   const short = (item) => item.title.split(' — ')[0];
   // v57.86 (live review): a branch whose conditions already test its own price gauge cannot be "confirmed" by it again.
@@ -628,6 +629,8 @@ export function renderMacroCrossroadsContext(model, { state = null, frameText = 
   const lines = [`【향후 시나리오 — 매크로 시나리오(${model.asOf || '기준일 미확인'} 관측 기준, 예측 아님)】`, model.headline,
     `금리 허브: ${model.rateHub.now || '금리 기록 대기'}. ${model.rateHub.whyHigherHurts}${model.rateHub.pricingNote ? ` ${model.rateHub.pricingNote}` : ''}`];
   if (model.rateHub.tension) lines.push(`괴리: ${model.rateHub.tension}`);
+  const fallLabel = model.rateHub.rateFall?.label;
+  if (fallLabel && !model.rateHub.tension?.includes(fallLabel)) lines.push(`10년물 하락 유형(${model.relations?.asOf || '기준일 미확인'} 종가, 20거래일): ${fallLabel}`);
   if (model.relations?.reading) lines.push(`평소 관계와 어긋난 곳(${model.relations.asOf || '기준일 미확인'} 종가): ${model.relations.reading}`);
   lines.push(`금리가 내려가려면: ${model.rateHub.pathsDown.map((p) => `${p.label} ${p.stateText || (p.ok == null ? '확인 불가' : p.ok ? '진행 중' : '아직 아님')} (${p.evidence}${p.next ? `; 확인: ${p.next}` : ''})`).join(' / ')}. ${model.rateHub.caveat}`);
   const rank = (item) => (item.id === model.leadId ? 2 : item.id === model.altId ? 1 : 0);

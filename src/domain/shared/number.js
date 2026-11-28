@@ -22,6 +22,8 @@ export function signedText(value, digits = 1, unit = '', { plus = true } = {}) {
 
 // one per-share dollar style, sign before the dollar — "-$0.07", never "$-0.07" or "$(0.07)".
 // Shared by the consensus read and the earnings cells.
+/** An index or price level: whole numbers from 1,000, two decimals under it. */
+export const levelText = (value) => value.toLocaleString('en-US', { maximumFractionDigits: Math.abs(value) >= 1000 ? 0 : 2 });
 export const usdPerShareText = (value, digits = 2) => `${value < 0 ? '-' : ''}$${Math.abs(value).toFixed(digits)}`;
 
 export function directionOf(value, digits = 1) {

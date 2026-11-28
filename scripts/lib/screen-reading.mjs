@@ -23,7 +23,9 @@ import { buildMarketOpening, openingFactLines, DIAGNOSIS_WORDS } from '../../src
 import { REBOUND_WORDS } from '../../src/domain/market/story/rebound.js';
 import { SCREEN_STORY } from '../../src/domain/market/story/screen-story.js';
 import { leaderEarningsFactLines } from '../../src/domain/briefing/leader-earnings.js';
-import { indexChartReadings, chartsConclusion, indexVolumeRead } from '../../src/domain/technical/market-charts.js';
+import { indexChartReadings, chartsConclusion, indexVolumeRead, confirmationLine } from '../../src/domain/technical/market-charts.js';
+import { crossConfirmation } from '../../src/domain/technical/index-read.js';
+import { aiFundingChain } from '../../src/domain/themes/ai-funding-chain.js';
 import { rallyAttemptRead } from '../../src/domain/market/regime/rally-attempt.js';
 import { buildRatesFx } from '../../src/domain/macro/rates-fx.js';
 import { channelClaimLines } from '../../src/domain/news/channel-claims.js';
@@ -32,7 +34,7 @@ import { say } from '../../src/domain/shared/claim.js';
 import { changeClaim } from '../../src/domain/briefing/day-account.js';
 import { koreaSessionLink } from '../../src/domain/market/korea/korea-session-link.js';
 import { aiChainFlow } from '../../src/domain/briefing/ai-chain-flow.js';
-import { aiDemandRead, aiDemandFactLine } from '../../src/domain/briefing/ai-demand-read.js';
+import { aiDemandRead, aiDemandFactLine, drawdownKind } from '../../src/domain/briefing/ai-demand-read.js';
 import { buildTwRevenueView } from '../../src/domain/briefing/tw-monthly-revenue.js';
 import { buildKrInvestorFlowView } from '../../src/domain/market/korea/kr-investor-flows.js';
 import { investigationCauseIssues, investigationFactLines } from './investigation-conclusion.mjs';
@@ -194,9 +196,12 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       const model = buildSentimentModel(interpretation.inputs);
       const context = usAxes(regime).filter((axis) => axis.id === 'credit' || axis.id === 'volatility');
       const cards = model.cards.filter((card) => card.value !== '—').map((card) => `${card.title}: ${card.value}${card.state ? ` (${card.state.label})` : ''}${card.distance ? ` · ${card.distance}` : ''}${card.change ? ` · ${card.change}` : ''}${card.basisStatus === 'aligned' ? '' : ` · 관측: ${card.basis}`}`);
+      // The session-range state word rides on the term card's change above; the low retest is its own line.
+      const retest = model.cards.find((card) => card.id === 'term')?.retest || null;
+      const retestLine = retest ? `S&P 500 저점 재시험: ${retest.word} (${md(retest.date)} 종가가 ${md(retest.priorLow.date)} 저점 아래, VIX ${retest.vix.toFixed(2)} · ${md(retest.spikeHigh.date)} 고점 ${retest.spikeHigh.value.toFixed(2)})${retest.refuted ? ` · ${retest.refuted.word} ${md(retest.refuted.date)} VIX ${retest.refuted.value.toFixed(2)}` : ''}` : '';
       return {
         basis: regime.asOf, axes: [sentiment, ...context],
-        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `${axisLine(sentiment, regime.asOf)} (시장 상태 6개 지표 합계 밖의 참고 지표)`, ...cards, ...context.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `${axisLine(sentiment, regime.asOf)} (시장 상태 6개 지표 합계 밖의 참고 지표)`, ...cards, retestLine, ...context.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
     }
   }),
@@ -227,6 +232,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
           finite(tnx.d5Bp) != null || finite(tnx.d20Bp) != null ? `10년물 종가 변화: 5거래일 ${signedText(tnx.d5Bp, 0)}bp · 20거래일 ${signedText(tnx.d20Bp, 0)}bp` : '',
           levels.length ? `실질금리·기대물가·신용: ${levels.join('; ')}` : '', fx.length ? `환율: ${fx.join('; ')}` : '',
           model.carry?.available ? `엔 캐리 규칙: 엔/달러 20거래일 ${pct(-model.carry.yenStrength)} — ${model.carry.burden ? '엔 급강세 기준 넘음(부담)' : '엔 급강세 기준 아래'}` : '',
+          model.carry?.decomposition?.label ? `엔/달러 하락의 출처(규칙으로 정함): ${model.carry.decomposition.label}${model.carry.decomposition.asOf ? ` (${md(model.carry.decomposition.asOf)} 종가)` : ''}` : '',
           ...axes.map((axis) => axisLine(axis, regime.asOf))].filter(Boolean)
       };
     }
@@ -251,7 +257,7 @@ export const SCREEN_READING_SCREENS = Object.freeze({
       const rebound = openingFactLines(opening).filter((line) => line.startsWith('반등'));
       return {
         basis: regime.asOf, axes: [], rebound: opening.available ? opening.rebound?.word || null : null,
-        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `지수 추세 집계: ${chartsConclusion(readings)}`,
+        lines: [`기준일: ${md(regime.asOf)} 미국 종가`, `지수 추세 집계: ${chartsConclusion(readings)}`, confirmationLine(crossConfirmation(history)),
           ...readings.map((reading) => `${reading.label}: ${reading.trendWord}${reading.facts ? ` · ${reading.facts}` : ''}${finite(reading.rsi) != null ? ` · RSI ${Math.round(reading.rsi)}` : ''}${reading.asOf && reading.asOf !== regime.asOf ? ` (기준 ${md(reading.asOf)})` : ''}`),
           distribution ? `S&P 500 ${distribution.text.replace(/^거래량:\s*/, '')}` : '',
           rally ? `나스닥 종합 반등 확인 신호: ${rally.state} · 규칙: ${rally.rule}` : '', ...rebound, leadershipLine(regime)].filter(Boolean)
@@ -344,11 +350,15 @@ export const SCREEN_READING_IDS = Object.freeze(Object.keys(SCREEN_READING_SCREE
 /** { screen, basis, lines, key, axisStates, axes } — `key` is the first 16 hex of the lines' sha1 (same lines, same key). */
 const CATALYST_SCREENS = Object.freeze(['signal', 'charts', 'themes']);
 // 테마: the AI chain's orders (Taiwan revenue, hyperscaler spending) beside its one-month prices, as the screen prints it.
-function demandLine(interpretation, context, basis) {
+// The drawdown kind crosses the order side with the funding chain's credit and rates links (both macro-history rules).
+function demandLines(interpretation, context, basis) {
   const source = interpretation?.artifacts || {};
+  const nowMs = Date.parse(`${basis}T21:00:00Z`);
   const flow = aiChainFlow({ themes: source.usThemes || [], rows: source.screenerRows || [], session: basis });
-  const tw = context.twRevenue ? buildTwRevenueView(context.twRevenue, { nowMs: Date.parse(`${basis}T21:00:00Z`), loadState: 'failed' }) : null;
-  return aiDemandFactLine(aiDemandRead({ flow, tw, capex: context.bigtech?.hyperscalers || null, session: basis }));
+  const tw = context.twRevenue ? buildTwRevenueView(context.twRevenue, { nowMs, loadState: 'failed' }) : null;
+  const demand = aiDemandRead({ flow, tw, capex: context.bigtech?.hyperscalers || null, session: basis });
+  const kind = drawdownKind({ demand, chain: aiFundingChain({ macroHistory: interpretation?.inputs?.macroHistory || null, nowMs, researchLoadState: 'failed' }) });
+  return [aiDemandFactLine(demand), kind ? `AI 공급망 하락 유형(규칙 판정): ${kind.word}` : ''];
 }
 export function buildScreenPacket(screen, interpretation, context = {}) {
   const spec = SCREEN_READING_SCREENS[screen];
@@ -358,8 +368,8 @@ export function buildScreenPacket(screen, interpretation, context = {}) {
   if (!facts?.lines?.length || !isIsoDay(facts.basis)) return null;
   // The leaders' next reports (a catalyst a rebound can turn on) join the screens that judge the rebound.
   const catalysts = CATALYST_SCREENS.includes(screen) && context.calendar ? leaderEarningsFactLines(context.calendar, { nowMs: Date.parse(`${facts.basis}T21:00:00Z`) }) : [];
-  const demand = screen === 'themes' ? demandLine(interpretation, context, facts.basis) : '';
-  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context), demand, ...catalysts].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const demand = screen === 'themes' ? demandLines(interpretation, context, facts.basis) : [];
+  const lines = [...facts.lines, ...storyLinesOf(spec, interpretation, context), ...demand, ...catalysts].map((line) => String(line).replace(/\s+/g, ' ').trim()).filter(Boolean);
   const key = createHash('sha1').update(lines.join('\n')).digest('hex').slice(0, 16);
   return { screen, basis: facts.basis, lines, key, axisStates: statesOf(facts.axes || []), axes: titledStates(facts.axes || []), diagnosis: facts.diagnosis || null, rebound: facts.rebound || null };
 }

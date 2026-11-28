@@ -259,18 +259,6 @@ body.dark-theme .sector-map .is-na { background: var(--gold-3); color: var(--gol
 .page .macro-axis-branch { font-size: 12px; padding: 3px 9px; min-height: 28px; border: 0.5px solid var(--color-border); border-radius: var(--radius-inner); background: var(--color-background-card); color: var(--color-text-primary); cursor: pointer; }
 @media (hover: hover) { .page .macro-axis-branch:hover { border-color: var(--color-text-primary); } }
 .page .macro-axis-branch:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
-/* v57.79 (375 review): segment text is a short label only and leaves the bar on a phone; values live in the legend line. */
-.page .capex-flow-bar { margin-bottom: 6px; }
-.capex-flow-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 14px; font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-.capex-flow-key { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
-.capex-flow-swatch { width: 10px; height: 10px; border-radius: var(--radius-inner); display: inline-block; }
-@media (max-width: 600px) { .capex-flow-seg-label { display: none; } .page .capex-flow-bar { height: 18px; } }
-/* v59.70 (screen review 3): the step-11 fills turn light in dark mode, so white labels fell to 1.8:1; the label takes
-   the page background instead. The card head wraps between the layer name and '$N / $100', never inside either. */
-body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: none; font-weight: 600; }
-.capex-flow-card .trend-card-head { flex-wrap: wrap; row-gap: 2px; }
-.capex-flow-card .trend-card-title, .capex-flow-card .trend-card-value { white-space: nowrap; }
-.capex-flow-card .trend-card-value { font-size: 22px; }
 /* v57.79 (375 review): compact inline compare control and a shaded edge on the side of the rank table that has more columns. */
 .page .theme-strength-table .theme-strength-compare { font: inherit; font-size: 12px; font-weight: 600; margin-left: 4px; padding: 0 6px; min-height: 26px; min-width: 32px; box-sizing: border-box; /* v57.82: 24px rendered 23.6px on Linux CI fonts (sub-pixel); 26px keeps the AA 24px target with margin */ /* (0,3,0) outranks the shared .page button 36px floor; 24px meets the AA target size */ border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-inner); background: none; color: var(--color-text-secondary); cursor: pointer; vertical-align: middle; }
 .theme-strength-compare[aria-expanded="true"] { color: var(--color-text-primary); border-color: var(--color-text-primary); }
@@ -483,6 +471,11 @@ body.dark-theme .capex-flow-seg { color: var(--color-background-body); filter: n
 .ai-chain__reading { margin: 0 0 6px; font-size: var(--fs-reading); color: var(--color-text-primary); }
 .ai-chain__scale { margin: 0 0 4px; font-size: 12px; color: var(--color-text-secondary); text-align: right; }
 .ai-chain__bars { list-style: none; margin: 0; padding: 0; }
+/* 가격 over 주문 on the left, the seven-link funding chain beside both: the short orders column no longer leaves a hole. */
+@media (min-width: 900px) {
+  #themes-ai-chain .ai-chain__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: start; }
+  #themes-ai-chain .ai-chain__grid > .ai-chain__col:nth-child(3) { grid-column: 2; grid-row: 1 / span 2; }
+}
 .ai-chain__row { display: grid; grid-template-columns: minmax(0, 11em) minmax(32px, 1fr) auto auto; align-items: center; gap: 6px; padding: 3px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
 .ai-chain__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-primary); }
 .ai-chain__month, .ai-chain__day { text-align: right; min-width: 3.6em; }

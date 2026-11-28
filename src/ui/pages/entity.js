@@ -1,5 +1,5 @@
 import { createResourceBag } from '../../app/lifecycle.js';
-import { ensureResearchSnapshots, focusResearchMemo } from '../components/research-snapshots.js';
+import { ensureResearchSnapshots } from '../components/research-snapshots.js';
 import { consumeResearchHandoff } from '../../app/research-handoff.js';
 import { parseKnowledgeTargetContext, navigateKnowledgeRoute } from '../../app/knowledge-route-state.js';
 import { selectEntityState } from '../../state/selectors/entity.js';
@@ -35,7 +35,7 @@ import { emptyState } from '../components/empty-state.js';
 import { finiteNumber as finite, signedText, directionOf, usdKoreanText } from '../../domain/shared/number.js';
 import { latestCompletedKrSession } from '../../domain/market/session/market-calendar.js';
 import { krIndexCloseOn, verifyKrQuoteOn } from '../../data/quote-basis.js';
-import { installStockLensGlobal, stockLensContext, peerLine } from '../components/stock-lens-cards.js';
+import { installStockLensGlobal, stockLensContext, peerLine, thesisTemplate, startThesisBuyRecord } from '../components/stock-lens-cards.js';
 import { isIsoDay } from '../../domain/shared/session-date.js';
 import { EARNINGS_CALENDAR, EVENT_BRIEFS, TW_MONTHLY_REVENUE } from '../../data/artifact-registry.js';
 import { twRevenueLine } from '../../domain/briefing/tw-monthly-revenue.js';
@@ -276,8 +276,11 @@ function renderOverview(documentRef, root, state, store = null) {
     : entityFundamentalsState(state, { requestedId: id });
   const moneyEmpty = etf ? 'ETF는 기업 재무 공시가 없습니다' : kr ? '한국 공시(DART) 재무 자료 없음'
     : secState === 'ready' ? '재무 자료 없음' : dataStateText(secState, '재무 기록');
-  // One line of standing among named theme peers (the rank figure and the rest live on 재무 공시).
-  const peer = etf || kr ? null : peerLine(stockLensContext(root, id, { fundamentals }));
+  // One line of standing among named theme peers (the rank figure and the rest live on 재무 공시), and the thesis rules
+  // 쟁점과 전망's one table draws beside the researched readings.
+  const lensCtx = etf || kr ? null : stockLensContext(root, id, { fundamentals });
+  const peer = peerLine(lensCtx);
+  const thesis = lensCtx?.thesis || null;
   // 이 주가가 반영하는 것 — the US listing's price against its consensus (repaints when the estimates land).
   if (!etf && !kr) requestConsensusEstimates(root, again);
   const priced = etf || kr ? null : buildPricedInRead(listingRow, consensusRowFor(root, id));
@@ -294,6 +297,7 @@ function renderOverview(documentRef, root, state, store = null) {
   const briefs = (root?._aioEventBriefs?.briefs || []).filter((brief) => brief?.kind === 'earnings' && String(brief?.symbol || '').toUpperCase() === id);
   const watched = (root?._aioWatchlistGet?.() || []).includes(id);
   const signature = JSON.stringify([id, story?.researchedAt || null, profile.name, profile.description, profile.sourceUrl, profile.sector, profile.industry, profile.kind, !!graph, !!capital, place.inMap, place.capital.length, money.rows.map((item) => item.value), moneyEmpty, monthly?.text || null, peer?.strength || null, peer?.weakness || null, priced?.text || null,
+    thesis ? [thesis.priced, ...thesis.conditions, ...thesis.paths.map((path) => path.holds)] : null,
     earnings.filter((item) => String(item?.symbol || '').toUpperCase() === id).map((item) => `${item.date}:${item.epsActual ?? item.revenueActual ?? ''}`), briefs.map((brief) => brief.eventDate), String(quarterText || '').split(';').at(-1), watched, researchSignature(research)]);
   if (host.dataset.signature !== signature) {
     // A repaint keeps the folds the reader opened (matched by their summary text).
@@ -311,7 +315,8 @@ function renderOverview(documentRef, root, state, store = null) {
       actions.push(watch);
     }
     actions.push(companyAskButton(documentRef, root, id, { fund: etf }));
-    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, monthly, peer, priced, earnings, briefs, quarters: String(quarterText || ''), actions, outlookHost,
+    renderCompanyOverview(documentRef, host, { symbol: id, story, profile, place, money, moneyEmpty, monthly, peer, priced, thesis, earnings, briefs, quarters: String(quarterText || ''), actions, outlookHost,
+      startBuyRecord: thesis ? () => startThesisBuyRecord(root, id, thesisTemplate(lensCtx)) : null,
       research: researchReferenceBlock(documentRef, research, { id: 'ticker-research-reference', titles: false }),
       openOutlook: () => showStockView({ root, documentRef, view: 'outlook' }),
       openTicker: (symbol) => root?.showTicker?.(symbol),
@@ -673,13 +678,8 @@ function render({ root, documentRef, store, route }) {
     renderCompanyAnalysis({ documentRef, root, state }); // the 시총·PER line and the AI company model
     renderOverview(documentRef, root, state, store);
     // The reader's own notes close the overview (a section on the face, not a fold or a view).
-    const memo = ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', open: true, collect: () => ({ kind: 'stock',
+    ensureResearchSnapshots({ documentRef, root, host: routeNode, kind: 'stock', open: true, collect: () => ({ kind: 'stock',
       symbol: state?.id, name: state?.name, quote: { ...state?.quote, basis: state?.quote?.changeBasis || 'unknown' } }) });
-    // 재무 공시's '이 조건으로 내 메모 시작' hands the thesis template over; it lands once the requested company is drawn.
-    if (state?.id && state.id === String(root?._currentTickerId || '').trim().toUpperCase()) {
-      const handoff = consumeResearchHandoff({ root, routeId: 'ticker', symbol: state.id });
-      if (handoff) { root?._aioShowViewOf?.(memo); focusResearchMemo(memo, handoff.context.memoTemplate); } // the memo is 개요's (page-views.css)
-    }
   }
   if (route === 'fundamental') {
     // 재무 공시 is the same company as 요약 · 차트.

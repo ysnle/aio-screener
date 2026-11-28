@@ -1,10 +1,26 @@
 ---
 verified_by: browser and fixture QA per item (summary; latest evidence in CURRENT-STATE.md and the item rows)
-last_verified: 2026-11-27
+last_verified: 2026-11-28
 confidence: medium
 ---
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
+
+## v60.69 X 북마크 전수 재독 반영 (2026-11-28)
+
+- [x] QA-XBM-6069-01: v60.69 하루 원인 판정: 발표는 2년·10년 금리가 서프라이즈 방향으로 움직인 날에만 귀속, 반대면 보류하고 지수를 끈 업종을 다른 후보로 싣는다. 같은 변수가 한 방향 움직임에 양쪽으로 인용되면 제외, 발언·미확인 보도는 보류. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/day-cause.mjs); node scripts/ci-market-story-check.mjs
+- [x] QA-XBM-6069-02: v60.69 매크로 주제별 장의 판정 줄: 자금 배관(SOFR−IORB·역레포·TGA·준비금), 고용 둔화 단계와 실업률 분자·분모, 기대인플레 고정 여부. 계열이 없으면 '확인 불가'로 두고 이웃 값을 빌리지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/macro-chapters.mjs, cross-asset.mjs); node scripts/ci-codex-structure-regression-fixture.mjs; node scripts/ci-scenario-guidance-fixture.mjs
+- [x] QA-XBM-6069-03: v60.69 변동성 상태 한 곳: 기간 구조, 전일 VIX가 뜻한 하루 범위 대비 등락, 저점 재시험의 VIX 확인·비확인을 종가로 판정하고 투자 심리·시장 상태·오늘이 같은 값을 읽는다. 급등락 종목 비율과 고점 대비 하락 종목은 S&P 500 구성 종목을 분모로 센다. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/volatility-breadth.mjs); node scripts/ci-market-reading-defects-check.mjs
+- [x] QA-XBM-6069-04: v60.69 기술적 분석 지수 카드: 경계선 돌파 시도·수용·실패, 지수 다섯 개의 직전 스윙 고점·저점 상호 확인, 내려가는 10일선 아래 거래량 줄어든 급등은 과매도 반등. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/technical.mjs)
+- [x] QA-XBM-6069-05: v60.69 테마 근거 탭(섹터별 이동평균 위 비율·52주 고저 근처·추정 순수정·가격×추정)과 AI 공급망 카드(가격·주문·자금 세 열, 층별 표), 요약 탭의 주도 테마 대 나머지 하락 비교는 그대로 맨 앞. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/sector-evidence.mjs, ai-chain.mjs); node scripts/ci-architecture-contract-check.mjs; node scripts/ci-theme-screener-review-check.mjs
+- [x] QA-XBM-6069-06: v60.69 재무 공시 현금 사슬(영업현금→설비투자→잉여현금 다리, 주식 수 희석, 런웨이)과 포트폴리오 보유 종목 상태(추세·근거 유지·분할 계획). 종목 화면 '이 조건으로 매수 기록 시작'은 포트폴리오 매매 기록 메모를 채운다. verify_by: node scripts/ci-esm-core-unit-check.mjs (scripts/unit-cases/company-cash.mjs, portfolio-plan.mjs); node scripts/ci-fiscal-quality-fixture.mjs; node scripts/ci-section-visual-contract.mjs; node scripts/ci-pipeline-semantics-check.mjs --only portfolio
+
+## v60.68 v60.68 마감 반영 점검 (2026-11-28)
+
+- [x] QA-CLOSE-6068-01: v60.68 조기 마감일 최신 일봉의 종가가 비어 오면 같은 세션 정규장 마지막 가격으로 채우고, 다른 세션의 시세로는 채우지 않는다. 기술적 분석과 종목 화면 일봉이 최신 종가 날짜를 쓴다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CLOSE-6068-02: v60.68 미국 지수 전일 대비는 거래소 달력의 직전 세션 종가 기록을 기준으로 한다(휴장일을 건너도). 오늘 화면 VIX 타일과 브리핑·원장의 등락이 같다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CLOSE-6068-03: v60.68 6개월 최저 종가는 최신 세션 직전까지를 본다. 묶음 문장에서 다른 날 관측된 구성원은 날짜를 달고, 5거래일 흐름 그림은 변화의 출발 종가부터 그린다. 하이일드 5거래일 변화는 미국 세션만 센다. verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-CLOSE-6068-04: v60.68 원장이 주요 이상으로 매긴 지수 움직임이 있는 날, 제목에 그 지수를 쓴 보도는 중요 뉴스 순위에서 주도 종목 보도와 같은 무게를 받는다. 인용한 기사 제목 줄은 source-headline으로 표시돼 문구 검사가 사이트 문구로 읽지 않는다. verify_by: node scripts/ci-esm-core-unit-check.mjs
 
 ## v60.67 v60.67 뉴스 같은 사건 판정 측정 (2026-11-27)
 

@@ -1,7 +1,7 @@
-// v59.66 (owner 2026-11-03, phase 4): 시장 상태 reads its indicators in pairs. "시장 폭만 본다고 해서 의미가 없듯이 다른 구조와
+// 시장 상태 reads its indicators in pairs (owner 2026-11-03). "시장 폭만 본다고 해서 의미가 없듯이 다른 구조와
 //같이 봐야 의미가 생긴다" — breadth means something against the index's own trend, sentiment against volatility and
-// positioning, rates against credit, Korea against the won. Each pair is one plain reading of what the combination says,
-// from closes and published series only (history.json, macro-history.json, market-day.json positioning).
+// positioning, rates against credit, Korea against the won. Each pair prints its numbers and one fixed word for the
+// combination (the volatility pair reads the shared volatility state), from closes and published series only (history.json, macro-history.json, market-day.json positioning).
 import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { sessionCloses } from '../indices/index-levels.js';
@@ -9,6 +9,8 @@ import { hyDelta20Bp } from '../../briefing/market-read.js';
 import { fearGreedBand } from '../sentiment/metrics.js';
 import { depthReadout } from './depth-readouts.js';
 import { creditJudgement } from '../../briefing/credit-reading.js';
+import { volatilityState } from '../sentiment/volatility-state.js';
+import { buildCloseSeries } from '../session/close-series.js';
 
 const pct = (value, digits = 1) => signedText(value, digits, '%');
 const unit = (value) => Math.max(0.04, Math.min(0.96, value));
@@ -25,12 +27,6 @@ function lastValue(history, field) {
   }
   return null;
 }
-function lastDate(history, field) {
-  for (let i = (history?.length || 0) - 1; i >= 0; i -= 1) {
-    if (readNumber(history[i]?.[field]) !== null) return String(history[i].fieldMeta?.[field]?.sessionDate || history[i].date || '').slice(0, 10) || null;
-  }
-  return null;
-}
 function change(closes, n) {
   if (closes.length <= n) return null;
   const end = closes.at(-1).value; const start = closes.at(-1 - n).value;
@@ -39,24 +35,26 @@ function change(closes, n) {
 
 // The equal-weight gap reads with the direction of both indexes. "동일가중이 앞섰다" meant "상승이 넓어졌다"
 // only in a rise; on 11/20 (S&P 500 -9.4%, 동일가중 -4.2%) it meant the fall was heavier in the large caps.
+// Each pair prints its numbers and one fixed word per rule (its map cell where one applies); what the combination means
+// in a sentence is the screen's AI reading.
 const GAP_PP = 3;
+export const EQUAL_WEIGHT_WORDS = Object.freeze({
+  broadRise: '동일가중 우위 상승', capFall: '대형주 낙폭 큼', capOnlyDown: '대형주만 하락',
+  capRise: '대형주 쏠림 상승', broadFall: '대형주 밖 낙폭 큼', capOnlyUp: '대형주만 상승'
+});
+// The equal-weight gap reads with the direction of both indexes: 동일가중 ahead meant 상승 확산 only in a rise (11/20:
+// S&P 500 -9.4%, 동일가중 -4.2% was the larger fall in the large caps).
 function equalWeightGap(spx, rsp) {
   if (rsp.length <= WINDOW || rsp.at(-1).date !== spx.at(-1).date) return '';
   const cap = change(spx, WINDOW); const equal = change(rsp, WINDOW);
   if (!Number.isFinite(cap) || !Number.isFinite(equal) || Math.abs(equal - cap) < GAP_PP) return '';
-  const gap = Math.abs(equal - cap).toFixed(1);
-  const lead = ` 20거래일 동안 S&P 500 ${pct(cap)}, 동일가중 ${pct(equal)}로`;
   const rise = cap >= 0 && equal >= 0; const fall = cap < 0 && equal < 0;
-  if (equal > cap) {
-    if (rise) return `${lead} 동일가중이 ${gap}%p 앞서, 상승이 대형주 밖으로 넓어졌습니다.`;
-    if (fall) return `${lead} 시총가중이 ${gap}%p 더 내려, 낙폭은 대형주에서 더 컸습니다.`;
-    return `${lead} 대형주가 지수를 끌어내렸고 나머지 종목은 올랐습니다.`;
-  }
-  if (rise) return `${lead} 시총가중이 ${gap}%p 앞서, 상승이 대형주에 더 쏠렸습니다.`;
-  if (fall) return `${lead} 동일가중이 ${gap}%p 더 내려, 낙폭은 대형주 밖에서 더 컸습니다.`;
-  return `${lead} 대형주가 지수를 받쳤고 나머지 종목은 내렸습니다.`;
+  const W = EQUAL_WEIGHT_WORDS;
+  const word = equal > cap ? (rise ? W.broadRise : fall ? W.capFall : W.capOnlyDown) : (rise ? W.capRise : fall ? W.broadFall : W.capOnlyUp);
+  return ` 20거래일 S&P 500 ${pct(cap)}, 동일가중 ${pct(equal)} — ${word}.`;
 }
 
+export const TREND_BREADTH_WORDS = Object.freeze({ narrowPullback: '좁은 조정', broadFall: '넓은 하락', narrowRise: '좁은 상승', broadRise: '넓은 상승', middle: '폭 방향 미정' });
 function trendAndBreadth(history) {
   const spx = sessionCloses(history, 'spx');
   const breadth = lastValue(history, 'breadth50');
@@ -66,56 +64,44 @@ function trendAndBreadth(history) {
   const b = Math.round(breadth);
   const below = vs50 < 0;
   const { broadAbovePct, narrowBelowPct } = RULES.breadthCross;
-  let text;
-  if (below && b >= broadAbovePct) text = `S&P 500은 50일선 아래(${pct(vs50)})지만 구성 종목의 ${b}%는 아직 50일선 위입니다. 하락이 대형주 몇 곳에 몰린 조정이고 시장 전체가 무너진 것은 아닙니다. 이 비율이 ${narrowBelowPct}% 아래로 내려가면 약세가 넓게 퍼진 것으로 바뀝니다.`;
-  // Breadth says how widely the fall spread; which caps fell more is the equal-weight gap's (below), so
-  // this line no longer adds "대형주 몇 곳의 문제가 아닙니다" — S&P 500 -9.4% against equal weight -4.2% read as its opposite.
-  else if (below && b < narrowBelowPct) text = `지수도 구성 종목도 함께 50일선 아래(종목 ${b}%만 위)입니다. 하락이 넓게 퍼져 있습니다.`;
-  else if (!below && b < narrowBelowPct) text = `지수는 50일선 위(${pct(vs50)})지만 구성 종목은 ${b}%만 50일선 위입니다. 소수 대형주가 받치는 좁은 상승이라, 그 종목들이 꺾이면 지수도 쉽게 밀립니다.`;
-  else if (!below && b >= broadAbovePct) text = `지수와 구성 종목 대부분(${b}%)이 함께 50일선 위입니다. 넓게 받쳐진 상승 추세입니다.`;
-  else text = `지수는 50일선 ${below ? '아래' : '위'}(${pct(vs50)}), 구성 종목은 ${b}%가 50일선 위로 중간입니다. 폭이 아직 방향을 정하지 못했습니다.`;
-  // v59.70 (lens plan step 3): a member above a falling 50-day line is a bounce, not participation; when most of the
-  // above-line share sits on falling lines the reading says so.
+  const W = TREND_BREADTH_WORDS;
+  const word = b >= broadAbovePct ? (below ? W.narrowPullback : W.broadRise) : b < narrowBelowPct ? (below ? W.broadFall : W.narrowRise) : W.middle;
+  let text = `S&P 500 50일선 대비 ${pct(vs50)}, 50일선 위 종목 ${b}% — ${word}(50일선 위 종목 ${broadAbovePct}% 이상이면 다수 종목이 선 위, ${narrowBelowPct}% 미만이면 소수만 선 위).`;
+  // A member above a falling 50-day line is a bounce, not participation: the share on rising lines is printed beside it.
   const rising = lastValue(history, 'breadth50Rising');
-  if (rising !== null && b - rising >= 15) text += ` 다만 50일선 위 ${b}% 중 선 자체가 오르는 종목은 ${Math.round(rising)}%라, 상당수는 내리는 선 위의 반등입니다.`;
+  if (rising !== null && b - rising >= 15) text += ` 50일선 위 ${b}% 중 오르는 선 위 ${Math.round(rising)}%.`;
   text += equalWeightGap(spx, sessionCloses(history, 'rsp'));
-  const map = quad(0.5 + vs50 / 10, b / 100, ['지수 50일선 아래', '50일선 위'], ['종목 참여 적음', '종목 참여 많음'], ['넓은 하락', '좁은 상승', '좁은 조정', '넓은 상승']);
-  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], asOf: spx.at(-1).date || null, text, map };
+  const map = quad(0.5 + vs50 / 10, b / 100, ['지수 50일선 아래', '50일선 위'], ['종목 참여 적음', '종목 참여 많음'], [W.broadFall, W.narrowRise, W.narrowPullback, W.broadRise]);
+  return { id: 'trend-breadth', title: '추세와 시장 폭', axes: ['trend', 'breadth'], asOf: spx.at(-1).date || null, word, text, map };
 }
 
+// The credit leg of a stressed, fearful pair: the credit judgement of the same close, as its word and HY moves.
 function creditSpread(macroHistory, through) {
   const credit = macroHistory ? creditJudgement(macroHistory, through) : null;
-  if (!credit) return '신용 스프레드까지 함께 벌어지는지가 갈림길입니다.';
+  if (!credit) return '';
   const moves = [credit.hy5 != null ? `5거래일 ${bp(credit.hy5)}` : '', credit.hy20 != null ? `20거래일 ${bp(credit.hy20)}` : ''].filter(Boolean).join(', ');
-  return credit.state === 'burden' ? `하이일드 스프레드도 부담 쪽이라(${moves}) 공포가 신용까지 번졌습니다.`
-    : `하이일드 스프레드는 아직 부담 쪽이 아니라(${moves}) 공포가 신용까지 번지지는 않았습니다.`;
+  return ` 하이일드 스프레드 ${credit.state === 'burden' ? '부담' : '부담 아님'}${moves ? `(${moves})` : ''}.`;
 }
 
+export const VOL_SENTIMENT_WORDS = Object.freeze({ capitulation: '투매형 공포', stressOnly: '변동성 높음, 심리 극단 아님', fearOnly: '겁만 난 상태', complacent: '과열', middle: '중간 범위' });
 function volatilityAndSentiment(history, day, macroHistory) {
-  const vix = lastValue(history, 'vix'); const vix3m = lastValue(history, 'vix3m');
-  const vixAt = lastDate(history, 'vix');
+  // Level and term structure are the shared volatility state of the last VIX close (the 투자 심리 card reads the same one).
+  const vol = volatilityState(history, { through: buildCloseSeries(history, 'vix').at(-1)?.date || null });
+  if (!vol) return null;
+  const vix = vol.level.value, vixAt = vol.asOf;
   const fg = lastValue(history, 'fg');
-  if (vix === null) return null;
-  // The lines are the volatility axis's and the F&G band's own (RULES), so a pair never disagrees with its card at an edge.
-  const V = RULES.volatility;
-  const inverted = vix3m !== null && vix3m > 0 && vix / vix3m >= V.invertedRatioAt;
-  const numbers = [`VIX ${vix.toFixed(1)}${inverted ? '(3개월물 이상이라 단기 불안이 큰 상태)' : ''}`, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
+  const V = RULES.volatility, W = VOL_SENTIMENT_WORDS;
+  const inverted = vol.term?.state === 'inverted';
   const stressed = inverted || vix >= V.stressAt;
   // Extreme fear is the gauge's own band (published whole number under RULES.fearGreed.extremeFearBelow).
   const fearful = fg !== null && fearGreedBand(fg).label === '극단 공포';
-  let read;
-  // "과거에는 이런 겹침 뒤 반등이 자주 나왔지만" had no count, and the same screen's base rate read
-  // "평소와 구별 안 됨". The credit condition stays, read from the credit judgement of the same close.
-  if (stressed && fearful) read = `지수 불안과 심리 공포가 함께 높습니다. ${creditSpread(macroHistory, vixAt)}`;
-  else if (stressed) read = '지수 변동성은 커졌지만 심리 지표는 아직 극단 공포가 아닙니다. 투매형 바닥 신호로 보기는 이릅니다.';
-  else if (fearful) read = `심리 지수는 극단 공포 쪽인데 VIX는 큰 하락 대비를 보이지 않습니다. 겁은 났지만 투매는 아닌 상태라, 공포만으로 바닥이라고 보기는 어렵습니다.`;
-  else if (fg !== null && fg > RULES.fearGreed.extremeGreedAbove) read = '변동성은 낮고 심리는 과열 쪽입니다. 작은 악재에도 흔들리기 쉬운 자리입니다.';
-  else read = '변동성과 심리 모두 중간 범위라, 어느 한쪽으로 치우친 신호는 없습니다.';
+  const word = stressed && fearful ? W.capitulation : stressed ? W.stressOnly : fearful ? W.fearOnly : fg !== null && fg > RULES.fearGreed.extremeGreedAbove ? W.complacent : W.middle;
+  const numbers = [`VIX ${vix.toFixed(1)}`, vol.term ? `기간 구조 ${vol.term.label}` : null, fg !== null ? `공포·탐욕 지수 ${Math.round(fg)}` : null].filter(Boolean);
   const retail = (day?.facts || []).find((fact) => fact.kind === 'positioning' && fact.side === 'buy' && Number.isFinite(fact.leveragedLongShare));
-  const crowd = retail && retail.leveragedLongShare >= 40
-    ? ` 서학개미 순매수의 ${Math.round(retail.leveragedLongShare)}%가 레버리지 상품이라, 개인은 하락에도 사들이고 있습니다. 공포가 개인 투자자까지 번지지 않았다는 뜻이기도 합니다.` : '';
-  const map = fg === null ? null : quad((vix - 12) / 24, 1 - fg / 100, ['VIX 낮음', 'VIX 높음'], ['심리 탐욕', '심리 공포'], ['과열', '흔들리는 강세', '겁만 난 상태', '투매형 공포']);
-  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], asOf: vixAt, text: `${numbers.join(', ')}. ${read}${crowd}`, map };
+  const crowd = retail && retail.leveragedLongShare >= 40 ? ` 서학개미 순매수 중 레버리지 상품 ${Math.round(retail.leveragedLongShare)}%.` : '';
+  const map = fg === null ? null : quad((vix - 12) / 24, 1 - fg / 100, ['VIX 낮음', 'VIX 높음'], ['심리 탐욕', '심리 공포'], [W.complacent, '흔들리는 강세', W.fearOnly, W.capitulation]);
+  return { id: 'volatility-sentiment', title: '변동성과 투자 심리', axes: ['volatility'], asOf: vixAt, word,
+    text: `${numbers.join(', ')} — ${word}.${word === W.capitulation ? creditSpread(macroHistory, vixAt) : ''}${crowd}`, map };
 }
 
 function ratesAndCredit(history, macroHistory) {
@@ -171,7 +157,7 @@ function koreaAndWon(history) {
   return { id: 'korea-won', title: '한국 증시와 원화', axes: ['korea'], asOf: anchor, text: `${numbers} ${read}${after}`, map };
 }
 
-/** The pairs that have their inputs, in reading order. v59.70 (lens plan step 4): each carries asOf, its last close's session. */
+/** The pairs that have their inputs, in reading order; each carries asOf, its last close's session. */
 export function crossReadings({ history = [], macroHistory = null, day = null } = {}) {
   return [trendAndBreadth(history), volatilityAndSentiment(history, day, macroHistory), ratesAndCredit(history, macroHistory), koreaAndWon(history), depthReadout({ history, macroHistory })].filter(Boolean);
 }

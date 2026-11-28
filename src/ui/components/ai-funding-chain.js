@@ -1,4 +1,4 @@
-// The AI funding chain (domain/themes/ai-funding-chain.js) on 테마와 섹터, under the AI supply chain's capex read: seven
+// The AI funding chain (domain/themes/ai-funding-chain.js) on 테마와 섹터, the 자금 column of the AI 공급망 card: seven
 // numbered links down one thin connector, each a title, its rule-decided state as a small tag and at most three dated
 // figure rows (researched rows carry the quiet 조사 mark). Every row sits in the raw-table fold, the rules in the method
 // fold, the sources in theirs. Other screens print one line of it with a link here (fundingChainPointer).
@@ -23,7 +23,8 @@ export function fundingChainFor(root, { request = null, nowMs = Date.now() } = {
   return aiFundingChain(fundingChainInputs(root, { nowMs }));
 }
 
-function rowNode(doc, row) {
+/** One dated row (the chain's and the AI card's order rows): label, value, change, state word, date, 조사 mark. */
+export function chainRowNode(doc, row) {
   const li = el(doc, 'li', null, 'funding-chain__row');
   li.dataset.kind = row.kind;
   li.dataset.row = row.id;
@@ -48,7 +49,7 @@ function linkNode(doc, link) {
   li.append(head);
   if (link.empty) { li.append(el(doc, 'p', W.none, 'funding-chain__none')); return li; }
   const rows = el(doc, 'ul', null, 'funding-chain__rows');
-  rows.append(...link.face.map((row) => rowNode(doc, row)));
+  rows.append(...link.face.map((row) => chainRowNode(doc, row)));
   li.append(rows);
   return li;
 }

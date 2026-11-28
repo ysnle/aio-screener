@@ -10,6 +10,7 @@ import { signedText, usdKoreanText } from '../shared/number.js';
 import { withTopicParticle } from '../content/korean-particle.js';
 import { RETURNED_LABEL } from './analysis-read.js';
 import { debtLabel } from './sec-earnings.js';
+import { PRICED_IN_STATES } from './priced-in.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { formatScreenerPrice } from '../screener/market-scope.js';
 
@@ -19,13 +20,13 @@ const branchTitle = (branch) => String(branch?.title || '').split(' — ')[0];
 
 // ── 1. Lens registry ────────────────────────────────────────────────────────────────────────────────────────────────
 // Each metric id is computed by METRICS below from the collected filings; an id whose data this site does not collect
-// (inventory, customer concentration, NIM, CET1, backlog, FFO …) always reads '미확인' with what to check instead.
+// (customer concentration, NIM, CET1, backlog, FFO …, inventory before its quarters are collected) reads '미확인' with what to check instead.
 const M = (id, why) => Object.freeze({ id, why });
 export const STOCK_LENSES = Object.freeze({
   semis: { label: '반도체', why: '수요(AI·PC·스마트폰)와 재고·가격이 도는 경기순환이 겹친 업종이라, 성장과 사이클 위치를 함께 봅니다.',
     metrics: [M('revenueGrowth', '매출 성장이 분기마다 빨라지는지 느려지는지가 사이클 위치를 보여 줍니다.'), M('grossMargin', '가격 결정력과 공장 가동률이 매출총이익률에 먼저 드러납니다.'),
       M('capexIntensity', '설비투자가 매출보다 빠르게 늘면 몇 분기 뒤 공급 과잉의 씨앗이 됩니다.'), M('inventory', '재고가 매출보다 빠르게 쌓이면 가격 하락 전환의 신호입니다.'),
-      M('revisions', '애널리스트 이익 전망이 오르는 쪽인지 내리는 쪽인지가 사이클 방향을 먼저 반영합니다.'), M('rdRatio', '다음 세대 공정·설계 경쟁력은 연구개발 지출로 유지됩니다.')] },
+      M('rdRatio', '다음 세대 공정·설계 경쟁력은 연구개발 지출로 유지됩니다.')] },
   software: { label: '소프트웨어', why: '구독 매출의 성장과, 그 성장을 얼마의 비용(특히 주식보상)으로 사는지가 핵심입니다.',
     metrics: [M('revenueGrowth', '구독 사업은 매출 성장률이 가치의 대부분을 설명합니다.'), M('grossMargin', '소프트웨어는 원가가 낮아 매출총이익률이 높게 유지되는지가 기본입니다.'),
       M('operatingMargin', '성장이 둔화될 때 이익률이 올라오는지가 성숙 단계의 확인점입니다.'), M('sbcRatio', '주식보상은 현금흐름에 더해지지만 주주 지분을 희석하는 실제 비용입니다.'),
@@ -33,19 +34,19 @@ export const STOCK_LENSES = Object.freeze({
   internet: { label: '인터넷·플랫폼', why: '광고·구독 매출 성장과, AI 투자 비용이 현금흐름을 얼마나 먹는지가 이익을 좌우합니다.',
     metrics: [M('revenueGrowth', '광고 경기와 사용자 확대가 매출 성장에 바로 드러납니다.'), M('operatingMargin', '플랫폼 지배력은 높은 영업이익률로 나타납니다.'),
       M('capexIntensity', 'AI 데이터센터 투자가 매출 대비 얼마나 큰지가 이익의 압박 요인입니다.'), M('fcfMargin', '투자를 하고도 현금이 남는지 확인합니다.'),
-      M('shareholderReturn', '남는 현금을 자사주·배당으로 돌리는지가 주당 가치에 영향을 줍니다.'), M('revisions', '이익 전망 수정 방향이 투자 비용 부담을 먼저 반영합니다.')] },
+      M('shareholderReturn', '남는 현금을 자사주·배당으로 돌리는지가 주당 가치에 영향을 줍니다.')] },
   // SIC 3571 holds Apple next to server makers; "고객의 설비투자" misdescribed a device maker, so the
   // lens names both buyers (기업 설비투자 · 소비자 교체 주기).
   hardware: { label: '하드웨어·기기', why: '기업의 설비투자나 소비자의 기기 교체 주기에 매출이 따라가는 업종이라, 성장 속도와 마진, 투자 부담을 함께 봅니다.',
     metrics: [M('revenueGrowth', '기업 고객의 설비투자나 소비자의 교체 수요가 매출 성장으로 나타납니다.'), M('grossMargin', '부품 원가와 가격 협상력이 매출총이익률에 드러납니다.'),
-      M('capexIntensity', '생산능력 확충이 매출보다 앞서는지 확인합니다.'), M('netCash', '사이클이 꺾일 때 버틸 재무 여력입니다.'), M('revisions', '고객의 투자 계획이나 신제품 수요 변화가 이익 전망에 먼저 반영됩니다.')] },
+      M('capexIntensity', '생산능력 확충이 매출보다 앞서는지 확인합니다.'), M('netCash', '사이클이 꺾일 때 버틸 재무 여력입니다.')] },
   energy: { label: '에너지', why: '유가·가스 가격이 이익을 직접 좌우하므로, 가격이 내려가도 현금을 남기는 체력과 주주환원을 봅니다.',
     metrics: [M('oilSensitivity', '유가 1달러 변화가 이익에 주는 영향 — 회사 공시(민감도 표)에서 확인합니다.'), M('fcfMargin', '설비투자 뒤에도 현금이 남는지가 업종의 핵심입니다.'),
       M('shareholderReturn', '남는 현금의 자사주·배당 환원 비율이 투자 매력의 큰 부분입니다.'), M('leverage', '유가가 내려갈 때 부채가 부담이 되는지 확인합니다.'), M('capexIntensity', '낮은 설비투자는 현금을 늘리지만 생산 유지 여력을 줄입니다.')] },
   financials: { label: '금융', why: '금리차·신용 비용·자본 여력이 이익을 결정하며, 일반 기업의 매출·현금흐름 지표가 그대로 맞지 않습니다.',
     metrics: [M('roe', '자기자본으로 얼마를 버는지가 금융사 가치의 기본 척도입니다.'), M('nim', '대출·예금 금리차(순이자마진)가 이자 이익을 결정합니다.'),
       M('cet1', '보통주 자본비율은 손실을 견디는 여력과 주주환원 여지를 정합니다.'), M('creditCost', '대손비용이 늘기 시작하면 이익이 먼저 꺾입니다.'),
-      M('dividends', '배당과 자사주 환원이 금융주 수익의 큰 부분입니다.'), M('revisions', '이익 전망 수정이 금리·신용 환경 변화를 반영합니다.')] },
+      M('dividends', '배당과 자사주 환원이 금융주 수익의 큰 부분입니다.')] },
   healthcare: { label: '헬스케어·바이오', why: '신약 파이프라인과 연구개발 투자, 특허 만료 일정이 미래 매출을 좌우합니다.',
     metrics: [M('revenueGrowth', '기존 제품과 신제품의 매출 성장 흐름입니다.'), M('rdRatio', '연구개발 비율이 파이프라인 투자의 크기를 보여 줍니다.'),
       M('operatingMargin', '제품 가격과 판매 비용이 영업이익률에 드러납니다.'), M('fcfMargin', '연구개발 뒤에도 현금이 남는지 확인합니다.'), M('pipeline', '임상 단계·특허 만료 일정은 회사 공시에서 확인합니다.')] },
@@ -54,7 +55,7 @@ export const STOCK_LENSES = Object.freeze({
       M('revenueGrowth', '가격 인상과 물량이 매출 성장을 나눠 설명합니다.'), M('dividends', '배당이 잉여현금 안에서 지급되는지가 지속성의 기준입니다.'), M('leverage', '안정 업종이라도 부채가 많으면 금리 부담이 커집니다.')] },
   consumer: { label: '경기소비재', why: '고용·소비 심리에 따라 매출이 흔들리는 업종이라, 성장과 마진, 재고를 봅니다.',
     metrics: [M('revenueGrowth', '소비 경기가 매출 성장에 바로 드러납니다.'), M('grossMargin', '할인 판매가 늘면 매출총이익률이 먼저 낮아집니다.'),
-      M('operatingMargin', '고정비가 커서 매출이 줄면 이익률이 크게 흔들립니다.'), M('inventory', '재고가 쌓이면 할인 판매로 이어집니다.'), M('revisions', '소비 경기 변화가 이익 전망에 먼저 반영됩니다.')] },
+      M('operatingMargin', '고정비가 커서 매출이 줄면 이익률이 크게 흔들립니다.'), M('inventory', '재고가 쌓이면 할인 판매로 이어집니다.')] },
   industrials: { label: '산업재', why: '설비투자·인프라 경기를 따라가는 업종이라, 수주와 마진, 현금 전환을 봅니다.',
     metrics: [M('revenueGrowth', '고객의 설비투자 경기가 매출 성장으로 나타납니다.'), M('operatingMargin', '가격 전가와 생산 효율이 영업이익률에 드러납니다.'),
       M('backlog', '수주잔고는 미래 매출의 가시성 — 회사 공시에서 확인합니다.'), M('fcfMargin', '이익이 현금으로 들어오는지 확인합니다.'), M('capexIntensity', '생산능력 투자 부담입니다.')] },
@@ -114,7 +115,8 @@ export function growthTrend(quarter, trailing, fiscal) {
 }
 
 // ctx: { history (annual, newest last), trailing (buildTrailingYearRead), quarterRead (buildQuarterRead), marginCash (buildMarginCashRead),
-//        rd (buildRdRead), consensus (consensus row), surprise (buildSurpriseRead), debtBasis (sec-fiscal-history.json debtBasis) }
+//        rd (buildRdRead), workingCapital (buildWorkingCapitalRead), debtBasis (sec-fiscal-history.json debtBasis) }
+// The four-week estimate revisions are not a lens row: 이 주가가 반영하는 것 (priced-in.js) owns them on the stock screen.
 function metricValue(id, ctx) {
   const years = (ctx.history || []).filter((year) => finite(year?.revenue) > 0);
   const latest = years.at(-1) || null;
@@ -171,12 +173,14 @@ function metricValue(id, ctx) {
       const value = latest && prior && finite(latest.netIncome) != null && latest.equity > 0 && prior.equity > 0 ? latest.netIncome / ((latest.equity + prior.equity) / 2) * 100 : null;
       return value == null ? null : { text: `${pct(value)}(평균 자기자본), ${label}`, trend: null };
     }
-    case 'revisions': {
-      const fwd = ctx.consensus?.fwd;
-      if (!fwd) return null;
-      if (finite(fwd.up4w) == null && finite(fwd.down4w) == null) return { text: '최근 4주 수정 자료 없음', trend: null }; // Not collected ≠ no change
-      const up = finite(fwd.up4w) || 0, down = finite(fwd.down4w) || 0;
-      return { text: up || down ? `최근 4주 상향 ${up}, 하향 ${down}` : '최근 4주 변경 없음', trend: up > down ? '상향 우세' : down > up ? '하향 우세' : '중립' };
+    // The quarter-end inventory the 재무 공시 재고와 매출채권 card reads (quarter-read.js buildWorkingCapitalRead), on its basis:
+    // the same quarter a year earlier when on file, else the quarter before; '매출보다 빠름' is that read's own rule.
+    case 'inventory': {
+      const wc = ctx.workingCapital?.available ? ctx.workingCapital : null;
+      const basis = wc ? wc.yoy ?? { inventory: wc.inventory, revenue: wc.revenue } : null;
+      if (!basis?.inventory) return null;
+      return { text: `${signedText(basis.inventory.pct, 1, '%')}${basis.revenue ? `(분기 매출 ${signedText(basis.revenue.pct, 1, '%')})` : ''}, ${wc.yoy ? '1년 전 같은 분기 대비' : '직전 분기 대비'}, ${wc.latest.periodEnd.slice(0, 7)} 분기 말`,
+        trend: wc.faster.includes('재고') ? '매출보다 빠름' : basis.revenue ? '매출 이하' : null };
     }
     default: return null;
   }
@@ -193,7 +197,7 @@ export function buildLensRead({ lens = { id: 'general', basis: '' }, ...ctx } = 
 }
 const METRIC_LABELS = Object.freeze({ revenueGrowth: '매출 성장', grossMargin: '매출총이익률', operatingMargin: '영업이익률', netMargin: '순이익률', fcfMargin: '잉여현금 마진',
   capexIntensity: '설비투자 ÷ 매출', rdRatio: 'R&D ÷ 매출', sbcRatio: '주식보상 ÷ 매출', shareholderReturn: '주주환원', dividends: '배당', netCash: '순현금·순부채', leverage: '부채 비중',
-  roe: 'ROE', revisions: '이익 전망 수정', inventory: '재고', retention: '순매출 유지율', oilSensitivity: '유가 민감도', nim: '순이자마진', cet1: '자본비율(CET1)',
+  roe: 'ROE', inventory: '재고', retention: '순매출 유지율', oilSensitivity: '유가 민감도', nim: '순이자마진', cet1: '자본비율(CET1)',
   creditCost: '대손비용', pipeline: '파이프라인', backlog: '수주잔고', ffo: 'FFO' });
 export const metricLabel = (id) => METRIC_LABELS[id] || id;
 
@@ -316,12 +320,14 @@ export function dailyBeta(stockBars = [], benchmark = []) {
 // implied: impliedGrowth result ({state, growth}) for the reverse DCF; trailing: buildTrailingYearRead; marginCash; consensus row;
 // schedule: buildEarningsSchedule; levels: the chart level map for the symbol (_aioPriceLevelsFor) or null; peerPe: { value, median } forward PER vs peers.
 // peakEarnings: consensus-read.js peakEarningsCaution for this listing (the 이 주가가 반영하는 것 condition names it, priced-in.js).
-export function buildThesisFrame({ implied = null, trailing = null, marginCash = null, consensus = null, schedule = null, levels = null, peerPe = null, situation = null, peakEarnings = false } = {}) {
+// pricedIn: buildPricedInRead for this listing — the estimate revisions are read through its state, never counted here.
+// `rules` pairs each number rule's holding and breaking reading with when it is checked (쟁점과 전망's one table);
+// `conditions` and `breaks` are the same rules as lists (with the price-level and theme signals the AI reader also gets).
+export function buildThesisFrame({ implied = null, trailing = null, marginCash = null, consensus = null, schedule = null, levels = null, peerPe = null, situation = null, peakEarnings = false, pricedIn = null } = {}) {
   const impliedPct = implied?.state === 'ready' ? implied.growth * 100 : null;
   const ttm = trailing?.revenueYoy ?? null;
   const op = marginCash?.state === 'ready' ? marginCash.ladder.find((row) => row.id === 'operating') : null;
   const netNow = trailing?.margin ?? null;
-  const up = finite(consensus?.fwd?.up4w) || 0, down = finite(consensus?.fwd?.down4w) || 0;
   const support = levels?.supportCandidates?.[0] || null;
   const resistance = levels?.resistanceCandidates?.[0] || null;
   const price = (v) => `$${Number(v).toFixed(2)}`;
@@ -337,20 +343,27 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
   const priced = impliedPct != null
     ? `${under}지금 가격은 ${shrinks ? `잉여현금흐름이 ${years}년간 해마다 ${rate}%씩 줄어도 설명됩니다` : `잉여현금흐름이 ${years}년간 연 ${rate}% 늘어나야 설명됩니다`}${ttm != null ? `. 실제 최근 4개 분기 매출 성장은 ${signedText(ttm, 1, '%')}입니다(매출과 현금흐름은 다른 숫자라, 같은 방향인지를 봅니다)` : ''}.`
     : implied?.state ? '역 DCF로 가격이 가정하는 성장률을 계산할 수 없는 상태입니다(잉여현금흐름 마이너스, 금융사, 주식 수·종가 미확인 등).' : null;
-  const conditions = [
-    impliedPct != null ? (shrinks ? `잉여현금흐름이 가격이 가정한 연 ${rate}% 감소보다 빠르게 줄지 않는다` : `성장이 가격이 가정한 연 ${rate}% 이상으로 이어진다`) : ttm != null ? `매출 성장(최근 4개 분기 ${signedText(ttm, 1, '%')})이 크게 꺾이지 않는다` : null,
-    op?.value != null ? `영업이익률 ${op.value.toFixed(1)}% 수준이 유지된다` : netNow != null ? `순이익률 ${netNow.toFixed(1)}% 수준이 유지된다` : null,
-    consensus?.fwd ? `이익 전망이 계속 위로 고쳐진다(지금 4주 상향 ${up}, 하향 ${down})` : null
+  const earningsCheck = schedule?.text ? `실적: ${schedule.text}` : null;
+  const confirmed = PRICED_IN_STATES.confirmed;
+  const rules = [
+    impliedPct != null ? { id: 'growth', label: '가격이 가정한 성장', check: earningsCheck,
+      holds: shrinks ? `잉여현금흐름이 가격이 가정한 연 ${rate}% 감소보다 빠르게 줄지 않는다` : `성장이 가격이 가정한 연 ${rate}% 이상으로 이어진다`,
+      breaks: shrinks ? `잉여현금흐름이 연 ${rate}%보다 빠르게 줄어드는 흐름이 확인된다` : `성장이 연 ${rate}% 아래로 둔화되는 흐름이 확인된다` }
+      : ttm != null ? { id: 'growth', label: '매출 성장', check: earningsCheck, holds: `매출 성장(최근 4개 분기 ${signedText(ttm, 1, '%')})이 크게 꺾이지 않는다`, breaks: '분기 매출 성장이 연속으로 느려진다' } : null,
+    op?.value != null ? { id: 'margin', label: '영업이익률', check: earningsCheck, holds: `영업이익률 ${op.value.toFixed(1)}% 수준이 유지된다`,
+      breaks: `영업이익률이 ${op.prior != null ? `직전 해 ${op.prior.toFixed(1)}%` : `${op.value.toFixed(1)}%`} 아래로 내려간다` }
+      : netNow != null ? { id: 'margin', label: '순이익률', check: earningsCheck, holds: `순이익률 ${netNow.toFixed(1)}% 수준이 유지된다`, breaks: '순이익률이 1년 전 수준 아래로 내려간다' } : null,
+    consensus?.fwd ? { id: 'priced-in', label: '이 주가가 반영하는 것', check: '컨센서스: 다음 4주 동안 상향·하향 건수의 방향',
+      holds: `추정치가 주가를 따라 내려가지 않는다${pricedIn?.label ? ` (지금: ${pricedIn.label})` : ''}`, breaks: `'${confirmed}' 상태가 된다` } : null
   ].filter(Boolean);
+  const conditions = rules.map((rule) => rule.holds);
   const checks = [
-    schedule?.text ? `실적: ${schedule.text}` : null,
+    earningsCheck,
     consensus?.fwd ? '컨센서스: 다음 4주 동안 상향·하향 건수의 방향' : null,
     support || resistance ? `가격 레벨: ${[support ? `가장 가까운 아래 후보 ${price(support.price)}(${signedText(support.pct, 1, '%')})` : null, resistance ? `위 후보 ${price(resistance.price)}(${signedText(resistance.pct, 1, '%')})` : null].filter(Boolean).join(', ')} — 관찰할 가격대이며 보장이 아님` : '가격 레벨: 기술적 분석 화면의 레벨 지도에서 확인'
   ].filter(Boolean);
   const breaks = [
-    impliedPct != null ? (shrinks ? `잉여현금흐름이 연 ${rate}%보다 빠르게 줄어드는 흐름이 확인된다` : `성장이 연 ${rate}% 아래로 둔화되는 흐름이 확인된다`) : ttm != null ? '분기 매출 성장이 연속으로 느려진다' : null,
-    op?.value != null ? `영업이익률이 ${op.prior != null ? `직전 해 ${op.prior.toFixed(1)}%` : `${op.value.toFixed(1)}%`} 아래로 내려간다` : netNow != null ? '순이익률이 1년 전 수준 아래로 내려간다' : null,
-    consensus?.fwd ? '이익 전망 수정이 하향 우세로 바뀐다' : null,
+    ...rules.map((rule) => rule.breaks),
     support ? `가장 가까운 아래 가격 후보 ${price(support.price)}를 종가로 이탈한다` : null,
     ...(situation?.themes?.[0]?.breaks || []).slice(0, 2).map((text) => `테마 논지 깨짐: ${text}`)
   ].filter(Boolean);
@@ -362,17 +375,16 @@ export function buildThesisFrame({ implied = null, trailing = null, marginCash =
         : '낮아, 전망이 계속 좋아질 때 배수가 동종 쪽으로 다시 매겨질 여지가 있습니다'}.` : '이익 전망이 좋아지고 시장 환경이 받쳐 주면 같은 이익에 더 높은 배수가 매겨질 수 있습니다.',
       fails: `금리 상승, 시장 부담 국면${situation?.lead?.wind === '부담' ? ', 지금처럼 선두 시나리오가 이 종목 테마에 부담인 환경' : ''}에서는 배수가 먼저 줄어듭니다.` }
   ];
-  return { priced, impliedPct, ttm, conditions, checks, breaks, paths };
+  return { priced, impliedPct, ttm, rules, conditions, checks, breaks, paths };
 }
 
 // ── 5. What to keep watching ───────────────────────────────────────────────────────────────────────────────────────
-export function buildWatchList({ schedule = null, consensus = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500', currency = 'USD' } = {}) {
+export function buildWatchList({ schedule = null, trailing = null, row = null, stage = null, levels = null, benchmarkRet3m = null, benchmarkLabel = 'S&P 500', currency = 'USD' } = {}) {
   // A Korean stock's levels printed as "$228000.00"; prices follow the listing currency.
   const money = (value) => formatScreenerPrice(Number(value), currency);
   const items = [];
   if (schedule?.text) items.push({ id: 'earnings', label: '다음 실적', now: schedule.text, why: '가이던스와 마진 방향이 논지를 가장 직접 확인합니다.' });
-  const fwd = consensus?.fwd;
-  if (fwd) items.push({ id: 'revisions', label: '이익 전망 방향', now: `최근 4주 상향 ${finite(fwd.up4w) || 0}, 하향 ${finite(fwd.down4w) || 0}`, why: '가격보다 먼저 방향이 바뀌는 경우가 많습니다.' });
+  // The four-week revisions are 이 주가가 반영하는 것's (priced-in.js), not a watch item of their own.
   if (trailing?.margin != null) items.push({ id: 'margin', label: '이익률 추세', now: `최근 4개 분기 순이익률 ${trailing.margin.toFixed(1)}%${trailing.priorMargin != null ? `(1년 전 ${trailing.priorMargin.toFixed(1)}%)` : ''}`, why: '성장보다 이익률이 먼저 꺾이는 일이 흔합니다.' });
   // Boundary contract: the watch item prints the 3-month return the readiness contract lets the screen show.
   const r3 = readRowNumber(row, 'ret3m', 'display');

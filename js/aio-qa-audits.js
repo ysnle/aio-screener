@@ -3928,7 +3928,7 @@ var _AIO_AUTHORED_SEQUENTIAL_AUDIT_REGISTRY = {
         // The order-2 경기 사이클 동적 readout (#cycle-dynamic-*) is retired.
         // The sector-rotation table (3, moved to the concept dictionary in v57.76), the ETF recommendation table
         // and the Stage 4 / rotation guide fold (8) left index.html; those entries and their finding are pruned.
-        { id: 'themes-ai-infra-matrix',    order: 4, topic: 'AI 설비투자 흐름 (#ai-capex-flow)', lines: 'index.html #page-themes' },
+        { id: 'themes-ai-chain',           order: 4, topic: 'AI 공급망: 가격 · 주문 · 자금 (#themes-ai-chain)', lines: 'index.html #page-themes' },
         { id: 'themes-thematic-cards',     order: 5, topic: '테마 강도 (#theme-strength-board)', lines: 'index.html #page-themes' },
         { id: 'themes-cross-link',         order: 7, topic: 'theme-detail 패널 cross-link 동선 (#theme-detail-panel)', lines: 'index.html #page-themes' }
       ],

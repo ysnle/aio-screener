@@ -36,7 +36,7 @@ const SCREENS = [
     reasons: [/사업/, /무엇을 파나/, /밸류체인 안의 자리/, /\d층 /, /사 주는 곳|공급하는 곳/, /재무 한눈에/, /매출 성장/, /순이익률/, /[+\-]?\d+(\.\d+)?%/, /쟁점과 전망: /] },
   // 쟁점과 전망 is 종목's second view, "무엇이 다투어지고 무엇이 보는 눈을 바꾸나"; the company head stays.
   { route: 'ticker', view: 'outlook', name: '종목 쟁점과 전망', symbol: 'NVDA', ready: /핵심 쟁점/, read: [/NVIDIA/],
-    reasons: [/핵심 쟁점/, /이야기가 유지된다는 읽기/, /이야기가 깨진다는 읽기/, /회사가 밝힌 전망과 계획/, /맞아가고 있다는 신호/] }
+    reasons: [/핵심 쟁점/, /이야기가 유지된다는 읽기/, /이야기가 깨진다는 읽기/, /회사가 밝힌 전망과 계획/, /회사가 내는 신호/] }
 ].filter((screen) => !only || only.has(screen.route));
 
 const failures = [];

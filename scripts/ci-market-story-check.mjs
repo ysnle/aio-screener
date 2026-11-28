@@ -33,7 +33,7 @@ import { openingFacts } from './lib/claim-facts.mjs';
 import { todayVerdictFrom } from './build-scenario-state.mjs';
 import { paintOpening } from '../src/ui/components/market-story.js';
 import { SCREEN_STORY, SCREEN_FACE, screenFaceLine } from '../src/domain/market/story/screen-story.js';
-import { sessionDivergences, DIVERGENCE_RULES } from '../src/domain/market/day/divergence.js';
+import { sessionDivergences, DIVERGENCE_RULES } from '../src/domain/market/day/day-cause.js';
 import { koreaBigMoveSaid, KOREA_BIG_MOVE_PCT } from '../src/domain/market/korea/korea-session-link.js';
 import { LONGRUN_INDEXES } from './build-index-longrun.mjs';
 
@@ -341,20 +341,21 @@ await runSections('market-story', [
   year.push(...SESSIONS);
   const closes = year.map((date, i) => ({ date, spx: i < year.length - 30 ? 7000 : 7000 * (1 - 0.116 * ((i - (year.length - 31)) / 30)), rsp: i < year.length - 30 ? 200 : 200 * (1 - 0.071 * ((i - (year.length - 31)) / 30)) }));
   const rowsOf = (falls) => falls.map((value, i) => ({ sym: `S${i}`, market: 'US', sector: 'Industrials', factorSessionDate: '2026-11-20', pctFromCloseHigh52w: value }));
+  const membersOf = (falls) => rowsOf(falls).map(({ sym }) => ({ sym, sector: 'Industrials' }));
   const deep = Array.from({ length: 100 }, (_, i) => (i < 18 ? -55 : i < 50 ? -30 : -12));
   const fund = { sym: 'XLK', market: 'US', sector: 'ETF', factorSessionDate: '2026-11-20', pctFromCloseHigh52w: -90 };
   const korean = { sym: '005930.KS', market: 'KR', sector: 'Technology', factorSessionDate: '2026-11-20', pctFromCloseHigh52w: -90 };
   check('v60.50 시장 폭: the median stock against the index, the half-off share as an n-in-one word, funds and Korean rows out', () => {
-    const falls = stockFalls({ rows: [...rowsOf(deep), fund, korean], history: closes, session: '2026-11-20' });
+    const falls = stockFalls({ rows: [...rowsOf(deep), fund, korean], members: membersOf(deep), history: closes, session: '2026-11-20' });
     assert.equal(falls.measured, 100, 'v60.50 story-screens');
-    assert.equal(falls.said.text, '지수는 조정이지만 종목은 더 깊습니다. 관찰 중인 미국 종목 절반이 1년 고점에서 21% 넘게 내렸고, 여섯 중 하나꼴은 반 토막입니다.', 'v60.50 story-screens');
-    assert.deepEqual(falls.bars.bars.map((bar) => `${bar.label} ${bar.valueText} ${bar.stage || ''}`.trim()), ['S&P 500 -11.6% 조정', '동일가중 -7.1%', '종목 중앙값 -21.0% 약세장'], 'v60.50 story-screens');
+    assert.equal(falls.said.text, '지수는 조정이지만 종목은 더 깊습니다. S&P 500 구성 종목 절반이 1년 고점에서 21% 넘게 내렸고, 여섯 중 하나꼴은 반 토막입니다.', 'v60.50 story-screens');
+    assert.deepEqual(falls.bars.bars.map((bar) => `${bar.label} ${bar.valueText} ${bar.stage || ''}`.trim()), ['S&P 500 -11.6% 조정', '동일가중 -7.1%', '구성 종목 중앙값 -21.0% 약세장'], 'v60.50 story-screens');
     clean(falls.said);
   });
   check('v60.50 시장 폭: a shallower median, no half-off stock, too few stocks or another session', () => {
-    assert.equal(stockFalls({ rows: rowsOf(Array.from({ length: 40 }, () => -5)), history: closes, session: '2026-11-20' }).said.text, '종목은 지수보다 덜 내렸습니다. 관찰 중인 미국 종목 절반이 1년 고점에서 5% 넘게 내렸고, 반 토막 난 종목은 없습니다.', 'v60.50 story-screens');
-    assert.equal(stockFalls({ rows: rowsOf(deep.slice(0, 20)), history: closes, session: '2026-11-20' }), null, 'v60.50 story-screens');
-    assert.equal(stockFalls({ rows: rowsOf(deep), history: closes, session: '2026-11-19' }), null, 'v60.50 story-screens');
+    assert.equal(stockFalls({ rows: rowsOf(Array.from({ length: 40 }, () => -5)), members: membersOf(Array.from({ length: 40 }, () => -5)), history: closes, session: '2026-11-20' }).said.text, '종목은 지수보다 덜 내렸습니다. S&P 500 구성 종목 절반이 1년 고점에서 5% 넘게 내렸고, 반 토막 난 종목은 없습니다.', 'v60.50 story-screens');
+    assert.equal(stockFalls({ rows: rowsOf(deep.slice(0, 20)), members: membersOf(deep.slice(0, 20)), history: closes, session: '2026-11-20' }), null, 'v60.50 story-screens');
+    assert.equal(stockFalls({ rows: rowsOf(deep), members: membersOf(deep), history: closes, session: '2026-11-19' }), null, 'v60.50 story-screens');
     assert.equal(oneInWord(26.2), '넷 중 하나꼴', 'v60.50 story-screens');
     assert.equal(oneInWord(3), null, 'v60.50 story-screens');
     assert.equal(RULES.story.halfOffPct, 50, 'v60.50 story-screens');
@@ -614,7 +615,7 @@ await runSections('market-story', [
     macroHistory.series.hyOas.observations = macroHistory.series.hyOas.observations.filter(([date]) => date !== LOW).concat(hy[0] == null ? [] : [[LOW, hy[0]]], hy[1] == null ? [] : [[NOW, hy[1]]]).sort((a, b) => a[0].localeCompare(b[0]));
     return { history, macroHistory, opening: buildMarketOpening({ history, macroHistory }) };
   };
-  const CONFIRMING = { dxy: [104, 103], vix: [35.89, 24], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190] };
+  const CONFIRMING = { dxy: [104, 103], vix: [35.89, 24], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190], btc: [58000, 61000], wti: [83.4, 80], tnx: [4.91, 4.85] };
   const qualityOf = (opening) => opening.rebound?.quality || null;
   const cleanQuality = (quality, history, macroHistory) => {
     for (const piece of [quality.said, ...quality.items]) {
@@ -627,19 +628,21 @@ await runSections('market-story', [
     const { history, macroHistory, opening } = crossMarket({ ends: CONFIRMING });
     const q = qualityOf(opening);
     assert.ok(q, 'v60.53 rebound quality: an attempt carries the cross-market read');
-    assert.deepEqual([q.state, q.word, q.met, q.known, q.from, q.through], ['confirmed', '뒷받침됨', 4, 4, LOW, NOW], 'v60.53 rebound quality: all confirm');
-    assert.equal(q.said.text, '다른 시장 확인 4/4, 11/20 저점부터 11/23 종가까지.', 'v60.53 rebound quality: the verdict line');
+    assert.deepEqual([q.state, q.word, q.met, q.known, q.from, q.through], ['confirmed', '뒷받침됨', 6, 6, LOW, NOW], 'v60.53 rebound quality: all confirm');
+    assert.equal(q.said.text, '다른 시장 확인 6/6, 11/20 저점부터 11/23 종가까지.', 'v60.53 rebound quality: the verdict line');
     assert.deepEqual(q.items.map((item) => item.text), [
       '신용 확인 — 하이일드 스프레드 376bp(11/20) → 350bp(11/23)',
       '달러 확인 — 달러 지수 104.00(11/20) → 103.00(11/23)',
       '변동성 확인 — VIX 35.89(11/20) → 24.00(11/23), 3개월 VIX 26.00',
-      '참여 폭 확인 — 50일선 위 종목 43%(11/20) → 53%(11/23), 동일가중 +2.2%'], 'v60.53 rebound quality: one row per check, both ends with their dates');
-    assert.deepEqual(q.checks.map((row) => [row.id, row.label, row.met]), [['credit', '신용', true], ['dollar', '달러', true], ['volatility', '변동성', true], ['breadth', '참여 폭', true]], 'v60.53 rebound quality: check shape');
+      '참여 폭 확인 — 50일선 위 종목 43%(11/20) → 53%(11/23), 동일가중 +2.2%',
+      '비트코인 확인 — 비트코인 58,000(11/20) → 61,000(11/23)',
+      '유가·금리 확인 — WTI 83.40(11/20) → 80.00(11/23), 미 10년물 4.91%(11/20) → 4.85%(11/23)'], 'v60.53 rebound quality: one row per check, both ends with their dates');
+    assert.deepEqual(q.checks.map((row) => [row.id, row.label, row.met]), [['credit', '신용', true], ['dollar', '달러', true], ['volatility', '변동성', true], ['breadth', '참여 폭', true], ['crypto', '비트코인', true], ['crossAsset', '유가·금리', true]], 'v60.53 rebound quality: check shape');
     assert.doesNotMatch(q.said.text, /숏커버링/, 'v60.53 rebound quality: the note is the index-only state\'s alone');
     cleanQuality(q, history, macroHistory);
     const lines = openingFactLines(opening);
     assert.ok(lines.includes(`반등의 다른 시장 확인(저점과 최근 종가를 같은 거래일끼리 비교, 원인 단정 아님): 뒷받침됨 — ${q.said.text}`), 'v60.53 rebound quality: the AI gets the screen\'s verdict');
-    assert.equal(lines.filter((line) => line.startsWith('반등의 다른 시장 항목: ')).length, 4, 'v60.53 rebound quality: and every row');
+    assert.equal(lines.filter((line) => line.startsWith('반등의 다른 시장 항목: ')).length, 6, 'v60.53 rebound quality: and every row');
   });
   check('v60.53 rebound quality: one of four confirms — 확인 부족, not 지수만 반등, and no short-covering note', () => {
     const { opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 53], rsp: [186, 190] }, hy: [3.5, 3.76] });
@@ -651,7 +654,7 @@ await runSections('market-story', [
     const { history, macroHistory, opening } = crossMarket({ ends: { dxy: [103, 104], vix: [35.89, 27], vix3m: [30.94, 26], breadth50: [43, 41], rsp: [186, 190] }, hy: [3.5, 3.76] });
     const q = qualityOf(opening);
     assert.deepEqual([q.state, q.word, q.met, q.known], ['index-only', '지수만 반등', 0, 4], 'v60.53 rebound quality: index only');
-    assert.equal(q.said.text, '다른 시장 확인 0/4, 11/20 저점부터 11/23 종가까지. 지수만 오른 반등은 숏커버링과 구별되지 않습니다.', 'v60.53 rebound quality: the index-only verdict and its conditional note');
+    assert.equal(q.said.text, '다른 시장 확인 0/4, 11/20 저점부터 11/23 종가까지. 자료 없음: 비트코인, 유가·금리. 지수만 오른 반등은 숏커버링과 구별되지 않습니다.', 'v60.53 rebound quality: the index-only verdict and its conditional note');
     assert.equal(q.items[2].text, '변동성 미확인 — VIX 35.89(11/20) → 27.00(11/23), 3개월 VIX 26.00', 'v60.53 rebound quality: VIX lower than at the low but over the 3-month VIX is not confirmation');
     assert.equal(q.checks[3].met, false, 'v60.53 rebound quality: the equal weight up does not carry participation alone');
     cleanQuality(q, history, macroHistory);
@@ -659,12 +662,12 @@ await runSections('market-story', [
   check('v60.53 rebound quality: a missing series shrinks the denominator and is named (3/3 still reads 뒷받침됨)', () => {
     const { history, macroHistory, opening } = crossMarket({ ends: { ...CONFIRMING, dxy: [null, null] } });
     const q = qualityOf(opening);
-    assert.deepEqual([q.state, q.met, q.known, q.total], ['confirmed', 3, 3, 4], 'v60.53 rebound quality: missing series');
-    assert.equal(q.said.text, '다른 시장 확인 3/3, 11/20 저점부터 11/23 종가까지. 자료 없음: 달러.', 'v60.53 rebound quality: the missing check is named');
+    assert.deepEqual([q.state, q.met, q.known, q.total], ['confirmed', 5, 5, 6], 'v60.53 rebound quality: missing series');
+    assert.equal(q.said.text, '다른 시장 확인 5/5, 11/20 저점부터 11/23 종가까지. 자료 없음: 달러.', 'v60.53 rebound quality: the missing check is named');
     assert.equal(q.items[1].text, '달러 자료 없음 — 달러 지수 11/20 값 없음 → 11/23 값 없음', 'v60.53 rebound quality: the missing row says which ends are missing');
     assert.equal(q.checks[1].met, null, 'v60.53 rebound quality: unknown is null, never false');
     cleanQuality(q, history, macroHistory);
-    const two = qualityOf(crossMarket({ ends: { ...CONFIRMING, dxy: [null, null], vix: [null, null] } }).opening);
+    const two = qualityOf(crossMarket({ ends: { ...CONFIRMING, dxy: [null, null], vix: [null, null], btc: [null, null], wti: [null, null] } }).opening);
     assert.deepEqual([two.state, two.word, two.known], ['thin', '판단 보류', 2], 'v60.53 rebound quality: under RULES.reboundQuality.minKnown known checks no tally word is given');
   });
   check('v60.53 rebound quality: no borrowing across sessions — a value on a neighbouring day never stands in for the low or the latest close', () => {
@@ -672,11 +675,11 @@ await runSections('market-story', [
     const { history, macroHistory, opening } = crossMarket({ ends: { ...CONFIRMING, dxy: [104, null], vix: [null, 24] }, hy: [3.76, null],
       extraRows: { '2026-11-19': { vix: 30, dxy: 103.5 } } });
     const q = qualityOf(opening);
-    assert.deepEqual(q.checks.map((row) => row.met), [null, null, null, true], 'v60.53 rebound quality: three checks unknown, not read off 11/19 or 11/20');
+    assert.deepEqual(q.checks.map((row) => row.met), [null, null, null, true, true, true], 'v60.53 rebound quality: three checks unknown, not read off 11/19 or 11/20');
     assert.equal(q.items[0].text, '신용 자료 없음 — 하이일드 스프레드 376bp(11/20) → 11/23 값 없음', 'v60.53 rebound quality: the 11/20 spread is not the 11/23 one');
     assert.equal(q.items[1].text, '달러 자료 없음 — 달러 지수 104.00(11/20) → 11/23 값 없음', 'v60.53 rebound quality: DXY without an 11/23 close');
     assert.equal(q.items[2].text, '변동성 자료 없음 — VIX 11/20 값 없음 → 24.00(11/23), 3개월 VIX 26.00', 'v60.53 rebound quality: the 11/19 VIX is not the low\'s');
-    assert.deepEqual([q.state, q.known], ['thin', 1], 'v60.53 rebound quality: one known check is no tally word');
+    assert.deepEqual([q.state, q.known], ['confirmed', 3], 'v60.53 rebound quality: the three checks with both ends are the denominator');
     // A weekend row between the low and the latest close (the producer carries prices onto 11/21-11/22) holds a DXY value.
     const weekendRows = [...history, { date: '2026-11-22', dxy: 102 }].sort((a, b) => a.date.localeCompare(b.date));
     const weekend = qualityOf(buildMarketOpening({ history: weekendRows, macroHistory }));

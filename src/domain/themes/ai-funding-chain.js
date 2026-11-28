@@ -15,6 +15,7 @@ import { oasDelta20Bp } from '../briefing/market-read.js';
 import { netLiquiditySeries, NET_LIQUIDITY_FLAT_BN } from '../macro/liquidity-growth.js';
 import { fedTargetRange } from '../macro/fed-target-range.js';
 import { HYPERSCALERS } from '../fundamental/quarterly-cashflow.js';
+import { FCF_TURN_WORDS, fcfTurn, hyperscalerQuarters } from './ai-capex-quarters.js';
 import { RESEARCH_GROUP_IDS, researchFactLines, researchReference, researchRowSaid } from '../research/reference.js';
 import { RESEARCH_WORDS } from '../research/words.js';
 import { FUNDING_CHAIN_WORDS as W } from '../content/funding-chain-words.js';
@@ -37,8 +38,9 @@ export const FUNDING_FACE_ROWS = 3;
 
 const fig = (subject, measure, asOf, value, unit, label, digits) => claim({ subject, measure, asOf, figures: [{ value, unit, basis: measure, label, ...(digits == null ? {} : { digits }) }] });
 const dated = (subject, asOf) => say('{d.date}', { d: claim({ subject, measure: 'funding:asOf', asOf }) });
-const autoRow = ({ id, label, value, change = NOTHING, asOf, subject }) => Object.freeze({ kind: 'auto', id, label, value, change, date: dated(subject, asOf), asOf, stale: false, note: '', record: null,
-  said: sayJoin([say('{l} {v}', { l: label, v: value }), change], ', ') });
+/** One automated, dated row ({ kind: 'auto', label, value, change, date, record }); `record` is a fixed state word. */
+export const chainRow = ({ id, label, value, change = NOTHING, asOf, subject, record = null }) => Object.freeze({ kind: 'auto', id, label, value, change, date: dated(subject, asOf), asOf, stale: false, note: '', record,
+  said: sayJoin([say('{l} {v}', { l: label, v: value }), change, record ? say(record) : NOTHING], ', ') });
 const researchedRow = (row) => Object.freeze({ ...row, kind: 'researched', said: researchRowSaid(row) });
 const dayOf = (iso) => String(iso || '').slice(0, 10);
 
@@ -48,7 +50,7 @@ function capexLink(group) {
   const asOf = group.endRange?.[1] || null;
   const subject = 'funding:hyperscalers';
   const yoy = readNumber(group.capexYoyPct);
-  const rows = [autoRow({ id: 'capex-ttm', subject, asOf, label: `빅테크 ${group.members.length}개사 설비투자(최근 4분기)`,
+  const rows = [chainRow({ id: 'capex-ttm', subject, asOf, label: `빅테크 ${group.members.length}개사 설비투자(최근 4분기)`,
     value: say('{v}', { v: fig(subject, 'capexTtm', asOf, group.capex, 'usd', '설비투자') }),
     change: yoy == null ? NOTHING : say('1년 전 대비 {y}', { y: fig(subject, 'capexYoy', asOf, yoy, 'pct', '1년 전 대비', 1) }) })];
   const R = FUNDING_CHAIN_RULES.capexYoyPct;
@@ -68,7 +70,7 @@ function cashLink(group, issuers) {
     const then = readNumber(group.yearAgo?.capexToOcfPct);
     const ocfThen = readNumber(group.yearAgo?.ocf);
     const ocfYoy = ocfThen > 0 && Number.isFinite(group.ocf) ? (group.ocf / ocfThen - 1) * 100 : null;
-    rows.push(autoRow({ id: 'capex-to-ocf', subject, asOf, label: `설비투자 ÷ 영업현금흐름(${group.members.length}개사 합계)`,
+    rows.push(chainRow({ id: 'capex-to-ocf', subject, asOf, label: `설비투자 ÷ 영업현금흐름(${group.members.length}개사 합계)`,
       value: say('{v}', { v: fig(subject, 'capexToOcf', asOf, group.capexToOcfPct, 'share', '설비투자 ÷ 영업현금흐름', 1) }),
       // The ratio falls only when operating cash grows faster than capex (the row above carries capex's own change).
       change: then == null ? NOTHING : sayJoin([say('1년 전 {w}', { w: fig(subject, 'capexToOcfYearAgo', asOf, then, 'share', '1년 전', 1) }),
@@ -78,31 +80,40 @@ function cashLink(group, issuers) {
       state = moved >= R ? 'tighter' : moved <= -R ? 'easier' : 'flat';
     }
   }
+  // The newest quarter's free cash flow against the quarter before, and whether it has bottomed (fcfTurn).
+  const turn = group?.complete ? fcfTurn(hyperscalerQuarters(issuers)) : null;
+  if (turn) {
+    const subject = 'funding:fcf-quarter-group';
+    rows.push(chainRow({ id: 'fcf-quarter-group', subject, asOf: turn.asOf, label: `잉여현금흐름(${HYPERSCALERS.length}개사 합계, 최근 분기)`, record: FCF_TURN_WORDS[turn.state],
+      value: say('{v}', { v: fig(subject, 'fcfQuarter', turn.asOf, turn.fcf, 'usd', '최근 분기 잉여현금흐름') }),
+      change: sayJoin([say('직전 분기({d.date}) {p}', { d: claim({ subject, measure: 'funding:asOf', asOf: turn.priorEnd }), p: fig(subject, 'fcfPriorQuarter', turn.priorEnd, turn.priorFcf, 'usd', '직전 분기 잉여현금흐름') }),
+        say('영업현금흐름 1년 전 대비 {o}', { o: fig(subject, 'ocfQuarterYoy', turn.asOf, turn.ocfYoy, 'pct', '최근 분기 영업현금흐름', 1) })], ', ') }));
+  }
   const spenders = (issuers || []).filter((row) => SPENDER_GROUPS.has(row?.group) && Array.isArray(row.quarters));
   const hyperscalers = spenders.filter((row) => HYPERSCALERS.includes(row.symbol));
   const lastQ = (row) => row.quarters.at(-1);
   const quarterNegative = hyperscalers.filter((row) => Number.isFinite(lastQ(row)?.fcf) && lastQ(row).fcf < 0);
   if (quarterNegative.length) {
     const asOf = quarterNegative.map((row) => lastQ(row).end).sort().at(-1);
-    rows.push(autoRow({ id: 'fcf-negative-quarter', subject: 'funding:fcf-quarter', asOf, label: '잉여현금흐름 마이너스(최근 분기)', value: negativesSaid(quarterNegative, lastQ, 'fcfQuarter') }));
+    rows.push(chainRow({ id: 'fcf-negative-quarter', subject: 'funding:fcf-quarter', asOf, label: '잉여현금흐름 마이너스(최근 분기)', value: negativesSaid(quarterNegative, lastQ, 'fcfQuarter') }));
   }
   // The neocloud reads beside the hyperscalers once its filings are in the artifact.
   for (const row of spenders.filter((issuer) => issuer.group === 'neocloud' && issuer.ttm)) {
     const subject = `funding:${row.symbol}`;
     const ratio = row.ttm.ocf > 0 ? readNumber(row.ttm.capexToOcfPct) : null;
-    rows.push(autoRow({ id: `fcf-${row.symbol.toLowerCase()}`, subject, asOf: row.ttm.end, label: `${row.nameKo || row.symbol} 잉여현금흐름(최근 4분기)`,
+    rows.push(chainRow({ id: `fcf-${row.symbol.toLowerCase()}`, subject, asOf: row.ttm.end, label: `${row.nameKo || row.symbol} 잉여현금흐름(최근 4분기)`,
       value: say('{v}', { v: fig(subject, 'fcfTtm', row.ttm.end, row.ttm.fcf, 'usd', '잉여현금흐름') }),
       change: ratio == null ? NOTHING : say('설비투자 ÷ 영업현금흐름 {r}', { r: fig(subject, 'capexToOcf', row.ttm.end, ratio, 'share', '설비투자 ÷ 영업현금흐름', 1) }) }));
   }
   const ttmNegative = hyperscalers.filter((row) => Number.isFinite(row.ttm?.fcf) && row.ttm.fcf < 0);
   if (ttmNegative.length) {
     const asOf = ttmNegative.map((row) => row.ttm.end).sort().at(-1);
-    rows.push(autoRow({ id: 'fcf-negative-ttm', subject: 'funding:fcf-ttm', asOf, label: '잉여현금흐름 마이너스(최근 4분기)', value: negativesSaid(ttmNegative, (row) => row.ttm, 'fcfTtm') }));
+    rows.push(chainRow({ id: 'fcf-negative-ttm', subject: 'funding:fcf-ttm', asOf, label: '잉여현금흐름 마이너스(최근 4분기)', value: negativesSaid(ttmNegative, (row) => row.ttm, 'fcfTtm') }));
   }
   if (group?.complete) {
     const asOf = group.endRange?.[1] || null;
     const subject = 'funding:hyperscalers';
-    rows.push(autoRow({ id: 'fcf-group', subject, asOf, label: `잉여현금흐름(${group.members.length}개사 합계, 최근 4분기)`,
+    rows.push(chainRow({ id: 'fcf-group', subject, asOf, label: `잉여현금흐름(${group.members.length}개사 합계, 최근 4분기)`,
       value: say('{v}', { v: fig(subject, 'fcfTtm', asOf, group.fcf, 'usd', '잉여현금흐름') }),
       change: Number.isFinite(group.yearAgo?.fcf) ? say('1년 전 {w}', { w: fig(subject, 'fcfTtmYearAgo', asOf, group.yearAgo.fcf, 'usd', '1년 전') }) : NOTHING }));
   }
@@ -119,7 +130,7 @@ function seriesRow(macroHistory, id, label) {
   const read = oasDelta20Bp(macroHistory, id);
   if (!read) return null;
   const subject = `funding:${id}`;
-  return autoRow({ id, subject, asOf: read.date, label,
+  return chainRow({ id, subject, asOf: read.date, label,
     value: say('{v}', { v: fig(subject, 'level', read.date, read.level, 'rate', label, 2) }),
     change: say('20거래일 {c}', { c: fig(subject, 'change20d', read.date, read.value, 'bp', '20거래일 변화', 0) }) });
 }
@@ -147,7 +158,7 @@ function ratesLink(macroHistory) {
   const target = upper && lower ? fedTargetRange(lower.value, upper.value, lower.date, upper.date) : null;
   if (target) {
     const subject = 'funding:fedTarget';
-    rows.push(autoRow({ id: 'fed-target', subject, asOf: target.asOf, label: '연준 기준금리 목표 범위',
+    rows.push(chainRow({ id: 'fed-target', subject, asOf: target.asOf, label: '연준 기준금리 목표 범위',
       value: say('{v.range}', { v: claim({ subject, measure: 'fedTarget', asOf: target.asOf, figures: [{ value: target.lower, unit: 'rate', basis: 'lower', label: '하단' }, { value: target.upper, unit: 'rate', basis: 'upper', label: '상단' }] }) }) }));
   }
   const net = netLiquiditySeries(macroHistory);
@@ -157,7 +168,7 @@ function ratesLink(macroHistory) {
     const then = [...net].reverse().find((row) => row.date <= cutoff) || null;
     const subject = 'funding:netLiquidity';
     const delta = then ? last.value - then.value : null; // USD billions
-    rows.push(autoRow({ id: 'net-liquidity', subject, asOf: last.date, label: '순유동성(연준 자산 − TGA − 역레포)',
+    rows.push(chainRow({ id: 'net-liquidity', subject, asOf: last.date, label: '순유동성(연준 자산 − TGA − 역레포)',
       value: say('{v}', { v: fig(subject, 'level', last.date, last.value * 1e9, 'usd', '순유동성') }),
       change: delta == null ? NOTHING : say('4주 {c}', { c: fig(subject, 'change4w', last.date, delta * 1e9, 'usdChange', '4주 변화') }) }));
     if (delta != null) { const R = FUNDING_CHAIN_RULES.netLiquidity4wBn; votes.push(delta <= -R ? 'tighter' : delta >= R ? 'easier' : 'flat'); }
@@ -168,7 +179,7 @@ function ratesLink(macroHistory) {
 
 const RULE_TEXT = Object.freeze({
   capex: () => `설비투자 최근 4분기 합계가 1년 전보다 ${FUNDING_CHAIN_RULES.capexYoyPct}% 넘게 늘면 ${W.states.tighter}, ${FUNDING_CHAIN_RULES.capexYoyPct}% 넘게 줄면 ${W.states.easier}`,
-  cash: () => `설비투자 ÷ 영업현금흐름이 1년 전보다 ${FUNDING_CHAIN_RULES.capexToOcfPp}%p 이상 오르면 ${W.states.tighter}, ${FUNDING_CHAIN_RULES.capexToOcfPp}%p 이상 내리면 ${W.states.easier}`,
+  cash: () => `설비투자 ÷ 영업현금흐름이 1년 전보다 ${FUNDING_CHAIN_RULES.capexToOcfPp}%p 이상 오르면 ${W.states.tighter}, ${FUNDING_CHAIN_RULES.capexToOcfPp}%p 이상 내리면 ${W.states.easier}. 최근 분기 합계 잉여현금흐름이 직전 분기보다 많고 영업현금흐름 증가율(1년 전 같은 분기 대비)이 설비투자 증가율을 넘으면 ${FCF_TURN_WORDS.turned}, 아니면 ${FCF_TURN_WORDS.notYet}`,
   credit: () => `하이일드 스프레드 20거래일 변화가 +${FUNDING_CHAIN_RULES.hyOas20dBp}bp 이상이면 ${W.states.tighter}, -${FUNDING_CHAIN_RULES.hyOas20dBp}bp 이하이면 ${W.states.easier}(신용 축과 같은 선)`,
   rates: () => `10년 국채 금리 20거래일 ±${FUNDING_CHAIN_RULES.tenYear20dBp}bp, 순유동성 4주 ±${(FUNDING_CHAIN_RULES.netLiquidity4wBn * 10).toLocaleString('en-US')}억 달러를 넘는 쪽으로 판정(금리 상승·유동성 감소가 ${W.states.tighter}, 둘이 반대면 ${W.states.mixed})`
 });

@@ -28,7 +28,7 @@ export const REBOUND_QUALITY_WORDS = Object.freeze({
   weak: '확인 부족',
   'index-only': '지수만 반등',
   thin: '판단 보류',
-  checks: Object.freeze({ credit: '신용', dollar: '달러', volatility: '변동성', breadth: '참여 폭' }),
+  checks: Object.freeze({ credit: '신용', dollar: '달러', volatility: '변동성', breadth: '참여 폭', crypto: '비트코인', crossAsset: '유가·금리' }),
   marks: Object.freeze({ met: '확인', unmet: '미확인', unknown: '자료 없음' }),
   indexOnlyNote: '지수만 오른 반등은 숏커버링과 구별되지 않습니다.'
 });

@@ -23,7 +23,7 @@
 #page-themes:not([data-view="map"], [data-view="all"]) > #sector-map,
 #page-themes:not([data-view="rank"], [data-view="all"]) > :is(#theme-strength-board, #themes-setup-board),
 #page-themes:not([data-view="scenario"], [data-view="all"]) > .tp-section,
-#page-themes:not([data-view="ai"], [data-view="all"]) > :is(#themes-ai-chain, #ai-capex-fold),
+#page-themes:not([data-view="ai"], [data-view="all"]) > #themes-ai-chain,
 #page-themes:not([data-view="korea"], [data-view="all"]) > #kr-integrated-themes,
 /* 뉴스: 주요 / 발표 / 시황 / 전체 뉴스 — 시장 신호 closes 발표; the filter and its count stay with the lists it filters */
 #page-market-news:not([data-view="main"], [data-view="all"]) > :is(#news-screen-reading, #news-important, #news-intraday),

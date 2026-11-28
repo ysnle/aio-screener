@@ -14,10 +14,14 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot, { sourc
     ? { source: 'snapshot:fast-plane', policyKey: 'fast_plane', reason: 'market-snapshot-fast-plane', delayed: false }
     : { source: 'snapshot:market-snapshot', policyKey: 'static_snapshot', reason: 'market-snapshot-fallback', delayed: true };
   let applied = 0;
-  for (const quote of snapshot.quotes || []) {
+  // One day change per index on every surface: the site's own close series decides it where the provider's pair
+  // disagrees (quote-basis.js publishedUsChangeOn), as the ledger and the briefing read it.
+  const ownChange = (published) => root.AIO?.quoteBasis?.published?.(published) || null;
+  const write = (published, own) => {
+    const quote = own ? { ...published, changePct: own.pct, previousValue: own.previousClose, changeBasis: own.basis } : published;
     // The published close's change is what a later live quote of the same session must not replace.
     root.PriceStore?.notePublished?.(quote.instrumentId, { pct: quote.changePct, observedAt: quote.observedAt, previousClose: quote.previousValue, changeBasis: quote.changeBasis || quote.valueBasis });
-    if (setLiveData(quote.instrumentId, {
+    return setLiveData(quote.instrumentId, {
       price: quote.value,
       pct: quote.changePct,
       regularMarketPreviousClose: quote.previousValue,
@@ -32,28 +36,33 @@ export function applyMarketSnapshotToLegacy(root = globalThis, snapshot, { sourc
       ...provenance,
       ts: quote.observedAt || quote.fetchedAt || snapshot.generatedAt,
       revision: snapshot.revision
-    })) applied += 1;
+    });
+  };
+  // Applied before the quote-basis owner or the close history arrived, an index change is still the provider's: the
+  // owner calls this when either arrives (quote-basis.js reverify), and only the quotes whose change the close series
+  // corrects are written again, and the snapshot readers are told only when one was.
+  root._aioReapplyBridgedSnapshot = () => {
+    let changed = 0;
+    for (const published of snapshot.quotes || []) {
+      const own = ownChange(published);
+      if (own && root._liveData?.[published.instrumentId]?.revision === snapshot.revision && root._liveData[published.instrumentId].pct !== own.pct && write(published, own)) changed += 1;
+    }
+    if (changed) announce(applied); // the snapshot's own count: the status line prints it
+  };
+  for (const published of snapshot.quotes || []) if (write(published, ownChange(published))) applied += 1;
+  announce(applied);
+  return Object.freeze({ applied, skipped: false, revision: snapshot.revision, latestObservedAt: latestObservedAt() });
+
+  function latestObservedAt() {
+    const observedTimes = (snapshot.quotes || []).map((quote) => Date.parse(quote?.observedAt || quote?.fetchedAt || '')).filter(Number.isFinite);
+    return observedTimes.length ? new Date(Math.max(...observedTimes)).toISOString() : (snapshot.generatedAt || null);
   }
-  const observedTimes = (snapshot.quotes || [])
-    .map((quote) => Date.parse(quote?.observedAt || quote?.fetchedAt || ''))
-    .filter(Number.isFinite);
-  const latestObservedAt = observedTimes.length
-    ? new Date(Math.max(...observedTimes)).toISOString()
-    : (snapshot.generatedAt || null);
-  const detail = Object.freeze({
-    revision: snapshot.revision,
-    count: applied,
-    generatedAt: snapshot.generatedAt || null,
-    latestObservedAt,
-    status: snapshot.status,
-    marketSnapshotPublished: snapshot.status === 'published',
-    coverage: snapshot.coverage || null,
-    sourceKind: 'REFERENCE',
-    sourceId
-  });
-  try {
-    root.document?.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
-    root.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
-  } catch (_) {}
-  return Object.freeze({ applied, skipped: false, revision: snapshot.revision, latestObservedAt });
+  function announce(count) {
+    const detail = Object.freeze({ revision: snapshot.revision, count, generatedAt: snapshot.generatedAt || null, latestObservedAt: latestObservedAt(),
+      status: snapshot.status, marketSnapshotPublished: snapshot.status === 'published', coverage: snapshot.coverage || null, sourceKind: 'REFERENCE', sourceId });
+    try {
+      root.document?.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
+      root.dispatchEvent?.(new CustomEvent('aio:marketSnapshot', { detail }));
+    } catch (_) {}
+  }
 }

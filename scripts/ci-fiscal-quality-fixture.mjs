@@ -369,7 +369,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
   for (let tick = 0; tick < 12; tick += 1) await new Promise((resolve) => setImmediate(resolve));
   renderFiscalRead({ documentRef: v75Doc, root: v75Root, state: { id: 'CAPX', fundamentals: null } });
   const v75 = descendants(v75Host);
-  for (const id of ['margin-cash', 'surprise', 'theme-peers', 'lens', 'thesis']) assert.ok(v75.some((node) => node.dataset?.analysis === id), `v58.75 재무 공시 renders the ${id} card`);
+  for (const id of ['margin-cash', 'surprise', 'theme-peers', 'lens']) assert.ok(v75.some((node) => node.dataset?.analysis === id), `v58.75 재무 공시 renders the ${id} card`);
   assert.ok(v75Host.textContent.includes('최근 4개 분기(2026-06 분기까지)') && v75Host.textContent.includes('장 시작 전'), 'v58.75 the hero carries the last four quarters and the next report date');
   // 재무 공시's theme peer table reads growth and margin on the screener row's four-quarter basis when the group has the
   // quarters (the page passes quartersFor like 종목 요약), and its period column names each company's basis.
@@ -491,7 +491,7 @@ assert.ok(!host.textContent.includes('AEHR —'), 'P1627 the earlier pending iss
 
   const watch = lens.buildWatchList({ schedule: { text: '11/19' }, consensus: { fwd: { up4w: 2, down4w: 0 } }, trailing: { margin: 30, priorMargin: 25 }, row: { ret3m: 7.5 }, benchmarkRet3m: 2.8,
     levels: { supportCandidates: [{ price: 90 }] }, stage: { label: '반도체', stateLabel: '동행' } });
-  assert.deepEqual(watch.map((item) => item.id), ['earnings', 'revisions', 'margin', 'relative', 'levels', 'theme'], 'v58.75 the watch list keeps six named checks');
+  assert.deepEqual(watch.map((item) => item.id), ['earnings', 'margin', 'relative', 'levels', 'theme'], 'v58.75 the watch list keeps its named checks (estimate revisions are read once, by priced-in)');
   assert.deepEqual(lens.buildWatchList({}), [], 'v58.75 an empty watch list stays empty');
 
   const link = lens.buildMarketLink({ regime: { available: true, overall: '다소 부담' }, crossroads, themeLabel: '반도체', tags: ['aicapex', 'cyclical', 'growth'], stage: { stateLabel: '동행' } });

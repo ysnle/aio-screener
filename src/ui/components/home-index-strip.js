@@ -54,10 +54,12 @@ export function sessionModel(payload, nowSeconds = Date.now() / 1000) {
   if (!bars.length) return null;
   const meta = payload.meta || {};
   const previousClose = Number.isFinite(meta.chartPreviousClose) ? meta.chartPreviousClose : Number.isFinite(meta.previousClose) ? meta.previousClose : null;
-  const last = bars[bars.length - 1].c;
   const regular = meta.currentTradingPeriod?.regular;
   const open = !!(regular && Number.isFinite(regular.start) && Number.isFinite(regular.end) && nowSeconds >= regular.start && nowSeconds < regular.end
     && bars[bars.length - 1].t >= regular.start);
+  // After the close the session's own last regular price is the close; the last five-minute bar ends a few cents off it.
+  const closed = !open && meta.regularMarketPrice > 0 && meta.regularMarketTime >= bars[bars.length - 1].t;
+  const last = closed ? meta.regularMarketPrice : bars[bars.length - 1].c;
   const lows = bars.map((bar) => bar.l); const highs = bars.map((bar) => bar.h);
   const min = Math.min(...lows, previousClose ?? Infinity); const max = Math.max(...highs, previousClose ?? -Infinity);
   const slots = Math.max(78, bars[bars.length - 1].slot + 1);

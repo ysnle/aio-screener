@@ -32,8 +32,7 @@ import { sessionReadOf } from './session-read.js';
 import { crossMarketRows, crossMarketLines, crossMarketSynthesis } from './cross-market.js';
 import { reboundTrackOf, REBOUND_TRACK_INDEXES } from './rebound-track.js';
 import { earningsReadOf } from './earnings-read.js';
-import { sessionCatalysts } from '../day/catalysts.js';
-import { sessionDivergences } from '../day/divergence.js';
+import { sessionCatalysts, sessionDivergences } from '../day/day-cause.js';
 import { koreaBigMoveSaid } from '../korea/korea-session-link.js';
 import { DAY_READ_WORDS } from '../../content/day-read-words.js';
 
@@ -823,8 +822,8 @@ export function fallStandings(opening, { limit = 5 } = {}) {
  *   KOSPI investor flows (kr-investor-flows.js buildKrInvestorFlowView), read only on a large KOSPI session's line.
  * @returns {{available: boolean, asOf?: string, rows?: object, lines?: Array<{id:string, label:string, said:{text:string, claims:object[]}}>,
  *   bars?: {bars: object[], scale: number, marks: object[]}, diagnosis?: object|null, rebound?: object|null, korea?: object, table?: object[], standings?: object[], longrun?: boolean, cross?: object[]}}
- *   `catalysts`: the ledger's headlines linked to this session (day/catalysts.js; their line sits under the session line);
- *   `divergences`: the session's cross-asset divergences (day/divergence.js; AI facts only).
+ *   `catalysts`: the ledger's headlines linked to this session (day/day-cause.js; their line sits under the session line);
+ *   `divergences`: the session's cross-asset divergences (day/day-cause.js; AI facts only).
  *   `lines`: the face's text — the session lines, the cross-market head (the rebound's tally, only on a rebound) and one
  *   'cross' line per row, the lede, the diagnosis line (its label the state word), the rebound's conditions line (its label
  *   the rebound word; it ends with the stance), the one small record line. `cross`: the rows themselves (cross-market.js).

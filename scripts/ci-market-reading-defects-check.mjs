@@ -70,12 +70,12 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
 {
   const text = reading(at1120, 'trend-breadth')?.text || '';
   check('v60.50 A3: a fall of both indexes (S&P 500 -9.4%, 동일가중 -4.2%) is not read as a broadening rise', !/상승이 대형주 밖으로 넓어졌/.test(text), text);
-  check('v60.50 A3: 11/20 names both 20-session moves and says the fall was heavier in large caps', /S&P 500 -9\.4%, 동일가중 -4\.2%/.test(text) && /낙폭은 대형주에서 더 컸습니다/.test(text), text);
+  check('v60.50 A3: 11/20 names both 20-session moves and says the fall was heavier in large caps', /S&P 500 -9\.4%, 동일가중 -4\.2%/.test(text) && /— 대형주 낙폭 큼/.test(text), text);
   check('v60.50 A3: the breadth sentence no longer contradicts the cap-weight gap', !/대형주 몇 곳의 문제가 아닙니다/.test(text), text);
   const fallEqualMore = reading(gapRows({ spxEnd: -3, rspEnd: -8, breadth: 30 }), 'trend-breadth')?.text || '';
-  check('v60.50 A3 mirror: equal weight falling more is not called "대형주 쏠림"', /낙폭은 대형주 밖에서 더 컸습니다/.test(fallEqualMore) && !/대형주 쏠림이 더 심해/.test(fallEqualMore), fallEqualMore);
+  check('v60.50 A3 mirror: equal weight falling more is not called "대형주 쏠림"', /— 대형주 밖 낙폭 큼/.test(fallEqualMore) && !/대형주 쏠림이 더 심해/.test(fallEqualMore), fallEqualMore);
   const riseEqualMore = reading(gapRows({ spxEnd: 2, rspEnd: 7, breadth: 50 }), 'trend-breadth')?.text || '';
-  check('v60.50 A3: in a rise, equal weight ahead still reads as broadening', /상승이 대형주 밖으로 넓어졌습니다/.test(riseEqualMore), riseEqualMore);
+  check('v60.50 A3: in a rise, equal weight ahead still reads as broadening', /— 동일가중 우위 상승/.test(riseEqualMore), riseEqualMore);
 }
 
 // B7 — the Korea pair reads KOSPI and the won on the same date; a later KOSPI session is named apart.
@@ -110,7 +110,7 @@ function gapRows({ spxEnd, rspEnd, breadth }) {
   const text = reading(at1120, 'volatility-sentiment')?.text || '';
   check('v60.50 B13: the stress-and-fear pair makes no uncounted frequency claim', !/자주/.test(text), text);
   // Exact again on the frozen rows (11/20 HY 3.76, five sessions after 3.23 on 11/13).
-  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 +53bp, 부담)', /하이일드 스프레드도 부담 쪽이라\(5거래일 \+53bp, 20거래일 \+38bp\)/.test(text), text);
+  check('v60.50 B13: on 11/20 the credit condition reads as met (HY 5거래일 +53bp, 부담)', /하이일드 스프레드 부담\(5거래일 \+53bp, 20거래일 \+38bp\)/.test(text), text);
 }
 
 // B15 — the transition's confirmation says which weakness conditions are met and which remain.

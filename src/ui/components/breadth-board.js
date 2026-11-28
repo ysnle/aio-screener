@@ -21,7 +21,8 @@ import { BREADTH_SPEED_METHOD, breadthCounter, measureFace } from '../../domain/
 import { indicatorRow, kindFold, rawTable, setFoldBody } from './indicator-face.js';
 import { historyWaitText } from './data-state.js';
 import { renderMarketStructure } from './market-structure.js';
-import { stockFalls, STOCK_FALLS_METHOD } from '../../domain/market/breadth/stock-falls.js';
+import { indexMembers, stockFalls, STOCK_FALLS_METHOD } from '../../domain/market/breadth/stock-falls.js';
+import { MOVER_RULES, MOVER_WORDS, moverCounts, moverRatioSeries, moverRatios } from '../../domain/market/breadth/movers.js';
 import { fallBars } from './fall-bars.js';
 
 // The screener rows in the store (the page re-renders on the screener slice, so rows arriving after mount repaint the
@@ -30,12 +31,11 @@ const screenerRows = (root) => root?.AIO_ARCH?.getScreenerState?.('rows') || [];
 
 const WINDOW = 126; // about six months of sessions
 
-function rolling(series, n, { sum = false } = {}) {
+function rolling(series, n) {
   return series.map((point, index) => {
     if (index + 1 < n) return null;
     const slice = series.slice(index + 1 - n, index + 1);
-    const total = slice.reduce((acc, row) => acc + row.value, 0);
-    return { date: point.date, value: sum ? total : total / n };
+    return { date: point.date, value: slice.reduce((acc, row) => acc + row.value, 0) / n };
   }).filter(Boolean);
 }
 
@@ -69,8 +69,9 @@ export function buildBreadthCards(history = []) {
   const spx = series('spx').slice(-WINDOW);
   const highs = series('breadthNewHighs');
   const lows = series('breadthNewLows');
-  const up4 = series('breadthUp4');
-  const down4 = series('breadthDown4');
+  const movers = moverRatios(history, { through });
+  const ratio5 = moverRatioSeries(moverCounts(history, through), MOVER_RULES.windows[0]).filter((point) => point.value != null);
+  const ratio10 = movers?.windows.find((row) => row.n === MOVER_RULES.windows[1])?.value ?? null;
   const lastOf = (list) => list[list.length - 1] || null;
   const pct = (value) => `${value.toFixed(0)}%`;
   return [
@@ -82,8 +83,9 @@ export function buildBreadthCards(history = []) {
     { id: 'ad', group: 'participation', title: '누적 상승-하락 종목 수 (A/D 라인)', note: '지수(시장 상태의 추세 차트)와 같이 오르면 넓은 상승, 지수만 오르면 괴리 — 시작점은 기록 첫날이라 높이보다 방향을 봄', series: cumulative(series('advanceDecline')).slice(-WINDOW), refLines: [], format: count, changeUnit: '', changeDigits: 0 },
     { id: 'hl', group: 'leadership', title: '52주 신고가 − 신저가 종목 수', note: '장중 고가·저가가 지난 1년 범위를 넘은 종목 수(그날 종가가 내려도 셈) — 신고가가 많으면 강한 종목이 우세, 며칠 이어지는지로 확산 여부를 봄, 지수 고점에서 신저가가 늘면 괴리 신호', series: difference(highs, lows).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
       latest: lastOf(highs) && lastOf(lows) ? `신고가 ${count(lastOf(highs).value)}, 신저가 ${count(lastOf(lows).value)}` : null, drill: ['newHigh', 'newLow'] },
-    { id: 'mv', group: 'leadership', title: '4% 이상 상승 − 하락 종목 수 (5일 합계)', note: '거래량이 늘며 하루 4% 넘게 움직인 종목 — 5일 합계에서 상승·하락 중 어느 쪽이 우세한지 봄', series: rolling(difference(up4, down4), 5, { sum: true }).slice(-WINDOW), refLines: [0], format: signedCount, changeUnit: '', changeDigits: 0,
-      latest: lastOf(up4) && lastOf(down4) ? `${lastOf(up4).date.slice(5).replace('-', '/')} 상승 ${count(lastOf(up4).value)}, 하락 ${count(lastOf(down4).value)}` : null, drill: ['up4', 'down4'] },
+    { id: 'mv', group: 'leadership', title: '4% 이상 상승 ÷ 하락 종목 수 (5일 합 비율)', note: `거래량이 늘며 하루 4% 넘게 움직인 종목 — 최근 5·10거래일 상승 합을 하락 합으로 나눈 비율(하락 합이 0이면 비율 없음). 하루 하락이 상승의 ${MOVER_RULES.extremeDayMultiple}배를 넘고 5일 비율이 ${MOVER_RULES.extremeRatioBelow} 미만이면 '${MOVER_WORDS.extreme}', 하루 상승이 하락의 ${RULES.bottomWatch.thrustRatio}배 이상이면 '${MOVER_WORDS.thrust}' — 추력은 바닥 확인이 아닌 조건 하나`,
+      series: ratio5.slice(-WINDOW), refLines: [...MOVER_RULES.refLines], format: (value) => value.toFixed(2), changeUnit: '', changeDigits: 2, stateWord: movers?.word || null,
+      latest: movers ? `${shortDate(movers.day.date)} 상승 ${count(movers.day.up)}, 하락 ${count(movers.day.down)}${ratio10 != null ? `, 10일 비율 ${ratio10.toFixed(2)}` : ''}` : null, drill: ['up4', 'down4'] },
     { id: 'dd', group: 'index', title: 'S&P 500 매도 우위일(분배일, 최근 25거래일)', note: `지수가 0.2% 이상 내리면서 거래량이 늘어난 날의 수 — 흔히 25거래일 중 5~6회 이상이면 추세 약화 경고로 보고, 시장 상태는 ${RULES.leadership.distributionDaysAt}회 이상을 주도 영역 확인 신호로 셈`, series: pctSeries('distributionDays'), refLines: [RULES.leadership.distributionDaysAt] /* v58.75 (persona review): same line as 시장 상태 */, format: count, changeUnit: '', changeDigits: 0, domain: [0, 12] },
     // Not drawn (no group): the S&P 500 window sets the shared date range and feeds the index group's sentence.
     { id: 'spx', group: null, title: 'S&P 500', series: spx }
@@ -177,6 +179,18 @@ function renderDrill(doc, root, card, contributors, basis) {
   return wrap;
 }
 
+// The tab's first visual: the share of S&P 500 members at or past each depth under their 52-week closing high (one bar each
+// on a 0–100% track, drawn with the fall-bar painter), the index's own falls on the opening's scale beside it, and the
+// same shares by sector as the raw table.
+function fallsNodes(doc, falls) {
+  const depthBars = { scale: 100, marks: [], bars: falls.depths.map((row) => ({ id: `depth-${row.at}`, label: `-${row.at}% 이하`, part: 'members', value: -row.share, valueText: `${row.share.toFixed(0)}%`, stage: null })) };
+  const caption = `52주 고점 대비 종목 비율${falls.word ? ` · ${falls.word}` : ''}`;
+  const sectors = kindFold(doc, 'raw-table', '업종별 하락 비율');
+  sectors.classList.add('breadth-sectors');
+  setFoldBody(sectors, rawTable(doc, falls.sectors.map((row) => [`${sectorLabel(row.sector)} (${row.n})`, row.depths.map((depth) => `-${depth.at}% 이하 ${depth.share.toFixed(0)}%`).join(' · ')]), '업종별 하락 비율'));
+  return [fallBars(doc, depthBars, caption), fallBars(doc, falls.bars, `지수 하락`), sectors];
+}
+
 function methodBody(doc, root, cards) {
   const nodes = [el(doc, 'p', `숫자는 모두 직전 미국장 종가 기준입니다. 행의 구간은 각 차트에 그린 기준선이고, 50일선·200일선 위 비율의 ${RULES.breadth.weakBelow}%·${RULES.breadth.broadAtLeast}%는 시장 상태 '시장 폭' 판정의 기준과 같습니다. ${BREADTH_SPEED_METHOD}`, 'ind-method__lead'),
     el(doc, 'p', STOCK_FALLS_METHOD, 'ind-method__lead')];
@@ -220,12 +234,13 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
   // The hero line says how many stocks are in the fall and how deep (stock-falls.js, the
   // screener rows on the verdict's close) and the bars set the median stock beside the S&P 500 and equal weight. The
   // axis's 판정 사유 row, the label-only line it replaces, moved to the raw table.
-  const falls = regime.available ? stockFalls({ rows: screenerRows(root), history: inputs.history, session: regime.asOf }) : null;
+  const members = indexMembers(root?.AIO_ARCH?.getScreenerState?.('metadata.indexWeights') || null);
+  const falls = regime.available ? stockFalls({ rows: screenerRows(root), members, history: inputs.history, session: regime.asOf }) : null;
   set('breadth-read', falls?.said.text || '');
   let fallsHost = doc.getElementById('breadth-falls');
   if (!fallsHost && state) { fallsHost = el(doc, 'div', null, 'mk-sub-hero__falls'); fallsHost.id = 'breadth-falls'; state.closest('.mk-sub-hero__row')?.after(fallsHost); }
   if (fallsHost) {
-    fallsHost.replaceChildren(...(falls ? [fallBars(doc, falls.bars, `52주 종가 고점 대비 · ${falls.measured}개 종목`)] : []));
+    fallsHost.replaceChildren(...(falls ? fallsNodes(doc, falls) : []));
     fallsHost.hidden = !falls;
   }
   // The condition that changes the verdict: the nearest threshold of the rule (flipDistance, the rule's own numbers) and its
@@ -254,7 +269,7 @@ export function renderBreadthBoard({ documentRef: doc, root }) {
     };
     const renderRow = (card) => {
       const f = faceOf(card);
-      const row = indicatorRow(doc, { title: card.title, stateLabel: f.face.band || '기록 없음', tone: 'neutral', value: f.text, distance: f.face.distance, lines: [['change', f.changes], ['latest', f.latest]] });
+      const row = indicatorRow(doc, { title: card.title, stateLabel: card.stateWord || f.face.band || '기록 없음', tone: 'neutral', value: f.text, distance: f.face.distance, lines: [['change', f.changes], ['latest', f.latest]] });
       row.dataset.metric = card.id;
       return row;
     };

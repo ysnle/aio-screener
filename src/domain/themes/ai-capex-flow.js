@@ -1,8 +1,8 @@
 // AI capital spending as a flow of money into layers, from the owner-supplied a16z "State of
 // Markets II", which cites BNP Paribas (2026-08) for the split and TrendForce
-//  for lead times. Static REFERENCE, never a current signal. Layers link to this
-// screener's own THEME_MAP categories (a category mapping, not a ticker guess); the knowledge base
-// entry is _context/KNOWLEDGE-BASE.md TM-XIX.
+//  for lead times. Static REFERENCE, never a current signal: 산업 지도's data-center chain (pages/atlas.js) is its one
+// screen. Layers name this screener's own THEME_MAP categories (a category mapping, not a ticker guess; market-flow.js
+// keeps the boot-set copy); the knowledge base entry is _context/KNOWLEDGE-BASE.md TM-XIX.
 export const AI_CAPEX_FLOW = Object.freeze({
   id: 'ai-capex-flow-2026-08',
   sourceKind: 'REFERENCE',

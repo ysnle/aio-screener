@@ -3,6 +3,9 @@
 // render; window._aioRenderHomeVix stays for the legacy snapshot apply and home refresh (src/app/compatibility-globals.js).
 import { vixBand } from '../../domain/market/sentiment/narrative.js';
 import { RULES } from '../../domain/rules/thresholds.js';
+import { volatilityState } from '../../domain/market/sentiment/volatility-state.js';
+import { shortDate } from '../../domain/content/date-labels.js';
+import { signedText } from '../../domain/shared/number.js';
 
 // VIX is never 0: a 0 is a missing quote.
 const positive = (v) => {
@@ -22,5 +25,11 @@ export function renderHomeVix({ documentRef = globalThis.document, root = global
   // The one band (narrative.vixBand on RULES.volatility); this card kept its own 32/25/18 copy.
   const V = RULES.volatility;
   valueEl.style.color = vp == null ? 'var(--color-text-secondary)' : (vp >= V.highAt ? 'var(--color-text-error)' : vp >= V.stressAt ? 'var(--color-text-warning)' : vp >= V.calmBelow ? 'var(--color-text-secondary)' : 'var(--color-text-success)');
-  if (statusEl) statusEl.textContent = vp == null ? '—' : vixBand(vp).label;
+  if (statusEl) {
+    // The last completed session's S&P 500 move against the range the session before implied (a tag; the numbers are in
+    // the title and on 투자 심리).
+    const range = volatilityState(root._aioHistory || [])?.range || null;
+    statusEl.textContent = vp == null ? '—' : `${vixBand(vp).label}${range ? ` · ${shortDate(range.date)} S&P 500 ${range.label}` : ''}`;
+    statusEl.title = range ? `${shortDate(range.date)} S&P 500 ${signedText(range.move, 1, '%')}, ${shortDate(range.priorDate)} VIX ${range.priorVix.toFixed(2)} 기준 하루 1표준편차 ±${range.sd.toFixed(1)}%` : '';
+  }
 }

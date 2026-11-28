@@ -614,9 +614,9 @@ for (const retired of ['_aioRenderLegacyMarketHealth', '_aioLegacyHealthElement'
   // callback rebuilt its own option list and the Taiwan one dropped `valuation`, wiping the open PER fold (14 rows).
   // One repaint closure carries every option of the paint.
   const chainSource = read('src/ui/components/ai-chain-flow.js');
-  const chainBody = chainSource.slice(chainSource.indexOf('function paintAiChain('));
-  const selfCalls = (chainBody.match(/paintAiChain\(doc, root, \{[^}]*\}\)/g) || []).slice(1); // [0] is the signature
-  if (selfCalls.length !== 1 || !/valuation \}\)$/.test(selfCalls[0]) || !/twRevenue\(doc, root, id, repaint\)/.test(chainBody) || !/layerPerFold\(doc, root, repaint\)/.test(chainBody)) fail(`v60.19 ai-chain-flow.js late-data repaints must share one closure with every option: ${selfCalls.join(' | ')}`);
+  const chainBody = chainSource.slice(chainSource.indexOf('export function paintThemesAiChain('));
+  const selfCalls = chainBody.match(/paintThemesAiChain\(doc, root\)/g) || []; // [0] is the signature, [1] the one repaint closure
+  if (selfCalls.length !== 2 || !chainBody.includes('const repaint = () => paintThemesAiChain(doc, root);') || !chainBody.includes('requestConsensusEstimates(root, repaint)') || !chainBody.includes('fundingChainFor(root, { request: repaint })')) fail(`v60.19 ai-chain-flow.js late-data repaints must share one closure: ${selfCalls.length}`);
   // v60.19 (Codex audit fx-refresh-focus): a refresh re-render reset 자산군 1개월 to 3개월 and dropped focus to BODY. The
   // behaviour is asserted in the browser (scripts/ci-architecture-browser-check.mjs, 매크로 자산군 after aio:refresh:done).
   if (regimeImporters.length) fail(`v60.19 only the signal route loader imports market-regime.js: ${regimeImporters.join(', ')}`);

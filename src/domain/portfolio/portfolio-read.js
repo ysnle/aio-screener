@@ -20,7 +20,7 @@ import { koreaRecordText, KR_SHOCK_TAIL_PCT } from '../briefing/market-read.js';
 import { directionOf, signedText, readNumber as finite } from '../shared/number.js';
 import { withAndParticle } from '../content/korean-particle.js';
 import { hasLeadingIsoDay } from '../shared/session-date.js';
-import { bufferedTrend } from '../technical/bands.js';
+import { holdingTrendState, TREND_LABEL } from './holding-state.js';
 import { leaderMembers } from '../briefing/ai-chain-flow.js';
 
 const signed = (value, digits = 1, unit = '%') => signedText(value, digits, unit);
@@ -40,19 +40,10 @@ function rotationQuadrant(item) {
   return { ...base, held: false, base: base.label, why: '' };
 }
 
-// v59.70 (lens plan step 5): one trend definition. The portfolio used its own band (±max(1%, ADR) around either line);
-// it now reads the same bufferedTrend as 종목·기술적 분석 (technical/bands.js), mapped to the portfolio's five states. A
-// short-term break inside an up-trend counts as 판정 보류. Above both lines with the five-session return missing stays 상승
-// only when the 50-day band was tested (ADR known), as the portfolio read did before; without the ADR it is 판정 보류.
-const TREND_STATE_OF = Object.freeze({ up: 'up', 'up-shaken': 'near', near50: 'near', pullback: 'pullback', rebound: 'rebound', down: 'down' });
+// One trend definition for every holding read (holding-state.js, the same bufferedTrend as 종목·기술적 분석).
+const trendState = holdingTrendState;
 // The Korean part of a book is read beside the US verdict once it is at least this share of the holdings.
 export const KR_BOOK_SHARE_PCT = 30;
-function trendState(row) {
-  const trend = bufferedTrend(row);
-  if (trend?.id === 'unconfirmed') return finite(row?.adrPct) > 0 ? 'up' : 'near';
-  return TREND_STATE_OF[trend?.id] || null;
-}
-export const TREND_LABEL = Object.freeze({ up: '상승 추세', near: '선 근처(판정 보류)', pullback: '추세 속 조정', rebound: '장기 추세 아래 반등', down: '하락 추세' });
 const isKr = (symbol) => /\.(KS|KQ)$/i.test(String(symbol || ''));
 
 const shortDate = (iso) => `${Number(String(iso).slice(5, 7))}/${Number(String(iso).slice(8, 10))}`;

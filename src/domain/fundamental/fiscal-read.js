@@ -257,7 +257,8 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     points.push(point('roe', roe >= 20 ? 'favorable' : roe < 5 ? 'burden' : 'neutral', '자본 효율', /* v57.84: green only where the text says 높은 (≥20) */
       say('ROE {roe}({basis}) — {verdict}입니다.{high}', { roe: roeClaim, basis: roeBasis, verdict, high })));
   }
-  // The cash chain — earnings → operating cash → capital spending → free cash → debt and share count.
+  // The cash chain — earnings → operating cash → capital spending → free cash → debt. Its year-over-year split, dilution and
+  // runway rows are cash-chain.js, drawn on the 이익의 질 card.
   const ocf = finite(latest?.operatingCashFlow);
   const capex = finite(latest?.capex);
   if (financial && history.length) {
@@ -287,7 +288,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     const fcf = capex != null ? ocf - capex : null;
     const tone = creditableConversion && conversion >= 0.8 && (fcf == null || fcf > 0) ? 'favorable' : 'neutral';
     if (!creditableConversion) {
-      const reading = latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : latest.netIncome < 0 && ocf < 0 ? '순손실과 영업현금 유출이 함께 나타났습니다. 현금 잔고와 조달 계획을 확인합니다'
+      const reading = latest.netIncome < 0 && ocf > 0 ? '장부상 순손실이지만 영업에서는 현금이 들어왔습니다. 비현금 비용(감가상각·주식 보상)이 손실을 키웠는지 현금흐름표에서 확인합니다' : latest.netIncome > 0 && ocf < 0 ? '장부상 이익이지만 영업현금은 빠져나갔습니다. 매출채권·재고가 늘었는지 확인합니다' : latest.netIncome < 0 && ocf < 0 ? '순손실과 영업현금 유출이 함께 나타났습니다'
         // v59.45 (P19-FISCAL-01): a zero is break-even / no cash movement, not a loss or an outflow.
         : `${latest.netIncome === 0 ? '순이익 0(손익분기)' : latest.netIncome < 0 ? '순손실' : '장부상 이익'}, ${ocf === 0 ? '영업현금흐름 0' : ocf < 0 ? '영업현금 유출' : '영업현금 유입'}입니다`;
       points.push(point('cash', tone, '현금 전환', say('영업현금흐름 {cash}, 순이익 {cash.1} — {reading}. {side} 순이익 대비 현금 비율은 쓰지 않습니다.', { cash: cashPair, reading, side: latest.netIncome === 0 || ocf === 0 ? '한쪽이 0이라' : '한쪽이 마이너스라' })));
@@ -314,26 +315,7 @@ export function buildFiscalRead({ symbol, fundamentals = null, row = null, quart
     points.push(point('debt', change > 25 ? 'burden' : 'neutral', '부채',
       say('{label} {debt}(전년 대비 {debt.1}){equity}.', { label, debt, equity: latest?.equity > 0 ? say(', 자기자본 대비 {debt.2}', { debt }) : NOTHING })));
   }
-  // Share count across years, skipping year-over-year jumps that look like splits (near-integer ratios ≥ 1.9).
-  const shareYears = history.filter((year) => finite(year.shares) > 0);
-  if (shareYears.length >= 2) {
-    let factor = 1;
-    let splitSeen = false;
-    for (let k = 1; k < shareYears.length; k += 1) {
-      const ratio = shareYears[k].shares / shareYears[k - 1].shares;
-      const inverse = 1 / ratio;
-      const nearSplit = (x) => x >= 1.9 && Math.abs(x - Math.round(x)) / Math.round(x) < 0.06; // buybacks between cover dates blur exact ratios
-      if (nearSplit(ratio) || nearSplit(inverse)) { splitSeen = true; continue; }
-      factor *= ratio;
-    }
-    const change = (factor - 1) * 100;
-    const span = Math.max(1, Math.round((Date.parse(shareYears.at(-1).periodEnd) - Date.parse(shareYears[0].periodEnd)) / (365.25 * 86400000))) || shareYears.length - 1;
-    const held = periodId('SPAN', shareYears.at(-1).periodEnd, shareYears[0].periodEnd);
-    const shares = filed('shares', [fig(span, 'years', 'spanYears', '동안', held), fig(change, 'pct', 'sharesSplitAdjusted', '발행 주식 수', held)]);
-    points.push(point('shares', change <= -1 ? 'favorable' : change >= 3 ? 'burden' : 'neutral', '주식 수',
-      say('{shares} 동안 발행 주식 수 {shares.1}{split} — {reading}.', { shares, split: splitSeen ? '(주식 분할로 보이는 변화는 제외)' : '',
-        reading: change <= -1 ? '남은 주주의 지분 비율이 커졌습니다(주당 가치가 커졌는지는 매입 가격과 쓴 현금에 달림)' : change >= 3 ? '신주 발행·보상 주식으로 기존 주주의 지분 비율이 줄었습니다' : '거의 변하지 않았습니다' })));
-  }
+  // The share count across years is the cash chain's dilution row (cash-chain.js dilutionRead, 이익의 질 card).
 
   // A 6-month price move set against a fiscal-year revenue change compares
   // different periods (the fiscal year may have ended a year ago). Both are stated with their periods

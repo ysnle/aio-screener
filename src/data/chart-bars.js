@@ -20,8 +20,15 @@ export function completedBars(bars, payload, nowMs = Date.now()) {
 export function barsFromYahoo(payload) {
   if (!payload || !Array.isArray(payload.timestamps)) return [];
   const tz = payload.meta?.exchangeTimezoneName || 'America/New_York';
+  const day = (ts) => new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz });
+  // Yahoo can send the latest daily bar with its open, high and low but no close (seen after an early close) while the
+  // quote of the same session carries the last regular price: that price is the bar's close. completedBars still
+  // decides whether the session is over.
+  const lastIndex = payload.timestamps.length - 1;
+  const quote = Number(payload.meta?.regularMarketPrice), quoteAt = Number(payload.meta?.regularMarketTime);
+  const quoteClose = quote > 0 && Number.isFinite(quoteAt) && day(quoteAt) === day(payload.timestamps[lastIndex]) ? quote : null;
   return payload.timestamps.map((ts, i) => ({
-    time: new Date(ts * 1000).toLocaleDateString('en-CA', { timeZone: tz }),
-    open: payload.opens?.[i], high: payload.highs?.[i], low: payload.lows?.[i], close: payload.closes?.[i], volume: payload.volumes?.[i]
+    time: day(ts),
+    open: payload.opens?.[i], high: payload.highs?.[i], low: payload.lows?.[i], close: payload.closes?.[i] ?? (i === lastIndex ? quoteClose : null), volume: payload.volumes?.[i]
   })).filter((bar) => [bar.open, bar.high, bar.low, bar.close].every((v) => typeof v === 'number' && Number.isFinite(v) && v > 0));
 }

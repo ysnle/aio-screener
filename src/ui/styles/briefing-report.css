@@ -65,7 +65,7 @@
 #page-briefing .br-seq__dot { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: var(--radius-full); background: var(--color-text-primary); box-shadow: 0 0 0 2px var(--color-background-body); }
 #page-briefing .br-seq__label { position: absolute; transform: translate(-50%, calc(-100% - 8px)); font-size: 12px; color: var(--color-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 #page-briefing .br-seq__label.is-below { transform: translate(-50%, 8px); }
-#page-briefing .br-seq__row { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 0.5px solid var(--br-rule); padding-top: 8px; }
+#page-briefing .br-seq__row { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border-top: 0.5px solid var(--br-rule); padding-top: 8px; }
 #page-briefing .br-seq__cell { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; font-variant-numeric: tabular-nums; }
 #page-briefing .br-seq__value { color: var(--color-text-primary); }
 #page-briefing .br-seq__date { color: var(--color-text-secondary); }

@@ -955,7 +955,11 @@ console.log('scenario guidance fixture (basis card): PASS');
   // NFCI: the credit-stress condition and the 거시 card read the same 4-week window (a session count read one week).
   const nfciObs = Array.from({ length: 30 }, (_, i) => [new Date(Date.UTC(2026, 2, 6) + i * 7 * 86400000).toISOString().slice(0, 10), Number((-0.6 + 0.0125 * i).toFixed(4))]);
   const nfciMh = mhOf({ financialConditions: nfciObs });
-  const card = buildLiquidityGrowthGroups(nfciMh, { referenceMs: Date.parse(nfciObs.at(-1)[0]) }).flatMap((group) => group.items).find((item) => item.id === 'nfci');
+  // The index is a row of the 신용 chapter (the liquidity cards are gone); the chapter needs a high-yield spread to exist.
+  const { buildMacroChapters } = await import('../src/domain/macro/macro-chapters.js');
+  const hyObs = Array.from({ length: 60 }, (_, i) => [new Date(Date.parse(nfciObs.at(-1)[0]) - (59 - i) * 86400000).toISOString().slice(0, 10), 3]);
+  const creditRow = buildMacroChapters({ macroHistory: mhOf({ financialConditions: nfciObs, hyOas: hyObs }) }).chapters.find((chapter) => chapter.id === 'credit').detail.find(([name]) => name === '금융여건 지수')[1];
+  const card = { changeText: creditRow.match(/4주 [+-][0-9.]+/)?.[0] };
   assert.ok(card.changeText === '4주 +0.05' && Math.abs(buildScenarioSignals({ macroHistory: nfciMh }).nfci4 - 0.05) < 1e-9, `v57.81 the NFCI card and the credit-stress condition share one 4-week window (${card.changeText})`);
   console.log('scenario guidance fixture (v57.81 macro gates, dead zones, PCE·CPI direction, one oil rule, ties, NFCI window): PASS');
 }

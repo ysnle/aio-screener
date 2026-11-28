@@ -1,6 +1,7 @@
 // v59.44 (owner 2026-10-29, news by weight): the official monthly releases that came out in the last two days — PCE,
 // CPI, the jobs report, retail sales — read from the same macro board 거시 shows (src/domain/macro/indicators.js), so
-// 오늘 can lead with them beside the FOMC brief. Observed values only; no consensus is compared (none is published here).
+// 오늘 can lead with them beside the FOMC brief. Observed values only; no consensus is compared here
+// (the ledger's release forecasts, from channel signals, are read by the cause model: market/day/day-cause.js).
 import { buildMacroBoard, MACRO_GROUPS } from '../macro/indicators.js';
 
 const DAY = 86400000;

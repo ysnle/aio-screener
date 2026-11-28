@@ -10,6 +10,7 @@ import { RULES } from '../rules/thresholds.js';
 import { MARKET_WINDOWS } from '../market/session/market-windows.js';
 import { signedText, readNumber as finite } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
+import { yenDecomposition } from './cross-asset-relations.js';
 
 // MERGED #13 (run-6): the 10-year yield read 4.93 / 4.94 / 4.98 / 5.00 on one day — ^TNX close, Treasury par curve, FRED
 // DGS10 on the Fisher-split day, DGS10 on the term-premium model day. The headline figure "미 10년물" has one reader: the
@@ -406,20 +407,10 @@ export function buildRatesFx({ macro = null, history = [], macroHistory = null }
   const yen = fx.find((card) => card.id === 'usdjpy');
   // A falling USD/JPY is a stronger yen.
   const yenStrength = yen?.change20 == null ? null : -yen.change20;
-  const carry = yenStrength == null
-    ? { available: false, text: '엔/달러 20거래일 기록이 쌓이면 표시합니다.' }
-    : {
-      available: true,
-      yenStrength,
-      burden: yenStrength >= YEN_RALLY_RULE,
-      // "20거래일 +1.5%" (USD/JPY) above "엔화 20일 -1.5%" read as a sign error; the second is the
-      // yen's own value, and that is now said.
-      // v58.80 (first-users run-3 N#32): "엔화 20일 +1.3%" beside the card's "-1.3%" still read as a contradiction; the
-      // window carries the same name as the card's and the sentence says the two are one move seen from each side.
-      // v59.45 (P18-FX-01): the rule is the USD/JPY fall itself; minus that fall is not the yen's own return (100→80 is −20%
-      // for USD/JPY but +25% for the yen), so the sentence names the rate it measures.
-      text: `엔/달러 20거래일 ${signed(-yenStrength, 1, '%')}(${Math.round(yenStrength * 10) > 0 ? '엔 강세' : Math.round(yenStrength * 10) < 0 ? '엔 약세' : '변화 없음'}). 엔/달러가 20거래일에 ${YEN_RALLY_RULE}% 이상 내리면(엔 급강세) 시장 상태의 환율 참고 지표가 '부담'으로 바뀝니다(6개 지표 합계에는 넣지 않음).`
-    };
+  // The rule is the USD/JPY fall itself (100→80 is −20% for USD/JPY but +25% for the yen). Whether the fall is the dollar,
+  // the yen or the carry trade unwinding is the cross-asset verdict beside it.
+  const carry = yenStrength == null ? { available: false }
+    : { available: true, yenStrength, burden: yenStrength >= YEN_RALLY_RULE, decomposition: yenDecomposition(history, { through: basis }) };
   // The 10-year "5일/20일" change on this tab is the ^TNX completed-close series — the same series and session
   // count as the 시장 상태 rates axis — so the two screens print the same number for the same day (tenYearClose).
   const ten = tenYearClose(history, { through: basis });

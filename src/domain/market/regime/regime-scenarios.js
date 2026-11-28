@@ -214,6 +214,7 @@ function computeKoreaIndexSeries(history, field, completed) {
   return [...byDate].sort(([a], [b]) => a.localeCompare(b)).map(([stamp, value]) => ({ date: stamp, value }));
 }
 
+const observeOf = (change) => (change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지');
 export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), through = null } = {}) {
   const completed = latestCompletedKrSession(nowMs);
   const definitions = [['kospi', '코스피', '한국 대형주 중심 지수'], ['kosdaq', '코스닥', '코스닥 상장 종목 지수']];
@@ -229,7 +230,9 @@ export function buildKoreaRegimeObservations(input = {}, { nowMs = Date.now(), t
       stale: !!completed && last.date !== completed.date,
       read: change == null ? `${move ? `${move}. ` : ''}1개월 변화를 계산할 완료 세션 기록이 부족합니다.` : `최근 ${KR_MONTH_SESSIONS}거래일(한국) ${signedText(change, 1)}%${move ? `, ${move}` : ''}.`, record,
       // T20 (expert review 2026-10-13): the follow-up names the direction the index actually moved (-8.7% read "지수 상승이…").
-      observe: `${change == null ? '지수 움직임이 참여 종목의 같은 방향 움직임으로 이어지는지' : change >= 0 ? '지수 상승이 참여 종목 확대로 이어지는지' : '지수 하락이 종목 전반으로 퍼지는지, 일부 대형주에 그치는지'} 다음 한국 종가에서 확인합니다.` } : null;
+      // The follow-up names the latest session's own direction (the card's day move); the month's direction only without it:
+      // a +8% day under a falling month read "지수 하락이 종목 전반으로 퍼지는지".
+      observe: `${observeOf(move && Number.isFinite(record?.d1) ? record.d1 : change)} 다음 한국 종가에서 확인합니다.` } : null;
   }).filter(Boolean);
   const fx = buildCloseSeries(input.history, 'usdkrw', { through }).filter(point => {
     const weekday = new Date(`${point.date}T12:00:00Z`).getUTCDay(); return weekday !== 0 && weekday !== 6;

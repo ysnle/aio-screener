@@ -1,4 +1,4 @@
-// P1654 (owner 2026-10-12: fill free official data gaps): three supporting groups for the 거시 screen built only from
+// P1654 (owner 2026-10-12: fill free official data gaps): two supporting groups for the 매크로 screen built only from
 // public-data/macro-history.json (FRED raw observations). Each card states a dated value, one change over a named
 // period and one reading; a series that has not been produced yet is left out instead of shown as "—".
 // The line draws the quantity the value states (PPI and GDP
@@ -7,10 +7,9 @@
 // delay carries a stale chip.
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { sessionPointBack } from './rates-fx.js';
-import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries, changeOverDays, MACRO_SIGNAL_RULES } from './macro-signals.js';
+import { BRENT_WTI_SPREAD_HOLD_USD, brentWtiFromSeries } from './macro-signals.js';
 import { signedText } from '../shared/number.js';
 import { isIsoDay } from '../shared/session-date.js';
-import { fedTargetRange } from './fed-target-range.js';
 
 const seriesOf = (macroHistory, field) => (macroHistory?.series?.[field]?.observations || [])
   .map(([date, value]) => ({ date, value: value == null || value === '' ? NaN : Number(value) })) // Number(null) is 0, not a reading
@@ -27,22 +26,6 @@ const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400
 const pct = (now, then) => (then && then !== 0 ? (now / then - 1) * 100 : null);
 const signed = (value, digits = 1, unit = '%') => (value == null || !Number.isFinite(value) ? null : signedText(value, digits, unit));
 const fmt = (value, digits = 0) => value.toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits });
-const median = (values) => {
-  const sorted = [...values].sort((a, b) => a - b);
-  if (!sorted.length) return null;
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-};
-
-// Change against the observation closest to `days` calendar days earlier (never a later one).
-function changeOver(series, days) {
-  const last = series.at(-1);
-  if (!last) return null;
-  const target = new Date(Date.parse(last.date) - days * 86400000).toISOString().slice(0, 10);
-  const then = atOrBefore(series, target);
-  return then ? { then, last } : null;
-}
-
 // v59.59 (logic refactor): a monthly "N개월" change compares with the observation of the calendar month N months back —
 // 92 calendar days from a 1st-of-month date (May 1 → Jan 30) landed on the month before, so the card's "3개월" read
 // four months for some endings (and "1개월" two). No exact month, no change (never a neighbouring month).
@@ -159,55 +142,6 @@ function card({ id, label, series, valueText, changeText, reading, unit = '', as
 
 const frequencyOf = (macroHistory, field, fallback) => macroHistory?.series?.[field]?.frequency || fallback;
 
-function liquidityGroup(macroHistory, { macro, referenceMs }) {
-  const items = [];
-  const net = netLiquiditySeries(macroHistory);
-  const netChange = changeOver(net, 28);
-  if (net.length >= 6) {
-    const d = netChange ? netChange.last.value - netChange.then.value : null;
-    const weekly = net.slice(-53).slice(1).map((row, index) => Math.abs(row.value - net.slice(-53)[index].value));
-    const typicalWeek = median(weekly);
-    const typical = typicalWeek == null ? '' : ` 한 주 변동의 1년 중앙값만 약 ${fmt(typicalWeek * 10, 0)}억 달러입니다.`;
-    const toTrillion = (value) => `${fmt(value / 1000, 2)}조 달러`;
-    items.push(card({ id: 'netLiquidity', label: '순유동성 (연준 자산 − 재무부 계좌 TGA − 역레포)', series: net, asOf: net.at(-1).date, frequency: 'weekly', referenceMs, format: toTrillion,
-      valueText: toTrillion(net.at(-1).value),
-      // d is in USD billions; 1 billion = 10억.
-      changeText: d == null ? null : `4주 ${d >= 0 ? '+' : ''}${fmt(d * 10, 0)}억 달러`,
-      reading: d == null ? '4주 비교 관측이 부족합니다.'
-        : Math.abs(d) < NET_LIQUIDITY_FLAT_BN ? `4주 변화가 ±1,000억 달러 안쪽이라 뚜렷한 방향이 없습니다.${typical} 재무부 계좌·역레포 출렁임보다 작은 변화는 유동성 방향으로 읽지 않습니다.`
-          : d > 0 ? '4주 동안 시장에 풀린 달러가 1,000억 달러 넘게 늘었습니다. 위험자산에 우호적인 배경이 되기 쉽지만 지수 방향을 단독으로 정하지는 않습니다.'
-            : '4주 동안 시장에 풀린 달러가 1,000억 달러 넘게 줄었습니다. 유동성이 빠질 때는 고평가·고변동 종목이 먼저 흔들리는 경향이 있습니다.' }));
-  }
-  const nfci = seriesOf(macroHistory, 'financialConditions');
-  if (nfci.length >= 6) {
-    // The same 4-week window as the 신용 경색 condition (macro-signals changeOverDays).
-    const last = nfci.at(-1); const c = changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays);
-    const move = c ? c.last.value - c.then.value : null;
-    const level = last.value < 0 ? '0보다 낮아 평균보다 돈을 빌리기 쉬운 여건입니다.' : '0보다 높아 평균보다 금융 여건이 빡빡합니다. 신용 스프레드와 함께 확인합니다.';
-    const direction = move == null ? '' : move > 0 ? ` 4주 동안 ${signed(move, 2, '')} 올라 조여지는 쪽으로 움직였습니다.` : move < 0 ? ` 4주 동안 ${signed(move, 2, '')} 내려 풀리는 쪽으로 움직였습니다.` : ' 4주 동안 변화가 없습니다.';
-    items.push(card({ id: 'nfci', label: '금융여건지수 (시카고 연은)', series: nfci, asOf: last.date, frequency: frequencyOf(macroHistory, 'financialConditions', 'weekly'), referenceMs, format: (value) => fmt(value, 2),
-      valueText: fmt(last.value, 2), changeText: c ? `4주 ${signed(move, 2, '')}` : null,
-      reading: `${level}${direction}` }));
-  }
-  const sofr = seriesOf(macroHistory, 'sofr');
-  if (sofr.length >= 6) {
-    const last = sofr.at(-1);
-    // M22: the target range the reading refers to, on the SOFR date.
-    // Both bounds of one date (fed-target-range.js): the history pair on or before the SOFR date, else the snapshot pair.
-    // A missing bound is not filled in (the former upper − 0.25 was an assumed width, not an observation).
-    const hi = atOrBefore(seriesOf(macroHistory, 'fedTargetUpper'), last.date), lo = atOrBefore(seriesOf(macroHistory, 'fedTargetLower'), last.date);
-    const pair = fedTargetRange(lo?.value, hi?.value, lo?.date, hi?.date) || fedTargetRange(macro?.fedTargetLower, macro?.fedTargetUpper, macro?._asOf_fedTargetLower, macro?._asOf_fedTargetUpper);
-    const upper = pair?.upper ?? null;
-    const lower = pair?.lower ?? null;
-    const range = upper == null ? null : `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
-    const where = upper == null ? null : last.value > upper ? `목표 범위 ${range} 위 ${((last.value - upper) * 100).toFixed(0)}bp` : last.value < lower ? `목표 범위 ${range} 아래 ${((lower - last.value) * 100).toFixed(0)}bp` : `목표 범위 ${range} 안, 하단 +${((last.value - lower) * 100).toFixed(0)}bp`;
-    items.push(card({ id: 'sofr', label: 'SOFR 단기 자금 금리', series: sofr, asOf: last.date, unit: '%', frequency: frequencyOf(macroHistory, 'sofr', 'daily'), referenceMs, format: (value) => `${fmt(value, 2)}%`,
-      valueText: `${fmt(last.value, 2)}%`, changeText: where,
-      reading: '은행 간 하루짜리 담보 대출 금리입니다. 연준 목표 범위를 벗어나 튀면 단기 자금 시장의 긴장 신호로 봅니다.' }));
-  }
-  return { id: 'liquidity', title: '유동성, 금융 여건', fact: '시장에 풀린 달러와 돈을 빌리는 조건 — 위험자산 가격의 배경입니다.', items };
-}
-
 function growthGroup(macroHistory, { referenceMs }) {
   const items = [];
   const gdp = seriesOf(macroHistory, 'realGdp');
@@ -275,7 +209,8 @@ function commodityFxGroup(macroHistory, { referenceMs }) {
 }
 
 // referenceMs: the time staleness is judged against (now on screen; fixed in tests).
-export function buildLiquidityGrowthGroups(macroHistory, { macro = null, history = [], referenceMs = Date.now() } = {}) {
-  const context = { macro, referenceMs, oil: brentWtiCheck(macroHistory, history) };
-  return [liquidityGroup(macroHistory, context), growthGroup(macroHistory, context), commodityFxGroup(macroHistory, context)].filter((group) => group.items.length);
+// The liquidity cards became 매크로's 자금 배관 chapter (funding-plumbing.js); net liquidity stays here for its readers.
+export function buildLiquidityGrowthGroups(macroHistory, { referenceMs = Date.now() } = {}) {
+  const context = { referenceMs };
+  return [growthGroup(macroHistory, context), commodityFxGroup(macroHistory, context)].filter((group) => group.items.length);
 }

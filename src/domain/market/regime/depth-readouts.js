@@ -5,6 +5,7 @@ import { readNumber, signedText } from '../../shared/number.js';
 import { RULES } from '../../rules/thresholds.js';
 import { sessionCloses } from '../indices/index-levels.js';
 import { bp, buildCloseSeries, closeBasis, commonDateSplit, hyDelta20Bp, recordPercentile, recordSide, sessionChanges } from '../../briefing/market-read.js';
+import { volatilityState } from '../sentiment/volatility-state.js';
 
 export const DEPTH_RULES = Object.freeze({
   // Zweig: the 10-day EMA of the advancing share from ≤ 0.40 to ≥ 0.615 inside 10 sessions. AIO counts S&P 500 members
@@ -82,7 +83,7 @@ export const correlationFlatBand = (sessions = DEPTH_RULES.correlationSessions) 
 export function stockBondCorrelationWord(value, sessions = DEPTH_RULES.correlationSessions) {
   const flat = correlationFlatBand(sessions);
   return Math.abs(value) < flat ? `뚜렷한 관계 없음(±${flat.toFixed(2)} 안은 표본 오차)`
-    : value > 0 ? '같이 움직여 채권이 주가 하락을 덜어 주지 못하는 구간' : '반대로 움직여 채권이 완충 역할';
+    : value > 0 ? '같은 방향, 채권 완충 없음' : '반대 방향, 채권 완충';
 }
 
 /** VIX² less the annualised realised variance of the S&P 500 over 21 sessions, in variance points and as the two vols. */
@@ -144,10 +145,10 @@ export function creditLadder(macroHistory) {
   return { asOf: ratio.at(-1).date, ratio: ratio.at(-1).value, ratioRank: rankOf(ratio), gap: gap.at(-1).value, gapRank: rankOf(gap) };
 }
 
-/** Volatility structure: VIX ÷ 3-month VIX and the variance premium (in vol points), each in its own record. */
+/** Volatility structure: VIX ÷ 3-month VIX (the shared volatility state) and the variance premium (in vol points), each in its own record. */
 export function volatilityStructure(history) {
-  const vix3m = new Map(finiteRows(history, 'vix3m').map((row) => [row.date, row.value]));
-  const ratio = finiteRows(history, 'vix').filter((row) => vix3m.get(row.date) > 0).map((row) => ({ date: row.date, value: row.value / vix3m.get(row.date) }));
+  const state = volatilityState(history);
+  const ratio = [...(state?.ratioSeries || [])];
   const spx = finiteRows(history, 'spx');
   const vixOn = new Map(finiteRows(history, 'vix').map((row) => [row.date, row.value]));
   const premium = [];
@@ -160,6 +161,7 @@ export function volatilityStructure(history) {
   if (premium.at(-1)?.date !== spx.at(-1)?.date) premium.length = 0;
   if (!ratio.length && !premium.length) return null;
   return { asOf: (ratio.at(-1) || premium.at(-1)).date, ratio: ratio.at(-1)?.value ?? null, ratioRank: ratio.length ? rankOf(ratio) : null,
+    term: ratio.length ? state.term : null, range: state?.range || null,
     premium: premium.at(-1)?.value ?? null, premiumRank: premium.length ? rankOf(premium) : null };
 }
 
@@ -180,7 +182,7 @@ export function depthReadout({ history = [], macroHistory = null, breadthScope =
   if (credit) {
     dates.push(credit.asOf);
     const numbers = `S&P 500 1년 고점 대비 ${signedText(credit.fromHigh, 1, '%')}, 하이일드 20거래일 ${signedText(credit.hy20, 0, 'bp')}`;
-    parts.push(credit.diverging ? `신용·주가 엇갈림 — 주가는 고점권인데 스프레드가 벌어지는 중(${numbers}).` : `신용·주가 엇갈림 없음(${numbers}).`);
+    parts.push(`신용·주가 엇갈림${credit.diverging ? '' : ' 없음'} — ${numbers}.`);
   }
   const corr = stockBondCorrelation(history);
   if (corr) {
@@ -190,7 +192,7 @@ export function depthReadout({ history = [], macroHistory = null, breadthScope =
   const vrp = varianceRiskPremium(history);
   if (vrp) {
     dates.push(vrp.asOf);
-    parts.push(`변동성 프리미엄 ${signedText(vrp.vix - vrp.realised, 1, 'pt')} — VIX ${vrp.vix.toFixed(1)}, ${DEPTH_RULES.realisedSessions}일 실현 변동성 ${vrp.realised.toFixed(1)}${vrp.premium < 0 ? '(실제 움직임이 옵션 가격보다 큼)' : ''}.`);
+    parts.push(`변동성 프리미엄 ${signedText(vrp.vix - vrp.realised, 1, 'pt')}${vrp.premium < 0 ? ' 실현 > 내재' : ''} — VIX ${vrp.vix.toFixed(1)}, ${DEPTH_RULES.realisedSessions}일 실현 변동성 ${vrp.realised.toFixed(1)}.`);
   }
   if (!parts.length) return null;
   // Four more read-outs, each a number in its own one-year record. Reference only: no axis, label or score reads them.
@@ -213,7 +215,8 @@ export function depthReadout({ history = [], macroHistory = null, breadthScope =
   }
   const structure = volatilityStructure(history);
   if (structure) {
-    const bits = [structure.ratio != null ? `VIX÷3개월 VIX ${structure.ratio.toFixed(2)}${side(structure.ratioRank)}` : '', structure.premium != null ? `변동성 프리미엄 ${signedText(structure.premium, 1, 'pt')}${side(structure.premiumRank)}` : ''].filter(Boolean);
+    const bits = [structure.ratio != null ? `VIX÷3개월 VIX ${structure.ratio.toFixed(2)}${side(structure.ratioRank)}${structure.term ? ` ${structure.term.label}` : ''}` : '', structure.premium != null ? `변동성 프리미엄 ${signedText(structure.premium, 1, 'pt')}${side(structure.premiumRank)}` : '',
+      structure.range ? `${md(structure.range.date)} S&P 500 ${signedText(structure.range.move, 1, '%')}, ${md(structure.range.priorDate)} VIX 기준 ±${structure.range.sd.toFixed(1)}% ${structure.range.label}` : ''].filter(Boolean);
     if (bits.length) more.push({ id: 'vol-structure', label: '변동성 구조', text: `${bits.join(', ')}.` });
   }
   return { id: 'depth', title: '폭·신용·채권·변동성 추가 확인', axes: [], asOf: dates.sort().at(-1) || null, text: parts.join(' '), map: null, more,

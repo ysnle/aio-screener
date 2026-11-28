@@ -6,8 +6,8 @@
 //   재무 한눈에 — the figures that say whether it makes money, each a number with a fixed state word, the standing among
 //     named theme peers, and the way to 재무 공시.
 // 쟁점과 전망 is the screen's next view, its own question — "무엇이 다투어지고 무엇이 보는 눈을 바꾸나":
-// the issue the stock turns on and its two readings, the structures under the numbers, the company's outlook and the
-// signals that the story holds or breaks. 개요 ends on one line to it.
+// the issue the stock turns on with one table of what holds or breaks the story (researched readings, the company's signals
+// and the number rules), the structures under the numbers and the company's outlook. 개요 ends on one line to it.
 // 사업 also carries how it competes and what AI does to it; 밸류체인 안의 자리 its partners and the link to the library's
 // reading of its industry.
 // The facts come from src/domain/entity/company-overview.js and the story file; this module only lays them out. Sources
@@ -230,19 +230,56 @@ function placeSection(doc, { place, story, industry = null, openTicker, openMap,
 }
 
 // ── 쟁점과 전망 ──────────────────────────────────────────────────────────────────────────────────────────────────────
-// The issue the stock turns on and its two readings, the structures under the numbers, what the company and the market
-// plans and the signals that the story holds or breaks. The numbers each report is read on live on 재무 공시.
-// Null for a company without a researched story (no empty heading).
-function outlookSection(doc, { story }) {
-  if (!story) return null;
-  const box = section(doc, 'outlook', '쟁점과 전망');
-  const d = story.debate || {};
-  if (has(d.question)) {
-    const decides = (d.decides || []).filter((item) => has(item?.what));
-    box.append(block(doc, '핵심 쟁점', el(doc, 'p', d.question, 'co-lead'),
-      pairOf(doc, [['이야기가 유지된다는 읽기', d.bull?.text], ['이야기가 깨진다는 읽기', d.bear?.text]]),
-      decides.length ? el(doc, 'h4', '판가름할 것', 'co-cell__title') : null, decides.length ? datedList(doc, decides) : null));
+// The issue the stock turns on, the structures under the numbers and what the company plans. Every reading of whether the
+// story holds or breaks is one table: the researched issue (its two readings and the dated facts that decide it), the
+// company's own signals, and the number rules on this filer's figures (stock-lens.js buildThesisFrame `rules` and its
+// valuation paths), each with when it is checked. Null without a researched story or thesis rules (no empty heading).
+const VERDICT_COLUMNS = Object.freeze(['이야기가 유지된다는 읽기', '이야기가 깨진다는 읽기', '판가름할 것']);
+function verdictTable(doc, rows) {
+  const region = el(doc, 'div', null, 'co-verdicts');
+  const table = el(doc, 'table', null, 'co-verdicts__table');
+  table.append(el(doc, 'caption', '같은 쟁점의 두 읽기와 판가름할 것, 위는 조사한 사건, 아래는 이 회사 숫자의 조건', 'sr-only'));
+  const head = el(doc, 'thead'); const hr = el(doc, 'tr');
+  for (const label of ['', ...VERDICT_COLUMNS]) { const th = el(doc, 'th', label); th.scope = 'col'; hr.append(th); }
+  head.append(hr);
+  const body = el(doc, 'tbody');
+  for (const row of rows) {
+    const tr = el(doc, 'tr', null, row.kind === 'rule' ? 'is-rule' : null);
+    const th = el(doc, 'th', row.label); th.scope = 'row';
+    tr.append(th);
+    row.cells.forEach((value, i) => {
+      const td = el(doc, 'td', null, i === 1 ? 'is-breaks' : null);
+      td.dataset.label = VERDICT_COLUMNS[i];
+      if (!has(value)) td.textContent = '—';
+      else td.append(typeof value === 'string' ? el(doc, 'p', value, 'co-text') : Array.isArray(value) ? list(doc, value) : value);
+      tr.append(td);
+    });
+    body.append(tr);
   }
+  table.append(head, body);
+  region.append(table);
+  return region;
+}
+function outlookSection(doc, { story, thesis = null, onBuyRecord = null }) {
+  const rules = [...(thesis?.rules || []).map((rule) => ({ kind: 'rule', label: rule.label, cells: [rule.holds, rule.breaks, rule.check] })),
+    ...(thesis?.paths || []).map((path) => ({ kind: 'rule', label: path.label, cells: [path.holds, path.fails, null] }))];
+  if (!story && !rules.length) return null;
+  const box = section(doc, 'outlook', '쟁점과 전망');
+  const d = story?.debate || {};
+  const w = story?.watch || {};
+  const decides = (d.decides || []).filter((item) => has(item?.what));
+  const rows = [
+    has(d.bull?.text) || has(d.bear?.text) || decides.length ? { kind: 'story', label: '쟁점', cells: [d.bull?.text, d.bear?.text, decides.length ? datedList(doc, decides) : null] } : null,
+    has(w.confirms) || has(w.breaks) ? { kind: 'story', label: '회사가 내는 신호', cells: [w.confirms, w.breaks, null] } : null,
+    ...rules
+  ].filter(Boolean);
+  if (rows.length || has(d.question)) {
+    const memo = typeof onBuyRecord === 'function' && rules.length ? el(doc, 'button', '이 조건으로 매수 기록 시작', 'aio-btn-table co-link') : null;
+    if (memo) { memo.type = 'button'; memo.addEventListener('click', onBuyRecord); }
+    box.append(block(doc, has(d.question) ? '핵심 쟁점' : '논지 조건', has(d.question) ? el(doc, 'p', d.question, 'co-lead') : null,
+      thesis?.priced ? el(doc, 'p', thesis.priced, 'co-text') : null, rows.length ? verdictTable(doc, rows) : null, memo));
+  }
+  if (!story) return box;
   const hood = (story.underTheHood || []).filter((item) => has(item?.title) && has(item?.text));
   if (hood.length) {
     const rows = hood.map((item) => { const cell = el(doc, 'div', null, 'co-cell'); cell.append(el(doc, 'h4', item.title, 'co-cell__title'), el(doc, 'p', item.text, 'co-text')); return cell; });
@@ -260,11 +297,9 @@ function outlookSection(doc, { story }) {
       roadmap.length ? el(doc, 'h4', '앞으로의 계획', 'co-cell__title') : null, roadmap.length ? datedList(doc, roadmap) : null,
       has(st.vision) ? el(doc, 'p', st.vision, 'co-text') : null));
   }
-  const w = story.watch || {};
-  const signals = pairOf(doc, [['맞아가고 있다는 신호', w.confirms], ['어긋나고 있다는 신호', w.breaks]]);
-  if (signals) box.append(block(doc, '이야기가 맞는지 보는 신호', signals));
   if (box.childElementCount === 1) return null;
-  box.append(kindFold(doc, 'method', '두 읽기와 신호의 근거', [el(doc, 'p', `${story.researchedAt ? `${mdOf(story.researchedAt)} 조사한 ` : ''}회사 공시·발표 자료와 보도에 근거한 읽기입니다. 어느 쪽이 맞다는 판단이나 매매 의견이 아닙니다.`, 'ind-method__text')]));
+  box.append(kindFold(doc, 'method', '두 읽기와 신호의 근거', [el(doc, 'p', `${story.researchedAt ? `${mdOf(story.researchedAt)} 조사한 ` : ''}회사 공시·발표 자료와 보도에 근거한 읽기입니다. 어느 쪽이 맞다는 판단이나 매매 의견이 아닙니다.`, 'ind-method__text'),
+    rules.length ? el(doc, 'p', '표 아래쪽 줄은 이 회사의 공시·컨센서스 숫자에 고정된 규칙을 적용한 조건입니다.', 'ind-method__text') : null].filter(Boolean)));
   return box;
 }
 
@@ -373,8 +408,8 @@ function outlookLink(doc, story, openOutlook) {
 
 /**
  * Paints the overview into `host` and 쟁점과 전망 into `ctx.outlookHost` (children replaced). ctx: { symbol, story, profile,
- * place, money, moneyEmpty, monthly, peer, priced, industry, earnings, briefs, quarters, today, outlookHost, openTicker, openMap,
- * openIndustry, openFundamental, openOutlook, actions, research (a node or null) }.
+ * place, money, moneyEmpty, monthly, peer, priced, thesis (stock-lens.js buildThesisFrame), industry, earnings, briefs, quarters,
+ * today, outlookHost, openTicker, openMap, openIndustry, openFundamental, openOutlook, startBuyRecord, actions, research (a node or null) }.
  */
 export function renderCompanyOverview(doc, host, ctx) {
   if (!doc || !host) return null;
@@ -382,7 +417,7 @@ export function renderCompanyOverview(doc, host, ctx) {
   // Researched text speaks from its research day, never as "현재" (research-text.js); the live figures are the tables'.
   const story = datedStory(ctx.story || null);
   const freshness = story ? storyFreshness(story, earnings, undefined, { briefs, quarters }) : null;
-  const outlook = outlookSection(doc, { story });
+  const outlook = outlookSection(doc, { story, thesis: ctx.thesis || null, onBuyRecord: ctx.startBuyRecord || null });
   if (outlookHost) {
     outlookHost.replaceChildren(outlook || el(doc, 'p', '쟁점과 전망 자료 없음', 'co-empty'));
     outlookHost.hidden = false;

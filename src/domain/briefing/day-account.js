@@ -13,6 +13,7 @@ import { RULES } from '../rules/thresholds.js';
 import { buildCloseSeries } from '../market/session/close-series.js';
 import { readIndexLongrun } from '../market/indices/long-run.js';
 import { reportAboutMove } from './news-picks.js';
+import { unattributedHeadlines } from '../market/day/day-cause.js';
 // Every figure, date and judgement word of the account is printed from a claim (src/domain/shared/claim.js), so the
 // replay gate (scripts/ci-sentence-claim-replay-check.mjs) can check each word against the ledger it came from.
 const md = (date) => { const text = String(date || ''); return text.length >= 10 ? `${Number(text.slice(5, 7))}/${Number(text.slice(8, 10))}` : text; };
@@ -30,7 +31,8 @@ const figureClaim = (fact, measure, value, unit, label) => claim({ subject: subj
 const volTag = (fact) => (Number.isFinite(fact?.rvol) && fact.rvol >= 2 ? say('(거래량 {v})', { v: figureClaim(fact, 'rvol20', fact.rvol, 'x', '거래량') }) : NOTHING);
 // A price the ledger marks provisional (the 17:00 ET print before the futures settle) says so beside its figure.
 const provisionalTag = (fact) => (fact?.provisional ? say('(잠정)') : NOTHING);
-const named = (fact, word = null) => say('{name} {move}{tag}', { name: fact.label, move: changeClaim(fact, { word }), tag: provisionalTag(fact) });
+// A member observed on another day than the line's lead (a FRED series a day or two behind the close) carries its own date.
+const named = (fact, word = null, lineDate = null) => say(lineDate && fact.date && fact.date !== lineDate ? '{name} {move}({move.date}){tag}' : '{name} {move}{tag}', { name: fact.label, move: changeClaim(fact, { word }), tag: provisionalTag(fact) });
 /** The five-session leg and its size against the usual five-session move. */
 const weekClaim = (fact) => claim({ subject: subjectOf(fact), measure: 'week5d', asOf: fact.date, figures: [{ value: fact.week, unit: unitOf(fact), basis: 'week5d', label: '5거래일' },
   { value: Math.abs(fact.zWeek), unit: 'x', basis: 'zWeek', label: '평소 5거래일 변동' }] });
@@ -223,7 +225,9 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
     .map((id) => byId.get(id)).filter((fact) => fact && shownKorean(fact) && fact.rank !== 'context' && !claimed.has(fact.id) && (fact.wordTopics || []).some((topic) => topics.includes(topic))
       && (!afterClose(fact, seed) || agrees(fact, seed.change, seed))).sort(byReportOrder);
   const stories = [];
-  const assign = (story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
+  // A headline the cause model held or excluded (an opinion, a rumour, a variable cited both ways) is never a move's face report.
+  const unattributed = unattributedHeadlines(day);
+  const assign =(story, list) => { for (const fact of list) if (fact && !claimed.has(fact.id)) claimed.set(fact.id, story.id); };
   const groupMembers = (fact) => new Set(fact.members || []);
   // The stock that leads a fact's market-day thread (its largest move), when that is another stock move.
   const threadLeadSymbol = (id) => {
@@ -256,7 +260,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
         : Number.isFinite(largest.z) ? say('평소 하루 변동의 {z}입니다.', { z: figureClaim(largest, 'z1d', Math.abs(largest.z), 'x', '평소 하루 변동') }) : NOTHING;
       // The close date leads, so this day move is not read against a live quote chip or a week figure.
       const tail = !times.text ? NOTHING : kin.length > 1 ? say(' {largest.word}: {name}, {times}', { largest: largestClaim(largest, family), name: largest.label, times }) : say(' {times}', { times });
-      tell(story, 'line', say('{date}{kin}.{tail}', { date: seed.date ? say('{seed.date} 종가 ', { seed: changeClaim(seed) }) : NOTHING, kin: sayJoin(kin.map((fact) => named(fact)), ', '), tail }));
+      tell(story, 'line', say('{date}{kin}.{tail}', { date: seed.date ? say('{seed.date} 종가 ', { seed: changeClaim(seed) }) : NOTHING, kin: sayJoin(kin.map((fact) => named(fact, null, seed.date)), ', '), tail }));
       if (groups.length) {
         const moved = groups.slice(0, 2).map((fact) => changeClaim(fact, { word: 'moved-with', unit: 'pct', compare: { against: subjectOf(seed) } }));
         tell(story, 'why', say('{first.word} 업종은 {list}입니다.', { first: moved[0], list: sayJoin(moved.map((group, i) => say('{name}({group})', { name: groups[i].label, group })), ', ') }));
@@ -353,7 +357,7 @@ export function buildDayAccount(day, { briefs = null, history = null, longrun = 
     }
     if (!story.title) continue; // a seed kind with no wording here is not shown as a bare weight bar
     // A lead story's top linked report (byReportOrder) is shown on the face under the move, as written.
-    story.report = story.rank === 'lead' ? faceReport(seed, story.faceFrom || []) : null;
+    story.report = story.rank === 'lead' ? faceReport(seed, (story.faceFrom || []).filter((fact) => !unattributed.has(fact.id))) : null;
     delete story.faceFrom;
     stories.push(story);
   }

@@ -1,6 +1,7 @@
 // Whether markets other than the index confirm a rebound (rebound.js, attempt or recovered), read from the rebound's
 // low to the latest close: credit (high-yield spread lower), the dollar (DXY lower), volatility (VIX lower and under the
-// 3-month VIX) and participation (more members over their 50-day line and the equal weight up). Each end is that series'
+// 3-month VIX), participation (more members over their 50-day line and the equal weight up), bitcoin (higher) and oil with
+// the 10-year (both lower — the shock unwinding in the other assets). Each end is that series'
 // own close on that very session; a series with no close on the low's day or the latest day is 자료 없음 for its check,
 // never filled from a neighbouring session. The high-yield spread is published a session late, so its latest end is its
 // newest observation after the low, printed with that observation's own date (the same value the diagnosis line prints). Unknown checks leave the denominator and are named. The tally's word comes
@@ -33,9 +34,11 @@ const levelSaid = (id, label, unit, digits, point) => (point.value == null ? say
   : say('{lab} {c}', { lab: label, c: claim({ subject: `rebound-quality:${id}`, measure: 'atLatest', asOf: point.date, figures: [{ value: point.value, unit, digits, basis: 'atLatest', label }] }) }));
 const lower = (low, now) => (low.value == null || now.value == null ? null : now.value < low.value);
 
+// The two checks added to content/rebound-words.js's four keep their names here until that word table carries them.
+const CHECK_LABELS = W.checks;
 function checkOf(id, met, value) {
   const mark = met == null ? W.marks.unknown : met ? W.marks.met : W.marks.unmet;
-  return { id, label: W.checks[id], met, value, said: say('{lab} {mark} — {v}', { lab: W.checks[id], mark, v: value }) };
+  return { id, label: CHECK_LABELS[id], met, value, said: say('{lab} {mark} — {v}', { lab: CHECK_LABELS[id], mark, v: value }) };
 }
 
 /**
@@ -55,6 +58,12 @@ export function reboundQualityOf(rebound, { history = [], macroHistory = null, t
   const [b50Low, b50Now] = at('breadth50');
   const [rspLow, rspNow] = at('rsp');
 
+  // Bitcoin trades every day: its close of each end session (close-series aligns it), never a neighbouring day's.
+  const [btcLow, btcNow] = at('btc');
+  const [wtiLow, wtiNow] = at('wti');
+  const [tnxLow, tnxNow] = at('tnx');
+  const higher = (low, now) => (low.value == null || now.value == null ? null : now.value > low.value);
+
   const vixDown = lower(vixLow, vixNow);
   const underTerm = vixNow.value == null || vix3m.value == null ? null : vixNow.value < vix3m.value;
   const b50Up = b50Low.value == null || b50Now.value == null ? null : b50Now.value > b50Low.value;
@@ -66,7 +75,12 @@ export function reboundQualityOf(rebound, { history = [], macroHistory = null, t
     checkOf('credit', lower(hyLow, hyNow), pairSaid('hy', '하이일드 스프레드', 'spread', 0, hyLow, hyNow)),
     checkOf('dollar', lower(dxyLow, dxyNow), pairSaid('dxy', '달러 지수', 'level', 2, dxyLow, dxyNow)),
     checkOf('volatility', both(vixDown, underTerm), sayJoin([pairSaid('vix', 'VIX', 'level', 2, vixLow, vixNow), levelSaid('vix3m', '3개월 VIX', 'level', 2, vix3m)], ', ')),
-    checkOf('breadth', both(b50Up, rspUp), sayJoin([pairSaid('breadth50', '50일선 위 종목', 'share', 0, b50Low, b50Now), rspSaid], ', '))
+    checkOf('breadth', both(b50Up, rspUp), sayJoin([pairSaid('breadth50', '50일선 위 종목', 'share', 0, b50Low, b50Now), rspSaid], ', ')),
+    // A rebound the other risk market shares (2125168540881920145: bitcoin giving the gain back is the short-cover case).
+    checkOf('crypto', higher(btcLow, btcNow), pairSaid('btc', '비트코인', 'level', 0, btcLow, btcNow)),
+    // The shock unwinding in the other assets: oil and the 10-year both under their level on the low's session
+    // (2044229731869237544; direction only, the post gives no size).
+    checkOf('crossAsset', both(lower(wtiLow, wtiNow), lower(tnxLow, tnxNow)), sayJoin([pairSaid('wti', 'WTI', 'level', 2, wtiLow, wtiNow), pairSaid('tnx', '미 10년물', 'rate', 2, tnxLow, tnxNow)], ', '))
   ];
 
   const R = RULES.reboundQuality;

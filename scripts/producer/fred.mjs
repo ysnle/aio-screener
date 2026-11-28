@@ -7,6 +7,7 @@ import { FRED_SERIES } from '../lib/macro-sources.mjs';
 import { deriveFredCycle } from '../lib/refresh-continuity.mjs';
 import { SERIES_RELEASE_CALENDAR, seriesFetchDue } from '../lib/series-fetch-due.mjs';
 import { isIsoDay } from '../../src/domain/shared/session-date.js';
+import { isCloseSessionDate } from '../../src/domain/market/session/close-series.js';
 
 // v60.46 (static-dynamic audit rec. 10): a monthly series with an official release calendar is fetched only when the
 // shared refetch rule says so (its interval passed, or its release watch is open: every run from the print time for
@@ -69,6 +70,8 @@ export async function fetchFred(key, { previous = null, schedules = null, nowMs 
       const obs = (j.observations || [])
         .map((o) => ({ d: String(o?.date || ''), v: Number.parseFloat(o?.value) }))
         .filter((o) => /^\d{4}-\d{2}-\d{2}$/.test(o.d) && Number.isFinite(o.v))
+        // A daily market series is counted in US sessions (the screens' rule): a holiday print is not a session of the five.
+        .filter((o) => !spec.delta5 || isCloseSessionDate(o.d, 'US'))
         .sort((a, b) => b.d.localeCompare(a.d));
       if (!obs.length) {
         markFailed(field);

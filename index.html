@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>AIO Screener v60.67 — 올인원 투자 터미널</title>
+  <title>AIO Screener v60.69 — 올인원 투자 터미널</title>
   <meta name="description" content="미국 시장과 주요 뉴스를 살피고, 조건에 맞는 종목을 찾고, 투자 근거와 거래 기록을 돌아보세요.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#f4f0e8">
@@ -961,23 +961,6 @@ body {
 .theme-strength-theme { font-size: 12px; color: var(--color-text-secondary); }
 .theme-strength-footer { display: flex; align-items: center; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
 .theme-strength-more { font: inherit; font-size: 12px; font-weight: 600; background: none; border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-inner); padding: 3px 10px; cursor: pointer; color: var(--color-text-primary); }
-.capex-flow-bar { display: flex; height: 30px; border-radius: var(--radius-inner); overflow: hidden; margin: 6px 0 14px; font-size: 12px; font-weight: 600; }
-.capex-flow-seg { display: flex; align-items: center; justify-content: center; color: #fff; white-space: nowrap; overflow: hidden; }
-.capex-flow-seg.is-semis, .capex-flow-swatch.is-semis { background: var(--cyan-11); } .capex-flow-seg.is-power, .capex-flow-swatch.is-power { background: var(--brown-11); } .capex-flow-seg.is-network, .capex-flow-swatch.is-network { background: var(--teal-11); } .capex-flow-seg.is-cooling, .capex-flow-swatch.is-cooling { background: var(--cyan-11); } .capex-flow-seg.is-facility, .capex-flow-swatch.is-facility { background: var(--brown-11); }
-.capex-flow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 12px; } /* P1599 (T07): five layers fit one row at desktop width */
-.capex-flow-card { border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-element); padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--color-background-card); }
-.capex-flow-themes { display: flex; gap: 6px; flex-wrap: wrap; }
-.capex-flow-theme { font: inherit; font-size: 12px; padding: 2px 8px; border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-full); background: none; color: var(--color-text-primary); cursor: pointer; }
-.capex-flow-waits { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
-.capex-flow-waits li { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'item weeks' 'meter meter'; gap: 2px 6px; align-items: center; font-size: 12px; } /* P1599: name and weeks on one line, the bar full width under them */
-.capex-flow-waits li .capex-flow-item { grid-area: item; }
-.capex-flow-waits li .capex-flow-meter { grid-area: meter; }
-.capex-flow-waits li .capex-flow-weeks { grid-area: weeks; }
-.capex-flow-item { color: var(--color-text-secondary); }
-.capex-flow-meter { position: relative; height: 6px; background: var(--color-border-muted); border-radius: var(--radius-inner); }
-.capex-flow-meter-fill { position: absolute; top: 0; bottom: 0; background: var(--color-text-error); border-radius: var(--radius-inner); opacity: .75; }
-.capex-flow-waits li.is-balanced .capex-flow-meter-fill { background: var(--color-text-success); }
-.capex-flow-weeks { font-variant-numeric: tabular-nums; color: var(--color-text-secondary); white-space: nowrap; }
 /* P1418: 포트폴리오 점검 */
 .pf-checks-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
 .pf-check { border: 0.5px solid var(--color-border-muted); border-radius: var(--radius-element); padding: 10px 12px; background: var(--color-background-card); display: flex; flex-direction: column; gap: 4px; }
@@ -1111,8 +1094,7 @@ body {
 /* P1419: 스크리너 순위 사후 검증 */
 .screener-validation { margin: 0 0 14px; }
 /* WCAG 2.5.8: every new control is at least 24×24 CSS px */
-.theme-strength-tab, .theme-strength-more, .capex-flow-theme, .breadth-drill-symbol, .breadth-drill-date { min-height: 24px; min-width: 24px; display: inline-flex; align-items: center; box-sizing: border-box; }
-body.dark-theme .capex-flow-seg { filter: brightness(1.1); }
+.theme-strength-tab, .theme-strength-more, .breadth-drill-symbol, .breadth-drill-date { min-height: 24px; min-width: 24px; display: inline-flex; align-items: center; box-sizing: border-box; }
 .trend-card .regime-state { align-self: flex-start; }
 .trend-chart-wrap { position: relative; }
 .trend-chart { width: 100%; height: auto; aspect-ratio: 520 / 210; display: block; overflow: visible; }
@@ -3698,7 +3680,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
             <button type="button" data-action="setRRGView" data-arg="all" data-pass-el="1" class="news-sort-btn rrg-view-pill" aria-pressed="false">전체</button>
           </div>
           <!-- v58.95: src/ui/pages/themes.js fills the period buttons (1일·1주·1·3·6·12개월). -->
-          <div id="sector-perf-tabs" role="group" aria-label="기간"></div>
+          <div id="sector-perf-tabs" role="group" aria-label="기간·지표"></div>
         </div>
         <div id="sector-perf-panel">
           <div id="sector-perf-bars" class="sh-themes-sector-perf-stack"></div>
@@ -3731,8 +3713,8 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   </section>
 
   <!-- v59.55 (flow + visual review): wide to narrow under the verdict — the S&P 500 map (open, the market picture), the
-       sub-theme ranking, the largest theme (AI chain, capex folded under it), then the scenarios (theme-playbook-view.js
-       inserts them after #ai-capex-fold) and 한국. The theme splits stay one fold under the map. -->
+       sub-theme ranking, the largest theme (the AI supply chain card), then the scenarios (theme-playbook-view.js
+       inserts them after #themes-ai-chain) and 한국. The theme splits stay one fold under the map. -->
   <section class="aio-section sector-map" id="sector-map" aria-label="S&amp;P 500 지도"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
   <details class="sx-disclosure sh-fold-mt16" id="sector-map-fold" hidden>
     <summary>지난 거래일 — 테마 안에서 갈린 곳</summary>
@@ -3741,10 +3723,6 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
   <section class="aio-section theme-strength" id="theme-strength-board" aria-label="세부 테마 상대강도 순위"><div class="briefing-empty">스크리너 수익률 수신 대기</div></section>
   <section class="aio-section setup-board" id="themes-setup-board" aria-label="업종별 템플릿 통과와 테마 200일선 위치" hidden></section>
   <section class="aio-section ai-chain" id="themes-ai-chain" aria-labelledby="themes-ai-chain-title" hidden></section>
-  <details class="sx-disclosure sh-fold-mt16" id="ai-capex-fold" data-view-open open>
-    <summary>AI 설비투자 100달러의 흐름과 병목 납기</summary>
-    <section class="aio-section capex-flow" id="ai-capex-flow" aria-label="AI 설비투자 흐름"></section>
-  </details>
 
       <!-- 테마 상세 패널 — v59.51: a standalone view (themes-page.css hides the list while a theme is open). -->
       <div id="theme-detail-panel" style="display:none;background:var(--surface-1);border:0.5px solid var(--color-border);border-radius:var(--radius-inner);padding:16px;margin-top:12px;position:relative;">
@@ -4030,7 +4008,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
       <summary>기록 — 매매일지, 논지, 입출금, 환율</summary>
       <div class="aio-page-advanced-body">
         <section class="aio-section pf-trades" id="pf-trades" aria-label="매매일지와 복기" hidden></section>
-        <section class="aio-section pf-checklist" id="pf-thesis" aria-label="보유 종목 논지 점검" hidden></section>
+        <section class="aio-section pf-checklist" id="pf-thesis" aria-label="보유 종목 상태" hidden></section>
     <section id="pf-ledger-section" class="pf-fold-part" aria-labelledby="pf-ledger-title">
       <h2 class="pf-fold-h" id="pf-ledger-title">입출금</h2>
       <div class="sh-portfolio-ledger-part-panel">
@@ -5109,12 +5087,12 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
        보장하므로 core→data→ui→chat 상대 순서는 유지된다. 1단계(v51.99, P595/R275)에서 인라인
        블록의 최상위 모듈 심볼 참조 22곳을 전부 DOMContentLoaded 래핑/병합 패턴으로 방어 완료. -->
   <!-- R622: block A (workspace) runs first in the defer group; kr-data and pages follow it, as when they sat in <head>. -->
-  <script src="./js/aio-workspace.js?v=60.67" defer></script>
-  <script src="./js/aio-kr-data.js?v=60.67" defer></script>
-  <script src="./js/aio-pages.js?v=60.67" defer></script>
-  <script src="./js/aio-core.js?v=60.67" defer></script>
-  <script src="./js/aio-data.js?v=60.67" defer></script>
-  <script src="./js/aio-ui.js?v=60.67" defer></script>
+  <script src="./js/aio-workspace.js?v=60.69" defer></script>
+  <script src="./js/aio-kr-data.js?v=60.69" defer></script>
+  <script src="./js/aio-pages.js?v=60.69" defer></script>
+  <script src="./js/aio-core.js?v=60.69" defer></script>
+  <script src="./js/aio-data.js?v=60.69" defer></script>
+  <script src="./js/aio-ui.js?v=60.69" defer></script>
 
 
   <!-- P1136: 블록 A(사용자 상태·워크스페이스 1,992줄)는 js/aio-workspace.js로 이동했다. -->
@@ -5172,7 +5150,7 @@ body:not(.aio-dev-mode) .tg-live-feed .tg-card-inner { padding: 8px 10px; }
 
 <!-- v58.56 (re-audit #13): R1 release identity moved from the topbar to the page foot — the topbar keeps only what a reader
      uses (quote basis, 도움말, AI). bump-version still patches this element by its id. -->
-<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.67</span></p>
+<p class="sx-page-foot">모든 수치는 참고용이며 투자 권유가 아닙니다, 등락 색은 오르면 <span style="color:var(--color-data-up)">빨강</span>·내리면 <span style="color:var(--color-data-down)">파랑</span>, <button type="button" data-action="_aioShowDisclaimer">면책 고지</button>, <button type="button" data-action="_aioOpenFeedback">오류 신고</button>, <span class="sx-page-foot-version" id="app-version-badge">v60.69</span></p>
 </div><!-- /content -->
 </div><!-- /main -->
 </div><!-- /app -->

@@ -4,6 +4,8 @@
 // hyperscalers' capital spending from SEC cash-flow statements) turned with the prices or not — and, when spending has
 // grown to most of operating cash flow, that the question moves from "are there orders" to "can they keep paying".
 import { claim, say, sayJoin, NOTHING } from '../shared/claim.js';
+import { chainRow } from '../themes/ai-funding-chain.js';
+import { AI_CAPEX_PACE_WORDS } from '../themes/ai-capex-quarters.js';
 
 // Capital spending at or past this share of operating cash flow leaves little cash after it.
 export const CAPEX_STRETCH_PCT = 80;
@@ -52,3 +54,42 @@ export function aiDemandRead({ flow = null, tw = null, capex = null, session = n
 
 /** The same reading as a typed fact line for an AI packet ('' without one). */
 export const aiDemandFactLine = (read) => (read ? `AI 공급망 주문 대 주가(대만 월매출은 신고 금액, 설비투자는 SEC 현금흐름표 최근 4분기; 원인 단정 아님): ${read.said.text}` : '');
+
+// ── which fall it is ──────────────────────────────────────────────────────────────────────────────────────────────────
+// The order side above crossed with the funding chain's credit and rates links (their rule-decided states): orders
+// turning is a demand-led fall whatever the funding says; orders holding while credit or rates tighten is a funding- and
+// discount-rate-led fall (2110932573182656839, 2112037110056394896); orders holding with neither tightening is a fall in
+// price only (2111762752565920178). GPU rental prices, the post's own demand test, are researched rows: they reach the AI
+// reading as dated facts and never this rule (ai-funding-chain.js: researched figures decide no state).
+export const DRAWDOWN_FUNDING_LINKS = Object.freeze(['credit', 'rates']);
+export const DRAWDOWN_WORDS = Object.freeze({ demand: '수요 주도 하락', funding: '조달·할인율 주도 하락', price: '가격만 하락', together: '주문·주가 같은 방향' });
+export const ORDER_SIDE_WORDS = Object.freeze({ priceOnly: '주문 숫자 증가', together: '주문 숫자 증가', ordersTurn: '주문 숫자 감소' });
+
+/** { kind, word, side, tight: [link ids], judged: [link ids] } or null without the order side. */
+export function drawdownKind({ demand = null, chain = null } = {}) {
+  if (!demand?.side) return null;
+  const state = (id) => chain?.links?.find((link) => link.id === id)?.state ?? null;
+  const judged = DRAWDOWN_FUNDING_LINKS.filter((id) => state(id) != null);
+  const tight = judged.filter((id) => state(id) === 'tighter');
+  const kind = demand.side === 'ordersTurn' ? 'demand' : demand.side === 'together' ? 'together' : tight.length ? 'funding' : 'price';
+  return { kind, word: DRAWDOWN_WORDS[kind], side: demand.side, tight, judged };
+}
+
+/**
+ * The order column's dated rows (the funding chain's row shape, so one renderer prints both): Taiwan's monthly revenue
+ * against a year earlier, and the hyperscalers' newest-quarter capex growth beside the quarter before (capexPace).
+ * The twelve-month capex total is the funding chain's first link and is not repeated here.
+ */
+export function aiOrderRows({ tw = null, pace = null } = {}) {
+  const rows = [];
+  if (tw?.state === 'ok' && Number.isFinite(tw.totalYoy)) {
+    rows.push(chainRow({ id: 'tw-revenue', subject: 'tw-revenue', asOf: String(tw.tableDate || '').slice(0, 10) || null, label: `대만 공급망 ${tw.reported}개사 ${monthLabel(tw.month)} 매출`,
+      value: say('1년 전 대비 {y}', { y: pct('tw-revenue', 'totalYoy', tw.month, tw.totalYoy, '대만 월매출') }) }));
+  }
+  if (pace) {
+    rows.push(chainRow({ id: 'capex-quarter', subject: 'hyperscalers', asOf: pace.asOf, label: '빅테크 설비투자(최근 분기)', record: AI_CAPEX_PACE_WORDS[pace.state],
+      value: say('1년 전 대비 {y}', { y: pct('hyperscalers', 'capexQuarterYoy', pace.asOf, pace.latestYoy, '최근 분기 설비투자') }),
+      change: say('직전 분기({d.date}) {p}', { d: claim({ subject: 'hyperscalers', measure: 'quarter:asOf', asOf: pace.priorEnd }), p: pct('hyperscalers', 'capexPriorQuarterYoy', pace.priorEnd, pace.priorYoy, '직전 분기 설비투자') }) }));
+  }
+  return rows;
+}

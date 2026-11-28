@@ -208,7 +208,10 @@ export const cases = [
     const { buildRatesFx } = await load('src/domain/macro/rates-fx.js');
     const history = KR_DAYS('2026-09-01', 30).map((date, i) => ({ date, spx: 100, usdjpy: 150 - i }));
     const carry = buildRatesFx({ macro: {}, history }).carry;
-    if (carry?.available) { assert.doesNotMatch(carry.text, /엔화 가치/); assert.match(carry.text, /엔\/달러 20거래일 -/); }
+    // v60.69: the carry row is a figure and a verdict, no sentence; the figure is the USD/JPY fall (121/141 − 1), never 141/121 − 1.
+    assert.equal(carry.available, true);
+    assert.equal(carry.text, undefined);
+    assert.ok(Math.abs(carry.yenStrength - (1 - 121 / 141) * 100) < 1e-9);
   } },
   { id: 'P18-CURVE-02', name: '결측 만기는 0% 곡선 점이 되지 않는다', run: async ({ load }) => {
     const { deriveTreasuryCurveEvidence } = await load('src/domain/macro/treasury-curve.js');

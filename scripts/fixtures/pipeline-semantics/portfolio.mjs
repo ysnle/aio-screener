@@ -311,7 +311,7 @@ export const cases = [
     assert.deepEqual(row.signals, []);
     assert.equal(row.checked, 0);
     assert.equal(row.unknown.length, 4);
-    const [seen] = thesisRows({ surface: { rows: [{ symbol: 'AUDIT', value: 100 }] }, root: {}, bySymbol: new Map([['AUDIT', { pctSma50: 2 }]]) });
+    const [seen] = thesisRows({ surface: { rows: [{ symbol: 'AUDIT', value: 100 }] }, root: {}, bySymbol: new Map([['AUDIT', { pctSma50: 2, pctSma200: 3 }]]) });
     assert.equal(seen.checked, 1);
     const [nullSma] = thesisRows({ surface: { rows: [{ symbol: 'AUDIT', value: 100 }] }, root: {}, bySymbol: new Map([['AUDIT', { pctSma50: null }]]) });
     assert.equal(nullSma.checked, 0);
@@ -340,13 +340,13 @@ export const cases = [
     const { thesisRows } = await load('src/ui/components/portfolio-checklist.js');
     const { buildMyNames } = await load('src/domain/briefing/daily-diff.js');
     const { derivePortfolioChecks } = await load('src/domain/portfolio/checks.js');
-    const krRow = { sym: '005930.KS', name: '삼성전자', pctSma50: -17.85, sector: 'Technology' };
+    const krRow = { sym: '005930.KS', name: '삼성전자', pctSma50: -17.85, pctSma200: -10, sector: 'Technology' };
     const bySymbol = new Map([['005930.KS', krRow], ['NVDA', { sym: 'NVDA', pctSma50: 3 }]]);
     const surface = { rows: [{ symbol: '005930', listingSymbol: '005930.KS', value: 7_000_000 }, { symbol: 'NVDA', listingSymbol: 'NVDA', value: 2_000_000 }] };
     const [kr] = thesisRows({ surface, root: {}, bySymbol });
     assert.equal(kr.symbol, '005930', 'the row is still named by the stored code');
-    assert.ok(!kr.unknown.includes('50일선'), `the 50-day line is read from 005930.KS, got unknown ${kr.unknown.join(',')}`);
-    assert.ok(kr.signals.some((signal) => signal.startsWith('50일선 아래(-17.9%')), kr.signals.join(','));
+    assert.ok(!kr.unknown.includes('추세'), `the trend is read from 005930.KS, got unknown ${kr.unknown.join(',')}`);
+    assert.ok(kr.trend?.state === 'down' && kr.signals.includes('하락 추세'), kr.signals.join(','));
     // With the earnings calendar loaded (the sample preview and any real book once it arrives) the earnings date is read by the same listing key.
     const soon = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
     const [, withCalendar] = thesisRows({ surface, root: { _aioEarningsCalendarArtifact: { upcoming: { NVDA: soon }, earnings: [] } }, bySymbol });

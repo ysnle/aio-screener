@@ -197,6 +197,13 @@
 .v2-rd-none { font-size: 18px; font-weight: 600; color: var(--color-text-primary); }
 .v2-rd-trend .v2-fiscal-trend__col:last-child .v2-fiscal-trend__bar { background: var(--color-text-primary); }
 .v2-fiscal-row.is-burden .v2-fiscal-row__value { color: var(--color-text-warning); }
+/* The cash chain rows (cash-chain.js): long values wrap, their part bars run under the row on one signed scale. */
+.v2-fiscal-row__value { min-width: 0; max-width: 28em; text-align: right; overflow-wrap: anywhere; }
+.v2-fiscal-chain { grid-column: 1 / -1; display: grid; gap: 6px; }
+.v2-fiscal-row--stack { grid-template-columns: minmax(0, 1fr); }
+.v2-fiscal-row--stack .v2-fiscal-row__value { max-width: none; text-align: left; font-weight: 500; }
+.v2-fiscal-chain__row { display: grid; grid-template-columns: minmax(0, 8em) minmax(0, 1fr); gap: 10px; align-items: center; font-size: 12px; color: var(--color-text-secondary); }
+@media (max-width: 600px) { .v2-fiscal-row { grid-template-columns: minmax(0, 1fr); } .v2-fiscal-row__value { text-align: left; max-width: none; } }
 
 /* ═══ 4. 테마 · 섹터 (3f) ═══════════════════════════════════════════════ */
 #page-themes .v2-themes-verdict { border: 0; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 14px; }
@@ -230,10 +237,10 @@
 .v2-themes-top__value.is-down { color: var(--color-data-down); }
 .v2-themes-top > .sx-row { padding: 13px 16px; font-size: 12px; }
 /* The sections under the verdict: soft cards instead of hairline panels. */
-#page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.capex-flow:not(:empty), #page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
+#page-themes > .aio-section.sector-map, #page-themes > .aio-section.theme-strength, #page-themes > .aio-section.index-earnings, #page-themes > .aio-section.tp-section {
   border: 0 !important; border-radius: var(--radius-container); background: var(--color-background-card); box-shadow:none; padding: 20px 22px;
 }
-#page-themes > .aio-section:is(.sector-map, .theme-strength, .capex-flow:not(:empty), .index-earnings, .tp-section) { margin: 0 0 18px; }
+#page-themes > .aio-section:is(.sector-map, .theme-strength, .index-earnings, .tp-section) { margin: 0 0 18px; }
 /* 테마 시나리오 map: 부담 wind is amber (red stays for falling prices). */
 :is(#page-themes, #page-theme-detail) :is(.tp-dot, .tp-swatch).is-head { fill: var(--color-text-warning); background: var(--color-text-warning); }
 #page-themes .thp-perf-row { min-height: 24px; gap: 6px; }
@@ -320,10 +327,6 @@
 .v2-peer-line > b { margin-right: 4px; font-weight: 600; }
 .v2-peer-line.is-favorable > b { color: var(--color-text-success); }
 .v2-peer-line.is-burden > b { color: var(--color-text-warning); }
-.page .v2-thesis-bars { display: flex; flex-direction: column; gap: 8px; }
-.page .v2-thesis-bars .stock-read-bars { grid-template-columns: 148px minmax(0, 1fr); margin: 0; }
-.page .v2-thesis-bars .stock-read-track { margin-top: 0; min-width: 0; height: 9px; border-radius: var(--radius-inner); background: var(--sx-ink-a05); }
-.page .v2-thesis-bars .stock-read-bar-value { flex: 0 0 auto; min-width: 72px; text-align: right; }
 .v2-lens-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.6; color: var(--color-text-primary); }
 .v2-lens-list > li { overflow-wrap: anywhere; }
 .v2-lens-list > li::marker { color: var(--color-text-secondary); }
@@ -333,14 +336,8 @@
 .v2-thesis-block.is-favorable { border-left-color: var(--color-text-success); }
 .v2-thesis-block.is-burden { border-left-color: var(--color-text-warning); }
 .v2-thesis-block__title { margin: 0; font-size: 12px; font-weight: 600; color: var(--color-text-secondary); }
-.v2-thesis > .aio-btn-table { align-self: flex-start; min-height: 32px; padding: 0 14px; border-radius: var(--radius-full); }
 @media (max-width: 1023px) {
   .v2-thesis-grid, .v2-thesis-grid.is-pair { grid-template-columns: minmax(0, 1fr); }
-}
-@media (max-width: 743px) {
-  .page .v2-thesis-bars .stock-read-bars { grid-template-columns: minmax(0, 1fr); gap: 4px; }
-  .page .v2-thesis-bars .stock-read-bar-value { min-width: 0; }
-  .v2-thesis > .aio-btn-table { align-self: stretch; min-height: 44px; }
 }
 
 /* ═══ 7. Breakpoints (4a) ═══════════════════════════════════════════════ */

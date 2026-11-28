@@ -1,20 +1,21 @@
 // An expert's reading of this company — the business lens (which numbers matter for this kind
 // of business), standing against named theme peers with what to keep watching, the thesis conditions and the
-// favourable/unfavourable situations. 재무 공시 draws them on the face (lensCard, peerStandingCard, thesisCard,
-// situationCard); 종목 개요 reads one peer line (peerLine); the AI panel reads the same data (window._aioStockLensFor).
+// favourable/unfavourable situations. 재무 공시 draws them on the face (lensCard, peerStandingCard, situationCard);
+// 종목 개요 reads one peer line (peerLine) and 쟁점과 전망 the thesis rules (company-overview.js); the AI panel reads the
+// same data (window._aioStockLensFor).
 // Readings come from src/domain/fundamental/stock-lens.js. Loaded with the entity route (never the boot set).
 import { shortDate } from '../../domain/content/date-labels.js';
 import { setResearchHandoff } from '../../app/research-handoff.js';
 import { el } from './dom.js';
 import { kindFold } from './indicator-face.js';
-import { signedText } from '../../domain/shared/number.js';
 import { readRowNumber } from '../../data/contracts/screener.js';
 import { debtBasisFor, debtCurrentFor, issuerSic } from './fiscal-read.js';
 import { marketInterpretation, readMarketRegime } from '../../data/selectors/interpretation.js';
 import { reconcileFiscalHistory, financialKind, parseFiscalHistory } from '../../domain/fundamental/fiscal-read.js';
-import { parseQuarterHistory, buildQuarterRead } from '../../domain/fundamental/quarter-read.js';
-import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, buildSurpriseRead, reverseDcfInputs, impliedGrowth, reverseDcfAssumptions } from '../../domain/fundamental/analysis-read.js';
+import { parseQuarterHistory, buildQuarterRead, buildWorkingCapitalRead } from '../../domain/fundamental/quarter-read.js';
+import { buildTrailingYearRead, buildEarningsSchedule, buildMarginCashRead, buildThemePeers, buildRdRead, reverseDcfInputs, impliedGrowth, reverseDcfAssumptions } from '../../domain/fundamental/analysis-read.js';
 import { consensusView, peakEarningsCaution } from '../../domain/fundamental/consensus-read.js';
+import { buildPricedInRead } from '../../domain/fundamental/priced-in.js';
 import { lensIdFor, buildLensRead, buildPeerStrengths, peerBasisText, buildSituationRead, buildThesisFrame, buildWatchList, buildMarketLink, dailyBeta } from '../../domain/fundamental/stock-lens.js';
 import { themeStagesFor, themeMarketOf } from '../../domain/scenarios/theme-stage.js';
 import { themeProfile } from '../../domain/scenarios/exposures.js';
@@ -85,12 +86,13 @@ export function stockLensContext(root, symbol, { fundamentals = null, bars = nul
   const pe = strengths?.facts?.find((fact) => fact.id === 'fwdPe');
   const situation = buildSituationRead({ themes: themeList, market, crossroads, beta });
   const tags = themeIds.flatMap((id) => themeProfile(market, id)?.tags || []);
+  const pricedIn = row && consensus ? buildPricedInRead(row, consensus) : null;
   return {
     sym, market, row, history, peers, strengths, stage, themeList, situation, schedule, levels, consensus, trailing,
-    lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, debtBasis, rd: buildRdRead(history), consensus, surprise: buildSurpriseRead(consensus, { quarters }) }) : null,
+    lensRead: history.length ? buildLensRead({ lens, history, trailing, quarterRead, marginCash, debtBasis, rd: buildRdRead(history), workingCapital: buildWorkingCapitalRead(quarters, { symbol: sym }) }) : null,
     thesis: history.length ? buildThesisFrame({ implied, trailing, marginCash, consensus, schedule, levels, peerPe: pe ? { value: pe.value, median: pe.median } : null, situation,
-      peakEarnings }) : null,
-    watch: buildWatchList({ schedule, consensus, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label, currency: market === 'US' ? 'USD' : 'KRW' }),
+      peakEarnings, pricedIn }) : null,
+    watch: buildWatchList({ schedule, trailing, row, stage, levels, benchmarkRet3m: benchmark.pct, benchmarkLabel: benchmark.label, currency: market === 'US' ? 'USD' : 'KRW' }),
     link: buildMarketLink({ regime, crossroads, stage, themeLabel: themeList[0]?.label || null, tags })
   };
 }
@@ -131,16 +133,17 @@ const block = (doc, title, items, tone = '') => {
 };
 const methodText = (doc, text) => el(doc, 'p', text, 'ind-method__text');
 
-/** The memo template the thesis seeds (the reader writes their own conditions under it). */
+/** The note the thesis seeds on a buy record (the reader writes their own conditions under it). */
 export function thesisTemplate(ctx) {
   const t = ctx?.thesis;
   if (!t) return '';
   return [`내 논지(${ctx.sym}):`, t.priced ? `가격이 가정하는 것 — ${t.priced}` : null, ...t.conditions.map((c) => `맞으려면 — ${c}`), ...t.breaks.slice(0, 3).map((b) => `깨짐 신호 — ${b}`)].filter(Boolean).join('\n');
 }
-// The memo is 종목 개요's 내 메모 section: hand the template over and open the company (entity.js consumes it once).
-function openThesisMemo(root, symbol, template) {
-  setResearchHandoff({ root, routeId: 'ticker', context: { symbol, memoTemplate: template } });
-  if (typeof root?.showTicker === 'function') root.showTicker(symbol);
+// The conditions belong on the holding's buy record: hand the template to 포트폴리오 and open it
+// (portfolio-trade-journal.js startBuyFromHandoff consumes it once as a buy draft).
+export function startThesisBuyRecord(root, symbol, template) {
+  setResearchHandoff({ root, routeId: 'portfolio', context: { symbol, memoTemplate: template } });
+  root?.showPage?.('portfolio');
 }
 
 /** Which numbers matter for this kind of business, this company's value and direction for each. */
@@ -190,7 +193,7 @@ function rankChart(doc, facts) {
   return svg;
 }
 // The watch items that belong to this screen: the price-level and relative-strength items live on 기술적 분석.
-const FUNDAMENTAL_WATCH = new Set(['earnings', 'revisions', 'margin', 'theme']);
+const FUNDAMENTAL_WATCH = new Set(['earnings', 'margin', 'theme']);
 const watchOf = (ctx) => (ctx?.watch || []).filter((item) => FUNDAMENTAL_WATCH.has(item.id));
 
 /** Where the company stands against named theme peers, the strength and weakness lines and what to keep watching. */
@@ -246,46 +249,7 @@ export function peerLine(ctx) {
   return { theme: ctx.peers.themeName, count: s.peers + 1, strength: s.strengths[0]?.text || null, weakness: s.weaknesses[0]?.text || null };
 }
 
-/** The thesis conditions: what the price assumes, what must hold, when it is checked and what would break it. */
-export function thesisCard(doc, root, ctx) {
-  const t = ctx?.thesis;
-  if (!t) return null;
-  const card = el(doc, 'section', null, 'sx-card v2-analysis-card v2-thesis');
-  card.dataset.analysis = 'thesis';
-  card.append(cardHead(doc, '투자 논지 조건', '앱의 결론 아님'));
-  if (t.priced) card.append(el(doc, 'p', t.priced, 'v2-analysis-lede'));
-  if (t.impliedPct != null && t.ttm != null) {
-    const bars = el(doc, 'div', null, 'v2-thesis-bars');
-    const top = Math.max(Math.abs(t.impliedPct), Math.abs(t.ttm), 1);
-    for (const [label, value] of [['가격이 가정한 성장(연)', t.impliedPct], ['최근 4개 분기 매출 성장', t.ttm]]) {
-      const line = el(doc, 'div', null, 'stock-read-bars');
-      line.append(el(doc, 'span', label, 'stock-read-bar-label'));
-      const item = el(doc, 'div', null, 'stock-read-bar-row');
-      const track = el(doc, 'div', null, 'stock-read-track');
-      const fill = el(doc, 'div', null, `stock-read-bar is-${value < 0 ? 'burden' : 'neutral'}`);
-      fill.style.width = `${Math.max(2, Math.abs(value) / top * 100).toFixed(1)}%`;
-      track.append(fill);
-      item.append(track, el(doc, 'span', signedText(value, 1, '%'), 'stock-read-bar-value'));
-      line.append(item); bars.append(line);
-    }
-    card.append(bars);
-  }
-  const grid = el(doc, 'div', null, 'v2-thesis-grid');
-  if (t.conditions.length) grid.append(block(doc, `맞으려면 ${t.conditions.length}가지`, t.conditions));
-  if (t.checks.length) grid.append(block(doc, '확인 일정', t.checks));
-  if (t.breaks.length) grid.append(block(doc, '틀렸다는 신호', t.breaks, 'burden'));
-  card.append(grid);
-  if (t.paths.length) {
-    const paths = el(doc, 'div', null, 'v2-thesis-grid is-pair');
-    for (const path of t.paths) paths.append(block(doc, path.label, [`성립 — ${path.holds}`, `깨짐 — ${path.fails}`]));
-    card.append(paths);
-  }
-  const save = el(doc, 'button', '이 조건으로 내 메모 시작', 'aio-btn-table');
-  save.type = 'button';
-  save.addEventListener('click', () => openThesisMemo(root, ctx.sym, thesisTemplate(ctx)));
-  card.append(save);
-  return card;
-}
+// The thesis conditions are drawn once, in 쟁점과 전망's table (company-overview.js), beside the researched readings.
 
 /** The macro environments that favour or burden the company's themes, and where the market is now. */
 export function situationCard(doc, ctx) {

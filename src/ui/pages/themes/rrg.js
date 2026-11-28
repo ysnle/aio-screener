@@ -9,7 +9,7 @@ import { finiteNumber as finite } from '../../../domain/shared/number.js';
 import { setAsOf } from '../../components/section-frame.js';
 import { stampDay } from '../../../domain/shared/session-date.js';
 import { usCloseSession, viewItems } from '../../../data/selectors/theme-flow.js';
-import { NEAR_HIGH_TAB } from './sectors.js';
+import { EVIDENCE_TAB } from './sectors.js';
 
 // plain-Korean quadrant notes (no 모멘텀 jargon). 100 is the sector's own 100-session average relative price.
 // The notes name both windows and no longer say "계속 강해지는 중 / 나아지는 중" — the vertical axis
@@ -85,13 +85,13 @@ export function renderRRGStatus({ documentRef, root, store, route }) {
   status.style.color = 'var(--color-text-secondary)';
 }
 
-// The card's one date chip follows what the card shows: the 고점 근처 bars read the screener's session; the period bars
+// The card's one date chip follows what the card shows: the 근거 table reads the screener's session; the period bars
 // and the scatter read the rotation artifact's.
 export function writeSectorCardChip(documentRef, root) {
   const head = documentRef?.querySelector?.('#page-themes .v2-themes-rrg > .aio-frame-head');
   const bars = documentRef?.getElementById?.('sector-perf-bars');
-  const nearSession = bars?.dataset.metric === NEAR_HIGH_TAB[0] && root?._aioThemesVerdictView !== 'rrg' ? bars.dataset.session : '';
-  if (nearSession) { setAsOf(documentRef, head, `${shortSession(nearSession)} 종가`, `S&P 500 구성 종목의 52주 종가 고점 기록, ${shortSession(nearSession)} 미국 종가`); return; }
+  const evidenceSession = bars?.dataset.metric === EVIDENCE_TAB[0] && root?._aioThemesVerdictView !== 'rrg' ? bars.dataset.session : '';
+  if (evidenceSession) { setAsOf(documentRef, head, `${shortSession(evidenceSession)} 종가`, `S&P 500 구성 종목의 52주 고점·저점 근처 비율과 가격 대 추정치, ${shortSession(evidenceSession)} 미국 종가`); return; }
   const close = usCloseSession(root);
   setAsOf(documentRef, head, sessionChipText(close) || '완료 종가', `약 50일 상대강도, ${close ? `${sessionChipText(close)}, 미국` : '완료 종가 기준'}`);
 }

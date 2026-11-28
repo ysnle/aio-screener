@@ -1,13 +1,15 @@
-// v59.70 (X bookmarks #6, #11): two readings under 주요 발표 요약.
+// Two readings under 주요 발표 요약.
 //   eventAftermath — after a market-wide release (FOMC, a core mover's report), where money went over the next two or
 //     three completed sessions: technology (Nasdaq 100) vs defensives (staples, utilities, health care) vs the broad
 //     market (equal-weight S&P 500 and the Russell 2000), each against the S&P 500. Three outcomes: 기술로 복귀,
-//     방어 지속, 전체 확산 — or no clear direction.
+//     방어 지속, 전체 확산 — or no clear direction. With the FRED history, `rates` is the bond, credit and dollar response
+//     over the same two closes, judged by cross-asset-relations (a FRED leg only when observed on both dates).
 //   beatButFell — among recent reports that beat the EPS estimate, how many closed lower on the first session that could
 //     trade on them, beside the same share for all reports ('호재 무반응').
 // Both are context lines; neither feeds a verdict or a score.
 import { buildCloseSeries, closeBasis } from '../market/session/close-series.js';
 import { figureSurprise, releaseSession } from './event-briefs.js';
+import { eventRateResponse } from '../macro/cross-asset-relations.js';
 
 export const AFTERMATH_RULE = Object.freeze({ sessions: 3, minSessions: 2, leadPp: 1 });
 const GROUPS = Object.freeze([
@@ -19,7 +21,7 @@ const GROUPS = Object.freeze([
 const round1 = (value) => Math.round(value * 10) / 10;
 
 /** Pure: the three relative flows after a release. `release` is { publishedAt, dateOnly, label }. */
-export function eventAftermath(history = [], release = {}, rule = AFTERMATH_RULE) {
+export function eventAftermath(history = [], release = {}, { rule = AFTERMATH_RULE, macroHistory = null } = {}) {
   const session = releaseSession(release.publishedAt, { dateOnly: !!release.dateOnly });
   if (!session) return null;
   const through = closeBasis(history);
@@ -48,8 +50,15 @@ export function eventAftermath(history = [], release = {}, rule = AFTERMATH_RULE
   // The broad market leading a falling S&P 500 is money leaving the large caps, not a broadening rally.
   const outcome = lead.relPp < rule.leadPp ? null : lead.id === 'tech' ? '기술로 복귀' : lead.id === 'defensive' ? '방어 지속' : broad.pct > 0 ? '전체 확산' : '대형주 밖으로 이동';
   const signed = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%p`;
+  const fredBp = (key) => {
+    const rows = macroHistory?.series?.[key]?.observations || [];
+    const from = rows.find(([date]) => date === base.date)?.[1]; const to = rows.find(([date]) => date === end.date)?.[1];
+    return Number.isFinite(from) && Number.isFinite(to) ? Math.round((to - from) * 100) : null;
+  };
+  const dxy = move('dxy');
+  const rates = macroHistory ? eventRateResponse({ dgs2: fredBp('dgs2'), dgs10: fredBp('dgs10'), breakeven10: fredBp('breakeven10'), realYield10: fredBp('realYield10'), hyOas: fredBp('hyOas'), dxy: dxy == null ? null : round1(dxy), broad: broad.pct }) : null;
   return {
-    from: base.date, to: end.date, sessions: after.length, spx: round1(spxMove), groups, outcome,
+    from: base.date, to: end.date, sessions: after.length, spx: round1(spxMove), groups, outcome, rates,
     text: `${release.label ? `${release.label} 뒤` : '발표 뒤'} ${after.length}거래일, S&P 500 대비 기술 ${signed(tech.relPp)}, 방어 업종 ${signed(defensive.relPp)}, 동일가중·소형 ${signed(broad.relPp)} — ${outcome || '한쪽으로 쏠리지 않음'}.`,
   };
 }

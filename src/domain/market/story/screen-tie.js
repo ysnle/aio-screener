@@ -60,11 +60,12 @@ function sentimentState({ regime, history, macroHistory, sentiment, asOf }) {
     g: count('sentiment', 'componentsGreed', asOf, read.greed.length, '과열 쪽') } };
 }
 
-/** 매크로: how the policy path (the opening's rates row) moved over about a month. */
+/** 매크로: how the policy path (the opening's rates row) moved over about a month — the difference of the two gaps as
+ *  the opening prints them (whole bp), so +74 and +80 read -6 here too. */
 function macroState({ macroHistory, asOf }) {
   const path = policyPathOf(macroHistory, asOf);
   if (!path?.move || !path.before) return null;
-  return { state: path.move, slots: { d: figure('policy-path', 'twoYearOverMidChange', path.now.date, path.now.gapBp - path.before.gapBp, 'bp', '2년물 − 기준금리 중간값 변화') } };
+  return { state: path.move, slots: { d: figure('policy-path', 'twoYearOverMidChange', path.now.date, Math.round(path.now.gapBp) - Math.round(path.before.gapBp), 'bp', '2년물 − 기준금리 중간값 변화') } };
 }
 
 /** 금리와 환율: the rates axis (중립 held by a falling stock market reads growthScare), with the 10-year's 20-session change. */

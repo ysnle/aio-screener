@@ -727,15 +727,18 @@ export function renderMacroBoard({ documentRef: doc, root }) {
     defs.push([group.title, group.items.filter((item) => item.note).map((item) => [item.label, item.note])]);
     return groupSection(doc, root, group.id, group.title, group.fact, group.items.length, grid);
   }));
-  // Liquidity, growth-lead and commodity/Asia-FX groups from the extended FRED lane (hidden until produced). Their face
+  // Growth-lead and commodity/Asia-FX groups from the extended FRED lane, hidden until produced (liquidity is the 자금 배관 chapter). Their face
   // line is the group's values; the group's description and the cards' definitions are method text, its principle a library note.
   const groups = [];
-  for (const group of buildLiquidityGrowthGroups(macroHistory, { macro: root._aioServerMacro || null, history: root._aioHistory || [] })) {
+  for (const group of buildLiquidityGrowthGroups(macroHistory)) {
     // M13/M14: the period the observation covers, and a stale chip once the cadence's normal delay has passed.
     const grid = () => { const node = el(doc, 'div', null, 'macro-stat-grid');
       node.append(...group.items.map((item) => statCard(doc, { label: item.label, valueText: item.valueText, lines: [item.changeText], meta: item.period, series: item.series, unit: item.unit, format: item.format, status: item.stale ? 'stale' : 'observed', staleText: '새 값 발표 지연(평소 발표 주기보다 늦음)' })));
       return [node]; };
-    const fact = group.items.map((item) => `${item.label.replace(/\s*\(.*\)$/, '')} ${item.valueText}`).join(', ');
+    // A daily value says its day on the face too: these FRED spot series run days behind the closes shown elsewhere
+    // (Brent spot of 11/24 beside the 11/27 futures close), and without the date the two read as one day's disagreement.
+    const dayOf = (item) => (/^\d{1,2}\/\d{1,2}/.exec(item.period || '') || [''])[0];
+    const fact = group.items.map((item) => `${item.label.replace(/\s*\(.*\)$/, '')} ${item.valueText}${dayOf(item) ? `(${dayOf(item)})` : ''}`).join(', ');
     host.append(groupSection(doc, root, group.id, group.title, fact, group.items.length, grid));
     defs.push([group.title, [['묶음', group.fact], ...group.items.filter((item) => LIQUIDITY_DEFINITIONS.has(item.id) && item.reading).map((item) => [item.label, item.reading])]]);
     groups.push([group.id, group.title]);
@@ -759,7 +762,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
   reopen();
   renderCommodities(doc, root);
   defs.push(['유가, 금', COMMODITY_DEFS.map((row) => [...row])]);
-  // The six chapters (물가 · 고용 · 금리 · 원자재 · 신용 · 성장) under the quadrant, a lazy chunk.
+  // The chapters (macro-chapters.js) under the quadrant, a lazy chunk.
   import('./macro-chapters.js').then(({ renderMacroChapters }) => renderMacroChapters({ documentRef: doc, root, events: latestMarketInterpretation(root)?.events || [] })).catch(() => {});
   paintMethod(doc.getElementById('macro-method'), () => macroMethodBody(doc, root, { read, chain, defs, groups }));
   renderNextSteps(doc, doc.getElementById('macro-next'), macroNextSteps(read)); // I04
@@ -769,7 +772,7 @@ export function renderMacroBoard({ documentRef: doc, root }) {
 
 // The extended-lane cards whose `reading` is a fixed definition (the others assemble today's level and direction into a
 // sentence, which the face no longer carries; their values and changes are on the cards).
-const LIQUIDITY_DEFINITIONS = new Set(['sofr', 'jobOpenings', 'consumerSentiment', 'ppiFinalDemand', 'brent', 'natGas', 'copper', 'usdCny']);
+const LIQUIDITY_DEFINITIONS = new Set(['jobOpenings', 'consumerSentiment', 'ppiFinalDemand', 'brent', 'natGas', 'copper', 'usdCny']);
 
 // #macro-method: how the quadrant and each factor are read, the chain's thresholds, the earnings measures, every card's
 // definition, and the links to each principle's library note. Built when the fold opens.

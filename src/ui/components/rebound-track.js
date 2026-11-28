@@ -51,6 +51,14 @@ export function reboundTrackBlock(doc, track) {
     item.append(el(doc, 'b', `${W[id]}${mark}`), doc.createTextNode(` ${cond.said.text}`));
     conds.append(item);
   }
+  // The last retest of the S&P 500 low against its VIX spike, a dated fact under the conditions.
+  if (track.retest?.said?.text) {
+    const item = el(doc, 'li', null, 'rebound-track__cond');
+    item.dataset.cond = 'retest';
+    item.dataset.state = track.retest.state;
+    item.append(el(doc, 'b', W.retest), doc.createTextNode(` ${track.retest.said.text}`));
+    conds.append(item);
+  }
   box.append(head, scroll, conds);
   return box;
 }

@@ -41,7 +41,7 @@ function miniBars(doc, viz) {
   plot.setAttribute('aria-label', `${viz.caption}: ${viz.points.map((point) => `${point.x} ${point.value.toFixed(2)}`).join(', ')}`);
   for (const point of viz.points) {
     const col = el(doc, 'div', null, 'mx-ch__col');
-    const digits = viz.unit === '%' ? (Math.abs(point.value) < 1 ? 2 : 1) : 0;
+    const digits = viz.unit === '%' || viz.unit === '%p' ? (Math.abs(point.value) < 1 ? 2 : 1) : 0;
     const value = el(doc, 'span', signedText(point.value, digits), 'mx-ch__val');
     const up = el(doc, 'span', null, 'mx-ch__half is-up'); const down = el(doc, 'span', null, 'mx-ch__half is-down');
     const bar = el(doc, 'span', null, `mx-ch__bar${point.hot ? ' is-hot' : ''}${point.value < 0 ? ' is-neg' : ''}`);
@@ -77,11 +77,49 @@ function rangeBands(doc, model) {
   return box;
 }
 
+// The chapter's rule judgements as state chips beside its title (판정 is never folded): '노동 둔화 3단계', 'SOFR − IORB 안정'.
+function verdictChips(doc, verdicts = []) {
+  if (!verdicts.length) return null;
+  const row = el(doc, 'div', null, 'mx-ch__verdicts');
+  for (const verdict of verdicts) {
+    const chip = el(doc, 'span', `${verdict.name} ${verdict.label}`, `sx-chip sx-chip--sm sx-chip--${verdict.tone || 'neutral'}`);
+    chip.dataset.verdict = verdict.id;
+    row.append(chip);
+  }
+  return row;
+}
+
+// The labour slowdown ladder: five steps in their order, the ones met tinted, the stage reached marked 지금.
+function ladderBar(doc, ladder) {
+  const box = el(doc, 'div', null, 'zone-bar mx-ch__ladder');
+  const track = el(doc, 'div', null, 'zone-bar__track');
+  track.setAttribute('role', 'img');
+  track.setAttribute('aria-label', `둔화 단계: ${ladder.rungs.map((rung, index) => `${index + 1} ${rung.label} ${rung.met === true ? '해당' : rung.met === false ? '아님' : '자료 없음'}`).join(', ')}`);
+  ladder.rungs.forEach((rung, index) => {
+    const now = index + 1 === ladder.stage;
+    const tone = rung.met !== true ? 'neutral' : index === ladder.rungs.length - 1 ? 'bad' : 'burden';
+    const seg = el(doc, 'span', null, `zone-bar__band is-${tone}${now ? ' is-now' : ''}`);
+    seg.style.width = `${(100 / ladder.rungs.length).toFixed(2)}%`;
+    seg.title = `${index + 1}. ${rung.label}${rung.met == null ? ' — 자료 없음' : ''}`;
+    seg.append(el(doc, 'span', rung.met == null ? `${rung.short}?` : rung.short, 'zone-bar__label'));
+    track.append(seg);
+  });
+  if (ladder.stage > 0) {
+    const pin = el(doc, 'span', '지금', 'zone-bar__pin');
+    pin.style.left = `${((ladder.stage - 0.5) / ladder.rungs.length * 100).toFixed(2)}%`;
+    track.append(pin);
+  }
+  box.append(track);
+  return box;
+}
+
 function chapterCard(doc, chapter, research = null, funding = null) {
   const card = el(doc, 'article', null, 'mx-ch');
   card.dataset.chapter = chapter.id;
   const head = el(doc, 'div', null, 'mx-ch__head');
   head.append(el(doc, 'h3', chapter.title, 'mx-ch__title'), el(doc, 'span', chapter.question, 'mx-ch__q'));
+  const chips = verdictChips(doc, chapter.verdicts);
+  if (chips) head.append(chips);
   const body = el(doc, 'div', null, 'mx-ch__body');
   const text = el(doc, 'div', null, 'mx-ch__text');
   // 안 A: the latest numbers, not the sentence the chapter assembles on them (chapter.mean); the condition that changes the
@@ -93,6 +131,7 @@ function chapterCard(doc, chapter, research = null, funding = null) {
     today.append(el(doc, 'strong', `${chapter.today.label || '최근 거래일'} `), doc.createTextNode(chapter.today.text));
     text.append(today);
   }
+  if (chapter.ladder) text.append(ladderBar(doc, chapter.ladder));
   body.append(miniBars(doc, chapter.viz), text);
   const next = el(doc, 'dl', null, 'mx-ch__next');
   next.append(el(doc, 'dt', '다음 발표'), el(doc, 'dd', chapter.next), el(doc, 'dt', '바뀌는 조건'), el(doc, 'dd', chapter.flip));

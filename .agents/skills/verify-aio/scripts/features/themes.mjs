@@ -42,24 +42,23 @@ export default {
       if (!members) throw new Error('member comparison opened empty');
       return { members, rows: await p.$$eval('#theme-strength-board .tsr-row', (n) => n.length) };
     }],
-    ['섹터 막대 고점 근처 → 1주 복귀, AI 공급망 층별 PER', async (p) => {
-      // v59.70 (X bookmarks #2, #7): the metric tab draws 11 share bars and dates the card chip on the screener session;
-      // 1주 brings the period bars back. The layer PER fold lists the covered layers with two multiples each.
+    ['섹터 근거 표 → 1주 복귀, AI 공급망 층별 PER', async (p) => {
+      // The 근거 tab draws one table of the 11 sectors (rotation, 1개월 vs SPY, moving-average shares, 52-week near-low /
+      // near-high, estimate revisions, price × estimates); 1주 brings the period bars back. The AI card's layer table
+      // carries the PER pair (last four → next four quarters) in its last column.
       await p.getByRole('tab', { name: '요약', exact: true }).click();
-      await p.click('#sector-perf-tabs button[data-period="near52"]');
-      await p.waitForFunction(() => document.getElementById('sector-perf-bars')?.dataset.metric === 'near52', null, { timeout: 8000 });
-      const shares = await p.$$eval('#sector-perf-bars .thp-perf-bar--share', (n) => n.length);
-      const hero = await p.$eval('#rrg-rotation-read', (n) => n.textContent);
-      if (shares < 6 || !hero.includes('52주 고점')) throw new Error(`고점 근처 drew ${shares} bars, hero ${hero.slice(0, 40)}`);
+      await p.click('#sector-perf-tabs button[data-period="evidence"]');
+      await p.waitForFunction(() => document.getElementById('sector-perf-bars')?.dataset.metric === 'evidence', null, { timeout: 8000 });
+      const sectors = await p.$$eval('#sector-perf-bars table.thp-member-table tbody tr', (n) => n.length);
+      const heads = await p.$$eval('#sector-perf-bars table.thp-member-table th', (n) => n.map((th) => th.textContent.trim()));
+      if (sectors < 6 || !heads.includes('52주 저점·고점 근처') || !heads.includes('가격×추정')) throw new Error(`근거 table drew ${sectors} rows, heads ${heads.join(' | ')}`);
       await p.click('#sector-perf-tabs button[data-period="1w"]');
       await p.waitForFunction(() => !document.getElementById('sector-perf-bars')?.dataset.metric, null, { timeout: 8000 });
-      const fold = p.locator('#themes-ai-chain details.ai-chain-per');
       await p.getByRole('tab', { name: 'AI 공급망', exact: true }).click();
-      await fold.waitFor({ state: 'attached', timeout: 20000 });
-      await fold.locator('summary').click();
-      const layers = await p.$$eval('#themes-ai-chain .ai-chain-per__row', (n) => n.map((row) => row.getAttribute('aria-label')));
-      if (!layers.length || !layers.every((label) => /지난 4분기 [\d.]+배 → 다음 4분기 [\d.]+배/.test(label))) throw new Error(`layer PER rows: ${layers.slice(0, 2).join(' | ')}`);
-      return { shares, layers: layers.length };
+      await p.waitForSelector('#themes-ai-chain table.ai-chain__layers tbody tr', { state: 'attached', timeout: 20000 });
+      const pers = await p.$$eval('#themes-ai-chain table.ai-chain__layers tbody tr', (n) => n.map((row) => row.lastElementChild?.textContent.trim() || ''));
+      if (!pers.some((text) => /[\d.]+배 → [\d.]+배/.test(text)) || !pers.every((text) => text === '—' || /[\d.]+배 → [\d.]+배/.test(text))) throw new Error(`layer PER cells: ${pers.slice(0, 3).join(' | ')}`);
+      return { sectors, layers: pers.length };
     }],
     ['S&P 500 지도 → 구성 종목 확인', async (p) => {
       // 2026-11-02: #sector-map is an open section; #sector-map-fold now holds only the day's splits and is hidden without them.
@@ -73,10 +72,6 @@ export default {
       const detail = await visibleText(p, '#sector-map .sector-map-detail');
       if (!detail.startsWith(sym)) throw new Error(`tile detail did not name ${sym}: ${detail.slice(0, 80)}`);
       return { tiles, sym, detail: detail.slice(0, 90) };
-    }],
-    ['AI 설비투자 흐름 펼치기 → 설명과 근거', async (p) => {
-      await p.getByRole('tab', { name: 'AI 공급망', exact: true }).click();
-      return expectText(p, '#ai-capex-flow', { min: 80 });
     }],
     ['첫 테마 열기 → 같은 화면 안 상세 패널', async (p) => {
       // v57.76: the quadrant chips sit in the 사분면별 섹터 fold under the scatter chart.

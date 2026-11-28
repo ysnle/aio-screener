@@ -13,14 +13,27 @@ import { leadLinkedNews, pickImportantNews, rollingNewsPool } from '../../domain
 import { groupNewsStories, selectIntradayNews } from '../../domain/news/stories.js';
 import { usThenKorea } from '../../domain/market/session/session-time.js';
 import { MARKET_DAY } from '../../data/artifact-registry.js';
+import { dayCause, CAUSE_WORDS } from '../../domain/market/day/day-cause.js';
 
 const RANK_ORDER = Object.freeze({ lead: 0, major: 1, minor: 2, context: 3 });
 
-/** A lead story's top linked report, as written (the original title on hover). */
-export function reportLine(doc, report, className) {
-  const line = el(doc, 'span', `관련 보도: ${report.title}`, className);
+/** A lead story's top linked report, as written (the original title on hover). `source-headline` marks the words as the
+ *  outlet's, not the site's (the rendered-copy lint reads the site's own copy and skips headline nodes). */
+export function reportLine(doc, report, className, tag = 'span') {
+  const line = el(doc, tag, `관련 보도: ${report.title}`, `${className} source-headline`);
   if (report.original) line.title = report.original;
   return line;
+}
+
+/** One cause verdict (domain/market/day/day-cause.js): the result and its reason as a tag, the figures (a headline: its
+ *  title as written), and the alternative a held release points to. */
+export function causeRow(doc, row, tag = 'li') {
+  const item = el(doc, tag, null, 'day-cause__row');
+  const chip = el(doc, 'span', `${CAUSE_WORDS.result[row.result]} · ${CAUSE_WORDS.reason[row.reason] || ''}`, `sx-chip sx-chip--sm ${row.result === 'attributed' ? 'sx-chip--neutral' : 'sx-chip--warn'}`);
+  const text = row.kind === 'headline' ? el(doc, 'span', row.title, 'source-headline') : el(doc, 'span', row.said.text);
+  item.append(chip, ' ', text);
+  if (row.alternative) item.append(el(doc, 'span', ` · ${CAUSE_WORDS.alternative} ${row.alternative.said.text}`));
+  return item;
 }
 
 /** The day's material stock moves, ledger order, each once. */
@@ -97,6 +110,13 @@ export function renderHomeDay({ documentRef: doc, root, store = null, shownElsew
     list.append(item);
   }
   const parts = [head, list];
+  // A release of the session beside the yields' reaction, with whether the move is put on it.
+  for (const row of dayCause(oneSessionDay(day, root?._aioHistory)).candidates.filter((item) => item.kind === 'release')) {
+    const line = causeRow(doc, row, 'p');
+    line.prepend(el(doc, 'b', `${CAUSE_WORDS.release} `));
+    line.classList.add('home-day__narr');
+    parts.push(line);
+  }
   if (narrLine) parts.push(el(doc, 'p', narrLine, 'home-day__narr'));
   if (headlines.length) {
     const news = el(doc, 'ul', null, 'home-day__news');

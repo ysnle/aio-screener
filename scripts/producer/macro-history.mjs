@@ -62,6 +62,10 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   t10y3m:         { id: 'T10Y3M',        frequency: 'daily',   limit: 280, unit: 'percentage-point', label: '10년-3개월 금리차' },
   realYield10:    { id: 'DFII10',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 실질금리 (TIPS)' },
   breakeven10:    { id: 'T10YIE',        frequency: 'daily',   limit: 280, unit: 'percent', label: '10년 기대인플레이션' },
+  // The expectations-anchor legs: the market 5y5y forward beside the breakeven, and Michigan's one-year survey. The
+  // 5-10 year survey (the anchor's survey leg) is not on FRED and stays unread.
+  fiveYearForward:{ id: 'T5YIFR',        frequency: 'daily',   limit: 280, unit: 'percent', label: '5년 후 5년 기대인플레이션' },
+  michInflation1y:{ id: 'MICH',          frequency: 'monthly', limit: 40,  unit: 'percent', label: '미시간대 1년 기대인플레이션' },
   // P1469 (review 2026-10-04, term premium): the Federal Reserve Board's Kim-Wright 10-year term premium
   // (model estimate, official FRED series). NY Fed ACM is published only as a spreadsheet, so the same
   // concept is taken from the official FRED path and named by its model on screen.
@@ -90,11 +94,24 @@ export const MACRO_HISTORY_SERIES = Object.freeze({
   // and WTREGEN is the week average, so the three legs were not the same day. The series is refetched whole each run.
   treasuryAccount:{ id: 'WDTGAL',        frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '재무부 일반계정(TGA)' },
   sofr:           { id: 'SOFR',          frequency: 'daily',   limit: 280, unit: 'percent', label: 'SOFR 단기금리' },
+  // The funding-plumbing gauge (SOFR − IORB on one date) and the third tank. IORB is published every calendar day, so the
+  // same 280 rows reach back further than SOFR's business days; reserves are the Wednesday level beside WDTGAL.
+  iorb:           { id: 'IORB',          frequency: 'daily',   limit: 280, unit: 'percent', label: '지급준비금 이자율(IORB)' },
+  reserves:       { id: 'WRBWFRBL',      frequency: 'weekly',  limit: 110, unit: 'usd-millions', label: '은행 지급준비금' },
   financialConditions: { id: 'NFCI',     frequency: 'weekly',  limit: 110, unit: 'index', label: '시카고 연은 금융여건지수' },
   realGdp:        { id: 'GDPC1',         frequency: 'quarterly', limit: 24, unit: 'usd-billions-chained', label: '실질 GDP' },
   ppiFinalDemand: { id: 'PPIFIS',        frequency: 'monthly', limit: 40,  unit: 'index', label: '생산자물가(최종수요)' },
   consumerSentiment: { id: 'UMCSENT',    frequency: 'monthly', limit: 40,  unit: 'index', label: '미시간대 소비자심리' },
   jobOpenings:    { id: 'JTSJOL',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '구인 건수(JOLTS)' },
+  // The labour-slowdown ladder's rungs (JOLTS hires/layoffs, private weekly hours, CPS re-entrants) and the household-survey
+  // pair the unemployment-rate change is split into (unemployed and labour force, both thousands of persons), with U-6.
+  jobHires:       { id: 'JTSHIL',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '채용 건수(JOLTS)' },
+  jobLayoffs:     { id: 'JTSLDL',        frequency: 'monthly', limit: 40,  unit: 'thousands', label: '해고 건수(JOLTS)' },
+  weeklyHours:    { id: 'AWHAETP',       frequency: 'monthly', limit: 40,  unit: 'hours', label: '민간 주당 평균 근로시간' },
+  reentrants:     { id: 'LNS13023557',   frequency: 'monthly', limit: 40,  unit: 'thousands', label: '노동시장 재진입 실업자' },
+  unemployed:     { id: 'UNEMPLOY',      frequency: 'monthly', limit: 40,  unit: 'thousands', label: '실업자 수' },
+  laborForce:     { id: 'CLF16OV',       frequency: 'monthly', limit: 40,  unit: 'thousands', label: '경제활동인구' },
+  u6:             { id: 'U6RATE',        frequency: 'monthly', limit: 40,  unit: 'percent', label: '광의 실업률(U-6)' },
   brent:          { id: 'DCOILBRENTEU',  frequency: 'daily',   limit: 280, unit: 'usd-per-barrel', label: '브렌트유' },
   natGas:         { id: 'DHHNGSP',       frequency: 'daily',   limit: 280, unit: 'usd-per-mmbtu', label: '천연가스(헨리허브)' },
   copper:         { id: 'PCOPPUSDM',     frequency: 'monthly', limit: 40,  unit: 'usd-per-ton', label: '구리' },

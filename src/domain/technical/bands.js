@@ -52,7 +52,7 @@ export const recentDropText = (drop) => (drop ? `최근 5거래일 ${signed(drop
  *
  * The numeric core every surface shares — the screener row
  * (bufferedTrend), the stock chart's bars and the 기술적 분석 index cards (trend-state.js). Before, the index cards ran their
- * own classifier (market-charts trendOf: 단기 조정 · 추세 이탈 · 하락 속 반등) while the stock table under them and the 종목
+ * own classifier (market-charts: 단기 조정 · 추세 이탈 · 하락 속 반등) while the stock table under them and the 종목
  * page used this one (장기 추세 속 조정 · 하락 추세 · 장기 추세 아래 반등), and the chart's trend chips a third rule — so SPY
  * could read 단기 조정, 장기 추세 속 조정 and 하락 추세 on one screen. The 50/200 cross is a `phase` on the same id, read
  * from the two distances alone (ma50 < ma200 exactly when the close is further above the 50-day than above the 200-day):
