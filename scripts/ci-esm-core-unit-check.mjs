@@ -1965,6 +1965,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || homeAheadItems(macroWeek, 3, []).map((row) => row.title).join('|') !== 'PCE|ISM 제조업|고용보고서') {
           fail(`v60.56: 다음 일정 with leader reports broke ${JSON.stringify({ withLeaders, leadersNamed })}`);
         }
+        const slot = { kind: 'earnings', date: '2026-11-27', when: '11/27 장후', slot: 2 };
+        const sameSlot = homeAheadItems([{ ...slot, names: 'AMD' }], 3, [{ ...slot, names: 'AMD · MU', symbols: ['AMD', 'MU'] }]).map((row) => row.title);
+        if (sameSlot.join('|') !== 'AMD 실적|MU 실적') fail(`v60.66: a leader line keeps the names the week list does not show (AMD named, MU still coming): ${sameSlot.join('|')}`);
         // v60.56: 종목 머리's market tie — the move against its primary theme's same-session median and its market's index
         // of the same session, and the rebound from the opening's low on the stock's own closes; a value of another session
         // is never compared, a missing part is left out.
@@ -1993,6 +1996,9 @@ if (existsSync(path.join(root, 'src/domain/market/health.js'))) fail('retired ma
           || stockSessionTie({ symbol: 'NVDA', row: tieRow }) !== null) {
           fail(`v60.56: 종목 market tie broke ${JSON.stringify({ tie: tie?.text, tieNoRebound: tieNoRebound?.text, tieNoTheme: tieNoTheme?.text, tieOtherSession, tieHigh: tieHigh?.text, tieKr: tieKr?.text })}`);
         }
+        const { reboundFromLow } = await load('src/domain/entity/stock-session-tie.js');
+        const sharedPeak = reboundFromLow([{ time: '2026-11-23', close: 100 }, { time: '2026-11-24', close: 110 }, { time: '2026-11-25', close: 110 }], { date: '2026-11-23' }, '2026-11-25');
+        if (sharedPeak?.kind !== 'new-high') fail(`v60.66: a close equal to the earlier peak is the highest close since the low, not a 0% give-back: ${JSON.stringify(sharedPeak)}`);
         // 종목 머리's earnings line: the four-week revisions, the expected EPS change and the next report beside the month's
         // price move, with the 재무 흐름 point's own price-against-revisions rule choosing the meaning; a missing part is left
         // out, a stale estimate or no estimate gives no line.
@@ -6919,6 +6925,7 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   const fullChart = analyzeChart(flatBars, { benchmark: [...lagBench, { date: day(199), value: 120 }] });
   if (Math.abs(fullChart.rs + 10) > 1e-9 || fullChart.rsAsOf !== day(199) || /지수 종가까지/.test(chartReading(fullChart).why)) fail(`v60.52 chart RS on a shared last close reads both ends on that date: ${fullChart.rs} ${fullChart.rsAsOf}`);
   if (analyzeChart(flatBars, { benchmark: flatBars.slice(0, 60).map((bar) => ({ date: bar.time, value: 100 })) }).rs !== null) fail('v60.52 chart RS with no common close inside the 6-month window is empty');
+  if (lagChart.templateChecks.at(-1)[1] !== null || fullChart.templateChecks.at(-1)[1] === null) fail(`v60.66 the chart's template RS check is unknown while the benchmark is a session behind, as the screener's is: ${lagChart.templateChecks.at(-1)} ${fullChart.templateChecks.at(-1)}`);
 }
 
 // ── v58.XX expertise review: past outcomes of the chart's own signals on the stock's history ──
@@ -9149,6 +9156,8 @@ await import('./fixtures/architecture-lifecycle-regressions.mjs');
   if (states.UNK.state !== null) fail('v60.59 a row with an unpublished template input has no state');
   const board = sb.buildSetupBoard(rows);
   if (sb.buildSetupBoard(rows) !== board) fail('v60.59 the board is built once per rows array');
+  const mixed = sb.buildSetupBoard([...rows, row('OLD', 'Healthcare', { vcpPivot: 100, dollarVolume: 97000, vcpDepths: [20, 10, 6], vcpVolumeRatio: 0.7, factorSessionDate: '2026-11-24', retainedFrom: '2026-11-24' })]);
+  if (mixed.asOf !== '2026-11-25' || mixed.carried !== 1 || mixed.judged !== board.judged || mixed.counts.ready !== board.counts.ready || mixed.bySymbol.has('OLD') || sb.setupCandidates(mixed, 'ready').some((setup) => setup.symbol === 'OLD')) fail(`v60.66 a row kept from an earlier close is outside the board's counts and candidates: ${JSON.stringify([mixed.asOf, mixed.carried, mixed.judged, mixed.counts])}`);
   if (board.listed !== 5 || board.judged !== 4 || JSON.stringify(board.counts) !== JSON.stringify({ template: 3, base: 2, ready: 1 })) fail(`v60.59 the universe counts leave out ETFs and unjudged rows: ${JSON.stringify([board.listed, board.judged, board.counts])}`);
   const health = board.sectors[0];
   if (health.sector !== 'Healthcare' || health.template !== 2 || health.base !== 2 || !health.defensive) fail(`v60.59 the sector bars count template and base per sector and tag defensives: ${JSON.stringify(board.sectors)}`);

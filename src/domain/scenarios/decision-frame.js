@@ -129,13 +129,13 @@ export function decisionFrameText(frame) {
   // The side line names the choice and its reason; the ground kind is the fold's 근거 종류 row and the line's title.
   const tag = F.ground === 'none' ? '' : F.names.join(', ');
   const opportunity = [
-    O.cashReturn != null ? `같은 ${h} 현금 약 ${signedText(O.cashReturn, 2, '%')}(오늘 ${O.cashLabel || '단기 금리'} ${O.cashRate.toFixed(2)}% 기준${O.cashDate ? `, ${O.cashDate.slice(5).replace('-', '/')}` : ''})` : `현금 ${NO_DATA}`,
+    O.cashReturn != null ? `같은 ${h} 현금 약 ${signedText(O.cashReturn, 2, '%')}(${O.cashLabel || '단기 금리'} ${O.cashRate.toFixed(2)}%${O.cashDate ? `, ${O.cashDate.slice(5).replace('-', '/')}` : ''} 기준)` : `현금 ${NO_DATA}`,
     O.pastCashMedian != null ? `과거 같은 사례 때 현금 중앙값 ${signedText(O.pastCashMedian, 2, '%')}(그달 평균 정책금리로 근사)` : null,
     O.relative ? '이 기록은 지수 대비 초과분이라 0이 지수를 그대로 든 경우' : O.indexBaseMedian != null ? `지수만 들고 있던 평소 ${h} 중앙값 ${pct(O.indexBaseMedian)}` : null
   ].filter(Boolean);
   // windowDrawdown measures each later close against the case day's close, not against a peak inside the span.
   const cost = W.cost
-    ? `그 사이 -${W.cost.threshold}% 넘게 빠진 경우 ${W.cost.drawdownShare}%(${W.cost.n}번 중 ${W.cost.drawdownCount}번)${has(W.cost.baseDrawdownShare) ? `, 평소 ${W.cost.baseDrawdownShare}%` : ''}${has(W.cost.medianMaxDrawdown) ? ` · 사례일 종가 대비 가장 깊은 하락 중앙값 ${pct(W.cost.medianMaxDrawdown)}` : ''}${L?.relative ? ' (대표 ETF 자체 가격)' : ''}`
+    ? `그 사이 -${W.cost.threshold}% 넘게 빠진 경우 ${has(W.cost.baseDrawdownShare) ? `${W.cost.drawdownShare}%(${W.cost.n}번 중 ${W.cost.drawdownCount}번), 평소 ${W.cost.baseDrawdownShare}%` : `${W.cost.n}번 중 ${W.cost.drawdownCount}번, 평소 비율 없음`}${has(W.cost.medianMaxDrawdown) ? ` · 사례일 종가 대비 가장 깊은 하락 중앙값 ${pct(W.cost.medianMaxDrawdown)}` : ''}${L?.relative ? ' (대표 ETF 자체 가격)' : ''}`
     : `과거 하락 폭: ${thin ? '사례가 적어 말하지 않음' : NO_DATA}`;
   const tradeoff = frame.tradeoff === 'better-odds-deeper-dips' ? '오른 경우와 중앙값은 평소보다 컸지만, 그 사이 크게 빠진 경우도 평소보다 많았습니다.' : '';
   const conflict = F.conflict ? `과거 표본과 어긋남 — 비슷한 때 ${F.conflict.sharePct}%, 평소 ${F.conflict.basePct}%(${F.conflict.n}번)` : '';

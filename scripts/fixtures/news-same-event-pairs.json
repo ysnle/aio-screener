@@ -1,0 +1,2034 @@
+{
+ "schemaVersion": "news-same-event-pairs.v1",
+ "source": "Headlines the site published (data.json news and newsIntraday in the data commits), paired within one 08:00 KST cycle.",
+ "definition": "SAME = both headlines report the same occurrence as their main subject: same actor, same action, same day or session, and for a market wrap the same market. NOT SAME = shared backdrop only: another asset class or region reacting to the same trigger, a market wrap against the report of the event it cites, a preview or analysis against the report, a later or earlier moment described in the opposite direction.",
+ "labeledBy": "Fable, 2026-11-27. One labeler; the first window was labeled before any threshold was changed, the second was not used to choose one.",
+ "sampling": "Every pair of a cycle is put in a stratum by the rule at sampling time; each stratum is sampled with a fixed seed and weighted back to its population.",
+ "windows": {
+  "first": {
+   "cycles": "2026-11-18..2026-11-27",
+   "population": {
+    "strict": 56,
+    "loose": 71,
+    "near": 599
+   },
+   "pairs": [
+    {
+     "stratum": "strict",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "US stocks surge and recover half of last week’s plunge after Jensen Huang returns as Nvidia’s CEO",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피, '젠슨황 복귀'에 5∼6%대 급등…'5천피' 탈환 시도(종합)",
+     "b": "[속보] 코스피, 6%대 급등 '5천피' 탈환…코스닥 4%대↑",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피·코스닥 '상승 출발', 원달러환율 '하락'",
+     "b": "코스피-코스닥 '상승', 원달러환율 '하락'",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "엔비디아발 'AI 조정' 잦아드나…코스피·코스닥 일제히 급등",
+     "b": "엔비디아발 'AI 조정' 잦아드나…코스피·코스닥, 급등 마감(종합)",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피, 3%대 급락 4,700선 턱걸이…코스닥 2년만에 최저",
+     "b": "코스피, 3%대 급락 4,700선 턱걸이…코스닥 2년만에 최저(종합)",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Watch Global Stocks Fall as Anthropic IPO Fails to Revive AI Trade",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Banks Overtake Hedge Funds in Record $29.78B Bitcoin ETP Haul",
+     "b": "Wealth Managers Overtake Hedge Funds as Largest Bitcoin ETP Holders",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "Anthropic closes below $83 IPO price, but analysts are still largely positive",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Palo Alto Networks jumps after earnings beat and $4.5 billion AI acquisition",
+     "b": "Palo Alto inks $4.5 billion deal for AI startup Applied Compute, shares pop 7% on earnings",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian Chip Stocks Slide as Anthropic IPO Fails to Dispel AI Woes",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "CrowdStrike to acquire Zscaler in a $44 billion deal that would create a cybersecurity giant",
+     "b": "CrowdStrike agrees to buy ZScaler in an all-stock deal valued at $44 billion",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks give back gains as Anthropic dips below IPO price",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Fed Minutes Show Almost All Officials Expect More Rate Hikes",
+     "b": "Fed officials expect more rate hikes, worry about AI impact on inflation, minutes show",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "CrowdStrike to Buy Zscaler in $44 Billion All-Stock Deal. Why They’re Better Off Together.",
+     "b": "CrowdStrike agrees to buy ZScaler in an all-stock deal valued at $44 billion",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "U.S. Stocks Mixed, Nvidia Down Again Ahead of Anthropic IPO",
+     "b": "Stocks slide despite bumper Nvidia profits, Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "b": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Alphabet, AMD among AI stocks hedge funds are cutting - Goldman (SPY:NYSEARCA)",
+     "b": "Intel, Meta among AI stocks hedge funds are buying - Goldman",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피, 4%대 급락에 5,000선 밑으로…삼전닉스, 5~6%↓",
+     "b": "코스피 4% 급락 출발…다시 5000선 붕괴",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피, 4~5%대 급락에 매도 사이드카…삼전닉스 6%대 하락",
+     "b": "코스피 장중 5%대 급락세 지속…삼전·닉스 8%대 하락",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian Chip Stocks Slide as Anthropic IPO Fails to Dispel AI Woes",
+     "b": "Watch Global Stocks Fall as Anthropic IPO Fails to Revive AI Trade",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks give back gains as Anthropic dips below IPO price",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "b": "Watch Global Stocks Fall as Anthropic IPO Fails to Revive AI Trade",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "China’s AI Firms Are Addicted to Nvidia Chips. Now They Are Facing Withdrawal.",
+     "b": "The Morning Risk Report: China’s AI Firms Are Hooked on Nvidia Chips. Now Comes the Withdrawal.",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "b": "Stocks surge after Huang returns to Nvidia",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피 장중 상승폭 커져 4,900선 탈환 시도…코스닥 6%대 급등",
+     "b": "코스피 4.3% 상승 4,900선 회복…코스닥 8%대 급등 700선 탈환(종합)",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks give back gains as Anthropic dips below IPO price",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "b": "Stocks surge after Huang returns to Nvidia",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "European Stocks Rally as US Tariff Concerns Ease and Falling Bond Yields Support Sentiment: DAX, CAC, FTSE100",
+     "b": "European Stocks Rally as US Tariff Proposals Ease Concerns and Technology Shares Recover: DAX, CAC, FTSE100",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "b": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "[속보] 또 '검은 금요일'…코스피·코스닥 5%대 급락 마감",
+     "b": "5%대 급락 '검은 금요일'…코스피 4,800대로 후퇴, 10개월만 최저(종합)",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "ECB Warns Hedge Funds Boost Volatility Risks for Sovereign Bonds",
+     "b": "ECB Warns Hedge Funds Pose Risks to European Sovereign Debt and Insurers",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian Chip Stocks Slide as Anthropic IPO Fails to Dispel AI Woes",
+     "b": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Gold rises from 14-month low as markets await key US inflation data",
+     "b": "Gold rises from 14-month low as markets await U.S. inflation data",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피, 4% 안팎 급락 출발…다시 '5천피' 아래로",
+     "b": "코스피 4% 급락 출발…다시 5000선 붕괴",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피 4% 급락 출발…다시 5000선 붕괴",
+     "b": "코스피 4%대 하락 출발…코스닥 동반 하락",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Stocks Slide As Huge Anthropic IPO Unable To Calm AI Fears",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian stocks fail to get a lift from Anthropic's IPO pricing",
+     "b": "Chip stocks rally as Anthropic’s record IPO lifts AI investment sentiment",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피 급락 출발…다시 5000선 붕괴",
+     "b": "코스피 4% 급락 출발…다시 5000선 붕괴",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Trump officials met with hedge funds on Union Pacific-Norfolk Southern deal prospects, Bloomberg reports",
+     "b": "Trump Officials Met Privately With Hedge Funds on Mega Rail Deal",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "US stocks surge and recover half of last week’s plunge after Jensen Huang returns as Nvidia’s CEO",
+     "b": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "Stocks give back gains as Anthropic dips below IPO price",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian tech stocks fall sharply after Anthropic's blockbuster IPO",
+     "b": "Stocks, gold and silver fall after blockbuster Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "strict",
+     "a": "Watch Global Stocks Fall as Anthropic IPO Fails to Revive AI Trade",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "코스피 장중 상승폭 커져 2% 안팎 강세…코스닥 6%대 급등",
+     "b": "코스피 장중 상승폭 커져 4,900선 탈환 시도…코스닥 6%대 급등",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Asian stocks leap on return of Nvidia's Jensen Huang",
+     "b": "Asian tech stocks surge in wake of Jensen Huang’s return",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "Tokyo’s Faster Pace of Inflation Backs Case for BOJ Rate Hike",
+     "b": "Tokyo core inflation at 16-month high, bolsters case for BOJ hike",
+     "same": true
+    },
+    {
+     "stratum": "strict",
+     "a": "CrowdStrike to acquire Zscaler in a $44 billion deal that would create a cybersecurity giant",
+     "b": "CrowdStrike to Buy Zscaler in $44 Billion All-Stock Deal. Why They’re Better Off Together.",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic surges in market debut after biggest IPO on record, despite fears that AI is running amok",
+     "b": "Stocks Slide As Huge Anthropic IPO Unable To Calm AI Fears",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "US stocks surge and recover half of last week’s plunge after Jensen Huang returns as Nvidia’s CEO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Eni Cleared to Develop Another Natural Gas Field to Sustain LNG Output in Asia",
+     "b": "Natural Gas Forwards Plummet as Weak Winter Forecasts Eclipse LNG Strength",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Hedge funds show mixed positioning in CoreWeave; Soros and Tepper add, D1 Capital exits",
+     "b": "Microsoft draws mixed signals as hedge funds reshuffle positions in Q3",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "AI-Linked Stocks Take Off After Nvidia Reinstates Jensen Huang",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "AI-Linked Stocks Take Off After Nvidia Reinstates Jensen Huang",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Anthropic Shares Sink, Defying AI Trade Rally on Huang’s Return",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Watch Weakest Credit Faces More Pain, Hedge Funds Warn",
+     "b": "ECB Warns Hedge Funds Pose Risks to European Sovereign Debt and Insurers",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Stocks surge after Huang returns to Nvidia",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "ECB to Probe Riskier Private Credit and Hedge Fund Links at Banks",
+     "b": "ECB to step up scrutiny of banks’ private credit exposures",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Asian tech stocks fall sharply after Anthropic's blockbuster IPO",
+     "b": "Why Anthropic's blockbuster IPO valuation couldn't shake the AI stock selloff",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "US Natural Gas Falls as Iran Pressure Plan Pulls Down Energy",
+     "b": "Canadian Natural Acquires Advantage Energy as AECO Natural Gas Prices Remain Weak",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Oil prices fall as supply glut concerns offset Middle East disruption fears",
+     "b": "Oil prices reverse losses as Hormuz disruption fears outweigh improving supply outlook",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Stock Market Today: Nasdaq, S&P 500 Futures Rise as Nvidia Shares Jump After Strong Earnings Report; Anthropic IPO on Deck",
+     "b": "U.S. Stocks Mixed, Nvidia Down Again Ahead of Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "Stocks surge after Huang returns to Nvidia",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Stocks give back gains as Anthropic dips below IPO price",
+     "b": "Anthropic closes below $83 IPO price, but analysts are still largely positive",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic surges in market debut after biggest IPO on record, despite fears that AI is running amok",
+     "b": "European Stocks Fall Towards One-Month Lows as Technology Sell-Off Deepens Despite Anthropic IPO: DAX, CAC, FTSE100",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic’s Post-IPO Struggles Contrast With SpaceX’s Early Days",
+     "b": "Tech stocks sink but close well off the lows, Anthropic struggles to rebound above IPO price",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Japan's JERA enters talks with Anthropic, Meta to build data centres, Nikkei reports",
+     "b": "Apple Enters the AI Agent Race as It Takes on OpenAI, Anthropic, and Meta. What That Means for AAPL Stock.",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Natural Gas Forwards Plummet as Weak Winter Forecasts Eclipse LNG Strength",
+     "b": "Eni Cleared to Develop Another Natural Gas Field to Sustain LNG Output in Asia",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "ECB Warns Hedge Funds Boost Volatility Risks for Sovereign Bonds",
+     "b": "Watch Weakest Credit Faces More Pain, Hedge Funds Warn",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Jensen Huang's Nvidia return shows the U.S.-China AI race is about more than chips",
+     "b": "AI rout continues as market exuberance fades over improbable return of Nvidia’s Huang",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Agencies announce dollar thresholds for applicability of truth in lending and consumer leasing rules for consumer credit and lease transactions",
+     "b": "Agencies announce dollar thresholds for smaller loan exemption from appraisal requirements for higher-priced mortgage loans",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Treasury Yields Rise After Huang Returns as Nvidia CEO; European Bond Yields Slip",
+     "b": "US stocks surge and recover half of last week’s plunge after Jensen Huang returns as Nvidia’s CEO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic's stock has been a clunker post-IPO. Why that matters for the AI trade",
+     "b": "Anthropic’s Post-IPO Struggles Contrast With SpaceX’s Early Days",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic IPO Buzz Builds as Crypto Bettors Raise the Stakes on ANT Valuation",
+     "b": "Anthropic's record IPO raises hopes for a charitable windfall that has nonprofits preparing to scale",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Stocks give back gains as Anthropic dips below IPO price",
+     "b": "Anthropic shares tumble below $83 IPO price, on track to lose nearly $200 billion in value",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "5 Biotech Stocks to Watch as $41B Sanofi/Insmed Deal Revives M&A Hopes",
+     "b": "Biotech Growth Trust (LSE:BIOG) Notes the Sanofi Deal for Insmed This Month Below the FTSE 100",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "US Democrats' sweep narrows Trump's Iran options; oil markets murky",
+     "b": "Donald Trump blames Democrats’ midterm victory for stock market losses and rising Iran tensions",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Oil Prices Fall as Traders Weigh Supply Outlook, Renewed Middle East Tensions",
+     "b": "Oil prices fall as supply glut concerns offset Middle East disruption fears",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "b": "Anthropic closes below $83 IPO price, but analysts are still largely positive",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Japan's JERA enters talks with Anthropic, Meta to build data centres, Nikkei reports",
+     "b": "Japan's JERA aims to build Anthropic, Meta data centers near power plants",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "b": "Stocks surge after Huang returns to Nvidia",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic shares tumble below $83 IPO price, on track to lose nearly $200 billion in value",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Tech stocks rally after Nvidia board approves Jensen Huang's return as CEO",
+     "b": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "ECB to Probe Riskier Private Credit and Hedge Fund Links at Banks",
+     "b": "ECB warns hedge funds could amplify European sovereign debt volatility",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Watch Nvidia Plunges as SEC Probe Deepens AI Market Selloff | Closing Bell",
+     "b": "Closing Bell panel assesses sharp selloff as Nvidia, AI stocks tumble",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic shares tumble below $83 IPO price, on track to lose nearly $200 billion in value",
+     "b": "Anthropic shares fall below IPO price. Traders see even more pain",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Nvidia halts chip shipments to south-east Asia",
+     "b": "Nvidia, Kioxia team on AI server memory as alternative to South Korean chips",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "EU Rules Out Return to Russian Natural Gas as LNG Import Ban Nears",
+     "b": "Rio Grande LNG Close to Introducing Natural Gas to First Liquefaction Train",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Oil prices inch up as tanker disruptions offset surplus supply outlook",
+     "b": "Oil settles flat as Hormuz disruptions offset global surplus fears",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "AI-Linked Stocks Take Off After Nvidia Reinstates Jensen Huang",
+     "b": "US stocks surge and recover half of last week’s plunge after Jensen Huang returns as Nvidia’s CEO",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "EU Rules Out Return to Russian Natural Gas as LNG Import Ban Nears",
+     "b": "What Data Center Worries? LNG Still Drives Bulk of Natural Gas Demand Growth",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Oil Prices Fall Amid Supply Surplus Expectations, Middle East Tensions",
+     "b": "Oil prices wrap up third straight weekly decline on strong Middle East supply outlook (USO:NYSEARCA)",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "EXCLUSIVE: Like SpaceX, Anthropic ran an unusual IPO process, chafing some bankers",
+     "b": "Did Anthropic and its bankers get a key call wrong after IPO?",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "US tech stocks plunge into bear market in worst week since Covid-19 crisis",
+     "b": "Nvidia stock plunges 14%, wraps up longest weekly losing streak since 2008 financial crisis",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Asian Chip Stocks Slide as Anthropic IPO Fails to Dispel AI Woes",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Asian stocks leap on return of Nvidia's Jensen Huang",
+     "b": "Asian Nvidia-related stocks jump after Huang's return, with Taiwan's near price limits",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Stock Market Today: Nasdaq, S&P 500 Futures Rise as Nvidia Shares Jump After Strong Earnings Report; Anthropic IPO on Deck",
+     "b": "Stocks slide despite bumper Nvidia profits, Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "b": "Watch Stocks rally in moments leading up to Jensen Huang’s return as Nvidia CEO",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic shares tumble below $83 IPO price, on track to lose nearly $200 billion in value",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "What Data Center Worries? LNG Still Drives Bulk of Natural Gas Demand Growth",
+     "b": "Rio Grande LNG Close to Introducing Natural Gas to First Liquefaction Train",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "LIVE – Crypto News Today: Is Bitcoin Bottoming Out? BTC Bounces Back After PCE Shock",
+     "b": "Bitcoin BTC (BTC-USD) Live Price, News, Chart and Price History",
+     "same": false
+    },
+    {
+     "stratum": "loose",
+     "a": "Anthropic closes below $83 IPO price, but analysts are still largely positive",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": true
+    },
+    {
+     "stratum": "loose",
+     "a": "Oil settles flat as Hormuz disruptions offset global surplus fears",
+     "b": "Oil prices inch up as tanker disruptions offset surplus supply outlook",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic closes below $83 IPO price, but analysts are still largely positive",
+     "b": "investingLive Americas FX news wrap 24 Nov: It’s a Wrap. Chip stocks slide. Anthropic breaks IPO price. USD lower.",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Edges Lower as Expanding Supply Vies With Hormuz Attacks",
+     "b": "Oil prices reverse losses as Hormuz disruption fears outweigh improving supply outlook",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Gold drifts lower as Fed rate-hike fears loom",
+     "b": "Gold Price Forecast: Lower Yields Fuel Rebound Despite Fed Hike Bets",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stock Market Today: Futures Plunge as AI Rout Resumes; Nvidia Leads Chip Stocks Lower, Anthropic Drops Further Below IPO Price",
+     "b": "Anthropic, Nvidia, Micron, HP Inc., Dell, Deere, and More Stocks That Explain Today’s Market",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian stocks are mixed and US futures climb ahead of Anthropic's blockbuster IPO",
+     "b": "Chip stocks rally as Anthropic’s record IPO lifts AI investment sentiment",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Why Anthropic Is Hiring a $400,000-a-Year Natural-Gas Supply Manager ? Climate & Energy for Nov. 19",
+     "b": "TotalEnergies Expands US Natural Gas Production to Bolster LNG Export Portfolio",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "S&P warns Nvidia credit rating could be cut over 'rising' management and governance risk",
+     "b": "NVIDIA Stocks Fall 3.91% as S&P Puts AA Rating on Downgrade Watch",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "U.S. Stocks Jump as Huang Return Triggers AI Rally",
+     "b": "Anthropic Shares Sink, Defying AI Trade Rally on Huang’s Return",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Extends Gains as Middle East Tensions Fuel Market Jitters",
+     "b": "Oil Prices Rise as Traders Weigh Middle East Supply Risks, OPEC+ Meeting",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "CrowdStrike, Zscaler, Anthropic, Sandisk, Strategy, Robinhood, and More Stocks That Explain Today’s Market",
+     "b": "CrowdStrike agrees to buy ZScaler in an all-stock deal valued at $44 billion",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Anthropic's post-debut stumble delivers reality check for AI trade",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Software stocks spared in tech rout as AI narrative shifts",
+     "b": "Trump, NATO chief caution Russia as attacks on Ukraine’s energy infrastructure intensify",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Hedge funds are no longer just for the rich. They’re wooing everyday investors",
+     "b": "Capital preservation rather than chasing the market is how hedge funds are negotiating this volatility",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Set for Third Weekly Drop as Ample Supply Counters Iran Risk",
+     "b": "Oil Futures Fall for Third Straight Week on Supply Outlook",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Stocks Soar as Huang’s Nvidia Return Fuels AI Bets",
+     "b": "AI-Linked Stocks Take Off After Nvidia Reinstates Jensen Huang",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Stocks, gold and silver fall after blockbuster Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Watch Historic Market Selloff Deepens After Anthropic IPO",
+     "b": "Anthropic IPO signals ‘beginning of a gold rush’ for small businesses, biz tech CEO says",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian stocks fail to get a lift from Anthropic's IPO pricing",
+     "b": "Wall St slides as Anthropic's debut fails to revive AI trade optimism",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Trump Blames the Midterm Election Results for the Stock Market Selloff",
+     "b": "Trade Uncertainty Persists After U.S. Midterm Elections... Companies: \"Investment Tax Credits Must Be Maintained\"",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Can Rising LNG Exports Unlock Appalachian Natural Gas Growth?",
+     "b": "Australia delays final vote on gas reservation law for LNG exporters to February",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Wall St slides as Anthropic's debut fails to revive AI trade optimism",
+     "b": "U.S. Stocks Slide as AI Bust Continues Despite Anthropic IPO",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Altamira LNG Outage Strains NFE Finances, Puerto Rico Natural Gas Deliveries",
+     "b": "Canadian Natural Acquires Advantage Energy as AECO Natural Gas Prices Remain Weak",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic closes below IPO price as tech rally fades",
+     "b": "investingLive Americas FX news wrap 24 Nov: It’s a Wrap. Chip stocks slide. Anthropic breaks IPO price. USD lower.",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "European stocks end higher on easing tariff fears, ECB leadership continuity",
+     "b": "European Stocks Rally as US Tariff Concerns Ease and Falling Bond Yields Support Sentiment: DAX, CAC, FTSE100",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "President Donald Trump's Economy and the AI-Driven Stock Market Are in Trouble, Thanks to a Newly Identified Source of Inflation",
+     "b": "Iran Considers Uranium a Red Line, Trump Says: ‘They Don't Want to Make a Deal That's Acceptable to Me’",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian tech stocks fall sharply after Anthropic's blockbuster IPO",
+     "b": "Watch European Tech Stocks Fall As AI Trade Buckles",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian tech stocks fall sharply after Anthropic's blockbuster IPO",
+     "b": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil prices fall amid equity selloff though Iran war attacks limit losses",
+     "b": "COMMENTARY: Oil's Iran war recovery masks a stubborn diesel shortage",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Strategy Stock Lives and Dies by Bitcoin. The Crypto’s Slump Takes a Toll.",
+     "b": "Bitcoin BTC (BTC-USD) Live Price, News, Chart and Price History",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "EXCLUSIVE: Anthropic clinches biggest-ever IPO with $81 billion offering",
+     "b": "US Tech Stocks Are Set to Rally as Anthropic IPO Boosts AI Trade",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Bitcoin Liquidity Tightens and Hawkish Fed Bets Weigh on Crypto",
+     "b": "Gold falls 2% on hawkish Fed bets, US inflation data in focus",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian stocks are mixed and US futures climb ahead of Anthropic's blockbuster IPO",
+     "b": "Bitcoin Bounces Back Into Green Ahead of Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "KSS Stock Draws Price Target Hikes Following Q3 Report – Analyst Remains Cautious About Margins",
+     "b": "Dick’s Sporting Goods stock price target raised to $182 by Goldman Sachs after earnings beat",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stock Futures Rise as Dow’s Rebound Goes Global. It Bodes Well for Black Friday Trading.",
+     "b": "Dow Jones AI Stocks: Nvidia, Microsoft, Amazon and the Future of the Dow",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stocks Hit Worst Run Since 2023 as AI Trade Cracks",
+     "b": "US tech stocks plunge into bear market in worst week since Covid-19 crisis",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic IPO to mint thousands of millionaires",
+     "b": "Chip stocks rally as Anthropic’s record IPO lifts AI investment sentiment",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic's post-debut stumble delivers reality check for AI trade",
+     "b": "Anthropic could be tipping point for AI trade. Where investors should go from here",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil rises on supply concerns as Iran claims mine strikes on ships",
+     "b": "Iran's Revolutionary Guards say two oil tankers hit sea mines near Oman’s Khasab",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Watch Oil Prices Rise as Houthis Attack Two Saudi Ports on Red Sea",
+     "b": "International oil prices soared on the news that Yemen's pro-Iran Houthi rebels attacked Saudi Arabi..",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Emerging Market Stocks Rally as Huang’s Return Revives AI Trade",
+     "b": "AI debt markets shudder as Nvidia's top 'banker' returns",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stock Market Today, Nov. 25: Nvidia Slides 3.9% as the Market Considers Hot PCE Inflation Data and New Tariff Proposals",
+     "b": "Craig Shapiro: Treasury yields rise despite hot PCE, strong GDP and widening AI credit spreads",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Leaders choose Spain’s former central bank head as next European Central Bank president",
+     "b": "South Korea's central bank raises rates, upgrades 2027 growth outlook",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic's stock has been a clunker post-IPO. Why that matters for the AI trade",
+     "b": "Stock Market Today: Futures Plunge as AI Rout Resumes; Nvidia Leads Chip Stocks Lower, Anthropic Drops Further Below IPO Price",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stocks, Nasdaq Futures Climb as AI Trade Rebounds",
+     "b": "U.S. Stock Futures Higher as AI Trade Steadies for Thanksgiving Break",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic IPO fails to calm AI jitters as tech stocks fall further",
+     "b": "Why Anthropic's blockbuster IPO valuation couldn't shake the AI stock selloff",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic's stock has been a clunker post-IPO. Why that matters for the AI trade",
+     "b": "Tech stocks sink but close well off the lows, Anthropic struggles to rebound above IPO price",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "US stocks waver as tech sell-off continues and Anthropic falls",
+     "b": "Watch Global Stocks Fall as Anthropic IPO Fails to Revive AI Trade",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Cramer says Nvidia’s woes are trumping Anthropic excitement for the rest of the AI trade",
+     "b": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Gold Rebounds as Traders Pare Bets on Near-Term Fed Rate Hikes",
+     "b": "Grayscale says bitcoin and major altcoins look 'oversold' as AI risks cloud near-term outlook",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic's post-debut stumble delivers reality check for AI trade",
+     "b": "Anthropic IPO Fails to Revive AI Trade as Global Stocks Fall",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Eni Cleared to Develop Another Natural Gas Field to Sustain LNG Output in Asia",
+     "b": "Mild Thanksgiving Outlook Carves Up Northeast Natural Gas Cash Premiums",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic’s Mega IPO Lives Up to Wall Street Hype but Fails to Revive AI Trade",
+     "b": "Why Anthropic's blockbuster IPO valuation couldn't shake the AI stock selloff",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Exclusive | The Alice Huang Associate Accused of Funneling Nvidia Chips to China",
+     "b": "US seeks answers on Nvidia's sale of chips to China, Bessent says",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Bitcoin Fails to Hold Nvidia Bump With Crypto Headwinds in Focus",
+     "b": "Bitcoin Liquidity Tightens and Hawkish Fed Bets Weigh on Crypto",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic Stock Trend, Jensen Huang’s Potential Return As Nvidia CEO And Dell’s Q4 Results To Keep Tech Investors Busy This Week",
+     "b": "U.S. Stocks Jump as Huang Return Triggers AI Rally",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic IPO to mint thousands of millionaires",
+     "b": "U.S. Stocks Slide as AI Bust Continues Despite Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Steadies as Supply, US Inventories Offset Mideast Tensions",
+     "b": "Asian Stocks Set to Fall as AI Enthusiasm Fades",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Global Payments Soars 10% as GTCR Revives Buyout Talk With $50 Billion Takeover Bid",
+     "b": "Zscaler Stock Soars 18% On CrowdStrike Takeover Report. $32 Billion Cybersecurity Deal In Focus.",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nasdaq, Dow, S&P 500 Futures Climb Ahead Of Anthropic’s Record Debut: SLS, GLD, TTWO, UNH In Focus",
+     "b": "Anthropic Raises $107.3 Billion to Top SpaceX’s Record Debut",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "US Tech Stocks Are Set to Rally as Anthropic IPO Boosts AI Trade",
+     "b": "Asian Stocks Set to Fall as AI Enthusiasm Fades",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Wall St futures fall after S&P 500, Nasdaq end lower; inflation data eyed",
+     "b": "Nasdaq futures slide over 2% on fresh US tariff concerns; inflation data in focus",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Prices Caught Between a Looming Glut and Middle East Turmoil",
+     "b": "Oil prices wrap up third straight weekly decline on strong Middle East supply outlook (USO:NYSEARCA)",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Spain's De Cos to take over as ECB president from Lagarde",
+     "b": "ECB turns to crisis veteran De Cos as new strains loom",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "SoftBank plunges over 16% as AI sell-off hits Asian tech stocks following Anthropic debut",
+     "b": "European Stocks Fall Towards One-Month Lows as Technology Sell-Off Deepens Despite Anthropic IPO: DAX, CAC, FTSE100",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "US Tech Stocks Are Set to Rally as Anthropic IPO Boosts AI Trade",
+     "b": "Wall St slides as Anthropic's debut fails to revive AI trade optimism",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic shares slide as tech stocks tumble",
+     "b": "Nasdaq futures slide as Anthropic retreat deepens AI jitters",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "US stocks waver as tech sell-off continues and Anthropic falls",
+     "b": "Why Anthropic's blockbuster IPO valuation couldn't shake the AI stock selloff",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Natural Gas Forwards Plummet as Weak Winter Forecasts Eclipse LNG Strength",
+     "b": "Mild Thanksgiving Outlook Carves Up Northeast Natural Gas Cash Premiums",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "ECB Saw Need for Another Rate Hike Unless Inflation Outlook Improved ‘Significantly’",
+     "b": "ECB Officials Saw More Tightening With Inflation Outlook Worse",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Trump officials met with hedge funds on Union Pacific-Norfolk Southern deal prospects, Bloomberg reports",
+     "b": "Hedge funds show mixed positioning in CoreWeave; Soros and Tepper add, D1 Capital exits",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Spain's De Cos to take over as ECB president from Lagarde",
+     "b": "Dutch to Back EU Consensus for ECB Jobs, Opening Door to De Cos",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian Chip Stocks Slide as Anthropic IPO Fails to Dispel AI Woes",
+     "b": "US stocks waver as tech sell-off continues and Anthropic falls",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "European stocks end higher on easing tariff fears, ECB leadership continuity",
+     "b": "European stocks rally as tech jitters ease",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "Global stocks rise and tech shares rebound as US closes for Thanksgiving",
+     "b": "Dollar rally pauses for Thanksgiving",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Opening Day: Anthropic debuts on Nasdaq following historic IPO",
+     "b": "Anthropic Shares Plunge Below IPO Price in Fourth Trading Day",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic raises $81bn in record IPO",
+     "b": "Stocks slide despite bumper Nvidia profits, Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Tech stocks sink but close well off the lows, Anthropic struggles to rebound above IPO price",
+     "b": "Is the Anthropic IPO to Blame for Bitcoin's Recent Downturn? The Answer Might Surprise You.",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Stock Market Today: Futures Plunge as AI Rout Resumes; Nvidia Leads Chip Stocks Lower, Anthropic Drops Further Below IPO Price",
+     "b": "Nvidia turmoil casts pall over high-flying global AI chip industry",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Natural Gas Environmental Review Exemption Draws New Lawsuit",
+     "b": "Natural Gas Forwards Plummet as Weak Winter Forecasts Eclipse LNG Strength",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Hedge funds trim AMD stakes in Q3 as two exit entirely",
+     "b": "ECB warns hedge funds could amplify European sovereign debt volatility",
+     "same": false
+    }
+   ]
+  },
+  "second": {
+   "cycles": "2026-11-08..2026-11-17",
+   "population": {
+    "attach": 30,
+    "drop": 61,
+    "released": 28,
+    "near": 645
+   },
+   "pairs": [
+    {
+     "stratum": "attach",
+     "a": "Oil falls on open as Trump says fresh Iran attacks 'unlikely'",
+     "b": "Oil Futures Slide as Trump Says New Strikes on Iran Unlikely",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Asia Stocks Stage Tentative Rebound as Nvidia Uncertainty Lingers",
+     "b": "Asia’s Stock Rebound Fades as Nvidia Uncertainty Lingers",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Oil Futures Slide as Trump Says New Strikes on Iran Unlikely",
+     "b": "Oil prices hit 10-week low after Donald Trump says strikes on Iran ‘highly unlikely’",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "증시부진·금리상승에 '직격탄'…증권사 3분기 실적 줄줄이 악화",
+     "b": "증시부진·금리상승에 '직격탄'…증권사 3분기 실적 줄줄이 악화(종합)",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Blackstone Digital Infrastructure Trust to Acquire Data Center Portfolio from Amazon for $5 Billion",
+     "b": "Amazon Stocks Fall 2.56% as AWS Sells Data Center Control in $5 Billion Deal",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Oil Prices Mixed as Traders Weigh Supply Outlook, Middle East Risks",
+     "b": "Oil Prices Rebound as Middle East Supply Risks Persist",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Asian shares fall before Nvidia earnings, Anthropic IPO test tech rally",
+     "b": "Morning Call Sheet: Nvidia earnings, Anthropic IPO and Fed rate outlook",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "Pizza Hut Looks to Sell $1 Billion of Bonds to Fund Its Buyout",
+     "b": "Pizza Hut plans $1 billion bond sale to fund LongRange buyout - Bloomberg",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Stocks Fall Before Nvidia Earnings, Anthropic IPO",
+     "b": "Morning Call Sheet: Nvidia earnings, Anthropic IPO and Fed rate outlook",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "Oil Futures Extend Slide as Trump Indicates Restraint on Iran",
+     "b": "Oil Prices Extend Decline After Trump Signals Restraint on Iran",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Oil falls on open as Trump says fresh Iran attacks 'unlikely'",
+     "b": "Oil Futures Slide as Trump Says New Strikes on Iran Unlikely",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Stocks Fall Before Nvidia Earnings, Anthropic IPO",
+     "b": "Asian shares fall before Nvidia earnings, Anthropic IPO test tech rally",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "On the Chain: Bitcoin breaks below US$74,000 as hot US inflation rattles crypto markets",
+     "b": "Crypto Market Today, Nov. 11: 2. Bitcoin Climbs Back Above $74,000 as Wall Street's Crypto Outlook Begins to Shift",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "Jim Cramer says Anthropic's IPO could make or break the AI trade. Here's why",
+     "b": "Anthropic's IPO is the next big test for tech, says Jim Cramer",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "[속보] 코스피, 3.59% 급락…5,100선으로 후퇴",
+     "b": "코스피 3.59% 급락, 5,100선으로 후퇴…코스닥도 4.8%↓(종합)",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Gold gains as lower oil prices ease inflation fears",
+     "b": "Gold gains as lower oil prices temper inflation fears; U.S. inflation in focus",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "US Treasury bought yen in July; Fed made no solo FX interventions in Q3",
+     "b": "US Treasury bought nearly $500mn in yen during joint July forex intervention",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "[표] 코스닥 외국인 순매수도 상위종목(13일)",
+     "b": "[표] 주간 코스닥 외국인 순매수도 상위종목",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "Gold falls nearly 3% as CPI tops forecasts, lifting dollar and yields",
+     "b": "Gold falls as CPI tops forecasts, lifting dollar and yields",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Stocks Fall Before Nvidia Earnings, Anthropic IPO",
+     "b": "Nasdaq 100 Plunges as Nvidia Earnings, Anthropic IPO on Horizon",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "[속보] 코스피, 4~5%대 급등…매수 사이드카 발동",
+     "b": "'블루쓰나미' 충격딛고 4~5%↑…코스피·코스닥, 매수 사이드카(종합)",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Wall St Week Ahead: Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "b": "Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "CoreWeave Stock Drops. Nvidia's Huang Issue Spells Trouble for Other AI Plays.",
+     "b": "CoreWeave Stock Dives. It's in the Nvidia Danger Zone With These Other AI Plays.",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Stocks Fall Before Nvidia Earnings, Anthropic IPO",
+     "b": "Stock Futures Are Rising Ahead of Nvidia’s Earnings, Anthropic’s IPO",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "Oil Prices Rebound as Trump Questions Need for Iran Deal",
+     "b": "Oil Jumps After Trump Says US Doesn’t Need Deal With Iran",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "예상 웃돈 물가에 뉴욕증시 일제히 하락…나스닥 0.7%↓",
+     "b": "물가·연준 '빅스텝' 우려에 뉴욕증시 하락…나스닥 0.7%↓(종합)",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Bitcoin USD (BTC-USD) Seasonal returns chart",
+     "b": "Bitcoin BTC (BTC-USD) Live Price, News, Chart and Price History",
+     "same": false
+    },
+    {
+     "stratum": "attach",
+     "a": "국고채 금리 일제히 상승…3년물 장중 연 3.756%",
+     "b": "국고채 금리 일제히 상승…3년물 연 3.759%",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Cerebras pops after beating on quarterly revenue and announcing Microsoft deal",
+     "b": "Cerebras surges 17% after beating on quarterly revenue and announcing Microsoft deal",
+     "same": true
+    },
+    {
+     "stratum": "attach",
+     "a": "Bessent Says Nvidia Needs ‘Dramatic Shakeup’ With Huang Out",
+     "b": "Bessent calls for ‘dramatic shakeup’ at Nvidia, urges outside CEO",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Anthropic bankers prepare to increase IPO valuation to $1.5tn or more",
+     "b": "Anthropic Prepares to Push Ahead With IPO Despite Market Jitters",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "European Stocks Rise as STOXX 600 Gains 0.9% on Falling Oil Prices Ahead of US Inflation Data: DAX, CAC, FTSE100",
+     "b": "European Stocks Approach Record Highs as Oil Prices Fall and Technology Shares Advance: DAX, CAC, FTSE100",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Stock Futures Are Rising Ahead of Nvidia’s Earnings, Anthropic’s IPO",
+     "b": "Nasdaq 100 Plunges as Nvidia Earnings, Anthropic IPO on Horizon",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Stock Futures Are Rising Ahead of Nvidia’s Earnings, Anthropic’s IPO",
+     "b": "Asian shares fall before Nvidia earnings, Anthropic IPO test tech rally",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "CoreWeave (NASDAQ:CRWV) Stock Sinks 24% as AI Debt Fears Set Up Major Earnings Test",
+     "b": "CoreWeave Stock Faces 20.7% Earnings Swing as Texas and Debt Fears Mount",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Watch Anthropic IPO, Nvidia Fallout in Focus; World Leaders Gather in Asia",
+     "b": "Wall Street slumps on AI jitters ahead of Nvidia results, Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil Prices Fall, Staying Below $100, After Trump Downplays Prospect of New Iran Strikes",
+     "b": "Oil prices hit 10-week low after Donald Trump says strikes on Iran ‘highly unlikely’",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Morning Call Sheet: Nvidia earnings, Anthropic IPO and Fed rate outlook",
+     "b": "Nasdaq 100 Plunges as Nvidia Earnings, Anthropic IPO on Horizon",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Stocks Fall Before Nvidia Earnings, Anthropic IPO",
+     "b": "Watch Anthropic IPO, Nvidia Fallout in Focus; World Leaders Gather in Asia",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Asian shares fall before Nvidia earnings, Anthropic IPO test tech rally",
+     "b": "Nasdaq 100 Plunges as Nvidia Earnings, Anthropic IPO on Horizon",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Micron Stocks Fall 3.24% as NVIDIA Exit Tests Memory Rally After 11.9% Jump",
+     "b": "Micron, Other Memory Chip Stocks Fall on Nvidia Shakeup. Why They’re at Risk.",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil falls on open as Trump says fresh Iran attacks 'unlikely'",
+     "b": "Oil prices hit 10-week low after Donald Trump says strikes on Iran ‘highly unlikely’",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Watch AI Trade Roars Back, Anthropic IPO Outlook, Nordstrom Co-CEO on Going Private",
+     "b": "Watch Nvidia’s $10B Anthropic IPO Pledge in Focus With CEO Exit",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Berkshire Hathaway speeds up stock buybacks, though profit falls",
+     "b": "Berkshire Hathaway’s Operating Earnings Fall, Buybacks Rise",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Micron, Other Memory Chip Stocks Fall on Nvidia Shakeup. Why They’re at Risk.",
+     "b": "Micron Stocks Fall 3.24% as NVIDIA Exit Tests Memory Rally After 11.9% Jump",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Watch Anthropic IPO, Nvidia Fallout in Focus; World Leaders Gather in Asia",
+     "b": "Nvidia Fallout, Anthropic Listing Squeeze Asian Chip Stocks Anew",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "EXCLUSIVE: Anthropic eyes $1.4 trillion IPO valuation in test of Wall Street's AI fervor",
+     "b": "Anthropic to Seek $1.3 Trillion Valuation in IPO",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "New York Stocks Fall on NVIDIA CEO Exit, Oil Surge",
+     "b": "Micron Stocks Fall 3.96% as Nvidia CEO Exit Drags Memory Shares Lower",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Tech Stocks Fall as Next Week Brings Big Tests for the AI Trade | Markets P.M. for Nov. 13",
+     "b": "Next week brings 2 big tests of the AI trade, and a handful of portfolio earnings",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil falls on open as Trump says fresh Iran attacks 'unlikely'",
+     "b": "Oil prices hit 10-week low after Donald Trump says strikes on Iran ‘highly unlikely’",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Wall Street slumps on AI jitters ahead of Nvidia results, Anthropic IPO",
+     "b": "Nasdaq 100 Plunges as Nvidia Earnings, Anthropic IPO on Horizon",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Watch Anthropic IPO, Nvidia Fallout in Focus; World Leaders Gather in Asia",
+     "b": "Watch Tech Stocks Plunge as Investors Await Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "CoreWeave beats on revenue and lifts guidance, easing AI slowdown concerns",
+     "b": "CoreWeave stock pops as Q3 revenue beats estimates, company raises full-year outlook",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "TSMC Approves Up to $1 Billion Investment Plan in Anthropic, OpenAI",
+     "b": "TSM Stock Jumps Premarket After Board Approves $1B Investment In Anthropic And OpenAI, Dividend Raise",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Anthropic opens Australian retail IPO offering as AI scrutiny intensifies",
+     "b": "Anthropic IPO poised to test retail investor appetite for AI",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil Picks Up As Trump Post Dampens Hopes for U.S.-Iran Deal",
+     "b": "Oil Jumps After Trump Says US Doesn’t Need Deal With Iran",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Constellation Energy Stocks Jump 6.94% After Q3 Beat and Raised Guidance",
+     "b": "Data-Center Moratoriums? They Aren’t Showing Up in Constellation Energy’s Guidance.",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil Prices Rebound as Trump Questions Need for Iran Deal",
+     "b": "Oil prices mixed after Trump says no Iran deal needed: 'We've got their Strait'",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Asian shares fall before Nvidia earnings, Anthropic IPO test tech rally",
+     "b": "Wall Street slumps on AI jitters ahead of Nvidia results, Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "AI stocks pare losses as investors assess fallout of Nvidia CEO's exit",
+     "b": "Watch Nvidia’s $10B Anthropic IPO Pledge in Focus With CEO Exit",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Jim Cramer says Anthropic's IPO could make or break the AI trade. Here's why",
+     "b": "Anthropic is one of the few companies that needs to make money from AI investing, says Jim Cramer",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Oil Prices Rebound as Trump Questions Need for Iran Deal",
+     "b": "Oil Picks Up As Trump Post Dampens Hopes for U.S.-Iran Deal",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Anthropic targets next-week IPO despite AI market volatility, WSJ reports",
+     "b": "Anthropic Prepares to Push Ahead With IPO Despite Market Jitters",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "TSX futures rise as CoreWeave outlook provides relief after bond market selloff",
+     "b": "TSX futures rise as gold rebounds, CoreWeave results lift sentiment",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Jensen Huang Comeback Report Primes Nvidia Shares for a Bounce",
+     "b": "Stock Market Today: Nasdaq-100 Sinks 1% as Nvidia Faces Its First Earnings Without Jensen Huang",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "S&P 500, Nasdaq fall as Nvidia CEO's exit rattles AI stocks",
+     "b": "Watch Nvidia’s $10B Anthropic IPO Pledge in Focus With CEO Exit",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "Stock Futures Are Rising Ahead of Nvidia’s Earnings, Anthropic’s IPO",
+     "b": "Morning Call Sheet: Nvidia earnings, Anthropic IPO and Fed rate outlook",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "S&P 500, Nasdaq fall as Nvidia CEO's exit rattles AI stocks",
+     "b": "AI stocks pare losses as investors assess fallout of Nvidia CEO's exit",
+     "same": true
+    },
+    {
+     "stratum": "drop",
+     "a": "Can the AI trade catch a break? Nvidia, Anthropic and CoreWeave may have a say.",
+     "b": "Nvidia, AMD, CoreWeave, Coherent, First Solar, Trade Desk, and More Stocks That Explain Today’s Market",
+     "same": false
+    },
+    {
+     "stratum": "drop",
+     "a": "H.C. Wainwright reiterates Strive as top pick after bitcoin holdings surge",
+     "b": "Guggenheim reiterates this biotech stock as a top pick",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Dow, S&P 500, Nasdaq Futures Edge Higher After Red-Hot Inflation Data And Nvidia Losses: CRWV, TTWO, NLST, NBIS In Focus",
+     "b": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "b": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "b": "MU, AMD, AVGO, Other Chip Stocks Surge As CoreWeave Earnings Reignite AI Trade — Nasdaq-100 Futures Jump",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Wall Street Races for Megadeals as Countdown Begins on Trump Era",
+     "b": "Donald Trump Claims He'll Become \"Mr. Veto\" After Midterm Elections, but the Results Put the President and Wall Street in a Precarious Situation",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "OPEC’s Oil Production Nears Prewar Levels on Saudi Rebound",
+     "b": "OPEC+ oil output in October nears pre-Iran war rate, led by Saudi Arabia",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "EXCLUSIVE: Anthropic aims to raise up to $69.3 billion in blockbuster IPO",
+     "b": "EXCLUSIVE: Anthropic eyes $1.4 trillion IPO valuation in test of Wall Street's AI fervor",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Anthropic's IPO is the next big test for tech, says Jim Cramer",
+     "b": "EXCLUSIVE: Anthropic eyes $1.4 trillion IPO valuation in test of Wall Street's AI fervor",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Iran-US deal faces major hurdles as Tehran refuses uranium transfer",
+     "b": "Iran refuses to surrender enriched uranium, threatens to strike US bases in Europe if attacked",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Nigeria’s October crude output averages 1.69 million bpd, meeting OPEC quota for sixth month",
+     "b": "OPEC+ oil output in October nears pre-Iran war rate, led by Saudi Arabia",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "EXCLUSIVE: Anthropic eyes $1.4 trillion IPO valuation in test of Wall Street's AI fervor",
+     "b": "Anthropic's trillion-dollar IPO is coming, but retail investors could have owned AI stock much earlier",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "MU, AMD, AVGO, Other Chip Stocks Surge As CoreWeave Earnings Reignite AI Trade — Nasdaq-100 Futures Jump",
+     "b": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Wall St Week Ahead: Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "b": "Market Rally Hard To Handle; Nvidia Earnings, Anthropic IPO Ahead",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Anthropic's IPO is the next big test for tech, says Jim Cramer",
+     "b": "Anthropic is one of the few companies that needs to make money from AI investing, says Jim Cramer",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "b": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "TSM Stock Jumps Premarket After Board Approves $1B Investment In Anthropic And OpenAI, Dividend Raise",
+     "b": "Microsoft Bet Big on OpenAI. Anthropic’s Profit Lead Raises Questions.",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "TSX futures rise as gold rebounds, CoreWeave results lift sentiment",
+     "b": "CoreWeave sparks AI cloud stock rally, lifts Nvidia as results ease bubble fears",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Oil Steadies Near Lowest Since August on Optimism Over Iran Deal",
+     "b": "Brent crude falls below $90 for first time since August on Iran war de-escalation hopes",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Anthropic IPO Is ‘Jenga Block’ Holding Up Next Leg of AI Trade",
+     "b": "Watch AI Trade Roars Back, Anthropic IPO Outlook, Nordstrom Co-CEO on Going Private",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Pete Hegseth faces impeachment threat as GOP blames Iran war for midterm losses",
+     "b": "The impact of the midterm elections on the U.S.-Iran War",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Bitcoin Selloff Deepens As Bitwise CIO Warns Of ‘Wilderness’ Ahead, Whales Buy The Dip – But $57K Remains In Sight",
+     "b": "Bitcoin Selloff Deepens as Midterm Sweep Stalls Crypto Bill",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Jim Cramer: This is the bet you're making if you buy the Anthropic IPO",
+     "b": "Buying Anthropic means betting its explosive growth can outpace its expenses, says Jim Cramer",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "MU, AMD, AVGO, Other Chip Stocks Surge As CoreWeave Earnings Reignite AI Trade — Nasdaq-100 Futures Jump",
+     "b": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "Johnson & Johnson looking to buy eye disease biotech for up to $3.4bn",
+     "b": "J&J strikes $2.2 billion buyout deal for eye disease biotech Ollin Biosciences By Reuters",
+     "same": true
+    },
+    {
+     "stratum": "released",
+     "a": "TSMC, Microsoft executives debate AI's impact on Day 2 of Nikkei Dialogue",
+     "b": "TSMC is seeing 'insatiable' demand for chips, executive tells Nikkei Forum",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Risk of Iran war escalation remains high despite Democratic sweep in U.S. midterm elections",
+     "b": "Why gold prices are plunging amid the Iran war, despite being a supposedly safe asset",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "TSX futures rise as gold rebounds, CoreWeave results lift sentiment",
+     "b": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Nvidia shares rebound as Jensen Huang faces scrutiny ahead of earnings",
+     "b": "Nvidia board meeting to decide CEO Jensen Huang’s fate stretches into evening",
+     "same": false
+    },
+    {
+     "stratum": "released",
+     "a": "Mitsui Chemicals to Acquire JSR With Development Bank of Japan for $8.8 Billion",
+     "b": "Mitsui Chemicals: JSR Acquisition Valued At $8.81 Billion (¥1.39 Trillion) To Expand Semiconductor Materials Business",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "As higher prices seep into broader economy, Fed officials consider faster hikes",
+     "b": "Gold Prices Recover Above $4,040 as Investors Assess Federal Reserve Rate Hike Expectations",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic's record IPO faces some big questions",
+     "b": "ALumni Ventures' Laura Rippy: Anthropic IPO unlocks venture capital recycling",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nvidia, CoreWeave, Marvell, Dell, Costco, and More Stocks That Explain Today’s Market",
+     "b": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "CoreWeave stock pops 15% after outlook raise eases AI slowdown concerns",
+     "b": "Meta Stock: Midterm Election Results Raise Concerns Over AI Data Center Expansion",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic IPO Lockup Risks Triggering AI Correction, Selby Says",
+     "b": "Anthropic Prepares to Push Ahead With IPO Despite Market Jitters",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Jim Cramer has three lingering questions about Anthropic ahead of its historic IPO",
+     "b": "'Fast Money' trader talk potential impact of Anthropic IPO",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Risk of Iran war escalation remains high despite Democratic sweep in U.S. midterm elections",
+     "b": "Oil prices tumble after midterm election blowout, putting Alaska’s windfall in question",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic secures $3.4 billion generator deal for AI data centers, FT reports",
+     "b": "Anthropic Buys Power for AI Data Centres in $3.4B Deal, FT Says",
+     "same": true
+    },
+    {
+     "stratum": "near",
+     "a": "EXCLUSIVE: Anthropic eyes $1.4 trillion IPO valuation in test of Wall Street's AI fervor",
+     "b": "Wall Street Falls as Inflation Pressures Prompt Rate Hike Mentions",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian stocks climb as oil prices slide ahead US CPI",
+     "b": "Gold Rises 1% as Lower Oil Prices Ease Inflation Fears, Treasury Yields Climb Ahead of US CPI Data",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Market interest rates rise amid speculation of a major move by the U.S. Federal Reserve (50bp rate hike)",
+     "b": "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nvidia, CoreWeave, Marvell, Dell, Costco, and More Stocks That Explain Today’s Market",
+     "b": "Nvidia stock rebounds, chip stocks surge as CoreWeave earnings boost AI trade",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Microsoft outage wreaks havoc in Asia, exposing dependence risk",
+     "b": "US Futures Gain With Microsoft Outage, Producer Prices in Focus",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "CoreWeave stock pops 15% after outlook raise eases AI slowdown concerns",
+     "b": "TSX futures rise as CoreWeave outlook provides relief after bond market selloff",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Picks Up As Trump Post Dampens Hopes for U.S.-Iran Deal",
+     "b": "Oil Prices Extend Decline After Trump Signals Restraint on Iran",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "China's access to Nvidia chips in doubt as curbs gain traction in US Congress",
+     "b": "10-Year Treasury yield spikes on hot inflation read, Nvidia leads chip stocks lower: AlphaCheck",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "China sees Nvidia chief Huang's swift downfall as political hit",
+     "b": "How Wall Street Is Bracing For the Post-Jensen Huang Nvidia Era",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Alice Huang-Linked Firm Procured Banned Nvidia Chips in China",
+     "b": "10-Year Treasury yield spikes on hot inflation read, Nvidia leads chip stocks lower: AlphaCheck",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "EXCLUSIVE: Anthropic IPO Could Follow SpaceX’s ‘Almost Perfectly’ Handled Offering, Market Expert Jay Woods Says",
+     "b": "The Individual Investors Who Are Hot on Anthropic’s IPO but Cool on AI",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "European Stocks Rise as STOXX 600 Gains 0.9% on Falling Oil Prices Ahead of US Inflation Data: DAX, CAC, FTSE100",
+     "b": "US Stock Futures Mixed Ahead of Inflation Data as Oil Falls and Nvidia Faces Scrutiny Over CEO Investigation: Dow Jones, S&P, Nasdaq, Wall Street",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic IPO Lockup Risks Triggering AI Correction, Selby Says",
+     "b": "Anthropic IPO poised to test retail investor appetite for AI",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "b": "Next week brings 2 big tests of the AI trade, and a handful of portfolio earnings",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic bankers prepare to increase IPO valuation to $1.5tn or more",
+     "b": "Anthropic IPO poised to test retail investor appetite for AI",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Sandisk Stocks Slide 7.83% as NVIDIA Exit Hits Storage a Week Before 8-for-1 Split",
+     "b": "Watch Nvidia’s $10B Anthropic IPO Pledge in Focus With CEO Exit",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Wall St Week Ahead: Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "b": "Tech Stocks Fall as Next Week Brings Big Tests for the AI Trade | Markets P.M. for Nov. 13",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Futures Slide as Trump Says New Strikes on Iran Unlikely",
+     "b": "Oil Jumps After Trump Says US Doesn’t Need Deal With Iran",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Wall St Week Ahead: Nvidia results, Anthropic IPO pose tests for tumultuous AI trade",
+     "b": "Anthropic Chief Tells Jamie Dimon He Hopes IPO Will ‘Underpromise and Overdeliver’",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Anthropic opens Australian retail IPO offering as AI scrutiny intensifies",
+     "b": "Anthropic Prepares to Push Ahead With IPO Despite Market Jitters",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Natural Gas Services (NGS) Q3 Earnings and Revenues Surpass Estimates",
+     "b": "Record LNG Demand Emboldens Bulls, Sends Natural Gas Futures Rallying Above $3",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "The impact of the midterm elections on the U.S.-Iran War",
+     "b": "Why gold prices are plunging amid the Iran war, despite being a supposedly safe asset",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Tech round-up: A closer look at Anthropic, Nvidia, CoreWeave, and next week",
+     "b": "Anthropic's Mythos claim may put Nvidia’s CUDA moat in a vulnerable spot",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "CoreWeave plans multibillion-dollar chip-backed debt deal",
+     "b": "MU, AMD, AVGO, Other Chip Stocks Surge As CoreWeave Earnings Reignite AI Trade — Nasdaq-100 Futures Jump",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "EXCLUSIVE: Investors flock to Anthropic IPO but question durability of AI lead",
+     "b": "Anthropic Is Expected to List on Nov. 19. I'd Rather Own Amazon Stock Than the IPO.",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Apollo Global Management Sees Private Credit Demand Holding Up Despite Negative Headlines",
+     "b": "Atkins Backs Accounting Research on Data Centers, Private Credit",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Oil Prices Rebound as Trump Questions Need for Iran Deal",
+     "b": "Oil Prices Extend Decline After Trump Signals Restraint on Iran",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Asian Stocks Rise, Oil Eases on Hopes for Iran Conflict Resolution",
+     "b": "Brent crude falls below $90 for first time since August on Iran war de-escalation hopes",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Bitcoin Hopes Anthropic’s IPO Plays Out Like SpaceX. One Piece of That Story Is Missing",
+     "b": "Watch Anthropic IPO, Nvidia Fallout in Focus; World Leaders Gather in Asia",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nvidia, Alphabet, Microsoft, and Micron Are All Buying Anthropic’s IPO. Should You Buy Too?",
+     "b": "Anthropic IPO to test Wall Street’s faith in AI as skepticism mounts",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "Nvidia shares rebound as Jensen Huang faces scrutiny ahead of earnings",
+     "b": "Stock Market Today: Nasdaq Futures Jump as Nvidia Shares Rebound, CoreWeave Soars After Earnings; Dow, S&P 500 Also Point Higher",
+     "same": false
+    },
+    {
+     "stratum": "near",
+     "a": "European stocks set for weekly gain, dollar near 19-month high on rate hike bets",
+     "b": "Gold Faces Weekly Rout As High US Yields Fuel Fed Rate Hike Bets - TalkMarkets",
+     "same": false
+    }
+   ]
+  }
+ }
+}

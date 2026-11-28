@@ -68,7 +68,8 @@ export function reboundFromLow(bars, low, session) {
   const peak = closes.reduce((best, bar) => (bar.value > best.value ? bar : best), base);
   if (!(peak.value > base.value)) return { kind: 'no-rise', lowDate: low.date, session };
   const rise = (peak.value / base.value - 1) * 100;
-  if (peak.date === session) return { kind: 'new-high', lowDate: low.date, session, rise };
+  // A close equal to an earlier peak is the highest close since the low too; nothing was given back.
+  if (close.value >= peak.value) return { kind: 'new-high', lowDate: low.date, session, rise };
   return { kind: 'gave-back', lowDate: low.date, session, rise, peakDate: peak.date, share: (peak.value - close.value) / (peak.value - base.value) * 100 };
 }
 

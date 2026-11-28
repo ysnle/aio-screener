@@ -20,9 +20,16 @@ const asLine = (item) => ({ kind: item.kind, when: item.when, title: item.kind =
  */
 export function homeAheadItems(week, limit = HOME_AHEAD_LIMIT, leaders = []) {
   const dated = (Array.isArray(week) ? week : []).filter((item) => item && item.kind !== 'daily' && item.date && item.when);
-  // A leader is left out when a line the week list would show without the leaders already names it.
-  const named = (item) => dated.slice(0, limit).some((row) => row.kind === 'earnings' && String(row.names || row.title || '').split(' · ').some((name) => item.names.split(' · ').includes(name) || item.symbols?.includes(name)));
-  const extra = (Array.isArray(leaders) ? leaders : []).filter((item) => item?.date && item.when && item.names && !named(item)).slice(0, HOME_AHEAD_LEADER_LIMIT);
+  // A leader the week list would show without the leaders is left out of its line; the others of the same slot stay
+  // (the week names AMD, the leaders' line is "AMD · MU": MU is still coming).
+  const shown = new Set(dated.slice(0, limit).filter((row) => row.kind === 'earnings').flatMap((row) => String(row.names || row.title || '').split(' · ')));
+  const unnamed = (item) => {
+    const names = String(item.names).split(' · ');
+    const keep = names.map((name, index) => !shown.has(name) && !shown.has(item.symbols?.[index]));
+    if (keep.every(Boolean)) return item;
+    return keep.some(Boolean) ? { ...item, names: names.filter((_, index) => keep[index]).join(' · '), ...(item.symbols ? { symbols: item.symbols.filter((_, index) => keep[index]) } : {}) } : null;
+  };
+  const extra = (Array.isArray(leaders) ? leaders : []).filter((item) => item?.date && item.when && item.names).map(unnamed).filter(Boolean).slice(0, HOME_AHEAD_LEADER_LIMIT);
   const own = dated.slice(0, extra.length ? Math.max(2, limit + 1 - extra.length) : limit);
   return [...own, ...extra].sort((a, b) => a.date.localeCompare(b.date) || (a.slot ?? 1) - (b.slot ?? 1)).map(asLine);
 }

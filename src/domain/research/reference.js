@@ -44,6 +44,7 @@ export const RESEARCH_UNITS = Object.freeze(Object.keys(UNIT_SPEC));
 
 // isFiniteNumber accepts only real numbers: a numeric string in the artifact is a schema problem, not a value.
 const isRange = (range) => Array.isArray(range) && range.length === 2 && range.every((v) => isFiniteNumber(v)) && range[0] <= range[1];
+const HTTPS_SOURCE = /^https:\/\/[^\s]+$/;
 const hasValue = (node) => node != null && Object.prototype.hasOwnProperty.call(node, 'value') && node.value != null;
 const hasRange = (node) => node != null && Object.prototype.hasOwnProperty.call(node, 'range') && node.range != null;
 /** Exactly one of value (a number) or range ([lo, hi], lo <= hi). */
@@ -93,7 +94,7 @@ export function researchReferenceProblems(artifact, { nowMs = Date.now() } = {})
       if (item?.record != null && typeof item.record !== 'string') problems.push(`${where}: record is not a string`);
       if (typeof item?.note !== 'string' || !item.note.trim()) problems.push(`${where}: note missing`);
       if (typeof item?.sourceName !== 'string' || !item.sourceName.trim()) problems.push(`${where}: sourceName missing`);
-      if (!/^https:\/\/[^\s]+$/.test(String(item?.sourceUrl || ''))) problems.push(`${where}: sourceUrl is not an https URL`);
+      if (!HTTPS_SOURCE.test(String(item?.sourceUrl || ''))) problems.push(`${where}: sourceUrl is not an https URL`);
     }
   }
   return problems;
@@ -128,6 +129,7 @@ function changeSaid(subject, item) {
 /** One typed row from an item, or null when the item is malformed. */
 function rowOf(item, group, today) {
   if (!item || typeof item.id !== 'string' || !UNIT_SPEC[item.unit] || !oneMeasure(item) || !isIsoDay(item.asOf)) return null;
+  if (!HTTPS_SOURCE.test(String(item.sourceUrl || ''))) return null; // a researched figure without its page is not shown or handed to the AI
   if (item.asOf > today) return null;
   const ageDays = daysBetween(item.asOf, today);
   const longLived = Number.isInteger(item.validDays);

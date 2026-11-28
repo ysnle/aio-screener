@@ -66,6 +66,12 @@ const cash = { value: 3.88, date: '2026-11-13', label: 'SOFR' };
   // Item 1: a base-less record of 10+ cases.
   const baseless = decisionFrameText(buildDecisionFrame({ record: { n: 12, up: 7, horizon: 20, p25: -2, p75: 5 }, favored: ['hold'], why: 'x' }));
   check('v60.52 frame: without a base rate the counts alone — never null, never a share without its base', baseless.likelihood === '가능성: 20거래일 뒤 12번 중 7번 오름, 평소 비율 없음 · 참고' && !/null|%\(/.test(baseless.likelihood), baseless.likelihood);
+  const baselessCost = decisionFrameText(buildDecisionFrame({ record: { n: 12, up: 7, dd5: 2, horizon: 20, p25: -2, p75: 5 } })).wrong.cost;
+  check('v60.66 frame: a drawdown count without its base rate is counts only, like the likelihood', /넘게 빠진 경우 12번 중 2번, 평소 비율 없음/.test(baselessCost) && !/\d%\(/.test(baselessCost), baselessCost);
+  check('v60.66 frame: the cash line names the rate and its date, never as today\'s', /SOFR 3\.88%, 11\/13 기준/.test(text.opportunity[0]) && !/오늘/.test(text.opportunity[0]), text.opportunity[0]);
+  const { buildMacroCrossroads } = await load('src/domain/market/regime/macro-crossroads.js');
+  const sofrSeries = (stale) => ({ series: { sofr: { stale, observations: [['2026-01-02', 6.3]] } } });
+  check('v60.66 frame: a short rate kept from a failed refresh is no cash figure', buildMacroCrossroads({ macroHistory: sofrSeries(true), history: [] }).cash === null && buildMacroCrossroads({ macroHistory: sofrSeries(false), history: [] }).cash?.value === 6.3);
   // Item 2: today's cash over the branch's own window needs no past case.
   const sofr = { value: 4.5, date: '2026-11-21' };
   const cashOf = (past) => branchDecisionFrame({ id: 'x', past, favored: ['hold'], favoredWhy: 'x', invalidation: ['y'] }, { cash: sofr }).opportunity.cashReturn;

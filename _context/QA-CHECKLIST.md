@@ -6,6 +6,19 @@ confidence: medium
 
 v60.19 이하 절의 검증 끝난 행은 절마다 `- 완료 <n>건: <QA id 목록>` 한 줄로 줄였다(id 없는 행은 개수만). 열린 행(`- [ ]`)은 원문 그대로 둔다. 행 전문은 git 히스토리: `git show d0bbbcae3:_context/QA-CHECKLIST.md`.
 
+## v60.67 v60.67 뉴스 같은 사건 판정 측정 (2026-11-27)
+
+- [x] QA-NEWS-EVAL-6067-01: v60.67 같은 사건 판정을 발행 이력의 제목 쌍 334개(11/18~11/27 196개, 11/08~11/17 138개, 한 사람이 표시)로 잰다. '다른 매체' 판정은 긴 제목의 고유 단어 절반과 네 번째 공유 단어 또는 글자쌍 0.41, 반대 방향 제외: 정밀도 97%·83%(이전 75%·62%). 자리 판정(세 단어)은 정밀도 약 55%로 그대로 두고 자산군이 다른 제목만 제외한다. 표본이 다른 주간으로 늘면 다시 잰다. verify_by: node scripts/ci-news-ranking-check.mjs
+
+## v60.66 X 북마크 재검토: 기준일·분모 정합 (2026-11-27)
+
+- [x] QA-XBM-6066-01: v60.66 채팅의 시장 조사 문맥은 화면과 같은 기준 종가를 확인한다: 이전 종가의 조사는 '이전 세션의 시장 조사'로 넘기고 오늘 화면의 글이라고 하지 않는다. verify_by: node scripts/ci-market-investigation-check.mjs
+- [x] QA-XBM-6066-02: v60.66 추세 템플릿 보드는 한 세션의 것이다: 이전 종가에서 이월된 행은 집계·후보에서 빠지고 carried로 센다. 차트의 템플릿 상대강도 조건은 기준 지수가 한 세션 늦으면 확인 불가다(스크리너와 같음). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-XBM-6066-03: v60.66 판단 틀: 갱신 실패로 남은 SOFR는 현금 비교에 쓰지 않고, 현금 줄은 금리와 관측일만 적는다('오늘' 없음). 평소 비율 없는 하락 기록은 건수만 적는다. verify_by: node scripts/ci-decision-frame-check.mjs
+- [x] QA-XBM-6066-04: v60.66 공동 최고 종가는 새 고점으로 읽고, 다음 일정의 주도주 실적 줄은 주간 일정이 이미 보인 이름만 뺀다(AMD가 보이면 MU는 남는다). verify_by: node scripts/ci-esm-core-unit-check.mjs
+- [x] QA-XBM-6066-05: v60.66 자산 관계 문장은 가격만으로 자금 이동을 말하지 않고, 조사 값 읽기는 https 출처 없는 행을 건너뛴다(옆의 정상 행은 남음). verify_by: node scripts/ci-scenario-guidance-fixture.mjs; node scripts/ci-research-reference-check.mjs
+- [x] QA-XBM-6066-06: v60.66 AI 자금 조달 사슬의 현금 고리는 설비투자 ÷ 영업현금흐름 비율 옆에 영업현금흐름의 1년 전 대비 증가율을 적는다(이미 발행되는 합계에서 계산). 투자 고리의 설비투자 증가율과 나란히 읽힌다. 로컬 실데이터 화면: 설비투자 +93.5%, 영업현금흐름 +29.6%, 비율 95.5%(1년 전 64.0%). verify_by: node scripts/ci-research-reference-check.mjs
+
 ## v60.65 v60.65 뉴스 남은 약점 (2026-11-27)
 
 - [x] QA-NEWS-WEAK-6065-01: v60.65 중앙은행 결정과 성장 전망은 매크로, 은행·보험 기사는 금융으로 분류된다(은행이 전망의 발신자일 때는 아님). 'outlook'·'to upgrade'만으로 실적·애널리스트가 되지 않는다. 은행 검색 피드는 제목으로 분류하는 일반 피드다. verify_by: node scripts/ci-news-ranking-check.mjs

@@ -59,7 +59,7 @@ export function renderBreadthSetup({ documentRef: doc, root, rows, highsLows = n
     if (counts) {
       const grid = el(doc, 'div', null, 'setup-tiles');
       grid.append(
-        tile(doc, W.tiles.template, `${counts.template}`, `${W.tileNotes.template} · ${board.judged}개 중`),
+        tile(doc, W.tiles.template, `${counts.template}`, `${W.tileNotes.template} · ${board.judged}개 중${board.carried ? ` · 이전 종가 ${board.carried}개 제외` : ''}`),
         tile(doc, W.tiles.base, `${counts.base}`, W.tileNotes.base),
         tile(doc, W.tiles.ready, `${counts.ready}`, W.tileNotes.ready)
       );

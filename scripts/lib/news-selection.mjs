@@ -3,6 +3,7 @@
 // Scoring and selection are pure (unit-testable without the producer); fetchNews/fetchTickerNewsItems do the RSS I/O.
 // fetch-data.mjs imports and re-exports them.
 import { reportIsUnconfirmed } from '../../src/domain/news/report-verification.js';
+import { UP_WORDS, DOWN_WORDS } from '../../src/domain/news/direction-words.js';
 import { round } from './producer-math.mjs';
 import { _fetchRss, _fetchRssWithRetry } from './producer-http.mjs';
 import { newsArticleKey, issuerNameMentioned, isNewsRevisionRow, NEWS_INTRADAY_MAX } from '../../src/domain/news/stories.js';
@@ -465,6 +466,12 @@ export function _parseRssXml(xml, opts) {
   return items;
 }
 
+// The asset class a headline prices. "Treasury Yields Rise After Huang Returns as Nvidia CEO" and "Stocks Soar as Huang's
+// Nvidia Return Fuels AI Bets" share the trigger and four words, and are two reports (another market's reaction).
+const NEWS_ASSET_CLASSES = [['rates', /\b(?:treasur(?:y|ies)|yields?|bonds?|gilts?)\b/], ['equity', /\b(?:stocks?|shares|equities|futures|wall st(?:reet)?|nasdaq|dow|s&p)\b/],
+  ['oil', /\b(?:oil|crude|brent)\b/], ['metal', /\b(?:gold|silver)\b/], ['crypto', /\b(?:bitcoin|crypto)\b/], ['fx', /\b(?:dollar|yen|euro|won)\b/]];
+// +1 when the headline states a rise only, -1 a fall only, 0 when neither or both.
+const headlineWay = (text) => { const up = UP_WORDS.test(text); const down = DOWN_WORDS.test(text); return up === down ? 0 : up ? 1 : -1; };
 export function newsHeadlineSignature(title) {
   const raw = String(title || '').toLowerCase().replace(/\s+-\s+[^-]+$/, '');
   const text = raw.replace(/[^\p{L}\p{N}.%$ ]/gu, ' ');
@@ -474,7 +481,7 @@ export function newsHeadlineSignature(title) {
   // 2026-10-19 data audit: "Yardeni Lowers S&P 500 Target to 7,900" and "Yardeni Research Cuts S&P 500 Year-End Target
   // to 7,900" both ran; a comma-grouped figure (7,900 · $4,165) is as specific as a unit-bearing one.
   const figures = new Set((raw.match(/\$?\d+(?:\.\d+)?\s*(?:조|억|%|bp|billion|trillion|bn)|\$?\d{1,3}(?:,\d{3})+(?:\.\d+)?/g) || []).map((x) => x.replace(/[\s$]/g, '')));
-  return { grams, figures, words: newsStoryWords(raw) };
+  return { grams, figures, words: newsStoryWords(raw), assets: new Set(NEWS_ASSET_CLASSES.filter(([, re]) => re.test(raw)).map(([id]) => id)), way: headlineWay(raw) };
 }
 // Two wires word one story differently ("Spain's De Cos to take over as ECB president from Lagarde" / "Spain's de Cos to
 // become ECB's next president, FT reports"), so the letter-pair overlap above stays under its mark; with seven
@@ -491,21 +498,31 @@ function newsStoryWords(lowerTitle) {
     .filter((word) => word.length >= 3 && !/^\d+$/.test(word) && !NEWS_STORY_COMMON_WORDS.has(word))
     .map((word) => (word.length > 4 ? word.replace(/s$/, '') : word)));
 }
-// `wordShare`: the least share of the longer headline's specific words the two must share on the shared-words leg.
-// Dropping a duplicate needs none (a wrongly dropped second Amazon story is a small loss); showing a headline as
-// another outlet of the same event needs NEWS_ALSO_WORD_SHARE — "K-beauty stocks rally … Amazon bestseller … Black
-// Friday" and "Amazon clears out its Xbox controller stock … Black Friday" share three words of ten.
-export function newsSameEvent(a, b, { wordShare = 0 } = {}) {
+// Measured on labeled headline pairs of two windows (scripts/fixtures/news-same-event-pairs.json: 196 pairs of 11/18–11/27,
+// 138 of 11/08–11/17): three shared words call two headlines one event and about half are (52% and 53%). That is the
+// rule for giving one event one seat, where a wrong call costs a second headline on a subject already seated. A share
+// threshold on the words leg raised that to 69% in the window it was chosen in and 57% in the other, at a fifth of the
+// recall, so it is not used. `close` is the stricter question of showing a headline to the reader as another outlet of the
+// same event: half of the longer headline's specific words, and a fourth shared word or NEWS_CLOSE_PAIRS of letter pairs,
+// never across opposite directions ("breaks below $74,000" / "climbs back above $74,000"). 97% and 83% of those are one
+// event, against 75% and 62% without the second condition.
+export const NEWS_ALSO_WORD_SHARE = 0.5;
+const NEWS_CLOSE_PAIRS = 0.41;
+export function newsSameEvent(a, b, { close = false } = {}) {
   let shared = 0;
   for (const gram of a.grams) if (b.grams.has(gram)) shared += 1;
   const jaccard = shared / Math.max(1, a.grams.size + b.grams.size - shared);
+  if (jaccard >= 0.6) return true;
+  if (a.assets?.size && b.assets?.size && ![...a.assets].some((id) => b.assets.has(id))) return false;
+  if (close && a.way * b.way < 0) return false;
   const sameFigure = [...a.figures].some((figure) => b.figures.has(figure));
-  if (jaccard >= 0.6 || (sameFigure && jaccard >= 0.25)) return true;
+  if (sameFigure && jaccard >= 0.25) return true;
   let sharedWords = 0;
   for (const word of a.words || []) if (b.words?.has(word)) sharedWords += 1;
-  return sharedWords >= NEWS_STORY_SHARED_WORDS && sharedWords >= wordShare * Math.max(a.words.size, b.words.size);
+  if (sharedWords < NEWS_STORY_SHARED_WORDS) return false;
+  if (!close) return true;
+  return sharedWords >= NEWS_ALSO_WORD_SHARE * Math.max(a.words.size, b.words.size) && (sharedWords > NEWS_STORY_SHARED_WORDS || jaccard >= NEWS_CLOSE_PAIRS);
 }
-export const NEWS_ALSO_WORD_SHARE = 0.5;
 
 // Google News appends " - Source" to every title; the source is shown separately (hover / folded sources only).
 export function cleanNewsTitle(title, source, rawSource = '') {
@@ -801,7 +818,7 @@ export function selectNewsBundle(items, krItems) {
   const alsoReported = (holder, it) => {
     const publisher = sourceKey(it);
     const listed = holder.also || [];
-    if (!newsSameEvent(newsHeadlineSignature(it.title), newsHeadlineSignature(holder.title), { wordShare: NEWS_ALSO_WORD_SHARE })) return;
+    if (!newsSameEvent(newsHeadlineSignature(it.title), newsHeadlineSignature(holder.title), { close: true })) return;
     if (!publisher || Number(it.tier) >= 4 || publisher === sourceKey(holder) || listed.length >= NEWS_ALSO_MAX || listed.some((row) => sourceKey(row) === publisher)) return;
     holder.also = [...listed, { source: it.source, title: cleanTitle(it), link: it.link, tier: it.tier, publishedAt: isFinite(it.ts) && it.ts > 0 ? new Date(it.ts).toISOString() : null }];
   };

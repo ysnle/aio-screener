@@ -180,7 +180,9 @@ export function analyzeChart(input = [], { benchmark = [], benchmarkLabel = 'S&P
   const rsAsOf = rs == null ? null : bars[rsEnd].time;
   const strength = adx(bars);
   // The trend template is the one shared definition (trend-template.js), as [label, ok] pairs for this file's readers.
-  const templateChecks = trendTemplateChecks({ close: last.close, sma50: sma50[n], sma150: sma150[n], sma200: sma200[n], sma200Then: sma200[n - 21], low52, high52, fullYear, rs }, { benchmarkLabel })
+  // Its relative-strength check is today's, like the screener's (price-factors.js): a comparison that ends on an earlier
+  // common close is shown with its date above, and leaves the check unknown.
+  const templateChecks = trendTemplateChecks({ close: last.close, sma50: sma50[n], sma150: sma150[n], sma200: sma200[n], sma200Then: sma200[n - 21], low52, high52, fullYear, rs: rsEnd === n ? rs : null }, { benchmarkLabel })
     .map(({ label, ok }) => [label, ok]);
   // The relative-strength line (close ÷ benchmark on the same date). A line at its own high
   // while price is still under its high is the classic leadership tell (O'Neil/Minervini: RS leads price).

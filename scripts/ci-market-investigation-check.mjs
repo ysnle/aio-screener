@@ -209,6 +209,11 @@ await section('screen and chat', async () => {
   check(`v60.53 investigation: a quiet session says it investigated nothing on 오늘 and shows nothing on 시장 상태`, home.children[1]?.textContent.includes('따로 조사하지 않았습니다') && !renderMarketInvestigation({ documentRef: doc, root: rootOf(quiet), basis: US, mode: 'line' }));
   const context = investigationContext(rootOf(block));
   check(`v60.53 investigation: the chat reads the same investigation with each cause's evidence kind`, context.includes(GOOD.verdict) && context.includes('보도 · Reuters 3/12') && context.includes('추론'), context);
+  const nextSession = '2031-03-13';
+  const later = investigationContext({ ...rootOf(block), _aioHistory: [{ date: US, spx: 100 }, { date: nextSession, spx: 101 }] });
+  const sameDay = investigationContext({ ...rootOf(block), _aioHistory: [{ date: US, spx: 100 }] });
+  check(`v60.66 investigation: the chat names an investigation of an earlier close as that session's, never as today's screen`, serverInvestigation(rootOf(block), { basis: nextSession }) === null
+    && later.startsWith('이전 세션의 시장 조사') && later.includes('오늘 화면에는 없는 글') && later.includes(GOOD.verdict) && !later.includes('오늘 화면과 같은 글') && sameDay.includes('오늘 화면과 같은 글'), { later, sameDay });
 });
 
 // ---- channel claims and the published artifacts the investigation reads -----------------------------------------------

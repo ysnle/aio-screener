@@ -118,7 +118,8 @@ const sessionOf = (rows) => {
 
 const boards = new WeakMap();
 /**
- * The board for the US rows of one screener load: { asOf, bySymbol: Map(symbol → setup), judged, counts: { template,
+ * The board for the US rows of one screener load, on the session most rows carry: { asOf, carried (rows of an earlier
+ * session, left out), bySymbol: Map(symbol → setup), judged, counts: { template,
  * base, ready } (null when no row could be judged), sectors: [{ sector, label, judged, template, base, defensive }] }.
  * ETFs and rows the ranking excludes are left out.
  */
@@ -126,16 +127,20 @@ export function buildSetupBoard(rows) {
   if (!Array.isArray(rows)) return buildSetupBoard([]);
   if (boards.has(rows)) return boards.get(rows);
   const bySymbol = new Map();
-  const listed = [];
+  const eligible = [];
   for (const row of rows) {
     if (!row || row.populationExclusion || screenerMarket(row) !== 'US') continue;
     const sector = normalizeSectorKey(row.sector);
     if (sector === 'ETF') continue;
     const setup = setupOf(row);
     if (!setup.symbol) continue;
-    bySymbol.set(setup.symbol, setup);
-    listed.push({ row, setup, sector });
+    eligible.push({ row, setup, sector });
   }
+  // The board is one session's: a row kept from an earlier close (the producer carries factors over when a fetch fails)
+  // is neither a candidate nor part of the denominator of the board's date. `carried` counts them.
+  const asOf = sessionOf(eligible.map((item) => item.row));
+  const listed = eligible.filter((item) => !asOf || !item.row.factorSessionDate || item.row.factorSessionDate === asOf);
+  for (const item of listed) bySymbol.set(item.setup.symbol, item.setup);
   const judged = listed.filter((item) => item.setup.state);
   const count = (list, floor) => list.filter((item) => atLeast(item.setup.state, floor)).length;
   const counts = judged.length ? Object.freeze({ template: count(judged, 'template'), base: count(judged, 'base'), ready: count(judged, 'ready') }) : null;
@@ -148,7 +153,7 @@ export function buildSetupBoard(rows) {
   const sectors = [...bySector.entries()].map(([sector, list]) => Object.freeze({
     sector, label: sectorLabel(sector), judged: list.length, template: count(list, 'template'), base: count(list, 'base'), defensive: DEFENSIVE_SECTORS.includes(sector)
   })).sort((a, b) => b.template - a.template || b.base - a.base || a.label.localeCompare(b.label));
-  const board = Object.freeze({ asOf: sessionOf(listed.map((item) => item.row)), bySymbol, listed: listed.length, judged: judged.length, counts, sectors: Object.freeze(sectors) });
+  const board = Object.freeze({ asOf, bySymbol, listed: listed.length, carried: eligible.length - listed.length, judged: judged.length, counts, sectors: Object.freeze(sectors) });
   boards.set(rows, board);
   return board;
 }

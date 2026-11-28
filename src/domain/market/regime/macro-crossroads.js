@@ -188,7 +188,8 @@ export function buildScenarioSignals({ read = null, macroHistory = null, history
     breakeven20: changeOver(mh('breakeven10'), 20), termPremium: mh('termPremium10'), termPremium20: changeOver(mh('termPremium10'), 20),
     curve20: changeOver(mh('t10y3m'), 20), curve2s10s20: changeOver(curve2s10s, 20), realYield20: changeOver(mh('realYield10'), 20), hy20: hy20 == null ? null : hy20 * 100,
     cccGap20: changeOver(gap, 20), nfci: finite(last(nfci)?.value), hyBp: finite(last(hy)?.value) == null ? null : last(hy).value * 100, nfci4: changeOverDays(nfci, MACRO_SIGNAL_RULES.nfciWindowDays)?.value ?? null, bands,
-    cash: last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
+    // A rate kept from a failed refresh (stale) is not the cost of cash now: the cash leg says it has no figure.
+    cash: macroHistory?.series?.sofr?.stale === true ? null : last(mh('sofr')), oil20, oilVsYear, brent20: finite(oilCheck?.brent20), brentBasis: oilCheck?.basis || null, oilHeld: oilDiv.held, oilHeldKind: oilDiv.kind, oilHeldText: oilDiv.text, wtiPosition,
     // v57.86 (live review): a held pair still answers a test both 20-session moves pass — only a split answer is 확인 불가.
     oilSurging: oilDiv.held ? (bothOil((v) => v >= RULES.oil.rise20dPct) === true ? true : null) : oil20 == null ? null : oil20 >= RULES.oil.rise20dPct || (oilVsYear != null && oilVsYear >= RULES.oil.aboveYearAvgPct),
     tnx: last(tnx), tnx20: changeOver(tnx, 20), spx5: pctOver(spx, 5), spx20, soxxRel20: soxxRel.value, soxxRelHeld: soxxRel.held, tnxOverBreakeven20: tnxOverBreakeven.value, dxy20: pctOver(dxy, 20), krw20: pctOver(krw, 20),

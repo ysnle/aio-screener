@@ -66,9 +66,13 @@ function cashLink(group, issuers) {
     const asOf = group.endRange?.[1] || null;
     const subject = 'funding:hyperscalers';
     const then = readNumber(group.yearAgo?.capexToOcfPct);
+    const ocfThen = readNumber(group.yearAgo?.ocf);
+    const ocfYoy = ocfThen > 0 && Number.isFinite(group.ocf) ? (group.ocf / ocfThen - 1) * 100 : null;
     rows.push(autoRow({ id: 'capex-to-ocf', subject, asOf, label: `설비투자 ÷ 영업현금흐름(${group.members.length}개사 합계)`,
       value: say('{v}', { v: fig(subject, 'capexToOcf', asOf, group.capexToOcfPct, 'share', '설비투자 ÷ 영업현금흐름', 1) }),
-      change: then == null ? NOTHING : say('1년 전 {w}', { w: fig(subject, 'capexToOcfYearAgo', asOf, then, 'share', '1년 전', 1) }) }));
+      // The ratio falls only when operating cash grows faster than capex (the row above carries capex's own change).
+      change: then == null ? NOTHING : sayJoin([say('1년 전 {w}', { w: fig(subject, 'capexToOcfYearAgo', asOf, then, 'share', '1년 전', 1) }),
+        ocfYoy == null ? NOTHING : say('영업현금흐름 1년 전 대비 {o}', { o: fig(subject, 'ocfYoy', asOf, ocfYoy, 'pct', '영업현금흐름 1년 전 대비', 1) })], ', ') }));
     if (then != null) {
       const moved = group.capexToOcfPct - then, R = FUNDING_CHAIN_RULES.capexToOcfPp;
       state = moved >= R ? 'tighter' : moved <= -R ? 'easier' : 'flat';

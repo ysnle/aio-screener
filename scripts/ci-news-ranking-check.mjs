@@ -209,6 +209,29 @@ check('v60.65 the other outlets of an event are kept on its row (distinct publis
   assert.deepEqual(carried.map((r) => r.source), ['Reuters', 'Financial Times', 'Wire0', 'Wire1', 'Wire2', 'Wire3'], 'v60.65 a carried row brings its other outlets back as candidates');
 });
 
+// 5a5. The same-event rule against labeled pairs of published headlines (two windows; the second chose no threshold).
+check('v60.67 the same-event rule is measured on labeled pairs: another outlet is right 95% / 80% of the time, the seat rule about half', () => {
+  const fixture = JSON.parse(readFileSync(new URL('./fixtures/news-same-event-pairs.json', import.meta.url), 'utf8'));
+  const measure = (window, options) => {
+    const drawn = {}; for (const pair of window.pairs) drawn[pair.stratum] = (drawn[pair.stratum] || 0) + 1;
+    let right = 0; let wrong = 0; let all = 0;
+    for (const pair of window.pairs) {
+      const weight = window.population[pair.stratum] / drawn[pair.stratum];
+      if (pair.same) all += weight;
+      if (!ns.newsSameEvent(ns.newsHeadlineSignature(pair.a), ns.newsHeadlineSignature(pair.b), options)) continue;
+      if (pair.same) right += weight; else wrong += weight;
+    }
+    return { precision: right / Math.max(1e-9, right + wrong), recall: right / all };
+  };
+  const { first, second } = fixture.windows;
+  assert.ok(first.pairs.length >= 190 && second.pairs.length >= 130, 'v60.67 both labeled windows are present');
+  const close = [measure(first, { close: true }), measure(second, { close: true })];
+  const seat = [measure(first), measure(second)];
+  assert.ok(close[0].precision >= 0.95 && close[1].precision >= 0.8, `v60.67 another outlet of the same event: precision ${close.map((m) => m.precision.toFixed(2))}`);
+  assert.ok(close[0].recall >= 0.2 && close[1].recall >= 0.25, `v60.67 the stricter rule still finds a fifth of the same-event pairs: ${close.map((m) => m.recall.toFixed(2))}`);
+  assert.ok(seat[0].precision >= 0.53 && seat[1].precision >= 0.53 && seat[0].recall >= 0.38 && seat[1].recall >= 0.75, `v60.67 the seat rule: precision ${seat.map((m) => m.precision.toFixed(2))} recall ${seat.map((m) => m.recall.toFixed(2))}`);
+});
+
 // 5b. The day's large stock moves are searched by company and lead their lane, one headline per company (v60.62 lanes).
 check('v60.62 movers: a headline naming the day\'s mover is seated first in its lane, one per company', () => {
   const row = (title, i, extra = {}) => ({ title, link: `https://e.test/m${i}`, source: `Pub${i}`, tier: 2, score: 80 - i * 0.5, topicHits: 2, subjectHits: 2, topic: 'equity', country: 'us',

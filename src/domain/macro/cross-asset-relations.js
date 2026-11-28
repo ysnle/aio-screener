@@ -52,7 +52,7 @@ export function buildCrossAssetRelations(history = [], options = {}) {
   if (stocksDown && known(tlt) && tlt <= -C.bond20dPct) add('stocks-bonds-down', `주식과 장기채가 함께 내렸습니다(장기채 ${pct(tlt)}) — 채권이 완충이 되지 못한, 물가·금리 충격 쪽 모양입니다.`);
   // Risk-off usually lifts the havens; a falling haven narrows where the money went.
   const bondHaven = stocksDown && known(tlt) && tlt >= C.bond20dPct;
-  if (riskOff && known(gold) && gold <= -C.gold20dPct) add('risk-off-gold-down', `그런데 금은 ${size(gold)} 내렸습니다 — ${bondHaven ? '돈은 안전자산 전반이 아니라 미국 국채로 갔습니다' : '안전자산 수요가 넓게 번지지 않았습니다'}.`);
+  if (riskOff && known(gold) && gold <= -C.gold20dPct) add('risk-off-gold-down', `그런데 금은 ${size(gold)} 내렸습니다 — ${bondHaven ? '안전자산 가운데 미국 국채만 올랐습니다' : '안전자산 가격이 함께 오르지는 않았습니다'}.`);
   if (riskOff && known(dxy) && dxy <= -C.dollar20dPct) add('risk-off-dollar-down', `위험 회피인데 달러는 ${size(dxy)} 약해졌습니다 — 미국 안의 걱정이 더 큰 쪽일 수 있습니다.`);
 
   const driver = known(soxx, spx) && spx < 0 && soxx - spx <= -C.semisLeadPp ? `하락은 반도체가 이끌었습니다(반도체 ETF ${pct(soxx)}, S&P 500 ${pct(spx)})`

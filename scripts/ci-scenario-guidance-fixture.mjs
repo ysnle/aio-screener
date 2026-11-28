@@ -1240,6 +1240,7 @@ console.log('scenario guidance fixture (basis card): PASS');
   assert.equal(oct.asOf, '2026-10-23', 'v58.80 relations read on the asked close');
   assert.deepEqual(oct.breaks.map((item) => item.id).sort(), ['oil-up-rates-down', 'rates-down-stocks-down', 'risk-off-gold-down'], 'v58.80 10/23 relations against the usual direction');
   assert.ok(oct.driver?.startsWith('하락은 반도체가 이끌었습니다') && /장기채는 2\.5% 올라/.test(oct.flow || ''), 'v58.80 driver and bond flow named');
+  assert.ok(/미국 국채만 올랐습니다/.test(oct.reading) && !/돈은|갔습니다/.test(oct.reading), 'v60.66 prices moving apart are told as prices, not as where money went');
   assert.ok(oct.reading.indexOf('금은') < oct.reading.indexOf('금리가 내렸는데도') && oct.reading.indexOf('금리가 내렸는데도') < oct.reading.indexOf('유가가'), 'v58.80 story order: havens, rates→stocks, oil→rates');
   assert.ok(!/[+-]\d[\d.]*%\s*(올|내)/.test(oct.reading), 'v58.80 a size beside a verb carries no sign');
   const sep = buildCrossAssetRelations(rows, { through: '2026-09-30' });

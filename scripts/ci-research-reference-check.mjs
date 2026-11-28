@@ -57,6 +57,12 @@ check('v60.59 a well-formed row has no problem', !problemsOf({}).length, problem
 check('v60.59 a row without asOf fails', problemsOf({ asOf: null }).some((p) => /asOf/.test(p)));
 check('v60.59 a row dated after today fails', problemsOf({ asOf: '2026-11-27' }).some((p) => /after today/.test(p)));
 check('v60.59 a row without an https sourceUrl fails', problemsOf({ sourceUrl: 'http://example.com' }).some((p) => /sourceUrl/.test(p)) && problemsOf({ sourceUrl: '' }).some((p) => /sourceUrl/.test(p)));
+{
+  const artifactOf = (items) => ({ schemaVersion: 'research-reference.v1', checkedAt: '2026-11-25', method: 'm', groups: [{ id: 'compute-price', title: 'GPU', items }] });
+  const item = (id, sourceUrl) => ({ id, label: id, value: 2, kind: 'observed', unit: 'price', asOf: '2026-11-25', note: 'n', sourceName: 's', sourceUrl });
+  const view = researchReference(artifactOf([item('no-source', ''), item('sourced', 'https://example.com/a')]), { nowMs: Date.parse('2026-11-26T01:00:00Z') });
+  check('v60.66 the reader skips a row without an https source and keeps the sourced one beside it', view.rows.map((row) => row.id).join() === 'sourced', view.rows.map((row) => row.id).join());
+}
 check('v60.59 a non-numeric value fails', problemsOf({ value: '120' }).some((p) => /value/.test(p)));
 check('v60.59 an unknown unit fails', problemsOf({ unit: 'usdMn' }).some((p) => /unknown unit/.test(p)));
 check('v60.59 value and range together fail (exactly one)', problemsOf({ range: [1, 2] }).some((p) => /exactly one/.test(p)));
@@ -142,6 +148,8 @@ check('v60.59 an AI fact line is dated, names its basis and says it is outside t
   check('v60.59 a link with only researched rows has no state word (조달, 장비 가격)', link.funding.rows.length === 1 && link.funding.state === null && link.funding.stateWord === null
     && link.hardware.rows.length === 1 && link.hardware.state === null);
   check('v60.59 the credit link\'s state comes from the automated spread (40bp in 20 sessions), not its researched CDS row', link.credit.state === 'tighter' && link.credit.rows[0].kind === 'auto' && link.credit.rows.some((row) => row.kind === 'researched'));
+  const ratioRow = link.cash.rows.find((row) => row.id === 'capex-to-ocf');
+  check('v60.66 the cash link sets operating cash growth beside the capex ratio, from the published totals', /영업현금흐름 1년 전 대비 [+-]?0\.0%/.test(ratioRow?.said.text || '') && ratioRow.said.claims.some((entry) => entry.measure === 'ocfYoy'), ratioRow?.said.text);
   const researchedOnly = aiFundingChain({ research, nowMs: NOW });
   check('v60.59 without automated rows no link has a state and the chain says no count', researchedOnly.links.every((entry) => entry.state === null) && researchedOnly.said.text === '');
   check('v60.59 a link with nothing confirmed is empty (대출 여건)', link.lending.empty && link.lending.rows.length === 0);

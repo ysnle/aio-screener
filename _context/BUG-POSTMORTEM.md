@@ -60,6 +60,16 @@ derived_facts: see _context/CURRENT-STATE.md (generated) for latest P/R/QA/versi
 
 ---
 
+## P2772 - v60.66 - 같은 사실을 화면·채팅·카드가 서로 다른 기준일과 분모로 읽은 일곱 곳 (X 북마크 재검토의 재현 반례) (2026-11-27)
+
+- symptom/reproduction: ① 채팅이 이전 종가의 시장 조사를 '오늘 화면과 같은 글'로 받았다(화면은 기준 종가가 다르면 숨김). ② 이전 종가에서 이월된 스크리너 행이 오늘 날짜의 추세 템플릿·돌파 대기 집계와 후보에 들어갔다. ③ 기준 지수가 한 세션 늦을 때 차트의 템플릿 상대강도 조건은 통과, 스크리너는 확인 불가였다. ④ 갱신에 실패해 남은 옛 SOFR가 '오늘 SOFR'로 현금 비교에 쓰였다. ⑤ 평소 비율이 없는 기록의 중간 하락 비율이 %로 나갔다(가능성 줄은 건수만 쓰는 규칙). ⑥ 저점 뒤 최고 종가와 같은 값으로 마감한 날이 '0%를 되돌렸습니다'로 읽혔다. ⑦ 주간 일정이 AMD를 이미 보여 주면 같은 시각 묶음 'AMD · MU' 전체가 빠져 MU 실적이 사라졌다. 그 밖에 가격만 보고 '돈은 미국 국채로 갔습니다'라고 자금 이동을 단정했고, 출처 주소 없는 조사 값이 발행 검사는 못 넘어도 읽는 쪽에서는 그대로 나왔다.
+- root_cause: 판정의 기준일·분모·결측 처리를 소유 모듈이 아니라 소비처마다 따로 정했다: 조사 문맥은 화면의 basis 인자를 넘기지 않았고, 후보 보드는 날짜를 표시에만 썼으며, 차트는 날짜를 붙인 이전 비교를 오늘 조건에 넣었다. 문구는 값의 관측일과 무관한 낱말('오늘')과 가격에서 읽을 수 없는 주어('돈')를 썼다.
+- fix: 조사 문맥이 화면과 같은 closeBasis로 기준 종가를 확인해 이전 세션 조사는 그 세션의 글로 이름 붙여 넘긴다. 후보 보드는 다수 행의 세션만 집계하고 이월 행 수(carried)를 따로 센다. 차트 템플릿의 상대강도 조건은 공통 종가가 최신일 때만 판정한다. 갱신 실패로 남은 SOFR는 현금 비교에 쓰지 않고, 문구는 금리와 관측일만 적는다. 평소 비율 없는 하락 기록은 건수만 적는다. 공동 최고 종가는 새 고점으로 읽는다. 주도주 실적 줄은 이미 보인 이름만 빼고 남긴다. 자산 관계 문장은 가격 사실만 말하고, 조사 값 읽기는 https 출처 없는 행을 건너뛴다.
+- violated_rule: 한 사실은 한 소유자가 판정하고 소비처는 그 판정을 읽는다(구조 우선). 결측과 미충족을 구분한다.
+- prevention: 각 반례를 소유 모듈의 검사에 고정 입력으로 넣었다(조사 기준 종가, 이월 행 1개가 섞인 보드, 지수 한 세션 지연 차트, stale SOFR, 평소 비율 없는 하락 기록, 공동 최고 종가, 같은 시각 실적 묶음, 출처 없는 조사 행).
+- verification/residual: node scripts/ci-esm-core-unit-check.mjs; node scripts/ci-decision-frame-check.mjs; node scripts/ci-market-investigation-check.mjs; node scripts/ci-research-reference-check.mjs; node scripts/ci-scenario-guidance-fixture.mjs
+- files: src/ai/context/investigation-context.js, src/domain/technical/setup-board.js, src/ui/components/setup-board-view.js, src/domain/technical/chart-analysis.js, src/domain/market/regime/macro-crossroads.js, src/domain/scenarios/decision-frame.js, src/domain/entity/stock-session-tie.js, src/ui/components/home-ahead.js, src/domain/macro/cross-asset-relations.js, src/domain/research/reference.js
+
 ## P2771 - v60.61 - 뉴스 카드 사실 줄이 금 전망 기사에 Dollar Tree 실적을 붙임 (2026-11-27)
 
 - symptom/reproduction: "Gold Outlook: Dollar fatigue opens the door to a squeeze" 카드에 Dollar Tree(DLTR) 실적 줄(EPS·매출)이 수치로 붙었다. 사실 줄이 붙은 4건 중 1건이 틀린 연결이었다.
