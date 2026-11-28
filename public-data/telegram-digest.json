@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-28T07:21:22.386Z",
-  "attemptedAt": "2026-11-28T07:21:22.386Z",
-  "lastSuccessfulAt": "2026-11-28T07:21:22.386Z",
+  "generatedAt": "2026-11-28T08:22:11.660Z",
+  "attemptedAt": "2026-11-28T08:22:11.660Z",
+  "lastSuccessfulAt": "2026-11-28T08:22:11.660Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-14T07:21:18.707Z",
-  "until": "2026-11-28T07:21:18.707Z",
+  "since": "2026-11-14T08:22:07.782Z",
+  "until": "2026-11-28T08:22:07.782Z",
   "current24hWindow": {
     "start": "2026-11-26T23:00:00.000Z",
     "end": "2026-11-27T23:00:00.000Z",
@@ -82,24 +82,24 @@
   "channels": [
     {
       "channel": "insidertracking",
-      "pages": 1,
-      "reachedOlder": false,
-      "reachedKnown": true,
-      "count": 1039,
-      "freshCount": 20,
-      "eligibleTextCount": 988,
-      "selectedCount": 126,
-      "error": null,
-      "failingSince": null,
-      "lastPostId": 70399
-    },
-    {
-      "channel": "bornlupin",
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 175,
+      "count": 1043,
       "freshCount": 39,
+      "eligibleTextCount": 991,
+      "selectedCount": 126,
+      "error": null,
+      "failingSince": null,
+      "lastPostId": 70406
+    },
+    {
+      "channel": "bornlupin",
+      "pages": 1,
+      "reachedOlder": false,
+      "reachedKnown": true,
+      "count": 175,
+      "freshCount": 19,
       "eligibleTextCount": 175,
       "selectedCount": 120,
       "error": null,
@@ -108,12 +108,12 @@
     },
     {
       "channel": "HANAchina",
-      "pages": 2,
+      "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 740,
-      "freshCount": 36,
-      "eligibleTextCount": 739,
+      "count": 738,
+      "freshCount": 18,
+      "eligibleTextCount": 737,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
@@ -137,22 +137,22 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1954,
-  "retainedItemCount": 426,
+  "count": 1956,
+  "retainedItemCount": 416,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1954,
-    "eligibleTextCount": 1902,
-    "mediaOnlyCount": 52,
-    "mediaAttachedCount": 768,
-    "photoPostCount": 656,
+    "observedCount": 1956,
+    "eligibleTextCount": 1903,
+    "mediaOnlyCount": 53,
+    "mediaAttachedCount": 770,
+    "photoPostCount": 657,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
-    "highSignalCount": 322,
-    "broadSignalCount": 807,
+    "highSignalCount": 323,
+    "broadSignalCount": 808,
     "selectedRawCount": 373,
     "selectedEligibleCount": 373,
     "selectedRawCoveragePct": 19.6,
@@ -160,20 +160,20 @@
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "earnings": 218,
-    "power": 176,
-    "semi": 595,
+    "market-note": 703,
+    "media-only": 53,
+    "semi": 596,
+    "flows": 67,
+    "healthcare": 58,
+    "power": 177,
     "ai-policy": 132,
-    "japan": 44,
-    "flows": 66,
-    "market-note": 701,
+    "earnings": 218,
+    "japan": 43,
     "equity": 113,
     "geo": 228,
     "macro": 302,
     "credit": 71,
     "kr-market": 103,
-    "healthcare": 57,
-    "media-only": 52,
     "insider": 9,
     "optical": 24,
     "crypto": 1
@@ -183,7 +183,7 @@
     "MU": 34,
     "NVDA": 374,
     "005930.KS": 30,
-    "000660.KS": 28,
+    "000660.KS": 27,
     "AMD": 45,
     "2454.TW": 11,
     "AMZN": 40,
@@ -268,12 +268,12 @@
     "ARM": 1
   },
   "themes": [
-    "Market Notes (701 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
-    "Semiconductors/Memory (595 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
+    "Market Notes (703 posts in 14-day research window): 트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며...",
+    "Semiconductors/Memory (596 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
     "Macro/Rates (302 posts in 14-day research window): >>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후...",
     "Geopolitics (228 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
     "Earnings/Corporate (218 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
-    "AI Power/Grid (176 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
+    "AI Power/Grid (177 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
     "AI Policy/Export Controls (132 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
     "Equity/Analyst (113 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
@@ -320,13 +320,13 @@
     },
     {
       "key": "000660.KS",
-      "count": 28,
+      "count": 27,
       "text": "🇺🇸 미국 증시 프리마켓 브리핑 2026년 11월 25일 (수요일) > 한국시간 오후 2시 기준 1. 미국 증시 선물 현황 • 다우: 49,802.10 (-0.44%) • S&P500: 7,152.80..."
     },
     {
       "key": "TSLA",
       "count": 24,
-      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
+      "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을 진행 중. 반도체 · 데이터센터 · 메모리 • 알파벳 (GOOGL) — 업계 소식통에 따르면 구글이 10세대..."
     },
     {
       "key": "2454.TW",
@@ -365,7 +365,7 @@
         "credit"
       ],
       "count": 71,
-      "focus": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한 《중국 금융안정 보고서(2026)》에 따르면, 보다 적극적인 재정정책과 적절히 완화적인 통화정책을 계속 시행할..."
+      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%, 수출은 3.2% 증가했으며 무역적자 확대가 4분기 경제성장률에 부담으로 작용할 가능성 제기. • 뉴욕..."
     },
     {
       "id": "semi",
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 595,
+      "count": 596,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을..."
     },
     {
@@ -383,7 +383,7 @@
         "optical"
       ],
       "count": 24,
-      "focus": "**CXMT가 예상대로 과창50(Star50)지수에 편입되었습니다. 12월 11일 장마감 적용이며 과창50 추종 ETF 규모가 시장내 3번째로 큽니다. 금일 +13% 마감 ••••••••••••••••••••••••••••••••• >>과창50 구성 종목 5개 조정, CXMT, Hua Hong Measurement..."
+      "focus": "No retained full-text sample; 24 observed posts in the 14-day research window."
     },
     {
       "id": "power",
@@ -391,7 +391,7 @@
       "topics": [
         "power"
       ],
-      "count": 176,
+      "count": 177,
       "focus": "델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는..."
     },
     {
@@ -445,7 +445,7 @@
       "topics": [
         "healthcare"
       ],
-      "count": 57,
+      "count": 58,
       "focus": "광통신 섹터 소식 - 광트랜시버 전용 칩을 만드는 셈택(SMTC)이 \"고객이 리드타임 안쪽으로 납기 당김을 요청했다\"고 했음. 이에 캐파를 올해 3~배, 내년에도 3~4배 늘리기로 했음. 기존 파운드리 제약도..."
     },
     {
@@ -454,7 +454,7 @@
       "topics": [
         "japan"
       ],
-      "count": 44,
+      "count": 43,
       "focus": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월..."
     },
     {
@@ -463,7 +463,7 @@
       "topics": [
         "flows"
       ],
-      "count": 66,
+      "count": 67,
       "focus": "서학개미 순매수 미국 주식 TOP 50 > 기간: 2026/11/01 ~ 2026/11/27 1위: DIREXION DAILY SEMICONDUCTORS BULL 3X SHS ETF (35.92%) 2위: NVIDIA CORP (9.35%) 3위: PROSHARES ULTRAPRO QQQ ETF (8.58%)..."
     },
     {
@@ -481,8 +481,8 @@
       "topics": [
         "market-note"
       ],
-      "count": 701,
-      "focus": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
+      "count": 703,
+      "focus": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 26일 트럼프·증시 · 트럼프, 최근 증시 급락을 11월 3일 중간선거 결과 탓으로 돌려 · 트럼프, 자신이 투표용지에 있었다면 결과가 달랐을 것이며..."
     }
   ],
   "pageMap": {
@@ -807,14 +807,17 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
     },
     {
       "id": "insidertracking/70364",
@@ -823,11 +826,13 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -836,7 +841,8 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
     },
     {
       "id": "insidertracking/70326",
@@ -1681,6 +1687,52 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/70401",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70401",
+      "datetime": "2026-11-28T07:37:36.000Z",
+      "localDateKst": "2026-11-28",
+      "tags": [
+        "semi",
+        "flows",
+        "healthcare"
+      ],
+      "score": 52,
+      "hasText": true,
+      "tickers": [],
+      "summary": "코베이시 레터는 최근 6주간 투기적 거래자들이 나스닥100 지수 선물 포지션을 대폭 축소했다고 분석. 포지션 축소 규모는 전체 미결제약정(OI)의 17%에 해당하며, 2022년 약세장 이후 6주 기준 최대..."
+    },
+    {
+      "id": "insidertracking/70400",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70400",
+      "datetime": "2026-11-28T07:27:42.000Z",
+      "localDateKst": "2026-11-28",
+      "tags": [
+        "semi",
+        "power",
+        "ai-policy"
+      ],
+      "score": 90,
+      "hasText": true,
+      "media": {
+        "kind": "photo",
+        "photoCount": 1,
+        "videoCount": 0,
+        "documents": []
+      },
+      "tickers": [],
+      "listTickers": [
+        "NVDA",
+        "AMD",
+        "AVGO",
+        "BE",
+        "000660.KS",
+        "AI"
+      ],
+      "summary": "‘AI 투자의 귀재’로 불리는 시추에이셔널 어웨어니스 창립자 레오폴드 아셴브레너는 3분기 투자자 서한을 통해 시장이 AI 에이전트와 초지능의 발전 속도를 과소평가하고 있다고 지적. 2027년 한 해에 지난..."
+    },
+    {
       "id": "bornlupin/21330",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21330",
@@ -2042,13 +2094,12 @@
       "datetime": "2026-11-27T23:38:31.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit",
-        "macro"
+        "market-note"
       ],
       "score": 64,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>신용시장 겉과 속이 달라 : 7,050억달러 AI 채권과 CCC급 ‘정크본드’ 부담, 우량 기업만 견조 •골드만삭스 전략가 Sara Grut는 겉으로 평온해 보이는 신용시장 기준지수가 시장 내부의 심각한..."
+      "summary": ">>신용시장 겉과 속이 달라 : 7,050억달러 AI 채권과 CCC급 ‘정크본드’ 부담, 우량 기업만 견조 •골드만삭스 전략가 Sara Grut는 겉으로 평온해 보이는 신용시장 기준지수가 시장 내부의 심각한...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72914",
@@ -2058,17 +2109,16 @@
       "localDateKst": "2026-11-28",
       "tags": [
         "macro",
-        "semi",
-        "ai-policy"
+        "semi"
       ],
-      "lead": 2,
       "score": 82,
       "hasText": true,
+      "summary": ">>미국 메모리 반도체·광통신주 급등, 나스닥 2.3% 상승, 금·은·구리 동반 상승, 미 국채 하락, 국제유가는 급등 후 하락 전환 •S&P500은 1.6% 상승했으며, 이번 주 4거래일 동안 누적 5.6%...",
+      "lead": 2,
       "tickers": [
         "COHR",
         "SNDK"
-      ],
-      "summary": ">>미국 메모리 반도체·광통신주 급등, 나스닥 2.3% 상승, 금·은·구리 동반 상승, 미 국채 하락, 국제유가는 급등 후 하락 전환 •S&P500은 1.6% 상승했으며, 이번 주 4거래일 동안 누적 5.6%..."
+      ]
     },
     {
       "id": "HANAchina/72913",
@@ -2077,15 +2127,13 @@
       "datetime": "2026-11-27T23:13:15.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit",
-        "macro",
-        "healthcare"
+        "credit"
       ],
-      "lead": 1,
       "score": 59,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>S&P, 프랑스 신용등급 전망 ‘부정적’으로 하향 •S&P는 프랑스의 ‘A+/A-1’ 신용등급을 유지하면서 등급 전망을 기존 ‘안정적’에서 ‘부정적’으로 하향. 예산 건전화 관련 리스크가 이유로, 경제성장..."
+      "summary": ">>S&P, 프랑스 신용등급 전망 ‘부정적’으로 하향 •S&P는 프랑스의 ‘A+/A-1’ 신용등급을 유지하면서 등급 전망을 기존 ‘안정적’에서 ‘부정적’으로 하향. 예산 건전화 관련 리스크가 이유로, 경제성장...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "HANAchina/72912",
@@ -2094,12 +2142,12 @@
       "datetime": "2026-11-27T23:01:34.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "credit"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>골드만삭스 Molavi : AI 쏠림 거래 후퇴 이후 시장 ‘취약한 균형’, 신용 리스크가 향방 결정 •골드만삭스 Molavi는 현재 시장이 ‘미묘한 균형’ 상태에 있다고 평가함. 기술주가 S&P500에서..."
+      "summary": ">>골드만삭스 Molavi : AI 쏠림 거래 후퇴 이후 시장 ‘취약한 균형’, 신용 리스크가 향방 결정 •골드만삭스 Molavi는 현재 시장이 ‘미묘한 균형’ 상태에 있다고 평가함. 기술주가 S&P500에서...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70383",
@@ -2252,7 +2300,8 @@
       "localDateKst": "2026-11-28",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "healthcare"
       ],
       "score": 85,
       "hasText": true,
@@ -2262,7 +2311,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 • 나비타스 세미컨덕터 (NVTS) — SEC 공시에 따르면 미국 법인이 11월 20일 LFMS 및 LLL과 특허 양도 계약(Patent...",
       "tickers": [],
       "listTickers": [
         "TSLA",
@@ -2271,7 +2319,8 @@
         "GOOG",
         "TSM",
         "T"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 • 나비타스 세미컨덕터 (NVTS) — SEC 공시에 따르면 미국 법인이 11월 20일 LFMS 및 LLL과 특허 양도 계약(Patent..."
     },
     {
       "id": "insidertracking/70376",
@@ -2280,7 +2329,10 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "kr-market"
       ],
       "score": 97,
       "hasText": true,
@@ -2290,8 +2342,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
-      "tickers": []
+      "tickers": [],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
     },
     {
       "id": "insidertracking/70373",
@@ -2300,7 +2352,7 @@
       "datetime": "2026-11-27T22:04:10.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -2310,8 +2362,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30..."
     },
     {
       "id": "insidertracking/70371",
@@ -2320,7 +2372,10 @@
       "datetime": "2026-11-27T22:01:58.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 91,
       "hasText": true,
@@ -2330,10 +2385,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무..."
     },
     {
       "id": "insidertracking/70370",
@@ -2342,14 +2397,17 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
     },
     {
       "id": "HANAchina/72909",
@@ -2358,12 +2416,12 @@
       "datetime": "2026-11-27T14:47:52.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함...."
+      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70365",
@@ -2372,11 +2430,13 @@
       "datetime": "2026-11-27T13:11:19.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "ai-policy"
+        "semi",
+        "power",
+        "ai-policy",
+        "insider"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을...",
       "tickers": [
         "NVDA",
         "TSLA",
@@ -2385,7 +2445,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
     },
     {
       "id": "insidertracking/70364",
@@ -2394,11 +2455,13 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -2407,7 +2470,8 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
     },
     {
       "id": "insidertracking/70362",
@@ -2432,14 +2496,12 @@
       "datetime": "2026-11-27T12:35:08.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "credit",
-        "macro",
-        "kr-market"
+        "market-note"
       ],
       "score": 82,
       "hasText": true,
-      "tickers": [],
-      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한..."
+      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70361",
@@ -2468,16 +2530,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU...",
+      "lead": 1,
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU..."
+      ]
     },
     {
       "id": "insidertracking/70359",
@@ -2542,8 +2604,9 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,..."
+      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70350",
@@ -3039,7 +3102,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -3048,10 +3110,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "마이크론 - UBS 글로벌 테크놀로지 & AI 콘퍼런스 2026 미국 동부시간 12월 1일 오전 10시 15분 (한국 시간 12월 2일 수요일 오전 00:15)",
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론 - UBS 글로벌 테크놀로지 & AI 콘퍼런스 2026 미국 동부시간 12월 1일 오전 10시 15분 (한국 시간 12월 2일 수요일 오전 00:15)"
+      ]
     },
     {
       "id": "bornlupin/21311",
@@ -3064,10 +3126,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프: 아마도 조만간 엔비디아의 젠슨 황과 이야기를 나눌 것",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프: 아마도 조만간 엔비디아의 젠슨 황과 이야기를 나눌 것"
+      ]
     },
     {
       "id": "bornlupin/21310",
@@ -3076,12 +3138,12 @@
       "datetime": "2026-11-26T23:54:57.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "네덜란드, 미국의 ASML 추가 규제안 도입에 맞서기로 네덜란드 정부는 ASML 홀딩(ASML Holding NV)의 대중국 판매를 추가로 제한하려는 미국의 계획에 저항하겠다고 밝혔다. 네덜란드는 이 규제안을..."
+      "summary": "네덜란드, 미국의 ASML 추가 규제안 도입에 맞서기로 네덜란드 정부는 ASML 홀딩(ASML Holding NV)의 대중국 판매를 추가로 제한하려는 미국의 계획에 저항하겠다고 밝혔다. 네덜란드는 이 규제안을...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21309",
@@ -3090,14 +3152,13 @@
       "datetime": "2026-11-26T23:47:22.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "민주당 주정부 출범을 앞두고 텍사스, 데이터센터 인허가 재개 - FT 1. 텍사스 데이터센터 인허가 중단 해제 2026년 9월 21일부터 중단됐던 데이터센터 관련 환경 인허가가 약 두 달 만에 재개...."
+      "summary": "민주당 주정부 출범을 앞두고 텍사스, 데이터센터 인허가 재개 - FT 1. 텍사스 데이터센터 인허가 중단 해제 2026년 9월 21일부터 중단됐던 데이터센터 관련 환경 인허가가 약 두 달 만에 재개....",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21307",
@@ -3107,20 +3168,17 @@
       "localDateKst": "2026-11-27",
       "tags": [
         "power",
-        "japan",
-        "ai-policy",
-        "equity"
+        "japan"
       ],
-      "lead": 2,
       "score": 74,
       "hasText": true,
+      "summary": "일본 JERA, 데이터센터 구축 위해 앤트로픽·메타 등과 협상 돌입 (닛케이 보도) 미국 빅테크와 데이터센터 구축 논의: 일본 최대 발전사인 JERA가 도쿄 인근 발전소 부근에 데이터센터를 건설하기 위해...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN",
         "DELL"
-      ],
-      "summary": "일본 JERA, 데이터센터 구축 위해 앤트로픽·메타 등과 협상 돌입 (닛케이 보도) 미국 빅테크와 데이터센터 구축 논의: 일본 최대 발전사인 JERA가 도쿄 인근 발전소 부근에 데이터센터를 건설하기 위해..."
+      ]
     },
     {
       "id": "bornlupin/21306",
@@ -3129,16 +3187,13 @@
       "datetime": "2026-11-26T23:25:09.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "equity",
-        "macro",
         "semi",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "[심텍(222800) | BUY(유지) | TP 17만원(유지) | 다올투자증권 전기전자 김연미] ★ 영구 CB·BW 3,000억원 발행 관련 Comment SOCAMM·고다층 MSAP 증설에 3,000억원..."
+      "summary": "[심텍(222800) | BUY(유지) | TP 17만원(유지) | 다올투자증권 전기전자 김연미] ★ 영구 CB·BW 3,000억원 발행 관련 Comment SOCAMM·고다층 MSAP 증설에 3,000억원...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70306",
@@ -3375,19 +3430,17 @@
       "datetime": "2026-11-26T13:49:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "semi",
-        "earnings",
-        "healthcare"
+        "semi"
       ],
-      "lead": 1,
       "score": 64,
       "hasText": true,
+      "summary": "배런스(Barron's) : 마이크론, 중국 경쟁자가 두 곳으로 늘어났지만 걱정할 필요 없다 1. 화웨이, 자체 HBM 개발 추진 화웨이는 2027년 2월 샌프란시스코에서 개최되는...",
+      "lead": 1,
       "tickers": [
         "MU",
         "005930.KS",
         "000660.KS"
-      ],
-      "summary": "배런스(Barron's) : 마이크론, 중국 경쟁자가 두 곳으로 늘어났지만 걱정할 필요 없다 1. 화웨이, 자체 HBM 개발 추진 화웨이는 2027년 2월 샌프란시스코에서 개최되는..."
+      ]
     },
     {
       "id": "bornlupin/21303",
@@ -3396,8 +3449,6 @@
       "datetime": "2026-11-26T13:40:53.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "macro",
-        "equity",
         "earnings"
       ],
       "score": 63,
@@ -3408,13 +3459,13 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "미국 주가와 기업 이익 전망치의 괴리 모건스탠리 - 기업 실적 전망치를 지속적으로 상향하는 가운데, S&P500의 선행 PER은 10월 말 약 23배의 고점에서 현재 16.5배까지 급락했으며, 장기 평균인...",
       "tickers": [
         "MSFT",
         "GOOG",
         "META",
         "AMZN"
-      ],
-      "summary": "미국 주가와 기업 이익 전망치의 괴리 모건스탠리 - 기업 실적 전망치를 지속적으로 상향하는 가운데, S&P500의 선행 PER은 10월 말 약 23배의 고점에서 현재 16.5배까지 급락했으며, 장기 평균인..."
+      ]
     },
     {
       "id": "bornlupin/21302",
@@ -3433,11 +3484,11 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "마이크로소프트 AI 부문 CEO 무스타파 술레이만(Mustafa Suleyman) (구글 딥마인드의 공동 창업자) “우리가 반도체 생산능력을 과도하게 확충하고 있다거나, 제번스의 역설(Jevons’...",
       "tickers": [
         "MSFT",
         "GOOG"
-      ],
-      "summary": "마이크로소프트 AI 부문 CEO 무스타파 술레이만(Mustafa Suleyman) (구글 딥마인드의 공동 창업자) “우리가 반도체 생산능력을 과도하게 확충하고 있다거나, 제번스의 역설(Jevons’..."
+      ]
     },
     {
       "id": "insidertracking/70282",
@@ -3677,11 +3728,11 @@
         "semi",
         "credit"
       ],
-      "lead": 2,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "지난 8월 25일 공시된 AI향 SoCAMM 모듈 기판 및 고다층 mSAP 기판의 수요 증가에 대응하기 위한 신규 시설투자(2,742억원) 관련 자금조달이 마무리되었습니다. 향후 추가적인 설비투자는 당사의..."
+      "summary": "지난 8월 25일 공시된 AI향 SoCAMM 모듈 기판 및 고다층 mSAP 기판의 수요 증가에 대응하기 위한 신규 시설투자(2,742억원) 관련 자금조달이 마무리되었습니다. 향후 추가적인 설비투자는 당사의...",
+      "lead": 2,
+      "tickers": []
     },
     {
       "id": "bornlupin/21299",
@@ -3690,12 +3741,12 @@
       "datetime": "2026-11-26T07:54:27.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "credit"
+        "market-note"
       ],
       "score": 62,
       "hasText": true,
-      "tickers": [],
-      "summary": "2026.11.26 16:41:37 기업명: 에이피알(시가총액: 11조 2,502억) A278470 보고서명: 주요사항보고서(타법인주식및출자증권양수결정) 양수회사 : 주식회사 브랜드501 (BRAND501..."
+      "summary": "2026.11.26 16:41:37 기업명: 에이피알(시가총액: 11조 2,502억) A278470 보고서명: 주요사항보고서(타법인주식및출자증권양수결정) 양수회사 : 주식회사 브랜드501 (BRAND501...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21298",
@@ -3704,13 +3755,12 @@
       "datetime": "2026-11-26T07:52:45.000Z",
       "localDateKst": "2026-11-26",
       "tags": [
-        "credit",
-        "semi"
+        "market-note"
       ],
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "[SK증권 IT하드웨어/배터리 박형우, 정영환] 심텍, 총 3,000억 원 규모 영구 전환사채(CB) 및 신주인수권부사채(BW) 발행 결정 공시 사채 발행 개요 - 제11회: 사모 영구 전환사채(CB)..."
+      "summary": "[SK증권 IT하드웨어/배터리 박형우, 정영환] 심텍, 총 3,000억 원 규모 영구 전환사채(CB) 및 신주인수권부사채(BW) 발행 결정 공시 사채 발행 개요 - 제11회: 사모 영구 전환사채(CB)...",
+      "tickers": []
     },
     {
       "id": "HANAchina/72821",
@@ -7123,50 +7173,6 @@
       ]
     },
     {
-      "id": "insidertracking/70063",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/70063",
-      "datetime": "2026-11-23T20:46:51.000Z",
-      "localDateKst": "2026-11-24",
-      "tags": [
-        "semi"
-      ],
-      "score": 51,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아 시총 4위에서 2위 탈환 완료",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
-      "id": "insidertracking/70062",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/70062",
-      "datetime": "2026-11-23T20:46:04.000Z",
-      "localDateKst": "2026-11-24",
-      "tags": [
-        "semi"
-      ],
-      "score": 66,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아 관련 정리 - 2026년 11월 24일 젠슨 황 CEO 복귀 · 엔비디아 이사회, 젠슨 황을 사장·CEO·이사회 이사로 만장일치 복귀 결정 · 젠슨 황 복귀 즉시 발효 · 콜레트 크레스, CFO직...",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "HANAchina/72637",
       "channel": "HANAchina",
       "url": "https://t.me/HANAchina/72637",
@@ -8524,7 +8530,8 @@
       "localDateKst": "2026-11-28",
       "tags": [
         "semi",
-        "power"
+        "power",
+        "healthcare"
       ],
       "score": 85,
       "hasText": true,
@@ -8534,7 +8541,6 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 • 나비타스 세미컨덕터 (NVTS) — SEC 공시에 따르면 미국 법인이 11월 20일 LFMS 및 LLL과 특허 양도 계약(Patent...",
       "tickers": [],
       "listTickers": [
         "TSLA",
@@ -8543,7 +8549,8 @@
         "GOOG",
         "TSM",
         "T"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) 반도체 · 데이터센터 • 나비타스 세미컨덕터 (NVTS) — SEC 공시에 따르면 미국 법인이 11월 20일 LFMS 및 LLL과 특허 양도 계약(Patent..."
     },
     {
       "id": "insidertracking/70376",
@@ -8552,7 +8559,10 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "kr-market"
       ],
       "score": 97,
       "hasText": true,
@@ -8562,8 +8572,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
-      "tickers": []
+      "tickers": [],
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
     },
     {
       "id": "insidertracking/70373",
@@ -8572,7 +8582,7 @@
       "datetime": "2026-11-27T22:04:10.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "macro"
       ],
       "score": 52,
       "hasText": true,
@@ -8582,8 +8592,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30...",
-      "tickers": []
+      "tickers": [],
+      "summary": "2026년 11월 28일 미장 마감 S&P 500 - 7,297.49 +1.60% 다우 30 - 50,774.94 +1.18% 나스닥 - 24,129.50 +2.31% 러셀 2000 - 2,750.30..."
     },
     {
       "id": "insidertracking/70371",
@@ -8592,7 +8602,10 @@
       "datetime": "2026-11-27T22:01:58.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "semi"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 91,
       "hasText": true,
@@ -8602,10 +8615,10 @@
         "videoCount": 0,
         "documents": []
       },
-      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "트럼프 발언 및 미국 정치 관련 정리 - 2026년 11월 28일 트럼프·엔비디아 · 트럼프, 인텔과 유사한 엔비디아 정부 지분 확보를 검토했다고 발언 · 트럼프, 엔비디아 정부 지분 확보에 대해 “아직 너무..."
     },
     {
       "id": "insidertracking/70370",
@@ -8614,14 +8627,17 @@
       "datetime": "2026-11-27T22:00:55.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "market-note"
+        "credit",
+        "macro",
+        "geo",
+        "semi"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
       "tickers": [
         "NVDA"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
     },
     {
       "id": "HANAchina/72909",
@@ -8630,12 +8646,12 @@
       "datetime": "2026-11-27T14:47:52.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "macro"
+        "market-note"
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함...."
+      "summary": ">>AI주 매도세 막바지? JPMorgan 경고: 진짜 리스크는 2027년에 있을 수 있음 •JPMorgan은 AI주 매도세가 막바지에 가까워졌으며, 미국 증시가 단기 반등을 맞을 가능성이 있다고 판단함....",
+      "tickers": []
     },
     {
       "id": "insidertracking/70365",
@@ -8644,11 +8660,13 @@
       "datetime": "2026-11-27T13:11:19.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "ai-policy"
+        "semi",
+        "power",
+        "ai-policy",
+        "insider"
       ],
       "score": 95,
       "hasText": true,
-      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을...",
       "tickers": [
         "NVDA",
         "TSLA",
@@ -8657,7 +8675,8 @@
       ],
       "relatedTickers": [
         "AVGO"
-      ]
+      ],
+      "summary": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
     },
     {
       "id": "insidertracking/70364",
@@ -8666,11 +8685,13 @@
       "datetime": "2026-11-27T13:07:46.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "market-note"
+        "macro",
+        "geo",
+        "semi",
+        "power"
       ],
       "score": 100,
       "hasText": true,
-      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아...",
       "tickers": [],
       "listTickers": [
         "NVDA",
@@ -8679,7 +8700,8 @@
         "GOOG",
         "AMZN",
         "PLTR"
-      ]
+      ],
+      "summary": "글로벌 뉴스 브리핑 - 2026년 11월 27일 > 오후 3시~오후 10시 기준 🇺🇸 아메리카 • 미국 정부가 베네수엘라와 이라크에 석유수출국기구(OPEC) 탈퇴를 검토하도록 압박한 것으로 전해져. 러시아..."
     },
     {
       "id": "insidertracking/70362",
@@ -8704,14 +8726,12 @@
       "datetime": "2026-11-27T12:35:08.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "credit",
-        "macro",
-        "kr-market"
+        "market-note"
       ],
       "score": 82,
       "hasText": true,
-      "tickers": [],
-      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한..."
+      "summary": "**12월 경제공작회의 기대 ••••••••••••••••••••••••••••••• >>중국 인민은행: 필요한 재정적자·부채 총규모 유지, 재정지출 범위 확대해 필요한 지출 강도 확보 •인민은행이 발표한...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70361",
@@ -8740,16 +8760,16 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 55,
       "hasText": true,
+      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU...",
+      "lead": 1,
       "tickers": [
         "GOOG"
       ],
       "relatedTickers": [
         "AVGO"
-      ],
-      "summary": ">>구글, 10세대 TPU 칩에 512GB 커스텀 HBM5 메모리 탑재 계획 •보도에 따르면, 구글은 10세대 TPU 칩에 512GB의 커스텀 HBM5 메모리를 탑재할 계획인 것으로 알려짐. 현재 TPU..."
+      ]
     },
     {
       "id": "insidertracking/70359",
@@ -8814,8 +8834,9 @@
       ],
       "score": 57,
       "hasText": true,
-      "tickers": [],
-      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,..."
+      "summary": ">>Counterpoint : 2026년 3분기 미국 스마트폰 출하량 전년비 9% 감소, 애플 점유율은 반대로 57%까지 상승 •Counterpoint, 메모리 비용 상승의 영향으로 안드로이드 스마트폰 업체,...",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "insidertracking/70350",
@@ -9311,7 +9332,6 @@
       "tags": [
         "semi"
       ],
-      "lead": 1,
       "score": 61,
       "hasText": true,
       "media": {
@@ -9320,10 +9340,10 @@
         "videoCount": 0,
         "documents": []
       },
+      "summary": "마이크론 - UBS 글로벌 테크놀로지 & AI 콘퍼런스 2026 미국 동부시간 12월 1일 오전 10시 15분 (한국 시간 12월 2일 수요일 오전 00:15)",
       "tickers": [
         "MU"
-      ],
-      "summary": "마이크론 - UBS 글로벌 테크놀로지 & AI 콘퍼런스 2026 미국 동부시간 12월 1일 오전 10시 15분 (한국 시간 12월 2일 수요일 오전 00:15)"
+      ]
     },
     {
       "id": "bornlupin/21311",
@@ -9336,10 +9356,10 @@
       ],
       "score": 51,
       "hasText": true,
+      "summary": "트럼프: 아마도 조만간 엔비디아의 젠슨 황과 이야기를 나눌 것",
       "tickers": [
         "NVDA"
-      ],
-      "summary": "트럼프: 아마도 조만간 엔비디아의 젠슨 황과 이야기를 나눌 것"
+      ]
     },
     {
       "id": "bornlupin/21310",
@@ -9348,12 +9368,12 @@
       "datetime": "2026-11-26T23:54:57.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "semi"
+        "market-note"
       ],
       "score": 52,
       "hasText": true,
-      "tickers": [],
-      "summary": "네덜란드, 미국의 ASML 추가 규제안 도입에 맞서기로 네덜란드 정부는 ASML 홀딩(ASML Holding NV)의 대중국 판매를 추가로 제한하려는 미국의 계획에 저항하겠다고 밝혔다. 네덜란드는 이 규제안을..."
+      "summary": "네덜란드, 미국의 ASML 추가 규제안 도입에 맞서기로 네덜란드 정부는 ASML 홀딩(ASML Holding NV)의 대중국 판매를 추가로 제한하려는 미국의 계획에 저항하겠다고 밝혔다. 네덜란드는 이 규제안을...",
+      "tickers": []
     },
     {
       "id": "bornlupin/21309",
@@ -9362,14 +9382,13 @@
       "datetime": "2026-11-26T23:47:22.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "power",
-        "equity"
+        "power"
       ],
-      "lead": 1,
       "score": 53,
       "hasText": true,
-      "tickers": [],
-      "summary": "민주당 주정부 출범을 앞두고 텍사스, 데이터센터 인허가 재개 - FT 1. 텍사스 데이터센터 인허가 중단 해제 2026년 9월 21일부터 중단됐던 데이터센터 관련 환경 인허가가 약 두 달 만에 재개...."
+      "summary": "민주당 주정부 출범을 앞두고 텍사스, 데이터센터 인허가 재개 - FT 1. 텍사스 데이터센터 인허가 중단 해제 2026년 9월 21일부터 중단됐던 데이터센터 관련 환경 인허가가 약 두 달 만에 재개....",
+      "lead": 1,
+      "tickers": []
     },
     {
       "id": "bornlupin/21307",
@@ -9379,20 +9398,17 @@
       "localDateKst": "2026-11-27",
       "tags": [
         "power",
-        "japan",
-        "ai-policy",
-        "equity"
+        "japan"
       ],
-      "lead": 2,
       "score": 74,
       "hasText": true,
+      "summary": "일본 JERA, 데이터센터 구축 위해 앤트로픽·메타 등과 협상 돌입 (닛케이 보도) 미국 빅테크와 데이터센터 구축 논의: 일본 최대 발전사인 JERA가 도쿄 인근 발전소 부근에 데이터센터를 건설하기 위해...",
       "tickers": [
         "MSFT",
         "GOOG",
         "AMZN",
         "DELL"
-      ],
-      "summary": "일본 JERA, 데이터센터 구축 위해 앤트로픽·메타 등과 협상 돌입 (닛케이 보도) 미국 빅테크와 데이터센터 구축 논의: 일본 최대 발전사인 JERA가 도쿄 인근 발전소 부근에 데이터센터를 건설하기 위해..."
+      ]
     },
     {
       "id": "bornlupin/21306",
@@ -9401,16 +9417,13 @@
       "datetime": "2026-11-26T23:25:09.000Z",
       "localDateKst": "2026-11-27",
       "tags": [
-        "equity",
-        "macro",
         "semi",
-        "earnings"
+        "equity"
       ],
-      "lead": 1,
       "score": 69,
       "hasText": true,
-      "tickers": [],
-      "summary": "[심텍(222800) | BUY(유지) | TP 17만원(유지) | 다올투자증권 전기전자 김연미] ★ 영구 CB·BW 3,000억원 발행 관련 Comment SOCAMM·고다층 MSAP 증설에 3,000억원..."
+      "summary": "[심텍(222800) | BUY(유지) | TP 17만원(유지) | 다올투자증권 전기전자 김연미] ★ 영구 CB·BW 3,000억원 발행 관련 Comment SOCAMM·고다층 MSAP 증설에 3,000억원...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70306",
