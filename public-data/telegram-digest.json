@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-11-28T11:21:30.567Z",
-  "attemptedAt": "2026-11-28T11:21:30.567Z",
-  "lastSuccessfulAt": "2026-11-28T11:21:30.567Z",
+  "generatedAt": "2026-11-28T12:21:52.866Z",
+  "attemptedAt": "2026-11-28T12:21:52.866Z",
+  "lastSuccessfulAt": "2026-11-28T12:21:52.866Z",
   "collectionStatus": "ok",
   "successfulChannelCount": 3,
   "activeChannelCount": 3,
   "windowKind": "research-14d",
-  "since": "2026-11-14T11:21:24.515Z",
-  "until": "2026-11-28T11:21:24.515Z",
+  "since": "2026-11-14T12:21:47.398Z",
+  "until": "2026-11-28T12:21:47.398Z",
   "current24hWindow": {
     "start": "2026-11-26T23:00:00.000Z",
     "end": "2026-11-27T23:00:00.000Z",
@@ -85,22 +85,22 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 1047,
+      "count": 1044,
       "freshCount": 40,
-      "eligibleTextCount": 995,
-      "selectedCount": 125,
+      "eligibleTextCount": 992,
+      "selectedCount": 126,
       "error": null,
       "failingSince": null,
-      "lastPostId": 70417
+      "lastPostId": 70419
     },
     {
       "channel": "bornlupin",
       "pages": 1,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 175,
+      "count": 174,
       "freshCount": 19,
-      "eligibleTextCount": 175,
+      "eligibleTextCount": 174,
       "selectedCount": 120,
       "error": null,
       "failingSince": null,
@@ -111,13 +111,13 @@
       "pages": 2,
       "reachedOlder": false,
       "reachedKnown": true,
-      "count": 736,
-      "freshCount": 36,
-      "eligibleTextCount": 735,
+      "count": 733,
+      "freshCount": 38,
+      "eligibleTextCount": 732,
       "selectedCount": 127,
       "error": null,
       "failingSince": null,
-      "lastPostId": 72944
+      "lastPostId": 72946
     },
     {
       "channel": "aetherjapanresearch",
@@ -137,38 +137,38 @@
       "lastPostId": 26057
     }
   ],
-  "count": 1958,
-  "retainedItemCount": 428,
+  "count": 1951,
+  "retainedItemCount": 429,
   "observedLineageArtifact": "public-data/telegram-observed.json",
   "coverage": {
     "lineageStatus": "legacy-partial",
     "legacyReportedCount": 2074,
     "lineageCompleteAfter": "2026-12-05T04:51:57.246Z",
-    "observedCount": 1958,
-    "eligibleTextCount": 1905,
+    "observedCount": 1951,
+    "eligibleTextCount": 1898,
     "mediaOnlyCount": 53,
     "mediaAttachedCount": 767,
     "photoPostCount": 657,
     "documentPostCount": 3,
     "imageOnlyCount": 4,
-    "highSignalCount": 322,
-    "broadSignalCount": 809,
-    "selectedRawCount": 372,
-    "selectedEligibleCount": 372,
-    "selectedRawCoveragePct": 19.5,
-    "selectedOfObservedPct": 19,
+    "highSignalCount": 320,
+    "broadSignalCount": 807,
+    "selectedRawCount": 373,
+    "selectedEligibleCount": 373,
+    "selectedRawCoveragePct": 19.7,
+    "selectedOfObservedPct": 19.1,
     "semantics": "observedItems is lightweight whole-window lineage; topItems/broadItems are capped summary payloads (full source text is not redistributed — P715). selectedRawCoveragePct is selectedEligibleCount over eligibleTextCount; selectedOfObservedPct is selectedRawCount over observedCount. mediaAttachedCount/photoPostCount/documentPostCount/imageOnlyCount count posts with attachments whose image or file body is not read (v59.56)."
   },
   "topicCounts": {
-    "market-note": 701,
-    "semi": 598,
-    "macro": 302,
-    "earnings": 220,
-    "equity": 114,
+    "market-note": 699,
+    "macro": 303,
+    "semi": 596,
+    "earnings": 219,
+    "equity": 113,
     "credit": 71,
-    "geo": 228,
-    "japan": 44,
-    "ai-policy": 134,
+    "geo": 225,
+    "japan": 43,
+    "ai-policy": 133,
     "media-only": 53,
     "flows": 66,
     "healthcare": 58,
@@ -179,14 +179,16 @@
     "crypto": 1
   },
   "tickerCounts": {
+    "NVDA": 369,
+    "TSLA": 25,
+    "PLTR": 11,
     "005930.KS": 31,
     "000660.KS": 28,
-    "GOOG": 45,
-    "NVDA": 371,
-    "MU": 35,
-    "AMD": 45,
+    "GOOG": 44,
+    "MU": 33,
+    "AMD": 43,
     "2454.TW": 10,
-    "AMZN": 40,
+    "AMZN": 39,
     "TSM": 59,
     "CRWV": 7,
     "AAPL": 3,
@@ -194,7 +196,6 @@
     "SNDK": 4,
     "MRVL": 2,
     "OKTA": 1,
-    "TSLA": 23,
     "ADBE": 2,
     "BE": 7,
     "DB": 2,
@@ -202,17 +203,16 @@
     "KO": 1,
     "KDP": 1,
     "285A.T": 3,
-    "MSFT": 32,
+    "MSFT": 31,
     "DELL": 2,
     "INTC": 2,
     "TER": 1,
-    "PLTR": 9,
     "META": 8,
     "SMCI": 4,
     "028260.KS": 1,
     "GS": 2,
     "ORCL": 5,
-    "AVGO": 10,
+    "AVGO": 8,
     "BMY": 1,
     "BCS": 2,
     "192820.KS": 1,
@@ -268,19 +268,19 @@
     "ARM": 1
   },
   "themes": [
-    "Market Notes (701 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
-    "Semiconductors/Memory (598 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
-    "Macro/Rates (302 posts in 14-day research window): >>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후...",
-    "Geopolitics (228 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
-    "Earnings/Corporate (220 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
+    "Market Notes (699 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,...",
+    "Semiconductors/Memory (596 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을...",
+    "Macro/Rates (303 posts in 14-day research window): >>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후...",
+    "Geopolitics (225 posts in 14-day research window): 글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을...",
+    "Earnings/Corporate (219 posts in 14-day research window): >>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의...",
     "AI Power/Grid (177 posts in 14-day research window): 델( $DELL ) FY27 3Q 어닝콜 – AI 수요 지속성, 데이터센터 지연 및 파이낸싱 우려 관련 1. AI 수요 둔화 징후 전혀 없다 • AI 수요는 지속 가능하다. 인텔리전스(지능)에 대한 수요는...",
-    "AI Policy/Export Controls (134 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
-    "Equity/Analyst (114 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
+    "AI Policy/Export Controls (133 posts in 14-day research window): 멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고...",
+    "Equity/Analyst (113 posts in 14-day research window): 미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
   ],
   "catalysts": [
     {
       "key": "NVDA",
-      "count": 371,
+      "count": 369,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 28일 > 오전 7시~오후 7시 기준 🇺🇸 아메리카 • 미국 연방 금융당국은 자산 규모 60억 달러의 유나이티드 피델리티 은행(United Fidelity Bank)을 폐쇄. 2024년 4월 이후 미국에서 발생한 최대 규모의 은행 파산으로, 퍼스트 시티즌스 은행이 해당..."
     },
     {
@@ -290,33 +290,33 @@
     },
     {
       "key": "GOOG",
-      "count": 45,
+      "count": 44,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 28일 > 오전 7시~오후 7시 기준 🇺🇸 아메리카 • 미국 연방 금융당국은 자산 규모 60억 달러의 유나이티드 피델리티 은행(United Fidelity Bank)을 폐쇄. 2024년 4월 이후 미국에서 발생한 최대 규모의 은행 파산으로, 퍼스트 시티즌스 은행이 해당..."
     },
     {
       "key": "AMD",
-      "count": 45,
+      "count": 43,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
     },
     {
       "key": "AMZN",
-      "count": 40,
+      "count": 39,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:..."
     },
     {
       "key": "MU",
-      "count": 35,
+      "count": 33,
       "text": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 25일 (수요일) 1. 미국 증시 마감 현황 다우 30: 50,021.91 (+0.86%) S&P 500: 7,201.62 (-0.49%) 나스닥:..."
-    },
-    {
-      "key": "MSFT",
-      "count": 32,
-      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "key": "005930.KS",
       "count": 31,
       "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오후 2시~오후 10시 기준 🇺🇸 아메리카 • 트럼프 미국 대통령은 미국의 3분기 GDP 성장률이 4.3%로 상향 조정됐으며, 2분기 성장률인 2.2%의..."
+    },
+    {
+      "key": "MSFT",
+      "count": 31,
+      "text": "글로벌 뉴스 브리핑 - 2026년 11월 26일 🇺🇸 아메리카 • 트럼프 행정부는 14개 주요 교역 상대국에 대한 신규 관세 부과 방안을 제안. 국가별 최대 관세율은 중국 40%, 베트남 35%,..."
     },
     {
       "key": "000660.KS",
@@ -325,18 +325,18 @@
     },
     {
       "key": "TSLA",
-      "count": 23,
+      "count": 25,
       "text": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — Claude Fable 5.2에서 발생한 오류율 상승의 원인을 파악했으며, 문제 해결을 위한 수정 작업을..."
+    },
+    {
+      "key": "PLTR",
+      "count": 11,
+      "text": "미국 S&P 500 주간 상승·하락률 상위 종목 (11월 23~27일) | 지수 +5.60% 액손 엔터프라이즈, 팔란티어 테크놀로지스, 엔비디아가 주간 상승률 상위권을 기록한 반면, 웨스트 파마슈티컬 서비스, 크라우드스트라이크 홀딩스, J.M. 스머커가 가장 큰 하락폭을 기록. 주간 상승률 상위 10개 종목 •..."
     },
     {
       "key": "2454.TW",
       "count": 10,
       "text": "중화권 마감 시황 (26.11.26, 목) 🇨🇳 중국 본토 증시는 미 증시 혼조세와 301조 관세 우려, 유가 상승 등 대외 경계감 속에 장중 하락 전환했다가 장 막판 대형 지수 ETF로의 방어 자금..."
-    },
-    {
-      "key": "AVGO",
-      "count": 10,
-      "text": "블룸버그: 젠슨 황 복귀에도 엔비디아 주가 부진 지속, AI 투자수익성 의문 및 규제 압박 심화 블룸버그에 따르면 엔비디아 주가는 최근 9거래일 중 8거래일 하락했으며, 현재 10월 6일 기록한 사상 최고치..."
     }
   ],
   "categories": [
@@ -346,7 +346,7 @@
       "topics": [
         "macro"
       ],
-      "count": 302,
+      "count": 303,
       "focus": ">>대만 전문가 : 젠슨 황 복귀에도 AI 2027년 ‘성장통’ 예상 (대만공상시보) •젠슨 황 복귀의 한계 : 젠슨 황의 복귀가 AI 성장동력의 완전한 회복을 의미하지는 않음. 11일간의 공백 동안 NVIDIA는 이사회 의장 신설, 국가안보·수출통제위원회 설치, 최고준법책임자 신설 등 지배구조를 강화했으며, 향후..."
     },
     {
@@ -355,7 +355,7 @@
       "topics": [
         "geo"
       ],
-      "count": 228,
+      "count": 225,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 23일 🇺🇸 아메리카 • 트럼프 대통령은 이란과의 협상이 합의 없이 끝날 경우 내년 1월 1일 이후 군사 공격을 재개하는 쪽으로 기울고 있다고 밝혀. 이란이 협상을..."
     },
     {
@@ -373,7 +373,7 @@
       "topics": [
         "semi"
       ],
-      "count": 598,
+      "count": 596,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 26일 > 오전 6시~오후 2시 기준 🇺🇸 아메리카 • 워싱턴포스트(WP)는 트럼프 행정부가 젠슨 황 엔비디아 CEO의 사임 이후 강제 복귀를 위해 전시 권한을..."
     },
     {
@@ -400,7 +400,7 @@
       "topics": [
         "ai-policy"
       ],
-      "count": 134,
+      "count": 133,
       "focus": "멜리우스(Melius), 앤트로픽(Anthropic, $ANT ), 투자의견 매수(Buy), 목표주가 155달러로 커버리지를 개시 당사는 앤트로픽이 장기적으로 주당 5달러 이상의 이익 창출력을 보유하고..."
     },
     {
@@ -418,7 +418,7 @@
       "topics": [
         "equity"
       ],
-      "count": 114,
+      "count": 113,
       "focus": "미국 기업 섹터별 소식 정리 (실적 제외) AI · 클라우드 · 소프트웨어 • 앤트로픽 (ANT) — IPO 보호예수 해제 일정에 따라 2026년 12월 15일과 2027년 1월 5일 각각 최대 3억300만..."
     },
     {
@@ -436,7 +436,7 @@
       "topics": [
         "earnings"
       ],
-      "count": 220,
+      "count": 219,
       "focus": ">>주간 글로벌 이벤트 - APEC 정상회의·Anthropic IPO·엔비디아 실적·젠슨 황 청문회 집중…AI 투자 방향성 주목 (중국언론) •APEC : 11월 18-19일 중국 선전에서 APEC 정상회의..."
     },
     {
@@ -454,7 +454,7 @@
       "topics": [
         "japan"
       ],
-      "count": 44,
+      "count": 43,
       "focus": ">>일본 10월 공작기계 수주 전년비 42% 증가…아시아는 AI 관련 수요가 주도 (과창판일보) •일본공작기계공업회 발표 10월 공작기계 수주액 최종치는 2,043억엔으로 전년비 42% 증가했으며, 16개월..."
     },
     {
@@ -481,7 +481,7 @@
       "topics": [
         "market-note"
       ],
-      "count": 701,
+      "count": 699,
       "focus": "글로벌 뉴스 브리핑 - 2026년 11월 28일 🇺🇸 아메리카 • 미국의 10월 상품 무역적자는 1,495억 달러로 확대되며 시장 예상치인 1,360억 달러를 상회. 상품 수입은 전월 대비 6.1%,..."
     }
   ],
@@ -1657,6 +1657,42 @@
   ],
   "broadItems": [
     {
+      "id": "insidertracking/70419",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70419",
+      "datetime": "2026-11-28T11:53:40.000Z",
+      "localDateKst": "2026-11-28",
+      "tags": [
+        "semi"
+      ],
+      "score": 64,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "PLTR"
+      ],
+      "summary": "미국 나스닥 100 주간 상승·하락률 상위 종목 (11월 23~27일) | 지수 +6.78% 소프트웨어 및 반도체 종목이 주간 상승률 상위권을 기록한 반면, 크라우드스트라이크 홀딩스, 몬스터 베버리지,..."
+    },
+    {
+      "id": "insidertracking/70418",
+      "channel": "insidertracking",
+      "url": "https://t.me/insidertracking/70418",
+      "datetime": "2026-11-28T11:53:39.000Z",
+      "localDateKst": "2026-11-28",
+      "tags": [
+        "semi"
+      ],
+      "score": 69,
+      "hasText": true,
+      "tickers": [
+        "NVDA",
+        "TSLA",
+        "PLTR"
+      ],
+      "summary": "미국 S&P 500 주간 상승·하락률 상위 종목 (11월 23~27일) | 지수 +5.60% 액손 엔터프라이즈, 팔란티어 테크놀로지스, 엔비디아가 주간 상승률 상위권을 기록한 반면, 웨스트 파마슈티컬 서비스,..."
+    },
+    {
       "id": "insidertracking/70416",
       "channel": "insidertracking",
       "url": "https://t.me/insidertracking/70416",
@@ -1697,7 +1733,7 @@
       "tickers": [
         "GOOG"
       ],
-      "summary": ">>머스크 : 컴퓨팅 임대 가격 양극화 •머스크가 최근 대규모·고대역폭 AI 학습용 GPU 클러스터의 임대료가 크게 상승하고 있는 반면, 소규모 연산 임대 가격은 오히려 하락하고 있다고 밝힘. 특히 GPU..."
+      "summary": ">>머스크 : 컴퓨팅 임대 가격 양극화 •머스크가 최근 대규모·고대역폭 AI 학습용 GPU 클러스터의 임대료가 크게 상승하고 있는 반면, 소규모 연산 임대 가격은 오히려 하락. 특히 GPU 수가 약..."
     },
     {
       "id": "insidertracking/70414",
@@ -2421,10 +2457,7 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 97,
       "hasText": true,
@@ -2434,8 +2467,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70373",
@@ -7144,51 +7177,6 @@
       ]
     },
     {
-      "id": "insidertracking/70071",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/70071",
-      "datetime": "2026-11-23T21:03:30.000Z",
-      "localDateKst": "2026-11-24",
-      "tags": [
-        "market-note"
-      ],
-      "score": 100,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 24일 (화요일) 1. 미국 증시 마감 현황 다우 30: 49,618.43 (+3.06%) S&P 500: 7,238.42 (+4.75%) 나스닥:...",
-      "tickers": [
-        "NVDA",
-        "AMZN"
-      ]
-    },
-    {
-      "id": "insidertracking/70070",
-      "channel": "insidertracking",
-      "url": "https://t.me/insidertracking/70070",
-      "datetime": "2026-11-23T21:02:34.000Z",
-      "localDateKst": "2026-11-24",
-      "tags": [
-        "semi"
-      ],
-      "score": 56,
-      "hasText": true,
-      "media": {
-        "kind": "photo",
-        "photoCount": 1,
-        "videoCount": 0,
-        "documents": []
-      },
-      "summary": "엔비디아, 31% 상승 마감",
-      "tickers": [
-        "NVDA"
-      ]
-    },
-    {
       "id": "bornlupin/21252",
       "channel": "bornlupin",
       "url": "https://t.me/bornlupin/21252",
@@ -8525,10 +8513,7 @@
       "datetime": "2026-11-27T22:08:32.000Z",
       "localDateKst": "2026-11-28",
       "tags": [
-        "macro",
-        "geo",
-        "semi",
-        "kr-market"
+        "market-note"
       ],
       "score": 97,
       "hasText": true,
@@ -8538,8 +8523,8 @@
         "videoCount": 0,
         "documents": []
       },
-      "tickers": [],
-      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •..."
+      "summary": "🇺🇸 미국 증시 마감 브리핑 > 2026년 11월 27일 (금요일) 1. 미국 증시 마감 현황 • 다우 30: 50,774.94 (+1.18%) • S&P 500: 7,297.49 (+1.60%) •...",
+      "tickers": []
     },
     {
       "id": "insidertracking/70373",
